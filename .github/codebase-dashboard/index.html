@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Chromium codebase, by the line</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f2f5f6;
+      --white: #fff;
+      --ink: #142a3a;
+      --muted: #536b79;
+      --line: #cbd7dc;
+      --blue: #246b8a;
+      --cyan: #51b7c5;
+      --rust: #bf5d37;
+      --shadow: 0 18px 50px rgb(20 42 58 / 8%);
+      font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    a { color: var(--blue); }
+    a:focus-visible, summary:focus-visible { outline: 3px solid var(--rust); outline-offset: 4px; }
+    .page { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 34px 0 60px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 680; letter-spacing: -.02em; }
+    .mark { width: 30px; height: 30px; border-radius: 50%; border: 7px solid var(--blue); border-right-color: var(--cyan); border-bottom-color: var(--rust); transform: rotate(-32deg); }
+    .updated { color: var(--muted); font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; text-align: right; }
+    .intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 340px); gap: 32px; align-items: end; padding: 52px 0 34px; }
+    h1 { max-width: 700px; margin: 0; font-size: clamp(36px, 6vw, 68px); line-height: .98; letter-spacing: -.065em; font-weight: 720; }
+    .intro p { max-width: 330px; margin: 0 0 4px; color: var(--muted); font-size: 15px; line-height: 1.65; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); min-height: 246px; background: var(--ink); color: #f4fbfd; box-shadow: var(--shadow); }
+    .hero-main { padding: 32px 36px; display: flex; flex-direction: column; justify-content: space-between; }
+    .hero-label { color: #a8c9d5; font-size: 13px; }
+    .hero-number { margin: 18px 0 9px; font-size: clamp(44px, 8vw, 82px); font-weight: 680; line-height: .95; letter-spacing: -.075em; font-variant-numeric: tabular-nums; }
+    .hero-note { color: #c5d8df; font-size: 13px; line-height: 1.55; }
+    .hero-side { padding: 28px 30px; border-left: 1px solid rgb(255 255 255 / 18%); display: flex; flex-direction: column; justify-content: center; }
+    .hero-side strong { display: block; margin-bottom: 8px; color: #79d2d8; font-size: 14px; font-weight: 650; }
+    .hero-side p { margin: 0; color: #d3e3e8; font-size: 13px; line-height: 1.65; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 0 42px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .stat { min-height: 120px; padding: 20px 18px 18px; border-right: 1px solid var(--line); border-top: 1px solid var(--line); }
+    .stat dt { margin-bottom: 16px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .stat dd { margin: 0; font-size: clamp(22px, 3vw, 30px); font-weight: 650; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+    .stat dd.commit-value { font: 14px ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: 0; }
+    .stat small { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; font-weight: 450; letter-spacing: 0; }
+    .columns { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(270px, .92fr); gap: 54px; }
+    section { min-width: 0; }
+    h2 { margin: 0 0 8px; font-size: 22px; letter-spacing: -.04em; }
+    .section-note { margin: 0 0 22px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .language-list { display: grid; gap: 15px; }
+    .language-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 7px; font-size: 13px; }
+    .language-head span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+    progress.track { width: 100%; height: 7px; appearance: none; border: 0; background: #dbe4e7; }
+    progress.track::-webkit-progress-bar { background: #dbe4e7; }
+    progress.track::-webkit-progress-value { background: var(--blue); }
+    progress.track::-moz-progress-bar { background: var(--blue); }
+    .root-list { display: flex; flex-wrap: wrap; gap: 7px; margin: 18px 0 0; padding: 0; list-style: none; }
+    .root-list li { padding: 6px 9px; border: 1px solid var(--line); color: #294556; background: rgb(255 255 255 / 55%); font: 12px ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .obsolete { margin-top: 34px; border-top: 1px solid var(--line); padding-top: 18px; }
+    .obsolete summary { cursor: pointer; color: var(--blue); font-size: 13px; }
+    .obsolete ul { max-height: 270px; overflow: auto; padding-left: 20px; color: var(--muted); font: 12px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .foot { margin-top: 52px; padding-top: 17px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 18px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .error { padding: 24px; border: 1px solid #e2a58f; color: #752d17; background: #fff4ef; }
+    @media (max-width: 760px) {
+      .intro, .hero, .columns { grid-template-columns: 1fr; }
+      .intro { padding-top: 38px; }
+      .hero-side { border-left: 0; border-top: 1px solid rgb(255 255 255 / 18%); }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .columns { gap: 38px; }
+    }
+    @media (max-width: 420px) {
+      .page { width: min(100% - 28px, 1120px); }
+      header { align-items: flex-start; }
+      .brand { font-size: 13px; }
+      .updated { font-size: 10px; }
+      .hero-main, .hero-side { padding: 24px; }
+      .stat { padding: 16px 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div class="brand"><span class="mark" aria-hidden="true"></span><span>Chromium codebase</span></div>
+      <div class="updated" id="updated">Loading the latest snapshot…</div>
+    </header>
+    <div id="dashboard" hidden>
+      <section class="intro" aria-labelledby="title">
+        <h1 id="title">The browser, by the line.</h1>
+        <p>A small, repeatable snapshot of the tracked codebase. Every push to <code>main</code> refreshes the numbers.</p>
+      </section>
+      <section class="hero" aria-label="Actual source lines">
+        <div class="hero-main">
+          <div class="hero-label">Actual lines of source</div>
+          <div class="hero-number" id="actual-loc">—</div>
+          <div class="hero-note">Nonblank source lines after recognized comments are stripped.</div>
+        </div>
+        <div class="hero-side">
+          <strong id="source-size">— GB of source files</strong>
+          <p>Counts source extensions only. Documentation, configuration, lockfiles, ignored files, and unsupported formats stay out of this figure.</p>
+        </div>
+      </section>
+      <dl class="stats" aria-label="Codebase totals">
+        <div class="stat"><dt>Lines of code</dt><dd id="total-lines">—</dd><small>All tracked text, including docs and configuration</small></div>
+        <div class="stat"><dt>Without comment-only lines</dt><dd id="without-comments">—</dd><small>Inline-comment lines remain counted</small></div>
+        <div class="stat"><dt>Lines containing comments</dt><dd id="comment-lines">—</dd><small>Recognized source comment syntax</small></div>
+        <div class="stat"><dt>Project configuration files</dt><dd id="config-files">—</dd><small>Known build and configuration formats</small></div>
+        <div class="stat"><dt>Root folders</dt><dd id="root-count">—</dd><small>Tracked top-level directories</small></div>
+        <div class="stat"><dt>“Google” mentions</dt><dd id="google-mentions">—</dd><small>Case-insensitive whole-word matches</small></div>
+        <div class="stat"><dt>Obsolete functions flagged</dt><dd id="obsolete-functions">—</dd><small>Heuristic; review before removal</small></div>
+        <div class="stat"><dt>Snapshot commit</dt><dd id="commit" class="commit-value">—</dd><small id="commit-time">—</small></div>
+      </dl>
+      <div class="columns">
+        <section aria-labelledby="languages-title">
+          <h2 id="languages-title">Language share</h2>
+          <p class="section-note">Share of actual source lines. Every recognized language is listed.</p>
+          <div class="language-list" id="languages"></div>
+        </section>
+        <section aria-labelledby="roots-title">
+          <h2 id="roots-title">At the root</h2>
+          <p class="section-note"><span id="root-caption">—</span> tracked folders open the repository tree.</p>
+          <ul class="root-list" id="roots"></ul>
+          <details class="obsolete">
+            <summary id="obsolete-summary">Show flagged function examples</summary>
+            <ul id="obsolete-examples"></ul>
+          </details>
+        </section>
+      </div>
+      <details class="obsolete">
+        <summary>How the numbers are counted</summary>
+        <ul>
+          <li>All counts use tracked, non-ignored text files. Lockfiles and binary assets are skipped.</li>
+          <li>“Lines of code” counts nonblank lines, including docs and configuration. “Without comment-only lines” removes full-line comments in recognized languages; inline-comment lines stay counted.</li>
+          <li>Actual LOC counts nonblank lines in recognized source extensions after removing recognized comments. Markdown, YAML, TOML, build/config files, ownership files, readmes, lockfiles, ignored files, and unsupported formats are excluded.</li>
+          <li>Language share uses actual LOC. Source size is the byte size of included source files, divided by one billion.</li>
+          <li>Google mentions are case-insensitive whole-word matches in tracked text. Obsolete-function matches are a heuristic for declarations near deprecated, obsolete, or removal markers—not a safe-to-delete list.</li>
+        </ul>
+      </details>
+      <footer class="foot">
+        <span>Counts come from tracked, non-ignored files. Comment parsing is language-aware but heuristic.</span>
+        <span>Updated on each push to <code>main</code>.</span>
+      </footer>
+    </div>
+    <p class="error" id="error" role="status" hidden>Metrics could not be loaded. The latest dashboard data may not have deployed yet.</p>
+  </main>
+  <script>
+    const number = value => Number(value).toLocaleString("en-US");
+    const setText = (id, value) => { document.getElementById(id).textContent = value; };
+    fetch("./metrics.json", { cache: "no-store" })
+      .then(response => { if (!response.ok) throw new Error("metrics unavailable"); return response.json(); })
+      .then(data => {
+        document.getElementById("dashboard").hidden = false;
+        setText("updated", `Snapshot ${new Date(data.updated).toLocaleString()}`);
+        setText("actual-loc", number(data.actual_loc));
+        setText("source-size", `${data.source_gb.toFixed(2)} GB of source files`);
+        setText("total-lines", number(data.lines_of_code));
+        setText("without-comments", number(data.lines_without_comment_only_lines));
+        setText("comment-lines", number(data.comment_lines));
+        setText("config-files", number(data.configuration_files));
+        setText("root-count", number(data.root_folder_count));
+        setText("google-mentions", number(data.google_mentions));
+        setText("obsolete-functions", number(data.obsolete_functions));
+        setText("commit", data.commit.slice(0, 12));
+        setText("commit-time", "source revision");
+        setText("root-caption", number(data.root_folder_count));
+        const roots = document.getElementById("roots");
+        data.root_folders.forEach(folder => {
+          const item = document.createElement("li"); item.textContent = folder; roots.append(item);
+        });
+        const languages = document.getElementById("languages");
+        data.languages.forEach(language => {
+          const row = document.createElement("div"); row.className = "language-row";
+          const head = document.createElement("div"); head.className = "language-head";
+          const name = document.createElement("span"); name.textContent = language.name;
+          const share = document.createElement("span"); share.textContent = `${(language.share * 100).toFixed(1)}% · ${number(language.lines)}`;
+          head.append(name, share);
+          const track = document.createElement("progress"); track.className = "track"; track.max = 100; track.value = language.share * 100;
+          track.setAttribute("aria-label", `${language.name}: ${(language.share * 100).toFixed(1)} percent`);
+          row.append(head, track); languages.append(row);
+        });
+        setText("obsolete-summary", `Show ${number(data.obsolete_function_examples.length)} examples of ${number(data.obsolete_functions)} flagged functions`);
+        const examples = document.getElementById("obsolete-examples");
+        data.obsolete_function_examples.forEach(example => {
+          const item = document.createElement("li"); item.textContent = `${example.path}:${example.line} — ${example.name}`; examples.append(item);
+        });
+      })
+      .catch(() => { document.getElementById("error").hidden = false; });
+  </script>
+</body>
+</html>
