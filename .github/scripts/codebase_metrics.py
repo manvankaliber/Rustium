@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 from collections import Counter
@@ -14,7 +15,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PAGE = ROOT / ".github" / "codebase-dashboard" / "index.html"
+PAGE = ROOT / "index.html"
+DASHBOARD_OUTPUTS = {"index.html", "metrics.json"}
 
 # Only these extensions count as source code in the stricter "actual LOC" view.
 LANGUAGES = {
@@ -202,21 +204,25 @@ def main() -> None:
     language_lines: Counter[str] = Counter()
     obsolete_functions: set[tuple[str, int, str]] = set()
 
-    for raw_path in raw_paths:
+    for path_number, raw_path in enumerate(raw_paths, start=1):
+        if path_number % 10_000 == 0:
+            print(f"Scanned {path_number:,} of {len(raw_paths):,} tracked paths", flush=True)
         if raw_path in ignored:
             continue
         path = raw_path.decode("utf-8", errors="surrogateescape").replace("\\", "/")
+        if path in DASHBOARD_OUTPUTS:
+            continue
         name = Path(path).name
         if name in SKIP_NAMES or name.lower().endswith(".lock"):
             continue
         if "/" in path:
             root_folders.add(path.split("/", 1)[0])
         full_path = ROOT / Path(path)
-        if full_path.is_symlink() or not full_path.is_file():
-            continue
         if full_path.suffix.lower() in BINARY_SUFFIXES:
             continue
         try:
+            if not stat.S_ISREG(full_path.lstat().st_mode):
+                continue
             data = full_path.read_bytes()
         except OSError:
             continue
@@ -322,7 +328,7 @@ def main() -> None:
         },
     }
 
-    output = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "_site"
+    output = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT
     output.mkdir(parents=True, exist_ok=True)
     (output / "index.html").write_bytes(PAGE.read_bytes())
     (output / "metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
