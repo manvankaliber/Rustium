@@ -1,0 +1,333 @@
+{
+  "commit": "82376201cbbdb2f71dcba1440987d8a97fefb6b4",
+  "updated": "2026-11-08T00:13:34.758652+00:00",
+  "lines_of_code": 59838814,
+  "lines_without_comment_only_lines": 53353459,
+  "comment_lines": 7390919,
+  "actual_loc": 40125370,
+  "source_bytes": 2168217567,
+  "source_gb": 2.168217567,
+  "configuration_files": 30140,
+  "root_folder_count": 50,
+  "root_folders": [
+    ".agents",
+    ".claude",
+    ".gemini",
+    ".github",
+    "agents",
+    "android_webview",
+    "apps",
+    "ash",
+    "base",
+    "build",
+    "build_overrides",
+    "buildtools",
+    "cc",
+    "chrome",
+    "chromecast",
+    "chromeos",
+    "codelabs",
+    "components",
+    "content",
+    "crypto",
+    "dbus",
+    "device",
+    "docs",
+    "extensions",
+    "fuchsia_web",
+    "gin",
+    "google_apis",
+    "gpu",
+    "headless",
+    "infra",
+    "ios",
+    "ipc",
+    "media",
+    "mojo",
+    "net",
+    "pdf",
+    "printing",
+    "remoting",
+    "rlz",
+    "sandbox",
+    "services",
+    "skia",
+    "sql",
+    "storage",
+    "styleguide",
+    "testing",
+    "third_party",
+    "tools",
+    "ui",
+    "url"
+  ],
+  "google_mentions": 361885,
+  "obsolete_functions": 10264,
+  "obsolete_function_examples": [
+    {
+      "path": ".github/scripts/codebase_metrics.py",
+      "line": 97,
+      "name": "git"
+    },
+    {
+      "path": "PRESUBMIT.py",
+      "line": 2707,
+      "name": "_get_deprecated_sync_consent_cpp_functions"
+    },
+    {
+      "path": "PRESUBMIT.py",
+      "line": 8115,
+      "name": "_CheckForDeprecatedTech"
+    },
+    {
+      "path": "PRESUBMIT_test.py",
+      "line": 5572,
+      "name": "testWarningNMF"
+    },
+    {
+      "path": "PRESUBMIT_test.py",
+      "line": 6698,
+      "name": "testCppPath"
+    },
+    {
+      "path": "agents/extensions/install.py",
+      "line": 369,
+      "name": "check_gemini_version"
+    },
+    {
+      "path": "agents/extensions/install_unittest.py",
+      "line": 602,
+      "name": "test_get_project_root"
+    },
+    {
+      "path": "android_webview/browser/aw_contents_io_thread_client.cc",
+      "line": 190,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/aw_render_process_keep_alive.cc",
+      "line": 34,
+      "name": "RecordKeepAliveEvent"
+    },
+    {
+      "path": "android_webview/browser/aw_web_contents_delegate.cc",
+      "line": 395,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/cookie_manager.cc",
+      "line": 112,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/gfx/overlay_processor_webview.cc",
+      "line": 255,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/gfx/overlay_processor_webview.cc",
+      "line": 1019,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/gfx/overlay_processor_webview.cc",
+      "line": 1021,
+      "name": "DCHECK"
+    },
+    {
+      "path": "android_webview/browser/gfx/scoped_app_gl_state_restore_impl_angle.cc",
+      "line": 23,
+      "name": "EGLContext"
+    },
+    {
+      "path": "android_webview/browser/prefetch/aw_preloading_utils.cc",
+      "line": 104,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/prefetch/aw_preloading_utils.h",
+      "line": 44,
+      "name": "IsWebViewPrefetchOffTheMainThreadEnabled"
+    },
+    {
+      "path": "android_webview/glue/java/src/com/android/webview/chromium/ContentSettingsAdapter.java",
+      "line": 39,
+      "name": "setNavDump"
+    },
+    {
+      "path": "android_webview/glue/java/src/com/android/webview/chromium/ContentSettingsAdapter.java",
+      "line": 45,
+      "name": "getNavDump"
+    },
+    {
+      "path": "android_webview/glue/java/src/com/android/webview/chromium/SafeBrowsingResponseAdapter.java",
+      "line": 21,
+      "name": "SafeBrowsingResponseAdapter"
+    }
+  ],
+  "languages": [
+    {
+      "name": "C++",
+      "lines": 18268370,
+      "share": 0.4552822815091799
+    },
+    {
+      "name": "HTML",
+      "lines": 5088787,
+      "share": 0.1268221825742666
+    },
+    {
+      "name": "C/C++",
+      "lines": 4270412,
+      "share": 0.10642673201518142
+    },
+    {
+      "name": "Rust",
+      "lines": 2491746,
+      "share": 0.06209901615860489
+    },
+    {
+      "name": "Java",
+      "lines": 2445528,
+      "share": 0.0609471763126421
+    },
+    {
+      "name": "JavaScript",
+      "lines": 2182660,
+      "share": 0.05439600930782695
+    },
+    {
+      "name": "Objective-C++",
+      "lines": 1418479,
+      "share": 0.03535117557794483
+    },
+    {
+      "name": "Python",
+      "lines": 1296076,
+      "share": 0.03230066165121966
+    },
+    {
+      "name": "TypeScript",
+      "lines": 1293499,
+      "share": 0.03223643794437285
+    },
+    {
+      "name": "C",
+      "lines": 567992,
+      "share": 0.014155433333075807
+    },
+    {
+      "name": "SVG",
+      "lines": 206445,
+      "share": 0.005144999285987892
+    },
+    {
+      "name": "CSS",
+      "lines": 139943,
+      "share": 0.0034876438522560664
+    },
+    {
+      "name": "Protocol Buffers",
+      "lines": 93747,
+      "share": 0.002336352287841832
+    },
+    {
+      "name": "Mojo IDL",
+      "lines": 85295,
+      "share": 0.002125712485641877
+    },
+    {
+      "name": "Objective-C",
+      "lines": 66519,
+      "share": 0.0016577791058375287
+    },
+    {
+      "name": "IDL",
+      "lines": 63493,
+      "share": 0.001582365471022448
+    },
+    {
+      "name": "PHP",
+      "lines": 31260,
+      "share": 0.0007790582367215555
+    },
+    {
+      "name": "Swift",
+      "lines": 29854,
+      "share": 0.000744018061391085
+    },
+    {
+      "name": "SQL",
+      "lines": 19802,
+      "share": 0.0004935032374779347
+    },
+    {
+      "name": "Web IDL",
+      "lines": 19138,
+      "share": 0.0004769551034669587
+    },
+    {
+      "name": "Shell",
+      "lines": 18369,
+      "share": 0.00045779017115605414
+    },
+    {
+      "name": "Perl",
+      "lines": 11619,
+      "share": 0.00028956742330351096
+    },
+    {
+      "name": "Ruby",
+      "lines": 7589,
+      "share": 0.0001891322123634
+    },
+    {
+      "name": "Kotlin",
+      "lines": 4306,
+      "share": 0.00010731365218563717
+    },
+    {
+      "name": "Vue",
+      "lines": 2087,
+      "share": 5.201198144714927e-05
+    },
+    {
+      "name": "FlatBuffers",
+      "lines": 834,
+      "share": 2.078485506800311e-05
+    },
+    {
+      "name": "Batch",
+      "lines": 830,
+      "share": 2.0685167513720122e-05
+    },
+    {
+      "name": "Go",
+      "lines": 462,
+      "share": 1.1513912519685177e-05
+    },
+    {
+      "name": "SCSS",
+      "lines": 118,
+      "share": 2.940782851348162e-06
+    },
+    {
+      "name": "Dart",
+      "lines": 102,
+      "share": 2.5420326342162077e-06
+    },
+    {
+      "name": "PowerShell",
+      "lines": 9,
+      "share": 2.2429699713672422e-07
+    }
+  ],
+  "definitions": {
+    "lines_of_code": "Nonblank lines in tracked text files, including docs and configuration.",
+    "lines_without_comment_only_lines": "Tracked text lines excluding full-line comments in recognized source languages; inline-comment lines remain counted.",
+    "comment_lines": "Source lines containing a recognized comment, including inline comments; each line counted once.",
+    "actual_loc": "Nonblank source lines after stripping recognized comments; documentation, project/config files, lockfiles, ignored files, and unsupported extensions are excluded.",
+    "source_gb": "Bytes in included source files divided by 1,000,000,000; includes comments and whitespace in those files.",
+    "obsolete_functions": "Heuristic count of function declarations near deprecated/obsolete/remove markers; review before treating as deletable."
+  }
+}
