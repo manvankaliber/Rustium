@@ -38,7 +38,7 @@ config("libwebp_config") {
 }
 
 set_opt_level =
-    !is_debug && (is_posix || is_fuchsia || is_win) &&
+    !is_debug && (is_posix || is_win) &&
     (current_cpu == "arm" || current_cpu == "arm64" || current_cpu == "arm64e")
 
 # webp's dsp code can be built for all configurations. Skipping it when both

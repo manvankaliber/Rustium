@@ -69,10 +69,12 @@ bool VideoCaptureDeviceDescriptor::operator<(
                 "FACING_ENVIRONMENT has a wrong value");
   static_assert(kFacingMapping[MEDIA_VIDEO_FACING_USER] == 2,
                 "FACING_USER has a wrong value");
-  if (kFacingMapping[facing] != kFacingMapping[other.facing])
+  if (kFacingMapping[facing] != kFacingMapping[other.facing]) {
     return kFacingMapping[facing] > kFacingMapping[other.facing];
-  if (device_id != other.device_id)
+  }
+  if (device_id != other.device_id) {
     return device_id < other.device_id;
+  }
   return capture_api < other.capture_api;
 }
 
@@ -98,8 +100,6 @@ const char* VideoCaptureDeviceDescriptor::GetCaptureApiTypeString() const {
       return "Camera API2 Full";
     case VideoCaptureApi::ANDROID_API2_LIMITED:
       return "Camera API2 Limited";
-    case VideoCaptureApi::FUCHSIA_CAMERA3:
-      return "fuchsia.camera3 API";
     case VideoCaptureApi::VIRTUAL_DEVICE:
       return "Virtual Device";
     case VideoCaptureApi::UNKNOWN:
@@ -110,8 +110,9 @@ const char* VideoCaptureDeviceDescriptor::GetCaptureApiTypeString() const {
 }
 
 std::string VideoCaptureDeviceDescriptor::GetNameAndModel() const {
-  if (model_id.empty())
+  if (model_id.empty()) {
     return display_name_;
+  }
   return display_name_ + " (" + model_id + ')';
 }
 

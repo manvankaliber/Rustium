@@ -84,7 +84,6 @@ ci/Dawn Win11 arm64 DEPS Release (Qualcomm Snapdragon X Elite)
 ci/Dawn Win11 arm64 Release (Qualcomm Snapdragon X Elite)
 ci/Deterministic Android
 ci/Deterministic Android (dbg)
-ci/Deterministic Fuchsia (dbg)
 ci/Deterministic Linux
 ci/Deterministic Linux (dbg)
 ci/GPU FYI Android arm Builder
@@ -189,8 +188,6 @@ ci/ToTAndroidCoverage x86
 ci/ToTAndroidOfficial
 ci/ToTChromeOS
 ci/ToTChromeOS (dbg)
-ci/ToTFuchsia x64
-ci/ToTFuchsiaOfficial arm64
 ci/ToTLinux
 ci/ToTLinux (dbg)
 ci/ToTLinuxASan
@@ -325,14 +322,6 @@ ci/chromeos-arm-generic-dbg
 ci/chromeos-arm-generic-rel
 ci/chromeos-arm64-generic-rel
 ci/chromeos-x64-libfuzzer-asan-rel-tests
-ci/fuchsia-angle-builder
-ci/fuchsia-arm64-cast-receiver-rel
-ci/fuchsia-fyi-arm64-dbg
-ci/fuchsia-fyi-x64-asan
-ci/fuchsia-fyi-x64-dbg-persistent-emulator
-ci/fuchsia-x64-cast-receiver-dbg
-ci/fuchsia-x64-cast-receiver-rel
-ci/fuchsia-x64-perf-cast-receiver-rel
 ci/ios-angle-arm64-builder
 ci/ios-angle-m2
 ci/ios-asan
@@ -513,17 +502,6 @@ try/chromeos-js-coverage-rel
 try/chromeos-libfuzzer-asan-rel
 try/chromeos-x64-libfuzzer-asan-rel-tests
 try/compile-size
-try/fuchsia-angle-try
-try/fuchsia-arm64-cast-receiver-rel
-try/fuchsia-binary-size
-try/fuchsia-fyi-arm64-dbg
-try/fuchsia-fyi-x64-asan
-try/fuchsia-fyi-x64-dbg-persistent-emulator
-try/fuchsia-x64-accessibility-rel
-try/fuchsia-x64-cast-receiver-dbg
-try/fuchsia-x64-cast-receiver-dbg-compile
-try/fuchsia-x64-cast-receiver-rel
-try/fuchsia-x64-perf-cast-receiver-rel
 try/gn-args-verifier
 try/gpu-fyi-try-android-a13-32
 try/gpu-fyi-try-android-a23-32

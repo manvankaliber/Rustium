@@ -65,10 +65,10 @@ class ScopedMockOverlayScrollbars {
   bool IsSuccessful() const {
     // Our mock overlay scrollbar theme shortcuts WebThemeEngine, so it's
     // platform independent.
-    if (use_mock_overlay_scrollbars_)
+    if (use_mock_overlay_scrollbars_) {
       return true;
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS) || \
-    BUILDFLAG(IS_FUCHSIA)
+    }
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS)
     // Non-overlay scrollbar is not supported on these platforms.
     return false;
 #else

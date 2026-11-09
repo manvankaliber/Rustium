@@ -76,8 +76,9 @@ int64_t GetBuffersLength(base::span<const char* const> buffers) {
 
 std::string GetHexEncodedHashValue(
     std::optional<crypto::hash::Hasher>& hash_state) {
-  if (!hash_state)
+  if (!hash_state) {
     return std::string();
+  }
   std::array<uint8_t, crypto::hash::kSha256Size> hash_value;
   hash_state->Finish(hash_value);
   return base::HexEncode(hash_value);
@@ -373,8 +374,9 @@ class DownloadFileTest : public testing::Test {
 
       // Write from offset. May fill holes with '\0'.
       size_t new_len = current_pos + length;
-      if (new_len > expected_data_.size())
+      if (new_len > expected_data_.size()) {
         expected_data_.append(new_len - expected_data_.size(), '\0');
+      }
       expected_data_.replace(current_pos, length, source_string);
       current_pos += length;
     }
@@ -500,8 +502,9 @@ class DownloadFileTest : public testing::Test {
                      bool create_stream,
                      bool will_finish,
                      base::span<const char* const> buffers) {
-    if (create_stream)
+    if (create_stream) {
       *stream = new StrictMock<MockInputStream>();
+    }
 
     // Expectation on MockInputStream for MultipleStreams tests:
     // 1. RegisterCallback: Must called twice. One to set the callback, the
@@ -513,8 +516,9 @@ class DownloadFileTest : public testing::Test {
     // returns STREAM_COMPLETE.
     Sequence seq;
     SetupDataAppend(buffers, *stream, seq, offset);
-    if (will_finish)
+    if (will_finish) {
       SetupFinishStream(DOWNLOAD_INTERRUPT_REASON_NONE, *stream, seq);
+    }
   }
 
   void VerifySourceStreamsStates(const SourceStreamTestData& data) {
@@ -580,10 +584,12 @@ class DownloadFileTest : public testing::Test {
                        base::FilePath* result_path_p,
                        DownloadInterruptReason reason,
                        const base::FilePath& result_path) {
-    if (reason_p)
+    if (reason_p) {
       *reason_p = reason;
-    if (result_path_p)
+    }
+    if (result_path_p) {
       *result_path_p = result_path;
+    }
     std::move(closure).Run();
   }
 
@@ -813,12 +819,7 @@ TEST_F(DownloadFileTest, RenameRemovesHiddenFlag) {
 }
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-// TODO(crbug.com/40221273): Re-enable when RenameError works on Fuchsia.
-#define MAYBE_RenameError DISABLED_RenameError
-#else
 #define MAYBE_RenameError RenameError
-#endif
 // Test to make sure we get the proper error on failure.
 TEST_P(DownloadFileTestWithRename, MAYBE_RenameError) {
   ASSERT_TRUE(CreateDownloadFile(true));
@@ -866,13 +867,7 @@ void TestRenameCompletionCallback(base::OnceClosure closure,
 
 }  // namespace
 
-#if BUILDFLAG(IS_FUCHSIA)
-// TODO(crbug.com/40221274): Re-enable when RenameWithErrorRetry works on
-// Fuchsia.
-#define MAYBE_RenameWithErrorRetry DISABLED_RenameWithErrorRetry
-#else
 #define MAYBE_RenameWithErrorRetry RenameWithErrorRetry
-#endif
 // Test that the retry logic works. This test assumes that DownloadFileImpl will
 // post tasks to the current message loop (acting as the download sequence)
 // asynchronously to retry the renames. We will stuff RunLoop::QuitClosures()
@@ -920,8 +915,8 @@ TEST_P(DownloadFileTestWithRename, MAYBE_RenameWithErrorRetry) {
     // the completion callback.
     InvokeRenameMethod(
         GetParam(), target_path,
-        base::BindOnce(&TestRenameCompletionCallback, succeeding_run.QuitClosure(),
-                   &did_run_callback));
+        base::BindOnce(&TestRenameCompletionCallback,
+                       succeeding_run.QuitClosure(), &did_run_callback));
     EXPECT_FALSE(did_run_callback);
 
     base::RunLoop first_failing_run;
@@ -1160,7 +1155,7 @@ TEST_F(DownloadFileTest, MultipleStreamsLimitedLength) {
   EXPECT_CALL(*(observer_.get()), MockDestinationCompleted(_, _));
 
   // Activate all the streams.
-   download_file_->AddInputStream(
+  download_file_->AddInputStream(
       std::unique_ptr<MockInputStream>(additional_streams_[1]),
       stream_0_length + stream_1_length);
   download_file_->AddInputStream(
@@ -1429,8 +1424,8 @@ TEST_F(DownloadFileTest, PreserveLastModifiedAcrossRename) {
   base::Time expected_mtime;
   ASSERT_TRUE(base::Time::FromString(kLastModified.c_str(), &expected_mtime));
 
-  ASSERT_TRUE(CreateDownloadFile(
-      0, true, DownloadItem::ReceivedSlices(), -1, false, kLastModified));
+  ASSERT_TRUE(CreateDownloadFile(0, true, DownloadItem::ReceivedSlices(), -1,
+                                 false, kLastModified));
   base::FilePath initial_path(download_file_->FullPath());
   base::FilePath target_path(
       initial_path.InsertBeforeExtensionASCII("_renamed"));

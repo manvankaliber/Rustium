@@ -32,7 +32,6 @@ def main(argv):
     choices=[
       'android',
       'chromeos',
-      'fuchsia',
       'ios',
       'linux',
       'mac',

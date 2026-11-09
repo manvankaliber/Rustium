@@ -41,8 +41,7 @@
 
 namespace blink {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
 // This is the largest VDMX table which we'll try to load and parse.
 static const size_t kMaxVDMXTableSize = 1024 * 1024;  // 1 MB
 #endif
@@ -61,16 +60,17 @@ void FontMetrics::AscentDescentWithHacks(
   SkFontMetrics metrics;
   font.getMetrics(&metrics);
 
-  if (ascent_override)
+  if (ascent_override) {
     metrics.fAscent = -platform_data.size() * ascent_override.value();
-  if (descent_override)
+  }
+  if (descent_override) {
     metrics.fDescent = platform_data.size() * descent_override.value();
+  }
 
   int vdmx_ascent = 0, vdmx_descent = 0;
   bool is_vdmx_valid = false;
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
   // Manually digging up VDMX metrics is only applicable when bytecode hinting
   // using FreeType.  With DirectWrite or CoreText, no bytecode hinting is ever
   // done.  This code should be pushed into FreeType (hinted font metrics).
@@ -120,8 +120,7 @@ void FontMetrics::AscentDescentWithHacks(
     ascent = SkScalarRoundToScalar(-metrics.fAscent);
     descent = SkScalarRoundToScalar(metrics.fDescent);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
     // When subpixel positioning is enabled, if the descent is rounded down,
     // the descent part of the glyph may be truncated when displayed in a
     // 'overflow: hidden' container.  To avoid that, borrow 1 unit from the
@@ -146,8 +145,9 @@ void FontMetrics::AscentDescentWithHacks(
   String family_name = platform_data.FontFamilyName();
   if (family_name == font_family_names::kTimes ||
       family_name == font_family_names::kHelvetica ||
-      family_name == font_family_names::kCourier)
+      family_name == font_family_names::kCourier) {
     ascent += floorf(((ascent + descent) * 0.15f) + 0.5f);
+  }
 #endif
 }
 
@@ -225,4 +225,4 @@ int FontMetrics::IntAscentInternal(
   }
   NOTREACHED();
 }
-}
+}  // namespace blink

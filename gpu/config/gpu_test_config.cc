@@ -35,15 +35,16 @@ GPUTestConfig::OS GetCurrentOS() {
   int32_t bugfix_version = 0;
   base::SysInfo::OperatingSystemVersionNumbers(&major_version, &minor_version,
                                                &bugfix_version);
-  if (major_version == 10)
+  if (major_version == 10) {
     return GPUTestConfig::kOsWin10;
+  }
   return GPUTestConfig::kOsUnknown;
 #elif BUILDFLAG(IS_MAC)
   int32_t major_version = 0;
   int32_t minor_version = 0;
   int32_t bugfix_version = 0;
-  base::SysInfo::OperatingSystemVersionNumbers(
-      &major_version, &minor_version, &bugfix_version);
+  base::SysInfo::OperatingSystemVersionNumbers(&major_version, &minor_version,
+                                               &bugfix_version);
   switch (major_version) {
     case 10:
       switch (minor_version) {
@@ -83,8 +84,6 @@ GPUTestConfig::OS GetCurrentOS() {
   return GPUTestConfig::kOsUnknown;
 #elif BUILDFLAG(IS_ANDROID)
   return GPUTestConfig::kOsAndroid;
-#elif BUILDFLAG(IS_FUCHSIA)
-  return GPUTestConfig::kOsFuchsia;
 #elif BUILDFLAG(IS_IOS)
   return GPUTestConfig::kOsIOS;
 #else
@@ -92,7 +91,7 @@ GPUTestConfig::OS GetCurrentOS() {
 #endif
 }
 
-}  // namespace anonymous
+}  // namespace
 
 GPUTestConfig::GPUTestConfig()
     : os_(kOsUnknown),
@@ -107,14 +106,15 @@ GPUTestConfig::~GPUTestConfig() = default;
 
 void GPUTestConfig::set_os(int32_t os) {
   DCHECK_EQ(0, os & ~(kOsAndroid | kOsWin | kOsMac | kOsLinux | kOsChromeOS |
-                      kOsFuchsia | kOsIOS));
+                      kOsIOS));
   os_ = os;
 }
 
 void GPUTestConfig::AddGPUVendor(uint32_t gpu_vendor) {
   DCHECK_NE(0u, gpu_vendor);
-  for (size_t i = 0; i < gpu_vendor_.size(); ++i)
+  for (size_t i = 0; i < gpu_vendor_.size(); ++i) {
     DCHECK_NE(gpu_vendor_[i], gpu_vendor);
+  }
   gpu_vendor_.push_back(gpu_vendor);
 }
 
@@ -139,8 +139,9 @@ void GPUTestConfig::set_command_decoder(int32_t command_decoder) {
 }
 
 bool GPUTestConfig::IsValid() const {
-  if (gpu_device_id_ != 0 && (gpu_vendor_.size() != 1 || gpu_vendor_[0] == 0))
+  if (gpu_device_id_ != 0 && (gpu_vendor_.size() != 1 || gpu_vendor_[0] == 0)) {
     return false;
+  }
   return true;
 }
 
@@ -148,8 +149,9 @@ bool GPUTestConfig::OverlapsWith(const GPUTestConfig& config) const {
   DCHECK(IsValid());
   DCHECK(config.IsValid());
   if (config.os_ != kOsUnknown && os_ != kOsUnknown &&
-      (os_ & config.os_) == 0)
+      (os_ & config.os_) == 0) {
     return false;
+  }
   if (config.gpu_vendor_.size() > 0 && gpu_vendor_.size() > 0) {
     bool shared = false;
     for (size_t i = 0; i < config.gpu_vendor_.size() && !shared; ++i) {
@@ -160,18 +162,23 @@ bool GPUTestConfig::OverlapsWith(const GPUTestConfig& config) const {
         }
       }
     }
-    if (!shared)
+    if (!shared) {
       return false;
+    }
   }
   if (config.gpu_device_id_ != 0 && gpu_device_id_ != 0 &&
-      gpu_device_id_ != config.gpu_device_id_)
+      gpu_device_id_ != config.gpu_device_id_) {
     return false;
+  }
   if (config.build_type_ != kBuildTypeUnknown &&
       build_type_ != kBuildTypeUnknown &&
-      (build_type_ & config.build_type_) == 0)
+      (build_type_ & config.build_type_) == 0) {
     return false;
-  if (config.api() != kAPIUnknown && api_ != kAPIUnknown && api_ != config.api_)
+  }
+  if (config.api() != kAPIUnknown && api_ != kAPIUnknown &&
+      api_ != config.api_) {
     return false;
+  }
   return true;
 }
 
@@ -187,13 +194,15 @@ void GPUTestBotConfig::AddGPUVendor(uint32_t gpu_vendor) {
 }
 
 bool GPUTestBotConfig::SetGPUInfo(const GPUInfo& gpu_info) {
-  if (gpu_info.gpu.vendor_id == 0)
+  if (gpu_info.gpu.vendor_id == 0) {
     return false;
+  }
 #if !BUILDFLAG(IS_MAC)
   // ARM-based Mac GPUs do not have valid PCI device IDs.
   // https://crbug.com/1110421
-  if (gpu_info.gpu.device_id == 0)
+  if (gpu_info.gpu.device_id == 0) {
     return false;
+  }
 #endif
   ClearGPUVendor();
   AddGPUVendor(gpu_info.gpu.vendor_id);
@@ -227,19 +236,21 @@ bool GPUTestBotConfig::IsValid() const {
     case kOsLinux:
     case kOsChromeOS:
     case kOsAndroid:
-    case kOsFuchsia:
+
     case kOsIOS:
       break;
     default:
       return false;
   }
-  if (gpu_vendor().size() != 1 || gpu_vendor()[0] == 0)
+  if (gpu_vendor().size() != 1 || gpu_vendor()[0] == 0) {
     return false;
+  }
   if (!(os() & gpu::GPUTestConfig::kOsMac)) {
     // ARM-based Mac GPUs do not have valid PCI device IDs.
     // https://crbug.com/1110421
-    if (gpu_device_id() == 0)
+    if (gpu_device_id() == 0) {
       return false;
+    }
   }
   switch (build_type()) {
     case kBuildTypeRelease:
@@ -254,8 +265,9 @@ bool GPUTestBotConfig::IsValid() const {
 bool GPUTestBotConfig::Matches(const GPUTestConfig& config) const {
   DCHECK(IsValid());
   DCHECK(config.IsValid());
-  if (config.os() != kOsUnknown && (os() & config.os()) == 0)
+  if (config.os() != kOsUnknown && (os() & config.os()) == 0) {
     return false;
+  }
   if (config.gpu_vendor().size() > 0) {
     bool contained = false;
     for (size_t i = 0; i < config.gpu_vendor().size(); ++i) {
@@ -264,20 +276,25 @@ bool GPUTestBotConfig::Matches(const GPUTestConfig& config) const {
         break;
       }
     }
-    if (!contained)
+    if (!contained) {
       return false;
+    }
   }
   if (config.gpu_device_id() != 0 &&
-      gpu_device_id() != config.gpu_device_id())
+      gpu_device_id() != config.gpu_device_id()) {
     return false;
+  }
   if (config.build_type() != kBuildTypeUnknown &&
-      (build_type() & config.build_type()) == 0)
+      (build_type() & config.build_type()) == 0) {
     return false;
-  if (config.api() != 0 && (api() & config.api()) == 0)
+  }
+  if (config.api() != 0 && (api() & config.api()) == 0) {
     return false;
+  }
   if (config.command_decoder() != 0 &&
-      command_decoder() != config.command_decoder())
+      command_decoder() != config.command_decoder()) {
     return false;
+  }
   return true;
 }
 
@@ -285,8 +302,9 @@ bool GPUTestBotConfig::Matches(const std::string& config_data) const {
   GPUTestExpectationsParser parser;
   GPUTestConfig config;
 
-  if (!parser.ParseConfig(config_data, &config))
+  if (!parser.ParseConfig(config_data, &config)) {
     return false;
+  }
   return Matches(config);
 }
 
@@ -320,8 +338,9 @@ bool GPUTestBotConfig::LoadCurrentConfig(const GPUInfo* gpu_info) {
 // static
 bool GPUTestBotConfig::CurrentConfigMatches(const std::string& config_data) {
   GPUTestBotConfig my_config;
-  if (!my_config.LoadCurrentConfig(nullptr))
+  if (!my_config.LoadCurrentConfig(nullptr)) {
     return false;
+  }
   return my_config.Matches(config_data);
 }
 
@@ -329,11 +348,13 @@ bool GPUTestBotConfig::CurrentConfigMatches(const std::string& config_data) {
 bool GPUTestBotConfig::CurrentConfigMatches(
     const std::vector<std::string>& configs) {
   GPUTestBotConfig my_config;
-  if (!my_config.LoadCurrentConfig(nullptr))
+  if (!my_config.LoadCurrentConfig(nullptr)) {
     return false;
-  for (size_t i = 0 ; i < configs.size(); ++i) {
-    if (my_config.Matches(configs[i]))
+  }
+  for (size_t i = 0; i < configs.size(); ++i) {
+    if (my_config.Matches(configs[i])) {
       return true;
+    }
   }
   return false;
 }

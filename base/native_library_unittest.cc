@@ -39,22 +39,6 @@ TEST(NativeLibraryTest, LoadWithOptionsFailure) {
   EXPECT_FALSE(error.ToString().empty());
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-TEST(NativeLibraryTest, LoadAbsolutePath) {
-  EXPECT_TRUE(LoadNativeLibrary(FilePath("/pkg/lib/libtest_shared_library.so"),
-                                nullptr));
-}
-
-TEST(NativeLibraryTest, LoadAbsolutePath_OutsideLibraryRoot) {
-  NativeLibraryLoadError error;
-  EXPECT_FALSE(LoadNativeLibrary(FilePath("/pkg/tmp/libtest_shared_library.so"),
-                                 &error));
-  std::string expected_error =
-      "Absolute library paths must begin with /pkg/lib";
-  EXPECT_EQ(error.ToString(), expected_error);
-}
-#endif
-
 TEST(NativeLibraryTest, GetNativeLibraryName) {
   const char kExpectedName[] =
 #if BUILDFLAG(IS_WIN)
@@ -63,7 +47,7 @@ TEST(NativeLibraryTest, GetNativeLibraryName) {
       "mylib.framework/mylib";
 #elif BUILDFLAG(IS_MAC)
       "libmylib.dylib";
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
       "libmylib.so";
 #endif
   EXPECT_EQ(kExpectedName, GetNativeLibraryName("mylib"));
@@ -77,7 +61,7 @@ TEST(NativeLibraryTest, GetLoadableModuleName) {
       "mylib.framework";
 #elif BUILDFLAG(IS_MAC)
       "mylib.so";
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
       "libmylib.so";
 #endif
   EXPECT_EQ(kExpectedName, GetLoadableModuleName("mylib"));
@@ -95,7 +79,7 @@ const char kTestLibraryName[] =
     "Frameworks/test_shared_library_ios.framework/test_shared_library_ios";
 #elif BUILDFLAG(IS_MAC)
     "libtest_shared_library.dylib";
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
     "libtest_shared_library.so";
 #endif
 
@@ -104,11 +88,9 @@ class TestLibrary {
   TestLibrary() : library_(nullptr) {
     base::FilePath exe_path;
 
-#if !BUILDFLAG(IS_FUCHSIA)
     // Libraries do not sit alongside the executable in Fuchsia. NativeLibrary
     // is aware of this and is able to resolve library paths correctly.
     CHECK(base::PathService::Get(base::DIR_EXE, &exe_path));
-#endif
 
     library_ =
         LoadNativeLibrary(exe_path.AppendASCII(kTestLibraryName), nullptr);

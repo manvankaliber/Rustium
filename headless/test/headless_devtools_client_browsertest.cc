@@ -73,7 +73,6 @@ class HeadlessDevToolsClientNavigationTest
 
 HEADLESS_DEVTOOLED_TEST_F(HeadlessDevToolsClientNavigationTest);
 
-
 class HeadlessCrashObserverTest : public HeadlessDevTooledBrowserTest {
  public:
   void RunDevTooledTest() override {
@@ -98,8 +97,7 @@ class HeadlessCrashObserverTest : public HeadlessDevTooledBrowserTest {
     // ASan's normal error exit code is 1, which base categorizes as the process
     // being killed.
     EXPECT_EQ(base::TERMINATION_STATUS_PROCESS_WAS_KILLED, status);
-#elif BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
     EXPECT_EQ(base::TERMINATION_STATUS_PROCESS_CRASHED, status);
 #else
     EXPECT_EQ(base::TERMINATION_STATUS_ABNORMAL_TERMINATION, status);
@@ -332,12 +330,14 @@ class DomTreeExtractionBrowserTest : public HeadlessDevTooledBrowserTest {
       base::DictValue& node_dict = dom_nodes->back();
 
       // Node IDs are assigned in a non deterministic way.
-      if (node_dict.Find("backendNodeId"))
+      if (node_dict.Find("backendNodeId")) {
         node_dict.Set("backendNodeId", "?");
+      }
 
       // Frame IDs are random.
-      if (node_dict.Find("frameId"))
+      if (node_dict.Find("frameId")) {
         node_dict.Set("frameId", "?");
+      }
 
       // Ports are random.
       if (base::Value* base_url_value = node_dict.Find("baseURL")) {
@@ -461,11 +461,7 @@ class DomTreeExtractionBrowserTest : public HeadlessDevTooledBrowserTest {
 
 // TODO(crbug.com/40697467): Fix this test on Fuchsia and re-enable.
 // NOTE: These macros expand to: DomTreeExtractionBrowserTest.RunAsyncTest
-#if BUILDFLAG(IS_FUCHSIA)
-DISABLED_HEADLESS_DEVTOOLED_TEST_F(DomTreeExtractionBrowserTest);
-#else
 HEADLESS_DEVTOOLED_TEST_F(DomTreeExtractionBrowserTest);
-#endif
 
 class NavigatorLanguages : public HeadlessDevTooledBrowserTest {
  public:

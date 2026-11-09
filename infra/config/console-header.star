@@ -35,10 +35,6 @@ def get_header():
                 url = "https://chrome-ops-rotation-proxy.appspot.com/current/oncallator:chromeos-gardeners",
             ),
             headers.oncall(
-                name = "Fuchsia",
-                url = "https://chrome-ops-rotation-proxy.appspot.com/current/grotation:chrome-fuchsia-engprod",
-            ),
-            headers.oncall(
                 name = "GPU",
                 url = "https://chrome-ops-rotation-proxy.appspot.com/current/oncallator:chrome-gpu-pixel-wrangler-weekly",
             ),
@@ -172,7 +168,7 @@ def get_header():
                         branch_selector = [
                             branches.selector.ANDROID_BRANCHES,
                             branches.selector.DESKTOP_BRANCHES,
-                            branches.selector.FUCHSIA_BRANCHES,
+
                         ],
                         url = "/p/{}/g/chromium".format(settings.project),
                         alt = "Main Chromium archive console",
@@ -206,12 +202,6 @@ def get_header():
                         text = "flakiness",
                         url = "/p/{}/g/chromium.flakiness".format(settings.project),
                         alt = "Chromium Flakiness console",
-                    ),
-                    headers.link(
-                        text = "fuchsia",
-                        branch_selector = branches.selector.FUCHSIA_BRANCHES,
-                        url = "/p/{}/g/chromium.fuchsia".format(settings.project),
-                        alt = "Chromium Fuchsia console",
                     ),
                     headers.link(
                         text = "fuzz",
@@ -348,12 +338,6 @@ def get_header():
                         alt = "ChromiumOS",
                     ),
                     headers.link(
-                        text = "fuchsia",
-                        branch_selector = branches.selector.FUCHSIA_BRANCHES,
-                        url = "/p/{}/g/tryserver.chromium.fuchsia/builders".format(settings.project),
-                        alt = "Fuchsia",
-                    ),
-                    headers.link(
                         text = "fuzz",
                         url = "/p/{}/g/tryserver.chromium.fuzz/builders".format(settings.project),
                         alt = "Fuzz",
@@ -434,7 +418,6 @@ def get_header():
                         "chromium/chromium.gpu rotation",
                         "chromium/angle rotation",
                         "chromium/dawn rotation",
-                        "chromium/fuchsia rotation",
                         "chromium/ios rotation",
                     ],
                 ),
@@ -447,7 +430,7 @@ def get_header():
                         branch_selector = [
                             branches.selector.ANDROID_BRANCHES,
                             branches.selector.DESKTOP_BRANCHES,
-                            branches.selector.FUCHSIA_BRANCHES,
+
                         ],
                         value = "chromium",
                     ),

@@ -14,8 +14,7 @@ features:
   can_be_recommended: false
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 owners:
 - ust@google.com
 - chromeos-commercial-printing@google.com

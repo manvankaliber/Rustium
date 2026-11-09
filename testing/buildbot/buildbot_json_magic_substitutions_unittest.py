@@ -500,7 +500,7 @@ class GPUParallelJobs(unittest.TestCase):
 
   def testSerialJobs(self):
     test_config = CreateConfigWithGpu('vendor:device1-driver')
-    for os_type in ['android', 'chromeos', 'fuchsia']:
+    for os_type in ['android', 'chromeos', ]:
       retval = magic_substitutions.GPUParallelJobs(
         test_config, 'name', {'os_type': os_type}
       )

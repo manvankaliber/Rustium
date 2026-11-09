@@ -945,7 +945,6 @@ TEST_F(SharedDictionaryManagerOnDiskTest, GetDictionary) {
                         dict->size()));
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // Test that corruptted disk cache doesn't cause crash.
 // CorruptDiskCache() doesn't work on Fuchsia. So disabling the following tests
 // on Fuchsia.
@@ -1036,7 +1035,6 @@ TEST_F(SharedDictionaryManagerOnDiskTest, CorruptedDiskCacheAndGetData) {
     EXPECT_TRUE(GetOnDiskDictionaryMap(storage.get()).empty());
   }
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(SharedDictionaryManagerOnDiskTest, CorruptedDatabase) {
   net::SharedDictionaryIsolationKey isolation_key(url::Origin::Create(kUrl),

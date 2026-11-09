@@ -58,9 +58,7 @@
 #include "content/shell/android/shell_descriptors.h"
 #endif
 
-#if !BUILDFLAG(IS_FUCHSIA)
 #include "components/crash/core/app/crashpad.h"  // nogncheck
-#endif
 
 #if BUILDFLAG(IS_APPLE)
 #include "content/shell/app/paths_apple.h"
@@ -105,13 +103,11 @@ enum class LoggingDest {
 #endif
 };
 
-#if !BUILDFLAG(IS_FUCHSIA)
 content::ShellCrashReporterClient& GetShellCrashReporterClient() {
   static base::NoDestructor<content::ShellCrashReporterClient>
       shell_crash_client;
   return *shell_crash_client;
 }
-#endif
 
 #if BUILDFLAG(IS_WIN)
 // If "Content Shell" doesn't show up in your list of trace providers in
@@ -126,8 +122,10 @@ content::ShellCrashReporterClient& GetShellCrashReporterClient() {
 
 // {6A3E50A4-7E15-4099-8413-EC94D8C2A4B6}
 const GUID kContentShellProviderName = {
-    0x6a3e50a4, 0x7e15, 0x4099,
-        { 0x84, 0x13, 0xec, 0x94, 0xd8, 0xc2, 0xa4, 0xb6 } };
+    0x6a3e50a4,
+    0x7e15,
+    0x4099,
+    {0x84, 0x13, 0xec, 0x94, 0xd8, 0xc2, 0xa4, 0xb6}};
 #endif
 
 void InitLogging(const base::CommandLine& command_line) {
@@ -166,7 +164,7 @@ void InitLogging(const base::CommandLine& command_line) {
   if (dest == LoggingDest::kFile) {
     log_filename = command_line.GetSwitchValuePath(switches::kLogFile);
     if (log_filename.empty()) {
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_IOS)
       base::PathService::Get(base::DIR_TEMP, &log_filename);
 #else
       base::PathService::Get(base::DIR_EXE, &log_filename);
@@ -211,8 +209,7 @@ namespace content {
 ShellMainDelegate::ShellMainDelegate(bool is_content_browsertests)
     : is_content_browsertests_(is_content_browsertests) {}
 
-ShellMainDelegate::~ShellMainDelegate() {
-}
+ShellMainDelegate::~ShellMainDelegate() {}
 
 std::optional<int> ShellMainDelegate::BasicStartupComplete() {
   base::CommandLine& command_line = *base::CommandLine::ForCurrentProcess();
@@ -293,10 +290,9 @@ bool ShellMainDelegate::ShouldInitializeMojo(InvokedIn invoked_in) {
 }
 
 void ShellMainDelegate::PreSandboxStartup() {
-// Disable platform crash handling and initialize the crash reporter, if
-// requested.
-// TODO(crbug.com/40188745): Implement crash reporter integration for Fuchsia.
-#if !BUILDFLAG(IS_FUCHSIA)
+  // Disable platform crash handling and initialize the crash reporter, if
+  // requested.
+  // TODO(crbug.com/40188745): Implement crash reporter integration for Fuchsia.
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kEnableCrashReporter)) {
     std::string process_type =
@@ -312,7 +308,6 @@ void ShellMainDelegate::PreSandboxStartup() {
 #endif
     }
   }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   crash_reporter::InitializeCrashKeys();
 
@@ -323,8 +318,9 @@ std::variant<int, MainFunctionParams> ShellMainDelegate::RunProcess(
     const std::string& process_type,
     MainFunctionParams main_function_params) {
   // For non-browser process, return and have the caller run the main loop.
-  if (!process_type.empty())
+  if (!process_type.empty()) {
     return std::move(main_function_params);
+  }
 
   base::CurrentProcess::GetInstance().SetProcessType(
       base::CurrentProcessType::PROCESS_BROWSER);
@@ -427,8 +423,9 @@ void ShellMainDelegate::InitializeResourceBundle() {
 
 std::optional<int> ShellMainDelegate::PreBrowserMain() {
   std::optional<int> exit_code = content::ContentMainDelegate::PreBrowserMain();
-  if (exit_code.has_value())
+  if (exit_code.has_value()) {
     return exit_code;
+  }
 
 #if BUILDFLAG(IS_MAC)
   RegisterShellCrApp();

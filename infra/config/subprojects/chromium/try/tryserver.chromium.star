@@ -32,7 +32,7 @@ consoles.list_view(
     branch_selector = [
         branches.selector.ANDROID_BRANCHES,
         branches.selector.DESKTOP_BRANCHES,
-        branches.selector.FUCHSIA_BRANCHES,
+
     ],
 )
 

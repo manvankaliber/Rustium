@@ -16,8 +16,7 @@ example_value:
 features:
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 owners:
 - csharp@chromium.org
 - qinmin@chromium.org

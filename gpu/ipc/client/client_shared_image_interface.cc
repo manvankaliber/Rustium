@@ -55,19 +55,6 @@ void ClientSharedImageInterface::UpdateSharedImage(
   proxy_->UpdateSharedImage(sync_token, std::move(acquire_fence), mailbox);
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-void ClientSharedImageInterface::RegisterSysmemBufferCollection(
-    zx::eventpair service_handle,
-    zx::channel sysmem_token,
-    const viz::SharedImageFormat& format,
-    gfx::BufferUsage usage,
-    bool register_with_image_pipe) {
-  proxy_->RegisterSysmemBufferCollection(std::move(service_handle),
-                                         std::move(sysmem_token), format, usage,
-                                         register_with_image_pipe);
-}
-#endif  // BUILDFLAG(IS_FUCHSIA)
-
 SyncToken ClientSharedImageInterface::GenUnverifiedSyncToken() {
   return proxy_->GenUnverifiedSyncToken();
 }
@@ -199,12 +186,10 @@ scoped_refptr<ClientSharedImage> ClientSharedImageInterface::CreateSharedImage(
   CHECK(!si_info.format.PrefersExternalSampler()) << si_info.format.ToString();
 #endif
 
-#if !BUILDFLAG(IS_FUCHSIA)
   // This path of creating SI with buffer_handle inside renderer is used only on
   // Fuchsia for video decoder.
   CHECK_NE(gpu_channel_->client_type(), viz::mojom::GpuClientType::kRenderer,
            base::NotFatalUntil::M158);
-#endif
 
   auto buffer_handle_type = buffer_handle.type;
   auto mailbox = proxy_->CreateSharedImage(si_info, std::move(buffer_handle));
@@ -341,8 +326,9 @@ scoped_refptr<ClientSharedImage> ClientSharedImageInterface::NotifyMailboxAdded(
 }
 
 Mailbox ClientSharedImageInterface::AddMailbox(const gpu::Mailbox& mailbox) {
-  if (mailbox.IsZero())
+  if (mailbox.IsZero()) {
     return mailbox;
+  }
 
   base::AutoLock lock(lock_);
   CHECK_GE(mailboxes_[mailbox], 0);

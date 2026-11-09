@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 #include "base/test/test_timeouts.h"
 
 #include <algorithm>
@@ -89,9 +88,6 @@ void InitializeTimeout(const char* switch_name,
   constexpr int kTimeoutMultiplier = kAshBaseMultiplier;
 #elif !defined(NDEBUG) && (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX))
   // A lot of browser_tests on Mac and Linux debug time out.
-  constexpr int kTimeoutMultiplier = 2;
-#elif !defined(NDEBUG) && BUILDFLAG(IS_FUCHSIA) && defined(ARCH_CPU_ARM64)
-  // Fuchsia ARM64 debug build is noticeably slower than other configurations.
   constexpr int kTimeoutMultiplier = 2;
 #elif BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(IS_CHROMEOS_DEVICE)
   // For test running on ChromeOS device/VM, they could be slower. We should not

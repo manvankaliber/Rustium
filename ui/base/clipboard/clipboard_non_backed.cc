@@ -142,14 +142,16 @@ class ClipboardInternal {
   void ReadAsciiText(std::string* result) const {
     result->clear();
     const ClipboardData* data = GetData();
-    if (!data)
+    if (!data) {
       return;
-    if (HasFormat(ClipboardInternalFormat::kText))
+    }
+    if (HasFormat(ClipboardInternalFormat::kText)) {
       *result = data->text();
-    else if (HasFormat(ClipboardInternalFormat::kHtml))
+    } else if (HasFormat(ClipboardInternalFormat::kHtml)) {
       *result = data->markup_data();
-    else if (HasFormat(ClipboardInternalFormat::kBookmark))
+    } else if (HasFormat(ClipboardInternalFormat::kBookmark)) {
       *result = data->bookmark_url();
+    }
   }
 
   // Reads HTML from the ClipboardData.
@@ -158,13 +160,15 @@ class ClipboardInternal {
                 uint32_t* fragment_start,
                 uint32_t* fragment_end) const {
     markup->clear();
-    if (src_url)
+    if (src_url) {
       src_url->clear();
+    }
     *fragment_start = 0;
     *fragment_end = 0;
 
-    if (!HasFormat(ClipboardInternalFormat::kHtml))
+    if (!HasFormat(ClipboardInternalFormat::kHtml)) {
       return;
+    }
 
     const ClipboardData* data = GetData();
     *markup = base::UTF8ToUTF16(data->markup_data());
@@ -180,8 +184,9 @@ class ClipboardInternal {
   void ReadSvg(std::u16string* markup) const {
     markup->clear();
 
-    if (!HasFormat(ClipboardInternalFormat::kSvg))
+    if (!HasFormat(ClipboardInternalFormat::kSvg)) {
       return;
+    }
 
     const ClipboardData* data = GetData();
     *markup = base::UTF8ToUTF16(data->svg_data());
@@ -194,8 +199,9 @@ class ClipboardInternal {
   void ReadRTF(std::string* result) const {
     result->clear();
     const ClipboardData* data = GetData();
-    if (!HasFormat(ClipboardInternalFormat::kRtf))
+    if (!HasFormat(ClipboardInternalFormat::kRtf)) {
       return;
+    }
 
     *result = data->rtf_data();
   }
@@ -232,8 +238,9 @@ class ClipboardInternal {
     // Encoding of this bitmap to a PNG is already in progress. No need to
     // kick off another encoding operation here. We'll respond to the callback
     // once the in-progress image encoding completes.
-    if (callbacks_for_image.size() > 1)
+    if (callbacks_for_image.size() > 1) {
       return;
+    }
 
     png_encoding_runner_->PostTaskAndReplyWithResult(
         FROM_HERE,
@@ -248,8 +255,9 @@ class ClipboardInternal {
                                   std::u16string* result) const {
     result->clear();
     const ClipboardData* data = GetData();
-    if (!HasFormat(ClipboardInternalFormat::kCustom))
+    if (!HasFormat(ClipboardInternalFormat::kCustom)) {
       return;
+    }
 
     std::optional<std::u16string> maybe_result = ReadCustomDataForType(
         base::as_byte_span(data->GetDataTransferCustomData()), type);
@@ -265,18 +273,23 @@ class ClipboardInternal {
 
   // Reads bookmark from the ClipboardData.
   void ReadBookmark(std::u16string* title, std::string* url) const {
-    if (title)
+    if (title) {
       title->clear();
-    if (url)
+    }
+    if (url) {
       url->clear();
-    if (!HasFormat(ClipboardInternalFormat::kBookmark))
+    }
+    if (!HasFormat(ClipboardInternalFormat::kBookmark)) {
       return;
+    }
 
     const ClipboardData* data = GetData();
-    if (title)
+    if (title) {
       *title = base::UTF8ToUTF16(data->bookmark_title());
-    if (url)
+    }
+    if (url) {
       *url = data->bookmark_url();
+    }
   }
 
   void ReadData(const ClipboardFormatType& type, std::string* result) const {
@@ -306,8 +319,9 @@ class ClipboardInternal {
     DataTransferPolicyController* policy_controller =
         DataTransferPolicyController::Get();
     auto* data = GetData();
-    if (!policy_controller || !data)
+    if (!policy_controller || !data) {
       return true;
+    }
     return policy_controller->IsClipboardReadAllowed(
         data->source(), data_dst,
         data->CalculateSize(format, custom_data_format));
@@ -436,8 +450,9 @@ class ClipboardDataBuilder {
 
  private:
   static ClipboardData* GetCurrentData() {
-    if (!current_data_)
+    if (!current_data_) {
       current_data_ = new ClipboardData;
+    }
     return current_data_;
   }
 
@@ -458,8 +473,9 @@ ClipboardNonBacked* ClipboardNonBacked::GetForCurrentThread() {
   auto* clipboard = Clipboard::GetForCurrentThread();
 
   // Ensure type safety. In tests the instance may not be registered.
-  if (!IsRegisteredInstance(clipboard))
+  if (!IsRegisteredInstance(clipboard)) {
     return nullptr;
+  }
 
   return static_cast<ClipboardNonBacked*>(clipboard);
 }
@@ -474,7 +490,7 @@ ClipboardNonBacked::ClipboardNonBacked() {
   // so create internal clipboards for platform supported clipboard buffers.
   constexpr ClipboardBuffer kClipboardBuffers[] = {
       ClipboardBuffer::kCopyPaste,
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX)
       ClipboardBuffer::kSelection,
 #endif
 #if BUILDFLAG(IS_MAC)

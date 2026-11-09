@@ -252,7 +252,7 @@ void SpeechRecognitionDispatcherHost::StartRequestOnUI(
 #endif  // !BUILDFLAG(IS_ANDROID)
 
   bool use_on_device = false;
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_ANDROID)
   use_on_device = can_render_frame_use_on_device && params->on_device &&
                   (on_device_available || !params->allow_cloud_fallback);
 #endif

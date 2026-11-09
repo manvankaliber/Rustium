@@ -282,8 +282,7 @@ Event::Event(EventType type, base::TimeTicks time_stamp, int flags)
     : type_(type),
       time_stamp_(time_stamp.is_null() ? EventTimeForNow() : time_stamp),
       flags_(flags),
-      native_event_(CreateInvalidPlatformEvent()) {
-}
+      native_event_(CreateInvalidPlatformEvent()) {}
 
 Event::Event(const PlatformEvent& native_event, EventType type, int flags)
     : type_(type),
@@ -296,8 +295,9 @@ Event::Event(const PlatformEvent& native_event, EventType type, int flags)
 
 #if BUILDFLAG(IS_OZONE)
   source_device_id_ = native_event->source_device_id();
-  if (auto* properties = native_event->properties())
+  if (auto* properties = native_event->properties()) {
     properties_ = std::make_unique<Properties>(*properties);
+  }
 #endif
 }
 
@@ -325,10 +325,11 @@ Event& Event::operator=(const Event& rhs) {
     phase_ = rhs.phase_;
     result_ = rhs.result_;
     source_device_id_ = rhs.source_device_id_;
-    if (rhs.properties_)
+    if (rhs.properties_) {
       properties_ = std::make_unique<Properties>(*rhs.properties_);
-    else
+    } else {
       properties_.reset();
+    }
   }
   return *this;
 }
@@ -478,18 +479,21 @@ bool MouseEvent::IsRepeatedClickEvent(const MouseEvent& event1,
 
   // Compare flags, but ignore EF_IS_DOUBLE_CLICK to allow triple clicks.
   if ((event1.flags() & ~EF_IS_DOUBLE_CLICK) !=
-      (event2.flags() & ~EF_IS_DOUBLE_CLICK))
+      (event2.flags() & ~EF_IS_DOUBLE_CLICK)) {
     return false;
+  }
 
   if (!IsRepeatedClickTimes(event1.time_stamp(), event2.time_stamp())) {
     return false;
   }
 
-  if (std::abs(event2.x() - event1.x()) > kDoubleClickWidth / 2)
+  if (std::abs(event2.x() - event1.x()) > kDoubleClickWidth / 2) {
     return false;
+  }
 
-  if (std::abs(event2.y() - event1.y()) > kDoubleClickHeight / 2)
+  if (std::abs(event2.y() - event1.y()) > kDoubleClickHeight / 2) {
     return false;
+  }
 
   return true;
 }
@@ -510,15 +514,18 @@ int MouseEvent::GetRepeatCount(const MouseEvent& event) {
     }
     // Return the prior click count and do not update |last_click_event_| when
     // re-processing a native event, or when proccesing a reposted event.
-    if (event.time_stamp() == last_click_event_->time_stamp())
+    if (event.time_stamp() == last_click_event_->time_stamp()) {
       return last_click_event_->GetClickCount();
-    if (IsRepeatedClickEvent(*last_click_event_, event))
+    }
+    if (IsRepeatedClickEvent(*last_click_event_, event)) {
       click_count = last_click_event_->GetClickCount() + 1;
+    }
     delete last_click_event_;
   }
   last_click_event_ = new MouseEvent(event);
-  if (click_count > 3)
+  if (click_count > 3) {
     click_count = 3;
+  }
   last_click_event_->SetClickCount(click_count);
   return click_count;
 }
@@ -539,12 +546,13 @@ int MouseEvent::GetClickCount() const {
     return 0;
   }
 
-  if (flags() & EF_IS_TRIPLE_CLICK)
+  if (flags() & EF_IS_TRIPLE_CLICK) {
     return 3;
-  else if (flags() & EF_IS_DOUBLE_CLICK)
+  } else if (flags() & EF_IS_DOUBLE_CLICK) {
     return 2;
-  else
+  } else {
     return 1;
+  }
 }
 
 void MouseEvent::SetClickCount(int click_count) {
@@ -665,7 +673,7 @@ std::unique_ptr<Event> MouseWheelEvent::Clone() const {
   return std::make_unique<MouseWheelEvent>(*this);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 // This value matches Windows, Fuchsia WHEEL_DELTA, and (roughly) Firefox on
 // Linux.
 // static
@@ -793,10 +801,12 @@ void TouchEvent::SetPointerDetailsForTest(
 
 float TouchEvent::ComputeRotationAngle() const {
   float rotation_angle = pointer_details_.twist;
-  while (rotation_angle < 0)
+  while (rotation_angle < 0) {
     rotation_angle += 180.f;
-  while (rotation_angle >= 180)
+  }
+  while (rotation_angle >= 180) {
     rotation_angle -= 180.f;
+  }
   return rotation_angle;
 }
 
@@ -957,8 +967,9 @@ void KeyEvent::ApplyLayout() const {
     }
   }
 
-  if (key_ != DomKey::NONE)
+  if (key_ != DomKey::NONE) {
     return;
+  }
 
   KeyboardCode dummy_key_code;
 #if BUILDFLAG(IS_OZONE)
@@ -979,8 +990,9 @@ void KeyEvent::ApplyLayout() const {
   }
 #endif
 
-  if (!DomCodeToUsLayoutDomKey(code, flags(), &key_, &dummy_key_code))
+  if (!DomCodeToUsLayoutDomKey(code, flags(), &key_, &dummy_key_code)) {
     key_ = DomKey::UNIDENTIFIED;
+  }
 }
 
 bool KeyEvent::IsRepeated(KeyEvent** last_key_event) {
@@ -990,8 +1002,9 @@ bool KeyEvent::IsRepeated(KeyEvent** last_key_event) {
   // not auto repeat.
   const int kMaxAutoRepeatTimeMs = 2000;
 
-  if (is_char())
+  if (is_char()) {
     return false;
+  }
   if (type() == EventType::kKeyReleased) {
     delete *last_key_event;
     *last_key_event = nullptr;
@@ -1056,8 +1069,9 @@ KeyEvent** KeyEvent::GetLastKeyEvent() {
 
 DomKey KeyEvent::GetDomKey() const {
   // Determination of key_ may be done lazily.
-  if (key_ == DomKey::NONE)
+  if (key_ == DomKey::NONE) {
     ApplyLayout();
+  }
   return key_;
 }
 
@@ -1070,8 +1084,9 @@ void KeyEvent::OnFlagsUpdated() {
 
 char16_t KeyEvent::GetCharacter() const {
   // Determination of key_ may be done lazily.
-  if (key_ == DomKey::NONE)
+  if (key_ == DomKey::NONE) {
     ApplyLayout();
+  }
   if (key_.IsCharacter()) {
     // Historically ui::KeyEvent has held only BMP characters.
     // Until this explicitly changes, require |key_| to hold a BMP character.
@@ -1085,10 +1100,12 @@ char16_t KeyEvent::GetCharacter() const {
       // For a control character, key_ contains the corresponding printable
       // character. To preserve existing behaviour for now, return the control
       // character here; this will likely change -- see e.g. crbug.com/471488.
-      if (ucs2_character >= 0x20 && ucs2_character <= 0x7E)
+      if (ucs2_character >= 0x20 && ucs2_character <= 0x7E) {
         return ucs2_character & 0x1F;
-      if (ucs2_character == '\r')
+      }
+      if (ucs2_character == '\r') {
         return '\n';
+      }
     }
     return ucs2_character;
   }
@@ -1099,25 +1116,29 @@ char16_t KeyEvent::GetText() const {
   if ((flags() & EF_CONTROL_DOWN) != 0) {
     DomKey key;
     KeyboardCode key_code;
-    if (DomCodeToControlCharacter(code_, flags(), &key, &key_code))
+    if (DomCodeToControlCharacter(code_, flags(), &key, &key_code)) {
       return key.ToCharacter();
+    }
   }
   return GetUnmodifiedText();
 }
 
 char16_t KeyEvent::GetUnmodifiedText() const {
-  if (!is_char_ && (key_code_ == VKEY_RETURN))
+  if (!is_char_ && (key_code_ == VKEY_RETURN)) {
     return '\r';
+  }
   return GetCharacter();
 }
 
 bool KeyEvent::IsUnicodeKeyCode() const {
 #if BUILDFLAG(IS_WIN)
-  if (!IsAltDown())
+  if (!IsAltDown()) {
     return false;
+  }
   const int key = key_code();
-  if (key >= VKEY_NUMPAD0 && key <= VKEY_NUMPAD9)
+  if (key >= VKEY_NUMPAD0 && key <= VKEY_NUMPAD9) {
     return true;
+  }
   // Check whether the user is using the numeric keypad with num-lock off.
   // In that case, EF_EXTENDED will not be set; if it is set, the key event
   // originated from the relevant non-numpad dedicated key, e.g. [Insert].
@@ -1184,8 +1205,9 @@ KeyboardCode KeyEvent::GetLocatedWindowsKeyboardCode() const {
 }
 
 uint16_t KeyEvent::GetConflatedWindowsKeyCode() const {
-  if (is_char_)
+  if (is_char_) {
     return key_.ToCharacter();
+  }
   return key_code_;
 }
 
@@ -1310,8 +1332,7 @@ GestureEvent::GestureEvent(float x,
                    time_stamp,
                    flags | EF_FROM_TOUCH),
       details_(details),
-      unique_touch_event_id_(unique_touch_event_id) {
-}
+      unique_touch_event_id_(unique_touch_event_id) {}
 
 GestureEvent::GestureEvent(const GestureEvent& other) = default;
 

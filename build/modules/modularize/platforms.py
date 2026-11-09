@@ -7,7 +7,6 @@ import enum
 
 class Os(str, enum.Enum):
     Android = 'android'
-    Fuchsia = 'fuchsia'
     Ios = 'ios'
     Linux = 'linux'
     Mac = 'mac'

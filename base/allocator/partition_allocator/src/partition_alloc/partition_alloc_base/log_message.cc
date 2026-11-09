@@ -30,7 +30,7 @@
 #include <io.h>
 #endif
 
-#if PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+#if PA_BUILDFLAG(IS_POSIX)
 #include <unistd.h>
 
 #include <cerrno>
@@ -39,7 +39,7 @@
 #include <cstring>
 #endif
 
-#if PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+#if PA_BUILDFLAG(IS_POSIX)
 #include "partition_alloc/partition_alloc_base/posix/safe_strerror.h"
 #endif
 
@@ -162,7 +162,7 @@ typedef DWORD SystemErrorCode;
 SystemErrorCode GetLastSystemErrorCode() {
 #if PA_BUILDFLAG(IS_WIN)
   return ::GetLastError();
-#elif PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+#elif PA_BUILDFLAG(IS_POSIX)
   return errno;
 #endif
 }
@@ -191,7 +191,7 @@ void SystemErrorCodeToStream(base::strings::CStringBuilder& os,
                              "Error (0x%x) while retrieving error. (0x%x)",
                              GetLastError(), error_code);
   os << buffer;
-#elif PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+#elif PA_BUILDFLAG(IS_POSIX)
   base::safe_strerror_r(error_code, buffer);
   os << buffer << " (" << error_code << ")";
 #endif  // PA_BUILDFLAG(IS_WIN)
@@ -212,7 +212,7 @@ Win32ErrorLogMessage::~Win32ErrorLogMessage() {
   DWORD last_error = err_;
   base::debug::Alias(&last_error);
 }
-#elif PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+#elif PA_BUILDFLAG(IS_POSIX)
 ErrnoLogMessage::ErrnoLogMessage(const char* file,
                                  int line,
                                  LogSeverity severity,

@@ -85,8 +85,9 @@ bool CollectGraphicsInfo(GPUInfo* gpu_info) {
   DCHECK(gpu_info);
   TRACE_EVENT("gpu,startup", "Collect Graphics Info");
   bool success = CollectContextGraphicsInfo(gpu_info);
-  if (!success)
+  if (!success) {
     LOG(ERROR) << "CollectGraphicsInfo failed.";
+  }
   return success;
 }
 
@@ -112,8 +113,9 @@ void InitializePlatformOverlaySettings(GPUInfo* gpu_info,
 #if BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CASTOS)
 bool CanAccessDeviceFile(const GPUInfo& gpu_info) {
   if (gpu_info.gpu.vendor_id != 0x10de ||  // NVIDIA
-      gpu_info.gpu.driver_vendor != "NVIDIA")
+      gpu_info.gpu.driver_vendor != "NVIDIA") {
     return true;
+  }
 
   base::ScopedBlockingCall scoped_blocking_call(FROM_HERE,
                                                 base::BlockingType::WILL_BLOCK);
@@ -310,8 +312,9 @@ bool MatchGLInfo(const std::string& field, const std::string& patterns) {
   auto pattern_strings = base::SplitString(patterns, "|", base::TRIM_WHITESPACE,
                                            base::SPLIT_WANT_ALL);
   for (const auto& pattern : pattern_strings) {
-    if (base::MatchPattern(field, pattern))
+    if (base::MatchPattern(field, pattern)) {
       return true;
+    }
   }
   return false;
 }
@@ -591,7 +594,7 @@ void GpuInit2::MaybeFallbackToWarpEarly(const InitState& state) {
 #endif  // BUILDFLAG(IS_WIN)
 
 void GpuInit2::InitializeInProcess(base::CommandLine* command_line,
-                                  const GpuPreferences& gpu_preferences) {
+                                   const GpuPreferences& gpu_preferences) {
   gpu_preferences_ = gpu_preferences;
   init_successful_ = true;
 
@@ -921,13 +924,7 @@ bool GpuInit2::InitializeVulkanIfNeeded() {
     DisableVulkanFeatures(gpu_feature_info_, gpu_preferences_);
     if (gpu_preferences_.gr_context_type == GrContextType::kVulkan ||
         gpu_preferences_.gr_context_type == GrContextType::kGraphiteVulkan) {
-#if BUILDFLAG(IS_FUCHSIA)
-      // Fuchsia uses ANGLE for GL which requires Vulkan, so don't fall
-      // back to GL if Vulkan init fails.
-      return false;
-#else
       gpu_preferences_.gr_context_type = GrContextType::kGL;
-#endif  // BUILDFLAG(IS_FUCHSIA)
     }
   } else {
     // TODO(crbug.com/40700374): It would be better to cleanly tear

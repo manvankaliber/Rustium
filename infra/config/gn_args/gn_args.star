@@ -286,16 +286,6 @@ gn_args.config(
 )
 
 gn_args.config(
-    name = "cast_receiver_perf_optimized",
-    args_file = "//build/config/fuchsia/perf_optimized_cast_receiver_args.gn",
-)
-
-gn_args.config(
-    name = "cast_receiver_size_optimized",
-    args_file = "//build/config/fuchsia/size_optimized_cast_receiver_args.gn",
-)
-
-gn_args.config(
     name = "centipede",
     args = {
         "use_centipede": True,
@@ -713,31 +703,6 @@ gn_args.config(
     args = {
         "ffmpeg_branding": "ChromeOS",
     },
-)
-
-gn_args.config(
-    name = "fuchsia",
-    args = {
-        "target_os": "fuchsia",
-    },
-)
-
-gn_args.config(
-    name = "fuchsia_code_coverage",
-    args = {
-        "fuchsia_code_coverage": True,
-    },
-)
-
-gn_args.config(
-    name = "fuchsia_smart_display",
-    args = {
-        "enable_cast_receiver": True,
-        "cast_streaming_enable_remoting": True,
-    },
-    configs = [
-        "fuchsia",
-    ],
 )
 
 gn_args.config(

@@ -28,7 +28,7 @@
 #include "content/web_test/common/web_test_switches.h"
 #include "ipc/constants.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 #include "content/public/browser/devtools_frontend_host.h"
 #endif
 
@@ -67,15 +67,18 @@ GURL DevToolsProtocolTestBindings::MapTestURLIfNeeded(const GURL& test_url,
   std::string spec = test_url.spec();
   std::string dir = "/inspector-protocol/";
   size_t pos = spec.find(dir);
-  if (pos == std::string::npos)
+  if (pos == std::string::npos) {
     return test_url;
-  if (spec.rfind(".js") != spec.length() - 3)
+  }
+  if (spec.rfind(".js") != spec.length() - 3) {
     return test_url;
+  }
   spec = spec.substr(0, pos + dir.length()) +
          "resources/inspector-protocol-test.html?test=" + spec;
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kDebugDevTools))
+          switches::kDebugDevTools)) {
     spec += "&debug=true";
+  }
   *is_protocol_test = true;
   return GURL(spec);
 }
@@ -97,10 +100,11 @@ void DevToolsProtocolTestBindings::ParseLog(std::string_view log) {
 
 void DevToolsProtocolTestBindings::ReadyToCommitNavigation(
     NavigationHandle* navigation_handle) {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   content::RenderFrameHost* frame = navigation_handle->GetRenderFrameHost();
-  if (frame->GetParent())
+  if (frame->GetParent()) {
     return;
+  }
   frontend_host_ = DevToolsFrontendHost::Create(
       frame,
       base::BindRepeating(&DevToolsProtocolTestBindings::HandleMessageFromTest,
@@ -152,14 +156,16 @@ void DevToolsProtocolTestBindings::HandleMessagesFromLog(
 void DevToolsProtocolTestBindings::HandleMessageFromTest(
     base::DictValue message) {
   const std::string* method = message.FindString("method");
-  if (!method)
+  if (!method) {
     return;
+  }
 
   const base::ListValue* params = message.FindList("params");
   if (*method == "dispatchProtocolMessage" && params && params->size() == 1) {
     const std::string* protocol_message = (*params)[0].GetIfString();
-    if (!protocol_message)
+    if (!protocol_message) {
       return;
+    }
 
     if (log_enabled_) {
       HandleMessagesFromLog(*protocol_message);
@@ -191,7 +197,7 @@ void DevToolsProtocolTestBindings::DispatchProtocolMessage(
     NOTREACHED() << "Unexpected messages dispatched by the browser";
   }
   std::string_view str_message(reinterpret_cast<const char*>(message.data()),
-                                message.size());
+                               message.size());
   WebTestControlHost::Get()->PrintMessageToStderr(
       "Protocol message: " + std::string(str_message) + "\n");
 

@@ -31,7 +31,7 @@
 
 #if COMPILER_MSVC
 #pragma warning(push)
-#pragma warning(disable: 4244 4245 4267 4702)
+#pragma warning(disable : 4244 4245 4267 4702)
 #endif
 
 #if defined(CRASHPAD_USE_BORINGSSL)
@@ -60,7 +60,6 @@ int HttpTransportTestServerMain(int argc, char* argv[]) {
     LOG(ERROR) << "usage: http_transport_test_server [cert.pem key.pem]";
     return 1;
   }
-
 
   if (!server->is_valid()) {
     LOG(ERROR) << "server creation failed";
@@ -134,7 +133,7 @@ int HttpTransportTestServerMain(int argc, char* argv[]) {
 }  // namespace
 }  // namespace crashpad
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 int main(int argc, char* argv[]) {
   return crashpad::HttpTransportTestServerMain(argc, argv);
 }

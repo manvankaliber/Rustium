@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "testing/gtest/include/gtest/gtest.h"
+#include "gpu/vulkan/vulkan_cxx.h"
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/native_library.h"
 #include "base/path_service.h"
 #include "build/build_config.h"
-#include "gpu/vulkan/vulkan_cxx.h"
 #include "gpu/vulkan/vulkan_function_pointers.h"
+#include "testing/gtest/include/gtest/gtest.h"
 
 namespace gpu {
 
@@ -23,8 +23,7 @@ class VulkanCXXTest : public testing::Test {
     use_swiftshader_ =
         base::CommandLine::ForCurrentProcess()->HasSwitch("use-swiftshader");
     base::FilePath path;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
     if (use_swiftshader_) {
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
       EXPECT_TRUE(base::PathService::Get(base::DIR_MODULE, &path));

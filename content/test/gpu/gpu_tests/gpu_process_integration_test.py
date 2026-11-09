@@ -19,7 +19,6 @@ from gpu_tests.util import host_information
 import gpu_path_util
 
 _ASAN_NAVIGATE_MULTIPLIER = 4
-_FUCHSIA_TEST_COMPLETION_MULTIPLIER = 2
 
 _GPU_PAGE_TIMEOUT = 30
 _GPU_VISIBILITY_POLL_DURATION_SEC = 5
@@ -161,8 +160,6 @@ class GpuProcessIntegrationTest(gpu_integration_test.GpuIntegrationTest):
 
   def _GetTestCompletionTimeout(self) -> float:
     timeout = 10
-    if self.browser.platform.GetOSName() == 'fuchsia':
-      timeout *= _FUCHSIA_TEST_COMPLETION_MULTIPLIER
     return timeout
 
   def _Navigate(self, test_path: str) -> None:

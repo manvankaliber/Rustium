@@ -98,7 +98,6 @@ class MockPixmapProvider : public OverlayProcessorOzone::PixmapProvider {
 
 // TODO(crbug.com/40153057): Fuchsia claims support for presenting primary
 // plane as overlay, but does not provide a mailbox. Handle this case.
-#if !BUILDFLAG(IS_FUCHSIA)
 TEST(OverlayProcessorOzoneTest, PrimaryPlaneSizeAndFormatMatches) {
   // Set up the primary plane.
   gfx::Size size(128, 128);
@@ -247,8 +246,6 @@ TEST(OverlayProcessorOzoneTest, ColorSpaceMismatch) {
   processor.CheckOverlaySupport(primary_plane, &candidates);
   EXPECT_TRUE(candidates.at(0).overlay_handled);
 }
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 // Exposing max_overlays_considered_ saves us from retesting a lot of logic
 // that's already tested in overlay_unittest.cc.

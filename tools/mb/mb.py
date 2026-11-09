@@ -1535,7 +1535,6 @@ class MetaBuildWrapper:
 
     android = 'target_os="android"' in vals['gn_args']
     ios = 'target_os="ios"' in vals['gn_args']
-    fuchsia = 'target_os="fuchsia"' in vals['gn_args']
     win = self.platform == 'win32' or 'target_os="win"' in vals['gn_args']
     possible_runtime_deps_rpaths = {}
     for target in ninja_targets:
@@ -1556,7 +1555,7 @@ class MetaBuildWrapper:
           'Cannot generate isolate for %s since it is an '
           'additional_compile_target.' % target
         )
-      if fuchsia or ios or target_type == 'generated_script':
+      if ios or target_type == 'generated_script':
         # iOS and Fuchsia targets end up as groups.
         # generated_script targets are always actions.
         rpaths = [stamp_runtime_deps, target_runtime_deps]
@@ -1862,7 +1861,6 @@ class MetaBuildWrapper:
     isolate_map = self.ReadIsolateMap()
 
     is_android = 'target_os="android"' in vals['gn_args']
-    is_fuchsia = 'target_os="fuchsia"' in vals['gn_args']
     is_cros = (
       'target_os="chromeos"' in vals['gn_args']
       or 'is_chromeos_device=true' in vals['gn_args']
@@ -1964,21 +1962,6 @@ class MetaBuildWrapper:
         cmdline += ['--store-tombstones']
       if clang_coverage or java_coverage:
         cmdline += ['--coverage-dir', '${ISOLATED_OUTDIR}']
-    elif is_fuchsia and test_type != 'script':
-      # On Fuchsia, the generated bin/run_* test scripts are used both in
-      # infrastructure and by developers. test_env.py is intended to establish a
-      # predictable environment for automated testing. In particular, it adds
-      # CHROME_HEADLESS=1 to the environment for child processes. This variable
-      # is a signal to both test and production code that it is running in the
-      # context of automated an testing environment, and should not be present
-      # for normal developer workflows.
-      cmdline += [
-        vpython_exe,
-        '../../testing/test_env.py',
-        os.path.join('bin', 'run_%s' % target),
-        *bot_mode,
-        '--logs-dir=${ISOLATED_OUTDIR}',
-      ]
     elif is_cros_device and test_type != 'script':
       cmdline += [
         os.path.join('bin', 'run_%s' % target),

@@ -306,7 +306,7 @@ class ChromiumWritableFile : public leveldb::WritableFile {
 
   std::string filename_;
   base::File file_;
-#if defined(OS_POSIX) || defined(OS_FUCHSIA)
+#if defined(OS_POSIX)
   storage::FilesystemProxy* const filesystem_;
 #endif
   Type file_type_;
@@ -318,7 +318,7 @@ ChromiumWritableFile::ChromiumWritableFile(const std::string& fname,
                                            storage::FilesystemProxy* filesystem)
     : filename_(fname),
       file_(std::move(f)),
-#if defined(OS_POSIX) || defined(OS_FUCHSIA)
+#if defined(OS_POSIX)
       filesystem_(filesystem),
 #endif
       file_type_(kOther) {
@@ -334,7 +334,7 @@ ChromiumWritableFile::ChromiumWritableFile(const std::string& fname,
 
 Status ChromiumWritableFile::SyncParent() {
   TRACE_EVENT0("leveldb", "SyncParent");
-#if defined(OS_POSIX) || defined(OS_FUCHSIA)
+#if defined(OS_POSIX)
   FilePath path = FilePath::FromUTF8Unsafe(parent_dir_);
   FileErrorOr<base::File> result = filesystem_->OpenFile(
       path, base::File::FLAG_OPEN | base::File::FLAG_READ);

@@ -56,12 +56,6 @@ size_t GetDefaultAllocationSize() {
   // Not on Android, since on this platform total number of file descriptors is
   // also a concern.
   return kDefaultLowEndDeviceAllocationSize;
-#elif BUILDFLAG(IS_FUCHSIA)
-  // Low end Fuchsia devices may be very constrained, so use smaller allocations
-  // to save memory. See https://fxbug.dev/55760.
-  return base::SysInfo::IsLowEndDevice() ? kDefaultLowEndDeviceAllocationSize
-                                         : kDefaultAllocationSize;
-
 #else
   return kDefaultAllocationSize;
 #endif
@@ -128,8 +122,9 @@ bool ClientDiscardableSharedMemoryManager::DiscardableMemoryImpl::Lock() {
   base::AutoLock lock(manager_->lock_);
   DCHECK(!is_locked());
 
-  if (span_ && manager_->LockSpan(span_.get()))
+  if (span_ && manager_->LockSpan(span_.get())) {
     last_locked_ = base::TimeTicks();
+  }
 
   bool locked = is_locked();
   UMA_HISTOGRAM_BOOLEAN("Memory.Discardable.LockingSuccess", locked);
@@ -151,11 +146,13 @@ ClientDiscardableSharedMemoryManager::DiscardableMemoryImpl::Purge(
     base::TimeTicks min_ticks) {
   DCHECK(span_);
 
-  if (is_locked())
+  if (is_locked()) {
     return nullptr;
+  }
 
-  if (last_locked_ > min_ticks)
+  if (last_locked_ > min_ticks) {
     return nullptr;
+  }
 
   return std::move(span_);
 }
@@ -233,8 +230,9 @@ ClientDiscardableSharedMemoryManager::~ClientDiscardableSharedMemoryManager() {
   // check ensures that we stop before that can happen, instead of continuing
   // with dangling pointers.
   CHECK_EQ(heap_->GetSize(), heap_->GetFreelistSize());
-  if (heap_->GetSize())
+  if (heap_->GetSize()) {
     MemoryUsageChanged(0, 0);
+  }
 
   // Releasing the |heap_| before posting a task for deleting |manager_mojo_|.
   // It is because releasing |heap_| will invoke DeletedDiscardableSharedMemory
@@ -244,8 +242,9 @@ ClientDiscardableSharedMemoryManager::~ClientDiscardableSharedMemoryManager() {
   // Delete the |manager_mojo_| on IO thread, so any pending tasks on IO thread
   // will be executed before the |manager_mojo_| is deleted.
   bool posted = io_task_runner_->DeleteSoon(FROM_HERE, manager_mojo_.release());
-  if (!posted)
+  if (!posted) {
     manager_mojo_.reset();
+  }
 }
 
 void ClientDiscardableSharedMemoryManager::OnForegrounded() {
@@ -315,16 +314,18 @@ ClientDiscardableSharedMemoryManager::AllocateLockedDiscardableMemory(
   // avoid segments larger then |allocation_size| unless they are a perfect
   // fit. The result is that large allocations can be reused without reducing
   // the ability to discard memory.
-  if (pages < allocation_pages)
+  if (pages < allocation_pages) {
     slack = allocation_pages - pages;
+  }
 
   size_t heap_size_prior_to_releasing_purged_memory = heap_->GetSize();
   for (;;) {
     // Search free lists for suitable span.
     std::unique_ptr<DiscardableSharedMemoryHeap::Span> free_span =
         heap_->SearchFreeLists(pages, slack);
-    if (!free_span)
+    if (!free_span) {
       break;
+    }
 
     // Attempt to lock |free_span|. Delete span and search free lists again
     // if locking failed.
@@ -361,8 +362,9 @@ ClientDiscardableSharedMemoryManager::AllocateLockedDiscardableMemory(
   heap_->ReleasePurgedMemory();
 
   // Make sure crash keys are up to date in case allocation fails.
-  if (heap_->GetSize() != heap_size_prior_to_releasing_purged_memory)
+  if (heap_->GetSize() != heap_size_prior_to_releasing_purged_memory) {
     MemoryUsageChanged(heap_->GetSize(), heap_->GetFreelistSize());
+  }
 
   int32_t new_id = g_next_discardable_shared_memory_id.GetNext();
 
@@ -375,8 +377,9 @@ ClientDiscardableSharedMemoryManager::AllocateLockedDiscardableMemory(
   std::unique_ptr<base::DiscardableSharedMemory> shared_memory =
       AllocateLockedDiscardableSharedMemory(allocation_size_in_bytes, new_id);
 
-  if (!shared_memory)
+  if (!shared_memory) {
     return nullptr;
+  }
 
   // Create span for allocated memory.
   // Spans are managed by |heap_| (the member of
@@ -419,8 +422,8 @@ bool ClientDiscardableSharedMemoryManager::OnMemoryDump(
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   base::AutoLock lock(lock_);
   if (foregrounded_) {
-    const size_t total_size = heap_->GetSize() / 1024;                // in KiB
-    const size_t freelist_size = heap_->GetFreelistSize() / 1024;     // in KiB
+    const size_t total_size = heap_->GetSize() / 1024;             // in KiB
+    const size_t freelist_size = heap_->GetFreelistSize() / 1024;  // in KiB
 
     base::UmaHistogramCounts1M("Memory.Discardable.FreelistSize.Foreground",
                                freelist_size);
@@ -516,14 +519,16 @@ void ClientDiscardableSharedMemoryManager::ReleaseFreeMemory() {
   heap_->ReleasePurgedMemory();
   heap_->ReleaseFreeMemory();
 
-  if (heap_->GetSize() != heap_size_prior_to_releasing_memory)
+  if (heap_->GetSize() != heap_size_prior_to_releasing_memory) {
     MemoryUsageChanged(heap_->GetSize(), heap_->GetFreelistSize());
+  }
 }
 
 bool ClientDiscardableSharedMemoryManager::LockSpan(
     DiscardableSharedMemoryHeap::Span* span) {
-  if (!span->shared_memory())
+  if (!span->shared_memory()) {
     return false;
+  }
 
   size_t offset = span->first_block() * base::GetPageSize();
   size_t length = span->num_blocks() * base::GetPageSize();
@@ -573,8 +578,9 @@ void ClientDiscardableSharedMemoryManager::ReleaseSpan(
   DCHECK(span);
 
   // Delete span instead of merging it into free lists if memory is gone.
-  if (!span->shared_memory())
+  if (!span->shared_memory()) {
     return;
+  }
 
   heap_->MergeIntoFreeLists(std::move(span));
 

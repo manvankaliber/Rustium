@@ -128,8 +128,9 @@ void ChannelProxy::Context::OnChannelOpened() {
 void ChannelProxy::Context::OnChannelClosed() {
   // It's okay for IPC::ChannelProxy::Close to be called more than once, which
   // would result in this branch being taken.
-  if (!channel_)
+  if (!channel_) {
     return;
+  }
 
   ClearChannel();
 
@@ -144,8 +145,9 @@ void ChannelProxy::Context::Clear() {
 
 // Called on the listener's thread
 void ChannelProxy::Context::OnDispatchConnected() {
-  if (channel_connected_called_)
+  if (channel_connected_called_) {
     return;
+  }
 
   base::ProcessId peer_pid;
   {
@@ -153,22 +155,25 @@ void ChannelProxy::Context::OnDispatchConnected() {
     peer_pid = peer_pid_;
   }
   channel_connected_called_ = true;
-  if (listener_)
+  if (listener_) {
     listener_->OnChannelConnected(peer_pid);
+  }
 }
 
 // Called on the listener's thread
 void ChannelProxy::Context::OnDispatchError() {
-  if (listener_)
+  if (listener_) {
     listener_->OnChannelError();
+  }
 }
 
 // Called on the listener's thread
 void ChannelProxy::Context::OnDispatchAssociatedInterfaceRequest(
     const std::string& interface_name,
     mojo::ScopedInterfaceEndpointHandle handle) {
-  if (listener_)
+  if (listener_) {
     listener_->OnAssociatedInterfaceRequest(interface_name, std::move(handle));
+  }
 }
 
 void ChannelProxy::Context::ClearChannel() {
@@ -228,7 +233,7 @@ void ChannelProxy::Init(mojo::ScopedMessagePipeHandle channel_handle,
                         bool create_pipe_now) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   DCHECK(!did_init_);
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
   // When we are creating a server on POSIX, we need its file descriptor
   // to be created immediately so that it can be accessed and passed
   // to other processes. Forcing it to be created immediately avoids
@@ -236,7 +241,7 @@ void ChannelProxy::Init(mojo::ScopedMessagePipeHandle channel_handle,
   if (mode & Channel::MODE_SERVER_FLAG) {
     create_pipe_now = true;
   }
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
   if (create_pipe_now) {
     // Create the channel immediately.  This effectively sets up the

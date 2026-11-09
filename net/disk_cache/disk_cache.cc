@@ -48,9 +48,7 @@
 namespace {
 
 void RecordDiskCacheInitTime(base::TimeDelta time) {
-#if !BUILDFLAG(IS_FUCHSIA)
   base::UmaHistogramTimes("HttpCache.TimeToInitDiskCache", time);
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 }
 
 using FileEnumerator = disk_cache::BackendFileOperations::FileEnumerator;
@@ -158,7 +156,7 @@ CacheCreator::CacheCreator(
 CacheCreator::~CacheCreator() = default;
 
 void CacheCreator::Run() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_ANDROID)
   static const bool kSimpleBackendIsDefault = true;
 #else
   static const bool kSimpleBackendIsDefault = false;
@@ -500,11 +498,10 @@ CreateCacheBackend(net::CacheType type,
                    net::CacheEncryptionDelegate* cache_encryption_delegate,
                    BackendResultCallback callback,
                    ApplicationStatusListenerGetter app_status_listener_getter) {
-  return CreateCacheBackendImpl(type, backend_type, std::move(file_operations),
-                                path, max_bytes, reset_handling,
-                                std::move(app_status_listener_getter), net_log,
-                                cache_encryption_delegate,
-                                base::OnceClosure(), std::move(callback));
+  return CreateCacheBackendImpl(
+      type, backend_type, std::move(file_operations), path, max_bytes,
+      reset_handling, std::move(app_status_listener_getter), net_log,
+      cache_encryption_delegate, base::OnceClosure(), std::move(callback));
 }
 #endif
 

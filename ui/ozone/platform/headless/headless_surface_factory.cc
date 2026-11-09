@@ -35,7 +35,7 @@
 #include "ui/ozone/platform/headless/headless_window_manager.h"
 #include "ui/ozone/public/surface_ozone_canvas.h"
 
-#if BUILDFLAG(ENABLE_VULKAN) && (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA))
+#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_LINUX)
 #include "ui/ozone/platform/headless/vulkan_implementation_headless.h"
 #endif
 
@@ -47,8 +47,9 @@ const base::FilePath::CharType kDevNull[] = FILE_PATH_LITERAL("/dev/null");
 
 base::FilePath GetPathForWidget(const base::FilePath& base_path,
                                 gfx::AcceleratedWidget widget) {
-  if (base_path.empty() || base_path == base::FilePath(kDevNull))
+  if (base_path.empty() || base_path == base::FilePath(kDevNull)) {
     return base_path;
+  }
 
   // Disambiguate multiple window output files with the window id.
   return base_path.Append(base::NumberToString(widget) + ".png");
@@ -84,8 +85,9 @@ class FileSurface : public SurfaceOzoneCanvas {
   }
   SkCanvas* GetCanvas() override { return surface_->getCanvas(); }
   void PresentCanvas(const gfx::Rect& damage) override {
-    if (base_path_.empty())
+    if (base_path_.empty()) {
       return;
+    }
     SkBitmap bitmap;
     bitmap.allocPixels(surface_->getCanvas()->imageInfo());
 
@@ -120,8 +122,9 @@ class FileGLSurface : public GLSurfaceEglReadback {
 
   // GLSurfaceEglReadback:
   bool HandlePixels(uint8_t* pixels) override {
-    if (location_.empty())
+    if (location_.empty()) {
       return true;
+    }
 
     const gfx::Size size = GetSize();
     SkImageInfo info = SkImageInfo::MakeN32Premul(size.width(), size.height());
@@ -129,8 +132,9 @@ class FileGLSurface : public GLSurfaceEglReadback {
 
     SkBitmap bitmap;
     bitmap.allocPixels(info);
-    if (!bitmap.writePixels(pixmap))
+    if (!bitmap.writePixels(pixmap)) {
       return false;
+    }
 
     base::ThreadPool::PostTask(
         FROM_HERE,
@@ -264,15 +268,18 @@ scoped_refptr<gfx::NativePixmap> HeadlessSurfaceFactory::CreateNativePixmap(
 }
 
 void HeadlessSurfaceFactory::CheckBasePath() const {
-  if (base_path_.empty())
+  if (base_path_.empty()) {
     return;
+  }
 
   if (!DirectoryExists(base_path_) && !base::CreateDirectory(base_path_) &&
-      base_path_ != base::FilePath(kDevNull))
+      base_path_ != base::FilePath(kDevNull)) {
     PLOG(FATAL) << "Unable to create output directory";
+  }
 
-  if (!base::PathIsWritable(base_path_))
+  if (!base::PathIsWritable(base_path_)) {
     PLOG(FATAL) << "Unable to write to output location";
+  }
 }
 
 #if BUILDFLAG(ENABLE_VULKAN)
@@ -280,7 +287,7 @@ std::unique_ptr<gpu::VulkanImplementation>
 HeadlessSurfaceFactory::CreateVulkanImplementation(
     bool use_swiftshader,
     bool allow_protected_memory) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX)
   return std::make_unique<VulkanImplementationHeadless>(use_swiftshader);
 #else
   return nullptr;

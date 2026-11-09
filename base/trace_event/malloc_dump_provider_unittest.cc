@@ -26,9 +26,9 @@
 
 // The configurations in which MallocDumpProvider reports mallinfo(3) stats; see
 // ReportMallinfoStats in malloc_dump_provider.cc.
-#if (PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && BUILDFLAG(IS_ANDROID)) || \
-    (!PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && !BUILDFLAG(IS_WIN) &&    \
-     !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_FUCHSIA))
+#if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && BUILDFLAG(IS_ANDROID) || \
+    !PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && !BUILDFLAG(IS_WIN) &&   \
+        !BUILDFLAG(IS_APPLE)
 #define MALLOC_DUMP_PROVIDER_REPORTS_MALLINFO
 #endif
 

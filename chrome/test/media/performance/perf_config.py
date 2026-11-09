@@ -4,7 +4,7 @@
 """Paths, ports, and output locations shared by the media perf tests.
 
 Importing this module also puts the helper directories that the perf tests
-import from (build/util, fuchsia_web/av_testing, build/fuchsia/test) on
+import from (build/util) on
 sys.path.
 """
 
@@ -15,11 +15,9 @@ REPO_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', '..', '..', '..')
 )
 BUILD_UTIL_ROOT = os.path.join(REPO_ROOT, 'build', 'util')
-CHROME_FUCHSIA_ROOT = os.path.join(REPO_ROOT, 'fuchsia_web', 'av_testing')
-TEST_SCRIPTS_ROOT = os.path.join(REPO_ROOT, 'build', 'fuchsia', 'test')
 CROSSBENCH_ROOT = os.path.join(REPO_ROOT, 'third_party', 'crossbench')
 
-for _path in (BUILD_UTIL_ROOT, CHROME_FUCHSIA_ROOT, TEST_SCRIPTS_ROOT):
+for _path in (BUILD_UTIL_ROOT,):
     if _path not in sys.path:
         sys.path.append(_path)
 

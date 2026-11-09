@@ -157,8 +157,6 @@ std::string MinidumpMiscInfoDebugBuildString() {
   static constexpr char kOS[] = "linux";
 #elif BUILDFLAG(IS_WIN)
   static constexpr char kOS[] = "win";
-#elif BUILDFLAG(IS_FUCHSIA)
-  static constexpr char kOS[] = "fuchsia";
 #else
 #error define kOS for this operating system
 #endif
@@ -181,11 +179,8 @@ std::string MinidumpMiscInfoDebugBuildString() {
 #error define kCPU for this CPU
 #endif
 
-  std::string debug_build_string = base::StringPrintf("%s.%s,%s,%s",
-                                                      PACKAGE_TARNAME,
-                                                      kCPU,
-                                                      PACKAGE_VERSION,
-                                                      kOS);
+  std::string debug_build_string = base::StringPrintf(
+      "%s.%s,%s,%s", PACKAGE_TARNAME, kCPU, PACKAGE_VERSION, kOS);
 
 #if BUILDFLAG(IS_MAC)
   debug_build_string += base::StringPrintf(
@@ -202,11 +197,9 @@ std::string MinidumpMiscInfoDebugBuildString() {
 }  // namespace internal
 
 MinidumpMiscInfoWriter::MinidumpMiscInfoWriter()
-    : MinidumpStreamWriter(), misc_info_(), has_xstate_data_(false) {
-}
+    : MinidumpStreamWriter(), misc_info_(), has_xstate_data_(false) {}
 
-MinidumpMiscInfoWriter::~MinidumpMiscInfoWriter() {
-}
+MinidumpMiscInfoWriter::~MinidumpMiscInfoWriter() {}
 
 void MinidumpMiscInfoWriter::InitializeFromSnapshot(
     const ProcessSnapshot* process_snapshot) {

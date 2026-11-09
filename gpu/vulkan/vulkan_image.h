@@ -26,10 +26,6 @@
 #include "base/win/scoped_handle.h"
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/vmo.h>
-#endif
-
 namespace gpu {
 
 class VulkanDeviceQueue;
@@ -70,17 +66,16 @@ class COMPONENT_EXPORT(VULKAN) VulkanImage {
       VkImageTiling image_tiling,
       uint32_t queue_family_index);
 
-  static std::unique_ptr<VulkanImage> Create(
-      VulkanDeviceQueue* device_queue,
-      VkImage image,
-      VkDeviceMemory device_memory,
-      const gfx::Size& size,
-      VkFormat format,
-      VkImageTiling image_tiling,
-      VkDeviceSize device_size,
-      uint32_t memory_type_index,
-      VkImageUsageFlags usage,
-      VkImageCreateFlags flags);
+  static std::unique_ptr<VulkanImage> Create(VulkanDeviceQueue* device_queue,
+                                             VkImage image,
+                                             VkDeviceMemory device_memory,
+                                             const gfx::Size& size,
+                                             VkFormat format,
+                                             VkImageTiling image_tiling,
+                                             VkDeviceSize device_size,
+                                             uint32_t memory_type_index,
+                                             VkImageUsageFlags usage,
+                                             VkImageCreateFlags flags);
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   static std::unique_ptr<VulkanImage> CreateWithExternalMemoryAndModifiers(
@@ -106,12 +101,6 @@ class COMPONENT_EXPORT(VULKAN) VulkanImage {
       VkExternalMemoryHandleTypeFlagBits handle_type =
           VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT) {
     return memories_[0]->GetMemoryHandle(handle_type);
-  }
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-  zx::vmo GetMemoryZirconHandle() {
-    return memories_[0]->GetMemoryZirconHandle();
   }
 #endif
 

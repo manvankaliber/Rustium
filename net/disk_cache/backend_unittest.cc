@@ -97,15 +97,7 @@ namespace {
 
 using BackendToTest = DiskCacheTestWithCache::BackendToTest;
 
-#if BUILDFLAG(IS_FUCHSIA)
-// Load tests with large numbers of file descriptors perform poorly on
-// virtualized test execution environments.
-// TODO(crbug.com/40560856): Remove this workaround when virtualized test
-// performance improves.
-const int kLargeNumEntries = 100;
-#else
 const int kLargeNumEntries = 512;
-#endif
 
 // The size of the HTTP cache is multiplied by 4 by default on non-Windows.
 constexpr bool kHTTPCacheSizeIsIncreased =
@@ -277,8 +269,9 @@ int DiskCacheBackendTest::GeneratePendingIO(net::TestCompletionCallback* cb) {
   entry_result =
       cache_->CreateEntry("some key", net::HIGHEST, create_cb.callback());
   entry_result = create_cb.GetResult(std::move(entry_result));
-  if (entry_result.net_error() != net::OK)
+  if (entry_result.net_error() != net::OK) {
     return net::ERR_CACHE_CREATE_FAILURE;
+  }
   disk_cache::Entry* entry = entry_result.ReleaseEntry();
 
   const int kSize = 25000;
@@ -296,10 +289,12 @@ int DiskCacheBackendTest::GeneratePendingIO(net::TestCompletionCallback* cb) {
       rv = entry->WriteData(0, i, buffer.get(), kSize, cb->callback(), false);
     }
 
-    if (rv == net::ERR_IO_PENDING)
+    if (rv == net::ERR_IO_PENDING) {
       break;
-    if (rv != kSize)
+    }
+    if (rv != kSize) {
       rv = net::ERR_FAILED;
+    }
   }
 
   // Don't call Close() to avoid going through the queue or we'll deadlock
@@ -335,8 +330,9 @@ void DiskCacheBackendTest::InitSparseCache(base::Time* doomed_start,
 
   FlushQueueForTest();
   AddDelay();
-  if (doomed_start)
+  if (doomed_start) {
     *doomed_start = base::Time::Now();
+  }
 
   // Order in rankings list:
   // first_part1, first_part2, second_part1, second_part2
@@ -354,8 +350,9 @@ void DiskCacheBackendTest::InitSparseCache(base::Time* doomed_start,
 
   FlushQueueForTest();
   AddDelay();
-  if (doomed_end)
+  if (doomed_end) {
     *doomed_end = base::Time::Now();
+  }
 
   // Order in rankings list:
   // third_part1, fourth_part1, third_part2, fourth_part2
@@ -427,16 +424,19 @@ bool DiskCacheBackendTest::EnumerateAndMatchKeys(
     size_t* count) {
   disk_cache::Entry* entry;
 
-  if (!iter)
+  if (!iter) {
     return false;
+  }
   while (iter->OpenNextEntry(&entry) == net::OK) {
-    if (!entry)
+    if (!entry) {
       return false;
+    }
     EXPECT_EQ(1U, keys_to_match->erase(entry->GetKey()));
     entry->Close();
     ++(*count);
-    if (max_to_open >= 0 && static_cast<int>(*count) >= max_to_open)
+    if (max_to_open >= 0 && static_cast<int>(*count) >= max_to_open) {
       break;
+    }
   };
 
   return true;
@@ -991,8 +991,9 @@ TEST_F(DiskCacheBackendTest, ExternalFiles) {
 void DiskCacheBackendTest::BackendShutdownWithPendingFileIO(bool fast) {
   ASSERT_TRUE(CleanupCacheDir());
   uint32_t flags = disk_cache::kNoBuffering;
-  if (!fast)
+  if (!fast) {
     flags |= disk_cache::kNoRandom;
+  }
 
   if (backend_to_test() != BackendToTest::kSimple) {
     UseCurrentThread();
@@ -1068,8 +1069,9 @@ TEST_F(DiskCacheBackendTest, MultipleInstancesWithPendingFileIO) {
   // cache_ has a pending operation, and backend_rv.backend will go away.
   backend_rv.backend.reset();
 
-  if (rv == net::ERR_IO_PENDING)
+  if (rv == net::ERR_IO_PENDING) {
     EXPECT_FALSE(cb.have_result());
+  }
 
   disk_cache::FlushCacheThreadForTesting();
   base::RunLoop().RunUntilIdle();
@@ -1098,8 +1100,9 @@ void DiskCacheBackendTest::BackendShutdownWithPendingIO(bool fast) {
     ASSERT_TRUE(CleanupCacheDir());
 
     uint32_t flags = disk_cache::kNoBuffering;
-    if (!fast)
+    if (!fast) {
       flags |= disk_cache::kNoRandom;
+    }
 
     CreateBackend(flags);
 
@@ -1615,8 +1618,9 @@ void DiskCacheBackendTest::BackendInvalidEntryWithLoad() {
   std::array<std::string, kNumEntries> keys;
   for (int i = 0; i < kNumEntries; i++) {
     keys[i] = entries[i]->GetKey();
-    if (i < kNumEntries / 2)
+    if (i < kNumEntries / 2) {
       entries[i]->Close();
+    }
   }
 
   SimulateCrash();
@@ -1926,8 +1930,9 @@ void DiskCacheBackendTest::BackendDoomMidEnumeration() {
     if (count == 0) {
       // Delete a random entry from the cache while in the midst of iteration.
       auto key_to_doom = keys.begin();
-      while (*key_to_doom == entry->GetKey())
+      while (*key_to_doom == entry->GetKey()) {
         key_to_doom++;
+      }
       ASSERT_THAT(DoomEntry(*key_to_doom), IsOk());
       ASSERT_EQ(1u, keys.erase(*key_to_doom));
     }
@@ -2073,8 +2078,9 @@ void DiskCacheBackendTest::BackendFixEnumerators() {
 
   // Let's go to the middle of the list.
   for (int i = 0; i < kNumEntries / 2; i++) {
-    if (entry1)
+    if (entry1) {
       entry1->Close();
+    }
     ASSERT_THAT(iter1->OpenNextEntry(&entry1), IsOk());
     ASSERT_TRUE(nullptr != entry1);
 
@@ -3927,8 +3933,9 @@ TEST_F(DiskCacheBackendTest, TotalBuffersSize2) {
   // Check the upper limit.
   EXPECT_FALSE(cache_impl_->IsAllocAllowed(0, 30 * kOneMB));
 
-  for (int i = 0; i < 30; i++)
+  for (int i = 0; i < 30; i++) {
     cache_impl_->IsAllocAllowed(0, kOneMB);  // Ignore the result.
+  }
 
   EXPECT_FALSE(cache_impl_->IsAllocAllowed(0, kOneMB));
 }
@@ -4310,8 +4317,9 @@ TEST_F(DiskCacheBackendTest, SimpleCachePrioritizedEntryOrder) {
                               int entry_number, base::OnceClosure quit_closure,
                               int rv) {
     finished_read_order->push_back(entry_number);
-    if (quit_closure)
+    if (quit_closure) {
       std::move(quit_closure).Run();
+    }
   };
 
   auto read_buf1 = base::MakeRefCounted<net::IOBufferWithSize>(kSize);
@@ -4914,9 +4922,7 @@ TEST_F(DiskCacheBackendTest, MAYBE_NonEmptyCorruptSimpleCacheDoesNotRecover) {
 TEST_F(DiskCacheBackendTest, SimpleOwnershipTransferBackendDestroyRace) {
   struct CleanupContext {
     explicit CleanupContext(bool* ran_ptr) : ran_ptr(ran_ptr) {}
-    ~CleanupContext() {
-      *ran_ptr = true;
-    }
+    ~CleanupContext() { *ran_ptr = true; }
 
     raw_ptr<bool> ran_ptr;
   };
@@ -5254,8 +5260,9 @@ TEST_F(DiskCacheBackendTest, BlockFileInsertAliasing) {
   itEntry1->Close();
   entry->Close();
   itEntry2->Close();
-  if (itEntry3)
+  if (itEntry3) {
     itEntry3->Close();
+  }
 }
 
 TEST_F(DiskCacheBackendTest, MemCacheBackwardsClock) {
@@ -6249,7 +6256,6 @@ INSTANTIATE_TEST_SUITE_P(
       return DiskCacheTestWithCache::BackendToTestName(info.param);
     });
 
-#if !BUILDFLAG(IS_FUCHSIA)
 TEST_F(DiskCacheTest, TimeToInitDiskCache) {
   base::HistogramTester histogram_tester;
   TestBackendResultCompletionCallback cb;
@@ -6261,4 +6267,3 @@ TEST_F(DiskCacheTest, TimeToInitDiskCache) {
   ASSERT_THAT(rv.net_error, IsOk());
   histogram_tester.ExpectTotalCount("HttpCache.TimeToInitDiskCache", 1);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)

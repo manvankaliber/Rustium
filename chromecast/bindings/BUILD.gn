@@ -4,10 +4,6 @@
 
 import("//tools/grit/grit_rule.gni")
 
-if (is_fuchsia) {
-  import("//build/config/fuchsia/generate_runner_scripts.gni")
-}
-
 # TODO(crbug.com/40139651): Deprecated. Delete after off-tree clients
 # are migrated to use NamedMessagePortConnector directly.
 source_set("named_message_port_connector_resources") {
@@ -33,24 +29,6 @@ grit("bindings_resources") {
 source_set("bindings_manager") {
   sources = [ "bindings_manager.h" ]
   deps = [ "//components/cast/api_bindings:manager" ]
-}
-
-if (is_fuchsia) {
-  source_set("bindings_manager_fuchsia") {
-    sources = [
-      "bindings_manager_fuchsia.cc",
-      "bindings_manager_fuchsia.h",
-    ]
-    public_deps = [
-      ":bindings_manager",
-      "//fuchsia_web/runners/cast/fidl:fidl_hlcpp",
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.mem:fuchsia.mem_hlcpp",
-    ]
-    deps = [
-      "//base",
-      "//components/cast/message_port",
-    ]
-  }
 }
 
 if (is_linux || is_chromeos || is_android) {

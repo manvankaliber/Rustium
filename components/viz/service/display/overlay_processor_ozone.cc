@@ -138,8 +138,9 @@ bool AllowColorSpaceCombination(
   // Allow invalid source color spaces because the assumption is that the
   // compositor won't do a color space conversion in this case anyway, so it
   // should be consistent with the overlay path.
-  if (!source_color_space.IsValid())
+  if (!source_color_space.IsValid()) {
     return true;
+  }
 
   // Since https://crrev.com/c/2336347, we force BT.601/narrow for the
   // COLOR_ENCODING and COLOR_RANGE DRM/KMS properties. On the other hand, the
@@ -275,8 +276,9 @@ void OverlayProcessorOzone::CheckOverlaySupportImpl(
   MaybeObserveHardwareCapabilities();
 
   auto full_size = surfaces->size();
-  if (primary_plane)
+  if (primary_plane) {
     full_size += 1;
+  }
 
   ui::OverlayCandidatesOzone::OverlaySurfaceCandidateList ozone_surface_list(
       full_size);
@@ -290,7 +292,6 @@ void OverlayProcessorOzone::CheckOverlaySupportImpl(
       ConvertToOzoneOverlaySurface(*primary_plane, &(*ozone_surface_iterator));
       // TODO(crbug.com/40153057): Fuchsia claims support for presenting primary
       // plane as overlay, but does not provide a mailbox. Handle this case.
-#if !BUILDFLAG(IS_FUCHSIA)
       if (pixmap_provider_) {
         bool result = SetNativePixmapForCandidate(&(*ozone_surface_iterator),
                                                   primary_plane->mailbox,
@@ -325,7 +326,6 @@ void OverlayProcessorOzone::CheckOverlaySupportImpl(
           return;
         }
       }
-#endif
       ozone_surface_iterator++;
     }
 
@@ -416,8 +416,9 @@ void OverlayProcessorOzone::CheckOverlaySupportImpl(
     DCHECK_EQ(full_size, ozone_surface_list.size());
     auto ozone_surface_iterator = ozone_surface_list.cbegin();
     // The primary plane is always handled, and don't need to copy information.
-    if (primary_plane)
+    if (primary_plane) {
       ozone_surface_iterator++;
+    }
 
     auto surface_iterator = surfaces->begin();
     for (; surface_iterator < surfaces->end() &&
@@ -479,8 +480,9 @@ gfx::Rect OverlayProcessorOzone::GetOverlayDamageRectForOutputSurface(
 
 void OverlayProcessorOzone::RegisterOverlayRequirement(bool requires_overlay) {
   // This can be null in unit tests.
-  if (overlay_candidates_)
+  if (overlay_candidates_) {
     overlay_candidates_->RegisterOverlayRequirement(requires_overlay);
+  }
 }
 
 void OverlayProcessorOzone::OnSwapBuffersComplete(gfx::SwapResult swap_result) {

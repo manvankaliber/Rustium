@@ -45,12 +45,7 @@ bool SupportsSharedWorker() {
 
 // In Fuchsia size-optimized builds, the V8 code cache is explicitly disabled
 // to save storage space.
-static constexpr bool kExpectCodeCache =
-#if BUILDFLAG(IS_FUCHSIA) && defined(__OPTIMIZE_SIZE__)
-    false;
-#else
-    true;
-#endif
+static constexpr bool kExpectCodeCache = true;
 
 }  // namespace
 
@@ -634,7 +629,6 @@ IN_PROC_BROWSER_TEST_P(CodeCacheBrowserTest,
 // In Fuchsia size-optimized builds, the V8 code cache is explicitly disabled
 // to save storage space. Therefore, tests that verify generated code cache
 // entry sizes are skipped on these builds.
-#if !BUILDFLAG(IS_FUCHSIA) || !defined(__OPTIMIZE_SIZE__)
 class CodeCacheSizeChecker {
  public:
   CodeCacheSizeChecker(GeneratedCodeCacheContext* cache_context,
@@ -850,7 +844,6 @@ IN_PROC_BROWSER_TEST_P(CodeCacheBrowserTest,
         1);
   }
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA) || !defined(__OPTIMIZE_SIZE__)
 
 class CompileHintsBrowserTest : public ContentBrowserTest {
  public:
@@ -950,7 +943,6 @@ class NoLocalCompileHintsBrowserTest : public CompileHintsBrowserTest {
 // In Fuchsia size-optimized builds, the V8 code cache is explicitly disabled
 // to save storage space. Therefore, compile hints tests that rely on code
 // cache generation and consumption are skipped on these builds.
-#if !BUILDFLAG(IS_FUCHSIA) || !defined(__OPTIMIZE_SIZE__)
 IN_PROC_BROWSER_TEST_F(NoLocalCompileHintsBrowserTest, NoCompileHints) {
   // TODO(chromium:1495723): Migrate this test to use use counters once we no
   // longer have the histograms.
@@ -1104,6 +1096,5 @@ IN_PROC_BROWSER_TEST_F(LocalCompileHintsBrowserTest, LocalCompileHints) {
         1);
   }
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA) || !defined(__OPTIMIZE_SIZE__)
 
 }  // namespace content

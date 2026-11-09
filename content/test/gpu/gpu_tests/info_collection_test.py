@@ -243,7 +243,7 @@ class InfoCollectionTest(gpu_integration_test.GpuIntegrationTest):
     # This is used to verify that the functions in host_information align with
     # the information we pull from the browser.
     tags = self.GetPlatformTags(self.browser)
-    if any(os_tag in tags for os_tag in ('android', 'chromeos', 'fuchsia')):
+    if any(os_tag in tags for os_tag in ('android', 'chromeos', )):
       self.skipTest('Test does not support remote platforms')
 
     if 'win' in tags:

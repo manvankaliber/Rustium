@@ -12,10 +12,9 @@ fn test_kill_none() {
 }
 
 #[test]
-#[cfg(not(target_os = "fuchsia"))]
+
 fn test_killpg_none() {
-    killpg(getpgrp(), None)
-        .expect("Should be able to send signal to my process group.");
+    killpg(getpgrp(), None).expect("Should be able to send signal to my process group.");
 }
 
 #[test]
@@ -23,11 +22,7 @@ fn test_old_sigaction_flags() {
     let _m = crate::SIGNAL_MTX.lock();
 
     extern "C" fn handler(_: ::libc::c_int) {}
-    let act = SigAction::new(
-        SigHandler::Handler(handler),
-        SaFlags::empty(),
-        SigSet::empty(),
-    );
+    let act = SigAction::new(SigHandler::Handler(handler), SaFlags::empty(), SigSet::empty());
     let oact = unsafe { sigaction(SIGINT, &act) }.unwrap();
     let _flags = oact.flags();
     let oact = unsafe { sigaction(SIGINT, &act) }.unwrap();
@@ -36,8 +31,7 @@ fn test_old_sigaction_flags() {
 
 #[test]
 fn test_sigprocmask_noop() {
-    sigprocmask(SigmaskHow::SIG_BLOCK, None, None)
-        .expect("this should be an effective noop");
+    sigprocmask(SigmaskHow::SIG_BLOCK, None, None).expect("this should be an effective noop");
 }
 
 #[test]
@@ -69,10 +63,7 @@ fn test_sigprocmask() {
     old_signal_set.clear();
     sigprocmask(SigmaskHow::SIG_BLOCK, None, Some(&mut old_signal_set))
         .expect("expect to be able to retrieve old signals");
-    assert!(
-        old_signal_set.contains(SIGNAL),
-        "expected the {SIGNAL:?} to be blocked"
-    );
+    assert!(old_signal_set.contains(SIGNAL), "expected the {SIGNAL:?} to be blocked");
 
     // Reset the signal.
     sigprocmask(SigmaskHow::SIG_UNBLOCK, Some(&signal_set), None)
@@ -87,11 +78,7 @@ extern "C" fn test_sigaction_handler(signal: libc::c_int) {
 }
 
 #[cfg(not(target_os = "redox"))]
-extern "C" fn test_sigaction_action(
-    _: libc::c_int,
-    _: *mut libc::siginfo_t,
-    _: *mut libc::c_void,
-) {
+extern "C" fn test_sigaction_action(_: libc::c_int, _: *mut libc::siginfo_t, _: *mut libc::c_void) {
 }
 
 #[test]
@@ -100,10 +87,7 @@ fn test_signal_sigaction() {
     let _m = crate::SIGNAL_MTX.lock();
 
     let action_handler = SigHandler::SigAction(test_sigaction_action);
-    assert_eq!(
-        unsafe { signal(Signal::SIGINT, action_handler) }.unwrap_err(),
-        Errno::ENOTSUP
-    );
+    assert_eq!(unsafe { signal(Signal::SIGINT, action_handler) }.unwrap_err(), Errno::ENOTSUP);
 }
 
 #[test]
@@ -189,22 +173,18 @@ fn test_extend() {
 #[cfg(not(target_os = "redox"))]
 fn test_thread_signal_set_mask() {
     thread::spawn(|| {
-        let prev_mask = SigSet::thread_get_mask()
-            .expect("Failed to get existing signal mask!");
+        let prev_mask = SigSet::thread_get_mask().expect("Failed to get existing signal mask!");
 
         let mut test_mask = prev_mask;
         test_mask.add(SIGUSR1);
 
         test_mask.thread_set_mask().expect("assertion failed");
-        let new_mask =
-            SigSet::thread_get_mask().expect("Failed to get new mask!");
+        let new_mask = SigSet::thread_get_mask().expect("Failed to get new mask!");
 
         assert!(new_mask.contains(SIGUSR1));
         assert!(!new_mask.contains(SIGUSR2));
 
-        prev_mask
-            .thread_set_mask()
-            .expect("Failed to revert signal mask!");
+        prev_mask.thread_set_mask().expect("Failed to revert signal mask!");
     })
     .join()
     .unwrap();
@@ -286,18 +266,14 @@ fn test_sigaction() {
 
         let handler_sig = SigHandler::Handler(test_sigaction_handler);
 
-        let flags =
-            SaFlags::SA_ONSTACK | SaFlags::SA_RESTART | SaFlags::SA_SIGINFO;
+        let flags = SaFlags::SA_ONSTACK | SaFlags::SA_RESTART | SaFlags::SA_SIGINFO;
 
         let mut mask = SigSet::empty();
         mask.add(SIGUSR1);
 
         let action_sig = SigAction::new(handler_sig, flags, mask);
 
-        assert_eq!(
-            action_sig.flags(),
-            SaFlags::SA_ONSTACK | SaFlags::SA_RESTART
-        );
+        assert_eq!(action_sig.flags(), SaFlags::SA_ONSTACK | SaFlags::SA_RESTART);
         assert!(matches!(action_sig.handler(), SigHandler::Handler(_)));
 
         mask = action_sig.mask();
@@ -340,8 +316,7 @@ fn test_sigwait() {
     solarish,
     target_os = "haiku",
     target_os = "hurd",
-    target_os = "aix",
-    target_os = "fuchsia"
+    target_os = "aix"
 ))]
 #[test]
 fn test_sigsuspend() {
@@ -378,8 +353,7 @@ fn test_sigsuspend() {
         assert!(SIGNAL_RECIEVED.load(Ordering::SeqCst));
 
         // Restore the signal handler.
-        unsafe { sigaction(SIGNAL, &old_act) }
-            .expect("expect to be able to restore old action ");
+        unsafe { sigaction(SIGNAL, &old_act) }.expect("expect to be able to restore old action ");
     })
     .join()
     .unwrap();

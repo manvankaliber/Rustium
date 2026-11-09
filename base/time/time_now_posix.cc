@@ -19,11 +19,9 @@
 #if BUILDFLAG(IS_ANDROID) && !defined(__LP64__)
 #include <time64.h>
 #endif
-
-// Ensure the Fuchsia and Mac builds do not include this module. Instead,
 // non-POSIX implementation is used for sampling the system clocks.
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_APPLE)
-#error "This implementation is for POSIX platforms other than Fuchsia or Mac."
+#if BUILDFLAG(IS_APPLE)
+#error "This implementation is for POSIX platforms other than Mac."
 #endif
 
 namespace {

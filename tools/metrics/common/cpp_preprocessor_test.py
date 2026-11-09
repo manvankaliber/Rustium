@@ -16,7 +16,7 @@ _ALL_TEST_SYMBOLS = frozenset(
     'IS_CHROMEOS',
     'IS_MAC',
     'IS_ANDROID',
-    'IS_FUCHSIA',
+
   }
 )
 
@@ -127,7 +127,7 @@ _PREPROCESSOR_TEST_CASES = [
     'testcase_name': 'multiline_defined',
     'code': textwrap.dedent("""\
         #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-            BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+            BUILDFLAG(IS_ANDROID)
           BASE_FEATURE(
               kFeatureOne, "FeatureOne",
               base::FEATURE_ENABLED_BY_DEFAULT);

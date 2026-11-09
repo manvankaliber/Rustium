@@ -275,7 +275,6 @@ TEST_F(SharedDictionaryDiskCacheTest, CreateWriteOpenReadDeleteReopen) {
   EXPECT_EQ(net::ERR_FAILED, reopen_result.net_error());
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // CorruptDiskCache() doesn't work on Fuchsia. So disabling the following tests
 // on Fuchsia.
 TEST_F(SharedDictionaryDiskCacheTest, CreateEntryCorruptedFailure) {
@@ -388,7 +387,5 @@ TEST_F(SharedDictionaryDiskCacheTest, DeletedWhileRuningDidCreateBackend) {
                         base::BindOnce([](int) { ASSERT_TRUE(false); }));
   FlushCacheTasks();
 }
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 }  // namespace network

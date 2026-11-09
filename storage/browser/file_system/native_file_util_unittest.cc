@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "storage/browser/file_system/native_file_util.h"
+
 #include <stdint.h>
 
 #include <memory>
@@ -12,7 +14,6 @@
 #include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "build/build_config.h"
-#include "storage/browser/file_system/native_file_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 #if BUILDFLAG(IS_ANDROID)
@@ -196,7 +197,6 @@ TEST_F(NativeFileUtilTest, CreateAndDeleteDirectory) {
 // which breaks this test that relies on it. Since PPAPI is being deprecated,
 // this test is excluded from the Fuchsia build.
 // See https://crbug.com/1077456 for details.
-#if !BUILDFLAG(IS_FUCHSIA)
 TEST_F(NativeFileUtilTest, TouchFileAndGetFileInfo) {
   base::FilePath file_name = Path("test_file");
   base::File::Info native_info;
@@ -229,7 +229,6 @@ TEST_F(NativeFileUtilTest, TouchFileAndGetFileInfo) {
   EXPECT_EQ(new_accessed, info.last_accessed);
   EXPECT_EQ(new_modified, info.last_modified);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(NativeFileUtilTest, CreateFileEnumerator) {
   base::FilePath path_1 = Path("dir1");
@@ -257,8 +256,9 @@ TEST_F(NativeFileUtilTest, CreateFileEnumerator) {
     set.insert(path_1);
     set.insert(path_2);
     for (base::FilePath path = enumerator->Next(); !path.empty();
-         path = enumerator->Next())
+         path = enumerator->Next()) {
       EXPECT_EQ(1U, set.erase(path));
+    }
     EXPECT_TRUE(set.empty());
   }
 
@@ -272,8 +272,9 @@ TEST_F(NativeFileUtilTest, CreateFileEnumerator) {
     set.insert(path_12);
     set.insert(path_121);
     for (base::FilePath path = enumerator->Next(); !path.empty();
-         path = enumerator->Next())
+         path = enumerator->Next()) {
       EXPECT_EQ(1U, set.erase(path));
+    }
     EXPECT_TRUE(set.empty());
   }
 }

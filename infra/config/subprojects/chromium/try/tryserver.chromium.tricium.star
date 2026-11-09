@@ -86,22 +86,6 @@ try_.builder(
 )
 
 try_.builder(
-    name = "fuchsia-clang-tidy-rel",
-    description_html = "Runs clang-tidy on Fuchsia x64 release builds for the tricium-clang-tidy orchestrator.",
-    executable = "recipe:tricium_clang_tidy_wrapper",
-    gn_args = gn_args.config(
-        configs = [
-            "release_try_builder",
-            "remoteexec",
-            "fuchsia",
-            "x64",
-        ],
-    ),
-    os = os.LINUX_DEFAULT,
-    ssd = True,
-)
-
-try_.builder(
     name = "linux-chromeos-clang-tidy-rel",
     description_html = "Runs clang-tidy on Linux ChromeOS x64 release builds for the tricium-clang-tidy orchestrator.",
     executable = "recipe:tricium_clang_tidy_wrapper",

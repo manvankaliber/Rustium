@@ -95,7 +95,6 @@ TEST(DeviceInfoProtoEnumUtilTest, OsTypeConversion) {
       {DeviceInfo::OsType::kIOS, sync_pb::SyncEnums::OS_TYPE_IOS},
       {DeviceInfo::OsType::kChromeOsLacros,
        sync_pb::SyncEnums::OS_TYPE_CHROME_OS_LACROS},
-      {DeviceInfo::OsType::kFuchsia, sync_pb::SyncEnums::OS_TYPE_FUCHSIA},
   };
 
   for (const auto& [os_type, proto_enum] : kCases) {

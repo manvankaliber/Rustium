@@ -48,12 +48,15 @@ enum class PrefLocation {
 
 PrefLocation GetPrefLocation(const base::DictValue& settings) {
   const std::string* location = settings.FindString("location");
-  if (!location || *location == "user_profile")
+  if (!location || *location == "user_profile") {
     return PrefLocation::kUserProfile;
-  if (*location == "local_state")
+  }
+  if (*location == "local_state") {
     return PrefLocation::kLocalState;
-  if (*location == "signin_profile")
+  }
+  if (*location == "signin_profile") {
     return PrefLocation::kSigninProfile;
+  }
   ADD_FAILURE() << "Unknown pref location: " << *location;
   return PrefLocation::kUserProfile;
 }
@@ -94,8 +97,9 @@ void CheckPrefHasDefaultValue(const PrefService::Preference* pref,
   EXPECT_FALSE(pref->IsUserControlled());
   EXPECT_FALSE(pref->IsManaged());
   EXPECT_FALSE(pref->IsRecommended());
-  if (expected_value)
+  if (expected_value) {
     CheckPrefHasValue(pref, expected_value);
+  }
 }
 
 void CheckPrefHasRecommendedValue(const PrefService::Preference* pref,
@@ -138,10 +142,12 @@ class PrefTestCase {
         settings.FindBool("check_for_recommended").value_or(true);
 
     pref_ = name;
-    if (value)
+    if (value) {
       value_ = value->Clone();
-    if (default_value)
+    }
+    if (default_value) {
       default_value_ = default_value->Clone();
+    }
 
     if (value && default_value) {
       ADD_FAILURE()
@@ -161,13 +167,15 @@ class PrefTestCase {
   const std::string& pref() const { return pref_; }
 
   const base::Value* value() const {
-    if (value_.is_none())
+    if (value_.is_none()) {
       return nullptr;
+    }
     return &value_;
   }
   const base::Value* default_value() const {
-    if (default_value_.is_none())
+    if (default_value_.is_none()) {
       return nullptr;
+    }
     return &default_value_;
   }
 
@@ -198,10 +206,12 @@ class PolicyPrefMappingTest {
     const base::DictValue* policies_settings =
         mapping.FindDict("policies_settings");
     const base::DictValue* prefs = mapping.FindDict("prefs");
-    if (policies)
+    if (policies) {
       policies_ = policies->Clone();
-    if (policies_settings)
+    }
+    if (policies_settings) {
       policies_settings_ = policies_settings->Clone();
+    }
     if (prefs) {
       for (auto [name, setting] : *prefs) {
         if (!setting.is_dict()) {
@@ -467,8 +477,6 @@ class PolicyTestCase {
     static constexpr std::string_view kOsList[] = {"mac"};
 #elif BUILDFLAG(IS_WIN)
     static constexpr std::string_view kOsList[] = {"win"};
-#elif BUILDFLAG(IS_FUCHSIA)
-    static constexpr std::string_view kOsList[] = {"fuchsia"};
 #else
 #error "Unknown platform"
 #endif
@@ -490,8 +498,9 @@ class PolicyTestCase {
 
   bool IsSupported() const {
 #if !BUILDFLAG(GOOGLE_CHROME_BRANDING)
-    if (is_official_only())
+    if (is_official_only()) {
       return false;
+    }
 #endif
     return IsOsSupported();
   }
@@ -589,35 +598,37 @@ PolicySettings GetPolicySettings(const std::string& policy,
   PolicySettings settings;
   const base::DictValue* settings_value =
       policies_settings.FindDictByDottedPath(policy);
-  if (!settings_value)
+  if (!settings_value) {
     return settings;
+  }
   const std::string* source = settings_value->FindString("source");
   if (source) {
-    if (*source == "enterprise_default")
+    if (*source == "enterprise_default") {
       settings.source = POLICY_SOURCE_ENTERPRISE_DEFAULT;
-    else if (*source == "command_line")
+    } else if (*source == "command_line") {
       settings.source = POLICY_SOURCE_COMMAND_LINE;
-    else if (*source == "cloud")
+    } else if (*source == "cloud") {
       settings.source = POLICY_SOURCE_CLOUD;
-    else if (*source == "active_directory")
+    } else if (*source == "active_directory") {
       settings.source = POLICY_SOURCE_ACTIVE_DIRECTORY;
-    else if (*source == "platform")
+    } else if (*source == "platform") {
       settings.source = POLICY_SOURCE_PLATFORM;
-    else if (*source == "merged")
+    } else if (*source == "merged") {
       settings.source = POLICY_SOURCE_MERGED;
-    else if (*source == "cloud_from_ash")
+    } else if (*source == "cloud_from_ash") {
       settings.source = POLICY_SOURCE_CLOUD_FROM_ASH;
-    else {
+    } else {
       NOTREACHED();
     }
   }
 
   const std::string* scope = settings_value->FindString("scope");
   if (scope) {
-    if (*scope == "user")
+    if (*scope == "user") {
       settings.scope = POLICY_SCOPE_USER;
-    else if (*scope == "machine")
+    } else if (*scope == "machine") {
       settings.scope = POLICY_SCOPE_MACHINE;
+    }
   }
 
   return settings;
@@ -657,8 +668,9 @@ std::optional<base::flat_set<std::string>> GetTestFilter() {
           kPolicyToPrefMappingsFilterSwitch);
   auto list = base::SplitString(value, ":", base::TRIM_WHITESPACE,
                                 base::SPLIT_WANT_NONEMPTY);
-  if (list.empty())
+  if (list.empty()) {
     return std::nullopt;
+  }
 
   return base::flat_set<std::string>(std::move(list));
 }
@@ -782,8 +794,9 @@ void VerifyPolicyToPrefMappings(
               GetPrefServiceForLocation(pref_case->location(), local_state,
                                         user_prefs, signin_profile_prefs);
           // Skip preference mapping if required PrefService was not provided.
-          if (!prefs)
+          if (!prefs) {
             continue;
+          }
 
           const bool check_recommended = test_case->can_be_recommended() &&
                                          pref_case->check_for_recommended();

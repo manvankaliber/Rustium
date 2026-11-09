@@ -25,8 +25,6 @@
 #include "util/win/traits.h"
 #elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
 #include "util/linux/traits.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include "util/fuchsia/traits.h"
 #endif
 
 namespace crashpad {

@@ -522,9 +522,6 @@ class BBJSONGenerator(object):
   def is_chromeos(self, tester_config):
     return tester_config.get('os_type') == 'chromeos'
 
-  def is_fuchsia(self, tester_config):
-    return tester_config.get('os_type') == 'fuchsia'
-
   def is_lacros(self, tester_config):
     return tester_config.get('os_type') == 'lacros'
 
@@ -1141,7 +1138,7 @@ class BBJSONGenerator(object):
     # https://chromium.googlesource.com/chromium/src.git/+/HEAD/docs/chrome_os_logging.md
     if self.is_chromeos(tester_config):
       extra_browser_args.append('--log-level=0')
-    elif not self.is_fuchsia(tester_config) or browser != 'fuchsia-chrome':
+    else:
       # Stderr logging is not needed for Chrome browser on Fuchsia, as ordinary
       # logging via syslog is captured.
       extra_browser_args.append('--enable-logging=stderr')
@@ -1186,8 +1183,6 @@ class BBJSONGenerator(object):
         'telemetry_gpu_integration_test'
         + BROWSER_CONFIG_TO_TARGET_SUFFIX_MAP[tester_config['browser_config']]
       )
-    if self.is_fuchsia(tester_config):
-      return 'telemetry_gpu_integration_test_fuchsia'
     return 'telemetry_gpu_integration_test'
 
   def get_test_generator_map(self):

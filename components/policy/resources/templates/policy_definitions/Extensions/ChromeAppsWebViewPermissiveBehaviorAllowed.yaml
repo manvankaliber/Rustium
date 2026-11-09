@@ -33,8 +33,6 @@ desc: |-
 supported_on:
 - chrome.*:113-121
 - chrome_os:113-121
-- fuchsia:113-121
-
 deprecated: true
 
 # While this policy on its own could be dynamic, the GuestView MPArch

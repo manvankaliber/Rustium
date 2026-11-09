@@ -77,26 +77,6 @@
             }
         }
     },
-    "chromium.fuchsia": {
-        "fuchsia-x64-cast-receiver-rel": {
-            "blink_unittests": {
-                "shards": 3,
-                "try_builder": "fuchsia-x64-cast-receiver-rel"
-            },
-            "blink_unittests_v2": {
-                "shards": 2,
-                "try_builder": "fuchsia-x64-cast-receiver-rel"
-            },
-            "components_unittests": {
-                "shards": 2,
-                "try_builder": "fuchsia-x64-cast-receiver-rel"
-            },
-            "content_unittests": {
-                "shards": 2,
-                "try_builder": "fuchsia-x64-cast-receiver-rel"
-            }
-        }
-    },
     "chromium.gpu": {
         "Win10 x64 Release (NVIDIA)": {
             "trace_test": {

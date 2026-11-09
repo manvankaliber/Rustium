@@ -45,8 +45,6 @@ ToT_builders = [
     "chromium/ci/ToTAndroidOfficial",
     "chromium/ci/ToTChromeOS",
     "chromium/ci/ToTChromeOS (dbg)",
-    "chromium/ci/ToTFuchsia x64",
-    "chromium/ci/ToTFuchsiaOfficial arm64",
     "chromium/ci/ToTLinux",
     "chromium/ci/ToTLinux (dbg)",
     "chromium/ci/ToTLinuxASan",

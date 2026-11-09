@@ -29,6 +29,7 @@
 #include "base/test/test_switches.h"
 #include "build/build_config.h"
 #include "mojo/public/c/system/types.h"
+#include "mojo/public/cpp/platform/named_platform_channel.h"
 #include "mojo/public/cpp/platform/platform_channel.h"
 #include "mojo/public/cpp/platform/platform_channel_endpoint.h"
 #include "mojo/public/cpp/platform/platform_channel_server_endpoint.h"
@@ -37,19 +38,13 @@
 #include "mojo/public/cpp/system/platform_handle.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_FUCHSIA)
-#include "mojo/public/cpp/platform/named_platform_channel.h"
-#endif
-
 namespace mojo {
 namespace core {
 namespace test {
 
 namespace {
 
-#if !BUILDFLAG(IS_FUCHSIA)
 const char kNamedPipeName[] = "named-pipe-name";
-#endif
 const char kRunAsBrokerClient[] = "run-as-broker-client";
 const char kAcceptInvitationAsync[] = "accept-invitation-async";
 const char kTestChildMessagePipeName[] = "test_pipe";
@@ -136,9 +131,7 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
     }
   }
 
-#if !BUILDFLAG(IS_FUCHSIA)
   NamedPlatformChannel::ServerName server_name;
-#endif
   PlatformChannel channel;
   base::LaunchOptions options;
   switch (launch_type) {
@@ -147,7 +140,7 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
     case LaunchType::ASYNC:
       channel.PrepareToPassRemoteEndpoint(&options, &command_line);
       break;
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_IOS)
     case LaunchType::NAMED_CHILD:
     case LaunchType::NAMED_PEER: {
 #if BUILDFLAG(IS_MAC)
@@ -167,7 +160,7 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
       command_line.AppendSwitchNative(kNamedPipeName, server_name);
       break;
     }
-#endif  // !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#endif
   }
 
   if (!switch_string.empty()) {
@@ -194,7 +187,7 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
     case LaunchType::ASYNC:
       local_channel_endpoint = channel.TakeLocalEndpoint();
       break;
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_IOS)
     case LaunchType::NAMED_CHILD:
     case LaunchType::NAMED_PEER: {
       NamedPlatformChannel::Options channel_options;
@@ -203,7 +196,7 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
       server_endpoint = named_channel.TakeServerEndpoint();
       break;
     }
-#endif  // !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#endif
   };
 
   OutgoingInvitation child_invitation;
@@ -213,14 +206,14 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
       command_line.AppendSwitch(kAcceptInvitationAsync);
       [[fallthrough]];
     case LaunchType::CHILD:
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_IOS)
     case LaunchType::NAMED_CHILD:
 #endif
       pipe = child_invitation.AttachMessagePipe(kTestChildMessagePipeName);
       command_line.AppendSwitch(kRunAsBrokerClient);
       break;
     case LaunchType::PEER:
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_IOS)
     case LaunchType::NAMED_PEER:
 #endif
       isolated_connection_ = std::make_unique<IsolatedConnection>();
@@ -256,14 +249,14 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
         std::move(child_invitation), test_child_.Handle(),
         std::move(local_channel_endpoint), ProcessErrorCallback());
   }
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_IOS)
   else if (launch_type == LaunchType::NAMED_CHILD) {
     DCHECK(server_endpoint.is_valid());
     OutgoingInvitation::Send(std::move(child_invitation), test_child_.Handle(),
                              std::move(server_endpoint),
                              ProcessErrorCallback());
   }
-#endif  //  !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#endif
 
   CHECK(test_child_.IsValid());
   return pipe;
@@ -293,14 +286,11 @@ void MultiprocessTestHelper::ChildSetup() {
   const bool async = command_line.HasSwitch(kAcceptInvitationAsync);
 
   PlatformChannelEndpoint endpoint;
-#if !BUILDFLAG(IS_FUCHSIA)
   NamedPlatformChannel::ServerName named_pipe(
       command_line.GetSwitchValueNative(kNamedPipeName));
   if (!named_pipe.empty()) {
     endpoint = NamedPlatformChannel::ConnectToServer(named_pipe);
-  } else
-#endif  // !BUILDFLAG(IS_FUCHSIA)
-  {
+  } else {
     endpoint =
         PlatformChannel::RecoverPassedEndpointFromCommandLine(command_line);
   }

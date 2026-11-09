@@ -334,9 +334,6 @@ TEST_F(VideoEncodeAcceleratorAdapterTest, InitializeAfterFirstFrame) {
       });
 
   VideoPixelFormat expected_input_format = PIXEL_FORMAT_NV12;
-#if BUILDFLAG(IS_FUCHSIA)
-  expected_input_format = PIXEL_FORMAT_I420;
-#endif
   vea()->SetEncodingCallback(base::BindLambdaForTesting(
       [&](BitstreamBuffer&, bool keyframe, scoped_refptr<VideoFrame> frame) {
         EXPECT_EQ(keyframe, true);
@@ -448,9 +445,6 @@ TEST_F(VideoEncodeAcceleratorAdapterTest, FlushDuringInitialize) {
       });
 
   VideoPixelFormat expected_input_format = PIXEL_FORMAT_NV12;
-#if BUILDFLAG(IS_FUCHSIA)
-  expected_input_format = PIXEL_FORMAT_I420;
-#endif
 
   vea()->SetEncodingCallback(base::BindLambdaForTesting(
       [&](BitstreamBuffer&, bool keyframe, scoped_refptr<VideoFrame> frame) {
@@ -638,9 +632,6 @@ TEST_P(VideoEncodeAcceleratorAdapterTest, TwoFramesResize) {
       CreateGreenFrame(large_size, pixel_format, base::Milliseconds(2));
 
   VideoPixelFormat expected_input_format = PIXEL_FORMAT_NV12;
-#if BUILDFLAG(IS_FUCHSIA)
-  expected_input_format = PIXEL_FORMAT_I420;
-#endif
   const gfx::ColorSpace expected_color_space =
       ExpectedColorSpace(pixel_format, expected_input_format);
   VideoEncoder::OutputCB output_cb = base::BindLambdaForTesting(
@@ -760,19 +751,17 @@ TEST_P(VideoEncodeAcceleratorAdapterTest, RunWithAllPossibleInputConversions) {
 
   VideoPixelFormat expected_input_format = PIXEL_FORMAT_NV12;
   if (input_kind != VideoEncodeAcceleratorAdapter::InputBufferKind::GpuMemBuf) {
-#if BUILDFLAG(IS_FUCHSIA)
-    expected_input_format = PIXEL_FORMAT_I420;
-#endif
   }
 
   constexpr auto get_source_format = [](int i) {
     // Every 4 frames switch between the 3 supported formats.
     const int rem = i % 12;
     auto format = PIXEL_FORMAT_XRGB;
-    if (rem < 4)
+    if (rem < 4) {
       format = PIXEL_FORMAT_I420;
-    else if (rem < 8)
+    } else if (rem < 8) {
       format = PIXEL_FORMAT_NV12;
+    }
     return format;
   };
 
@@ -797,12 +786,13 @@ TEST_P(VideoEncodeAcceleratorAdapterTest, RunWithAllPossibleInputConversions) {
 
   for (int frame_index = 0; frame_index < frames_to_encode; frame_index++) {
     gfx::Size size;
-    if (frame_index % 4 == 0)
+    if (frame_index % 4 == 0) {
       size = large_size;
-    else if (frame_index % 4 == 1)
+    } else if (frame_index % 4 == 1) {
       size = small_size;
-    else
+    } else {
       size = same_size;
+    }
 
     const auto format = get_source_format(frame_index);
     bool key = frame_index % 9 == 0;
@@ -887,9 +877,6 @@ TEST_F(VideoEncodeAcceleratorAdapterTest,
       });
 
   VideoPixelFormat expected_input_format = PIXEL_FORMAT_NV12;
-#if BUILDFLAG(IS_FUCHSIA)
-  expected_input_format = PIXEL_FORMAT_I420;
-#endif
   vea()->SetEncodingCallback(base::BindLambdaForTesting(
       [&](BitstreamBuffer&, bool keyframe, scoped_refptr<VideoFrame> frame) {
         EXPECT_EQ(keyframe, true);
@@ -1153,9 +1140,6 @@ TEST_F(VideoEncodeAcceleratorAdapterTest, ConvertsCpuP010ToSessionFormat) {
       });
 
   VideoPixelFormat expected_input_format = PIXEL_FORMAT_NV12;
-#if BUILDFLAG(IS_FUCHSIA)
-  expected_input_format = PIXEL_FORMAT_I420;
-#endif
   vea()->SetEncodingCallback(base::BindLambdaForTesting(
       [&](BitstreamBuffer&, bool keyframe, scoped_refptr<VideoFrame> frame) {
         EXPECT_EQ(keyframe, true);
@@ -1208,9 +1192,6 @@ TEST_F(VideoEncodeAcceleratorAdapterTest, 10bAv1UsesP010InputFormat) {
 
 TEST_F(VideoEncodeAcceleratorAdapterTest, 8bAv1KeepsDefaultInputFormat) {
   VideoPixelFormat expected_input_format = PIXEL_FORMAT_NV12;
-#if BUILDFLAG(IS_FUCHSIA)
-  expected_input_format = PIXEL_FORMAT_I420;
-#endif
   // The default format has to be advertised as well, otherwise the adapter
   // rejects the config outright instead of falling back to it.
   SetSupportedProfile(AV1PROFILE_PROFILE_MAIN,
@@ -1379,9 +1360,6 @@ TEST(VideoEncodeAcceleratorTest, SelectsInputPixelFormat) {
   VideoEncoder::Options options;
 
   VideoPixelFormat default_format = PIXEL_FORMAT_NV12;
-#if BUILDFLAG(IS_FUCHSIA)
-  default_format = PIXEL_FORMAT_I420;
-#endif
   EXPECT_EQ(VideoEncodeAcceleratorAdapter::GetInputPixelFormat(
                 H264PROFILE_BASELINE, options),
             default_format);

@@ -191,23 +191,12 @@ class NET_EXPORT CertVerifyProc
     kMaxValue = kChainLengthOne
   };
 
-#if !(BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(CHROME_ROOT_STORE_ONLY))
+#if !BUILDFLAG(CHROME_ROOT_STORE_ONLY)
   // Creates and returns a CertVerifyProc that uses the system verifier.
   // |cert_net_fetcher| may not be used, depending on the implementation.
   static scoped_refptr<CertVerifyProc> CreateSystemVerifyProc(
       scoped_refptr<CertNetFetcher> cert_net_fetcher,
       scoped_refptr<CRLSet> crl_set);
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-  // Creates and returns a CertVerifyProcBuiltin using the SSL SystemTrustStore.
-  static scoped_refptr<CertVerifyProc> CreateBuiltinVerifyProc(
-      scoped_refptr<CertNetFetcher> cert_net_fetcher,
-      scoped_refptr<CRLSet> crl_set,
-      std::unique_ptr<CTVerifier> ct_verifier,
-      scoped_refptr<CTPolicyEnforcer> ct_policy_enforcer,
-      const InstanceParams instance_params,
-      std::optional<network_time::TimeTracker> time_tracker);
 #endif
 
 #if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
@@ -347,7 +336,6 @@ class NET_EXPORT CertVerifyProc
 class NET_EXPORT CertVerifyProcFactory
     : public base::RefCountedThreadSafe<CertVerifyProcFactory> {
  public:
-
   // Create a new CertVerifyProc that uses the passed in CRLSet and
   // ChromeRootStoreData.
   virtual scoped_refptr<CertVerifyProc> CreateCertVerifyProc(

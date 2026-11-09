@@ -4172,7 +4172,6 @@ data/accessibility/html/a-expected-android-external.txt
 data/accessibility/html/a-expected-android.txt
 data/accessibility/html/a-expected-auralinux.txt
 data/accessibility/html/a-expected-blink.txt
-data/accessibility/html/a-expected-fuchsia.txt
 data/accessibility/html/a-expected-mac.txt
 data/accessibility/html/a-expected-uia-win.txt
 data/accessibility/html/a-expected-win.txt
@@ -4183,7 +4182,6 @@ data/accessibility/html/a-name-calc-expected-android-external.txt
 data/accessibility/html/a-name-calc-expected-android.txt
 data/accessibility/html/a-name-calc-expected-auralinux.txt
 data/accessibility/html/a-name-calc-expected-blink.txt
-data/accessibility/html/a-name-calc-expected-fuchsia.txt
 data/accessibility/html/a-name-calc-expected-uia-win.txt
 data/accessibility/html/a-name-calc.html
 data/accessibility/html/a-name-expected-android-assist-data.txt
@@ -4191,7 +4189,6 @@ data/accessibility/html/a-name-expected-android-external.txt
 data/accessibility/html/a-name-expected-android.txt
 data/accessibility/html/a-name-expected-auralinux.txt
 data/accessibility/html/a-name-expected-blink.txt
-data/accessibility/html/a-name-expected-fuchsia.txt
 data/accessibility/html/a-name-expected-mac.txt
 data/accessibility/html/a-name-expected-uia-win.txt
 data/accessibility/html/a-name-expected-win.txt
@@ -4201,29 +4198,24 @@ data/accessibility/html/a-nested-structure-expected-android-external.txt
 data/accessibility/html/a-nested-structure-expected-android.txt
 data/accessibility/html/a-nested-structure-expected-auralinux.txt
 data/accessibility/html/a-nested-structure-expected-blink.txt
-data/accessibility/html/a-nested-structure-expected-fuchsia.txt
 data/accessibility/html/a-nested-structure.html
 data/accessibility/html/a-no-text-expected-android-assist-data.txt
 data/accessibility/html/a-no-text-expected-android-external.txt
 data/accessibility/html/a-no-text-expected-android.txt
 data/accessibility/html/a-no-text-expected-blink.txt
-data/accessibility/html/a-no-text-expected-fuchsia.txt
 data/accessibility/html/a-no-text.html
 data/accessibility/html/a-onclick-expected-android.txt
 data/accessibility/html/a-onclick-expected-blink.txt
-data/accessibility/html/a-onclick-expected-fuchsia.txt
 data/accessibility/html/a-onclick-expected-uia-win.txt
 data/accessibility/html/a-onclick-expected-win.txt
 data/accessibility/html/a-onclick.html
 data/accessibility/html/a-with-before-expected-blink.txt
-data/accessibility/html/a-with-before-expected-fuchsia.txt
 data/accessibility/html/a-with-before.html
 data/accessibility/html/a-with-img-expected-android-assist-data.txt
 data/accessibility/html/a-with-img-expected-android-external.txt
 data/accessibility/html/a-with-img-expected-android.txt
 data/accessibility/html/a-with-img-expected-auralinux.txt
 data/accessibility/html/a-with-img-expected-blink.txt
-data/accessibility/html/a-with-img-expected-fuchsia.txt
 data/accessibility/html/a-with-img-expected-mac.txt
 data/accessibility/html/a-with-img-expected-uia-win.txt
 data/accessibility/html/a-with-img-expected-win.txt
@@ -4234,7 +4226,6 @@ data/accessibility/html/abbr-expected-android-external.txt
 data/accessibility/html/abbr-expected-android.txt
 data/accessibility/html/abbr-expected-auralinux.txt
 data/accessibility/html/abbr-expected-blink.txt
-data/accessibility/html/abbr-expected-fuchsia.txt
 data/accessibility/html/abbr-expected-mac.txt
 data/accessibility/html/abbr-expected-uia-win.txt
 data/accessibility/html/abbr-expected-win.txt
@@ -4255,7 +4246,6 @@ data/accessibility/html/action-verbs-expected-android-external.txt
 data/accessibility/html/action-verbs-expected-android.txt
 data/accessibility/html/action-verbs-expected-auralinux.txt
 data/accessibility/html/action-verbs-expected-blink.txt
-data/accessibility/html/action-verbs-expected-fuchsia.txt
 data/accessibility/html/action-verbs-expected-mac.txt
 data/accessibility/html/action-verbs-expected-uia-win.txt
 data/accessibility/html/action-verbs-expected-win.txt
@@ -4266,7 +4256,6 @@ data/accessibility/html/actions-expected-android-assist-data.txt
 data/accessibility/html/actions-expected-android-external.txt
 data/accessibility/html/actions-expected-android.txt
 data/accessibility/html/actions-expected-blink.txt
-data/accessibility/html/actions-expected-fuchsia.txt
 data/accessibility/html/actions-expected-uia-win.txt
 data/accessibility/html/actions.html
 data/accessibility/html/address-expected-android-assist-data.txt
@@ -4274,7 +4263,6 @@ data/accessibility/html/address-expected-android-external.txt
 data/accessibility/html/address-expected-android.txt
 data/accessibility/html/address-expected-auralinux.txt
 data/accessibility/html/address-expected-blink.txt
-data/accessibility/html/address-expected-fuchsia.txt
 data/accessibility/html/address-expected-mac.txt
 data/accessibility/html/address-expected-uia-win.txt
 data/accessibility/html/address-expected-win.txt
@@ -4287,7 +4275,6 @@ data/accessibility/html/area-expected-android-external.txt
 data/accessibility/html/area-expected-android.txt
 data/accessibility/html/area-expected-auralinux.txt
 data/accessibility/html/area-expected-blink.txt
-data/accessibility/html/area-expected-fuchsia.txt
 data/accessibility/html/area-expected-mac.txt
 data/accessibility/html/area-expected-uia-win.txt
 data/accessibility/html/area-expected-win.txt
@@ -4303,7 +4290,6 @@ data/accessibility/html/article-expected-android-external.txt
 data/accessibility/html/article-expected-android.txt
 data/accessibility/html/article-expected-auralinux.txt
 data/accessibility/html/article-expected-blink.txt
-data/accessibility/html/article-expected-fuchsia.txt
 data/accessibility/html/article-expected-mac.txt
 data/accessibility/html/article-expected-uia-win.txt
 data/accessibility/html/article-expected-win.txt
@@ -4313,7 +4299,6 @@ data/accessibility/html/aside-expected-android-external.txt
 data/accessibility/html/aside-expected-android.txt
 data/accessibility/html/aside-expected-auralinux.txt
 data/accessibility/html/aside-expected-blink.txt
-data/accessibility/html/aside-expected-fuchsia.txt
 data/accessibility/html/aside-expected-mac.txt
 data/accessibility/html/aside-expected-uia-win.txt
 data/accessibility/html/aside-expected-win.txt
@@ -4349,7 +4334,6 @@ data/accessibility/html/b-expected-android-external.txt
 data/accessibility/html/b-expected-android.txt
 data/accessibility/html/b-expected-auralinux.txt
 data/accessibility/html/b-expected-blink.txt
-data/accessibility/html/b-expected-fuchsia.txt
 data/accessibility/html/b-expected-mac.txt
 data/accessibility/html/b-expected-uia-win.txt
 data/accessibility/html/b-expected-win.txt
@@ -4365,7 +4349,6 @@ data/accessibility/html/bdo-expected-android-external.txt
 data/accessibility/html/bdo-expected-android.txt
 data/accessibility/html/bdo-expected-auralinux.txt
 data/accessibility/html/bdo-expected-blink.txt
-data/accessibility/html/bdo-expected-fuchsia.txt
 data/accessibility/html/bdo-expected-mac.txt
 data/accessibility/html/bdo-expected-uia-win.txt
 data/accessibility/html/bdo-expected-win.txt
@@ -4375,7 +4358,6 @@ data/accessibility/html/blockquote-expected-android-external.txt
 data/accessibility/html/blockquote-expected-android.txt
 data/accessibility/html/blockquote-expected-auralinux.txt
 data/accessibility/html/blockquote-expected-blink.txt
-data/accessibility/html/blockquote-expected-fuchsia.txt
 data/accessibility/html/blockquote-expected-mac.txt
 data/accessibility/html/blockquote-expected-uia-win.txt
 data/accessibility/html/blockquote-expected-win.txt
@@ -4384,7 +4366,6 @@ data/accessibility/html/blockquote-levels-expected-android-external.txt
 data/accessibility/html/blockquote-levels-expected-android.txt
 data/accessibility/html/blockquote-levels-expected-auralinux.txt
 data/accessibility/html/blockquote-levels-expected-blink.txt
-data/accessibility/html/blockquote-levels-expected-fuchsia.txt
 data/accessibility/html/blockquote-levels-expected-mac.txt
 data/accessibility/html/blockquote-levels-expected-uia-win.txt
 data/accessibility/html/blockquote-levels-expected-win.txt
@@ -4395,7 +4376,6 @@ data/accessibility/html/body-expected-android-external.txt
 data/accessibility/html/body-expected-android.txt
 data/accessibility/html/body-expected-auralinux.txt
 data/accessibility/html/body-expected-blink.txt
-data/accessibility/html/body-expected-fuchsia.txt
 data/accessibility/html/body-expected-mac.txt
 data/accessibility/html/body-expected-uia-win.txt
 data/accessibility/html/body-expected-win.txt
@@ -4417,7 +4397,6 @@ data/accessibility/html/br-expected-android-external.txt
 data/accessibility/html/br-expected-android.txt
 data/accessibility/html/br-expected-auralinux.txt
 data/accessibility/html/br-expected-blink.txt
-data/accessibility/html/br-expected-fuchsia.txt
 data/accessibility/html/br-expected-mac.txt
 data/accessibility/html/br-expected-uia-win.txt
 data/accessibility/html/br-expected-win.txt
@@ -4438,7 +4417,6 @@ data/accessibility/html/button-expected-android-external.txt
 data/accessibility/html/button-expected-android.txt
 data/accessibility/html/button-expected-auralinux.txt
 data/accessibility/html/button-expected-blink.txt
-data/accessibility/html/button-expected-fuchsia.txt
 data/accessibility/html/button-expected-mac.txt
 data/accessibility/html/button-expected-uia-win.txt
 data/accessibility/html/button-expected-win.txt
@@ -4447,7 +4425,6 @@ data/accessibility/html/button-name-calc-expected-android-external.txt
 data/accessibility/html/button-name-calc-expected-android.txt
 data/accessibility/html/button-name-calc-expected-auralinux.txt
 data/accessibility/html/button-name-calc-expected-blink.txt
-data/accessibility/html/button-name-calc-expected-fuchsia.txt
 data/accessibility/html/button-name-calc-expected-mac.txt
 data/accessibility/html/button-name-calc-expected-uia-win.txt
 data/accessibility/html/button-name-calc-expected-win.txt
@@ -4459,7 +4436,6 @@ data/accessibility/html/button-with-listbox-popup-expected-android-external.txt
 data/accessibility/html/button-with-listbox-popup-expected-android.txt
 data/accessibility/html/button-with-listbox-popup-expected-auralinux.txt
 data/accessibility/html/button-with-listbox-popup-expected-blink.txt
-data/accessibility/html/button-with-listbox-popup-expected-fuchsia.txt
 data/accessibility/html/button-with-listbox-popup-expected-mac.txt
 data/accessibility/html/button-with-listbox-popup-expected-uia-win.txt
 data/accessibility/html/button-with-listbox-popup-expected-win.txt
@@ -4470,7 +4446,6 @@ data/accessibility/html/canvas-complex-fallback-expected-android-external.txt
 data/accessibility/html/canvas-complex-fallback-expected-android.txt
 data/accessibility/html/canvas-complex-fallback-expected-auralinux.txt
 data/accessibility/html/canvas-complex-fallback-expected-blink.txt
-data/accessibility/html/canvas-complex-fallback-expected-fuchsia.txt
 data/accessibility/html/canvas-complex-fallback-expected-mac.txt
 data/accessibility/html/canvas-complex-fallback-expected-uia-win.txt
 data/accessibility/html/canvas-complex-fallback-expected-win.txt
@@ -4480,7 +4455,6 @@ data/accessibility/html/canvas-expected-android-external.txt
 data/accessibility/html/canvas-expected-android.txt
 data/accessibility/html/canvas-expected-auralinux.txt
 data/accessibility/html/canvas-expected-blink.txt
-data/accessibility/html/canvas-expected-fuchsia.txt
 data/accessibility/html/canvas-expected-mac.txt
 data/accessibility/html/canvas-expected-uia-win.txt
 data/accessibility/html/canvas-expected-win.txt
@@ -4489,7 +4463,6 @@ data/accessibility/html/canvas-fallback-expected-android-external.txt
 data/accessibility/html/canvas-fallback-expected-android.txt
 data/accessibility/html/canvas-fallback-expected-auralinux.txt
 data/accessibility/html/canvas-fallback-expected-blink.txt
-data/accessibility/html/canvas-fallback-expected-fuchsia.txt
 data/accessibility/html/canvas-fallback-expected-mac.txt
 data/accessibility/html/canvas-fallback-expected-uia-win.txt
 data/accessibility/html/canvas-fallback-expected-win.txt
@@ -4499,7 +4472,6 @@ data/accessibility/html/canvas-interactive-fallback-expected-android-external.tx
 data/accessibility/html/canvas-interactive-fallback-expected-android.txt
 data/accessibility/html/canvas-interactive-fallback-expected-auralinux.txt
 data/accessibility/html/canvas-interactive-fallback-expected-blink.txt
-data/accessibility/html/canvas-interactive-fallback-expected-fuchsia.txt
 data/accessibility/html/canvas-interactive-fallback-expected-mac.txt
 data/accessibility/html/canvas-interactive-fallback-expected-uia-win.txt
 data/accessibility/html/canvas-interactive-fallback-expected-win.txt
@@ -4510,7 +4482,6 @@ data/accessibility/html/caption-expected-android-external.txt
 data/accessibility/html/caption-expected-android.txt
 data/accessibility/html/caption-expected-auralinux.txt
 data/accessibility/html/caption-expected-blink.txt
-data/accessibility/html/caption-expected-fuchsia.txt
 data/accessibility/html/caption-expected-mac.txt
 data/accessibility/html/caption-expected-uia-win.txt
 data/accessibility/html/caption-expected-win.txt
@@ -4518,14 +4489,12 @@ data/accessibility/html/caption.html
 data/accessibility/html/character-locations-expected-android-assist-data.txt
 data/accessibility/html/character-locations-expected-android-external.txt
 data/accessibility/html/character-locations-expected-android.txt
-data/accessibility/html/character-locations-expected-fuchsia.txt
 data/accessibility/html/character-locations.html
 data/accessibility/html/checkbox-name-calc-expected-android-assist-data.txt
 data/accessibility/html/checkbox-name-calc-expected-android-external.txt
 data/accessibility/html/checkbox-name-calc-expected-android.txt
 data/accessibility/html/checkbox-name-calc-expected-auralinux.txt
 data/accessibility/html/checkbox-name-calc-expected-blink.txt
-data/accessibility/html/checkbox-name-calc-expected-fuchsia.txt
 data/accessibility/html/checkbox-name-calc-expected-mac.txt
 data/accessibility/html/checkbox-name-calc-expected-uia-win.txt
 data/accessibility/html/checkbox-name-calc-expected-win.txt
@@ -4535,7 +4504,6 @@ data/accessibility/html/cite-expected-android-external.txt
 data/accessibility/html/cite-expected-android.txt
 data/accessibility/html/cite-expected-auralinux.txt
 data/accessibility/html/cite-expected-blink.txt
-data/accessibility/html/cite-expected-fuchsia.txt
 data/accessibility/html/cite-expected-mac.txt
 data/accessibility/html/cite-expected-uia-win.txt
 data/accessibility/html/cite-expected-win.txt
@@ -4543,7 +4511,6 @@ data/accessibility/html/cite.html
 data/accessibility/html/clickable-ancestor-expected-android-assist-data.txt
 data/accessibility/html/clickable-ancestor-expected-android-external.txt
 data/accessibility/html/clickable-ancestor-expected-android.txt
-data/accessibility/html/clickable-ancestor-expected-fuchsia.txt
 data/accessibility/html/clickable-ancestor.html
 data/accessibility/html/clickable-score-expected-android-assist-data.txt
 data/accessibility/html/clickable-score-expected-android-external.txt
@@ -4553,7 +4520,6 @@ data/accessibility/html/code-expected-android-external.txt
 data/accessibility/html/code-expected-android.txt
 data/accessibility/html/code-expected-auralinux.txt
 data/accessibility/html/code-expected-blink.txt
-data/accessibility/html/code-expected-fuchsia.txt
 data/accessibility/html/code-expected-mac.txt
 data/accessibility/html/code-expected-uia-win.txt
 data/accessibility/html/code-expected-win.txt
@@ -4563,7 +4529,6 @@ data/accessibility/html/col-expected-android-external.txt
 data/accessibility/html/col-expected-android.txt
 data/accessibility/html/col-expected-auralinux.txt
 data/accessibility/html/col-expected-blink.txt
-data/accessibility/html/col-expected-fuchsia.txt
 data/accessibility/html/col-expected-mac.txt
 data/accessibility/html/col-expected-uia-win.txt
 data/accessibility/html/col-expected-win.txt
@@ -4573,7 +4538,6 @@ data/accessibility/html/colgroup-expected-android-external.txt
 data/accessibility/html/colgroup-expected-android.txt
 data/accessibility/html/colgroup-expected-auralinux.txt
 data/accessibility/html/colgroup-expected-blink.txt
-data/accessibility/html/colgroup-expected-fuchsia.txt
 data/accessibility/html/colgroup-expected-mac.txt
 data/accessibility/html/colgroup-expected-uia-win.txt
 data/accessibility/html/colgroup-expected-win.txt
@@ -4586,7 +4550,6 @@ data/accessibility/html/combobox-item-visibility-expected-android-external.txt
 data/accessibility/html/combobox-item-visibility-expected-android.txt
 data/accessibility/html/combobox-item-visibility-expected-auralinux.txt
 data/accessibility/html/combobox-item-visibility-expected-blink.txt
-data/accessibility/html/combobox-item-visibility-expected-fuchsia.txt
 data/accessibility/html/combobox-item-visibility-expected-mac.txt
 data/accessibility/html/combobox-item-visibility-expected-uia-win.txt
 data/accessibility/html/combobox-item-visibility-expected-win.txt
@@ -4596,7 +4559,6 @@ data/accessibility/html/combobox-optgroup-expected-android-external.txt
 data/accessibility/html/combobox-optgroup-expected-android.txt
 data/accessibility/html/combobox-optgroup-expected-auralinux.txt
 data/accessibility/html/combobox-optgroup-expected-blink.txt
-data/accessibility/html/combobox-optgroup-expected-fuchsia.txt
 data/accessibility/html/combobox-optgroup-expected-mac.txt
 data/accessibility/html/combobox-optgroup-expected-uia-win.txt
 data/accessibility/html/combobox-optgroup-expected-win.txt
@@ -4606,7 +4568,6 @@ data/accessibility/html/combobox-with-redundant-aria-role-expected-android-exter
 data/accessibility/html/combobox-with-redundant-aria-role-expected-android.txt
 data/accessibility/html/combobox-with-redundant-aria-role-expected-auralinux.txt
 data/accessibility/html/combobox-with-redundant-aria-role-expected-blink.txt
-data/accessibility/html/combobox-with-redundant-aria-role-expected-fuchsia.txt
 data/accessibility/html/combobox-with-redundant-aria-role-expected-mac.txt
 data/accessibility/html/combobox-with-redundant-aria-role-expected-uia-win.txt
 data/accessibility/html/combobox-with-redundant-aria-role-expected-win.txt
@@ -4650,7 +4611,6 @@ data/accessibility/html/contenteditable-descendants-expected-android-external.tx
 data/accessibility/html/contenteditable-descendants-expected-android.txt
 data/accessibility/html/contenteditable-descendants-expected-auralinux.txt
 data/accessibility/html/contenteditable-descendants-expected-blink.txt
-data/accessibility/html/contenteditable-descendants-expected-fuchsia.txt
 data/accessibility/html/contenteditable-descendants-expected-mac.txt
 data/accessibility/html/contenteditable-descendants-expected-uia-win.txt
 data/accessibility/html/contenteditable-descendants-expected-win.txt
@@ -4658,7 +4618,6 @@ data/accessibility/html/contenteditable-descendants-expose-non-atomic-text-field
 data/accessibility/html/contenteditable-descendants-with-selection-expected-android.txt
 data/accessibility/html/contenteditable-descendants-with-selection-expected-auralinux.txt
 data/accessibility/html/contenteditable-descendants-with-selection-expected-blink.txt
-data/accessibility/html/contenteditable-descendants-with-selection-expected-fuchsia.txt
 data/accessibility/html/contenteditable-descendants-with-selection-expected-mac.txt
 data/accessibility/html/contenteditable-descendants-with-selection-expected-uia-win.txt
 data/accessibility/html/contenteditable-descendants-with-selection-expected-win.txt
@@ -4688,7 +4647,6 @@ data/accessibility/html/contenteditable-with-embedded-contenteditables-expected-
 data/accessibility/html/contenteditable-with-embedded-contenteditables-expected-android.txt
 data/accessibility/html/contenteditable-with-embedded-contenteditables-expected-auralinux.txt
 data/accessibility/html/contenteditable-with-embedded-contenteditables-expected-blink.txt
-data/accessibility/html/contenteditable-with-embedded-contenteditables-expected-fuchsia.txt
 data/accessibility/html/contenteditable-with-embedded-contenteditables-expected-mac.txt
 data/accessibility/html/contenteditable-with-embedded-contenteditables-expected-uia-win.txt
 data/accessibility/html/contenteditable-with-embedded-contenteditables-expected-win.txt
@@ -4698,7 +4656,6 @@ data/accessibility/html/contenteditable-with-no-descendants-expected-android-ext
 data/accessibility/html/contenteditable-with-no-descendants-expected-android.txt
 data/accessibility/html/contenteditable-with-no-descendants-expected-auralinux.txt
 data/accessibility/html/contenteditable-with-no-descendants-expected-blink.txt
-data/accessibility/html/contenteditable-with-no-descendants-expected-fuchsia.txt
 data/accessibility/html/contenteditable-with-no-descendants-expected-mac.txt
 data/accessibility/html/contenteditable-with-no-descendants-expected-uia-win.txt
 data/accessibility/html/contenteditable-with-no-descendants-expected-win.txt
@@ -4738,7 +4695,6 @@ data/accessibility/html/custom-select-expected-android-external.txt
 data/accessibility/html/custom-select-expected-android.txt
 data/accessibility/html/custom-select-expected-auralinux.txt
 data/accessibility/html/custom-select-expected-blink.txt
-data/accessibility/html/custom-select-expected-fuchsia.txt
 data/accessibility/html/custom-select-expected-mac.txt
 data/accessibility/html/custom-select-expected-uia-win.txt
 data/accessibility/html/custom-select-expected-win.txt
@@ -4753,7 +4709,6 @@ data/accessibility/html/custom-select-label-element-expected-android-external.tx
 data/accessibility/html/custom-select-label-element-expected-android.txt
 data/accessibility/html/custom-select-label-element-expected-auralinux.txt
 data/accessibility/html/custom-select-label-element-expected-blink.txt
-data/accessibility/html/custom-select-label-element-expected-fuchsia.txt
 data/accessibility/html/custom-select-label-element-expected-mac.txt
 data/accessibility/html/custom-select-label-element-expected-uia-win.txt
 data/accessibility/html/custom-select-label-element-expected-win.txt
@@ -4763,7 +4718,6 @@ data/accessibility/html/custom-select-mixed-options-expected-android-external.tx
 data/accessibility/html/custom-select-mixed-options-expected-android.txt
 data/accessibility/html/custom-select-mixed-options-expected-auralinux.txt
 data/accessibility/html/custom-select-mixed-options-expected-blink.txt
-data/accessibility/html/custom-select-mixed-options-expected-fuchsia.txt
 data/accessibility/html/custom-select-mixed-options-expected-mac.txt
 data/accessibility/html/custom-select-mixed-options-expected-uia-win.txt
 data/accessibility/html/custom-select-mixed-options-expected-win.txt
@@ -4773,7 +4727,6 @@ data/accessibility/html/custom-select-open-expected-android-external.txt
 data/accessibility/html/custom-select-open-expected-android.txt
 data/accessibility/html/custom-select-open-expected-auralinux.txt
 data/accessibility/html/custom-select-open-expected-blink.txt
-data/accessibility/html/custom-select-open-expected-fuchsia.txt
 data/accessibility/html/custom-select-open-expected-mac.txt
 data/accessibility/html/custom-select-open-expected-uia-win.txt
 data/accessibility/html/custom-select-open-expected-win.txt
@@ -4783,7 +4736,6 @@ data/accessibility/html/custom-select-simple-expected-android-external.txt
 data/accessibility/html/custom-select-simple-expected-android.txt
 data/accessibility/html/custom-select-simple-expected-auralinux.txt
 data/accessibility/html/custom-select-simple-expected-blink.txt
-data/accessibility/html/custom-select-simple-expected-fuchsia.txt
 data/accessibility/html/custom-select-simple-expected-mac.txt
 data/accessibility/html/custom-select-simple-expected-uia-win.txt
 data/accessibility/html/custom-select-simple-expected-win.txt
@@ -4792,7 +4744,6 @@ data/accessibility/html/custom-select-simple-open-expected-android-external.txt
 data/accessibility/html/custom-select-simple-open-expected-android.txt
 data/accessibility/html/custom-select-simple-open-expected-auralinux.txt
 data/accessibility/html/custom-select-simple-open-expected-blink.txt
-data/accessibility/html/custom-select-simple-open-expected-fuchsia.txt
 data/accessibility/html/custom-select-simple-open-expected-mac.txt
 data/accessibility/html/custom-select-simple-open-expected-uia-win.txt
 data/accessibility/html/custom-select-simple-open-expected-win.txt
@@ -4804,7 +4755,6 @@ data/accessibility/html/dd-expected-android-external.txt
 data/accessibility/html/dd-expected-android.txt
 data/accessibility/html/dd-expected-auralinux.txt
 data/accessibility/html/dd-expected-blink.txt
-data/accessibility/html/dd-expected-fuchsia.txt
 data/accessibility/html/dd-expected-mac.txt
 data/accessibility/html/dd-expected-uia-win.txt
 data/accessibility/html/dd-expected-win.txt
@@ -4814,7 +4764,6 @@ data/accessibility/html/del-expected-android-external.txt
 data/accessibility/html/del-expected-android.txt
 data/accessibility/html/del-expected-auralinux.txt
 data/accessibility/html/del-expected-blink.txt
-data/accessibility/html/del-expected-fuchsia.txt
 data/accessibility/html/del-expected-mac.txt
 data/accessibility/html/del-expected-uia-win.txt
 data/accessibility/html/del-expected-win.txt
@@ -4828,7 +4777,6 @@ data/accessibility/html/details-expected-android-external.txt
 data/accessibility/html/details-expected-android.txt
 data/accessibility/html/details-expected-auralinux.txt
 data/accessibility/html/details-expected-blink.txt
-data/accessibility/html/details-expected-fuchsia.txt
 data/accessibility/html/details-expected-mac.txt
 data/accessibility/html/details-expected-uia-win.txt
 data/accessibility/html/details-expected-win.txt
@@ -4837,7 +4785,6 @@ data/accessibility/html/details-name-expected-android-external.txt
 data/accessibility/html/details-name-expected-android.txt
 data/accessibility/html/details-name-expected-auralinux.txt
 data/accessibility/html/details-name-expected-blink.txt
-data/accessibility/html/details-name-expected-fuchsia.txt
 data/accessibility/html/details-name-expected-mac.txt
 data/accessibility/html/details-name-expected-uia-win.txt
 data/accessibility/html/details-name-expected-win.txt
@@ -4848,7 +4795,6 @@ data/accessibility/html/dfn-expected-android-external.txt
 data/accessibility/html/dfn-expected-android.txt
 data/accessibility/html/dfn-expected-auralinux.txt
 data/accessibility/html/dfn-expected-blink.txt
-data/accessibility/html/dfn-expected-fuchsia.txt
 data/accessibility/html/dfn-expected-mac.txt
 data/accessibility/html/dfn-expected-uia-win.txt
 data/accessibility/html/dfn-expected-win.txt
@@ -4858,7 +4804,6 @@ data/accessibility/html/dialog-expected-android-external.txt
 data/accessibility/html/dialog-expected-android.txt
 data/accessibility/html/dialog-expected-auralinux.txt
 data/accessibility/html/dialog-expected-blink.txt
-data/accessibility/html/dialog-expected-fuchsia.txt
 data/accessibility/html/dialog-expected-mac.txt
 data/accessibility/html/dialog-expected-uia-win.txt
 data/accessibility/html/dialog-expected-win.txt
@@ -4875,7 +4820,6 @@ data/accessibility/html/div-expected-android-external.txt
 data/accessibility/html/div-expected-android.txt
 data/accessibility/html/div-expected-auralinux.txt
 data/accessibility/html/div-expected-blink.txt
-data/accessibility/html/div-expected-fuchsia.txt
 data/accessibility/html/div-expected-mac.txt
 data/accessibility/html/div-expected-uia-win.txt
 data/accessibility/html/div-expected-win.txt
@@ -4885,7 +4829,6 @@ data/accessibility/html/dl-expected-android-external.txt
 data/accessibility/html/dl-expected-android.txt
 data/accessibility/html/dl-expected-auralinux.txt
 data/accessibility/html/dl-expected-blink.txt
-data/accessibility/html/dl-expected-fuchsia.txt
 data/accessibility/html/dl-expected-mac.txt
 data/accessibility/html/dl-expected-uia-win.txt
 data/accessibility/html/dl-expected-win.txt
@@ -4895,7 +4838,6 @@ data/accessibility/html/dt-expected-android-external.txt
 data/accessibility/html/dt-expected-android.txt
 data/accessibility/html/dt-expected-auralinux.txt
 data/accessibility/html/dt-expected-blink.txt
-data/accessibility/html/dt-expected-fuchsia.txt
 data/accessibility/html/dt-expected-mac.txt
 data/accessibility/html/dt-expected-uia-win.txt
 data/accessibility/html/dt-expected-win.txt
@@ -4905,7 +4847,6 @@ data/accessibility/html/element-class-id-attr-expected-android-external.txt
 data/accessibility/html/element-class-id-attr-expected-android.txt
 data/accessibility/html/element-class-id-attr-expected-auralinux.txt
 data/accessibility/html/element-class-id-attr-expected-blink.txt
-data/accessibility/html/element-class-id-attr-expected-fuchsia.txt
 data/accessibility/html/element-class-id-attr-expected-mac.txt
 data/accessibility/html/element-class-id-attr-expected-uia-win.txt
 data/accessibility/html/element-class-id-attr-expected-win.txt
@@ -4915,7 +4856,6 @@ data/accessibility/html/em-expected-android-external.txt
 data/accessibility/html/em-expected-android.txt
 data/accessibility/html/em-expected-auralinux.txt
 data/accessibility/html/em-expected-blink.txt
-data/accessibility/html/em-expected-fuchsia.txt
 data/accessibility/html/em-expected-mac.txt
 data/accessibility/html/em-expected-uia-win.txt
 data/accessibility/html/em-expected-win.txt
@@ -4925,7 +4865,6 @@ data/accessibility/html/embed-expected-android-external.txt
 data/accessibility/html/embed-expected-android.txt
 data/accessibility/html/embed-expected-auralinux.txt
 data/accessibility/html/embed-expected-blink.txt
-data/accessibility/html/embed-expected-fuchsia.txt
 data/accessibility/html/embed-expected-mac.txt
 data/accessibility/html/embed-expected-uia-win.txt
 data/accessibility/html/embed-expected-win.txt
@@ -4938,7 +4877,6 @@ data/accessibility/html/fieldset-expected-android-external.txt
 data/accessibility/html/fieldset-expected-android.txt
 data/accessibility/html/fieldset-expected-auralinux.txt
 data/accessibility/html/fieldset-expected-blink.txt
-data/accessibility/html/fieldset-expected-fuchsia.txt
 data/accessibility/html/fieldset-expected-mac.txt
 data/accessibility/html/fieldset-expected-uia-win.txt
 data/accessibility/html/fieldset-expected-win.txt
@@ -4948,7 +4886,6 @@ data/accessibility/html/figcaption-expected-android-external.txt
 data/accessibility/html/figcaption-expected-android.txt
 data/accessibility/html/figcaption-expected-auralinux.txt
 data/accessibility/html/figcaption-expected-blink.txt
-data/accessibility/html/figcaption-expected-fuchsia.txt
 data/accessibility/html/figcaption-expected-mac.txt
 data/accessibility/html/figcaption-expected-uia-win.txt
 data/accessibility/html/figcaption-expected-win.txt
@@ -4960,7 +4897,6 @@ data/accessibility/html/figure-expected-android-external.txt
 data/accessibility/html/figure-expected-android.txt
 data/accessibility/html/figure-expected-auralinux.txt
 data/accessibility/html/figure-expected-blink.txt
-data/accessibility/html/figure-expected-fuchsia.txt
 data/accessibility/html/figure-expected-mac.txt
 data/accessibility/html/figure-expected-uia-win.txt
 data/accessibility/html/figure-expected-win.txt
@@ -4975,7 +4911,6 @@ data/accessibility/html/footer-expected-android-external.txt
 data/accessibility/html/footer-expected-android.txt
 data/accessibility/html/footer-expected-auralinux.txt
 data/accessibility/html/footer-expected-blink.txt
-data/accessibility/html/footer-expected-fuchsia.txt
 data/accessibility/html/footer-expected-mac.txt
 data/accessibility/html/footer-expected-uia-win.txt
 data/accessibility/html/footer-expected-win.txt
@@ -4984,7 +4919,6 @@ data/accessibility/html/footer-inside-other-section-expected-android-external.tx
 data/accessibility/html/footer-inside-other-section-expected-android.txt
 data/accessibility/html/footer-inside-other-section-expected-auralinux.txt
 data/accessibility/html/footer-inside-other-section-expected-blink.txt
-data/accessibility/html/footer-inside-other-section-expected-fuchsia.txt
 data/accessibility/html/footer-inside-other-section-expected-mac.txt
 data/accessibility/html/footer-inside-other-section-expected-uia-win.txt
 data/accessibility/html/footer-inside-other-section-expected-win.txt
@@ -4995,13 +4929,11 @@ data/accessibility/html/form-expected-android-external.txt
 data/accessibility/html/form-expected-android.txt
 data/accessibility/html/form-expected-auralinux.txt
 data/accessibility/html/form-expected-blink.txt
-data/accessibility/html/form-expected-fuchsia.txt
 data/accessibility/html/form-expected-mac.txt
 data/accessibility/html/form-expected-uia-win.txt
 data/accessibility/html/form-expected-win.txt
 data/accessibility/html/form-validation-message-expected-auralinux.txt
 data/accessibility/html/form-validation-message-expected-blink.txt
-data/accessibility/html/form-validation-message-expected-fuchsia.txt
 data/accessibility/html/form-validation-message-expected-mac.txt
 data/accessibility/html/form-validation-message-expected-uia-win.txt
 data/accessibility/html/form-validation-message-expected-win.txt
@@ -5027,7 +4959,6 @@ data/accessibility/html/frameset-expected-android-external.txt
 data/accessibility/html/frameset-expected-android.txt
 data/accessibility/html/frameset-expected-auralinux.txt
 data/accessibility/html/frameset-expected-blink.txt
-data/accessibility/html/frameset-expected-fuchsia.txt
 data/accessibility/html/frameset-expected-mac.txt
 data/accessibility/html/frameset-expected-uia-win.txt
 data/accessibility/html/frameset-expected-win.txt
@@ -5048,7 +4979,6 @@ data/accessibility/html/header-expected-android-external.txt
 data/accessibility/html/header-expected-android.txt
 data/accessibility/html/header-expected-auralinux.txt
 data/accessibility/html/header-expected-blink.txt
-data/accessibility/html/header-expected-fuchsia.txt
 data/accessibility/html/header-expected-mac.txt
 data/accessibility/html/header-expected-uia-win.txt
 data/accessibility/html/header-expected-win.txt
@@ -5057,7 +4987,6 @@ data/accessibility/html/header-inside-other-section-expected-android-external.tx
 data/accessibility/html/header-inside-other-section-expected-android.txt
 data/accessibility/html/header-inside-other-section-expected-auralinux.txt
 data/accessibility/html/header-inside-other-section-expected-blink.txt
-data/accessibility/html/header-inside-other-section-expected-fuchsia.txt
 data/accessibility/html/header-inside-other-section-expected-mac.txt
 data/accessibility/html/header-inside-other-section-expected-uia-win.txt
 data/accessibility/html/header-inside-other-section-expected-win.txt
@@ -5068,7 +4997,6 @@ data/accessibility/html/heading-expected-android-external.txt
 data/accessibility/html/heading-expected-android.txt
 data/accessibility/html/heading-expected-auralinux.txt
 data/accessibility/html/heading-expected-blink.txt
-data/accessibility/html/heading-expected-fuchsia.txt
 data/accessibility/html/heading-expected-mac.txt
 data/accessibility/html/heading-expected-uia-win.txt
 data/accessibility/html/heading-expected-win.txt
@@ -5094,7 +5022,6 @@ data/accessibility/html/heading-with-tabIndex-expected-android-external.txt
 data/accessibility/html/heading-with-tabIndex-expected-android.txt
 data/accessibility/html/heading-with-tabIndex-expected-auralinux.txt
 data/accessibility/html/heading-with-tabIndex-expected-blink.txt
-data/accessibility/html/heading-with-tabIndex-expected-fuchsia.txt
 data/accessibility/html/heading-with-tabIndex.html
 data/accessibility/html/heading.html
 data/accessibility/html/hgroup-expected-blink.txt
@@ -5105,7 +5032,6 @@ data/accessibility/html/hr-expected-android-external.txt
 data/accessibility/html/hr-expected-android.txt
 data/accessibility/html/hr-expected-auralinux.txt
 data/accessibility/html/hr-expected-blink.txt
-data/accessibility/html/hr-expected-fuchsia.txt
 data/accessibility/html/hr-expected-mac.txt
 data/accessibility/html/hr-expected-uia-win.txt
 data/accessibility/html/hr-expected-win.txt
@@ -5124,7 +5050,6 @@ data/accessibility/html/html-expected-android-external.txt
 data/accessibility/html/html-expected-android.txt
 data/accessibility/html/html-expected-auralinux.txt
 data/accessibility/html/html-expected-blink.txt
-data/accessibility/html/html-expected-fuchsia.txt
 data/accessibility/html/html-expected-mac.txt
 data/accessibility/html/html-expected-uia-win.txt
 data/accessibility/html/html-expected-win.txt
@@ -5137,7 +5062,6 @@ data/accessibility/html/i-expected-android-external.txt
 data/accessibility/html/i-expected-android.txt
 data/accessibility/html/i-expected-auralinux.txt
 data/accessibility/html/i-expected-blink.txt
-data/accessibility/html/i-expected-fuchsia.txt
 data/accessibility/html/i-expected-mac.txt
 data/accessibility/html/i-expected-uia-win.txt
 data/accessibility/html/i-expected-win.txt
@@ -5146,7 +5070,6 @@ data/accessibility/html/id-expected-android-assist-data.txt
 data/accessibility/html/id-expected-android-external.txt
 data/accessibility/html/id-expected-android.txt
 data/accessibility/html/id-expected-blink.txt
-data/accessibility/html/id-expected-fuchsia.txt
 data/accessibility/html/id-expected-mac.txt
 data/accessibility/html/id.html
 data/accessibility/html/iframe-aria-hidden-expected-android-assist-data.txt
@@ -5167,7 +5090,6 @@ data/accessibility/html/iframe-coordinates-cross-process-expected-win.txt
 data/accessibility/html/iframe-coordinates-cross-process.html
 data/accessibility/html/iframe-coordinates-expected-android.txt
 data/accessibility/html/iframe-coordinates-expected-blink.txt
-data/accessibility/html/iframe-coordinates-expected-fuchsia.txt
 data/accessibility/html/iframe-coordinates-expected-mac.txt
 data/accessibility/html/iframe-coordinates-expected-uia-win.txt
 data/accessibility/html/iframe-coordinates-expected-win.txt
@@ -5175,7 +5097,6 @@ data/accessibility/html/iframe-coordinates.html
 data/accessibility/html/iframe-create-empty-expected-android.txt
 data/accessibility/html/iframe-create-empty-expected-auralinux.txt
 data/accessibility/html/iframe-create-empty-expected-blink.txt
-data/accessibility/html/iframe-create-empty-expected-fuchsia.txt
 data/accessibility/html/iframe-create-empty-expected-mac.txt
 data/accessibility/html/iframe-create-empty-expected-uia-win.txt
 data/accessibility/html/iframe-create-empty-expected-win.txt
@@ -5183,7 +5104,6 @@ data/accessibility/html/iframe-create-empty.html
 data/accessibility/html/iframe-create-expected-android.txt
 data/accessibility/html/iframe-create-expected-auralinux.txt
 data/accessibility/html/iframe-create-expected-blink.txt
-data/accessibility/html/iframe-create-expected-fuchsia.txt
 data/accessibility/html/iframe-create-expected-mac.txt
 data/accessibility/html/iframe-create-expected-uia-win.txt
 data/accessibility/html/iframe-create-expected-win.txt
@@ -5202,7 +5122,6 @@ data/accessibility/html/iframe-empty-positioned-expected-android-external.txt
 data/accessibility/html/iframe-empty-positioned-expected-android.txt
 data/accessibility/html/iframe-empty-positioned-expected-auralinux.txt
 data/accessibility/html/iframe-empty-positioned-expected-blink.txt
-data/accessibility/html/iframe-empty-positioned-expected-fuchsia.txt
 data/accessibility/html/iframe-empty-positioned-expected-mac.txt
 data/accessibility/html/iframe-empty-positioned-expected-uia-win.txt
 data/accessibility/html/iframe-empty-positioned-expected-win.txt
@@ -5213,7 +5132,6 @@ data/accessibility/html/iframe-expected-android-external.txt
 data/accessibility/html/iframe-expected-android.txt
 data/accessibility/html/iframe-expected-auralinux.txt
 data/accessibility/html/iframe-expected-blink.txt
-data/accessibility/html/iframe-expected-fuchsia.txt
 data/accessibility/html/iframe-expected-mac.txt
 data/accessibility/html/iframe-expected-uia-win.txt
 data/accessibility/html/iframe-expected-win.txt
@@ -5227,18 +5145,15 @@ data/accessibility/html/iframe-presentational-expected-android-external.txt
 data/accessibility/html/iframe-presentational-expected-android.txt
 data/accessibility/html/iframe-presentational-expected-auralinux.txt
 data/accessibility/html/iframe-presentational-expected-blink.txt
-data/accessibility/html/iframe-presentational-expected-fuchsia.txt
 data/accessibility/html/iframe-presentational-expected-mac.txt
 data/accessibility/html/iframe-presentational-expected-uia-win.txt
 data/accessibility/html/iframe-presentational-expected-win.txt
 data/accessibility/html/iframe-presentational.html
 data/accessibility/html/iframe-scrollable-expected-blink.txt
-data/accessibility/html/iframe-scrollable-expected-fuchsia.txt
 data/accessibility/html/iframe-scrollable.html
 data/accessibility/html/iframe-srcdoc-changed-expected-android.txt
 data/accessibility/html/iframe-srcdoc-changed-expected-auralinux.txt
 data/accessibility/html/iframe-srcdoc-changed-expected-blink.txt
-data/accessibility/html/iframe-srcdoc-changed-expected-fuchsia.txt
 data/accessibility/html/iframe-srcdoc-changed-expected-mac.txt
 data/accessibility/html/iframe-srcdoc-changed-expected-uia-win.txt
 data/accessibility/html/iframe-srcdoc-changed-expected-win.txt
@@ -5249,7 +5164,6 @@ data/accessibility/html/iframe-transform-expected-android-assist-data.txt
 data/accessibility/html/iframe-transform-expected-android-external.txt
 data/accessibility/html/iframe-transform-expected-android.txt
 data/accessibility/html/iframe-transform-expected-blink.txt
-data/accessibility/html/iframe-transform-expected-fuchsia.txt
 data/accessibility/html/iframe-transform-expected-uia-win.txt
 data/accessibility/html/iframe-transform-expected-win.txt
 data/accessibility/html/iframe-transform-nested-cross-process-expected-blink.txt
@@ -5272,7 +5186,6 @@ data/accessibility/html/iframe.html
 data/accessibility/html/ignored-selection-between-text-expected-android.txt
 data/accessibility/html/ignored-selection-between-text-expected-auralinux.txt
 data/accessibility/html/ignored-selection-between-text-expected-blink.txt
-data/accessibility/html/ignored-selection-between-text-expected-fuchsia.txt
 data/accessibility/html/ignored-selection-between-text-expected-mac.txt
 data/accessibility/html/ignored-selection-between-text-expected-uia-win.txt
 data/accessibility/html/ignored-selection-between-text-expected-win.txt
@@ -5281,14 +5194,12 @@ data/accessibility/html/ignored-selection-expected-android-external.txt
 data/accessibility/html/ignored-selection-expected-android.txt
 data/accessibility/html/ignored-selection-expected-auralinux.txt
 data/accessibility/html/ignored-selection-expected-blink.txt
-data/accessibility/html/ignored-selection-expected-fuchsia.txt
 data/accessibility/html/ignored-selection-expected-mac.txt
 data/accessibility/html/ignored-selection-expected-uia-win.txt
 data/accessibility/html/ignored-selection-expected-win.txt
 data/accessibility/html/ignored-selection-no-unignored-expected-android.txt
 data/accessibility/html/ignored-selection-no-unignored-expected-auralinux.txt
 data/accessibility/html/ignored-selection-no-unignored-expected-blink.txt
-data/accessibility/html/ignored-selection-no-unignored-expected-fuchsia.txt
 data/accessibility/html/ignored-selection-no-unignored-expected-mac.txt
 data/accessibility/html/ignored-selection-no-unignored-expected-uia-win.txt
 data/accessibility/html/ignored-selection-no-unignored-expected-win.txt
@@ -5301,7 +5212,6 @@ data/accessibility/html/img-empty-alt-expected-android-external.txt
 data/accessibility/html/img-empty-alt-expected-android.txt
 data/accessibility/html/img-empty-alt-expected-auralinux.txt
 data/accessibility/html/img-empty-alt-expected-blink.txt
-data/accessibility/html/img-empty-alt-expected-fuchsia.txt
 data/accessibility/html/img-empty-alt-expected-mac.txt
 data/accessibility/html/img-empty-alt-expected-uia-win.txt
 data/accessibility/html/img-empty-alt-expected-win.txt
@@ -5311,7 +5221,6 @@ data/accessibility/html/img-expected-android-external.txt
 data/accessibility/html/img-expected-android.txt
 data/accessibility/html/img-expected-auralinux.txt
 data/accessibility/html/img-expected-blink.txt
-data/accessibility/html/img-expected-fuchsia.txt
 data/accessibility/html/img-expected-mac.txt
 data/accessibility/html/img-expected-uia-win.txt
 data/accessibility/html/img-expected-win.txt
@@ -5322,7 +5231,6 @@ data/accessibility/html/img-link-empty-alt-expected-android-external.txt
 data/accessibility/html/img-link-empty-alt-expected-android.txt
 data/accessibility/html/img-link-empty-alt-expected-auralinux.txt
 data/accessibility/html/img-link-empty-alt-expected-blink.txt
-data/accessibility/html/img-link-empty-alt-expected-fuchsia.txt
 data/accessibility/html/img-link-empty-alt-expected-mac.txt
 data/accessibility/html/img-link-empty-alt-expected-uia-win.txt
 data/accessibility/html/img-link-empty-alt-expected-win.txt
@@ -5337,7 +5245,6 @@ data/accessibility/html/in-page-links-expected-android-external.txt
 data/accessibility/html/in-page-links-expected-android.txt
 data/accessibility/html/in-page-links-expected-auralinux.txt
 data/accessibility/html/in-page-links-expected-blink.txt
-data/accessibility/html/in-page-links-expected-fuchsia.txt
 data/accessibility/html/in-page-links-expected-mac.txt
 data/accessibility/html/in-page-links-expected-uia-win.txt
 data/accessibility/html/in-page-links-expected-win.txt
@@ -5349,7 +5256,6 @@ data/accessibility/html/input-button-expected-android-external.txt
 data/accessibility/html/input-button-expected-android.txt
 data/accessibility/html/input-button-expected-auralinux.txt
 data/accessibility/html/input-button-expected-blink.txt
-data/accessibility/html/input-button-expected-fuchsia.txt
 data/accessibility/html/input-button-expected-mac.txt
 data/accessibility/html/input-button-expected-uia-win.txt
 data/accessibility/html/input-button-expected-win.txt
@@ -5357,14 +5263,12 @@ data/accessibility/html/input-button.html
 data/accessibility/html/input-checkbox-expected-android.txt
 data/accessibility/html/input-checkbox-expected-auralinux.txt
 data/accessibility/html/input-checkbox-expected-blink.txt
-data/accessibility/html/input-checkbox-expected-fuchsia.txt
 data/accessibility/html/input-checkbox-expected-mac.txt
 data/accessibility/html/input-checkbox-expected-uia-win.txt
 data/accessibility/html/input-checkbox-expected-win.txt
 data/accessibility/html/input-checkbox-in-menu-expected-android.txt
 data/accessibility/html/input-checkbox-in-menu-expected-auralinux.txt
 data/accessibility/html/input-checkbox-in-menu-expected-blink.txt
-data/accessibility/html/input-checkbox-in-menu-expected-fuchsia.txt
 data/accessibility/html/input-checkbox-in-menu-expected-mac.txt
 data/accessibility/html/input-checkbox-in-menu-expected-uia-win.txt
 data/accessibility/html/input-checkbox-in-menu-expected-win.txt
@@ -5373,7 +5277,6 @@ data/accessibility/html/input-checkbox-label-expected-android-assist-data.txt
 data/accessibility/html/input-checkbox-label-expected-android-external.txt
 data/accessibility/html/input-checkbox-label-expected-android.txt
 data/accessibility/html/input-checkbox-label-expected-blink.txt
-data/accessibility/html/input-checkbox-label-expected-fuchsia.txt
 data/accessibility/html/input-checkbox-label-expected-mac.txt
 data/accessibility/html/input-checkbox-label.html
 data/accessibility/html/input-checkbox.html
@@ -5384,7 +5287,6 @@ data/accessibility/html/input-color-expected-android-external.txt
 data/accessibility/html/input-color-expected-android.txt
 data/accessibility/html/input-color-expected-auralinux.txt
 data/accessibility/html/input-color-expected-blink.txt
-data/accessibility/html/input-color-expected-fuchsia.txt
 data/accessibility/html/input-color-expected-mac.txt
 data/accessibility/html/input-color-expected-uia-win.txt
 data/accessibility/html/input-color-expected-win.txt
@@ -5405,7 +5307,6 @@ data/accessibility/html/input-date-expected-android-external.txt
 data/accessibility/html/input-date-expected-android.txt
 data/accessibility/html/input-date-expected-auralinux.txt
 data/accessibility/html/input-date-expected-blink.txt
-data/accessibility/html/input-date-expected-fuchsia.txt
 data/accessibility/html/input-date-expected-mac.txt
 data/accessibility/html/input-date-expected-uia-win.txt
 data/accessibility/html/input-date-expected-win.txt
@@ -5414,7 +5315,6 @@ data/accessibility/html/input-date-with-popup-open-expected-android-external.txt
 data/accessibility/html/input-date-with-popup-open-expected-android.txt
 data/accessibility/html/input-date-with-popup-open-expected-auralinux.txt
 data/accessibility/html/input-date-with-popup-open-expected-blink.txt
-data/accessibility/html/input-date-with-popup-open-expected-fuchsia.txt
 data/accessibility/html/input-date-with-popup-open-expected-mac.txt
 data/accessibility/html/input-date-with-popup-open-expected-uia-win.txt
 data/accessibility/html/input-date-with-popup-open-expected-win.txt
@@ -5438,7 +5338,6 @@ data/accessibility/html/input-datetime-expected-android-external.txt
 data/accessibility/html/input-datetime-expected-android.txt
 data/accessibility/html/input-datetime-expected-auralinux.txt
 data/accessibility/html/input-datetime-expected-blink.txt
-data/accessibility/html/input-datetime-expected-fuchsia.txt
 data/accessibility/html/input-datetime-expected-mac.txt
 data/accessibility/html/input-datetime-expected-uia-win.txt
 data/accessibility/html/input-datetime-expected-win.txt
@@ -5446,7 +5345,6 @@ data/accessibility/html/input-datetime-local-expected-android-assist-data.txt
 data/accessibility/html/input-datetime-local-expected-android-external.txt
 data/accessibility/html/input-datetime-local-expected-android.txt
 data/accessibility/html/input-datetime-local-expected-auralinux.txt
-data/accessibility/html/input-datetime-local-expected-fuchsia.txt
 data/accessibility/html/input-datetime-local-expected-mac.txt
 data/accessibility/html/input-datetime-local-expected-uia-win.txt
 data/accessibility/html/input-datetime-local-expected-win.txt
@@ -5457,7 +5355,6 @@ data/accessibility/html/input-email-expected-android-external.txt
 data/accessibility/html/input-email-expected-android.txt
 data/accessibility/html/input-email-expected-auralinux.txt
 data/accessibility/html/input-email-expected-blink.txt
-data/accessibility/html/input-email-expected-fuchsia.txt
 data/accessibility/html/input-email-expected-mac.txt
 data/accessibility/html/input-email-expected-uia-win.txt
 data/accessibility/html/input-email-expected-win.txt
@@ -5467,7 +5364,6 @@ data/accessibility/html/input-file-expected-android-external.txt
 data/accessibility/html/input-file-expected-android.txt
 data/accessibility/html/input-file-expected-auralinux.txt
 data/accessibility/html/input-file-expected-blink.txt
-data/accessibility/html/input-file-expected-fuchsia.txt
 data/accessibility/html/input-file-expected-mac.txt
 data/accessibility/html/input-file-expected-uia-win.txt
 data/accessibility/html/input-file-expected-win.txt
@@ -5484,7 +5380,6 @@ data/accessibility/html/input-image-expected-android-external.txt
 data/accessibility/html/input-image-expected-android.txt
 data/accessibility/html/input-image-expected-auralinux.txt
 data/accessibility/html/input-image-expected-blink.txt
-data/accessibility/html/input-image-expected-fuchsia.txt
 data/accessibility/html/input-image-expected-mac.txt
 data/accessibility/html/input-image-expected-uia-win.txt
 data/accessibility/html/input-image-expected-win.txt
@@ -5498,7 +5393,6 @@ data/accessibility/html/input-list-expected-android-external.txt
 data/accessibility/html/input-list-expected-android.txt
 data/accessibility/html/input-list-expected-auralinux.txt
 data/accessibility/html/input-list-expected-blink.txt
-data/accessibility/html/input-list-expected-fuchsia.txt
 data/accessibility/html/input-list-expected-mac.txt
 data/accessibility/html/input-list-expected-uia-win.txt
 data/accessibility/html/input-list-expected-win.txt
@@ -5508,7 +5402,6 @@ data/accessibility/html/input-month-expected-android-external.txt
 data/accessibility/html/input-month-expected-android.txt
 data/accessibility/html/input-month-expected-auralinux.txt
 data/accessibility/html/input-month-expected-blink.txt
-data/accessibility/html/input-month-expected-fuchsia.txt
 data/accessibility/html/input-month-expected-mac.txt
 data/accessibility/html/input-month-expected-win.txt
 data/accessibility/html/input-month.html
@@ -5517,7 +5410,6 @@ data/accessibility/html/input-number-expected-android-external.txt
 data/accessibility/html/input-number-expected-android.txt
 data/accessibility/html/input-number-expected-auralinux.txt
 data/accessibility/html/input-number-expected-blink.txt
-data/accessibility/html/input-number-expected-fuchsia.txt
 data/accessibility/html/input-number-expected-mac.txt
 data/accessibility/html/input-number-expected-uia-win.txt
 data/accessibility/html/input-number-expected-win.txt
@@ -5525,7 +5417,6 @@ data/accessibility/html/input-number.html
 data/accessibility/html/input-password-expected-android.txt
 data/accessibility/html/input-password-expected-auralinux.txt
 data/accessibility/html/input-password-expected-blink.txt
-data/accessibility/html/input-password-expected-fuchsia.txt
 data/accessibility/html/input-password-expected-mac.txt
 data/accessibility/html/input-password-expected-uia-win.txt
 data/accessibility/html/input-password-expected-win.txt
@@ -5555,7 +5446,6 @@ data/accessibility/html/input-radio-expected-android-external.txt
 data/accessibility/html/input-radio-expected-android.txt
 data/accessibility/html/input-radio-expected-auralinux.txt
 data/accessibility/html/input-radio-expected-blink.txt
-data/accessibility/html/input-radio-expected-fuchsia.txt
 data/accessibility/html/input-radio-expected-mac.txt
 data/accessibility/html/input-radio-expected-uia-win.txt
 data/accessibility/html/input-radio-expected-win.txt
@@ -5570,7 +5460,6 @@ data/accessibility/html/input-radio-in-menu-expected-android-external.txt
 data/accessibility/html/input-radio-in-menu-expected-android.txt
 data/accessibility/html/input-radio-in-menu-expected-auralinux.txt
 data/accessibility/html/input-radio-in-menu-expected-blink.txt
-data/accessibility/html/input-radio-in-menu-expected-fuchsia.txt
 data/accessibility/html/input-radio-in-menu-expected-mac.txt
 data/accessibility/html/input-radio-in-menu-expected-uia-win.txt
 data/accessibility/html/input-radio-in-menu-expected-win.txt
@@ -5581,7 +5470,6 @@ data/accessibility/html/input-radio-sibling-with-span.html
 data/accessibility/html/input-radio-unhidden-expected-blink.txt
 data/accessibility/html/input-radio-unhidden.html
 data/accessibility/html/input-radio-wrapped-label-expected-blink.txt
-data/accessibility/html/input-radio-wrapped-label-expected-fuchsia.txt
 data/accessibility/html/input-radio-wrapped-label.html
 data/accessibility/html/input-radio.html
 data/accessibility/html/input-range-expected-android-assist-data.txt
@@ -5589,7 +5477,6 @@ data/accessibility/html/input-range-expected-android-external.txt
 data/accessibility/html/input-range-expected-android.txt
 data/accessibility/html/input-range-expected-auralinux.txt
 data/accessibility/html/input-range-expected-blink.txt
-data/accessibility/html/input-range-expected-fuchsia.txt
 data/accessibility/html/input-range-expected-mac.txt
 data/accessibility/html/input-range-expected-uia-win.txt
 data/accessibility/html/input-range-expected-win.txt
@@ -5599,7 +5486,6 @@ data/accessibility/html/input-reset-expected-android-external.txt
 data/accessibility/html/input-reset-expected-android.txt
 data/accessibility/html/input-reset-expected-auralinux.txt
 data/accessibility/html/input-reset-expected-blink.txt
-data/accessibility/html/input-reset-expected-fuchsia.txt
 data/accessibility/html/input-reset-expected-mac.txt
 data/accessibility/html/input-reset-expected-uia-win.txt
 data/accessibility/html/input-reset-expected-win.txt
@@ -5609,7 +5495,6 @@ data/accessibility/html/input-search-expected-android-external.txt
 data/accessibility/html/input-search-expected-android.txt
 data/accessibility/html/input-search-expected-auralinux.txt
 data/accessibility/html/input-search-expected-blink.txt
-data/accessibility/html/input-search-expected-fuchsia.txt
 data/accessibility/html/input-search-expected-mac.txt
 data/accessibility/html/input-search-expected-uia-win.txt
 data/accessibility/html/input-search-expected-win.txt
@@ -5619,7 +5504,6 @@ data/accessibility/html/input-submit-expected-android-external.txt
 data/accessibility/html/input-submit-expected-android.txt
 data/accessibility/html/input-submit-expected-auralinux.txt
 data/accessibility/html/input-submit-expected-blink.txt
-data/accessibility/html/input-submit-expected-fuchsia.txt
 data/accessibility/html/input-submit-expected-mac.txt
 data/accessibility/html/input-submit-expected-uia-win.txt
 data/accessibility/html/input-submit-expected-win.txt
@@ -5629,7 +5513,6 @@ data/accessibility/html/input-suggestions-source-element-expected-android-extern
 data/accessibility/html/input-suggestions-source-element-expected-android.txt
 data/accessibility/html/input-suggestions-source-element-expected-auralinux.txt
 data/accessibility/html/input-suggestions-source-element-expected-blink.txt
-data/accessibility/html/input-suggestions-source-element-expected-fuchsia.txt
 data/accessibility/html/input-suggestions-source-element-expected-mac.txt
 data/accessibility/html/input-suggestions-source-element-expected-uia-win.txt
 data/accessibility/html/input-suggestions-source-element-expected-win.txt
@@ -5639,7 +5522,6 @@ data/accessibility/html/input-tel-expected-android-external.txt
 data/accessibility/html/input-tel-expected-android.txt
 data/accessibility/html/input-tel-expected-auralinux.txt
 data/accessibility/html/input-tel-expected-blink.txt
-data/accessibility/html/input-tel-expected-fuchsia.txt
 data/accessibility/html/input-tel-expected-mac.txt
 data/accessibility/html/input-tel-expected-uia-win.txt
 data/accessibility/html/input-tel-expected-win.txt
@@ -5649,7 +5531,6 @@ data/accessibility/html/input-text-expected-android-external.txt
 data/accessibility/html/input-text-expected-android.txt
 data/accessibility/html/input-text-expected-auralinux.txt
 data/accessibility/html/input-text-expected-blink.txt
-data/accessibility/html/input-text-expected-fuchsia.txt
 data/accessibility/html/input-text-expected-mac.txt
 data/accessibility/html/input-text-expected-uia-win.txt
 data/accessibility/html/input-text-expected-win.txt
@@ -5658,7 +5539,6 @@ data/accessibility/html/input-text-name-calc-expected-android-external.txt
 data/accessibility/html/input-text-name-calc-expected-android.txt
 data/accessibility/html/input-text-name-calc-expected-auralinux.txt
 data/accessibility/html/input-text-name-calc-expected-blink.txt
-data/accessibility/html/input-text-name-calc-expected-fuchsia.txt
 data/accessibility/html/input-text-name-calc-expected-mac.txt
 data/accessibility/html/input-text-name-calc-expected-uia-win.txt
 data/accessibility/html/input-text-name-calc-expected-win.txt
@@ -5671,7 +5551,6 @@ data/accessibility/html/input-text-read-only-expected-android-external.txt
 data/accessibility/html/input-text-read-only-expected-android.txt
 data/accessibility/html/input-text-read-only-expected-auralinux.txt
 data/accessibility/html/input-text-read-only-expected-blink.txt
-data/accessibility/html/input-text-read-only-expected-fuchsia.txt
 data/accessibility/html/input-text-read-only-expected-mac.txt
 data/accessibility/html/input-text-read-only-expected-uia-win.txt
 data/accessibility/html/input-text-read-only-expected-win.txt
@@ -5679,21 +5558,18 @@ data/accessibility/html/input-text-read-only.html
 data/accessibility/html/input-text-value-changed-expected-android.txt
 data/accessibility/html/input-text-value-changed-expected-auralinux.txt
 data/accessibility/html/input-text-value-changed-expected-blink.txt
-data/accessibility/html/input-text-value-changed-expected-fuchsia.txt
 data/accessibility/html/input-text-value-changed.html
 data/accessibility/html/input-text-value-expected-android-assist-data.txt
 data/accessibility/html/input-text-value-expected-android-external.txt
 data/accessibility/html/input-text-value-expected-android.txt
 data/accessibility/html/input-text-value-expected-auralinux.txt
 data/accessibility/html/input-text-value-expected-blink.txt
-data/accessibility/html/input-text-value-expected-fuchsia.txt
 data/accessibility/html/input-text-value-expected-mac.txt
 data/accessibility/html/input-text-value-expected-uia-win.txt
 data/accessibility/html/input-text-value-expected-win.txt
 data/accessibility/html/input-text-value.html
 data/accessibility/html/input-text-with-selection-expected-android.txt
 data/accessibility/html/input-text-with-selection-expected-auralinux.txt
-data/accessibility/html/input-text-with-selection-expected-fuchsia.txt
 data/accessibility/html/input-text-with-selection-expected-mac.txt
 data/accessibility/html/input-text-with-selection-expected-uia-win.txt
 data/accessibility/html/input-text-with-selection-expected-win.txt
@@ -5704,7 +5580,6 @@ data/accessibility/html/input-time-expected-android-external.txt
 data/accessibility/html/input-time-expected-android.txt
 data/accessibility/html/input-time-expected-auralinux.txt
 data/accessibility/html/input-time-expected-blink.txt
-data/accessibility/html/input-time-expected-fuchsia.txt
 data/accessibility/html/input-time-expected-mac.txt
 data/accessibility/html/input-time-expected-uia-win.txt
 data/accessibility/html/input-time-expected-win.txt
@@ -5713,7 +5588,6 @@ data/accessibility/html/input-time-with-popup-open-expected-android-external.txt
 data/accessibility/html/input-time-with-popup-open-expected-android.txt
 data/accessibility/html/input-time-with-popup-open-expected-auralinux.txt
 data/accessibility/html/input-time-with-popup-open-expected-blink.txt
-data/accessibility/html/input-time-with-popup-open-expected-fuchsia.txt
 data/accessibility/html/input-time-with-popup-open-expected-mac.txt
 data/accessibility/html/input-time-with-popup-open-expected-uia-win.txt
 data/accessibility/html/input-time-with-popup-open-expected-win.txt
@@ -5723,7 +5597,6 @@ data/accessibility/html/input-types-expected-android-external.txt
 data/accessibility/html/input-types-expected-android.txt
 data/accessibility/html/input-types-expected-auralinux.txt
 data/accessibility/html/input-types-expected-blink.txt
-data/accessibility/html/input-types-expected-fuchsia.txt
 data/accessibility/html/input-types-expected-mac.txt
 data/accessibility/html/input-types-for-win-expected-blink.txt
 data/accessibility/html/input-types-for-win-expected-uia-win.txt
@@ -5747,7 +5620,6 @@ data/accessibility/html/input-url-expected-android-external.txt
 data/accessibility/html/input-url-expected-android.txt
 data/accessibility/html/input-url-expected-auralinux.txt
 data/accessibility/html/input-url-expected-blink.txt
-data/accessibility/html/input-url-expected-fuchsia.txt
 data/accessibility/html/input-url-expected-mac.txt
 data/accessibility/html/input-url-expected-uia-win.txt
 data/accessibility/html/input-url-expected-win.txt
@@ -5757,7 +5629,6 @@ data/accessibility/html/input-week-expected-android-external.txt
 data/accessibility/html/input-week-expected-android.txt
 data/accessibility/html/input-week-expected-auralinux.txt
 data/accessibility/html/input-week-expected-blink.txt
-data/accessibility/html/input-week-expected-fuchsia.txt
 data/accessibility/html/input-week-expected-mac.txt
 data/accessibility/html/input-week-expected-uia-win.txt
 data/accessibility/html/input-week-expected-win.txt
@@ -5767,7 +5638,6 @@ data/accessibility/html/ins-expected-android-external.txt
 data/accessibility/html/ins-expected-android.txt
 data/accessibility/html/ins-expected-auralinux.txt
 data/accessibility/html/ins-expected-blink.txt
-data/accessibility/html/ins-expected-fuchsia.txt
 data/accessibility/html/ins-expected-mac.txt
 data/accessibility/html/ins-expected-uia-win.txt
 data/accessibility/html/ins-expected-win.txt
@@ -5783,7 +5653,6 @@ data/accessibility/html/interactive-controls-with-labels-expected-android-extern
 data/accessibility/html/interactive-controls-with-labels-expected-android.txt
 data/accessibility/html/interactive-controls-with-labels-expected-auralinux.txt
 data/accessibility/html/interactive-controls-with-labels-expected-blink.txt
-data/accessibility/html/interactive-controls-with-labels-expected-fuchsia.txt
 data/accessibility/html/interactive-controls-with-labels-expected-mac.txt
 data/accessibility/html/interactive-controls-with-labels-expected-uia-win.txt
 data/accessibility/html/interactive-controls-with-labels-expected-win.txt
@@ -5795,14 +5664,12 @@ data/accessibility/html/interest-for.html
 data/accessibility/html/isInteresting-expected-android-assist-data.txt
 data/accessibility/html/isInteresting-expected-android-external.txt
 data/accessibility/html/isInteresting-expected-android.txt
-data/accessibility/html/isInteresting-expected-fuchsia.txt
 data/accessibility/html/isInteresting.html
 data/accessibility/html/label-expected-android-assist-data.txt
 data/accessibility/html/label-expected-android-external.txt
 data/accessibility/html/label-expected-android.txt
 data/accessibility/html/label-expected-auralinux.txt
 data/accessibility/html/label-expected-blink.txt
-data/accessibility/html/label-expected-fuchsia.txt
 data/accessibility/html/label-expected-mac.txt
 data/accessibility/html/label-expected-uia-win.txt
 data/accessibility/html/label-expected-win.txt
@@ -5818,7 +5685,6 @@ data/accessibility/html/label-with-selected-option-expected-android-external.txt
 data/accessibility/html/label-with-selected-option-expected-android.txt
 data/accessibility/html/label-with-selected-option-expected-auralinux.txt
 data/accessibility/html/label-with-selected-option-expected-blink.txt
-data/accessibility/html/label-with-selected-option-expected-fuchsia.txt
 data/accessibility/html/label-with-selected-option-expected-mac.txt
 data/accessibility/html/label-with-selected-option-expected-uia-win.txt
 data/accessibility/html/label-with-selected-option-expected-win.txt
@@ -5829,20 +5695,17 @@ data/accessibility/html/landmark-expected-android-external.txt
 data/accessibility/html/landmark-expected-android.txt
 data/accessibility/html/landmark-expected-auralinux.txt
 data/accessibility/html/landmark-expected-blink.txt
-data/accessibility/html/landmark-expected-fuchsia.txt
 data/accessibility/html/landmark-expected-mac.txt
 data/accessibility/html/landmark-expected-uia-win.txt
 data/accessibility/html/landmark-expected-win.txt
 data/accessibility/html/landmark.html
 data/accessibility/html/layout-table-in-button-expected-blink.txt
-data/accessibility/html/layout-table-in-button-expected-fuchsia.txt
 data/accessibility/html/layout-table-in-button.html
 data/accessibility/html/legend-expected-android-assist-data.txt
 data/accessibility/html/legend-expected-android-external.txt
 data/accessibility/html/legend-expected-android.txt
 data/accessibility/html/legend-expected-auralinux.txt
 data/accessibility/html/legend-expected-blink.txt
-data/accessibility/html/legend-expected-fuchsia.txt
 data/accessibility/html/legend-expected-mac.txt
 data/accessibility/html/legend-expected-uia-win.txt
 data/accessibility/html/legend-expected-win.txt
@@ -5852,14 +5715,12 @@ data/accessibility/html/li-expected-android-external.txt
 data/accessibility/html/li-expected-android.txt
 data/accessibility/html/li-expected-auralinux.txt
 data/accessibility/html/li-expected-blink.txt
-data/accessibility/html/li-expected-fuchsia.txt
 data/accessibility/html/li-expected-mac.txt
 data/accessibility/html/li-expected-uia-win.txt
 data/accessibility/html/li-expected-win.txt
 data/accessibility/html/li.html
 data/accessibility/html/link-expected-android.txt
 data/accessibility/html/link-expected-auralinux.txt
-data/accessibility/html/link-expected-fuchsia.txt
 data/accessibility/html/link-expected-mac.txt
 data/accessibility/html/link-expected-uia-win.txt
 data/accessibility/html/link-expected-win.txt
@@ -5868,7 +5729,6 @@ data/accessibility/html/link-inside-heading-expected-android-external.txt
 data/accessibility/html/link-inside-heading-expected-android.txt
 data/accessibility/html/link-inside-heading-expected-auralinux.txt
 data/accessibility/html/link-inside-heading-expected-blink.txt
-data/accessibility/html/link-inside-heading-expected-fuchsia.txt
 data/accessibility/html/link-inside-heading-expected-mac.txt
 data/accessibility/html/link-inside-heading-expected-uia-win.txt
 data/accessibility/html/link-inside-heading-expected-win.txt
@@ -5883,7 +5743,6 @@ data/accessibility/html/list-expected-android-external.txt
 data/accessibility/html/list-expected-android.txt
 data/accessibility/html/list-expected-auralinux.txt
 data/accessibility/html/list-expected-blink.txt
-data/accessibility/html/list-expected-fuchsia.txt
 data/accessibility/html/list-expected-mac.txt
 data/accessibility/html/list-expected-uia-win.txt
 data/accessibility/html/list-expected-win.txt
@@ -5891,14 +5750,12 @@ data/accessibility/html/list-item-aria-setsize-unknown-expected-android-assist-d
 data/accessibility/html/list-item-aria-setsize-unknown-expected-android-external.txt
 data/accessibility/html/list-item-aria-setsize-unknown-expected-android.txt
 data/accessibility/html/list-item-aria-setsize-unknown-expected-blink.txt
-data/accessibility/html/list-item-aria-setsize-unknown-expected-fuchsia.txt
 data/accessibility/html/list-item-aria-setsize-unknown-expected-uia-win.txt
 data/accessibility/html/list-item-aria-setsize-unknown-expected-win.txt
 data/accessibility/html/list-item-aria-setsize-unknown-flattened-expected-android-assist-data.txt
 data/accessibility/html/list-item-aria-setsize-unknown-flattened-expected-android-external.txt
 data/accessibility/html/list-item-aria-setsize-unknown-flattened-expected-android.txt
 data/accessibility/html/list-item-aria-setsize-unknown-flattened-expected-blink.txt
-data/accessibility/html/list-item-aria-setsize-unknown-flattened-expected-fuchsia.txt
 data/accessibility/html/list-item-aria-setsize-unknown-flattened-expected-uia-win.txt
 data/accessibility/html/list-item-aria-setsize-unknown-flattened-expected-win.txt
 data/accessibility/html/list-item-aria-setsize-unknown-flattened.html
@@ -5920,7 +5777,6 @@ data/accessibility/html/list-markers-expected-android-external.txt
 data/accessibility/html/list-markers-expected-android.txt
 data/accessibility/html/list-markers-expected-auralinux.txt
 data/accessibility/html/list-markers-expected-blink.txt
-data/accessibility/html/list-markers-expected-fuchsia.txt
 data/accessibility/html/list-markers-expected-mac.txt
 data/accessibility/html/list-markers-expected-uia-win.txt
 data/accessibility/html/list-markers-expected-win.txt
@@ -5941,7 +5797,6 @@ data/accessibility/html/main-expected-android-external.txt
 data/accessibility/html/main-expected-android.txt
 data/accessibility/html/main-expected-auralinux.txt
 data/accessibility/html/main-expected-blink.txt
-data/accessibility/html/main-expected-fuchsia.txt
 data/accessibility/html/main-expected-mac.txt
 data/accessibility/html/main-expected-uia-win.txt
 data/accessibility/html/main-expected-win.txt
@@ -5964,7 +5819,6 @@ data/accessibility/html/mark-expected-android-external.txt
 data/accessibility/html/mark-expected-android.txt
 data/accessibility/html/mark-expected-auralinux.txt
 data/accessibility/html/mark-expected-blink.txt
-data/accessibility/html/mark-expected-fuchsia.txt
 data/accessibility/html/mark-expected-mac.txt
 data/accessibility/html/mark-expected-uia-win.txt
 data/accessibility/html/mark-expected-win.txt
@@ -5973,7 +5827,6 @@ data/accessibility/html/math-expected-android-assist-data.txt
 data/accessibility/html/math-expected-android-external.txt
 data/accessibility/html/math-expected-android.txt
 data/accessibility/html/math-expected-auralinux.txt
-data/accessibility/html/math-expected-fuchsia.txt
 data/accessibility/html/math-expected-mac.txt
 data/accessibility/html/math-expected-uia-win.txt
 data/accessibility/html/math-expected-win.txt
@@ -5985,7 +5838,6 @@ data/accessibility/html/menu-expected-android-external.txt
 data/accessibility/html/menu-expected-android.txt
 data/accessibility/html/menu-expected-auralinux.txt
 data/accessibility/html/menu-expected-blink.txt
-data/accessibility/html/menu-expected-fuchsia.txt
 data/accessibility/html/menu-expected-mac.txt
 data/accessibility/html/menu-expected-uia-win.txt
 data/accessibility/html/menu-expected-win.txt
@@ -6037,7 +5889,6 @@ data/accessibility/html/menulist-violation-mode-setsize-no-direct-menuitem-expec
 data/accessibility/html/menulist-violation-mode-setsize-no-direct-menuitem.html
 data/accessibility/html/menulist-violation-mode-setsize.html
 data/accessibility/html/meta-expected-android.txt
-data/accessibility/html/meta-expected-fuchsia.txt
 data/accessibility/html/meta-expected-mac.txt
 data/accessibility/html/meta-expected-uia-win.txt
 data/accessibility/html/meta-expected-win.txt
@@ -6047,7 +5898,6 @@ data/accessibility/html/meter-expected-android-external.txt
 data/accessibility/html/meter-expected-android.txt
 data/accessibility/html/meter-expected-auralinux.txt
 data/accessibility/html/meter-expected-blink.txt
-data/accessibility/html/meter-expected-fuchsia.txt
 data/accessibility/html/meter-expected-mac.txt
 data/accessibility/html/meter-expected-uia-win.txt
 data/accessibility/html/meter-expected-win.txt
@@ -6065,7 +5915,6 @@ data/accessibility/html/modal-dialog-and-iframes.html
 data/accessibility/html/modal-dialog-closed-expected-android.txt
 data/accessibility/html/modal-dialog-closed-expected-auralinux.txt
 data/accessibility/html/modal-dialog-closed-expected-blink.txt
-data/accessibility/html/modal-dialog-closed-expected-fuchsia.txt
 data/accessibility/html/modal-dialog-closed-expected-mac.txt
 data/accessibility/html/modal-dialog-closed-expected-uia-win.txt
 data/accessibility/html/modal-dialog-closed-expected-win.txt
@@ -6078,7 +5927,6 @@ data/accessibility/html/modal-dialog-in-iframe-opened.html
 data/accessibility/html/modal-dialog-opened-expected-android.txt
 data/accessibility/html/modal-dialog-opened-expected-auralinux.txt
 data/accessibility/html/modal-dialog-opened-expected-blink.txt
-data/accessibility/html/modal-dialog-opened-expected-fuchsia.txt
 data/accessibility/html/modal-dialog-opened-expected-mac.txt
 data/accessibility/html/modal-dialog-opened-expected-uia-win.txt
 data/accessibility/html/modal-dialog-opened-expected-win.txt
@@ -6086,26 +5934,22 @@ data/accessibility/html/modal-dialog-opened.html
 data/accessibility/html/modal-dialog-stack-expected-android.txt
 data/accessibility/html/modal-dialog-stack-expected-auralinux.txt
 data/accessibility/html/modal-dialog-stack-expected-blink.txt
-data/accessibility/html/modal-dialog-stack-expected-fuchsia.txt
 data/accessibility/html/modal-dialog-stack-expected-mac.txt
 data/accessibility/html/modal-dialog-stack-expected-uia-win.txt
 data/accessibility/html/modal-dialog-stack-expected-win.txt
 data/accessibility/html/modal-dialog-stack.html
 data/accessibility/html/move-child-hypertext-2-expected-auralinux.txt
 data/accessibility/html/move-child-hypertext-2-expected-blink.txt
-data/accessibility/html/move-child-hypertext-2-expected-fuchsia.txt
 data/accessibility/html/move-child-hypertext-2-expected-win.txt
 data/accessibility/html/move-child-hypertext-2.html
 data/accessibility/html/move-child-hypertext-expected-auralinux.txt
 data/accessibility/html/move-child-hypertext-expected-blink.txt
-data/accessibility/html/move-child-hypertext-expected-fuchsia.txt
 data/accessibility/html/move-child-hypertext-expected-win.txt
 data/accessibility/html/move-child-hypertext.html
 data/accessibility/html/multi-selectable-expected-android-external.txt
 data/accessibility/html/multi-selectable-expected-android.txt
 data/accessibility/html/multi-selectable-expected-auralinux.txt
 data/accessibility/html/multi-selectable-expected-blink.txt
-data/accessibility/html/multi-selectable-expected-fuchsia.txt
 data/accessibility/html/multi-selectable-expected-win.txt
 data/accessibility/html/multi-selectable.html
 data/accessibility/html/name-calc-focusable-description-list-expected-blink.txt
@@ -6144,7 +5988,6 @@ data/accessibility/html/navigation-expected-android-external.txt
 data/accessibility/html/navigation-expected-android.txt
 data/accessibility/html/navigation-expected-auralinux.txt
 data/accessibility/html/navigation-expected-blink.txt
-data/accessibility/html/navigation-expected-fuchsia.txt
 data/accessibility/html/navigation-expected-mac.txt
 data/accessibility/html/navigation-expected-uia-win.txt
 data/accessibility/html/navigation-expected-win.txt
@@ -6152,7 +5995,6 @@ data/accessibility/html/navigation.html
 data/accessibility/html/nestedlist-expected-android-assist-data.txt
 data/accessibility/html/nestedlist-expected-android-external.txt
 data/accessibility/html/nestedlist-expected-android.txt
-data/accessibility/html/nestedlist-expected-fuchsia.txt
 data/accessibility/html/nestedlist.html
 data/accessibility/html/next-and-previous-on-line-id-expected-blink.txt
 data/accessibility/html/next-and-previous-on-line-id.html
@@ -6161,7 +6003,6 @@ data/accessibility/html/next-on-line-empty-list-item.html
 data/accessibility/html/no-source-video-expected-android.txt
 data/accessibility/html/no-source-video-expected-auralinux.txt
 data/accessibility/html/no-source-video-expected-blink.txt
-data/accessibility/html/no-source-video-expected-fuchsia.txt
 data/accessibility/html/no-source-video-expected-mac.txt
 data/accessibility/html/no-source-video-expected-uia-win.txt
 data/accessibility/html/no-source-video-expected-win.txt
@@ -6169,7 +6010,6 @@ data/accessibility/html/no-source-video.html
 data/accessibility/html/node-changed-crash-in-editable-text-expected-android.txt
 data/accessibility/html/node-changed-crash-in-editable-text-expected-auralinux.txt
 data/accessibility/html/node-changed-crash-in-editable-text-expected-blink.txt
-data/accessibility/html/node-changed-crash-in-editable-text-expected-fuchsia.txt
 data/accessibility/html/node-changed-crash-in-editable-text-expected-mac.txt
 data/accessibility/html/node-changed-crash-in-editable-text-expected-uia-win.txt
 data/accessibility/html/node-changed-crash-in-editable-text-expected-win.txt
@@ -6177,7 +6017,6 @@ data/accessibility/html/non-text-selection-expected-android-external.txt
 data/accessibility/html/non-text-selection.html
 data/accessibility/html/noscript-expected-android.txt
 data/accessibility/html/noscript-expected-auralinux.txt
-data/accessibility/html/noscript-expected-fuchsia.txt
 data/accessibility/html/noscript-expected-mac.txt
 data/accessibility/html/noscript-expected-uia-win.txt
 data/accessibility/html/noscript-expected-win.txt
@@ -6187,7 +6026,6 @@ data/accessibility/html/object-expected-android-external.txt
 data/accessibility/html/object-expected-android.txt
 data/accessibility/html/object-expected-auralinux.txt
 data/accessibility/html/object-expected-blink.txt
-data/accessibility/html/object-expected-fuchsia.txt
 data/accessibility/html/object-expected-mac.txt
 data/accessibility/html/object-expected-uia-win.txt
 data/accessibility/html/object-expected-win.txt
@@ -6206,7 +6044,6 @@ data/accessibility/html/offscreen-iframe-expected-android-assist-data.txt
 data/accessibility/html/offscreen-iframe-expected-android-external.txt
 data/accessibility/html/offscreen-iframe-expected-android.txt
 data/accessibility/html/offscreen-iframe-expected-blink.txt
-data/accessibility/html/offscreen-iframe-expected-fuchsia.txt
 data/accessibility/html/offscreen-iframe-expected-uia-win.txt
 data/accessibility/html/offscreen-iframe-expected-win.txt
 data/accessibility/html/offscreen-iframe.html
@@ -6217,7 +6054,6 @@ data/accessibility/html/offscreen-select-expected-android-external.txt
 data/accessibility/html/offscreen-select-expected-android.txt
 data/accessibility/html/offscreen-select-expected-auralinux.txt
 data/accessibility/html/offscreen-select-expected-blink.txt
-data/accessibility/html/offscreen-select-expected-fuchsia.txt
 data/accessibility/html/offscreen-select-expected-mac.txt
 data/accessibility/html/offscreen-select-expected-uia-win.txt
 data/accessibility/html/offscreen-select-expected-win.txt
@@ -6228,7 +6064,6 @@ data/accessibility/html/ol-expected-android-external.txt
 data/accessibility/html/ol-expected-android.txt
 data/accessibility/html/ol-expected-auralinux.txt
 data/accessibility/html/ol-expected-blink.txt
-data/accessibility/html/ol-expected-fuchsia.txt
 data/accessibility/html/ol-expected-mac.txt
 data/accessibility/html/ol-expected-uia-win.txt
 data/accessibility/html/ol-expected-win.txt
@@ -6242,7 +6077,6 @@ data/accessibility/html/optgroup-custom-menulist-expected-android-external.txt
 data/accessibility/html/optgroup-custom-menulist-expected-android.txt
 data/accessibility/html/optgroup-custom-menulist-expected-auralinux.txt
 data/accessibility/html/optgroup-custom-menulist-expected-blink.txt
-data/accessibility/html/optgroup-custom-menulist-expected-fuchsia.txt
 data/accessibility/html/optgroup-custom-menulist-expected-mac.txt
 data/accessibility/html/optgroup-custom-menulist-expected-uia-win.txt
 data/accessibility/html/optgroup-custom-menulist-expected-win.txt
@@ -6252,7 +6086,6 @@ data/accessibility/html/optgroup-expected-android-external.txt
 data/accessibility/html/optgroup-expected-android.txt
 data/accessibility/html/optgroup-expected-auralinux.txt
 data/accessibility/html/optgroup-expected-blink.txt
-data/accessibility/html/optgroup-expected-fuchsia.txt
 data/accessibility/html/optgroup-expected-mac.txt
 data/accessibility/html/optgroup-expected-uia-win.txt
 data/accessibility/html/optgroup-expected-win.txt
@@ -6261,7 +6094,6 @@ data/accessibility/html/optgroup-menulist-expected-android-external.txt
 data/accessibility/html/optgroup-menulist-expected-android.txt
 data/accessibility/html/optgroup-menulist-expected-auralinux.txt
 data/accessibility/html/optgroup-menulist-expected-blink.txt
-data/accessibility/html/optgroup-menulist-expected-fuchsia.txt
 data/accessibility/html/optgroup-menulist-expected-uia-win.txt
 data/accessibility/html/optgroup-menulist-expected-win.txt
 data/accessibility/html/optgroup-menulist.html
@@ -6271,7 +6103,6 @@ data/accessibility/html/option-in-datalist-expected-android-external.txt
 data/accessibility/html/option-in-datalist-expected-android.txt
 data/accessibility/html/option-in-datalist-expected-auralinux.txt
 data/accessibility/html/option-in-datalist-expected-blink.txt
-data/accessibility/html/option-in-datalist-expected-fuchsia.txt
 data/accessibility/html/option-in-datalist-expected-mac.txt
 data/accessibility/html/option-in-datalist-expected-uia-win.txt
 data/accessibility/html/option-in-datalist-expected-win.txt
@@ -6279,7 +6110,6 @@ data/accessibility/html/option-in-datalist.html
 data/accessibility/html/output-expected-android-assist-data.txt
 data/accessibility/html/output-expected-android-external.txt
 data/accessibility/html/output-expected-android.txt
-data/accessibility/html/output-expected-fuchsia.txt
 data/accessibility/html/output-expected-mac.txt
 data/accessibility/html/output-expected-uia-win.txt
 data/accessibility/html/output-expected-win.txt
@@ -6287,7 +6117,6 @@ data/accessibility/html/output.html
 data/accessibility/html/overflow-actions-expected-android-assist-data.txt
 data/accessibility/html/overflow-actions-expected-android-external.txt
 data/accessibility/html/overflow-actions-expected-android.txt
-data/accessibility/html/overflow-actions-expected-fuchsia.txt
 data/accessibility/html/overflow-actions.html
 data/accessibility/html/overflow-scroller-expected-blink.txt
 data/accessibility/html/overflow-scroller.html
@@ -6296,7 +6125,6 @@ data/accessibility/html/p-expected-android-external.txt
 data/accessibility/html/p-expected-android.txt
 data/accessibility/html/p-expected-auralinux.txt
 data/accessibility/html/p-expected-blink.txt
-data/accessibility/html/p-expected-fuchsia.txt
 data/accessibility/html/p-expected-mac.txt
 data/accessibility/html/p-expected-uia-win.txt
 data/accessibility/html/p-expected-win.txt
@@ -6306,7 +6134,6 @@ data/accessibility/html/param-expected-android-external.txt
 data/accessibility/html/param-expected-android.txt
 data/accessibility/html/param-expected-auralinux.txt
 data/accessibility/html/param-expected-blink.txt
-data/accessibility/html/param-expected-fuchsia.txt
 data/accessibility/html/param-expected-mac.txt
 data/accessibility/html/param-expected-uia-win.txt
 data/accessibility/html/param-expected-win.txt
@@ -6339,7 +6166,6 @@ data/accessibility/html/pre-expected-android-external.txt
 data/accessibility/html/pre-expected-android.txt
 data/accessibility/html/pre-expected-auralinux.txt
 data/accessibility/html/pre-expected-blink.txt
-data/accessibility/html/pre-expected-fuchsia.txt
 data/accessibility/html/pre-expected-mac.txt
 data/accessibility/html/pre-expected-uia-win.txt
 data/accessibility/html/pre-expected-win.txt
@@ -6351,7 +6177,6 @@ data/accessibility/html/progress-expected-android-external.txt
 data/accessibility/html/progress-expected-android.txt
 data/accessibility/html/progress-expected-auralinux.txt
 data/accessibility/html/progress-expected-blink.txt
-data/accessibility/html/progress-expected-fuchsia.txt
 data/accessibility/html/progress-expected-mac.txt
 data/accessibility/html/progress-expected-uia-win.txt
 data/accessibility/html/progress-expected-win.txt
@@ -6367,7 +6192,6 @@ data/accessibility/html/q-expected-android-external.txt
 data/accessibility/html/q-expected-android.txt
 data/accessibility/html/q-expected-auralinux.txt
 data/accessibility/html/q-expected-blink.txt
-data/accessibility/html/q-expected-fuchsia.txt
 data/accessibility/html/q-expected-mac.txt
 data/accessibility/html/q-expected-uia-win.txt
 data/accessibility/html/q-expected-win.txt
@@ -6394,7 +6218,6 @@ data/accessibility/html/s-expected-android-external.txt
 data/accessibility/html/s-expected-android.txt
 data/accessibility/html/s-expected-auralinux.txt
 data/accessibility/html/s-expected-blink.txt
-data/accessibility/html/s-expected-fuchsia.txt
 data/accessibility/html/s-expected-mac.txt
 data/accessibility/html/s-expected-uia-win.txt
 data/accessibility/html/s-expected-win.txt
@@ -6404,14 +6227,12 @@ data/accessibility/html/samp-expected-android-external.txt
 data/accessibility/html/samp-expected-android.txt
 data/accessibility/html/samp-expected-auralinux.txt
 data/accessibility/html/samp-expected-blink.txt
-data/accessibility/html/samp-expected-fuchsia.txt
 data/accessibility/html/samp-expected-mac.txt
 data/accessibility/html/samp-expected-uia-win.txt
 data/accessibility/html/samp-expected-win.txt
 data/accessibility/html/samp.html
 data/accessibility/html/script-expected-android.txt
 data/accessibility/html/script-expected-auralinux.txt
-data/accessibility/html/script-expected-fuchsia.txt
 data/accessibility/html/script-expected-mac.txt
 data/accessibility/html/script-expected-uia-win.txt
 data/accessibility/html/script-expected-win.txt
@@ -6419,21 +6240,18 @@ data/accessibility/html/script.html
 data/accessibility/html/scrollable-expected-android-assist-data.txt
 data/accessibility/html/scrollable-expected-android-external.txt
 data/accessibility/html/scrollable-expected-android.txt
-data/accessibility/html/scrollable-expected-fuchsia.txt
 data/accessibility/html/scrollable-expected-uia-win.txt
 data/accessibility/html/scrollable-overflow-expected-android-assist-data.txt
 data/accessibility/html/scrollable-overflow-expected-android-external.txt
 data/accessibility/html/scrollable-overflow-expected-android.txt
 data/accessibility/html/scrollable-overflow-expected-auralinux.txt
 data/accessibility/html/scrollable-overflow-expected-blink.txt
-data/accessibility/html/scrollable-overflow-expected-fuchsia.txt
 data/accessibility/html/scrollable-overflow-expected-uia-win.txt
 data/accessibility/html/scrollable-overflow.html
 data/accessibility/html/scrollable-textarea-expected-android-assist-data.txt
 data/accessibility/html/scrollable-textarea-expected-android-external.txt
 data/accessibility/html/scrollable-textarea-expected-android.txt
 data/accessibility/html/scrollable-textarea-expected-blink.txt
-data/accessibility/html/scrollable-textarea-expected-fuchsia.txt
 data/accessibility/html/scrollable-textarea-expected-uia-win.txt
 data/accessibility/html/scrollable-textarea.html
 data/accessibility/html/scrollable.html
@@ -6442,7 +6260,6 @@ data/accessibility/html/search-expected-android-external.txt
 data/accessibility/html/search-expected-android.txt
 data/accessibility/html/search-expected-auralinux.txt
 data/accessibility/html/search-expected-blink.txt
-data/accessibility/html/search-expected-fuchsia.txt
 data/accessibility/html/search-expected-mac.txt
 data/accessibility/html/search-expected-win.txt
 data/accessibility/html/search.html
@@ -6451,7 +6268,6 @@ data/accessibility/html/section-expected-android-external.txt
 data/accessibility/html/section-expected-android.txt
 data/accessibility/html/section-expected-auralinux.txt
 data/accessibility/html/section-expected-blink.txt
-data/accessibility/html/section-expected-fuchsia.txt
 data/accessibility/html/section-expected-mac.txt
 data/accessibility/html/section-expected-uia-win.txt
 data/accessibility/html/section-expected-win.txt
@@ -6464,14 +6280,12 @@ data/accessibility/html/select-expected-android-external.txt
 data/accessibility/html/select-expected-android.txt
 data/accessibility/html/select-expected-auralinux.txt
 data/accessibility/html/select-expected-blink.txt
-data/accessibility/html/select-expected-fuchsia.txt
 data/accessibility/html/select-expected-mac.txt
 data/accessibility/html/select-expected-uia-win.txt
 data/accessibility/html/select-expected-win.txt
 data/accessibility/html/select-follows-focus-aria-selected-false-expected-android.txt
 data/accessibility/html/select-follows-focus-aria-selected-false-expected-auralinux.txt
 data/accessibility/html/select-follows-focus-aria-selected-false-expected-blink.txt
-data/accessibility/html/select-follows-focus-aria-selected-false-expected-fuchsia.txt
 data/accessibility/html/select-follows-focus-aria-selected-false-expected-mac.txt
 data/accessibility/html/select-follows-focus-aria-selected-false-expected-uia-win.txt
 data/accessibility/html/select-follows-focus-aria-selected-false-expected-win.txt
@@ -6479,14 +6293,12 @@ data/accessibility/html/select-follows-focus-aria-selected-false.html
 data/accessibility/html/select-follows-focus-expected-android.txt
 data/accessibility/html/select-follows-focus-expected-auralinux.txt
 data/accessibility/html/select-follows-focus-expected-blink.txt
-data/accessibility/html/select-follows-focus-expected-fuchsia.txt
 data/accessibility/html/select-follows-focus-expected-mac.txt
 data/accessibility/html/select-follows-focus-expected-uia-win.txt
 data/accessibility/html/select-follows-focus-expected-win.txt
 data/accessibility/html/select-follows-focus-multiselect-expected-android.txt
 data/accessibility/html/select-follows-focus-multiselect-expected-auralinux.txt
 data/accessibility/html/select-follows-focus-multiselect-expected-blink.txt
-data/accessibility/html/select-follows-focus-multiselect-expected-fuchsia.txt
 data/accessibility/html/select-follows-focus-multiselect-expected-mac.txt
 data/accessibility/html/select-follows-focus-multiselect-expected-uia-win.txt
 data/accessibility/html/select-follows-focus-multiselect-expected-win.txt
@@ -6497,7 +6309,6 @@ data/accessibility/html/select-in-canvas-expected-android-external.txt
 data/accessibility/html/select-in-canvas-expected-android.txt
 data/accessibility/html/select-in-canvas-expected-auralinux.txt
 data/accessibility/html/select-in-canvas-expected-blink.txt
-data/accessibility/html/select-in-canvas-expected-fuchsia.txt
 data/accessibility/html/select-in-canvas-expected-mac.txt
 data/accessibility/html/select-in-canvas-expected-uia-win.txt
 data/accessibility/html/select-in-canvas-expected-win.txt
@@ -6521,7 +6332,6 @@ data/accessibility/html/select-open-expected-android-external.txt
 data/accessibility/html/select-open-expected-android.txt
 data/accessibility/html/select-open-expected-auralinux.txt
 data/accessibility/html/select-open-expected-blink.txt
-data/accessibility/html/select-open-expected-fuchsia.txt
 data/accessibility/html/select-open-expected-win.txt
 data/accessibility/html/select-open.html
 data/accessibility/html/select-slowly-build-expected-auralinux.txt
@@ -6533,7 +6343,6 @@ data/accessibility/html/selection-container-expected-android-external.txt
 data/accessibility/html/selection-container-expected-android.txt
 data/accessibility/html/selection-container-expected-auralinux.txt
 data/accessibility/html/selection-container-expected-blink.txt
-data/accessibility/html/selection-container-expected-fuchsia.txt
 data/accessibility/html/selection-container-expected-mac.txt
 data/accessibility/html/selection-container-expected-uia-win.txt
 data/accessibility/html/selection-container-expected-win.txt
@@ -6544,7 +6353,6 @@ data/accessibility/html/selection-over-editable-with-focus-expected-android-exte
 data/accessibility/html/selection-over-editable-with-focus-expected-android.txt
 data/accessibility/html/selection-over-editable-with-focus-expected-auralinux.txt
 data/accessibility/html/selection-over-editable-with-focus-expected-blink.txt
-data/accessibility/html/selection-over-editable-with-focus-expected-fuchsia.txt
 data/accessibility/html/selection-over-editable-with-focus-expected-mac.txt
 data/accessibility/html/selection-over-editable-with-focus-expected-win.txt
 data/accessibility/html/selection-over-editable-with-focus.html
@@ -6552,7 +6360,6 @@ data/accessibility/html/selection-over-editable-without-focus-expected-android-e
 data/accessibility/html/selection-over-editable-without-focus-expected-android.txt
 data/accessibility/html/selection-over-editable-without-focus-expected-auralinux.txt
 data/accessibility/html/selection-over-editable-without-focus-expected-blink.txt
-data/accessibility/html/selection-over-editable-without-focus-expected-fuchsia.txt
 data/accessibility/html/selection-over-editable-without-focus-expected-mac.txt
 data/accessibility/html/selection-over-editable-without-focus-expected-win.txt
 data/accessibility/html/selection-over-editable-without-focus.html
@@ -6572,7 +6379,6 @@ data/accessibility/html/small-expected-android-external.txt
 data/accessibility/html/small-expected-android.txt
 data/accessibility/html/small-expected-auralinux.txt
 data/accessibility/html/small-expected-blink.txt
-data/accessibility/html/small-expected-fuchsia.txt
 data/accessibility/html/small-expected-mac.txt
 data/accessibility/html/small-expected-uia-win.txt
 data/accessibility/html/small-expected-win.txt
@@ -6582,7 +6388,6 @@ data/accessibility/html/span-expected-android-external.txt
 data/accessibility/html/span-expected-android.txt
 data/accessibility/html/span-expected-auralinux.txt
 data/accessibility/html/span-expected-blink.txt
-data/accessibility/html/span-expected-fuchsia.txt
 data/accessibility/html/span-expected-mac.txt
 data/accessibility/html/span-expected-uia-win.txt
 data/accessibility/html/span-expected-win.txt
@@ -6606,14 +6411,12 @@ data/accessibility/html/strong-expected-android-external.txt
 data/accessibility/html/strong-expected-android.txt
 data/accessibility/html/strong-expected-auralinux.txt
 data/accessibility/html/strong-expected-blink.txt
-data/accessibility/html/strong-expected-fuchsia.txt
 data/accessibility/html/strong-expected-mac.txt
 data/accessibility/html/strong-expected-uia-win.txt
 data/accessibility/html/strong-expected-win.txt
 data/accessibility/html/strong.html
 data/accessibility/html/style-expected-android.txt
 data/accessibility/html/style-expected-auralinux.txt
-data/accessibility/html/style-expected-fuchsia.txt
 data/accessibility/html/style-expected-mac.txt
 data/accessibility/html/style-expected-uia-win.txt
 data/accessibility/html/style-expected-win.txt
@@ -6623,7 +6426,6 @@ data/accessibility/html/sub-expected-android-external.txt
 data/accessibility/html/sub-expected-android.txt
 data/accessibility/html/sub-expected-auralinux.txt
 data/accessibility/html/sub-expected-blink.txt
-data/accessibility/html/sub-expected-fuchsia.txt
 data/accessibility/html/sub-expected-mac.txt
 data/accessibility/html/sub-expected-uia-win.txt
 data/accessibility/html/sub-expected-win.txt
@@ -6640,7 +6442,6 @@ data/accessibility/html/summary-expected-android-external.txt
 data/accessibility/html/summary-expected-android.txt
 data/accessibility/html/summary-expected-auralinux.txt
 data/accessibility/html/summary-expected-blink.txt
-data/accessibility/html/summary-expected-fuchsia.txt
 data/accessibility/html/summary-expected-mac.txt
 data/accessibility/html/summary-expected-uia-win.txt
 data/accessibility/html/summary-expected-win.txt
@@ -6650,14 +6451,12 @@ data/accessibility/html/sup-expected-android-external.txt
 data/accessibility/html/sup-expected-android.txt
 data/accessibility/html/sup-expected-auralinux.txt
 data/accessibility/html/sup-expected-blink.txt
-data/accessibility/html/sup-expected-fuchsia.txt
 data/accessibility/html/sup-expected-mac.txt
 data/accessibility/html/sup-expected-uia-win.txt
 data/accessibility/html/sup-expected-win.txt
 data/accessibility/html/sup.html
 data/accessibility/html/svg-and-math-elements-expected-auralinux.txt
 data/accessibility/html/svg-and-math-elements-expected-blink.txt
-data/accessibility/html/svg-and-math-elements-expected-fuchsia.txt
 data/accessibility/html/svg-and-math-elements.html
 data/accessibility/html/svg-as-embed-source-expected-blink.txt
 data/accessibility/html/svg-as-embed-source.html
@@ -6666,40 +6465,34 @@ data/accessibility/html/svg-as-object-source-expected-android-external.txt
 data/accessibility/html/svg-as-object-source-expected-android.txt
 data/accessibility/html/svg-as-object-source-expected-auralinux.txt
 data/accessibility/html/svg-as-object-source-expected-blink.txt
-data/accessibility/html/svg-as-object-source-expected-fuchsia.txt
 data/accessibility/html/svg-as-object-source.html
 data/accessibility/html/svg-child-of-button-expected-android-assist-data.txt
 data/accessibility/html/svg-child-of-button-expected-android-external.txt
 data/accessibility/html/svg-child-of-button-expected-android.txt
 data/accessibility/html/svg-child-of-button-expected-auralinux.txt
 data/accessibility/html/svg-child-of-button-expected-blink.txt
-data/accessibility/html/svg-child-of-button-expected-fuchsia.txt
 data/accessibility/html/svg-child-of-button.html
 data/accessibility/html/svg-child-of-svg-expected-android-assist-data.txt
 data/accessibility/html/svg-child-of-svg-expected-android-external.txt
 data/accessibility/html/svg-child-of-svg-expected-android.txt
 data/accessibility/html/svg-child-of-svg-expected-auralinux.txt
 data/accessibility/html/svg-child-of-svg-expected-blink.txt
-data/accessibility/html/svg-child-of-svg-expected-fuchsia.txt
 data/accessibility/html/svg-child-of-svg.html
 data/accessibility/html/svg-desc-in-group-expected-android-assist-data.txt
 data/accessibility/html/svg-desc-in-group-expected-android-external.txt
 data/accessibility/html/svg-desc-in-group-expected-android.txt
 data/accessibility/html/svg-desc-in-group-expected-auralinux.txt
 data/accessibility/html/svg-desc-in-group-expected-blink.txt
-data/accessibility/html/svg-desc-in-group-expected-fuchsia.txt
 data/accessibility/html/svg-desc-in-group.html
 data/accessibility/html/svg-elements-not-mapped-expected-auralinux.txt
 data/accessibility/html/svg-elements-not-mapped-expected-blink-cros.txt
 data/accessibility/html/svg-elements-not-mapped-expected-blink.txt
-data/accessibility/html/svg-elements-not-mapped-expected-fuchsia.txt
 data/accessibility/html/svg-elements-not-mapped.html
 data/accessibility/html/svg-expected-android-assist-data.txt
 data/accessibility/html/svg-expected-android-external.txt
 data/accessibility/html/svg-expected-android.txt
 data/accessibility/html/svg-expected-auralinux.txt
 data/accessibility/html/svg-expected-blink.txt
-data/accessibility/html/svg-expected-fuchsia.txt
 data/accessibility/html/svg-expected-mac.txt
 data/accessibility/html/svg-expected-uia-win.txt
 data/accessibility/html/svg-expected-win.txt
@@ -6712,7 +6505,6 @@ data/accessibility/html/svg-image-name-from-title.html
 data/accessibility/html/svg-rect-with-style-expected-blink.txt
 data/accessibility/html/svg-rect-with-style.html
 data/accessibility/html/svg-style-element-expected-blink.txt
-data/accessibility/html/svg-style-element-expected-fuchsia.txt
 data/accessibility/html/svg-style-element-expected-mac.txt
 data/accessibility/html/svg-style-element-expected-win.txt
 data/accessibility/html/svg-style-element.html
@@ -6721,45 +6513,38 @@ data/accessibility/html/svg-symbol-with-role-expected-android-external.txt
 data/accessibility/html/svg-symbol-with-role-expected-android.txt
 data/accessibility/html/svg-symbol-with-role-expected-auralinux.txt
 data/accessibility/html/svg-symbol-with-role-expected-blink.txt
-data/accessibility/html/svg-symbol-with-role-expected-fuchsia.txt
 data/accessibility/html/svg-symbol-with-role.html
 data/accessibility/html/svg-text-alternative-computation-expected-android-assist-data.txt
 data/accessibility/html/svg-text-alternative-computation-expected-android-external.txt
 data/accessibility/html/svg-text-alternative-computation-expected-android.txt
 data/accessibility/html/svg-text-alternative-computation-expected-auralinux.txt
 data/accessibility/html/svg-text-alternative-computation-expected-blink.txt
-data/accessibility/html/svg-text-alternative-computation-expected-fuchsia.txt
 data/accessibility/html/svg-text-alternative-computation.html
 data/accessibility/html/svg-title-in-group-expected-blink.txt
-data/accessibility/html/svg-title-in-group-expected-fuchsia.txt
 data/accessibility/html/svg-title-in-group.html
 data/accessibility/html/svg-with-clickable-rect-expected-android-assist-data.txt
 data/accessibility/html/svg-with-clickable-rect-expected-android-external.txt
 data/accessibility/html/svg-with-clickable-rect-expected-android.txt
 data/accessibility/html/svg-with-clickable-rect-expected-auralinux.txt
 data/accessibility/html/svg-with-clickable-rect-expected-blink.txt
-data/accessibility/html/svg-with-clickable-rect-expected-fuchsia.txt
 data/accessibility/html/svg-with-clickable-rect.html
 data/accessibility/html/svg-with-foreign-object-expected-android-assist-data.txt
 data/accessibility/html/svg-with-foreign-object-expected-android-external.txt
 data/accessibility/html/svg-with-foreign-object-expected-android.txt
 data/accessibility/html/svg-with-foreign-object-expected-auralinux.txt
 data/accessibility/html/svg-with-foreign-object-expected-blink.txt
-data/accessibility/html/svg-with-foreign-object-expected-fuchsia.txt
 data/accessibility/html/svg-with-foreign-object.html
 data/accessibility/html/svg-with-link-to-document-expected-android-assist-data.txt
 data/accessibility/html/svg-with-link-to-document-expected-android-external.txt
 data/accessibility/html/svg-with-link-to-document-expected-android.txt
 data/accessibility/html/svg-with-link-to-document-expected-auralinux.txt
 data/accessibility/html/svg-with-link-to-document-expected-blink.txt
-data/accessibility/html/svg-with-link-to-document-expected-fuchsia.txt
 data/accessibility/html/svg-with-link-to-document.html
 data/accessibility/html/svg-with-non-link-anchors-expected-android-assist-data.txt
 data/accessibility/html/svg-with-non-link-anchors-expected-android-external.txt
 data/accessibility/html/svg-with-non-link-anchors-expected-android.txt
 data/accessibility/html/svg-with-non-link-anchors-expected-auralinux.txt
 data/accessibility/html/svg-with-non-link-anchors-expected-blink.txt
-data/accessibility/html/svg-with-non-link-anchors-expected-fuchsia.txt
 data/accessibility/html/svg-with-non-link-anchors.html
 data/accessibility/html/svg.html
 data/accessibility/html/tab-panel-expected-android-assist-data.txt
@@ -6767,7 +6552,6 @@ data/accessibility/html/tab-panel-expected-android-external.txt
 data/accessibility/html/tab-panel-expected-android.txt
 data/accessibility/html/tab-panel-expected-auralinux.txt
 data/accessibility/html/tab-panel-expected-blink.txt
-data/accessibility/html/tab-panel-expected-fuchsia.txt
 data/accessibility/html/tab-panel-expected-mac.txt
 data/accessibility/html/tab-panel-expected-uia-win.txt
 data/accessibility/html/tab-panel-expected-win.txt
@@ -6777,7 +6561,6 @@ data/accessibility/html/tabindex-expose-children-expected-android-external.txt
 data/accessibility/html/tabindex-expose-children-expected-android.txt
 data/accessibility/html/tabindex-expose-children-expected-auralinux.txt
 data/accessibility/html/tabindex-expose-children-expected-blink.txt
-data/accessibility/html/tabindex-expose-children-expected-fuchsia.txt
 data/accessibility/html/tabindex-expose-children-expected-mac.txt
 data/accessibility/html/tabindex-expose-children-expected-uia-win.txt
 data/accessibility/html/tabindex-expose-children-expected-win.txt
@@ -6787,7 +6570,6 @@ data/accessibility/html/tabindex-with-link-children-expected-android-external.tx
 data/accessibility/html/tabindex-with-link-children-expected-android.txt
 data/accessibility/html/tabindex-with-link-children-expected-auralinux.txt
 data/accessibility/html/tabindex-with-link-children-expected-blink.txt
-data/accessibility/html/tabindex-with-link-children-expected-fuchsia.txt
 data/accessibility/html/tabindex-with-link-children-expected-mac.txt
 data/accessibility/html/tabindex-with-link-children-expected-uia-win.txt
 data/accessibility/html/tabindex-with-link-children-expected-win.txt
@@ -6798,23 +6580,19 @@ data/accessibility/html/tabindex-with-list-child.html
 data/accessibility/html/table-canvas-fallback-expected-blink.txt
 data/accessibility/html/table-canvas-fallback.html
 data/accessibility/html/table-column-remove-expected-blink.txt
-data/accessibility/html/table-column-remove-expected-fuchsia.txt
 data/accessibility/html/table-column-remove.html
 data/accessibility/html/table-focusable-sections-expected-android-assist-data.txt
 data/accessibility/html/table-focusable-sections-expected-android-external.txt
 data/accessibility/html/table-focusable-sections-expected-android.txt
 data/accessibility/html/table-focusable-sections-expected-auralinux.txt
 data/accessibility/html/table-focusable-sections-expected-blink.txt
-data/accessibility/html/table-focusable-sections-expected-fuchsia.txt
 data/accessibility/html/table-focusable-sections-expected-mac.txt
 data/accessibility/html/table-focusable-sections-expected-uia-win.txt
 data/accessibility/html/table-focusable-sections-expected-win.txt
 data/accessibility/html/table-focusable-sections.html
 data/accessibility/html/table-headers-empty-first-cell-expected-blink.txt
-data/accessibility/html/table-headers-empty-first-cell-expected-fuchsia.txt
 data/accessibility/html/table-headers-empty-first-cell.html
 data/accessibility/html/table-headers-on-all-sides-expected-blink.txt
-data/accessibility/html/table-headers-on-all-sides-expected-fuchsia.txt
 data/accessibility/html/table-headers-on-all-sides.html
 data/accessibility/html/table-headers-row-role-dynamic-expected-blink.txt
 data/accessibility/html/table-headers-row-role-dynamic.html
@@ -6823,7 +6601,6 @@ data/accessibility/html/table-layout-expected-android-external.txt
 data/accessibility/html/table-layout-expected-android.txt
 data/accessibility/html/table-layout-expected-auralinux.txt
 data/accessibility/html/table-layout-expected-blink.txt
-data/accessibility/html/table-layout-expected-fuchsia.txt
 data/accessibility/html/table-layout-expected-mac.txt
 data/accessibility/html/table-layout-expected-uia-win.txt
 data/accessibility/html/table-layout-expected-win.txt
@@ -6835,13 +6612,11 @@ data/accessibility/html/table-presentation-expected-android-external.txt
 data/accessibility/html/table-presentation-expected-android.txt
 data/accessibility/html/table-presentation-expected-auralinux.txt
 data/accessibility/html/table-presentation-expected-blink.txt
-data/accessibility/html/table-presentation-expected-fuchsia.txt
 data/accessibility/html/table-presentation-expected-mac.txt
 data/accessibility/html/table-presentation-expected-uia-win.txt
 data/accessibility/html/table-presentation-expected-win.txt
 data/accessibility/html/table-presentation.html
 data/accessibility/html/table-row-add-expected-blink.txt
-data/accessibility/html/table-row-add-expected-fuchsia.txt
 data/accessibility/html/table-row-add.html
 data/accessibility/html/table-simple-2-expected-android-assist-data.txt
 data/accessibility/html/table-simple-2-expected-android-external.txt
@@ -6851,7 +6626,6 @@ data/accessibility/html/table-simple-expected-android-external.txt
 data/accessibility/html/table-simple-expected-android.txt
 data/accessibility/html/table-simple-expected-auralinux.txt
 data/accessibility/html/table-simple-expected-blink.txt
-data/accessibility/html/table-simple-expected-fuchsia.txt
 data/accessibility/html/table-simple-expected-mac.txt
 data/accessibility/html/table-simple-expected-win.txt
 data/accessibility/html/table-simple.html
@@ -6860,7 +6634,6 @@ data/accessibility/html/table-spans-expected-android-external.txt
 data/accessibility/html/table-spans-expected-android.txt
 data/accessibility/html/table-spans-expected-auralinux.txt
 data/accessibility/html/table-spans-expected-blink.txt
-data/accessibility/html/table-spans-expected-fuchsia.txt
 data/accessibility/html/table-spans-expected-mac.txt
 data/accessibility/html/table-spans-expected-win.txt
 data/accessibility/html/table-spans.html
@@ -6869,7 +6642,6 @@ data/accessibility/html/table-th-colheader-expected-android-external.txt
 data/accessibility/html/table-th-colheader-expected-android.txt
 data/accessibility/html/table-th-colheader-expected-auralinux.txt
 data/accessibility/html/table-th-colheader-expected-blink.txt
-data/accessibility/html/table-th-colheader-expected-fuchsia.txt
 data/accessibility/html/table-th-colheader-expected-mac.txt
 data/accessibility/html/table-th-colheader-expected-uia-win.txt
 data/accessibility/html/table-th-colheader-expected-win.txt
@@ -6879,7 +6651,6 @@ data/accessibility/html/table-th-rowheader-expected-android-external.txt
 data/accessibility/html/table-th-rowheader-expected-android.txt
 data/accessibility/html/table-th-rowheader-expected-auralinux.txt
 data/accessibility/html/table-th-rowheader-expected-blink.txt
-data/accessibility/html/table-th-rowheader-expected-fuchsia.txt
 data/accessibility/html/table-th-rowheader-expected-mac.txt
 data/accessibility/html/table-th-rowheader-expected-uia-win.txt
 data/accessibility/html/table-th-rowheader-expected-win.txt
@@ -6889,7 +6660,6 @@ data/accessibility/html/table-thead-tbody-tfoot-expected-android-external.txt
 data/accessibility/html/table-thead-tbody-tfoot-expected-android.txt
 data/accessibility/html/table-thead-tbody-tfoot-expected-auralinux.txt
 data/accessibility/html/table-thead-tbody-tfoot-expected-blink.txt
-data/accessibility/html/table-thead-tbody-tfoot-expected-fuchsia.txt
 data/accessibility/html/table-thead-tbody-tfoot-expected-mac.txt
 data/accessibility/html/table-thead-tbody-tfoot-expected-win.txt
 data/accessibility/html/table-thead-tbody-tfoot.html
@@ -6902,7 +6672,6 @@ data/accessibility/html/text-align-expected-android-external.txt
 data/accessibility/html/text-align-expected-android.txt
 data/accessibility/html/text-align-expected-auralinux.txt
 data/accessibility/html/text-align-expected-blink.txt
-data/accessibility/html/text-align-expected-fuchsia.txt
 data/accessibility/html/text-align-expected-win.txt
 data/accessibility/html/text-align.html
 data/accessibility/html/text-colors-and-styles-expected-android-assist-data.txt
@@ -6915,25 +6684,21 @@ data/accessibility/html/text-colors-and-styles-expected-uia-win.txt
 data/accessibility/html/text-colors-and-styles-expected-win.txt
 data/accessibility/html/text-colors-and-styles.html
 data/accessibility/html/text-decoration-styles-expected-blink.txt
-data/accessibility/html/text-decoration-styles-expected-fuchsia.txt
 data/accessibility/html/text-decoration-styles.html
 data/accessibility/html/text-indent-expected-android-assist-data.txt
 data/accessibility/html/text-indent-expected-android-external.txt
 data/accessibility/html/text-indent-expected-android.txt
 data/accessibility/html/text-indent-expected-auralinux.txt
 data/accessibility/html/text-indent-expected-blink.txt
-data/accessibility/html/text-indent-expected-fuchsia.txt
 data/accessibility/html/text-indent-expected-win.txt
 data/accessibility/html/text-indent.html
 data/accessibility/html/textarea-changes-expected-blink.txt
-data/accessibility/html/textarea-changes-expected-fuchsia.txt
 data/accessibility/html/textarea-changes.html
 data/accessibility/html/textarea-expected-android-assist-data.txt
 data/accessibility/html/textarea-expected-android-external.txt
 data/accessibility/html/textarea-expected-android.txt
 data/accessibility/html/textarea-expected-auralinux.txt
 data/accessibility/html/textarea-expected-blink.txt
-data/accessibility/html/textarea-expected-fuchsia.txt
 data/accessibility/html/textarea-expected-mac.txt
 data/accessibility/html/textarea-expected-uia-win.txt
 data/accessibility/html/textarea-expected-win.txt
@@ -6942,7 +6707,6 @@ data/accessibility/html/textarea-read-only-expected-android-external.txt
 data/accessibility/html/textarea-read-only-expected-android.txt
 data/accessibility/html/textarea-read-only-expected-auralinux.txt
 data/accessibility/html/textarea-read-only-expected-blink.txt
-data/accessibility/html/textarea-read-only-expected-fuchsia.txt
 data/accessibility/html/textarea-read-only-expected-mac.txt
 data/accessibility/html/textarea-read-only-expected-uia-win.txt
 data/accessibility/html/textarea-read-only-expected-win.txt
@@ -6950,7 +6714,6 @@ data/accessibility/html/textarea-read-only.html
 data/accessibility/html/textarea-with-selection-expected-android.txt
 data/accessibility/html/textarea-with-selection-expected-auralinux.txt
 data/accessibility/html/textarea-with-selection-expected-blink.txt
-data/accessibility/html/textarea-with-selection-expected-fuchsia.txt
 data/accessibility/html/textarea-with-selection-expected-mac.txt
 data/accessibility/html/textarea-with-selection-expected-uia-win.txt
 data/accessibility/html/textarea-with-selection-expected-win.txt
@@ -6961,7 +6724,6 @@ data/accessibility/html/time-expected-android-external.txt
 data/accessibility/html/time-expected-android.txt
 data/accessibility/html/time-expected-auralinux.txt
 data/accessibility/html/time-expected-blink.txt
-data/accessibility/html/time-expected-fuchsia.txt
 data/accessibility/html/time-expected-mac.txt
 data/accessibility/html/time-expected-uia-win.txt
 data/accessibility/html/time-expected-win.txt
@@ -6978,7 +6740,6 @@ data/accessibility/html/title-empty.html
 data/accessibility/html/title-expected-android.txt
 data/accessibility/html/title-expected-auralinux.txt
 data/accessibility/html/title-expected-blink.txt
-data/accessibility/html/title-expected-fuchsia.txt
 data/accessibility/html/title-expected-mac.txt
 data/accessibility/html/title-expected-uia-win.txt
 data/accessibility/html/title-expected-win.txt
@@ -6986,7 +6747,6 @@ data/accessibility/html/title.html
 data/accessibility/html/transition-expected-android.txt
 data/accessibility/html/transition-expected-auralinux.txt
 data/accessibility/html/transition-expected-blink.txt
-data/accessibility/html/transition-expected-fuchsia.txt
 data/accessibility/html/transition-expected-mac.txt
 data/accessibility/html/transition-expected-win.txt
 data/accessibility/html/transition.html
@@ -6996,7 +6756,6 @@ data/accessibility/html/ul-contenteditable-expected-android-assist-data.txt
 data/accessibility/html/ul-contenteditable-expected-android-external.txt
 data/accessibility/html/ul-contenteditable-expected-android.txt
 data/accessibility/html/ul-contenteditable-expected-blink.txt
-data/accessibility/html/ul-contenteditable-expected-fuchsia.txt
 data/accessibility/html/ul-contenteditable-expected-win.txt
 data/accessibility/html/ul-contenteditable.html
 data/accessibility/html/ul-expected-android-assist-data.txt
@@ -7004,7 +6763,6 @@ data/accessibility/html/ul-expected-android-external.txt
 data/accessibility/html/ul-expected-android.txt
 data/accessibility/html/ul-expected-auralinux.txt
 data/accessibility/html/ul-expected-blink.txt
-data/accessibility/html/ul-expected-fuchsia.txt
 data/accessibility/html/ul-expected-mac.txt
 data/accessibility/html/ul-expected-uia-win.txt
 data/accessibility/html/ul-expected-win.txt
@@ -7014,7 +6772,6 @@ data/accessibility/html/var-expected-android-external.txt
 data/accessibility/html/var-expected-android.txt
 data/accessibility/html/var-expected-auralinux.txt
 data/accessibility/html/var-expected-blink.txt
-data/accessibility/html/var-expected-fuchsia.txt
 data/accessibility/html/var-expected-mac.txt
 data/accessibility/html/var-expected-uia-win.txt
 data/accessibility/html/var-expected-win.txt
@@ -7028,7 +6785,6 @@ data/accessibility/html/video-expected-android.txt
 data/accessibility/html/video-expected-mac.txt
 data/accessibility/html/video-expected-win.txt
 data/accessibility/html/video-text-only-expected-auralinux.txt
-data/accessibility/html/video-text-only-expected-fuchsia.txt
 data/accessibility/html/video-text-only-expected-mac.txt
 data/accessibility/html/video-text-only-expected-uia-win.txt
 data/accessibility/html/video-text-only-expected-win.txt
@@ -7039,7 +6795,6 @@ data/accessibility/html/wbr-expected-android-external.txt
 data/accessibility/html/wbr-expected-android.txt
 data/accessibility/html/wbr-expected-auralinux.txt
 data/accessibility/html/wbr-expected-blink.txt
-data/accessibility/html/wbr-expected-fuchsia.txt
 data/accessibility/html/wbr-expected-mac.txt
 data/accessibility/html/wbr-expected-uia-win.txt
 data/accessibility/html/wbr-expected-win.txt
@@ -8030,7 +7785,6 @@ data/format_error.js
 data/forms/form_controls_browsertest_button.png
 data/forms/form_controls_browsertest_button_android.png
 data/forms/form_controls_browsertest_button_android_T.png
-data/forms/form_controls_browsertest_button_fuchsia.png
 data/forms/form_controls_browsertest_button_ios.png
 data/forms/form_controls_browsertest_button_linux.png
 data/forms/form_controls_browsertest_button_mac.png
@@ -8045,7 +7799,6 @@ data/forms/form_controls_browsertest_color_input.png
 data/forms/form_controls_browsertest_color_input_android.png
 data/forms/form_controls_browsertest_color_input_android_T.png
 data/forms/form_controls_browsertest_color_input_chromeos.png
-data/forms/form_controls_browsertest_color_input_fuchsia.png
 data/forms/form_controls_browsertest_color_input_ios.png
 data/forms/form_controls_browsertest_color_input_linux.png
 data/forms/form_controls_browsertest_color_input_mac.png
@@ -8053,7 +7806,6 @@ data/forms/form_controls_browsertest_color_input_win.png
 data/forms/form_controls_browsertest_dark_mode_text_selection.png
 data/forms/form_controls_browsertest_dark_mode_text_selection_android.png
 data/forms/form_controls_browsertest_dark_mode_text_selection_android_T.png
-data/forms/form_controls_browsertest_dark_mode_text_selection_fuchsia.png
 data/forms/form_controls_browsertest_dark_mode_text_selection_ios.png
 data/forms/form_controls_browsertest_dark_mode_text_selection_linux.png
 data/forms/form_controls_browsertest_dark_mode_text_selection_mac.png
@@ -8061,7 +7813,6 @@ data/forms/form_controls_browsertest_dark_mode_text_selection_win.png
 data/forms/form_controls_browsertest_input.png
 data/forms/form_controls_browsertest_input_android.png
 data/forms/form_controls_browsertest_input_android_T.png
-data/forms/form_controls_browsertest_input_fuchsia.png
 data/forms/form_controls_browsertest_input_ios.png
 data/forms/form_controls_browsertest_input_linux.png
 data/forms/form_controls_browsertest_input_mac.png
@@ -8069,7 +7820,6 @@ data/forms/form_controls_browsertest_input_win.png
 data/forms/form_controls_browsertest_meter.png
 data/forms/form_controls_browsertest_meter_android.png
 data/forms/form_controls_browsertest_meter_android_T.png
-data/forms/form_controls_browsertest_meter_fuchsia.png
 data/forms/form_controls_browsertest_meter_ios.png
 data/forms/form_controls_browsertest_meter_linux.png
 data/forms/form_controls_browsertest_meter_mac.png
@@ -8078,7 +7828,6 @@ data/forms/form_controls_browsertest_multi_select.png
 data/forms/form_controls_browsertest_multi_select_android.png
 data/forms/form_controls_browsertest_multi_select_android_T.png
 data/forms/form_controls_browsertest_multi_select_chromeos.png
-data/forms/form_controls_browsertest_multi_select_fuchsia.png
 data/forms/form_controls_browsertest_multi_select_ios.png
 data/forms/form_controls_browsertest_multi_select_linux.png
 data/forms/form_controls_browsertest_multi_select_mac.png
@@ -8086,7 +7835,6 @@ data/forms/form_controls_browsertest_multi_select_win.png
 data/forms/form_controls_browsertest_progress.png
 data/forms/form_controls_browsertest_progress_android.png
 data/forms/form_controls_browsertest_progress_android_T.png
-data/forms/form_controls_browsertest_progress_fuchsia.png
 data/forms/form_controls_browsertest_progress_ios.png
 data/forms/form_controls_browsertest_progress_linux.png
 data/forms/form_controls_browsertest_progress_mac.png
@@ -8108,7 +7856,6 @@ data/forms/form_controls_browsertest_select.png
 data/forms/form_controls_browsertest_select_android.png
 data/forms/form_controls_browsertest_select_android_T.png
 data/forms/form_controls_browsertest_select_chromeos.png
-data/forms/form_controls_browsertest_select_fuchsia.png
 data/forms/form_controls_browsertest_select_ios.png
 data/forms/form_controls_browsertest_select_linux.png
 data/forms/form_controls_browsertest_select_mac.png
@@ -8117,7 +7864,6 @@ data/forms/form_controls_browsertest_textarea.png
 data/forms/form_controls_browsertest_textarea_android.png
 data/forms/form_controls_browsertest_textarea_android_T.png
 data/forms/form_controls_browsertest_textarea_chromeos.png
-data/forms/form_controls_browsertest_textarea_fuchsia.png
 data/forms/form_controls_browsertest_textarea_ios.png
 data/forms/form_controls_browsertest_textarea_linux.png
 data/forms/form_controls_browsertest_textarea_mac.png

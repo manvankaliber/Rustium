@@ -23,8 +23,8 @@
 #include "base/metrics/runtime_field_trial_overrides.h"
 #include "base/no_destructor.h"
 #include "base/notreached.h"
-#include "base/numerics/safe_conversions.h"
 #include "base/numerics/checked_math.h"
+#include "base/numerics/safe_conversions.h"
 #include "base/process/memory.h"
 #include "base/process/process_handle.h"
 #include "base/process/process_info.h"
@@ -45,13 +45,6 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/vmo.h>
-#include <zircon/process.h>
-
-#include "base/fuchsia/fuchsia_logging.h"
 #endif
 
 namespace base {
@@ -870,7 +863,8 @@ bool FieldTrialList::GetParamsFromSharedMemory(FieldTrial* field_trial,
           field_trial->ref_, &allocated_size);
   CHECK(entry);
 
-  base::CheckedNumeric<uint64_t> actual_size = sizeof(internal::FieldTrialEntry);
+  base::CheckedNumeric<uint64_t> actual_size =
+      sizeof(internal::FieldTrialEntry);
   actual_size += entry->pickle_size;
   if (!actual_size.IsValid() || allocated_size < actual_size.ValueOrDie()) {
     return false;

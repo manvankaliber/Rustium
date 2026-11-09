@@ -3,9 +3,12 @@
 //! Uses Linux and/or POSIX functions to resolve interface names like "eth0"
 //! or "socan1" into device numbers.
 
-use std::{ffi::{CStr, CString}, fmt};
 use crate::{errno::Errno, Error, NixPath, Result};
 use libc::{c_uint, IF_NAMESIZE};
+use std::{
+    ffi::{CStr, CString},
+    fmt,
+};
 
 #[cfg(not(solarish))]
 /// type alias for InterfaceFlags
@@ -16,8 +19,7 @@ pub type IflagsType = libc::c_longlong;
 
 /// Resolve an interface into an interface number.
 pub fn if_nametoindex<P: ?Sized + NixPath>(name: &P) -> Result<c_uint> {
-    let if_index = name
-        .with_nix_path(|name| unsafe { libc::if_nametoindex(name.as_ptr()) })?;
+    let if_index = name.with_nix_path(|name| unsafe { libc::if_nametoindex(name.as_ptr()) })?;
 
     if if_index == 0 {
         Err(Error::last())
@@ -31,9 +33,7 @@ pub fn if_indextoname(index: c_uint) -> Result<CString> {
     // We need to allocate this anyway, so doing it directly is faster.
     let mut buf = vec![0u8; IF_NAMESIZE];
 
-    let return_buf = unsafe {
-        libc::if_indextoname(index, buf.as_mut_ptr().cast())
-    };
+    let return_buf = unsafe { libc::if_indextoname(index, buf.as_mut_ptr().cast()) };
 
     Errno::result(return_buf.cast())?;
     Ok(CStr::from_bytes_until_nul(buf.as_slice()).unwrap().to_owned())
@@ -42,7 +42,7 @@ pub fn if_indextoname(index: c_uint) -> Result<CString> {
 libc_bitflags!(
     /// Standard interface flags, used by `getifaddrs`
     pub struct InterfaceFlags: IflagsType {
-    
+
         /// Interface is running. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
         IFF_UP as IflagsType;
@@ -61,24 +61,14 @@ libc_bitflags!(
         IFF_POINTOPOINT as IflagsType;
         /// Avoid use of trailers. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(any(
-                  linux_android,
-                  solarish,
-                  apple_targets,
-                  target_os = "fuchsia",
-                  target_os = "cygwin"))]
+        #[cfg(any(linux_android, solarish, apple_targets, target_os = "cygwin"))]
         IFF_NOTRAILERS as IflagsType;
         /// Interface manages own routes.
         #[cfg(any(target_os = "dragonfly"))]
         IFF_SMART as IflagsType;
         /// Resources allocated. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(any(
-                  linux_android,
-                  bsd,
-                  solarish,
-                  target_os = "fuchsia",
-                  target_os = "cygwin"))]
+        #[cfg(any(linux_android, bsd, solarish, target_os = "cygwin"))]
         IFF_RUNNING as IflagsType;
         /// No arp protocol, L2 destination address not set. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
@@ -92,7 +82,7 @@ libc_bitflags!(
         IFF_ALLMULTI as IflagsType;
         /// Master of a load balancing bundle. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(any(linux_android, target_os = "fuchsia"))]
+        #[cfg(linux_android)]
         IFF_MASTER;
         /// transmission in progress, tx hardware queue is full
         #[cfg(any(target_os = "freebsd", apple_targets, netbsdlike))]
@@ -102,7 +92,7 @@ libc_bitflags!(
         IFF_INTELLIGENT as IflagsType;
         /// Slave of a load balancing bundle. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(any(linux_android, target_os = "fuchsia"))]
+        #[cfg(linux_android)]
         IFF_SLAVE;
         /// Can't hear own transmissions.
         #[cfg(bsd)]
@@ -118,7 +108,7 @@ libc_bitflags!(
         IFF_MULTI_BCAST as IflagsType;
         /// Is able to select media type via ifmap. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(any(linux_android, target_os = "fuchsia"))]
+        #[cfg(linux_android)]
         IFF_PORTSEL;
         /// Per link layer defined bit.
         #[cfg(bsd)]
@@ -128,7 +118,7 @@ libc_bitflags!(
         IFF_UNNUMBERED as IflagsType;
         /// Auto media selection active. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(any(linux_android, target_os = "fuchsia"))]
+        #[cfg(linux_android)]
         IFF_AUTOMEDIA;
         /// Per link layer defined bit.
         #[cfg(bsd)]
@@ -141,13 +131,13 @@ libc_bitflags!(
         IFF_DHCPRUNNING as IflagsType;
         /// The addresses are lost when the interface goes down. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(any(linux_android, target_os = "fuchsia"))]
+        #[cfg(linux_android)]
         IFF_DYNAMIC;
         /// Do not advertise.
         #[cfg(solarish)]
         IFF_PRIVATE as IflagsType;
         /// Driver signals L1 up. Volatile.
-        #[cfg(any(target_os = "fuchsia", target_os = "linux", target_os = "cygwin"))]
+        #[cfg(any(target_os = "linux", target_os = "cygwin"))]
         IFF_LOWER_UP;
         /// Interface is in polling mode.
         #[cfg(any(target_os = "dragonfly"))]
@@ -159,7 +149,7 @@ libc_bitflags!(
         #[cfg(solarish)]
         IFF_NOXMIT as IflagsType;
         /// Driver signals dormant. Volatile.
-        #[cfg(any(target_os = "fuchsia", target_os = "linux", target_os = "cygwin"))]
+        #[cfg(any(target_os = "linux", target_os = "cygwin"))]
         IFF_DORMANT;
         /// User-requested promisc mode.
         #[cfg(freebsdlike)]
@@ -168,7 +158,7 @@ libc_bitflags!(
         #[cfg(solarish)]
         IFF_NOLOCAL as IflagsType;
         /// Echo sent packets. Volatile.
-        #[cfg(any(target_os = "fuchsia", target_os = "linux"))]
+        #[cfg(target_os = "linux")]
         IFF_ECHO;
         /// User-requested monitor mode.
         #[cfg(freebsdlike)]
@@ -207,13 +197,13 @@ libc_bitflags!(
         #[cfg(solarish)]
         IFF_NORTEXCH as IflagsType;
         /// Do not provide packet information
-        #[cfg(any(linux_android, target_os = "fuchsia"))]
+        #[cfg(linux_android)]
         IFF_NO_PI as IflagsType;
         /// TUN device (no Ethernet headers)
-        #[cfg(any(linux_android, target_os = "fuchsia"))]
+        #[cfg(linux_android)]
         IFF_TUN as IflagsType;
         /// TAP device
-        #[cfg(any(linux_android, target_os = "fuchsia"))]
+        #[cfg(linux_android)]
         IFF_TAP as IflagsType;
         /// IPv4 interface.
         #[cfg(solarish)]
@@ -266,13 +256,7 @@ impl fmt::Display for InterfaceFlags {
     }
 }
 
-
-#[cfg(any(
-    bsd,
-    target_os = "fuchsia",
-    target_os = "linux",
-    solarish,
-))]
+#[cfg(any(bsd, target_os = "linux", solarish))]
 mod if_nameindex {
     use super::*;
 
@@ -281,8 +265,9 @@ mod if_nameindex {
     use std::marker::PhantomData;
     use std::ptr::NonNull;
 
-    /// A network interface. Has a name like "eth0" or "wlp4s0" or "wlan0", as well as an index
-    /// (1, 2, 3, etc) that identifies it in the OS's networking stack.
+    /// A network interface. Has a name like "eth0" or "wlp4s0" or "wlan0", as
+    /// well as an index (1, 2, 3, etc) that identifies it in the OS's
+    /// networking stack.
     #[allow(missing_copy_implementations)]
     #[repr(transparent)]
     pub struct Interface(libc::if_nameindex);
@@ -308,7 +293,8 @@ mod if_nameindex {
         }
     }
 
-    /// A list of the network interfaces available on this system. Obtained from [`if_nameindex()`].
+    /// A list of the network interfaces available on this system. Obtained from
+    /// [`if_nameindex()`].
     #[repr(transparent)]
     pub struct Interfaces {
         ptr: NonNull<libc::if_nameindex>,
@@ -321,9 +307,10 @@ mod if_nameindex {
             self.into_iter()
         }
 
-        /// Convert this to a slice of interfaces. Note that the underlying interfaces list is
-        /// null-terminated, so calling this calculates the length. If random access isn't needed,
-        /// [`Interfaces::iter()`] should be used instead.
+        /// Convert this to a slice of interfaces. Note that the underlying
+        /// interfaces list is null-terminated, so calling this calculates the
+        /// length. If random access isn't needed, [`Interfaces::iter()`] should
+        /// be used instead.
         pub fn to_slice(&self) -> &[Interface] {
             let ifs = self.ptr.as_ptr().cast();
             let len = self.iter().count();
@@ -348,10 +335,7 @@ mod if_nameindex {
         type Item = &'a Interface;
         #[inline]
         fn into_iter(self) -> Self::IntoIter {
-            InterfacesIter {
-                ptr: self.ptr.as_ptr(),
-                _marker: PhantomData,
-            }
+            InterfacesIter { ptr: self.ptr.as_ptr(), _marker: PhantomData }
         }
     }
 
@@ -394,10 +378,5 @@ mod if_nameindex {
         }
     }
 }
-#[cfg(any(
-    bsd,
-    target_os = "fuchsia",
-    target_os = "linux",
-    solarish,
-))]
+#[cfg(any(bsd, target_os = "linux", solarish))]
 pub use if_nameindex::*;

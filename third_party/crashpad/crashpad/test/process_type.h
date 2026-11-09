@@ -17,9 +17,7 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/process.h>
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
 #include <sys/types.h>
 #elif BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -30,10 +28,8 @@
 namespace crashpad {
 namespace test {
 
-#if BUILDFLAG(IS_FUCHSIA)
-using ProcessType = zx::unowned_process;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID) || DOXYGEN
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
+    DOXYGEN
 //! \brief Alias for platform-specific type to represent a process.
 using ProcessType = pid_t;
 #elif BUILDFLAG(IS_WIN)

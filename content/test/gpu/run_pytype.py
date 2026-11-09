@@ -19,7 +19,7 @@ from pytype_common import pytype_runner  # noqa: E402
 # This list should be kept in sync with EXTRA_PATH_COMPONENTS in PRESUBMIT.py
 EXTRA_PATHS_COMPONENTS = [
   ('build',),
-  ('build', 'fuchsia', 'test'),
+  ('build', 'test'),
   ('build', 'util'),
   ('testing',),
   ('third_party', 'blink', 'tools'),

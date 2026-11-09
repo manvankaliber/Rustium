@@ -13,7 +13,7 @@
 #include "ui/gfx/gpu_fence_handle.h"
 #include "ui/gl/gl_surface_egl.h"
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include <unistd.h>
 
 #include "base/posix/eintr_wrapper.h"
@@ -84,8 +84,9 @@ gfx::GpuFenceHandle GLFenceAndroidNativeFenceSync::GetGpuFenceHandle() {
 
 base::TimeTicks GLFenceAndroidNativeFenceSync::GetStatusChangeTime() {
   EGLint sync_fd = eglDupNativeFenceFDANDROID(display_, sync_);
-  if (sync_fd < 0)
+  if (sync_fd < 0) {
     return base::TimeTicks();
+  }
 
   base::ScopedFD scoped_fd(sync_fd);
   base::TimeTicks time;

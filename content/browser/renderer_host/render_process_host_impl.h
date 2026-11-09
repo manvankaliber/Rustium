@@ -107,10 +107,6 @@
 #include "media/mojo/mojom/interface_factory.mojom.h"
 #endif  // BUILDFLAG(ENABLE_OOP_VIDEO_DECODER)
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "media/fuchsia_media_codec_provider_impl.h"
-#endif
-
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 #include "content/browser/child_thread_type_switcher_linux.h"
 #include "media/mojo/mojom/video_encode_accelerator.mojom.h"
@@ -831,14 +827,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
   void BindPushMessaging(
       mojo::PendingReceiver<blink::mojom::PushMessaging> receiver);
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // Binds |receiver| to the FuchsiaMediaCodecProvider instance owned by the
-  // render process host, and is used by workers via BrowserInterfaceBroker.
-  void BindMediaCodecProvider(
-      mojo::PendingReceiver<media::mojom::FuchsiaMediaCodecProvider> receiver)
-      override;
-#endif
-
   // Binds |receiver| to a OneShotBackgroundSyncService instance owned by the
   // StoragePartition associated with the render process host, and is used by
   // frames and service workers via BrowserInterfaceBroker.
@@ -1290,8 +1278,9 @@ class CONTENT_EXPORT RenderProcessHostImpl
         base::WeakPtr<RenderProcessHostImpl> weak_host,
         AddReceiverCallback<InterfaceType> callback,
         mojo::PendingReceiver<InterfaceType> receiver) {
-      if (!weak_host)
+      if (!weak_host) {
         return;
+      }
       std::move(callback).Run(std::move(receiver));
     }
   };
@@ -1564,10 +1553,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
   // process.
   base::OneShotTimer video_decoder_factory_reset_timer_;
 #endif  // BUILDFLAG(ENABLE_OOP_VIDEO_DECODER)
-
-#if BUILDFLAG(IS_FUCHSIA)
-  std::unique_ptr<FuchsiaMediaCodecProviderImpl> media_codec_provider_;
-#endif
 
   // The memory allocator, if any, in which the renderer will write its metrics.
   std::unique_ptr<base::PersistentMemoryAllocator> metrics_allocator_;

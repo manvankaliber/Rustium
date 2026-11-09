@@ -186,10 +186,11 @@ class ScopedScissorTestReset {
     api_->glGetBooleanvFn(GL_SCISSOR_TEST, &scissor_test_);
   }
   ~ScopedScissorTestReset() {
-    if (scissor_test_)
+    if (scissor_test_) {
       api_->glEnableFn(GL_SCISSOR_TEST);
-    else
+    } else {
       api_->glDisableFn(GL_SCISSOR_TEST);
+    }
   }
 
  private:
@@ -250,14 +251,8 @@ bool GetClientID(const ClientServiceMap<ClientType, ServiceType>* map,
 constexpr const char* kRequiredFunctionalityExtensions[] = {
     "GL_ANGLE_blob_cache",
     "GL_ANGLE_framebuffer_blit",
-#if BUILDFLAG(IS_FUCHSIA)
-    "GL_ANGLE_memory_object_fuchsia",
-#endif
     "GL_ANGLE_memory_size",
     "GL_ANGLE_native_id",
-#if BUILDFLAG(IS_FUCHSIA)
-    "GL_ANGLE_semaphore_fuchsia",
-#endif
     "GL_ANGLE_texture_storage_external",
     "GL_ANGLE_texture_usage",
     "GL_ANGLE_trim_memory",
@@ -508,8 +503,9 @@ void ReturnProgramInfoData(DecoderClient* client,
   // Limit the data size in order not to block the IO threads too long.
   // https://docs.google.com/document/d/1qEfU0lAkeZ8lU06qtxv7ENGxRxExxztXu1LhIDNGqtU/edit?disco=AAAACksORlU
   constexpr static size_t kMaxDataSize = 8 * 1024 * 1024;
-  if (info.size() > kMaxDataSize)
+  if (info.size() > kMaxDataSize) {
     return;
+  }
 
   std::vector<uint8_t> return_data;
   return_data.resize(sizeof(cmds::GLES2ReturnProgramInfo) + info.size());
@@ -1154,16 +1150,18 @@ GLES2Decoder::Error GLES2DecoderPassthroughImpl::DoCommandsImpl(
     }
   }
 
-  if (entries_processed)
+  if (entries_processed) {
     *entries_processed = process_pos;
+  }
 
 #if BUILDFLAG(IS_MAC)
   // Aggressively call glFlush on macOS. This is the only fix that has been
   // found so far to avoid crashes on Intel drivers. The workaround
   // isn't needed for WebGL contexts, though.
   // https://crbug.com/863817
-  if (!feature_info_->IsWebGLContext())
+  if (!feature_info_->IsWebGLContext()) {
     context_->FlushForDriverCrashWorkaround();
+  }
 #endif
 
   if (process_pos > 0 && feature_info_->IsWebGLContext()) {
@@ -1376,8 +1374,9 @@ gpu::ContextResult GLES2DecoderPassthroughImpl::Initialize(
   // disables support for it in the shader compiler. We then enable it
   // temporarily when necessary; see
   // ScopedEnableTextureRectangleInShaderCompiler.
-  if (feature_info_->IsWebGLContext())
+  if (feature_info_->IsWebGLContext()) {
     api()->glDisableFn(GL_TEXTURE_RECTANGLE_ANGLE);
+  }
 #endif
 
   // TEMPORARY: Set primitive restart to enabled by default for WebGL2. Clear
@@ -1544,8 +1543,9 @@ void GLES2DecoderPassthroughImpl::SetSurface(
 }
 
 void GLES2DecoderPassthroughImpl::ReleaseSurface() {
-  if (!context_.get())
+  if (!context_.get()) {
     return;
+  }
   if (WasContextLost()) {
     DLOG(ERROR) << "  GLES2DecoderImpl: Trying to release lost context.";
     return;
@@ -1555,8 +1555,9 @@ void GLES2DecoderPassthroughImpl::ReleaseSurface() {
 }
 
 bool GLES2DecoderPassthroughImpl::MakeCurrent() {
-  if (!context_.get())
+  if (!context_.get()) {
     return false;
+  }
 
   if (WasContextLost()) {
     LOG(ERROR) << "  GLES2DecoderPassthroughImpl: Trying to make lost context "
@@ -2949,8 +2950,9 @@ void GLES2DecoderPassthroughImpl::UpdateTextureSizeFromClientID(
 
 void GLES2DecoderPassthroughImpl::
     LazilyUpdateCurrentlyBoundElementArrayBuffer() {
-  if (!bound_element_array_buffer_dirty_)
+  if (!bound_element_array_buffer_dirty_) {
     return;
+  }
 
   GLint service_element_array_buffer = 0;
   api_->glGetIntegervFn(GL_ELEMENT_ARRAY_BUFFER_BINDING,

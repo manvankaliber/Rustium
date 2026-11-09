@@ -64,10 +64,6 @@ TEST(TestAccountsTest, GetAccountForPlatformSpecific) {
             "user": "user1",
             "password": "pwd1"
           },
-          "fuchsia": {
-            "user": "user1",
-            "password": "pwd1"
-          },
           "ios": {
             "user": "user1",
             "password": "pwd1"

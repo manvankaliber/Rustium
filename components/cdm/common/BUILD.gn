@@ -21,7 +21,6 @@ static_library("common") {
     "//chromecast/*",
     "//components/cdm/*",
     "//content/shell/*",
-    "//fuchsia_web/*",
   ]
 
   deps = [

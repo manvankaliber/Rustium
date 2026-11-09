@@ -90,8 +90,9 @@ void HeadlessDevTooledBrowserTest::RenderViewReady() {
 
 void HeadlessDevTooledBrowserTest::PrimaryMainFrameRenderProcessGone(
     base::TerminationStatus status) {
-  if (status == base::TERMINATION_STATUS_NORMAL_TERMINATION)
+  if (status == base::TERMINATION_STATUS_NORMAL_TERMINATION) {
     return;
+  }
 
   FinishAsynchronousTest();
   FAIL() << "Abnormal renderer termination (status=" << status << ")";
@@ -112,7 +113,6 @@ void HeadlessDevTooledBrowserTest::CustomizeHeadlessWebContents(
 // This test was implicitly disabled on Fuchsia while being part of headless
 // protocol tests before it was moved here.
 // TODO(crbug.com/40222911): Enable on Fuchsia when no longer flakily timeout.
-#if !BUILDFLAG(IS_FUCHSIA)
 
 class HeadlessAllowedVideoCodecsTest
     : public HeadlessDevTooledBrowserTest,
@@ -173,8 +173,6 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_tuple("*", "avc1.64000b", have_proprietary_codecs)));
 
 HEADLESS_DEVTOOLED_TEST_P(HeadlessAllowedVideoCodecsTest);
-
-#endif  // #if !BUILDFLAG(IS_FUCHSIA)
 
 class HeadlessCreatedTargetIsUsedProcessTest
     : public HeadlessDevTooledBrowserTest,

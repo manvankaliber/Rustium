@@ -938,7 +938,6 @@ ScopedFD CreateAndOpenFdForTemporaryFileInDir(
   return ScopedFD(HANDLE_EINTR(mkstemp(buffer)));
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 bool CreateSymbolicLink(const FilePath& target_path,
                         const FilePath& symlink_path) {
   DCHECK(!symlink_path.empty());
@@ -1055,8 +1054,6 @@ bool ExecutableExistsInPath(Environment* env,
   }
   return false;
 }
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 #if !BUILDFLAG(IS_APPLE)
 // This is implemented in file_util_apple.mm for Mac.
@@ -1671,14 +1668,8 @@ bool VerifyPathControlledByAdmin(const FilePath& path) {
 #endif  // BUILDFLAG(IS_MAC)
 
 int GetMaximumPathComponentLength(const FilePath& path) {
-#if BUILDFLAG(IS_FUCHSIA)
-  // Return a value we do not expect anyone ever to reach, but which is small
-  // enough to guard against e.g. bugs causing multi-megabyte paths.
-  return 1024;
-#else
   ScopedBlockingCall scoped_blocking_call(FROM_HERE, BlockingType::MAY_BLOCK);
   return saturated_cast<int>(pathconf(path.value().c_str(), _PC_NAME_MAX));
-#endif
 }
 
 #if !BUILDFLAG(IS_ANDROID)

@@ -6,7 +6,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <winsock2.h>
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 #include "base/files/scoped_file.h"
 #include "mojo/public/cpp/platform/platform_handle.h"
 #else
@@ -47,7 +47,7 @@ TransferableSocket::TransferableSocket(net::SocketDescriptor socket,
   // retry.
   ::closesocket(socket);
 }
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 TransferableSocket::TransferableSocket(net::SocketDescriptor socket)
     : socket_(base::ScopedFD(socket)) {}
 #else
@@ -59,7 +59,7 @@ TransferableSocket& TransferableSocket::operator=(TransferableSocket&& other) =
     default;
 TransferableSocket::TransferableSocket(TransferableSocket&& other) = default;
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 TransferableSocket::TransferableSocket(mojo::PlatformHandle socket)
     : socket_(std::move(socket)) {}
 #elif !BUILDFLAG(IS_WIN)
@@ -73,8 +73,9 @@ net::SocketDescriptor TransferableSocket::TakeSocket() {
 #endif
 #if BUILDFLAG(IS_WIN)
   LPWSAPROTOCOL_INFOW protocol_info;
-  if (wsa_info_buffer_.empty())
+  if (wsa_info_buffer_.empty()) {
     return net::kInvalidSocket;
+  }
   protocol_info = reinterpret_cast<LPWSAPROTOCOL_INFOW>(
       const_cast<uint8_t*>(wsa_info_buffer_.data()));
   // These fields are documented here:
@@ -83,7 +84,7 @@ net::SocketDescriptor TransferableSocket::TakeSocket() {
       ::WSASocketW(FROM_PROTOCOL_INFO, FROM_PROTOCOL_INFO, FROM_PROTOCOL_INFO,
                    protocol_info, 0, WSA_FLAG_OVERLAPPED);
   return s;
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   return socket_.ReleaseFD();
 #else
 #error "Unsupported platform"

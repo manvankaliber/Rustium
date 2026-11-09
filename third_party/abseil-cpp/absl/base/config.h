@@ -418,8 +418,6 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 // emscripten doesn't support signals
 #elif defined(__wasi__)
 // WASI doesn't support signals
-#elif defined(__Fuchsia__)
-// Signals don't exist on fuchsia.
 #elif defined(__hexagon__)
 #else
 // other standard libraries

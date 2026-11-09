@@ -40,7 +40,6 @@ def _IsTargettingWindows(target_os):
     assert target_os in [
       'android',
       'chromeos',
-      'fuchsia',
       'ios',
       'linux',
       'mac',

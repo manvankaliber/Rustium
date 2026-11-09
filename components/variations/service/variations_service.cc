@@ -137,8 +137,8 @@ std::string GetPlatformString() {
           switches::kFakeVariationsPlatform);
   if (!forced_platform.empty()) {
     static constexpr auto kPlatforms = base::MakeFixedFlatSet<std::string_view>(
-        {"android", "android_desktop", "android_webview", "chromeos", "fuchsia",
-         "ios", "linux", "mac", "win"});
+        {"android", "android_desktop", "android_webview", "chromeos", "ios",
+         "linux", "mac", "win"});
     if (kPlatforms.contains(forced_platform)) {
       return forced_platform;
     } else {
@@ -156,8 +156,6 @@ std::string GetPlatformString() {
   return "chromeos";
 #elif BUILDFLAG(IS_ANDROID)
   return "android";
-#elif BUILDFLAG(IS_FUCHSIA)
-  return "fuchsia";
 #elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_BSD) || BUILDFLAG(IS_SOLARIS)
   // Default BSD and SOLARIS to Linux to not break those builds, although these
   // platforms are not officially supported by Chrome.

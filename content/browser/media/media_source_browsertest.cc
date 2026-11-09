@@ -11,7 +11,6 @@
 #include "media/base/test_data_util.h"
 #include "media/media_buildflags.h"
 
-
 namespace content {
 
 class MediaSourceTest : public MediaBrowserTest {
@@ -96,11 +95,7 @@ IN_PROC_BROWSER_TEST_F(MediaSourceTest, Playback_Type_Error) {
 // Flaky test crbug.com/246308
 // Test changed to skip checks resulting in flakiness. Proper fix still needed.
 // TODO(crbug.com/330132631): Flaky on Fuchsia, deflake and re-enable the test.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_ConfigChangeVideo DISABLED_ConfigChangeVideo
-#else
 #define MAYBE_ConfigChangeVideo ConfigChangeVideo
-#endif
 IN_PROC_BROWSER_TEST_F(MediaSourceTest, MAYBE_ConfigChangeVideo) {
   RunMediaTestPage("mse_config_change.html", base::StringPairs(),
                    media::kEndedTitle, true);
@@ -110,11 +105,7 @@ IN_PROC_BROWSER_TEST_F(MediaSourceTest, MAYBE_ConfigChangeVideo) {
 // Flaky test crbug.com/246308
 // Test changed to skip checks resulting in flakiness. Proper fix still needed.
 // TODO(crbug.com/330132631): Flaky on Fuchsia, deflake and re-enable the test.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_ConfigChangeVideo_MP4 DISABLED_ConfigChangeVideo_MP4
-#else
 #define MAYBE_ConfigChangeVideo_MP4 ConfigChangeVideo_MP4
-#endif
 IN_PROC_BROWSER_TEST_F(MediaSourceTest, MAYBE_ConfigChangeVideo_MP4) {
   base::StringPairs params;
 

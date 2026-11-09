@@ -1,21 +1,20 @@
 [
-  {
-    "os": [
-      "win",
-      "mac",
-      "linux",
-      "chromeos",
-      "android",
-      "fuchsia"
-    ],
-    "simple_policy_pref_mapping_test": {
-      "pref_name": "safebrowsing.safe_browsing_whitelist_domains",
-      "default_value": [],
-      "values_to_test": [
-        [
-          "google.com"
-        ]
-      ]
+    {
+        "os": [
+            "win",
+            "mac",
+            "linux",
+            "chromeos",
+            "android"
+        ],
+        "simple_policy_pref_mapping_test": {
+            "pref_name": "safebrowsing.safe_browsing_whitelist_domains",
+            "default_value": [],
+            "values_to_test": [
+                [
+                    "google.com"
+                ]
+            ]
+        }
     }
-  }
 ]

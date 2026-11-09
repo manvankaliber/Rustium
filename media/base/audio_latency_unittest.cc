@@ -127,7 +127,7 @@ TEST(AudioLatency, HighLatencyBufferSizes) {
 #if BUILDFLAG(IS_WIN)
     EXPECT_EQ(2 * (i / 100),
               AudioLatency::GetHighLatencyBufferSize(i, i / 100));
-#elif BUILDFLAG(USE_CRAS) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(USE_CRAS)
     EXPECT_EQ(8 * (i / 100), AudioLatency::GetHighLatencyBufferSize(i, 32));
 #else
     EXPECT_EQ(2 * (i / 100), AudioLatency::GetHighLatencyBufferSize(i, 32));
@@ -139,24 +139,23 @@ TEST(AudioLatency, InteractiveBufferSizes) {
   // "interactive" buffer size from the method.
   std::vector<std::pair<int, int>> buffer_size_pairs = {
 #if BUILDFLAG(IS_ANDROID)
-    {64, 128},
-    {96, 384},   // Pixel 3, 4, 5. (See crbug.com/1090441)
-    {240, 240},  // Nexus 7
-    {144, 144},  // Galaxy Nexus
-    // Irregular device buffer size
-    {100, 512},
-    {127, 512},
+      {64, 128},
+      {96, 384},   // Pixel 3, 4, 5. (See crbug.com/1090441)
+      {240, 240},  // Nexus 7
+      {144, 144},  // Galaxy Nexus
+      // Irregular device buffer size
+      {100, 512},
+      {127, 512},
 #else
-    {64, 64},
+      {64, 64},
 #endif  // BUILDFLAG(IS_ANDROID)
-    {128, 128},
-    {256, 256},
-    {512, 512},
-    {1024, 1024},
-    {2048, 2048}
-  };
+      {128, 128},
+      {256, 256},
+      {512, 512},
+      {1024, 1024},
+      {2048, 2048}};
 
-  for (auto & buffer_size_pair : buffer_size_pairs) {
+  for (auto& buffer_size_pair : buffer_size_pairs) {
     EXPECT_EQ(buffer_size_pair.second,
               AudioLatency::GetInteractiveBufferSize(buffer_size_pair.first));
   }

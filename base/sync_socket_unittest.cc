@@ -9,7 +9,6 @@
 
 #include <array>
 
-
 #include "base/compiler_specific.h"
 #include "base/containers/span.h"
 #include "base/functional/bind.h"
@@ -23,7 +22,7 @@
 #include "build/build_config.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include "base/file_descriptor_posix.h"
 #endif
 
@@ -126,7 +125,6 @@ static void BlockingRead(base::SyncSocket* socket,
   socket->Send(base::as_byte_span(kHelloString));
   *received = socket->Receive(buffer);
 }
-
 
 }  // namespace
 

@@ -131,7 +131,7 @@ bool ZipWriter::AddDirectoryEntry(const base::FilePath& path) {
   return AddDirectoryContents(path);
 }
 
-#if defined(OS_POSIX) || defined(OS_FUCHSIA)
+#if defined(OS_POSIX)
 // static
 std::unique_ptr<ZipWriter> ZipWriter::CreateWithFd(
     int zip_file_fd,

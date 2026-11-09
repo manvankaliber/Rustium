@@ -44,13 +44,6 @@ bool IsTestDataRoot(const base::FilePath& candidate) {
 }
 
 base::FilePath TestDataRootInternal() {
-#if BUILDFLAG(IS_FUCHSIA)
-  base::FilePath asset_path("/pkg/data");
-  if (!IsTestDataRoot(asset_path)) {
-    LOG(WARNING) << "test data root seems invalid, continuing anyway";
-  }
-  return asset_path;
-#else  // BUILDFLAG(IS_FUCHSIA)
 #if !BUILDFLAG(IS_WIN)
   const char* environment_value = getenv("CRASHPAD_TEST_DATA_ROOT");
 #else  // BUILDFLAG(IS_WIN)
@@ -73,8 +66,8 @@ base::FilePath TestDataRootInternal() {
     // adjacent to the main executable. On iOS, this refers to the main
     // executable file inside the .app bundle, so crashpad_test_data is also
     // inside the bundle.
-    base::FilePath candidate = executable_path.DirName()
-                               .Append("crashpad_test_data");
+    base::FilePath candidate =
+        executable_path.DirName().Append("crashpad_test_data");
 #else  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDRID)
     // In a standalone build, the test executable is usually at
     // out/{Debug,Release} relative to the Crashpad root.
@@ -105,7 +98,6 @@ base::FilePath TestDataRootInternal() {
   }
 
   return base::FilePath(base::FilePath::kCurrentDirectory);
-#endif  // BUILDFLAG(IS_FUCHSIA)
 }
 
 #if BUILDFLAG(IS_WIN) && defined(ARCH_CPU_64_BITS)
@@ -131,19 +123,12 @@ base::FilePath Output32BitDirectory() {
 base::FilePath TestPaths::Executable() {
   base::FilePath executable_path;
   CHECK(Paths::Executable(&executable_path));
-#if defined(CRASHPAD_IS_IN_FUCHSIA)
-  executable_path = base::FilePath("/pkg/bin/app");
-#endif
   return executable_path;
 }
 
 // static
 base::FilePath TestPaths::ExpectedExecutableBasename(
     const base::FilePath::StringType& name) {
-#if BUILDFLAG(IS_FUCHSIA)
-  // Apps in Fuchsia packages are always named "app".
-  return base::FilePath("app");
-#else  // BUILDFLAG(IS_FUCHSIA)
 #if defined(CRASHPAD_IS_IN_CHROMIUM)
   base::FilePath::StringType executable_name(
       FILE_PATH_LITERAL("crashpad_tests"));
@@ -156,7 +141,6 @@ base::FilePath TestPaths::ExpectedExecutableBasename(
 #endif  // BUILDFLAG(IS_WIN)
 
   return base::FilePath(executable_name);
-#endif  // BUILDFLAG(IS_FUCHSIA)
 }
 
 // static
@@ -188,7 +172,7 @@ base::FilePath TestPaths::BuildArtifact(
 
   base::FilePath::StringType test_name =
       FILE_PATH_LITERAL("crashpad_") + module + FILE_PATH_LITERAL("_test");
-#if !defined(CRASHPAD_IS_IN_CHROMIUM) && !BUILDFLAG(IS_FUCHSIA)
+#if !defined(CRASHPAD_IS_IN_CHROMIUM)
   CHECK(Executable().BaseName().RemoveFinalExtension().value() == test_name);
 #endif  // !CRASHPAD_IS_IN_CHROMIUM
 
@@ -200,8 +184,6 @@ base::FilePath TestPaths::BuildArtifact(
     case FileType::kExecutable:
 #if BUILDFLAG(IS_WIN)
       extension = FILE_PATH_LITERAL(".exe");
-#elif BUILDFLAG(IS_FUCHSIA)
-      directory = base::FilePath(FILE_PATH_LITERAL("/pkg/bin"));
 #endif  // BUILDFLAG(IS_WIN)
       break;
 
@@ -212,19 +194,9 @@ base::FilePath TestPaths::BuildArtifact(
       extension = FILE_PATH_LITERAL(".so");
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_FUCHSIA)
-      // TODO(scottmg): .so files are currently deployed into /boot/lib, where
-      // they'll be found (without a path) by the loader. Application packaging
-      // infrastructure is in progress, so this will likely change again in the
-      // future.
-      directory = base::FilePath();
-#endif
       break;
 
     case FileType::kCertificate:
-#if defined(CRASHPAD_IS_IN_FUCHSIA)
-      directory = base::FilePath(FILE_PATH_LITERAL("/pkg/data"));
-#endif
       extension = FILE_PATH_LITERAL(".pem");
       break;
   }

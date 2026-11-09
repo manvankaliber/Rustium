@@ -14,9 +14,9 @@
 
 import("../../build/crashpad_buildconfig.gni")
 
-if (crashpad_is_in_chromium || crashpad_is_in_fuchsia || crashpad_is_in_dart) {
+if (crashpad_is_in_chromium || crashpad_is_in_dart) {
   zlib_source = "external"
-} else if (!crashpad_is_win && !crashpad_is_fuchsia) {
+} else if (!crashpad_is_win) {
   zlib_source = "system"
 } else if (crashpad_is_standalone) {
   zlib_source = "embedded"
@@ -108,11 +108,6 @@ if (zlib_source == "external") {
         "HAVE_HIDDEN",
         "HAVE_UNISTD_H",
       ]
-    }
-
-    if (crashpad_is_fuchsia) {
-      # Fuchsia build's default warnings include -Wsign-compare (indirectly)
-      configs += [ ":Wno-sign-compare" ]
     }
 
     if (crashpad_is_standalone) {

@@ -180,7 +180,6 @@ class MediaDevicesDispatcherHostTest
   MediaDevicesDispatcherHostTest()
       : task_environment_(content::BrowserTaskEnvironment::IO_MAINLOOP),
         origin_(url::Origin::Create(GURL(GetParam()))) {
-
     // Make sure we use fake devices to avoid long delays.
     base::CommandLine::ForCurrentProcess()->AppendSwitch(
         switches::kUseFakeDeviceForMediaStream);
@@ -379,8 +378,9 @@ class MediaDevicesDispatcherHostTest
     std::string expected_first_device_id =
         GetHMACForRawMediaDeviceID(salt_and_origin, kDefaultAudioDeviceID);
     EXPECT_EQ(expected_first_device_id, capabilities[0]->device_id);
-    for (const auto& capability : capabilities)
+    for (const auto& capability : capabilities) {
       EXPECT_TRUE(capability->parameters.IsValid());
+    }
   }
 
   void AllVideoInputDeviceFormatsCallback(
@@ -433,18 +433,21 @@ class MediaDevicesDispatcherHostTest
     run_loop.Run();
 
     EXPECT_FALSE(enumerated_devices_.empty());
-    if (enumerate_audio_input)
+    if (enumerate_audio_input) {
       EXPECT_FALSE(enumerated_devices_[static_cast<size_t>(
                                            MediaDeviceType::kMediaAudioInput)]
                        .empty());
-    if (enumerate_video_input)
+    }
+    if (enumerate_video_input) {
       EXPECT_FALSE(enumerated_devices_[static_cast<size_t>(
                                            MediaDeviceType::kMediaVideoInput)]
                        .empty());
-    if (enumerate_audio_output)
+    }
+    if (enumerate_audio_output) {
       EXPECT_FALSE(enumerated_devices_[static_cast<size_t>(
                                            MediaDeviceType::kMediaAudioOutput)]
                        .empty());
+    }
 
     EXPECT_FALSE(DoesContainRawIds(enumerated_devices_));
     EXPECT_EQ(DoesEveryDeviceMapToRawId(enumerated_devices_),
@@ -465,8 +468,9 @@ class MediaDevicesDispatcherHostTest
                   media::AudioDeviceDescription::kCommunicationsDeviceId) {
             continue;
           }
-          if (device_info.device_id == raw_device_info.device_id)
+          if (device_info.device_id == raw_device_info.device_id) {
             return true;
+          }
         }
       }
     }
@@ -502,8 +506,9 @@ class MediaDevicesDispatcherHostTest
   // Returns true if all devices have labels, false otherwise.
   bool DoesContainLabels(const blink::WebMediaDeviceInfoArray& device_infos) {
     for (const auto& device_info : device_infos) {
-      if (device_info.label.empty())
+      if (device_info.label.empty()) {
         return false;
+      }
     }
     return true;
   }
@@ -512,8 +517,9 @@ class MediaDevicesDispatcherHostTest
   bool DoesContainLabels(
       const std::vector<blink::WebMediaDeviceInfoArray>& enumeration) {
     for (const auto& device_infos : enumeration) {
-      if (!DoesContainLabels(device_infos))
+      if (!DoesContainLabels(device_infos)) {
         return false;
+      }
     }
     return true;
   }
@@ -522,8 +528,9 @@ class MediaDevicesDispatcherHostTest
   bool DoesNotContainLabels(
       const blink::WebMediaDeviceInfoArray& device_infos) {
     for (const auto& device_info : device_infos) {
-      if (!device_info.label.empty())
+      if (!device_info.label.empty()) {
         return false;
+      }
     }
     return true;
   }
@@ -532,8 +539,9 @@ class MediaDevicesDispatcherHostTest
   bool DoesNotContainLabels(
       const std::vector<std::vector<blink::WebMediaDeviceInfo>>& enumeration) {
     for (const auto& device_infos : enumeration) {
-      if (!DoesNotContainLabels(device_infos))
+      if (!DoesNotContainLabels(device_infos)) {
         return false;
+      }
     }
     return true;
   }
@@ -594,10 +602,11 @@ class MediaDevicesDispatcherHostTest
           base::SystemMonitor::DEVTYPE_VIDEO_CAPTURE);
       base::RunLoop().RunUntilIdle();
 
-      if (has_permission)
+      if (has_permission) {
         EXPECT_TRUE(DoesContainLabels(changed_devices));
-      else
+      } else {
         EXPECT_TRUE(DoesNotContainLabels(changed_devices));
+      }
     }
   }
 
@@ -1010,11 +1019,12 @@ TEST_P(MediaDevicesDispatcherHostTest, SelectAudioOutputNoFeature) {
   host_->SelectAudioOutput(kDefaultAudioDeviceID, base::DoNothing());
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID)
 class SelectAudioOutputTest : public MediaDevicesDispatcherHostTest {
  public:
   SelectAudioOutputTest()
       : feature_list_(blink::features::kSelectAudioOutput) {}
+
  private:
   base::test::ScopedFeatureList feature_list_;
 };
@@ -1115,9 +1125,8 @@ TEST_P(SelectAudioOutputTest, SelectAudioOutputForwardsRequestToUIProxy) {
 
             // 2. Post a probe task to check if the SelectAudioOutput result was
             //    delivered synchronously.
-            auto check_readiness = base::BindLambdaForTesting([&]() {
-              result_ready_before_reply = future.IsReady();
-            });
+            auto check_readiness = base::BindLambdaForTesting(
+                [&]() { result_ready_before_reply = future.IsReady(); });
 
             base::SequencedTaskRunner::GetCurrentDefault()->PostTask(
                 FROM_HERE, std::move(check_readiness));

@@ -97,10 +97,8 @@ TEST_P(HistoryBackendDBTest, ClearBrowsingData_Downloads) {
   // was removed.
   base::Time now = base::Time();
   uint32_t id = 1;
-  EXPECT_TRUE(AddDownload(id,
-                          "BC5E3854-7B1D-4DE0-B619-B0D99C8B18B4",
-                          DownloadState::COMPLETE,
-                          base::Time()));
+  EXPECT_TRUE(AddDownload(id, "BC5E3854-7B1D-4DE0-B619-B0D99C8B18B4",
+                          DownloadState::COMPLETE, base::Time()));
   db_->QueryDownloads(&downloads);
   EXPECT_EQ(1U, downloads.size());
 
@@ -149,9 +147,9 @@ TEST_P(HistoryBackendDBTest, MigrateDownloadsState) {
     // make this impossible, at least according to the test above.
     for (int state = 0; state < 5; ++state) {
       sql::Statement s(db.GetUniqueStatement(
-            "INSERT INTO downloads (id, full_path, url, start_time, "
-            "received_bytes, total_bytes, state, end_time, opened) VALUES "
-            "(?, ?, ?, ?, ?, ?, ?, ?, ?)"));
+          "INSERT INTO downloads (id, full_path, url, start_time, "
+          "received_bytes, total_bytes, state, end_time, opened) VALUES "
+          "(?, ?, ?, ?, ?, ?, ?, ?, ?)"));
       s.BindInt64(0, 1 + state);
       s.BindString(1, "path");
       s.BindString(2, "url");
@@ -179,10 +177,10 @@ TEST_P(HistoryBackendDBTest, MigrateDownloadsState) {
     sql::Database db(sql::test::kTestTag);
     ASSERT_TRUE(db.Open(history_dir_.Append(kHistoryFilename)));
     {
-      sql::Statement statement(db.GetUniqueStatement(
-          "SELECT id, state, opened "
-          "FROM downloads "
-          "ORDER BY id"));
+      sql::Statement statement(
+          db.GetUniqueStatement("SELECT id, state, opened "
+                                "FROM downloads "
+                                "ORDER BY id"));
       int counter = 0;
       while (statement.Step()) {
         EXPECT_EQ(1 + counter, statement.ColumnInt64(0));
@@ -341,8 +339,7 @@ TEST_P(HistoryBackendDBTest, MigrateReferrer) {
     sql::Database db(sql::test::kTestTag);
     ASSERT_TRUE(db.Open(history_dir_.Append(kHistoryFilename)));
     {
-      sql::Statement s(db.GetUniqueStatement(
-          "SELECT referrer from downloads"));
+      sql::Statement s(db.GetUniqueStatement("SELECT referrer from downloads"));
       EXPECT_TRUE(s.Step());
       EXPECT_EQ(std::string(), s.ColumnString(0));
     }
@@ -458,8 +455,8 @@ TEST_P(HistoryBackendDBTest, MigrateDownloadValidators) {
     sql::Database db(sql::test::kTestTag);
     ASSERT_TRUE(db.Open(history_dir_.Append(kHistoryFilename)));
     {
-      sql::Statement s(db.GetUniqueStatement(
-          "SELECT etag, last_modified from downloads"));
+      sql::Statement s(
+          db.GetUniqueStatement("SELECT etag, last_modified from downloads"));
       EXPECT_TRUE(s.Step());
       EXPECT_EQ(std::string(), s.ColumnString(0));
       EXPECT_EQ(std::string(), s.ColumnString(1));
@@ -573,8 +570,9 @@ TEST_P(HistoryBackendDBTest, MigrateHashHttpMethodAndGenerateGuids) {
 
     for (uint32_t i = 0; i < kDownloadCount; ++i) {
       uint32_t download_id = i * 13321;
-      if (i != 0)
+      if (i != 0) {
         download_insert_query += ",";
+      }
       download_insert_query += base::StringPrintf(
           "(%" PRId64 ", 'current_path', 'target_path', %" PRId64
           ", 100, 100, 1, 0, 0, %" PRId64
@@ -583,8 +581,9 @@ TEST_P(HistoryBackendDBTest, MigrateHashHttpMethodAndGenerateGuids) {
           static_cast<int64_t>(download_id),
           static_cast<int64_t>(now.ToTimeT()),
           static_cast<int64_t>(now.ToTimeT()));
-      if (i != 0)
+      if (i != 0) {
         url_insert_query += ",";
+      }
       url_insert_query += base::StringPrintf("(%" PRId64 ", 0, 'url')",
                                              static_cast<int64_t>(download_id));
     }
@@ -784,11 +783,12 @@ TEST_P(HistoryBackendDBTest, MigrateDownloadsSlicesTable) {
     ASSERT_TRUE(db.Open(history_dir_.Append(kHistoryFilename)));
     {
       // The downloads_slices table should be ready for use.
-      sql::Statement s1(db.GetUniqueStatement(
-          "SELECT COUNT(*) from downloads_slices"));
+      sql::Statement s1(
+          db.GetUniqueStatement("SELECT COUNT(*) from downloads_slices"));
       EXPECT_TRUE(s1.Step());
       EXPECT_EQ(0, s1.ColumnInt(0));
-      const char kInsertStatement[] = "INSERT INTO downloads_slices "
+      const char kInsertStatement[] =
+          "INSERT INTO downloads_slices "
           "(download_id, offset, received_bytes) VALUES (1, 0, 100)";
       ASSERT_TRUE(db.Execute(kInsertStatement));
     }
@@ -1009,10 +1009,8 @@ TEST_P(HistoryBackendDBTest, ConfirmDownloadRowCreateAndDelete) {
 
   // Add some downloads.
   uint32_t id1 = 1, id2 = 2, id3 = 3;
-  AddDownload(id1,
-              "05AF6C8E-E4E0-45D7-B5CE-BC99F7019918",
-              DownloadState::COMPLETE,
-              now);
+  AddDownload(id1, "05AF6C8E-E4E0-45D7-B5CE-BC99F7019918",
+              DownloadState::COMPLETE, now);
   std::vector<DownloadRow> results;
   db_->QueryDownloads(&results);
   ASSERT_EQ(1u, results.size());
@@ -1031,18 +1029,18 @@ TEST_P(HistoryBackendDBTest, ConfirmDownloadRowCreateAndDelete) {
   {
     sql::Database db(sql::test::kTestTag);
     ASSERT_TRUE(db.Open(history_dir_.Append(kHistoryFilename)));
-    sql::Statement statement(db.GetUniqueStatement(
-        "Select Count(*) from downloads"));
+    sql::Statement statement(
+        db.GetUniqueStatement("Select Count(*) from downloads"));
     ASSERT_TRUE(statement.Step());
     EXPECT_EQ(3, statement.ColumnInt(0));
 
-    sql::Statement statement1(db.GetUniqueStatement(
-        "Select Count(*) from downloads_url_chains"));
+    sql::Statement statement1(
+        db.GetUniqueStatement("Select Count(*) from downloads_url_chains"));
     ASSERT_TRUE(statement1.Step());
     EXPECT_EQ(3, statement1.ColumnInt(0));
 
-    sql::Statement statement2(db.GetUniqueStatement(
-        "Select Count(*) from downloads_slices"));
+    sql::Statement statement2(
+        db.GetUniqueStatement("Select Count(*) from downloads_slices"));
     ASSERT_TRUE(statement2.Step());
     EXPECT_EQ(1, statement2.ColumnInt(0));
   }
@@ -1055,18 +1053,18 @@ TEST_P(HistoryBackendDBTest, ConfirmDownloadRowCreateAndDelete) {
   {
     sql::Database db(sql::test::kTestTag);
     ASSERT_TRUE(db.Open(history_dir_.Append(kHistoryFilename)));
-    sql::Statement statement(db.GetUniqueStatement(
-        "Select Count(*) from downloads"));
+    sql::Statement statement(
+        db.GetUniqueStatement("Select Count(*) from downloads"));
     ASSERT_TRUE(statement.Step());
     EXPECT_EQ(1, statement.ColumnInt(0));
 
-    sql::Statement statement1(db.GetUniqueStatement(
-        "Select Count(*) from downloads_url_chains"));
+    sql::Statement statement1(
+        db.GetUniqueStatement("Select Count(*) from downloads_url_chains"));
     ASSERT_TRUE(statement1.Step());
     EXPECT_EQ(1, statement1.ColumnInt(0));
 
-    sql::Statement statement2(db.GetUniqueStatement(
-        "Select Count(*) from downloads_slices"));
+    sql::Statement statement2(
+        db.GetUniqueStatement("Select Count(*) from downloads_slices"));
     ASSERT_TRUE(statement2.Step());
     EXPECT_EQ(0, statement2.ColumnInt(0));
   }
@@ -1108,8 +1106,8 @@ TEST_P(HistoryBackendDBTest, DownloadNukeRecordsMissingURLs) {
   {
     sql::Database db(sql::test::kTestTag);
     ASSERT_TRUE(db.Open(history_dir_.Append(kHistoryFilename)));
-    sql::Statement statement(db.GetUniqueStatement(
-        "DELETE FROM downloads_url_chains WHERE id=1"));
+    sql::Statement statement(
+        db.GetUniqueStatement("DELETE FROM downloads_url_chains WHERE id=1"));
     ASSERT_TRUE(statement.Run());
   }
   ASSERT_TRUE(CreateBackendAndDatabase());
@@ -1123,8 +1121,8 @@ TEST_P(HistoryBackendDBTest, DownloadNukeRecordsMissingURLs) {
     sql::Database db(sql::test::kTestTag);
     ASSERT_TRUE(db.Open(history_dir_.Append(kHistoryFilename)));
     {
-      sql::Statement statement(db.GetUniqueStatement(
-            "SELECT count(*) from downloads"));
+      sql::Statement statement(
+          db.GetUniqueStatement("SELECT count(*) from downloads"));
       ASSERT_TRUE(statement.Step());
       EXPECT_EQ(0, statement.ColumnInt(0));
     }
@@ -1139,10 +1137,8 @@ TEST_P(HistoryBackendDBTest, ConfirmDownloadInProgressCleanup) {
 
   // Put an IN_PROGRESS download in the DB.
   DownloadId id = 1;
-  AddDownload(id,
-              "05AF6C8E-E4E0-45D7-B5CE-BC99F7019918",
-              DownloadState::IN_PROGRESS,
-              now);
+  AddDownload(id, "05AF6C8E-E4E0-45D7-B5CE-BC99F7019918",
+              DownloadState::IN_PROGRESS, now);
   std::vector<DownloadRow> results;
   db_->QueryDownloads(&results);
   ASSERT_EQ(1u, results.size());
@@ -1156,13 +1152,13 @@ TEST_P(HistoryBackendDBTest, ConfirmDownloadInProgressCleanup) {
   {
     sql::Database db(sql::test::kTestTag);
     ASSERT_TRUE(db.Open(history_dir_.Append(kHistoryFilename)));
-    sql::Statement statement(db.GetUniqueStatement(
-        "Select Count(*) from downloads"));
+    sql::Statement statement(
+        db.GetUniqueStatement("Select Count(*) from downloads"));
     EXPECT_TRUE(statement.Step());
     EXPECT_EQ(1, statement.ColumnInt(0));
 
-    sql::Statement statement1(db.GetUniqueStatement(
-        "Select state, interrupt_reason from downloads"));
+    sql::Statement statement1(
+        db.GetUniqueStatement("Select state, interrupt_reason from downloads"));
     EXPECT_TRUE(statement1.Step());
     EXPECT_EQ(DownloadStateToInt(DownloadState::IN_PROGRESS),
               statement1.ColumnInt(0));
@@ -1186,13 +1182,13 @@ TEST_P(HistoryBackendDBTest, ConfirmDownloadInProgressCleanup) {
   {
     sql::Database db(sql::test::kTestTag);
     ASSERT_TRUE(db.Open(history_dir_.Append(kHistoryFilename)));
-    sql::Statement statement(db.GetUniqueStatement(
-        "Select Count(*) from downloads"));
+    sql::Statement statement(
+        db.GetUniqueStatement("Select Count(*) from downloads"));
     EXPECT_TRUE(statement.Step());
     EXPECT_EQ(1, statement.ColumnInt(0));
 
-    sql::Statement statement1(db.GetUniqueStatement(
-        "Select state, interrupt_reason from downloads"));
+    sql::Statement statement1(
+        db.GetUniqueStatement("Select state, interrupt_reason from downloads"));
     EXPECT_TRUE(statement1.Step());
     EXPECT_EQ(DownloadStateToInt(DownloadState::INTERRUPTED),
               statement1.ColumnInt(0));
@@ -1422,10 +1418,10 @@ TEST_P(HistoryBackendDBTest, MigratePresentations) {
 
     // Add an entry to urls.
     {
-      sql::Statement s(db.GetUniqueStatement(
-                           "INSERT INTO urls "
-                           "(id, url, title, last_visit_time) VALUES "
-                           "(?, ?, ?, ?)"));
+      sql::Statement s(
+          db.GetUniqueStatement("INSERT INTO urls "
+                                "(id, url, title, last_visit_time) VALUES "
+                                "(?, ?, ?, ?)"));
       s.BindInt64(0, url_id);
       s.BindString(1, url.spec());
       s.BindString16(2, title);
@@ -1435,10 +1431,10 @@ TEST_P(HistoryBackendDBTest, MigratePresentations) {
 
     // Add an entry to segments.
     {
-      sql::Statement s(db.GetUniqueStatement(
-                           "INSERT INTO segments "
-                           "(id, name, url_id, pres_index) VALUES "
-                           "(?, ?, ?, ?)"));
+      sql::Statement s(
+          db.GetUniqueStatement("INSERT INTO segments "
+                                "(id, name, url_id, pres_index) VALUES "
+                                "(?, ?, ?, ?)"));
       s.BindInt64(0, segment_id);
       s.BindString(1, url_name);
       s.BindInt64(2, url_id);
@@ -1449,9 +1445,9 @@ TEST_P(HistoryBackendDBTest, MigratePresentations) {
     // And one to segment_usage.
     {
       sql::Statement s(db.GetUniqueStatement(
-                           "INSERT INTO segment_usage "
-                           "(id, segment_id, time_slot, visit_count) VALUES "
-                           "(?, ?, ?, ?)"));
+          "INSERT INTO segment_usage "
+          "(id, segment_id, time_slot, visit_count) VALUES "
+          "(?, ?, ?, ?)"));
       s.BindInt64(0, 4);  // id.
       s.BindInt64(1, segment_id);
       s.BindTime(2, segment_time);
@@ -3447,7 +3443,6 @@ TEST_P(HistoryBackendDBTest, CantRazeOldDatabaseIfLocked) {
   // The old database can't be razed if it's locked. In WAL mode, the failure
   // occurs at OPEN (before version is even read); otherwise at RAZE_OLD_DB.
   EXPECT_FALSE(CreateBackendAndDatabase());
-#if !BUILDFLAG(IS_FUCHSIA)
   if (IsWalModeEnabled()) {
     EXPECT_THAT(
         histogram_tester.GetAllSamples("History.InitializationFailureStep"),
@@ -3464,17 +3459,6 @@ TEST_P(HistoryBackendDBTest, CantRazeOldDatabaseIfLocked) {
                                    /*count=*/1))),
         }));
   }
-#else
-  EXPECT_THAT(
-      histogram_tester.GetAllSamplesForPrefix("History"),
-      IsSupersetOf({
-          Pair("History.DatabaseVersion", BucketsAre(Bucket(10, /*count=*/1))),
-          Pair("History.DatabaseTooOld", BucketsAre(Bucket(10, /*count=*/1))),
-          Pair("History.InitializationFailureStep",
-               BucketsAre(Bucket(HistoryDatabase::InitStep::RAZE_OLD_DB,
-                                 /*count=*/1))),
-      }));
-#endif  // !BUILDFLAG(IS_FUCHSIA)
   EXPECT_EQ(GetDatabaseVersion(), 10);
 }
 

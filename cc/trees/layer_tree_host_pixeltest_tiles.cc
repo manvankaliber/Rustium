@@ -54,8 +54,9 @@ class LayerTreeHostTilesPixelTest
     // available for use in a timely manner. Needed for the one-copy path.
     viz::RasterContextProvider* context_provider =
         host_impl->layer_tree_frame_sink()->worker_context_provider();
-    if (!context_provider)
+    if (!context_provider) {
       return;
+    }
 
     viz::RasterContextProvider::ScopedRasterContextLock lock(context_provider);
     lock.RasterInterface()->Finish();
@@ -349,9 +350,6 @@ TEST_P(LayerTreeHostTilesTestRasterColorSpace, GenericRGB) {
 }
 
 TEST_P(LayerTreeHostTilesTestRasterColorSpace, CustomColorSpace) {
-#if BUILDFLAG(IS_FUCHSIA)
-  pixel_comparator_ = std::make_unique<FuzzyPixelOffByOneComparator>();
-#endif
   // Create a color space with a different blue point.
   SkColorSpacePrimaries primaries;
   skcms_Matrix3x3 to_XYZD50;

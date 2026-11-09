@@ -753,13 +753,14 @@ TEST_P(ShapeParameterTest, MaxGlyphsClusterDevanagari) {
   HarfBuzzShaper shaper(string);
   const ShapeResult* result = ShapeWithParameter(&shaper);
   EXPECT_EQ(length, result->NumCharacters());
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   // Linux and Fuchsia use Lohit Devanagari. When using that font the shaper
   // returns 32767 glyphs instead of 32769.
   // TODO(crbug.com/933551): Add Noto Sans Devanagari to
   // //third_party/test_fonts and use it here.
-  if (result->NumGlyphs() != length)
+  if (result->NumGlyphs() != length) {
     return;
+  }
 #endif
   EXPECT_EQ(length, result->NumGlyphs());
   Vector<ShapeResultRunData> runs = ShapeResultRunData::Get(result);
@@ -870,7 +871,6 @@ INSTANTIATE_TEST_SUITE_P(HarfBuzzShaperTest,
                          testing::ValuesIn(kVariantEmojiValues));
 
 TEST_P(FontVariantEmojiTest, FontVariantEmojiSystemFallback) {
-
   const FontVariantEmoji variant_emoji = GetParam();
 
   String text_default(u"\u2603");
@@ -1924,8 +1924,9 @@ TEST_F(HarfBuzzShaperTest, SafeToBreakLatinDiscretionaryLigatures) {
   for (wtf_size_t i = 1; i < test_word.length() - 1; ++i) {
     EXPECT_EQ(safe_to_break_positions[compare_safe_to_break_position],
               result->NextSafeToBreakOffset(i));
-    if (i == safe_to_break_positions[compare_safe_to_break_position])
+    if (i == safe_to_break_positions[compare_safe_to_break_position]) {
       compare_safe_to_break_position++;
+    }
   }
 
   // Add zero-width spaces at some of the safe to break offsets.
@@ -1944,8 +1945,9 @@ TEST_F(HarfBuzzShaperTest, SafeToBreakLatinDiscretionaryLigatures) {
   // offseting the index that we compare against.
   wtf_size_t inserts_offset = 0;
   for (wtf_size_t i = 0; i < test_word.length(); ++i) {
-    if (i == safe_to_break_positions[inserts_offset])
+    if (i == safe_to_break_positions[inserts_offset]) {
       inserts_offset++;
+    }
     EXPECT_EQ(
         result->SnappedStartPositionForOffset(i),
         reference_result->SnappedStartPositionForOffset(i + inserts_offset));
@@ -1954,7 +1956,7 @@ TEST_F(HarfBuzzShaperTest, SafeToBreakLatinDiscretionaryLigatures) {
 
 // TODO(crbug.com/870712): This test fails due to font fallback differences on
 // Android and Fuchsia.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_ANDROID)
 #define MAYBE_SafeToBreakArabicCommonLigatures \
   DISABLED_SafeToBreakArabicCommonLigatures
 #else
@@ -2177,8 +2179,9 @@ static bool KerningIsHappening(const FontDescription& font_description,
 
   for (wtf_size_t i = 0; i < str.length(); ++i) {
     if (result_no_kern->PositionForOffset(i) !=
-        result_kern->PositionForOffset(i))
+        result_kern->PositionForOffset(i)) {
       return true;
+    }
   }
   return false;
 }
@@ -2238,8 +2241,9 @@ TEST_F(HarfBuzzShaperTest,
 
   for (wtf_size_t i = 0; i < string.length(); ++i) {
     float position = result->PositionForOffset(i);
-    if (round(position) != position)
+    if (round(position) != position) {
       return;
+    }
   }
 
   EXPECT_TRUE(false) << "No unrounded positions found";
@@ -2299,8 +2303,9 @@ TEST_F(HarfBuzzShaperTest,
 
   for (wtf_size_t i = 0; i < string.length(); ++i) {
     float position = result->PositionForOffset(i);
-    if (round(position) != position)
+    if (round(position) != position) {
       return;
+    }
   }
 
   EXPECT_TRUE(false) << "No unrounded positions found";

@@ -31,7 +31,7 @@ component("crdtp") {
   defines = [ "CRDTP_IMPLEMENTATION" ]
 
   # Disable max speed optimizations for size-sensitive platforms.
-  if (!is_debug && !is_fuchsia) {
+  if (!is_debug) {
     configs -= [ "//build/config/compiler:default_optimization" ]
     configs += [ "//build/config/compiler:optimize_max" ]
   }

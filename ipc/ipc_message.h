@@ -63,19 +63,15 @@ class IPC_MESSAGE_SUPPORT_EXPORT Message : public base::Pickle {
     int32_t pad_routing;
     uint32_t pad_type;
     uint32_t pad_flags;
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
     uint16_t num_fds;
     uint16_t pad;
 #endif
   };
 #pragma pack(pop)
 
-  Header* header() {
-    return headerT<Header>();
-  }
-  const Header* header() const {
-    return headerT<Header>();
-  }
+  Header* header() { return headerT<Header>(); }
+  const Header* header() const { return headerT<Header>(); }
 
   // Ensure that a MessageAttachmentSet is allocated
   void EnsureMessageAttachmentSet();

@@ -54,8 +54,9 @@ bool Sandbox::Initialize(sandbox::mojom::Sandbox sandbox_type,
   if (broker_services) {
     const base::CommandLine& command_line =
         *base::CommandLine::ForCurrentProcess();
-    if (!SandboxWin::InitBrokerServices(broker_services))
+    if (!SandboxWin::InitBrokerServices(broker_services)) {
       return false;
+    }
 
     // Only pre-create alternate desktop if there will be sandboxed processes in
     // the future.
@@ -103,11 +104,6 @@ bool Sandbox::IsProcessSandboxed() {
   uid_t uid = getuid();
   uid_t app_id = uid % 100000;
   return (app_id >= 90000 && app_id <= 99999);
-#elif BUILDFLAG(IS_FUCHSIA)
-  // TODO(crbug.com/40126761): Figure out what to do here. Process
-  // launching controls the sandbox and there are no ambient capabilities, so
-  // basically everything but the browser is considered sandboxed.
-  return !is_browser;
 #elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   int status = SandboxLinux::GetInstance()->GetStatus();
   constexpr int kLayer1Flags = SandboxLinux::Status::kSUID |

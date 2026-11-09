@@ -46,7 +46,7 @@ clang_modules_platform_supported =
     (is_linux && current_cpu != "s390x") ||
     (is_android &&
      filter_include(android_supported_cpus, [ current_cpu ]) != []) ||
-    is_apple || is_fuchsia || is_chromeos ||
+    is_apple || is_chromeos ||
     # Use current_os instead of is_win due to winuwp not being supported.
     current_os == "win"
 
@@ -55,9 +55,7 @@ _raw_ptr_plugin_default =
     # Disabled on official builds because RAW_PTR_EXCLUSION
     # are stripped by the preprocessor on official build configurations:
     # See https://crbug.com/40836910.
-    !is_official_build &&
-    # the plugin is enabled by default, except on fuchsia and chromecast.
-    (!is_castos && !is_cast_android && !is_fuchsia)
+    !is_official_build && (!is_castos && !is_cast_android)
 
 declare_args() {
   # Indicates if the build should use the Chrome-specific plugins for enforcing

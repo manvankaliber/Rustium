@@ -1601,9 +1601,7 @@ static_library("browser") {
     "//ui/accessibility",
   ]
 
-  if (!is_fuchsia) {
-    deps += [ "//components/variations/service" ]
-  }
+  deps += [ "//components/variations/service" ]
 
   if (use_blink) {
     deps += [
@@ -2442,14 +2440,12 @@ source_set("unit_tests") {
     ]
   }
 
-  if (!is_fuchsia) {
-    sources += [
-      "filling/autofill_ai/autofill_ai_access_manager_unittest.cc",
-      "filling/autofill_ai/field_filling_entity_util_unittest.cc",
-      "permissions/autofill_ai/autofill_ai_permission_util_unittest.cc",
-      "permissions/autofill_policy_service_unittest.cc",
-    ]
-  }
+  sources += [
+    "filling/autofill_ai/autofill_ai_access_manager_unittest.cc",
+    "filling/autofill_ai/field_filling_entity_util_unittest.cc",
+    "permissions/autofill_ai/autofill_ai_permission_util_unittest.cc",
+    "permissions/autofill_policy_service_unittest.cc",
+  ]
 
   if (build_with_model_execution) {
     sources +=
@@ -2568,13 +2564,9 @@ source_set("unit_tests") {
     deps += [ "//components/autofill/ios/common" ]
   }
 
-  if (!is_fuchsia) {
-    deps += [ "//components/variations/service" ]
-  }
+  deps += [ "//components/variations/service" ]
 
-  if (!is_fuchsia) {
-    deps += [ "//components/autofill/core/browser/policy:unit_tests" ]
-  }
+  deps += [ "//components/autofill/core/browser/policy:unit_tests" ]
 
   if (is_win || is_mac || is_linux || is_chromeos || is_android) {
     sources += [ "metrics/cross_tab_copy_paste_tracker_unittest.cc" ]

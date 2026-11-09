@@ -46,8 +46,6 @@
 
 namespace content {
 
-
-
 DumpAccessibilityTreeTest::DumpAccessibilityTreeTest()
     : DumpAccessibilityTestBase() {}
 DumpAccessibilityTreeTest::~DumpAccessibilityTreeTest() {}
@@ -1557,7 +1555,8 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest, AccessibilityAriaMenu) {
   RunAriaTest(FILE_PATH_LITERAL("aria-menu.html"));
 }
 
-IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest, AccessibilityAriaFocusableMenu) {
+IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
+                       AccessibilityAriaFocusableMenu) {
   RunAriaTest(FILE_PATH_LITERAL("aria-focusable-menu.html"));
 }
 
@@ -2260,9 +2259,9 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
 // TODO(crbug.com/40943250): Fix failure on android
 // TODO(crbug.com/372910798): Flaky on Linux with ASan and LSan and Debug
 // builds.
-#if BUILDFLAG(IS_ANDROID) || \
-(BUILDFLAG(IS_LINUX) && \
- (defined(ADDRESS_SANITIZER) || defined(LEAK_SANITIZER) || !defined(NDEBUG)))
+#if BUILDFLAG(IS_ANDROID) ||                               \
+    (BUILDFLAG(IS_LINUX) && (defined(ADDRESS_SANITIZER) || \
+                             defined(LEAK_SANITIZER) || !defined(NDEBUG)))
 #define MAYBE_AccessibilityAudio DISABLED_AccessibilityAudio
 #else
 #define MAYBE_AccessibilityAudio AccessibilityAudio
@@ -2934,8 +2933,6 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
   RunHtmlTest(FILE_PATH_LITERAL("iframe-empty-positioned.html"));
 }
 
-
-
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        AccessibilityIframeScrollable) {
   RunHtmlTest(FILE_PATH_LITERAL("iframe-scrollable.html"));
@@ -3097,11 +3094,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
 }
 
 // TODO(crbug.com/569708363): Re-enable this test
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_AccessibilityInputDate DISABLED_AccessibilityInputDate
-#else
 #define MAYBE_AccessibilityInputDate AccessibilityInputDate
-#endif
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        MAYBE_AccessibilityInputDate) {
   RunHtmlTest(FILE_PATH_LITERAL("input-date.html"));
@@ -3118,13 +3111,8 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
 }
 
 // TODO(crbug.com/569708363): Re-enable this test
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_AccessibilityInputDateWithPopupOpen \
-  DISABLED_AccessibilityInputDateWithPopupOpen
-#else
 #define MAYBE_AccessibilityInputDateWithPopupOpen \
   AccessibilityInputDateWithPopupOpen
-#endif
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        NOT_ANDROID(MAYBE_AccessibilityInputDateWithPopupOpen)) {
   RunHtmlTest(FILE_PATH_LITERAL("input-date-with-popup-open.html"));
@@ -3154,13 +3142,8 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // TODO(crbug.com/569708363): Re-enable this test
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_AccessibilityInputTimeWithPopupOpen \
-  DISABLED_AccessibilityInputTimeWithPopupOpen
-#else
 #define MAYBE_AccessibilityInputTimeWithPopupOpen \
   AccessibilityInputTimeWithPopupOpen
-#endif
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        NOT_ANDROID(MAYBE_AccessibilityInputTimeWithPopupOpen)) {
   RunHtmlTest(FILE_PATH_LITERAL("input-time-with-popup-open.html"));
@@ -3177,12 +3160,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest, AccessibilityInputDateTime) {
 }
 
 // TODO(crbug.com/569708363): Re-enable this test
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_AccessibilityInputDateTimeLocal \
-  DISABLED_AccessibilityInputDateTimeLocal
-#else
 #define MAYBE_AccessibilityInputDateTimeLocal AccessibilityInputDateTimeLocal
-#endif
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        MAYBE_AccessibilityInputDateTimeLocal) {
   RunHtmlTest(FILE_PATH_LITERAL("input-datetime-local.html"));
@@ -3209,11 +3187,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest, AccessibilityInputList) {
 }
 
 // TODO(crbug.com/569708363): Re-enable this test
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_AccessibilityInputMonth DISABLED_AccessibilityInputMonth
-#else
 #define MAYBE_AccessibilityInputMonth AccessibilityInputMonth
-#endif
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        MAYBE_AccessibilityInputMonth) {
   RunHtmlTest(FILE_PATH_LITERAL("input-month.html"));
@@ -3236,7 +3210,8 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest, AccessibilityInputRadio) {
   RunHtmlTest(FILE_PATH_LITERAL("input-radio.html"));
 }
 
-IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest, AccessibilityInputRadioHidden) {
+IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
+                       AccessibilityInputRadioHidden) {
   RunHtmlTest(FILE_PATH_LITERAL("input-radio-hidden.html"));
 }
 
@@ -3368,11 +3343,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
 }
 
 // TODO(crbug.com/569708363): Re-enable this test
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_AccessibilityInputTime DISABLED_AccessibilityInputTime
-#else
 #define MAYBE_AccessibilityInputTime AccessibilityInputTime
-#endif
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        MAYBE_AccessibilityInputTime) {
   RunHtmlTest(FILE_PATH_LITERAL("input-time.html"));
@@ -3388,11 +3359,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
 #endif
 
 // TODO(crbug.com/569708363): Re-enable this test
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_AccessibilityInputTypes DISABLED_AccessibilityInputTypes
-#else
 #define MAYBE_AccessibilityInputTypes AccessibilityInputTypes
-#endif
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        MAYBE_AccessibilityInputTypes) {
   RunHtmlTest(AccessibilityInputTypes_TestFile);
@@ -3418,11 +3385,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest, AccessibilityInputUrl) {
 }
 
 // TODO(crbug.com/569708363): Re-enable this test
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_AccessibilityInputWeek DISABLED_AccessibilityInputWeek
-#else
 #define MAYBE_AccessibilityInputWeek AccessibilityInputWeek
-#endif
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        MAYBE_AccessibilityInputWeek) {
   RunHtmlTest(FILE_PATH_LITERAL("input-week.html"));
@@ -3447,13 +3410,8 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest, AccessibilityIns) {
 }
 
 // TODO(crbug.com/569708363): Re-enable this test
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_AccessibilityInteractiveControlsWithLabels \
-  DISABLED_AccessibilityInteractiveControlsWithLabels
-#else
 #define MAYBE_AccessibilityInteractiveControlsWithLabels \
   AccessibilityInteractiveControlsWithLabels
-#endif
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        MAYBE_AccessibilityInteractiveControlsWithLabels) {
   RunHtmlTest(FILE_PATH_LITERAL("interactive-controls-with-labels.html"));
@@ -4319,8 +4277,7 @@ IN_PROC_BROWSER_TEST_P(YieldingParserDumpAccessibilityTreeTest,
   RunHtmlTest(FILE_PATH_LITERAL("table-multiple-row-and-column-headers.html"));
 }
 
-IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
-                       AccessibilityTabPanel) {
+IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest, AccessibilityTabPanel) {
   RunHtmlTest(FILE_PATH_LITERAL("tab-panel.html"));
 }
 
@@ -4541,8 +4498,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest, NameImgLabelledbyInputsTree) {
 #else
 #define MAYBE_ReloadSelectionCrash ReloadSelectionCrash
 #endif
-IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
-                       MAYBE_ReloadSelectionCrash) {
+IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest, MAYBE_ReloadSelectionCrash) {
   RunCrashTest(FILE_PATH_LITERAL("reload-selection-crash.html"));
 }
 
@@ -5214,7 +5170,6 @@ IN_PROC_BROWSER_TEST_P(
 // TODO(crbug.com/545647752): APG pattern third-party tests are disabled on
 // Fuchsia to avoid exceeding test runner argument limits during flakiness
 // checks.
-#if !BUILDFLAG(IS_FUCHSIA)
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        AccessibilityApgPatternThirdPartyAccordion) {
   RunApgPatternThirdPartyTest(
@@ -5604,6 +5559,5 @@ IN_PROC_BROWSER_TEST_P(
   RunApgPatternThirdPartyTest(
       FILE_PATH_LITERAL("treeview/examples/treeview-navigation.html"));
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 }  // namespace content

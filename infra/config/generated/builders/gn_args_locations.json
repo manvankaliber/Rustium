@@ -21,7 +21,6 @@
     "win32-official": "ci/win32-official/gn-args.json"
   },
   "chromium.accessibility": {
-    "fuchsia-x64-accessibility-rel": "ci/fuchsia-x64-accessibility-rel/gn-args.json",
     "linux-blink-web-tests-force-accessibility-rel": "ci/linux-blink-web-tests-force-accessibility-rel/gn-args.json"
   },
   "chromium.android": {
@@ -97,7 +96,6 @@
   },
   "chromium.angle": {
     "android-angle-chromium-arm64-builder": "ci/android-angle-chromium-arm64-builder/gn-args.json",
-    "fuchsia-angle-builder": "ci/fuchsia-angle-builder/gn-args.json",
     "ios-angle-arm64-builder": "ci/ios-angle-arm64-builder/gn-args.json",
     "linux-angle-chromium-builder": "ci/linux-angle-chromium-builder/gn-args.json",
     "mac-angle-chromium-builder": "ci/mac-angle-chromium-builder/gn-args.json",
@@ -165,8 +163,6 @@
     "ToTAndroidOfficial": "ci/ToTAndroidOfficial/gn-args.json",
     "ToTChromeOS": "ci/ToTChromeOS/gn-args.json",
     "ToTChromeOS (dbg)": "ci/ToTChromeOS (dbg)/gn-args.json",
-    "ToTFuchsia x64": "ci/ToTFuchsia x64/gn-args.json",
-    "ToTFuchsiaOfficial arm64": "ci/ToTFuchsiaOfficial arm64/gn-args.json",
     "ToTLinux": "ci/ToTLinux/gn-args.json",
     "ToTLinux (dbg)": "ci/ToTLinux (dbg)/gn-args.json",
     "ToTLinuxASan": "ci/ToTLinuxASan/gn-args.json",
@@ -209,7 +205,6 @@
     "android-webview-code-coverage-native": "ci/android-webview-code-coverage-native/gn-args.json",
     "android-x86-code-coverage": "ci/android-x86-code-coverage/gn-args.json",
     "chromeos-js-code-coverage": "ci/chromeos-js-code-coverage/gn-args.json",
-    "fuchsia-code-coverage": "ci/fuchsia-code-coverage/gn-args.json",
     "ios-simulator-code-coverage": "ci/ios-simulator-code-coverage/gn-args.json",
     "linux-centipede-fuzz-coverage": "ci/linux-centipede-fuzz-coverage/gn-args.json",
     "linux-chromeos-code-coverage": "ci/linux-chromeos-code-coverage/gn-args.json",
@@ -254,18 +249,6 @@
     "win-enterprise-companion-builder-rel": "ci/win-enterprise-companion-builder-rel/gn-args.json",
     "win32-enterprise-companion-builder-dbg": "ci/win32-enterprise-companion-builder-dbg/gn-args.json",
     "win32-enterprise-companion-builder-rel": "ci/win32-enterprise-companion-builder-rel/gn-args.json"
-  },
-  "chromium.fuchsia": {
-    "Deterministic Fuchsia (dbg)": "ci/Deterministic Fuchsia (dbg)/gn-args.json",
-    "fuchsia-arm64-cast-receiver-rel": "ci/fuchsia-arm64-cast-receiver-rel/gn-args.json",
-    "fuchsia-x64-cast-receiver-dbg": "ci/fuchsia-x64-cast-receiver-dbg/gn-args.json",
-    "fuchsia-x64-cast-receiver-rel": "ci/fuchsia-x64-cast-receiver-rel/gn-args.json"
-  },
-  "chromium.fuchsia.fyi": {
-    "fuchsia-fyi-arm64-dbg": "ci/fuchsia-fyi-arm64-dbg/gn-args.json",
-    "fuchsia-fyi-x64-asan": "ci/fuchsia-fyi-x64-asan/gn-args.json",
-    "fuchsia-fyi-x64-dbg-persistent-emulator": "ci/fuchsia-fyi-x64-dbg-persistent-emulator/gn-args.json",
-    "fuchsia-x64-perf-cast-receiver-rel": "ci/fuchsia-x64-perf-cast-receiver-rel/gn-args.json"
   },
   "chromium.fuzz": {
     "ASAN Debug": "ci/ASAN Debug/gn-args.json",
@@ -549,7 +532,6 @@
     "win32-official": "try/win32-official/gn-args.json"
   },
   "tryserver.chromium.accessibility": {
-    "fuchsia-x64-accessibility-rel": "try/fuchsia-x64-accessibility-rel/gn-args.json",
     "linux-blink-web-tests-force-accessibility-rel": "try/linux-blink-web-tests-force-accessibility-rel/gn-args.json"
   },
   "tryserver.chromium.android": {
@@ -659,7 +641,6 @@
   },
   "tryserver.chromium.angle": {
     "android-angle-chromium-try": "try/android-angle-chromium-try/gn-args.json",
-    "fuchsia-angle-try": "try/fuchsia-angle-try/gn-args.json",
     "ios-angle-try-m2": "try/ios-angle-try-m2/gn-args.json",
     "linux-angle-chromium-try": "try/linux-angle-chromium-try/gn-args.json",
     "mac-angle-chromium-try": "try/mac-angle-chromium-try/gn-args.json",
@@ -695,7 +676,6 @@
   "tryserver.chromium.codesearch": {
     "gen-android-try": "codesearch/gen-android-try/gn-args.json",
     "gen-chromiumos-try": "codesearch/gen-chromiumos-try/gn-args.json",
-    "gen-fuchsia-try": "codesearch/gen-fuchsia-try/gn-args.json",
     "gen-ios-try": "codesearch/gen-ios-try/gn-args.json",
     "gen-linux-try": "codesearch/gen-linux-try/gn-args.json",
     "gen-mac-try": "codesearch/gen-mac-try/gn-args.json",
@@ -749,19 +729,6 @@
     "mac-enterprise-companion-try-builder-rel": "try/mac-enterprise-companion-try-builder-rel/gn-args.json",
     "win-enterprise-companion-try-builder-dbg": "try/win-enterprise-companion-try-builder-dbg/gn-args.json",
     "win-enterprise-companion-try-builder-rel": "try/win-enterprise-companion-try-builder-rel/gn-args.json"
-  },
-  "tryserver.chromium.fuchsia": {
-    "fuchsia-arm64-cast-receiver-rel": "try/fuchsia-arm64-cast-receiver-rel/gn-args.json",
-    "fuchsia-binary-size": "try/fuchsia-binary-size/gn-args.json",
-    "fuchsia-code-coverage": "try/fuchsia-code-coverage/gn-args.json",
-    "fuchsia-deterministic-dbg": "try/fuchsia-deterministic-dbg/gn-args.json",
-    "fuchsia-fyi-arm64-dbg": "try/fuchsia-fyi-arm64-dbg/gn-args.json",
-    "fuchsia-fyi-x64-asan": "try/fuchsia-fyi-x64-asan/gn-args.json",
-    "fuchsia-fyi-x64-dbg-persistent-emulator": "try/fuchsia-fyi-x64-dbg-persistent-emulator/gn-args.json",
-    "fuchsia-x64-cast-receiver-dbg": "try/fuchsia-x64-cast-receiver-dbg/gn-args.json",
-    "fuchsia-x64-cast-receiver-dbg-compile": "try/fuchsia-x64-cast-receiver-dbg-compile/gn-args.json",
-    "fuchsia-x64-cast-receiver-rel": "try/fuchsia-x64-cast-receiver-rel/gn-args.json",
-    "fuchsia-x64-perf-cast-receiver-rel": "try/fuchsia-x64-perf-cast-receiver-rel/gn-args.json"
   },
   "tryserver.chromium.fuzz": {
     "android-arm64-libfuzzer-hwasan": "try/android-arm64-libfuzzer-hwasan/gn-args.json",
@@ -960,7 +927,6 @@
   },
   "tryserver.chromium.tricium": {
     "android-clang-tidy-rel": "try/android-clang-tidy-rel/gn-args.json",
-    "fuchsia-clang-tidy-rel": "try/fuchsia-clang-tidy-rel/gn-args.json",
     "linux-chromeos-clang-tidy-rel": "try/linux-chromeos-clang-tidy-rel/gn-args.json",
     "linux-clang-tidy-rel": "try/linux-clang-tidy-rel/gn-args.json",
     "mac-clang-tidy-rel": "try/mac-clang-tidy-rel/gn-args.json",

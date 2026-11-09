@@ -46,14 +46,6 @@
       }
     },
     {
-      "name": "fuchsia",
-      "platform_set": {
-        "platforms": [
-          "fuchsia"
-        ]
-      }
-    },
-    {
       "name": "ios",
       "platform_set": {
         "platforms": [

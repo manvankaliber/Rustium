@@ -101,9 +101,6 @@ Study::Platform ClientFilterableState::GetCurrentPlatform() {
     if (forced_platform == "chromeos") {
       return Study::PLATFORM_CHROMEOS;
     }
-    if (forced_platform == "fuchsia") {
-      return Study::PLATFORM_FUCHSIA;
-    }
     if (forced_platform == "ios") {
       return Study::PLATFORM_IOS;
     }
@@ -129,8 +126,6 @@ Study::Platform ClientFilterableState::GetCurrentPlatform() {
   return Study::PLATFORM_CHROMEOS;
 #elif BUILDFLAG(IS_ANDROID)
   return Study::PLATFORM_ANDROID;
-#elif BUILDFLAG(IS_FUCHSIA)
-  return Study::PLATFORM_FUCHSIA;
 #elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_BSD) || BUILDFLAG(IS_SOLARIS)
   // Default BSD and SOLARIS to Linux to not break those builds, although these
   // platforms are not officially supported by Chrome.

@@ -56,8 +56,7 @@ class V8MobileBrowsingBenchmark(_V8BrowsingBenchmark):
   # SUPPORTED_PLATFORMS_TAGS lists. Only one is necessary.
   SUPPORTED_PLATFORMS = [
     story.expectations.ALL_MOBILE,
-    story.expectations.FUCHSIA_SHERLOCK,
-    story.expectations.FUCHSIA_NELSON,
+
   ]
   SUPPORTED_PLATFORM_TAGS = [platforms.MOBILE]
 

@@ -58,7 +58,7 @@ class PolicyGenerationTest(unittest.TestCase):
           "chrome.*:1-",
           "android:1-",
           "ios:1-",
-          "fuchsia:1-",
+
         ],
         "features": {
           "metapolicy_type": "merge",
@@ -251,7 +251,7 @@ class PolicyGenerationTest(unittest.TestCase):
     self.maxDiff = None  # See the full diff in the test output.
     self.chrome_major_version = 94
     self.target_platform = 'chrome_os'
-    self.all_target_platforms = ['win', 'mac', 'linux', 'chromeos', 'fuchsia']
+    self.all_target_platforms = ['win', 'mac', 'linux', 'chromeos', ]
     self.risk_tags = generate_policy_source.RiskTags(self.TEMPLATES_JSON)
     self.policies = [
       generate_policy_source.PolicyDetails(

@@ -25,7 +25,6 @@ cargo_crate("lib") {
     "//third_party/rust/chromium_crates_io/vendor/backtrace-v0_3/src/dbghelp.rs",
     "//third_party/rust/chromium_crates_io/vendor/backtrace-v0_3/src/lib.rs",
     "//third_party/rust/chromium_crates_io/vendor/backtrace-v0_3/src/print.rs",
-    "//third_party/rust/chromium_crates_io/vendor/backtrace-v0_3/src/print/fuchsia.rs",
     "//third_party/rust/chromium_crates_io/vendor/backtrace-v0_3/src/symbolize/dbghelp.rs",
     "//third_party/rust/chromium_crates_io/vendor/backtrace-v0_3/src/symbolize/gimli.rs",
     "//third_party/rust/chromium_crates_io/vendor/backtrace-v0_3/src/symbolize/gimli/coff.rs",

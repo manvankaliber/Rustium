@@ -23,6 +23,7 @@
 
 #if BUILDFLAG(IS_CHROMEOS)
 #include <sys/resource.h>
+
 #include "base/process/internal_linux.h"
 #endif  // BUILDFLAG(IS_CHROMEOS)
 
@@ -157,7 +158,7 @@ TEST_F(ProcessTest, CreationTimeOtherProcess) {
       // Time::Now() is a combination of system clock and
       // QueryPerformanceCounter(). Tolerate 100 ms for the clock mismatch.
       Milliseconds(100);
-#elif BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_APPLE)
       // On Mac and Fuchsia, process creation time should be very precise.
       Milliseconds(0);
 #else

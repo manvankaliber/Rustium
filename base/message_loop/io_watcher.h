@@ -92,14 +92,7 @@ class BASE_EXPORT IOWatcher {
       mach_port_t port,
       MessagePumpForIO::MachPortWatchController* controller,
       MessagePumpForIO::MachPortWatcher* delegate);
-#elif BUILDFLAG(IS_FUCHSIA)
-  // Additional watch API for native platform resources.
-  bool WatchZxHandle(zx_handle_t handle,
-                     bool persistent,
-                     zx_signals_t signals,
-                     MessagePumpForIO::ZxHandleWatchController* controller,
-                     MessagePumpForIO::ZxHandleWatcher* delegate);
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
 
  protected:
   IOWatcher();
@@ -125,14 +118,7 @@ class BASE_EXPORT IOWatcher {
       mach_port_t port,
       MessagePumpForIO::MachPortWatchController* controller,
       MessagePumpForIO::MachPortWatcher* delegate) = 0;
-#elif BUILDFLAG(IS_FUCHSIA)
-  virtual bool WatchZxHandleImpl(
-      zx_handle_t handle,
-      bool persistent,
-      zx_signals_t signals,
-      MessagePumpForIO::ZxHandleWatchController* controller,
-      MessagePumpForIO::ZxHandleWatcher* delegate) = 0;
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
 };
 
 }  // namespace base

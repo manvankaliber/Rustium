@@ -534,54 +534,6 @@ targets.mixin(
 )
 
 targets.mixin(
-    name = "fuchsia-code-coverage",
-    args = [
-        "--code-coverage-dir=${ISOLATED_OUTDIR}",
-    ],
-)
-
-# TODO(b/300509814): Large device spec should be the default choice.
-# Choose virtual_device_large spec for more ram. This mixin works on emulators
-# only.
-targets.mixin(
-    name = "fuchsia-arm64-large-device-spec",
-    args = [
-        "--device-spec=arm64-emu-large",
-    ],
-)
-
-targets.mixin(
-    name = "fuchsia-large-device-spec",
-    args = [
-        "--device-spec=x64-emu-large",
-    ],
-)
-
-targets.mixin(
-    name = "fuchsia-persistent-emulator",
-    args = [
-        "--everlasting",
-    ],
-    swarming = targets.swarming(
-        # The persistent emulator will only be used on dedicated fuchsia pool so
-        # that there isn't a need of cache affinity.
-        named_caches = [
-            swarming.cache(
-                name = "fuchsia_emulator_cache",
-                path = ".fuchsia_emulator/fuchsia-everlasting-emulator",
-            ),
-        ],
-    ),
-)
-
-targets.mixin(
-    name = "fuchsia-orchestrate",
-    args = [
-        "--orchestrate",
-    ],
-)
-
-targets.mixin(
     name = "upload_inv_extended_properties",
     resultdb = targets.resultdb(
         enable = True,

@@ -182,8 +182,9 @@ class WorkerActivatedObserver
 std::unique_ptr<net::test_server::HttpResponse>
 VerifyServiceWorkerHeaderInRequest(
     const net::test_server::HttpRequest& request) {
-  if (request.relative_url != "/service_worker/generated_sw.js")
+  if (request.relative_url != "/service_worker/generated_sw.js") {
     return nullptr;
+  }
   auto it = request.headers.find("Service-Worker");
   EXPECT_TRUE(it != request.headers.end());
   EXPECT_EQ("script", it->second);
@@ -196,8 +197,9 @@ VerifyServiceWorkerHeaderInRequest(
 
 std::unique_ptr<net::test_server::HttpResponse> VerifySaveDataHeaderInRequest(
     const net::test_server::HttpRequest& request) {
-  if (request.relative_url != "/service_worker/generated_sw.js")
+  if (request.relative_url != "/service_worker/generated_sw.js") {
     return nullptr;
+  }
   auto it = request.headers.find("Save-Data");
   EXPECT_NE(request.headers.end(), it);
   EXPECT_EQ("on", it->second);
@@ -210,8 +212,9 @@ std::unique_ptr<net::test_server::HttpResponse> VerifySaveDataHeaderInRequest(
 
 std::unique_ptr<net::test_server::HttpResponse>
 VerifySaveDataHeaderNotInRequest(const net::test_server::HttpRequest& request) {
-  if (request.relative_url != "/service_worker/generated_sw.js")
+  if (request.relative_url != "/service_worker/generated_sw.js") {
     return nullptr;
+  }
   auto it = request.headers.find("Save-Data");
   EXPECT_EQ(request.headers.end(), it);
   return std::make_unique<net::test_server::BasicHttpResponse>();
@@ -235,8 +238,9 @@ std::unique_ptr<net::test_server::HttpResponse> RequestHandlerForUpdateWorker(
     const net::test_server::HttpRequest& request) {
   static int counter = 0;
 
-  if (request.relative_url != "/service_worker/update_worker.js")
+  if (request.relative_url != "/service_worker/update_worker.js") {
     return nullptr;
+  }
 
   auto http_response = std::make_unique<net::test_server::BasicHttpResponse>();
   http_response->set_code(net::HTTP_OK);
@@ -253,8 +257,9 @@ std::unique_ptr<net::test_server::HttpResponse>
 RequestHandlerForBigWorkerScript(const net::test_server::HttpRequest& request) {
   static int counter = 0;
 
-  if (request.relative_url != "/service_worker/update_worker.js")
+  if (request.relative_url != "/service_worker/update_worker.js") {
     return nullptr;
+  }
 
   auto http_response = std::make_unique<net::test_server::BasicHttpResponse>();
   http_response->set_code(net::HTTP_OK);
@@ -273,8 +278,9 @@ RequestHandlerForWorkerScriptWithCoep(
     std::optional<network::mojom::CrossOriginEmbedderPolicyValue> coep,
     const net::test_server::HttpRequest& request) {
   static int counter = 0;
-  if (request.relative_url != "/service_worker/generated")
+  if (request.relative_url != "/service_worker/generated") {
     return nullptr;
+  }
   auto response = std::make_unique<net::test_server::BasicHttpResponse>();
   response->set_code(net::HTTP_OK);
   response->set_content(
@@ -315,8 +321,9 @@ class ConsoleListener : public EmbeddedWorkerInstance::Listener {
 
   void WaitForConsoleMessages(size_t expected_message_count) {
     DCHECK_CURRENTLY_ON(BrowserThread::UI);
-    if (messages_.size() >= expected_message_count)
+    if (messages_.size() >= expected_message_count) {
       return;
+    }
 
     expected_message_count_ = expected_message_count;
     base::RunLoop console_run_loop;
@@ -710,8 +717,9 @@ class ServiceWorkerVersionBrowserTest : public ContentBrowserTest {
     out_result->result = actual_result;
     out_result->response = std::move(actual_response);
     out_result->errors = std::move(actual_errors);
-    if (quit)
+    if (quit) {
       std::move(quit).Run();
+    }
   }
 
   ServiceWorkerFetchDispatcher::FetchCallback CreateResponseReceiver(
@@ -1599,7 +1607,6 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerVersionBrowserTest,
 // In Fuchsia size-optimized builds, the V8 code cache is explicitly disabled
 // to save storage space. Therefore, tests verifying full code cache storage
 // behavior for service workers are skipped on these builds.
-#if !BUILDFLAG(IS_FUCHSIA) || !defined(__OPTIMIZE_SIZE__)
 class ServiceWorkerVersionBrowserV8FullCodeCacheTest
     : public ServiceWorkerVersionBrowserTest,
       public ServiceWorkerVersion::Observer {
@@ -1607,8 +1614,9 @@ class ServiceWorkerVersionBrowserV8FullCodeCacheTest
   using self = ServiceWorkerVersionBrowserV8FullCodeCacheTest;
   ServiceWorkerVersionBrowserV8FullCodeCacheTest() = default;
   ~ServiceWorkerVersionBrowserV8FullCodeCacheTest() override {
-    if (version_)
+    if (version_) {
       version_->RemoveObserver(this);
+    }
   }
   void SetUpRegistrationAndListener(const std::string& worker_url) {
     SetUpRegistration(worker_url);
@@ -1659,7 +1667,6 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerVersionBrowserV8FullCodeCacheTest,
   // Stop the worker.
   StopWorker();
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA) || !defined(__OPTIMIZE_SIZE__)
 
 class CacheStorageEagerReadingTest : public ServiceWorkerVersionBrowserTest {
  public:

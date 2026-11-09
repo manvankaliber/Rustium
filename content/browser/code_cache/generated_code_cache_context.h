@@ -21,16 +21,13 @@
 #include "base/task/sequenced_task_runner.h"
 #include "base/thread_annotations.h"
 #include "build/build_config.h"
+#include "components/persistent_cache/entry_metadata.h"
+#include "components/persistent_cache/pending_backend.h"
+#include "components/persistent_cache/persistent_cache_collection.h"
 #include "content/browser/code_cache/dedicated_task_runner_for_resource.h"
 #include "content/common/content_export.h"
 #include "content/public/browser/browser_thread.h"
 #include "mojo/public/cpp/base/big_buffer.h"
-
-#if !BUILDFLAG(IS_FUCHSIA)
-#include "components/persistent_cache/entry_metadata.h"
-#include "components/persistent_cache/pending_backend.h"
-#include "components/persistent_cache/persistent_cache_collection.h"
-#endif
 
 namespace content {
 
@@ -81,7 +78,6 @@ class CONTENT_EXPORT GeneratedCodeCacheContext
   // memory and persisted.
   void ClearAndDeletePersistentCacheCollection();
 
-#if !BUILDFLAG(IS_FUCHSIA)
   // Returns a pending backend for an independent read-only connection to the
   // `context_key` cache, or nothing if it is not functional or the handles
   // cannot be exported. The returned value grants read access to all data
@@ -113,7 +109,6 @@ class CONTENT_EXPORT GeneratedCodeCacheContext
   std::optional<MetadataAndContent> FindInPersistentCacheCollection(
       const std::string& context_key,
       base::span<const uint8_t> cache_key);
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
  private:
   friend class base::RefCountedThreadSafe<GeneratedCodeCacheContext>;
@@ -135,7 +130,6 @@ class CONTENT_EXPORT GeneratedCodeCacheContext
   std::unique_ptr<GeneratedCodeCache> generated_webui_js_code_cache_
       GUARDED_BY_CONTEXT(sequence_checker_);
 
-#if !BUILDFLAG(IS_FUCHSIA)
   // Created and used when either PersistentCacheForCodeCache or
   // InlineScriptCache is enabled.
   // When the former is enabled, this replaces all of `generated_*_code_cache_`
@@ -151,7 +145,6 @@ class CONTENT_EXPORT GeneratedCodeCacheContext
   // same collection in that case.
   std::unique_ptr<persistent_cache::PersistentCacheCollection>
       persistent_cache_collection_ GUARDED_BY_CONTEXT(sequence_checker_);
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   // A handle that keeps a TaskRunner associated with this context's path alive
   // for as long as this instance operates on files within that path.

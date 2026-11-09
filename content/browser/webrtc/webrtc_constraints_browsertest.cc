@@ -30,12 +30,9 @@ static struct UserMediaSizes {
   int min_frame_rate;
   int max_frame_rate;
 } const kAllUserMediaSizes[] = {
-    {320, 320, 180, 180, 10, 30},
-    {320, 320, 240, 240, 10, 30},
-    {640, 640, 360, 360, 10, 30},
-    {640, 640, 480, 480, 10, 30},
-    {960, 960, 720, 720, 10, 30},
-    {1280, 1280, 720, 720, 10, 30}};
+    {320, 320, 180, 180, 10, 30}, {320, 320, 240, 240, 10, 30},
+    {640, 640, 360, 360, 10, 30}, {640, 640, 480, 480, 10, 30},
+    {960, 960, 720, 720, 10, 30}, {1280, 1280, 720, 720, 10, 30}};
 
 }  // namespace
 
@@ -59,7 +56,7 @@ class WebRtcConstraintsBrowserTest
 // Test is also flaky (on Mac, Linux, Android, but mostly on Mac):
 // https://crbug.com/1241538
 // TODO(crbug.com/40835236): Fix and enable on Fuchsia.
-#if defined(MEMORY_SANITIZER) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_FUCHSIA)
+#if defined(MEMORY_SANITIZER) || BUILDFLAG(IS_MAC)
 #define MAYBE_GetUserMediaConstraints DISABLED_GetUserMediaConstraints
 #else
 #define MAYBE_GetUserMediaConstraints GetUserMediaConstraints
@@ -71,13 +68,10 @@ IN_PROC_BROWSER_TEST_P(WebRtcConstraintsBrowserTest,
 
   GURL url(embedded_test_server()->GetURL("/media/getusermedia.html"));
 
-  std::string call = GenerateGetUserMediaCall(kGetUserMediaAndStop,
-                                              user_media().min_width,
-                                              user_media().max_width,
-                                              user_media().min_height,
-                                              user_media().max_height,
-                                              user_media().min_frame_rate,
-                                              user_media().max_frame_rate);
+  std::string call = GenerateGetUserMediaCall(
+      kGetUserMediaAndStop, user_media().min_width, user_media().max_width,
+      user_media().min_height, user_media().max_height,
+      user_media().min_frame_rate, user_media().max_frame_rate);
   DVLOG(1) << "Calling getUserMedia: " << call;
   EXPECT_TRUE(NavigateToURL(shell(), url));
   EXPECT_TRUE(ExecJs(shell(), call));

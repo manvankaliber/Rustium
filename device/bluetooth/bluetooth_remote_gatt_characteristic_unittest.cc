@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 #include "device/bluetooth/bluetooth_remote_gatt_characteristic.h"
 
 #include <stdint.h>
@@ -30,8 +29,6 @@
 #include "device/bluetooth/test/bluetooth_test_win.h"
 #elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
 #include "device/bluetooth/test/bluetooth_test_bluez.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include "device/bluetooth/test/bluetooth_test_fuchsia.h"
 #endif
 
 using testing::_;
@@ -319,8 +316,9 @@ TEST_F(BluetoothRemoteGattCharacteristicTest, MAYBE_GetProperties) {
   // Read the properties. Because ordering is unknown swap as necessary.
   int properties1 = service->GetCharacteristics()[0]->GetProperties();
   int properties2 = service->GetCharacteristics()[1]->GetProperties();
-  if (properties2 == 0)
+  if (properties2 == 0) {
     std::swap(properties1, properties2);
+  }
   EXPECT_EQ(0, properties1);
   EXPECT_EQ(7, properties2);
 }

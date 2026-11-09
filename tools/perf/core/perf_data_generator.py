@@ -245,15 +245,6 @@ PUBLIC_PERF_BUILDERS = [
   'win-arm64-snapdragon-elite-perf',
 ]
 
-# TODO(zijiehe): Fuchsia should check the os version, i.e. --os-check=check, but
-# perf test run multiple suites in sequential and the os checks are performed
-# multiple times. Currently there isn't a simple way to check only once at the
-# beginning of the test.
-# See the revision:
-# https://crsrc.org/c/tools/perf/core/bot_platforms.py
-#   ;drc=93a804bc8c5871e1fb70a762e461d787749cb2d7;l=470
-_COMMON_FUCHSIA_ARGS = ['-d', '--os-check=ignore']
-
 # This is an opt-in list for builders which uses dynamic sharding.
 DYNAMIC_SHARDING_TESTERS = []
 
@@ -334,38 +325,6 @@ FYI_BUILDERS = {
       'pool': 'chrome.tests.perf-fyi',
     },
   },
-  'fuchsia-perf-nsn': {
-    'tests': [
-      {
-        'isolate': 'performance_web_engine_test_suite',
-        'extra_args': ['--output-format=histograms'] + _COMMON_FUCHSIA_ARGS,
-        'type': TEST_TYPES.TELEMETRY,
-      }
-    ],
-    'platform': 'fuchsia-wes',
-    'dimension': {
-      'cpu': None,
-      'device_type': 'Nelson',
-      'os': 'Fuchsia',
-      'pool': 'chrome.tests',
-    },
-  },
-  'fuchsia-perf-shk': {
-    'tests': [
-      {
-        'isolate': 'performance_web_engine_test_suite',
-        'extra_args': ['--output-format=histograms'] + _COMMON_FUCHSIA_ARGS,
-        'type': TEST_TYPES.TELEMETRY,
-      }
-    ],
-    'platform': 'fuchsia-wes',
-    'dimension': {
-      'cpu': None,
-      'device_type': 'Sherlock',
-      'os': 'Fuchsia',
-      'pool': 'chrome.tests',
-    },
-  },
   'win-10_laptop_low_end-perf_HP-Candidate': {
     'tests': [
       {
@@ -412,14 +371,7 @@ FYI_BUILDERS = {
       'device_type': 'kevin',
     },
   },
-  'fuchsia-builder-perf-arm64': {
-    'additional_compile_targets': [
-      'web_engine_shell_pkg',
-      'cast_runner_pkg',
-      'chromium_builder_perf',
-      'base_perftests',
-    ],
-  },
+
 }
 
 # These configurations are taken from chromium_perf.py in
@@ -2056,10 +2008,6 @@ def generate_telemetry_args(tester_config, platform):
     and tester_config['target_bits'] == 64
   ):
     browser_name = 'builder'  # crbug.com/377748127
-  elif tester_config['platform'] == 'fuchsia-wes':
-    browser_name = 'web-engine-shell'
-  elif tester_config['platform'] == 'fuchsia-chrome':
-    browser_name = 'fuchsia-chrome'
   else:
     browser_name = 'builder'  # crbug.com/377748127
   test_args = [

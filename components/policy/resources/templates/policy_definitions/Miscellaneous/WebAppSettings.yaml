@@ -48,7 +48,6 @@ schema:
 supported_on:
 - chrome.*:102-
 - chrome_os:120-
-future_on:
-- fuchsia
+future_on: []
 tags: []
 type: dict

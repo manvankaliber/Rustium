@@ -72,9 +72,6 @@ const char kUserAgentChromeOnChromeOS[] =
     "Chrome/114.0.0.0 Safari/537.36";
 
 // Source: https://www.chromium.org/updates/ua-reduction/
-const char kUserAgentChromeOnFuchsia[] =
-    "Mozilla/5.0 (Fuchsia) AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/114.0.0.0 Safari/537.36";
 
 // Source: https://www.chromium.org/updates/ua-reduction/
 const char kUserAgentMobileChromeOnAndroid[] =
@@ -103,7 +100,6 @@ const std::vector<std::string> kNonMobileUserAgents = {
     kUserAgentNonMobileChromeOnAndroid,
     kUserAgentNonMobileChromeOnIOS,
     kUserAgentChromeOnChromeOS,
-    kUserAgentChromeOnFuchsia,
     kUserAgentChromeOnLinux,
     kUserAgentChromeOnMacOS,
     kUserAgentChromeOnWindows,
@@ -703,9 +699,8 @@ TEST(ParseCapabilities, ManualProxy) {
       "ftp=localhost:9001;http=localhost:8001;https=localhost:10001;"
       "socks=socks5://localhost:12345",
       capabilities.switches.GetSwitchValue("proxy-server"));
-  ASSERT_EQ(
-      "google.com,youtube.com",
-      capabilities.switches.GetSwitchValue("proxy-bypass-list"));
+  ASSERT_EQ("google.com,youtube.com",
+            capabilities.switches.GetSwitchValue("proxy-bypass-list"));
 }
 
 TEST(ParseCapabilities, IgnoreNullValueForManualProxy) {
@@ -721,9 +716,8 @@ TEST(ParseCapabilities, IgnoreNullValueForManualProxy) {
   ASSERT_TRUE(status.IsOk());
   ASSERT_EQ(1u, capabilities.switches.GetSize());
   ASSERT_TRUE(capabilities.switches.HasSwitch("proxy-server"));
-  ASSERT_EQ(
-      "ftp=localhost:9001",
-      capabilities.switches.GetSwitchValue("proxy-server"));
+  ASSERT_EQ("ftp=localhost:9001",
+            capabilities.switches.GetSwitchValue("proxy-server"));
 }
 
 TEST(ParseCapabilities, MissingSocksVersion) {
@@ -1259,7 +1253,6 @@ INSTANTIATE_TEST_SUITE_P(
     ParseClientHintsPerPlatform,
     testing::Values(std::make_pair("Chrome OS", kUserAgentChromeOnChromeOS),
                     std::make_pair("Chromium OS", kUserAgentChromeOnChromeOS),
-                    std::make_pair("Fuchsia", kUserAgentChromeOnFuchsia),
                     std::make_pair("Linux", kUserAgentChromeOnLinux),
                     std::make_pair("macOS", kUserAgentChromeOnMacOS),
                     std::make_pair("Windows", kUserAgentChromeOnWindows)));
@@ -1478,7 +1471,6 @@ INSTANTIATE_TEST_SUITE_P(
     Legacy,
     InferClientHintsPerPlatform,
     testing::Values(std::make_pair("Chrome OS", kUserAgentChromeOnChromeOS),
-                    std::make_pair("Fuchsia", kUserAgentChromeOnFuchsia),
                     std::make_pair("Linux", kUserAgentChromeOnLinux),
                     std::make_pair("macOS", kUserAgentChromeOnMacOS),
                     std::make_pair("Windows", kUserAgentChromeOnWindows)));

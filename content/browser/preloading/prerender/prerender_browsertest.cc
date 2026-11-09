@@ -342,7 +342,6 @@ enum class TriggerType {
 class PrerenderBrowserTest : public ContentBrowserTest,
                              public WebContentsObserver {
  public:
-
   enum class OriginType {
     kSameOrigin,
     kSameSiteCrossOrigin,
@@ -9626,33 +9625,35 @@ IN_PROC_BROWSER_TEST_P(PrerenderBrowserTestFallbackEnabledDisabled,
 
   ukm::SourceId ukm_source_id = PrimaryPageSourceId();
   if (IsPrerender2FallbackPrefetchSpecRulesEnabled()) {
-    // We don't have a nice way to wait prefetch in this case. Check only UKMs for prerender.
+    // We don't have a nice way to wait prefetch in this case. Check only UKMs
+    // for prerender.
     auto attempt_entries = test_ukm_recorder()->GetEntries(
         Preloading_Attempt::kEntryName, test::GetPreloadingAttemptUkmMetrics());
     EXPECT_EQ(attempt_entries.size(), 4);
-    std::vector<ukm::TestUkmRecorder::HumanReadableUkmEntry> prerender_entries = {};
+    std::vector<ukm::TestUkmRecorder::HumanReadableUkmEntry> prerender_entries =
+        {};
     prerender_entries.push_back(attempt_entries[1]);
     prerender_entries.push_back(attempt_entries[3]);
     EXPECT_THAT(prerender_entries,
-                testing::UnorderedElementsAreArray({
-         attempt_ukm_entry_builder().BuildEntry(
-             ukm_source_id, PreloadingType::kPrerender,
-             PreloadingEligibility::kEligible,
-             PreloadingHoldbackStatus::kAllowed,
-             PreloadingTriggeringOutcome::kRunning,
-             PreloadingFailureReason::kUnspecified,
-             /*accurate=*/false,
-             /*ready_time=*/std::nullopt,
-             blink::mojom::SpeculationEagerness::kImmediate),
-         attempt_ukm_entry_builder().BuildEntry(
-             ukm_source_id, PreloadingType::kPrerender,
-             PreloadingEligibility::kEligible,
-             PreloadingHoldbackStatus::kAllowed,
-             PreloadingTriggeringOutcome::kTriggeredButPending,
-             PreloadingFailureReason::kUnspecified,
-             /*accurate=*/true,
-             /*ready_time=*/std::nullopt,
-             blink::mojom::SpeculationEagerness::kImmediate)}));
+                testing::UnorderedElementsAreArray(
+                    {attempt_ukm_entry_builder().BuildEntry(
+                         ukm_source_id, PreloadingType::kPrerender,
+                         PreloadingEligibility::kEligible,
+                         PreloadingHoldbackStatus::kAllowed,
+                         PreloadingTriggeringOutcome::kRunning,
+                         PreloadingFailureReason::kUnspecified,
+                         /*accurate=*/false,
+                         /*ready_time=*/std::nullopt,
+                         blink::mojom::SpeculationEagerness::kImmediate),
+                     attempt_ukm_entry_builder().BuildEntry(
+                         ukm_source_id, PreloadingType::kPrerender,
+                         PreloadingEligibility::kEligible,
+                         PreloadingHoldbackStatus::kAllowed,
+                         PreloadingTriggeringOutcome::kTriggeredButPending,
+                         PreloadingFailureReason::kUnspecified,
+                         /*accurate=*/true,
+                         /*ready_time=*/std::nullopt,
+                         blink::mojom::SpeculationEagerness::kImmediate)}));
   } else {
     ExpectPreloadingAttemptUkm({
         attempt_ukm_entry_builder().BuildEntry(
@@ -9891,13 +9892,8 @@ IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest,
       PrerenderFinalStatus::kActivated, 1);
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_PreloadingTriggeringOutcomeForPendingPrerender \
-  DISABLED_PreloadingTriggeringOutcomeForPendingPrerender
-#else
 #define MAYBE_PreloadingTriggeringOutcomeForPendingPrerender \
   PreloadingTriggeringOutcomeForPendingPrerender
-#endif
 // Test that a pending prerender should have the
 // `PreloadingTriggeringOutcome::kTriggeredButPending`.
 IN_PROC_BROWSER_TEST_P(PrerenderBrowserTestFallbackEnabledDisabled,
@@ -12213,8 +12209,9 @@ IN_PROC_BROWSER_TEST_F(PrerenderBackForwardCacheBrowserTest,
                   kServiceWorkerVersionActivation);
         }
       });
-  ON_CALL(observer, PrimaryPageChanged(testing::_))
-      .WillByDefault([&](Page&) { primary_page_changed_loop.Quit(); });
+  ON_CALL(observer, PrimaryPageChanged(testing::_)).WillByDefault([&](Page&) {
+    primary_page_changed_loop.Quit();
+  });
 
   // 4. Navigate back to `initial_url`. The BFCache restore navigation is
   // restarted as a normal navigation and should complete without crashing.
@@ -12693,7 +12690,7 @@ IN_PROC_BROWSER_TEST_F(PrerenderEagernessBrowserTest, kConservative) {
 // TODO(crbug.com/40275452): These tests are turned off on Fuchsia and iOS
 // tentatively because pointer simulation on them doesn't work properly on this
 // test.
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_IOS)
 // Tests the metrics
 // Prerender.Experimental.ReceivedPrerendersPerPrimaryPageChangedCount2
 // correctly records the number of prerenders by each category per primary page
@@ -12937,7 +12934,7 @@ IN_PROC_BROWSER_TEST_P(PrerenderTargetAgnosticBrowserTest,
   GTEST_SKIP();
 #endif  // BUILDFLAG(IS_ANDROID)
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#endif
 
 class PrerenderWithBackForwardCacheBrowserTest
     : public PrerenderBrowserTest,
@@ -15605,7 +15602,6 @@ IN_PROC_BROWSER_TEST_P(PrerenderSpeculationRulesHoldbackBrowserTest,
         blink::mojom::SpeculationEagerness::kImmediate)});
   }
 }
-
 
 namespace {
 

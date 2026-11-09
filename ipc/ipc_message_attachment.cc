@@ -12,7 +12,7 @@
 #include "mojo/public/cpp/platform/platform_handle.h"
 #include "mojo/public/cpp/system/platform_handle.h"
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include <unistd.h>
 
 #include "base/posix/eintr_wrapper.h"
@@ -27,21 +27,17 @@
 #include "ipc/handle_attachment_win.h"
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "ipc/handle_attachment_fuchsia.h"
-#endif
-
 namespace IPC {
 
 namespace {
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 base::ScopedFD TakeOrDupFile(internal::PlatformFileAttachment* attachment) {
   return attachment->Owns()
              ? base::ScopedFD(attachment->TakePlatformFile())
              : base::ScopedFD(HANDLE_EINTR(dup(attachment->file())));
 }
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 }  // namespace
 
@@ -54,7 +50,7 @@ mojo::ScopedHandle MessageAttachment::TakeMojoHandle() {
     case Type::MOJO_HANDLE:
       return static_cast<internal::MojoHandleAttachment*>(this)->TakeHandle();
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
     case Type::PLATFORM_FILE: {
       // We dup() the handles in IPC::Message to transmit.
       // IPC::MessageAttachmentSet has intricate lifetime semantics for FDs, so
@@ -67,7 +63,7 @@ mojo::ScopedHandle MessageAttachment::TakeMojoHandle() {
       }
       return mojo::WrapPlatformHandle(mojo::PlatformHandle(std::move(file)));
     }
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_MAC)
     case Type::MACH_PORT: {
@@ -81,19 +77,6 @@ mojo::ScopedHandle MessageAttachment::TakeMojoHandle() {
         return mojo::ScopedHandle();
       }
       attachment->reset_mach_port_ownership();
-      return mojo::MakeScopedHandle(mojo::Handle(wrapped_handle));
-    }
-#elif BUILDFLAG(IS_FUCHSIA)
-    case Type::FUCHSIA_HANDLE: {
-      auto* attachment = static_cast<internal::HandleAttachmentFuchsia*>(this);
-      MojoPlatformHandle platform_handle = {
-          sizeof(platform_handle), MOJO_PLATFORM_HANDLE_TYPE_FUCHSIA_HANDLE,
-          static_cast<uint64_t>(attachment->Take())};
-      MojoHandle wrapped_handle;
-      if (MojoWrapPlatformHandle(&platform_handle, nullptr, &wrapped_handle) !=
-          MOJO_RESULT_OK) {
-        return mojo::ScopedHandle();
-      }
       return mojo::MakeScopedHandle(mojo::Handle(wrapped_handle));
     }
 #elif BUILDFLAG(IS_WIN)
@@ -112,38 +95,35 @@ mojo::ScopedHandle MessageAttachment::TakeMojoHandle() {
 scoped_refptr<MessageAttachment> MessageAttachment::CreateFromMojoHandle(
     mojo::ScopedHandle handle,
     Type type) {
-  if (type == Type::MOJO_HANDLE)
+  if (type == Type::MOJO_HANDLE) {
     return new internal::MojoHandleAttachment(std::move(handle));
+  }
 
   MojoPlatformHandle platform_handle = {sizeof(platform_handle), 0, 0};
   MojoResult unwrap_result = MojoUnwrapPlatformHandle(
       handle.release().value(), nullptr, &platform_handle);
-  if (unwrap_result != MOJO_RESULT_OK)
+  if (unwrap_result != MOJO_RESULT_OK) {
     return nullptr;
+  }
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
   if (type == Type::PLATFORM_FILE) {
     base::PlatformFile file = base::kInvalidPlatformFile;
-    if (platform_handle.type == MOJO_PLATFORM_HANDLE_TYPE_FILE_DESCRIPTOR)
+    if (platform_handle.type == MOJO_PLATFORM_HANDLE_TYPE_FILE_DESCRIPTOR) {
       file = static_cast<base::PlatformFile>(platform_handle.value);
+    }
     return new internal::PlatformFileAttachment(file);
   }
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_MAC)
   if (type == Type::MACH_PORT) {
     mach_port_t mach_port = MACH_PORT_NULL;
-    if (platform_handle.type == MOJO_PLATFORM_HANDLE_TYPE_MACH_PORT)
+    if (platform_handle.type == MOJO_PLATFORM_HANDLE_TYPE_MACH_PORT) {
       mach_port = static_cast<mach_port_t>(platform_handle.value);
+    }
     return new internal::MachPortAttachmentMac(
         mach_port, internal::MachPortAttachmentMac::FROM_WIRE);
-  }
-#elif BUILDFLAG(IS_FUCHSIA)
-  if (type == Type::FUCHSIA_HANDLE) {
-    zx::handle zx_handle;
-    if (platform_handle.type == MOJO_PLATFORM_HANDLE_TYPE_FUCHSIA_HANDLE)
-      zx_handle.reset(static_cast<zx_handle_t>(platform_handle.value));
-    return new internal::HandleAttachmentFuchsia(std::move(zx_handle));
   }
 #elif BUILDFLAG(IS_WIN)
   if (type == Type::WIN_HANDLE) {

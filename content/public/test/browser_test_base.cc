@@ -142,11 +142,6 @@
 #include "ui/aura/test/event_generator_delegate_aura.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "base/fuchsia/system_info.h"
-#include "ui/platform_window/fuchsia/initialize_presenter_api_view.h"
-#endif  // BUILDFLAG(IS_FUCHSIA)
-
 #if BUILDFLAG(IS_WIN)
 #include <shlobj.h>
 
@@ -263,8 +258,9 @@ class InitialNavigationObserver : public WebContentsObserver {
 
   // WebContentsObserver implementation:
   void DidStartNavigation(NavigationHandle* navigation_handle) override {
-    if (callback_)
+    if (callback_) {
       std::move(callback_).Run();
+    }
   }
 
  private:
@@ -420,8 +416,9 @@ void BrowserTestBase::SetUp() {
 #if defined(USE_AURA)
   // Most tests do not need pixel output, so we don't produce any. The command
   // line can override this behaviour to allow for visual debugging.
-  if (command_line->HasSwitch(switches::kEnablePixelOutputInTests))
+  if (command_line->HasSwitch(switches::kEnablePixelOutputInTests)) {
     enable_pixel_output_ = true;
+  }
 
   if (command_line->HasSwitch(switches::kDisableGLDrawingForTests)) {
     NOTREACHED() << "kDisableGLDrawingForTests should not be used as it "
@@ -431,8 +428,9 @@ void BrowserTestBase::SetUp() {
 
   // Don't enable pixel output for browser tests unless they override and force
   // us to, or it's requested on the command line.
-  if (!enable_pixel_output_ && !use_software_compositing_)
+  if (!enable_pixel_output_ && !use_software_compositing_) {
     command_line->AppendSwitch(switches::kDisableGLDrawingForTests);
+  }
 #endif
 
   // Disable animations when verifying pixel output, as they make tests flaky.
@@ -449,12 +447,14 @@ void BrowserTestBase::SetUp() {
 
   // We usually use software GL as this works on all bots. The command
   // line can override this behaviour to use hardware GL.
-  if (command_line->HasSwitch(switches::kUseGpuInTests))
+  if (command_line->HasSwitch(switches::kUseGpuInTests)) {
     use_software_gl = false;
+  }
 
   // Some bots pass this flag when they want to use hardware GL.
-  if (command_line->HasSwitch("enable-gpu"))
+  if (command_line->HasSwitch("enable-gpu")) {
     use_software_gl = false;
+  }
 
 #if BUILDFLAG(IS_APPLE)
   // On Apple we always use hardware GL.
@@ -472,30 +472,17 @@ void BrowserTestBase::SetUp() {
   use_software_gl = false;
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // GPU support is not available to tests.
-  // TODO(crbug.com/40797662): Enable GPU support.
-  command_line->AppendSwitch(switches::kDisableGpu);
-
-  ui::fuchsia::IgnorePresentCallsForTest();
-
-  // Clear the per-process cached system info, which was initialized by
-  // TestSuite::Initialize(), to prevent a DCHECK for multiple calls during
-  // in-process browser tests. There is not a single TestSuite for all browser
-  // tests and some use the cached values, so skipping the earlier
-  // initialization is not an option.
-  base::ClearCachedSystemInfoForTesting();
-#endif
-
-  if (use_software_gl && !use_software_compositing_)
+  if (use_software_gl && !use_software_compositing_) {
     command_line->AppendSwitch(switches::kOverrideUseSoftwareGLForTests);
+  }
 
   // Use an sRGB color profile to ensure that the machine's color profile does
   // not affect the results.
   command_line->AppendSwitchASCII(switches::kForceDisplayColorProfile, "srgb");
 
-  if (!allow_network_access_to_host_resolutions_)
+  if (!allow_network_access_to_host_resolutions_) {
     test_host_resolver_ = std::make_unique<TestHostResolver>();
+  }
 
   ContentBrowserConsistencyChecker scoped_enable_consistency_checks;
 
@@ -599,8 +586,9 @@ void BrowserTestBase::SetUp() {
       // TODO(crbug.com/40161080): Print the message to the console before
       // calling this to ensure that the message is still printed if something
       // goes wrong.
-      if (severity == logging::LOGGING_FATAL)
+      if (severity == logging::LOGGING_FATAL) {
         tracing::StartupTracingController::EmergencyStop();
+      }
       return false;
     });
   }
@@ -621,8 +609,9 @@ void BrowserTestBase::SetUp() {
 
   ContentMainDelegate* overridden_delegate =
       GetOptionalContentMainDelegateOverride();
-  if (overridden_delegate)
+  if (overridden_delegate) {
     content_main_params.delegate = overridden_delegate;
+  }
 
 #if !BUILDFLAG(IS_ANDROID)
   // ContentMain which goes through the normal browser initialization paths
@@ -660,8 +649,9 @@ void BrowserTestBase::SetUp() {
   {
     ContentClient::SetBrowserClientAlwaysAllowForTesting(
         delegate->CreateContentBrowserClient());
-    if (command_line->HasSwitch(switches::kSingleProcess))
+    if (command_line->HasSwitch(switches::kSingleProcess)) {
       SetRendererClientForTesting(delegate->CreateContentRendererClient());
+    }
 
     content::RegisterPathProvider();
     ui::RegisterPathProvider();
@@ -672,10 +662,12 @@ void BrowserTestBase::SetUp() {
     const ContentMainDelegate::InvokedInBrowserProcess invoked_in_browser{
         .is_running_test = true};
     DCHECK(!field_trial_list_);
-    if (delegate->ShouldCreateFeatureList(invoked_in_browser))
+    if (delegate->ShouldCreateFeatureList(invoked_in_browser)) {
       field_trial_list_ = SetUpFieldTrialsAndFeatureList();
-    if (delegate->ShouldInitializeMojo(invoked_in_browser))
+    }
+    if (delegate->ShouldInitializeMojo(invoked_in_browser)) {
       InitializeMojoCore();
+    }
 
     std::optional<int> pre_browser_main_exit_code = delegate->PreBrowserMain();
     ASSERT_FALSE(pre_browser_main_exit_code.has_value());
@@ -1098,13 +1090,13 @@ void BrowserTestBase::InitializeHTTPSTestServer() {
       << "HTTPS test server already initialized";
 
   embedded_https_test_server_ = std::make_unique<net::EmbeddedTestServer>(
-    net::EmbeddedTestServer::TYPE_HTTPS);
+      net::EmbeddedTestServer::TYPE_HTTPS);
   // Default hostnames for the HTTPS test server. Test fixtures can call this
   // with different hostnames (before starting the server) to override.
   embedded_https_test_server_->SetCertHostnames(
       {"example.com", "*.example.com", "foo.com", "*.foo.com", "bar.com",
-      "*.bar.com", "a.com", "*.a.com", "b.com", "*.b.com", "c.com",
-      "*.c.com"});
+       "*.bar.com", "a.com", "*.a.com", "b.com", "*.b.com", "c.com",
+       "*.c.com"});
 }
 
 void BrowserTestBase::CreateTestServer(const base::FilePath& test_server_base) {
@@ -1158,7 +1150,6 @@ void BrowserTestBase::AssertThatNetworkServiceDidNotCrash() {
 
   // TODO(https://crbug.com/1169431#c2): Enable NetworkService crash detection
   // on Fuchsia.
-#if !BUILDFLAG(IS_FUCHSIA)
   if (initialized_network_process_ && network_service_test_.is_bound()) {
     // If there was a crash, then |network_service_test_| will receive an error
     // notification, but it's not guaranteed to have arrived at this point.
@@ -1168,7 +1159,6 @@ void BrowserTestBase::AssertThatNetworkServiceDidNotCrash() {
     EXPECT_TRUE(network_service_test_.is_connected())
         << "Expecting no NetworkService crashes";
   }
-#endif
 }
 
 void BrowserTestBase::ForceInitializeNetworkProcess() {
@@ -1177,8 +1167,9 @@ void BrowserTestBase::ForceInitializeNetworkProcess() {
 }
 
 void BrowserTestBase::InitializeNetworkProcess() {
-  if (initialized_network_process_)
+  if (initialized_network_process_) {
     return;
+  }
 
   initialized_network_process_ = true;
 

@@ -28,11 +28,11 @@ bool HttpAuthPreferences::NegotiateEnablePort() const {
   return negotiate_enable_port_;
 }
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 bool HttpAuthPreferences::NtlmV2Enabled() const {
   return ntlm_v2_enabled_;
 }
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_ANDROID)
 std::string HttpAuthPreferences::AuthAndroidNegotiateAccountType() const {
@@ -56,11 +56,13 @@ using DelegationType = HttpAuth::DelegationType;
 
 DelegationType HttpAuthPreferences::GetDelegationType(
     const url::SchemeHostPort& auth_scheme_host_port) const {
-  if (!security_manager_->CanDelegate(auth_scheme_host_port))
+  if (!security_manager_->CanDelegate(auth_scheme_host_port)) {
     return DelegationType::kNone;
+  }
 
-  if (delegate_by_kdc_policy())
+  if (delegate_by_kdc_policy()) {
     return DelegationType::kByKdcPolicy;
+  }
 
   return DelegationType::kUnconstrained;
 }
@@ -91,16 +93,18 @@ bool HttpAuthPreferences::IsAllowedToUseAllHttpAuthSchemes(
 void HttpAuthPreferences::SetServerAllowlist(
     const std::string& server_allowlist) {
   std::unique_ptr<HttpAuthFilter> allowlist;
-  if (!server_allowlist.empty())
+  if (!server_allowlist.empty()) {
     allowlist = std::make_unique<HttpAuthFilterAllowlist>(server_allowlist);
+  }
   security_manager_->SetDefaultAllowlist(std::move(allowlist));
 }
 
 void HttpAuthPreferences::SetDelegateAllowlist(
     const std::string& delegate_allowlist) {
   std::unique_ptr<HttpAuthFilter> allowlist;
-  if (!delegate_allowlist.empty())
+  if (!delegate_allowlist.empty()) {
     allowlist = std::make_unique<HttpAuthFilterAllowlist>(delegate_allowlist);
+  }
   security_manager_->SetDelegateAllowlist(std::move(allowlist));
 }
 

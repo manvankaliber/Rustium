@@ -47,7 +47,6 @@ enum {
   kOsAndroid = 1 << 4,
   kOsCrOSOwnerOnly = 1 << 5,
   kOsIos = 1 << 6,
-  kOsFuchsia = 1 << 7,
   kOsWebView = 1 << 8,
 
   kDeprecated = 1 << 9,

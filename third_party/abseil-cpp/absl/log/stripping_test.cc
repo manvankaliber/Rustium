@@ -181,19 +181,6 @@ class StrippingTest : public ::testing::Test {
       absl::FPrintF(stderr, "Failed to open /proc/self/exe: %s\n", err);
     }
     return fp;
-#elif defined(__Fuchsia__)
-    // TODO(b/242579714): We need to restore the test coverage on this platform.
-    std::unique_ptr<FILE, std::function<void(FILE*)>> fp(
-        fopen(absl::StrCat("/pkg/bin/",
-                           absl::flags_internal::ShortProgramInvocationName())
-                  .c_str(),
-              "rb"),
-        [](FILE* fp) { fclose(fp); });
-    if (!fp) {
-      const std::string err = absl::base_internal::StrError(errno);
-      absl::FPrintF(stderr, "Failed to open /pkg/bin/<binary name>: %s\n", err);
-    }
-    return fp;
 #elif defined(__APPLE__)
     uint32_t size = 0;
     int ret = _NSGetExecutablePath(nullptr, &size);

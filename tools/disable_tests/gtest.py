@@ -505,7 +505,6 @@ for t_name, t_repr in [
     'chromeos',
     GTestInfo(BUILDFLAG_TYPE, 'IS_CHROMEOS', 'build/build_config.h'),
   ),
-  ('fuchsia', GTestInfo(BUILDFLAG_TYPE, 'IS_FUCHSIA', 'build/build_config.h')),
   ('ios', GTestInfo(BUILDFLAG_TYPE, 'IS_IOS', 'build/build_config.h')),
   ('linux', GTestInfo(BUILDFLAG_TYPE, 'IS_LINUX', 'build/build_config.h')),
   ('mac', GTestInfo(BUILDFLAG_TYPE, 'IS_MAC', 'build/build_config.h')),

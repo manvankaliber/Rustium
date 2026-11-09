@@ -86,10 +86,6 @@
 #include "third_party/test_fonts/fontconfig/fontconfig_util_linux.h"
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "base/fuchsia/system_info.h"
-#endif
-
 #if BUILDFLAG(IS_WIN)
 #if defined(_DEBUG)
 #include <crtdbg.h>
@@ -161,12 +157,8 @@ class ResetCommandLineBetweenTests : public testing::EmptyTestEventListener {
 // to initialize them manually.
 class FeatureListScopedToEachTest : public testing::EmptyTestEventListener {
  public:
-  FeatureListScopedToEachTest() {
-    instance_ = this;
-  }
-  ~FeatureListScopedToEachTest() override {
-    instance_ = nullptr;
-  }
+  FeatureListScopedToEachTest() { instance_ = this; }
+  ~FeatureListScopedToEachTest() override { instance_ = nullptr; }
 
   FeatureListScopedToEachTest(const FeatureListScopedToEachTest&) = delete;
   FeatureListScopedToEachTest& operator=(const FeatureListScopedToEachTest&) =
@@ -283,7 +275,7 @@ const std::string& GetProfileName() {
 }
 
 void InitializeLogging() {
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
   constexpr auto kLoggingDest = logging::LOG_TO_STDERR;
 #else
   constexpr auto kLoggingDest =
@@ -401,17 +393,6 @@ int TestSuite::Run() {
   std::string client_func =
       CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
           switches::kTestChildProcess);
-
-#if BUILDFLAG(IS_FUCHSIA)
-  // Cache the system info so individual tests do not need to worry about it.
-  // Some ProcessUtilTest cases, which use kTestChildProcess, do not pass any
-  // services, so skip this if that switch was present.
-  // This must be called before Initialize() because, for example,
-  // content::ContentTestSuite::Initialize() may use the cached values.
-  if (client_func.empty()) {
-    CHECK(FetchAndCacheSystemInfo());
-  }
-#endif
 
   Initialize();
 

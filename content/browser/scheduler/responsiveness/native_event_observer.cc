@@ -12,7 +12,6 @@
 
 // Proceed with header includes in usual order.
 #include "content/browser/scheduler/responsiveness/native_event_observer.h"
-
 #include "ui/events/platform/platform_event_source.h"
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
@@ -90,7 +89,7 @@ void BrowserUINativeEventObserver::DidRunNativeEvent(uintptr_t identifier) {
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 void BrowserUINativeEventObserver::RegisterObserver() {}
 void BrowserUINativeEventObserver::UnregisterObserver() {}
 #endif

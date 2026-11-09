@@ -89,7 +89,6 @@ class Terminal:
 TERMINALS = [
   Terminal('android', group='os'),
   Terminal('chromeos', group='os'),
-  Terminal('fuchsia', group='os'),
   Terminal('ios', group='os'),
   Terminal('linux', group='os'),
   Terminal('mac', group='os'),

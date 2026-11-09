@@ -51,7 +51,6 @@ consoles.console_view(
     ordering = {
         None: [
             "Android",
-            "Fuchsia",
             "Linux",
             "Mac",
             "iOS",
@@ -60,7 +59,6 @@ consoles.console_view(
         ],
         "*builder*": ["Builder"],
         "Android": "*builder*",
-        "Fuchsia": "*builder*",
         "Linux": "*builder*",
         "Mac": "*builder*",
         "iOS": "*builder*",
@@ -155,52 +153,6 @@ ci.thin_tester(
     console_view_entry = consoles.console_view_entry(
         category = "Android|Pixel2|Chromium",
         short_name = "arm64",
-    ),
-    contact_team_email = "angle-team@google.com",
-)
-
-shared_gpu.ci.linux_builder(
-    name = "fuchsia-angle-builder",
-    description_html = "Compiles ANGLE release builds for Fuchsia x64.",
-    builder_spec = builder_config.builder_spec(
-        gclient_config = builder_config.gclient_config(
-            config = "chromium",
-            apply_configs = [
-                "angle_top_of_tree",
-                "fuchsia",
-            ],
-        ),
-        chromium_config = builder_config.chromium_config(
-            config = "chromium",
-            apply_configs = [
-                "mb",
-            ],
-            build_config = builder_config.build_config.RELEASE,
-            target_bits = 64,
-            target_platform = builder_config.target_platform.FUCHSIA,
-        ),
-    ),
-    gn_args = gn_args.config(
-        configs = [
-            "angle_deqp_tests",
-            "shared",
-            "release",
-            "remoteexec",
-            "minimal_symbols",
-            "dcheck_always_on",
-            "fuchsia",
-            "x64",
-        ],
-    ),
-    targets = targets.bundle(
-        additional_compile_targets = [
-            "angle_end2end_tests",
-            "angle_unittests",
-        ],
-    ),
-    console_view_entry = consoles.console_view_entry(
-        category = "Fuchsia|Builder|ANGLE",
-        short_name = "x64",
     ),
     contact_team_email = "angle-team@google.com",
 )

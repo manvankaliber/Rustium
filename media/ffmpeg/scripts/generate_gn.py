@@ -57,7 +57,7 @@ ffmpeg_nasm_include_dirs = []
 ffmpeg_c_deps = []
 ffmpeg_asm_deps = []
 
-use_linux_config = is_linux || is_chromeos || is_fuchsia
+use_linux_config = is_linux || is_chromeos
 
 """
 GN_CONDITION_BEGIN = """if (%s) {

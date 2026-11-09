@@ -29,6 +29,7 @@
  */
 
 #include <memory>
+
 #include "base/functional/bind.h"
 #include "base/test/launcher/unit_test_launcher.h"
 #include "base/test/task_environment.h"
@@ -41,10 +42,6 @@
 #include "mojo/core/embedder/scoped_ipc_support.h"
 #include "third_party/blink/renderer/platform/heap/thread_state.h"
 #include "third_party/blink/renderer/platform/testing/testing_platform_support.h"
-
-#if BUILDFLAG(IS_FUCHSIA)
-#include "skia/ext/test_fonts.h"
-#endif
 
 namespace {
 
@@ -62,13 +59,6 @@ int runTestSuite(base::TestSuite* testSuite) {
 int main(int argc, char** argv) {
   blink::ScopedUnittestsEnvironmentSetup test_environment_setup(argc, argv);
   int result = 0;
-
-#if BUILDFLAG(IS_FUCHSIA)
-  // Some unittests depend on specific fonts provided by the system (e.g. some
-  // tests load Arial). On Fuchsia the default font set contains only Roboto.
-  // Load //third_party/test_fonts to make these tests pass on Fuchsia.
-  skia::InitializeSkFontMgrForTest();
-#endif
 
   {
     base::TestSuite test_suite(argc, argv);

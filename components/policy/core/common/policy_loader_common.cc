@@ -16,7 +16,7 @@
 namespace policy {
 
 namespace {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Duplicate the extension constants in order to avoid extension dependency.
 // However, those values below must be synced with files in extension folders.
 // In long term, we can refactor the code and create an interface for sensitive
@@ -44,28 +44,32 @@ void RecordInvalidPolicies(const std::string& policy_name) {
   base::UmaHistogramSparse("EnterpriseCheck.InvalidPolicies", details->id);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Marks the sensitive ExtensionInstallForceList policy entries, returns true if
 // there is any sensitive entries in the policy.
 bool FilterSensitiveExtensionsInstallForcelist(PolicyMap::Entry* map_entry) {
   bool has_invalid_policies = false;
-  if (!map_entry)
+  if (!map_entry) {
     return false;
+  }
 
   base::Value* policy_list_value = map_entry->value(base::Value::Type::LIST);
-  if (!policy_list_value)
+  if (!policy_list_value) {
     return false;
+  }
 
   // Using index for loop to update the list in place.
   for (size_t i = 0; i < policy_list_value->GetList().size(); i++) {
     const auto& list_entry = policy_list_value->GetList()[i];
-    if (!list_entry.is_string())
+    if (!list_entry.is_string()) {
       continue;
+    }
 
     const std::string& entry = list_entry.GetString();
     size_t pos = entry.find(';');
-    if (pos == std::string::npos)
+    if (pos == std::string::npos) {
       continue;
+    }
 
     // Only allow custom update urls in enterprise environments.
     if (!base::EqualsCaseInsensitiveASCII(entry.substr(pos + 1),
@@ -90,8 +94,9 @@ bool FilterSensitiveExtensionsInstallForcelist(PolicyMap::Entry* map_entry) {
 // Marks the sensitive ExtensionSettings policy entries, returns the number of
 // sensitive entries in the policy.
 bool FilterSensitiveExtensionSettings(PolicyMap::Entry* map_entry) {
-  if (!map_entry)
+  if (!map_entry) {
     return false;
+  }
   base::Value* policy_dict_value = map_entry->value(base::Value::Type::DICT);
   if (!policy_dict_value) {
     return false;
@@ -102,10 +107,12 @@ bool FilterSensitiveExtensionSettings(PolicyMap::Entry* map_entry) {
   // be handled by ExtensionSettingsPolicyHandler.
   std::vector<std::string> filtered_extensions;
   for (auto entry : policy_dict) {
-    if (entry.first == kWildcard)
+    if (entry.first == kWildcard) {
       continue;
-    if (!entry.second.is_dict())
+    }
+    if (!entry.second.is_dict()) {
       continue;
+    }
     base::DictValue& entry_dict = entry.second.GetDict();
     std::string* installation_mode = entry_dict.FindString(kInstallationMode);
     if (!installation_mode || (*installation_mode != kForceInstalled &&
@@ -126,8 +133,9 @@ bool FilterSensitiveExtensionSettings(PolicyMap::Entry* map_entry) {
   if (!filtered_extensions.empty()) {
     for (const auto& extension : filtered_extensions) {
       auto setting = policy_dict.Extract(extension);
-      if (!setting)
+      if (!setting) {
         continue;
+      }
       policy_dict.Set(kBlockedExtensionPrefix + extension,
                       std::move(setting.value()));
     }
@@ -144,7 +152,7 @@ bool FilterSensitiveExtensionSettings(PolicyMap::Entry* map_entry) {
 
 void FilterSensitivePolicies(PolicyMap* policy) {
   int invalid_policies = 0;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (FilterSensitiveExtensionsInstallForcelist(
           policy->GetMutable(key::kExtensionInstallForcelist))) {
     invalid_policies++;

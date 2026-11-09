@@ -46,12 +46,9 @@
 #include "components/sync/base/user_selectable_type.h"
 #include "components/sync/service/sync_service.h"
 #include "components/sync/service/sync_user_settings.h"
+#include "components/variations/service/google_groups_manager.h"  // nogncheck
 #include "google_apis/gaia/gaia_id.h"
 #include "url/gurl.h"
-
-#if !BUILDFLAG(IS_FUCHSIA)
-#include "components/variations/service/google_groups_manager.h"  // nogncheck
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 namespace autofill {
 namespace {
@@ -309,9 +306,7 @@ void MaybeOutputReason(std::string* out, std::string_view message) {
 
 // Checks whether preference-related requirements are satisfied.
 [[nodiscard]] bool SatisfiesPreferenceRequirements(
-#if !BUILDFLAG(IS_FUCHSIA)
     const GoogleGroupsManager* google_groups_manager,
-#endif
     const PrefService* prefs,
     const signin::IdentityManager* identity_manager,
     bool is_wallet_public_pass_storage_enabled,
@@ -657,21 +652,16 @@ bool MayPerformAutofillAiAction(const AutofillClient& client,
                                 std::optional<EntityType> entity_type,
                                 std::string* debug_message) {
   return MayPerformAutofillAiAction(
-#if !BUILDFLAG(IS_FUCHSIA)
-      client.GetGoogleGroupsManager(),
-#endif
-      client.GetPrefs(), client.GetEntityDataManager(),
-      client.GetIdentityManager(), client.GetSyncService(),
-      client.IsWalletPublicPassStorageEnabled(), client.IsOffTheRecord(),
-      client.GetVariationConfigCountryCode(),
+      client.GetGoogleGroupsManager(), client.GetPrefs(),
+      client.GetEntityDataManager(), client.GetIdentityManager(),
+      client.GetSyncService(), client.IsWalletPublicPassStorageEnabled(),
+      client.IsOffTheRecord(), client.GetVariationConfigCountryCode(),
       client.GetPersonalContextEligibilityState(), action, entity_type,
       debug_message);
 }
 
 bool MayPerformAutofillAiAction(
-#if !BUILDFLAG(IS_FUCHSIA)
     const GoogleGroupsManager* google_groups_manager,
-#endif
     const PrefService* prefs,
     const EntityDataManager* edm,
     const signin::IdentityManager* identity_manager,
@@ -685,13 +675,9 @@ bool MayPerformAutofillAiAction(
     std::optional<EntityType> entity_type,
     std::string* debug_message) {
   auto feature_check = [&](const base::Feature& feature) {
-#if !BUILDFLAG(IS_FUCHSIA)
     return google_groups_manager
                ? google_groups_manager->IsFeatureEnabledForProfile(feature)
                : base::FeatureList::IsEnabled(feature);
-#else
-    return base::FeatureList::IsEnabled(feature);
-#endif
   };
 
   if (!edm) {
@@ -711,11 +697,9 @@ bool MayPerformAutofillAiAction(
   }
 
   if (!SatisfiesPreferenceRequirements(
-#if !BUILDFLAG(IS_FUCHSIA)
-          google_groups_manager,
-#endif
-          prefs, identity_manager, is_wallet_public_pass_storage_enabled,
-          has_entity_data_saved, action, entity_type, debug_message)) {
+          google_groups_manager, prefs, identity_manager,
+          is_wallet_public_pass_storage_enabled, has_entity_data_saved, action,
+          entity_type, debug_message)) {
     return false;
   }
 
@@ -780,35 +764,26 @@ bool GetObsoleteAutofillAiOptInStatus(
 bool SetAutofillAiOptInStatus(AutofillClient& client,
                               AutofillAiOptInStatus opt_in_status) {
   return SetAutofillAiOptInStatus(
-#if !BUILDFLAG(IS_FUCHSIA)
-      client.GetGoogleGroupsManager(),
-#endif
-      client.GetPrefs(), client.GetEntityDataManager(),
-      client.GetIdentityManager(), client.GetSyncService(),
-      client.IsWalletPublicPassStorageEnabled(), client.IsOffTheRecord(),
-      client.GetVariationConfigCountryCode(),
+      client.GetGoogleGroupsManager(), client.GetPrefs(),
+      client.GetEntityDataManager(), client.GetIdentityManager(),
+      client.GetSyncService(), client.IsWalletPublicPassStorageEnabled(),
+      client.IsOffTheRecord(), client.GetVariationConfigCountryCode(),
       client.GetPersonalContextEligibilityState(), opt_in_status);
 }
 
-bool SetAutofillAiOptInStatus(
-#if !BUILDFLAG(IS_FUCHSIA)
-    const GoogleGroupsManager* google_groups_manager,
-#endif
-    PrefService* prefs,
-    const EntityDataManager* edm,
-    const signin::IdentityManager* identity_manager,
-    const syncer::SyncService* sync_service,
-    bool is_wallet_public_pass_storage_enabled,
-    bool is_off_the_record,
-    const GeoIpCountryCode& country_code,
-    personal_context::PersonalContextEligibilityState
-        personal_context_eligibility_state,
-    AutofillAiOptInStatus opt_in_status) {
+bool SetAutofillAiOptInStatus(const GoogleGroupsManager* google_groups_manager,
+                              PrefService* prefs,
+                              const EntityDataManager* edm,
+                              const signin::IdentityManager* identity_manager,
+                              const syncer::SyncService* sync_service,
+                              bool is_wallet_public_pass_storage_enabled,
+                              bool is_off_the_record,
+                              const GeoIpCountryCode& country_code,
+                              personal_context::PersonalContextEligibilityState
+                                  personal_context_eligibility_state,
+                              AutofillAiOptInStatus opt_in_status) {
   if (!MayPerformAutofillAiAction(
-#if !BUILDFLAG(IS_FUCHSIA)
-          google_groups_manager,
-#endif
-          prefs, edm, identity_manager, sync_service,
+          google_groups_manager, prefs, edm, identity_manager, sync_service,
           is_wallet_public_pass_storage_enabled, is_off_the_record,
           country_code, personal_context_eligibility_state,
           AutofillAiAction::kOptIn)) {

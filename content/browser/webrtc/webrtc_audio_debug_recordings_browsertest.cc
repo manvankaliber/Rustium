@@ -71,8 +71,9 @@ std::vector<base::FilePath> GetRecordingFileNames(
 // file is being closed. See comment for CallWithAudioDebugRecordings test case
 // below.
 bool DeleteFileWithRetryAfterPause(const base::FilePath& path) {
-  if (base::DeleteFile(path))
+  if (base::DeleteFile(path)) {
     return true;
+  }
 
   base::PlatformThread::Sleep(base::Milliseconds(100));
   return base::DeleteFile(path);
@@ -92,8 +93,7 @@ class WebRtcAudioDebugRecordingsBrowserTest
   ~WebRtcAudioDebugRecordingsBrowserTest() override {}
 };
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 // Renderer crashes under Android ASAN: https://crbug.com/408496.
 // Renderer crashes under Android: https://crbug.com/820934.
 // Failures on Android M. https://crbug.com/535728.

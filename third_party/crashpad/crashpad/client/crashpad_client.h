@@ -27,9 +27,7 @@
 #include "build/build_config.h"
 #include "util/file/file_io.h"
 
-#if !BUILDFLAG(IS_FUCHSIA)
 #include "util/misc/capture_context.h"
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 #if BUILDFLAG(IS_APPLE)
 #include "base/apple/scoped_mach_port.h"

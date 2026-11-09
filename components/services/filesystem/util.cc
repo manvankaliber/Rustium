@@ -94,12 +94,13 @@ mojom::FileInformationPtr MakeFileInformation(const base::File::Info& info) {
 base::File::Error ValidatePath(const std::string& raw_path,
                                const base::FilePath& filesystem_base,
                                base::FilePath* out) {
-  if (!base::IsStringUTF8(raw_path))
+  if (!base::IsStringUTF8(raw_path)) {
     return base::File::Error::FILE_ERROR_INVALID_OPERATION;
+  }
 
 #if BUILDFLAG(IS_WIN)
   base::FilePath::StringType path = base::UTF8ToWide(raw_path);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   base::FilePath::StringType path = raw_path;
 #endif
 

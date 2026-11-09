@@ -302,7 +302,6 @@ class CastContentBrowserClient
                               scoped_refptr<net::SSLPrivateKey>)>
           continue_callback);
 
-#if !BUILDFLAG(IS_FUCHSIA)
   // Returns the crash signal FD corresponding to the current process type.
   int GetCrashSignalFD(const base::CommandLine& command_line);
 
@@ -314,7 +313,6 @@ class CastContentBrowserClient
   // A static cache to hold crash_handlers for each process_type
   std::map<std::string, breakpad::CrashHandlerHostLinux*> crash_handlers_;
 #endif  // !BUILDFLAG(IS_ANDROID)
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   // CMA thread used by AudioManager, MojoRenderer, and MediaPipelineBackend.
   std::unique_ptr<base::Thread> media_thread_;

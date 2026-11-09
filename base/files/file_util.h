@@ -31,7 +31,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include "base/win/windows_types.h"
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -313,7 +313,7 @@ BASE_EXPORT bool ReadStreamToStringWithMaxSize(FILE* stream,
                                                size_t max_size,
                                                std::string* contents);
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 
 // Reads exactly as many bytes as `buffer` can hold from file descriptor `fd`
 // into `buffer`. This function is protected against EINTR and partial reads.
@@ -331,7 +331,7 @@ CreateAndOpenFdForTemporaryFileInDir(const FilePath& dir,
                                      FilePath::StringViewType name_prefix,
                                      FilePath* path);
 
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_POSIX)
 
@@ -663,7 +663,7 @@ BASE_EXPORT bool WriteFile(const FilePath& filename, span<const uint8_t> data);
 // have to do manual conversions from a char span to a uint8_t span.
 BASE_EXPORT bool WriteFile(const FilePath& filename, std::string_view data);
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 // Appends |data| to |fd|. Does not close |fd| when done.  Returns true iff all
 // of |data| were written to |fd|.
 BASE_EXPORT bool WriteFileDescriptor(int fd, span<const uint8_t> data);
@@ -748,7 +748,7 @@ BASE_EXPORT bool PreReadFile(
     bool sequential,
     int64_t max_bytes = std::numeric_limits<int64_t>::max());
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 
 // Creates a pipe. Returns true on success, otherwise false.
 // On success, |read_fd| will be set to the fd of the read side, and
@@ -774,7 +774,7 @@ BASE_EXPORT bool SetCloseOnExec(int fd);
 // Returns true if it was able to remove the close-on-exec flag, otherwise
 // false.
 BASE_EXPORT bool RemoveCloseOnExec(int fd);
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_MAC)
 // Test that |path| can only be changed by a given user and members of
@@ -807,7 +807,7 @@ BASE_EXPORT bool VerifyPathControlledByAdmin(const base::FilePath& path);
 // the directory |path|, in the number of FilePath::CharType, or -1 on failure.
 BASE_EXPORT int GetMaximumPathComponentLength(const base::FilePath& path);
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 // Get a temporary directory for shared memory files. The directory may depend
 // on whether the destination is intended for executable files, which in turn
 // depends on how /dev/shmem was mounted. As a result, you must supply whether

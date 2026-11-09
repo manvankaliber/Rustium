@@ -26,8 +26,9 @@ DeviceInfo::OsType DeriveOsFromDeviceType(
       return DeviceInfo::OsType::kWindows;
     case sync_pb::SyncEnums_DeviceType_TYPE_PHONE:
     case sync_pb::SyncEnums_DeviceType_TYPE_TABLET:
-      if (manufacturer_name == "Apple Inc.")
+      if (manufacturer_name == "Apple Inc.") {
         return DeviceInfo::OsType::kIOS;
+      }
       return DeviceInfo::OsType::kAndroid;
     case sync_pb::SyncEnums::DeviceType::SyncEnums_DeviceType_TYPE_UNSET:
     case sync_pb::SyncEnums::DeviceType::SyncEnums_DeviceType_TYPE_OTHER:
@@ -112,8 +113,6 @@ syncer::DeviceInfo::OsType ToDeviceInfoOsType(
       return syncer::DeviceInfo::OsType::kIOS;
     case sync_pb::SyncEnums::OsType::SyncEnums_OsType_OS_TYPE_CHROME_OS_LACROS:
       return syncer::DeviceInfo::OsType::kChromeOsLacros;
-    case sync_pb::SyncEnums::OsType::SyncEnums_OsType_OS_TYPE_FUCHSIA:
-      return syncer::DeviceInfo::OsType::kFuchsia;
   }
 }
 
@@ -136,8 +135,6 @@ sync_pb::SyncEnums_OsType ToOsTypeProto(const DeviceInfo::OsType& os_type) {
     case DeviceInfo::OsType::kChromeOsLacros:
       return sync_pb::SyncEnums::OsType::
           SyncEnums_OsType_OS_TYPE_CHROME_OS_LACROS;
-    case DeviceInfo::OsType::kFuchsia:
-      return sync_pb::SyncEnums::OsType::SyncEnums_OsType_OS_TYPE_FUCHSIA;
   }
 }
 

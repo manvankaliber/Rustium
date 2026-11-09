@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "headless/test/headless_protocol_browsertest.h"
-
 #include "build/build_config.h"
 #include "cc/base/switches.h"
 #include "components/viz/common/switches.h"
 #include "content/public/common/content_switches.h"
+#include "headless/test/headless_protocol_browsertest.h"
 #include "third_party/blink/public/common/switches.h"
 
 namespace headless {
@@ -69,8 +68,7 @@ HEADLESS_COMPOSITOR_TEST(CompositorImageAnimation,
                          "virtual-time/compositor-image-animation-test.js")
 
 // Flaky on all platforms. TODO(crbug.com/41471823): Re-enable.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 #define MAYBE_CompositorCssAnimation DISABLED_CompositorCssAnimation
 #else
 #define MAYBE_CompositorCssAnimation CompositorCssAnimation

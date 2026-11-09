@@ -88,8 +88,6 @@
 #endif
 #elif defined(_WIN32)
 #define PA_IS_WIN
-#elif defined(__Fuchsia__)
-#define PA_IS_FUCHSIA
 #elif defined(__FreeBSD__)
 #define PA_IS_FREEBSD
 #elif defined(__NetBSD__)
@@ -419,12 +417,7 @@
 #endif
 #undef PA_IS_FREEBSD
 
-#if defined(PA_IS_FUCHSIA)
-#define PA_BUILDFLAG_INTERNAL_IS_FUCHSIA() (1)
-#else
 #define PA_BUILDFLAG_INTERNAL_IS_FUCHSIA() (0)
-#endif
-#undef PA_IS_FUCHSIA
 
 #if defined(PA_IS_IOS)
 #define PA_BUILDFLAG_INTERNAL_IS_IOS() (1)

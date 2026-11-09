@@ -33,10 +33,6 @@
 #include "ui/touch_selection/touch_selection_menu_runner.h"
 #include "ui/wm/core/default_screen_position_client.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "ui/platform_window/fuchsia/initialize_presenter_api_view.h"
-#endif
-
 namespace chromecast {
 namespace {
 
@@ -151,15 +147,17 @@ void CastLayoutManager::ReorderChildWindows(aura::Window* changed_window) {
 
   // Determine z-order relative to existing windows.
   aura::Window::Windows windows = parent_->children();
-  std::stable_sort(windows.begin(), windows.end(),
-                   [changed_window](aura::Window* lhs, aura::Window* rhs) {
-                     // Promote |changed_window| to the top of the stack of
-                     // windows with the same ID.
-                     if (lhs->GetId() == rhs->GetId() && rhs == changed_window)
-                       return true;
+  std::stable_sort(
+      windows.begin(), windows.end(),
+      [changed_window](aura::Window* lhs, aura::Window* rhs) {
+        // Promote |changed_window| to the top of the stack of
+        // windows with the same ID.
+        if (lhs->GetId() == rhs->GetId() && rhs == changed_window) {
+          return true;
+        }
 
-                     return lhs->GetId() < rhs->GetId();
-                   });
+        return lhs->GetId() < rhs->GetId();
+      });
 
   std::vector<CastWindowManager::WindowId> visible_window_order;
   for (size_t i = 0; i < windows.size(); ++i) {
@@ -206,8 +204,8 @@ void CastWindowManagerAura::Setup() {
 
   LOG(INFO) << "Starting window manager, bounds: " << host_bounds.ToString();
   CHECK(aura::Env::GetInstance());
-  window_tree_host_ = std::make_unique<CastWindowTreeHostAura>(
-      std::move(properties));
+  window_tree_host_ =
+      std::make_unique<CastWindowTreeHostAura>(std::move(properties));
   window_tree_host_->InitHost();
   aura::Window* root_window = window_tree_host_->window();
   root_window->SetLayoutManager(
@@ -245,7 +243,6 @@ void CastWindowManagerAura::Setup() {
   // have been rewritten.
   side_swipe_detector_ = std::make_unique<SideSwipeDetector>(
       system_gesture_dispatcher_.get(), root_window);
-
 
   // Chromecast devices do not support cut/copy/paste.
   DCHECK(!ui::TouchSelectionMenuRunner::GetInstance());

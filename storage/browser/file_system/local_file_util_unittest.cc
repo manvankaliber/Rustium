@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "storage/browser/file_system/local_file_util.h"
+
 #include <stdint.h>
 
 #include <memory>
@@ -19,7 +21,6 @@
 #include "storage/browser/file_system/file_system_file_util.h"
 #include "storage/browser/file_system/file_system_operation_context.h"
 #include "storage/browser/file_system/isolated_context.h"
-#include "storage/browser/file_system/local_file_util.h"
 #include "storage/browser/file_system/native_file_util.h"
 #include "storage/browser/quota/quota_manager_proxy.h"
 #include "storage/browser/test/async_file_test_helper.h"
@@ -352,9 +353,8 @@ TEST_F(LocalFileUtilTest, OpenSuccessForUserSelectedSymlink) {
   FileSystemURL url = file_system_context()->CreateCrackedFileSystemURL(
       blink::StorageKey::CreateFromStringForTesting("http://foo/"),
       kFileSystemTypeIsolated,
-      IsolatedContext::GetInstance()
-          ->CreateVirtualRootPath(fs.id())
-          .Append(base::FilePath::FromUTF8Unsafe(register_name)));
+      IsolatedContext::GetInstance()->CreateVirtualRootPath(fs.id()).Append(
+          base::FilePath::FromUTF8Unsafe(register_name)));
 
   // Try to open the symlink file which should succeed.
   std::unique_ptr<FileSystemOperationContext> context(NewContext());
@@ -385,7 +385,6 @@ TEST_F(LocalFileUtilTest, EnsureFileExists) {
 // which breaks this test that relies on it. Since PPAPI is being deprecated,
 // this test is excluded from the Fuchsia build.
 // See https://crbug.com/1077456 for details.
-#if !BUILDFLAG(IS_FUCHSIA)
 TEST_F(LocalFileUtilTest, TouchFile) {
   const char* file_name = "test_file";
   base::File file = CreateFile(file_name);
@@ -429,7 +428,6 @@ TEST_F(LocalFileUtilTest, TouchDirectory) {
   EXPECT_EQ(new_accessed, info.last_accessed);
   EXPECT_EQ(new_modified, info.last_modified);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(LocalFileUtilTest, Truncate) {
   const char* file_name = "truncated";

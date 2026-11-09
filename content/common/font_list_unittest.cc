@@ -19,7 +19,7 @@
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID)
 bool HasFontWithName(const base::ListValue& list,
                      std::string_view expected_font_id,
                      std::string_view expected_display_name) {
@@ -27,17 +27,18 @@ bool HasFontWithName(const base::ListValue& list,
     const auto& font_names = font.GetList();
     std::string font_id = font_names[0].GetString();
     std::string display_name = font_names[1].GetString();
-    if (font_id == expected_font_id && display_name == expected_display_name)
+    if (font_id == expected_font_id && display_name == expected_display_name) {
       return true;
+    }
   }
 
   return false;
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
 }  // namespace
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID)
 // GetFontList is not implemented on Android and Fuchsia.
 TEST(FontList, GetFontList) {
   base::test::TaskEnvironment task_environment;
@@ -58,7 +59,7 @@ TEST(FontList, GetFontList) {
       }));
   task_environment.RunUntilIdle();
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_WIN)
 TEST(FontList, GetFontListLocalized) {

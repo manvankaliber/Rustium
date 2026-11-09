@@ -91,13 +91,13 @@ const char kMissingGitRevision[] = "@0000000000000000000000000000000000000000";
 
 #if BUILDFLAG(IS_WIN)
 const char kNativeFilePathStyle[] = "windows";
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 const char kNativeFilePathStyle[] = "posix";
 #else
 #error Unsupported native file path style
 #endif
 
-const int32_t kSendBufferSizeForDevTools = 256 * 1024 * 1024;  // 256Mb
+const int32_t kSendBufferSizeForDevTools = 256 * 1024 * 1024;     // 256Mb
 const int32_t kReceiveBufferSizeForDevTools = 100 * 1024 * 1024;  // 100Mb
 
 const char kRemoteUrlPattern[] =
@@ -130,8 +130,9 @@ bool RequestIsSafeToServe(const net::HttpServerRequestInfo& info) {
   // For browser-originating requests, serve only those that are coming from
   // pages loaded off localhost or fixed IPs.
   std::string header = info.GetHeaderValue("host");
-  if (header.empty())
+  if (header.empty()) {
     return true;
+  }
   GURL url = GURL("https://" + header);
   return url.HostIsIPAddress() || net::IsLocalHostname(url.GetHost());
 }
@@ -228,8 +229,7 @@ void ServerWrapper::Send404(int connection_id) {
   server_->Send404(connection_id, kDevtoolsHttpHandlerTrafficAnnotation);
 }
 
-void ServerWrapper::Send500(int connection_id,
-                            const std::string& message) {
+void ServerWrapper::Send500(int connection_id, const std::string& message) {
   server_->Send500(connection_id, message,
                    kDevtoolsHttpHandlerTrafficAnnotation);
 }
@@ -244,10 +244,12 @@ void TerminateOnUI(std::unique_ptr<base::Thread> thread,
                    std::unique_ptr<ServerWrapper> server_wrapper,
                    std::unique_ptr<DevToolsSocketFactory> socket_factory) {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M159);
-  if (server_wrapper)
+  if (server_wrapper) {
     thread->task_runner()->DeleteSoon(FROM_HERE, std::move(server_wrapper));
-  if (socket_factory)
+  }
+  if (socket_factory) {
     thread->task_runner()->DeleteSoon(FROM_HERE, std::move(socket_factory));
+  }
   if (thread) {
     base::ThreadPool::PostTask(
         FROM_HERE,
@@ -292,8 +294,9 @@ void StartServerOnHandlerThread(
     server_wrapper =
         std::make_unique<ServerWrapper>(handler, std::move(server_socket),
                                         debug_frontend_dir, bundles_resources);
-    if (server_wrapper->GetLocalAddress(ip_address.get()) != net::OK)
+    if (server_wrapper->GetLocalAddress(ip_address.get()) != net::OK) {
       ip_address.reset();
+    }
   } else {
     ip_address.reset();
   }
@@ -353,8 +356,9 @@ class DevToolsAgentHostClientImpl : public DevToolsAgentHostClient {
 
   ~DevToolsAgentHostClientImpl() override {
     CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M159);
-    if (agent_host_)
+    if (agent_host_) {
       agent_host_->DetachClient(this);
+    }
   }
 
   std::string GetTypeForMetrics() override { return "RemoteDebugger"; }
@@ -393,8 +397,9 @@ class DevToolsAgentHostClientImpl : public DevToolsAgentHostClient {
 
   void OnMessage(base::span<const uint8_t> message) {
     CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M159);
-    if (agent_host_)
+    if (agent_host_) {
       agent_host_->DispatchProtocolMessage(this, message);
+    }
   }
 
  private:
@@ -469,8 +474,7 @@ static std::string_view GetMimeType(std::string_view filename) {
                             base::CompareCase::INSENSITIVE_ASCII)) {
     return "image/avif";
   }
-  LOG(ERROR) << "GetMimeType doesn't know mime type for: "
-             << filename
+  LOG(ERROR) << "GetMimeType doesn't know mime type for: " << filename
              << " text/plain will be returned";
   return "text/plain";
 }
@@ -666,7 +670,7 @@ void DevToolsHttpHandler::OnJsonRequest(
         manager->delegate() ? manager->delegate()->RemoteDebuggingTargets(
                                   for_tab ? DevToolsManagerDelegate::kTab
                                           : DevToolsManagerDelegate::kFrame)
-            : DevToolsAgentHost::GetOrCreateAll();
+                            : DevToolsAgentHost::GetOrCreateAll();
 
     RespondToJsonList(connection_id, info.GetHeaderValue("host"),
                       std::move(list), for_tab);
@@ -687,8 +691,9 @@ void DevToolsHttpHandler::OnJsonRequest(
     std::string_view escaped_url =
         query_components.empty() ? "" : query_components[0];
     GURL url(base::UnescapeBinaryURLComponent(escaped_url));
-    if (!url.is_valid())
+    if (!url.is_valid()) {
       url = GURL(url::kAboutBlankURL);
+    }
     // TODO(dsv): Remove for "for_tab" support once DevTools Frontend
     // no longer needs it for e2e tests
     scoped_refptr<DevToolsAgentHost> agent_host =
@@ -839,8 +844,9 @@ void DevToolsHttpHandler::HandleDebuggingApproval(
 void DevToolsHttpHandler::OnWebSocketRequest(
     int connection_id,
     const net::HttpServerRequestInfo& request) {
-  if (!thread_)
+  if (!thread_) {
     return;
+  }
 
   bool is_same_origin =
       server_ip_address_ &&
@@ -990,8 +996,9 @@ void DevToolsHttpHandler::SendJson(int connection_id,
                                    net::HttpStatusCode status_code,
                                    std::optional<base::ValueView> value,
                                    std::string_view message) {
-  if (!thread_)
+  if (!thread_) {
     return;
+  }
 
   // Serialize value and message.
   std::string json_value;
@@ -1014,8 +1021,9 @@ void DevToolsHttpHandler::SendJson(int connection_id,
 void DevToolsHttpHandler::Send200(int connection_id,
                                   std::string_view data,
                                   std::string_view mime_type) {
-  if (!thread_)
+  if (!thread_) {
     return;
+  }
   thread_->task_runner()->PostTask(
       FROM_HERE,
       base::BindOnce(&ServerWrapper::Send200,
@@ -1024,8 +1032,9 @@ void DevToolsHttpHandler::Send200(int connection_id,
 }
 
 void DevToolsHttpHandler::Send404(int connection_id) {
-  if (!thread_)
+  if (!thread_) {
     return;
+  }
   thread_->task_runner()->PostTask(
       FROM_HERE,
       base::BindOnce(&ServerWrapper::Send404,
@@ -1047,8 +1056,9 @@ void DevToolsHttpHandler::Send403(int connection_id,
 
 void DevToolsHttpHandler::Send500(int connection_id,
                                   const std::string& message) {
-  if (!thread_)
+  if (!thread_) {
     return;
+  }
   thread_->task_runner()->PostTask(
       FROM_HERE, base::BindOnce(&ServerWrapper::Send500,
                                 base::Unretained(server_wrapper_.get()),
@@ -1058,8 +1068,9 @@ void DevToolsHttpHandler::Send500(int connection_id,
 void DevToolsHttpHandler::AcceptWebSocket(
     int connection_id,
     const net::HttpServerRequestInfo& request) {
-  if (!thread_)
+  if (!thread_) {
     return;
+  }
   if (mode_ ==
       DevToolsAgentHost::RemoteDebuggingServerMode::kWithApprovalOnly) {
     delegate_->SetActiveWebSocketConnections(connection_to_client_.size());
@@ -1077,8 +1088,9 @@ base::DictValue DevToolsHttpHandler::SerializeDescriptor(
   std::string id = agent_host->GetId();
   dictionary.Set(kTargetIdField, id);
   std::string parent_id = agent_host->GetParentId();
-  if (!parent_id.empty())
+  if (!parent_id.empty()) {
     dictionary.Set(kTargetParentIdField, parent_id);
+  }
   dictionary.Set(kTargetTypeField, agent_host->GetType());
   dictionary.Set(kTargetTitleField,
                  base::EscapeForHTML(agent_host->GetTitle()));
@@ -1088,8 +1100,9 @@ base::DictValue DevToolsHttpHandler::SerializeDescriptor(
   dictionary.Set(kTargetUrlField, url.spec());
 
   GURL favicon_url = agent_host->GetFaviconURL();
-  if (favicon_url.is_valid())
+  if (favicon_url.is_valid()) {
     dictionary.Set(kTargetFaviconUrlField, favicon_url.spec());
+  }
 
   dictionary.Set(kTargetWebSocketDebuggerUrlField,
                  base::StringPrintf("ws://%s%s%s", host.c_str(), kPageUrlPrefix,

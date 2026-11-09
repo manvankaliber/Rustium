@@ -76,8 +76,9 @@ FileSystemURL GetEntryURL(FileSystemContext* file_system_context,
 
 base::FilePath GetRelativeVirtualPath(const FileSystemURL& root,
                                       const FileSystemURL& url) {
-  if (root.virtual_path().empty())
+  if (root.virtual_path().empty()) {
     return url.virtual_path();
+  }
   base::FilePath relative;
   const bool success =
       root.virtual_path().AppendRelativePath(url.virtual_path(), &relative);
@@ -151,8 +152,9 @@ class DraggedFileUtilTest : public testing::Test {
 
   base::FilePath GetTestCaseLocalPath(const base::FilePath& path) {
     base::FilePath relative;
-    if (data_dir_.GetPath().AppendRelativePath(path, &relative))
+    if (data_dir_.GetPath().AppendRelativePath(path, &relative)) {
       return relative;
+    }
     return path;
   }
 
@@ -313,8 +315,9 @@ TEST_F(DraggedFileUtilTest, BasicTest) {
               file_util()->GetFileInfo(&context, url, &info, &platform_path));
 
     // See if the obtained file info is correct.
-    if (!test_case.is_directory)
+    if (!test_case.is_directory) {
       ASSERT_EQ(test_case.data_file_size, info.size);
+    }
     ASSERT_EQ(test_case.is_directory, info.is_directory);
     ASSERT_EQ(GetTestCasePlatformPath(test_case.path),
               platform_path.NormalizePathSeparators());
@@ -351,8 +354,9 @@ TEST_F(DraggedFileUtilTest, UnregisteredPathsTest) {
     // Make sure regular GetFileInfo succeeds.
     base::File::Info info;
     ASSERT_TRUE(base::GetFileInfo(root_path().Append(test_case.path), &info));
-    if (!test_case.is_directory)
+    if (!test_case.is_directory) {
       ASSERT_EQ(test_case.data_file_size, info.size);
+    }
     ASSERT_EQ(test_case.is_directory, info.is_directory);
   }
 
@@ -370,8 +374,9 @@ TEST_F(DraggedFileUtilTest, UnregisteredPathsTest) {
 TEST_F(DraggedFileUtilTest, ReadDirectoryTest) {
   size_t count = 0u;
   for (const auto& test_case : kRegularFileSystemTestCases) {
-    if (!test_case.is_directory)
+    if (!test_case.is_directory) {
       continue;
+    }
 
     SCOPED_TRACE(testing::Message() << "Testing RegularTestCases " << count++
                                     << ": " << test_case.path);
@@ -488,8 +493,9 @@ TEST_F(DraggedFileUtilTest, CopyOutDirectoryTest) {
             AsyncFileTestHelper::ReadDirectory(file_system_context(), src_root,
                                                &entries));
   for (size_t i = 0; i < entries.size(); ++i) {
-    if (entries[i].type != filesystem::mojom::FsFileType::DIRECTORY)
+    if (entries[i].type != filesystem::mojom::FsFileType::DIRECTORY) {
       continue;
+    }
     FileSystemURL src_url =
         GetEntryURL(file_system_context(), src_root, entries[i].name.value());
     FileSystemURL dest_url =
@@ -508,11 +514,11 @@ TEST_F(DraggedFileUtilTest, CopyOutDirectoryTest) {
 // which breaks this test that relies on it. Since PPAPI is being deprecated,
 // this test is excluded from the Fuchsia build.
 // See https://crbug.com/1077456 for details.
-#if !BUILDFLAG(IS_FUCHSIA)
 TEST_F(DraggedFileUtilTest, TouchTest) {
   for (const auto& test_case : kRegularFileSystemTestCases) {
-    if (test_case.is_directory)
+    if (test_case.is_directory) {
       continue;
+    }
     SCOPED_TRACE(testing::Message() << test_case.path);
     FileSystemURL url = GetFileSystemURL(base::FilePath(test_case.path));
 
@@ -533,12 +539,12 @@ TEST_F(DraggedFileUtilTest, TouchTest) {
     EXPECT_EQ(last_modified_time.ToTimeT(), info.last_modified.ToTimeT());
   }
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(DraggedFileUtilTest, TruncateTest) {
   for (const auto& test_case : kRegularFileSystemTestCases) {
-    if (test_case.is_directory)
+    if (test_case.is_directory) {
       continue;
+    }
 
     SCOPED_TRACE(testing::Message() << test_case.path);
     FileSystemURL url = GetFileSystemURL(base::FilePath(test_case.path));

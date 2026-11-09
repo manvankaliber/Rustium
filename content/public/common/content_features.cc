@@ -156,7 +156,7 @@ BASE_FEATURE(kAudioServiceOutOfProcess,
 // Enables the audio-service sandbox. This feature has an effect only when the
 // kAudioServiceOutOfProcess feature is enabled.
 BASE_FEATURE(kAudioServiceSandbox,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
              base::FEATURE_ENABLED_BY_DEFAULT
 #else
              base::FEATURE_DISABLED_BY_DEFAULT
@@ -1675,10 +1675,10 @@ VideoCaptureServiceConfiguration GetVideoCaptureServiceConfiguration() {
 #elif BUILDFLAG(IS_IOS)
   return VideoCaptureServiceConfiguration::kEnabledForBrowserProcess;
 #else
-  return base::FeatureList::IsEnabled(
-             features::kRunVideoCaptureServiceInBrowserProcess)
-             ? VideoCaptureServiceConfiguration::kEnabledForBrowserProcess
-             : VideoCaptureServiceConfiguration::kEnabledForOutOfProcess;
+    return base::FeatureList::IsEnabled(
+               features::kRunVideoCaptureServiceInBrowserProcess)
+               ? VideoCaptureServiceConfiguration::kEnabledForBrowserProcess
+               : VideoCaptureServiceConfiguration::kEnabledForOutOfProcess;
 #endif
 }
 

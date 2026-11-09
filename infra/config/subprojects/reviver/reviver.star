@@ -258,25 +258,6 @@ polymorphic.launcher(
     ],
 )
 
-# A coordinator of slightly aggressive scheduling with effectively unlimited
-# test bot capacity for fuchsia.
-polymorphic.launcher(
-    name = "fuchsia-coordinator",
-    description_html = "Reviver launcher for Fuchsia.",
-    # Avoid peak hours.
-    schedule = "0 2,4,6,8,10,12,14 * * *",
-    pool = ci_constants.DEFAULT_POOL,
-    os = os.LINUX_DEFAULT,
-    ssd = None,
-    contact_team_email = "chrome-fuchsia-engprod@google.com",
-    runner = "reviver/runner",
-    target_builders = [
-        "ci/fuchsia-arm64-cast-receiver-rel",
-        "ci/fuchsia-x64-cast-receiver-dbg",
-        "ci/fuchsia-x64-cast-receiver-rel",
-    ],
-)
-
 builder(
     name = "runner",
     description_html = "Runs disabled tests on target builder configurations for Test Reviver.",

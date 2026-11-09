@@ -162,20 +162,14 @@ group("expectations") {
     data += [ "OptimizationGuideExpectations" ]
   }
 
-  if (is_win || is_linux || is_fuchsia) {
+  if (is_win || is_linux) {
     data += [
       "platform/win/",
       "platform/win10/",
       "platform/win11-arm64/",
     ]
-    if (is_linux || is_fuchsia) {
+    if (is_linux) {
       data += [ "platform/linux/" ]
-    }
-    if (is_fuchsia) {
-      data += [
-        "platform/fuchsia/",
-        "$root_gen_dir/package_metadata/content_shell.meta",
-      ]
     }
   } else if (is_mac) {
     data += [

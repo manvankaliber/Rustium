@@ -41,7 +41,7 @@ GURL FilePathToFileURL(const base::FilePath& path) {
 
   for (auto c : utf8_path) {
     if (c == '%' || c == ';' || c == '#' || c == '?' ||
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
         c == '\\' ||
 #endif
         c <= ' ') {
@@ -61,12 +61,14 @@ bool FileURLToFilePath(const GURL& url, base::FilePath* file_path) {
       const_cast<base::FilePath::StringType&>(file_path->value());
   file_path_str.clear();
 
-  if (!url.is_valid())
+  if (!url.is_valid()) {
     return false;
+  }
 
   // We may want to change this to a CHECK in the future.
-  if (!url.SchemeIsFile())
+  if (!url.SchemeIsFile()) {
     return false;
+  }
 
 #if BUILDFLAG(IS_WIN)
   std::string path;
@@ -77,8 +79,9 @@ bool FileURLToFilePath(const GURL& url, base::FilePath* file_path) {
     // trim out that here.
     path = url.GetPath();
     size_t first_non_slash = path.find_first_not_of("/\\");
-    if (first_non_slash != std::string::npos && first_non_slash > 0)
+    if (first_non_slash != std::string::npos && first_non_slash > 0) {
       path.erase(0, first_non_slash);
+    }
   } else {
     // URL contains a host: this means it's UNC. We keep the preceding slash
     // on the path.
@@ -98,8 +101,9 @@ bool FileURLToFilePath(const GURL& url, base::FilePath* file_path) {
   std::string path = url.GetPath();
 #endif  // !BUILDFLAG(IS_WIN)
 
-  if (path.empty())
+  if (path.empty()) {
     return false;
+  }
 
   // "%2F" ('/') results in failure, because it represents a literal '/'
   // character in a path segment (not a path separator). If this were decoded,
@@ -120,8 +124,9 @@ bool FileURLToFilePath(const GURL& url, base::FilePath* file_path) {
   illegal_encoded_bytes.insert('\\');
 #endif
 
-  if (base::ContainsEncodedBytes(path, illegal_encoded_bytes))
+  if (base::ContainsEncodedBytes(path, illegal_encoded_bytes)) {
     return false;
+  }
 
   // Unescape all percent-encoded sequences, including blocked-for-display
   // characters, control characters and invalid UTF-8 byte sequences.

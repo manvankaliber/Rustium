@@ -429,9 +429,8 @@ class COMPONENT_EXPORT(AX_PLATFORM) BrowserAccessibility
 
   bool AccessibilityPerformAction(const AXActionData& data) override;
 
-// TODO(https://crbug.com/358567091): Move this logic outside of
-// BrowserAccessibility to avoid platform-specific code in the base class.
-#if !BUILDFLAG(IS_FUCHSIA)
+  // TODO(https://crbug.com/358567091): Move this logic outside of
+  // BrowserAccessibility to avoid platform-specific code in the base class.
   virtual std::u16string GetLocalizedString(int message_id) const;
   std::u16string GetLocalizedStringForImageAnnotationStatus(
       ax::mojom::ImageAnnotationStatus status) const override;
@@ -439,7 +438,6 @@ class COMPONENT_EXPORT(AX_PLATFORM) BrowserAccessibility
   std::u16string GetLocalizedStringForLandmarkType() const override;
   std::u16string GetLocalizedStringForRoleDescription() const override;
   std::u16string GetStyleNameAttributeAsLocalizedString() const override;
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   TextAttributeMap ComputeTextAttributeMap(
       const TextAttributeList& default_attributes) const override;

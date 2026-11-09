@@ -47,12 +47,6 @@ MediaCryptoContext* CdmContext::GetMediaCryptoContext() {
 }
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-FuchsiaCdmContext* CdmContext::GetFuchsiaCdmContext() {
-  return nullptr;
-}
-#endif
-
 #if BUILDFLAG(IS_CHROMEOS)
 chromeos::ChromeOsCdmContext* CdmContext::GetChromeOsCdmContext() {
   return nullptr;

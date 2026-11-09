@@ -13,10 +13,9 @@ use crate::fcntl::AtFlags;
     solarish,
     netbsdlike,
     target_os = "emscripten",
-    target_os = "fuchsia",
     target_os = "hurd",
     target_os = "redox",
-    target_os = "cygwin",
+    target_os = "cygwin"
 ))]
 use crate::fcntl::OFlag;
 #[cfg(all(feature = "fs", bsd))]
@@ -655,14 +654,7 @@ pub unsafe fn dup2_raw<Fd1: std::os::fd::AsFd, Fd2: std::os::fd::IntoRawFd>(oldf
 /// * [Linux](https://man7.org/linux/man-pages/man2/dup.2.html)
 /// * [NetBSD](https://man.netbsd.org/dup3.2)
 /// * [OpenBSD](https://man.openbsd.org/dup3.2)
-#[cfg(any(
-    netbsdlike,
-    solarish,
-    target_os = "freebsd",
-    target_os = "fuchsia",
-    target_os = "hurd",
-    target_os = "linux"
-))]
+#[cfg(any(netbsdlike, solarish, target_os = "freebsd", target_os = "hurd", target_os = "linux"))]
 pub fn dup3<Fd: std::os::fd::AsFd>(oldfd: Fd, newfd: &mut std::os::fd::OwnedFd, flags: OFlag) -> Result<()> {
     use std::os::fd::AsRawFd;
 
@@ -694,14 +686,7 @@ pub fn dup3<Fd: std::os::fd::AsFd>(oldfd: Fd, newfd: &mut std::os::fd::OwnedFd, 
 /// # See also
 ///
 /// * [`dup3()`]
-#[cfg(any(
-    netbsdlike,
-    solarish,
-    target_os = "freebsd",
-    target_os = "fuchsia",
-    target_os = "hurd",
-    target_os = "linux"
-))]
+#[cfg(any(netbsdlike, solarish, target_os = "freebsd", target_os = "hurd", target_os = "linux"))]
 pub unsafe fn dup3_raw<Fd1: std::os::fd::AsFd, Fd2: std::os::fd::IntoRawFd>(oldfd: Fd1, newfd: Fd2, flags: OFlag) -> Result<std::os::fd::OwnedFd> {
     use std::os::fd::AsRawFd;
     use std::os::fd::OwnedFd;
@@ -738,7 +723,7 @@ pub fn chdir<P: ?Sized + NixPath>(path: &P) -> Result<()> {
 /// This function may fail in a number of different scenarios.  See the man
 /// pages for additional details on possible failure cases.
 #[inline]
-#[cfg(not(target_os = "fuchsia"))]
+
 pub fn fchdir<Fd: std::os::fd::AsFd>(dirfd: Fd) -> Result<()> {
     use std::os::fd::AsRawFd;
 
@@ -1361,13 +1346,8 @@ pub fn close<Fd: std::os::fd::IntoRawFd>(fd: Fd) -> Result<()> {
 pub fn read<Fd: std::os::fd::AsFd>(fd: Fd, buf: &mut [u8]) -> Result<usize> {
     use std::os::fd::AsRawFd;
 
-    let res = unsafe {
-        libc::read(
-            fd.as_fd().as_raw_fd(),
-            buf.as_mut_ptr().cast(),
-            buf.len() as size_t,
-        )
-    };
+    let res =
+        unsafe { libc::read(fd.as_fd().as_raw_fd(), buf.as_mut_ptr().cast(), buf.len() as size_t) };
 
     Errno::result(res).map(|r| r as usize)
 }
@@ -1378,13 +1358,8 @@ pub fn read<Fd: std::os::fd::AsFd>(fd: Fd, buf: &mut [u8]) -> Result<usize> {
 pub fn write<Fd: std::os::fd::AsFd>(fd: Fd, buf: &[u8]) -> Result<usize> {
     use std::os::fd::AsRawFd;
 
-    let res = unsafe {
-        libc::write(
-            fd.as_fd().as_raw_fd(),
-            buf.as_ptr().cast(),
-            buf.len() as size_t,
-        )
-    };
+    let res =
+        unsafe { libc::write(fd.as_fd().as_raw_fd(), buf.as_ptr().cast(), buf.len() as size_t) };
 
     Errno::result(res).map(|r| r as usize)
 }
@@ -1463,8 +1438,7 @@ pub fn lseek64<Fd: std::os::fd::AsFd>(
 /// Create an interprocess channel.
 ///
 /// See also [pipe(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/pipe.html)
-pub fn pipe(
-) -> std::result::Result<(std::os::fd::OwnedFd, std::os::fd::OwnedFd), Error> {
+pub fn pipe() -> std::result::Result<(std::os::fd::OwnedFd, std::os::fd::OwnedFd), Error> {
     let mut fds = mem::MaybeUninit::<[std::os::fd::OwnedFd; 2]>::uninit();
 
     let res = unsafe { libc::pipe(fds.as_mut_ptr().cast()) };
@@ -1520,7 +1494,7 @@ pub fn pipe2(flags: OFlag) -> Result<(std::os::fd::OwnedFd, std::os::fd::OwnedFd
 ///
 /// See also
 /// [truncate(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/truncate.html)
-#[cfg(not(any(target_os = "redox", target_os = "fuchsia")))]
+#[cfg(not(target_os = "redox"))]
 pub fn truncate<P: ?Sized + NixPath>(path: &P, len: off_t) -> Result<()> {
     let res = path
         .with_nix_path(|cstr| unsafe { libc::truncate(cstr.as_ptr(), len) })?;
@@ -1663,7 +1637,7 @@ pub fn unlinkat<Fd: std::os::fd::AsFd, P: ?Sized + NixPath>(
 
 /// Change a process's root directory
 #[inline]
-#[cfg(not(target_os = "fuchsia"))]
+
 pub fn chroot<P: ?Sized + NixPath>(path: &P) -> Result<()> {
     let res =
         path.with_nix_path(|cstr| unsafe { libc::chroot(cstr.as_ptr()) })?;
@@ -1716,17 +1690,7 @@ pub fn fsync<Fd: std::os::fd::AsFd>(fd: Fd) -> Result<()> {
 ///
 /// See also
 /// [fdatasync(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/fdatasync.html)
-#[cfg(any(
-    linux_android,
-    solarish,
-    netbsdlike,
-    apple_targets,
-    target_os = "freebsd",
-    target_os = "emscripten",
-    target_os = "fuchsia",
-    target_os = "aix",
-    target_os = "hurd",
-))]
+#[cfg(any(linux_android, solarish, netbsdlike, apple_targets, target_os = "freebsd", target_os = "emscripten", target_os = "aix", target_os = "hurd"))]
 #[inline]
 pub fn fdatasync<Fd: std::os::fd::AsFd>(fd: Fd) -> Result<()> {
     use std::os::fd::AsRawFd;
@@ -3213,11 +3177,7 @@ mod pivot_root {
     ) -> Result<()> {
         let res = new_root.with_nix_path(|new_root| {
             put_old.with_nix_path(|put_old| unsafe {
-                libc::syscall(
-                    libc::SYS_pivot_root,
-                    new_root.as_ptr(),
-                    put_old.as_ptr(),
-                )
+                libc::syscall(libc::SYS_pivot_root, new_root.as_ptr(), put_old.as_ptr())
             })
         })??;
 
@@ -3507,40 +3467,13 @@ pub struct User {
     /// Path to shell
     pub shell: PathBuf,
     /// Login class
-    #[cfg(not(any(
-        linux_android,
-        solarish,
-        target_os = "aix",
-        target_os = "fuchsia",
-        target_os = "haiku",
-        target_os = "hurd",
-        target_os = "emscripten",
-        target_os = "cygwin",
-    )))]
+    #[cfg(not(any(linux_android, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
     pub class: CString,
     /// Last password change
-    #[cfg(not(any(
-        linux_android,
-        solarish,
-        target_os = "aix",
-        target_os = "fuchsia",
-        target_os = "haiku",
-        target_os = "hurd",
-        target_os = "emscripten",
-        target_os = "cygwin",
-    )))]
+    #[cfg(not(any(linux_android, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
     pub change: libc::time_t,
     /// Expiration time of account
-    #[cfg(not(any(
-        linux_android,
-        solarish,
-        target_os = "aix",
-        target_os = "fuchsia",
-        target_os = "haiku",
-        target_os = "hurd",
-        target_os = "emscripten",
-        target_os = "cygwin",
-    )))]
+    #[cfg(not(any(linux_android, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
     pub expire: libc::time_t,
 }
 
@@ -3586,39 +3519,12 @@ impl From<&libc::passwd> for User {
                 },
                 uid: Uid::from_raw(pw.pw_uid),
                 gid: Gid::from_raw(pw.pw_gid),
-                #[cfg(not(any(
-                    linux_android,
-                    solarish,
-                    target_os = "aix",
-                    target_os = "fuchsia",
-                    target_os = "haiku",
-                    target_os = "hurd",
-                    target_os = "emscripten",
-                    target_os = "cygwin",
-                )))]
+                #[cfg(not(any(linux_android, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
                 class: CString::new(CStr::from_ptr(pw.pw_class).to_bytes())
                     .unwrap(),
-                #[cfg(not(any(
-                    linux_android,
-                    solarish,
-                    target_os = "aix",
-                    target_os = "fuchsia",
-                    target_os = "haiku",
-                    target_os = "hurd",
-                    target_os = "emscripten",
-                    target_os = "cygwin",
-                )))]
+                #[cfg(not(any(linux_android, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
                 change: pw.pw_change,
-                #[cfg(not(any(
-                    linux_android,
-                    solarish,
-                    target_os = "aix",
-                    target_os = "fuchsia",
-                    target_os = "haiku",
-                    target_os = "hurd",
-                    target_os = "emscripten",
-                    target_os = "cygwin",
-                )))]
+                #[cfg(not(any(linux_android, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
                 expire: pw.pw_expire,
             }
         }
@@ -3652,38 +3558,11 @@ impl From<User> for libc::passwd {
             pw_shell: shell,
             pw_uid: u.uid.0,
             pw_gid: u.gid.0,
-            #[cfg(not(any(
-                linux_android,
-                solarish,
-                target_os = "aix",
-                target_os = "fuchsia",
-                target_os = "haiku",
-                target_os = "hurd",
-                target_os = "emscripten",
-                target_os = "cygwin",
-            )))]
+            #[cfg(not(any(linux_android, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
             pw_class: u.class.into_raw(),
-            #[cfg(not(any(
-                linux_android,
-                solarish,
-                target_os = "aix",
-                target_os = "fuchsia",
-                target_os = "haiku",
-                target_os = "hurd",
-                target_os = "emscripten",
-                target_os = "cygwin",
-            )))]
+            #[cfg(not(any(linux_android, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
             pw_change: u.change,
-            #[cfg(not(any(
-                linux_android,
-                solarish,
-                target_os = "aix",
-                target_os = "fuchsia",
-                target_os = "haiku",
-                target_os = "hurd",
-                target_os = "emscripten",
-                target_os = "cygwin",
-            )))]
+            #[cfg(not(any(linux_android, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
             pw_expire: u.expire,
             #[cfg(solarish)]
             pw_age: CString::new("").unwrap().into_raw(),
@@ -3967,7 +3846,7 @@ feature! {
 
 /// Get the name of the terminal device that is open on file descriptor fd
 /// (see [`ttyname(3)`](https://man7.org/linux/man-pages/man3/ttyname.3.html)).
-#[cfg(not(target_os = "fuchsia"))]
+
 pub fn ttyname<F: std::os::fd::AsFd>(fd: F) -> Result<PathBuf> {
     use std::os::fd::AsRawFd;
 

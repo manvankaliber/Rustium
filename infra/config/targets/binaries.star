@@ -382,30 +382,6 @@ targets.binaries.windowed_test_launcher(
     module_scheme = "gtest",
 )
 
-targets.binaries.console_test_launcher(
-    name = "cast_runner_browsertests",
-    label = "//fuchsia_web/runners:cast_runner_browsertests",
-    # All references have been moved to starlark
-    skip_usage_check = True,
-    module_scheme = "gtest",
-)
-
-targets.binaries.console_test_launcher(
-    name = "cast_runner_integration_tests",
-    label = "//fuchsia_web/runners:cast_runner_integration_tests",
-    # All references have been moved to starlark
-    skip_usage_check = True,
-    module_scheme = "gtest",
-)
-
-targets.binaries.console_test_launcher(
-    name = "cast_runner_unittests",
-    label = "//fuchsia_web/runners:cast_runner_unittests",
-    # All references have been moved to starlark
-    skip_usage_check = True,
-    module_scheme = "gtest",
-)
-
 # TODO(issues.chromium.org/1516671): Remove unneeded cast_* suites.
 
 targets.binaries.console_test_launcher(
@@ -825,14 +801,6 @@ targets.binaries.windowed_test_launcher(
     module_scheme = "gtest",
 )
 
-targets.binaries.script(
-    name = "component_storage_test",
-    label = "//build/fuchsia/test:component_storage_test",
-    script = "//build/fuchsia/test/component_storage_test.py",
-    skip_usage_check = True,
-    module_scheme = "single",
-)
-
 targets.binaries.windowed_test_launcher(
     name = "compositor_unittests",
     label = "//ui/compositor:compositor_unittests",
@@ -1228,29 +1196,6 @@ targets.binaries.script(
         result_format = "single",
     ),
     module_scheme = "single",
-)
-
-targets.binaries.script(
-    name = "fuchsia_pytype",
-    label = "//testing:fuchsia_pytype",
-    script = "//build/fuchsia/test/run_pytype.py",
-    # All references have been moved to starlark
-    skip_usage_check = True,
-    module_scheme = "single",
-)
-
-targets.binaries.generated_script(
-    name = "fuchsia_sizes",
-    label = "//tools/fuchsia/size_tests:fuchsia_sizes",
-    # All references have been moved to starlark
-    skip_usage_check = True,
-    merge = targets.merge(
-        script = "//tools/perf/process_perf_results.py",
-        args = [
-            "--upload-skia-json",
-        ],
-    ),
-    module_scheme = "flat",
 )
 
 targets.binaries.console_test_launcher(
@@ -2024,7 +1969,6 @@ targets.binaries.script(
     label = "//content/test:performance_web_engine_test_suite",
     script = "//testing/scripts/run_performance_tests.py",
     args = [
-        "../../content/test/gpu/run_telemetry_benchmark_fuchsia.py",
         "--per-test-logs-dir",
     ],
     module_scheme = "single",
@@ -2323,19 +2267,6 @@ targets.binaries.script(
 )
 
 targets.binaries.script(
-    name = "telemetry_gpu_integration_test_fuchsia",
-    label = "//content/test:telemetry_gpu_integration_test_fuchsia",
-    script = "//testing/scripts/run_gpu_integration_test_as_googletest.py",
-    # All references have been moved to starlark
-    skip_usage_check = True,
-    args = [
-        "../../content/test/gpu/run_gpu_integration_test_fuchsia.py",
-        "--logs-dir",
-        "${ISOLATED_OUTDIR}",
-    ],
-)
-
-targets.binaries.script(
     name = "telemetry_gpu_unittests",
     label = "//chrome/test:telemetry_gpu_unittests",
     script = "//testing/scripts/run_telemetry_as_googletest.py",
@@ -2604,29 +2535,6 @@ targets.binaries.script(
     module_scheme = "single",
 )
 
-targets.binaries.script(
-    name = "views_perftests_fuchsia",
-    label = "//ui/views:views_perftests_fuchsia",
-    script = "//build/fuchsia/test/run_test.py",
-    # All references have been moved to starlark
-    skip_usage_check = True,
-    args = [
-        "perf_gtest",
-        "bin/run_views_perftests_fuchsia",
-        "--out-dir",
-        ".",
-        "--non-telemetry=true",
-        "--gtest-benchmark-name=views_perftests",
-    ],
-    merge = targets.merge(
-        script = "//tools/perf/process_perf_results.py",
-        args = [
-            "--smoke-test-mode",
-        ],
-    ),
-    module_scheme = "gtest",
-)
-
 targets.binaries.windowed_test_launcher(
     name = "views_unittests",
     label = "//ui/views:views_unittests",
@@ -2718,30 +2626,6 @@ targets.binaries.windowed_test_launcher(
 targets.binaries.windowed_test_launcher(
     name = "wayland_client_tests",
     label = "//components/exo/wayland:wayland_client_tests",
-    module_scheme = "gtest",
-)
-
-targets.binaries.console_test_launcher(
-    name = "web_engine_browsertests",
-    label = "//fuchsia_web/webengine:web_engine_browsertests",
-    # All references have been moved to starlark
-    skip_usage_check = True,
-    module_scheme = "gtest",
-)
-
-targets.binaries.console_test_launcher(
-    name = "web_engine_integration_tests",
-    label = "//fuchsia_web/webengine:web_engine_integration_tests",
-    # All references have been moved to starlark
-    skip_usage_check = True,
-    module_scheme = "gtest",
-)
-
-targets.binaries.console_test_launcher(
-    name = "web_engine_unittests",
-    label = "//fuchsia_web/webengine:web_engine_unittests",
-    # All references have been moved to starlark
-    skip_usage_check = True,
     module_scheme = "gtest",
 )
 

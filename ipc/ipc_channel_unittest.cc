@@ -64,7 +64,7 @@
 #include "mojo/public/cpp/system/wait.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include "base/file_descriptor_posix.h"
 #include "ipc/ipc_platform_file_attachment_posix.h"
 #endif
@@ -185,8 +185,9 @@ class TestListenerBase : public IPC::Listener {
   void OnChannelError() override { RunQuitClosure(); }
 
   void RunQuitClosure() {
-    if (quit_closure_)
+    if (quit_closure_) {
       std::move(quit_closure_).Run();
+    }
   }
 
  private:
@@ -258,9 +259,7 @@ class IPCChannelProxyMojoTest : public IPCChannelTestBase {
     runner_->CreateProxy(listener, urgent_message_observer);
   }
 
-  void RunProxy() {
-    runner_->RunProxy();
-  }
+  void RunProxy() { runner_->RunProxy(); }
 
   void DestroyProxy() {
     runner_.reset();
@@ -423,8 +422,9 @@ class AssociatedInterfaceDroppingListener : public IPC::Listener {
   void OnAssociatedInterfaceRequest(
       const std::string& interface_name,
       mojo::ScopedInterfaceEndpointHandle handle) override {
-    if (interface_name == IPC::mojom::SimpleTestDriver::Name_)
+    if (interface_name == IPC::mojom::SimpleTestDriver::Name_) {
       std::move(callback_).Run();
+    }
   }
 
  private:

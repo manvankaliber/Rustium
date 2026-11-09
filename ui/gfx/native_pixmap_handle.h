@@ -18,11 +18,6 @@
 #include "base/files/scoped_file.h"
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/eventpair.h>
-#include <lib/zx/vmo.h>
-#endif
-
 namespace gfx {
 
 class Size;
@@ -37,9 +32,6 @@ struct COMPONENT_EXPORT(GFX) NativePixmapPlane {
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
                     ,
                     base::ScopedFD fd
-#elif BUILDFLAG(IS_FUCHSIA)
-                    ,
-                    zx::vmo vmo
 #endif
   );
   NativePixmapPlane(NativePixmapPlane&& other);
@@ -58,8 +50,6 @@ struct COMPONENT_EXPORT(GFX) NativePixmapPlane {
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   // File descriptor for the underlying memory object (usually dmabuf).
   base::ScopedFD fd;
-#elif BUILDFLAG(IS_FUCHSIA)
-  zx::vmo vmo;
 #endif
 };
 
@@ -87,20 +77,6 @@ struct COMPONENT_EXPORT(GFX) NativePixmapHandle {
 
   // WebGPU can directly import the handle to create texture from it.
   bool supports_zero_copy_webgpu_import = false;
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-  // Sysmem buffer collection handle. The other end of the eventpair is owned
-  // by the SysmemBufferCollection instance in the GPU process. It will destroy
-  // itself when all handles for the collection are dropped. Eventpair is used
-  // here because they are dupable, nun-fungible and unique.
-  zx::eventpair buffer_collection_handle;
-  uint32_t buffer_index = 0;
-
-  // Set to true for sysmem buffers which are initialized with RAM coherency
-  // domain. This means that clients that write to the buffers must flush CPU
-  // cache.
-  bool ram_coherency = false;
 #endif
 };
 

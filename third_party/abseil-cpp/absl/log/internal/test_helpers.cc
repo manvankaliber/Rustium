@@ -23,9 +23,6 @@
 #include "absl/log/initialize.h"
 #include "absl/log/internal/globals.h"
 
-#ifdef __Fuchsia__
-#include <zircon/syscalls.h>
-#endif
 
 #if defined(ABSL_HAVE_ALARM)
 #include <signal.h>
@@ -53,11 +50,6 @@ bool DiedOfFatal(int exit_status) {
   // in error code 3 (SIGABRT) or error code 0x80000003 (breakpoint
   // triggered).
   return ::testing::ExitedWithCode(3)(exit_status & 0x7fffffff);
-#elif defined(__Fuchsia__)
-  // The Fuchsia death test implementation kill()'s the process when it detects
-  // an exception, so it should exit with the corresponding code. See
-  // FuchsiaDeathTest::Wait().
-  return ::testing::ExitedWithCode(ZX_TASK_RETCODE_SYSCALL_KILL)(exit_status);
 #elif defined(__ANDROID__) && defined(__aarch64__)
   // These are all run under a qemu config that eats died-due-to-signal exit
   // statuses.

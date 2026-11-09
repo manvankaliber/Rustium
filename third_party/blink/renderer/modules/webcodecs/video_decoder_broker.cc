@@ -37,10 +37,6 @@
 #include "third_party/blink/renderer/platform/wtf/functional.h"
 #include "ui/gfx/color_space.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "media/fuchsia/video/fuchsia_decoder_factory.h"
-#endif
-
 using DecoderDetails = blink::VideoDecoderBroker::DecoderDetails;
 
 namespace blink {
@@ -88,11 +84,6 @@ class MediaVideoTaskWrapper {
         CrossThreadBindOnce(&MediaVideoTaskWrapper::BindOnTaskRunner,
                             CrossThreadUnretained(this),
                             std::move(media_interface_factory)));
-
-#if BUILDFLAG(IS_FUCHSIA)
-    execution_context.GetBrowserInterfaceBroker().GetInterface(
-        fuchsia_media_codec_provider_.InitWithNewPipeAndPassReceiver());
-#endif
 
     // TODO(sandersd): Target color space is used by DXVA VDA to pick an
     // efficient conversion for FP16 HDR content, and for no other purpose.
@@ -200,11 +191,6 @@ class MediaVideoTaskWrapper {
 #if BUILDFLAG(ENABLE_MOJO_VIDEO_DECODER)
       external_decoder_factory = std::make_unique<media::MojoDecoderFactory>(
           media_interface_factory_.get());
-#elif BUILDFLAG(IS_FUCHSIA)
-      DCHECK(fuchsia_media_codec_provider_);
-      external_decoder_factory = std::make_unique<media::FuchsiaDecoderFactory>(
-          std::move(fuchsia_media_codec_provider_),
-          /*allow_overlays=*/false);
 #endif
     }
 
@@ -222,16 +208,18 @@ class MediaVideoTaskWrapper {
     DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 
     // Android overlays are not supported.
-    if (overlay_info_cb)
+    if (overlay_info_cb) {
       std::move(overlay_info_cb).Run(media::OverlayInfo());
+    }
   }
 
   std::vector<std::unique_ptr<media::VideoDecoder>> OnCreateDecoders() {
     DVLOG(2) << __func__;
     DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 
-    if (decoder_factory_needs_update_)
+    if (decoder_factory_needs_update_) {
       UpdateDecoderFactory();
+    }
 
     std::vector<std::unique_ptr<media::VideoDecoder>> video_decoders;
 
@@ -320,11 +308,6 @@ class MediaVideoTaskWrapper {
   gfx::ColorSpace target_color_space_;
   HardwarePreference hardware_preference_ = HardwarePreference::kNoPreference;
   bool decoder_factory_needs_update_ = true;
-
-#if BUILDFLAG(IS_FUCHSIA)
-  mojo::PendingRemote<media::mojom::FuchsiaMediaCodecProvider>
-      fuchsia_media_codec_provider_;
-#endif
 
   SEQUENCE_CHECKER(sequence_checker_);
 

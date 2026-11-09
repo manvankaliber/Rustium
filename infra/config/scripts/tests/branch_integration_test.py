@@ -71,10 +71,6 @@ class BranchIntegrationTest(unittest.TestCase):
                     "description": "beta/stable",
                     "gardener_rotation": "chrome_browser_release"
                 },
-                "fuchsia": {
-                    "description": "beta/stable",
-                    "gardener_rotation": "chrome_browser_release"
-                },
                 "ios": {
                     "description": "beta/stable",
                     "gardener_rotation": "chrome_browser_release"
@@ -127,10 +123,6 @@ class BranchIntegrationTest(unittest.TestCase):
                     "gardener_rotation": "chrome_browser_release"
                 },
                 "cros": {
-                    "description": "beta/stable",
-                    "gardener_rotation": "chrome_browser_release"
-                },
-                "fuchsia": {
                     "description": "beta/stable",
                     "gardener_rotation": "chrome_browser_release"
                 },

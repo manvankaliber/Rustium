@@ -669,15 +669,18 @@ void HitTestRootWindowTransform(
 bool ConvertJSONToPoint(const std::string& str, gfx::PointF* point) {
   std::optional<base::Value> value =
       base::JSONReader::Read(str, base::JSON_PARSE_CHROMIUM_EXTENSIONS);
-  if (!value)
+  if (!value) {
     return false;
+  }
   base::DictValue* root = value->GetIfDict();
-  if (!root)
+  if (!root) {
     return false;
+  }
   std::optional<double> x = root->FindDouble("x");
   std::optional<double> y = root->FindDouble("y");
-  if (!x || !y)
+  if (!x || !y) {
     return false;
+  }
   point->set_x(*x);
   point->set_y(*y);
   return true;
@@ -686,23 +689,29 @@ bool ConvertJSONToPoint(const std::string& str, gfx::PointF* point) {
 bool ConvertJSONToRect(const std::string& str, gfx::Rect* rect) {
   std::optional<base::Value> value =
       base::JSONReader::Read(str, base::JSON_PARSE_CHROMIUM_EXTENSIONS);
-  if (!value)
+  if (!value) {
     return false;
+  }
   base::DictValue* root = value->GetIfDict();
-  if (!root)
+  if (!root) {
     return false;
+  }
   std::optional<int> x = root->FindInt("x");
-  if (!x)
+  if (!x) {
     return false;
+  }
   std::optional<int> y = root->FindInt("y");
-  if (!y)
+  if (!y) {
     return false;
+  }
   std::optional<int> width = root->FindInt("width");
-  if (!width)
+  if (!width) {
     return false;
+  }
   std::optional<int> height = root->FindInt("height");
-  if (!height)
+  if (!height) {
     return false;
+  }
   rect->set_x(*x);
   rect->set_y(*y);
   rect->set_width(*width);
@@ -753,8 +762,9 @@ class SetMouseCaptureInterceptor
   void SetMouseCapture(bool capturing) override {
     capturing_ = capturing;
     msg_received_ = true;
-    if (run_loop_)
+    if (run_loop_) {
       run_loop_->Quit();
+    }
     GetForwardingInterface()->SetMouseCapture(capturing);
   }
 
@@ -1366,8 +1376,9 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessHitTestBrowserTest,
          blink::mojom::InputEventResultSource,
          blink::mojom::InputEventResultState,
          const blink::WebInputEvent& event) {
-        if (event.GetType() != expected_type)
+        if (event.GetType() != expected_type) {
           return false;
+        }
 
         const auto& touch_event =
             static_cast<const blink::WebTouchEvent&>(event);
@@ -1390,8 +1401,9 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessHitTestBrowserTest,
          blink::mojom::InputEventResultSource,
          blink::mojom::InputEventResultState,
          const blink::WebInputEvent& event) {
-        if (event.GetType() != expected_type)
+        if (event.GetType() != expected_type) {
           return false;
+        }
 
         const auto& gesture_event =
             static_cast<const blink::WebGestureEvent&>(event);
@@ -1802,8 +1814,10 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessHitTestBrowserTest,
                              blink::mojom::InputEventResultSource,
                              blink::mojom::InputEventResultState,
                              const blink::WebInputEvent& event) {
-        if (event.GetType() != blink::WebInputEvent::Type::kGestureScrollBegin)
+        if (event.GetType() !=
+            blink::WebInputEvent::Type::kGestureScrollBegin) {
           return false;
+        }
 
         const blink::WebGestureEvent& gesture_event =
             static_cast<const blink::WebGestureEvent&>(event);
@@ -1847,8 +1861,9 @@ class OutgoingEventWaiter : public RenderWidgetHost::InputEventObserver {
   }
 
   ~OutgoingEventWaiter() override {
-    if (rwh_)
+    if (rwh_) {
       rwh_->RemoveInputEventObserver(this);
+    }
   }
 
   void OnInputEvent(const RenderWidgetHost& widget,
@@ -1856,8 +1871,9 @@ class OutgoingEventWaiter : public RenderWidgetHost::InputEventObserver {
                     InputEventSource source) override {
     if (event.GetType() == type_) {
       seen_event_ = true;
-      if (quit_closure_)
+      if (quit_closure_) {
         std::move(quit_closure_).Run();
+      }
     }
   }
 
@@ -1887,8 +1903,9 @@ class BadInputEventObserver : public RenderWidgetHost::InputEventObserver {
   }
 
   ~BadInputEventObserver() override {
-    if (rwh_)
+    if (rwh_) {
       rwh_->RemoveInputEventObserver(this);
+    }
   }
 
   void OnInputEvent(const RenderWidgetHost& widget,
@@ -2017,10 +2034,11 @@ class SitePerProcessEmulatedTouchBrowserTest
 
   void RunTest(TestType test_type) {
     std::string url;
-    if (test_type == TouchActionBubbling)
+    if (test_type == TouchActionBubbling) {
       url = "/frame_tree/page_with_pany_frame.html";
-    else
+    } else {
       url = "/frame_tree/page_with_positioned_frame.html";
+    }
     GURL main_url(embedded_test_server()->GetURL(url));
     ASSERT_TRUE(NavigateToURL(shell(), main_url));
 
@@ -2051,8 +2069,9 @@ class SitePerProcessEmulatedTouchBrowserTest
                                blink::mojom::InputEventResultSource,
                                blink::mojom::InputEventResultState,
                                const blink::WebInputEvent& event) {
-          if (event.GetType() != expected_type)
+          if (event.GetType() != expected_type) {
             return false;
+          }
 
           const blink::WebGestureEvent& gesture_event =
               static_cast<const blink::WebGestureEvent&>(event);
@@ -3250,14 +3269,16 @@ class TooltipMonitor : public RenderWidgetHostViewBase::TooltipObserver {
 
   void OnTooltipTextUpdated(const std::u16string& tooltip_text) override {
     tooltips_received_.push_back(tooltip_text);
-    if (tooltip_text == tooltip_text_wanted_ && run_loop_->running())
+    if (tooltip_text == tooltip_text_wanted_ && run_loop_->running()) {
       run_loop_->Quit();
+    }
   }
 
   void WaitUntil(const std::u16string& tooltip_text) {
     tooltip_text_wanted_ = tooltip_text;
-    if (std::ranges::contains(tooltips_received_, tooltip_text))
+    if (std::ranges::contains(tooltips_received_, tooltip_text)) {
       return;
+    }
     run_loop_ = std::make_unique<base::RunLoop>();
     run_loop_->Run();
   }
@@ -4985,8 +5006,9 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessMouseWheelHitTestBrowserTest,
          blink::mojom::InputEventResultSource,
          blink::mojom::InputEventResultState,
          const blink::WebInputEvent& event) {
-        if (event.GetType() != expected_type)
+        if (event.GetType() != expected_type) {
           return false;
+        }
 
         const auto& gesture_event =
             static_cast<const blink::WebGestureEvent&>(event);
@@ -5750,8 +5772,7 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessHitTestBrowserTest,
 // Test that performing a touchpad pinch over an OOPIF offers the synthetic
 // wheel events to the child and causes the page scale factor to change for
 // the main frame (given that the child did not consume the wheel).
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
 // TODO(crbug.com/41449850): Flaky on multiple platforms.
 #define MAYBE_TouchpadPinchOverOOPIF DISABLED_TouchpadPinchOverOOPIF
 #else
@@ -5861,7 +5882,7 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessHitTestBrowserTest,
 // Tests that performing a touchpad double-tap zoom over an OOPIF offers the
 // synthetic wheel event to the child.
 #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+    BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
 // TODO(crbug.com/41449850): Flaky on multiple platforms.
 #define MAYBE_TouchpadDoubleTapZoomOverOOPIF \
   DISABLED_TouchpadDoubleTapZoomOverOOPIF
@@ -5963,8 +5984,9 @@ class ContextMenuObserverDelegate : public WebContentsDelegate {
   ContextMenuParams getParams() { return menu_params_; }
 
   void Wait() {
-    if (!context_menu_created_)
+    if (!context_menu_created_) {
       message_loop_runner_->Run();
+    }
     context_menu_created_ = false;
   }
 
@@ -6402,8 +6424,9 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessHitTestBrowserTest,
         FROM_HERE, run_loop.QuitClosure(), TestTimeouts::tiny_timeout());
     run_loop.Run();
     if (initial_grandchild_view_bounds.y() ==
-        rwhv_grandchild->GetViewBounds().y() + 20)
+        rwhv_grandchild->GetViewBounds().y() + 20) {
       break;
+    }
   }
 
   popup_waiter.emplace(web_contents(), grandchild_node->current_frame_host());
@@ -6684,8 +6707,9 @@ class SitePerProcessGestureHitTestBrowserTest
     }
     SendPinchBeginEndSequence(rwhva_root_, bounds.CenterPoint(), rwhi_child_);
 
-    if (reset_root_touch_action)
+    if (reset_root_touch_action) {
       return;
+    }
 
     // Verify that root-RWHI gets nothing.
     EXPECT_FALSE(root_frame_monitor.EventWasReceived());
@@ -7093,7 +7117,7 @@ class SitePerProcessHitTestDataGenerationBrowserTest
             root->current_frame_host()->GetRenderWidgetHost()->GetView());
 
     for (unsigned i = 0; i < root->child_count(); i++) {
-        WaitForHitTestData(root->child_at(i)->current_frame_host());
+      WaitForHitTestData(root->child_at(i)->current_frame_host());
     }
 
     HitTestRegionObserver observer(rwhv_root->GetRootFrameSinkId());
@@ -7272,10 +7296,10 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessHitTestDataGenerationBrowserTest,
   // +-----------------------------------+
   gfx::Transform expected_transform;
   expected_transform.RotateAboutZAxis(-45);
-    // The clip tree built by BlinkGenPropertyTrees is different from that build
-    // by cc. While it does not affect correctness of hit testing, the hit test
-    // region with kHitTestAsk will have a different size due to the change of
-    // accumulated clips.
+  // The clip tree built by BlinkGenPropertyTrees is different from that build
+  // by cc. While it does not affect correctness of hit testing, the hit test
+  // region with kHitTestAsk will have a different size due to the change of
+  // accumulated clips.
   gfx::RectF expected_region1(gfx::ScaleToEnclosingRect(
       gfx::Rect(200, 100 / 1.414f), device_scale_factor));
   gfx::RectF expected_region2(gfx::ScaleToEnclosingRect(
@@ -7489,8 +7513,7 @@ using SitePerProcessDelegatedInkBrowserTest = SitePerProcessHitTestBrowserTest;
 // TODO(crbug.com/40835227): Fix and enable the test on Fuchsia.
 // TODO(crbug.com/40935254): flaky on ChromeOS
 // TODO(http://b/331190208): Test failing on Linux
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 #define MAYBE_MetadataAndPointGoThroughOOPIF \
   DISABLED_MetadataAndPointGoThroughOOPIF
 #else

@@ -260,7 +260,7 @@ ContentRootNodeForFrameActionableMode(
   return body;
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC)
 // Helper function to generate a click on the given RenderWidgetHost. The
 // mouse event is forwarded directly to the RenderWidgetHost without any
 // hit-testing.
@@ -1876,7 +1876,7 @@ IN_PROC_BROWSER_TEST_P(PageContentProtoProviderBrowserTestMultiProcess,
 // Popups may be rendered as native OS-level widgets on Android and MacOS.
 //
 // TODO: b/450618828 - Enable on Fuchsia with proper geometry comparison.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC)
 IN_PROC_BROWSER_TEST_P(PageContentProtoProviderBrowserTestMultiProcess,
                        SelectInCrossOriginIframe) {
   LoadPage(https_server()->GetURL(
@@ -1993,7 +1993,7 @@ IN_PROC_BROWSER_TEST_F(ScaledPageContentProtoProviderBrowserTest, ScaleSizes) {
 // Popups may be rendered as native OS-level widgets on Android and Apple OSs.
 //
 // TODO: b/450618828 - Enable on Fuchsia with proper geometry comparison.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_APPLE)
 IN_PROC_BROWSER_TEST_F(ScaledPageContentProtoProviderBrowserTest,
                        SelectInMainFrame) {
   LoadPage(https_server()->GetURL("/open_popup.html"));
@@ -2679,7 +2679,6 @@ class PageContentProtoProviderPopupBrowserTest
 };
 
 // TODO: b/450618828 - Enable on Fuchsia with proper geometry comparison.
-#if !BUILDFLAG(IS_FUCHSIA)
 IN_PROC_BROWSER_TEST_F(PageContentProtoProviderPopupBrowserTest,
                        SelectInMainFrame) {
   LoadPage(https_server()->GetURL("/open_popup.html"));
@@ -2882,7 +2881,6 @@ IN_PROC_BROWSER_TEST_F(PageContentProtoProviderPopupBrowserTest,
   EXPECT_EQ(popup_window.visible_bounding_box().y(),
             select_node_geometry.outer_bounding_box().y() + 10);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 IN_PROC_BROWSER_TEST_F(PageContentProtoProviderPopupBrowserTest, ColorPicker) {
   LoadPage(https_server()->GetURL("/open_popup.html"), nullptr);
@@ -3319,9 +3317,9 @@ IN_PROC_BROWSER_TEST_F(PageContentProtoProviderBrowserTest,
                        ExtractionStatusSuccessAndMainFrameNotLive) {
   base::HistogramTester histogram_tester;
   LoadPage(https_server()->GetURL("/simple.html"));
-  histogram_tester.ExpectUniqueSample(
-      kAIPageContentExtractionStatusHistogram,
-      AIPageContentExtractionStatus::kSuccess, 1);
+  histogram_tester.ExpectUniqueSample(kAIPageContentExtractionStatusHistogram,
+                                      AIPageContentExtractionStatus::kSuccess,
+                                      1);
 
   content::RenderProcessHost* child_process =
       web_contents()->GetPrimaryMainFrame()->GetProcess();

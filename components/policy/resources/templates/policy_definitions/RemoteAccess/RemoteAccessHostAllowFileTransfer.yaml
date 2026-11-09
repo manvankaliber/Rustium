@@ -9,8 +9,7 @@ features:
   dynamic_refresh: true
   per_profile: false
   platform_only: true
-future_on:
-- fuchsia
+future_on: []
 items:
 - caption: Enable remote access users to transfer files to and from the remote host
   value: true

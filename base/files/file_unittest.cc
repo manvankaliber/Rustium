@@ -555,7 +555,6 @@ TEST(FileTest, Length) {
     EXPECT_EQ(data_to_write[i], data_read[i]);
   }
 
-#if !BUILDFLAG(IS_FUCHSIA)  // Fuchsia doesn't seem to support big files.
   // Expand the file past the 4 GB limit.
   const int64_t kBigFileLength = 5'000'000'000;
   EXPECT_TRUE(file.SetLength(kBigFileLength));
@@ -563,7 +562,6 @@ TEST(FileTest, Length) {
   file_size = GetFileSize(file_path);
   ASSERT_TRUE(file_size.has_value());
   EXPECT_EQ(kBigFileLength, file_size.value());
-#endif
 
   // Close the file and reopen with File::FLAG_CREATE_ALWAYS, and make
   // sure the file is empty (old file was overridden).
@@ -638,7 +636,7 @@ TEST(FileTest, DISABLED_TouchGetInfo) {
             creation_time.ToInternalValue());
 }
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 TEST(FileTest, FromStatWithUnixEpochTimestamps) {
   stat_wrapper_t stat_info = {};
   File::Info info;
@@ -648,10 +646,9 @@ TEST(FileTest, FromStatWithUnixEpochTimestamps) {
   EXPECT_EQ(Time::UnixEpoch(), info.last_accessed);
   EXPECT_EQ(Time::UnixEpoch(), info.creation_time);
 }
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA) || \
-    BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE)
 TEST(FileTest, FromStatWithTimestampsInFirstUnixSecond) {
   stat_wrapper_t stat_info = {};
 #if BUILDFLAG(IS_APPLE)

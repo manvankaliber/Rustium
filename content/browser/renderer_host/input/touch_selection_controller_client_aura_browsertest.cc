@@ -63,15 +63,18 @@ constexpr int kCharacterHeight = 15;
 bool JSONToPoint(const std::string& str, gfx::PointF* point) {
   std::optional<base::Value> value =
       base::JSONReader::Read(str, base::JSON_PARSE_CHROMIUM_EXTENSIONS);
-  if (!value)
+  if (!value) {
     return false;
+  }
   base::DictValue* root = value->GetIfDict();
-  if (!root)
+  if (!root) {
     return false;
+  }
   std::optional<double> x = root->FindDouble("x");
   std::optional<double> y = root->FindDouble("y");
-  if (!x || !y)
+  if (!x || !y) {
     return false;
+  }
   point->set_x(*x);
   point->set_y(*y);
   return true;
@@ -241,8 +244,9 @@ class TestTouchSelectionControllerClientAura
   // TouchSelectionControllerClientAura:
   void OnSelectionEvent(ui::SelectionEventType event) override {
     TouchSelectionControllerClientAura::OnSelectionEvent(event);
-    if (run_loop_ && event == expected_event_)
+    if (run_loop_ && event == expected_event_) {
       run_loop_->Quit();
+    }
   }
 
   bool IsCommandIdEnabled(int command_id, bool can_paste) const override {
@@ -402,8 +406,9 @@ class TouchSelectionControllerClientAuraTest : public ContentBrowserTest {
 
   void SetUpOnMainThread() override {
     ContentBrowserTest::SetUpOnMainThread();
-    if (!ui::TouchSelectionMenuRunner::GetInstance())
+    if (!ui::TouchSelectionMenuRunner::GetInstance()) {
       menu_runner_ = std::make_unique<TestTouchSelectionMenuRunner>();
+    }
     // Set a small tap slop.
     ui::GestureConfiguration::GetInstance()
         ->set_max_touch_move_in_pixels_for_click(5);
@@ -1653,18 +1658,18 @@ IN_PROC_BROWSER_TEST_F(TouchSelectionControllerClientAuraTest,
   generator.GestureScrollSequenceWithCallback(
       start, start + gfx::Vector2d(100, 0), /*duration=*/base::Milliseconds(50),
       /*steps=*/5,
-      base::BindLambdaForTesting([&](ui::EventType event_type,
-                                     const gfx::Vector2dF& offset) {
-        if (event_type == ui::EventType::kGestureScrollBegin) {
-          selection_controller_client()->InitWaitForSelectionEvent(
-              ui::INSERTION_HANDLE_MOVED);
-        } else if (event_type == ui::EventType::kGestureScrollUpdate) {
-          selection_controller_client()->Wait();
-          EXPECT_TRUE(selection_controller_client()->IsMagnifierVisible());
-          selection_controller_client()->InitWaitForSelectionEvent(
-              ui::INSERTION_HANDLE_MOVED);
-        }
-      }));
+      base::BindLambdaForTesting(
+          [&](ui::EventType event_type, const gfx::Vector2dF& offset) {
+            if (event_type == ui::EventType::kGestureScrollBegin) {
+              selection_controller_client()->InitWaitForSelectionEvent(
+                  ui::INSERTION_HANDLE_MOVED);
+            } else if (event_type == ui::EventType::kGestureScrollUpdate) {
+              selection_controller_client()->Wait();
+              EXPECT_TRUE(selection_controller_client()->IsMagnifierVisible());
+              selection_controller_client()->InitWaitForSelectionEvent(
+                  ui::INSERTION_HANDLE_MOVED);
+            }
+          }));
   EXPECT_FALSE(selection_controller_client()->IsMagnifierVisible());
 }
 
@@ -1754,12 +1759,7 @@ IN_PROC_BROWSER_TEST_F(TouchSelectionControllerClientAuraTest,
 
 // Tests that the select all and select word commands in the quick menu are
 // disabled for empty textfields.
-#if BUILDFLAG(IS_FUCHSIA)
-// TODO(crbug.com/532769409): Re-enable this test on Fuchsia.
-#define MAYBE_SelectCommandsEmptyTextfield DISABLED_SelectCommandsEmptyTextfield
-#else
 #define MAYBE_SelectCommandsEmptyTextfield SelectCommandsEmptyTextfield
-#endif
 IN_PROC_BROWSER_TEST_F(TouchSelectionControllerClientAuraTest,
                        MAYBE_SelectCommandsEmptyTextfield) {
   ASSERT_NO_FATAL_FAILURE(StartTestWithPage("/touch_selection.html"));

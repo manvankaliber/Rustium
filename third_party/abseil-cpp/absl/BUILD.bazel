@@ -55,14 +55,6 @@ config_setting(
     visibility = [":__subpackages__"],
 )
 
-config_setting(
-    name = "fuchsia",
-    constraint_values = [
-        "@platforms//os:fuchsia",
-    ],
-    visibility = [":__subpackages__"],
-)
-
 selects.config_setting_group(
     name = "mingw_compiler",
     match_any = [

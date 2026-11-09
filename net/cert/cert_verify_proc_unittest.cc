@@ -222,14 +222,6 @@ scoped_refptr<CertVerifyProc> CreateCertVerifyProc(
     case CERT_VERIFY_PROC_IOS:
       return base::MakeRefCounted<CertVerifyProcIOS>(std::move(crl_set));
 #endif
-#if BUILDFLAG(IS_FUCHSIA)
-    case CERT_VERIFY_PROC_BUILTIN:
-      return CreateCertVerifyProcBuiltin(
-          std::move(cert_net_fetcher), std::move(crl_set),
-          std::make_unique<DoNothingCTVerifier>(),
-          base::MakeRefCounted<DefaultCTPolicyEnforcer>(),
-          CreateSslSystemTrustStore(), instance_params, std::nullopt);
-#endif
 #if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
     case CERT_VERIFY_PROC_BUILTIN_CHROME_ROOTS:
       return CreateCertVerifyProcBuiltin(
@@ -253,8 +245,6 @@ constexpr CertVerifyProcType kAllCertVerifiers[] = {
     CERT_VERIFY_PROC_ANDROID,
 #elif BUILDFLAG(IS_IOS)
     CERT_VERIFY_PROC_IOS,
-#elif BUILDFLAG(IS_FUCHSIA)
-    CERT_VERIFY_PROC_BUILTIN,
 #endif
 #if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
     CERT_VERIFY_PROC_BUILTIN_CHROME_ROOTS,
@@ -393,11 +383,13 @@ class CertVerifyProcInternalTest
   bool IsInvalidKeyType(const std::string& key_type) const {
     std::string type;
     int size = 0;
-    if (!ParseKeyType(key_type, &type, &size))
+    if (!ParseKeyType(key_type, &type, &size)) {
       return false;
+    }
 
-    if (type == "rsa" || type == "dsa")
+    if (type == "rsa" || type == "dsa") {
       return IsInvalidRsaDsaKeySize(size);
+    }
 
     return false;
   }
@@ -413,11 +405,13 @@ class CertVerifyProcInternalTest
   bool IsWeakKeyType(const std::string& key_type) const {
     std::string type;
     int size = 0;
-    if (!ParseKeyType(key_type, &type, &size))
+    if (!ParseKeyType(key_type, &type, &size)) {
       return false;
+    }
 
-    if (type == "rsa" || type == "dsa")
+    if (type == "rsa" || type == "dsa") {
       return IsWeakRsaDsaKeySize(size);
+    }
 
     return false;
   }
@@ -448,9 +442,7 @@ class CertVerifyProcInternalTest
            verify_proc_type() == CERT_VERIFY_PROC_BUILTIN_CHROME_ROOTS;
   }
 
-  bool VerifyProcTypeIsIOSAtMostOS14() const {
-    return false;
-  }
+  bool VerifyProcTypeIsIOSAtMostOS14() const { return false; }
 
   bool VerifyProcTypeIsIOSAtMostOS15() const {
 #if BUILDFLAG(IS_IOS)
@@ -2218,8 +2210,9 @@ TEST_P(CertVerifyProcInternalTest, CRLSetDuringPathBuilding) {
     ASSERT_EQ(0U, verify_result.cert_status);
     ASSERT_TRUE(verify_result.verified_cert.get());
 
-    if (!testcase.expected_intermediate)
+    if (!testcase.expected_intermediate) {
       continue;
+    }
 
     const auto& verified_intermediates =
         verify_result.verified_cert->intermediate_buffers();
@@ -2716,8 +2709,9 @@ class CertVerifyProcInternalWithNetFetchingTest
     base::AutoLock lock(request_handlers_lock_);
     for (const auto& handler : request_handlers_) {
       auto response = handler.Run(request);
-      if (response)
+      if (response) {
         return response;
+      }
     }
 
     return nullptr;
@@ -2731,8 +2725,9 @@ class CertVerifyProcInternalWithNetFetchingTest
       const std::string& content_type,
       const std::string& content,
       const test_server::HttpRequest& request) {
-    if (request.relative_url != path)
+    if (request.relative_url != path) {
       return nullptr;
+    }
 
     auto http_response = std::make_unique<test_server::BasicHttpResponse>();
 
@@ -3823,8 +3818,9 @@ class CertVerifyProcConstraintsTest : public CertVerifyProcInternalTest {
   }
 
   int ExpectedIntermediateConstraintError() {
-    if (verify_proc_type() == CERT_VERIFY_PROC_ANDROID)
+    if (verify_proc_type() == CERT_VERIFY_PROC_ANDROID) {
       return ERR_CERT_AUTHORITY_INVALID;
+    }
     return ERR_CERT_INVALID;
   }
 
@@ -4236,7 +4232,7 @@ TEST_P(CertVerifyProcConstraintsTest, PolicyConstraints2Intermediate) {
   EXPECT_THAT(Verify(), IsError(ExpectedIntermediateConstraintError()));
   if (VerifyProcTypeIsBuiltin()) {
     EXPECT_THAT(VerifyWithExpiryAndConstraints(), IsError(ERR_CERT_INVALID));
-    }
+  }
 }
 
 TEST_P(CertVerifyProcConstraintsTest, PolicyConstraints1Intermediate) {

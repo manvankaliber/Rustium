@@ -98,22 +98,6 @@ def parse_args(args):
     command_line.add_configuration_options_group(parser)
     printing.add_print_options_group(parser)
 
-    fuchsia_group = parser.add_argument_group('Fuchsia-specific Options')
-    fuchsia_group.add_argument(
-        '--fuchsia-out-dir', help='Path to Fuchsia build output directory.'
-    )
-    fuchsia_group.add_argument(
-        '--custom-image',
-        help='Specify an image used for booting up the emulator.',
-    )
-    fuchsia_group.add_argument(
-        '--fuchsia-target-id',
-        help='The node-name of the device to boot or deploy to.',
-    )
-    fuchsia_group.add_argument(
-        '--logs-dir', help='Location of diagnostics logs'
-    )
-
     command_line.add_results_options_group(parser)
     command_line.add_testing_options_group(parser)
 

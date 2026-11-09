@@ -5,8 +5,6 @@
 import("//chromecast/chromecast.gni")
 import("//testing/test.gni")
 
-assert(!is_fuchsia)
-
 cast_source_set("system_tracing_common") {
   sources = [
     "system_tracing_common.cc",

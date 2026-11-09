@@ -96,7 +96,7 @@ bool IsOpenAppend(PlatformFile file) {
 }
 
 int CallFtruncate(PlatformFile file, int64_t length) {
-#if BUILDFLAG(IS_BSD) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_BSD) || BUILDFLAG(IS_APPLE)
   return HANDLE_EINTR(ftruncate(file, length));
 #else
   return HANDLE_EINTR(ftruncate64(file, length));
@@ -123,7 +123,6 @@ int CallFutimes(PlatformFile file, const std::array<struct timeval, 2> times) {
 #endif
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 short FcntlFlockType(std::optional<File::LockMode> mode) {
   if (!mode.has_value()) {
     return F_UNLCK;
@@ -149,7 +148,6 @@ File::Error CallFcntlFlock(PlatformFile file,
   }
   return File::FILE_OK;
 }
-#endif
 
 #else   // !BUILDFLAG(IS_AIX)
 
@@ -202,7 +200,7 @@ void File::Info::FromStat(const stat_wrapper_t& stat_info) {
   // creation time. However, other than on Mac & iOS where the actual file
   // creation time is included as st_birthtime, the rest of POSIX platforms have
   // no portable way to get the creation time.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   time_t last_modified_sec = stat_info.st_mtim.tv_sec;
   int64_t last_modified_nsec = stat_info.st_mtim.tv_nsec;
   time_t last_accessed_sec = stat_info.st_atim.tv_sec;
@@ -500,7 +498,6 @@ bool File::GetInfo(Info* info) const {
   return success;
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 File::Error File::Lock(File::LockMode mode) {
   SCOPED_FILE_TRACE("Lock");
   return CallFcntlFlock(file_.get(), mode);
@@ -510,7 +507,6 @@ File::Error File::Unlock() {
   SCOPED_FILE_TRACE("Unlock");
   return CallFcntlFlock(file_.get(), std::optional<File::LockMode>());
 }
-#endif
 
 File File::Duplicate() const {
   if (!IsValid()) {
@@ -676,8 +672,7 @@ bool File::Flush() {
   DCHECK(IsValid());
   SCOPED_FILE_TRACE("Flush");
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
   return !HANDLE_EINTR(fdatasync(file_.get()));
 #elif BUILDFLAG(IS_APPLE)
   // On macOS and iOS, fsync() is guaranteed to send the file's data to the

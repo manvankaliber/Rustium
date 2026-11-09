@@ -35,7 +35,7 @@ bool IsOnDeviceStorageEnabled() {
 }
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+    BUILDFLAG(IS_CHROMEOS)
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 BASE_FEATURE(kEsbDownloadRowPromoFeature,
              "EsbDownloadRowPromo",
@@ -964,7 +964,6 @@ BASE_FEATURE(kIPHiOSFeedSwipeAnimatedFeature,
              "IPH_iOSFeedSwipeAnimatedFeature",
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-
 BASE_FEATURE(kIPHIOSPageActionMenu,
              "IPH_iOSPageActionMenu",
              base::FEATURE_ENABLED_BY_DEFAULT);
@@ -1042,7 +1041,7 @@ BASE_FEATURE(kIPHiOSActiveDaysTrackingFeature,
 #endif  // BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kIPHAutofillAtMemoryFeature,
              "IPH_AutofillAtMemory",
              base::FEATURE_DISABLED_BY_DEFAULT);

@@ -41,12 +41,8 @@ macro_rules! require_mount {
         use sysctl::{CtlValue, Sysctl};
 
         let ctl = ::sysctl::Ctl::new("vfs.usermount").unwrap();
-        if !Uid::current().is_root() && CtlValue::Int(0) == ctl.value().unwrap()
-        {
-            skip!(
-                "{} requires the ability to mount file systems. Skipping test.",
-                $name
-            );
+        if !Uid::current().is_root() && CtlValue::Int(0) == ctl.value().unwrap() {
+            skip!("{} requires the ability to mount file systems. Skipping test.", $name);
         }
     };
 }
@@ -64,7 +60,7 @@ macro_rules! skip_if_jailed {
     };
 }
 
-#[cfg(not(any(target_os = "redox", target_os = "fuchsia")))]
+#[cfg(not(target_os = "redox"))]
 #[macro_export]
 macro_rules! skip_if_not_root {
     ($name:expr) => {

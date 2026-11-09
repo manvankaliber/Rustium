@@ -127,7 +127,6 @@
 #include "chromecast/media/service/video_geometry_setter_service.h"
 #endif  // BUILDFLAG(ENABLE_CAST_RENDERER)
 
-
 namespace chromecast {
 namespace shell {
 
@@ -391,7 +390,6 @@ void CastContentBrowserClient::AppendExtraCommandLineSwitches(
   base::CommandLine* browser_command_line =
       base::CommandLine::ForCurrentProcess();
 
-#if !BUILDFLAG(IS_FUCHSIA)
 #if BUILDFLAG(IS_ANDROID)
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kEnableCrashReporter)) {
@@ -405,7 +403,6 @@ void CastContentBrowserClient::AppendExtraCommandLineSwitches(
     command_line->AppendSwitch(switches::kEnableCrashReporter);
   }
 #endif  // BUILDFLAG(IS_ANDROID)
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   // Command-line for different processes.
   if (process_type == switches::kRendererProcess) {
@@ -414,8 +411,7 @@ void CastContentBrowserClient::AppendExtraCommandLineSwitches(
     static const char* const kForwardSwitches[] = {
         switches::kCastAppBackgroundColor,
         network::switches::kUnsafelyTreatInsecureOriginAsSecure,
-        switches::kCastAssetsDir,
-        switches::kHomeEnvOverride};
+        switches::kCastAssetsDir, switches::kHomeEnvOverride};
     command_line->CopySwitchesFrom(*browser_command_line, kForwardSwitches);
   } else if (process_type == switches::kUtilityProcess) {
     if (browser_command_line->HasSwitch(switches::kAudioOutputChannels)) {
@@ -485,7 +481,6 @@ void CastContentBrowserClient::OverrideWebPreferences(
   prefs->text_track_margin_percentage = 5;
 
   prefs->hide_scrollbars = true;
-
 
 #if BUILDFLAG(IS_ANDROID)
   // Enable the television style for viewport so that all cast apps have a
@@ -692,13 +687,11 @@ void CastContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
       base::GlobalDescriptors::GetInstance()->Get(kAndroidPakDescriptor),
       base::GlobalDescriptors::GetInstance()->GetRegion(kAndroidPakDescriptor));
 #endif  // BUILDFLAG(IS_ANDROID)
-#if !BUILDFLAG(IS_FUCHSIA)
   // TODO(crbug.com/40534193): Complete crash reporting integration on Fuchsia.
   int crash_signal_fd = GetCrashSignalFD(command_line);
   if (crash_signal_fd >= 0) {
     mappings->Share(kCrashDumpSignal, crash_signal_fd);
   }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 }
 
 void CastContentBrowserClient::GetAdditionalWebUISchemes(
@@ -749,7 +742,7 @@ int CastContentBrowserClient::GetCrashSignalFD(
     const base::CommandLine& command_line) {
   return crashpad::CrashHandlerHost::Get()->GetDeathSignalSocket();
 }
-#elif !BUILDFLAG(IS_FUCHSIA)
+#else
 int CastContentBrowserClient::GetCrashSignalFD(
     const base::CommandLine& command_line) {
   std::string process_type =

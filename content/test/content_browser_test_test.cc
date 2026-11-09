@@ -105,11 +105,7 @@ IN_PROC_BROWSER_TEST_F(ContentBrowserTest, MANUAL_RendererCrash) {
 // Tests that browser tests print the callstack when a child process crashes.
 // TODO(crbug.com/40834746): Enable this test on Fuchsia once the test
 // expectations have been updated.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_RendererCrashCallStack DISABLED_RendererCrashCallStack
-#else
 #define MAYBE_RendererCrashCallStack RendererCrashCallStack
-#endif
 IN_PROC_BROWSER_TEST_F(ContentBrowserTest, MAYBE_RendererCrashCallStack) {
   base::ScopedAllowBlockingForTesting allow_blocking;
 
@@ -141,8 +137,8 @@ IN_PROC_BROWSER_TEST_F(ContentBrowserTest, MAYBE_RendererCrashCallStack) {
 #endif
 
   if (!output.contains(crash_string)) {
-    GTEST_FAIL() << "Couldn't find\n" << crash_string << "\n in output\n "
-                 << output;
+    GTEST_FAIL() << "Couldn't find\n"
+                 << crash_string << "\n in output\n " << output;
   }
 }
 
@@ -161,7 +157,7 @@ IN_PROC_BROWSER_TEST_F(ContentBrowserTest, MANUAL_BrowserCrash) {
 // Disabled on Windows crbug.com/1034784
 // TODO(crbug.com/40834746): Enable this test on Fuchsia once the test
 // expectations have been updated.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_WIN)
 #define MAYBE_BrowserCrashCallStack DISABLED_BrowserCrashCallStack
 #else
 #define MAYBE_BrowserCrashCallStack BrowserCrashCallStack
@@ -280,8 +276,9 @@ class ContentBrowserTestSanityTest : public ContentBrowserTest {
 
     const testing::TestInfo* const test_info =
         testing::UnitTest::GetInstance()->current_test_info();
-    if (std::string(test_info->name()) == "SingleProcess")
+    if (std::string(test_info->name()) == "SingleProcess") {
       command_line->AppendSwitch(switches::kSingleProcess);
+    }
   }
 
   void SetUp() override {
@@ -328,14 +325,10 @@ IN_PROC_BROWSER_TEST_F(ContentBrowserTestSanityTest, DISABLED_SingleProcess) {
 
 namespace {
 
-BASE_FEATURE(kTestFeatureForBrowserTest1,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-BASE_FEATURE(kTestFeatureForBrowserTest2,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-BASE_FEATURE(kTestFeatureForBrowserTest3,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-BASE_FEATURE(kTestFeatureForBrowserTest4,
-             base::FEATURE_ENABLED_BY_DEFAULT);
+BASE_FEATURE(kTestFeatureForBrowserTest1, base::FEATURE_DISABLED_BY_DEFAULT);
+BASE_FEATURE(kTestFeatureForBrowserTest2, base::FEATURE_ENABLED_BY_DEFAULT);
+BASE_FEATURE(kTestFeatureForBrowserTest3, base::FEATURE_DISABLED_BY_DEFAULT);
+BASE_FEATURE(kTestFeatureForBrowserTest4, base::FEATURE_ENABLED_BY_DEFAULT);
 
 }  // namespace
 

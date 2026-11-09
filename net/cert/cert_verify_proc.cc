@@ -55,7 +55,7 @@
 #include "third_party/boringssl/src/pki/signature_algorithm.h"
 #include "url/url_canon.h"
 
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
+#if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
 #include "net/cert/cert_verify_proc_builtin.h"
 #endif
 
@@ -108,11 +108,9 @@ void RecordPublicKeyHistogram(const char* chain_position,
                               bool baseline_keysize_applies,
                               size_t size_bits,
                               X509Certificate::PublicKeyType cert_type) {
-  std::string histogram_name =
-      base::StringPrintf("CertificateType2.%s.%s.%s",
-                         baseline_keysize_applies ? "BR" : "NonBR",
-                         chain_position,
-                         CertTypeToString(cert_type));
+  std::string histogram_name = base::StringPrintf(
+      "CertificateType2.%s.%s.%s", baseline_keysize_applies ? "BR" : "NonBR",
+      chain_position, CertTypeToString(cert_type));
   // Do not use UMA_HISTOGRAM_... macros here, as it caches the Histogram
   // instance and thus only works if |histogram_name| is constant.
   base::HistogramBase* counter = nullptr;
@@ -185,8 +183,9 @@ bool ExaminePublicKeys(const scoped_refptr<X509Certificate>& cert,
       RecordPublicKeyHistogram(chain_position, baseline_keysize_applies,
                                size_bits, type);
     }
-    if (!weak_key && IsWeakKey(type, size_bits))
+    if (!weak_key && IsWeakKey(type, size_bits)) {
       weak_key = true;
+    }
   }
 
   return weak_key;
@@ -251,8 +250,9 @@ void RecordTrustAnchorHistogram(const std::vector<SHA256HashValue>& spki_hashes,
   int32_t id = 0;
   for (const auto& hash : spki_hashes) {
     id = GetNetTrustAnchorHistogramIdForSPKI(hash);
-    if (id != 0)
+    if (id != 0) {
       break;
+    }
   }
   base::UmaHistogramSparse("Net.Certificate.TrustAnchor.Verify", id);
 
@@ -366,15 +366,16 @@ base::DictValue CertVerifyParams(X509Certificate* cert,
   dict.Set("host", NetLogStringValue(hostname));
   dict.Set("verify_flags", flags);
   dict.Set("crlset_sequence", NetLogNumberValue(crl_set->sequence()));
-  if (crl_set->IsExpired())
+  if (crl_set->IsExpired()) {
     dict.Set("crlset_is_expired", true);
+  }
 
   return dict;
 }
 
 }  // namespace
 
-#if !(BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(CHROME_ROOT_STORE_ONLY))
+#if !BUILDFLAG(CHROME_ROOT_STORE_ONLY)
 // static
 scoped_refptr<CertVerifyProc> CertVerifyProc::CreateSystemVerifyProc(
     scoped_refptr<CertNetFetcher> cert_net_fetcher,
@@ -387,22 +388,6 @@ scoped_refptr<CertVerifyProc> CertVerifyProc::CreateSystemVerifyProc(
 #else
 #error Unsupported platform
 #endif
-}
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-// static
-scoped_refptr<CertVerifyProc> CertVerifyProc::CreateBuiltinVerifyProc(
-    scoped_refptr<CertNetFetcher> cert_net_fetcher,
-    scoped_refptr<CRLSet> crl_set,
-    std::unique_ptr<CTVerifier> ct_verifier,
-    scoped_refptr<CTPolicyEnforcer> ct_policy_enforcer,
-    const InstanceParams instance_params,
-    std::optional<network_time::TimeTracker> time_tracker) {
-  return CreateCertVerifyProcBuiltin(
-      std::move(cert_net_fetcher), std::move(crl_set), std::move(ct_verifier),
-      std::move(ct_policy_enforcer), CreateSslSystemTrustStore(),
-      instance_params, std::move(time_tracker));
 }
 #endif
 
@@ -517,8 +502,7 @@ int CertVerifyProc::Verify(X509Certificate* cert,
   std::vector<std::string> dns_names, ip_addrs;
   cert->GetSubjectAltName(&dns_names, &ip_addrs);
   if (HasNameConstraintsViolation(verify_result->public_key_hashes,
-                                  cert->subject().common_name,
-                                  dns_names,
+                                  cert->subject().common_name, dns_names,
                                   ip_addrs)) {
     verify_result->cert_status |= CERT_STATUS_NAME_CONSTRAINT_VIOLATION;
     rv = MapCertStatusToNetError(verify_result->cert_status);
@@ -533,15 +517,17 @@ int CertVerifyProc::Verify(X509Certificate* cert,
     // Avoid replacing a more serious error, such as an OS/library failure,
     // by ensuring that if verification failed, it failed with a certificate
     // error.
-    if (rv == OK || IsCertificateError(rv))
+    if (rv == OK || IsCertificateError(rv)) {
       rv = MapCertStatusToNetError(verify_result->cert_status);
+    }
   }
 
   // Flag certificates using too long validity periods.
   if (verify_result->is_issued_by_known_root && HasTooLongValidity(*cert)) {
     verify_result->cert_status |= CERT_STATUS_VALIDITY_TOO_LONG;
-    if (rv == OK)
+    if (rv == OK) {
       rv = MapCertStatusToNetError(verify_result->cert_status);
+    }
   }
 
   // Flag certificates from publicly-trusted CAs that are issued to intranet
@@ -607,8 +593,9 @@ void CertVerifyProc::LogNameNormalizationMetrics(
     const std::string& histogram_suffix,
     X509Certificate* verified_cert,
     bool is_issued_by_known_root) {
-  if (is_issued_by_known_root)
+  if (is_issued_by_known_root) {
     return;
+  }
 
   if (verified_cert->intermediate_buffers().empty()) {
     LogNameNormalizationResult(histogram_suffix,
@@ -659,8 +646,9 @@ static bool CheckNameConstraints(const std::vector<std::string>& dns_names,
     bool ok = false;
     url::CanonHostInfo host_info;
     const std::string dns_name = CanonicalizeHost(host, &host_info);
-    if (host_info.IsIPAddress())
+    if (host_info.IsIPAddress()) {
       continue;
+    }
 
     // If the name is not in a known TLD, ignore it. This permits internal
     // server names.
@@ -674,18 +662,21 @@ static bool CheckNameConstraints(const std::vector<std::string>& dns_names,
       // The |domain| must be of ".somesuffix" form, and |dns_name| must
       // have |domain| as a suffix.
       DCHECK_EQ('.', domain[0]);
-      if (dns_name.size() <= domain.size())
+      if (dns_name.size() <= domain.size()) {
         continue;
+      }
       std::string_view suffix =
           std::string_view(dns_name).substr(dns_name.size() - domain.size());
-      if (!base::EqualsCaseInsensitiveASCII(suffix, domain))
+      if (!base::EqualsCaseInsensitiveASCII(suffix, domain)) {
         continue;
+      }
       ok = true;
       break;
     }
 
-    if (!ok)
+    if (!ok) {
       return false;
+    }
   }
 
   return true;
@@ -757,11 +748,13 @@ bool CertVerifyProc::HasNameConstraintsViolation(
       if (dns_names.empty() && ip_addrs.empty()) {
         std::vector<std::string> names;
         names.push_back(common_name);
-        if (!CheckNameConstraints(names, limit.domains))
+        if (!CheckNameConstraints(names, limit.domains)) {
           return true;
+        }
       } else {
-        if (!CheckNameConstraints(dns_names, limit.domains))
+        if (!CheckNameConstraints(dns_names, limit.domains)) {
           return true;
+        }
       }
     }
   }

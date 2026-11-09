@@ -135,12 +135,6 @@ class SSLStream : public Stream {
         LOG(ERROR) << "SSL_CTX_load_verify_locations";
         return false;
       }
-#elif BUILDFLAG(IS_FUCHSIA)
-      if (SSL_CTX_load_verify_locations(
-              ctx_.get(), "/config/ssl/cert.pem", nullptr) <= 0) {
-        LOG(ERROR) << "SSL_CTX_load_verify_locations";
-        return false;
-      }
 #else
 #error cert store location
 #endif

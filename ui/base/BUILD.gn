@@ -28,8 +28,6 @@ if (is_android) {
 } else if (is_mac) {
   import("//build/config/mac/rules.gni")
   import("//build/util/branding.gni")
-} else if (is_fuchsia) {
-  import("//build/config/fuchsia/config.gni")
 }
 
 build_ime = !is_ios
@@ -452,8 +450,6 @@ component("base") {
       sources += [ "pointer/pointer_device_ios.cc" ]
     } else if (is_linux || is_chromeos) {
       sources += [ "pointer/pointer_device_linux.cc" ]
-    } else if (is_fuchsia && is_web_engine) {
-      sources += [ "pointer/pointer_device_web_engine.cc" ]
     } else {
       # Empty implementation for all other cases.
       sources += [ "pointer/pointer_device_default.cc" ]
@@ -470,10 +466,6 @@ component("base") {
     ]
   } else {
     sources += [ "accelerators/media_keys_listener_stub.cc" ]
-  }
-
-  if (is_fuchsia) {
-    sources += [ "resource/resource_bundle_fuchsia.cc" ]
   }
 
   configs += [ "//build/config/compiler:prevent_unsafe_narrowing" ]
@@ -589,7 +581,7 @@ component("base") {
     public_deps += [ "//ui/base/glib" ]
   }
 
-  if (is_chromeos || (use_aura && is_linux) || is_fuchsia) {
+  if (is_chromeos || (use_aura && is_linux)) {
     sources += [
       "dragdrop/os_exchange_data_provider_non_backed.cc",
       "dragdrop/os_exchange_data_provider_non_backed.h",
@@ -729,9 +721,7 @@ if (is_win || is_mac || is_linux || is_chromeos) {
       "//ui/snapshot",
     ]
 
-    if (!is_fuchsia) {
-      data_deps = [ ":goldctl" ]
-    }
+    data_deps = [ ":goldctl" ]
   }
 }
 
@@ -1323,7 +1313,7 @@ test("ui_base_unittests") {
     deps += [ "//ui/events:dom_keycode_converter" ]
   }
 
-  if (is_android || is_linux || is_chromeos || is_mac || is_win || is_fuchsia) {
+  if (is_android || is_linux || is_chromeos || is_mac || is_win) {
     # TODO(brettw): We should be able to depend on //ui/resources:ui_test_pak
     # instead of depending directly on the non-test .pak files, but depending
     # on ui_test_pak seems to have no effect.
@@ -1336,7 +1326,7 @@ test("ui_base_unittests") {
       "//ui/resources:ui_test_pak",  # TODO(brettw): this does nothing.
     ]
   }
-  if (is_linux || is_chromeos || is_win || is_fuchsia) {
+  if (is_linux || is_chromeos || is_win) {
     data += [
       # TODO(brettw): Remove these two lines.
       "$root_out_dir/ui/en-US.pak",

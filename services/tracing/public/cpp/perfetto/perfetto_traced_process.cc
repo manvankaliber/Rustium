@@ -30,7 +30,7 @@
 #include "third_party/perfetto/include/perfetto/tracing/platform.h"
 #include "third_party/perfetto/include/perfetto/tracing/tracing.h"
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 // As per 'gn help check':
 /*
   If you have conditional includes, make sure the build conditions and the
@@ -132,8 +132,9 @@ void PerfettoTracedProcess::DataSourceBase::StopTracing(
   StopTracingImpl(base::BindOnce(
       [](DataSourceBase* self, base::OnceClosure original_callback) {
         DCHECK_CALLED_ON_VALID_SEQUENCE(self->perfetto_sequence_checker_);
-        if (original_callback)
+        if (original_callback) {
           std::move(original_callback).Run();
+        }
       },
       this,  // OK to capture |this| because the callback is called by |this|.
       std::move(stop_complete_callback)));
@@ -144,15 +145,17 @@ void PerfettoTracedProcess::DataSourceBase::StartTracingImpl(
 
 void PerfettoTracedProcess::DataSourceBase::StopTracingImpl(
     base::OnceClosure stop_complete_callback) {
-  if (stop_complete_callback)
+  if (stop_complete_callback) {
     std::move(stop_complete_callback).Run();
+  }
 }
 
 void PerfettoTracedProcess::DataSourceBase::Flush(
     base::RepeatingClosure flush_complete_callback) {
   base::TrackEvent::Flush();
-  if (flush_complete_callback)
+  if (flush_complete_callback) {
     std::move(flush_complete_callback).Run();
+  }
 }
 
 base::SequencedTaskRunner*

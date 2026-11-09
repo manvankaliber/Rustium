@@ -26,8 +26,6 @@
 #include "services/device/hid/hid_service_mac.h"
 #elif BUILDFLAG(IS_WIN)
 #include "services/device/hid/hid_service_win.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include "services/device/hid/hid_service_fuchsia.h"
 #elif BUILDFLAG(IS_ANDROID)
 #include "services/device/hid/hid_service_android.h"
 #endif
@@ -76,8 +74,6 @@ std::unique_ptr<HidService> HidService::Create() {
   return std::make_unique<HidServiceMac>();
 #elif BUILDFLAG(IS_WIN)
   return std::make_unique<HidServiceWin>();
-#elif BUILDFLAG(IS_FUCHSIA)
-  return std::make_unique<HidServiceFuchsia>();
 #elif BUILDFLAG(IS_ANDROID)
   return std::make_unique<HidServiceAndroid>();
 #else
@@ -134,8 +130,9 @@ void HidService::AddDevice(scoped_refptr<HidDeviceInfo> device_info) {
       // Merge |device_info| into |sibling_device|.
       sibling_device->AppendDeviceInfo(std::move(device_info));
       if (enumeration_ready_) {
-        for (auto& observer : observer_list_)
+        for (auto& observer : observer_list_) {
           observer.OnDeviceChanged(sibling_device->device()->Clone());
+        }
       }
       return;
     }
@@ -154,8 +151,9 @@ void HidService::AddDevice(scoped_refptr<HidDeviceInfo> device_info) {
                 << base::Base64Encode(device_info->report_descriptor()) << "'";
 
   if (enumeration_ready_) {
-    for (auto& observer : observer_list_)
+    for (auto& observer : observer_list_) {
       observer.OnDeviceAdded(device_info->device()->Clone());
+    }
   }
 }
 
@@ -170,8 +168,9 @@ void HidService::RemoveDevice(const HidPlatformDeviceId& platform_device_id) {
 
     scoped_refptr<HidDeviceInfo> device_info = devices_[*found_guid];
     if (enumeration_ready_) {
-      for (auto& observer : observer_list_)
+      for (auto& observer : observer_list_) {
         observer.OnDeviceRemoved(device_info->device()->Clone());
+      }
     }
     devices_.erase(*found_guid);
   }
@@ -187,8 +186,9 @@ void HidService::RunPendingEnumerations() {
   // Clone and pass mojom::HidDeviceInfoPtr vector for each clients.
   for (auto& callback : callbacks) {
     std::vector<mojom::HidDeviceInfoPtr> devices;
-    for (const auto& map_entry : devices_)
+    for (const auto& map_entry : devices_) {
       devices.push_back(map_entry.second->device()->Clone());
+    }
     std::move(callback).Run(std::move(devices));
   }
 }
@@ -206,8 +206,9 @@ std::optional<std::string> HidService::FindDeviceGuidInDeviceMap(
     const auto& platform_device_map =
         device_entry.second->platform_device_id_map();
     for (const auto& platform_device_entry : platform_device_map) {
-      if (platform_device_entry.platform_device_id == platform_device_id)
+      if (platform_device_entry.platform_device_id == platform_device_id) {
         return device_entry.first;
+      }
     }
   }
   return std::nullopt;
@@ -215,12 +216,14 @@ std::optional<std::string> HidService::FindDeviceGuidInDeviceMap(
 
 scoped_refptr<HidDeviceInfo> HidService::FindSiblingDevice(
     const HidDeviceInfo& device_info) const {
-  if (!device_info.interface_id())
+  if (!device_info.interface_id()) {
     return nullptr;
+  }
 
   for (const auto& device_entry : devices_) {
-    if (device_entry.second->interface_id() == device_info.interface_id())
+    if (device_entry.second->interface_id() == device_info.interface_id()) {
       return device_entry.second;
+    }
   }
   return nullptr;
 }

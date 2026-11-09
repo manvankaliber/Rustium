@@ -44,7 +44,6 @@ gclient_gn_args = [
   'checkout_android_prebuilts_build_tools',
   'checkout_clang_coverage_tools',
   'checkout_copybara',
-  'checkout_fuchsia',
   'checkout_glic_e2e_tests',
   'checkout_ios_webkit',
   'checkout_mutter',
@@ -80,22 +79,6 @@ vars = {
   # TODO(crbug.com/875037): Remove this once the problem in gclient is fixed.
   'checkout_android': False,
 
-  # By default, don't check out Fuchsia. Will be overridden by gclient
-  # variables.
-  # TODO(crbug.com/875037): Remove this once the problem in gclient is fixed.
-  'checkout_fuchsia': False,
-
-  # For code related to internal Fuchsia images.
-  'checkout_fuchsia_internal': False,
-
-  # Fetches the internal Fuchsia SDK boot images, with the images in a
-  # comma-separated list.
-  'checkout_fuchsia_internal_images': '',
-
-  # Used for downloading the Fuchsia SDK without running hooks.
-  'checkout_fuchsia_no_hooks': False,
-
-  # Pull in Android prebuilts build tools so we can create Java xrefs
   'checkout_android_prebuilts_build_tools': False,
 
   # By default, do not check out Cast3P.
@@ -212,21 +195,6 @@ vars = {
   # Since the images are hundreds of MB, default to only downloading the image
   # most commonly useful for developers. Bots and developers that need to use
   # other images can override this with additional images.
-  'checkout_fuchsia_boot_images': "terminal.x64",
-  'checkout_fuchsia_product_bundles': '"{checkout_fuchsia_boot_images}" != ""',
-
-  # By default, do not check out files required to run fuchsia tests in
-  # qemu on linux-arm64 machines.
-  'checkout_fuchsia_for_arm64_host': False,
-
-  # By default, download the fuchsia sdk from the public sdk directory.
-  'fuchsia_sdk_cipd_prefix': 'fuchsia/sdk/core/',
-
-  # By default, download the fuchsia images from the fuchsia GCS bucket.
-  'fuchsia_images_bucket': 'fuchsia',
-
-  # Default to the empty board. Desktop Chrome OS builds don't need cros SDK
-  # dependencies. Other Chrome OS builds should always define this explicitly.
   'cros_boards': Str(''),
   'cros_boards_with_qemu_images': Str(''),
   # Building for CrOS is only supported on linux currently.
@@ -343,13 +311,6 @@ vars = {
   # the commit queue can handle CLs rolling BoringSSL
   # and whatever else without interference from each other.
   'boringssl_revision': '0131ae9d78e42fcc2c1811315e62410ad96d8230',
-  # Three lines of non-changing comments so that
-  # the commit queue can handle CLs rolling Fuchsia sdk
-  # and whatever else without interference from each other.
-  'fuchsia_version': 'version:34.20261029.4.1',
-  # Three lines of non-changing comments so that
-  # the commit queue can handle CLs rolling googletest
-  # and whatever else without interference from each other.
   'googletest_revision': '6450691fd7d07ef932582206fbafb1a513927e08',
   # Three lines of non-changing comments so that
   # the commit queue can handle CLs rolling lss
@@ -2401,19 +2362,6 @@ deps = {
       'dep_type': 'cipd',
   },
 
-  # Exists for rolling the Fuchsia SDK. Check out of the SDK should always
-  # rely on the hook running |update_sdk.py| script below.
-  'src/third_party/fuchsia-sdk/sdk': {
-      'packages': [
-          {
-              'package': Var('fuchsia_sdk_cipd_prefix') + '${{platform}}',
-              'version': Var('fuchsia_version'),
-          },
-      ],
-      'condition': 'checkout_fuchsia_no_hooks',
-      'dep_type': 'cipd',
-  },
-
   'src/third_party/google-java-format/cipd': {
       'packages': [
           {
@@ -3012,18 +2960,6 @@ deps = {
 
   'src/third_party/pywebsocket3/src':
     Var('chromium_git') + '/external/github.com/GoogleChromeLabs/pywebsocket3.git' + '@' + '139224e0d71db84fe1922601cb92ec8c8f3885ba',
-
-  'src/third_party/qemu-linux-arm64': {
-      'packages': [
-          {
-              'package': 'fuchsia/third_party/qemu/linux-arm64',
-              'version': 'go4qfwROMthoOfAh-G1240ysyEx07kIuWBqqkXENA7AC'
-          },
-      ],
-      # TODO(b/351926334): Do not add `non_git_source` to this condition until the bug is fixed.
-      'condition': 'host_os == "linux" and checkout_fuchsia and checkout_fuchsia_for_arm64_host',
-      'dep_type': 'cipd',
-  },
 
   'src/third_party/re2/src':
     Var('chromium_git') + '/external/github.com/google/re2.git' + '@' + '2da0056814cf180480a19f5cf811e7e1c054bf6d',
@@ -4321,7 +4257,7 @@ hooks = [
     'action': ['vpython3', 'src/tools/clang/scripts/build.py',
                '--llvm-force-head-revision',
                '--with-android={checkout_android}',
-               '--with-fuchsia={checkout_fuchsia}'],
+               ],
   },
   {
     # Build the rust toolchain from tip-of-tree, against tip-of-tree LLVM.
@@ -4571,49 +4507,6 @@ hooks = [
     ],
   },
   {
-    'name': 'Download Fuchsia SDK',
-    'pattern': '.',
-    'condition': 'checkout_fuchsia and not checkout_fuchsia_no_hooks',
-    'action': [
-      'python3',
-      'src/build/fuchsia/update_sdk.py',
-      '--cipd-prefix={fuchsia_sdk_cipd_prefix}',
-      '--version={fuchsia_version}',
-    ],
-  },
-
-  {
-    'name': 'Download Fuchsia system images',
-    'pattern': '.',
-    'condition': 'checkout_fuchsia and checkout_fuchsia_product_bundles',
-    'action': [
-      'python3',
-      'src/build/fuchsia/update_product_bundles.py',
-      '{checkout_fuchsia_boot_images}',
-    ],
-  },
-
-  {
-    'name': 'Download Fuchsia internal system images',
-    'pattern': '.',
-    'condition': 'checkout_fuchsia_internal and checkout_src_internal',
-    'action': ['python3',
-               'src/build/fuchsia/update_product_bundles.py',
-               '{checkout_fuchsia_internal_images}',
-               '--internal'],
-  },
-
-  {
-    'name': 'Create Fuchsia GN sdk build rules when not running update_sdk.py',
-    'pattern': '.',
-    'condition': 'checkout_fuchsia_no_hooks',
-    'action': [
-      'python3',
-      'src/build/fuchsia/gen_build_defs.py',
-    ],
-  },
-
-  {
     'name': 'cros_simplechrome_artifacts_with_vm',
     'pattern': '.',
     'condition': 'checkout_simplechrome_with_vms and not checkout_src_internal',
@@ -4725,7 +4618,7 @@ hooks = [
   {
     'name': 'Fetch PGO profiles for mac',
     'pattern': '.',
-    'condition': 'checkout_pgo_profiles and (checkout_mac or checkout_fuchsia)',
+    'condition': 'checkout_pgo_profiles and (checkout_mac)',
     'action': [ 'python3',
                 'src/tools/update_pgo_profiles.py',
                 '--target=mac',
@@ -4736,7 +4629,7 @@ hooks = [
   {
     'name': 'Fetch PGO profiles for mac arm',
     'pattern': '.',
-    'condition': 'checkout_pgo_profiles and (checkout_mac or checkout_fuchsia or checkout_ios)',
+    'condition': 'checkout_pgo_profiles and (checkout_mac or checkout_ios)',
     'action': [ 'python3',
                 'src/tools/update_pgo_profiles.py',
                 '--target=mac-arm',

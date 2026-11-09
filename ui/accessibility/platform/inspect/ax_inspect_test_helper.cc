@@ -69,14 +69,6 @@ constexpr TypeInfo kTypeInfos[] = {
         },
     },
     {
-        "fuchsia",
-        {
-            "@FUCHSIA-",
-            FILE_PATH_LITERAL("-fuchsia"),
-            [](base::test::ScopedFeatureList&) {},
-        },
-    },
-    {
         "linux",
         {
             "@AURALINUX-",
@@ -157,16 +149,18 @@ base::FilePath AXInspectTestHelper::GetExpectationFilePath(
   if (expected_file_suffix != FILE_PATH_LITERAL("")) {
     expected_file_path = base::FilePath(
         test_file_path.RemoveExtension().value() + expected_file_suffix);
-    if (base::PathExists(expected_file_path))
+    if (base::PathExists(expected_file_path)) {
       return expected_file_path;
+    }
   }
 
   // If a version specific file does not exist, get the generic one.
   expected_file_suffix = GetExpectedFileSuffix(expectations_qualifier);
   expected_file_path = base::FilePath(test_file_path.RemoveExtension().value() +
                                       expected_file_suffix);
-  if (base::PathExists(expected_file_path))
+  if (base::PathExists(expected_file_path)) {
     return expected_file_path;
+  }
 
   // If no expected file could be found, display error.
   LOG(INFO) << "File not found: " << expected_file_path.LossyDisplayName();
@@ -192,8 +186,9 @@ AXInspectScenario AXInspectTestHelper::ParseScenario(
     const std::vector<std::string>& lines,
     const std::vector<AXPropertyFilter>& default_filters) {
   const TypeInfo::Mapping* mapping = TypeMapping(expectation_type_);
-  if (!mapping)
+  if (!mapping) {
     return AXInspectScenario();
+  }
   return AXInspectScenario::From(mapping->directive_prefix, lines,
                                  default_filters);
 }
@@ -202,8 +197,9 @@ std::optional<AXInspectScenario> AXInspectTestHelper::ParseScenario(
     const base::FilePath& scenario_path,
     const std::vector<AXPropertyFilter>& default_filters) {
   const TypeInfo::Mapping* mapping = TypeMapping(expectation_type_);
-  if (!mapping)
+  if (!mapping) {
     return AXInspectScenario();
+  }
   return AXInspectScenario::From(mapping->directive_prefix, scenario_path,
                                  default_filters);
 }
@@ -211,8 +207,9 @@ std::optional<AXInspectScenario> AXInspectTestHelper::ParseScenario(
 // static
 std::vector<AXApiType::Type> AXInspectTestHelper::TreeTestPasses() {
 #if BUILDFLAG(USE_ATK)
-  if (is_atk_version_supported())
+  if (is_atk_version_supported()) {
     return {AXApiType::kBlink, AXApiType::kLinux};
+  }
   return {AXApiType::kBlink};
 #elif !BUILDFLAG(HAS_PLATFORM_ACCESSIBILITY_SUPPORT)
   return {AXApiType::kBlink};
@@ -222,9 +219,7 @@ std::vector<AXApiType::Type> AXInspectTestHelper::TreeTestPasses() {
   return {AXApiType::kBlink, AXApiType::kMac};
 #elif BUILDFLAG(IS_ANDROID)
   return {AXApiType::kAndroid};
-#elif BUILDFLAG(IS_FUCHSIA)
-  return {AXApiType::kFuchsia};
-#else  // fallback
+#else
   return {AXApiType::kBlink};
 #endif
 }
@@ -232,8 +227,9 @@ std::vector<AXApiType::Type> AXInspectTestHelper::TreeTestPasses() {
 // static
 std::vector<AXApiType::Type> AXInspectTestHelper::EventTestPasses() {
 #if BUILDFLAG(USE_ATK)
-  if (is_atk_version_supported())
+  if (is_atk_version_supported()) {
     return {AXApiType::kLinux};
+  }
   return {};
 #elif BUILDFLAG(IS_WIN)
   return {AXApiType::kWinIA2, AXApiType::kWinUIA};
@@ -339,8 +335,9 @@ FilePath::StringType AXInspectTestHelper::GetExpectedFileSuffix(
   }
 
   FilePath::StringType suffix;
-  if (!expectations_qualifier.empty())
+  if (!expectations_qualifier.empty()) {
     suffix = FILE_PATH_LITERAL("-") + expectations_qualifier;
+  }
 
   return suffix + FILE_PATH_LITERAL("-expected") +
          mapping->expectations_file_postfix + FILE_PATH_LITERAL(".txt");
@@ -351,15 +348,18 @@ FilePath::StringType AXInspectTestHelper::GetVersionSpecificExpectedFileSuffix(
 #if BUILDFLAG(USE_ATK)
   if (expectation_type_ == "linux") {
     FilePath::StringType version_name;
-    if (atk_get_major_version() == 2 && atk_get_minor_version() == 18)
+    if (atk_get_major_version() == 2 && atk_get_minor_version() == 18) {
       version_name = FILE_PATH_LITERAL("xenial");
+    }
 
-    if (version_name.empty())
+    if (version_name.empty()) {
       return FILE_PATH_LITERAL("");
+    }
 
     FilePath::StringType suffix;
-    if (!expectations_qualifier.empty())
+    if (!expectations_qualifier.empty()) {
       suffix = FILE_PATH_LITERAL("-") + expectations_qualifier;
+    }
     return suffix + FILE_PATH_LITERAL("-expected-auralinux-") + version_name +
            FILE_PATH_LITERAL(".txt");
   }
@@ -367,8 +367,9 @@ FilePath::StringType AXInspectTestHelper::GetVersionSpecificExpectedFileSuffix(
 #if BUILDFLAG(IS_CHROMEOS)
   if (expectation_type_ == "blink") {
     FilePath::StringType suffix;
-    if (!expectations_qualifier.empty())
+    if (!expectations_qualifier.empty()) {
       suffix = FILE_PATH_LITERAL("-") + expectations_qualifier;
+    }
     return suffix + FILE_PATH_LITERAL("-expected-blink-cros.txt");
   }
 #endif
@@ -389,8 +390,9 @@ std::vector<int> AXInspectTestHelper::DiffLines(
       continue;
     }
 
-    if (actual_lines[i] != expected_lines[j])
+    if (actual_lines[i] != expected_lines[j]) {
       diff_lines.push_back(j);
+    }
     ++i;
     ++j;
   }

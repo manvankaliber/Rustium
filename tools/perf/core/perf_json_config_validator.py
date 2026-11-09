@@ -37,8 +37,6 @@ _VALID_PERF_POOLS = {
   'android-builder-perf': {'chrome.tests'},
   'android_arm64-builder-perf': {'chrome.tests'},
   'chromeos-kevin-perf-fyi': {'chrome.tests'},
-  'fuchsia-perf-nsn': {'chrome.tests'},
-  'fuchsia-perf-shk': {'chrome.tests'},
   'linux-builder-perf': {'chrome.tests'},
   'mac-arm-builder-perf': {'chrome.tests'},
   'mac-arm-builder-perf-pgo': {'chrome.tests'},

@@ -21,7 +21,6 @@ cargo_crate("lib") {
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/efi_rng.rs",
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/esp_idf.rs",
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/extern_impl.rs",
-    "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/fuchsia.rs",
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/getentropy.rs",
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/getrandom.rs",
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/hermit.rs",
@@ -64,7 +63,7 @@ cargo_crate("lib") {
   allow_unsafe = true
 
   deps = [ "//third_party/rust/cfg_if/v1:lib" ]
-  if (!is_fuchsia && !is_win) {
+  if (!is_win) {
     deps += [ "//third_party/rust/libc/v0_2:lib" ]
   }
   build_root =

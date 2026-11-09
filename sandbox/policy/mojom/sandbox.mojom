@@ -72,7 +72,6 @@ enum Sandbox {
 
   // Equivalent to no sandbox on all non-Fuchsia platforms.
   // Minimally privileged sandbox on Fuchsia.
-  [EnableIf=is_fuchsia] kVideoCapture,
 
   // Allows access to file contents and Windows APIs for parsing icons from PE
   // files.

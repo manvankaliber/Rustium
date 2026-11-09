@@ -15,7 +15,6 @@ aarch64-apple-tvos
 aarch64-apple-tvos-sim
 aarch64-linux-android
 aarch64-pc-windows-msvc
-aarch64-unknown-fuchsia
 aarch64-unknown-linux-gnu
 arm64e-apple-ios
 arm-unknown-linux-gnueabi
@@ -39,7 +38,6 @@ x86_64-apple-ios-macabi
 x86_64-apple-tvos
 x86_64-linux-android
 x86_64-pc-windows-msvc
-x86_64-unknown-fuchsia
 x86_64-unknown-linux-gnu
 powerpc64le-unknown-linux-gnu
 s390x-unknown-linux-gnu

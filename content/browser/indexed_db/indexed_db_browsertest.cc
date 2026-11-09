@@ -185,8 +185,9 @@ class IndexedDBBrowserTestBase : public ContentBrowserTest {
                                const char* hash,
                                const char* expected_string) {
     GURL url = GetTestUrl("indexeddb", filename);
-    if (hash)
+    if (hash) {
       url = GURL(url.spec() + hash);
+    }
 
     std::u16string expected_title16(base::ASCIIToUTF16(expected_string));
     TitleWatcher title_watcher(shell->web_contents(), expected_title16);
@@ -195,8 +196,9 @@ class IndexedDBBrowserTestBase : public ContentBrowserTest {
   }
 
   storage::mojom::IndexedDBControl& GetControl(Shell* browser = nullptr) {
-    if (!browser)
+    if (!browser) {
       browser = shell();
+    }
     return browser->web_contents()
         ->GetBrowserContext()
         ->GetDefaultStoragePartition()
@@ -545,13 +547,7 @@ class IndexedDBBrowserTestWithSqlite : public IndexedDBBrowserTestBase {
 class IndexedDBBrowserTestWithSqliteErrorInjector
     : public IndexedDBBrowserTestWithSqlite {
  public:
-  void SetUp() override {
-#if BUILDFLAG(IS_FUCHSIA)
-    GTEST_SKIP() << "TODO(crbug.com/488755563): test doesn't work on Fuchsia";
-#else
-    IndexedDBBrowserTestBase::SetUp();
-#endif
-  }
+  void SetUp() override { IndexedDBBrowserTestBase::SetUp(); }
 
   void SetUpOnMainThread() override {
     IndexedDBBrowserTestBase::SetUpOnMainThread();
@@ -827,8 +823,9 @@ static void CopyLevelDBToProfile(
   ASSERT_TRUE(
       base::CopyDirectory(test_leveldb_data_dir, data_path, kRecursive));
 
-  if (!base::PathExists(test_blob_data_dir))
+  if (!base::PathExists(test_blob_data_dir)) {
     return;
+  }
   ASSERT_TRUE(base::CreateDirectory(blob_dest));
   ASSERT_TRUE(base::CopyDirectory(test_blob_data_dir, data_path, kRecursive));
   // For some reason touching files on Android fails with EPERM.
@@ -904,8 +901,8 @@ IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithVersion3Schema, MigrationTest) {
 #endif
 }
 
-class IndexedDBBrowserTestWithVersion123456Schema : public
-    IndexedDBBrowserTestWithPreexistingLevelDB {
+class IndexedDBBrowserTestWithVersion123456Schema
+    : public IndexedDBBrowserTestWithPreexistingLevelDB {
   std::string EnclosingLevelDBDir() override { return "schema_version_123456"; }
 };
 
@@ -920,8 +917,8 @@ IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithVersion123456Schema,
   EXPECT_NE(original_size, new_size);
 }
 
-class IndexedDBBrowserTestWithVersion987654SSVData : public
-    IndexedDBBrowserTestWithPreexistingLevelDB {
+class IndexedDBBrowserTestWithVersion987654SSVData
+    : public IndexedDBBrowserTestWithPreexistingLevelDB {
   std::string EnclosingLevelDBDir() override { return "ssv_version_987654"; }
 };
 
@@ -936,13 +933,12 @@ IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithVersion987654SSVData,
   EXPECT_NE(original_size, new_size);
 }
 
-class IndexedDBBrowserTestWithCorruptLevelDB : public
-    IndexedDBBrowserTestWithPreexistingLevelDB {
+class IndexedDBBrowserTestWithCorruptLevelDB
+    : public IndexedDBBrowserTestWithPreexistingLevelDB {
   std::string EnclosingLevelDBDir() override { return "corrupt_leveldb"; }
 };
 
-IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithCorruptLevelDB,
-                       DestroyTest) {
+IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithCorruptLevelDB, DestroyTest) {
   const GURL kTestUrl = GetTestUrl("indexeddb", "open_bad_db.html");
   int64_t original_size = RequestUsage();
   EXPECT_GT(original_size, 0);
@@ -952,13 +948,12 @@ IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithCorruptLevelDB,
   EXPECT_NE(original_size, new_size);
 }
 
-class IndexedDBBrowserTestWithMissingSSTFile : public
-    IndexedDBBrowserTestWithPreexistingLevelDB {
+class IndexedDBBrowserTestWithMissingSSTFile
+    : public IndexedDBBrowserTestWithPreexistingLevelDB {
   std::string EnclosingLevelDBDir() override { return "missing_sst"; }
 };
 
-IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithMissingSSTFile,
-                       DestroyTest) {
+IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithMissingSSTFile, DestroyTest) {
   const GURL kTestUrl = GetTestUrl("indexeddb", "open_missing_table.html");
   int64_t original_size = RequestUsage();
   EXPECT_GT(original_size, 0);
@@ -1164,22 +1159,13 @@ IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithSqliteErrorInjector,
 
 // Fuchsia deletes the database rather than recovering it, so these recovery
 // tests are disabled there.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_CorruptIndexRecovers DISABLED_CorruptIndexRecovers
-#else
 #define MAYBE_CorruptIndexRecovers CorruptIndexRecovers
-#endif
 IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithSqlite,
                        MAYBE_CorruptIndexRecovers) {
   RunCorruptIndexRecoveryTest(/*concurrent_rw_txn=*/false);
 }
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_CorruptIndexRecoversUnderConcurrentTransaction \
-  DISABLED_CorruptIndexRecoversUnderConcurrentTransaction
-#else
 #define MAYBE_CorruptIndexRecoversUnderConcurrentTransaction \
   CorruptIndexRecoversUnderConcurrentTransaction
-#endif
 IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithSqlite,
                        MAYBE_CorruptIndexRecoversUnderConcurrentTransaction) {
   RunCorruptIndexRecoveryTest(/*concurrent_rw_txn=*/true);
@@ -1238,8 +1224,9 @@ std::unique_ptr<net::test_server::HttpResponse> CorruptDBRequestHandler(
     IndexedDBBrowserTestBase* test,
     const net::test_server::HttpRequest& request) {
   std::string request_path;
-  if (path.find(s_corrupt_db_test_prefix) == std::string::npos)
+  if (path.find(s_corrupt_db_test_prefix) == std::string::npos) {
     return nullptr;
+  }
 
   request_path =
       request.relative_url.substr(std::string(s_corrupt_db_test_prefix).size());
@@ -1380,8 +1367,9 @@ const char s_indexeddb_test_prefix[] = "/indexeddb/test/";
 std::unique_ptr<net::test_server::HttpResponse> StaticFileRequestHandler(
     const std::string& path,
     const net::test_server::HttpRequest& request) {
-  if (path.find(s_indexeddb_test_prefix) == std::string::npos)
+  if (path.find(s_indexeddb_test_prefix) == std::string::npos) {
     return nullptr;
+  }
   std::string request_path =
       request.relative_url.substr(std::string(s_indexeddb_test_prefix).size());
   return ServePath(request_path);

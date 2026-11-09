@@ -7,7 +7,7 @@
 Pass at least:
 --chrome-version-major <chrome major version> or --all-chrome-versions
 --target-platform <which platform the target code will be generated for and can
-  be one of (win, mac, linux, chromeos, ios, fuchsia)>
+  be one of (win, mac, linux, chromeos, ios)>
 --policy-templates-file <path to the policy_templates.json input file>.'''
 
 from argparse import ArgumentParser
@@ -34,7 +34,6 @@ PLATFORM_STRINGS = {
   'android': ['android'],
   'webview_android': ['android'],
   'ios': ['ios'],
-  'fuchsia': ['fuchsia'],
   'chrome.win': ['win'],
   'chrome.linux': ['linux'],
   'chrome.mac': ['mac'],
@@ -331,7 +330,7 @@ def main():
     '--target-platform',
     dest='target_platform',
     help='the platform the generated code should run on - can be one of'
-    '(win, mac, linux, chromeos, fuchsia)',
+    '(win, mac, linux, chromeos)',
     metavar='PLATFORM',
   )
   parser.add_argument(
@@ -515,17 +514,6 @@ def _GetSupportedChromeUserPolicies(policies, protobuf_type):
 # Ensure only windows supported policies are returned when building for windows.
 # Eventually only supported policies on every platforms will be returned.
 def _GetSupportedPolicies(policies, target_platform):
-  # TODO(crbug.com/40855589): Remove this special case once deprecated policies
-  # have been removed for fuchsia
-  if target_platform == 'fuchsia':
-    is_deprecated = lambda policy: (  # noqa: E731
-      len(policy.platforms) + len(policy.future_on) > 0 and policy.is_deprecated
-    )
-    return [
-      policy
-      for policy in policies
-      if (policy.is_supported or is_deprecated(policy))
-    ]
 
   return [policy for policy in policies if policy.is_supported]
 

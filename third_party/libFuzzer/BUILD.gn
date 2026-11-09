@@ -40,7 +40,6 @@ source_set("libfuzzer") {
     "src/FuzzerTracePC.cpp",
     "src/FuzzerUtil.cpp",
     "src/FuzzerUtilDarwin.cpp",
-    "src/FuzzerUtilFuchsia.cpp",
     "src/FuzzerUtilLinux.cpp",
     "src/FuzzerUtilPosix.cpp",
     "src/FuzzerUtilWindows.cpp",
@@ -63,9 +62,6 @@ source_set("libfuzzer") {
   }
 
   deps = []
-  if (is_fuchsia) {
-    deps += [ "//third_party/fuchsia-sdk/sdk:fdio" ]
-  }
 }
 
 # Depend on this if you wish for libfuzzer to provide the main()

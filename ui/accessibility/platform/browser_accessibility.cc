@@ -36,9 +36,7 @@
 // space.
 // TODO(https://crbug.com/358567091): Move this logic outside of
 // BrowserAccessibility to avoid platform-specific code in the base class.
-#if !BUILDFLAG(IS_FUCHSIA)
 #include "ui/strings/grit/ax_strings.h"
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 namespace ui {
 
@@ -108,8 +106,9 @@ bool BrowserAccessibility::IsValid() const {
   // An atomic text field does not expose its internal implementation to
   // assistive software, appearing as a single leaf node in the accessibility
   // tree. It includes <input>, <textarea> and Views-based text fields.
-  if (!IsAtomicTextField())
+  if (!IsAtomicTextField()) {
     return true;
+  }
 
   // If the input type is not plain or text it may be a complex field, such as
   // a datetime input. We don't try to enforce a special structure for those.
@@ -121,8 +120,9 @@ bool BrowserAccessibility::IsValid() const {
       << "By design, all non-hidden <input> elements in the accessibility "
          "tree, should have an input type: "
       << *this;
-  if (input_type != "text" && input_type != "search")
+  if (input_type != "text" && input_type != "search") {
     return true;  // Not a plain text field, just consider it valid.
+  }
 
   // If the atomic text field is aria-hidden then all its descendants are
   // ignored. See the dump tree test AccessibilityAriaHiddenFocusedInput.
@@ -194,8 +194,9 @@ BrowserAccessibility* BrowserAccessibility::PlatformGetFirstChild() const {
   }
   // We need to explicitly check for leafiness here instead of relying on
   // `AXNode::IsLeaf()` because Android has a different notion of this concept.
-  if (IsLeaf())
+  if (IsLeaf()) {
     return nullptr;
+  }
   AXNode* first_child = node()->GetFirstUnignoredChildCrossingTreeBoundary();
   return manager()->GetFromAXNode(first_child);
 }
@@ -213,8 +214,9 @@ BrowserAccessibility* BrowserAccessibility::PlatformGetLastChild() const {
 
   // We need to explicitly check for leafiness here instead of relying on
   // `AXNode::IsLeaf()` because Android has a different notion of this concept.
-  if (IsLeaf())
+  if (IsLeaf()) {
     return nullptr;
+  }
   AXNode* last_child = node()->GetLastUnignoredChildCrossingTreeBoundary();
   return manager()->GetFromAXNode(last_child);
 }
@@ -275,8 +277,9 @@ BrowserAccessibility::PlatformChildrenEnd() const {
 
 bool BrowserAccessibility::IsDescendantOf(
     const BrowserAccessibility* ancestor) const {
-  if (!ancestor)
+  if (!ancestor) {
     return false;
+  }
   CHECK(ancestor->node(), base::NotFatalUntil::M163);
   return node()->IsDescendantOfCrossingTreeBoundary(ancestor->node());
 }
@@ -321,8 +324,9 @@ BrowserAccessibility* BrowserAccessibility::PlatformGetChild(
 
   // We need to explicitly check for leafiness here instead of relying on
   // `AXNode::IsLeaf()` because Android has a different notion of this concept.
-  if (IsLeaf())
+  if (IsLeaf()) {
     return nullptr;
+  }
   AXNode* child =
       node()->GetUnignoredChildAtIndexCrossingTreeBoundary(child_index);
   return manager()->GetFromAXNode(child);
@@ -349,8 +353,9 @@ BrowserAccessibility* BrowserAccessibility::PlatformGetSelectionContainer()
 BrowserAccessibility* BrowserAccessibility::PlatformDeepestFirstChild() const {
   // We need to explicitly check for leafiness here instead of relying on
   // `AXNode::IsLeaf()` because Android has a different notion of this concept.
-  if (IsLeaf())
+  if (IsLeaf()) {
     return nullptr;
+  }
   BrowserAccessibility* deepest_child = PlatformGetFirstChild();
   while (deepest_child && !deepest_child->IsLeaf()) {
     deepest_child = deepest_child->PlatformGetFirstChild();
@@ -370,8 +375,9 @@ BrowserAccessibility* BrowserAccessibility::PlatformDeepestLastChild() const {
   }
   // We need to explicitly check for leafiness here instead of relying on
   // `AXNode::IsLeaf()` because Android has a different notion of this concept.
-  if (IsLeaf())
+  if (IsLeaf()) {
     return nullptr;
+  }
   BrowserAccessibility* deepest_child = PlatformGetLastChild();
   while (deepest_child && !deepest_child->IsLeaf()) {
     deepest_child = deepest_child->PlatformGetLastChild();
@@ -448,8 +454,9 @@ BrowserAccessibility::InternalChildrenEnd() const {
 
 const BrowserAccessibility*
 BrowserAccessibility::AllChildrenRange::Iterator::operator*() {
-  if (child_tree_root_)
+  if (child_tree_root_) {
     return index_ == 0 ? child_tree_root_.get() : nullptr;
+  }
 
   // TODO(nektar): Consider using
   // `AXNode::GetChildAtIndexCrossingTreeBoundary()`.
@@ -487,10 +494,12 @@ gfx::Rect BrowserAccessibility::GetHypertextRangeBoundsRect(
   int effective_start_offset = start_offset;
   int effective_end_offset = end_offset;
 
-  if (effective_start_offset == effective_end_offset)
+  if (effective_start_offset == effective_end_offset) {
     return gfx::Rect();
-  if (effective_start_offset > effective_end_offset)
+  }
+  if (effective_start_offset > effective_end_offset) {
     std::swap(effective_start_offset, effective_end_offset);
+  }
 
   const std::u16string& text_str = GetHypertext();
   if (effective_start_offset < 0 ||
@@ -552,8 +561,9 @@ gfx::Rect BrowserAccessibility::GetRootFrameHypertextRangeBoundsRect(
       // Child objects are of length one, since they are represented by a single
       // embedded object character. The exception is text-only objects.
       int child_length_in_parent = 1;
-      if (child->IsText())
+      if (child->IsText()) {
         child_length_in_parent = static_cast<int>(child->GetHypertext().size());
+      }
       if (start < child_length_in_parent) {
         gfx::Rect child_rect;
         if (child->IsText()) {
@@ -567,10 +577,11 @@ gfx::Rect BrowserAccessibility::GetRootFrameHypertextRangeBoundsRect(
         bounds.Union(child_rect);
         len -= (child_length_in_parent - start);
       }
-      if (start > child_length_in_parent)
+      if (start > child_length_in_parent) {
         start -= child_length_in_parent;
-      else
+      } else {
         start = 0;
+      }
     }
     // When past the end of text, the area will be 0.
     // In this case, use bounds provided for the caret.
@@ -596,8 +607,9 @@ gfx::Rect BrowserAccessibility::GetRootFrameHypertextRangeBoundsRect(
     child_start = child_end;
     child_end += child_length;
 
-    if (child_end < start)
+    if (child_end < start) {
       continue;
+    }
 
     int overlap_start = std::max(start, child_start);
     int overlap_end = std::min(end, child_end);
@@ -657,8 +669,9 @@ gfx::Rect BrowserAccessibility::GetRootFrameHypertextBoundsPastEndOfText(
     int child_text_len = child->GetHypertext().size();
     bounds = child->GetRootFrameHypertextRangeBoundsRect(
         child_text_len, child_text_len, clipping_behavior, offscreen_result);
-    if (bounds.width() == 0 && bounds.height() == 0)
+    if (bounds.width() == 0 && bounds.height() == 0) {
       return bounds;  // Inline text boxes info not yet available.
+    }
   } else {
     // Compute bounds of where caret would be, based on bounds of object.
     bounds = GetBoundsRect(AXCoordinateSystem::kRootFrame, clipping_behavior,
@@ -700,8 +713,10 @@ gfx::Rect BrowserAccessibility::GetInnerTextRangeBoundsRect(
     const AXClippingBehavior clipping_behavior,
     AXOffscreenResult* offscreen_result) const {
   const int text_length = GetTextContentLengthUTF16();
-  if (start_offset < 0 || end_offset > text_length || start_offset > end_offset)
+  if (start_offset < 0 || end_offset > text_length ||
+      start_offset > end_offset) {
     return gfx::Rect();
+  }
 
   return GetInnerTextRangeBoundsRectInSubtree(
       start_offset, end_offset, coordinate_system, clipping_behavior,
@@ -741,18 +756,20 @@ gfx::Rect BrowserAccessibility::GetInnerTextRangeBoundsRectInSubtree(
     // The text bounds queried have already been gathered; short circuit.
     const int child_end_offset =
         std::min(end_offset - child_offset_in_parent, child_text_length);
-    if (child_end_offset < 0)
+    if (child_end_offset < 0) {
       return bounds;
+    }
 
     // Increase the text bounds by the subtree text bounds.
     const gfx::Rect child_bounds =
         browser_accessibility_child->GetInnerTextRangeBoundsRectInSubtree(
             child_start_offset, child_end_offset, coordinate_system,
             clipping_behavior, offscreen_result);
-    if (bounds.IsEmpty())
+    if (bounds.IsEmpty()) {
       bounds = child_bounds;
-    else
+    } else {
       bounds.Union(child_bounds);
+    }
 
     child_offset_in_parent += child_text_length;
   }
@@ -785,20 +802,24 @@ BrowserAccessibility* BrowserAccessibility::ApproximateHitTest(
        child = child->PlatformGetPreviousSibling()) {
     // Skip table columns because cells are only contained in rows,
     // not columns.
-    if (child->GetRole() == ax::mojom::Role::kColumn)
+    if (child->GetRole() == ax::mojom::Role::kColumn) {
       continue;
+    }
 
     if (child->GetClippedScreenBoundsRect().Contains(blink_screen_point)) {
       BrowserAccessibility* result =
           child->ApproximateHitTest(blink_screen_point);
-      if (result == child && !child_result)
+      if (result == child && !child_result) {
         child_result = result;
-      if (result != child && !descendant_result)
+      }
+      if (result != child && !descendant_result) {
         descendant_result = result;
+      }
     }
 
-    if (child_result && descendant_result)
+    if (child_result && descendant_result) {
       break;
+    }
   }
 
   // Explanation of logic: it's possible that this point overlaps more than
@@ -807,10 +828,12 @@ BrowserAccessibility* BrowserAccessibility::ApproximateHitTest(
   // As an example, suppose you have two rows of buttons - the buttons don't
   // overlap, but the rows do. Without this heuristic, we'd greedily only
   // consider one of the containers.
-  if (descendant_result)
+  if (descendant_result) {
     return descendant_result;
-  if (child_result)
+  }
+  if (child_result) {
     return child_result;
+  }
 
   return this;
 }
@@ -910,14 +933,15 @@ gfx::Rect BrowserAccessibility::RelativeToAbsoluteBounds(
     // TODO(crbug.com/40686662): this should probably apply visual viewport
     // offset as well.
     bool should_include_page_scale_factor_in_root = false;
-    #if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC)
-      should_include_page_scale_factor_in_root = true;
-    #endif
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC)
+    should_include_page_scale_factor_in_root = true;
+#endif
     if (!should_include_page_scale_factor_in_root) {
       BrowserAccessibilityManager* root_manager =
           manager()->GetManagerForRootFrame();
-      if (root_manager)
+      if (root_manager) {
         bounds.Scale(root_manager->GetPageScaleFactor());
+      }
     }
     bounds.Offset(
         manager()->GetViewBoundsInScreenCoordinates().OffsetFromOrigin());
@@ -1038,8 +1062,9 @@ BrowserAccessibility::GetUIADirectChildrenInRange(AXPlatformNodeDelegate* start,
 
 gfx::NativeViewAccessible BrowserAccessibility::GetParent() const {
   BrowserAccessibility* parent = PlatformGetParent();
-  if (parent)
+  if (parent) {
     return parent->GetNativeViewAccessible();
+  }
 
   // Hiding an <iframe> can remove its element from the outer document's
   // accessibility tree while leaving the embedded document's tree alive.
@@ -1119,8 +1144,9 @@ bool BrowserAccessibility::IsLeaf() const {
     return !child_count ||
            (child_count == 1 && InternalGetFirstChild()->IsText());
   }
-  if (PlatformGetRootOfChildTree())
+  if (PlatformGetRootOfChildTree()) {
     return false;  // This object is hosting another tree.
+  }
   return node()->IsLeaf();
 }
 
@@ -1147,8 +1173,9 @@ gfx::NativeViewAccessible BrowserAccessibility::GetLowestPlatformAncestor()
     const {
   BrowserAccessibility* lowest_platform_ancestor =
       PlatformGetLowestPlatformAncestor();
-  if (lowest_platform_ancestor)
+  if (lowest_platform_ancestor) {
     return lowest_platform_ancestor->GetNativeViewAccessible();
+  }
   return gfx::NativeViewAccessible();
 }
 
@@ -1241,8 +1268,9 @@ BrowserAccessibility::PlatformChildIterator::GetIndexInParent() const {
   if (!parent_) {
     return std::nullopt;
   }
-  if (platform_iterator == parent_->PlatformChildrenEnd().platform_iterator)
+  if (platform_iterator == parent_->PlatformChildrenEnd().platform_iterator) {
     return parent_->PlatformChildCount();
+  }
 
   return platform_iterator->GetIndexInParent();
 }
@@ -1493,7 +1521,6 @@ bool BrowserAccessibility::AccessibilityPerformAction(
 
 // TODO(https://crbug.com/358567091): Move this logic outside of
 // BrowserAccessibility to avoid platform-specific code in the base class.
-#if !BUILDFLAG(IS_FUCHSIA)
 std::u16string BrowserAccessibility::GetLocalizedString(int message_id) const {
   return l10n_util::GetStringUTF16(message_id);
 }
@@ -1983,7 +2010,6 @@ std::u16string BrowserAccessibility::GetStyleNameAttributeAsLocalizedString()
   }
   return {};
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 bool BrowserAccessibility::ShouldIgnoreHoveredStateForTesting() {
   return ignore_hovered_state_for_testing_;
@@ -2033,8 +2059,10 @@ BrowserAccessibility* BrowserAccessibility::PlatformGetRootOfChildTree() const {
   BrowserAccessibilityManager* child_manager =
       BrowserAccessibilityManager::FromID(AXTreeID::FromString(child_tree_id));
   if (child_manager &&
-      child_manager->GetBrowserAccessibilityRoot()->PlatformGetParent() == this)
+      child_manager->GetBrowserAccessibilityRoot()->PlatformGetParent() ==
+          this) {
     return child_manager->GetBrowserAccessibilityRoot();
+  }
   return nullptr;
 }
 
@@ -2097,14 +2125,14 @@ TextAttributeMap BrowserAccessibility::GetSpellingAndGrammarAttributes() const {
       }
 
       TextAttributeList start_attributes;
-      if (is_spelling_error && is_grammar_error)
+      if (is_spelling_error && is_grammar_error) {
         start_attributes.push_back(
             std::make_pair("invalid", "spelling,grammar"));
-      else if (is_spelling_error)
+      } else if (is_spelling_error) {
         start_attributes.push_back(std::make_pair("invalid", "spelling"));
-      else if (is_grammar_error)
+      } else if (is_grammar_error) {
         start_attributes.push_back(std::make_pair("invalid", "grammar"));
-      else if (is_highlight) {
+      } else if (is_highlight) {
         // If there's a highlight with a different type (i.e. not spelling or
         // grammar error), it's added as ("mark","true").
         start_attributes.push_back(std::make_pair("mark", "true"));
@@ -2261,8 +2289,9 @@ bool BrowserAccessibility::HasInvalidAttribute(
 }
 
 static bool HasListAncestor(const BrowserAccessibility* node) {
-  if (node == nullptr)
+  if (node == nullptr) {
     return false;
+  }
 
   if (IsStaticList(node->GetRole())) {
     return true;
@@ -2280,8 +2309,9 @@ static bool HasListDescendant(const BrowserAccessibility* current,
 
   for (auto it = current->InternalChildrenBegin();
        it != current->InternalChildrenEnd(); ++it) {
-    if (HasListDescendant(it.get(), root))
+    if (HasListDescendant(it.get(), root)) {
       return true;
+    }
   }
   return false;
 }

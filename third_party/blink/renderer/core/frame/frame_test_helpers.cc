@@ -143,8 +143,9 @@ void RunServeAsyncRequestsTask(scoped_refptr<base::TaskRunner> task_runner,
 // In both cases the client to be used is returned.
 template <typename T>
 T* CreateDefaultClientIfNeeded(T* client, std::unique_ptr<T>& owned_client) {
-  if (client)
+  if (client) {
     return client;
+  }
   owned_client = std::make_unique<T>();
   return owned_client.get();
 }
@@ -152,8 +153,9 @@ T* CreateDefaultClientIfNeeded(T* client, std::unique_ptr<T>& owned_client) {
 template <typename T>
 mojo::PendingAssociatedRemote<T> CreateStubRemoteIfNeeded(
     mojo::PendingAssociatedRemote<T> remote) {
-  if (remote.is_valid())
+  if (remote.is_valid()) {
     return remote;
+  }
   mojo::AssociatedRemote<T> stub_remote;
   std::ignore = stub_remote.BindNewEndpointAndPassDedicatedReceiver();
   return stub_remote.Unbind();
@@ -184,11 +186,9 @@ cc::LayerTreeSettings GetSynchronousSingleThreadLayerTreeSettings() {
   // test makes progress.
   settings.single_thread_proxy_scheduler = false;
   settings.use_layer_lists = true;
-// TODO(crbug.com/434513378) Cannot enable smooth scrolling on Fuchsia as it
-// causes test failures in BasicScroll test.
-#if !BUILDFLAG(IS_FUCHSIA)
+  // TODO(crbug.com/434513378) Cannot enable smooth scrolling on Fuchsia as it
+  // causes test failures in BasicScroll test.
   settings.enable_smooth_scroll = true;
-#endif
 #if BUILDFLAG(IS_MAC)
   settings.enable_elastic_overscroll_on_root = true;
 #endif
@@ -389,8 +389,9 @@ WebRemoteFrameImpl* CreateRemoteChild(
   mojom::blink::FrameReplicationStatePtr replicated_state =
       mojom::blink::FrameReplicationState::New();
   replicated_state->name = name;
-  if (!security_origin)
+  if (!security_origin) {
     security_origin = SecurityOrigin::CreateUniqueOpaque();
+  }
   replicated_state->origin = std::move(security_origin);
 
   auto* frame = To<WebRemoteFrameImpl>(parent).CreateRemoteChild(
@@ -495,8 +496,9 @@ WebViewImpl* WebViewHelper::InitializeWithOpener(
 
   InitializeWebView(web_view_client, opener ? opener->View() : nullptr,
                     fenced_frame_mode, is_prerendering);
-  if (update_settings_func)
+  if (update_settings_func) {
     update_settings_func(web_view_->GetSettings());
+  }
 
   std::unique_ptr<TestWebFrameClient> owned_web_frame_client;
   web_frame_client =
@@ -522,8 +524,9 @@ WebViewImpl* WebViewHelper::InitializeWithOpener(
   web_view_->DidAttachLocalMainFrame();
 
   // Set an initial size for subframes.
-  if (frame->Parent())
+  if (frame->Parent()) {
     frame_widget->Resize(gfx::Size());
+  }
   return web_view_;
 }
 
@@ -600,8 +603,9 @@ WebViewHelper::InitializeRemoteWithOpenerAndAssociatedRemoteAndReceivers(
                     /*fenced_frame_mode=*/std::nullopt,
                     /*is_prerendering=*/false);
 
-  if (!security_origin)
+  if (!security_origin) {
     security_origin = SecurityOrigin::CreateUniqueOpaque();
+  }
   auto replication_state = mojom::blink::FrameReplicationState::New();
   replication_state->origin = security_origin;
 
@@ -664,8 +668,9 @@ WebLocalFrameImpl* WebViewHelper::CreateProvisional(
     TestWebFrameWidget* frame_widget =
         CreateFrameWidgetAndInitializeCompositing(frame);
     // Set an initial size for subframes.
-    if (frame->Parent())
+    if (frame->Parent()) {
       frame_widget->Resize(gfx::Size());
+    }
   }
   return frame;
 }
@@ -911,8 +916,9 @@ void TestWebFrameClient::DidStopLoading() {
 bool TestWebFrameClient::SwapIn(WebFrame* previous_frame) {
   bool result = previous_frame->Swap(frame_);
 
-  if (!frame_->Parent())
+  if (!frame_->Parent()) {
     frame_->View()->DidAttachLocalMainFrame();
+  }
 
   return result;
 }
@@ -930,8 +936,9 @@ void TestWebFrameClient::BeginNavigation(
     return;
   }
 
-  if (!frame_->WillStartNavigation(*info))
+  if (!frame_->WillStartNavigation(*info)) {
     return;
+  }
 
   navigation_callback_.Reset(
       blink::BindOnce(&TestWebFrameClient::CommitNavigation,
@@ -942,8 +949,9 @@ void TestWebFrameClient::BeginNavigation(
 
 void TestWebFrameClient::CommitNavigation(
     std::unique_ptr<WebNavigationInfo> info) {
-  if (!frame_)
+  if (!frame_) {
     return;
+  }
   auto params = WebNavigationParams::CreateFromInfo(*info);
 
   KURL url = info->url_request.Url();
@@ -957,8 +965,9 @@ void TestWebFrameClient::CommitNavigation(
   params->policy_container = std::make_unique<WebPolicyContainer>(
       WebPolicyContainerPolicies(),
       mock_policy_container_host.BindNewEndpointAndPassDedicatedRemote());
-  if (info->archive_status != WebNavigationInfo::ArchiveStatus::Present)
+  if (info->archive_status != WebNavigationInfo::ArchiveStatus::Present) {
     FillNavigationParamsResponse(params.get());
+  }
   // Merge frame policy sandbox flags in the policy container's sandbox flags.
   // This is required since we are initializing policy container above and it
   // must contain the frame's sandbox flags. This is normally done by the
@@ -1042,8 +1051,9 @@ void TestWebFrameClient::SetFrameDetachedCallback(base::OnceClosure callback) {
 }
 
 TestWidgetInputHandlerHost* TestWebFrameWidget::GetInputHandlerHost() {
-  if (!widget_input_handler_host_)
+  if (!widget_input_handler_host_) {
     widget_input_handler_host_ = std::make_unique<TestWidgetInputHandlerHost>();
+  }
   return widget_input_handler_host_.get();
 }
 
@@ -1066,8 +1076,9 @@ void TestWebFrameWidget::DispatchThroughCcInputHandler(
              const ui::LatencyInfo&, mojom::blink::InputEventResultState,
              mojom::blink::DidOverscrollParamsPtr overscroll,
              mojom::blink::TouchActionOptionalPtr) {
-            if (widget)
+            if (widget) {
               widget->last_overscroll_ = std::move(overscroll);
+            }
           },
           WrapWeakPersistent(this)));
   FlushInputHandlerTasks();
@@ -1155,8 +1166,9 @@ void TestWebFrameWidgetHost::ClearKeyboardTriggeredTooltip() {}
 
 void TestWebFrameWidgetHost::TextInputStateChanged(
     ui::mojom::blink::TextInputStatePtr state) {
-  if (state->show_ime_if_needed)
+  if (state->show_ime_if_needed) {
     ++virtual_keyboard_request_count_;
+  }
   ++text_input_state_changed_count_;
   last_text_input_state_ = std::move(state);
 }

@@ -11,17 +11,21 @@ use std::ptr;
 
 /// An open directory.
 ///
-/// This is a lower-level interface than [`std::fs::ReadDir`]. Notable differences:
-///    * can be opened from a file descriptor (as returned by [`openat`][openat],
-///      perhaps before knowing if the path represents a file or directory).
+/// This is a lower-level interface than [`std::fs::ReadDir`]. Notable
+/// differences:
+///    * can be opened from a file descriptor (as returned by
+///      [`openat`][openat], perhaps before knowing if the path represents a
+///      file or directory).
 ///    * implements [`AsFd`][AsFd], so it can be passed to [`fstat`][fstat],
-///      [`openat`][openat], etc. The file descriptor continues to be owned by the
-///      `Dir`, so callers must not keep a `RawFd` after the `Dir` is dropped.
-///    * can be iterated through multiple times without closing and reopening the file
-///      descriptor. Each iteration rewinds when finished.
-///    * returns entries for `.` (current directory) and `..` (parent directory).
-///    * returns entries' names as a [`CStr`] (no allocation or conversion beyond whatever libc
-///      does).
+///      [`openat`][openat], etc. The file descriptor continues to be owned by
+///      the `Dir`, so callers must not keep a `RawFd` after the `Dir` is
+///      dropped.
+///    * can be iterated through multiple times without closing and reopening
+///      the file descriptor. Each iteration rewinds when finished.
+///    * returns entries for `.` (current directory) and `..` (parent
+///      directory).
+///    * returns entries' names as a [`CStr`] (no allocation or conversion
+///      beyond whatever libc does).
 ///
 /// [AsFd]: std::os::fd::AsFd
 /// [fstat]: crate::sys::stat::fstat
@@ -68,7 +72,8 @@ impl Dir {
         Dir::from_fd(fd)
     }
 
-    /// Converts from a descriptor-based object, closing the descriptor on success or failure.
+    /// Converts from a descriptor-based object, closing the descriptor on
+    /// success or failure.
     ///
     /// # Safety
     ///
@@ -107,8 +112,7 @@ impl Dir {
     pub fn from_fd(fd: std::os::fd::OwnedFd) -> Result<Self> {
         // take the ownership as the constructed `Dir` is now the owner
         let raw_fd = fd.into_raw_fd();
-        let d = ptr::NonNull::new(unsafe { libc::fdopendir(raw_fd) })
-            .ok_or(Errno::last())?;
+        let d = ptr::NonNull::new(unsafe { libc::fdopendir(raw_fd) }).ok_or(Errno::last())?;
         Ok(Dir(d))
     }
 
@@ -118,9 +122,11 @@ impl Dir {
     }
 }
 
-// `Dir` is not `Sync` because it's unsafe to call `readdir` simultaneously from multiple threads.
+// `Dir` is not `Sync` because it's unsafe to call `readdir` simultaneously from
+// multiple threads.
 //
-// `Dir` is safe to pass from one thread to another, as it's not reference-counted.
+// `Dir` is safe to pass from one thread to another, as it's not
+// reference-counted.
 unsafe impl Send for Dir {}
 
 impl std::os::fd::AsFd for Dir {
@@ -235,17 +241,20 @@ impl IntoIterator for Dir {
 
 /// A directory entry, similar to `std::fs::DirEntry`.
 ///
-/// Note that unlike the std version, this may represent the `.` or `..` entries.
+/// Note that unlike the std version, this may represent the `.` or `..`
+/// entries.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Entry {
     ino: u64,
     type_: Option<Type>,
-    // On some platforms libc::dirent is a "flexible-length structure", where there may be
-    // data beyond the end of the struct definition.  So it isn't possible to copy it and subsequently
-    // dereference the copy's d_name field.  Nor is it possible for Entry to wrap a &libc::dirent.
-    // At least, not if it is to work with the Iterator trait.  Because the Entry would need to
-    // maintain a mutable reference to the Dir, which would conflict with the iterator's mutable
-    // reference to the same Dir.  So we're forced to copy the name here.
+    // On some platforms libc::dirent is a "flexible-length structure", where
+    // there may be data beyond the end of the struct definition.  So it isn't
+    // possible to copy it and subsequently dereference the copy's d_name field.
+    // Nor is it possible for Entry to wrap a &libc::dirent. At least, not if it
+    // is to work with the Iterator trait.  Because the Entry would need to
+    // maintain a mutable reference to the Dir, which would conflict with the
+    // iterator's mutable reference to the same Dir.  So we're forced to copy
+    // the name here.
     name: CString,
 }
 
@@ -274,16 +283,17 @@ impl Entry {
         self.ino
     }
 
-    /// Returns the bare file name of this directory entry without any other leading path component.
+    /// Returns the bare file name of this directory entry without any other
+    /// leading path component.
     pub fn file_name(&self) -> &CStr {
         self.name.as_c_str()
     }
 
     /// Returns the type of this directory entry, if known.
     ///
-    /// See platform `readdir(3)` or `dirent(5)` manpage for when the file type is known;
-    /// notably, some Linux filesystems don't implement this. The caller should use `stat` or
-    /// `fstat` if this returns `None`.
+    /// See platform `readdir(3)` or `dirent(5)` manpage for when the file type
+    /// is known; notably, some Linux filesystems don't implement this. The
+    /// caller should use `stat` or `fstat` if this returns `None`.
     pub fn file_type(&self) -> Option<Type> {
         self.type_
     }
@@ -293,15 +303,7 @@ impl Entry {
     #[allow(clippy::unnecessary_cast)]
     fn from_raw(de: &libc::dirent) -> Self {
         cfg_if! {
-            if #[cfg(any(target_os = "aix",
-                         target_os = "emscripten",
-                         target_os = "fuchsia",
-                         target_os = "haiku",
-                         target_os = "hurd",
-                         target_os = "cygwin",
-                         solarish,
-                         linux_android,
-                         apple_targets))] {
+            if #[cfg(any(target_os = "aix", target_os = "emscripten", target_os = "haiku", target_os = "hurd", target_os = "cygwin", solarish, linux_android, apple_targets))] {
                 let ino = de.d_ino as u64;
             } else {
                 let ino = u64::from(de.d_fileno);
@@ -325,8 +327,8 @@ impl Entry {
                 let type_ = None;
             }
         }
-        // Annoyingly, since libc::dirent is open-ended, the easiest way to read the name field in
-        // Rust is to treat it like a pointer.
+        // Annoyingly, since libc::dirent is open-ended, the easiest way to read
+        // the name field in Rust is to treat it like a pointer.
         // Safety: safe because we knod that de.d_name is in valid memory.
         let name = unsafe { CStr::from_ptr(de.d_name.as_ptr()) }.to_owned();
 

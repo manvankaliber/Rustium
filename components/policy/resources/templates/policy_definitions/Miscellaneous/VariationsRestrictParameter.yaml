@@ -10,8 +10,7 @@ features:
   dynamic_refresh: false
   internal_only: true
   per_profile: false
-future_on:
-- fuchsia
+future_on: []
 owners:
 - file://components/variations/OWNERS
 - mpearson@chromium.org

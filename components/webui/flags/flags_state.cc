@@ -79,7 +79,7 @@ const struct {
     {kOsMac, "Mac"},         {kOsWin, "Windows"},
     {kOsLinux, "Linux"},     {kOsCrOS, "ChromeOS"},
     {kOsAndroid, "Android"}, {kOsCrOSOwnerOnly, "ChromeOS (owner only)"},
-    {kOsIos, "iOS"},         {kOsFuchsia, "Fuchsia"},
+    {kOsIos, "iOS"},
 };
 
 // Adds a |StringValue| to |list| for each platform where |bitmask| indicates
@@ -798,8 +798,6 @@ unsigned short FlagsState::GetCurrentPlatform() {
   return kOsLinux;
 #elif BUILDFLAG(IS_ANDROID)
   return kOsAndroid;
-#elif BUILDFLAG(IS_FUCHSIA)
-  return kOsFuchsia;
 #else
 #error Unknown platform
 #endif

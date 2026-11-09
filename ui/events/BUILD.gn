@@ -200,15 +200,6 @@ component("events_base") {
     ]
   }
 
-  if (is_fuchsia) {
-    sources += [
-      "keycodes/keyboard_code_conversion_fuchsia.cc",
-      "keycodes/keyboard_code_conversion_fuchsia.h",
-    ]
-
-    deps += [ "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.ui.input3:fuchsia.ui.input3_cpp" ]
-  }
-
   if (ozone_platform_x11) {
     public_deps += [ "//ui/events/keycodes:x11" ]
 
@@ -446,18 +437,6 @@ component("events") {
   if (is_mac) {
     frameworks = [ "AppKit.framework" ]
   }
-
-  if (is_fuchsia) {
-    public += [
-      "fuchsia/input_event_sink.h",
-      "fuchsia/pointer_events_handler.h",
-    ]
-    sources += [ "fuchsia/pointer_events_handler.cc" ]
-    public_deps += [
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.ui.input:fuchsia.ui.input_hlcpp",
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.ui.pointer:fuchsia.ui.pointer_cpp",
-    ]
-  }
 }
 
 component("keyboard_hook") {
@@ -682,15 +661,6 @@ static_library("test_support") {
       "//ui/events/ozone/layout",
     ]
   }
-
-  if (is_fuchsia) {
-    sources += [
-      "fuchsia/util/pointer_event_utility.cc",
-      "fuchsia/util/pointer_event_utility.h",
-    ]
-
-    deps += [ "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.ui.pointer:fuchsia.ui.pointer_cpp" ]
-  }
 }
 
 if (use_blink) {
@@ -818,21 +788,6 @@ if (use_blink) {
 
     if (is_castos) {
       sources += [ "chromecast/scroller_unittest.cc" ]
-    }
-
-    if (is_fuchsia) {
-      sources += [
-        "fuchsia/pointer_events_handler_unittest.cc",
-        "keycodes/keyboard_code_conversion_fuchsia_unittest.cc",
-      ]
-
-      deps += [
-        "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.ui.input:fuchsia.ui.input_hlcpp",
-        "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.ui.input3:fuchsia.ui.input3_cpp",
-        "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.ui.pointer:fuchsia.ui.pointer_cpp",
-        "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.ui.pointer:fuchsia.ui.pointer_cpp_hlcpp_conversion",
-        "//third_party/fuchsia-sdk/sdk/pkg/scenic_cpp_testing",
-      ]
     }
 
     if (is_win || is_mac || use_ozone) {

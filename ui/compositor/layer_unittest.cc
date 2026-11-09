@@ -182,9 +182,7 @@ class LayerWithRealCompositorTest
     return compositor_host_->GetLayerTreeHost();
   }
 
-  void ResetCompositor() {
-    compositor_host_.reset();
-  }
+  void ResetCompositor() { compositor_host_.reset(); }
 
   template <typename T>
   std::unique_ptr<T> CreateLayer() {
@@ -310,15 +308,11 @@ class TestLayerDelegate : public LayerDelegate {
 
   ~TestLayerDelegate() override {}
 
-  void AddColor(SkColor color) {
-    colors_.push_back(color);
-  }
+  void AddColor(SkColor color) { colors_.push_back(color); }
 
   int color_index() const { return color_index_; }
 
-  float device_scale_factor() const {
-    return device_scale_factor_;
-  }
+  float device_scale_factor() const { return device_scale_factor_; }
 
   void set_layer_bounds(const gfx::Rect& layer_bounds) {
     layer_bounds_ = layer_bounds;
@@ -366,9 +360,7 @@ class DrawTreeLayerDelegate : public LayerDelegate {
 
   ~DrawTreeLayerDelegate() override = default;
 
-  void Reset() {
-    painted_ = false;
-  }
+  void Reset() { painted_ = false; }
 
   bool painted() const { return painted_; }
 
@@ -451,9 +443,7 @@ class TestCompositorObserver : public CompositorObserver {
 class TestCompositorAnimationObserver : public CompositorAnimationObserver {
  public:
   explicit TestCompositorAnimationObserver(ui::Compositor* compositor)
-      : compositor_(compositor),
-        animation_step_count_(0),
-        shutdown_(false) {
+      : compositor_(compositor), animation_step_count_(0), shutdown_(false) {
     DCHECK(compositor_);
     compositor_->AddAnimationObserver(this);
   }
@@ -464,8 +454,9 @@ class TestCompositorAnimationObserver : public CompositorAnimationObserver {
       const TestCompositorAnimationObserver&) = delete;
 
   ~TestCompositorAnimationObserver() override {
-    if (compositor_)
+    if (compositor_) {
       compositor_->RemoveAnimationObserver(this);
+    }
   }
 
   size_t animation_step_count() const { return animation_step_count_; }
@@ -500,8 +491,9 @@ class TestCallbackAnimationObserver : public ImplicitAnimationObserver {
   // ui::ImplicitAnimationObserver overrides:
   void OnImplicitAnimationsCompleted() override {}
   void OnLayerAnimationEnded(LayerAnimationSequence* sequence) override {
-    if (callback_)
+    if (callback_) {
       std::move(callback_).Run();
+    }
   }
 
  private:
@@ -626,9 +618,7 @@ class LayerWithDelegateTest
     DrawWaiterForTest::WaitForCompositingStarted(compositor());
   }
 
-  void WaitForCommit() {
-    DrawWaiterForTest::WaitForCommit(compositor());
-  }
+  void WaitForCommit() { DrawWaiterForTest::WaitForCommit(compositor()); }
 
  private:
   base::test::TaskEnvironment task_environment_;
@@ -1005,8 +995,9 @@ TEST_P(LayerWithDelegateTest, CloneDamagedRegion) {
   damaged_region.Union(gfx::Rect(10, 10, 5, 5));
   damaged_region.Union(gfx::Rect(20, 20, 7, 7));
 
-  for (auto rect : damaged_region)
+  for (auto rect : damaged_region) {
     layer->SchedulePaint(rect);
+  }
 
   ASSERT_EQ(damaged_region, layer_test_api.damaged_region());
 
@@ -1924,16 +1915,12 @@ TEST_P(LayerWithNullDelegateTest, NOTDRAWNShouldHaveNoDamage) {
 void ExpectRgba(int x, int y, SkColor expected_color, SkColor actual_color) {
   EXPECT_EQ(expected_color, actual_color)
       << "Pixel error at x=" << x << " y=" << y << "; "
-      << "actual RGBA=("
-      << SkColorGetR(actual_color) << ","
-      << SkColorGetG(actual_color) << ","
-      << SkColorGetB(actual_color) << ","
+      << "actual RGBA=(" << SkColorGetR(actual_color) << ","
+      << SkColorGetG(actual_color) << "," << SkColorGetB(actual_color) << ","
       << SkColorGetA(actual_color) << "); "
-      << "expected RGBA=("
-      << SkColorGetR(expected_color) << ","
-      << SkColorGetG(expected_color) << ","
-      << SkColorGetB(expected_color) << ","
-      << SkColorGetA(expected_color) << ")";
+      << "expected RGBA=(" << SkColorGetR(expected_color) << ","
+      << SkColorGetG(expected_color) << "," << SkColorGetB(expected_color)
+      << "," << SkColorGetA(expected_color) << ")";
 }
 
 // Checks that pixels are actually drawn to the screen with a read back.
@@ -2226,12 +2213,7 @@ TEST_P(LayerWithRealCompositorTest, ModifyHierarchy) {
                              cc::AlphaDiscardingExactPixelComparator()));
 }
 
-#if BUILDFLAG(IS_FUCHSIA) && defined(ARCH_CPU_ARM64) && !defined(NDEBUG)
-// This test triggers LLVM 10.0 crashes in swiftshader on arm64 debug builds.
-#define MAYBE_BackgroundInvert DISABLED_BackgroundInvert
-#else
 #define MAYBE_BackgroundInvert BackgroundInvert
-#endif
 TEST_P(LayerWithRealCompositorTest, MAYBE_BackgroundInvert) {
   viz::ParentLocalSurfaceIdAllocator allocator;
   allocator.GenerateId();
@@ -2267,11 +2249,7 @@ TEST_P(LayerWithRealCompositorTest, MAYBE_BackgroundInvert) {
 
 // TODO(crbug.com/40280155): Flaky on fuchsia-arm64 debug builds. Re-enable this
 // test.
-#if BUILDFLAG(IS_FUCHSIA) && defined(ARCH_CPU_ARM64) && !defined(NDEBUG)
-#define MAYBE_BackgroundBlur DISABLED_BackgroundBlur
-#else
 #define MAYBE_BackgroundBlur BackgroundBlur
-#endif
 // Checks that basic background blur is working.
 TEST_P(LayerWithRealCompositorTest, MAYBE_BackgroundBlur) {
 #if defined(THREAD_SANITIZER)
@@ -2324,12 +2302,7 @@ TEST_P(LayerWithRealCompositorTest, MAYBE_BackgroundBlur) {
 
 // TODO(crbug.com/40280155): Flaky on fuchsia-arm64 debug builds. Re-enable this
 // test.
-#if BUILDFLAG(IS_FUCHSIA) && defined(ARCH_CPU_ARM64) && !defined(NDEBUG)
-#define MAYBE_BackgroundBlurChangeDeviceScale \
-  DISABLED_BackgroundBlurChangeDeviceScale
-#else
 #define MAYBE_BackgroundBlurChangeDeviceScale BackgroundBlurChangeDeviceScale
-#endif
 // Checks that background blur bounds rect gets properly updated when device
 // scale changes.
 TEST_P(LayerWithRealCompositorTest, MAYBE_BackgroundBlurChangeDeviceScale) {
@@ -2626,8 +2599,8 @@ TEST_P(LayerWithDelegateTest, SchedulePaintFromOnPaintLayer) {
   // still need to be painted.
   WaitForCommit();
   EXPECT_EQ(1, child_delegate.GetPaintCountAndClear());
-  EXPECT_TRUE(child_delegate.last_clip_rect().Contains(
-                  gfx::Rect(10, 10, 30, 30)));
+  EXPECT_TRUE(
+      child_delegate.last_clip_rect().Contains(gfx::Rect(10, 10, 30, 30)));
 }
 
 TEST_P(LayerWithRealCompositorTest, ScaleUpDown) {

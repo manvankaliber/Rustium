@@ -12,8 +12,7 @@ features:
   cloud_only: true
   dynamic_refresh: true
   per_profile: false
-future_on:
-- fuchsia
+future_on: []
 owners:
 - zmin@chromium.org
 - file://components/enterprise/browser/reporting/OWNERS

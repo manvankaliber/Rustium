@@ -92,10 +92,6 @@ source_set("reference_drivers") {
     "//base",
   ]
   public_configs = [ ":ipcz_include_src_dir" ]
-
-  if (is_fuchsia) {
-    public_deps += [ "//third_party/fuchsia-sdk/sdk/pkg/zx" ]
-  }
 }
 
 source_set("util") {

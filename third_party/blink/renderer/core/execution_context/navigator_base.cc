@@ -19,6 +19,7 @@
 
 #if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN)
 #include <sys/utsname.h>
+
 #include "third_party/blink/renderer/platform/wtf/thread_specific.h"
 #include "third_party/blink/renderer/platform/wtf/threading.h"
 #endif
@@ -45,8 +46,6 @@ String GetReducedNavigatorPlatform() {
   return "MacIntel";
 #elif BUILDFLAG(IS_WIN)
   return "Win32";
-#elif BUILDFLAG(IS_FUCHSIA)
-  return "";
 #elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   return kLinuxX86_64;
 #elif BUILDFLAG(IS_IOS)

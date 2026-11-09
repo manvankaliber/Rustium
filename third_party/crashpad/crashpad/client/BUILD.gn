@@ -67,7 +67,7 @@ crashpad_static_library("client") {
     ]
   }
 
-  if (crashpad_is_linux || crashpad_is_android || crashpad_is_fuchsia) {
+  if (crashpad_is_linux || crashpad_is_android) {
     sources += [
       "client_argv_handling.cc",
       "client_argv_handling.h",
@@ -79,10 +79,6 @@ crashpad_static_library("client") {
       "crashpad_client_win.cc",
       "simulate_crash_win.h",
     ]
-  }
-
-  if (crashpad_is_fuchsia) {
-    sources += [ "crashpad_client_fuchsia.cc" ]
   }
 
   public_configs = [ "..:crashpad_config" ]
@@ -115,13 +111,6 @@ crashpad_static_library("client") {
   if (crashpad_is_linux || crashpad_is_android) {
     deps += [ "../third_party/lss" ]
   }
-
-  if (crashpad_is_fuchsia) {
-    deps += [ "../third_party/fuchsia" ]
-    if (crashpad_is_in_fuchsia) {
-      deps += [ "//sdk/lib/fdio" ]
-    }
-  }
 }
 
 static_library("common") {
@@ -148,7 +137,7 @@ static_library("common") {
   if (crashpad_is_win) {
     sources += [ "crash_report_database_win.cc" ]
   }
-  if (crashpad_is_linux || crashpad_is_android || crashpad_is_fuchsia) {
+  if (crashpad_is_linux || crashpad_is_android) {
     sources += [
       "crash_report_database_generic.cc",
       "crashpad_info_note.S",
@@ -226,7 +215,7 @@ source_set("client_test") {
     "../util",
   ]
 
-  if (!crashpad_is_android && !crashpad_is_ios && !crashpad_is_fuchsia) {
+  if (!crashpad_is_android && !crashpad_is_ios) {
     data_deps = [ "../handler:crashpad_handler" ]
   }
 

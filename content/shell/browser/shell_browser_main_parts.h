@@ -29,10 +29,6 @@ class ChildExitObserver;
 namespace content {
 class ShellPlatformDelegate;
 
-#if BUILDFLAG(IS_FUCHSIA)
-class FuchsiaViewPresenter;
-#endif
-
 class ShellBrowserMainParts : public BrowserMainParts {
  public:
   ShellBrowserMainParts();
@@ -88,9 +84,6 @@ class ShellBrowserMainParts : public BrowserMainParts {
       performance_manager_lifetime_;
 #if BUILDFLAG(IS_ANDROID)
   std::unique_ptr<crash_reporter::ChildExitObserver> child_exit_observer_;
-#endif
-#if BUILDFLAG(IS_FUCHSIA)
-  std::unique_ptr<FuchsiaViewPresenter> fuchsia_view_presenter_;
 #endif
 };
 

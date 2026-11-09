@@ -19,7 +19,6 @@ enum GinEmbedder : uint16_t {
   kEmbedderNativeGin,
   kEmbedderBlink,
   kEmbedderPDFium,
-  kEmbedderFuchsia,
 };
 
 enum EmbedderDataTag : uint16_t {

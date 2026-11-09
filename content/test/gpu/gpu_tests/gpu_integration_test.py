@@ -1307,17 +1307,9 @@ class GpuIntegrationTest(
     expected_results: set[str],
   ) -> None:
     """Helper function for handling a passing test."""
-    # Fuchsia does not have minidump support, use system info to check
-    # for crash count.
-    if self.browser.platform.GetOSName() == 'fuchsia':
-      total_expected_crashes = sum(expected_crashes.values())
-      actual_and_expected_crashes_match = self._CheckCrashCountMatch(
-        total_expected_crashes
-      )
-    else:
-      actual_and_expected_crashes_match = self._ClearExpectedCrashes(
-        expected_crashes
-      )
+    actual_and_expected_crashes_match = self._ClearExpectedCrashes(
+      expected_crashes
+    )
     # We always want to clear any expected crashes, but we don't bother
     # failing the test if it's expected to fail.
     if ResultType.Failure in expected_results:
@@ -1657,7 +1649,6 @@ class GpuIntegrationTest(
       'google-vulkan',  # SwiftShader/google-0xc0de
       'chromium-os',  # ChromeOS
       'cros-chrome',  # ChromeOS
-      'web-engine-shell',  # Fuchsia
       'cast-streaming-shell',  # Synonymous with cast_streaming suite
       # GPU tests are always run in remote mode on the bots, and it shouldn't
       # make a difference to these tests anyways.

@@ -67,7 +67,7 @@ def PreprocessIfBlocks(lines):
         r'^#if !?BUILDFLAG\((\w+)\)(?: \|\| !?BUILDFLAG\((\w+)\))*$'
     )
     android_os = r'ANDROID|POSIX'
-    non_android_os = r'AIX|ASMJS|CHROMEOS|FREEBSD|FUCHSIA|IOS|IOS_MACCATALYST|IOS_TVOS|LINUX|MAC|NETBSD|OPENBSD|QNX|SOLARIS|WATCHOS|WIN|APPLE|BSD'
+    non_android_os = r'AIX|ASMJS|CHROMEOS|FREEBSD|IOS|IOS_MACCATALYST|IOS_TVOS|LINUX|MAC|NETBSD|OPENBSD|QNX|SOLARIS|WATCHOS|WIN|APPLE|BSD'
     any_os = android_os + r'|' + non_android_os
     includes_android_buildflag_re = re.compile(
         rf'(?<!!)BUILDFLAG\(IS_(?:{android_os})\)|!BUILDFLAG\(IS_(?:{non_android_os})'

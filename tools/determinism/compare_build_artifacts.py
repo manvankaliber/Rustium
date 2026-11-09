@@ -495,7 +495,7 @@ def main():
     '--target-platform',
     help='The target platform.',
     default=target,
-    choices=('android', 'fuchsia', 'mac', 'linux', 'win'),
+    choices=('android', 'mac', 'linux', 'win'),
   )
   options, _ = parser.parse_args()
 

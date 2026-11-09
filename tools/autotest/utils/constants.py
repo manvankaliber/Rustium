@@ -58,8 +58,6 @@ TEST_TARGET_ALLOWLIST: list[str] = [
   '//components/webcrypto:webcrypto_testing_fuzzer',
   '//components/zucchini:zucchini_integration_test',
   '//content/test/fuzzer:devtools_protocol_encoding_json_fuzzer',
-  '//fuchsia_web/runners:cast_runner_integration_tests',
-  '//fuchsia_web/webengine:web_engine_integration_tests',
   '//google_apis/gcm:gcm_unit_tests',
   '//gpu:gl_tests',
   '//gpu:gpu_benchmark',

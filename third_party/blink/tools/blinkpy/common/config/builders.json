@@ -2,12 +2,18 @@
     "Linux Tests": {
         "main": "chromium.linux",
         "port_name": "linux",
-        "specifiers": ["Linux", "Release"]
+        "specifiers": [
+            "Linux",
+            "Release"
+        ]
     },
     "Linux Tests (dbg)(1)": {
         "main": "chromium.linux",
         "port_name": "linux",
-        "specifiers": ["Linux", "Debug"],
+        "specifiers": [
+            "Linux",
+            "Debug"
+        ],
         "steps": {
             "webdriver_wpt_tests": {}
         }
@@ -15,33 +21,34 @@
     "mac14-arm64-rel-tests": {
         "main": "chromium.mac",
         "port_name": "mac-mac14-arm64",
-        "specifiers": ["Mac14-arm64", "Release"]
+        "specifiers": [
+            "Mac14-arm64",
+            "Release"
+        ]
     },
     "Win10 Tests x64": {
         "main": "chromium.win",
         "port_name": "win-win10.20h2",
-        "specifiers": ["Win10.20h2", "Release"]
+        "specifiers": [
+            "Win10.20h2",
+            "Release"
+        ]
     },
     "Win11 Tests x64": {
         "main": "chromium.win",
         "port_name": "win-win11",
-        "specifiers": ["Win11", "Release"]
-    },
-    "fuchsia-x64-cast-receiver-rel": {
-        "main": "tryserver.chromium.linux",
-        "port_name": "fuchsia",
-        "specifiers": ["Fuchsia", "Release"],
-        "steps": {
-            "blink_web_tests": {},
-            "blink_wpt_tests": {}
-        },
-        "is_try_builder": true,
-        "is_cq_builder": true
+        "specifiers": [
+            "Win11",
+            "Release"
+        ]
     },
     "linux-blink-rel": {
         "main": "tryserver.blink",
         "port_name": "linux",
-        "specifiers": ["Linux", "Release"],
+        "specifiers": [
+            "Linux",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -72,7 +79,10 @@
     "mac13-blink-rel": {
         "main": "tryserver.blink",
         "port_name": "mac-mac13",
-        "specifiers": ["Mac13", "Release"],
+        "specifiers": [
+            "Mac13",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -84,7 +94,10 @@
     "mac13.arm64-blink-rel": {
         "main": "tryserver.blink",
         "port_name": "mac-mac13-arm64",
-        "specifiers": ["Mac13-arm64", "Release"],
+        "specifiers": [
+            "Mac13-arm64",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -96,7 +109,10 @@
     "mac14-blink-rel": {
         "main": "tryserver.blink",
         "port_name": "mac-mac14",
-        "specifiers": ["Mac14", "Release"],
+        "specifiers": [
+            "Mac14",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -108,7 +124,10 @@
     "mac14.arm64-blink-rel": {
         "main": "tryserver.blink",
         "port_name": "mac-mac14-arm64",
-        "specifiers": ["Mac14-arm64", "Release"],
+        "specifiers": [
+            "Mac14-arm64",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -120,7 +139,10 @@
     "mac15-blink-rel": {
         "main": "tryserver.blink",
         "port_name": "mac-mac15",
-        "specifiers": ["Mac15", "Release"],
+        "specifiers": [
+            "Mac15",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -132,7 +154,10 @@
     "mac15.arm64-blink-rel": {
         "main": "tryserver.blink",
         "port_name": "mac-mac15-arm64",
-        "specifiers": ["Mac15-arm64", "Release"],
+        "specifiers": [
+            "Mac15-arm64",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -144,7 +169,10 @@
     "mac26-arm64-blink-rel": {
         "main": "tryserver.blink",
         "port_name": "mac-mac26-arm64",
-        "specifiers": ["Mac26-arm64", "Release"],
+        "specifiers": [
+            "Mac26-arm64",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -156,7 +184,10 @@
     "mac26-x64-blink-rel": {
         "main": "tryserver.blink",
         "port_name": "mac-mac26",
-        "specifiers": ["Mac26", "Release"],
+        "specifiers": [
+            "Mac26",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -168,7 +199,10 @@
     "win10.20h2-blink-rel": {
         "main": "tryserver.blink",
         "port_name": "win-win10.20h2",
-        "specifiers": ["Win10.20h2", "Release"],
+        "specifiers": [
+            "Win10.20h2",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -195,7 +229,10 @@
     "win11-blink-rel": {
         "main": "tryserver.blink",
         "port_name": "win-win11",
-        "specifiers": ["Win11", "Release"],
+        "specifiers": [
+            "Win11",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -207,7 +244,10 @@
     "linux-rel": {
         "main": "tryserver.chromium.linux",
         "port_name": "linux",
-        "specifiers": ["Linux", "Release"],
+        "specifiers": [
+            "Linux",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -238,7 +278,10 @@
     "mac-rel": {
         "main": "tryserver.chromium.mac",
         "port_name": "mac-mac26-arm64",
-        "specifiers": ["Mac26-arm64", "Release"],
+        "specifiers": [
+            "Mac26-arm64",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -251,7 +294,10 @@
     "win-rel": {
         "main": "tryserver.chromium.win",
         "port_name": "win-win10.20h2",
-        "specifiers": ["Win10.20h2", "Release"],
+        "specifiers": [
+            "Win10.20h2",
+            "Release"
+        ],
         "steps": {
             "blink_web_tests": {},
             "blink_wpt_tests": {},
@@ -264,7 +310,10 @@
     "android-15-chrome-blink-rel": {
         "main": "tryserver.chromium.android",
         "port_name": "android",
-        "specifiers": ["Android", "Release"],
+        "specifiers": [
+            "Android",
+            "Release"
+        ],
         "steps": {
             "android_chrome_wpt_tests": {},
             "android_webdriver_wpt_tests": {}

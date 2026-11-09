@@ -61,17 +61,8 @@ config("grpc_config") {
 
   if (is_android) {
     include_dirs += [ "src/third_party/cares/config_android" ]
-  } else if (is_fuchsia) {
-    include_dirs += [ "third_party/cares/config_fuchsia" ]
   } else {
     include_dirs += [ "src/third_party/cares/config_linux" ]
-  }
-
-  if (is_fuchsia) {
-    defines += [
-      # Allows zircon sockets to use file descriptors with gRPC.
-      "GPR_SUPPORT_CHANNELS_FROM_FD",
-    ]
   }
 
   defines += [
@@ -3433,11 +3424,10 @@ source_set("cares") {
   if (is_android) {
     sources += [ "src/third_party/cares/config_android/ares_config.h" ]
     configs += [ ":cares_config" ]
-  } else if (is_fuchsia) {
-    sources += [ "third_party/cares/config_fuchsia/ares_config.h" ]
   } else {
     sources += [ "src/third_party/cares/config_linux/ares_config.h" ]
   }
+
   deps = [ "//third_party/boringssl" ]
 
   public_configs = [ ":grpc_config" ]

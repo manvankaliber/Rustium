@@ -151,11 +151,7 @@ feature! {
     #![feature = "mount"]
     pub mod mount;
 }
-#[cfg(any(
-    freebsdlike,
-    all(target_os = "linux", not(target_env = "ohos")),
-    target_os = "netbsd"
-))]
+#[cfg(any(freebsdlike, all(target_os = "linux", not(target_env = "ohos")), target_os = "netbsd"))]
 feature! {
     #![feature = "mqueue"]
     pub mod mqueue;
@@ -164,7 +160,7 @@ feature! {
     #![feature = "poll"]
     pub mod poll;
 }
-#[cfg(not(any(target_os = "redox", target_os = "fuchsia")))]
+#[cfg(not(target_os = "redox"))]
 feature! {
     #![feature = "term"]
     #[deny(missing_docs)]
@@ -320,12 +316,12 @@ impl NixPath for [u8] {
     where
         F: FnOnce(&CStr) -> T,
     {
-        // The real PATH_MAX is typically 4096, but it's statistically unlikely to have a path
-        // longer than ~300 bytes. See the PR description to get stats for your own machine.
-        // https://github.com/nix-rust/nix/pull/1656
+        // The real PATH_MAX is typically 4096, but it's statistically unlikely
+        // to have a path longer than ~300 bytes. See the PR description to get
+        // stats for your own machine. https://github.com/nix-rust/nix/pull/1656
         //
-        // By being smaller than a memory page, we also avoid the compiler inserting a probe frame:
-        // https://docs.rs/compiler_builtins/latest/compiler_builtins/probestack/index.html
+        // By being smaller than a memory page, we also avoid the compiler
+        // inserting a probe frame: https://docs.rs/compiler_builtins/latest/compiler_builtins/probestack/index.html
         const MAX_STACK_ALLOCATION: usize = 1024;
 
         if self.len() >= MAX_STACK_ALLOCATION {
@@ -340,9 +336,7 @@ impl NixPath for [u8] {
             buf_ptr.add(self.len()).write(0);
         }
 
-        match CStr::from_bytes_with_nul(unsafe {
-            slice::from_raw_parts(buf_ptr, self.len() + 1)
-        }) {
+        match CStr::from_bytes_with_nul(unsafe { slice::from_raw_parts(buf_ptr, self.len() + 1) }) {
             Ok(s) => Ok(f(s)),
             Err(_) => Err(Errno::EINVAL),
         }
@@ -395,7 +389,8 @@ impl NixPath for PathBuf {
     }
 }
 
-/// Like `NixPath::with_nix_path()`, but allow the `path` argument to be optional.
+/// Like `NixPath::with_nix_path()`, but allow the `path` argument to be
+/// optional.
 ///
 /// A NULL pointer will be provided if `path.is_none()`.
 #[cfg(any(

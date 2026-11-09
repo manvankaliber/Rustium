@@ -13,15 +13,9 @@ cast_source_set("reboot_util") {
 
   deps = [ "//base" ]
 
-  if (!is_fuchsia) {
-    sources += [ "reboot_util_dummy.cc" ]
-  }
+  sources += [ "reboot_util_dummy.cc" ]
 
-  if (is_fuchsia) {
-    deps += [ ":fuchsia" ]
-  } else {
-    deps += [ ":libcast_reboot_1.0" ]
-  }
+  deps += [ ":libcast_reboot_1.0" ]
 }
 
 test("cast_reboot_unittests") {
@@ -34,21 +28,6 @@ test("cast_reboot_unittests") {
     "//testing/gmock",
     "//testing/gtest",
   ]
-
-  if (is_fuchsia) {
-    sources += [ "reboot_fuchsia_test.cc" ]
-    deps += [
-      ":fuchsia",
-      "//chromecast/public",
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.feedback:fuchsia.feedback_hlcpp",
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.hardware.power.statecontrol:fuchsia.hardware.power.statecontrol_hlcpp",
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.io:fuchsia.io_hlcpp",
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.recovery:fuchsia.recovery_hlcpp",
-      "//third_party/fuchsia-sdk/sdk/pkg/fidl_cpp",
-      "//third_party/fuchsia-sdk/sdk/pkg/fit-promise",
-      "//third_party/fuchsia-sdk/sdk/pkg/sys_cpp",
-    ]
-  }
 }
 
 # Stub implementation of libcast_reboot_1.0.so.
@@ -56,30 +35,4 @@ cast_shared_library("libcast_reboot_1.0") {
   sources = [ "reboot_dummy.cc" ]
 
   public_deps = [ "//chromecast/public" ]
-}
-
-if (is_fuchsia) {
-  cast_source_set("fuchsia") {
-    sources = [
-      "fuchsia_component_restart_reason.cc",
-      "fuchsia_component_restart_reason.h",
-      "reboot_fuchsia.cc",
-      "reboot_fuchsia.h",
-      "reboot_util.h",
-    ]
-    public_deps = [ "//chromecast/public" ]
-    deps = [
-      "//base",
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.feedback:fuchsia.feedback_hlcpp",
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.hardware.power.statecontrol:fuchsia.hardware.power.statecontrol_hlcpp",
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.recovery:fuchsia.recovery_hlcpp",
-      "//third_party/fuchsia-sdk/sdk/pkg/fidl",
-      "//third_party/fuchsia-sdk/sdk/pkg/fidl_cpp",
-      "//third_party/fuchsia-sdk/sdk/pkg/sys_cpp",
-    ]
-
-    # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
-    # enable the diagnostic by removing this line.
-    configs += [ "//build/config/compiler:no_exit_time_destructors" ]
-  }
 }

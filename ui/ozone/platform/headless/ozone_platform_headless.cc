@@ -33,10 +33,6 @@
 #include "ui/ozone/public/system_input_injector.h"
 #include "ui/platform_window/platform_window_init_properties.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "ui/base/ime/fuchsia/input_method_fuchsia.h"
-#endif
-
 namespace ui {
 
 namespace {
@@ -126,8 +122,9 @@ class OzonePlatformHeadlessImpl : public OzonePlatformHeadless {
     window_manager_ = std::make_unique<HeadlessWindowManager>();
     surface_factory_ = std::make_unique<HeadlessSurfaceFactory>(file_path_);
     // This unbreaks tests that create their own.
-    if (!PlatformEventSource::GetInstance())
+    if (!PlatformEventSource::GetInstance()) {
       platform_event_source_ = std::make_unique<HeadlessPlatformEventSource>();
+    }
     keyboard_layout_engine_ = std::make_unique<StubKeyboardLayoutEngine>();
     KeyboardLayoutEngineManager::SetKeyboardLayoutEngine(
         keyboard_layout_engine_.get());
@@ -147,8 +144,9 @@ class OzonePlatformHeadlessImpl : public OzonePlatformHeadless {
   }
 
   void InitializeGPU(const InitParams& params) override {
-    if (!surface_factory_)
+    if (!surface_factory_) {
       surface_factory_ = std::make_unique<HeadlessSurfaceFactory>(file_path_);
+    }
   }
 
  private:
@@ -168,8 +166,9 @@ class OzonePlatformHeadlessImpl : public OzonePlatformHeadless {
 OzonePlatform* CreateOzonePlatformHeadless() {
   base::CommandLine* cmd = base::CommandLine::ForCurrentProcess();
   base::FilePath location;
-  if (cmd->HasSwitch(switches::kOzoneDumpFile))
+  if (cmd->HasSwitch(switches::kOzoneDumpFile)) {
     location = cmd->GetSwitchValuePath(switches::kOzoneDumpFile);
+  }
   return new OzonePlatformHeadlessImpl(location);
 }
 

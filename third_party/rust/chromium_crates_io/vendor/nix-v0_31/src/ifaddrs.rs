@@ -33,7 +33,7 @@ pub struct InterfaceAddress {
 }
 
 cfg_if! {
-    if #[cfg(any(linux_android, target_os = "emscripten", target_os = "fuchsia", target_os = "hurd"))] {
+    if #[cfg(any(linux_android, target_os = "emscripten", target_os = "hurd"))] {
         fn get_ifu_from_sockaddr(info: &libc::ifaddrs) -> *const libc::sockaddr {
             info.ifa_ifu
         }
@@ -76,8 +76,7 @@ unsafe fn workaround_xnu_bug(info: &libc::ifaddrs) -> Option<SockaddrStorage> {
         dst_sock.assume_init()
     };
 
-    let dst_sock_ptr =
-        &dst_sock as *const libc::sockaddr_storage as *const libc::sockaddr;
+    let dst_sock_ptr = &dst_sock as *const libc::sockaddr_storage as *const libc::sockaddr;
 
     unsafe { SockaddrStorage::from_raw(dst_sock_ptr, None) }
 }
@@ -90,13 +89,10 @@ impl InterfaceAddress {
         #[cfg(apple_targets)]
         let netmask = unsafe { workaround_xnu_bug(info) };
         #[cfg(not(apple_targets))]
-        let netmask =
-            unsafe { SockaddrStorage::from_raw(info.ifa_netmask, None) };
+        let netmask = unsafe { SockaddrStorage::from_raw(info.ifa_netmask, None) };
         let mut addr = InterfaceAddress {
             interface_name: ifname.to_string_lossy().into_owned(),
-            flags: InterfaceFlags::from_bits_truncate(
-                info.ifa_flags as IflagsType,
-            ),
+            flags: InterfaceFlags::from_bits_truncate(info.ifa_flags as IflagsType),
             address,
             netmask,
             broadcast: None,
@@ -172,11 +168,9 @@ impl Iterator for InterfaceAddressIterator {
 pub fn getifaddrs() -> Result<InterfaceAddressIterator> {
     let mut addrs = mem::MaybeUninit::<*mut libc::ifaddrs>::uninit();
     unsafe {
-        Errno::result(libc::getifaddrs(addrs.as_mut_ptr())).map(|_| {
-            InterfaceAddressIterator {
-                base: addrs.assume_init(),
-                next: addrs.assume_init(),
-            }
+        Errno::result(libc::getifaddrs(addrs.as_mut_ptr())).map(|_| InterfaceAddressIterator {
+            base: addrs.assume_init(),
+            next: addrs.assume_init(),
         })
     }
 }
@@ -205,9 +199,7 @@ mod tests {
             if sock.family() == Some(crate::sys::socket::AddressFamily::Inet) {
                 let _ = sock.as_sockaddr_in().unwrap();
                 return;
-            } else if sock.family()
-                == Some(crate::sys::socket::AddressFamily::Inet6)
-            {
+            } else if sock.family() == Some(crate::sys::socket::AddressFamily::Inet6) {
                 let _ = sock.as_sockaddr_in6().unwrap();
                 return;
             }

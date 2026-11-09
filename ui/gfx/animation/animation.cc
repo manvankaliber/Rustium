@@ -31,18 +31,21 @@ Animation::Animation(base::TimeDelta timer_interval)
 Animation::~Animation() {
   // Don't send out notification from the destructor. Chances are the delegate
   // owns us and is being deleted as well.
-  if (is_animating_)
+  if (is_animating_) {
     container_->Stop(this);
+  }
 }
 
 void Animation::Start() {
-  if (is_animating_)
+  if (is_animating_) {
     return;
+  }
 
   if (!container_) {
     container_ = base::MakeRefCounted<AnimationContainer>();
-    if (delegate_)
+    if (delegate_) {
       delegate_->AnimationContainerWasSet(container_.get());
+    }
   }
 
   is_animating_ = true;
@@ -53,8 +56,9 @@ void Animation::Start() {
 }
 
 void Animation::Stop() {
-  if (!is_animating_)
+  if (!is_animating_) {
     return;
+  }
 
   is_animating_ = false;
 
@@ -64,10 +68,11 @@ void Animation::Stop() {
   AnimationStopped();
 
   if (delegate_) {
-    if (ShouldSendCanceledFromStop())
+    if (ShouldSendCanceledFromStop()) {
       delegate_->AnimationCanceled(this);
-    else
+    } else {
       delegate_->AnimationEnded(this);
+    }
   }
 }
 
@@ -86,27 +91,33 @@ gfx::Rect Animation::CurrentValueBetween(const gfx::Rect& start_bounds,
 }
 
 void Animation::SetContainer(AnimationContainer* container) {
-  if (container == container_.get())
+  if (container == container_.get()) {
     return;
+  }
 
-  if (is_animating_)
+  if (is_animating_) {
     container_->Stop(this);
+  }
 
-  if (container)
+  if (container) {
     container_ = container;
-  else
+  } else {
     container_ = new AnimationContainer();
+  }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->AnimationContainerWasSet(container_.get());
+  }
 
-  if (is_animating_)
+  if (is_animating_) {
     container_->Start(this);
+  }
 }
 
 bool Animation::ShouldRenderRichAnimation() {
-  if (rich_animation_rendering_mode_ == RichAnimationRenderMode::PLATFORM)
+  if (rich_animation_rendering_mode_ == RichAnimationRenderMode::PLATFORM) {
     return ShouldRenderRichAnimationImpl();
+  }
   return rich_animation_rendering_mode_ ==
          RichAnimationRenderMode::FORCE_ENABLED;
 }
@@ -115,7 +126,7 @@ base::TimeDelta Animation::RichAnimationDuration(base::TimeDelta duration) {
   return ShouldRenderRichAnimation() ? duration : base::TimeDelta();
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 // static
 bool Animation::ShouldRenderRichAnimationImpl() {
   return true;
@@ -140,7 +151,7 @@ void Animation::UpdatePrefersReducedMotion() {
   prefers_reduced_motion_ = false;
 }
 #endif  // !BUILDFLAG(IS_ANDROID)
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 // static
 bool Animation::PrefersReducedMotion() {
@@ -153,8 +164,9 @@ bool Animation::PrefersReducedMotion() {
     return false;
   }
 
-  if (!prefers_reduced_motion_.has_value())
+  if (!prefers_reduced_motion_.has_value()) {
     UpdatePrefersReducedMotion();
+  }
   return prefers_reduced_motion_.value();
 }
 

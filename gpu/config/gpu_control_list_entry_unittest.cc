@@ -23,13 +23,12 @@ constexpr auto kOsMacosx = GpuControlList::kOsMacosx;
 constexpr auto kOsWin = GpuControlList::kOsWin;
 constexpr auto kOsChromeOS = GpuControlList::kOsChromeOS;
 constexpr auto kOsAndroid = GpuControlList::kOsAndroid;
-constexpr auto kOsFuchsia = GpuControlList::kOsFuchsia;
 constexpr auto kOsAny = GpuControlList::kOsAny;
 
-constexpr GpuControlList::OsType kAllOsType[] = {
-    kOsMacosx, kOsWin, kOsLinux, kOsChromeOS, kOsAndroid, kOsFuchsia};
+constexpr GpuControlList::OsType kAllOsType[] = {kOsMacosx, kOsWin, kOsLinux,
+                                                 kOsChromeOS, kOsAndroid};
 
-}  // namespace anonymous
+}  // namespace
 
 class GpuControlListEntryTest : public testing::Test {
  public:
@@ -38,9 +37,7 @@ class GpuControlListEntryTest : public testing::Test {
   GpuControlListEntryTest() = default;
   ~GpuControlListEntryTest() override = default;
 
-  const GPUInfo& gpu_info() const {
-    return gpu_info_;
-  }
+  const GPUInfo& gpu_info() const { return gpu_info_; }
 
   const Entry& GetEntry(size_t index) {
     EXPECT_LT(index, GetGpuControlListTestingEntries().size());
@@ -88,17 +85,19 @@ TEST_F(GpuControlListEntryTest, DetailedEntry) {
 TEST_F(GpuControlListEntryTest, VendorOnAllOsEntry) {
   const Entry& entry = GetEntry(kGpuControlListEntryTest_VendorOnAllOsEntry);
   EXPECT_EQ(kOsAny, entry.conditions.os_type);
-  for (auto os_type : kAllOsType)
+  for (auto os_type : kAllOsType) {
     EXPECT_TRUE(entry.Contains(os_type, "10.6", gpu_info()));
+  }
 }
 
 TEST_F(GpuControlListEntryTest, VendorOnLinuxEntry) {
   const Entry& entry = GetEntry(kGpuControlListEntryTest_VendorOnLinuxEntry);
   EXPECT_EQ(kOsLinux, entry.conditions.os_type);
   const GpuControlList::OsType os_types[] = {kOsMacosx, kOsWin, kOsChromeOS,
-                                             kOsAndroid, kOsFuchsia};
-  for (auto os_type : os_types)
+                                             kOsAndroid};
+  for (auto os_type : os_types) {
     EXPECT_FALSE(entry.Contains(os_type, "10.6", gpu_info()));
+  }
   EXPECT_TRUE(entry.Contains(kOsLinux, "10.6", gpu_info()));
 }
 
@@ -118,26 +117,29 @@ TEST_F(GpuControlListEntryTest, AllExceptIntelOnLinuxEntry) {
       GetEntry(kGpuControlListEntryTest_AllExceptIntelOnLinuxEntry);
   EXPECT_EQ(kOsLinux, entry.conditions.os_type);
   const GpuControlList::OsType os_types[] = {kOsMacosx, kOsWin, kOsChromeOS,
-                                             kOsAndroid, kOsFuchsia};
-  for (auto os_type : os_types)
+                                             kOsAndroid};
+  for (auto os_type : os_types) {
     EXPECT_FALSE(entry.Contains(os_type, "10.6", gpu_info()));
+  }
   EXPECT_TRUE(entry.Contains(kOsLinux, "10.6", gpu_info()));
 }
 
 TEST_F(GpuControlListEntryTest, MultipleDevicesEntry) {
   const Entry& entry = GetEntry(kGpuControlListEntryTest_MultipleDevicesEntry);
   EXPECT_EQ(kOsAny, entry.conditions.os_type);
-  for (auto os_type : kAllOsType)
+  for (auto os_type : kAllOsType) {
     EXPECT_TRUE(entry.Contains(os_type, "10.6", gpu_info()));
+  }
 }
 
 TEST_F(GpuControlListEntryTest, ChromeOSEntry) {
   const Entry& entry = GetEntry(kGpuControlListEntryTest_ChromeOSEntry);
   EXPECT_EQ(kOsChromeOS, entry.conditions.os_type);
   const GpuControlList::OsType os_types[] = {kOsMacosx, kOsWin, kOsLinux,
-                                             kOsAndroid, kOsFuchsia};
-  for (auto os_type : os_types)
+                                             kOsAndroid};
+  for (auto os_type : os_types) {
     EXPECT_FALSE(entry.Contains(os_type, "10.6", gpu_info()));
+  }
   EXPECT_TRUE(entry.Contains(kOsChromeOS, "10.6", gpu_info()));
 }
 
@@ -1012,7 +1014,8 @@ TEST_F(GpuControlListEntryTest, GpuGenerationPrimary) {
 }
 
 TEST_F(GpuControlListEntryTest, GpuGenerationSecondary) {
-  const Entry& entry = GetEntry(kGpuControlListEntryTest_GpuGenerationSecondary);
+  const Entry& entry =
+      GetEntry(kGpuControlListEntryTest_GpuGenerationSecondary);
 
   // Intel Broadwell
   GPUInfo::GPUDevice intel_gpu;
@@ -1022,7 +1025,6 @@ TEST_F(GpuControlListEntryTest, GpuGenerationSecondary) {
   GPUInfo::GPUDevice nvidia_gpu;
   nvidia_gpu.vendor_id = 0x10de;
   nvidia_gpu.device_id = 0x0df8;
-
 
   {  // Single GPU
     GPUInfo gpu_info;

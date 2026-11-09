@@ -698,21 +698,6 @@ EnumTraits<media::mojom::VideoCaptureError, media::VideoCaptureError>::ToMojom(
     case media::VideoCaptureError::kCrosHalV3DeviceDelegateFailedToFlush:
       return media::mojom::VideoCaptureError::
           kCrosHalV3DeviceDelegateFailedToFlush;
-    case media::VideoCaptureError::kFuchsiaCameraDeviceDisconnected:
-      return media::mojom::VideoCaptureError::kFuchsiaCameraDeviceDisconnected;
-    case media::VideoCaptureError::kFuchsiaCameraStreamDisconnected:
-      return media::mojom::VideoCaptureError::kFuchsiaCameraStreamDisconnected;
-    case media::VideoCaptureError::kFuchsiaSysmemDidNotSetImageFormat:
-      return media::mojom::VideoCaptureError::
-          kFuchsiaSysmemDidNotSetImageFormat;
-    case media::VideoCaptureError::kFuchsiaSysmemInvalidBufferIndex:
-      return media::mojom::VideoCaptureError::kFuchsiaSysmemInvalidBufferIndex;
-    case media::VideoCaptureError::kFuchsiaSysmemInvalidBufferSize:
-      return media::mojom::VideoCaptureError::kFuchsiaSysmemInvalidBufferSize;
-    case media::VideoCaptureError::kFuchsiaUnsupportedPixelFormat:
-      return media::mojom::VideoCaptureError::kFuchsiaUnsupportedPixelFormat;
-    case media::VideoCaptureError::kFuchsiaFailedToMapSysmemBuffer:
-      return media::mojom::VideoCaptureError::kFuchsiaFailedToMapSysmemBuffer;
     case media::VideoCaptureError::kCrosHalV3DeviceContextDuplicatedClient:
       return media::mojom::VideoCaptureError::
           kCrosHalV3DeviceContextDuplicatedClient;
@@ -1191,20 +1176,6 @@ EnumTraits<media::mojom::VideoCaptureError, media::VideoCaptureError>::
       return media::VideoCaptureError::kAndroidApi2ErrorConfiguringCamera;
     case media::mojom::VideoCaptureError::kCrosHalV3DeviceDelegateFailedToFlush:
       return media::VideoCaptureError::kCrosHalV3DeviceDelegateFailedToFlush;
-    case media::mojom::VideoCaptureError::kFuchsiaCameraDeviceDisconnected:
-      return media::VideoCaptureError::kFuchsiaCameraDeviceDisconnected;
-    case media::mojom::VideoCaptureError::kFuchsiaCameraStreamDisconnected:
-      return media::VideoCaptureError::kFuchsiaCameraStreamDisconnected;
-    case media::mojom::VideoCaptureError::kFuchsiaSysmemDidNotSetImageFormat:
-      return media::VideoCaptureError::kFuchsiaSysmemDidNotSetImageFormat;
-    case media::mojom::VideoCaptureError::kFuchsiaSysmemInvalidBufferIndex:
-      return media::VideoCaptureError::kFuchsiaSysmemInvalidBufferIndex;
-    case media::mojom::VideoCaptureError::kFuchsiaSysmemInvalidBufferSize:
-      return media::VideoCaptureError::kFuchsiaSysmemInvalidBufferSize;
-    case media::mojom::VideoCaptureError::kFuchsiaUnsupportedPixelFormat:
-      return media::VideoCaptureError::kFuchsiaUnsupportedPixelFormat;
-    case media::mojom::VideoCaptureError::kFuchsiaFailedToMapSysmemBuffer:
-      return media::VideoCaptureError::kFuchsiaFailedToMapSysmemBuffer;
     case media::mojom::VideoCaptureError::
         kCrosHalV3DeviceContextDuplicatedClient:
       return media::VideoCaptureError::kCrosHalV3DeviceContextDuplicatedClient;
@@ -1611,8 +1582,6 @@ EnumTraits<media::mojom::VideoCaptureApi, media::VideoCaptureApi>::ToMojom(
       return media::mojom::VideoCaptureApi::ANDROID_API2_FULL;
     case media::VideoCaptureApi::ANDROID_API2_LIMITED:
       return media::mojom::VideoCaptureApi::ANDROID_API2_LIMITED;
-    case media::VideoCaptureApi::FUCHSIA_CAMERA3:
-      return media::mojom::VideoCaptureApi::FUCHSIA_CAMERA3;
     case media::VideoCaptureApi::VIRTUAL_DEVICE:
       return media::mojom::VideoCaptureApi::VIRTUAL_DEVICE;
     case media::VideoCaptureApi::UNKNOWN:
@@ -1663,8 +1632,6 @@ EnumTraits<media::mojom::VideoCaptureApi, media::VideoCaptureApi>::FromMojom(
       return media::VideoCaptureApi::ANDROID_API2_FULL;
     case media::mojom::VideoCaptureApi::ANDROID_API2_LIMITED:
       return media::VideoCaptureApi::ANDROID_API2_LIMITED;
-    case media::mojom::VideoCaptureApi::FUCHSIA_CAMERA3:
-      return media::VideoCaptureApi::FUCHSIA_CAMERA3;
     case media::mojom::VideoCaptureApi::VIRTUAL_DEVICE:
       return media::VideoCaptureApi::VIRTUAL_DEVICE;
     case media::mojom::VideoCaptureApi::UNKNOWN:
@@ -1734,11 +1701,13 @@ bool StructTraits<media::mojom::VideoCaptureFormatDataView,
                   media::VideoCaptureFormat>::
     Read(media::mojom::VideoCaptureFormatDataView data,
          media::VideoCaptureFormat* out) {
-  if (!data.ReadFrameSize(&out->frame_size))
+  if (!data.ReadFrameSize(&out->frame_size)) {
     return false;
+  }
   out->frame_rate = data.frame_rate();
-  if (!data.ReadPixelFormat(&out->pixel_format))
+  if (!data.ReadPixelFormat(&out->pixel_format)) {
     return false;
+  }
   return true;
 }
 
@@ -1747,14 +1716,18 @@ bool StructTraits<media::mojom::VideoCaptureParamsDataView,
                   media::VideoCaptureParams>::
     Read(media::mojom::VideoCaptureParamsDataView data,
          media::VideoCaptureParams* out) {
-  if (!data.ReadRequestedFormat(&out->requested_format))
+  if (!data.ReadRequestedFormat(&out->requested_format)) {
     return false;
-  if (!data.ReadBufferType(&out->buffer_type))
+  }
+  if (!data.ReadBufferType(&out->buffer_type)) {
     return false;
-  if (!data.ReadResolutionChangePolicy(&out->resolution_change_policy))
+  }
+  if (!data.ReadResolutionChangePolicy(&out->resolution_change_policy)) {
     return false;
-  if (!data.ReadPowerLineFrequency(&out->power_line_frequency))
+  }
+  if (!data.ReadPowerLineFrequency(&out->power_line_frequency)) {
     return false;
+  }
   if (!data.ReadRequestType(&out->request_type)) {
     return false;
   }
@@ -1771,26 +1744,33 @@ bool StructTraits<media::mojom::VideoCaptureDeviceDescriptorDataView,
     Read(media::mojom::VideoCaptureDeviceDescriptorDataView data,
          media::VideoCaptureDeviceDescriptor* output) {
   std::string display_name;
-  if (!data.ReadDisplayName(&display_name))
+  if (!data.ReadDisplayName(&display_name)) {
     return false;
+  }
   output->set_display_name(display_name);
-  if (!data.ReadDeviceId(&(output->device_id)))
+  if (!data.ReadDeviceId(&(output->device_id))) {
     return false;
-  if (!data.ReadModelId(&(output->model_id)))
+  }
+  if (!data.ReadModelId(&(output->model_id))) {
     return false;
-  if (!data.ReadFacingMode(&(output->facing)))
+  }
+  if (!data.ReadFacingMode(&(output->facing))) {
     return false;
+  }
   if (!data.ReadAvailability(&(output->availability))) {
     return false;
   }
-  if (!data.ReadCaptureApi(&(output->capture_api)))
+  if (!data.ReadCaptureApi(&(output->capture_api))) {
     return false;
+  }
   media::VideoCaptureControlSupport control_support;
-  if (!data.ReadControlSupport(&control_support))
+  if (!data.ReadControlSupport(&control_support)) {
     return false;
+  }
   output->set_control_support(control_support);
-  if (!data.ReadTransportType(&(output->transport_type)))
+  if (!data.ReadTransportType(&(output->transport_type))) {
     return false;
+  }
   return true;
 }
 
@@ -1799,10 +1779,12 @@ bool StructTraits<media::mojom::VideoCaptureDeviceInfoDataView,
                   media::VideoCaptureDeviceInfo>::
     Read(media::mojom::VideoCaptureDeviceInfoDataView data,
          media::VideoCaptureDeviceInfo* output) {
-  if (!data.ReadDescriptor(&(output->descriptor)))
+  if (!data.ReadDescriptor(&(output->descriptor))) {
     return false;
-  if (!data.ReadSupportedFormats(&(output->supported_formats)))
+  }
+  if (!data.ReadSupportedFormats(&(output->supported_formats))) {
     return false;
+  }
   return true;
 }
 

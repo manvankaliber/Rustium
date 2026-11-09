@@ -178,8 +178,7 @@ TEST(ToolsSanityTest, AccessesToStack) {
 // alloc_dealloc_mismatch defaults to
 // !SANITIZER_MAC && !SANITIZER_WINDOWS && !SANITIZER_ANDROID,
 // in the sanitizer runtime upstream.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #define MAYBE_SingleElementDeletedWithBraces \
   DISABLED_SingleElementDeletedWithBraces
 #define MAYBE_ArrayDeletedWithoutBraces DISABLED_ArrayDeletedWithoutBraces
@@ -304,7 +303,7 @@ class TOOLS_SANITY_TEST_CONCURRENT_THREAD : public PlatformThread::Delegate {
 
 class ReleaseStoreThread : public PlatformThread::Delegate {
  public:
-  explicit ReleaseStoreThread(std::atomic<uint32_t> *value) : value_(value) {}
+  explicit ReleaseStoreThread(std::atomic<uint32_t>* value) : value_(value) {}
   ~ReleaseStoreThread() override = default;
   void ThreadMain() override {
     value_->store(kMagicValue, std::memory_order_release);
@@ -321,7 +320,7 @@ class ReleaseStoreThread : public PlatformThread::Delegate {
 
 class AcquireLoadThread : public PlatformThread::Delegate {
  public:
-  explicit AcquireLoadThread(std::atomic<uint32_t> *value) : value_(value) {}
+  explicit AcquireLoadThread(std::atomic<uint32_t>* value) : value_(value) {}
   ~AcquireLoadThread() override = default;
   void ThreadMain() override {
     // Wait for the other thread to make Release_Store

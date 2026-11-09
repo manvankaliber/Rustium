@@ -12,8 +12,7 @@ features:
   dynamic_refresh: true
   internal_only: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 owners:
 - rsleevi@chromium.org
 schema:

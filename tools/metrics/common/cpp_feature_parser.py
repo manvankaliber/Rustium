@@ -98,7 +98,6 @@ KNOWN_PLATFORM_SYMBOLS = frozenset(
     'IS_ASMJS',
     'IS_BSD',
     'IS_FREEBSD',
-    'IS_FUCHSIA',
     'IS_NETBSD',
     'IS_OPENBSD',
     'IS_QNX',

@@ -909,11 +909,6 @@ typedef void(GL_BINDING_CALL* glImportMemoryWin32HandleEXTProc)(
     GLuint64 size,
     GLenum handleType,
     void* handle);
-typedef void(GL_BINDING_CALL* glImportMemoryZirconHandleANGLEProc)(
-    GLuint memory,
-    GLuint64 size,
-    GLenum handleType,
-    GLuint handle);
 typedef void(GL_BINDING_CALL* glImportSemaphoreFdEXTProc)(GLuint semaphore,
                                                           GLenum handleType,
                                                           GLint fd);
@@ -921,10 +916,6 @@ typedef void(GL_BINDING_CALL* glImportSemaphoreWin32HandleEXTProc)(
     GLuint semaphore,
     GLenum handleType,
     void* handle);
-typedef void(GL_BINDING_CALL* glImportSemaphoreZirconHandleANGLEProc)(
-    GLuint semaphore,
-    GLenum handleType,
-    GLuint handle);
 typedef void(GL_BINDING_CALL* glInsertEventMarkerEXTProc)(GLsizei length,
                                                           const char* marker);
 typedef void(GL_BINDING_CALL* glInvalidateFramebufferProc)(
@@ -3067,13 +3058,6 @@ typedef void(GL_BINDING_CALL* glImportMemoryWin32HandleEXTContextANGLEProc)(
     GLuint64 size,
     GLenum handleType,
     void* handle);
-typedef void(GL_BINDING_CALL* glImportMemoryZirconHandleANGLEContextANGLEProc)(
-    GLeglDisplayANGLE dpy,
-    GLeglContextANGLE ctx,
-    GLuint memory,
-    GLuint64 size,
-    GLenum handleType,
-    GLuint handle);
 typedef void(GL_BINDING_CALL* glImportSemaphoreFdEXTContextANGLEProc)(
     GLeglDisplayANGLE dpy,
     GLeglContextANGLE ctx,
@@ -3086,13 +3070,6 @@ typedef void(GL_BINDING_CALL* glImportSemaphoreWin32HandleEXTContextANGLEProc)(
     GLuint semaphore,
     GLenum handleType,
     void* handle);
-typedef void(
-    GL_BINDING_CALL* glImportSemaphoreZirconHandleANGLEContextANGLEProc)(
-    GLeglDisplayANGLE dpy,
-    GLeglContextANGLE ctx,
-    GLuint semaphore,
-    GLenum handleType,
-    GLuint handle);
 typedef void(GL_BINDING_CALL* glInsertEventMarkerEXTContextANGLEProc)(
     GLeglDisplayANGLE dpy,
     GLeglContextANGLE ctx,
@@ -4145,7 +4122,6 @@ struct ExtensionsGL {
   bool b_GL_ANGLE_get_tex_level_parameter;
   bool b_GL_ANGLE_instanced_arrays;
   bool b_GL_ANGLE_memory_object_flags;
-  bool b_GL_ANGLE_memory_object_fuchsia;
   bool b_GL_ANGLE_multi_draw;
   bool b_GL_ANGLE_polygon_mode;
   bool b_GL_ANGLE_provoking_vertex;
@@ -4153,7 +4129,6 @@ struct ExtensionsGL {
   bool b_GL_ANGLE_request_extension;
   bool b_GL_ANGLE_robust_client_memory;
   bool b_GL_ANGLE_robust_resource_initialization;
-  bool b_GL_ANGLE_semaphore_fuchsia;
   bool b_GL_ANGLE_shader_pixel_local_storage;
   bool b_GL_ANGLE_texture_external_update;
   bool b_GL_ANGLE_translated_shader_source;
@@ -4477,10 +4452,8 @@ struct ProcsGL {
   glHintProc glHintFn;
   glImportMemoryFdEXTProc glImportMemoryFdEXTFn;
   glImportMemoryWin32HandleEXTProc glImportMemoryWin32HandleEXTFn;
-  glImportMemoryZirconHandleANGLEProc glImportMemoryZirconHandleANGLEFn;
   glImportSemaphoreFdEXTProc glImportSemaphoreFdEXTFn;
   glImportSemaphoreWin32HandleEXTProc glImportSemaphoreWin32HandleEXTFn;
-  glImportSemaphoreZirconHandleANGLEProc glImportSemaphoreZirconHandleANGLEFn;
   glInsertEventMarkerEXTProc glInsertEventMarkerEXTFn;
   glInvalidateFramebufferProc glInvalidateFramebufferFn;
   glInvalidateSubFramebufferProc glInvalidateSubFramebufferFn;
@@ -4974,13 +4947,9 @@ struct ProcsGL {
   glImportMemoryFdEXTContextANGLEProc glImportMemoryFdEXTContextANGLEFn;
   glImportMemoryWin32HandleEXTContextANGLEProc
       glImportMemoryWin32HandleEXTContextANGLEFn;
-  glImportMemoryZirconHandleANGLEContextANGLEProc
-      glImportMemoryZirconHandleANGLEContextANGLEFn;
   glImportSemaphoreFdEXTContextANGLEProc glImportSemaphoreFdEXTContextANGLEFn;
   glImportSemaphoreWin32HandleEXTContextANGLEProc
       glImportSemaphoreWin32HandleEXTContextANGLEFn;
-  glImportSemaphoreZirconHandleANGLEContextANGLEProc
-      glImportSemaphoreZirconHandleANGLEContextANGLEFn;
   glInsertEventMarkerEXTContextANGLEProc glInsertEventMarkerEXTContextANGLEFn;
   glInvalidateFramebufferContextANGLEProc glInvalidateFramebufferContextANGLEFn;
   glInvalidateSubFramebufferContextANGLEProc
@@ -5957,19 +5926,12 @@ class GL_EXPORT GLApi {
                                               GLuint64 size,
                                               GLenum handleType,
                                               void* handle) = 0;
-  virtual void glImportMemoryZirconHandleANGLEFn(GLuint memory,
-                                                 GLuint64 size,
-                                                 GLenum handleType,
-                                                 GLuint handle) = 0;
   virtual void glImportSemaphoreFdEXTFn(GLuint semaphore,
                                         GLenum handleType,
                                         GLint fd) = 0;
   virtual void glImportSemaphoreWin32HandleEXTFn(GLuint semaphore,
                                                  GLenum handleType,
                                                  void* handle) = 0;
-  virtual void glImportSemaphoreZirconHandleANGLEFn(GLuint semaphore,
-                                                    GLenum handleType,
-                                                    GLuint handle) = 0;
   virtual void glInsertEventMarkerEXTFn(GLsizei length, const char* marker) = 0;
   virtual void glInvalidateFramebufferFn(GLenum target,
                                          GLsizei numAttachments,
@@ -6862,14 +6824,10 @@ class GL_EXPORT GLApi {
 #define glImportMemoryFdEXT ::gl::g_current_gl_context->glImportMemoryFdEXTFn
 #define glImportMemoryWin32HandleEXT \
   ::gl::g_current_gl_context->glImportMemoryWin32HandleEXTFn
-#define glImportMemoryZirconHandleANGLE \
-  ::gl::g_current_gl_context->glImportMemoryZirconHandleANGLEFn
 #define glImportSemaphoreFdEXT \
   ::gl::g_current_gl_context->glImportSemaphoreFdEXTFn
 #define glImportSemaphoreWin32HandleEXT \
   ::gl::g_current_gl_context->glImportSemaphoreWin32HandleEXTFn
-#define glImportSemaphoreZirconHandleANGLE \
-  ::gl::g_current_gl_context->glImportSemaphoreZirconHandleANGLEFn
 #define glInsertEventMarkerEXT \
   ::gl::g_current_gl_context->glInsertEventMarkerEXTFn
 #define glInvalidateFramebuffer \

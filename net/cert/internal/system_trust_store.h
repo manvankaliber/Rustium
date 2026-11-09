@@ -107,12 +107,6 @@ class SystemTrustStore {
 #endif
 };
 
-#if BUILDFLAG(IS_FUCHSIA)
-// Creates an instance of SystemTrustStore that wraps the current platform's SSL
-// trust store. This cannot return nullptr.
-NET_EXPORT std::unique_ptr<SystemTrustStore> CreateSslSystemTrustStore();
-#endif
-
 #if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
 #if BUILDFLAG(USE_NSS_SERVER_CERTS) || BUILDFLAG(IS_MAC) || \
     BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)

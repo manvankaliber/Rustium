@@ -208,9 +208,9 @@
 #include "ui/gfx/geometry/point_f.h"
 #endif
 
+using ::testing::ElementsAre;
 using ::testing::SizeIs;
 using ::testing::WhenSorted;
-using ::testing::ElementsAre;
 
 namespace content {
 
@@ -242,8 +242,9 @@ void PostMessageAndWaitForReply(FrameTreeNode* sender_ftn,
 
   std::string status;
   while (msg_queue.WaitForMessage(&status)) {
-    if (status == reply_status)
+    if (status == reply_status) {
       break;
+    }
   }
 }
 
@@ -338,14 +339,16 @@ class VisibleSecurityStateObserver : public WebContentsObserver {
   // the constructor notifies about a visible security state change and the
   // |condition_callback| evaluates to true.
   void Wait() {
-    if (condition_callback_.Run(web_contents()))
+    if (condition_callback_.Run(web_contents())) {
       return;
+    }
     run_loop_.Run();
   }
 
   void DidChangeVisibleSecurityState() override {
-    if (condition_callback_.Run(web_contents()))
+    if (condition_callback_.Run(web_contents())) {
       run_loop_.Quit();
+    }
   }
 
  private:
@@ -396,10 +399,11 @@ CreateParsedPermissionsPolicyDeclaration(
   declaration.matches_all_origins = match_all_origins;
   declaration.matches_opaque_src = match_all_origins;
 
-  for (const auto& origin : origins)
+  for (const auto& origin : origins) {
     declaration.allowed_origins.emplace_back(
         *network::OriginWithPossibleWildcards::FromOrigin(
             url::Origin::Create(origin)));
+  }
 
   std::sort(declaration.allowed_origins.begin(),
             declaration.allowed_origins.end());
@@ -414,9 +418,10 @@ network::ParsedPermissionsPolicy CreateParsedPermissionsPolicy(
     const std::optional<GURL> self_if_matches = std::nullopt) {
   network::ParsedPermissionsPolicy result;
   result.reserve(features.size());
-  for (const auto& feature : features)
+  for (const auto& feature : features) {
     result.push_back(CreateParsedPermissionsPolicyDeclaration(
         feature, origins, match_all_origins, self_if_matches));
+  }
   return result;
 }
 
@@ -758,8 +763,7 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest, CrossSiteIframe) {
   EXPECT_NE(rvh, child->current_frame_host()->render_view_host());
   EXPECT_NE(shell()->web_contents()->GetSiteInstance(),
             child->current_frame_host()->GetSiteInstance());
-  EXPECT_NE(site_instance,
-            child->current_frame_host()->GetSiteInstance());
+  EXPECT_NE(site_instance, child->current_frame_host()->GetSiteInstance());
   EXPECT_NE(shell()->web_contents()->GetPrimaryMainFrame()->GetProcess(),
             child->current_frame_host()->GetProcess());
   EXPECT_NE(rph, child->current_frame_host()->GetProcess());
@@ -4196,10 +4200,11 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
 
   // When ProactivelySwapBrowsingInstance A1 and A3 aren't using the same
   // BrowsingInstance.
-  if (CanCrossSiteNavigationsProactivelySwapBrowsingInstances())
+  if (CanCrossSiteNavigationsProactivelySwapBrowsingInstances()) {
     EXPECT_NE(site_instance, pending_rfh->GetSiteInstance());
-  else
+  } else {
     EXPECT_EQ(site_instance, pending_rfh->GetSiteInstance());
+  }
 
   EXPECT_FALSE(rvh_routing_id == pending_rvh->GetRoutingID() &&
                rvh_process_id == pending_rvh->GetProcess()->GetDeprecatedID());
@@ -4291,8 +4296,9 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
   // document's body.
   std::string status;
   while (msg_queue.WaitForMessage(&status)) {
-    if (status == "\"document-blur\"")
+    if (status == "\"document-blur\"") {
       break;
+    }
   }
 
   // The root frame should be focused again.
@@ -5470,8 +5476,9 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
   EXPECT_EQ(expected_title, title_watcher.WaitAndGetTitle());
 
   // Check that the current RenderFrameHost has stopped loading.
-  if (root->child_at(0)->current_frame_host()->is_loading())
+  if (root->child_at(0)->current_frame_host()->is_loading()) {
     load_observer.Wait();
+  }
 
   // The last successful url shouldn't be the blocked url.
   EXPECT_NE(blocked_url,
@@ -5544,8 +5551,9 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
   EXPECT_EQ(expected_title, title_watcher.WaitAndGetTitle());
 
   // Check that the current RenderFrameHost has stopped loading.
-  if (root->child_at(0)->current_frame_host()->is_loading())
+  if (root->child_at(0)->current_frame_host()->is_loading()) {
     load_observer2.Wait();
+  }
 
   // The last successful url shouldn't be the blocked url.
   EXPECT_NE(blocked_url,
@@ -5616,8 +5624,9 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
   EXPECT_EQ(expected_title, title_watcher.WaitAndGetTitle());
 
   // Check that the current RenderFrameHost has stopped loading.
-  if (navigating_frame->current_frame_host()->is_loading())
+  if (navigating_frame->current_frame_host()->is_loading()) {
     load_observer2.Wait();
+  }
 
   // The last successful url shouldn't be the blocked url.
   EXPECT_NE(blocked_url,
@@ -6232,7 +6241,7 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
   EXPECT_TRUE(observer.last_navigation_succeeded());
   EXPECT_EQ(about_blank_url, observer.last_navigation_url());
   scoped_refptr<SiteInstanceImpl> orig_site_instance =
-    child->current_frame_host()->GetSiteInstance();
+      child->current_frame_host()->GetSiteInstance();
   EXPECT_NE(root->current_frame_host()->GetSiteInstance(), orig_site_instance);
 
   // Navigate it to another cross-site url.
@@ -6436,8 +6445,9 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
 // Test for https://crbug.com/615575. It ensures that file chooser triggered
 // by a document in an out-of-process subframe works properly.
 IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest, FileChooserInSubframe) {
-  EXPECT_TRUE(NavigateToURL(shell(), embedded_test_server()->GetURL(
-      "a.com", "/cross_site_iframe_factory.html?a(b)")));
+  EXPECT_TRUE(NavigateToURL(
+      shell(), embedded_test_server()->GetURL(
+                   "a.com", "/cross_site_iframe_factory.html?a(b)")));
   FrameTreeNode* root = web_contents()->GetPrimaryFrameTree().root();
 
   GURL url(embedded_test_server()->GetURL("b.com", "/file_input.html"));
@@ -7624,8 +7634,9 @@ class RequestDelayingSitePerProcessBrowserTest
       const net::test_server::HttpRequest& request) {
     auto it = num_remaining_requests_to_delay_for_path_.find(
         request.GetURL().GetPath());
-    if (it == num_remaining_requests_to_delay_for_path_.end())
+    if (it == num_remaining_requests_to_delay_for_path_.end()) {
       return nullptr;
+    }
 
     // If there are requests to delay for this path, make a delayed request
     // which will be finished later. Otherwise fall through to the bottom and
@@ -7642,11 +7653,13 @@ class RequestDelayingSitePerProcessBrowserTest
   // all the delayed tasks. This will be called on the test server's thread.
   void MaybeStartRequests() {
     for (auto it : num_remaining_requests_to_delay_for_path_) {
-      if (it.second > 0)
+      if (it.second > 0) {
         return;
+      }
     }
-    for (auto& it : response_closures_)
+    for (auto& it : response_closures_) {
       std::move(it).Run();
+    }
   }
 
   // This class passes the delegates needed to respond to a request to the
@@ -7736,8 +7749,9 @@ class TextSelectionObserver : public TextInputManager::Observer {
   ~TextSelectionObserver() { text_input_manager_->RemoveObserver(this); }
 
   void WaitForSelectedText(const std::string& expected_text) {
-    if (last_selected_text_ == expected_text)
+    if (last_selected_text_ == expected_text) {
       return;
+    }
     expected_text_ = expected_text;
     loop_runner_ = new MessageLoopRunner();
     loop_runner_->Run();
@@ -7748,8 +7762,9 @@ class TextSelectionObserver : public TextInputManager::Observer {
                               RenderWidgetHostViewBase* updated_view) override {
     last_selected_text_ = base::UTF16ToUTF8(
         text_input_manager->GetTextSelection(updated_view)->selected_text());
-    if (last_selected_text_ == expected_text_ && loop_runner_)
+    if (last_selected_text_ == expected_text_ && loop_runner_) {
       loop_runner_->Quit();
+    }
   }
 
   const raw_ptr<TextInputManager> text_input_manager_;
@@ -8196,15 +8211,17 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
     // Force layout. This recomputes the element styles so that the <iframe>
     // gets the updated ComputedStyle::IsInert() flag. This triggers an update
     // of the associated RenderFrameProxyHost::IsInertForTesting().
-    for (FrameTreeNode* frame : {frame_a, frame_b, frame_c})
+    for (FrameTreeNode* frame : {frame_a, frame_b, frame_c}) {
       ExecuteScriptAsync(frame, "document.body.offsetLeft");
+    }
 
     // Propagating the inert flag requires sending messages in between the
     // browser and the renderers. Since they are using the same mojo interfaces
     // as ExecJs, waiting for an browser<->renderer roundtrip using ExecJs
     // should be enough to guarantee it has been propagate.
-    for (FrameTreeNode* frame : {frame_a, frame_b, frame_c})
+    for (FrameTreeNode* frame : {frame_a, frame_b, frame_c}) {
       EXPECT_TRUE(ExecJs(frame, "'Done'"));
+    }
   };
 
   waitForInertPropagated();
@@ -8886,26 +8903,25 @@ IN_PROC_BROWSER_TEST_P(
   //    `WILL_PROCESS_RESPONSE` time.
   TestNavigationThrottleInserter navigation_throttle_inserter(
       web_contents(),
-      base::BindRepeating(
-          [](NavigationThrottleRegistry& registry) -> void {
-            auto throttle = std::make_unique<TestNavigationThrottle>(registry);
-            auto* handle = &registry.GetNavigationHandle();
-            throttle->SetCallback(
-                TestNavigationThrottle::WILL_PROCESS_RESPONSE,
-                base::BindLambdaForTesting([handle]() {
-                  // Swap out the URL loader client endpoint and just drop the
-                  // mojo::Remote. This will trigger the mojo::Receiver to be
-                  // disconnected, which should still trigger fallback handling
-                  // despite body loading failing.
-                  mojo::Remote<network::mojom::URLLoaderClient>
-                      remote_to_be_dropped;
-                  auto* request = static_cast<NavigationRequest*>(handle);
-                  request->mutable_url_loader_client_endpoints_for_testing()
-                      ->url_loader_client =
-                      remote_to_be_dropped.BindNewPipeAndPassReceiver();
-                }));
-            registry.AddThrottle(std::move(throttle));
-          }));
+      base::BindRepeating([](NavigationThrottleRegistry& registry) -> void {
+        auto throttle = std::make_unique<TestNavigationThrottle>(registry);
+        auto* handle = &registry.GetNavigationHandle();
+        throttle->SetCallback(
+            TestNavigationThrottle::WILL_PROCESS_RESPONSE,
+            base::BindLambdaForTesting([handle]() {
+              // Swap out the URL loader client endpoint and just drop the
+              // mojo::Remote. This will trigger the mojo::Receiver to be
+              // disconnected, which should still trigger fallback handling
+              // despite body loading failing.
+              mojo::Remote<network::mojom::URLLoaderClient>
+                  remote_to_be_dropped;
+              auto* request = static_cast<NavigationRequest*>(handle);
+              request->mutable_url_loader_client_endpoints_for_testing()
+                  ->url_loader_client =
+                  remote_to_be_dropped.BindNewPipeAndPassReceiver();
+            }));
+        registry.AddThrottle(std::move(throttle));
+      }));
 
   // <object> fallback handling should never reach ReadyToCommitNavigation.
   AssertNoReadyToCommitNavigationCalls asserter(web_contents());
@@ -8971,26 +8987,25 @@ IN_PROC_BROWSER_TEST_P(
   //    `WILL_PROCESS_RESPONSE` time.
   TestNavigationThrottleInserter navigation_throttle_inserter(
       web_contents(),
-      base::BindRepeating(
-          [](NavigationThrottleRegistry& registry) -> void {
-            auto throttle = std::make_unique<TestNavigationThrottle>(registry);
-            auto* handle = &registry.GetNavigationHandle();
-            throttle->SetCallback(
-                TestNavigationThrottle::WILL_PROCESS_RESPONSE,
-                base::BindLambdaForTesting([handle]() {
-                  // Swap out the URL loader client endpoint and just drop the
-                  // mojo::Remote. This will trigger the mojo::Receiver to be
-                  // disconnected, which should still trigger fallback handling
-                  // despite body loading failing.
-                  mojo::Remote<network::mojom::URLLoaderClient>
-                      remote_to_be_dropped;
-                  auto* request = static_cast<NavigationRequest*>(handle);
-                  request->mutable_url_loader_client_endpoints_for_testing()
-                      ->url_loader_client =
-                      remote_to_be_dropped.BindNewPipeAndPassReceiver();
-                }));
-            registry.AddThrottle(std::move(throttle));
-          }));
+      base::BindRepeating([](NavigationThrottleRegistry& registry) -> void {
+        auto throttle = std::make_unique<TestNavigationThrottle>(registry);
+        auto* handle = &registry.GetNavigationHandle();
+        throttle->SetCallback(
+            TestNavigationThrottle::WILL_PROCESS_RESPONSE,
+            base::BindLambdaForTesting([handle]() {
+              // Swap out the URL loader client endpoint and just drop the
+              // mojo::Remote. This will trigger the mojo::Receiver to be
+              // disconnected, which should still trigger fallback handling
+              // despite body loading failing.
+              mojo::Remote<network::mojom::URLLoaderClient>
+                  remote_to_be_dropped;
+              auto* request = static_cast<NavigationRequest*>(handle);
+              request->mutable_url_loader_client_endpoints_for_testing()
+                  ->url_loader_client =
+                  remote_to_be_dropped.BindNewPipeAndPassReceiver();
+            }));
+        registry.AddThrottle(std::move(throttle));
+      }));
 
   // <object> fallback handling should never reach ReadyToCommitNavigation.
   AssertNoReadyToCommitNavigationCalls asserter(web_contents());
@@ -9522,8 +9537,9 @@ class TouchSelectionControllerClientTestWrapper
   // TouchSelectionControllerClient:
   void OnSelectionEvent(ui::SelectionEventType event) override {
     client_->OnSelectionEvent(event);
-    if (run_loop_ && event == expected_event_)
+    if (run_loop_ && event == expected_event_) {
       run_loop_->Quit();
+    }
   }
 
   bool SupportsAnimation() const override {
@@ -9714,8 +9730,9 @@ class TouchSelectionControllerClientAndroidSiteIsolationTest
         handles_in_place = start_near_y && start_in_x_range && end_near_y &&
                            end_in_x_range && has_end_handle;
       }
-      if (!handles_in_place)
+      if (!handles_in_place) {
         DelayBy(base::Milliseconds(100));
+      }
     }
   }
 
@@ -9965,8 +9982,9 @@ class TouchEventObserver : public RenderWidgetHost::InputEventObserver {
   void OnInputEvent(const RenderWidgetHost& widget,
                     const blink::WebInputEvent& event,
                     InputEventSource source) override {
-    if (!blink::WebInputEvent::IsTouchEventType(event.GetType()))
+    if (!blink::WebInputEvent::IsTouchEventType(event.GetType())) {
       return;
+    }
 
     const auto& touch_event = static_cast<const blink::WebTouchEvent&>(event);
     outgoing_touch_event_ids_->push_back(touch_event.unique_touch_event_id);
@@ -9976,8 +9994,9 @@ class TouchEventObserver : public RenderWidgetHost::InputEventObserver {
                        blink::mojom::InputEventResultSource source,
                        blink::mojom::InputEventResultState state,
                        const blink::WebInputEvent& event) override {
-    if (!blink::WebInputEvent::IsTouchEventType(event.GetType()))
+    if (!blink::WebInputEvent::IsTouchEventType(event.GetType())) {
       return;
+    }
 
     const auto& touch_event = static_cast<const blink::WebTouchEvent&>(event);
     acked_touch_event_ids_->push_back(touch_event.unique_touch_event_id);
@@ -10055,14 +10074,15 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
   {
     // We need to know the center of the child's body, but in root view
     // coordinates.
-    std::string str = EvalJs(child_node,
-                             "var rect = document.body.getBoundingClientRect();\
+    std::string str =
+        EvalJs(child_node,
+               "var rect = document.body.getBoundingClientRect();\
          var point = {\
            x: rect.left + rect.width / 2,\
            y: rect.top + rect.height / 2\
          };\
          JSON.stringify(point);")
-                          .ExtractString();
+            .ExtractString();
     ConvertJSONToPoint(str, &child_tap_point);
     child_tap_point = child_node->current_frame_host()
                           ->GetView()
@@ -11054,8 +11074,9 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
   // Make sure the child frame keeps generating compositor frames.
   RenderFrameSubmissionObserver frame_counter(
       child_view->host()->render_frame_metadata_provider());
-  while (frame_counter.render_frame_count() < 10)
+  while (frame_counter.render_frame_count() < 10) {
     frame_counter.WaitForAnyFrameSubmission();
+  }
 }
 
 IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest, FrameDepthSimple) {
@@ -11070,8 +11091,9 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest, FrameDepthSimple) {
        ++expected_depth) {
     CheckFrameDepth(expected_depth, node);
 
-    if (expected_depth + 1 < number_of_nodes)
+    if (expected_depth + 1 < number_of_nodes) {
       node = node->child_at(0);
+    }
   }
 }
 
@@ -11453,8 +11475,9 @@ class ClosePageBeforeCommitHelper : public DidCommitNavigationInterceptor {
     EXPECT_TRUE(rfh->render_view_host()->is_active());
     rfh->GetMainFrame()->ClosePage(
         RenderFrameHostImpl::ClosePageSource::kBrowser);
-    if (run_loop_)
+    if (run_loop_) {
       run_loop_->Quit();
+    }
     return true;
   }
 
@@ -11884,8 +11907,9 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTouchActionTest,
   // TouchAction::kAuto in iframe's child.
   GetTouchActionsForChild(router, rwhv_root, rwhv_child, point_inside_child,
                           effective_touch_action, allowed_touch_action);
-  if (allowed_touch_action.has_value())
+  if (allowed_touch_action.has_value()) {
     EXPECT_EQ(expected_touch_action, allowed_touch_action.value());
+  }
 
   EXPECT_TRUE(ExecJs(shell(), "document.body.style.touchAction = 'auto'"));
   WaitForTouchActionUpdated(root_thread_observer.get(),
@@ -11896,8 +11920,9 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTouchActionTest,
   EXPECT_EQ(expected_touch_action, effective_touch_action.has_value()
                                        ? effective_touch_action.value()
                                        : cc::TouchAction::kAuto);
-  if (allowed_touch_action.has_value())
+  if (allowed_touch_action.has_value()) {
     EXPECT_EQ(expected_touch_action, allowed_touch_action.value());
+  }
 }
 
 // Flaky on all platform. http://crbug.com/9515270
@@ -11958,8 +11983,9 @@ IN_PROC_BROWSER_TEST_F(
   cc::TouchAction expected_touch_action = cc::TouchAction::kPan;
   GetTouchActionsForChild(router, rwhv_root, rwhv_child, point_inside_child,
                           effective_touch_action, allowed_touch_action);
-  if (allowed_touch_action.has_value())
+  if (allowed_touch_action.has_value()) {
     EXPECT_EQ(expected_touch_action, allowed_touch_action.value());
+  }
 
   // Child should inherit effective touch action none from parent.
   EXPECT_TRUE(ExecJs(shell(), "document.body.style.touchAction = 'auto'"));
@@ -11970,8 +11996,9 @@ IN_PROC_BROWSER_TEST_F(
                             child_thread_observer.get());
   GetTouchActionsForChild(router, rwhv_root, rwhv_child, point_inside_child,
                           effective_touch_action, allowed_touch_action);
-  if (allowed_touch_action.has_value())
+  if (allowed_touch_action.has_value()) {
     EXPECT_EQ(expected_touch_action, allowed_touch_action.value());
+  }
 
   // Child should inherit effective touch action auto from root and parent.
   EXPECT_TRUE(ExecJs(
@@ -11982,8 +12009,9 @@ IN_PROC_BROWSER_TEST_F(
   expected_touch_action = cc::TouchAction::kAuto;
   GetTouchActionsForChild(router, rwhv_root, rwhv_child, point_inside_child,
                           effective_touch_action, allowed_touch_action);
-  if (allowed_touch_action.has_value())
+  if (allowed_touch_action.has_value()) {
     EXPECT_EQ(expected_touch_action, allowed_touch_action.value());
+  }
 }
 
 IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTouchActionTest,
@@ -12038,8 +12066,9 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTouchActionTest,
       cc::TouchAction::kInternalNotWritable;
   GetTouchActionsForChild(router, rwhv_root, rwhv_child, point_inside_child,
                           effective_touch_action, allowed_touch_action);
-  if (allowed_touch_action.has_value())
+  if (allowed_touch_action.has_value()) {
     EXPECT_EQ(expected_touch_action, allowed_touch_action.value());
+  }
 
   // After navigation, child should still inherit effective touch action none
   // from parent.
@@ -12061,8 +12090,9 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTouchActionTest,
                             child_thread_observer.get());
   GetTouchActionsForChild(router, rwhv_root, rwhv_child, point_inside_child,
                           effective_touch_action, allowed_touch_action);
-  if (allowed_touch_action.has_value())
+  if (allowed_touch_action.has_value()) {
     EXPECT_EQ(expected_touch_action, allowed_touch_action.value());
+  }
 }
 
 IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
@@ -12429,13 +12459,8 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
 // MessagePort is not cleared on the other side, resulting in Zircon killing the
 // process. See the comment referencing the same bug in
 // //mojo/core/channel_fuchsia.cc
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_RenderFrameProxyNotRecreatedDuringProcessShutdown \
-  DISABLED_RenderFrameProxyNotRecreatedDuringProcessShutdown
-#else
 #define MAYBE_RenderFrameProxyNotRecreatedDuringProcessShutdown \
   RenderFrameProxyNotRecreatedDuringProcessShutdown
-#endif
 IN_PROC_BROWSER_TEST_P(
     SitePerProcessBrowserTest,
     MAYBE_RenderFrameProxyNotRecreatedDuringProcessShutdown) {
@@ -12445,8 +12470,7 @@ IN_PROC_BROWSER_TEST_P(
   EXPECT_TRUE(NavigateToURL(shell(), main_url));
   FrameTreeNode* root = web_contents()->GetPrimaryFrameTree().root();
 
-  GURL popup_url(embedded_test_server()->GetURL(
-      "b.com", "/title1.html"));
+  GURL popup_url(embedded_test_server()->GetURL("b.com", "/title1.html"));
   Shell* new_shell = OpenPopup(root, popup_url, "foo");
   FrameTreeNode* popup_root =
       static_cast<WebContentsImpl*>(new_shell->web_contents())
@@ -13344,8 +13368,9 @@ class InnerWebContentsAttachTest
     virtual ~PrepareFrameJob() {}
 
     void WaitForPreparedFrame() {
-      if (did_call_prepare_)
+      if (did_call_prepare_) {
         return;
+      }
       run_loop_.Run();
     }
 
@@ -13358,8 +13383,9 @@ class InnerWebContentsAttachTest
       did_call_prepare_ = true;
       new_render_frame_host_ =
           static_cast<RenderFrameHostImpl*>(render_frame_host);
-      if (run_loop_.running())
+      if (run_loop_.running()) {
         run_loop_.Quit();
+      }
     }
 
     bool did_call_prepare_ = false;
@@ -13386,10 +13412,10 @@ IN_PROC_BROWSER_TEST_P(InnerWebContentsAttachTest, PrepareFrame) {
       child_frame_origin_type ==
               InnerWebContentsAttachChildFrameOriginType::kSameOriginAboutBlank
           ? GURL(url::kAboutBlankURL)
-          : child_frame_origin_type ==
-                    InnerWebContentsAttachChildFrameOriginType::kSameOriginOther
-                ? embedded_test_server()->GetURL("a.com", "/title1.html")
-                : embedded_test_server()->GetURL("b.com", "/title1.html");
+      : child_frame_origin_type ==
+              InnerWebContentsAttachChildFrameOriginType::kSameOriginOther
+          ? embedded_test_server()->GetURL("a.com", "/title1.html")
+          : embedded_test_server()->GetURL("b.com", "/title1.html");
   SCOPED_TRACE(testing::Message()
                << " Child frame URL:" << child_frame_url.spec()
                << " 'beforeunload' modal shown: " << test_beforeunload
@@ -13408,8 +13434,9 @@ IN_PROC_BROWSER_TEST_P(InnerWebContentsAttachTest, PrepareFrame) {
   AppModalDialogWaiter dialog_waiter(shell());
   PrepareFrameJob prepare_job(original_child_frame,
                               proceed_through_beforeunload);
-  if (test_beforeunload)
+  if (test_beforeunload) {
     dialog_waiter.Wait();
+  }
   prepare_job.WaitForPreparedFrame();
   auto* new_render_frame_host = prepare_job.prepared_frame();
   bool did_prepare_frame = new_render_frame_host;
@@ -13432,8 +13459,9 @@ IN_PROC_BROWSER_TEST_P(InnerWebContentsAttachTest, PrepareFrame) {
   ASSERT_TRUE(!did_prepare_frame ||
               (original_child_frame_observer.deleted() != is_same_origin));
   // Finally, try the WebContents attach API and make sure we are doing OK.
-  if (new_render_frame_host)
+  if (new_render_frame_host) {
     CreateAndAttachInnerContents(new_render_frame_host);
+  }
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -13491,7 +13519,7 @@ IN_PROC_BROWSER_TEST_P(SitePerProcessBrowserTest,
 }
 
 // TODO(crbug.com/425866013): Fix and re-enable flaky test.
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_ANDROID)
 #define MAYBE_AccessWindowProxyOfCrashedFrameAfterNavigation \
   DISABLED_AccessWindowProxyOfCrashedFrameAfterNavigation
 #else

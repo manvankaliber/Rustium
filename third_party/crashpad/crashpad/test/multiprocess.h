@@ -28,11 +28,7 @@ namespace internal {
 struct MultiprocessInfo;
 }  // namespace internal
 
-#if BUILDFLAG(IS_FUCHSIA)
-using ReturnCodeType = int64_t;
-#else
 using ReturnCodeType = int;
-#endif
 
 //! \brief Manages a multiprocess test.
 //!
@@ -55,13 +51,11 @@ class Multiprocess {
     //! that call `exit()` or `_exit()`.
     kTerminationNormal = false,
 
-#if !BUILDFLAG(IS_FUCHSIA)  // There are no signals on Fuchsia.
     //! \brief The child terminated by signal.
     //!
     //! Signal termination happens as a result of a crash, a call to `abort()`,
     //! assertion failure (including Google Test assertions), etc.
     kTerminationSignal,
-#endif  // !BUILDFLAG(IS_FUCHSIA)
   };
 
   Multiprocess();
@@ -131,17 +125,17 @@ class Multiprocess {
   //! Subclass implementations may signal failure by raising their own fatal
   //! Google Test assertions.
   virtual void PreFork()
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_WIN)
       = 0
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#endif
       ;
 
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_WIN)
   //! \brief Returns the child process’ process ID.
   //!
   //! This method may only be called by the parent process.
   pid_t ChildPID() const;
-#endif  // !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
   //! \brief Returns the read pipe’s file handle.
   //!

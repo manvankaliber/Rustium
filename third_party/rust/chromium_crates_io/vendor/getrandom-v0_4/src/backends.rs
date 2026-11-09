@@ -125,10 +125,7 @@ cfg_if! {
     } else if #[cfg(target_os = "netbsd")] {
         mod netbsd;
         pub use netbsd::*;
-    } else if #[cfg(target_os = "fuchsia")] {
-        mod fuchsia;
-        pub use fuchsia::*;
-    } else if #[cfg(any(
+    }  else if #[cfg(any(
         target_os = "ios",
         target_os = "visionos",
         target_os = "watchos",

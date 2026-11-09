@@ -57,8 +57,9 @@ GURL ConvertArgumentToURL(const base::CommandLine::StringType& arg) {
 #else
   GURL url(arg);
 #endif
-  if (url.is_valid() && url.has_scheme())
+  if (url.is_valid() && url.has_scheme()) {
     return url;
+  }
 
   return net::FilePathToFileURL(
       base::MakeAbsoluteFilePath(base::FilePath(arg)));
@@ -243,11 +244,6 @@ int HeadlessShellMain(content::ContentMainParams params) {
 
 #if BUILDFLAG(IS_MAC)
   command_line.AppendSwitch(os_crypt::switches::kUseMockKeychain);
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-  // TODO(fuchsia): Remove this when GPU accelerated compositing is ready.
-  command_line.AppendSwitch(::switches::kDisableGpu);
 #endif
 
   if (command_line.HasSwitch(switches::kVersion)) {

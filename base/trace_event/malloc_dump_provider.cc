@@ -313,9 +313,9 @@ void ReportAppleAllocStats(size_t* total_virtual_size,
 }
 #endif
 
-#if (PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && BUILDFLAG(IS_ANDROID)) || \
-    (!PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && !BUILDFLAG(IS_WIN) &&    \
-     !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_FUCHSIA))
+#if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && BUILDFLAG(IS_ANDROID) || \
+    !PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && !BUILDFLAG(IS_WIN) &&   \
+        !BUILDFLAG(IS_APPLE)
 void ReportMallinfoStats(ProcessMemoryDump* pmd,
                          MemoryDumpLevelOfDetail level_of_detail,
                          size_t* total_virtual_size,
@@ -507,7 +507,7 @@ const char MallocDumpProvider::kAllocatedObjects[] = "malloc/allocated_objects";
 const char MallocDumpProvider::kSuballocationTarget[] =
 #if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
     "malloc/allocated_objects/partitions";
-#elif !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_FUCHSIA)
+#elif !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_APPLE)
     // mallinfo(3) is the only backend, see ReportMallinfoStats().
     "malloc/allocated_objects/sys_malloc";
 #else
@@ -625,8 +625,6 @@ bool MallocDumpProvider::OnMemoryDump(const MemoryDumpArgs& args,
   ReportWinHeap(pmd, args.level_of_detail, &total_virtual_size, &resident_size,
                 &allocated_objects_size, &allocated_objects_count,
                 &excluded_waste);
-#elif BUILDFLAG(IS_FUCHSIA)
-// TODO(fuchsia): Port, see https://crbug.com/706592.
 #else
   ReportMallinfoStats(pmd, args.level_of_detail, &total_virtual_size,
                       &resident_size, &allocated_objects_size,

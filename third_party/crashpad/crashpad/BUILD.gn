@@ -23,7 +23,7 @@ config("crashpad_config") {
   ]
 }
 
-if (crashpad_is_in_chromium || crashpad_is_in_fuchsia) {
+if (crashpad_is_in_chromium) {
   test("crashpad_tests") {
     deps = [
       "client:client_test",
@@ -40,17 +40,10 @@ if (crashpad_is_in_chromium || crashpad_is_in_fuchsia) {
       data_deps += [ "//testing/buildbot/filters:crashpad_tests_filters" ]
     }
 
-    if (!crashpad_is_ios && !crashpad_is_fuchsia) {
+    if (!crashpad_is_ios) {
       deps += [ "handler:handler_test" ]
     }
-    if (crashpad_is_in_fuchsia) {
-      # TODO(fuchsia:46559): Fix the leaks and remove this.
-      deps += [ "//build/config/sanitizers:suppress-lsan.DO-NOT-USE-THIS" ]
 
-      # TODO(fxbug.dev/42059784): Remove this once the underlying issue is
-      # addressed.
-      exclude_toolchain_tags = [ "hwasan" ]
-    }
     if (crashpad_is_android) {
       use_raw_android_executable = true
       deps += [ "handler:crashpad_handler" ]
@@ -85,71 +78,6 @@ if (crashpad_is_in_chromium || crashpad_is_in_fuchsia) {
       ]
     }
   }
-
-  if (crashpad_is_in_fuchsia) {
-    import("//build/components.gni")
-
-    fuchsia_test_component("crashpad-test-component") {
-      manifest = "test/fuchsia_crashpad_tests.cml"
-      deps = [
-        ":crashpad-test-resources",
-        ":crashpad_tests",
-        "snapshot:crashpad_snapshot_test_both_dt_hash_styles",
-        "snapshot:crashpad_snapshot_test_module",
-        "snapshot:crashpad_snapshot_test_module_large",
-        "snapshot:crashpad_snapshot_test_module_small",
-        "test:crashpad_test_test_multiprocess_exec_test_child",
-      ]
-    }
-
-    fuchsia_test_package("crashpad-test") {
-      test_components = [ ":crashpad-test-component" ]
-
-      deps = [
-        "//src/connectivity/network/dns:component",
-        "//src/connectivity/network/netstack3:component-for-tests",
-      ]
-
-      test_specs = {
-        log_settings = {
-          max_severity = "FATAL"
-        }
-      }
-    }
-
-    _resource_files = [
-      "test/test_paths_test_data_root.txt",
-      "util/net/testdata/ascii_http_body.txt",
-      "util/net/testdata/binary_http_body.dat",
-    ]
-    if (crashpad_use_boringssl_for_http_transport_socket) {
-      _resource_files += [
-        "util/net/testdata/crashpad_util_test_cert.pem",
-        "util/net/testdata/crashpad_util_test_key.pem",
-      ]
-    }
-
-    _resources = []
-    foreach(resource_file, _resource_files) {
-      _resource_file_target = string_replace(resource_file, "/", "_")
-
-      resource("${_resource_file_target}") {
-        sources = [ "${resource_file}" ]
-        outputs = [ "data/${resource_file}" ]
-      }
-      _resources += [ ":${_resource_file_target}" ]
-    }
-
-    group("crashpad-test-resources") {
-      deps = _resources
-    }
-
-    group("tests") {
-      testonly = true
-
-      deps = [ ":crashpad-test" ]
-    }
-  }
 } else if (crashpad_is_standalone || crashpad_is_external) {
   test("crashpad_client_test") {
     deps = [
@@ -163,7 +91,7 @@ if (crashpad_is_in_chromium || crashpad_is_in_fuchsia) {
       "handler:handler_test",
       "test:googletest_main",
     ]
-    if (crashpad_is_ios || crashpad_is_fuchsia) {
+    if (crashpad_is_ios) {
       deps -= [ "handler:handler_test" ]
     }
   }

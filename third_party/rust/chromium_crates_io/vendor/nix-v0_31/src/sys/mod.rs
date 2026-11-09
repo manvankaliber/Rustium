@@ -1,10 +1,7 @@
 //! Mostly platform-specific functionality
 #[cfg(any(
     freebsdlike,
-    all(
-        target_os = "linux",
-        not(any(target_env = "uclibc", target_env = "ohos"))
-    ),
+    all(target_os = "linux", not(any(target_env = "uclibc", target_env = "ohos"))),
     apple_targets,
     target_os = "netbsd"
 ))]
@@ -34,14 +31,7 @@ feature! {
     pub mod fanotify;
 }
 
-#[cfg(any(
-    bsd,
-    linux_android,
-    solarish,
-    target_os = "fuchsia",
-    target_os = "redox",
-    target_os = "cygwin",
-))]
+#[cfg(any(bsd, linux_android, solarish, target_os = "redox", target_os = "cygwin"))]
 #[cfg(feature = "ioctl")]
 #[cfg_attr(docsrs, doc(cfg(feature = "ioctl")))]
 #[macro_use]
@@ -94,12 +84,7 @@ feature! {
     pub mod reboot;
 }
 
-#[cfg(not(any(
-    target_os = "redox",
-    target_os = "fuchsia",
-    target_os = "solaris",
-    target_os = "haiku"
-)))]
+#[cfg(not(any(target_os = "redox", target_os = "solaris", target_os = "haiku")))]
 feature! {
     #![feature = "resource"]
     pub mod resource;
@@ -137,13 +122,7 @@ feature! {
     pub mod stat;
 }
 
-#[cfg(any(
-    linux_android,
-    freebsdlike,
-    apple_targets,
-    target_os = "openbsd",
-    target_os = "cygwin"
-))]
+#[cfg(any(linux_android, freebsdlike, apple_targets, target_os = "openbsd", target_os = "cygwin"))]
 feature! {
     #![feature = "fs"]
     pub mod statfs;
@@ -195,12 +174,7 @@ feature! {
 }
 
 #[cfg(all(
-    any(
-        target_os = "freebsd",
-        solarish,
-        target_os = "linux",
-        target_os = "netbsd"
-    ),
+    any(target_os = "freebsd", solarish, target_os = "linux", target_os = "netbsd"),
     feature = "time",
     feature = "signal"
 ))]

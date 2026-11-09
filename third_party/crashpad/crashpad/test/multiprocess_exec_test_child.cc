@@ -23,9 +23,7 @@
 #include "build/build_config.h"
 
 #if BUILDFLAG(IS_POSIX)
-#if !BUILDFLAG(IS_FUCHSIA)
 #include <sys/resource.h>
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 #include <unistd.h>
 #elif BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -34,18 +32,11 @@
 int main(int argc, char* argv[]) {
 #if BUILDFLAG(IS_POSIX)
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // getrlimit() is not implemented on Fuchsia. By construction, the child only
-  // receieves specific fds that it's given, but check low values as mild
-  // verification.
-  int last_fd = 1024;
-#else
   rlimit rlimit_nofile;
   if (getrlimit(RLIMIT_NOFILE, &rlimit_nofile) != 0) {
     LOG(FATAL) << "getrlimit";
   }
   int last_fd = static_cast<int>(rlimit_nofile.rlim_cur);
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
   // Make sure that there’s nothing open at any FD higher than 3. All FDs other
   // than stdin, stdout, and stderr should have been closed prior to or at
@@ -76,8 +67,8 @@ int main(int argc, char* argv[]) {
   char c;
   DWORD bytes_read;
   HANDLE stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
-  if (!ReadFile(stdin_handle, &c, 1, &bytes_read, nullptr) ||
-      bytes_read != 1 || c != 'z') {
+  if (!ReadFile(stdin_handle, &c, 1, &bytes_read, nullptr) || bytes_read != 1 ||
+      c != 'z') {
     LOG(FATAL) << "ReadFile";
   }
 

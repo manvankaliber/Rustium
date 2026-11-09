@@ -267,12 +267,6 @@ int UtilityMain(MainFunctionParams parameters) {
   }
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // On Fuchsia always use IO threads to allow FIDL calls.
-  if (message_pump_type == base::MessagePumpType::DEFAULT)
-    message_pump_type = base::MessagePumpType::IO;
-#endif  // BUILDFLAG(IS_FUCHSIA)
-
   // The main task executor of the utility process.
   base::SingleThreadTaskExecutor main_thread_task_executor(
       message_pump_type, /*is_main_thread=*/true);
@@ -500,8 +494,9 @@ int UtilityMain(MainFunctionParams parameters) {
   if (!sandbox::policy::IsUnsandboxedSandboxType(sandbox_type) &&
       sandbox_type != sandbox::mojom::Sandbox::kCdm &&
       sandbox_type != sandbox::mojom::Sandbox::kMediaFoundationCdm) {
-    if (!g_utility_target_services)
+    if (!g_utility_target_services) {
       return false;
+    }
 
     sandbox::policy::WarmupRandomnessInfrastructure();
 

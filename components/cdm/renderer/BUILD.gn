@@ -13,7 +13,6 @@ static_library("renderer") {
     "//chromecast/*",
     "//components/cdm/*",
     "//content/shell/*",
-    "//fuchsia_web/*",
   ]
 
   sources = [

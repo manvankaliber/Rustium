@@ -96,15 +96,15 @@ TEST_P(LayerTreeHostFiltersPixelTest, BackdropFilterBlurRect) {
     GTEST_SKIP() << "TODO(crbug.com/40839215): Uninitialized data error";
   }
 #endif
-  scoped_refptr<SolidColorLayer> background = CreateSolidColorLayer(
-      gfx::Rect(200, 200), SK_ColorWHITE);
+  scoped_refptr<SolidColorLayer> background =
+      CreateSolidColorLayer(gfx::Rect(200, 200), SK_ColorWHITE);
 
   // The green box is entirely behind a layer with backdrop blur, so it
   // should appear blurred on its edges.
-  scoped_refptr<SolidColorLayer> green = CreateSolidColorLayer(
-      gfx::Rect(50, 50, 100, 100), kCSSGreen);
-  scoped_refptr<SolidColorLayer> blur = CreateSolidColorLayer(
-      gfx::Rect(30, 30, 140, 140), SK_ColorTRANSPARENT);
+  scoped_refptr<SolidColorLayer> green =
+      CreateSolidColorLayer(gfx::Rect(50, 50, 100, 100), kCSSGreen);
+  scoped_refptr<SolidColorLayer> blur =
+      CreateSolidColorLayer(gfx::Rect(30, 30, 140, 140), SK_ColorTRANSPARENT);
   background->AddChild(green);
   background->AddChild(blur);
 
@@ -181,9 +181,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_BackdropFilterBlurRadius) {
   gfx::RRectF backdrop_filter_bounds(gfx::RectF(gfx::SizeF(blur->bounds())), 0);
   blur->SetBackdropFilterBounds(backdrop_filter_bounds);
 
-#if BUILDFLAG(IS_FUCHSIA)
-  pixel_comparator_ = std::make_unique<FuzzyPixelOffByOneComparator>();
-#elif BUILDFLAG(IS_WIN) || defined(ARCH_CPU_ARM64)
+#if BUILDFLAG(IS_WIN) || defined(ARCH_CPU_ARM64)
   // Windows and ARM64 have 436 pixels off by 1 or 2: crbug.com/259915
   float percentage_pixels_error = 1.09f;  // 436px / (200*200)
   pixel_comparator_ = std::make_unique<FuzzyPixelComparator>(
@@ -231,7 +229,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, BackdropFilterBlurRounded) {
   // See http://crbug.com/259915
   int small_error_threshold = 64;  // 25% of 255.
   // Allow for ~1 perimeter of the clip path to have a small error.
-  float percentage_pixels_small_error = 100.f * (100*4) / (200*200);
+  float percentage_pixels_small_error = 100.f * (100 * 4) / (200 * 200);
   int large_error_limit = 128;  // Off by two samples in 4 MSAA.
   float percentage_pixels_large_error = 0.01f * percentage_pixels_small_error;
   // Divide average error by 4 since we blur most of the result.
@@ -257,16 +255,16 @@ TEST_P(LayerTreeHostFiltersPixelTest, BackdropFilterBlurOutsets) {
     GTEST_SKIP() << "TODO(crbug.com/40839215): Uninitialized data error";
   }
 #endif
-  scoped_refptr<SolidColorLayer> background = CreateSolidColorLayer(
-      gfx::Rect(200, 200), SK_ColorWHITE);
+  scoped_refptr<SolidColorLayer> background =
+      CreateSolidColorLayer(gfx::Rect(200, 200), SK_ColorWHITE);
 
   // The green border is outside the layer with backdrop blur, so the backdrop
   // blur should not include pixels from outside its layer borders. So the
   // interior region of the transparent layer should be perfectly white.
   scoped_refptr<SolidColorLayer> green_border = CreateSolidColorLayerWithBorder(
       gfx::Rect(1, 1, 198, 198), SK_ColorWHITE, 10, kCSSGreen);
-  scoped_refptr<SolidColorLayer> blur = CreateSolidColorLayer(
-      gfx::Rect(12, 12, 176, 176), SK_ColorTRANSPARENT);
+  scoped_refptr<SolidColorLayer> blur =
+      CreateSolidColorLayer(gfx::Rect(12, 12, 176, 176), SK_ColorTRANSPARENT);
   background->AddChild(green_border);
   background->AddChild(blur);
 
@@ -679,11 +677,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_ImageFilterScaled) {
   filter->SetBackdropFilters(filters);
   filter->ClearBackdropFilterBounds();
 
-#if BUILDFLAG(IS_FUCHSIA)
-  if (renderer_type() == viz::RendererType::kSkiaVk) {
-    pixel_comparator_ = std::make_unique<FuzzyPixelOffByOneComparator>();
-  }
-#elif BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS) || \
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS) || \
     defined(_MIPS_ARCH_LOONGSON) || defined(ARCH_CPU_ARM64)
 #if BUILDFLAG(IS_WIN)
   // Windows has 153 pixels off by at most 2: crbug.com/225027
@@ -990,8 +984,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_RotatedFilter) {
 
   background->AddChild(child);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_APPLE) || \
-    BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX)
 #if defined(ARCH_CPU_ARM64)
   // Windows, macOS, iOS, Fuchsia and Linux on ARM64 has some pixels difference
   // crbug.com/1029728, crbug.com/1048249, crbug.com/1128443
@@ -1014,7 +1007,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_RotatedFilter) {
           .SetErrorPixelsPercentageLimit(percentage_pixels_error)
           .SetAvgAbsErrorLimit(average_error_allowed_in_bad_pixels)
           .SetAbsErrorLimit(error_allowed));
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_APPLE)
+#endif
 
   RunPixelTest(background,
                base::FilePath(FILE_PATH_LITERAL("rotated_filter_.png"))
@@ -1050,8 +1043,8 @@ TEST_P(LayerTreeHostFiltersPixelTest, RotatedDropShadowFilter) {
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS) || \
     defined(ARCH_CPU_ARM64) || BUILDFLAG(IS_OZONE)
-#if defined(ARCH_CPU_ARM64) && (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA) || \
-                                BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX))
+#if defined(ARCH_CPU_ARM64) && \
+    (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX))
 
   // Windows, macOS, Fuchsia and Linux on ARM64 has some pixels difference.
   // crbug.com/1029728, crbug.com/1128443

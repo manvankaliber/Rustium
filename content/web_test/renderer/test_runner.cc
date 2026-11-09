@@ -105,7 +105,7 @@
 #include "v8/include/cppgc/prefinalizer.h"
 #include "v8/include/v8-cppgc.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 #include "third_party/blink/public/platform/web_font_render_style.h"
 #endif
 
@@ -908,8 +908,9 @@ BoundV8Callback TestRunnerBindings::WrapV8Callback(
 
   std::vector<v8::UniquePersistent<v8::Value>> persistent_args;
   persistent_args.reserve(args_to_bind.size());
-  for (auto& arg : args_to_bind)
+  for (auto& arg : args_to_bind) {
     persistent_args.emplace_back(isolate, std::move(arg));
+  }
 
   return base::BindOnce(
       &TestRunnerBindings::InvokeV8Callback, weak_ptr_factory_.GetWeakPtr(),
@@ -963,10 +964,12 @@ void TestRunnerBindings::InvokeV8Callback(
   v8::Context::Scope context_scope(context);
 
   v8::LocalVector<v8::Value> local_args(isolate);
-  for (auto& arg : bound_args)
+  for (auto& arg : bound_args) {
     local_args.push_back(v8::Local<v8::Value>::New(isolate, std::move(arg)));
-  for (const auto& arg : runtime_args)
+  }
+  for (const auto& arg : runtime_args) {
     local_args.push_back(arg);
+  }
 
   web_frame->CallFunctionEvenIfScriptDisabled(
       v8::Local<v8::Function>::New(isolate, std::move(callback)),
@@ -1140,23 +1143,25 @@ void TestRunnerBindings::SetEffectiveConnectionType(
 
   blink::WebEffectiveConnectionType web_type =
       blink::WebEffectiveConnectionType::kTypeUnknown;
-  if (connection_type == "TypeUnknown")
+  if (connection_type == "TypeUnknown") {
     web_type = blink::WebEffectiveConnectionType::kTypeUnknown;
-  else if (connection_type == "TypeOffline")
+  } else if (connection_type == "TypeOffline") {
     web_type = blink::WebEffectiveConnectionType::kTypeOffline;
-  else if (connection_type == "TypeSlow2G")
+  } else if (connection_type == "TypeSlow2G") {
     web_type = blink::WebEffectiveConnectionType::kTypeSlow2G;
-  else if (connection_type == "Type2G")
+  } else if (connection_type == "Type2G") {
     web_type = blink::WebEffectiveConnectionType::kType2G;
-  else if (connection_type == "Type3G")
+  } else if (connection_type == "Type3G") {
     web_type = blink::WebEffectiveConnectionType::kType3G;
-  else if (connection_type == "Type4G")
+  } else if (connection_type == "Type4G") {
     web_type = blink::WebEffectiveConnectionType::kType4G;
-  else
+  } else {
     NOTREACHED();
+  }
 
-  if (runner_)
+  if (runner_) {
     runner_->SetEffectiveConnectionType(web_type);
+  }
 }
 
 std::string TestRunnerBindings::GetWritableDirectory() {
@@ -1370,16 +1375,17 @@ bool TestRunnerBindings::FindString(
   bool wrap_around = false;
   bool async = false;
   for (const auto& option : options_array) {
-    if (option == "CaseInsensitive")
+    if (option == "CaseInsensitive") {
       match_case = false;
-    else if (option == "Backwards")
+    } else if (option == "Backwards") {
       forward = false;
-    else if (option == "StartInSelection")
+    } else if (option == "StartInSelection") {
       new_session = true;
-    else if (option == "WrapAround")
+    } else if (option == "WrapAround") {
       wrap_around = true;
-    else if (option == "Async")
+    } else if (option == "Async") {
       async = true;
+    }
   }
 
   const bool find_result = GetWebFrame()->FindForTesting(
@@ -2110,8 +2116,9 @@ static void GetBluetoothManualChooserEventsReply(
     blink::WebLocalFrame* frame,
     BoundV8Callback callback,
     const std::vector<std::string>& events) {
-  if (!test_runner)  // This guards the validity of the |frame|.
+  if (!test_runner) {  // This guards the validity of the |frame|.
     return;
+  }
 
   v8::Isolate* isolate = frame->GetAgentGroupScheduler()->Isolate();
   v8::HandleScope handle_scope(isolate);
@@ -2236,8 +2243,9 @@ void TestRunnerBindings::AddWebPageOverlay() {
     return;
   }
   // Early out instead of CHECK() to avoid poking the fuzzer bear.
-  if (!frame_->IsMainFrame())
+  if (!frame_->IsMainFrame()) {
     return;
+  }
   frame_->GetLocalRootWebFrameWidget()->SetMainFrameOverlayColor(SK_ColorCYAN);
 }
 
@@ -2246,8 +2254,9 @@ void TestRunnerBindings::RemoveWebPageOverlay() {
     return;
   }
   // Early out instead of CHECK() to avoid poking the fuzzer bear.
-  if (!frame_->IsMainFrame())
+  if (!frame_->IsMainFrame()) {
     return;
+  }
   frame_->GetLocalRootWebFrameWidget()->SetMainFrameOverlayColor(
       SK_ColorTRANSPARENT);
 }
@@ -2463,8 +2472,9 @@ void TestRunnerBindings::TextZoomIn() {
   // This may only be run from the main frame, as the user modifies this at the
   // top level.
   // Early out instead of CHECK() to avoid poking the fuzzer bear.
-  if (!frame_->IsMainFrame())
+  if (!frame_->IsMainFrame()) {
     return;
+  }
 
   // TODO(danakj): This should be an async call through the browser process, but
   // note this is an AndroidWebView feature which is not part of the content (or
@@ -2522,8 +2532,9 @@ void TestRunnerBindings::ZoomPageOut() {
   // This may only be run from the main frame, as the user modifies this at the
   // top level.
   // Early out instead of CHECK() to avoid poking the fuzzer bear.
-  if (!frame_->IsMainFrame())
+  if (!frame_->IsMainFrame()) {
     return;
+  }
 
   blink::WebFrameWidget* web_frame_widget =
       frame_->GetLocalRootWebFrameWidget();
@@ -2674,8 +2685,9 @@ void TestRunner::WorkQueue::Reset() {
 
 void TestRunner::WorkQueue::AddWork(mojom::WorkItemPtr work_item,
                                     WebFrameTestProxy& source) {
-  if (is_frozen())
+  if (is_frozen()) {
     return;
+  }
   source.GetWebTestControlHostRemote()->WorkItemAdded(std::move(work_item));
   set_has_items(true);
   OnStatesChanged(source);
@@ -2693,8 +2705,9 @@ void TestRunner::WorkQueue::ProcessWorkItem(mojom::WorkItemPtr work_item,
   if (started_load) {
     // If a load started, and didn't complete inside of
     // ProcessWorkItemInternal(), then mark the load as running.
-    if (loading_)
+    if (loading_) {
       controller_->frame_will_start_load_ = true;
+    }
 
     // Wait for an ongoing load to complete before requesting the next WorkItem.
     return;
@@ -2749,13 +2762,15 @@ bool TestRunner::WorkQueue::ProcessWorkItemInternal(
 void TestRunner::WorkQueue::ReplicateStates(const base::DictValue& values,
                                             WebFrameTestProxy& source) {
   states_.ApplyUntrackedChanges(values);
-  if (!has_items())
+  if (!has_items()) {
     controller_->FinishTestIfReady(source);
+  }
 }
 
 void TestRunner::WorkQueue::OnStatesChanged(WebFrameTestProxy& source) {
-  if (states_.changed_values().empty())
+  if (states_.changed_values().empty()) {
     return;
+  }
 
   source.GetWebTestControlHostRemote()->WorkQueueStatesChanged(
       states_.changed_values().Clone());
@@ -2796,7 +2811,7 @@ void TestRunner::Reset() {
   blink::WebTestingSupport::ResetRuntimeFeatures();
   blink::WebCache::Clear();
   blink::WebSecurityPolicy::ClearOriginAccessList();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   blink::WebFontRenderStyle::SetSubpixelPositioning(false);
 #endif
   blink::ResetDomainRelaxationForTest();
@@ -2890,8 +2905,9 @@ TextResultType TestRunner::ShouldGenerateTextResults() {
     DCHECK(!web_test_runtime_flags_.is_printing());
     return TextResultType::kMarkup;
   } else if (web_test_runtime_flags_.dump_as_layout()) {
-    if (web_test_runtime_flags_.is_printing())
+    if (web_test_runtime_flags_.is_printing()) {
       return TextResultType::kLayoutAsPrinting;
+    }
     return TextResultType::kLayout;
   }
   return TextResultType::kEmpty;
@@ -3099,8 +3115,9 @@ SkBitmap TestRunner::DumpPixelsInRenderer(blink::WebLocalFrame* main_frame) {
   DCHECK(CanDumpPixelsFromRenderer());
 
   if (web_test_runtime_flags_.dump_drag_image()) {
-    if (!drag_image_.isNull())
+    if (!drag_image_.isNull()) {
       return drag_image_;
+    }
 
     // This means the test called dumpDragImage but did not initiate a drag.
     // Return a blank image so that the test fails.
@@ -3116,8 +3133,9 @@ SkBitmap TestRunner::DumpPixelsInRenderer(blink::WebLocalFrame* main_frame) {
   if (!frame_name.empty()) {
     blink::WebFrame* frame_to_print =
         main_frame->FindFrameByName(blink::WebString::FromUtf8(frame_name));
-    if (frame_to_print && frame_to_print->IsWebLocalFrame())
+    if (frame_to_print && frame_to_print->IsWebLocalFrame()) {
       target_frame = frame_to_print->ToWebLocalFrame();
+    }
   }
 
   return PrintFrameToBitmap(target_frame);
@@ -3128,8 +3146,9 @@ SkBitmap TestRunner::DumpPixelsInRenderer(blink::WebLocalFrame* main_frame) {
 
 void TestRunner::ReplicateWebTestRuntimeFlagsChanges(
     const base::DictValue& changed_values) {
-  if (!test_is_running_)
+  if (!test_is_running_) {
     return;
+  }
 
   web_test_runtime_flags_.tracked_dictionary().ApplyUntrackedChanges(
       changed_values);
@@ -3191,14 +3210,16 @@ bool TestRunner::ClearReferrer() const {
 
 void TestRunner::AddLoadingFrame(blink::WebLocalFrame* frame) {
   // Don't track loading the about:blank between tests
-  if (!test_is_running_)
+  if (!test_is_running_) {
     return;
+  }
 
   if (loading_frames_.empty()) {
     // Don't do anything if another renderer process is already tracking the
     // loading frames.
-    if (web_test_runtime_flags_.have_loading_frame())
+    if (web_test_runtime_flags_.have_loading_frame()) {
       return;
+    }
     web_test_runtime_flags_.set_have_loading_frame(true);
 
     auto* frame_proxy =
@@ -3212,8 +3233,9 @@ void TestRunner::AddLoadingFrame(blink::WebLocalFrame* frame) {
 
 void TestRunner::RemoveLoadingFrame(blink::WebLocalFrame* frame) {
   // We don't track frames that were started between tests.
-  if (!std::ranges::contains(loading_frames_, frame))
+  if (!std::ranges::contains(loading_frames_, frame)) {
     return;
+  }
 
   // We had a DCHECK checking
   // web_test_runtime_flags_.have_loading_frame() here, but that led to
@@ -3221,8 +3243,9 @@ void TestRunner::RemoveLoadingFrame(blink::WebLocalFrame* frame) {
   // See https://crbug.com/1100223 for details.
 
   std::erase(loading_frames_, frame);
-  if (!loading_frames_.empty())
+  if (!loading_frames_.empty()) {
     return;
+  }
 
   auto* frame_proxy =
       static_cast<WebFrameTestProxy*>(RenderFrame::FromWebFrame(frame));
@@ -3232,8 +3255,9 @@ void TestRunner::RemoveLoadingFrame(blink::WebLocalFrame* frame) {
   // Loads in between tests should not propel us into thinking that we're now
   // inside the test. |main_frame_loaded_| set below is used to signal that the
   // test has definitely started executing.
-  if (!test_is_running_)
+  if (!test_is_running_) {
     return;
+  }
 
   main_frame_loaded_ = true;
   OnWebTestRuntimeFlagsChanged(*frame_proxy);
@@ -3249,13 +3273,15 @@ void TestRunner::RemoveLoadingFrame(blink::WebLocalFrame* frame) {
   // testRunner.waitUntilDone() will pause the work queue if it is being used by
   // the test, until testRunner.notifyDone() is called. However this can only be
   // done once.
-  if (!web_test_runtime_flags_.wait_until_done() || did_notify_done_)
+  if (!web_test_runtime_flags_.wait_until_done() || did_notify_done_) {
     work_queue_.RequestWork(*frame_proxy);
+  }
 }
 
 void TestRunner::OnFrameDeactivated(WebFrameTestProxy& frame) {
-  if (!test_is_running_)
+  if (!test_is_running_) {
     return;
+  }
 
   DCHECK(frame.IsMainFrame());
   RemoveMainFrame(frame);
@@ -3266,8 +3292,9 @@ void TestRunner::OnFrameDeactivated(WebFrameTestProxy& frame) {
 }
 
 void TestRunner::OnFrameReactivated(WebFrameTestProxy& frame) {
-  if (!test_is_running_)
+  if (!test_is_running_) {
     return;
+  }
 
   DCHECK(frame.IsMainFrame());
   DCHECK(!frame.GetWebFrame()->GetDocument().IsPrerendering());
@@ -3400,8 +3427,9 @@ bool TestRunner::PolicyDelegateShouldNotifyDone() const {
 
 void TestRunner::SetDragImage(const SkBitmap& drag_image) {
   if (web_test_runtime_flags_.dump_drag_image()) {
-    if (drag_image_.isNull())
+    if (drag_image_.isNull()) {
       drag_image_ = drag_image;
+    }
   }
 }
 
@@ -3416,8 +3444,9 @@ WebFrameTestProxy* TestRunner::FindInProcessMainWindowMainFrame() {
     if (main_frame->GetWebFrame()->GetDocument().IsPrerendering()) {
       continue;
     }
-    if (IsFrameInMainWindow(main_frame->GetWebFrame()))
+    if (IsFrameInMainWindow(main_frame->GetWebFrame())) {
       return main_frame;
+    }
   }
   return nullptr;
 }
@@ -3491,16 +3520,18 @@ void TestRunner::ProcessWorkItem(mojom::WorkItemPtr work_item,
 
 void TestRunner::ReplicateWorkQueueStates(const base::DictValue& values,
                                           WebFrameTestProxy& source) {
-  if (!test_is_running_)
+  if (!test_is_running_) {
     return;
+  }
   work_queue_.ReplicateStates(values, source);
 }
 
 bool TestRunner::IsFrameInMainWindow(blink::WebLocalFrame* frame) {
   blink::WebView* view = frame->View();
   for (auto& window : main_windows_) {
-    if (window->GetWebView() == view)
+    if (window->GetWebView() == view) {
       return true;
+    }
   }
   return false;
 }
@@ -3544,8 +3575,9 @@ void TestRunner::SetMainWindowAndTestConfiguration(
 
   std::string spec = GURL(test_config_.test_url).spec();
   size_t path_start = spec.rfind("web_tests/");
-  if (path_start != std::string::npos)
+  if (path_start != std::string::npos) {
     spec = spec.substr(path_start);
+  }
 
   bool is_devtools_test =
       spec.find("/devtools/") != std::string::npos ||
@@ -3553,8 +3585,9 @@ void TestRunner::SetMainWindowAndTestConfiguration(
 
   auto* source =
       static_cast<WebFrameTestProxy*>(RenderFrame::FromWebFrame(frame));
-  if (is_devtools_test)
+  if (is_devtools_test) {
     SetDumpConsoleMessages(false, *source);
+  }
 
   // In protocol mode (see TestInfo::protocol_mode), we dump layout only when
   // requested by the test. In non-protocol mode, we dump layout by default
@@ -3563,14 +3596,16 @@ void TestRunner::SetMainWindowAndTestConfiguration(
   // still generate pixel results (though don't dump them) to let the renderer
   // execute the same code regardless of the protocol mode, e.g. for ease of
   // debugging a web test issue.
-  if (!test_config_.protocol_mode)
+  if (!test_config_.protocol_mode) {
     SetShouldDumpAsLayout(true, *source);
+  }
 
   bool wpt_printing_test = test_config_.wpt_print_mode;
 
   // For http/tests/loading/, which is served via httpd and becomes /loading/.
-  if (spec.find("/loading/") != std::string::npos)
+  if (spec.find("/loading/") != std::string::npos) {
     SetShouldDumpFrameLoadCallbacks(true, *source);
+  }
 
   if (IsWebPlatformTest(spec)) {
     SetIsWebPlatformTestsMode(*source);
@@ -3655,8 +3690,9 @@ void TestRunner::AddOriginAccessAllowListEntry(
     const std::string& destination_host,
     bool allow_destination_subdomains) {
   blink::WebURL url((GURL(source_origin)));
-  if (!url.IsValid())
+  if (!url.IsValid()) {
     return;
+  }
 
   blink::WebSecurityPolicy::AddOriginAccessAllowListEntry(
       url, blink::WebString::FromUtf8(destination_protocol),
@@ -3669,7 +3705,7 @@ void TestRunner::AddOriginAccessAllowListEntry(
 }
 
 void TestRunner::SetTextSubpixelPositioning(bool value) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   // Since FontConfig doesn't provide a variable to control subpixel
   // positioning, we'll fall back to setting it globally for all fonts.
   blink::WebFontRenderStyle::SetSubpixelPositioning(value);
@@ -3837,8 +3873,9 @@ void TestRunner::SetShouldStayOnPageAfterHandlingBeforeUnload(
 }
 
 void TestRunner::SetWillSendRequestClearHeader(const std::string& header) {
-  if (!header.empty())
+  if (!header.empty()) {
     http_headers_to_clear_.insert(header);
+  }
 }
 
 void TestRunner::SetWillSendRequestClearReferrer() {
@@ -3910,8 +3947,9 @@ blink::WebString TestRunner::RegisterIsolatedFileSystem(
 
 void TestRunner::FocusWindow(RenderFrame* main_frame, bool focus) {
   // Early out instead of CHECK() to avoid poking the fuzzer bear.
-  if (!main_frame->IsMainFrame())
+  if (!main_frame->IsMainFrame()) {
     return;
+  }
 
   auto* frame_proxy = static_cast<WebFrameTestProxy*>(main_frame);
   blink::WebFrameWidget* widget = frame_proxy->GetLocalRootWebFrameWidget();
@@ -3963,10 +4001,12 @@ void TestRunner::SetAnimationRequiresRaster(bool do_raster) {
 void TestRunner::OnWebTestRuntimeFlagsChanged(WebFrameTestProxy& source) {
   // Ignore changes that happen before we got the initial, accumulated
   // web flag changes in SetTestConfiguration().
-  if (!test_is_running_)
+  if (!test_is_running_) {
     return;
-  if (web_test_runtime_flags_.tracked_dictionary().changed_values().empty())
+  }
+  if (web_test_runtime_flags_.tracked_dictionary().changed_values().empty()) {
     return;
+  }
 
   source.GetWebTestControlHostRemote()->WebTestRuntimeFlagsChanged(
       web_test_runtime_flags_.tracked_dictionary().changed_values().Clone());
@@ -4041,8 +4081,9 @@ void TestRunner::FinishTest(WebFrameTestProxy& source) {
 
     std::string spec = GURL(test_config_.test_url).spec();
     size_t path_start = spec.rfind("web_tests/");
-    if (path_start != std::string::npos)
+    if (path_start != std::string::npos) {
       spec = spec.substr(path_start);
+    }
 
     std::string mime_type =
         web_frame->GetDocumentLoader()->GetWebResponse().MimeType().Utf8();
@@ -4083,8 +4124,10 @@ void TestRunner::FinishTest(WebFrameTestProxy& source) {
                        actual.computeByteSize()));
         dump_result->actual_pixel_hash = Md5AsHexForWebTestPixels(bytes);
 
-        if (dump_result->actual_pixel_hash != test_config_.expected_pixel_hash)
+        if (dump_result->actual_pixel_hash !=
+            test_config_.expected_pixel_hash) {
           dump_result->pixels = std::move(actual);
+        }
       } else {
         browser_should_dump_pixels = true;
         if (ShouldDumpSelectionRect()) {

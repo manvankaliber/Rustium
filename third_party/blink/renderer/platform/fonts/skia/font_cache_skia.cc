@@ -277,7 +277,7 @@ sk_sp<SkTypeface> FontCache::CreateTypeface(
     const FontDescription& font_description,
     const FontFaceCreationParams& creation_params,
     std::string& name) {
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_ANDROID)
   // TODO(fuchsia): Revisit this and other font code for Fuchsia.
 
   if (creation_params.CreationType() ==
@@ -301,8 +301,9 @@ sk_sp<SkTypeface> FontCache::CreateTypeface(
   // typeface first.
   if (const char* locale_family = GetLocaleSpecificFamilyName(family)) {
     if (sk_sp<SkTypeface> typeface =
-            CreateLocaleSpecificTypeface(font_description, locale_family))
+            CreateLocaleSpecificTypeface(font_description, locale_family)) {
       return typeface;
+    }
   }
 #endif  // BUILDFLAG(IS_ANDROID)
   sk_sp<SkTypeface> typeface = MatchFamilyStyle(
@@ -341,8 +342,9 @@ const FontPlatformData* FontCache::CreateFontPlatformData(
   typeface = CreateTypeface(font_description, creation_params, name);
 #endif
 
-  if (!typeface)
+  if (!typeface) {
     return nullptr;
+  }
 
   bool synthetic_bold =
       (font_description.Weight() >

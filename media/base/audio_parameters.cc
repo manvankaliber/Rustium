@@ -133,27 +133,6 @@ uint32_t ComputeAudioOutputBufferSize(int channels, int frames) {
   return result.ValueOrDie();
 }
 
-static auto FuchsiaRenderUsageToString(int usage) {
-  switch (usage) {
-    case AudioParameters::FUCHSIA_RENDER_USAGE_UNKNOWN:
-      return "FUCHSIA_RENDER_USAGE_UNKNOWN";
-    case AudioParameters::FUCHSIA_RENDER_USAGE_BACKGROUND:
-      return "FUCHSIA_RENDER_USAGE_BACKGROUND";
-    case AudioParameters::FUCHSIA_RENDER_USAGE_MEDIA:
-      return "FUCHSIA_RENDER_USAGE_MEDIA";
-    case AudioParameters::FUCHSIA_RENDER_USAGE_INTERRUPTION:
-      return "FUCHSIA_RENDER_USAGE_INTERRUPTION";
-    case AudioParameters::FUCHSIA_RENDER_USAGE_SYSTEM_AGENT:
-      return "FUCHSIA_RENDER_USAGE_SYSTEM_AGENT";
-    case AudioParameters::FUCHSIA_RENDER_USAGE_COMMUNICATION:
-      return "FUCHSIA_RENDER_USAGE_COMMUNICATION";
-    case AudioParameters::FUCHSIA_RENDER_USAGE_ACCESSIBILITY:
-      return "FUCHSIA_RENDER_USAGE_ACCESSIBILITY";
-    default:
-      return "FUCHSIA_RENDER_USAGE_INVALID";
-  }
-}
-
 // static
 std::string AudioParameters::EffectsMaskToString(int mask) {
   if (mask == AudioParameters::NO_EFFECTS) {
@@ -190,9 +169,6 @@ std::string AudioParameters::EffectsMaskToString(int mask) {
   }
   if (mask & AudioParameters::ALLOW_DSP_AUTOMATIC_GAIN_CONTROL) {
     effects.push_back("ALLOW_DSP_AUTOMATIC_GAIN_CONTROL");
-  }
-  if (auto fuchsia_usage = mask & AudioParameters::FUCHSIA_RENDER_USAGE_MASK) {
-    effects.push_back(FuchsiaRenderUsageToString(fuchsia_usage));
   }
   if (mask & AudioParameters::IGNORE_UI_GAINS) {
     effects.push_back("IGNORE_UI_GAINS");

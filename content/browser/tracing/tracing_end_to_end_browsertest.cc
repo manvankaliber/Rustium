@@ -212,12 +212,12 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, MetadataMultisession) {
   absl::Status status = ttp.StopAndParseTrace();
   ASSERT_TRUE(status.ok()) << status.message();
 
-  base::expected<base::test::TestTraceProcessor::QueryResult,
-    std::string> result;
+  base::expected<base::test::TestTraceProcessor::QueryResult, std::string>
+      result;
 
   std::vector<variations::ActiveGroupId> active_group_ids;
   variations::GetFieldTrialActiveGroupIds(std::string_view(),
-                                            &active_group_ids);
+                                          &active_group_ids);
   if (!active_group_ids.empty()) {
     result = ttp.RunQuery(R"(
       SELECT
@@ -226,10 +226,10 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, MetadataMultisession) {
       WHERE name = 'cr-a-field_trial_hashes'
     )");
     ASSERT_TRUE(result.has_value()) << result.error();
-    EXPECT_THAT(
-        result.value(),
-        ::testing::ElementsAre(std::vector<std::string>{"has_field_trial_hashes"},
-                               std::vector<std::string>{"1"}));
+    EXPECT_THAT(result.value(),
+                ::testing::ElementsAre(
+                    std::vector<std::string>{"has_field_trial_hashes"},
+                    std::vector<std::string>{"1"}));
   }
 
 #if BUILDFLAG(IS_ANDROID) && defined(OFFICIAL_BUILD)
@@ -280,11 +280,7 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, TaskExecutionEvent) {
 }
 
 // TODO(crbug.com/519488198): Flaky on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_ThreadAndProcessName DISABLED_ThreadAndProcessName
-#else
 #define MAYBE_ThreadAndProcessName ThreadAndProcessName
-#endif
 IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, MAYBE_ThreadAndProcessName) {
   base::test::TestTraceProcessor ttp;
   ttp.StartTrace("foo");
@@ -760,12 +756,12 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, TwoSessionsMetadata) {
   absl::Status status = ttp1.StopAndParseTrace();
   ASSERT_TRUE(status.ok()) << status.message();
 
-  base::expected<base::test::TestTraceProcessor::QueryResult,
-    std::string> result;
+  base::expected<base::test::TestTraceProcessor::QueryResult, std::string>
+      result;
 
   std::vector<variations::ActiveGroupId> active_group_ids;
   variations::GetFieldTrialActiveGroupIds(std::string_view(),
-                                            &active_group_ids);
+                                          &active_group_ids);
 
   if (!active_group_ids.empty()) {
     result = ttp1.RunQuery(R"(
@@ -775,10 +771,10 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, TwoSessionsMetadata) {
       WHERE name = 'cr-a-field_trial_hashes'
     )");
     ASSERT_TRUE(result.has_value()) << result.error();
-    EXPECT_THAT(
-        result.value(),
-        ::testing::ElementsAre(std::vector<std::string>{"has_field_trial_hashes"},
-                               std::vector<std::string>{"1"}));
+    EXPECT_THAT(result.value(),
+                ::testing::ElementsAre(
+                    std::vector<std::string>{"has_field_trial_hashes"},
+                    std::vector<std::string>{"1"}));
   }
 
 #if BUILDFLAG(IS_ANDROID) && defined(OFFICIAL_BUILD)
@@ -805,10 +801,10 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, TwoSessionsMetadata) {
       WHERE name = 'cr-a-field_trial_hashes'
     )");
     ASSERT_TRUE(result.has_value()) << result.error();
-    EXPECT_THAT(
-        result.value(),
-        ::testing::ElementsAre(std::vector<std::string>{"has_field_trial_hashes"},
-                               std::vector<std::string>{"1"}));
+    EXPECT_THAT(result.value(),
+                ::testing::ElementsAre(
+                    std::vector<std::string>{"has_field_trial_hashes"},
+                    std::vector<std::string>{"1"}));
   }
 
 #if BUILDFLAG(IS_ANDROID) && defined(OFFICIAL_BUILD)

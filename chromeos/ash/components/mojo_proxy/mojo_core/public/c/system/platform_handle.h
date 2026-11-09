@@ -36,9 +36,7 @@ typedef uint32_t MojoPlatformHandleType;
 
 // The |MojoPlatformHandle| value represents a Fuchsia system handle. Only
 // usable on Fuchsia hosts.
-#define MOJO_LEGACY_PLATFORM_HANDLE_TYPE_FUCHSIA_HANDLE \
-  ((MojoPlatformHandleType)4)
-
+((MojoPlatformHandleType)4)
 // The |MojoPlatformHandle| value represents a Mach send right (e.g. a value
 // opaquely of type |mach_port_t|). Only usable on macOS hosts.
 #define MOJO_LEGACY_PLATFORM_HANDLE_TYPE_MACH_SEND_RIGHT \
@@ -52,21 +50,22 @@ typedef uint32_t MojoPlatformHandleType;
 // An Android IBinder reference.
 #define MOJO_LEGACY_PLATFORM_HANDLE_TYPE_BINDER ((MojoPlatformHandleType)6)
 
-// |MojoPlatformHandle|: A handle to a native platform object.
-//
-//     |uint32_t struct_size|: The size of this structure. Used for versioning
-//         to allow for future extensions.
-//
-//     |MojoPlatformHandleType type|: The type of handle stored in |value|.
-//
-//     |uint64_t value|: The value of this handle. Ignored if |type| is
-//         MOJO_LEGACY_PLATFORM_HANDLE_TYPE_INVALID. Otherwise the meaning of
-//         this value depends on the value of |type|.
-//
+    // |MojoPlatformHandle|: A handle to a native platform object.
+    //
+    //     |uint32_t struct_size|: The size of this structure. Used for
+    //     versioning
+    //         to allow for future extensions.
+    //
+    //     |MojoPlatformHandleType type|: The type of handle stored in |value|.
+    //
+    //     |uint64_t value|: The value of this handle. Ignored if |type| is
+    //         MOJO_LEGACY_PLATFORM_HANDLE_TYPE_INVALID. Otherwise the meaning
+    //         of this value depends on the value of |type|.
+    //
 
-// Represents a native platform handle value for coersion to or from a wrapping
-// Mojo handle.
-struct MOJO_LEGACY_ALIGNAS(8) MojoPlatformHandle {
+    // Represents a native platform handle value for coersion to or from a
+    // wrapping Mojo handle.
+    struct MOJO_LEGACY_ALIGNAS(8) MojoPlatformHandle {
   // The size of this structure, used for versioning.
   uint32_t struct_size;
 

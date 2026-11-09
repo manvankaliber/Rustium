@@ -587,8 +587,7 @@ BASE_FEATURE_PARAM(bool,
                    true);
 
 BASE_FEATURE(kDelayLayerTreeViewDeletionOnLocalSwap,
-             base::FEATURE_ENABLED_BY_DEFAULT
-);
+             base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE_PARAM(base::TimeDelta,
                    kDelayLayerTreeViewDeletionOnLocalSwapTaskDelayParam,
@@ -633,7 +632,7 @@ BASE_FEATURE_PARAM(int,
                    kCullRectPixelDistanceToExpand,
                    &kExpandCompositedCullRect,
                    "pixels",
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_ANDROID)
                    2000
 #else
                    4000
@@ -1411,7 +1410,6 @@ BASE_FEATURE(kLightweightNoStatePrefetch,
 #endif
 );
 
-
 // Makes network loading tasks unfreezable so that they can be processed while
 // the page is frozen.
 BASE_FEATURE(kLoadingTasksUnfreezable, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -1959,7 +1957,6 @@ BASE_FEATURE(kRequiresLoadIgnoreLimitsForDomWindowsOnly,
 BASE_FEATURE(kReuseNoStoreImageOnSameSrcReassignment,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-
 BASE_FEATURE(kRenderSizeInScoreAdBrowserSignals,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
@@ -2253,7 +2250,6 @@ BASE_FEATURE(kThreadedBodyLoader, base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kThreadedPreloadScanner, base::FEATURE_DISABLED_BY_DEFAULT);
 
-
 // Enable throttling of fetch() requests from service workers in the
 // installing state.  The limit of 3 was chosen to match the limit
 // in background main frames.  In addition, trials showed that this
@@ -2343,7 +2339,6 @@ BASE_FEATURE(kURLPatternDummyURLCanonicalization,
 BASE_FEATURE(kUsePersistentCacheForCodeCache,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-
 // Use the zstd compression algorithm for ParkableString compression.
 BASE_FEATURE(kUseZstdForParkableStrings, base::FEATURE_ENABLED_BY_DEFAULT);
 
@@ -2383,8 +2378,7 @@ bool IsVirtualKeyboardGeometryAndInsetFixesEnabled() {
 BASE_FEATURE(kVisualRectMappingApplyLocalVisualViewportTransform,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-BASE_FEATURE(kWebBluetoothCancelConnect,
-             base::FEATURE_ENABLED_BY_DEFAULT);
+BASE_FEATURE(kWebBluetoothCancelConnect, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kWebUIBypassMojoConnections, base::FEATURE_DISABLED_BY_DEFAULT);
 
@@ -2407,7 +2401,6 @@ BASE_FEATURE(kRendererMainIsDefaultThreadTypeForWebRTC,
              base::FEATURE_ENABLED_BY_DEFAULT
 #endif  // BUILDFLAG(IS_ANDROID)
 );
-
 
 // Controls scope extensions feature in web apps. Enables parsing of "site"
 // entries in "scope_extensions" field in web app manifests. See explainer for
@@ -2573,7 +2566,6 @@ bool IsSetIntervalWithoutClampEnabled() {
 bool IsUnloadBlocklisted() {
   return base::FeatureList::IsEnabled(kUnloadBlocklisted);
 }
-
 
 bool IsKeepAliveURLLoaderServiceEnabled() {
   return base::FeatureList::IsEnabled(kKeepAliveInBrowserMigration) ||

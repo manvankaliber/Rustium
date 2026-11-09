@@ -156,49 +156,6 @@ def run_test(
       package=package_name,
     )
     device.StartActivity(launch_intent)
-  elif platform == 'fuchsia':
-    run_test_path = os.path.join(
-      TOP_SRC_DIR, 'build', 'fuchsia', 'test', 'run_test.py'
-    )
-    fuchsia_logs_dir = os.path.join(crash_dir, 'fuchsia_logs')
-    os.makedirs(fuchsia_logs_dir)
-
-    cmd = [
-      sys.executable,
-      run_test_path,
-      '--out-dir',
-      options.build_dir,
-      'content_shell',
-      '--logs-dir',
-      fuchsia_logs_dir,
-      '--wait-for-log-pattern',
-      'CrashIntentionally',
-    ]
-    if options.product:
-      cmd += ['--product', options.product]
-    if options.device_spec:
-      cmd += ['--device-spec', options.device_spec]
-    cmd += [
-      '--',
-      '--run-web-tests',
-      'chrome://crash',
-      '--enable-crash-reporter',
-      '--disable-gpu',
-    ]
-    cmd += additional_arguments
-
-    if options.verbose:
-      print(' '.join(cmd))
-    failure = 'Failed to run content_shell on Fuchsia.'
-    try:
-      # We expect this to fail/crash, so it will likely exit with non-zero.
-      # We capture output to print it if verbose.
-      subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-      print('Warning: run_test.py exited with 0, expected failure/crash.')
-    except subprocess.CalledProcessError as e:
-      if options.verbose:
-        print('run_test.py exited with %d as expected.' % e.returncode)
-        print(e.output.decode('utf-8'))
   else:
     cmd = [
       options.binary,
@@ -223,8 +180,6 @@ def run_test(
   print('# Retrieve crash dump.')
   if platform == 'android':
     minidump = get_android_dump(options, crash_dir, symbols_dir)
-  elif platform == 'fuchsia':
-    minidump = None
   else:
     dmp_dir = crash_dir
     # TODO(crbug.com/41354248): This test should not reach directly into the
@@ -241,15 +196,7 @@ def run_test(
     minidump = dmp_files[0]
 
   print('# Symbolize crash dump.')
-  if platform == 'fuchsia':
-    system_log_path = os.path.join(crash_dir, 'fuchsia_logs', 'system_log')
-    if os.path.exists(system_log_path):
-      with open(system_log_path, 'r') as f:
-        stack = f.read()
-    else:
-      stack = ''
-      print('Warning: system_log not found at %s' % system_log_path)
-  elif platform == 'win32':
+  if platform == 'win32':
     cdb_exe = os.path.join(options.build_dir, 'cdb', 'cdb.exe')
     cmd = [
       cdb_exe,
@@ -276,9 +223,7 @@ def run_test(
 
   # Check whether the stack contains a CrashIntentionally symbol.
   found_symbol = 'CrashIntentionally' in stack
-
-  if platform != 'fuchsia':
-    os.remove(minidump)
+  os.remove(minidump)
 
   if options.no_symbols:
     if found_symbol:
@@ -335,8 +280,6 @@ def main():
   parser.add_argument(
     '--platform', default=sys.platform, help='Platform to run the test on.'
   )
-  parser.add_argument('--product', help='Product bundle for Fuchsia.')
-  parser.add_argument('--device-spec', help='Device spec for Fuchsia.')
 
   options, unrecognized = parser.parse_known_args()
 
@@ -368,7 +311,7 @@ def main():
       apk_path = os.path.join(options.build_dir, 'apks', 'ContentShell.apk')
       device.Install(apk_path, reinstall=False, allow_downgrade=True)
 
-    if options.platform != 'win32' and options.platform != 'fuchsia':
+    if options.platform != 'win32':
       print('# Generate symbols.')
       bins = [options.binary]
       if options.additional_binary:
@@ -414,15 +357,6 @@ def main():
     if crash_service:
       crash_service.terminate()
       crash_service.wait()
-    if options.platform == 'fuchsia' and 'ISOLATED_OUTDIR' in os.environ:
-      fuchsia_logs_dir = os.path.join(crash_dir, 'fuchsia_logs')
-      if os.path.exists(fuchsia_logs_dir):
-        try:
-          shutil.copytree(
-            fuchsia_logs_dir, os.environ['ISOLATED_OUTDIR'], dirs_exist_ok=True
-          )
-        except Exception as e:
-          print('Failed to copy fuchsia logs to ISOLATED_OUTDIR: %s' % e)
     try:
       shutil.rmtree(crash_dir)
     except:  # noqa: E722

@@ -48,11 +48,8 @@ class SystemSnapshot {
     //! \brief Android.
     kOperatingSystemAndroid,
 
-    //! \brief Fuchsia.
-    kOperatingSystemFuchsia,
-
     //! \brief iOS.
-    kOperatingSystemIOS,
+    kOperatingSystemIOS = 6,
   };
 
   //! \brief A system’s daylight saving time status.

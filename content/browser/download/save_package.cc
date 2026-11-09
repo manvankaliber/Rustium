@@ -94,7 +94,7 @@ const int32_t kMaxFileOrdinalNumber = 9999;
 const uint32_t kMaxFilePathLength = MAX_PATH - 1;
 // Maximum component length for NTFS/FAT32 compatibility.
 const uint32_t kMaxComponentLength = 255;
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 const uint32_t kMaxFilePathLength = PATH_MAX - 1;
 #endif
 
@@ -112,13 +112,15 @@ base::FilePath::StringType StripOrdinalNumber(
       base_name.rfind(FILE_PATH_LITERAL(')'));
   base::FilePath::StringType::size_type l_paren_index =
       base_name.rfind(FILE_PATH_LITERAL('('));
-  if (l_paren_index >= r_paren_index)
+  if (l_paren_index >= r_paren_index) {
     return base_name;
+  }
 
   for (base::FilePath::StringType::size_type i = l_paren_index + 1;
        i != r_paren_index; ++i) {
-    if (!base::IsAsciiDigit(base_name[i]))
+    if (!base::IsAsciiDigit(base_name[i])) {
       return base_name;
+    }
   }
 
   return base_name.substr(0, l_paren_index);
@@ -134,8 +136,9 @@ bool CanSaveAsComplete(const std::string& contents_mime_type) {
 
 void CancelSavePackage(base::WeakPtr<SavePackage> save_package,
                        bool user_cancel) {
-  if (save_package.get() && !save_package->canceled())
+  if (save_package.get() && !save_package->canceled()) {
     save_package->Cancel(user_cancel, false);
+  }
 }
 
 const std::string GetMimeTypeForSaveType(SavePageType save_type) {
@@ -161,8 +164,9 @@ const std::u16string& GetTitle(Page& page) {
       static_cast<RenderFrameHostImpl*>(&page.GetMainDocument());
   NavigationEntry* visible_entry =
       rfh->frame_tree()->controller().GetVisibleEntry();
-  if (visible_entry)
+  if (visible_entry) {
     return visible_entry->GetTitleForDisplay();
+  }
   return base::EmptyString16();
 }
 
@@ -286,10 +290,11 @@ GURL SavePackage::GetUrlToBeSaved(RenderFrameHost* main_frame) {
 void SavePackage::Cancel(bool user_action, bool cancel_download_item) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   if (!canceled()) {
-    if (user_action)
+    if (user_action) {
       user_canceled_ = true;
-    else
+    } else {
       disk_error_occurred_ = true;
+    }
     Stop(cancel_download_item);
   }
 }
@@ -326,8 +331,9 @@ bool SavePackage::Init(
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   DCHECK(page_url_.is_valid());
   // Set proper running state.
-  if (wait_state_ != INITIALIZE || !page_)
+  if (wait_state_ != INITIALIZE || !page_) {
     return false;
+  }
 
   wait_state_ = START_PROCESS;
 
@@ -356,12 +362,14 @@ void SavePackage::InitWithDownloadItem(
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   DCHECK(item);
 
-  if (!page_)
+  if (!page_) {
     return;
+  }
   download_ = item;
   // Confirm above didn't delete the tab out from under us.
-  if (!download_created_callback.is_null())
+  if (!download_created_callback.is_null()) {
     std::move(download_created_callback).Run(download_.get());
+  }
 
   // Check save type and process the save page job.
   if (save_type_ == SAVE_PAGE_TYPE_AS_COMPLETE_HTML) {
@@ -391,8 +399,9 @@ void SavePackage::InitWithDownloadItem(
 
 void SavePackage::OnMHTMLGenerated(int64_t size) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
-  if (!download_)
+  if (!download_) {
     return;
+  }
 
   CHECK_EQ(download_->GetState(), download::DownloadItem::IN_PROGRESS);
   if (size <= 0) {
@@ -424,7 +433,7 @@ uint32_t SavePackage::ComputeMaxPathLengthForDirectory(
 #if BUILDFLAG(IS_WIN)
     // NTFS/FAT32 compatible.
     max_component_length = kMaxComponentLength;
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
     // Standard POSIX limit.
     max_component_length = NAME_MAX;
 #endif
@@ -441,7 +450,7 @@ uint32_t SavePackage::GetMaxPathLengthForDirectory() const {
 
 #if BUILDFLAG(IS_WIN)
   max_component_length = kMaxComponentLength;
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   max_component_length = NAME_MAX;
 #endif
 
@@ -458,16 +467,17 @@ bool SavePackage::TruncateBaseNameToFitPathConstraints(
     uint32_t max_file_path_len,
     base::FilePath::StringType* base_name) {
   DCHECK(!base_name->empty());
-  int available_length = static_cast<int>(max_file_path_len -
-                                          dir_path.value().length() -
-                                          file_name_ext.length());
+  int available_length = static_cast<int>(
+      max_file_path_len - dir_path.value().length() - file_name_ext.length());
   // Need an extra space for the separator.
-  if (!dir_path.EndsWithSeparator())
+  if (!dir_path.EndsWithSeparator()) {
     --available_length;
+  }
 
   // Plenty of room.
-  if (static_cast<int>(base_name->length()) <= available_length)
+  if (static_cast<int>(base_name->length()) <= available_length) {
     return true;
+  }
 
   // Limited room. Truncate |base_name| to fit, respecting character boundaries.
   if (available_length > 0) {
@@ -511,20 +521,19 @@ bool SavePackage::GenerateFileName(const std::string& disposition,
                                    base::FilePath::StringType* generated_name) {
   // TODO(jungshik): Figure out the referrer charset when having one
   // makes sense and pass it to GenerateFileName.
-  base::FilePath file_path = net::GenerateFileName(url,
-                                                   disposition,
-                                                   std::string(),
-                                                   std::string(),
-                                                   std::string(),
-                                                   kDefaultSaveName);
+  base::FilePath file_path =
+      net::GenerateFileName(url, disposition, std::string(), std::string(),
+                            std::string(), kDefaultSaveName);
 
   DCHECK(!file_path.empty());
-  if (need_html_ext)
+  if (need_html_ext) {
     file_path = file_path.ReplaceExtension(kDefaultHtmlExtension);
+  }
 
   DownloadManagerDelegate* delegate = download_manager_->GetDelegate();
-  if (delegate)
+  if (delegate) {
     delegate->SanitizeSavePackageResourceName(&file_path, url);
+  }
 
   DCHECK_EQ(file_path.value(), file_path.BaseName().value())
       << "SanitizeSavePackageResourceName should only return a basename.";
@@ -538,8 +547,9 @@ bool SavePackage::GenerateFileName(const std::string& disposition,
 
   // Get safe pure file name.
   if (!TruncateBaseNameToFitPathConstraints(
-          saved_main_directory_path_, file_name_ext, max_path, &base_name))
+          saved_main_directory_path_, file_name_ext, max_path, &base_name)) {
     return false;
+  }
 
   base::FilePath::StringType file_name = base_name + file_name_ext;
 
@@ -617,8 +627,9 @@ void SavePackage::StartSave(const SaveFileCreateInfo* info) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   DCHECK(info);
 
-  if (!page_)
+  if (!page_) {
     return;
+  }
 
   auto it = in_progress_items_.find(info->save_item_id);
   if (it == in_progress_items_.end()) {
@@ -641,20 +652,19 @@ void SavePackage::StartSave(const SaveFileCreateInfo* info) {
     // instead of opening it as HTML.
     bool need_html_ext =
         info->save_source == SaveFileCreateInfo::SAVE_FILE_FROM_DOM;
-    if (!GenerateFileName(info->content_disposition,
-                          GURL(info->url),
-                          need_html_ext,
-                          &generated_name)) {
+    if (!GenerateFileName(info->content_disposition, GURL(info->url),
+                          need_html_ext, &generated_name)) {
       // We can not generate file name for this SaveItem, so we cancel the
       // saving page job if the save source is from serialized DOM data.
       // Otherwise, it means this SaveItem is sub-resource type, we treat it
       // as an error happened on saving. We can ignore this type error for
       // sub-resource links which will be resolved as absolute links instead
       // of local links in final saved contents.
-      if (info->save_source == SaveFileCreateInfo::SAVE_FILE_FROM_DOM)
+      if (info->save_source == SaveFileCreateInfo::SAVE_FILE_FROM_DOM) {
         Cancel(true);
-      else
+      } else {
         SaveFinished(save_item->id(), 0, false);
+      }
       return;
     }
 
@@ -701,8 +711,8 @@ void SavePackage::PutInProgressItemToSavedMap(SaveItem* save_item) {
   std::unique_ptr<SaveItem> owned_item = std::move(it->second);
   in_progress_items_.erase(it);
 
-  SaveItemIdMap& map = save_item->success() ?
-      saved_success_items_ : saved_failed_items_;
+  SaveItemIdMap& map =
+      save_item->success() ? saved_success_items_ : saved_failed_items_;
   DCHECK(!map.contains(save_item->id()));
   map[save_item->id()] = std::move(owned_item);
 }
@@ -715,8 +725,9 @@ bool SavePackage::UpdateSaveProgress(SaveItemId save_item_id,
   // Because we might have canceled this saving job before,
   // so we might not find corresponding SaveItem.
   SaveItem* save_item = LookupInProgressSaveItem(save_item_id);
-  if (!save_item)
+  if (!save_item) {
     return false;
+  }
 
   save_item->Update(size);
 
@@ -734,8 +745,9 @@ void SavePackage::Stop(bool cancel_download_item) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   // If we haven't moved out of the initial state, there's nothing to cancel and
   // there won't be valid pointers for |file_manager_| or |download_|.
-  if (wait_state_ == INITIALIZE)
+  if (wait_state_ == INITIALIZE) {
     return;
+  }
 
   // When stopping, if it still has some items in in_progress, cancel them.
   DCHECK(canceled());
@@ -748,17 +760,20 @@ void SavePackage::Stop(bool cancel_download_item) {
     // Remove all in progress item to saved map. For failed items, they will
     // be put into saved_failed_items_, for successful item, they will be put
     // into saved_success_items_.
-    while (in_process_count())
+    while (in_process_count()) {
       PutInProgressItemToSavedMap(in_progress_items_.begin()->second.get());
+    }
   }
 
   // This vector contains the save ids of the save files which SaveFileManager
   // needs to remove from its save_file_map_.
   std::vector<SaveItemId> save_item_ids;
-  for (const auto& it : saved_success_items_)
+  for (const auto& it : saved_success_items_) {
     save_item_ids.push_back(it.first);
-  for (const auto& it : saved_failed_items_)
+  }
+  for (const auto& it : saved_failed_items_) {
     save_item_ids.push_back(it.first);
+  }
 
   download::GetDownloadTaskRunner()->PostTask(
       FROM_HERE, base::BindOnce(&SaveFileManager::RemoveSavedFileFromFileMap,
@@ -769,23 +784,26 @@ void SavePackage::Stop(bool cancel_download_item) {
 
   // Inform the download::DownloadItem we have canceled whole save page job.
   if (download_) {
-    if (cancel_download_item)
+    if (cancel_download_item) {
       download_->Cancel(false);
+    }
     FinalizeDownloadEntry();
   }
 }
 
 void SavePackage::CheckFinish() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
-  if (in_process_count() || finished_ || !page_)
+  if (in_process_count() || finished_ || !page_) {
     return;
+  }
 
   DownloadManagerDelegate* delegate = download_manager_->GetDelegate();
   if (delegate) {
     std::vector<std::pair<SaveItemId, base::FilePath>> ids_and_final_paths(
         saved_success_items_.size());
-    for (const auto& it : saved_success_items_)
+    for (const auto& it : saved_success_items_) {
       ids_and_final_paths.emplace_back(it.first, it.second->full_path());
+    }
 
     download::GetDownloadTaskRunner()->PostTask(
         FROM_HERE,
@@ -821,12 +839,14 @@ void SavePackage::RenameIfAllowed(bool allowed) {
   }
 
   base::FilePath dir = (save_type_ == SAVE_PAGE_TYPE_AS_COMPLETE_HTML &&
-                        saved_success_items_.size() > 1) ?
-                        saved_main_directory_path_ : base::FilePath();
+                        saved_success_items_.size() > 1)
+                           ? saved_main_directory_path_
+                           : base::FilePath();
 
   FinalNamesMap final_names;
-  for (const auto& it : saved_success_items_)
+  for (const auto& it : saved_success_items_) {
     final_names.insert(std::make_pair(it.first, it.second->full_path()));
+  }
 
   download::GetDownloadTaskRunner()->PostTask(
       FROM_HERE,
@@ -840,8 +860,9 @@ void SavePackage::RenameIfAllowed(bool allowed) {
 void SavePackage::Finish() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   // User may cancel the job when we're moving files to the final directory.
-  if (canceled())
+  if (canceled()) {
     return;
+  }
 
   wait_state_ = SUCCESSFUL;
   finished_ = true;
@@ -891,8 +912,9 @@ void SavePackage::Finish() {
     }
     download_->MarkAsComplete();
 
-    if (download_->GetOpenWhenComplete())
+    if (download_->GetOpenWhenComplete()) {
       download_->OpenDownload();
+    }
 
     FinalizeDownloadEntry();
   }
@@ -905,8 +927,9 @@ void SavePackage::SaveFinished(SaveItemId save_item_id,
   // Because we might have canceled this saving job before,
   // so we might not find corresponding SaveItem. Just ignore it.
   SaveItem* save_item = LookupInProgressSaveItem(save_item_id);
-  if (!save_item)
+  if (!save_item) {
     return;
+  }
 
   // Let SaveItem set end state.
   save_item->Finish(size, is_success);
@@ -987,8 +1010,9 @@ void SavePackage::SaveNextFile(bool process_all_remaining_items) {
     mojo::PendingRemote<quarantine::mojom::Quarantine> quarantine;
     auto quarantine_callback =
         download_manager_->GetQuarantineConnectionCallback();
-    if (quarantine_callback)
+    if (quarantine_callback) {
       quarantine_callback.Run(quarantine.InitWithNewPipeAndPassReceiver());
+    }
 
     file_manager_->SaveURL(
         save_item_ptr->id(), save_item_ptr->url(), save_item_ptr->referrer(),
@@ -1010,10 +1034,12 @@ void SavePackage::SaveNextFile(bool process_all_remaining_items) {
 
 int SavePackage::PercentComplete() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
-  if (!all_save_items_count_)
+  if (!all_save_items_count_) {
     return 0;
-  if (!in_process_count())
+  }
+  if (!in_process_count()) {
     return 100;
+  }
   return completed_count() / all_save_items_count_;
 }
 
@@ -1073,8 +1099,9 @@ void SavePackage::DoSavingProcess() {
 void SavePackage::GetSerializedHtmlWithLocalLinks() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   DCHECK(page_);
-  if (wait_state_ != HTML_DATA)
+  if (wait_state_ != HTML_DATA) {
     return;
+  }
 
   // First collect the status of all the resource files and check whether they
   // have created local files (although they have not been completely saved).
@@ -1082,12 +1109,14 @@ void SavePackage::GetSerializedHtmlWithLocalLinks() {
   for (const auto& item : in_progress_items_) {
     DCHECK_EQ(SaveFileCreateInfo::SAVE_FILE_FROM_DOM,
               item.second->save_source());
-    if (item.second->has_final_name())
+    if (item.second->has_final_name()) {
       successful_started_items_count++;
+    }
   }
   // If not all file of HTML resource have been started, then wait.
-  if (successful_started_items_count != in_process_count())
+  if (successful_started_items_count != in_process_count()) {
     return;
+  }
 
   // Try to serialize all the frames gathered during GetSavableResourceLinks.
   DCHECK_EQ(0, number_of_frames_pending_response_);
@@ -1206,8 +1235,9 @@ void SavePackage::OnDidReceiveSerializedHtmlData(
     const std::string& data) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   // Check current state.
-  if (!sender || wait_state_ != HTML_DATA)
+  if (!sender || wait_state_ != HTML_DATA) {
     return;
+  }
 
   // This method can only get called as a response to the serialization request
   // previously sent from the browser to the renderer for a given FrameTreeNode.
@@ -1222,8 +1252,9 @@ void SavePackage::OnDidReceiveSerializedHtmlData(
       }
     }
 
-    if (saved_failed_items_.contains(save_item->id()))
+    if (saved_failed_items_.contains(save_item->id())) {
       wrote_to_failed_file_ = true;
+    }
 
     return;
   }
@@ -1240,8 +1271,9 @@ void SavePackage::OnDidFinishedSerializingHtmlData(
     base::WeakPtr<RenderFrameHostImpl> sender) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   // Check current state.
-  if (!sender || wait_state_ != HTML_DATA)
+  if (!sender || wait_state_ != HTML_DATA) {
     return;
+  }
 
   // This method can only get called as a response to the serialization request
   // previously sent from the browser to the renderer for a given FrameTreeNode.
@@ -1260,14 +1292,16 @@ void SavePackage::OnDidFinishedSerializingHtmlData(
 
 const SaveItem* SavePackage::LookupSaveItemForSender(
     base::WeakPtr<RenderFrameHostImpl> sender) {
-  if (!sender)
+  if (!sender) {
     return nullptr;
+  }
 
   FrameTreeNodeId frame_tree_node_id =
       sender->frame_tree_node()->frame_tree_node_id();
   auto it = frame_tree_node_id_to_save_item_.find(frame_tree_node_id);
-  if (it == frame_tree_node_id_to_save_item_.end())
+  if (it == frame_tree_node_id_to_save_item_.end()) {
     return nullptr;
+  }
 
   const SaveItem* save_item = it->second;
   DCHECK_EQ(SaveFileCreateInfo::SAVE_FILE_FROM_DOM, save_item->save_source());
@@ -1277,8 +1311,9 @@ const SaveItem* SavePackage::LookupSaveItemForSender(
 
 void SavePackage::GetSavableResourceLinksForRenderFrameHost(
     RenderFrameHostImpl* rfh) {
-  if (!IsSavableFrame(rfh))
+  if (!IsSavableFrame(rfh)) {
     return;
+  }
   ++number_of_frames_pending_response_;
   rfh->GetSavableResourceLinksFromRenderer();
 }
@@ -1288,8 +1323,9 @@ void SavePackage::GetSavableResourceLinksForRenderFrameHost(
 void SavePackage::GetSavableResourceLinks() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   DCHECK(page_);
-  if (wait_state_ != START_PROCESS)
+  if (wait_state_ != START_PROCESS) {
     return;
+  }
 
   wait_state_ = RESOURCES_LIST;
 
@@ -1317,8 +1353,9 @@ void SavePackage::SavableResourceLinksResponse(
     blink::mojom::ReferrerPtr referrer,
     const std::vector<blink::mojom::SavableSubframePtr>& subframes) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
-  if (wait_state_ != RESOURCES_LIST)
+  if (wait_state_ != RESOURCES_LIST) {
     return;
+  }
 
   // Add all sub-resources to wait list.
   FrameTreeNodeId container_frame_tree_node_id =
@@ -1395,8 +1432,9 @@ void SavePackage::EnqueueSavableResource(
     const GURL& url,
     const Referrer& referrer) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
-  if (!url.is_valid())
+  if (!url.is_valid()) {
     return;
+  }
 
   CreatePendingSaveItemDeduplicatingByUrl(
       container_frame_tree_node_id, FrameTreeNodeId(), url, referrer,
@@ -1423,8 +1461,9 @@ void SavePackage::CompleteSavableResourceLinksResponse() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   --number_of_frames_pending_response_;
   DCHECK_LE(0, number_of_frames_pending_response_);
-  if (number_of_frames_pending_response_ != 0)
+  if (number_of_frames_pending_response_ != 0) {
     return;  // Need to wait for more responses from RenderFrames.
+  }
 
   // Sort |waiting_item_queue_| so that frames go last (frames are identified by
   // SAVE_FILE_FROM_DOM in the comparison function below).
@@ -1441,8 +1480,9 @@ void SavePackage::CompleteSavableResourceLinksResponse() {
   all_save_items_count_ = static_cast<int>(waiting_item_queue_.size());
 
   // We use total bytes as the total number of files we want to save.
-  if (download_)
+  if (download_) {
     download_->SetTotalBytes(all_save_items_count_);
+  }
 
   if (all_save_items_count_) {
     wait_state_ = NET_FILES;
@@ -1459,8 +1499,9 @@ void SavePackage::CompleteSavableResourceLinksResponse() {
 
 void SavePackage::GetSaveInfo() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
-  if (!page_)
+  if (!page_) {
     return;
+  }
   // Can't use |page_| in the download sequence, so get the data that we
   // need before calling to it.
   base::FilePath website_save_dir;
@@ -1534,12 +1575,14 @@ void SavePackage::ContinueGetSaveInfo(bool can_save_as_complete,
   // The WebContents which owns this SavePackage may have disappeared during
   // the UI->download sequence->UI thread hop of
   // GetSaveInfo->CreateDirectoryOnFileThread->ContinueGetSaveInfo.
-  if (!page_ || !download_manager_->GetDelegate())
+  if (!page_ || !download_manager_->GetDelegate()) {
     return;
+  }
 
   base::FilePath::StringType default_extension;
-  if (can_save_as_complete)
+  if (can_save_as_complete) {
     default_extension = kDefaultHtmlExtension;
+  }
 
   download_manager_->GetDelegate()->ChooseSavePath(
       GetWebContents(page_.get()), suggested_path, default_extension,
@@ -1556,8 +1599,9 @@ void SavePackage::OnPathPicked(
          (params.save_type == SAVE_PAGE_TYPE_AS_MHTML) ||
          (params.save_type == SAVE_PAGE_TYPE_AS_COMPLETE_HTML))
       << params.save_type;
-  if (!page_)
+  if (!page_) {
     return;
+  }
   // Ensure the filename is safe.
   saved_main_file_path_ = params.file_path;
 

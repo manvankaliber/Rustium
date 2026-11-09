@@ -12,8 +12,6 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
-#elif BUILDFLAG(IS_FUCHSIA)
-#include <zircon/syscalls.h>
 #elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
 #include <asm/unistd.h>
 #include <sys/syscall.h>
@@ -82,8 +80,6 @@ void RandomBytes(absl::Span<uint8_t> destination) {
 #if BUILDFLAG(IS_WIN)
   static decltype(&ProcessPrng) process_prng_fn = GetProcessPrng();
   process_prng_fn(destination.data(), destination.size());
-#elif BUILDFLAG(IS_FUCHSIA)
-  zx_cprng_draw(destination.data(), destination.size());
 #elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
   while (!destination.empty()) {
     ssize_t result =

@@ -126,10 +126,7 @@ bool Converter<ArrayBuffer>::FromV8(v8::Isolate* /*isolate*/,
 
 // ArrayBufferView ------------------------------------------------------------
 
-ArrayBufferView::ArrayBufferView()
-    : offset_(0),
-      num_bytes_(0) {
-}
+ArrayBufferView::ArrayBufferView() : offset_(0), num_bytes_(0) {}
 
 ArrayBufferView::ArrayBufferView(v8::Local<v8::ArrayBufferView> view)
     : array_buffer_(view->GetBuffer()),
@@ -182,8 +179,6 @@ class ArrayBufferSharedMemoryMapper : public base::SharedMemoryMapper {
     v8::PlatformSharedMemoryHandle v8_handle;
 #if BUILDFLAG(IS_APPLE)
     v8_handle = v8::SharedMemoryHandleFromMachMemoryEntry(handle);
-#elif BUILDFLAG(IS_FUCHSIA)
-    v8_handle = v8::SharedMemoryHandleFromVMO(handle->get());
 #elif BUILDFLAG(IS_WIN)
     v8_handle = v8::SharedMemoryHandleFromFileMapping(handle);
 #elif BUILDFLAG(IS_ANDROID)
@@ -205,8 +200,9 @@ class ArrayBufferSharedMemoryMapper : public base::SharedMemoryMapper {
                                           : v8::PagePermissions::kRead;
     uintptr_t mapping = v8::V8::GetSandboxAddressSpace()->AllocateSharedPages(
         0, mapping_size, permissions, v8_handle, offset);
-    if (!mapping)
+    if (!mapping) {
       return std::nullopt;
+    }
     // SAFETY: AllocateSharedPages() mapped `mapping_size` >= `size` bytes.
     return UNSAFE_BUFFERS(
         base::span(reinterpret_cast<uint8_t*>(mapping), size));

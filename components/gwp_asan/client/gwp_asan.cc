@@ -87,7 +87,7 @@ namespace {
 // ProcessSamplingBoost is the multiplier to increase the
 // ProcessSamplingProbability in scenarios where we want to perform additional
 // testing (e.g., on canary/dev builds).
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 constexpr int kDefaultMaxAllocations = 50;
 constexpr int kDefaultMaxMetadata = 210;
 constexpr int kDefaultTotalPages = kCpuIs64Bit ? 2048 : kDefaultMaxMetadata * 2;
@@ -102,7 +102,7 @@ constexpr int kDefaultAllocationSamplingMultiplier = 2000;
 constexpr int kDefaultAllocationSamplingRange = 20;
 constexpr double kDefaultProcessSamplingProbability = 0.015;
 #else
-constexpr int kDefaultMaxAllocations = 70;
+    constexpr int kDefaultMaxAllocations = 70;
 constexpr int kDefaultMaxMetadata = 255;
 constexpr int kDefaultTotalPages = kCpuIs64Bit ? 2048 : kDefaultMaxMetadata * 2;
 constexpr int kDefaultAllocationSamplingMultiplier = 1000;

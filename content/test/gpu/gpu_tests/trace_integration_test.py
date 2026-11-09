@@ -572,7 +572,7 @@ class TraceIntegrationTest(gpu_integration_test.GpuIntegrationTest):
       return None
 
     binary = 'trace_processor_shell'
-    if os_name and os_name.lower() in ('android', 'chromeos', 'fuchsia'):
+    if os_name and os_name.lower() in ('android', 'chromeos', ):
       # trace_processor_shell is compiled and available locally in the output
       # directory, but does not get included in the CAS inputs due to remote
       # platform build weirdness. So, use the symlinked versions instead. See

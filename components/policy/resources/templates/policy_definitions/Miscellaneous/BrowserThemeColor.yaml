@@ -10,8 +10,7 @@ example_value: '#FFFFFF'
 features:
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 owners:
 - igorruvinov@google.com
 - ydago@google.com

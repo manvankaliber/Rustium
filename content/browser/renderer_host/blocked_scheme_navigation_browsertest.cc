@@ -107,12 +107,13 @@ class BlockedURLWarningConsoleObserver {
     ASSERT_TRUE(console_observer_.Wait());
     ASSERT_EQ(1u, console_observer_.messages().size());
     std::string message = console_observer_.GetMessageAt(0u);
-    if (base::MatchPattern(message, fail_filter_))
+    if (base::MatchPattern(message, fail_filter_)) {
       status_ = SAW_FAILURE_MESSAGE;
-    else if (base::MatchPattern(message, success_filter_))
+    } else if (base::MatchPattern(message, success_filter_)) {
       status_ = SAW_SUCCESS_MESSAGE;
-    else
+    } else {
       ADD_FAILURE() << "Unexpected message: " << message;
+    }
   }
 
   Status status() const { return status_; }
@@ -204,8 +205,9 @@ class BlockedSchemeNavigationBrowserTest
     EXPECT_TRUE(NavigateToURL(shell(), url));
     std::string message;
     while (message_queue.WaitForMessage(&message)) {
-      if (message == "\"READY\"")
+      if (message == "\"READY\"") {
         break;
+      }
     }
   }
 
@@ -278,8 +280,9 @@ class BlockedSchemeNavigationBrowserTest
     observer.Wait();
     std::string message;
     while (message_queue.WaitForMessage(&message)) {
-      if (message == "\"READY\"")
+      if (message == "\"READY\"") {
         break;
+      }
     }
   }
 
@@ -350,10 +353,11 @@ class BlockedSchemeNavigationBrowserTest
       const std::string& scheme,
       const std::string& javascript,
       ExpectedNavigationStatus expected_navigation_status) {
-    if (expected_navigation_status == NAVIGATION_ALLOWED)
+    if (expected_navigation_status == NAVIGATION_ALLOWED) {
       ExecuteScriptAndCheckNavigationAllowed(shell, rfh, javascript, scheme);
-    else
+    } else {
       ExecuteScriptAndCheckNavigationBlocked(shell, rfh, javascript, scheme);
+    }
   }
 
  protected:
@@ -381,8 +385,9 @@ class BlockedSchemeNavigationBrowserTest
     TestNavigationObserver navigation_observer(shell()->web_contents());
     EXPECT_TRUE(ExecJs(rfh, javascript));
 
-    if (console_observer)
+    if (console_observer) {
       ASSERT_TRUE(console_observer->Wait());
+    }
 
     switch (expected_navigation_status) {
       case NAVIGATION_ALLOWED:
@@ -690,12 +695,7 @@ IN_PROC_BROWSER_TEST_P(BlockedSchemeNavigationBrowserTest, HTML_Download) {
 // Tests that navigating the main frame to a blocked scheme with HTML mimetype
 // from a subframe is blocked.
 // TODO: crbug.com/40943572 - Fix and re-enable the flaky test.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_HTML_NavigationFromFrame_Block \
-  DISABLED_HTML_NavigationFromFrame_Block
-#else
 #define MAYBE_HTML_NavigationFromFrame_Block HTML_NavigationFromFrame_Block
-#endif
 IN_PROC_BROWSER_TEST_P(BlockedSchemeNavigationBrowserTest,
                        MAYBE_HTML_NavigationFromFrame_Block) {
   EXPECT_TRUE(NavigateToURL(
@@ -714,12 +714,7 @@ IN_PROC_BROWSER_TEST_P(BlockedSchemeNavigationBrowserTest,
 // Tests that opening a new window with a blocked scheme from a subframe is
 // blocked.
 // TODO: crbug.com/40943572 - Fix and re-enable the flaky test.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_HTML_WindowOpenFromFrame_Block \
-  DISABLED_HTML_WindowOpenFromFrame_Block
-#else
 #define MAYBE_HTML_WindowOpenFromFrame_Block HTML_WindowOpenFromFrame_Block
-#endif
 IN_PROC_BROWSER_TEST_P(BlockedSchemeNavigationBrowserTest,
                        MAYBE_HTML_WindowOpenFromFrame_Block) {
   EXPECT_TRUE(NavigateToURL(
@@ -822,13 +817,8 @@ IN_PROC_BROWSER_TEST_P(BlockedSchemeNavigationBrowserTest,
 // Tests that navigating the top frame to a blocked scheme with HTML mimetype is
 // blocked even if the top frame already has a blocked scheme.
 // TODO: crbug.com/40943572 - Fix and re-enable the flaky test.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_HTML_NavigationFromFrame_TopFrameHasBlockedScheme_Block \
-  DISABLED_HTML_NavigationFromFrame_TopFrameHasBlockedScheme_Block
-#else
 #define MAYBE_HTML_NavigationFromFrame_TopFrameHasBlockedScheme_Block \
   HTML_NavigationFromFrame_TopFrameHasBlockedScheme_Block
-#endif
 IN_PROC_BROWSER_TEST_P(
     BlockedSchemeNavigationBrowserTest,
     MAYBE_HTML_NavigationFromFrame_TopFrameHasBlockedScheme_Block) {
@@ -973,13 +963,8 @@ IN_PROC_BROWSER_TEST_F(BlockedSchemeNavigationBrowserTest,
 // Tests navigation of the main frame to a filesystem URL with a binary mimetype
 // from a subframe. Navigations to filesystem URLs never end up as downloads.
 // TODO(crbug.com/40943572): Enable the flaky test.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_FilesystemUrl_OctetStream_NavigationFromFrame \
-  DISABLED_FilesystemUrl_OctetStream_NavigationFromFrame
-#else
 #define MAYBE_FilesystemUrl_OctetStream_NavigationFromFrame \
   FilesystemUrl_OctetStream_NavigationFromFrame
-#endif
 IN_PROC_BROWSER_TEST_F(BlockedSchemeNavigationBrowserTest,
                        MAYBE_FilesystemUrl_OctetStream_NavigationFromFrame) {
   EXPECT_TRUE(NavigateToURL(
@@ -1110,13 +1095,8 @@ IN_PROC_BROWSER_TEST_F(BlockedSchemeNavigationBrowserTest,
 // mimetype from a subframe. Navigations to filesystem URLs don't end up as
 // downloads.
 // TODO(crbug.com/40943572): Enable the flaky test.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_FilesystemUrl_UnknownMimeType_NavigationFromFrame \
-  DISABLED_FilesystemUrl_UnknownMimeType_NavigationFromFrame
-#else
 #define MAYBE_FilesystemUrl_UnknownMimeType_NavigationFromFrame \
   FilesystemUrl_UnknownMimeType_NavigationFromFrame
-#endif
 IN_PROC_BROWSER_TEST_F(
     BlockedSchemeNavigationBrowserTest,
     MAYBE_FilesystemUrl_UnknownMimeType_NavigationFromFrame) {
@@ -1243,12 +1223,7 @@ IN_PROC_BROWSER_TEST_P(BlockedSchemeNavigationBrowserTest, PDF_FormPost_Block) {
 // Tests that navigating the main frame to a blocked scheme with PDF mimetype
 // from a subframe is blocked, or is downloaded on Android.
 // TODO: crbug.com/40943572 - Fix and re-enable the flaky test.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_PDF_NavigationFromFrame_Block \
-  DISABLED_PDF_NavigationFromFrame_Block
-#else
 #define MAYBE_PDF_NavigationFromFrame_Block PDF_NavigationFromFrame_Block
-#endif
 IN_PROC_BROWSER_TEST_P(BlockedSchemeNavigationBrowserTest,
                        MAYBE_PDF_NavigationFromFrame_Block) {
   EXPECT_TRUE(NavigateToURL(

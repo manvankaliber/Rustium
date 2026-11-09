@@ -131,14 +131,14 @@
 #include "net/base/winsock_init.h"
 #endif
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include <net/if.h>
 
 #include "net/base/sys_addrinfo.h"
 #if !BUILDFLAG(IS_ANDROID)
 #include <ifaddrs.h>
 #endif  // !BUILDFLAG(IS_ANDROID)
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_ANDROID)
 #include "base/android/android_info.h"
@@ -203,8 +203,9 @@ PrioritizedDispatcher::Limits GetDispatcherLimits(
                                        options.max_concurrent_resolves);
 
   // If not using default, do not use the field trial.
-  if (limits.total_jobs != HostResolver::ManagerOptions::kDefaultParallelism)
+  if (limits.total_jobs != HostResolver::ManagerOptions::kDefaultParallelism) {
     return limits;
+  }
 
   // Default, without trial is no reserved slots.
   limits.total_jobs = kDefaultMaxSystemTasks;
@@ -213,8 +214,9 @@ PrioritizedDispatcher::Limits GetDispatcherLimits(
   std::string group =
       base::FieldTrialList::FindFullName("HostResolverDispatch");
 
-  if (group.empty())
+  if (group.empty()) {
     return limits;
+  }
 
   // The format of the group name is a list of non-negative integers separated
   // by ':'. Each of the elements in the list corresponds to an element in
@@ -275,8 +277,9 @@ std::vector<IPEndPoint> FilterAddresses(std::vector<IPEndPoint> addresses,
   const AddressFamily want_family =
       HostResolver::DnsQueryTypeSetToAddressFamily(query_types);
 
-  if (want_family == ADDRESS_FAMILY_UNSPECIFIED)
+  if (want_family == ADDRESS_FAMILY_UNSPECIFIED) {
     return addresses;
+  }
 
   // Keep only the endpoints that match `want_family`.
   auto removed = std::ranges::remove_if(
@@ -336,8 +339,9 @@ void RecordDnsClientCapabilityMetrics(const DnsClient* dns_client) {
 bool ResolveLocalHostname(std::string_view host,
                           std::vector<IPEndPoint>* address_list) {
   address_list->clear();
-  if (!IsLocalHostname(host))
+  if (!IsLocalHostname(host)) {
     return false;
+  }
 
   address_list->emplace_back(IPAddress::IPv6Localhost(), 0);
   address_list->emplace_back(IPAddress::IPv4Localhost(), 0);
@@ -358,16 +362,18 @@ class HostResolverManager::ProbeRequestImpl
 
   ~ProbeRequestImpl() override {
     // Ensure that observers are deregistered to avoid wasting memory.
-    if (context_)
+    if (context_) {
       context_->UnregisterDohStatusObserver(this);
+    }
   }
 
   int Start() override {
     DCHECK(resolver_);
     DCHECK(!runner_);
 
-    if (!context_)
+    if (!context_) {
       return ERR_CONTEXT_SHUT_DOWN;
+    }
 
     context_->RegisterDohStatusObserver(this);
 
@@ -392,13 +398,16 @@ class HostResolverManager::ProbeRequestImpl
     DCHECK(resolver_);
     DCHECK(!resolver_->invalidation_in_progress_);
 
-    if (!context_)
+    if (!context_) {
       return;  // Reachable if the context ends before a posted task runs.
+    }
 
-    if (!runner_)
+    if (!runner_) {
       runner_ = resolver_->CreateDohProbeRunner(context_.get());
-    if (runner_)
+    }
+    if (runner_) {
       runner_->Start(network_change);
+    }
   }
 
   void CancelRunner() {
@@ -465,8 +474,7 @@ HostResolverManager::HostResolverManager(
 #if BUILDFLAG(IS_WIN)
   EnsureWinsockInit();
 #endif
-#if (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
   RunLoopbackProbeJob();
 #endif
   // Network-bound HostResolverManagers don't need to act on network changes.
@@ -474,8 +482,9 @@ HostResolverManager::HostResolverManager(
     NetworkChangeNotifier::AddIPAddressObserver(this);
     NetworkChangeNotifier::AddConnectionTypeObserver(this);
   }
-  if (system_dns_config_notifier_)
+  if (system_dns_config_notifier_) {
     system_dns_config_notifier_->AddObserver(this);
+  }
   EnsureSystemHostResolverCallReady();
 
   auto connection_type =
@@ -514,8 +523,9 @@ HostResolverManager::~HostResolverManager() {
     NetworkChangeNotifier::RemoveIPAddressObserver(this);
     NetworkChangeNotifier::RemoveConnectionTypeObserver(this);
   }
-  if (system_dns_config_notifier_)
+  if (system_dns_config_notifier_) {
     system_dns_config_notifier_->RemoveObserver(this);
+  }
 }
 
 // static
@@ -649,8 +659,9 @@ void HostResolverManager::SetInsecureDnsClientEnabled(
          mode != InsecureDnsMode::kEnabledPlatformNoSystem) ||
         features::IsDnsPlatformSupported());
 
-  if (!dns_client_)
+  if (!dns_client_) {
     return;
+  }
 
   bool enabled_before =
       dns_client_->CanUseInsecureDnsTransactions(/*ech_mode=*/std::nullopt);
@@ -682,8 +693,9 @@ base::DictValue HostResolverManager::GetDnsConfigAsValue() const {
 void HostResolverManager::SetDnsConfigOverrides(DnsConfigOverrides overrides) {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 
-  if (!dns_client_ && overrides == DnsConfigOverrides())
+  if (!dns_client_ && overrides == DnsConfigOverrides()) {
     return;
+  }
 
   // Not allowed to set overrides if compiled without DnsClient.
   DCHECK(dns_client_);
@@ -769,8 +781,9 @@ void HostResolverManager::SetDnsClientForTesting(
     std::unique_ptr<DnsClient> dns_client) {
   DCHECK(dns_client);
   if (dns_client_) {
-    if (!dns_client->GetSystemConfigForTesting())
+    if (!dns_client->GetSystemConfigForTesting()) {
       dns_client->SetSystemConfig(dns_client_->GetSystemConfigForTesting());
+    }
     dns_client->SetConfigOverrides(dns_client_->GetConfigOverridesForTesting());
   }
   dns_client_ = std::move(dns_client);
@@ -928,8 +941,9 @@ HostCache::Entry HostResolverManager::ResolveLocally(
   std::optional<HostCache::Entry> resolved =
       ServeLocalhost(job_key.host.GetHostname(), job_key.query_types,
                      default_family_due_to_no_ipv6);
-  if (resolved)
+  if (resolved) {
     return resolved.value();
+  }
 
   // Do initial cache lookups.
   while (!out_tasks->empty() && IsLocalTask(out_tasks->front())) {
@@ -1083,16 +1097,19 @@ std::optional<HostCache::Entry> HostResolverManager::MaybeServeFromCache(
   DCHECK(out_stale_info);
   *out_stale_info = std::nullopt;
 
-  if (!cache)
+  if (!cache) {
     return std::nullopt;
+  }
 
-  if (cache_usage == ResolveHostParameters::CacheUsage::DISALLOWED)
+  if (cache_usage == ResolveHostParameters::CacheUsage::DISALLOWED) {
     return std::nullopt;
+  }
 
   // Local-only requests search the cache for non-local-only results.
   HostCache::Key effective_key = key;
-  if (effective_key.host_resolver_source == HostResolverSource::LOCAL_ONLY)
+  if (effective_key.host_resolver_source == HostResolverSource::LOCAL_ONLY) {
     effective_key.host_resolver_source = HostResolverSource::ANY;
+  }
 
   const std::pair<const HostCache::Key, HostCache::Entry>* cache_result;
   HostCache::EntryStaleness staleness;
@@ -1133,13 +1150,15 @@ std::optional<HostCache::Entry> HostResolverManager::MaybeReadFromConfig(
   }
   std::optional<std::vector<IPEndPoint>> preset_addrs =
       dns_client_->GetPresetAddrs(key.host.AsSchemeHostPort());
-  if (!preset_addrs)
+  if (!preset_addrs) {
     return std::nullopt;
+  }
 
   std::vector<IPEndPoint> filtered_addresses =
       FilterAddresses(std::move(*preset_addrs), key.query_types);
-  if (filtered_addresses.empty())
+  if (filtered_addresses.empty()) {
     return std::nullopt;
+  }
 
   if (base::FeatureList::IsEnabled(
           features::kEnableBootstrapIPRandomizationForDoh)) {
@@ -1158,8 +1177,9 @@ void HostResolverManager::StartBootstrapFollowup(
   DCHECK(host_cache);
 
   key.secure_dns_mode = SecureDnsMode::kSecure;
-  if (jobs_.count(key) != 0)
+  if (jobs_.count(key) != 0) {
     return;
+  }
 
   Job* job = AddJobWithoutRequest(
       key, ResolveHostParameters::CacheUsage::ALLOWED, host_cache,
@@ -1288,8 +1308,9 @@ void HostResolverManager::CacheResult(HostCache* cache,
                                       const HostCache::Entry& entry,
                                       base::TimeDelta ttl) {
   // Don't cache an error unless it has a positive TTL.
-  if (cache && (entry.error() == OK || ttl.is_positive()))
+  if (cache && (entry.error() == OK || ttl.is_positive())) {
     cache->Set(key, entry, tick_clock_->NowTicks(), ttl);
+  }
 }
 
 std::unique_ptr<HostResolverManager::Job> HostResolverManager::RemoveJob(
@@ -1349,7 +1370,6 @@ void HostResolverManager::PushDnsTasks(const DnsClient& dns_client,
                                        bool prioritize_local_lookups,
                                        ResolveContext* resolve_context,
                                        std::deque<TaskType>* out_tasks) {
-
   // If a catch-all DNS block has been set for unit tests, we shouldn't send
   // DnsTasks. It is still necessary to call this method, however, so that the
   // correct cache tasks for the secure dns mode are added.
@@ -1375,16 +1395,18 @@ void HostResolverManager::PushDnsTasks(const DnsClient& dns_client,
       DCHECK(!allow_cache || out_tasks->front() == TaskType::CACHE_LOOKUP);
       if (dns_client.FallbackFromSecureTransactionPreferred(resolve_context)) {
         // Don't run a secure DnsTask if there are no available DoH servers.
-        if (dns_tasks_allowed && insecure_tasks_allowed)
+        if (dns_tasks_allowed && insecure_tasks_allowed) {
           out_tasks->push_back(dns_task_type);
+        }
       } else if (prioritize_local_lookups) {
         // If local lookups are prioritized, the cache should be checked for
         // both secure and insecure results prior to running a secure DnsTask.
         // The task sequence should already contain the appropriate cache task.
         if (dns_tasks_allowed) {
           out_tasks->push_back(TaskType::SECURE_DNS);
-          if (insecure_tasks_allowed)
+          if (insecure_tasks_allowed) {
             out_tasks->push_back(dns_task_type);
+          }
         }
       } else {
         if (allow_cache) {
@@ -1393,18 +1415,22 @@ void HostResolverManager::PushDnsTasks(const DnsClient& dns_client,
           out_tasks->pop_front();
           out_tasks->push_back(TaskType::SECURE_CACHE_LOOKUP);
         }
-        if (dns_tasks_allowed)
+        if (dns_tasks_allowed) {
           out_tasks->push_back(TaskType::SECURE_DNS);
-        if (allow_cache)
+        }
+        if (allow_cache) {
           out_tasks->push_back(TaskType::INSECURE_CACHE_LOOKUP);
-        if (dns_tasks_allowed && insecure_tasks_allowed)
+        }
+        if (dns_tasks_allowed && insecure_tasks_allowed) {
           out_tasks->push_back(dns_task_type);
+        }
       }
       break;
     case SecureDnsMode::kOff:
       DCHECK(!allow_cache || IsLocalTask(out_tasks->front()));
-      if (dns_tasks_allowed && insecure_tasks_allowed)
+      if (dns_tasks_allowed && insecure_tasks_allowed) {
         out_tasks->push_back(dns_task_type);
+      }
       break;
     default:
       NOTREACHED();
@@ -1438,11 +1464,13 @@ void HostResolverManager::CreateTaskSequence(
       cache_usage != ResolveHostParameters::CacheUsage::DISALLOWED;
   if (secure_dns_policy == SecureDnsPolicy::kBootstrap) {
     DCHECK_EQ(SecureDnsMode::kOff, job_key.secure_dns_mode);
-    if (allow_cache)
+    if (allow_cache) {
       out_tasks->push_front(TaskType::INSECURE_CACHE_LOOKUP);
+    }
     out_tasks->push_front(TaskType::CONFIG_PRESET);
-    if (allow_cache)
+    if (allow_cache) {
       out_tasks->push_front(TaskType::SECURE_CACHE_LOOKUP);
+    }
   } else if (allow_cache) {
     if (job_key.secure_dns_mode == SecureDnsMode::kSecure) {
       out_tasks->push_front(TaskType::SECURE_CACHE_LOOKUP);
@@ -1544,10 +1572,11 @@ namespace {
 
 bool RequestWillUseWiFi(handles::NetworkHandle network) {
   NetworkChangeNotifier::ConnectionType connection_type;
-  if (network == handles::kInvalidNetworkHandle)
+  if (network == handles::kInvalidNetworkHandle) {
     connection_type = NetworkChangeNotifier::GetConnectionType();
-  else
+  } else {
     connection_type = NetworkChangeNotifier::GetNetworkConnectionType(network);
+  }
 
   return connection_type == NetworkChangeNotifier::CONNECTION_WIFI;
 }
@@ -1757,8 +1786,9 @@ void HostResolverManager::AbortJobsWithoutTargetNetwork(bool in_progress_only) {
     jobs_to_abort[i]->Abort();
   }
 
-  if (self)
+  if (self) {
     dispatcher_->SetLimits(limits);
+  }
 }
 
 void HostResolverManager::AbortInsecureDnsTasks(int error, bool fallback_only) {
@@ -1777,16 +1807,18 @@ void HostResolverManager::AbortInsecureDnsTasks(int error, bool fallback_only) {
   dispatcher_->SetLimits(
       PrioritizedDispatcher::Limits(limits.reserved_slots.size(), 0));
 
-  for (base::OnceClosure& closure : job_abort_closures)
+  for (base::OnceClosure& closure : job_abort_closures) {
     std::move(closure).Run();
+  }
 
   dispatcher_->SetLimits(limits);
 }
 
 // TODO(crbug.com/40641277): Consider removing this and its usage.
 void HostResolverManager::TryServingAllJobsFromHosts() {
-  if (!dns_client_)
+  if (!dns_client_) {
     return;
+  }
 
   // TODO(szym): Do not do this if nsswitch.conf instructs not to.
   // http://crbug.com/117655
@@ -1809,8 +1841,7 @@ void HostResolverManager::OnIPAddressChanged(
   // Abandon all ProbeJobs.
   probe_weak_ptr_factory_.InvalidateWeakPtrs();
   InvalidateCaches();
-#if (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
   RunLoopbackProbeJob();
 #endif
   AbortJobsWithoutTargetNetwork(true /* in_progress_only */);
@@ -1849,8 +1880,9 @@ void HostResolverManager::OnSystemDnsConfigChanged(const DnsConfig& config) {
   if (changed) {
     // Need to update jobs iff transactions were previously allowed because
     // in-progress jobs may be running using a now-invalid configuration.
-    if (transactions_allowed_before)
+    if (transactions_allowed_before) {
       UpdateJobsForChangedConfig();
+    }
   }
 }
 
@@ -1864,8 +1896,9 @@ void HostResolverManager::UpdateJobsForChangedConfig() {
   AbortJobsWithoutTargetNetwork(false /* in_progress_only */);
 
   // `this` may be deleted inside AbortJobsWithoutTargetNetwork().
-  if (self.get())
+  if (self.get()) {
     TryServingAllJobsFromHosts();
+  }
 }
 
 void HostResolverManager::OnFallbackResolve(int dns_task_error) {
@@ -1891,19 +1924,22 @@ void HostResolverManager::OnFallbackResolve(int dns_task_error) {
 int HostResolverManager::GetOrCreateMdnsClient(MDnsClient** out_client) {
 #if BUILDFLAG(ENABLE_MDNS)
   if (!mdns_client_) {
-    if (!mdns_socket_factory_)
+    if (!mdns_socket_factory_) {
       mdns_socket_factory_ = std::make_unique<MDnsSocketFactoryImpl>(net_log_);
+    }
     mdns_client_ = MDnsClient::CreateDefault();
   }
 
   int rv = OK;
-  if (!mdns_client_->IsListening())
+  if (!mdns_client_->IsListening()) {
     rv = mdns_client_->StartListening(mdns_socket_factory_.get());
+  }
 
   DCHECK_NE(ERR_IO_PENDING, rv);
   DCHECK(rv != OK || mdns_client_->IsListening());
-  if (rv == OK)
+  if (rv == OK) {
     *out_client = mdns_client_.get();
+  }
   return rv;
 #else
   // Should not request MDNS resoltuion unless MDNS is enabled.

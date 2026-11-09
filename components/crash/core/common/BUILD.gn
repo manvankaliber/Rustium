@@ -8,7 +8,7 @@ import("//components/gwp_asan/buildflags/buildflags.gni")
 
 declare_args() {
   # If set to true, this will stub out and disable the entire crash key system.
-  use_crash_key_stubs = is_fuchsia
+  use_crash_key_stubs = false
 }
 
 group("common") {
@@ -200,13 +200,5 @@ source_set("unit_tests") {
   if (is_castos) {
     include_dirs = [ "//third_party/breakpad/breakpad/src/" ]
     sources += [ "crash_key_breakpad_unittest.cc" ]
-  }
-
-  # TODO(crbug.com/40172607): Enable when crash keys are supported on Fuchsia.
-  if (is_fuchsia) {
-    sources -= [
-      "crash_key_unittest.cc",
-      "crash_keys_unittest.cc",
-    ]
   }
 }

@@ -196,7 +196,7 @@ need to be translated for each locale.-->
   </translations>
   <release seq="1">
     <messages fallback_to_english="true">
-      <if expr="not is_fuchsia">
+
         <!--Accessible action strings-->
         <message name="IDS_AX_ACTIVATE_ACTION_VERB" desc="Verb stating the action that will occur when an element such as a text field is selected, as used by accessibility.">
           activate
@@ -738,7 +738,7 @@ need to be translated for each locale.-->
             visited
           </message>
         </if>
-      </if>
+
       <message name="IDS_AX_CALENDAR_SHOW_DATE_PICKER" desc="Accessible description of a button to show a calendar from a date input field.">
         Show date picker
       </message>

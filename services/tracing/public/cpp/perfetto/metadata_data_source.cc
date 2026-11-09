@@ -45,8 +45,8 @@ inline constexpr char kPlayStorePackage[] = "com.android.vending";
 
 std::string_view GetClockString(base::TimeTicks::Clock clock) {
   switch (clock) {
-    case base::TimeTicks::Clock::FUCHSIA_ZX_CLOCK_MONOTONIC:
-      return "FUCHSIA_ZX_CLOCK_MONOTONIC";
+    case base::TimeTicks::Clock::OBSOLETE_PLATFORM_CLOCK:
+      break;
     case base::TimeTicks::Clock::LINUX_CLOCK_MONOTONIC:
       return "LINUX_CLOCK_MONOTONIC";
     case base::TimeTicks::Clock::IOS_CF_ABSOLUTE_TIME_MINUS_KERN_BOOTTIME:
@@ -216,7 +216,8 @@ void MetadataDataSource::WriteMetadata(
     }
 
 #if BUILDFLAG(IS_ANDROID)
-    RecordAndroidMetadata(chrome_metadata, base::android::apk_info::is_system_app(),
+    RecordAndroidMetadata(chrome_metadata,
+                          base::android::apk_info::is_system_app(),
                           base::android::apk_info::installer_package_name(),
                           base::android::apk_info::host_package_name());
 #endif  // BUILDFLAG(IS_ANDROID)

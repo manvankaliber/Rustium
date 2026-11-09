@@ -144,10 +144,11 @@ bool FontPlatformData::operator==(const FontPlatformData& a) const {
   // If either of the typeface pointers are null then we test for pointer
   // equality. Otherwise, we call SkTypeface::Equal on the valid pointers.
   bool typefaces_equal = false;
-  if (!Typeface() || !a.Typeface())
+  if (!Typeface() || !a.Typeface()) {
     typefaces_equal = Typeface() == a.Typeface();
-  else
+  } else {
     typefaces_equal = SkTypeface::Equal(Typeface(), a.Typeface());
+  }
 
   return typefaces_equal && text_size_ == a.text_size_ &&
          is_hash_table_deleted_value_ == a.is_hash_table_deleted_value_ &&
@@ -193,8 +194,9 @@ HarfBuzzFace* FontPlatformData::GetHarfBuzzFace() const {
 bool FontPlatformData::HasSpaceInLigaturesOrKerning(
     TypesettingFeatures features) const {
   HarfBuzzFace* hb_face = GetHarfBuzzFace();
-  if (!hb_face)
+  if (!hb_face) {
     return false;
+  }
 
   return hb_face->HasSpaceInLigaturesOrKerning(features);
 }
@@ -226,7 +228,7 @@ WebFontRenderStyle FontPlatformData::QuerySystemRenderStyle(
     TextRenderingMode text_rendering) {
   WebFontRenderStyle result;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // If the font name is missing (i.e. probably a web font) or the sandbox is
   // disabled, use the system defaults.
   if (family.length() && Platform::Current()->GetSandboxSupport()) {
@@ -250,8 +252,8 @@ WebFontRenderStyle FontPlatformData::QuerySystemRenderStyle(
     // 0 means HINTING_NONE, see |ConvertHinting| in font_service_app.cc.
     result.hint_style = 0;
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA) &&
-        // !BUILDFLAG(IS_IOS)
+#endif
+  // !BUILDFLAG(IS_IOS)
 
   return result;
 }
@@ -279,8 +281,9 @@ SkFont FontPlatformData::CreateSkFont(const FontDescription*) const {
 #endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
 
 String FontPlatformData::GetPostScriptName() const {
-  if (!typeface_)
+  if (!typeface_) {
     return String();
+  }
 
   SkString postscript_name;
   bool success = typeface_->getPostScriptName(&postscript_name);

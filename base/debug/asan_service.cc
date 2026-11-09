@@ -26,7 +26,7 @@
 #include <windows.h>
 
 #include "base/logging.h"
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 #include <unistd.h>
 
 #include "base/files/file_util.h"
@@ -208,7 +208,7 @@ void AsanService::Log(const char* format, ...) {
                 static_cast<DWORD>(formatted_message.size()), &bytes_written,
                 nullptr);
   }
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   WriteFileDescriptor(STDERR_FILENO, formatted_message);
 #endif
 }

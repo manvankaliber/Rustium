@@ -51,7 +51,7 @@ if (use_assembler) {
   if (!is_component_build) {
     if (is_apple) {
       asm_defines += [ "WELS_PRIVATE_EXTERN=private_extern" ]
-    } else if (is_linux || is_chromeos || is_android || is_fuchsia) {
+    } else if (is_linux || is_chromeos || is_android) {
       asm_defines += [ "WELS_PRIVATE_EXTERN=hidden" ]
     }
   }

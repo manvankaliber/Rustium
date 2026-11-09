@@ -159,7 +159,7 @@ class MediaStreamAudioProcessorTest : public ::testing::Test {
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
     EXPECT_FALSE(config.gain_controller1.enabled);
     EXPECT_TRUE(config.gain_controller2.enabled);
-#elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_CHROMEOS)
     EXPECT_FALSE(config.gain_controller1.enabled);
     EXPECT_TRUE(config.gain_controller2.enabled);
 #elif BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
@@ -259,16 +259,15 @@ TEST_P(MediaStreamAudioProcessorTestMultichannel, MAYBE_TestAllSampleRates) {
 
   // TODO(crbug.com/1334991): Clarify WebRTC audio processing support for 96 kHz
   // input.
-  static const int kSupportedSampleRates[] = {
-    8000,
-    16000,
-    22050,
-    32000,
-    44100,
-    48000
+  static const int kSupportedSampleRates[] = {8000,
+                                              16000,
+                                              22050,
+                                              32000,
+                                              44100,
+                                              48000
 #if BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
-    ,
-    96000
+                                              ,
+                                              96000
 #endif  // BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
   };
   for (int sample_rate : kSupportedSampleRates) {

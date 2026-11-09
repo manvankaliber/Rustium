@@ -119,7 +119,6 @@ ExpectationsInfo = collections.namedtuple('ExpectationsInfo', 'tag')
 
 for t_name, t_tag in [
   ('android', 'Android'),
-  ('fuchsia', 'Fuchsia'),
   ('linux', 'Linux'),
   ('mac', 'Mac'),
   ('win', 'Win'),

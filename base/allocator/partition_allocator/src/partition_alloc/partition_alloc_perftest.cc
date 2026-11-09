@@ -26,8 +26,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/perf/perf_result_reporter.h"
 
-#if PA_BUILDFLAG(IS_ANDROID) || PA_BUILDFLAG(PA_ARCH_CPU_32_BITS) || \
-    PA_BUILDFLAG(IS_FUCHSIA)
+#if PA_BUILDFLAG(IS_ANDROID) || PA_BUILDFLAG(PA_ARCH_CPU_32_BITS)
 // Some tests allocate many GB of memory, practical limit on address space
 // exhaustion for any 32-bit process and Android memory constraints.
 #define MEMORY_CONSTRAINED
@@ -169,8 +168,6 @@ class PartitionAllocatorWithThreadCache : public Allocator {
   PartitionAllocatorForTesting<internal::DisallowLeaks> allocator_{kOpts};
   internal::ThreadCacheProcessScopeForTesting scope_;
 };
-
-
 
 class TestLoopThread : public base::PlatformThreadForTesting::Delegate {
  public:
@@ -467,8 +464,7 @@ void RunTest(int thread_count,
 }
 
 class PartitionAllocMemoryAllocationPerfTest
-    : public testing::TestWithParam<std::tuple<int, AllocatorType>> {
-};
+    : public testing::TestWithParam<std::tuple<int, AllocatorType>> {};
 
 // Only one partition with a thread cache: cannot use the thread cache when
 // PartitionAlloc is malloc().

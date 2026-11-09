@@ -114,7 +114,6 @@ def initial_settings(
       for p in (
         "android",
         "cros",
-        "fuchsia",
         "ios",
         "linux",
         "mac",

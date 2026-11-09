@@ -53,10 +53,12 @@ std::vector<TElement> ArrayToVector(const std::array<TElement, TSize>& arr) {
 }
 
 media::VideoPixelFormat GetPixelFormatFromDeviceIndex(int device_index) {
-  if (device_index == 1)
+  if (device_index == 1) {
     return media::PIXEL_FORMAT_Y16;
-  if (device_index == 2)
+  }
+  if (device_index == 2) {
     return media::PIXEL_FORMAT_MJPEG;
+  }
 #if BUILDFLAG(IS_WIN)
   if (media::IsMediaFoundationD3D11VideoCaptureEnabled() &&
       switches::IsVideoCaptureUseGpuMemoryBufferEnabled()) {
@@ -76,8 +78,9 @@ void AppendAllCombinationsToFormatsContainer(
     media::VideoCaptureFormats* output) {
   for (const auto& pixel_format : pixel_formats) {
     for (const auto& resolution : resolutions) {
-      for (const auto& frame_rate : frame_rates)
+      for (const auto& frame_rate : frame_rates) {
         output->emplace_back(resolution, frame_rate, pixel_format);
+      }
     }
   }
 }
@@ -135,8 +138,9 @@ FakeVideoCaptureDeviceFactory::~FakeVideoCaptureDeviceFactory() = default;
 std::unique_ptr<VideoCaptureDevice>
 FakeVideoCaptureDeviceFactory::CreateDeviceWithSettings(
     const FakeVideoCaptureDeviceSettings& settings) {
-  if (settings.supported_formats.empty())
+  if (settings.supported_formats.empty()) {
     return CreateErrorDevice();
+  }
 
   for (const auto& entry : settings.supported_formats) {
     bool pixel_format_supported = false;
@@ -180,9 +184,10 @@ FakeVideoCaptureDeviceFactory::CreateDeviceWithDefaultResolutions(
     float frame_rate) {
   FakeVideoCaptureDeviceSettings settings;
   settings.delivery_mode = delivery_mode;
-  for (const gfx::Size& resolution : kDefaultResolutions)
+  for (const gfx::Size& resolution : kDefaultResolutions) {
     settings.supported_formats.emplace_back(resolution, frame_rate,
                                             pixel_format);
+  }
   return CreateDeviceWithSettings(settings);
 }
 
@@ -209,8 +214,9 @@ VideoCaptureErrorOrDevice FakeVideoCaptureDeviceFactory::CreateDevice(
   DCHECK(thread_checker_.CalledOnValidThread());
 
   for (const auto& entry : devices_config_) {
-    if (device_descriptor.device_id != entry.device_id)
+    if (device_descriptor.device_id != entry.device_id) {
       continue;
+    }
     auto device = CreateDeviceWithSettings(entry);
     return device ? VideoCaptureErrorOrDevice(std::move(device))
                   : VideoCaptureErrorOrDevice(
@@ -240,8 +246,6 @@ void FakeVideoCaptureDeviceFactory::GetDevicesInfo(
         VideoCaptureApi::WIN_DIRECT_SHOW;
 #elif BUILDFLAG(IS_ANDROID)
         VideoCaptureApi::ANDROID_API2_LEGACY;
-#elif BUILDFLAG(IS_FUCHSIA)
-        VideoCaptureApi::FUCHSIA_CAMERA3;
 #else
 #error Unsupported platform
 #endif
@@ -267,8 +271,9 @@ VideoCaptureFormats FakeVideoCaptureDeviceFactory::GetSupportedFormats(
 
   VideoCaptureFormats supported_formats;
   for (const auto& entry : devices_config_) {
-    if (device_id != entry.device_id)
+    if (device_id != entry.device_id) {
       continue;
+    }
     supported_formats.insert(supported_formats.end(),
                              entry.supported_formats.begin(),
                              entry.supported_formats.end());
@@ -372,14 +377,15 @@ void FakeVideoCaptureDeviceFactory::ParseFakeDevicesConfigFromOptionsString(
         for (const std::string& support :
              base::SplitString(param.back(), "-", base::KEEP_WHITESPACE,
                                base::SPLIT_WANT_NONEMPTY)) {
-          if (base::EqualsCaseInsensitiveASCII(support, "pan"))
+          if (base::EqualsCaseInsensitiveASCII(support, "pan")) {
             photo_device_config.control_support.pan = true;
-          else if (base::EqualsCaseInsensitiveASCII(support, "tilt"))
+          } else if (base::EqualsCaseInsensitiveASCII(support, "tilt")) {
             photo_device_config.control_support.tilt = true;
-          else if (base::EqualsCaseInsensitiveASCII(support, "zoom"))
+          } else if (base::EqualsCaseInsensitiveASCII(support, "zoom")) {
             photo_device_config.control_support.zoom = true;
-          else
+          } else {
             LOG(WARNING) << "Unsupported hardware support " << support;
+          }
         }
       }
     }

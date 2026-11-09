@@ -92,14 +92,11 @@ class MediaMobile(_MediaBenchmark):
   # SUPPORTED_PLATFORMS_TAGS lists. Only one is necessary.
   SUPPORTED_PLATFORM_TAGS = [
     platforms.ANDROID_NOT_WEBVIEW,
-    platforms.FUCHSIA_ASTRO,
-    platforms.FUCHSIA_SHERLOCK,
+
   ]
   SUPPORTED_PLATFORMS = [
     story.expectations.ANDROID_NOT_WEBVIEW,
-    story.expectations.FUCHSIA_ASTRO,
-    story.expectations.FUCHSIA_SHERLOCK,
-    story.expectations.FUCHSIA_NELSON,
+
   ]
 
   def CreateStorySet(self, options):

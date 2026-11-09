@@ -60,8 +60,6 @@ RECEIVER_IP = "172.16.0.3:5555"
 # Use 8080 to avoid collision with adbd (which uses 8000 on the device).
 SERVER_PORT = 8080
 
-RECEIVER_TYPE_FUCHSIA = 'fuchsia'
-
 # The bucket for signed Android builds.
 GCS_BUCKET = "gs://chrome-signed/android-B0urB0N"
 # Trichrome requires BOTH the Chrome APK and the Library APK.
@@ -72,46 +70,6 @@ COMPONENTS = [
 
 monitors = None
 version = None
-
-
-def fuchsia_infra_is_available():
-    global monitors, version
-    try:
-        import importlib.util
-
-        TEST_SCRIPTS_ROOT = os.path.join(
-            common.REPO_ROOT, 'build', 'fuchsia', 'test'
-        )
-        _fuchsia_common_path = os.path.join(TEST_SCRIPTS_ROOT, "common.py")
-        if os.path.exists(_fuchsia_common_path):
-            _spec = importlib.util.spec_from_file_location(
-                "fuchsia_common", _fuchsia_common_path
-            )
-            _fuchsia_common = importlib.util.module_from_spec(_spec)
-            _spec.loader.exec_module(_fuchsia_common)
-
-            # Inject required attributes into local common to satisfy monitors.
-            common.DIR_SRC_ROOT = _fuchsia_common.DIR_SRC_ROOT
-            common.run_ffx_command = _fuchsia_common.run_ffx_command
-            common.get_host_tool_path = _fuchsia_common.get_host_tool_path
-            common.get_build_info = _fuchsia_common.get_build_info
-
-            sys.path.append(TEST_SCRIPTS_ROOT)
-            import monitors
-            import version
-
-            return True
-        logging.warning(
-            "Result reporting infra not found at %s.", _fuchsia_common_path
-        )
-        return False
-    except (ImportError, OSError) as e:
-        logging.warning("Result reporting infra not available: %s", e)
-        return False
-
-
-# Surgically resolve the common.py name collision to allow result reporting.
-FUCHSIA_INFRA_AVAILABLE = fuchsia_infra_is_available()
 
 
 def _wait_js_condition(driver: webdriver, element, condition: str) -> bool:
@@ -495,10 +453,7 @@ def run_performance_test(
         raise RuntimeError("Missing video analyzer results.")
 
     def record(key: str) -> None:
-        if FUCHSIA_INFRA_AVAILABLE:
-            monitors.average(video_file, 'playback', key).record(
-                results.get(key, common.FAIL_CODE)
-            )
+        pass
 
     for metric in common.METRICS:
         record(metric)
@@ -535,7 +490,7 @@ def main():
     parser.add_argument('--receiver', help='Receiver device sink name.')
     parser.add_argument(
         '--receiver-type',
-        choices=['android', RECEIVER_TYPE_FUCHSIA],
+        choices=['android', ],
         default='android',
         help='Type of receiver device.',
     )
@@ -547,19 +502,6 @@ def main():
     )
     args, _ = parser.parse_known_args()
     cv = args.chrome_version
-
-    # If receiver is RECEIVER_TYPE_FUCHSIA, default receiver-type to it.
-    if args.receiver == RECEIVER_TYPE_FUCHSIA and not any(
-        arg.startswith('--receiver-type') for arg in sys.argv
-    ):
-        args.receiver_type = RECEIVER_TYPE_FUCHSIA
-
-    if args.receiver_type == RECEIVER_TYPE_FUCHSIA:
-        # TODO(b/502641691): Add support for OpenScreen remoting test cases.
-        # This early-exit logic keeps the Fuchsia hosts from entering bad states
-        # by running failing code.
-        logging.info("Fuchsia tests are currently rigged to pass.")
-        return 0
 
     if os.path.exists(common.RECORDINGS_DIR):
         shutil.rmtree(common.RECORDINGS_DIR)
@@ -678,12 +620,8 @@ def main():
             finally:
                 common.teardown_recording_process(rec_proc)
     except Exception:
-        if FUCHSIA_INFRA_AVAILABLE:
-            monitors.clear()
         raise
     finally:
-        if FUCHSIA_INFRA_AVAILABLE:
-            monitors.dump(LOG_DIR)
         common.teardown_test_environment(driver, tunnel_proc, args)
         common.cleanup_binaries(args, actual_version)
         # Last, since it raises if the upload fails.

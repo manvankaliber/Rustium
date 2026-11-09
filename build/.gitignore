@@ -10,7 +10,6 @@ ciopfs
 /cros_cache/
 /Debug
 /Debug_x64
-/fuchsia/internal/
 /ipch/
 /Release
 /Release_x64

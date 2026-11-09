@@ -1,22 +1,25 @@
-//! This module contains the future directory structure. If possible, new definitions should
-//! get added here.
+//! This module contains the future directory structure. If possible, new
+//! definitions should get added here.
 //!
-//! Eventually everything should be moved over, and we will move this directory to the top
-//! level in `src`.
+//! Eventually everything should be moved over, and we will move this directory
+//! to the top level in `src`.
 //!
 //! # Basic structure
 //!
-//! Each child module here represents a library or group of libraries that we are binding. Each of
-//! these has several submodules, representing either a directory or a header file in that library.
+//! Each child module here represents a library or group of libraries that we
+//! are binding. Each of these has several submodules, representing either a
+//! directory or a header file in that library.
 //!
-//! `#include`s turn into `pub use ...*;` statements. Then at the root level (here), we choose
-//! which top-level headers we want to reexport the definitions for.
+//! `#include`s turn into `pub use ...*;` statements. Then at the root level
+//! (here), we choose which top-level headers we want to reexport the
+//! definitions for.
 //!
 //! All modules are only crate-public since we don't reexport this structure.
 
 mod common;
 
-/* The `pub(crate) use ...` statements are commented while the modules are empty */
+/* The `pub(crate) use ...` statements are commented while the modules are
+ * empty */
 
 // Platform libraries and combined platform+libc
 //
@@ -66,10 +69,7 @@ cfg_if! {
     } else if #[cfg(target_os = "freebsd")] {
         mod freebsd;
         pub(crate) use freebsd::*;
-    } else if #[cfg(target_os = "fuchsia")] {
-        mod fuchsia;
-        pub(crate) use fuchsia::*;
-    } else if #[cfg(target_os = "haiku")] {
+    }  else if #[cfg(target_os = "haiku")] {
         mod haiku;
         pub(crate) use haiku::*;
     } else if #[cfg(target_os = "helenos")] {

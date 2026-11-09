@@ -22,12 +22,9 @@
 #include "content/public/browser/child_process_launcher_utils.h"
 #include "content/public/common/result_codes.h"
 #include "content/public/common/zygote/zygote_buildflags.h"
+#include "mojo/public/cpp/platform/named_platform_channel.h"
 #include "mojo/public/cpp/platform/platform_channel.h"
 #include "mojo/public/cpp/system/invitation.h"
-
-#if !BUILDFLAG(IS_FUCHSIA)
-#include "mojo/public/cpp/platform/named_platform_channel.h"
-#endif
 
 #if BUILDFLAG(IS_ANDROID)
 #include "base/android/scoped_java_ref.h"
@@ -45,10 +42,6 @@
 #include "sandbox/mac/seatbelt_exec.h"
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "sandbox/policy/fuchsia/sandbox_policy_fuchsia.h"
-#endif
-
 #if BUILDFLAG(USE_ZYGOTE)
 #include "content/public/common/zygote/zygote_handle.h"  // nogncheck
 #endif
@@ -60,7 +53,7 @@ class CommandLine;
 class MachPortRendezvousServerIOS;
 class ScopedTempDir;
 #endif
-}
+}  // namespace base
 
 namespace content {
 
@@ -70,13 +63,13 @@ struct ChildProcessLauncherFileData;
 struct ChildProcessTerminationInfo;
 struct RenderProcessPriority;
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 class PosixFileDescriptorInfo;
 #endif
 
 namespace internal {
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 using FileMappedForLaunch = PosixFileDescriptorInfo;
 #else
 using FileMappedForLaunch = base::HandlesToInheritVector;
@@ -112,12 +105,6 @@ class ChildProcessLauncherHelper
 #if BUILDFLAG(USE_ZYGOTE)
     raw_ptr<ZygoteCommunication> zygote = nullptr;
 #endif  // BUILDFLAG(USE_ZYGOTE)
-
-#if BUILDFLAG(IS_FUCHSIA)
-    // Store `sandbox_policy` within `Process` to ensure that the sandbox policy
-    // isn't removed before the process is terminated.
-    std::unique_ptr<sandbox::policy::SandboxPolicyFuchsia> sandbox_policy;
-#endif
   };
 
   ChildProcessLauncherHelper(
@@ -151,13 +138,11 @@ class ChildProcessLauncherHelper
 
   ChildProcessId child_process_id() const { return child_process_id_; }
 
-#if !BUILDFLAG(IS_FUCHSIA)
   // Called to give implementors a chance at creating a server pipe. Platform-
   // specific. Returns |std::nullopt| if the helper should initialize
   // a regular PlatformChannel for communication instead.
   std::optional<mojo::NamedPlatformChannel>
   CreateNamedPlatformChannelOnLauncherThread();
-#endif
 
   // Returns the list of files that should be mapped in the child process.
   // Platform specific.
@@ -348,12 +333,10 @@ class ChildProcessLauncherHelper
   // |CreateNamedPlatformChannelOnLauncherThread()|.
   std::optional<mojo::PlatformChannel> mojo_channel_;
 
-#if !BUILDFLAG(IS_FUCHSIA)
   // May be used in exclusion to the above if the platform helper implementation
   // returns a valid server endpoint from
   // |CreateNamedPlatformChannelOnLauncherThread()|.
   std::optional<mojo::NamedPlatformChannel> mojo_named_channel_;
-#endif
 
   bool terminate_on_shutdown_;
   mojo::OutgoingInvitation mojo_invitation_;
@@ -377,10 +360,6 @@ class ChildProcessLauncherHelper
   bool can_use_warm_up_connection_;
   bool is_spare_renderer_;
   bool is_for_outermost_main_frame_;
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-  std::unique_ptr<sandbox::policy::SandboxPolicyFuchsia> sandbox_policy_;
 #endif
 
 #if BUILDFLAG(IS_WIN)

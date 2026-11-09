@@ -15,20 +15,12 @@
 #include "ipc/ipc_platform_file_attachment_posix.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/fdio/fdio.h>
-#endif
-
 namespace IPC {
 namespace {
 
 // Get a safe file descriptor for test purposes.
 int GetSafeFd() {
-#if BUILDFLAG(IS_FUCHSIA)
-  return fdio_fd_create_null();
-#else
   return open("/dev/null", O_RDONLY);
-#endif
 }
 
 // Returns true if fd was already closed.  Closes fd if not closed.
@@ -95,9 +87,10 @@ TEST(MessageAttachmentSet, BasicAddAndClose) {
 TEST(MessageAttachmentSet, MaxSize) {
   scoped_refptr<MessageAttachmentSet> set(new MessageAttachmentSet);
 
-  for (size_t i = 0; i < MessageAttachmentSet::kMaxDescriptorsPerMessage; ++i)
+  for (size_t i = 0; i < MessageAttachmentSet::kMaxDescriptorsPerMessage; ++i) {
     ASSERT_TRUE(set->AddAttachment(
         new internal::PlatformFileAttachment(kFDBase + 1 + i)));
+  }
 
   ASSERT_TRUE(
       !set->AddAttachment(new internal::PlatformFileAttachment(kFDBase)));

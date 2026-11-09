@@ -240,7 +240,6 @@ ALL_SUPPORTED_PLATFORMS = [
   'android',
   'webview_android',
   'ios',
-  'fuchsia',
   'chrome.win',
   'chrome.win7',
   'chrome.linux',

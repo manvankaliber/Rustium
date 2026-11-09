@@ -47,7 +47,7 @@
 #include "services/network/public/cpp/simple_url_loader_stream_consumer.h"
 #include "services/network/public/mojom/url_response_head.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 #include "base/command_line.h"
 #include "content/public/browser/devtools_frontend_host.h"
 #include "content/shell/common/shell_switches.h"
@@ -83,8 +83,9 @@ base::DictValue BuildObjectForResponse(const net::HttpResponseHeaders* rh,
   std::string value;
   // TODO(caseq): this probably needs to handle duplicate header names
   // correctly by folding them.
-  while (rh && rh->EnumerateHeaderLines(&iterator, &name, &value))
+  while (rh && rh->EnumerateHeaderLines(&iterator, &name, &value)) {
     headers.Set(name, value);
+  }
 
   response.Set("headers", std::move(headers));
   return response;
@@ -182,8 +183,9 @@ ShellDevToolsBindings::ShellDevToolsBindings(WebContents* devtools_contents,
 }
 
 ShellDevToolsBindings::~ShellDevToolsBindings() {
-  if (agent_host_)
+  if (agent_host_) {
     agent_host_->DetachClient(this);
+  }
 
   auto* bindings = GetShellDevtoolsBindingsInstances();
   DCHECK(std::ranges::contains(*bindings, this));
@@ -192,7 +194,7 @@ ShellDevToolsBindings::~ShellDevToolsBindings() {
 
 void ShellDevToolsBindings::ReadyToCommitNavigation(
     NavigationHandle* navigation_handle) {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   content::RenderFrameHost* frame = navigation_handle->GetRenderFrameHost();
   if (navigation_handle->IsInPrimaryMainFrame()) {
     frontend_host_ = DevToolsFrontendHost::Create(
@@ -204,8 +206,9 @@ void ShellDevToolsBindings::ReadyToCommitNavigation(
   std::string origin =
       navigation_handle->GetURL().DeprecatedGetOriginAsURL().spec();
   auto it = extensions_api_.find(origin);
-  if (it == extensions_api_.end())
+  if (it == extensions_api_.end()) {
     return;
+  }
   std::string script = base::StringPrintf(
       "%s(\"%s\")", it->second.c_str(),
       base::Uuid::GenerateRandomV4().AsLowercaseString().c_str());
@@ -214,8 +217,9 @@ void ShellDevToolsBindings::ReadyToCommitNavigation(
 }
 
 void ShellDevToolsBindings::AttachInternal() {
-  if (agent_host_)
+  if (agent_host_) {
     agent_host_->DetachClient(this);
+  }
 #if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
   const bool create_for_tab = false;
 #else
@@ -247,8 +251,9 @@ void ShellDevToolsBindings::WebContentsDestroyed() {
 void ShellDevToolsBindings::HandleMessageFromDevToolsFrontend(
     base::DictValue message) {
   const std::string* method = message.FindString("method");
-  if (!method)
+  if (!method) {
     return;
+  }
 
   int request_id = message.FindInt("id").value_or(0);
   base::ListValue* params_value = message.FindList("params");
@@ -261,8 +266,9 @@ void ShellDevToolsBindings::HandleMessageFromDevToolsFrontend(
 
   if (*method == "dispatchProtocolMessage" && params.size() == 1) {
     const std::string* protocol_message = params[0].GetIfString();
-    if (!agent_host_ || !protocol_message)
+    if (!agent_host_ || !protocol_message) {
       return;
+    }
     agent_host_->DispatchProtocolMessage(this,
                                          base::as_byte_span(*protocol_message));
   } else if (*method == "loadCompleted") {
@@ -336,43 +342,50 @@ void ShellDevToolsBindings::HandleMessageFromDevToolsFrontend(
     SendMessageAck(request_id, {});
     return;
   } else if (*method == "setPreference") {
-    if (params.size() < 2)
+    if (params.size() < 2) {
       return;
+    }
     const std::string* name = params[0].GetIfString();
 
     // We're just setting params[1] as a value anyways, so just make sure it's
     // the type we want, but don't worry about getting it.
-    if (!name || !params[1].is_string())
+    if (!name || !params[1].is_string()) {
       return;
+    }
 
     preferences_.Set(*name, std::move(params[1]));
   } else if (*method == "removePreference") {
     const std::string* name = params[0].GetIfString();
-    if (!name)
+    if (!name) {
       return;
+    }
     preferences_.Remove(*name);
   } else if (*method == "requestFileSystems") {
     CallClientFunction("DevToolsAPI", "fileSystemsLoaded",
                        base::Value(base::Value::Type::LIST));
   } else if (*method == "reattach") {
-    if (!agent_host_)
+    if (!agent_host_) {
       return;
+    }
     agent_host_->DetachClient(this);
     agent_host_->AttachClient(this);
   } else if (*method == "registerExtensionsAPI") {
-    if (params.size() < 2)
+    if (params.size() < 2) {
       return;
+    }
     const std::string* origin = params[0].GetIfString();
     const std::string* script = params[1].GetIfString();
-    if (!origin || !script)
+    if (!origin || !script) {
       return;
+    }
     extensions_api_[*origin + "/"] = *script;
   } else {
     return;
   }
 
-  if (request_id)
+  if (request_id) {
     SendMessageAck(request_id, {});
+  }
 }
 
 void ShellDevToolsBindings::DispatchProtocolMessage(
@@ -430,8 +443,9 @@ void ShellDevToolsBindings::SendMessageAck(int request_id,
 
 void ShellDevToolsBindings::AgentHostClosed(DevToolsAgentHost* agent_host) {
   agent_host_ = nullptr;
-  if (delegate_)
+  if (delegate_) {
     delegate_->Close();
+  }
 }
 
 }  // namespace content

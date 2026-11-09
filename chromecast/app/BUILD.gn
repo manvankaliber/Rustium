@@ -30,10 +30,8 @@ cast_source_set("app") {
     "//ui/base",
   ]
 
-  if (!is_fuchsia) {
-    # TODO(crbug.com/40188745): Complete crash reporting integration on Fuchsia.
-    deps += [ "//components/crash/core/app" ]
-  }
+  # TODO(crbug.com/40188745): Complete crash reporting integration on Fuchsia.
+  deps += [ "//components/crash/core/app" ]
 }
 
 cast_source_set("cast_crash_client") {
@@ -47,12 +45,10 @@ cast_source_set("cast_crash_client") {
     "//content/public/common",
   ]
 
-  if (!is_fuchsia) {
-    deps += [
-      "//chromecast/crash",
-      "//components/crash/core/app",
-    ]
-  }
+  deps += [
+    "//chromecast/crash",
+    "//components/crash/core/app",
+  ]
 
   if (is_linux || is_chromeos) {
     sources += [
@@ -133,13 +129,11 @@ cast_source_set("unittests") {
     "//testing/gtest",
   ]
 
-  if (!is_fuchsia) {
-    deps += [
-      ":cast_crash_client",
-      "//chromecast/crash",
-      "//chromecast/crash:test_support",
-    ]
-  }
+  deps += [
+    ":cast_crash_client",
+    "//chromecast/crash",
+    "//chromecast/crash:test_support",
+  ]
 }
 
 grit("resources") {

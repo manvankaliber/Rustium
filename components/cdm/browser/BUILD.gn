@@ -13,7 +13,6 @@ if (enable_media_drm_storage) {
       "//chromecast/*",
       "//components/cdm/*",
       "//content/shell/*",
-      "//fuchsia_web/*",
     ]
 
     if (is_android) {

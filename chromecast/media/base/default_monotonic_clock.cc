@@ -16,10 +16,6 @@
 #endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <zircon/syscalls.h>
-#endif  // BUILDFLAG(IS_FUCHSIA)
-
 namespace chromecast {
 namespace media {
 
@@ -37,11 +33,6 @@ int64_t MonotonicClockNow() {
   clock_gettime(CLOCK_MONOTONIC, &now);
 #endif  // MEDIA_CLOCK_MONOTONIC_RAW
   return base::TimeDelta::FromTimeSpec(now).InMicroseconds();
-}
-
-#elif BUILDFLAG(IS_FUCHSIA)
-int64_t MonotonicClockNow() {
-  return zx_clock_get_monotonic() / 1000;
 }
 
 #endif

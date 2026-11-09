@@ -148,13 +148,6 @@ class DOMStorageBrowserTest : public base::test::WithFeatureOverride,
   // database cannot be opened there.
   // TODO(crbug.com/488731425): Re-enable the SQLite arm once the sandboxed
   // DomStorage SQLite backend runs on Fuchsia.
-  bool IsSqliteBackendOnFuchsia() const {
-#if BUILDFLAG(IS_FUCHSIA)
-    return GetParam();
-#else
-    return false;
-#endif
-  }
 
   // Stores a >1 KB incompressible value in the current page's `storage_type`
   // ("localStorage" or "sessionStorage") so the database rounds to a non-zero
@@ -416,7 +409,7 @@ IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, MAYBE_SanityCheckIncognito) {
 
 // http://crbug.com/654704 PRE_ tests aren't supported on Android.
 // TODO(crbug.com/40885339): Re-enable this test for fuchsia.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_ANDROID)
 #define MAYBE_DataPersists DISABLED_DataPersists
 #else
 #define MAYBE_DataPersists DataPersists
@@ -435,18 +428,12 @@ IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, MAYBE_DataPersists) {
 // A PRE_ run persists a >1 KB database. The main run reopens it and checks the
 // on-disk size histogram records a non-zero sample on both backends.
 IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, PRE_LocalStorageOnDiskSize) {
-  if (IsSqliteBackendOnFuchsia()) {
-    GTEST_SKIP() << "SQLite DomStorage backend unsupported on Fuchsia";
-  }
   NavigateToTestOrigin();
   WriteLargeValue("localStorage");
   CommitLocalStorage();
 }
 
 IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, LocalStorageOnDiskSize) {
-  if (IsSqliteBackendOnFuchsia()) {
-    GTEST_SKIP() << "SQLite DomStorage backend unsupported on Fuchsia";
-  }
   NavigateToTestOrigin();
   // Accessing localStorage opens its on-disk database, which records the size.
   ASSERT_TRUE(ExecJs(shell()->web_contents(), "localStorage.length;"));
@@ -458,9 +445,6 @@ IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, LocalStorageOnDiskSize) {
 // unobservable across a restart, so we skip these tests on Android.
 #if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, PRE_SessionStorageOnDiskSize) {
-  if (IsSqliteBackendOnFuchsia()) {
-    GTEST_SKIP() << "SQLite DomStorage backend unsupported on Fuchsia";
-  }
   NavigateToTestOrigin();
   WriteLargeValue("sessionStorage");
 
@@ -477,9 +461,6 @@ IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, PRE_SessionStorageOnDiskSize) {
 }
 
 IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, SessionStorageOnDiskSize) {
-  if (IsSqliteBackendOnFuchsia()) {
-    GTEST_SKIP() << "SQLite DomStorage backend unsupported on Fuchsia";
-  }
   NavigateToTestOrigin();
   // Accessing sessionStorage opens its on-disk database, which records the
   // size.

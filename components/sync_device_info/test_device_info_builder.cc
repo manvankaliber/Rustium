@@ -24,7 +24,6 @@ DeviceInfo::FormFactor DeriveDefaultFormFactor(DeviceInfo::OsType os_type) {
     case DeviceInfo::OsType::kAndroid:
     case DeviceInfo::OsType::kIOS:
       return DeviceInfo::FormFactor::kPhone;
-    case DeviceInfo::OsType::kFuchsia:
     case DeviceInfo::OsType::kUnknown:
       return DeviceInfo::FormFactor::kUnknown;
   }
@@ -45,7 +44,6 @@ DeviceInfo::DeviceType DeriveDefaultDeviceType(DeviceInfo::OsType os_type) {
     case DeviceInfo::OsType::kAndroid:
     case DeviceInfo::OsType::kIOS:
       return DeviceInfo::DeviceType::kPhone;
-    case DeviceInfo::OsType::kFuchsia:
     case DeviceInfo::OsType::kUnknown:
       return DeviceInfo::DeviceType::kOther;
   }

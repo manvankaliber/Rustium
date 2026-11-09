@@ -92,10 +92,8 @@ if (use_litert_tflite) {
     public_deps = [ "//third_party/litert:tflite_compiler_utils" ]
   }
 
-  if (!is_fuchsia) {
-    tflite_group("tflite_op_shim") {
-      conditional_public_deps = [ "//third_party/litert:tflite_op_shim" ]
-    }
+  tflite_group("tflite_op_shim") {
+    conditional_public_deps = [ "//third_party/litert:tflite_op_shim" ]
   }
 
   if (build_with_chromium) {
@@ -885,37 +883,33 @@ if (!use_litert_tflite) {
     visibility = [ ":*" ]
   }
 
-  if (!is_fuchsia) {
-    tflite_static_library("tflite_op_shim") {
-      sources = [
-        "src/tensorflow/lite/kernels/shim/shape.cc",
-        "src/tensorflow/lite/kernels/shim/tflite_op_shim.cc",
-        "src/tensorflow/lite/kernels/shim/tflite_tensor_view.cc",
-      ]
+  tflite_static_library("tflite_op_shim") {
+    sources = [
+      "src/tensorflow/lite/kernels/shim/shape.cc",
+      "src/tensorflow/lite/kernels/shim/tflite_op_shim.cc",
+      "src/tensorflow/lite/kernels/shim/tflite_tensor_view.cc",
+    ]
 
-      if (is_win) {
-        sources +=
-            [ "src/third_party/xla/xla/tsl/platform/windows/env_time.cc" ]
-      } else {
-        sources +=
-            [ "src/third_party/xla/xla/tsl/platform/default/env_time.cc" ]
-      }
-
-      deps = [
-        ":tflite_kernel_common_headers",
-        ":tflite_public_headers",
-        "//third_party/abseil-cpp:absl",
-        "//third_party/flatbuffers",
-      ]
-
-      configs_to_add = [
-        ":tflite_config",
-        ":tflite_flags",
-        "//third_party/eigen3:eigen_includes",
-        "//third_party/ml_dtypes:ml_dtypes-includes",
-      ]
-      visibility = [ ":*" ]
+    if (is_win) {
+      sources += [ "src/third_party/xla/xla/tsl/platform/windows/env_time.cc" ]
+    } else {
+      sources += [ "src/third_party/xla/xla/tsl/platform/default/env_time.cc" ]
     }
+
+    deps = [
+      ":tflite_kernel_common_headers",
+      ":tflite_public_headers",
+      "//third_party/abseil-cpp:absl",
+      "//third_party/flatbuffers",
+    ]
+
+    configs_to_add = [
+      ":tflite_config",
+      ":tflite_flags",
+      "//third_party/eigen3:eigen_includes",
+      "//third_party/ml_dtypes:ml_dtypes-includes",
+    ]
+    visibility = [ ":*" ]
   }
 
   # The two below TFLite logging targets are separate since the Chromium one
@@ -1411,11 +1405,11 @@ if (!use_litert_tflite) {
       ":tflite_kernels",
       ":tflite_litert",
     ]
-    if (!is_fuchsia) {
-      # absl::Cord::CopyToArray is not available on fuchsia but is required by
-      # this library.
-      conditional_public_deps += [ ":tflite_op_shim" ]
-    }
+
+    # absl::Cord::CopyToArray is not available on fuchsia but is required by
+    # this library.
+    conditional_public_deps += [ ":tflite_op_shim" ]
+
     if (is_ios) {
       conditional_public_deps += [ ":tflite_coreml_delegate" ]
     }

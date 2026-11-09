@@ -48,20 +48,6 @@
       "use_remoteexec": true
     }
   },
-  "codesearch-gen-chromium-fuchsia": {
-    "gn_args": {
-      "blink_enable_generated_code_formatting": true,
-      "clang_use_chrome_plugins": false,
-      "dcheck_always_on": false,
-      "enable_cast_receiver": true,
-      "enable_kythe_annotations": true,
-      "is_component_build": false,
-      "is_debug": false,
-      "system_headers_in_deps": true,
-      "target_os": "fuchsia",
-      "use_remoteexec": true
-    }
-  },
   "codesearch-gen-chromium-ios": {
     "gn_args": {
       "blink_enable_generated_code_formatting": true,

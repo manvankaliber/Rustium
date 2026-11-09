@@ -30,11 +30,6 @@
 #include "net/base/trace_constants.h"
 #include "net/traffic_annotation/network_traffic_annotation.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <poll.h>
-#include <sys/ioctl.h>
-#endif  // BUILDFLAG(IS_FUCHSIA)
-
 #if BUILDFLAG(IS_APPLE)
 #include "net/socket/socket_apple.h"
 #endif  // BUILDFLAG(IS_APPLE)
@@ -87,8 +82,9 @@ int MapConnectError(int os_error, SocketDescriptor fd) {
       return ERR_CONNECTION_TIMED_OUT;
     default: {
       int net_error = MapSystemError(os_error);
-      if (net_error == ERR_FAILED)
+      if (net_error == ERR_FAILED) {
         return ERR_CONNECTION_FAILED;  // More specific than ERR_FAILED.
+      }
       return net_error;
     }
   }
@@ -109,14 +105,11 @@ SocketPosix::~SocketPosix() {
 int SocketPosix::Open(int address_family) {
   DCHECK(thread_checker_.CalledOnValidThread());
   DCHECK_EQ(kInvalidSocket, socket_fd_);
-  DCHECK(address_family == AF_INET ||
-         address_family == AF_INET6 ||
+  DCHECK(address_family == AF_INET || address_family == AF_INET6 ||
          address_family == AF_UNIX);
 
   socket_fd_ = CreatePlatformSocket(
-      address_family,
-      SOCK_STREAM,
-      address_family == AF_UNIX ? 0 : IPPROTO_TCP);
+      address_family, SOCK_STREAM, address_family == AF_UNIX ? 0 : IPPROTO_TCP);
   if (socket_fd_ < 0) {
     PLOG(ERROR) << "CreatePlatformSocket() failed";
     return MapSystemError(errno);
@@ -134,8 +127,9 @@ int SocketPosix::Open(int address_family) {
 int SocketPosix::AdoptConnectedSocket(SocketDescriptor socket,
                                       const SockaddrStorage& address) {
   int rv = AdoptUnconnectedSocket(socket);
-  if (rv != OK)
+  if (rv != OK) {
     return rv;
+  }
 
   SetPeerAddress(address);
   return OK;
@@ -202,8 +196,9 @@ int SocketPosix::Accept(std::unique_ptr<SocketPosix>* socket,
   DCHECK(!callback.is_null());
 
   int rv = DoAccept(socket);
-  if (rv != ERR_IO_PENDING)
+  if (rv != ERR_IO_PENDING) {
     return rv;
+  }
 
   if (!base::CurrentIOThread::Get()->WatchFileDescriptor(
           socket_fd_, true, base::MessagePumpForIO::WATCH_READ,
@@ -227,8 +222,9 @@ int SocketPosix::Connect(const SockaddrStorage& address,
   SetPeerAddress(address);
 
   int rv = DoConnect();
-  if (rv != ERR_IO_PENDING)
+  if (rv != ERR_IO_PENDING) {
     return rv;
+  }
 
   if (!base::CurrentIOThread::Get()->WatchFileDescriptor(
           socket_fd_, true, base::MessagePumpForIO::WATCH_WRITE,
@@ -264,16 +260,19 @@ int SocketPosix::Connect(const SockaddrStorage& address,
 bool SocketPosix::IsConnected() const {
   DCHECK(thread_checker_.CalledOnValidThread());
 
-  if (socket_fd_ == kInvalidSocket || waiting_connect_)
+  if (socket_fd_ == kInvalidSocket || waiting_connect_) {
     return false;
+  }
 
   // Checks if connection is alive.
   char c;
   int rv = HANDLE_EINTR(recv(socket_fd_, &c, 1, MSG_PEEK));
-  if (rv == 0)
+  if (rv == 0) {
     return false;
-  if (rv == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
+  }
+  if (rv == -1 && errno != EAGAIN && errno != EWOULDBLOCK) {
     return false;
+  }
 
   return true;
 }
@@ -281,17 +280,20 @@ bool SocketPosix::IsConnected() const {
 bool SocketPosix::IsConnectedAndIdle() const {
   DCHECK(thread_checker_.CalledOnValidThread());
 
-  if (socket_fd_ == kInvalidSocket || waiting_connect_)
+  if (socket_fd_ == kInvalidSocket || waiting_connect_) {
     return false;
+  }
 
   // Check if connection is alive and we haven't received any data
   // unexpectedly.
   char c;
   int rv = HANDLE_EINTR(recv(socket_fd_, &c, 1, MSG_PEEK));
-  if (rv >= 0)
+  if (rv >= 0) {
     return false;
-  if (errno != EAGAIN && errno != EWOULDBLOCK)
+  }
+  if (errno != EAGAIN && errno != EWOULDBLOCK) {
     return false;
+  }
 
   return true;
 }
@@ -323,8 +325,9 @@ int SocketPosix::ReadIfReady(IOBuffer* buf,
   DCHECK_LT(0, buf_len);
 
   int rv = DoRead(buf, buf_len);
-  if (rv != ERR_IO_PENDING)
+  if (rv != ERR_IO_PENDING) {
     return rv;
+  }
 
   if (!base::CurrentIOThread::Get()->WatchFileDescriptor(
           socket_fd_, true, base::MessagePumpForIO::WATCH_READ,
@@ -361,8 +364,9 @@ int SocketPosix::Write(
   CHECK_LT(0, buf_len);
 
   int rv = DoWrite(buf, buf_len);
-  if (rv == ERR_IO_PENDING)
+  if (rv == ERR_IO_PENDING) {
     rv = WaitForWrite(buf, buf_len, std::move(callback));
+  }
   return rv;
 }
 
@@ -403,8 +407,9 @@ int SocketPosix::GetPeerAddress(SockaddrStorage* address) const {
   DCHECK(thread_checker_.CalledOnValidThread());
   DCHECK(address);
 
-  if (!HasPeerAddress())
+  if (!HasPeerAddress()) {
     return ERR_SOCKET_NOT_CONNECTED;
+  }
 
   *address = *peer_address_;
   return OK;
@@ -462,13 +467,15 @@ int SocketPosix::DoAccept(std::unique_ptr<SocketPosix>* socket) {
   SockaddrStorage new_peer_address;
   int new_socket = HANDLE_EINTR(
       accept(socket_fd_, new_peer_address.addr(), &new_peer_address.addr_len));
-  if (new_socket < 0)
+  if (new_socket < 0) {
     return MapAcceptError(errno);
+  }
 
   auto accepted_socket = std::make_unique<SocketPosix>();
   int rv = accepted_socket->AdoptConnectedSocket(new_socket, new_peer_address);
-  if (rv != OK)
+  if (rv != OK) {
     return rv;
+  }
 
   *socket = std::move(accepted_socket);
   return OK;
@@ -477,8 +484,9 @@ int SocketPosix::DoAccept(std::unique_ptr<SocketPosix>* socket) {
 void SocketPosix::AcceptCompleted() {
   DCHECK(accept_socket_);
   int rv = DoAccept(accept_socket_);
-  if (rv == ERR_IO_PENDING)
+  if (rv == ERR_IO_PENDING) {
     return;
+  }
 
   bool ok = accept_socket_watcher_.StopWatchingFileDescriptor();
   DCHECK(ok);
@@ -503,8 +511,9 @@ void SocketPosix::ConnectCompleted() {
   }
 
   int rv = MapConnectError(errno, socket_fd_);
-  if (rv == ERR_IO_PENDING)
+  if (rv == ERR_IO_PENDING) {
     return;
+  }
 
   bool ok = write_socket_watcher_.StopWatchingFileDescriptor();
   DCHECK(ok);
@@ -529,8 +538,9 @@ void SocketPosix::RetryRead(int rv) {
     rv = ReadIfReady(
         read_buf_.get(), read_buf_len_,
         base::BindOnce(&SocketPosix::RetryRead, base::Unretained(this)));
-    if (rv == ERR_IO_PENDING)
+    if (rv == ERR_IO_PENDING) {
       return;
+    }
   }
   read_buf_ = nullptr;
   read_buf_len_ = 0;
@@ -569,8 +579,9 @@ int SocketPosix::DoWrite(IOBuffer* buf, int buf_len) {
 
 void SocketPosix::WriteCompleted() {
   int rv = DoWrite(write_buf_.get(), write_buf_len_);
-  if (rv == ERR_IO_PENDING)
+  if (rv == ERR_IO_PENDING) {
     return;
+  }
 
   bool ok = write_socket_watcher_.StopWatchingFileDescriptor();
   DCHECK(ok);
@@ -591,8 +602,9 @@ void SocketPosix::StopWatchingAndCleanUp(bool close_socket) {
   // before deleting the write buffer.
   if (close_socket) {
     if (socket_fd_ != kInvalidSocket) {
-      if (IGNORE_EINTR(close(socket_fd_)) < 0)
+      if (IGNORE_EINTR(close(socket_fd_)) < 0) {
         DPLOG(ERROR) << "close() failed";
+      }
       socket_fd_ = kInvalidSocket;
     }
   }

@@ -348,7 +348,7 @@ declare_args() {
 
 # ZSTD compression is available on Fuchsia (crbug.com/534838085) but disable in
 # Blink to disable features that depend on it.
-has_zstd_compression = !is_fuchsia
+has_zstd_compression = true
 
 buildflag_header("bindings_buildflags") {
   header = "buildflags.h"
@@ -1999,10 +1999,6 @@ component("platform") {
     deps += [ "//third_party/blink/renderer/platform/widget/compositing/android_webview" ]
   }
 
-  if (is_fuchsia) {
-    sources += [ "fonts/fuchsia/font_cache_fuchsia.cc" ]
-  }
-
   if (use_minikin_hyphenation) {
     sources += [
       "text/hyphenation/hyphenation_minikin.cc",
@@ -2198,13 +2194,6 @@ test("blink_platform_unittests") {
 
   if (enable_nocompile_tests) {
     deps += [ ":blink_platform_nocompile_tests" ]
-  }
-
-  if (is_fuchsia) {
-    additional_manifest_fragments = [
-      "//build/config/fuchsia/test/test_fonts.shard.test-cml",
-      "//build/config/fuchsia/test/mark_vmo_executable.shard.test-cml",
-    ]
   }
 
   if (is_android) {
@@ -2513,7 +2502,7 @@ source_set("blink_platform_unittests_sources") {
       "fonts/opentype/open_type_caps_support_test.mm",
       "text/locale_mac_test.mm",
     ]
-  } else if (is_posix || is_fuchsia) {
+  } else if (is_posix) {
     sources += [ "text/locale_icu_test.cc" ]
   }
 
@@ -2771,16 +2760,9 @@ test("blink_fuzzer_unittests") {
 
   sources = [ "testing/run_all_tests.cc" ]
 
-  if (is_linux || is_chromeos || is_fuchsia) {
+  if (is_linux || is_chromeos) {
     deps += [
       "//third_party/blink/renderer/platform/scheduler:scheduler_fuzzer_tests",
-    ]
-  }
-
-  if (is_fuchsia) {
-    additional_manifest_fragments = [
-      "//build/config/fuchsia/test/test_fonts.shard.test-cml",
-      "//build/config/fuchsia/test/mark_vmo_executable.shard.test-cml",
     ]
   }
 }

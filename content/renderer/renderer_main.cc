@@ -97,21 +97,18 @@ namespace {
 // This function provides some ways to test crash and assertion handling
 // behavior of the renderer.
 void HandleRendererErrorTestParameters(const base::CommandLine& command_line) {
-  if (command_line.HasSwitch(switches::kWaitForDebugger))
+  if (command_line.HasSwitch(switches::kWaitForDebugger)) {
     base::debug::WaitForDebugger(60, true);
+  }
 
-  if (command_line.HasSwitch(switches::kRendererStartupDialog))
+  if (command_line.HasSwitch(switches::kRendererStartupDialog)) {
     WaitForDebugger("Renderer");
+  }
 }
 
 std::unique_ptr<base::MessagePump> CreateMainThreadMessagePump() {
   std::unique_ptr<base::MessagePump> message_pump;
-#if BUILDFLAG(IS_FUCHSIA)
-  // Allow FIDL APIs on renderer main thread.
-  message_pump = base::MessagePump::Create(base::MessagePumpType::IO);
-#else
   message_pump = base::MessagePump::Create(base::MessagePumpType::DEFAULT);
-#endif
   return message_pump;
 }
 
@@ -332,8 +329,9 @@ int RendererMain(MainFunctionParams parameters) {
 
     if (should_run_loop) {
 #if BUILDFLAG(IS_MAC)
-      if (pool)
+      if (pool) {
         pool->Recycle();
+      }
 #endif
       TRACE_EVENT_INSTANT("toplevel", "RendererMain.START_MSG_LOOP");
       const base::TimeTicks run_loop_start_time = base::TimeTicks::Now();

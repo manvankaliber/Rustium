@@ -244,21 +244,6 @@ class GnConfigsImpl:
             'use_signing_keys=true',
         ] + current_exec
 
-        self.fuchsia_configs = {}
-        # Finally official build (arm64 in this case)
-        # See https://ci.chromium.org/ui/p/chrome/g/official.desktop/builders
-        self.fuchsia_configs['fuchsia-arm64-official'] = [
-            'dcheck_always_on=true',
-            'is_chrome_branded=false',
-            'is_debug=false',
-            'target_cpu="arm64"',
-            'target_os="fuchsia"',
-            'test_host_cpu="arm64"',
-            'use_official_google_api_keys=false',
-            # Needed to prevent debug info from being to large.
-            'symbol_level=1',
-        ] + current_exec
-
         self.chromeos_configs = {}
         # Finally official build
         # See https://ci.chromium.org/ui/p/chrome/g/official.desktop/builders
@@ -341,9 +326,6 @@ class GnConfigsImpl:
         ]
         self.min_all_platforms['mac'] = self.mac_configs['mac-rel']
         self.min_all_platforms['win'] = self.win_configs['win-rel']
-        self.min_all_platforms['fuchsia'] = self.fuchsia_configs[
-            'fuchsia-arm64-official'
-        ]
         self.min_all_platforms['chromeos'] = self.chromeos_configs[
             'chromeos-official'
         ]
@@ -354,7 +336,6 @@ class GnConfigsImpl:
             | self.android_configs
             | self.mac_configs
             | self.win_configs
-            | self.fuchsia_configs
             | self.chromeos_configs
         )
 

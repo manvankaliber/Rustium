@@ -61,8 +61,7 @@ TEST_F(StackTraceTest, OutputToStream) {
 
   span<const void* const> addresses = trace.addresses();
 
-#if defined(OFFICIAL_BUILD) && \
-    ((BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)) || BUILDFLAG(IS_FUCHSIA))
+#if defined(OFFICIAL_BUILD) && BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
   // Stack traces require an extra data table that bloats our binaries,
   // so they're turned off for official builds. Stop the test here, so
   // it at least verifies that StackTrace calls don't crash.

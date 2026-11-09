@@ -11,11 +11,7 @@ use nix::fcntl::{openat2, OpenHow, ResolveFlag};
 #[cfg(all(
     target_os = "linux",
     target_env = "gnu",
-    any(
-        target_arch = "x86_64",
-        target_arch = "powerpc",
-        target_arch = "s390x"
-    )
+    any(target_arch = "x86_64", target_arch = "powerpc", target_arch = "s390x")
 ))]
 use nix::fcntl::{renameat2, RenameFlags};
 #[cfg(not(target_os = "redox"))]
@@ -41,16 +37,9 @@ fn test_openat() {
     let mut tmp = NamedTempFile::new().unwrap();
     tmp.write_all(CONTENTS).unwrap();
 
-    let dirfd =
-        open(tmp.path().parent().unwrap(), OFlag::empty(), Mode::empty())
-            .unwrap();
-    let fd = openat(
-        dirfd,
-        tmp.path().file_name().unwrap(),
-        OFlag::O_RDONLY,
-        Mode::empty(),
-    )
-    .unwrap();
+    let dirfd = open(tmp.path().parent().unwrap(), OFlag::empty(), Mode::empty()).unwrap();
+    let fd =
+        openat(dirfd, tmp.path().file_name().unwrap(), OFlag::O_RDONLY, Mode::empty()).unwrap();
 
     let mut buf = [0u8; 1024];
     assert_eq!(4, read(&fd, &mut buf).unwrap());
@@ -67,9 +56,7 @@ fn test_openat2() {
     let mut tmp = NamedTempFile::new().unwrap();
     tmp.write_all(CONTENTS).unwrap();
 
-    let dirfd =
-        open(tmp.path().parent().unwrap(), OFlag::empty(), Mode::empty())
-            .unwrap();
+    let dirfd = open(tmp.path().parent().unwrap(), OFlag::empty(), Mode::empty()).unwrap();
 
     let fd = openat2(
         dirfd,
@@ -95,19 +82,14 @@ fn test_openat2_forbidden() {
     let mut tmp = NamedTempFile::new().unwrap();
     tmp.write_all(b"let me out").unwrap();
 
-    let dirfd =
-        open(tmp.path().parent().unwrap(), OFlag::empty(), Mode::empty())
-            .unwrap();
+    let dirfd = open(tmp.path().parent().unwrap(), OFlag::empty(), Mode::empty()).unwrap();
 
-    let escape_attempt =
-        tmp.path().parent().unwrap().join("../../../hello.txt");
+    let escape_attempt = tmp.path().parent().unwrap().join("../../../hello.txt");
 
     let res = openat2(
         dirfd,
         &escape_attempt,
-        OpenHow::new()
-            .flags(OFlag::O_RDONLY)
-            .resolve(ResolveFlag::RESOLVE_BENEATH),
+        OpenHow::new().flags(OFlag::O_RDONLY).resolve(ResolveFlag::RESOLVE_BENEATH),
     );
     assert_eq!(res.unwrap_err(), Errno::EXDEV);
 }
@@ -116,18 +98,13 @@ fn test_openat2_forbidden() {
 #[cfg(not(target_os = "redox"))]
 fn test_renameat() {
     let old_dir = tempfile::tempdir().unwrap();
-    let old_dirfd =
-        open(old_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
+    let old_dirfd = open(old_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
     let old_path = old_dir.path().join("old");
     File::create(old_path).unwrap();
     let new_dir = tempfile::tempdir().unwrap();
-    let new_dirfd =
-        open(new_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
+    let new_dirfd = open(new_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
     renameat(&old_dirfd, "old", &new_dirfd, "new").unwrap();
-    assert_eq!(
-        renameat(&old_dirfd, "old", &new_dirfd, "new").unwrap_err(),
-        Errno::ENOENT
-    );
+    assert_eq!(renameat(&old_dirfd, "old", &new_dirfd, "new").unwrap_err(), Errno::ENOENT);
     assert!(new_dir.path().join("new").exists());
 }
 
@@ -135,26 +112,18 @@ fn test_renameat() {
 #[cfg(all(
     target_os = "linux",
     target_env = "gnu",
-    any(
-        target_arch = "x86_64",
-        target_arch = "powerpc",
-        target_arch = "s390x"
-    )
+    any(target_arch = "x86_64", target_arch = "powerpc", target_arch = "s390x")
 ))]
 fn test_renameat2_behaves_like_renameat_with_no_flags() {
     let old_dir = tempfile::tempdir().unwrap();
-    let old_dirfd =
-        open(old_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
+    let old_dirfd = open(old_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
     let old_path = old_dir.path().join("old");
     File::create(old_path).unwrap();
     let new_dir = tempfile::tempdir().unwrap();
-    let new_dirfd =
-        open(new_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
-    renameat2(&old_dirfd, "old", &new_dirfd, "new", RenameFlags::empty())
-        .unwrap();
+    let new_dirfd = open(new_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
+    renameat2(&old_dirfd, "old", &new_dirfd, "new", RenameFlags::empty()).unwrap();
     assert_eq!(
-        renameat2(&old_dirfd, "old", &new_dirfd, "new", RenameFlags::empty())
-            .unwrap_err(),
+        renameat2(&old_dirfd, "old", &new_dirfd, "new", RenameFlags::empty()).unwrap_err(),
         Errno::ENOENT
     );
     assert!(new_dir.path().join("new").exists());
@@ -164,37 +133,24 @@ fn test_renameat2_behaves_like_renameat_with_no_flags() {
 #[cfg(all(
     target_os = "linux",
     target_env = "gnu",
-    any(
-        target_arch = "x86_64",
-        target_arch = "powerpc",
-        target_arch = "s390x"
-    )
+    any(target_arch = "x86_64", target_arch = "powerpc", target_arch = "s390x")
 ))]
 fn test_renameat2_exchange() {
     let old_dir = tempfile::tempdir().unwrap();
-    let old_dirfd =
-        open(old_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
+    let old_dirfd = open(old_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
     let old_path = old_dir.path().join("old");
     {
         let mut old_f = File::create(&old_path).unwrap();
         old_f.write_all(b"old").unwrap();
     }
     let new_dir = tempfile::tempdir().unwrap();
-    let new_dirfd =
-        open(new_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
+    let new_dirfd = open(new_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
     let new_path = new_dir.path().join("new");
     {
         let mut new_f = File::create(&new_path).unwrap();
         new_f.write_all(b"new").unwrap();
     }
-    renameat2(
-        &old_dirfd,
-        "old",
-        &new_dirfd,
-        "new",
-        RenameFlags::RENAME_EXCHANGE,
-    )
-    .unwrap();
+    renameat2(&old_dirfd, "old", &new_dirfd, "new", RenameFlags::RENAME_EXCHANGE).unwrap();
     let mut buf = String::new();
     let mut new_f = File::open(&new_path).unwrap();
     new_f.read_to_string(&mut buf).unwrap();
@@ -209,32 +165,19 @@ fn test_renameat2_exchange() {
 #[cfg(all(
     target_os = "linux",
     target_env = "gnu",
-    any(
-        target_arch = "x86_64",
-        target_arch = "powerpc",
-        target_arch = "s390x"
-    )
+    any(target_arch = "x86_64", target_arch = "powerpc", target_arch = "s390x")
 ))]
 fn test_renameat2_noreplace() {
     let old_dir = tempfile::tempdir().unwrap();
-    let old_dirfd =
-        open(old_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
+    let old_dirfd = open(old_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
     let old_path = old_dir.path().join("old");
     File::create(old_path).unwrap();
     let new_dir = tempfile::tempdir().unwrap();
-    let new_dirfd =
-        open(new_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
+    let new_dirfd = open(new_dir.path(), OFlag::empty(), Mode::empty()).unwrap();
     let new_path = new_dir.path().join("new");
     File::create(new_path).unwrap();
     assert_eq!(
-        renameat2(
-            &old_dirfd,
-            "old",
-            &new_dirfd,
-            "new",
-            RenameFlags::RENAME_NOREPLACE
-        )
-        .unwrap_err(),
+        renameat2(&old_dirfd, "old", &new_dirfd, "new", RenameFlags::RENAME_NOREPLACE).unwrap_err(),
         Errno::EEXIST
     );
     assert!(new_dir.path().join("new").exists());
@@ -253,10 +196,7 @@ fn test_readlink() {
     let expected_dir = src.to_str().unwrap();
 
     assert_eq!(readlink(&dst).unwrap().to_str().unwrap(), expected_dir);
-    assert_eq!(
-        readlinkat(dirfd, "b").unwrap().to_str().unwrap(),
-        expected_dir
-    );
+    assert_eq!(readlinkat(dirfd, "b").unwrap().to_str().unwrap(), expected_dir);
 }
 
 /// This test creates a temporary file containing the contents
@@ -318,9 +258,7 @@ mod linux_android {
 
         let (rd, wr) = pipe().unwrap();
         let mut offset: loff_t = 5;
-        let res =
-            splice(tmp, Some(&mut offset), wr, None, 2, SpliceFFlags::empty())
-                .unwrap();
+        let res = splice(tmp, Some(&mut offset), wr, None, 2, SpliceFFlags::empty()).unwrap();
 
         assert_eq!(2, res);
 
@@ -336,8 +274,7 @@ mod linux_android {
         let (rd2, wr2) = pipe().unwrap();
 
         write(wr1, b"abc").unwrap();
-        let res = tee(rd1.try_clone().unwrap(), wr2, 2, SpliceFFlags::empty())
-            .unwrap();
+        let res = tee(rd1.try_clone().unwrap(), wr2, 2, SpliceFFlags::empty()).unwrap();
 
         assert_eq!(2, res);
 
@@ -389,7 +326,9 @@ mod linux_android {
 
     #[test]
     #[cfg(all(target_os = "linux", not(target_env = "musl")))]
-    #[cfg_attr(target_env = "uclibc", ignore)] // uclibc doesn't support OFD locks, but the test should still compile
+    #[cfg_attr(target_env = "uclibc", ignore)] // uclibc doesn't support OFD
+                                               // locks, but the test should
+                                               // still compile
     fn test_ofd_write_lock() {
         use nix::sys::stat::fstat;
         use std::mem;
@@ -414,20 +353,18 @@ mod linux_android {
         flock.l_len = 0;
         flock.l_pid = 0;
         fcntl(&tmp, FcntlArg::F_OFD_SETLKW(&flock)).expect("write lock failed");
-        assert_eq!(
-            Some(("OFDLCK".to_string(), "WRITE".to_string())),
-            lock_info(inode)
-        );
+        assert_eq!(Some(("OFDLCK".to_string(), "WRITE".to_string())), lock_info(inode));
 
         flock.l_type = libc::F_UNLCK as libc::c_short;
-        fcntl(&tmp, FcntlArg::F_OFD_SETLKW(&flock))
-            .expect("write unlock failed");
+        fcntl(&tmp, FcntlArg::F_OFD_SETLKW(&flock)).expect("write unlock failed");
         assert_eq!(None, lock_info(inode));
     }
 
     #[test]
     #[cfg(all(target_os = "linux", not(target_env = "musl")))]
-    #[cfg_attr(target_env = "uclibc", ignore)] // uclibc doesn't support OFD locks, but the test should still compile
+    #[cfg_attr(target_env = "uclibc", ignore)] // uclibc doesn't support OFD
+                                               // locks, but the test should
+                                               // still compile
     fn test_ofd_read_lock() {
         use nix::sys::stat::fstat;
         use std::mem;
@@ -452,14 +389,10 @@ mod linux_android {
         flock.l_len = 0;
         flock.l_pid = 0;
         fcntl(&tmp, FcntlArg::F_OFD_SETLKW(&flock)).expect("read lock failed");
-        assert_eq!(
-            Some(("OFDLCK".to_string(), "READ".to_string())),
-            lock_info(inode)
-        );
+        assert_eq!(Some(("OFDLCK".to_string(), "READ".to_string())), lock_info(inode));
 
         flock.l_type = libc::F_UNLCK as libc::c_short;
-        fcntl(&tmp, FcntlArg::F_OFD_SETLKW(&flock))
-            .expect("read unlock failed");
+        fcntl(&tmp, FcntlArg::F_OFD_SETLKW(&flock)).expect("read unlock failed");
         assert_eq!(None, lock_info(inode));
     }
 
@@ -488,7 +421,6 @@ mod linux_android {
 #[cfg(any(
     linux_android,
     target_os = "emscripten",
-    target_os = "fuchsia",
     target_os = "wasi",
     target_env = "uclibc",
     target_os = "freebsd"
@@ -509,19 +441,12 @@ mod test_posix_fadvise {
     #[test]
     fn test_errno() {
         let (rd, _wr) = pipe().unwrap();
-        let res =
-            posix_fadvise(&rd, 0, 100, PosixFadviseAdvice::POSIX_FADV_WILLNEED);
+        let res = posix_fadvise(&rd, 0, 100, PosixFadviseAdvice::POSIX_FADV_WILLNEED);
         assert_eq!(res, Err(Errno::ESPIPE));
     }
 }
 
-#[cfg(any(
-    linux_android,
-    freebsdlike,
-    target_os = "emscripten",
-    target_os = "fuchsia",
-    target_os = "wasi",
-))]
+#[cfg(any(linux_android, freebsdlike, target_os = "emscripten", target_os = "wasi"))]
 mod test_posix_fallocate {
 
     use nix::errno::Errno;
@@ -573,13 +498,9 @@ fn test_f_get_path() {
 
     let tmp = NamedTempFile::new().unwrap();
     let mut path = PathBuf::new();
-    let res =
-        fcntl(&tmp, FcntlArg::F_GETPATH(&mut path)).expect("get path failed");
+    let res = fcntl(&tmp, FcntlArg::F_GETPATH(&mut path)).expect("get path failed");
     assert_ne!(res, -1);
-    assert_eq!(
-        path.as_path().canonicalize().unwrap(),
-        tmp.path().canonicalize().unwrap()
-    );
+    assert_eq!(path.as_path().canonicalize().unwrap(), tmp.path().canonicalize().unwrap());
 }
 
 #[cfg(apple_targets)]
@@ -593,8 +514,7 @@ fn test_f_preallocate() {
     st.fst_flags = libc::F_ALLOCATECONTIG as libc::c_uint;
     st.fst_posmode = libc::F_PEOFPOSMODE;
     st.fst_length = 1024;
-    let res = fcntl(tmp, FcntlArg::F_PREALLOCATE(&mut st))
-        .expect("preallocation failed");
+    let res = fcntl(tmp, FcntlArg::F_PREALLOCATE(&mut st)).expect("preallocation failed");
 
     assert_eq!(res, 0);
     assert!(st.fst_bytesalloc > 0);
@@ -608,25 +528,12 @@ fn test_f_get_path_nofirmlink() {
 
     let tmp = NamedTempFile::new().unwrap();
     let mut path = PathBuf::new();
-    let res = fcntl(&tmp, FcntlArg::F_GETPATH_NOFIRMLINK(&mut path))
-        .expect("get path failed");
+    let res = fcntl(&tmp, FcntlArg::F_GETPATH_NOFIRMLINK(&mut path)).expect("get path failed");
     let mut tmpstr = String::from("/System/Volumes/Data");
-    tmpstr.push_str(
-        &tmp.path()
-            .canonicalize()
-            .unwrap()
-            .into_os_string()
-            .into_string()
-            .unwrap(),
-    );
+    tmpstr.push_str(&tmp.path().canonicalize().unwrap().into_os_string().into_string().unwrap());
     assert_ne!(res, -1);
     assert_eq!(
-        path.as_path()
-            .canonicalize()
-            .unwrap()
-            .into_os_string()
-            .into_string()
-            .unwrap(),
+        path.as_path().canonicalize().unwrap().into_os_string().into_string().unwrap(),
         tmpstr
     );
 }
@@ -644,20 +551,19 @@ fn test_f_kinfo() {
     // to pass.
     let tmp2 = File::open(tmp.path()).unwrap();
     let mut path = PathBuf::new();
-    let res =
-        fcntl(&tmp2, FcntlArg::F_KINFO(&mut path)).expect("get path failed");
+    let res = fcntl(&tmp2, FcntlArg::F_KINFO(&mut path)).expect("get path failed");
     assert_ne!(res, -1);
     assert_eq!(path, tmp.path());
 }
 
 /// Test `Flock` and associated functions.
-///
 #[cfg(not(any(target_os = "redox", target_os = "solaris")))]
 mod test_flock {
     use nix::fcntl::*;
     use tempfile::NamedTempFile;
 
-    /// Verify that `Flock::lock()` correctly obtains a lock, and subsequently unlocks upon drop.
+    /// Verify that `Flock::lock()` correctly obtains a lock, and subsequently
+    /// unlocks upon drop.
     #[test]
     fn lock_and_drop() {
         // Get 2 `File` handles to same underlying file.
@@ -694,9 +600,7 @@ mod test_flock {
         let lock1 = Flock::lock(file1, FlockArg::LockExclusive).unwrap();
 
         // Attempt to lock second handle
-        let file2 = Flock::lock(file2, FlockArg::LockSharedNonblock)
-            .unwrap_err()
-            .0;
+        let file2 = Flock::lock(file2, FlockArg::LockSharedNonblock).unwrap_err().0;
 
         // Downgrade the lock
         lock1.relock(FlockArg::LockShared).unwrap();
@@ -739,8 +643,7 @@ mod test_flock {
 
         // Attempt to lock second handle
         {
-            Flock::lock(file2, FlockArg::LockSharedNonblock)
-                .expect("Locking should've succeeded");
+            Flock::lock(file2, FlockArg::LockSharedNonblock).expect("Locking should've succeeded");
         }
 
         // Upgrade the lock
@@ -762,10 +665,7 @@ fn test_f_rdadvise() {
     let mut tmp = NamedTempFile::new().unwrap();
     tmp.write_all(&contents).unwrap();
     let fd = open(tmp.path(), OFlag::empty(), Mode::empty()).unwrap();
-    let rad = libc::radvisory {
-        ra_offset: 0,
-        ra_count: contents.len() as _,
-    };
+    let rad = libc::radvisory { ra_offset: 0, ra_count: contents.len() as _ };
     let res = fcntl(&tmp, FcntlArg::F_RDADVISE(rad)).expect("rdadivse failed");
     assert_ne!(res, -1);
     assert_eq!(contents.len(), read(&fd, &mut buf).unwrap());
@@ -781,15 +681,13 @@ fn test_f_log2phys() {
     let mut tmp = NamedTempFile::new().unwrap();
     tmp.write_all(CONTENTS).unwrap();
     let mut offset: libc::off_t = 0;
-    let mut res = fcntl(&tmp, FcntlArg::F_LOG2PHYS(&mut offset))
-        .expect("log2phys failed");
+    let mut res = fcntl(&tmp, FcntlArg::F_LOG2PHYS(&mut offset)).expect("log2phys failed");
     assert_ne!(res, -1);
     assert_ne!(offset, 0);
     let mut info: libc::log2phys = unsafe { std::mem::zeroed() };
     info.l2p_contigbytes = CONTENTS.len() as _;
     info.l2p_devoffset = 3;
-    res = fcntl(&tmp, FcntlArg::F_LOG2PHYS_EXT(&mut info))
-        .expect("log2phys failed");
+    res = fcntl(&tmp, FcntlArg::F_LOG2PHYS_EXT(&mut info)).expect("log2phys failed");
     assert_ne!(res, -1);
     assert_ne!({ info.l2p_devoffset }, 3);
 }
@@ -813,8 +711,7 @@ fn test_f_readahead() {
     use nix::fcntl::*;
 
     let tmp = NamedTempFile::new().unwrap();
-    let mut res = fcntl(&tmp, FcntlArg::F_READAHEAD(1_000_000))
-        .expect("read ahead failed");
+    let mut res = fcntl(&tmp, FcntlArg::F_READAHEAD(1_000_000)).expect("read ahead failed");
     assert_ne!(res, -1);
     res = fcntl(&tmp, FcntlArg::F_READAHEAD(-1024)).expect("read ahead failed");
     assert_ne!(res, -1);

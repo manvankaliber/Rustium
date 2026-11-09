@@ -19,7 +19,6 @@ namespace {
 static constexpr std::string_view kAndroidString{"android"};
 static constexpr std::string_view kAndroidExternalString{"android_external"};
 static constexpr std::string_view kBlinkString{"blink"};
-static constexpr std::string_view kFuchsiaString{"fuchsia"};
 static constexpr std::string_view kMacString{"mac"};
 static constexpr std::string_view kLinuxString{"linux"};
 static constexpr std::string_view kWinIA2String{"ia2"};
@@ -37,8 +36,6 @@ AXApiType::Type::operator std::string_view() const {
       return kAndroidExternalString;
     case kBlink:
       return kBlinkString;
-    case kFuchsia:
-      return kFuchsiaString;
     case kMac:
       return kMacString;
     case kLinux:
@@ -61,7 +58,6 @@ AXApiType::Type AXApiType::From(const std::string& type_str) {
           {{kAndroidString, kAndroid},
            {kAndroidExternalString, kAndroidExternal},
            {kBlinkString, kBlink},
-           {kFuchsiaString, kFuchsia},
            {kMacString, kMac},
            {kLinuxString, kLinux},
            {kWinIA2String, kWinIA2},

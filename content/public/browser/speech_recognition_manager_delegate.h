@@ -12,13 +12,13 @@
 #include "build/build_config.h"
 #include "content/common/content_export.h"
 
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_ANDROID)
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 
 namespace media::mojom {
 class SpeechRecognitionContext;
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 namespace url {
 class Origin;
@@ -57,7 +57,7 @@ class CONTENT_EXPORT SpeechRecognitionManagerDelegate {
       const url::Origin& origin);
 #endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_ANDROID)
   // This interfaces is used to bind the On-Device Speech Recognition Service on
   // the non-android platforms.
   // This is called on the IO thread.
@@ -65,7 +65,7 @@ class CONTENT_EXPORT SpeechRecognitionManagerDelegate {
       mojo::PendingReceiver<media::mojom::SpeechRecognitionContext> receiver,
       const std::string& language,
       const GlobalRenderFrameHostId& render_frame_host_id) = 0;
-#endif  // !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_ANDROID)
+#endif
 };
 
 }  // namespace content

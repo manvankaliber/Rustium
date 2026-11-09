@@ -351,8 +351,9 @@ GpuServiceImpl::~GpuServiceImpl() {
     }
   }
 
-  if (watchdog_thread_)
+  if (watchdog_thread_) {
     watchdog_thread_->OnGpuProcessTearDown();
+  }
 
 #if BUILDFLAG(IS_ANDROID)
   scudo_purge_coordinator_.reset();
@@ -378,8 +379,9 @@ GpuServiceImpl::~GpuServiceImpl() {
   // background threads can cleanup. For example, in the renderer the
   // RenderThread instances will be able to notice shutdown before the render
   // process begins waiting for them to exit.
-  if (owned_shutdown_event_)
+  if (owned_shutdown_event_) {
     owned_shutdown_event_->Signal();
+  }
 }
 
 void GpuServiceImpl::UpdateGPUInfo() {
@@ -652,17 +654,7 @@ void GpuServiceImpl::CreateVideoEncodeAcceleratorProvider(
   // and creating encoder might take quite some time, and they might block
   // processing of other mojo calls if executed on the current runner.
   scoped_refptr<base::SequencedTaskRunner> runner;
-#if BUILDFLAG(IS_FUCHSIA)
-  // TODO(crbug.com/40850116): Fuchsia does not support FIDL communication from
-  // ThreadPool's worker threads.
-  if (!vea_thread_) {
-    base::Thread::Options thread_options(base::MessagePumpType::IO, /*size=*/0);
-    vea_thread_ =
-        std::make_unique<base::Thread>("GpuVideoEncodeAcceleratorThread");
-    CHECK(vea_thread_->StartWithOptions(std::move(thread_options)));
-  }
-  runner = vea_thread_->task_runner();
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Windows hardware encoder requires a COM STA thread.
   runner = base::ThreadPool::CreateCOMSTATaskRunner({base::MayBlock()});
 #else
@@ -790,11 +782,13 @@ void GpuServiceImpl::RequestDXGIInfoOnMainThread(
 #endif
 
 void GpuServiceImpl::LoseAllContexts() {
-  if (IsExiting())
+  if (IsExiting()) {
     return;
+  }
   gpu_channel_manager_->LoseAllContexts();
-  if (compositor_gpu_thread_)
+  if (compositor_gpu_thread_) {
     compositor_gpu_thread_->LoseContext();
+  }
 }
 
 void GpuServiceImpl::DidCreateContextSuccessfully() {
@@ -1049,8 +1043,9 @@ void GpuServiceImpl::SetWakeUpGpuClosure(base::RepeatingClosure closure) {
 }
 
 void GpuServiceImpl::WakeUpGpu() {
-  if (wake_up_closure_)
+  if (wake_up_closure_) {
     wake_up_closure_.Run();
+  }
   if (main_runner_->BelongsToCurrentThread()) {
     WakeUpGpuOnMainThread();
     return;
@@ -1147,8 +1142,9 @@ void GpuServiceImpl::OnBackgroundCleanupGpuMainThread() {
 void GpuServiceImpl::OnBackgroundCleanupCompositorGpuThread() {
   // Currently only called on Android.
 #if BUILDFLAG(IS_ANDROID)
-  if (compositor_gpu_thread_)
+  if (compositor_gpu_thread_) {
     compositor_gpu_thread_->OnBackgroundCleanup();
+  }
 #else
   NOTREACHED();
 #endif
@@ -1156,10 +1152,12 @@ void GpuServiceImpl::OnBackgroundCleanupCompositorGpuThread() {
 
 void GpuServiceImpl::OnBackgrounded() {
   DCHECK(io_runner_->BelongsToCurrentThread());
-  if (watchdog_thread_)
+  if (watchdog_thread_) {
     watchdog_thread_->OnBackgrounded();
-  if (compositor_gpu_thread_)
+  }
+  if (compositor_gpu_thread_) {
     compositor_gpu_thread_->OnBackgrounded();
+  }
 
   main_runner_->PostTask(
       FROM_HERE,
@@ -1187,10 +1185,12 @@ void GpuServiceImpl::OnBackgroundedOnMainThread() {
 
 void GpuServiceImpl::OnForegrounded() {
   DCHECK(io_runner_->BelongsToCurrentThread());
-  if (watchdog_thread_)
+  if (watchdog_thread_) {
     watchdog_thread_->OnForegrounded();
-  if (compositor_gpu_thread_)
+  }
+  if (compositor_gpu_thread_) {
     compositor_gpu_thread_->OnForegrounded();
+  }
 
   main_runner_->PostTask(
       FROM_HERE,
@@ -1373,8 +1373,9 @@ void GpuServiceImpl::OnOverlayCapsChanged() {
 
   // Update overlay info in the GPU process and send the updated data back to
   // the GPU host in the Browser process through mojom if the info has changed.
-  if (old_overlay_info != gpu_info_.overlay_info)
+  if (old_overlay_info != gpu_info_.overlay_info) {
     gpu_host_->DidUpdateOverlayInfo(gpu_info_.overlay_info);
+  }
 
   // Update DXGI adapter info in the GPU process through the GPU host mojom.
   auto old_dxgi_info = std::move(dxgi_info_);

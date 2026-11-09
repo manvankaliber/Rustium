@@ -75,7 +75,7 @@ class MemoryPressureVoteAggregator {
 
   // The cooldown period between repeated notifications at a given memory
   // pressure level.
-#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_APPLE)
   static constexpr base::TimeDelta kModeratePressureCooldown = base::Seconds(5);
 #else
   static constexpr base::TimeDelta kModeratePressureCooldown =

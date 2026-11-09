@@ -12,8 +12,7 @@ use cfg_if::cfg_if;
 use libc::{self, c_int, size_t, socklen_t};
 #[cfg(all(feature = "uio", not(target_os = "redox")))]
 use libc::{
-    c_void, iovec, CMSG_DATA, CMSG_FIRSTHDR, CMSG_LEN, CMSG_NXTHDR, CMSG_SPACE,
-    MSG_CTRUNC,
+    c_void, iovec, CMSG_DATA, CMSG_FIRSTHDR, CMSG_LEN, CMSG_NXTHDR, CMSG_SPACE, MSG_CTRUNC,
 };
 #[cfg(not(target_os = "redox"))]
 use std::io::{IoSlice, IoSliceMut};
@@ -123,8 +122,8 @@ impl TryFrom<i32> for SockType {
     }
 }
 
-/// Constants used in [`socket`](fn.socket.html) and [`socketpair`](fn.socketpair.html)
-/// to specify the protocol to use.
+/// Constants used in [`socket`](fn.socket.html) and
+/// [`socketpair`](fn.socketpair.html) to specify the protocol to use.
 #[repr(i32)]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 #[non_exhaustive]
@@ -139,7 +138,8 @@ pub enum SockProtocol {
     /// ([ref](https://developer.apple.com/library/content/documentation/Darwin/Conceptual/NKEConceptual/control/control.html))
     #[cfg(apple_targets)]
     KextControl = libc::SYSPROTO_CONTROL,
-    /// Receives routing and link updates and may be used to modify the routing tables (both IPv4 and IPv6), IP addresses, link
+    /// Receives routing and link updates and may be used to modify the routing
+    /// tables (both IPv4 and IPv6), IP addresses, link
     // parameters, neighbor setups, queueing disciplines, traffic classes and packet classifiers
     /// ([ref](https://www.man7.org/linux/man-pages/man7/netlink.7.html))
     #[cfg(linux_android)]
@@ -148,8 +148,8 @@ pub enum SockProtocol {
     /// ([ref](https://www.man7.org/linux/man-pages/man7/netlink.7.html))
     #[cfg(linux_android)]
     NetlinkUserSock = libc::NETLINK_USERSOCK,
-    /// Query information about sockets of various protocol families from the kernel
-    /// ([ref](https://www.man7.org/linux/man-pages/man7/netlink.7.html))
+    /// Query information about sockets of various protocol families from the
+    /// kernel ([ref](https://www.man7.org/linux/man-pages/man7/netlink.7.html))
     #[cfg(linux_android)]
     NetlinkSockDiag = libc::NETLINK_SOCK_DIAG,
     /// Netfilter/iptables ULOG.
@@ -184,8 +184,8 @@ pub enum SockProtocol {
     /// ([ref](https://www.man7.org/linux/man-pages/man7/netlink.7.html))
     #[cfg(linux_android)]
     NetlinkRDMA = libc::NETLINK_RDMA,
-    /// Transport IPv6 packets from netfilter to user space.  Used by ip6_queue kernel module.
-    /// ([ref](https://www.man7.org/linux/man-pages/man7/netlink.7.html))
+    /// Transport IPv6 packets from netfilter to user space.  Used by ip6_queue
+    /// kernel module. ([ref](https://www.man7.org/linux/man-pages/man7/netlink.7.html))
     #[cfg(linux_android)]
     NetlinkIPv6Firewall = libc::NETLINK_IP6_FW,
     /// DECnet routing messages
@@ -200,14 +200,14 @@ pub enum SockProtocol {
     /// ([ref](https://www.man7.org/linux/man-pages/man7/netlink.7.html))
     #[cfg(linux_android)]
     NetlinkGeneric = libc::NETLINK_GENERIC,
-    /// Netlink interface to request information about ciphers registered with the kernel crypto API as well as allow
-    /// configuration of the kernel crypto API.
-    /// ([ref](https://www.man7.org/linux/man-pages/man7/netlink.7.html))
+    /// Netlink interface to request information about ciphers registered with
+    /// the kernel crypto API as well as allow configuration of the kernel
+    /// crypto API. ([ref](https://www.man7.org/linux/man-pages/man7/netlink.7.html))
     #[cfg(linux_android)]
     NetlinkCrypto = libc::NETLINK_CRYPTO,
-    /// Non-DIX type protocol number defined for the Ethernet IEEE 802.3 interface that allows packets of all protocols
-    /// defined in the interface to be received.
-    /// ([ref](https://man7.org/linux/man-pages/man7/packet.7.html))
+    /// Non-DIX type protocol number defined for the Ethernet IEEE 802.3
+    /// interface that allows packets of all protocols defined in the interface
+    /// to be received. ([ref](https://man7.org/linux/man-pages/man7/packet.7.html))
     // The protocol number is fed into the socket syscall in network byte order.
     #[cfg(linux_android)]
     EthAll = (libc::ETH_P_ALL as u16).to_be() as i32,
@@ -226,12 +226,7 @@ pub enum SockProtocol {
     /// ICMPv6 protocol (ICMP over IPv6)
     IcmpV6 = libc::IPPROTO_ICMPV6,
     /// SCTP ([sctp(7)](https://man7.org/linux/man-pages/man7/sctp.7.html))
-    #[cfg(any(
-        apple_targets,
-        linux_android,
-        target_os = "freebsd",
-        target_os = "netbsd"
-    ))]
+    #[cfg(any(apple_targets, linux_android, target_os = "freebsd", target_os = "netbsd"))]
     Sctp = libc::IPPROTO_SCTP,
 }
 
@@ -248,8 +243,8 @@ impl SockProtocol {
     #[allow(non_upper_case_globals)]
     pub const CanBcm: SockProtocol = SockProtocol::NetlinkUserSock; // Matches libc::CAN_BCM
 
-    /// Allows applications and other KEXTs to be notified when certain kernel events occur
-    /// ([ref](https://developer.apple.com/library/content/documentation/Darwin/Conceptual/NKEConceptual/control/control.html))
+    /// Allows applications and other KEXTs to be notified when certain kernel
+    /// events occur ([ref](https://developer.apple.com/library/content/documentation/Darwin/Conceptual/NKEConceptual/control/control.html))
     #[cfg(apple_targets)]
     #[allow(non_upper_case_globals)]
     pub const KextEvent: SockProtocol = SockProtocol::Icmp; // Matches libc::SYSPROTO_EVENT
@@ -259,8 +254,8 @@ impl SockProtocol {
     #[cfg(linux_android)]
     #[allow(non_upper_case_globals)]
     #[cfg(target_endian = "little")]
-    pub const EthIp: SockProtocol = unsafe { std::mem::transmute::<i32, SockProtocol>((libc::ETH_P_IP as u16).to_be() as i32) };
-
+    pub const EthIp: SockProtocol =
+        unsafe { std::mem::transmute::<i32, SockProtocol>((libc::ETH_P_IP as u16).to_be() as i32) };
 }
 #[cfg(linux_android)]
 libc_bitflags! {
@@ -370,19 +365,11 @@ libc_bitflags! {
         MSG_CMSG_CLOEXEC;
         /// Requests not to send `SIGPIPE` errors when the other end breaks the connection.
         /// (For more details, see [send(2)](https://linux.die.net/man/2/send)).
-        #[cfg(any(linux_android,
-                  freebsdlike,
-                  solarish,
-                  netbsdlike,
-                  target_os = "fuchsia",
-                  target_os = "haiku"))]
+        #[cfg(any(linux_android, freebsdlike, solarish, netbsdlike, target_os = "haiku"))]
         MSG_NOSIGNAL;
         /// Turns on [`MSG_DONTWAIT`] after the first message has been received (only for
         /// `recvmmsg()`).
-        #[cfg(any(linux_android,
-                  netbsdlike,
-                  target_os = "fuchsia",
-                  target_os = "freebsd"))]
+        #[cfg(any(linux_android, netbsdlike, target_os = "freebsd"))]
         MSG_WAITFORONE;
         /// Indicates that this message is not a user message but an SCTP notification.
         #[cfg(target_os = "linux")]
@@ -927,7 +914,7 @@ pub enum ControlMessageOwned {
     ///
     /// `RxqOvfl` socket option should be enabled on a socket
     /// to allow receiving the drop counter.
-    #[cfg(any(linux_android, target_os = "fuchsia"))]
+    #[cfg(linux_android)]
     RxqOvfl(u32),
 
     /// Socket error queue control messages read with the `MSG_ERRQUEUE` flag.
@@ -1095,7 +1082,7 @@ impl ControlMessageOwned {
                 let gso_size: i32 = unsafe { ptr::read_unaligned(p as *const _) };
                 ControlMessageOwned::UdpGroSegments(gso_size)
             },
-            #[cfg(any(linux_android, target_os = "fuchsia"))]
+            #[cfg(linux_android)]
             (libc::SOL_SOCKET, libc::SO_RXQ_OVFL) => {
                 let drop_counter = unsafe { ptr::read_unaligned(p as *const u32) };
                 ControlMessageOwned::RxqOvfl(drop_counter)
@@ -1332,7 +1319,7 @@ pub enum ControlMessage<'a> {
     /// skbs indicating the number of packets dropped by the
     /// socket between the last received packet and this
     /// received packet.
-    #[cfg(any(linux_android, target_os = "fuchsia"))]
+    #[cfg(linux_android)]
     RxqOvfl(&'a u32),
 
     /// Configure the transmission time of packets.
@@ -1466,7 +1453,7 @@ impl ControlMessage<'_> {
             #[cfg(any(linux_android, freebsdlike, apple_targets, target_os = "haiku"))]
             #[cfg(feature = "net")]
             ControlMessage::Ipv6HopLimit(limit) => limit as *const _ as *const u8,
-            #[cfg(any(linux_android, target_os = "fuchsia"))]
+            #[cfg(linux_android)]
             ControlMessage::RxqOvfl(drop_count) => {
                 drop_count as *const _ as *const u8
             },
@@ -1545,7 +1532,7 @@ impl ControlMessage<'_> {
             ControlMessage::Ipv6HopLimit(limit) => {
                 mem::size_of_val(limit)
             },
-            #[cfg(any(linux_android, target_os = "fuchsia"))]
+            #[cfg(linux_android)]
             ControlMessage::RxqOvfl(drop_count) => {
                 mem::size_of_val(drop_count)
             },
@@ -1596,7 +1583,7 @@ impl ControlMessage<'_> {
             #[cfg(any(linux_android, freebsdlike, apple_targets, target_os = "haiku"))]
             #[cfg(feature = "net")]
             ControlMessage::Ipv6HopLimit(_) => libc::IPPROTO_IPV6,
-            #[cfg(any(linux_android, target_os = "fuchsia"))]
+            #[cfg(linux_android)]
             ControlMessage::RxqOvfl(_) => libc::SOL_SOCKET,
             #[cfg(target_os = "linux")]
             ControlMessage::TxTime(_) => libc::SOL_SOCKET,
@@ -1650,7 +1637,7 @@ impl ControlMessage<'_> {
             #[cfg(any(linux_android, freebsdlike, apple_targets, target_os = "haiku"))]
             #[cfg(feature = "net")]
             ControlMessage::Ipv6HopLimit(_) => libc::IPV6_HOPLIMIT,
-            #[cfg(any(linux_android, target_os = "fuchsia"))]
+            #[cfg(linux_android)]
             ControlMessage::RxqOvfl(_) => {
                 libc::SO_RXQ_OVFL
             },
@@ -2234,9 +2221,9 @@ pub fn socket<T: Into<Option<SockProtocol>>>(
         Some(p) => p as c_int,
     };
 
-    // SockFlags are usually embedded into `ty`, but we don't do that in `nix` because it's a
-    // little easier to understand by separating it out. So we have to merge these bitfields
-    // here.
+    // SockFlags are usually embedded into `ty`, but we don't do that in `nix`
+    // because it's a little easier to understand by separating it out. So we
+    // have to merge these bitfields here.
     let mut ty = ty as c_int;
     ty |= flags.bits();
 
@@ -2265,17 +2252,15 @@ pub fn socketpair<T: Into<Option<SockProtocol>>>(
         Some(p) => p as c_int,
     };
 
-    // SockFlags are usually embedded into `ty`, but we don't do that in `nix` because it's a
-    // little easier to understand by separating it out. So we have to merge these bitfields
-    // here.
+    // SockFlags are usually embedded into `ty`, but we don't do that in `nix`
+    // because it's a little easier to understand by separating it out. So we
+    // have to merge these bitfields here.
     let mut ty = ty as c_int;
     ty |= flags.bits();
 
     let mut fds = [-1, -1];
 
-    let res = unsafe {
-        libc::socketpair(domain as c_int, ty, protocol, fds.as_mut_ptr())
-    };
+    let res = unsafe { libc::socketpair(domain as c_int, ty, protocol, fds.as_mut_ptr()) };
     Errno::result(res)?;
 
     // Safe because socketpair returned success.
@@ -2352,23 +2337,16 @@ pub fn accept(sockfd: RawFd) -> Result<RawFd> {
 #[cfg(any(
     all(
         target_os = "android",
-        any(
-            target_arch = "aarch64",
-            target_arch = "x86",
-            target_arch = "x86_64"
-        )
+        any(target_arch = "aarch64", target_arch = "x86", target_arch = "x86_64")
     ),
     freebsdlike,
     netbsdlike,
     target_os = "emscripten",
-    target_os = "fuchsia",
     solarish,
-    target_os = "linux",
+    target_os = "linux"
 ))]
 pub fn accept4(sockfd: RawFd, flags: SockFlag) -> Result<RawFd> {
-    let res = unsafe {
-        libc::accept4(sockfd, ptr::null_mut(), ptr::null_mut(), flags.bits())
-    };
+    let res = unsafe { libc::accept4(sockfd, ptr::null_mut(), ptr::null_mut(), flags.bits()) };
 
     Errno::result(res)
 }
@@ -2388,12 +2366,7 @@ pub fn connect(fd: RawFd, addr: &dyn SockaddrLike) -> Result<()> {
 /// [Further reading](https://pubs.opengroup.org/onlinepubs/9699919799/functions/recv.html)
 pub fn recv(sockfd: RawFd, buf: &mut [u8], flags: MsgFlags) -> Result<usize> {
     unsafe {
-        let ret = libc::recv(
-            sockfd,
-            buf.as_mut_ptr().cast(),
-            buf.len() as size_t,
-            flags.bits(),
-        );
+        let ret = libc::recv(sockfd, buf.as_mut_ptr().cast(), buf.len() as size_t, flags.bits());
 
         Errno::result(ret).map(|r| r as usize)
     }
@@ -2404,10 +2377,7 @@ pub fn recv(sockfd: RawFd, buf: &mut [u8], flags: MsgFlags) -> Result<usize> {
 /// address of the sender.
 ///
 /// [Further reading](https://pubs.opengroup.org/onlinepubs/9699919799/functions/recvfrom.html)
-pub fn recvfrom<T: SockaddrLike>(
-    sockfd: RawFd,
-    buf: &mut [u8],
-) -> Result<(usize, Option<T>)> {
+pub fn recvfrom<T: SockaddrLike>(sockfd: RawFd, buf: &mut [u8]) -> Result<(usize, Option<T>)> {
     unsafe {
         let mut addr = mem::MaybeUninit::<T>::uninit();
         let mut len = mem::size_of_val(&addr) as socklen_t;
@@ -2428,12 +2398,7 @@ pub fn recvfrom<T: SockaddrLike>(
 /// Send a message to a socket
 ///
 /// [Further reading](https://pubs.opengroup.org/onlinepubs/9699919799/functions/sendto.html)
-pub fn sendto(
-    fd: RawFd,
-    buf: &[u8],
-    addr: &dyn SockaddrLike,
-    flags: MsgFlags,
-) -> Result<usize> {
+pub fn sendto(fd: RawFd, buf: &[u8], addr: &dyn SockaddrLike, flags: MsgFlags) -> Result<usize> {
     let ret = unsafe {
         libc::sendto(
             fd,
@@ -2452,9 +2417,7 @@ pub fn sendto(
 ///
 /// [Further reading](https://pubs.opengroup.org/onlinepubs/9699919799/functions/send.html)
 pub fn send(fd: RawFd, buf: &[u8], flags: MsgFlags) -> Result<usize> {
-    let ret = unsafe {
-        libc::send(fd, buf.as_ptr().cast(), buf.len() as size_t, flags.bits())
-    };
+    let ret = unsafe { libc::send(fd, buf.as_ptr().cast(), buf.len() as size_t, flags.bits()) };
 
     Errno::result(ret).map(|r| r as usize)
 }
@@ -2504,11 +2467,7 @@ pub fn getsockopt<F: AsFd, O: GetSockOpt>(fd: &F, opt: O) -> Result<O::Val> {
 /// let res = setsockopt(&fd, KeepAlive, &true);
 /// assert!(res.is_ok());
 /// ```
-pub fn setsockopt<F: AsFd, O: SetSockOpt>(
-    fd: &F,
-    opt: O,
-    val: &O::Val,
-) -> Result<()> {
+pub fn setsockopt<F: AsFd, O: SetSockOpt>(fd: &F, opt: O, val: &O::Val) -> Result<()> {
     opt.set(fd, val)
 }
 

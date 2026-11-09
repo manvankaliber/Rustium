@@ -85,17 +85,6 @@
 #undef GetCommandLine
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/fdio/namespace.h>
-#include <lib/zx/job.h>
-#include <lib/zx/time.h>
-
-#include "base/atomic_sequence_num.h"
-#include "base/fuchsia/default_job.h"
-#include "base/fuchsia/file_utils.h"
-#include "base/fuchsia/fuchsia_logging.h"
-#endif
-
 #if BUILDFLAG(IS_IOS)
 #include "base/path_service.h"
 #endif
@@ -254,23 +243,6 @@ TestLauncherTracer* GetTestLauncherTracer() {
   static auto* tracer = new TestLauncherTracer;
   return tracer;
 }
-
-#if BUILDFLAG(IS_FUCHSIA)
-zx_status_t WaitForJobExit(const zx::job& job) {
-  zx::time deadline =
-      zx::deadline_after(zx::duration(kOutputTimeout.ToZxDuration()));
-  zx_signals_t to_wait_for = ZX_JOB_NO_JOBS | ZX_JOB_NO_PROCESSES;
-  while (to_wait_for) {
-    zx_signals_t observed = 0;
-    zx_status_t status = job.wait_one(to_wait_for, deadline, &observed);
-    if (status != ZX_OK) {
-      return status;
-    }
-    to_wait_for &= ~observed;
-  }
-  return ZX_OK;
-}
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 #if BUILDFLAG(IS_POSIX)
 // Self-pipe that makes it possible to do complex shutdown handling
@@ -447,70 +419,7 @@ int LaunchChildTestProcessWithOptions(const CommandLine& command_line,
 
     new_options.job_handle = job_handle.get();
   }
-#elif BUILDFLAG(IS_FUCHSIA)
-  DCHECK(!new_options.job_handle);
-
-  // Set the clone policy, deliberately omitting FDIO_SPAWN_CLONE_NAMESPACE so
-  // that we can install a different /data.
-  new_options.spawn_flags = FDIO_SPAWN_CLONE_STDIO | FDIO_SPAWN_CLONE_JOB;
-
-  const base::FilePath kDataPath(base::kPersistedDataDirectoryPath);
-  const base::FilePath kCachePath(base::kPersistedCacheDirectoryPath);
-
-  // Clone all namespace entries from the current process, except /data and
-  // /cache, which are overridden below.
-  fdio_flat_namespace_t* flat_namespace = nullptr;
-  zx_status_t result = fdio_ns_export_root(&flat_namespace);
-  ZX_CHECK(ZX_OK == result, result) << "fdio_ns_export_root";
-  for (size_t i = 0; i < flat_namespace->count; ++i) {
-    base::FilePath path(UNSAFE_TODO(flat_namespace->path[i]));
-    if (path == kDataPath || path == kCachePath) {
-      result = zx_handle_close(UNSAFE_TODO(flat_namespace->handle[i]));
-      ZX_CHECK(ZX_OK == result, result) << "zx_handle_close";
-    } else {
-      new_options.paths_to_transfer.push_back(
-          {path, UNSAFE_TODO(flat_namespace->handle[i])});
-    }
-  }
-  free(flat_namespace);
-
-  zx::job job_handle;
-  result = zx::job::create(*GetDefaultJob(), 0, &job_handle);
-  ZX_CHECK(ZX_OK == result, result) << "zx_job_create";
-  new_options.job_handle = job_handle.get();
-
-  // Give this test its own isolated /data directory by creating a new temporary
-  // subdirectory under data (/data/test-$PID) and binding paths under that to
-  // /data and /cache in the child process.
-  // Persistent data storage is mapped to /cache rather than system-provided
-  // cache storage, to avoid unexpected purges (see crbug.com/1242170).
-  CHECK(base::PathExists(kDataPath));
-
-  // Create the test subdirectory with a name that is unique to the child test
-  // process (qualified by parent PID and an autoincrementing test process
-  // index).
-  static base::AtomicSequenceNumber child_launch_index;
-  const base::FilePath child_data_path = kDataPath.AppendASCII(
-      base::StringPrintf("test-%zu-%d", base::Process::Current().Pid(),
-                         child_launch_index.GetNext()));
-  CHECK(!base::DirectoryExists(child_data_path));
-  CHECK(base::CreateDirectory(child_data_path));
-  DCHECK(base::DirectoryExists(child_data_path));
-
-  const base::FilePath test_data_dir(child_data_path.AppendASCII("data"));
-  CHECK(base::CreateDirectory(test_data_dir));
-  const base::FilePath test_cache_dir(child_data_path.AppendASCII("cache"));
-  CHECK(base::CreateDirectory(test_cache_dir));
-
-  // Transfer handles to the new directories as /data and /cache in the child
-  // process' namespace.
-  new_options.paths_to_transfer.push_back(
-      {kDataPath,
-       base::OpenDirectoryHandle(test_data_dir).TakeChannel().release()});
-  new_options.paths_to_transfer.push_back(
-      {kCachePath,
-       base::OpenDirectoryHandle(test_cache_dir).TakeChannel().release()});
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   // To prevent accidental privilege sharing to an untrusted child, processes
@@ -590,27 +499,13 @@ int LaunchChildTestProcessWithOptions(const CommandLine& command_line,
     }
   }
 
-#if BUILDFLAG(IS_FUCHSIA)
-  zx_status_t wait_status = WaitForJobExit(job_handle);
-  if (wait_status != ZX_OK) {
-    LOG(ERROR) << "Batch leaked jobs or processes.";
-    exit_code = -1;
-  }
-#endif  // BUILDFLAG(IS_FUCHSIA)
-
   {
     // Note how we grab the log before issuing a possibly broad process kill.
     // Other code parts that grab the log kill processes, so avoid trying
     // to do that twice and trigger all kinds of log messages.
     AutoLock lock(*GetLiveProcessesLock());
 
-#if BUILDFLAG(IS_FUCHSIA)
-    zx_status_t status = job_handle.kill();
-    ZX_CHECK(status == ZX_OK, status);
-
-    // Cleanup the data directory.
-    CHECK(DeletePathRecursively(child_data_path));
-#elif BUILDFLAG(IS_POSIX)
+#if BUILDFLAG(IS_POSIX)
     // It is not possible to waitpid() on any leaked sub-processes of the test
     // batch process, since those are not direct children of this process.
     // kill()ing the process-group will return a result indicating whether the
@@ -667,7 +562,7 @@ void SetTemporaryDirectory(const FilePath& temp_dir,
   environment->emplace(L"TMP", temp_dir.value());
 #elif BUILDFLAG(IS_APPLE)
   environment->emplace("MAC_CHROMIUM_TMPDIR", temp_dir.value());
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   environment->emplace("TMPDIR", temp_dir.value());
 #endif
 }
@@ -742,9 +637,7 @@ ChildProcessResults DoLaunchChildTestProcess(
     options.fds_to_remap.emplace_back(output_file_fd, STDERR_FILENO);
   }
 
-#if !BUILDFLAG(IS_FUCHSIA)
   options.new_process_group = true;
-#endif
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   options.kill_on_parent_death = true;
 #endif
@@ -1817,10 +1710,6 @@ bool TestLauncher::Init(CommandLine* command_line) {
 
 #if BUILDFLAG(IS_FREEBSD)
   results_tracker_.AddGlobalTag("OS_FREEBSD");
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-  results_tracker_.AddGlobalTag("OS_FUCHSIA");
 #endif
 
 #if BUILDFLAG(IS_IOS)

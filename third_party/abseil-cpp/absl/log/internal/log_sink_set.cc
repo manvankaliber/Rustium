@@ -166,7 +166,7 @@ class WindowsDebuggerLogSink final : public LogSink {
 class GlobalLogSinkSet final {
  public:
   GlobalLogSinkSet() {
-#if defined(__myriad2__) || defined(__Fuchsia__)
+#if defined(__myriad2__)
     // myriad2 and Fuchsia do not log to stderr by default.
 #else
     static absl::NoDestructor<StderrLogSink> stderr_log_sink;

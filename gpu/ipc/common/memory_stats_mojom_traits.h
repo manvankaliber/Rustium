@@ -13,9 +13,9 @@
 namespace mojo {
 
 template <>
-struct GPU_IPC_COMMON_EXPORT StructTraits<
-    gpu::mojom::VideoMemoryProcessStatsDataView,
-    gpu::VideoMemoryUsageStats::ProcessStats> {
+struct GPU_IPC_COMMON_EXPORT
+    StructTraits<gpu::mojom::VideoMemoryProcessStatsDataView,
+                 gpu::VideoMemoryUsageStats::ProcessStats> {
   static uint64_t video_memory_bytes(
       const gpu::VideoMemoryUsageStats::ProcessStats& state) {
     return state.video_memory;
@@ -35,15 +35,16 @@ struct GPU_IPC_COMMON_EXPORT StructTraits<
 };
 
 template <>
-struct GPU_IPC_COMMON_EXPORT StructTraits<
-    gpu::mojom::VideoMemoryUsageStatsDataView,
-    gpu::VideoMemoryUsageStats> {
+struct GPU_IPC_COMMON_EXPORT
+    StructTraits<gpu::mojom::VideoMemoryUsageStatsDataView,
+                 gpu::VideoMemoryUsageStats> {
   static std::map<int32_t, gpu::VideoMemoryUsageStats::ProcessStats>
   process_map(const gpu::VideoMemoryUsageStats& stats) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_WIN)
     std::map<int32_t, gpu::VideoMemoryUsageStats::ProcessStats> map;
-    for (const auto& pair : stats.process_map)
+    for (const auto& pair : stats.process_map) {
       map[static_cast<int32_t>(pair.first)] = pair.second;
+    }
     return map;
 #else
     return stats.process_map;
@@ -56,15 +57,18 @@ struct GPU_IPC_COMMON_EXPORT StructTraits<
 
   static bool Read(gpu::mojom::VideoMemoryUsageStatsDataView data,
                    gpu::VideoMemoryUsageStats* out) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_WIN)
     std::map<int32_t, gpu::VideoMemoryUsageStats::ProcessStats> process_map;
-    if (!data.ReadProcessMap(&process_map))
+    if (!data.ReadProcessMap(&process_map)) {
       return false;
-    for (const auto& pair : process_map)
+    }
+    for (const auto& pair : process_map) {
       out->process_map[static_cast<base::ProcessId>(pair.first)] = pair.second;
+    }
 #else
-    if (!data.ReadProcessMap(&out->process_map))
+    if (!data.ReadProcessMap(&out->process_map)) {
       return false;
+    }
 #endif
     out->bytes_allocated = data.bytes_allocated();
     return true;

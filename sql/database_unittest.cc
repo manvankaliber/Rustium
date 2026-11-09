@@ -1201,11 +1201,6 @@ TEST_P(SQLDatabaseTest, RazePageSize) {
 
 // Test that Raze() results are seen in other connections.
 TEST_P(SQLDatabaseTest, RazeMultiple) {
-#if BUILDFLAG(IS_FUCHSIA)
-  if (IsWALEnabled()) {
-    GTEST_SKIP() << "Fuchsia doesn't support WAL + non exclusive locking";
-  }
-#endif
   RecreateWithSharedLocking();
   EXPECT_TRUE(db_->Open(db_path_));
 
@@ -1227,11 +1222,6 @@ TEST_P(SQLDatabaseTest, RazeMultiple) {
 }
 
 TEST_P(SQLDatabaseTest, Raze_OtherConnectionHasWriteLock) {
-#if BUILDFLAG(IS_FUCHSIA)
-  if (IsWALEnabled()) {
-    GTEST_SKIP() << "Fuchsia doesn't support WAL + non exclusive locking";
-  }
-#endif
   RecreateWithSharedLocking();
   EXPECT_TRUE(db_->Open(db_path_));
 
@@ -1254,11 +1244,6 @@ TEST_P(SQLDatabaseTest, Raze_OtherConnectionHasWriteLock) {
 }
 
 TEST_P(SQLDatabaseTest, Raze_OtherConnectionHasReadLock) {
-#if BUILDFLAG(IS_FUCHSIA)
-  if (IsWALEnabled()) {
-    GTEST_SKIP() << "Fuchsia doesn't support WAL + non exclusive locking";
-  }
-#endif
   RecreateWithSharedLocking();
   EXPECT_TRUE(db_->Open(db_path_));
 
@@ -1303,12 +1288,6 @@ TEST_P(SQLDatabaseTest, Raze_EmptyDatabaseFile) {
 
 // Verify that Raze() can handle a file of junk.
 TEST_P(SQLDatabaseTest, RazeNOTADB) {
-#if BUILDFLAG(IS_FUCHSIA)
-  if (IsWALEnabled()) {
-    GTEST_SKIP() << "Fuchsia doesn't support WAL + non exclusive locking";
-  }
-#endif
-
   db_->Close();
   Database::Delete(db_path_);
   ASSERT_FALSE(base::PathExists(db_path_));
@@ -1339,12 +1318,6 @@ TEST_P(SQLDatabaseTest, RazeNOTADB) {
 
 // Verify that Raze() can handle a database overwritten with garbage.
 TEST_P(SQLDatabaseTest, RazeNOTADB2) {
-#if BUILDFLAG(IS_FUCHSIA)
-  if (IsWALEnabled()) {
-    GTEST_SKIP() << "Fuchsia doesn't support WAL + non exclusive locking";
-  }
-#endif
-
   static constexpr char kCreateSql[] =
       "CREATE TABLE foo (id INTEGER PRIMARY KEY, value)";
   ASSERT_TRUE(db_->Execute(kCreateSql));
@@ -2430,12 +2403,6 @@ TEST(SQLInvalidDatabaseFlagsDeathTest, ExclusiveDatabaseLock) {
 #endif  // BUILDFLAG(IS_WIN)
 
 TEST_P(SQLDatabaseTest, NonExclusiveLockingMode) {
-#if BUILDFLAG(IS_FUCHSIA)
-  if (IsWALEnabled()) {
-    GTEST_SKIP() << "Fuchsia doesn't support WAL + normal locking";
-  }
-#endif
-
   RecreateWithSharedLocking();
   EXPECT_TRUE(db_->Open(db_path_));
   EXPECT_EQ(ExecuteWithResult(db_.get(), "PRAGMA locking_mode"), "normal");
@@ -2817,12 +2784,6 @@ TEST_P(SQLDatabaseTest, OpenFailsAfterCorruptSizeInHeader) {
 }
 
 TEST_P(SQLDatabaseTest, OpenWithRecoveryHandlesCorruption) {
-#if BUILDFLAG(IS_FUCHSIA)
-  if (IsWALEnabled()) {
-    GTEST_SKIP() << "Fuchsia doesn't support recovery in WAL mode";
-  }
-#endif
-
   for (const bool corrupt_after_recovery : {false, true}) {
     SCOPED_TRACE(testing::Message()
                  << "corrupt_after_recovery: " << corrupt_after_recovery);

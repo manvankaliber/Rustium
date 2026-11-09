@@ -16,9 +16,7 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/process.h>
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
 #include <unistd.h>
 #endif
 
@@ -26,9 +24,7 @@ namespace crashpad {
 namespace test {
 
 ProcessType GetSelfProcess() {
-#if BUILDFLAG(IS_FUCHSIA)
-  return zx::process::self();
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
   return getpid();
 #elif BUILDFLAG(IS_WIN)
   return GetCurrentProcess();

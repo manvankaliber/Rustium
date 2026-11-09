@@ -32,8 +32,7 @@
 #include "sandbox/policy/linux/sandbox_linux.h"
 #endif
 
-#if !BUILDFLAG(IS_FUCHSIA) && \
-    !(BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER))
+#if !(BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER))
 #include "base/feature_list.h"
 #include "third_party/dawn/include/dawn/dawn_proc.h"          // nogncheck
 #include "third_party/dawn/include/dawn/native/DawnNative.h"  // nogncheck
@@ -106,8 +105,7 @@ void AddVulkanDriverPermissions(
 }
 #endif
 
-#if !BUILDFLAG(IS_FUCHSIA) && \
-    !(BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER))
+#if !(BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER))
 // If this feature is enabled, a WebGPU device is created for each valid
 // adapter. This makes sure any relevant drivers or other libs are loaded before
 // enabling the sandbox.
@@ -121,8 +119,7 @@ BASE_FEATURE(kOnDeviceModelWarmDrivers,
 #endif
 
 bool ShouldWarmDrivers() {
-#if BUILDFLAG(IS_FUCHSIA) || \
-    (BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER))
+#if BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER)
   return false;
 #else
   bool is_gpu_not_blocklisted = true;
@@ -165,8 +162,7 @@ bool PreSandboxInit() {
     // Warm any relevant drivers before attempting to bring up the sandbox. For
     // good measure we initialize a device instance for any adapter with an
     // appropriate backend on top of any integrated or discrete GPU.
-#if !BUILDFLAG(IS_FUCHSIA) && \
-    !(BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER))
+#if !(BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER))
     dawnProcSetProcs(&dawn::native::GetProcs());
     auto instance = std::make_unique<dawn::native::Instance>();
     const wgpu::RequestAdapterOptions adapter_options{

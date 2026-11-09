@@ -82,9 +82,6 @@ ANDROID_NDK_TOOLCHAIN_RELATIVE_DIR = os.path.join(
 ANDROID_NDK_TOOLCHAIN_DIR = os.path.join(
   ANDROID_NDK_DIR, ANDROID_NDK_TOOLCHAIN_RELATIVE_DIR
 )
-FUCHSIA_SDK_DIR = os.path.join(
-  CHROMIUM_DIR, 'third_party', 'fuchsia-sdk', 'sdk'
-)
 PINNED_CLANG_DIR = os.path.join(LLVM_BUILD_TOOLS_DIR, 'pinned-clang')
 
 # Depot_tools ships git as `git.bat` on Windows.  `RunCommand` goes through a
@@ -1050,25 +1047,10 @@ def main():
     '--pic', action='store_true', help='Uses PIC when building LLVM'
   )
   parser.add_argument(
-    '--with-fuchsia',
-    type=gn_arg,
-    nargs='?',
-    const=True,
-    help='build the Fuchsia runtimes (linux only)',
-    default=sys.platform.startswith('linux'),
-  )
-  parser.add_argument(
     '--without-android',
     action='store_false',
     help='don\'t build Android ASan runtime (linux only)',
     dest='with_android',
-  )
-  parser.add_argument(
-    '--without-fuchsia',
-    action='store_false',
-    help='don\'t build Fuchsia clang_rt runtime (linux/mac)',
-    dest='with_fuchsia',
-    default=sys.platform in ('linux2', 'darwin'),
   )
   parser.add_argument(
     '--with-compiler-wrapper',
@@ -1114,18 +1096,6 @@ def main():
     return 1
   if args.no_runtimes and args.pgo:
     print('--pgo requires runtimes, can\'t use --no-runtimes')
-    return 1
-
-  if args.with_fuchsia and not os.path.exists(FUCHSIA_SDK_DIR):
-    print('Fuchsia SDK not found at ' + FUCHSIA_SDK_DIR)
-    print('The Fuchsia SDK is needed to build libclang_rt for Fuchsia.')
-    print('Install the Fuchsia SDK by adding fuchsia to the ')
-    print('target_os section in your .gclient and running hooks, ')
-    print('or pass --without-fuchsia.')
-    print(
-      'https://chromium.googlesource.com/chromium/src/+/main/docs/fuchsia/build_instructions.md'
-    )
-    print('for general Fuchsia build instructions.')
     return 1
 
   if args.with_ml_inliner_model and not sys.platform.startswith('linux'):
@@ -1882,41 +1852,6 @@ def main():
         "args": android_args,
         "sanitizers": True,
         "profile": True,
-      }
-
-  if args.with_fuchsia:
-    # Fuchsia links against libclang_rt.builtins-<arch>.a instead of libgcc.a.
-    for target_arch in ['aarch64', 'x86_64']:
-      fuchsia_arch_name = {'aarch64': 'arm64', 'x86_64': 'x64'}[target_arch]
-      toolchain_dir = os.path.join(
-        FUCHSIA_SDK_DIR, 'arch', fuchsia_arch_name, 'sysroot'
-      )
-      target_triple = target_arch + '-unknown-fuchsia'
-      # Build the Fuchsia profile and asan runtimes.  This is done after the rt
-      # builtins have been created because the CMake build runs link checks that
-      # require that the builtins already exist to succeed.
-      build_profile = target_arch == 'x86_64'
-      # Build the asan runtime only on non-Mac platforms.  Macs are excluded
-      # because the asan install changes library RPATHs which CMake only
-      # supports on ELF platforms and MacOS uses Mach-O instead of ELF.
-      build_sanitizers = build_profile and sys.platform != 'darwin'
-      # TODO(thakis): Might have to pass -B here once sysroot contains
-      # binaries (e.g. gas for arm64?)
-      fuchsia_args = [
-        'LLVM_ENABLE_RUNTIMES=compiler-rt',
-        'CMAKE_SYSTEM_NAME=Fuchsia',
-        'CMAKE_SYSROOT=%s' % toolchain_dir,
-        # TODO(thakis|scottmg): Use PER_TARGET_RUNTIME_DIR for all platforms.
-        # https://crbug.com/882485.
-        'LLVM_ENABLE_PER_TARGET_RUNTIME_DIR=ON',
-      ]
-      if build_sanitizers:
-        fuchsia_args.append('SANITIZER_NO_UNDEFINED_SYMBOLS=OFF')
-
-      runtimes_triples_args[target_triple] = {
-        "args": fuchsia_args,
-        "sanitizers": build_sanitizers,
-        "profile": build_profile,
       }
 
   # Embed MLGO inliner model. If tf_path is not specified, a vpython3 env

@@ -13,27 +13,15 @@ mod test_errno;
 mod test_fcntl;
 #[cfg(linux_android)]
 mod test_kmod;
-#[cfg(any(
-    freebsdlike,
-    all(target_os = "linux", not(target_env = "ohos")),
-    target_os = "netbsd"
-))]
+#[cfg(any(freebsdlike, all(target_os = "linux", not(target_env = "ohos")), target_os = "netbsd"))]
 mod test_mq;
 #[cfg(not(target_os = "redox"))]
 mod test_net;
 mod test_nix_path;
 mod test_poll;
-#[cfg(not(any(
-    target_os = "redox",
-    target_os = "fuchsia",
-    target_os = "haiku"
-)))]
+#[cfg(not(any(target_os = "redox", target_os = "haiku")))]
 mod test_pty;
-#[cfg(any(
-    linux_android,
-    target_os = "dragonfly",
-    all(target_os = "freebsd", fbsd14),
-))]
+#[cfg(any(linux_android, target_os = "dragonfly", all(target_os = "freebsd", fbsd14),))]
 mod test_sched;
 #[cfg(any(linux_android, freebsdlike, apple_targets, solarish))]
 mod test_sendfile;
@@ -94,10 +82,7 @@ struct DirRestore<'a> {
 impl DirRestore<'_> {
     fn new() -> Self {
         let guard = crate::CWD_LOCK.write();
-        DirRestore {
-            _g: guard,
-            d: getcwd().unwrap(),
-        }
+        DirRestore { _g: guard, d: getcwd().unwrap() }
     }
 }
 

@@ -96,10 +96,8 @@ namespace {
 
 HeadlessContentMainDelegate* g_current_headless_content_main_delegate = nullptr;
 
-#if !BUILDFLAG(IS_FUCHSIA)
 base::LazyInstance<HeadlessCrashReporterClient>::Leaky g_headless_crash_client =
     LAZY_INSTANCE_INITIALIZER;
-#endif
 
 const char kLogFileName[] = "CHROME_LOG_FILE";
 const char kHeadlessCrashKey[] = "headless";
@@ -289,12 +287,14 @@ void HeadlessContentMainDelegate::InitLogging(
   const std::string process_type =
       command_line.GetSwitchValueASCII(::switches::kProcessType);
 #if !BUILDFLAG(IS_WIN)
-  if (!command_line.HasSwitch(::switches::kEnableLogging))
+  if (!command_line.HasSwitch(::switches::kEnableLogging)) {
     return;
+  }
 #else
   // Child processes in Windows are not able to initialize logging.
-  if (!process_type.empty())
+  if (!process_type.empty()) {
     return;
+  }
 #endif  // !BUILDFLAG(IS_WIN)
 
   logging::LoggingDestination log_mode;
@@ -345,13 +345,7 @@ void HeadlessContentMainDelegate::InitLogging(
 
   // Otherwise we log to where the executable is.
   if (log_path.empty()) {
-#if BUILDFLAG(IS_FUCHSIA)
-    // TODO(crbug.com/40202595): Use the same solution as used for LOG_DIR.
-    // Use -1 to allow this to compile.
-    if (base::PathService::Get(-1, &log_path)) {
-#else
     if (base::PathService::Get(base::DIR_MODULE, &log_path)) {
-#endif
       log_path = log_path.Append(log_filename);
     } else {
       log_path = log_filename;
@@ -394,11 +388,6 @@ void HeadlessContentMainDelegate::InitCrashReporter(
     return;
   }
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // TODO(crbug.com/40188745): Implement this when crash reporting is available
-  // for Fuchsia.
-  NOTIMPLEMENTED();
-#else
   crash_reporter::SetCrashReporterClient(g_headless_crash_client.Pointer());
   crash_reporter::InitializeCrashKeys();
 
@@ -414,7 +403,6 @@ void HeadlessContentMainDelegate::InitCrashReporter(
 #endif
     crash_keys::SetSwitchesFromCommandLine(command_line, nullptr);
   }
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
   // Mark any bug reports from headless mode as such.
   static crash_reporter::CrashKeyString<32> headless_key(kHeadlessCrashKey);
@@ -429,8 +417,9 @@ void HeadlessContentMainDelegate::PreSandboxStartup() {
   // crash.
   InitLogging(command_line);
 #else
-  if (command_line.HasSwitch(::switches::kEnableLogging))
+  if (command_line.HasSwitch(::switches::kEnableLogging)) {
     InitLogging(command_line);
+  }
 #endif  // BUILDFLAG(IS_WIN)
 
   InitCrashReporter(command_line);
@@ -447,8 +436,9 @@ std::variant<int, content::MainFunctionParams>
 HeadlessContentMainDelegate::RunProcess(
     const std::string& process_type,
     content::MainFunctionParams main_function_params) {
-  if (!process_type.empty())
+  if (!process_type.empty()) {
     return std::move(main_function_params);
+  }
 
   base::CurrentProcess::GetInstance().SetProcessType(
       base::CurrentProcessType::PROCESS_BROWSER);

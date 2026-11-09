@@ -83,10 +83,6 @@ class BranchUnitTest(unittest.TestCase):
                         "description": "beta/stable",
                         "gardener_rotation": "chrome_browser_release"
                     },
-                    "fuchsia": {
-                        "description": "beta/stable",
-                        "gardener_rotation": "chrome_browser_release"
-                    },
                     "ios": {
                         "description": "beta/stable",
                         "gardener_rotation": "chrome_browser_release"

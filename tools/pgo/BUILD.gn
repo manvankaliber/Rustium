@@ -114,7 +114,7 @@ if (is_android) {
       data = [ "${clang_base_path}/bin/llvm-profdata" ]
     }
   }
-} else if (!is_castos && !is_ios && !is_fuchsia) {
+} else if (!is_castos && !is_ios) {
   generate_profile_test("generate_profile") {
   }
 }

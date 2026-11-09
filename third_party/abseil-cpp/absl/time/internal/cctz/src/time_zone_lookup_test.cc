@@ -498,7 +498,7 @@ TEST(MakeTime, SysSecondsLimits) {
 #endif
     const year_t min_tm_year = year_t{std::numeric_limits<int>::min()} + 1900;
     tp = convert(civil_second(min_tm_year, 1, 1, 0, 0, 0), cut);
-#if defined(__Fuchsia__) || defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__)
     // Some gmtime_r() impls fail on extreme negative values (fxbug.dev/78527).
 #else
     EXPECT_EQ("-2147481748-01-01T00:00:00+00:00",

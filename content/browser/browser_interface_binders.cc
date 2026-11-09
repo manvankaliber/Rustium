@@ -273,11 +273,6 @@
 #include "third_party/blink/public/mojom/smart_card/smart_card.mojom.h"
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "content/browser/renderer_host/media/fuchsia_media_cdm_provider_impl.h"
-#include "media/mojo/mojom/fuchsia_media.mojom.h"
-#endif
-
 #if BUILDFLAG(ENABLE_VRP_FLAGS)
 #include "components/vrp_flags/vrp_flags.h"                    // nogncheck
 #include "components/vrp_flags/vrp_flags_impl.h"               // nogncheck
@@ -645,8 +640,9 @@ BindWorkerReceiver(
          mojo::PendingReceiver<Interface> receiver) {
         auto* process_host =
             static_cast<RenderProcessHostImpl*>(host->GetProcessHost());
-        if (process_host)
+        if (process_host) {
           (process_host->*method)(std::move(receiver));
+        }
       },
       base::Unretained(host), method);
 }
@@ -665,8 +661,9 @@ BindWorkerReceiverForOrigin(
          const url::Origin& origin, mojo::PendingReceiver<Interface> receiver) {
         auto* process_host =
             static_cast<RenderProcessHostImpl*>(host->GetProcessHost());
-        if (process_host)
+        if (process_host) {
           (process_host->*method)(origin, std::move(receiver));
+        }
       },
       base::Unretained(host), method);
 }
@@ -684,9 +681,10 @@ BindWorkerReceiverForStorageKey(
          mojo::PendingReceiver<Interface> receiver) {
         auto* process_host =
             static_cast<RenderProcessHostImpl*>(host->GetProcessHost());
-        if (process_host)
+        if (process_host) {
           (process_host->*method)(host->GetWorkerStorageKey(),
                                   std::move(receiver));
+        }
       },
       base::Unretained(host), method);
 }
@@ -707,9 +705,10 @@ BindWorkerReceiverForStorageKeyAndBucketContext(
          mojo::PendingReceiver<Interface> receiver) {
         auto* process_host =
             static_cast<RenderProcessHostImpl*>(host->GetProcessHost());
-        if (process_host)
+        if (process_host) {
           (process_host->*method)(host->GetWorkerStorageKey(), *host,
                                   std::move(receiver));
+        }
       },
       base::Unretained(host), method);
 }
@@ -728,8 +727,9 @@ BindServiceWorkerReceiver(
         CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M159);
         auto* process_host = static_cast<RenderProcessHostImpl*>(
             RenderProcessHost::FromID(host->worker_process_id()));
-        if (!process_host)
+        if (!process_host) {
           return;
+        }
         (process_host->*method)(std::move(receiver));
       },
       base::Unretained(host), method);
@@ -753,8 +753,9 @@ BindServiceWorkerReceiverForOrigin(
         auto origin = info.storage_key.origin();
         auto* process_host = static_cast<RenderProcessHostImpl*>(
             RenderProcessHost::FromID(host->worker_process_id()));
-        if (!process_host)
+        if (!process_host) {
           return;
+        }
         (process_host->*method)(origin, std::move(receiver));
       },
       base::Unretained(host), method);
@@ -777,8 +778,9 @@ BindServiceWorkerReceiverForStorageKey(
         CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M159);
         auto* process_host = static_cast<RenderProcessHostImpl*>(
             RenderProcessHost::FromID(host->worker_process_id()));
-        if (!process_host)
+        if (!process_host) {
           return;
+        }
         (process_host->*method)(info.storage_key, std::move(receiver));
       },
       base::Unretained(host), method);
@@ -993,8 +995,7 @@ void BindMidiSessionProvider(
       PermissionDescriptorUtil::CreatePermissionDescriptorForPermissionType(
           blink::PermissionType::MIDI);
   if (permission_controller->GetPermissionStatusForCurrentDocument(
-          midi_descriptor, host) ==
-      blink::mojom::PermissionStatus::GRANTED) {
+          midi_descriptor, host) == blink::mojom::PermissionStatus::GRANTED) {
     ChildProcessSecurityPolicyImpl::GetInstance()->GrantSendMidiMessage(
         host->GetProcess()->GetID().GetUnsafeValue());
   }
@@ -1475,15 +1476,6 @@ void PopulateBinderMapWithContext(
       },
       base::Unretained(GetContentClient()->browser())));
 
-#if BUILDFLAG(IS_FUCHSIA)
-  map->Add<media::mojom::FuchsiaMediaCodecProvider>(base::BindRepeating(
-      [](RenderFrameHost* host,
-         mojo::PendingReceiver<media::mojom::FuchsiaMediaCodecProvider>
-             receiver) {
-        host->GetProcess()->BindMediaCodecProvider(std::move(receiver));
-      }));
-#endif
-
   map->Add<blink::mojom::TranslationManager>(&BindTranslationManagerForFrame);
   map->Add<language_detection::mojom::ContentLanguageDetectionDriver>(
       &BindLanguageDetectionDriverForFrame);
@@ -1515,7 +1507,7 @@ void PopulateBinderMapWithContext(
                                          ProcessInternalsUI>(map);
   RegisterWebUIControllerInterfaceBinder<storage::mojom::QuotaInternalsHandler,
                                          QuotaInternalsUI>(map);
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   RegisterWebUIControllerInterfaceBinder<
       traces_internals::mojom::TracesInternalsHandlerFactory,
       TracesInternalsUI>(map);
@@ -1563,11 +1555,6 @@ void PopulateBinderMapWithContext(
   if (base::FeatureList::IsEnabled(features::kWebLockScreenApi)) {
     map->Add<blink::mojom::LockScreenService>(&LockScreenServiceImpl::Create);
   }
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-  map->Add<media::mojom::FuchsiaMediaCdmProvider>(
-      &FuchsiaMediaCdmProviderImpl::Bind);
 #endif
 
 #if BUILDFLAG(ENABLE_VRP_FLAGS)
@@ -1705,10 +1692,6 @@ void PopulateDedicatedWorkerBinders(DedicatedWorkerHost* host,
       &RenderProcessHostImpl::BindVideoDecodePerfHistory, host));
   map->Add<media::mojom::WebrtcVideoPerfHistory>(BindWorkerReceiver(
       &RenderProcessHostImpl::BindWebrtcVideoPerfHistory, host));
-#if BUILDFLAG(IS_FUCHSIA)
-  map->Add<media::mojom::FuchsiaMediaCodecProvider>(
-      BindWorkerReceiver(&RenderProcessHostImpl::BindMediaCodecProvider, host));
-#endif
 
   // RenderProcessHost binders taking a StorageKey
   map->Add<blink::mojom::FileSystemManager>(BindWorkerReceiverForStorageKey(
@@ -1895,7 +1878,6 @@ void PopulateBinderMapWithContext(
 void PopulateBinderMap(SharedWorkerHost* host, mojo::BinderMap* map) {
   PopulateSharedWorkerBinders(host, map);
 }
-
 
 // Service workers
 ServiceWorkerVersionInfo GetContextForHost(ServiceWorkerHost* host) {

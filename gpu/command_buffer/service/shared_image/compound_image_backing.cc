@@ -66,7 +66,7 @@ gfx::GpuMemoryBufferType GetNativeBufferType() {
   return gfx::GpuMemoryBufferType::IO_SURFACE_BUFFER;
 #elif BUILDFLAG(IS_ANDROID)
   return gfx::GpuMemoryBufferType::ANDROID_HARDWARE_BUFFER;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   return gfx::GpuMemoryBufferType::NATIVE_PIXMAP;
 #elif BUILDFLAG(IS_WIN)
   return gfx::GpuMemoryBufferType::DXGI_SHARED_HANDLE;
@@ -2154,8 +2154,9 @@ base::trace_event::MemoryAllocatorDump* CompoundImageBacking::OnMemoryDump(
   // texture or shared memory.
   for (int i = 0; i < static_cast<int>(elements_.size()); ++i) {
     auto* backing = elements_[i].backing.get();
-    if (!backing)
+    if (!backing) {
       continue;
+    }
 
     // When CompoundImageBacking wraps a single backing, use the client's global
     // Mailbox GUID instead of sub-backing GUID. This ensures correct effective

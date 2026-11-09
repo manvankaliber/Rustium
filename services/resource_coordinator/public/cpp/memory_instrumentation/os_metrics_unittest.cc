@@ -165,8 +165,7 @@ TEST(OSMetricsTest, GivesNonZeroResults) {
   OSMetrics::MemDumpFlagSet flags = OSMetrics::MemDumpFlagSet::All();
   EXPECT_TRUE(OSMetrics::FillOSMemoryDump(handle, flags, &dump));
   EXPECT_TRUE(dump.platform_private_footprint);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
   EXPECT_GT(dump.platform_private_footprint->rss_anon_bytes, 0u);
 #elif BUILDFLAG(IS_WIN)
   EXPECT_GT(dump.platform_private_footprint->private_bytes, 0u);
@@ -267,16 +266,20 @@ TEST(OSMetricsTest, GetMappedAndResidentPages) {
           start_address, start_address + kLength, &accessed_pages_bitmap);
 
   ASSERT_EQ(munmap(addr, kLength), 0);
-  if (state == OSMetrics::MappedAndResidentPagesDumpState::kAccessPagemapDenied)
+  if (state ==
+      OSMetrics::MappedAndResidentPagesDumpState::kAccessPagemapDenied) {
     return;
+  }
 
   EXPECT_EQ(state == OSMetrics::MappedAndResidentPagesDumpState::kSuccess,
             true);
   std::set<size_t> accessed_pages_set;
   for (size_t i = 0; i < accessed_pages_bitmap.size(); i++) {
-    for (int j = 0; j < 8; j++)
-      if (accessed_pages_bitmap[i] & (1 << j))
+    for (int j = 0; j < 8; j++) {
+      if (accessed_pages_bitmap[i] & (1 << j)) {
         accessed_pages_set.insert(i * 8 + j);
+      }
+    }
   }
 
   EXPECT_EQ(pages == accessed_pages_set, true);
@@ -390,8 +393,9 @@ TEST(OSMetricsTest, TestWinModuleReading) {
     EXPECT_NE(0u, region->start_address);
     EXPECT_NE(0u, region->size_in_bytes);
 
-    if (region->mapped_file.find(executable_name) != std::string::npos)
+    if (region->mapped_file.find(executable_name) != std::string::npos) {
       found_executable = true;
+    }
 
     if (dummy_function_address >= region->start_address &&
         dummy_function_address <

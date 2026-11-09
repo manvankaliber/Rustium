@@ -1,18 +1,11 @@
 use cfg_if::cfg_if;
 
 /// The datatype used for the ioctl number
-#[cfg(any(
-    target_os = "android",
-    target_os = "fuchsia",
-    target_os = "cygwin",
-    target_env = "musl",
-    target_env = "ohos"
-))]
+#[cfg(any(target_os = "android", target_os = "cygwin", target_env = "musl", target_env = "ohos"))]
 #[doc(hidden)]
 pub type ioctl_num_type = ::libc::c_int;
 #[cfg(not(any(
     target_os = "android",
-    target_os = "fuchsia",
     target_os = "cygwin",
     target_env = "musl",
     target_env = "ohos"
@@ -93,17 +86,13 @@ pub const DIRMASK: ioctl_num_type = (1 << DIRBITS) - 1;
 #[doc(hidden)]
 macro_rules! ioc {
     ($dir:expr, $ty:expr, $nr:expr, $sz:expr) => {
-        (($dir as $crate::sys::ioctl::ioctl_num_type
-            & $crate::sys::ioctl::DIRMASK)
+        (($dir as $crate::sys::ioctl::ioctl_num_type & $crate::sys::ioctl::DIRMASK)
             << $crate::sys::ioctl::DIRSHIFT)
-            | (($ty as $crate::sys::ioctl::ioctl_num_type
-                & $crate::sys::ioctl::TYPEMASK)
+            | (($ty as $crate::sys::ioctl::ioctl_num_type & $crate::sys::ioctl::TYPEMASK)
                 << $crate::sys::ioctl::TYPESHIFT)
-            | (($nr as $crate::sys::ioctl::ioctl_num_type
-                & $crate::sys::ioctl::NRMASK)
+            | (($nr as $crate::sys::ioctl::ioctl_num_type & $crate::sys::ioctl::NRMASK)
                 << $crate::sys::ioctl::NRSHIFT)
-            | (($sz as $crate::sys::ioctl::ioctl_num_type
-                & $crate::sys::ioctl::SIZEMASK)
+            | (($sz as $crate::sys::ioctl::ioctl_num_type & $crate::sys::ioctl::SIZEMASK)
                 << $crate::sys::ioctl::SIZESHIFT)
     };
 }
@@ -173,11 +162,6 @@ macro_rules! request_code_write {
 #[macro_export(local_inner_macros)]
 macro_rules! request_code_readwrite {
     ($ty:expr, $nr:expr, $sz:expr) => {
-        ioc!(
-            $crate::sys::ioctl::READ | $crate::sys::ioctl::WRITE,
-            $ty,
-            $nr,
-            $sz
-        )
+        ioc!($crate::sys::ioctl::READ | $crate::sys::ioctl::WRITE, $ty, $nr, $sz)
     };
 }

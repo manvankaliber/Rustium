@@ -51,8 +51,9 @@ TEST_F(VulkanImageTest, Create) {
 TEST_F(VulkanImageTest, CreateWithExternalMemory) {
   {
     // TODO(crbug.com/40125946) : Fails on current driver version on this bot.
-    if (GPUTestBotConfig::CurrentConfigMatches("Win10"))
+    if (GPUTestBotConfig::CurrentConfigMatches("Win10")) {
       return;
+    }
   }
 
   constexpr gfx::Size size(100, 100);
@@ -82,8 +83,9 @@ TEST_F(VulkanImageTest, CreateWithExternalMemory) {
     };
     // Get fd for all supported types.
     for (auto handle_type : kHandleTypes) {
-      if ((image->handle_types() & handle_type) == 0)
+      if ((image->handle_types() & handle_type) == 0) {
         continue;
+      }
       base::ScopedFD scoped_fd = image->GetMemoryFd(handle_type);
       EXPECT_TRUE(scoped_fd.is_valid())
           << std::hex << " handle_types = 0x" << image->handle_types()
@@ -101,19 +103,15 @@ TEST_F(VulkanImageTest, CreateWithExternalMemory) {
     };
     // Get fd for all supported types.
     for (auto handle_type : kHandleTypes) {
-      if ((image->handle_types() & handle_type) == 0)
+      if ((image->handle_types() & handle_type) == 0) {
         continue;
+      }
       base::win::ScopedHandle scoped_handle = image->GetMemoryHandle(
           static_cast<VkExternalMemoryHandleTypeFlagBits>(handle_type));
       EXPECT_TRUE(scoped_handle.is_valid())
           << std::hex << " handle_types = 0x" << image->handle_types()
           << " handle_type = 0x" << handle_type;
     }
-#elif BUILDFLAG(IS_FUCHSIA)
-    EXPECT_TRUE(image->handle_types() &
-                VK_EXTERNAL_MEMORY_HANDLE_TYPE_ZIRCON_VMO_BIT_FUCHSIA);
-    zx::vmo handle = image->GetMemoryZirconHandle();
-    EXPECT_TRUE(handle);
 #endif
 
     image->Destroy();

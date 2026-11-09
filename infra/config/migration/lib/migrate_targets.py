@@ -154,7 +154,6 @@ _BROWSER_CONFIG_MAPPING = {
 _OS_TYPE_MAPPING = {
   'android': 'ANDROID',
   'chromeos': 'CROS',
-  'fuchsia': 'FUCHSIA',
   'lacros': 'LACROS',
   'linux': 'LINUX',
   'mac': 'MAC',

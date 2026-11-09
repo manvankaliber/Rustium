@@ -15,10 +15,6 @@ cargo_crate("lib") {
   crate_root =
       "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/lib.rs"
   sources = [
-    "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/fuchsia/aarch64.rs",
-    "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/fuchsia/mod.rs",
-    "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/fuchsia/riscv64.rs",
-    "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/fuchsia/x86_64.rs",
     "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/helenos.rs",
     "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/hermit.rs",
     "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/lib.rs",
@@ -99,8 +95,6 @@ cargo_crate("lib") {
     "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/new/freebsd/sys/mod.rs",
     "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/new/freebsd/sys/socket.rs",
     "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/new/freebsd/unistd.rs",
-    "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/new/fuchsia/mod.rs",
-    "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/new/fuchsia/unistd.rs",
     "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/new/glibc/bits/signum_generic.rs",
     "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/new/glibc/io.rs",
     "//third_party/rust/chromium_crates_io/vendor/libc-v0_2/src/new/glibc/io/sys/mod.rs",

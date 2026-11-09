@@ -51,7 +51,7 @@ uintptr_t GetStackTop() {
   return reinterpret_cast<uintptr_t>(pthread_get_stackaddr_np(pthread_self()));
 }
 
-#elif PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+#elif PA_BUILDFLAG(IS_POSIX)
 
 uintptr_t GetStackTop() {
   pthread_attr_t attr;
@@ -76,7 +76,7 @@ uintptr_t GetStackTop() {
 #endif  // PA_BUILDFLAG(PA_LIBC_GLIBC)
 }
 
-#else  // PA_BUILDFLAG(IS_WIN)
+#else
 #error "Unsupported GetStackTop"
 #endif  // PA_BUILDFLAG(IS_WIN)
 

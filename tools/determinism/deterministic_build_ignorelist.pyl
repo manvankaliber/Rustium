@@ -19,12 +19,6 @@
     'gen/build/private_code_test/private_code_failure_test.json',
   ],
 
-  'fuchsia': [
-    # https://crbug.com/40271942
-    'target1_test_rlib_crate_v0_2_unittests',
-    'target2_test_rlib_crate_v0_2_unittests',
-  ],
-
   'linux': [
     # These contain logs with timestamps in them. It's part of a test that
     # just happens to partially run during compile.

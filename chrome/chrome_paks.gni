@@ -16,8 +16,6 @@ import("//ui/base/ui_features.gni")
 import("//ui/webui/webui_features.gni")
 import("chrome_repack_locales.gni")
 
-assert(!is_fuchsia, "Fuchsia shouldn't use anything in //chrome")
-
 # WebUI code cache paks. They are merged into resources.pak, except on Mac
 # where they form the per-architecture `webui_code_cache_pak_filename`.
 _webui_code_cache_paks = [

@@ -12,8 +12,7 @@ features:
   can_be_recommended: true
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 label: Home page URL
 owners:
 - chrome-desktop-ntp@google.com

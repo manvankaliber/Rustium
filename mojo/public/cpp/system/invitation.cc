@@ -26,7 +26,7 @@
 #include "base/mac/process_requirement.h"
 #endif
 
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_IOS)
 #include "mojo/public/cpp/platform/platform_channel_server.h"
 #endif
 
@@ -132,7 +132,7 @@ void SendInvitation(ScopedInvitationHandle invitation,
   }
 }
 
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_IOS)
 void WaitForServerConnection(
     PlatformChannelServerEndpoint server_endpoint,
     PlatformChannelServer::ConnectionCallback callback) {
@@ -164,7 +164,7 @@ base::Process CloneProcessFromHandle(base::ProcessHandle handle) {
   return clone;
 #endif
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#endif
 
 }  // namespace
 
@@ -233,7 +233,7 @@ void OutgoingInvitation::Send(OutgoingInvitation invitation,
                               base::ProcessHandle target_process,
                               PlatformChannelServerEndpoint server_endpoint,
                               const ProcessErrorCallback& error_callback) {
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_IOS)
   WaitForServerConnection(
       std::move(server_endpoint),
       base::BindOnce(
@@ -247,7 +247,7 @@ void OutgoingInvitation::Send(OutgoingInvitation invitation,
           },
           std::move(invitation), CloneProcessFromHandle(target_process),
           error_callback));
-#endif  // !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#endif
 }
 
 // static
@@ -289,7 +289,7 @@ ScopedMessagePipeHandle OutgoingInvitation::SendIsolated(
   invitation.set_extra_flags(invitation_flags);
   ScopedMessagePipeHandle pipe =
       invitation.AttachMessagePipe(kIsolatedPipeName);
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_IOS)
   WaitForServerConnection(
       std::move(server_endpoint),
       base::BindOnce(
@@ -304,7 +304,7 @@ ScopedMessagePipeHandle OutgoingInvitation::SendIsolated(
           },
           std::move(invitation), CloneProcessFromHandle(target_process),
           std::string(connection_name)));
-#endif  // !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_IOS)
+#endif
   return pipe;
 }
 

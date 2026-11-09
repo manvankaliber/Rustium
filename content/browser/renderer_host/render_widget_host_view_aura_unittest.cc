@@ -233,8 +233,9 @@ const viz::LocalSurfaceId kArbitraryLocalSurfaceId(
 std::string GetMessageNames(
     const MockWidgetInputHandler::MessageVector& events) {
   std::vector<std::string> result;
-  for (auto& event : events)
+  for (auto& event : events) {
     result.push_back(event->name());
+  }
   return base::JoinString(result, " ");
 }
 
@@ -250,8 +251,9 @@ class TestWindowObserver : public aura::WindowObserver {
   TestWindowObserver& operator=(const TestWindowObserver&) = delete;
 
   ~TestWindowObserver() override {
-    if (window_)
+    if (window_) {
       window_->RemoveObserver(this);
+    }
   }
 
   bool destroyed() const { return destroyed_; }
@@ -574,8 +576,9 @@ class RenderWidgetHostViewAuraTest : public testing::Test {
   static void InstallDelegatedFrameHostClient(RenderWidgetHostViewAura* view) {
     // Follow RWHVAura code that does not create DelegateFrameHost when there is
     // no valid frame sink id.
-    if (!view->frame_sink_id_.is_valid())
+    if (!view->frame_sink_id_.is_valid()) {
       return;
+    }
     view->delegated_frame_host_ = nullptr;
     view->delegated_frame_host_ = std::make_unique<DelegatedFrameHost>(
         view->frame_sink_id_, view->delegated_frame_host_client_.get(),
@@ -721,9 +724,7 @@ class RenderWidgetHostViewAuraTest : public testing::Test {
     ImageTransportFactory::Terminate();
   }
 
-  void SetUp() override {
-    SetUpEnvironment();
-  }
+  void SetUp() override { SetUpEnvironment(); }
 
   void TearDown() override { TearDownEnvironment(); }
 
@@ -783,8 +784,9 @@ class RenderWidgetHostViewAuraTest : public testing::Test {
           ui::mojom::TextInputState());
     }
 
-    if (!view)
+    if (!view) {
       return;
+    }
 
     ui::mojom::TextInputState state_with_type_text;
     state_with_type_text.type = type;
@@ -948,8 +950,9 @@ class RenderWidgetHostViewAuraOverscrollTest
                           bool pressed) {
     WebMouseEvent event =
         blink::SyntheticWebMouseEventBuilder::Build(type, x, y, modifiers);
-    if (pressed)
+    if (pressed) {
       event.button = WebMouseEvent::Button::kLeft;
+    }
     widget_host_->ForwardMouseEvent(event);
     base::RunLoop().RunUntilIdle();
   }
@@ -1053,17 +1056,13 @@ class RenderWidgetHostViewAuraOverscrollTest
     return touch_event_id;
   }
 
-  void PressTouchPoint(int x, int y) {
-    touch_event_.PressPoint(x, y);
-  }
+  void PressTouchPoint(int x, int y) { touch_event_.PressPoint(x, y); }
 
   void MoveTouchPoint(int index, int x, int y) {
     touch_event_.MovePoint(index, x, y);
   }
 
-  void ReleaseTouchPoint(int index) {
-    touch_event_.ReleasePoint(index);
-  }
+  void ReleaseTouchPoint(int index) { touch_event_.ReleasePoint(index); }
 
   void PressAndSetTouchActionAuto() {
     PressTouchPoint(0, 1);
@@ -1101,19 +1100,21 @@ class RenderWidgetHostViewAuraOverscrollTest
     MockWidgetInputHandler::MessageVector events =
         GetAndResetDispatchedMessages();
     std::string expected_events;
-      // If the ack for the first sent event is not consumed,
-      // MouseWheelEventQueue(MWEQ) sends the rest of the wheel events in the
-      // current scrolling sequence as non-blocking events. Since MWEQ
-      // receives the ack for non-blocking events asynchronously, it sends the
-      // next queued wheel event immediately and this continues till the queue
-      // is empty.
-      // Expecting a GSB+GSU for ACKing the first MouseWheel, plus an additional
-      // MouseWheel+GSU per enqueued wheel event. Note that GestureEventQueue
-      // allows multiple in-flight events.
-      if (is_first_ack)
-        expected_events += "GestureScrollBegin GestureScrollUpdate ";
-      for (size_t i = 0; i < enqueued_wheel_event_count; ++i)
-        expected_events += "MouseWheel GestureScrollUpdate ";
+    // If the ack for the first sent event is not consumed,
+    // MouseWheelEventQueue(MWEQ) sends the rest of the wheel events in the
+    // current scrolling sequence as non-blocking events. Since MWEQ
+    // receives the ack for non-blocking events asynchronously, it sends the
+    // next queued wheel event immediately and this continues till the queue
+    // is empty.
+    // Expecting a GSB+GSU for ACKing the first MouseWheel, plus an additional
+    // MouseWheel+GSU per enqueued wheel event. Note that GestureEventQueue
+    // allows multiple in-flight events.
+    if (is_first_ack) {
+      expected_events += "GestureScrollBegin GestureScrollUpdate ";
+    }
+    for (size_t i = 0; i < enqueued_wheel_event_count; ++i) {
+      expected_events += "MouseWheel GestureScrollUpdate ";
+    }
 
     EXPECT_EQ(base::TrimWhitespaceASCII(expected_events, base::TRIM_TRAILING),
               GetMessageNames(events));
@@ -1398,7 +1399,6 @@ TEST_F(RenderWidgetHostViewAuraTest, PopupClosesWhenParentLosesFocus) {
   EXPECT_TRUE(observer.destroyed());
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // Test that select boxes close when their parent window position changes.
 // This test is not relevant for Fuchsia, as the window bounds on Fuchsia does
 // not contain an offset.
@@ -1421,7 +1421,6 @@ TEST_F(RenderWidgetHostViewAuraTest, PopupClosesWhenParentMoves) {
 
   EXPECT_TRUE(observer.destroyed());
 }
-#endif
 
 // A popup can be closed in a nested message loop while InitAsPopup() sets its
 // bounds, e.g. because its parent loses focus. It must not be deleted until
@@ -2359,8 +2358,9 @@ TEST_F(RenderWidgetHostViewAuraTest, TouchpadFlingStartResetsWheelPhaseState) {
   // possible that a progress event is sent if the time delta between GFS
   // timestamp and the time that it gets processed is large enough.
   bool progress_event_sent = events.size();
-  if (progress_event_sent)
+  if (progress_event_sent) {
     EXPECT_EQ("MouseWheel GestureScrollUpdate", GetMessageNames(events));
+  }
 
   // Handling the next ui::EventType::kScroll event will generate a GFC which
   // resets the phase state. The fling controller processes GFC and generates a
@@ -3885,8 +3885,9 @@ TEST_F(RenderWidgetHostViewAuraTest, DiscardDelegatedFrames) {
   // There should be max_renderer_frames with a frame in it, and one without it.
   // Since the logic is LRU eviction, the first one should be without.
   EXPECT_EVICTED(views[0]);
-  for (size_t i = 1; i < renderer_count; ++i)
+  for (size_t i = 1; i < renderer_count; ++i) {
     EXPECT_HAS_FRAME(views[i]);
+  }
 
   // LRU renderer is [0], make it visible, it should evict the next LRU [1].
   views[0]->ShowWithVisibility(PageVisibilityState::kVisible);
@@ -3900,8 +3901,9 @@ TEST_F(RenderWidgetHostViewAuraTest, DiscardDelegatedFrames) {
   EXPECT_HAS_FRAME(views[0]);
   EXPECT_HAS_FRAME(views[1]);
   EXPECT_EVICTED(views[2]);
-  for (size_t i = 3; i < renderer_count; ++i)
+  for (size_t i = 3; i < renderer_count; ++i) {
     EXPECT_HAS_FRAME(views[i]);
+  }
 
   // Make all renderers but [0] visible and swap a frame on them, keep [0]
   // hidden, it becomes the LRU.
@@ -3914,8 +3916,9 @@ TEST_F(RenderWidgetHostViewAuraTest, DiscardDelegatedFrames) {
   // Make [0] visible, and swap a frame on it. Nothing should be evicted
   // although we're above the limit.
   views[0]->ShowWithVisibility(PageVisibilityState::kVisible);
-  for (size_t i = 0; i < renderer_count; ++i)
+  for (size_t i = 0; i < renderer_count; ++i) {
     EXPECT_HAS_FRAME(views[i]);
+  }
 
   // Make [0] hidden, it should evict its frame.
   views[0]->Hide();
@@ -3938,8 +3941,9 @@ TEST_F(RenderWidgetHostViewAuraTest, DiscardDelegatedFrames) {
       *views[1]->window_->layer()->AsSurface()->GetOldestAcceptableFallback(),
       *views[1]->window_->layer()->AsSurface()->GetSurfaceId());
 
-  for (size_t i = 0; i < renderer_count; ++i)
+  for (size_t i = 0; i < renderer_count; ++i) {
     views[i]->DestroyOrDefer();
+  }
 }
 
 TEST_F(RenderWidgetHostViewAuraTest, VisibleViewportTest) {
@@ -4181,8 +4185,8 @@ TEST_F(RenderWidgetHostViewAuraOverscrollTest,
   EXPECT_EQ(OverscrollSource::NONE, overscroll_source());
   EXPECT_EQ(OVERSCROLL_NONE, overscroll_delegate()->current_mode());
 
-    // The GSU events are coalesced. This is the ack for the coalesced event.
-    // Since it is the first GSU, the ack should be consumed.
+  // The GSU events are coalesced. This is the ack for the coalesced event.
+  // Since it is the first GSU, the ack should be consumed.
   SendScrollUpdateAck(events, blink::mojom::InputEventResultState::kConsumed);
 
   SimulateWheelEvent(0, 0, 0, true, WebMouseWheelEvent::kPhaseEnded);
@@ -5168,9 +5172,10 @@ TEST_F(RenderWidgetHostViewAuraOverscrollTest,
   // Receive ACK the first wheel event as not processed.
   events[0]->ToEvent()->CallCallback(
       blink::mojom::InputEventResultState::kNotConsumed);
-  if (events.size() > 1)
+  if (events.size() > 1) {
     events[1]->ToEvent()->CallCallback(
         blink::mojom::InputEventResultState::kConsumed);
+  }
   events = ExpectGestureScrollEventsAfterMouseWheelACK(true, 0);
   SendNotConsumedAcks(events);
   ExpectGestureScrollEndForWheelScrolling(false);
@@ -5565,8 +5570,7 @@ TEST_F(RenderWidgetHostViewAuraTest, UpdateInsetsWithVirtualKeyboardEnabled) {
 
 // Tests that invalid touch events are consumed and handled
 // synchronously.
-TEST_F(RenderWidgetHostViewAuraTest,
-       InvalidEventsHaveSyncHandlingDisabled) {
+TEST_F(RenderWidgetHostViewAuraTest, InvalidEventsHaveSyncHandlingDisabled) {
   InitViewForFrame(nullptr);
   view_->ShowWithVisibility(PageVisibilityState::kVisible);
 
@@ -6951,15 +6955,14 @@ TEST_F(RenderWidgetHostViewAuraTest, TakeFallbackContentForPrerender) {
 class RenderWidgetHostViewAuraWithViewHarnessTest
     : public RenderViewHostImplTestHarness {
  public:
-   RenderWidgetHostViewAuraWithViewHarnessTest()
-      : view_(nullptr) {}
+  RenderWidgetHostViewAuraWithViewHarnessTest() : view_(nullptr) {}
 
-   RenderWidgetHostViewAuraWithViewHarnessTest(
-       const RenderWidgetHostViewAuraWithViewHarnessTest&) = delete;
-   RenderWidgetHostViewAuraWithViewHarnessTest& operator=(
-       const RenderWidgetHostViewAuraWithViewHarnessTest&) = delete;
+  RenderWidgetHostViewAuraWithViewHarnessTest(
+      const RenderWidgetHostViewAuraWithViewHarnessTest&) = delete;
+  RenderWidgetHostViewAuraWithViewHarnessTest& operator=(
+      const RenderWidgetHostViewAuraWithViewHarnessTest&) = delete;
 
-   ~RenderWidgetHostViewAuraWithViewHarnessTest() override {}
+  ~RenderWidgetHostViewAuraWithViewHarnessTest() override {}
 
  protected:
   void SetUp() override {
@@ -6990,8 +6993,7 @@ class RenderWidgetHostViewAuraWithViewHarnessTest
 // callback.
 class MockWebContentsViewDelegate : public WebContentsViewDelegate {
  public:
-  MockWebContentsViewDelegate()
-      : context_menu_request_received_(false) {}
+  MockWebContentsViewDelegate() : context_menu_request_received_(false) {}
 
   MockWebContentsViewDelegate(const MockWebContentsViewDelegate&) = delete;
   MockWebContentsViewDelegate& operator=(const MockWebContentsViewDelegate&) =
@@ -7029,8 +7031,7 @@ class MockWebContentsViewDelegate : public WebContentsViewDelegate {
 // On other platforms we should display the context menu in the long press
 // gesture.
 // This test validates this behavior.
-TEST_F(RenderWidgetHostViewAuraWithViewHarnessTest,
-       ContextMenuTest) {
+TEST_F(RenderWidgetHostViewAuraWithViewHarnessTest, ContextMenuTest) {
   auto delegate = std::make_unique<MockWebContentsViewDelegate>();
   MockWebContentsViewDelegate* delegate_ptr = delegate.get();
   static_cast<WebContentsViewAura*>(contents()->GetView())
@@ -9000,7 +9001,8 @@ TEST_F(RenderWidgetHostViewAuraTest,
 
   aura::Window* root = parent_view_->GetNativeView()->GetRootWindow();
   DestroyingParentWindowDelegate parent_delegate(view_.get());
-  std::unique_ptr<aura::Window> parent = std::make_unique<aura::Window>(&parent_delegate);
+  std::unique_ptr<aura::Window> parent =
+      std::make_unique<aura::Window>(&parent_delegate);
   parent->Init(ui::LAYER_NOT_DRAWN);
   parent->Show();
   root->AddChild(parent.get());

@@ -50,12 +50,14 @@ std::string HostedProcessTypesToString(
     ProcessNode::ContentTypes hosted_content_types) {
   std::vector<std::string> content_types_vector;
   content_types_vector.reserve(hosted_content_types.size());
-  for (ProcessNode::ContentType content_type : hosted_content_types)
+  for (ProcessNode::ContentType content_type : hosted_content_types) {
     content_types_vector.push_back(ContentTypeToString(content_type));
+  }
 
   std::string str = base::JoinString(content_types_vector, ", ");
-  if (str.empty())
+  if (str.empty()) {
     str = "none";
+  }
 
   return str;
 }
@@ -68,8 +70,6 @@ base::Value GetProcessValueDict(const base::Process& process) {
 #if BUILDFLAG(IS_WIN)
   ret.Set("handle",
           static_cast<int>(base::win::HandleToUint32(process.Handle())));
-#elif BUILDFLAG(IS_FUCHSIA)
-  ret.Set("handle", static_cast<int>(process.Handle()));
 #endif
 
   // Most processes are not current, so only show the outliers.

@@ -90,8 +90,6 @@ TEST(Filesystem, FileModificationTime) {
       temp_dir.path().Append(FILE_PATH_LITERAL("notafile")), &mtime));
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
-
 TEST(Filesystem, FileModificationTime_SymbolicLinks) {
   if (!CanCreateSymbolicLinks()) {
     GTEST_SKIP();
@@ -139,8 +137,6 @@ TEST(Filesystem, FileModificationTime_SymbolicLinks) {
   EXPECT_GE(mtime.tv_sec, expected_time_start.tv_sec - 2);
   EXPECT_LE(mtime.tv_sec, expected_time_end.tv_sec + 2);
 }
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST(Filesystem, CreateDirectory) {
   ScopedTempDir temp_dir;
@@ -221,8 +217,6 @@ TEST(Filesystem, MoveFileOrDirectory) {
   EXPECT_TRUE(IsRegularFile(file));
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
-
 TEST(Filesystem, MoveFileOrDirectory_SymbolicLinks) {
   if (!CanCreateSymbolicLinks()) {
     GTEST_SKIP();
@@ -284,8 +278,6 @@ TEST(Filesystem, MoveFileOrDirectory_SymbolicLinks) {
   EXPECT_FALSE(PathExists(link2));
 }
 
-#endif  // !BUILDFLAG(IS_FUCHSIA)
-
 TEST(Filesystem, IsRegularFile) {
   EXPECT_FALSE(IsRegularFile(base::FilePath()));
 
@@ -298,8 +290,6 @@ TEST(Filesystem, IsRegularFile) {
   ASSERT_TRUE(CreateFile(file));
   EXPECT_TRUE(IsRegularFile(file));
 }
-
-#if !BUILDFLAG(IS_FUCHSIA)
 
 TEST(Filesystem, IsRegularFile_SymbolicLinks) {
   if (!CanCreateSymbolicLinks()) {
@@ -323,8 +313,6 @@ TEST(Filesystem, IsRegularFile_SymbolicLinks) {
   EXPECT_FALSE(IsRegularFile(dir_link));
 }
 
-#endif  // !BUILDFLAG(IS_FUCHSIA)
-
 TEST(Filesystem, IsDirectory) {
   EXPECT_FALSE(IsDirectory(base::FilePath(), false));
   EXPECT_FALSE(IsDirectory(base::FilePath(), true));
@@ -340,8 +328,6 @@ TEST(Filesystem, IsDirectory) {
   EXPECT_FALSE(IsDirectory(file, false));
   EXPECT_FALSE(IsDirectory(file, true));
 }
-
-#if !BUILDFLAG(IS_FUCHSIA)
 
 TEST(Filesystem, IsDirectory_SymbolicLinks) {
   if (!CanCreateSymbolicLinks()) {
@@ -368,8 +354,6 @@ TEST(Filesystem, IsDirectory_SymbolicLinks) {
   EXPECT_TRUE(IsDirectory(dir_link, true));
 }
 
-#endif  // !BUILDFLAG(IS_FUCHSIA)
-
 TEST(Filesystem, RemoveFile) {
   EXPECT_FALSE(LoggingRemoveFile(base::FilePath()));
 
@@ -389,8 +373,6 @@ TEST(Filesystem, RemoveFile) {
   EXPECT_FALSE(PathExists(file));
   EXPECT_FALSE(LoggingRemoveFile(file));
 }
-
-#if !BUILDFLAG(IS_FUCHSIA)
 
 TEST(Filesystem, RemoveFile_SymbolicLinks) {
   if (!CanCreateSymbolicLinks()) {
@@ -417,8 +399,6 @@ TEST(Filesystem, RemoveFile_SymbolicLinks) {
   EXPECT_TRUE(PathExists(dir));
 }
 
-#endif  // !BUILDFLAG(IS_FUCHSIA)
-
 TEST(Filesystem, RemoveDirectory) {
   EXPECT_FALSE(LoggingRemoveDirectory(base::FilePath()));
 
@@ -432,7 +412,6 @@ TEST(Filesystem, RemoveDirectory) {
   EXPECT_FALSE(LoggingRemoveDirectory(file));
 
   ASSERT_TRUE(CreateFile(file));
-#if !BUILDFLAG(IS_FUCHSIA)
   // The current implementation of Fuchsia's rmdir() simply calls unlink(), and
   // unlink() works on all FS objects. This is incorrect as
   // http://pubs.opengroup.org/onlinepubs/9699919799/functions/rmdir.html says
@@ -441,13 +420,10 @@ TEST(Filesystem, RemoveDirectory) {
   // to [EEXIST] or [ENOTEMPTY]." Upstream bug: US-400.
   EXPECT_FALSE(LoggingRemoveDirectory(file));
   EXPECT_FALSE(LoggingRemoveDirectory(dir));
-#endif
 
   ASSERT_TRUE(LoggingRemoveFile(file));
   EXPECT_TRUE(LoggingRemoveDirectory(dir));
 }
-
-#if !BUILDFLAG(IS_FUCHSIA)
 
 TEST(Filesystem, RemoveDirectory_SymbolicLinks) {
   if (!CanCreateSymbolicLinks()) {
@@ -472,8 +448,6 @@ TEST(Filesystem, RemoveDirectory_SymbolicLinks) {
   EXPECT_TRUE(LoggingRemoveFile(link));
 }
 
-#endif  // !BUILDFLAG(IS_FUCHSIA)
-
 TEST(Filesystem, GetFileSize) {
   ScopedTempDir temp_dir;
   base::FilePath filepath(temp_dir.path().Append(FILE_PATH_LITERAL("file")));
@@ -486,7 +460,6 @@ TEST(Filesystem, GetFileSize) {
   uint64_t filesize = GetFileSize(filepath);
   EXPECT_EQ(filesize, sizeof(kTestFileContent));
 
-#if !BUILDFLAG(IS_FUCHSIA)
   if (!CanCreateSymbolicLinks()) {
     GTEST_SKIP();
   }
@@ -496,7 +469,6 @@ TEST(Filesystem, GetFileSize) {
   ASSERT_TRUE(CreateSymbolicLink(filepath, link));
   uint64_t filesize_link = GetFileSize(link);
   EXPECT_EQ(filesize_link, 0u);
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 }
 
 TEST(Filesystem, GetDirectorySize) {
@@ -520,7 +492,6 @@ TEST(Filesystem, GetDirectorySize) {
   writer2.Write(kTestFileContent, sizeof(kTestFileContent));
   writer2.Close();
 
-#if !BUILDFLAG(IS_FUCHSIA)
   if (CanCreateSymbolicLinks()) {
     // Create a link to a file.
     base::FilePath link(dir.Append(FILE_PATH_LITERAL("link")));
@@ -530,7 +501,6 @@ TEST(Filesystem, GetDirectorySize) {
     base::FilePath linkdir(temp_dir.path().Append(FILE_PATH_LITERAL("link")));
     ASSERT_TRUE(CreateSymbolicLink(dir, linkdir));
   }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   uint64_t filesize = GetDirectorySize(temp_dir.path());
   EXPECT_EQ(filesize, 2 * sizeof(kTestFileContent));

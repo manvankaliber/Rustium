@@ -27,8 +27,6 @@ if (icu4x_override_data_dir != "") {
   _icu4x_data_platform = "chromeos"
 } else if (current_cpu == "wasm") {
   _icu4x_data_platform = "flutter"
-} else if (icu_is_in_fuchsia && icu_fuchsia_override_data_dir != "") {
-  _icu4x_data_platform = icu_fuchsia_override_data_dir
 } else {
   _icu4x_data_platform = "common"
 }

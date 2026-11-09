@@ -59,15 +59,8 @@ component("platform") {
     deps += [ "//net/base:sockaddr_util" ]
   }
 
-  if (is_fuchsia) {
-    public_deps += [
-      "//third_party/fuchsia-sdk/sdk/pkg/fdio",
-      "//third_party/fuchsia-sdk/sdk/pkg/zx",
-    ]
-  } else {
-    sources += [ "named_platform_channel.cc" ]
-    public += [ "named_platform_channel.h" ]
-  }
+  sources += [ "named_platform_channel.cc" ]
+  public += [ "named_platform_channel.h" ]
 
   defines = [ "IS_MOJO_CPP_PLATFORM_IMPL" ]
 }

@@ -378,7 +378,7 @@ class MojoTrap;
 }  // namespace mojo
 namespace mojo_legacy::core {
 class ScopedIPCSupport;
-}  // namespace mojo_legacy
+}  // namespace mojo_legacy::core
 namespace net {
 class GSSAPISharedLibrary;
 class MultiThreadedCertVerifierScopedAllowBaseSyncPrimitives;
@@ -440,7 +440,6 @@ class HttpBridge;
 }  // namespace syncer
 namespace tracing {
 class EmergencyTraceFinalisationCoordinator;
-class FuchsiaPerfettoProducerConnector;
 }
 namespace ui {
 class DrmThreadProxy;
@@ -771,7 +770,6 @@ class BASE_EXPORT ScopedAllowBaseSyncPrimitives {
   // Sorted by class name (with namespace).
   friend class ::ChromeNSSCryptoModuleDelegate;
   friend class ::PartnerBookmarksReader;
-  friend class ::tracing::FuchsiaPerfettoProducerConnector;
   friend class base::SimpleThread;
   friend class base::internal::GetAppOutputScopedAllowBaseSyncPrimitives;
   friend class blink::SourceStream;
@@ -836,9 +834,8 @@ class BASE_EXPORT ScopedAllowBaseSyncPrimitives {
   const AutoReset<BooleanWithOptionalStack> resetter_;
 };
 
-class BASE_EXPORT
-    [[maybe_unused,
-      nodiscard]] ScopedAllowBaseSyncPrimitivesOutsideBlockingScope {
+class BASE_EXPORT [[maybe_unused, nodiscard]]
+ScopedAllowBaseSyncPrimitivesOutsideBlockingScope {
  public:
   ScopedAllowBaseSyncPrimitivesOutsideBlockingScope(
       const ScopedAllowBaseSyncPrimitivesOutsideBlockingScope&) = delete;

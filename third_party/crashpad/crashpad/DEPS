@@ -86,16 +86,6 @@ deps = {
     'dep_type': 'cipd',
     'condition': 'host_os == "win"',
   },
-  'crashpad/build/fuchsia': {
-     'packages': [
-       {
-        'package': 'chromium/fuchsia/test-scripts',
-        'version': 'latest',
-       }
-     ],
-     'condition': 'checkout_fuchsia',
-     'dep_type': 'cipd',
-  },
   'crashpad/third_party/linux/clang/linux-amd64': {
     'packages': [
       {
@@ -104,26 +94,6 @@ deps = {
       },
     ],
     'condition': 'checkout_linux and pull_linux_clang',
-    'dep_type': 'cipd'
-  },
-  'crashpad/third_party/fuchsia/clang/mac-amd64': {
-    'packages': [
-      {
-        'package': 'fuchsia/third_party/clang/mac-amd64',
-        'version': 'integration',
-      },
-    ],
-    'condition': 'checkout_fuchsia and host_os == "mac"',
-    'dep_type': 'cipd'
-  },
-  'crashpad/third_party/fuchsia/clang/linux-amd64': {
-    'packages': [
-      {
-        'package': 'fuchsia/third_party/clang/linux-amd64',
-        'version': 'integration',
-      },
-    ],
-    'condition': 'checkout_fuchsia and host_os == "linux"',
     'dep_type': 'cipd'
   },
   'crashpad/third_party/windows/clang/win-amd64': {
@@ -139,31 +109,6 @@ deps = {
     'condition': 'checkout_win and host_os == "win"',
     'dep_type': 'gcs',
   },
-  'crashpad/third_party/fuchsia-gn-sdk': {
-    'packages': [
-      {
-        'package': 'chromium/fuchsia/gn-sdk',
-        'version': 'latest'
-      },
-    ],
-    'condition': 'checkout_fuchsia',
-    'dep_type': 'cipd'
-  },
-  'crashpad/third_party/fuchsia/sdk/linux-amd64': {
-    'packages': [
-      {
-        'package': 'fuchsia/sdk/core/linux-amd64',
-        'version': 'latest'
-      },
-    ],
-    'condition': 'checkout_fuchsia and host_os == "linux"',
-    'dep_type': 'cipd'
-  },
-  # depot_tools/ninja wrapper calls third_party/ninja/{ninja, ninja.exe}.
-  # crashpad/third_party/ninja/ninja is another wrapper to call linux ninja
-  # or mac ninja.
-  # This allows crashpad developers to work for multiple platforms on the same
-  # machine.
   'crashpad/third_party/ninja': {
     'packages': [
       {
@@ -229,28 +174,6 @@ hooks = [
     'condition': 'checkout_linux and pull_linux_clang',
     'action': [
       'crashpad/build/install_linux_sysroot.py',
-    ],
-  },
-  {
-    # Avoid introducing unnecessary PRESUBMIT.py file from build/fuchsia.
-    # Never fail and ignore the error if the file does not exist.
-    'name': 'Remove the PRESUBMIT.py from build/fuchsia',
-    'pattern': '.',
-    'condition': 'checkout_fuchsia',
-    'action': [
-      'rm',
-      '-f',
-      'crashpad/build/fuchsia/PRESUBMIT.py',
-    ],
-  },
-  {
-    'name': 'Generate Fuchsia Build Definitions',
-    'pattern': '.',
-    'condition': 'checkout_fuchsia',
-    'action': [
-      'python3',
-      'crashpad/build/fuchsia_envs.py',
-      'crashpad/build/fuchsia/gen_build_defs.py'
     ],
   },
   {

@@ -22,7 +22,7 @@ cast_source_set("graphics") {
 
   public_deps = [ "//chromecast/ui/mojom" ]
 
-  if (use_aura && !is_fuchsia) {
+  if (use_aura) {
     sources += [
       "cast_display_util.cc",
       "cast_display_util.h",
@@ -127,7 +127,7 @@ cast_shared_library("libcast_graphics_1.0") {
   # copies of //base in the same address space leads to hard-to-debug crashes.
 }
 
-if (use_aura && !is_fuchsia) {
+if (use_aura) {
   test("cast_graphics_unittests") {
     sources = [
       "cast_display_util_unittest.cc",

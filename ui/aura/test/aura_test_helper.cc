@@ -48,10 +48,6 @@
 #include "ui/events/ozone/events_ozone.h"
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "ui/platform_window/fuchsia/initialize_presenter_api_view.h"
-#endif
-
 namespace aura {
 namespace test {
 namespace {
@@ -73,10 +69,6 @@ AuraTestHelper::AuraTestHelper(ui::ContextFactory* context_factory) {
   ui::DisableNativeUiEventDispatchForTest();
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-  ui::fuchsia::IgnorePresentCallsForTest();
-#endif
-
   ui::InitializeInputMethodForTesting();
 
   ui::test::EventGeneratorDelegate::SetFactoryFunction(
@@ -86,10 +78,11 @@ AuraTestHelper::AuraTestHelper(ui::ContextFactory* context_factory) {
       gfx::ScopedAnimationDurationScaleMode::ZERO_DURATION);
 
   // Some tests suites create Env globally.
-  if (Env::HasInstance())
+  if (Env::HasInstance()) {
     context_factory_to_restore_ = Env::GetInstance()->context_factory();
-  else
+  } else {
     env_ = Env::CreateInstance();
+  }
   Env* env = GetEnv();
   CHECK(env) << "No Aura env is set - confirm your test system is set up to "
                 "display graphics";
@@ -123,8 +116,9 @@ AuraTestHelper::AuraTestHelper(ui::ContextFactory* context_factory) {
 }
 
 AuraTestHelper::~AuraTestHelper() {
-  if (g_instance)
+  if (g_instance) {
     TearDown();
+  }
 }
 
 // static
@@ -141,8 +135,9 @@ void AuraTestHelper::SetUp() {
   // or not create the screen/host if the test already has one; it doesn't make
   // a lot of sense to me to potentially have multiple screens/hosts/etc. alive
   // and be interacting with both depending on what accessors you use.
-  if (!screen)
+  if (!screen) {
     display::Screen::SetScreenInstance(test_screen_.get());
+  }
 
   host_.reset(test_screen_->CreateHostForPrimaryDisplay());
   host_->window()->SetEventTargeter(std::make_unique<WindowTargeter>());
@@ -164,8 +159,9 @@ void AuraTestHelper::SetUp() {
 void AuraTestHelper::TearDown() {
   g_instance = nullptr;
 
-  if (!env_)
+  if (!env_) {
     Env::GetInstance()->set_context_factory(context_factory_to_restore_);
+  }
 
   ui::test::EventGeneratorDelegate::SetFactoryFunction(
       ui::test::EventGeneratorDelegate::FactoryFunction());
@@ -233,8 +229,9 @@ client::CaptureClient* AuraTestHelper::GetCaptureClient() {
 constexpr gfx::Size AuraTestHelper::kDefaultHostSize;
 
 Env* AuraTestHelper::GetEnv() {
-  if (env_)
+  if (env_) {
     return env_.get();
+  }
   return Env::HasInstance() ? Env::GetInstance() : nullptr;
 }
 

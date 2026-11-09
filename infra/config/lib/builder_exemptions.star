@@ -46,8 +46,6 @@ exempted_from_contact_builders = {
         "android-webview-12-x64-dbg-tests",
         "android-webview-13-x64-dbg-tests",
         "chromeos-js-code-coverage",
-        "fuchsia-code-coverage",
-        "fuchsia-x64-accessibility-rel",
         "ios-blink-rel-fyi",
         "ios-catalyst",
         "ios-device",
@@ -113,11 +111,6 @@ exempted_from_contact_builders = {
         "builder-config-verifier",
         "chromeos-js-code-coverage",
         "chromeos-js-coverage-rel",
-        "fuchsia-binary-size",
-        "fuchsia-clang-tidy-rel",
-        "fuchsia-code-coverage",
-        "fuchsia-deterministic-dbg",
-        "fuchsia-x64-accessibility-rel",
         "ios-blink-rel-fyi",
         "ios-catalyst",
         "ios-device",
@@ -213,7 +206,6 @@ mega_cq_excluded_gardener_rotations = [
 # This dict should NOT be added to. It contains a list of ci builders that are
 # already being mirrored in CQ but have no gardener rotation.
 exempted_gardened_mirrors_in_cq_builders = [
-    "ci/fuchsia-x64-accessibility-rel",
     "ci/linux-enterprise-companion-builder-dbg",
     "ci/linux-enterprise-companion-builder-rel",
     "ci/linux-enterprise-companion-tester-dbg",

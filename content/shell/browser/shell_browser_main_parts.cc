@@ -66,33 +66,32 @@
 #include "ui/linux/linux_ui_factory.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "content/shell/browser/fuchsia_view_presenter.h"
-#endif
-
 namespace content {
 
 namespace {
 GURL GetStartupURL() {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kBrowserTest))
+  if (command_line->HasSwitch(switches::kBrowserTest)) {
     return GURL();
+  }
 
 #if BUILDFLAG(IS_ANDROID)
   // Delay renderer creation on Android until surface is ready.
   return GURL();
 #else
   const base::CommandLine::StringVector& args = command_line->GetArgs();
-  if (args.empty())
+  if (args.empty()) {
     return GURL("https://www.google.com/");
+  }
 
 #if BUILDFLAG(IS_WIN)
   GURL url(base::WideToUTF16(args[0]));
 #else
   GURL url(args[0]);
 #endif
-  if (url.is_valid() && url.has_scheme())
+  if (url.is_valid() && url.has_scheme()) {
     return url;
+  }
 
   return net::FilePathToFileURL(
       base::MakeAbsoluteFilePath(base::FilePath(args[0])));
@@ -152,8 +151,9 @@ void ShellBrowserMainParts::InitializeMessageLoopContext() {
 }
 
 void ShellBrowserMainParts::ToolkitInitialized() {
-  if (switches::IsRunWebTestsSwitchPresent())
+  if (switches::IsRunWebTestsSwitchPresent()) {
     return;
+  }
 
 #if BUILDFLAG(IS_LINUX)
   ui::LinuxUi::SetInstance(ui::GetDefaultLinuxUi());
@@ -181,10 +181,6 @@ int ShellBrowserMainParts::PostCreateThreads() {
 }
 
 int ShellBrowserMainParts::PreMainMessageLoopRun() {
-#if BUILDFLAG(IS_FUCHSIA)
-  fuchsia_view_presenter_ = std::make_unique<FuchsiaViewPresenter>();
-#endif
-
   InitializeBrowserContexts();
   Shell::Initialize(CreateShellPlatformDelegate());
   net::NetModule::SetResourceProvider(PlatformResourceProvider);
@@ -207,9 +203,6 @@ void ShellBrowserMainParts::PostMainMessageLoopRun() {
   ui::LinuxUi::SetInstance(nullptr);
 #endif
   performance_manager_lifetime_.reset();
-#if BUILDFLAG(IS_FUCHSIA)
-  fuchsia_view_presenter_.reset();
-#endif
 }
 
 void ShellBrowserMainParts::PostDestroyThreads() {

@@ -20,9 +20,9 @@
 namespace mojo {
 
 template <>
-struct GPU_IPC_COMMON_EXPORT StructTraits<
-    gpu::mojom::SharedImageExportResultDataView,
-    gpu::SharedImageExportResult> {
+struct GPU_IPC_COMMON_EXPORT
+    StructTraits<gpu::mojom::SharedImageExportResultDataView,
+                 gpu::SharedImageExportResult> {
   static const std::vector<gpu::SyncToken>& sync_tokens(
       const gpu::SharedImageExportResult& shared_image_exported_result) {
     return shared_image_exported_result.sync_tokens_;
@@ -38,9 +38,9 @@ struct GPU_IPC_COMMON_EXPORT StructTraits<
 };
 
 template <>
-struct GPU_IPC_COMMON_EXPORT StructTraits<
-    gpu::mojom::ExportedSharedImageDataView,
-    gpu::ExportedSharedImage> {
+struct GPU_IPC_COMMON_EXPORT
+    StructTraits<gpu::mojom::ExportedSharedImageDataView,
+                 gpu::ExportedSharedImage> {
   static const gpu::Mailbox& mailbox(const gpu::ExportedSharedImage& holder) {
     return holder.mailbox_;
   }
@@ -114,14 +114,12 @@ struct GPU_IPC_COMMON_EXPORT StructTraits<
       return false;
     }
     out->texture_target_ = data.texture_target();
-#if !BUILDFLAG(IS_FUCHSIA)
     // On Fuchsia, it is possible for texture_target_ to be 0 because Fuchsia
     // does not support import of external images to GL for usage with external
     // sampling. For other platforms, texture_target_ should always be non-zero.
     if (out->texture_target_ == 0) {
       return false;
     }
-#endif
     out->is_software_ = data.is_software();
     return true;
   }

@@ -27,14 +27,8 @@
 .gdbinit
 /.vscode/
 /Makefile
-/build/fuchsia
 /out
 /third_party/edo/edo
-/third_party/fuchsia-gn-sdk
-/third_party/fuchsia/.cipd
-/third_party/fuchsia/clang
-/third_party/fuchsia/qemu
-/third_party/fuchsia/sdk
 /third_party/googletest/googletest
 /third_party/libfuzzer
 /third_party/linux/.cipd

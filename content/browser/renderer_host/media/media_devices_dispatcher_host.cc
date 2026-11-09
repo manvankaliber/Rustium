@@ -119,8 +119,9 @@ MediaDevicesDispatcherHost::MediaDevicesDispatcherHost(
 
 MediaDevicesDispatcherHost::~MediaDevicesDispatcherHost() {
   CHECK_CURRENTLY_ON(BrowserThread::IO, base::NotFatalUntil::M152);
-  if (!media_stream_manager_->media_devices_manager())
+  if (!media_stream_manager_->media_devices_manager()) {
     return;
+  }
 
   for (auto subscription_id : subscription_ids_) {
     media_stream_manager_->media_devices_manager()
@@ -150,8 +151,8 @@ void MediaDevicesDispatcherHost::EnumerateDevices(
       request_audio_input;
   devices_to_enumerate[static_cast<size_t>(MediaDeviceType::kMediaVideoInput)] =
       request_video_input;
-  devices_to_enumerate[static_cast<size_t>(MediaDeviceType::kMediaAudioOutput)] =
-      request_audio_output;
+  devices_to_enumerate[static_cast<size_t>(
+      MediaDeviceType::kMediaAudioOutput)] = request_audio_output;
 
   media_stream_manager_->media_devices_manager()->HandleEnumerateDevicesRequest(
       render_frame_host_id_, devices_to_enumerate,
@@ -243,8 +244,8 @@ void MediaDevicesDispatcherHost::AddMediaDevicesListener(
       subscribe_audio_input;
   devices_to_subscribe[static_cast<size_t>(MediaDeviceType::kMediaVideoInput)] =
       subscribe_video_input;
-  devices_to_subscribe[static_cast<size_t>(MediaDeviceType::kMediaAudioOutput)] =
-      subscribe_audio_output;
+  devices_to_subscribe[static_cast<size_t>(
+      MediaDeviceType::kMediaAudioOutput)] = subscribe_audio_output;
 
   uint32_t subscription_id =
       media_stream_manager_->media_devices_manager()
@@ -475,8 +476,9 @@ void MediaDevicesDispatcherHost::GetVideoInputDeviceFormats(
     std::unique_ptr<ScopedMediaStreamTrace> scoped_trace,
     const MediaDeviceSaltAndOrigin& salt_and_origin) {
   CHECK_CURRENTLY_ON(BrowserThread::IO, base::NotFatalUntil::M152);
-  if (scoped_trace)
+  if (scoped_trace) {
     scoped_trace->AddStep(__func__);
+  }
   MediaStreamManager::SendMessageToNativeLog(base::StringPrintf(
       "MDDH::GetVideoInputDeviceFormats({hashed_device_id=%s}, "
       "{try_in_use_first=%s})",
@@ -500,8 +502,9 @@ void MediaDevicesDispatcherHost::GetVideoInputDeviceFormatsWithRawId(
     std::unique_ptr<ScopedMediaStreamTrace> scoped_trace,
     const std::optional<std::string>& raw_id) {
   CHECK_CURRENTLY_ON(BrowserThread::IO, base::NotFatalUntil::M152);
-  if (scoped_trace)
+  if (scoped_trace) {
     scoped_trace->AddStep(__func__);
+  }
   if (!raw_id) {
     // TODO(crbug.com/40848542): return an error.
     MediaStreamManager::SendMessageToNativeLog(
@@ -555,7 +558,7 @@ void MediaDevicesDispatcherHost::SelectAudioOutput(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_ANDROID)
   auto result = blink::mojom::SelectAudioOutputResult::New();
   result->status = blink::mojom::AudioOutputStatus::kUnknown;
   std::move(select_audio_output_callback).Run(std::move(result));
@@ -824,8 +827,9 @@ void MediaDevicesDispatcherHost::GotAudioInputParameters(
            base::NotFatalUntil::M152);
   CHECK_GT(num_pending_audio_input_parameters_, 0U, base::NotFatalUntil::M152);
 
-  if (parameters)
+  if (parameters) {
     current_audio_input_capabilities_[index].parameters = *parameters;
+  }
   CHECK(current_audio_input_capabilities_[index].parameters.IsValid(),
         base::NotFatalUntil::M152);
 

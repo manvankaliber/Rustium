@@ -211,7 +211,7 @@ HEADLESS_PROTOCOL_TEST(VirtualTimeInterrupt,
 
 // Flaky on Linux, Mac & Win. TODO(crbug.com/41440558): Re-enable.
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+    BUILDFLAG(IS_WIN)
 #define MAYBE_VirtualTimeCrossProcessNavigation \
   DISABLED_VirtualTimeCrossProcessNavigation
 #else
@@ -855,7 +855,6 @@ HEADLESS_PROTOCOL_TEST(RangeMouseEventAfterNodeRemoval,
 HEADLESS_PROTOCOL_TEST(GetCanvasContextWebGL,
                        "shared/get-canvas-context-webgl.js")
 
-#if !BUILDFLAG(IS_FUCHSIA)
 HEADLESS_PROTOCOL_TEST(WebGLAndWebGPUEnabledWithSwiftShader,
                        "shared/webgl-and-webgpu-enabled-with-swiftshader.js")
 
@@ -865,7 +864,6 @@ HEADLESS_PROTOCOL_TEST(WebGLAndWebGPUDisabledByDefault,
 HEADLESS_PROTOCOL_TEST(
     WebGLAndWebGPUDisabledWithoutSwiftShader,
     "shared/webgl-and-webgpu-disabled-without-swiftshader.js")
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 HEADLESS_PROTOCOL_TEST(GetBrowserContexts, "shared/get-browser-contexts.js")
 

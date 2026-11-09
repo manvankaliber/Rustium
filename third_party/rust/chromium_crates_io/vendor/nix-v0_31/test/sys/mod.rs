@@ -8,16 +8,12 @@ mod test_signal;
 #[cfg(any(
     target_os = "freebsd",
     apple_targets,
-    all(
-        target_os = "linux",
-        not(any(target_env = "uclibc", target_env = "ohos"))
-    ),
+    all(target_os = "linux", not(any(target_env = "uclibc", target_env = "ohos"))),
     target_os = "netbsd"
 ))]
 mod test_aio;
 #[cfg(not(any(
     target_os = "redox",
-    target_os = "fuchsia",
     target_os = "haiku",
     target_os = "hurd",
     target_os = "cygwin"
@@ -36,11 +32,7 @@ mod test_sockopt;
 mod test_stat;
 #[cfg(linux_android)]
 mod test_sysinfo;
-#[cfg(not(any(
-    target_os = "redox",
-    target_os = "fuchsia",
-    target_os = "haiku"
-)))]
+#[cfg(not(any(target_os = "redox", target_os = "haiku")))]
 mod test_termios;
 mod test_uio;
 mod test_wait;
@@ -59,12 +51,7 @@ mod test_ptrace;
 mod test_timerfd;
 
 #[cfg(all(
-    any(
-        target_os = "freebsd",
-        solarish,
-        target_os = "linux",
-        target_os = "netbsd"
-    ),
+    any(target_os = "freebsd", solarish, target_os = "linux", target_os = "netbsd"),
     feature = "time",
     feature = "signal"
 ))]
@@ -79,12 +66,7 @@ mod test_utsname;
 #[cfg(any(linux_android, freebsdlike, apple_targets, target_os = "openbsd"))]
 mod test_statfs;
 
-#[cfg(not(any(
-    target_os = "redox",
-    target_os = "fuchsia",
-    solarish,
-    target_os = "haiku"
-)))]
+#[cfg(not(any(target_os = "redox", solarish, target_os = "haiku")))]
 mod test_resource;
 
 // This test module should be enabled for both linux_android and freebsd, but

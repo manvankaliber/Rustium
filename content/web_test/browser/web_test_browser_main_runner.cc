@@ -53,24 +53,16 @@
 #include "base/mac/mac_util.h"
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_IOS)
 #include <sys/socket.h>
 #include <unistd.h>
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/sys/cpp/component_context.h>
-
-#include "base/fuchsia/fuchsia_logging.h"
-#include "base/fuchsia/process_context.h"
-#include "ui/ozone/public/ozone_switches.h"
 #endif
 
 namespace content {
 
 namespace {
 
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_IOS)
 // Fuchsia doesn't support stdin stream for packaged apps, and stdout from
 // run-test-suite not only has extra emissions from the Fuchsia test
 // infrastructure, it also merges stderr and stdout together. Combined, these
@@ -115,7 +107,7 @@ void ConnectStdioSocket(const std::string& host_and_port) {
   PCHECK(close(fd) == 0);
 }
 
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
 
 void RunOneTest(const content::TestInfo& test_info,
                 content::WebTestControlHost* web_test_control_host,
@@ -131,12 +123,12 @@ void RunOneTest(const content::TestInfo& test_info,
 }
 
 void RunTests(content::BrowserMainRunner* main_runner) {
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_IOS)
   if (auto& cmd_line = *base::CommandLine::ForCurrentProcess();
       cmd_line.HasSwitch(kStdioRedirectSwitch)) {
     ConnectStdioSocket(cmd_line.GetSwitchValueASCII(kStdioRedirectSwitch));
   }
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
   TRACE_EVENT0("shell", "WebTestBrowserMainRunner::RunTests");
   content::WebTestControlHost test_controller;
   {
@@ -219,8 +211,9 @@ void WebTestBrowserMainRunner::Initialize() {
   }
   command_line.AppendSwitchASCII(switches::kTouchEventFeatureDetection,
                                  switches::kTouchEventFeatureDetectionEnabled);
-  if (!command_line.HasSwitch(switches::kForceDeviceScaleFactor))
+  if (!command_line.HasSwitch(switches::kForceDeviceScaleFactor)) {
     command_line.AppendSwitchASCII(switches::kForceDeviceScaleFactor, "1.0");
+  }
 
   if (!command_line.HasSwitch(switches::kAutoplayPolicy)) {
     command_line.AppendSwitchASCII(
@@ -264,8 +257,9 @@ void WebTestBrowserMainRunner::Initialize() {
   // If kEnableGpuRasterization is specified, the Gpu process always reports
   // that it can gpu raster, and the renderer will use it. Otherwise, we don't
   // want to choose at runtime, and we ensure that gpu raster is disabled.
-  if (!command_line.HasSwitch(switches::kEnableGpuRasterization))
+  if (!command_line.HasSwitch(switches::kEnableGpuRasterization)) {
     command_line.AppendSwitch(switches::kDisableGpuRasterization);
+  }
 
 #if BUILDFLAG(IS_MAC)
   // If Graphite is not explicitly disabled, enable it. This is to use
@@ -285,8 +279,9 @@ void WebTestBrowserMainRunner::Initialize() {
 
   // If the virtual test suite didn't specify a display color space, then
   // force sRGB.
-  if (!command_line.HasSwitch(switches::kForceDisplayColorProfile))
+  if (!command_line.HasSwitch(switches::kForceDisplayColorProfile)) {
     command_line.AppendSwitchASCII(switches::kForceDisplayColorProfile, "srgb");
+  }
 
   // We want stable/baseline results when running web tests.
   command_line.AppendSwitch(switches::kDisableSkiaRuntimeOpts);
@@ -303,8 +298,9 @@ void WebTestBrowserMainRunner::Initialize() {
 
   // The check here ensures that a test's custom value for the switch is not
   // overwritten by the default one.
-  if (!command_line.HasSwitch(switches::kUseFakeDeviceForMediaStream))
+  if (!command_line.HasSwitch(switches::kUseFakeDeviceForMediaStream)) {
     command_line.AppendSwitch(switches::kUseFakeDeviceForMediaStream);
+  }
 
   // Always run with fake FedCM UI.
   command_line.AppendSwitch(switches::kUseFakeUIForFedCM);

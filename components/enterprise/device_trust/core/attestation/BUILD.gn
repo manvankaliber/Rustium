@@ -98,14 +98,12 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  if (!is_fuchsia) {
-    sources += [
-      "browser_attestation_service_unittest.cc",
-      "profile_attester_unittest.cc",
-    ]
-  }
+  sources += [
+    "browser_attestation_service_unittest.cc",
+    "profile_attester_unittest.cc",
+  ]
 
-  if (!is_chromeos && !is_fuchsia) {
+  if (!is_chromeos) {
     sources += [ "device_attester_unittest.cc" ]
   }
 }

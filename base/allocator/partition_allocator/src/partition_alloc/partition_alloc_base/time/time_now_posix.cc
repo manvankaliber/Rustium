@@ -22,8 +22,8 @@
 
 // Ensure the Fuchsia and Mac builds do not include this module. Instead,
 // non-POSIX implementation is used for sampling the system clocks.
-#if PA_BUILDFLAG(IS_FUCHSIA) || PA_BUILDFLAG(IS_APPLE)
-#error "This implementation is for POSIX platforms other than Fuchsia or Mac."
+#if PA_BUILDFLAG(IS_APPLE)
+#error "This implementation is for POSIX platforms other than Mac."
 #endif
 
 namespace partition_alloc::internal::base {

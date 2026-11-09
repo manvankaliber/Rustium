@@ -113,7 +113,6 @@ def build_and_manage_llvm():
             [
                 'tools/clang/scripts/build.py',
                 '--with-android',
-                '--without-fuchsia',
                 '--with-ml-inliner-model=',
                 '--extra-tools',
                 'spanify',

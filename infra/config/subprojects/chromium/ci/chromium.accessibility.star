@@ -42,65 +42,6 @@ targets.builder_defaults.set(
 )
 
 ci.builder(
-    name = "fuchsia-x64-accessibility-rel",
-    description_html = "Runs Fuchsia accessibility browser tests on x64 release builds.",
-    builder_spec = builder_config.builder_spec(
-        gclient_config = builder_config.gclient_config(
-            config = "chromium",
-            apply_configs = [
-                "fuchsia_x64",
-            ],
-        ),
-        chromium_config = builder_config.chromium_config(
-            config = "chromium",
-            apply_configs = ["mb"],
-            build_config = builder_config.build_config.RELEASE,
-            target_bits = 64,
-            target_platform = builder_config.target_platform.FUCHSIA,
-        ),
-    ),
-    gn_args = gn_args.config(
-        configs = [
-            "release_builder",
-            "remoteexec",
-            "fuchsia",
-            "blink_symbol",
-            "minimal_symbols",
-            "x64",
-            "dcheck_always_on",
-        ],
-    ),
-    targets = targets.bundle(
-        targets = "fuchsia_accessibility_browsertests",
-        additional_compile_targets = "content_browsertests",
-        mixins = [
-            "fuchsia-large-device-spec",
-            "linux-ubuntu",
-            targets.mixin(
-                swarming = targets.swarming(
-                    dimensions = {
-                        "kvm": "1",
-                    },
-                ),
-            ),
-        ],
-    ),
-    ssd = None,
-    console_view_entry = [
-        consoles.console_view_entry(
-            category = "rel",
-            short_name = "fsia-x64",
-        ),
-        consoles.console_view_entry(
-            branch_selector = branches.selector.MAIN,
-            console_view = "sheriff.fuchsia",
-            category = "ci|x64",
-            short_name = "a11y",
-        ),
-    ],
-)
-
-ci.builder(
     name = "linux-blink-web-tests-force-accessibility-rel",
     description_html = "Runs Blink web tests and accessibility gtests on Linux with --force-renderer-accessibility enabled.",
     builder_spec = builder_config.builder_spec(

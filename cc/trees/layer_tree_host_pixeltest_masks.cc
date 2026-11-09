@@ -440,8 +440,8 @@ TEST_P(LayerTreeHostMasksPixelTest, MaskOfLayerNonExactTextureSize) {
 class CheckerContentLayerClient : public ContentLayerClient {
  public:
   CheckerContentLayerClient(const gfx::Size& bounds,
-                           SkColor color,
-                           bool vertical)
+                            SkColor color,
+                            bool vertical)
       : bounds_(bounds), color_(color), vertical_(vertical) {}
   ~CheckerContentLayerClient() override = default;
   bool FillsBoundsCompletely() const override { return false; }
@@ -651,19 +651,19 @@ TEST_P(LayerTreeHostMasksForBackdropFiltersPixelTestWithLayerTree, Test) {
 }
 
 TEST_P(LayerTreeHostMasksPixelTest, MaskOfLayerWithBlend) {
-  scoped_refptr<SolidColorLayer> background = CreateSolidColorLayer(
-      gfx::Rect(128, 128), SK_ColorWHITE);
+  scoped_refptr<SolidColorLayer> background =
+      CreateSolidColorLayer(gfx::Rect(128, 128), SK_ColorWHITE);
 
   gfx::Size picture_bounds(128, 128);
-  CheckerContentLayerClient picture_client_vertical(
-      picture_bounds, SK_ColorGREEN, true);
+  CheckerContentLayerClient picture_client_vertical(picture_bounds,
+                                                    SK_ColorGREEN, true);
   scoped_refptr<PictureLayer> picture_vertical =
       PictureLayer::Create(&picture_client_vertical);
   picture_vertical->SetBounds(picture_bounds);
   picture_vertical->SetIsDrawable(true);
 
-  CheckerContentLayerClient picture_client_horizontal(
-      picture_bounds, SK_ColorMAGENTA, false);
+  CheckerContentLayerClient picture_client_horizontal(picture_bounds,
+                                                      SK_ColorMAGENTA, false);
   scoped_refptr<PictureLayer> picture_horizontal =
       PictureLayer::Create(&picture_client_horizontal);
   picture_horizontal->SetBounds(picture_bounds);
@@ -687,9 +687,9 @@ TEST_P(LayerTreeHostMasksPixelTest, MaskOfLayerWithBlend) {
           .SetErrorPixelsPercentageLimit(0.04f)  // 0.04%, ~6px / (128*128)
           .SetAbsErrorLimit(255));
 
-  RunPixelResourceTest(background,
-                       base::FilePath(
-                           FILE_PATH_LITERAL("mask_of_layer_with_blend.png")));
+  RunPixelResourceTest(
+      background,
+      base::FilePath(FILE_PATH_LITERAL("mask_of_layer_with_blend.png")));
 }
 
 class StaticPictureLayer : private ContentLayerClient, public PictureLayer {
@@ -755,8 +755,7 @@ class LayerTreeHostMaskAsBlendingPixelTest
       small_error_allowed = 1;
     } else {
 #if defined(ARCH_CPU_ARM64)
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_APPLE) || \
-    BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX)
       // ARM Windows, macOS, iOS, Fuchsia and Linux have some pixels difference
       // Affected tests: RotatedClippedCircle, RotatedClippedCircleUnderflow
       // crbug.com/1030244, crbug.com/1048249, crbug.com/1128443
@@ -796,8 +795,9 @@ class LayerTreeHostMaskAsBlendingPixelTest
     for (int j = 0; j < (bounds.height() + kGridSize - 1) / kGridSize; j++) {
       for (int i = 0; i < (bounds.width() + kGridSize - 1) / kGridSize; i++) {
         bool is_odd_grid = (i ^ j) & 1;
-        if (!is_odd_grid)
+        if (!is_odd_grid) {
           continue;
+        }
         display_list->push<DrawRectOp>(
             SkRect::MakeXYWH(i * kGridSize, j * kGridSize, kGridSize,
                              kGridSize),

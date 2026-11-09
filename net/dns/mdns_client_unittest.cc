@@ -108,73 +108,215 @@ const uint8_t kSamplePacket1WithCapitalization[] = {
 
 const uint8_t kCorruptedPacketBadQuestion[] = {
     // Header
-    0x00, 0x00,  // ID is zeroed out
-    0x81, 0x80,  // Standard query response, RA, no error
-    0x00, 0x01,  // One question
-    0x00, 0x02,  // 2 RRs (answers)
-    0x00, 0x00,  // 0 authority RRs
-    0x00, 0x00,  // 0 additional RRs
+    0x00,
+    0x00,  // ID is zeroed out
+    0x81,
+    0x80,  // Standard query response, RA, no error
+    0x00,
+    0x01,  // One question
+    0x00,
+    0x02,  // 2 RRs (answers)
+    0x00,
+    0x00,  // 0 authority RRs
+    0x00,
+    0x00,  // 0 additional RRs
 
     // Question is corrupted and cannot be read.
-    0x99, 'h', 'e', 'l', 'l', 'o', 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x99,
+    'h',
+    'e',
+    'l',
+    'l',
+    'o',
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
 
     // Answer 1
-    0x07, '_', 'p', 'r', 'i', 'v', 'e', 't', 0x04, '_', 't', 'c', 'p', 0x05,
-    'l', 'o', 'c', 'a', 'l', 0x00, 0x00, 0x0c,  // TYPE is PTR.
-    0x00, 0x01,                                 // CLASS is IN.
-    0x00, 0x01,  // TTL (4 bytes) is 20 hours, 47 minutes, 48 seconds.
-    0x24, 0x74, 0x00, 0x99,  // RDLENGTH is impossible
-    0x05, 'h', 'e', 'l', 'l', 'o', 0xc0, 0x0c,
+    0x07,
+    '_',
+    'p',
+    'r',
+    'i',
+    'v',
+    'e',
+    't',
+    0x04,
+    '_',
+    't',
+    'c',
+    'p',
+    0x05,
+    'l',
+    'o',
+    'c',
+    'a',
+    'l',
+    0x00,
+    0x00,
+    0x0c,  // TYPE is PTR.
+    0x00,
+    0x01,  // CLASS is IN.
+    0x00,
+    0x01,  // TTL (4 bytes) is 20 hours, 47 minutes, 48 seconds.
+    0x24,
+    0x74,
+    0x00,
+    0x99,  // RDLENGTH is impossible
+    0x05,
+    'h',
+    'e',
+    'l',
+    'l',
+    'o',
+    0xc0,
+    0x0c,
 
     // Answer 2
-    0x08, '_', 'p', 'r',  // Useless trailing data.
+    0x08,
+    '_',
+    'p',
+    'r',  // Useless trailing data.
 };
 
 const uint8_t kCorruptedPacketUnsalvagable[] = {
     // Header
-    0x00, 0x00,  // ID is zeroed out
-    0x81, 0x80,  // Standard query response, RA, no error
-    0x00, 0x00,  // No questions (for simplicity)
-    0x00, 0x02,  // 2 RRs (answers)
-    0x00, 0x00,  // 0 authority RRs
-    0x00, 0x00,  // 0 additional RRs
+    0x00,
+    0x00,  // ID is zeroed out
+    0x81,
+    0x80,  // Standard query response, RA, no error
+    0x00,
+    0x00,  // No questions (for simplicity)
+    0x00,
+    0x02,  // 2 RRs (answers)
+    0x00,
+    0x00,  // 0 authority RRs
+    0x00,
+    0x00,  // 0 additional RRs
 
     // Answer 1
-    0x07, '_', 'p', 'r', 'i', 'v', 'e', 't', 0x04, '_', 't', 'c', 'p', 0x05,
-    'l', 'o', 'c', 'a', 'l', 0x00, 0x00, 0x0c,  // TYPE is PTR.
-    0x00, 0x01,                                 // CLASS is IN.
-    0x00, 0x01,  // TTL (4 bytes) is 20 hours, 47 minutes, 48 seconds.
-    0x24, 0x74, 0x00, 0x99,  // RDLENGTH is impossible
-    0x05, 'h', 'e', 'l', 'l', 'o', 0xc0, 0x0c,
+    0x07,
+    '_',
+    'p',
+    'r',
+    'i',
+    'v',
+    'e',
+    't',
+    0x04,
+    '_',
+    't',
+    'c',
+    'p',
+    0x05,
+    'l',
+    'o',
+    'c',
+    'a',
+    'l',
+    0x00,
+    0x00,
+    0x0c,  // TYPE is PTR.
+    0x00,
+    0x01,  // CLASS is IN.
+    0x00,
+    0x01,  // TTL (4 bytes) is 20 hours, 47 minutes, 48 seconds.
+    0x24,
+    0x74,
+    0x00,
+    0x99,  // RDLENGTH is impossible
+    0x05,
+    'h',
+    'e',
+    'l',
+    'l',
+    'o',
+    0xc0,
+    0x0c,
 
     // Answer 2
-    0x08, '_', 'p', 'r',  // Useless trailing data.
+    0x08,
+    '_',
+    'p',
+    'r',  // Useless trailing data.
 };
 
 const uint8_t kCorruptedPacketDoubleRecord[] = {
     // Header
-    0x00, 0x00,  // ID is zeroed out
-    0x81, 0x80,  // Standard query response, RA, no error
-    0x00, 0x00,  // No questions (for simplicity)
-    0x00, 0x02,  // 2 RRs (answers)
-    0x00, 0x00,  // 0 authority RRs
-    0x00, 0x00,  // 0 additional RRs
+    0x00,
+    0x00,  // ID is zeroed out
+    0x81,
+    0x80,  // Standard query response, RA, no error
+    0x00,
+    0x00,  // No questions (for simplicity)
+    0x00,
+    0x02,  // 2 RRs (answers)
+    0x00,
+    0x00,  // 0 authority RRs
+    0x00,
+    0x00,  // 0 additional RRs
 
     // Answer 1
-    0x06, 'p', 'r', 'i', 'v', 'e', 't', 0x05, 'l', 'o', 'c', 'a', 'l', 0x00,
-    0x00, 0x01,  // TYPE is A.
-    0x00, 0x01,  // CLASS is IN.
-    0x00, 0x01,  // TTL (4 bytes) is 20 hours, 47 minutes, 48 seconds.
-    0x24, 0x74, 0x00, 0x04,  // RDLENGTH is 4
-    0x05, 0x03, 0xc0, 0x0c,
+    0x06,
+    'p',
+    'r',
+    'i',
+    'v',
+    'e',
+    't',
+    0x05,
+    'l',
+    'o',
+    'c',
+    'a',
+    'l',
+    0x00,
+    0x00,
+    0x01,  // TYPE is A.
+    0x00,
+    0x01,  // CLASS is IN.
+    0x00,
+    0x01,  // TTL (4 bytes) is 20 hours, 47 minutes, 48 seconds.
+    0x24,
+    0x74,
+    0x00,
+    0x04,  // RDLENGTH is 4
+    0x05,
+    0x03,
+    0xc0,
+    0x0c,
 
     // Answer 2 -- Same key
-    0x06, 'p', 'r', 'i', 'v', 'e', 't', 0x05, 'l', 'o', 'c', 'a', 'l', 0x00,
-    0x00, 0x01,  // TYPE is A.
-    0x00, 0x01,  // CLASS is IN.
-    0x00, 0x01,  // TTL (4 bytes) is 20 hours, 47 minutes, 48 seconds.
-    0x24, 0x74, 0x00, 0x04,  // RDLENGTH is 4
-    0x02, 0x03, 0x04, 0x05,
+    0x06,
+    'p',
+    'r',
+    'i',
+    'v',
+    'e',
+    't',
+    0x05,
+    'l',
+    'o',
+    'c',
+    'a',
+    'l',
+    0x00,
+    0x00,
+    0x01,  // TYPE is A.
+    0x00,
+    0x01,  // CLASS is IN.
+    0x00,
+    0x01,  // TTL (4 bytes) is 20 hours, 47 minutes, 48 seconds.
+    0x24,
+    0x74,
+    0x00,
+    0x04,  // RDLENGTH is 4
+    0x02,
+    0x03,
+    0x04,
+    0x05,
 };
 
 const uint8_t kCorruptedPacketSalvagable[] = {
@@ -264,68 +406,187 @@ const uint8_t kSamplePacket3[] = {
 
 const uint8_t kQueryPacketPrivet[] = {
     // Header
-    0x00, 0x00,  // ID is zeroed out
-    0x00, 0x00,  // No flags.
-    0x00, 0x01,  // One question.
-    0x00, 0x00,  // 0 RRs (answers)
-    0x00, 0x00,  // 0 authority RRs
-    0x00, 0x00,  // 0 additional RRs
+    0x00,
+    0x00,  // ID is zeroed out
+    0x00,
+    0x00,  // No flags.
+    0x00,
+    0x01,  // One question.
+    0x00,
+    0x00,  // 0 RRs (answers)
+    0x00,
+    0x00,  // 0 authority RRs
+    0x00,
+    0x00,  // 0 additional RRs
 
     // Question
     // This part is echoed back from the respective query.
-    0x07, '_', 'p', 'r', 'i', 'v', 'e', 't', 0x04, '_', 't', 'c', 'p', 0x05,
-    'l', 'o', 'c', 'a', 'l', 0x00, 0x00, 0x0c,  // TYPE is PTR.
-    0x00, 0x01,                                 // CLASS is IN.
+    0x07,
+    '_',
+    'p',
+    'r',
+    'i',
+    'v',
+    'e',
+    't',
+    0x04,
+    '_',
+    't',
+    'c',
+    'p',
+    0x05,
+    'l',
+    'o',
+    'c',
+    'a',
+    'l',
+    0x00,
+    0x00,
+    0x0c,  // TYPE is PTR.
+    0x00,
+    0x01,  // CLASS is IN.
 };
 
 const uint8_t kQueryPacketPrivetWithCapitalization[] = {
     // Header
-    0x00, 0x00,  // ID is zeroed out
-    0x00, 0x00,  // No flags.
-    0x00, 0x01,  // One question.
-    0x00, 0x00,  // 0 RRs (answers)
-    0x00, 0x00,  // 0 authority RRs
-    0x00, 0x00,  // 0 additional RRs
+    0x00,
+    0x00,  // ID is zeroed out
+    0x00,
+    0x00,  // No flags.
+    0x00,
+    0x01,  // One question.
+    0x00,
+    0x00,  // 0 RRs (answers)
+    0x00,
+    0x00,  // 0 authority RRs
+    0x00,
+    0x00,  // 0 additional RRs
 
     // Question
     // This part is echoed back from the respective query.
-    0x07, '_', 'P', 'R', 'I', 'V', 'E', 'T', 0x04, '_', 't', 'c', 'p', 0x05,
-    'l', 'o', 'c', 'a', 'l', 0x00, 0x00, 0x0c,  // TYPE is PTR.
-    0x00, 0x01,                                 // CLASS is IN.
+    0x07,
+    '_',
+    'P',
+    'R',
+    'I',
+    'V',
+    'E',
+    'T',
+    0x04,
+    '_',
+    't',
+    'c',
+    'p',
+    0x05,
+    'l',
+    'o',
+    'c',
+    'a',
+    'l',
+    0x00,
+    0x00,
+    0x0c,  // TYPE is PTR.
+    0x00,
+    0x01,  // CLASS is IN.
 };
 
 const uint8_t kQueryPacketPrivetA[] = {
     // Header
-    0x00, 0x00,  // ID is zeroed out
-    0x00, 0x00,  // No flags.
-    0x00, 0x01,  // One question.
-    0x00, 0x00,  // 0 RRs (answers)
-    0x00, 0x00,  // 0 authority RRs
-    0x00, 0x00,  // 0 additional RRs
+    0x00,
+    0x00,  // ID is zeroed out
+    0x00,
+    0x00,  // No flags.
+    0x00,
+    0x01,  // One question.
+    0x00,
+    0x00,  // 0 RRs (answers)
+    0x00,
+    0x00,  // 0 authority RRs
+    0x00,
+    0x00,  // 0 additional RRs
 
     // Question
     // This part is echoed back from the respective query.
-    0x07, '_', 'p', 'r', 'i', 'v', 'e', 't', 0x04, '_', 't', 'c', 'p', 0x05,
-    'l', 'o', 'c', 'a', 'l', 0x00, 0x00, 0x01,  // TYPE is A.
-    0x00, 0x01,                                 // CLASS is IN.
+    0x07,
+    '_',
+    'p',
+    'r',
+    'i',
+    'v',
+    'e',
+    't',
+    0x04,
+    '_',
+    't',
+    'c',
+    'p',
+    0x05,
+    'l',
+    'o',
+    'c',
+    'a',
+    'l',
+    0x00,
+    0x00,
+    0x01,  // TYPE is A.
+    0x00,
+    0x01,  // CLASS is IN.
 };
 
 const uint8_t kSamplePacketAdditionalOnly[] = {
     // Header
-    0x00, 0x00,  // ID is zeroed out
-    0x81, 0x80,  // Standard query response, RA, no error
-    0x00, 0x00,  // No questions (for simplicity)
-    0x00, 0x00,  // 2 RRs (answers)
-    0x00, 0x00,  // 0 authority RRs
-    0x00, 0x01,  // 0 additional RRs
+    0x00,
+    0x00,  // ID is zeroed out
+    0x81,
+    0x80,  // Standard query response, RA, no error
+    0x00,
+    0x00,  // No questions (for simplicity)
+    0x00,
+    0x00,  // 2 RRs (answers)
+    0x00,
+    0x00,  // 0 authority RRs
+    0x00,
+    0x01,  // 0 additional RRs
 
     // Answer 1
-    0x07, '_', 'p', 'r', 'i', 'v', 'e', 't', 0x04, '_', 't', 'c', 'p', 0x05,
-    'l', 'o', 'c', 'a', 'l', 0x00, 0x00, 0x0c,  // TYPE is PTR.
-    0x00, 0x01,                                 // CLASS is IN.
-    0x00, 0x01,  // TTL (4 bytes) is 20 hours, 47 minutes, 48 seconds.
-    0x24, 0x74, 0x00, 0x08,  // RDLENGTH is 8 bytes.
-    0x05, 'h', 'e', 'l', 'l', 'o', 0xc0, 0x0c,
+    0x07,
+    '_',
+    'p',
+    'r',
+    'i',
+    'v',
+    'e',
+    't',
+    0x04,
+    '_',
+    't',
+    'c',
+    'p',
+    0x05,
+    'l',
+    'o',
+    'c',
+    'a',
+    'l',
+    0x00,
+    0x00,
+    0x0c,  // TYPE is PTR.
+    0x00,
+    0x01,  // CLASS is IN.
+    0x00,
+    0x01,  // TTL (4 bytes) is 20 hours, 47 minutes, 48 seconds.
+    0x24,
+    0x74,
+    0x00,
+    0x08,  // RDLENGTH is 8 bytes.
+    0x05,
+    'h',
+    'e',
+    'l',
+    'l',
+    'o',
+    0xc0,
+    0x0c,
 };
 
 const uint8_t kSamplePacketNsec[] = {
@@ -348,20 +609,54 @@ const uint8_t kSamplePacketNsec[] = {
 
 const uint8_t kSamplePacketAPrivet[] = {
     // Header
-    0x00, 0x00,  // ID is zeroed out
-    0x81, 0x80,  // Standard query response, RA, no error
-    0x00, 0x00,  // No questions (for simplicity)
-    0x00, 0x01,  // 1 RR (answers)
-    0x00, 0x00,  // 0 authority RRs
-    0x00, 0x00,  // 0 additional RRs
+    0x00,
+    0x00,  // ID is zeroed out
+    0x81,
+    0x80,  // Standard query response, RA, no error
+    0x00,
+    0x00,  // No questions (for simplicity)
+    0x00,
+    0x01,  // 1 RR (answers)
+    0x00,
+    0x00,  // 0 authority RRs
+    0x00,
+    0x00,  // 0 additional RRs
 
     // Answer 1
-    0x07, '_', 'p', 'r', 'i', 'v', 'e', 't', 0x04, '_', 't', 'c', 'p', 0x05,
-    'l', 'o', 'c', 'a', 'l', 0x00, 0x00, 0x01,  // TYPE is A.
-    0x00, 0x01,                                 // CLASS is IN.
-    0x00, 0x00,                                 // TTL (4 bytes) is 5 seconds
-    0x00, 0x05, 0x00, 0x04,                     // RDLENGTH is 4 bytes.
-    0xc0, 0x0c, 0x00, 0x02,
+    0x07,
+    '_',
+    'p',
+    'r',
+    'i',
+    'v',
+    'e',
+    't',
+    0x04,
+    '_',
+    't',
+    'c',
+    'p',
+    0x05,
+    'l',
+    'o',
+    'c',
+    'a',
+    'l',
+    0x00,
+    0x00,
+    0x01,  // TYPE is A.
+    0x00,
+    0x01,  // CLASS is IN.
+    0x00,
+    0x00,  // TTL (4 bytes) is 5 seconds
+    0x00,
+    0x05,
+    0x00,
+    0x04,  // RDLENGTH is 4 bytes.
+    0xc0,
+    0x0c,
+    0x00,
+    0x02,
 };
 
 const uint8_t kSamplePacketAPrivetMaxTTL[] = {
@@ -418,20 +713,58 @@ const uint8_t kSamplePacketAPrivetMaxTTL[] = {
 
 const uint8_t kSamplePacketGoodbye[] = {
     // Header
-    0x00, 0x00,  // ID is zeroed out
-    0x81, 0x80,  // Standard query response, RA, no error
-    0x00, 0x00,  // No questions (for simplicity)
-    0x00, 0x01,  // 2 RRs (answers)
-    0x00, 0x00,  // 0 authority RRs
-    0x00, 0x00,  // 0 additional RRs
+    0x00,
+    0x00,  // ID is zeroed out
+    0x81,
+    0x80,  // Standard query response, RA, no error
+    0x00,
+    0x00,  // No questions (for simplicity)
+    0x00,
+    0x01,  // 2 RRs (answers)
+    0x00,
+    0x00,  // 0 authority RRs
+    0x00,
+    0x00,  // 0 additional RRs
 
     // Answer 1
-    0x07, '_', 'p', 'r', 'i', 'v', 'e', 't', 0x04, '_', 't', 'c', 'p', 0x05,
-    'l', 'o', 'c', 'a', 'l', 0x00, 0x00, 0x0c,  // TYPE is PTR.
-    0x00, 0x01,                                 // CLASS is IN.
-    0x00, 0x00,                                 // TTL (4 bytes) is zero;
-    0x00, 0x00, 0x00, 0x08,                     // RDLENGTH is 8 bytes.
-    0x05, 'z', 'z', 'z', 'z', 'z', 0xc0, 0x0c,
+    0x07,
+    '_',
+    'p',
+    'r',
+    'i',
+    'v',
+    'e',
+    't',
+    0x04,
+    '_',
+    't',
+    'c',
+    'p',
+    0x05,
+    'l',
+    'o',
+    'c',
+    'a',
+    'l',
+    0x00,
+    0x00,
+    0x0c,  // TYPE is PTR.
+    0x00,
+    0x01,  // CLASS is IN.
+    0x00,
+    0x00,  // TTL (4 bytes) is zero;
+    0x00,
+    0x00,
+    0x00,
+    0x08,  // RDLENGTH is 8 bytes.
+    0x05,
+    'z',
+    'z',
+    'z',
+    'z',
+    'z',
+    0xc0,
+    0x0c,
 };
 
 std::string MakeString(base::span<const uint8_t> packet) {
@@ -445,9 +778,7 @@ class PtrRecordCopyContainer {
 
   bool is_set() const { return set_; }
 
-  void SaveWithDummyArg(int unused, const RecordParsed* value) {
-    Save(value);
-  }
+  void SaveWithDummyArg(int unused, const RecordParsed* value) { Save(value); }
 
   void Save(const RecordParsed* value) {
     set_ = true;
@@ -522,11 +853,13 @@ class MDnsTest : public TestWithTaskEnvironment {
   void RunFor(base::TimeDelta time_period);
   void Stop();
 
-  MOCK_METHOD2(MockableRecordCallback, void(MDnsTransaction::Result result,
-                                            const RecordParsed* record));
+  MOCK_METHOD2(MockableRecordCallback,
+               void(MDnsTransaction::Result result,
+                    const RecordParsed* record));
 
-  MOCK_METHOD2(MockableRecordCallback2, void(MDnsTransaction::Result result,
-                                             const RecordParsed* record));
+  MOCK_METHOD2(MockableRecordCallback2,
+               void(MDnsTransaction::Result result,
+                    const RecordParsed* record));
 
  protected:
   void ExpectPacket(base::span<const uint8_t> packet);
@@ -609,15 +942,13 @@ TEST_F(MDnsTest, PassiveListeners) {
 
   EXPECT_CALL(delegate_privet, OnRecordUpdate(MDnsListener::RECORD_ADDED, _))
       .Times(Exactly(1))
-      .WillOnce(Invoke(
-          &record_privet,
-          &PtrRecordCopyContainer::SaveWithDummyArg));
+      .WillOnce(
+          Invoke(&record_privet, &PtrRecordCopyContainer::SaveWithDummyArg));
 
   EXPECT_CALL(delegate_printer, OnRecordUpdate(MDnsListener::RECORD_ADDED, _))
       .Times(Exactly(1))
-      .WillOnce(Invoke(
-          &record_printer,
-          &PtrRecordCopyContainer::SaveWithDummyArg));
+      .WillOnce(
+          Invoke(&record_printer, &PtrRecordCopyContainer::SaveWithDummyArg));
 
   SimulatePacketReceive(kSamplePacket1);
   SimulatePacketReceive(kSamplePacket1);
@@ -685,9 +1016,8 @@ TEST_F(MDnsTest, PassiveListenersCacheCleanup) {
 
   EXPECT_CALL(delegate_privet, OnRecordUpdate(MDnsListener::RECORD_ADDED, _))
       .Times(Exactly(1))
-      .WillOnce(Invoke(
-          &record_privet,
-          &PtrRecordCopyContainer::SaveWithDummyArg));
+      .WillOnce(
+          Invoke(&record_privet, &PtrRecordCopyContainer::SaveWithDummyArg));
 
   SimulatePacketReceive(kSamplePacket1);
 
@@ -697,9 +1027,9 @@ TEST_F(MDnsTest, PassiveListenersCacheCleanup) {
   // Expect record is removed when its TTL expires.
   EXPECT_CALL(delegate_privet, OnRecordUpdate(MDnsListener::RECORD_REMOVED, _))
       .Times(Exactly(1))
-      .WillOnce(DoAll(InvokeWithoutArgs(this, &MDnsTest::Stop),
-                      Invoke(&record_privet2,
-                             &PtrRecordCopyContainer::SaveWithDummyArg)));
+      .WillOnce(DoAll(
+          InvokeWithoutArgs(this, &MDnsTest::Stop),
+          Invoke(&record_privet2, &PtrRecordCopyContainer::SaveWithDummyArg)));
 
   RunFor(base::Seconds(record_privet.ttl() + 1));
 
@@ -816,9 +1146,8 @@ TEST_F(MDnsTest, MalformedPacket) {
 
   EXPECT_CALL(delegate_printer, OnRecordUpdate(MDnsListener::RECORD_ADDED, _))
       .Times(Exactly(1))
-      .WillOnce(Invoke(
-          &record_printer,
-          &PtrRecordCopyContainer::SaveWithDummyArg));
+      .WillOnce(
+          Invoke(&record_printer, &PtrRecordCopyContainer::SaveWithDummyArg));
 
   // First, send unsalvagable packet to ensure we can deal with it.
   SimulatePacketReceive(kCorruptedPacketUnsalvagable);
@@ -850,8 +1179,8 @@ TEST_F(MDnsTest, TransactionWithEmptyCache) {
 
   EXPECT_CALL(*this, MockableRecordCallback(MDnsTransaction::RESULT_RECORD, _))
       .Times(Exactly(1))
-      .WillOnce(Invoke(&record_privet,
-                       &PtrRecordCopyContainer::SaveWithDummyArg));
+      .WillOnce(
+          Invoke(&record_privet, &PtrRecordCopyContainer::SaveWithDummyArg));
 
   SimulatePacketReceive(kSamplePacket1);
 
@@ -915,8 +1244,8 @@ TEST_F(MDnsTest, TransactionWithCache) {
   PtrRecordCopyContainer record_privet;
 
   EXPECT_CALL(*this, MockableRecordCallback(MDnsTransaction::RESULT_RECORD, _))
-      .WillOnce(Invoke(&record_privet,
-                       &PtrRecordCopyContainer::SaveWithDummyArg));
+      .WillOnce(
+          Invoke(&record_privet, &PtrRecordCopyContainer::SaveWithDummyArg));
 
   std::unique_ptr<MDnsTransaction> transaction_privet =
       test_client_->CreateTransaction(
@@ -937,20 +1266,69 @@ TEST_F(MDnsTest, RecordQueryMetric) {
 
   const uint8_t query_packet_uuid[] = {
       // Header
-      0x00, 0x00,  // ID is zeroed out
-      0x00, 0x00,  // No flags.
-      0x00, 0x01,  // One question.
-      0x00, 0x00,  // 0 RRs (answers)
-      0x00, 0x00,  // 0 authority RRs
-      0x00, 0x00,  // 0 additional RRs
+      0x00,
+      0x00,  // ID is zeroed out
+      0x00,
+      0x00,  // No flags.
+      0x00,
+      0x01,  // One question.
+      0x00,
+      0x00,  // 0 RRs (answers)
+      0x00,
+      0x00,  // 0 authority RRs
+      0x00,
+      0x00,  // 0 additional RRs
 
       // Question
       // This part is echoed back from the respective query.
-      0x24, 'd', '9', '6', '2', 'c', '9', 'd', 'e', '-', 'a', 'f', '2', 'a',
-      '-', '4', '5', '6', '0', '-', 'a', 'c', 'c', '5', '-', 'a', 'c', '3', 'a',
-      '0', '9', '8', '4', '1', '6', 'b', '2', 0x05, 'l', 'o', 'c', 'a', 'l',
-      0x00, 0x00, 0x0c,  // TYPE is PTR.
-      0x00, 0x01,        // CLASS is IN.
+      0x24,
+      'd',
+      '9',
+      '6',
+      '2',
+      'c',
+      '9',
+      'd',
+      'e',
+      '-',
+      'a',
+      'f',
+      '2',
+      'a',
+      '-',
+      '4',
+      '5',
+      '6',
+      '0',
+      '-',
+      'a',
+      'c',
+      'c',
+      '5',
+      '-',
+      'a',
+      'c',
+      '3',
+      'a',
+      '0',
+      '9',
+      '8',
+      '4',
+      '1',
+      '6',
+      'b',
+      '2',
+      0x05,
+      'l',
+      'o',
+      'c',
+      'a',
+      'l',
+      0x00,
+      0x00,
+      0x0c,  // TYPE is PTR.
+      0x00,
+      0x01,  // CLASS is IN.
   };
 
   ExpectPacket(query_packet_uuid);
@@ -979,9 +1357,8 @@ TEST_F(MDnsTest, AdditionalRecords) {
 
   EXPECT_CALL(delegate_privet, OnRecordUpdate(MDnsListener::RECORD_ADDED, _))
       .Times(Exactly(1))
-      .WillOnce(Invoke(
-          &record_privet,
-          &PtrRecordCopyContainer::SaveWithDummyArg));
+      .WillOnce(
+          Invoke(&record_privet, &PtrRecordCopyContainer::SaveWithDummyArg));
 
   SimulatePacketReceive(kSamplePacketAdditionalOnly);
 
@@ -1027,10 +1404,10 @@ TEST_F(MDnsTest, TransactionMultipleRecords) {
 
   EXPECT_CALL(*this, MockableRecordCallback(MDnsTransaction::RESULT_RECORD, _))
       .Times(Exactly(2))
-      .WillOnce(Invoke(&record_privet,
-                       &PtrRecordCopyContainer::SaveWithDummyArg))
-      .WillOnce(Invoke(&record_privet2,
-                       &PtrRecordCopyContainer::SaveWithDummyArg));
+      .WillOnce(
+          Invoke(&record_privet, &PtrRecordCopyContainer::SaveWithDummyArg))
+      .WillOnce(
+          Invoke(&record_privet2, &PtrRecordCopyContainer::SaveWithDummyArg));
 
   SimulatePacketReceive(kSamplePacket1);
   SimulatePacketReceive(kSamplePacket2);
@@ -1114,15 +1491,13 @@ TEST_F(MDnsTest, TransactionReentrantCacheLookupStart) {
           base::BindRepeating(&MDnsTest::MockableRecordCallback2,
                               base::Unretained(this)));
 
-  EXPECT_CALL(*this, MockableRecordCallback2(MDnsTransaction::RESULT_RECORD,
-                                             _))
+  EXPECT_CALL(*this, MockableRecordCallback2(MDnsTransaction::RESULT_RECORD, _))
       .Times(Exactly(1));
 
-  EXPECT_CALL(*this, MockableRecordCallback(MDnsTransaction::RESULT_RECORD,
-                                            _))
+  EXPECT_CALL(*this, MockableRecordCallback(MDnsTransaction::RESULT_RECORD, _))
       .Times(Exactly(1))
-      .WillOnce(IgnoreResult(InvokeWithoutArgs(transaction2.get(),
-                                               &MDnsTransaction::Start)));
+      .WillOnce(IgnoreResult(
+          InvokeWithoutArgs(transaction2.get(), &MDnsTransaction::Start)));
 
   ASSERT_TRUE(transaction1->Start());
 
@@ -1317,11 +1692,7 @@ TEST_F(MDnsTest, NsecConflictRemoval) {
 }
 
 // TODO(crbug.com/40807339): Flaky on fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_RefreshQuery DISABLED_RefreshQuery
-#else
 #define MAYBE_RefreshQuery RefreshQuery
-#endif
 TEST_F(MDnsTest, MAYBE_RefreshQuery) {
   StrictMock<MockListenerDelegate> delegate_privet;
   std::unique_ptr<MDnsListener> listener_privet = test_client_->CreateListener(
@@ -1344,11 +1715,7 @@ TEST_F(MDnsTest, MAYBE_RefreshQuery) {
   RunFor(base::Seconds(6));
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_RefreshQueryMaxTTL DISABLED_RefreshQueryMaxTTL
-#else
 #define MAYBE_RefreshQueryMaxTTL RefreshQueryMaxTTL
-#endif
 TEST_F(MDnsTest, MAYBE_RefreshQueryMaxTTL) {
   StrictMock<MockListenerDelegate> delegate_privet;
   std::unique_ptr<MDnsListener> listener_privet = test_client_->CreateListener(
@@ -1461,8 +1828,7 @@ class MockMDnsConnectionDelegate : public MDnsConnection::Delegate {
 
 class MDnsConnectionTest : public TestWithTaskEnvironment {
  public:
-  MDnsConnectionTest() : connection_(&delegate_) {
-  }
+  MDnsConnectionTest() : connection_(&delegate_) {}
 
  protected:
   // Follow successful connection initialization.
@@ -1604,12 +1970,7 @@ TEST_F(MDnsConnectionSendTest, SendQueued) {
   std::move(callback).Run(OK);
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-// Fails on Fuchsia due to conflict with the system MDNS service.
-#define MAYBE_CreateSocket DISABLED_CreateSocket
-#else
 #define MAYBE_CreateSocket CreateSocket
-#endif
 TEST(MDnsSocketTest, MAYBE_CreateSocket) {
   // Verifies that socket creation hasn't been broken.
   auto socket = CreateAndBindMDnsSocket(AddressFamily::ADDRESS_FAMILY_IPV4, 1,

@@ -262,7 +262,7 @@ def _DecomposePath(filename):
 
 
 _PLATFORM_SUFFIX = (
-  r'(?:_(?:android|aura|chromeos|fuchsia|ios|linux|mac|ozone|posix|win|x11))?'
+  r'(?:_(?:android|aura|chromeos|ios|linux|mac|ozone|posix|win|x11))?'
 )
 _TEST_SUFFIX = r'(?:_(?:browser|interactive_ui|perf|ui|unit)?test)?'
 

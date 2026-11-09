@@ -14,7 +14,7 @@
 #include "sandbox/policy/switches.h"
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-#include "media/gpu/buildflags.h"  // nogncheck
+#include "media/gpu/buildflags.h"    // nogncheck
 #include "media/media_buildflags.h"  // nogncheck
 #endif
 
@@ -65,10 +65,6 @@ constexpr char kProxyResolverSandbox[] = "proxy_resolver";
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
 constexpr char kWebNNModelCompilationSandbox[] = "webnn_model_compilation";
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
-
-#if BUILDFLAG(IS_FUCHSIA)
-constexpr char kVideoCaptureSandbox[] = "video_capture";
-#endif
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 constexpr char kShapeDetectionSandbox[] = "shape_detection";
@@ -140,9 +136,6 @@ void SetCommandLineFlagsForSandboxType(base::CommandLine* command_line,
     case Sandbox::kCdm:
     case Sandbox::kPrintCompositor:
     case Sandbox::kAudio:
-#if BUILDFLAG(IS_FUCHSIA)
-    case Sandbox::kVideoCapture:
-#endif
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
     case Sandbox::kXrCompositing:
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
@@ -202,31 +195,36 @@ void SetCommandLineFlagsForSandboxType(base::CommandLine* command_line,
 
 sandbox::mojom::Sandbox SandboxTypeFromCommandLine(
     const base::CommandLine& command_line) {
-  if (command_line.HasSwitch(switches::kNoSandbox))
+  if (command_line.HasSwitch(switches::kNoSandbox)) {
     return Sandbox::kNoSandbox;
+  }
 
   std::string process_type =
       command_line.GetSwitchValueASCII(switches::kProcessType);
-  if (process_type.empty())
+  if (process_type.empty()) {
     return Sandbox::kNoSandbox;
+  }
 
-  if (process_type == switches::kRendererProcess)
+  if (process_type == switches::kRendererProcess) {
     return Sandbox::kRenderer;
+  }
 
   if (process_type == switches::kUtilityProcess) {
     return UtilitySandboxTypeFromString(
         command_line.GetSwitchValueASCII(switches::kServiceSandboxType));
   }
   if (process_type == switches::kGpuProcess) {
-    if (command_line.HasSwitch(switches::kDisableGpuSandbox))
+    if (command_line.HasSwitch(switches::kDisableGpuSandbox)) {
       return Sandbox::kNoSandbox;
+    }
     return Sandbox::kGpu;
   }
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   // Intermediate process gains a sandbox later.
-  if (process_type == switches::kZygoteProcessType)
+  if (process_type == switches::kZygoteProcessType) {
     return Sandbox::kZygoteIntermediateSandbox;
+  }
 #endif
 
 #if BUILDFLAG(IS_MAC)
@@ -265,10 +263,6 @@ std::string StringFromUtilitySandboxType(Sandbox sandbox_type) {
       return kUtilitySandbox;
     case Sandbox::kAudio:
       return kAudioSandbox;
-#if BUILDFLAG(IS_FUCHSIA)
-    case Sandbox::kVideoCapture:
-      return kVideoCaptureSandbox;
-#endif
     case Sandbox::kService:
       return kServiceSandbox;
     case Sandbox::kServiceWithJit:
@@ -432,11 +426,6 @@ sandbox::mojom::Sandbox UtilitySandboxTypeFromString(
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
   if (sandbox_string == kOnDeviceTranslationSandbox) {
     return Sandbox::kOnDeviceTranslation;
-  }
-#endif
-#if BUILDFLAG(IS_FUCHSIA)
-  if (sandbox_string == kVideoCaptureSandbox) {
-    return Sandbox::kVideoCapture;
   }
 #endif
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)

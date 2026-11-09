@@ -52,7 +52,6 @@ declare global {
         CROS = 'cros',
         LINUX = 'linux',
         OPENBSD = 'openbsd',
-        FUCHSIA = 'fuchsia',
       }
 
       export enum PlatformArch {

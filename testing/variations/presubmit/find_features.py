@@ -45,7 +45,6 @@ DIRECTORIES_TO_SEARCH = [
   'dbus',
   'device',
   'extensions',
-  'fuchsia_web',
   'gin',
   'google_apis',
   'gpu',

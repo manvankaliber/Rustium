@@ -13,7 +13,6 @@ gardener_rotations = struct(
     CHROMIUM = _gardener_rotations.rotation("chromium", "chromium rotation", "chromium tree closers"),
     CFT = _gardener_rotations.rotation("cft", "cft rotation", None),
     DAWN = _gardener_rotations.rotation("dawn", "dawn rotation", None),
-    FUCHSIA = _gardener_rotations.rotation("fuchsia", "fuchsia rotation", None),
     CHROMIUM_CLANG = _gardener_rotations.rotation("chromium.clang", "chromium.clang rotation", None),
     CHROMIUM_GPU = _gardener_rotations.rotation("chromium.gpu", "chromium.gpu rotation", "chromium.gpu tree closers"),
     IOS = _gardener_rotations.rotation("ios", "ios rotation", "ios tree closers"),

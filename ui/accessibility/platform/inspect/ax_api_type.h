@@ -20,7 +20,6 @@ class COMPONENT_EXPORT(AX_PLATFORM) AXApiType {
     kAndroid,
     kAndroidExternal,  // For the Java-side "external" Android tree.
     kBlink,
-    kFuchsia,
     kMac,
     kLinux,
     kWinIA2,

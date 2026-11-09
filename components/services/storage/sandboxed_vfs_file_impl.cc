@@ -191,9 +191,6 @@ int SandboxedVfsFileImpl::Lock(int mode) {
       << "SQLite asked the VFS to lock the file up to mode " << mode
       << " but the file is already locked at mode " << sqlite_lock_mode_;
 
-#if BUILDFLAG(IS_FUCHSIA)
-  return SQLITE_IOERR_LOCK;
-#else
   base::File::LockMode file_lock_mode = base::File::LockMode::kExclusive;
 
   switch (mode) {
@@ -260,7 +257,6 @@ int SandboxedVfsFileImpl::Lock(int mode) {
 
   sqlite_lock_mode_ = mode;
   return SQLITE_OK;
-#endif  // BUILDFLAG(IS_FUCHSIA)
 }
 
 int SandboxedVfsFileImpl::Unlock(int mode) {
@@ -277,9 +273,6 @@ int SandboxedVfsFileImpl::Unlock(int mode) {
     return SQLITE_OK;
   }
 
-#if BUILDFLAG(IS_FUCHSIA)
-  return SQLITE_IOERR_UNLOCK;
-#else
   // On POSIX, it is possible to downgrade atomically from an exclusive lock to
   // a shared lock. SQLite's unix VFS takes advantage of this. This
   // implementation prioritizes the simplicity of no platform-specific code over
@@ -306,7 +299,6 @@ int SandboxedVfsFileImpl::Unlock(int mode) {
   vfs_->SetLastError(base::File::GetLastFileError());
   sqlite_lock_mode_ = SQLITE_LOCK_NONE;
   return SQLITE_IOERR_UNLOCK;
-#endif  // BUILDFLAG(IS_FUCHSIA)
 }
 
 int SandboxedVfsFileImpl::CheckReservedLock(int* has_reserved_lock) {
@@ -323,9 +315,6 @@ int SandboxedVfsFileImpl::CheckReservedLock(int* has_reserved_lock) {
     return SQLITE_OK;
   }
 
-#if BUILDFLAG(IS_FUCHSIA)
-  return SQLITE_IOERR_CHECKRESERVEDLOCK;
-#else
   // On POSIX, it's possible to query the existing lock state of a file. The
   // SQLite unix VFS takes advantage of this. On Windows, this isn't the case.
   // Follow the strategy of the Windows VFS, which checks by trying to get an
@@ -344,7 +333,6 @@ int SandboxedVfsFileImpl::CheckReservedLock(int* has_reserved_lock) {
   // We acquired a shared lock that we can't get rid of.
   sqlite_lock_mode_ = SQLITE_LOCK_SHARED;
   return SQLITE_IOERR_CHECKRESERVEDLOCK;
-#endif  // BUILDFLAG(IS_FUCHSIA)
 }
 
 int SandboxedVfsFileImpl::FileControl(int opcode, void* data) {

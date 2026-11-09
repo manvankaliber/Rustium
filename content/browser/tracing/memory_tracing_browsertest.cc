@@ -45,8 +45,8 @@ namespace content {
 // creating memory dumps.
 class MockDumpProvider : public base::trace_event::MemoryDumpProvider {
  public:
-  MOCK_METHOD2(OnMemoryDump, bool(const MemoryDumpArgs& args,
-                                  ProcessMemoryDump* pmd));
+  MOCK_METHOD2(OnMemoryDump,
+               bool(const MemoryDumpArgs& args, ProcessMemoryDump* pmd));
 };
 
 class MemoryTracingTest : public ContentBrowserTest {
@@ -72,8 +72,9 @@ class MemoryTracingTest : public ContentBrowserTest {
       EXPECT_NE(0u, dump_guid);
     }
     OnMemoryDumpDone(request_index, outcome);
-    if (closure)
+    if (closure) {
       std::move(closure).Run();
+    }
   }
 
   void RequestGlobalDumpWithClosure(
@@ -135,7 +136,7 @@ class MemoryTracingTest : public ContentBrowserTest {
 
     base::RunLoop run_loop;
     bool success = TracingController::GetInstance()->StartTracing(
-      trace_config, run_loop.QuitClosure());
+        trace_config, run_loop.QuitClosure());
     EXPECT_TRUE(success);
     run_loop.Run();
   }
@@ -208,7 +209,7 @@ IN_PROC_BROWSER_TEST_F(SingleProcessMemoryTracingTest,
                        MAYBE_BrowserInitiatedSingleDump) {
   Navigate(shell());
 
-  EXPECT_CALL(*mock_dump_provider_, OnMemoryDump(_,_)).WillOnce(Return(true));
+  EXPECT_CALL(*mock_dump_provider_, OnMemoryDump(_, _)).WillOnce(Return(true));
   EXPECT_CALL(*this, OnMemoryDumpDone(_, RequestOutcome::kSuccess));
 
   EnableMemoryTracing();
@@ -231,7 +232,7 @@ IN_PROC_BROWSER_TEST_F(SingleProcessMemoryTracingTest,
                        MAYBE_RendererInitiatedSingleDump) {
   Navigate(shell());
 
-  EXPECT_CALL(*mock_dump_provider_, OnMemoryDump(_,_)).WillOnce(Return(true));
+  EXPECT_CALL(*mock_dump_provider_, OnMemoryDump(_, _)).WillOnce(Return(true));
   EXPECT_CALL(*this, OnMemoryDumpDone(_, RequestOutcome::kSuccess));
 
   EnableMemoryTracing();
@@ -251,7 +252,7 @@ IN_PROC_BROWSER_TEST_F(SingleProcessMemoryTracingTest,
                        MAYBE_ManyInterleavedDumps) {
   Navigate(shell());
 
-  EXPECT_CALL(*mock_dump_provider_, OnMemoryDump(_,_))
+  EXPECT_CALL(*mock_dump_provider_, OnMemoryDump(_, _))
       .Times(4)
       .WillRepeatedly(Return(true));
   EXPECT_CALL(*this, OnMemoryDumpDone(_, RequestOutcome::kSuccess)).Times(4);
@@ -292,7 +293,8 @@ IN_PROC_BROWSER_TEST_F(SingleProcessMemoryTracingTest, DISABLED_QueuedDumps) {
   //   5 (ED)                                        req--------->ok
   //   6 (PL)                                                        req->ok
   //
-  // where P=kPeriodicInterval, E=kExplicitlyTriggered, D=kDetailed and L=kLight.
+  // where P=kPeriodicInterval, E=kExplicitlyTriggered, D=kDetailed and
+  // L=kLight.
 
   EXPECT_CALL(*mock_dump_provider_, OnMemoryDump(_, _))
       .Times(5)
@@ -346,9 +348,7 @@ IN_PROC_BROWSER_TEST_F(SingleProcessMemoryTracingTest, DISABLED_QueuedDumps) {
 // Failing on Android ASAN. crbug.com/1041392
 // TODO(crbug.com/40720107): OSMetrics::GetProcessMemoryMaps is not
 // implemented on Fuchsia
-#if BUILDFLAG(IS_MAC) ||                                     \
-    (BUILDFLAG(IS_ANDROID) && defined(ADDRESS_SANITIZER)) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID) && defined(ADDRESS_SANITIZER)
 #define MAYBE_BrowserInitiatedDump DISABLED_BrowserInitiatedDump
 #else
 #define MAYBE_BrowserInitiatedDump BrowserInitiatedDump
@@ -358,7 +358,7 @@ IN_PROC_BROWSER_TEST_F(SingleProcessMemoryTracingTest, DISABLED_QueuedDumps) {
 IN_PROC_BROWSER_TEST_F(MemoryTracingTest, MAYBE_BrowserInitiatedDump) {
   Navigate(shell());
 
-  EXPECT_CALL(*mock_dump_provider_, OnMemoryDump(_,_)).WillOnce(Return(true));
+  EXPECT_CALL(*mock_dump_provider_, OnMemoryDump(_, _)).WillOnce(Return(true));
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   // TODO(ssid): Test for dump success once the on start tracing done callback
   // is fixed to be called after enable tracing is acked by all processes,

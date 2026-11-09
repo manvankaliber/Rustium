@@ -58,11 +58,9 @@
 #if !defined(TCPI_OPT_SYN_DATA)
 #define TCPI_OPT_SYN_DATA 32
 #endif
-
-// Fuchsia defines TCP_INFO, but it's not implemented.
 // TODO(crbug.com/42050612): Enable TCP_INFO on Fuchsia once it's implemented
 // there (see NET-160).
-#if defined(TCP_INFO) && !BUILDFLAG(IS_FUCHSIA)
+#if defined(TCP_INFO)
 #define HAVE_TCP_INFO
 #endif
 
@@ -80,8 +78,9 @@ bool SetTCPKeepAlive(int fd, bool enable, int delay) {
   }
 
   // If we disabled TCP keep alive, our work is done here.
-  if (!enable)
+  if (!enable) {
     return true;
+  }
 
   // A delay of 0 doesn't work, and is the default, so ignore that and rely on
   // whatever the OS defaults are once we turned it on above.
@@ -128,8 +127,9 @@ base::TimeDelta GetTransportRtt(SocketDescriptor fd) {
   info.tcpi_rtt = 0;
 
   socklen_t info_len = sizeof(tcp_info);
-  if (getsockopt(fd, IPPROTO_TCP, TCP_INFO, &info, &info_len) != 0)
+  if (getsockopt(fd, IPPROTO_TCP, TCP_INFO, &info, &info_len) != 0) {
     return base::TimeDelta();
+  }
 
   // Verify that |tcpi_rtt| in tcp_info struct was updated. Note that it's
   // possible that |info_len| is shorter than |sizeof(tcp_info)| which implies
@@ -192,10 +192,12 @@ int TCPSocketPosix::Open(AddressFamily family) {
   DCHECK(!socket_);
   socket_ = std::make_unique<SocketPosix>();
   int rv = socket_->Open(ConvertAddressFamily(family));
-  if (rv != OK)
+  if (rv != OK) {
     socket_.reset();
-  if (rv == OK && tag_ != SocketTag())
+  }
+  if (rv == OK && tag_ != SocketTag()) {
     tag_.Apply(socket_->socket_fd());
+  }
   return rv;
 }
 
@@ -227,10 +229,12 @@ int TCPSocketPosix::AdoptConnectedSocket(SocketDescriptor socket,
 
   socket_ = std::make_unique<SocketPosix>();
   int rv = socket_->AdoptConnectedSocket(socket, storage);
-  if (rv != OK)
+  if (rv != OK) {
     socket_.reset();
-  if (rv == OK && tag_ != SocketTag())
+  }
+  if (rv == OK && tag_ != SocketTag()) {
     tag_.Apply(socket_->socket_fd());
+  }
   return rv;
 }
 
@@ -239,10 +243,12 @@ int TCPSocketPosix::AdoptUnconnectedSocket(SocketDescriptor socket) {
 
   socket_ = std::make_unique<SocketPosix>();
   int rv = socket_->AdoptUnconnectedSocket(socket);
-  if (rv != OK)
+  if (rv != OK) {
     socket_.reset();
-  if (rv == OK && tag_ != SocketTag())
+  }
+  if (rv == OK && tag_ != SocketTag()) {
     tag_.Apply(socket_->socket_fd());
+  }
   return rv;
 }
 
@@ -276,8 +282,9 @@ int TCPSocketPosix::Accept(std::unique_ptr<TCPSocketPosix>* tcp_socket,
       &accept_socket_,
       base::BindOnce(&TCPSocketPosix::AcceptCompleted, base::Unretained(this),
                      tcp_socket, address, std::move(callback)));
-  if (rv != ERR_IO_PENDING)
+  if (rv != ERR_IO_PENDING) {
     rv = HandleAcceptCompleted(tcp_socket, address, rv);
+  }
   return rv;
 }
 
@@ -289,8 +296,9 @@ int TCPSocketPosix::Connect(const IPEndPoint& address,
       handles::MaybeTranslateEmulatedNetworkAddressForTesting(address,
                                                               bound_network_);
 
-  if (!logging_multiple_connect_attempts_)
+  if (!logging_multiple_connect_attempts_) {
     LogConnectBegin(AddressList(target_address));
+  }
 
   net_log_.BeginEvent(NetLogEventType::TCP_CONNECT_ATTEMPT, [&] {
     return CreateNetLogIPEndPointParams(&target_address);
@@ -373,14 +381,16 @@ int TCPSocketPosix::Connect(const IPEndPoint& address,
   int rv = socket_->Connect(
       storage, base::BindOnce(&TCPSocketPosix::ConnectCompleted,
                               base::Unretained(this), std::move(callback)));
-  if (rv != ERR_IO_PENDING)
+  if (rv != ERR_IO_PENDING) {
     rv = HandleConnectCompleted(rv);
+  }
   return rv;
 }
 
 bool TCPSocketPosix::IsConnected() const {
-  if (!socket_)
+  if (!socket_) {
     return false;
+  }
 
   return socket_->IsConnected();
 }
@@ -397,15 +407,15 @@ int TCPSocketPosix::Read(IOBuffer* buf,
 
   int rv = socket_->Read(
       buf, buf_len,
-      base::BindOnce(
-          &TCPSocketPosix::ReadCompleted,
-          // Grab a reference to |buf| so that ReadCompleted() can still
-          // use it when Read() completes, as otherwise, this transfers
-          // ownership of buf to socket.
-          base::Unretained(this), base::WrapRefCounted(buf),
-          std::move(callback)));
-  if (rv != ERR_IO_PENDING)
+      base::BindOnce(&TCPSocketPosix::ReadCompleted,
+                     // Grab a reference to |buf| so that ReadCompleted() can
+                     // still use it when Read() completes, as otherwise, this
+                     // transfers ownership of buf to socket.
+                     base::Unretained(this), base::WrapRefCounted(buf),
+                     std::move(callback)));
+  if (rv != ERR_IO_PENDING) {
     rv = HandleReadCompleted(buf, rv);
+  }
   return rv;
 }
 
@@ -419,8 +429,9 @@ int TCPSocketPosix::ReadIfReady(IOBuffer* buf,
       buf, buf_len,
       base::BindOnce(&TCPSocketPosix::ReadIfReadyCompleted,
                      base::Unretained(this), std::move(callback)));
-  if (rv != ERR_IO_PENDING)
+  if (rv != ERR_IO_PENDING) {
     rv = HandleReadCompleted(buf, rv);
+  }
   return rv;
 }
 
@@ -449,21 +460,24 @@ int TCPSocketPosix::Write(
   rv = socket_->Write(buf, buf_len, std::move(write_callback),
                       traffic_annotation);
 
-  if (rv != ERR_IO_PENDING)
+  if (rv != ERR_IO_PENDING) {
     rv = HandleWriteCompleted(buf, rv);
+  }
   return rv;
 }
 
 int TCPSocketPosix::GetLocalAddress(IPEndPoint* address) const {
   DCHECK(address);
 
-  if (!socket_)
+  if (!socket_) {
     return ERR_SOCKET_NOT_CONNECTED;
+  }
 
   SockaddrStorage storage;
   int rv = socket_->GetLocalAddress(&storage);
-  if (rv != OK)
+  if (rv != OK) {
     return rv;
+  }
 
   if (!address->FromSockAddr(storage.addr(), storage.addr_len)) {
     return ERR_ADDRESS_INVALID;
@@ -475,13 +489,15 @@ int TCPSocketPosix::GetLocalAddress(IPEndPoint* address) const {
 int TCPSocketPosix::GetPeerAddress(IPEndPoint* address) const {
   DCHECK(address);
 
-  if (!IsConnected())
+  if (!IsConnected()) {
     return ERR_SOCKET_NOT_CONNECTED;
+  }
 
   SockaddrStorage storage;
   int rv = socket_->GetPeerAddress(&storage);
-  if (rv != OK)
+  if (rv != OK) {
     return rv;
+  }
 
   if (!address->FromSockAddr(storage.addr(), storage.addr_len)) {
     return ERR_ADDRESS_INVALID;
@@ -540,15 +556,17 @@ int TCPSocketPosix::SetSendBufferSize(int32_t size) {
 }
 
 bool TCPSocketPosix::SetKeepAlive(bool enable, int delay) {
-  if (!socket_)
+  if (!socket_) {
     return false;
+  }
 
   return SetTCPKeepAlive(socket_->socket_fd(), enable, delay);
 }
 
 bool TCPSocketPosix::SetNoDelay(bool no_delay) {
-  if (!socket_)
+  if (!socket_) {
     return false;
+  }
 
   return SetTCPNoDelay(socket_->socket_fd(), no_delay) == OK;
 }
@@ -629,8 +647,9 @@ int TCPSocketPosix::HandleAcceptCompleted(
     std::unique_ptr<TCPSocketPosix>* tcp_socket,
     IPEndPoint* address,
     int rv) {
-  if (rv == OK)
+  if (rv == OK) {
     rv = BuildTcpSocketPosix(tcp_socket, address);
+  }
 
   if (rv == OK) {
     net_log_.EndEvent(NetLogEventType::TCP_ACCEPT,
@@ -683,11 +702,13 @@ int TCPSocketPosix::HandleConnectCompleted(int rv) {
 #endif  // BUILDFLAG(IS_MAC)
 
   // Give a more specific error when the user is offline.
-  if (rv == ERR_ADDRESS_UNREACHABLE && NetworkChangeNotifier::IsOffline())
+  if (rv == ERR_ADDRESS_UNREACHABLE && NetworkChangeNotifier::IsOffline()) {
     rv = ERR_INTERNET_DISCONNECTED;
+  }
 
-  if (!logging_multiple_connect_attempts_)
+  if (!logging_multiple_connect_attempts_) {
     LogConnectEnd(rv);
+  }
 
   return rv;
 }
@@ -707,10 +728,12 @@ void TCPSocketPosix::LogConnectEnd(int net_error) const {
     net::IPEndPoint local_address;
     int net_error = GetLocalAddress(&local_address);
     net::IPEndPoint remote_address;
-    if (net_error == net::OK)
+    if (net_error == net::OK) {
       net_error = GetPeerAddress(&remote_address);
-    if (net_error != net::OK)
+    }
+    if (net_error != net::OK) {
       return NetLogParamsWithInt("get_address_net_error", net_error);
+    }
     return CreateNetLogAddressPairParams(local_address, remote_address);
   });
 }
@@ -735,12 +758,14 @@ void TCPSocketPosix::ReadIfReadyCompleted(CompletionOnceCallback callback,
 int TCPSocketPosix::HandleReadCompleted(IOBuffer* buf, int rv) {
   HandleReadCompletedHelper(rv);
 
-  if (rv < 0)
+  if (rv < 0) {
     return rv;
+  }
 
   // Notify the watcher only if at least 1 byte was read.
-  if (rv > 0)
+  if (rv > 0) {
     NotifySocketPerformanceWatcher();
+  }
 
   net_log_.AddByteTransferEvent(NetLogEventType::SOCKET_BYTES_RECEIVED, rv,
                                 buf->data());
@@ -769,8 +794,9 @@ int TCPSocketPosix::HandleWriteCompleted(IOBuffer* buf, int rv) {
   }
 
   // Notify the watcher only if at least 1 byte was written.
-  if (rv > 0)
+  if (rv > 0) {
     NotifySocketPerformanceWatcher();
+  }
 
   net_log_.AddByteTransferEvent(NetLogEventType::SOCKET_BYTES_SENT, rv,
                                 buf->data());
@@ -787,8 +813,9 @@ void TCPSocketPosix::NotifySocketPerformanceWatcher() {
   }
 
   base::TimeDelta rtt = GetTransportRtt(socket_->socket_fd());
-  if (rtt.is_zero())
+  if (rtt.is_zero()) {
     return;
+  }
 
   socket_performance_watcher_->OnUpdatedRTTAvailable(rtt);
 #endif  // defined(TCP_INFO)
@@ -796,13 +823,15 @@ void TCPSocketPosix::NotifySocketPerformanceWatcher() {
 
 bool TCPSocketPosix::GetEstimatedRoundTripTime(base::TimeDelta* out_rtt) const {
   DCHECK(out_rtt);
-  if (!socket_)
+  if (!socket_) {
     return false;
+  }
 
 #if defined(HAVE_TCP_INFO)
   base::TimeDelta rtt = GetTransportRtt(socket_->socket_fd());
-  if (rtt.is_zero())
+  if (rtt.is_zero()) {
     return false;
+  }
   *out_rtt = rtt;
   return true;
 #else

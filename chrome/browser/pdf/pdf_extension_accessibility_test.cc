@@ -1119,8 +1119,6 @@ class PDFExtensionAccessibilityTreeDumpTestBase
         [[fallthrough]];
       case ui::AXApiType::kAndroidExternal:
         [[fallthrough]];
-      case ui::AXApiType::kFuchsia:
-        return;
     }
     EXPECT_TRUE(output_lines[1].contains(banner_role)) << output_lines[1];
     EXPECT_TRUE(output_lines[2].contains(status_role)) << output_lines[2];

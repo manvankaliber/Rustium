@@ -16,20 +16,15 @@ bool ShouldShowPersonalContextAutofillSetting(
     const AutofillClient& client,
     personal_context::PersonalContextEligibilityService* eligibility_service) {
   return ShouldShowPersonalContextAutofillSetting(
-#if !BUILDFLAG(IS_FUCHSIA)
-      client.GetGoogleGroupsManager(),
-#endif
-      client.GetPrefs(), client.GetEntityDataManager(),
-      client.GetIdentityManager(), client.GetSyncService(),
-      client.IsWalletPublicPassStorageEnabled(), client.IsOffTheRecord(),
-      client.GetVariationConfigCountryCode(), eligibility_service,
-      client.GetSubscriptionEligibilityService());
+      client.GetGoogleGroupsManager(), client.GetPrefs(),
+      client.GetEntityDataManager(), client.GetIdentityManager(),
+      client.GetSyncService(), client.IsWalletPublicPassStorageEnabled(),
+      client.IsOffTheRecord(), client.GetVariationConfigCountryCode(),
+      eligibility_service, client.GetSubscriptionEligibilityService());
 }
 
 bool ShouldShowPersonalContextAutofillSetting(
-#if !BUILDFLAG(IS_FUCHSIA)
     const GoogleGroupsManager* google_groups_manager,
-#endif
     const PrefService* prefs,
     const EntityDataManager* edm,
     const signin::IdentityManager* identity_manager,
@@ -45,22 +40,14 @@ bool ShouldShowPersonalContextAutofillSetting(
   }
 
   const bool ambient_autofill_enabled = MayPerformAutofillAiAction(
-#if !BUILDFLAG(IS_FUCHSIA)
-      google_groups_manager,
-#endif
-      prefs, edm, identity_manager, sync_service,
+      google_groups_manager, prefs, edm, identity_manager, sync_service,
       is_wallet_public_pass_storage_enabled, is_off_the_record, country_code,
       eligibility_service->GetEligibilityState(),
       AutofillAiAction::kShowAmbientAutofillInSettings);
 
   const bool at_memory_enabled = MayPerformAtMemoryActionBase(
       AtMemoryAction::kShowAtMemoryInSettings, eligibility_service,
-      subscription_service, prefs,
-#if !BUILDFLAG(IS_FUCHSIA)
-      google_groups_manager,
-#else
-      /*google_groups_manager=*/nullptr,
-#endif
+      subscription_service, prefs, google_groups_manager,
       /*decider=*/nullptr, is_off_the_record);
 
   return ambient_autofill_enabled || at_memory_enabled;

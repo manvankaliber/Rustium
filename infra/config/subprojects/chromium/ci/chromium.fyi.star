@@ -52,7 +52,6 @@ consoles.console_view(
             "cronet",
             "mac",
             "deterministic",
-            "fuchsia",
             "chromeos",
             "iOS",
             "infra",

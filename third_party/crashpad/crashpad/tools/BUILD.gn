@@ -40,7 +40,7 @@ crashpad_executable("dump_minidump_annotations") {
   }
 }
 
-if (!crashpad_is_ios && !crashpad_is_fuchsia) {
+if (!crashpad_is_ios) {
   crashpad_executable("crashpad_database_util") {
     sources = [ "crashpad_database_util.cc" ]
 
@@ -78,7 +78,7 @@ crashpad_executable("base94_encoder") {
   ]
 }
 
-if (!crashpad_is_fuchsia && !crashpad_is_ios) {
+if (!crashpad_is_ios) {
   crashpad_executable("generate_dump") {
     sources = [ "generate_dump.cc" ]
 
@@ -112,7 +112,7 @@ if (!crashpad_is_fuchsia && !crashpad_is_ios) {
   }
 }
 
-if (crashpad_is_mac || crashpad_is_fuchsia) {
+if (crashpad_is_mac) {
   crashpad_executable("run_with_crashpad") {
     sources = [ "run_with_crashpad.cc" ]
 

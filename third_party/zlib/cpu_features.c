@@ -38,8 +38,7 @@ int ZLIB_INTERNAL riscv_cpu_enable_vclmul = 0;
 
 #ifndef CPU_NO_SIMD
 
-#if defined(ARMV8_OS_ANDROID) || defined(ARMV8_OS_LINUX) || \
-    defined(ARMV8_OS_FUCHSIA) || defined(ARMV8_OS_IOS)
+#if defined(ARMV8_OS_ANDROID) || defined(ARMV8_OS_LINUX) || defined(ARMV8_OS_IOS)
 #include <pthread.h>
 #endif
 
@@ -48,10 +47,6 @@ int ZLIB_INTERNAL riscv_cpu_enable_vclmul = 0;
 #elif defined(ARMV8_OS_LINUX)
 #include <asm/hwcap.h>
 #include <sys/auxv.h>
-#elif defined(ARMV8_OS_FUCHSIA)
-#include <zircon/features.h>
-#include <zircon/syscalls.h>
-#include <zircon/types.h>
 #elif defined(ARMV8_OS_WINDOWS) || defined(X86_WINDOWS)
 #include <windows.h>
 #elif defined(ARMV8_OS_IOS)
@@ -66,10 +61,7 @@ int ZLIB_INTERNAL riscv_cpu_enable_vclmul = 0;
 static void _cpu_check_features(void);
 #endif
 
-#if defined(ARMV8_OS_ANDROID) || defined(ARMV8_OS_LINUX) || \
-    defined(ARMV8_OS_MACOS) || defined(ARMV8_OS_FUCHSIA) || \
-    defined(X86_NOT_WINDOWS) || defined(ARMV8_OS_IOS) || \
-    defined(RISCV_RVV)
+#if defined(ARMV8_OS_ANDROID) || defined(ARMV8_OS_LINUX) || defined(ARMV8_OS_MACOS) || defined(X86_NOT_WINDOWS) || defined(ARMV8_OS_IOS) || defined(RISCV_RVV)
 #if !defined(ARMV8_OS_MACOS)
 // _cpu_check_features() doesn't need to do anything on mac/arm since all
 // features are known at build time, so don't call it.
@@ -122,13 +114,6 @@ static void _cpu_check_features(void)
     unsigned long features = getauxval(AT_HWCAP2);
     arm_cpu_enable_crc32 = !!(features & HWCAP2_CRC32);
     arm_cpu_enable_pmull = !!(features & HWCAP2_PMULL);
-#elif defined(ARMV8_OS_FUCHSIA)
-    uint32_t features;
-    zx_status_t rc = zx_system_get_features(ZX_FEATURE_KIND_CPU, &features);
-    if (rc != ZX_OK || (features & ZX_ARM64_FEATURE_ISA_ASIMD) == 0)
-        return;  /* Report nothing if ASIMD(NEON) is missing */
-    arm_cpu_enable_crc32 = !!(features & ZX_ARM64_FEATURE_ISA_CRC32);
-    arm_cpu_enable_pmull = !!(features & ZX_ARM64_FEATURE_ISA_PMULL);
 #elif defined(ARMV8_OS_WINDOWS)
     arm_cpu_enable_crc32 = IsProcessorFeaturePresent(PF_ARM_V8_CRC32_INSTRUCTIONS_AVAILABLE);
     arm_cpu_enable_pmull = IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE);

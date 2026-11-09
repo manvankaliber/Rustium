@@ -38,9 +38,4 @@ static_library("test_support") {
     ":origin_trials",
     "//testing/gmock",
   ]
-
-  # fuchsia explicitly needs this for lib/zx.
-  if (is_fuchsia) {
-    deps += [ "//mojo/public/cpp/bindings" ]
-  }
 }

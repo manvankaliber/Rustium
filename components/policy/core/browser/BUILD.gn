@@ -76,14 +76,12 @@ source_set("internal") {
     ]
   }
 
-  if (!is_fuchsia) {
-    sources += [
-      "url_list/incognito_mode_policy_handler.cc",
-      "url_list/incognito_mode_policy_handler.h",
-    ]
-  }
+  sources += [
+    "url_list/incognito_mode_policy_handler.cc",
+    "url_list/incognito_mode_policy_handler.h",
+  ]
 
-  if (!is_android && !is_fuchsia) {
+  if (!is_android) {
     sources += [
       "cloud/user_cloud_management_status_fetcher.cc",
       "cloud/user_cloud_management_status_fetcher.h",
@@ -189,12 +187,12 @@ source_set("pref_mapping_test_support") {
 static_library("incognito_mode_policy_test_support") {
   testonly = true
   sources = []
-  if (!is_fuchsia) {
-    sources += [
-      "url_list/incognito_mode_policy_handler_test.cc",
-      "url_list/incognito_mode_policy_handler_test.h",
-    ]
-  }
+
+  sources += [
+    "url_list/incognito_mode_policy_handler_test.cc",
+    "url_list/incognito_mode_policy_handler_test.h",
+  ]
+
   deps = [
     ":test_support",
     "//base",
@@ -255,11 +253,9 @@ source_set("unit_tests") {
     deps += [ "//components/policy/android:test_jni_headers" ]
   }
 
-  if (!is_fuchsia) {
-    sources += [ "url_list/incognito_mode_policy_handler_unittest.cc" ]
-  }
+  sources += [ "url_list/incognito_mode_policy_handler_unittest.cc" ]
 
-  if (!is_android && !is_fuchsia) {
+  if (!is_android) {
     sources += [ "cloud/user_cloud_management_status_fetcher_unittest.cc" ]
   }
 }

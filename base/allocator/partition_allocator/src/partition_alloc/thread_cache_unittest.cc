@@ -574,10 +574,8 @@ TEST_P(PartitionAllocThreadCacheTest, PartitionTlsRegistry) {
   can_finish.store(true, std::memory_order_release);
   internal::base::PlatformThreadForTesting::Join(thread_handle);
 
-#if !PA_BUILDFLAG(IS_FUCHSIA)
   EXPECT_FALSE(PartitionTlsRegistry::Instance().IsRegisteredForTesting(
       other_thread_tls));
-#endif
 }
 
 #if PA_CONFIG(THREAD_CACHE_ENABLE_STATISTICS)

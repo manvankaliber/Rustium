@@ -35,7 +35,7 @@
 #include "third_party/blink/public/web/web_testing_support.h"
 #include "v8/include/v8.h"
 
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #include "skia/ext/test_fonts.h"
 #endif
 
@@ -94,7 +94,7 @@ WebTestContentRendererClient::WebTestContentRendererClient()
   blink::WebDedicatedOrSharedWorkerGlobalScopeContext::
       InstallRewriteURLFunction(RewriteWebTestsURL);
 
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
   // On these platforms, fonts are set up in the renderer process. Other
   // platforms set up fonts as part of WebTestBrowserMainRunner in the
   // browser process, via WebTestBrowserPlatformInitialize().

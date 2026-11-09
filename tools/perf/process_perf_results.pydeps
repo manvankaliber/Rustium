@@ -140,7 +140,6 @@
 ../../third_party/catapult/telemetry/telemetry/core/cros_interface.py
 ../../third_party/catapult/telemetry/telemetry/core/debug_data.py
 ../../third_party/catapult/telemetry/telemetry/core/exceptions.py
-../../third_party/catapult/telemetry/telemetry/core/fuchsia_interface.py
 ../../third_party/catapult/telemetry/telemetry/core/linux_based_interface.py
 ../../third_party/catapult/telemetry/telemetry/core/local_server.py
 ../../third_party/catapult/telemetry/telemetry/core/memory_cache_http_server.py
@@ -197,8 +196,6 @@
 ../../third_party/catapult/telemetry/telemetry/internal/backends/chrome/desktop_browser_finder.py
 ../../third_party/catapult/telemetry/telemetry/internal/backends/chrome/desktop_minidump_symbolizer.py
 ../../third_party/catapult/telemetry/telemetry/internal/backends/chrome/extension_backend.py
-../../third_party/catapult/telemetry/telemetry/internal/backends/chrome/fuchsia_browser_backend.py
-../../third_party/catapult/telemetry/telemetry/internal/backends/chrome/fuchsia_browser_finder.py
 ../../third_party/catapult/telemetry/telemetry/internal/backends/chrome/gpu_compositing_checker.py
 ../../third_party/catapult/telemetry/telemetry/internal/backends/chrome/lacros_browser_backend.py
 ../../third_party/catapult/telemetry/telemetry/internal/backends/chrome/minidump_finder.py
@@ -247,7 +244,6 @@
 ../../third_party/catapult/telemetry/telemetry/internal/forwarders/__init__.py
 ../../third_party/catapult/telemetry/telemetry/internal/forwarders/android_forwarder.py
 ../../third_party/catapult/telemetry/telemetry/internal/forwarders/do_nothing_forwarder.py
-../../third_party/catapult/telemetry/telemetry/internal/forwarders/fuchsia_forwarder.py
 ../../third_party/catapult/telemetry/telemetry/internal/image_processing/__init__.py
 ../../third_party/catapult/telemetry/telemetry/internal/image_processing/image_util_numpy_impl.py
 ../../third_party/catapult/telemetry/telemetry/internal/platform/__init__.py
@@ -258,8 +254,6 @@
 ../../third_party/catapult/telemetry/telemetry/internal/platform/desktop_device.py
 ../../third_party/catapult/telemetry/telemetry/internal/platform/device.py
 ../../third_party/catapult/telemetry/telemetry/internal/platform/device_finder.py
-../../third_party/catapult/telemetry/telemetry/internal/platform/fuchsia_device.py
-../../third_party/catapult/telemetry/telemetry/internal/platform/fuchsia_platform_backend.py
 ../../third_party/catapult/telemetry/telemetry/internal/platform/gpu_device.py
 ../../third_party/catapult/telemetry/telemetry/internal/platform/gpu_info.py
 ../../third_party/catapult/telemetry/telemetry/internal/platform/linux_based_device.py

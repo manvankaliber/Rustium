@@ -49,7 +49,7 @@ if (current_cpu == "") {
 
 is_android = current_os == "android"
 is_chromeos = false
-is_fuchsia = current_os == "fuchsia"
+
 is_ios = current_os == "ios"
 is_linux = current_os == "linux"
 is_mac = current_os == "mac"
@@ -59,7 +59,7 @@ is_cronet_build = false
 enable_expensive_dchecks = false
 dcheck_is_configurable = false
 can_unwind_with_frame_pointers = false
-is_posix = !is_win && !is_fuchsia
+is_posix = !is_win
 is_apple = is_mac || is_ios
 
 # TODO(crbug.com/41481467): Consider expanding the standalone configuration for

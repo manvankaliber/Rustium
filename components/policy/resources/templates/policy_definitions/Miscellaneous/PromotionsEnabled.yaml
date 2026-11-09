@@ -12,7 +12,6 @@ features:
   per_profile: false
 future_on:
 - android
-- fuchsia
 items:
 - caption: Enable showing promotional content
   value: true

@@ -21,8 +21,6 @@ const char kCastDesktop[] =
     "Mozilla/5.0 ("
 #if BUILDFLAG(IS_CHROMEOS)
     "X11; CrOS x86_64 14541.0.0"
-#elif BUILDFLAG(IS_FUCHSIA)
-    "Fuchsia"
 #elif BUILDFLAG(IS_LINUX)
     "X11; Linux x86_64"
 #elif BUILDFLAG(IS_MAC)

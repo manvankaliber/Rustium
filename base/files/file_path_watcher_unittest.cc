@@ -354,12 +354,6 @@ class TestDelegate final : public TestDelegateBase {
 
 }  // namespace
 
-#if BUILDFLAG(IS_FUCHSIA)
-// FilePatchWatcherImpl is not implemented (see crbug.com/851641).
-// Disable all tests.
-#define FilePathWatcherTest DISABLED_FilePathWatcherTest
-#endif
-
 class FilePathWatcherTest : public testing::Test {
  public:
   FilePathWatcherTest()

@@ -72,8 +72,7 @@ class AutofillRiskFingerprintTest : public content::ContentBrowserTest {
         content_bounds_(11, 13, 17, 37),
         screen_bounds_(0, 0, 101, 71),
         available_screen_bounds_(0, 11, 101, 60),
-        unavailable_screen_bounds_(0, 0, 101, 11) {
-  }
+        unavailable_screen_bounds_(0, 0, 101, 11) {}
 
   void SetUpOnMainThread() override {
     auto position = device::mojom::Geoposition::New();
@@ -98,12 +97,12 @@ class AutofillRiskFingerprintTest : public content::ContentBrowserTest {
     EXPECT_TRUE(machine.has_operating_system_build());
     EXPECT_TRUE(machine.has_browser_install_time_hours());
 
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_ANDROID)
     // GetFontList() returns an empty list on Fuchsia and Android.
     EXPECT_EQ(machine.font_size(), 0);
 #else
     EXPECT_GT(machine.font_size(), 0);
-#endif  // BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_ANDROID)
+#endif
 
     // TODO(isherman): http://crbug.com/358548 and EXPECT_EQ.
     EXPECT_GE(machine.plugin_size(), 0);

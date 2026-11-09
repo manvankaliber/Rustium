@@ -586,7 +586,6 @@ TEST_F(DesktopNativeWidgetAuraWithNoDelegateTest, UpdateVisualStateTest) {
       ->UpdateVisualState();
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // TODO(crbug.com/40192931): Under Fuchsia pop-up and fullscreen windows are not
 // reparented to be top-level, so the following tests are not valid.
 
@@ -927,8 +926,6 @@ TEST_F(DesktopNativeWidgetAuraTest, TopLevelOwnedPopupKeepsSizeOnHostResize) {
 
   ASSERT_NO_FATAL_FAILURE(popup_window.DestroyOwnedWindow());
 }
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 // The following code verifies we can correctly destroy a Widget from a mouse
 // enter/exit. We could test move/drag/enter/exit but in general we don't run

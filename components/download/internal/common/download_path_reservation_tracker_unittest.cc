@@ -221,8 +221,9 @@ void DownloadPathReservationTrackerTest::CreateReservation(
   bool create_directory = false;
   CallGetReservedPath(item, path, create_directory, conflict_action,
                       &reserved_path, &result);
-  if (result != PathValidationResult::PATH_NOT_WRITABLE)
+  if (result != PathValidationResult::PATH_NOT_WRITABLE) {
     EXPECT_TRUE(IsPathInUse(path));
+  }
   EXPECT_EQ(expected_result, result);
   EXPECT_EQ(expected_reserved_path, reserved_path);
 }
@@ -616,17 +617,12 @@ TEST_F(DownloadPathReservationTrackerTest, UnresolvedConflicts) {
                     PathValidationResult::CONFLICT, path);
 
   SetDownloadItemState(download_item.get(), DownloadItem::COMPLETE);
-  for (auto& item : items)
+  for (auto& item : items) {
     SetDownloadItemState(item.get(), DownloadItem::COMPLETE);
+  }
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-// TODO(crbug.com/40221275): Re-enable when UnwriteableDirectory works on
-// Fuchsia.
-#define MAYBE_UnwriteableDirectory DISABLED_UnwriteableDirectory
-#else
 #define MAYBE_UnwriteableDirectory UnwriteableDirectory
-#endif
 // If the target directory is unwriteable, then callback should be notified that
 // verification failed.
 TEST_F(DownloadPathReservationTrackerTest, MAYBE_UnwriteableDirectory) {
@@ -635,8 +631,9 @@ TEST_F(DownloadPathReservationTrackerTest, MAYBE_UnwriteableDirectory) {
       GetPathInDownloadsDirectory(FILE_PATH_LITERAL("foo.txt")));
 #if BUILDFLAG(IS_ANDROID)
   // This test is only valid works if download collection is not used.
-  if (DownloadCollectionBridge::ShouldPublishDownload(path))
+  if (DownloadCollectionBridge::ShouldPublishDownload(path)) {
     return;
+  }
 #endif  // BUILDFLAG(IS_ANDROID)
   base::FilePath dir(path.DirName());
   ASSERT_FALSE(IsPathInUse(path));
@@ -673,8 +670,9 @@ TEST_F(DownloadPathReservationTrackerTest, CreateDefaultDownloadPath) {
       GetPathInDownloadsDirectory(FILE_PATH_LITERAL("foo/foo.txt")));
 #if BUILDFLAG(IS_ANDROID)
   // This test is only valid works if download collection is not used.
-  if (DownloadCollectionBridge::ShouldPublishDownload(path))
+  if (DownloadCollectionBridge::ShouldPublishDownload(path)) {
     return;
+  }
 #endif  // BUILDFLAG(IS_ANDROID)
   base::FilePath dir(path.DirName());
   ASSERT_FALSE(base::DirectoryExists(dir));

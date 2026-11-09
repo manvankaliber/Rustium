@@ -45,7 +45,7 @@ declare_args() {
   # This should not be used in new code. See note above for details.
   # TODO(https://crbug.com/546631276): Collapse this and enable_extensions_core
   # into one.
-  enable_extensions = !is_android && !is_ios && !is_castos && !is_fuchsia
+  enable_extensions = !is_android && !is_ios && !is_castos
 
   # An implementation-detail flag to control extensions on desktop android.
   # Don't use this directly. See note above.

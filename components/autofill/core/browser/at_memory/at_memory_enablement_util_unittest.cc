@@ -29,15 +29,12 @@
 #include "components/prefs/testing_pref_service.h"
 #include "components/subscription_eligibility/subscription_eligibility_prefs.h"
 #include "components/subscription_eligibility/subscription_eligibility_service.h"
-#include "testing/gmock/include/gmock/gmock.h"
-#include "testing/gtest/include/gtest/gtest.h"
-
-#if !BUILDFLAG(IS_FUCHSIA)
 #include "components/variations/pref_names.h"                     // nogncheck
 #include "components/variations/service/google_groups_manager.h"  // nogncheck
 #include "components/variations/service/google_groups_manager_prefs.h"  // nogncheck
 #include "components/variations/variations_seed_processor.h"  // nogncheck
-#endif
+#include "testing/gmock/include/gmock/gmock.h"
+#include "testing/gtest/include/gtest/gtest.h"
 
 namespace autofill {
 
@@ -125,7 +122,6 @@ class AtMemoryEnablementUtilsTest : public testing::Test {
   TestAutofillClient autofill_client_;
   const GURL form_url_{"https://example.com/form"};
 };
-
 
 // Tests that `MayPerformAtMemoryAction` returns false when AtMemory is
 // disabled.
@@ -664,7 +660,6 @@ TEST_F(AtMemoryEnablementUtilsTest,
 }
 #endif
 
-#if !BUILDFLAG(IS_FUCHSIA)
 class AtMemoryEnablementUtilsWithGroupsTest
     : public AtMemoryEnablementUtilsTest {
  protected:
@@ -747,7 +742,6 @@ TEST_F(AtMemoryEnablementUtilsWithGroupsTest,
       AtMemoryAction::kTriggerSearchUI, autofill_client(),
       autofill_client().GetLastCommittedPrimaryMainFrameURL()));
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 class MockLogReceiver : public LogReceiver {
  public:

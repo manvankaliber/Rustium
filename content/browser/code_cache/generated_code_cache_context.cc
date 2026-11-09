@@ -32,6 +32,11 @@
 #include "base/task/thread_pool.h"
 #include "base/types/expected_macros.h"
 #include "build/build_config.h"
+#include "components/persistent_cache/client.h"
+#include "components/persistent_cache/entry_metadata.h"
+#include "components/persistent_cache/pending_backend.h"
+#include "components/persistent_cache/persistent_cache_collection.h"
+#include "components/persistent_cache/transaction_error.h"
 #include "content/browser/code_cache/generated_code_cache.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
@@ -43,17 +48,8 @@
 #include "net/http/http_cache.h"
 #include "third_party/blink/public/common/features.h"
 
-#if !BUILDFLAG(IS_FUCHSIA)
-#include "components/persistent_cache/client.h"
-#include "components/persistent_cache/entry_metadata.h"
-#include "components/persistent_cache/pending_backend.h"
-#include "components/persistent_cache/persistent_cache_collection.h"
-#include "components/persistent_cache/transaction_error.h"
-#endif
-
 namespace content {
 
-#if !BUILDFLAG(IS_FUCHSIA)
 namespace {
 
 std::unique_ptr<persistent_cache::PersistentCacheCollection>
@@ -78,7 +74,6 @@ MakePersistentCacheCollection(
 }
 
 }  // namespace
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 // static
 void GeneratedCodeCacheContext::RunOrPostTask(
@@ -97,8 +92,9 @@ void GeneratedCodeCacheContext::RunOrPostTask(
 scoped_refptr<base::SequencedTaskRunner>
 GeneratedCodeCacheContext::GetTaskRunner(
     scoped_refptr<GeneratedCodeCacheContext> context) {
-  if (!context)
+  if (!context) {
     return base::SequencedTaskRunner::GetCurrentDefault();
+  }
   return context->task_runner_;
 }
 
@@ -141,10 +137,8 @@ void GeneratedCodeCacheContext::InitializeOnThread(const base::FilePath& path,
   base::FilePath generated_js_code_cache_path = path.AppendASCII("js");
   base::FilePath webui_js_code_cache_path = path.AppendASCII("webui_js");
   base::FilePath generated_wasm_code_cache_path = path.AppendASCII("wasm");
-#if !BUILDFLAG(IS_FUCHSIA)
   // Use a short name for the root directory due to max path length limits.
   base::FilePath persistent_cache_collection_path = path.AppendASCII("pc");
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   const bool replace_by_persistent_cache =
       blink::features::IsPersistentCacheForCodeCacheEnabled();
@@ -189,7 +183,6 @@ void GeneratedCodeCacheContext::InitializeOnThread(const base::FilePath& path,
         generated_wasm_code_cache_path, max_bytes,
         GeneratedCodeCache::CodeCacheType::kWebAssembly);
 
-#if !BUILDFLAG(IS_FUCHSIA)
     if (blink::features::IsInlineScriptCacheEnabled()) {
       persistent_cache_collection_ = MakePersistentCacheCollection(
           max_bytes_js, path, persistent_cache_collection_path);
@@ -202,9 +195,7 @@ void GeneratedCodeCacheContext::InitializeOnThread(const base::FilePath& path,
               base::BindOnce(base::IgnoreResult(base::DeletePathRecursively),
                              persistent_cache_collection_path));
     }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
   } else {
-#if !BUILDFLAG(IS_FUCHSIA)
     persistent_cache_collection_ = MakePersistentCacheCollection(
         max_bytes, path, persistent_cache_collection_path);
 
@@ -222,9 +213,6 @@ void GeneratedCodeCacheContext::InitializeOnThread(const base::FilePath& path,
                        },
                        generated_js_code_cache_path, webui_js_code_cache_path,
                        generated_wasm_code_cache_path));
-#else   // !BUILDFLAG(IS_FUCHSIA)
-    NOTREACHED();
-#endif  // !BUILDFLAG(IS_FUCHSIA)
   }
 }
 
@@ -249,15 +237,12 @@ void GeneratedCodeCacheContext::ShutdownForTesting(base::OnceClosure callback) {
 }
 
 void GeneratedCodeCacheContext::ClearAndDeletePersistentCacheCollection() {
-#if !BUILDFLAG(IS_FUCHSIA)
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   if (persistent_cache_collection_) {
     persistent_cache_collection_->DeleteAllFiles();
   }
-#endif
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 std::optional<persistent_cache::PendingBackend>
 GeneratedCodeCacheContext::ShareReadOnlyConnection(
     const std::string& context_key) {
@@ -328,14 +313,11 @@ GeneratedCodeCacheContext::FindInPersistentCacheCollection(
   // Cache hit.
   return MetadataAndContent{*std::move(metadata), std::move(content_buffer)};
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 void GeneratedCodeCacheContext::ShutdownOnThread(
     DedicatedTaskRunnerForResource task_runner_for_resource) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-#if !BUILDFLAG(IS_FUCHSIA)
   persistent_cache_collection_.reset();
-#endif  // !BUILDFLAG(IS_FUCHSIA)
   generated_js_code_cache_.reset();
   generated_wasm_code_cache_.reset();
   generated_webui_js_code_cache_.reset();
@@ -363,9 +345,7 @@ void GeneratedCodeCacheContext::ShutdownOnThreadForTesting(  // IN-TEST
     return;
   }
 
-#if !BUILDFLAG(IS_FUCHSIA)
   persistent_cache_collection_.reset();
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   // A callback to be run once all GeneratedCodeCache instances have completely
   // shut down their backends.

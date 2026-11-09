@@ -187,13 +187,11 @@ class RenderingMobile(_RenderingBenchmark):
   # SUPPORTED_PLATFORMS_TAGS lists. Only one is necessary.
   SUPPORTED_PLATFORMS = [
     story_module.expectations.ALL_MOBILE,
-    story_module.expectations.FUCHSIA_ASTRO,
-    story_module.expectations.FUCHSIA_SHERLOCK,
+
   ]
   SUPPORTED_PLATFORM_TAGS = [
     core_platforms.MOBILE,
-    core_platforms.FUCHSIA_ASTRO,
-    core_platforms.FUCHSIA_SHERLOCK,
+
   ]
   PLATFORM_NAME = platforms.MOBILE
 

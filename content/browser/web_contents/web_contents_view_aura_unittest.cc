@@ -402,21 +402,12 @@ TEST_F(WebContentsViewAuraTest, OccludeView) {
 
 // TODO(crbug.com/40190725): Enable these tests on Fuchsia when
 // OSExchangeDataProviderFactory::CreateProvider is implemented.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_DragDropFiles DISABLED_DragDropFiles
-#define MAYBE_DragDropFilesOriginateFromRenderer \
-  DISABLED_DragDropFilesOriginateFromRenderer
-#define MAYBE_DragDropImageFromRenderer DISABLED_DragDropImageFromRenderer
-#define MAYBE_DragDropImageFromRenderer_InaccessibleImageOmitted \
-  DISABLED_DragDropImageFromRenderer_InaccessibleImageOmitted
-#else
 #define MAYBE_DragDropFiles DragDropFiles
 #define MAYBE_DragDropFilesOriginateFromRenderer \
   DragDropFilesOriginateFromRenderer
 #define MAYBE_DragDropImageFromRenderer DragDropImageFromRenderer
 #define MAYBE_DragDropImageFromRenderer_InaccessibleImageOmitted \
   DragDropImageFromRenderer_InaccessibleImageOmitted
-#endif
 
 TEST_F(WebContentsViewAuraTest, MAYBE_DragDropFiles) {
   WebContentsViewAura* view = GetView();
@@ -1229,7 +1220,8 @@ TEST_F(WebContentsViewAuraTest, StartDraggingBlockedByPolicy) {
   FocusWebContentsOnMainFrame();
 
   BlockDragContentBrowserClient block_drag_client;
-  ContentBrowserClient* old_client = SetBrowserClientForTesting(&block_drag_client);
+  ContentBrowserClient* old_client =
+      SetBrowserClientForTesting(&block_drag_client);
 
   TestDragDropClient drag_drop_client;
   aura::client::SetDragDropClient(root_window(), &drag_drop_client);

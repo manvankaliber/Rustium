@@ -85,7 +85,6 @@ class COMPONENT_EXPORT(UI_BASE_CLIPBOARD_TYPES) ClipboardFormatType {
   static const ClipboardFormatType& IDListType();
   static const ClipboardFormatType& MozUrlType();
 
-
   // Prevents clipboard data from being included in the clipboard history.
   static const ClipboardFormatType& ClipboardHistoryType();
   // Prevents clipboard data from being included in the cloud clipboard.
@@ -173,7 +172,7 @@ class COMPONENT_EXPORT(UI_BASE_CLIPBOARD_TYPES) ClipboardFormatType {
   // FORMATETC:
   // https://docs.microsoft.com/en-us/windows/desktop/com/the-formatetc-structure
   CHROME_FORMATETC data_;
-#elif defined(USE_AURA) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+#elif defined(USE_AURA) || BUILDFLAG(IS_ANDROID)
   explicit ClipboardFormatType(std::string_view native_format);
   std::string data_;
 #elif BUILDFLAG(IS_APPLE)

@@ -24,12 +24,6 @@ config("crashpad_is_in_chromium") {
   }
 }
 
-config("crashpad_is_in_fuchsia") {
-  if (crashpad_is_in_fuchsia) {
-    defines = [ "CRASHPAD_IS_IN_FUCHSIA" ]
-  }
-}
-
 config("flock_always_supported_defines") {
   defines =
       [ "CRASHPAD_FLOCK_ALWAYS_SUPPORTED=$crashpad_flock_always_supported" ]

@@ -19,9 +19,8 @@
 #include "base/android/scoped_java_ref.h"
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA) ||           \
-    BUILDFLAG(ENABLE_CAST_RECEIVER) && \
-        (BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID))
+#if BUILDFLAG(ENABLE_CAST_RECEIVER) && \
+    (BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID))
 #include "third_party/blink/public/common/messaging/message_port_channel.h"
 #endif
 
@@ -62,9 +61,8 @@ class CONTENT_EXPORT MessagePortProvider {
 
 // Fuchsia WebEngine always uses this version.
 // Some Cast Receiver implementations use it too.
-#if BUILDFLAG(IS_FUCHSIA) ||           \
-    BUILDFLAG(ENABLE_CAST_RECEIVER) && \
-        (BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID))
+#if BUILDFLAG(ENABLE_CAST_RECEIVER) && \
+    (BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID))
   // If |target_origin| is unset, then no origin scoping is applied.
   static void PostMessageToFrame(Page& page,
                                  const url::Origin* source_origin,

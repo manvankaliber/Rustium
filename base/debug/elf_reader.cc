@@ -177,8 +177,8 @@ std::optional<std::string_view> ReadElfLibraryName(
     uintptr_t strtab_addr = 0;
     for (const Dyn& dynamic_entry : dynamic_entries) {
       if (dynamic_entry.d_tag == DT_STRTAB) {
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_ANDROID) || \
-    (defined(ARCH_CPU_RISCV_FAMILY) && BUILDFLAG(IS_LINUX))
+#if BUILDFLAG(IS_ANDROID) || \
+    defined(ARCH_CPU_RISCV_FAMILY) && BUILDFLAG(IS_LINUX)
         // Fuchsia and Android do not relocate the strtab pointer on ELF load.
         // When the dynamic section is readonly, the strtab pointer is also not
         // relocated. This is the default ABI behavior on RISC-V GNU Linux (See

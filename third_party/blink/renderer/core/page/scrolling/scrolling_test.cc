@@ -187,8 +187,9 @@ class ScrollingTest : public testing::Test, public PaintTestConfigurations {
 
   cc::ScrollNode* ScrollNodeForScrollableArea(
       const ScrollableArea* scrollable_area) {
-    if (!scrollable_area)
+    if (!scrollable_area) {
       return nullptr;
+    }
     auto* property_trees = RootCcLayer()->layer_tree_host()->property_trees();
     return property_trees->scroll_tree_mutable().MutableFindNodeFromElementId(
         scrollable_area->GetScrollElementId());
@@ -721,8 +722,9 @@ TEST_P(ScrollingTest, nestedTouchActionChangesUnion) {
 TEST_P(ScrollingTest, touchActionEditableElement) {
   base::test::ScopedFeatureList feature_list;
   feature_list.InitWithFeatures({::features::kSwipeToMoveCursor}, {});
-  if (!::features::IsSwipeToMoveCursorEnabled())
+  if (!::features::IsSwipeToMoveCursorEnabled()) {
     return;
+  }
   // Long text that will overflow in y-direction.
   LoadHTML(R"HTML(
     <style>
@@ -3072,8 +3074,9 @@ class UnifiedScrollingSimTest : public SimTest, public PaintTestConfigurations {
 
   const cc::ScrollNode* ScrollNodeForScrollableArea(
       const ScrollableArea* scrollable_area) {
-    if (!scrollable_area)
+    if (!scrollable_area) {
       return nullptr;
+    }
     const auto* property_trees =
         RootCcLayer()->layer_tree_host()->property_trees();
     return property_trees->scroll_tree().FindNodeFromElementId(
@@ -3578,7 +3581,7 @@ TEST_F(ScrollingSimTest, MAYBE_BasicScroll) {
 // the same error. So the failure is not related to the new test, and rather an
 // existing issue with the BasicScroll test with smooth scrolling.
 // TODO(crbug.com/538623863): Test is also flaky on Windows and Mac.
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 #define MAYBE_BasicScrollClampedToScrollerSize \
   DISABLED_BasicScrollClampedToScrollerSize
 #else

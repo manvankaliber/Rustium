@@ -34,12 +34,13 @@ group("all") {
   deps = [ "//chromecast/build:archive" ]
   if (is_android) {
     deps += [ ":cast_browser_apk" ]
-  } else if (!is_fuchsia) {
+  } else {
     data_deps += [
       ":cast_browser",
       ":cast_shell",
     ]
   }
+
   if (is_linux) {
     deps += [ "//chromecast/tracing" ]
   }
@@ -62,14 +63,12 @@ config("iot_service") {
   }
 }
 
-if (!is_fuchsia) {
-  chromecast_resource_sizes_test("resource_sizes_chromecast") {
-    data_deps = [
-      ":cast_shell",
-      ":cast_shell_pak",
-      ":chromecast_locales_pak",
-    ]
-  }
+chromecast_resource_sizes_test("resource_sizes_chromecast") {
+  data_deps = [
+    ":cast_shell",
+    ":cast_shell_pak",
+    ":chromecast_locales_pak",
+  ]
 }
 
 # A list of all public test() binaries. This is an organizational target that
@@ -95,17 +94,15 @@ cast_test_group("cast_tests") {
     "//ui/base:ui_base_unittests",
   ]
 
-  if (!is_fuchsia) {
-    tests += [
-      "//chromecast/renderer:cast_renderer_unittests",
-      "//chromecast/ui/display_settings:cast_display_settings_unittests",
-      "//content/test:content_unittests",
-    ]
-  }
+  tests += [
+    "//chromecast/renderer:cast_renderer_unittests",
+    "//chromecast/ui/display_settings:cast_display_settings_unittests",
+    "//content/test:content_unittests",
+  ]
 
   tests += [ "//gpu:gpu_unittests" ]
 
-  if (use_aura && !is_fuchsia) {
+  if (use_aura) {
     tests += [ "//chromecast/graphics:cast_graphics_unittests" ]
   }
 
@@ -132,7 +129,7 @@ cast_test_group("cast_tests") {
   # TODO(crbug.com/40835751): `media_use_ffmpeg` should not largely affect
   # top-level test list. Better create another flag to do this or handle the
   # ffmpeg flag in //chromecast/media/cma/decoder.
-  if (media_use_ffmpeg && !is_fuchsia) {
+  if (media_use_ffmpeg) {
     tests += [
       "//chromecast/cast_core:cast_cast_core_unittests",
       "//chromecast/media:cast_media_unittests",
@@ -157,7 +154,7 @@ cast_test_group("cast_tests") {
     tests += [ "//chromecast/media/cma/backend/android:cast_android_cma_backend_unittests" ]
   }
 
-  if (!is_android && !is_fuchsia) {
+  if (!is_android) {
     tests += [
       "//ipc:ipc_tests",
       "//url:url_unittests",
@@ -300,32 +297,29 @@ cast_test_group("cast_tests") {
   }
   filters += [ viz_unittests_filter ]
 
-  # content_unittests are not run on Fuchsia.
-  if (!is_fuchsia) {
-    content_unittests_filter = {
-      test_name = "content_unittests"
+  content_unittests_filter = {
+    test_name = "content_unittests"
 
-      # IsSupportedVideoConfig_VP9TransferFunctions fails on all cast builds
-      # since the cast IsSupportedVideoConfigs ignore the transfer function
-      # parameter.
-      # (b/36984215).
-      gtest_excludes = [ "*.IsSupportedVideoConfig_VP9TransferFunctions" ]
-      if (target_os == "linux" && !is_cast_desktop_build) {
-        # DesktopCaptureDeviceTest.*: No capture device on Eureka Disable
-        # PepperGamepadHostTest.WaitForReply (pepper not supported on Eureka)
-        # Disable RenderWidgetHostTest.Background because we disable the
-        # blacklist to enable WebGL (b/16142554)
-        gtest_excludes += [
-          "LegacyDomStorageDatabaseTest.TestCanOpenAndReadWebCoreDatabase",
-          "DesktopCaptureDeviceTest.Capture",
-          "GamepadProviderTest.PollingAccess",
-          "PepperGamepadHostTest.WaitForReply",
-          "RenderWidgetHostTest.Background",
-        ]
-      }
+    # IsSupportedVideoConfig_VP9TransferFunctions fails on all cast builds
+    # since the cast IsSupportedVideoConfigs ignore the transfer function
+    # parameter.
+    # (b/36984215).
+    gtest_excludes = [ "*.IsSupportedVideoConfig_VP9TransferFunctions" ]
+    if (target_os == "linux" && !is_cast_desktop_build) {
+      # DesktopCaptureDeviceTest.*: No capture device on Eureka Disable
+      # PepperGamepadHostTest.WaitForReply (pepper not supported on Eureka)
+      # Disable RenderWidgetHostTest.Background because we disable the
+      # blacklist to enable WebGL (b/16142554)
+      gtest_excludes += [
+        "LegacyDomStorageDatabaseTest.TestCanOpenAndReadWebCoreDatabase",
+        "DesktopCaptureDeviceTest.Capture",
+        "GamepadProviderTest.PollingAccess",
+        "PepperGamepadHostTest.WaitForReply",
+        "RenderWidgetHostTest.Background",
+      ]
     }
-    filters += [ content_unittests_filter ]
   }
+  filters += [ content_unittests_filter ]
 
   media_unittests_filter = {
     test_name = "media_unittests"
@@ -431,141 +425,138 @@ if (is_android) {
   }
 }
 
-if (!is_fuchsia) {
-  test("cast_shell_unittests") {
-    deps = [
-      ":cast_shell_lib",
-      "//chromecast/app:test_support",
-      "//chromecast/app:unittests",
-      "//chromecast/browser:unittests",
-      "//ui/gl:test_support",
-    ]
+test("cast_shell_unittests") {
+  deps = [
+    ":cast_shell_lib",
+    "//chromecast/app:test_support",
+    "//chromecast/app:unittests",
+    "//chromecast/browser:unittests",
+    "//ui/gl:test_support",
+  ]
+}
+
+test("cast_shell_browsertests") {
+  deps = [
+    # These browser tests always use the simple implementation, since we only
+    # need to test web content primitives and not all of Cast receiver.
+    ":cast_shell_lib_simple",
+    "//chromecast/app:test_support",
+    "//chromecast/bindings:browsertests",
+    "//chromecast/browser:browsertests",
+  ]
+
+  data_deps = [ ":chromecast_locales_pak" ]
+}
+
+group("cast_shell_lib") {
+  deps = [ ":cast_shell_lib_simple" ]
+}
+
+group("cast_shell_lib_base") {
+  data_deps = [ ":cast_shell_pak" ]
+
+  deps = [
+    "//chromecast/app",
+    "//chromecast/base:default_create_sys_info",
+    "//chromecast/browser",
+    "//chromecast/common",
+    "//chromecast/renderer",
+  ]
+}
+
+group("cast_shell_lib_simple") {
+  deps = [ "//chromecast/cast_core:core_runtime_lib_simple" ]
+}
+
+cast_executable("cast_shell") {
+  sources = [ "app/cast_main.cc" ]
+
+  deps = [
+    ":cast_shell_lib",
+    ":chromecast_locales_pak",
+    "//chromecast/app",
+    "//content/public/app",
+    "//third_party/widevine/cdm",
+  ]
+}
+
+cast_executable("cast_browser") {
+  sources = [ "app/cast_main.cc" ]
+
+  deps = [
+    ":cast_shell_lib_simple",
+    ":chromecast_locales_pak",
+    "//chromecast/app",
+    "//content/public/app",
+    "//third_party/widevine/cdm",
+  ]
+}
+
+repack("cast_shell_pak") {
+  sources = [
+    "$root_gen_dir/chromecast/app/shell_resources.pak",
+    "$root_gen_dir/components/cast/named_message_port_connector/named_message_port_connector_resources.pak",
+    "$root_gen_dir/components/metrics/metrics_server_urls.pak",
+    "$root_gen_dir/content/content_resources.pak",
+    "$root_gen_dir/content/gpu_resources.pak",
+    "$root_gen_dir/mojo/public/js/mojo_bindings_resources.pak",
+    "$root_gen_dir/net/net_resources.pak",
+    "$root_gen_dir/third_party/blink/public/resources/blink_resources.pak",
+    "$root_gen_dir/third_party/blink/public/resources/blink_scaled_resources_100_percent.pak",
+    "$root_gen_dir/third_party/blink/public/strings/blink_strings_en-US.pak",
+    "$root_gen_dir/ui/resources/ui_lottie_resources.pak",
+    "$root_gen_dir/ui/resources/ui_resources_100_percent.pak",
+    "$root_gen_dir/ui/strings/app_locale_settings_en-US.pak",
+    "$root_gen_dir/ui/strings/ax_strings_en-US.pak",
+    "$root_gen_dir/ui/strings/ui_strings_en-US.pak",
+    "$root_gen_dir/ui/webui/resources/webui_resources.pak",
+  ]
+
+  output = "$root_out_dir/assets/cast_shell.pak"
+
+  deps = [
+    "//chromecast/app:resources",
+    "//components/cast/named_message_port_connector:resources",
+    "//components/metrics:server_urls_grd",
+    "//content:content_resources",
+    "//content/browser/resources/gpu:resources",
+    "//mojo/public/js:resources",
+    "//net:net_resources",
+    "//third_party/blink/public:resources",
+    "//third_party/blink/public:scaled_resources_100_percent",
+    "//third_party/blink/public/strings",
+    "//ui/resources",
+    "//ui/strings",
+    "//ui/webui/resources",
+  ]
+}
+
+# Intermediate targets that repack grit resources by locale. For each locale
+# in |cast_locales| (see //chromecast/chromecast.gni), all resources
+# are packed into a single .pak file in an output directory. These targets
+# should not be depended on directly; depend on ":chromecast_locales_pak"
+# instead.
+foreach(locale, cast_locales) {
+  foreach(_gender_suffix, gender_suffixes) {
+    repack("_cast_repack_${locale}${_gender_suffix}") {
+      visibility = [ ":chromecast_locales_pak" ]
+      output = "$root_out_dir/chromecast_locales/${locale}${_gender_suffix}.pak"
+      mark_as_data = true
+      sources = [ "$root_gen_dir/chromecast/app/chromecast_settings_${locale}${_gender_suffix}.pak" ]
+      deps = [ "//chromecast/app:chromecast_settings" ]
+    }
   }
+}
 
-  test("cast_shell_browsertests") {
-    deps = [
-      # These browser tests always use the simple implementation, since we only
-      # need to test web content primitives and not all of Cast receiver.
-      ":cast_shell_lib_simple",
-      "//chromecast/app:test_support",
-      "//chromecast/bindings:browsertests",
-      "//chromecast/browser:browsertests",
-    ]
-
-    data_deps = [ ":chromecast_locales_pak" ]
-  }
-
-  group("cast_shell_lib") {
-    deps = [ ":cast_shell_lib_simple" ]
-  }
-
-  group("cast_shell_lib_base") {
-    data_deps = [ ":cast_shell_pak" ]
-
-    deps = [
-      "//chromecast/app",
-      "//chromecast/base:default_create_sys_info",
-      "//chromecast/browser",
-      "//chromecast/common",
-      "//chromecast/renderer",
-    ]
-  }
-
-  group("cast_shell_lib_simple") {
-    deps = [ "//chromecast/cast_core:core_runtime_lib_simple" ]
-  }
-
-  cast_executable("cast_shell") {
-    sources = [ "app/cast_main.cc" ]
-
-    deps = [
-      ":cast_shell_lib",
-      ":chromecast_locales_pak",
-      "//chromecast/app",
-      "//content/public/app",
-      "//third_party/widevine/cdm",
-    ]
-  }
-
-  cast_executable("cast_browser") {
-    sources = [ "app/cast_main.cc" ]
-
-    deps = [
-      ":cast_shell_lib_simple",
-      ":chromecast_locales_pak",
-      "//chromecast/app",
-      "//content/public/app",
-      "//third_party/widevine/cdm",
-    ]
-  }
-
-  repack("cast_shell_pak") {
-    sources = [
-      "$root_gen_dir/chromecast/app/shell_resources.pak",
-      "$root_gen_dir/components/cast/named_message_port_connector/named_message_port_connector_resources.pak",
-      "$root_gen_dir/components/metrics/metrics_server_urls.pak",
-      "$root_gen_dir/content/content_resources.pak",
-      "$root_gen_dir/content/gpu_resources.pak",
-      "$root_gen_dir/mojo/public/js/mojo_bindings_resources.pak",
-      "$root_gen_dir/net/net_resources.pak",
-      "$root_gen_dir/third_party/blink/public/resources/blink_resources.pak",
-      "$root_gen_dir/third_party/blink/public/resources/blink_scaled_resources_100_percent.pak",
-      "$root_gen_dir/third_party/blink/public/strings/blink_strings_en-US.pak",
-      "$root_gen_dir/ui/resources/ui_lottie_resources.pak",
-      "$root_gen_dir/ui/resources/ui_resources_100_percent.pak",
-      "$root_gen_dir/ui/strings/app_locale_settings_en-US.pak",
-      "$root_gen_dir/ui/strings/ax_strings_en-US.pak",
-      "$root_gen_dir/ui/strings/ui_strings_en-US.pak",
-      "$root_gen_dir/ui/webui/resources/webui_resources.pak",
-    ]
-
-    output = "$root_out_dir/assets/cast_shell.pak"
-
-    deps = [
-      "//chromecast/app:resources",
-      "//components/cast/named_message_port_connector:resources",
-      "//components/metrics:server_urls_grd",
-      "//content:content_resources",
-      "//content/browser/resources/gpu:resources",
-      "//mojo/public/js:resources",
-      "//net:net_resources",
-      "//third_party/blink/public:resources",
-      "//third_party/blink/public:scaled_resources_100_percent",
-      "//third_party/blink/public/strings",
-      "//ui/resources",
-      "//ui/strings",
-      "//ui/webui/resources",
-    ]
-  }
-
-  # Intermediate targets that repack grit resources by locale. For each locale
-  # in |cast_locales| (see //chromecast/chromecast.gni), all resources
-  # are packed into a single .pak file in an output directory. These targets
-  # should not be depended on directly; depend on ":chromecast_locales_pak"
-  # instead.
+# A meta-target which repacks resources by locale.
+group("chromecast_locales_pak") {
+  public_deps = []
   foreach(locale, cast_locales) {
     foreach(_gender_suffix, gender_suffixes) {
-      repack("_cast_repack_${locale}${_gender_suffix}") {
-        visibility = [ ":chromecast_locales_pak" ]
-        output =
-            "$root_out_dir/chromecast_locales/${locale}${_gender_suffix}.pak"
-        mark_as_data = true
-        sources = [ "$root_gen_dir/chromecast/app/chromecast_settings_${locale}${_gender_suffix}.pak" ]
-        deps = [ "//chromecast/app:chromecast_settings" ]
-      }
+      public_deps += [ ":_cast_repack_${locale}${_gender_suffix}" ]
     }
   }
-
-  # A meta-target which repacks resources by locale.
-  group("chromecast_locales_pak") {
-    public_deps = []
-    foreach(locale, cast_locales) {
-      foreach(_gender_suffix, gender_suffixes) {
-        public_deps += [ ":_cast_repack_${locale}${_gender_suffix}" ]
-      }
-    }
-  }
-}  # !is_fuchsia
+}
 
 buildflag_header("chromecast_buildflags") {
   header = "chromecast_buildflags.h"

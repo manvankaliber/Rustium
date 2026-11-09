@@ -57,14 +57,11 @@ REPOSITORY_PROPERTY_MAP = {
       'ChromiumChrome',
       'ChromiumChromiumos',
       'ChromiumClang',
-      'ChromiumFuchsia',
       'ChromiumGPUFYI',
       'ChromiumPerf',
       'ChromiumPerfFyi',
       'ChromiumPerfPGO',
-      'TryServerChromiumFuchsia',
       'TryserverChromiumChromiumOS',
-      'ChromiumFuchsiaFyi',
       'TryserverChromiumAndroid',
       'ChromiumAndroidFyi',
       'ChromiumFYI',
@@ -116,12 +113,5 @@ REPOSITORY_PROPERTY_MAP = {
     'commit_number': False,
     'revision_param': 'r_devtools_git',
   },
-  'fuchsia': {
-    'masters': ['fuchsia.global.ci'],
-    'public_bucket_name': None,
-    'internal_bucket_name': 'fuchsia-perf-public',
-    'ingest_folder': 'ingest',
-    'commit_number': False,
-    'revision_param': 'r_fuchsia_integ_pub_git',
-  },
+
 }

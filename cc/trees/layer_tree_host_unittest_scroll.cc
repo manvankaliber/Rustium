@@ -1015,8 +1015,9 @@ class LayerTreeHostScrollTestImplOnlyScroll : public LayerTreeHostScrollTest {
 
     // Ensure that the scroll-offsets on the TransformTree are consistent with
     // the synced scroll offsets, for the pending tree.
-    if (!impl->pending_tree())
+    if (!impl->pending_tree()) {
       return;
+    }
 
     LayerImpl* scroll_layer =
         impl->pending_tree()->OuterViewportScrollLayerForTesting();
@@ -1111,16 +1112,18 @@ class SmoothScrollAnimationEndNotification : public LayerTreeHostScrollTest {
   void BeginTest() override { PostSetNeedsCommitToMainThread(); }
 
   void WillCommit(const CommitState&) override {
-    if (TestEnded())
+    if (TestEnded()) {
       return;
+    }
     // Keep the test committing (otherwise the early out for no update
     // will stall the test).
     layer_tree_host()->SetNeedsCommit();
   }
 
   void DidActivateTreeOnThread(LayerTreeHostImpl* host_impl) override {
-    if (host_impl->active_tree()->source_frame_number() < 0)
+    if (host_impl->active_tree()->source_frame_number() < 0) {
       return;
+    }
 
     if (host_impl->active_tree()->source_frame_number() == 0) {
       const gfx::Point scroll_point(10, 10);
@@ -1152,8 +1155,9 @@ class SmoothScrollAnimationEndNotification : public LayerTreeHostScrollTest {
   }
 
   void UpdateLayerTreeHost() override {
-    if (scroll_animation_started_)
+    if (scroll_animation_started_) {
       return;
+    }
 
     if (layer_tree_host()->HasCompositorDrivenScrollAnimationForTesting()) {
       scroll_animation_started_ = true;
@@ -1269,8 +1273,9 @@ class LayerTreeHostScrollTestImplOnlyScrollSnap
 
   // The animations states are updated before this call.
   void WillSendBeginMainFrameOnThread(LayerTreeHostImpl* host_impl) override {
-    if (host_impl->active_tree()->source_frame_number() < 0)
+    if (host_impl->active_tree()->source_frame_number() < 0) {
       return;
+    }
 
     // Perform a scroll such that a snap target is found. This will get pushed
     // to the main thread on the next BeginMainFrame.
@@ -1525,8 +1530,9 @@ class LayerTreeHostScrollTestScrollZeroMaxScrollOffset
   void BeginTest() override { NextStep(); }
 
   void NextStep() {
-    if (TestEnded())
+    if (TestEnded()) {
       return;
+    }
 
     ++cur_step_;
 
@@ -1553,8 +1559,9 @@ class LayerTreeHostScrollTestScrollZeroMaxScrollOffset
   }
 
   void DrawLayersOnThread(LayerTreeHostImpl* impl) override {
-    if (TestEnded())
+    if (TestEnded()) {
       return;
+    }
 
     const ScrollTree& scroll_tree =
         impl->active_tree()->property_trees()->scroll_tree();
@@ -1757,13 +1764,15 @@ class ThreadCheckingInputHandlerClient : public InputHandlerClient {
       : task_runner_(runner), received_stop_flinging_(received_stop_flinging) {}
 
   void WillShutdown() override {
-    if (!received_stop_flinging_)
+    if (!received_stop_flinging_) {
       ADD_FAILURE() << "WillShutdown() called before fling stopped";
+    }
   }
 
   void Animate(base::TimeTicks time) override {
-    if (!task_runner_->BelongsToCurrentThread())
+    if (!task_runner_->BelongsToCurrentThread()) {
       ADD_FAILURE() << "Animate called on wrong thread";
+    }
   }
 
   void ReconcileElasticOverscrollAndRootScroll() override {
@@ -1887,9 +1896,10 @@ class LayerTreeHostScrollTestLayerStructureChange
     if (layer_impl->layer_tree_impl()
             ->property_trees()
             ->scroll_tree_mutable()
-            .SetScrollOffsetDeltaForTesting(layer_impl->element_id(), delta))
+            .SetScrollOffsetDeltaForTesting(layer_impl->element_id(), delta)) {
       layer_impl->layer_tree_impl()->DidUpdateScrollOffset(
           layer_impl->element_id(), /*pushed_from_main_or_pending_tree=*/false);
+    }
   }
 
   int root_scroll_layer_id_;
@@ -2438,9 +2448,7 @@ class LayerTreeHostScrollTestElasticOverscroll
 };
 
 // TODO(crbug.com/433308634): Crashes on fuchsia-x64-cast-receiver-rel
-#if !BUILDFLAG(IS_FUCHSIA)
 MULTI_THREAD_TEST_F(LayerTreeHostScrollTestElasticOverscroll);
-#endif
 
 // This test makes sure that the snap animation runs after the overscroll
 // animation has finished.
@@ -2999,8 +3007,9 @@ class LayerTreeHostScrollTestImplSideInvalidation
       LayerTreeHostImpl* host_impl) override {
     // Ensure that the scroll-offsets on the TransformTree are consistent with
     // the synced scroll offsets, for the pending tree.
-    if (!host_impl->pending_tree())
+    if (!host_impl->pending_tree()) {
       return;
+    }
 
     LayerImpl* scroll_layer =
         host_impl->pending_tree()->OuterViewportScrollLayerForTesting();
@@ -3015,8 +3024,9 @@ class LayerTreeHostScrollTestImplSideInvalidation
   }
 
   void SignalCompletionIfPossible() {
-    if (!invalidated_on_impl_thread_ || !impl_side_invalidation_event_)
+    if (!invalidated_on_impl_thread_ || !impl_side_invalidation_event_) {
       return;
+    }
 
     impl_side_invalidation_event_->Signal();
     impl_side_invalidation_event_ = nullptr;
@@ -3054,8 +3064,9 @@ class LayerTreeHostScrollTestImplSideInvalidation
     // If the third main frame was sent before the second main frame finished
     // commit, then the impl side invalidation flag set in
     // DidSendBeginMainFrameOnThread got clobbered, so set it again here.
-    if (++num_of_commits_ == 2 && num_of_main_frames_ == 3)
+    if (++num_of_commits_ == 2 && num_of_main_frames_ == 3) {
       host_impl->RequestImplSideInvalidationForCheckerImagedTiles();
+    }
   }
 
   void BeginMainFrameAbortedOnThread(
@@ -3145,8 +3156,9 @@ class LayerTreeHostRasterPriorityTest : public LayerTreeHostScrollTest {
   }
 
   void UpdateLayerTreeHost() override {
-    if (layer_tree_host()->SourceFrameNumber() == 1)
+    if (layer_tree_host()->SourceFrameNumber() == 1) {
       GetViewportScrollNode()->main_thread_repaint_reasons = {};
+    }
   }
 
   void BeginTest() override { PostSetNeedsCommitToMainThread(); }
@@ -3276,8 +3288,9 @@ class NonScrollingMainThreadScrollHitTestRegion
   }
 
   void CommitCompleteOnThread(LayerTreeHostImpl* impl) override {
-    if (TestEnded())
+    if (TestEnded()) {
       return;
+    }
 
     const ScrollNode& scroll_node =
         impl->active_tree()->property_trees()->scroll_tree().Node(
@@ -3363,8 +3376,9 @@ class UnifiedScrollingRepaintOnScroll : public LayerTreeTest {
   }
 
   void DrawLayersOnThread(LayerTreeHostImpl* impl) override {
-    if (is_done_)
+    if (is_done_) {
       return;
+    }
     is_done_ = true;
     EndTest();
 
@@ -3662,8 +3676,9 @@ class CommitWithoutSynchronizingScrollOffsets : public LayerTreeHostScrollTest {
   }
 
   void DidActivateTreeOnThread(LayerTreeHostImpl* impl) override {
-    if (impl->active_tree()->source_frame_number() != 0)
+    if (impl->active_tree()->source_frame_number() != 0) {
       return;
+    }
 
     // Ask the main thread to defer commits so the state is deferred before the
     // next BeginMainFrame.

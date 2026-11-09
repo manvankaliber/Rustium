@@ -6,7 +6,6 @@ from pylib import constants
 
 from pylib.local.device import local_device_environment
 from pylib.local.device import local_device_network_environment
-from pylib.local.emulator import fuchsia_cuttlefish_emulator_environment
 from pylib.local.machine import local_machine_environment
 
 try:
@@ -30,11 +29,6 @@ def CreateEnvironment(args, output_manager, error_func):
                 return local_emulator_environment.LocalEmulatorEnvironment(
                     args, output_manager, error_func
                 )
-
-            if fuchsia_cuttlefish_emulator_environment.IsSupported():
-                return (
-                    fuchsia_cuttlefish_emulator_environment.FuchsiaCuttlefishEmulatorEnvironment
-                )(args, output_manager, error_func)
 
             if args.connect_over_network:
                 return local_device_network_environment.LocalDeviceNetworkEnvironment(

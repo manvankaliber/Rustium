@@ -128,10 +128,10 @@ class CastBrowserMainParts : public content::BrowserMainParts {
   std::unique_ptr<media::MediaPipelineBackendManager>
       media_pipeline_backend_manager_;
 
-#if defined(USE_AURA) && !BUILDFLAG(IS_FUCHSIA)
+#if defined(USE_AURA)
   // Only used when running with --enable-ui-devtools.
   std::unique_ptr<CastUIDevTools> ui_devtools_;
-#endif  // defined(USE_AURA) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
   base::WeakPtrFactory<CastBrowserMainParts> weak_factory_{this};
 };

@@ -23,7 +23,7 @@
 #include "base/win/windows_version.h"
 #endif
 
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_ANDROID)
 #include "components/soda/soda_util.h"
 #endif
 
@@ -125,11 +125,11 @@ std::optional<ui::CaptionStyle> GetCaptionStyleFromUserSettings(
 }
 
 bool IsLiveCaptionFeatureSupported() {
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_ANDROID)
   return speech::IsOnDeviceSpeechRecognitionSupported();
 #else
   return false;
-#endif  // !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_ANDROID)
+#endif
 }
 
 bool IsHeadlessCaptionFeatureSupported() {

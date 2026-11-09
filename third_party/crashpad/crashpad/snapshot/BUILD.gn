@@ -65,7 +65,7 @@ crashpad_static_library("snapshot") {
     "unloaded_module_snapshot.h",
   ]
 
-  if (crashpad_is_posix || crashpad_is_fuchsia) {
+  if (crashpad_is_posix) {
     sources += [
       "posix/timezone.cc",
       "posix/timezone.h",
@@ -158,15 +158,14 @@ crashpad_static_library("snapshot") {
     ]
   }
 
-  if (crashpad_is_linux || crashpad_is_android || crashpad_is_fuchsia ||
-      crashpad_is_win) {
+  if (crashpad_is_linux || crashpad_is_android || crashpad_is_win) {
     sources += [
       "crashpad_types/crashpad_info_reader.cc",
       "crashpad_types/crashpad_info_reader.h",
     ]
   }
 
-  if (crashpad_is_linux || crashpad_is_android || crashpad_is_fuchsia) {
+  if (crashpad_is_linux || crashpad_is_android) {
     sources += [
       "crashpad_types/image_annotation_reader.cc",
       "crashpad_types/image_annotation_reader.h",
@@ -209,27 +208,6 @@ crashpad_static_library("snapshot") {
       "win/system_snapshot_win.h",
       "win/thread_snapshot_win.cc",
       "win/thread_snapshot_win.h",
-    ]
-  }
-
-  if (crashpad_is_fuchsia) {
-    sources += [
-      "fuchsia/cpu_context_fuchsia.cc",
-      "fuchsia/cpu_context_fuchsia.h",
-      "fuchsia/exception_snapshot_fuchsia.cc",
-      "fuchsia/exception_snapshot_fuchsia.h",
-      "fuchsia/memory_map_fuchsia.cc",
-      "fuchsia/memory_map_fuchsia.h",
-      "fuchsia/memory_map_region_snapshot_fuchsia.cc",
-      "fuchsia/memory_map_region_snapshot_fuchsia.h",
-      "fuchsia/process_reader_fuchsia.cc",
-      "fuchsia/process_reader_fuchsia.h",
-      "fuchsia/process_snapshot_fuchsia.cc",
-      "fuchsia/process_snapshot_fuchsia.h",
-      "fuchsia/system_snapshot_fuchsia.cc",
-      "fuchsia/system_snapshot_fuchsia.h",
-      "fuchsia/thread_snapshot_fuchsia.cc",
-      "fuchsia/thread_snapshot_fuchsia.h",
     ]
   }
 
@@ -331,7 +309,7 @@ static_library("test_support") {
 
 config("snapshot_test_link") {
   visibility = [ ":*" ]
-  if (crashpad_is_linux || crashpad_is_android || crashpad_is_fuchsia) {
+  if (crashpad_is_linux || crashpad_is_android) {
     # There’s no way to make the link depend on this file. “inputs”
     # doesn’t have
     # the intended effect in a config. https://crbug.com/781858,
@@ -386,12 +364,11 @@ source_set("snapshot_test") {
     sources += [ "crashpad_info_client_options_test.cc" ]
   }
 
-  if (crashpad_is_linux || crashpad_is_android || crashpad_is_fuchsia ||
-      crashpad_is_win) {
+  if (crashpad_is_linux || crashpad_is_android || crashpad_is_win) {
     sources += [ "crashpad_types/crashpad_info_reader_test.cc" ]
   }
 
-  if (crashpad_is_linux || crashpad_is_android || crashpad_is_fuchsia) {
+  if (crashpad_is_linux || crashpad_is_android) {
     sources += [
       "crashpad_types/image_annotation_reader_test.cc",
       "elf/elf_image_reader_test.cc",
@@ -410,19 +387,12 @@ source_set("snapshot_test") {
       "win/process_snapshot_win_test.cc",
       "win/system_snapshot_win_test.cc",
     ]
-  } else if (!crashpad_is_fuchsia) {
+  } else {
     # Timezones are currently non-functional on Fuchsia:
     # https://fuchsia.googlesource.com/zircon/+/master/third_party/ulib/musl/src/time/__tz.c#9
     # https://crashpad.chromium.org/bug/196. Relevant upstream bugs are ZX-337
     # and ZX-1731.
     sources += [ "posix/timezone_test.cc" ]
-  }
-
-  if (crashpad_is_fuchsia) {
-    sources += [
-      "fuchsia/process_reader_fuchsia_test.cc",
-      "fuchsia/process_snapshot_fuchsia_test.cc",
-    ]
   }
 
   # public_configs isn’t quite right. snapshot_test_link sets ldflags, and
@@ -469,8 +439,8 @@ source_set("snapshot_test") {
     libs = [ "dl" ]
   }
 
-  if ((crashpad_is_linux || crashpad_is_android || crashpad_is_fuchsia) &&
-      target_cpu != "mipsel" && target_cpu != "mips64el") {
+  if ((crashpad_is_linux || crashpad_is_android) && target_cpu != "mipsel" &&
+      target_cpu != "mips64el") {
     data_deps += [ ":crashpad_snapshot_test_both_dt_hash_styles" ]
   }
 
@@ -509,11 +479,6 @@ crashpad_loadable_module("crashpad_snapshot_test_module") {
     "$mini_chromium_source_parent:base",
     "../client",
   ]
-  if (crashpad_is_in_fuchsia) {
-    # TODO(fxbug.dev/42059784): Remove this once the underlying issue is
-    # addressed.
-    exclude_toolchain_tags = [ "hwasan" ]
-  }
 }
 
 crashpad_loadable_module("crashpad_snapshot_test_module_large") {
@@ -521,19 +486,13 @@ crashpad_loadable_module("crashpad_snapshot_test_module_large") {
   sources = [ "crashpad_info_size_test_module.cc" ]
 
   deps = []
-  if (crashpad_is_linux || crashpad_is_android || crashpad_is_fuchsia) {
+  if (crashpad_is_linux || crashpad_is_android) {
     sources += [ "crashpad_info_size_test_note.S" ]
     deps += [ "../util" ]
   }
 
   defines = [ "CRASHPAD_INFO_SIZE_TEST_MODULE_LARGE" ]
   deps += [ "$mini_chromium_source_parent:base" ]
-
-  if (crashpad_is_in_fuchsia) {
-    # TODO(fxbug.dev/42059784): Remove this once the underlying issue is
-    # addressed.
-    exclude_toolchain_tags = [ "hwasan" ]
-  }
 }
 
 crashpad_loadable_module("crashpad_snapshot_test_module_small") {
@@ -541,35 +500,23 @@ crashpad_loadable_module("crashpad_snapshot_test_module_small") {
   sources = [ "crashpad_info_size_test_module.cc" ]
 
   deps = []
-  if (crashpad_is_linux || crashpad_is_android || crashpad_is_fuchsia) {
+  if (crashpad_is_linux || crashpad_is_android) {
     sources += [ "crashpad_info_size_test_note.S" ]
     deps += [ "../util" ]
   }
 
   defines = [ "CRASHPAD_INFO_SIZE_TEST_MODULE_SMALL" ]
   deps += [ "$mini_chromium_source_parent:base" ]
-
-  if (crashpad_is_in_fuchsia) {
-    # TODO(fxbug.dev/42059784): Remove this once the underlying issue is
-    # addressed.
-    exclude_toolchain_tags = [ "hwasan" ]
-  }
 }
 
-if ((crashpad_is_linux || crashpad_is_android || crashpad_is_fuchsia) &&
-    target_cpu != "mipsel" && target_cpu != "mips64el") {
+if ((crashpad_is_linux || crashpad_is_android) && target_cpu != "mipsel" &&
+    target_cpu != "mips64el") {
   crashpad_loadable_module("crashpad_snapshot_test_both_dt_hash_styles") {
     testonly = true
     sources = [ "hash_types_test.cc" ]
 
     # This makes `ld` emit both .hash and .gnu.hash sections.
     ldflags = [ "-Wl,--hash-style=both" ]
-
-    if (crashpad_is_in_fuchsia) {
-      # TODO(fxbug.dev/42059784): Remove this once the underlying issue is
-      # addressed.
-      exclude_toolchain_tags = [ "hwasan" ]
-    }
   }
 }
 

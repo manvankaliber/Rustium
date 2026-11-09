@@ -23,7 +23,6 @@
 #include "base/android/background_thread_pool_field_trial.h"
 #endif
 
-
 #if BUILDFLAG(IS_ANDROID)
 // On Android, `pthread_mutexattr_setprotocol()` is only defined in bionic
 // starting with API level 28. Make it a weak import, so that we can compile.
@@ -97,11 +96,7 @@ void LogUnlockFailure(int rv) {
 // Lock::PriorityInheritanceAvailable still must be checked as the code may
 // compile but the underlying platform still may not correctly support priority
 // inheritance locks.
-#if BUILDFLAG(IS_FUCHSIA)
-#define PRIORITY_INHERITANCE_LOCKS_POSSIBLE() 0
-#else
 #define PRIORITY_INHERITANCE_LOCKS_POSSIBLE() 1
-#endif
 
 LockImpl::LockImpl() {
   pthread_mutexattr_t mta;

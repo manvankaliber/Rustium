@@ -10,8 +10,7 @@
 #include "third_party/skia/include/core/SkFontMgr.h"
 #include "third_party/skia/include/ports/SkFontConfigInterface.h"
 
-#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN) && \
-    !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN)
 #include "third_party/skia/include/ports/SkFontMgr_Fontations.h"
 #endif
 
@@ -20,8 +19,7 @@ namespace blink {
 sk_sp<SkTypeface> CreateSkTypefaceFromFontConfigInterfaceIdAndTtcIndex(
     int config_id,
     int ttc_index) {
-#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN) && \
-    !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN)
   sk_sp<SkFontConfigInterface> fci(SkFontConfigInterface::RefGlobal());
   SkFontConfigInterface::FontIdentity font_identity;
   font_identity.fID = config_id;
@@ -35,8 +33,7 @@ sk_sp<SkTypeface> CreateSkTypefaceFromFontConfigInterfaceIdAndTtcIndex(
 sk_sp<SkTypeface> CreateSkTypefaceFromFilenameAndTtcIndex(
     const std::string& filename,
     int ttc_index) {
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA) && \
-    !BUILDFLAG(IS_APPLE)
+#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_APPLE)
   return SkFontMgr_New_Fontations_Empty()->makeFromFile(filename.c_str(),
                                                         ttc_index);
 #else

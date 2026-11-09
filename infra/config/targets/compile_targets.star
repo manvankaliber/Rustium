@@ -58,11 +58,6 @@ targets.compile_target(
 )
 
 targets.compile_target(
-    name = "cast_runner_pkg",
-    label = "//fuchsia_web/runners:cast_runner_pkg",
-)
-
-targets.compile_target(
     name = "cast_junit_test_lists",
     label = "//chromecast:cast_junit_test_lists",
     # All references have been moved to starlark
@@ -448,11 +443,6 @@ targets.compile_target(
     label = "//media/gpu/test:video_encode_accelerator_perf_tests",
     # All references have been moved to starlark
     skip_usage_check = True,
-)
-
-targets.compile_target(
-    name = "web_engine_shell_pkg",
-    label = "//fuchsia_web/shell:web_engine_shell_pkg",
 )
 
 targets.compile_target(

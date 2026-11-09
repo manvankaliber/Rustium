@@ -1,18 +1,17 @@
 [
-  {
-    "os": [
-      "win",
-      "linux",
-      "mac",
-      "chromeos",
-      "fuchsia"
-    ],
-    "simple_policy_pref_mapping_test": {
-      "pref_name": "printing.rasterize_pdf_dpi",
-      "default_value": 0,
-      "values_to_test": [
-        300
-      ]
+    {
+        "os": [
+            "win",
+            "linux",
+            "mac",
+            "chromeos"
+        ],
+        "simple_policy_pref_mapping_test": {
+            "pref_name": "printing.rasterize_pdf_dpi",
+            "default_value": 0,
+            "values_to_test": [
+                300
+            ]
+        }
     }
-  }
 ]

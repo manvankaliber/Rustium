@@ -70,8 +70,9 @@ bool IsDeviceBlocked(const std::string& field, const std::string& block_list) {
   auto disable_patterns = base::SplitString(
       block_list, "|", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
   for (const auto& disable_pattern : disable_patterns) {
-    if (base::MatchPattern(field, disable_pattern))
+    if (base::MatchPattern(field, disable_pattern)) {
       return true;
+    }
   }
   return false;
 }
@@ -108,7 +109,6 @@ BASE_FEATURE(kGpuVsync, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kDefaultPassthroughCommandDecoder,
              base::FEATURE_ENABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(ENABLE_VALIDATING_COMMAND_DECODER)
-
 
 #if BUILDFLAG(IS_WIN)
 // If true, VsyncThreadWin will use the compositor clock
@@ -182,8 +182,9 @@ bool UsePassthroughCommandDecoder() {
   return true;
 #else
 
-  if (!base::FeatureList::IsEnabled(kDefaultPassthroughCommandDecoder))
+  if (!base::FeatureList::IsEnabled(kDefaultPassthroughCommandDecoder)) {
     return false;
+  }
 
 #if BUILDFLAG(IS_ANDROID)
   // Check block list against build info.
@@ -275,14 +276,7 @@ void GetANGLEFeaturesFromCommandLineAndFinch(
 #endif
 }
 
-
 #if BUILDFLAG(ENABLE_SWIFTSHADER)
-#if BUILDFLAG(IS_FUCHSIA)
-// SwiftShader is always used on Fuchsia, sometimes at the system level.
-bool IsSwiftShaderAllowed(const base::CommandLine* command_line) {
-  return true;
-}
-#else
 bool IsSwiftShaderAllowed(const base::CommandLine* command_line) {
   // If the switch to opt-into unsafe SwiftShader is present, always allow
   // SwiftShader.
@@ -311,7 +305,6 @@ bool IsSwiftShaderUsedForWebGLByCommandLine(
   return command_line->GetSwitchValueASCII(switches::kUseANGLE) ==
          gl::kANGLEImplementationSwiftShaderForWebGLName;
 }
-#endif
 #else
 bool IsSwiftShaderAllowed(const base::CommandLine*) {
   return false;

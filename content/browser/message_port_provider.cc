@@ -40,8 +40,9 @@ void PostMessageToFrameInternal(
   // TODO(chrisha): Kill off MessagePortChannel, as MessagePortDescriptor now
   // plays that role.
   std::vector<MessagePortChannel> channels;
-  for (auto& port : ports)
+  for (auto& port : ports) {
     channels.emplace_back(MessagePortChannel(std::move(port)));
+  }
 
   // Note that this is reached by every embedder on the platform, not just
   // WebView -- Chrome Custom Tabs and Trusted Web Activities post through here
@@ -66,8 +67,9 @@ void PostMessageToFrameInternal(
 #if BUILDFLAG(IS_ANDROID)
 std::u16string ToString16(JNIEnv* env,
                           const base::android::JavaRef<jstring>& s) {
-  if (s.is_null())
+  if (s.is_null()) {
     return std::u16string();
+  }
   return base::android::ConvertJavaStringToUTF16(env, s);
 }
 #endif
@@ -113,9 +115,8 @@ void MessagePortProvider::PostMessageToFrame(
 }
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA) ||           \
-    BUILDFLAG(ENABLE_CAST_RECEIVER) && \
-        (BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID))
+#if BUILDFLAG(ENABLE_CAST_RECEIVER) && \
+    (BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID))
 // static
 void MessagePortProvider::PostMessageToFrame(
     Page& page,
@@ -126,8 +127,9 @@ void MessagePortProvider::PostMessageToFrame(
   // Extract the underlying descriptors.
   std::vector<blink::MessagePortDescriptor> descriptors;
   descriptors.reserve(ports.size());
-  for (size_t i = 0; i < ports.size(); ++i)
+  for (size_t i = 0; i < ports.size(); ++i) {
     descriptors.push_back(ports[i].PassPort());
+  }
   PostMessageToFrameInternal(page, source_origin, target_origin, data,
                              std::move(descriptors));
 }

@@ -189,7 +189,6 @@ TEST_F(InspectorEmulationAgentTest, ModifiesAcceptHeader) {
 }
 
 // Fuchsia does not support CPU throttling.
-#if !BUILDFLAG(IS_FUCHSIA)
 TEST_F(InspectorEmulationAgentTest, MultiSessionCPUThrottlingRestoreTest) {
   test::TaskEnvironment task_environment_;
   frame_test_helpers::WebViewHelper helper_;
@@ -260,7 +259,6 @@ TEST_F(InspectorEmulationAgentTest, MultiSessionCPUThrottlingRestoreTest) {
   agent_b->Dispose();
   helper_.Reset();
 }
-#endif
 
 TEST_F(InspectorEmulationAgentTest, CPUPerformanceOverrideRestoreAndDisable) {
   test::TaskEnvironment task_environment;

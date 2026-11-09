@@ -66,12 +66,6 @@ if (ozone_platform_x11) {
   ozone_platform_ui_test_support_deps += [ "platform/x11:test_support" ]
 }
 
-if (ozone_platform_flatland) {
-  ozone_platforms += [ "flatland" ]
-  ozone_platform_deps += [ "platform/flatland" ]
-  ozone_platform_test_deps += [ "platform/flatland:flatland_unittests" ]
-}
-
 platform_list_cc_file = "$target_gen_dir/platform_list.cc"
 platform_list_h_file = "$target_gen_dir/platform_list.h"
 platform_list_txt_file = "$target_gen_dir/platform_list.txt"
@@ -153,12 +147,6 @@ component("ozone_base") {
 
   if (enable_vulkan) {
     public_deps += [ "//gpu/vulkan" ]
-  }
-
-  if (is_fuchsia) {
-    public_deps += [
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.images:fuchsia.images_hlcpp",
-    ]
   }
 
   if (is_linux) {
@@ -399,7 +387,6 @@ static_library("test_support") {
   visibility = []
   visibility = [
     ":*",
-    "platform/flatland:flatland_unittests",
     "platform/headless:headless_unittests",
     "platform/wayland:test_support",
     "platform/wayland:wayland_unittests",
@@ -497,11 +484,6 @@ test("ozone_unittests") {
   assert_no_deps = [ "//ui/ozone" ]
 
   data_deps = [ "//testing/buildbot/filters:ozone_unittests_filters" ]
-
-  if (is_fuchsia) {
-    additional_manifest_fragments =
-        [ "//build/config/fuchsia/test/test_ui_stack.shard.test-cml" ]
-  }
 }
 
 # X11 backend has its own test suite only built when we are using the x11

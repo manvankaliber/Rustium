@@ -85,13 +85,6 @@ source_set("hid") {
     ]
   }
 
-  if (is_fuchsia) {
-    sources += [
-      "hid_service_fuchsia.cc",
-      "hid_service_fuchsia.h",
-    ]
-  }
-
   if (is_android) {
     sources += [
       "hid_connection_android.cc",

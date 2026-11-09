@@ -34,7 +34,7 @@ if (current_cpu == "x86") {
   cpu_arch_full = current_cpu
 }
 
-if (is_posix || is_fuchsia) {
+if (is_posix) {
   # Should cover linux, fuchsia, mac, and ios.
   os_category = "linux"
 } else {  # This should only match windows.

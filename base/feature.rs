@@ -274,12 +274,7 @@ macro_rules! base_feature {
         #[allow(non_upper_case_globals)]
         // LINT.IfChange(FeatureSection)
         #[cfg_attr(
-            any(
-                target_os = "android",
-                target_os = "linux",
-                target_os = "chromeos",
-                target_os = "fuchsia"
-            ),
+            any(target_os = "android", target_os = "linux", target_os = "chromeos"),
             unsafe(link_section = ".data.rel.ro..cr_features")
         )]
         // LINT.ThenChange(feature_internal.h:FeatureSection)

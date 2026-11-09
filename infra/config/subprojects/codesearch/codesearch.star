@@ -95,28 +95,6 @@ try_.builder(
 )
 
 try_.builder(
-    name = "gen-fuchsia-try",
-    description_html = "Trybuilder for generating Code Search Kythe index packs and generated files for Fuchsia.",
-    gn_args = gn_args.config(
-        configs = [
-            "codesearch_builder",
-            "release_builder",
-            "remoteexec",
-            "fuchsia",
-            "cast_receiver",
-            "x64",
-        ],
-    ),
-    ssd = True,
-    properties = {
-        "recipe_properties": {
-            "build_config": "fuchsia",
-            "platform": "fuchsia",
-        },
-    },
-)
-
-try_.builder(
     name = "gen-ios-try",
     description_html = "Trybuilder for generating Code Search Kythe index packs and generated files for iOS.",
     gn_args = gn_args.config(

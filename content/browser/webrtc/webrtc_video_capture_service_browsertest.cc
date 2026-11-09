@@ -313,8 +313,9 @@ class SharedMemoryDeviceExerciser : public VirtualDeviceExerciser,
 
  private:
   void OnFrameBufferReceived(base::TimeDelta timestamp, int32_t buffer_id) {
-    if (buffer_id == video_capture::mojom::kInvalidBufferId)
+    if (buffer_id == video_capture::mojom::kInvalidBufferId) {
       return;
+    }
 
     media::VideoFrameMetadata metadata;
     metadata.frame_rate = kDummyFrameRate;
@@ -871,8 +872,9 @@ class WebRtcVideoCaptureServiceBrowserTest : public ContentBrowserTest {
 
  private:
   base::TimeDelta CalculateTimeSinceFirstInvocation() {
-    if (first_frame_time_.is_null())
+    if (first_frame_time_.is_null()) {
       first_frame_time_ = base::TimeTicks::Now();
+    }
     return base::TimeTicks::Now() - first_frame_time_;
   }
 
@@ -950,8 +952,7 @@ IN_PROC_BROWSER_TEST_F(WebRtcVideoCaptureServiceBrowserTest,
 // TODO(crbug.com/40781953): This test is flakey on macOS.
 // TODO(crbug.com/41484083): This test is flakey on ChromeOS.
 // TODO(crbug.com/576838747): This test is flakey on Linux.
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
 #define MAYBE_FramesSentThroughTextureVirtualDeviceGetDisplayedOnPage \
   DISABLED_FramesSentThroughTextureVirtualDeviceGetDisplayedOnPage
 #else

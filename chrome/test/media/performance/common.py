@@ -26,11 +26,9 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 import urllib3
 
-# Imported first: puts build/util, fuchsia_web/av_testing, and
-# build/fuchsia/test on sys.path for the imports below.
+# Imported first: puts build/util on sys.path for the imports below.
 from perf_config import (
     BUILD_UTIL_ROOT,
-    CHROME_FUCHSIA_ROOT,
     CFT_JSON_URL,
     CHROMEDRIVER_PORT,
     LOCAL_HOST_IP,
@@ -38,7 +36,6 @@ from perf_config import (
     REMOTE_URL,
     REPO_ROOT,
     SERVER_PORT,
-    TEST_SCRIPTS_ROOT,
     TRACES_DIR,
 )
 from lib.proto import measures
@@ -69,13 +66,11 @@ __all__ = [
     'BUILD_UTIL_ROOT',
     'CFT_JSON_URL',
     'CHROMEDRIVER_PORT',
-    'CHROME_FUCHSIA_ROOT',
     'LOCAL_HOST_IP',
     'RECORDINGS_DIR',
     'REMOTE_URL',
     'REPO_ROOT',
     'SERVER_PORT',
-    'TEST_SCRIPTS_ROOT',
     'TRACES_DIR',
     'ReceiverAdbError',
     'ReceiverUnreachableError',

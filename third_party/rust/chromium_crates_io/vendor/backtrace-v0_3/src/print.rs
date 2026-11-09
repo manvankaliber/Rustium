@@ -6,9 +6,6 @@ use core::fmt;
 
 const HEX_WIDTH: usize = 2 + 2 * core::mem::size_of::<usize>();
 
-#[cfg(target_os = "fuchsia")]
-mod fuchsia;
-
 /// A formatter for backtraces.
 ///
 /// This type can be used to print a backtrace regardless of where the backtrace
@@ -26,7 +23,8 @@ pub struct BacktraceFmt<'a, 'b> {
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum PrintFmt {
-    /// Prints a terser backtrace which ideally only contains relevant information
+    /// Prints a terser backtrace which ideally only contains relevant
+    /// information
     Short,
     /// Prints a backtrace that contains all possible information
     Full,
@@ -46,12 +44,7 @@ impl<'a, 'b> BacktraceFmt<'a, 'b> {
         print_path: &'a mut (dyn FnMut(&mut fmt::Formatter<'_>, BytesOrWideString<'_>) -> fmt::Result
                      + 'b),
     ) -> Self {
-        BacktraceFmt {
-            fmt,
-            frame_index: 0,
-            format,
-            print_path,
-        }
+        BacktraceFmt { fmt, frame_index: 0, format, print_path }
     }
 
     /// Prints a preamble for the backtrace about to be printed.
@@ -60,21 +53,16 @@ impl<'a, 'b> BacktraceFmt<'a, 'b> {
     /// symbolicated later, and otherwise this should just be the first method
     /// you call after creating a `BacktraceFmt`.
     pub fn add_context(&mut self) -> fmt::Result {
-        #[cfg(target_os = "fuchsia")]
-        fuchsia::print_dso_context(self.fmt)?;
         Ok(())
     }
 
     /// Adds a frame to the backtrace output.
     ///
-    /// This commit returns an RAII instance of a `BacktraceFrameFmt` which can be used
-    /// to actually print a frame, and on destruction it will increment the
-    /// frame counter.
+    /// This commit returns an RAII instance of a `BacktraceFrameFmt` which can
+    /// be used to actually print a frame, and on destruction it will increment
+    /// the frame counter.
     pub fn frame(&mut self) -> BacktraceFrameFmt<'_, 'a, 'b> {
-        BacktraceFrameFmt {
-            fmt: self,
-            symbol_index: 0,
-        }
+        BacktraceFrameFmt { fmt: self, symbol_index: 0 }
     }
 
     /// Completes the backtrace output.
@@ -82,8 +70,6 @@ impl<'a, 'b> BacktraceFmt<'a, 'b> {
     /// This is currently a no-op but is added for future compatibility with
     /// backtrace formats.
     pub fn finish(&mut self) -> fmt::Result {
-        #[cfg(target_os = "fuchsia")]
-        fuchsia::finish_context(self.fmt)?;
         Ok(())
     }
 
@@ -98,8 +84,9 @@ impl<'a, 'b> BacktraceFmt<'a, 'b> {
 
     /// Return the inner formatter.
     ///
-    /// This is used for writing custom information between frames with `write!` and `writeln!`,
-    /// and won't increment the `frame_index` unlike the `frame` method.
+    /// This is used for writing custom information between frames with `write!`
+    /// and `writeln!`, and won't increment the `frame_index` unlike the `frame`
+    /// method.
     pub fn formatter(&mut self) -> &mut fmt::Formatter<'b> {
         self.fmt
     }
@@ -153,9 +140,7 @@ impl BacktraceFrameFmt<'_, '_, '_> {
             // TODO: this isn't great that we don't end up printing anything
             // with non-utf8 filenames. Thankfully almost everything is utf8 so
             // this shouldn't be too bad.
-            symbol
-                .filename()
-                .and_then(|p| Some(BytesOrWideString::Bytes(p.to_str()?.as_bytes()))),
+            symbol.filename().and_then(|p| Some(BytesOrWideString::Bytes(p.to_str()?.as_bytes()))),
             symbol.lineno(),
             symbol.colno(),
         )?;
@@ -203,14 +188,7 @@ impl BacktraceFrameFmt<'_, '_, '_> {
         lineno: Option<u32>,
         colno: Option<u32>,
     ) -> fmt::Result {
-        // Fuchsia is unable to symbolize within a process so it has a special
-        // format which can be used to symbolize later. Print that instead of
-        // printing addresses in our own format here.
-        if cfg!(target_os = "fuchsia") {
-            self.print_raw_fuchsia(frame_ip)?;
-        } else {
-            self.print_raw_generic(frame_ip, symbol_name, filename, lineno, colno)?;
-        }
+        self.print_raw_generic(frame_ip, symbol_name, filename, lineno, colno)?;
         self.symbol_index += 1;
         Ok(())
     }
@@ -289,16 +267,6 @@ impl BacktraceFrameFmt<'_, '_, '_> {
         }
 
         writeln!(self.fmt.fmt)?;
-        Ok(())
-    }
-
-    fn print_raw_fuchsia(&mut self, frame_ip: *mut c_void) -> fmt::Result {
-        // We only care about the first symbol of a frame
-        if self.symbol_index == 0 {
-            self.fmt.fmt.write_str("{{{bt:")?;
-            write!(self.fmt.fmt, "{}:{:?}", self.fmt.frame_index, frame_ip)?;
-            self.fmt.fmt.write_str("}}}\n")?;
-        }
         Ok(())
     }
 }

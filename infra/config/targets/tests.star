@@ -19,7 +19,7 @@ targets.tests.gtest_test(
 targets.tests.gtest_test(
     name = "accessibility_content_browsertests",
     args = [
-        "--gtest_filter=*All/DumpAccessibility*/fuchsia*",
+
     ],
     binary = "content_browsertests",
 )
@@ -433,18 +433,6 @@ targets.tests.gtest_test(
     name = "capture_unittests",
 )
 
-targets.tests.gtest_test(
-    name = "cast_runner_browsertests",
-)
-
-targets.tests.gtest_test(
-    name = "cast_runner_integration_tests",
-)
-
-targets.tests.gtest_test(
-    name = "cast_runner_unittests",
-)
-
 targets.tests.junit_test(
     name = "cast_base_junit_tests",
     label = "//chromecast/base:cast_base_junit_tests",
@@ -806,10 +794,6 @@ targets.tests.isolated_script_test(
 
 targets.tests.gtest_test(
     name = "components_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "component_storage_test",
 )
 
 targets.tests.gtest_test(
@@ -1265,17 +1249,6 @@ targets.tests.gtest_test(
 
 targets.tests.isolated_script_test(
     name = "flatbuffers_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "fuchsia_pytype",
-    mixins = [
-        "has_native_resultdb_integration",
-    ],
-)
-
-targets.tests.isolated_script_test(
-    name = "fuchsia_sizes",
 )
 
 targets.tests.gtest_test(
@@ -2732,10 +2705,6 @@ targets.tests.isolated_script_test(
     name = "views_perftests",
 )
 
-targets.tests.isolated_script_test(
-    name = "views_perftests_fuchsia",
-)
-
 targets.tests.gtest_test(
     name = "views_unittests",
 )
@@ -2794,18 +2763,6 @@ targets.tests.gtest_test(
 
 targets.tests.gtest_test(
     name = "wayland_client_tests",
-)
-
-targets.tests.gtest_test(
-    name = "web_engine_browsertests",
-)
-
-targets.tests.gtest_test(
-    name = "web_engine_integration_tests",
-)
-
-targets.tests.gtest_test(
-    name = "web_engine_unittests",
 )
 
 targets.tests.isolated_script_test(

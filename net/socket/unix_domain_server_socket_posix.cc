@@ -36,19 +36,18 @@ UnixDomainServerSocket::~UnixDomainServerSocket() = default;
 // static
 bool UnixDomainServerSocket::GetPeerCredentials(SocketDescriptor socket,
                                                 Credentials* credentials) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
   struct ucred user_cred;
   socklen_t len = sizeof(user_cred);
-  if (getsockopt(socket, SOL_SOCKET, SO_PEERCRED, &user_cred, &len) < 0)
+  if (getsockopt(socket, SOL_SOCKET, SO_PEERCRED, &user_cred, &len) < 0) {
     return false;
+  }
   credentials->process_id = user_cred.pid;
   credentials->user_id = user_cred.uid;
   credentials->group_id = user_cred.gid;
   return true;
 #else
-  return getpeereid(
-      socket, &credentials->user_id, &credentials->group_id) == 0;
+  return getpeereid(socket, &credentials->user_id, &credentials->group_id) == 0;
 #endif
 }
 
@@ -79,22 +78,24 @@ int UnixDomainServerSocket::BindAndListen(const std::string& socket_path,
   auto socket = std::make_unique<SocketPosix>();
   int rv = socket->Open(AF_UNIX);
   DCHECK_NE(ERR_IO_PENDING, rv);
-  if (rv != OK)
+  if (rv != OK) {
     return rv;
+  }
 
   rv = socket->Bind(address);
   DCHECK_NE(ERR_IO_PENDING, rv);
   if (rv != OK) {
-    PLOG(ERROR)
-        << "Could not bind unix domain socket to " << socket_path
-        << (use_abstract_namespace_ ? " (with abstract namespace)" : "");
+    PLOG(ERROR) << "Could not bind unix domain socket to " << socket_path
+                << (use_abstract_namespace_ ? " (with abstract namespace)"
+                                            : "");
     return rv;
   }
 
   rv = socket->Listen(backlog);
   DCHECK_NE(ERR_IO_PENDING, rv);
-  if (rv != OK)
+  if (rv != OK) {
     return rv;
+  }
 
   listen_socket_.swap(socket);
   return rv;
@@ -116,10 +117,11 @@ int UnixDomainServerSocket::Accept(std::unique_ptr<StreamSocket>* socket,
 
   out_socket_ = {socket, nullptr};
   int rv = DoAccept();
-  if (rv == ERR_IO_PENDING)
+  if (rv == ERR_IO_PENDING) {
     callback_ = std::move(callback);
-  else
+  } else {
     CancelCallback();
+  }
   return rv;
 }
 
@@ -132,10 +134,11 @@ int UnixDomainServerSocket::AcceptSocketDescriptor(
 
   out_socket_ = {nullptr, socket};
   int rv = DoAccept();
-  if (rv == ERR_IO_PENDING)
+  if (rv == ERR_IO_PENDING) {
     callback_ = std::move(callback);
-  else
+  } else {
     CancelCallback();
+  }
   return rv;
 }
 
@@ -148,10 +151,12 @@ int UnixDomainServerSocket::DoAccept() {
         &accept_socket_,
         base::BindOnce(&UnixDomainServerSocket::AcceptCompleted,
                        base::Unretained(this)));
-    if (rv != OK)
+    if (rv != OK) {
       return rv;
-    if (AuthenticateAndGetStreamSocket())
+    }
+    if (AuthenticateAndGetStreamSocket()) {
       return OK;
+    }
     // Accept another socket because authentication error should be transparent
     // to the caller.
   }
@@ -173,8 +178,9 @@ void UnixDomainServerSocket::AcceptCompleted(int rv) {
   // Accept another socket because authentication error should be transparent
   // to the caller.
   rv = DoAccept();
-  if (rv != ERR_IO_PENDING)
+  if (rv != ERR_IO_PENDING) {
     RunCallback(rv);
+  }
 }
 
 bool UnixDomainServerSocket::AuthenticateAndGetStreamSocket() {

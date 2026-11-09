@@ -14,8 +14,7 @@ features:
   can_be_recommended: true
   dynamic_refresh: false
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 owners:
 - engedy@chromium.org
 - file://chrome/browser/custom_handlers/OWNERS

@@ -33,7 +33,6 @@ use crate::{sys::stat::Mode, NixPath, Result};
 #[cfg(any(
     linux_android,
     target_os = "emscripten",
-    target_os = "fuchsia",
     target_os = "wasi",
     target_env = "uclibc",
     target_os = "freebsd"
@@ -42,7 +41,8 @@ use crate::{sys::stat::Mode, NixPath, Result};
 pub use self::posix_fadvise::{posix_fadvise, PosixFadviseAdvice};
 
 /// A file descriptor referring to the working directory of the current process
-/// **that should be ONLY passed to the `dirfd` argument of those `xxat()` functions**.
+/// **that should be ONLY passed to the `dirfd` argument of those `xxat()`
+/// functions**.
 ///
 /// # Examples
 ///
@@ -71,8 +71,8 @@ pub use self::posix_fadvise::{posix_fadvise, PosixFadviseAdvice};
 //
 // SAFETY:
 // 1. `AT_FDCWD` is usable for the whole process life, so it is `'static`.
-// 2. It is not a valid file descriptor, but OS will handle it for us when passed
-//    to `xxat(2)` calls.
+// 2. It is not a valid file descriptor, but OS will handle it for us when passed to `xxat(2)`
+//    calls.
 #[cfg(not(target_os = "redox"))] // Redox does not have this
 pub const AT_FDCWD: std::os::fd::BorrowedFd<'static> =
     unsafe { std::os::fd::BorrowedFd::borrow_raw(libc::AT_FDCWD) };
@@ -108,11 +108,7 @@ libc_bitflags! {
     }
 }
 
-#[cfg(any(
-    feature = "fs",
-    feature = "term",
-    all(feature = "fanotify", target_os = "linux")
-))]
+#[cfg(any(feature = "fs", feature = "term", all(feature = "fanotify", target_os = "linux")))]
 libc_bitflags!(
     /// Configuration options for opened files.
     #[cfg_attr(docsrs, doc(cfg(any(feature = "fs", feature = "term", all(feature = "fanotify", target_os = "linux")))))]
@@ -186,7 +182,7 @@ libc_bitflags!(
         /// Obtain a file descriptor for low-level access.
         ///
         /// The file itself is not opened and other file operations will fail.
-        #[cfg(any(linux_android, target_os = "redox", target_os = "freebsd", target_os = "fuchsia"))]
+        #[cfg(any(linux_android, target_os = "redox", target_os = "freebsd"))]
         O_PATH;
         /// Only allow reading.
         ///
@@ -201,16 +197,7 @@ libc_bitflags!(
         O_RSYNC;
         /// Open directory for search only. Skip search permission checks on
         /// later `openat()` calls using the obtained file descriptor.
-        #[cfg(any(
-            apple_targets,
-            solarish,
-            target_os = "netbsd",
-            target_os = "freebsd",
-            target_os = "fuchsia",
-            target_os = "emscripten",
-            target_os = "aix",
-            target_os = "wasi"
-        ))]
+        #[cfg(any(apple_targets, solarish, target_os = "netbsd", target_os = "freebsd", target_os = "emscripten", target_os = "aix", target_os = "wasi"))]
         O_SEARCH;
         /// Open with a shared file lock.
         #[cfg(any(bsd, target_os = "redox"))]
@@ -1535,14 +1522,7 @@ pub fn fspacectl_all<Fd: std::os::fd::AsFd>(
     Ok(())
 }
 
-#[cfg(any(
-    linux_android,
-    target_os = "emscripten",
-    target_os = "fuchsia",
-    target_os = "wasi",
-    target_env = "uclibc",
-    target_os = "freebsd"
-))]
+#[cfg(any(linux_android, target_os = "emscripten", target_os = "wasi", target_env = "uclibc", target_os = "freebsd"))]
 mod posix_fadvise {
     use crate::errno::Errno;
     use crate::Result;
@@ -1600,13 +1580,7 @@ mod posix_fadvise {
 ///
 /// # See Also
 /// * [`posix_fallocate`](https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_fallocate.html)
-#[cfg(any(
-    linux_android,
-    freebsdlike,
-    target_os = "emscripten",
-    target_os = "fuchsia",
-    target_os = "wasi",
-))]
+#[cfg(any(linux_android, freebsdlike, target_os = "emscripten", target_os = "wasi"))]
 pub fn posix_fallocate<Fd: std::os::fd::AsFd>(
     fd: Fd,
     offset: libc::off_t,

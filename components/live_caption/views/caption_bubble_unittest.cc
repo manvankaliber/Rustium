@@ -374,7 +374,6 @@ TEST_F(CaptionBubbleTest, ScrollsLongText) {
   ASSERT_TRUE(frame_contents_in_screen.Contains(right_margin_point));
   ASSERT_FALSE(bubble_bounds_in_screen.Contains(right_margin_point));
 
-#if !BUILDFLAG(IS_FUCHSIA)
   // FlatlandWindow::SetBoundsInDIP does not update Aura Window bounds in unit
   // tests, so EventGenerator cannot hit-test widget_->GetNativeWindow() on
   // Fuchsia.
@@ -401,7 +400,6 @@ TEST_F(CaptionBubbleTest, ScrollsLongText) {
   generator.SendMouseEnter();
   task_environment()->FastForwardBy(base::Milliseconds(200));
   EXPECT_EQ(1.0f, scroll_bar->layer()->opacity());
-#endif
 }
 
 }  // namespace

@@ -178,10 +178,6 @@ ui::PlatformWindowInitProperties ConvertWidgetInitParamsToInitProperties(
   }
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-  properties.enable_keyboard = true;
-#endif
-
   return properties;
 }
 
@@ -1300,7 +1296,6 @@ void DesktopWindowTreeHostPlatform::ScheduleRelayout() {
         GetWindowMaskForClipping().isEmpty());
   }
 }
-
 
 void DesktopWindowTreeHostPlatform::AddAdditionalInitProperties(
     const Widget::InitParams& params,

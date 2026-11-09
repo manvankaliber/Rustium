@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 #include "content/browser/download/save_package.h"
 
 #include <stddef.h>
@@ -36,7 +35,7 @@ namespace content {
 #define HTML_EXTENSION ".html"
 #if BUILDFLAG(IS_WIN)
 #define FPL_HTML_EXTENSION L".html"
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 #define FPL_HTML_EXTENSION ".html"
 #endif
 
@@ -45,7 +44,7 @@ namespace {
 // This constant copied from save_package.cc.
 #if BUILDFLAG(IS_WIN)
 const uint32_t kMaxFilePathLength = MAX_PATH - 1;
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 const uint32_t kMaxFilePathLength = PATH_MAX - 1;
 #endif
 
@@ -54,13 +53,15 @@ bool HasOrdinalNumber(const base::FilePath::StringType& filename) {
       filename.rfind(FPL(')'));
   base::FilePath::StringType::size_type l_paren_index =
       filename.rfind(FPL('('));
-  if (l_paren_index >= r_paren_index)
+  if (l_paren_index >= r_paren_index) {
     return false;
+  }
 
   for (base::FilePath::StringType::size_type i = l_paren_index + 1;
        i != r_paren_index; ++i) {
-    if (!base::IsAsciiDigit(filename[i]))
+    if (!base::IsAsciiDigit(filename[i])) {
       return false;
+    }
   }
 
   return true;
@@ -76,10 +77,11 @@ class SavePackageTest : public RenderViewHostImplTestHarness {
                             bool need_htm_ext,
                             base::FilePath::StringType* generated_name) {
     SavePackage* save_package;
-    if (need_success_generate_filename)
+    if (need_success_generate_filename) {
       save_package = save_package_success_.get();
-    else
+    } else {
       save_package = save_package_fail_.get();
+    }
     return save_package->GenerateFileName(disposition, GURL(url), need_htm_ext,
                                           generated_name);
   }
@@ -193,11 +195,9 @@ constexpr auto kGeneratedFiles = std::to_array<GeneratedFiles>({
 TEST_F(SavePackageTest, TestSuccessfullyGenerateSavePackageFilename) {
   for (size_t i = 0; i < std::size(kGeneratedFiles); ++i) {
     base::FilePath::StringType file_name;
-    bool ok = GetGeneratedFilename(true,
-                                   kGeneratedFiles[i].disposition,
+    bool ok = GetGeneratedFilename(true, kGeneratedFiles[i].disposition,
                                    kGeneratedFiles[i].url,
-                                   kGeneratedFiles[i].need_htm_ext,
-                                   &file_name);
+                                   kGeneratedFiles[i].need_htm_ext, &file_name);
     ASSERT_TRUE(ok);
     EXPECT_EQ(kGeneratedFiles[i].expected_name, file_name);
   }
@@ -206,11 +206,9 @@ TEST_F(SavePackageTest, TestSuccessfullyGenerateSavePackageFilename) {
 TEST_F(SavePackageTest, TestUnSuccessfullyGenerateSavePackageFilename) {
   for (size_t i = 0; i < std::size(kGeneratedFiles); ++i) {
     base::FilePath::StringType file_name;
-    bool ok = GetGeneratedFilename(false,
-                                   kGeneratedFiles[i].disposition,
+    bool ok = GetGeneratedFilename(false, kGeneratedFiles[i].disposition,
                                    kGeneratedFiles[i].url,
-                                   kGeneratedFiles[i].need_htm_ext,
-                                   &file_name);
+                                   kGeneratedFiles[i].need_htm_ext, &file_name);
     ASSERT_FALSE(ok);
   }
 }

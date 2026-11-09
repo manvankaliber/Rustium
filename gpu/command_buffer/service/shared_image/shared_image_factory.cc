@@ -54,7 +54,7 @@
 #include "gpu/command_buffer/service/vulkan_context_provider.h"
 #include "gpu/vulkan/vulkan_device_queue.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX)
 #include "gpu/command_buffer/service/shared_image/external_vk_image_backing_factory.h"
 #endif
 
@@ -82,12 +82,6 @@
 #include "ui/gl/direct_composition_support.h"
 #include "ui/gl/gl_angle_util_win.h"
 #endif  // BUILDFLAG(IS_WIN)
-
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/channel.h>
-#include "gpu/vulkan/vulkan_device_queue.h"
-#include "gpu/vulkan/vulkan_implementation.h"
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 #if BUILDFLAG(IS_ANDROID)
 #include "gpu/command_buffer/service/shared_image/ahardwarebuffer_image_backing_factory.h"
@@ -204,7 +198,7 @@ const char* SharedImageFactory::GmbTypeToString(gfx::GpuMemoryBufferType type) {
     case gfx::IO_SURFACE_BUFFER:
       return "platform";
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
     case gfx::NATIVE_PIXMAP:
       return "platform";
 #endif
@@ -237,7 +231,6 @@ SharedImageFactory::SharedImageFactory(
                                       : GrContextType::kNone),
       gpu_preferences_(gpu_preferences),
       workarounds_(workarounds) {
-
   factory_ref_ = base::MakeRefCounted<SharedImageFactoryRef>(this);
   copy_manager_ = base::MakeRefCounted<SharedImageCopyManager>();
 #if BUILDFLAG(USE_DAWN)
@@ -373,7 +366,7 @@ SharedImageFactory::SharedImageFactory(
     factories_.push_back(std::move(ozone_factory));
   }
 
-#if BUILDFLAG(ENABLE_VULKAN) && (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA))
+#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_LINUX)
   if (gr_context_type_ == GrContextType::kVulkan
 #if BUILDFLAG(USE_WEBGPU_ON_VULKAN_VIA_GL_INTEROP)
       /* We support GL context for WebGPU gl-vulkan interop (on linux).*/
@@ -396,8 +389,7 @@ SharedImageFactory::SharedImageFactory(
         std::make_unique<IOSurfaceImageBackingFactory>(
             gr_context_type_, context_state_->GetMaxTextureSize(),
             feature_info.get(), context_state_->progress_reporter(),
-            GL_TEXTURE_2D
-        );
+            GL_TEXTURE_2D);
     factories_.push_back(std::move(iosurface_backing_factory));
   }
 #endif
@@ -577,24 +569,6 @@ bool SharedImageFactory::IsD3DSharedImageSupported() const {
       context_state_->GetD3D11Device().Get(), gpu_preferences_);
 }
 #endif  // BUILDFLAG(IS_WIN)
-
-#if BUILDFLAG(IS_FUCHSIA)
-void SharedImageFactory::RegisterSysmemBufferCollection(
-    zx::eventpair service_handle,
-    zx::channel sysmem_token,
-    const viz::SharedImageFormat& format,
-    gfx::BufferUsage usage,
-    bool register_with_image_pipe) {
-  auto* vulkan_context_provider = context_state_->vk_context_provider();
-  VkDevice device =
-      vulkan_context_provider->GetDeviceQueue()->GetVulkanDevice();
-  DCHECK(device != VK_NULL_HANDLE);
-  vulkan_context_provider->GetVulkanImplementation()
-      ->RegisterSysmemBufferCollection(
-          device, std::move(service_handle), std::move(sysmem_token), format,
-          usage, gfx::Size(), 0, register_with_image_pipe);
-}
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 bool SharedImageFactory::CopyToGpuMemoryBuffer(const Mailbox& mailbox) {
   auto* shared_image = GetFactoryRef(mailbox);
@@ -820,8 +794,9 @@ SharedImageBackingFactory* SharedImageFactory::GetFactoryByUsage(
     gfx::GpuMemoryBufferType gmb_type,
     std::optional<SharedImageAccessStream> stream,
     const AccessParams* params) {
-  if (backing_factory_for_testing_)
+  if (backing_factory_for_testing_) {
     return backing_factory_for_testing_;
+  }
 
   bool share_between_threads = IsSharedBetweenThreads(usage);
   for (auto& factory : factories_) {

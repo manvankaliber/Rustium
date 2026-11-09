@@ -44,7 +44,7 @@ source_set("sockaddr_util") {
     "sockaddr_storage.cc",
     "sockaddr_storage.h",
   ]
-  if (is_posix || is_fuchsia) {
+  if (is_posix) {
     sources += [
       "sockaddr_util_posix.cc",
       "sockaddr_util_posix.h",

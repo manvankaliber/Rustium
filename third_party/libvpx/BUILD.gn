@@ -35,7 +35,7 @@ if (current_cpu == "x86") {
 } else if (current_cpu == "arm64" || current_cpu == "arm64e") {
   # We support vp9 profile 2 for SW decoding on all platforms except mobile
   # Android or Fuchsia.
-  if ((is_android && !is_desktop_android) || is_fuchsia) {
+  if (is_android && !is_desktop_android) {
     cpu_arch_full = "arm64"
     libvpx_high_bit_depth = false
   } else {
@@ -64,7 +64,7 @@ buildflag_header("libvpx_buildflags") {
 # vpx_config.asm
 if (is_ios && current_cpu == "arm") {
   os_category = current_os
-} else if (is_posix || is_fuchsia) {
+} else if (is_posix) {
   # Should cover linux, fuchsia, mac, and the ios simulator.
   os_category = "linux"
 } else {  # This should only match windows.

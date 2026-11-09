@@ -69,8 +69,9 @@ class RenderWidgetHostViewChildFrameBrowserTest : public ContentBrowserTest {
             ->GetRenderWidgetHost()
             ->GetView();
     // Only interested in updated FrameSinkIds on child frames.
-    if (!child_view || !child_view->IsRenderWidgetHostViewChildFrame())
+    if (!child_view || !child_view->IsRenderWidgetHostViewChildFrame()) {
       return;
+    }
 
     // Ensure that the received viz::FrameSinkId was correctly set on the child
     // frame.
@@ -153,7 +154,7 @@ class AutoResizeWebContentsDelegate : public WebContentsDelegate {
 // d) When auto-resize is enabled for the nested main frame and the renderer
 // resizes the nested widget.
 // TODO(b/40945321): Flaky on Fuchsia and Linux.
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_VisualPropertiesPropagation_VisibleViewportSize \
   DISABLED_VisualPropertiesPropagation_VisibleViewportSize
 #else

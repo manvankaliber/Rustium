@@ -78,17 +78,7 @@ def _DoSpawn(args):
     '-priority',
     '30',
   ]
-  if args.target_os == 'fuchsia':
-    trigger_args += [
-      '-d',
-      'kvm=1',
-    ]
-    if args.gpu is None:
-      trigger_args += [
-        '-d',
-        'gpu=none',
-      ]
-  elif args.target_os == 'android':
+  if args.target_os == 'android':
     if args.arch == 'x86':
       # No x86 Android devices are available in swarming. So assume we want to
       # run on emulators when building for x86 on Android.
@@ -181,12 +171,6 @@ def _DoSpawn(args):
     runner_args.append(
       '--test-launcher-total-shards=' + args.test_launcher_total_shards
     )
-  elif args.target_os == 'fuchsia':
-    filter_file = (
-      'testing/buildbot/filters/fuchsia.' + args.target_name + '.filter'
-    )
-    if os.path.isfile(filter_file):
-      runner_args.append('--test-launcher-filter-file=../../' + filter_file)
 
   runner_args.extend(args.runner_args)
 
@@ -386,7 +370,7 @@ def main():
       'win': 'Windows',
       'linux': 'Linux',
       'android': 'Android',
-      'fuchsia': 'Linux',
+
     }[args.target_os]
 
   if args.target_os == 'win' and args.target_name.endswith('.exe'):

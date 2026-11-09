@@ -696,7 +696,7 @@ TEST_F(DialogClientViewTest, IgnorePossiblyUnintendedClicks_TouchAfterShown) {
 
 // TODO(crbug.com/40269697): investigate the tests on ChromeOS and
 // fuchsia
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_CHROMEOS)
 class DesktopDialogClientViewTest : public DialogClientViewTest {
  public:
   void SetUp() override {
@@ -765,7 +765,7 @@ TEST_F(DesktopDialogClientViewTest,
                      ui::EF_NONE, ui::EF_NONE));
   EXPECT_TRUE(widget()->IsClosed());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(ENABLE_DESKTOP_AURA)
 TEST_F(DialogClientViewTest,

@@ -1340,18 +1340,6 @@ PLATFORM_INFO = {
     'platform_os': 'android',
     'is_fyi': False,
   },
-  'fuchsia-perf-nsn': {
-    'description': '',
-    'num_shards': 1,
-    'platform_os': 'fuchsia',
-    'is_fyi': True,
-  },
-  'fuchsia-perf-shk': {
-    'description': '',
-    'num_shards': 1,
-    'platform_os': 'fuchsia',
-    'is_fyi': True,
-  },
   'win-10_laptop_low_end-perf_HP-Candidate': {
     'description': 'HP 15-BS121NR Laptop Candidate',
     'num_shards': 1,

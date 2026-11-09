@@ -24,7 +24,7 @@
 #include "base/win/wincred_shim.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_APPLE)
 #include <pwd.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -103,10 +103,11 @@ const int kMinimumVersionForExtensionInstallPolicy = 146;
 }  // namespace
 
 std::string GetMachineName() {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX)
   char hostname[HOST_NAME_MAX];
-  if (gethostname(hostname, HOST_NAME_MAX) == 0)  // Success.
+  if (gethostname(hostname, HOST_NAME_MAX) == 0) {  // Success.
     return hostname;
+  }
   return std::string();
 #elif BUILDFLAG(IS_IOS)
   // Use the Vendor ID as the machine name.
@@ -118,14 +119,16 @@ std::string GetMachineName() {
       kCFAllocatorDefault, CFSTR("chrome_sync"), NULL, &context));
   base::apple::ScopedCFTypeRef<CFStringRef> machine_name(
       SCDynamicStoreCopyLocalHostName(store.get()));
-  if (machine_name.get())
+  if (machine_name.get()) {
     return base::SysCFStringRefToUTF8(machine_name.get());
+  }
 
   // Fall back to get computer name.
   base::apple::ScopedCFTypeRef<CFStringRef> computer_name(
       SCDynamicStoreCopyComputerName(store.get(), NULL));
-  if (computer_name.get())
+  if (computer_name.get()) {
     return base::SysCFStringRefToUTF8(computer_name.get());
+  }
 
   // If all else fails, return to using a slightly nicer version of the hardware
   // model. Warning: This will soon return just a useless "Mac" string.
@@ -168,7 +171,7 @@ std::string GetMachineName() {
 
 std::string GetOSVersion() {
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE) || \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+    BUILDFLAG(IS_ANDROID)
   return base::SysInfo::OperatingSystemVersion();
 #elif BUILDFLAG(IS_WIN)
   base::win::OSInfo::VersionNumber version_number =
@@ -192,8 +195,9 @@ std::string GetOSArchitecture() {
 std::string GetOSUsername() {
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_APPLE)
   struct passwd* creds = getpwuid(getuid());
-  if (!creds || !creds->pw_name)
+  if (!creds || !creds->pw_name) {
     return std::string();
+  }
 
   return creds->pw_name;
 #elif BUILDFLAG(IS_WIN)
@@ -219,7 +223,7 @@ std::string GetOSUsername() {
     return std::string();
   }
   return primary_session->account_id().GetUserEmail();
-#elif BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_ANDROID)
   // TODO(crbug.com/40200780): This should be fully implemented when there is
   // support in fuchsia.
   return std::string();
@@ -338,7 +342,6 @@ bool IsUserLevelPolicyType(const std::string& policy_type) {
   return policy_type == dm_protocol::GetChromeUserPolicyType() ||
          policy_type == dm_protocol::kChromeExtensionInstallUserCloudPolicyType;
 }
-
 
 std::string PolicyTypeLogPrefix(std::string_view policy_type,
                                 std::string_view settings_entity_id) {

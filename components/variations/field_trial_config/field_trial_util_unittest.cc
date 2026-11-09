@@ -169,19 +169,15 @@ TEST_F(FieldTrialUtilTest,
        AssociateParamsFromFieldTrialConfigWithEachPlatform) {
   const Study::Platform all_platforms[] = {
       Study::PLATFORM_ANDROID,  // Comment to prevent clang format bin packing.
-      Study::PLATFORM_ANDROID_DESKTOP,
-      Study::PLATFORM_ANDROID_WEBVIEW,
-      Study::PLATFORM_CHROMEOS,
-      Study::PLATFORM_FUCHSIA,
-      Study::PLATFORM_IOS,
-      Study::PLATFORM_LINUX,
-      Study::PLATFORM_MAC,
+      Study::PLATFORM_ANDROID_DESKTOP, Study::PLATFORM_ANDROID_WEBVIEW,
+      Study::PLATFORM_CHROMEOS,        Study::PLATFORM_IOS,
+      Study::PLATFORM_LINUX,           Study::PLATFORM_MAC,
       Study::PLATFORM_WINDOWS,
   };
 
   // Break if platforms are added without updating |all_platforms|.
-  // Study::Platform has 2 reserved enum values (8 and 9).
-  static_assert(std::size(all_platforms) == Study::Platform_ARRAYSIZE - 2,
+  // Study::Platform has 3 reserved enum values (7, 8, and 9).
+  static_assert(std::size(all_platforms) == Study::Platform_ARRAYSIZE - 3,
                 "|all_platforms| must include all platforms.");
 
   for (Study::Platform platform : all_platforms) {

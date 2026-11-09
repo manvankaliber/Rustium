@@ -55,14 +55,6 @@ luci.notifier(
 )
 
 luci.notifier(
-    name = "cr-fuchsia",
-    on_status_change = True,
-    notify_emails = [
-        "chrome-fuchsia-engprod+builder-notification@grotations.appspotmail.com",
-    ],
-)
-
-luci.notifier(
     name = "cronet",
     on_new_status = ["FAILURE", "INFRA_FAILURE", "SUCCESS"],
     notify_emails = [
@@ -314,13 +306,6 @@ luci.builder_health_notifier(
     owner_email = "chrome-browser-infra-team@google.com",
     ignore_buckets = ["try"],
     notify_all_healthy = True,
-    gardened_builders_only = True,
-)
-
-luci.builder_health_notifier(
-    owner_email = "chrome-fuchsia-engprod@google.com",
-    ignore_buckets = ["try"],
-    notify_all_healthy = False,
     gardened_builders_only = True,
 )
 

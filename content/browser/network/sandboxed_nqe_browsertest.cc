@@ -34,10 +34,11 @@ std::ostream& operator<<(
   os << "[";
   bool is_first = true;
   for (auto& type : types) {
-    if (is_first)
+    if (is_first) {
       is_first = false;
-    else
+    } else {
       os << ",";
+    }
     os << type;
   }
   return os << "]";
@@ -52,8 +53,9 @@ class TestNetworkQualityObserver
   void OnEffectiveConnectionTypeChanged(
       net::EffectiveConnectionType type) override {
     received_types_.push_back(type);
-    if (type != run_loop_wait_type_)
+    if (type != run_loop_wait_type_) {
       return;
+    }
     run_loop_->Quit();
   }
 
@@ -83,12 +85,12 @@ class TestNetworkQualityObserver
 class SandboxedNQEBrowserTest : public ContentBrowserTest {
  public:
   SandboxedNQEBrowserTest() {
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
-      // Network Service Sandboxing is unconditionally enabled on these
-      // platforms.
+#if !BUILDFLAG(IS_MAC)
+    // Network Service Sandboxing is unconditionally enabled on these
+    // platforms.
     scoped_feature_list_.InitAndEnableFeature(
         sandbox::policy::features::kNetworkServiceSandbox);
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
+#endif
     ForceOutOfProcessNetworkService();
   }
 

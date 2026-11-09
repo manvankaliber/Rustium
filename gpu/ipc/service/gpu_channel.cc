@@ -84,8 +84,9 @@ bool TryCreateDCOMPTexture(
     base::WeakPtr<GpuChannel> channel,
     int32_t route_id,
     mojo::PendingAssociatedReceiver<mojom::DCOMPTexture> receiver) {
-  if (!channel)
+  if (!channel) {
     return false;
+  }
   return channel->CreateDCOMPTexture(route_id, std::move(receiver));
 }
 #endif  // BUILDFLAG(IS_WIN)
@@ -202,25 +203,6 @@ class GPU_IPC_SERVICE_EXPORT GpuChannelMessageFilter
       int32_t start,
       int32_t end,
       WaitForGetOffsetInRangeCallback callback) override;
-#if BUILDFLAG(IS_FUCHSIA)
-  void RegisterSysmemBufferCollection(mojo::PlatformHandle service_handle,
-                                      mojo::PlatformHandle sysmem_token,
-                                      const viz::SharedImageFormat& format,
-                                      gfx::BufferUsage usage,
-                                      bool register_with_image_pipe) override {
-    base::AutoLock lock(gpu_channel_lock_);
-    if (!gpu_channel_)
-      return;
-
-    scheduler_->ScheduleTask(Scheduler::Task(
-        gpu_channel_->shared_image_stub()->sequence(),
-        base::BindOnce(&gpu::GpuChannel::RegisterSysmemBufferCollection,
-                       gpu_channel_->AsWeakPtr(), std::move(service_handle),
-                       std::move(sysmem_token), format, usage,
-                       register_with_image_pipe),
-        std::vector<SyncToken>()));
-  }
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
   // Map of route id to scheduler sequence id.
   base::flat_map<int32_t, SequenceId> route_sequences_;
@@ -350,8 +332,9 @@ void GpuChannelMessageFilter::RemoveRoute(int32_t route_id) {
 SequenceId GpuChannelMessageFilter::GetSequenceId(int32_t route_id) const {
   gpu_channel_lock_.AssertAcquired();
   auto it = route_sequences_.find(route_id);
-  if (it == route_sequences_.end())
+  if (it == route_sequences_.end()) {
     return SequenceId();
+  }
   return it->second;
 }
 
@@ -360,8 +343,9 @@ void GpuChannelMessageFilter::FlushDeferredRequests(
     uint32_t flushed_deferred_message_id) {
   TRACE_EVENT0("gpu", "GpuChannelMessageFilter::FlushDeferredRequests");
   base::AutoLock auto_lock(gpu_channel_lock_);
-  if (!gpu_channel_)
+  if (!gpu_channel_) {
     return;
+  }
 
   std::vector<Scheduler::Task> tasks;
   tasks.reserve(requests.size());
@@ -632,9 +616,8 @@ void GpuChannelMessageFilter::CopyNativeGmbToSharedMemoryAsync(
   }
 
   std::move(callback).Run(
-      gpu_channel_->shared_image_stub()
-          ->CopyNativeBufferToSharedMemoryAsync(std::move(buffer_handle),
-                                                std::move(shared_memory)));
+      gpu_channel_->shared_image_stub()->CopyNativeBufferToSharedMemoryAsync(
+          std::move(buffer_handle), std::move(shared_memory)));
 }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
 
@@ -752,8 +735,9 @@ GpuChannel::~GpuChannel() {
   // Stop receiving messages, and scheduling tasks.
   filter_->Stop();
 
-  for (const auto& kv : stream_sequences_)
+  for (const auto& kv : stream_sequences_) {
     scheduler_->DestroySequence(kv.second);
+  }
 }
 
 std::unique_ptr<GpuChannel> GpuChannel::Create(
@@ -825,8 +809,9 @@ void GpuChannel::OnCommandBufferDescheduled(CommandBufferStub* stub) {
 
 CommandBufferStub* GpuChannel::LookupCommandBuffer(int32_t route_id) {
   auto it = stubs_.find(route_id);
-  if (it == stubs_.end())
+  if (it == stubs_.end()) {
     return nullptr;
+  }
 
   return it->second.get();
 }
@@ -837,19 +822,22 @@ bool GpuChannel::HasActiveStatefulContext() const {
 }
 
 void GpuChannel::MarkAllContextsLost() {
-  for (auto& kv : stubs_)
+  for (auto& kv : stubs_) {
     kv.second->MarkContextLost();
+  }
 }
 
 bool GpuChannel::AddRoute(int32_t route_id, SequenceId sequence_id) {
-  if (scheduler_)
+  if (scheduler_) {
     filter_->AddRoute(route_id, sequence_id);
+  }
   return true;
 }
 
 void GpuChannel::RemoveRoute(int32_t route_id) {
-  if (scheduler_)
+  if (scheduler_) {
     filter_->RemoveRoute(route_id);
+  }
 }
 
 void GpuChannel::ExecuteDeferredRequest(
@@ -950,8 +938,9 @@ bool GpuChannel::CreateSharedImageStub() {
 const CommandBufferStub* GpuChannel::GetOneStub() const {
   for (const auto& kv : stubs_) {
     const CommandBufferStub* stub = kv.second.get();
-    if (stub->decoder_context() && !stub->decoder_context()->WasContextLost())
+    if (stub->decoder_context() && !stub->decoder_context()->WasContextLost()) {
       return stub;
+    }
   }
   return nullptr;
 }
@@ -1117,20 +1106,6 @@ bool GpuChannel::CreateDCOMPTexture(
   return true;
 }
 #endif  // BUILDFLAG(IS_WIN)
-
-#if BUILDFLAG(IS_FUCHSIA)
-void GpuChannel::RegisterSysmemBufferCollection(
-    mojo::PlatformHandle service_handle,
-    mojo::PlatformHandle sysmem_token,
-    const viz::SharedImageFormat& format,
-    gfx::BufferUsage usage,
-    bool register_with_image_pipe) {
-  shared_image_stub_->RegisterSysmemBufferCollection(
-      zx::eventpair(service_handle.TakeHandle()),
-      zx::channel(sysmem_token.TakeHandle()), format, usage,
-      register_with_image_pipe);
-}
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 std::optional<gpu::GpuDiskCacheHandle> GpuChannel::GetCacheHandleForType(
     gpu::GpuDiskCacheType type) {

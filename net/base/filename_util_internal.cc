@@ -33,44 +33,51 @@ base::FilePath::StringType GetCorrectedExtensionUnsafe(
     const base::FilePath& file_name) {
   // See if the file name already contains an extension.
   base::FilePath::StringType extension = file_name.Extension();
-  if (!extension.empty())
+  if (!extension.empty()) {
     extension.erase(extension.begin());  // Erase preceding '.'.
+  }
 
   // Nothing to do if there's no mime type.
-  if (mime_type.empty())
+  if (mime_type.empty()) {
     return extension;
+  }
 
   // Nothing to do there's an extension, unless |ignore_extension| is true.
-  if (!extension.empty() && !ignore_extension)
+  if (!extension.empty() && !ignore_extension) {
     return extension;
+  }
 
   // Don't do anything if there's not a preferred extension for the mime
   // type.
   base::FilePath::StringType preferred_mime_extension;
-  if (!GetPreferredExtensionForMimeType(mime_type, &preferred_mime_extension))
+  if (!GetPreferredExtensionForMimeType(mime_type, &preferred_mime_extension)) {
     return extension;
+  }
 
   // If the existing extension is in the list of valid extensions for the
   // given type, use it. This avoids doing things like pointlessly renaming
   // "foo.jpg" to "foo.jpeg".
   std::vector<base::FilePath::StringType> all_mime_extensions;
   GetExtensionsForMimeType(mime_type, &all_mime_extensions);
-  if (std::ranges::contains(all_mime_extensions, extension))
+  if (std::ranges::contains(all_mime_extensions, extension)) {
     return extension;
+  }
 
   // Get the "final" extension. In most cases, this is the same as the
   // |extension|, but in cases like "foo.tar.gz", it's "gz" while
   // |extension| is "tar.gz".
   base::FilePath::StringType final_extension = file_name.FinalExtension();
   // Erase preceding '.'.
-  if (!final_extension.empty())
+  if (!final_extension.empty()) {
     final_extension.erase(final_extension.begin());
+  }
 
   // If there's a double extension, and the second extension is in the
   // list of valid extensions for the given type, keep the double extension.
   // This avoids renaming things like "foo.tar.gz" to "foo.gz".
-  if (std::ranges::contains(all_mime_extensions, final_extension))
+  if (std::ranges::contains(all_mime_extensions, final_extension)) {
     return extension;
+  }
   return preferred_mime_extension;
 }
 
@@ -79,8 +86,9 @@ base::FilePath::StringType GetCorrectedExtensionUnsafe(
 void SanitizeGeneratedFileName(base::FilePath::StringType* filename,
                                bool replace_trailing) {
   const base::FilePath::CharType kReplace[] = FILE_PATH_LITERAL("_");
-  if (filename->empty())
+  if (filename->empty()) {
     return;
+  }
   if (replace_trailing) {
     // Handle CreateFile() stripping trailing dots and spaces on filenames
     // http://support.microsoft.com/kb/115827
@@ -89,26 +97,29 @@ void SanitizeGeneratedFileName(base::FilePath::StringType* filename,
     filename->resize((pos == std::string::npos) ? 0 : (pos + 1));
 #if BUILDFLAG(IS_WIN)
     base::TrimWhitespace(*filename, base::TRIM_TRAILING, filename);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
     base::TrimWhitespaceASCII(*filename, base::TRIM_TRAILING, filename);
 #else
 #error Unsupported platform
 #endif
 
-    if (filename->empty())
+    if (filename->empty()) {
       return;
+    }
     size_t trimmed = length - filename->size();
-    if (trimmed)
+    if (trimmed) {
       filename->insert(filename->end(), trimmed, kReplace[0]);
+    }
   }
   base::TrimString(*filename, FILE_PATH_LITERAL("."), filename);
-  if (filename->empty())
+  if (filename->empty()) {
     return;
+  }
   // Replace any path information by changing path separators.
-  base::ReplaceSubstringsAfterOffset(
-      filename, 0, FILE_PATH_LITERAL("/"), kReplace);
-  base::ReplaceSubstringsAfterOffset(
-      filename, 0, FILE_PATH_LITERAL("\\"), kReplace);
+  base::ReplaceSubstringsAfterOffset(filename, 0, FILE_PATH_LITERAL("/"),
+                                     kReplace);
+  base::ReplaceSubstringsAfterOffset(filename, 0, FILE_PATH_LITERAL("\\"),
+                                     kReplace);
 }
 
 // Returns the filename determined from the last component of the path portion
@@ -122,8 +133,9 @@ std::string GetFileNameFromURL(const GURL& url,
   // about: and data: URLs don't have file names, but esp. data: URLs may
   // contain parts that look like ones (i.e., contain a slash).  Therefore we
   // don't attempt to divine a file name out of them.
-  if (!url.is_valid() || url.SchemeIs("about") || url.SchemeIs("data"))
+  if (!url.is_valid() || url.SchemeIs("about") || url.SchemeIs("data")) {
     return std::string();
+  }
 
   std::string unescaped_url_filename = base::UnescapeBinaryURLComponent(
       url.ExtractFileName(), base::UnescapeRule::NORMAL);
@@ -174,8 +186,9 @@ bool IsShellIntegratedExtension(const base::FilePath::StringType& extension) {
   // some Windows versions (see https://nvd.nist.gov/vuln/detail/CVE-2004-0420).
   if (!extension_lower.empty() &&
       (extension_lower.front() == FILE_PATH_LITERAL('{')) &&
-      (extension_lower.back() == FILE_PATH_LITERAL('}')))
+      (extension_lower.back() == FILE_PATH_LITERAL('}'))) {
     return true;
+  }
   return false;
 }
 
@@ -206,8 +219,9 @@ void EnsureSafeExtension(const std::string& mime_type,
   // Rename shell-integrated extensions.
   // TODO(asanka): Consider stripping out the bad extension and replacing it
   // with the preferred extension for the MIME type if one is available.
-  if (IsShellIntegratedExtension(extension))
+  if (IsShellIntegratedExtension(extension)) {
     extension = kDefaultExtension;
+  }
 #endif
 
   *file_name = file_name->ReplaceExtension(extension);
@@ -217,7 +231,7 @@ bool FilePathToString16(const base::FilePath& path, std::u16string* converted) {
 #if BUILDFLAG(IS_WIN)
   converted->assign(path.value().begin(), path.value().end());
   return true;
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   std::string component8 = path.AsUTF8Unsafe();
   return !component8.empty() &&
          base::UTF8ToUTF16(component8.c_str(), component8.size(), converted);
@@ -247,19 +261,22 @@ std::u16string GetSuggestedFilenameImpl(
   if (!content_disposition.empty()) {
     HttpContentDisposition header(content_disposition, referrer_charset);
     filename = header.filename();
-    if (!filename.empty())
+    if (!filename.empty()) {
       is_name_from_content_disposition = true;
+    }
   }
 
   // Then try to use the suggested name.
-  if (filename.empty() && !suggested_name.empty())
+  if (filename.empty() && !suggested_name.empty()) {
     filename = suggested_name;
+  }
 
   // Now try extracting the filename from the URL.  GetFileNameFromURL() only
   // looks at the last component of the URL and doesn't return the hostname as a
   // failover.
-  if (filename.empty())
+  if (filename.empty()) {
     filename = GetFileNameFromURL(url, referrer_charset, &overwrite_extension);
+  }
 
   // Finally try the URL hostname, but only if there's no default specified in
   // |default_name|.  Some schemes (e.g.: file:, about:, data:) do not have a
@@ -276,7 +293,7 @@ std::u16string GetSuggestedFilenameImpl(
   replace_trailing = true;
   result_str = base::UTF8ToWide(filename);
   default_name_str = base::UTF8ToWide(default_name);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   result_str = filename;
   default_name_str = default_name;
 #else
@@ -296,10 +313,11 @@ std::u16string GetSuggestedFilenameImpl(
   // extension should not appended to filename derived from
   // content-disposition, if it does not have one.
   // Hence mimetype and overwrite_extension values are not used.
-  if (is_name_from_content_disposition)
+  if (is_name_from_content_disposition) {
     GenerateSafeFileName("", false, &result);
-  else
+  } else {
     GenerateSafeFileName(mime_type, overwrite_extension, &result);
+  }
 
   std::u16string result16;
   if (!FilePathToString16(result, &result16)) {
@@ -328,7 +346,7 @@ base::FilePath GenerateFileNameImpl(
 
 #if BUILDFLAG(IS_WIN)
   base::FilePath generated_name(base::AsWStringView(file_name));
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   base::FilePath generated_name(
       base::SysWideToNativeMB(base::UTF16ToWide(file_name)));
 #endif

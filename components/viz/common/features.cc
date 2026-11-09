@@ -23,7 +23,6 @@
 #include "media/media_buildflags.h"
 #include "ui/gl/gl_switches.h"
 
-
 #if BUILDFLAG(IS_WIN)
 #include "base/win/windows_version.h"
 #endif  // BUILDFLAG(IS_WIN)
@@ -170,11 +169,6 @@ BASE_FEATURE(kRemoveRedirectionBitmap, base::FEATURE_ENABLED_BY_DEFAULT);
 // Submit CompositorFrame from SynchronousLayerTreeFrameSink directly to viz in
 // WebView.
 BASE_FEATURE(kVizFrameSubmissionForWebView, base::FEATURE_DISABLED_BY_DEFAULT);
-
-#if BUILDFLAG(IS_FUCHSIA)
-// Enables SkiaOutputDeviceBufferQueue instead of Vulkan swapchain on Fuchsia.
-BASE_FEATURE(kUseSkiaOutputDeviceBufferQueue, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // Whether we should log extra debug information to webrtc native log.
 BASE_FEATURE(kWebRtcLogCapturePipeline, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -580,8 +574,7 @@ bool ShouldRemoveRedirectionBitmap() {
 #endif
 
 #if BUILDFLAG(IS_ANDROID)
-bool ShouldUseAdpfForSoc(std::string_view soc_allowlist,
-                         std::string_view soc) {
+bool ShouldUseAdpfForSoc(std::string_view soc_allowlist, std::string_view soc) {
   std::vector<std::string_view> allowlist = base::SplitStringPiece(
       soc_allowlist, "|", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
   return std::ranges::contains(allowlist, soc);

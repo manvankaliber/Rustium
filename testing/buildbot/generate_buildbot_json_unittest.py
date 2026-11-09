@@ -463,54 +463,6 @@ FOO_GPU_TELEMETRY_TEST_WATERFALL_ANDROID_WEBVIEW = """\
 ]
 """
 
-FOO_GPU_TELEMETRY_TEST_WATERFALL_FUCHSIA = """\
-[
-  {
-    'project': 'chromium',
-    'bucket': 'ci',
-    'name': 'chromium.test',
-    'machines': {
-      'Fake Tester': {
-        'os_type': 'fuchsia',
-        'browser_config': 'fuchsia-chrome',
-        'swarming': {
-          'dimensions': {
-            'kvm': '1',
-          },
-        },
-        'test_suites': {
-          'gpu_telemetry_tests': 'composition_tests',
-        },
-      },
-    },
-  },
-]
-"""
-
-FOO_GPU_TELEMETRY_TEST_WATERFALL_CAST_STREAMING = """\
-[
-  {
-    'project': 'chromium',
-    'bucket': 'ci',
-    'name': 'chromium.test',
-    'machines': {
-      'Fake Tester': {
-        'os_type': 'fuchsia',
-        'browser_config': 'not-a-real-browser',
-        'swarming': {
-          'dimensions': {
-            'kvm': '1',
-          },
-        },
-        'test_suites': {
-          'cast_streaming_tests': 'composition_tests',
-        },
-      },
-    },
-  },
-]
-"""
-
 FOO_GPU_TELEMETRY_TEST_WATERFALL_SKYLAB = """\
 [
   {
@@ -1805,26 +1757,6 @@ GPU_TELEMETRY_GN_ISOLATE_MAP_ANDROID_WEBVIEW = """\
 }
 """
 
-GPU_TELEMETRY_GN_ISOLATE_MAP_FUCHSIA = """\
-{
-  'telemetry_gpu_integration_test_fuchsia': {
-    'label': '//chrome/test:telemetry_gpu_integration_test_fuchsia',
-    'type': 'script',
-    'module_name': '//chrome/test:telemetry_gpu_integration_test_fuchsia',
-      }
-}
-"""
-
-GPU_TELEMETRY_GN_ISOLATE_MAP_CAST_STREAMING = """\
-{
-  'telemetry_gpu_integration_test_fuchsia': {
-    'label': '//chrome/test:telemetry_gpu_integration_test_fuchsia',
-    'type': 'script',
-    'module_name': '//chrome/test:telemetry_gpu_integration_test_fuchsia',
-      }
-}
-"""
-
 GPU_TELEMETRY_GN_ISOLATE_MAP_MODULE_SCHEME = """\
 {
   'telemetry_gpu_integration_test': {
@@ -2311,30 +2243,6 @@ class UnitTest(TestCase):
       LUCI_MILO_CFG,
       exceptions=NO_BAR_TEST_EXCEPTIONS,
       gn_isolate_map=GPU_TELEMETRY_GN_ISOLATE_MAP_ANDROID_WEBVIEW,
-    )
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
-
-  def test_gpu_telemetry_tests_fuchsia(self):
-    fbb = FakeBBGen(
-      self.args,
-      FOO_GPU_TELEMETRY_TEST_WATERFALL_FUCHSIA,
-      COMPOSITION_SUITE_WITH_TELEMETRY_TEST,
-      LUCI_MILO_CFG,
-      exceptions=NO_BAR_TEST_EXCEPTIONS,
-      gn_isolate_map=GPU_TELEMETRY_GN_ISOLATE_MAP_FUCHSIA,
-    )
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
-
-  def test_gpu_telemetry_tests_cast_streaming(self):
-    fbb = FakeBBGen(
-      self.args,
-      FOO_GPU_TELEMETRY_TEST_WATERFALL_CAST_STREAMING,
-      COMPOSITION_SUITE_WITH_TELEMETRY_TEST,
-      LUCI_MILO_CFG,
-      exceptions=NO_BAR_TEST_EXCEPTIONS,
-      gn_isolate_map=GPU_TELEMETRY_GN_ISOLATE_MAP_CAST_STREAMING,
     )
     fbb.check_output_file_consistency(verbose=True)
     self.assertFalse(fbb.printed_lines)

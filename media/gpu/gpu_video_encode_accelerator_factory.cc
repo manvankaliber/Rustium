@@ -50,9 +50,6 @@
 #if BUILDFLAG(USE_VAAPI)
 #include "media/gpu/vaapi/vaapi_video_encode_accelerator.h"
 #endif
-#if BUILDFLAG(IS_FUCHSIA)
-#include "media/fuchsia/video/fuchsia_video_encode_accelerator.h"
-#endif
 
 namespace media {
 
@@ -166,19 +163,6 @@ std::unique_ptr<VideoEncodeAccelerator> CreateD3D12VEA(
 }
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-std::unique_ptr<VideoEncodeAccelerator> CreateFuchsiaVEA(
-    const gpu::GpuPreferences&,
-    const gpu::GpuDriverBugWorkarounds&,
-    const gpu::GPUInfo::GPUDevice&) {
-  if (!base::FeatureList::IsEnabled(kFuchsiaMediacodecVideoEncoder)) {
-    return nullptr;
-  }
-  return base::WrapUnique<VideoEncodeAccelerator>(
-      new FuchsiaVideoEncodeAccelerator());
-}
-#endif
-
 using VEAFactoryFunction = std::unique_ptr<VideoEncodeAccelerator> (*)(
     const gpu::GpuPreferences&,
     const gpu::GpuDriverBugWorkarounds&,
@@ -223,9 +207,6 @@ base::span<const VEAFactoryFunction> GetVEAFactoryFunctions(
       &CreateMediaFoundationVEA,
   };
   return kFactories;
-#elif BUILDFLAG(IS_FUCHSIA)
-  static constexpr VEAFactoryFunction kFactories[] = {&CreateFuchsiaVEA};
-  return kFactories;
 #else
   return {};
 #endif
@@ -235,8 +216,9 @@ VideoEncodeAccelerator::SupportedProfiles GetSupportedProfilesInternal(
     const gpu::GpuPreferences& gpu_preferences,
     const gpu::GpuDriverBugWorkarounds& gpu_workarounds,
     const gpu::GPUInfo::GPUDevice& gpu_device) {
-  if (gpu_preferences.disable_accelerated_video_encode)
+  if (gpu_preferences.disable_accelerated_video_encode) {
     return VideoEncodeAccelerator::SupportedProfiles();
+  }
 
   VideoEncodeAccelerator::SupportedProfiles profiles;
   for (VEAFactoryFunction create_vea :
@@ -288,8 +270,9 @@ GpuVideoEncodeAcceleratorFactory::CreateVEA(
     GetCommandBufferHelperCB get_command_buffer_helper_cb,
     scoped_refptr<base::SingleThreadTaskRunner> gpu_task_runner) {
   // NullMediaLog silently and safely does nothing.
-  if (!media_log)
+  if (!media_log) {
     media_log = std::make_unique<media::NullMediaLog>();
+  }
 
   EncoderStatus initialization_err{
       EncoderStatus::Codes::kEncoderInitializationError};

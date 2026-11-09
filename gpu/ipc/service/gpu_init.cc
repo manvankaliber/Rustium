@@ -120,8 +120,9 @@ bool CollectGraphicsInfo(GPUInfo* gpu_info) {
   DCHECK(gpu_info);
   TRACE_EVENT("gpu,startup", "Collect Graphics Info");
   bool success = CollectContextGraphicsInfo(gpu_info);
-  if (!success)
+  if (!success) {
     LOG(ERROR) << "CollectGraphicsInfo failed.";
+  }
   return success;
 }
 
@@ -172,8 +173,9 @@ void InitializePlatformOverlaySettings(GPUInfo* gpu_info,
 bool CanAccessDeviceFile(const GPUInfo& gpu_info) {
 #if BUILDFLAG(IS_LINUX)
   if (gpu_info.gpu.vendor_id != 0x10de ||  // NVIDIA
-      gpu_info.gpu.driver_vendor != "NVIDIA")
+      gpu_info.gpu.driver_vendor != "NVIDIA") {
     return true;
+  }
 
   base::ScopedBlockingCall scoped_blocking_call(FROM_HERE,
                                                 base::BlockingType::WILL_BLOCK);
@@ -192,8 +194,9 @@ class GpuWatchdogInit {
  public:
   GpuWatchdogInit() = default;
   ~GpuWatchdogInit() {
-    if (watchdog_ptr_)
+    if (watchdog_ptr_) {
       watchdog_ptr_->OnInitComplete();
+    }
   }
 
   void SetGpuWatchdogPtr(GpuWatchdogThread* ptr) { watchdog_ptr_ = ptr; }
@@ -250,8 +253,9 @@ bool MatchGLInfo(const std::string& field, const std::string& patterns) {
   auto pattern_strings = base::SplitString(patterns, "|", base::TRIM_WHITESPACE,
                                            base::SPLIT_WANT_ALL);
   for (const auto& pattern : pattern_strings) {
-    if (base::MatchPattern(field, pattern))
+    if (base::MatchPattern(field, pattern)) {
       return true;
+    }
   }
   return false;
 }
@@ -308,7 +312,7 @@ void SetupGLDisplayManagerEGL(const GPUInfo& gpu_info,
       gpu_low_power ? CHROME_LUID_to_uint64_t(gpu_low_power->luid) : 0;
   uint64_t system_device_id_default =
       CHROME_LUID_to_uint64_t(gpu_default->luid);
-#else  // IS_MAC
+#else   // IS_MAC
   const GPUInfo::GPUDevice* gpu_default =
       gpu_low_power ? gpu_low_power : GetDefaultGPU(gpu_info, gpu_feature_info);
   uint64_t system_device_id_high_perf =
@@ -443,7 +447,8 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
   // Record the number of recent GPU process crashes as a crash key so that it
   // is included in crash reports if this GPU process terminates unexpectedly.
   if (command_line->HasSwitch(switches::kGpuRecentCrashCount)) {
-    static crash_reporter::CrashKeyString<16> crash_key("gpu_recent_crash_count");
+    static crash_reporter::CrashKeyString<16> crash_key(
+        "gpu_recent_crash_count");
     crash_key.Set(
         command_line->GetSwitchValueASCII(switches::kGpuRecentCrashCount));
   }
@@ -471,8 +476,9 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
     device_perf_info_ = device_perf_info;
   }
 
-  if (!CanAccessDeviceFile(gpu_info_))
+  if (!CanAccessDeviceFile(gpu_info_)) {
     return false;
+  }
 
   // Compute blocklist and driver bug workaround decisions based on basic GPU
   // info.
@@ -622,7 +628,8 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
   // to know whether a bug report is for a session with passthrough enabled.
   // Remove this logging when passthrough is fully launched on CrOS.
   if (gpu_preferences_.use_passthrough_cmd_decoder) {
-    LOG(WARNING) << "Using passthrough command decoder. NOTE: This log is "
+    LOG(WARNING)
+        << "Using passthrough command decoder. NOTE: This log is "
         << "to help triage feedback reports and does not by itself mean there "
         << "is an issue.";
   }
@@ -775,7 +782,6 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
   }
 #endif  // BUILDFLAG(IS_WIN)
 
-
 #if BUILDFLAG(USE_WEBGPU_ON_VULKAN_VIA_GL_INTEROP)
 #if BUILDFLAG(IS_OZONE)
   if (!ui::OzonePlatform::GetInstance()
@@ -818,13 +824,7 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
     }
     if (gpu_preferences_.gr_context_type == GrContextType::kVulkan ||
         gpu_preferences_.gr_context_type == GrContextType::kGraphiteVulkan) {
-#if BUILDFLAG(IS_FUCHSIA)
-      // Fuchsia uses ANGLE for GL which requires Vulkan, so don't fall
-      // back to GL if Vulkan init fails.
-      LOG(FATAL) << "Vulkan initialization failed";
-#else
       gpu_preferences_.gr_context_type = GrContextType::kGL;
-#endif  // BUILDFLAG(IS_FUCHSIA)
     }
   } else {
     // TODO(crbug.com/40700374): It would be better to cleanly tear

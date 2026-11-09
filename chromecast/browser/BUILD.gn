@@ -10,8 +10,6 @@ import("//mojo/public/tools/bindings/mojom.gni")
 import("//testing/test.gni")
 import("//tools/grit/grit_rule.gni")
 
-assert(!is_fuchsia)
-
 if (is_android) {
   import("//build/config/android/rules.gni")
 }
@@ -332,26 +330,22 @@ cast_source_set("browser") {
       "//ui/views",
     ]
 
-    if (!is_fuchsia) {
-      sources += [
-        "devtools/cast_ui_devtools.cc",
-        "devtools/cast_ui_devtools.h",
-      ]
+    sources += [
+      "devtools/cast_ui_devtools.cc",
+      "devtools/cast_ui_devtools.h",
+    ]
 
-      deps += [
-        "//components/ui_devtools",
-        "//components/ui_devtools/views",
-      ]
-    }
-  }
-
-  if (!is_fuchsia) {
-    # TODO(crbug.com/40188745): Complete crash reporting integration on Fuchsia.
     deps += [
-      "//components/crash/content/browser",
-      "//components/crash/core/app",
+      "//components/ui_devtools",
+      "//components/ui_devtools/views",
     ]
   }
+
+  # TODO(crbug.com/40188745): Complete crash reporting integration on Fuchsia.
+  deps += [
+    "//components/crash/content/browser",
+    "//components/crash/core/app",
+  ]
 
   if (use_ozone) {
     deps += [ "//ui/ozone" ]

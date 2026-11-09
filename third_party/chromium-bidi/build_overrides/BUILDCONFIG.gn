@@ -43,7 +43,7 @@ set_default_toolchain("//build/toolchain/linux:x64")
 
 is_android = current_os == "android"
 is_chromeos = current_os == "chromeos"
-is_fuchsia = current_os == "fuchsia"
+
 is_ios = current_os == "ios"
 is_linux = current_os == "chromeos" || current_os == "linux"
 is_mac = current_os == "mac"
@@ -51,7 +51,7 @@ is_nacl = current_os == "nacl"
 is_win = current_os == "win" || current_os == "winuwp"
 
 is_apple = is_ios || is_mac
-is_posix = !is_win && !is_fuchsia
+is_posix = !is_win
 
 declare_args() {
   enable_strict_deps = false

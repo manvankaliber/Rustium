@@ -516,15 +516,17 @@ void BlockingNetworkDelegate::RunCallback(int response,
 int BlockingNetworkDelegate::OnBeforeURLRequest(URLRequest* request,
                                                 CompletionOnceCallback callback,
                                                 GURL* new_url) {
-  if (redirect_url_ == request->url())
+  if (redirect_url_ == request->url()) {
     return OK;  // We've already seen this request and redirected elsewhere.
+  }
 
   // TestNetworkDelegate always completes synchronously.
   CHECK_NE(ERR_IO_PENDING, TestNetworkDelegate::OnBeforeURLRequest(
                                request, base::NullCallback(), new_url));
 
-  if (!redirect_url_.is_empty())
+  if (!redirect_url_.is_empty()) {
     *new_url = redirect_url_;
+  }
 
   return MaybeBlockStage(ON_BEFORE_URL_REQUEST, std::move(callback));
 }
@@ -2020,10 +2022,12 @@ TEST_F(URLRequestTest, DelayedCookieCallbackAsync) {
       // the cookies don't end up getting set.
       expected_set_cookie_count += 2;
 
-      if (first_cookie_line == "CookieBlockedOnCanGetCookie=1")
+      if (first_cookie_line == "CookieBlockedOnCanGetCookie=1") {
         ++expected_blocked_cookie_count;
-      if (second_cookie_line == "CookieBlockedOnCanGetCookie=1")
+      }
+      if (second_cookie_line == "CookieBlockedOnCanGetCookie=1") {
         ++expected_blocked_cookie_count;
+      }
 
       EXPECT_EQ(expected_set_cookie_count,
                 async_filter_network_delegate.set_cookie_called_count());
@@ -3859,8 +3863,7 @@ class URLRequestTestHTTP : public URLRequestTest {
         origin2_(url::Origin::Create(GURL("https://bar.test/"))),
         isolation_info1_(IsolationInfo::CreateForInternalRequest(origin1_)),
         isolation_info2_(IsolationInfo::CreateForInternalRequest(origin2_)),
-        test_server_(base::FilePath(kTestFilePath)) {
-  }
+        test_server_(base::FilePath(kTestFilePath)) {}
 
  protected:
   // ProtocolHandler for the scheme that's unsafe to redirect to.
@@ -3939,8 +3942,9 @@ class URLRequestTestHTTP : public URLRequestTest {
         EXPECT_NE(kData, d.data_received());
       }
     }
-    if (HasFailure())
+    if (HasFailure()) {
       LOG(WARNING) << "Request method was: " << request_method;
+    }
   }
 
   // Requests |redirect_url|, which must return a HTTP 3xx redirect. It's also
@@ -3993,8 +3997,9 @@ class URLRequestTestHTTP : public URLRequestTest {
       std::ranges::fill(span, '-');
       if (idx % 100 == 0) {
         span[kStrideSize - 1] = marker;
-        if (++marker > 'z')
+        if (++marker > 'z') {
           marker = 'a';
+        }
       }
     }
 
@@ -5135,8 +5140,9 @@ class AsyncDelegateLogger : public base::RefCounted<AsyncDelegateLogger> {
     url_request_->LogUnblocked();
     LoadStateWithParam load_state = url_request_->GetLoadState();
     EXPECT_EQ(expected_third_load_state_, load_state.state);
-    if (expected_second_load_state_ == LOAD_STATE_WAITING_FOR_DELEGATE)
+    if (expected_second_load_state_ == LOAD_STATE_WAITING_FOR_DELEGATE) {
       EXPECT_EQ(std::u16string(), load_state.param);
+    }
     std::move(callback_).Run();
   }
 
@@ -5230,12 +5236,13 @@ class AsyncLoggingUrlRequestDelegate : public TestDelegate {
 
   explicit AsyncLoggingUrlRequestDelegate(CancelStage cancel_stage)
       : cancel_stage_(cancel_stage) {
-    if (cancel_stage == CANCEL_ON_RECEIVED_REDIRECT)
+    if (cancel_stage == CANCEL_ON_RECEIVED_REDIRECT) {
       set_cancel_in_received_redirect(true);
-    else if (cancel_stage == CANCEL_ON_RESPONSE_STARTED)
+    } else if (cancel_stage == CANCEL_ON_RESPONSE_STARTED) {
       set_cancel_in_response_started(true);
-    else if (cancel_stage == CANCEL_ON_READ_COMPLETED)
+    } else if (cancel_stage == CANCEL_ON_READ_COMPLETED) {
       set_cancel_in_received_data(true);
+    }
   }
 
   AsyncLoggingUrlRequestDelegate(const AsyncLoggingUrlRequestDelegate&) =
@@ -5281,8 +5288,9 @@ class AsyncLoggingUrlRequestDelegate : public TestDelegate {
     bool defer_redirect = false;
     TestDelegate::OnReceivedRedirect(request, redirect_info, &defer_redirect);
     // FollowDeferredRedirect should not be called after cancellation.
-    if (cancel_stage_ == CANCEL_ON_RECEIVED_REDIRECT)
+    if (cancel_stage_ == CANCEL_ON_RECEIVED_REDIRECT) {
       return;
+    }
     if (!defer_redirect) {
       request->FollowDeferredRedirect(std::nullopt /* removed_headers */,
                                       std::nullopt /* modified_headers */);
@@ -7672,8 +7680,7 @@ TEST_F(URLRequestTest, ReportCookieActivity) {
         req->maybe_stored_cookies()[3].access_result.status.IsInclude());
     EXPECT_EQ("partitioned_cookie",
               req->maybe_stored_cookies()[3].cookie->Name());
-    EXPECT_EQ("expired_cookie",
-              req->maybe_stored_cookies()[4].cookie->Name());
+    EXPECT_EQ("expired_cookie", req->maybe_stored_cookies()[4].cookie->Name());
     EXPECT_TRUE(
         req->maybe_stored_cookies()[4].access_result.status.IsInclude());
 
@@ -9144,10 +9151,11 @@ class URLRequestTestReferrerPolicy : public URLRequestTest {
     EXPECT_EQ(200, req->response_headers()->response_code());
 
     EXPECT_EQ(expected.spec(), req->referrer());
-    if (expected.is_empty())
+    if (expected.is_empty()) {
       EXPECT_EQ("None", d.data_received());
-    else
+    } else {
       EXPECT_EQ(expected.spec(), d.data_received());
+    }
   }
 
   EmbeddedTestServer* origin_server() const { return origin_server_.get(); }
@@ -10616,7 +10624,7 @@ class HTTPSOCSPTest : public HTTPSCertNetFetchingTest {
 };
 
 static bool UsingBuiltinCertVerifier() {
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
+#if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
   return true;
 #else
   return false;
@@ -10656,8 +10664,9 @@ static bool SystemSupportsOCSP() {
 }
 
 static bool SystemSupportsOCSPStapling() {
-  if (UsingBuiltinCertVerifier())
+  if (UsingBuiltinCertVerifier()) {
     return true;
+  }
 #if BUILDFLAG(IS_ANDROID)
   return false;
 #else
@@ -10666,8 +10675,9 @@ static bool SystemSupportsOCSPStapling() {
 }
 
 static bool SystemSupportsCRLSets() {
-  if (UsingBuiltinCertVerifier())
+  if (UsingBuiltinCertVerifier()) {
     return true;
+  }
 #if BUILDFLAG(IS_ANDROID)
   return false;
 #else
@@ -12077,8 +12087,9 @@ class ZeroRTTResponse : public test_server::BasicHttpResponse {
     set_content_type("text/plain");
     AddCustomHeader("Cache-Control", "no-cache");
     if (zero_rtt_) {
-      if (send_too_early_)
+      if (send_too_early_) {
         set_code(HTTP_TOO_EARLY);
+      }
       set_content("1");
     } else {
       set_content("0");
@@ -12427,8 +12438,9 @@ std::unique_ptr<test_server::HttpResponse> HandleTooEarly(
   if (request.GetURL().GetPath() != "/tooearly") {
     return nullptr;
   }
-  if (request.ssl_info->early_data_received)
+  if (request.ssl_info->early_data_received) {
     *sent_425 = true;
+  }
   return std::make_unique<ZeroRTTResponse>(
       request.ssl_info->early_data_received, true);
 }

@@ -136,6 +136,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <malloc.h>
+
 #include <cstring>
 
 #include "ui/base/l10n/l10n_util_win.h"
@@ -152,7 +153,7 @@
 #endif  // !BUILDFLAG(IS_IOS_TVOS)
 #endif  // BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include <signal.h>
 
 #include "base/file_descriptor_store.h"
@@ -164,7 +165,7 @@
 #include "content/public/common/zygote/zygote_fork_delegate_linux.h"
 #endif
 
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 #include <fcntl.h>
@@ -206,10 +207,6 @@
 #include "content/browser/android/battery_metrics.h"
 #include "content/browser/android/browser_startup_controller.h"
 #include "content/common/android/cpu_time_metrics.h"
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-#include "base/fuchsia/system_info.h"
 #endif
 
 #if BUILDFLAG(BUILD_TFLITE_WITH_XNNPACK)
@@ -461,8 +458,9 @@ void PreSandboxInit() {
 
 mojo::ScopedMessagePipeHandle MaybeAcceptMojoInvitation() {
   const auto& command_line = *base::CommandLine::ForCurrentProcess();
-  if (!mojo::PlatformChannel::CommandLineHasPassedEndpoint(command_line))
+  if (!mojo::PlatformChannel::CommandLineHasPassedEndpoint(command_line)) {
     return {};
+  }
 
   mojo::PlatformChannelEndpoint endpoint =
       mojo::PlatformChannel::RecoverPassedEndpointFromCommandLine(command_line);
@@ -566,22 +564,26 @@ class ContentClientInitializer {
   static void Set(const std::string& process_type,
                   ContentMainDelegate* delegate) {
     ContentClient* content_client = GetContentClient();
-    if (process_type.empty())
+    if (process_type.empty()) {
       content_client->browser_ = delegate->CreateContentBrowserClient();
+    }
 
     base::CommandLine* cmd = base::CommandLine::ForCurrentProcess();
     if (process_type == switches::kGpuProcess ||
         cmd->HasSwitch(switches::kSingleProcess) ||
-        (process_type.empty() && cmd->HasSwitch(switches::kInProcessGPU)))
+        (process_type.empty() && cmd->HasSwitch(switches::kInProcessGPU))) {
       content_client->gpu_ = delegate->CreateContentGpuClient();
+    }
 
     if (process_type == switches::kRendererProcess ||
-        cmd->HasSwitch(switches::kSingleProcess))
+        cmd->HasSwitch(switches::kSingleProcess)) {
       content_client->renderer_ = delegate->CreateContentRendererClient();
+    }
 
     if (process_type == switches::kUtilityProcess ||
-        cmd->HasSwitch(switches::kSingleProcess))
+        cmd->HasSwitch(switches::kSingleProcess)) {
       content_client->utility_ = delegate->CreateContentUtilityClient();
+    }
   }
 };
 
@@ -601,9 +603,9 @@ struct MainFunction {
 // return, see the --change-stack-guard-on-fork command line flag.
 NO_STACK_PROTECTOR int RunZygote(ContentMainDelegate* delegate) {
   static const MainFunction kMainFunctions[] = {
-    {switches::kGpuProcess, GpuMain},
-    {switches::kRendererProcess, RendererMain},
-    {switches::kUtilityProcess, UtilityMain},
+      {switches::kGpuProcess, GpuMain},
+      {switches::kRendererProcess, RendererMain},
+      {switches::kUtilityProcess, UtilityMain},
   };
 
   std::vector<std::unique_ptr<ZygoteForkDelegate>> zygote_fork_delegates;
@@ -747,8 +749,9 @@ static void RegisterMainThreadFactories() {
 int RunBrowserProcessMain(MainFunctionParams main_function_params,
                           ContentMainDelegate* delegate) {
 #if BUILDFLAG(IS_WIN)
-  if (delegate->ShouldHandleConsoleControlEvents())
+  if (delegate->ShouldHandleConsoleControlEvents()) {
     InstallConsoleControlHandler(/*is_browser_process=*/true);
+  }
 #endif
   auto exit_code = delegate->RunProcess("", std::move(main_function_params));
   if (std::holds_alternative<int>(exit_code)) {
@@ -770,8 +773,9 @@ NO_STACK_PROTECTOR int RunOtherNamedProcessTypeMain(
   base::Process::SetCurrentTaskDefaultRole();
 #endif
 #if BUILDFLAG(IS_WIN)
-  if (delegate->ShouldHandleConsoleControlEvents())
+  if (delegate->ShouldHandleConsoleControlEvents()) {
     InstallConsoleControlHandler(/*is_browser_process=*/false);
+  }
 #endif
   static const auto kMainFunctions = std::to_array<MainFunction>({
       {switches::kUtilityProcess, UtilityMain},
@@ -836,8 +840,9 @@ NO_STACK_PROTECTOR int RunOtherNamedProcessTypeMain(
 #if BUILDFLAG(USE_ZYGOTE)
   // Zygote startup is special -- see RunZygote comments above
   // for why we don't use ZygoteMain directly.
-  if (process_type == switches::kZygoteProcess)
+  if (process_type == switches::kZygoteProcess) {
     return RunZygote(delegate);
+  }
 #endif  // BUILDFLAG(USE_ZYGOTE)
 
   // If it's a process we don't know about, the embedder should know.
@@ -856,8 +861,9 @@ std::unique_ptr<ContentMainRunnerImpl> ContentMainRunnerImpl::Create() {
 ContentMainRunnerImpl::ContentMainRunnerImpl() = default;
 
 ContentMainRunnerImpl::~ContentMainRunnerImpl() {
-  if (is_initialized_ && !is_shutdown_)
+  if (is_initialized_ && !is_shutdown_) {
     Shutdown();
+  }
 }
 
 int ContentMainRunnerImpl::TerminateForFatalInitializationError() {
@@ -956,23 +962,14 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
   }
 #endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // Cache the system info for this process.
-  // This avoids requiring that all callers of certain base:: functions first
-  // ensure the cache is populated.
-  // Making the blocking call now also avoids the potential for blocking later
-  // in when it might be user-visible.
-  if (!base::FetchAndCacheSystemInfo()) {
-    return TerminateForFatalInitializationError();
-  }
-#endif
-
-  if (!GetContentClient())
+  if (!GetContentClient()) {
     ContentClientCreator::Create(delegate_);
+  }
   std::optional<int> basic_startup_exit_code =
       delegate_->BasicStartupComplete();
-  if (basic_startup_exit_code.has_value())
+  if (basic_startup_exit_code.has_value()) {
     return basic_startup_exit_code.value();
+  }
 
   if (!delegate_->IsInitFeatureListEarly()) {
     base::allocator::PartitionAllocSupport::Get()->ReconfigureEarlyish(
@@ -984,8 +981,9 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
     std::string scale_factor_string =
         command_line.GetSwitchValueASCII(switches::kDeviceScaleFactor);
     double scale_factor = 0;
-    if (base::StringToDouble(scale_factor_string, &scale_factor))
+    if (base::StringToDouble(scale_factor_string, &scale_factor)) {
       display::win::SetDefaultDeviceScaleFactor(scale_factor);
+    }
   }
 #endif
 
@@ -998,7 +996,7 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
   // absence has security implications.
   CHECK(base::allocator::IsAllocatorInitialized());
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
   if (!process_type.empty()) {
     // When you hit Ctrl-C in a terminal running the browser
     // process, a SIGINT is delivered to the entire process group.
@@ -1011,8 +1009,9 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
     // Note that we *can't* rely on BeingDebugged to catch this case because
     // we are the child process, which is not being debugged.
     // TODO(evanm): move this to some shared subprocess-init function.
-    if (!base::debug::BeingDebugged())
+    if (!base::debug::BeingDebugged()) {
       signal(SIGINT, SIG_IGN);
+    }
   }
 #endif
 
@@ -1032,8 +1031,9 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
     }
   }
 #else
-  if (!base::i18n::InitializeICU())
+  if (!base::i18n::InitializeICU()) {
     return TerminateForFatalInitializationError();
+  }
 #endif  // BUILDFLAG(IS_ANDROID) && (ICU_UTIL_DATA_IMPL == ICU_UTIL_DATA_FILE)
 
 #if defined(V8_USE_EXTERNAL_STARTUP_DATA)
@@ -1044,8 +1044,9 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
 
   blink::TrialTokenValidator::SetOriginTrialPolicyGetter(
       base::BindRepeating([]() -> blink::OriginTrialPolicy* {
-        if (auto* client = GetContentClient())
+        if (auto* client = GetContentClient()) {
           return client->GetOriginTrialPolicy();
+        }
         return nullptr;
       }));
 
@@ -1259,8 +1260,9 @@ NO_STACK_PROTECTOR int ContentMainRunnerImpl::Run() {
 int ContentMainRunnerImpl::RunBrowser(MainFunctionParams main_params,
                                       bool start_minimal_browser) {
   TRACE_EVENT_INSTANT("startup", "ContentMainRunnerImpl::RunBrowser(begin)");
-  if (is_browser_main_loop_started_)
+  if (is_browser_main_loop_started_) {
     return -1;
+  }
 
   if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kSingleProcess)) {
@@ -1289,8 +1291,9 @@ int ContentMainRunnerImpl::RunBrowser(MainFunctionParams main_params,
         std::make_unique<BrowserMemoryCoordinatorImpl>();
 
     std::optional<int> pre_browser_main_exit_code = delegate_->PreBrowserMain();
-    if (pre_browser_main_exit_code.has_value())
+    if (pre_browser_main_exit_code.has_value()) {
       return pre_browser_main_exit_code.value();
+    }
 
 #if BUILDFLAG(IS_WIN)
     if (l10n_util::GetLocaleOverrides().empty()) {
@@ -1320,8 +1323,9 @@ int ContentMainRunnerImpl::RunBrowser(MainFunctionParams main_params,
 
     std::optional<int> post_early_initialization_exit_code =
         delegate_->PostEarlyInitialization(invoked_in_browser);
-    if (post_early_initialization_exit_code.has_value())
+    if (post_early_initialization_exit_code.has_value()) {
       return post_early_initialization_exit_code.value();
+    }
 
     // The memory coordinator policies are feature-gated, so they must be
     // initialized after the FeatureList.

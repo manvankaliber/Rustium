@@ -30,16 +30,11 @@ namespace {
 // Note that quota assignment is the same for on-disk filesystem and the
 // assigned quota is not guaranteed to be allocatable later.
 bool IsMemoryAvailable(size_t required_memory) {
-#if BUILDFLAG(IS_FUCHSIA)
-  // This function is not implemented on FUCHSIA, yet. (crbug.com/986608)
-  return true;
-#else
   uint64_t max_allocatable =
       std::min(base::SysInfo::AmountOfAvailablePhysicalMemory().InBytes(),
                static_cast<uint64_t>(partition_alloc::MaxAllocationSize()));
 
   return max_allocatable >= required_memory;
-#endif
 }
 
 }  // namespace
@@ -104,12 +99,15 @@ ObfuscatedFileUtilMemoryDelegate::ParsePath(const base::FilePath& path) {
   dp.components = path.GetComponents();
 
   // Ensure |path| is under |root_|.
-  if (dp.components.size() < root_path_components_.size())
+  if (dp.components.size() < root_path_components_.size()) {
     return std::nullopt;
+  }
 
-  for (size_t i = 0; i < root_path_components_.size(); i++)
-    if (dp.components[i] != root_path_components_[i])
+  for (size_t i = 0; i < root_path_components_.size(); i++) {
+    if (dp.components[i] != root_path_components_[i]) {
       return std::nullopt;
+    }
+  }
 
   dp.components.erase(dp.components.begin(),
                       dp.components.begin() + root_path_components_.size());
@@ -121,8 +119,9 @@ ObfuscatedFileUtilMemoryDelegate::ParsePath(const base::FilePath& path) {
       i--;
     } else if (dp.components[i] == base::FilePath::kParentDirectory) {
       // Beyond |root|?
-      if (!i)
+      if (!i) {
         return std::nullopt;
+      }
       dp.components.erase(dp.components.begin() + i - 1,
                           dp.components.begin() + i + 1);
       i -= 2;
@@ -138,10 +137,12 @@ ObfuscatedFileUtilMemoryDelegate::ParsePath(const base::FilePath& path) {
     if (child == dp.entry->directory_content.end()) {
       // If just the last component is not found and the last found part is a
       // directory keep the parent.
-      if (i == dp.components.size() - 1 && dp.entry->type == Entry::kDirectory)
+      if (i == dp.components.size() - 1 &&
+          dp.entry->type == Entry::kDirectory) {
         dp.parent = dp.entry;
-      else
+      } else {
         dp.parent = nullptr;
+      }
       dp.entry = nullptr;
       break;
     }
@@ -165,14 +166,16 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::CreateDirectory(
     bool recursive) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   std::optional<DecomposedPath> dp = ParsePath(path);
-  if (!dp)
+  if (!dp) {
     return base::File::FILE_ERROR_NOT_FOUND;
+  }
 
   // If path already exists, ensure it's not a file and exclusive access is not
   // requested.
   if (dp->entry) {
-    if (exclusive || dp->entry->type == Entry::kFile)
+    if (exclusive || dp->entry->type == Entry::kFile) {
       return base::File::FILE_ERROR_EXISTS;
+    }
     return base::File::FILE_OK;
   }
   // If parent exists, add the new directory.
@@ -183,8 +186,9 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::CreateDirectory(
   }
 
   // Recursively add all required ancesstors if allowed.
-  if (!recursive)
+  if (!recursive) {
     return base::File::FILE_ERROR_NOT_FOUND;
+  }
 
   Entry* entry = root_.get();
   bool check_existings = true;
@@ -209,14 +213,17 @@ bool ObfuscatedFileUtilMemoryDelegate::DeleteFileOrDirectory(
     bool recursive) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   std::optional<DecomposedPath> dp = ParsePath(path);
-  if (!dp)
+  if (!dp) {
     return false;
+  }
 
-  if (!dp->entry)
+  if (!dp->entry) {
     return true;
+  }
 
-  if (!recursive && dp->entry->directory_content.size())
+  if (!recursive && dp->entry->directory_content.size()) {
     return false;
+  }
 
   dp->parent->directory_content.erase(dp->components.back());
 
@@ -266,11 +273,13 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::DeleteFile(
     const base::FilePath& path) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   std::optional<DecomposedPath> dp = ParsePath(path);
-  if (!dp || !dp->entry)
+  if (!dp || !dp->entry) {
     return base::File::FILE_ERROR_NOT_FOUND;
+  }
 
-  if (dp->entry->type != Entry::kFile)
+  if (dp->entry->type != Entry::kFile) {
     return base::File::FILE_ERROR_NOT_A_FILE;
+  }
 
   dp->parent->directory_content.erase(dp->components.back());
   return base::File::FILE_OK;
@@ -282,8 +291,9 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::EnsureFileExists(
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   std::optional<DecomposedPath> dp = ParsePath(path);
   *created = false;
-  if (!dp || !dp->parent)
+  if (!dp || !dp->parent) {
     return base::File::FILE_ERROR_NOT_FOUND;
+  }
 
   if (dp->entry) {
     return dp->entry->type == Entry::kFile ? base::File::FILE_OK
@@ -300,8 +310,9 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::GetFileInfo(
     base::File::Info* file_info) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   std::optional<DecomposedPath> dp = ParsePath(path);
-  if (!dp || !dp->entry)
+  if (!dp || !dp->entry) {
     return base::File::FILE_ERROR_NOT_FOUND;
+  }
 
   file_info->size = dp->entry->file_content.size();
   file_info->is_directory = (dp->entry->type == Entry::kDirectory);
@@ -320,8 +331,9 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::Touch(
     const base::Time& last_modified_time) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   std::optional<DecomposedPath> dp = ParsePath(path);
-  if (!dp || !dp->entry)
+  if (!dp || !dp->entry) {
     return base::File::FILE_ERROR_FAILED;
+  }
 
   dp->entry->last_accessed = last_access_time;
   dp->entry->last_modified = last_modified_time;
@@ -334,8 +346,9 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::Truncate(
     int64_t length) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   std::optional<DecomposedPath> dp = ParsePath(path);
-  if (!dp || !dp->entry || dp->entry->type != Entry::kFile)
+  if (!dp || !dp->entry || dp->entry->type != Entry::kFile) {
     return base::File::FILE_ERROR_NOT_FOUND;
+  }
 
   // Fail if enough memory is not available.
   if (!base::IsValueInRangeForNumericType<size_t>(length) ||
@@ -366,8 +379,9 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::CopyOrMoveFile(
   std::optional<DecomposedPath> src_dp = ParsePath(src_path);
   std::optional<DecomposedPath> dest_dp = ParsePath(dest_path);
 
-  if (!src_dp || !src_dp->entry || !dest_dp || !dest_dp->parent)
+  if (!src_dp || !src_dp->entry || !dest_dp || !dest_dp->parent) {
     return base::File::FILE_ERROR_NOT_FOUND;
+  }
 
   bool src_is_directory = src_dp->entry->type == Entry::kDirectory;
   // For directories, only 'move' is supported.
@@ -378,16 +392,18 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::CopyOrMoveFile(
   base::Time last_modified = src_dp->entry->last_modified;
 
   if (dest_dp->entry) {
-    if (dest_dp->entry->type != src_dp->entry->type)
+    if (dest_dp->entry->type != src_dp->entry->type) {
       return base::File::FILE_ERROR_INVALID_OPERATION;
+    }
 
 #if BUILDFLAG(IS_WIN)
     // Overwriting an empty directory with another directory isn't
     // supported natively on Windows.
     // To keep the behavior indistinguishable from on-disk operation,
     // in-memory implementation also fails.
-    if (src_is_directory)
+    if (src_is_directory) {
       return base::File::FILE_ERROR_NOT_A_FILE;
+    }
 #endif
   }
 
@@ -396,19 +412,23 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::CopyOrMoveFile(
     case NativeFileUtil::CopyOrMoveMode::COPY_SYNC:
       DCHECK(!src_is_directory);
       // Fail if enough memory is not available.
-      if (!IsMemoryAvailable(src_dp->entry->file_content.size()))
+      if (!IsMemoryAvailable(src_dp->entry->file_content.size())) {
         return base::File::FILE_ERROR_NO_SPACE;
-      if (!CopyOrMoveFileInternal(*src_dp, *dest_dp, false))
+      }
+      if (!CopyOrMoveFileInternal(*src_dp, *dest_dp, false)) {
         return base::File::FILE_ERROR_FAILED;
+      }
       break;
 
     case NativeFileUtil::CopyOrMoveMode::MOVE:
       if (src_is_directory) {
-        if (!MoveDirectoryInternal(*src_dp, *dest_dp))
+        if (!MoveDirectoryInternal(*src_dp, *dest_dp)) {
           return base::File::FILE_ERROR_FAILED;
+        }
       } else {
-        if (!CopyOrMoveFileInternal(*src_dp, *dest_dp, true))
+        if (!CopyOrMoveFileInternal(*src_dp, *dest_dp, true)) {
           return base::File::FILE_ERROR_FAILED;
+        }
       }
       break;
   }
@@ -448,8 +468,9 @@ bool ObfuscatedFileUtilMemoryDelegate::CopyOrMoveFileInternal(
     bool move) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   DCHECK(src_dp.entry->type == Entry::kFile);
-  if (dest_dp.entry)
+  if (dest_dp.entry) {
     dest_dp.parent->directory_content.erase(dest_dp.components.back());
+  }
 
   if (move) {
     dest_dp.parent->directory_content.insert(
@@ -474,8 +495,9 @@ size_t ObfuscatedFileUtilMemoryDelegate::ComputeDirectorySize(
     const base::FilePath& path) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   std::optional<DecomposedPath> dp = ParsePath(path);
-  if (!dp || !dp->entry || dp->entry->type != Entry::kDirectory)
+  if (!dp || !dp->entry || dp->entry->type != Entry::kDirectory) {
     return 0;
+  }
 
   base::CheckedNumeric<size_t> running_sum = 0;
   std::vector<Entry*> directories;
@@ -485,10 +507,11 @@ size_t ObfuscatedFileUtilMemoryDelegate::ComputeDirectorySize(
     Entry* current = directories.back();
     directories.pop_back();
     for (auto& child : current->directory_content) {
-      if (child.second.type == Entry::kDirectory)
+      if (child.second.type == Entry::kDirectory) {
         directories.push_back(&child.second);
-      else
+      } else {
         running_sum += child.second.file_content.size();
+      }
     }
   }
   return running_sum.ValueOrDefault(0);
@@ -500,8 +523,9 @@ int ObfuscatedFileUtilMemoryDelegate::ReadFile(const base::FilePath& path,
                                                int buf_len) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   std::optional<DecomposedPath> dp = ParsePath(path);
-  if (!dp || dp->entry->type != Entry::kFile)
+  if (!dp || dp->entry->type != Entry::kFile) {
     return net::ERR_FILE_NOT_FOUND;
+  }
 
   if (offset < 0 || buf_len < 0) {
     return net::ERR_INVALID_ARGUMENT;
@@ -514,8 +538,9 @@ int ObfuscatedFileUtilMemoryDelegate::ReadFile(const base::FilePath& path,
     return 0;
   }
 
-  if (buf_len > remaining)
+  if (buf_len > remaining) {
     buf_len = static_cast<int>(remaining);
+  }
 
   std::ranges::copy(
       base::span(dp->entry->file_content)
@@ -533,42 +558,44 @@ int ObfuscatedFileUtilMemoryDelegate::WriteFile(
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   std::optional<DecomposedPath> dp = ParsePath(path);
 
-  if (!dp || !dp->entry || dp->entry->type != Entry::kFile)
+  if (!dp || !dp->entry || dp->entry->type != Entry::kFile) {
     return net::ERR_FILE_NOT_FOUND;
+  }
 
   size_t offset_u = static_cast<size_t>(offset);
   // Fail if |offset| or |buf_len| not valid.
-  if (offset < 0 || buf_len < 0)
+  if (offset < 0 || buf_len < 0) {
     return net::ERR_REQUEST_RANGE_NOT_SATISFIABLE;
+  }
 
   // Fail if result doesn't fit in a std::vector.
   if (std::numeric_limits<size_t>::max() - offset_u <
-      static_cast<size_t>(buf_len))
+      static_cast<size_t>(buf_len)) {
     return net::ERR_REQUEST_RANGE_NOT_SATISFIABLE;
+  }
 
   const size_t last_position = offset_u + buf_len;
   if (last_position > dp->entry->file_content.capacity()) {
     // Fail if enough memory is not available.
-    if (!IsMemoryAvailable(last_position))
+    if (!IsMemoryAvailable(last_position)) {
       return net::ERR_FILE_NO_SPACE;
+    }
 
-// If required memory is bigger than half of the max allocatable memory block,
-// reserve first to avoid STL getting more than required memory.
-// See crbug.com/1043914 for more context.
-// |MaxAllocationSize| function is not implemented on FUCHSIA, yet.
-// (crbug.com/986608)
-#if !BUILDFLAG(IS_FUCHSIA)
+    // If required memory is bigger than half of the max allocatable memory
+    // block, reserve first to avoid STL getting more than required memory. See
+    // crbug.com/1043914 for more context. |MaxAllocationSize| function is not
+    // implemented on FUCHSIA, yet. (crbug.com/986608)
     if (last_position >= partition_alloc::MaxAllocationSize() / 2) {
       // TODO(crbug.com/40669351): Allocated memory is rounded up to
       // 100MB blocks to reduce memory allocation delays. Switch to a more
       // proper container to remove this dependency.
       const size_t round_up_size = 100 * 1024 * 1024;
       size_t rounded_up = ((last_position / round_up_size) + 1) * round_up_size;
-      if (!IsMemoryAvailable(rounded_up))
+      if (!IsMemoryAvailable(rounded_up)) {
         return net::ERR_FILE_NO_SPACE;
+      }
       dp->entry->file_content.reserve(rounded_up);
     }
-#endif
   }
 
   const auto data_to_append = buf->first(base::checked_cast<size_t>(buf_len));
@@ -577,8 +604,9 @@ int ObfuscatedFileUtilMemoryDelegate::WriteFile(
                                    data_to_append.begin(),
                                    data_to_append.end());
   } else {
-    if (last_position > dp->entry->file_content.size())
+    if (last_position > dp->entry->file_content.size()) {
       dp->entry->file_content.resize(last_position);
+    }
 
     // if |offset_u| is larger than the original file size, there will be null
     // bytes between the end of the file and |offset_u|.
@@ -595,8 +623,9 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::CreateFileForTesting(
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   bool created;
   base::File::Error result = EnsureFileExists(path, &created);
-  if (result != base::File::FILE_OK)
+  if (result != base::File::FILE_OK) {
     return result;
+  }
 
   std::optional<DecomposedPath> dp = ParsePath(path);
   DCHECK(dp && dp->entry->type == Entry::kFile);
@@ -615,15 +644,18 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::CopyInForeignFile(
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   std::optional<DecomposedPath> dest_dp = ParsePath(dest_path);
 
-  if (!dest_dp || !dest_dp->parent)
+  if (!dest_dp || !dest_dp->parent) {
     return base::File::FILE_ERROR_NOT_FOUND;
+  }
 
   base::File::Info source_info;
-  if (!base::GetFileInfo(src_path, &source_info))
+  if (!base::GetFileInfo(src_path, &source_info)) {
     return base::File::FILE_ERROR_NOT_FOUND;
+  }
 
-  if (source_info.is_directory)
+  if (source_info.is_directory) {
     return base::File::FILE_ERROR_NOT_A_FILE;
+  }
 
   // |size_t| limits the maximum size that the memory file can keep and |int|
   // limits the maximum size that base::ReadFile function reads.
@@ -633,8 +665,9 @@ base::File::Error ObfuscatedFileUtilMemoryDelegate::CopyInForeignFile(
   }
 
   // Fail if enough memory is not available.
-  if (!IsMemoryAvailable(static_cast<size_t>(source_info.size)))
+  if (!IsMemoryAvailable(static_cast<size_t>(source_info.size))) {
     return base::File::FILE_ERROR_NO_SPACE;
+  }
 
   // Create file.
   Entry* entry = &dest_dp->parent->directory_content

@@ -3262,10 +3262,10 @@ void NetworkContext::OnHttpAuthDynamicParamsChanged(
       http_auth_dynamic_network_service_params->enable_negotiate_port);
   http_auth_merged_preferences_.set_basic_over_http_enabled(
       http_auth_dynamic_network_service_params->basic_over_http_enabled);
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
   http_auth_merged_preferences_.set_ntlm_v2_enabled(
       http_auth_dynamic_network_service_params->ntlm_v2_enabled);
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_ANDROID)
   http_auth_merged_preferences_.set_auth_android_negotiate_account_type(
@@ -4654,7 +4654,6 @@ void NetworkContext::SetVariationsHeaders(
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   variations_headers_ = std::move(variations_headers);
 }
-
 
 bool NetworkContext::HasCookieAccessForDeviceBoundSession(
     const net::device_bound_sessions::CookieAccessCheckParams& params) {

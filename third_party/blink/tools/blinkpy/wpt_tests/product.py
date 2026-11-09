@@ -20,11 +20,7 @@ IOS_DEVICE = 'iPhone 14 Pro'
 
 def do_delay_imports():
     global devil_chromium, devil_env, apk_helper
-    global \
-        device_utils, \
-        webview_app, \
-        avd, \
-        fuchsia_cuttlefish_emulator_environment
+    global device_utils, webview_app, avd
     global CommandFailedError, SyncParallelizer
     # Packages here are only isolated when running test for Android
     # This import adds `devil` to `sys.path`.
@@ -38,8 +34,7 @@ def do_delay_imports():
     from devil.utils.parallelizer import SyncParallelizer
     from pylib.local.emulator import (
         avd,
-        fuchsia_cuttlefish_emulator_environment,
-    )
+        )
 
 
 @memoized
@@ -306,15 +301,6 @@ class ChromeAndroidBase(Product):
             parallelizer.Start(
                 writable_system=True, window=self._options.emulator_window
             )
-        elif fuchsia_cuttlefish_emulator_environment.IsSupported():
-            _log.info('Launching Cuttlefish emulator')
-            cuttlefish = (
-                fuchsia_cuttlefish_emulator_environment.CuttlefishInstance(
-                    adb_path=self.adb_binary
-                )
-            )
-            self._tasks.callback(cuttlefish.Stop)
-            serial = cuttlefish.Start()
 
         # TODO(weizhong): when choose device, make sure abi matches with target
         kwargs = {'device_arg': serial} if serial else {}

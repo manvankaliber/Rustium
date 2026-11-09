@@ -34,7 +34,7 @@
 
 #include "base/features.h"
 #include "base/win/winbase_shim.h"
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 #include <sys/mman.h>
 #if BUILDFLAG(IS_ANDROID)
 #include <sys/prctl.h>
@@ -1072,7 +1072,7 @@ LocalPersistentMemoryAllocator::AllocateLocalMemory(size_t size,
   if (address) {
     return Memory(address, MEM_VIRTUAL);
   }
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   // MAP_ANON is deprecated on Linux but MAP_ANONYMOUS is not universal on Mac.
   // MAP_SHARED is not available on Linux <2.4 but required on Mac.
   address = ::mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED,
@@ -1114,7 +1114,7 @@ void LocalPersistentMemoryAllocator::DeallocateLocalMemory(void* memory,
 #if BUILDFLAG(IS_WIN)
   BOOL success = ::VirtualFree(memory, 0, MEM_RELEASE);
   DCHECK(success);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   int result = ::munmap(memory, size);
   DCHECK_EQ(0, result);
 #else
@@ -1248,8 +1248,6 @@ void FilePersistentMemoryAllocator::FlushPartial(size_t length, bool sync) {
       base::FeatureList::IsEnabled(features::kFlushFileBuffersOnSyncFlush)) {
     ::FlushFileBuffers(mapped_file_->file().GetPlatformFile());
   }
-#elif BUILDFLAG(IS_FUCHSIA)
-  // Fuchsia's POSIX compatibility layer does not implement msync().
 #elif BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_POSIX)
   // MS_INVALIDATE is omitted because it forces cached mapped pages to be
   // dropped, triggering unnecessary page faults and re-reads on subsequent

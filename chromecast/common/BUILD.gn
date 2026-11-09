@@ -82,7 +82,7 @@ cast_source_set("common") {
     "//url",
   ]
 
-  if (is_android || is_fuchsia) {
+  if (is_android) {
     deps += [ "//components/cdm/common" ]
   }
 

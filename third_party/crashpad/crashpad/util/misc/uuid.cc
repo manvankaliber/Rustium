@@ -74,8 +74,7 @@ bool UUID::InitializeFromString(std::string_view string) {
 
   UUID temp;
   static constexpr char kScanFormat[] =
-      "%08" SCNx32 "-%04" SCNx16 "-%04" SCNx16
-      "-%02" SCNx8 "%02" SCNx8
+      "%08" SCNx32 "-%04" SCNx16 "-%04" SCNx16 "-%02" SCNx8 "%02" SCNx8
       "-%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8;
   int rv = sscanf(string.data(),
                   kScanFormat,
@@ -110,7 +109,7 @@ bool UUID::InitializeWithNew() {
   InitializeFromBytes(uuid);
   return true;
 #elif BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+    BUILDFLAG(IS_ANDROID)
   // Linux, Android, and Fuchsia do not provide a UUID generator in a
   // widely-available system library. On Linux and Android, uuid_generate()
   // from libuuid is not available everywhere.
@@ -130,8 +129,7 @@ bool UUID::InitializeWithNew() {
 
 #if BUILDFLAG(IS_WIN)
 void UUID::InitializeFromSystemUUID(const ::UUID* system_uuid) {
-  static_assert(sizeof(::UUID) == sizeof(UUID),
-                "unexpected system uuid size");
+  static_assert(sizeof(::UUID) == sizeof(UUID), "unexpected system uuid size");
   static_assert(offsetof(::UUID, Data1) == offsetof(UUID, data_1),
                 "unexpected system uuid layout");
   memcpy(this, system_uuid, sizeof(*this));

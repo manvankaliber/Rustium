@@ -221,8 +221,9 @@ void WriteHandler::CreateNextEntry() {
 
 void WriteHandler::CreateCallback(int data_len,
                                   disk_cache::EntryResult result) {
-  if (CheckForErrorAndCancel(result.net_error()))
+  if (CheckForErrorAndCancel(result.net_error())) {
     return;
+  }
 
   disk_cache::Entry* entry = result.ReleaseEntry();
   net::CompletionRepeatingCallback callback = base::BindRepeating(
@@ -230,8 +231,9 @@ void WriteHandler::CreateCallback(int data_len,
       data_len, kHeadersSize);
   int new_result = entry->WriteData(0, 0, headers_buffer_.get(), kHeadersSize,
                                     callback, false);
-  if (new_result != net::ERR_IO_PENDING)
+  if (new_result != net::ERR_IO_PENDING) {
     callback.Run(new_result);
+  }
 }
 
 void WriteHandler::WriteDataCallback(disk_cache::Entry* entry,
@@ -250,8 +252,9 @@ void WriteHandler::WriteDataCallback(disk_cache::Entry* entry,
       CreateNextEntry();
     } else {
       --pending_operations_count_;
-      if (pending_operations_count_ == 0)
+      if (pending_operations_count_ == 0) {
         std::move(final_callback_).Run(net::OK);
+      }
     }
     return;
   }
@@ -262,18 +265,21 @@ void WriteHandler::WriteDataCallback(disk_cache::Entry* entry,
       next_offset + write_size, data_len, write_size);
   int new_result = entry->WriteData(1, next_offset, body_buffer_.get(),
                                     write_size, callback, true);
-  if (new_result != net::ERR_IO_PENDING)
+  if (new_result != net::ERR_IO_PENDING) {
     callback.Run(new_result);
+  }
 }
 
 bool WriteHandler::CheckForErrorAndCancel(int result) {
   DCHECK_NE(net::ERR_IO_PENDING, result);
-  if (result != net::OK && !(result > 0))
+  if (result != net::OK && !(result > 0)) {
     pending_result_ = result;
+  }
   if (pending_result_ != net::OK) {
     --pending_operations_count_;
-    if (pending_operations_count_ == 0)
+    if (pending_operations_count_ == 0) {
       std::move(final_callback_).Run(pending_result_);
+    }
     return true;
   }
   return false;
@@ -343,15 +349,17 @@ void ReadHandler::OpenNextEntry(int parallel_operation_index) {
                           parallel_operation_index, test_entry.data_len);
   disk_cache::EntryResult result =
       cache_->OpenEntry(test_entry.key, net::HIGHEST, callback);
-  if (result.net_error() != net::ERR_IO_PENDING)
+  if (result.net_error() != net::ERR_IO_PENDING) {
     callback.Run(std::move(result));
+  }
 }
 
 void ReadHandler::OpenCallback(int parallel_operation_index,
                                int data_len,
                                disk_cache::EntryResult result) {
-  if (CheckForErrorAndCancel(result.net_error()))
+  if (CheckForErrorAndCancel(result.net_error())) {
     return;
+  }
 
   disk_cache::Entry* entry = result.ReleaseEntry();
 
@@ -363,8 +371,9 @@ void ReadHandler::OpenCallback(int parallel_operation_index,
   int new_result =
       entry->ReadData(0, 0, read_buffers_[parallel_operation_index].get(),
                       kChunkSize, callback);
-  if (new_result != net::ERR_IO_PENDING)
+  if (new_result != net::ERR_IO_PENDING) {
     callback.Run(new_result);
+  }
 }
 
 void ReadHandler::ReadDataCallback(int parallel_operation_index,
@@ -384,8 +393,9 @@ void ReadHandler::ReadDataCallback(int parallel_operation_index,
       OpenNextEntry(parallel_operation_index);
     } else {
       --pending_operations_count_;
-      if (pending_operations_count_ == 0)
+      if (pending_operations_count_ == 0) {
         std::move(final_callback_).Run(net::OK);
+      }
     }
     return;
   }
@@ -398,18 +408,21 @@ void ReadHandler::ReadDataCallback(int parallel_operation_index,
   int new_result = entry->ReadData(
       1, next_offset, read_buffers_[parallel_operation_index].get(), kChunkSize,
       callback);
-  if (new_result != net::ERR_IO_PENDING)
+  if (new_result != net::ERR_IO_PENDING) {
     callback.Run(new_result);
+  }
 }
 
 bool ReadHandler::CheckForErrorAndCancel(int result) {
   DCHECK_NE(net::ERR_IO_PENDING, result);
-  if (result != net::OK && !(result > 0))
+  if (result != net::OK && !(result > 0)) {
     pending_result_ = result;
+  }
   if (pending_result_ != net::OK) {
     --pending_operations_count_;
-    if (pending_operations_count_ == 0)
+    if (pending_operations_count_ == 0) {
       std::move(final_callback_).Run(pending_result_);
+    }
     return true;
   }
   return false;
@@ -532,23 +545,12 @@ void DiskCachePerfTest::MaybeLoadInMemoryIndex() {
 #endif  // ENABLE_DISK_CACHE_SQL_BACKEND
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-// TODO(crbug.com/41393579): Fix this test on Fuchsia and re-enable.
-#define MAYBE_CacheBackendPerformance DISABLED_CacheBackendPerformance
-#else
 #define MAYBE_CacheBackendPerformance CacheBackendPerformance
-#endif
 TEST_F(DiskCachePerfTest, MAYBE_CacheBackendPerformance) {
   CacheBackendPerformance("blockfile_cache");
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-// TODO(crbug.com/41393579): Fix this test on Fuchsia and re-enable.
-#define MAYBE_SimpleCacheBackendPerformance \
-  DISABLED_SimpleCacheBackendPerformance
-#else
 #define MAYBE_SimpleCacheBackendPerformance SimpleCacheBackendPerformance
-#endif
 TEST_F(DiskCachePerfTest, MAYBE_SimpleCacheBackendPerformance) {
   SetBackendToTest(BackendToTest::kSimple);
   CacheBackendPerformance("simple_cache");
@@ -670,8 +672,9 @@ TEST_F(DiskCachePerfTest, SimpleCacheInitialReadPortion) {
   }
 
   // Cleanup
-  for (auto* entry : cache_entry)
+  for (auto* entry : cache_entry) {
     entry->Close();
+  }
 
   disk_cache::FlushCacheThreadForTesting();
   base::RunLoop().RunUntilIdle();
@@ -685,12 +688,7 @@ TEST_F(DiskCachePerfTest, SimpleCacheInitialReadPortion) {
                      1000 * (elapsed_late / (kIterations * kBatchSize)));
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-// TODO(crbug.com/40222788): Fix this test on Fuchsia and re-enable.
-#define MAYBE_EvictionPerformance DISABLED_EvictionPerformance
-#else
 #define MAYBE_EvictionPerformance EvictionPerformance
-#endif
 // Measures how quickly SimpleIndex can compute which entries to evict.
 TEST(SimpleIndexPerfTest, MAYBE_EvictionPerformance) {
   const int kEntries = 10000;

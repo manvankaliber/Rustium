@@ -173,22 +173,19 @@ libc_bitflags! {
 impl MapFlags {
     /// Create `MAP_HUGETLB` with provided size of huge page.
     ///
-    /// Under the hood it computes `MAP_HUGETLB | (huge_page_size_log2 << libc::MAP_HUGE_SHIFT`).
-    /// `huge_page_size_log2` denotes logarithm of huge page size to use and should be
-    /// between 16 and 63 (inclusively).
+    /// Under the hood it computes `MAP_HUGETLB | (huge_page_size_log2 <<
+    /// libc::MAP_HUGE_SHIFT`). `huge_page_size_log2` denotes logarithm of huge
+    /// page size to use and should be between 16 and 63 (inclusively).
     ///
     /// ```
     /// # use nix::sys::mman::MapFlags;
     /// let f = MapFlags::map_hugetlb_with_size_log2(30).unwrap();
     /// assert_eq!(f, MapFlags::MAP_HUGETLB | MapFlags::MAP_HUGE_1GB);
     /// ```
-    #[cfg(any(linux_android, target_os = "fuchsia"))]
-    pub fn map_hugetlb_with_size_log2(
-        huge_page_size_log2: u32,
-    ) -> Option<Self> {
+    #[cfg(linux_android)]
+    pub fn map_hugetlb_with_size_log2(huge_page_size_log2: u32) -> Option<Self> {
         if (16..=63).contains(&huge_page_size_log2) {
-            let flag = libc::MAP_HUGETLB
-                | (huge_page_size_log2 << libc::MAP_HUGE_SHIFT) as i32;
+            let flag = libc::MAP_HUGETLB | (huge_page_size_log2 << libc::MAP_HUGE_SHIFT) as i32;
             Some(Self(flag.into()))
         } else {
             None
@@ -375,7 +372,8 @@ libc_bitflags! {
 ///
 /// # Safety
 ///
-/// `addr` must meet all the requirements described in the [`mlock(2)`] man page.
+/// `addr` must meet all the requirements described in the [`mlock(2)`] man
+/// page.
 ///
 /// [`mlock(2)`]: https://man7.org/linux/man-pages/man2/mlock.2.html
 pub unsafe fn mlock(addr: NonNull<c_void>, length: size_t) -> Result<()> {
@@ -397,7 +395,8 @@ pub unsafe fn munlock(addr: NonNull<c_void>, length: size_t) -> Result<()> {
 
 /// Locks all memory pages mapped into this process' address space.
 ///
-/// Locked pages never move to the swap area. For more information, see [`mlockall(2)`].
+/// Locked pages never move to the swap area. For more information, see
+/// [`mlockall(2)`].
 ///
 /// [`mlockall(2)`]: https://man7.org/linux/man-pages/man2/mlockall.2.html
 #[cfg(not(any(target_os = "haiku", target_os = "cygwin", target_os = "redox")))]
@@ -435,15 +434,13 @@ pub unsafe fn mmap<F: AsFd>(
     let ptr = addr.map_or(std::ptr::null_mut(), |a| a.get() as *mut c_void);
 
     let fd = f.as_fd().as_raw_fd();
-    let ret = unsafe {
-        libc::mmap(ptr, length.into(), prot.bits(), flags.bits(), fd, offset)
-    };
+    let ret = unsafe { libc::mmap(ptr, length.into(), prot.bits(), flags.bits(), fd, offset) };
 
     if std::ptr::eq(ret, libc::MAP_FAILED) {
         Err(Errno::last())
     } else {
-        // SAFETY: `libc::mmap` returns a valid non-null pointer or `libc::MAP_FAILED`, thus `ret`
-        // will be non-null here.
+        // SAFETY: `libc::mmap` returns a valid non-null pointer or
+        // `libc::MAP_FAILED`, thus `ret` will be non-null here.
         Ok(unsafe { NonNull::new_unchecked(ret) })
     }
 }
@@ -467,15 +464,13 @@ pub unsafe fn mmap_anonymous(
     let ptr = addr.map_or(std::ptr::null_mut(), |a| a.get() as *mut c_void);
 
     let flags = MapFlags::MAP_ANONYMOUS | flags;
-    let ret = unsafe {
-        libc::mmap(ptr, length.into(), prot.bits(), flags.bits(), -1, 0)
-    };
+    let ret = unsafe { libc::mmap(ptr, length.into(), prot.bits(), flags.bits(), -1, 0) };
 
     if std::ptr::eq(ret, libc::MAP_FAILED) {
         Err(Errno::last())
     } else {
-        // SAFETY: `libc::mmap` returns a valid non-null pointer or `libc::MAP_FAILED`, thus `ret`
-        // will be non-null here.
+        // SAFETY: `libc::mmap` returns a valid non-null pointer or
+        // `libc::MAP_FAILED`, thus `ret` will be non-null here.
         Ok(unsafe { NonNull::new_unchecked(ret) })
     }
 }
@@ -502,9 +497,7 @@ pub unsafe fn mremap(
             old_size,
             new_size,
             flags.bits(),
-            new_address
-                .map(NonNull::as_ptr)
-                .unwrap_or(std::ptr::null_mut()),
+            new_address.map(NonNull::as_ptr).unwrap_or(std::ptr::null_mut()),
         )
     };
     #[cfg(target_os = "netbsd")]
@@ -512,9 +505,7 @@ pub unsafe fn mremap(
         libc::mremap(
             addr.as_ptr(),
             old_size,
-            new_address
-                .map(NonNull::as_ptr)
-                .unwrap_or(std::ptr::null_mut()),
+            new_address.map(NonNull::as_ptr).unwrap_or(std::ptr::null_mut()),
             new_size,
             flags.bits(),
         )
@@ -523,8 +514,8 @@ pub unsafe fn mremap(
     if std::ptr::eq(ret, libc::MAP_FAILED) {
         Err(Errno::last())
     } else {
-        // SAFETY: `libc::mremap` returns a valid non-null pointer or `libc::MAP_FAILED`, thus `ret`
-        // will be non-null here.
+        // SAFETY: `libc::mremap` returns a valid non-null pointer or
+        // `libc::MAP_FAILED`, thus `ret` will be non-null here.
         Ok(unsafe { NonNull::new_unchecked(ret) })
     }
 }
@@ -549,16 +540,13 @@ pub unsafe fn munmap(addr: NonNull<c_void>, len: size_t) -> Result<()> {
 /// [`MmapAdvise::MADV_FREE`].
 ///
 /// [`madvise(2)`]: https://man7.org/linux/man-pages/man2/madvise.2.html
-#[allow(rustdoc::broken_intra_doc_links)] // For Hurd as `MADV_FREE` is not available on it
-pub unsafe fn madvise(
-    addr: NonNull<c_void>,
-    length: size_t,
-    advise: MmapAdvise,
-) -> Result<()> {
+#[allow(rustdoc::broken_intra_doc_links)] // For Hurd as `MADV_FREE` is not
+                                          // available on it
+pub unsafe fn madvise(addr: NonNull<c_void>, length: size_t, advise: MmapAdvise) -> Result<()> {
     let ptr = {
-        // The AIX signature of 'madvise()' differs from the POSIX specification,
-        // which expects 'void *' as the type of the 'addr' argument, whereas AIX uses
-        // 'caddr_t' (i.e., 'char *').
+        // The AIX signature of 'madvise()' differs from the POSIX
+        // specification, which expects 'void *' as the type of the 'addr'
+        // argument, whereas AIX uses 'caddr_t' (i.e., 'char *').
         #[cfg(target_os = "aix")]
         {
             addr.as_ptr() as *mut u8
@@ -569,9 +557,7 @@ pub unsafe fn madvise(
         }
     };
 
-    unsafe {
-        Errno::result(libc::madvise(ptr, length, advise as i32)).map(drop)
-    }
+    unsafe { Errno::result(libc::madvise(ptr, length, advise as i32)).map(drop) }
 }
 
 /// Set protection of memory mapping.
@@ -581,8 +567,8 @@ pub unsafe fn madvise(
 ///
 /// # Safety
 ///
-/// Calls to `mprotect` are inherently unsafe, as changes to memory protections can lead to
-/// SIGSEGVs.
+/// Calls to `mprotect` are inherently unsafe, as changes to memory protections
+/// can lead to SIGSEGVs.
 ///
 /// ```
 /// # use nix::libc::size_t;
@@ -601,15 +587,8 @@ pub unsafe fn madvise(
 /// slice[0] = 0xFF;
 /// assert_eq!(slice[0], 0xFF);
 /// ```
-pub unsafe fn mprotect(
-    addr: NonNull<c_void>,
-    length: size_t,
-    prot: ProtFlags,
-) -> Result<()> {
-    unsafe {
-        Errno::result(libc::mprotect(addr.as_ptr(), length, prot.bits()))
-            .map(drop)
-    }
+pub unsafe fn mprotect(addr: NonNull<c_void>, length: size_t, prot: ProtFlags) -> Result<()> {
+    unsafe { Errno::result(libc::mprotect(addr.as_ptr(), length, prot.bits())).map(drop) }
 }
 
 /// synchronize a mapped region
@@ -620,15 +599,8 @@ pub unsafe fn mprotect(
 /// page.
 ///
 /// [`msync(2)`]: https://man7.org/linux/man-pages/man2/msync.2.html
-pub unsafe fn msync(
-    addr: NonNull<c_void>,
-    length: size_t,
-    flags: MsFlags,
-) -> Result<()> {
-    unsafe {
-        Errno::result(libc::msync(addr.as_ptr(), length, flags.bits()))
-            .map(drop)
-    }
+pub unsafe fn msync(addr: NonNull<c_void>, length: size_t, flags: MsFlags) -> Result<()> {
+    unsafe { Errno::result(libc::msync(addr.as_ptr(), length, flags.bits())).map(drop) }
 }
 
 #[cfg(not(target_os = "android"))]
@@ -666,15 +638,15 @@ pub fn shm_open<P>(
 }
 }
 
-/// Performs the converse of [`shm_open`], removing an object previously created.
+/// Performs the converse of [`shm_open`], removing an object previously
+/// created.
 ///
 /// For more information, see [`shm_unlink(3)`].
 ///
 /// [`shm_unlink(3)`]: https://man7.org/linux/man-pages/man3/shm_unlink.3.html
 #[cfg(not(target_os = "android"))]
 pub fn shm_unlink<P: ?Sized + NixPath>(name: &P) -> Result<()> {
-    let ret =
-        name.with_nix_path(|cstr| unsafe { libc::shm_unlink(cstr.as_ptr()) })?;
+    let ret = name.with_nix_path(|cstr| unsafe { libc::shm_unlink(cstr.as_ptr()) })?;
 
     Errno::result(ret).map(drop)
 }

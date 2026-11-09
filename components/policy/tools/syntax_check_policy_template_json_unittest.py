@@ -125,10 +125,10 @@ class SyntaxCheckPolicyTemplateUnittest(unittest.TestCase):
     )
     self.assertEqual(len(checker_legacy.errors), 0)
 
-    # Case 3: Non-ChromeOS future_on policy (e.g. fuchsia) logs no error.
+    # Case 3: Non-ChromeOS future_on policy (e.g. linux) logs no error.
     non_cros_policy = dict(policy)
     non_cros_policy['name'] = 'NonCrosFutureOnPolicy'
-    non_cros_policy['future_on'] = ['fuchsia']
+    non_cros_policy['future_on'] = ['linux']
     non_cros_change_list = [
       {
         'policy': 'NonCrosFutureOnPolicy',

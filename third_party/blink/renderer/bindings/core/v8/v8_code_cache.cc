@@ -182,8 +182,9 @@ bool V8CodeCache::HasHotTimestamp(const CachedMetadata& data,
 bool V8CodeCache::HasCodeCache(
     const CachedMetadataHandler* cache_handler,
     CachedMetadataHandler::GetCachedMetadataBehavior behavior) {
-  if (!cache_handler)
+  if (!cache_handler) {
     return false;
+  }
 
   uint32_t code_cache_tag = V8CodeCache::TagForCodeCache(cache_handler);
   return cache_handler->GetCachedMetadata(code_cache_tag, behavior).get();
@@ -412,15 +413,6 @@ V8CodeCache::GetCompileOptionsInternal(
                            no_cache_reason);
   }
 
-#if BUILDFLAG(IS_FUCHSIA) && defined(__OPTIMIZE_SIZE__)
-  // On Fuchsia size-optimized builds, default is to not cache.
-  // Note that Fuchsia doesn't use kWebUIBundledCache, so we don't need to
-  // worry about bypassing it here when overriding to kNone.
-  if (cache_options == mojom::blink::V8CacheOptions::kDefault) {
-    cache_options = mojom::blink::V8CacheOptions::kNone;
-  }
-#endif
-
   if (cache_options == mojom::blink::V8CacheOptions::kNone) {
     no_cache_reason = v8::ScriptCompiler::kNoCacheBecauseCachingDisabled;
     return std::make_tuple(no_code_cache_compile_options,
@@ -570,8 +562,9 @@ static void ProduceCacheInternal(
       break;
     case V8CodeCache::ProduceCacheOptions::kProduceCodeCache: {
       // TODO(crbug.com/938269): Investigate why this can be empty here.
-      if (unbound_script.IsEmpty())
+      if (unbound_script.IsEmpty()) {
         break;
+      }
 
       constexpr const char* kTraceEventCategoryGroup = "v8,devtools.timeline";
       TRACE_EVENT_BEGIN(kTraceEventCategoryGroup,

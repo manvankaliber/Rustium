@@ -50,10 +50,6 @@ INSTANTIATE_TEST_SUITE_P(
             .test_name = "ChromeOS",
             .platform_switch = "chromeos",
             .expected_platform = Study::PLATFORM_CHROMEOS},
-        PlatformOverrideTestParams{
-            .test_name = "Fuchsia",
-            .platform_switch = "fuchsia",
-            .expected_platform = Study::PLATFORM_FUCHSIA},
         PlatformOverrideTestParams{.test_name = "Linux",
                                    .platform_switch = "linux",
                                    .expected_platform = Study::PLATFORM_LINUX},
@@ -97,8 +93,6 @@ TEST(ClientFilterableStateTest, IgnoreInvalidFakePlatformSwitch) {
   actual_platform = Study::PLATFORM_CHROMEOS;
 #elif BUILDFLAG(IS_ANDROID)
   actual_platform = Study::PLATFORM_ANDROID;
-#elif BUILDFLAG(IS_FUCHSIA)
-  actual_platform = Study::PLATFORM_FUCHSIA;
 #elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_BSD) || BUILDFLAG(IS_SOLARIS)
   // Default BSD and SOLARIS to Linux to not break those builds, although these
   // platforms are not officially supported by Chrome.

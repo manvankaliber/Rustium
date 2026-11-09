@@ -40,13 +40,15 @@ base::FilePath VirtualPath::BaseName(const base::FilePath& virtual_path) {
 
   // Keep everything after the final separator, but if the pathname is only
   // one character and it's a separator, leave it alone.
-  while (path.size() > 1 && base::FilePath::IsSeparator(path.back()))
+  while (path.size() > 1 && base::FilePath::IsSeparator(path.back())) {
     path.resize(path.size() - 1);
+  }
   base::FilePath::StringType::size_type last_separator =
       path.find_last_of(base::FilePath::kSeparators);
   if (last_separator != base::FilePath::StringType::npos &&
-      last_separator < path.size() - 1)
+      last_separator < path.size() - 1) {
     path.erase(0, last_separator + 1);
+  }
 
   return base::FilePath(path);
 }
@@ -59,8 +61,9 @@ base::FilePath VirtualPath::DirName(const base::FilePath& virtual_path) {
   // that this version never cares about '//' or drive-letters even on win32.
 
   // Strip trailing separators.
-  while (path.size() > 1 && base::FilePath::IsSeparator(path.back()))
+  while (path.size() > 1 && base::FilePath::IsSeparator(path.back())) {
     path.resize(path.size() - 1);
+  }
 
   StringType::size_type last_separator =
       path.find_last_of(base::FilePath::kSeparators);
@@ -76,11 +79,13 @@ base::FilePath VirtualPath::DirName(const base::FilePath& virtual_path) {
   path.resize(last_separator);
 
   // Strip trailing separators.
-  while (path.size() > 1 && base::FilePath::IsSeparator(path.back()))
+  while (path.size() > 1 && base::FilePath::IsSeparator(path.back())) {
     path.resize(path.size() - 1);
+  }
 
-  if (path.empty())
+  if (path.empty()) {
     return base::FilePath(base::FilePath::kCurrentDirectory);
+  }
 
   return base::FilePath(path);
 }
@@ -90,16 +95,18 @@ std::vector<base::FilePath::StringType> VirtualPath::GetComponents(
   using StringType = base::FilePath::StringType;
 
   std::vector<StringType> components;
-  if (path.value().empty())
+  if (path.value().empty()) {
     return components;
+  }
 
   StringType::size_type begin = 0, end = 0;
   while (begin < path.value().length() && end != StringType::npos) {
     end = path.value().find_first_of(base::FilePath::kSeparators, begin);
     StringType component = path.value().substr(
         begin, end == StringType::npos ? StringType::npos : end - begin);
-    if (!component.empty() && component != base::FilePath::kCurrentDirectory)
+    if (!component.empty() && component != base::FilePath::kCurrentDirectory) {
       components.push_back(component);
+    }
     begin = end + 1;
   }
   return components;
@@ -111,8 +118,9 @@ std::vector<std::string> VirtualPath::GetComponentsUTF8Unsafe(
       VirtualPath::GetComponents(path);
   std::vector<std::string> components;
   components.reserve(stringtype_components.size());
-  for (const auto& component : stringtype_components)
+  for (const auto& component : stringtype_components) {
     components.push_back(base::FilePath(component).AsUTF8Unsafe());
+  }
   return components;
 }
 
@@ -148,8 +156,9 @@ bool ParseFileSystemSchemeURL(const GURL& url,
   GURL origin;
   FileSystemType file_system_type = kFileSystemTypeUnknown;
 
-  if (!url.is_valid() || !url.SchemeIsFileSystem())
+  if (!url.is_valid() || !url.SchemeIsFileSystem()) {
     return false;
+  }
 
   const struct {
     FileSystemType type;
@@ -172,28 +181,34 @@ bool ParseFileSystemSchemeURL(const GURL& url,
     }
   }
 
-  if (file_system_type == kFileSystemTypeUnknown)
+  if (file_system_type == kFileSystemTypeUnknown) {
     return false;
+  }
 
   std::string path = base::UnescapeBinaryURLComponent(url.path());
 
   // Ensure the path is relative.
-  while (!path.empty() && path[0] == '/')
+  while (!path.empty() && path[0] == '/') {
     path.erase(0, 1);
+  }
 
   base::FilePath converted_path = base::FilePath::FromUTF8Unsafe(path);
 
   // All parent references should have been resolved in the renderer.
-  if (converted_path.ReferencesParent())
+  if (converted_path.ReferencesParent()) {
     return false;
+  }
 
-  if (origin_url)
+  if (origin_url) {
     *origin_url = url.DeprecatedGetOriginAsURL();
-  if (type)
+  }
+  if (type) {
     *type = file_system_type;
-  if (virtual_path)
+  }
+  if (virtual_path) {
     *virtual_path =
         converted_path.NormalizePathSeparators().StripTrailingSeparators();
+  }
 
   return true;
 }
@@ -293,7 +308,7 @@ std::string FilePathToString(const base::FilePath& file_path) {
   // TODO(pkasting): Probably this should use AsUTF8Unsafe() across platforms.
 #if BUILDFLAG(IS_WIN)
   return file_path.AsUTF8Unsafe();
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   return file_path.value();
 #endif
 }
@@ -302,7 +317,7 @@ base::FilePath StringToFilePath(const std::string& file_path_string) {
   // TODO(pkasting): Probably this should use FromUTF8Unsafe() across platforms.
 #if BUILDFLAG(IS_WIN)
   return base::FilePath::FromUTF8Unsafe(file_path_string);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   return base::FilePath(file_path_string);
 #endif
 }
@@ -354,15 +369,18 @@ bool CrackIsolatedFileSystemName(const std::string& filesystem_name,
   start_token = base::ToUpperASCII(start_token);
   std::string filesystem_name_upper = base::ToUpperASCII(filesystem_name);
   size_t pos = filesystem_name_upper.find(start_token);
-  if (pos == std::string::npos)
+  if (pos == std::string::npos) {
     return false;
-  if (pos == 0)
+  }
+  if (pos == 0) {
     return false;
+  }
 
   *filesystem_id =
       filesystem_name.substr(pos + start_token.length(), std::string::npos);
-  if (filesystem_id->empty())
+  if (filesystem_id->empty()) {
     return false;
+  }
 
   return true;
 }
@@ -379,13 +397,15 @@ std::string GetIsolatedFileSystemRootURIString(
     const std::string& optional_root_name) {
   std::string root =
       GetFileSystemRootURI(origin_url, kFileSystemTypeIsolated).spec();
-  if (base::FilePath::FromUTF8Unsafe(filesystem_id).ReferencesParent())
+  if (base::FilePath::FromUTF8Unsafe(filesystem_id).ReferencesParent()) {
     return std::string();
+  }
   root.append(base::EscapePath(filesystem_id));
   root.append("/");
   if (!optional_root_name.empty()) {
-    if (base::FilePath::FromUTF8Unsafe(optional_root_name).ReferencesParent())
+    if (base::FilePath::FromUTF8Unsafe(optional_root_name).ReferencesParent()) {
       return std::string();
+    }
     root.append(base::EscapePath(optional_root_name));
     root.append("/");
   }
@@ -396,8 +416,9 @@ std::string GetExternalFileSystemRootURIString(const GURL& origin_url,
                                                const std::string& mount_name) {
   std::string root =
       GetFileSystemRootURI(origin_url, kFileSystemTypeExternal).spec();
-  if (base::FilePath::FromUTF8Unsafe(mount_name).ReferencesParent())
+  if (base::FilePath::FromUTF8Unsafe(mount_name).ReferencesParent()) {
     return std::string();
+  }
   root.append(base::EscapePath(mount_name));
   root.append("/");
   return root;

@@ -45,8 +45,7 @@ SkColor GetExpectedColorForPoint(int x, int y) {
 class TestPaintingWindowDelegate : public aura::test::TestWindowDelegate {
  public:
   explicit TestPaintingWindowDelegate(const gfx::Size& window_size)
-      : window_size_(window_size) {
-  }
+      : window_size_(window_size) {}
 
   TestPaintingWindowDelegate(const TestPaintingWindowDelegate&) = delete;
   TestPaintingWindowDelegate& operator=(const TestPaintingWindowDelegate&) =
@@ -149,8 +148,8 @@ class SnapshotAuraTest : public testing::Test {
 
   gfx::Image GrabSnapshotForTestWindow() {
     gfx::Rect source_rect(test_window_->bounds().size());
-    aura::Window::ConvertRectToTarget(
-        test_window(), root_window(), &source_rect);
+    aura::Window::ConvertRectToTarget(test_window(), root_window(),
+                                      &source_rect);
 
     scoped_refptr<SnapshotHolder> holder(new SnapshotHolder);
     ui::GrabWindowSnapshot(
@@ -205,7 +204,7 @@ class SnapshotAuraTest : public testing::Test {
 #define MAYBE_FullScreenWindow FullScreenWindow
 #endif
 TEST_F(SnapshotAuraTest, MAYBE_FullScreenWindow) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   // TODO(crbug.com/40154923): Fix this test to run in < action_timeout()
   // on the Linux Debug & TSAN bots.
   const base::test::ScopedRunLoopTimeout increased_run_timeout(

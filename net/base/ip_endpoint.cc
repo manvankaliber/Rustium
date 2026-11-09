@@ -33,7 +33,7 @@
 #include <ws2bth.h>
 
 #include "net/base/winsock_util.h"  // For kBluetoothAddressSize
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 #include <net/if.h>
 #endif
 
@@ -106,15 +106,18 @@ base::Value IPEndPoint::ScopeIdToInterfaceNameValue(
 // static
 std::optional<IPEndPoint> IPEndPoint::FromValue(const base::Value& value) {
   const base::DictValue* dict = value.GetIfDict();
-  if (!dict)
+  if (!dict) {
     return std::nullopt;
+  }
 
   const base::Value* address_value = dict->Find(kValueAddressKey);
-  if (!address_value)
+  if (!address_value) {
     return std::nullopt;
+  }
   std::optional<IPAddress> address = IPAddress::FromValue(*address_value);
-  if (!address.has_value())
+  if (!address.has_value()) {
     return std::nullopt;
+  }
   // Expect IPAddress to only allow deserializing valid addresses.
   DCHECK(address.value().IsValid());
 
@@ -199,8 +202,9 @@ bool IPEndPoint::ToSockAddr(struct sockaddr* address,
 #endif
   switch (address_.size()) {
     case IPAddress::kIPv4AddressSize: {
-      if (*address_length < kSockaddrInSize)
+      if (*address_length < kSockaddrInSize) {
         return false;
+      }
       *address_length = kSockaddrInSize;
       struct sockaddr_in* addr = reinterpret_cast<struct sockaddr_in*>(address);
       // Zero out address struct.
@@ -211,8 +215,9 @@ bool IPEndPoint::ToSockAddr(struct sockaddr* address,
       break;
     }
     case IPAddress::kIPv6AddressSize: {
-      if (*address_length < kSockaddrIn6Size)
+      if (*address_length < kSockaddrIn6Size) {
         return false;
+      }
       *address_length = kSockaddrIn6Size;
       struct sockaddr_in6* addr6 =
           reinterpret_cast<struct sockaddr_in6*>(address);
@@ -237,8 +242,9 @@ bool IPEndPoint::FromSockAddr(const struct sockaddr* sock_addr,
   DCHECK(sock_addr);
   switch (sock_addr->sa_family) {
     case AF_INET: {
-      if (sock_addr_len < static_cast<socklen_t>(sizeof(struct sockaddr_in)))
+      if (sock_addr_len < static_cast<socklen_t>(sizeof(struct sockaddr_in))) {
         return false;
+      }
       const struct sockaddr_in* addr =
           reinterpret_cast<const struct sockaddr_in*>(sock_addr);
       *this = IPEndPoint(
@@ -248,8 +254,9 @@ bool IPEndPoint::FromSockAddr(const struct sockaddr* sock_addr,
       return true;
     }
     case AF_INET6: {
-      if (sock_addr_len < static_cast<socklen_t>(sizeof(struct sockaddr_in6)))
+      if (sock_addr_len < static_cast<socklen_t>(sizeof(struct sockaddr_in6))) {
         return false;
+      }
       const struct sockaddr_in6* addr =
           reinterpret_cast<const struct sockaddr_in6*>(sock_addr);
       *this = IPEndPoint(IPAddress(addr->sin6_addr.s6_addr),
@@ -261,8 +268,9 @@ bool IPEndPoint::FromSockAddr(const struct sockaddr* sock_addr,
     }
 #if BUILDFLAG(IS_WIN)
     case AF_BTH: {
-      if (sock_addr_len < static_cast<socklen_t>(sizeof(SOCKADDR_BTH)))
+      if (sock_addr_len < static_cast<socklen_t>(sizeof(SOCKADDR_BTH))) {
         return false;
+      }
       const SOCKADDR_BTH* addr =
           reinterpret_cast<const SOCKADDR_BTH*>(sock_addr);
       *this = IPEndPoint();

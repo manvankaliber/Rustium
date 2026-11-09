@@ -36,6 +36,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <mfcaptureengine.h>
+
 #include "base/win/scoped_com_initializer.h"
 #include "media/capture/video/win/video_capture_device_factory_win.h"
 #include "media/capture/video/win/video_capture_device_mf_win.h"
@@ -81,7 +82,7 @@
 
 #define MAYBE_UsingRealWebcam_CheckPhotoCallbackRelease \
   UsingRealWebcam_CheckPhotoCallbackRelease
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 // Windows test bots don't have camera.
 // Linux test bots don't have camera.
 // On Fuchsia the tests run under emulator that doesn't support camera.
@@ -229,9 +230,6 @@ constexpr auto kMainThreadType =
     // Video capture code on MacOSX must run on a CFRunLoop enabled thread
     // for interaction with AVFoundation.
     base::test::TaskEnvironment::MainThreadType::UI;
-#elif BUILDFLAG(IS_FUCHSIA)
-    // FIDL APIs on Fuchsia requires IO thread.
-    base::test::TaskEnvironment::MainThreadType::IO;
 #else
     base::test::TaskEnvironment::MainThreadType::DEFAULT;
 #endif
@@ -281,9 +279,7 @@ class VideoCaptureDeviceTest
 #endif
   }
 
-  void TearDown() override {
-    task_environment_.RunUntilIdle();
-  }
+  void TearDown() override { task_environment_.RunUntilIdle(); }
 
 #if BUILDFLAG(IS_WIN)
   bool UseWinMediaFoundation() {
@@ -334,8 +330,9 @@ class VideoCaptureDeviceTest
 
   void OnFrameCaptured(const VideoCaptureFormat& format) {
     last_format_ = format;
-    if (run_loop_)
+    if (run_loop_) {
       run_loop_->Quit();
+    }
   }
 
   void WaitForCapturedFrame() {
@@ -366,8 +363,9 @@ class VideoCaptureDeviceTest
 
   std::optional<VideoCaptureDeviceInfo> GetFirstDeviceSupportingPixelFormat(
       const VideoPixelFormat& pixel_format) {
-    if (!FindUsableDevice())
+    if (!FindUsableDevice()) {
       return std::nullopt;
+    }
 
     for (const auto& device : devices_info_) {
       for (const auto& format : device.supported_formats) {
@@ -495,8 +493,9 @@ void VideoCaptureDeviceTest::RunCaptureWithSizeTestCase() {
   ASSERT_TRUE(device_info);
 
   const gfx::Size& size = std::get<0>(GetParam());
-  if (!IsCaptureSizeSupported(*device_info, size))
+  if (!IsCaptureSizeSupported(*device_info, size)) {
     return;
+  }
   const int width = size.width();
   const int height = size.height();
 
@@ -517,8 +516,9 @@ void VideoCaptureDeviceTest::RunCaptureWithSizeTestCase() {
   WaitForCapturedFrame();
   EXPECT_EQ(last_format().frame_size.width(), width);
   EXPECT_EQ(last_format().frame_size.height(), height);
-  if (last_format().pixel_format != PIXEL_FORMAT_MJPEG)
+  if (last_format().pixel_format != PIXEL_FORMAT_MJPEG) {
     EXPECT_EQ(size.GetArea(), last_format().frame_size.GetArea());
+  }
   EXPECT_EQ(last_format().frame_rate, 30);
   device->StopAndDeAllocate();
 }
@@ -566,8 +566,9 @@ void VideoCaptureDeviceTest::RunAllocateBadSizeTestCase() {
   device->StopAndDeAllocate();
   EXPECT_EQ(last_format().frame_size.width(), input_size.width());
   EXPECT_EQ(last_format().frame_size.height(), input_size.height());
-  if (last_format().pixel_format != PIXEL_FORMAT_MJPEG)
+  if (last_format().pixel_format != PIXEL_FORMAT_MJPEG) {
     EXPECT_EQ(input_size.GetArea(), last_format().frame_size.GetArea());
+  }
 }
 
 // Cause hangs on Windows, Linux. Fails Android. https://crbug.com/417824
@@ -589,10 +590,11 @@ void VideoCaptureDeviceTest::RunReAllocateCameraTestCase() {
     ASSERT_TRUE(device_status.ok());
     std::unique_ptr<VideoCaptureDevice> device(device_status.ReleaseDevice());
     gfx::Size resolution;
-    if (i % 2)
+    if (i % 2) {
       resolution = gfx::Size(640, 480);
-    else
+    } else {
       resolution = gfx::Size(1280, 1024);
+    }
 
     VideoCaptureParams capture_params;
     capture_params.requested_format.frame_size = resolution;
@@ -697,8 +699,9 @@ void VideoCaptureDeviceTest::RunTakePhotoTestCase() {
   const auto device_info = FindUsableDevice();
   ASSERT_TRUE(device_info);
 
-  if (device_info->supported_formats.empty())
+  if (device_info->supported_formats.empty()) {
     return;
+  }
   const gfx::Size frame_size =
       device_info->supported_formats.front().frame_size;
 
@@ -744,8 +747,9 @@ void VideoCaptureDeviceTest::RunGetPhotoStateTestCase() {
   const auto device_info = FindUsableDevice();
   ASSERT_TRUE(device_info);
 
-  if (device_info->supported_formats.empty())
+  if (device_info->supported_formats.empty()) {
     return;
+  }
   const gfx::Size frame_size =
       device_info->supported_formats.front().frame_size;
 
@@ -789,8 +793,9 @@ void VideoCaptureDeviceTest::RunGetPhotoStateTestCase() {
 // Verifies that the photo callback is correctly released by MediaFoundation
 WRAPPED_TEST_P(VideoCaptureDeviceTest,
                MAYBE_UsingRealWebcam_CheckPhotoCallbackRelease) {
-  if (!UseWinMediaFoundation())
+  if (!UseWinMediaFoundation()) {
     return;
+  }
 
   auto device_info = GetFirstDeviceSupportingPixelFormat(PIXEL_FORMAT_MJPEG);
   ASSERT_TRUE(device_info);

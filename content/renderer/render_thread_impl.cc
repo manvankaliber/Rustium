@@ -218,11 +218,6 @@
 #include "media/mojo/mojom/interface_factory.mojom.h"
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "media/mojo/clients/mojo_codec_factory_fuchsia.h"
-#include "media/mojo/mojom/fuchsia_media.mojom.h"
-#endif
-
 #if BUILDFLAG(CLANG_PROFILING_INSIDE_SANDBOX)
 #include "base/test/clang_profiling.h"
 #endif
@@ -334,10 +329,11 @@ void RenderThreadImpl::HistogramCustomizer::RenderViewNavigatedToHost(
   // many, check if this one shares the common host of the other
   // RenderViews. It's ok to not detect some cases where the RenderViews share a
   // common host. This information is only used for producing custom histograms.
-  if (view_count == 1)
+  if (view_count == 1) {
     SetCommonHost(host);
-  else if (host != common_host_)
+  } else if (host != common_host_) {
     SetCommonHost(std::string());
+  }
 }
 
 std::string RenderThreadImpl::HistogramCustomizer::ConvertToCustomHistogramName(
@@ -360,20 +356,27 @@ void RenderThreadImpl::HistogramCustomizer::SetCommonHost(
 
 std::string RenderThreadImpl::HistogramCustomizer::HostToCustomHistogramSuffix(
     const std::string& host) {
-  if (host == "mail.google.com")
+  if (host == "mail.google.com") {
     return ".gmail";
-  if (host == "docs.google.com" || host == "drive.google.com")
+  }
+  if (host == "docs.google.com" || host == "drive.google.com") {
     return ".docs";
-  if (host == "plus.google.com")
+  }
+  if (host == "plus.google.com") {
     return ".plus";
-  if (host == "inbox.google.com")
+  }
+  if (host == "inbox.google.com") {
     return ".inbox";
-  if (host == "calendar.google.com")
+  }
+  if (host == "calendar.google.com") {
     return ".calendar";
-  if (host == "www.youtube.com")
+  }
+  if (host == "www.youtube.com") {
     return ".youtube";
-  if (IsAlexaTop10NonGoogleSite(host))
+  }
+  if (IsAlexaTop10NonGoogleSite(host)) {
     return ".top10";
+  }
 
   return std::string();
 }
@@ -382,25 +385,32 @@ bool RenderThreadImpl::HistogramCustomizer::IsAlexaTop10NonGoogleSite(
     const std::string& host) {
   // The Top10 sites have different TLD and/or subdomains depending on the
   // localization.
-  if (host == "sina.com.cn")
+  if (host == "sina.com.cn") {
     return true;
+  }
 
   std::string sanitized_host =
       net::registry_controlled_domains::GetDomainAndRegistry(
           host, net::registry_controlled_domains::INCLUDE_PRIVATE_REGISTRIES);
 
-  if (sanitized_host == "facebook.com")
+  if (sanitized_host == "facebook.com") {
     return true;
-  if (sanitized_host == "baidu.com")
+  }
+  if (sanitized_host == "baidu.com") {
     return true;
-  if (sanitized_host == "qq.com")
+  }
+  if (sanitized_host == "qq.com") {
     return true;
-  if (sanitized_host == "twitter.com")
+  }
+  if (sanitized_host == "twitter.com") {
     return true;
-  if (sanitized_host == "taobao.com")
+  }
+  if (sanitized_host == "taobao.com") {
     return true;
-  if (sanitized_host == "live.com")
+  }
+  if (sanitized_host == "live.com") {
     return true;
+  }
 
   if (!sanitized_host.empty()) {
     std::vector<std::string_view> host_tokens = base::SplitStringPiece(
@@ -576,7 +586,6 @@ void RenderThreadImpl::Init() {
       base::BindRepeating(&RenderThreadImpl::OnRendererInterfaceReceiver,
                           base::Unretained(this)));
 
-
 #if defined(ENABLE_IPC_FUZZER)
   if (command_line.HasSwitch(switches::kIpcDumpDirectory)) {
     base::FilePath dump_directory =
@@ -612,8 +621,9 @@ void RenderThreadImpl::Init() {
 #endif
   }
 
-  if (command_line.HasSwitch(switches::kDisableGpuCompositing))
+  if (command_line.HasSwitch(switches::kDisableGpuCompositing)) {
     is_gpu_compositing_disabled_ = true;
+  }
 
   // Note that under Linux, the media library will normally already have
   // been initialized by the Zygote before this instance became a Renderer.
@@ -689,8 +699,9 @@ void RenderThreadImpl::Shutdown() {
 
   // In a single-process mode, we cannot call _exit(0) in Shutdown() because
   // it will exit the process before the browser side is ready to exit.
-  if (!IsSingleProcess())
+  if (!IsSingleProcess()) {
     base::Process::TerminateCurrentProcessImmediately(0);
+  }
 }
 
 bool RenderThreadImpl::ShouldBeDestroyed() {
@@ -818,8 +829,9 @@ void RenderThreadImpl::InitializeWebKit(mojo::BinderMap* binders) {
       *base::CommandLine::ForCurrentProcess();
 
 #ifdef ENABLE_VTUNE_JIT_INTERFACE
-  if (command_line.HasSwitch(switches::kEnableVtune))
+  if (command_line.HasSwitch(switches::kEnableVtune)) {
     gin::Debug::SetJitCodeEventHandler(vTune::GetVtuneCodeEventHandler());
+  }
 #endif
 
   blink_platform_impl_ = std::make_unique<RendererBlinkPlatformImpl>(
@@ -840,8 +852,9 @@ void RenderThreadImpl::InitializeWebKit(mojo::BinderMap* binders) {
   blink::Initialize(blink_platform_impl_.get(), binders,
                     main_thread_scheduler_.get());
 
-  if (!command_line.HasSwitch(switches::kDisableThreadedCompositing))
+  if (!command_line.HasSwitch(switches::kDisableThreadedCompositing)) {
     InitializeCompositorThread();
+  }
 
   RenderThreadImpl::RegisterSchemes();
 
@@ -967,8 +980,9 @@ media::GpuVideoAcceleratorFactories* RenderThreadImpl::GetGpuFactories() {
   DCHECK(IsMainThread());
 
   if (!gpu_factories_.empty()) {
-    if (!gpu_factories_.back()->CheckContextProviderLostOnMainThread())
+    if (!gpu_factories_.back()->CheckContextProviderLostOnMainThread()) {
       return gpu_factories_.back().get();
+    }
 
     GetMediaSequencedTaskRunner()->PostTask(
         FROM_HERE,
@@ -980,13 +994,15 @@ media::GpuVideoAcceleratorFactories* RenderThreadImpl::GetGpuFactories() {
 
   scoped_refptr<gpu::GpuChannelHost> gpu_channel_host =
       EstablishGpuChannelSync();
-  if (!gpu_channel_host)
+  if (!gpu_channel_host) {
     return nullptr;
+  }
   // Currently, VideoResourceUpdater can't convert hardware resources to
   // software resources in software compositing mode.  So, fall back to software
   // video decoding if gpu compositing is off.
-  if (is_gpu_compositing_disabled_)
+  if (is_gpu_compositing_disabled_) {
     return nullptr;
+  }
 
   auto media_context_provider =
       viz::ContextProviderCommandBuffer::CreateForRaster(
@@ -1107,8 +1123,9 @@ RenderThreadImpl::SharedMainThreadContextProvider() {
   DCHECK(IsMainThread());
   if (shared_main_thread_contexts_ &&
       shared_main_thread_contexts_->RasterInterface()
-              ->GetGraphicsResetStatusKHR() == GL_NO_ERROR)
+              ->GetGraphicsResetStatusKHR() == GL_NO_ERROR) {
     return shared_main_thread_contexts_;
+  }
 
   if (is_context_result_fatal_) {
     return nullptr;
@@ -1200,8 +1217,9 @@ void RenderThreadImpl::WriteIntoTrace(
 void RenderThreadImpl::OnAssociatedInterfaceRequest(
     const std::string& name,
     mojo::ScopedInterfaceEndpointHandle handle) {
-  if (!associated_interfaces_.TryBindInterface(name, &handle))
+  if (!associated_interfaces_.TryBindInterface(name, &handle)) {
     ChildThreadImpl::OnAssociatedInterfaceRequest(name, std::move(handle));
+  }
 }
 
 bool RenderThreadImpl::IsLcdTextEnabled() {
@@ -1448,8 +1466,9 @@ void RenderThreadImpl::OnNetworkConnectionChanged(
   WebNetworkStateNotifier::SetOnLine(online_status);
   WebNetworkStateNotifier::SetWebConnection(
       NetConnectionTypeToWebConnectionType(type), max_bandwidth_mbps);
-  if (url_loader_throttle_provider_)
+  if (url_loader_throttle_provider_) {
     url_loader_throttle_provider_->SetOnline(online_status);
+  }
 }
 
 void RenderThreadImpl::OnNetworkQualityChanged(
@@ -1519,8 +1538,9 @@ void RenderThreadImpl::PurgePluginListCache() {
 #if BUILDFLAG(ENABLE_PLUGINS)
   blink::ResetPluginCache();
 
-  for (auto& observer : observers_)
+  for (auto& observer : observers_) {
     observer.PluginListChanged();
+  }
 #else
   NOTREACHED();
 #endif
@@ -1546,19 +1566,11 @@ RenderThreadImpl::GetMediaSequencedTaskRunner() {
   }
   if (!media_thread_) {
     media_thread_ = std::make_unique<base::Thread>("Media");
-#if BUILDFLAG(IS_FUCHSIA)
-    // Start IO thread on Fuchsia to make that thread usable for FIDL.
-    base::Thread::Options options(base::MessagePumpType::IO, 0);
-    // TODO(crbug.com/40250424): Use kDisplayCritical to address media latency
-    // on Fuchsia until alignment on new media thread types is achieved.
-    options.thread_type = base::ThreadType::kPresentation;
-#else
     base::Thread::Options options;
     if (base::FeatureList::IsEnabled(
             blink::features::kWebRtcUseMediaThreadTypes)) {
       options.thread_type = base::ThreadType::kPresentation;
     }
-#endif
     media_thread_->StartWithOptions(std::move(options));
   }
   return media_thread_->task_runner();
@@ -1573,8 +1585,9 @@ RenderThreadImpl::SharedCompositorWorkerContextProvider(
     // Note: If context is lost, delete reference after releasing the lock.
     viz::RasterContextProvider::ScopedRasterContextLock lock(
         shared_worker_context_provider_.get());
-    if (lock.RasterInterface()->GetGraphicsResetStatusKHR() == GL_NO_ERROR)
+    if (lock.RasterInterface()->GetGraphicsResetStatusKHR() == GL_NO_ERROR) {
       return shared_worker_context_provider_;
+    }
   }
 
   scoped_refptr<gpu::GpuChannelHost> gpu_channel_host(
@@ -1742,8 +1755,9 @@ void RenderThreadImpl::SetRenderingColorSpace(
   rendering_color_space_ = color_space;
 
   for (const auto& factories : gpu_factories_) {
-    if (factories)
+    if (factories) {
       factories->SetRenderingColorSpace(color_space);
+    }
   }
 }
 
@@ -1778,14 +1792,6 @@ RenderThreadImpl::CreateMediaMojoCodecFactory(
       GetMediaSequencedTaskRunner(), context_provider,
       enable_video_decode_accelerator, enable_video_encode_accelerator,
       std::move(vea_provider), std::move(interface_factory));
-#elif BUILDFLAG(IS_FUCHSIA)
-  mojo::PendingRemote<media::mojom::FuchsiaMediaCodecProvider>
-      media_codec_provider;
-  BindHostReceiver(media_codec_provider.InitWithNewPipeAndPassReceiver());
-  return std::make_unique<media::MojoCodecFactoryFuchsia>(
-      GetMediaSequencedTaskRunner(), context_provider,
-      enable_video_decode_accelerator, enable_video_encode_accelerator,
-      std::move(vea_provider), std::move(media_codec_provider));
 #else
   return std::make_unique<media::MojoCodecFactoryDefault>(
       GetMediaSequencedTaskRunner(), context_provider,

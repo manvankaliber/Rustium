@@ -138,14 +138,6 @@ gn_args["android"] = [
     'optimize_for_fuzzing=true',
     'use_libfuzzer=true',
 ]
-gn_args["fuchsia"] = [
-    'target_os="fuchsia"',
-    'use_remoteexec=true',
-    'dcheck_always_on=true',
-    'is_asan=true',
-    'optimize_for_fuzzing=true',
-    'use_libfuzzer=true',
-]
 gn_args["chromeos"] = [
     'target_os="chromeos"',
     'use_remoteexec=true',

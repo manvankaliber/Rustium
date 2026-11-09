@@ -138,7 +138,7 @@ const base::Feature* const kAllFeatures[] = {
     &kIPHThreeDotMenuBackButton,
     &kIPHTouchToSearchCalloutFeature,
     &kIPHTranslateMenuButtonFeature,
-    // keep-sorted end
+// keep-sorted end
 // ALL_FEATURES_ANDROID_END
 #else
     // keep-sorted start case=no
@@ -251,7 +251,7 @@ const base::Feature* const kAllFeatures[] = {
 #endif  // BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+    BUILDFLAG(IS_CHROMEOS)
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
     &kEsbDownloadRowPromoFeature,
 #endif
@@ -359,7 +359,7 @@ const base::Feature* const kAllFeatures[] = {
         // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
     // keep-sorted start case=no
     &kIPH_AutofillAmbientAutofillSpiiDisclaimer,
     &kIPHAutofillAccountNameEmailSuggestionFeature,

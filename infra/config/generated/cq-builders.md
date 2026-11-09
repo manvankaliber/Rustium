@@ -45,10 +45,6 @@ These builders must pass before a CL may land that affects files outside of
 
 * [compile-size](https://ci.chromium.org/p/chromium/builders/try/compile-size) ([definition](https://cs.chromium.org/search?q=+file:/try/.*\.star$+""compile-size""))
 
-* [fuchsia-binary-size](https://ci.chromium.org/p/chromium/builders/try/fuchsia-binary-size) ([definition](https://cs.chromium.org/search?q=+file:/try/.*\.star$+""fuchsia-binary-size""))
-
-* [fuchsia-x64-cast-receiver-rel](https://ci.chromium.org/p/chromium/builders/try/fuchsia-x64-cast-receiver-rel) ([definition](https://cs.chromium.org/search?q=+file:/try/.*\.star$+""fuchsia-x64-cast-receiver-rel""))
-
 * [ios-simulator](https://ci.chromium.org/p/chromium/builders/try/ios-simulator) ([definition](https://cs.chromium.org/search?q=+file:/try/.*\.star$+""ios-simulator""))
 
 * [linux-chromeos-compile-dbg](https://ci.chromium.org/p/chromium/builders/try/linux-chromeos-compile-dbg) ([definition](https://cs.chromium.org/search?q=+file:/try/.*\.star$+""linux-chromeos-compile-dbg""))
@@ -502,31 +498,6 @@ builder.
   * [`//third_party/webgpu-cts/.+`](https://cs.chromium.org/chromium/src/third_party/webgpu-cts/)
   * [`//tools/clang/scripts/update.py`](https://cs.chromium.org/search?q=+file:tools/clang/scripts/update.py)
   * [`//ui/gl/features.gni`](https://cs.chromium.org/search?q=+file:ui/gl/features.gni)
-
-* [fuchsia-arm64-cast-receiver-rel](https://ci.chromium.org/p/chromium/builders/try/fuchsia-arm64-cast-receiver-rel) ([definition](https://cs.chromium.org/search?q=+file:/try/.*\.star$+""fuchsia-arm64-cast-receiver-rel""))
-
-  Location filters:
-  * [`//chromecast/.+`](https://cs.chromium.org/chromium/src/chromecast/)
-  * [`//build/fuchsia/sdk_override.txt`](https://cs.chromium.org/search?q=+file:build/fuchsia/sdk_override.txt)
-
-* [fuchsia-x64-accessibility-rel](https://ci.chromium.org/p/chromium/builders/try/fuchsia-x64-accessibility-rel) ([definition](https://cs.chromium.org/search?q=+file:/try/.*\.star$+""fuchsia-x64-accessibility-rel""))
-
-  Location filters:
-  * [`//third_party/blink/renderer/modules/accessibility/.+`](https://cs.chromium.org/chromium/src/third_party/blink/renderer/modules/accessibility/)
-  * [`//content/renderer/accessibility/.+`](https://cs.chromium.org/chromium/src/content/renderer/accessibility/)
-  * [`//content/browser/accessibility/.+`](https://cs.chromium.org/chromium/src/content/browser/accessibility/)
-  * [`//ui/accessibility/.+`](https://cs.chromium.org/chromium/src/ui/accessibility/)
-
-* [fuchsia-x64-cast-receiver-dbg](https://ci.chromium.org/p/chromium/builders/try/fuchsia-x64-cast-receiver-dbg) ([definition](https://cs.chromium.org/search?q=+file:/try/.*\.star$+""fuchsia-x64-cast-receiver-dbg""))
-
-  Location filters:
-  * [`//chromecast/.+`](https://cs.chromium.org/chromium/src/chromecast/)
-
-* [fuchsia-x64-cast-receiver-dbg-compile](https://ci.chromium.org/p/chromium/builders/try/fuchsia-x64-cast-receiver-dbg-compile) ([definition](https://cs.chromium.org/search?q=+file:/try/.*\.star$+""fuchsia-x64-cast-receiver-dbg-compile""))
-
-  Location filters:
-  * [`//.*fuchsia.+`](https://cs.chromium.org/search?q=+file:.*fuchsia)
-  * exclude: [`//.*\.md`](https://cs.chromium.org/search?q=+file:.*\.md)
 
 * [gn-args-verifier](https://ci.chromium.org/p/chromium/builders/try/gn-args-verifier) ([definition](https://cs.chromium.org/search?q=+file:/try/.*\.star$+""gn-args-verifier""))
 

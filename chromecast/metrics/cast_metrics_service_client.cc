@@ -53,7 +53,7 @@ const char kMetricsOldClientID[] = "user_experience_metrics.client_id";
 const char kClientIdName[] = "Client ID";
 #endif  // BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID)
 
 const struct ChannelMap {
   const char* chromecast_channel;
@@ -69,18 +69,20 @@ const struct ChannelMap {
 
 ::metrics::SystemProfileProto::Channel GetReleaseChannelFromUpdateChannelName(
     const std::string& channel_name) {
-  if (channel_name.empty())
+  if (channel_name.empty()) {
     return ::metrics::SystemProfileProto::CHANNEL_UNKNOWN;
+  }
 
   for (const auto& channel_map : kMetricsChannelMap) {
-    if (channel_name.compare(channel_map.chromecast_channel) == 0)
+    if (channel_name.compare(channel_map.chromecast_channel) == 0) {
       return channel_map.chrome_channel;
+    }
   }
 
   // Any non-empty channel name is considered beta channel
   return ::metrics::SystemProfileProto::CHANNEL_BETA;
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
 }  // namespace
 
@@ -101,8 +103,9 @@ void CastMetricsServiceClient::SetMetricsClientId(
     const std::string& client_id) {
   client_id_ = client_id;
   LOG(INFO) << "Metrics client ID set: " << client_id;
-  if (delegate_)
+  if (delegate_) {
     delegate_->SetMetricsClientId(client_id);
+  }
 #if BUILDFLAG(IS_ANDROID)
   DumpstateWriter::AddDumpValue(kClientIdName, client_id);
 #endif
@@ -171,7 +174,7 @@ bool CastMetricsServiceClient::GetBrand(std::string* brand_code) {
 }
 
 ::metrics::SystemProfileProto::Channel CastMetricsServiceClient::GetChannel() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_ANDROID)
   switch (cast_sys_info_->GetBuildType()) {
     case CastSysInfo::BUILD_ENG:
       return ::metrics::SystemProfileProto::CHANNEL_UNKNOWN;
@@ -187,7 +190,7 @@ bool CastMetricsServiceClient::GetBrand(std::string* brand_code) {
   // arbitrary.
   return GetReleaseChannelFromUpdateChannelName(
       cast_sys_info_->GetSystemReleaseChannel());
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+#endif
 }
 
 bool CastMetricsServiceClient::IsExtendedStableChannel() {
@@ -196,8 +199,9 @@ bool CastMetricsServiceClient::IsExtendedStableChannel() {
 
 std::string CastMetricsServiceClient::GetVersionString() {
   int build_number;
-  if (!base::StringToInt(CAST_BUILD_INCREMENTAL, &build_number))
+  if (!base::StringToInt(CAST_BUILD_INCREMENTAL, &build_number)) {
     build_number = 0;
+  }
 
   // Sample result: 31.0.1650.0-K15386-devel
   std::string version_string(PRODUCT_VERSION);
@@ -211,18 +215,20 @@ std::string CastMetricsServiceClient::GetVersionString() {
   const bool is_official_build =
       build_number > 0 && !CAST_IS_DEBUG_BUILD() &&
       channel != ::metrics::SystemProfileProto::CHANNEL_UNKNOWN;
-  if (!is_official_build)
+  if (!is_official_build) {
     version_string.append("-devel");
+  }
 
   return version_string;
 }
 
 void CastMetricsServiceClient::CollectFinalMetricsForLog(
     base::OnceClosure done_callback) {
-  if (collect_final_metrics_cb_)
+  if (collect_final_metrics_cb_) {
     collect_final_metrics_cb_.Run(std::move(done_callback));
-  else
+  } else {
     std::move(done_callback).Run();
+  }
 }
 
 void CastMetricsServiceClient::SetCallbacks(
@@ -262,8 +268,9 @@ base::TimeDelta CastMetricsServiceClient::GetStandardUploadInterval() {
 ::metrics::MetricsLogStore::StorageLimits
 CastMetricsServiceClient::GetStorageLimits() const {
   auto limits = ::metrics::MetricsServiceClient::GetStorageLimits();
-  if (delegate_)
+  if (delegate_) {
     delegate_->ApplyMetricsStorageLimits(&limits);
+  }
   return limits;
 }
 
@@ -385,8 +392,9 @@ void CastMetricsServiceClient::InitializeMetricsService() {
 }
 
 void CastMetricsServiceClient::StartMetricsService() {
-  if (delegate_)
+  if (delegate_) {
     delegate_->RegisterMetricsProviders(metrics_service_.get());
+  }
 
   metrics_service_->InitializeMetricsRecordingState();
 #if !BUILDFLAG(IS_ANDROID)
@@ -404,10 +412,11 @@ void CastMetricsServiceClient::Finalize() {
 }
 
 void CastMetricsServiceClient::ProcessExternalEvents(base::OnceClosure cb) {
-  if (external_events_cb_)
+  if (external_events_cb_) {
     external_events_cb_.Run(std::move(cb));
-  else
+  } else {
     std::move(cb).Run();
+  }
 }
 
 }  // namespace metrics

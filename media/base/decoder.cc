@@ -41,8 +41,6 @@ const char* GetDecoderName(VideoDecoderType type) {
       return "Dav1dVideoDecoder";
     case VideoDecoderType::kDav2d:
       return "Dav2dVideoDecoder";
-    case VideoDecoderType::kFuchsia:
-      return "FuchsiaVideoDecoder";
     case VideoDecoderType::kMediaCodec:
       return "MediaCodecVideoDecoder";
     case VideoDecoderType::kD3D11:

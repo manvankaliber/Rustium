@@ -40,11 +40,7 @@ void ReadFileRunCallback(CastAudioJsonProvider::TuningChangedCallback callback,
 
 }  // namespace
 
-#if BUILDFLAG(IS_FUCHSIA)
-const char kCastAudioJsonFilePath[] = "/system/data/cast_audio.json";
-#else
 const char kCastAudioJsonFilePath[] = "/etc/cast_audio.json";
-#endif
 const char kCastAudioJsonFileName[] = "cast_audio.json";
 
 // static

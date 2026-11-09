@@ -31,11 +31,7 @@ struct NetworkInterface;
 class SystemDnsConfigChangeNotifier;
 typedef std::vector<NetworkInterface> NetworkInterfaceList;
 
-namespace internal {
-#if BUILDFLAG(IS_FUCHSIA)
-class NetworkInterfaceCache;
-#endif
-}  // namespace internal
+namespace internal {}  // namespace internal
 
 // NetworkChangeNotifier monitors the system for network changes, and notifies
 // registered observers of those events.  Observers may register on any thread,
@@ -504,11 +500,6 @@ class NET_EXPORT NetworkChangeNotifier {
   static AddressMapOwnerLinux* GetAddressMapOwner();
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // Returns the NetworkInterfaceCache if present.
-  static const internal::NetworkInterfaceCache* GetNetworkInterfaceCache();
-#endif
-
   // Convenience method to determine if the user is offline.
   // Returns true if there is currently no internet connection.
   //
@@ -690,11 +681,6 @@ class NET_EXPORT NetworkChangeNotifier {
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   // Returns the AddressMapOwnerLinux if present.
   virtual AddressMapOwnerLinux* GetAddressMapOwnerInternal();
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-  virtual const internal::NetworkInterfaceCache*
-  GetNetworkInterfaceCacheInternal() const;
 #endif
 
   // These are the actual implementations of the static queryable APIs.

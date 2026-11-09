@@ -30,12 +30,7 @@
 #include "util/misc/from_pointer_cast.h"
 #include "util/process/process_memory_native.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/process.h>
-
-#include "base/fuchsia/fuchsia_logging.h"
-
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
 
 #include "test/linux/fake_ptrace_connection.h"
 #include "util/linux/auxiliary_vector.h"
@@ -45,7 +40,7 @@
 
 #error Port.
 
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
 
 extern "C" {
 __attribute__((visibility("default"))) void ElfImageReaderTestExportedSymbol() {
@@ -56,34 +51,7 @@ namespace crashpad {
 namespace test {
 namespace {
 
-#if BUILDFLAG(IS_FUCHSIA)
-
-void LocateExecutable(const ProcessType& process,
-                      ProcessMemory* memory,
-                      VMAddress* elf_address) {
-  uintptr_t debug_address;
-  zx_status_t status = process->get_property(
-      ZX_PROP_PROCESS_DEBUG_ADDR, &debug_address, sizeof(debug_address));
-  ASSERT_EQ(status, ZX_OK)
-      << "zx_object_get_property: ZX_PROP_PROCESS_DEBUG_ADDR";
-  // Can be 0 if requested before the loader has loaded anything.
-  EXPECT_NE(debug_address, 0u);
-
-  constexpr auto k_r_debug_map_offset = offsetof(r_debug, r_map);
-  uintptr_t map;
-  ASSERT_TRUE(
-      memory->Read(debug_address + k_r_debug_map_offset, sizeof(map), &map))
-      << "read link_map";
-
-  constexpr auto k_link_map_addr_offset = offsetof(link_map, l_addr);
-  uintptr_t base;
-  ASSERT_TRUE(memory->Read(map + k_link_map_addr_offset, sizeof(base), &base))
-      << "read base";
-
-  *elf_address = base;
-}
-
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
 
 void LocateExecutable(PtraceConnection* connection,
                       ProcessMemory* memory,
@@ -103,7 +71,7 @@ void LocateExecutable(PtraceConnection* connection,
   *elf_address = possible_mappings->Next()->range.Base();
 }
 
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
 
 void ExpectSymbol(ElfImageReader* reader,
                   const std::string& symbol_name,
@@ -132,10 +100,6 @@ void ReadThisExecutableInTarget(ProcessType process,
   ASSERT_TRUE(connection.Initialize(process));
   ProcessMemoryLinux memory(&connection);
   LocateExecutable(&connection, &memory, &elf_address);
-#elif BUILDFLAG(IS_FUCHSIA)
-  ProcessMemoryFuchsia memory;
-  ASSERT_TRUE(memory.Initialize(process));
-  LocateExecutable(process, &memory, &elf_address);
 #endif
   ASSERT_NO_FATAL_FAILURE();
 
@@ -253,8 +217,8 @@ TEST(ElfImageReader, MainExecutableChild) {
 
 TEST(ElfImageReader, OneModuleSelf) {
   Dl_info info;
-  ASSERT_TRUE(dladdr(reinterpret_cast<void*>(getpid), &info)) << "dladdr:"
-                                                              << dlerror();
+  ASSERT_TRUE(dladdr(reinterpret_cast<void*>(getpid), &info))
+      << "dladdr:" << dlerror();
   VMAddress elf_address = FromPointerCast<VMAddress>(info.dli_fbase);
   ReadLibcInTarget(
       GetSelfProcess(), elf_address, FromPointerCast<VMAddress>(getpid));
@@ -300,63 +264,6 @@ TEST(ElfImageReader, OneModuleChild) {
   test.SetChildTestMainFunction("ReadLibcChild");
   test.Run();
 }
-
-#if BUILDFLAG(IS_FUCHSIA)
-
-// crashpad_snapshot_test_both_dt_hash_styles is specially built and forced to
-// include both .hash and .gnu.hash sections. Linux, Android, and Fuchsia have
-// different defaults for which of these sections should be included; this test
-// confirms that we get the same count from both sections.
-//
-// TODO(scottmg): Investigation in https://crrev.com/c/876879 resulted in
-// realizing that ld.bfd does not emit a .gnu.hash that is very useful for this
-// purpose when there's 0 exported entries in the module. This is not likely to
-// be too important, as there's little need to look up non-exported symbols.
-// However, it makes this test not work on Linux, where the default build uses
-// ld.bfd. On Fuchsia, the only linker in use is lld, and it generates the
-// expected .gnu.hash. So, for now, this test is only run on Fuchsia, not Linux.
-//
-// TODO(scottmg): Separately, the location of the ELF on Android needs some
-// work, and then the test could also be enabled there.
-TEST(ElfImageReader, DtHashAndDtGnuHashMatch) {
-  base::FilePath module_path =
-      TestPaths::BuildArtifact(FILE_PATH_LITERAL("snapshot"),
-                               FILE_PATH_LITERAL("both_dt_hash_styles"),
-                               TestPaths::FileType::kLoadableModule);
-  // TODO(scottmg): Remove this when upstream Fuchsia bug ZX-1619 is resolved.
-  // See also explanation in build/run_tests.py for Fuchsia .so files.
-  module_path = module_path.BaseName();
-  ScopedModuleHandle module(
-      dlopen(module_path.value().c_str(), RTLD_LAZY | RTLD_LOCAL));
-  ASSERT_TRUE(module.valid()) << "dlopen " << module_path.value() << ": "
-                              << dlerror();
-
-#if defined(ARCH_CPU_64_BITS)
-  constexpr bool am_64_bit = true;
-#else
-  constexpr bool am_64_bit = false;
-#endif  // ARCH_CPU_64_BITS
-
-  ProcessMemoryNative memory;
-  ASSERT_TRUE(memory.Initialize(GetSelfProcess()));
-  ProcessMemoryRange range;
-  ASSERT_TRUE(range.Initialize(&memory, am_64_bit));
-
-  struct link_map* lm = reinterpret_cast<struct link_map*>(module.get());
-
-  ElfImageReader reader;
-  ASSERT_TRUE(reader.Initialize(range, lm->l_addr));
-
-  VMSize from_dt_hash;
-  ASSERT_TRUE(reader.GetNumberOfSymbolEntriesFromDtHash(&from_dt_hash));
-
-  VMSize from_dt_gnu_hash;
-  ASSERT_TRUE(reader.GetNumberOfSymbolEntriesFromDtGnuHash(&from_dt_gnu_hash));
-
-  EXPECT_EQ(from_dt_hash, from_dt_gnu_hash);
-}
-
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 }  // namespace
 }  // namespace test

@@ -13,10 +13,6 @@
 #include "chromecast/chromecast_buildflags.h"
 #include "third_party/widevine/cdm/buildflags.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "base/fuchsia/file_utils.h"
-#endif
-
 #if BUILDFLAG(BUNDLE_WIDEVINE_CDM)
 #include "third_party/widevine/cdm/widevine_cdm_common.h"  // nogncheck
 #endif
@@ -26,12 +22,7 @@ namespace chromecast {
 bool PathProvider(int key, base::FilePath* result) {
   switch (key) {
     case DIR_CAST_HOME: {
-#if BUILDFLAG(IS_FUCHSIA)
-      // On Fuchsia, use the component's local /data directory.
-      base::FilePath home(base::kPersistedDataDirectoryPath);
-#else
       base::FilePath home = base::GetHomeDir();
-#endif
 #if BUILDFLAG(IS_CAST_DESKTOP_BUILD)
       // When running a development instance as a regular user, use
       // a data directory under $HOME (similar to Chrome).

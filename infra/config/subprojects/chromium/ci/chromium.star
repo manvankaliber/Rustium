@@ -46,12 +46,11 @@ consoles.console_view(
     branch_selector = [
         branches.selector.ANDROID_BRANCHES,
         branches.selector.DESKTOP_BRANCHES,
-        branches.selector.FUCHSIA_BRANCHES,
+
     ],
     ordering = {
         "*type*": consoles.ordering(short_names = ["dbg", "rel", "off"]),
         "android": "*type*",
-        "fuchsia": "*type*",
         "linux": "*type*",
         "mac": "*type*",
         "win": "*type*",

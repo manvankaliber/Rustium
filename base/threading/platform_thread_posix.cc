@@ -30,7 +30,7 @@
 #include "build/build_config.h"
 #include "partition_alloc/buildflags.h"
 
-#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_APPLE)
 #include "base/posix/can_lower_nice_to.h"
 #endif
 
@@ -40,13 +40,7 @@
 #include <atomic>
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/thread.h>
-
-#include "base/fuchsia/koid.h"
-#else
 #include <sys/resource.h>
-#endif
 
 #if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
 #include "partition_alloc/stack/stack.h"  // nogncheck
@@ -262,10 +256,6 @@ PlatformThreadId PlatformThreadBase::CurrentId() {
   // - gettid() is fast, since its return value is cached in pthread (in the
   //   thread control block of pthread). See gettid.c in bionic.
   return PlatformThreadId(gettid());
-#elif BUILDFLAG(IS_FUCHSIA)
-  thread_local static zx_koid_t id =
-      GetKoid(*zx::thread::self()).value_or(ZX_KOID_INVALID);
-  return PlatformThreadId(id);
 #elif BUILDFLAG(IS_SOLARIS) || BUILDFLAG(IS_QNX)
   return PlatformThreadId(pthread_self());
 
@@ -360,7 +350,7 @@ void PlatformThreadBase::Detach(PlatformThreadHandle thread_handle) {
 
 // Mac and Fuchsia have their own SetCurrentThreadType() and
 // GetCurrentThreadPriorityForTest() implementations.
-#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_APPLE)
 
 // static
 bool PlatformThreadBase::CanChangeThreadType(ThreadType from, ThreadType to) {
@@ -389,7 +379,7 @@ ThreadType PlatformThreadBase::GetCurrentEffectiveThreadTypeForTest() {
   return internal::NiceValueToThreadTypeForTest(nice_value);  // IN-TEST
 }
 
-#endif  // !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
 // static
 size_t PlatformThreadBase::GetDefaultThreadStackSize() {

@@ -86,9 +86,7 @@ mod os {
 
     /// Check if the OS supports atomic close-on-exec for sockets
     pub fn socket_atomic_cloexec() -> bool {
-        kernel_version()
-            .map(|version| version >= VERS_2_6_27)
-            .unwrap_or(false)
+        kernel_version().map(|version| version >= VERS_2_6_27).unwrap_or(false)
     }
 
     #[test]
@@ -112,13 +110,7 @@ mod os {
     }
 }
 
-#[cfg(any(
-    target_os = "aix",
-    apple_targets,
-    target_os = "fuchsia",
-    target_os = "haiku",
-    target_os = "solaris"
-))]
+#[cfg(any(target_os = "aix", apple_targets, target_os = "haiku", target_os = "solaris"))]
 mod os {
     /// Check if the OS supports atomic close-on-exec for sockets
     pub const fn socket_atomic_cloexec() -> bool {

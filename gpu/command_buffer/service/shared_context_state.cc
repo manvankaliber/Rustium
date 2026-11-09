@@ -68,14 +68,10 @@
 #include "gpu/vulkan/vulkan_implementation.h"
 #include "gpu/vulkan/vulkan_util.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX)
 #include "gpu/command_buffer/service/external_semaphore_pool.h"
 #endif
 
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-#include "gpu/vulkan/fuchsia/vulkan_fuchsia_ext.h"
 #endif
 
 #if BUILDFLAG(SKIA_USE_DAWN)
@@ -307,7 +303,7 @@ SharedContextState::SharedContextState(
 #endif
   ) {
     if (vk_context_provider_) {
-#if BUILDFLAG(ENABLE_VULKAN) && (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA))
+#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_LINUX)
       external_semaphore_pool_ = std::make_unique<ExternalSemaphorePool>(this);
 #endif
     }
@@ -349,7 +345,7 @@ SharedContextState::~SharedContextState() {
     UnbindCacheFromCurrentOpenGLContext();
   }
 
-#if BUILDFLAG(ENABLE_VULKAN) && (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA))
+#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_LINUX)
   external_semaphore_pool_.reset();
 #endif
 
@@ -524,8 +520,9 @@ bool SharedContextState::InitializeGanesh(
 
   options.fAllowMSAAOnNewIntel = !gles2::MSAAIsSlow(workarounds);
   // Limit MSAA sample counts to 4 on Intel Android devices for performance.
-  if(workarounds.msaa_is_slow && !workarounds.msaa_is_slow_2)
+  if (workarounds.msaa_is_slow && !workarounds.msaa_is_slow_2) {
     options.fInternalMultisampleCount = 4;
+  }
   options.fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
   options.fAllowMSAAOnImagination =
       base::FeatureList::IsEnabled(features::kVulkanImaginationMSAA);
@@ -535,8 +532,9 @@ bool SharedContextState::InitializeGanesh(
     options.fPersistentCache = gr_cache;
   }
   options.fShaderErrorHandler = this;
-  if (gpu_preferences.force_max_texture_size)
+  if (gpu_preferences.force_max_texture_size) {
     options.fMaxTextureSizeOverride = gpu_preferences.force_max_texture_size;
+  }
 
   if (gr_context_options_provider_) {
     gr_context_options_provider_->SetCustomGrContextOptions(options);
@@ -807,12 +805,10 @@ bool SharedContextState::InitializeGLWithFeatureInfo(
 
   bool gl_supports_memory_object =
       gl::g_current_gl_driver->ext.b_GL_EXT_memory_object_fd ||
-      gl::g_current_gl_driver->ext.b_GL_EXT_memory_object_win32 ||
-      gl::g_current_gl_driver->ext.b_GL_ANGLE_memory_object_fuchsia;
+      gl::g_current_gl_driver->ext.b_GL_EXT_memory_object_win32;
   bool gl_supports_semaphore =
       gl::g_current_gl_driver->ext.b_GL_EXT_semaphore_fd ||
-      gl::g_current_gl_driver->ext.b_GL_EXT_semaphore_win32 ||
-      gl::g_current_gl_driver->ext.b_GL_ANGLE_semaphore_fuchsia;
+      gl::g_current_gl_driver->ext.b_GL_EXT_semaphore_win32;
 
   bool vk_supports_external_memory = false;
   bool vk_supports_external_semaphore = false;
@@ -829,10 +825,6 @@ bool SharedContextState::InitializeGLWithFeatureInfo(
     vk_supports_external_memory =
         gfx::HasExtension(device_queue->enabled_extensions(),
                           VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME);
-#elif BUILDFLAG(IS_FUCHSIA)
-    vk_supports_external_memory =
-        gfx::HasExtension(device_queue->enabled_extensions(),
-                          VK_FUCHSIA_EXTERNAL_MEMORY_EXTENSION_NAME);
 #else
     vk_supports_external_memory =
         gfx::HasExtension(device_queue->enabled_extensions(),
@@ -1023,15 +1015,18 @@ bool SharedContextState::MakeCurrent(gl::GLSurface* surface, bool needs_gl) {
 }
 
 void SharedContextState::ReleaseCurrent(gl::GLSurface* surface) {
-  if (!surface)
+  if (!surface) {
     surface = last_current_surface_;
+  }
 
-  if (surface != last_current_surface_)
+  if (surface != last_current_surface_) {
     return;
+  }
 
   last_current_surface_ = nullptr;
-  if (!context_lost())
+  if (!context_lost()) {
     context_->ReleaseCurrent(surface);
+  }
 }
 
 void SharedContextState::MarkContextLost(error::ContextLostReason reason) {
@@ -1044,12 +1039,14 @@ void SharedContextState::MarkContextLost(error::ContextLostReason reason) {
     // resources.
     std::move(context_lost_callback_)
         .Run(!device_needs_reset_, context_lost_reason_.value());
-    for (auto& observer : context_lost_observers_)
+    for (auto& observer : context_lost_observers_) {
       observer.OnContextLost();
+    }
 
     // context_state_ could be nullptr for some unittests.
-    if (context_state_)
+    if (context_state_) {
       context_state_->MarkContextLost();
+    }
 
     // Only abandon the GrContext if it is owned by SharedContextState, because
     // the passed in GrContext will be reused.
@@ -1068,8 +1065,9 @@ bool SharedContextState::IsCurrent(gl::GLSurface* surface, bool needs_gl) {
   if (!IsUsingGL() && !needs_gl) {
     return true;
   }
-  if (context_lost())
+  if (context_lost()) {
     return false;
+  }
   return context_->IsCurrent(surface);
 }
 
@@ -1244,8 +1242,9 @@ void SharedContextState::PessimisticallyResetGrContext() const {
   // Calling GrContext::resetContext() is very cheap, so we do it
   // pessimistically. We could dirty less state if skia state setting
   // performance becomes an issue.
-  if (gr_context_ && GrContextIsGL())
+  if (gr_context_ && GrContextIsGL()) {
     gr_context_->resetContext();
+  }
 }
 
 void SharedContextState::StoreVkPipelineCacheIfNeeded() {
@@ -1411,8 +1410,9 @@ std::optional<error::ContextLostReason> SharedContextState::GetResetStatus(
   }
 
   // GL is not initialized.
-  if (!context_state_)
+  if (!context_state_) {
     return std::nullopt;
+  }
 
   GLenum error;
   while ((error = context_state_->api()->glGetErrorFn()) != GL_NO_ERROR) {
@@ -1420,8 +1420,9 @@ std::optional<error::ContextLostReason> SharedContextState::GetResetStatus(
       LOG(ERROR) << "SharedContextState lost due to GL_OUT_OF_MEMORY";
       return error::kOutOfMemory;
     }
-    if (error == GL_CONTEXT_LOST_KHR)
+    if (error == GL_CONTEXT_LOST_KHR) {
       break;
+    }
   }
   // Checking the reset status is expensive on some OS/drivers
   // (https://crbug.com/1090232). Rate limit it.
@@ -1434,8 +1435,9 @@ std::optional<error::ContextLostReason> SharedContextState::GetResetStatus(
   last_gl_check_graphics_reset_status_ = now;
 
   GLenum driver_status = context()->CheckStickyGraphicsResetStatus();
-  if (driver_status == GL_NO_ERROR)
+  if (driver_status == GL_NO_ERROR) {
     return std::nullopt;
+  }
   LOG(ERROR) << "SharedContextState context lost via EXT_robustness. Reset "
                 "status = "
              << gles2::GLES2Util::GetStringEnum(driver_status);

@@ -90,11 +90,6 @@
       "third_party/dawn/webgpu-cts/expectations.txt"
     ]
   },
-  "fuchsia": {
-    "exclusions": [
-      "build/fuchsia/.*py"
-    ]
-  },
   "ios": {
     "exclusions": [
       "build/mac_toolchain.py",

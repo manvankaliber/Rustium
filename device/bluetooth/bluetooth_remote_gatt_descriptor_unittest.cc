@@ -21,8 +21,6 @@
 #include "device/bluetooth/test/bluetooth_test_win.h"
 #elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
 #include "device/bluetooth/test/bluetooth_test_bluez.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include "device/bluetooth/test/bluetooth_test_fuchsia.h"
 #endif
 
 namespace device {
@@ -233,8 +231,9 @@ TEST_F(BluetoothRemoteGattDescriptorTest, MAYBE_GetUUID) {
       characteristic->GetDescriptors()[1];
 
   // Swap as needed to have descriptor1 be the one with uuid1.
-  if (descriptor2->GetUUID() == uuid1)
+  if (descriptor2->GetUUID() == uuid1) {
     std::swap(descriptor1, descriptor2);
+  }
 
   EXPECT_EQ(uuid1, descriptor1->GetUUID());
   EXPECT_EQ(uuid2, descriptor2->GetUUID());

@@ -119,7 +119,7 @@ declare_args() {
   enable_media_drm_storage = is_android || is_castos
 
   # Enable the URL-based CDM provisioning fetcher.
-  enable_cdm_provision_fetcher = is_android || is_castos || is_fuchsia
+  enable_cdm_provision_fetcher = is_android || is_castos
 
   # Enable HLS manifest parser and demuxer.
   enable_hls_demuxer = proprietary_codecs
@@ -134,7 +134,7 @@ declare_args() {
   # Determines if a GpuChannel is needed between media capture utility process
   # and gpu process for a given platform.
   enable_gpu_channel_media_capture =
-      is_linux || is_win || is_chromeos || is_apple || is_android || is_fuchsia
+      is_linux || is_win || is_chromeos || is_apple || is_android
 }
 
 # Use another declare_args() to allow dependence on args defined above.
@@ -421,10 +421,6 @@ media_subcomponent_deps = [
 if (is_android) {
   # TODO(crbug.com/41237623): These files should not be in //media/base.
   media_subcomponent_deps += [ "//media/base/android" ]
-}
-
-if (is_fuchsia) {
-  media_subcomponent_deps += [ "//media/fuchsia/common" ]
 }
 
 if (media_use_ffmpeg) {

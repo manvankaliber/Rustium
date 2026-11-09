@@ -134,14 +134,16 @@ class COMPONENT_EXPORT(VULKAN) VulkanDeviceQueue
   }
 
   const VkPhysicalDeviceFeatures2& enabled_device_features_2() const {
-    if (enabled_device_features_2_from_angle_)
+    if (enabled_device_features_2_from_angle_) {
       return *enabled_device_features_2_from_angle_;
+    }
     return enabled_device_features_2_;
   }
 
   const VkPhysicalDeviceFeatures& enabled_device_features() const {
-    if (enabled_device_features_2_from_angle_)
+    if (enabled_device_features_2_from_angle_) {
       return enabled_device_features_2_from_angle_->features;
+    }
     return enabled_device_features_2_.features;
   }
 
@@ -189,13 +191,12 @@ class COMPONENT_EXPORT(VULKAN) VulkanDeviceQueue
       metric_ = nullptr;
 #endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
   VkPhysicalDeviceSamplerYcbcrConversionFeatures
       sampler_ycbcr_conversion_features_{
           VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES};
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_LINUX)
-        // || BUILDFLAG(IS_CHROMEOS)
+#endif
+  // || BUILDFLAG(IS_CHROMEOS)
 
   VkPhysicalDeviceProtectedMemoryFeatures protected_memory_features_{
       VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES};

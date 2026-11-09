@@ -384,10 +384,6 @@ struct WebPreferences {
   // TODO(crbug.com/1284805): Remove once WebView supports WebAuthn.
   [EnableIf=is_android]
   bool disable_webauthn;
-  // TODO(crbug.com/1382970): Remove once all Content embedders on Fuchsia
-  // support WebAuthn.
-  [EnableIf=is_fuchsia]
-  bool disable_webauthn;
 
   // Enable forcibly modifying content rendering to result in a light on dark
   // color scheme.
@@ -425,7 +421,6 @@ struct WebPreferences {
   // can be bypassed via `FileOrDirectoryPickerWithoutGestureAllowedForOrigins`
   // policy.
   bool require_transient_activation_for_show_file_or_directory_picker;
-
 
   // The forced colors state for the web content. The forced colors state
   // is used to evaluate the forced-colors media query, as well as determining
@@ -542,7 +537,8 @@ struct WebPreferences {
   bool is_indigo_onboarding = false;
 
   // True if the user dismissed the XSLT deprecation warning banner with the
-  // "Never show this warning" checkbox checked. Suppression is global: it applies
+  // "Never show this warning" checkbox checked. Suppression is global: it
+  // applies
   // to every site, not just the one the banner was dismissed on.
   // TODO(crbug.com/560233256): This preference is temporary, and is only
   // required before XSLT is disabled by default in M158. It can be removed in

@@ -169,8 +169,9 @@ class NetworkServiceBrowserTest : public ContentBrowserTest {
       delete;
 
   bool FetchResource(const GURL& url, bool synchronous = false) {
-    if (!url.is_valid())
+    if (!url.is_valid()) {
       return false;
+    }
     std::string script = JsReplace(
         "var xhr = new XMLHttpRequest();"
         "xhr.open('GET', $1, $2);"
@@ -398,8 +399,9 @@ class NetworkConnectionObserver
 
   void WaitForConnectionType(net::NetworkChangeNotifier::ConnectionType type) {
     type_to_wait_for_ = type;
-    if (last_connection_type_ == type_to_wait_for_)
+    if (last_connection_type_ == type_to_wait_for_) {
       return;
+    }
 
     run_loop_ = std::make_unique<base::RunLoop>();
     run_loop_->Run();
@@ -409,8 +411,9 @@ class NetworkConnectionObserver
   void OnConnectionChanged(
       net::NetworkChangeNotifier::ConnectionType type) override {
     last_connection_type_ = type;
-    if (run_loop_ && type_to_wait_for_ == type)
+    if (run_loop_ && type_to_wait_for_ == type) {
       run_loop_->Quit();
+    }
   }
 
  private:
@@ -622,7 +625,6 @@ IN_PROC_BROWSER_TEST_F(NetworkServiceBrowserTest, FactoryOverride) {
 }
 
 // Cache data migration is not used for Fuchsia.
-#if !BUILDFLAG(IS_FUCHSIA)
 class NetworkServiceBrowserCacheResetTest : public NetworkServiceBrowserTest {
  public:
   NetworkServiceBrowserCacheResetTest() {
@@ -719,8 +721,9 @@ class NetworkServiceBrowserCacheResetTest : public NetworkServiceBrowserTest {
     request->site_for_cookies =
         request->trusted_params->isolation_info.site_for_cookies();
 
-    if (load_only_from_cache)
+    if (load_only_from_cache) {
       request->load_flags |= net::LOAD_ONLY_FROM_CACHE;
+    }
     auto loader = network::SimpleURLLoader::Create(
         std::move(request), TRAFFIC_ANNOTATION_FOR_TESTS);
 
@@ -1257,8 +1260,9 @@ void MigrationTestInternal(const base::FilePath& tempdir_one,
                                           /*expected_bucket_count=*/1);
       break;
   }
-  if (!cookies_should_work)
+  if (!cookies_should_work) {
     return;
+  }
 
   ASSERT_EQ(1u, cookies.size());
   EXPECT_EQ(kCookieName, cookies[0].Name());
@@ -1600,8 +1604,6 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::Combine(::testing::Values(false),
                        ::testing::ValuesIn(kFailureTypes)));
 
-#endif  // !BUILDFLAG(IS_FUCHSIA)
-
 class NetworkServiceInProcessBrowserTest : public ContentBrowserTest {
  public:
   NetworkServiceInProcessBrowserTest() { ForceInProcessNetworkService(); }
@@ -1702,7 +1704,7 @@ class NetworkServiceBoundedNetLogBrowserTest
     : public NetworkServiceNetLogBrowserTest {
  public:
   NetworkServiceBoundedNetLogBrowserTest() {
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_MAC)
     // Network sandboxing disallows the creation of a temp directory needed by
     // bounded net-logs. Disable it for this test.
     scoped_feature_list_.InitAndDisableFeature(
@@ -1726,9 +1728,8 @@ class NetworkServiceBoundedNetLogBrowserTest
     EXPECT_EQ(error, base::File::FILE_OK);
     EXPECT_TRUE(log_file_read.IsValid());
 
-// Skip for Fuchsia. Fuchsia's file size operation isn't fully supported yet,
-// making the file size meaningless and therefore these checks.
-#if !BUILDFLAG(IS_FUCHSIA)
+    // Skip for Fuchsia. Fuchsia's file size operation isn't fully supported
+    // yet, making the file size meaningless and therefore these checks.
     base::File::Info file_info;
     log_file_read.GetInfo(&file_info);
 
@@ -1757,7 +1758,6 @@ class NetworkServiceBoundedNetLogBrowserTest
 
     EXPECT_GT(file_info.size, kMaxSizeLower);
     EXPECT_LT(file_info.size, kMaxSizeUpper);
-#endif
   }
 
   // For testing, have a max log size of 1 MB. 1024*1024 == 2^20 == left shift

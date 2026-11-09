@@ -14,11 +14,10 @@
 // aren't referenced from the Chrome executable. We must ensure that those
 // callbacks are not sanitizer-instrumented, and that they aren't stripped by
 // the linker.
-#define SANITIZER_HOOK_ATTRIBUTE                                           \
-  extern "C"                                                               \
-  __attribute__((no_sanitize("address", "memory", "thread", "undefined"))) \
-  __attribute__((visibility("default")))                                   \
-  __attribute__((used))
+#define SANITIZER_HOOK_ATTRIBUTE                                               \
+  extern "C"                                                                   \
+      __attribute__((no_sanitize("address", "memory", "thread", "undefined"))) \
+      __attribute__((visibility("default"))) __attribute__((used))
 
 // Functions returning default options are declared weak in the tools' runtime
 // libraries. To make the linker pick the strong replacements for those
@@ -58,13 +57,13 @@ const char* kAsanDefaultOptions =
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE) || \
     BUILDFLAG(IS_WIN)
 
-SANITIZER_HOOK_ATTRIBUTE const char *__asan_default_options() {
+SANITIZER_HOOK_ATTRIBUTE const char* __asan_default_options() {
   return kAsanDefaultOptions;
 }
 
 extern char kASanDefaultSuppressions[];
 
-SANITIZER_HOOK_ATTRIBUTE const char *__asan_default_suppressions() {
+SANITIZER_HOOK_ATTRIBUTE const char* __asan_default_suppressions() {
   return kASanDefaultSuppressions;
 }
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE)
@@ -91,13 +90,13 @@ const char kTsanDefaultOptions[] =
     "strip_path_prefix=/../../ external_symbolizer_path=%d/../../third_party/"
     "llvm-build/Release+Asserts/bin/llvm-symbolizer";
 
-SANITIZER_HOOK_ATTRIBUTE const char *__tsan_default_options() {
+SANITIZER_HOOK_ATTRIBUTE const char* __tsan_default_options() {
   return kTsanDefaultOptions;
 }
 
 extern char kTSanDefaultSuppressions[];
 
-SANITIZER_HOOK_ATTRIBUTE const char *__tsan_default_suppressions() {
+SANITIZER_HOOK_ATTRIBUTE const char* __tsan_default_suppressions() {
   return kTSanDefaultSuppressions;
 }
 
@@ -115,7 +114,7 @@ const char kMsanDefaultOptions[] =
     "external_symbolizer_path=%d/../../third_party/llvm-build/Release+Asserts/"
     "bin/llvm-symbolizer";
 
-SANITIZER_HOOK_ATTRIBUTE const char *__msan_default_options() {
+SANITIZER_HOOK_ATTRIBUTE const char* __msan_default_options() {
   return kMsanDefaultOptions;
 }
 
@@ -138,36 +137,24 @@ SANITIZER_HOOK_ATTRIBUTE const char *__msan_default_options() {
 const char kLsanDefaultOptions[] =
     "strip_path_prefix=/../../ use_poisoned=1 "
 
-#if !BUILDFLAG(IS_FUCHSIA)
     "external_symbolizer_path=%d/../../third_party/llvm-build/Release+Asserts/"
     "bin/llvm-symbolizer "
-#endif
 
-#if BUILDFLAG(IS_FUCHSIA) && defined(ARCH_CPU_64_BITS)
-    // crbug.com/40344974: When pointer compression in V8 is enabled without the
-    // full sandbox (currently the case on Fuchsia - crbug.com/42050478), the
-    // external pointers in the heap are guaranteed to be only 4 bytes aligned.
-    // So we need this option in order to ensure that LSAN will find all the
-    // external pointers.
-    "use_unaligned=1 "
-#endif
     ;
 
-SANITIZER_HOOK_ATTRIBUTE const char *__lsan_default_options() {
+SANITIZER_HOOK_ATTRIBUTE const char* __lsan_default_options() {
   return kLsanDefaultOptions;
 }
 
 // TODO(https://fxbug.dev/102967): Remove when Fuchsia supports
 // module-name-based and function-name-based suppression.
-#if !BUILDFLAG(IS_FUCHSIA)
 
 extern char kLSanDefaultSuppressions[];
 
-SANITIZER_HOOK_ATTRIBUTE const char *__lsan_default_suppressions() {
+SANITIZER_HOOK_ATTRIBUTE const char* __lsan_default_suppressions() {
   return kLSanDefaultSuppressions;
 }
 
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 #endif  // LEAK_SANITIZER
 
 #if defined(UNDEFINED_SANITIZER)

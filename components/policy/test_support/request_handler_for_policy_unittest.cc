@@ -28,7 +28,7 @@ constexpr char kDeviceToken[] = "fake_device_token";
 constexpr char kMachineName[] = "machine_name";
 constexpr char kPolicyInvalidationTopic[] = "policy_invalidation_topic";
 constexpr char kUsername[] = "user-for-policy@example.com";
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 constexpr char kPublicAccountEntityId[] = "test_user";
 constexpr char kExtensionId[] = "extension_id";
 #endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) &&
@@ -373,7 +373,7 @@ TEST_P(RequestHandlerForPolicyTestWithParametrizedSignatureType,
             GetSignatureTypeParam());
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(RequestHandlerForPolicyTest,
        HandleRequest_Success_UnsignedExtensionPolicies) {
   ClientStorage::ClientInfo client_info;

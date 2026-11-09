@@ -19,10 +19,6 @@
 #include "base/win/scoped_handle.h"
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/process.h>
-#endif
-
 #if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
 #include "base/feature_list.h"
 #endif  // BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
@@ -315,13 +311,11 @@ class BASE_EXPORT Process {
 
 #if BUILDFLAG(IS_WIN)
   win::ScopedHandle process_;
-#elif BUILDFLAG(IS_FUCHSIA)
-  zx::process process_;
 #else
   ProcessHandle process_;
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_WIN)
   bool is_current_process_;
 #endif
 

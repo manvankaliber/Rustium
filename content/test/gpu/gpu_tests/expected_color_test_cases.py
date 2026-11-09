@@ -109,10 +109,6 @@ class ExpectedColorTestCase(sghitb.SkiaGoldHeartbeatTestCase):
     self.ShouldCaptureFullScreenshot = should_capture_full_screenshot_func
 
 
-def CaptureFullScreenshotOnFuchsia(browser: browser_module.Browser) -> bool:
-  return browser.platform.GetOSName() == 'fuchsia'
-
-
 def MapsTestCases() -> list[ExpectedColorTestCase]:
   class TestActionStartMapsTest(sghitb.TestAction):
     def Run(
@@ -191,8 +187,7 @@ def MapsTestCases() -> list[ExpectedColorTestCase]:
         cba.FORCE_COLOR_PROFILE_SRGB,
       ],
       # Small Fuchsia screens result in an incomplete capture without this.
-      should_capture_full_screenshot_func=CaptureFullScreenshotOnFuchsia,
-    ),
+      ),
   ]
 
 

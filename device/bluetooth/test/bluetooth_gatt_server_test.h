@@ -21,8 +21,6 @@
 #include "device/bluetooth/test/bluetooth_test_win.h"
 #elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
 #include "device/bluetooth/test/bluetooth_test_bluez.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include "device/bluetooth/test/bluetooth_test_fuchsia.h"
 #endif
 
 namespace device {

@@ -60,7 +60,6 @@
       'codesearch-gen-chromium-android': 'codesearch_gen_chromium_android_bot_remoteexec',
       'codesearch-gen-chromium-chromiumos': 'codesearch_gen_chromium_chromiumos_bot_remoteexec',
       'codesearch-gen-chromium-cronet': 'codesearch_gen_chromium_cronet_bot_remoteexec',
-      'codesearch-gen-chromium-fuchsia': 'codesearch_gen_chromium_fuchsia_bot_remoteexec',
       'codesearch-gen-chromium-ios': 'codesearch_gen_chromium_ios_bot_remoteexec',
       'codesearch-gen-chromium-linux': 'codesearch_gen_chromium_bot_remoteexec',
       'codesearch-gen-chromium-mac': 'codesearch_gen_chromium_mac_bot_remoteexec',
@@ -100,8 +99,6 @@
       'android-cfi-builder-perf-fyi': 'official_remoteexec_minimal_symbols_android_thin_lto_opt',
       'android_arm64-cfi-builder-perf-fyi': 'official_remoteexec_minimal_symbols_android_thin_lto_opt_arm64',
       'chromeos-kevin-builder-perf-fyi': 'chromeos_kevin_include_unwind_tables_official_remoteexec',
-      'fuchsia-builder-perf-arm64': 'official_remoteexec_fuchsia_arm64_perf',
-      'fuchsia-builder-perf-arm64-pgo': 'official_remoteexec_fuchsia_arm64_perf',
       'linux-chromium-builder-perf': 'chromium_remoteexec_linux',
     },
 
@@ -201,8 +198,7 @@
     },
 
     'official.chrome': {
-      'fuchsia-arm64': 'official_fuchsia_arm64',
-      'fuchsia-x64': 'official_fuchsia_x64',
+
     },
 
     'tryserver.chrome': {
@@ -368,10 +364,6 @@
       'cronet_android', 'arm', 'android_fastbuild'
     ],
 
-    'codesearch_gen_chromium_fuchsia_bot_remoteexec': [
-      'codesearch_release_remoteexec', 'fuchsia', 'cast_receiver',
-    ],
-
     'codesearch_gen_chromium_ios_bot_remoteexec': [
       'codesearch_ios_remoteexec', 'ios', 'ios_device', 'ios_disable_code_signing'
     ],
@@ -453,14 +445,6 @@
       'official', 'release_bot_remoteexec', 'minimal_symbols',
     ],
 
-    'official_fuchsia_arm64': [
-      'arm64', 'fuchsia', 'official', 'custom_args', 'arm64_host',
-    ],
-
-    'official_fuchsia_x64': [
-      'fuchsia', 'official', 'x64', 'custom_args',
-    ],
-
     'official_linux_perf': [
       'official', 'remoteexec', 'minimal_symbols', 'pgo_phase_0',
     ],
@@ -492,11 +476,6 @@
     'official_remoteexec': [
       'official', 'remoteexec',
     ],
-
-    'official_remoteexec_fuchsia_arm64_perf': [
-      'cast_receiver_perf_optimized_internal', 'official', 'remoteexec', 'minimal_symbols', 'fuchsia', 'fuchsia_include_sd_images', 'arm64', 'ffmpeg_branding_chrome', 'proprietary_codecs', 'release', 'test_isolate_no_emulator',
-    ],
-
 
     'official_remoteexec_mac_arm': [
       'official', 'remoteexec', 'no_widevine_cdm_host_verification', 'arm64',
@@ -742,7 +721,7 @@
     },
 
     'cast_receiver_perf_optimized_internal': {
-      'args_file': '//build/config/fuchsia/perf_optimized_cast_receiver_args_internal.gn',
+
     },
 
     'chrome_branded': {
@@ -864,14 +843,6 @@
 
     'force_fieldtrial_testing_config': {
       'gn_args': 'force_enable_fieldtrial_testing_config=true',
-    },
-
-    'fuchsia': {
-      'gn_args': 'target_os="fuchsia"',
-    },
-
-    'fuchsia_include_sd_images': {
-      'gn_args': 'fuchsia_additional_boot_images=["//third_party/fuchsia-sdk/images-internal/astro-release/","//third_party/fuchsia-sdk/images-internal/sherlock-release/","//third_party/fuchsia-sdk/images-internal/nelson-release/"]',
     },
 
     'full_symbols': {

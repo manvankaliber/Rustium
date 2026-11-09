@@ -53,19 +53,24 @@ VkImageUsageFlags GetMaximalImageUsageFlags(
 
   // VUID-VkImageViewCreateInfo-usage-02652: support for INPUT_ATTACHMENT is
   // implied by both of COLOR_ATTACHNENT and DEPTH_STENCIL_ATTACHMENT
-  if (feature_flags & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+  if (feature_flags & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) {
     usage_flags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                    VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-  if (feature_flags & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+  }
+  if (feature_flags & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
     usage_flags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
                    VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+  }
 
-  if (feature_flags & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT)
+  if (feature_flags & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT) {
     usage_flags |= VK_IMAGE_USAGE_STORAGE_BIT;
-  if (feature_flags & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT)
+  }
+  if (feature_flags & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) {
     usage_flags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-  if (feature_flags & VK_FORMAT_FEATURE_TRANSFER_DST_BIT)
+  }
+  if (feature_flags & VK_FORMAT_FEATURE_TRANSFER_DST_BIT) {
     usage_flags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+  }
 
   return usage_flags;
 }
@@ -74,22 +79,22 @@ base::flat_map<VkFormat, VkImageUsageFlags> CreateImageUsageCache(
     VkPhysicalDevice vk_physical_device) {
   base::flat_map<VkFormat, VkImageUsageFlags> image_usage_cache;
 
-  auto add_to_cache_if_supported = [&image_usage_cache, &vk_physical_device](
-                                       viz::SharedImageFormat format) {
-    if (!HasVkFormat(format)) {
-      return;
-    }
-    // External sampler should only be used when creating shared image out of
-    // GpuMemoryBuffer.
-    CHECK(!format.PrefersExternalSampler());
-    VkFormat vk_format = ToVkFormatSinglePlanar(format);
-    DCHECK_NE(vk_format, VK_FORMAT_UNDEFINED);
-    VkFormatProperties format_props = {};
-    vkGetPhysicalDeviceFormatProperties(vk_physical_device, vk_format,
-                                        &format_props);
-    image_usage_cache[vk_format] =
-        GetMaximalImageUsageFlags(format_props.optimalTilingFeatures);
-  };
+  auto add_to_cache_if_supported =
+      [&image_usage_cache, &vk_physical_device](viz::SharedImageFormat format) {
+        if (!HasVkFormat(format)) {
+          return;
+        }
+        // External sampler should only be used when creating shared image out
+        // of GpuMemoryBuffer.
+        CHECK(!format.PrefersExternalSampler());
+        VkFormat vk_format = ToVkFormatSinglePlanar(format);
+        DCHECK_NE(vk_format, VK_FORMAT_UNDEFINED);
+        VkFormatProperties format_props = {};
+        vkGetPhysicalDeviceFormatProperties(vk_physical_device, vk_format,
+                                            &format_props);
+        image_usage_cache[vk_format] =
+            GetMaximalImageUsageFlags(format_props.optimalTilingFeatures);
+      };
 
   for (auto format : viz::SinglePlaneFormat::kAll) {
     add_to_cache_if_supported(format);
@@ -112,7 +117,6 @@ bool IsFormatSupported(viz::SharedImageFormat format,
   // to zero on Fuchsia and checking it everywhere necessary).
   // TODO(crbug.com/40219694): Enable ImageBackingOzone to be used for all
   // planes in Fuchsia and enable this check for Fuchsia.
-#if !BUILDFLAG(IS_FUCHSIA)
   if (HasGLES2ReadOrWriteUsage(usage)) {
     if (format.PrefersExternalSampler()) {
       return false;
@@ -124,7 +128,6 @@ bool IsFormatSupported(viz::SharedImageFormat format,
   if (gmb_type != gfx::GpuMemoryBufferType::EMPTY_BUFFER) {
     return false;
   }
-#endif
 
   if (format.is_multi_plane()) {
     if (gmb_type != gfx::GpuMemoryBufferType::EMPTY_BUFFER) {
@@ -165,10 +168,6 @@ SharedImageUsageSet SupportedUsage() {
       SHARED_IMAGE_USAGE_HIGH_PERFORMANCE_GPU | SHARED_IMAGE_USAGE_CPU_UPLOAD |
       SHARED_IMAGE_USAGE_CPU_WRITE_ONLY |
       SHARED_IMAGE_USAGE_RASTER_COPY_SOURCE | SHARED_IMAGE_USAGE_CPU_READ;
-
-#if BUILDFLAG(IS_FUCHSIA)
-  supported_usage |= SHARED_IMAGE_USAGE_SCANOUT;
-#endif
 
   return supported_usage;
 }

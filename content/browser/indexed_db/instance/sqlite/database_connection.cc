@@ -2185,7 +2185,7 @@ StatusOr<BackingStore::RecordIdentifier> DatabaseConnection::PutRecord(
 
     // Maybe compress, updating `bits_span` and `bits_copy` as appropriate.
     if (bits_span.size() >= kMinimumCompressionSize.InBytes()) {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID)
       size_t max_compressed_size = ZSTD_compressBound(bits_span.size());
       std::vector<uint8_t> compressed_bits(max_compressed_size);
 

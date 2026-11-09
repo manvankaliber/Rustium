@@ -10,9 +10,7 @@
 #include "base/feature_list.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "components/memory_pressure/system_memory_pressure_evaluator_fuchsia.h"
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #include "components/memory_pressure/disk_space_memory_pressure_evaluator_mac.h"
 #include "components/memory_pressure/system_memory_pressure_evaluator_mac.h"
 #endif
@@ -32,11 +30,7 @@ namespace memory_pressure {
 std::unique_ptr<SystemMemoryPressureEvaluator>
 SystemMemoryPressureEvaluator::CreateDefaultSystemEvaluator(
     MultiSourceMemoryPressureMonitor* monitor) {
-#if BUILDFLAG(IS_FUCHSIA)
-  return std::make_unique<
-      memory_pressure::SystemMemoryPressureEvaluatorFuchsia>(
-      monitor->CreateVoter(MemoryPressureVoterType::kOS));
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
   // The native OS evaluator is always constructed so that the OS pressure
   // signal keeps being observed and reported in every experiment arm. The
   // feature flags control whether it votes, not whether it exists. When an

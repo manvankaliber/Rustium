@@ -53,7 +53,7 @@ void MediaBrowserTest::SetUpCommandLine(base::CommandLine* command_line) {
 
   std::vector<base::test::FeatureRef> enabled_features = {
 #if BUILDFLAG(IS_ANDROID)
-    features::kLogJsConsoleMessages,
+      features::kLogJsConsoleMessages,
 #endif
   };
 
@@ -150,8 +150,9 @@ class MediaTest : public testing::WithParamInterface<bool>,
   bool is_accelerated() { return GetParam(); }
 
   void SetUpCommandLine(base::CommandLine* command_line) override {
-    if (!is_accelerated())
+    if (!is_accelerated()) {
       command_line->AppendSwitch(switches::kDisableAcceleratedVideoDecode);
+    }
     MediaBrowserTest::SetUpCommandLine(command_line);
   }
 
@@ -246,26 +247,19 @@ IN_PROC_BROWSER_TEST_P(MediaTest, VideoBearSilentWebm) {
 
 // TODO(crbug.com/40242077): DEMUXER_ERROR_NO_SUPPORTED_STREAMS error on
 // Fuchsia Arm64.
-#if BUILDFLAG(IS_FUCHSIA) && defined(ARCH_CPU_ARM64)
-#define MAYBE_VideoBearHighBitDepthVP9 DISABLED_VideoBearHighBitDepthVP9
-#else
 #define MAYBE_VideoBearHighBitDepthVP9 VideoBearHighBitDepthVP9
-#endif
 IN_PROC_BROWSER_TEST_P(MediaTest, MAYBE_VideoBearHighBitDepthVP9) {
   PlayVideo("bear-320x180-hi10p-vp9.webm");
 }
 
 // TODO(crbug.com/40242077): DEMUXER_ERROR_NO_SUPPORTED_STREAMS error on
 // Fuchsia Arm64.
-#if BUILDFLAG(IS_FUCHSIA) && defined(ARCH_CPU_ARM64)
-#define MAYBE_VideoBear12DepthVP9 DISABLED_VideoBear12DepthVP9
-#else
 #define MAYBE_VideoBear12DepthVP9 VideoBear12DepthVP9
-#endif
 IN_PROC_BROWSER_TEST_P(MediaTest, MAYBE_VideoBear12DepthVP9) {
   // Hardware decode on does not reliably support 12-bit.
-  if (is_accelerated())
+  if (is_accelerated()) {
     return;
+  }
   PlayVideo("bear-320x180-hi12p-vp9.webm");
 }
 #endif  // !BUILDFLAG(IS_ANDROID)
@@ -408,8 +402,9 @@ IN_PROC_BROWSER_TEST_P(MediaTest, VideoBearHighBitDepthMp4) {
 #endif
 IN_PROC_BROWSER_TEST_P(MediaTest, MAYBE_LoadManyVideos) {
   // Only run this test in one configuration.
-  if (is_accelerated())
+  if (is_accelerated()) {
     return;
+  }
   base::StringPairs query_params;
   RunMediaTestPage("load_many_videos.html", query_params, media::kEndedTitle,
                    true);

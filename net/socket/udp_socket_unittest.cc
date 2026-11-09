@@ -86,7 +86,7 @@ namespace {
 
 // Whether Source-Specific Multicast (SSM) is expected to work on this platform.
 #if defined(MCAST_JOIN_SOURCE_GROUP) && !BUILDFLAG(IS_ANDROID) && \
-    !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+    !BUILDFLAG(IS_IOS)
 constexpr bool kExpectSSMToWork = true;
 #else
 constexpr bool kExpectSSMToWork = false;
@@ -97,8 +97,9 @@ bool CreateUDPAddress(const std::string& ip_str,
                       uint16_t port,
                       IPEndPoint* address) {
   IPAddress ip_address;
-  if (!ip_address.AssignFromIPLiteral(ip_str))
+  if (!ip_address.AssignFromIPLiteral(ip_str)) {
     return false;
+  }
 
   *address = IPEndPoint(ip_address, port);
   return true;
@@ -121,8 +122,9 @@ class UDPSocketTest : public PlatformTest, public WithTaskEnvironment {
     int rv = socket->RecvFrom(buffer_.get(), kMaxRead, &recv_from_address_,
                               callback.callback());
     rv = callback.GetResult(rv);
-    if (rv < 0)
+    if (rv < 0) {
       return std::string();
+    }
 #if BUILDFLAG(IS_WIN)
     // The DSCP value is not populated on Windows, in order to avoid incurring
     // an extra system call.
@@ -164,8 +166,9 @@ class UDPSocketTest : public PlatformTest, public WithTaskEnvironment {
 
     int rv = socket->Read(buffer_.get(), kMaxRead, callback.callback());
     rv = callback.GetResult(rv);
-    if (rv < 0)
+    if (rv < 0) {
       return std::string();
+    }
 #if BUILDFLAG(IS_WIN)
     // The DSCP value is not populated on Windows, in order to avoid incurring
     // an extra system call.
@@ -268,8 +271,9 @@ void UDPSocketTest::ConnectTest(bool use_nonblocking_io, bool use_async) {
   IPEndPoint server_address(IPAddress::IPv4Localhost(), 0 /* port */);
   auto server =
       std::make_unique<UDPServerSocket>(NetLog::Get(), NetLogSource());
-  if (use_nonblocking_io)
+  if (use_nonblocking_io) {
     server->UseNonBlockingIO();
+  }
   server->AllowAddressReuse();
   ASSERT_THAT(server->Listen(server_address), IsOk());
   // Get bound port.
@@ -283,8 +287,9 @@ void UDPSocketTest::ConnectTest(bool use_nonblocking_io, bool use_async) {
       // exposing a `target_network` parameter to this method if
       // this changes.
       handles::kInvalidNetworkHandle);
-  if (use_nonblocking_io)
+  if (use_nonblocking_io) {
     client->UseNonBlockingIO();
+  }
 
   if (!use_async) {
     EXPECT_THAT(client->Connect(server_address), IsOk());
@@ -741,13 +746,13 @@ TEST_F(UDPSocketTest, ClientGetLocalPeerAddresses) {
     std::string local_address;
     bool may_fail;
   } tests[] = {
-    {"127.0.00.1", "127.0.0.1", false},
-    {"::1", "::1", true},
+      {"127.0.00.1", "127.0.0.1", false},
+      {"::1", "::1", true},
 #if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
-    // Addresses below are disabled on Android. See crbug.com/161248
-    // They are also disabled on iOS. See https://crbug.com/523225
-    {"192.168.1.1", "127.0.0.1", false},
-    {"2001:db8:0::42", "::1", true},
+      // Addresses below are disabled on Android. See crbug.com/161248
+      // They are also disabled on iOS. See https://crbug.com/523225
+      {"192.168.1.1", "127.0.0.1", false},
+      {"2001:db8:0::42", "::1", true},
 #endif
   };
   for (const auto& test : tests) {
@@ -824,12 +829,13 @@ TEST_F(UDPSocketTest, ClientSetDoNotFragment) {
     IPEndPoint remote_address(ip_address, 80);
     int rv = client.Connect(remote_address);
     // May fail on IPv6 is IPv6 is not configured.
-    if (ip_address.IsIPv6() && rv == ERR_ADDRESS_UNREACHABLE)
+    if (ip_address.IsIPv6() && rv == ERR_ADDRESS_UNREACHABLE) {
       return;
+    }
     EXPECT_THAT(rv, IsOk());
 
     rv = client.SetDoNotFragment();
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_IOS)
     // TODO(crbug.com/42050633): IP_MTU_DISCOVER is not implemented on Fuchsia.
     EXPECT_THAT(rv, IsError(ERR_NOT_IMPLEMENTED));
 #else
@@ -846,12 +852,13 @@ TEST_F(UDPSocketTest, ServerSetDoNotFragment) {
     int rv = server.Listen(bind_address);
     // May fail on IPv6 is IPv6 is not configure
     if (bind_address.address().IsIPv6() &&
-        (rv == ERR_ADDRESS_INVALID || rv == ERR_ADDRESS_UNREACHABLE))
+        (rv == ERR_ADDRESS_INVALID || rv == ERR_ADDRESS_UNREACHABLE)) {
       return;
+    }
     EXPECT_THAT(rv, IsOk());
 
     rv = server.SetDoNotFragment();
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_IOS)
     // TODO(crbug.com/42050633): IP_MTU_DISCOVER is not implemented on Fuchsia.
     EXPECT_THAT(rv, IsError(ERR_NOT_IMPLEMENTED));
 #else
@@ -895,11 +902,11 @@ TEST_F(UDPSocketTest, JoinMulticastGroup) {
   EXPECT_TRUE(group_ip.AssignFromIPLiteral(kGroup));
 // TODO(https://github.com/google/gvisor/issues/3839): don't guard on
 // OS_FUCHSIA.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_WIN)
   IPEndPoint bind_address(IPAddress::AllZeros(group_ip.size()), 0 /* port */);
 #else
   IPEndPoint bind_address(group_ip, 0 /* port */);
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
   UDPSocket socket(DatagramSocket::DEFAULT_BIND, nullptr, NetLogSource());
   EXPECT_THAT(socket.Open(bind_address.GetFamily()), IsOk());
@@ -929,12 +936,12 @@ TEST_F(UDPSocketTest, MAYBE_SharedMulticastAddress) {
   ASSERT_TRUE(group_ip.AssignFromIPLiteral(kGroup));
 // TODO(https://github.com/google/gvisor/issues/3839): don't guard on
 // OS_FUCHSIA.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_WIN)
   IPEndPoint receive_address(IPAddress::AllZeros(group_ip.size()),
                              0 /* port */);
 #else
   IPEndPoint receive_address(group_ip, 0 /* port */);
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
   NetworkInterfaceList interfaces;
   ASSERT_TRUE(GetNetworkList(&interfaces, 0));
@@ -1383,8 +1390,9 @@ TEST_F(UDPSocketTest, ConnectUsingNetwork) {
   NetworkChangeNotifierFactoryAndroid ncn_factory;
   NetworkChangeNotifier::DisableForTest ncn_disable_for_test;
   std::unique_ptr<NetworkChangeNotifier> ncn(ncn_factory.CreateInstance());
-  if (!NetworkChangeNotifier::AreNetworkHandlesSupported())
+  if (!NetworkChangeNotifier::AreNetworkHandlesSupported()) {
     GTEST_SKIP() << "Network handles are required to test BindToNetwork.";
+  }
 
   {
     // Connecting using a not existing network should fail but not report
@@ -1430,8 +1438,9 @@ TEST_F(UDPSocketTest, ConnectUsingNetworkAsync) {
   NetworkChangeNotifierFactoryAndroid ncn_factory;
   NetworkChangeNotifier::DisableForTest ncn_disable_for_test;
   std::unique_ptr<NetworkChangeNotifier> ncn(ncn_factory.CreateInstance());
-  if (!NetworkChangeNotifier::AreNetworkHandlesSupported())
+  if (!NetworkChangeNotifier::AreNetworkHandlesSupported()) {
     GTEST_SKIP() << "Network handles are required to test BindToNetwork.";
+  }
 
   {
     // Connecting using a not existing network should fail but not report
@@ -1564,9 +1573,9 @@ std::unique_ptr<UDPSocket> UnconnectedDscpTestClient(QwaveApi* api) {
 
 }  // namespace
 
+using ::testing::_;
 using ::testing::Return;
 using ::testing::SetArgPointee;
-using ::testing::_;
 
 TEST_F(UDPSocketTest, SetDSCPNoopIfPassedNoChange) {
   MockQwaveApi api;
@@ -2053,8 +2062,9 @@ TEST_F(UDPSocketTest, BindToNetwork) {
   NetworkChangeNotifierFactoryAndroid ncn_factory;
   NetworkChangeNotifier::DisableForTest ncn_disable_for_test;
   std::unique_ptr<NetworkChangeNotifier> ncn(ncn_factory.CreateInstance());
-  if (!NetworkChangeNotifier::AreNetworkHandlesSupported())
+  if (!NetworkChangeNotifier::AreNetworkHandlesSupported()) {
     GTEST_SKIP() << "Network handles are required to test BindToNetwork.";
+  }
 
   // Binding the socket to a not existing network should fail at connect time.
   const handles::NetworkHandle wrong_network_handle = 65536;
@@ -2544,7 +2554,8 @@ bool HasMultipleNetworkInterfaces() {
   return interfaces.size() >= 2;
 }
 
-// Multi-NIC SSM Test for IPv4: Verifies SSM works on systems with multiple interfaces.
+// Multi-NIC SSM Test for IPv4: Verifies SSM works on systems with multiple
+// interfaces.
 TEST_F(UDPSocketTest, SSMSourceFilteringMultiNICIPv4) {
   if (!kExpectSSMToWork) {
     GTEST_SKIP() << "SSM not supported on this platform";
@@ -2577,7 +2588,8 @@ TEST_F(UDPSocketTest, SSMSourceFilteringMultiNICIPv4) {
   EXPECT_THAT(socket.LeaveSourceGroup(group_address, source_address2), IsOk());
 }
 
-// Multi-NIC SSM Test for IPv6: Verifies SSM works on systems with multiple interfaces.
+// Multi-NIC SSM Test for IPv6: Verifies SSM works on systems with multiple
+// interfaces.
 TEST_F(UDPSocketTest, SSMSourceFilteringMultiNICIPv6) {
   if (!kExpectSSMToWork) {
     GTEST_SKIP() << "SSM not supported on this platform";
@@ -2615,7 +2627,7 @@ TEST_F(UDPSocketTest, SSMSourceFilteringMultiNICIPv6) {
 // On POSIX platforms that do not support recvmmsg (e.g., macOS, iOS, or
 // Fuchsia), the implementation falls back to calling recvmsg (via
 // InternalRecvFrom).
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 TEST_F(UDPSocketTest, ReadMultiple) {
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
   base::MetricsSubSampler::ScopedAlwaysSampleForTesting scoped_always_sample;
@@ -3228,6 +3240,6 @@ TEST_F(UDPSocketGroTest, ReadMultipleGroUnequalSegments) {
 }
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
         // BUILDFLAG(IS_ANDROID)
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 }  // namespace net

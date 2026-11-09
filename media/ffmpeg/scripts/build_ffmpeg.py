@@ -545,11 +545,11 @@ def BuildFFmpeg(
         pre_make_rewrites += [
             (
                 r'(#define HAVE_SYSCTL [01])',
-                r'#define HAVE_SYSCTL 0 /* \1 -- forced to 0 for Fuchsia */',
+                r'#define HAVE_SYSCTL 0 /* \1 -- disabled */',
             ),
             (
                 r'(#define HAVE_PRCTL [01])',
-                r'#define HAVE_PRCTL 0 /* \1 -- forced to 0 for Fuchsia */',
+                r'#define HAVE_PRCTL 0 /* \1 -- disabled */',
             ),
         ]
 

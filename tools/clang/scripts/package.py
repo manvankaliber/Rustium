@@ -374,12 +374,7 @@ def main():
       # The Fuchsia runtimes are only built on non-Mac platforms.
       want.update(
         [
-          'lib/clang/$V/lib/aarch64-unknown-fuchsia/libclang_rt.builtins.a',
-          'lib/clang/$V/lib/x86_64-unknown-fuchsia/libclang_rt.builtins.a',
-          'lib/clang/$V/lib/x86_64-unknown-fuchsia/libclang_rt.profile.a',
-          'lib/clang/$V/lib/x86_64-unknown-fuchsia/libclang_rt.asan.so',
-          'lib/clang/$V/lib/x86_64-unknown-fuchsia/libclang_rt.asan-preinit.a',
-          'lib/clang/$V/lib/x86_64-unknown-fuchsia/libclang_rt.asan_static.a',
+
         ]
       )
   if sys.platform == 'darwin':

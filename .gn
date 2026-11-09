@@ -4,8 +4,8 @@
 
 import("//build/circular_includes_bedrock.gni")
 import("//build/circular_includes_untriaged.gni")
-import("//build/strict_deps_failures.gni")
 import("//build/dotfile_settings.gni")
+import("//build/strict_deps_failures.gni")
 import("//third_party/angle/dotfile_settings.gni")
 
 # The location of the build configuration file.
@@ -57,10 +57,6 @@ default_args = {
 
   # Override VMA's Vulkan dependencies.
   vma_vulkan_headers_dir = "//third_party/vulkan-headers/src"
-
-  # Overwrite default args declared in the Fuchsia sdk
-  fuchsia_sdk_readelf_exec =
-      "//third_party/llvm-build/Release+Asserts/bin/llvm-readelf"
 
   # Overwrite default args declared in the pdfium library
   pdf_partition_alloc_dir = "//base/allocator/partition_allocator"

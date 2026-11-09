@@ -171,7 +171,7 @@ class TCPSocketTest
         socket_->Bind(IPEndPoint(IPAddress::IPv6Localhost(), 0)) != OK ||
         socket_->Listen(kListenBacklog) != OK) {
       LOG(ERROR) << "Failed to listen on ::1 - probably because IPv6 is "
-          "disabled. Skipping the test";
+                    "disabled. Skipping the test";
       return;
     }
     ASSERT_THAT(socket_->GetLocalAddress(&local_address_), IsOk());
@@ -300,9 +300,7 @@ class TCPSocketTest
   }
 #endif  // defined(TCP_INFO) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 
-  AddressList local_address_list() const {
-    return AddressList(local_address_);
-  }
+  AddressList local_address_list() const { return AddressList(local_address_); }
 
   // Helper function to read `expected_size` bytes from the accepting
   // socket using ReadIfReady(). Data will be temporarily read into
@@ -499,8 +497,9 @@ TEST_P(TCPSocketTest, Accept2Connections) {
 TEST_P(TCPSocketTest, AcceptIPv6) {
   bool initialized = false;
   ASSERT_NO_FATAL_FAILURE(SetUpListenIPv6(&initialized));
-  if (!initialized)
+  if (!initialized) {
     return;
+  }
 
   TestCompletionCallback connect_callback;
   TCPClientSocket connecting_socket(local_address_list(), nullptr, nullptr,
@@ -631,8 +630,9 @@ TEST_P(TCPSocketTest, DestroyWithPendingWrite) {
     int result = connecting_socket->Write(
         write_buffer.get(), write_buffer->size(), write_callback.callback(),
         TRAFFIC_ANNOTATION_FOR_TESTS);
-    if (result == ERR_IO_PENDING)
+    if (result == ERR_IO_PENDING) {
       break;
+    }
     ASSERT_LT(0, result);
   }
 
@@ -1309,7 +1309,7 @@ TEST_P(TCPSocketTest, BeforeConnectCallback) {
 // Unfortunately, Apple platform behavior doesn't seem to be documented, and
 // doesn't match behavior on any other platforms.
 // Fuchsia doesn't currently implement SO_RCVBUF.
-#elif !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_FUCHSIA)
+#elif !BUILDFLAG(IS_APPLE)
   EXPECT_EQ(kReceiveBufferSize, actual_size);
 #endif
 }
@@ -1546,8 +1546,9 @@ TEST_P(TCPSocketTest, BindToNetwork) {
   NetworkChangeNotifierFactoryAndroid ncn_factory;
   NetworkChangeNotifier::DisableForTest ncn_disable_for_test;
   std::unique_ptr<NetworkChangeNotifier> ncn(ncn_factory.CreateInstance());
-  if (!NetworkChangeNotifier::AreNetworkHandlesSupported())
+  if (!NetworkChangeNotifier::AreNetworkHandlesSupported()) {
     GTEST_SKIP() << "Network handles are required to test BindToNetwork.";
+  }
 
   const handles::NetworkHandle wrong_network_handle = 65536;
   // Try binding to this IP to trigger the underlying BindToNetwork call.

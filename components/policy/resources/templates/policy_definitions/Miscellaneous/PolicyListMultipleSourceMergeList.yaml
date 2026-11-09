@@ -18,8 +18,7 @@ features:
   dynamic_refresh: true
   metapolicy_type: merge
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 label: Allow merging list policies from different sources
 owners:
 - ydago@chromium.org

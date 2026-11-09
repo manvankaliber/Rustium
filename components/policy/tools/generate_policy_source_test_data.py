@@ -119,7 +119,7 @@ message ExampleBoolPolicyProto {
 //
 // ExampleBoolMergeMetapolicy desc
 //
-// Supported on: android, chrome_os, fuchsia, ios, linux, mac, win
+// Supported on: android, chrome_os, ios, linux, mac, win
 message ExampleBoolMergeMetapolicyProto {
   optional PolicyOptions policy_options = 1;
   optional bool ExampleBoolMergeMetapolicy = 2;
@@ -364,7 +364,7 @@ message ExampleBoolPolicyProto {
 //
 // ExampleBoolMergeMetapolicy desc
 //
-// Supported on: android, chrome_os, fuchsia, ios, linux, mac, win
+// Supported on: android, chrome_os, ios, linux, mac, win
 message ExampleBoolMergeMetapolicyProto {
   optional PolicyOptions policy_options = 1;
   optional bool ExampleBoolMergeMetapolicy = 2;

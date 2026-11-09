@@ -8,7 +8,6 @@ platform = struct(
     ANDROID = "android",
     CROS = "cros",
     CROS_LTS = "cros-lts",
-    FUCHSIA = "fuchsia",
     IOS = "ios",
     LINUX = "linux",
     MAC = "mac",

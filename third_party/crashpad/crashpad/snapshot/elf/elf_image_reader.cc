@@ -59,8 +59,8 @@ class ElfImageReader::ProgramHeaderTableSpecific
  public:
   ProgramHeaderTableSpecific() {}
 
-  ProgramHeaderTableSpecific(
-      const ProgramHeaderTableSpecific<PhdrType>&) = delete;
+  ProgramHeaderTableSpecific(const ProgramHeaderTableSpecific<PhdrType>&) =
+      delete;
   ProgramHeaderTableSpecific<PhdrType>& operator=(
       const ProgramHeaderTableSpecific<PhdrType>&) = delete;
 
@@ -735,8 +735,7 @@ bool ElfImageReader::GetAddressFromDynamicArray(uint64_t tag,
     return false;
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA) || \
-    (defined(__GLIBC__) && defined(ARCH_CPU_RISCV64))
+#if BUILDFLAG(IS_ANDROID) || defined(__GLIBC__) && defined(ARCH_CPU_RISCV64)
   // The GNU loader updates the dynamic array according to the load bias (except
   // for RISC-V: https://sourceware.org/bugzilla/show_bug.cgi?id=24484).
   // The Android and Fuchsia loaders only update the debug address.

@@ -89,6 +89,7 @@
 #include <fontconfig/fontconfig.h>
 #include <signal.h>
 #include <sys/prctl.h>
+
 #include "ui/gfx/linux/fontconfig_util.h"
 #endif
 
@@ -98,14 +99,8 @@
 #include "net/android/network_change_notifier_factory_android.h"
 #include "ui/events/devices/device_data_manager.h"
 #include "ui/events/devices/input_device_observer_android.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include "chromecast/net/network_change_notifier_factory_fuchsia.h"
 #else
 #include "chromecast/net/network_change_notifier_factory_cast.h"
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-#include "chromecast/net/fake_connectivity_checker.h"
 #endif
 
 #if defined(USE_AURA)
@@ -116,24 +111,20 @@
 #include "chromecast/browser/devtools/cast_ui_devtools.h"
 #include "chromecast/graphics/cast_screen.h"
 #include "chromecast/graphics/cast_window_manager_aura.h"
-#if !BUILDFLAG(IS_FUCHSIA)
 #include "components/ui_devtools/devtools_server.h"  // nogncheck
 #include "components/ui_devtools/switches.h"         // nogncheck
-#endif
 #include "ui/display/screen.h"
 #include "ui/views/views_delegate.h"  // nogncheck
 #else
 #include "chromecast/graphics/cast_window_manager_default.h"  // nogncheck
 #endif
 
-#if !BUILDFLAG(IS_FUCHSIA)
 #include "chromecast/base/cast_sys_info_util.h"
 #include "chromecast/public/cast_sys_info.h"
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID)
 int kSignalsToRunClosure[] = {
     SIGTERM,
     SIGINT,
@@ -162,8 +153,9 @@ void RunClosureOnSignal(int signum) {
   RAW_LOG(INFO, message);
 
   DCHECK(g_signal_closure);
-  if (*g_signal_closure)
+  if (*g_signal_closure) {
     std::move(*g_signal_closure).Run();
+  }
 }
 
 void RegisterClosureOnSignal(base::OnceClosure closure) {
@@ -217,8 +209,9 @@ void RegisterKillOnAlarm(int timeout_seconds) {
     DCHECK_EQ(sa_old.sa_handler, SIG_DFL);
   }
 
-  if (alarm(timeout_seconds) > 0)
+  if (alarm(timeout_seconds) > 0) {
     NOTREACHED() << "Previous alarm() was cancelled";
+  }
 }
 
 void DeregisterKillOnAlarm() {
@@ -239,7 +232,7 @@ void DeregisterKillOnAlarm() {
   }
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if defined(USE_AURA)
 
@@ -429,9 +422,6 @@ void CastBrowserMainParts::PreCreateMainMessageLoop() {
 #if BUILDFLAG(IS_ANDROID)
   net::NetworkChangeNotifier::SetFactory(
       new net::NetworkChangeNotifierFactoryAndroid());
-#elif BUILDFLAG(IS_FUCHSIA)
-  net::NetworkChangeNotifier::SetFactory(
-      new NetworkChangeNotifierFactoryFuchsia());
 #else
   net::NetworkChangeNotifier::SetFactory(
       new NetworkChangeNotifierFactoryCast());
@@ -453,8 +443,9 @@ void CastBrowserMainParts::PostCreateMainMessageLoop() {
 void CastBrowserMainParts::ToolkitInitialized() {
 #if defined(USE_AURA)
   // Needs to be initialize before any UI is created.
-  if (!views::ViewsDelegate::GetInstance())
+  if (!views::ViewsDelegate::GetInstance()) {
     views_delegate_ = std::make_unique<CastViewsDelegate>();
+  }
 #endif  // defined(USE_AURA)
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
@@ -502,7 +493,7 @@ int CastBrowserMainParts::PostCreateThreads() {
 }
 
 int CastBrowserMainParts::PreMainMessageLoopRun() {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID)
   // |monitor| may be nullptr in browser tests.
   if (auto* monitor =
           memory_pressure::MultiSourceMemoryPressureMonitor::Get()) {
@@ -511,7 +502,7 @@ int CastBrowserMainParts::PreMainMessageLoopRun() {
             monitor->CreateVoter()));
   }
 
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
   cast_content_browser_client_->SetPersistentCookieAccessSettings(
       cast_browser_process_->pref_service());
@@ -540,7 +531,6 @@ int CastBrowserMainParts::PreMainMessageLoopRun() {
 
 #if defined(USE_AURA)
 
-#if !BUILDFLAG(IS_FUCHSIA)
   // Start UI devtools if this is a dev device or explicitly enabled.
   // Note that this must happen before the window tree host is created by the
   // window manager.
@@ -552,7 +542,6 @@ int CastBrowserMainParts::PreMainMessageLoopRun() {
     ui_devtools_ =
         std::make_unique<CastUIDevTools>(content::GetIOThreadTaskRunner({}));
   }
-#endif
 
   window_manager_ = std::make_unique<CastWindowManagerAura>();
   window_manager_->Setup();
@@ -617,14 +606,14 @@ void CastBrowserMainParts::WillRunMainMessageLoop(
 #if BUILDFLAG(IS_ANDROID)
   // Android does not use native main MessageLoop.
   NOTREACHED();
-#elif !BUILDFLAG(IS_FUCHSIA)
+#else
   // Fuchsia doesn't have signals.
   RegisterClosureOnSignal(run_loop->QuitClosure());
-#endif  // !BUILDFLAG(IS_FUCHSIA)
+#endif
 }
 
 void CastBrowserMainParts::PostMainMessageLoopRun() {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID)
   // Once the main loop has stopped running, we give the browser process a few
   // seconds to stop cast service and finalize all resources. If a hang occurs
   // and cast services refuse to terminate successfully, then we SIGKILL the
@@ -633,7 +622,7 @@ void CastBrowserMainParts::PostMainMessageLoopRun() {
   // TODO(sergeyu): Fuchsia doesn't implement POSIX signals. Implement a
   // different shutdown watchdog mechanism.
   RegisterKillOnAlarm(kKillOnAlarmTimeoutSec);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
   cast_browser_process_->cast_service()->Stop();
 
@@ -658,9 +647,7 @@ void CastBrowserMainParts::PostMainMessageLoopRun() {
   cast_screen_.reset();
 #endif
 
-#if !BUILDFLAG(IS_FUCHSIA)
   DeregisterKillOnAlarm();
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   service_manager_context_.reset();
 #endif

@@ -63,10 +63,6 @@
 #endif
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "gpu/vulkan/fuchsia/vulkan_fuchsia_ext.h"
-#endif
-
 #if BUILDFLAG(IS_OZONE)
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/ozone/public/surface_factory_ozone.h"
@@ -79,8 +75,6 @@
 #define GL_LINEAR_TILING_EXT 0x9585
 #define GL_HANDLE_TYPE_OPAQUE_FD_EXT 0x9586
 #define GL_HANDLE_TYPE_OPAQUE_WIN32_EXT 0x9587
-#define GL_HANDLE_TYPE_ZIRCON_VMO_ANGLE 0x93AE
-#define GL_HANDLE_TYPE_ZIRCON_EVENT_ANGLE 0x93AF
 
 namespace gpu {
 
@@ -527,11 +521,13 @@ bool ExternalVkImageBacking::BeginAccess(
     EndAccessInternal(readonly, std::move(release_semaphore));
   }
 
-  if (!BeginAccessInternal(readonly, external_semaphores))
+  if (!BeginAccessInternal(readonly, external_semaphores)) {
     return false;
+  }
 
-  if (!is_gl)
+  if (!is_gl) {
     return true;
+  }
 
   if (need_synchronization() && external_semaphores->empty()) {
     // For the first time GL BeginAccess(), external_semaphores could be empty,
@@ -719,8 +715,9 @@ void ExternalVkImageBacking::AddSemaphoresToPendingListOrRelease(
   DCHECK_LE(pending_semaphores_.size(), kMaxPendingSemaphores);
 
 #if DCHECK_IS_ON()
-  for (auto& semaphore : semaphores)
+  for (auto& semaphore : semaphores) {
     DCHECK(semaphore);
+  }
 #endif
   while (pending_semaphores_.size() < kMaxPendingSemaphores &&
          !semaphores.empty()) {
@@ -875,15 +872,6 @@ bool ExternalVkImageBacking::CreateGLTexture(bool is_passthrough,
     api->glImportMemoryWin32HandleEXTFn(
         memory_object->id(), image_info.fAlloc.fSize,
         GL_HANDLE_TYPE_OPAQUE_WIN32_EXT, memory_handle.Take());
-#elif BUILDFLAG(IS_FUCHSIA)
-    zx::vmo vmo = vulkan_image->GetMemoryZirconHandle();
-    if (!vmo) {
-      return false;
-    }
-    memory_object.emplace(api);
-    api->glImportMemoryZirconHandleANGLEFn(
-        memory_object->id(), image_info.fAlloc.fSize,
-        GL_HANDLE_TYPE_ZIRCON_VMO_ANGLE, vmo.release());
 #else
 #error Unsupported OS
 #endif
@@ -1049,11 +1037,13 @@ void ExternalVkImageBacking::UpdateContent(uint32_t content_flags) {
   DCHECK(content_flags == kInVkImage || content_flags == kInGLTexture);
 
   // There is no need to update content when there is only one texture.
-  if (!use_separate_gl_texture())
+  if (!use_separate_gl_texture()) {
     return;
+  }
 
-  if ((latest_content_ & content_flags) == content_flags)
+  if ((latest_content_ & content_flags) == content_flags) {
     return;
+  }
 
   // Only mark the destination as holding valid content if the copy actually
   // succeeded. Setting the bit unconditionally permanently masks a failed sync,
@@ -1324,14 +1314,16 @@ bool ExternalVkImageBacking::BeginAccessInternal(
 
     // A semaphore will become unsignaled, when it has been signaled and waited,
     // so it is not safe to reuse it.
-    if (write_semaphore_)
+    if (write_semaphore_) {
       external_semaphores->push_back(std::move(write_semaphore_));
+    }
   } else {
     is_write_in_progress_ = true;
     *external_semaphores = std::move(read_semaphores_);
     read_semaphores_.clear();
-    if (write_semaphore_)
+    if (write_semaphore_) {
       external_semaphores->push_back(std::move(write_semaphore_));
+    }
   }
   return true;
 }

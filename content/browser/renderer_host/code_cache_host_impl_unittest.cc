@@ -130,7 +130,6 @@ class CodeCacheHostImplTest : public testing::Test,
 };
 
 // PersistentCache is not supported on Fuchsia.
-#if !BUILDFLAG(IS_FUCHSIA)
 
 // Tests that back-to-back contexts operating in the same directory don't
 // conflict with one another.
@@ -1207,7 +1206,5 @@ TEST_P(CodeCacheHostImplTest, EmbedderCodeCacheSchemeNeedsSiteLock) {
 INSTANTIATE_TEST_SUITE_P(All,
                          CodeCacheHostImplTest,
                          testing::Values(true, false));
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 }  // namespace content

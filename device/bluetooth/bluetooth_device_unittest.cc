@@ -33,12 +33,9 @@
 #include "device/bluetooth/test/bluetooth_test_win.h"
 #elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
 #include "device/bluetooth/test/bluetooth_test_bluez.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include "device/bluetooth/test/bluetooth_test_fuchsia.h"
 #endif
 
 namespace device {
-
 
 namespace {
 
@@ -75,7 +72,6 @@ class TestBluetoothDevice : public MockBluetoothDevice {
 };
 
 }  // namespace
-
 
 using UUIDSet = BluetoothDevice::UUIDSet;
 using ServiceDataMap = BluetoothDevice::ServiceDataMap;
@@ -1662,8 +1658,9 @@ TEST_F(BluetoothTest, MAYBE_BluetoothGattConnection_DisconnectInProgress) {
   // Disconnect all CreateGattConnection objects & create a new connection.
   // But, don't yet simulate the device disconnecting:
   ResetEventCounts();
-  for (const auto& connection : gatt_connections_)
+  for (const auto& connection : gatt_connections_) {
     connection->Disconnect();
+  }
   EXPECT_EQ(1, gatt_disconnection_attempts_);
 
   // Create a connection.
@@ -1675,8 +1672,9 @@ TEST_F(BluetoothTest, MAYBE_BluetoothGattConnection_DisconnectInProgress) {
   // Actually disconnect:
   SimulateGattDisconnection(device);
   base::RunLoop().RunUntilIdle();
-  for (const auto& connection : gatt_connections_)
+  for (const auto& connection : gatt_connections_) {
     EXPECT_FALSE(connection->IsConnected());
+  }
 }
 
 #if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
@@ -1706,8 +1704,9 @@ TEST_F(BluetoothTest, MAYBE_BluetoothGattConnection_SimulateDisconnect) {
                   })));
 
   EXPECT_EQ(BluetoothDevice::ERROR_FAILED, last_connect_error_code_);
-  for (const auto& connection : gatt_connections_)
+  for (const auto& connection : gatt_connections_) {
     EXPECT_FALSE(connection->IsConnected());
+  }
 }
 
 #if BUILDFLAG(IS_ANDROID)
@@ -1723,8 +1722,8 @@ TEST_F(BluetoothTest, BluetoothGattConnection_NullAndroidGattAfterDisconnect) {
   SimulateGattConnection(device);
   ASSERT_TRUE(connected.Get<0>());
   SimulateGattDisconnection(device);
-  ASSERT_TRUE(base::test::RunUntil(
-      [device] { return !device->IsGattConnected(); }));
+  ASSERT_TRUE(
+      base::test::RunUntil([device] { return !device->IsGattConnected(); }));
 
   FailNextGattConnection(device);
   base::test::TestFuture<std::unique_ptr<BluetoothGattConnection>,
@@ -1854,8 +1853,9 @@ TEST_F(BluetoothTest,
 #endif
       gatt_disconnection_attempts_);
   EXPECT_EQ(BluetoothDevice::ERROR_FAILED, last_connect_error_code_);
-  for (const auto& connection : gatt_connections_)
+  for (const auto& connection : gatt_connections_) {
     EXPECT_FALSE(connection->IsConnected());
+  }
 }
 
 #if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
@@ -1950,8 +1950,9 @@ TEST_F(BluetoothTest, MAYBE_BluetoothGattConnection_ErrorAfterConnection) {
 #else
   EXPECT_EQ(BluetoothDevice::ERROR_AUTH_FAILED, last_connect_error_code_);
 #endif
-  for (const auto& connection : gatt_connections_)
+  for (const auto& connection : gatt_connections_) {
     EXPECT_FALSE(connection->IsConnected());
+  }
 }
 
 #if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)

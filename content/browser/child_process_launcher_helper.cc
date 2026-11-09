@@ -189,10 +189,6 @@ ChildProcessLauncherHelper::Process::Process(Process&& other)
       ,
       zygote(other.zygote)
 #endif
-#if BUILDFLAG(IS_FUCHSIA)
-      ,
-      sandbox_policy(std::move(other.sandbox_policy))
-#endif
 {
 }
 
@@ -279,14 +275,10 @@ void ChildProcessLauncherHelper::LaunchOnLauncherThread() {
   UMA_HISTOGRAM_TIMES("MPArch.ChildProcessLauncher.PreLaunchDelay",
                       base::TimeTicks::Now() - init_start_time_);
 
-#if BUILDFLAG(IS_FUCHSIA)
-  mojo_channel_.emplace();
-#else   // BUILDFLAG(IS_FUCHSIA)
   mojo_named_channel_ = CreateNamedPlatformChannelOnLauncherThread();
   if (!mojo_named_channel_) {
     mojo_channel_.emplace();
   }
-#endif  //  BUILDFLAG(IS_FUCHSIA)
 
   begin_launch_time_ = base::TimeTicks::Now();
   if (GetProcessType() == switches::kRendererProcess &&
@@ -386,8 +378,9 @@ void ChildProcessLauncherHelper::PostLaunchOnLauncherThread(
 #else
   const bool launch_elevated = false;
 #endif
-  if (mojo_channel_)
+  if (mojo_channel_) {
     mojo_channel_->RemoteProcessLaunchAttempted();
+  }
 
   if (process.process.IsValid()) {
     RecordHistogramsOnLauncherThread(base::TimeTicks::Now() -
@@ -412,14 +405,12 @@ void ChildProcessLauncherHelper::PostLaunchOnLauncherThread(
   }
 
   if (process.process.IsValid()) {
-#if !BUILDFLAG(IS_FUCHSIA)
     if (mojo_named_channel_) {
       CHECK(!mojo_channel_, base::NotFatalUntil::M160);
       mojo::OutgoingInvitation::Send(
           std::move(invitation), base::kNullProcessHandle,
           mojo_named_channel_->TakeServerEndpoint(), process_error_callback_);
     } else
-#endif
     // Set up Mojo IPC to the new process.
     {
       CHECK(mojo_channel_, base::NotFatalUntil::M160);

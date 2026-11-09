@@ -79,13 +79,7 @@ TEST_F(CaptionUtilTest, IsHeadlessCaptionFeatureSupportedReturnsFalse) {
   EXPECT_FALSE(IsHeadlessCaptionFeatureSupported());
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-TEST_F(CaptionUtilTest,
-       IsHeadlessCaptionFeatureSupportedReturnsFalseOnFuchsia) {
-  scoped_feature_list_.InitAndEnableFeature(media::kHeadlessLiveCaption);
-  EXPECT_FALSE(IsHeadlessCaptionFeatureSupported());
-}
-#elif BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
+#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
 TEST_F(CaptionUtilTest,
        IsHeadlessCaptionFeatureSupportedReturnsFalseOnLinuxArm) {
   scoped_feature_list_.InitAndEnableFeature(media::kHeadlessLiveCaption);

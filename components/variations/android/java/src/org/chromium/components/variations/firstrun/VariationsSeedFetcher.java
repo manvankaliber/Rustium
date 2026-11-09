@@ -268,7 +268,6 @@ public class VariationsSeedFetcher {
                             "android_desktop",
                             "android_webview",
                             "chromeos",
-                            "fuchsia",
                             "ios",
                             "linux",
                             "mac",

@@ -17,8 +17,7 @@ items:
 owners:
 - horo@chromium.org
 - file://services/network/OWNERS
-future_on:
-- fuchsia
+future_on: []
 schema:
   type: boolean
 supported_on:

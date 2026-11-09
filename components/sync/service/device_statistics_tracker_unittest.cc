@@ -56,7 +56,7 @@ class DeviceStatisticsTrackerTest : public testing::Test {
       case sync_pb::SyncEnums_OsType_OS_TYPE_IOS:
         return sync_pb::SyncEnums_DeviceFormFactor_DEVICE_FORM_FACTOR_PHONE;
       case sync_pb::SyncEnums_OsType_OS_TYPE_CHROME_OS_LACROS:
-      case sync_pb::SyncEnums_OsType_OS_TYPE_FUCHSIA:
+
       case sync_pb::SyncEnums_OsType_OS_TYPE_UNSPECIFIED:
         return sync_pb::
             SyncEnums_DeviceFormFactor_DEVICE_FORM_FACTOR_UNSPECIFIED;
@@ -925,7 +925,6 @@ TEST_F(DeviceStatisticsTrackerTest,
 
 // This test doesn't work on Fuchsia, because Fuchsia is not among the platforms
 // recognized/tracked by the DeviceStatisticsTracker.
-#if !BUILDFLAG(IS_FUCHSIA)
 TEST_F(DeviceStatisticsTrackerTest,
        RecordsHistoryMetricsWhenThisPlatformButNotThisDeviceOptedIn) {
   AccountInfo primary = identity_test_env_.MakePrimaryAccountAvailable(
@@ -994,7 +993,6 @@ TEST_F(DeviceStatisticsTrackerTest,
           kThisPlatformYesOtherPlatformsNo,
       /*expected_count=*/1);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(DeviceStatisticsTrackerTest,
        RecordsHistoryMetricsWhenOnlyOtherDevicesOptedIn) {

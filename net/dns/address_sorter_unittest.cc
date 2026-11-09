@@ -27,7 +27,7 @@
 #include "net/base/winsock_init.h"
 #endif
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include "base/notimplemented.h"
 #include "net/dns/address_sorter_posix.h"
 #include "net/log/net_log_with_source.h"
@@ -50,8 +50,9 @@ void OnSortComplete(std::vector<IPEndPoint>* sorted_buf,
                     CompletionOnceCallback callback,
                     bool success,
                     std::vector<IPEndPoint> sorted) {
-  if (success)
+  if (success) {
     *sorted_buf = std::move(sorted);
+  }
   std::move(callback).Run(success ? OK : ERR_FAILED);
 }
 
@@ -82,7 +83,7 @@ TEST(AddressSorterTest, Sort) {
   EXPECT_EQ(expected_result, callback.WaitForResult());
 }
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 // A simple no-op DatagramClientSocket implementation used to verify the target
 // network used by AddressSorter.
 class TargetNetworkCheckingDatagramClientSocket : public DatagramClientSocket {
@@ -225,7 +226,7 @@ TEST(AddressSorterPosixTargetNetworkTest, PassesTargetNetworkToSocketFactory) {
 
   EXPECT_TRUE(socket_factory.called());
 }
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 }  // namespace
 }  // namespace net

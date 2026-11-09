@@ -97,8 +97,7 @@ script_test("webdriver_bidi_e2e_tests") {
   ]
 
   data_deps = [ "src:all" ]
-  if (!is_ios && !is_android && !is_castos && !is_fuchsia &&
-      !is_chromeos_device) {
+  if (!is_ios && !is_android && !is_castos && !is_chromeos_device) {
     data_deps += [
       "//chrome",
       "//chrome/test/chromedriver:chromedriver_server",

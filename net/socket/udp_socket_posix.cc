@@ -142,7 +142,7 @@ uint32_t GetInterfaceForDestination(const IPAddress& destination_address) {
 }
 #endif  // BUILDFLAG(IS_MAC)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Helper for IPv4 SSM. Sets sin_len on macOS, no-op on Linux.
 group_source_req CreateIPv4SourceGroupRequest(const IPAddress& group_address,
                                               const IPAddress& source_address,
@@ -202,7 +202,7 @@ group_source_req CreateSourceGroupRequest(const IPAddress& group_address,
   return CreateIPv6SourceGroupRequest(group_address, source_address,
                                       interface_index);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
 }  // namespace
 
@@ -245,8 +245,9 @@ int UDPSocketPosix::Open(AddressFamily address_family) {
   DCHECK_EQ(socket_, kInvalidSocket);
 
   auto owned_socket_count = TryAcquireGlobalUDPSocketCount();
-  if (owned_socket_count.empty())
+  if (owned_socket_count.empty()) {
     return ERR_INSUFFICIENT_RESOURCES;
+  }
 
   owned_socket_count_ = std::move(owned_socket_count);
   addr_family_ = ConvertAddressFamily(address_family);
@@ -347,8 +348,9 @@ int UDPSocketPosix::ConfigureOpenedSocket() {
     Close();
     return err;
   }
-  if (tag_ != SocketTag())
+  if (tag_ != SocketTag()) {
     tag_.Apply(socket_);
+  }
 
   return OK;
 }
@@ -358,8 +360,9 @@ void UDPSocketPosix::Close() {
 
   owned_socket_count_.Reset();
 
-  if (socket_ == kInvalidSocket)
+  if (socket_ == kInvalidSocket) {
     return;
+  }
 
   // Zero out any pending read/write callback state.
   read_buf_.reset();
@@ -418,8 +421,9 @@ void UDPSocketPosix::Close() {
 int UDPSocketPosix::GetPeerAddress(IPEndPoint* address) const {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   DCHECK(address);
-  if (!is_connected())
+  if (!is_connected()) {
     return ERR_SOCKET_NOT_CONNECTED;
+  }
 
   if (!remote_address_.get()) {
     SockaddrStorage storage;
@@ -440,8 +444,9 @@ int UDPSocketPosix::GetPeerAddress(IPEndPoint* address) const {
 int UDPSocketPosix::GetLocalAddress(IPEndPoint* address) const {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   DCHECK(address);
-  if (!is_connected())
+  if (!is_connected()) {
     return ERR_SOCKET_NOT_CONNECTED;
+  }
 
   if (!local_address_.get()) {
     SockaddrStorage storage;
@@ -561,8 +566,9 @@ int UDPSocketPosix::RecvFrom(IOBuffer* buf,
   DCHECK_GT(buf_len, 0);
 
   int nread = InternalRecvFrom(buf, buf_len, address);
-  if (nread != ERR_IO_PENDING)
+  if (nread != ERR_IO_PENDING) {
     return nread;
+  }
 
   if (!base::CurrentIOThread::Get()->WatchFileDescriptor(
           socket_, true, base::MessagePumpForIO::WATCH_READ,
@@ -635,13 +641,15 @@ int UDPSocketPosix::Connect(const IPEndPoint& address) {
     return CreateNetLogUDPConnectParams(address, bound_network_);
   });
   int rv = SetMulticastOptions();
-  if (rv != OK)
+  if (rv != OK) {
     return rv;
+  }
   rv = InternalConnect(address);
   net_log_.EndEventWithNetErrorCode(NetLogEventType::UDP_CONNECT, rv);
   is_connected_ = (rv == OK);
-  if (rv != OK)
+  if (rv != OK) {
     tag_ = SocketTag();
+  }
   return rv;
 }
 
@@ -675,8 +683,9 @@ int UDPSocketPosix::InternalConnect(const IPEndPoint& address) {
   }
 
   rv = HANDLE_EINTR(connect(socket_, storage.addr(), storage.addr_len));
-  if (rv < 0)
+  if (rv < 0) {
     return MapSystemError(errno);
+  }
 
   remote_address_ = std::make_unique<IPEndPoint>(target_address);
   return rv;
@@ -688,12 +697,14 @@ int UDPSocketPosix::Bind(const IPEndPoint& address) {
   DCHECK(!is_connected());
 
   int rv = SetMulticastOptions();
-  if (rv < 0)
+  if (rv < 0) {
     return rv;
+  }
 
   rv = DoBind(address);
-  if (rv < 0)
+  if (rv < 0) {
     return rv;
+  }
 
   is_connected_ = true;
   local_address_.reset();
@@ -761,8 +772,9 @@ int UDPSocketPosix::SetDoNotFragment() {
       return MapSystemError(errno);
     }
 
-    if (v6_only)
+    if (v6_only) {
       return OK;
+    }
   }
 
   int val = IP_PMTUDISC_DO;
@@ -832,8 +844,9 @@ int UDPSocketPosix::SetBroadcast(bool broadcast) {
   // and we are playing it safe by only setting it on platforms where things
   // break.
   rv = setsockopt(socket_, SOL_SOCKET, SO_REUSEPORT, &value, sizeof(value));
-  if (rv != 0)
+  if (rv != 0) {
     return MapSystemError(errno);
+  }
 #endif  // BUILDFLAG(IS_APPLE)
   rv = setsockopt(socket_, SOL_SOCKET, SO_BROADCAST, &value, sizeof(value));
 
@@ -846,8 +859,9 @@ int UDPSocketPosix::AllowAddressSharingForMulticast() {
   DCHECK(!is_connected());
 
   int rv = AllowAddressReuse();
-  if (rv != OK)
+  if (rv != OK) {
     return rv;
+  }
 
 #ifdef SO_REUSEPORT
   // Attempt to set SO_REUSEPORT if available. On some platforms, this is
@@ -857,8 +871,9 @@ int UDPSocketPosix::AllowAddressSharingForMulticast() {
   int value = 1;
   rv = setsockopt(socket_, SOL_SOCKET, SO_REUSEPORT, &value, sizeof(value));
   // Ignore errors that the option does not exist.
-  if (rv != 0 && errno != ENOPROTOOPT)
+  if (rv != 0 && errno != ENOPROTOOPT) {
     return MapSystemError(errno);
+  }
 #endif  // SO_REUSEPORT
 
   return OK;
@@ -875,8 +890,9 @@ void UDPSocketPosix::ReadWatcher::OnFileCanReadWithoutBlocking(int) {
 }
 
 void UDPSocketPosix::WriteWatcher::OnFileCanWriteWithoutBlocking(int) {
-  if (!socket_->write_callback_.is_null())
+  if (!socket_->write_callback_.is_null()) {
     socket_->DidCompleteWrite();
+  }
 }
 
 void UDPSocketPosix::DoReadCallback(int rv) {
@@ -1458,30 +1474,31 @@ int UDPSocketPosix::SetMulticastOptions() {
     int rv;
     if (addr_family_ == AF_INET) {
       u_char loop = 0;
-      rv = setsockopt(socket_, IPPROTO_IP, IP_MULTICAST_LOOP,
-                      &loop, sizeof(loop));
+      rv = setsockopt(socket_, IPPROTO_IP, IP_MULTICAST_LOOP, &loop,
+                      sizeof(loop));
     } else {
       u_int loop = 0;
-      rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_MULTICAST_LOOP,
-                      &loop, sizeof(loop));
+      rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &loop,
+                      sizeof(loop));
     }
-    if (rv < 0)
+    if (rv < 0) {
       return MapSystemError(errno);
+    }
   }
   if (multicast_time_to_live_ != IP_DEFAULT_MULTICAST_TTL) {
     int rv;
     if (addr_family_ == AF_INET) {
       u_char ttl = multicast_time_to_live_;
-      rv = setsockopt(socket_, IPPROTO_IP, IP_MULTICAST_TTL,
-                      &ttl, sizeof(ttl));
+      rv = setsockopt(socket_, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl));
     } else {
       // Signed integer. -1 to use route default.
       int ttl = multicast_time_to_live_;
-      rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_MULTICAST_HOPS,
-                      &ttl, sizeof(ttl));
+      rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl,
+                      sizeof(ttl));
     }
-    if (rv < 0)
+    if (rv < 0) {
       return MapSystemError(errno);
+    }
   }
   if (multicast_interface_ != 0) {
     switch (addr_family_) {
@@ -1491,8 +1508,9 @@ int UDPSocketPosix::SetMulticastOptions() {
         mreq.imr_address.s_addr = htonl(INADDR_ANY);
         int rv = setsockopt(socket_, IPPROTO_IP, IP_MULTICAST_IF,
                             reinterpret_cast<const char*>(&mreq), sizeof(mreq));
-        if (rv)
+        if (rv) {
           return MapSystemError(errno);
+        }
         break;
       }
       case AF_INET6: {
@@ -1500,8 +1518,9 @@ int UDPSocketPosix::SetMulticastOptions() {
         int rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_MULTICAST_IF,
                             reinterpret_cast<const char*>(&interface_index),
                             sizeof(interface_index));
-        if (rv)
+        if (rv) {
           return MapSystemError(errno);
+        }
         break;
       }
       default:
@@ -1517,15 +1536,18 @@ int UDPSocketPosix::DoBind(const IPEndPoint& address) {
     return ERR_ADDRESS_INVALID;
   }
   int rv = bind(socket_, storage.addr(), storage.addr_len);
-  if (rv == 0)
+  if (rv == 0) {
     return OK;
+  }
   int last_error = errno;
 #if BUILDFLAG(IS_CHROMEOS)
-  if (last_error == EINVAL)
+  if (last_error == EINVAL) {
     return ERR_ADDRESS_IN_USE;
+  }
 #elif BUILDFLAG(IS_APPLE)
-  if (last_error == EADDRNOTAVAIL)
+  if (last_error == EADDRNOTAVAIL) {
     return ERR_ADDRESS_IN_USE;
+  }
 #endif
   return MapSystemError(last_error);
 }
@@ -1536,8 +1558,9 @@ int UDPSocketPosix::RandomBind(const IPAddress& address) {
   for (int i = 0; i < kBindRetries; ++i) {
     int rv = DoBind(
         IPEndPoint(address, base::RandIntInclusive(kPortStart, kPortEnd)));
-    if (rv != ERR_ADDRESS_IN_USE)
+    if (rv != ERR_ADDRESS_IN_USE) {
       return rv;
+    }
   }
 
   return DoBind(IPEndPoint(address, 0));
@@ -1545,33 +1568,38 @@ int UDPSocketPosix::RandomBind(const IPAddress& address) {
 
 int UDPSocketPosix::JoinGroup(const IPAddress& group_address) const {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
-  if (!is_connected())
+  if (!is_connected()) {
     return ERR_SOCKET_NOT_CONNECTED;
+  }
 
   switch (group_address.size()) {
     case IPAddress::kIPv4AddressSize: {
-      if (addr_family_ != AF_INET)
+      if (addr_family_ != AF_INET) {
         return ERR_ADDRESS_INVALID;
+      }
       ip_mreqn mreq = {};
       mreq.imr_ifindex = multicast_interface_;
       mreq.imr_address.s_addr = htonl(INADDR_ANY);
       mreq.imr_multiaddr = ToInAddr(group_address);
-      int rv = setsockopt(socket_, IPPROTO_IP, IP_ADD_MEMBERSHIP,
-                          &mreq, sizeof(mreq));
-      if (rv < 0)
+      int rv = setsockopt(socket_, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq,
+                          sizeof(mreq));
+      if (rv < 0) {
         return MapSystemError(errno);
+      }
       return OK;
     }
     case IPAddress::kIPv6AddressSize: {
-      if (addr_family_ != AF_INET6)
+      if (addr_family_ != AF_INET6) {
         return ERR_ADDRESS_INVALID;
+      }
       ipv6_mreq mreq;
       mreq.ipv6mr_interface = multicast_interface_;
       mreq.ipv6mr_multiaddr = ToIn6Addr(group_address);
-      int rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_JOIN_GROUP,
-                          &mreq, sizeof(mreq));
-      if (rv < 0)
+      int rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_JOIN_GROUP, &mreq,
+                          sizeof(mreq));
+      if (rv < 0) {
         return MapSystemError(errno);
+      }
       return OK;
     }
     default:
@@ -1582,37 +1610,38 @@ int UDPSocketPosix::JoinGroup(const IPAddress& group_address) const {
 int UDPSocketPosix::LeaveGroup(const IPAddress& group_address) const {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 
-  if (!is_connected())
+  if (!is_connected()) {
     return ERR_SOCKET_NOT_CONNECTED;
+  }
 
   switch (group_address.size()) {
     case IPAddress::kIPv4AddressSize: {
-      if (addr_family_ != AF_INET)
+      if (addr_family_ != AF_INET) {
         return ERR_ADDRESS_INVALID;
+      }
       ip_mreqn mreq = {};
       mreq.imr_ifindex = multicast_interface_;
       mreq.imr_address.s_addr = INADDR_ANY;
       mreq.imr_multiaddr = ToInAddr(group_address);
-      int rv = setsockopt(socket_, IPPROTO_IP, IP_DROP_MEMBERSHIP,
-                          &mreq, sizeof(mreq));
-      if (rv < 0)
+      int rv = setsockopt(socket_, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq,
+                          sizeof(mreq));
+      if (rv < 0) {
         return MapSystemError(errno);
+      }
       return OK;
     }
     case IPAddress::kIPv6AddressSize: {
-      if (addr_family_ != AF_INET6)
+      if (addr_family_ != AF_INET6) {
         return ERR_ADDRESS_INVALID;
+      }
       ipv6_mreq mreq;
-#if BUILDFLAG(IS_FUCHSIA)
-      mreq.ipv6mr_interface = multicast_interface_;
-#else   // BUILDFLAG(IS_FUCHSIA)
       mreq.ipv6mr_interface = 0;  // 0 indicates default multicast interface.
-#endif  // !BUILDFLAG(IS_FUCHSIA)
       mreq.ipv6mr_multiaddr = ToIn6Addr(group_address);
-      int rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_LEAVE_GROUP,
-                          &mreq, sizeof(mreq));
-      if (rv < 0)
+      int rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_LEAVE_GROUP, &mreq,
+                          sizeof(mreq));
+      if (rv < 0) {
         return MapSystemError(errno);
+      }
       return OK;
     }
     default:
@@ -1623,7 +1652,7 @@ int UDPSocketPosix::LeaveGroup(const IPAddress& group_address) const {
 int UDPSocketPosix::SetSourceGroupMembership(const IPAddress& group_address,
                                              const IPAddress& source_address,
                                              int option) const {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
   return ERR_NOT_IMPLEMENTED;
 #else
   uint32_t interface_index = multicast_interface_;
@@ -1683,32 +1712,37 @@ int UDPSocketPosix::LeaveSourceGroup(const IPAddress& group_address,
 
 int UDPSocketPosix::SetMulticastInterface(uint32_t interface_index) {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
-  if (is_connected())
+  if (is_connected()) {
     return ERR_SOCKET_IS_CONNECTED;
+  }
   multicast_interface_ = interface_index;
   return OK;
 }
 
 int UDPSocketPosix::SetMulticastTimeToLive(int time_to_live) {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
-  if (is_connected())
+  if (is_connected()) {
     return ERR_SOCKET_IS_CONNECTED;
+  }
 
-  if (time_to_live < 0 || time_to_live > 255)
+  if (time_to_live < 0 || time_to_live > 255) {
     return ERR_INVALID_ARGUMENT;
+  }
   multicast_time_to_live_ = time_to_live;
   return OK;
 }
 
 int UDPSocketPosix::SetMulticastLoopbackMode(bool loopback) {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
-  if (is_connected())
+  if (is_connected()) {
     return ERR_SOCKET_IS_CONNECTED;
+  }
 
-  if (loopback)
+  if (loopback) {
     socket_options_ |= SOCKET_OPTION_MULTICAST_LOOP;
-  else
+  } else {
     socket_options_ &= ~SOCKET_OPTION_MULTICAST_LOOP;
+  }
   return OK;
 }
 
@@ -1746,11 +1780,12 @@ int UDPSocketPosix::SetTos(DiffServCodePoint dscp, EcnCodePoint ecn) {
   if (addr_family_ == AF_INET6) {
     // In the IPv6 case, the previous socksetopt may fail because of a lack of
     // dual-stack support. Therefore ignore the previous return value.
-    rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_TCLASS,
-                    &dscp_and_ecn, sizeof(dscp_and_ecn));
+    rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_TCLASS, &dscp_and_ecn,
+                    sizeof(dscp_and_ecn));
   }
-  if (rv < 0)
+  if (rv < 0) {
     return MapSystemError(errno);
+  }
   return OK;
 }
 

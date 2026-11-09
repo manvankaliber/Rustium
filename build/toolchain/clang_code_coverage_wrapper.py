@@ -125,8 +125,6 @@ _DEFAULT_COVERAGE_EXCLUSION_LIST = [
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/files/file_path.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/files/file_path_pa_unittest.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/files/file_util_posix.cc',
-    '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/fuchsia/fuchsia_logging.cc',
-    '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/fuchsia/fuchsia_logging_pa_unittest.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/logging.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/logging_pa_unittest.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/log_message.cc',
@@ -141,7 +139,6 @@ _DEFAULT_COVERAGE_EXCLUSION_LIST = [
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/process/process_handle_posix.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/process/process_handle_win.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/rand_util.cc',
-    '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/rand_util_fuchsia.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/rand_util_pa_unittest.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/rand_util_posix.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/rand_util_win.cc',
@@ -162,7 +159,6 @@ _DEFAULT_COVERAGE_EXCLUSION_LIST = [
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/thread_annotations_pa_unittest.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/threading/platform_thread_android_for_testing.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/threading/platform_thread.cc',
-    '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/threading/platform_thread_fuchsia_for_testing.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/threading/platform_thread_linux_for_testing.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/threading/platform_thread_posix.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/threading/platform_thread_posix_for_testing.cc',
@@ -170,7 +166,6 @@ _DEFAULT_COVERAGE_EXCLUSION_LIST = [
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/threading/platform_thread_win_for_testing.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/time/time.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/time/time_conversion_posix.cc',
-    '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/time/time_fuchsia.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/time/time_now_posix.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/time/time_override.cc',
     '../../base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/time/time_win.cc',
@@ -252,14 +247,6 @@ _COVERAGE_EXCLUSION_LIST_MAP = {
     'android': [
         # This file caused webview native library failed on arm64.
         '../../device/gamepad/dualshock4_controller.cc',
-    ]
-    + _DEFAULT_COVERAGE_EXCLUSION_LIST,
-    'fuchsia': [
-        # TODO(crbug.com/40167659): These files caused clang to crash while
-        # compiling them.
-        '../../third_party/skia/src/core/SkOpts.cpp',
-        '../../third_party/skia/src/opts/SkOpts_hsw.cpp',
-        '../../third_party/skia/third_party/skcms/skcms.cc',
     ]
     + _DEFAULT_COVERAGE_EXCLUSION_LIST,
     'linux': [

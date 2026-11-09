@@ -26,32 +26,39 @@ namespace {
 // Checks if two schemas are the same or not. Note that this function doesn't
 // consider restrictions on integers and strings nor pattern properties.
 bool IsSameSchema(Schema a, Schema b) {
-  if (a.valid() != b.valid())
+  if (a.valid() != b.valid()) {
     return false;
-  if (!a.valid())
+  }
+  if (!a.valid()) {
     return true;
-  if (a.type() != b.type())
+  }
+  if (a.type() != b.type()) {
     return false;
-  if (a.type() == base::Value::Type::LIST)
+  }
+  if (a.type() == base::Value::Type::LIST) {
     return IsSameSchema(a.GetItems(), b.GetItems());
+  }
   if (a.type() != base::Value::Type::DICT) {
     return true;
   }
   Schema::Iterator a_it = a.GetPropertiesIterator();
   Schema::Iterator b_it = b.GetPropertiesIterator();
   while (!a_it.IsAtEnd()) {
-    if (b_it.IsAtEnd())
+    if (b_it.IsAtEnd()) {
       return false;
+    }
     if (std::string_view(a_it.key()) != std::string_view(b_it.key())) {
       return false;
     }
-    if (!IsSameSchema(a_it.schema(), b_it.schema()))
+    if (!IsSameSchema(a_it.schema(), b_it.schema())) {
       return false;
+    }
     a_it.Advance();
     b_it.Advance();
   }
-  if (!b_it.IsAtEnd())
+  if (!b_it.IsAtEnd()) {
     return false;
+  }
   return IsSameSchema(a.GetAdditionalProperties(), b.GetAdditionalProperties());
 }
 #endif
@@ -135,7 +142,7 @@ TEST(GeneratePolicySource, ChromeSchemaData) {
   EXPECT_TRUE(next == kExpectedProperties.end());
 #endif  // !BUILDFLAG(IS_IOS)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   subschema = schema.GetProperty(key::kExtensionSettings);
   ASSERT_TRUE(subschema.valid());
   ASSERT_EQ(base::Value::Type::DICT, subschema.type());

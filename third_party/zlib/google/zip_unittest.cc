@@ -1174,7 +1174,7 @@ TEST_F(ZipTest, ZipTimeStamp) {
   TestTimeStamp("02 Jan 2038 23:59:58", VALID_YEAR);
 }
 
-#if defined(OS_POSIX) || defined(OS_FUCHSIA)
+#if defined(OS_POSIX)
 TEST_F(ZipTest, ZipFiles) {
   base::FilePath src_dir = GetDataDirectory().AppendASCII("test");
 
@@ -1198,7 +1198,7 @@ TEST_F(ZipTest, ZipFiles) {
     EXPECT_EQ(entry->path, zip_file_list_[i]);
   }
 }
-#endif  // defined(OS_POSIX) || defined(OS_FUCHSIA)
+#endif
 
 TEST_F(ZipTest, UnzipFilesWithIncorrectSize) {
   // test_mismatch_size.zip contains files with names from 0.txt to 7.txt with
@@ -1498,9 +1498,7 @@ TEST_F(ZipTest, NestedZip) {
 // android-marshmallow-x86-rel-non-cq).
 // Some Mac, Linux and Debug (dbg) bots tend to time out when performing this
 // test (crbug.com/1299736, crbug.com/1300448, crbug.com/1369958).
-#if defined(THREAD_SANITIZER) || BUILDFLAG(IS_FUCHSIA) ||                \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || !defined(NDEBUG)
+#if defined(THREAD_SANITIZER) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || !defined(NDEBUG)
 TEST_F(ZipTest, DISABLED_BigFile) {
 #else
 TEST_F(ZipTest, BigFile) {

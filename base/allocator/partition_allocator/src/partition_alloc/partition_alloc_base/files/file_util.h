@@ -17,14 +17,14 @@
 #include "partition_alloc/partition_alloc_base/component_export.h"
 #include "partition_alloc/partition_alloc_base/containers/span.h"
 
-#if PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+#if PA_BUILDFLAG(IS_POSIX)
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
 
 namespace partition_alloc::internal::base {
 
-#if PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+#if PA_BUILDFLAG(IS_POSIX)
 
 // Reads exactly as many bytes as `buffer` can hold from file descriptor `fd`
 // into `buffer`. This function is protected against EINTR and partial reads.
@@ -32,7 +32,7 @@ namespace partition_alloc::internal::base {
 PA_COMPONENT_EXPORT(PARTITION_ALLOC_BASE)
 bool ReadFromFD(int fd, span<char> buffer);
 
-#endif  // PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+#endif
 
 }  // namespace partition_alloc::internal::base
 

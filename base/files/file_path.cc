@@ -667,7 +667,7 @@ FilePath FilePath::InsertBeforeExtensionUTF8(std::string_view suffix) const {
   DCHECK(IsStringUTF8(suffix));
 #if BUILDFLAG(IS_WIN)
   return InsertBeforeExtension(UTF8ToWide(suffix));
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   return InsertBeforeExtension(suffix);
 #endif
 }
@@ -702,7 +702,7 @@ FilePath FilePath::AddExtensionUTF8(std::string_view extension) const {
   DCHECK(IsStringUTF8(extension));
 #if BUILDFLAG(IS_WIN)
   return AddExtension(UTF8ToWide(extension));
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   return AddExtension(extension);
 #endif
 }
@@ -812,7 +812,7 @@ FilePath FilePath::AppendUTF8(std::string_view component) const {
   DCHECK(base::IsStringUTF8(component));
 #if BUILDFLAG(IS_WIN)
   return Append(UTF8ToWide(component));
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   return Append(component);
 #endif
 }
@@ -874,19 +874,18 @@ bool FilePath::ReferencesParent() const {
   }
 
   const std::vector<StringType> components = GetComponents();
-  return std::ranges::any_of(
-      components, [](const StringType& component) {
+  return std::ranges::any_of(components, [](const StringType& component) {
 #if BUILDFLAG(IS_WIN)
-        // Windows has odd, undocumented behavior with path components
-        // containing only whitespace and . characters. So, if all we see is .
-        // and whitespace, then we treat any .. sequence as referencing parent.
-        return component.find_first_not_of(FILE_PATH_LITERAL(". \n\r\t")) ==
-                   std::string::npos &&
-               component.find(kParentDirectory) != std::string::npos;
+    // Windows has odd, undocumented behavior with path components
+    // containing only whitespace and . characters. So, if all we see is .
+    // and whitespace, then we treat any .. sequence as referencing parent.
+    return component.find_first_not_of(FILE_PATH_LITERAL(". \n\r\t")) ==
+               std::string::npos &&
+           component.find(kParentDirectory) != std::string::npos;
 #else
         return component == kParentDirectory;
 #endif
-      });
+  });
 }
 
 #if BUILDFLAG(IS_WIN)
@@ -923,7 +922,7 @@ FilePath FilePath::FromUTF16Unsafe(std::u16string_view utf16) {
   return FilePath(AsWStringView(utf16));
 }
 
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 
 // See file_path.h for a discussion of the encoding of paths on POSIX
 // platforms.  These encoding conversion functions are not quite correct.
@@ -984,7 +983,7 @@ FilePath FilePath::FromUTF16Unsafe(std::u16string_view utf16) {
 void FilePath::WriteToPickle(Pickle* pickle) const {
 #if BUILDFLAG(IS_WIN)
   pickle->WriteString16(AsStringPiece16(path_));
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   pickle->WriteString(path_);
 #else
 #error Unsupported platform
@@ -998,7 +997,7 @@ bool FilePath::ReadFromPickle(PickleIterator* iter) {
     return false;
   }
   path_ = UTF16ToWide(path);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   if (!iter->ReadString(&path_)) {
     return false;
   }
@@ -1617,7 +1616,7 @@ int FilePath::CompareIgnoreCase(StringViewType string1,
   return HFSFastUnicodeCompare(hfs1, hfs2);
 }
 
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 
 // Generic Posix system comparisons.
 int FilePath::CompareIgnoreCase(StringViewType string1,
