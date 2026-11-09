@@ -1,0 +1,742 @@
+{
+  "lines_of_code": 15894730,
+  "lines_without_comment_only_lines": 13163849,
+  "comment_lines": 3004724,
+  "actual_loc": 13163849,
+  "source_bytes": 712860351,
+  "google_mentions": 17727,
+  "files": 112510,
+  "languages": [
+    {
+      "name": "C++",
+      "lines": 7112588,
+      "share": 0.540312183769352
+    },
+    {
+      "name": "C/C++",
+      "lines": 2466260,
+      "share": 0.18735097918549506
+    },
+    {
+      "name": "Java",
+      "lines": 1073951,
+      "share": 0.08158335757269777
+    },
+    {
+      "name": "Objective-C++",
+      "lines": 864764,
+      "share": 0.06569233664105384
+    },
+    {
+      "name": "TypeScript",
+      "lines": 711374,
+      "share": 0.054039969616789134
+    },
+    {
+      "name": "Python",
+      "lines": 435396,
+      "share": 0.03307512871045543
+    },
+    {
+      "name": "HTML",
+      "lines": 133895,
+      "share": 0.01017141718960769
+    },
+    {
+      "name": "CSS",
+      "lines": 91113,
+      "share": 0.006921455875101575
+    },
+    {
+      "name": "JavaScript",
+      "lines": 74655,
+      "share": 0.0056712136397189
+    },
+    {
+      "name": "Mojo IDL",
+      "lines": 64871,
+      "share": 0.0049279659771241675
+    },
+    {
+      "name": "Protocol Buffers",
+      "lines": 40056,
+      "share": 0.0030428790242124472
+    },
+    {
+      "name": "Rust",
+      "lines": 29646,
+      "share": 0.0022520768811614294
+    },
+    {
+      "name": "SVG",
+      "lines": 19262,
+      "share": 0.0014632498443274456
+    },
+    {
+      "name": "Web IDL",
+      "lines": 9724,
+      "share": 0.0007386897251708068
+    },
+    {
+      "name": "Swift",
+      "lines": 8447,
+      "share": 0.0006416816236649327
+    },
+    {
+      "name": "Shell",
+      "lines": 8317,
+      "share": 0.0006318060925797614
+    },
+    {
+      "name": "SQL",
+      "lines": 7069,
+      "share": 0.0005370009941621178
+    },
+    {
+      "name": "IDL",
+      "lines": 4429,
+      "share": 0.00033645174750941004
+    },
+    {
+      "name": "Objective-C",
+      "lines": 3093,
+      "share": 0.00023496167420334281
+    },
+    {
+      "name": "Vue",
+      "lines": 1965,
+      "share": 0.0001492724506335495
+    },
+    {
+      "name": "C",
+      "lines": 1658,
+      "share": 0.00012595100414779903
+    },
+    {
+      "name": "Kotlin",
+      "lines": 618,
+      "share": 4.694675546642931e-05
+    },
+    {
+      "name": "FlatBuffers",
+      "lines": 363,
+      "share": 2.7575521414747312e-05
+    },
+    {
+      "name": "Batch",
+      "lines": 321,
+      "share": 2.438496521799969e-05
+    },
+    {
+      "name": "Ruby",
+      "lines": 14,
+      "share": 1.0635187322492077e-06
+    }
+  ],
+  "obsolete_functions": 5594,
+  "source_gb": 0.712860351,
+  "commit": "a1dfec08a2f3ce634fcfc77bd27a88b43cfd4136",
+  "updated": "2026-11-09T01:04:18.947037+00:00",
+  "configuration_files": 30136,
+  "root_folder_count": 47,
+  "root_folders": [
+    ".github",
+    "agents",
+    "android_webview",
+    "apps",
+    "ash",
+    "base",
+    "build",
+    "build_overrides",
+    "buildtools",
+    "cc",
+    "chrome",
+    "chromecast",
+    "chromeos",
+    "codelabs",
+    "components",
+    "content",
+    "crypto",
+    "dbus",
+    "device",
+    "docs",
+    "extensions",
+    "fuchsia_web",
+    "gin",
+    "google_apis",
+    "gpu",
+    "headless",
+    "infra",
+    "ios",
+    "ipc",
+    "media",
+    "mojo",
+    "net",
+    "pdf",
+    "printing",
+    "remoting",
+    "rlz",
+    "sandbox",
+    "services",
+    "skia",
+    "sql",
+    "storage",
+    "styleguide",
+    "testing",
+    "third_party",
+    "tools",
+    "ui",
+    "url"
+  ],
+  "obsolete_function_examples": [
+    {
+      "path": ".github/scripts/codebase_metrics.py",
+      "line": 97,
+      "name": "git"
+    },
+    {
+      "path": "PRESUBMIT.py",
+      "line": 2707,
+      "name": "_get_deprecated_sync_consent_cpp_functions"
+    },
+    {
+      "path": "PRESUBMIT.py",
+      "line": 8115,
+      "name": "_CheckForDeprecatedTech"
+    },
+    {
+      "path": "agents/extensions/install.py",
+      "line": 369,
+      "name": "check_gemini_version"
+    },
+    {
+      "path": "android_webview/browser/aw_contents_io_thread_client.cc",
+      "line": 190,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/aw_render_process_keep_alive.cc",
+      "line": 34,
+      "name": "RecordKeepAliveEvent"
+    },
+    {
+      "path": "android_webview/browser/aw_web_contents_delegate.cc",
+      "line": 395,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/cookie_manager.cc",
+      "line": 112,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/gfx/overlay_processor_webview.cc",
+      "line": 255,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/gfx/overlay_processor_webview.cc",
+      "line": 1019,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/gfx/overlay_processor_webview.cc",
+      "line": 1021,
+      "name": "DCHECK"
+    },
+    {
+      "path": "android_webview/browser/gfx/scoped_app_gl_state_restore_impl_angle.cc",
+      "line": 23,
+      "name": "EGLContext"
+    },
+    {
+      "path": "android_webview/browser/prefetch/aw_preloading_utils.cc",
+      "line": 104,
+      "name": "if"
+    },
+    {
+      "path": "android_webview/browser/prefetch/aw_preloading_utils.h",
+      "line": 44,
+      "name": "IsWebViewPrefetchOffTheMainThreadEnabled"
+    },
+    {
+      "path": "android_webview/glue/java/src/com/android/webview/chromium/ContentSettingsAdapter.java",
+      "line": 39,
+      "name": "setNavDump"
+    },
+    {
+      "path": "android_webview/glue/java/src/com/android/webview/chromium/ContentSettingsAdapter.java",
+      "line": 45,
+      "name": "getNavDump"
+    },
+    {
+      "path": "android_webview/glue/java/src/com/android/webview/chromium/SafeBrowsingResponseAdapter.java",
+      "line": 21,
+      "name": "SafeBrowsingResponseAdapter"
+    },
+    {
+      "path": "android_webview/glue/java/src/com/android/webview/chromium/WebHistoryItemChromium.java",
+      "line": 40,
+      "name": "getUrl"
+    },
+    {
+      "path": "android_webview/glue/java/src/com/android/webview/chromium/WebIconDatabaseAdapter.java",
+      "line": 18,
+      "name": "open"
+    },
+    {
+      "path": "android_webview/glue/java/src/com/android/webview/chromium/WebStorageAdapter.java",
+      "line": 137,
+      "name": "deleteOrigin"
+    }
+  ],
+  "categories": {
+    "maintained": {
+      "lines_of_code": 15894730,
+      "lines_without_comment_only_lines": 13163849,
+      "comment_lines": 3004724,
+      "actual_loc": 13163849,
+      "source_bytes": 712860351,
+      "google_mentions": 17727,
+      "files": 112510,
+      "languages": [
+        {
+          "name": "C++",
+          "lines": 7112588,
+          "share": 0.540312183769352
+        },
+        {
+          "name": "C/C++",
+          "lines": 2466260,
+          "share": 0.18735097918549506
+        },
+        {
+          "name": "Java",
+          "lines": 1073951,
+          "share": 0.08158335757269777
+        },
+        {
+          "name": "Objective-C++",
+          "lines": 864764,
+          "share": 0.06569233664105384
+        },
+        {
+          "name": "TypeScript",
+          "lines": 711374,
+          "share": 0.054039969616789134
+        },
+        {
+          "name": "Python",
+          "lines": 435396,
+          "share": 0.03307512871045543
+        },
+        {
+          "name": "HTML",
+          "lines": 133895,
+          "share": 0.01017141718960769
+        },
+        {
+          "name": "CSS",
+          "lines": 91113,
+          "share": 0.006921455875101575
+        },
+        {
+          "name": "JavaScript",
+          "lines": 74655,
+          "share": 0.0056712136397189
+        },
+        {
+          "name": "Mojo IDL",
+          "lines": 64871,
+          "share": 0.0049279659771241675
+        },
+        {
+          "name": "Protocol Buffers",
+          "lines": 40056,
+          "share": 0.0030428790242124472
+        },
+        {
+          "name": "Rust",
+          "lines": 29646,
+          "share": 0.0022520768811614294
+        },
+        {
+          "name": "SVG",
+          "lines": 19262,
+          "share": 0.0014632498443274456
+        },
+        {
+          "name": "Web IDL",
+          "lines": 9724,
+          "share": 0.0007386897251708068
+        },
+        {
+          "name": "Swift",
+          "lines": 8447,
+          "share": 0.0006416816236649327
+        },
+        {
+          "name": "Shell",
+          "lines": 8317,
+          "share": 0.0006318060925797614
+        },
+        {
+          "name": "SQL",
+          "lines": 7069,
+          "share": 0.0005370009941621178
+        },
+        {
+          "name": "IDL",
+          "lines": 4429,
+          "share": 0.00033645174750941004
+        },
+        {
+          "name": "Objective-C",
+          "lines": 3093,
+          "share": 0.00023496167420334281
+        },
+        {
+          "name": "Vue",
+          "lines": 1965,
+          "share": 0.0001492724506335495
+        },
+        {
+          "name": "C",
+          "lines": 1658,
+          "share": 0.00012595100414779903
+        },
+        {
+          "name": "Kotlin",
+          "lines": 618,
+          "share": 4.694675546642931e-05
+        },
+        {
+          "name": "FlatBuffers",
+          "lines": 363,
+          "share": 2.7575521414747312e-05
+        },
+        {
+          "name": "Batch",
+          "lines": 321,
+          "share": 2.438496521799969e-05
+        },
+        {
+          "name": "Ruby",
+          "lines": 14,
+          "share": 1.0635187322492077e-06
+        }
+      ],
+      "obsolete_functions": 5594,
+      "source_gb": 0.712860351
+    },
+    "tests": {
+      "lines_of_code": 11466710,
+      "lines_without_comment_only_lines": 10253094,
+      "comment_lines": 1505079,
+      "actual_loc": 10253094,
+      "source_bytes": 540173122,
+      "google_mentions": 32097,
+      "files": 35621,
+      "languages": [
+        {
+          "name": "C++",
+          "lines": 7835440,
+          "share": 0.7642024934132078
+        },
+        {
+          "name": "Java",
+          "lines": 1250646,
+          "share": 0.12197742457057352
+        },
+        {
+          "name": "Objective-C++",
+          "lines": 545066,
+          "share": 0.05316112385198068
+        },
+        {
+          "name": "Python",
+          "lines": 294449,
+          "share": 0.02871806305491786
+        },
+        {
+          "name": "C/C++",
+          "lines": 178176,
+          "share": 0.017377778844122563
+        },
+        {
+          "name": "JavaScript",
+          "lines": 54886,
+          "share": 0.005353115849713267
+        },
+        {
+          "name": "TypeScript",
+          "lines": 31295,
+          "share": 0.0030522493990594447
+        },
+        {
+          "name": "Swift",
+          "lines": 18937,
+          "share": 0.0018469546850931047
+        },
+        {
+          "name": "Rust",
+          "lines": 16506,
+          "share": 0.0016098555226354114
+        },
+        {
+          "name": "IDL",
+          "lines": 9781,
+          "share": 0.0009539559473462352
+        },
+        {
+          "name": "Web IDL",
+          "lines": 9414,
+          "share": 0.0009181618738694876
+        },
+        {
+          "name": "HTML",
+          "lines": 3388,
+          "share": 0.0003304368417962422
+        },
+        {
+          "name": "Protocol Buffers",
+          "lines": 2989,
+          "share": 0.00029152175918800705
+        },
+        {
+          "name": "Mojo IDL",
+          "lines": 688,
+          "share": 6.710169632698188e-05
+        },
+        {
+          "name": "Shell",
+          "lines": 625,
+          "share": 6.095720959936581e-05
+        },
+        {
+          "name": "CSS",
+          "lines": 273,
+          "share": 2.6626109153002987e-05
+        },
+        {
+          "name": "Perl",
+          "lines": 161,
+          "share": 1.5702577192796633e-05
+        },
+        {
+          "name": "Kotlin",
+          "lines": 100,
+          "share": 9.75315353589853e-06
+        },
+        {
+          "name": "Objective-C",
+          "lines": 99,
+          "share": 9.655622000539544e-06
+        },
+        {
+          "name": "C",
+          "lines": 82,
+          "share": 7.997585899436794e-06
+        },
+        {
+          "name": "Batch",
+          "lines": 58,
+          "share": 5.6568290508211475e-06
+        },
+        {
+          "name": "SVG",
+          "lines": 35,
+          "share": 3.4136037375644853e-06
+        }
+      ],
+      "obsolete_functions": 1629,
+      "source_gb": 0.540173122
+    },
+    "vendored": {
+      "lines_of_code": 16592108,
+      "lines_without_comment_only_lines": 14384478,
+      "comment_lines": 2509187,
+      "actual_loc": 14384478,
+      "source_bytes": 787322100,
+      "google_mentions": 32785,
+      "files": 162758,
+      "languages": [
+        {
+          "name": "HTML",
+          "lines": 4295091,
+          "share": 0.2985920656974831
+        },
+        {
+          "name": "C++",
+          "lines": 3136094,
+          "share": 0.21801931220583742
+        },
+        {
+          "name": "Rust",
+          "lines": 2284826,
+          "share": 0.15883968816942817
+        },
+        {
+          "name": "JavaScript",
+          "lines": 1731701,
+          "share": 0.12038678080636642
+        },
+        {
+          "name": "C/C++",
+          "lines": 1271942,
+          "share": 0.08842461992711866
+        },
+        {
+          "name": "Python",
+          "lines": 539337,
+          "share": 0.037494374144129525
+        },
+        {
+          "name": "C",
+          "lines": 518913,
+          "share": 0.03607451031591136
+        },
+        {
+          "name": "SVG",
+          "lines": 152901,
+          "share": 0.010629582804464646
+        },
+        {
+          "name": "Java",
+          "lines": 119959,
+          "share": 0.008339475370604341
+        },
+        {
+          "name": "Objective-C",
+          "lines": 61328,
+          "share": 0.00426348456996493
+        },
+        {
+          "name": "Protocol Buffers",
+          "lines": 50619,
+          "share": 0.0035190015237257827
+        },
+        {
+          "name": "IDL",
+          "lines": 49211,
+          "share": 0.0034211182359206917
+        },
+        {
+          "name": "TypeScript",
+          "lines": 44884,
+          "share": 0.0031203078763094496
+        },
+        {
+          "name": "CSS",
+          "lines": 41314,
+          "share": 0.0028721236877695525
+        },
+        {
+          "name": "PHP",
+          "lines": 24192,
+          "share": 0.0016818128541056547
+        },
+        {
+          "name": "Mojo IDL",
+          "lines": 18557,
+          "share": 0.0012900711447436605
+        },
+        {
+          "name": "Perl",
+          "lines": 11432,
+          "share": 0.0007947455583720174
+        },
+        {
+          "name": "Objective-C++",
+          "lines": 8648,
+          "share": 0.0006012036029392237
+        },
+        {
+          "name": "Shell",
+          "lines": 8307,
+          "share": 0.0005774974941739283
+        },
+        {
+          "name": "Ruby",
+          "lines": 7442,
+          "share": 0.0005173632300038973
+        },
+        {
+          "name": "Kotlin",
+          "lines": 3588,
+          "share": 0.00024943553738967795
+        },
+        {
+          "name": "Swift",
+          "lines": 2470,
+          "share": 0.0001717128699421696
+        },
+        {
+          "name": "FlatBuffers",
+          "lines": 471,
+          "share": 3.2743628235935985e-05
+        },
+        {
+          "name": "Go",
+          "lines": 462,
+          "share": 3.211795381104549e-05
+        },
+        {
+          "name": "Batch",
+          "lines": 441,
+          "share": 3.065804681963433e-05
+        },
+        {
+          "name": "Vue",
+          "lines": 122,
+          "share": 8.481364426293398e-06
+        },
+        {
+          "name": "SCSS",
+          "lines": 115,
+          "share": 7.994728762489679e-06
+        },
+        {
+          "name": "Dart",
+          "lines": 102,
+          "share": 7.090976815425628e-06
+        },
+        {
+          "name": "PowerShell",
+          "lines": 9,
+          "share": 6.256744248904965e-07
+        }
+      ],
+      "obsolete_functions": 2790,
+      "source_gb": 0.7873221
+    }
+  },
+  "excluded_files": {
+    "binary": 40868,
+    "configuration": 27613,
+    "dashboard": 1,
+    "fixture": 30208,
+    "generated": 10621,
+    "lockfile": 282,
+    "non_source": 96987
+  },
+  "scan": {
+    "tracked_files": 517469,
+    "selected_files": 313185,
+    "cached_paths": 313185,
+    "read_blobs": 0,
+    "elapsed_seconds": 67.144
+  },
+  "definitions": {
+    "scope": "Committed snapshot only; local edits and untracked files are not counted. Maintained production source is the headline; tests and vendored source are separate.",
+    "lines_of_code": "Nonblank maintained production source lines, including comments.",
+    "lines_without_comment_only_lines": "Maintained production source excluding blank and comment-only lines.",
+    "actual_loc": "Maintained production source after recognized comments are stripped. Excludes docs, configuration, lockfiles, binaries, unsupported formats, generated code and fixtures; generated-header detection is heuristic.",
+    "comment_lines": "Maintained production source lines containing recognized comments.",
+    "source_gb": "Included maintained production source bytes divided by one billion.",
+    "configuration_files": "Configuration paths counted from the tree without reading their contents.",
+    "google_mentions": "Case-insensitive whole-word matches in maintained production source.",
+    "obsolete_functions": "Heuristic declarations within six lines of obsolete/removal markers."
+  },
+  "counting_rules_version": 1
+}

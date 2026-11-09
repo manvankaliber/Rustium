@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  schedule:
+    - cron: "15 0 * * *"
 
 permissions:
   contents: write
@@ -15,18 +17,37 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Check out main
         uses: actions/checkout@v6
 
+      - name: Test metrics counting
+        run: python3 .github/scripts/codebase_metrics_test.py
+
+      - name: Restore per-blob metrics cache
+        id: metrics-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ runner.temp }}/codebase-metrics.sqlite3
+          key: codebase-metrics-${{ runner.os }}-${{ hashFiles('.github/scripts/codebase_metrics.py') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            codebase-metrics-${{ runner.os }}-${{ hashFiles('.github/scripts/codebase_metrics.py') }}-
+
       - name: Refresh the root dashboard data
-        run: python3 .github/scripts/codebase_metrics.py
+        run: python3 .github/scripts/codebase_metrics.py --cache "${{ runner.temp }}/codebase-metrics.sqlite3"
+
+      - name: Save per-blob metrics cache
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ runner.temp }}/codebase-metrics.sqlite3
+          key: ${{ steps.metrics-cache.outputs.cache-primary-key }}
 
       - name: Commit updated dashboard files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html metrics.json
+          git add index.html metrics.json metrics-history.json
           if git diff --cached --quiet; then
             echo "Dashboard is already up to date."
           else
