@@ -19,3 +19,39 @@ Android WebView, Ash). Even if these products have multiple executables, the
 code should be in subdirectories of the product.
 
 If you found a bug, please file it at https://crbug.com/new.
+
+## Licenses and upstream build compatibility
+
+The root [LICENSE](LICENSE) contains the full consolidated license texts and
+attributions, indexed by their original repository paths. Copyright notices
+embedded in source files remain in place. This consolidation does not change
+the licenses or other obligations applying to inherited material.
+
+Repeated terms are stored once as shared text blocks inside that same file.
+Each component document retains its notices and references the shared terms
+that form part of it. Different wording and exceptions remain distinct;
+formatting differences are recorded so the original documents can be restored
+exactly. No legal text is fetched externally or stored in a separate archive.
+
+After updating document records, `python tools/licenses/license_bundle.py
+--compact` rebuilds the shared text blocks and verifies lossless restoration
+before replacing the root file. Compaction preserves original wording; it
+does not infer licensing equivalence from license names.
+
+Verify the bundle with `python tools/licenses/license_bundle.py --verify`.
+Before running legacy Chromium builds, package tools, or tests that require
+the original legal-document paths, run:
+
+```sh
+python tools/licenses/license_bundle.py --materialize
+```
+
+These are generated local copies, not additional authoritative license files.
+Remove them afterward with
+`python tools/licenses/license_bundle.py --clean-materialized`. Both commands
+refuse to overwrite or delete differing local files. The root bundle is never
+overwritten. Chromium's license generator reads the bundled records directly.
+
+Include the complete root bundle with standalone source and binary releases.
+When adding dependencies or restructuring components, update the bundle's
+texts and provenance mappings to keep their applicable terms identifiable.

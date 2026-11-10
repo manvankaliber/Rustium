@@ -22,6 +22,7 @@ import sys
 import tempfile
 from typing import Any, Dict, List, Optional, Union
 
+import license_bundle
 from spdx_writer import SpdxWriter
 
 _REPOSITORY_ROOT = os.path.abspath(
@@ -393,6 +394,11 @@ _read_paths = set()
 
 
 def _read_file(path):
+  archived = license_bundle.archived_bytes(path)
+  if archived is not None:
+    _read_paths.add(str(license_bundle.ROOT / 'LICENSE'))
+    _read_paths.add(license_bundle.__file__)
+    return archived.decode('utf-8', errors='replace')
   _read_paths.add(path)
   return pathlib.Path(path).read_text(encoding='utf-8', errors='replace')
 
@@ -441,7 +447,8 @@ def _ResolvePath(path, filename, root):
     absolute_path = os.path.join(root, path, os.path.normpath(filename))
   if not _IsPathInsideRoot(root, absolute_path):
     return None
-  if os.path.exists(absolute_path):
+  if (os.path.exists(absolute_path)
+      or license_bundle.archived_bytes(absolute_path) is not None):
     return os.path.relpath(absolute_path, root)
   return None
 
@@ -1269,6 +1276,9 @@ def _ResolveGitLicenseUrl(lic_full_path: str) -> Optional[str]:
 def _CalculateLicenseUrl(scan_root: str, lic_path: str) -> str:
   """Calculates the repository URL for a single license file."""
   lic_full_path = os.path.abspath(os.path.join(scan_root, lic_path))
+  if license_bundle.archived_bytes(lic_full_path) is not None:
+    lic_full_path = str(license_bundle.ROOT / 'LICENSE')
+    lic_path = 'LICENSE'
   git_url = _ResolveGitLicenseUrl(lic_full_path)
   if git_url:
     return git_url

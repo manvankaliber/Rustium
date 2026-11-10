@@ -57,3 +57,6 @@ DIR_METADATA   text eol=lf
 
 # Skip Tricium by default on files in third_party.
 third_party/** -tricium
+
+# Preserve original legal-document bytes, including original whitespace.
+/LICENSE -text -eol -whitespace
