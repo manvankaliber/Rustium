@@ -91,15 +91,15 @@ source_set("impl") {
     "//services/metrics/public/cpp:ukm_builders",
     "//url",
   ]
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/contextual_tasks:ui",
-      "//chrome/browser/tab_list",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/user_education",
-      "//chrome/browser/ui/views/glic",
-    ]
-  }
+
+  deps += [
+    "//chrome/browser/contextual_tasks:ui",
+    "//chrome/browser/tab_list",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/user_education",
+    "//chrome/browser/ui/views/glic",
+  ]
+
   if (enable_pdf) {
     deps += [ "//components/pdf/browser" ]
   }
@@ -162,10 +162,6 @@ source_set("unit_tests") {
     "//testing/gtest",
     "//ui/base/unowned_user_data",
   ]
-  if (is_chromeos) {
-    deps += [ "//chrome/browser/ash/test:test_support" ]
-  }
-  if (!is_android) {
-    deps += [ "//chrome/browser/ui/browser_window/test:test_support" ]
-  }
+
+  deps += [ "//chrome/browser/ui/browser_window/test:test_support" ]
 }

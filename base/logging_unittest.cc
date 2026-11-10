@@ -37,7 +37,7 @@
 #include "base/posix/eintr_wrapper.h"
 #endif  // BUILDFLAG(IS_POSIX)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include <ucontext.h>
 #endif
 
@@ -313,65 +313,8 @@ TEST_F(LoggingTest, AlwaysLogErrorsToStderr) {
 }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(LoggingTest, InitWithFileDescriptor) {
-  const char kErrorLogMessage[] = "something bad happened";
 
-  // Open a file to pass to the InitLogging.
-  base::ScopedTempDir temp_dir;
-  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
-  base::FilePath file_log_path = temp_dir.GetPath().Append("file.log");
-  FILE* log_file = fopen(file_log_path.value().c_str(), "w");
-  CHECK(log_file);
-
-  // Set up logging.
-  LoggingSettings settings;
-  settings.logging_dest = LOG_TO_FILE;
-  settings.log_file = log_file;
-  InitLogging(settings);
-
-  LOG(ERROR) << kErrorLogMessage;
-
-  // Check the message was written to the log file.
-  std::string written_logs;
-  ASSERT_TRUE(base::ReadFileToString(file_log_path, &written_logs));
-  ASSERT_NE(written_logs.find(kErrorLogMessage), std::string::npos);
-}
-
-TEST_F(LoggingTest, DuplicateLogFile) {
-  const char kErrorLogMessage1[] = "something really bad happened";
-  const char kErrorLogMessage2[] = "some other bad thing happened";
-
-  base::ScopedTempDir temp_dir;
-  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
-  base::FilePath file_log_path = temp_dir.GetPath().Append("file.log");
-
-  // Set up logging.
-  LoggingSettings settings;
-  settings.logging_dest = LOG_TO_FILE;
-  settings.log_file_path = file_log_path.value().c_str();
-  InitLogging(settings);
-
-  LOG(ERROR) << kErrorLogMessage1;
-
-  // Duplicate the log FILE, close the original (to make sure we actually
-  // duplicated it), and write to the duplicate.
-  FILE* log_file_dup = DuplicateLogFILE();
-  CHECK(log_file_dup);
-  CloseLogFile();
-  UNSAFE_TODO(fprintf(log_file_dup, "%s\n", kErrorLogMessage2));
-  fflush(log_file_dup);
-
-  // Check the messages were written to the log file.
-  std::string written_logs;
-  ASSERT_TRUE(base::ReadFileToString(file_log_path, &written_logs));
-  ASSERT_NE(written_logs.find(kErrorLogMessage1), std::string::npos);
-  ASSERT_NE(written_logs.find(kErrorLogMessage2), std::string::npos);
-  fclose(log_file_dup);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
 TEST_F(LoggingTest, GetLogFileFullPath) {
   base::ScopedTempDir temp_dir;
   ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
@@ -388,7 +331,7 @@ TEST_F(LoggingTest, GetLogFileFullPath) {
   // Close the log file, so that `temp_dir` can be deleted on Windows.
   CloseLogFile();
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if !CHECK_WILL_STREAM() && BUILDFLAG(IS_WIN)
 // Tell clang to not optimize this function or else it will remove the CHECKs.
@@ -442,8 +385,7 @@ TEST_F(LoggingTest, CheckCausesDistinctBreakpoints) {
   EXPECT_NE(addr1, addr3);
   EXPECT_NE(addr2, addr3);
 }
-#elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS) && \
-    (defined(ARCH_CPU_X86_FAMILY) || defined(ARCH_CPU_ARM_FAMILY))
+#elif BUILDFLAG(IS_POSIX) && (defined(ARCH_CPU_X86_FAMILY) || defined(ARCH_CPU_ARM_FAMILY))
 
 int g_child_crash_pipe;
 
@@ -639,80 +581,6 @@ TEST_F(LoggingTest, LogPrefix) {
   EXPECT_EQ(std::string::npos, log_string->find(kPrefix));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(LoggingTest, LogCrosSyslogFormat) {
-  // Set log format to syslog format.
-  scoped_logging_settings().SetLogFormat(LogFormat::LOG_FORMAT_SYSLOG);
-
-  const char* kTimestampPattern = R"(\d\d\d\d\-\d\d\-\d\d)"             // date
-                                  R"(T\d\d\:\d\d\:\d\d\.\d\d\d\d\d\d)"  // time
-                                  R"(Z.+\n)";  // timezone
-
-  // Use a static because only captureless lambdas can be converted to a
-  // function pointer for SetLogMessageHandler().
-  static base::NoDestructor<std::string> log_string;
-  SetLogMessageHandler([](int severity, const char* file, int line,
-                          size_t start, const std::string& str) -> bool {
-    *log_string = str;
-    return true;
-  });
-
-  {
-    // All flags are true.
-    SetLogItems(true, true, true, true);
-    const char* kExpected =
-        R"(\S+ \d+ ERROR \S+\[\d+:\d+\]\: \[\S+\] message\n)";
-
-    LOG(ERROR) << "message";
-
-    EXPECT_THAT(*log_string, ::testing::MatchesRegex(kTimestampPattern));
-    EXPECT_THAT(*log_string, ::testing::MatchesRegex(kExpected));
-  }
-
-  {
-    // Timestamp is true.
-    SetLogItems(false, false, true, false);
-    const char* kExpected = R"(\S+ ERROR \S+\: \[\S+\] message\n)";
-
-    LOG(ERROR) << "message";
-
-    EXPECT_THAT(*log_string, ::testing::MatchesRegex(kTimestampPattern));
-    EXPECT_THAT(*log_string, ::testing::MatchesRegex(kExpected));
-  }
-
-  {
-    // PID and timestamp are true.
-    SetLogItems(true, false, true, false);
-    const char* kExpected = R"(\S+ ERROR \S+\[\d+\]: \[\S+\] message\n)";
-
-    LOG(ERROR) << "message";
-
-    EXPECT_THAT(*log_string, ::testing::MatchesRegex(kTimestampPattern));
-    EXPECT_THAT(*log_string, ::testing::MatchesRegex(kExpected));
-  }
-
-  {
-    // ThreadID and timestamp are true.
-    SetLogItems(false, true, true, false);
-    const char* kExpected = R"(\S+ ERROR \S+\[:\d+\]: \[\S+\] message\n)";
-
-    LOG(ERROR) << "message";
-
-    EXPECT_THAT(*log_string, ::testing::MatchesRegex(kTimestampPattern));
-    EXPECT_THAT(*log_string, ::testing::MatchesRegex(kExpected));
-  }
-
-  {
-    // All flags are false.
-    SetLogItems(false, false, false, false);
-    const char* kExpected = R"(ERROR \S+: \[\S+\] message\n)";
-
-    LOG(ERROR) << "message";
-
-    EXPECT_THAT(*log_string, ::testing::MatchesRegex(kExpected));
-  }
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // We define a custom operator<< for std::u16string so we can use it with
 // logging. This tests that conversion.

@@ -100,7 +100,6 @@ COMPUTED_ACTION_RE = re.compile(r'RecordComputedAction')
 KNOWN_COMPUTED_USERS = (
   'back_forward_menu_model.cc',
   'user_metrics.cc',  # method definition
-  'external_metrics.cc',  # see AddChromeOSActions()
   'render_thread_impl.cc',  # impl of RenderThread::RecordComputedAction()
   # browser side impl for RenderThread::RecordComputedAction()
   'render_process_host_impl.cc',
@@ -247,15 +246,6 @@ def AddBookmarkUsageActions(actions: set[str]) -> None:
   actions.add('Bookmarks.Opened.LocalStorageSyncing')
 
 
-def AddChromeOSActions(actions: set[str]) -> None:
-  """Add actions reported by non-Chrome processes in ChromeOS.
-
-  Arguments:
-    actions: set of actions to add to.
-  """
-  # Actions sent by ChromeOS update engine.
-  actions.add('Updater.ServerCertificateChanged')
-  actions.add('Updater.ServerCertificateFailed')
 
 
 def AddExtensionActions(actions):
@@ -541,8 +531,6 @@ def AddLiteralActions(actions):
   EXTENSIONS = ('.cc', '.cpp', '.mm', '.c', '.m', '.java', '.swift')
 
   # Walk the source tree to process all files.
-  ash_root = os.path.normpath(os.path.join(_CHROMIUM_SRC_PATH_STR, 'ash'))
-  WalkDirectory(ash_root, actions, EXTENSIONS, GrepForActions)
   chrome_root = os.path.normpath(os.path.join(_CHROMIUM_SRC_PATH_STR, 'chrome'))
   WalkDirectory(chrome_root, actions, EXTENSIONS, GrepForActions)
   content_root = os.path.normpath(
@@ -566,8 +554,6 @@ def AddLiteralActions(actions):
     os.path.join(_CHROMIUM_SRC_PATH_STR, 'third_party/blink/renderer/core')
   )
   WalkDirectory(webkit_core_root, actions, EXTENSIONS, GrepForActions)
-  ios_root = os.path.normpath(os.path.join(_CHROMIUM_SRC_PATH_STR, 'ios'))
-  WalkDirectory(ios_root, actions, EXTENSIONS, GrepForActions)
 
 
 def AddWebUIActions(actions):
@@ -781,7 +767,6 @@ def _GeneratedActions() -> set[str]:
   AddAutomaticResetBannerActions(actions)
   AddBookmarkManagerActions(actions)
   AddBookmarkUsageActions(actions)
-  AddChromeOSActions(actions)
   AddExtensionActions(actions)
   AddHistoryPageActions(actions)
   AddPDFPluginActions(actions)

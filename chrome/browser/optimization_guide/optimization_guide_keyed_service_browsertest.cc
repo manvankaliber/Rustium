@@ -503,12 +503,10 @@ IN_PROC_BROWSER_TEST_F(OptimizationGuideKeyedServiceBrowserTest,
                        RemoteFetchingDisabled) {
   // ChromeOS has multiple profiles and optimization guide currently does not
   // run on non-Android.
-#if !BUILDFLAG(IS_CHROMEOS)
   histogram_tester()->ExpectUniqueSample(
       "OptimizationGuide.RemoteFetchingEnabled", false, 1);
   EXPECT_TRUE(variations::IsInSyntheticTrialGroup(
       "SyntheticOptimizationGuideRemoteFetching", "Disabled"));
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(OptimizationGuideKeyedServiceBrowserTest,
@@ -897,13 +895,11 @@ IN_PROC_BROWSER_TEST_F(OptimizationGuideKeyedServiceUnsignedUserBrowserTest,
 
   EXPECT_TRUE(IsSettingVisible(UserVisibleFeatureKey::kCompose));
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // SignOut not supported on ChromeOS.
   SignOut();
   // Wallpaper Search is visible to unsigned users.
   EXPECT_TRUE(IsSettingVisible(UserVisibleFeatureKey::kWallpaperSearch));
   EXPECT_FALSE(IsSettingVisible(UserVisibleFeatureKey::kCompose));
-#endif
 }
 
 // Verifies that Model Execution Features Controller is available for incognito
@@ -975,7 +971,6 @@ IN_PROC_BROWSER_TEST_F(OptimizationGuideKeyedServiceBrowserTest,
   EXPECT_FALSE(ogks->ShouldFeatureBeCurrentlyEnabledForUser(
       UserVisibleFeatureKey::kCompose));
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // SignOut not supported on ChromeOS.
   SignOut();
 
@@ -987,7 +982,6 @@ IN_PROC_BROWSER_TEST_F(OptimizationGuideKeyedServiceBrowserTest,
 
   EXPECT_EQ(2, wallpaper_search_observer.count_feature_enabled_state_changes_);
   EXPECT_FALSE(wallpaper_search_observer.is_currently_enabled_);
-#endif
 }
 
 // Verifies that Model Execution Features Controller is available for incognito
@@ -1068,7 +1062,6 @@ IN_PROC_BROWSER_TEST_F(OptimizationGuideKeyedServiceBrowserTest,
       UserVisibleFeatureKey::kWallpaperSearch));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 // CreateGuestBrowser() is not supported for Android or ChromeOS out of the box.
 IN_PROC_BROWSER_TEST_F(OptimizationGuideKeyedServiceBrowserTest,
                        GuestProfileUniqueKeyedService) {
@@ -1101,7 +1094,6 @@ IN_PROC_BROWSER_TEST_F(OptimizationGuideKeyedServiceBrowserTest,
   EXPECT_FALSE(guest_ogks->ShouldFeatureBeCurrentlyEnabledForUser(
       UserVisibleFeatureKey::kWallpaperSearch));
 }
-#endif
 
 // Test the visibility of features with `kOptimizationGuideModelExecution`
 // enabled or disabled.
@@ -1171,12 +1163,10 @@ IN_PROC_BROWSER_TEST_F(
     RemoteFetchingAllowed) {
   // ChromeOS has multiple profiles and optimization guide currently does not
   // run on non-Android.
-#if !BUILDFLAG(IS_CHROMEOS)
   histogram_tester()->ExpectUniqueSample(
       "OptimizationGuide.RemoteFetchingEnabled", true, 1);
   EXPECT_TRUE(variations::IsInSyntheticTrialGroup(
       "SyntheticOptimizationGuideRemoteFetching", "Enabled"));
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(

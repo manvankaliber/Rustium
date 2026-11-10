@@ -18,9 +18,6 @@
 #include "third_party/blink/public/common/permissions/permission_utils.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "media/midi/midi_manager_android.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace content {
 
@@ -39,11 +36,6 @@ class MidiBrowserTest : public ContentBrowserTest {
   }
 
   void NavigateAndCheckResult(const std::string& path) {
-#if BUILDFLAG(IS_ANDROID)
-    if (!midi::HasSystemFeatureMidiForTesting()) {
-      GTEST_SKIP() << "MIDI service is not available on this device.";
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
 
     const std::u16string expected = u"pass";
     content::TitleWatcher watcher(shell()->web_contents(), expected);
@@ -53,7 +45,7 @@ class MidiBrowserTest : public ContentBrowserTest {
     EXPECT_TRUE(NavigateToURL(shell(), https_test_server_->GetURL(path)));
 
     const std::u16string result = watcher.WaitAndGetTitle();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     // Try does not allow accessing /dev/snd/seq, and it results in a platform
     // specific initialization error. See http://crbug.com/371230.
     // Also, Chromecast does not support the feature and results in
@@ -103,7 +95,7 @@ class MidiBrowserTestBlockMidiByDefault : public ContentBrowserTest {
     EXPECT_TRUE(NavigateToURL(shell(), https_test_server_->GetURL(path)));
 
     const std::u16string result = watcher.WaitAndGetTitle();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     // Try does not allow accessing /dev/snd/seq, and it results in a platform
     // specific initialization error. See http://crbug.com/371230.
     // Also, Chromecast does not support the feature and results in
@@ -172,11 +164,6 @@ class MidiBrowserTestWithPermissionOverride : public ContentBrowserTest {
 
 IN_PROC_BROWSER_TEST_F(MidiBrowserTestWithPermissionOverride,
                        RequestMIDIAccessWithSysexOverride) {
-#if BUILDFLAG(IS_ANDROID)
-  if (!midi::HasSystemFeatureMidiForTesting()) {
-    GTEST_SKIP() << "MIDI service is not available on this device.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   url::Origin origin =
       url::Origin::Create(https_test_server_->GetURL("/"));
@@ -202,7 +189,7 @@ IN_PROC_BROWSER_TEST_F(MidiBrowserTestWithPermissionOverride,
       https_test_server_->GetURL("/midi/request_midi_sysex_access.html")));
 
   const std::u16string result = watcher.WaitAndGetTitle();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   EXPECT_TRUE(result == failed || result == expected);
   if (result == failed) {
     std::string error_message =

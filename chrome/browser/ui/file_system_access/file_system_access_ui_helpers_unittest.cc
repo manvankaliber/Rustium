@@ -109,11 +109,6 @@ class FileSystemAccessUIHelpersTest : public testing::Test {};
 
 TEST_F(FileSystemAccessUIHelpersTest, GetPathForDisplayAsParagraph) {
   content::PathInfo input(base::FilePath(FILE_PATH_LITERAL("path")), "display");
-#if BUILDFLAG(IS_ANDROID)
-  // Android content-URIs should use display-name.
-  input.path = base::FilePath("content://auth/path");
-  EXPECT_EQ(u"display", GetPathForDisplayAsParagraph(input));
-#endif
 
   for (const auto& i : cases) {
     input.path = base::FilePath(i.input);
@@ -126,11 +121,6 @@ TEST_F(FileSystemAccessUIHelpersTest, GetPathForDisplayAsParagraph) {
 
 TEST_F(FileSystemAccessUIHelpersTest, GetElidedPathForDisplayAsTitle) {
   content::PathInfo input(base::FilePath(FILE_PATH_LITERAL("path")), "display");
-#if BUILDFLAG(IS_ANDROID)
-  // Android content-URIs should use display-name.
-  input.path = base::FilePath("content://auth/path");
-  EXPECT_EQ(u"display", GetElidedPathForDisplayAsTitle(input));
-#endif
 
   for (const auto& i : cases) {
     input.path = base::FilePath(i.input);

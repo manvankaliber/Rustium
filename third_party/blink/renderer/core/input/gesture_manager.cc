@@ -32,16 +32,6 @@
 #include "ui/base/dragdrop/mojom/drag_drop_types.mojom-blink.h"
 #include "ui/gfx/geometry/point_conversions.h"
 
-#if BUILDFLAG(ENABLE_UNHANDLED_TAP)
-#include "third_party/blink/public/mojom/unhandled_tap_notifier/unhandled_tap_notifier.mojom-blink.h"
-#include "third_party/blink/public/platform/browser_interface_broker_proxy.h"
-#include "third_party/blink/public/web/web_node.h"
-#include "third_party/blink/renderer/core/editing/frame_selection.h"
-#include "third_party/blink/renderer/core/editing/selection_template.h"
-#include "third_party/blink/renderer/core/editing/visible_selection.h"
-#include "third_party/blink/renderer/core/frame/local_frame_client.h"
-#include "third_party/blink/renderer/core/style/computed_style.h"
-#endif  // BUILDFLAG(ENABLE_UNHANDLED_TAP)
 
 namespace blink {
 
@@ -710,26 +700,6 @@ void GestureManager::ShowUnhandledTapUIIfNeeded(
     bool style_changed,
     Node* tapped_node,
     const gfx::Point& tapped_position_in_viewport) {
-#if BUILDFLAG(ENABLE_UNHANDLED_TAP)
-  WebNode web_node(tapped_node);
-  bool should_trigger = !dom_tree_changed && !style_changed &&
-                        tapped_node->IsTextNode() &&
-                        !web_node.IsContentEditable() &&
-                        !web_node.IsInsideFocusableElementOrARIAWidget();
-  // Renderer-side trigger-filtering to minimize messaging.
-  // The Browser may do additional trigger-filtering.
-  if (should_trigger) {
-    // Start setting up the Mojo interface connection.
-    mojo::Remote<mojom::blink::UnhandledTapNotifier> provider;
-    frame_->GetBrowserInterfaceBroker().GetInterface(
-        provider.BindNewPipeAndPassReceiver());
-
-    // Notify the Browser.
-    auto tapped_info =
-        mojom::blink::UnhandledTapInfo::New(tapped_position_in_viewport);
-    provider->ShowUnhandledTapUIIfNeeded(std::move(tapped_info));
-  }
-#endif  // BUILDFLAG(ENABLE_UNHANDLED_TAP)
 }
 
 PointerId GestureManager::GetPointerIdFromWebGestureEvent(

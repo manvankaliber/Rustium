@@ -108,7 +108,7 @@ pub(crate) const fn ulong_cast_uint(x: c_ulong) -> c_uint {
 /// Used to avoid `overflowing_literals` when the value is in-range for the unsigned number but
 /// out-of-range for signed.
 #[allow(unused)]
-#[cfg(any(target_os = "linux", target_os = "android", target_os = "l4re"))]
+#[cfg(any(target_os = "linux", target_os = "l4re"))]
 pub(crate) const fn u32_cast_ioctl(x: u32) -> crate::Ioctl {
     assert!(size_of::<u32>() <= size_of::<crate::Ioctl>()); // Should always be true
     x as crate::Ioctl

@@ -36,10 +36,6 @@ static_library("core") {
     "//components/segmentation_platform/internal",
     "//ui/base",
   ]
-
-  if (is_android) {
-    public_deps += [ "//chrome/browser/flags:flags_android" ]
-  }
 }
 
 source_set("test_support") {
@@ -90,9 +86,4 @@ source_set("unit_tests") {
     "//testing/gtest",
     "//ui/base",
   ]
-
-  if (is_android) {
-    sources += [ "tips_utils_unittest.cc" ]
-    deps += [ "//chrome/browser/flags:flags_android" ]
-  }
 }

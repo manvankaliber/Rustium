@@ -121,10 +121,8 @@ TEST(NumberFormattingTest, FormatDoubleWithFixedFractionalDigits) {
     const char* expected_german;
   } cases[] = {
       {0.0, 0, "0", "0"},
-#if !BUILDFLAG(IS_ANDROID)
       // Bionic can't printf negative zero correctly.
       {-0.0, 4, "-0.0000", "-0,0000"},
-#endif
       {1024.2, 0, "1,024", "1.024"},
       {-1024.223, 2, "-1,024.22", "-1.024,22"},
       {std::numeric_limits<double>::max(), 6,
@@ -173,10 +171,8 @@ TEST(NumberFormattingTest, FormatDoubleWithFractionalDigitRange) {
     const char* expected_german;
   } cases[] = {
       {0.0, 0, 0, "0", "0"},
-#if !BUILDFLAG(IS_ANDROID)
       // Bionic can't printf negative zero correctly.
       {-0.0, 0, 4, "-0", "-0"},
-#endif
       {1024.2, 0, 0, "1,024", "1.024"},
       {-1024.223, 0, 2, "-1,024.22", "-1.024,22"},
       {std::numeric_limits<double>::max(), 0, 6,
@@ -348,20 +344,6 @@ TEST(NumberFormattingTest, IcuNumberFormatNumberingSystems) {
        "\xd9\xa1\xd9\xab\xd9\xa2\xd9\xa3\xd9\xa4\xd9\xa5\xd9\xa6\xd9\xa7\xd8"
        "\xa3\xd8\xb3\xd9\xa4",
        "1.234,5"},
-#if BUILDFLAG(IS_IOS) && !BUILDFLAG(USE_BLINK)
-      // On non-Blink iOS, `third_party/icu/filters/ios.json` abridges non-UI
-      // locale data for "bn" and "mr" (stripping `NumberElements` and excluding
-      // them from `curr_tree`), so they fall back to "root" ("latn").
-      // TODO(crbug.com/568824848): Check whether this fallback is intended.
-      {"bn", "latn", "0", "%", ",", "12,345.67", "42%",
-       "XXX\xc2\xa0"
-       "1,234.56",
-       "1.234567E4", "1.234,5"},
-      {"mr", "latn", "0", "%", ",", "12,345.67", "42%",
-       "XXX\xc2\xa0"
-       "1,234.56",
-       "1.234567E4", "1.234,5"},
-#else
       {"bn", "beng", "\xe0\xa7\xa6", "%", ",",
        "\xe0\xa7\xa7\xe0\xa7\xa8,\xe0\xa7\xa9\xe0\xa7\xaa\xe0\xa7\xab.\xe0\xa7"
        "\xac\xe0\xa7\xad",
@@ -382,7 +364,6 @@ TEST(NumberFormattingTest, IcuNumberFormatNumberingSystems) {
        "\xac\xe0\xa5\xad"
        "E\xe0\xa5\xaa]",
        "1.234,5"},
-#endif
       {"en-US-u-nu-arab", "arab", "\xd9\xa0", "\xd9\xaa\xd8\x9c", "\xd9\xac",
        "\xd9\xa1\xd9\xa2\xd9\xac\xd9\xa3\xd9\xa4\xd9\xa5\xd9\xab\xd9\xa6\xd9"
        "\xa7",
@@ -584,17 +565,6 @@ TEST(NumberFormattingTest, IcuNumberFormatNumberingSystemEdgeCases) {
         icu::NumberFormat::createPercentInstance(locale, status));
     std::unique_ptr<icu::NumberFormat> nf_currency(
         icu::NumberFormat::createCurrencyInstance(locale, status));
-#if BUILDFLAG(IS_IOS) && !BUILDFLAG(USE_BLINK)
-    // On non-Blink iOS, `third_party/icu/filters/ios.json` excludes `rbnf_tree`
-    // and `rbnf_index`, so `NumberFormat` creation for algorithmic numbering
-    // systems fails with `U_MISSING_RESOURCE_ERROR`.
-    // TODO(crbug.com/568824848): Check whether this is intended on iOS.
-    EXPECT_EQ(status, U_MISSING_RESOURCE_ERROR);
-    EXPECT_EQ(nf_number, nullptr);
-    EXPECT_EQ(nf_percent, nullptr);
-    EXPECT_EQ(nf_currency, nullptr);
-    status = U_ZERO_ERROR;
-#else
     ASSERT_TRUE(U_SUCCESS(status));
 
     icu::UnicodeString s_num, s_pct, s_cur;
@@ -604,7 +574,6 @@ TEST(NumberFormattingTest, IcuNumberFormatNumberingSystemEdgeCases) {
     EXPECT_EQ(IcuToUtf8(s_num), tc.expected_number);
     EXPECT_EQ(IcuToUtf8(s_pct), tc.expected_percent);
     EXPECT_EQ(IcuToUtf8(s_cur), tc.expected_currency);
-#endif
 
     // UNumberFormatter uses "latn" fallback for algorithmic numbering systems
     // (UNumberFormatter does not instantiate RuleBasedNumberFormat).
@@ -983,21 +952,9 @@ TEST(NumberFormattingTest, IcuLazyCurrencyLoadingEdgeCases) {
     ASSERT_TRUE(U_SUCCESS(status));
     icu::UnicodeString cv_curr_out;
     cv_curr_nf->format(1234.56, cv_curr_out);
-#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_IOS) && !BUILDFLAG(USE_BLINK))
-    // On Android and non-Blink iOS,
-    // `third_party/icu/filters/{android,ios}.json` filters `curr_tree` to the
-    // top 150 currencies, excluding `CVE`, so `pt_CV` falls back to `pt`
-    // formatting ("1 234,56 CVE" and "," decimal separator).
-    // TODO(crbug.com/568824848): Check whether this is intended.
-    EXPECT_EQ(IcuToUtf8(cv_curr_out),
-              "1\xc2\xa0"
-              "234,56\xc2\xa0"
-              "CVE");
-#else
     EXPECT_EQ(IcuToUtf8(cv_curr_out),
               "1\xc2\xa0"
               "234$56\xc2\xa0\xe2\x80\x8b");
-#endif
 
     // Verify lazy loading of monetary separators on a non-currency
     // DecimalFormat for pt-CV and en-AT.
@@ -1008,15 +965,9 @@ TEST(NumberFormattingTest, IcuLazyCurrencyLoadingEdgeCases) {
         static_cast<icu::DecimalFormat*>(cv_dec_nf.get())
             ->getDecimalFormatSymbols();
     ASSERT_NE(cv_dec_syms, nullptr);
-#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_IOS) && !BUILDFLAG(USE_BLINK))
-    EXPECT_EQ(IcuToUtf8(cv_dec_syms->getSymbol(
-                  icu::DecimalFormatSymbols::kMonetarySeparatorSymbol)),
-              ",");
-#else
     EXPECT_EQ(IcuToUtf8(cv_dec_syms->getSymbol(
                   icu::DecimalFormatSymbols::kMonetarySeparatorSymbol)),
               "$");
-#endif
     EXPECT_EQ(IcuToUtf8(cv_dec_syms->getSymbol(
                   icu::DecimalFormatSymbols::kMonetaryGroupingSeparatorSymbol)),
               "\xc2\xa0");
@@ -1228,19 +1179,10 @@ TEST(NumberFormattingTest, IcuResourceBundleAndNumberFormatConcurrency) {
       {"hi-IN", "hi_IN", "42%", "12,345.67",
        "\xe2\x82\xb9"
        "99.95"},
-#if BUILDFLAG(IS_IOS) && !BUILDFLAG(USE_BLINK)
-      // On non-Blink iOS, `third_party/icu/filters/ios.json` abridges "bn"
-      // locale data and excludes "bn" from `curr_tree`.
-      // TODO(crbug.com/568824848): Check whether this fallback is intended.
-      {"bn-BD", "bn_BD", "42%", "12,345.67",
-       "BDT\xc2\xa0"
-       "99.95"},
-#else
       {"bn-BD", "bn_BD", "\xe0\xa7\xaa\xe0\xa7\xa8%",
        "\xe0\xa7\xa7\xe0\xa7\xa8,\xe0\xa7\xa9\xe0\xa7\xaa\xe0\xa7\xab.\xe0\xa7"
        "\xac\xe0\xa7\xad",
        "\xe0\xa7\xaf\xe0\xa7\xaf.\xe0\xa7\xaf\xe0\xa7\xab\xe0\xa7\xb3"},
-#endif
   });
 
   std::vector<icu::Locale> locales(kCases.size());

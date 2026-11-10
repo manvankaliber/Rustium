@@ -1,6 +1,3 @@
-webrtc.fyi/WebRTC Chromium FYI Android Builder
-webrtc.fyi/WebRTC Chromium FYI Android Builder (dbg)
-webrtc.fyi/WebRTC Chromium FYI Android Tester
 webrtc.fyi/WebRTC Chromium FYI Linux Builder
 webrtc.fyi/WebRTC Chromium FYI Linux Builder (dbg)
 webrtc.fyi/WebRTC Chromium FYI Linux Tester
@@ -10,10 +7,6 @@ webrtc.fyi/WebRTC Chromium FYI Mac Tester
 webrtc.fyi/WebRTC Chromium FYI Win Builder
 webrtc.fyi/WebRTC Chromium FYI Win Builder (dbg)
 webrtc.fyi/WebRTC Chromium FYI Win Tester
-webrtc.fyi/WebRTC Chromium FYI ios-device
-webrtc.fyi/WebRTC Chromium FYI ios-simulator
-webrtc/WebRTC Chromium Android Builder
-webrtc/WebRTC Chromium Android Tester
 webrtc/WebRTC Chromium Linux Builder
 webrtc/WebRTC Chromium Linux Tester
 webrtc/WebRTC Chromium Mac Builder

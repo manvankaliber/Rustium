@@ -47,7 +47,6 @@ class InitialWebUIMetricsDispatcherTest
   ui::UnownedUserDataHost unowned_user_data_host_;
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(InitialWebUIMetricsDispatcherTest, StartupFirstPaintLoggedDirectly) {
   base::HistogramTester histograms;
   InitialWebUIWindowMetricsManager manager(&browser_window_);
@@ -158,7 +157,6 @@ TEST_F(InitialWebUIMetricsDispatcherTest,
   histograms.ExpectTotalCount(
       "InitialWebUI.Startup.ReloadButton.FirstContentfulPaint", 1);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // A prewarmed WebContents that is destroyed without ever being taken by a
 // window must not record the startup renderer process metrics.
@@ -317,7 +315,6 @@ TEST_F(InitialWebUIMetricsDispatcherTest, PaintsIgnoredWithoutManager) {
   EXPECT_FALSE(WaapUIMetricsService::IsStartupFirstContentfulPaintRecorded());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(InitialWebUIMetricsDispatcherTest,
        RepeatedPaintsDoNotEmitNewWindowMetricsForStartupWindow) {
   base::HistogramTester histograms;
@@ -353,9 +350,7 @@ TEST_F(InitialWebUIMetricsDispatcherTest,
       "ReloadButton.FirstContentfulPaint.FromConstructor2",
       0);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(InitialWebUIMetricsDispatcherTest, NativeDispatcherLogsStartupMetrics) {
   base::HistogramTester histograms;
   InitialWebUIWindowMetricsManager manager(&browser_window_);
@@ -372,7 +367,6 @@ TEST_F(InitialWebUIMetricsDispatcherTest, NativeDispatcherLogsStartupMetrics) {
   histograms.ExpectTotalCount(
       "InitialWebUI.Startup.ReloadButton.FirstContentfulPaint", 1);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(InitialWebUIMetricsDispatcherTest,
        NativeDispatcherLogsNewWindowMetrics) {

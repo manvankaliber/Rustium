@@ -78,11 +78,9 @@ export {CollapsibleAutofillSettingsCardElement} from './autofill_page/collapsibl
 export {PasswordManagerImpl, PasswordManagerPage} from './autofill_page/passwords/password_manager_proxy.js';
 export type {PasswordManagerProxy} from './autofill_page/passwords/password_manager_proxy.js';
 export {BaseMixin} from './base_mixin.js';
-// <if expr="not is_chromeos">
 export {DefaultBrowserBrowserProxyImpl} from './default_browser_page/default_browser_browser_proxy.js';
 export type {DefaultBrowserBrowserProxy, DefaultBrowserInfo} from './default_browser_page/default_browser_browser_proxy.js';
 export {SettingsDefaultBrowserPageElement} from './default_browser_page/default_browser_page.js';
-// </if>
 export {SettingsFocusListContainerElement} from './focus_list_container.js';
 export {SettingsGeicSubpageElement} from './geic_page/geic_subpage.js';
 export {GlicBrowserProxyImpl} from './glic_page/glic_browser_proxy.js';
@@ -90,9 +88,7 @@ export type {GlicBrowserProxy, LoginPermission} from './glic_page/glic_browser_p
 export {SettingsGlicPageElement} from './glic_page/glic_page.js';
 export {SettingsGlicPageFeaturePrefName, SettingsGlicSubpageElement} from './glic_page/glic_subpage.js';
 export {loadTimeData} from './i18n_setup.js';
-// <if expr="not is_chromeos">
 export {convertLanguageCodeForChrome, convertLanguageCodeForTranslate, getBaseLanguage, isTranslateBaseLanguage} from './languages_page/languages_util.js';
-// </if>
 export {AiPageComposeInteractions, AiPageInteractions, AiPageSuggestionsInteractions, AutofillAiWalletNoticeFunnelEvents, AutofillSettingsReferrer, CardBenefitsUserAction, CvcDeletionUserAction, DeleteBrowsingDataAction, MetricsBrowserProxyImpl, PrivacyElementInteractions, PrivacyGuideInteractions, PrivacyGuideSettingsStates, PrivacyGuideStepsEligibleAndReached, SafeBrowsingInteractions, SafetyCheckUnusedSitePermissionsModuleInteractions, SafetyHubCardState, SafetyHubEntryPoint, SafetyHubModuleType, SafetyHubSurfaces, SettingsSearchExitReasonDesktop, SuggestionsFromGeminiAction, SuggestionsFromGeminiEntryPoint, YourSavedInfoDataCategory, YourSavedInfoDataChip, YourSavedInfoRelatedService} from './metrics_browser_proxy.js';
 export type {MetricsBrowserProxy} from './metrics_browser_proxy.js';
 export {OnStartupBrowserProxyImpl} from './on_startup_page/on_startup_browser_proxy.js';
@@ -105,10 +101,6 @@ export {StartupUrlsPageBrowserProxyImpl} from './on_startup_page/startup_urls_pa
 export type {StartupPageInfo, StartupUrlsPageBrowserProxy} from './on_startup_page/startup_urls_page_browser_proxy.js';
 export {pageVisibility, resetPageVisibilityForTesting} from './page_visibility.js';
 export type {PrivacyPageVisibility} from './page_visibility.js';
-// <if expr="is_chromeos">
-export {AccountManagerBrowserProxyImpl} from './people_page/account_manager_browser_proxy.js';
-export type {Account, AccountManagerBrowserProxy} from './people_page/account_manager_browser_proxy.js';
-// </if>
 export {SettingsPeoplePageElement} from './people_page/people_page.js';
 export {SettingsPeoplePageIndexElement} from './people_page/people_page_index.js';
 export {SettingsSyncAccountControlElement} from './people_page/sync_account_control.js';

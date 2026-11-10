@@ -23,13 +23,7 @@
 #include "gmock/gmock.h"
 #endif  // CRASHPAD_TEST_LAUNCHER_GOOGLEMOCK
 
-#if BUILDFLAG(IS_ANDROID)
-#include "util/linux/initial_signal_dispositions.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_IOS)
-#include "test/ios/google_test_setup.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "test/win/win_child_process.h"
@@ -43,7 +37,6 @@
 
 namespace {
 
-#if !BUILDFLAG(IS_IOS)
 bool GetChildTestFunctionName(std::string* child_func_name) {
   constexpr size_t arg_length =
       sizeof(crashpad::test::internal::kChildTestFunction) - 1;
@@ -56,24 +49,18 @@ bool GetChildTestFunctionName(std::string* child_func_name) {
   }
   return false;
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 }  // namespace
 
 int main(int argc, char* argv[]) {
-#if BUILDFLAG(IS_ANDROID)
-  crashpad::InitializeSignalDispositions();
-#endif  // BUILDFLAG(IS_ANDROID)
 
   crashpad::test::InitializeMainArguments(argc, argv);
 
-#if !BUILDFLAG(IS_IOS)
   std::string child_func_name;
   if (GetChildTestFunctionName(&child_func_name)) {
     return crashpad::test::internal::CheckedInvokeMultiprocessChild(
         child_func_name);
   }
-#endif  // !BUILDFLAG(IS_IOS)
 
 #if defined(CRASHPAD_IS_IN_CHROMIUM)
 
@@ -83,9 +70,7 @@ int main(int argc, char* argv[]) {
   // runner.
   const bool use_chromium_test_launcher =
       !crashpad::test::WinChildProcess::IsChildProcess();
-#elif BUILDFLAG(IS_ANDROID)
-  constexpr bool use_chromium_test_launcher = false;
-#else  // BUILDFLAG(IS_WIN)
+#else
   constexpr bool use_chromium_test_launcher = true;
 #endif  // BUILDFLAG(IS_WIN)
 
@@ -116,12 +101,5 @@ int main(int argc, char* argv[]) {
     CRASHPAD_TEST_LAUNCHER_GOOGLEMOCK
 #endif  // CRASHPAD_TEST_LAUNCHER_GOOGLEMOCK
 
-#if BUILDFLAG(IS_IOS)
-  // iOS needs to run tests within the context of an app, so call a helper that
-  // invokes UIApplicationMain().  The application delegate will call
-  // RUN_ALL_TESTS() and exit before returning control to this function.
-  crashpad::test::IOSLaunchApplicationAndRunTests(argc, argv);
-#else
   return RUN_ALL_TESTS();
-#endif
 }

@@ -752,10 +752,6 @@ class PrerenderBrowserTest : public ContentBrowserTest,
 
   void SetUpCommandLine(base::CommandLine* command_line) override {
     // The viewport meta tag is only enabled on Android.
-#if BUILDFLAG(IS_ANDROID)
-    command_line->AppendSwitchASCII(switches::kEnableBlinkFeatures,
-                                    "DisplayCutoutAPI");
-#endif
   }
 
   void TestNavigationHistory(const GURL& expected_current_url,
@@ -937,7 +933,6 @@ class PrerenderBrowserTest : public ContentBrowserTest,
   }
 
   void ResetPointerPosition() {
-#if !BUILDFLAG(IS_ANDROID)
     InputEventAckWaiter waiter(
         web_contents()->GetPrimaryMainFrame()->GetRenderWidgetHost(),
         blink::WebInputEvent::Type::kMouseMove);
@@ -945,10 +940,6 @@ class PrerenderBrowserTest : public ContentBrowserTest,
                        blink::WebMouseEvent::Button::kNoButton,
                        gfx::Point(0, 0));
     waiter.Wait();
-#else
-    // TODO(crbug.com/40269669): Simulate |WebGestureEvent| to make this
-    // function work for Android.
-#endif  // !BUILDFLAG(IS_ANDROID)
   }
 
   void PointerHoverToAnchor(
@@ -956,7 +947,6 @@ class PrerenderBrowserTest : public ContentBrowserTest,
       const std::optional<base::TimeDelta>& hover_time = std::nullopt) {
     ResetPointerPosition();
 
-#if !BUILDFLAG(IS_ANDROID)
     const auto point = CalculateCenterPointOfAnchorElement(url);
     InputEventAckWaiter waiter(
         web_contents()->GetPrimaryMainFrame()->GetRenderWidgetHost(),
@@ -971,16 +961,11 @@ class PrerenderBrowserTest : public ContentBrowserTest,
       run_loop.Run();
       ResetPointerPosition();
     }
-#else
-    // TODO(crbug.com/40269669): Simulate |WebGestureEvent| to make this
-    // function work for Android.
-#endif  // !BUILDFLAG(IS_ANDROID)
   }
 
   void PointerDownToAnchor(const GURL& url) {
     ResetPointerPosition();
 
-#if !BUILDFLAG(IS_ANDROID)
     const auto point = CalculateCenterPointOfAnchorElement(url);
     InputEventAckWaiter waiter(
         web_contents()->GetPrimaryMainFrame()->GetRenderWidgetHost(),
@@ -988,14 +973,9 @@ class PrerenderBrowserTest : public ContentBrowserTest,
     SimulateMouseEventForClick(blink::WebMouseEvent::Type::kMouseDown,
                                blink::WebMouseEvent::Button::kLeft, point);
     waiter.Wait();
-#else
-    // TODO(crbug.com/40269669): Simulate |WebGestureEvent| to make this
-    // function work for Android.
-#endif  // !BUILDFLAG(IS_ANDROID)
   }
 
   void PointerUpToAnchor(const GURL& url) {
-#if !BUILDFLAG(IS_ANDROID)
     const auto point = CalculateCenterPointOfAnchorElement(url);
     InputEventAckWaiter waiter(
         web_contents()->GetPrimaryMainFrame()->GetRenderWidgetHost(),
@@ -1003,10 +983,6 @@ class PrerenderBrowserTest : public ContentBrowserTest,
     SimulateMouseEventForClick(blink::WebMouseEvent::Type::kMouseUp,
                                blink::WebMouseEvent::Button::kLeft, point);
     waiter.Wait();
-#else
-    // TODO(crbug.com/40269669): Simulate |WebGestureEvent| to make this
-    // function work for Android.
-#endif  // !BUILDFLAG(IS_ANDROID)
   }
 
   void InsertAnchor(const GURL url) {
@@ -1467,13 +1443,8 @@ IN_PROC_BROWSER_TEST_P(NoVarySearchPrerenderBrowserTest,
 // Test that the timer is enabled and cleared appropriately when navigating to
 // a No-Vary-Search hint matched prerender with timeout waiting for headers.
 // Flaky on android: crbug.com/395337644
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_EagerTimerWorksCorrectlyForHeadersThatArriveAfterTimeout \
-  DISABLED_EagerTimerWorksCorrectlyForHeadersThatArriveAfterTimeout
-#else
 #define MAYBE_EagerTimerWorksCorrectlyForHeadersThatArriveAfterTimeout \
   EagerTimerWorksCorrectlyForHeadersThatArriveAfterTimeout
-#endif
 IN_PROC_BROWSER_TEST_P(
     NoVarySearchPrerenderBrowserTest,
     MAYBE_EagerTimerWorksCorrectlyForHeadersThatArriveAfterTimeout) {
@@ -8852,11 +8823,7 @@ IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest,
 // TODO(crbug.com/40170624): Now the File System Access API is not
 // supported on Android. Enable this browser test after
 // https://crbug.com/1011535 is fixed.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_DeferPrivateOriginFileSystem DISABLED_DeferPrivateOriginFileSystem
-#else
 #define MAYBE_DeferPrivateOriginFileSystem DeferPrivateOriginFileSystem
-#endif
 // Tests that access to the origin private file system via the File System
 // Access API is deferred until activating the prerendered page.
 IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest,
@@ -9044,31 +9011,6 @@ void LoadAndWaitForPrerenderDestroyed(test::PrerenderTestHelper* helper,
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// On Android the Notification constructor throws an exception regardless of
-// whether the page is being prerendered.
-// Tests that we will get the exception from the prerendering if the
-// prerendering page attempts to use notification.
-IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest, NotificationConstructorAndroid) {
-  const GURL initial_url = GetUrl("/empty.html");
-  const GURL prerendering_url = GetUrl("/empty.html?prerender");
-
-  // Navigate to an initial page.
-  ASSERT_TRUE(NavigateToURL(shell(), initial_url));
-
-  // Make a prerendered page.
-  PrerenderHostId host_id = AddPrerender(prerendering_url);
-  auto* prerender_render_frame_host = GetPrerenderedMainFrameHost(host_id);
-
-  // Create the Notification and fail.
-  EXPECT_EQ(false, EvalJs(prerender_render_frame_host, R"(
-    (() => {
-      try { new Notification('My Notification'); return true;
-      } catch(e) { return false; }
-    })();
-  )"));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // TODO(crbug.com/40184233): Make a WPT when we have a stable way to wait
 // cancellation runs.
@@ -9169,86 +9111,6 @@ IN_PROC_BROWSER_TEST_P(PrerenderTargetAgnosticBrowserTest, DownloadInSubframe) {
 }
 
 // The viewport meta tag is only enabled on Android.
-#if BUILDFLAG(IS_ANDROID)
-namespace {
-
-// Used to observe the viewport change in the WebContents.
-class TestViewportWebContentsObserver : public WebContentsObserver {
- public:
-  TestViewportWebContentsObserver(WebContents* web_contents,
-                                  blink::mojom::ViewportFit wanted_value)
-      : WebContentsObserver(web_contents), wanted_value_(wanted_value) {}
-
-  TestViewportWebContentsObserver(const TestViewportWebContentsObserver&) =
-      delete;
-  TestViewportWebContentsObserver& operator=(
-      const TestViewportWebContentsObserver&) = delete;
-
-  // WebContentsObserver implementation.
-  void ViewportFitChanged(blink::mojom::ViewportFit value) override {
-    value_ = value;
-    if (waiting_for_wanted_value_ && value == wanted_value_) {
-      std::move(waiting_for_wanted_value_).Run();
-    }
-  }
-
-  void WaitForWantedValue() {
-    if (value_.has_value() && value_.value() == wanted_value_) {
-      return;
-    }
-    base::RunLoop loop;
-    waiting_for_wanted_value_ = loop.QuitClosure();
-    loop.Run();
-  }
-
- private:
-  base::OnceClosure waiting_for_wanted_value_;
-  std::optional<blink::mojom::ViewportFit> value_;
-  const blink::mojom::ViewportFit wanted_value_;
-};
-
-}  // namespace
-
-// Tests that the viewport-fit property works well on prerendering page:
-// * The property in prerendering page shouldn't affect the primary page.
-// * After activating the prerendered page, WebContents's viewport property can
-//   be updated.
-IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest, ViewportFit) {
-  const GURL initial_url = GetUrl("/prerender/viewport.html");
-  const GURL prerendering_url = GetUrl("/prerender/viewport.html?prerendering");
-
-  // Navigate to an initial page.
-  ASSERT_TRUE(NavigateToURL(shell(), initial_url));
-  PrerenderHostId host_id = AddPrerender(prerendering_url);
-  test::PrerenderHostObserver host_observer(*web_contents(), host_id);
-  RenderFrameHostImpl* prerender_rfh = GetPrerenderedMainFrameHost(host_id);
-  RenderFrameHostImpl* primary_rfh = web_contents_impl()->GetPrimaryMainFrame();
-
-  {
-    // Set viewport-fit property in the primary page and the prerendering page.
-    // Prerendering shouldn't be cancelled, nor should its property affect the
-    // corresponding WebContents's property.
-    TestViewportWebContentsObserver observer(web_contents_impl(),
-                                             blink::mojom::ViewportFit::kCover);
-    EXPECT_TRUE(ExecJs(prerender_rfh, "setViewportFit('contain')"));
-    EXPECT_TRUE(ExecJs(primary_rfh, "setViewportFit('cover')"));
-    web_contents_impl()->FullscreenStateChanged(
-        primary_rfh, true, blink::mojom::FullscreenOptions::New());
-    observer.WaitForWantedValue();
-  }
-  {
-    // After the prerendering page is activated, the WebContents's property
-    // should be updated.
-    TestViewportWebContentsObserver observer(
-        web_contents_impl(), blink::mojom::ViewportFit::kContain);
-    prerender_helper()->NavigatePrimaryPage(prerendering_url);
-    web_contents_impl()->FullscreenStateChanged(
-        prerender_rfh, true, blink::mojom::FullscreenOptions::New());
-    observer.WaitForWantedValue();
-  }
-  EXPECT_TRUE(host_observer.was_activated());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // End: Tests for feature restrictions in prerendered pages ====================
 
@@ -12041,11 +11903,7 @@ IN_PROC_BROWSER_TEST_P(PrerenderBrowserTestFallbackEnabledDisabled,
     host_observer.WaitForDestroyed();
   }
   ExpectFinalStatusForSpeculationRule(
-#if BUILDFLAG(IS_ANDROID)
-      PrerenderFinalStatus::kRendererProcessKilled);
-#else
       PrerenderFinalStatus::kRendererProcessCrashed);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 // Test if the host is abandoned when the renderer page is killed.
@@ -12221,7 +12079,6 @@ IN_PROC_BROWSER_TEST_F(PrerenderBackForwardCacheBrowserTest,
   EXPECT_EQ(web_contents()->GetLastCommittedURL(), initial_url);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // The out-of-process StorageService is not implemented on Android. Also as
 // commented below, test_api->CrashNow() won't work on x86 and x86_64 Android.
 
@@ -12305,7 +12162,6 @@ IN_PROC_BROWSER_TEST_F(PrerenderRestartStorageServiceBrowserTest,
       "activated, initial",
       EvalJs(current_frame_host(), "getSessionStorageKeys()").ExtractString());
 }
-#endif
 
 // Make sure that we can deal with the speculative RFH that is created during
 // the activation navigation.
@@ -12343,18 +12199,10 @@ IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest, SpeculationRulesScript) {
 class PrerenderEagernessBrowserTest : public PrerenderBrowserTest {
  public:
   void SetUp() override {
-#if !BUILDFLAG(IS_ANDROID)
     sub_feature_list_.InitAndEnableFeatureWithParameters(
         blink::features::kPreloadingEagerHoverHeuristics,
         {{"hover_dwell_time", "50ms"}});
     PrerenderBrowserTest::SetUp();
-#else
-    // TODO(crbug.com/453705264): Add browser tests for viewport-based
-    // predictors.
-    // TODO(crbug.com/40269669): Add the implementation of pointer interaction
-    // on Android to the function below.
-    GTEST_SKIP();
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   void TearDown() override {
@@ -12690,7 +12538,6 @@ IN_PROC_BROWSER_TEST_F(PrerenderEagernessBrowserTest, kConservative) {
 // TODO(crbug.com/40275452): These tests are turned off on Fuchsia and iOS
 // tentatively because pointer simulation on them doesn't work properly on this
 // test.
-#if !BUILDFLAG(IS_IOS)
 // Tests the metrics
 // Prerender.Experimental.ReceivedPrerendersPerPrimaryPageChangedCount2
 // correctly records the number of prerenders by each category per primary page
@@ -12855,7 +12702,6 @@ IN_PROC_BROWSER_TEST_F(PrerenderEagernessBrowserTest,
 
 IN_PROC_BROWSER_TEST_P(PrerenderTargetAgnosticBrowserTest,
                        ResetForNonImmediatePrerender) {
-#if !BUILDFLAG(IS_ANDROID)
   const GURL initial_url = GetUrl("/empty.html");
   std::vector<GURL> prerendering_urls;
   std::vector<base::WeakPtr<WebContents>> prerender_web_contents_list;
@@ -12929,12 +12775,7 @@ IN_PROC_BROWSER_TEST_P(PrerenderTargetAgnosticBrowserTest,
       EXPECT_TRUE(host_existing_in_registry);
     }
   }
-#else
-  // TODO(crbug.com/40269669): Android doesn't support pointer interaction.
-  GTEST_SKIP();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
-#endif
 
 class PrerenderWithBackForwardCacheBrowserTest
     : public PrerenderBrowserTest,
@@ -13523,7 +13364,6 @@ class MultiplePrerendersWithLimitedMemoryBrowserTest
 
 // Memory pressure notifications to PrerenderHostRegistry are disabled on
 // Android only.
-#if !BUILDFLAG(IS_ANDROID)
 // Tests that moderate-level memory pressure doesn't cancel prerendering on
 // trigger.
 IN_PROC_BROWSER_TEST_F(MultiplePrerendersBrowserTest,
@@ -13633,7 +13473,6 @@ IN_PROC_BROWSER_TEST_F(MultiplePrerendersBrowserTest,
       PrerenderFinalStatus::kMemoryPressureAfterTriggered,
       prerender_urls.size());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Tests that PrerenderHostRegistry only starts prerender speculation rules
 // up to `max_num_of_running_speculation_rules` defined by a Finch param.
@@ -15019,7 +14858,6 @@ IN_PROC_BROWSER_TEST_F(PrerenderSpecificRequestHeadersBrowserTest, Prefetch) {
 // Test that there is no tags merging if both of the candidates are enacted.
 IN_PROC_BROWSER_TEST_F(PrerenderSpecificRequestHeadersBrowserTest,
                        SpeculationRulesTagsMergingForNonImmediateCandidates) {
-#if !BUILDFLAG(IS_ANDROID)
   const GURL initial_url = GetUrl(
       "/prerender/multiple_prerender_with_tags_and_different_eagerness.html");
   const GURL prerender_url = GetUrl("/prerender/empty.html");
@@ -15032,16 +14870,11 @@ IN_PROC_BROWSER_TEST_F(PrerenderSpecificRequestHeadersBrowserTest,
   EXPECT_TRUE(HasSecSpeculationTagsHeader(prerender_url));
   EXPECT_EQ(GetSecSpeculationTagsHeader(prerender_url),
             "\"conservative\", \"moderate\"");
-#else
-  // Android doesn't support pointer interaction.
-  GTEST_SKIP();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 // Test that there is no tags merging if only one of the candidates is enacted.
 IN_PROC_BROWSER_TEST_F(PrerenderSpecificRequestHeadersBrowserTest,
                        SpeculationRulesTagsNoMergingForNonImmediateCandidates) {
-#if !BUILDFLAG(IS_ANDROID)
   const GURL initial_url = GetUrl(
       "/prerender/multiple_prerender_with_tags_and_different_eagerness.html");
   const GURL prerender_url = GetUrl("/prerender/empty.html");
@@ -15053,10 +14886,6 @@ IN_PROC_BROWSER_TEST_F(PrerenderSpecificRequestHeadersBrowserTest,
 
   EXPECT_TRUE(HasSecSpeculationTagsHeader(prerender_url));
   EXPECT_EQ(GetSecSpeculationTagsHeader(prerender_url), "\"moderate\"");
-#else
-  // Android doesn't support pointer interaction.
-  GTEST_SKIP();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 class PrerenderUserAgentOverrideBrowserTest : public PrerenderBrowserTest {
@@ -17729,11 +17558,7 @@ IN_PROC_BROWSER_TEST_F(PrerenderUntilScriptBrowserTest, DeferredScript) {
 // Tests that standby prerender-until-script candidates work.
 // TODO(crbug.com/40269669): Add the implementation of pointer interaction
 // on Android to the function below.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_NonImmediateEagerness DISABLED_NonImmediateEagerness
-#else
 #define MAYBE_NonImmediateEagerness NonImmediateEagerness
-#endif
 IN_PROC_BROWSER_TEST_F(PrerenderUntilScriptBrowserTest,
                        MAYBE_NonImmediateEagerness) {
   // Navigate to an initial page.
@@ -18309,11 +18134,7 @@ IN_PROC_BROWSER_TEST_F(PrerenderUntilScriptBrowserTest,
 // exercises the MaybePrerender() code path.
 // TODO(crbug.com/40269669): Pointer hover simulation is not supported on
 // Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_UpgradeOnModerateHover DISABLED_UpgradeOnModerateHover
-#else
 #define MAYBE_UpgradeOnModerateHover UpgradeOnModerateHover
-#endif
 IN_PROC_BROWSER_TEST_F(PrerenderUntilScriptBrowserTest,
                        MAYBE_UpgradeOnModerateHover) {
   GURL url = GetUrl("/empty.html");
@@ -18383,11 +18204,7 @@ IN_PROC_BROWSER_TEST_F(PrerenderUntilScriptBrowserTest,
 // existing PUS host when the user clicks the navigation link (pointerdown).
 // TODO(crbug.com/40269669): Pointer hover simulation is not supported on
 // Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_UpgradeOnConservativeClick DISABLED_UpgradeOnConservativeClick
-#else
 #define MAYBE_UpgradeOnConservativeClick UpgradeOnConservativeClick
-#endif
 IN_PROC_BROWSER_TEST_F(PrerenderUntilScriptBrowserTest,
                        MAYBE_UpgradeOnConservativeClick) {
   GURL url = GetUrl("/empty.html");
@@ -18463,11 +18280,7 @@ class PrerenderUntilScriptUpgradeDisabledBrowserTest
 
 // TODO(crbug.com/40269669): Pointer hover simulation is not supported on
 // Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_NoUpgradeWhenFlagDisabled DISABLED_NoUpgradeWhenFlagDisabled
-#else
 #define MAYBE_NoUpgradeWhenFlagDisabled NoUpgradeWhenFlagDisabled
-#endif
 IN_PROC_BROWSER_TEST_F(PrerenderUntilScriptUpgradeDisabledBrowserTest,
                        MAYBE_NoUpgradeWhenFlagDisabled) {
   GURL url = GetUrl("/empty.html");
@@ -19426,13 +19239,8 @@ class ReuseInitiatorProcessTest : public PrerenderBrowserTest {
 // reuses the initiator's process when the feature is enabled by default.
 // TODO(crbug.com/40269669): Add the implementation of pointer interaction
 // on Android to the function below.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ModerateEagernessPrerenderUntilScriptReusesProcess \
-  DISABLED_ModerateEagernessPrerenderUntilScriptReusesProcess
-#else
 #define MAYBE_ModerateEagernessPrerenderUntilScriptReusesProcess \
   ModerateEagernessPrerenderUntilScriptReusesProcess
-#endif
 IN_PROC_BROWSER_TEST_F(
     ReuseInitiatorProcessTest,
     MAYBE_ModerateEagernessPrerenderUntilScriptReusesProcess) {
@@ -19538,13 +19346,8 @@ class ReuseInitiatorProcessDisabledTest : public PrerenderBrowserTest {
 // when the feature is disabled (killswitch).
 // TODO(crbug.com/40269669): Add the implementation of pointer interaction
 // on Android to the function below.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ModerateEagernessPrerenderUntilScriptDoesNotReuseProcessWhenDisabled \
-  DISABLED_ModerateEagernessPrerenderUntilScriptDoesNotReuseProcessWhenDisabled
-#else
 #define MAYBE_ModerateEagernessPrerenderUntilScriptDoesNotReuseProcessWhenDisabled \
   ModerateEagernessPrerenderUntilScriptDoesNotReuseProcessWhenDisabled
-#endif
 IN_PROC_BROWSER_TEST_F(
     ReuseInitiatorProcessDisabledTest,
     MAYBE_ModerateEagernessPrerenderUntilScriptDoesNotReuseProcessWhenDisabled) {
@@ -19595,13 +19398,8 @@ class ReuseInitiatorProcessPrerenderActionOnlyTest
 // reuse behavior and reuses the process.
 // TODO(crbug.com/40269669): Add the implementation of pointer interaction
 // on Android to the function below.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PrerenderUntilScriptStillReusesProcessWithPrerenderActionOnly \
-  DISABLED_PrerenderUntilScriptStillReusesProcessWithPrerenderActionOnly
-#else
 #define MAYBE_PrerenderUntilScriptStillReusesProcessWithPrerenderActionOnly \
   PrerenderUntilScriptStillReusesProcessWithPrerenderActionOnly
-#endif
 IN_PROC_BROWSER_TEST_F(
     ReuseInitiatorProcessPrerenderActionOnlyTest,
     MAYBE_PrerenderUntilScriptStillReusesProcessWithPrerenderActionOnly) {

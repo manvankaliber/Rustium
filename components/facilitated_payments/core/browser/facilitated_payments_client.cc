@@ -17,27 +17,12 @@
 #include "components/facilitated_payments/core/utils/facilitated_payments_ui_utils.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/facilitated_payments/core/browser/pix_account_linking_manager.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace payments::facilitated {
 
-#if BUILDFLAG(IS_ANDROID)
-FacilitatedPaymentsClient::FacilitatedPaymentsClient()
-    : pix_account_linking_manager_(
-          std::make_unique<PixAccountLinkingManager>(/* client= */ this)) {}
-#else
 FacilitatedPaymentsClient::FacilitatedPaymentsClient() = default;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 FacilitatedPaymentsClient::~FacilitatedPaymentsClient() = default;
 
-#if BUILDFLAG(IS_ANDROID)
-void FacilitatedPaymentsClient::SetPixAccountLinkingManagerForTesting(
-    std::unique_ptr<PixAccountLinkingManager> pix_account_linking_manager) {
-  pix_account_linking_manager_ = std::move(pix_account_linking_manager);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace payments::facilitated

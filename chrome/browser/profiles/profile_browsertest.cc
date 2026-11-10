@@ -90,10 +90,6 @@
 #include "url/gurl.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "extensions/browser/extension_protocols.h"
@@ -216,10 +212,6 @@ void SpinThreads() {
 class ProfileBrowserTest : public InProcessBrowserTest {
  protected:
   void SetUpCommandLine(base::CommandLine* command_line) override {
-#if BUILDFLAG(IS_CHROMEOS)
-    command_line->AppendSwitch(
-        ash::switches::kIgnoreUserProfileMappingForTests);
-#endif
   }
 
   std::unique_ptr<Profile> CreateProfile(const base::FilePath& path,
@@ -312,7 +304,7 @@ class ProfileBrowserTest : public InProcessBrowserTest {
 // creating a new profile synchronously.
 // TODO(crbug.com/40771709): Flaky on ChromeOS-Ash.
 // TODO(crbug.com/40826385): Failing on Mac.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_CreateNewProfileSynchronous DISABLED_CreateNewProfileSynchronous
 #else
 #define MAYBE_CreateNewProfileSynchronous CreateNewProfileSynchronous
@@ -345,7 +337,7 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, MAYBE_CreateNewProfileSynchronous) {
 // creating a profile synchronously with an existing prefs file.
 // TODO(crbug.com/40826385): Failing on Mac.
 // TODO(b/328177667): Flaky on linux-chromeos-rel.
-#if BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_CHROMEOS) && defined(NDEBUG))
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_CreateOldProfileSynchronous DISABLED_CreateOldProfileSynchronous
 #else
 #define MAYBE_CreateOldProfileSynchronous CreateOldProfileSynchronous
@@ -379,7 +371,7 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, MAYBE_CreateOldProfileSynchronous) {
 // creating a new profile asynchronously.
 // TODO(crbug.com/40811337): Flaky on ChromeOS-Ash.
 // TODO(crbug.com/40826385): Failing on Mac.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_CreateNewProfileAsynchronous DISABLED_CreateNewProfileAsynchronous
 #else
 #define MAYBE_CreateNewProfileAsynchronous CreateNewProfileAsynchronous
@@ -410,8 +402,7 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, MAYBE_CreateNewProfileAsynchronous) {
 // TODO(crbug.com/40812649): Flaky on ChromeOS-Ash.
 // TODO(crbug.com/40771709): Flaky on Mac.
 // TODO(crbug.com/456184496): Flaky on Linux MSan.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    (BUILDFLAG(IS_LINUX) && defined(MEMORY_SANITIZER))
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) && defined(MEMORY_SANITIZER)
 #define MAYBE_CreateOldProfileAsynchronous DISABLED_CreateOldProfileAsynchronous
 #else
 #define MAYBE_CreateOldProfileAsynchronous CreateOldProfileAsynchronous
@@ -445,7 +436,7 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, MAYBE_CreateOldProfileAsynchronous) {
 // Test that a README file is created for profiles that didn't have it.
 // TODO(crbug.com/40817682): Flaky on ChromeOS-Ash.
 // TODO(crbug.com/40826385): Failing on Mac.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_ProfileReadmeCreated DISABLED_ProfileReadmeCreated
 #else
 #define MAYBE_ProfileReadmeCreated ProfileReadmeCreated
@@ -476,7 +467,6 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, MAYBE_ProfileReadmeCreated) {
       base::PathExists(temp_dir.GetPath().Append(chrome::kReadmeFilename)));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, SyncToSigninMigrationSynchronous) {
   base::HistogramTester histograms;
   base::ScopedAllowBlockingForTesting allow_blocking;
@@ -495,7 +485,6 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, SyncToSigninMigrationSynchronous) {
 }
 
 // TODO(crbug.com/40817682): Flaky on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, SyncToSigninMigrationAsynchronous) {
   base::HistogramTester histograms;
   base::ScopedAllowBlockingForTesting allow_blocking;
@@ -518,8 +507,6 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, SyncToSigninMigrationAsynchronous) {
 
   FlushIoTaskRunnerAndSpinThreads();
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // LINT.IfChange(EndSessionPlatforms)
 // The EndSession IO synchronization is only critical on Windows, but also
@@ -567,14 +554,6 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTest,
   ASSERT_NE(loaded_profiles.size(), 0UL);
   Profile* profile = loaded_profiles[0];
 
-#if BUILDFLAG(IS_CHROMEOS)
-  for (auto* loaded_profile : loaded_profiles) {
-    if (!ash::ProfileHelper::IsSigninProfile(loaded_profile)) {
-      profile = loaded_profile;
-      break;
-    }
-  }
-#endif
 
   // It is important that the MessageLoop not pump extra messages during
   // EndSession() as some of those may be tasks queued to attempt to revive
@@ -813,12 +792,7 @@ class ProfileBrowserTestWithoutDestroyProfile : public ProfileBrowserTest {
 // Verifies destroying regular profile will result in destruction of OTR
 // profiles.
 // TODO(crbug.com/40924925): Re-enable this test on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_DestroyRegularProfileBeforeOTRs \
-  DISABLED_DestroyRegularProfileBeforeOTRs
-#else
 #define MAYBE_DestroyRegularProfileBeforeOTRs DestroyRegularProfileBeforeOTRs
-#endif
 IN_PROC_BROWSER_TEST_F(ProfileBrowserTestWithoutDestroyProfile,
                        MAYBE_DestroyRegularProfileBeforeOTRs) {
   auto otr_profile_id1 = Profile::OTRProfileID::CreateUniqueForTesting();
@@ -909,7 +883,6 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, DestroyOnOTRProfileAmongMany) {
   waiter[2].Wait();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class ProfileBrowserTestWithDestroyProfile : public ProfileBrowserTest {
  public:
   ProfileBrowserTestWithDestroyProfile() {
@@ -967,7 +940,6 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTestWithDestroyProfile,
   EXPECT_TRUE(otr_waiter.destroyed());
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Tests Profile::GetAllOffTheRecordProfiles
 IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, TestGetAllOffTheRecordProfiles) {
@@ -1041,17 +1013,14 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, TestProfileTypes) {
   EXPECT_EQ(profile_metrics::BrowserProfileType::kOtherOffTheRecordProfile,
             profile_metrics::GetBrowserProfileType(otr_profile));
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   base::HistogramTester tester;
   BrowserWindowInterface* guest_browser = CreateGuestBrowser();
 
   EXPECT_EQ(
       profile_metrics::BrowserProfileType::kGuest,
       profile_metrics::GetBrowserProfileType(guest_browser->GetProfile()));
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, UnderOneMinute) {
   base::HistogramTester tester;
@@ -1102,5 +1071,3 @@ IN_PROC_BROWSER_TEST_F(ProfileBrowserTest, LomProfileId) {
   uint64_t lom_id2 = profile->GetLomProfileId();
   EXPECT_EQ(lom_id1, lom_id2);
 }
-
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)

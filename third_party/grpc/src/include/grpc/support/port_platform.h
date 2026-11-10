@@ -163,43 +163,6 @@
 #else
 #define GPR_WINDOWS_ATOMIC 1
 #endif
-#elif defined(ANDROID) || defined(__ANDROID__)
-#define GPR_PLATFORM_STRING "android"
-#define GPR_ANDROID 1
-#ifndef __ANDROID_API__
-#error "__ANDROID_API__ must be defined for Android builds."
-#endif
-#if __ANDROID_API__ < 21
-#error "Requires Android API v21 and above"
-#endif
-// TODO(apolcyn): re-evaluate support for c-ares
-// on android after upgrading our c-ares dependency.
-// See https://github.com/grpc/grpc/issues/18038.
-#define GRPC_ARES 0
-#ifdef _LP64
-#define GPR_ARCH_64 1
-#else /* _LP64 */
-#define GPR_ARCH_32 1
-#endif /* _LP64 */
-#define GPR_CPU_POSIX 1
-#define GPR_GCC_SYNC 1
-#define GPR_POSIX_ENV 1
-#define GPR_POSIX_TMPFILE 1
-#define GPR_POSIX_STAT 1
-#define GPR_ANDROID_LOG 1
-#define GPR_POSIX_STRING 1
-#define GPR_POSIX_SUBPROCESS 1
-#define GPR_POSIX_SYNC 1
-#define GPR_POSIX_TIME 1
-#define GPR_HAS_PTHREAD_H 1
-#define GPR_GETPID_IN_UNISTD_H 1
-#define GPR_SUPPORT_CHANNELS_FROM_FD 1
-#if defined(__has_include)
-#if __has_include(<android/ndk-version.h>)
-#include <android/ndk-version.h>
-#endif /* __has_include(<android/ndk-version.h>) */
-#endif /* defined(__has_include) */
-#include <linux/version.h>
 #elif defined(__linux__)
 #define GPR_PLATFORM_STRING "linux"
 #ifndef _BSD_SOURCE
@@ -273,20 +236,9 @@
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE
 #endif
-#if TARGET_OS_IPHONE
-#define GPR_PLATFORM_STRING "ios"
-#define GPR_CPU_IPHONE 1
-#define GRPC_CFSTREAM 1
-#ifndef GRPC_IOS_EVENT_ENGINE_CLIENT
-#define GRPC_IOS_EVENT_ENGINE_CLIENT 1
-#endif /* GRPC_IOS_EVENT_ENGINE_CLIENT */
-/* the c-ares resolver isn't safe to enable on iOS */
-#define GRPC_ARES 0
-#else /* TARGET_OS_IPHONE */
 #define GPR_PLATFORM_STRING "osx"
 #define GPR_CPU_POSIX 1
 #define GPR_POSIX_CRASH_HANDLER 1
-#endif
 #define GPR_APPLE 1
 #define GPR_GCC_ATOMIC 1
 #define GPR_POSIX_LOG 1

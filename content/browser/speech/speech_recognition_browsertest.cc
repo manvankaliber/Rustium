@@ -80,9 +80,6 @@
 #include "third_party/blink/public/mojom/permissions/permission_status.mojom.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 using base::RunLoop;
 using CaptureCallback = media::AudioCapturerSource::CaptureCallback;
@@ -412,9 +409,6 @@ class SpeechRecognitionBrowserTest : public ContentBrowserTest {
         /*enabled_features=*/
         {
             media::kOnDeviceWebSpeech,
-#if BUILDFLAG(IS_CHROMEOS)
-            ash::features::kOnDeviceSpeechRecognition,
-#endif  // BUILDFLAG(IS_CHROMEOS)
         },
         /*disabled_features=*/{});
   }
@@ -699,27 +693,10 @@ IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
                              session_id_future.GetCallback())));
 
   int session_id = session_id_future.Get();
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, browser-initiated sessions without a `RenderFrameHost` (such
-  // as Dictation) must not be aborted by `FrameSessionTracker`.
-  base::test::TestFuture<void> io_flushed;
-  GetIOThreadTaskRunner({})->PostTaskAndReply(FROM_HERE, base::DoNothing(),
-                                              io_flushed.GetCallback());
-  EXPECT_TRUE(io_flushed.Wait());
-  EXPECT_FALSE(ended_future.IsReady());
-
-  GetIOThreadTaskRunner({})->PostTask(
-      FROM_HERE,
-      base::BindOnce(&SpeechRecognitionManager::AbortSession,
-                     base::Unretained(SpeechRecognitionManager::GetInstance()),
-                     session_id));
-  EXPECT_TRUE(ended_future.Wait());
-#else
   // On non-ChromeOS platforms, sessions without a `RenderFrameHost` are aborted
   // by `FrameSessionTracker`.
   (void)session_id;
   EXPECT_TRUE(ended_future.Wait());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
@@ -1054,93 +1031,6 @@ IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
       nullptr);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
-                       CompromisedRendererVisibilityBypass) {
-  ASSERT_TRUE(embedded_test_server()->Start());
-  GURL url = embedded_test_server()->GetURL("/empty.html");
-  EXPECT_TRUE(NavigateToURL(shell(), url));
-
-  mojo::Remote<media::mojom::SpeechRecognizer> speech_recognizer;
-  content::GetIOThreadTaskRunner({})->PostTask(
-      FROM_HERE,
-      base::BindOnce(
-          &SpeechRecognitionDispatcherHost::Create,
-          shell()->web_contents()->GetPrimaryMainFrame()->GetGlobalId(),
-          speech_recognizer.BindNewPipeAndPassReceiver()));
-
-  MockSpeechRecognitionSessionClient client;
-  media::mojom::StartSpeechRecognitionRequestParamsPtr params =
-      media::mojom::StartSpeechRecognitionRequestParams::New();
-  params->client = client.BindNewPipeAndPassRemote();
-  mojo::Remote<media::mojom::SpeechRecognitionSession> session_remote;
-  params->session_receiver = session_remote.BindNewPipeAndPassReceiver();
-
-  speech_recognizer->Start(std::move(params));
-
-  // Wait for the session to be fully started and tracked by the manager.
-  client.WaitForStarted();
-
-  // Verify the session is tracked.
-  EXPECT_EQ(1,
-            SpeechRecognitionManagerImpl::GetSessionTrackerCountForTesting(
-                shell()->web_contents()->GetPrimaryMainFrame()->GetGlobalId()));
-
-  // Hide the WebContents to simulate the user switching tabs or backgrounding
-  // Chrome.
-  shell()->web_contents()->WasHidden();
-
-  // Wait for the browser process to abort the session and signal the client.
-  client.WaitForEvent();
-
-  // Without the fix, the session tracker count would NOT be 0 because
-  // SpeechRecognitionManagerImpl did not observe visibility changes.
-  // The test asserts it is 0 to ensure the secure behavior is enforced.
-  EXPECT_EQ(0,
-            SpeechRecognitionManagerImpl::GetSessionTrackerCountForTesting(
-                shell()->web_contents()->GetPrimaryMainFrame()->GetGlobalId()));
-}
-
-IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
-                       CompromisedRendererStartWhileHiddenBypass) {
-  ASSERT_TRUE(embedded_test_server()->Start());
-  GURL url = embedded_test_server()->GetURL("/empty.html");
-  EXPECT_TRUE(NavigateToURL(shell(), url));
-
-  // Hide the WebContents to simulate the user switching tabs or backgrounding
-  // Chrome.
-  shell()->web_contents()->WasHidden();
-
-  mojo::Remote<media::mojom::SpeechRecognizer> speech_recognizer;
-  content::GetIOThreadTaskRunner({})->PostTask(
-      FROM_HERE,
-      base::BindOnce(
-          &SpeechRecognitionDispatcherHost::Create,
-          shell()->web_contents()->GetPrimaryMainFrame()->GetGlobalId(),
-          speech_recognizer.BindNewPipeAndPassReceiver()));
-
-  MockSpeechRecognitionSessionClient client;
-  media::mojom::StartSpeechRecognitionRequestParamsPtr params =
-      media::mojom::StartSpeechRecognitionRequestParams::New();
-  params->client = client.BindNewPipeAndPassRemote();
-  mojo::Remote<media::mojom::SpeechRecognitionSession> session_remote;
-  params->session_receiver = session_remote.BindNewPipeAndPassReceiver();
-
-  speech_recognizer->Start(std::move(params));
-
-  // Wait for the session to either start (vulnerable) or error out/end
-  // (secure).
-  client.WaitForEvent();
-
-  // Without the fix, the session tracker count would NOT be 0
-  // even though the page is hidden, because SpeechRecognitionManagerImpl
-  // did not observe visibility changes during Start.
-  // The test asserts it is 0 to ensure the secure behavior is enforced.
-  EXPECT_EQ(0,
-            SpeechRecognitionManagerImpl::GetSessionTrackerCountForTesting(
-                shell()->web_contents()->GetPrimaryMainFrame()->GetGlobalId()));
-}
-#endif
 
 IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
                        OnDeviceWebSpeechRecognition) {

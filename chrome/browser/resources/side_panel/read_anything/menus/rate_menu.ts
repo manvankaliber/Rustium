@@ -27,10 +27,6 @@ export const RATE_OPTIONS: number[] = [
   1.2,
   1.5,
   2,
-  // <if expr="is_chromeos">
-  3,
-  4,
-  // </if>
 ];
 
 const RateMenuElementBase = WebUiListenerMixinLit(CrLitElement);

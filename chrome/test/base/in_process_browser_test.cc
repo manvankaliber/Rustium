@@ -38,9 +38,7 @@
 #include "chrome/browser/chrome_content_browser_client.h"
 #include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/ui/omnibox/omnibox_popup_webui_creation.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/actor/ui/actor_task_unload_handler.h"
-#endif
 #include "chrome/browser/lifetime/application_lifetime.h"
 #include "chrome/browser/lifetime/application_lifetime_desktop.h"
 #include "chrome/browser/lifetime/browser_shutdown.h"
@@ -141,32 +139,10 @@
 #include "chrome/browser/extensions/extension_management.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/search_engine_choice/search_engine_choice_dialog_service.h"
 #include "chrome/browser/ui/webui/whats_new/whats_new_util.h"
 #include "components/storage_monitor/test_storage_monitor.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "ash/public/cpp/test/shell_test_api.h"
-#include "ash/shell.h"
-#include "base/system/sys_info.h"
-#include "chrome/browser/ash/app_restore/full_restore_app_launch_handler.h"
-#include "chrome/browser/ash/input_method/input_method_configuration.h"
-#include "chrome/browser/ash/ownership/owner_settings_service_ash_factory.h"
-#include "chromeos/ash/components/browser_context_helper/browser_context_helper.h"
-#include "chromeos/ash/components/cryptohome/cryptohome_parameters.h"
-#include "chromeos/ash/services/device_sync/device_sync_impl.h"
-#include "chromeos/ash/services/device_sync/fake_device_sync.h"
-#include "chromeos/dbus/constants/dbus_paths.h"
-#include "components/ownership/mock_owner_key_util.h"
-#include "components/ownership/owner_key_util.h"
-#include "components/ownership/owner_key_util_impl.h"
-#include "components/user_manager/user_names.h"
-#include "ui/display/display_switches.h"
-#include "ui/events/test/event_generator.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_OZONE)
 #include "ui/views/test/test_desktop_screen_ozone.h"
@@ -187,81 +163,6 @@
 
 namespace {
 
-#if BUILDFLAG(IS_CHROMEOS)
-class FakeDeviceSyncImplFactory
-    : public ash::device_sync::DeviceSyncImpl::Factory {
- public:
-  FakeDeviceSyncImplFactory() = default;
-  ~FakeDeviceSyncImplFactory() override = default;
-
-  // ash::device_sync::DeviceSyncImpl::Factory:
-  std::unique_ptr<ash::device_sync::DeviceSyncBase> CreateInstance(
-      signin::IdentityManager* identity_manager,
-      gcm::GCMDriver* gcm_driver,
-      instance_id::InstanceIDDriver* instance_id_driver,
-      PrefService* profile_prefs,
-      ash::device_sync::ClientAppMetadataProvider* client_app_metadata_provider,
-      scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory,
-      std::unique_ptr<base::OneShotTimer> timer,
-      ash::device_sync::AttestationCertificatesSyncer::
-          GetAttestationCertificatesFunction
-              get_attestation_certificates_function) override {
-    return std::make_unique<ash::device_sync::FakeDeviceSync>();
-  }
-};
-
-FakeDeviceSyncImplFactory* GetFakeDeviceSyncImplFactory() {
-  static base::NoDestructor<FakeDeviceSyncImplFactory> factory;
-  return factory.get();
-}
-
-// OwnerKeyUtil implementation for browser tests that delegates file and slot
-// lookups to OwnerKeyUtilImpl while importing a pre-generated RSA key in
-// GenerateKeyPair() to avoid expensive runtime prime generation.
-class TestOwnerKeyUtil : public ownership::OwnerKeyUtil {
- public:
-  TestOwnerKeyUtil() = default;
-  TestOwnerKeyUtil(const TestOwnerKeyUtil&) = delete;
-  TestOwnerKeyUtil& operator=(const TestOwnerKeyUtil&) = delete;
-
-  // ownership::OwnerKeyUtil:
-  scoped_refptr<ownership::PublicKey> ImportPublicKey() override {
-    scoped_refptr<ownership::OwnerKeyUtil> impl = GetImpl();
-    return impl ? impl->ImportPublicKey() : nullptr;
-  }
-
-  crypto::ScopedSECKEYPrivateKey GenerateKeyPair(PK11SlotInfo* slot) override {
-    return mock_->GenerateKeyPair(slot);
-  }
-
-  crypto::ScopedSECKEYPrivateKey FindPrivateKeyInSlot(
-      const std::vector<uint8_t>& key,
-      PK11SlotInfo* slot) override {
-    scoped_refptr<ownership::OwnerKeyUtil> impl = GetImpl();
-    return impl ? impl->FindPrivateKeyInSlot(key, slot) : nullptr;
-  }
-
-  bool IsPublicKeyPresent() override {
-    scoped_refptr<ownership::OwnerKeyUtil> impl = GetImpl();
-    return impl && impl->IsPublicKeyPresent();
-  }
-
- private:
-  ~TestOwnerKeyUtil() override = default;
-
-  scoped_refptr<ownership::OwnerKeyUtil> GetImpl() const {
-    base::FilePath public_key_path;
-    if (!base::PathService::Get(chromeos::dbus_paths::FILE_OWNER_KEY,
-                                &public_key_path)) {
-      return nullptr;
-    }
-    return base::MakeRefCounted<ownership::OwnerKeyUtilImpl>(public_key_path);
-  }
-
-  scoped_refptr<ownership::MockOwnerKeyUtil> mock_ =
-      base::MakeRefCounted<ownership::MockOwnerKeyUtil>();
-};
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 class ChromeBrowserMainExtraPartsBrowserProcessInjection
@@ -368,27 +269,12 @@ InProcessBrowserTest::InProcessBrowserTest(
 }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-void InProcessBrowserTest::set_launch_browser_for_testing(
-    std::unique_ptr<ash::full_restore::ScopedLaunchBrowserForTesting>
-        launch_browser_for_testing) {
-  launch_browser_for_testing_ = std::move(launch_browser_for_testing);
-}
-#endif
 
 void InProcessBrowserTest::RunScheduledLayouts() {
 #if defined(TOOLKIT_VIEWS)
   views::Widget::Widgets widgets_to_layout;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // WidgetTest::GetAllWidgets() doesn't work for ChromeOS in a production
-  // environment. We must get the Widgets ourself.
-  for (aura::Window* root_window : ash::Shell::GetAllRootWindows()) {
-    widgets_to_layout.merge(views::Widget::GetAllChildWidgets(root_window));
-  }
-#else
   widgets_to_layout = views::test::WidgetTest::GetAllWidgets();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Collect WeakPtrs to handle cases where a widget is destroyed
   // synchronously during another widget's layout (e.g. Tooltips on
@@ -468,8 +354,7 @@ void InProcessBrowserTest::Initialize() {
   // (crbug.com/563340729). Dedicated prewarm tests explicitly enable it via
   // ScopedPrewarmFeatureList.
   disabled_features.push_back(features::kPrewarm);
-#if !EXPENSIVE_TEST_LOGIC_IS_ON() && !BUILDFLAG(IS_ANDROID) && \
-    !BUILDFLAG(IS_MAC)
+#if !EXPENSIVE_TEST_LOGIC_IS_ON() && !BUILDFLAG(IS_MAC)
   // Running VideoCaptureService in the browser process avoids spawning a
   // dedicated utility process on every test startup (e.g. via Ash Privacy Hub
   // CameraPresenceNotifier or MediaDevicesManager). Excluded on macOS where
@@ -496,10 +381,6 @@ void InProcessBrowserTest::Initialize() {
               &InProcessBrowserTest::OnWillCreateBrowserContextKeyedServices,
               base::Unretained(this)));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  launch_browser_for_testing_ =
-      std::make_unique<ash::full_restore::ScopedLaunchBrowserForTesting>();
-#endif
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   allow_unpacked_without_developer_mode_ = extensions::ExtensionManagement::
       AllowUnpackedWithoutDeveloperModeForTesting();
@@ -555,40 +436,6 @@ void InProcessBrowserTest::SetUp() {
   ASSERT_TRUE(SetUpUserDataDirectory())
       << "Could not set up user data directory.";
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // No need to redirect log for test.
-  command_line->AppendSwitch(ash::switches::kDisableLoggingRedirect);
-
-  // Disable IME extension loading to avoid many browser tests failures.
-  ash::input_method::DisableExtensionLoading();
-
-  if (!command_line->HasSwitch(switches::kHostWindowBounds) &&
-      !base::SysInfo::IsRunningOnChromeOS()) {
-    // Adjusting window location & size so that the ash desktop window fits
-    // inside the Xvfb's default resolution. Only do that when not running
-    // on device. Otherwise, device display is not properly configured.
-    command_line->AppendSwitchASCII(switches::kHostWindowBounds,
-                                    "0+0-1280x800");
-  }
-
-  // Default to run in a signed in session of stub user if tests do not run
-  // in the login screen (--login-manager), or logged in user session
-  // (--login-user), or the guest session (--bwsi). This is essentially
-  // the same as in `ChromeBrowserMainPartsAsh::PreEarlyInitialization`
-  // but it will be done on device and only for tests.
-  if (!command_line->HasSwitch(ash::switches::kLoginManager) &&
-      !command_line->HasSwitch(ash::switches::kLoginUser) &&
-      !command_line->HasSwitch(ash::switches::kGuestSession)) {
-    command_line->AppendSwitchASCII(
-        ash::switches::kLoginUser,
-        cryptohome::Identification(user_manager::StubAccountId()).id());
-    if (!command_line->HasSwitch(ash::switches::kLoginProfile)) {
-      command_line->AppendSwitchASCII(
-          ash::switches::kLoginProfile,
-          ash::BrowserContextHelper::kTestUserBrowserContextDirName);
-    }
-  }
-#endif
 
   SetScreenInstance();
 
@@ -620,31 +467,6 @@ void InProcessBrowserTest::SetUp() {
   chrome_browser_net::NetErrorTabHelper::set_state_for_testing(
       chrome_browser_net::NetErrorTabHelper::TESTING_FORCE_DISABLED);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On Chrome OS, access to files via file: scheme is restricted. Enable
-  // access to all files here since browser_tests and interactive_ui_tests
-  // rely on the ability to open any files via file: scheme.
-  ChromeNetworkDelegate::EnableAccessToAllFilesForTesting(true);
-
-  // Device sync (for multidevice "Better Together") is ChromeOS specific.
-  ash::device_sync::DeviceSyncImpl::Factory::SetCustomFactory(
-      GetFakeDeviceSyncImplFactory());
-
-  // Using a screenshot for clamshell to tablet mode transitions makes the flow
-  // async which we want to disable for most tests.
-  ash::ShellTestApi::SetTabletControllerUseScreenshotForTest(false);
-
-  // Disable the notification delay timer used to prevent non system
-  // notifications from showing up right after login.
-  ash::ShellTestApi::SetUseLoginNotificationDelayForTest(false);
-
-  // On CrOS, we need to use ash::Shell to get all root windows.
-  views::test::WidgetTest::SetRootWindowProvider(
-      base::BindRepeating(&ash::Shell::GetAllRootWindows));
-
-  ash::OwnerSettingsServiceAshFactory::GetInstance()->SetOwnerKeyUtilForTesting(
-      base::MakeRefCounted<TestOwnerKeyUtil>());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Redirect the default download directory to a temporary directory.
   ASSERT_TRUE(default_download_dir_.CreateUniqueTempDir());
@@ -662,17 +484,15 @@ void InProcessBrowserTest::SetUp() {
   // What's New for tests that simulate first run, is unexpected by most tests.
   whats_new::DisableRemoteContentForTests();
 
-#if !BUILDFLAG(IS_ANDROID)
   // The Search Engine Choice service may attempt to show a modal dialog to the
   // profile on browser start, which is unexpected by mosts tests. Tests which
   // expect this can allow the prompt as desired.
   SearchEngineChoiceDialogService::SetDialogDisabledForTests(
       /*dialog_disabled=*/true);
-#endif
 
   EnsureBrowserContextKeyedServiceFactoriesForTestingBuilt();
 
-#if !EXPENSIVE_TEST_LOGIC_IS_ON() && !BUILDFLAG(IS_ANDROID)
+#if !EXPENSIVE_TEST_LOGIC_IS_ON()
   // Run the StorageService in-process on the IO thread instead of spawning a
   // separate utility process per test in fast test builds.
   if (force_in_process_storage_service_) {
@@ -689,15 +509,6 @@ void InProcessBrowserTest::SetUpDefaultCommandLine(
   test_launcher_utils::PrepareBrowserCommandLineForBrowserTests(
       command_line, open_about_blank_on_browser_launch_);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // TODO(pkotwicz): Investigate if we can remove this switch.
-  if (exit_when_last_browser_closes_) {
-    command_line->AppendSwitch(ash::switches::kDisableZeroBrowsersOpenForTests);
-  }
-
-  // Do not automaximize in browser tests.
-  command_line->AppendSwitch(switches::kDisableAutoMaximizeForTests);
-#endif
 
   // Do not run the updater scheduler, which may install GoogleUpdater.
   command_line->AppendSwitch(switches::kDisableUpdaterScheduler);
@@ -720,13 +531,6 @@ void InProcessBrowserTest::TearDown() {
     ASSERT_TRUE(embedded_https_test_server().ShutdownAndWaitUntilComplete());
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::OwnerSettingsServiceAshFactory::GetInstance()->SetOwnerKeyUtilForTesting(
-      nullptr);
-  ash::device_sync::DeviceSyncImpl::Factory::SetCustomFactory(nullptr);
-  launch_browser_for_testing_ = nullptr;
-  views::test::WidgetTest::SetRootWindowProvider(base::NullCallback());
-#endif
 }
 
 // static
@@ -950,7 +754,6 @@ BrowserWindowInterface* InProcessBrowserTest::CreateBrowserForApp(
 }
 #endif  // !BUILDFLAG(IS_MAC)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 BrowserWindowInterface* InProcessBrowserTest::CreateGuestBrowser() {
   // Get Guest profile.
   ProfileManager* profile_manager = g_browser_process->profile_manager();
@@ -968,7 +771,6 @@ BrowserWindowInterface* InProcessBrowserTest::CreateGuestBrowser() {
   AddBlankTabAndShow(browser);
   return browser;
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
 void InProcessBrowserTest::AddBlankTabAndShow(BrowserWindowInterface* browser,
                                               bool wait_for_activation) {
@@ -1080,11 +882,9 @@ void InProcessBrowserTest::PreRunTestOnMainThread() {
     ensure_browser_visible(browser_);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Do not use the real StorageMonitor for tests, which introduces another
   // source of variability and potential slowness.
   ASSERT_TRUE(storage_monitor::TestStorageMonitor::CreateForBrowserTests());
-#endif
 
 #if BUILDFLAG(IS_MAC)
   // On Mac, without the following autorelease pool, code which is directly
@@ -1101,12 +901,10 @@ void InProcessBrowserTest::PreRunTestOnMainThread() {
   // browser.
   content::RunAllPendingInMessageLoop();
 
-#if !BUILDFLAG(IS_ANDROID)
   // Wait for the initial WebUI to complete the painting and flush all the
   // histograms, so the metrics from the initial WebUI will not affect the
   // browser test that are checking some common histograms.
   WaitUntilInitialWebUIPaintAndFlushMetricsForTesting(browser_);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   if (browser_ && global_browser_set_up_function_) {
     ASSERT_TRUE(global_browser_set_up_function_(browser_));
@@ -1122,9 +920,7 @@ void InProcessBrowserTest::PostRunTestOnMainThread() {
   autorelease_pool_->Recycle();
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   actor::ActorTaskTabCloseConfirmDialog::SetSuppressForTesting(true);
-#endif
 
   QuitBrowsers();
 

@@ -34,9 +34,6 @@
 #include "components/gwp_asan/common/crash_key_name.h"
 #include "partition_alloc/buildflags.h"
 
-#if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && PA_BUILDFLAG(IS_ANDROID)
-#include "base/system/sys_info.h"
-#endif  // PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) &&
         // PA_BUILDFLAG(IS_ANDROID)
 
 #if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
@@ -87,20 +84,13 @@ namespace {
 // ProcessSamplingBoost is the multiplier to increase the
 // ProcessSamplingProbability in scenarios where we want to perform additional
 // testing (e.g., on canary/dev builds).
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 constexpr int kDefaultMaxAllocations = 50;
 constexpr int kDefaultMaxMetadata = 210;
 constexpr int kDefaultTotalPages = kCpuIs64Bit ? 2048 : kDefaultMaxMetadata * 2;
 constexpr int kDefaultAllocationSamplingMultiplier = 1500;
 constexpr int kDefaultAllocationSamplingRange = 16;
 constexpr double kDefaultProcessSamplingProbability = 0.01;
-#elif BUILDFLAG(IS_ANDROID)
-constexpr int kDefaultMaxAllocations = 70;
-constexpr int kDefaultMaxMetadata = 255;
-constexpr int kDefaultTotalPages = 512;
-constexpr int kDefaultAllocationSamplingMultiplier = 2000;
-constexpr int kDefaultAllocationSamplingRange = 20;
-constexpr double kDefaultProcessSamplingProbability = 0.015;
 #else
     constexpr int kDefaultMaxAllocations = 70;
 constexpr int kDefaultMaxMetadata = 255;
@@ -108,7 +98,7 @@ constexpr int kDefaultTotalPages = kCpuIs64Bit ? 2048 : kDefaultMaxMetadata * 2;
 constexpr int kDefaultAllocationSamplingMultiplier = 1000;
 constexpr int kDefaultAllocationSamplingRange = 16;
 constexpr double kDefaultProcessSamplingProbability = 0.015;
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_FUCHSIA)
 constexpr int kDefaultProcessSamplingBoost2 = 10;
 
@@ -620,20 +610,6 @@ void MaybeEnableLightweightDetector(bool boost_sampling,
 void MaybeEnableExtremeLightweightDetector(bool boost_sampling,
                                            std::string_view process_type) {
 #if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
-#if PA_BUILDFLAG(IS_ANDROID)
-  // The negative performance impacts of ELUD are not negligible, thus we'd like
-  // to apply ELUD only to high memory devices (approximately high-end devices)
-  // in case of Android. On other platforms, the performance impacts are
-  // acceptable.
-  //
-  // It is very important to filter this condition before
-  // `base::FeatureList::IsEnabled` gets called so that the finch system applies
-  // the experiments to the right devices equally and collects the accurate
-  // statistics from the devices.
-  if (base::SysInfo::AmountOfTotalPhysicalMemory() < base::GiB(8)) {
-    return;
-  }
-#endif  // PA_BUILDFLAG(IS_ANDROID)
 
   if (!base::FeatureList::IsEnabled(internal::kExtremeLightweightUAFDetector)) {
     return;

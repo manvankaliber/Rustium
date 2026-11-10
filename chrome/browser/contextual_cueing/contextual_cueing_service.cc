@@ -12,9 +12,7 @@
 #include "components/contextual_cueing/ucb_scorer.h"
 #include "components/prefs/pref_service.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_cueing/internals/contextual_cueing_internals.mojom.h"
-#endif
 
 namespace {
 const contextual_cueing::TargetStats kEmptyStats;
@@ -140,7 +138,6 @@ void ContextualCueingService::OnCueShown(const GURL& url,
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextualCueingService::LogCueShownMetadata(CueLogPtr cue_log) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   if (cue_log) {
@@ -150,7 +147,6 @@ void ContextualCueingService::LogCueShownMetadata(CueLogPtr cue_log) {
     shown_cues_.push_back(std::move(cue_log));
   }
 }
-#endif
 
 contextual_cueing::ContextualCueingDecision ContextualCueingService::CanShowCue(
     const GURL& url,

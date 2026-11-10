@@ -225,9 +225,9 @@ enum class ForceEphemeralProfilesPolicy { kUnset, kEnabled, kDisabled };
 const char16_t kOriginalProfileName[] = u"OriginalProfile";
 const char16_t kWork[] = u"Work";
 
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_LINUX)
 const char kReauthResultHistogramName[] = "ProfilePicker.ReauthResult";
-#endif  // !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 // 'signinErrorDialog' custom element node.
 static constexpr char kSigninErrorDialogPath[] =
@@ -284,7 +284,7 @@ std::u16string GetSigninErrorDialogBodyText(
                          base::StrCat({button_selector, ".click()"}));
 }
 
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_LINUX)
 ::testing::AssertionResult ClickSigninErrorDialogReauthButton(
     content::WebContents* web_contents) {
   const std::string button_selector = base::StrCat(
@@ -300,7 +300,7 @@ std::u16string GetSigninErrorDialogBodyText(
   return content::ExecJs(web_contents,
                          base::StrCat({button_selector, ".click()"}));
 }
-#endif // !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 AccountInfo FillAccountInfo(
     const CoreAccountInfo& core_info,
@@ -1198,7 +1198,7 @@ IN_PROC_BROWSER_TEST_F(ProfilePickerCreationFlowBrowserTest,
 // Force signin is disabled on Linux and ChromeOS.
 // TODO(crbug.com/40235093): enable this test when enabling force sign in
 // on Linux.
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_LINUX)
 class ForceSigninProfilePickerCreationFlowBrowserTest
     : public ProfilePickerCreationFlowBrowserTest {
  public:
@@ -1856,7 +1856,7 @@ IN_PROC_BROWSER_TEST_F(ForceSigninProfilePickerCreationFlowBrowserTestWithPRE,
   EXPECT_TRUE(existing_entry->IsSigninRequired());
 }
 
-#endif  // !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 // Regression test for crbug.com/40802113.
 IN_PROC_BROWSER_TEST_F(ProfilePickerCreationFlowBrowserTest,

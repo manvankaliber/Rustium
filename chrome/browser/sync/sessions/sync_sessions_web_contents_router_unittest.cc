@@ -48,27 +48,21 @@ class SyncSessionsWebContentsRouterTest
     router_ =
         SyncSessionsWebContentsRouterFactory::GetInstance()->GetForProfile(
             profile());
-#if !BUILDFLAG(IS_ANDROID)
     // Associate the contents with the tab so that delegate lookups can find
     // it. In production this association is maintained by TabModel.
     tabs::TabLookupFromWebContents::CreateForWebContents(web_contents(), &tab_);
     ON_CALL(tab_, GetUnownedUserDataHost())
         .WillByDefault(::testing::ReturnRef(user_data_host_));
-#endif
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   void CreateDelegate() {
     delegate_ = std::make_unique<BrowserSyncedTabDelegate>(
         tab_, web_contents(), /*task_tab_helper=*/nullptr,
         /*supervised_user_navigation_observer=*/nullptr);
   }
-#endif
 
   void TearDown() override {
-#if !BUILDFLAG(IS_ANDROID)
     delegate_.reset();
-#endif
     ChromeRenderViewHostTestHarness::TearDown();
   }
 
@@ -76,17 +70,14 @@ class SyncSessionsWebContentsRouterTest
 
  private:
   raw_ptr<SyncSessionsWebContentsRouter, DanglingUntriaged> router_ = nullptr;
-#if !BUILDFLAG(IS_ANDROID)
   ui::UnownedUserDataHost user_data_host_;
   tabs::MockTabInterface tab_;
   std::unique_ptr<BrowserSyncedTabDelegate> delegate_;
-#endif
 };
 
 // Disabled on android due to complexity of creating a full TabAndroid object
 // for a unit test. The logic being tested here isn't directly affected by
 // platform-specific peculiarities.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(SyncSessionsWebContentsRouterTest, FlareNotRun) {
   StartSyncFlareMock mock;
   router()->InjectStartSyncFlare(base::BindRepeating(
@@ -122,6 +113,5 @@ TEST_F(SyncSessionsWebContentsRouterTest, FlareRunsForLoadCompleted) {
   router()->NotifyTabModified(web_contents(), true);
   EXPECT_TRUE(mock.was_run());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace sync_sessions

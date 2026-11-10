@@ -32,13 +32,6 @@ function sendCommand(cmd) {
     }
     return;
   }
-  // <if expr="is_ios">
-  // Send commands for iOS committed interstitials.
-  /** @suppress {undefinedVars|missingProperties} */ (function() {
-    window.webkit.messageHandlers['SupervisedUserInterstitialMessage']
-        .postMessage({'command': cmd.toString()});
-  })();
-  // </if>
 }
 
 function makeImageSet(url1x, url2x) {

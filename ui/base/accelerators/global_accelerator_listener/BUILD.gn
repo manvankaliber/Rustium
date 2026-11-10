@@ -24,15 +24,8 @@ component("global_accelerator_listener") {
     "//ui/gfx",
   ]
 
-  if (is_android || is_mac || is_win) {
+  if (is_mac || is_win) {
     deps += [ "//content/public/browser" ]
-  }
-
-  if (is_android) {
-    sources += [
-      "global_accelerator_listener_android.cc",
-      "global_accelerator_listener_android.h",
-    ]
   }
 
   if (is_mac) {
@@ -74,12 +67,5 @@ component("global_accelerator_listener") {
       ]
       deps += [ "//components/dbus" ]
     }
-  }
-
-  if (is_chromeos) {
-    sources += [
-      "global_accelerator_listener_chromeos.cc",
-      "global_accelerator_listener_chromeos.h",
-    ]
   }
 }

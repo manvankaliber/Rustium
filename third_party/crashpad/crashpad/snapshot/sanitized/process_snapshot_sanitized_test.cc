@@ -30,7 +30,7 @@
 #include "util/synchronization/semaphore.h"
 #include "util/thread/thread.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include <sys/syscall.h>
 
 #include "snapshot/linux/process_snapshot_linux.h"

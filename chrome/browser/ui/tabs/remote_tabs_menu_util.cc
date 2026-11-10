@@ -60,7 +60,6 @@ void OnRemoteTabFaviconAvailable(
 }  // namespace
 
 bool ShouldShowTabsFromOtherDevices(Profile* profile) {
-#if !BUILDFLAG(IS_CHROMEOS)
   if (syncer::IsReplaceSyncPromosWithSignInPromosEnabled()) {
     syncer::SyncService* sync_service =
         SyncServiceFactory::GetForProfile(profile);
@@ -94,7 +93,6 @@ bool ShouldShowTabsFromOtherDevices(Profile* profile) {
         break;
     }
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   return true;
 }
 

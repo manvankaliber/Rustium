@@ -22,28 +22,15 @@ parser = argparse.ArgumentParser(
   description='Generate structured metrics validator'
 )
 parser.add_argument('--input', help='Path to structured.xml')
-parser.add_argument('--cros_input', help='Path to structured_chromiumos.xml')
-parser.add_argument(
-  '--cros_events',
-  action='store_true',
-  help='Include ChromeOS-only projects.',
-)
 parser.add_argument('--output', help='Path to generated files.')
 
 
 def main():
   args = parser.parse_args()
   structured = model.Model(open(args.input, encoding='utf-8').read(), 'chrome')
-  if not args.cros_events:
-    structured.projects = [
-      p for p in structured.projects if not Util.is_chromeos_only_project(p)
-    ]
-
-  if args.cros_input is not None:
-    cros_structured = model.Model(
-      open(args.cros_input, encoding='utf-8').read(), 'cros'
-    )
-    structured = model.merge_models(structured, cros_structured)
+  structured.projects = [
+    p for p in structured.projects if not Util.is_chromeos_only_project(p)
+  ]
 
   code_generator_cpp.ValidatorHeaderTemplate(
     args.output, 'structured_metrics_validator.h'

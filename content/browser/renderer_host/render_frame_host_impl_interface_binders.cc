@@ -450,12 +450,6 @@ void RenderFrameHostImpl::BindVideoEncoderMetricsProviderReceiver(
                                                         std::move(receiver));
 }
 
-#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_IOS_TVOS))
-void RenderFrameHostImpl::BindNFCReceiver(
-    mojo::PendingReceiver<device::mojom::NFC> receiver) {
-  delegate_->GetNFC(this, std::move(receiver));
-}
-#endif
 
 void RenderFrameHostImpl::BindInputInjectorReceiver(
     mojo::PendingReceiver<mojom::InputInjector> receiver) {

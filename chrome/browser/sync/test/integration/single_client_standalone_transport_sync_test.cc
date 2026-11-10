@@ -32,19 +32,12 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif
 
 namespace {
 
 using testing::ContainerEq;
 
 syncer::DataTypeSet GetTypesGatedBehindHistoryOptIn() {
-#if BUILDFLAG(IS_CHROMEOS)
-  // History, Tabs and Saved Tab Groups are enabled by default on ChromeOS.
-  return {};
-#else
   syncer::DataTypeSet types = {syncer::COLLABORATION_GROUP,
                                syncer::HISTORY,
                                syncer::HISTORY_DELETE_DIRECTIVES,
@@ -64,21 +57,8 @@ syncer::DataTypeSet GetTypesGatedBehindHistoryOptIn() {
     types.Put(syncer::DICTIONARY);
   }
   return types;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-class SyncDisabledViaDashboardChecker : public SingleClientStatusChangeChecker {
- public:
-  explicit SyncDisabledViaDashboardChecker(syncer::SyncServiceImpl* service)
-      : SingleClientStatusChangeChecker(service) {}
-
-  bool IsExitConditionSatisfied(std::ostream* os) override {
-    *os << "Waiting for sync disabled by dashboard";
-    return service()->GetUserSettings()->IsSyncFeatureDisabledViaDashboard();
-  }
-};
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class SingleClientStandaloneTransportSyncTest : public SyncTest {
  public:
@@ -90,9 +70,6 @@ class SingleClientStandaloneTransportSyncTest : public SyncTest {
     override_features_.InitWithFeatures(
         /*enabled_features=*/
         {
-#if BUILDFLAG(IS_CHROMEOS)
-            syncer::kSyncEnableContactInfoDataTypeForCustomPassphraseUsers,
-#endif  // BUILDFLAG(IS_CHROMEOS)
             switches::kSyncEnableBookmarksInTransportMode,
         },
         /*disabled_features=*/{});
@@ -106,106 +83,6 @@ class SingleClientStandaloneTransportSyncTest : public SyncTest {
   base::test::ScopedFeatureList override_features_;
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Tests the behavior of receiving a "Reset Sync" operation from the dashboard
-// while Sync-the-feature is enabled.
-IN_PROC_BROWSER_TEST_F(SingleClientStandaloneTransportSyncTest,
-                       HandlesResetFromDashboardWhenSyncActive) {
-  ASSERT_TRUE(SetupClients());
-
-  // Set up Sync-the-feature.
-  ASSERT_TRUE(SetupSyncWithMode(SyncTest::SetupSyncMode::kSyncTheFeature));
-  ASSERT_TRUE(GetSyncService(0)->IsSyncFeatureEnabled());
-  ASSERT_TRUE(GetSyncService(0)->IsSyncFeatureActive());
-
-  // Trigger a "Reset Sync" from the dashboard and wait for it to apply. This
-  // involves clearing the server data so that the birthday gets incremented.
-  GetFakeServer()->ClearServerData();
-
-  // On Ash, the primary account should remain, and Sync should start up
-  // again in standalone transport mode, but report this specific case via
-  // IsSyncFeatureDisabledViaDashboard().
-  EXPECT_TRUE(SyncDisabledViaDashboardChecker(GetSyncService(0)).Wait());
-  EXPECT_TRUE(GetSyncService(0)->HasSyncConsent());
-  EXPECT_FALSE(GetSyncService(0)->HasDisableReason(
-      syncer::SyncService::DISABLE_REASON_NOT_SIGNED_IN));
-  EXPECT_NE(syncer::SyncService::TransportState::DISABLED,
-            GetSyncService(0)->GetTransportState());
-
-  EXPECT_TRUE(GetClient(0)->AwaitSyncTransportActive());
-  EXPECT_EQ(syncer::SyncService::TransportState::ACTIVE,
-            GetSyncService(0)->GetTransportState());
-  EXPECT_FALSE(GetSyncService(0)->IsSyncFeatureEnabled());
-
-  // There are no immediate plans to launch additional types on ChromeOS, so the
-  // list is hardcoded here.
-  syncer::DataTypeSet expected_types{
-      syncer::DEVICE_INFO,         syncer::NIGORI,
-      syncer::USER_CONSENTS,       syncer::SEND_TAB_TO_SELF,
-      syncer::SECURITY_EVENTS,     syncer::SHARING_MESSAGE,
-      syncer::PRIORITY_PREFERENCES};
-
-  if (base::FeatureList::IsEnabled(syncer::kSyncAccountSettings)) {
-    expected_types.Put(syncer::ACCOUNT_SETTING);
-  }
-
-  if (base::FeatureList::IsEnabled(features::kSkillsEnabled)) {
-    expected_types.Put(syncer::SKILL);
-  }
-
-  if (base::FeatureList::IsEnabled(syncer::kSyncAutofillEntitySuppression)) {
-    expected_types.Put(syncer::AUTOFILL_ENTITY_SUPPRESSION);
-  }
-
-  EXPECT_THAT(GetSyncService(0)->GetActiveDataTypes(),
-              ContainerEq(expected_types));
-}
-
-// Tests the behavior of receiving a "Reset Sync" operation from the dashboard
-// while Sync-the-feature is NOT enabled (transport mode is active).
-IN_PROC_BROWSER_TEST_F(SingleClientStandaloneTransportSyncTest,
-                       HandlesResetFromDashboardWhenTransportModeActive) {
-  ASSERT_TRUE(SetupClients());
-
-  // Set up Sync transport mode.
-  ASSERT_TRUE(SetupSyncWithMode(SyncTest::SetupSyncMode::kSyncTransportOnly));
-  ASSERT_FALSE(GetSyncService(0)->IsSyncFeatureEnabled());
-  ASSERT_FALSE(GetSyncService(0)->IsSyncFeatureActive());
-
-  // Trigger a "Reset Sync" from the dashboard and wait for it to apply.
-  GetFakeServer()->ClearServerData();
-
-  // On Ash, the primary account should remain, and Sync should start up
-  // again in standalone transport mode, but report this specific case via
-  // IsSyncFeatureDisabledViaDashboard().
-  EXPECT_TRUE(SyncDisabledViaDashboardChecker(GetSyncService(0)).Wait());
-  EXPECT_FALSE(GetSyncService(0)->HasSyncConsent());
-  EXPECT_FALSE(GetSyncService(0)->HasDisableReason(
-      syncer::SyncService::DISABLE_REASON_NOT_SIGNED_IN));
-  EXPECT_NE(syncer::SyncService::TransportState::DISABLED,
-            GetSyncService(0)->GetTransportState());
-
-  EXPECT_TRUE(GetClient(0)->AwaitSyncTransportActive());
-  EXPECT_EQ(syncer::SyncService::TransportState::ACTIVE,
-            GetSyncService(0)->GetTransportState());
-  EXPECT_FALSE(GetSyncService(0)->IsSyncFeatureEnabled());
-
-  // Browser types should NOT be disabled (only a dashboard reset when
-  // Sync-the-feature is active should do that).
-  // Thus, the active types should be all types allowed in standalone transport
-  // mode, except the OS types which are disabled by
-  // SetSyncFeatureDisabledViaDashboard().
-  syncer::DataTypeSet expected_types = AllowedTypesInStandaloneTransportMode();
-  expected_types.RemoveAll({syncer::APP_LIST, syncer::APPS,
-                            syncer::APP_SETTINGS, syncer::ARC_PACKAGE,
-                            syncer::WEB_APPS, syncer::OS_PREFERENCES,
-                            syncer::OS_PRIORITY_PREFERENCES, syncer::PRINTERS,
-                            syncer::WIFI_CONFIGURATIONS});
-
-  EXPECT_THAT(GetSyncService(0)->GetActiveDataTypes(),
-              ContainerEq(expected_types));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(SingleClientStandaloneTransportSyncTest,
                        DataTypesEnabledInTransportModeWithoutAdditionalOptIns) {
@@ -215,10 +92,8 @@ IN_PROC_BROWSER_TEST_F(SingleClientStandaloneTransportSyncTest,
             GetSyncService(0)->GetTransportState());
   ASSERT_FALSE(GetSyncService(0)->IsSyncFeatureEnabled());
   // History sync is enabled by default on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
   ASSERT_FALSE(GetSyncService(0)->GetUserSettings()->GetSelectedTypes().Has(
       syncer::UserSelectableType::kHistory));
-#endif
 
   // Make sure that only the allowed types got activated.
   syncer::DataTypeSet expected_types =
@@ -238,20 +113,16 @@ IN_PROC_BROWSER_TEST_F(SingleClientStandaloneTransportSyncTest,
             GetSyncService(0)->GetTransportState());
   ASSERT_FALSE(GetSyncService(0)->IsSyncFeatureEnabled());
   // History sync is enabled by default on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
   ASSERT_FALSE(GetSyncService(0)->GetUserSettings()->GetSelectedTypes().Has(
       syncer::UserSelectableType::kHistory));
-#endif
 
   // Opt in to history and tabs.
   GetSyncService(0)->GetUserSettings()->SetSelectedType(
       syncer::UserSelectableType::kHistory, true);
   GetSyncService(0)->GetUserSettings()->SetSelectedType(
       syncer::UserSelectableType::kTabs, true);
-#if !BUILDFLAG(IS_ANDROID)
   GetSyncService(0)->GetUserSettings()->SetSelectedType(
       syncer::UserSelectableType::kSavedTabGroups, true);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   ASSERT_TRUE(GetClient(0)->AwaitSyncTransportActive());
   ASSERT_EQ(syncer::SyncService::TransportState::ACTIVE,
@@ -289,23 +160,10 @@ IN_PROC_BROWSER_TEST_F(
 
   // Make sure that only the allowed types got activated.
   syncer::DataTypeSet expected_types =
-#if !BUILDFLAG(IS_CHROMEOS)
       Difference(AllowedTypesInStandaloneTransportMode(),
                  GetTypesGatedBehindHistoryOptIn())
-#else
-      // With a custom passphrase, the actual HISTORY types are not supported.
-      Difference(AllowedTypesInStandaloneTransportMode(),
-                 {syncer::HISTORY, syncer::HISTORY_DELETE_DIRECTIVES,
-                  syncer::USER_EVENTS})
-#endif
       ;
 
-#if BUILDFLAG(IS_ANDROID)
-  // After SyncToSignin, CONTACT_INFO are enabled for Win/Mac/Linux/ChromeOS,
-  // and disabled for other platforms. See
-  // `SyncServiceImpl::PassphraseTypeChanged`.
-  expected_types.Remove(syncer::CONTACT_INFO);
-#endif
 
   ASSERT_THAT(GetSyncService(0)->GetActiveDataTypes(),
               ContainerEq(expected_types));
@@ -324,10 +182,6 @@ IN_PROC_BROWSER_TEST_F(
   syncer::DataTypeSet expected_types_after_history_opt_in =
       AllowedTypesInStandaloneTransportMode();
 
-#if BUILDFLAG(IS_ANDROID)
-  // CONTACT_INFO should remain disabled since it's gated by kAutofill.
-  expected_types_after_history_opt_in.Remove(syncer::CONTACT_INFO);
-#endif
 
   // With a custom passphrase, the actual HISTORY types are not supported.
   expected_types_after_history_opt_in.Remove(syncer::HISTORY);
@@ -371,7 +225,6 @@ IN_PROC_BROWSER_TEST_F(SingleClientStandaloneTransportSyncTest,
 
 // ReplaceSyncWithSigninMigrationSyncTest is
 // disabled on CrOS as the signed in, non-syncing state does not exist.
-#if !BUILDFLAG(IS_CHROMEOS)
 // A test fixture to cover Sync-to-Signin migration behavior: In PRE_ tests,
 // switches::kEnablePreferencesAccountStorage is *dis*abled, in non-PRE_ tests
 // it is *en*abled, and the migration state pref is cleared at the end of PRE_
@@ -527,10 +380,8 @@ IN_PROC_BROWSER_TEST_F(ReplaceSyncWithSigninMigrationSyncTest,
   ASSERT_TRUE(GetSyncService(0)->GetUserSettings()->GetSelectedTypes().Has(
       syncer::UserSelectableType::kPayments));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // On ChromeOS, there exists no sync setup incomplete state.
-#if !BUILDFLAG(IS_CHROMEOS)
 // TODO(crbug.com/40067025): Remove these tests once
 // kMigrateOutOfSyncSetupIncompleteState and kUnoPhase2FollowUp are removed.
 class SyncSetupIncompleteMigrationSyncTest : public SyncTest {
@@ -612,70 +463,6 @@ IN_PROC_BROWSER_TEST_F(SyncSetupIncompleteMigrationSyncTest,
       syncer::UserSelectableType::kHistory));
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Tests that on ChromeOS, changing a preference in transport mode (signin-only)
-// also updates the syncing-user preference, so that it is preserved when the
-// user is migrated to kSync.
-IN_PROC_BROWSER_TEST_F(SingleClientStandaloneTransportSyncTest,
-                       PreservesSelectedTypesWhenPromotingToSync) {
-  // 1. Sign in. This starts sync in transport mode.
-  ASSERT_TRUE(SignIn());
-  ASSERT_FALSE(GetSyncService(0)->IsSyncFeatureEnabled());
-
-  syncer::SyncUserSettings* user_settings =
-      GetSyncService(0)->GetUserSettings();
-
-  // 2. Verify that all preferred types are enabled by default in transport
-  // mode.
-  ASSERT_TRUE(user_settings->IsSyncEverythingEnabled());
-  ASSERT_EQ(user_settings->GetSelectedTypes(),
-            user_settings->GetRegisteredSelectableTypes());
-
-  // 3. Disable Bookmarks in transport mode.
-  user_settings->SetSelectedType(syncer::UserSelectableType::kBookmarks, false);
-  ASSERT_FALSE(user_settings->GetSelectedTypes().Has(
-      syncer::UserSelectableType::kBookmarks));
-
-  // 4. Promote to full sync (Sync-the-feature).
-  ASSERT_TRUE(SetupSyncWithMode(SyncTest::SetupSyncMode::kSyncTheFeature));
-  ASSERT_TRUE(GetSyncService(0)->IsSyncFeatureEnabled());
-  ASSERT_TRUE(GetSyncService(0)->IsSyncFeatureActive());
-
-  // 5. Verify that Bookmarks remain DISABLED after promoting to full sync.
-  EXPECT_FALSE(user_settings->GetSelectedTypes().Has(
-      syncer::UserSelectableType::kBookmarks));
-}
-
-// Tests that on ChromeOS, if the user doesn't change any preferences in
-// transport mode (signin-only), all default preferences remain enabled when the
-// user is migrated to kSync.
-IN_PROC_BROWSER_TEST_F(SingleClientStandaloneTransportSyncTest,
-                       PreservesDefaultSelectedTypesWhenPromotingToSync) {
-  // 1. Sign in. This starts sync in transport mode.
-  ASSERT_TRUE(SignIn());
-  ASSERT_FALSE(GetSyncService(0)->IsSyncFeatureEnabled());
-
-  syncer::SyncUserSettings* user_settings =
-      GetSyncService(0)->GetUserSettings();
-
-  // 2. Verify that all preferred types are enabled by default in transport
-  // mode.
-  ASSERT_TRUE(user_settings->IsSyncEverythingEnabled());
-  ASSERT_EQ(user_settings->GetSelectedTypes(),
-            user_settings->GetRegisteredSelectableTypes());
-
-  // 3. Promote to full sync (Sync-the-feature) without changing anything.
-  ASSERT_TRUE(SetupSyncWithMode(SyncTest::SetupSyncMode::kSyncTheFeature));
-  ASSERT_TRUE(GetSyncService(0)->IsSyncFeatureEnabled());
-  ASSERT_TRUE(GetSyncService(0)->IsSyncFeatureActive());
-
-  // 4. Verify that all preferred types remain enabled after promoting to sync.
-  EXPECT_TRUE(user_settings->IsSyncEverythingEnabled());
-  EXPECT_EQ(user_settings->GetSelectedTypes(),
-            user_settings->GetRegisteredSelectableTypes());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace

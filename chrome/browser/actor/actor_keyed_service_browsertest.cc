@@ -29,9 +29,7 @@
 #include "chrome/common/url_constants.h"
 #include "chrome/test/base/chrome_test_utils.h"
 #include "chrome/test/base/platform_browser_test.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 #include "components/actor/public/mojom/actor_types.mojom.h"
 #include "components/optimization_guide/content/browser/page_content_proto_provider.h"
 #include "components/optimization_guide/core/filters/optimization_hints_component_update_listener.h"
@@ -51,20 +49,12 @@
 #include "url/gurl.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#else
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profiles/profile_manager.h"
 #include "chrome/browser/profiles/profile_test_util.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_window.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#endif
 
 using ::base::test::TestFuture;
 
@@ -89,19 +79,9 @@ void ActorKeyedServiceBrowserTest::SetUpCommandLine(
     base::CommandLine* command_line) {
   PlatformBrowserTest::SetUpCommandLine(command_line);
   SetUpBlocklist(command_line, "blocked.example.com");
-#if BUILDFLAG(IS_CHROMEOS)
-  command_line->AppendSwitch(ash::switches::kIgnoreUserProfileMappingForTests);
-#endif
 }
 
 void ActorKeyedServiceBrowserTest::SetUpOnMainThread() {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/517619366): Decouple test from Glic eligibility criteria.
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_S) {
-    GTEST_SKIP() << "Actor requires Android S+ to run";
-  }
-#endif
   PlatformBrowserTest::SetUpOnMainThread();
   host_resolver()->AddRule("*", "127.0.0.1");
   embedded_test_server()->ServeFilesFromSourceDirectory("components/test/data");
@@ -159,7 +139,7 @@ IN_PROC_BROWSER_TEST_F(ActorKeyedServiceBrowserTest, StartStopTask) {
 }
 
 // TODO(crbug.com/439247740): Fails on Win ASan and Android.
-#if (BUILDFLAG(IS_WIN) && defined(ADDRESS_SANITIZER)) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) && defined(ADDRESS_SANITIZER)
 #define MAYBE_StartNavigateStopTask DISABLED_StartNavigateStopTask
 #else
 #define MAYBE_StartNavigateStopTask StartNavigateStopTask
@@ -233,13 +213,8 @@ IN_PROC_BROWSER_TEST_F(ActorKeyedServiceBrowserTest,
 }
 
 // TODO(b/484011242): Fix flakiness and re-enable this test on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_RequestTabObservation_HasScreenshotInfo \
-  DISABLED_RequestTabObservation_HasScreenshotInfo
-#else
 #define MAYBE_RequestTabObservation_HasScreenshotInfo \
   RequestTabObservation_HasScreenshotInfo
-#endif
 IN_PROC_BROWSER_TEST_F(ActorKeyedServiceBrowserTest,
                        MAYBE_RequestTabObservation_HasScreenshotInfo) {
   const GURL url = embedded_https_test_server().GetURL(
@@ -475,7 +450,6 @@ IN_PROC_BROWSER_TEST_F(ActorKeyedServiceBrowserTest,
       static_cast<int32_t>(mojom::ActionResultCode::kFormFillingDialogError));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Reuses the initiator tab when it is showing the NTP.
 IN_PROC_BROWSER_TEST_F(ActorKeyedServiceBrowserTest,
                        CreateActorTabReusesNtpInitiatorTab) {
@@ -755,7 +729,6 @@ IN_PROC_BROWSER_TEST_F(ActorKeyedServiceBrowserTest,
 
   browser2->GetWindow()->Close();
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(ActorKeyedServiceBrowserTest,
                        ActorActionsRunnerExecuteWaitAction) {

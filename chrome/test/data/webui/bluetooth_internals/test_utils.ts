@@ -9,9 +9,6 @@ import {DeviceCallbackRouter} from 'chrome://bluetooth-internals/device.mojom-we
 import type {DeviceInfo, ServiceInfo} from 'chrome://bluetooth-internals/device.mojom-webui.js';
 import type {UUID} from 'chrome://bluetooth-internals/uuid.mojom-webui.js';
 import {assert} from 'chrome://resources/js/assert.js';
-// <if expr="is_chromeos">
-import {PromiseResolver} from 'chrome://resources/js/promise_resolver.js';
-// </if>
 
 import {TestBrowserProxy} from 'chrome://webui-test/test_browser_proxy.js';
 
@@ -29,24 +26,14 @@ export class TestBluetoothInternalsHandler extends TestBrowserProxy {
   needNearbyDevicesPermission: boolean;
   adapter: TestAdapter = new TestAdapter(fakeAdapterInfo());
 
-  // <if expr="is_chromeos">
-  private pendingRestartSystemBluetoothResolver_: PromiseResolver<void>|null =
-      null;
-  // </if>
 
   constructor(handle: MojoHandle) {
     super([
       'checkSystemPermissions',
-      // <if expr="is_chromeos">
-      'completeRestartSystemBluetooth',
-      // </if>
       'getAdapter',
       'getDebugLogsChangeHandler',
       'requestLocationServices',
       'requestSystemPermissions',
-      // <if expr="is_chromeos">
-      'restartSystemBluetooth',
-      // </if>
       'startBtsnoop',
       'isBtsnoopFeatureEnabled',
     ]);
@@ -57,9 +44,6 @@ export class TestBluetoothInternalsHandler extends TestBrowserProxy {
     this.needNearbyDevicesPermission = false;
     this.needLocationServices = false;
     this.canRequestPermissions = false;
-    // <if expr="is_chromeos">
-    this.pendingRestartSystemBluetoothResolver_ = null;
-    // </if>
   }
 
   getAdapter() {
@@ -103,20 +87,6 @@ export class TestBluetoothInternalsHandler extends TestBrowserProxy {
     return Promise.resolve({enabled: false});
   }
 
-  // <if expr="is_chromeos">
-  restartSystemBluetooth() {
-    this.methodCalled('restartSystemBluetooth');
-    this.pendingRestartSystemBluetoothResolver_ = new PromiseResolver();
-    return this.pendingRestartSystemBluetoothResolver_.promise;
-  }
-
-  completeRestartSystemBluetooth() {
-    assert(!!this.pendingRestartSystemBluetoothResolver_);
-    this.pendingRestartSystemBluetoothResolver_.resolve();
-    this.pendingRestartSystemBluetoothResolver_ = null;
-    this.methodCalled('completeRestartSystemBluetooth');
-  }
-  // </if>
 
   setAdapterForTesting(adapter: TestAdapter) {
     this.adapter = adapter;

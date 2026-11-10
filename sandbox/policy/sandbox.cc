@@ -11,16 +11,10 @@
 #include "sandbox/policy/mojom/sandbox.mojom.h"
 #include "sandbox/policy/switches.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <unistd.h>
 
-#include "base/android/jni_android.h"
-#include "third_party/jni_zero/jni_zero.h"
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "sandbox/policy/linux/sandbox_linux.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "sandbox/mac/seatbelt.h"
@@ -38,14 +32,14 @@
 namespace sandbox {
 namespace policy {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 bool Sandbox::Initialize(sandbox::mojom::Sandbox sandbox_type,
                          SandboxLinux::PreSandboxHook hook,
                          const SandboxLinux::Options& options) {
   return SandboxLinux::GetInstance()->InitializeSandbox(
       sandbox_type, std::move(hook), options);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_WIN)
 bool Sandbox::Initialize(sandbox::mojom::Sandbox sandbox_type,
@@ -91,20 +85,7 @@ bool Sandbox::IsProcessSandboxed() {
     return true;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Note that this does not check the status of the Seccomp sandbox.
-  if (base::android::IsJavaAvailable()) {
-    JNIEnv* env = base::android::AttachCurrentThread();
-    return jni_zero::ProcessIsIsolated(env);
-  }
-
-  // Fallback for javaless processes where JVM is not initialized.
-  // Check the UID range matching Android's Process.isIsolatedUid
-  // implementation.
-  uid_t uid = getuid();
-  uid_t app_id = uid % 100000;
-  return (app_id >= 90000 && app_id <= 99999);
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   int status = SandboxLinux::GetInstance()->GetStatus();
   constexpr int kLayer1Flags = SandboxLinux::Status::kSUID |
                                SandboxLinux::Status::kPIDNS |
@@ -114,10 +95,6 @@ bool Sandbox::IsProcessSandboxed() {
   return (status & kLayer1Flags) != 0 && (status & kLayer2Flags) != 0;
 #elif BUILDFLAG(IS_MAC)
   return Seatbelt::IsSandboxed();
-#elif BUILDFLAG(IS_IOS)
-  // Process launching on iOS is only supported via BrowserEngineKit which
-  // will automatically sandbox processes.
-  return !is_browser;
 #elif BUILDFLAG(IS_WIN)
 #if !defined(COMPONENT_BUILD)
   // Target services is not available in the component build.

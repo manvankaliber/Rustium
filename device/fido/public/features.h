@@ -13,8 +13,7 @@
 
 namespace device {
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Allows the passkey unlock error UI to be shown.
 COMPONENT_EXPORT(FIDO_PUBLIC)
 BASE_DECLARE_FEATURE(kPasskeyUnlockErrorUi);
@@ -81,10 +80,6 @@ COMPONENT_EXPORT(FIDO_PUBLIC)
 BASE_DECLARE_FEATURE(kWebAuthnAmbientSignin);
 
 // Enables publishing prelinking information on Android.
-#if BUILDFLAG(IS_ANDROID)
-COMPONENT_EXPORT(FIDO_PUBLIC)
-BASE_DECLARE_FEATURE(kWebAuthnPublishPrelinkingInfo);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Enables the WebAuthn Signal API for Windows Hello.
 COMPONENT_EXPORT(FIDO_PUBLIC)

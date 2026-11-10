@@ -8,9 +8,7 @@ import 'chrome://resources/cr_elements/cr_expand_button/cr_expand_button.js';
 import 'chrome://resources/cr_elements/cr_icon/cr_icon.js';
 import '../controls/settings_toggle_button.js';
 import '../icons.html.js';
-// <if expr="not is_chromeos">
 import '../relaunch_confirmation_dialog.js';
-// </if>
 import '../settings_page/settings_subpage.js';
 // <if expr="_google_chrome">
 import '../internal/icons.html.js';

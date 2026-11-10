@@ -28,9 +28,7 @@
 #include "net/dns/mock_host_resolver.h"
 #include "third_party/abseil-cpp/absl/functional/overload.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/host/context/glic_focused_browser_manager_impl.h"
-#endif
 
 namespace glic {
 
@@ -267,10 +265,8 @@ class GlicApiBrowserTestMixin : public T {
     Base::SetUpOnMainThread();
     Base::host_resolver()->AddRule("a.com", "127.0.0.1");
     Base::host_resolver()->AddRule("b.com", "127.0.0.1");
-#if !BUILDFLAG(IS_ANDROID)
     // Makes active browser selection deterministic for tests.
     GlicFocusedBrowserManagerImpl::SetTestingModeForTesting(true);
-#endif
   }
 
   content::RenderFrameHost* FindGlicGuestMainFrame(
@@ -375,14 +371,10 @@ class GlicApiBrowserTestMixin : public T {
               content::RenderFrameHost::LifecycleState::kActive &&
           guest_contents && !guest_contents->IsBeingDestroyed() &&
           guest_contents->GetPrimaryMainFrame() == rfh) {
-#if !BUILDFLAG(IS_ANDROID)
         if (rfh != last_frame && rfh->GetProcess()) {
           rfh->GetProcess()->SetPriorityOverride(
               base::Process::Priority::kUserVisible);
         }
-#else
-        (void)last_frame;  // Unused on Android.
-#endif
         last_frame = rfh;
         auto result =
             content::EvalJs(rfh, {"typeof runApiTest !== 'undefined'"});

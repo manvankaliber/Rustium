@@ -63,11 +63,6 @@
 #include "net/cert/internal/trust_store_chrome.h"
 #endif  // CHROME_ROOT_STORE_SUPPORTED
 
-#if BUILDFLAG(IS_ANDROID)
-#include "net/cert/cert_verify_proc_android.h"
-#elif BUILDFLAG(IS_IOS)
-#include "net/cert/cert_verify_proc_ios.h"
-#endif
 
 #if BUILDFLAG(CHROME_KEY_PINNING_SUPPORTED)
 #include "net/cert/key_pinning_state_chrome.h"
@@ -380,14 +375,7 @@ base::DictValue CertVerifyParams(X509Certificate* cert,
 scoped_refptr<CertVerifyProc> CertVerifyProc::CreateSystemVerifyProc(
     scoped_refptr<CertNetFetcher> cert_net_fetcher,
     scoped_refptr<CRLSet> crl_set) {
-#if BUILDFLAG(IS_ANDROID)
-  return base::MakeRefCounted<CertVerifyProcAndroid>(
-      std::move(cert_net_fetcher), std::move(crl_set));
-#elif BUILDFLAG(IS_IOS)
-  return base::MakeRefCounted<CertVerifyProcIOS>(std::move(crl_set));
-#else
 #error Unsupported platform
-#endif
 }
 #endif
 
@@ -408,11 +396,7 @@ scoped_refptr<CertVerifyProc> CertVerifyProc::CreateBuiltinWithChromeRootStore(
   return CreateCertVerifyProcBuiltin(
       std::move(cert_net_fetcher), std::move(crl_set), std::move(ct_verifier),
       std::move(ct_policy_enforcer),
-#if BUILDFLAG(IS_CHROMEOS)
-      CreateChromeOnlySystemTrustStore(std::move(chrome_root)),
-#else
       CreateSslSystemTrustStoreChromeRoot(std::move(chrome_root)),
-#endif
       instance_params, std::move(time_tracker));
 }
 #endif

@@ -662,8 +662,7 @@ IN_PROC_BROWSER_TEST_F(OmniboxAimWebUiInteractiveTest,
 
 // TODO(crbug.com/505548434, crbug.com/517370516): Flaky on Mac, Win and Linux.
 // TODO(crbug.com/524892796): Broken on ChromeOS.
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 #define MAYBE_ClassicContextMenuOpensDeepSearch \
   DISABLED_ClassicContextMenuOpensDeepSearch
 #else

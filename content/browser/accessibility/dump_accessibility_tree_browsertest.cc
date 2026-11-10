@@ -38,11 +38,7 @@
 // Tests that use @DEFAULT_ACTION-ON to open a popup for an <input> (such as
 // color or date/time pickers) never complete on Android, where native pickers
 // are used. Because that UI is native, it is not necessary to pass those tests.
-#if BUILDFLAG(IS_ANDROID)
-#define NOT_ANDROID(x) DISABLED_##x
-#else
 #define NOT_ANDROID(x) x
-#endif
 
 namespace content {
 
@@ -144,10 +140,6 @@ void DumpAccessibilityTreeTest::ChooseFeatures(
   // Enable UIA MathML support for dump tests
   enabled_features->emplace_back(features::kUiaMathMlSupport);
 #endif  // BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_ANDROID)
-  disabled_features->emplace_back(
-      features::kAccessibilityPopulateSupplementalDescriptionApi);
-#endif  // BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_WIN)
   // Enable UIA MathML support on Windows.
   enabled_features->emplace_back(features::kUiaMathMlSupport);
@@ -158,7 +150,6 @@ void DumpAccessibilityTreeTest::ChooseFeatures(
 
 class DumpAccessibilityTreeTestExceptUIA : public DumpAccessibilityTreeTest {};
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Material Design accessibility tests use third_party components.
 class DumpAccessibilityTreeWithMaterialDesignTest
     : public DumpAccessibilityTreeTest {
@@ -168,7 +159,6 @@ class DumpAccessibilityTreeWithMaterialDesignTest
     DumpAccessibilityTreeTest::SetUpOnMainThread();
   }
 };
-#endif
 
 // Parameterize the tests so that each test-pass is run independently.
 struct DumpAccessibilityTreeTestPassToString {
@@ -229,13 +219,11 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::ValuesIn(DumpAccessibilityTestBase::TreeTestPasses()),
     DumpAccessibilityTreeTestPassToString());
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 INSTANTIATE_TEST_SUITE_P(
     All,
     DumpAccessibilityTreeWithMaterialDesignTest,
     ::testing::ValuesIn(DumpAccessibilityTestBase::TreeTestPasses()),
     DumpAccessibilityTreeTestPassToString());
-#endif
 
 INSTANTIATE_TEST_SUITE_P(
     All,
@@ -2259,9 +2247,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
 // TODO(crbug.com/40943250): Fix failure on android
 // TODO(crbug.com/372910798): Flaky on Linux with ASan and LSan and Debug
 // builds.
-#if BUILDFLAG(IS_ANDROID) ||                               \
-    (BUILDFLAG(IS_LINUX) && (defined(ADDRESS_SANITIZER) || \
-                             defined(LEAK_SANITIZER) || !defined(NDEBUG)))
+#if BUILDFLAG(IS_LINUX) && (defined(ADDRESS_SANITIZER) || defined(LEAK_SANITIZER) || !defined(NDEBUG))
 #define MAYBE_AccessibilityAudio DISABLED_AccessibilityAudio
 #else
 #define MAYBE_AccessibilityAudio AccessibilityAudio
@@ -3220,12 +3206,6 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
   RunHtmlTest(FILE_PATH_LITERAL("input-radio-checkbox-label.html"));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
-                       AccessibilityInputRadioSiblingWithSpan) {
-  RunHtmlTest(FILE_PATH_LITERAL("input-radio-sibling-with-span.html"));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        AccessibilityInputRadioChunked) {
@@ -4389,11 +4369,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
 }
 
 // TODO(crbug.com/40866942): This test is failing on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_AccessibilityNoSourceVideo DISABLED_AccessibilityNoSourceVideo
-#else
 #define MAYBE_AccessibilityNoSourceVideo AccessibilityNoSourceVideo
-#endif  // BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
                        MAYBE_AccessibilityNoSourceVideo) {
 #if BUILDFLAG(IS_MAC)
@@ -4958,7 +4934,6 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeTest,
   RunCSSTest(FILE_PATH_LITERAL("interactivity-inert.html"));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeWithMaterialDesignTest,
                        MaterialDesignButtons) {
   RunMaterialDesignTest(FILE_PATH_LITERAL("buttons.html"));
@@ -5064,7 +5039,6 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityTreeWithMaterialDesignTest,
   RunMaterialDesignTest(FILE_PATH_LITERAL("version-info.html"));
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 class DumpAccessibilityTreeWithCarouselTest : public DumpAccessibilityTreeTest {
   void SetUpCommandLine(base::CommandLine* command_line) override {
     DumpAccessibilityTreeTest::SetUpCommandLine(command_line);

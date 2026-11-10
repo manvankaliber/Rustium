@@ -232,13 +232,7 @@ TEST_F(PhishingScorerTest, ApplyVisualTfLiteModel) {
                     .AppendASCII("test")
                     .AppendASCII("data")
                     .AppendASCII("safe_browsing")
-#if BUILDFLAG(IS_IOS)
-                    .AppendASCII("visual_model_ios.tflite");
-#elif BUILDFLAG(IS_ANDROID)
-                    .AppendASCII("visual_model_android.tflite");
-#else
                     .AppendASCII("visual_model_desktop.tflite");
-#endif
 
   base::File tflite_model(tflite_path,
                           base::File::FLAG_OPEN | base::File::FLAG_READ);

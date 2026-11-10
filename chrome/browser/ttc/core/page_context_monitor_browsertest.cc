@@ -46,12 +46,10 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/test/base/ui_test_utils.h"
 #include "ui/base/base_window.h"
-#endif
 
 namespace ttc {
 namespace {
@@ -109,14 +107,6 @@ class PageContextMonitorBrowserTest : public TtcCoreBrowserTestBase {
   // TtcCoreBrowserTestBase:
   void SetUpCommandLine(base::CommandLine* command_line) override {
     TtcCoreBrowserTestBase::SetUpCommandLine(command_line);
-#if BUILDFLAG(IS_ANDROID)
-    // Test devices are often offline. The offline status indicator that appears
-    // a few seconds after startup resizes the top controls, which asserts if
-    // the controls are not fully shown at that moment (e.g. during a tab
-    // switch). See crbug.com/574927722.
-    command_line->AppendSwitch(
-        switches::kForceOnlineConnectionStateForIndicator);
-#endif
   }
 
   void SetUpOnMainThread() override {
@@ -305,7 +295,6 @@ IN_PROC_BROWSER_TEST_F(PageContextMonitorBrowserTest, ActiveTabChanged) {
   EXPECT_TRUE(second_tab_sent.Wait());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Activating a different browser window of the same profile must switch
 // monitoring to the newly active window's active tab, and closing all browser
 // windows of the profile must invalidate the page context.
@@ -362,7 +351,6 @@ IN_PROC_BROWSER_TEST_F(PageContextMonitorBrowserTest,
   // profile and browser.
   SetBrowser(CreateBrowser(test_profile));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // A session on a page whose URL is not supported (e.g. non-NTP chrome:// pages,
 // data: and about: URLs) must never send the page's content or title to the

@@ -67,9 +67,6 @@
 #include "ui/gfx/codec/jpeg_codec.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/network/network_handler_test_helper.h"
-#endif
 
 namespace {
 
@@ -470,9 +467,6 @@ class LensOverlayQueryControllerTest : public testing::Test {
  protected:
   base::test::ScopedFeatureList feature_list_;
   std::unique_ptr<content::BrowserTaskEnvironment> task_environment_;
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::NetworkHandlerTestHelper network_handler_test_helper_;
-#endif
   std::unique_ptr<TestingProfile> profile_;
   std::unique_ptr<lens::FakeLensOverlayGen204Controller> gen204_controller_;
   std::unique_ptr<FakeVariationsClient> fake_variations_client_;

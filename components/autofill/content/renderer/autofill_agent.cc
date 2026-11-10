@@ -43,9 +43,6 @@
 #include "base/timer/timer.h"
 #include "base/types/optional_ref.h"
 #include "build/build_config.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 #include "components/autofill/content/renderer/a11y_util.h"
 #include "components/autofill/content/renderer/custom_form_control_script_executor.h"
 #include "components/autofill/content/renderer/form_autofill_issues.h"
@@ -370,20 +367,14 @@ AutofillAgent::Config CreateConfig(bool uses_platform_autofill) {
     };
   }
   const bool keyboard_accessory_uses_dynamic_positioning =
-#if BUILDFLAG(IS_ANDROID)
-      base::android::device_info::is_desktop() &&
-      base::FeatureList::IsEnabled(
-          features::kAutofillAndroidKeyboardAccessoryDynamicPositioning);
-#else
       false;
-#endif
   return {
       AutofillAgent::ExtractAllDatalists(false),
       AutofillAgent::FocusRequiresScroll(true),
       AutofillAgent::QueryPasswordSuggestions(false),
       AutofillAgent::SecureContextRequired(false),
       AutofillAgent::UserGestureRequired(true),
-      AutofillAgent::UsesKeyboardAccessoryForSuggestions(BUILDFLAG(IS_ANDROID)),
+      AutofillAgent::UsesKeyboardAccessoryForSuggestions(false),
       AutofillAgent::KeyboardAccessoryUsesDynamicPositioning(
           keyboard_accessory_uses_dynamic_positioning),
   };
@@ -2213,16 +2204,7 @@ void AutofillAgent::DidReceiveLeftMouseDownOrGestureTapInNode(
   const bool is_focused =
       node.Focused() || ((contenteditable = node.RootEditableElement()) &&
                          contenteditable.Focused());
-#if BUILDFLAG(IS_ANDROID)
-  if (config_.keyboard_accessory_uses_dynamic_positioning) {
-    last_left_mouse_down_or_gesture_tap_in_node_caused_focus_ = is_focused;
-  } else {
-    HandleFocusChangeComplete(/*focused_node_was_last_clicked=*/is_focused,
-                              /*form_cache=*/{});
-  }
-#else
   last_left_mouse_down_or_gesture_tap_in_node_caused_focus_ = is_focused;
-#endif
 }
 
 void AutofillAgent::DidReceiveLeftPointerDownBeforeDispatch(
@@ -2361,14 +2343,12 @@ void AutofillAgent::HandleFocusChangeComplete(
           AutofillSuggestionTriggerSource::kFormControlElementClicked,
           form_cache, password_request);
     } else if (form_util::IsTextAreaElement(focused_control)) {
-#if !BUILDFLAG(IS_ANDROID)
       // Compose reacts to tab area focus even when not triggered by a click -
       // therefore call `ShowSuggestions` with a separate trigger source.
       ShowSuggestions(
           focused_control,
           AutofillSuggestionTriggerSource::kTextareaFocusedWithoutClick,
           form_cache, password_request);
-#endif
     }
   }
 

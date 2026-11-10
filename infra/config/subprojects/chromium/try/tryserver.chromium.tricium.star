@@ -65,43 +65,6 @@ try_.builder(
     ),
 )
 
-# Clang-tidy builders potentially spawned by the `tricium-clang-tidy`
-# orchestrator.
-try_.builder(
-    name = "android-clang-tidy-rel",
-    description_html = "Runs clang-tidy on Android ARM release builds for the tricium-clang-tidy orchestrator.",
-    executable = "recipe:tricium_clang_tidy_wrapper",
-    gn_args = gn_args.config(
-        configs = [
-            "android_builder",
-            "android_with_static_analysis",
-            "release_try_builder",
-            "remoteexec",
-            "strip_debug_info",
-            "arm",
-        ],
-    ),
-    os = os.LINUX_DEFAULT,
-    ssd = True,
-)
-
-try_.builder(
-    name = "linux-chromeos-clang-tidy-rel",
-    description_html = "Runs clang-tidy on Linux ChromeOS x64 release builds for the tricium-clang-tidy orchestrator.",
-    executable = "recipe:tricium_clang_tidy_wrapper",
-    gn_args = gn_args.config(
-        configs = [
-            "chromeos_with_codecs",
-            "release_try_builder",
-            "remoteexec",
-            "x64",
-        ],
-    ),
-    builderless = False,
-    os = os.LINUX_DEFAULT,
-    siso_remote_jobs = siso.remote_jobs.HIGH_JOBS_FOR_CQ,
-)
-
 try_.builder(
     name = "linux-clang-tidy-rel",
     description_html = "Runs clang-tidy on Linux x64 release builds for the tricium-clang-tidy orchestrator.",

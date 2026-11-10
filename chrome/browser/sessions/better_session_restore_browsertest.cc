@@ -448,21 +448,8 @@ IN_PROC_BROWSER_TEST_P(ContinueWhereILeftOffSessionStorageTest,
   CheckReloadedPageRestored();
 
   const int top_chrome_webui_samples = GetTopChromeWebUIProfileSampleCount();
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS also loads a signin OTR Profile (always false) and its parent
-  // non-OTR Profile (true when the feature is enabled. False otherwise).
-  if (IsClearDiskStateEnabled()) {
-    histogram_tester_.ExpectBucketCount(kClearDiskStateHistogram, false,
-                                        2 + top_chrome_webui_samples);
-    histogram_tester_.ExpectBucketCount(kClearDiskStateHistogram, true, 1);
-  } else {
-    histogram_tester_.ExpectUniqueSample(kClearDiskStateHistogram, false,
-                                         3 + top_chrome_webui_samples);
-  }
-#else
   histogram_tester_.ExpectUniqueSample(kClearDiskStateHistogram, false,
                                        1 + top_chrome_webui_samples);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 IN_PROC_BROWSER_TEST_F(ContinueWhereILeftOffTest,
@@ -717,7 +704,6 @@ IN_PROC_BROWSER_TEST_F(ContinueWhereILeftOffTest,
 
 // ChromeOS does not override the SessionStartupPreference upon controlled
 // system restart.
-#if !BUILDFLAG(IS_CHROMEOS)
 class RestartTest : public BetterSessionRestoreTest {
  public:
   RestartTest() = default;
@@ -848,7 +834,6 @@ IN_PROC_BROWSER_TEST_F(RestartTest, MAYBE_Restart_PostWithPassword) {
   // The form data contained passwords, so it's removed completely.
   CheckFormRestored(false, false);
 }
-#endif
 
 // These tests ensure that the Better Session Restore features are not triggered
 // when they shouldn't be.
@@ -922,18 +907,6 @@ IN_PROC_BROWSER_TEST_P(NoSessionRestoreSessionStorageTest, SessionStorage) {
   StoreDataWithPage("session_storage.html");
 
   const int top_chrome_webui_samples = GetTopChromeWebUIProfileSampleCount();
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS also loads a signin OTR Profile (always false) and its parent
-  // non-OTR Profile (true when the feature is enabled. False otherwise).
-  if (IsClearDiskStateEnabled()) {
-    histogram_tester_.ExpectBucketCount(kClearDiskStateHistogram, true, 2);
-    histogram_tester_.ExpectBucketCount(kClearDiskStateHistogram, false,
-                                        1 + top_chrome_webui_samples);
-  } else {
-    histogram_tester_.ExpectUniqueSample(kClearDiskStateHistogram, false,
-                                         3 + top_chrome_webui_samples);
-  }
-#else
   if (IsClearDiskStateEnabled()) {
     histogram_tester_.ExpectBucketCount(kClearDiskStateHistogram, true, 1);
     histogram_tester_.ExpectBucketCount(kClearDiskStateHistogram, false,
@@ -942,7 +915,6 @@ IN_PROC_BROWSER_TEST_P(NoSessionRestoreSessionStorageTest, SessionStorage) {
     histogram_tester_.ExpectUniqueSample(kClearDiskStateHistogram, false,
                                          1 + top_chrome_webui_samples);
   }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 IN_PROC_BROWSER_TEST_F(NoSessionRestoreTest,

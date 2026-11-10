@@ -38,13 +38,8 @@ AiModeButtonUiConfig::AiModeButtonUiConfig(
                                            dse_name)
               : l10n_util::GetStringFUTF16(IDS_AI_MODE_ENTRYPOINT_TOOLTIP_3P,
                                            name)),
-#if BUILDFLAG(IS_IOS)
-      a11y_label(
-          l10n_util::GetStringFUTF16(IDS_AI_MODE_ENTRYPOINT_ACC_LABEL, name)),
-#else
       a11y_label(
           l10n_util::GetStringFUTF16(IDS_AI_MODE_ENTRYPOINT_ACC_FOCUSED, name)),
-#endif
       context_menu_label(
           l10n_util::GetStringFUTF16(IDS_AI_MODE_ENTRYPOINT_CONTEXT_MENU_SHOW,
                                      name)),

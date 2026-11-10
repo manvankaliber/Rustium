@@ -16,14 +16,12 @@
 #include "build/build_config.h"
 #include "extensions/browser/api/messaging/native_message_host.h"
 #include "remoting/base/passthrough_oauth_token_getter.h"
-#include "remoting/host/chromeos/chromeos_enterprise_params.h"
+#include "remoting/host/enterprise_session_params.h"
 #include "remoting/host/it2me/it2me_host.h"
 #include "remoting/host/it2me/reconnect_params.h"
 #include "remoting/protocol/errors.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "remoting/host/native_messaging/log_message_handler.h"
-#endif
 
 namespace base {
 class SingleThreadTaskRunner;
@@ -67,7 +65,7 @@ class It2MeNativeMessagingHost : public It2MeHost::Observer,
   // processed.
   void SetPolicyErrorClosureForTesting(base::OnceClosure closure);
 
-  void set_chrome_os_enterprise_params(ChromeOsEnterpriseParams params) {
+  void set_chrome_os_enterprise_params(EnterpriseSessionParams params) {
     enterprise_params_ = std::move(params);
   }
   void set_reconnect_params(ReconnectParams params) {
@@ -128,11 +126,9 @@ class It2MeNativeMessagingHost : public It2MeHost::Observer,
   PassthroughOAuthTokenGetter signaling_token_getter_;
   PassthroughOAuthTokenGetter api_token_getter_;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Don't install a log message handler on ChromeOS because we run in the
   // browser process and don't want to intercept all its log messages.
   std::unique_ptr<LogMessageHandler> log_message_handler_;
-#endif
 
   // Cached, read-only copies of |it2me_host_| session state.
   It2MeHostState state_ = It2MeHostState::kDisconnected;
@@ -156,7 +152,7 @@ class It2MeNativeMessagingHost : public It2MeHost::Observer,
 
   base::OnceClosure policy_error_closure_for_testing_;
 
-  std::optional<ChromeOsEnterpriseParams> enterprise_params_;
+  std::optional<EnterpriseSessionParams> enterprise_params_;
   std::optional<ReconnectParams> reconnect_params_;
 
   base::WeakPtr<It2MeNativeMessagingHost> weak_ptr_;

@@ -288,8 +288,7 @@ void RemoteActorCredentialSharingController::AuthenticateIfNeeded(
     }
     device_authenticator_ = std::move(authenticator);
     std::u16string message;
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     const std::u16string origin_str =
         base::UTF8ToUTF16(GetShownOrigin(origin_));
     message = l10n_util::GetStringFUTF16(IDS_PASSWORD_MANAGER_FILLING_REAUTH,

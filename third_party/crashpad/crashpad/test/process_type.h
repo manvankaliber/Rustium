@@ -17,7 +17,7 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include <sys/types.h>
 #elif BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -28,8 +28,7 @@
 namespace crashpad {
 namespace test {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    DOXYGEN
+#if BUILDFLAG(IS_LINUX) || DOXYGEN
 //! \brief Alias for platform-specific type to represent a process.
 using ProcessType = pid_t;
 #elif BUILDFLAG(IS_WIN)

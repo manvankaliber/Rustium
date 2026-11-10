@@ -142,8 +142,6 @@ NON_EXECUTABLE_EXTENSIONS = (
 #
 # Case-insensitive, lower-case only.
 NON_EXECUTABLE_PATHS = (
-  'build/android/tests/symbolize/liba.so',
-  'build/android/tests/symbolize/libb.so',
   'chrome/installer/mac/sign_app.sh.in',
   'chrome/installer/mac/sign_versioned_dir.sh.in',
   'courgette/testdata/elf-32-1',

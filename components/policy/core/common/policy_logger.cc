@@ -31,9 +31,6 @@
 #include "third_party/abseil-cpp/absl/strings/str_format.h"
 #include "third_party/zlib/google/compression_utils.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/channel/channel_info.h"
-#endif
 
 namespace policy {
 
@@ -262,21 +259,7 @@ PolicyLogger* PolicyLogger::GetInstance() {
 
 // static
 bool PolicyLogger::IsPolicyLoggingEnabled() {
-#if BUILDFLAG(IS_CHROMEOS)
-  // All choices are explicit to ensure that new channels added in the future
-  // will need to be explicitly handled here and follow the right logic.
-  switch (ash::GetChannel()) {
-    case version_info::Channel::STABLE:
-      return false;
-    case version_info::Channel::BETA:
-    case version_info::Channel::DEV:
-    case version_info::Channel::CANARY:
-    case version_info::Channel::UNKNOWN:
-      return true;
-  }
-#else
   return true;
-#endif
 }
 
 PolicyLogger::LogHelper::LogHelper(

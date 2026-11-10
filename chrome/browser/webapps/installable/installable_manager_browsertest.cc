@@ -49,21 +49,17 @@
 #include "third_party/blink/public/mojom/favicon/favicon_url.mojom.h"
 #include "third_party/blink/public/mojom/manifest/manifest.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 namespace webapps {
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 const char kInsecureOrigin[] = "http://www.google.com";
 const char kOtherInsecureOrigin[] = "http://maps.google.com";
 const char kUnsafeSecureOriginFlag[] =
     "unsafely-treat-insecure-origin-as-secure";
-#endif
 
 InstallableParams GetManifestParams() {
   InstallableParams params;
@@ -388,7 +384,6 @@ IN_PROC_BROWSER_TEST_F(InstallableManagerBrowserTest,
 }
 
 // Skip ManagerInIncognito on Android. Android launches incognito differently.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(InstallableManagerBrowserTest, ManagerInIncognito) {
   // Ensure that the InstallableManager returns an error if called in an
   // incognito profile.
@@ -423,7 +418,6 @@ IN_PROC_BROWSER_TEST_F(InstallableManagerBrowserTest, ManagerInIncognito) {
             manager->manifest_error());
   EXPECT_TRUE(!manager->task_queue_.HasCurrent());
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(InstallableManagerBrowserTest, CheckNoManifest) {
   // Ensure that a page with no manifest returns the appropriate error and with
@@ -1242,12 +1236,7 @@ IN_PROC_BROWSER_TEST_F(InstallableManagerBrowserTest,
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(crbug.com/410745060): Flaky on android bots
-#define MAYBE_CheckNestedCallsToGetData DISABLED_CheckNestedCallsToGetData
-#else
 #define MAYBE_CheckNestedCallsToGetData CheckNestedCallsToGetData
-#endif
 IN_PROC_BROWSER_TEST_F(InstallableManagerBrowserTest,
                        MAYBE_CheckNestedCallsToGetData) {
   // Verify that we can call GetData while in a callback from GetData.
@@ -1471,7 +1460,6 @@ IN_PROC_BROWSER_TEST_F(InstallableManagerBrowserTest,
                 GetURLOfPageWithManifest("/banners/play_app_manifest.json")));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class InstallableManagerAllowlistOriginBrowserTest
     : public InstallableManagerBrowserTest {
   void SetUpCommandLine(base::CommandLine* command_line) override {
@@ -1497,7 +1485,6 @@ IN_PROC_BROWSER_TEST_F(InstallableManagerAllowlistOriginBrowserTest,
       ui_test_utils::NavigateToURL(browser(), GURL(kOtherInsecureOrigin)));
   EXPECT_FALSE(InstallableEvaluator::IsContentSecure(contents));
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(InstallableManagerBrowserTest, CheckScreenshots) {
   base::RunLoop run_loop;
@@ -1520,13 +1507,8 @@ IN_PROC_BROWSER_TEST_F(InstallableManagerBrowserTest, CheckScreenshots) {
   EXPECT_EQ(1u, tester->screenshots().size());
   // Corresponding form_factor should filter out the screenshot with mismatched
   // form_factor.
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_LT(tester->screenshots()[0].image.width(),
-            tester->screenshots()[0].image.height());
-#else
   EXPECT_GT(tester->screenshots()[0].image.width(),
             tester->screenshots()[0].image.height());
-#endif
   EXPECT_EQ(std::vector<InstallableStatusCode>{}, tester->errors());
 }
 
@@ -1540,21 +1522,11 @@ IN_PROC_BROWSER_TEST_F(InstallableManagerBrowserTest,
   params.fetch_screenshots = true;
 
   size_t num_of_screenshots = 0;
-#if BUILDFLAG(IS_ANDROID)
-  NavigateAndRunInstallableManager(
-      tester.get(), params,
-      GetURLOfPageWithManifest(
-          "/banners/manifest_with_narrow_screenshots.json"));
-  // Screenshots with unspecified form_factor is not filtered out.
-  num_of_screenshots = 2;
-  // EXPECT_EQ(2u, tester->screenshots().size());
-#else
   NavigateAndRunInstallableManager(
       tester.get(), params,
       GetURLOfPageWithManifest("/banners/manifest_with_wide_screenshots.json"));
   // Screenshots with unspecified form_factor is filtered out.
   num_of_screenshots = 1;
-#endif
   run_loop.Run();
 
   EXPECT_TRUE(tester->has_manifest());
@@ -1822,13 +1794,8 @@ MATCHER_P(IsPrerenderedRFH, render_frame_host, std::string()) {
 }
 
 // TODO(crbug.com/40275175): Test failed on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_NotifyManifestUrlChangedInActivation \
-  DISABLED_NotifyManifestUrlChangedInActivation
-#else
 #define MAYBE_NotifyManifestUrlChangedInActivation \
   NotifyManifestUrlChangedInActivation
-#endif
 // Tests that NotifyManifestUrlChanged is called on the page that has manifest
 // after the activation from the prerendering.
 IN_PROC_BROWSER_TEST_F(InstallableManagerInPrerenderingBrowserTest,
@@ -1905,13 +1872,8 @@ IN_PROC_BROWSER_TEST_F(InstallableManagerInPrerenderingBrowserTest,
 }
 
 // TODO(crbug.com/40275175): Test failed on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_NotNotifyManifestUrlChangedInActivation \
-  DISABLED_NotNotifyManifestUrlChangedInActivation
-#else
 #define MAYBE_NotNotifyManifestUrlChangedInActivation \
   NotNotifyManifestUrlChangedInActivation
-#endif
 // Tests that NotifyManifestUrlChanged is not called without manifest after
 // the activation from the prerendering.
 IN_PROC_BROWSER_TEST_F(InstallableManagerInPrerenderingBrowserTest,

@@ -16,9 +16,7 @@
 
 #include "absl/status/status.h"  // from @com_google_absl
 
-#if !defined(__ANDROID__)
 #include "mediapipe/framework/port/file_helpers.h"
-#endif
 #include "absl/log/absl_log.h"         // from @com_google_absl
 #include "absl/strings/str_replace.h"  // from @com_google_absl
 #include "mediapipe/calculators/tensorflow/tensorflow_session.h"
@@ -45,10 +43,6 @@ static constexpr char kStringSignatureName[] = "STRING_SIGNATURE_NAME";
 // Given the path to a directory containing multiple tensorflow saved models
 // in subdirectories, replaces path with the alphabetically last subdirectory.
 absl::Status GetLatestDirectory(std::string* path) {
-#if defined(__ANDROID__)
-  return absl::UnimplementedError(
-      "GetLatestDirectory is not implemented on Android");
-#else
   std::vector<std::string> saved_models;
   RET_CHECK_OK(file::MatchInTopSubdirectories(
       *path, tensorflow::kSavedModelFilenamePb, &saved_models));
@@ -57,7 +51,6 @@ absl::Status GetLatestDirectory(std::string* path) {
   ::std::sort(saved_models.begin(), saved_models.end());
   *path = std::string(file::Dirname(saved_models.back()));
   return absl::OkStatus();
-#endif
 }
 
 // If options.convert_signature_to_tags() is set, will convert letters to

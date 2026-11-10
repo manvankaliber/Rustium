@@ -127,9 +127,6 @@
 #include "url/origin.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/android/content_url_loader_factory.h"
-#endif
 
 #if BUILDFLAG(ENABLE_PLUGINS)
 #include "content/public/browser/plugin_service.h"
@@ -2279,22 +2276,6 @@ NavigationURLLoaderImpl::CreateTerminalNonNetworkLoaderFactory(
         file_factory_priority);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (url.SchemeIs(url::kContentScheme)) {
-    if (!GetContentClient()->browser()->IsContentSchemeURLNavigationAllowed(
-            url)) {
-      // A null factory would fall through to external protocol handling
-      // (Android intent dispatch), so fail with a terminal error instead.
-      mojo::PendingRemote<network::mojom::URLLoaderFactory> pending_remote;
-      base::MakeRefCounted<network::SingleRequestURLLoaderFactory>(
-          base::BindOnce(&CompleteWithNetErrorCallback,
-                         net::ERR_BLOCKED_BY_CLIENT))
-          ->Clone(pending_remote.InitWithNewPipeAndPassReceiver());
-      return pending_remote;
-    }
-    return ContentURLLoaderFactory::Create();
-  }
-#endif
 
   return {};
 }

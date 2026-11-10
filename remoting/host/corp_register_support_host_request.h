@@ -37,7 +37,7 @@ class CorpRegisterSupportHostRequest final
       std::unique_ptr<net::ClientCertStore> client_cert_store) override;
   void RegisterHost(
       const internal::RemoteSupportHostStruct& host,
-      const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+      const std::optional<EnterpriseSessionParams>& enterprise_params,
       RegisterHostCallback callback) override;
   void CancelPendingRequests() override;
 

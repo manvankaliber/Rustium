@@ -16,12 +16,7 @@
 
 namespace blink {
 
-#if BUILDFLAG(IS_ANDROID)
-// Players are cached per tab.
-constexpr int kMaxCachedPlayerEvents = 128;
-#else
 constexpr int kMaxCachedPlayerEvents = 512;
-#endif
 
 class ExecutionContext;
 

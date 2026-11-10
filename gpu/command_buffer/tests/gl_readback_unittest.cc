@@ -158,7 +158,7 @@ static GLuint CompileShader(GLenum type, const char *data) {
 // backend. crbug.com/607283.
 // TODO(zmo): This test also fails on some android devices when the readback
 // type is HALF_FLOAT_OES. Likely it's due to a driver bug. crbug.com/607936.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 #define MAYBE_ReadPixelsFloat DISABLED_ReadPixelsFloat
 #else
 #define MAYBE_ReadPixelsFloat ReadPixelsFloat
@@ -347,9 +347,6 @@ TEST_F(GLReadbackTest, MAYBE_ReadPixelsFloat) {
 TEST_F(GLReadbackTest, PackLargeRowLengthSeparatelyPackBuffer) {
   // Test fails on these configurations due to underlying driver or ANGLE
   // implementation bugs.
-#if BUILDFLAG(IS_ANDROID)
-  return;
-#else
 #if BUILDFLAG(IS_MAC)
   if (GPUTestBotConfig::CurrentConfigMatches("Intel") ||
       GPUTestBotConfig::CurrentConfigMatches("AMD")) {
@@ -413,7 +410,6 @@ TEST_F(GLReadbackTest, PackLargeRowLengthSeparatelyPackBuffer) {
   EXPECT_EQ(kExpectedColor[1], actualColorRow1[1]);
   EXPECT_EQ(kExpectedColor[2], actualColorRow1[2]);
   EXPECT_EQ(kExpectedColor[3], actualColorRow1[3]);
-#endif
 }
 
 // check_graphics_reset_status_after_readback must not change readback behavior

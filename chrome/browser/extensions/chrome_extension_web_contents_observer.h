@@ -55,7 +55,6 @@ class ChromeExtensionWebContentsObserver
       content::WebContents* web_contents) override;
   void SetUpRenderFrameHost(
       content::RenderFrameHost* render_frame_host) override;
-#if !BUILDFLAG(IS_ANDROID)
   void OnExtensionJsError(
       content::RenderFrameHost* source_frame,
       const Extension& extension,
@@ -63,7 +62,6 @@ class ChromeExtensionWebContentsObserver
       int32_t line_no,
       const GURL& url,
       const std::optional<std::u16string>& untrusted_stack_trace) override;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // content::WebContentsObserver overrides.
   void RenderFrameCreated(content::RenderFrameHost* render_frame_host) override;

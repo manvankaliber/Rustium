@@ -20,63 +20,11 @@
 #include "base/mac/mac_util.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/metrics/field_trial_params.h"
-#include "base/strings/pattern.h"
-#include "base/strings/string_number_conversions.h"
-#include "base/strings/string_split.h"
-#include "ui/gfx/android/achoreographer_compat.h"
-#include "ui/gfx/android/android_surface_control_compat.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#endif
 
 namespace features {
 namespace {
 
-#if BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_VALIDATING_COMMAND_DECODER)
-const base::FeatureParam<std::string>
-    kPassthroughCommandDecoderBlockListByBrand{
-        &kDefaultPassthroughCommandDecoder, "BlockListByBrand", ""};
-
-const base::FeatureParam<std::string>
-    kPassthroughCommandDecoderBlockListByDevice{
-        &kDefaultPassthroughCommandDecoder, "BlockListByDevice", ""};
-
-const base::FeatureParam<std::string>
-    kPassthroughCommandDecoderBlockListByAndroidBuildId{
-        &kDefaultPassthroughCommandDecoder, "BlockListByAndroidBuildId", ""};
-
-const base::FeatureParam<std::string>
-    kPassthroughCommandDecoderBlockListByManufacturer{
-        &kDefaultPassthroughCommandDecoder, "BlockListByManufacturer", ""};
-
-const base::FeatureParam<std::string>
-    kPassthroughCommandDecoderBlockListByModel{
-        &kDefaultPassthroughCommandDecoder, "BlockListByModel", ""};
-
-const base::FeatureParam<std::string>
-    kPassthroughCommandDecoderBlockListByBoard{
-        &kDefaultPassthroughCommandDecoder, "BlockListByBoard", ""};
-
-const base::FeatureParam<std::string>
-    kPassthroughCommandDecoderBlockListByAndroidBuildFP{
-        &kDefaultPassthroughCommandDecoder, "BlockListByAndroidBuildFP", ""};
-
-bool IsDeviceBlocked(const std::string& field, const std::string& block_list) {
-  auto disable_patterns = base::SplitString(
-      block_list, "|", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
-  for (const auto& disable_pattern : disable_patterns) {
-    if (base::MatchPattern(field, disable_pattern)) {
-      return true;
-    }
-  }
-  return false;
-}
-#endif  // BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_VALIDATING_COMMAND_DECODER)
 
 BASE_FEATURE(kForceANGLEFeatures, base::FEATURE_DISABLED_BY_DEFAULT);
 
@@ -152,11 +100,6 @@ bool UseCompositorClockVSyncInterval() {
 BASE_FEATURE(kDCompOnD3D12, base::FEATURE_DISABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-// Enables 2-pixel even boundary alignment for YUV SurfaceControl overlays.
-BASE_FEATURE(kAndroidYuvOverlayEvenAlignment,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 bool UseGpuVsync() {
   return !base::CommandLine::ForCurrentProcess()->HasSwitch(
@@ -165,16 +108,7 @@ bool UseGpuVsync() {
 }
 
 bool IsAndroidFrameDeadlineEnabled() {
-#if BUILDFLAG(IS_ANDROID)
-  static bool enabled = base::android::android_info::sdk_int() >=
-                            base::android::android_info::SDK_VERSION_T &&
-                        gfx::AChoreographerCompat33::Get().supported &&
-                        gfx::SurfaceControl::SupportsSetFrameTimeline() &&
-                        gfx::SurfaceControl::SupportsSetEnableBackPressure();
-  return enabled;
-#else
   return false;
-#endif
 }
 
 bool UsePassthroughCommandDecoder() {
@@ -186,40 +120,6 @@ bool UsePassthroughCommandDecoder() {
     return false;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Check block list against build info.
-  if (IsDeviceBlocked(base::android::android_info::brand(),
-                      kPassthroughCommandDecoderBlockListByBrand.Get())) {
-    return false;
-  }
-  if (IsDeviceBlocked(base::android::android_info::device(),
-                      kPassthroughCommandDecoderBlockListByDevice.Get())) {
-    return false;
-  }
-  if (IsDeviceBlocked(
-          base::android::android_info::android_build_id(),
-          kPassthroughCommandDecoderBlockListByAndroidBuildId.Get())) {
-    return false;
-  }
-  if (IsDeviceBlocked(
-          base::android::android_info::manufacturer(),
-          kPassthroughCommandDecoderBlockListByManufacturer.Get())) {
-    return false;
-  }
-  if (IsDeviceBlocked(base::android::android_info::model(),
-                      kPassthroughCommandDecoderBlockListByModel.Get())) {
-    return false;
-  }
-  if (IsDeviceBlocked(base::android::android_info::board(),
-                      kPassthroughCommandDecoderBlockListByBoard.Get())) {
-    return false;
-  }
-  if (IsDeviceBlocked(
-          base::android::android_info::android_build_fp(),
-          kPassthroughCommandDecoderBlockListByAndroidBuildFP.Get())) {
-    return false;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   return true;
 #endif  // defined(PASSTHROUGH_COMMAND_DECODER_LAUNCHED)
@@ -346,19 +246,5 @@ bool IsSoftwareGLFallbackDueToCrashesAllowed(
   return base::FeatureList::IsEnabled(kAllowSoftwareGLFallbackDueToCrashes);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kAndroidLimitRgb565DisplayToApi32,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-BASE_FEATURE(kAndroidSurfaceControlPartialDamage,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-bool PreferRGB565ResourcesForDisplay() {
-  return base::SysInfo::AmountOfTotalPhysicalMemory().InMiB() <= 512 &&
-         (base::android::android_info::sdk_int() <=
-              base::android::android_info::SDK_VERSION_Sv2 ||
-          !base::FeatureList::IsEnabled(kAndroidLimitRgb565DisplayToApi32));
-}
-#endif
 
 }  // namespace features

@@ -12,9 +12,6 @@ namespace blink {
 FakeResourceLoadInfoNotifier::FakeResourceLoadInfoNotifier() = default;
 FakeResourceLoadInfoNotifier::~FakeResourceLoadInfoNotifier() = default;
 
-#if BUILDFLAG(IS_ANDROID)
-void FakeResourceLoadInfoNotifier::NotifyUpdateUserGestureCarryoverInfo() {}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void FakeResourceLoadInfoNotifier::NotifyResourceRedirectReceived(
     const net::RedirectInfo& redirect_info,

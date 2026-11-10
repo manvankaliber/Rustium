@@ -114,12 +114,7 @@ IN_PROC_BROWSER_TEST_F(IdpSigninStatusBrowserTest,
 // Test that a same-origin subresource preload via Early Hints CAN set the
 // IdP sign-in status.
 // TODO(crbug.com/572888605): Flaky on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_EarlyHintsSameOriginSubresource \
-  DISABLED_EarlyHintsSameOriginSubresource
-#else
 #define MAYBE_EarlyHintsSameOriginSubresource EarlyHintsSameOriginSubresource
-#endif
 IN_PROC_BROWSER_TEST_F(IdpSigninStatusBrowserTest,
                        MAYBE_EarlyHintsSameOriginSubresource) {
   GURL rp_url("https://rp.test/index.html");

@@ -141,11 +141,7 @@ namespace heap_profiling {
 
 namespace {
 
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-#define ENABLE_MULTIPROCESS_TESTS 0
-#else
 #define ENABLE_MULTIPROCESS_TESTS 1
-#endif
 
 using base::allocator::dispatcher::AllocationNotificationData;
 using base::allocator::dispatcher::AllocationSubsystem;
@@ -967,7 +963,6 @@ INSTANTIATE_TEST_SUITE_P(All,
                                  Values(ProfilerProcessType::kUnknown)));
 
 // Sampling profiler is not capable of unwinding stack on Android under tests.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_P(HeapProfilerControllerTest, ProfileCollectionsScheduler) {
   constexpr int kSnapshotsToCollect = 3;
 
@@ -1020,7 +1015,6 @@ TEST_P(HeapProfilerControllerTest, ProfileCollectionsScheduler) {
   sampler->OnFree(FreeNotificationData(reinterpret_cast<void*>(0x7331),
                                        AllocationSubsystem::kManualForTesting));
 }
-#endif
 
 TEST_P(HeapProfilerControllerTest, UnhandledProcess) {
   // Starting the heap profiler in an unhandled process type should safely do

@@ -95,11 +95,6 @@ class DistilledPagePrefs {
   void RemoveObserver(Observer* obs);
 
  private:
-#if BUILDFLAG(IS_ANDROID)
-  // Clamps the default font scaling to Android reader mode font scaling
-  // boundaries.
-  void ClampDefaultFontScaling();
-#endif
 
   // Notifies all Observers of new font family.
   void NotifyOnChangeFontFamily();

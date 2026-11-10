@@ -33,13 +33,7 @@
 namespace affiliations {
 
 BASE_FEATURE(kFetchChangePasswordUrl,
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-             // Change-password urls aren't utilized in any way on mobile. No
-             // need to fetch them.
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 AffiliationBackend::AffiliationBackend(
     const scoped_refptr<base::SequencedTaskRunner>& task_runner,

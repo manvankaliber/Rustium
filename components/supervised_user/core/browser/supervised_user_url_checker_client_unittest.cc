@@ -177,21 +177,6 @@ class SupervisedUserUrlCheckerClientNoCredentialsTest
             CredentialsMode::kNoCredentials) {}
 };
 
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-TEST_F(SupervisedUserUrlCheckerClientNoCredentialsTest,
-       NoPrimaryAccount) {
-  ASSERT_FALSE(identity_test_env_.identity_manager()->HasPrimaryAccount(
-      signin::ConsentLevel::kSignin));
-
-  // Other access modes should succeed because they don't require credentials
-  // and api call is made.
-  EXPECT_CALL(*this,
-              OnCheckDone(GURL("http://example.com"),
-                          safe_search_api::ClientClassification::kAllowed));
-  CheckUrl("http://example.com");
-  SimulateKidsApiResponse(kidsmanagement::ClassifyUrlResponse::ALLOWED);
-}
-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_CHROMEOS)
 
 class SupervisedUserUrlCheckerClientFamilyLinkEnabledTest
     : public SupervisedUserUrlCheckerClientTestBase {
@@ -214,53 +199,7 @@ TEST_F(SupervisedUserUrlCheckerClientFamilyLinkEnabledTest, NoPrimaryAccount) {
 }
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(SupervisedUserUrlCheckerClientFamilyLinkEnabledTest,
-       NoPrimaryAccount_VerificationPageEnabled) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(
-      kSupervisedUserVerificationPageOnAndroid);
 
-  ASSERT_FALSE(identity_test_env_.identity_manager()->HasPrimaryAccount(
-      signin::ConsentLevel::kSignin));
-
-  EXPECT_CALL(*this,
-              OnCheckDone(GURL("http://example.com"),
-                          safe_search_api::ClientClassification::kAllowed));
-  CheckUrl("http://example.com");
-  SimulateKidsApiResponse(kidsmanagement::ClassifyUrlResponse::ALLOWED);
-}
-
-TEST_F(SupervisedUserUrlCheckerClientFamilyLinkEnabledTest,
-       NoPrimaryAccount_VerificationPageDisabled) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndDisableFeature(
-      kSupervisedUserVerificationPageOnAndroid);
-
-  ASSERT_FALSE(identity_test_env_.identity_manager()->HasPrimaryAccount(
-      signin::ConsentLevel::kSignin));
-  // On Android, uncredentialed access will hang on access token wait when
-  // verification page is disabled.
-  EXPECT_CALL(*this, OnCheckDone(GURL("http://example.com"), _)).Times(0);
-  CheckUrl("http://example.com");
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_CHROMEOS)
-TEST_F(SupervisedUserUrlCheckerClientFamilyLinkEnabledTest,
-       NoPrimaryAccount) {
-  ASSERT_FALSE(identity_test_env_.identity_manager()->HasPrimaryAccount(
-      signin::ConsentLevel::kSignin));
-
-  // On iOS and ChromeOS, the client falls back gracefully to
-  // "unknown" classification without making the API calls when the
-  // credentials were required but are not available.
-  EXPECT_CALL(*this,
-              OnCheckDone(GURL("http://example.com"),
-                          safe_search_api::ClientClassification::kUnknown));
-  CheckUrl("http://example.com");
-}
-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_CHROMEOS)
 
 class SupervisedUserUrlCheckerClientTest
     : public SupervisedUserUrlCheckerClientTestBase {
@@ -347,34 +286,6 @@ TEST_P(SupervisedUserUrlCheckerClientTest, AccessTokenError) {
 #endif
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_P(SupervisedUserUrlCheckerClientTest,
-       AccessTokenError_VerificationPageEnabled) {
-  if (GetParam() != CredentialsMode::kRequireCredentialsFromFamilyLink) {
-    GTEST_SKIP()
-        << "Access token errors are only relevant for family link users.";
-  }
-
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(
-      kSupervisedUserVerificationPageOnAndroid);
-
-  CHECK(CredentialsRequired(GetParam()));
-
-  MakePrimaryAccountAvailable();
-  StopAutomaticIssueOfAccessTokens();
-
-  // With the verification page feature enabled on Android, we fallback to
-  // making an uncredentialed request to ClassifyUrl, which succeeds.
-  EXPECT_CALL(*this,
-              OnCheckDone(GURL("http://example.com"),
-                          safe_search_api::ClientClassification::kAllowed));
-
-  CheckUrl("http://example.com");
-  SimulateAccessTokenError();
-  SimulateKidsApiResponse(kidsmanagement::ClassifyUrlResponse::ALLOWED);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST_P(SupervisedUserUrlCheckerClientTest, NetworkError) {
   MakePrimaryAccountAvailable();
@@ -422,10 +333,6 @@ TEST_P(SupervisedUserUrlCheckerClientTest,
 
 constexpr CredentialsMode kCredentialsModes[] = {
     CredentialsMode::kNoCredentials,
-#if BUILDFLAG(IS_ANDROID)
-    // Only Android supports dynamic non-family link mode.
-    CredentialsMode::kTryReadingCredentialsFromFamilyLink,
-#endif
     CredentialsMode::kRequireCredentialsFromFamilyLink};
 
 INSTANTIATE_TEST_SUITE_P(

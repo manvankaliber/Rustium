@@ -377,7 +377,6 @@ mojom::TabStripService::UpdateResult TabStripServiceImpl::UpdateTabGroup(
   return translation_adapter().ToMojoData(collection_handle);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // tabs_api::mojom::TabStripExperimentalService overrides
 //
 // TabStripExperimentalService is intended for quick prototyping for
@@ -396,7 +395,6 @@ TabStripServiceImpl::GetAllTabsForProfile() {
 
   return windows;
 }
-#endif
 
 void TabStripServiceImpl::AddObserver(
     observation::TabStripApiBatchedObserver* observer) {
@@ -422,7 +420,6 @@ void TabStripServiceImpl::OnTabEvents(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 mojom::TabStripExperimentService::ReplaceTabInSplitResult
 TabStripServiceImpl::ReplaceTabInSplit(const tabs_api::NodeId& tab_to_replace,
                                        const tabs_api::NodeId& tab_to_insert) {
@@ -450,18 +447,15 @@ TabStripServiceImpl::ReplaceTabInSplit(const tabs_api::NodeId& tab_to_replace,
 
   return std::monostate();
 }
-#endif
 
 void TabStripServiceImpl::Accept(
     mojo::PendingReceiver<tabs_api::mojom::TabStripService> client) {
   mojo_clients_.Add(&bridge_, std::move(client));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void TabStripServiceImpl::AcceptExperimental(
     mojo::PendingReceiver<tabs_api::mojom::TabStripExperimentService> client) {
   mojo_experiment_clients_.Add(&experimental_bridge_, std::move(client));
 }
-#endif
 
 }  // namespace tabs_api

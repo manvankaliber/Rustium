@@ -67,7 +67,7 @@ class _VersionTest(unittest.TestCase):
         '-a',
         'arm',
         '--os',
-        'android',
+
     ]
 
     @staticmethod
@@ -104,72 +104,6 @@ class _VersionTest(unittest.TestCase):
         for key, val in result.items():
             self.assertIsInstance(key, str)
             self.assertIsInstance(val, str)
-
-    def testBuildOutputAndroid(self):
-        """Assert it gives includes assignments of expected variables"""
-        output = self._RunBuildOutput(
-            get_new_args=lambda args: self._EXAMPLE_ANDROID_ARGS
-        )
-        contents = output['contents']
-
-        self.assertRegex(contents, r'\bchrome_version_code = "\d+"\s')
-        self.assertRegex(contents, r'\bmonochrome_version_code = "\d+"\s')
-        self.assertRegex(contents, r'\btrichrome_version_code = "\d+"\s')
-        self.assertRegex(contents, r'\bwebview_stable_version_code = "\d+"\s')
-        self.assertRegex(contents, r'\bwebview_beta_version_code = "\d+"\s')
-        self.assertRegex(contents, r'\bwebview_dev_version_code = "\d+"\s')
-
-    def testBuildOutputAndroidArchVariantsArm64(self):
-        """Assert 64-bit-specific version codes"""
-        new_template = (
-            self._EXAMPLE_ANDROID_TEMPLATE
-            + "monochrome_64_32_version_code = \"@MONOCHROME_64_32_VERSION_CODE@\" "
-            "monochrome_64_version_code = \"@MONOCHROME_64_VERSION_CODE@\" "
-            "trichrome_64_32_version_code = \"@TRICHROME_64_32_VERSION_CODE@\" "
-            "trichrome_64_version_code = \"@TRICHROME_64_VERSION_CODE@\" "
-        )
-        args_with_template = _ReplaceArgs(
-            self._EXAMPLE_ANDROID_ARGS, ['-t', new_template]
-        )
-        new_args = _ReplaceArgs(args_with_template, ['-a', 'arm64'])
-        output = self._RunBuildOutput(get_new_args=lambda args: new_args)
-        contents = output['contents']
-
-        self.assertRegex(contents, r'\bmonochrome_64_32_version_code = "\d+"\s')
-        self.assertRegex(contents, r'\bmonochrome_64_version_code = "\d+"\s')
-        self.assertRegex(contents, r'\btrichrome_64_32_version_code = "\d+"\s')
-        self.assertRegex(contents, r'\btrichrome_64_version_code = "\d+"\s')
-
-    def testBuildOutputAndroidArchVariantsX64(self):
-        """Assert 64-bit-specific version codes"""
-        new_template = (
-            self._EXAMPLE_ANDROID_TEMPLATE
-            + "monochrome_64_32_version_code = \"@MONOCHROME_64_32_VERSION_CODE@\" "
-            "monochrome_64_version_code = \"@MONOCHROME_64_VERSION_CODE@\" "
-            "trichrome_64_32_version_code = \"@TRICHROME_64_32_VERSION_CODE@\" "
-            "trichrome_64_version_code = \"@TRICHROME_64_VERSION_CODE@\" "
-        )
-        args_with_template = _ReplaceArgs(
-            self._EXAMPLE_ANDROID_ARGS, ['-t', new_template]
-        )
-        new_args = _ReplaceArgs(args_with_template, ['-a', 'x64'])
-        output = self._RunBuildOutput(get_new_args=lambda args: new_args)
-        contents = output['contents']
-
-        self.assertRegex(contents, r'\bmonochrome_64_32_version_code = "\d+"\s')
-        self.assertRegex(contents, r'\bmonochrome_64_version_code = "\d+"\s')
-        self.assertRegex(contents, r'\btrichrome_64_32_version_code = "\d+"\s')
-        self.assertRegex(contents, r'\btrichrome_64_version_code = "\d+"\s')
-
-    def testBuildOutputAndroidChromeArchInput(self):
-        """Assert it raises an exception when using an invalid architecture input"""
-        new_args = _ReplaceArgs(self._EXAMPLE_ANDROID_ARGS, ['-a', 'foobar'])
-        # Mock sys.stderr because argparse will print to stderr when we pass
-        # the invalid '-a' value.
-        with self.assertRaises(SystemExit) as cm, mock.patch('sys.stderr'):
-            self._RunBuildOutput(get_new_args=lambda args: new_args)
-
-        self.assertEqual(cm.exception.code, 2)
 
     def testSetExecutable(self):
         """Assert that -x sets executable on POSIX and is harmless on Windows."""

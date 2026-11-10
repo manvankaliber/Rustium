@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-assert(is_win || is_mac || is_linux || is_chromeos)
+assert(is_win || is_mac || is_linux)
 
 source_set("dialog_view_ids") {
   public = [ "dialog_view_ids.h" ]
@@ -825,13 +825,6 @@ source_set("browser_tests") {
     "//ui/views:test_support",
     "//ui/views/interaction:test_support",
   ]
-
-  if (is_chromeos) {
-    deps += [
-      "//chrome/browser/ui:settings_window_manager_chromeos",
-      "//chromeos/ash/services/multidevice_setup/public/cpp:prefs",
-    ]
-  }
 }
 
 source_set("interactive_ui_tests") {

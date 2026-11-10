@@ -89,12 +89,7 @@ ALLOC_TOKEN_FALLBACK void* __alloc_token_reallocf(void* ptr,
 ALLOC_TOKEN_FALLBACK void* __alloc_token_aligned_alloc(size_t alignment,
                                                        size_t size,
                                                        size_t token) {
-#if defined(__ANDROID__) && __ANDROID_API__ < 28
-  // aligned_alloc() is only available from API level 28.
-  return memalign(alignment, size);
-#else
   return aligned_alloc(alignment, size);
-#endif
 }
 
 ALLOC_TOKEN_FALLBACK int __alloc_token_posix_memalign(void** result,

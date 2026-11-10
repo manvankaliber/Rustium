@@ -202,20 +202,6 @@ TypeConverter<blink::Credential*, CredentialInfoPtr>::Convert(
   NOTREACHED();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-static blink::Vector<blink::Vector<uint32_t>> UvmEntryToArray(
-    const blink::Vector<blink::mojom::blink::UvmEntryPtr>&
-        user_verification_methods) {
-  blink::Vector<blink::Vector<uint32_t>> uvm_array;
-  for (const auto& uvm : user_verification_methods) {
-    blink::Vector<uint32_t> uvmEntry = {uvm->user_verification_method,
-                                        uvm->key_protection_type,
-                                        uvm->matcher_protection_type};
-    uvm_array.push_back(uvmEntry);
-  }
-  return uvm_array;
-}
-#endif
 
 // static
 blink::AuthenticationExtensionsClientOutputs*
@@ -228,12 +214,6 @@ TypeConverter<blink::AuthenticationExtensionsClientOutputs*,
   if (extensions->echo_appid_extension) {
     extension_outputs->setAppid(extensions->appid_extension);
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (extensions->echo_user_verification_methods) {
-    extension_outputs->setUvm(
-        UvmEntryToArray(std::move(*extensions->user_verification_methods)));
-  }
-#endif
   if (extensions->echo_large_blob) {
     blink::AuthenticationExtensionsLargeBlobOutputs* large_blob_outputs =
         blink::AuthenticationExtensionsLargeBlobOutputs::Create();
@@ -836,11 +816,6 @@ TypeConverter<AuthenticationExtensionsClientInputsPtr,
   if (inputs.hasAppid()) {
     mojo_inputs->appid = inputs.appid();
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (inputs.hasUvm()) {
-    mojo_inputs->user_verification_methods = inputs.uvm();
-  }
-#endif
   if (inputs.hasLargeBlob()) {
     if (inputs.largeBlob()->hasRead()) {
       mojo_inputs->large_blob_read = inputs.largeBlob()->read();

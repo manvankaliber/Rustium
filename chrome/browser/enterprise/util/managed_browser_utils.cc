@@ -55,20 +55,6 @@
 #include "chrome/browser/enterprise/signin/profile_management_disclaimer_service_factory.h"
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 
-#if BUILDFLAG(IS_ANDROID)
-#include <jni.h>
-
-#include "base/android/jni_string.h"
-#include "base/android/scoped_java_ref.h"
-#include "chrome/browser/enterprise/connectors/connectors_service.h"
-#include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/ui/managed_ui.h"
-#include "components/enterprise/browser/reporting/common_pref_names.h"
-#include "components/safe_browsing/core/common/features.h"
-
-// Must come after other includes, because FromJniType() uses Profile.
-#include "chrome/browser/enterprise/util/jni_headers/ManagedBrowserUtils_jni.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace enterprise_util {
 
@@ -300,8 +286,7 @@ void SetUserAcceptedAccountManagement(Profile* profile, bool accepted) {
     return;
   // The updated consent screen also ask the user for consent to share device
   // signals.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   profile->GetPrefs()->SetBoolean(
       device_signals::prefs::kDeviceSignalsPermanentConsentReceived, accepted);
 #endif
@@ -453,94 +438,6 @@ bool IsKnownConsumerDomain(const std::string& email_domain) {
       email_domain);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-
-// static
-static bool JNI_ManagedBrowserUtils_IsBrowserManaged(JNIEnv* env,
-                                                     Profile* profile) {
-  return policy::ManagementServiceFactory::GetForProfile(profile)
-      ->IsBrowserManaged();
-}
-
-// static
-static bool JNI_ManagedBrowserUtils_IsProfileManaged(JNIEnv* env,
-                                                     Profile* profile) {
-  return policy::ManagementServiceFactory::GetForProfile(profile)
-      ->IsAccountManaged();
-}
-
-// static
-static std::u16string JNI_ManagedBrowserUtils_GetTitle(JNIEnv* env,
-                                                       Profile* profile) {
-  return GetManagementPageSubtitle(profile);
-}
-
-// static
-static bool JNI_ManagedBrowserUtils_IsBrowserReportingEnabled(JNIEnv* env) {
-  return g_browser_process->local_state()->GetBoolean(
-      enterprise_reporting::kCloudReportingEnabled);
-}
-
-// static
-static bool JNI_ManagedBrowserUtils_IsProfileReportingEnabled(
-    JNIEnv* env,
-    Profile* profile) {
-  return profile->GetPrefs()->GetBoolean(
-      enterprise_reporting::kCloudProfileReportingEnabled);
-}
-
-// static
-static bool JNI_ManagedBrowserUtils_IsOnSecurityEventEnterpriseConnectorEnabled(
-    JNIEnv* env,
-    Profile* profile) {
-  CHECK(profile, base::NotFatalUntil::M161);
-
-  auto* service =
-      enterprise_connectors::ConnectorsServiceFactory::GetForBrowserContext(
-          profile);
-  if (!service) {
-    return false;
-  }
-
-  return !service->GetReportingServiceProviderNames().empty();
-}
-
-// static
-static bool JNI_ManagedBrowserUtils_IsEnterpriseRealTimeUrlCheckModeEnabled(
-    JNIEnv* env,
-    Profile* profile) {
-  CHECK(profile, base::NotFatalUntil::M161);
-
-  auto* service =
-      enterprise_connectors::ConnectorsServiceFactory::GetForBrowserContext(
-          profile);
-  if (!service) {
-    return false;
-  }
-
-  return service->GetAppliedRealTimeUrlCheck() !=
-         enterprise_connectors::REAL_TIME_CHECK_DISABLED;
-}
-
-// static
-static bool
-JNI_ManagedBrowserUtils_IsOnFileDownloadedEnterpriseConnectorEnabled(
-    JNIEnv* env,
-    Profile* profile) {
-  CHECK(profile, base::NotFatalUntil::M161);
-
-  auto* service =
-      enterprise_connectors::ConnectorsServiceFactory::GetForBrowserContext(
-          profile);
-
-  return service &&
-         !service
-              ->GetAnalysisServiceProviderNames(
-                  enterprise_connectors::AnalysisConnector::FILE_DOWNLOADED)
-              .empty();
-}
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void GetManagementIcon(const GURL& url,
                        Profile* profile,
@@ -606,7 +503,3 @@ EnabledAutomaticManagementDisclaimerAcceptanceUntilReset(Profile* profile) {
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 
 }  // namespace enterprise_util
-
-#if BUILDFLAG(IS_ANDROID)
-DEFINE_JNI(ManagedBrowserUtils)
-#endif

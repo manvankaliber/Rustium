@@ -24,11 +24,9 @@ namespace content {
 class WebContents;
 }  // namespace content
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace views {
 class View;
 }  // namespace views
-#endif
 
 namespace glic {
 
@@ -94,16 +92,8 @@ class GlicSidePanelCoordinator {
   virtual base::CallbackListSubscription AddStateCallback(
       base::RepeatingCallback<void(State state)> callback) = 0;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Sets the content view for the Glic side panel.
   virtual void SetContentsView(std::unique_ptr<views::View> contents_view) = 0;
-#else
-  // Sets the web contents for the Glic side panel.
-  virtual void SetWebContents(content::WebContents* web_contents) = 0;
-
-  // Sets the callback run when the user accepts the native FRE.
-  virtual void SetNativeFreAcceptedCallback(base::RepeatingClosure callback) {}
-#endif
 
   // Returns preferred side panel width. Not guaranteed to be used if user
   // manually set a different width.

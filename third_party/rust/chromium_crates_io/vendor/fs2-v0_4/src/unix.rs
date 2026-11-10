@@ -95,16 +95,13 @@ pub fn allocated_size(file: &File) -> Result<u64> {
     file.metadata().map(|m| m.blocks() as u64 * 512)
 }
 
-#[cfg(any(target_os = "linux",
-          target_os = "freebsd",
-          target_os = "android",
-          target_os = "nacl"))]
+#[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "nacl"))]
 pub fn allocate(file: &File, len: u64) -> Result<()> {
     let ret = unsafe { libc::posix_fallocate(file.as_raw_fd(), 0, len as libc::off_t) };
     if ret == 0 { Ok(()) } else { Err(Error::last_os_error()) }
 }
 
-#[cfg(any(target_os = "macos", target_os = "ios"))]
+#[cfg(target_os = "macos")]
 pub fn allocate(file: &File, len: u64) -> Result<()> {
     let stat = try!(file.metadata());
 

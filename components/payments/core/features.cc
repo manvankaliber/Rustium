@@ -20,11 +20,7 @@ BASE_FEATURE(kWebPaymentsJustInTimePaymentApp,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kAppStoreBilling,
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kAppStoreBillingDebug, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -52,9 +48,7 @@ constexpr base::FeatureParam<CredentialDiscoveryMode>::Option
 
 const base::FeatureParam<CredentialDiscoveryMode> kCredentialDiscoveryModeParam{
     &kSecurePaymentConfirmationCredentialDiscoveryMode, "mode",
-#if BUILDFLAG(IS_ANDROID)
-    CredentialDiscoveryMode::kOsOnly,
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
     CredentialDiscoveryMode::kHybrid,
 #else
     CredentialDiscoveryMode::kUserDatabaseOnly,
@@ -62,11 +56,7 @@ const base::FeatureParam<CredentialDiscoveryMode> kCredentialDiscoveryModeParam{
     &kCredentialDiscoveryModeOptions};
 
 BASE_FEATURE(kSecurePaymentConfirmationStoreCredentialsInOS,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kPaymentRequestRejectTooSmallWindows,

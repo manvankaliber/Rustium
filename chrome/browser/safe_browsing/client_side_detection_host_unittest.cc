@@ -108,9 +108,6 @@
 #include "ui/gfx/codec/png_codec.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/safe_browsing/core/browser/referring_app_info/referring_app_info.h"
-#endif
 
 using base::test::RunOnceClosure;
 using base::test::TestFuture;
@@ -304,24 +301,9 @@ class MockClientSideDetectionHostDelegate
 
   void SetInnerText(std::string inner_text) { inner_text_ = inner_text; }
 
-#if BUILDFLAG(IS_ANDROID)
-  internal::ReferringAppInfo GetReferringAppInfo(
-      content::WebContents* web_contents) override {
-    return referring_app_info_;
-  }
-
-  void SetReferringAppName(std::string referring_app_name) {
-    internal::ReferringAppInfo info;
-    info.referring_app_name = referring_app_name;
-    referring_app_info_ = info;
-  }
-#endif
 
  private:
   std::string inner_text_ = "inner text";
-#if BUILDFLAG(IS_ANDROID)
-  internal::ReferringAppInfo referring_app_info_;
-#endif
 };
 
 class MockIntelligentScanDelegate : public IntelligentScanDelegate {
@@ -3742,28 +3724,17 @@ class ClientSideDetectionHostCreditCardFormReferringAppTest
   void SetUp() override {
     ClientSideDetectionHostCreditCardFormTest::SetUp();
 
-#if BUILDFLAG(IS_ANDROID)
-    const CreditCardFormReferringAppTestCase& test_case = GetParam();
-    raw_delegate_->SetReferringAppName(test_case.referring_app_name);
-#endif
   }
 };
 
 const CreditCardFormReferringAppTestCase
     credit_card_form_referring_app_test_cases[] = {
         {"", credit_card_form::kNoReferringApp, false},
-#if BUILDFLAG(IS_ANDROID)
-        {"chrome", credit_card_form::kChrome, false},
-        {"android.messages", credit_card_form::kSmsApp, true},
-        {"com.samsung.android.messaging", credit_card_form::kSmsApp, true},
-        {"com.foo", credit_card_form::kOtherApp, false},
-#else
         {"chrome", credit_card_form::kNoReferringApp, false},
         {"android.messages", credit_card_form::kNoReferringApp, false},
         {"com.samsung.android.messaging", credit_card_form::kNoReferringApp,
          false},
         {"com.foo", credit_card_form::kNoReferringApp, false},
-#endif
 };
 
 INSTANTIATE_TEST_SUITE_P(

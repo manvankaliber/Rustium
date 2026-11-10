@@ -24,9 +24,7 @@
 #include "ui/views/view_class_properties.h"
 #include "ui/views/view_utils.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/views/profiles/profile_menu_view.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 ProfileMenuCoordinator::~ProfileMenuCoordinator() {
   // Ensure the ProfileMenuCoordinator does not outlive its associated bubble
@@ -112,13 +110,8 @@ void ProfileMenuCoordinator::ShowWithPromoResults(
     bubble = std::make_unique<IsolatedModeMenuView>(avatar_toolbar_button,
                                                     &browser_.get());
   } else {
-#if BUILDFLAG(IS_CHROMEOS)
-    // Note: on Ash, only incognito windows have a profile menu.
-    NOTREACHED() << "The profile menu is not implemented on Ash.";
-#else
     bubble = std::make_unique<ProfileMenuView>(
         avatar_toolbar_button, &browser_.get(), promo_info, from_avatar_promo);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
   bubble->SetProperty(views::kElementIdentifierKey,
                       kToolbarAvatarBubbleElementId);

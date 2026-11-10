@@ -229,9 +229,6 @@ void ContentFacilitatedPaymentsDriverFactory::DidFinishNavigation(
   qr_code_check_count_ = 0;
 
   auto& driver = GetOrCreateForFrame(navigation_handle->GetRenderFrameHost());
-#if BUILDFLAG(IS_ANDROID)
-  driver.DidNavigateToOrAwayFromPage();
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // The agent starts every document dormant, so the decision is pushed on each
   // commit rather than only when detection is eligible.
@@ -244,77 +241,6 @@ void ContentFacilitatedPaymentsDriverFactory::DidFinishNavigation(
       IsEligibleForQrCodeDetection(navigation_handle->GetURL()));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void ContentFacilitatedPaymentsDriverFactory::RenderFrameHostStateChanged(
-    content::RenderFrameHost* render_frame_host,
-    content::RenderFrameHost::LifecycleState old_state,
-    content::RenderFrameHost::LifecycleState new_state) {
-  // All facilitated payments processes are run only on the outermost main
-  // frame.
-  if (render_frame_host != render_frame_host->GetOutermostMainFrame()) {
-    return;
-  }
-  // User visible pages are active i.e. `LifecycleState == kActive`. A
-  // RenderFrameHost state change where `old_state == kActive` represents a
-  // navigation away from an active page. When navigating away, all facilitated
-  // payments processes should be abandoned.
-  if (old_state != content::RenderFrameHost::LifecycleState::kActive) {
-    return;
-  }
-  if (auto iter = driver_map_.find(render_frame_host);
-      iter != driver_map_.end()) {
-    iter->second->DidNavigateToOrAwayFromPage();
-  }
-}
-
-void ContentFacilitatedPaymentsDriverFactory::OnTextCopiedToClipboard(
-    content::RenderFrameHost* render_frame_host,
-    const std::u16string& copied_text) {
-  content::RenderFrameHost* main_frame =
-      render_frame_host->GetOutermostMainFrame();
-
-  // If the copy event occurred in iframe, only proceed if the iframe flag is
-  // enabled.
-  if (render_frame_host != main_frame &&
-      !base::FeatureList::IsEnabled(kEnableIframeForPix)) {
-    LogPixFlowExitedReason(PixFlowExitedReason::kPixCodeInIFrame);
-    return;
-  }
-
-  if (!render_frame_host->IsActive()) {
-    LogPixFlowExitedReason(PixFlowExitedReason::kFrameNotActive);
-    return;
-  }
-
-  std::optional<GURL> iframe_url;
-
-  bool is_same_origin = false;
-  if (render_frame_host != main_frame) {
-    if (render_frame_host->IsErrorDocument()) {
-      LogPixFlowExitedReason(PixFlowExitedReason::kFrameIsErrorDocument);
-      return;
-    }
-    // If the copy event occurred in an iframe, capture the iframe URL.
-    iframe_url = render_frame_host->GetLastCommittedURL();
-    is_same_origin =
-        render_frame_host->GetLastCommittedOrigin().IsSameOriginWith(
-            main_frame->GetLastCommittedOrigin());
-  }
-
-  auto& driver = GetOrCreateForFrame(render_frame_host);
-
-  // Pass the main frame URL as the primary identifier for the merchant site,
-  // while providing the optional iframe URL for PSP allowlist verification.
-  // To ensure that the PixManager receives the main frame origin for account
-  // linking, the third parameter is now always the main frame origin.
-  driver.OnTextCopiedToClipboard(
-      /*main_frame_url=*/main_frame->GetLastCommittedURL(),
-      /*iframe_url=*/iframe_url,
-      /*main_frame_origin=*/main_frame->GetLastCommittedOrigin(), copied_text,
-      render_frame_host->GetPageUkmSourceId(),
-      /*is_same_origin=*/is_same_origin);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 bool ContentFacilitatedPaymentsDriverFactory::IsEligibleForQrCodeDetection(
     const GURL& url) const {

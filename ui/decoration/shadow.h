@@ -28,10 +28,6 @@ class COMPONENT_EXPORT(UI_DECORATION) Shadow : public DecorationSource {
   enum class Style {
     // The MD style is mainly used for view's shadow.
     kMaterialDesign,
-#if BUILDFLAG(IS_CHROMEOS)
-    // The system style is mainly used for Chrome OS UI components.
-    kChromeOSSystemUI,
-#endif
   };
 
   // Key and ambient shadow colors for an elevation.

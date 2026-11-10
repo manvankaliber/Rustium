@@ -92,7 +92,6 @@ class GlicFilePickerBrowserTest : public GlicBrowserTest,
   base::test::ScopedFeatureList scoped_feature_list_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicFilePickerBrowserTest,
                        ShowOpenFilePickerInNarrowSidePanel) {
   ASSERT_OK_AND_ASSIGN(GlicInstanceImpl * instance, OpenGlicForActiveTab());
@@ -116,7 +115,6 @@ IN_PROC_BROWSER_TEST_P(GlicFilePickerBrowserTest,
   histogram_tester.ExpectUniqueSample(
       "Content.FileChooser.SuppressedByWindowSize", false, 1);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(GlicFilePickerBrowserTest, InputFilePickerInSidePanel) {
   ASSERT_OK_AND_ASSIGN(GlicInstanceImpl * instance, OpenGlicForActiveTab());

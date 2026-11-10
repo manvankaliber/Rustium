@@ -79,10 +79,7 @@ impl MapsEntry {
         self.address.0 <= ip && ip < self.address.1
     }
 
-    #[cfg(target_os = "android")]
-    pub(super) fn offset(&self) -> u64 {
-        self.offset
-    }
+
 }
 
 impl FromStr for MapsEntry {

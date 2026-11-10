@@ -78,22 +78,6 @@ build_recipe = _recipe_for_package(
 )
 
 build_recipe(
-    name = "recipe:android/androidx_packager",
-)
-
-build_recipe(
-    name = "recipe:android/avd_packager",
-)
-
-build_recipe(
-    name = "recipe:android/device_flasher",
-)
-
-build_recipe(
-    name = "recipe:android/sdk_packager",
-)
-
-build_recipe(
     name = "recipe:angle_chromium",
 )
 
@@ -346,10 +330,6 @@ build_recipe(
 
 build_recipe(
     name = "recipe:tricium_oilpan",
-)
-
-build_recipe(
-    name = "recipe:webrtc/chromium_ios",
 )
 
 infra_recipe = _recipe_for_package(

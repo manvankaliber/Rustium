@@ -163,13 +163,8 @@ class GlicPinnedTabManagerBrowserTest : public GlicBrowserTest {
 };
 
 // TODO(b/534710453): Re-enable this test on Android. Currently flaky.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ReturnsMultipleCandidatesSortedByActivation \
-  DISABLED_ReturnsMultipleCandidatesSortedByActivation
-#else
 #define MAYBE_ReturnsMultipleCandidatesSortedByActivation \
   ReturnsMultipleCandidatesSortedByActivation
-#endif
 IN_PROC_BROWSER_TEST_F(GlicPinnedTabManagerBrowserTest,
                        MAYBE_ReturnsMultipleCandidatesSortedByActivation) {
   // By default, the browser starts with a single tab open to "about:blank".
@@ -214,11 +209,7 @@ IN_PROC_BROWSER_TEST_F(GlicPinnedTabManagerBrowserTest,
 }
 
 // TODO(b/534710453): Re-enable this test on Android. Currently flaky.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SortsCandidatesByQuery DISABLED_SortsCandidatesByQuery
-#else
 #define MAYBE_SortsCandidatesByQuery SortsCandidatesByQuery
-#endif
 IN_PROC_BROWSER_TEST_F(GlicPinnedTabManagerBrowserTest,
                        MAYBE_SortsCandidatesByQuery) {
   // By default, the browser starts with a single tab open to "about:blank".

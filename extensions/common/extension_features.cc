@@ -176,11 +176,7 @@ BASE_FEATURE(kExtensionProtocolHandlers, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kExtensionTabContextMenu, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kExtensionsMenuAccessControl,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kExtensionsMenuAccessControlWithPermittedSites,
@@ -208,11 +204,7 @@ BASE_FEATURE(kWebRequestProxyNavigationResponseTaskRunner,
 // TODO(https://crbug.com/328494022): Disable this on ChromeOS, too, and then
 // eventually remove it.
 BASE_FEATURE(kWebstoreHostedApp,
-#if BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif  // BUILDFLAG(IS_CHROMEOS)
 );
 
 BASE_FEATURE(kDeclarativeNetRequestSafeRuleLimits,
@@ -233,7 +225,7 @@ BASE_FEATURE(kDeclarativeNetRequestHeaderSubstitution,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kDisableDisableExtensionsExceptCommandLineSwitch,
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
              base::FEATURE_ENABLED_BY_DEFAULT
 #else
              base::FEATURE_DISABLED_BY_DEFAULT
@@ -243,8 +235,7 @@ BASE_FEATURE(kDisableDisableExtensionsExceptCommandLineSwitch,
 BASE_FEATURE(kDisableExtensionsOnChromeUrlsSwitch,
 // TODO (crbug.com/426554244): Determine if this switch should be
 // removed for desktop-android builds as well.
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS) && \
-    !BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
              base::FEATURE_ENABLED_BY_DEFAULT
 #else
              base::FEATURE_DISABLED_BY_DEFAULT

@@ -5,7 +5,7 @@
 #include "components/password_manager/core/browser/password_store/password_store_backend_metrics_recorder.h"
 
 #include <utility>
-#include <variant>
+#include <vector>
 
 #include "base/logging.h"
 #include "base/metrics/histogram_functions.h"
@@ -39,11 +39,9 @@ PasswordStoreBackendMetricsRecorder::PasswordStoreBackendMetricsRecorder() =
 
 PasswordStoreBackendMetricsRecorder::PasswordStoreBackendMetricsRecorder(
     BackendInfix backend_infix,
-    MethodName method_name,
-    PasswordStoreAndroidBackendType store_type)
+    MethodName method_name)
     : backend_infix_(std::move(backend_infix)),
-      method_name_(std::move(method_name)),
-      store_type_(store_type) {
+      method_name_(std::move(method_name)) {
   RecordRequestStatus(StoreBackendRequestStatus::kRequestIssued);
 }
 
@@ -59,7 +57,7 @@ PasswordStoreBackendMetricsRecorder::~PasswordStoreBackendMetricsRecorder() =
 
 void PasswordStoreBackendMetricsRecorder::RecordMetrics(
     SuccessStatus success_status,
-    std::optional<ErrorFromPasswordStoreOrAndroidBackend> error) const {
+    std::optional<PasswordStoreBackendError> error) const {
   RecordSuccess(success_status);
   if (HasRunToCompletion(success_status)) {
     RecordLatency();
@@ -73,9 +71,6 @@ void PasswordStoreBackendMetricsRecorder::RecordMetrics(
 
   if (error.has_value()) {
     DCHECK_NE(success_status, SuccessStatus::kSuccess);
-    if (std::holds_alternative<AndroidBackendError>(error.value())) {
-      RecordErrorCode(std::move(std::get<1>(error.value())));
-    }
   }
 }
 
@@ -88,10 +83,6 @@ void PasswordStoreBackendMetricsRecorder::RecordRequestStatus(
     StoreBackendRequestStatus request_status) const {
   // Infixes for the overall and backend specific histogram.
   std::vector<std::string> possible_infixes = {"Backend", *backend_infix_};
-  // Adding the infix for split stores.
-  if (store_type_ != PasswordStoreAndroidBackendType::kNone) {
-    possible_infixes.push_back(GetStoreInfix());
-  }
 
   for (const auto& infix : possible_infixes) {
     base::UmaHistogramEnumeration(
@@ -105,15 +96,6 @@ void PasswordStoreBackendMetricsRecorder::RecordSuccess(
     SuccessStatus success_status) const {
   // Infixes for the overall and backend specific histogram.
   std::vector<std::string> possible_infixes = {"Backend", *backend_infix_};
-  // Adding the infix for split stores.
-  if (store_type_ != PasswordStoreAndroidBackendType::kNone) {
-    possible_infixes.push_back(GetStoreInfix());
-
-    base::UmaHistogramBoolean(
-        base::JoinString(
-            {base::StrCat({kMetricPrefix, GetStoreInfix()}), "Success"}, "."),
-        success_status == SuccessStatus::kSuccess);
-  }
 
   for (const auto& infix : possible_infixes) {
     base::UmaHistogramBoolean(
@@ -124,50 +106,11 @@ void PasswordStoreBackendMetricsRecorder::RecordSuccess(
   }
 }
 
-void PasswordStoreBackendMetricsRecorder::RecordErrorCode(
-    const AndroidBackendError& backend_error) const {
-  base::UmaHistogramEnumeration(
-      base::StrCat({kMetricPrefix, "AndroidBackend.ErrorCode"}),
-      backend_error.type);
-  base::UmaHistogramEnumeration(
-      base::JoinString({base::StrCat({kMetricPrefix, *backend_infix_}),
-                        *method_name_, "ErrorCode"},
-                       "."),
-      backend_error.type);
-
-  if (store_type_ != PasswordStoreAndroidBackendType::kNone) {
-    base::UmaHistogramEnumeration(
-        base::JoinString(
-            {base::StrCat({kMetricPrefix, GetStoreInfix()}), "ErrorCode"}, "."),
-        backend_error.type);
-    base::UmaHistogramEnumeration(
-        base::JoinString({base::StrCat({kMetricPrefix, GetStoreInfix()}),
-                          *method_name_, "ErrorCode"},
-                         "."),
-        backend_error.type);
-  }
-
-  if (backend_error.type == AndroidBackendErrorType::kExternalError) {
-    DCHECK(backend_error.api_error_code.has_value());
-    RecordApiErrorCode(backend_error.api_error_code.value());
-    LOG(ERROR) << "Password Manager API call for " << method_name_
-               << " failed with error code: "
-               << backend_error.api_error_code.value();
-  }
-  if (backend_error.connection_result_code.has_value()) {
-    RecordConnectionResultCode(backend_error.connection_result_code.value());
-  }
-}
-
 void PasswordStoreBackendMetricsRecorder::RecordLatency() const {
   base::TimeDelta duration = GetElapsedTimeSinceCreation();
 
   // Infixes for the overall and backend specific histogram.
   std::vector<std::string> possible_infixes = {"Backend", *backend_infix_};
-  // Adding the infix for split stores.
-  if (store_type_ != PasswordStoreAndroidBackendType::kNone) {
-    possible_infixes.push_back(GetStoreInfix());
-  }
 
   for (const auto& infix : possible_infixes) {
     base::UmaHistogramMediumTimes(
@@ -175,61 +118,6 @@ void PasswordStoreBackendMetricsRecorder::RecordLatency() const {
             {base::StrCat({kMetricPrefix, infix}), *method_name_, "Latency"},
             "."),
         duration);
-  }
-}
-
-void PasswordStoreBackendMetricsRecorder::RecordApiErrorCode(
-    int api_error_code) const {
-  base::UmaHistogramSparse(
-      base::StrCat({kMetricPrefix, "AndroidBackend.APIError"}), api_error_code);
-  base::UmaHistogramSparse(
-      base::JoinString({base::StrCat({kMetricPrefix, *backend_infix_}),
-                        *method_name_, "APIError"},
-                       "."),
-      api_error_code);
-
-  if (store_type_ != PasswordStoreAndroidBackendType::kNone) {
-    base::UmaHistogramSparse(
-        base::JoinString(
-            {base::StrCat({kMetricPrefix, GetStoreInfix()}), "APIError"}, "."),
-        api_error_code);
-    base::UmaHistogramSparse(
-        base::JoinString({base::StrCat({kMetricPrefix, GetStoreInfix()}),
-                          *method_name_, "APIError"},
-                         "."),
-        api_error_code);
-  }
-}
-
-void PasswordStoreBackendMetricsRecorder::RecordConnectionResultCode(
-    int connection_result_code) const {
-  base::UmaHistogramSparse(
-      base::StrCat({kMetricPrefix, "AndroidBackend.ConnectionResultCode"}),
-      connection_result_code);
-  base::UmaHistogramSparse(
-      base::JoinString({base::StrCat({kMetricPrefix, *backend_infix_}),
-                        *method_name_, "ConnectionResultCode"},
-                       "."),
-      connection_result_code);
-  if (store_type_ != PasswordStoreAndroidBackendType::kNone) {
-    base::UmaHistogramSparse(
-        base::JoinString({base::StrCat({kMetricPrefix, GetStoreInfix()}),
-                          *method_name_, "ConnectionResultCode"},
-                         "."),
-        connection_result_code);
-  }
-}
-
-std::string PasswordStoreBackendMetricsRecorder::GetStoreInfix() const {
-  switch (store_type_) {
-    case PasswordStoreBackendMetricsRecorder::PasswordStoreAndroidBackendType::
-        kAccount:
-      return base::JoinString({*backend_infix_, "Account"}, ".");
-    case PasswordStoreBackendMetricsRecorder::PasswordStoreAndroidBackendType::
-        kLocal:
-      return base::JoinString({*backend_infix_, "Local"}, ".");
-    default:
-      NOTREACHED();
   }
 }
 

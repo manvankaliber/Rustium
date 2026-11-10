@@ -21,7 +21,7 @@
 #include "net/dns/mock_host_resolver.h"
 
 // This API is not supported on Android.
-static_assert(!BUILDFLAG(IS_ANDROID));
+static_assert(!false);
 
 namespace extensions {
 namespace {

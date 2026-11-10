@@ -289,14 +289,7 @@
   /*Contextual Tasks*/ \
   E(kActionContextualTasksCloseSidePanel) \
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define CHROME_PLATFORM_SPECIFIC_ACTION_IDS \
-  E(kToggleMultitaskMenu, IDC_TOGGLE_MULTITASK_MENU) \
-  E(kActionVisitDesktopOfLruUser2, IDC_VISIT_DESKTOP_OF_LRU_USER_2) \
-  E(kActionVisitDesktopOfLruUser3, IDC_VISIT_DESKTOP_OF_LRU_USER_3) \
-  E(kActionVisitDesktopOfLruUser4, IDC_VISIT_DESKTOP_OF_LRU_USER_4) \
-  E(kActionVisitDesktopOfLruUser5, IDC_VISIT_DESKTOP_OF_LRU_USER_5)
-#elif BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define CHROME_PLATFORM_SPECIFIC_ACTION_IDS \
   E(kUseSystemTitleBar, IDC_USE_SYSTEM_TITLE_BAR) \
   E(kRestoreWindow, IDC_RESTORE_WINDOW)
@@ -305,15 +298,9 @@
   E(kRestoreWindow, IDC_RESTORE_WINDOW) \
   E(kActionMoveWindow, IDC_MOVE_WINDOW) \
   E(kActionSizeWindow, IDC_SIZE_WINDOW)
-#elif BUILDFLAG(IS_ANDROID)
-#define CHROME_PLATFORM_SPECIFIC_ACTION_IDS \
-  E(kActionToggleMultiselect, IDC_TOGGLE_MULTISELECT) \
-  E(kActionOpenTabStripContextMenu, IDC_OPEN_TAB_STRIP_CONTEXT_MENU) \
-  E(kActionReorderTabStripItemLeft, IDC_REORDER_TAB_STRIP_ITEM_LEFT) \
-  E(kActionReorderTabStripItemRight, IDC_REORDER_TAB_STRIP_ITEM_RIGHT)
 #else
 #define CHROME_PLATFORM_SPECIFIC_ACTION_IDS
-#endif  // BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #define CHROME_GOOGLE_BRANDED_ACTION_IDS \

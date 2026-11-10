@@ -8,7 +8,6 @@
 #include "build/build_config.h"
 #include "chrome/common/buildflags.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 
 namespace user_prefs {
 class PrefRegistrySyncable;
@@ -106,6 +105,5 @@ inline constexpr char kAccessibilityReadAnythingRecentUsagesStartTimes[] =
 void RegisterReadAnythingProfilePrefs(
     user_prefs::PrefRegistrySyncable* registry);
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #endif  // CHROME_BROWSER_UI_READ_ANYTHING_READ_ANYTHING_PREFS_H_

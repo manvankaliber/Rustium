@@ -61,13 +61,6 @@ fuzzer_test("renderer_proto_tree_fuzzer") {
 
   # TODO(crbug.com/505034799): Migrate to FUZZ_TEST.
   is_fuzztest_compatible = false
-
-  if (is_android) {
-    deps += [
-      # Provides org.chromium.ui.base.ResourceBundle.
-      "//ui/android:ui_no_recycler_view_java",
-    ]
-  }
 }
 
 fuzzable_proto_library("html_tree_proto") {
@@ -272,9 +265,6 @@ fuzzer_test("browser_accessibility_fuzzer") {
     "//storage/browser:test_support",
     "//ui/accessibility:test_support",
   ]
-  if (is_android) {
-    deps += [ "//base/test:test_support" ]
-  }
 }
 
 content_mojolpm_fuzzer_test("media_stream_dispatcher_host_mojolpm_fuzzer") {

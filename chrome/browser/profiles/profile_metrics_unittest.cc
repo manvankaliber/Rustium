@@ -183,21 +183,6 @@ TEST_P(ProfileMetricsParamsTest, LogNumberOfProfiles) {
   histogram_tester.ExpectUniqueSample("Profile.NumberOfManagedProfiles.7Days",
                                       test_param.expected_managed_profile_count,
                                       1);
-#if BUILDFLAG(IS_ANDROID)
-  // All profiles are considered active on Android.
-  histogram_tester.ExpectUniqueSample("Profile.NumberOfActiveProfiles",
-                                      test_param.profiles.size(), 1);
-  histogram_tester.ExpectUniqueSample("Profile.NumberOfActiveProfiles.1Day",
-                                      test_param.profiles.size(), 1);
-  histogram_tester.ExpectUniqueSample("Profile.NumberOfActiveProfiles.7Days",
-                                      test_param.profiles.size(), 1);
-
-  histogram_tester.ExpectUniqueSample("Profile.NumberOfUnusedProfiles", 0, 1);
-  histogram_tester.ExpectUniqueSample("Profile.NumberOfUnusedProfiles.1Day", 0,
-                                      1);
-  histogram_tester.ExpectUniqueSample("Profile.NumberOfUnusedProfiles.7Days", 0,
-                                      1);
-#else
   histogram_tester.ExpectUniqueSample("Profile.NumberOfActiveProfiles",
                                       test_param.expected_active_profile_count,
                                       1);
@@ -217,14 +202,12 @@ TEST_P(ProfileMetricsParamsTest, LogNumberOfProfiles) {
   histogram_tester.ExpectUniqueSample(
       "Profile.NumberOfUnusedProfiles.7Days",
       test_param.profiles.size() - test_param.expected_active_profile_count, 1);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 INSTANTIATE_TEST_SUITE_P(,
                          ProfileMetricsParamsTest,
                          testing::ValuesIn(profile_metrics_test_params));
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST(ProfileMetrics, ThresholdTest) {
   content::BrowserTaskEnvironment task_environment{
       base::test::TaskEnvironment::TimeSource::MOCK_TIME};
@@ -377,7 +360,6 @@ TEST(ProfileMetrics, ThresholdTest) {
     histogram_tester.ExpectUniqueSample("Profile.NumberOfUnusedProfiles", 0, 1);
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST(ProfileMetricsTest, LogProfileAvatar) {
   base::HistogramTester histogram_tester;

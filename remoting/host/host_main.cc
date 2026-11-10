@@ -33,11 +33,9 @@
 #include "remoting/base/crash/crash_reporting_crashpad.h"
 #include "remoting/base/logging.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "remoting/host/chromoting_host_services_client.h"
 #include "remoting/host/mojom/chromoting_host_services.mojom.h"
 #include "remoting/proto/terminal.pb.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_POSIX)
 #include <signal.h>
@@ -234,7 +232,6 @@ MainRoutineFn SelectMainRoutine(const std::string& process_type) {
   return main_routine;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 constexpr base::TimeDelta kAgentStatusTimeout = base::Seconds(5);
 
 int SendAgentStatusMain(const base::CommandLine* command_line) {
@@ -277,7 +274,6 @@ int SendAgentStatusMain(const base::CommandLine* command_line) {
 
   return succeeded ? kSuccessExitCode : kInitializationFailed;
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -355,12 +351,10 @@ int HostMain(int argc, char** argv) {
   // Enable debug logs.
   InitHostLogging();
 
-#if !BUILDFLAG(IS_CHROMEOS)
   if (command_line->HasSwitch(kAgentStatusSwitchName) ||
       command_line->HasSwitch(kTerminalTitleSwitchName)) {
     return SendAgentStatusMain(command_line);
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_LINUX)
   // Allow other users to list and read files and directories, but not write to

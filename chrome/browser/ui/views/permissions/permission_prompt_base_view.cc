@@ -187,7 +187,6 @@ void PermissionPromptBaseView::OnOcclusionStateChanged(bool occluded) {
 bool PermissionPromptBaseView::MaybeAddMediaPreview(
     size_t index,
     bool allow_empty_device_ids) {
-#if !BUILDFLAG(IS_CHROMEOS)
   if (media_previews_.has_value()) {
     return false;
   }
@@ -246,23 +245,16 @@ bool PermissionPromptBaseView::MaybeAddMediaPreview(
       index, view_type, std::move(requested_audio_capture_device_ids),
       std::move(requested_video_capture_device_ids));
   return true;
-#else
-  return false;
-#endif
 }
 
 void PermissionPromptBaseView::UpdateMediaDevicePreferenceRanking() {
-#if !BUILDFLAG(IS_CHROMEOS)
   if (media_previews_.has_value()) {
     media_previews_->UpdateDevicePreferenceRanking();
   }
-#endif
 }
 
 void PermissionPromptBaseView::ResetMediaPreview() {
-#if !BUILDFLAG(IS_CHROMEOS)
   media_previews_.reset();
-#endif
 }
 
 void PermissionPromptBaseView::FilterUnintenedEventsAndRunCallbacks(

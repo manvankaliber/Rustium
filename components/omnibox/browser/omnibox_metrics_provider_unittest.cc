@@ -1251,7 +1251,6 @@ TEST_F(OmniboxMetricsProviderTest, RecordMetrics_CrossDeviceTab) {
 
 // TODO(b/261895038): This test is flaky on android.  Currently scoring signals
 // logging is only enabled on desktop, so disable for mobile.
-#if !(BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID))
 TEST_F(OmniboxMetricsProviderTest, LogScoringSignals) {
   // Enable feature flag to log scoring signals.
   OmniboxFieldTrial::ScopedMLConfigForTesting scoped_ml_config;
@@ -1290,7 +1289,6 @@ TEST_F(OmniboxMetricsProviderTest, LogScoringSignals) {
   log.is_incognito = true;
   RecordLogAndVerifyScoringSignals(log, *matches[0].scoring_signals);
 }
-#endif  // !(BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID))
 
 // Every result type the client can log needs a summarized type, so that the
 // client histograms agree with the server-side summary of the same events.

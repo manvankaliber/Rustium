@@ -92,22 +92,11 @@ source_set("impl") {
     "//ui/message_center",
   ]
 
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui:chrome_pages",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//components/keep_alive_registry",
-    ]
-  }
-
-  if (is_android) {
-    deps += [
-      "//chrome/android:chrome_jni_headers",
-      "//chrome/browser/android:shortcut_helper",
-      "//chrome/browser/profiles",
-      "//chrome/browser/ui/android/tab_model",
-    ]
-  }
+  deps += [
+    "//chrome/browser/ui:chrome_pages",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//components/keep_alive_registry",
+  ]
 
   if (enable_extensions) {
     deps += [
@@ -117,30 +106,28 @@ source_set("impl") {
   }
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    sources = [ "push_messaging_browsertest.cc" ]
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    deps = [
-      ":budget_proto",
-      ":impl",
-      ":push_messaging",
-      "//base/test:test_support",
-      "//chrome/browser/browsing_data:constants",
-      "//chrome/browser/content_settings:content_settings_factory",
-      "//chrome/browser/gcm",
-      "//chrome/browser/permissions",
-      "//chrome/browser/permissions:test_support",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/test:test_support",
-      "//components/browsing_data/content",
-      "//components/push_messaging:test_support",
-      "//components/safe_browsing:buildflags",
-      "//content/test:test_support",
-      "//testing/gtest",
-    ]
-  }
+source_set("browser_tests") {
+  testonly = true
+  sources = [ "push_messaging_browsertest.cc" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  deps = [
+    ":budget_proto",
+    ":impl",
+    ":push_messaging",
+    "//base/test:test_support",
+    "//chrome/browser/browsing_data:constants",
+    "//chrome/browser/content_settings:content_settings_factory",
+    "//chrome/browser/gcm",
+    "//chrome/browser/permissions",
+    "//chrome/browser/permissions:test_support",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/test:test_support",
+    "//components/browsing_data/content",
+    "//components/push_messaging:test_support",
+    "//components/safe_browsing:buildflags",
+    "//content/test:test_support",
+    "//testing/gtest",
+  ]
 }
 
 source_set("unit_tests") {

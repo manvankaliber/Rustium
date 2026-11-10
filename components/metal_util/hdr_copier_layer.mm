@@ -296,9 +296,7 @@ id<MTLRenderPipelineState> CreateRenderPipelineState(id<MTLDevice> device) {
 - (id)init {
   if ((self = [super init])) {
     id<MTLDevice> device = metal::GetDefaultDevice();
-#if !BUILDFLAG(IS_IOS_TVOS)
     self.wantsExtendedDynamicRangeContent = YES;
-#endif
     self.device = device;
     self.opaque = NO;
     self.presentsWithTransaction = YES;
@@ -349,7 +347,6 @@ id<MTLRenderPipelineState> CreateRenderPipelineState(id<MTLDevice> device) {
   }
 
   // Set metadata for tone mapping.
-#if !BUILDFLAG(IS_IOS_TVOS)
   if (_colorSpace != colorSpace || _hdrMetadata != hdrMetadata) {
     CAEDRMetadata* edrMetadata = nil;
     if (colorSpace.GetTransferID() == gfx::ColorSpace::TransferID::PQ) {
@@ -369,7 +366,6 @@ id<MTLRenderPipelineState> CreateRenderPipelineState(id<MTLDevice> device) {
     _colorSpace = colorSpace;
     _hdrMetadata = hdrMetadata;
   }
-#endif
 
   // Migrate to the MTLDevice on which the CAMetalLayer is being composited, if
   // known.
@@ -407,9 +403,7 @@ id<MTLRenderPipelineState> CreateRenderPipelineState(id<MTLDevice> device) {
     texDesc.mipmapLevelCount = 1;
     texDesc.arrayLength = 1;
     texDesc.sampleCount = 1;
-#if BUILDFLAG(IS_MAC)
     texDesc.storageMode = MTLStorageModeManaged;
-#endif
     bufferTexture[i] = [device newTextureWithDescriptor:texDesc
                                               iosurface:buffer
                                                   plane:i];

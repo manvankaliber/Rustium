@@ -68,11 +68,6 @@ class ChromeLabsCoordinator : public PinnedToolbarActionsModel::Observer {
     return controller_.get();
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void SetShouldCircumventDeviceCheckForTesting(bool should_circumvent) {
-    should_circumvent_device_check_for_testing_ = should_circumvent;
-  }
-#endif
 
  private:
   raw_ptr<BrowserWindowInterface, DanglingUntriaged> browser_;
@@ -84,10 +79,6 @@ class ChromeLabsCoordinator : public PinnedToolbarActionsModel::Observer {
   base::ScopedObservation<PinnedToolbarActionsModel,
                           PinnedToolbarActionsModel::Observer>
       pinned_actions_observation_{this};
-#if BUILDFLAG(IS_CHROMEOS)
-  bool is_waiting_to_show_ = false;
-  bool should_circumvent_device_check_for_testing_ = false;
-#endif
   ui::ScopedUnownedUserData<ChromeLabsCoordinator> scoped_unowned_user_data_;
 };
 

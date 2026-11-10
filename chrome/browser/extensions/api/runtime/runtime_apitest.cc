@@ -71,19 +71,16 @@
 #include "partition_alloc/buildflags.h"
 #include "url/url_constants.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 #if BUILDFLAG(ENABLE_PLATFORM_APPS)
 #include "chrome/browser/apps/platform_apps/app_browsertest_util.h"
 #endif
 
 // Includes used only by the dangling-pointer regression test below.
-#if !BUILDFLAG(IS_ANDROID) && PA_BUILDFLAG(ENABLE_DANGLING_RAW_PTR_CHECKS) && \
-    !BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(ENABLE_DANGLING_RAW_PTR_CHECKS)
 #include "base/allocator/partition_alloc_features.h"
 #include "base/scoped_observation.h"
 #include "chrome/browser/browser_process.h"
@@ -244,7 +241,7 @@ IN_PROC_BROWSER_TEST_P(RuntimeGetPlatformInfoTest,
           new RuntimeGetPlatformInfoFunction(), "[]", profile()));
   EXPECT_TRUE(dict.contains("os"));
   EXPECT_TRUE(dict.contains("arch"));
-#if defined(ARCH_CPU_RISCV64) || BUILDFLAG(IS_ANDROID)
+#if defined(ARCH_CPU_RISCV64)
   // Native Client had never supported RISC-V ISA or Android OS.
   EXPECT_FALSE(dict.contains("nacl_arch"));
 #else
@@ -616,8 +613,7 @@ IN_PROC_BROWSER_TEST_F(RuntimeAPIUpdateTest,
 // checks are compiled in, so the test is built only in that case.
 // Also exclude from ChromeOS because multiple profiles aren't supported there,
 // so the test can't be set up properly.
-#if !BUILDFLAG(IS_ANDROID) && PA_BUILDFLAG(ENABLE_DANGLING_RAW_PTR_CHECKS) && \
-    !BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(ENABLE_DANGLING_RAW_PTR_CHECKS)
 namespace {
 
 // Test helper. When the observed profile is about to be destroyed, it fires the
@@ -705,7 +701,7 @@ IN_PROC_BROWSER_TEST_F(RuntimeOnInstalledShutdownTest,
   // Run the queued task; it must not crash.
   base::RunLoop().RunUntilIdle();
 }
-#endif  // !BUILDFLAG(IS_ANDROID) &&
+#endif
         // PA_BUILDFLAG(ENABLE_DANGLING_RAW_PTR_CHECKS) &&
         // !BUILDFLAG(IS_CHROMEOS)
 
@@ -880,7 +876,6 @@ IN_PROC_BROWSER_TEST_F(ChromeRuntimeUninstallURLHistogramTest, UninstallURL) {
 
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if !BUILDFLAG(IS_ANDROID)
 // Regression test for https://crbug.com/40822787 - whether a tab opened
 // from the background page (via `window.open(...)`) will be correctly
 // marked as `mojom::ViewType::kTabContents`.
@@ -938,7 +933,6 @@ IN_PROC_BROWSER_TEST_F(RuntimeApiTest,
     ASSERT_EQ(new_tab_url.spec(), url->GetString());
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class RuntimeGetContextsApiTest : public ExtensionApiTest {
  public:
@@ -1306,7 +1300,6 @@ IN_PROC_BROWSER_TEST_F(RuntimeGetContextsApiTest, GetOffscreenDocumentContext) {
   EXPECT_THAT(background_contexts, base::test::IsJson(expected));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // TODO(crbug.com/405218955): Support side panel on desktop Android.
 class RuntimeGetContextsSidePanelTest : public RuntimeGetContextsApiTest {
  public:
@@ -1470,7 +1463,6 @@ IN_PROC_BROWSER_TEST_F(RuntimeGetContextsSidePanelTest,
   EXPECT_TRUE(catcher.GetNextResult()) << catcher.message();
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Tests the behavior of `runtime.getContexts()` with a split-mode incognito
 // extension. In split mode, the extension should only be able to access data
@@ -1658,7 +1650,6 @@ IN_PROC_BROWSER_TEST_F(RuntimeGetContextsApiTest,
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // This is a manifest V2 test meant to ensure test coverage for
 // chrome.extension.getURL, which is deprecated and unavailable
 // in MV3.
@@ -1707,7 +1698,7 @@ class GetContextsWithDeveloperToolsOpened
 
 // TODO(crbug.com/556930566): flaky on Linux.
 // TODO(crbug.com/357845909): also flaky on ChromeOS MSAN.
-#if BUILDFLAG(IS_LINUX) || (defined(MEMORY_SANITIZER) && BUILDFLAG(IS_CHROMEOS))
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_ReturnsDevToolsContext DISABLED_ReturnsDevToolsContext
 #else
 #define MAYBE_ReturnsDevToolsContext ReturnsDevToolsContext
@@ -1785,7 +1776,6 @@ INSTANTIATE_TEST_SUITE_P(UndockedDevTools,
 INSTANTIATE_TEST_SUITE_P(DockedDevTools,
                          GetContextsWithDeveloperToolsOpened,
                          ::testing::Values(true) /* open_docked */);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Tests for `chrome.runtime.onEnabled` and `chrome.runtime.onExtensionLoaded`
 // lifecycle events across all lifecycle transitions.
@@ -1949,10 +1939,6 @@ class RuntimeLifecycleEventsApiTest : public RuntimeApiTest {
   // in a `PRE_` test so `WaitForExtensionPersistedBeforeRestartOnAndroid()` can
   // wait for the registration to be stored to disk on Android.
   void ObserveServiceWorkerRegistrationBeforeInstallOnAndroid() {
-#if BUILDFLAG(IS_ANDROID)
-    registration_observer_ = std::make_unique<
-        service_worker_test_utils::TestServiceWorkerContextObserver>(profile());
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   // Waits for the background service worker registration, extension
@@ -1960,38 +1946,9 @@ class RuntimeLifecycleEventsApiTest : public RuntimeApiTest {
   // committed to disk on Android where `PRE_` browser tests do not perform a
   // graceful shutdown.
   void WaitForExtensionPersistedBeforeRestartOnAndroid() {
-#if BUILDFLAG(IS_ANDROID)
-    // Wait for the background service worker registration to be stored to disk
-    // so that it persists across browser restart.
-    ASSERT_TRUE(registration_observer_);
-    {
-      SCOPED_TRACE("Waiting for service worker registration to be stored");
-      registration_observer_->WaitForRegistrationStored();
-    }
-
-    // Android does not perform a graceful shutdown in browser tests. Commit
-    // preferences to disk and flush background ThreadPool file tasks (e.g. from
-    // `CrxInstaller` and `StateStore`) so the extension registration and
-    // unpacked files are fully persisted across browser restart.
-    base::RunLoop commit_pending_write_run_loop;
-    profile()->GetPrefs()->CommitPendingWrite(
-        commit_pending_write_run_loop.QuitClosure());
-    {
-      SCOPED_TRACE("Waiting for preferences to be committed to disk");
-      commit_pending_write_run_loop.Run();
-    }
-    {
-      SCOPED_TRACE("Waiting for background ThreadPool tasks to flush");
-      base::ThreadPoolInstance::Get()->FlushForTesting();
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
  private:
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<service_worker_test_utils::TestServiceWorkerContextObserver>
-      registration_observer_;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 // Test that `chrome.runtime.onExtensionLoaded` and `chrome.runtime.onInstalled`

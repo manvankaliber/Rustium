@@ -90,7 +90,7 @@ SharedImageStub::SharedImageStub(GpuChannel* channel, int32_t route_id)
       command_buffer_id_(
           CommandBufferIdFromChannelAndRoute(channel->client_id(), route_id)),
       sequence_(channel->scheduler()->CreateSequence(
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
           base::FeatureList::IsEnabled(features::kSharedImageStubHighPriority)
               ? SchedulingPriority::kHigh
               : SchedulingPriority::kLow,
@@ -653,15 +653,8 @@ gfx::GpuMemoryBufferHandle SharedImageStub::CreateGpuMemoryBufferHandle(
     const viz::SharedImageFormat& format,
     gfx::BufferUsage buffer_usage) {
   if (SharedImageFactory::IsNativeBufferSupported(format, buffer_usage)) {
-#if BUILDFLAG(IS_ANDROID)
-    // Creation of native buffer handles is not supported on Android (the
-    // only way that a non-null GpuMemoryBufferHandle can be created on
-    // Android is by importing an external AHB).
-    return gfx::GpuMemoryBufferHandle();
-#else
     return factory_->CreateNativeGpuMemoryBufferHandle(size, format,
                                                        buffer_usage);
-#endif
   } else {
     if (SharedMemoryImageBackingFactory::IsBufferUsageSupported(buffer_usage) &&
         SharedMemoryImageBackingFactory::IsSizeValidForFormat(size, format)) {
@@ -723,12 +716,6 @@ bool SharedImageStub::ValidateGpuMemoryBufferHandle(
     return true;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (channel_->client_type() == viz::mojom::GpuClientType::kRenderer) {
-    LOG(ERROR) << "AHardwareBuffers are not allowed from renderer processes";
-    return false;
-  }
-#endif
 
   // TODO(crbug.com/565252393): Add validation
   return true;

@@ -70,12 +70,10 @@ source_set("downloader") {
     "skills_downloader.h",
   ]
 
-  if (!is_android) {
-    sources += [
-      "skills_fetcher.cc",
-      "skills_fetcher.h",
-    ]
-  }
+  sources += [
+    "skills_fetcher.cc",
+    "skills_fetcher.h",
+  ]
 
   deps = [
     "//base",
@@ -101,9 +99,7 @@ source_set("unit_tests") {
     "skills_sync_bridge_unittest.cc",
   ]
 
-  if (!is_android) {
-    sources += [ "skills_fetcher_unittest.cc" ]
-  }
+  sources += [ "skills_fetcher_unittest.cc" ]
 
   if (is_win || is_mac || is_linux) {
     sources += [ "enterprise_published_skills_policy_handler_unittest.cc" ]

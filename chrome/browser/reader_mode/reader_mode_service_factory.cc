@@ -19,9 +19,6 @@
 #include "components/dom_distiller/core/distiller_options.h"
 #include "content/public/browser/browser_context.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/reader_mode/reader_mode_ui_handle_android.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace reader_mode {
 
@@ -99,10 +96,6 @@ ReaderModeServiceFactory::BuildServiceInstanceForBrowserContext(
                               base::Unretained(context)));
   std::unique_ptr<dom_distiller::DistillerUIHandle> distiller_ui_handle;
 
-#if BUILDFLAG(IS_ANDROID)
-  distiller_ui_handle =
-      std::make_unique<reader_mode::android::ReaderModeUIHandleAndroid>();
-#endif  // BUILDFLAG(IS_ANDROID)
 
   return std::make_unique<ReaderModeContextKeyedService>(
       std::move(distiller_factory), std::move(distiller_page_factory),

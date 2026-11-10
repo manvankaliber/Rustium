@@ -23,7 +23,7 @@ use libc::{setsockopt, SO_RCVTIMEO, SO_SNDTIMEO, timeval, time_t};
 use libc::{F_GETFD, F_SETFD, FD_CLOEXEC};
 #[cfg(not(any(target_vendor="apple", target_os = "haiku")))]
 use libc::{SOCK_CLOEXEC, SOCK_NONBLOCK};
-#[cfg(not(any(target_vendor="apple", target_os = "haiku", all(target_os="android", target_arch="x86"))))]
+#[cfg(not(any(target_vendor="apple", target_os = "haiku")))]
 use libc::{accept4, ENOSYS};
 #[cfg(target_vendor="apple")]
 use libc::SO_NOSIGPIPE;
@@ -283,11 +283,7 @@ impl Socket {
             // ENOSYS is handled for compatibility with Linux < 2.6.28,
             // because Rust std still supports Linux 2.6.18.
             // (used by RHEL 5 which didn't reach EOL until November 2020).
-            #[cfg(not(any(
-                target_vendor="apple",
-                target_os = "haiku",
-                all(target_os="android", target_arch="x86")
-            )))] {
+            #[cfg(not(any(target_vendor="apple", target_os = "haiku")))] {
                 let flags = SOCK_CLOEXEC | if nonblocking {SOCK_NONBLOCK} else {0};
                 match cvt_r!(accept4(fd, addr_ptr, len_ptr, flags)) {
                     Ok(fd) => return Ok(Socket(fd)),

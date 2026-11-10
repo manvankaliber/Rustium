@@ -416,7 +416,7 @@ WRes CriticalSection_Init(CCriticalSection *p)
 
 // ---------- POSIX ----------
 
-#if defined(__linux__) && !defined(__APPLE__) && !defined(_AIX) && !defined(__ANDROID__)
+#if defined(__linux__) && !defined(__APPLE__) && !defined(_AIX)
 #ifndef Z7_AFFINITY_DISABLE
 // _GNU_SOURCE can be required for pthread_setaffinity_np() / CPU_ZERO / CPU_SET
 // clang < 3.6       : unknown warning group '-Wreserved-id-macro'

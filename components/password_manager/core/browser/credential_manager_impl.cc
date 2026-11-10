@@ -97,7 +97,6 @@ void CredentialManagerImpl::Store(const CredentialInfo& credential,
   form_fetcher->set_filter_grouped_credentials(false);
   form_manager_ = std::make_unique<CredentialManagerPasswordFormManager>(
       client_, std::move(form), this, nullptr, std::move(form_fetcher));
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (!last_submitted_form_) {
     return;
   }
@@ -115,7 +114,6 @@ void CredentialManagerImpl::Store(const CredentialInfo& credential,
       pwm_credential_matches_cmapi_credential) {
     form_manager_->SetShouldStoreActorLoginPermission();
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 }
 
 void CredentialManagerImpl::PreventSilentAccess(
@@ -275,7 +273,7 @@ void CredentialManagerImpl::SendPasswordForm(
     if (reauth_required) {
       CHECK(authenticator_);
       std::u16string message;
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
       const std::u16string origin = base::UTF8ToUTF16(
           password_manager::GetShownOrigin(client_->GetLastCommittedOrigin()));
       message = l10n_util::GetStringFUTF16(IDS_PASSWORD_MANAGER_FILLING_REAUTH,

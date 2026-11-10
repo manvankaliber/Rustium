@@ -159,14 +159,9 @@
 #include "ui/gfx/geometry/rect.h"
 #include "ui/latency/latency_info.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "content/browser/media/captured_surface_controller.h"
 #include "content/public/test/mock_captured_surface_controller.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/webui/grit/ash_webui_common_resources.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <combaseapi.h>
@@ -451,30 +446,6 @@ class TestNavigationManagerThrottle : public NavigationThrottle {
   base::OnceClosure on_will_fail_request_closure_;
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-void AppendGzippedResource(const base::RefCountedMemory& encoded,
-                           std::string* to_append) {
-  auto source_stream = std::make_unique<net::MockSourceStream>();
-  source_stream->AddReadResult(base::span(encoded), net::OK,
-                               net::MockSourceStream::SYNC);
-  // Add an EOF.
-  source_stream->AddReadResult(base::span<uint8_t>(), net::OK,
-                               net::MockSourceStream::SYNC);
-  std::unique_ptr<net::GzipSourceStream> filter = net::GzipSourceStream::Create(
-      std::move(source_stream), net::SourceStreamType::kGzip);
-  scoped_refptr<net::IOBufferWithSize> dest_buffer =
-      base::MakeRefCounted<net::IOBufferWithSize>(4096);
-  while (true) {
-    int rv = filter->Read(dest_buffer.get(), dest_buffer->size(),
-                          net::CompletionOnceCallback());
-    ASSERT_LE(0, rv);
-    if (rv <= 0) {
-      break;
-    }
-    to_append->append(dest_buffer->data(), rv);
-  }
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Queries for video input devices on the current system using the getSources
 // API.
@@ -1008,20 +979,6 @@ void WaitForResizeComplete(WebContents* web_contents) {
     resize_observer.Wait();
   }
 }
-#elif BUILDFLAG(IS_ANDROID)
-bool IsResizeComplete(RenderWidgetHostImpl* widget_host) {
-  return !widget_host->visual_properties_ack_pending_for_testing();
-}
-
-void WaitForResizeComplete(WebContents* web_contents) {
-  RenderWidgetHostImpl* widget_host = RenderWidgetHostImpl::From(
-      web_contents->GetRenderViewHost()->GetWidget());
-  if (!IsResizeComplete(widget_host)) {
-    ResizeObserver resize_observer(
-        widget_host, base::BindRepeating(IsResizeComplete, widget_host));
-    resize_observer.Wait();
-  }
-}
 #endif
 
 void NotifyCopyableViewInWebContents(WebContents* web_contents,
@@ -1153,13 +1110,8 @@ void SimulateMouseClickOrTapElementWithId(WebContents* web_contents,
   gfx::Point point = gfx::ToFlooredPoint(
       GetCenterCoordinatesOfElementWithId(web_contents, id));
 
-#if BUILDFLAG(IS_ANDROID)
-  SimulateTapDownAt(web_contents, point);
-  SimulateTapAt(web_contents, point);
-#else
   SimulateMouseClickAt(web_contents, 0, blink::WebMouseEvent::Button::kLeft,
                        point);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void SimulateMouseEvent(WebContents* web_contents,
@@ -2261,50 +2213,6 @@ std::vector<WebContents*> GetAllWebContents() {
   return all_wc;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool ExecuteWebUIResourceTest(WebContents* web_contents) {
-  // Inject WebUI test runner script.
-  std::string script;
-  scoped_refptr<base::RefCountedMemory> bytes =
-      ui::ResourceBundle::GetSharedInstance().LoadDataResourceBytes(
-          IDR_ASH_WEBUI_COMMON_WEBUI_RESOURCE_TEST_JS);
-
-  if (net::GZipHeader::HasGZipHeader(base::span(*bytes))) {
-    AppendGzippedResource(*bytes, &script);
-  } else {
-    auto chars = base::as_chars(base::span(*bytes));
-    script.append(chars.data(), chars.size());
-  }
-
-  script.append("\n");
-  ExecuteScriptAsync(web_contents, script);
-
-  DOMMessageQueue message_queue(web_contents);
-
-  bool should_wait_flag = base::CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kWaitForDebuggerWebUI);
-
-  if (should_wait_flag) {
-    ExecuteScriptAsync(
-        web_contents,
-        "window.waitUser = true; "
-        "window.go = function() { window.waitUser = false }; "
-        "console.log('Waiting for debugger...'); "
-        "console.log('Run: go() in the JS console when you are ready.');");
-  }
-
-  ExecuteScriptAsync(web_contents, "runTests()");
-
-  std::string message;
-  do {
-    if (!message_queue.WaitForMessage(&message)) {
-      return false;
-    }
-  } while (message.compare("\"PENDING\"") == 0);
-
-  return message.compare("\"SUCCESS\"") == 0;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 std::string GetCookies(BrowserContext* browser_context,
                        const GURL& url,
@@ -2837,7 +2745,6 @@ std::optional<int> RenderProcessHostKillWaiter::Wait() {
 
   // Wait for the renderer kill.
   exit_watcher_.Wait();
-#if !BUILDFLAG(IS_ANDROID)
   // Getting termination status on android is not reliable. To avoid flakiness,
   // we can skip this check and just check bad message. On other platforms we
   // want to verify that the renderer got killed, rather than exiting normally.
@@ -2845,7 +2752,6 @@ std::optional<int> RenderProcessHostKillWaiter::Wait() {
     LOG(ERROR) << "Renderer unexpectedly exited normally.";
     return result;
   }
-#endif
 
   // Find the logged UMA data (if present).
   std::vector<base::Bucket> uma_samples =
@@ -4999,7 +4905,6 @@ base::CallbackListSubscription RegisterWebContentsCreationCallback(
   return WebContentsImpl::FriendWrapper::AddCreatedCallbackForTesting(callback);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void SetConditionalFocusWindowForTesting(base::TimeDelta window) {
   MediaStreamManager::GetInstance()->SetConditionalFocusWindowForTesting(
       window);
@@ -5033,7 +4938,6 @@ void SetCapturedSurfaceControllerFactoryForTesting(
   MediaStreamManager::GetInstance()
       ->SetCapturedSurfaceControllerFactoryForTesting(wrapped_factory);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 std::optional<int> GetDOMNodeId(RenderFrameHost& rfh,
                                 std::string_view query_selector) {

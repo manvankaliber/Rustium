@@ -32,9 +32,9 @@
 #include "tensorflow/lite/model.h"                       // from @litert
 #include "tensorflow/lite/model_builder.h"               // from @litert
 
-#if defined(__ANDROID__) || defined(MEDIAPIPE_CHROMIUMOS)
+#if defined(MEDIAPIPE_CHROMIUMOS)
 #include "tensorflow/lite/delegates/gpu/cl/api.h"  // from @litert
-#endif  // defined(__ANDROID__) || defined(MEDIAPIPE_CHROMIUMOS)
+#endif
 
 namespace tflite {
 namespace gpu {
@@ -112,13 +112,13 @@ class TFLiteGPURunner {
   InferenceOptions options_;
   std::unique_ptr<gl::InferenceEnvironment> gl_environment_;
 
-#if defined(__ANDROID__) || defined(MEDIAPIPE_CHROMIUMOS)
+#if defined(MEDIAPIPE_CHROMIUMOS)
   std::unique_ptr<cl::InferenceEnvironment> cl_environment_;
 
   std::vector<uint8_t> serialized_binary_cache_;
   std::vector<uint8_t> serialized_model_;
   bool serialized_model_used_ = false;
-#endif  // defined(__ANDROID__) || defined(MEDIAPIPE_CHROMIUMOS)
+#endif
 
   // graph_gl_ is maintained temporarily and becomes invalid after runner_ is
   // ready

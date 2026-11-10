@@ -144,11 +144,11 @@ class MessageUnittest(unittest.TestCase):
       return
     self.fail('Should have gotten exception')
 
-  def testAndroidStringFormatIsInsidePhNode(self):
+  def testIndexedPrintfStringFormatIsInsidePhNode(self):
     try:
       util.ParseGrdForUnittest("""\
         <messages>
-        <message name="IDS_ANDROID" desc="string format">
+        <message name="IDS_PRINTF" desc="string format">
           This message is missing a ph node: %1$s
         </message>
         </messages>""")
@@ -156,11 +156,11 @@ class MessageUnittest(unittest.TestCase):
       return
     self.fail('Should have gotten exception')
 
-  def testAndroidIntegerFormatIsInsidePhNode(self):
+  def testIndexedPrintfIntegerFormatIsInsidePhNode(self):
     try:
       util.ParseGrdForUnittest("""\
         <messages>
-        <message name="IDS_ANDROID" desc="integer format">
+        <message name="IDS_PRINTF" desc="integer format">
           This message is missing a ph node: %2$d
         </message>
         </messages>""")
@@ -168,11 +168,11 @@ class MessageUnittest(unittest.TestCase):
       return
     self.fail('Should have gotten exception')
 
-  def testAndroidIntegerWidthFormatIsInsidePhNode(self):
+  def testIndexedPrintfIntegerWidthFormatIsInsidePhNode(self):
     try:
       util.ParseGrdForUnittest("""\
         <messages>
-        <message name="IDS_ANDROID" desc="integer width format">
+        <message name="IDS_PRINTF" desc="integer width format">
           This message is missing a ph node: %2$3d
         </message>
         </messages>""")
@@ -180,22 +180,22 @@ class MessageUnittest(unittest.TestCase):
       return
     self.fail('Should have gotten exception')
 
-  def testValidAndroidIntegerWidthFormatInPhNode(self):
+  def testValidIndexedPrintfIntegerWidthFormatInPhNode(self):
     try:
       util.ParseGrdForUnittest("""\
         <messages>
-        <message name="IDS_ANDROID_WIDTH">
+        <message name="IDS_PRINTF_WIDTH">
           <ph name="VALID">%2$3d<ex>042</ex></ph>
         </message>
         </messages>""")
     except:
       self.fail('Should not have gotten exception')
 
-  def testAndroidFloatFormatIsInsidePhNode(self):
+  def testIndexedPrintfFloatFormatIsInsidePhNode(self):
     try:
       util.ParseGrdForUnittest("""\
         <messages>
-        <message name="IDS_ANDROID" desc="float number format">
+        <message name="IDS_PRINTF" desc="float number format">
           This message is missing a ph node: %3$4.5f
         </message>
         </messages>""")

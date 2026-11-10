@@ -203,13 +203,7 @@ bool XRWebGLDrawingBuffer::Initialize(const gfx::Size& size,
   DVLOG(2) << __func__
            << ": anti_aliasing_mode_=" << static_cast<int>(anti_aliasing_mode_);
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android devices use a smaller number of samples to provide more breathing
-  // room for fill-rate-bound applications.
-  sample_count_ = std::min(2, max_sample_count);
-#else
   sample_count_ = std::min(4, max_sample_count);
-#endif
 
   Resize(size);
 

@@ -53,9 +53,7 @@
 #include "components/autofill/core/common/signatures.h"
 #include "components/autofill/core/common/unique_ids.h"
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 #include "components/autofill/core/browser/metrics/payments/omnibox_autofill_metrics.h"
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 namespace autofill::autofill_metrics {
 
@@ -422,7 +420,6 @@ void CreditCardFormEventLogger::OnDidFillFormFillingSuggestion(
     save_and_fill_manager->LogCreditCardFormFilled();
     return;
   }
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (trigger_source_ == AutofillTriggerSource::kOmniboxAutofill) {
     if (!has_logged_form_filled_from_omnibox_autofill_) {
       LogOmniboxAutofillEvents(OmniboxAutofillEvents::kFormFilledOnce);
@@ -430,7 +427,6 @@ void CreditCardFormEventLogger::OnDidFillFormFillingSuggestion(
     }
     LogOmniboxAutofillEvents(OmniboxAutofillEvents::kFormFilled);
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   latest_filled_card_was_masked_server_card_ = false;
   latest_filled_card_was_card_info_retrieval_enrolled_ = false;
@@ -674,7 +670,6 @@ void CreditCardFormEventLogger::OnDidAcceptSaveAndFillSuggestion() {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 void CreditCardFormEventLogger::OnOmniboxAutofillChipShown() {
   if (!has_logged_omnibox_autofill_chip_shown_) {
@@ -700,7 +695,6 @@ void CreditCardFormEventLogger::OnOmniboxAutofillSuggestionAccepted() {
   LogOmniboxAutofillEvents(OmniboxAutofillEvents::kSuggestionAccepted);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 std::optional<CreditCard>
 CreditCardFormEventLogger::GetFilledCreditCardForTesting() {
@@ -793,12 +787,10 @@ void CreditCardFormEventLogger::LogFormSubmitted(const FormStructure& form) {
     save_and_fill_manager->LogCreditCardFormSubmitted();
     return;
   }
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (trigger_source_ == AutofillTriggerSource::kOmniboxAutofill &&
       has_logged_form_filled_from_omnibox_autofill_) {
     LogOmniboxAutofillEvents(OmniboxAutofillEvents::kFormSubmittedOnce);
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   if (!has_logged_form_filling_suggestion_filled_) {
     Log(FORM_EVENT_NO_SUGGESTION_SUBMITTED_ONCE, form);

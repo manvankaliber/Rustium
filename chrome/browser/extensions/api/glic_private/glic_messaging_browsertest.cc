@@ -19,10 +19,8 @@
 #include "chrome/browser/glic/suggestions/contextual_cueing_service_factory.h"
 #include "chrome/browser/actor/actor_keyed_service_factory.h"
 #include "chrome/browser/profiles/profile_manager.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/tabs/tab_enums.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif
 
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/signin/chrome_signin_client_factory.h"
@@ -88,7 +86,6 @@ class GlicMessagingAccessDisabledBrowserTest : public GlicPrivateApiTestBase {
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 content::EvalJsResult ExecuteInvoke(
     const content::ToRenderFrameHost& target,
     const std::string& prompt_id,
@@ -129,7 +126,6 @@ content::EvalJsResult ExecuteInvoke(
 
   return content::EvalJs(target, script);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 content::EvalJsResult ExecuteActivateTabWithConversation(
     content::WebContents* web_contents,
@@ -305,7 +301,6 @@ IN_PROC_BROWSER_TEST_F(GlicMessagingAccessDisabledBrowserTest,
 }
 
 // Invoke is not supported in Android yet.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicMessagingBrowserTest, InvokeAPI) {
   const Extension* extension =
       ExtensionRegistry::Get(profile())->enabled_extensions().GetByID(
@@ -565,7 +560,6 @@ IN_PROC_BROWSER_TEST_F(GlicMessagingWebViewGuestTest, WebViewGuestInvoke) {
   content::EvalJsResult result = content::EvalJs(guest_rfh, script);
   EXPECT_EQ("success", result.ExtractString());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class GlicMessagingFullyEnabledBrowserTest
     : public glic::GlicBrowserTestMixin<GlicMessagingBrowserTest> {
@@ -739,7 +733,6 @@ IN_PROC_BROWSER_TEST_F(GlicMessagingFullyEnabledBrowserTest,
 // These tests rely on detaching the Glic panel (floaty/detached mode) or
 // desktop-only concepts like tabs::TabModel, which are not supported or
 // disabled on Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicMessagingFullyEnabledBrowserTest,
                        ActivateTabWithConversation_NoBoundTabs) {
   const Extension* extension =
@@ -1229,6 +1222,5 @@ IN_PROC_BROWSER_TEST_F(GlicMessagingWebContinuityBrowserTest,
   EXPECT_EQ("success", result);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace extensions

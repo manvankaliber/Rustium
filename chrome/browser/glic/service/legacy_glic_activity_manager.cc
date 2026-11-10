@@ -20,9 +20,7 @@
 #include "chrome/common/chrome_features.h"
 #include "components/actor/core/actor_features.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/notifications/glic_actor_task_notification_handler.h"
-#endif
 
 namespace glic {
 namespace {
@@ -184,9 +182,7 @@ void LegacyGlicActivityManager::UpdateTaskListBubble(actor::TaskId task_id) {
     // If the task was cancelled, it should also be removed from the bubble.
     actor_task_list_bubble_rows_.erase(task_id);
     tasks_notified_of_start_.erase(task_id);
-#if !BUILDFLAG(IS_ANDROID)
     GlicActorTaskNotificationHandler::Close(profile_, task_id);
-#endif
     return;
   }
 
@@ -220,20 +216,16 @@ void LegacyGlicActivityManager::UpdateTaskListBubble(actor::TaskId task_id) {
       task_list_bubble_change_callback_list_.Notify(
           /*is_start_notification=*/true);
 
-#if !BUILDFLAG(IS_ANDROID)
       if (IsActiveExperimentalTask(state.value(), feature_mode)) {
         GlicActorTaskNotificationHandler::MaybeShow(profile_, task_id);
       }
-#endif
     }
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (feature_mode == glic::mojom::FeatureMode::kExperimentalTriggering) {
     GlicActorTaskNotificationHandler::Close(profile_, task_id);
   }
-#endif
 
   if (ShouldShowBubble(state.value(), duration, feature_mode)) {
     // Notify the bubble of task status updates, completion/failure events, or

@@ -282,7 +282,6 @@ TEST_F(ContentTranslateDriverTest, DestroyWithMultipleObservers) {
   // Should not crash.
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Side panel (Reading Mode) translate agents are not used on Android.
 
 // Test page registration with both main page and side panel agents.
@@ -604,7 +603,6 @@ TEST_F(ContentTranslateDriverTest,
       [&]() { return side_panel_agent.called_translate_; }));
   EXPECT_FALSE(main_agent.called_translate_);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Verifies that RegisterPage returns early and safely when web_contents() is null.
 TEST_F(ContentTranslateDriverTest, RegisterPageWithNullWebContents) {
@@ -789,7 +787,6 @@ TEST_F(ContentTranslateDriverPdfTest, RegisterPdfPageUntranslatable) {
       translate_manager_->GetLanguageState()->page_level_translation_criteria_met());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContentTranslateDriverTest, MaybeTriggerPendingPdfTranslationTest) {
   base::test::ScopedFeatureList feature_list;
   feature_list.InitAndEnableFeature(translate::kEnableTranslatePdf);
@@ -856,7 +853,6 @@ TEST_F(ContentTranslateDriverTest, MaybeTriggerPendingPdfTranslationTest) {
                    ->pending_target_language()
                    .has_value());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 #endif  // BUILDFLAG(ENABLE_PDF)
 
 }  // namespace translate

@@ -28,7 +28,7 @@
 #include "chrome/browser/ui/webui/password_manager/notification_cards/passkey_unlock_promo.h"
 #include "chrome/browser/ui/webui/password_manager/notification_cards/web_password_manager_promo.h"
 #include "chrome/browser/webauthn/passkey_unlock_manager_factory.h"
-#if BUILDFLAG(ENABLE_DICE_SUPPORT) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
 #include "chrome/browser/ui/webui/password_manager/notification_cards/move_passwords_promo.h"
 #endif
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
@@ -201,7 +201,7 @@ NotificationCardsHandler::NotificationCardsHandler(Profile* profile)
   notification_cards_.push_back(
       std::make_unique<PasswordManagerShortcutPromo>(profile));
   notification_cards_.push_back(std::make_unique<AccessOnAnyDevicePromo>());
-#if BUILDFLAG(ENABLE_DICE_SUPPORT) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
   notification_cards_.push_back(std::make_unique<MovePasswordsPromo>(
       profile,
       extensions::PasswordsPrivateDelegateFactory::GetForBrowserContext(profile,

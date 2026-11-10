@@ -55,23 +55,17 @@ class GlicSharingManagerCoordinator {
       Profile* profile,
       GlicInstance* glic_instance,
       GlicMetrics* metrics,
-#if !BUILDFLAG(IS_ANDROID)
       GlicFocusedBrowserManager* detached_mode_focused_browser_manager,
       GlicFocusedBrowserManager* live_mode_focused_browser_manager
-#else
-      bool ignored
-#endif
   );
 
   void UpdateSharingManagerDelegate();
 
   std::unique_ptr<GlicPinnedTabManager> pinned_tab_manager_;
 
-#if !BUILDFLAG(IS_ANDROID)
   // managers for different modes
   GlicSharingManagerImpl detached_mode_sharing_manager_;
   GlicSharingManagerImpl live_mode_sharing_manager_;
-#endif
   GlicSharingManagerImpl attached_mode_sharing_manager_;
 
   // The source of truth sharing manager that delegates to specific

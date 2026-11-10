@@ -327,13 +327,8 @@ TEST_F(ImageBitmapTest, AvoidGPUReadback) {
 // declined. See <http://crbug.com/782286>.
 // This test is failing on fuchsia because memory allocation is
 // declined.  <http://crbug.com/1090252>.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_CreateImageBitmapFromTooBigImageDataDoesNotCrash \
-  DISABLED_CreateImageBitmapFromTooBigImageDataDoesNotCrash
-#else
 #define MAYBE_CreateImageBitmapFromTooBigImageDataDoesNotCrash \
   CreateImageBitmapFromTooBigImageDataDoesNotCrash
-#endif
 
 // This test verifies if requesting a large ImageData and creating an
 // ImageBitmap from that does not crash. crbug.com/780358

@@ -22,9 +22,7 @@ import './autofill_page/shopping/shopping_page.js';
 import './autofill_page/suggestions_from_gemini/suggestions_from_gemini_page.js';
 import './autofill_page/travel/travel_page.js';
 import './autofill_page/walletable_pass_detection_toggle.js';
-// <if expr="not is_chromeos">
 import './clear_browsing_data_dialog/clear_browsing_data_account_indicator.js';
-// </if>
 import './clear_browsing_data_dialog/clear_browsing_data_dialog.js';
 import './clear_browsing_data_dialog/clear_browsing_data_time_picker.js';
 import './glic_page/glic_login_permissions_page.js';
@@ -83,12 +81,6 @@ import './site_settings/site_data.js';
 import './site_settings/site_details.js';
 import './site_settings/site_details_permission_device_entry.js';
 import './site_settings/site_settings_page.js';
-// <if expr="enable_smart_card">
-import './site_settings/smart_card_readers_page.js';
-// </if>
-// <if expr="is_chromeos">
-import './site_settings/web_printing_page.js';
-// </if>
 import './site_settings/sound_page.js';
 import './site_settings/storage_access_page.js';
 import './site_settings/usb_devices_page.js';
@@ -97,11 +89,9 @@ import './site_settings/vr_page.js';
 import './site_settings/web_applications_page.js';
 import './site_settings/window_management_page.js';
 import './site_settings/zoom_levels.js';
-// <if expr="not is_chromeos">
 import './a11y_page/live_caption.js';
 import './people_page/import_data_dialog.js';
 import './people_page/manage_profile.js';
-// </if>
 import './people_page/account_page.js';
 import './people_page/google_services_page.js';
 import './people_page/signout_dialog.js';
@@ -111,24 +101,15 @@ import './people_page/sync_page.js';
 import './a11y_page/a11y_page_index.js';
 import './downloads_page/downloads_page.js';
 import './general_page/general_page_index.js';
-// <if expr="is_chromeos">
-import './languages_page/languages_page_index_cros.js';
-// </if>
-// <if expr="not is_chromeos">
 import './languages_page/languages_page_index.js';
-// </if>
 import './reset_page/reset_page.js';
-// <if expr="not is_chromeos">
 import './system_page/system_page.js';
 
-// </if>
 
-// <if expr="not is_chromeos">
 export {AxAnnotationsBrowserProxyImpl, ScreenAiInstallStatus} from '/shared/settings/a11y_page/ax_annotations_browser_proxy.js';
 export type {AxAnnotationsBrowserProxy} from '/shared/settings/a11y_page/ax_annotations_browser_proxy.js';
 export {CaptionsBrowserProxyImpl} from '/shared/settings/a11y_page/captions_browser_proxy.js';
 export type {CaptionsBrowserProxy, LiveCaptionLanguageList} from '/shared/settings/a11y_page/captions_browser_proxy.js';
-// </if>
 
 export {FontsBrowserProxyImpl} from '/shared/settings/appearance_page/fonts_browser_proxy.js';
 export type {FontsBrowserProxy, FontsData} from '/shared/settings/appearance_page/fonts_browser_proxy.js';
@@ -154,10 +135,8 @@ export {SettingsA11yPageElement, ToastAlertLevel} from './a11y_page/a11y_page.js
 // <if expr="is_win or is_linux or is_macosx">
 export {SettingsAxAnnotationsSectionElement} from './a11y_page/ax_annotations_section.js';
 // </if>
-// <if expr="not is_chromeos">
 export {SettingsLiveCaptionElement} from './a11y_page/live_caption.js';
 export {SettingsLiveTranslateElement} from './a11y_page/live_translate.js';
-// </if>
 
 export {SettingsAiModeSearchPageElement} from './ai_page/ai_mode_search_page.js';
 export {isFeatureDisabledByPolicy, SettingsAiPolicyIndicatorElement} from './ai_page/ai_policy_indicator.js';
@@ -208,9 +187,7 @@ export {SettingsShoppingPageElement} from './autofill_page/shopping/shopping_pag
 export {SettingsSuggestionsFromGeminiPageElement} from './autofill_page/suggestions_from_gemini/suggestions_from_gemini_page.js';
 export {SettingsTravelPageElement} from './autofill_page/travel/travel_page.js';
 export {SettingsWalletablePassDetectionToggleElement} from './autofill_page/walletable_pass_detection_toggle.js';
-// <if expr="not is_chromeos">
 export {SettingsClearBrowsingDataAccountIndicatorElement} from './clear_browsing_data_dialog/clear_browsing_data_account_indicator.js';
-// </if>
 export {BrowsingDataType, ClearBrowsingDataBrowserProxyImpl, TimePeriod} from './clear_browsing_data_dialog/clear_browsing_data_browser_proxy.js';
 export type {ClearBrowsingDataBrowserProxy, ClearBrowsingDataResult, UpdateSyncStateEvent} from './clear_browsing_data_dialog/clear_browsing_data_browser_proxy.js';
 export {getDataTypePrefName, SettingsClearBrowsingDataDialogElement} from './clear_browsing_data_dialog/clear_browsing_data_dialog.js';
@@ -228,7 +205,6 @@ export type {DownloadsBrowserProxy} from './downloads_page/downloads_browser_pro
 export {SettingsDownloadsPageElement} from './downloads_page/downloads_page.js';
 export {SettingsGeneralPageIndexElement} from './general_page/general_page_index.js';
 export {SettingsGlicLoginPermissionsPageElement} from './glic_page/glic_login_permissions_page.js';
-// <if expr="not is_chromeos">
 export {SettingsAddLanguagesDialogElement} from './languages_page/add_languages_dialog.js';
 // <if expr="not is_macosx">
 export {SettingsEditDictionaryPageElement} from './languages_page/edit_dictionary_page.js';
@@ -244,18 +220,15 @@ export type {LanguageHelper, LanguagesModel} from './languages_page/languages_ty
 export {SettingsSpellCheckPageElement} from './languages_page/spell_check_page.js';
 export {SettingsTranslatePageElement} from './languages_page/translate_page.js';
 export {PageColors} from './page_colors.mojom-webui.js';
-// </if>
 
 export {SettingsAccountPageElement} from './people_page/account_page.js';
 export {SettingsGoogleServicesPageElement} from './people_page/google_services_page.js';
-// <if expr="not is_chromeos">
 export {ImportDataBrowserProxyImpl, ImportDataStatus} from './people_page/import_data_browser_proxy.js';
 export type {BrowserProfile, ImportDataBrowserProxy} from './people_page/import_data_browser_proxy.js';
 export {SettingsImportDataDialogElement} from './people_page/import_data_dialog.js';
 export {SettingsManageProfileElement} from './people_page/manage_profile.js';
 export {ManageProfileBrowserProxyImpl, ProfileShortcutStatus} from './people_page/manage_profile_browser_proxy.js';
 export type {ManageProfileBrowserProxy} from './people_page/manage_profile_browser_proxy.js';
-// </if>
 export {SettingsSyncControlsElement} from './people_page/sync_controls.js';
 export {SettingsSyncEncryptionOptionsElement} from './people_page/sync_encryption_options.js';
 export {SettingsSyncPageElement} from './people_page/sync_page.js';
@@ -339,9 +312,6 @@ export {defaultSettingLabel} from './site_settings/site_settings_list.js';
 export {SiteSettingsMixin} from './site_settings/site_settings_mixin.js';
 export {SiteSettingsMixinLit} from './site_settings/site_settings_mixin_lit.js';
 export {SettingsSiteSettingsPageElement} from './site_settings/site_settings_page.js';
-// <if expr="enable_smart_card">
-export {SettingsSmartCardReadersPageElement} from './site_settings/smart_card_readers_page.js';
-// </if>
 export {SoundPageElement} from './site_settings/sound_page.js';
 export {StorageAccessSiteListElement} from './site_settings/storage_access_site_list.js';
 export {StorageAccessSiteListEntryElement} from './site_settings/storage_access_site_list_entry.js';
@@ -352,9 +322,6 @@ export {WebPrintingPageElement} from './site_settings/web_printing_page.js';
 export {WebsiteUsageBrowserProxyImpl} from './site_settings/website_usage_browser_proxy.js';
 export type {WebsiteUsageBrowserProxy} from './site_settings/website_usage_browser_proxy.js';
 export {ZoomLevelsElement} from './site_settings/zoom_levels.js';
-// <if expr="not is_chromeos">
 export {SettingsSystemPageElement} from './system_page/system_page.js';
 export {SystemPageBrowserProxyImpl} from './system_page/system_page_browser_proxy.js';
 export type {SystemPageBrowserProxy} from './system_page/system_page_browser_proxy.js';
-
-// </if>

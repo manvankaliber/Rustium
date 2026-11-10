@@ -91,13 +91,8 @@
 #include "third_party/abseil-cpp/absl/functional/overload.h"
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 #include "chrome/browser/ui/browser_window/public/profile_browser_collection.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#else
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
-#endif
 
 namespace actor {
 
@@ -516,7 +511,6 @@ std::unique_ptr<ToolRequest> CreateActivateWindowRequest(
   return std::make_unique<ActivateWindowToolRequest>(action.window_id());
 }
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 std::unique_ptr<ToolRequest> CreateLoadAndExtractContentRequest(
     const LoadAndExtractContentAction& action) {
   if (!base::FeatureList::IsEnabled(
@@ -532,7 +526,6 @@ std::unique_ptr<ToolRequest> CreateLoadAndExtractContentRequest(
   return std::make_unique<LoadAndExtractContentToolRequest>(std::move(urls));
 }
 
-#endif  // !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 
 base::expected<std::unique_ptr<ToolRequest>, mojom::ActionResultCode>
 CreateClickToUploadRequest(const ClickToUploadAction& action) {
@@ -1028,14 +1021,12 @@ CreateToolRequest(const optimization_guide::proto::Action& action) {
           action.activate_window();
       return CreateActivateWindowRequest(activate_window_action);
     }
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
     case optimization_guide::proto::Action::kLoadAndExtractContent: {
       const LoadAndExtractContentAction& load_and_extract_content_action =
           action.load_and_extract_content();
       return CreateLoadAndExtractContentRequest(
           load_and_extract_content_action);
     }
-#endif  // !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
     case optimization_guide::proto::Action::kClickToUpload: {
       const ClickToUploadAction& click_to_upload_action =
           action.click_to_upload();
@@ -1116,10 +1107,8 @@ constexpr absl::Overload kGetCapabilityFn{
                  apc::RuleMetadata::CAPABILITY_CLOSE_WINDOW>,
     ToCapability<CreateWindowToolRequest,
                  apc::RuleMetadata::CAPABILITY_CREATE_WINDOW>,
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
     ToCapability<LoadAndExtractContentToolRequest,
                  apc::RuleMetadata::CAPABILITY_LOAD_AND_EXTRACT_CONTENT>,
-#endif  // !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 
     // Tools that don't have an `ActuationCapability` in the proto yet.
     ToUnknown<AddBookmarkToolRequest>,
@@ -1213,22 +1202,11 @@ tabs::TabInterface* FindTabForDocumentIdentifier(
     return true;
   };
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
   if (auto* browser_collection =
           ProfileBrowserCollection::GetForProfile(&profile)) {
     browser_collection->ForEach(check_browser,
                                 BrowserCollection::Order::kActivation);
   }
-#else
-  GlobalBrowserCollection::GetInstance()->ForEach(
-      [&profile, &check_browser](BrowserWindowInterface* browser) {
-        if (browser->GetProfile() != &profile) {
-          return true;
-        }
-        return check_browser(browser);
-      },
-      BrowserCollection::Order::kActivation);
-#endif
   return matching_tab;
 }
 
@@ -1798,7 +1776,6 @@ void BuildActionsResultWithObservations(
     }
   }
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
   ProfileBrowserCollection::GetForProfile(profile)->ForEach(
       [&response](BrowserWindowInterface* browser) {
         apc::WindowObservation* window_observation = response->add_windows();
@@ -1815,38 +1792,6 @@ void BuildActionsResultWithObservations(
         }
         return true;
       });
-#else
-  // TODO(b/482430429): Use the same implementation in Desktop and Android once
-  // ProfileBrowserCollection is implemented on Android.
-  GlobalBrowserCollection* browser_collection =
-      GlobalBrowserCollection::GetInstance();
-  browser_collection->ForEach(
-      [&response, &profile](BrowserWindowInterface* browser) {
-        if (browser->GetProfile() != profile) {
-          return true;
-        }
-
-        apc::WindowObservation* window_observation = response->add_windows();
-        window_observation->set_id(browser->GetSessionID().id());
-        // Treat the first window as active.
-        window_observation->set_active(response->windows_size() == 1);
-
-        if (TabModel* tab_model =
-                static_cast<TabModel*>(TabListInterface::From(browser))) {
-          if (tabs::TabInterface* active_tab = tab_model->GetActiveTab()) {
-            window_observation->set_activated_tab_id(
-                active_tab->GetHandle().raw_value());
-          }
-
-          for (const tabs::TabInterface* tab : tab_model->GetAllTabs()) {
-            window_observation->add_tab_ids(tab->GetHandle().raw_value());
-          }
-        }
-
-        return true;
-      },
-      BrowserCollection::Order::kActivation);
-#endif
 
   absl::flat_hash_map<ActorSurfaceHandle, apc::TabObservation*> tabs_to_fetch;
 

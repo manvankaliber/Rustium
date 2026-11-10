@@ -64,15 +64,12 @@
 #include "ui/native_theme/native_theme.h"
 #include "ui/views/widget/widget.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/webui/signin/signin_ui_error.h"
 #include "chrome/browser/ui/webui/signin/signin_utils_desktop.h"
 #include "google_apis/gaia/gaia_id.h"
-#endif
 
 namespace {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Returns the header title displayed at the top of the sync section.
 // - If sync is paused or there is no account, displays "Not signed in" / local
 // state.
@@ -94,7 +91,6 @@ std::u16string GetSyncSectionTitle(Profile* profile,
       IDS_PROFILE_ROW_SIGNED_IN_MESSAGE_WITH_EMAIL,
       {base::UTF8ToUTF16(account.GetEmail())});
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -207,7 +203,6 @@ void ProfileDynamicMenu::BuildOtherProfiles(actions::BaseAction* parent_item) {
 // Returns true if any items were added to `parent_item`.
 bool ProfileDynamicMenu::BuildSyncSectionImpl(actions::BaseAction* parent_item,
                                               Profile* profile) {
-#if !BUILDFLAG(IS_CHROMEOS)
   // Check if sign-in is allowed by policy or configuration.
   if (!CanOfferSignin(profile, GaiaId(), /*email=*/std::string(),
                       /*allow_account_from_other_profile=*/true)
@@ -360,9 +355,6 @@ bool ProfileDynamicMenu::BuildSyncSectionImpl(actions::BaseAction* parent_item,
             : signin_metrics::PromoAction::PROMO_ACTION_WITH_DEFAULT);
   }
   return true;
-#else
-  return false;
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 // Populates "Other Chrome profiles" section.

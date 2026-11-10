@@ -21,12 +21,6 @@ source_set("impl") {
     "//chrome/browser/search_engines",
     "//components/search_engines",
   ]
-  if (is_android) {
-    deps += [
-      "//chrome/android:chrome_jni_headers",
-      "//chrome/browser/android:tabs_public",
-    ]
-  }
 }
 
 source_set("unit_tests") {

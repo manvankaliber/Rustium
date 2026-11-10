@@ -39,17 +39,16 @@ import("//build/config/chrome_build.gni")
 #
 # https://crbug.com/546631276 tracks the consolidation of these flags.
 
+# Kept false for shared build manifests after platform retirement.
+enable_desktop_android_extensions = false
+
 declare_args() {
   # `enable_extensions` controls whether the full and stable extensions platform
   # is compiled, as shipped on windows, mac, linux, and chromeos.
   # This should not be used in new code. See note above for details.
   # TODO(https://crbug.com/546631276): Collapse this and enable_extensions_core
   # into one.
-  enable_extensions = !is_android && !is_ios && !is_castos
-
-  # An implementation-detail flag to control extensions on desktop android.
-  # Don't use this directly. See note above.
-  enable_desktop_android_extensions = is_desktop_android
+  enable_extensions = true
 }
 
 # Note: GN forbids relying on args from the same declare_args() block, so we
@@ -69,6 +68,5 @@ declare_args() {
 
   # Whether the core extensions system is enabled, used across all systems that
   # support extensions. See note at the top of this file for details.
-  enable_extensions_core =
-      enable_extensions || enable_desktop_android_extensions
+  enable_extensions_core = enable_extensions
 }

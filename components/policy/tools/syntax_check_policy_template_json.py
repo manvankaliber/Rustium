@@ -237,9 +237,7 @@ KEYS_DEFINING_SCHEMAS_PER_TYPE = {
 ALL_SUPPORTED_PLATFORMS = [
   'chrome_frame',
   'chrome_os',
-  'android',
   'webview_android',
-  'ios',
   'chrome.win',
   'chrome.win7',
   'chrome.linux',

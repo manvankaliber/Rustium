@@ -14,11 +14,7 @@
 #include "components/enterprise/browser/identifiers/identifiers_prefs.h"
 #include "components/prefs/pref_service.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/policy/core/common/cloud/cloud_policy_util.h"
-#else
 #include "components/enterprise/browser/controller/browser_dm_token_storage.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
 #include "base/strings/utf_string_conversions.h"
@@ -96,10 +92,6 @@ std::string ProfileIdDelegateImpl::GetDeviceId() {
 
 // static
 std::string ProfileIdDelegateImpl::GetId() {
-#if BUILDFLAG(IS_CHROMEOS)
-  // Gets the device ID from cloud policy.
-  return policy::GetDeviceName();
-#else
   // Gets the device ID from the BrowserDMTokenStorage.
   std::string device_id =
       policy::BrowserDMTokenStorage::Get()->RetrieveClientId();
@@ -119,7 +111,6 @@ std::string ProfileIdDelegateImpl::GetId() {
 #endif  // BUILDFLAG(IS_WIN)
 
   return device_id;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 }  // namespace enterprise

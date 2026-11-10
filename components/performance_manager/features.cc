@@ -14,7 +14,6 @@
 
 namespace performance_manager::features {
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kPerformanceControlsPerformanceSurvey,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
@@ -158,11 +157,7 @@ BASE_FEATURE_PARAM(int,
 BASE_FEATURE(kMemorySaverMemoryCoordinatorPolicy,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_CHROMEOS)
-BASE_FEATURE(kUnthrottledTabProcessReporting, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#endif
 
 BASE_FEATURE(kLevelDBSiteDataStoreBestEffort,
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -297,11 +292,7 @@ BASE_FEATURE(kUnimportantFramesPriority, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kThrottleUnimportantFrameRate, base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kKeepDefaultSearchEngineRendererAlive,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT
-#else
              base::FEATURE_ENABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kBoostClosingTabs, base::FEATURE_DISABLED_BY_DEFAULT);

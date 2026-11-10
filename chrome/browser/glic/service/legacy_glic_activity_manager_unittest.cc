@@ -35,13 +35,11 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/message_center/public/cpp/notification.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/notifications/glic_actor_task_notification_handler.h"
 #include "chrome/browser/notifications/notification_display_service_impl.h"
 #include "chrome/browser/ui/browser_manager_service.h"
 #include "chrome/browser/ui/browser_manager_service_factory.h"
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
-#endif
 
 namespace glic {
 using actor::ActorKeyedServiceFake;
@@ -66,7 +64,6 @@ class MockTaskListBubbleChangeSubscriber {
   MOCK_METHOD(void, OnStateChanged, (bool is_start_notification));
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 class FakeBrowserManagerService : public BrowserManagerService {
  public:
   explicit FakeBrowserManagerService(Profile* profile)
@@ -88,7 +85,6 @@ class FakeBrowserManagerService : public BrowserManagerService {
  private:
   raw_ptr<BrowserWindowInterface> mock_browser_ = nullptr;
 };
-#endif
 
 class LegacyGlicActivityManagerTest : public testing::Test,
                                       public testing::WithParamInterface<bool> {
@@ -120,7 +116,6 @@ class LegacyGlicActivityManagerTest : public testing::Test,
         base::BindRepeating(
             &LegacyGlicActivityManagerTest::BuildMockGlicKeyedService,
             base::Unretained(this)));
-#if !BUILDFLAG(IS_ANDROID)
     factories.emplace_back(
         BrowserManagerServiceFactory::GetInstance(),
         base::BindRepeating([](content::BrowserContext* context)
@@ -128,15 +123,12 @@ class LegacyGlicActivityManagerTest : public testing::Test,
           return std::make_unique<FakeBrowserManagerService>(
               Profile::FromBrowserContext(context));
         }));
-#endif
 
     profile_ = testing_profile_manager_.CreateTestingProfile(
         "profile", std::move(factories));
 
-#if !BUILDFLAG(IS_ANDROID)
     display_service_tester_ =
         std::make_unique<NotificationDisplayServiceTester>(profile_);
-#endif
     actor_service_ = static_cast<actor::ActorKeyedServiceFake*>(
         actor::ActorKeyedServiceFactory::GetActorKeyedService(profile_));
 
@@ -168,9 +160,7 @@ class LegacyGlicActivityManagerTest : public testing::Test,
     bubble_subscription_ = {};
     manager_ = nullptr;
     actor_service_ = nullptr;
-#if !BUILDFLAG(IS_ANDROID)
     display_service_tester_.reset();
-#endif
     profile_ = nullptr;
     testing_profile_manager_.DeleteAllTestingProfiles();
     scoped_glic_bypass_.reset();
@@ -185,11 +175,9 @@ class LegacyGlicActivityManagerTest : public testing::Test,
     return task_environment_;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   NotificationDisplayServiceTester* display_service_tester() {
     return display_service_tester_.get();
   }
-#endif
 
  protected:
   content::BrowserTaskEnvironment task_environment_;
@@ -200,9 +188,7 @@ class LegacyGlicActivityManagerTest : public testing::Test,
   signin::IdentityTestEnvironment identity_test_env_;
   glic::GlicProfileManager glic_profile_manager_;
   raw_ptr<TestingProfile> profile_;
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<NotificationDisplayServiceTester> display_service_tester_;
-#endif
   raw_ptr<actor::ActorKeyedServiceFake> actor_service_;
   raw_ptr<LegacyGlicActivityManager> manager_;
   base::CallbackListSubscription nudge_subscription_;
@@ -733,7 +719,6 @@ TEST_F(LegacyGlicActivityManagerTest,
   EXPECT_TRUE(manager()->tasks_notified_of_start().contains(task_id_2));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class LegacyGlicActivityManagerOsNotificationTest
     : public LegacyGlicActivityManagerTest {
  public:
@@ -972,7 +957,6 @@ TEST_F(LegacyGlicActivityManagerOsNotificationTest,
 // disabled.
 TEST_F(LegacyGlicActivityManagerTest,
        ExperimentalTriggeringTask_FeatureDisabled_DoesNotShowNotification) {
-#if !BUILDFLAG(IS_ANDROID)
   base::HistogramTester histogram_tester;
   base::test::ScopedFeatureList scoped_feature_list;
   scoped_feature_list.InitAndDisableFeature(
@@ -994,7 +978,6 @@ TEST_F(LegacyGlicActivityManagerTest,
   EXPECT_FALSE(
       display_service_tester.GetNotification(notification_id).has_value());
   histogram_tester.ExpectTotalCount("Glic.Actor.TaskOsNotification.Event", 0);
-#endif
 }
 
 // Verifies that non-experimental actor tasks do not trigger an OS notification.
@@ -1085,6 +1068,5 @@ TEST_F(LegacyGlicActivityManagerOsNotificationTest,
   EXPECT_FALSE(
       display_service_tester()->GetNotification(notification_id).has_value());
 }
-#endif
 
 }  // namespace glic

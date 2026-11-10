@@ -7,7 +7,7 @@
 #include "build/build_config.h"
 #include "skia/ext/font_utils.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <fontconfig/fontconfig.h>
 
 #include "base/check.h"
@@ -29,7 +29,7 @@ void InitializeFonts() {
   // background (resources have not yet been granted to cast) since it prevents
   // the long delay the user would have seen on first rendering.
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (base::FeatureList::IsEnabled(features::kAsyncFontconfigInitialization)) {
     // Early initialize FontConfig.
     InitializeGlobalFontConfigAsync();
@@ -40,7 +40,7 @@ void InitializeFonts() {
     FcConfig* config = GetGlobalFontConfig();
     DCHECK(config);
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_WIN)
   gfx::win::InitializeDirectWrite();

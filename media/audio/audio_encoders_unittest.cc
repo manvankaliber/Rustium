@@ -40,10 +40,6 @@
 #define HAS_AAC_ENCODER 1
 #endif
 
-#if BUILDFLAG(IS_ANDROID) && BUILDFLAG(USE_PROPRIETARY_CODECS)
-#include "media/gpu/android/ndk_audio_encoder.h"
-#define HAS_AAC_ENCODER 1
-#endif
 
 #if HAS_AAC_ENCODER
 #include "media/base/audio_decoder.h"
@@ -164,17 +160,6 @@ class AudioEncodersTest : public ::testing::TestWithParam<TestAudioParams> {
       frames_per_buffer_ = kAacFramesPerBuffer;
       buffer_duration_ = AudioTimestampHelper::FramesToTime(
           frames_per_buffer_, options_.sample_rate);
-#elif HAS_AAC_ENCODER && BUILDFLAG(IS_ANDROID)
-      if (__builtin_available(android NDK_MEDIA_CODEC_MIN_API, *)) {
-        encoder_ = std::make_unique<NdkAudioEncoder>(
-            base::SequencedTaskRunner::GetCurrentDefault());
-        frames_per_buffer_ = kAacFramesPerBuffer;
-        buffer_duration_ = AudioTimestampHelper::FramesToTime(
-            frames_per_buffer_, options_.sample_rate);
-      } else {
-        GTEST_SKIP() << "NDK AAC encoder not supported. Skipping test.";
-        // GTEST_SKIP() returns.
-      }
 #else
       NOTREACHED();
 #endif
@@ -291,7 +276,7 @@ class AudioEncodersTest : public ::testing::TestWithParam<TestAudioParams> {
 #if BUILDFLAG(IS_MAC)
     if (options_.codec == AudioCodec::kAAC)
       return 2112;
-#elif BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#elif BUILDFLAG(IS_WIN)
     if (options_.codec == AudioCodec::kAAC && input_frames > 0 &&
         input_frames < 2 * static_cast<size_t>(frames_per_buffer_)) {
       return frames_per_buffer_;

@@ -11,9 +11,7 @@ import type {ContextualTasksAppElement} from './app.js';
 // clang-format off
 export function getHtml(this: ContextualTasksAppElement) {
   return html`<!--_html_template_start_-->
-<if expr="not is_android">
   <link rel="stylesheet" href="layout_constants.css">
-</if>
   ${!this.isShownInTab_ ? html`
     <div id="toolbarOverlay">
       <top-toolbar id="toolbar"
@@ -52,7 +50,6 @@ export function getHtml(this: ContextualTasksAppElement) {
             ${this.friendlyZeroStateSubtitle}` : ''}
       </h1>
     </div>
-<if expr="not is_android">
     ${this.showSmartTabSharingTryItIph_ ? html`
       <contextual-tasks-banner-promo id="stsTryItPromo"
           style="${this.getBannerPromoBoundsStyles_()}"
@@ -80,8 +77,6 @@ export function getHtml(this: ContextualTasksAppElement) {
         </span>
       </contextual-tasks-banner-promo>
     ` : ''}
-</if>
-<if expr="not is_android or enable_webui_contextual_tasks_composebox">
 
 
     <contextual-tasks-composebox id="composebox"
@@ -97,19 +92,15 @@ export function getHtml(this: ContextualTasksAppElement) {
           .inputEnabled="${!this.isInputLocked_}"
           .inNlm="${this.inNlm_}">
     </contextual-tasks-composebox>
-</if>
   </div>
   <error-page id="errorPage"></error-page>
   <div id="iphMenuSmartTabSharingAnchor"></div>
-<if expr="not is_android or enable_webui_contextual_tasks_composebox">
   <!-- Placed at the top level to ensure it sits on top of all other elements in the z-order stacking context, avoiding confinement by container boundaries or lower z-index stacking contexts (like #flexCenterContainer). -->
   ${this.showOnboardingTooltip_ ? html`
     <contextual-tasks-onboarding-tooltip id="onboardingTooltip"
         @onboarding-tooltip-dismissed="${this.onOnboardingTooltipDismissed_}">
     </contextual-tasks-onboarding-tooltip>
   ` : ''}
-</if>
-<if expr="not is_android">
     <contextual-tasks-info-tooltip id="askGTooltip"
         .target="${this.askGTooltipTarget_}"
         .container="${this.composeboxElement_}"
@@ -122,7 +113,6 @@ export function getHtml(this: ContextualTasksAppElement) {
         horizontal-align="left"
         @tooltip-dismissed="${this.onAskGTooltipDismissed_}">
     </contextual-tasks-info-tooltip>
-</if>
   <!--_html_template_end_-->`;
 }
 // clang-format on

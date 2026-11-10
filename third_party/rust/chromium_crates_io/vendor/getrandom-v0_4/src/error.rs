@@ -168,12 +168,7 @@ impl Error {
             Error::UNSUPPORTED => "getrandom: this target is not supported",
             Error::ERRNO_NOT_POSITIVE => "errno: did not return a positive value",
             Error::UNEXPECTED => "unexpected situation",
-            #[cfg(any(
-                target_os = "ios",
-                target_os = "visionos",
-                target_os = "watchos",
-                target_os = "tvos",
-            ))]
+            #[cfg(any(target_os = "visionos", target_os = "watchos", target_os = "tvos"))]
             Error::IOS_RANDOM_GEN => "SecRandomCopyBytes: iOS Security framework failure",
             #[cfg(all(windows, target_vendor = "win7"))]
             Error::WINDOWS_RTL_GEN_RANDOM => "RtlGenRandom: Windows system function failure",

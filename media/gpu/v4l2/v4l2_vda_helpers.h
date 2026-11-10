@@ -11,8 +11,8 @@
 #include "base/memory/scoped_refptr.h"
 #include "base/task/sequenced_task_runner.h"
 #include "media/base/video_codecs.h"
-#include "media/gpu/chromeos/fourcc.h"
-#include "media/gpu/chromeos/image_processor.h"
+#include "media/gpu/linux/fourcc.h"
+#include "media/gpu/linux/image_processor.h"
 #include "ui/gfx/geometry/size.h"
 
 namespace media {

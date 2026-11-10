@@ -167,15 +167,6 @@ class AudioProcessorTest : public ::testing::Test {
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
     EXPECT_FALSE(config.gain_controller1.enabled);
     EXPECT_TRUE(config.gain_controller2.enabled);
-#elif BUILDFLAG(IS_CHROMEOS)
-    EXPECT_FALSE(config.gain_controller1.enabled);
-    EXPECT_TRUE(config.gain_controller2.enabled);
-#elif BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
-    EXPECT_TRUE(config.gain_controller1.enabled);
-    EXPECT_FALSE(config.gain_controller2.enabled);
-#elif BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    EXPECT_FALSE(config.gain_controller1.enabled);
-    EXPECT_TRUE(config.gain_controller2.enabled);
 #else
     GTEST_FAIL() << "Undefined expectation.";
 #endif
@@ -219,11 +210,7 @@ INSTANTIATE_TEST_SUITE_P(
     &AudioProcessorTestMultichannelAndFormat::PrintTestName);
 
 // Test crashing with ASAN on Android. crbug.com/468762
-#if BUILDFLAG(IS_ANDROID) && defined(ADDRESS_SANITIZER)
-#define MAYBE_WithAudioProcessing DISABLED_WithAudioProcessing
-#else
 #define MAYBE_WithAudioProcessing WithAudioProcessing
-#endif
 TEST_P(AudioProcessorTestMultichannelAndFormat, MAYBE_WithAudioProcessing) {
   AudioProcessingSettings settings{.multi_channel_capture_processing =
                                        std::get<0>(GetParam())};
@@ -257,11 +244,7 @@ TEST_F(AudioProcessorTest, TurnOffDefaultConstraints) {
 }
 
 // Test crashing with ASAN on Android. crbug.com/468762
-#if BUILDFLAG(IS_ANDROID) && defined(ADDRESS_SANITIZER)
-#define MAYBE_TestAllSampleRates DISABLED_TestAllSampleRates
-#else
 #define MAYBE_TestAllSampleRates TestAllSampleRates
-#endif
 TEST_P(AudioProcessorTestMultichannelAndFormat, MAYBE_TestAllSampleRates) {
   AudioProcessingSettings settings{.multi_channel_capture_processing =
                                        std::get<0>(GetParam())};
@@ -361,13 +344,7 @@ TEST_P(AudioProcessorTestMultichannelAndFormat, TestStereoAudio) {
 
   // Test without and with audio processing enabled.
   constexpr bool kUseApmValues[] =
-#if BUILDFLAG(IS_IOS)
-      // TODO(crbug.com/40257333): `false` fails on ios-blink platform
-      // due to a special case for iOS in settings.NeedWebrtcAudioProcessing()
-      {true};
-#else
       {false, true};
-#endif
   for (bool use_apm : kUseApmValues) {
     // No need to test stereo with APM if disabled.
     if (use_apm && !use_multichannel_processing) {
@@ -480,11 +457,7 @@ TEST_P(AudioProcessorDefaultOutputFormatTest, GetDefaultOutputFormat) {
   // logic here. See https://crrev.com/c/1572807 and
   // https://crrev.com/c/3621456/comments/2e73cc96_0e9773cd for details.
   const int expected_sample_rate =
-#if BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
-      std::min(sample_rate, media::WebRtcAudioProcessingSampleRateHz());
-#else
       media::WebRtcAudioProcessingSampleRateHz();
-#endif
   const int expected_output_channels =
       settings.multi_channel_capture_processing ? input_params.channels() : 1;
 
@@ -777,11 +750,7 @@ TEST(ApmTellsIfPlayoutReferenceIsNeededTest, DoesNotNeedPlayoutReference) {
 }
 
 // Checks that, with echo cancellation, APM always needs the playout reference.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_NeedsPlayoutReference DISABLED_NeedsPlayoutReference
-#else
 #define MAYBE_NeedsPlayoutReference NeedsPlayoutReference
-#endif
 // TODO: This test is disabled for ios-blink platform as per the discussion on
 // bug https://crbug.com/1417474
 TEST(ApmTellsIfPlayoutReferenceIsNeededTest, MAYBE_NeedsPlayoutReference) {

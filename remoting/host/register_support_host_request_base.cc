@@ -51,7 +51,7 @@ void RegisterSupportHostRequestBase::StartRequest(
     std::unique_ptr<net::ClientCertStore> client_cert_store,
     scoped_refptr<RsaKeyPair> key_pair,
     const std::string& authorized_helper,
-    std::optional<ChromeOsEnterpriseParams> params,
+    std::optional<EnterpriseSessionParams> params,
     RegisterCallback callback) {
   DCHECK_EQ(State::NOT_STARTED, state_);
   DCHECK(signal_strategy);

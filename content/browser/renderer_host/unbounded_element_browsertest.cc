@@ -72,9 +72,6 @@
 #include "ui/ozone/public/ozone_platform.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif
 
 namespace content {
 
@@ -85,19 +82,6 @@ class UnboundedElementBrowserTestBase : public ContentBrowserTest {
 
  protected:
   void SetUp() override {
-#if BUILDFLAG(IS_IOS)
-    // TODO(crbug.com/508672616): Not yet implemented on iOS.
-    GTEST_SKIP();
-#elif BUILDFLAG(IS_ANDROID)
-    // if (base::android::android_info::sdk_int() <
-    //     base::android::android_info::SDK_VERSION_U) {
-    //   GTEST_SKIP()
-    //       << "Unbounded elements require Android U (API 34+ / Android 14+).";
-    // }
-
-    // TODO(crbug.com/544212552): Flaky/failing on Android.
-    GTEST_SKIP();
-#else
 #if BUILDFLAG(IS_OZONE)
     if (ui::OzonePlatform::RunningOnWaylandForTest()) {
       // TODO(crbug.com/523970924): Wayland is flaky.
@@ -105,7 +89,6 @@ class UnboundedElementBrowserTestBase : public ContentBrowserTest {
     }
 #endif
     ContentBrowserTest::SetUp();
-#endif
   }
 
   void SetUpCommandLine(base::CommandLine* command_line) override {
@@ -456,11 +439,7 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
 #endif  // defined(USE_AURA)
 
 // TODO(crbug.com/534380085): Flaky/failing on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_LightDismissEscKey DISABLED_LightDismissEscKey
-#else
 #define MAYBE_LightDismissEscKey LightDismissEscKey
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest, MAYBE_LightDismissEscKey) {
   GURL url(embedded_test_server()->GetURL("/title1.html"));
   EXPECT_TRUE(NavigateToURL(shell(), url));
@@ -802,11 +781,7 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
 // hierarchy.
 // TODO(crbug.com/508672616): Not yet working on ChromeOS due to Aura/Ash
 // popup container positioning and coordinate conversion issues.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_PopupInputEventRouting DISABLED_PopupInputEventRouting
-#else
 #define MAYBE_PopupInputEventRouting PopupInputEventRouting
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
                        MAYBE_PopupInputEventRouting) {
   GURL url(embedded_test_server()->GetURL("/title1.html"));
@@ -857,13 +832,8 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
 // hierarchy.
 // TODO(crbug.com/508672616): Not yet working on ChromeOS due to Aura/Ash
 // popup container positioning and coordinate conversion issues.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_PopupOutsideViewportInputEventRouting \
-  DISABLED_PopupOutsideViewportInputEventRouting
-#else
 #define MAYBE_PopupOutsideViewportInputEventRouting \
   PopupOutsideViewportInputEventRouting
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
                        MAYBE_PopupOutsideViewportInputEventRouting) {
   GURL url(embedded_test_server()->GetURL("/title1.html"));
@@ -918,13 +888,8 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
             EvalJs(primary_main_frame_host(), "window.__mouse_y"));
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_PopupOutsideViewportMouseWheelEventRouting \
-  DISABLED_PopupOutsideViewportMouseWheelEventRouting
-#else
 #define MAYBE_PopupOutsideViewportMouseWheelEventRouting \
   PopupOutsideViewportMouseWheelEventRouting
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
                        MAYBE_PopupOutsideViewportMouseWheelEventRouting) {
   GURL url(embedded_test_server()->GetURL("/title1.html"));
@@ -984,13 +949,8 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
             0.0);
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ScrollerOutsideViewportMouseWheelScroll \
-  DISABLED_ScrollerOutsideViewportMouseWheelScroll
-#else
 #define MAYBE_ScrollerOutsideViewportMouseWheelScroll \
   ScrollerOutsideViewportMouseWheelScroll
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementEscapingOpenWebBrowserTest,
                        MAYBE_ScrollerOutsideViewportMouseWheelScroll) {
   GURL url(embedded_test_server()->GetURL("/title1.html"));
@@ -1178,11 +1138,7 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
 // hierarchy.
 // TODO(crbug.com/508672616): Not yet working on ChromeOS due to Aura/Ash
 // popup container positioning and coordinate conversion issues.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_IframeClickEventRouting DISABLED_IframeClickEventRouting
-#else
 #define MAYBE_IframeClickEventRouting IframeClickEventRouting
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
                        MAYBE_IframeClickEventRouting) {
   GURL url(embedded_test_server()->GetURL("/page_with_iframe.html"));
@@ -1275,11 +1231,7 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest, IframeInputEventRouting) {
 
 // Disabled on Android because multi-window input event routing is not
 // supported.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SubframeInputEventRouting DISABLED_SubframeInputEventRouting
-#else
 #define MAYBE_SubframeInputEventRouting SubframeInputEventRouting
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
                        MAYBE_SubframeInputEventRouting) {
   GURL url(embedded_test_server()->GetURL("a.com", "/unbounded_subframe.html"));
@@ -1371,13 +1323,8 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
 // 100x100 viewport), hit tests with `HitTestRequest::kIgnoreClipping` (such as
 // mouse moves during active mouse capture) still use `InfiniteIntRect()` and
 // reach the unbounded element.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SubframeInputEventRoutingIgnoreClipping \
-  DISABLED_SubframeInputEventRoutingIgnoreClipping
-#else
 #define MAYBE_SubframeInputEventRoutingIgnoreClipping \
   SubframeInputEventRoutingIgnoreClipping
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
                        MAYBE_SubframeInputEventRoutingIgnoreClipping) {
   GURL url(embedded_test_server()->GetURL(
@@ -1468,13 +1415,8 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
   EXPECT_TRUE(EvalJs(iframe, "window.__clicked").ExtractBool());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SubframeScrollableUnboundedElement \
-  DISABLED_SubframeScrollableUnboundedElement
-#else
 #define MAYBE_SubframeScrollableUnboundedElement \
   SubframeScrollableUnboundedElement
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
                        MAYBE_SubframeScrollableUnboundedElement) {
   if (!GetParam()) {
@@ -1703,13 +1645,8 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest, NestedOutOfFlowBoundsSync) {
 }
 
 // TODO(crbug.com/534380085): Flaky/failing on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_NestedChildBoundsExpansionTriggersRedraw \
-  DISABLED_NestedChildBoundsExpansionTriggersRedraw
-#else
 #define MAYBE_NestedChildBoundsExpansionTriggersRedraw \
   NestedChildBoundsExpansionTriggersRedraw
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
                        MAYBE_NestedChildBoundsExpansionTriggersRedraw) {
 #if BUILDFLAG(IS_OZONE)
@@ -1763,13 +1700,8 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
 }
 
 // TODO(crbug.com/534380085): Flaky/failing on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_AnimatedChildWithBoxShadowSubmitsFrame \
-  DISABLED_AnimatedChildWithBoxShadowSubmitsFrame
-#else
 #define MAYBE_AnimatedChildWithBoxShadowSubmitsFrame \
   AnimatedChildWithBoxShadowSubmitsFrame
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementBrowserTest,
                        MAYBE_AnimatedChildWithBoxShadowSubmitsFrame) {
   GURL url(embedded_test_server()->GetURL("/title1.html"));
@@ -3997,7 +3929,7 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementCursorBrowserTest,
   EXPECT_TRUE(cursor_manager()->IsViewUnderCursor(child_view_));
 }
 
-#if defined(USE_AURA) && !BUILDFLAG(IS_CASTOS)
+#if defined(USE_AURA)
 // Moving the pointer over the surface through the Aura event pipeline shows
 // the cursor the renderer requested for that spot, as the surface window hands
 // out the owner view's cursor to the root window's event filter. This does not
@@ -4020,13 +3952,7 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementCursorBrowserTest,
   std::unique_ptr<RecordingCursorClient> owned_cursor_client;
   aura::client::CursorClient* cursor_client =
       aura::client::GetCursorClient(surface_root);
-#if BUILDFLAG(IS_CHROMEOS)
-  ASSERT_FALSE(cursor_client);
-  owned_cursor_client = std::make_unique<RecordingCursorClient>(surface_root);
-  cursor_client = owned_cursor_client.get();
-#else
   ASSERT_TRUE(cursor_client);
-#endif
 
   const gfx::Point point_over_surface = FlyoutButtonScreenPoint();
   ui::test::EventGenerator generator(surface_root);
@@ -4050,7 +3976,7 @@ IN_PROC_BROWSER_TEST_P(UnboundedElementCursorBrowserTest,
   RunUntilInputProcessed(iframe_->GetRenderWidgetHost());
   EXPECT_EQ(ui::mojom::CursorType::kIBeam, cursor_client->GetCursor().type());
 }
-#endif  // defined(USE_AURA) && !BUILDFLAG(IS_CASTOS)
+#endif
 
 INSTANTIATE_TEST_SUITE_P(All,
                          UnboundedElementCursorBrowserTest,
@@ -4369,11 +4295,7 @@ class UnboundedElementPermutationBrowserTest
   base::test::ScopedFeatureList feature_list_;
 };
 
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_CheckPermutation DISABLED_CheckPermutation
-#else
 #define MAYBE_CheckPermutation CheckPermutation
-#endif
 IN_PROC_BROWSER_TEST_P(UnboundedElementPermutationBrowserTest,
                        MAYBE_CheckPermutation) {
   const auto& params = GetParam();

@@ -62,10 +62,6 @@ def main(argv):
         'Content Shell Framework',
       ),
     ]
-  elif args.platform == 'android':
-    exe = os.path.join(
-      '.', 'lib.unstripped', 'libcontent_shell_content_view.so'
-    )
   else:
     exe = os.path.join('.', 'content_shell')
 

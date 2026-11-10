@@ -37,10 +37,10 @@ class Node:
   _allowlist_marked_as_skip = False
 
   # A class-static cache to speed up EvaluateExpression().
-  # Keys are expressions (e.g. 'is_ios and lang == "fr"'). Values are tuples
+  # Keys are expressions (e.g. 'is_macosx and lang == "fr"'). Values are tuples
   # (code, variables_in_expr) where code is the compiled expression and can be
   # directly eval'd, and variables_in_expr is the list of variable and method
-  # names used in the expression (e.g. ['is_ios', 'lang']).
+  # names used in the expression (e.g. ['is_macosx', 'lang']).
   eval_expr_cache = {}
 
   def __init__(self):
@@ -513,15 +513,15 @@ class Node:
       elif name == 'is_linux':
         value = target_platform == 'linux'
       elif name == 'is_chromeos':
-        value = target_platform == 'chromeos'
+        value = False
       elif name == 'is_macosx':
         value = target_platform == 'darwin'
       elif name == 'is_win':
         value = target_platform in ('cygwin', 'win32')
       elif name == 'is_android':
-        value = target_platform == 'android'
+        value = False
       elif name == 'is_ios':
-        value = target_platform == 'ios'
+        value = False
       elif name == 'is_fuchsia':
         value = False
       elif name == 'is_bsd':
@@ -529,7 +529,7 @@ class Node:
       elif name == 'is_posix':
         value = (
           target_platform
-          in ('linux', 'darwin', 'sunos5', 'android', 'ios', 'chromeos')
+          in ('linux', 'darwin', 'sunos5', )
           or 'bsd' in target_platform
         )
 

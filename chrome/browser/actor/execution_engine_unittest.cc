@@ -198,9 +198,6 @@ class FakeChromeRenderFrame : public chrome::mojom::ChromeRenderFrame {
       GetCrossDocumentScriptToolResultCallback callback) override {
     std::move(callback).Run("");
   }
-#if BUILDFLAG(IS_ANDROID)
-  void SetCCTClientHeader(const std::string& header) override {}
-#endif
 #if BUILDFLAG(ENABLE_PDF)
   void PdfPageCaptured(const std::u16string& contents,
                        const std::string& pdf_lang,
@@ -339,11 +336,7 @@ class ExecutionEngineTest : public ChromeRenderViewHostTestHarness {
 };
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_ActSucceedsOnSupportedUrl DISABLED_ActSucceedsOnSupportedUrl
-#else
 #define MAYBE_ActSucceedsOnSupportedUrl ActSucceedsOnSupportedUrl
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_ActSucceedsOnSupportedUrl) {
   EXPECT_CALL(*mock_ui_event_dispatcher_,
               OnPreTool(Property(&ToolRequest::JournalEvent, Eq("Click")), _))
@@ -380,11 +373,7 @@ TEST_F(ExecutionEngineTest, ActFailsOnUnsupportedUrl) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_UiOnPreToolFails DISABLED_UiOnPreToolFails
-#else
 #define MAYBE_UiOnPreToolFails UiOnPreToolFails
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_UiOnPreToolFails) {
   EXPECT_CALL(*mock_ui_event_dispatcher_, OnPreTool)
       .WillOnce(UiEventDispatcherCallback<ToolRequest>(
@@ -397,11 +386,7 @@ TEST_F(ExecutionEngineTest, MAYBE_UiOnPreToolFails) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_UiOnPostToolFails DISABLED_UiOnPostToolFails
-#else
 #define MAYBE_UiOnPostToolFails UiOnPostToolFails
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_UiOnPostToolFails) {
   EXPECT_CALL(*mock_ui_event_dispatcher_, OnPreTool).Times(1);
   EXPECT_CALL(*mock_ui_event_dispatcher_, OnPostTool)
@@ -414,11 +399,7 @@ TEST_F(ExecutionEngineTest, MAYBE_UiOnPostToolFails) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_ActFailsWhenAddTabFails DISABLED_ActFailsWhenAddTabFails
-#else
 #define MAYBE_ActFailsWhenAddTabFails ActFailsWhenAddTabFails
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_ActFailsWhenAddTabFails) {
   EXPECT_CALL(*mock_ui_event_dispatcher_,
               OnActorTaskAsyncChange(VariantWith<AddTab>(_), _))
@@ -434,11 +415,7 @@ TEST_F(ExecutionEngineTest, MAYBE_ActFailsWhenAddTabFails) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_ActFailsWhenTabDestroyed DISABLED_ActFailsWhenTabDestroyed
-#else
 #define MAYBE_ActFailsWhenTabDestroyed ActFailsWhenTabDestroyed
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_ActFailsWhenTabDestroyed) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents(), GURL("http://localhost/"));
@@ -461,13 +438,8 @@ TEST_F(ExecutionEngineTest, MAYBE_ActFailsWhenTabDestroyed) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_CrossOriginNavigationBeforeAction \
-  DISABLED_CrossOriginNavigationBeforeAction
-#else
 #define MAYBE_CrossOriginNavigationBeforeAction \
   CrossOriginNavigationBeforeAction
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_CrossOriginNavigationBeforeAction) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents(), GURL("http://localhost/"));
@@ -499,11 +471,7 @@ TEST_F(ExecutionEngineTest, MAYBE_CrossOriginNavigationBeforeAction) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_CancelOngoingAction DISABLED_CancelOngoingAction
-#else
 #define MAYBE_CancelOngoingAction CancelOngoingAction
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_CancelOngoingAction) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents(), GURL("http://localhost/"));
@@ -529,13 +497,8 @@ TEST_F(ExecutionEngineTest, MAYBE_CancelOngoingAction) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_FollowupActionPreservesParentMessageWhenEmpty \
-  DISABLED_FollowupActionPreservesParentMessageWhenEmpty
-#else
 #define MAYBE_FollowupActionPreservesParentMessageWhenEmpty \
   FollowupActionPreservesParentMessageWhenEmpty
-#endif
 TEST_F(ExecutionEngineTest,
        MAYBE_FollowupActionPreservesParentMessageWhenEmpty) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
@@ -563,13 +526,8 @@ TEST_F(ExecutionEngineTest,
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_FollowupActionSetsMessageWhenParentEmpty \
-  DISABLED_FollowupActionSetsMessageWhenParentEmpty
-#else
 #define MAYBE_FollowupActionSetsMessageWhenParentEmpty \
   FollowupActionSetsMessageWhenParentEmpty
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_FollowupActionSetsMessageWhenParentEmpty) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents(), GURL("http://localhost/"));
@@ -598,13 +556,8 @@ TEST_F(ExecutionEngineTest, MAYBE_FollowupActionSetsMessageWhenParentEmpty) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_FollowupActionOverwritesParentMessageWhenNonEmpty \
-  DISABLED_FollowupActionOverwritesParentMessageWhenNonEmpty
-#else
 #define MAYBE_FollowupActionOverwritesParentMessageWhenNonEmpty \
   FollowupActionOverwritesParentMessageWhenNonEmpty
-#endif
 TEST_F(ExecutionEngineTest,
        MAYBE_FollowupActionOverwritesParentMessageWhenNonEmpty) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
@@ -634,13 +587,8 @@ TEST_F(ExecutionEngineTest,
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_FollowupActionFailureUsesFollowupErrorMessage \
-  DISABLED_FollowupActionFailureUsesFollowupErrorMessage
-#else
 #define MAYBE_FollowupActionFailureUsesFollowupErrorMessage \
   FollowupActionFailureUsesFollowupErrorMessage
-#endif
 TEST_F(ExecutionEngineTest,
        MAYBE_FollowupActionFailureUsesFollowupErrorMessage) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
@@ -670,13 +618,8 @@ TEST_F(ExecutionEngineTest,
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_FollowupActionFailureClearsParentMessageWhenErrorMessageEmpty \
-  DISABLED_FollowupActionFailureClearsParentMessageWhenErrorMessageEmpty
-#else
 #define MAYBE_FollowupActionFailureClearsParentMessageWhenErrorMessageEmpty \
   FollowupActionFailureClearsParentMessageWhenErrorMessageEmpty
-#endif
 TEST_F(ExecutionEngineTest,
        MAYBE_FollowupActionFailureClearsParentMessageWhenErrorMessageEmpty) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
@@ -705,13 +648,8 @@ TEST_F(ExecutionEngineTest,
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_FollowupActionPreservesParentMetadata \
-  DISABLED_FollowupActionPreservesParentMetadata
-#else
 #define MAYBE_FollowupActionPreservesParentMetadata \
   FollowupActionPreservesParentMetadata
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_FollowupActionPreservesParentMetadata) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents(), GURL("http://localhost/"));
@@ -750,11 +688,7 @@ TEST_F(ExecutionEngineTest, MAYBE_FollowupActionPreservesParentMetadata) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_ActorTaskCompletedHistogram DISABLED_ActorTaskCompletedHistogram
-#else
 #define MAYBE_ActorTaskCompletedHistogram ActorTaskCompletedHistogram
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_ActorTaskCompletedHistogram) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents(), GURL("http://localhost/"));
@@ -803,13 +737,8 @@ TEST_F(ExecutionEngineTest, MAYBE_ActorTaskCompletedHistogram) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_ActorTaskCompletedWithPauseHistogram \
-  DISABLED_ActorTaskCompletedWithPauseHistogram
-#else
 #define MAYBE_ActorTaskCompletedWithPauseHistogram \
   ActorTaskCompletedWithPauseHistogram
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_ActorTaskCompletedWithPauseHistogram) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents(), GURL("http://localhost/"));
@@ -856,11 +785,7 @@ class ExecutionEngineStopReasonParamTest
 };
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_ActorTaskStoppedHistogram DISABLED_ActorTaskStoppedHistogram
-#else
 #define MAYBE_ActorTaskStoppedHistogram ActorTaskStoppedHistogram
-#endif
 TEST_P(ExecutionEngineStopReasonParamTest, MAYBE_ActorTaskStoppedHistogram) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents(), GURL("http://localhost/"));
@@ -967,13 +892,8 @@ TEST_F(ExecutionEngineTest, ActorTaskCountAndDurationHistograms) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_LatencyInfoAndActionDurationHistogram \
-  DISABLED_LatencyInfoAndActionDurationHistogram
-#else
 #define MAYBE_LatencyInfoAndActionDurationHistogram \
   LatencyInfoAndActionDurationHistogram
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_LatencyInfoAndActionDurationHistogram) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents(), GURL("http://localhost/"));
@@ -1019,12 +939,7 @@ TEST_F(ExecutionEngineTest, MAYBE_LatencyInfoAndActionDurationHistogram) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_CompletedWithInterruptHistogram \
-  DISABLED_CompletedWithInterruptHistogram
-#else
 #define MAYBE_CompletedWithInterruptHistogram CompletedWithInterruptHistogram
-#endif
 TEST_F(ExecutionEngineTest, MAYBE_CompletedWithInterruptHistogram) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents(), GURL("http://localhost/"));
@@ -1064,13 +979,8 @@ TEST_F(ExecutionEngineTest, MAYBE_CompletedWithInterruptHistogram) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_VisibleNotVisibleActuationCompletedHistogram \
-  DISABLED_VisibleNotVisibleActuationCompletedHistogram
-#else
 #define MAYBE_VisibleNotVisibleActuationCompletedHistogram \
   VisibleNotVisibleActuationCompletedHistogram
-#endif
 TEST_F(ExecutionEngineTest,
        MAYBE_VisibleNotVisibleActuationCompletedHistogram) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
@@ -1100,13 +1010,8 @@ TEST_F(ExecutionEngineTest,
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_VisibleNotVisibleActuationStoppedHistogram \
-  DISABLED_VisibleNotVisibleActuationStoppedHistogram
-#else
 #define MAYBE_VisibleNotVisibleActuationStoppedHistogram \
   VisibleNotVisibleActuationStoppedHistogram
-#endif
 TEST_P(ExecutionEngineStopReasonParamTest,
        MAYBE_VisibleNotVisibleActuationStoppedHistogram) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
@@ -1138,13 +1043,8 @@ TEST_P(ExecutionEngineStopReasonParamTest,
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_VisibleNotVisibleActuationWithPauseHistogram \
-  DISABLED_VisibleNotVisibleActuationWithPauseHistogram
-#else
 #define MAYBE_VisibleNotVisibleActuationWithPauseHistogram \
   VisibleNotVisibleActuationWithPauseHistogram
-#endif
 TEST_F(ExecutionEngineTest,
        MAYBE_VisibleNotVisibleActuationWithPauseHistogram) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
@@ -1179,13 +1079,8 @@ TEST_F(ExecutionEngineTest,
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_VisibleNotVisibleActuationWithWaitingHistogram \
-  DISABLED_VisibleNotVisibleActuationWithWaitingHistogram
-#else
 #define MAYBE_VisibleNotVisibleActuationWithWaitingHistogram \
   VisibleNotVisibleActuationWithWaitingHistogram
-#endif
 TEST_F(ExecutionEngineTest,
        MAYBE_VisibleNotVisibleActuationWithWaitingHistogram) {
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
@@ -1496,13 +1391,8 @@ class ExecutionEngineUrlGatingTest : public ChromeRenderViewHostTestHarness {
 };
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_LocalhostPromptsForUserConfirmation \
-  DISABLED_LocalhostPromptsForUserConfirmation
-#else
 #define MAYBE_LocalhostPromptsForUserConfirmation \
   LocalhostPromptsForUserConfirmation
-#endif
 TEST_F(ExecutionEngineUrlGatingTest,
        MAYBE_LocalhostPromptsForUserConfirmation) {
   const GURL localhost_url("http://localhost/");
@@ -1541,11 +1431,7 @@ TEST_F(ExecutionEngineUrlGatingTest, AllowAboutBlank) {
 }
 
 // TODO(crbug.com/480230075): Crashing on Android.
-#if BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
-#define MAYBE_BlockIpAddress DISABLED_BlockIpAddress
-#else
 #define MAYBE_BlockIpAddress BlockIpAddress
-#endif
 TEST_F(ExecutionEngineUrlGatingTest, MAYBE_BlockIpAddress) {
   CheckUrl(GURL("https://8.8.8.8/"), false);
   CheckUrl(GURL("https://[2001:4860:4860::8888]/"), false);

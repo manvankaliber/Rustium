@@ -2,10 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// <if expr="is_ios">
-import 'chrome://resources/js/ios/web_ui.js';
-
-// </if>
 
 import {assert} from 'chrome://resources/js/assert.js';
 import {addWebUiListener} from 'chrome://resources/js/cr.js';
@@ -606,17 +602,14 @@ function setUpSubmittedFormsJSONDataDownload() {
 }
 
 function setUpCheckAutofillAiPermissions() {
-  // <if expr="not is_android and not is_ios" >
   const button = document.getElementById('check-autofill-ai-permissions')!;
   button.style.display = 'inline';
   button.addEventListener('click', () => {
     chrome.send('checkAutofillAiPermissions');
   });
-  // </if>
 }
 
 function setUpCheckAtMemoryPermissions() {
-  // <if expr="not is_ios" >
   function showAtMemoryPermissionsDialog() {
     const dialog = document.createElement('div');
     dialog.className = 'modal-dialog';
@@ -709,17 +702,14 @@ function setUpCheckAtMemoryPermissions() {
   button.addEventListener('click', () => {
     showAtMemoryPermissionsDialog();
   });
-  // </if>
 }
 
 function setUpButtonForDomNodeIdCapture() {
-  // <if expr="not is_android and not is_ios" >
   const button = document.getElementById('set-dom-node-id')!;
   button.style.display = 'inline';
   button.addEventListener('click', () => {
     chrome.send('setDomNodeId');
   });
-  // </if>
 }
 
 interface CheckboxInfo {
@@ -1096,24 +1086,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setUpClearAutofillAiEntitySuppressionsButton() {
-  // <if expr="not is_ios" >
   const button =
       getRequiredElement('clear-autofill-ai-entity-suppressions-fake-button');
   button.style.display = 'inline';
   button.addEventListener('click', () => {
     chrome.send('clearAutofillAiEntitySuppressions');
   });
-  // </if>
 }
 
 function setUpClearGmailOtpOptInPrefsButton() {
-  // <if expr="not is_ios" >
   const button = getRequiredElement('clear-gmail-otp-opt-in-prefs-fake-button');
   button.style.display = 'inline';
   button.addEventListener('click', () => {
     chrome.send('clearGmailOtpOptInPrefs');
   });
-  // </if>
 }
 
 function setUpDumpAddressesButton() {

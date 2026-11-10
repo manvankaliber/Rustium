@@ -15,17 +15,6 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/dialog_delegate.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/multi_user/multi_user_window_manager.h"
-#include "ash/public/cpp/shell_window_ids.h"
-#include "ash/shell.h"
-#include "ash/utility/wm_util.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/ui/webui/ash/system_web_dialog/system_web_dialog_view.h"
-#include "components/session_manager/core/session_manager.h"
-#include "components/user_manager/user.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace chrome {
 namespace {
@@ -65,11 +54,7 @@ gfx::NativeWindow ShowWebDialogWithParams(
   auto handler =
       std::make_unique<ChromeWebContentsHandler>(captive_portal_window_type);
   views::WebDialogView* view = nullptr;
-#if BUILDFLAG(IS_CHROMEOS)
-  view = new ash::SystemWebDialogView(context, delegate, std::move(handler));
-#else
   view = new views::WebDialogView(context, delegate, std::move(handler));
-#endif
 
   // If the corner radius is specified, set it to |views::DialogDelegate|.
   if (extra_params && extra_params->rounded_corners) {
@@ -87,26 +72,8 @@ gfx::NativeWindow ShowWebDialogWithParams(
   }
   params.delegate = view;
   params.parent = parent;
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!parent &&
-      delegate->GetDialogModalType() == ui::mojom::ModalType::kSystem) {
-    int container_id = ash_util::GetSystemModalDialogContainerId();
-    ash_util::SetupWidgetInitParamsForContainer(&params, container_id);
-  }
-#endif
   gfx::NativeWindow window =
       CreateWebDialogWidget(std::move(params), view, show);
-#if BUILDFLAG(IS_CHROMEOS)
-  const user_manager::User* user = ash::ProfileHelper::Get()->GetUserByProfile(
-      Profile::FromBrowserContext(context));
-  if (user && session_manager::SessionManager::Get()->session_state() ==
-                  session_manager::SessionState::ACTIVE) {
-    // Dialogs should not be shown for other users when logged in and the
-    // session is active.
-    ash::Shell::Get()->multi_user_window_manager()->SetWindowOwner(
-        window, user->GetAccountId());
-  }
-#endif
   return window;
 }
 

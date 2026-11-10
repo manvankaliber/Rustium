@@ -33,7 +33,7 @@
 #include "test/scoped_temp_dir.h"
 #include "util/posix/scoped_mmap.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <sys/auxv.h>
 #include <sys/prctl.h>
 
@@ -57,7 +57,7 @@
 #define PR_MTE_TCF_ASYNC (1UL << 2)
 #endif
 #endif  // defined(ARCH_CPU_ARM64)
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
 namespace crashpad {
@@ -90,9 +90,7 @@ std::vector<TestableSignal> TestableSignals() {
 #endif  // defined(ARCH_CPU_X86_FAMILY) || defined(ARCH_CPU_ARMEL)
   signals.push_back({SIGPIPE, 0});
   signals.push_back({SIGSEGV, 0});
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || \
-     BUILDFLAG(IS_CHROMEOS)) &&                      \
-    defined(ARCH_CPU_ARM64)
+#if BUILDFLAG(IS_LINUX) && defined(ARCH_CPU_ARM64)
   if (getauxval(AT_HWCAP2) & HWCAP2_MTE) {
     signals.push_back({SIGSEGV, SEGV_MTEAERR});
   }
@@ -212,9 +210,7 @@ void CauseSignal(int sig, int code) {
           *i = 0;
           break;
         }
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || \
-     BUILDFLAG(IS_CHROMEOS)) &&                      \
-    defined(ARCH_CPU_ARM64)
+#if BUILDFLAG(IS_LINUX) && defined(ARCH_CPU_ARM64)
         case SEGV_MTEAERR: {
           ScopedMmap mapping;
           if (!mapping.ResetMmap(nullptr,
@@ -235,7 +231,7 @@ void CauseSignal(int sig, int code) {
           mapping.addr_as<char*>()[1ULL << 56] = 0;
           break;
         }
-#endif  // (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)) && defined(ARCH_CPU_ARM64)
       }
       break;

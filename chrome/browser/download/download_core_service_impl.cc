@@ -32,9 +32,6 @@
 #include "chrome/browser/extensions/api/downloads/downloads_api.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/download/android/download_utils.h"
-#endif
 
 using content::DownloadManager;
 

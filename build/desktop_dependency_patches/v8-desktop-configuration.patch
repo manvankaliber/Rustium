@@ -1,0 +1,40 @@
+--- a/gni/v8.gni
++++ b/gni/v8.gni
+@@ -6,16 +6,10 @@
+ import("//build/config/compiler/pgo/pgo.gni")
+ import("//build/config/features.gni")
+ import("//build/config/gclient_args.gni")
+-import("//build/config/ios/config.gni")
+-import("//build/config/ios/ios_sdk_overrides.gni")
+ import("//build/config/sanitizers/sanitizers.gni")
+ import("//build/config/v8_target_cpu.gni")
+ import("//build_overrides/build.gni")
+ import("split_static_library.gni")
+-
+-if (is_ios) {
+-  import("//build/config/apple/mobile_config.gni")  # For `target_platform`.
+-}
+ 
+ declare_args() {
+   # Includes files needed for correctness fuzzing.
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -4,7 +4,6 @@
+ 
+ # LINT.IfChange
+ 
+-import("//build/config/android/config.gni")
+ import("//build/config/arm.gni")
+ import("//build/config/c++/c++.gni")
+ import("//build/config/clang/clang.gni")
+@@ -33,10 +32,6 @@
+ 
+ if (v8_enable_temporal_support || v8_enable_ecma402_icu4x) {
+   import("//build/config/rust.gni")
+-}
+-
+-if (is_ios) {
+-  import("//build/config/apple/mobile_config.gni")  # For `target_platform`.
+ }
+ 
+ # For faster Windows builds. See https://crbug.com/v8/8475.

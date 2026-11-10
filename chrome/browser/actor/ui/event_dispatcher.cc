@@ -101,9 +101,7 @@ constexpr absl::Overload PreToolEventsFn{
     NoUiEvents<FindAndHighlightToolRequest>,
     NoUiEvents<HistoryBackToolRequest>,
     NoUiEvents<HistoryForwardToolRequest>,
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
     NoUiEvents<LoadAndExtractContentToolRequest>,
-#endif
     [](const MoveMouseToolRequest& tr) {
       std::optional<tabs::TabHandle> tab = GetTabHandle(tr);
       if (!tab) {
@@ -161,9 +159,7 @@ constexpr absl::Overload PostToolEventsFn{
     NoUiEvents<FindAndHighlightToolRequest>,
     NoUiEvents<HistoryBackToolRequest>,
     NoUiEvents<HistoryForwardToolRequest>,
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
     NoUiEvents<LoadAndExtractContentToolRequest>,
-#endif
     NoUiEvents<MoveMouseToolRequest>,
     NoUiEvents<NavigateToolRequest>,
     NoUiEvents<OpenKnownPageToolRequest>,

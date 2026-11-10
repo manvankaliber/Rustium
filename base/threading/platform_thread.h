@@ -35,17 +35,11 @@
 #include <unistd.h>
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-#include "base/feature.h"
-#endif
 
 namespace base {
 namespace internal {
 class ThreadTypeManager;
 }
-#if BUILDFLAG(IS_ANDROID)
-BASE_EXPORT BASE_DECLARE_FEATURE(kRestrictBigCoreThreadAffinity);
-#endif
 
 class TimeDelta;
 
@@ -350,7 +344,7 @@ class BASE_EXPORT PlatformThreadApple : public PlatformThreadBase {
 };
 #endif  // BUILDFLAG(IS_APPLE)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 class ThreadTypeDelegate;
 
 class BASE_EXPORT PlatformThreadLinux : public PlatformThreadBase {
@@ -384,56 +378,18 @@ class BASE_EXPORT PlatformThreadLinux : public PlatformThreadBase {
   // it is in the urgent or non-urgent cpuset
   static bool IsThreadBackgroundedForTest(PlatformThreadId thread_id);
 };
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-class CrossProcessPlatformThreadDelegate;
-
-class BASE_EXPORT PlatformThreadChromeOS : public PlatformThreadLinux {
- public:
-  // Sets a delegate which handles thread type changes for threads of another
-  // process. This must be externally synchronized with any call to
-  // SetCurrentThreadType.
-  static void SetCrossProcessPlatformThreadDelegate(
-      CrossProcessPlatformThreadDelegate* delegate);
-
-  // Initializes features for this class. See `base::features::Init()`.
-  static void InitializeFeatures();
-
-  // Toggles a specific thread's type at runtime. This is the ChromeOS-specific
-  // version and includes Linux's functionality but does slightly more. See
-  // PlatformThreadLinux's SetThreadType() header comment for Linux details.
-  static void SetThreadType(ProcessId process_id,
-                            PlatformThreadId thread_id,
-                            ThreadType thread_type);
-};
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Alias to the correct platform-specific class based on preprocessor directives
 #if BUILDFLAG(IS_APPLE)
 using PlatformThread = PlatformThreadApple;
-#elif BUILDFLAG(IS_CHROMEOS)
-using PlatformThread = PlatformThreadChromeOS;
 #elif BUILDFLAG(IS_LINUX)
 using PlatformThread = PlatformThreadLinux;
 #else
 using PlatformThread = PlatformThreadBase;
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_EXPORT void SetMaxFrequencyPerProcessorOverrideForTesting(
-    std::vector<uint64_t>* value);
-
-// Returns whether `SetCanRunOnBigCore()` is a no-op. This is intended to help
-// with experiment targeting, by making sure that the base::Feature is only
-// queried for eligible devices. It is thus intended to be temporary, and to be
-// removed once the experiments conclude.
-BASE_EXPORT bool IsEligibleForBigCoreAffinityChange();
-// Sets whether a thread is allowed to run on the big core cluster, on
-// configurations where this is relevant, i.e. at least 3 distinct
-// clusters. Otherwise this is a no-op.
-BASE_EXPORT void SetCanRunOnBigCore(PlatformThreadId thread_id, bool can_run);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace internal {
 

@@ -22,9 +22,6 @@
 #include "content/public/browser/render_process_host_observer.h"
 #include "content/public/browser/spare_render_process_host_manager.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/application_status_listener.h"
-#endif
 
 namespace content {
 
@@ -211,15 +208,6 @@ class CONTENT_EXPORT SpareRenderProcessHostManagerImpl
   // Records heartbeat metrics for the spare RPHs. Called every 2 minutes.
   void OnMetricsHeartbeatTimerFired();
 
-#if BUILDFLAG(IS_ANDROID)
-  FRIEND_TEST_ALL_PREFIXES(
-      SpareRenderProcessHostManagerMemoryThresholdBrowserTest,
-      CorrectThresholdLogic);
-  void OnApplicationStateChange(base::android::ApplicationState state);
-
-  bool ShouldCreateSpareRendererWithAvailableMemory(
-      int available_memory_mb) const;
-#endif
 
   // Checks various conditions that could prevent an embedder from using the
   // spare.
@@ -279,11 +267,6 @@ class CONTENT_EXPORT SpareRenderProcessHostManagerImpl
   std::optional<LastSpareRendererCreationInfo>
       last_spare_renderer_creation_info_;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<base::android::ApplicationStatusListener>
-      app_status_listener_;
-  bool is_app_backgroud_;
-#endif
 };
 
 }  // namespace content

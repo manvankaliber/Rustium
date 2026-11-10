@@ -46,7 +46,6 @@ base::Value GetRevokedAbusiveNotificationPermissionsSettingValue(
 bool IsAbusiveNotificationRevocationIgnored(HostContentSettingsMap* hcsm,
                                             GURL setting_url);
 
-#if !BUILDFLAG(IS_ANDROID)
 // Fetches data for the version card to return data to the desktop UI.
 base::DictValue GetVersionCardData();
 
@@ -62,7 +61,6 @@ void LogMenuNotificationClicked(Profile* profile,
 // minimum required duration (5 seconds).
 void MaybeNotifyMenuNotificationSeen(Profile* profile,
                                      base::TimeDelta time_shown);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace safety_hub_util
 

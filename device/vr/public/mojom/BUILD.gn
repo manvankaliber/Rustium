@@ -137,14 +137,6 @@ mojom_component("xr_common") {
     enabled_features += [ "enable_openxr" ]
   }
 
-  if (enable_cardboard) {
-    enabled_features += [ "enable_cardboard" ]
-  }
-
-  if (enable_arcore) {
-    enabled_features += [ "enable_arcore" ]
-  }
-
   webui_module_path = "/"
   generate_legacy_js_bindings = true
 }

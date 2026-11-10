@@ -44,20 +44,16 @@
 #include "components/saved_tab_groups/public/types.h"
 #include "components/signin/public/identity_manager/identity_manager.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_tab_strip_tracker_delegate.h"
 #include "chrome/browser/ui/tabs/tab_strip_model_observer.h"
-#endif
 
 class Profile;
 
-#if !BUILDFLAG(IS_ANDROID)
 class BrowserTabStripTracker;
 class BrowserWindowInterface;
 class TabStripModel;
 class TabStripModelChange;
 struct TabStripSelectionChange;
-#endif
 
 namespace content {
 class Page;
@@ -103,11 +99,9 @@ class ContextHubService : public KeyedService,
                           public passage_embeddings::EmbedderMetadataObserver,
                           public signin::IdentityManager::Observer,
                           public base::PowerSuspendObserver
-#if !BUILDFLAG(IS_ANDROID)
     ,
                           public BrowserTabStripTrackerDelegate,
                           public TabStripModelObserver
-#endif
 {
  public:
   class Observer : public base::CheckedObserver {
@@ -187,7 +181,6 @@ class ContextHubService : public KeyedService,
   // base::PowerSuspendObserver:
   void OnResume() override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // BrowserTabStripTrackerDelegate:
   bool ShouldTrackBrowser(BrowserWindowInterface* browser) override;
 
@@ -196,7 +189,6 @@ class ContextHubService : public KeyedService,
       TabStripModel* tab_strip_model,
       const TabStripModelChange& change,
       const TabStripSelectionChange& selection) override;
-#endif
 
   // Generates 1P AutoTodos and saves them in the AutoTodos store. Invokes
   // `callback` on completion indicating whether the generation was successful.
@@ -697,9 +689,7 @@ class ContextHubService : public KeyedService,
   // concurrent requests.
   base::OneShotTimer first_party_auto_todos_retry_timer_;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<BrowserTabStripTracker> browser_tab_strip_tracker_;
-#endif
 
   base::ObserverList<Observer> observers_;
 

@@ -26,19 +26,6 @@ BREAK_INDENTATION = ' ' * 4
 # strings for the tag header.
 TAG_SPECIALIZATIONS = {
   'OS_TAGS': {
-    'android': [
-      'android-oreo',
-      'android-pie',
-      'android-q',
-      'android-r',
-      'android-s',
-      'android-t',
-      'android-14',
-      'android-15',
-      'android-16',
-      'android-17',
-    ],
-    'chromeos': [],
     'linux': [
       'ubuntu',
     ],

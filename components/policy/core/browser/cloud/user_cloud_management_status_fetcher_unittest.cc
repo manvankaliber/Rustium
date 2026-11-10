@@ -408,18 +408,12 @@ TEST_F(UserCloudManagementStatusFetcherParsingTest,
 TEST_F(UserCloudManagementStatusFetcherParsingTest,
        PoliciesFetcher_SuccessfulResponse_WithPolicies) {
   enterprise_management::CloudPolicySettings settings;
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
   settings.mutable_subproto1()->mutable_profileseparationsettings()->set_value(
       ProfileSeparationSettings::ENFORCED);
-#endif
-#if !BUILDFLAG(IS_CHROMEOS)
   settings.mutable_subproto1()
       ->mutable_profileseparationdatamigrationsettings()
       ->set_value(ProfileSeparationDataMigrationSettings::USER_OPT_OUT);
-#endif
-#if !BUILDFLAG(IS_IOS)
   settings.mutable_managedaccountssigninrestriction()->set_value("strict");
-#endif
 
   enterprise_management::PolicyData policy_data;
   ASSERT_TRUE(settings.SerializeToString(policy_data.mutable_policy_value()));
@@ -441,33 +435,24 @@ TEST_F(UserCloudManagementStatusFetcherParsingTest,
   EXPECT_TRUE(result.status->is_account_managed);
   EXPECT_TRUE(result.status->is_chrome_profile_management_enabled);
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
   EXPECT_EQ(result.policies.profile_separation_settings(),
             std::optional<int>(ProfileSeparationSettings::ENFORCED));
-#endif
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(
       result.policies.profile_separation_data_migration_settings(),
       std::optional<int>(ProfileSeparationDataMigrationSettings::USER_OPT_OUT));
-#endif
-#if !BUILDFLAG(IS_IOS)
   EXPECT_EQ(result.policies.managed_accounts_signin_restrictions(),
             std::optional<std::string>("strict"));
-#endif
   ExpectSuccessWithPolicyParseResult(UserCloudPolicyParseResult::kSuccess);
 }
 
 TEST_F(UserCloudManagementStatusFetcherParsingTest,
        PoliciesFetcher_IgnoresRecommendedPolicies) {
   enterprise_management::CloudPolicySettings settings;
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
   auto* separation_proto =
       settings.mutable_subproto1()->mutable_profileseparationsettings();
   separation_proto->set_value(ProfileSeparationSettings::ENFORCED);
   separation_proto->mutable_policy_options()->set_mode(
       enterprise_management::PolicyOptions::RECOMMENDED);
-#endif
-#if !BUILDFLAG(IS_CHROMEOS)
   auto* migration_proto =
       settings.mutable_subproto1()
           ->mutable_profileseparationdatamigrationsettings();
@@ -475,13 +460,10 @@ TEST_F(UserCloudManagementStatusFetcherParsingTest,
       ProfileSeparationDataMigrationSettings::USER_OPT_OUT);
   migration_proto->mutable_policy_options()->set_mode(
       enterprise_management::PolicyOptions::RECOMMENDED);
-#endif
-#if !BUILDFLAG(IS_IOS)
   auto* restriction_proto = settings.mutable_managedaccountssigninrestriction();
   restriction_proto->set_value("strict");
   restriction_proto->mutable_policy_options()->set_mode(
       enterprise_management::PolicyOptions::RECOMMENDED);
-#endif
 
   enterprise_management::PolicyData policy_data;
   ASSERT_TRUE(settings.SerializeToString(policy_data.mutable_policy_value()));

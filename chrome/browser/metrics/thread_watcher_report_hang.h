@@ -10,13 +10,11 @@
 
 namespace metrics {
 
-#if !BUILDFLAG(IS_ANDROID)
 
 // This function makes it possible to tell from the callstack why shutdown is
 // taking too long.
 NOINLINE void ShutdownHang();
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace metrics
 

@@ -12,14 +12,8 @@
 
 :host {
   /* Content stops growing (and remains start-aligned) beyond this width. */
-<if expr="is_android">
-   /* The widest Android side panel's content width. */
-  --customize-chrome-max-width: 400px;
-</if>
-<if expr="not is_android">
    /* The default (and minimum) width on W/M/L. */
   --customize-chrome-max-width: 360px;
-</if>
   /* Inline padding is 16px when the side panel is at least 360px wide (the
    * default desktop width), and scales down linearly to 8px at 200px wide
    * (the narrowest Android side panel). */

@@ -116,11 +116,6 @@ constexpr const char* kDisallowedFeatures[] = {
     "action_handlers",
 
 // The following keys are only defined on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-    "file_system_provider_capabilities",
-    extensions::manifest_keys::kChromeOSSystemExtension,
-    extensions::manifest_keys::kFileBrowserHandlers,
-#endif
 
     // The following features have no declared constant, but are present in
     // the manifest_features file (they may be used only in a single other file,

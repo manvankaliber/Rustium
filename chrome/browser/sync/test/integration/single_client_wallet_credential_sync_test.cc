@@ -64,7 +64,6 @@ bool ServerCvcChecker::IsExitConditionSatisfied(std::ostream* os) {
   return actual_count == expected_count_;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 std::vector<std::unique_ptr<autofill::CreditCard>> GetServerCards(
     scoped_refptr<autofill::AutofillWebDataService> service) {
   base::test::TestFuture<WebDataServiceBase::Handle,
@@ -76,7 +75,6 @@ std::vector<std::unique_ptr<autofill::CreditCard>> GetServerCards(
              *future.Get<1>())
       .GetValue();
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -169,7 +167,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientWalletCredentialSyncTest, EnabledByDefault) {
 
 // ChromeOS does not support late signin after profile creation, so the test
 // below does not apply.
-#if !BUILDFLAG(IS_CHROMEOS)
 // Verify card and CVC data is synced when the user signs in.
 IN_PROC_BROWSER_TEST_P(SingleClientWalletCredentialSyncTest,
                        DownloadCardCredential) {
@@ -419,7 +416,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientWalletCredentialSyncTest,
   EXPECT_EQ(0uL, paydm->GetCreditCards().size());
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Verify that card and CVC data should get cleared from the database when the
 // sync for Payments is disabled.

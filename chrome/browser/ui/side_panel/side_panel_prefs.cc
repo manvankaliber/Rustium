@@ -21,12 +21,10 @@
 #include "ui/actions/actions.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 // gn check does not evaluate the guard above, and these dependencies are only
 // defined for non-Android.
 #include "chrome/browser/contextual_tasks/contextual_tasks_eligibility_manager.h"  // nogncheck
 #include "chrome/browser/ui/browser_actions.h"  // nogncheck crbug.com/428946261
-#endif
 
 namespace side_panel_prefs {
 
@@ -34,7 +32,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
   registry->RegisterDictionaryPref(prefs::kSidePanelIdToWidth);
 
 // TODO(crbug.com/489780965): Move policies over as features are implemented.
-#if !BUILDFLAG(IS_ANDROID)
   // When in RTL mode, the side panel should default to the left of the screen.
   // Otherwise, the side panel should default to the right side of the screen.
   // TODO(dljames): Add enum values kAlternateSide / kDefaultSide that will
@@ -56,12 +53,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
       contextual_tasks_alignment);
   registry->RegisterDictionaryPref(prefs::kSidePanelAlignmentOverrides,
                                    std::move(alignment_overrides));
-#endif
 }
 
 base::ListValue GetConfigurableSidePanelAlignments(Profile* profile) {
   base::ListValue panels;
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowInterface* browser =
       ProfileBrowserCollection::GetForProfile(profile)->FindTabbedBrowser();
   if (!browser) {
@@ -129,7 +124,6 @@ base::ListValue GetConfigurableSidePanelAlignments(Profile* profile) {
     panel_data.Set("label", label);
     panels.Append(std::move(panel_data));
   }
-#endif
   return panels;
 }
 

@@ -4,7 +4,7 @@
 
 #include "chrome/browser/extensions/api/passwords_private/passwords_private_delegate_factory.h"
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "base/functional/bind.h"
 #include "base/memory/scoped_refptr.h"
 #include "base/no_destructor.h"
@@ -33,7 +33,7 @@
 #include "extensions/browser/extension_system_provider.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "chrome/browser/device_reauth/chrome_device_authenticator_factory.h"
 #endif
 
@@ -44,19 +44,17 @@ using content::BrowserContext;
 namespace {
 
 void MaybeShowProfileSwitchIPH(Profile* profile) {
-#if !BUILDFLAG(IS_CHROMEOS)
   if (extensions::profile_util::GetNumberOfProfiles() < 2) {
     return;
   }
 
   BrowserWindowInterface* launched_app =
       web_app::AppBrowserController::FindForWebApp(*profile,
-                                                   ash::kPasswordManagerAppId);
+                                                   webapps::kPasswordManagerAppId);
   if (launched_app && web_app::AppBrowserController::From(launched_app)
                           ->HasProfileMenuButton()) {
     AvatarToolbarIphController::From(launched_app)->MaybeShowProfileSwitchIPH();
   }
-#endif
 }
 
 // ChromeDeviceAuthenticatorFactory::GetForProfile() is overloaded, so binding
@@ -64,7 +62,7 @@ void MaybeShowProfileSwitchIPH(Profile* profile) {
 std::unique_ptr<device_reauth::DeviceAuthenticator> GetDeviceAuthenticator(
     Profile* profile,
     const device_reauth::DeviceAuthParams& params) {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   return ChromeDeviceAuthenticatorFactory::GetForProfile(profile, params);
 #else
   // For other platforms, ChromeDeviceAuthenticatorFactory::GetForProfile() is
@@ -179,7 +177,7 @@ PasswordsPrivateDelegateFactory::PasswordsPrivateDelegateFactory()
   DependsOn(PasskeyModelFactory::GetInstance());
   DependsOn(EnclaveManagerFactory::GetInstance());
   DependsOn(web_app::WebAppProviderFactory::GetInstance());
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   DependsOn(ChromeDeviceAuthenticatorFactory::GetInstance());
 #endif
   // LINT.ThenChange(//chrome/browser/extensions/api/passwords_private/passwords_private_delegate_impl.h:Dependencies)

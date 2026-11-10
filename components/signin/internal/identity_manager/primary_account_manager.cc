@@ -240,7 +240,6 @@ PrimaryAccountManager::PrimaryAccountManager(
       SetPrimaryAccountInternal(account_info, /*consented_to_sync=*/true,
                                 scoped_pref_commit);
 
-#if !BUILDFLAG(IS_IOS)
       // Ensure that the last syncing account data is consistent with the
       // primary account. The last signed-in account data is written inside
       // SetPrimaryAccountInternal().
@@ -248,7 +247,6 @@ PrimaryAccountManager::PrimaryAccountManager(
                                    account_info.gaia.ToString());
       scoped_pref_commit.SetString(prefs::kGoogleServicesLastSyncingUsername,
                                    account_info.email);
-#endif  // !BUILDFLAG(IS_IOS)
     } else {
       SetPrimaryAccountInternal(account_info, /*consented_to_sync=*/false,
                                 scoped_pref_commit);
@@ -316,12 +314,10 @@ PrimaryAccountManager::~PrimaryAccountManager() = default;
 
 // static
 void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
-#if !BUILDFLAG(IS_IOS)
   registry->RegisterStringPref(prefs::kGoogleServicesLastSyncingGaiaId,
                                std::string());
   registry->RegisterStringPref(prefs::kGoogleServicesLastSyncingUsername,
                                std::string());
-#endif  // !BUILDFLAG(IS_IOS)
   registry->RegisterStringPref(prefs::kGoogleServicesLastSignedInUsername,
                                std::string());
   registry->RegisterStringPref(prefs::kGoogleServicesAccountId, std::string());
@@ -362,24 +358,6 @@ void PrimaryAccountManager::PrepareToLoadPrefs() {
     prefs->SetBoolean(prefs::kGoogleServicesConsentedToSync, false);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Migrate primary account ID from email to Gaia ID if needed.
-  std::string pref_account_id =
-      prefs->GetString(prefs::kGoogleServicesAccountId);
-  if (!pref_account_id.empty()) {
-    if (account_tracker_service_->GetMigrationState() ==
-        AccountTrackerService::MIGRATION_IN_PROGRESS) {
-      AccountInfo account_info =
-          account_tracker_service_->FindAccountInfoByEmail(pref_account_id);
-      // |account_info.GetGaiaId()| could be empty if |account_id| is already
-      // gaia id.
-      if (!account_info.GetGaiaId().empty()) {
-        pref_account_id = account_info.GetGaiaId().ToString();
-        prefs->SetString(prefs::kGoogleServicesAccountId, pref_account_id);
-      }
-    }
-  }
-#endif
 }
 
 std::pair<CoreAccountInfo, PrimaryAccountManager::InitializeAccountInfoState>
@@ -407,9 +385,6 @@ PrimaryAccountManager::GetOrRestorePrimaryAccountInfoOnInitialize(
                               kEmptyAccountInfo_RestoreFailedNotSyncConsented);
   }
 
-#if BUILDFLAG(IS_IOS)
-  NOTREACHED();
-#else
   PrefService* prefs = client_->GetPrefs();
   const GaiaId last_syncing_gaia_id =
       GaiaId(prefs->GetString(prefs::kGoogleServicesLastSyncingGaiaId));
@@ -444,7 +419,6 @@ PrimaryAccountManager::GetOrRestorePrimaryAccountInfoOnInitialize(
       account_tracker_service_->GetAccountInfo(account_id).GetCoreAccountInfo(),
       InitializeAccountInfoState::
           kEmptyAccountInfo_RestoreSuccessFromLastSyncInfo);
-#endif  // BUILDFLAG(IS_IOS)
 }
 
 const PrimaryAccountManager::PrimaryAccount&
@@ -550,7 +524,6 @@ void PrimaryAccountManager::SetSyncPrimaryAccountInternal(
   SetPrimaryAccountInternal(account_info, /*consented_to_sync=*/true,
                             scoped_pref_commit);
 
-#if !BUILDFLAG(IS_IOS)
   // Go ahead and update the last signed in account info here as well. Once a
   // user is signed in the corresponding preferences should match. Doing it here
   // as opposed to on signin allows us to catch the upgrade scenario.
@@ -558,7 +531,6 @@ void PrimaryAccountManager::SetSyncPrimaryAccountInternal(
                                account_info.gaia.ToString());
   scoped_pref_commit.SetString(prefs::kGoogleServicesLastSyncingUsername,
                                account_info.email);
-#endif  // !BUILDFLAG(IS_IOS)
 }
 
 void PrimaryAccountManager::SetPrimaryAccountInternal(
@@ -614,7 +586,6 @@ void PrimaryAccountManager::RemoveObserver(Observer* observer) {
   observers_.RemoveObserver(observer);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void PrimaryAccountManager::ClearPrimaryAccount(
     signin_metrics::ProfileSignout signout_source_metric) {
   StartSignOut(signout_source_metric, RemoveAccountsOption::kRemoveAllAccounts);
@@ -626,7 +597,6 @@ void PrimaryAccountManager::RemovePrimaryAccountButKeepTokens(
                RemoveAccountsOption::kKeepAllAccountsAndClearPrimary);
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 void PrimaryAccountManager::RevokeSyncConsent(
     signin_metrics::ProfileSignout signout_source_metric) {
@@ -637,33 +607,6 @@ bool PrimaryAccountManager::IsCallingPrimaryAccountObservers() const {
   return is_calling_primary_account_observers_;
 }
 
-#if BUILDFLAG(IS_IOS)
-bool PrimaryAccountManager::IsBatchOfPrimaryAccountChangesInProgress() const {
-  return batch_of_primary_account_changes_in_progress_;
-}
-
-base::ScopedClosureRunner
-PrimaryAccountManager::StartBatchOfPrimaryAccountChanges() {
-  CHECK(!batch_of_primary_account_changes_in_progress_);
-  batch_of_primary_account_changes_in_progress_ = true;
-  return base::ScopedClosureRunner(
-      base::BindOnce(&PrimaryAccountManager::BatchOfPrimaryAccountChangesDone,
-                     weak_factory_.GetWeakPtr()));
-}
-
-void PrimaryAccountManager::BatchOfPrimaryAccountChangesDone() {
-  CHECK(batch_of_primary_account_changes_in_progress_);
-  batch_of_primary_account_changes_in_progress_ = false;
-  FireOnEndBatchOfPrimaryAccountChanges();
-}
-
-void PrimaryAccountManager::FireOnEndBatchOfPrimaryAccountChanges() {
-  CHECK(!batch_of_primary_account_changes_in_progress_);
-  for (Observer& observer : observers_) {
-    observer.OnEndBatchOfPrimaryAccountChanges();
-  }
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 void PrimaryAccountManager::StartSignOut(
     signin_metrics::ProfileSignout signout_source_metric,
@@ -879,26 +822,14 @@ void PrimaryAccountManager::FirePrimaryAccountChanged(
       observer.OnPrimaryAccountChanged(event_details);
     }
   }
-#if BUILDFLAG(IS_IOS)
-  if (!batch_of_primary_account_changes_in_progress_) {
-    FireOnEndBatchOfPrimaryAccountChanges();
-  }
-#endif  // BUILDFLAG(IS_IOS)
 }
 
 void PrimaryAccountManager::OnRefreshTokensLoaded() {
   token_service_observation_.Reset();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (account_tracker_service_->GetMigrationState() ==
-      AccountTrackerService::MIGRATION_IN_PROGRESS) {
-    account_tracker_service_->SetMigrationDone();
-  }
-#endif
 
 // On Android, account seeding on Android is
 // controlled by SigninManager, so don't remove any accounts here.
-#if !BUILDFLAG(IS_ANDROID)
   // Remove account information from the account tracker service if needed.
   if (token_service_->HasLoadCredentialsFinishedWithNoErrors()) {
     std::vector<AccountInfo> accounts_in_tracker_service =
@@ -914,5 +845,4 @@ void PrimaryAccountManager::OnRefreshTokensLoaded() {
       }
     }
   }
-#endif
 }

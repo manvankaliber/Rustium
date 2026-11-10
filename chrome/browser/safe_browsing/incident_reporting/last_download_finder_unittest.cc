@@ -85,11 +85,6 @@ static const base::FilePath::CharType kBinaryFileName[] =
     FILE_PATH_LITERAL("spam.dmg");
 static const base::FilePath::CharType kBinaryFileNameForOtherOS[] =
     FILE_PATH_LITERAL("spam.apk");
-#elif BUILDFLAG(IS_ANDROID)
-static const base::FilePath::CharType kBinaryFileName[] =
-    FILE_PATH_LITERAL("spam.apk");
-static const base::FilePath::CharType kBinaryFileNameForOtherOS[] =
-    FILE_PATH_LITERAL("spam.dmg");
 #else
 static const base::FilePath::CharType kBinaryFileName[] =
     FILE_PATH_LITERAL("spam.exe");
@@ -390,7 +385,7 @@ TEST_P(LastDownloadFinderTest, NonBinaryOnly) {
   EXPECT_TRUE(last_non_binary_download);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 // Tests that nothing happens if the binary is an executable for a different OS.
 TEST_P(LastDownloadFinderTest, DownloadForDifferentOs) {
   // Create a profile with a history service that is opted-in.

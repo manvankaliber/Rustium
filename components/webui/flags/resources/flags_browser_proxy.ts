@@ -29,16 +29,11 @@ export interface Feature {
 
 export interface ExperimentalFeaturesData {
   supportedFeatures: Feature[];
-  // <if expr="not is_ios">
   unsupportedFeatures: Feature[];
-  // </if>
   needsRestart: boolean;
   showBetaChannelPromotion: boolean;
   showDevChannelPromotion: boolean;
   importExportEnabled?: boolean;
-  // <if expr="is_chromeos">
-  showOwnerWarning: boolean;
-  // </if>
 }
 
 export interface FlagsExportData {
@@ -47,10 +42,8 @@ export interface FlagsExportData {
 }
 
 export interface FlagsBrowserProxy {
-  // <if expr="not is_ios">
   restartBrowser(): void;
   requestDeprecatedFeatures(): Promise<ExperimentalFeaturesData>;
-  // </if>
   exportFlags(): Promise<FlagsExportData>;
   importFlags(data: FlagsExportData): Promise<boolean>;
   resetAllFlags(): void;
@@ -62,7 +55,6 @@ export interface FlagsBrowserProxy {
 }
 
 export class FlagsBrowserProxyImpl implements FlagsBrowserProxy {
-  // <if expr="not is_ios">
   restartBrowser() {
     chrome.send('restartBrowser');
   }
@@ -71,7 +63,6 @@ export class FlagsBrowserProxyImpl implements FlagsBrowserProxy {
     return sendWithPromise<ExperimentalFeaturesData>(
         'requestDeprecatedFeatures');
   }
-  // </if>
 
   exportFlags() {
     return sendWithPromise<FlagsExportData>('exportFlags');

@@ -389,11 +389,6 @@ double NominalCPUFrequency() {
 pid_t GetTID() { return pid_t{GetCurrentThreadId()}; }
 
 #elif defined(__linux__)
-#ifdef __ANDROID__
-#if __ANDROID_API__ >= 21
-#define ABSL_INTERNAL_HAVE_GETTID 1
-#endif
-#endif
 
 #ifdef ABSL_INTERNAL_HAVE_GETTID
 pid_t GetTID() {
@@ -483,13 +478,6 @@ pid_t GetTID() {
 // userspace construct) to avoid unnecessary system calls. Without this caching,
 // it can take roughly 98ns, while it takes roughly 1ns with this caching.
 pid_t GetCachedTID() {
-#ifdef __ANDROID__
-// NDK defaults to emulated TLS for API < 29, and native ELF TLS for API >= 29.
-// Emulated TLS is slower than bionic's internal caching.
-#if __ANDROID_API__ < 29
-#define ABSL_INTERNAL_USING_EMULATED_TLS 1
-#endif
-#endif
 
 #if defined(ABSL_HAVE_THREAD_LOCAL) && \
     !defined(ABSL_INTERNAL_USING_EMULATED_TLS)

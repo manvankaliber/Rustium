@@ -1717,7 +1717,7 @@ void LocationBarView::VisibilityChanged(views::View* starting_from,
   // On macOS and ChromeOS, fullscreen keeps the location bar drawn (immersive
   // mode). Ignore the momentary visibility changes while entering or exiting
   // it there, which would otherwise close a focused popup.
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_MAC)
   if (!is_full_webui_omnibox_ || !starting_from) {
     return;
   }
@@ -1747,7 +1747,7 @@ void LocationBarView::VisibilityChanged(views::View* starting_from,
   if (had_focus) {
     contents->Focus();
   }
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 }
 
 void LocationBarView::RestoreOmniboxStateIfDrawn() {

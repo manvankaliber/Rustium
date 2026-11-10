@@ -25,13 +25,11 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/actor/actor_keyed_service_factory.h"
 #include "chrome/browser/actor/actor_keyed_service_fake.h"
 #include "chrome/browser/actor/actor_test_util.h"
 #include "components/tabs/public/tab_interface.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace autofill {
 
@@ -83,14 +81,12 @@ class ChromeOtpPhishGuardDelegateTest : public ChromeRenderViewHostTestHarness {
     ChromeRenderViewHostTestHarness::SetUp();
     NavigateAndCommit(main_frame_url_);
 
-#if !BUILDFLAG(IS_ANDROID)
     actor::ActorKeyedServiceFactory::GetInstance()->SetTestingFactory(
         profile(), base::BindRepeating([](content::BrowserContext* context)
                                            -> std::unique_ptr<KeyedService> {
           return std::make_unique<actor::ActorKeyedServiceFake>(
               Profile::FromBrowserContext(context));
         }));
-#endif
 
     browser_process_ = TestingBrowserProcess::GetGlobal();
 
@@ -159,7 +155,6 @@ TEST_F(ChromeOtpPhishGuardDelegateTest, SafeBrowsingDisabled) {
 
 // `ActorKeyedService` and actor mode tab capabilities are only supported on
 // Desktop.
-#if !BUILDFLAG(IS_ANDROID)
 // Test that when SafeBrowsing is disabled and an actor task is ongoing,
 // PhishGuard check reports true (unsafe/malicious) to fail closed.
 TEST_F(ChromeOtpPhishGuardDelegateTest, SafeBrowsingDisabled_ActorTaskOngoing) {
@@ -191,7 +186,6 @@ TEST_F(ChromeOtpPhishGuardDelegateTest, SafeBrowsingDisabled_ActorTaskOngoing) {
   delegate->StartOtpPhishGuardCheck(main_frame_token(), future.GetCallback());
   EXPECT_TRUE(future.Get());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Test that when both URLs are safe, the delegate callback is run with false
 // (safe/not phishing).

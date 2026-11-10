@@ -29,11 +29,9 @@
 #include "components/prefs/pref_service.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_tabstrip.h"
 #include "chrome/browser/ui/profiles/profile_picker.h"
 #include "chrome/browser/ui/scoped_tabbed_browser_displayer.h"
-#endif
 
 namespace {
 std::optional<Profile*> g_forced_profile_for_launch_;
@@ -167,13 +165,9 @@ void GlicProfileManager::ShowProfilePicker() {
   }
 
   // TODO(crbug.com/450679848): Profile Picker doesn't make sense on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 // Profile picker won't be used on Android.
-#if !BUILDFLAG(IS_ANDROID)
   ProfilePicker::Show(
       ProfilePicker::Params::ForGlicManager(std::move(callback)));
-#endif
-#endif
 }
 
 void GlicProfileManager::DidSelectProfile(Profile* profile) {

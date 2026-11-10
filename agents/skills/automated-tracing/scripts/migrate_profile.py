@@ -78,12 +78,6 @@ def main():
         required=True,
         help="Local directory to save the cleaned profile.",
     )
-    parser.add_argument("--device", help="Device serial (Android only).")
-    parser.add_argument(
-        "--package",
-        default="org.chromium.chrome",
-        help="App package name (Android only).",
-    )
     parser.add_argument(
         "--input-dir", help="Input profile directory (Desktop only)."
     )
@@ -99,60 +93,23 @@ def main():
     if args.input_dir:
         args.input_dir = os.path.normpath(args.input_dir)
 
-    is_android = args.device is not None
+    if not args.input_dir:
+        print(
+            "Error: --input-dir is required for desktop profile migration."
+        )
+        sys.exit(1)
 
-    if is_android:
-        if args.input_dir:
-            print(
-                "Error: --input-dir should not be used when --device is "
-                "specified."
-            )
-            sys.exit(1)
+    if not os.path.exists(args.input_dir):
+        print(f"Error: Input directory does not exist: {args.input_dir}")
+        sys.exit(1)
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            print("Pulling profile from device...")
-            run_cmd(["adb", "-s", args.device, "root"])
+    print(f"Copying profile from {args.input_dir} to {args.output_dir}...")
+    if os.path.exists(args.output_dir):
+        shutil.rmtree(args.output_dir)
+    os.makedirs(os.path.dirname(args.output_dir), exist_ok=True)
+    shutil.copytree(args.input_dir, args.output_dir)
 
-            device_profile_path = f"/data/data/{args.package}"
-            run_cmd(
-                [
-                    "adb",
-                    "-s",
-                    args.device,
-                    "pull",
-                    f"{device_profile_path}/",
-                    temp_dir,
-                ]
-            )
-
-            pulled_profile_path = os.path.join(temp_dir, args.package)
-            if not os.path.exists(pulled_profile_path):
-                pulled_profile_path = temp_dir
-
-            clean_profile(pulled_profile_path, delete_state=args.delete_state)
-
-            if os.path.exists(args.output_dir):
-                shutil.rmtree(args.output_dir)
-            os.makedirs(os.path.dirname(args.output_dir), exist_ok=True)
-            shutil.copytree(pulled_profile_path, args.output_dir)
-    else:
-        if not args.input_dir:
-            print(
-                "Error: --input-dir is required for desktop profile migration."
-            )
-            sys.exit(1)
-
-        if not os.path.exists(args.input_dir):
-            print(f"Error: Input directory does not exist: {args.input_dir}")
-            sys.exit(1)
-
-        print(f"Copying profile from {args.input_dir} to {args.output_dir}...")
-        if os.path.exists(args.output_dir):
-            shutil.rmtree(args.output_dir)
-        os.makedirs(os.path.dirname(args.output_dir), exist_ok=True)
-        shutil.copytree(args.input_dir, args.output_dir)
-
-        clean_profile(args.output_dir, delete_state=args.delete_state)
+    clean_profile(args.output_dir, delete_state=args.delete_state)
 
     print(f"Warmed profile successfully saved to: {args.output_dir}")
 

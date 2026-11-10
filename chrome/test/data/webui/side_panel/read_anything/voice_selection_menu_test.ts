@@ -130,7 +130,6 @@ suite('VoiceSelectionMenu', () => {
     });
   });
 
-  // <if expr="not is_chromeos">
   test('it renames non-Google voices per language', async () => {
     const googleVoice1 =
         createSpeechSynthesisVoice({name: 'Google Gandalf', lang: 'en-US'});
@@ -167,7 +166,6 @@ suite('VoiceSelectionMenu', () => {
     assertEquals(
         'System text-to-speech voice', portugueseVoice2.textContent.trim());
   });
-  // </if>
 
   suite('with multiple available voices', () => {
     let selectedVoice: SpeechSynthesisVoice;

@@ -391,7 +391,6 @@ TEST_F(BrowsingHistoryHandlerTest, BeginAndEndTimestamp) {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(BrowsingHistoryHandlerTest, MdTruncatesTitles) {
   std::vector<BrowsingHistoryService::HistoryEntry> results;
   history::BrowsingHistoryService::HistoryEntry long_url_entry;
@@ -412,9 +411,7 @@ TEST_F(BrowsingHistoryHandlerTest, MdTruncatesTitles) {
   ASSERT_EQ(0u, results_mojom->value[0]->title.find("http://loooo"));
   EXPECT_EQ(300u, results_mojom->value[0]->title.size());
 }
-#endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(BrowsingHistoryHandlerTest, RequestAccountInfo) {
   // Check that the account info is sent to the page.
   signin::IdentityManager* identity_manager =
@@ -492,7 +489,6 @@ TEST_F(BrowsingHistoryHandlerTest, IncludeActorVisits) {
   RunQueryHistory("test");
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(BrowsingHistoryHandlerTest, QueryHistoryMojoOptionMapping) {
   EXPECT_CALL(
       *handler()->mock_service(),
@@ -506,7 +502,6 @@ TEST_F(BrowsingHistoryHandlerTest, QueryHistoryMojoOptionMapping) {
                           /*include_actor_visits=*/true,
                           /*client_ids=*/{}, base::DoNothing());
 }
-#endif
 
 TEST_F(BrowsingHistoryHandlerTest, QueryHistoryWithActorOnly) {
   EXPECT_CALL(*handler()->mock_service(),
@@ -1267,7 +1262,6 @@ TEST_F(BrowsingHistoryHandlerTest,
       critical_actions::OpenConversationResult::kErrorInternal, 1);
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(BrowsingHistoryHandlerTest,
        GetSyncedDevicesForFilteringPassesCorrectData) {

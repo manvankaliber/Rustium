@@ -6,7 +6,7 @@
 
 #include <array>
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "base/files/file_path.h"
 #include "base/test/bind.h"
 #include "base/test/scoped_feature_list.h"
@@ -28,21 +28,13 @@
 #include "chrome/test/base/in_process_browser_test.h"
 #include "content/public/test/browser_test.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/profiles/profile_manager.h"
-#include "chrome/browser/ui/browser_commands.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace web_app {
 
 namespace {
 
 web_app::proto::InstallState ExpectedPreinstalledAppInstallState() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return web_app::proto::InstallState::INSTALLED_WITH_OS_INTEGRATION;
-#else
   return web_app::proto::InstallState::INSTALLED_WITHOUT_OS_INTEGRATION;
-#endif
 }
 }  // namespace
 
@@ -81,71 +73,48 @@ IN_PROC_BROWSER_TEST_F(PreinstalledWebAppsBrowserTest, CheckInstalledFields) {
   };
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   auto kOfflineOnlyExpectations = std::to_array<OfflineOnlyExpectation>({
-#if BUILDFLAG(IS_CHROMEOS)
       {
-          ash::kGoogleCalendarAppId,
-          "https://calendar.google.com/calendar/"
-          "installwebapp?usp=chrome_default",
-          "https://calendar.google.com/calendar/r?usp=installed_webapp",
-      },
-      {
-          ash::kGeminiAppId,
-          "https://gemini.google.com/",
-          "https://gemini.google.com/?cros_source=c",
-      },
-      {
-          ash::kNotebookLmAppId,
-          "https://notebooklm.google.com/install",
-          "https://notebooklm.google.com/",
-      },
-      {
-          ash::kVidsAppId,
-          "https://docs.google.com/videos/installwebapp?usp=chrome_default",
-          "https://docs.google.com/videos/?usp=installed_webapp",
-      },
-#endif  // BUILDFLAG(IS_CHROMEOS)
-      {
-          ash::kGoogleDocsAppId,
+          webapps::kGoogleDocsAppId,
           "https://docs.google.com/document/installwebapp?usp=chrome_default",
           "https://docs.google.com/document/?usp=installed_webapp",
       },
       {
-          ash::kGoogleSlidesAppId,
+          webapps::kGoogleSlidesAppId,
           "https://docs.google.com/presentation/"
           "installwebapp?usp=chrome_default",
           "https://docs.google.com/presentation/?usp=installed_webapp",
       },
       {
-          ash::kGoogleSheetsAppId,
+          webapps::kGoogleSheetsAppId,
           "https://docs.google.com/spreadsheets/"
           "installwebapp?usp=chrome_default",
           "https://docs.google.com/spreadsheets/?usp=installed_webapp",
       },
       {
-          ash::kGoogleDriveAppId,
+          webapps::kGoogleDriveAppId,
           "https://drive.google.com/drive/installwebapp?usp=chrome_default",
           "https://drive.google.com/?lfhs=2&usp=installed_webapp",
       },
       {
-          ash::kGmailAppId,
+          webapps::kGmailAppId,
           "https://mail.google.com/mail/installwebapp?usp=chrome_default",
           "https://mail.google.com/mail/?usp=installed_webapp",
       },
       {
-          ash::kYoutubeAppId,
+          webapps::kYoutubeAppId,
           "https://www.youtube.com/s/notifications/manifest/cr_install.html",
           "https://www.youtube.com/?feature=ytca",
       },
       {
-          ash::kOldGoogleChatAppId,
+          webapps::kOldGoogleChatAppId,
           "https://mail.google.com/chat/download?usp=chrome_default",
           "https://mail.google.com/chat/",
       },
   });
   if (base::FeatureList::IsEnabled(features::kWebAppMigratePreinstalledChat)) {
     auto& chat_expectation = kOfflineOnlyExpectations.back();
-    CHECK_EQ(chat_expectation.app_id, ash::kOldGoogleChatAppId);
-    chat_expectation.app_id = ash::kGoogleChatAppId;
+    CHECK_EQ(chat_expectation.app_id, webapps::kOldGoogleChatAppId);
+    chat_expectation.app_id = webapps::kGoogleChatAppId;
     chat_expectation.install_url =
         "https://chat.google.com/download?usp=chrome_default";
     chat_expectation.launch_url = "https://chat.google.com/";
@@ -157,18 +126,7 @@ IN_PROC_BROWSER_TEST_F(PreinstalledWebAppsBrowserTest, CheckInstalledFields) {
   struct OnlineOnlyExpectation {
     std::string_view install_url;
   };
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && BUILDFLAG(IS_CHROMEOS)
-  auto kOnlineOnlyExpectations = std::to_array<OnlineOnlyExpectation>({
-      {
-          "https://meet.google.com/download/webapp?usp=chrome_default",
-      },
-      {
-          "https://calculator.apps.chrome/install",
-      },
-  });
-#else
   std::array<OnlineOnlyExpectation, 0> kOnlineOnlyExpectations;
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && BUILDFLAG(IS_CHROMEOS)
 
   base::test::TestFuture<
       std::map<GURL, ExternallyManagedAppManager::InstallResult>,

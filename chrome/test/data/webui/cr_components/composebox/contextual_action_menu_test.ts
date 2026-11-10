@@ -1726,7 +1726,7 @@ suite('ContextualActionMenu', () => {
   });
 
   // TODO(crbug.com/512920161): Deflake and reenable this test.
-  // <if expr="not is_linux and not is_macosx and not is_win and not is_chromeos">
+  // <if expr="not is_linux and (not is_macosx) and (not is_win)">
   test('Share tabs flyout keyboard navigation', async () => {
     actionMenu.remove();
     actionMenu = document.createElement('cr-composebox-contextual-action-menu');

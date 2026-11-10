@@ -52,12 +52,7 @@ class NotificationTelemetryServiceFactoryTest : public testing::Test {
 TEST_F(NotificationTelemetryServiceFactoryTest, EnabledForRegularProfile) {
   TestingProfile* profile =
       profile_manager_->CreateTestingProfile("testing_profile");
-#if !BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_ARM64))
   bool expect_service_created = true;
-#else
-  // Service is not created for Android arm32 devices.
-  bool expect_service_created = false;
-#endif  // !(!BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_ANDROID) &&
         // defined(ARCH_CPU_ARM64)))
   EXPECT_EQ(
       NotificationTelemetryServiceFactory::GetForProfile(profile) != nullptr,
@@ -87,13 +82,8 @@ TEST_F(NotificationTelemetryServiceFactoryTest,
       profile_manager_->CreateTestingProfile("testing_profile");
   NotificationTelemetryService* notification_telemetry_service =
       NotificationTelemetryServiceFactory::GetForProfile(profile);
-#if !BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_ARM64))
   EXPECT_NE(nullptr, notification_telemetry_service);
   EXPECT_NE(nullptr, notification_telemetry_service->database_manager_);
-#else
-  // Service is not created for Android arm32 devices.
-  EXPECT_EQ(nullptr, notification_telemetry_service);
-#endif  // !(!BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_ANDROID) &&
         // defined(ARCH_CPU_ARM64)))
 }
 
@@ -105,13 +95,8 @@ TEST_F(NotificationTelemetryServiceFactoryTest,
       profile_manager_->CreateTestingProfile("testing_profile");
   NotificationTelemetryService* notification_telemetry_service =
       NotificationTelemetryServiceFactory::GetForProfile(profile);
-#if !BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_ARM64))
   EXPECT_NE(nullptr, notification_telemetry_service);
   EXPECT_EQ(nullptr, notification_telemetry_service->database_manager_);
-#else
-  // Service is not created for Android arm32 devices.
-  EXPECT_EQ(nullptr, notification_telemetry_service);
-#endif  // !(!BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_ANDROID) &&
         // defined(ARCH_CPU_ARM64)))
 }
 

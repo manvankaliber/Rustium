@@ -51,9 +51,9 @@
 #include "ui/views/test/button_test_api.h"
 #include "ui/views/widget/widget.h"
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/test/base/scoped_channel_override.h"
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 namespace {
 constexpr base::ByteSize kMemorySavings = base::MiB(100);
@@ -256,7 +256,6 @@ IN_PROC_BROWSER_TEST_F(MemorySaverBubbleViewTest,
   EXPECT_EQ(bubble_delegate->GetSubtitle(), u"foo.com");
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(MemorySaverBubbleViewTest,
                        ShowDialogWithoutExcludeSiteButtonInGuestMode) {
   BrowserWindowInterface* guest_browser = CreateGuestBrowser();
@@ -277,7 +276,6 @@ IN_PROC_BROWSER_TEST_F(MemorySaverBubbleViewTest,
   EXPECT_EQ(widget->widget_delegate()->AsBubbleDialogDelegate()->GetSubtitle(),
             std::u16string());
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(MemorySaverBubbleViewTest,
                        ShowDialogWithoutExcludeSiteButtonInIncognitoMode) {
@@ -310,10 +308,10 @@ class MemorySaverBubbleViewIsolatedTest : public MemorySaverBubbleViewTest {
   }
 
  private:
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   chrome::ScopedChannelOverride channel_override_{
       chrome::ScopedChannelOverride::Channel::kDev};
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 };
 
 IN_PROC_BROWSER_TEST_F(MemorySaverBubbleViewIsolatedTest,
@@ -407,7 +405,7 @@ IN_PROC_BROWSER_TEST_F(MemorySaverBubbleViewTest,
 
 // The correct label should be rendered for different memory savings amounts.
 // TODO(crbug.com/574506268): Flaky on Linux, ChromeOS, and Windows.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 #define MAYBE_ShowsCorrectLabelsForDifferentSavings \
   DISABLED_ShowsCorrectLabelsForDifferentSavings
 #else

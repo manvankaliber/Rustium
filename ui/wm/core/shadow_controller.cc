@@ -352,9 +352,6 @@ void ShadowController::Impl::CreateShadowForWindow(aura::Window* window) {
   CHECK(!window->IsRootWindow(), base::NotFatalUntil::M163);
   ui::decoration::Shadow::Style style =
       ui::decoration::Shadow::Style::kMaterialDesign;
-#if BUILDFLAG(IS_CHROMEOS)
-  style = ui::decoration::Shadow::Style::kChromeOSSystemUI;
-#endif
   ui::Decoration* shadow_decoration =
       window->SetProperty(kShadowDecorationKey,
                           ui::Decoration::CreateShadow(

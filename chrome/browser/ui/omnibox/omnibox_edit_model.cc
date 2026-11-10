@@ -123,7 +123,6 @@
 #include "url/url_canon.h"
 #include "url/url_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/contextual_search/desktop_query_contextualizer_delegate.h"  // nogncheck
@@ -138,7 +137,6 @@
 #include "components/sessions/content/session_tab_helper.h"
 #include "components/sessions/core/session_id.h"
 #include "components/tabs/public/tab_interface.h"
-#endif
 
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "components/vector_icons/vector_icons.h"  // nogncheck
@@ -805,7 +803,6 @@ void OmniboxEditModel::OpenComposeboxForAskG() {
 }
 
 void OmniboxEditModel::PopulateActiveTabContext() {
-#if !BUILDFLAG(IS_ANDROID)
   // Ensure we are in a Chrome browser window context.
   auto* client = controller_->client();
   if (!client->IsChromeOmniboxClient()) {
@@ -844,7 +841,6 @@ void OmniboxEditModel::PopulateActiveTabContext() {
       searchbox::mojom::SearchContextAttachment::NewTabAttachment(
           std::move(tab_attachment)));
   searchbox_context_data->SetPendingContext(std::move(context));
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void OmniboxEditModel::OpenAiMode(AimActivation activation) {
@@ -1370,12 +1366,10 @@ bool OmniboxEditModel::OnEscapeKeyPressed() {
   if (controller_->IsPopupOpen()) {
     base::UmaHistogramEnumeration(kOmniboxEscapeHistogramName,
                                   OmniboxEscapeAction::kClosePopup);
-#if !BUILDFLAG(IS_ANDROID)
     if (auto* popup_closer = controller_->client()->GetOmniboxPopupCloser()) {
       popup_closer->CloseWithReason(
           omnibox::PopupCloseReason::kEscapeKeyPressed);
     }
-#endif
     return true;
   }
 
@@ -3219,7 +3213,6 @@ void OmniboxEditModel::InitializeQueryContextualizerIfNeeded() {
   }
 
   query_contextualizer_initialized_ = true;
-#if !BUILDFLAG(IS_ANDROID)
   if (!controller_->client()->IsChromeOmniboxClient()) {
     return;
   }
@@ -3255,7 +3248,6 @@ void OmniboxEditModel::InitializeQueryContextualizerIfNeeded() {
   query_contextualizer_ =
       std::make_unique<contextual_tasks::QueryContextualizer>(
           service, query_contextualizer_delegate_.get());
-#endif
 }
 
 contextual_search::ContextualSearchSessionHandle*
@@ -3309,7 +3301,6 @@ void OmniboxEditModel::
         ui::mojom::WindowOpenDisposition disposition,
         base::WeakPtr<contextual_search::ContextualSearchSessionHandle>
             session_handle) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!controller_->client()->IsChromeOmniboxClient()) {
     return;
   }
@@ -3356,7 +3347,6 @@ void OmniboxEditModel::
 
   NavigateToAiModeWithContextualizerNavigateToUrlWithSession(
       nullptr, query_text, disposition, ai_mode_url);
-#endif
 }
 
 void OmniboxEditModel::
@@ -3366,7 +3356,6 @@ void OmniboxEditModel::
         const std::u16string& query_text,
         ui::mojom::WindowOpenDisposition disposition,
         GURL url) {
-#if !BUILDFLAG(IS_ANDROID)
   auto* chrome_omnibox_client =
       static_cast<ChromeOmniboxClient*>(controller_->client());
   auto* location_bar = chrome_omnibox_client->GetLocationBar();
@@ -3427,7 +3416,6 @@ void OmniboxEditModel::
   } else {
     chrome_omnibox_client->OpenUrl(url, disposition);
   }
-#endif
 }
 
 void OmniboxEditModel::NavigateToAiModeWithoutContextualizer(

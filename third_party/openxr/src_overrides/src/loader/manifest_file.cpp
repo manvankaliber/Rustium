@@ -53,9 +53,6 @@
 #define SYSCONFDIR "/etc"
 #endif  // !SYSCONFDIR
 
-#if defined(XR_USE_PLATFORM_ANDROID) && defined(XR_HAS_REQUIRED_PLATFORM_LOADER_INIT_STRUCT)
-#include <android/asset_manager.h>
-#endif
 
 #ifdef XRLOADER_DISABLE_EXCEPTION_HANDLING
 #if JSON_USE_EXCEPTIONS
@@ -202,7 +199,7 @@ static void ReadDataFilesInSearchPaths(const std::string &override_env_var, cons
         override_active = true;
     } else {
         override_active = false;
-#if !defined(XR_OS_WINDOWS) && !defined(XR_OS_ANDROID)
+#if !defined(XR_OS_WINDOWS)
         const char home_additional[] = ".local/share/";
 
         // Determine how much space is needed to generate the full search path
@@ -236,12 +233,6 @@ static void ReadDataFilesInSearchPaths(const std::string &override_env_var, cons
             relative_home_path += relative_path;
             CopyIncludedPaths(true, home, relative_home_path, search_path);
         }
-#elif defined(XR_OS_ANDROID)
-        CopyIncludedPaths(true, "/product/etc", relative_path, search_path);
-        CopyIncludedPaths(true, "/odm/etc", relative_path, search_path);
-        CopyIncludedPaths(true, "/oem/etc", relative_path, search_path);
-        CopyIncludedPaths(true, "/vendor/etc", relative_path, search_path);
-        CopyIncludedPaths(true, "/system/etc", relative_path, search_path);
 #else
         (void)relative_path;
 #endif
@@ -682,14 +673,6 @@ XrResult RuntimeManifestFile::FindManifestFiles(const std::string &openxr_comman
         }
 #else  // !defined(XR_OS_WINDOWS) && !defined(XR_OS_LINUX)
 
-#if defined(XR_USE_PLATFORM_ANDROID) && defined(XR_HAS_REQUIRED_PLATFORM_LOADER_INIT_STRUCT) && !defined(XRLOADER_DISABLE_CONTENT_PROVIDERS)
-        Json::Value virtualManifest;
-        result = GetPlatformRuntimeVirtualManifest(virtualManifest);
-        if (XR_SUCCESS == result) {
-            RuntimeManifestFile::CreateIfValid(virtualManifest, "", manifest_files);
-            return result;
-        }
-#endif  // defined(XR_USE_PLATFORM_ANDROID) && defined(XR_HAS_REQUIRED_PLATFORM_LOADER_INIT_STRUCT) && !defined(XRLOADER_DISABLE_CONTENT_PROVIDERS)
 
         if (!PlatformGetGlobalRuntimeFileName(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION), filename)) {
             LoaderLogger::LogErrorMessage(
@@ -716,70 +699,6 @@ ApiLayerManifestFile::ApiLayerManifestFile(ManifestFileType type, const std::str
       _description(description),
       _implementation_version(implementation_version) {}
 
-#if defined(XR_USE_PLATFORM_ANDROID) && defined(XR_HAS_REQUIRED_PLATFORM_LOADER_INIT_STRUCT)
-void ApiLayerManifestFile::AddManifestFilesAndroid(const std::string &openxr_command, ManifestFileType type,
-                                                   std::vector<std::unique_ptr<ApiLayerManifestFile>> &manifest_files) {
-    if (!LoaderInitData::instance().initialized()) {
-        // This will happen for applications that do not call xrInitializeLoaderKHR
-        LoaderLogger::LogWarningMessage(
-            openxr_command,
-            "ApiLayerManifestFile::AddManifestFilesAndroid unable to add manifest files LoaderInitData not initialized.");
-        return;
-    }
-
-    AAssetManager *assetManager = (AAssetManager *)GetAndroidAssetManager();
-    std::vector<std::string> filenames;
-    {
-        std::string search_path = "";
-        switch (type) {
-            case MANIFEST_TYPE_IMPLICIT_API_LAYER:
-                search_path = "openxr/1/api_layers/implicit.d/";
-                break;
-            case MANIFEST_TYPE_EXPLICIT_API_LAYER:
-                search_path = "openxr/1/api_layers/explicit.d/";
-                break;
-            default:
-                return;
-        }
-
-        UniqueAssetDir dir{AAssetManager_openDir(assetManager, search_path.c_str())};
-        if (!dir) {
-            return;
-        }
-        const std::string json = ".json";
-        const char *fn = nullptr;
-        while ((fn = AAssetDir_getNextFileName(dir.get())) != nullptr) {
-            const std::string filename = search_path + fn;
-            if (filename.size() < json.size()) {
-                continue;
-            }
-            if (filename.compare(filename.size() - json.size(), json.size(), json) == 0) {
-                filenames.push_back(filename);
-            }
-        }
-    }
-    for (const auto &filename : filenames) {
-        UniqueAsset asset{AAssetManager_open(assetManager, filename.c_str(), AASSET_MODE_BUFFER)};
-        if (!asset) {
-            LoaderLogger::LogWarningMessage(
-                openxr_command, "ApiLayerManifestFile::AddManifestFilesAndroid unable to open asset " + filename + ", skipping");
-
-            continue;
-        }
-        size_t length = AAsset_getLength(asset.get());
-        const char *buf = reinterpret_cast<const char *>(AAsset_getBuffer(asset.get()));
-        if (!buf) {
-            LoaderLogger::LogWarningMessage(
-                openxr_command, "ApiLayerManifestFile::AddManifestFilesAndroid unable to access asset" + filename + ", skipping");
-
-            continue;
-        }
-        std::istringstream json_stream(std::string{buf, length});
-
-        CreateIfValid(type, filename, json_stream, &ApiLayerManifestFile::LocateLibraryInAssets, manifest_files);
-    }
-}
-#endif  // defined(XR_USE_PLATFORM_ANDROID) && defined(XR_HAS_REQUIRED_PLATFORM_LOADER_INIT_STRUCT)
 
 void ApiLayerManifestFile::CreateIfValid(ManifestFileType type, const std::string &filename, std::istream &json_stream,
                                          LibraryLocator locate_library,
@@ -923,19 +842,6 @@ bool ApiLayerManifestFile::LocateLibraryRelativeToJson(
     return true;
 }
 
-#if defined(XR_USE_PLATFORM_ANDROID) && defined(XR_HAS_REQUIRED_PLATFORM_LOADER_INIT_STRUCT)
-bool ApiLayerManifestFile::LocateLibraryInAssets(const std::string & /* json_filename */, const std::string &library_path,
-                                                 std::string &out_combined_path) {
-    std::string combined_path;
-    std::string file_parent = GetAndroidNativeLibraryDir();
-    if (!FileSysUtilsCombinePaths(file_parent, library_path, combined_path) || !FileSysUtilsPathExists(combined_path)) {
-        out_combined_path = combined_path;
-        return false;
-    }
-    out_combined_path = combined_path;
-    return true;
-}
-#endif  // defined(XR_USE_PLATFORM_ANDROID) && defined(XR_HAS_REQUIRED_PLATFORM_LOADER_INIT_STRUCT)
 
 void ApiLayerManifestFile::PopulateApiLayerProperties(XrApiLayerProperties &props) const {
     props.layerVersion = _implementation_version;
@@ -1000,9 +906,6 @@ XrResult ApiLayerManifestFile::FindManifestFiles(const std::string &openxr_comma
         ApiLayerManifestFile::CreateIfValid(type, cur_file, manifest_files);
     }
 
-#if defined(XR_USE_PLATFORM_ANDROID) && defined(XR_HAS_REQUIRED_PLATFORM_LOADER_INIT_STRUCT)
-    ApiLayerManifestFile::AddManifestFilesAndroid(openxr_command, type, manifest_files);
-#endif  // defined(XR_USE_PLATFORM_ANDROID) && defined(XR_HAS_REQUIRED_PLATFORM_LOADER_INIT_STRUCT)
 
     return XR_SUCCESS;
 }

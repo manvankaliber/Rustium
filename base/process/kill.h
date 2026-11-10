@@ -63,17 +63,6 @@ enum TerminationStatus : int {
   TERMINATION_STATUS_PROCESS_CRASHED = 3,
   // Child hasn't exited yet.
   TERMINATION_STATUS_STILL_RUNNING = 4,
-#if BUILDFLAG(IS_CHROMEOS)
-  // OOM-killer killed the process on ChromeOS.
-  TERMINATION_STATUS_PROCESS_WAS_KILLED_BY_OOM = 5,
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  // On Android processes are spawned from the system Zygote and we do not get
-  // the termination status. We can't know if the termination was a crash or an
-  // oom kill for sure, but we can use status of the strong process bindings as
-  // a hint.
-  TERMINATION_STATUS_OOM_PROTECTED = 6,
-#endif
   // Child process never launched.
   TERMINATION_STATUS_LAUNCH_FAILED = 7,
   // Out of memory.
@@ -125,11 +114,11 @@ BASE_EXPORT TerminationStatus GetTerminationStatus(ProcessHandle handle,
 BASE_EXPORT TerminationStatus
 GetKnownDeadTerminationStatus(ProcessHandle handle, int* exit_code);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // Spawns a thread to wait asynchronously for the child |process| to exit
 // and then reaps it.
 BASE_EXPORT void EnsureProcessGetsReaped(Process process);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 #endif  // BUILDFLAG(IS_POSIX)
 
 // Registers |process| to be asynchronously monitored for termination, forcibly
@@ -142,7 +131,6 @@ BASE_EXPORT void EnsureProcessTerminated(Process process);
 
 // These are only sparingly used, and not needed on Fuchsia or iOS. They could
 // be implemented if necessary.
-#if !BUILDFLAG(IS_IOS)
 // Wait for all the processes based on the named executable to exit.  If filter
 // is non-null, then only processes selected by the filter are waited on.
 // Returns after all processes have exited or wait_milliseconds have expired.
@@ -162,13 +150,12 @@ BASE_EXPORT bool CleanupProcesses(const FilePath::StringType& executable_name,
                                   base::TimeDelta wait,
                                   int exit_code,
                                   const ProcessFilter* filter);
-#endif
 
-#if BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && TARGET_OS_SIMULATOR)
+#if BUILDFLAG(IS_MAC)
 // This is common code used by kill_ios.cc when building with iOS simulator it
 // does not need to be exported.
 void WaitForChildToDie(pid_t child, int timeout_seconds);
-#endif  // BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && TARGET_OS_SIMULATOR)
+#endif
 
 }  // namespace base
 

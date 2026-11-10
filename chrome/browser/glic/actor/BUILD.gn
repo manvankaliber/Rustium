@@ -69,16 +69,14 @@ source_set("browser_tests") {
     "//components/one_time_tokens/core/browser:test_support",
   ]
 
-  if (!is_android) {
-    sources += [
-      "glic_actor_action_execution_browsertest.cc",
-      "glic_actor_context_fetch_browsertest.cc",
-      "glic_actor_functional_browsertest.cc",
-      "glic_actor_functional_browsertest.h",
-      "glic_actor_metrics_functional_browsertest.cc",
-      "glic_actor_tab_functional_browsertest.cc",
-    ]
-  }
+  sources += [
+    "glic_actor_action_execution_browsertest.cc",
+    "glic_actor_context_fetch_browsertest.cc",
+    "glic_actor_functional_browsertest.cc",
+    "glic_actor_functional_browsertest.h",
+    "glic_actor_metrics_functional_browsertest.cc",
+    "glic_actor_tab_functional_browsertest.cc",
+  ]
 }
 
 source_set("test_support") {

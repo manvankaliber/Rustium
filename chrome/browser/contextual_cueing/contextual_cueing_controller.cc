@@ -80,7 +80,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/menus/simple_menu_model.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_cueing/internals/contextual_cueing_internals.mojom.h"
 #include "chrome/browser/ui/chrome_pages.h"
 #include "chrome/browser/ui/hats/hats_service.h"
@@ -89,7 +88,6 @@
 #include "chrome/browser/ui/page_action/page_action_controller.h"
 #include "chrome/browser/ui/page_action/page_action_observer.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
-#endif
 
 namespace contextual_cueing {
 
@@ -127,7 +125,6 @@ bool AreTabsEqual(optimization_guide::proto::Tab tab1,
          tab1.title() == tab2.title();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class ContextualCueingPageActionObserver
     : public page_actions::PageActionObserver {
  public:
@@ -168,7 +165,6 @@ class ContextualCueingPageActionObserver
   base::RepeatingCallback<void(CueFormFactor)> shown_callback_;
   base::RepeatingCallback<void(CueFormFactor)> hidden_callback_;
 };
-#endif
 
 }  // namespace
 
@@ -196,13 +192,11 @@ ContextualCueingController::ContextualCueingController(tabs::TabInterface* tab)
           tab_->GetProfile(),
           ServiceAccessType::EXPLICIT_ACCESS)),
       scoped_unowned_user_data_(tab_->GetUnownedUserDataHost(), *this) {
-#if !BUILDFLAG(IS_ANDROID)
   page_action_observer_ = std::make_unique<ContextualCueingPageActionObserver>(
       base::BindRepeating(&ContextualCueingController::OnCueFormFactorShown,
                           weak_ptr_factory_.GetWeakPtr()),
       base::BindRepeating(&ContextualCueingController::OnCueFormFactorHidden,
                           weak_ptr_factory_.GetWeakPtr()));
-#endif
   if (!base::FeatureList::IsEnabled(kContextualCueingV2MultiSource)) {
     if (sync_service_) {
       sync_service_observation_.Observe(sync_service_);
@@ -1088,7 +1082,6 @@ ContextualCueingDecision ContextualCueingController::IsAllowedToShowCue() {
     return ContextualCueingDecision::kDisabledByEnterprisePolicy;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   auto* browser_user_education_interface =
       BrowserUserEducationInterface::From(window);
   if (browser_user_education_interface &&
@@ -1100,7 +1093,6 @@ ContextualCueingDecision ContextualCueingController::IsAllowedToShowCue() {
         ContextualCueingDecision::kFeaturePromoActive);
     return ContextualCueingDecision::kFeaturePromoActive;
   }
-#endif
 
   auto* infobar_manager =
       infobars::ContentInfoBarManager::FromWebContents(tab_->GetContents());
@@ -1138,7 +1130,6 @@ ContextualCueingDecision ContextualCueingController::IsAllowedToShowCue() {
     return ContextualCueingDecision::kTabInSplitView;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (page_actions::PageActionController* page_action_controller =
           page_actions::PageActionController::From(tab_)) {
     if (page_action_controller->GetActiveAnchoredMessage().has_value() ||
@@ -1151,7 +1142,6 @@ ContextualCueingDecision ContextualCueingController::IsAllowedToShowCue() {
       return ContextualCueingDecision::kAnchoredMessageAlreadyShowing;
     }
   }
-#endif
 
   return ContextualCueingDecision::kUnspecified;
 }
@@ -1242,10 +1232,6 @@ void ContextualCueingController::ShowCue(
                                   tab_, tabs_to_show, background_tabs, cuj);
 
   cue_hidden_time_ = base::TimeTicks();
-#if BUILDFLAG(IS_ANDROID)
-  NOTIMPLEMENTED()
-      << "Contextual cueing anchored message UI is not implemented for Android";
-#else
   const auto& strings = cue.anchored_message_cue();
   active_cue_data_.emplace(cue_type, cue, tabs_to_show, background_tabs, cuj,
                            action_data, cue_id);
@@ -1346,7 +1332,6 @@ void ContextualCueingController::ShowCue(
   contextual_cueing_service_->OnCueShown(
       tab_->GetContents()->GetLastCommittedURL(), cue_type,
       ShouldRecordUcbStats(cue_type), intrusiveness);
-#endif
 
   base::UmaHistogramSparse("ContextualCueing.ShownCueCUJ",
                            base::HashMetricName(cuj));
@@ -1354,7 +1339,6 @@ void ContextualCueingController::ShowCue(
   RecordContextualCueingDecision(ContextualCueingDecision::kSuccess);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextualCueingController::MaybeShowTabList(
     page_actions::PageActionController* page_action_controller,
     const std::vector<tabs::TabHandle>& tabs_to_show) {
@@ -1430,14 +1414,11 @@ void ContextualCueingController::MaybeShowTabList(
            .items = std::move(tab_items),
            .expand_button_accessible_name = std::move(expand_announcement)}));
 }
-#endif
 
 void ContextualCueingController::OnCueHidden() {
   cue_hidden_time_ = base::TimeTicks();
   cue_shown_time_ = base::TimeTicks();
-#if !BUILDFLAG(IS_ANDROID)
   current_anchored_message_priority_ = std::nullopt;
-#endif
 }
 
 void ContextualCueingController::OnCueFormFactorShown(
@@ -1450,7 +1431,6 @@ void ContextualCueingController::OnCueFormFactorShown(
   if (form_factor == CueFormFactor::kAnchoredMessage) {
     cue_shown_time_ = base::TimeTicks::Now();
   }
-#if !BUILDFLAG(IS_ANDROID)
   if (active_cue_data_) {
     if (CueTarget* target = GetTarget(active_cue_data_->cue_type)) {
       if ((form_factor == CueFormFactor::kIcon ||
@@ -1463,7 +1443,6 @@ void ContextualCueingController::OnCueFormFactorShown(
       }
     }
   }
-#endif
 }
 
 void ContextualCueingController::OnCueFormFactorHidden(
@@ -1475,9 +1454,7 @@ void ContextualCueingController::OnCueFormFactorHidden(
   RecordCueFormFactorHidden(cuj, form_factor);
   if (form_factor == CueFormFactor::kAnchoredMessage) {
     cue_hidden_time_ = base::TimeTicks::Now();
-#if !BUILDFLAG(IS_ANDROID)
     current_anchored_message_priority_ = std::nullopt;
-#endif
   }
   // Resets the cue state and shown timer only when the entire page action
   // icon is hidden, preserving the original contextual cue lifecycle behavior.
@@ -1527,7 +1504,6 @@ void ContextualCueingController::OnCueClicked(
     std::string cue_id) {
   CUEING_LOG(
       base::StringPrintf("Cue type '%s' was clicked", GetName(cue_type)));
-#if !BUILDFLAG(IS_ANDROID)
   CHECK(page_action_observer_);
   const page_actions::PageActionState& state =
       page_action_observer_->GetCurrentPageActionState();
@@ -1554,7 +1530,6 @@ void ContextualCueingController::OnCueClicked(
     }
     return;
   }
-#endif
 
   OnCueInteraction(ContextualCueingInteraction::kCueClicked, cue_type, cue,
                    tabs_to_show, background_tabs, cuj, std::move(action),
@@ -1610,10 +1585,8 @@ void ContextualCueingController::OnCueInteraction(
       }
       break;
     case ContextualCueingInteraction::kCueSuggestionsSettings:
-#if !BUILDFLAG(IS_ANDROID)
       chrome::ShowSettingsSubPageForProfile(tab_->GetProfile(),
                                             chrome::kSuggestionsSubPage);
-#endif
       break;
     case ContextualCueingInteraction::kCueClicked:
       if (CueTarget* target = GetTarget(cue_type)) {
@@ -1628,7 +1601,6 @@ void ContextualCueingController::OnCueInteraction(
 void ContextualCueingController::MaybeLaunchDismissHatsSurvey(
     CueTargetType cue_type,
     const std::string& cuj) {
-#if !BUILDFLAG(IS_ANDROID)
   Profile* profile = tab_->GetProfile();
   content::WebContents* web_contents = tab_->GetContents();
   if (!profile || !web_contents) {
@@ -1666,7 +1638,6 @@ void ContextualCueingController::MaybeLaunchDismissHatsSurvey(
             }
           },
           profile->GetWeakPtr(), category));
-#endif
 }
 
 base::TimeDelta ContextualCueingController::ExtractCueShownDuration() {
@@ -1679,7 +1650,6 @@ base::TimeDelta ContextualCueingController::ExtractCueShownDuration() {
 }
 
 void ContextualCueingController::HideCue() {
-#if !BUILDFLAG(IS_ANDROID)
   active_cue_data_.reset();
   dependencies_.clear();
   tab_list_observation_.Reset();
@@ -1694,16 +1664,13 @@ void ContextualCueingController::HideCue() {
   page_action_controller->ClearOverrideTooltip(kActionAnchoredContextualCue);
   page_action_controller->HideAnchoredMessage(kActionAnchoredContextualCue);
   page_action_controller->Hide(kActionAnchoredContextualCue);
-#endif
 }
 
 void ContextualCueingController::HideAnchoredMessage() {
-#if !BUILDFLAG(IS_ANDROID)
   if (page_actions::PageActionController* page_action_controller =
           page_actions::PageActionController::From(tab_)) {
     page_action_controller->HideAnchoredMessage(kActionAnchoredContextualCue);
   }
-#endif
 }
 
 void ContextualCueingController::ObserveSidePanel() {

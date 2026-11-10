@@ -57,8 +57,7 @@
 #include "base/process/port_provider_mac.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
 #define ENABLE_CPU_TESTS 1
 #else
 #define ENABLE_CPU_TESTS 0
@@ -270,7 +269,7 @@ bool TestChildLauncher::TerminateChildProcess() {
                                       /*wait=*/true)) {
     return false;
   }
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   // After the process exits, ProcessMetrics races to read /proc/<pid>/stat
   // before it's deleted. Wait until it's definitely gone.
   const auto stat_path = FilePath(FILE_PATH_LITERAL("/proc"))
@@ -303,7 +302,7 @@ class SystemMetricsTest : public testing::Test {
   SystemMetricsTest& operator=(const SystemMetricsTest&) = delete;
 };
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 TEST_F(SystemMetricsTest, IsValidDiskName) {
   const char invalid_input1[] = "";
   const char invalid_input2[] = "s";
@@ -442,10 +441,6 @@ TEST_F(SystemMetricsTest, ParseMeminfo) {
   EXPECT_EQ(meminfo.swap_free.InKiB(), 3672368);
   EXPECT_EQ(meminfo.dirty.InKiB(), 184);
   EXPECT_EQ(meminfo.reclaimable.InKiB(), 30936);
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(meminfo.shmem.InKiB(), 140204);
-  EXPECT_EQ(meminfo.slab.InKiB(), 54212);
-#endif
   EXPECT_EQ(355725u,
             base::SysInfo::AmountOfAvailablePhysicalMemory(meminfo).InKiB());
   // Simulate as if there is no MemAvailable.
@@ -651,7 +646,7 @@ TEST_F(SystemMetricsTest, ParseVmstat) {
   const char empty_input[] = "";
   EXPECT_FALSE(ParseProcVmstat(empty_input, &vmstat));
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 #if ENABLE_CPU_TESTS
@@ -770,10 +765,10 @@ TEST_F(SystemMetricsTest, TestValidMemoryInfo) {
   EXPECT_GE(memory_info->compressed_bytes, 0U);
 #endif  // BUILDFLAG(IS_APPLE)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   EXPECT_GT(memory_info->rss_anon_bytes, 0U);
   EXPECT_GE(memory_info->vm_swap_bytes, 0U);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
@@ -781,45 +776,8 @@ TEST_F(SystemMetricsTest, TestValidMemoryInfo) {
 #endif  // BUILDFLAG(IS_WIN)
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(SystemMetricsTest, ParseZramMmStat) {
-  SwapInfo swapinfo;
 
-  const char invalid_input1[] = "aaa";
-  const char invalid_input2[] = "1 2 3 4 5 6";
-  const char invalid_input3[] = "a 2 3 4 5 6 7";
-  EXPECT_FALSE(ParseZramMmStat(invalid_input1, &swapinfo));
-  EXPECT_FALSE(ParseZramMmStat(invalid_input2, &swapinfo));
-  EXPECT_FALSE(ParseZramMmStat(invalid_input3, &swapinfo));
-
-  const char valid_input1[] =
-      "17715200 5008166 566062  0 1225715712  127 183842";
-  EXPECT_TRUE(ParseZramMmStat(valid_input1, &swapinfo));
-  EXPECT_EQ(17715200ULL, swapinfo.orig_data_size);
-  EXPECT_EQ(5008166ULL, swapinfo.compr_data_size);
-  EXPECT_EQ(566062ULL, swapinfo.mem_used_total);
-}
-
-TEST_F(SystemMetricsTest, ParseZramStat) {
-  SwapInfo swapinfo;
-
-  const char invalid_input1[] = "aaa";
-  const char invalid_input2[] = "1 2 3 4 5 6 7 8 9 10";
-  const char invalid_input3[] = "a 2 3 4 5 6 7 8 9 10 11";
-  EXPECT_FALSE(ParseZramStat(invalid_input1, &swapinfo));
-  EXPECT_FALSE(ParseZramStat(invalid_input2, &swapinfo));
-  EXPECT_FALSE(ParseZramStat(invalid_input3, &swapinfo));
-
-  const char valid_input1[] =
-      "299    0    2392    0    1    0    8    0    0    0    0";
-  EXPECT_TRUE(ParseZramStat(valid_input1, &swapinfo));
-  EXPECT_EQ(299ULL, swapinfo.num_reads);
-  EXPECT_EQ(1ULL, swapinfo.num_writes);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX)
 TEST(SystemMetrics2Test, GetSystemMemoryInfo) {
   SystemMemoryInfo info;
   EXPECT_TRUE(GetSystemMemoryInfo(&info));
@@ -831,27 +789,27 @@ TEST(SystemMetrics2Test, GetSystemMemoryInfo) {
 #else
   EXPECT_GT(info.free, ByteSize(0));
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   EXPECT_GT(info.buffers, ByteSize(0));
   EXPECT_GT(info.cached, ByteSize(0));
   EXPECT_GT(info.active_anon + info.inactive_anon, ByteSize(0));
   EXPECT_GT(info.active_file + info.inactive_file, ByteSize(0));
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
   // All the values should be less than the total amount of memory.
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_WIN)
   // TODO(crbug.com/40515565): re-enable the following assertion on iOS.
   EXPECT_LT(info.free, info.total);
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   EXPECT_LT(info.buffers, info.total);
   EXPECT_LT(info.cached, info.total);
   EXPECT_LT(info.active_anon, info.total);
   EXPECT_LT(info.inactive_anon, info.total);
   EXPECT_LT(info.active_file, info.total);
   EXPECT_LT(info.inactive_file, info.total);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_APPLE)
@@ -877,16 +835,11 @@ TEST(SystemMetrics2Test, GetSystemMemoryInfo) {
   EXPECT_GE(later_info.swapouts, info.swapouts);
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Chrome OS exposes shmem.
-  EXPECT_GT(info.shmem, ByteSize(0));
-  EXPECT_LT(info.shmem, info.total);
-#endif
 }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 TEST(ProcessMetricsTest, ParseProcStatCPU) {
   // /proc/self/stat for a process running "top".
   const char kTopStat[] =
@@ -920,12 +873,12 @@ TEST(ProcessMetricsTest, ParseProcStatCPU) {
       "140735857770737 140735857774557 0";
   EXPECT_EQ(5186 + 11, ParseProcStatCPU(kWeirdNameStat));
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 // Disable on Android because base_unittests runs inside a Dalvik VM that
 // starts and stop threads (crbug.com/175563).
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // http://crbug.com/396455
 TEST(ProcessMetricsTest, DISABLED_GetNumberOfThreads) {
   const ProcessHandle current = GetCurrentProcessHandle();
@@ -943,9 +896,9 @@ TEST(ProcessMetricsTest, DISABLED_GetNumberOfThreads) {
   // The Thread destructor will stop them.
   ASSERT_EQ(initial_threads, GetNumberOfThreads(current));
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 namespace {
 
 // Keep these in sync so the GetChildOpenFdCount test can refer to correct test
@@ -1061,9 +1014,9 @@ TEST(ProcessMetricsTest, GetOpenFdCount) {
   EXPECT_GT(new_fd_count, 0);
   EXPECT_EQ(new_fd_count, fd_count + 1);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 
 TEST(ProcessMetricsTestLinux, GetPageFaultCounts) {
   std::unique_ptr<ProcessMetrics> process_metrics =
@@ -1153,7 +1106,7 @@ TEST(ProcessMetricsTestLinux, GetCumulativeCPUUsagePerThread) {
     }
   }
 }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace base::debug

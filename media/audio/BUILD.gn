@@ -36,9 +36,6 @@ source_set("audio") {
     # TODO(dalecurtis): CoreAudioUtil::IsCoreAudioSupported() should probably
     # move into media/base/win.
     "//media/device_monitors",
-
-    # TODO(dalecurtis): Move android audio pieces into //media/audio.
-    "//media/base/android",
   ]
   sources = [
     "aecdump_recording_manager.cc",
@@ -124,6 +121,7 @@ source_set("audio") {
     "fake_audio_output_stream.h",
     "flac_audio_handler.cc",
     "flac_audio_handler.h",
+    "muteable_audio_output_stream.h",
     "null_audio_sink.cc",
     "null_audio_sink.h",
     "power_observer_helper.cc",
@@ -202,18 +200,6 @@ source_set("audio") {
     ]
   }
 
-  if (is_ios) {
-    sources += [
-      "ios/audio_manager_ios.cc",
-      "ios/audio_manager_ios.h",
-      "ios/audio_private_api.h",
-      "ios/audio_session_manager_ios.h",
-      "ios/audio_session_manager_ios.mm",
-    ]
-
-    frameworks += [ "AVFoundation.framework" ]
-  }
-
   if (is_win) {
     sources += [
       "win/audio_device_listener_win.cc",
@@ -250,49 +236,7 @@ source_set("audio") {
     ]
   }
 
-  if (is_android) {
-    sources += [
-      "android/aaudio_bluetooth_output.cc",
-      "android/aaudio_bluetooth_output.h",
-      "android/aaudio_input.cc",
-      "android/aaudio_input.h",
-      "android/aaudio_output.cc",
-      "android/aaudio_output.h",
-      "android/aaudio_stream_wrapper.cc",
-      "android/aaudio_stream_wrapper.h",
-      "android/audio_device.cc",
-      "android/audio_device.h",
-      "android/audio_device_id.cc",
-      "android/audio_device_id.h",
-      "android/audio_device_type.cc",
-      "android/audio_device_type.h",
-      "android/audio_manager_android.cc",
-      "android/audio_manager_android.h",
-      "android/muteable_audio_output_stream.h",
-    ]
-    if (media_use_opensles) {
-      sources += [
-        "android/opensles_input.cc",
-        "android/opensles_input.h",
-        "android/opensles_output.cc",
-        "android/opensles_output.h",
-        "android/opensles_util.cc",
-        "android/opensles_util.h",
-        "android/opensles_wrapper.cc",
-      ]
-    }
-    if (enable_passthrough_audio_codecs) {
-      sources += [
-        "android/audio_track_output_stream.cc",
-        "android/audio_track_output_stream.h",
-      ]
-    }
-    libs += [ "aaudio" ]
-
-    deps += [ "//media/base/android:media_jni_headers" ]
-  }
-
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [ "linux/audio_manager_linux.cc" ]
   }
 
@@ -310,22 +254,6 @@ source_set("audio") {
       "alsa/audio_manager_alsa.cc",
       "alsa/audio_manager_alsa.h",
     ]
-  }
-
-  if (use_cras) {
-    sources += [
-      "cras/audio_manager_cras.cc",
-      "cras/audio_manager_cras.h",
-      "cras/audio_manager_cras_base.cc",
-      "cras/audio_manager_cras_base.h",
-      "cras/cras_input.cc",
-      "cras/cras_input.h",
-      "cras/cras_unified.cc",
-      "cras/cras_unified.h",
-      "cras/cras_util.cc",
-      "cras/cras_util.h",
-    ]
-    configs += [ ":libcras" ]
   }
 
   if (use_pulseaudio) {
@@ -351,12 +279,6 @@ source_set("audio") {
     } else {
       deps += [ ":libpulse_stubs" ]
     }
-  }
-}
-
-if (use_cras) {
-  pkg_config("libcras") {
-    packages = [ "libcras" ]
   }
 }
 
@@ -464,24 +386,6 @@ source_set("unit_tests") {
     "//media:media_config",
   ]
 
-  if (is_android) {
-    sources += [
-      "android/aaudio_output_unittest.cc",
-      "android/aaudio_stream_wrapper_unittest.cc",
-      "android/audio_android_unittest.cc",
-      "android/audio_device_id_unittest.cc",
-      "android/audio_device_type_unittest.cc",
-      "android/audio_device_unittest.cc",
-    ]
-    if (media_use_opensles) {
-      sources += [ "android/opensles_output_unittest.cc" ]
-    }
-    deps += [
-      "//media/gpu",
-      "//ui/gl",
-    ]
-  }
-
   if (is_apple) {
     sources += [
       "apple/audio_auhal_unittest.cc",
@@ -501,15 +405,6 @@ source_set("unit_tests") {
     frameworks = [
       "CoreMedia.framework",
       "ScreenCaptureKit.framework",
-    ]
-  }
-
-  if (use_cras) {
-    sources += [
-      "cras/audio_manager_cras_base_unittest.cc",
-      "cras/audio_manager_cras_unittest.cc",
-      "cras/cras_input_unittest.cc",
-      "cras/cras_unified_unittest.cc",
     ]
   }
 

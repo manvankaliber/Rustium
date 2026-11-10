@@ -16,12 +16,7 @@ export function getHtml(this: SettingsDownloadsPageElement) {
         $i18n{downloadLocation}
       </div>
       <div class="secondary" id="defaultDownloadPath" aria-hidden="true">
-<if expr="not is_chromeos">
         ${this.downloadDefaultDirectoryPref_?.value}
-</if>
-<if expr="is_chromeos">
-        ${this.downloadLocation_}
-</if>
       </div>
     </div>
     <div class="separator"></div>

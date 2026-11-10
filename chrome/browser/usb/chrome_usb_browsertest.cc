@@ -16,7 +16,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_content_browser_client.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-#include "chrome/browser/device_notifications/device_pinned_notification_renderer.h"
 #include "chrome/browser/device_notifications/device_status_icon_renderer.h"
 #include "chrome/browser/notifications/notification_display_service_tester.h"
 #include "chrome/browser/profiles/profile.h"
@@ -63,14 +62,12 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/app/chrome_command_ids.h"  // nogncheck
 #include "chrome/browser/ui/chooser_bubble_testapi.h"
 #include "chrome/browser/ui/web_applications/test/isolated_web_app_test_utils.h"
 #include "chrome/browser/web_applications/isolated_web_apps/isolated_web_app_url_info.h"
 #include "chrome/browser/web_applications/isolated_web_apps/test/isolated_web_app_builder.h"
 #include "chrome/test/base/ui_test_utils.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "base/test/test_future.h"
@@ -81,12 +78,6 @@
 #include "extensions/test/extension_test_message_listener.h"
 #include "extensions/test/result_catcher.h"
 #include "extensions/test/test_extension_dir.h"
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/test/regular_logged_in_browser_test_mixin.h"
-#include "components/account_id/account_id.h"
-#include "components/account_id/account_id_literal.h"  // nogncheck
-#include "components/user_manager/user_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
 namespace {
@@ -111,7 +102,6 @@ constexpr const char kTestExtensionKey[] =
     "afIzV9zwe4Xiskk+5JNGt8b2rQIDAQAB";
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
-#if !BUILDFLAG(IS_ANDROID)
 constexpr uint8_t kUsbPrinterClass = 7;
 constexpr char kNonAppHost[] = "nonapp.com";
 constexpr char kNonAppHost2[] = "nonapp2.com";
@@ -131,13 +121,7 @@ constexpr char OpenAndClaimDeviceScript[] = R"((async () => {
 auto FailedWithSubstr(std::string_view substr) {
   return content::EvalJsResult::ErrorIs(testing::HasSubstr(substr));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-constexpr auto kManagedUserAccountId =
-    AccountId::Literal::FromUserEmailGaiaId("example@example.com",
-                                            GaiaId::Literal("12345"));
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 // Observer for an extension service worker events like start, activated, and
@@ -318,7 +302,6 @@ class ChromeWebUsbTest : public PlatformBrowserTest {
   GURL origin_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 scoped_refptr<device::FakeUsbDeviceInfo> CreateUsbDevice(
     uint8_t class_code,
     uint16_t product_id = 0x8765) {
@@ -340,7 +323,6 @@ scoped_refptr<device::FakeUsbDeviceInfo> CreateUsbDevice(
   return base::MakeRefCounted<device::FakeUsbDeviceInfo>(
       0x4321, product_id, "ACME", "Frobinator", "ABCDEF", std::move(configs));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ChromeWebUsbTest, RequestAndGetDevices) {
   content::WebContents* web_contents = GetActiveWebContents();
@@ -481,7 +463,6 @@ IN_PROC_BROWSER_TEST_F(ChromeWebUsbTest, AddRemoveDeviceEphemeral) {
       })())"));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // TODO(crbug.com/494643383): Sort out chooser testing on Android. Note that
 // ChooserBubbleUiWaiter is views-only and not supported on Android.
 IN_PROC_BROWSER_TEST_F(ChromeWebUsbTest, NavigateWithChooserCrossOrigin) {
@@ -536,7 +517,6 @@ IN_PROC_BROWSER_TEST_F(ChromeWebUsbTest, ShowChooserInBackgroundTab) {
           }
         })())"));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ChromeWebUsbTest, ForgetDevice) {
   content::WebContents* web_contents = GetActiveWebContents();
@@ -561,7 +541,7 @@ IN_PROC_BROWSER_TEST_F(ChromeWebUsbTest, ForgetDevice) {
                                       WEBUSB_PERMISSION_REVOKED_BY_WEBSITE, 1);
 }
 
-#if BUILDFLAG(ENABLE_EXTENSIONS) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS)
 // Android does not support Chrome Apps.
 class ChromeWebUsbAppTest : public extensions::ExtensionBrowserTest {
  public:
@@ -631,9 +611,8 @@ IN_PROC_BROWSER_TEST_F(ChromeWebUsbAppTest, AllowProtectedInterfaces) {
   ready_listener.Reply("ok");
   EXPECT_TRUE(result_catcher.GetNextResult()) << result_catcher.message();
 }
-#endif  // BUILDFLAG(ENABLE_EXTENSIONS) && !BUILDFLAG(IS_ANDROID)
+#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 // Android does not support the code in //chrome/browser/web_applications
 // needed to run these tests.
 class IsolatedWebAppUsbBrowserTest
@@ -1170,29 +1149,17 @@ IN_PROC_BROWSER_TEST_F(IsolatedWebAppPermissionsPolicyBrowserTest,
       EvalJs(iframe1, OpenAndClaimDeviceScript).ExtractString(),
       testing::EndsWith("requested interface implements a protected class."));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 class WebUsbExtensionBrowserTest : public InProcessBrowserTestMixinHostSupport<
                                        extensions::ExtensionBrowserTest> {
  public:
   WebUsbExtensionBrowserTest() {
-#if BUILDFLAG(IS_CHROMEOS)
-    // The user is created via RegularLoggedInBrowserTestMixin.
-    set_chromeos_user_ = false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   void SetUpOnMainThread() override {
     InProcessBrowserTestMixinHostSupport<
         extensions::ExtensionBrowserTest>::SetUpOnMainThread();
-#if BUILDFLAG(IS_CHROMEOS)
-    user_manager::UserManager::Get()->SetUserPolicyStatus(
-        kManagedUserAccountId, /*is_managed=*/true, /*is_affiliated=*/true);
-    display_service_for_system_notification_ =
-        std::make_unique<NotificationDisplayServiceTester>(
-            /*profile=*/nullptr);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     mojo::PendingRemote<device::mojom::UsbDeviceManager> device_manager;
     device_manager_.AddReceiver(
@@ -1286,29 +1253,6 @@ class WebUsbExtensionBrowserTest : public InProcessBrowserTestMixinHostSupport<
   }
 
   void SimulateClickOnSystemTrayIconButton(const Extension* extension) {
-#if BUILDFLAG(IS_ANDROID)
-    // TODO(crbug.com/494643383): Sort out notifications testing on Android.
-#elif BUILDFLAG(IS_CHROMEOS)
-    auto* usb_pinned_notification = static_cast<UsbPinnedNotification*>(
-        g_browser_process->usb_system_tray_icon());
-
-    auto* device_pinned_notification_renderer =
-        static_cast<DevicePinnedNotificationRenderer*>(
-            usb_pinned_notification->GetIconRendererForTesting());
-
-    auto expected_pinned_notification_id =
-        device_pinned_notification_renderer->GetNotificationId(GetProfile());
-    auto maybe_indicator_notification =
-        display_service_for_system_notification_->GetNotification(
-            expected_pinned_notification_id);
-    ASSERT_TRUE(maybe_indicator_notification);
-    EXPECT_TRUE(maybe_indicator_notification->pinned());
-    display_service_for_system_notification_->SimulateClick(
-        NotificationHandler::Type::TRANSIENT, expected_pinned_notification_id,
-        /*action_index=*/0, /*reply=*/std::nullopt);
-    auto* web_contents = GetActiveWebContents();
-    EXPECT_EQ(web_contents->GetURL(), "chrome://settings/content/usbDevices");
-#else
     // On non-ChromeOS platforms, as they use status icon and there isn't good
     // test infra to simulate click on the status icon button, so simulate the
     // click event by invoking ExecuteCommand of UsbConnectionTracker directly.
@@ -1334,7 +1278,6 @@ class WebUsbExtensionBrowserTest : public InProcessBrowserTestMixinHostSupport<
         GetActiveWebContents()->GetURL(),
         "chrome://settings/content/siteDetails?site=chrome-extension%3A%2F%2F" +
             extension->id());
-#endif
   }
 
  protected:
@@ -1344,12 +1287,6 @@ class WebUsbExtensionBrowserTest : public InProcessBrowserTestMixinHostSupport<
   device::FakeUsbDeviceManager device_manager_;
   device::mojom::UsbDeviceInfoPtr fake_device_info_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::RegularLoggedInBrowserTestMixin logged_in_mixin_{&mixin_host_,
-                                                        kManagedUserAccountId};
-  std::unique_ptr<NotificationDisplayServiceTester>
-      display_service_for_system_notification_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 };
 
 IN_PROC_BROWSER_TEST_F(WebUsbExtensionBrowserTest, GetDevices) {

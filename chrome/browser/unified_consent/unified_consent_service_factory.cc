@@ -38,9 +38,6 @@ std::vector<std::string> GetSyncedServicePrefNames() {
         prefs::kSafeBrowsingScoutReportingEnabled,
         spellcheck::prefs::kSpellCheckUseSpellingService,
         commerce::kPriceEmailNotificationsEnabled,
-#if BUILDFLAG(IS_ANDROID)
-        prefs::kContextualSearchEnabled
-#endif
   };
 }
 
@@ -97,9 +94,5 @@ UnifiedConsentServiceFactory::BuildServiceInstanceForBrowserContext(
   return std::make_unique<UnifiedConsentService>(
       pref_service, IdentityManagerFactory::GetForProfile(profile),
       sync_service, GetSyncedServicePrefNames()
-#if BUILDFLAG(IS_CHROMEOS)
-                        ,
-      profile->IsNewProfile()
-#endif
   );
 }

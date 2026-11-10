@@ -60,13 +60,6 @@ export function getHtml(this: CertificateManagerElement) {
           hide-export hide-if-empty @hash-copied="${this.onHashCopied_}">
       </certificate-list>
 </if>
-<if expr="is_chromeos">
-      <certificate-list id="extensionsClientCerts"
-          cert-source="${CertificateSource.kExtensionsClientCert}"
-          header-text="$i18n{certificateManagerV2ClientCertsFromExtension}"
-          hide-export hide-if-empty @hash-copied="${this.onHashCopied_}">
-      </certificate-list>
-</if>
 
       <h3 class="section-title">$i18n{certificateManagerV2Platform}</h3>
 
@@ -85,10 +78,6 @@ export function getHtml(this: CertificateManagerElement) {
 </if>
       </div>
 
-<if expr="is_chromeos">
-      <certificate-provisioning-list remove-header-padding>
-      </certificate-provisioning-list>
-</if>
     </div>
 
     <local-certs-section id="localCertSection" path="${Page.LOCAL_CERTS}"
@@ -107,14 +96,12 @@ export function getHtml(this: CertificateManagerElement) {
         .subpageCertLists="${this.enterpriseSubpageLists_}">
     </certificate-subpage>
 
-<if expr="not is_chromeos">
     <certificate-subpage id="platformCertsSection" path="${Page.PLATFORM_CERTS}"
         class="cr-centered-card-container" @hash-copied="${this.onHashCopied_}"
         navigate-back-target="${Page.LOCAL_CERTS}"
         subpage-title="$i18n{certificateManagerV2PlatformCertsTitle}"
         .subpageCertLists="${this.platformSubpageLists_}">
     </certificate-subpage>
-</if>
 
     <certificate-subpage id="platformClientCertsSection"
         path="${Page.PLATFORM_CLIENT_CERTS}" class="cr-centered-card-container"

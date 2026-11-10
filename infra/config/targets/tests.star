@@ -19,7 +19,6 @@ targets.tests.gtest_test(
 targets.tests.gtest_test(
     name = "accessibility_content_browsertests",
     args = [
-
     ],
     binary = "content_browsertests",
 )
@@ -28,75 +27,12 @@ targets.tests.gtest_test(
     name = "accessibility_unittests",
 )
 
-targets.tests.isolated_script_test(
-    name = "android_chrome_wpt_tests",
-    args = [
-        "--skipped",
-        "always",
-        "--test-type",
-        "testharness",
-        "reftest",
-        "crashtest",
-        "print-reftest",
-    ],
-    binary = "chrome_public_wpt",
-)
-
-targets.tests.isolated_script_test(
-    name = "android_webdriver_wpt_tests",
-    args = [
-        "--skipped",
-        "always",
-        "--test-type",
-        "wdspec",
-        "--timeout-multiplier=4",
-    ],
-    binary = "chrome_public_wpt",
-)
-
-targets.tests.gtest_test(
-    name = "android_browsertests",
-)
-
 targets.tests.gtest_test(
     name = "accessibility_unittests_no_field_trial",
     args = [
         "--disable-field-trial-config",
     ],
     binary = "accessibility_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "android_browsertests_no_fieldtrial",
-    args = [
-        "--disable-field-trial-config",
-    ],
-    binary = "android_browsertests",
-)
-
-targets.tests.gtest_test(
-    name = "android_sync_integration_tests",
-)
-
-targets.tests.gpu_telemetry_test(
-    name = "android_webview_pixel_skia_gold_test",
-    is_android_webview = True,
-    telemetry_test_name = "pixel",
-    mixins = [
-        "skia_gold_test",
-        "has_native_resultdb_integration",
-        "gpu_integration_test_common_args",
-        "gpu_integration_test_pixel_args",
-    ],
-    module_scheme = "flat",
-)
-
-targets.tests.isolated_script_test(
-    name = "android_webview_junit_tests",
-)
-
-targets.tests.gtest_test(
-    name = "android_webview_unittests",
 )
 
 targets.tests.gtest_test(
@@ -200,7 +136,6 @@ targets.tests.gtest_test(
 targets.tests.gtest_test(
     name = "angle_unittests",
     mixins = [
-        "android_extra_verbosity",
         "gpu_gtest_common_args",
         "no_xvfb_for_real_hardware",
         "use_isolated_scripts_api",
@@ -215,29 +150,6 @@ targets.tests.gtest_test(
 )
 
 targets.tests.gtest_test(
-    name = "ash_components_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "ash_webui_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "ash_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "ash_pixeltests",
-    mixins = [
-        "skia_gold_test",
-        "skia_gold_test_on_linux_gce",
-    ],
-    args = [
-        "--enable-pixel-output-in-tests",
-    ],
-)
-
-targets.tests.gtest_test(
     name = "aura_unittests",
 )
 
@@ -247,18 +159,6 @@ targets.tests.isolated_script_test(
 
 targets.tests.gtest_test(
     name = "base_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "base_unittests_android_death_tests",
-)
-
-targets.tests.gtest_test(
-    name = "bf_cache_android_browsertests",
-    args = [
-        "--disable-features=BackForwardCache",
-    ],
-    binary = "android_browsertests",
 )
 
 targets.tests.gtest_test(
@@ -425,69 +325,8 @@ targets.tests.gtest_test(
     binary = "browser_tests",
 )
 
-targets.tests.isolated_script_test(
-    name = "build_junit_tests",
-)
-
 targets.tests.gtest_test(
     name = "capture_unittests",
-)
-
-targets.tests.junit_test(
-    name = "cast_base_junit_tests",
-    label = "//chromecast/base:cast_base_junit_tests",
-    # All references have been moved to starlark
-    skip_usage_check = True,
-)
-
-# TODO(issues.chromium.org/1516671): Eliminate cast_* suites that are no longer
-# needed.
-
-targets.tests.gtest_test(
-    name = "cast_android_cma_backend_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "cast_audio_backend_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "cast_base_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "cast_cast_core_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "cast_crash_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "cast_display_settings_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "cast_graphics_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "cast_media_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "cast_shell_browsertests",
-)
-
-targets.tests.gtest_test(
-    name = "cast_shell_unittests",
-)
-
-targets.tests.junit_test(
-    name = "cast_shell_junit_tests",
-    label = "//chromecast/browser/android:cast_shell_junit_tests",
-    # All references have been moved to starlark
-    skip_usage_check = True,
 )
 
 targets.tests.gtest_test(
@@ -529,35 +368,11 @@ targets.tests.script_test(
 )
 
 targets.tests.gtest_test(
-    name = "chrome_all_tast_tests",
-)
-
-targets.tests.gtest_test(
     name = "chrome_app_unittests",
 )
 
 targets.tests.gtest_test(
-    name = "chrome_criticalstaging_tast_tests",
-)
-
-targets.tests.gtest_test(
-    name = "chrome_disabled_tast_tests",
-)
-
-targets.tests.gtest_test(
-    name = "chrome_flaky_tast_tests",
-)
-
-targets.tests.gtest_test(
     name = "chrome_elf_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "chrome_java_test_pagecontroller_junit_tests",
-)
-
-targets.tests.isolated_script_test(
-    name = "chrome_junit_tests",
 )
 
 targets.tests.gtest_test(
@@ -566,74 +381,6 @@ targets.tests.gtest_test(
 
 targets.tests.isolated_script_test(
     name = "chrome_private_code_test",
-)
-
-targets.tests.gtest_test(
-    name = "chrome_public_apk_profile_tests",
-    binary = "chrome_public_apk_baseline_profile_generator",
-)
-
-targets.tests.gtest_test(
-    name = "chrome_public_bundle_smoke_test",
-)
-
-targets.tests.gtest_test(
-    name = "chrome_public_smoke_test",
-)
-
-targets.tests.gtest_test(
-    name = "chrome_public_test_apk",
-    mixins = [
-        "skia_gold_test",
-    ],
-)
-
-targets.tests.gtest_test(
-    name = "chrome_public_test_apk_tablet",
-    mixins = [
-        "skia_gold_test",
-    ],
-    args = [
-        "--annotation=Restriction=Tablet,Restriction=TabletOrDesktop,ImportantFormFactors=Tablet,ImportantFormFactors=TabletOrDesktop",
-    ],
-    binary = "chrome_public_test_apk",
-)
-
-targets.tests.gtest_test(
-    name = "chrome_public_test_apk_desktop",
-    mixins = [
-        "skia_gold_test",
-    ],
-    args = [
-        "--annotation=Restriction=Desktop,Restriction=TabletOrDesktop,ImportantFormFactors=Desktop,ImportantFormFactors=TabletOrDesktop",
-    ],
-    binary = "chrome_public_test_apk",
-)
-
-targets.tests.gtest_test(
-    name = "chrome_public_test_apk_automotive",
-    mixins = [
-        "skia_gold_test",
-    ],
-    args = [
-        "--annotation=Restriction=Auto,ImportantFormFactors=Auto",
-    ],
-    binary = "chrome_public_test_apk",
-)
-
-targets.tests.gtest_test(
-    name = "chrome_public_test_vr_apk",
-)
-
-targets.tests.gtest_test(
-    name = "chrome_public_unit_test_apk",
-    mixins = [
-        "skia_gold_test",
-    ],
-)
-
-targets.tests.isolated_script_test(
-    name = "chrome_public_wpt",
 )
 
 targets.tests.isolated_script_test(
@@ -649,15 +396,6 @@ targets.tests.isolated_script_test(
 
 targets.tests.isolated_script_test(
     name = "chromedriver_py_tests_headless_shell",
-)
-
-targets.tests.gtest_test(
-    name = "chromeos_integration_tests",
-)
-
-targets.tests.gtest_test(
-    name = "chromeos_js_code_coverage_browser_tests",
-    binary = "browser_tests",
 )
 
 targets.tests.isolated_script_test(
@@ -757,14 +495,6 @@ targets.tests.gtest_test(
 )
 
 targets.tests.gtest_test(
-    name = "chromeos_components_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "chromeos_unittests",
-)
-
-targets.tests.gtest_test(
     name = "components_browsertests",
 )
 
@@ -856,7 +586,6 @@ targets.tests.gtest_test(
 targets.tests.gtest_test(
     name = "content_browsertests_with_emulator_network",
     mixins = [
-        "emulator-enable-network",
     ],
     args = [
         # These are integration tests for network change, they need to run
@@ -867,19 +596,7 @@ targets.tests.gtest_test(
 )
 
 targets.tests.isolated_script_test(
-    name = "content_junit_tests",
-)
-
-targets.tests.isolated_script_test(
     name = "content_shell_crash_test",
-)
-
-targets.tests.isolated_script_test(
-    name = "content_shell_freeze_test",
-)
-
-targets.tests.gtest_test(
-    name = "content_shell_test_apk",
 )
 
 targets.tests.gtest_test(
@@ -951,34 +668,6 @@ targets.tests.gtest_test(
 
 targets.tests.isolated_script_test(
     name = "cronet_python_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "cronet_sample_test_apk",
-)
-
-targets.tests.isolated_script_test(
-    name = "cronet_sizes",
-)
-
-targets.tests.gtest_test(
-    name = "cronet_smoketests_apk",
-)
-
-targets.tests.gtest_test(
-    name = "cronet_smoketests_missing_native_library_instrumentation_apk",
-)
-
-targets.tests.gtest_test(
-    name = "cronet_smoketests_platform_only_instrumentation_apk",
-)
-
-targets.tests.gtest_test(
-    name = "cronet_test_instrumentation_apk",
-)
-
-targets.tests.gtest_test(
-    name = "cronet_unittests_android",
 )
 
 targets.tests.isolated_script_test(
@@ -1056,10 +745,6 @@ targets.tests.isolated_script_test(
 )
 
 targets.tests.gtest_test(
-    name = "disk_usage_tast_test",
-)
-
-targets.tests.gtest_test(
     name = "display_unittests",
 )
 
@@ -1081,10 +766,6 @@ targets.tests.gtest_test(
 
 targets.tests.gtest_test(
     name = "events_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "exo_unittests",
 )
 
 targets.tests.gpu_telemetry_test(
@@ -1547,90 +1228,6 @@ targets.tests.gtest_test(
     binary = "interactive_ui_tests",
 )
 
-targets.tests.isolated_script_test(
-    name = "ios_chrome_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_chrome_all_eg2tests_module",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_chrome_bookmarks_eg2tests_module",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_chrome_integration_eg2tests_module",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_chrome_settings_eg2tests_module",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_chrome_perf_benchmarks_eg2tests_module",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_chrome_signin_eg2tests_module",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_chrome_smoke_eg2tests_module",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_chrome_ui_eg2tests_module",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_chrome_web_eg2tests_module",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_crash_xcuitests_module",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_components_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_credential_provider_extension_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_net_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_testing_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_web_content_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_web_inttests",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_web_shell_eg2tests_module",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_web_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_web_view_inttests",
-)
-
-targets.tests.isolated_script_test(
-    name = "ios_web_view_unittests",
-)
-
 targets.tests.gtest_test(
     name = "ipc_tests",
 )
@@ -1638,21 +1235,6 @@ targets.tests.gtest_test(
 targets.tests.gtest_test(
     name = "js_code_coverage_browser_tests",
     binary = "browser_tests",
-)
-
-targets.tests.isolated_script_test(
-    name = "junit_unit_tests",
-)
-
-targets.tests.junit_test(
-    name = "keyboard_accessory_junit_tests",
-    label = "//chrome/android/features/keyboard_accessory:keyboard_accessory_junit_tests",
-    # All references have been moved to starlark
-    skip_usage_check = True,
-)
-
-targets.tests.gtest_test(
-    name = "keyboard_unittests",
 )
 
 targets.tests.gtest_test(
@@ -1682,10 +1264,6 @@ targets.tests.gtest_test(
 
 targets.tests.isolated_script_test(
     name = "mac_signing_tests",
-)
-
-targets.tests.isolated_script_test(
-    name = "media_base_junit_tests",
 )
 
 targets.tests.gtest_test(
@@ -1741,10 +1319,6 @@ targets.tests.isolated_script_test(
     name = "mini_installer_tests",
 )
 
-targets.tests.gtest_test(
-    name = "minidump_uploader_test",
-)
-
 targets.tests.isolated_script_test(
     name = "model_validation_tests",
 )
@@ -1754,31 +1328,11 @@ targets.tests.isolated_script_test(
 )
 
 targets.tests.isolated_script_test(
-    name = "module_installer_junit_tests",
-)
-
-targets.tests.gtest_test(
-    name = "mojo_legacy_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "mojo_proxy_unittests",
-)
-
-targets.tests.isolated_script_test(
     name = "mojo_python_unittests",
 )
 
 targets.tests.gtest_test(
-    name = "mojo_test_apk",
-)
-
-targets.tests.gtest_test(
     name = "mojo_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "chrome_public_test_ar_apk",
 )
 
 targets.tests.gtest_test(
@@ -1792,10 +1346,6 @@ targets.tests.isolated_script_test(
 
 targets.tests.gtest_test(
     name = "native_theme_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "net_junit_tests",
 )
 
 targets.tests.gtest_test(
@@ -2025,7 +1575,6 @@ targets.tests.isolated_script_test(
 targets.tests.gtest_test(
     name = "oobe_only_browser_tests",
     args = [
-        "--test-launcher-filter-file=../../testing/buildbot/filters/chromeos.msan.browser_tests.oobe_positive.filter",
     ],
     binary = "browser_tests",
 )
@@ -2068,20 +1617,8 @@ targets.tests.gtest_test(
 )
 
 targets.tests.isolated_script_test(
-    name = "paint_preview_junit_tests",
-)
-
-targets.tests.isolated_script_test(
     name = "passthrough_command_buffer_perftests",
     binary = "command_buffer_perftests",
-)
-
-targets.tests.isolated_script_test(
-    name = "password_manager_junit_tests",
-)
-
-targets.tests.isolated_script_test(
-    name = "one_time_tokens_junit_tests",
 )
 
 targets.tests.gtest_test(
@@ -2233,10 +1770,6 @@ targets.tests.isolated_script_test(
 )
 
 targets.tests.gtest_test(
-    name = "profile_provider_unittest",
-)
-
-targets.tests.gtest_test(
     name = "pthreadpool_unittests",
 )
 
@@ -2246,10 +1779,6 @@ targets.tests.gtest_test(
 
 targets.tests.gtest_test(
     name = "remoting_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "resource_sizes_cronet_sample_apk",
 )
 
 targets.tests.gtest_test(
@@ -2379,37 +1908,6 @@ targets.tests.gtest_test(
 )
 
 targets.tests.gtest_test(
-    name = "site_per_process_android_browsertests",
-    args = [
-        "--site-per-process",
-    ],
-    binary = "android_browsertests",
-)
-
-targets.tests.gtest_test(
-    name = "site_per_process_chrome_public_test_apk",
-    mixins = [
-        "skia_gold_test",
-        "has_native_resultdb_integration",
-    ],
-    args = [
-        "--site-per-process",
-    ],
-    binary = "chrome_public_test_apk",
-)
-
-targets.tests.gtest_test(
-    name = "site_per_process_chrome_public_unit_test_apk",
-    mixins = [
-        "skia_gold_test",
-    ],
-    args = [
-        "--site-per-process",
-    ],
-    binary = "chrome_public_unit_test_apk",
-)
-
-targets.tests.gtest_test(
     name = "site_per_process_components_browsertests",
     args = [
         "--site-per-process",
@@ -2429,17 +1927,8 @@ targets.tests.gtest_test(
     name = "site_per_process_content_browsertests",
     args = [
         "--site-per-process",
-        "--test-launcher-filter-file=../../testing/buildbot/filters/site_isolation_android.content_browsertests.filter",
     ],
     binary = "content_browsertests",
-)
-
-targets.tests.gtest_test(
-    name = "site_per_process_content_shell_test_apk",
-    args = [
-        "--site-per-process",
-    ],
-    binary = "content_shell_test_apk",
 )
 
 targets.tests.gtest_test(
@@ -2494,26 +1983,6 @@ targets.tests.gtest_test(
     binary = "sync_integration_tests",
 )
 
-targets.tests.gtest_test(
-    name = "system_webview_shell_layout_test_apk",
-)
-
-targets.tests.isolated_script_test(
-    name = "system_webview_wpt",
-)
-
-targets.tests.isolated_script_test(
-    name = "telemetry_chromium_minidump_unittests",
-    args = [
-        "BrowserMinidumpTest",
-        "--browser=android-chromium",
-        "-v",
-        "--passthrough",
-        "--retry-limit=2",
-    ],
-    binary = "telemetry_perf_unittests_android_chrome",
-)
-
 targets.tests.isolated_script_test(
     name = "telemetry_desktop_minidump_unittests",
     args = [
@@ -2531,10 +2000,6 @@ targets.tests.isolated_script_test(
 
 targets.tests.isolated_script_test(
     name = "telemetry_perf_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "telemetry_perf_unittests_android_chrome",
 )
 
 targets.tests.isolated_script_test(
@@ -2563,10 +2028,6 @@ targets.tests.isolated_script_test(
     name = "test_env_py_unittests",
 )
 
-targets.tests.gtest_test(
-    name = "jni_zero_sample_apk_test",
-)
-
 targets.tests.script_test(
     name = "test_traffic_annotation_auditor",
     script = "test_traffic_annotation_auditor.py",
@@ -2583,10 +2044,6 @@ targets.tests.isolated_script_test(
     ],
 )
 
-targets.tests.isolated_script_test(
-    name = "touch_to_fill_junit_tests",
-)
-
 targets.tests.gpu_telemetry_test(
     name = "trace_test",
     mixins = [
@@ -2597,15 +2054,7 @@ targets.tests.gpu_telemetry_test(
 )
 
 targets.tests.gtest_test(
-    name = "ui_android_unittests",
-)
-
-targets.tests.gtest_test(
     name = "ui_base_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "ui_chromeos_unittests",
 )
 
 targets.tests.isolated_script_test(
@@ -2649,22 +2098,7 @@ targets.tests.gtest_test(
 )
 
 targets.tests.gtest_test(
-    name = "usage_time_limit_unittests",
-)
-
-targets.tests.gtest_test(
     name = "vaapi_unittest",
-)
-
-targets.tests.isolated_script_test(
-    name = "variations_android_smoke_tests",
-    mixins = [
-        "has_native_resultdb_integration",
-    ],
-    args = [
-        "--target-platform=android",
-    ],
-    binary = "variations_desktop_smoke_tests",
 )
 
 targets.tests.isolated_script_test(
@@ -2680,17 +2114,6 @@ targets.tests.isolated_script_test(
     mixins = [
         "skia_gold_test",
     ],
-)
-
-targets.tests.isolated_script_test(
-    name = "variations_webview_smoke_tests",
-    mixins = [
-        "has_native_resultdb_integration",
-    ],
-    args = [
-        "--target-platform=webview",
-    ],
-    binary = "variations_desktop_smoke_tests",
 )
 
 targets.tests.isolated_script_test(
@@ -2714,20 +2137,7 @@ targets.tests.gtest_test(
 )
 
 targets.tests.gtest_test(
-    name = "views_ax_chromeos_browser_tests",
-    args = [
-        "--enable-features=ViewsAccessibilitySerializeOnDataChanged",
-        "--test-launcher-filter-file=../../testing/buildbot/filters/views_ax_chromeos.browser_tests.filter",
-    ],
-    binary = "browser_tests",
-)
-
-targets.tests.gtest_test(
     name = "viz_unittests",
-)
-
-targets.tests.gtest_test(
-    name = "vr_android_unittests",
 )
 
 targets.tests.gtest_test(
@@ -2755,26 +2165,6 @@ targets.tests.gtest_test(
 
 targets.tests.gtest_test(
     name = "vulkan_tests",
-)
-
-targets.tests.gtest_test(
-    name = "wayland_client_perftests",
-)
-
-targets.tests.gtest_test(
-    name = "wayland_client_tests",
-)
-
-targets.tests.isolated_script_test(
-    name = "webapk_client_junit_tests",
-)
-
-targets.tests.isolated_script_test(
-    name = "webapk_shell_apk_h2o_junit_tests",
-)
-
-targets.tests.isolated_script_test(
-    name = "webapk_shell_apk_junit_tests",
 )
 
 targets.tests.gpu_telemetry_test(
@@ -2924,17 +2314,6 @@ targets.tests.gpu_telemetry_test(
         targets.mixin(
             swarming = targets.swarming(
                 shards = 5,
-            ),
-            android_swarming = targets.swarming(
-                # These tests currently take about an hour and fifteen minutes
-                # to run. Split them into roughly 5-minute shards.
-                shards = 20,
-            ),
-            chromeos_swarming = targets.swarming(
-                shards = 20,
-            ),
-            skylab = targets.skylab(
-                shards = 20,
             ),
         ),
     ],
@@ -3134,9 +2513,6 @@ targets.tests.gpu_telemetry_test(
             swarming = targets.swarming(
                 shards = 2,
             ),
-            android_swarming = targets.swarming(
-                shards = 6,
-            ),
         ),
     ],
     module_scheme = "flat",
@@ -3155,9 +2531,6 @@ targets.tests.gpu_telemetry_test(
         targets.mixin(
             swarming = targets.swarming(
                 shards = 2,
-            ),
-            android_swarming = targets.swarming(
-                shards = 6,
             ),
         ),
     ],
@@ -3376,143 +2749,8 @@ targets.tests.script_test(
     module_scheme = "single",
 )
 
-targets.tests.isolated_script_test(
-    name = "android_webview_wpt_tests",
-    args = [
-        "--skipped",
-        "always",
-    ],
-    binary = "system_webview_wpt_64",
-)
-
-targets.tests.gtest_test(
-    name = "webview_cts_tests",
-    mixins = [
-        "webview_cts_archive",
-    ],
-)
-
-targets.tests.gtest_test(
-    name = "webview_cts_tests_no_field_trial",
-    mixins = [
-        "webview_cts_archive",
-    ],
-    args = [
-        "--disable-field-trial-config",
-    ],
-    binary = "webview_cts_tests",
-)
-
-targets.tests.gtest_test(
-    name = "webview_64_32_cts_tests",
-    mixins = [
-        "webview_cts_archive",
-    ],
-)
-
-targets.tests.gtest_test(
-    name = "webview_64_cts_hostside_tests",
-    mixins = [
-        "webview_cts_archive",
-    ],
-)
-
-targets.tests.gtest_test(
-    name = "webview_64_cts_tests_bfcache_mutations",
-    mixins = [
-        "webview_cts_archive",
-    ],
-    args = [
-        "--use-apk-under-test-flags-file",
-        "--enable-features=WebViewBackForwardCache",
-    ],
-    binary = "webview_64_cts_tests",
-)
-
-targets.tests.gtest_test(
-    name = "webview_64_cts_tests_no_field_trial",
-    mixins = [
-        "webview_cts_archive",
-    ],
-    args = [
-        "--disable-field-trial-config",
-    ],
-    binary = "webview_64_cts_tests",
-)
-
-targets.tests.gtest_test(
-    name = "webview_64_cts_tests",
-    mixins = [
-        "webview_cts_archive",
-    ],
-)
-
-targets.tests.gtest_test(
-    name = "webview_instrumentation_test_apk",
-)
-
-# This target is only to run on Android versions <= Android Q (10).
-targets.tests.gtest_test(
-    name = "webview_instrumentation_test_apk_single_process_mode",
-    args = [
-        "--webview-process-mode=single",
-    ],
-    binary = "webview_instrumentation_test_apk",
-)
-
-targets.tests.gtest_test(
-    name = "webview_instrumentation_test_apk_multiple_process_mode",
-    args = [
-        "--webview-process-mode=multiple",
-    ],
-    binary = "webview_instrumentation_test_apk",
-)
-
-targets.tests.gtest_test(
-    name = "webview_instrumentation_test_apk_mutations",
-    args = [
-        "--use-apk-under-test-flags-file",
-        "--webview-mutations-enabled",
-    ],
-    binary = "webview_instrumentation_test_apk",
-)
-
-targets.tests.gtest_test(
-    name = "webview_instrumentation_test_apk_bfcache_mutations",
-    args = [
-        "--use-apk-under-test-flags-file",
-        "--enable-features=WebViewBackForwardCache",
-    ],
-    binary = "webview_instrumentation_test_apk",
-)
-
-targets.tests.gtest_test(
-    name = "webview_instrumentation_test_apk_no_field_trial",
-    args = [
-        "--disable-field-trial-config",
-    ],
-    binary = "webview_instrumentation_test_apk",
-)
-
-targets.tests.gtest_test(
-    name = "webview_ui_test_app_test_apk",
-)
-
-targets.tests.gtest_test(
-    name = "webview_ui_test_app_test_apk_no_field_trial",
-    args = [
-        "--disable-field-trial-config",
-    ],
-    binary = "webview_ui_test_app_test_apk",
-)
-
 targets.tests.gtest_test(
     name = "wm_unittests",
-)
-
-targets.tests.isolated_script_test(
-    name = "wpt_tests_ios",
-    binary = "chrome_ios_wpt",
 )
 
 targets.tests.gtest_test(

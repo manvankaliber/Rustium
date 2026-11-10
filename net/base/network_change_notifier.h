@@ -20,7 +20,7 @@
 #include "net/base/network_handle.h"
 #include "third_party/perfetto/include/perfetto/tracing/track.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "net/base/address_map_linux.h"
 #endif
 
@@ -495,7 +495,7 @@ class NET_EXPORT NetworkChangeNotifier {
   // packets sent lazily.
   static bool IsDefaultNetworkActive();
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Returns the AddressTrackerLinux if present.
   static AddressMapOwnerLinux* GetAddressMapOwner();
 #endif
@@ -517,7 +517,6 @@ class NET_EXPORT NetworkChangeNotifier {
   // current connection is cellular.
   static bool IsConnectionCellular(ConnectionType type);
 
-#if !BUILDFLAG(IS_IOS)
   // Gets the current connection type based on |interfaces|. Returns
   // CONNECTION_NONE if there are no interfaces, CONNECTION_UNKNOWN if two
   // interfaces have different connection types or the connection type of all
@@ -530,7 +529,6 @@ class NET_EXPORT NetworkChangeNotifier {
   // in cross-platform code.
   static ConnectionType ConnectionTypeFromInterfaceList(
       const NetworkInterfaceList& interfaces);
-#endif
 
   // Like CreateIfNeeded(), but for use in tests. The mock object doesn't
   // monitor any events, it merely rebroadcasts notifications when requested.
@@ -678,7 +676,7 @@ class NET_EXPORT NetworkChangeNotifier {
       SystemDnsConfigChangeNotifier* system_dns_config_notifier = nullptr,
       bool omit_observers_in_constructor_for_testing = false);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Returns the AddressMapOwnerLinux if present.
   virtual AddressMapOwnerLinux* GetAddressMapOwnerInternal();
 #endif
@@ -719,7 +717,6 @@ class NET_EXPORT NetworkChangeNotifier {
   static void NotifyObserversOfConnectionCostChange();
   static void NotifyObserversOfDefaultNetworkActive();
 
-#if !BUILDFLAG(IS_IOS)
   // Infer connection type from |GetNetworkList|. If all network interfaces
   // have the same type, return it, otherwise return CONNECTION_UNKNOWN.
   //
@@ -729,7 +726,6 @@ class NET_EXPORT NetworkChangeNotifier {
   // reason the method is marked as unavailable on iOS to prevents using it
   // in cross-platform code.
   static ConnectionType ConnectionTypeFromInterfaces();
-#endif
 
   // Unregisters and clears |system_dns_config_notifier_|. Useful if a subclass
   // owns the notifier and is destroying it before |this|'s destructor is called

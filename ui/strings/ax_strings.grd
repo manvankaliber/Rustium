@@ -28,13 +28,10 @@ need to be translated for each locale.-->
     <output filename="ax_strings_en-GB.pak" type="data_package" lang="en-GB" />
     <output filename="ax_strings_en-US.pak" type="data_package" lang="en" />
     <output filename="ax_strings_es.pak" type="data_package" lang="es" />
-    <if expr="is_ios">
-      <!-- iOS uses es-MX for es-419 -->
-      <output filename="ax_strings_es-MX.pak" type="data_package" lang="es-419" />
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="ax_strings_es-419.pak" type="data_package" lang="es-419" />
-    </if>
+
     <output filename="ax_strings_et.pak" type="data_package" lang="et" />
     <output filename="ax_strings_eu.pak" type="data_package" lang="eu" />
     <output filename="ax_strings_fa.pak" type="data_package" lang="fa" />
@@ -75,13 +72,10 @@ need to be translated for each locale.-->
     <output filename="ax_strings_nb.pak" type="data_package" lang="no" />
     <output filename="ax_strings_pa.pak" type="data_package" lang="pa" />
     <output filename="ax_strings_pl.pak" type="data_package" lang="pl" />
-    <if expr="is_ios">
-      <!-- iOS uses pt for pt-BR -->
-      <output filename="ax_strings_pt.pak" type="data_package" lang="pt-BR" />
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="ax_strings_pt-BR.pak" type="data_package" lang="pt-BR" />
-    </if>
+
     <output filename="ax_strings_pt-PT.pak" type="data_package" lang="pt-PT" />
     <output filename="ax_strings_or.pak" type="data_package" lang="or" />
     <output filename="ax_strings_ro.pak" type="data_package" lang="ro" />
@@ -673,71 +667,9 @@ need to be translated for each locale.-->
         <message name="IDS_AX_ROLE_WEEK" desc="Accessibility role description for a week input">
           week picker
         </message>
-        <if expr="is_android">
-          <message name="IDS_AX_ROLE_POP_UP_BUTTON_MENU" desc="Accessibility role description for a pop up button that opens a menu">
-            menu pop up button
-          </message>
-          <message name="IDS_AX_ROLE_POP_UP_BUTTON_DIALOG" desc="Accessibility role description for a pop up button that opens a dialog">
-            dialog pop up button
-          </message>
-        </if>
+
         <!-- Accessibility state localized descriptions -->
-        <if expr="is_android">
-          <message name="IDS_AX_MULTISELECTABLE_STATE_DESCRIPTION" desc="Accessibility state description for a multiselectable node when some children are selected">
-            multiselectable, <ph name="SELECTED">$1<ex>3</ex></ph> of <ph name="COUNT">$2<ex>10</ex></ph> selected.
-          </message>
-          <message name="IDS_AX_MULTISELECTABLE_STATE_DESCRIPTION_NONE" desc="Accessibility state description for a multiselectable node when no children are selected">
-            multiselectable, none selected.
-          </message>
-          <message name="IDS_AX_TOGGLE_BUTTON_ON" desc="Accessibility state description for a toggle button when it is in the on/checked state">
-            On
-          </message>
-          <message name="IDS_AX_TOGGLE_BUTTON_OFF" desc="Accessibility state description for a toggle button when it is in the off/unchecked state">
-            Off
-          </message>
-          <message name="IDS_AX_ARIA_CURRENT_PAGE" desc="Accessibility state description for aria-current value of page.">
-            current page
-          </message>
-          <message name="IDS_AX_ARIA_CURRENT_STEP" desc="Accessibility state description for aria-current value of step.">
-            current step
-          </message>
-          <message name="IDS_AX_ARIA_CURRENT_LOCATION" desc="Accessibility state description for aria-current value of location.">
-            current location
-          </message>
-          <message name="IDS_AX_ARIA_CURRENT_DATE" desc="Accessibility state description for aria-current value of date.">
-            current date
-          </message>
-          <message name="IDS_AX_ARIA_CURRENT_TIME" desc="Accessibility state description for aria-current value of time.">
-            current time
-          </message>
-          <message name="IDS_AX_ARIA_CURRENT_TRUE" desc="Accessibility state description for aria-current value of true.">
-            current item
-          </message>
-          <message name="IDS_AX_COMBOBOX_EXPANDED_AUTOCOMPLETE_DEFAULT" desc="Accessibility utterance for when a combobox element is expanded with an unknown number of autocomplete options available to the user.">
-            expanded, autocomplete options available.
-          </message>
-          <message name="IDS_AX_COMBOBOX_EXPANDED_AUTOCOMPLETE_X_OPTIONS_AVAILABLE" desc="Accessibility utterance for when a combobox element is expanded with a known number of autocomplete options available to the user.">
-            expanded, <ph name="COUNT">$1<ex>4</ex></ph> autocomplete options available.
-          </message>
-          <message name="IDS_AX_COMBOBOX_EXPANDED_DIALOG" desc="Accessibility utterance for when a combobox element is expanded with a child dialog pop-up that appears.">
-            expanded, dialog opened.
-          </message>
-          <message name="IDS_AX_COMBOBOX_EXPANDED" desc="Accessibility utterance for when a combobox element is expanded, but due to authoring errors we cannot say any more information than that.">
-            expanded.
-          </message>
-          <message name="IDS_AX_INDETERMINATE_VALUE" desc="Accessibility utterance for when a progress bar/indicator has no value and is being used as an indeterminate progress bar.">
-            indeterminate
-          </message>
-          <message name="IDS_AX_RADIO_BUTTON_STATE_DESCRIPTION_UNCHECKED" desc="Accessibility state description for a radio button inside a group that has not been checked.">
-            Not checked. In group, option <ph name="INDEX">$1<ex>1</ex></ph> of <ph name="COUNT">$2<ex>3</ex></ph>
-          </message>
-          <message name="IDS_AX_RADIO_BUTTON_STATE_DESCRIPTION_CHECKED" desc="Accessibility state description for a radio button inside a group that is checked.">
-            Checked. In group, option <ph name="INDEX">$1<ex>1</ex></ph> of <ph name="COUNT">$2<ex>3</ex></ph>
-          </message>
-          <message name="IDS_AX_STATE_LINK_VISITED" desc="Accessibility role description suffix for links that have been visited.">
-            visited
-          </message>
-        </if>
+
 
       <message name="IDS_AX_CALENDAR_SHOW_DATE_PICKER" desc="Accessible description of a button to show a calendar from a date input field.">
         Show date picker
@@ -769,7 +701,7 @@ need to be translated for each locale.-->
       </message>
 
       <!-- Localized labels for the color input popup.  Exclude from Android to save binary size since Android uses a native popup. -->
-      <if expr="not is_android">
+
         <message name="IDS_AX_COLOR_ALPHA_SLIDER" desc="Accessibility label of the alpha channel controls in a color picker popup">
           Alpha channel
         </message>
@@ -809,7 +741,7 @@ need to be translated for each locale.-->
         <message name="IDS_AX_COLOR_WELL_ROLEDESCRIPTION" desc="Accessibility description of the color well for choosing saturation and lighness in a color picker popup">
           Color well with two-dimensional slider for selecting saturation and lightness
         </message>
-      </if>
+
 
       <message name="IDS_AX_AM_PM_FIELD_TEXT" desc="Accessibility label of the AM/PM field in a date/time control">
         AM/PM

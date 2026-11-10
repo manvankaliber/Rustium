@@ -44,13 +44,11 @@ bool IsBrowserWindowListenerObservationEnabled() {
   return base::FeatureList::IsEnabled(kBrowserWindowListenerObservation);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Splits the bookmark bar into three keyboard navigation areas. Tab stops only
 // at the first button of each area; Left/Right arrows move within the area. No
 // effect on macOS.
 BASE_FEATURE(kBookmarkBarAreaKeyboardNavigation,
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kCtrlTabMru, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // Skip the UI update coalescing delay when the favicon arrives after a
@@ -334,9 +332,7 @@ BASE_FEATURE(kTabDuplicateMetrics, base::FEATURE_ENABLED_BY_DEFAULT);
 // Enables collapsing a tab group programmatically during a drag.
 BASE_FEATURE(kCollapseTabGroupDuringDrag, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kNewTabButtonContextMenu, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Enables preview images in tab-hover cards.
 // https://crbug.com/41439486
@@ -355,11 +351,9 @@ BASE_FEATURE(kTabModalUsesDesktopWidget, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kTearOffWebAppTabOpensWebAppWindow,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kThreeButtonPasswordSaveDialog, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kPasswordSaveUpdateDropdownMenuExperiment,
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 // Enables the management notice in the NTP footer if the custom policies are
 // set. This acts as a kill switch for "EnterpriseCustomLabelForBrowser" and
@@ -430,7 +424,6 @@ BASE_FEATURE_PARAM(bool,
                    false);
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 
 BASE_FEATURE(kWebUIAvatarButton, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kWebUIMediaButton, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -544,17 +537,7 @@ bool IsWebUIToolbarFullyEnabled() {
           IsWebUIPerformanceInterventionButtonEnabled() &&
           IsWebUIGlicButtonEnabled());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kAndroidAnimatedProgressBarInBrowser,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-bool IsAndroidAnimatedProgressBarInBrowserEnabled() {
-  return base::FeatureList::IsEnabled(
-      features::kAndroidAnimatedProgressBarInBrowser);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Note: This feature is meant for prototyping and takes shortcuts that mean it
 // cannot be put into production in its current state. Do not enable.

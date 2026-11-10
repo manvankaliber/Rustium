@@ -5,7 +5,7 @@
 import("//components/safe_browsing/buildflags.gni")
 import("//third_party/blink/public/public_features.gni")
 
-assert(is_win || is_mac || is_linux || is_chromeos || is_android)
+assert(is_win || is_mac || is_linux)
 
 source_set("page_info") {
   sources = [
@@ -14,18 +14,14 @@ source_set("page_info") {
   ]
   public_deps = []
 
-  if (is_android) {
-    sources += [ "chrome_page_info_client.h" ]
-    public_deps += [ "//components/page_info/android" ]
-  } else {
-    sources += [
-      "about_this_site_side_panel.h",
-      "merchant_trust_side_panel.h",
-      "page_info_dialog.h",
-      "page_info_infobar_delegate.h",
-    ]
-    public_deps += [ "//ui/views" ]
-  }
+  sources += [
+    "about_this_site_side_panel.h",
+    "merchant_trust_side_panel.h",
+    "page_info_dialog.h",
+    "page_info_infobar_delegate.h",
+  ]
+  public_deps += [ "//ui/views" ]
+
   public_deps += [
     "//base",
     "//chrome/browser/infobars",
@@ -37,21 +33,19 @@ source_set("page_info") {
   ]
 }
 
-if (!is_android) {
-  # Toolkit agnostic icon set for About This Site.
-  source_set("about_this_site_icon") {
-    sources = [
-      "about_this_site_icon.cc",
-      "about_this_site_icon.h",
-    ]
-    deps = [
-      "//build:branding_buildflags",
-      "//components/vector_icons",
-      "//ui/base:features",
-      "//ui/gfx",
-      "//ui/views",
-    ]
-  }
+# Toolkit agnostic icon set for About This Site.
+source_set("about_this_site_icon") {
+  sources = [
+    "about_this_site_icon.cc",
+    "about_this_site_icon.h",
+  ]
+  deps = [
+    "//build:branding_buildflags",
+    "//components/vector_icons",
+    "//ui/base:features",
+    "//ui/gfx",
+    "//ui/views",
+  ]
 }
 
 source_set("impl") {
@@ -61,37 +55,25 @@ source_set("impl") {
   ]
   deps = []
 
-  if (is_android) {
-    deps += [ "//chrome/browser/android:resource_mapper" ]
-    sources += [ "chrome_page_info_client.cc" ]
-  } else {
-    sources += [
-      "page_info_dialog.cc",
-      "page_info_infobar_delegate.cc",
-    ]
-    deps += [
-      "//chrome/browser:certificate_viewer",
-      "//chrome/browser/extensions",
-      "//chrome/browser/ui:chrome_pages",
-      "//chrome/browser/ui/browser_web_contents_delegate",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/views/site_data",
-      "//chrome/browser/ui/web_applications",
-      "//chrome/browser/web_applications",
-    ]
-    if (enable_smart_card) {
-      deps += [ "//chrome/browser/smart_card" ]
-    }
-    if (is_chromeos) {
-      deps += [ "//chrome/browser/ash/floating_sso" ]
-    }
-  }
+  sources += [
+    "page_info_dialog.cc",
+    "page_info_infobar_delegate.cc",
+  ]
+  deps += [
+    "//chrome/browser:certificate_viewer",
+    "//chrome/browser/extensions",
+    "//chrome/browser/ui:chrome_pages",
+    "//chrome/browser/ui/browser_web_contents_delegate",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/views/site_data",
+    "//chrome/browser/ui/web_applications",
+    "//chrome/browser/web_applications",
+  ]
 
   if (safe_browsing_mode != 0) {
     deps += [ "//components/safe_browsing/core/browser:suspicious_site_warning_allowlist" ]
-    if (!is_android) {
-      deps += [ "//chrome/browser/safe_browsing/suspicious_site_warnings" ]
-    }
+
+    deps += [ "//chrome/browser/safe_browsing/suspicious_site_warnings" ]
   }
 
   deps += [
@@ -185,7 +167,6 @@ source_set("unit_tests") {
     "//services/device/public/cpp:test_support",
     "//services/network/public/cpp",
   ]
-  if (!is_android) {
-    deps += [ "//chrome/browser/ui/views:layout_provider" ]
-  }
+
+  deps += [ "//chrome/browser/ui/views:layout_provider" ]
 }

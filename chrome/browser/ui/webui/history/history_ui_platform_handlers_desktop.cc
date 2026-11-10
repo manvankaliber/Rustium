@@ -65,10 +65,6 @@ void PopulatePlatformDataSource(content::WebUIDataSource* source,
   source->AddBoolean(kIsGlicWebActuationAvailableKey,
                      is_glic_web_actuation_available);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  source->AddLocalizedString(kTurnOnSyncButtonKey,
-                             IDS_HISTORY_TURN_ON_SYNC_BUTTON);
-#else
   signin::IdentityManager* identity_manager =
       IdentityManagerFactory::GetForProfile(profile);
   bool has_primary_account =
@@ -146,7 +142,6 @@ void PopulatePlatformDataSource(content::WebUIDataSource* source,
     source->AddLocalizedString(kTurnOnSyncButtonKey,
                                IDS_HISTORY_TURN_ON_SYNC_BUTTON);
   }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // History clusters
   HistoryClustersUtil::PopulateSource(source, profile, /*in_side_panel=*/false);

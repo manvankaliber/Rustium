@@ -614,15 +614,7 @@ TEST(AccountInfoUtilTest, DeserializeAccountInfo_NoGaiaWithoutEnforcement) {
                   .Set("gaia", "")
                   .Set("email", "test@example.org");
   std::optional<AccountInfo> account_info = DeserializeAccountInfo(dict);
-#if BUILDFLAG(IS_CHROMEOS)
-  ASSERT_NE(account_info, std::nullopt);
-  EXPECT_EQ(account_info->GetGaiaId(), GaiaId());
-  EXPECT_EQ(account_info->GetEmail(), "test@example.org");
-  EXPECT_EQ(account_info->GetAccountId(),
-            CoreAccountId::FromString("test_account_id"));
-#else
   EXPECT_EQ(account_info, std::nullopt);
-#endif
 }
 
 TEST(AccountInfoUtilTest, DeserializeAccountInfo_NoGaia) {

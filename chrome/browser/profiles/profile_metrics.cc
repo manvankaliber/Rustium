@@ -63,7 +63,6 @@ profile_metrics::Counts CountProfileInformation(
   return counts;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 base::TimeDelta GetActivityThresholdDelta(
     profile_metrics::ProfileActivityThreshold activity_threshold) {
   switch (activity_threshold) {
@@ -75,7 +74,6 @@ base::TimeDelta GetActivityThresholdDelta(
       return base::Days(28);
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void LogProfileAvatar(size_t icon_index, std::string_view histogram_name) {
   ProfileMetrics::ProfileAvatar icon_name = ProfileMetrics::AVATAR_UNKNOWN;
@@ -265,14 +263,12 @@ void LogProfileAvatar(size_t icon_index, std::string_view histogram_name) {
 bool ProfileMetrics::IsProfileActive(
     const ProfileAttributesEntry* entry,
     profile_metrics::ProfileActivityThreshold activity_threshold) {
-#if !BUILDFLAG(IS_ANDROID)
   // TODO(mlerman): iOS and Android should set an ActiveTime in the
   // ProfileAttributesStorage. (see ProfileManager::OnBrowserSetLastActive)
   if (base::Time::Now() - entry->GetActiveTime() >
       GetActivityThresholdDelta(activity_threshold)) {
     return false;
   }
-#endif
   return true;
 }
 

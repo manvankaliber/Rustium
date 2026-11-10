@@ -48,13 +48,10 @@
 #include "base/trace_event/trace_event.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_AIX)
 #include <sys/prctl.h>
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include <sys/ioctl.h>
-#endif
 
 #if BUILDFLAG(IS_FREEBSD)
 #include <sys/event.h>
@@ -87,20 +84,11 @@ namespace {
 // the previous signal mask.
 sigset_t SetSignalMask(const sigset_t& new_sigmask) {
   sigset_t old_sigmask;
-#if BUILDFLAG(IS_ANDROID)
-  // POSIX says pthread_sigmask() must be used in multi-threaded processes,
-  // but Android's pthread_sigmask() was broken until 4.1:
-  // https://code.google.com/p/android/issues/detail?id=15337
-  // http://stackoverflow.com/questions/13777109/pthread-sigmask-on-android-not-working
-  RAW_CHECK(sigprocmask(SIG_SETMASK, &new_sigmask, &old_sigmask) == 0);
-#else
   RAW_CHECK(pthread_sigmask(SIG_SETMASK, &new_sigmask, &old_sigmask) == 0);
-#endif
   return old_sigmask;
 }
 
-#if (!BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_AIX) && !BUILDFLAG(IS_CHROMEOS)) || \
-    (!defined(__i386__) && !defined(__x86_64__) && !defined(__arm__))
+#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_AIX) || !defined(__i386__) && !defined(__x86_64__) && !defined(__arm__)
 void ResetChildSignalHandlersToDefaults() {
   // The previous signal handlers are likely to be meaningless in the child's
   // context so we reset them to the defaults for now. http://crbug.com/44953
@@ -202,7 +190,7 @@ struct ScopedDIRClose {
 // Automatically closes |DIR*|s.
 typedef std::unique_ptr<DIR, ScopedDIRClose> ScopedDIR;
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_AIX)
 static const char kFDDir[] = "/proc/self/fd";
 #elif BUILDFLAG(IS_SOLARIS)
 static const char kFDDir[] = "/dev/fd";
@@ -210,8 +198,6 @@ static const char kFDDir[] = "/dev/fd";
 static const char kFDDir[] = "/dev/fd";
 #elif BUILDFLAG(IS_OPENBSD)
 static const char kFDDir[] = "/dev/fd";
-#elif BUILDFLAG(IS_ANDROID)
-static const char kFDDir[] = "/proc/self/fd";
 #endif
 
 void CloseSuperfluousFds(const base::InjectiveMultimap& saved_mapping) {
@@ -330,7 +316,7 @@ Process LaunchProcess(const std::vector<std::string>& argv,
   }
 
   pid_t pid;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_AIX)
   if (options.clone_flags) {
     // Signal handling in this function assumes the creation of a new
     // process, so we check that a thread is not being created by mistake
@@ -375,7 +361,7 @@ Process LaunchProcess(const std::vector<std::string>& argv,
     // might do things like block waiting for threads that don't even exist
     // in the child.
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     // See comments on the ResetFDOwnership() declaration in
     // base/files/scoped_file.h regarding why this is called early here.
     subtle::ResetFDOwnership();
@@ -447,19 +433,6 @@ Process LaunchProcess(const std::vector<std::string>& argv,
     memset(reinterpret_cast<void*>(malloc), 0xff, 8);
 #endif  // 0
 
-#if BUILDFLAG(IS_CHROMEOS)
-    if (options.ctrl_terminal_fd >= 0) {
-      // Set process' controlling terminal.
-      if (HANDLE_EINTR(setsid()) != -1) {
-        if (HANDLE_EINTR(ioctl(options.ctrl_terminal_fd, TIOCSCTTY, nullptr)) ==
-            -1) {
-          RAW_LOG(WARNING, "ioctl(TIOCSCTTY), ctrl terminal not set");
-        }
-      } else {
-        RAW_LOG(WARNING, "setsid failed, ctrl terminal not set");
-      }
-    }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     // Cannot use STL iterators here, since debug iterators use locks.
     // NOLINTNEXTLINE(modernize-loop-convert)
@@ -493,7 +466,7 @@ Process LaunchProcess(const std::vector<std::string>& argv,
 
     CloseSuperfluousFds(fd_shuffle2);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_AIX)
 #ifndef PR_SET_NO_NEW_PRIVS
 #define PR_SET_NO_NEW_PRIVS 38
 #endif
@@ -605,7 +578,7 @@ static bool GetAppOutputInternal(const std::vector<std::string>& argv,
       // DANGER: no calls to malloc or locks are allowed from now on:
       // http://crbug.com/36678
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
       // See comments on the ResetFDOwnership() declaration in
       // base/files/scoped_file.h regarding why this is called early here.
       subtle::ResetFDOwnership();
@@ -732,7 +705,7 @@ bool GetAppOutputWithExitCode(const std::vector<std::string>& argv,
   return GetAppOutputInternal(argv, nullptr, false, output, true, exit_code);
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_AIX)
 namespace {
 
 // This function runs on the stack specified on the clone call. It uses longjmp
@@ -801,15 +774,15 @@ pid_t ForkWithFlags(int flags, pid_t* ptid, pid_t* ctid) {
     return CloneAndLongjmpInChild(flags, ptid, ctid, &env);
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Since we use clone() directly, it does not call any pthread_aftork()
   // callbacks, we explicitly invalidate tid cache here (normally this call is
   // done as pthread_aftork() callback).  See crbug.com/902514.
   base::internal::InvalidateTidCache();
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   return 0;
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#endif
 
 }  // namespace base

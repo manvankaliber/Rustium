@@ -129,12 +129,7 @@ TEST(AutocompleteInputTest, InputType) {
       {u"C:\\Program Files", metrics::OmniboxInputType::URL},
       {u"\\\\Server\\Folder\\File", metrics::OmniboxInputType::URL},
 #endif  // BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-      {u"file:///foo", metrics::OmniboxInputType::QUERY},
-      {u"/foo", metrics::OmniboxInputType::QUERY},
-#else
       {u"file:///foo", metrics::OmniboxInputType::URL},
-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
       {u"http:foo", metrics::OmniboxInputType::URL},
       {u"http://foo", metrics::OmniboxInputType::URL},
       {u"http://foo._", metrics::OmniboxInputType::UNKNOWN},
@@ -443,16 +438,10 @@ TEST(AutocompleteInputTest, UpgradeTypedNavigationsToHttps) {
     // Non-unique hostnames shouldn't be upgraded.
     {u"site.test", GURL("http://site.test"), false},
 
-#if !BUILDFLAG(IS_IOS)
     // IP addresses shouldn't be upgraded.
     {u"127.0.0.1", GURL("http://127.0.0.1"), false},
     {u"127.0.0.1:80", GURL("http://127.0.0.1:80"), false},
     {u"127.0.0.1:8080", GURL("http://127.0.0.1:8080"), false},
-#else
-    // On iOS, IP addresses will be upgraded in tests if the hostname has a
-    // non-default port.
-    {u"127.0.0.1:8080", GURL("https://127.0.0.1:12345"), true},
-#endif
     //
     // Fully typed URLs shouldn't be upgraded.
     {u"http://example.com", GURL("http://example.com"), false},
@@ -473,17 +462,6 @@ TEST(AutocompleteInputTest, UpgradeTypedNavigationsToHttps) {
               input.added_default_scheme_to_typed_url());
   }
 
-#if BUILDFLAG(IS_IOS)
-  AutocompleteInput fake_http_input(
-      u"127.0.0.1:8080", std::u16string::npos,
-      metrics::OmniboxEventProto::OTHER, TestSchemeClassifier(),
-      /*should_use_https_as_default_scheme=*/true,
-      /*https_port_for_testing=*/12345,
-      /*use_fake_https_for_https_upgrade_testing=*/true);
-  EXPECT_EQ(GURL("http://127.0.0.1:12345"),
-            fake_http_input.canonicalized_url());
-  EXPECT_TRUE(fake_http_input.added_default_scheme_to_typed_url());
-#endif
 }
 
 TEST(AutocompleteInputTest, TypedURLHadHTTPSchemeTest) {

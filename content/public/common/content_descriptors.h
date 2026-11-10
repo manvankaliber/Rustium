@@ -15,10 +15,6 @@ enum {
   kMojoIPCChannel,
   kFieldTrialDescriptor,
 
-#if BUILDFLAG(IS_ANDROID)
-  kAndroidPropertyDescriptor,
-  kAndroidICUDataDescriptor,
-#endif
 
   kHistogramSharedMemoryDescriptor,
   kTraceConfigSharedMemoryDescriptor,

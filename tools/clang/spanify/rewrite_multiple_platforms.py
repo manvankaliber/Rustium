@@ -86,7 +86,7 @@ def build_and_manage_llvm():
        llvm-build directory as is.
 
     To build the spanify tool separately and keep it persistently, run:
-    $ tools/clang/scripts/build.py --with-android --without-fuchsia \
+    $ tools/clang/scripts/build.py \
         --with-ml-inliner-model= --extra-tools spanify
     """
     is_incremental = REWRITER_BINARY_PATH.exists()
@@ -112,7 +112,6 @@ def build_and_manage_llvm():
         run_command(
             [
                 'tools/clang/scripts/build.py',
-                '--with-android',
                 '--with-ml-inliner-model=',
                 '--extra-tools',
                 'spanify',
@@ -467,7 +466,7 @@ def main():
     parser.add_argument(
         '--platform',
         action='append',
-        help='Platforms to rewrite (e.g., linux, win, mac, android). '
+        help='Platforms to rewrite (e.g., linux, win, mac). '
         'Can be specified multiple times.',
     )
     parser.add_argument(

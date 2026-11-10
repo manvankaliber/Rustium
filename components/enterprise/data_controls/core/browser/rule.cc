@@ -99,9 +99,6 @@ std::vector<std::string_view> TabContextConditions(
       AttributesCondition::kKeyUrlRegexprs,
       AttributesCondition::kKeyIncognito,
       AttributesCondition::kKeyOtherProfile,
-#if BUILDFLAG(IS_CHROMEOS)
-      AttributesCondition::kKeyComponents,
-#endif  // BUILDFLAG(IS_CHROMEOS)
   });
 
   std::vector<std::string_view> tab_conditions;
@@ -126,9 +123,6 @@ std::vector<std::string_view> AnyOfConditions(const base::DictValue& value) {
       AttributesCondition::kKeyOtherProfile,
       AttributesCondition::kKeySizeHigherThan,
       AttributesCondition::kKeySizeLowerThan,
-#if BUILDFLAG(IS_CHROMEOS)
-      AttributesCondition::kKeyComponents,
-#endif  // BUILDFLAG(IS_CHROMEOS)
   });
 
   std::vector<std::string_view> anyof_conditions;
@@ -594,9 +588,6 @@ bool Rule::AddUnsupportedAttributeErrors(
           AttributesCondition::kKeyIncognito,
           AttributesCondition::kKeyOtherProfile,
           AttributesCondition::kKeyGeminiInChrome,
-#if BUILDFLAG(IS_CHROMEOS)
-          AttributesCondition::kKeyComponents,
-#endif  // BUILDFLAG(IS_CHROMEOS)
           kKeyAnd,
           kKeyOr,
           kKeyNot,
@@ -610,9 +601,6 @@ bool Rule::AddUnsupportedAttributeErrors(
           AttributesCondition::kKeyIncognito,
           AttributesCondition::kKeyOtherProfile,
           AttributesCondition::kKeyGeminiInChrome,
-#if BUILDFLAG(IS_CHROMEOS)
-          AttributesCondition::kKeyComponents,
-#endif  // BUILDFLAG(IS_CHROMEOS)
           kKeyAnd,
           kKeyOr,
           kKeyNot,
@@ -629,9 +617,6 @@ bool Rule::AddUnsupportedAttributeErrors(
           AttributesCondition::kKeyIncognito,
           AttributesCondition::kKeyOtherProfile,
           AttributesCondition::kKeyGeminiInChrome,
-#if BUILDFLAG(IS_CHROMEOS)
-          AttributesCondition::kKeyComponents,
-#endif  // BUILDFLAG(IS_CHROMEOS)
           kKeyAnd,
           kKeyOr,
           kKeyNot,
@@ -643,9 +628,6 @@ bool Rule::AddUnsupportedAttributeErrors(
       std::to_array<std::string_view>({
           AttributesCondition::kKeyUrls,
           AttributesCondition::kKeyIncognito,
-#if BUILDFLAG(IS_CHROMEOS)
-          AttributesCondition::kKeyComponents,
-#endif  // BUILDFLAG(IS_CHROMEOS)
           kKeyAnd,
           kKeyOr,
           kKeyNot,
@@ -655,17 +637,13 @@ bool Rule::AddUnsupportedAttributeErrors(
       std::to_array<std::string_view>({
           AttributesCondition::kKeyUrls,
           AttributesCondition::kKeyIncognito,
-#if BUILDFLAG(IS_CHROMEOS)
-          AttributesCondition::kKeyComponents,
-#endif  // BUILDFLAG(IS_CHROMEOS)
           kKeyAnd,
           kKeyOr,
           kKeyNot,
           kKeySources,
           AttributesCondition::kKeyUrlRegexprs,
       });
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   static constexpr auto kFileDownloadAttributes =
       std::to_array<std::string_view>({
           AttributesCondition::kKeyUrls,
@@ -682,8 +660,7 @@ bool Rule::AddUnsupportedAttributeErrors(
       base::MakeFixedFlatMap<Restriction, base::span<const std::string_view>>({
           {Restriction::kClipboard, kClipboardAttributes},
           {Restriction::kScreenshot, kScreenshotAttributes},
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
           {Restriction::kFileDownload, kFileDownloadAttributes},
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
@@ -693,8 +670,7 @@ bool Rule::AddUnsupportedAttributeErrors(
       base::MakeFixedFlatMap<Restriction, base::span<const std::string_view>>({
           {Restriction::kClipboard, kSourceClipboardAttributes},
           {Restriction::kScreenshot, kSourceAndDestinationScreenshotAttributes},
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
           {Restriction::kFileDownload, kFileDownloadAttributes},
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
@@ -704,8 +680,7 @@ bool Rule::AddUnsupportedAttributeErrors(
       base::MakeFixedFlatMap<Restriction, base::span<const std::string_view>>({
           {Restriction::kClipboard, kDestinationClipboardAttributes},
           {Restriction::kScreenshot, kSourceAndDestinationScreenshotAttributes},
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
           {Restriction::kFileDownload, kFileDownloadAttributes},
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
@@ -780,8 +755,7 @@ bool Rule::AddUnsupportedRestrictionErrors(
       Level::kBlock,
   });
 #endif  // BUILDFLAG(ENTERPRISE_SCREENSHOT_PROTECTION)
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   static constexpr auto kFileDownloadSupportedLevels = std::to_array<Level>({
       Level::kNotSet,
       Level::kReport,
@@ -797,8 +771,7 @@ bool Rule::AddUnsupportedRestrictionErrors(
 #if BUILDFLAG(ENTERPRISE_SCREENSHOT_PROTECTION)
           {Restriction::kScreenshot, kScreenshotSupportedLevels},
 #endif  // BUILDFLAG(ENTERPRISE_SCREENSHOT_PROTECTION)
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
           {Restriction::kFileDownload, kFileDownloadSupportedLevels},
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)

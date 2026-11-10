@@ -34,9 +34,6 @@
 #include "content/public/browser/weak_document_ptr.h"
 #include "third_party/blink/public/common/frame/frame_owner_element_type.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/safe_browsing/android/safe_browsing_referring_app_bridge_android.h"
-#endif
 
 namespace safe_browsing {
 
@@ -340,13 +337,5 @@ void ChromeClientSideDetectionHostDelegate::OnInnerTextResult(
   std::move(callback).Run(result ? result->inner_text : "");
 }
 
-#if BUILDFLAG(IS_ANDROID)
-internal::ReferringAppInfo
-ChromeClientSideDetectionHostDelegate::GetReferringAppInfo(
-    content::WebContents* web_contents) {
-  return safe_browsing::GetReferringAppInfo(web_contents,
-                                            /*get_webapk_info=*/false);
-}
-#endif
 
 }  // namespace safe_browsing

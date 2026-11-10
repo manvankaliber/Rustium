@@ -267,44 +267,42 @@ test("leveldb_unittests") {
   data_deps = [ "//testing/buildbot/filters:leveldb_unittests_filters" ]
 }
 
-if (!is_ios && !is_android) {
-  test("leveldb_db_bench") {
-    sources = [
-      "src/benchmarks/db_bench.cc",
-      "src/util/histogram.cc",
-      "src/util/histogram.h",
-    ]
-    configs -= [ "//build/config/compiler:chromium_code" ]
-    configs += [ "//build/config/compiler:no_chromium_code" ]
-    deps = [ ":leveldb_testutil" ]
-  }
+test("leveldb_db_bench") {
+  sources = [
+    "src/benchmarks/db_bench.cc",
+    "src/util/histogram.cc",
+    "src/util/histogram.h",
+  ]
+  configs -= [ "//build/config/compiler:chromium_code" ]
+  configs += [ "//build/config/compiler:no_chromium_code" ]
+  deps = [ ":leveldb_testutil" ]
+}
 
-  test("leveldb_db_bench_log") {
-    sources = [ "src/benchmarks/db_bench_log.cc" ]
-    configs -= [ "//build/config/compiler:chromium_code" ]
-    configs += [ "//build/config/compiler:no_chromium_code" ]
-    deps = [
-      ":leveldb_testutil",
-      "//third_party/google_benchmark",
-    ]
-  }
+test("leveldb_db_bench_log") {
+  sources = [ "src/benchmarks/db_bench_log.cc" ]
+  configs -= [ "//build/config/compiler:chromium_code" ]
+  configs += [ "//build/config/compiler:no_chromium_code" ]
+  deps = [
+    ":leveldb_testutil",
+    "//third_party/google_benchmark",
+  ]
+}
 
-  executable("leveldb_leveldbutil") {
-    sources = [ "src/db/leveldbutil.cc" ]
-    configs -= [ "//build/config/compiler:chromium_code" ]
-    configs += [ "//build/config/compiler:no_chromium_code" ]
-    deps = [ ":leveldb_static" ]
-  }
+executable("leveldb_leveldbutil") {
+  sources = [ "src/db/leveldbutil.cc" ]
+  configs -= [ "//build/config/compiler:chromium_code" ]
+  configs += [ "//build/config/compiler:no_chromium_code" ]
+  deps = [ ":leveldb_static" ]
+}
 
-  group("leveldb_test_targets") {
-    testonly = true
-    deps = [
-      ":env_chromium_unittests",
-      ":leveldb_db_bench",
-      ":leveldb_db_bench_log",
-      ":leveldb_unittests",
-    ]
-  }
+group("leveldb_test_targets") {
+  testonly = true
+  deps = [
+    ":env_chromium_unittests",
+    ":leveldb_db_bench",
+    ":leveldb_db_bench_log",
+    ":leveldb_unittests",
+  ]
 }
 
 fuzzer_test("leveldb_put_get_delete_fuzzer") {

@@ -5,6 +5,7 @@
 """check_cronet_dependencies.py - Keep track of Cronet's dependencies."""
 
 import argparse
+from pathlib import Path
 import os
 import re
 import subprocess
@@ -13,11 +14,9 @@ import tempfile
 from typing import List, Set
 
 REPOSITORY_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)
-)
+    os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir))
 
 sys.path.insert(0, REPOSITORY_ROOT)
-import build.android.gyp.util.build_utils as build_utils  # noqa: E402
 import components.cronet.tools.utils as cronet_utils  # noqa: E402
 
 _THIRD_PARTY_STR = 'third_party/'
@@ -27,9 +26,8 @@ _GN_PATH = os.path.join(REPOSITORY_ROOT, 'buildtools/linux64/gn')
 
 def _get_current_gn_args() -> List[str]:
     """Returns the GN args in the current working directory"""
-    args = (
-        subprocess.check_output(["cat", "args.gn"]).decode('utf-8').split("\n")
-    )
+    args = (subprocess.check_output(["cat",
+                                     "args.gn"]).decode('utf-8').split("\n"))
     return [arg for arg in args if arg and not arg.startswith("#")]
 
 
@@ -37,7 +35,7 @@ def normalize_third_party_dep(dependency: str) -> str:
     """Normalizes a GN label that includes `third_party` string
 
     Required because Chromium allows multiple libraries to live under the
-    same third_party directory (eg: `third_party/android_deps` contains
+    same third_party directory (eg: `third_party/rust` contains
     more than a single library), In order to decrease the failure rate
     each time a dependency is added, normalize the `third_party` paths
     to its root.
@@ -73,19 +71,15 @@ def normalize_third_party_dep(dependency: str) -> str:
     return dependency[:dependency_name_end_index]
 
 
-def _get_transitive_deps_from_root_targets(
-    out_dir: str, gn_targets: List[str]
-) -> Set[str]:
+def _get_transitive_deps_from_root_targets(out_dir: str,
+                                           gn_targets: List[str]) -> Set[str]:
     """Executes gn desc |out_dir| |gn_target| deps --all for each gn target"""
     all_deps = set()
     for gn_target in gn_targets:
         all_deps.update(
             subprocess.check_output(
-                [_GN_PATH, "desc", out_dir, gn_target, "deps", "--all"]
-            )
-            .decode("utf-8")
-            .split("\n")
-        )
+                [_GN_PATH, "desc", out_dir, gn_target, "deps",
+                 "--all"]).decode("utf-8").split("\n"))
     return all_deps
 
 
@@ -100,9 +94,6 @@ def normalize_and_dedup_deps(deps: Set[str]) -> Set[str]:
     normalize it according to |normalize_third_party_dep|.
     (3) Add the final path after processing to the set.
 
-    AndroidX dependencies are a special case and they don't go
-    through any processing, they are added as is.
-
     Args:
       deps: A set of all the dependencies.
 
@@ -111,42 +102,19 @@ def normalize_and_dedup_deps(deps: Set[str]) -> Set[str]:
     """
     cleaned_deps = set()
     for dep in deps:
-        if not dep:
-            # Ignore empty lines.
-            continue
-
-        if dep.startswith("//build/modules/android-"):
-            # There is one dependencies.txt shared between all cpu architectures.
-            # On arm64, this would output //build/modules/android-arm64
-            # On x64, this would output //build/modules/android-x64
-            # It's impossible to normalize this because you can have platforms without
-            # modules enabled at all, which don't output anything. So we skip it.
-            continue
-
-        if dep.startswith("//third_party/androidx:") and dep.endswith("_java"):
-            # We treat androidx dependency differently because
-            # Cronet MUST NOT depend on any androidx dependency except
-            # androidx_annotations which is compile-time only. This is
-            # needed because this is one of mainline restrictions.
-            # Java/Android targets in GN must end with _java, this is needed
-            # so we don't bloat the dependencies file with auto-generated targets.
-            # (eg: androidx_annotation_annotation_java__assetres)
-
-            # Don't do any cleaning, add the exact GN label to the dependencies.
-            cleaned_deps.add(dep)
+        dep = cronet_utils.get_path_from_gn_label(dep)
+        if _THIRD_PARTY_STR in dep:
+            cleaned_deps.add(normalize_third_party_dep(dep))
         else:
-            dep = cronet_utils.get_path_from_gn_label(dep)
-            if _THIRD_PARTY_STR in dep:
-                cleaned_deps.add(normalize_third_party_dep(dep))
-            else:
-                cleaned_deps.add(dep)
+            cleaned_deps.add(dep)
     return sorted(cleaned_deps)
 
 
 def main():
     parser = argparse.ArgumentParser(
         prog='Check cronet dependencies',
-        description="Checks whether Cronet's current dependencies match the known ones.",
+        description=
+        "Checks whether Cronet's current dependencies match the known ones.",
     )
     parser.add_argument(
         '--root-deps',
@@ -170,8 +138,7 @@ def main():
     gn_args = _get_current_gn_args()
     # remove remoteexec related gn args.
     gn_args = [
-        arg
-        for arg in gn_args
+        arg for arg in gn_args
         if not re.search(r'use_(remoteexec|reclient|siso)\s*=.*', arg)
     ]
     # make sure it doesn't use remoteexec
@@ -183,8 +150,8 @@ def main():
         cronet_utils.gn(tmp_dir_name, " ".join(gn_args))
 
         final_deps = normalize_and_dedup_deps(
-            _get_transitive_deps_from_root_targets(tmp_dir_name, args.root_deps)
-        )
+            _get_transitive_deps_from_root_targets(tmp_dir_name,
+                                                   args.root_deps))
         golden_deps = cronet_utils.read_file(args.old_dependencies).split("\n")
         if not all(dep in golden_deps for dep in final_deps):
             # Only generate this text if we found a new dependency
@@ -192,8 +159,7 @@ def main():
             # that we will know not if a dependency gets removed
             # as we don't care about that scenario and we don't
             # want to block people while cleaning-up code.
-            print(
-                """
+            print("""
 Cronet Dependency check has failed. Please re-generate the golden file:
 #######################################################
 #                                                     #
@@ -206,16 +172,14 @@ patch -p1 << 'END_DIFF'
 %s
 END_DIFF
 ############ END ############
-"""
-                % cronet_utils.compare_text_and_generate_diff(
-                    '\n'.join(final_deps),
-                    cronet_utils.read_file(args.old_dependencies),
-                    args.old_dependencies,
-                )
-            )
+""" % cronet_utils.compare_text_and_generate_diff(
+                '\n'.join(final_deps),
+                cronet_utils.read_file(args.old_dependencies),
+                args.old_dependencies,
+            ))
             return -1
 
-        build_utils.Touch(args.stamp)
+        Path(args.stamp).touch()
         return 0
 
 

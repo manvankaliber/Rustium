@@ -36,13 +36,11 @@
 #include "content/public/test/memory_coordinator_browsertest_util.h"
 #include "net/base/network_change_notifier.h"
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/browser_features.h"
 #include "chrome/browser/profiles/delete_profile_helper.h"
 #include "chrome/browser/profiles/profile_metrics.h"
 #include "chrome/browser/profiles/profile_test_util.h"
 #include "chrome/test/base/profile_destruction_waiter.h"
-#endif
 
 namespace glic {
 
@@ -78,11 +76,7 @@ class GlicWarmingPoolBrowserTest
 };
 
 // TODO(b/496609005): Skip on ChromeOS due to profile ineligibility timeouts.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ColdWarming DISABLED_ColdWarming
-#else
 #define MAYBE_ColdWarming ColdWarming
-#endif
 IN_PROC_BROWSER_TEST_F(GlicWarmingPoolBrowserTest, MAYBE_ColdWarming) {
   EXPECT_TRUE(
       RunUntil([this]() { return pool().HasWarmedContainerForTesting(); },
@@ -90,11 +84,7 @@ IN_PROC_BROWSER_TEST_F(GlicWarmingPoolBrowserTest, MAYBE_ColdWarming) {
 }
 
 // TODO(b/496609005): Skip on ChromeOS due to profile ineligibility timeouts.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_BackfillWarming DISABLED_BackfillWarming
-#else
 #define MAYBE_BackfillWarming BackfillWarming
-#endif
 IN_PROC_BROWSER_TEST_F(GlicWarmingPoolBrowserTest, MAYBE_BackfillWarming) {
   // Wait for initial preload to complete.
   EXPECT_TRUE(
@@ -134,9 +124,7 @@ class GlicManualWarmingPoolBrowserTest
   GlicManualWarmingPoolBrowserTest() {
     std::vector<base::test::FeatureRef> enabled_features = {
         features::kGlicWebContentsWarming};
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
     enabled_features.push_back(features::kDestroyProfileOnBrowserClose);
-#endif
     scoped_feature_list_.InitWithFeatures(
         enabled_features,
         /*disabled_features=*/{features::kGlicWarming});
@@ -151,7 +139,7 @@ class GlicManualWarmingPoolBrowserTest
 };
 
 // TODO(b/496609005): Skip on ChromeOS due to profile ineligibility timeouts.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 #define MAYBE_WarmedContainerConnects DISABLED_WarmedContainerConnects
 #else
 #define MAYBE_WarmedContainerConnects WarmedContainerConnects
@@ -185,7 +173,6 @@ IN_PROC_BROWSER_TEST_F(GlicManualWarmingPoolBrowserTest,
 
 // Multiple profiles and profile deletion upon window close are only supported
 // on desktop (Win/Mac/Linux).
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(GlicManualWarmingPoolBrowserTest,
                        DestroyProfileWithWarmedContainerDoesNotCrash) {
   ProfileManager* profile_manager = g_browser_process->profile_manager();
@@ -227,7 +214,6 @@ IN_PROC_BROWSER_TEST_F(GlicManualWarmingPoolBrowserTest,
 
   EXPECT_FALSE(profile_manager->IsValidProfile(new_profile));
 }
-#endif
 
 class GlicWarmingCellularBrowserTest : public GlicWarmingPoolBrowserTest {
  public:
@@ -290,11 +276,7 @@ IN_PROC_BROWSER_TEST_F(GlicWarmingPoolBrowserTest, NoWarmingIfUnpinned) {
 }
 
 // TODO(b/496609005): Skip on ChromeOS due to profile ineligibility timeouts.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ClearedOnMemoryPressure DISABLED_ClearedOnMemoryPressure
-#else
 #define MAYBE_ClearedOnMemoryPressure ClearedOnMemoryPressure
-#endif
 IN_PROC_BROWSER_TEST_F(GlicWarmingPoolBrowserTest,
                        MAYBE_ClearedOnMemoryPressure) {
   // Wait for initial preload to complete.
@@ -355,13 +337,8 @@ class GlicWarmingPoolGeicBrowserTest : public GlicWarmingPoolBrowserTest {
 };
 
 // TODO(b/496609005): Skip on ChromeOS due to profile ineligibility timeouts.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_TakeContainerRecordsEnterpriseMetrics \
-  DISABLED_TakeContainerRecordsEnterpriseMetrics
-#else
 #define MAYBE_TakeContainerRecordsEnterpriseMetrics \
   TakeContainerRecordsEnterpriseMetrics
-#endif
 IN_PROC_BROWSER_TEST_F(GlicWarmingPoolGeicBrowserTest,
                        MAYBE_TakeContainerRecordsEnterpriseMetrics) {
   base::HistogramTester histogram_tester;

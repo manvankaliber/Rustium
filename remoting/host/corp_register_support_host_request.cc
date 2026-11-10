@@ -89,7 +89,7 @@ void CorpRegisterSupportHostRequest::Initialize(
 
 void CorpRegisterSupportHostRequest::RegisterHost(
     const internal::RemoteSupportHostStruct& host,
-    const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+    const std::optional<EnterpriseSessionParams>& enterprise_params,
     RegisterHostCallback callback) {
   auto request_config =
       std::make_unique<ProtobufHttpRequestConfig>(kTrafficAnnotation);

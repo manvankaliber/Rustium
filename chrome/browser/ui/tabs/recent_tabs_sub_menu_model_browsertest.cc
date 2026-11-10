@@ -1134,7 +1134,6 @@ IN_PROC_BROWSER_TEST_F(
           model.GetSubmenuModelAt(model.GetItemCount() - 1)->GetLabelAt(3)));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(
     RecentTabsSubMenuModelWithoutOtherDeviceTabsInAppMenuTest,
     OtherDevicesAvailability) {
@@ -1187,7 +1186,6 @@ IN_PROC_BROWSER_TEST_F(
   VerifyModel(RecentTabsSubMenuModel(nullptr, browser()),
               kDataWithoutOtherDevices);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(RecentTabsSubMenuModelWithOtherDeviceTabsInAppMenuTest,
                        OtherDevicesOmittedWhenOtherDeviceTabsInAppMenuEnabled) {

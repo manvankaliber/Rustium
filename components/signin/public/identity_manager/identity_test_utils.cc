@@ -33,15 +33,7 @@
 #include "google_apis/gaia/gaia_constants.h"
 #include "google_apis/gaia/gaia_id.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/account_manager_core/account.h"
-#include "components/account_manager_core/account_manager_facade.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/signin/internal/identity_manager/profile_oauth2_token_service_delegate_android.h"
-#include "components/signin/public/android/test_support_jni_headers/AccountManagerFacadeUtil_jni.h"
-#endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 #include "components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.h"
@@ -86,18 +78,8 @@ void UpdateRefreshTokenForAccount(
   token_updated_observer.SetOnRefreshTokenUpdatedCallback(
       run_loop.QuitClosure());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  const AccountInfo& account_info =
-      account_tracker_service->GetAccountInfo(account_id);
-  account_manager::Account account{
-      account_manager::AccountKey::FromGaiaId(account_info.GetGaiaId()),
-      std::string(account_info.GetEmail())};
-  GetAccountManagerFacade(identity_manager)
-      ->UpsertAccountForTesting(account, new_token);
-#else
   token_service->UpdateCredentials(account_id, new_token, source,
                                    token_binding_info);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   run_loop.Run();
 }
@@ -329,7 +311,6 @@ AccountInfo MakePrimaryAccountAvailable(IdentityManager* identity_manager,
   return primary_account_info;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // TODO(crbug.com/40067058): remove this function once `ConsentLevel::kSync` is
 // removed.
 void RevokeSyncConsent(IdentityManager* identity_manager) {
@@ -352,15 +333,8 @@ void RevokeSyncConsent(IdentityManager* identity_manager) {
       signin_metrics::ProfileSignout::kTest);
   run_loop.Run();
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 void ClearPrimaryAccount(IdentityManager* identity_manager) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // TODO(blundell): If we ever need this functionality on ChromeOS (which seems
-  // unlikely), plumb this through to just clear the primary account info
-  // synchronously with IdentityManager.
-  NOTREACHED();
-#else
   if (!identity_manager->HasPrimaryAccount(ConsentLevel::kSignin)) {
     return;
   }
@@ -380,7 +354,6 @@ void ClearPrimaryAccount(IdentityManager* identity_manager) {
       signin_metrics::ProfileSignout::kTest);
 
   run_loop.Run();
-#endif
 }
 
 void WaitForPrimaryAccount(IdentityManager* identity_manager,
@@ -514,15 +487,7 @@ void RemoveRefreshTokenForAccount(IdentityManager* identity_manager,
   token_updated_observer.SetOnRefreshTokenRemovedCallback(
       run_loop.QuitClosure());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  const AccountInfo& account_info =
-      identity_manager->GetAccountTrackerService()->GetAccountInfo(account_id);
-  GetAccountManagerFacade(identity_manager)
-      ->RemoveAccountForTesting(
-          account_manager::AccountKey::FromGaiaId(account_info.GetGaiaId()));
-#else
   identity_manager->GetTokenService()->RevokeCredentials(account_id);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   run_loop.Run();
 }
@@ -704,12 +669,6 @@ void DisableAccessTokenFetchRetries(IdentityManager* identity_manager) {
       ->set_max_authorization_token_fetch_retries_for_testing(0);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void SetUpFakeAccountManagerFacade() {
-  Java_AccountManagerFacadeUtil_setUpFakeFacade(
-      base::android::AttachCurrentThread());
-}
-#endif
 
 void CancelAllOngoingGaiaCookieOperations(IdentityManager* identity_manager) {
   identity_manager->GetGaiaCookieManagerService()->CancelAll();
@@ -752,12 +711,6 @@ void SimulateSuccessfulFetchOfAccountInfo(IdentityManager* identity_manager,
            signin::TriboolFromBool(managed));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-account_manager::AccountManagerFacade* GetAccountManagerFacade(
-    IdentityManager* identity_manager) {
-  return identity_manager->GetAccountManagerFacade();
-}
-#endif
 
 std::optional<base::AutoReset<bool>> SetIgnoreNonOfficialApiKeysForTesting() {
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
@@ -769,7 +722,3 @@ std::optional<base::AutoReset<bool>> SetIgnoreNonOfficialApiKeysForTesting() {
 }
 
 }  // namespace signin
-
-#if BUILDFLAG(IS_ANDROID)
-DEFINE_JNI(AccountManagerFacadeUtil)
-#endif

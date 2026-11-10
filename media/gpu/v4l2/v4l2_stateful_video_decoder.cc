@@ -25,7 +25,7 @@
 #include "base/trace_event/trace_event.h"
 #include "media/base/media_log.h"
 #include "media/base/media_switches.h"
-#include "media/gpu/chromeos/video_frame_resource.h"
+#include "media/gpu/linux/video_frame_resource.h"
 #include "media/gpu/macros.h"
 #include "media/gpu/v4l2/v4l2_device.h"
 #include "media/gpu/v4l2/v4l2_framerate_control.h"

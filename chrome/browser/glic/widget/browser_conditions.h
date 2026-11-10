@@ -56,13 +56,11 @@ class BrowserAttachObservation {
   virtual bool CanAttachToBrowser() const = 0;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 // Observes BrowserAttachObserver events until the returned observation is
 // destroyed.
 std::unique_ptr<BrowserAttachObservation> ObserveBrowserForAttachment(
     Profile* profile,
     BrowserAttachObserver* observer);
-#endif
 
 }  // namespace glic
 

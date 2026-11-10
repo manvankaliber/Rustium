@@ -115,11 +115,6 @@ void ContextDelegate::SetComputerNameForTesting(
 std::optional<std::string> ContextDelegate::GetConfiguredComputerName(
     const PrefService* prefs) const {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-#if BUILDFLAG(IS_CHROMEOS)
-  // Computer name is not supported on ChromeOS (where policy::GetDeviceName()
-  // returns the hardware serial number rather than a hostname).
-  return std::nullopt;
-#else
   if (!prefs || !features::IsClientCertCommonNameAttributeEnabled()) {
     return std::nullopt;
   }
@@ -144,7 +139,6 @@ std::optional<std::string> ContextDelegate::GetConfiguredComputerName(
     cached_computer_name_ = std::move(sanitized);
   }
   return cached_computer_name_;
-#endif
 }
 
 bool ContextDelegate::ShouldCertificateBeRenewed(

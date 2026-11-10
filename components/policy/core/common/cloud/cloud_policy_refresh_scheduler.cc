@@ -48,28 +48,6 @@ const base::TickClock* GetTickClock() {
 
 }  // namespace
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-
-const int64_t CloudPolicyRefreshScheduler::kDefaultRefreshDelayMs =
-    24 * 60 * 60 * 1000;  // 1 day.
-const int64_t CloudPolicyRefreshScheduler::kUnmanagedRefreshDelayMs =
-    24 * 60 * 60 * 1000;  // 1 day.
-// Delay for periodic refreshes when the invalidations service is available,
-// in milliseconds.
-// TODO(joaodasilva): increase this value once we're confident that the
-// invalidations channel works as expected.
-const int64_t CloudPolicyRefreshScheduler::kWithInvalidationsRefreshDelayMs =
-    24 * 60 * 60 * 1000;  // 1 day.
-const int64_t CloudPolicyRefreshScheduler::kInitialErrorRetryDelayMs =
-    5 * 60 * 1000;  // 5 minutes.
-const int64_t CloudPolicyRefreshScheduler::kRefreshDelayMinMs =
-    30 * 60 * 1000;  // 30 minutes.
-const int64_t CloudPolicyRefreshScheduler::kRefreshDelayMaxMs =
-    7 * 24 * 60 * 60 * 1000;  // 1 week.
-const int64_t CloudPolicyRefreshScheduler::kRandomSaltDelayMaxValueMs =
-    5 * 60 * 1000;  // 5 minutes.
-
-#else
 
 const int64_t CloudPolicyRefreshScheduler::kDefaultRefreshDelayMs =
     3 * 60 * 60 * 1000;  // 3 hours.
@@ -88,7 +66,6 @@ const int64_t CloudPolicyRefreshScheduler::kRefreshDelayMaxMs =
 const int64_t CloudPolicyRefreshScheduler::kRandomSaltDelayMaxValueMs =
     5 * 60 * 1000;  // 5 minutes.
 
-#endif
 
 CloudPolicyRefreshScheduler::CloudPolicyRefreshScheduler(
     CloudPolicyClient* client,
@@ -281,13 +258,8 @@ void CloudPolicyRefreshScheduler::UpdateLastRefreshFromPolicy() {
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // On mobile platforms the client is only registered for enterprise users.
-  constexpr bool should_update = true;
-#else
   // Only delay refresh for a cached non-managed response.
   const bool should_update = !store_->is_managed();
-#endif
 
   if (store_->has_policy() && store_->policy()->has_timestamp() &&
       should_update) {

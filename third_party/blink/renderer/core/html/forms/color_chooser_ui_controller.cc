@@ -57,12 +57,8 @@ void ColorChooserUIController::Trace(Visitor* visitor) const {
 }
 
 void ColorChooserUIController::OpenUI() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  OpenColorChooser();
-#else
   NOTREACHED()
       << "ColorChooserUIController should only be used on Android or iOS";
-#endif
 }
 
 void ColorChooserUIController::SetSelectedColor(const Color& color) {
@@ -88,21 +84,5 @@ void ColorChooserUIController::DidChooseColor(uint32_t color) {
   client_->DidChooseColor(Color::FromRGBA32(color));
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-void ColorChooserUIController::OpenColorChooser() {
-  DCHECK(!chooser_);
-  scoped_refptr<base::SequencedTaskRunner> runner =
-      frame_->DomWindow()->GetExecutionContext()->GetTaskRunner(
-          TaskType::kUserInteraction);
-  frame_->GetBrowserInterfaceBroker().GetInterface(
-      color_chooser_factory_.BindNewPipeAndPassReceiver(runner));
-  color_chooser_factory_->OpenColorChooser(
-      chooser_.BindNewPipeAndPassReceiver(runner),
-      receiver_.BindNewPipeAndPassRemote(runner), client_->CurrentColor().Rgb(),
-      client_->Suggestions());
-  receiver_.set_disconnect_handler(BindOnce(
-      &ColorChooserUIController::EndChooser, WrapWeakPersistent(this)));
-}
-#endif
 
 }  // namespace blink

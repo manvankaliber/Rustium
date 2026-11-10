@@ -14,26 +14,24 @@ source_set("prefetch") {
   ]
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
+source_set("browser_tests") {
+  testonly = true
 
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [ "prefetch_browsertest.cc" ]
+  sources = [ "prefetch_browsertest.cc" ]
 
-    deps = [
-      "//base",
-      "//chrome/browser/preloading:prefs",
-      "//chrome/browser/profiles:profile",
-      "//chrome/common:constants",
-      "//chrome/test:test_support",
-      "//components/prefs",
-      "//content/public/browser",
-      "//content/test:test_support",
-      "//net",
-      "//net:test_support",
-      "//testing/gtest",
-    ]
-  }
+  deps = [
+    "//base",
+    "//chrome/browser/preloading:prefs",
+    "//chrome/browser/profiles:profile",
+    "//chrome/common:constants",
+    "//chrome/test:test_support",
+    "//components/prefs",
+    "//content/public/browser",
+    "//content/test:test_support",
+    "//net",
+    "//net:test_support",
+    "//testing/gtest",
+  ]
 }

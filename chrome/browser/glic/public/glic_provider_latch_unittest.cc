@@ -131,23 +131,11 @@ TEST_F(GlicProviderLatchTest, GuestProfilesUseDefaultLatch) {
   ExpectDefaultLatch(helper_.guest_profile_otr());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 TEST_F(GlicProviderLatchTest, SystemProfilesUseDefaultLatch) {
   ExpectDefaultLatch(helper_.system_profile());
   ExpectDefaultLatch(helper_.system_profile_otr());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(GlicProviderLatchTest, AshInternalProfilesUseDefaultLatch) {
-  ExpectDefaultLatch(helper_.signin_profile());
-  ExpectDefaultLatch(helper_.signin_profile_otr());
-  ExpectDefaultLatch(helper_.lockscreen_profile());
-  ExpectDefaultLatch(helper_.lockscreen_profile_otr());
-  ExpectDefaultLatch(helper_.shimless_rma_app_profile());
-  ExpectDefaultLatch(helper_.shimless_rma_app_profile_otr());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // The provider is decided once, when the profile is created; later
 // configuration changes don't affect it.
@@ -196,8 +184,7 @@ TEST(GlicProviderLatchDefaultTest, ProfileIsLatchedAsGemini) {
             GetLocalizedGuestURL(GURL(kGuestUrl)));
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 struct AssistantSelectionLatchTestCase {
   const char* test_name;
   bool has_enterprise_url;

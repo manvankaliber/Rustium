@@ -10,7 +10,7 @@
 #include "build/build_config.h"
 
 static_assert(
-    !BUILDFLAG(IS_ANDROID),
+    !false,
     "Android platform is not supported by CreateCoreUnwindersFactory()");
 
 namespace base {

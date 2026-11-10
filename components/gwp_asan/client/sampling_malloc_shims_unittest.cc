@@ -43,7 +43,7 @@ static size_t GetUsableSize(void* mem) {
 static size_t GetUsableSize(void* mem) {
   return malloc_size(mem);
 }
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
 #include <malloc.h>
 static size_t GetUsableSize(void* mem) {
   return malloc_usable_size(mem);
@@ -339,7 +339,6 @@ TEST_F(SamplingMallocShimsTest, CrashKey) {
 #endif  // !defined(COMPONENT_BUILD)
 
 // malloc_usable_size() is not currently used/shimmed on Android.
-#if !BUILDFLAG(IS_ANDROID)
 MULTIPROCESS_TEST_MAIN_WITH_SETUP(
     GetSizeEstimate,
     SamplingMallocShimsTest::multiprocessTestSetup) {
@@ -361,7 +360,6 @@ MULTIPROCESS_TEST_MAIN_WITH_SETUP(
 TEST_F(SamplingMallocShimsTest, GetSizeEstimate) {
   runTest("GetSizeEstimate");
 }
-#endif
 
 #if BUILDFLAG(IS_WIN)
 MULTIPROCESS_TEST_MAIN_WITH_SETUP(

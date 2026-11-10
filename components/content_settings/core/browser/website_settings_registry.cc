@@ -77,26 +77,6 @@ const WebsiteSettingsInfo* WebsiteSettingsRegistry::Register(
   if (!(platform & PLATFORM_MAC)) {
     return nullptr;
   }
-#elif BUILDFLAG(IS_CHROMEOS)
-  if (!(platform & PLATFORM_CHROMEOS)) {
-    return nullptr;
-  }
-#elif BUILDFLAG(IS_ANDROID)
-  if (!(platform & PLATFORM_ANDROID)) {
-    return nullptr;
-  }
-  // Don't sync settings to mobile platforms. The UI is different to desktop and
-  // doesn't allow the settings to be managed in the same way. See
-  // crbug.com/642184.
-  sync_status = WebsiteSettingsInfo::UNSYNCABLE;
-#elif BUILDFLAG(IS_IOS)
-  if (!(platform & PLATFORM_IOS)) {
-    return nullptr;
-  }
-  // Don't sync settings to mobile platforms. The UI is different to desktop and
-  // doesn't allow the settings to be managed in the same way. See
-  // crbug.com/642184.
-  sync_status = WebsiteSettingsInfo::UNSYNCABLE;
 #else
 #error "Unsupported platform"
 #endif

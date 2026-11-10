@@ -14,7 +14,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
-#if !BUILDFLAG(IS_ANDROID)
 std::map<std::string, std::string> kRulePartnerMerchantParams = {
     {"partner-merchant-pattern", "foo"},
     {"discount-fetch-delay", "6h"}};
@@ -33,7 +32,6 @@ const char kCouponFeatureParamPartnerMerchantURL[] = "https://www.bar.com";
 const char kRuleComponentPartnerMerchantURL[] = "https://www.baz.com";
 const char kCouponComponentPartnerMerchantURL[] = "https://www.qux.com";
 const char kNoDiscountMerchantURL[] = "https://www.corge.com";
-#endif  //! BUILDFLAG(IS_ANDROID)
 }  // namespace
 
 class CommerceFeatureListTest : public testing::Test {
@@ -44,7 +42,6 @@ class CommerceFeatureListTest : public testing::Test {
   base::test::ScopedFeatureList features_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(CommerceFeatureListTest, TestRulePartnerMerchant_FromFeatureParam) {
   features_.InitWithFeaturesAndParameters(
       {{ntp_features::kNtpChromeCartModule, kRulePartnerMerchantParams},
@@ -132,7 +129,6 @@ TEST_F(CommerceFeatureListTest, TestNoDiscountMerchant) {
   ASSERT_FALSE(
       commerce::IsNoDiscountMerchant(GURL("https://www.qux.com/corge")));
 }
-#endif  //! BUILDFLAG(IS_ANDROID)
 
 // This test assumes that, at bare minimum, "US" is an allowed country and
 // "en-us" is an allowed locale for the US.

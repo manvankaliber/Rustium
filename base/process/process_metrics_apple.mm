@@ -29,16 +29,9 @@
 #include "base/types/expected.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_MAC)
 #include <libproc.h>
 #include <mach/mach_vm.h>
 #include <mach/shared_region.h>
-#else
-#include <mach/vm_region.h>
-#if BUILDFLAG(USE_BLINK)
-#include "base/ios/sim_header_shims.h"
-#endif  // BUILDFLAG(USE_BLINK)
-#endif
 
 namespace base {
 
@@ -123,11 +116,9 @@ static_assert(ChromeTaskVMInfoCount <= MAX_MIG_SIZE_FOR_1014,
 // Implementations of ProcessMetrics class shared by Mac and iOS.
 mach_port_t ProcessMetrics::TaskForHandle(ProcessHandle process_handle) const {
   mach_port_t task = MACH_PORT_NULL;
-#if BUILDFLAG(IS_MAC)
   if (port_provider_) {
     task = port_provider_->TaskForHandle(process_);
   }
-#endif
   if (task == MACH_PORT_NULL && process_handle == getpid()) {
     task = mach_task_self();
   }
@@ -266,37 +257,9 @@ bool GetSystemMemoryInfo(SystemMemoryInfo* meminfo) {
   }
   DCHECK_GE(count, HOST_VM_INFO64_REV1_COUNT);
 
-#if !(BUILDFLAG(IS_IOS) && defined(ARCH_CPU_X86_FAMILY))
   // PAGE_SIZE (aka vm_page_size) isn't constexpr, so this check needs to be
   // done at runtime.
   DCHECK_EQ(PAGE_SIZE % 1024, 0u) << "Invalid page size";
-#else
-  // On x86/x64, PAGE_SIZE used to be just a signed constant, I386_PGBYTES. When
-  // Arm Macs started shipping, PAGE_SIZE was defined from day one to be
-  // vm_page_size (an extern uintptr_t value), and the SDK, for x64, switched
-  // PAGE_SIZE to be vm_page_size for binaries targeted for macOS 11+:
-  //
-  // #if !defined(__MAC_OS_X_VERSION_MIN_REQUIRED) ||
-  //     (__MAC_OS_X_VERSION_MIN_REQUIRED < 101600)
-  //   #define PAGE_SIZE    I386_PGBYTES
-  // #else
-  //   #define PAGE_SIZE    vm_page_size
-  // #endif
-  //
-  // When building for Mac Catalyst or the iOS Simulator, this targeting
-  // switcharoo breaks. Because those apps do not have a
-  // __MAC_OS_X_VERSION_MIN_REQUIRED set, the SDK assumes that those apps are so
-  // old that they are implicitly targeting some ancient version of macOS, and a
-  // signed constant value is used for PAGE_SIZE.
-  //
-  // Therefore, when building for "iOS on x86", which is either Mac Catalyst or
-  // the iOS Simulator, use a static assert that assumes that PAGE_SIZE is a
-  // signed constant value.
-  //
-  // TODO(Chrome iOS team): Remove this entire #else branch when the Mac
-  // Catalyst and the iOS Simulator builds only target Arm Macs.
-  static_assert(PAGE_SIZE % 1024 == 0, "Invalid page size");
-#endif  // !(defined(IS_IOS) && defined(ARCH_CPU_X86_FAMILY))
 
   if (vm_info.speculative_count <= vm_info.free_count) {
     meminfo->free =
@@ -354,16 +317,9 @@ MachVMRegionResult GetTopInfo(mach_port_t task,
   apple::ScopedMachSendRight object_name;
 
   kern_return_t kr =
-#if BUILDFLAG(IS_MAC)
       mach_vm_region(task, address, size, VM_REGION_TOP_INFO,
                      reinterpret_cast<vm_region_info_t>(info), &info_count,
                      apple::ScopedMachSendRight::Receiver(object_name).get());
-#else
-      vm_region_64(task, reinterpret_cast<vm_address_t*>(address),
-                   reinterpret_cast<vm_size_t*>(size), VM_REGION_TOP_INFO,
-                   reinterpret_cast<vm_region_info_t>(info), &info_count,
-                   apple::ScopedMachSendRight::Receiver(object_name).get());
-#endif
   return ParseOutputFromMachVMRegion(kr);
 }
 
@@ -378,17 +334,10 @@ MachVMRegionResult GetBasicInfo(mach_port_t task,
   apple::ScopedMachSendRight object_name;
 
   kern_return_t kr =
-#if BUILDFLAG(IS_MAC)
       mach_vm_region(task, address, size, VM_REGION_BASIC_INFO_64,
                      reinterpret_cast<vm_region_info_t>(info), &info_count,
                      apple::ScopedMachSendRight::Receiver(object_name).get());
 
-#else
-      vm_region_64(task, reinterpret_cast<vm_address_t*>(address),
-                   reinterpret_cast<vm_size_t*>(size), VM_REGION_BASIC_INFO_64,
-                   reinterpret_cast<vm_region_info_t>(info), &info_count,
-                   apple::ScopedMachSendRight::Receiver(object_name).get());
-#endif
   return ParseOutputFromMachVMRegion(kr);
 }
 

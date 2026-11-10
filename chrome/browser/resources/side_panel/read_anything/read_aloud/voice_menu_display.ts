@@ -6,9 +6,7 @@ import {loadTimeData} from '//resources/js/load_time_data.js';
 
 import type {AudioBrowserProxy} from './audio_browser_proxy.js';
 // clang-format off
-// <if expr="not is_chromeos">
 import {hasGoogleIdentifier} from './voice_language_conversions.js';
-// </if>
 // clang-format on
 import {getDisplayNameForLocale} from './language_display.js';
 import {areVoicesEqual, hasNaturalIdentifier, NotificationType} from './voice_language_conversions.js';
@@ -67,11 +65,9 @@ export function getVoiceTitle(voice?: SpeechSynthesisVoice|null): string {
     return loadTimeData.getString('voiceSelectionLabel');
   }
   let title = voice.name;
-  // <if expr="not is_chromeos">
   if (!hasGoogleIdentifier(voice)) {
     title = loadTimeData.getString('systemVoiceLabel');
   }
-  // </if>
   return title;
 }
 

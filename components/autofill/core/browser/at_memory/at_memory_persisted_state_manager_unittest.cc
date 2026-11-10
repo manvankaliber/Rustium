@@ -815,7 +815,6 @@ TEST_F(AtMemoryPersistedStateManagerTest,
   EXPECT_EQ(state_manager().previously_filled_suggestions().size(), 1u);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Tests that signing out clears persisted search state and previously filled
 // suggestions.
 TEST_F(AtMemoryPersistedStateManagerTest,
@@ -835,7 +834,6 @@ TEST_F(AtMemoryPersistedStateManagerTest,
               IsZeroState());
   EXPECT_TRUE(state_manager().previously_filled_suggestions().empty());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Tests that switching from one primary account to another clears persisted
 // search state and previously filled suggestions.

@@ -256,11 +256,6 @@ namespace permissions {
 class PermissionIndicatorsTabData;
 }  // namespace permissions
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace policy {
-class DlpContentTabHelper;
-}  // namespace policy
-#endif
 
 namespace predictors {
 class LoadingPredictorTabHelper;
@@ -287,11 +282,9 @@ namespace web_app {
 class WindowManagementContentSettingObserver;
 }  // namespace web_app
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace skills {
 class SkillsUpdateObserver;
 }  // namespace skills
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace sync_sessions {
 class SyncSessionsRouterTabHelper;
@@ -322,11 +315,9 @@ namespace tasks {
 class TaskTabHelper;
 }  // namespace tasks
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace record_replay {
 class RecordReplayClient;
 }  // namespace record_replay
-#endif
 
 namespace lens {
 class LensSuggestionTool;
@@ -340,28 +331,12 @@ class DesktopSessionDurationObserver;
 #endif
 }  // namespace metrics
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 namespace wallet {
 class ChromeWalletablePassClient;
 }  // namespace wallet
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-class CampaignsManagerSessionTabHelper;
-class GeminiAppTabHelper;
-class GoogleOneOfferIphTabHelper;
-namespace ash {
-class BootTimesRecorderTabHelper;
-class CrosIsolatedWebAppEnabler;
-}  // namespace ash
-namespace mahi {
-class MahiTabHelper;
-}  // namespace mahi
-namespace web_app {
-class ProtocolHandlerPickerCoordinator;
-}  // namespace web_app
-#endif
 
 #if BUILDFLAG(ENABLE_RLZ)
 class ChromeRLZTrackerWebContentsObserver;
@@ -498,12 +473,6 @@ class TabFeatures {
   std::unique_ptr<tab_groups::SavedTabGroupWebContentsListener>
       saved_tab_group_web_contents_listener_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Manages the protocol handler picker dialog on ChromeOS. Must be destroyed
-  // after the `tab_dialog_manager_`.
-  std::unique_ptr<web_app::ProtocolHandlerPickerCoordinator>
-      protocol_handler_picker_coordinator_;
-#endif
 
   // Manages various tab modal dialogs.
   std::unique_ptr<TabDialogManager> tab_dialog_manager_;
@@ -716,9 +685,7 @@ class TabFeatures {
   std::unique_ptr<actor::ActorTabData> actor_tab_data_;
   std::unique_ptr<actor::ActorSurfaceTabHelper> actor_surface_tab_helper_;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<record_replay::RecordReplayClient> record_replay_client_;
-#endif
 
   std::unique_ptr<lens::TabContextualizationController>
       tab_contextualization_controller_;
@@ -748,8 +715,7 @@ class TabFeatures {
   std::unique_ptr<tabs::PageContextEligibilityHelper>
       page_context_eligibility_helper_;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   std::unique_ptr<wallet::ChromeWalletablePassClient> walletable_pass_client_;
 #endif
 
@@ -760,17 +726,14 @@ class TabFeatures {
   std::unique_ptr<contextual_tasks::SearchJourneyTabFeature>
       search_journey_tab_feature_;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<skills::SkillsUpdateObserver> skills_update_observer_;
-#endif  //  !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   std::unique_ptr<metrics::DesktopSessionDurationObserver>
       desktop_session_duration_observer_;
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   std::unique_ptr<enterprise_reporting::SaasUsageNavigationObserver>
       saas_usage_navigation_observer_;
   std::unique_ptr<HatsHelper> hats_helper_;
@@ -785,17 +748,6 @@ class TabFeatures {
   std::unique_ptr<FontPrewarmerTabHelper> font_prewarmer_tab_helper_;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<GoogleOneOfferIphTabHelper> google_one_offer_iph_tab_helper_;
-  std::unique_ptr<CampaignsManagerSessionTabHelper>
-      campaigns_manager_session_tab_helper_;
-  std::unique_ptr<ash::CrosIsolatedWebAppEnabler>
-      cros_isolated_web_app_enabler_;
-  std::unique_ptr<GeminiAppTabHelper> gemini_app_tab_helper_;
-  std::unique_ptr<mahi::MahiTabHelper> mahi_tab_helper_;
-  std::unique_ptr<ash::BootTimesRecorderTabHelper>
-      boot_times_recorder_tab_helper_;
-#endif
 
 #if BUILDFLAG(ENABLE_RLZ)
   std::unique_ptr<ChromeRLZTrackerWebContentsObserver>
@@ -824,10 +776,8 @@ class TabFeatures {
       navigation_extension_enabler_;
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<indigo::IndigoPageActionController>
       indigo_page_action_controller_;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   std::unique_ptr<multistep_filter::FilterUiController> filter_ui_controller_;
   std::unique_ptr<multistep_filter::ChromeFilterNavigationObserver>
@@ -984,9 +934,6 @@ class TabFeatures {
   std::unique_ptr<FileSystemAccessPermissionRequestManager>
       file_system_access_permission_request_manager_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<policy::DlpContentTabHelper> dlp_content_tab_helper_;
-#endif
 
   // Must be the last member.
   base::WeakPtrFactory<TabFeatures> weak_factory_{this};

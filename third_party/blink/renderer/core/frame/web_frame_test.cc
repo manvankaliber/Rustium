@@ -1731,117 +1731,6 @@ TEST_F(WebFrameTest, PostMessageEvent) {
   EXPECT_EQ(std::string::npos, content.find("Message 2."));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-namespace {
-
-// Reports what actually arrived, rather than just that something did, so that
-// a null payload or a message downgraded to "messageerror" is distinguishable
-// from a real SharedArrayBuffer. Object.prototype.toString is used instead of
-// `instanceof SharedArrayBuffer` because the SharedArrayBuffer constructor is
-// only exposed to script in cross-origin isolated documents.
-constexpr char kSharedArrayBufferTestPage[] = R"HTML(
-    <body>
-    <script>
-    function report(text) {
-      document.body.appendChild(document.createTextNode(text));
-    }
-    onmessage = e => report('message: ' +
-                            Object.prototype.toString.call(e.data) + ' ' +
-                            (e.data && e.data.byteLength) + '.');
-    onmessageerror = () => report('messageerror.');
-    </script>
-    </body>
-)HTML";
-
-}  // namespace
-
-TEST_F(WebFrameTest, PostEmbedderMessageEvent) {
-  RegisterMockedHttpURLLoad("postmessage_test.html");
-
-  frame_test_helpers::WebViewHelper web_view_helper;
-  web_view_helper.InitializeAndLoad(base_url_ + "postmessage_test.html");
-
-  WebLocalFrame* frame = web_view_helper.LocalMainFrame();
-
-  // Send a message with the correct origin.
-  frame->PostEmbedderMessageEvent(WebSecurityOrigin::Create(ToKURL(base_url_)),
-                                  /*ports=*/{},
-                                  base::UnsafeSharedMemoryRegion::Create(100));
-
-  // Send another message with an incorrect origin.
-  frame->PostEmbedderMessageEvent(
-      WebSecurityOrigin::Create(ToKURL(chrome_url_)), /*ports=*/{},
-      base::UnsafeSharedMemoryRegion::Create(100));
-
-  // Verify that only the first addition is in the body of the page.
-  std::string content = TestWebFrameContentDumper::DumpWebViewAsText(
-                            web_view_helper.GetWebView(), 1024)
-                            .Utf8();
-  EXPECT_NE(std::string::npos, content.find("Message 1."));
-  EXPECT_EQ(std::string::npos, content.find("Message 2."));
-}
-
-// A null target origin is a wildcard: the message is delivered whatever the
-// document's origin is.
-TEST_F(WebFrameTest, PostEmbedderMessageEventWildcardOrigin) {
-  RegisterMockedHttpURLLoad("postmessage_test.html");
-
-  frame_test_helpers::WebViewHelper web_view_helper;
-  web_view_helper.InitializeAndLoad(base_url_ + "postmessage_test.html");
-
-  web_view_helper.LocalMainFrame()->PostEmbedderMessageEvent(
-      WebSecurityOrigin(), /*ports=*/{},
-      base::UnsafeSharedMemoryRegion::Create(100));
-
-  std::string content = TestWebFrameContentDumper::DumpWebViewAsText(
-                            web_view_helper.GetWebView(), 1024)
-                            .Utf8();
-  EXPECT_NE(std::string::npos, content.find("Message 1."));
-}
-
-// The region handed to the public API is mapped into this renderer, serialized
-// here, and delivered as the message's data, so script sees a real
-// SharedArrayBuffer of the right size.
-TEST_F(WebFrameTest, PostEmbedderMessageEventDeliversSharedArrayBuffer) {
-  frame_test_helpers::WebViewHelper web_view_helper;
-  web_view_helper.Initialize();
-  frame_test_helpers::LoadHTMLString(web_view_helper.LocalMainFrame(),
-                                     kSharedArrayBufferTestPage,
-                                     ToKURL(base_url_));
-
-  web_view_helper.LocalMainFrame()->PostEmbedderMessageEvent(
-      WebSecurityOrigin::Create(ToKURL(base_url_)), /*ports=*/{},
-      base::UnsafeSharedMemoryRegion::Create(100));
-
-  std::string content = TestWebFrameContentDumper::DumpWebViewAsText(
-                            web_view_helper.GetWebView(), 1024)
-                            .Utf8();
-  EXPECT_NE(std::string::npos,
-            content.find("message: [object SharedArrayBuffer] 100."))
-      << content;
-}
-
-// The target origin check has to hold for SharedArrayBuffers too: a mismatch
-// must drop the message rather than hand the buffer to a document the embedder
-// did not address.
-TEST_F(WebFrameTest, PostEmbedderMessageEventSharedArrayBufferWrongOrigin) {
-  frame_test_helpers::WebViewHelper web_view_helper;
-  web_view_helper.Initialize();
-  frame_test_helpers::LoadHTMLString(web_view_helper.LocalMainFrame(),
-                                     kSharedArrayBufferTestPage,
-                                     ToKURL(base_url_));
-
-  web_view_helper.LocalMainFrame()->PostEmbedderMessageEvent(
-      WebSecurityOrigin::Create(ToKURL(chrome_url_)), /*ports=*/{},
-      base::UnsafeSharedMemoryRegion::Create(100));
-
-  std::string content = TestWebFrameContentDumper::DumpWebViewAsText(
-                            web_view_helper.GetWebView(), 1024)
-                            .Utf8();
-  EXPECT_EQ(std::string::npos, content.find("SharedArrayBuffer")) << content;
-  EXPECT_EQ(std::string::npos, content.find("message")) << content;
-}
-#endif
 
 namespace {
 
@@ -3977,11 +3866,7 @@ TEST_F(WebFrameTest, CanOverrideScaleLimits) {
 }
 
 // Android doesn't have scrollbars on the main LocalFrameView
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(WebFrameTest, DISABLED_updateOverlayScrollbarLayers)
-#else
 TEST_F(WebFrameTest, updateOverlayScrollbarLayers)
-#endif
 {
   RegisterMockedHttpURLLoad("large-div.html");
 
@@ -5645,85 +5530,6 @@ class TestFindInPageClient : public mojom::blink::FindInPageClient {
   mojo::Receiver<mojom::blink::FindInPageClient> receiver_{this};
 };
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(WebFrameTest, FindInPageMatchRects) {
-  RegisterMockedHttpURLLoad("find_in_page_frame.html");
-
-  frame_test_helpers::TestWebFrameClient frame_client;
-  frame_test_helpers::WebViewHelper web_view_helper;
-  web_view_helper.InitializeAndLoad(base_url_ + "find_in_page_frame.html",
-                                    &frame_client);
-  web_view_helper.Resize(gfx::Size(640, 480));
-  web_view_helper.GetWebView()->SetMaximumLegibleScale(1.f);
-  UpdateAllLifecyclePhases(web_view_helper.GetWebView());
-  RunPendingTasks();
-
-  // Note that the 'result 19' in the <select> element is not expected to
-  // produce a match. Also, results 00 and 01 are in a different frame that is
-  // not included in this test.
-  const char kFindString[] = "result";
-  const int kFindIdentifier = 12345;
-  const int kNumResults = 17;
-
-  auto options = mojom::blink::FindOptions::New();
-  options->run_synchronously_for_testing = true;
-  WebString search_text = WebString::FromUtf8(kFindString);
-  WebLocalFrameImpl* main_frame = web_view_helper.LocalMainFrame();
-  TestFindInPageClient find_in_page_client;
-  find_in_page_client.SetFrame(main_frame);
-  EXPECT_TRUE(main_frame->GetFindInPage()->FindInternal(
-      kFindIdentifier, search_text, *options, false));
-
-  main_frame->EnsureTextFinder().ResetMatchCount();
-
-  for (WebLocalFrameImpl* frame = main_frame; frame;
-       frame = To<WebLocalFrameImpl>(frame->TraverseNext())) {
-    frame->EnsureTextFinder().StartScopingStringMatches(kFindIdentifier,
-                                                        search_text, *options);
-  }
-  RunPendingTasks();
-  EXPECT_TRUE(find_in_page_client.FindResultsAreReady());
-
-  Vector<gfx::RectF> web_match_rects =
-      main_frame->EnsureTextFinder().FindMatchRects();
-  ASSERT_EQ(static_cast<size_t>(kNumResults), web_match_rects.size());
-  int rects_version = main_frame->GetFindInPage()->FindMatchMarkersVersion();
-
-  for (int result_index = 0; result_index < kNumResults; ++result_index) {
-    const gfx::RectF& result_rect = web_match_rects[result_index];
-
-    // Select the match by the center of its rect.
-    EXPECT_EQ(main_frame->EnsureTextFinder().SelectNearestFindMatch(
-                  result_rect.CenterPoint(), nullptr),
-              result_index + 1);
-
-    // Check that the find result ordering matches with our expectations.
-    Range* result = main_frame->GetTextFinder()->ActiveMatch();
-    ASSERT_TRUE(result);
-    result->setEnd(result->endContainer(), result->endOffset() + 3);
-    EXPECT_EQ(result->GetText(),
-              Format("{} {:02d}", kFindString, result_index + 2));
-
-    // Verify that the expected match rect also matches the currently active
-    // match.  Compare the enclosing rects to prevent precision issues caused by
-    // CSS transforms.
-    gfx::RectF active_match =
-        main_frame->GetFindInPage()->ActiveFindMatchRect();
-    EXPECT_EQ(gfx::ToEnclosingRect(active_match),
-              gfx::ToEnclosingRect(result_rect));
-
-    // The rects version should not have changed.
-    EXPECT_EQ(main_frame->GetFindInPage()->FindMatchMarkersVersion(),
-              rects_version);
-  }
-
-  // Resizing should update the rects version.
-  web_view_helper.Resize(gfx::Size(800, 600));
-  RunPendingTasks();
-  EXPECT_TRUE(main_frame->GetFindInPage()->FindMatchMarkersVersion() !=
-              rects_version);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST_F(WebFrameTest, FindInPageActiveIndex) {
   RegisterMockedHttpURLLoad("find_match_count.html");
@@ -6863,7 +6669,7 @@ TEST_F(WebFrameTest, DISABLED_PositionForPointTest) {
   EXPECT_EQ(64, ComputeOffset(layout_object, 1000, 1000));
 }
 
-#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX)
 // TODO(crbug.com/1090246): Fix these tests on Fuchsia and re-enable.
 // TODO(crbug.com/1317375): Build these tests on all platforms.
 #define MAYBE_SelectRangeStaysHorizontallyAlignedWhenMoved \
@@ -7273,8 +7079,7 @@ TEST_F(CompositedSelectionBoundsTest, LargeSelectionScroll) {
 TEST_F(CompositedSelectionBoundsTest, LargeSelectionNoScroll) {
   RunTest("composited_selection_bounds_large_selection_noscroll.html");
 }
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-#if !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 TEST_F(CompositedSelectionBoundsTest, Input) {
   web_view_helper_.GetWebView()->GetSettings()->SetDefaultFontSize(16);
   RunTest("composited_selection_bounds_input.html");
@@ -7283,7 +7088,6 @@ TEST_F(CompositedSelectionBoundsTest, InputScrolled) {
   web_view_helper_.GetWebView()->GetSettings()->SetDefaultFontSize(16);
   RunTest("composited_selection_bounds_input_scrolled.html");
 }
-#endif
 #endif
 
 class CompositedSelectionBoundsTestWithImage
@@ -7693,12 +7497,10 @@ class FakeMainLocalFrameHost : public mojom::blink::LocalMainFrameHost {
                       ResizeWindowToCallback callback) override {
     std::move(callback).Run();
   }
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   void Minimize() override {}
   void Maximize() override {}
   void Restore() override {}
   void SetResizable(bool resizable) override {}
-#endif
   void DidFirstVisuallyNonEmptyPaint() override {}
   void DidAccessInitialMainDocument() override {}
   void DidChangeThemeColor(std::optional<::SkColor> theme_color) override {}
@@ -9558,11 +9360,7 @@ TEST_F(WebFrameTest, NodeImageTestFloatLeft) {
 }
 
 // Crashes on Android: http://crbug.com/403804
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(WebFrameTest, DISABLED_PrintingBasic)
-#else
 TEST_F(WebFrameTest, PrintingBasic)
-#endif
 {
   frame_test_helpers::WebViewHelper web_view_helper;
   web_view_helper.InitializeAndLoad("data:text/html,Hello, world.");
@@ -13264,87 +13062,6 @@ TEST_F(WebFrameSimTest, TickmarksDocumentRelative) {
   EXPECT_EQ(gfx::Point(800, 2000), original_tickmarks[0].origin());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(WebFrameSimTest, FindInPageSelectNextMatch) {
-  WebView().MainFrameViewWidget()->Resize(gfx::Size(500, 300));
-
-  SimRequest request("https://example.com/test.html", "text/html");
-  LoadURL("https://example.com/test.html");
-  request.Complete(R"HTML(
-      <!DOCTYPE html>
-      <style>
-        body, html {
-          width: 4000px;
-          height: 4000px;
-          margin: 0;
-        }
-        #box1 {
-          position: absolute;
-          left: 800px;
-          top: 2000px;
-        }
-
-        #box2 {
-          position: absolute;
-          left: 1000px;
-          top: 3000px;
-        }
-      </style>
-      <div id="box1">test</div>
-      <div id="box2">test</div>
-  )HTML");
-
-  Compositor().BeginFrame();
-
-  auto* frame = To<WebLocalFrameImpl>(WebView().MainFrame());
-  auto* local_frame = To<LocalFrame>(WebView().GetPage()->MainFrame());
-  auto* frame_view = local_frame->View();
-
-  Element* box1 = GetElementById("box1");
-  Element* box2 = GetElementById("box2");
-
-  gfx::Rect box1_rect = box1->GetLayoutObject()->AbsoluteBoundingBoxRect();
-  gfx::Rect box2_rect = box2->GetLayoutObject()->AbsoluteBoundingBoxRect();
-
-  frame_view->GetScrollableArea()->SetScrollOffset(
-      ScrollOffset(3000, 1000), mojom::blink::ScrollType::kProgrammatic,
-      cc::ScrollSourceType::kNone);
-  auto options = mojom::blink::FindOptions::New();
-  options->run_synchronously_for_testing = true;
-  WebString search_text = WebString("test");
-  const int kFindIdentifier = 12345;
-  EXPECT_TRUE(frame->GetFindInPage()->FindInternal(kFindIdentifier, search_text,
-                                                   *options, false));
-
-  frame->EnsureTextFinder().ResetMatchCount();
-  frame->EnsureTextFinder().StartScopingStringMatches(kFindIdentifier,
-                                                      search_text, *options);
-
-  Vector<gfx::RectF> web_match_rects =
-      frame->EnsureTextFinder().FindMatchRects();
-  ASSERT_EQ(2ul, web_match_rects.size());
-
-  gfx::RectF result_rect = web_match_rects[0];
-  frame->EnsureTextFinder().SelectNearestFindMatch(result_rect.CenterPoint(),
-                                                   nullptr);
-
-  EXPECT_TRUE(frame_view->GetScrollableArea()
-                  ->VisibleContentRect(kExcludeScrollbars)
-                  .Contains(box1_rect));
-  result_rect = web_match_rects[1];
-  frame->EnsureTextFinder().SelectNearestFindMatch(result_rect.CenterPoint(),
-                                                   nullptr);
-
-  EXPECT_TRUE(frame_view->GetScrollableArea()
-                  ->VisibleContentRect(kExcludeScrollbars)
-                  .Contains(box2_rect))
-      << "Box [" << box2_rect.ToString() << "] is not visible in viewport ["
-      << frame_view->GetScrollableArea()
-             ->VisibleContentRect(kExcludeScrollbars)
-             .ToString()
-      << "]";
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST_F(WebFrameSimTest, TallBlockRectFindTest) {
   // When a block is taller/wider than the viewport then align active
@@ -14400,11 +14117,7 @@ TEST_F(WebFrameTest, ShowVirtualKeyboardOnElementFocus) {
 
   RunPendingTasks();
   // Verify that the right WidgetHost has been notified.
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(0u, widget_host.VirtualKeyboardRequestCount());
-#else
   EXPECT_LT(0u, widget_host.VirtualKeyboardRequestCount());
-#endif
   web_view_helper.Reset();
 }
 

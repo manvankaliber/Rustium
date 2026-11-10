@@ -44,11 +44,6 @@ InternalsDataHolder::InternalsDataHolder(
       kPrefsCountryCodeKey,
       regional_capabilities.GetPersistedCountryId().CountryCode());
 
-#if BUILDFLAG(IS_ANDROID)
-  data_.insert_or_assign(
-      kDeviceDeterminedProgramKey,
-      ProgramToString(regional_capabilities.client_->GetDeviceProgram()));
-#endif
 }
 
 InternalsDataHolder::~InternalsDataHolder() = default;

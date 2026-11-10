@@ -74,7 +74,6 @@ class SharingHandlerRegistryImplTest : public testing::Test {
 
 }  // namespace
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(SharingHandlerRegistryImplTest, Glic_NotAddedWhenServiceMissing) {
   base::test::ScopedFeatureList scoped_feature_list;
   scoped_feature_list.InitAndEnableFeature(
@@ -144,7 +143,6 @@ TEST_F(SharingHandlerRegistryImplTest, Glic_NotAddedForGeminiEnterprise) {
   EXPECT_FALSE(handler_registry->GetSharingHandler(
       components_sharing_message::SharingMessage::kGlicExperimentalTriggering));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(SharingHandlerRegistryImplTest, AddRemoveManually) {
   auto handler_registry = CreateHandlerRegistry();

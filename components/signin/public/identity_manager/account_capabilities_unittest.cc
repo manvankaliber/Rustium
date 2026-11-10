@@ -10,9 +10,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 using testing::Contains;
@@ -43,7 +40,6 @@ TEST_F(AccountCapabilitiesTest, CanFetchFamilyMemberInfo) {
             signin::Tribool::kFalse);
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(AccountCapabilitiesTest, CanHaveEmailAddressDisplayed) {
   AccountCapabilities capabilities;
   EXPECT_EQ(capabilities.can_have_email_address_displayed(),
@@ -58,9 +54,7 @@ TEST_F(AccountCapabilitiesTest, CanHaveEmailAddressDisplayed) {
   EXPECT_EQ(capabilities.can_have_email_address_displayed(),
             signin::Tribool::kFalse);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(AccountCapabilitiesTest, CanMakeChromeSearchEngineChoiceScreenChoice) {
   AccountCapabilities capabilities;
   EXPECT_EQ(capabilities.can_make_chrome_search_engine_choice_screen_choice(),
@@ -75,7 +69,6 @@ TEST_F(AccountCapabilitiesTest, CanMakeChromeSearchEngineChoiceScreenChoice) {
   EXPECT_EQ(capabilities.can_make_chrome_search_engine_choice_screen_choice(),
             signin::Tribool::kFalse);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(AccountCapabilitiesTest, CanOverrideAccountInfo) {
   AccountCapabilities capabilities;
@@ -114,8 +107,7 @@ TEST_F(AccountCapabilitiesTest,
       signin::Tribool::kFalse);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 TEST_F(AccountCapabilitiesTest, CanSubmitFeedback) {
   AccountCapabilities capabilities;
   EXPECT_EQ(capabilities.can_submit_feedback(), signin::Tribool::kUnknown);
@@ -130,49 +122,6 @@ TEST_F(AccountCapabilitiesTest, CanSubmitFeedback) {
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_IOS)
-TEST_F(AccountCapabilitiesTest, CanSignInToChrome) {
-  AccountCapabilities capabilities;
-  EXPECT_EQ(capabilities.can_sign_in_to_chrome(), signin::Tribool::kUnknown);
-
-  AccountCapabilitiesTestMutator mutator(&capabilities);
-  mutator.set_can_sign_in_to_chrome(true);
-  EXPECT_EQ(capabilities.can_sign_in_to_chrome(), signin::Tribool::kTrue);
-
-  mutator.set_can_sign_in_to_chrome(false);
-  EXPECT_EQ(capabilities.can_sign_in_to_chrome(), signin::Tribool::kFalse);
-}
-
-TEST_F(AccountCapabilitiesTest, MustFetchAppleAgeRangeInChrome) {
-  AccountCapabilities capabilities;
-  EXPECT_EQ(capabilities.must_fetch_apple_age_range_in_chrome(),
-            signin::Tribool::kUnknown);
-
-  AccountCapabilitiesTestMutator mutator(&capabilities);
-  mutator.set_must_fetch_apple_age_range_in_chrome(true);
-  EXPECT_EQ(capabilities.must_fetch_apple_age_range_in_chrome(),
-            signin::Tribool::kTrue);
-
-  mutator.set_must_fetch_apple_age_range_in_chrome(false);
-  EXPECT_EQ(capabilities.must_fetch_apple_age_range_in_chrome(),
-            signin::Tribool::kFalse);
-}
-
-TEST_F(AccountCapabilitiesTest, MustSkipAppleAgeRangeInChrome) {
-  AccountCapabilities capabilities;
-  EXPECT_EQ(capabilities.must_skip_apple_age_range_in_chrome(),
-            signin::Tribool::kUnknown);
-
-  AccountCapabilitiesTestMutator mutator(&capabilities);
-  mutator.set_must_skip_apple_age_range_in_chrome(true);
-  EXPECT_EQ(capabilities.must_skip_apple_age_range_in_chrome(),
-            signin::Tribool::kTrue);
-
-  mutator.set_must_skip_apple_age_range_in_chrome(false);
-  EXPECT_EQ(capabilities.must_skip_apple_age_range_in_chrome(),
-            signin::Tribool::kFalse);
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 TEST_F(AccountCapabilitiesTest, IsOptedInToParentalSupervision) {
   AccountCapabilities capabilities;
@@ -189,21 +138,7 @@ TEST_F(AccountCapabilitiesTest, IsOptedInToParentalSupervision) {
             signin::Tribool::kFalse);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(AccountCapabilitiesTest, CanToggleAutoUpdates) {
-  AccountCapabilities capabilities;
-  EXPECT_EQ(capabilities.can_toggle_auto_updates(), signin::Tribool::kUnknown);
 
-  AccountCapabilitiesTestMutator mutator(&capabilities);
-  mutator.set_can_toggle_auto_updates(true);
-  EXPECT_EQ(capabilities.can_toggle_auto_updates(), signin::Tribool::kTrue);
-
-  mutator.set_can_toggle_auto_updates(false);
-  EXPECT_EQ(capabilities.can_toggle_auto_updates(), signin::Tribool::kFalse);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if !BUILDFLAG(IS_IOS)
 TEST_F(AccountCapabilitiesTest, CanUseDevToolsGenerativeAiFeatures) {
   AccountCapabilities capabilities;
   EXPECT_EQ(capabilities.can_use_devtools_generative_ai_features(),
@@ -218,9 +153,7 @@ TEST_F(AccountCapabilitiesTest, CanUseDevToolsGenerativeAiFeatures) {
   EXPECT_EQ(capabilities.can_use_devtools_generative_ai_features(),
             signin::Tribool::kFalse);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(AccountCapabilitiesTest, CanUseEduFeatures) {
   AccountCapabilities capabilities;
   EXPECT_EQ(capabilities.can_use_edu_features(), signin::Tribool::kUnknown);
@@ -232,7 +165,6 @@ TEST_F(AccountCapabilitiesTest, CanUseEduFeatures) {
   mutator.set_can_use_edu_features(false);
   EXPECT_EQ(capabilities.can_use_edu_features(), signin::Tribool::kFalse);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(AccountCapabilitiesTest, CanUseMantaService) {
   AccountCapabilities capabilities;
@@ -396,56 +328,8 @@ TEST_F(AccountCapabilitiesTest, CanUseSpeakerLabelInRecorderApp) {
             signin::Tribool::kFalse);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(AccountCapabilitiesTest, CanUseGenerativeAiInRecorderApp) {
-  AccountCapabilities capabilities;
-  EXPECT_EQ(capabilities.can_use_generative_ai_in_recorder_app(),
-            signin::Tribool::kUnknown);
 
-  AccountCapabilitiesTestMutator mutator(&capabilities);
-  mutator.set_can_use_generative_ai_in_recorder_app(true);
-  EXPECT_EQ(capabilities.can_use_generative_ai_in_recorder_app(),
-            signin::Tribool::kTrue);
 
-  mutator.set_can_use_generative_ai_in_recorder_app(false);
-  EXPECT_EQ(capabilities.can_use_generative_ai_in_recorder_app(),
-            signin::Tribool::kFalse);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(AccountCapabilitiesTest, CanUseGenerativeAiPhotoEditing) {
-  AccountCapabilities capabilities;
-  EXPECT_EQ(capabilities.can_use_generative_ai_photo_editing(),
-            signin::Tribool::kUnknown);
-
-  AccountCapabilitiesTestMutator mutator(&capabilities);
-  mutator.set_can_use_generative_ai_photo_editing(true);
-  EXPECT_EQ(capabilities.can_use_generative_ai_photo_editing(),
-            signin::Tribool::kTrue);
-
-  mutator.set_can_use_generative_ai_photo_editing(false);
-  EXPECT_EQ(capabilities.can_use_generative_ai_photo_editing(),
-            signin::Tribool::kFalse);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(AccountCapabilitiesTest, CanUseGenerativeAi) {
-  AccountCapabilities capabilities;
-  EXPECT_EQ(capabilities.can_use_chromeos_generative_ai(),
-            signin::Tribool::kUnknown);
-
-  AccountCapabilitiesTestMutator mutator(&capabilities);
-  mutator.set_can_use_chromeos_generative_ai(true);
-  EXPECT_EQ(capabilities.can_use_chromeos_generative_ai(),
-            signin::Tribool::kTrue);
-
-  mutator.set_can_use_chromeos_generative_ai(false);
-  EXPECT_EQ(capabilities.can_use_chromeos_generative_ai(),
-            signin::Tribool::kFalse);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(AccountCapabilitiesTest, IsSubjectToUniversalOptOut) {
   AccountCapabilities capabilities;
@@ -695,52 +579,3 @@ TEST_F(AccountCapabilitiesTest, CapabilityOverridesPrecedence) {
   EXPECT_EQ(capabilities.can_fetch_family_member_info(),
             signin::Tribool::kTrue);
 }
-
-#if BUILDFLAG(IS_ANDROID)
-
-TEST_F(AccountCapabilitiesTest, ConversionWithJNI_TriboolTrue) {
-  AccountCapabilities capabilities;
-  AccountCapabilitiesTestMutator mutator(&capabilities);
-  mutator.set_can_show_history_sync_opt_ins_without_minor_mode_restrictions(
-      true);
-
-  JNIEnv* env = base::android::AttachCurrentThread();
-  base::android::ScopedJavaLocalRef<jobject> java_capabilities =
-      capabilities.ConvertToJavaAccountCapabilities(env);
-  AccountCapabilities converted_back =
-      AccountCapabilities::ConvertFromJavaAccountCapabilities(
-          env, java_capabilities);
-
-  EXPECT_EQ(capabilities, converted_back);
-}
-
-TEST_F(AccountCapabilitiesTest, ConversionWithJNI_TriboolFalse) {
-  AccountCapabilities capabilities;
-  AccountCapabilitiesTestMutator mutator(&capabilities);
-  mutator.set_can_show_history_sync_opt_ins_without_minor_mode_restrictions(
-      false);
-
-  JNIEnv* env = base::android::AttachCurrentThread();
-  base::android::ScopedJavaLocalRef<jobject> java_capabilities =
-      capabilities.ConvertToJavaAccountCapabilities(env);
-  AccountCapabilities converted_back =
-      AccountCapabilities::ConvertFromJavaAccountCapabilities(
-          env, java_capabilities);
-
-  EXPECT_EQ(capabilities, converted_back);
-}
-
-TEST_F(AccountCapabilitiesTest, ConversionWithJNI_TriboolUnknown) {
-  AccountCapabilities capabilities;
-
-  JNIEnv* env = base::android::AttachCurrentThread();
-  base::android::ScopedJavaLocalRef<jobject> java_capabilities =
-      capabilities.ConvertToJavaAccountCapabilities(env);
-  AccountCapabilities converted_back =
-      AccountCapabilities::ConvertFromJavaAccountCapabilities(
-          env, java_capabilities);
-
-  EXPECT_EQ(capabilities, converted_back);
-}
-
-#endif

@@ -79,21 +79,12 @@ const base::FeatureParam<std::string> kPrefetchSchedulerBurstQueryParamValue{
 const base::FeatureParam<size_t> kPrefetchSchedulerBurstQueryParamExtraLimit{
     &kPrefetchSchedulerBurstQueryParam, "extra_limit", 1u};
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kPrefetchMultipleActiveSetSizeLimitForBase,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-const base::FeatureParam<size_t>
-    kPrefetchMultipleActiveSetSizeLimitForBaseValue{
-        &kPrefetchMultipleActiveSetSizeLimitForBase,
-        "prefetch_multiple_active_set_size_limit_for_base_value", 2};
-#else
 BASE_FEATURE(kPrefetchMultipleActiveSetSizeLimitForBase,
              base::FEATURE_ENABLED_BY_DEFAULT);
 const base::FeatureParam<size_t>
     kPrefetchMultipleActiveSetSizeLimitForBaseValue{
         &kPrefetchMultipleActiveSetSizeLimitForBase,
         "prefetch_multiple_active_set_size_limit_for_base_value", 3};
-#endif
 
 BASE_FEATURE(kPrefetchSchedulerBurstLimitPerPriority,
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -101,12 +92,12 @@ BASE_FEATURE(kPrefetchSchedulerBurstLimitPerPriority,
 BASE_FEATURE(kPrefetchEagerLimit, base::FEATURE_ENABLED_BY_DEFAULT);
 const base::FeatureParam<size_t> kMaxNumberOfEagerPrefetchesPerPage{
     &kPrefetchEagerLimit, "max_number_of_eager_prefetches_per_page",
-    BUILDFLAG(IS_ANDROID) ? 6 : 2};
+    false ? 6 : 2};
 
 BASE_FEATURE(kPrefetchModerateLimit, base::FEATURE_ENABLED_BY_DEFAULT);
 const base::FeatureParam<size_t> kMaxNumberOfModeratePrefetchesPerPage{
     &kPrefetchModerateLimit, "max_number_of_moderate_prefetches_per_page",
-    BUILDFLAG(IS_ANDROID) ? 6 : 2};
+    false ? 6 : 2};
 
 BASE_FEATURE(kPrefetchOffTheMainThreadForceForTesting,
              base::FEATURE_DISABLED_BY_DEFAULT);

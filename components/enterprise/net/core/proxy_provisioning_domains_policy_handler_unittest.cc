@@ -186,8 +186,7 @@ TEST_F(ProxyProvisioningDomainsPolicyHandlerTest, InvalidSchemaRejected) {
   EXPECT_FALSE(prefs.GetValue(kProxyProvisioningDomains, &value));
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 class ProxyProvisioningDomainsPolicyHandlerAffiliationTest
     : public testing::TestWithParam<std::tuple<bool /*affiliated*/,
                                                bool /*user_scope*/,
@@ -466,13 +465,8 @@ TEST_F(ProxyProvisioningDomainsPolicyHandlerTest,
                  nullptr);
 
   policy::PolicyErrorMap errors;
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  EXPECT_FALSE(handler.CheckPolicySettings(policy_map, &errors));
-  EXPECT_TRUE(errors.HasError(policy::key::kProxyProvisioningDomains));
-#else
   EXPECT_TRUE(handler.CheckPolicySettings(policy_map, &errors));
   EXPECT_TRUE(errors.empty());
-#endif
 }
 
 TEST_F(ProxyProvisioningDomainsPolicyHandlerTest,

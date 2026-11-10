@@ -57,10 +57,8 @@ PolicyTest::~PolicyTest() = default;
 
 void PolicyTest::SetUpInProcessBrowserTestFixture() {
   base::CommandLine::ForCurrentProcess()->AppendSwitch("noerrdialogs");
-#if !BUILDFLAG(IS_CHROMEOS)
   base::CommandLine::ForCurrentProcess()->AppendSwitch(
       switches::kEnableChromeBrowserCloudManagement);
-#endif
   provider_.SetDefaultReturns(true /* is_initialization_complete_return */,
                               true /* is_first_policy_load_complete_return */);
   BrowserPolicyConnector::SetPolicyProviderForTesting(&provider_);
@@ -72,9 +70,6 @@ void PolicyTest::SetUpOnMainThread() {
 
 void PolicyTest::UpdateProviderPolicy(const PolicyMap& policy) {
   PolicyMap policy_with_defaults = policy.Clone();
-#if BUILDFLAG(IS_CHROMEOS)
-  SetEnterpriseUsersDefaults(&policy_with_defaults);
-#endif
   provider_.UpdateChromePolicy(policy_with_defaults);
 }
 

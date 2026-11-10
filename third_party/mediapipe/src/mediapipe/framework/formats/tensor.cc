@@ -35,9 +35,6 @@
 #if MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
 #include "mediapipe/gpu/gl_base.h"
 #endif  // MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-#include "mediapipe/framework/formats/hardware_buffer.h"
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 
 #if MEDIAPIPE_METAL_ENABLED
 #import <Metal/Metal.h>
@@ -351,9 +348,6 @@ Tensor::OpenGlBufferView Tensor::GetOpenGlBufferReadView() const {
   ABSL_LOG_IF(FATAL, valid_ == kValidNone)
       << "Tensor must be written prior to read from.";
   ABSL_LOG_IF(FATAL, !(valid_ & (kValidCpu |
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-                                 kValidAHardwareBuffer |
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
                                  kValidOpenGlBuffer)))
       << "Tensor conversion between different GPU backing formats is not "
          "supported yet.";
@@ -379,32 +373,10 @@ Tensor::OpenGlBufferView Tensor::GetOpenGlBufferReadView() const {
     }
     valid_ |= kValidOpenGlBuffer;
   } else {
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-    // When the OpenGL buffer (`opengl_buffer_`) is backed by an external
-    // Android AHardwareBuffer (`ready_as_ahwb()` == true) mapped via
-    // glBufferStorageExternalEXT, compute shader writes on native mobile GPU
-    // drivers (e.g., Qualcomm Adreno) reside in GPU caches (GMEM/L2). We must
-    // create a native EGL fence (`EGL_SYNC_NATIVE_FENCE_ANDROID`) to ensure
-    // these writes are flushed to external system memory before subsequent CPU
-    // or GPU reads.
-    if (ready_as_ahwb()) {
-      CreateEglSyncAndFd();
-    }
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
   }
 
   return {/*is_write_view=*/false, opengl_buffer_, std::move(lock),
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-          // ssbo_read_ is passed to be populated on OpenGlBufferView
-          // destruction in order to perform delayed resources releasing (see
-          // tensor_ahwb.cc/DelayedReleaser) only when AHWB is in use.
-          //
-          // Not passing for the case when AHWB is not in use to avoid creation
-          // of unnecessary sync object and memory leak.
-          ready_as_ahwb() ? &ssbo_read_ : nullptr,
-#else
           nullptr,
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
           gl_context_.get(), &gl_write_read_sync_};
 }
 
@@ -501,12 +473,6 @@ Tensor::Tensor(ElementType element_type, const Shape& shape,
       shape_(shape),
       memory_alignment_(memory_alignment),
       mtl_resources_(std::make_unique<MtlResources>()) {
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-  if (memory_manager) {
-    hardware_buffer_pool_ = memory_manager->GetAndroidHardwareBufferPool();
-    prefer_ahwb_ = memory_manager->PreferAhwb();
-  }
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 }
 Tensor::Tensor(ElementType element_type, const Shape& shape,
                const QuantizationParameters& quantization_parameters,
@@ -516,12 +482,6 @@ Tensor::Tensor(ElementType element_type, const Shape& shape,
       quantization_parameters_(quantization_parameters),
       memory_alignment_(memory_alignment),
       mtl_resources_(std::make_unique<MtlResources>()) {
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-  if (memory_manager) {
-    hardware_buffer_pool_ = memory_manager->GetAndroidHardwareBufferPool();
-    prefer_ahwb_ = memory_manager->PreferAhwb();
-  }
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 }
 
 #if MEDIAPIPE_METAL_ENABLED
@@ -733,17 +693,6 @@ absl::Status Tensor::ReadBackGpuToCpu() const {
 Tensor::CpuBufferHandle<const void> Tensor::AcquireCpuBufferHandle() const {
   ABSL_LOG_IF(FATAL, valid_ == kValidNone)
       << "Tensor must be written prior to read from.";
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-  if (__builtin_available(android 26, *)) {
-    void* ptr = MapAhwbToCpuRead();
-    if (ptr) {
-      valid_ |= kValidCpu;
-      return CpuBufferHandle<const void>(ptr, [ahwb = ahwb_.get()] {
-        ABSL_CHECK_OK(ahwb->Unlock()) << "Unlock failed.";
-      });
-    }
-  }
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 
   ABSL_CHECK_OK(AllocateCpuBuffer()) << "AllocateCpuBuffer failed.";
   if (!(valid_ & kValidCpu)) {
@@ -771,31 +720,11 @@ Tensor::CpuWriteView Tensor::GetCpuWriteView(
            "behavior due to lack of synchronization.";
   }
   valid_ = kValidCpu;
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-  if (__builtin_available(android 26, *)) {
-    void* ptr = MapAhwbToCpuWrite();
-    if (ptr) {
-      return {ptr, std::move(lock),
-              [ahwb = ahwb_.get(),
-               write_complete_fence_fd = &write_complete_fence_fd_] {
-                auto fence_fd_status = ahwb->UnlockAsync();
-                ABSL_CHECK_OK(fence_fd_status) << "Unlock failed.";
-                if (write_complete_fence_fd->IsValid()) {
-                  ABSL_LOG(DFATAL) << "Write complete fence FD is already set.";
-                }
-                *write_complete_fence_fd = UniqueFd(fence_fd_status.value());
-              }};
-    }
-  }
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
   return {cpu_buffer_, std::move(lock)};
 }
 
 absl::Status Tensor::AllocateCpuBuffer() const {
   if (!cpu_buffer_) {
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-    if (use_ahwb_ && AllocateAHardwareBuffer().ok()) return absl::OkStatus();
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 #if MEDIAPIPE_METAL_ENABLED
     // AllocateVirtualMemory allocates memory aligned to the size of a virtual
     // memory page which should match common alignment requirements.

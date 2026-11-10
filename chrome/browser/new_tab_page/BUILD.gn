@@ -51,24 +51,22 @@ source_set("new_tab_page") {
     "//skia",
   ]
 
-  if (!is_android) {
-    public += [
-      "chrome_colors/chrome_colors_factory.h",
-      "chrome_colors/chrome_colors_service.h",
+  public += [
+    "chrome_colors/chrome_colors_factory.h",
+    "chrome_colors/chrome_colors_service.h",
 
-      # The Microsoft Files and Outlook Calendar modules are not available on
-      # Android (their mojo interfaces are only registered in
-      # chrome_browser_interface_binders_webui_parts_desktop.cc).
-      "modules/file_suggestion/microsoft_files_page_handler.h",
-      "modules/microsoft_modules_helper.h",
-      "modules/v2/calendar/outlook_calendar_page_handler.h",
-      "modules/v2/tab_groups/tab_groups_page_handler.h",
-    ]
-    public_deps += [
-      "//chrome/browser/themes",
-      "//chrome/browser/ui/webui/ntp",
-    ]
-  }
+    # The Microsoft Files and Outlook Calendar modules are not available on
+    # Android (their mojo interfaces are only registered in
+    # chrome_browser_interface_binders_webui_parts_desktop.cc).
+    "modules/file_suggestion/microsoft_files_page_handler.h",
+    "modules/microsoft_modules_helper.h",
+    "modules/v2/calendar/outlook_calendar_page_handler.h",
+    "modules/v2/tab_groups/tab_groups_page_handler.h",
+  ]
+  public_deps += [
+    "//chrome/browser/themes",
+    "//chrome/browser/ui/webui/ntp",
+  ]
 }
 
 # The implementation target.
@@ -129,25 +127,23 @@ source_set("impl") {
     "//ui/webui/resources/js/browser_command:mojo_bindings",
   ]
 
-  if (!is_android) {
-    sources += [
-      "chrome_colors/chrome_colors_factory.cc",
-      "chrome_colors/chrome_colors_service.cc",
-      "modules/file_suggestion/microsoft_files_page_handler.cc",
-      "modules/microsoft_modules_helper.cc",
-      "modules/v2/calendar/outlook_calendar_page_handler.cc",
-      "modules/v2/tab_groups/tab_groups_page_handler.cc",
-    ]
-    deps += [
-      "//chrome/browser/ui:browser_command_controller",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/signin",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/tabs/saved_tab_groups",
-      "//chrome/browser/ui/user_education",
-      "//chrome/browser/user_education",
-    ]
-  }
+  sources += [
+    "chrome_colors/chrome_colors_factory.cc",
+    "chrome_colors/chrome_colors_service.cc",
+    "modules/file_suggestion/microsoft_files_page_handler.cc",
+    "modules/microsoft_modules_helper.cc",
+    "modules/v2/calendar/outlook_calendar_page_handler.cc",
+    "modules/v2/tab_groups/tab_groups_page_handler.cc",
+  ]
+  deps += [
+    "//chrome/browser/ui:browser_command_controller",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/signin",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/tabs/saved_tab_groups",
+    "//chrome/browser/ui/user_education",
+    "//chrome/browser/user_education",
+  ]
 }
 
 source_set("test_support") {
@@ -201,27 +197,23 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  # The Microsoft modules are not available on Android, and the tab groups
-  # module is not built for Android (see :impl above).
-  if (!is_android) {
-    sources += [
-      "feature_promo_helper/new_tab_page_feature_promo_helper_unittest.cc",
-      "microsoft_auth/microsoft_auth_service_unittest.cc",
-      "modules/file_suggestion/microsoft_files_page_handler_unittest.cc",
-      "modules/v2/calendar/outlook_calendar_page_handler_unittest.cc",
-      "modules/v2/tab_groups/tab_groups_page_handler_unittest.cc",
-    ]
-    deps += [
-      "//chrome/browser/tab_group_sync:factories",
-      "//chrome/browser/ui/actions:actions_headers",
-      "//chrome/browser/ui/browser_window/test:test_support",
-      "//chrome/browser/ui/side_panel:test_support",
-      "//chrome/browser/ui/tabs:test_support",
-      "//chrome/browser/ui/views/user_education",
-      "//chrome/browser/user_education",
-      "//chrome/test/user_education:impl",
-    ]
-  }
+  sources += [
+    "feature_promo_helper/new_tab_page_feature_promo_helper_unittest.cc",
+    "microsoft_auth/microsoft_auth_service_unittest.cc",
+    "modules/file_suggestion/microsoft_files_page_handler_unittest.cc",
+    "modules/v2/calendar/outlook_calendar_page_handler_unittest.cc",
+    "modules/v2/tab_groups/tab_groups_page_handler_unittest.cc",
+  ]
+  deps += [
+    "//chrome/browser/tab_group_sync:factories",
+    "//chrome/browser/ui/actions:actions_headers",
+    "//chrome/browser/ui/browser_window/test:test_support",
+    "//chrome/browser/ui/side_panel:test_support",
+    "//chrome/browser/ui/tabs:test_support",
+    "//chrome/browser/ui/views/user_education",
+    "//chrome/browser/user_education",
+    "//chrome/test/user_education:impl",
+  ]
 }
 
 source_set("browser_tests") {
@@ -243,63 +235,55 @@ source_set("browser_tests") {
     "//testing/gtest",
   ]
 
-  # TODO(b:535209960): Enable chrome_colors_service_browsertest on Android once
-  # ChromeColorsService is implemented there.
-  # TODO(b:502297163): Enable new_tab_page_feature_promo_helper_browsertest on
-  # Android once its user education integration is implemented there.
-  if (!is_android) {
-    sources += [
-      "chrome_colors/chrome_colors_service_browsertest.cc",
-      "feature_promo_helper/new_tab_page_feature_promo_helper_browsertest.cc",
-    ]
-    deps += [
-      "//chrome/browser/new_tab_page/chrome_colors",
-      "//chrome/browser/new_tab_page/chrome_colors:generate_chrome_colors_info",
-      "//chrome/browser/ui/views/user_education",
-      "//chrome/browser/ui/webui/cr_components/theme_color_picker",
-      "//chrome/browser/user_education",
-      "//chrome/test/user_education:impl",
-      "//components/feature_engagement/test:test_support",
-      "//ui/base:test_support",
-    ]
-  }
+  sources += [
+    "chrome_colors/chrome_colors_service_browsertest.cc",
+    "feature_promo_helper/new_tab_page_feature_promo_helper_browsertest.cc",
+  ]
+  deps += [
+    "//chrome/browser/new_tab_page/chrome_colors",
+    "//chrome/browser/new_tab_page/chrome_colors:generate_chrome_colors_info",
+    "//chrome/browser/ui/views/user_education",
+    "//chrome/browser/ui/webui/cr_components/theme_color_picker",
+    "//chrome/browser/user_education",
+    "//chrome/test/user_education:impl",
+    "//components/feature_engagement/test:test_support",
+    "//ui/base:test_support",
+  ]
 }
 
-if (!is_android) {
-  source_set("interactive_ui_tests") {
-    testonly = true
+source_set("interactive_ui_tests") {
+  testonly = true
 
-    # Some of these interactive uitests have file-scope statics of
-    # non-trivial-destructor types, which -Wexit-time-destructors rejects.
-    configs += [ "//build/config/compiler:no_exit_time_destructors" ]
+  # Some of these interactive uitests have file-scope statics of
+  # non-trivial-destructor types, which -Wexit-time-destructors rejects.
+  configs += [ "//build/config/compiler:no_exit_time_destructors" ]
 
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [
-      "modules/new_tab_page_modules_interactive_uitest.cc",
-      "new_tab_page_interactive_uitest.cc",
-      "new_tab_page_realbox_interactive_uitest.cc",
-      "ntp_promo/ntp_promo_interactive_uitest.cc",
-    ]
+  sources = [
+    "modules/new_tab_page_modules_interactive_uitest.cc",
+    "new_tab_page_interactive_uitest.cc",
+    "new_tab_page_realbox_interactive_uitest.cc",
+    "ntp_promo/ntp_promo_interactive_uitest.cc",
+  ]
 
-    deps = [
-      ":test_support",
-      "//base",
-      "//chrome/browser/autocomplete:aim_eligibility_service",
-      "//chrome/browser/contextual_search",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/side_panel",
-      "//chrome/browser/ui/side_panel:side_panel_views_dependent",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/browser/ui/views/user_education",
-      "//chrome/browser/ui/webui/searchbox:searchbox_test_utils",
-      "//chrome/browser/user_education",
-      "//chrome/test:test_support",
-      "//components/contextual_search:test_support",
-      "//components/omnibox/common:features",
-      "//content/test:test_support",
-      "//testing/gtest",
-      "//ui/base:test_support",
-    ]
-  }
+  deps = [
+    ":test_support",
+    "//base",
+    "//chrome/browser/autocomplete:aim_eligibility_service",
+    "//chrome/browser/contextual_search",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/side_panel",
+    "//chrome/browser/ui/side_panel:side_panel_views_dependent",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+    "//chrome/browser/ui/views/user_education",
+    "//chrome/browser/ui/webui/searchbox:searchbox_test_utils",
+    "//chrome/browser/user_education",
+    "//chrome/test:test_support",
+    "//components/contextual_search:test_support",
+    "//components/omnibox/common:features",
+    "//content/test:test_support",
+    "//testing/gtest",
+    "//ui/base:test_support",
+  ]
 }

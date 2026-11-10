@@ -28,9 +28,6 @@
 #include "google_apis/gaia/google_service_auth_error.h"
 #include "google_apis/gaia/oauth2_mint_token_flow.h"
 
-#if BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_EXTENSIONS_CORE)
-#include "components/signin/public/browser/web_signin_tracker.h"
-#endif
 
 namespace signin {
 class AccessTokenFetcher;
@@ -91,20 +88,6 @@ class IdentityGetAuthTokenFunction : public ExtensionFunction,
 
   IdentityGetAuthTokenFunction();
 
-#if BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_EXTENSIONS_CORE)
-  // Overrides how long the function waits for the Gaia cookies to be updated
-  // before giving up and failing the request. Restores the default value on
-  // destruction. Must not be nested.
-  class ScopedCookieWaiterTimeoutForTesting {
-   public:
-    explicit ScopedCookieWaiterTimeoutForTesting(base::TimeDelta timeout);
-    ScopedCookieWaiterTimeoutForTesting(
-        const ScopedCookieWaiterTimeoutForTesting&) = delete;
-    ScopedCookieWaiterTimeoutForTesting& operator=(
-        const ScopedCookieWaiterTimeoutForTesting&) = delete;
-    ~ScopedCookieWaiterTimeoutForTesting();
-  };
-#endif
 
   const ExtensionTokenKey* GetExtensionTokenKeyForTest() { return &token_key_; }
 
@@ -168,19 +151,12 @@ class IdentityGetAuthTokenFunction : public ExtensionFunction,
 
   class RefreshTokensLoadedWaiter;
   enum class InteractionType { kSignin, kConsent };
-#if BUILDFLAG(IS_CHROMEOS)
-  class DeviceOAuth2TokenFetcher;
-#endif
 
   // If `gaia_id` is empty or the account is not present in Chrome, this will
   // use the primary account if it exists. Otherwise, interactive sign in flow
   // might be started.
   void GetAuthTokenForAccount(const GaiaId& gaia_id);
 
-#if BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_EXTENSIONS_CORE)
-  void OnWebSigninTrackerResult(signin::WebSigninTracker::Result result);
-  void StartWaitingForCookies();
-#endif
 
   // signin::IdentityManager::Observer implementation:
   void OnRefreshTokenUpdatedForAccount(
@@ -221,19 +197,6 @@ class IdentityGetAuthTokenFunction : public ExtensionFunction,
   void OnRemoteConsentSuccess(
       const RemoteConsentResolutionData& resolution_data) override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Starts a login access token request for device robot account. This method
-  // will be called only in Chrome OS for:
-  // 1. Enterprise kiosk mode.
-  // 2. Allowlisted first party apps in public session.
-  virtual void StartDeviceAccessTokenRequest();
-
-  // Called on completion of `StartDeviceAccessTokenRequest`.
-  void OnAccessTokenForDeviceAccountFetchCompleted(
-      const std::optional<std::string>& access_token,
-      base::Time expiration_time,
-      const GoogleServiceAuthError& error);
-#endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
   // This dialog prompts the user to sign in with an account that is already
@@ -244,9 +207,7 @@ class IdentityGetAuthTokenFunction : public ExtensionFunction,
 #endif
 
   // Methods for invoking UI. Overridable for testing.
-#if !BUILDFLAG(IS_CHROMEOS)
   virtual void ShowExtensionLoginPrompt();
-#endif
 
   // Entry point for the remote consent flow. On platforms where Gaia cookies
   // are reconciled asynchronously, this may first wait for the cookies to be
@@ -295,11 +256,6 @@ class IdentityGetAuthTokenFunction : public ExtensionFunction,
   // a permissions prompt will be popped up to the user.
   RemoteConsentResolutionData resolution_data_;
   std::unique_ptr<RefreshTokensLoadedWaiter> refresh_tokens_loaded_waiter_;
-#if BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_EXTENSIONS_CORE)
-  // Waits for the account to be available in the cookie jar before showing the
-  // remote consent dialog.
-  std::unique_ptr<signin::WebSigninTracker> web_signin_tracker_;
-#endif
   std::unique_ptr<GaiaRemoteConsentFlow> gaia_remote_consent_flow_;
   std::string consent_result_;
   // Indicates whether remote consent was approved for this request.
@@ -317,9 +273,6 @@ class IdentityGetAuthTokenFunction : public ExtensionFunction,
 
   bool waiting_on_account_ = false;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<DeviceOAuth2TokenFetcher> device_oauth2_token_fetcher_;
-#endif
 
   base::WeakPtrFactory<IdentityGetAuthTokenFunction> weak_ptr_factory_{this};
 };

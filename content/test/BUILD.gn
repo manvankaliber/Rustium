@@ -32,17 +32,6 @@ import("//tools/grit/preprocess_if_expr.gni")
 import("//tools/typescript/webui_ts_library.gni")
 import("//v8/gni/v8.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-  import("//third_party/jni_zero/jni_zero.gni")
-}
-
-if (is_ios) {
-  import("//build/config/apple/mobile_config.gni")  # For `target_platform`
-  import("//build/config/ios/bundle_data_from_filelist.gni")
-  import("//build/ios/extension_bundle_data.gni")
-}
-
 # Exposes a free function to enable the field trial testing config.
 # This allows testing new features enabled in the Dev/Beta/Stable channels.
 #
@@ -658,51 +647,36 @@ static_library("test_support") {
     "//tools/v8_context_snapshot",
   ]
 
-  if (is_android) {
-    sources += [
-      "../public/test/navigation_transition_test_utils.cc",
-      "../public/test/navigation_transition_test_utils.h",
-      "../public/test/test_synchronous_compositor_android.cc",
-      "../public/test/test_synchronous_compositor_android.h",
-    ]
-    deps += [
-      "//content/shell:android_shell_descriptors",
-      "//mojo/public/java/system:native_support",
-      "//testing/android/native_test:native_browser_test_support",
-      "//ui/android",
-    ]
-  } else {
-    sources += [
-      "../public/test/mock_captured_surface_controller.cc",
-      "../public/test/mock_captured_surface_controller.h",
-    ]
+  sources += [
+    "../public/test/mock_captured_surface_controller.cc",
+    "../public/test/mock_captured_surface_controller.h",
+  ]
 
-    sources += [
-      "../browser/speech/fake_speech_recognition_manager_delegate.cc",
-      "../browser/speech/fake_speech_recognition_manager_delegate.h",
-    ]
-    deps += [ "//components/soda" ]
-    public_deps += [ "//components/soda:test_support" ]
+  sources += [
+    "../browser/speech/fake_speech_recognition_manager_delegate.cc",
+    "../browser/speech/fake_speech_recognition_manager_delegate.h",
+  ]
+  deps += [ "//components/soda" ]
+  public_deps += [ "//components/soda:test_support" ]
 
-    if (is_win) {
-      sources += [
-        "../browser/renderer_host/input/mock_tfhandwriting.cc",
-        "../browser/renderer_host/input/mock_tfhandwriting.h",
-        "../browser/renderer_host/input/stylus_handwriting_win_test_helper.cc",
-        "../browser/renderer_host/input/stylus_handwriting_win_test_helper.h",
-      ]
-    }
+  if (is_win) {
+    sources += [
+      "../browser/renderer_host/input/mock_tfhandwriting.cc",
+      "../browser/renderer_host/input/mock_tfhandwriting.h",
+      "../browser/renderer_host/input/stylus_handwriting_win_test_helper.cc",
+      "../browser/renderer_host/input/stylus_handwriting_win_test_helper.h",
+    ]
   }
 
   # HID support is not available without udev.
-  is_linux_without_udev = (is_linux || is_chromeos) && !use_udev
+  is_linux_without_udev = is_linux && !use_udev
   if (!is_linux_without_udev) {
     sources += [
       "../browser/hid/hid_test_utils.cc",
       "../browser/hid/hid_test_utils.h",
     ]
   }
-  if (!is_linux_without_udev && !is_android) {
+  if (!is_linux_without_udev) {
     sources += [
       "../browser/webauth/authenticator_test_base.cc",
       "../browser/webauth/authenticator_test_base.h",
@@ -716,12 +690,6 @@ static_library("test_support") {
       "//device/fido:mocks",
       "//device/fido:test_support",
     ]
-    if (is_chromeos) {
-      deps += [
-        "//chromeos/dbus/tpm_manager",
-        "//chromeos/dbus/u2f",
-      ]
-    }
   }
 
   if (use_atk) {
@@ -767,13 +735,6 @@ static_library("test_support") {
     ]
   }
 
-  if (is_ios) {
-    sources += [
-      "../browser/renderer_host/test_render_widget_host_view_ios_factory.h",
-      "../browser/renderer_host/test_render_widget_host_view_ios_factory.mm",
-    ]
-  }
-
   if (use_ozone) {
     deps += [ "//ui/ozone" ]
   }
@@ -790,21 +751,6 @@ static_library("test_support") {
       "//third_party/iaccessible2",
     ]
     libs = [ "oleacc.lib" ]
-  }
-
-  if (is_android) {
-    sources += [
-      "mock_overscroll_refresh_handler_android.cc",
-      "mock_overscroll_refresh_handler_android.h",
-    ]
-
-    deps += [
-      "//components/discardable_memory/service",
-      "//media/capture/video/android",
-      "//ui/android",
-      "//ui/android:test_support",
-      "//ui/shell_dialogs",
-    ]
   }
 
   if (is_win) {
@@ -834,17 +780,10 @@ static_library("test_support") {
     ]
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [
       "sandbox_status_service.cc",
       "sandbox_status_service.h",
-    ]
-  }
-
-  if (enable_smart_card) {
-    sources += [
-      "../browser/smart_card/mock_smart_card_context_factory.cc",
-      "../browser/smart_card/mock_smart_card_context_factory.h",
     ]
   }
 
@@ -1053,16 +992,12 @@ static_library("browsertest_support") {
     "//ui/base/ime/init",
   ]
 
-  if (is_android) {
-    deps += [ "//content/public/app" ]
-  } else {
-    deps += [
-      "//components/soda:utils",
-      "//content/public/browser",
-    ]
-  }
+  deps += [
+    "//components/soda:utils",
+    "//content/public/browser",
+  ]
 
-  if (use_aura && toolkit_views && !is_castos) {
+  if (use_aura && toolkit_views) {
     deps += [ "//ui/views" ]
   }
 
@@ -1261,7 +1196,7 @@ mojom("mojo_web_test_bindings") {
 mojom("test_interfaces") {
   testonly = true
   sources = [ "echo.test-mojom" ]
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [ "sandbox_status.test-mojom" ]
   }
 }
@@ -1274,27 +1209,6 @@ mojom("mojo_bindings_web_test_mojom") {
   ]
   scramble_message_ids = false
   js_generate_struct_deserializers = true
-}
-
-if (is_android) {
-  static_library("android_test_message_pump_support") {
-    testonly = true
-
-    # See comment at the top of //content/BUILD.gn for why this is disabled in
-    # component builds.
-    if (is_component_build) {
-      check_includes = false
-    }
-
-    sources = [
-      "../public/test/nested_message_pump_android.cc",
-      "../public/test/nested_message_pump_android.h",
-    ]
-
-    public_deps = [ "//base" ]
-
-    deps = [ "//content/public/test/android:test_support_content_jni_headers" ]
-  }
 }
 
 static_library("blink_test_browser_support") {
@@ -1317,51 +1231,6 @@ static_library("blink_test_browser_support") {
     "//content/public/common",
     "//skia",
   ]
-}
-
-if (is_android) {
-  import("//build/config/android/rules.gni")
-
-  content_browsertests_manifest =
-      "${target_gen_dir}/content_browsertests_manifest/AndroidManifest.xml"
-
-  jinja_template("content_browsertests_manifest") {
-    testonly = true
-    input =
-        "//content/shell/android/browsertests_apk/AndroidManifest.xml.jinja2"
-    output = content_browsertests_manifest
-    variables = [ "library_name=content_browsertests__library" ]
-  }
-
-  android_library("content_browsertests_java") {
-    testonly = true
-    resources_package = "org.chromium.content_browsertests_apk"
-    sources = [
-      "../shell/android/browsertests_apk/src/org/chromium/content_browsertests_apk/ContentBrowserTestsActivity.java",
-      "../shell/android/browsertests_apk/src/org/chromium/content_browsertests_apk/ContentBrowserTestsApplication.java",
-    ]
-    deps = [
-      ":content_browsertests_resources",
-      "//base:base_java",
-      "//base:base_java_test_support",
-      "//components/download/internal/common:internal_java",
-      "//components/metrics:metrics_java",
-      "//components/viz/service:service_java",
-      "//content/public/android:content_java",
-      "//content/public/test/android:content_java_test_support",
-      "//content/shell/android:content_shell_browsertests_java",
-      "//testing/android/native_test:native_browser_test_java",
-      "//ui/android:ui_java",
-    ]
-  }
-
-  android_resources("content_browsertests_resources") {
-    testonly = true
-    sources = [
-      "//content/shell/android/browsertests_apk/res/layout/test_activity.xml",
-      "//content/shell/android/browsertests_apk/res/xml/file_paths.xml",
-    ]
-  }
 }
 
 static_library("content_test_entry") {
@@ -1810,20 +1679,6 @@ test("content_browsertests") {
     ]
   }
 
-  if (is_android) {
-    sources += [
-      "../browser/gpu/gpu_background_kill_android_browsertest.cc",
-      "../browser/navigation_transitions/back_forward_transition_animation_manager_android_browsertest.cc",
-      "../browser/network/quic_connection_migration_android_browsertest.cc",
-      "../browser/renderer_host/android_spare_renderer_navigation_throttle_browsertest.cc",
-      "../browser/renderer_host/render_widget_host_view_android_browsertest.cc",
-
-      # TODO(crbug.com/40267166): move out of Android once we can capture
-      # for other platforms.
-      "../browser/renderer_host/navigation_transitions/navigation_entry_screenshot_browsertest.cc",
-    ]
-  }
-
   if (is_win) {
     sources += [ "../browser/network/sandboxed_socket_broker_browsertest.cc" ]
     if (is_basic_api_shim) {
@@ -2019,9 +1874,7 @@ test("content_browsertests") {
     "//ui/webui:test_support",
   ]
 
-  if (!(is_chromeos && target_cpu == "arm64" && current_cpu == "arm")) {
-    deps += [ "//components/variations" ]
-  }
+  deps += [ "//components/variations" ]
 
   data_deps = [
     "//content/shell:pak",
@@ -2043,38 +1896,18 @@ test("content_browsertests") {
     "$root_gen_dir/url/mojom/scheme_host_port.mojom-lite.js",
   ]
 
-  if (!is_ios && !is_android) {
-    sources += [ "../browser/file_system_access/file_system_access_observer_browsertest.cc" ]
+  sources += [
+    "../browser/file_system_access/file_system_access_observer_browsertest.cc",
+  ]
 
-    # Add Material Design components for accessibility tests on desktop
-    # platforms
-    data += [ "//third_party/material_web_components/" ]
-  }
+  # Add Material Design components for accessibility tests on desktop
+  # platforms
+  data += [ "//third_party/material_web_components/" ]
 
-  if (is_ios) {
-    entitlements_path = "//content/app/ios/appex/app.entitlements"
-    bundle_deps = [
-      ":content_test_bundle_data",
-      ":content_test_perfetto_bundle_data",
-      ":content_test_perfetto_chrome_bundle_data",
-      "//media/test:media_bundle_data",
-      "//mojo/public/interfaces/bindings/tests:validation_unittest_bundle_data",
-      "//testing/buildbot/filters:content_browsertests_filter_bundle_data",
-    ]
-
-    if (target_platform == "iphoneos") {
-      deps += [
-        "//content/test/ios/appex:test_content_process_bundle",
-        "//content/test/ios/appex:test_gpu_process_bundle",
-        "//content/test/ios/appex:test_network_process_bundle",
-      ]
-    }
-  } else {
-    data_deps += [
-      "//testing/buildbot/filters:content_browsertests_filters",
-      "//third_party/perfetto/protos/perfetto/config/chrome:scenario_descriptor",
-    ]
-  }
+  data_deps += [
+    "//testing/buildbot/filters:content_browsertests_filters",
+    "//third_party/perfetto/protos/perfetto/config/chrome:scenario_descriptor",
+  ]
 
   if (enable_plugins) {
     sources += [ "../browser/plugin_service_impl_browsertest.cc" ]
@@ -2093,7 +1926,7 @@ test("content_browsertests") {
   }
 
   if (enable_screen_capture) {
-    if (is_android || is_linux || is_chromeos || is_mac || is_win) {
+    if (is_linux || is_mac || is_win) {
       sources += [
         "../browser/media/capture/content_capture_device_browsertest_base.cc",
         "../browser/media/capture/content_capture_device_browsertest_base.h",
@@ -2108,19 +1941,15 @@ test("content_browsertests") {
       data += [ "$root_out_dir/content_shell.pak" ]
     }
 
-    if (is_linux || is_chromeos || is_mac || is_win) {
+    if (is_linux || is_mac || is_win) {
       # For chromecast, content_browsertests does not provide a shell window.
-      if (use_aura && !is_castos) {
+      if (use_aura) {
         sources += [ "../browser/media/capture/aura_window_video_capture_device_browsertest.cc" ]
-      }
-
-      if (is_chromeos) {
-        deps += [ "//ui/wm" ]
       }
     }
   }
 
-  if (is_linux || is_chromeos || is_mac || is_win) {
+  if (is_linux || is_mac || is_win) {
     deps += [ "//third_party/libyuv" ]
     data += [
       "//net/tools/testserver/",
@@ -2128,15 +1957,8 @@ test("content_browsertests") {
     ]
   }
 
-  if (!is_chromeos) {
-    sources +=
-        [ "../browser/media/media_keys_listener_manager_impl_browsertest.cc" ]
-  }
-
-  if (is_chromeos) {
-    sources +=
-        [ "../browser/lock_screen/lock_screen_service_impl_browsertest.cc" ]
-  }
+  sources +=
+      [ "../browser/media/media_keys_listener_manager_impl_browsertest.cc" ]
 
   if (is_win) {
     sources += [
@@ -2185,7 +2007,7 @@ test("content_browsertests") {
     ]
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [
       "../browser/service_host/utility_process_sandbox_browsertest.cc",
       "../browser/zygote_host/zygote_browsertest.cc",
@@ -2205,130 +2027,52 @@ test("content_browsertests") {
     }
   }
 
-  if (is_chromeos) {
-    deps += [ "//chromeos/ash/components/assistant:buildflags" ]
+  # Non-Android.
+  sources += [
+    "../browser/font_preferences_browsertest.cc",
+    "../browser/renderer_host/clipboard_host_impl_browsertest.cc",
+    "../browser/speech/speech_recognition_browsertest.cc",
+    "../browser/speech/speech_synthesis_impl_browsertest.cc",
+    "../browser/speech/tts_ssml_browsertest.cc",
+    "../browser/storage_service_restart_browsertest.cc",
+    "../browser/storage_service_sandbox_browsertest.cc",
+    "../browser/zoom_browsertest.cc",
+  ]
+  deps += [
+    "//components/soda:utils",
+    "//content/public/browser:proto",
+    "//device/fido:mocks",
+    "//media/mojo/mojom:web_speech_recognition",
+  ]
+
+  if (enable_compute_pressure) {
+    sources += [ "../browser/compute_pressure/pressure_service_browsertest.cc" ]
   }
 
-  if (is_android) {
-    if (is_component_build) {
-      sources += [ "../browser/android/render_widget_host_connector.cc" ]
-    }
-    sources += [
-      "../browser/accessibility/android_granularity_movement_browsertest.cc",
-      "../browser/accessibility/ime_accessibility_browsertest.cc",
-      "../browser/android/additional_navigation_params_browsertest.cc",
-      "../browser/android/nfc_host_browsertest.cc",
-      "../browser/android/render_widget_host_connector_browsertest.cc",
-      "../browser/android/render_widget_host_connector_browsertest.h",
-      "../browser/android/select_popup_browsertest.cc",
-      "../browser/android/synchronous_compositor_browsertest.cc",
-      "../browser/date_time_chooser/android/date_time_chooser_browsertest.cc",
-      "../browser/media/session/audio_focus_delegate_android_browsertest.cc",
-      "../browser/renderer_host/compositor_impl_android_browsertest.cc",
-      "../shell/android/browsertests_apk/content_browser_tests_jni_onload.cc",
-    ]
-    sources -= [
-      "../browser/media/session/audio_focus_delegate_default_browsertest.cc",
-    ]
-    deps += [
-      ":android_test_message_pump_support",
-      ":content_browsertests_java",
-      "//content/shell:content_shell_app",
-      "//content/shell/android:content_shell_assets",
-      "//content/shell/android:content_shell_jni_headers",
-      "//testing/android/native_test:native_test_support",
-      "//ui/accessibility:ax_base_android",
-      "//ui/android",
-      "//ui/android:test_support",
-      "//ui/events:motionevent_jni_headers",
-      "//ui/touch_selection",
-    ]
-    android_manifest =
-        "${target_gen_dir}/content_browsertests_manifest/AndroidManifest.xml"
-    android_manifest_dep = ":content_browsertests_manifest"
-    use_default_launcher = false
-    if (!is_java_debug) {
-      proguard_enabled = true
-    }
-
-    if (enable_chrome_android_internal) {
-      data_deps += [ "//clank/build/bot/filters:content_browsertests_filters" ]
-    }
-  } else {
-    # Non-Android.
-    sources += [
-      "../browser/font_preferences_browsertest.cc",
-      "../browser/renderer_host/clipboard_host_impl_browsertest.cc",
-      "../browser/speech/speech_recognition_browsertest.cc",
-      "../browser/speech/speech_synthesis_impl_browsertest.cc",
-      "../browser/speech/tts_ssml_browsertest.cc",
-      "../browser/storage_service_restart_browsertest.cc",
-      "../browser/storage_service_sandbox_browsertest.cc",
-      "../browser/zoom_browsertest.cc",
-    ]
-    deps += [
-      "//components/soda:utils",
-      "//content/public/browser:proto",
-      "//device/fido:mocks",
-      "//media/mojo/mojom:web_speech_recognition",
-    ]
-
-    if (enable_compute_pressure) {
-      sources +=
-          [ "../browser/compute_pressure/pressure_service_browsertest.cc" ]
-    }
-
-    if (enable_device_bound_sessions) {
-      sources +=
-          [ "../browser/network/device_bound_session_js_api_browsertest.cc" ]
-      deps += [ "//crypto:test_support" ]
-    }
-
-    if (is_chromeos) {
-      deps += [ "//ash/constants" ]
-    }
-
-    if (!is_ios) {
-      data += [ "//content/test/data/clipboard/" ]
-    }
-    if (!is_ios) {
-      sources += [
-        "../browser/direct_sockets/direct_sockets_open_browsertest.cc",
-        "../browser/direct_sockets/direct_sockets_tcp_browsertest.cc",
-        "../browser/direct_sockets/direct_sockets_udp_browsertest.cc",
-      ]
-    }
+  if (enable_device_bound_sessions) {
+    sources +=
+        [ "../browser/network/device_bound_session_js_api_browsertest.cc" ]
+    deps += [ "//crypto:test_support" ]
   }
+
+  data += [ "//content/test/data/clipboard/" ]
+
+  sources += [
+    "../browser/direct_sockets/direct_sockets_open_browsertest.cc",
+    "../browser/direct_sockets/direct_sockets_tcp_browsertest.cc",
+    "../browser/direct_sockets/direct_sockets_udp_browsertest.cc",
+  ]
+
   if (is_posix) {
     deps += [ "//services/tracing:test_utils" ]
   }
 
-  if (is_chromeos) {
-    sources += [ "../browser/direct_sockets/firewall_hole_browsertest.cc" ]
-
-    deps += [
-      "//chromeos/components/firewall_hole",
-      "//chromeos/dbus/permission_broker",
-    ]
-
-    if (is_component_build) {
-      sources += [
-        "//content/browser/direct_sockets/firewall_hole_delegate.cc",
-        "//content/browser/direct_sockets/firewall_hole_delegate.h",
-      ]
-    }
-  }
-
-  if (enable_smart_card) {
-    sources += [ "../browser/smart_card/smart_card_browsertest.cc" ]
-  }
-
   # HID support is not available without udev.
-  is_linux_without_udev = (is_linux || is_chromeos) && !use_udev
+  is_linux_without_udev = is_linux && !use_udev
   if (!is_linux_without_udev) {
     sources += [ "../browser/hid/hid_browsertest.cc" ]
   }
-  if (!is_linux_without_udev && !is_android) {
+  if (!is_linux_without_udev) {
     sources += [ "../browser/webauth/webauth_browsertest.cc" ]
   }
 
@@ -2356,23 +2100,6 @@ test("content_browsertests") {
     data_deps += [ "//content/shell:content_shell" ]
     data += [ "$root_out_dir/Content Shell.app/" ]
     frameworks = [ "ScreenCaptureKit.framework" ]
-  }
-
-  if (is_ios) {
-    sources += [
-      "../browser/keyboard_lock_browsertest_ios.mm",
-      "../browser/pointer_lock_browsertest_ios.mm",
-    ]
-    bundle_deps += [ ":content_shell_pak_bundle_data" ]
-  }
-
-  if (is_chromeos) {
-    deps += [
-      "//chromeos/ash/components/audio",
-      "//chromeos/ash/components/dbus/audio",
-      "//chromeos/ash/components/dbus/debug_daemon",
-      "//chromeos/ash/components/system",
-    ]
   }
 
   if (use_aura && !is_win) {
@@ -2431,36 +2158,8 @@ test("content_browsertests") {
     ]
   }
 
-  if (is_castos || is_cast_android) {
-    sources -= [
-      # The cast shell media pipeline doesn't produce real video frames that we
-      # can inspect.
-      "../browser/media/media_color_browsertest.cc",
-
-      # The cast shell has plugin support but no pdf, causing blocked scheme PDF
-      # tests to fail.
-      "../browser/renderer_host/blocked_scheme_navigation_browsertest.cc",
-
-      # The multi-window tests don't work on cast_shell. Since there's little
-      # added value in running the single-window test on this platform, just
-      # exclude them all.
-      "../browser/snapshot_browsertest.cc",
-    ]
-  }
-
-  # KeyboardLock is currently not supported in Android, Fuchsia and
-  # Chromecast builds. TODO(crbug.com/40891949): Re-enable on Fuchsia
-  # once its platform support is available.
-  if (is_android || is_castos) {
-    sources -= [ "../browser/keyboard_lock_browsertest.cc" ]
-  }
-
   if (use_ozone) {
     deps += [ "//ui/ozone" ]
-  }
-
-  if (is_chromeos) {
-    deps += [ "//chromeos/dbus/constants" ]
   }
 
   # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
@@ -3092,45 +2791,6 @@ test("content_unittests") {
     ]
   }
 
-  if (is_ios && target_platform == "iphoneos") {
-    sources += [
-      "../browser/date_time_chooser/ios/date_time_chooser_util_unittest.mm",
-      "../browser/renderer_host/ios_extended_text_input_traits_unittest.mm",
-      "../browser/renderer_host/render_widget_host_view_ios_uiview_unittest.mm",
-      "../browser/renderer_host/render_widget_host_view_ios_unittest.mm",
-    ]
-  }
-
-  if (is_android) {
-    sources += [
-      "../browser/accessibility/ax_style_data_unittest.cc",
-      "../browser/accessibility/browser_accessibility_android_unittest.cc",
-      "../browser/accessibility/text_formatting_metrics_android_unittest.cc",
-      "../browser/android/nfc_host_unittest.cc",
-      "../browser/display_cutout/display_cutout_host_impl_unittest.cc",
-      "../browser/display_cutout/safe_area_insets_host_impl_unittest.cc",
-      "../browser/media/android/browser_gpu_video_accelerator_factories_unittest.cc",
-      "../browser/navigation_transitions/blur_transition_animation_manager_unittest.cc",
-      "../browser/navigation_transitions/physics_model_unittest.cc",
-      "../browser/renderer_host/input/input_transfer_handler_android_unittest.cc",
-      "../browser/renderer_host/navigation_transitions/navigation_entry_screenshot_cache_unittest.cc",
-      "../browser/renderer_host/navigation_transitions/navigation_entry_screenshot_manager_unittest.cc",
-      "../browser/renderer_host/navigation_transitions/navigation_entry_screenshot_unittest.cc",
-      "../browser/screen_orientation/screen_orientation_delegate_android_unittest.cc",
-      "../browser/web_contents/color_chooser_unittest.cc",
-      "../common/android/child_process_id_unittest.cc",
-      "../common/android/cpu_time_metrics_unittest.cc",
-      "../common/android/gin_java_bridge_value_unittest.cc",
-    ]
-  }
-
-  if (enable_cdm_provision_fetcher) {
-    sources += [
-      "../browser/media/provision_fetcher_impl_unittest.cc",
-      "../browser/media/url_provision_fetcher_unittest.cc",
-    ]
-  }
-
   if (enable_compute_pressure) {
     sources += [
       "../browser/compute_pressure/pressure_service_for_frame_unittest.cc",
@@ -3140,9 +2800,7 @@ test("content_unittests") {
     ]
   }
 
-  if (!is_android && !is_ios) {
-    sources += [ "../browser/file_system_access/file_path_watcher/file_path_watcher_unittest.cc" ]
-  }
+  sources += [ "../browser/file_system_access/file_path_watcher/file_path_watcher_unittest.cc" ]
 
   if (is_win) {
     sources += [
@@ -3156,14 +2814,14 @@ test("content_unittests") {
     sources += [ "../browser/media/system_media_controls/web_app_system_media_controls_manager_unittest.cc" ]
   }
 
-  if (is_win || is_mac || is_linux || is_chromeos) {
+  if (is_win || is_mac || is_linux) {
     sources += [
       "../browser/file_system_access/file_system_access_observer_observation_unittest.cc",
       "../browser/renderer_host/delegated_frame_host_unittest.cc",
     ]
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [
       "../app/locale_posix_unittest.cc",
       "../browser/child_thread_type_switcher_linux_unittest.cc",
@@ -3180,7 +2838,7 @@ test("content_unittests") {
         [ "../services/isolated_xr_device/xr_sandbox_hook_linux_unittest.cc" ]
   }
 
-  if (is_android || is_linux || is_chromeos || is_mac || is_win) {
+  if (is_linux || is_mac || is_win) {
     data = [
       "$root_out_dir/content_shell.pak",
       "data/",
@@ -3188,24 +2846,12 @@ test("content_unittests") {
       "//media/test/data/",
     ]
   }
-  if (is_ios) {
-    bundle_deps = [
-      ":content_shell_pak_bundle_data",
-      ":content_test_bundle_data",
-      ":content_test_perfetto_bundle_data",
-      ":content_test_perfetto_chrome_bundle_data",
-      "//media/test:media_bundle_data",
-      "//testing/buildbot/filters:content_unittests_filters_bundle_data",
-    ]
-  }
 
-  if (!is_ios) {
-    sources += [
-      # Most ContentSettingsTypes are not registered on iOS so these
-      # tests cannot run.
-      "../browser/permissions/permission_service_impl_unittest.cc",
-    ]
-  }
+  sources += [
+    # Most ContentSettingsTypes are not registered on iOS so these
+    # tests cannot run.
+    "../browser/permissions/permission_service_impl_unittest.cc",
+  ]
 
   configs += [ "//build/config:precompiled_headers" ]
 
@@ -3384,22 +3030,6 @@ test("content_unittests") {
     "//url",
   ]
 
-  if (is_chromeos) {
-    sources += [
-      "//content/browser/direct_sockets/firewall_hole_delegate_unittest.cc",
-    ]
-    deps += [
-      "//chromeos/components/firewall_hole",
-      "//chromeos/dbus/permission_broker",
-    ]
-  }
-
-  if (enable_smart_card) {
-    sources +=
-        [ "../browser/smart_card/emulation/smart_card_emulation_unittest.cc" ]
-    deps += [ "//content/browser/smart_card/emulation" ]
-  }
-
   if (enable_mdns) {
     sources += [ "../browser/renderer_host/no_op_mdns_responder_unittest.cc" ]
   }
@@ -3416,16 +3046,14 @@ test("content_unittests") {
 
   data_deps = [ "//testing/buildbot/filters:content_unittests_filters" ]
 
-  if (!is_ios) {
-    data_deps += [
-      "//third_party/perfetto/protos/perfetto/config:descriptor",
-      "//third_party/perfetto/protos/perfetto/config/chrome:scenario_descriptor",
-    ]
-    data += [
-      "$root_gen_dir/third_party/perfetto/protos/perfetto/config/chrome/scenario_config.descriptor",
-      "$root_gen_dir/third_party/perfetto/protos/perfetto/config/config.descriptor",
-    ]
-  }
+  data_deps += [
+    "//third_party/perfetto/protos/perfetto/config:descriptor",
+    "//third_party/perfetto/protos/perfetto/config/chrome:scenario_descriptor",
+  ]
+  data += [
+    "$root_gen_dir/third_party/perfetto/protos/perfetto/config/chrome/scenario_config.descriptor",
+    "$root_gen_dir/third_party/perfetto/protos/perfetto/config/config.descriptor",
+  ]
 
   if (is_mac) {
     data_deps += [ "//device/fido/strings:fido_test_strings" ]
@@ -3436,7 +3064,7 @@ test("content_unittests") {
     deps += [ "//services/tracing:test_utils" ]
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     deps += [
       "//components/crash/content/browser/error_reporting",
       "//content/app:locale",
@@ -3486,40 +3114,32 @@ test("content_unittests") {
         "../browser/media/capture/pip_screen_capture_coordinator_proxy_impl_unittest.cc",
       ]
     }
-    if (!is_android && !is_ios) {
-      deps += [
-        "//content/common:buildflags",
-        "//third_party/libyuv",
-        "//third_party/webrtc_overrides:webrtc_component",
-      ]
-      sources += [
-        "../browser/media/captured_surface_controller_permission_manager_unittest.cc",
-        "../browser/media/captured_surface_controller_unittest.cc",
-      ]
-    }
 
-    if (!is_ios) {
-      deps += [ "//media/capture:test_support" ]
-      sources += [
-        "../browser/media/capture/desktop_capture_device_unittest.cc",
-        "../browser/media/capture/desktop_capture_unittest.cc",
-      ]
-    }
+    deps += [
+      "//content/common:buildflags",
+      "//third_party/libyuv",
+      "//third_party/webrtc_overrides:webrtc_component",
+    ]
+    sources += [
+      "../browser/media/captured_surface_controller_permission_manager_unittest.cc",
+      "../browser/media/captured_surface_controller_unittest.cc",
+    ]
 
-    if (is_android) {
-      sources +=
-          [ "../browser/media/capture/desktop_capturer_android_unittest.cc" ]
-    }
+    deps += [ "//media/capture:test_support" ]
+    sources += [
+      "../browser/media/capture/desktop_capture_device_unittest.cc",
+      "../browser/media/capture/desktop_capture_unittest.cc",
+    ]
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     if (use_dbus) {
       deps += [ "//dbus:test_support" ]
     }
   }
 
   # Platforms with FontDataManager enabled
-  if (is_win || is_linux || is_chromeos) {
+  if (is_win || is_linux) {
     sources += [ "../child/font_data/font_data_manager_unittest.cc" ]
     deps += [ "//components/services/font_data/public/mojom" ]
   }
@@ -3576,99 +3196,45 @@ test("content_unittests") {
       "ScreenCaptureKit.framework",
     ]
   }
-  if (is_chromeos) {
-    sources += [ "../browser/handwriting/handwriting_recognition_service_impl_cros_unittest.cc" ]
-    deps += [
-      "//ash/constants",
-      "//chromeos/ash/components/audio",
-      "//chromeos/ash/components/dbus/audio",
-      "//chromeos/services/machine_learning/public/cpp:stub",
-      "//chromeos/services/machine_learning/public/mojom",
-    ]
-  }
-  if (is_android) {
-    sources += [
-      "../browser/android/android_overlay_provider_impl_unittest.cc",
-      "../browser/android/battery_metrics_unittest.cc",
-      "../browser/android/java/gin_java_method_invocation_helper_unittest.cc",
-      "../browser/android/java/java_type_unittest.cc",
-      "../browser/android/message_payload_unittest.cc",
-      "../browser/android/overscroll_controller_android_unittest.cc",
-      "../browser/font_unique_name_lookup/font_unique_name_lookup_android_unittest.cc",
-      "../browser/media/key_system_support_android_unittest.cc",
-      "../browser/renderer_host/render_widget_host_view_android_unittest.cc",
-      "../browser/sms/sms_provider_gms_unittest.cc",
-      "../browser/web_contents/web_contents_view_android_unittest.cc",
-      "../renderer/java/gin_java_bridge_value_converter_unittest.cc",
-    ]
 
-    deps += [
-      ":content_unittests_java",
-      ":content_unittests_jni_headers",
-      "//base:base_unittest_support_java",
-      "//cc/slim",
-      "//components/crash/android:anr_collector_java",
-      "//components/download/internal/common:internal_java",
-      "//content/browser:fontations_name_table_ffi",
-      "//content/public/android:content_java",
-      "//content/public/android:content_jni_headers",
-      "//content/public/android:content_main_dex_jni",
-      "//content/public/android:jar_jni",
-      "//gin:v8_snapshot_assets",
-      "//gpu/command_buffer/service:android_texture_owner_test_support",
-      "//third_party/blink/public/common",
-      "//third_party/blink/public/common:font_unique_name_table_proto",
-      "//ui/accessibility:ax_base_android",
-      "//ui/android",
-      "//ui/android:test_support",
-      "//ui/android:ui_java_test_support",
-      "//ui/events:motionevent_jni_headers",
-    ]
+  # Non-Android.
+  sources += [
+    "../browser/devtools/devtools_manager_unittest.cc",
+    "../browser/devtools/devtools_refcount_unittest.cc",
+    "../browser/devtools/protocol/webauthn_handler_unittest.cc",
+    "../browser/host_zoom_map_impl_unittest.cc",
+    "../browser/picture_in_picture/document_picture_in_picture_navigation_throttle_unittest.cc",
+    "../browser/picture_in_picture/document_picture_in_picture_window_controller_impl_unittest.cc",
+    "../browser/speech/network_speech_recognition_engine_impl_unittest.cc",
+    "../browser/speech/speech_recognizer_impl_unittest.cc",
+    "../web_test/renderer/test_runner_utils_unittest.cc",
+  ]
+  deps += [
+    "//components/speech",
+    "//content/web_test:test_support",
+    "//device/fido",
+    "//device/fido:cablev2_authenticator",
+    "//device/fido:cablev2_test_util",
+    "//device/fido:mocks",
+    "//media/mojo/mojom:web_speech_recognition",
+  ]
 
-    if (enable_chrome_android_internal) {
-      data_deps += [ "//clank/build/bot/filters:content_unittests_filters" ]
-    }
-    defines += [ "APPCACHE_USE_SIMPLE_CACHE" ]
-  } else {
-    # Non-Android.
-    sources += [
-      "../browser/devtools/devtools_manager_unittest.cc",
-      "../browser/devtools/devtools_refcount_unittest.cc",
-      "../browser/devtools/protocol/webauthn_handler_unittest.cc",
-      "../browser/host_zoom_map_impl_unittest.cc",
-      "../browser/picture_in_picture/document_picture_in_picture_navigation_throttle_unittest.cc",
-      "../browser/picture_in_picture/document_picture_in_picture_window_controller_impl_unittest.cc",
-      "../browser/speech/network_speech_recognition_engine_impl_unittest.cc",
-      "../browser/speech/speech_recognizer_impl_unittest.cc",
-      "../web_test/renderer/test_runner_utils_unittest.cc",
-    ]
-    deps += [
-      "//components/speech",
-      "//content/web_test:test_support",
-      "//device/fido",
-      "//device/fido:cablev2_authenticator",
-      "//device/fido:cablev2_test_util",
-      "//device/fido:mocks",
-      "//media/mojo/mojom:web_speech_recognition",
-    ]
-
-    sources += [
-      "../browser/speech/on_device_speech_recognition_engine_unittest.cc",
-      "../browser/speech/soda_speech_recognition_engine_impl_unittest.cc",
-      "../browser/speech/speech_recognition_dispatcher_host_unittest.cc",
-      "../browser/speech/speech_recognition_manager_impl_unittest.cc",
-    ]
-    deps += [
-      "//components/optimization_guide/core:core_util",
-      "//components/optimization_guide/core:ondevice",
-      "//components/soda:constants",
-      "//components/soda:utils",
-      "//media/mojo/mojom:speech_recognition",
-    ]
-  }
+  sources += [
+    "../browser/speech/on_device_speech_recognition_engine_unittest.cc",
+    "../browser/speech/soda_speech_recognition_engine_impl_unittest.cc",
+    "../browser/speech/speech_recognition_dispatcher_host_unittest.cc",
+    "../browser/speech/speech_recognition_manager_impl_unittest.cc",
+  ]
+  deps += [
+    "//components/optimization_guide/core:core_util",
+    "//components/optimization_guide/core:ondevice",
+    "//components/soda:constants",
+    "//components/soda:utils",
+    "//media/mojo/mojom:speech_recognition",
+  ]
 
   # Tests for platforms that support extensions. Linux requires udev.
-  is_linux_without_udev = (is_linux || is_chromeos) && !use_udev
+  is_linux_without_udev = is_linux && !use_udev
   if (enable_extensions_core && !is_linux_without_udev) {
     sources += [
       "../browser/service_worker/service_worker_hid_delegate_observer_unittest.cc",
@@ -3680,7 +3246,7 @@ test("content_unittests") {
   if (!is_linux_without_udev) {
     sources += [ "../browser/hid/hid_service_unittest.cc" ]
   }
-  if (!is_linux_without_udev && !is_android) {
+  if (!is_linux_without_udev) {
     sources += [
       "../browser/webauth/authenticator_impl_cable_unittest.cc",
       "../browser/webauth/authenticator_impl_pin_unittest.cc",
@@ -3698,15 +3264,6 @@ test("content_unittests") {
       "//device/fido:mocks",
       "//device/fido:test_support",
     ]
-    if (is_chromeos) {
-      deps += [
-        "//chromeos/dbus/tpm_manager",
-        "//chromeos/dbus/u2f",
-      ]
-    }
-    if (is_ios && use_blink) {
-      deps += [ "//crypto:test_support" ]
-    }
   }
 
   if (use_aura) {
@@ -3752,29 +3309,11 @@ test("content_unittests") {
     deps += [ "//device/vr:vr_fakes" ]
   }
 
-  # TODO(crbug.com/1293538): Update to check is_cast_audio_only
-  if (is_castos || is_cast_android) {
-    deps += [ "//chromecast:chromecast_buildflags" ]
-  }
-
   # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
   # enable the diagnostic by removing this line.
   configs += [ "//build/config/compiler:no_exit_time_destructors" ]
 }
 
-if (is_ios) {
-  bundle_data("content_shell_pak_bundle_data") {
-    testonly = true
-    public_deps = [ "//content/shell:pak" ]
-    sources = [ "$root_out_dir/content_shell.pak" ]
-    outputs = [ "{{bundle_resources_dir}}/content_shell.pak" ]
-  }
-
-  bundle_data_from_filelist("content_test_bundle_data") {
-    testonly = true
-    filelist_name = "content_test_bundle_data.filelist"
-  }
-}
 if (is_apple) {
   bundle_data("content_test_perfetto_bundle_data") {
     testonly = true
@@ -3827,30 +3366,6 @@ group("test_buildbucket_api_gpu_use_cases") {
     "//content/test/gpu/gather_swarming_json_results.py",
   ]
   data_deps = [ "//testing:test_scripts_shared" ]
-}
-
-if (is_android) {
-  content_java_sources_needing_jni = [ "//content/public/android/javatests/src/org/chromium/content/browser/sms/SmsProviderFakes.java" ]
-
-  generate_jni("content_unittests_jni_headers") {
-    testonly = true
-    sources = content_java_sources_needing_jni
-  }
-
-  android_library("content_unittests_java") {
-    testonly = true
-    sources = content_java_sources_needing_jni
-    deps = [
-      "$google_play_services_package:google_play_services_auth_api_phone_java",
-      "$google_play_services_package:google_play_services_base_java",
-      "$google_play_services_package:google_play_services_basement_java",
-      "$google_play_services_package:google_play_services_tasks_java",
-      "//base:base_java",
-      "//content/public/android:content_java",
-      "//third_party/jni_zero:jni_zero_java",
-      "//ui/android:ui_full_java",
-    ]
-  }
 }
 
 group("gpu_pytype") {

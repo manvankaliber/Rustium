@@ -277,8 +277,6 @@ class FileNodeUnittest(unittest.TestCase):
                   lang="en" />
           <output filename="resources/es.pak" type="data_package"
                   lang="en" />
-          <output filename="java/res/values-en/translation.xml" type="android"
-                  lang="en" />
         </outputs>
         <release seq="3">
           <messages>
@@ -305,19 +303,6 @@ class FileNodeUnittest(unittest.TestCase):
       {'filename': 'resources/es_MASCULINE.pak', 'gender': 'MASCULINE'},
       {'filename': 'resources/es_FEMININE.pak', 'gender': 'FEMININE'},
       {'filename': 'resources/es_NEUTER.pak', 'gender': 'NEUTER'},
-      {'filename': 'java/res/values-en/translation.xml', 'gender': 'OTHER'},
-      {
-        'filename': 'java/res/values-en-MASCULINE/translation.xml',
-        'gender': 'MASCULINE',
-      },
-      {
-        'filename': 'java/res/values-en-FEMININE/translation.xml',
-        'gender': 'FEMININE',
-      },
-      {
-        'filename': 'java/res/values-en-NEUTER/translation.xml',
-        'gender': 'NEUTER',
-      },
     ]
 
     for expected_file, actual_file in zip(expected_files, grd.GetOutputFiles()):

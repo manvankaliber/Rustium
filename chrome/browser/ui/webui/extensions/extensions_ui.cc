@@ -58,9 +58,6 @@
 #include "ui/webui/webui_util.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/webui/current_channel_logo.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace extensions {
 
@@ -78,11 +75,7 @@ std::string GetLoadTimeClasses(bool in_dev_mode) {
 bool IsGlobalShortcutEnabled() {
 // Disable the global scoped shortcuts on Android and ChromeOS since they're
 // no-ops.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  return false;
-#else
   return true;
-#endif
 }
 
 content::WebUIDataSource* CreateAndAddExtensionsSource(Profile* profile,
@@ -424,19 +417,6 @@ content::WebUIDataSource* CreateAndAddExtensionsSource(Profile* profile,
        IDS_EXTENSIONS_SC_REMOVE_BUTTON_A11Y_LABEL},
       {"safetyCheckOptionMenuA11yLabel",
        IDS_EXTENSIONS_SC_OPTION_MENU_A11Y_LABEL},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"manageKioskApp", IDS_EXTENSIONS_MANAGE_KIOSK_APP},
-      {"kioskAddApp", IDS_EXTENSIONS_KIOSK_ADD_APP},
-      {"kioskAddAppHint", IDS_EXTENSIONS_KIOSK_ADD_APP_HINT},
-      {"kioskEnableAutoLaunch", IDS_EXTENSIONS_KIOSK_ENABLE_AUTO_LAUNCH},
-      {"kioskDisableAutoLaunch", IDS_EXTENSIONS_KIOSK_DISABLE_AUTO_LAUNCH},
-      {"kioskAutoLaunch", IDS_EXTENSIONS_KIOSK_AUTO_LAUNCH},
-      {"kioskInvalidApp", IDS_EXTENSIONS_KIOSK_INVALID_APP},
-      {"kioskDisableBailout",
-       IDS_EXTENSIONS_KIOSK_DISABLE_BAILOUT_SHORTCUT_LABEL},
-      {"kioskDisableBailoutWarningTitle",
-       IDS_EXTENSIONS_KIOSK_DISABLE_BAILOUT_SHORTCUT_WARNING_TITLE},
-#endif  // BUILDFLAG(IS_CHROMEOS)
       {"pendingChangeWarning", IDS_PENDING_CHANGE_WARNING},
   };
   source->AddLocalizedStrings(kLocalizedStrings);
@@ -532,18 +512,7 @@ content::WebUIDataSource* CreateAndAddExtensionsSource(Profile* profile,
   source->AddBoolean("MV2DeprecationNoticeDismissed",
                      mv2_handler->DidUserAcknowledgeNoticeGlobally());
 
-#if BUILDFLAG(IS_ANDROID)
-  source->AddResourcePath("images/product_logo.png",
-                          webui::CurrentChannelLogoResourceId());
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  source->AddString(
-      "kioskDisableBailoutWarningBody",
-      l10n_util::GetStringFUTF16(
-          IDS_EXTENSIONS_KIOSK_DISABLE_BAILOUT_SHORTCUT_WARNING_BODY,
-          l10n_util::GetStringUTF16(IDS_SHORT_PRODUCT_OS_NAME)));
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   source->AddString("webuiRefresh2026", features::IsWebuiRefresh2026Enabled()
                                             ? "webui-refresh-2026"

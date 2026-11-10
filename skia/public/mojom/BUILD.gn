@@ -31,7 +31,7 @@ component("shared_typemap_traits") {
 
 mojom("mojom") {
   generate_blink = true
-  generate_java = true
+
   sources = [
     "bitmap.mojom",
     "blend_mode.mojom",

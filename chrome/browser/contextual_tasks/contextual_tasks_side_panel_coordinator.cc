@@ -64,7 +64,6 @@
 #include "components/signin/public/identity_manager/accounts_in_cookie_jar_info.h"
 #include "extensions/buildflags/buildflags.h"
 #include "net/base/url_util.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_tasks/contextual_tasks_onboarding_tooltip_controller.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_web_view.h"
 #include "chrome/browser/themes/theme_service.h"
@@ -85,7 +84,6 @@
 #include "ui/views/bubble/bubble_dialog_delegate_view.h"
 #include "ui/webui/tracked_element/tracked_element_handler.h"
 #include "ui/webui/tracked_element/tracked_element_handler_document_singleton.h"
-#endif
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
 #include "chrome/browser/ui/webui/new_tab_page/composebox/variations/composebox_fieldtrial.h"
@@ -122,7 +120,6 @@
 #include "ui/base/page_transition_types.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/browser_ui/glic_nudge_controller.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_actions.h"
@@ -131,7 +128,6 @@
 #include "chrome/browser/ui/hats/survey_config.h"
 #include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "ui/actions/actions.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/browser/extensions/tab_helper.h"
@@ -143,7 +139,6 @@
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 std::string GetContextualTasksArmShortName() {
   using contextual_tasks::ExpandButtonOption;
   ExpandButtonOption expand_button = contextual_tasks::GetExpandButtonOption();
@@ -179,7 +174,6 @@ std::string GetContextualTasksArmShortName() {
 
   return "Default";
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 std::unique_ptr<content::WebContents> CreateWebContents(
     BrowserWindowInterface* browser_window) {
@@ -189,12 +183,10 @@ std::unique_ptr<content::WebContents> CreateWebContents(
       content::WebContents::Create(create_params);
   webui::SetBrowserWindowInterface(web_contents.get(), browser_window);
 
-#if !BUILDFLAG(IS_ANDROID)
   if (contextual_tasks::IsContextualTasksSidePanelRearchitectureEnabled()) {
     contextual_tasks::ContextualTasksWebView::ConfigureWebContentsBackground(
         web_contents.get(), browser_window->GetProfile());
   }
-#endif
 
   // Create PermissionRequestManager and PermissionRecoverySuccessRateTracker
   // explicitly for this WebContents. The permission bubble will anchor to
@@ -434,11 +426,9 @@ ContextualTasksSidePanelCoordinator::ContextualTasksSidePanelCoordinator(
       active_task_context_provider_(active_task_context_provider),
       scoped_unowned_user_data_(browser_window->GetUnownedUserDataHost(),
                                 *this) {
-#if !BUILDFLAG(IS_ANDROID)
   onboarding_controller_ =
       std::make_unique<ContextualTasksOnboardingTooltipController>(
           browser_window, browser_window->GetProfile());
-#endif
   active_task_context_provider_->SetContextualTasksPanelController(this);
   TabListInterface::From(browser_window_)->AddTabListInterfaceObserver(this);
   contextual_tasks_panel_host_->AddObserver(this);
@@ -454,7 +444,6 @@ ContextualTasksSidePanelCoordinator::ContextualTasksSidePanelCoordinator(
     }
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (Profile* profile = browser_window_->GetProfile()) {
     is_dark_mode_ = contextual_tasks::ShouldUseDarkModeForProfile(profile);
     if (ThemeService* theme_service =
@@ -466,7 +455,6 @@ ContextualTasksSidePanelCoordinator::ContextualTasksSidePanelCoordinator(
           ui::NativeTheme::GetInstanceForNativeUi()) {
     native_theme_observation_.Observe(native_theme);
   }
-#endif
 
   if (eligibility_manager) {
     eligibility_change_subscription_ =
@@ -478,10 +466,8 @@ ContextualTasksSidePanelCoordinator::ContextualTasksSidePanelCoordinator(
 }
 
 ContextualTasksSidePanelCoordinator::~ContextualTasksSidePanelCoordinator() {
-#if !BUILDFLAG(IS_ANDROID)
   theme_service_observation_.Reset();
   native_theme_observation_.Reset();
-#endif
   for (auto& observer : observers_) {
     observer.OnControllerDestroyed();
   }
@@ -575,7 +561,6 @@ void ContextualTasksSidePanelCoordinator::Show(
   // Increment the impression count and attempt to show the HaTS survey.
   int impression_count =
       pref_service_->GetInteger(prefs::kContextualTasksNextPanelOpenCount);
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(
           features::kHappinessTrackingSurveysForDesktopNextPanel) &&
       impression_count >= 1) {
@@ -599,7 +584,6 @@ void ContextualTasksSidePanelCoordinator::Show(
             GetIsTabAutoSuggestionChipEnabled() ? "true" : "false"}});
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   pref_service_->SetInteger(prefs::kContextualTasksNextPanelOpenCount,
                             impression_count + 1);
 
@@ -705,9 +689,7 @@ void ContextualTasksSidePanelCoordinator::Show(
     }
   }
   UpdateWebContentsForActiveTab();
-#if !BUILDFLAG(IS_ANDROID)
   onboarding_controller_->SetEntryPoint(entry_point);
-#endif
 
   ContextualTasksPanelHost::AnimationStyle animation_style =
       ContextualTasksPanelHost::AnimationStyle::kStandard;
@@ -723,7 +705,6 @@ void ContextualTasksSidePanelCoordinator::Show(
   }
   contextual_tasks_panel_host_->Show(animation_style);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Feature engagement session notice and IPH trigger checks.
   feature_engagement::Tracker* tracker =
       feature_engagement::TrackerFactory::GetForBrowserContext(
@@ -741,7 +722,6 @@ void ContextualTasksSidePanelCoordinator::Show(
                                 post_onboarding_sessions);
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   UpdateOpenState(/*is_open=*/true);
   UpdateContextualTaskUI();
@@ -753,7 +733,6 @@ void ContextualTasksSidePanelCoordinator::Show(
   ObserveWebContentsOnActiveTab();
   NotifyActiveTaskContextProvider();
 
-#if !BUILDFLAG(IS_ANDROID)
   // Hide the GLIC nudge when the panel is opened.
   if (auto* glic_nudge_controller =
           glic::GlicNudgeController::From(browser_window_)) {
@@ -762,7 +741,6 @@ void ContextualTasksSidePanelCoordinator::Show(
         glic::GlicNudgeActivity::kNudgeIgnoredOpenedContextualTasksSidePanel,
         base::DoNothing());
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ContextualTasksSidePanelCoordinator::Close() {
@@ -789,9 +767,7 @@ void ContextualTasksSidePanelCoordinator::Close() {
   MaybeRemoveImplicitTabContext();
   Observe(nullptr);
 
-#if !BUILDFLAG(IS_ANDROID)
   onboarding_controller_->CloseBubble();
-#endif
 
   if (active_task_context_provider_) {
     active_task_context_provider_->ClearAllLocalTabUnderlines();
@@ -1289,11 +1265,7 @@ bool ContextualTasksSidePanelCoordinator::
 }
 
 bool ContextualTasksSidePanelCoordinator::IsOnboardingTooltipVisible() const {
-#if !BUILDFLAG(IS_ANDROID)
   return onboarding_controller_->IsBubbleShowing();
-#else
-  return false;
-#endif
 }
 
 void ContextualTasksSidePanelCoordinator::TransferWebContentsFromTab(
@@ -1721,7 +1693,6 @@ void ContextualTasksSidePanelCoordinator::OnTabRemoved(
   tabs_with_closed_panel_.erase(tab->GetHandle());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextualTasksSidePanelCoordinator::OnThemeChanged() {
   MaybeRefreshWebContentsForDarkModeChange();
 }
@@ -1730,7 +1701,6 @@ void ContextualTasksSidePanelCoordinator::OnNativeThemeUpdated(
     ui::NativeTheme* observed_theme) {
   MaybeRefreshWebContentsForDarkModeChange();
 }
-#endif
 
 void ContextualTasksSidePanelCoordinator::OnAccountsInCookieUpdated(
     const signin::AccountsInCookieJarInfo& accounts_in_cookie_jar_info,
@@ -1743,7 +1713,6 @@ void ContextualTasksSidePanelCoordinator::OnAccountsInCookieUpdated(
       !accounts_in_cookie_jar_info.GetPotentiallyInvalidSignedInAccounts()
            .empty();
   if (was_signed_in_to_web && !is_signed_in_to_web_) {
-#if !BUILDFLAG(IS_ANDROID)
     // Do not auto-refresh the side panel when the user deletes sign-in cookies
     // directly from the side panel's "On-device site data" dialog; instead,
     // let the dialog show the standard reload infobar prompt when closed.
@@ -1770,7 +1739,6 @@ void ContextualTasksSidePanelCoordinator::OnAccountsInCookieUpdated(
                             has_site_data_dialog_or_reload_prompt)) {
       return;
     }
-#endif
     ResetWebContentsToZeroStateAfterWebSignOut();
   }
 }
@@ -2042,7 +2010,7 @@ bool ContextualTasksSidePanelCoordinator::UpdateWebContentsForActiveTab() {
     if (permission_controller_) {
       permission_controller_->Update(web_contents);
     }
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
     if (extensions_container_) {
       extensions_container_->SetWebContents(web_contents);
     }
@@ -2055,12 +2023,10 @@ bool ContextualTasksSidePanelCoordinator::UpdateWebContentsForActiveTab() {
     if (prev_web_contents) {
       MaybeRemoveImplicitTabContext(prev_web_contents);
     }
-#if !BUILDFLAG(IS_ANDROID)
     onboarding_controller_->CloseBubble();
     if (next_cache_item) {
       onboarding_controller_->SetEntryPoint(next_cache_item->entry_point);
     }
-#endif
     NotifyExpandToFullTabStateChanged();
   }
 
@@ -2245,9 +2211,7 @@ void ContextualTasksSidePanelCoordinator::Hide() {
   MaybeRemoveImplicitTabContext();
   Observe(nullptr);
 
-#if !BUILDFLAG(IS_ANDROID)
   onboarding_controller_->CloseBubble();
-#endif
 
   NotifyActiveTaskContextProvider();
 }
@@ -2259,9 +2223,7 @@ void ContextualTasksSidePanelCoordinator::Unhide() {
       cache_item->has_open_session = true;
       cache_item->link_click_count = 0;
     }
-#if !BUILDFLAG(IS_ANDROID)
     onboarding_controller_->SetEntryPoint(cache_item->entry_point);
-#endif
   }
   contextual_tasks_panel_host_->Show(
       ContextualTasksPanelHost::AnimationStyle::kNoAnimation);
@@ -2319,7 +2281,7 @@ void ContextualTasksSidePanelCoordinator::MaybeDetachWebContents(
     if (permission_controller_) {
       permission_controller_->Update(nullptr);
     }
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
     if (extensions_container_) {
       extensions_container_->SetWebContents(nullptr);
     }
@@ -2780,20 +2742,17 @@ void ContextualTasksSidePanelCoordinator::CloseLensSessionsForTask(
 
 void ContextualTasksSidePanelCoordinator::CloseLensSessionForTab(
     tabs::TabInterface* tab) {
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* lens_controller = LensSearchController::From(tab);
       lens_controller && !lens_controller->IsOff()) {
     lens_controller->CloseLensAsync(
         lens::LensOverlayDismissalSource::kSidePanelCloseButton);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ContextualTasksSidePanelCoordinator::CloseLensSessionIfActive(
     tabs::TabInterface* tab_interface,
     omnibox::ChromeAimEntryPoint entry_point,
     ContextualTasksPanelController::EntrySource entry_source) {
-#if !BUILDFLAG(IS_ANDROID)
   if (entry_point != omnibox::ChromeAimEntryPoint::
                          DESKTOP_CHROME_COBROWSE_PINNED_TOOLBAR_BUTTON &&
       entry_source !=
@@ -2806,7 +2765,6 @@ void ContextualTasksSidePanelCoordinator::CloseLensSessionIfActive(
     search_controller->CloseLensSync(
         lens::LensOverlayDismissalSource::kUnexpectedSidePanelOpen);
   }
-#endif
 }
 
 std::pair<std::optional<base::Uuid>,
@@ -2862,7 +2820,6 @@ void ContextualTasksSidePanelCoordinator::NotifyActiveTaskContextProvider() {
 void ContextualTasksSidePanelCoordinator::AttachTabsToTask(
     const base::Uuid& task_id,
     const std::vector<tabs::TabHandle>& tab_handles) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!browser_window_ || !CanShareTabContext(browser_window_->GetProfile())) {
     return;
   }
@@ -2983,7 +2940,6 @@ void ContextualTasksSidePanelCoordinator::AttachTabsToTask(
   }
 
   NotifyActiveTaskContextProvider();
-#endif
 }
 
 size_t ContextualTasksSidePanelCoordinator::GetNumberOfActiveTasks() const {
@@ -3004,9 +2960,7 @@ void ContextualTasksSidePanelCoordinator::OnSurfaceStateChanged(
 
   if (state == ContextualTasksPanelHost::SurfaceState::kClosed) {
     MaybeRemoveImplicitTabContext();
-#if !BUILDFLAG(IS_ANDROID)
     onboarding_controller_->CloseBubble();
-#endif
     if (reason == ContextualTasksPanelHost::StateChangeReason::kUserAction) {
       if (closing_entry_source_.has_value()) {
         EntrySource entry_source = *closing_entry_source_;
@@ -3162,7 +3116,6 @@ void ContextualTasksSidePanelCoordinator::OnEligibilityChange(
     tasks_pending_panel_rebuild_.clear();
     tabs_with_closed_panel_.clear();
   }
-#if !BUILDFLAG(IS_ANDROID)
   if (IsContextualTasksEphemeralPinButtonRefactorEnabled()) {
     UpdatePinButtonVisibilityState(browser_window_);
   } else if (browser_window_ && BrowserActions::From(browser_window_)) {
@@ -3174,7 +3127,6 @@ void ContextualTasksSidePanelCoordinator::OnEligibilityChange(
               browser_window_->GetProfile()));
     }
   }
-#endif
 }
 
 void ContextualTasksSidePanelCoordinator::AddObserver(
@@ -3212,7 +3164,6 @@ bool ContextualTasksSidePanelCoordinator::CanExpandToFullTab() const {
 
 void ContextualTasksSidePanelCoordinator::ShowPageInfoBubble(
     bool is_pointer_interaction) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!IsContextualTasksSidePanelRearchitectureEnabled()) {
     return;
   }
@@ -3273,13 +3224,8 @@ void ContextualTasksSidePanelCoordinator::ShowPageInfoBubble(
   page_info_bubble_suppressor_.Observe(bubble->GetWidget());
 
   bubble->GetWidget()->Show();
-#else
-  // TODO(crbug.com/536100150): Add support to trigger this menu on Android
-  // Desktop
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 views::BubbleAnchor
 ContextualTasksSidePanelCoordinator::GetSuperGButtonAnchor() {
   content::WebContents* webui_contents =
@@ -3305,14 +3251,13 @@ ContextualTasksSidePanelCoordinator::GetSuperGButtonAnchor() {
 
   return views::BubbleAnchor(anchor_element);
 }
-#endif
 
 BrowserWindowInterface* ContextualTasksSidePanelCoordinator::GetBrowserWindow()
     const {
   return browser_window_;
 }
 
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 void ContextualTasksSidePanelCoordinator::OnSeeExtensionsClicked() {
   content::WebContents* contents = GetActiveWebContents();
   if (!contents) {
@@ -3335,16 +3280,13 @@ void ContextualTasksSidePanelCoordinator::OnSeeExtensionsClicked() {
 #endif
 
 void ContextualTasksSidePanelCoordinator::OnLogoPointerDown() {
-#if !BUILDFLAG(IS_ANDROID)
   if (!IsContextualTasksSidePanelRearchitectureEnabled()) {
     return;
   }
 
   page_info_bubble_suppressor_.OnMousePressed();
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextualTasksSidePanelCoordinator::
     MaybeRefreshWebContentsForDarkModeChange() {
   if (!IsContextualTasksSidePanelRearchitectureEnabled()) {
@@ -3388,6 +3330,5 @@ void ContextualTasksSidePanelCoordinator::
     }
   }
 }
-#endif
 
 }  // namespace contextual_tasks

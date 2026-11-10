@@ -31,7 +31,7 @@ class VerticalTabStripFocusSwipeController : public ui::EventHandler {
   ~VerticalTabStripFocusSwipeController() override;
 
   // ui::EventHandler:
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   void OnMouseEvent(ui::MouseEvent* event) override;
 #elif BUILDFLAG(IS_MAC)
   void OnScrollEvent(ui::ScrollEvent* event) override;

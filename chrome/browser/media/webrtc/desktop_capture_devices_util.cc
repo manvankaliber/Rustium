@@ -52,13 +52,8 @@
 #include "third_party/webrtc/modules/desktop_capture/mac/window_list_utils.h"
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/media/android/tab_sharing_ui_android.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/web_applications/web_app_browser_controller.h"
-#endif
 
 #if defined(USE_AURA)
 #include "ui/aura/window.h"
@@ -87,7 +82,6 @@ content::WebContents* GetWebContentsFromWebContentsId(
   return web_contents;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 views::Widget* GetTopLevelWidgetFromNativeWindow(
     gfx::NativeWindow native_window) {
   if (!native_window) {
@@ -110,17 +104,12 @@ views::Widget* GetTopLevelWidgetFromNativeWindow(
   return views::Widget::GetWidgetForNativeWindow(native_window);
 #endif
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 content::WebContents* GetWebContentsFromWindowId(
     const content::DesktopMediaID& media_id) {
-#if !BUILDFLAG(IS_ANDROID)
   gfx::NativeWindow native_window =
       content::DesktopMediaID::GetNativeWindowById(media_id);
   return GetWebContentsFromWindowIfCaptureHandleAllowed(native_window);
-#else
-  return nullptr;
-#endif
 }
 
 content::WebContents* GetWebContents(const content::DesktopMediaID& media_id) {
@@ -250,7 +239,6 @@ DesktopMediaIDToDisplayMediaInformation(
 }
 
 // Showing notifications about capture is handled at the OS level in Android.
-#if !BUILDFLAG(IS_ANDROID)
 std::u16string GetNotificationText(const std::u16string& application_title,
                                    bool capture_audio,
                                    content::DesktopMediaID::Type capture_type) {
@@ -288,7 +276,6 @@ std::u16string GetNotificationText(const std::u16string& application_title,
   }
   return std::u16string();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 std::string DeviceNamePrefix(
     content::WebContents* web_contents,
@@ -361,17 +348,6 @@ void CreateMediaStreamCaptureIndicatorUI(
         on_media_stream_capture_indicator_ui_created_callback) {
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
   std::unique_ptr<MediaStreamUI> notification_ui;
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(features::kUserMediaScreenCapturing) &&
-      display_notification &&
-      media_id.type == content::DesktopMediaID::TYPE_WEB_CONTENTS) {
-    const bool app_preferred_current_tab =
-        video_type ==
-        blink::mojom::MediaStreamType::DISPLAY_VIDEO_CAPTURE_THIS_TAB;
-    notification_ui = std::make_unique<TabSharingUIAndroid>(
-        web_contents, media_id, app_preferred_current_tab);
-  }
-#else
   // If required, register to display the notification for stream capture.
   if (display_notification) {
     if (media_id.type == content::DesktopMediaID::TYPE_WEB_CONTENTS) {
@@ -393,7 +369,6 @@ void CreateMediaStreamCaptureIndicatorUI(
           web_contents);
     }
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   std::unique_ptr<content::MediaStreamUI> capture_indicator_ui =
       MediaCaptureDevicesDispatcher::GetInstance()
@@ -600,7 +575,6 @@ void GetDevicesForDesktopCapture(
 
 content::WebContents* GetWebContentsFromWindowIfCaptureHandleAllowed(
     gfx::NativeWindow native_window) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!base::FeatureList::IsEnabled(
           features::kCaptureHandleForStandalonePwasAndIwas)) {
     return nullptr;
@@ -626,7 +600,4 @@ content::WebContents* GetWebContentsFromWindowIfCaptureHandleAllowed(
 
   tabs::TabInterface* active_tab = browser->GetActiveTabInterface();
   return active_tab ? active_tab->GetContents() : nullptr;
-#else
-  return nullptr;
-#endif
 }

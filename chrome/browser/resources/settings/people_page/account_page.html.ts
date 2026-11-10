@@ -45,13 +45,6 @@ export function getHtml(this: SettingsAccountPageElement) {
             ?hidden="${!!this.syncStatus_?.hasError}" external>
         </cr-link-row>
 
-<if expr="is_chromeos">
-        <!-- Manage accounts on this device -->
-        <cr-link-row id="manage-device-accounts" class="hr"
-            label="$i18n{manageDeviceAccounts}"
-            @click="${this.onManageDeviceAccountsClick_}" external>
-        </cr-link-row>
-</if>
 
         <!-- Control how browsing history is used -->
         ${!this.mayShowLinkedGoogleServicesSetting_ ? html`

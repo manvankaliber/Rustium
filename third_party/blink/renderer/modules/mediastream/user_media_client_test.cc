@@ -1493,9 +1493,7 @@ TEST_F(UserMediaClientTest, NonDefaultAudioConstraintsPropagate) {
   user_media_client_impl_->RequestUserMediaForTest(request);
   blink::AudioCaptureSettings audio_capture_settings =
       user_media_processor_->AudioSettings();
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   audio_capture_settings = user_media_processor_->EligibleAudioSettings()[0];
-#endif
 
   blink::VideoCaptureSettings video_capture_settings =
       user_media_processor_->VideoSettings();
@@ -1552,11 +1550,7 @@ TEST_F(UserMediaClientTest, CreateWithBasicIdealValidDeviceId) {
       CreateDeviceConstraints(g_empty_string, fake_ids_->video_input_1);
 
   String expected_audio_device_id =
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
       String(media::AudioDeviceDescription::kDefaultDeviceId);
-#else
-      fake_ids_->audio_input_1;
-#endif
 
   TestValidRequestWithConstraints(audio_constraints, video_constraints,
                                   expected_audio_device_id,
@@ -1570,11 +1564,7 @@ TEST_F(UserMediaClientTest, CreateWithAdvancedExactValidDeviceId) {
       g_empty_string, g_empty_string, fake_ids_->video_input_1);
 
   String expected_audio_device_id =
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
       String(media::AudioDeviceDescription::kDefaultDeviceId);
-#else
-      fake_ids_->audio_input_1;
-#endif
 
   TestValidRequestWithConstraints(audio_constraints, video_constraints,
                                   expected_audio_device_id,
@@ -1958,7 +1948,6 @@ TEST_F(UserMediaClientTest, DesktopCaptureChangeSource) {
   base::RunLoop().RunUntilIdle();
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(UserMediaClientTest, DesktopCaptureChangeSourceTriggersZoomChange) {
   MediaStreamTrackImpl* track = RequestLocalVideoTrack();
   // Initial zoom level is not set.
@@ -1978,7 +1967,6 @@ TEST_F(UserMediaClientTest, DesktopCaptureChangeSourceTriggersZoomChange) {
                                                         fake_video_device);
   EXPECT_EQ(track->GetZoomLevelForTesting(), 125);
 }
-#endif
 
 TEST_F(UserMediaClientTest, DesktopCaptureChangeSourceWithoutAudio) {
   blink::MockConstraintFactory factory;
@@ -2149,7 +2137,6 @@ TEST_F(UserMediaClientTest, CreateWithEchoCancellationModeAll) {
   EXPECT_EQ(echo_cancellation->GetAsString(), "all");
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(UserMediaClientTest, CreateWithEchoCancellationModeRemoteOnly) {
   MediaStreamTrack* track = RequestLocalAudioTrackWithEchoCancellationMode(
       EchoCancellationMode::kRemoteOnly);
@@ -2159,7 +2146,6 @@ TEST_F(UserMediaClientTest, CreateWithEchoCancellationModeRemoteOnly) {
   ASSERT_TRUE(echo_cancellation->IsString());
   EXPECT_EQ(echo_cancellation->GetAsString(), "remote-only");
 }
-#endif
 
 TEST_F(UserMediaClientTest,
        EchoCancellationModeTrackCapabilitiesWithSystemWideSupport) {
@@ -2178,16 +2164,10 @@ TEST_F(UserMediaClientTest,
   }
   EXPECT_THAT(
       echo_cancellation_modes,
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-      testing::UnorderedElementsAre(EchoCancellationMode::kDisabled,
-                                    EchoCancellationMode::kBrowserDecides,
-                                    EchoCancellationMode::kAll)
-#else
       testing::UnorderedElementsAre(EchoCancellationMode::kDisabled,
                                     EchoCancellationMode::kBrowserDecides,
                                     EchoCancellationMode::kRemoteOnly,
                                     EchoCancellationMode::kAll)
-#endif
   );
 }
 
@@ -2209,9 +2189,7 @@ TEST_F(UserMediaClientTest,
 
   Vector<EchoCancellationMode> expected_echo_cancellation_modes = {
       EchoCancellationMode::kDisabled, EchoCancellationMode::kBrowserDecides};
-#if !(BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS))
   expected_echo_cancellation_modes.push_back(EchoCancellationMode::kRemoteOnly);
-#endif
   if (media::IsSystemLoopbackAsAecReferenceEnabled()) {
     // If loopback AEC is available it can be used to provide
     // EchoCancellationMode::kAll despite lack of platform AEC support.
@@ -2263,7 +2241,7 @@ TEST_F(UserMediaClientTest,
   blink::WebHeap::CollectGarbageForTesting();
 }
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(CHROME_WIDE_ECHO_CANCELLATION)
+#if BUILDFLAG(CHROME_WIDE_ECHO_CANCELLATION)
 TEST_F(UserMediaClientTest,
        VoiceIsolationCapabilitiesContainsTrueAndFalseWhenSupportedAndEnabled) {
 #if BUILDFLAG(CHROME_WIDE_ECHO_CANCELLATION)

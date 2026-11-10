@@ -94,10 +94,6 @@ import("//third_party/blink/renderer/platform/blink_fuzzer_test.gni")
 import("//third_party/blink/renderer/platform/platform_generated.gni")
 import("//third_party/protobuf/proto_library.gni")
 
-if (is_ios) {
-  import("//build/config/ios/bundle_data_from_filelist.gni")
-}
-
 visibility = [
   "//third_party/blink/public/*",
   "//third_party/blink/renderer/*",
@@ -143,7 +139,6 @@ config("core_include_dirs") {
 buildflag_header("buildflags") {
   header = "buildflags.h"
   flags = [
-    "TARGET_OS_IS_ANDROID=$target_os_is_android",
     "USE_EXTERNAL_POPUP_MENU=$use_external_popup_menu",
   ]
 }
@@ -688,23 +683,6 @@ source_set("testing") {
   ]
 
   public_deps = [ "//testing/gmock" ]
-}
-
-if (is_ios) {
-  bundle_data_from_filelist("core_test_bundle_data") {
-    testonly = true
-    filelist_name = "testing/data/core_test_bundle_data.filelist"
-  }
-
-  bundle_data_from_filelist("animation_test_bundle_data") {
-    testonly = true
-    filelist_name = "animation/test_data/animation_test_bundle_data.filelist"
-  }
-
-  bundle_data_from_filelist("paint_test_bundle_data") {
-    testonly = true
-    filelist_name = "paint/test_data/paint_test_bundle_data.filelist"
-  }
 }
 
 # generate_event_interfaces ----------------------------------------------------

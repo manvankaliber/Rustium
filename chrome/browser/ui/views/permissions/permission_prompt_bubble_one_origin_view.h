@@ -9,13 +9,11 @@
 #include "base/scoped_observation.h"
 #include "chrome/browser/ui/views/permissions/permission_prompt_bubble_base_view.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "components/media_effects/media_device_info.h"
 
 namespace content {
 class WebContents;
 }
-#endif
 
 // Bubble that prompts the user to grant or deny a permission request from one
 // origin.
@@ -32,9 +30,7 @@ class WebContents;
 // |                        [ Block ] [ Allow ] |
 // ----------------------------------------------
 class PermissionPromptBubbleOneOriginView :
-#if !BUILDFLAG(IS_CHROMEOS)
     public media_effects::MediaDeviceInfo::Observer,
-#endif
     public PermissionPromptBubbleBaseView {
  public:
   PermissionPromptBubbleOneOriginView(
@@ -50,7 +46,6 @@ class PermissionPromptBubbleOneOriginView :
   // PermissionPromptBubbleBaseView:
   void RunButtonCallback(int button_id) override;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   const raw_ptr<views::Label> GetCameraPermissionLabelForTesting() const {
     return camera_permission_label_;
   }
@@ -60,7 +55,6 @@ class PermissionPromptBubbleOneOriginView :
   const raw_ptr<views::Label> GetMicPermissionLabelForTesting() const {
     return mic_permission_label_;
   }
-#endif
 
  private:
   // Add a line for the |request| at |index| of the view.
@@ -70,7 +64,6 @@ class PermissionPromptBubbleOneOriginView :
   // Adds Media (Camera / Mic) live preview feeds.
   void MaybeAddMediaPreview(size_t index);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // media_effects::MediaDeviceInfo::Observer overrides.
   void OnAudioDevicesChanged(
       const std::optional<std::vector<media::AudioDeviceDescription>>&
@@ -84,7 +77,6 @@ class PermissionPromptBubbleOneOriginView :
   base::ScopedObservation<media_effects::MediaDeviceInfo,
                           PermissionPromptBubbleOneOriginView>
       devices_observer_{this};
-#endif
 };
 
 #endif  // CHROME_BROWSER_UI_VIEWS_PERMISSIONS_PERMISSION_PROMPT_BUBBLE_ONE_ORIGIN_VIEW_H_

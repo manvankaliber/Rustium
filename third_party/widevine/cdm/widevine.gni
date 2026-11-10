@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 import("//build/config/chrome_build.gni")
-import("//build/config/chromeos/args.gni")
+
 import("//media/media_options.gni")
 
 declare_args() {
@@ -11,20 +11,13 @@ declare_args() {
   # Google Chrome for Testing and Android. For Fuchsia, see crbug.com/1354347.
   # Can be optionally enabled in Chromium on non-Android platforms. Please see
   # //src/third_party/widevine/LICENSE file for details.
-  enable_widevine =
-      is_chrome_branded || is_chrome_for_testing_branded || is_android
-}
-
-# Disable Widevine when running linux-chromeos.
-if (is_chromeos && !is_chromeos_device) {
-  enable_widevine = false
+  enable_widevine = is_chrome_branded || is_chrome_for_testing_branded
 }
 
 # Widevine CDM is available as a library CDM on the following platforms and
 # architectures. Notably on Android library CDM is not used and Widevine is
 # supported via Android MediaDrm API.
 library_widevine_cdm_available =
-    (is_chromeos && (target_cpu == "x64" || target_cpu == "arm64")) ||
     (target_os == "linux" && (target_cpu == "x64" || target_cpu == "arm64")) ||
     (target_os == "mac" && (target_cpu == "x64" || target_cpu == "arm64")) ||
     (target_os == "win" &&
@@ -40,7 +33,7 @@ enable_library_widevine_cdm =
 # desktop platforms. The CDM can be bundled regardless whether it's a
 # component. See below.
 enable_widevine_cdm_component =
-    enable_library_widevine_cdm && (is_win || is_mac || is_linux || is_chromeos)
+    enable_library_widevine_cdm && (is_win || is_mac || is_linux)
 
 declare_args() {
   # Widevine CDM is bundled as part of Google Chrome and

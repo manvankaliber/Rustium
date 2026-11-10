@@ -1197,18 +1197,7 @@
   E_CPONLY(kColorWindowControlButtonBackgroundActive) \
   E_CPONLY(kColorWindowControlButtonBackgroundInactive) \
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define CHROME_PLATFORM_SPECIFIC_COLOR_IDS \
-    /* Borealis colors. */ \
-    E_CPONLY(kColorBorealisSplashScreenBackground) \
-    E_CPONLY(kColorBorealisSplashScreenForeground) \
-    /* Caption colors. */ \
-    E_CPONLY(kColorCaptionForeground) \
-    E_CPONLY(kColorVerticalTabsCaptionButtonForegroundActive) \
-    E_CPONLY(kColorVerticalTabsCaptionButtonForegroundInactive) \
-    /* Sharesheet colors. */ \
-    E_CPONLY(kColorSharesheetTargetButtonIconShadow)
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 #define CHROME_PLATFORM_SPECIFIC_COLOR_IDS \
     /* The colors of the 1px border around the window on Windows 10. */ \
     E_CPONLY(kColorAccentBorderActive) \
@@ -1223,13 +1212,6 @@
     E_CPONLY(kColorCaptionForegroundInactive) \
     /* Tab search caption button colors. */ \
     E_CPONLY(kColorTabSearchCaptionButtonFocusRing)
-#elif BUILDFLAG(IS_ANDROID)
-#define CHROME_PLATFORM_SPECIFIC_COLOR_IDS \
-    /* History colors. */ \
-    E_CPONLY(kColorHistoryPageCardBackground) \
-    E_CPONLY(kColorHistoryPageMenuBackground) \
-    E_CPONLY(kColorHistoryPageSearchFieldBackground) \
-    E_CPONLY(kColorHistoryPageSelectionToolbarBackground)
 #else
 #define CHROME_PLATFORM_SPECIFIC_COLOR_IDS
 #endif  // BUILDFLAG(IS_WIN)

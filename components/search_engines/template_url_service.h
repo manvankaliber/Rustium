@@ -39,18 +39,12 @@
 #include "components/sync/model/sync_change.h"
 #include "components/sync/model/syncable_service.h"
 #include "components/webdata/common/web_data_service_consumer.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif
 
 class GURL;
 class PrefService;
 class TemplateURLServiceClient;
 class TemplateURLServiceObserver;
 struct TemplateURLData;
-#if BUILDFLAG(IS_ANDROID)
-class TemplateUrlServiceAndroid;
-#endif
 
 namespace metrics {
 class ProfileMetricsService;
@@ -180,9 +174,6 @@ class TemplateURLService final : public WebDataServiceConsumer,
   // Register Profile preferences in |registry|.
   static void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry);
 
-#if BUILDFLAG(IS_ANDROID)
-  base::android::ScopedJavaLocalRef<jobject> GetJavaObject();
-#endif
 
   // Returns true if there is no TemplateURL that conflicts with the
   // keyword/url pair, or there is one but it can be replaced.
@@ -340,14 +331,6 @@ class TemplateURLService final : public WebDataServiceConsumer,
   TemplateURLService::TemplateURLVector GetFeaturedEnterpriseSiteSearchEngines()
       const;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Returns the list prepopulated template URLs for `country_code`.
-  // `country_code` is a two-character uppercase ISO 3166-1 country code.
-  // Usage restricted to Android. Other platforms should rely on the other
-  // functions that will return this data for the profile's current country.
-  OwnedTemplateURLDataVector GetTemplateURLsForCountry(
-      const std::string& country_code);
-#endif
 
   // Increment the usage count of a keyword.
   // Called when a URL is loaded that was generated from a keyword.
@@ -365,31 +348,6 @@ class TemplateURLService final : public WebDataServiceConsumer,
   // engine.
   void SetIsActiveTemplateURL(TemplateURL* url, bool is_active);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Creates a `TemplateURLData` from the provided raw data, and marks it as
-  // coming from an Play / Android OS-level search engine choice screen.
-  static TemplateURLData CreatePlayAPITemplateURLData(
-      const std::u16string& keyword,
-      const std::u16string& name,
-      const std::string& search_url,
-      const std::string& suggest_url = std::string(),
-      const std::string& favicon_url = std::string(),
-      const std::string& new_tab_url = std::string(),
-      const std::string& image_url = std::string(),
-      const std::string& image_url_post_params = std::string(),
-      const std::string& image_translate_url = std::string(),
-      const std::string& image_translate_source_language_param_key =
-          std::string(),
-      const std::string& image_translate_target_language_param_key =
-          std::string());
-
-  // Register a new search provider from `new_play_api_turl_data` and sets
-  // it as the default search provider.
-  //
-  // If there is already existing search provider that was created from Play,
-  // it will be removed.
-  bool ResetPlayAPISearchEngine(const TemplateURLData& new_play_api_turl_data);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Updates any search providers matching |potential_search_url| with the new
   // favicon location |favicon_url|.
@@ -1099,11 +1057,6 @@ class TemplateURLService final : public WebDataServiceConsumer,
   std::optional<regional_capabilities::CountryIdHolder>
       updated_keywords_database_country_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Manage and fetch the java object that wraps this TemplateURLService on
-  // android.
-  std::unique_ptr<TemplateUrlServiceAndroid> template_url_service_android_;
-#endif
 
   base::WeakPtrFactory<TemplateURLService> weak_ptr_factory_{this};
 };

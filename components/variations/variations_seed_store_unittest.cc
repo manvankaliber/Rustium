@@ -43,9 +43,6 @@
 #include "third_party/abseil-cpp/absl/cleanup/cleanup.h"
 #include "third_party/zlib/google/compression_utils.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/variations/android/variations_seed_bridge.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace variations {
 namespace {
@@ -1307,11 +1304,7 @@ TEST_F(LoadSeedDataSeedFilesGroupTest, LoadSeed_CorruptGzip) {
       /*channel=*/version_info::Channel::DEV);
 
   {
-#if BUILDFLAG(IS_ANDROID)
-    LoadSeedResult expected_result = LoadSeedResult::kCorruptGzip;
-#else
     LoadSeedResult expected_result = LoadSeedResult::kCorruptZstd;
-#endif
     histogram_tester.ExpectUniqueSample("Variations.SeedFileReadResult.Latest",
                                         expected_result, 1);
   }
@@ -1550,44 +1543,6 @@ TEST_P(StoreSeedDataSeedFilesGroupTest, StoreSeedData) {
   EXPECT_EQ(GetStoredSeed().SerializeAsString(), serialized_seed);
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-// Verifies that an imported initial seed is committed to the seed file without
-// waiting for the scheduled write.
-TEST_P(StoreSeedDataSeedFilesGroupTest, ImportInitialSeedCommitsPendingWrite) {
-  // The fixture's SeedReaderWriter writes an empty seed file on construction
-  // because no seed file exists yet. Wait for that write to land so that it
-  // can't race with the writes below.
-  file_writer_thread_.FlushForTesting();
-
-  const std::string serialized_seed = SerializeSeed(CreateTestSeed());
-  auto initial_seed = std::make_unique<SeedResponse>();
-  initial_seed->data = serialized_seed;
-  initial_seed->signature = "signature";
-  initial_seed->country = "us";
-  initial_seed->date = base::Time::Now();
-  initial_seed->is_gzip_compressed = false;
-
-  TestVariationsSeedStore seed_store(&prefs_, temp_dir_.GetPath(),
-                                     /*signature_verification_needed=*/false,
-                                     std::move(initial_seed));
-  ASSERT_EQ(base::FieldTrialList::FindFullName(kSeedFileTrial),
-            GetParam().field_trial_group);
-
-  // Run only the tasks that are ready, which excludes the delayed write timer.
-  task_environment_.RunUntilIdle();
-
-  // The seed file must contain the imported seed, not the empty seed written
-  // when the seed file was first created.
-  std::string seed_file_data;
-  ASSERT_TRUE(base::ReadFileToString(temp_seed_file_path_, &seed_file_data));
-  std::string uncompressed_contents;
-  ASSERT_TRUE(SeedReaderWriter::UncompressFromSeedFileForTesting(
-      seed_file_data, &uncompressed_contents));
-  StoredSeedInfo stored_seed_info;
-  ASSERT_TRUE(stored_seed_info.ParseFromString(uncompressed_contents));
-  EXPECT_EQ(stored_seed_info.data(), serialized_seed);
-}
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 INSTANTIATE_TEST_SUITE_P(
     All,
@@ -2468,11 +2423,7 @@ TEST_F(LoadSafeSeedDataSeedFilesGroupTest, LoadSafeSeed_CorruptGzip) {
 
   // Verify metrics.
   {
-#if BUILDFLAG(IS_ANDROID)
-    LoadSeedResult expected_result = LoadSeedResult::kCorruptGzip;
-#else
     LoadSeedResult expected_result = LoadSeedResult::kCorruptZstd;
-#endif
     histogram_tester.ExpectUniqueSample("Variations.SeedFileReadResult.Safe",
                                         expected_result, 1);
   }
@@ -3741,99 +3692,5 @@ TEST_F(VariationsSeedStoreTest, ImportInitialSeed_InvalidSignature) {
       1);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(VariationsSeedStoreTest, ImportFirstRunJavaSeed) {
-  const std::string test_seed_data = "raw_seed_data_test";
-  const std::string test_seed_signature = "seed_signature_test";
-  const std::string test_seed_country = "seed_country_code_test";
-  const std::string test_seed_geo_level1 = "seed_geo_level1_test";
-  const int64_t test_response_date = 1234567890;
-  const bool test_is_gzip_compressed = true;
-  android::SetJavaFirstRunPrefsForTesting(
-      test_seed_data, test_seed_signature, test_seed_country,
-      test_seed_geo_level1, test_response_date, test_is_gzip_compressed);
-
-  auto seed = android::GetVariationsFirstRunSeed();
-  EXPECT_EQ(test_seed_data, seed->data);
-  EXPECT_EQ(test_seed_signature, seed->signature);
-  EXPECT_EQ(test_seed_country, seed->country);
-  EXPECT_EQ(test_seed_geo_level1, seed->geo_level1);
-  EXPECT_EQ(test_response_date, seed->date.InMillisecondsSinceUnixEpoch());
-  EXPECT_EQ(test_is_gzip_compressed, seed->is_gzip_compressed);
-
-  android::ClearJavaFirstRunPrefs();
-  seed = android::GetVariationsFirstRunSeed();
-  EXPECT_EQ("", seed->data);
-  EXPECT_EQ("", seed->signature);
-  EXPECT_EQ("", seed->country);
-  EXPECT_EQ("", seed->geo_level1);
-  EXPECT_EQ(0, seed->date.InMillisecondsSinceUnixEpoch());
-  EXPECT_FALSE(seed->is_gzip_compressed);
-}
-
-class VariationsSeedStoreFirstRunPrefsTest
-    : public ::testing::TestWithParam<bool> {
- private:
-  base::test::TaskEnvironment task_environment_;
-};
-
-INSTANTIATE_TEST_SUITE_P(VariationsSeedStoreTest,
-                         VariationsSeedStoreFirstRunPrefsTest,
-                         ::testing::Bool());
-
-TEST_P(VariationsSeedStoreFirstRunPrefsTest, FirstRunPrefsAllowed) {
-  bool use_first_run_prefs = GetParam();
-
-  const std::string test_seed_data = "raw_seed_data_test";
-  const std::string test_seed_signature = "seed_signature_test";
-  const std::string test_seed_country = "seed_country_code_test";
-  const std::string test_seed_geo_level1 = "seed_geo_level1_test";
-  const int64_t test_response_date = 1234567890;
-  const bool test_is_gzip_compressed = true;
-  android::SetJavaFirstRunPrefsForTesting(
-      test_seed_data, test_seed_signature, test_seed_country,
-      test_seed_geo_level1, test_response_date, test_is_gzip_compressed);
-
-  const VariationsSeed test_seed = CreateTestSeed();
-  const std::string seed_data = SerializeSeed(test_seed);
-  auto seed = std::make_unique<SeedResponse>();
-  seed->data = seed_data;
-  seed->signature = "java_seed_signature";
-  seed->country = "java_seed_country";
-  seed->geo_level1 = "us-ca";
-  seed->date = base::Time::FromMillisecondsSinceUnixEpoch(test_response_date) +
-               base::Days(1);
-  seed->is_gzip_compressed = false;
-
-  TestingPrefServiceSimple prefs;
-  VariationsSeedStore::RegisterPrefs(prefs.registry());
-  TestVariationsSeedStore seed_store(&prefs,
-                                     /*seed_file_dir=*/base::FilePath(),
-                                     /*signature_verification_needed=*/false,
-                                     /*initial_seed=*/std::move(seed),
-                                     use_first_run_prefs);
-
-  seed = android::GetVariationsFirstRunSeed();
-
-  // VariationsSeedStore must not modify Java prefs at all.
-  EXPECT_EQ(test_seed_data, seed->data);
-  EXPECT_EQ(test_seed_signature, seed->signature);
-  EXPECT_EQ(test_seed_country, seed->country);
-  EXPECT_EQ(test_seed_geo_level1, seed->geo_level1);
-  EXPECT_EQ(test_response_date, seed->date.InMillisecondsSinceUnixEpoch());
-  EXPECT_EQ(test_is_gzip_compressed, seed->is_gzip_compressed);
-  if (use_first_run_prefs) {
-    EXPECT_TRUE(android::HasMarkedPrefsForTesting());
-  } else {
-    EXPECT_FALSE(android::HasMarkedPrefsForTesting());
-  }
-
-  // Seed and geo_level1 should be stored.
-  EXPECT_FALSE(PrefHasDefaultValue(prefs, prefs::kVariationsCompressedSeed));
-  EXPECT_EQ(SerializeSeedBase64(test_seed),
-            prefs.GetString(prefs::kVariationsCompressedSeed));
-  EXPECT_EQ("us-ca", seed_store.GetLatestGeoLevel1());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace variations

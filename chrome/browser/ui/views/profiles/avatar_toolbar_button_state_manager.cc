@@ -269,16 +269,8 @@ class GuestStateProvider : public PrivateBaseStateProvider {
 
   // StateProvider:
   std::u16string GetText() const override {
-#if BUILDFLAG(IS_CHROMEOS)
-    // On ChromeOS all windows are either Guest or not Guest and the Guest
-    // avatar button is not actionable. Showing the number of open windows is
-    // not as helpful as on other desktop platforms. Please see
-    // crbug.com/40169175.
-    const int guest_window_count = 1;
-#else
     const int guest_window_count = static_cast<int>(
         GlobalBrowserCollection::GetInstance()->GetGuestBrowserCount());
-#endif
     return l10n_util::GetPluralStringFUTF16(IDS_AVATAR_BUTTON_GUEST,
                                             guest_window_count);
   }
@@ -2273,7 +2265,6 @@ void AvatarToolbarButtonStateManager::RegisterObserver(Observer* observer) {
 void AvatarToolbarButtonStateManager::HandleButtonPressed(
     bool is_source_accelerator,
     base::ScopedClosureRunner keep_anchor_visible) {
-#if !BUILDFLAG(IS_CHROMEOS)
   if (browser_ &&
       BrowserUserEducationInterface::From(browser_)->IsFeaturePromoActive(
           feature_engagement::kIPHPasswordsSavePrimingPromoFeature)) {
@@ -2295,7 +2286,6 @@ void AvatarToolbarButtonStateManager::HandleButtonPressed(
               kAvatarButtonPressed);
     }
   }
-#endif
 
   // Notify observers before the action is performed to allow them to close any
   // open dialogs.

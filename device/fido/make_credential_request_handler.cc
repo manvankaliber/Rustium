@@ -36,9 +36,6 @@
 #include "third_party/microsoft_webauthn/src/webauthn.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "device/fido/cros/authenticator.h"
-#endif
 
 namespace device {
 
@@ -114,23 +111,6 @@ MakeCredentialStatus IsCandidateAuthenticatorPostTouch(
     return MakeCredentialStatus::kAuthenticatorMissingLargeBlob;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Allow dispatch of UP-only cross-platform requests to the platform
-  // authenticator to ensure backwards compatibility with the legacy
-  // DeviceSecondFactorAuthentication enterprise policy.
-  if (options.authenticator_attachment ==
-          AuthenticatorAttachment::kCrossPlatform &&
-      auth_options.is_platform_device ==
-          AuthenticatorSupportedOptions::PlatformDevice::kYes) {
-    if (options.resident_key == ResidentKeyRequirement::kRequired) {
-      return MakeCredentialStatus::kAuthenticatorMissingResidentKeys;
-    }
-    if (options.user_verification == UserVerificationRequirement::kRequired) {
-      return MakeCredentialStatus::kAuthenticatorMissingUserVerification;
-    }
-    return MakeCredentialStatus::kSuccess;
-  }
-#endif
 
   if (options.resident_key == ResidentKeyRequirement::kRequired &&
       !auth_options.supports_resident_key) {
@@ -409,17 +389,6 @@ MakeCredentialRequestHandler::MakeCredentialRequestHandler(
   base::flat_set<FidoTransportProtocol> allowed_transports =
       GetTransportsAllowedByRP(options_.authenticator_attachment);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Attempt to instantiate the ChromeOS platform authenticator for
-  // power-button-only requests for compatibility with the legacy
-  // DeviceSecondFactorAuthentication policy, if that policy is enabled.
-  if (options_.authenticator_attachment ==
-      AuthenticatorAttachment::kCrossPlatform) {
-    allow_platform_authenticator_for_cross_platform_request_ = true;
-    fido_discovery_factory->set_require_legacy_cros_authenticator(true);
-    allowed_transports.insert(FidoTransportProtocol::kInternal);
-  }
-#endif
 
   auto available_transports =
       base::STLSetIntersection<base::flat_set<FidoTransportProtocol>>(
@@ -981,17 +950,6 @@ void MakeCredentialRequestHandler::SpecializeRequestForAuthenticator(
     FidoAuthenticator* authenticator) {
   FilterAlgorithmsForAuthenticator(request, authenticator);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (authenticator->AuthenticatorTransport() ==
-          FidoTransportProtocol::kInternal &&
-      options_.authenticator_attachment ==
-          AuthenticatorAttachment::kCrossPlatform) {
-    request->resident_key_required = false;
-    request->user_verification = UserVerificationRequirement::kDiscouraged;
-    // None of the other options below are applicable.
-    return;
-  }
-#endif
 
   // Only Windows cares about |authenticator_attachment| on the request.
   request->authenticator_attachment = options_.authenticator_attachment;

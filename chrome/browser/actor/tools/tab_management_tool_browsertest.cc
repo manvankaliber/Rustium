@@ -44,7 +44,6 @@ class ActorTabManagementToolBrowserTest : public ActorToolsTest {
     return active_tab()->GetBrowserWindowInterface();
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowInterface* CreateIncognitoBrowserWindow() {
     Profile* incognito_profile =
         GetProfile()->GetPrimaryOTRProfile(/*create_if_needed=*/true);
@@ -61,7 +60,6 @@ class ActorTabManagementToolBrowserTest : public ActorToolsTest {
     }
     return incognito_browser;
   }
-#endif
 };
 
 IN_PROC_BROWSER_TEST_F(ActorTabManagementToolBrowserTest,
@@ -103,7 +101,6 @@ IN_PROC_BROWSER_TEST_F(ActorTabManagementToolBrowserTest,
   EXPECT_EQ(start_tab_url, tab_list()->GetActiveTab()->GetContents()->GetURL());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Ensure CreateTab fails when targeting a window that belongs to a different
 // profile and that no tab is added to the task.
 IN_PROC_BROWSER_TEST_F(ActorTabManagementToolBrowserTest,
@@ -150,7 +147,6 @@ IN_PROC_BROWSER_TEST_F(ActorTabManagementToolBrowserTest,
 
   incognito_browser->GetWindow()->Close();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Test that the history tool correctly adds the acted on tab to the task's set
 // of tabs.

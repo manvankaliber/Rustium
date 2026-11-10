@@ -45,7 +45,6 @@
 #include "content/public/browser/web_contents.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/tab_list/tab_list_interface.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_window.h"
@@ -58,11 +57,9 @@
 #include "components/sessions/content/session_tab_helper.h"
 #include "components/sessions/core/session_id.h"
 #include "ui/base/base_window.h"
-#endif
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 std::string_view StripMarkdownJsonFences(std::string_view input) {
   std::string_view trimmed = base::TrimWhitespaceASCII(input, base::TRIM_ALL);
   if (base::StartsWith(trimmed, "```")) {
@@ -273,14 +270,12 @@ BrowserWindowInterface* ResolveBrowserWindowByIndex(
   return ResolveBrowserWindowBySessionId(
       primary_browser, window_session_ids[target_win_idx - 1]);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
 namespace ttc {
 
 struct AiOverlayTools::WorkspaceUndoSnapshot {
-#if !BUILDFLAG(IS_ANDROID)
   std::map<int, std::optional<tab_groups::TabGroupId>> tab_groups_by_tab_id;
   std::map<tab_groups::TabGroupId, tab_groups::TabGroupVisualData>
       group_visuals;
@@ -290,7 +285,6 @@ struct AiOverlayTools::WorkspaceUndoSnapshot {
   std::map<int, bool> tab_pinned_by_tab_id;
   std::map<int, bool> tab_muted_by_tab_id;
   int closed_tabs_count = 0;
-#endif
 };
 
 void AiOverlayTools::WorkspaceUndoSnapshotDeleter::operator()(
@@ -299,7 +293,6 @@ void AiOverlayTools::WorkspaceUndoSnapshotDeleter::operator()(
 }
 
 base::DictValue AiOverlayTools::BuildWorkspaceSnapshot() {
-#if !BUILDFLAG(IS_ANDROID)
   if (!browser_) {
     return base::DictValue();
   }
@@ -536,13 +529,9 @@ base::DictValue AiOverlayTools::BuildWorkspaceSnapshot() {
   root.Set("saved_tab_groups", std::move(saved_groups_list));
 
   return root;
-#else
-  return base::DictValue();
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void AiOverlayTools::SaveWorkspaceUndoSnapshot() {
-#if !BUILDFLAG(IS_ANDROID)
   workspace_undo_snapshot_.reset(new WorkspaceUndoSnapshot());
   ForEachBrowserWindow(browser_, [&](BrowserWindowInterface* bwi) {
     TabStripModel* tab_strip = bwi->GetTabStripModel();
@@ -584,11 +573,9 @@ void AiOverlayTools::SaveWorkspaceUndoSnapshot() {
     workspace_undo_snapshot_->tab_order_by_window[bwi->GetSessionID()] =
         std::move(window_tab_order);
   });
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 bool AiOverlayTools::RestoreWorkspaceUndoSnapshot() {
-#if !BUILDFLAG(IS_ANDROID)
   if (!workspace_undo_snapshot_ || !browser_) {
     return false;
   }
@@ -815,14 +802,10 @@ bool AiOverlayTools::RestoreWorkspaceUndoSnapshot() {
   });
 
   return true;
-#else
-  return false;
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 base::DictValue AiOverlayTools::ExecuteWorkspaceSubAgentOutput(
     std::string_view raw_output) {
-#if !BUILDFLAG(IS_ANDROID)
   std::string_view cleaned = StripMarkdownJsonFences(raw_output);
   std::optional<base::DictValue> dict =
       base::JSONReader::ReadDict(cleaned, base::JSON_PARSE_CHROMIUM_EXTENSIONS);
@@ -1749,11 +1732,6 @@ base::DictValue AiOverlayTools::ExecuteWorkspaceSubAgentOutput(
     out.Set("skipped", std::move(skipped));
   }
   return out;
-#else
-  base::DictValue out;
-  out.Set("facts", std::string(raw_output));
-  return out;
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void AiOverlayTools::AnalyzeAndManageTabs(
@@ -1765,7 +1743,6 @@ void AiOverlayTools::AnalyzeAndManageTabs(
         base::unexpected("Workspace tools are not enabled."));
     return;
   }
-#if !BUILDFLAG(IS_ANDROID)
   if (!browser_) {
     std::move(callback).Run(base::unexpected("Browser window not available"));
     return;
@@ -1788,9 +1765,6 @@ void AiOverlayTools::AnalyzeAndManageTabs(
   base::UmaHistogramTimes("AI.OverlayDialog.WorkspaceSubAgent.SnapshotDuration",
                           snapshot_timer.Elapsed());
   std::move(callback).Run(base::ok(base::Value(std::move(snapshot))));
-#else
-  std::move(callback).Run(base::unexpected("Not supported on Android"));
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 }  // namespace ttc

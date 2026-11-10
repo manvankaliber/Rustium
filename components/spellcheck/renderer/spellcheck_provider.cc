@@ -279,18 +279,6 @@ void SpellCheckProvider::FocusedElementChanged(
     spellcheck_->InitializeIfNeeded();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!spell_check_host_.is_bound())
-    return;
-
-  WebLocalFrame* frame = render_frame()->GetWebFrame();
-  WebElement focused_element = frame->GetDocument().IsNull()
-                                   ? WebElement()
-                                   : frame->GetDocument().FocusedElement();
-  bool enabled = !focused_element.IsNull() && focused_element.IsEditable();
-  if (!enabled)
-    GetSpellCheckHost().DisconnectSessionBridge();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 spellcheck::mojom::SpellCheckHost& SpellCheckProvider::GetSpellCheckHost() {

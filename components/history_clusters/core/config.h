@@ -28,7 +28,7 @@ struct Config {
 
   // True if Journeys is enabled. Journeys is only enabled on desktop platforms.
   bool is_journeys_enabled_no_locale_check =
-      !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS);
+      !false && !false;
 
   // The max number of visits to use for each clustering iteration. This limits
   // the number of visits sent to the clustering backend per batch.

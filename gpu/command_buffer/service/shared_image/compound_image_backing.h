@@ -242,10 +242,6 @@ class GPU_GLES2_EXPORT CompoundImageBacking
   gfx::GpuMemoryBufferHandle GetGpuMemoryBufferHandle() override;
   scoped_refptr<gfx::NativePixmap> GetNativePixmap() override;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::optional<VulkanYCbCrInfo> GetVkCbCrInfo(
-      SharedContextState* context_state) override;
-#endif
 
  protected:
   // SharedImageBacking implementation.

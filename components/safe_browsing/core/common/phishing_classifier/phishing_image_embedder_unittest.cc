@@ -33,13 +33,8 @@ namespace {
 
 using ::testing::_;
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-constexpr int kExpectedVisualWidth = 18;
-constexpr int kExpectedVisualHeight = 32;
-#else
 constexpr int kExpectedVisualWidth = 48;
 constexpr int kExpectedVisualHeight = 48;
-#endif
 constexpr size_t kExpectedVisualDataSize =
     3u * kExpectedVisualWidth * kExpectedVisualHeight;
 
@@ -84,7 +79,6 @@ class PhishingImageEmbedderTest : public testing::Test {
   std::unique_ptr<Scorer> scorer_;
 };
 
-#if !BUILDFLAG(IS_IOS)
 // In renderer processes, `PhishingImageEmbedder` typically relies on the
 // process-wide `ScorerStorage` to obtain the model. In the browser process (or
 // on iOS), the scorer is injected explicitly for profile isolation. This test
@@ -111,7 +105,6 @@ TEST_F(PhishingImageEmbedderTest, UsesScorerStorageUntilScorerIsInjected) {
   ScorerStorage::GetInstance()->SetScorer(nullptr);
   EXPECT_TRUE(embedder.is_ready());
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(PhishingImageEmbedderTest, NoImageEmbeddingWithVisualFeatures) {
   SkBitmap bitmap;

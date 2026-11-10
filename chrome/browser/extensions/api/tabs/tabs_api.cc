@@ -82,7 +82,6 @@
 #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_external.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/unload_controller.h"
 #include "chrome/browser/ui/waap/initial_webui_window_metrics_manager.h"
@@ -90,13 +89,7 @@
 #include "chrome/browser/ui/web_applications/web_app_launch_utils.h"
 #include "components/split_tabs/split_tab_visual_data.h"
 #include "components/webapps/isolated_web_apps/scheme.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "ash/wm/window_pin_util.h"
-#include "chrome/common/chrome_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(FULL_SAFE_BROWSING)
 #include "chrome/browser/safe_browsing/extension_telemetry/extension_telemetry_service.h"
@@ -132,7 +125,6 @@ constexpr char kCannotUnhighlightAllTabsError[] =
 constexpr char kTabOpenerMustBeInSameWindowError[] =
     "Tab opener must be in the same window as the updated tab.";
 
-#if !BUILDFLAG(IS_ANDROID)
 constexpr char kTabsCreateIwaUrlNotAllowedError[] =
     "URLs with the 'isolated-app:' scheme cannot be opened with tabs.create. "
     "Use windows.create instead.";
@@ -141,7 +133,6 @@ constexpr char kTabsUpdateIwaUrlNotAllowedError[] =
     "Use windows.create instead.";
 constexpr char kCannotDuplicateIwaTabError[] =
     "The tab of an Isolated Web App cannot be duplicated.";
-#endif
 
 // Sets the opener of the given `tab` to `opener`. Returns true on success;
 // on failure, populates `error`.
@@ -874,13 +865,6 @@ ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
   original_url_ = std::move(create_properties.url);
   split_with_tab_id_ = create_properties.split_with_tab_id;
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(https://crbug.com/480192698): Remove this restriction once split tabs
-  // are supported on Desktop Android.
-  if (split_with_tab_id_) {
-    return RespondNow(Error(tabs_constants::kSplitViewCreationFailedError));
-  }
-#endif
 
   validated_url_ = chrome::ChromeUINewTabURLAsGURL();
   if (original_url_) {
@@ -893,13 +877,11 @@ ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
     validated_url_ = std::move(maybe_url.value());
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Isolated Web Apps must be opened at their start URL with the requested
   // URL routed via launchQueue, which is handled by `windows.create`.
   if (validated_url_.SchemeIs(webapps::kIsolatedAppScheme)) {
     return RespondNow(Error(kTabsCreateIwaUrlNotAllowedError));
   }
-#endif
 
   opener_tab_id_ = create_properties.opener_tab_id;
 
@@ -1008,7 +990,6 @@ ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
   // Check if the browser is valid. If it isn't, reset `browser` and possibly
   // find a replacement.
 
-#if !BUILDFLAG(IS_ANDROID)
   // TODO(https://crbug.com/468223125): Why do we check if it's not a normal
   // browser *and* it's attempting to close? Should that be *or*? This goes
   // back to the dawn of time, AKA the initial implementation in 2014:
@@ -1018,7 +999,6 @@ ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
     browser = nullptr;
     fallback_to_tabbed_browser = true;
   }
-#endif
 
   if (browser && needs_original_profile &&
       browser->GetProfile()->IsOffTheRecord()) {
@@ -1033,15 +1013,6 @@ ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
   // the cross-platform logic below by making the tab creation process
   // (specifically OpenTabHelper::OpenTab) asynchronous, which is required
   // on Android when a new window needs to be created.
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/496733610): Supporting CCT/PWA/TWA is currently not possible
-  // in C++ browser tests on Android. Add tests once that's supported.
-  if (browser && browser->GetType() != BrowserWindowInterface::TYPE_NORMAL) {
-    browser = nullptr;
-    fallback_to_tabbed_browser = true;
-    create_if_needed = true;
-  }
-#endif
 
   // This check (for the opener) comes last. It will fail (by design) if
   // we're intending to create a new browser; that's good, because the new
@@ -1106,12 +1077,10 @@ void TabsCreateFunction::OnBrowserWindowCreated(
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* manager = InitialWebUIWindowMetricsManager::From(browser)) {
     manager->SetWindowCreationInfo(waap::NewWindowCreationSource::kExtension,
                                    creation_time);
   }
-#endif
 
   base::WeakPtr<BrowserWindowInterface> weak_browser = browser->GetWeakPtr();
   browser->GetWindow()->Show();
@@ -1232,12 +1201,10 @@ ExtensionFunction::ResponseAction TabsDuplicateFunction::Run() {
     return RespondNow(Error(ExtensionTabUtil::kTabStripNotEditableError));
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (web_contents->GetLastCommittedURL().SchemeIs(
           webapps::kIsolatedAppScheme)) {
     return RespondNow(Error(kCannotDuplicateIwaTabError));
   }
-#endif
 
   TabListInterface* tab_list = TabListInterface::From(browser);
   if (!tab_list) {
@@ -1245,15 +1212,6 @@ ExtensionFunction::ResponseAction TabsDuplicateFunction::Run() {
                             base::NumberToString(tab_id)));
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/496733610): Supporting CCT/PWA/TWA is currently not possible
-  // in C++ browser tests on Android. Add tests once that's supported.
-  if (browser->GetType() == BrowserWindowInterface::TYPE_CUSTOM_TAB ||
-      browser->GetType() == BrowserWindowInterface::TYPE_APP) {
-    return RespondNow(Error(
-        tabs_constants::kAndroidCannotDuplicateTabInCctOrWebAppWindowError));
-  }
-#endif
 
   ::tabs::TabInterface* tab_interface =
       ::tabs::TabInterface::MaybeGetFromContents(web_contents);
@@ -1370,17 +1328,6 @@ ExtensionFunction::ResponseAction TabsHighlightFunction::Run() {
   CHECK(active_tab_index >= 0 && active_tab_index <= tab_list->GetTabCount());
   ::tabs::TabInterface* active_tab = tab_list->GetTab(active_tab_index);
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/496733610): Supporting CCT/PWA/TWA is currently not possible
-  // in C++ browser tests on Android. Add tests once that's supported.
-  auto browser_type = browser->GetType();
-  if ((browser_type == BrowserWindowInterface::TYPE_CUSTOM_TAB ||
-       browser_type == BrowserWindowInterface::TYPE_APP) &&
-      active_tab_index != tab_list->GetActiveIndex()) {
-    return RespondNow(Error(
-        tabs_constants::kAndroidCannotHighlightTabInCctOrWebAppWindowError));
-  }
-#endif
 
   tab_list->HighlightTabs(active_tab->GetHandle(), tabs);
 
@@ -1479,14 +1426,12 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
   }
 
   // TODO(https://crbug.com/505306735): Support on desktop android.
-#if !BUILDFLAG(IS_ANDROID)
   if (params->update_properties.auto_discardable) {
     bool state = *params->update_properties.auto_discardable;
     resource_coordinator::TabLifecycleUnitExternal::FromWebContents(
         original_contents)
         ->SetAutoDiscardable(state);
   }
-#endif
 
   if (params->update_properties.pinned) {
     bool pinned = *params->update_properties.pinned;
@@ -1596,17 +1541,6 @@ bool TabsUpdateFunction::UpdateActiveTab(
     return true;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/496733610): Supporting CCT/PWA/TWA is currently not possible
-  // in C++ browser tests on Android. Add tests once that's supported.
-  auto browser_type = browser.GetType();
-  if ((browser_type == BrowserWindowInterface::TYPE_CUSTOM_TAB ||
-       browser_type == BrowserWindowInterface::TYPE_APP) &&
-      tab_index != tab_list.GetActiveIndex()) {
-    error = tabs_constants::kAndroidCannotActivateTabInCctOrWebAppWindowError;
-    return false;
-  }
-#endif
 
   // Bug fix for crbug.com/40055514. Don't let the extension update the tab
   // if the user is dragging tabs.
@@ -1707,14 +1641,12 @@ bool TabsUpdateFunction::UpdateURL(content::WebContents* web_contents,
     return false;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Isolated Web Apps must be opened at their start URL with the requested
   // URL routed via launchQueue, which is handled by `windows.create`.
   if (url->SchemeIs(webapps::kIsolatedAppScheme)) {
     *error = kTabsUpdateIwaUrlNotAllowedError;
     return false;
   }
-#endif
 
   if (IsDSERedirect(extension()->id(), *browser_context(), render_frame_host(),
                     *web_contents, *url, user_gesture())) {
@@ -1857,16 +1789,6 @@ bool TabsMoveFunction::MoveTab(int tab_id,
     return false;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/496733610): Supporting CCT/PWA/TWA is currently not possible
-  // in C++ browser tests on Android. Add tests once that's supported
-  BrowserWindowInterface* source_browser =
-      source_window->GetBrowserWindowInterface();
-  bool is_source_window_cct_or_app_on_android =
-      source_browser &&
-      (source_browser->GetType() == BrowserWindowInterface::TYPE_CUSTOM_TAB ||
-       source_browser->GetType() == BrowserWindowInterface::TYPE_APP);
-#endif
 
   WindowController* target_controller = nullptr;
   if (window_id) {
@@ -1880,25 +1802,7 @@ bool TabsMoveFunction::MoveTab(int tab_id,
   // WINDOW_ID_CURRENT can resolve to the tab's own window.
   if (target_controller && target_controller->GetWindowId() !=
                                ExtensionTabUtil::GetWindowIdOfTab(contents)) {
-#if BUILDFLAG(IS_ANDROID)
-    if (is_source_window_cct_or_app_on_android &&
-        contents != source_window->GetActiveTab()) {
-      *error = tabs_constants::
-          kAndroidOnlyActiveTabCanBeMovedFromCctOrWebAppWindowError;
-      return false;
-    }
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-    if (is_source_window_cct_or_app_on_android &&
-        (!target_controller->GetBrowserWindowInterface() ||
-         target_controller->GetBrowserWindowInterface()->GetType() !=
-             BrowserWindowInterface::TYPE_NORMAL)) {
-      *error =
-          tabs_constants::kAndroidCanOnlyMoveCctOrWebAppTabsToNormalWindowError;
-      return false;
-    }
-#endif
 
     BrowserWindowInterface* target_browser =
         target_controller->GetBrowserWindowInterface();
@@ -1932,12 +1836,6 @@ bool TabsMoveFunction::MoveTab(int tab_id,
   // This is ">=" because the move must be to an existing location.
   // -1 means set the move location to the last position.
 
-#if BUILDFLAG(IS_ANDROID)
-  if (is_source_window_cct_or_app_on_android) {
-    *error = tabs_constants::kAndroidCannotMoveTabsWithinCctOrWebAppWindowError;
-    return false;
-  }
-#endif
 
   TabListInterface* source_tab_list =
       TabListInterface::From(source_window->GetBrowserWindowInterface());

@@ -80,9 +80,6 @@ class WakeLock : public mojom::WakeLock {
   virtual void CreateWakeLock();
   virtual void RemoveWakeLock();
   virtual void SwapWakeLock();
-#if BUILDFLAG(IS_ANDROID)
-  void InitAndroidWakeLock();
-#endif
 
   void OnConnectionError();
 
@@ -90,10 +87,6 @@ class WakeLock : public mojom::WakeLock {
   mojom::WakeLockReason reason_;
   std::unique_ptr<std::string> description_;
 
-#if BUILDFLAG(IS_ANDROID)
-  int context_id_;
-  WakeLockContextCallback native_view_getter_;
-#endif
 
   scoped_refptr<base::SequencedTaskRunner> main_task_runner_;
 

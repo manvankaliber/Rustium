@@ -2,10 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
 source_set("announcement_notification") {
   sources = [
     "announcement_notification_service.h",
@@ -20,14 +16,10 @@ source_set("announcement_notification") {
     "//url",
   ]
 
-  if (is_android) {
-    sources += [ "announcement_notification_delegate_android.h" ]
-  } else {
-    sources += [
-      "announcement_notification_delegate.h",
-      "announcement_notification_handler.h",
-    ]
-  }
+  sources += [
+    "announcement_notification_delegate.h",
+    "announcement_notification_handler.h",
+  ]
 }
 
 source_set("impl") {
@@ -51,25 +43,16 @@ source_set("impl") {
     "//ui/base",
     "//url",
   ]
-  if (is_chromeos) {
-    deps += [ "//ash/constants" ]
-  }
 
-  if (is_android) {
-    sources += [ "announcement_notification_delegate_android.cc" ]
+  sources += [
+    "announcement_notification_delegate.cc",
+    "announcement_notification_handler.cc",
+  ]
 
-    deps += [ "//chrome/android:chrome_jni_headers" ]
-  } else {
-    sources += [
-      "announcement_notification_delegate.cc",
-      "announcement_notification_handler.cc",
-    ]
-
-    deps += [
-      "//chrome/browser/ui/navigator",
-      "//ui/message_center/public/cpp",
-    ]
-  }
+  deps += [
+    "//chrome/browser/ui/navigator",
+    "//ui/message_center/public/cpp",
+  ]
 }
 
 source_set("unit_tests") {

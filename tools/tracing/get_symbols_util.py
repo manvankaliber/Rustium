@@ -13,7 +13,7 @@ def MangleModuleIfNeeded(module_id):
   """Convert module ID to the format breakpad uses.
 
   See TracingSamplerProfiler::MangleModuleIDIfNeeded().
-  Warning: this is only relevant in Android, Linux and CrOS.
+  This conversion applies to Linux ELF build IDs.
   Linux ELF module IDs are 160bit integers, which we need to mangle
   down to 128bit integers to match the id that Breakpad outputs.
   Example on version '66.0.3359.170' x64:

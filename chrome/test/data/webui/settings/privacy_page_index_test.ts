@@ -37,12 +37,6 @@ suite('PrivacyPageIndex', function() {
           enablePersistentPermissions: false,
           enableSafeBrowsingSubresourceFilter: false,
           enableSecurityKeysSubpage: false,
-          // <if expr="enable_smart_card">
-          enableSmartCardReadersContentSetting: false,
-          // </if>
-          // <if expr="is_chromeos">
-          enableWebPrintingContentSetting: false,
-          // </if>
           enableWebAppInstallation: false,
           enableWebBluetoothNewPermissionsBackend: false,
           isGuest: false,
@@ -134,15 +128,6 @@ suite('PrivacyPageIndex', function() {
           routes.SECURITY_KEYS, ['securityKeys'], 'privacy');
     });
 
-    // <if expr="is_chromeos">
-    test('RoutingGuestMode', async function() {
-      assertFalse(loadTimeData.getBoolean('isGuest'));
-      assertEquals(routes.BASIC, Router.getInstance().getCurrentRoute());
-      await createPrivacyPageIndex({isGuest: true});
-      assertTrue(
-          !!index.$.viewManager.querySelector('#privacy.active[slot=view]'));
-    });
-    // </if>
 
     // Minimal (non-exhaustive) tests to ensure SearchableViewContainerMixin is
     // inherited correctly.
@@ -461,29 +446,7 @@ suite('PrivacyPageIndex', function() {
           'privacy');
     });
 
-    // <if expr="enable_smart_card">
-    test('RoutingSmartCardReaders', async function() {
-      assertFalse(
-          loadTimeData.getBoolean('enableSmartCardReadersContentSetting'));
-      await createPrivacyPageIndex(
-          {enableSmartCardReadersContentSetting: true});
 
-      return testViewsForRoute(
-          routes.SITE_SETTINGS_SMART_CARD_READERS,
-          ['siteSettingsSmartCardReaders'], 'privacy');
-    });
-    // </if>
-
-    // <if expr="is_chromeos">
-    test('RoutingWebPrinting', async function() {
-      assertFalse(loadTimeData.getBoolean('enableWebPrintingContentSetting'));
-      await createPrivacyPageIndex({enableWebPrintingContentSetting: true});
-
-      return testViewsForRoute(
-          routes.SITE_SETTINGS_WEB_PRINTING, ['siteSettingsWebPrinting'],
-          'privacy');
-    });
-    // </if>
 
     test('RoutingWebAppInstallation', async function() {
       assertFalse(loadTimeData.getBoolean('enableWebAppInstallation'));

@@ -127,11 +127,6 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
   bool IsLockedToSite() const override;
   bool IsThreadedAnimationEnabled() override;
   bool IsGpuCompositingDisabled() const override;
-#if BUILDFLAG(IS_ANDROID)
-  bool IsSynchronousCompositingEnabledForAndroidWebView() override;
-  bool IsZeroCopySynchronousSwDrawEnabledForAndroidWebView() override;
-  SkCanvas* SynchronousCompositorGetSkCanvasForAndroidWebView() override;
-#endif
   bool IsLcdTextEnabled() override;
   bool IsElasticOverscrollEnabledOnRoot() override;
   bool IsElasticOverscrollSupported() override;
@@ -206,7 +201,7 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
       const blink::WebURL& document_url,
       WebGPUReplyThread reply_thread) override;
   blink::WebString ConvertIDNToUnicode(const blink::WebString& host) override;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   void SetThreadType(base::PlatformThreadId thread_id,
                      base::ThreadType) override;
 #endif
@@ -267,11 +262,6 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
   base::PlatformThreadId GetIOThreadId() const override;
   scoped_refptr<base::SingleThreadTaskRunner> VideoFrameCompositorTaskRunner()
       override;
-#if BUILDFLAG(IS_ANDROID)
-  void SetPrivateMemoryFootprint(
-      uint64_t private_memory_footprint_bytes) override;
-  bool IsUserLevelMemoryPressureSignalEnabled() override;
-#endif  // BUILDFLAG(IS_ANDROID)
   void OnV8HeapLastResortGC() override;
 
   // Tells this platform that the renderer is locked to a site (i.e., a scheme
@@ -289,8 +279,7 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
   void CollectWebGLContextInfo(blink::Platform::WebGLContextInfo* gl_info,
                                const gpu::GPUInfo& gpu_info) const;
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   std::unique_ptr<blink::WebSandboxSupport> sandbox_support_;
 #endif
 

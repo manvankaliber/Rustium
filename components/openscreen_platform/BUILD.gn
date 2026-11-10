@@ -46,25 +46,7 @@ source_set("openscreen_platform") {
 # Incompatible with `:openscreen_platform`.
 source_set("openscreen_platform_using_net_sockets") {
   testonly = true
-  visibility += [
-    "//components/cast_streaming/test:test_sender_using_net_sockets",
-    "//media/cast:media_vpx_quantizer_parser_fuzzer",
-  ]
-  if (is_android || is_ios) {
-    # Allow broader visibility for platforms with unique generated targets.
-    visibility += [
-      "//components/cast_streaming/browser:*",
-      "//media/cast:media_vpx_quantizer_parser_fuzzer__apk__compile_java",
-      "//media/cast:media_vpx_quantizer_parser_fuzzer__apk__compile_resources",
-      "//media/cast:media_vpx_quantizer_parser_fuzzer__apk__create",
-      "//media/cast:media_vpx_quantizer_parser_fuzzer__apk__java",
-      "//media/cast:media_vpx_quantizer_parser_fuzzer__apk__java__dex",
-      "//media/cast:media_vpx_quantizer_parser_fuzzer__apk__java__header",
-      "//media/cast:media_vpx_quantizer_parser_fuzzer__apk__java__validate",
-      "//media/cast:media_vpx_quantizer_parser_fuzzer__library",
-      "//media/cast:media_vpx_quantizer_parser_fuzzer__library__jni_registration__native_sources",
-    ]
-  }
+  visibility += [ "//media/cast:media_vpx_quantizer_parser_fuzzer" ]
 
   assert_no_deps = [ "//services/network:network_service" ]
 
@@ -89,8 +71,7 @@ source_set("openscreen_platform_using_net_sockets") {
 source_set("openscreen_platform_without_sockets") {
   # The private target below must directly depend on this target for reasons
   # described at its definition.
-  visibility +=
-      [ "//components/cast_streaming/test:test_sender_without_socket_deps" ]
+  visibility += []
 
   public = [
     "event_trace_logging_platform.h",
@@ -114,7 +95,7 @@ source_set("openscreen_platform_without_sockets") {
   ]
 }
 
-if (!is_win && !is_ios) {
+if (!is_win) {
   source_set("message_port_tls_connection") {
     testonly = true
 
@@ -138,10 +119,6 @@ if (!is_win && !is_ios) {
 source_set("unittests") {
   testonly = true
   visibility += [ "//components:components_unittests${exec_target_suffix}" ]
-  if (is_android || is_ios) {
-    # Allow broader visibility for platforms with unique generated targets.
-    visibility += [ "//components:*" ]
-  }
 
   public = []
 
@@ -163,7 +140,7 @@ source_set("unittests") {
     "//third_party/openscreen/src/platform:api",
   ]
 
-  if (!is_win && !is_ios) {
+  if (!is_win) {
     sources += [ "message_port_tls_connection_unittest.cc" ]
     deps += [
       ":message_port_tls_connection",

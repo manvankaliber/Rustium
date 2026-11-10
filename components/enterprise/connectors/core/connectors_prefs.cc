@@ -37,9 +37,6 @@ const char kOnDataCopiedPref[] = "enterprise_connectors.on_data_copied";
 
 const char kOnNetworkRequestPref[] = "enterprise_connectors.on_network_request";
 
-#if BUILDFLAG(IS_CHROMEOS)
-const char kOnFileTransferPref[] = "enterprise_connectors.on_file_transfer";
-#endif
 
 const char kOnSecurityEventPref[] = "enterprise_connectors.on_security_event";
 
@@ -55,10 +52,6 @@ const char kOnDataCopiedScopePref[] =
 const char kOnNetworkRequestScopePref[] =
     "enterprise_connectors.scope.on_network_request";
 
-#if BUILDFLAG(IS_CHROMEOS)
-const char kOnFileTransferScopePref[] =
-    "enterprise_connectors.scope.on_file_transfer";
-#endif
 const char kOnSecurityEventScopePref[] =
     "enterprise_connectors.scope.on_security_event";
 
@@ -87,23 +80,15 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
   registry->RegisterStringPref(kWatermarkStyleTimestampTimezonePref,
                                kWatermarkStyleTimestampTimezoneDefault);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   registry->RegisterListPref(kOnDataCopiedPref);
   registry->RegisterListPref(kOnPrintPref);
   registry->RegisterIntegerPref(kOnPrintScopePref, 0);
   registry->RegisterIntegerPref(kOnDataCopiedScopePref, 0);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  registry->RegisterListPref(kOnFileTransferPref);
-  registry->RegisterIntegerPref(kOnFileTransferScopePref, 0);
-#endif
 
-#if !BUILDFLAG(IS_IOS)
   RegisterDeviceTrustConnectorProfilePrefs(registry);
   registry->RegisterListPref(kOnFileAttachedPref);
   registry->RegisterIntegerPref(kOnFileAttachedScopePref, 0);
-#endif  // !BUILDFLAG(IS_IOS)
 
   client_certificates::RegisterProfilePrefs(registry);
 

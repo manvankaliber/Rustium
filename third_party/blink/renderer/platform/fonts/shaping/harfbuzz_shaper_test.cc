@@ -37,12 +37,6 @@
 #include "third_party/blink/renderer/platform/wtf/text/atomic_string.h"
 #include "third_party/blink/renderer/platform/wtf/vector.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/test/scoped_feature_list.h"
-#include "third_party/blink/public/common/features.h"
-#include "third_party/blink/renderer/platform/fonts/opentype/color_table_lookup.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "base/mac/mac_util.h"
@@ -164,8 +158,6 @@ class HarfBuzzShaperTest : public FontTestBase {
 
 #if BUILDFLAG(IS_MAC)
   const char* kSystemColorEmojiFont = "Apple Color Emoji";
-#elif BUILDFLAG(IS_ANDROID)
-  const char* kSystemColorEmojiFont = "Noto Color Emoji";
 #elif BUILDFLAG(IS_WIN)
   const char* kSystemColorEmojiFont = "Segoe UI Emoji";
 #endif
@@ -173,8 +165,6 @@ class HarfBuzzShaperTest : public FontTestBase {
 #if BUILDFLAG(IS_MAC)
   const char* kSystemMonoEmojiFont = "Apple Symbols";
   const char* kSystemMonoTextDefaultEmojiFont = "Hiragino Mincho ProN";
-#elif BUILDFLAG(IS_ANDROID)
-  const char* kSystemMonoEmojiFont = "Noto Sans Symbols";
 #elif BUILDFLAG(IS_WIN)
   const char* kSystemMonoEmojiFont = "Segoe UI Symbol";
 #endif
@@ -753,7 +743,7 @@ TEST_P(ShapeParameterTest, MaxGlyphsClusterDevanagari) {
   HarfBuzzShaper shaper(string);
   const ShapeResult* result = ShapeWithParameter(&shaper);
   EXPECT_EQ(length, result->NumCharacters());
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Linux and Fuchsia use Lohit Devanagari. When using that font the shaper
   // returns 32767 glyphs instead of 32769.
   // TODO(crbug.com/933551): Add Noto Sans Devanagari to
@@ -811,7 +801,7 @@ TEST_F(HarfBuzzShaperTest, IdeographicSpace) {
   EXPECT_EQ(run_font_data.size(), 1u);
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST_F(HarfBuzzShaperTest, SystemEmojiVs15) {
   Font* mono_font = CreateNotoEmoji();
   Font* color_font = CreateNotoColorEmoji();
@@ -930,7 +920,7 @@ TEST_F(HarfBuzzShaperTest, FontVariantEmojiTextSystemFallback) {
     GTEST_SKIP();
   }
   const char* mono_font_name = "STIX Two Math";
-#elif BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#elif BUILDFLAG(IS_WIN)
   const char* mono_font_name = kSystemMonoEmojiFont;
 #endif
   String text(u"\u26CE");
@@ -1267,59 +1257,6 @@ TEST_F(HarfBuzzShaperTest, EmojiZwjSequence) {
   shaper.Shape(font, direction);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Regression test for https://crbug.com/579721442: Android splits system color
-// emojis across NotoColorEmoji.ttf and NotoColorEmojiFlags.ttf (`und-Zsye`).
-// When GMSCore's monolithic emoji font is unavailable, an emoji or ZWJ sequence
-// immediately followed by a Regional Indicator flag must still shape the flag
-// as a color ligature rather than falling back to NotoSansSymbols (`und-Zsym`).
-TEST_F(HarfBuzzShaperTest, EmojiFollowedByFlagSequence) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(features::kGMSCoreEmoji);
-  ScopedFontFallbackMultiplePriorityFontsForTest scoped_feature(true);
-
-  Font* font = MakeGarbageCollected<Font>(font_description);
-
-  // Verify the test environment supports color flag ligatures standalone first.
-  HarfBuzzShaper flag_shaper(u"\U0001F1E7\U0001F1F7");
-  const ShapeResult* flag_result = flag_shaper.Shape(font, TextDirection::kLtr);
-  if (flag_result->NumGlyphs() != 1u) {
-    GTEST_SKIP() << "System fonts do not form flag ligatures on this image.";
-  }
-
-  Vector<const char16_t*> test_cases = {
-      // 😀🇧🇷
-      u"\U0001F600\U0001F1E7\U0001F1F7",
-      // 👩‍⚕️🇧🇷 (Emoji 4.0 ZWJ + VS16, Android 10+)
-      u"\U0001F469\u200D\u2695\uFE0F\U0001F1E7\U0001F1F7",
-  };
-  if (base::android::android_info::sdk_int() >=
-      base::android::android_info::SDK_VERSION_R) {
-    // 🏳️‍⚧️🇧🇷 (Emoji 13.0, Android 11+)
-    test_cases.push_back(
-        u"\U0001F3F3\uFE0F\u200D\u26A7\uFE0F\U0001F1E7\U0001F1F7");
-  }
-
-  for (const char16_t* text : test_cases) {
-    String input(text);
-    HarfBuzzShaper shaper(input);
-    const ShapeResult* result = shaper.Shape(font, TextDirection::kLtr);
-
-    // Each leading emoji/ZWJ sequence + 🇧🇷 should produce 2 ligature/emoji
-    // glyphs total (1 for the leading emoji/ZWJ sequence and 1 for 🇧🇷), never 3
-    // glyphs ([B][R]).
-    EXPECT_EQ(2u, result->NumGlyphs()) << input;
-
-    HeapVector<ShapeResult::RunFontData> run_font_data;
-    result->GetRunFontData(&run_font_data);
-    for (const auto& run : run_font_data) {
-      EXPECT_TRUE(ColorTableLookup::TypefaceHasAnySupportedColorTable(
-          run.font_data_->PlatformData().Typeface()))
-          << input;
-    }
-  }
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST_F(HarfBuzzShaperTest, CaretOffsetForHitTestMatchesPositionForOffsetLatin) {
   Font* font = MakeGarbageCollected<Font>(font_description);
@@ -1956,12 +1893,7 @@ TEST_F(HarfBuzzShaperTest, SafeToBreakLatinDiscretionaryLigatures) {
 
 // TODO(crbug.com/870712): This test fails due to font fallback differences on
 // Android and Fuchsia.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SafeToBreakArabicCommonLigatures \
-  DISABLED_SafeToBreakArabicCommonLigatures
-#else
 #define MAYBE_SafeToBreakArabicCommonLigatures SafeToBreakArabicCommonLigatures
-#endif
 TEST_F(HarfBuzzShaperTest, MAYBE_SafeToBreakArabicCommonLigatures) {
   Font* font = MakeGarbageCollected<Font>(font_description);
 
@@ -2220,13 +2152,8 @@ TEST_F(HarfBuzzShaperTest,
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ShapeHorizontalWithSubpixelPositionWithoutKerningIsNotRounded \
-  DISABLED_ShapeHorizontalWithSubpixelPositionWithoutKerningIsNotRounded
-#else
 #define MAYBE_ShapeHorizontalWithSubpixelPositionWithoutKerningIsNotRounded \
   ShapeHorizontalWithSubpixelPositionWithoutKerningIsNotRounded
-#endif
 TEST_F(HarfBuzzShaperTest,
        MAYBE_ShapeHorizontalWithSubpixelPositionWithoutKerningIsNotRounded) {
   Font* font = MakeGarbageCollected<Font>(font_description);
@@ -2282,13 +2209,8 @@ TEST_F(HarfBuzzShaperTest,
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ShapeHorizontalWithSubpixelPositionWithKerningIsNotRounded \
-  DISABLED_ShapeHorizontalWithSubpixelPositionWithKerningIsNotRounded
-#else
 #define MAYBE_ShapeHorizontalWithSubpixelPositionWithKerningIsNotRounded \
   ShapeHorizontalWithSubpixelPositionWithKerningIsNotRounded
-#endif
 TEST_F(HarfBuzzShaperTest,
        MAYBE_ShapeHorizontalWithSubpixelPositionWithKerningIsNotRounded) {
   Font* font = MakeGarbageCollected<Font>(font_description);

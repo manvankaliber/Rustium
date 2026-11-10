@@ -20,19 +20,10 @@
 #include "mojo/public/cpp/bindings/remote.h"
 #include "services/image_annotation/public/mojom/image_annotation.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/accessibility/accessibility_manager.h"
-#include "chrome/browser/ash/accessibility/chromevox_test_utils.h"
-#include "chrome/browser/ash/accessibility/speech_monitor.h"
-#include "extensions/browser/browsertest_util.h"
-#include "extensions/common/constants.h"
-#else
 #include <optional>
 
 #include "content/public/test/scoped_accessibility_mode_override.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include <tuple>
 
 #include "base/test/test_future.h"
@@ -41,7 +32,6 @@
 #include "chrome/browser/manta/manta_service_factory.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "mojo/public/cpp/bindings/pending_remote.h"
-#endif
 
 class AccessibilityLabelsBrowserTest : public InProcessBrowserTest {
  public:
@@ -52,30 +42,10 @@ class AccessibilityLabelsBrowserTest : public InProcessBrowserTest {
   AccessibilityLabelsBrowserTest& operator=(
       const AccessibilityLabelsBrowserTest&) = delete;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // InProcessBrowserTest overrides:
-  void SetUpOnMainThread() override {
-    InProcessBrowserTest::SetUpOnMainThread();
-    content::BrowserAccessibilityState::GetInstance()
-        ->SetActivationFromPlatformEnabled(true);
-  }
-#endif
 
   void TearDownOnMainThread() override { EnableScreenReader(false); }
 
   void EnableScreenReader(bool enabled) {
-#if BUILDFLAG(IS_CHROMEOS)
-    if (!enabled) {
-      ash::AccessibilityManager::Get()->EnableSpokenFeedback(false);
-      return;
-    }
-
-    chromevox_test_utils_ = std::make_unique<ash::ChromeVoxTestUtils>();
-    chromevox_test_utils_->EnableChromeVox();
-    // Note: we can safely call `Replay` here since none of these tests make
-    // speech assertions.
-    chromevox_test_utils_->sm()->Replay();
-#else
     // Spoof a screen reader.
     if (!enabled) {
       screen_reader_override_.reset();
@@ -84,16 +54,11 @@ class AccessibilityLabelsBrowserTest : public InProcessBrowserTest {
                                       ui::AXMode::kExtendedProperties |
                                       ui::AXMode::kScreenReader);
     }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
  private:
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<ash::ChromeVoxTestUtils> chromevox_test_utils_;
-#else
   std::optional<content::ScopedAccessibilityModeOverride>
       screen_reader_override_;
-#endif
 };
 
 // Changing the kAccessibilityImageLabelsEnabled pref should affect the
@@ -161,7 +126,6 @@ IN_PROC_BROWSER_TEST_F(AccessibilityLabelsBrowserTest, ExistingWebContents) {
   EXPECT_FALSE(ax_mode.has_mode(ui::AXMode::kLabelImages));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(AccessibilityLabelsBrowserTest, EnableOnce) {
   EnableScreenReader(true);
   content::WebContents* web_contents =
@@ -222,7 +186,6 @@ IN_PROC_BROWSER_TEST_F(AccessibilityLabelsBrowserTest,
   }
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(AccessibilityLabelsBrowserTest,
                        BindImageAnnotatorInGuestProfile) {
   BrowserWindowInterface* guest_browser = CreateGuestBrowser();
@@ -255,8 +218,6 @@ IN_PROC_BROWSER_TEST_F(AccessibilityLabelsBrowserTest,
   EXPECT_EQ(image_annotation::mojom::AnnotateImageError::kCanceled,
             future.Get()->get_error_code());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
-#endif
 
 IN_PROC_BROWSER_TEST_F(AccessibilityLabelsBrowserTest,
                        NotEnabledWithoutScreenReader) {

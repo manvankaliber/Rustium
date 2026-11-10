@@ -368,9 +368,6 @@ void ServiceWorkerHost::OpenChannelToExtension(
 
 void ServiceWorkerHost::OpenChannelToNativeApp(
     const std::string& native_app_name,
-#if BUILDFLAG(IS_ANDROID)
-    const MojomSigningCertificates& android_certificates,
-#endif
     const PortId& port_id,
     mojo::PendingAssociatedRemote<extensions::mojom::MessagePort> port,
     mojo::PendingAssociatedReceiver<extensions::mojom::MessagePortHost>
@@ -382,12 +379,7 @@ void ServiceWorkerHost::OpenChannelToNativeApp(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  SigningCertificates parsed_certificates =
-      ParseCertificatesFromMojom(android_certificates);
-#else
   SigningCertificates parsed_certificates = {};
-#endif
 
   MessageServiceApi::GetMessageService()->OpenChannelToNativeApp(
       browser_context, worker_id_, port_id, native_app_name,

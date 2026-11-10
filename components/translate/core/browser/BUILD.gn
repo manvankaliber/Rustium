@@ -86,15 +86,6 @@ static_library("browser") {
     ":translate_pref_names",
     "//components/translate/core/common",
   ]
-
-  if (is_ios) {
-    sources += [
-      "translate_infobar_delegate.cc",
-      "translate_infobar_delegate.h",
-    ]
-
-    public_deps += [ "//components/infobars/core" ]
-  }
 }
 
 source_set("translate_pref_names") {
@@ -152,10 +143,6 @@ source_set("unit_tests") {
     "//services/network/public/cpp",
     "//ui/base",
   ]
-
-  if (is_ios) {
-    sources += [ "translate_infobar_delegate_unittest.cc" ]
-  }
 }
 
 source_set("test_support") {
@@ -184,11 +171,4 @@ source_set("test_support") {
     "//third_party/metrics_proto",
     "//url",
   ]
-
-  if (is_ios) {
-    sources += [
-      "mock_translate_infobar_delegate.cc",
-      "mock_translate_infobar_delegate.h",
-    ]
-  }
 }

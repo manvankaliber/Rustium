@@ -25,12 +25,10 @@ source_set("test_support_common") {
     "voting.h",
   ]
 
-  if (!is_android) {
-    sources += [
-      "persistence/unittest_utils.cc",
-      "persistence/unittest_utils.h",
-    ]
-  }
+  sources += [
+    "persistence/unittest_utils.cc",
+    "persistence/unittest_utils.h",
+  ]
 
   deps = [
     "//base/test:test_support",

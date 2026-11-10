@@ -32,10 +32,6 @@
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "net/base/network_isolation_key.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/child_process_binding_types.h"
-#include "content/public/browser/android/child_process_importance.h"
-#endif
 
 namespace blink {
 class StorageKey;
@@ -144,13 +140,6 @@ class MockRenderProcessHost : public RenderProcessHost {
   void SetPriorityOverride(base::Process::Priority priority) override;
   bool HasPriorityOverride() override;
   void ClearPriorityOverride() override;
-#if BUILDFLAG(IS_ANDROID)
-  void GraduateSpareToNormalRendererPriority() override;
-  bool ShouldThrottleNavigationForSpareRendererGraduation() override;
-  ChildProcessImportance GetEffectiveImportance() override;
-  base::android::ChildBindingState GetEffectiveChildBindingState() override;
-  void DumpProcessStack() override;
-#endif
   void SetSuddenTerminationAllowed(bool allowed) override;
   BrowserContext* GetBrowserContext() override;
   bool InSameStoragePartition(StoragePartition* partition) override;
@@ -286,10 +275,6 @@ class MockRenderProcessHost : public RenderProcessHost {
       blink::LocalFrameToken token);
   void WriteIntoTrace(perfetto::TracedProto<TraceProto> proto) const override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void ReinitializeLogging(uint32_t logging_dest,
-                           base::ScopedFD log_file_descriptor) override;
-#endif
 
   void SetBatterySaverMode(bool battery_saver_mode_enabled) override {}
   uint64_t GetPrivateMemoryFootprint() override;

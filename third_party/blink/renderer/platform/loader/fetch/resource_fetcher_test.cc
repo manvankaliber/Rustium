@@ -651,11 +651,7 @@ TEST_P(ResourceFetcherTest, DISABLED_RevalidateWhileFinishingLoading) {
 }
 
 // TODO(crbug.com/850785): Reenable this.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_DontReuseMediaDataUrl DISABLED_DontReuseMediaDataUrl
-#else
 #define MAYBE_DontReuseMediaDataUrl DontReuseMediaDataUrl
-#endif
 TEST_P(ResourceFetcherTest, MAYBE_DontReuseMediaDataUrl) {
   auto* fetcher = CreateFetcher();
   ResourceRequest request(KURL("data:text/html,foo"));
@@ -1276,11 +1272,7 @@ TEST_P(ResourceFetcherTest, LinkPreloadResourceMultipleFetchersAndMove) {
 }
 
 // TODO(crbug.com/850785): Reenable this.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ContentTypeDataURL DISABLED_ContentTypeDataURL
-#else
 #define MAYBE_ContentTypeDataURL ContentTypeDataURL
-#endif
 TEST_P(ResourceFetcherTest, MAYBE_ContentTypeDataURL) {
   auto* fetcher = CreateFetcher();
   FetchParameters fetch_params = FetchParameters::CreateForTest(

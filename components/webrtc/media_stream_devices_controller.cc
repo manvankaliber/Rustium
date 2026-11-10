@@ -27,10 +27,6 @@
 #include "third_party/blink/public/mojom/mediastream/media_stream.mojom.h"
 #include "third_party/blink/public/mojom/permissions/permission_status.mojom-shared.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/permissions/android/android_permission_util.h"
-#include "ui/android/window_android.h"
-#endif
 
 using blink::MediaStreamDevices;
 
@@ -222,13 +218,6 @@ MediaStreamDevicesController::MediaStreamDevicesController(
   video_setting_ = GetContentSetting(blink::PermissionType::VIDEO_CAPTURE,
                                      request, &denial_reason_);
 
-#if BUILDFLAG(IS_ANDROID)
-  content::RenderFrameHost* initial_rfh = content::RenderFrameHost::FromID(
-      request_.render_process_id, request_.render_frame_id);
-  if (initial_rfh && initial_rfh == web_contents_->GetPrimaryMainFrame()) {
-    request_main_frame_url_ = initial_rfh->GetLastCommittedURL();
-  }
-#endif
 }
 
 bool MediaStreamDevicesController::ShouldRequestAudio() const {
@@ -382,13 +371,6 @@ ContentSetting MediaStreamDevicesController::GetContentSetting(
     return CONTENT_SETTING_BLOCK;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!IsUserAcceptAllowedOnAndroid(permission)) {
-    *denial_reason =
-        blink::mojom::MediaStreamRequestResult::ANDROID_CANT_REQUEST_PERMISSION;
-    return CONTENT_SETTING_BLOCK;
-  }
-#endif
 
   // Don't request if the kill switch is on.
   if (PermissionIsBlockedForReason(
@@ -400,69 +382,11 @@ ContentSetting MediaStreamDevicesController::GetContentSetting(
   return CONTENT_SETTING_ASK;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool MediaStreamDevicesController::IsUserAcceptAllowedOnAndroid(
-    blink::PermissionType permission) const {
-  ui::WindowAndroid* window_android =
-      web_contents_->GetNativeView()->GetWindowAndroid();
-  if (!window_android)
-    return false;
-
-  ContentSettingsType content_type;
-
-  switch (permission) {
-    case blink::PermissionType::AUDIO_CAPTURE:
-      content_type = ContentSettingsType::MEDIASTREAM_MIC;
-      break;
-    case blink::PermissionType::VIDEO_CAPTURE:
-      content_type = ContentSettingsType::MEDIASTREAM_CAMERA;
-      break;
-    default:
-      NOTREACHED();
-  }
-
-  std::vector<std::string> required_android_permissions;
-  permissions::AppendRequiredAndroidPermissionsForContentSetting(
-      content_type, &required_android_permissions);
-  for (const auto& android_permission : required_android_permissions) {
-    if (!window_android->HasPermission(android_permission) &&
-        !window_android->CanRequestPermission(android_permission)) {
-      return false;
-    }
-  }
-
-  // Don't approve device requests if the tab was hidden, unless there is an
-  // active Picture-in-Picture document.
-  // TODO(raymes): Shouldn't this apply to all permissions not just audio/video?
-  return web_contents_->GetRenderWidgetHostView()->IsShowing() ||
-         web_contents_->HasPictureInPictureDocument();
-}
-#endif
 
 content::RenderFrameHost*
 MediaStreamDevicesController::GetTargetRenderFrameHost() const {
   content::RenderFrameHost* rfh = content::RenderFrameHost::FromID(
       request_.render_process_id, request_.render_frame_id);
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, presenting the OS-level permission dialog can pause/resume the
-  // activity and invalidate or replace the original RenderFrameHost. If the
-  // request originally came from the primary main frame, ensure the frame is
-  // active and has not navigated away. If the original RenderFrameHost is no
-  // longer active, fall back to the active primary main frame if the URL has
-  // not changed.
-  if (request_main_frame_url_.has_value() && web_contents_) {
-    content::RenderFrameHost* main_rfh = web_contents_->GetPrimaryMainFrame();
-    if (rfh && rfh->IsActive() && rfh == main_rfh) {
-      return (rfh->GetLastCommittedURL() == *request_main_frame_url_) ? rfh
-                                                                      : nullptr;
-    }
-    if (main_rfh && main_rfh->IsActive() &&
-        main_rfh->GetLastCommittedURL() == *request_main_frame_url_) {
-      return main_rfh;
-    }
-    return nullptr;
-  }
-#endif
   return rfh;
 }
 

@@ -337,11 +337,6 @@ cr-tabs {
   /* csschecker-disable-line left-right */
 }
 
-<if expr="is_chromeos">
-#os-flags-link-container {
-  background-image: url(chrome://resources/images/os_flags_app_icon.svg);
-}
-</if>
 
 @media (max-width: 360px) {
   #experiment-reset-all {

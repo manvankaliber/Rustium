@@ -54,12 +54,10 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/enterprise/data_controls/desktop_data_controls_dialog.h"
 #include "chrome/browser/enterprise/data_controls/desktop_data_controls_dialog_test_helper.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 namespace glic {
 
@@ -606,269 +604,14 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest, InvokeWithAutoSubmitHidden) {
       WaitForWebUiContentsVisibility(instance, content::Visibility::HIDDEN));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-namespace {
-
-// Returns the WebContents that offscreen rendering targets: the guest contents
-// in NoWebview mode, or the WebUI contents otherwise.
-content::WebContents* GetOffscreenRenderingContents(
-    GlicKeyedService& service,
-    GlicInstanceImpl& instance) {
-  return service.IsNoWebviewEnabled() ? instance.host().web_client_contents()
-                                      : instance.host().webui_contents();
-}
-
-// Invokes Glic with auto-submit on `tab` without showing the panel, and returns
-// the instance. The client stays in hidden initialization, so offscreen
-// rendering is active.
-GlicInstanceImpl* InvokeHidden(GlicInstanceCoordinatorImpl& coordinator,
-                               tabs::TabInterface& tab,
-                               InvokeWithAutoSubmitPasskey passkey) {
-  GlicInvokeOptions options(glic::Target(tab),
-                            mojom::InvocationSource::kOsButton);
-  GlicInvokeWithAutoSubmitOptions auto_submit_options;
-  auto_submit_options.show_panel = false;
-  coordinator.InvokeWithAutoSubmit(passkey, std::move(options),
-                                   std::move(auto_submit_options));
-  return coordinator.GetInstanceImplForTab(&tab);
-}
-
-// Reloads the host while offscreen rendering is active and checks that the new
-// contents, not the destroyed ones, are attached to the offscreen window. Then
-// stops hidden initialization and checks that the new contents are detached
-// from the offscreen window before showing the panel.
-void ExpectReloadMovesOffscreenRenderingToNewContents(
-    GlicKeyedService& service,
-    GlicInstanceImpl& instance,
-    tabs::TabInterface& tab) {
-  ASSERT_TRUE(instance.is_offscreen_rendering_active_for_testing());
-  content::WebContents* old_contents =
-      GetOffscreenRenderingContents(service, instance);
-  ASSERT_TRUE(old_contents);
-  content::WebContentsDestroyedWatcher old_contents_watcher(old_contents);
-
-  instance.host().Reload();
-  EXPECT_TRUE(old_contents_watcher.IsDestroyed());
-
-  EXPECT_TRUE(instance.is_offscreen_rendering_active_for_testing());
-  content::WebContents* new_contents =
-      GetOffscreenRenderingContents(service, instance);
-  ASSERT_TRUE(new_contents);
-  gfx::NativeWindow offscreen_window = new_contents->GetTopLevelNativeWindow();
-  ASSERT_TRUE(offscreen_window);
-  EXPECT_NE(offscreen_window, tab.GetContents()->GetTopLevelNativeWindow());
-
-  instance.SetHiddenInitializing(false);
-  EXPECT_FALSE(instance.is_offscreen_rendering_active_for_testing());
-  EXPECT_FALSE(new_contents->GetTopLevelNativeWindow());
-
-  instance.Show(ShowOptions::ForSidePanel(tab));
-  EXPECT_TRUE(instance.IsShowing());
-}
-
-// Destroys the host contents while offscreen rendering is active, then shows
-// the panel. Offscreen rendering must stop with the destroyed contents and
-// must not stay attached to the contents created for the panel.
-void ExpectHibernateThenShowStopsOffscreenRendering(GlicKeyedService& service,
-                                                    GlicInstanceImpl& instance,
-                                                    tabs::TabInterface& tab) {
-  ASSERT_TRUE(instance.is_offscreen_rendering_active_for_testing());
-  content::WebContents* old_contents =
-      GetOffscreenRenderingContents(service, instance);
-  ASSERT_TRUE(old_contents);
-  content::WebContentsDestroyedWatcher old_contents_watcher(old_contents);
-
-  instance.Hibernate();
-  EXPECT_TRUE(old_contents_watcher.IsDestroyed());
-  EXPECT_FALSE(instance.is_offscreen_rendering_active_for_testing());
-
-  instance.Show(ShowOptions::ForSidePanel(tab));
-  EXPECT_FALSE(instance.is_offscreen_rendering_active_for_testing());
-  EXPECT_TRUE(instance.IsShowing());
-  ASSERT_TRUE(GetOffscreenRenderingContents(service, instance));
-}
-
-}  // namespace
-
-class GlicInvokeOffscreenRenderingBrowserTest : public GlicInvokeBrowserTest {
- public:
-  GlicInvokeOffscreenRenderingBrowserTest() {
-    scoped_feature_list_.InitWithFeatures(
-        /*enabled_features=*/{features::kGlicAndroidOffscreenRendering},
-        /*disabled_features=*/{features::kGlicNoWebview});
-  }
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_F(GlicInvokeOffscreenRenderingBrowserTest,
-                       InvokeWithAutoSubmitHiddenAttachesOffscreenRendering) {
-  tabs::TabInterface* tab = GetTabListInterface()->GetActiveTab();
-  base::test::TestFuture<void> success_future;
-  base::test::TestFuture<std::string> conversation_id_future;
-
-  GlicInvokeOptions options(glic::Target(*tab),
-                            mojom::InvocationSource::kOsButton);
-  options.on_success = success_future.GetCallback();
-
-  GlicInvokeWithAutoSubmitOptions auto_submit_options;
-  auto_submit_options.on_conversation_id_ready =
-      conversation_id_future.GetCallback();
-  auto_submit_options.show_panel = false;
-
-  coordinator().InvokeWithAutoSubmit(GetPassKey(), std::move(options),
-                                     std::move(auto_submit_options));
-
-  GlicInstanceImpl* instance = coordinator().GetInstanceImplForTab(tab);
-  ASSERT_TRUE(instance);
-
-  // While hidden invocation is warming up, offscreen rendering should be
-  // active, with its target WebContents attached to the offscreen window.
-  EXPECT_TRUE(instance->is_offscreen_rendering_active_for_testing());
-  content::WebContents* contents =
-      GetOffscreenRenderingContents(*service(), *instance);
-  ASSERT_TRUE(contents);
-  EXPECT_TRUE(contents->GetTopLevelNativeWindow());
-
-  // Showing the instance onscreen must immediately stop offscreen rendering.
-  instance->Show(ShowOptions::ForSidePanel(*tab));
-  EXPECT_FALSE(instance->is_offscreen_rendering_active_for_testing());
-  EXPECT_TRUE(instance->IsShowing());
-}
-
-IN_PROC_BROWSER_TEST_F(GlicInvokeOffscreenRenderingBrowserTest,
-                       ReloadMovesOffscreenRenderingToNewContents) {
-  tabs::TabInterface* tab = GetTabListInterface()->GetActiveTab();
-  GlicInstanceImpl* instance = InvokeHidden(coordinator(), *tab, GetPassKey());
-  ASSERT_TRUE(instance);
-  ExpectReloadMovesOffscreenRenderingToNewContents(*service(), *instance, *tab);
-}
-
-IN_PROC_BROWSER_TEST_F(GlicInvokeOffscreenRenderingBrowserTest,
-                       HibernateThenShowStopsOffscreenRendering) {
-  tabs::TabInterface* tab = GetTabListInterface()->GetActiveTab();
-  GlicInstanceImpl* instance = InvokeHidden(coordinator(), *tab, GetPassKey());
-  ASSERT_TRUE(instance);
-  ExpectHibernateThenShowStopsOffscreenRendering(*service(), *instance, *tab);
-}
-
-class GlicInvokeOffscreenRenderingDisabledBrowserTest
-    : public GlicInvokeBrowserTest {
- public:
-  GlicInvokeOffscreenRenderingDisabledBrowserTest() {
-    scoped_feature_list_.InitAndDisableFeature(
-        features::kGlicAndroidOffscreenRendering);
-  }
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_F(GlicInvokeOffscreenRenderingDisabledBrowserTest,
-                       InvokeWithAutoSubmitHiddenDoesNotAttach) {
-  tabs::TabInterface* tab = GetTabListInterface()->GetActiveTab();
-  base::test::TestFuture<void> success_future;
-  base::test::TestFuture<std::string> conversation_id_future;
-
-  GlicInvokeOptions options(glic::Target(*tab),
-                            mojom::InvocationSource::kOsButton);
-  options.on_success = success_future.GetCallback();
-
-  GlicInvokeWithAutoSubmitOptions auto_submit_options;
-  auto_submit_options.on_conversation_id_ready =
-      conversation_id_future.GetCallback();
-  auto_submit_options.show_panel = false;
-
-  coordinator().InvokeWithAutoSubmit(GetPassKey(), std::move(options),
-                                     std::move(auto_submit_options));
-
-  GlicInstanceImpl* instance = coordinator().GetInstanceImplForTab(tab);
-  ASSERT_TRUE(instance);
-  EXPECT_FALSE(instance->is_offscreen_rendering_active_for_testing());
-  content::WebContents* contents =
-      GetOffscreenRenderingContents(*service(), *instance);
-  ASSERT_TRUE(contents);
-  EXPECT_FALSE(contents->GetTopLevelNativeWindow());
-}
-
-class GlicInvokeNoWebviewOffscreenRenderingBrowserTest
-    : public GlicInvokeBrowserTest {
- public:
-  GlicInvokeNoWebviewOffscreenRenderingBrowserTest() {
-    scoped_feature_list_.InitWithFeatures(
-        /*enabled_features=*/{features::kGlicAndroidOffscreenRendering,
-                              features::kGlicNoWebview},
-        /*disabled_features=*/{});
-  }
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-// In NoWebview mode, the hidden invoke forces the contents visible while the
-// client initializes, so the displayed contents may be the loading overlay.
-// Offscreen rendering must target the guest WebContents that hosts the web
-// client instead.
-IN_PROC_BROWSER_TEST_F(GlicInvokeNoWebviewOffscreenRenderingBrowserTest,
-                       InvokeWithAutoSubmitHiddenAttachesToGuestContents) {
-  tabs::TabInterface* tab = GetTabListInterface()->GetActiveTab();
-  base::test::TestFuture<void> success_future;
-  base::test::TestFuture<std::string> conversation_id_future;
-
-  GlicInvokeOptions options(glic::Target(*tab),
-                            mojom::InvocationSource::kOsButton);
-  options.on_success = success_future.GetCallback();
-
-  GlicInvokeWithAutoSubmitOptions auto_submit_options;
-  auto_submit_options.on_conversation_id_ready =
-      conversation_id_future.GetCallback();
-  auto_submit_options.show_panel = false;
-
-  coordinator().InvokeWithAutoSubmit(GetPassKey(), std::move(options),
-                                     std::move(auto_submit_options));
-
-  GlicInstanceImpl* instance = coordinator().GetInstanceImplForTab(tab);
-  ASSERT_TRUE(instance);
-  EXPECT_TRUE(instance->is_offscreen_rendering_active_for_testing());
-
-  // The guest WebContents hosting the web client, rather than the displayed
-  // loading overlay, must be attached to the offscreen window.
-  content::WebContents* guest = instance->host().web_client_contents();
-  ASSERT_TRUE(guest);
-  EXPECT_TRUE(guest->GetTopLevelNativeWindow());
-
-  instance->Show(ShowOptions::ForSidePanel(*tab));
-  EXPECT_FALSE(instance->is_offscreen_rendering_active_for_testing());
-  EXPECT_TRUE(instance->IsShowing());
-}
-
-IN_PROC_BROWSER_TEST_F(GlicInvokeNoWebviewOffscreenRenderingBrowserTest,
-                       ReloadMovesOffscreenRenderingToNewGuestContents) {
-  tabs::TabInterface* tab = GetTabListInterface()->GetActiveTab();
-  GlicInstanceImpl* instance = InvokeHidden(coordinator(), *tab, GetPassKey());
-  ASSERT_TRUE(instance);
-  ExpectReloadMovesOffscreenRenderingToNewContents(*service(), *instance, *tab);
-}
-
-IN_PROC_BROWSER_TEST_F(GlicInvokeNoWebviewOffscreenRenderingBrowserTest,
-                       HibernateThenShowStopsOffscreenRendering) {
-  tabs::TabInterface* tab = GetTabListInterface()->GetActiveTab();
-  GlicInstanceImpl* instance = InvokeHidden(coordinator(), *tab, GetPassKey());
-  ASSERT_TRUE(instance);
-  ExpectHibernateThenShowStopsOffscreenRendering(*service(), *instance, *tab);
-}
-#endif
 
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest, InvokeWithWaitForPanelOpen) {
   // Create a tab with a loaded page to measure width.
   tabs::TabInterface* tab = CreateAndActivateTab(GetSimpleTestUrl());
 
-#if !BUILDFLAG(IS_ANDROID)
   // Measure page width before invocation.
   int width_before =
       content::EvalJs(tab->GetContents(), "window.innerWidth").ExtractInt();
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   base::test::TestFuture<void> success_future;
   GlicInvokeOptions options(glic::Target(*tab),
@@ -886,13 +629,11 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest, InvokeWithWaitForPanelOpen) {
   EXPECT_TRUE(success_future.Wait());
   EXPECT_TRUE(instance->IsShowing());
 
-#if !BUILDFLAG(IS_ANDROID)
   // Measure page width after invocation. It should be smaller because the
   // side panel takes up space.
   int width_after =
       content::EvalJs(tab->GetContents(), "window.innerWidth").ExtractInt();
   EXPECT_LT(width_after, width_before);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest, InvokeWithOnPanelOpened) {
@@ -1137,11 +878,7 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
 }
 
 // TODO(crbug.com/564285975): Re-enable the test.
-#if BUILDFLAG(IS_CHROMEOS) && !defined(NDEBUG)
-#define MAYBE_InvokeFailsOnTabClosed DISABLED_InvokeFailsOnTabClosed
-#else
 #define MAYBE_InvokeFailsOnTabClosed InvokeFailsOnTabClosed
-#endif
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest, MAYBE_InvokeFailsOnTabClosed) {
   // Add a new tab so we don't close the browser when we close the active tab.
   CreateAndActivateTab(GURL("about:blank"));
@@ -1169,12 +906,7 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest, MAYBE_InvokeFailsOnTabClosed) {
 
 // TODO(crbug.com/564531222): Fix flakiness and enable on linux-chromeos-dbg
 // bot.
-#if BUILDFLAG(IS_CHROMEOS) && !defined(NDEBUG)
-#define MAYBE_InvokeFailsOnInstanceDestruction \
-  DISABLED_InvokeFailsOnInstanceDestruction
-#else
 #define MAYBE_InvokeFailsOnInstanceDestruction InvokeFailsOnInstanceDestruction
-#endif
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
                        MAYBE_InvokeFailsOnInstanceDestruction) {
   tabs::TabInterface* tab1 = GetTabListInterface()->GetActiveTab();
@@ -1538,7 +1270,6 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
 
 // TODO(crbug.com/528472503): Re-enable this test on Android once flakiness is
 // fixed.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
                        InvokeWithClipboardPolicySuccess) {
   tabs::TabInterface* tab = CreateAndActivateTab(GURL("about:blank"));
@@ -1615,7 +1346,6 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
   EXPECT_TRUE(success_future.Wait());
   EXPECT_TRUE(GetInstanceForTab(tab));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest, InvokeWithPolicyCheckNone) {
   tabs::TabInterface* tab = CreateAndActivateTab(GURL("about:blank"));
@@ -1729,7 +1459,6 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
   EXPECT_FALSE(GetInstanceForTab(tab));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
                        InvokeWithClipboardPastePolicyBlockedFloating) {
   // Set up Data Controls to allow copying to the clipboard (`os_clipboard` not
@@ -1868,7 +1597,6 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest, PromptPolicyAllowed) {
   EXPECT_TRUE(GetInstanceForTab(tab));
   EXPECT_FALSE(helper.dialog());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
                        PromptPolicyCopyBlockedOsClipboard) {
@@ -2147,7 +1875,6 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest, InvokeWithPinOnBindFalse) {
 
 // This test is disabled on Android because incognito window creation
 // behavior differs and is not supported by this test setup.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
                        ResolveTargetSurfaceCreatesNewWindow) {
   Profile* incognito_profile =
@@ -2761,11 +2488,10 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
   EXPECT_EQ(coordinator().GetInstances().size(), 1u);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // TODO(crbug.com/504753617): Re-enable the test.
 // TODO(b/565538504): Re-enable on Android.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_InvokeWithNewTab DISABLED_InvokeWithNewTab
 #else
 #define MAYBE_InvokeWithNewTab InvokeWithNewTab
@@ -2805,11 +2531,7 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest, MAYBE_InvokeWithNewTab) {
   EXPECT_TRUE(GetInstanceForTab(active_tab));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_InvokeWithNewTabBackground DISABLED_InvokeWithNewTabBackground
-#else
 #define MAYBE_InvokeWithNewTabBackground InvokeWithNewTabBackground
-#endif
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
                        MAYBE_InvokeWithNewTabBackground) {
   BrowserWindowInterface* browser_window =
@@ -2847,7 +2569,6 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
 
 // This test is disabled on Android because creating a new window behavior
 // differs and is not supported by this test setup.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
                        InvokeWithNewTabCreatesNewWindow) {
   size_t browser_count_before =
@@ -2866,7 +2587,6 @@ IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
   EXPECT_EQ(GlobalBrowserCollection::GetInstance()->GetSize(),
             browser_count_before + 1);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest, InvokeWithAutoSubmitSuccess) {
   tabs::TabInterface* tab = GetTabListInterface()->GetActiveTab();
@@ -3072,100 +2792,6 @@ IN_PROC_BROWSER_TEST_F(
   ASSERT_OK(WaitForInstanceDeletion(weak_instance));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-class GlicInvokeNativeFreAndroidBrowserTest : public GlicInvokeBrowserTest {
- public:
-  GlicInvokeNativeFreAndroidBrowserTest() {
-    SetGlicPagePath("/glic/test_client/index.html");
-    feature_list_.InitWithFeaturesAndParameters(
-        /*enabled_features=*/{{features::kGlicNativeFreAndroid,
-                               {{"enabled_countries", "*"}}}},
-        /*disabled_features=*/{features::kGlicMessageFirstFre,
-                               features::kGlicActionFirstFRE});
-  }
-
- private:
-  base::test::ScopedFeatureList feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_F(GlicInvokeNativeFreAndroidBrowserTest,
-                       EligibleUnconsentedInvokeResolvesToNativeFre) {
-  tabs::TabInterface* tab = GetTabListInterface()->GetActiveTab();
-  SetFRECompletion(GetProfile(), prefs::FreStatus::kNotStarted);
-  ASSERT_TRUE(GlicEnabling::IsProfileEligibleForNativeFre(GetProfile()));
-
-  base::test::TestFuture<void> success_future;
-  GlicInvokeOptions options(Target(*tab), mojom::InvocationSource::kOsButton);
-  options.on_success = success_future.GetCallback();
-
-  coordinator().Invoke(std::move(options));
-
-  EXPECT_TRUE(success_future.Wait());
-  GlicInstanceImpl* instance = GetInstanceForTab(tab);
-  ASSERT_TRUE(instance);
-  ASSERT_OK(WaitForPanelWillOpenComplete(instance));
-
-  std::string invocation_log =
-      content::EvalJs(instance->host().web_client_contents(),
-                      "document.getElementById('invocationLog').textContent")
-          .ExtractString();
-  EXPECT_NE(invocation_log.find("\"freOverride\": 4"), std::string::npos)
-      << invocation_log;
-}
-
-IN_PROC_BROWSER_TEST_F(GlicInvokeNativeFreAndroidBrowserTest,
-                       ExplicitFreOverrideIsPreserved) {
-  tabs::TabInterface* tab = GetTabListInterface()->GetActiveTab();
-  SetFRECompletion(GetProfile(), prefs::FreStatus::kNotStarted);
-  ASSERT_TRUE(GlicEnabling::IsProfileEligibleForNativeFre(GetProfile()));
-
-  base::test::TestFuture<void> success_future;
-  GlicInvokeOptions options(Target(*tab),
-                            mojom::InvocationSource::kAnchoredContextualCue);
-  options.fre_override = mojom::FreOverride::kTrustFirstInline;
-  options.on_success = success_future.GetCallback();
-
-  coordinator().Invoke(std::move(options));
-
-  EXPECT_TRUE(success_future.Wait());
-  GlicInstanceImpl* instance = GetInstanceForTab(tab);
-  ASSERT_TRUE(instance);
-  ASSERT_OK(WaitForPanelWillOpenComplete(instance));
-
-  std::string invocation_log =
-      content::EvalJs(instance->host().web_client_contents(),
-                      "document.getElementById('invocationLog').textContent")
-          .ExtractString();
-  EXPECT_NE(invocation_log.find("\"freOverride\": 3"), std::string::npos)
-      << invocation_log;
-}
-
-IN_PROC_BROWSER_TEST_F(GlicInvokeNativeFreAndroidBrowserTest,
-                       SpecialCaseWebFreSourceStaysUnspecified) {
-  tabs::TabInterface* tab = GetTabListInterface()->GetActiveTab();
-  SetFRECompletion(GetProfile(), prefs::FreStatus::kNotStarted);
-  ASSERT_TRUE(GlicEnabling::IsProfileEligibleForNativeFre(GetProfile()));
-
-  base::test::TestFuture<void> success_future;
-  GlicInvokeOptions options(Target(*tab),
-                            mojom::InvocationSource::kNavigationCapture);
-  options.on_success = success_future.GetCallback();
-
-  coordinator().Invoke(std::move(options));
-
-  EXPECT_TRUE(success_future.Wait());
-  GlicInstanceImpl* instance = GetInstanceForTab(tab);
-  ASSERT_TRUE(instance);
-  ASSERT_OK(WaitForPanelWillOpenComplete(instance));
-
-  std::string invocation_log =
-      content::EvalJs(instance->host().web_client_contents(),
-                      "document.getElementById('invocationLog').textContent")
-          .ExtractString();
-  EXPECT_NE(invocation_log.find("\"freOverride\": 0"), std::string::npos)
-      << invocation_log;
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
                        InvokeDoesNotWaitForFreCompletion_TrustFirstInline) {
@@ -3416,13 +3042,8 @@ IN_PROC_BROWSER_TEST_F(
 }
 
 // TODO(b/565538504): Re-enable once failure on Android is resolved.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_InvokeTargetLastActiveOrNew_FallbackToNewTab \
-  DISABLED_InvokeTargetLastActiveOrNew_FallbackToNewTab
-#else
 #define MAYBE_InvokeTargetLastActiveOrNew_FallbackToNewTab \
   InvokeTargetLastActiveOrNew_FallbackToNewTab
-#endif
 IN_PROC_BROWSER_TEST_F(GlicInvokeBrowserTest,
                        MAYBE_InvokeTargetLastActiveOrNew_FallbackToNewTab) {
   auto* tab_list = GetTabListInterface();

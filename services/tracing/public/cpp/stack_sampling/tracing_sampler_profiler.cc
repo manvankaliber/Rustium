@@ -8,7 +8,6 @@
 #include <set>
 #include <string_view>
 
-#include "base/android/library_loader/anchor_functions.h"
 #include "base/compiler_specific.h"
 #include "base/debug/leak_annotations.h"
 #include "base/debug/stack_trace.h"
@@ -51,15 +50,8 @@
 #define INITIALIZE_THREAD_DELEGATE_POSIX 0
 #endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/profiler/core_unwinders.h"
-#endif
 
-#if ANDROID_ARM64_UNWINDING_SUPPORTED || ANDROID_CFI_UNWINDING_SUPPORTED
-#include <dlfcn.h>
-
-#include "base/debug/elf_reader.h"
-#endif  // ANDROID_ARM64_UNWINDING_SUPPORTED || ANDROID_CFI_UNWINDING_SUPPORTED
 
 using StreamingProfilePacketHandle =
     protozero::MessageHandle<perfetto::protos::pbzero::StreamingProfilePacket>;
@@ -68,24 +60,6 @@ namespace tracing {
 
 namespace {
 
-#if ANDROID_ARM64_UNWINDING_SUPPORTED || ANDROID_CFI_UNWINDING_SUPPORTED
-extern "C" {
-
-// The address of |__executable_start| gives the start address of the
-// executable or shared library. This value is used to find the offset address
-// of the instruction in binary from PC.
-extern char __executable_start;
-
-}  // extern "C"
-
-bool is_chrome_address(uintptr_t pc) {
-  return pc >= base::android::kStartOfText && pc < base::android::kEndOfText;
-}
-
-uintptr_t executable_start_addr() {
-  return reinterpret_cast<uintptr_t>(&__executable_start);
-}
-#endif  // ANDROID_ARM64_UNWINDING_SUPPORTED || ANDROID_CFI_UNWINDING_SUPPORTED
 
 // Pointer to the main thread instance, if any.
 TracingSamplerProfiler* g_main_thread_instance = nullptr;
@@ -222,55 +196,9 @@ struct FrameDetails {
     DCHECK(has_valid_module());
   }
 
-#if ANDROID_ARM64_UNWINDING_SUPPORTED || ANDROID_CFI_UNWINDING_SUPPORTED
-  // Sets Chrome's module info for the frame.
-  void SetChromeModuleInfo() {
-    module_base_address = executable_start_addr();
-    // SAFETY: `executable_start_addr()` is the address of `__executable_start`,
-    // a linker-defined symbol at the start of the ELF image of the module
-    // containing this code, which has been loaded, and thus fully mapped into
-    // memory.
-    static const std::optional<std::string_view> library_name =
-        UNSAFE_BUFFERS(base::debug::ReadElfLibraryName(
-            reinterpret_cast<void*>(executable_start_addr())));
-    // SAFETY: As above.
-    static const base::NoDestructor<std::string> chrome_debug_id(
-        UNSAFE_BUFFERS(base::debug::ReadElfBuildId(
-            reinterpret_cast<void*>(executable_start_addr()), true)));
-    if (library_name) {
-      module_name = std::string(*library_name);
-    }
-    module_id = *chrome_debug_id;
-  }
-
-  // Sets system library module info for the frame.
-  void SetSystemModuleInfo(uintptr_t frame_ip) {
-    Dl_info info = {};
-    // For addresses in framework libraries, symbolize and write the function
-    // name.
-    if (dladdr(reinterpret_cast<void*>(frame_ip), &info) == 0) {
-      return;
-    }
-    if (info.dli_sname) {
-      frame_name = info.dli_sname;
-    }
-    if (info.dli_fname) {
-      module_name = info.dli_fname;
-    }
-    module_base_address = reinterpret_cast<uintptr_t>(info.dli_fbase);
-    rel_pc = frame_ip - module_base_address;
-
-    DCHECK(has_valid_frame());
-    DCHECK(has_valid_module());
-  }
-#endif
 };
 
-#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN) && defined(_WIN64) ||          \
-    ANDROID_ARM64_UNWINDING_SUPPORTED || ANDROID_CFI_UNWINDING_SUPPORTED || \
-    (BUILDFLAG(IS_CHROMEOS) &&                                              \
-     (defined(ARCH_CPU_X86_64) || defined(ARCH_CPU_ARM64))) ||              \
-    BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN) && defined(_WIN64) || BUILDFLAG(IS_LINUX)
 // Returns whether stack sampling is supported on the current platform.
 bool IsStackSamplingSupported() {
   return base::StackSamplingProfiler::IsSupportedForCurrentPlatform();
@@ -367,21 +295,6 @@ void TracingSamplerProfiler::DataSource::StartTracing(
   auto unwinder_type = profiler->unwinder_type_;
   std::unique_ptr<base::StackSamplingProfiler> sampling_profiler;
 
-#if BUILDFLAG(IS_ANDROID)
-  base::StackSamplingProfiler::UnwindersFactory core_unwinders_factory;
-  if (profiler->core_unwinders_factory_function_) {
-    core_unwinders_factory = profiler->core_unwinders_factory_function_.Run();
-  }
-  if (core_unwinders_factory) {
-    if (unwinder_type == UnwinderType::kUnknown) {
-      unwinder_type = UnwinderType::kCustomAndroid;
-    }
-    profile_builder_ptr->SetUnwinderType(unwinder_type);
-    sampling_profiler = std::make_unique<base::StackSamplingProfiler>(
-        profiler->sampled_thread_token_.Clone(), params,
-        std::move(profile_builder), std::move(core_unwinders_factory));
-  }
-#else   // BUILDFLAG(IS_ANDROID)
   if (unwinder_type == UnwinderType::kUnknown) {
     unwinder_type = UnwinderType::kDefault;
   }
@@ -389,7 +302,6 @@ void TracingSamplerProfiler::DataSource::StartTracing(
   sampling_profiler = std::make_unique<base::StackSamplingProfiler>(
       profiler->sampled_thread_token_.Clone(), params,
       std::move(profile_builder), base::CreateCoreUnwindersFactory());
-#endif  // BUILDFLAG(IS_ANDROID)
 
   if (sampling_profiler != nullptr) {
     if (aux_unwinder_factory) {
@@ -503,12 +415,12 @@ void TracingSamplerProfiler::TracingProfileBuilder::WriteSampleToTrace(
     thread_descriptor->set_reference_timestamp_us(
         last_timestamp_.since_origin().InMicroseconds());
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_AIX)
     if (base::GetCurrentProcId() != perfetto::Platform::GetCurrentProcessId()) {
       auto* chrome_thread = track_descriptor->set_chrome_thread();
       chrome_thread->set_is_sandboxed_tid(true);
     }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#endif
 
     TRACE_EVENT_INSTANT(TRACE_DISABLED_BY_DEFAULT("cpu_profiler"),
                         UnwinderTypeToString(unwinder_type_));
@@ -571,36 +483,6 @@ TracingSamplerProfiler::StackProfileWriter::GetCallstackIDAndMaybeEmit(
           frame.instruction_pointer - frame_details.module_base_address;
     }
 
-#if ANDROID_ARM64_UNWINDING_SUPPORTED || ANDROID_CFI_UNWINDING_SUPPORTED
-    if (is_chrome_address(frame.instruction_pointer)) {
-      frame_details.rel_pc =
-          frame.instruction_pointer - executable_start_addr();
-      if (!frame_details.has_valid_module()) {
-        frame_details.SetChromeModuleInfo();
-      }
-    } else {
-      if (!frame.function_name.empty()) {
-        // Set function names for modules other than native chrome.
-        // This includes Java frames and native Android system frames.
-        // Chrome native frames can already be symbolized server side.
-        // Currently only libunwindstack_unwinder fills function_names in
-        // frames.
-        is_unwinder_provided_function_name = true;
-        frame_details.frame_name = std::move(frame.function_name);
-      }
-      if (frame.instruction_pointer == 0) {
-        // TODO(ssid): This frame is currently skipped from inserting. Find a
-        // way to specify that this frame is scanned in the trace.
-        frame_details.frame_name = "Scanned";
-      } else if (frame_details.module_id.empty() ||
-                 !frame_details.has_valid_module()) {
-        // For AOT modules the build id is empty. Set full pathname for these
-        // modules, so that deobfuscation logic can work, since it depends on
-        // getting full path name to extract package name.
-        frame_details.SetSystemModuleInfo(frame.instruction_pointer);
-      }
-    }
-#endif  // !(ANDROID_ARM64_UNWINDING_SUPPORTED ||
         // ANDROID_CFI_UNWINDING_SUPPORTED)
 
     // If we do not have a valid module and a valid frame, add a frame with
@@ -762,11 +644,7 @@ void TracingSamplerProfiler::RegisterDataSource() {
 
 // static
 bool TracingSamplerProfiler::IsStackUnwindingSupportedForTesting() {
-#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN) && defined(_WIN64) ||          \
-    ANDROID_ARM64_UNWINDING_SUPPORTED || ANDROID_CFI_UNWINDING_SUPPORTED || \
-    (BUILDFLAG(IS_CHROMEOS) &&                                              \
-     (defined(ARCH_CPU_X86_64) || defined(ARCH_CPU_ARM64))) ||              \
-    BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN) && defined(_WIN64) || BUILDFLAG(IS_LINUX)
   return IsStackSamplingSupported();
 #else
   return false;

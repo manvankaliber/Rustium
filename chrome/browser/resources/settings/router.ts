@@ -126,10 +126,8 @@ export interface SettingsRoutes {
   ACCOUNT: Route;
   GOOGLE_SERVICES: Route;
 
-  // <if expr="not is_chromeos">
   IMPORT_DATA: Route;
   SIGN_OUT: Route;
-  // </if>
 }
 
 /** Class for navigable routes. */

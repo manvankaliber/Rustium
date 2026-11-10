@@ -46,82 +46,6 @@ consoles.list_view(
 )
 
 try_.builder(
-    name = "gen-android-try",
-    description_html = "Trybuilder for generating Code Search Kythe index packs and generated files for Android.",
-    gn_args = gn_args.config(
-        configs = [
-            "codesearch_builder",
-            "clang",
-            "debug_builder",
-            "minimal_symbols",
-            "remoteexec",
-            "android_builder_without_codecs",
-            "android_with_static_analysis",
-            "static",
-            "arm",
-        ],
-    ),
-    ssd = True,
-    properties = {
-        "recipe_properties": {
-            "build_config": "android",
-            "platform": "android",
-        },
-    },
-)
-
-try_.builder(
-    name = "gen-chromiumos-try",
-    description_html = "Trybuilder for generating Code Search Kythe index packs and generated files for ChromiumOS.",
-    gn_args = gn_args.config(
-        configs = [
-            "codesearch_builder",
-            "clang",
-            "debug_builder",
-            "minimal_symbols",
-            "remoteexec",
-            "chromeos",
-            "use_cups",
-            "x64",
-        ],
-    ),
-    ssd = True,
-    properties = {
-        "recipe_properties": {
-            "build_config": "chromeos",
-            "platform": "chromeos",
-        },
-    },
-)
-
-try_.builder(
-    name = "gen-ios-try",
-    description_html = "Trybuilder for generating Code Search Kythe index packs and generated files for iOS.",
-    gn_args = gn_args.config(
-        configs = [
-            "codesearch_builder",
-            "remoteexec",
-            "clang",
-            "debug",
-            "minimal_symbols",
-            "ios",
-            "ios_disable_code_signing",
-            "arm64",
-        ],
-    ),
-    cores = None,
-    os = os.MAC_DEFAULT,
-    cpu = cpu.ARM64,
-    properties = {
-        "recipe_properties": {
-            "build_config": "ios",
-            "platform": "ios",
-        },
-        "xcode_build_version": "17a400",
-    },
-)
-
-try_.builder(
     name = "gen-linux-try",
     description_html = "Trybuilder for generating Code Search Kythe index packs and generated files for Linux.",
     gn_args = gn_args.config(
@@ -159,30 +83,6 @@ try_.builder(
         "recipe_properties": {
             "build_config": "mac",
             "platform": "mac",
-        },
-    },
-)
-
-try_.builder(
-    name = "gen-webview-try",
-    description_html = "Trybuilder for generating Code Search Kythe index packs and generated files for Android WebView.",
-    gn_args = gn_args.config(
-        configs = [
-            "codesearch_builder",
-            "clang",
-            "debug_builder",
-            "remoteexec",
-            "android_builder_without_codecs",
-            "android_with_static_analysis",
-            "static",
-            "arm",
-        ],
-    ),
-    ssd = True,
-    properties = {
-        "recipe_properties": {
-            "build_config": "webview",
-            "platform": "webview",
         },
     },
 )

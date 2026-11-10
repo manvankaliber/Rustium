@@ -56,15 +56,12 @@
 #include "gpu/command_buffer/client/internal/mappable_buffer_dxgi.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "gpu/command_buffer/client/internal/mappable_buffer_ahb.h"
-#endif
 
 namespace gpu {
 
 namespace {
 
-#if BUILDFLAG(IS_OZONE) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_OZONE)
 bool GMBIsNative(gfx::GpuMemoryBufferType gmb_type) {
   return gmb_type != gfx::EMPTY_BUFFER && gmb_type != gfx::SHARED_MEMORY_BUFFER;
 }
@@ -91,23 +88,10 @@ uint32_t ComputeTextureTargetForSharedImage(
     SharedImageMetadata metadata,
     gfx::GpuMemoryBufferType client_gmb_type) {
   CHECK_GE(metadata.array_layers, 1u);
-#if !BUILDFLAG(IS_ANDROID)
   CHECK_EQ(metadata.array_layers, 1u);
-#endif
-#if !BUILDFLAG(IS_OZONE) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_OZONE)
   return GL_TEXTURE_2D;
-#else  // Ozone or Android
-#if BUILDFLAG(IS_ANDROID)
-  if (metadata.array_layers > 1) {
-    CHECK(GMBIsNative(client_gmb_type));
-    constexpr gpu::SharedImageUsageSet kSupportedUsages =
-        gpu::SHARED_IMAGE_USAGE_GLES2_READ |
-        gpu::SHARED_IMAGE_USAGE_GLES2_WRITE;
-    CHECK(kSupportedUsages.HasAll(metadata.usage));
-    CHECK(metadata.format.is_single_plane());
-    return GL_TEXTURE_2D_ARRAY;
-  }
-#endif
+#else
   // Check for external sampling being used.
   if (!metadata.format.PrefersExternalSampler()) {
     return GL_TEXTURE_2D;
@@ -117,7 +101,7 @@ uint32_t ComputeTextureTargetForSharedImage(
   CHECK(GMBIsNative(client_gmb_type));
   // See the note at the top of this function wrt Fuchsia.
   return GL_TEXTURE_EXTERNAL_OES;
-#endif  // !BUILDFLAG(IS_OZONE) && !BUILDFLAG(IS_ANDROID)
+#endif
 }
 
 }  // namespace
@@ -278,21 +262,6 @@ ClientSharedImage::CreateMappableBufferFromHandle(
           &ClientSharedImage::RunOnTaskRunner, base::Unretained(this),
           copy_native_buffer_to_shmem_callback);
       return MappableBufferDXGI::CreateFromHandle(
-          std::move(handle), size, format, std::move(wrapped_callback),
-          std::move(pool));
-    }
-#endif
-#if BUILDFLAG(IS_ANDROID)
-    case gfx::ANDROID_HARDWARE_BUFFER: {
-      // ANDROID_HARDWARE_BUFFER handles require GPU roundtrip for mapping, so
-      // they will wait for event to trigger in async callback.
-      // So the copy callback must execute in internal thread otherwise there
-      // will be a deadlock: the waiting thread would be used to process the
-      // callback reply.
-      auto wrapped_callback = base::BindRepeating(
-          &ClientSharedImage::RunOnTaskRunner, base::Unretained(this),
-          copy_native_buffer_to_shmem_callback);
-      return MappableBufferAHB::CreateFromHandle(
           std::move(handle), size, format, std::move(wrapped_callback),
           std::move(pool));
     }

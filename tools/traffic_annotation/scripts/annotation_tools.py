@@ -19,7 +19,7 @@ sys.path.insert(0, tool_dir)
 from clang import compile_db  # type: ignore
 
 # Valid return values for GetCurrentPlatform().
-SUPPORTED_PLATFORMS = ['android', 'linux', 'windows']
+SUPPORTED_PLATFORMS = ['linux', 'windows']
 
 
 class NetworkTrafficAnnotationTools:

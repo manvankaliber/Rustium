@@ -16,11 +16,9 @@
 #include "content/public/test/navigation_simulator.h"
 #include "content/public/test/test_devtools_protocol_client.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/actor/actor_test_util.h"
 #include "components/tabs/public/tab_interface.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 using content::NavigationSimulator;
 using content::RenderFrameHost;
@@ -212,7 +210,6 @@ TEST_F(CaptchaMetricsObserverTest, CaptchaProviderSpecificMetrics) {
       captcha_frame_activation_entries, CaptchaProvider::kCloudflareTurnstile));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(CaptchaMetricsObserverTest, CaptchaLoadWithGlicAgent) {
   NavigateAndCommit(GURL("https://www.top-level-site.com/"));
 
@@ -247,7 +244,6 @@ TEST_F(CaptchaMetricsObserverTest, CaptchaLoadWithGlicAgent) {
       entries[0].metrics.at("AgentContext"),
       static_cast<int64_t>(CaptchaFrameAgentContext::kGlicAgentActiveOnTab));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(CaptchaMetricsObserverTest, CaptchaLoadWithDevToolsAgent) {
   // Attach a DevTools client to the WebContents.
@@ -275,7 +271,6 @@ TEST_F(CaptchaMetricsObserverTest, CaptchaLoadWithDevToolsAgent) {
   devtools_host->DetachClient(&devtools_client);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(CaptchaMetricsObserverTest, CaptchaLoadWithMultipleAgents) {
   NavigateAndCommit(GURL("https://www.top-level-site.com/"));
 
@@ -318,4 +313,3 @@ TEST_F(CaptchaMetricsObserverTest, CaptchaLoadWithMultipleAgents) {
 
   devtools_host->DetachClient(&devtools_client);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

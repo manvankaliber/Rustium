@@ -180,7 +180,6 @@ void RemoveSiteSettingsData(const base::Time& delete_begin,
       ContentSettingsType::HID_CHOOSER_DATA, delete_begin, delete_end,
       HostContentSettingsMap::PatternSourcePredicate());
 
-#if !BUILDFLAG(IS_ANDROID)
   host_content_settings_map->ClearSettingsForOneTypeWithPredicate(
       ContentSettingsType::INITIALIZED_TRANSLATIONS, delete_begin, delete_end,
       HostContentSettingsMap::PatternSourcePredicate());
@@ -192,13 +191,7 @@ void RemoveSiteSettingsData(const base::Time& delete_begin,
   host_content_settings_map->ClearSettingsForOneTypeWithPredicate(
       ContentSettingsType::FILE_SYSTEM_ACCESS_EXTENDED_PERMISSION, delete_begin,
       delete_end, HostContentSettingsMap::PatternSourcePredicate());
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-  host_content_settings_map->ClearSettingsForOneTypeWithPredicate(
-      ContentSettingsType::SMART_CARD_DATA, delete_begin, delete_end,
-      HostContentSettingsMap::PatternSourcePredicate());
-#endif  // BUILDFLAG(ENABLE_SMART_CARD)
 
   host_content_settings_map->ClearSettingsForOneTypeWithPredicate(
       ContentSettingsType::ON_DEVICE_SPEECH_RECOGNITION_LANGUAGES_DOWNLOADED,

@@ -244,48 +244,6 @@ void WebAuthFlow::CloseInfoBar() {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void WebAuthFlow::OnBrowserWindowInterfaceInitialized(
-    BrowserWindowInterface* browser) {
-  window_creation_pending_ = false;
-  if (!browser) {
-    if (delegate_) {
-      std::exchange(delegate_, nullptr)
-          ->OnAuthFlowFailure(WebAuthFlow::Failure::CANNOT_CREATE_WINDOW);
-    }
-    return;
-  }
-
-  if (popup_displayed_callback_for_testing_) {
-    std::move(popup_displayed_callback_for_testing_).Run();
-  }
-}
-
-void WebAuthFlow::CreatePopupWindow() {
-  if (!delegate_ || profile_->ShutdownStarted()) {
-    // The flow was abandoned while the launch was queued. Destroy the
-    // WebContents here, outside any observer notification.
-    WebContentsObserver::Observe(nullptr);
-    web_contents_.reset();
-    return;
-  }
-  BrowserWindowCreateParams params(BrowserWindowInterface::TYPE_POPUP,
-                                   *profile_, user_gesture_);
-  if (popup_bounds_.has_value()) {
-    params.initial_bounds = popup_bounds_.value();
-  }
-  params.web_contents = std::move(web_contents_);
-  CreateBrowserWindow(
-      std::move(params),
-      base::BindOnce(&WebAuthFlow::OnBrowserWindowInterfaceInitialized,
-                     weak_factory_.GetWeakPtr()));
-}
-
-void WebAuthFlow::SetPopupDisplayedCallbackForTesting(
-    base::OnceClosure callback) {
-  popup_displayed_callback_for_testing_ = std::move(callback);
-}
-#endif
 
 bool WebAuthFlow::DisplayAuthPageInPopupWindow() {
   if (GetBrowserWindowCreationStatusForProfile(*profile_) !=
@@ -311,7 +269,7 @@ bool WebAuthFlow::DisplayAuthPageInPopupWindow() {
 
   browser->GetWindow()->Show();
 #else
-  static_assert(BUILDFLAG(IS_ANDROID));
+  static_assert(false);
   // Post the launch: Java destroys the WebContents synchronously on failure,
   // which must not happen inside the DidStopLoading notification that got us
   // here.
@@ -349,12 +307,6 @@ void WebAuthFlow::AfterUrlLoaded() {
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (window_creation_pending_) {
-    // The popup launch posted by a previous load has not run yet.
-    return;
-  }
-#endif
 
   // If `web_contents_` is nullptr, this means that the interactive tab has
   // already been opened once.
@@ -400,18 +352,6 @@ void WebAuthFlow::OnTimeout() {
 
 void WebAuthFlow::WebContentsDestroyed() {
   WebContentsObserver::Observe(nullptr);
-#if BUILDFLAG(IS_ANDROID)
-  if (window_creation_pending_) {
-    window_creation_pending_ = false;
-    // Java destroys the WebContents before calling back with nullptr; clear
-    // the delegate so the failure is reported once.
-    if (delegate_) {
-      std::exchange(delegate_, nullptr)
-          ->OnAuthFlowFailure(WebAuthFlow::Failure::CANNOT_CREATE_WINDOW);
-    }
-    return;
-  }
-#endif
   if (delegate_) {
     delegate_->OnAuthFlowFailure(WebAuthFlow::WINDOW_CLOSED);
   }

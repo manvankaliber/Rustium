@@ -79,11 +79,9 @@ class ConvertToVariantFn : public ToolRequestVisitorFunctor {
   void Apply(const HistoryForwardToolRequest& tr) override {
     var_ = ToolRequestVariant(tr);
   }
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
   void Apply(const LoadAndExtractContentToolRequest& tr) override {
     var_ = ToolRequestVariant(tr);
   }
-#endif
   void Apply(const MoveMouseToolRequest& tr) override {
     var_ = ToolRequestVariant(tr);
   }

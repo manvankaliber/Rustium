@@ -85,9 +85,6 @@
 #undef GetCommandLine
 #endif
 
-#if BUILDFLAG(IS_IOS)
-#include "base/path_service.h"
-#endif
 
 namespace base {
 
@@ -347,11 +344,6 @@ CommandLine PrepareCommandLineForGTest(const CommandLine& command_line,
   // Don't try to write the final XML report in child processes.
   switches.erase(kGTestOutputFlag);
 
-#if BUILDFLAG(IS_IOS)
-  // We only need the xctest flag for the parent process. Passing it to
-  // child processes will cause the tests not to run, so remove it.
-  switches.erase(switches::kEnableRunIOSUnittestsWithXCTest);
-#endif
 
   if (switches.find(switches::kTestLauncherRetriesLeft) == switches.end()) {
     switches[switches::kTestLauncherRetriesLeft] =
@@ -421,7 +413,7 @@ int LaunchChildTestProcessWithOptions(const CommandLine& command_line,
   }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // To prevent accidental privilege sharing to an untrusted child, processes
   // are started with PR_SET_NO_NEW_PRIVS. Do not set that here, since this
   // new child will be privileged and trusted.
@@ -599,11 +591,6 @@ ChildProcessResults DoLaunchChildTestProcess(
 
   LaunchOptions options;
 
-#if BUILDFLAG(IS_IOS)
-  // We need to allow XPC to start extension processes so magically we set this
-  // flag to 1.
-  options.environment.emplace("XPC_FLAGS", "1");
-#endif
   // Tell the child process to use its designated temporary directory.
   if (!process_temp_dir.empty()) {
     SetTemporaryDirectory(process_temp_dir, &options.environment);
@@ -638,7 +625,7 @@ ChildProcessResults DoLaunchChildTestProcess(
   }
 
   options.new_process_group = true;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   options.kill_on_parent_death = true;
 #endif
 
@@ -1573,15 +1560,8 @@ bool TestLauncher::Init(CommandLine* command_line) {
     for (auto filter_file :
          SplitStringPiece(filter, FILE_PATH_LITERAL(";"), base::TRIM_WHITESPACE,
                           base::SPLIT_WANT_ALL)) {
-#if BUILDFLAG(IS_IOS)
-      // On iOS, the filter files are bundled with the test application.
-      base::FilePath data_dir;
-      PathService::Get(DIR_SRC_TEST_DATA_ROOT, &data_dir);
-      base::FilePath filter_file_path = data_dir.Append(FilePath(filter_file));
-#else
       base::FilePath filter_file_path =
           base::MakeAbsoluteFilePath(FilePath(filter_file));
-#endif  // BUILDFLAG(IS_IOS)
 
       if (!LoadFilterFile(filter_file_path, &positive_file_filter,
                           &negative_test_filter_)) {
@@ -1696,9 +1676,6 @@ bool TestLauncher::Init(CommandLine* command_line) {
   // Operating systems (sorted alphabetically).
   // Note that they can deliberately overlap, e.g. OS_LINUX is a subset
   // of OS_POSIX.
-#if BUILDFLAG(IS_ANDROID)
-  results_tracker_.AddGlobalTag("OS_ANDROID");
-#endif
 
 #if BUILDFLAG(IS_APPLE)
   results_tracker_.AddGlobalTag("OS_APPLE");
@@ -1712,17 +1689,11 @@ bool TestLauncher::Init(CommandLine* command_line) {
   results_tracker_.AddGlobalTag("OS_FREEBSD");
 #endif
 
-#if BUILDFLAG(IS_IOS)
-  results_tracker_.AddGlobalTag("OS_IOS");
-#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   results_tracker_.AddGlobalTag("OS_LINUX");
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  results_tracker_.AddGlobalTag("OS_CHROMEOS");
-#endif
 
 #if BUILDFLAG(IS_MAC)
   results_tracker_.AddGlobalTag("OS_MAC");
@@ -2280,13 +2251,6 @@ size_t NumParallelJobs(unsigned int cores_per_job) {
 #endif  // BUILDFLAG(IS_MAC)
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_IOS) && TARGET_OS_SIMULATOR
-  // If we are targeting the simulator increase the number of jobs we use by 2x
-  // the number of cores. This is necessary because the startup of each
-  // process is slow, so using 2x empirically approaches the total machine
-  // utilization.
-  cores *= 2;
-#endif
   return std::max(size_t(1), cores / cores_per_job);
 }
 

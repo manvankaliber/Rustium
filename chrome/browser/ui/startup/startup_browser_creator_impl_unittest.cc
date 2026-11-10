@@ -30,9 +30,7 @@ constexpr uint32_t kPreferencesTabs = 1 << 4;
 constexpr uint32_t kNewTabPageTabs = 1 << 5;
 constexpr uint32_t kPostCrashTabs = 1 << 6;
 constexpr uint32_t kCommandLineTabs = 1 << 7;
-#if !BUILDFLAG(IS_ANDROID)
 constexpr uint32_t kNewFeaturesTabs = 1 << 8;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class FakeStartupTabProvider : public StartupTabProvider {
  public:
@@ -101,7 +99,6 @@ class FakeStartupTabProvider : public StartupTabProvider {
                                          : CommandLineTabsPresent::kNo;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   StartupTabs GetNewFeaturesTabs(bool whats_new_enabled) const override {
     StartupTabs tabs;
     if (options_ & kNewFeaturesTabs) {
@@ -109,7 +106,6 @@ class FakeStartupTabProvider : public StartupTabProvider {
     }
     return tabs;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
  private:
   const uint32_t options_;
@@ -172,11 +168,9 @@ class DuplicateFakeStartupTabProvider : public StartupTabProvider {
     return CommandLineTabsPresent::kNo;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   StartupTabs GetNewFeaturesTabs(bool whats_new_enabled) const override {
     return StartupTabs();
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace

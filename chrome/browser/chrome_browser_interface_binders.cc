@@ -83,14 +83,8 @@
 #include "ui/accessibility/accessibility_features.h"
 #include "ui/accessibility/ax_mode.h"
 
-#if BUILDFLAG(ENABLE_UNHANDLED_TAP)
-#include "chrome/browser/android/contextualsearch/unhandled_tap_notifier_impl.h"  // nogncheck crbug.com/40147906
-#include "chrome/browser/android/contextualsearch/unhandled_tap_web_contents_observer.h"  // nogncheck crbug.com/40147906
-#include "third_party/blink/public/mojom/unhandled_tap_notifier/unhandled_tap_notifier.mojom.h"
-#endif  // BUILDFLAG(ENABLE_UNHANDLED_TAP)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/screen_ai/screen_ai_service_router.h"
 #include "chrome/browser/screen_ai/screen_ai_service_router_factory.h"
 #include "chrome/browser/text_detection/text_detection_impl.h"
@@ -98,31 +92,14 @@
 #include "services/shape_detection/public/mojom/textdetection.mojom.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/reader_mode/reader_mode_ui_handle_android.h"
-#include "chrome/browser/facilitated_payments/payment_link_handler_binder.h"
-#include "chrome/browser/offline_pages/android/offline_page_auto_fetcher.h"
-#include "chrome/common/offline_page_auto_fetcher.mojom.h"
-#include "services/service_manager/public/cpp/interface_provider.h"
-#include "third_party/blink/public/mojom/digital_goods/digital_goods.mojom.h"
-#include "third_party/blink/public/mojom/installedapp/installed_app_provider.mojom.h"
-#else
 #include "chrome/browser/badging/badge_manager.h"
 #include "chrome/browser/payments/payment_request_factory.h"
 #include "chrome/browser/prefs/persistent_renderer_prefs_manager.h"
 #include "chrome/browser/web_applications/web_install_service_impl.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/apps/digital_goods/digital_goods_factory_impl.h"
-#include "chrome/browser/speech/cros_speech_recognition_service_factory.h"
-#include "chromeos/ash/experiences/isolated_web_app/set_shape_service_impl.h"
-#include "third_party/blink/public/mojom/set_shape/set_shape.mojom.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 #include "chrome/browser/webshare/share_service_impl.h"
 #include "chrome/common/chrome_features.h"
 #endif
@@ -173,27 +150,6 @@ namespace chrome::internal {
 
 namespace {
 
-#if BUILDFLAG(ENABLE_UNHANDLED_TAP)
-void BindUnhandledTapWebContentsObserver(
-    content::RenderFrameHost* const host,
-    mojo::PendingReceiver<blink::mojom::UnhandledTapNotifier> receiver) {
-  auto* web_contents = content::WebContents::FromRenderFrameHost(host);
-  if (!web_contents) {
-    return;
-  }
-
-  auto* unhandled_tap_notifier_observer =
-      contextual_search::UnhandledTapWebContentsObserver::FromWebContents(
-          web_contents);
-  if (!unhandled_tap_notifier_observer) {
-    return;
-  }
-
-  contextual_search::CreateUnhandledTapNotifierImpl(
-      unhandled_tap_notifier_observer->unhandled_tap_callback(),
-      std::move(receiver));
-}
-#endif  // BUILDFLAG(ENABLE_UNHANDLED_TAP)
 
 // Forward image Annotator requests to the profile's AccessibilityLabelsService.
 void BindImageAnnotator(
@@ -247,11 +203,6 @@ void BindDistillerJavaScriptService(
   dom_distiller::DomDistillerService* dom_distiller_service =
       reader_mode::ReaderModeServiceFactory::GetForBrowserContext(
           web_contents->GetBrowserContext());
-#if BUILDFLAG(IS_ANDROID)
-  static_cast<reader_mode::android::ReaderModeUIHandleAndroid*>(
-      dom_distiller_service->GetDistillerUIHandle())
-      ->set_render_frame_host(frame_host);
-#endif
   CreateDistillerJavaScriptService(dom_distiller_service->GetWeakPtr(),
                                    std::move(receiver));
 }
@@ -287,13 +238,6 @@ void BindNoStatePrefetchProcessor(
           prerender::ChromeNoStatePrefetchProcessorImplDelegate>());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-template <typename Interface>
-void ForwardToJavaFrame(content::RenderFrameHost* render_frame_host,
-                        mojo::PendingReceiver<Interface> receiver) {
-  render_frame_host->GetJavaInterfaces()->GetInterface(std::move(receiver));
-}
-#endif
 
 void BindNetworkHintsHandler(
     content::RenderFrameHost* frame_host,
@@ -332,8 +276,6 @@ void BindSpeechRecognitionContextHandler(
   // Bind via the appropriate factory.
 #if BUILDFLAG(ENABLE_BROWSER_SPEECH_SERVICE)
   auto* factory = SpeechRecognitionServiceFactory::GetForProfile(profile);
-#elif BUILDFLAG(IS_CHROMEOS)
-  auto* factory = CrosSpeechRecognitionServiceFactory::GetForProfile(profile);
 #else
 #error "No speech recognition service factory on this platform."
 #endif
@@ -400,8 +342,7 @@ void BindMediaFoundationPreferences(
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 void BindScreenAIAnnotator(
     content::RenderFrameHost* frame_host,
     mojo::PendingReceiver<screen_ai::mojom::ScreenAIAnnotator> receiver) {
@@ -519,28 +460,6 @@ void PopulateChromeFrameBinders(
       base::BindRepeating(
           &SearchEngineTabHelper::BindOpenSearchDescriptionDocumentHandler));
 
-#if BUILDFLAG(IS_ANDROID)
-  map->Add<blink::mojom::InstalledAppProvider>(
-      &ForwardToJavaFrame<blink::mojom::InstalledAppProvider>);
-  map->Add<payments::mojom::DigitalGoodsFactory>(
-      &ForwardToJavaFrame<payments::mojom::DigitalGoodsFactory>);
-#if defined(BROWSER_MEDIA_CONTROLS_MENU)
-  map->Add<blink::mojom::MediaControlsMenuHost>(
-      &ForwardToJavaFrame<blink::mojom::MediaControlsMenuHost>);
-#endif
-  map->Add<chrome::mojom::OfflinePageAutoFetcher>(
-      &offline_pages::OfflinePageAutoFetcher::Create);
-  if (base::FeatureList::IsEnabled(features::kWebPayments)) {
-    map->Add<payments::mojom::PaymentRequest>(
-        &ForwardToJavaFrame<payments::mojom::PaymentRequest>);
-  }
-
-#if BUILDFLAG(ENABLE_UNHANDLED_TAP)
-  map->Add<blink::mojom::UnhandledTapNotifier>(
-      &BindUnhandledTapWebContentsObserver);
-#endif  // BUILDFLAG(ENABLE_UNHANDLED_TAP)
-
-#else
   map->Add<blink::mojom::BadgeService>(
       &badging::BadgeManager::BindFrameReceiverIfAllowed);
   map->Add<blink::mojom::PersistentRendererPrefsService>(
@@ -554,20 +473,10 @@ void PopulateChromeFrameBinders(
     map->Add<blink::mojom::WebInstallService>(
         &web_app::WebInstallServiceImpl::CreateIfAllowed);
   }
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  map->Add<payments::mojom::DigitalGoodsFactory>(
-      &apps::DigitalGoodsFactoryImpl::BindDigitalGoodsFactory);
-  map->Add<blink::mojom::SetShapeService>(&ash::SetShapeServiceImpl::Create);
-#endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   map->Add<blink::mojom::ShareService>(&ShareServiceImpl::Create);
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  map->Add<blink::mojom::ShareService>(
-      &ForwardToJavaFrame<blink::mojom::ShareService>);
 #endif
 
   map->Add<network_hints::mojom::NetworkHintsHandler>(&BindNetworkHintsHandler);
@@ -587,8 +496,7 @@ void PopulateChromeFrameBinders(
 #endif
 #endif  // BUILDFLAG(ENABLE_SPEECH_SERVICE)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   if (base::FeatureList::IsEnabled(blink::features::kSubApps) &&
       !render_frame_host->GetParentOrOuterDocument()) {
     // The service binder will reject non-primary main frames, but we still need
@@ -621,12 +529,6 @@ void PopulateChromeFrameBinders(
       &printing::CreateWebPrintingServiceForFrame);
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(blink::features::kPaymentLinkDetection)) {
-    map->Add<payments::facilitated::mojom::PaymentLinkHandler>(
-        &BindPaymentLinkHandler);
-  }
-#endif
 
 #if BUILDFLAG(ENABLE_SPELLCHECK)
   map->Add<spellcheck::mojom::SpellCheckHost>(

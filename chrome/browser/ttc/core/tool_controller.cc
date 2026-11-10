@@ -65,9 +65,6 @@
 #include "content/public/browser/web_contents.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 namespace ttc {
 
@@ -95,11 +92,7 @@ void OnToolCallFinished(
 // Chrome runs in a desktop-style windowing environment with multiple
 // user-visible windows: desktop platforms, and Android in desktop mode.
 bool SupportsWindowManagementTools() {
-#if BUILDFLAG(IS_ANDROID)
-  return base::android::device_info::is_desktop();
-#else
   return true;
-#endif
 }
 
 // Parses the `node_id` argument sent by the server. The model sees `node_id`

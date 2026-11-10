@@ -670,7 +670,7 @@ bool IsZeroCopyEnabled(webrtc::VideoContentType content_type) {
 }
 
 bool ShouldCheckIncomingFrameStorage() {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   return true;
 #elif BUILDFLAG(IS_MAC)
   return base::FeatureList::IsEnabled(features::kWebRtcMacSharedImageEncode);
@@ -2211,15 +2211,8 @@ scoped_refptr<media::VideoFrame> RTCVideoEncoder::Impl::CreateMemoryFrame(
   // and `input_visible_size_` strides match. This ensures the strides of the
   // frame that we pass to the encoder fits the input requirements.
   bool native_buffer_scaling =
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
       frame_buffer.type() == webrtc::VideoFrameBuffer::Type::kNative &&
       input_frame_coded_size_ == input_visible_size_;
-#else
-      // TODO(https://crbug.com/1307206): Android (e.g. android-pie-arm64-rel)
-      // and CrOS does not support the native buffer scaling path. Investigate
-      // why and find a way to enable it, if possible.
-      false;
-#endif
   if (native_buffer_scaling) {
     return CreateUnownedMemoryFrameByWebRTCVideoFrameBuffer(frame_buffer);
   }

@@ -1531,7 +1531,7 @@ TEST_F(TaskEnvironmentTest, NoCOMEnvironment) {
 // TODO(crbug.com/40835641): Re-enable this test
 // TODO(crbug.com/475624916): This test is flaky on Fuchsia when host
 // environment is less performant.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_ParallelExecutionFence DISABLED_ParallelExecutionFence
 #else
 #define MAYBE_ParallelExecutionFence ParallelExecutionFence
@@ -1619,7 +1619,6 @@ TEST_F(TaskEnvironmentTest,
 }
 
 // Android doesn't support death tests, see base/test/gtest_util.h
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(TaskEnvironmentTest, ParallelExecutionFenceNonMainThreadDeath) {
   TaskEnvironment task_environment;
 
@@ -1636,7 +1635,6 @@ TEST_F(TaskEnvironmentTest, ParallelExecutionFenceNonMainThreadDeath) {
 
   task_environment.RunUntilIdle();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace {
 bool FailOnTaskEnvironmentLog(int severity,

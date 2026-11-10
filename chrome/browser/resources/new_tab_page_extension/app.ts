@@ -118,7 +118,7 @@ export class NtpExtensionAppElement extends NtpExtensionAppElementBase {
       voiceSearchLiveTranscriptionEnabled_: {type: Boolean},
       voiceSearchAutoEndpointEnabled_: {type: Boolean},
       voiceSearchHelperTextEnabled_: {type: Boolean},
-      androidSpeechRecognition_: {type: Boolean},
+
       voiceQueryLengthLimit_: {type: Number},
       voiceAutoSubmitIdleTimeoutMs_: {type: Number},
       voiceManualSubmitIdleTimeoutMs_: {type: Number},
@@ -178,8 +178,7 @@ export class NtpExtensionAppElement extends NtpExtensionAppElementBase {
       loadTimeData.getBoolean('voiceSearchCoherenceRealboxHelperTextEnabled');
   // `true` only on Android, where voice search uses Android's speech
   // recognizer.
-  protected accessor androidSpeechRecognition_: boolean =
-      loadTimeData.getBoolean('androidSpeechRecognition');
+
   protected accessor voiceQueryLengthLimit_: number = VOICE_QUERY_LENGTH_LIMIT;
   protected accessor voiceAutoSubmitIdleTimeoutMs_: number =
       VOICE_AUTO_SUBMIT_IDLE_TIMEOUT_MS;

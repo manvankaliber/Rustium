@@ -6,13 +6,9 @@ import("//build/config/features.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
 import("//services/device/public/cpp/compute_pressure/buildflags.gni")
 
-if (is_ios) {
-  import("//build/config/apple/mobile_config.gni")
-}
-
 mojom("mojom") {
   generate_blink = true
-  generate_java = true
+
   sources = [
     "battery_monitor.mojom",
     "battery_status.mojom",
@@ -53,18 +49,6 @@ mojom("mojom") {
     "//url/mojom:url_mojom_origin",
   ]
 
-  if (is_chromeos) {
-    sources += [
-      "mtp_file_entry.mojom",
-      "mtp_manager.mojom",
-      "mtp_storage_info.mojom",
-    ]
-  }
-
-  if (is_ios && target_platform == "iphoneos") {
-    enabled_features = [ "is_ios_iphoneos" ]
-  }
-
   if (use_blink) {
     # The blink variant of the Device Service mojom are depended on by the
     # blink platform target. All blink variant mojoms use WTF types, which are
@@ -96,7 +80,7 @@ mojom("device_service") {
   enable_js_fuzzing = false
 
   enabled_features = []
-  if ((is_linux || is_chromeos) && use_udev) {
+  if (is_linux && use_udev) {
     enabled_features += [ "enable_input_device_manager" ]
   }
 
@@ -115,7 +99,7 @@ mojom("device_service") {
 
 mojom("generic_sensor") {
   generate_blink = true
-  generate_java = true
+
   sources = [
     "sensor.mojom",
     "sensor_provider.mojom",
@@ -169,7 +153,7 @@ mojom("generic_sensor") {
 
 mojom("usb") {
   generate_blink = true
-  generate_java = true
+
   sources = [
     "usb_device.mojom",
     "usb_enumeration_options.mojom",
@@ -198,7 +182,7 @@ mojom("usb") {
 
     visibility_blink = [
       ":*",
-      "//chromeos/ash/experiences/arc/mojom:mojom_blink",
+
       "//third_party/blink/public/mojom/usb:usb_blink",
       "//third_party/blink/renderer/modules/webusb",
       "//chrome/browser/ui/webui/usb_internals:mojo_bindings_blink",
@@ -213,7 +197,6 @@ mojom("usb") {
 }
 
 mojom("usb_test") {
-  generate_java = true
   sources = [ "usb_manager_test.mojom" ]
   public_deps = [ "//url/mojom:url_mojom_gurl" ]
   webui_module_path = "/"
@@ -221,7 +204,7 @@ mojom("usb_test") {
 
 mojom("geoposition") {
   generate_blink = true
-  generate_java = true
+
   sources = [ "geoposition.mojom" ]
   public_deps = [ "//mojo/public/mojom/base" ]
 

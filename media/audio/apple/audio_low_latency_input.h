@@ -58,11 +58,7 @@
 #include "media/base/audio_parameters.h"
 #include "media/base/sample_format.h"
 
-#if BUILDFLAG(IS_MAC)
 #include "media/audio/mac/audio_manager_mac.h"
-#else
-#include "media/audio/ios/audio_manager_ios.h"
-#endif
 
 namespace media {
 class AudioManagerApple;

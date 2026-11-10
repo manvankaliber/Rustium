@@ -262,9 +262,7 @@ class ContextualTasksWebContentsUserData
   const contextual_search::ContextualSearchSessionHandle*
   GetExistingContextualSessionHandle() const;
   std::optional<base::UnguessableToken> GetLensOverlayToken();
-#if !BUILDFLAG(IS_ANDROID)
   LensSearchController* GetLensSearchController() const;
-#endif
   void DoSubmitQueryCleanup();
   void CloseLensAsync(lens::LensOverlayDismissalSource dismissal_source);
 

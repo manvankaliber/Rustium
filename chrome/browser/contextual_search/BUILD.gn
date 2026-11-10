@@ -73,9 +73,8 @@ source_set("contextual_cueing") {
     "//ui/color",
     "//ui/gfx",
   ]
-  if (!is_android) {
-    deps += [ "//chrome/browser/ui/lens" ]
-  }
+
+  deps += [ "//chrome/browser/ui/lens" ]
 }
 
 source_set("unit_tests") {
@@ -112,10 +111,9 @@ source_set("unit_tests") {
     "//third_party/omnibox_proto",
     "//ui/base/unowned_user_data",
   ]
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui/browser_window/test:test_support",
-      "//chrome/browser/ui/lens",
-    ]
-  }
+
+  deps += [
+    "//chrome/browser/ui/browser_window/test:test_support",
+    "//chrome/browser/ui/lens",
+  ]
 }

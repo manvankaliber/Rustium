@@ -18,13 +18,11 @@ _SRC_DIR = os.path.normpath(os.path.join(_HERE_DIR, '..', '..'))
 sys.path.append(os.path.join(_SRC_DIR, 'third_party', 'typescript'))
 import typescript
 
-from path_utils import isInAshFolder, getTargetPath
+from path_utils import getTargetPath
 from validate_tsconfig import (
   validateTsconfigJson,
   validateJavaScriptAllowed,
   validateRootDir,
-  isUnsupportedJsTarget,
-  isMappingAllowed,
   validateDefinitionDeps,
 )
 
@@ -65,9 +63,6 @@ def main(argv):
   parser.add_argument('--manifest_excludes', nargs='*')
   parser.add_argument('--definitions', nargs='*')
   parser.add_argument('--composite', action='store_true')
-  parser.add_argument(
-    '--platform', choices=['other', 'ios', 'chromeos_ash'], default='other'
-  )
   parser.add_argument('--enable_source_maps', action='store_true')
   parser.add_argument('--output_suffix', required=True)
   args = parser.parse_args(argv)
@@ -76,7 +71,7 @@ def main(argv):
   out_dir = os.path.relpath(args.out_dir, args.gen_dir).replace('\\', '/')
 
   is_root_dir_valid, error = validateRootDir(
-    args.root_dir, args.gen_dir, args.root_gen_dir, args.platform == 'ios'
+    args.root_dir, args.gen_dir, args.root_gen_dir
   )
   if not is_root_dir_valid:
     raise AssertionError(error)
@@ -178,7 +173,7 @@ def main(argv):
       if file.endswith('.js'):
         includes_js = True
 
-  if includes_js or isUnsupportedJsTarget(args.gen_dir, args.root_gen_dir):
+  if includes_js:
     source_dir = os.path.realpath(
       os.path.join(_CWD, args.gen_dir, root_dir)
     ).replace('\\', '/')
@@ -186,7 +181,7 @@ def main(argv):
       os.path.join(_CWD, args.gen_dir, out_dir)
     ).replace('\\', '/')
     is_js_allowed, error = validateJavaScriptAllowed(
-      source_dir, out_dir, args.platform
+      source_dir, out_dir
     )
     if not is_js_allowed:
       raise AssertionError(error)
@@ -237,7 +232,6 @@ def main(argv):
     tsconfig['compilerOptions']['skipLibCheck'] = True
 
   target_path = getTargetPath(args.gen_dir, args.root_gen_dir)
-  is_ash_target = isInAshFolder(target_path)
 
   if args.deps is not None:
     tsconfig['references'] = [{'path': dep} for dep in args.deps]
@@ -255,13 +249,6 @@ def main(argv):
   if args.path_mappings is not None:
     for m in args.path_mappings:
       mapping = m.split('|')
-      mapping_path = os.path.relpath(mapping[1], args.root_src_dir).replace(
-        '\\', '/'
-      )
-      assert isMappingAllowed(is_ash_target, target_path, mapping_path), (
-        f'Cannot use mapping to Ash-specific folder {mapping_path} from '
-        f'non-Ash target {target_path}'
-      )
       path_mappings[mapping[0]].append(
         os.path.join('./', mapping[1]).replace('\\', '/')
       )

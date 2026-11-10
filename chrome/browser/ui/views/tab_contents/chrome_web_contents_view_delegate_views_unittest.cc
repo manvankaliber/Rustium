@@ -18,10 +18,6 @@
 #include "third_party/blink/public/common/context_menu_data/edit_flags.h"
 #include "ui/base/clipboard/test/test_clipboard.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/clipboard/test_support/mock_clipboard_history_controller.h"
-#include "testing/gmock/include/gmock/gmock.h"
-#endif
 
 typedef ChromeRenderViewHostTestHarness ChromeWebContentsViewDelegateViewsTest;
 
@@ -94,10 +90,6 @@ class ChromeWebContentsViewDelegateViewsClipboardTest
  private:
   std::unique_ptr<content::WebContentsViewDelegate> delegate_view_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  testing::NiceMock<ash::MockClipboardHistoryController>
-      clipboard_history_controller_;
-#endif
 };
 
 TEST_F(ChromeWebContentsViewDelegateViewsClipboardTest,

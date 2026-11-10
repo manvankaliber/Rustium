@@ -15,14 +15,7 @@ cfg_if! {
         target_os = "hurd"
     ))]{
         use libc::{__rlimit_resource_t, rlimit};
-    } else if #[cfg(any(
-        bsd,
-        target_os = "android",
-        target_os = "aix",
-        target_os = "illumos",
-        all(target_os = "linux", not(target_env = "gnu")),
-        target_os = "cygwin"
-    ))]{
+    } else if #[cfg(any(bsd, target_os = "aix", target_os = "illumos", all(target_os = "linux", not(target_env = "gnu")), target_os = "cygwin"))]{
         use libc::rlimit;
     }
 }

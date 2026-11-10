@@ -61,19 +61,8 @@ used when committed.
 *   [Linux Build Instructions](linux/build_instructions.md) - Linux
 *   [Mac Build Instructions](mac_build_instructions.md) - MacOS
 *   [Windows Build Instructions](windows_build_instructions.md) - Windows
-*   [Android Build Instructions](android_build_instructions.md) - Android target
-    (on a Linux host)
-*   [Cast Build Instructions](linux/cast_build_instructions.md) - Cast target
-    (on a Linux host)
-*   [Cast for Android Build Instructions](android_cast_build_instructions.md) -
-    Cast for Android (on a Linux host)
-*   [Fuchsia Build Instructions](fuchsia/build_instructions.md) -
-    Fuchsia target (on a Linux host)
-*   [iOS Build Instructions](ios/build_instructions.md) - iOS target (on a MacOS
-    host)
 *   [Gerrit Guide](gerrit_guide.md) - Setup Gerrit access
 *   [Gerrit ReAuth](gerrit_reauth.md) - Gerrit ReAuth guide
-*   [Chrome OS Build Instructions](chromeos_build_instructions.md) - Chrome OS
 *   [Linux Chromium ARM Recipes](linux/chromium_arm.md) - Recipes for building
     Chromium for ARM on Linux.
 *   [Chrome Component Build](component_build.md) - Faster builds using more
@@ -86,10 +75,8 @@ used when committed.
 *   See [design/README.md](design/README.md)
 
 ### Integrated Development Environment (IDE) Set Up Guides
-*   [Android Studio](android_studio.md) - Android Studio for Android builds
 *   [Atom](atom.md) - Atom multi-platform code editor
 *   [CLion](clion.md) - CLion IDE, supports GUI debugging.
-*   [Eclipse for Android](eclipse.md) - Eclipse for Android
 *   [Eclipse for Linux](linux/eclipse_dev.md) - Eclipse for other platforms
     (This guide was written for Linux, but is probably usable on Windows/MacOS
     as well)
@@ -291,50 +278,6 @@ used when committed.
 *   [Windows Shortcut and Taskbar Handling](windows_shortcut_and_taskbar_handling.md)
 *   [Windows Virtual Desktop Integration](windows_virtual_desktop_handling.md)
 
-### Misc Android-Specific Docs
-*   [Google Play Services in Chrome for Android](google_play_services.md)
-*   [Accessing C++ Enums in Java](android_accessing_cpp_enums_in_java.md) - How
-    to use C++-defined enums in Java code
-*   [Profiling Content Shell on Android](profiling_content_shell_on_android.md) -
-    Setting up profiling for `content_shell` on Android
-*   [Working Remotely with Android](working_remotely_with_android.md) - Building
-    on a remote machine for an Android device connected to your local machine
-*   [Android Test Instructions](testing/android_test_instructions.md) - Running a build
-    on an Android device or emulator.
-*   [Android Debugging](android_debugging_instructions.md) - Tools and tips for
-    how to debug Java and/or C/C++ code running on Android.
-*   [Android Logging](android_logging.md) - How Chrome's logging API works with
-    `android.util.Log` on Android, and usage guidelines.
-*   [Android Java Static Analysis](../build/android/docs/lint.md) - Catching
-    Java related issues at compile time with the 'lint' tool.
-*   [Java Code Coverage](../build/android/docs/coverage.md) - Collecting code
-    coverage data with the EMMA tool.
-*   [Dynamic Feature Modules (DFMs)](android_dynamic_feature_modules.md) - What
-    are they and how to create new ones.
-*   [Other build-related Android docs](../build/android/docs/README.md)
-*   [Chrome for Android UI](ui/android/overview.md) - Resources and best practices for
-    developing UI
-*   [Android Settings Search Testing](/components/browser_ui/settings/android/settings_search_testing.md) -
-    Testing guide and parity invariants for Android Settings Search.
-
-### Misc iOS-Specific Docs
-*   [Continuous Build and Test Infrastructure for Chromium for iOS](ios/infra.md)
-*   [Opening links in Chrome for iOS](ios/opening_links.md) - How to have your
-    iOS app open links in Chrome.
-*   [User Agent in Chrome for iOS](ios/user_agent.md) - Notes on User Agent
-    strings using Chrome for iOS.
-*   [Running iOS test suites locally](ios/testing.md)
-*   [Working With Project Files in iOS](ios/working_with_files.md) - How
-    to add, remove, and rename files in the iOS Chromium project.
-
-### Misc Chrome-OS-Specific Docs
-*   [Setting up captive portals and other restrictive networks](login/restrictive_networks.md)
-*   [Enterprise Enrollment](enterprise/enrollment.md)
-    *   [Kiosk mode and public sessions](enterprise/kiosk_public_session.md)
-*   [Debugging UI in OOBE/login/lock](login/ui_debugging.md)
-*   [Chrome Logging on Chrome OS](chrome_os_logging.md)
-*   [Debugging tips](testing/chromeos_debugging_tips.md)
-
 ### Misc WebUI-Specific Docs
 *   [WebUI Explainer](webui/webui_explainer.md) - An explanation of C++ and
     TypeScript infrastructural code for Chrome UIs implemented with web
@@ -381,8 +324,6 @@ used when committed.
     BRLTTY to support refreshable braille displays
 *   [PATTS on Chrome OS](accessibility/os/patts.md) - Notes on the PATTS speech
     synthesis engine used on Chrome OS
-*   [VoiceOver](ios/voiceover.md) - Using Apple's VoiceOver feature with
-    Chromium on iOS.
 
 ### Memory
 *   [Memory Overview](memory/README.md)

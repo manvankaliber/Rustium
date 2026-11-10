@@ -11,10 +11,8 @@
 #include "build/build_config.h"
 #include "ui/base/interaction/element_tracker.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/events/keycodes/keyboard_codes.h"
-#endif
 
 namespace ui::test {
 
@@ -185,7 +183,6 @@ class InteractionTestUtil {
     // as focused until its surface is subsequently activated.
     virtual ActionResult FocusElement(TrackedElement* element);
 
-#if !BUILDFLAG(IS_IOS)
 
     // Sends the given accelerator to the surface containing the element.
     virtual ActionResult SendAccelerator(TrackedElement* element,
@@ -196,7 +193,6 @@ class InteractionTestUtil {
                                       KeyboardCode key,
                                       int flags);
 
-#endif  // !BUILDFLAG(IS_IOS)
 
     // Sends a "confirm" input to `element`, e.g. a RETURN keypress.
     virtual ActionResult Confirm(TrackedElement* element);
@@ -275,7 +271,6 @@ class InteractionTestUtil {
   // focused until its surface is subsequently activated.
   ActionResult FocusElement(TrackedElement* element);
 
-#if !BUILDFLAG(IS_IOS)
 
   // Sends `accelerator` to the surface containing `element`. May not work if
   // the surface is not active. Prefer to use only in single-process test
@@ -289,7 +284,6 @@ class InteractionTestUtil {
                             KeyboardCode key,
                             int flags);
 
-#endif  // !BUILDFLAG(IS_IOS)
 
   // Sends a "confirm" input to `element`, e.g. a RETURN keypress.
   ActionResult Confirm(TrackedElement* element);

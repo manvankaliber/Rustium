@@ -14,9 +14,7 @@
 #include "components/enterprise/connectors/core/reporting_constants.h"
 #include "components/enterprise/connectors/core/reporting_event_router.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "components/safe_browsing/content/browser/web_ui/web_ui_content_info_singleton.h"
-#endif
 
 namespace enterprise_connectors {
 
@@ -248,7 +246,6 @@ void FilesRequestHandlerBase::MaybeTrackCancellation() {
 void FilesRequestHandlerBase::FinishRequestEarly(
     std::unique_ptr<BinaryUploadRequest> request,
     ScanRequestUploadResult result) {
-#if !BUILDFLAG(IS_IOS)
   // We add the request here in case we never actually uploaded anything, so it
   // wasn't added in OnGetRequestData
   safe_browsing::WebUIContentInfoSingleton::GetInstance()
@@ -261,7 +258,6 @@ void FilesRequestHandlerBase::FinishRequestEarly(
       ->AddToDeepScanResponses(
           /*token=*/"", ScanRequestUploadResultToString(result),
           enterprise_connectors::ContentAnalysisResponse());
-#endif
 
   BinaryUploadRequest* request_ptr = request.get();
   if (request->digest().empty() && request->register_on_got_hash_callback_) {

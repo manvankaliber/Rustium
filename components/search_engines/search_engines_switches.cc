@@ -33,24 +33,15 @@ const char kQuickenSiteSearchExpiryForTesting[] =
 BASE_FEATURE(kIgnoreSearchProviderOverrides, base::FEATURE_ENABLED_BY_DEFAULT);
 
 bool IsInvalidateSearchEngineChoiceOnDeviceRestoreDetectionEnabled() {
-#if BUILDFLAG(IS_IOS)
-  return true;
-#else
   return base::FeatureList::IsEnabled(
       kInvalidateSearchEngineChoiceOnDeviceRestoreDetection);
-#endif
 }
 
 bool IsInvalidateChoiceOnRestoreRetroactive() {
   CHECK(IsInvalidateSearchEngineChoiceOnDeviceRestoreDetectionEnabled());
-#if BUILDFLAG(IS_IOS)
-  return true;
-#else
   return kInvalidateChoiceOnRestoreIsRetroactive.Get();
-#endif
 }
 
-#if !BUILDFLAG(IS_IOS)
 // Invalidates old search engine choices when Chrome detects that it has been
 // transferred to a new device.
 BASE_FEATURE(kInvalidateSearchEngineChoiceOnDeviceRestoreDetection,
@@ -61,7 +52,6 @@ const base::FeatureParam<bool> kInvalidateChoiceOnRestoreIsRetroactive{
     /*name=*/"is_retroactive",
     /*default_value=*/false,
 };
-#endif  // !BUILDFLAG(IS_IOS)
 
 // Use an explicit "NO_REPROMPT" value as default to avoid reprompting users
 // who saw the choice screen in M121.
@@ -87,19 +77,9 @@ BASE_FEATURE(kClankDefaultSearchApi, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kKwdbRefreshDebugging, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kSearchSettingsUpdate, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-BASE_FEATURE(kSearchSettingsUpdateV2, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kChoiceEngineStatusReporting, base::FEATURE_DISABLED_BY_DEFAULT);
-
-BASE_FEATURE(kChromeSearchOnlyClayScope, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 // When enabled, will reject encrypted keyword table hashes that are weakly

@@ -386,12 +386,7 @@ pub const IN6ADDR_ANY_INIT: in6_addr = in6_addr {
 
 cfg_if! {
     // Not present on iOS/tvOS/watchOS/visionOS
-    if #[cfg(not(any(
-        target_os = "ios",
-        target_os = "tvos",
-        target_os = "watchos",
-        target_os = "visionos",
-    )))] {
+    if #[cfg(not(any(target_os = "tvos", target_os = "watchos", target_os = "visionos")))] {
         pub const ARPOP_REQUEST: u16 = 1;
         pub const ARPOP_REPLY: u16 = 2;
 
@@ -424,15 +419,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(any(
-        target_vendor = "apple",
-        target_os = "freebsd",
-        target_os = "dragonfly",
-        target_os = "android",
-        target_os = "openbsd",
-        target_os = "cygwin",
-        target_os = "netbsd",
-    ))] {
+    if #[cfg(any(target_vendor = "apple", target_os = "freebsd", target_os = "dragonfly", target_os = "openbsd", target_os = "cygwin", target_os = "netbsd"))] {
         pub const FNM_PATHNAME: c_int = 1 << 1;
     } else {
         pub const FNM_PATHNAME: c_int = 1 << 0;
@@ -440,15 +427,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(any(
-        target_vendor = "apple",
-        target_os = "freebsd",
-        target_os = "dragonfly",
-        target_os = "android",
-        target_os = "openbsd",
-        target_os = "netbsd",
-        target_os = "cygwin",
-    ))] {
+    if #[cfg(any(target_vendor = "apple", target_os = "freebsd", target_os = "dragonfly", target_os = "openbsd", target_os = "netbsd", target_os = "cygwin"))] {
         pub const FNM_NOESCAPE: c_int = 1 << 0;
     } else if #[cfg(any(target_os = "nto", target_os = "qnx"))] {
         pub const FNM_NOESCAPE: c_int = 1 << 2;
@@ -596,29 +575,7 @@ cfg_if! {
     } else if #[cfg(target_os = "emscripten")] {
         // Don't pass -lc to Emscripten, it breaks. See:
         // https://github.com/emscripten-core/emscripten/issues/22758
-    } else if #[cfg(all(target_os = "android", feature = "rustc-dep-of-std"))] {
-        #[link(
-            name = "c",
-            kind = "static",
-            modifiers = "-bundle",
-            cfg(target_feature = "crt-static")
-        )]
-        #[link(
-            name = "m",
-            kind = "static",
-            modifiers = "-bundle",
-            cfg(target_feature = "crt-static")
-        )]
-        #[link(name = "m", cfg(not(target_feature = "crt-static")))]
-        #[link(name = "c", cfg(not(target_feature = "crt-static")))]
-        extern "C" {}
-    } else if #[cfg(any(
-        target_vendor = "apple",
-        target_os = "android",
-        target_os = "openbsd",
-        target_os = "nto",
-        target_os = "qnx",
-    ))] {
+    }  else if #[cfg(any(target_vendor = "apple", target_os = "openbsd", target_os = "nto", target_os = "qnx"))] {
         #[link(name = "c")]
         #[link(name = "m")]
         extern "C" {}
@@ -787,12 +744,7 @@ extern "C" {
         link_name = "system$UNIX2003"
     )]
     // Not available on iOS/tvOS/watchOS/visionOS
-    #[cfg(not(any(
-        target_os = "ios",
-        target_os = "tvos",
-        target_os = "watchos",
-        target_os = "visionos"
-    )))]
+    #[cfg(not(any(target_os = "tvos", target_os = "watchos", target_os = "visionos")))]
     pub fn system(s: *const c_char) -> c_int;
     pub fn getenv(s: *const c_char) -> *mut c_char;
 
@@ -2196,17 +2148,7 @@ extern "C" {
 }
 
 cfg_if! {
-    if #[cfg(not(any(
-        target_os = "emscripten",
-        target_os = "android",
-        target_os = "haiku",
-        target_os = "nto",
-        target_os = "qnx",
-        target_os = "solaris",
-        target_os = "cygwin",
-        target_os = "aix",
-        target_os = "l4re",
-    )))] {
+    if #[cfg(not(any(target_os = "emscripten", target_os = "haiku", target_os = "nto", target_os = "qnx", target_os = "solaris", target_os = "cygwin", target_os = "aix", target_os = "l4re")))] {
         extern "C" {
             #[cfg_attr(target_os = "netbsd", link_name = "__adjtime50")]
             #[cfg_attr(any(gnu_time_bits64, musl_redir_time64), link_name = "__adjtime64")]
@@ -2220,11 +2162,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(not(any(
-        target_os = "emscripten",
-        target_os = "android",
-        target_os = "nto"
-    )))] {
+    if #[cfg(not(any(target_os = "emscripten", target_os = "nto")))] {
         extern "C" {
             pub fn stpncpy(dst: *mut c_char, src: *const c_char, n: size_t) -> *mut c_char;
         }
@@ -2247,7 +2185,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(not(target_os = "android"))] {
+    if #[cfg(all())] {
         extern "C" {
             #[cfg_attr(
                 all(target_os = "macos", target_arch = "x86"),
@@ -2518,12 +2456,7 @@ cfg_if! {
     if #[cfg(target_env = "newlib")] {
         mod newlib;
         pub use self::newlib::*;
-    } else if #[cfg(any(
-        target_os = "linux",
-        target_os = "l4re",
-        target_os = "android",
-        target_os = "emscripten"
-    ))] {
+    } else if #[cfg(any(target_os = "linux", target_os = "l4re", target_os = "emscripten"))] {
         mod linux_like;
         pub use self::linux_like::*;
     } else if #[cfg(any(

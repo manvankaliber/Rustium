@@ -7,16 +7,8 @@
 #include "build/build_config.h"
 
 namespace {
-#if BUILDFLAG(IS_IOS)
-// iOS label added to request to filter out unwanted collections.
-constexpr char kFilteringLabel[] = "chrome_ios_ntp";
-#elif BUILDFLAG(IS_ANDROID)
-// Android label added to request to filter out unwanted collections.
-constexpr char kFilteringLabel[] = "chrome_android_ntp";
-#else
 // Desktop label added to request to filter out unwanted collections.
 constexpr char kFilteringLabel[] = "chrome_desktop_ntp";
-#endif
 
 }  // namespace
 

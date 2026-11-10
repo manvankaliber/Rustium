@@ -2228,7 +2228,6 @@ TEST_F(AudioRendererImplTest, DecodeAudioReadyPreemptsFlush) {
   renderer_->decoded_audio_ready_for_testing();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(AudioRendererImplTest,
        TranscribeAudioCallback_SpeechRecognitionDisabled) {
   EXPECT_CALL(*this, SetOnReadyCallback(_));
@@ -2339,6 +2338,5 @@ TEST_F(AudioRendererImplTest, TranscribeAudioCallback_SendsTimestamp) {
 
   Preroll(kSeekTimestamp, kSeekTimestamp, PIPELINE_OK);
 }
-#endif
 
 }  // namespace media

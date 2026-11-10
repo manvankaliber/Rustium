@@ -7,14 +7,13 @@
 Pass at least:
 --chrome-version-major <chrome major version> or --all-chrome-versions
 --target-platform <which platform the target code will be generated for and can
-  be one of (win, mac, linux, chromeos, ios)>
+  be one of (win, mac, linux)>
 --policy-templates-file <path to the policy_templates.json input file>.'''
 
 from argparse import ArgumentParser
 from collections import defaultdict
 from collections import namedtuple
 from collections import OrderedDict
-from functools import cmp_to_key
 from functools import partial
 import ast  # noqa: F401
 import json
@@ -23,7 +22,6 @@ import re
 import sys
 import textwrap
 
-from xml.sax.saxutils import escape as xml_escape
 
 CHROME_POLICY_KEY = 'SOFTWARE\\\\Policies\\\\Google\\\\Chrome'
 CHROME_FOR_TESTING_POLICY_KEY = CHROME_POLICY_KEY + ' for Testing'
@@ -31,9 +29,10 @@ CHROMIUM_POLICY_KEY = 'SOFTWARE\\\\Policies\\\\Chromium'
 PLATFORM_STRINGS = {
   'chrome_frame': ['win'],
   'chrome_os': ['chrome_os'],
+  # Legacy labels are parsed as shared policy metadata, never build targets.
   'android': ['android'],
-  'webview_android': ['android'],
   'ios': ['ios'],
+  'webview_android': [],
   'chrome.win': ['win'],
   'chrome.linux': ['linux'],
   'chrome.mac': ['mac'],
@@ -45,27 +44,21 @@ PLATFORM_STRINGS = {
 class PolicyDetails:
   """Parses a policy template and caches all its details."""
 
-  # Maps policy types to a tuple with 4 other types:
+  # Maps policy types to a tuple with 3 other types:
   # - the equivalent base::Value::Type or 'TYPE_EXTERNAL' if the policy
   #   references external data
   # - the equivalent Protobuf field type
   # - the name of one of the protobufs for shared policy types
-  # - the equivalent type in Android's App Restriction Schema
   TYPE_MAP = {
-    'dict': ('Type::DICT', 'string', 'String', 'string'),
-    'external': ('TYPE_EXTERNAL', 'string', 'String', 'invalid'),
-    'int': ('Type::INTEGER', 'int64', 'Integer', 'integer'),
-    'int-enum': ('Type::INTEGER', 'int64', 'Integer', 'choice'),
-    'list': ('Type::LIST', 'StringList', 'StringList', 'string'),
-    'main': ('Type::BOOLEAN', 'bool', 'Boolean', 'bool'),
-    'string': ('Type::STRING', 'string', 'String', 'string'),
-    'string-enum': ('Type::STRING', 'string', 'String', 'choice'),
-    'string-enum-list': (
-      'Type::LIST',
-      'StringList',
-      'StringList',
-      'multi-select',
-    ),
+    'dict': ('Type::DICT', 'string', 'String'),
+    'external': ('TYPE_EXTERNAL', 'string', 'String'),
+    'int': ('Type::INTEGER', 'int64', 'Integer'),
+    'int-enum': ('Type::INTEGER', 'int64', 'Integer'),
+    'list': ('Type::LIST', 'StringList', 'StringList'),
+    'main': ('Type::BOOLEAN', 'bool', 'Boolean'),
+    'string': ('Type::STRING', 'string', 'String'),
+    'string-enum': ('Type::STRING', 'string', 'String'),
+    'string-enum-list': ('Type::LIST', 'StringList', 'StringList'),
   }
 
   class EnumItem:
@@ -171,7 +164,6 @@ class PolicyDetails:
       self.policy_type,
       self.protobuf_type,
       self.policy_protobuf_type,
-      self.restriction_type,
     ) = PolicyDetails.TYPE_MAP[policy['type']]
 
     self.desc = '\n'.join(
@@ -299,14 +291,6 @@ def main():
     metavar='FILE',
   )
   parser.add_argument(
-    '--ard',
-    '--app-restrictions-definition',
-    dest='app_restrictions_path',
-    help='generate an XML file as specified by '
-    'Android\'s App Restriction Schema',
-    metavar='FILE',
-  )
-  parser.add_argument(
     '--rth',
     '--risk-tag-header',
     dest='risk_header_path',
@@ -330,7 +314,8 @@ def main():
     '--target-platform',
     dest='target_platform',
     help='the platform the generated code should run on - can be one of'
-    '(win, mac, linux, chromeos)',
+    '(win, mac, linux)',
+    choices=('win', 'mac', 'linux'),
     metavar='PLATFORM',
   )
   parser.add_argument(
@@ -375,11 +360,6 @@ def main():
 
   target_platform = args.target_platform
   template_file_name = args.policy_templates_file
-
-  # --target-platform accepts "chromeos" as its input because that's what is
-  # used within GN. Within policy templates, "chrome_os" is used instead.
-  if target_platform == 'chromeos':
-    target_platform = 'chrome_os'
 
   if args.all_chrome_versions:
     chrome_major_version = None
@@ -450,9 +430,6 @@ def main():
     GenerateFile(
       args.chrome_settings_proto_path, _WriteChromeSettingsProtobuf, sorted=True
     )
-
-  if target_platform == 'android' and args.app_restrictions_path:
-    GenerateFile(args.app_restrictions_path, _WriteAppRestrictions, xml=True)
 
   return 0
 
@@ -1986,101 +1963,6 @@ def _WriteCloudPolicyProtobuf(
 # Returns the list of all policy.policy_protobuf_type strings from |policies|.
 def _GetProtobufTypes():
   return sorted(['Integer', 'Boolean', 'String', 'StringList'])
-
-
-# ------------------ app restrictions -------------------------------#
-
-
-ENROLLMENT_TOKEN_POLICY_NAME = 'CloudManagementEnrollmentToken'
-
-
-def _FormatDefaultValue(default_value):
-  """Format default value for Android app restrictions XML.
-
-  Args:
-    default_value: The default value from policy YAML (bool, int, str, or None)
-
-  Returns:
-    String representation suitable for android:defaultValue attribute,
-    or None if the value should not be included.
-  """
-  if default_value is None:
-    return None
-  if isinstance(default_value, bool):
-    return 'true' if default_value else 'false'
-  elif isinstance(default_value, int):
-    return str(default_value)
-  elif isinstance(default_value, str):
-    return xml_escape(default_value)
-  return xml_escape(str(default_value))
-
-
-def _WriteAppRestrictions(
-  policies,
-  policy_atomic_groups,
-  target_platform,
-  f,
-  risk_tags,
-  chunking,
-  mutable,
-):
-
-  def WriteRestrictionCommon(key):
-    f.write('    <restriction\n        android:key="%s"\n' % key)
-    f.write('        android:title="@string/%sTitle"\n' % key)
-    f.write('        android:description="@string/%sDesc"\n' % key)
-
-  def WriteItemsDefinition(key):
-    f.write('        android:entries="@array/%sEntries"\n' % key)
-    f.write('        android:entryValues="@array/%sValues"\n' % key)
-
-  def WriteAppRestriction(policy):
-    policy_name = policy.name
-    WriteRestrictionCommon(policy_name)
-
-    if policy.items is not None:
-      WriteItemsDefinition(policy_name)
-
-    # Write default value if it exists
-    formatted_default = _FormatDefaultValue(policy.default)
-    if formatted_default is not None:
-      f.write('        android:defaultValue="%s"\n' % formatted_default)
-
-    f.write('        android:restrictionType="%s"/>' % policy.restriction_type)
-    f.write('\n\n')
-
-  def ShouldWriteAppRestriction(policy):
-    return (
-      policy.is_supported
-      and policy.restriction_type != 'invalid'
-      and not policy.is_deprecated
-      and not policy.is_future
-      and not policy.internal_only
-      and not policy.cloud_only
-    )
-
-  # Compare policies by name, considering that `ENROLLMENT_TOKEN_POLICY_NAME`
-  # should come before all other policies in the generate app restrictions file.
-  def Compare(policy1, policy2):
-    if policy1.name == policy2.name:
-      return 0
-    if policy1.name == ENROLLMENT_TOKEN_POLICY_NAME:
-      return -1
-    if policy2.name == ENROLLMENT_TOKEN_POLICY_NAME:
-      return 1
-    if policy1.name < policy2.name:
-      return -1
-    return 1
-
-  # _WriteAppRestrictions body
-  f.write(
-    '<restrictions xmlns:android="'
-    'http://schemas.android.com/apk/res/android">\n\n'
-  )
-  for policy in sorted(policies, key=cmp_to_key(Compare)):
-    if ShouldWriteAppRestriction(policy):
-      WriteAppRestriction(policy)
-  f.write('</restrictions>')
 
 
 if __name__ == '__main__':

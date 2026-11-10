@@ -7,9 +7,7 @@ import("//build/config/c++/modules.gni")
 import("//build/config/clang/clang.gni")
 import("//build/config/compiler/compiler.gni")
 import("//build/config/sysroot.gni")
-if (use_xcode_symlinks) {
-  import("//build/config/apple/mobile_config.gni")
-}
+
 if (is_win) {
   import("//build/toolchain/win/win_toolchain_data.gni")
 }
@@ -52,11 +50,7 @@ if (use_clang_modules) {
           # differ between macOS and iOS, so it must be built with the correct
           # toolchain for the target OS.
           toolchain = "//build/toolchain/mac:clang_$target_cpu"
-          if (is_ios || target_environment == "catalyst") {
-            toolchain = "//build/toolchain/ios:ios_clang_$target_cpu"
-          } else if (target_os == "ios" && is_mac) {
-            toolchain = "//build/toolchain/mac:clang_$host_cpu"
-          }
+
           public_deps += [ "//buildtools/third_party/libc++:copy_sysroot_modulemaps($toolchain)" ]
         }
 
@@ -226,11 +220,7 @@ template("apple_sysroot_module") {
     # for the target OS.
     if (use_xcode_symlinks) {
       toolchain = "//build/toolchain/mac:clang_$target_cpu"
-      if (is_ios || target_environment == "catalyst") {
-        toolchain = "//build/toolchain/ios:ios_clang_$target_cpu"
-      } else if (target_os == "ios" && is_mac) {
-        toolchain = "//build/toolchain/mac:clang_$host_cpu"
-      }
+
       public_deps += [ "${invoker.modulemap}_file(${toolchain})" ]
     }
   }

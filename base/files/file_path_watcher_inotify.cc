@@ -103,11 +103,7 @@ class InotifyReaderThreadDelegate final : public PlatformThread::Delegate {
 class InotifyReader {
  public:
   // Watch descriptor used by AddWatch() and RemoveWatch().
-#if BUILDFLAG(IS_ANDROID)
-  using Watch = uint32_t;
-#else
   using Watch = int;
-#endif
 
   // Record of watchers tracked for watch descriptors.
   struct WatcherEntry {
@@ -932,7 +928,7 @@ ScopedMaxNumberOfInotifyWatchesOverrideForTest::
 FilePathWatcher::FilePathWatcher()
     : FilePathWatcher(std::make_unique<FilePathWatcherImpl>()) {}
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // Put inside "BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)" because Android
 // includes file_path_watcher_linux.cc.
 
@@ -940,6 +936,6 @@ FilePathWatcher::FilePathWatcher()
 bool FilePathWatcher::HasWatchesForTest() {
   return GetInotifyReader().HasWatches();
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 }  // namespace base

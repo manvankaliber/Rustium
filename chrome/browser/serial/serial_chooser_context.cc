@@ -30,10 +30,6 @@
 #include "services/device/public/cpp/usb/usb_ids.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "components/user_manager/user.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -716,13 +712,5 @@ void SerialChooserContext::OnPortManagerConnectionError() {
 }
 
 bool SerialChooserContext::CanApplyPortSpecificPolicy() {
-#if BUILDFLAG(IS_CHROMEOS)
-  auto* profile_helper = ash::ProfileHelper::Get();
-  CHECK(profile_helper, base::NotFatalUntil::M162);
-  user_manager::User* user = profile_helper->GetUserByProfile(profile_);
-  CHECK(user, base::NotFatalUntil::M162);
-  return user->IsAffiliated();
-#else
   return true;
-#endif
 }

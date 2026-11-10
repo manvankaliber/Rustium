@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// <if expr="is_linux or is_chromeos">
+// <if expr="is_linux">
 import '/strings.m.js';
 
 import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
@@ -55,75 +55,8 @@ function setEvaluation(result: boolean) {
   getRequiredElement('evaluation').innerText = message;
 }
 
-// <if expr="is_android">
-/**
- * Main page handler for Android.
- */
-function androidHandler() {
-  chrome.getAndroidSandboxStatus(status => {
-    let isIsolated = false;
-    let isTsync = false;
-    let isChromeSeccomp = false;
 
-    addStatusRow('PID', status.pid, StatusClass.INFO);
-    addStatusRow('UID', status.uid, StatusClass.INFO);
-    isIsolated = status.secontext.indexOf(':isolated_app:') !== -1;
-    addStatusRow(
-        'SELinux Context', status.secontext,
-        isIsolated ? StatusClass.GOOD : StatusClass.BAD);
-
-    const procStatus = status.procStatus.split('\n');
-    for (const line of procStatus) {
-      if (line.startsWith('Seccomp')) {
-        let value = line.split(':')[1]!.trim();
-        let cssClass = StatusClass.BAD;
-        if (value === '2') {
-          value = 'Yes - TSYNC (' + line + ')';
-          cssClass = StatusClass.GOOD;
-          isTsync = true;
-        } else if (value === '1') {
-          value = 'Yes (' + line + ')';
-        } else {
-          value = line;
-        }
-        addStatusRow('Seccomp-BPF Enabled (Kernel)', value, cssClass);
-        break;
-      }
-    }
-
-    let seccompStatus = 'Unknown';
-    switch (status.seccompStatus) {
-      case 0:
-        seccompStatus = 'Not Supported';
-        break;
-      case 1:
-        seccompStatus = 'Run-time Detection Failed';
-        break;
-      case 2:
-        seccompStatus = 'Disabled by Field Trial';
-        break;
-      case 3:
-        seccompStatus = 'Enabled by Field Trial (not started)';
-        break;
-      case 4:
-        seccompStatus = 'Sandbox Started';
-        isChromeSeccomp = true;
-        break;
-      default:
-        break;
-    }
-    addStatusRow(
-        'Seccomp-BPF Enabled (Chrome)', seccompStatus,
-        status.seccompStatus === 4 ? StatusClass.GOOD : StatusClass.BAD);
-
-    addStatusRow('Android Build ID', status.androidBuildId, StatusClass.INFO);
-
-    setEvaluation(isIsolated && isTsync && isChromeSeccomp);
-  });
-}
-// </if>
-
-// <if expr="is_linux or is_chromeos">
+// <if expr="is_linux">
 
 /**
  * Adds a status row that reports either Yes or No.
@@ -181,10 +114,7 @@ function linuxHandler() {
 // </if>
 
 document.addEventListener('DOMContentLoaded', () => {
-  // <if expr="is_android">
-  androidHandler();
-  // </if>
-  // <if expr="is_linux or is_chromeos">
+  // <if expr="is_linux">
   linuxHandler();
   // </if>
 });

@@ -37,7 +37,6 @@
 #endif
 #include "ui/events/test/event_generator.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/test/run_until.h"
 #include "components/page_load_metrics/browser/metrics_web_contents_observer.h"
 #include "components/page_load_metrics/browser/page_load_metrics_embedder_base.h"
@@ -46,7 +45,6 @@
 #include "net/test/embedded_test_server/controllable_http_response.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/widget/widget.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_PAINT_PREVIEW)
 // `gn check` doesn't recognize that this is included conditionally, with the
@@ -112,7 +110,6 @@ bool compare_candidate_index(const TraceEvent* lhs, const TraceEvent* rhs) {
   return GetCandidateIndex(*lhs) < GetCandidateIndex(*rhs);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Use the production metrics pipeline for an HTTP page hosted outside the tab
 // strip, without installing Chrome's tab-specific observers.
 class HttpPageMetricsEmbedder
@@ -128,11 +125,9 @@ class HttpPageMetricsEmbedder
   bool IsExtensionUrl(const GURL& url) override { return false; }
   bool IsNonTabWebUI(const GURL& url) override { return false; }
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(MetricIntegrationTest,
                        LargestContentfulPaintAfterHiddenWebViewAttachment) {
   net::test_server::ControllableHttpResponse response(
@@ -213,7 +208,6 @@ IN_PROC_BROWSER_TEST_F(MetricIntegrationTest,
   histograms.ExpectTotalCount(
       "PageLoad.PaintTiming.NavigationToLargestContentfulPaint2.MainFrame", 1);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // TODO(crbug.com/385580803): Flaky on all platforms
 IN_PROC_BROWSER_TEST_F(MetricIntegrationTest, DISABLED_LargestContentfulPaint) {
@@ -343,7 +337,7 @@ IN_PROC_BROWSER_TEST_F(MetricIntegrationTest, DISABLED_LargestContentfulPaint) {
 }
 
 // TODO(crbug.com/40936591): This test is flaky on ChromeOS and Linux.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_LargestContentfulPaint_SubframeInput \
   DISABLED_LargestContentfulPaint_SubframeInput
 #else

@@ -17,7 +17,7 @@
 
 namespace remoting {
 
-struct ChromeOsEnterpriseParams;
+struct EnterpriseSessionParams;
 class RsaKeyPair;
 
 // A RegisterSupportHostRequest implementation that skips the server-side
@@ -42,7 +42,7 @@ class PassthroughRegisterSupportHostRequest final
                     std::unique_ptr<net::ClientCertStore> client_cert_store,
                     scoped_refptr<RsaKeyPair> key_pair,
                     const std::string& authorized_helper,
-                    std::optional<ChromeOsEnterpriseParams> params,
+                    std::optional<EnterpriseSessionParams> params,
                     RegisterCallback callback) override;
 
  private:

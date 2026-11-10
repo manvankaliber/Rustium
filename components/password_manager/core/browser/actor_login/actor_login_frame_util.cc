@@ -63,12 +63,7 @@ bool IsValidFrameAndOriginToFill(
   // value for iOS. Remove the flag guard once iOS has implemented
   // `IOSPasswordManagerDriver::HasCrossOriginAncestor()`; this relies on the
   // ancestors of a web frame being trackable.
-#if BUILDFLAG(IS_IOS)
-  bool has_cross_origin_ancestor =
-      !frame_origin.IsSameOriginWith(main_frame_origin);
-#else
   bool has_cross_origin_ancestor = driver->HasCrossOriginAncestor();
-#endif
 
   bool is_in_primary_main_frame = driver->IsInPrimaryMainFrame();
 

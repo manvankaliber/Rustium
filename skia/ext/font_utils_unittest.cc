@@ -18,7 +18,6 @@
 
 namespace skia {
 
-#if !BUILDFLAG(IS_IOS)
 TEST(FontUtilsTest, InstantiateTypefaceFromSerializedStream) {
   base::FilePath root_dir;
   ASSERT_TRUE(base::PathService::Get(base::DIR_SRC_TEST_DATA_ROOT, &root_dir));
@@ -56,6 +55,5 @@ TEST(FontUtilsTest, InstantiateTypefaceFromSerializedStream) {
   EXPECT_EQ(GetTypefaceFactoryIdForTesting(typeface.get()),
             SkSetFourByteTag('f', 'n', 't', 'a'));
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 }  // namespace skia

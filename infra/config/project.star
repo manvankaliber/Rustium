@@ -5,10 +5,6 @@
 """Project-wide settings and common structs (e.g. platform names)."""
 
 platform = struct(
-    ANDROID = "android",
-    CROS = "cros",
-    CROS_LTS = "cros-lts",
-    IOS = "ios",
     LINUX = "linux",
     MAC = "mac",
     WINDOWS = "windows",

@@ -116,13 +116,11 @@ class GlicUserStatusBrowserTest : public InProcessBrowserTest {
         std::to_underlying(
             optimization_guide::prefs::GeminiSettingsPolicyState::kEnabled));
 
-#if !BUILDFLAG(IS_CHROMEOS)
     // TODO(crbug.com/460830699): Evaluate whether this is necessary on
     // ChromeOS.
     disclaimer_service_resetter_ =
         enterprise_util::DisableAutomaticManagementDisclaimerUntilReset(
             profile());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   }
 
   void TearDownOnMainThread() override {
@@ -278,13 +276,8 @@ IN_PROC_BROWSER_TEST_F(GlicUserStatusBrowserTest, EnterpriseSignInEnabled) {
 }
 
 // TODO(460830699): Re-enable on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_EnterpriseSignInEnabledGeminiSettings \
-  DISABLED_EnterpriseSignInEnabledGeminiSettings
-#else
 #define MAYBE_EnterpriseSignInEnabledGeminiSettings \
   EnterpriseSignInEnabledGeminiSettings
-#endif
 IN_PROC_BROWSER_TEST_F(GlicUserStatusBrowserTest,
                        MAYBE_EnterpriseSignInEnabledGeminiSettings) {
   policy::ScopedManagementServiceOverrideForTesting platform_management(
@@ -742,11 +735,7 @@ IN_PROC_BROWSER_TEST_F(GlicUserStatusBrowserTest,
 }
 
 // TODO(460830699): Re-enable on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_EnterpriseSignOut DISABLED_EnterpriseSignOut
-#else
 #define MAYBE_EnterpriseSignOut EnterpriseSignOut
-#endif
 IN_PROC_BROWSER_TEST_F(GlicUserStatusBrowserTest, MAYBE_EnterpriseSignOut) {
   policy::ScopedManagementServiceOverrideForTesting platform_management(
       policy::ManagementServiceFactory::GetForProfile(profile()),

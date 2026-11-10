@@ -384,9 +384,7 @@ IN_PROC_BROWSER_TEST_F(CommandsApiTest, UnpinnedPageActionTriggers) {
   DisableActionGlobally(profile(), *extension);
 
   auto* toolbar_model = ToolbarActionsModel::Get(profile());
-#if !BUILDFLAG(IS_ANDROID)
   RunScheduledLayouts();
-#endif
   EXPECT_FALSE(toolbar_model->IsActionPinned(extension->id()));
 
   const int tab_id = NavigateToTestURLAndReturnTabId();
@@ -614,12 +612,7 @@ IN_PROC_BROWSER_TEST_F(CommandsApiTest, MediaKeysDoNotGrantActiveTab) {
   EXPECT_FALSE(granter->IsGranted(extension));
 }
 
-#if BUILDFLAG(IS_CHROMEOS) && !defined(NDEBUG)
-// TODO(dtseng): Test times out on Chrome OS debug. See crbug.com/40383617.
-#define MAYBE_ContinuePropagation DISABLED_ContinuePropagation
-#else
 #define MAYBE_ContinuePropagation ContinuePropagation
-#endif
 
 IN_PROC_BROWSER_TEST_F(CommandsApiTest, MAYBE_ContinuePropagation) {
   // Setup the environment.
@@ -655,29 +648,6 @@ IN_PROC_BROWSER_TEST_F(CommandsApiTest, MAYBE_ContinuePropagation) {
 }
 
 // Test is only applicable on Chrome OS.
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_F(CommandsApiTest, ChromeOSConversions) {
-  ASSERT_TRUE(embedded_test_server()->Start());
-  ASSERT_TRUE(ui_test_utils::BringBrowserWindowToFront(browser()));
-  ASSERT_TRUE(RunExtensionTest("keybinding/chromeos_conversions")) << message_;
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(
-      browser(), embedded_test_server()->GetURL("/extensions/test_file.txt")));
-
-  ResultCatcher catcher;
-
-  // Send all expected keys (Search+Shift+{Left, Up, Right, Down}).
-  ASSERT_TRUE(ui_test_utils::SendKeyPressSync(browser(), ui::VKEY_LEFT, false,
-                                              true, false, true));
-  ASSERT_TRUE(ui_test_utils::SendKeyPressSync(browser(), ui::VKEY_UP, false,
-                                              true, false, true));
-  ASSERT_TRUE(ui_test_utils::SendKeyPressSync(browser(), ui::VKEY_RIGHT, false,
-                                              true, false, true));
-  ASSERT_TRUE(ui_test_utils::SendKeyPressSync(browser(), ui::VKEY_DOWN, false,
-                                              true, false, true));
-
-  ASSERT_TRUE(catcher.GetNextResult());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Validate parameters sent along with an extension event, in response to
 // command being triggered.
@@ -844,14 +814,7 @@ IN_PROC_BROWSER_TEST_P(ActionCommandsApiTest,
   EXPECT_TRUE(click_listener.WaitUntilSatisfied());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(crbug.com/405219115): For some reason this is causing flakiness issue
-// on bot (but not yet locally reproducible). Investigate and fix the issue.
-#define MAYBE_TriggeringCommandTriggersPopup \
-  DISABLED_TriggeringCommandTriggersPopup
-#else
 #define MAYBE_TriggeringCommandTriggersPopup TriggeringCommandTriggersPopup
-#endif
 
 // Tests that triggering a command associated with an action opens an
 // extension's popup.

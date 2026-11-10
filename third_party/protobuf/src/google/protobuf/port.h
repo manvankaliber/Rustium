@@ -66,8 +66,7 @@ PROTOBUF_ALWAYS_INLINE void StrongPointer(T* var) {
 #endif
 }
 
-#if defined(__x86_64__) && defined(__linux__) && !defined(__APPLE__) && \
-    !defined(__ANDROID__) && defined(__clang__) && __clang_major__ >= 19
+#if defined(__x86_64__) && defined(__linux__) && !defined(__APPLE__) && defined(__clang__) && __clang_major__ >= 19
 // Optimized implementation for clang where we can generate a relocation without
 // adding runtime instructions.
 template <typename T, T ptr>
@@ -86,7 +85,7 @@ PROTOBUF_ALWAYS_INLINE void StrongReferenceToType() {
   // some configurations.
   asm(".reloc ., BFD_RELOC_NONE, %p0" ::"Ws"(ptr));
 }
-#else   // .reloc
+#else
 // Portable fallback. It usually generates a single LEA instruction or
 // equivalent.
 template <typename T, T ptr>

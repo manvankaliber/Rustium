@@ -59,7 +59,7 @@ struct BASE_EXPORT SharedMemorySwitch {
   STACK_ALLOCATED();
 
  public:
-#if BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_IOS_TVOS)
+#if BUILDFLAG(IS_APPLE)
   // The rendezvous key used to share the mach port.
   using RendezvousKey = MachPortsForRendezvous::key_type;
 #else

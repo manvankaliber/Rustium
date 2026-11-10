@@ -2,9 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//build/config/chromeos/args.gni")
-
-assert(is_win || is_mac || is_linux || is_chromeos)
+assert(is_win || is_mac || is_linux)
 
 source_set("hung_renderer") {
   sources = [
@@ -24,20 +22,18 @@ source_set("hung_renderer") {
   ]
 }
 
-if (!is_chromeos_device) {
-  source_set("interactive_ui_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "hung_renderer_interactive_uitest.cc" ]
-    deps = [
-      "//chrome/browser:primitives",
-      "//chrome/browser/ui:tab_dialogs",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/test:test_support",
-      "//content/public/browser",
-      "//content/test:test_support",
-      "//net:test_support",
-      "//ui/base:buildflags",
-    ]
-  }
+source_set("interactive_ui_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [ "hung_renderer_interactive_uitest.cc" ]
+  deps = [
+    "//chrome/browser:primitives",
+    "//chrome/browser/ui:tab_dialogs",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/test:test_support",
+    "//content/public/browser",
+    "//content/test:test_support",
+    "//net:test_support",
+    "//ui/base:buildflags",
+  ]
 }

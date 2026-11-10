@@ -466,18 +466,9 @@ TEST_F(DownloadRequestMakerTest, CreatesFromDownloadItem) {
       .WillOnce(ReturnRefOfCopy(GURL("https://example.com/tab_url")));
   EXPECT_CALL(mock_download_item, GetTabReferrerUrl())
       .WillOnce(ReturnRefOfCopy(GURL("https://example.com/tab_referrer_url")));
-#if BUILDFLAG(IS_ANDROID)
-  ON_CALL(mock_download_item, GetTargetFilePath())
-      .WillByDefault(ReturnRefOfCopy(
-          base::FilePath(FILE_PATH_LITERAL("content://media/123"))));
-  EXPECT_CALL(mock_download_item, GetFileNameToReportUser())
-      .WillOnce(
-          Return(base::FilePath(FILE_PATH_LITERAL("target_file_name.exe"))));
-#else
   EXPECT_CALL(mock_download_item, GetTargetFilePath())
       .WillOnce(ReturnRefOfCopy(
           base::FilePath(FILE_PATH_LITERAL("target_file_name.exe"))));
-#endif
   EXPECT_CALL(mock_download_item, GetFullPath())
       .WillOnce(
           ReturnRefOfCopy(base::FilePath(FILE_PATH_LITERAL("full_path.exe"))));
@@ -581,7 +572,6 @@ TEST_F(DownloadRequestMakerTest, NotifiesCallback) {
 }
 
 // Archive file analysis is not supported on Android.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(DownloadRequestMakerTest, SetsIsEncrypted) {
   content::InProcessUtilityThreadHelper utility_thread_helper;
 
@@ -731,7 +721,6 @@ TEST_F(DownloadRequestMakerTest, SetsFullyExtractedArchive) {
       DownloadItemWarningData::IsFullyExtractedArchive(&mock_download_item));
   EXPECT_EQ(details_.inspection_type, DownloadFileType::ZIP);
 }
-#endif
 
 #if BUILDFLAG(IS_WIN)
 TEST_F(DownloadRequestMakerTest, PopulateAntivirusProducts) {

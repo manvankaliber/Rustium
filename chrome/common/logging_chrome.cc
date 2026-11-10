@@ -37,11 +37,6 @@
 #include "chrome/common/logging_chrome.h"
 #include "content/public/common/content_switches.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chromeos/ash/components/logging/log_file_util.h"
-#include "chromeos/ash/components/logging/session_log.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <initguid.h>
@@ -210,12 +205,6 @@ LoggingDestination DetermineLoggingDestination(
   return LoggingDestFromCommandLine(command_line, unused);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-base::FilePath GetSessionLogFile(const base::CommandLine& command_line) {
-  return ash::GetSessionLogDir().Append(
-      GetLogFileName(command_line).BaseName());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void InitChromeLogging(const base::CommandLine& command_line,
                        OldFileDeletionState delete_old_log_file) {
@@ -226,9 +215,6 @@ void InitChromeLogging(const base::CommandLine& command_line,
       LoggingDestFromCommandLine(command_line, filename_is_handle);
   LogLockingState log_locking_state = LOCK_LOG_FILE;
   base::FilePath log_path;
-#if BUILDFLAG(IS_CHROMEOS)
-  base::FilePath target_path;
-#endif
 #if BUILDFLAG(IS_WIN)
   base::win::ScopedHandle log_handle;
 #endif
@@ -248,25 +234,6 @@ void InitChromeLogging(const base::CommandLine& command_line,
     } else {
       log_path = GetLogFileName(command_line);
 
-#if BUILDFLAG(IS_CHROMEOS)
-      // For BWSI (Incognito) logins, we want to put the logs in the user
-      // profile directory that is created for the temporary session instead
-      // of in the system log directory, for privacy reasons.
-      if (command_line.HasSwitch(ash::switches::kGuestSession)) {
-        log_path = GetSessionLogFile(command_line);
-      }
-
-      // Prepares a log file.  We rotate the previous log file and prepare a new
-      // log file if we've been asked to delete the old log, since that
-      // indicates the start of a new session.
-      target_path = ash::SetUpLogFile(
-          log_path, delete_old_log_file == DELETE_OLD_LOG_FILE);
-
-      // Because ChromeOS manages the move to a new session by redirecting
-      // the link, it shouldn't remove the old file in the logging code,
-      // since that will remove the newly created link instead.
-      delete_old_log_file = APPEND_TO_OLD_LOG_FILE;
-#endif  // BUILDFLAG(IS_CHROMEOS)
     }
   } else {
     log_locking_state = DONT_LOCK_LOG_FILE;
@@ -288,22 +255,11 @@ void InitChromeLogging(const base::CommandLine& command_line,
   settings.delete_old = delete_old_log_file;
   bool success = InitLogging(settings);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!success) {
-    DPLOG(ERROR) << "Unable to initialize logging to " << log_path.value()
-                 << " (which should be a link to " << target_path.value()
-                 << ")";
-    ash::RemoveSymlinkAndLog(log_path, target_path);
-    chrome_logging_failed_ = true;
-    return;
-  }
-#else   // BUILDFLAG(IS_CHROMEOS)
   if (!success) {
     DPLOG(ERROR) << "Unable to initialize logging to " << log_path.value();
     chrome_logging_failed_ = true;
     return;
   }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // We call running in unattended mode "headless", and allow headless mode to
   // be configured either by the Environment Variable or by the Command Line

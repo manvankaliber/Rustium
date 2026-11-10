@@ -160,7 +160,6 @@ IN_PROC_BROWSER_TEST_P(CustomizeButtonsHandlerBrowserTest, OpenSidePanelTwice) {
   EXPECT_CALL(doc_, SetCustomizeChromeSidePanelVisibility)
       .Times(2)
       .WillRepeatedly(testing::SaveArg<0>(&visible));
-#if !BUILDFLAG(IS_ANDROID)
   content::WebContents* web_contents = GetActiveTab()->GetContents();
   EXPECT_CALL(
       *GetMockFeaturePromoHelper(),
@@ -176,7 +175,6 @@ IN_PROC_BROWSER_TEST_P(CustomizeButtonsHandlerBrowserTest, OpenSidePanelTwice) {
               feature_engagement::kIPHDesktopCustomizeChromeAutoOpenFeature),
           web_contents))
       .Times(2);
-#endif
 
   handler_->SetCustomizeChromeSidePanelVisible(
       /*visible=*/true, CustomizeChromeSection::kUnspecified,
@@ -286,7 +284,6 @@ IN_PROC_BROWSER_TEST_P(CustomizeButtonsHandlerTriggerParamTest, OpenSidePanel) {
       .Times(1)
       .WillOnce(testing::DoAll(testing::SaveArg<0>(&trigger),
                                testing::SaveArg<1>(&section)));
-#if !BUILDFLAG(IS_ANDROID)
   content::WebContents* web_contents = GetActiveTab()->GetContents();
   EXPECT_CALL(
       *GetMockFeaturePromoHelper(),
@@ -302,7 +299,6 @@ IN_PROC_BROWSER_TEST_P(CustomizeButtonsHandlerTriggerParamTest, OpenSidePanel) {
               feature_engagement::kIPHDesktopCustomizeChromeAutoOpenFeature),
           web_contents))
       .Times(1);
-#endif
 
   handler_->SetCustomizeChromeSidePanelVisible(
       /*visible=*/true, CustomizeChromeSection::kUnspecified, trigger_param());

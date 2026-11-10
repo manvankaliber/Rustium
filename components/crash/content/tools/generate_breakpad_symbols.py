@@ -83,35 +83,6 @@ def GetSharedLibraryDependenciesLinux(binary):
   return result
 
 
-def _GetSharedLibraryDependenciesAndroidOrChromeOS(binary):
-  """GetSharedLibraryDependencies* suitable for Android or ChromeOS.
-
-  Both assume that the host is Linux-based, but the binary being symbolized is
-  being run on a device with potentially different architectures. Unlike ldd,
-  readelf plays nice with mixed host/device architectures (e.g. x86-64 host,
-  arm64 device), so use that.
-  """
-  readelf = subprocess.check_output(['readelf', '-d', binary]).decode('utf-8')
-  lib_re = re.compile(r'Shared library: \[(.+)\]$')
-  result = []
-  binary_path = os.path.dirname(os.path.abspath(binary))
-  for line in readelf.splitlines():
-    m = lib_re.search(line)
-    if m:
-      lib = os.path.join(binary_path, m.group(1))
-      if os.path.isfile(lib):
-        result.append(lib)
-  return result
-
-
-def GetSharedLibraryDependenciesAndroid(binary):
-  """Return absolute paths to all shared library dependencies of the binary.
-
-  This implementation assumes that we're running on a Linux system, but
-  compiled for Android."""
-  return _GetSharedLibraryDependenciesAndroidOrChromeOS(binary)
-
-
 def GetSharedLibraryDependenciesMac(binary, exe_path):
   """Return absolute paths to all shared library dependencies of the binary.
 
@@ -169,25 +140,13 @@ def GetSharedLibraryDependenciesMac(binary, exe_path):
   return deps
 
 
-def GetSharedLibraryDependenciesChromeOS(binary):
-  """Return absolute paths to all shared library dependencies of the binary.
-
-  This implementation assumes that we're running on a Linux system, but
-  compiled for ChromeOS."""
-  return _GetSharedLibraryDependenciesAndroidOrChromeOS(binary)
-
-
 def GetSharedLibraryDependencies(options, binary, exe_path):
   """Return absolute paths to all shared library dependencies of the binary."""
   deps = []
   if options.platform == 'linux':
     deps = GetSharedLibraryDependenciesLinux(binary)
-  elif options.platform == 'android':
-    deps = GetSharedLibraryDependenciesAndroid(binary)
   elif options.platform == 'darwin':
     deps = GetSharedLibraryDependenciesMac(binary, exe_path)
-  elif options.platform == 'chromeos':
-    deps = GetSharedLibraryDependenciesChromeOS(binary)
   else:
     print("Platform not supported.")
     sys.exit(1)
@@ -214,8 +173,6 @@ def GetTransitiveDependencies(options):
     return list(deps)
   elif (
     options.platform == 'darwin'
-    or options.platform == 'android'
-    or options.platform == 'chromeos'
   ):
     binaries = set([binary])
     q = [binary]
@@ -253,7 +210,7 @@ def CreateSymbolDir(options, output_dir, relative_hash_dir):
   """Create the directory to store breakpad symbols in. On Android/Linux, we
   also create a symlink in case the hash in the binary is missing."""
   mkdir_p(output_dir)
-  if options.platform == 'android' or options.platform == 'linux':
+  if options.platform == 'linux':
     try:
       os.symlink(
         relative_hash_dir,

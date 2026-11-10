@@ -65,7 +65,7 @@ decltype(auto) DoValidateRegisterHostAndRespondOk() {
 }
 
 decltype(auto) DoValidateEnterpriseOptionsAndRespondOk(
-    const ChromeOsEnterpriseParams& params) {
+    const EnterpriseSessionParams& params) {
   return [=](std::unique_ptr<apis::v1::RegisterSupportHostRequest> request,
              RegisterSupportHostResponseCallback callback) {
     ASSERT_TRUE(request->has_chrome_os_enterprise_options());
@@ -145,7 +145,7 @@ class RemotingRegisterSupportHostTest : public testing::Test {
 
   void RegisterHost(
       const internal::RemoteSupportHostStruct& host,
-      const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+      const std::optional<EnterpriseSessionParams>& enterprise_params,
       RegisterHostCallback callback) {
     register_host_request_->RegisterHost(std::move(host), enterprise_params,
                                          std::move(callback));
@@ -178,7 +178,7 @@ TEST_F(RemotingRegisterSupportHostTest, RegisterFtl) {
 }
 
 TEST_F(RemotingRegisterSupportHostTest, RegisterWithEnterpriseOptionsDisabled) {
-  ChromeOsEnterpriseParams params;
+  EnterpriseSessionParams params;
   params.show_troubleshooting_tools = false;
   params.allow_troubleshooting_tools = false;
   params.allow_reconnections = false;
@@ -200,7 +200,7 @@ TEST_F(RemotingRegisterSupportHostTest, RegisterWithEnterpriseOptionsDisabled) {
 }
 
 TEST_F(RemotingRegisterSupportHostTest, RegisterWithEnterpriseOptionsEnabled) {
-  ChromeOsEnterpriseParams params;
+  EnterpriseSessionParams params;
   params.show_troubleshooting_tools = true;
   params.allow_troubleshooting_tools = true;
   params.allow_reconnections = true;

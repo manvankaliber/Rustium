@@ -123,16 +123,10 @@
 #include "ui/gfx/scoped_animation_duration_scale_mode.h"
 #include "ui/views/controls/button/md_text_button.h"
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/test/base/scoped_channel_override.h"
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chrome/common/chrome_switches.h"
-#include "chrome/test/base/testing_profile.h"
-#include "components/user_manager/user_names.h"
 #endif
+
 
 namespace {
 using signin_ui_util::MockSigninUiDelegate;
@@ -150,7 +144,6 @@ const char kSignedInImageUrl[] =
 
 constexpr std::string_view kTestPassphrase = "testpassphrase";
 
-#if !BUILDFLAG(IS_CHROMEOS)
 constexpr std::u16string_view kTestEmail = u"test@gmail.com";
 std::u16string test_email() {
   return std::u16string(kTestEmail);
@@ -159,7 +152,6 @@ constexpr std::u16string_view kTestGivenName = u"TestName";
 std::u16string test_given_name() {
   return std::u16string(kTestGivenName);
 }
-#endif
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 constexpr std::u16string_view kWorkBadge(u"Custom Label");
 std::u16string work_badge() {
@@ -542,7 +534,6 @@ class AvatarToolbarButtonInterfaceBaseBrowserTest {
         /*is_type_on=*/enable_sync);
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   void Signout() {
     ASSERT_TRUE(
         GetIdentityManager()->HasPrimaryAccount(signin::ConsentLevel::kSignin));
@@ -553,7 +544,6 @@ class AvatarToolbarButtonInterfaceBaseBrowserTest {
     ASSERT_FALSE(
         GetIdentityManager()->HasPrimaryAccount(signin::ConsentLevel::kSignin));
   }
-#endif
 
   void SimulateSigninPending(bool web_sign_out) {
     ASSERT_TRUE(
@@ -650,11 +640,7 @@ class AvatarToolbarButtonInterfaceBaseBrowserTest {
 
   void ExpectSyncPaused(BrowserWindowInterface* browser) {
     std::u16string expected = l10n_util::GetStringUTF16(
-#if !BUILDFLAG(IS_CHROMEOS)
         IDS_AVATAR_BUTTON_SYNC_PAUSED
-#else
-        IDS_AVATAR_BUTTON_SYNC_ERROR
-#endif
     );
     EXPECT_TRUE(AvatarToolbarButtonTestAccessor(browser).WaitForText(expected));
   }
@@ -934,10 +920,10 @@ class AvatarToolbarButtonEnterpriseIsolatedBrowserTest
   }
 
  private:
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   chrome::ScopedChannelOverride channel_override_{
       chrome::ScopedChannelOverride::Channel::kDev};
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 };
 
 IN_PROC_BROWSER_TEST_P(AvatarToolbarButtonEnterpriseIsolatedBrowserTest,
@@ -962,7 +948,6 @@ IN_PROC_BROWSER_TEST_P(AvatarToolbarButtonEnterpriseIsolatedBrowserTest,
   EXPECT_FALSE(GetWindowCountInAvatarButtonText(browser1).has_value());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(AvatarToolbarButtonBrowserTest, GuestWindowCount) {
   BrowserWindowInterface* browser1 = CreateGuestBrowser();
   AvatarToolbarButtonTestAccessor avatar_accessor1(browser1);
@@ -981,54 +966,11 @@ IN_PROC_BROWSER_TEST_P(AvatarToolbarButtonBrowserTest, GuestWindowCount) {
   CloseBrowserSynchronously(browser2);
   EXPECT_FALSE(GetWindowCountInAvatarButtonText(browser1).has_value());
 }
-#else
-class AvatarToolbarButtonAshBrowserTest
-    : public AvatarToolbarButtonBrowserTestBase {
- protected:
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    // Adding these command lines simulates Ash in Guest mode.
-    command_line->AppendSwitch(ash::switches::kGuestSession);
-    command_line->AppendSwitchASCII(ash::switches::kLoginUser,
-                                    user_manager::kGuestUserName);
-    command_line->AppendSwitchASCII(ash::switches::kLoginProfile,
-                                    TestingProfile::kTestUserProfileDir);
-    command_line->AppendSwitch(switches::kIncognito);
-  }
-};
-
-IN_PROC_BROWSER_TEST_F(AvatarToolbarButtonAshBrowserTest, GuestSession) {
-  Profile* guest_profile = browser()->GetProfile();
-  ASSERT_TRUE(guest_profile->IsGuestSession());
-
-  EXPECT_TRUE(AvatarToolbarButtonTestAccessor(browser()).GetVisible());
-  EXPECT_FALSE(AvatarToolbarButtonTestAccessor(browser()).GetEnabled());
-
-  EXPECT_EQ(AvatarToolbarButtonTestAccessor(browser()).GetText(),
-            l10n_util::GetPluralStringFUTF16(IDS_AVATAR_BUTTON_GUEST, 1));
-
-  BrowserWindowInterface* browser_2 = CreateBrowser(guest_profile);
-  EXPECT_TRUE(AvatarToolbarButtonTestAccessor(browser_2).GetVisible());
-  EXPECT_FALSE(AvatarToolbarButtonTestAccessor(browser_2).GetEnabled());
-
-  // Browser count is not taken into consideration on purpose for Ash Guest
-  // windows since the button is not enabled, both buttons still show the same
-  // text as if it was a single window, which is different from other platforms.
-  EXPECT_EQ(AvatarToolbarButtonTestAccessor(browser()).GetText(),
-            l10n_util::GetPluralStringFUTF16(IDS_AVATAR_BUTTON_GUEST, 1));
-  EXPECT_EQ(AvatarToolbarButtonTestAccessor(browser_2).GetText(),
-            l10n_util::GetPluralStringFUTF16(IDS_AVATAR_BUTTON_GUEST, 1));
-}
-#endif
 
 IN_PROC_BROWSER_TEST_P(AvatarToolbarButtonBrowserTest, DefaultBrowser) {
   AvatarToolbarButtonTestAccessor avatar_accessor(browser());
-#if BUILDFLAG(IS_CHROMEOS)
-  // No avatar button is shown in normal Ash windows.
-  EXPECT_FALSE(avatar_accessor.GetVisible());
-#else
   EXPECT_TRUE(avatar_accessor.GetVisible());
   EXPECT_TRUE(avatar_accessor.GetEnabled());
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(AvatarToolbarButtonBrowserTest, IncognitoBrowser) {
@@ -1051,107 +993,6 @@ IN_PROC_BROWSER_TEST_P(AvatarToolbarButtonEnterpriseIsolatedBrowserTest,
   EXPECT_TRUE(avatar_accessor1.GetEnabled());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_P(AvatarToolbarButtonBrowserTest, SigninBrowser) {
-  // Create an Incognito browser first.
-  CreateIncognitoBrowser(browser()->GetProfile());
-  // Create a portal signin browser which will not be the Incognito browser.
-  Profile::OTRProfileID profile_id(
-      Profile::OTRProfileID::CreateUniqueForCaptivePortal());
-  BrowserWindowInterface* browser1 = CreateBrowserWindow(
-      BrowserWindowCreateParams(browser()->GetProfile()->GetOffTheRecordProfile(
-                                    profile_id,
-                                    /*create_if_needed=*/true),
-                                /*from_user_gesture=*/true));
-  AddBlankTabAndShow(browser1);
-  AvatarToolbarButtonTestAccessor avatar_accessor1(browser1);
-  // On ChromeOS, captive portal signin windows show a
-  // disabled avatar button to indicate that the window is incognito.
-  EXPECT_TRUE(avatar_accessor1.GetVisible());
-  EXPECT_TRUE(avatar_accessor1.WaitForEnabled(false));
-}
-
-IN_PROC_BROWSER_TEST_P(AvatarToolbarButtonBrowserTest,
-                       DefaultBrowserOptimizations) {
-  AvatarToolbarButtonTestAccessor avatar_accessor(browser());
-  ASSERT_FALSE(avatar_accessor.GetVisible());
-  EXPECT_EQ(avatar_accessor.GetState(), AvatarToolbarButtonState::kNormal);
-  EXPECT_EQ(avatar_accessor.GetText(), std::u16string());
-
-  if (!GetParam()) {
-    // On a regular ChromeOS browser (`!CanShowForProfile()`), `label()` should
-    // not paint to a layer, whereas on an Incognito browser it does.
-    auto has_child_layer = [](const views::View* view) {
-      return std::ranges::any_of(
-          view->children(),
-          [](const views::View* child) { return child->layer() != nullptr; });
-    };
-
-    AvatarToolbarButton* avatar_button =
-        BrowserView::GetBrowserViewForBrowser(browser())
-            ->toolbar()
-            ->avatar_toolbar_button();
-    ASSERT_TRUE(avatar_button);
-    EXPECT_FALSE(has_child_layer(avatar_button));
-
-    BrowserWindowInterface* incognito_browser =
-        CreateIncognitoBrowser(browser()->GetProfile());
-    AvatarToolbarButton* incognito_avatar_button =
-        BrowserView::GetBrowserViewForBrowser(incognito_browser)
-            ->toolbar()
-            ->avatar_toolbar_button();
-    ASSERT_TRUE(incognito_avatar_button);
-    EXPECT_TRUE(has_child_layer(incognito_avatar_button));
-  }
-
-  // Triggering sign-in/sync greeting and sync errors on a regular ChromeOS
-  // profile should not transition out of `kNormal` or show text, since those
-  // state providers are not created when `!CanShowForProfile()`.
-  EnableSyncWithImage(u"test@gmail.com");
-  EXPECT_FALSE(avatar_accessor.GetVisible());
-  EXPECT_EQ(avatar_accessor.GetState(), AvatarToolbarButtonState::kNormal);
-  EXPECT_EQ(avatar_accessor.GetText(), std::u16string());
-
-  SimulateSyncError();
-  EXPECT_EQ(avatar_accessor.GetState(), AvatarToolbarButtonState::kNormal);
-  EXPECT_EQ(avatar_accessor.GetText(), std::u16string());
-  ClearSyncError();
-
-  SimulatePassphraseError();
-  EXPECT_EQ(avatar_accessor.GetState(), AvatarToolbarButtonState::kNormal);
-  EXPECT_EQ(avatar_accessor.GetText(), std::u16string());
-  ClearPassphraseError();
-
-  SimulateUpgradeClientError();
-  EXPECT_EQ(avatar_accessor.GetState(), AvatarToolbarButtonState::kNormal);
-  EXPECT_EQ(avatar_accessor.GetText(), std::u16string());
-  ClearUpgradeClientError();
-
-  SimulateBookmarksLimitExceededError();
-  EXPECT_EQ(avatar_accessor.GetState(), AvatarToolbarButtonState::kNormal);
-  EXPECT_EQ(avatar_accessor.GetText(), std::u16string());
-  ClearBookmarksLimitExceededError();
-
-  // Even with normal animation duration, setting and clearing an explicit state
-  // while hidden (`!GetVisible()`) should skip animations and update/clear text
-  // synchronously.
-  gfx::ScopedAnimationDurationScaleMode normal_duration(
-      gfx::ScopedAnimationDurationScaleMode::NORMAL_DURATION);
-  base::ScopedClosureRunner hide_callback =
-      GetAvatarToolbarButtonInterface(browser())->SetExplicitButtonState(
-          u"Explicit Text",
-          /*accessibility_label=*/std::nullopt,
-          /*explicit_action=*/std::nullopt,
-          /*should_announce=*/false);
-  EXPECT_EQ(avatar_accessor.GetState(),
-            AvatarToolbarButtonState::kExplicitTextShowing);
-  EXPECT_EQ(avatar_accessor.GetText(), u"Explicit Text");
-
-  hide_callback.RunAndReset();
-  EXPECT_EQ(avatar_accessor.GetState(), AvatarToolbarButtonState::kNormal);
-  EXPECT_EQ(avatar_accessor.GetText(), std::u16string());
-}
-#endif
 
 // Test suite for testing `AvatarToolbarButton`'s responsibility of updating
 // color information in `ProfileAttributesStorage`.
@@ -1315,7 +1156,6 @@ INSTANTIATE_TEST_SUITE_P(,
                          });
 
 // Avatar button is not shown on Ash regular profiles.
-#if !BUILDFLAG(IS_CHROMEOS)
 // Test suite to mark test with Sync enabled (simulating Sync granted already -
 // Enabling sync and only after clearing states performing checks) that have a
 // Signin equivalent test. This test suite can be directly removed when removing
@@ -4142,7 +3982,6 @@ INSTANTIATE_TEST_SUITE_P(All,
                          AvatarToolbarButtonWithSyncBrowserTest,
                          testing::Bool());
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 INSTANTIATE_TEST_SUITE_P(All, AvatarToolbarButtonBrowserTest, testing::Bool());
 INSTANTIATE_TEST_SUITE_P(All,

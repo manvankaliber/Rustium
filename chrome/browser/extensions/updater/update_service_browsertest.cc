@@ -48,9 +48,6 @@
 #include "extensions/common/extension_urls.h"
 #include "extensions/common/mojom/manifest.mojom-shared.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/install_attributes/stub_install_attributes.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -568,13 +565,6 @@ class PolicyUpdateServiceTest : public ExtensionUpdateClientBaseTest {
   std::string id_ = "aohghmighlieiainnegkcijnfilokake";
 
  private:
-#if BUILDFLAG(IS_CHROMEOS)
-  // Set up managed environment.
-  std::unique_ptr<ash::ScopedStubInstallAttributes> install_attributes_ =
-      std::make_unique<ash::ScopedStubInstallAttributes>(
-          ash::StubInstallAttributes::CreateCloudManaged("fake-domain.com",
-                                                         "fake-id"));
-#endif
   testing::NiceMock<policy::MockConfigurationPolicyProvider> policy_provider_;
   content_verifier_test::DownloaderTestDelegate downloader_;
 };
@@ -582,12 +572,7 @@ class PolicyUpdateServiceTest : public ExtensionUpdateClientBaseTest {
 // Tests that if CheckForExternalUpdates() fails, then we retry reinstalling
 // corrupted policy extensions. For example: if network is unavailable,
 // CheckForExternalUpdates() will fail.
-#if BUILDFLAG(IS_ANDROID)
-// TODO(https://crbug.com/555403987): Fails on desktop android.
-#define MAYBE_FailedUpdateRetries DISABLED_FailedUpdateRetries
-#else
 #define MAYBE_FailedUpdateRetries FailedUpdateRetries
-#endif
 IN_PROC_BROWSER_TEST_F(PolicyUpdateServiceTest, MAYBE_FailedUpdateRetries) {
   ExtensionRegistry* registry = ExtensionRegistry::Get(profile());
   ContentVerifier* verifier =
@@ -653,12 +638,7 @@ IN_PROC_BROWSER_TEST_F(PolicyUpdateServiceTest, MAYBE_FailedUpdateRetries) {
   EXPECT_EQ(disable_reason::DISABLE_CORRUPTED, disabled.FindInt("reason"));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(https://crbug.com/555403989): Fails on desktop android.
-#define MAYBE_Backoff DISABLED_Backoff
-#else
 #define MAYBE_Backoff Backoff
-#endif
 IN_PROC_BROWSER_TEST_F(PolicyUpdateServiceTest, MAYBE_Backoff) {
   ExtensionRegistry* registry = ExtensionRegistry::Get(profile());
   ContentVerifier* verifier =
@@ -719,14 +699,8 @@ IN_PROC_BROWSER_TEST_F(PolicyUpdateServiceTest, MAYBE_Backoff) {
 
 // TODO(crbug.com/316940720): Flaky on Chrome OS MSAN bot. Also flaky on desktop
 // Android. Crashes during test shutdown in ~CrxInstaller.
-#if (defined(ADDRESS_SANITIZER) && BUILDFLAG(IS_CHROMEOS)) || \
-    BUILDFLAG(IS_ANDROID)
-#define MAYBE_PRE_PolicyCorruptedOnStartup DISABLED_PRE_PolicyCorruptedOnStartup
-#define MAYBE_PolicyCorruptedOnStartup DISABLED_PolicyCorruptedOnStartup
-#else
 #define MAYBE_PRE_PolicyCorruptedOnStartup PRE_PolicyCorruptedOnStartup
 #define MAYBE_PolicyCorruptedOnStartup PolicyCorruptedOnStartup
-#endif
 // We want to test what happens at startup with a corruption-disabled policy
 // force installed extension. So we set that up in the PRE test here.
 IN_PROC_BROWSER_TEST_F(PolicyUpdateServiceTest,
@@ -759,15 +733,6 @@ IN_PROC_BROWSER_TEST_F(PolicyUpdateServiceTest,
       << update_interceptor_->GetRequestsAsString();
   EXPECT_EQ(0, get_interceptor_count());
 
-#if BUILDFLAG(IS_ANDROID)
-  // Android does not perform a graceful shutdown in browser tests, so we have
-  // to explicitly flush extension preferences to disk.
-  profile()->GetPrefs()->CommitPendingWrite();
-
-  // Ensure writes on other threads (e.g. from GetExtensionFileTaskRunner())
-  // have a chance to complete (e.g. StateStore and CrxInstaller).
-  base::ThreadPoolInstance::Get()->FlushForTesting();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 // Now actually test what happens on the next startup after the PRE test above.
@@ -820,15 +785,6 @@ IN_PROC_BROWSER_TEST_F(PolicyUpdateServiceTest,
       CHECK_DEREF(app.FindList("disabled"))[0].GetDict();
   EXPECT_EQ(disable_reason::DISABLE_CORRUPTED, disabled.FindInt("reason"));
 
-#if BUILDFLAG(IS_ANDROID)
-  // Signal any in-flight CrxInstaller instances to clean up.
-  // TODO(jamescook): Consider moving this to AndroidBrowserTest shutdown.
-  browser_shutdown::NotifyAppTerminating();
-
-  // Ensure cleanup on other threads (e.g. from GetExtensionFileTaskRunner())
-  // has a chance to complete (e.g. CrxInstaller).
-  base::ThreadPoolInstance::Get()->FlushForTesting();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 }  // namespace extensions

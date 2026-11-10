@@ -372,7 +372,6 @@ IN_PROC_BROWSER_TEST_F(SecurePaymentConfirmationTest,
                         "securePaymentConfirmationHasEnrolledInstrument()"));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(SecurePaymentConfirmationTest,
                        Metrics_NoMatchingCredential_Close) {
@@ -418,7 +417,6 @@ IN_PROC_BROWSER_TEST_F(SecurePaymentConfirmationTest,
       /*expected_bucket_count=*/1);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class SecurePaymentConfirmationDisableDebugTest
     : public SecurePaymentConfirmationTest {
@@ -499,11 +497,7 @@ IN_PROC_BROWSER_TEST_F(SecurePaymentConfirmationActivationlessShowTest,
 
 // TODO(crbug.com/40266119): This test does not work on Android as it is
 // difficult to wait for the bottom sheet to finish showing.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ShowAfterActivationlessShow DISABLED_ShowAfterActivationlessShow
-#else
 #define MAYBE_ShowAfterActivationlessShow ShowAfterActivationlessShow
-#endif  // BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(SecurePaymentConfirmationActivationlessShowTest,
                        MAYBE_ShowAfterActivationlessShow) {
   test_controller()->SetHasAuthenticator(true);
@@ -716,7 +710,6 @@ IN_PROC_BROWSER_TEST_F(SecurePaymentConfirmationLocaleFeatureDisabledTest,
       content::EvalJs(GetActiveWebContents(), "getOutstandingStatusPromise()"));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Intentionally do not enable the "SecurePaymentConfirmation" Blink runtime
 // feature or the browser-side Finch flag.
 class SecurePaymentConfirmationDisabledTest
@@ -804,7 +797,6 @@ IN_PROC_BROWSER_TEST_F(SecurePaymentConfirmationDisabledByFinchTest,
                          GetActiveWebContents(),
                          "securePaymentConfirmationHasEnrolledInstrument()"));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 }  // namespace payments

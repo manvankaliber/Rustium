@@ -102,30 +102,8 @@ if (enable_extensions) {
     schema_sources_ += [ "web_authentication_proxy.webidl" ]
   }
 
-  if (is_win || is_mac || is_linux || is_chromeos) {
+  if (is_win || is_mac || is_linux) {
     schema_sources_ += [ "contextual_tasks_private.webidl" ]
-  }
-
-  if (is_chromeos) {
-    schema_sources_ += [
-      "accessibility_service_private.webidl",
-      "document_scan.webidl",
-      "enterprise_device_attributes.webidl",
-      "enterprise_kiosk_input.webidl",
-      "enterprise_login.webidl",
-      "enterprise_networking_attributes.webidl",
-      "enterprise_platform_keys.webidl",
-      "enterprise_platform_keys_internal.webidl",
-      "enterprise_platform_keys_private.json",
-      "platform_keys.idl",
-      "platform_keys_internal.idl",
-      "quick_unlock_private.idl",
-      "terminal_private.json",
-    ]
-  }
-
-  if (is_linux || is_win || is_chromeos) {
-    schema_sources_ += [ "input_ime.json" ]
   }
 
   if (enable_pdf) {
@@ -136,13 +114,6 @@ if (enable_extensions) {
     "browser_action.json",
     "page_action.json",
   ]
-
-  if (is_chromeos) {
-    uncompiled_sources_ += [
-      "chromeos_info_private.json",
-      "media_player_private.json",
-    ]
-  }
 }
 
 chrome_extensions_api_schema_sources = get_path_info(schema_sources_, "abspath")

@@ -50,10 +50,6 @@ bool DiedOfFatal(int exit_status) {
   // in error code 3 (SIGABRT) or error code 0x80000003 (breakpoint
   // triggered).
   return ::testing::ExitedWithCode(3)(exit_status & 0x7fffffff);
-#elif defined(__ANDROID__) && defined(__aarch64__)
-  // These are all run under a qemu config that eats died-due-to-signal exit
-  // statuses.
-  return true;
 #else
   return ::testing::KilledBySignal(SIGABRT)(exit_status);
 #endif

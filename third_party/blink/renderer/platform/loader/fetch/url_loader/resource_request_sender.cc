@@ -249,22 +249,6 @@ int ResourceRequestSender::SendAsync(
     throttles.insert(throttles.begin(),
                      std::make_unique<ContentDecodingURLLoaderThrottle>());
   }
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/1286053): This used to be a DCHECK asserting "Main frame
-  // shouldn't come here", but after removing and re-landing the DCHECK later it
-  // started tripping in some teses. Was the DCHECK invalid or is there a bug
-  // somewhere?
-  if (!(request->is_outermost_main_frame &&
-        IsRequestDestinationFrame(request->destination))) {
-    // Having the favicon request extend user gesture carryover doesn't make
-    // sense and causes flakiness in tests when the async favicon request
-    // unexpectedly extends the navigation chain.
-    if (request->has_user_gesture && !request->is_favicon) {
-      resource_load_info_notifier_wrapper
-          ->NotifyUpdateUserGestureCarryoverInfo();
-    }
-  }
-#endif
   code_cache_fetcher_ = CodeCacheFetcher::TryCreateAndStart(
       *request, code_cache_host, loading_task_runner_,
       blink::BindOnce(&ResourceRequestSender::DidReceiveCachedCode,

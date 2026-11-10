@@ -572,13 +572,8 @@ TEST_F(IDBRequestTest, EventsAfterEarlyDeathStopWithQueuedResult) {
 
 // This test is flaky on Marshmallow 64 bit Tester because the test is
 // crashing. See <http://crbug.com/1068057>.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_EventsAfterEarlyDeathStopWithTwoQueuedResults \
-  DISABLED_EventsAfterEarlyDeathStopWithTwoQueuedResults
-#else
 #define MAYBE_EventsAfterEarlyDeathStopWithTwoQueuedResults \
   EventsAfterEarlyDeathStopWithTwoQueuedResults
-#endif
 
 TEST_F(IDBRequestTest, MAYBE_EventsAfterEarlyDeathStopWithTwoQueuedResults) {
   V8TestingScope scope;

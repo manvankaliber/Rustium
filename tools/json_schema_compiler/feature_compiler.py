@@ -220,8 +220,6 @@ FEATURE_GRAMMAR = {
         'platform_app': 'Manifest::Type::kPlatformApp',
         'shared_module': 'Manifest::Type::kSharedModule',
         'theme': 'Manifest::Type::kTheme',
-        'login_screen_extension': 'Manifest::Type::kLoginScreenExtension',
-        'chromeos_system_extension': 'Manifest::Type::kChromeOSSystemExtension',
       },
       'allow_all': True,
     },
@@ -246,8 +244,6 @@ FEATURE_GRAMMAR = {
   'platforms': {
     list: {
       'enum_map': {
-        'chromeos': 'Feature::CHROMEOS_PLATFORM',
-        'desktop_android': 'Feature::DESKTOP_ANDROID_PLATFORM',
         'linux': 'Feature::LINUX_PLATFORM',
         'mac': 'Feature::MACOSX_PLATFORM',
         'win': 'Feature::WIN_PLATFORM',
@@ -259,8 +255,6 @@ FEATURE_GRAMMAR = {
     list: {
       'enum_map': {
         'regular': 'mojom::FeatureSessionType::kRegular',
-        'kiosk': 'mojom::FeatureSessionType::kKiosk',
-        'kiosk.autolaunched': 'mojom::FeatureSessionType::kAutolaunchedKiosk',
       }
     }
   },

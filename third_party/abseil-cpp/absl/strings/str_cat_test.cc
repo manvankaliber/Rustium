@@ -29,15 +29,8 @@
 #include "absl/strings/str_format.h"
 #include "absl/strings/string_view.h"
 
-#ifdef __ANDROID__
-// Android assert messages only go to system log, so death tests cannot inspect
-// the message for matching.
-#define ABSL_EXPECT_DEBUG_DEATH(statement, regex) \
-  EXPECT_DEBUG_DEATH(statement, ".*")
-#else
 #define ABSL_EXPECT_DEBUG_DEATH(statement, regex) \
   EXPECT_DEBUG_DEATH(statement, regex)
-#endif
 
 namespace {
 

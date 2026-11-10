@@ -73,10 +73,5 @@ void HostDisplayClient::DidCompleteSwapWithNewSize(const gfx::Size& size) {
 }
 #endif  // BUILDFLAG(IS_LINUX) && BUILDFLAG(SUPPORTS_OZONE_X11)
 
-#if BUILDFLAG(IS_CHROMEOS)
-void HostDisplayClient::SetPreferredRefreshRate(float refresh_rate) {
-  NOTREACHED();
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace viz

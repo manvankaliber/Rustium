@@ -42,9 +42,6 @@
 #include "absl/strings/string_view.h"
 #include "absl/types/source_location.h"
 
-#ifdef __ANDROID__
-#include <android/api-level.h>
-#endif
 
 namespace {
 using ::absl::log_internal::AsString;
@@ -1642,10 +1639,7 @@ TEST(ManipulatorLogFormatTest, ScientificFloat) {
   LOG(INFO) << std::scientific << value;
 }
 
-#if defined(__BIONIC__) && (!defined(__ANDROID_API__) || __ANDROID_API__ < 22)
-// Bionic doesn't support `%a` until API 22, so this prints 'a' even if the
-// C++ standard library implements it correctly (by forwarding to printf).
-#elif defined(__GLIBCXX__) && __cplusplus < 201402L
+#if defined(__GLIBCXX__) && __cplusplus < 201402L
 // libstdc++ shipped C++11 support without `std::hexfloat`.
 #else
 TEST(ManipulatorLogFormatTest, FixedAndScientificFloat) {
@@ -1676,10 +1670,7 @@ TEST(ManipulatorLogFormatTest, FixedAndScientificFloat) {
 }
 #endif
 
-#if defined(__BIONIC__) && (!defined(__ANDROID_API__) || __ANDROID_API__ < 22)
-// Bionic doesn't support `%a` until API 22, so this prints 'a' even if the C++
-// standard library supports `std::hexfloat` (by forwarding to printf).
-#elif defined(__GLIBCXX__) && __cplusplus < 201402L
+#if defined(__GLIBCXX__) && __cplusplus < 201402L
 // libstdc++ shipped C++11 support without `std::hexfloat`.
 #else
 TEST(ManipulatorLogFormatTest, HexfloatFloat) {

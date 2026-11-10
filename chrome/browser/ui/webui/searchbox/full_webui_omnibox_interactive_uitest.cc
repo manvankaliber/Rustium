@@ -194,10 +194,6 @@
 #include "ui/events/test/event_generator.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/ash_element_identifiers.h"
-#include "chrome/browser/ui/views/bubble/webui_bubble_dialog_view.h"
-#endif
 
 namespace {
 DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kPopupWebView);
@@ -1194,15 +1190,7 @@ class FullWebUIOmniboxInteractiveTestBase
   // On ChromeOS, waits until immersive fullscreen has hidden top chrome. A
   // no-op elsewhere.
   auto WaitForImmersiveTopChromeHidden() {
-#if BUILDFLAG(IS_CHROMEOS)
-    return Steps(PollUntil(
-        [this]() {
-          return !ImmersiveModeController::From(browser())->IsRevealed();
-        },
-        "WaitForImmersiveTopChromeHidden"));
-#else
     return Steps();
-#endif
   }
 
   auto WaitForBrowserActive() {
@@ -1780,13 +1768,8 @@ IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
 // Verifies that focusing the omnibox on the NTP, which has no page favicon to
 // show, shows the default search provider icon in the input row.
 // TODO(crbug.com/582497286): Failing on ChromeOS branded builds in dark mode.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_InputIconOnNtpFocusShowsDefaultSearchProviderIcon \
-  DISABLED_InputIconOnNtpFocusShowsDefaultSearchProviderIcon
-#else
 #define MAYBE_InputIconOnNtpFocusShowsDefaultSearchProviderIcon \
   InputIconOnNtpFocusShowsDefaultSearchProviderIcon
-#endif
 IN_PROC_BROWSER_TEST_P(
     FullWebUIOmniboxInteractiveTest,
     MAYBE_InputIconOnNtpFocusShowsDefaultSearchProviderIcon) {
@@ -1816,11 +1799,7 @@ IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
 // favicon gives way to the default search provider icon for a query, and to the
 // URL's favicon for a URL.
 // TODO(crbug.com/582497286): Failing on ChromeOS branded builds in dark mode.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_InputIconUpdatesWhileTyping DISABLED_InputIconUpdatesWhileTyping
-#else
 #define MAYBE_InputIconUpdatesWhileTyping InputIconUpdatesWhileTyping
-#endif
 IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
                        MAYBE_InputIconUpdatesWhileTyping) {
 #if BUILDFLAG(IS_LINUX) &&                                      \
@@ -1855,12 +1834,7 @@ IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
 // Verifies that the input row icon follows the selection while arrowing
 // between a URL match and a search match.
 // TODO(crbug.com/582497286): Failing on ChromeOS branded builds in dark mode.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_InputIconUpdatesWhileArrowing \
-  DISABLED_InputIconUpdatesWhileArrowing
-#else
 #define MAYBE_InputIconUpdatesWhileArrowing InputIconUpdatesWhileArrowing
-#endif
 IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
                        MAYBE_InputIconUpdatesWhileArrowing) {
   RunTestSequence(
@@ -3417,154 +3391,6 @@ IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
 }
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Verifies that Alt+Tab switches windows while the omnibox is focused. The
-// popup widget then holds activation for the browser window, and Ash must
-// still treat the browser window as the one Alt+Tab leaves.
-IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
-                       AltTabWhileFocusedSwitchesWindows) {
-  RunTestSequence(
-      OpenAndActivateSecondBrowserWindow(),
-      OpenInitialTabAndFocusOmnibox(kTab1, GURL("chrome://version/")),
-      WaitForPopupActive(), Do([this]() {
-        ui::test::EventGenerator generator(
-            BrowserView::GetBrowserViewForBrowser(browser())
-                ->GetNativeWindow()
-                ->GetRootWindow());
-        // Views uses VKEY_MENU for both Alt keys.
-        generator.PressKey(ui::VKEY_MENU, ui::EF_NONE);
-        generator.PressAndReleaseKey(ui::VKEY_TAB, ui::EF_ALT_DOWN);
-        generator.ReleaseKey(ui::VKEY_MENU, ui::EF_NONE);
-      }),
-      PollUntil([this]() { return IsBrowserOrPopupActive(second_browser_); },
-                "WaitForSecondBrowserActive"),
-      WaitForPopupDismissed(),
-      CheckResult([this]() { return IsBrowserOrPopupActive(second_browser_); },
-                  true, "SecondBrowserStaysActive"));
-}
-
-// Verifies that the popup stays over the location bar as the immersive reveal
-// slides top chrome out and back in.
-IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
-                       PopupFollowsLocationBarDuringImmersiveReveal) {
-  // The popup widget's offset from the location bar, if the popup is open.
-  auto get_popup_offset = [this]() -> std::optional<gfx::Vector2d> {
-    views::Widget* popup_widget = GetPopupWidget(browser());
-    if (!popup_widget || !popup_widget->IsVisible()) {
-      return std::nullopt;
-    }
-    const gfx::Point location_bar_origin =
-        BrowserView::GetBrowserViewForBrowser(browser())
-            ->GetLocationBar()
-            ->BoundsInScreen()
-            .origin();
-    return popup_widget->GetWindowBoundsInScreen().origin() -
-           location_bar_origin;
-  };
-  std::optional<gfx::Vector2d> initial_offset;
-  auto is_aligned = [&]() { return get_popup_offset() == initial_offset; };
-  auto is_revealed = [this]() {
-    return ImmersiveModeController::From(browser())->IsRevealed();
-  };
-  // `IsRevealed()` is true as soon as the reveal starts, so also wait for top
-  // chrome to finish sliding in, i.e. for the location bar to stop moving.
-  std::optional<int> location_bar_y;
-  auto location_bar_settled = [&]() {
-    const int y = BrowserView::GetBrowserViewForBrowser(browser())
-                      ->GetLocationBar()
-                      ->BoundsInScreen()
-                      .y();
-    const bool settled = location_bar_y == y;
-    location_bar_y = y;
-    return settled;
-  };
-  auto reveal = [&]() {
-    return ImmersiveModeController::From(browser())->GetRevealedLock(
-        ImmersiveModeController::ANIMATE_REVEAL_YES);
-  };
-  std::unique_ptr<ImmersiveRevealedLock> revealed_lock;
-  RunTestSequence(
-      FocusOmniboxOnInitialNtp(kTab1), WaitForPopupActive(),
-      Do([&]() { initial_offset = get_popup_offset(); }),
-      CheckResult([&]() { return initial_offset.has_value(); }, true,
-                  "HasInitialOffset"),
-      ClickWebPageBody(kTab1), WaitForPopupDismissed(),
-      Do([this]() { ui_test_utils::ToggleFullscreenModeAndWait(browser()); }),
-      WaitForImmersiveTopChromeHidden(), WaitForPopupTransitionLockout(),
-      // Reveal top chrome and leave a popup open for an unfocused draft.
-      Do([&]() { revealed_lock = reveal(); }),
-      PollUntil(is_revealed, "WaitForTopChromeRevealed"),
-      SendKeyPress(kBrowserViewElementId, ui::VKEY_L,
-                   ui::EF_PLATFORM_ACCELERATOR),
-      WaitForPopupActive(), InputWebUIText("test draft"),
-      WaitForWebUIInputValue("test draft"), ClickWebPageBody(kTab1),
-      WaitForVisibleOmniboxUnfocused(),
-      CheckPopupState(OmniboxPopupState::kFull),
-      // Slide top chrome out, then back in, with the popup open.
-      Do([&]() { revealed_lock.reset(); }), WaitForImmersiveTopChromeHidden(),
-      PollUntil(is_aligned, "WaitForPopupAlignedAfterHide"),
-      CheckPopupState(OmniboxPopupState::kFull), Do([&]() {
-        location_bar_y.reset();
-        revealed_lock = reveal();
-      }),
-      PollUntil(is_revealed, "WaitForTopChromeRevealedAgain"),
-      PollUntil(location_bar_settled, "WaitForLocationBarSettled"),
-      PollUntil(is_aligned, "WaitForPopupAlignedAfterReveal"),
-      CheckPopupState(OmniboxPopupState::kFull));
-}
-
-IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
-                       FullscreenBlursFocusedOmnibox) {
-  RunTestSequence(
-      FocusOmniboxOnInitialNtp(kTab1), WaitForPopupActive(),
-      Do([this]() { ui_test_utils::ToggleFullscreenModeAndWait(browser()); }),
-      WaitForPopupDismissed(), WaitForOmniboxFocus(false),
-      WaitForImmersiveTopChromeHidden());
-}
-
-IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
-                       FullscreenKeyBlursFocusedOmnibox) {
-  RunTestSequence(
-      FocusOmniboxOnInitialNtp(kTab1), WaitForPopupActive(), Do([this]() {
-        ui::test::EventGenerator generator(
-            BrowserView::GetBrowserViewForBrowser(browser())
-                ->GetNativeWindow()
-                ->GetRootWindow());
-        generator.PressAndReleaseKey(ui::VKEY_ZOOM, ui::EF_NONE);
-      }),
-      PollUntil([this]() { return browser()->GetWindow()->IsFullscreen(); },
-                "WaitForFullscreen"),
-      WaitForPopupDismissed(), WaitForOmniboxFocus(false),
-      WaitForImmersiveTopChromeHidden());
-}
-
-IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
-                       FullscreenBlursOmniboxAndKeepsDraftPopup) {
-  RunTestSequence(
-      FocusOmniboxOnInitialNtp(kTab1), WaitForPopupActive(),
-      InputWebUIText("test draft"), WaitForWebUIInputValue("test draft"),
-      Do([this]() { ui_test_utils::ToggleFullscreenModeAndWait(browser()); }),
-      WaitForVisibleOmniboxUnfocused(),
-      WaitForJsConditionAt(kPopupWebView, kPopupSearchbox,
-                           "(el) => el && !el.dropdownIsVisible"),
-      CheckPopupState(OmniboxPopupState::kFull), CheckUserInputInProgress(true),
-      WaitForWebUIInputValue("test draft"), WaitForImmersiveTopChromeHidden());
-}
-
-IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
-                       FullscreenAfterNewTabKeepsPopupClosed) {
-  RunTestSequence(
-      OpenInitialTabAndFocusOmnibox(kTab1, GURL("chrome://version/")),
-      WaitForPopupActive(), AddInstrumentedTab(kTab2, GURL("about:blank")),
-      WaitForWebContentsReady(kTab2),
-      WaitForPopupState(OmniboxPopupState::kFull), WaitForOmniboxFocus(true),
-      Do([this]() { ui_test_utils::ToggleFullscreenModeAndWait(browser()); }),
-      WaitForPopupState(OmniboxPopupState::kNone),
-      WaitForPopupTransitionLockout(),
-      CheckPopupState(OmniboxPopupState::kNone), WaitForOmniboxFocus(false));
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Verifies that while the popup is collapsed (no dropdown), it does not extend
 // below the location bar, so clicking just beneath it reaches the browser
@@ -5524,7 +5350,7 @@ IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
 
 // macOS and ChromeOS keep the location bar drawn in fullscreen (immersive
 // mode), so the popup isn't closed there.
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_MAC)
 // Verifies that entering fullscreen closes the popup and blurs the omnibox,
 // keeping the draft, and that leaving fullscreen reopens the popup with it.
 IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
@@ -5617,10 +5443,9 @@ IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
           },
           true, "OmniboxShowsPageB"));
 }
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 // ChromeOS keeps a draft popup open in fullscreen.
-#if !BUILDFLAG(IS_CHROMEOS)
 // Verifies that a fullscreen transition closes a popup kept open for an
 // unfocused draft, keeping the draft, and that the popup reopens unfocused once
 // it can show again: after the transition on macOS, where the location bar
@@ -5694,7 +5519,6 @@ IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxInteractiveTest,
           },
           false, "PopupWidgetHidden"));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_MAC)
 // Verifies that tab fullscreen, which hides the toolbar, keeps a popup closed
@@ -7187,45 +7011,6 @@ IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxContextMenuInteractiveTest,
       WaitForWebContentsReady(kTab2, settings_url));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Verifies that an emoji picked in the system emoji picker opened from the
-// context menu's Emoji item is inserted into the WebUI input. The picker is
-// a separate window that takes activation from the popup while it's open, and
-// inserts the emoji into whichever text input is focused once it closes.
-IN_PROC_BROWSER_TEST_P(FullWebUIOmniboxContextMenuInteractiveTest,
-                       EmojiPickerInsertsEmojiIntoWebUIInput) {
-  if (IsMenuSimplificationEnabled()) {
-    GTEST_SKIP() << "Menu simplification drops the Emoji item.";
-  }
-  DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kEmojiPickerWebView);
-  // U+1F600 GRINNING FACE, as a JS string literal escape.
-  static constexpr char kEmoji[] = "\\u{1F600}";
-  RunTestSequence(
-      OpenPopupForContextMenu(), RightClickWebUIInputAndWaitForContextMenu(),
-      ClickContextMenuItem(IDS_CONTENT_CONTEXT_EMOJI),
-      InAnyContext(WaitForShow(ash::kEmojiPickerElementId)),
-      InAnyContext(InstrumentNonTabWebView(
-          kEmojiPickerWebView, base::BindLambdaForTesting([]() -> views::View* {
-            auto* const el =
-                ui::ElementTracker::GetElementTracker()->GetElementInAnyContext(
-                    ash::kEmojiPickerElementId);
-            auto* const picker =
-                el ? views::AsViewClass<WebUIBubbleDialogView>(
-                         el->AsA<views::TrackedElementViews>()->view())
-                   : nullptr;
-            return picker ? picker->web_view() : nullptr;
-          }))),
-      // Pick the emoji the way clicking it in the picker does.
-      InSameContext(ExecuteJs(
-          kEmojiPickerWebView,
-          base::StringPrintf(R"(() => document.querySelector('emoji-picker-app')
-                                    .apiProxy.insertEmoji('%s', false, 0))",
-                             kEmoji))),
-      InAnyContext(WaitForHide(ash::kEmojiPickerElementId)),
-      WaitForWebUIInputValue(kEmoji), CheckWebUIInputFocus(true),
-      CheckPopupState(OmniboxPopupState::kFull));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 INSTANTIATE_TEST_SUITE_P(
     All,

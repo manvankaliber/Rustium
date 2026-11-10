@@ -14,7 +14,7 @@
 #include "base/time/time.h"
 #include "net/ssl/client_cert_store.h"
 #include "remoting/base/rsa_key_pair.h"
-#include "remoting/host/chromeos/chromeos_enterprise_params.h"
+#include "remoting/host/enterprise_session_params.h"
 #include "remoting/protocol/errors.h"
 
 namespace remoting {
@@ -47,7 +47,7 @@ class RegisterSupportHostRequest {
       std::unique_ptr<net::ClientCertStore> client_cert_store,
       scoped_refptr<RsaKeyPair> key_pair,
       const std::string& authorized_helper,
-      std::optional<ChromeOsEnterpriseParams> params,
+      std::optional<EnterpriseSessionParams> params,
       RegisterCallback callback) = 0;
 };
 

@@ -42,23 +42,23 @@ class StarlarkConversionsTest(unittest.TestCase):
     self.assertOutputEquals(
       starlark_conversions.convert_arg(
         _to_pyl_value(
-          repr('$$MAGIC_SUBSTITUTION_AndroidDesktopTelemetryRemote')
+          repr('$$MAGIC_SUBSTITUTION_GPUExpectedVendorId')
         )
       ),
-      'targets.magic_args.ANDROID_DESKTOP_TELEMETRY_REMOTE',
+      'targets.magic_args.GPU_EXPECTED_VENDOR_ID',
     )
 
   def test_convert_args(self):
     self.assertOutputEquals(
       starlark_conversions.convert_args(
         _to_pyl_value(
-          repr(['foo', '$$MAGIC_SUBSTITUTION_AndroidDesktopTelemetryRemote'])
+          repr(['foo', '$$MAGIC_SUBSTITUTION_GPUExpectedVendorId'])
         )
       ),
       textwrap.dedent("""\
             [
               "foo",
-              targets.magic_args.ANDROID_DESKTOP_TELEMETRY_REMOTE,
+              targets.magic_args.GPU_EXPECTED_VENDOR_ID,
             ]"""),
     )
 

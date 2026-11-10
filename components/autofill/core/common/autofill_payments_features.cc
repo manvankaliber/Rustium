@@ -37,8 +37,7 @@ BASE_FEATURE(kAutofillDisableWalletDirectOffersLocaleCountryCheckForTesting,
 // When enabled, Chrome will extract the checkout amount from the checkout
 // page using server-side AI.
 BASE_FEATURE(kAutofillEnableAiBasedAmountExtraction,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -53,8 +52,7 @@ BASE_FEATURE(kAutofillEnableAiCardRecommendation,
 // When enabled, Chrome will extract the checkout amount from the checkout page
 // of the allowlisted merchant websites.
 BASE_FEATURE(kAutofillEnableAmountExtraction,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -77,17 +75,10 @@ BASE_FEATURE(kAutofillEnableBnplAffirmInternationalization,
 BASE_FEATURE(kAutofillEnableBnplKlarnaInternationalization,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_IOS)
-// When enabled, users are given the bottom sheet suggestion to scan credit
-// card, and save and fill the card information.
-BASE_FEATURE(kAutofillEnableBottomSheetScanCardAndFill,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // When enabled, buy now pay later (BNPL) in Autofill will be offered.
 BASE_FEATURE(kAutofillEnableBuyNowPayLater,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -97,8 +88,7 @@ BASE_FEATURE(kAutofillEnableBuyNowPayLater,
 // When enabled, additional steps are required to autofill buy now pay later
 // (BNPL) issuers that are externally linked.
 BASE_FEATURE(kAutofillEnableBuyNowPayLaterForExternallyLinked,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -108,8 +98,7 @@ BASE_FEATURE(kAutofillEnableBuyNowPayLaterForExternallyLinked,
 // When enabled, buy now pay later (BNPL) for Klarna in Autofill will be
 // offered.
 BASE_FEATURE(kAutofillEnableBuyNowPayLaterForKlarna,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -118,8 +107,7 @@ BASE_FEATURE(kAutofillEnableBuyNowPayLaterForKlarna,
 
 // When enabled, buy now pay later (BNPL) data will be synced to Chrome clients.
 BASE_FEATURE(kAutofillEnableBuyNowPayLaterSyncing,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -129,8 +117,7 @@ BASE_FEATURE(kAutofillEnableBuyNowPayLaterSyncing,
 // When enabled, the second line string in a BNPL suggestion is updated to
 // include the issuer names for better brand recognition.
 BASE_FEATURE(kAutofillEnableBuyNowPayLaterUpdatedSuggestionSecondLineString,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -140,17 +127,12 @@ BASE_FEATURE(kAutofillEnableBuyNowPayLaterUpdatedSuggestionSecondLineString,
 // When enabled, card benefits offered by American Express will be shown in
 // Payments Autofill UI.
 BASE_FEATURE(kAutofillEnableCardBenefitsForAmericanExpress,
-#if BUILDFLAG(IS_IOS)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // When enabled, card benefits offered by BMO will be shown in Payments Autofill
 // UI.
 BASE_FEATURE(kAutofillEnableCardBenefitsForBmo,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -160,11 +142,7 @@ BASE_FEATURE(kAutofillEnableCardBenefitsForBmo,
 // When enabled, Chrome will show metadata along with other card information
 // when the virtual card is presented to users.
 BASE_FEATURE(kAutofillEnableCardBenefitsSync,
-#if BUILDFLAG(IS_IOS)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // When enabled, server card retrieval will ensure a card is verified via CVC on
 // a device before proceeding with risk-based or biometric authentication.
@@ -180,11 +158,7 @@ BASE_FEATURE(kAutofillEnableCardholderNameFixFlow,
 // When enabled, this will enhance the CVV storage project. The enhancement will
 // enable CVV storage suggestions for standalone CVC fields.
 BASE_FEATURE(kAutofillEnableCvcStorageAndFillingStandaloneFormEnhancement,
-#if BUILDFLAG(IS_IOS)
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#else
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 // When enabled, card flat rate benefit will not be shown on merchants in the
 // blocklist.
@@ -194,8 +168,7 @@ BASE_FEATURE(kAutofillEnableFlatRateCardBenefitsBlocklist,
 // When enabled, flat rate card benefits sourced from Curinos will be shown in
 // Payments Autofill UI.
 BASE_FEATURE(kAutofillEnableFlatRateCardBenefitsFromCurinos,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -205,8 +178,7 @@ BASE_FEATURE(kAutofillEnableFlatRateCardBenefitsFromCurinos,
 // When enabled, server card retrieval will begin with a risk-based check
 // instead of jumping straight to CVC or biometric auth.
 BASE_FEATURE(kAutofillEnableFpanRiskBasedAuthentication,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_IOS) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -245,8 +217,7 @@ BASE_FEATURE(kAutofillEnablePayNowPayLaterTabs,
 // When enabled, users that have previously turned off payments autofill will be
 // prompted to turn it back on in instances where they can benefit from it.
 BASE_FEATURE(kAutofillEnableResurrectingPaymentsUsers,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -261,12 +232,6 @@ const base::FeatureParam<int> kAutofillEnableResurrectingPaymentsUsersTreatment{
 BASE_FEATURE(kAutofillEnableScanCardOptionWhenNoCardsSaved,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// When enabled, show Pix settings as a separate preference menu item instead of
-// bundling them together with the non-card payment preference menu item.
-BASE_FEATURE(kAutofillEnableSeparatePixPreferenceItem,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // When enabled, travel category and merchant benefits sourced from Curinos will
 // be shown in Autofill.
@@ -277,8 +242,7 @@ BASE_FEATURE(kAutofillEnableTravelCategoryAndMerchantBenefitsFromCurinos,
 // retrieval if a challenge is required, 3DS authentication is available for
 // the card, and FIDO is not.
 BASE_FEATURE(kAutofillEnableVcn3dsAuthentication,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -323,12 +287,6 @@ BASE_FEATURE(kAutofillEnableWalletGmailOffers,
 BASE_FEATURE(kAutofillEnableWalletReminderNotice,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_IOS)
-// When enabled, skips empty CVCs in AutofillWalletCredentialSyncBridge instead
-// of failing a CHECK.
-BASE_FEATURE(kAutofillIgnoreEmptyCvcsInSyncBridge,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // When enabled, ignores the strike database checks for payments churned users.
 BASE_FEATURE(kAutofillIgnorePaymentsChurnedUsersStrikesForTesting,
@@ -344,8 +302,7 @@ BASE_FEATURE(kAutofillParseLegalMessageLines, base::FEATURE_ENABLED_BY_DEFAULT);
 // corresponding issuer's blocklist instead of allowlist to check for website
 // eligibility.
 BASE_FEATURE(kAutofillPreferBuyNowPayLaterBlocklists,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -358,28 +315,12 @@ BASE_FEATURE(kAutofillPreferBuyNowPayLaterBlocklists,
 BASE_FEATURE(kAutofillRequireSecureContextForIbanManualFilling,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_IOS)
-// When enabled, the strike limit for showing the save card bottom sheet on iOS
-// is increased from 1 to the value specified in the parameter and the default
-// value of the strike is 3.
-BASE_FEATURE(kAutofillSaveCardBottomSheetStrikeLimitIos,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-const base::FeatureParam<int> kMaxStrikesForSaveCardBottomSheetIos{
-    &kAutofillSaveCardBottomSheetStrikeLimitIos,
-    "max_strikes_for_bottom_sheet_ios", 3};
-#endif
 
 // Kill switch, when enabled, will prevent the display of the save card bubble
 // within a tab modal pop-up window.
 BASE_FEATURE(kAutofillSkipSaveCardForTabModalPopup,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// When enabled, eWallet accounts are synced from the Google Payments servers
-// and displayed on the payment methods settings page.
-BASE_FEATURE(kAutofillSyncEwalletAccounts, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Controls offering credit card upload to Google Payments. Cannot ever be
 // ENABLED_BY_DEFAULT because the feature state depends on the user's country.

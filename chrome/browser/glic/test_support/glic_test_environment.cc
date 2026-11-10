@@ -25,86 +25,7 @@
 #include "net/test/embedded_test_server/embedded_test_server.h"
 #include "url/url_util.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/browser_context_helper/browser_context_helper.h"
-#include "chromeos/constants/chromeos_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "base/android/jni_array.h"
-#include "base/android/jni_string.h"
-#include "base/android/scoped_java_ref.h"
-#include "components/signin/public/identity_manager/identity_manager.h"
-#include "components/signin/public/identity_manager/identity_test_utils.h"
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-#include "components/signin/public/android/jni_headers/AccountCapabilities_jni.h"
-#include "components/signin/public/android/jni_headers/AccountInfo_jni.h"
-#pragma clang diagnostic pop
-
-namespace {
-
-// Defined locally to avoid changes to identity_test_utils.h/cc.
-void AddTestAccountToFakeAccountManagerFacade(const std::string& email,
-                                              const std::string& gaia_id) {
-  JNIEnv* env = base::android::AttachCurrentThread();
-
-  // 1. Construct GaiaId
-  GaiaId gaia_id_cpp(gaia_id);
-
-  // 2. Construct CoreAccountId
-  CoreAccountId core_account_id_cpp = CoreAccountId::FromGaiaId(gaia_id_cpp);
-
-  // 3. Construct AccountCapabilities (empty)
-  std::vector<std::string> cap_names;
-  std::vector<bool> cap_values;
-  base::android::ScopedJavaLocalRef<jobjectArray> j_cap_names =
-      base::android::ToJavaArrayOfStrings(env, cap_names);
-  base::android::ScopedJavaLocalRef<jbooleanArray> j_cap_values =
-      base::android::ToJavaBooleanArray(env, cap_values);
-  base::android::ScopedJavaLocalRef<jobject> account_capabilities_obj =
-      signin::Java_AccountCapabilities_Constructor(env, j_cap_names,
-                                                   j_cap_values);
-
-  // 4. Construct AccountInfo
-  base::android::ScopedJavaLocalRef<jobject> account_info_obj =
-      signin::Java_AccountInfo_Constructor(
-          env, core_account_id_cpp, email, gaia_id_cpp, "Test User", "Test",
-          base::android::ScopedJavaLocalRef<jstring>(),  // hostedDomain
-          base::android::ScopedJavaLocalRef<jobject>(),  // accountImage
-          account_capabilities_obj);
-
-  // 5. Get AccountManagerFacadeProvider class and getInstance method
-  base::android::ScopedJavaLocalRef<jclass> provider_class =
-      base::android::GetClass(
-          env, "org/chromium/components/signin/AccountManagerFacadeProvider");
-  jmethodID get_instance_method =
-      base::android::MethodID::Get<base::android::MethodID::TYPE_STATIC>(
-          env, provider_class.obj(), "getInstance",
-          "()Lorg/chromium/components/signin/AccountManagerFacade;");
-
-  // 6. Get AccountManagerFacade instance
-  base::android::ScopedJavaLocalRef<jobject> facade_obj = jni_zero::AdoptRef(
-      env,
-      env->CallStaticObjectMethod(provider_class.obj(), get_instance_method));
-
-  // 7. Get addAccount method (FakeAccountManagerFacade specific)
-  base::android::ScopedJavaLocalRef<jclass> facade_class =
-      jni_zero::AdoptRef(env, env->GetObjectClass(facade_obj.obj()));
-  jmethodID add_account_method =
-      base::android::MethodID::Get<base::android::MethodID::TYPE_INSTANCE>(
-          env, facade_class.obj(), "addAccount",
-          "(Lorg/chromium/components/signin/base/AccountInfo;)V");
-
-  // 8. Call addAccount
-  env->CallVoidMethod(facade_obj.obj(), add_account_method,
-                      account_info_obj.obj());
-}
-
-}  // namespace
-#endif
 
 namespace {
 
@@ -128,13 +49,7 @@ void ServeGlicFiles(net::test_server::EmbeddedTestServer* server,
   server->ServeFilesFromDirectory(
       base::PathService::CheckedGet(base::DIR_ASSETS)
           .AppendASCII("gen/chrome/test/data/webui/glic/"));
-#if BUILDFLAG(IS_ANDROID)
-  server->ServeFilesFromDirectory(
-      base::PathService::CheckedGet(base::DIR_ASSETS)
-          .AppendASCII("chrome/test/data/webui/glic/"));
-#else
   server->ServeFilesFromSourceDirectory("chrome/test/data/webui/glic/");
-#endif
 }
 
 }  // namespace
@@ -226,9 +141,6 @@ std::vector<base::test::FeatureRef> GetDefaultEnabledGlicTestFeatures() {
           // enabling is required here because some tests instantiate their own
           // ScopedFeatureList which can clobber the field trial testing config.
           features::kGlicAnchorEntryPointForOnboardedUsers,
-#if BUILDFLAG(IS_CHROMEOS)
-          chromeos::features::kFeatureManagementGlic
-#endif  // BUILDFLAG(IS_CHROMEOS)
   };
 }
 std::vector<base::test::FeatureRef> GetDefaultDisabledGlicTestFeatures() {
@@ -251,13 +163,6 @@ GlicTestEnvironment::GlicTestEnvironment(
               &GlicTestEnvironment::OnWillCreateBrowserContextKeyedServices,
               base::Unretained(this)));
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, SigninManager validates the account with the OS AccountManager
-  // (mediated by AccountManagerFacade). We must set up the fake facade.
-  // The account seeding is done in OnWillCreateBrowserContextKeyedServices
-  // to run after TestingProfile::Init resets the facade.
-  signin::SetUpFakeAccountManagerFacade();
-#endif
 }
 
 GlicTestEnvironment::~GlicTestEnvironment() = default;
@@ -419,33 +324,6 @@ GlicTestEnvironmentService::GlicTestEnvironmentService(Profile* profile)
     SetResultForFutureCookieSync(*config.override_cookie_sync_result);
   }
   if (config.force_signin_and_glic_capability) {
-#if BUILDFLAG(IS_CHROMEOS)
-    // SigninWithPrimaryAccount below internally runs RunLoop to wait for an
-    // async task completion. This is the test only behavior.
-    // However, that has side effect that other tasks in the queue also runs.
-    // Specifically, some of the queued tasks will require communicating with
-    // SigninBrowserContext, and if it's not existing, the instance is created.
-    // Because this running inside a KeyedService construction,
-    // KeyedServiceTemplatedFactory temporarily keeps the map entry between
-    // the current browser context and the info of this KeyedService instance.
-    // However, the entry is invalidated if another BrowserContext is created,
-    // like SigninBrowserContext case explained above, regardless of whether
-    // the newly created BrowserContext will create this service or not.
-    // Thus, after returning from this function, it will cause crashes.
-    // To avoid such crashes, while running the async task, we temporarily
-    // disable the creation of new BrowserContext for the workaround.
-    // See also crbug.com/460334478 for details.
-    auto disabled = ash::BrowserContextHelper::
-        DisableImplicitBrowserContextCreationForTest();
-#endif
-#if BUILDFLAG(IS_ANDROID)
-    // Seed the account into the FakeAccountManagerFacade.
-    // This is required on Android because SigninManager checks the facade
-    // directly.
-    AddTestAccountToFakeAccountManagerFacade(
-        "glic-test@example.com",
-        signin::GetTestGaiaIdForEmail("glic-test@example.com").ToString());
-#endif
     auto* identity_manager = IdentityManagerFactory::GetForProfile(profile);
     if (!identity_manager->HasPrimaryAccount(signin::ConsentLevel::kSignin)) {
       AccountInfo::Builder builder(signin::MakePrimaryAccountAvailable(

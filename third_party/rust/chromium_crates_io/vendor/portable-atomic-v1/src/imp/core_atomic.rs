@@ -50,12 +50,7 @@ impl<T> AtomicPtr<T> {
         }
     }
 }
-#[cfg(not(all(
-    target_arch = "arm",
-    not(any(miri, portable_atomic_sanitize_thread)),
-    any(target_os = "linux", target_os = "android"),
-    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
-)))]
+#[cfg(not(all(target_arch = "arm", not(any(miri, portable_atomic_sanitize_thread)), target_os = "linux", not(any(target_feature = "v6", portable_atomic_target_feature = "v6")))))]
 impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(

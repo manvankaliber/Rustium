@@ -7,7 +7,6 @@ ci/win-presubmit
 try/3pp-windows-amd64-packager
 try/gn-args-verifier
 try/linux-arm64-official
-try/linux-chromeos-clobber-rel
 try/linux-clobber-rel
 try/linux-official
 try/linux-presubmit

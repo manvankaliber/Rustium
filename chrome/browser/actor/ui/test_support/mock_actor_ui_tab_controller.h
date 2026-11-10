@@ -56,7 +56,6 @@ class MockActorUiTabController : public ActorUiTabControllerInterface {
               (tabs::TabInterface*),
               (override));
 
-#if !BUILDFLAG(IS_ANDROID)
   MOCK_METHOD(void, OnWebContentsAttached, (), (override));
   MOCK_METHOD(void, OnViewBoundsChanged, (), (override));
 
@@ -96,7 +95,6 @@ class MockActorUiTabController : public ActorUiTabControllerInterface {
               RegisterCursorChipTextChange,
               (CursorChipTextChangeCallback callback),
               (override));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
  private:
   base::WeakPtrFactory<MockActorUiTabController> weak_factory_{this};

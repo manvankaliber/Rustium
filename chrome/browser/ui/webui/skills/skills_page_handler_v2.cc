@@ -299,7 +299,6 @@ void SkillsPageHandlerV2::SignIn() {
   CoreAccountInfo primary_account_info =
       identity_manager_->GetPrimaryAccountInfo(signin::ConsentLevel::kSignin);
 
-#if !BUILDFLAG(IS_ANDROID)
   if (!primary_account_info.IsEmpty()) {
     signin_ui_util::ShowReauthForAccount(&profile_.get(),
                                          primary_account_info.email,
@@ -311,7 +310,6 @@ void SkillsPageHandlerV2::SignIn() {
         signin_metrics::AccessPoint::kSkills);
 #endif
   }
-#endif
 }
 
 BrowserWindowInterface* SkillsPageHandlerV2::GetBrowserWindow() {

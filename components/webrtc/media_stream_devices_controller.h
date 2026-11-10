@@ -92,12 +92,6 @@ class MediaStreamDevicesController {
       const content::MediaStreamRequest& request,
       blink::mojom::MediaStreamRequestResult* denial_reason) const;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Returns true if clicking allow on the dialog should give access to the
-  // requested devices.
-  bool IsUserAcceptAllowedOnAndroid(
-      blink::PermissionType permission_descriptor) const;
-#endif
 
   bool PermissionIsBlockedForReason(
       blink::PermissionType permission_descriptor,
@@ -130,11 +124,6 @@ class MediaStreamDevicesController {
   // The original request for access to devices.
   const content::MediaStreamRequest request_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // The URL of the primary main frame at the time the request was made, if the
-  // request originated from the primary main frame.
-  std::optional<GURL> request_main_frame_url_;
-#endif
 
   // The callback that needs to be run to notify WebRTC of whether access to
   // audio/video devices was granted or not.

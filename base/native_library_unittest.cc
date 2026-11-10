@@ -43,8 +43,6 @@ TEST(NativeLibraryTest, GetNativeLibraryName) {
   const char kExpectedName[] =
 #if BUILDFLAG(IS_WIN)
       "mylib.dll";
-#elif BUILDFLAG(IS_IOS)
-      "mylib.framework/mylib";
 #elif BUILDFLAG(IS_MAC)
       "libmylib.dylib";
 #elif BUILDFLAG(IS_POSIX)
@@ -57,8 +55,6 @@ TEST(NativeLibraryTest, GetLoadableModuleName) {
   const char kExpectedName[] =
 #if BUILDFLAG(IS_WIN)
       "mylib.dll";
-#elif BUILDFLAG(IS_IOS)
-      "mylib.framework";
 #elif BUILDFLAG(IS_MAC)
       "mylib.so";
 #elif BUILDFLAG(IS_POSIX)
@@ -75,8 +71,6 @@ TEST(NativeLibraryTest, GetLoadableModuleName) {
 const char kTestLibraryName[] =
 #if BUILDFLAG(IS_WIN)
     "test_shared_library.dll";
-#elif BUILDFLAG(IS_IOS)
-    "Frameworks/test_shared_library_ios.framework/test_shared_library_ios";
 #elif BUILDFLAG(IS_MAC)
     "libtest_shared_library.dylib";
 #elif BUILDFLAG(IS_POSIX)
@@ -113,7 +107,6 @@ class TestLibrary {
 
 // NativeLibraaryTest.LoadLibrary is failing on M tablets only.
 // crbug/641309
-#if !BUILDFLAG(IS_ANDROID)
 
 // Verifies that we can load a native library and resolve its exported symbols.
 TEST(NativeLibraryTest, LoadLibrary) {
@@ -188,7 +181,6 @@ TEST(NativeLibraryTest, LoadWithOptions_VerifySignatureDefault) {
 
 #endif  // BUILDFLAG(IS_WIN)
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #endif  // !defined(ADDRESS_SANITIZER)
 

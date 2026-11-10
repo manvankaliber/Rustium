@@ -194,23 +194,6 @@ XrResult XRAPI_PTR xrCreateInstance(const XrInstanceCreateInfo* create_info,
 #if BUILDFLAG(IS_WIN)
   RETURN_IF(create_info->next != nullptr, XR_ERROR_VALIDATION_FAILURE,
             "XrInstanceCreateInfo next is not nullptr");
-#elif BUILDFLAG(IS_ANDROID)
-  RETURN_IF(create_info->next == nullptr, XR_ERROR_VALIDATION_FAILURE,
-            "XrInstanceCreateInfo next is nullptr");
-  const XrInstanceCreateInfoAndroidKHR* android_create_info =
-      reinterpret_cast<const XrInstanceCreateInfoAndroidKHR*>(
-          create_info->next);
-  RETURN_IF(
-      android_create_info->type != XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR,
-      XR_ERROR_VALIDATION_FAILURE,
-      "XrInstanceCreateInfoAndroidKHR type invalid");
-  RETURN_IF(android_create_info->applicationVM == nullptr,
-            XR_ERROR_VALIDATION_FAILURE,
-            "XrInstanceCreateInfoAndroidKHR applicationVM is nullptr");
-  // For testing purposes, assume applicationActivity is provided.
-  RETURN_IF(android_create_info->applicationActivity == nullptr,
-            XR_ERROR_VALIDATION_FAILURE,
-            "XrInstanceCreateInfoAndroidKHR applicationActivity is nullptr");
 #endif
 
   RETURN_IF(create_info->createFlags != 0, XR_ERROR_VALIDATION_FAILURE,
@@ -318,18 +301,6 @@ XrResult XRAPI_PTR xrCreateSession(XrInstance instance,
   GetTestHelper().SetVulkanDevice(binding->physicalDevice, binding->device,
                                   binding->queueFamilyIndex,
                                   binding->queueIndex);
-#elif BUILDFLAG(IS_ANDROID)
-  const XrGraphicsBindingOpenGLESAndroidKHR* binding =
-      static_cast<const XrGraphicsBindingOpenGLESAndroidKHR*>(
-          create_info->next);
-  RETURN_IF(binding == nullptr, XR_ERROR_VALIDATION_FAILURE,
-            "XrGraphicsBindingOpenGLESAndroidKHR is nullptr");
-  RETURN_IF(binding->type != XR_TYPE_GRAPHICS_BINDING_OPENGL_ES_ANDROID_KHR,
-            XR_ERROR_VALIDATION_FAILURE,
-            "XrGraphicsBindingOpenGLESAndroidKHR type invalid");
-  RETURN_IF(binding->next != nullptr, XR_ERROR_VALIDATION_FAILURE,
-            "XrGraphicsBindingOpenGLESAndroidKHR next is not nullptr");
-  GetTestHelper().SetOpenGLESInfo(binding->display, binding->context);
 #endif
   RETURN_IF(session == nullptr, XR_ERROR_VALIDATION_FAILURE,
             "XrSession is nullptr");
@@ -357,10 +328,6 @@ XrResult XRAPI_PTR xrCreateSwapchain(XrSession session,
             "XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT");
 #if BUILDFLAG(IS_WIN)
   RETURN_IF(create_info->format != DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
-            XR_ERROR_SWAPCHAIN_FORMAT_UNSUPPORTED,
-            "XrSwapchainCreateInfo format unsupported");
-#elif BUILDFLAG(IS_ANDROID)
-  RETURN_IF(create_info->format != OpenXrTestHelper::kSwapchainFormat,
             XR_ERROR_SWAPCHAIN_FORMAT_UNSUPPORTED,
             "XrSwapchainCreateInfo format unsupported");
 #endif
@@ -735,9 +702,6 @@ XrResult XRAPI_PTR xrEnumerateSwapchainFormats(XrSession session,
 #if BUILDFLAG(IS_WIN)
   // This is what is hardcoded in `OpenXrGraphicsBindingD3D11`.
   formats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-#elif BUILDFLAG(IS_ANDROID)
-  // This is what is hardcoded in `OpenXrGraphicsBindingOpenGLES`.
-  formats[0] = OpenXrTestHelper::kSwapchainFormat;
 #elif BUILDFLAG(IS_LINUX)
   // SAFETY: `formats` is a caller-provided array of at least
   // `format_capacity_input` elements, which the RETURN_IFs above confirmed
@@ -796,28 +760,6 @@ xrEnumerateSwapchainImages(XrSwapchain swapchain,
               "XrSwapchainImageD3D11KHR next is not nullptr");
 
     image.texture = textures[i].Get();
-  }
-#elif BUILDFLAG(IS_ANDROID)
-  const std::vector<uint32_t>& texture_ids =
-      GetTestHelper().GetSwapchainTextureIDs(swapchain);
-  DCHECK_EQ(texture_ids.size(), image_capacity_input);
-
-  // SAFETY: Test-only implementation of a C-Style API that thus has to provide
-  // arrays as a pointer and a size. The sole callers are our own product/test
-  // code.
-  auto images_span = UNSAFE_BUFFERS(
-      base::span(reinterpret_cast<XrSwapchainImageOpenGLESKHR*>(images),
-                 image_capacity_input));
-  for (uint32_t i = 0; i < image_capacity_input; i++) {
-    XrSwapchainImageOpenGLESKHR& image = images_span[i];
-
-    RETURN_IF(image.type != XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR,
-              XR_ERROR_VALIDATION_FAILURE,
-              "XrSwapchainImageOpenGLESKHR type invalid");
-    RETURN_IF(image.next != nullptr, XR_ERROR_VALIDATION_FAILURE,
-              "XrSwapchainImageOpenGLESKHR next is not nullptr");
-
-    image.image = texture_ids[i];
   }
 #elif BUILDFLAG(IS_LINUX)
   // SAFETY: Test-only implementation of a C-Style API that thus has to provide
@@ -996,19 +938,6 @@ xrGetCurrentInteractionProfile(XrSession session,
   return XR_SUCCESS;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-XrResult XRAPI_PTR xrGetOpenGLESGraphicsRequirementsKHR(
-    XrInstance instance,
-    XrSystemId system_id,
-    XrGraphicsRequirementsOpenGLESKHR* graphics_requirements) {
-  DVLOG(2) << __FUNCTION__;
-  RETURN_IF_XR_FAILED(GetTestHelper().ValidateInstance(instance));
-  RETURN_IF_XR_FAILED(GetTestHelper().ValidateSystemId(system_id));
-  RETURN_IF(graphics_requirements == nullptr, XR_ERROR_VALIDATION_FAILURE,
-            "graphicsRequirements object must not be nullptr");
-  return XR_SUCCESS;
-}
-#endif
 
 XrResult XRAPI_PTR
 xrGetReferenceSpaceBoundsRect(XrSession session,
@@ -1566,9 +1495,6 @@ XrResult XRAPI_PTR xrGetInstanceProcAddr(XrInstance instance,
   TRY_LOAD_METHOD(xrGetActionStateVector2f);
   TRY_LOAD_METHOD(xrGetActionStatePose);
   TRY_LOAD_METHOD(xrGetCurrentInteractionProfile);
-#if BUILDFLAG(IS_ANDROID)
-  TRY_LOAD_METHOD(xrGetOpenGLESGraphicsRequirementsKHR);
-#endif
   TRY_LOAD_METHOD(xrGetReferenceSpaceBoundsRect);
   TRY_LOAD_METHOD(xrGetViewConfigurationProperties);
   TRY_LOAD_METHOD(xrGetVisibilityMaskKHR);

@@ -107,11 +107,6 @@
 #include "third_party/blink/public/mojom/permissions/permission_status.mojom.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/app_list/search/essential_search/essential_search_manager.h"
-#include "chrome/browser/browser_process.h"
-#include "chrome/browser/browser_process_platform_part.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/browser/autocomplete/keyword_extensions_delegate_impl.h"
@@ -119,10 +114,6 @@
 #include "extensions/common/extension_features.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "chrome/browser/lens/jni_headers/LensSupportStatusHelper_jni.h"
-#else  // BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_tasks/contextual_tasks_utils.h"
 #include "chrome/browser/lifetime/application_lifetime_desktop.h"
 #include "chrome/browser/sharing_hub/sharing_hub_features.h"
@@ -139,11 +130,9 @@
 #include "chrome/browser/upgrade_detector/upgrade_detector.h"
 #include "components/contextual_search/contextual_search_service.h"
 #include "components/lens/lens_overlay_invocation_source.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 // This list should be kept in sync with chrome/common/webui_url_constants.h.
 // Only include useful sub-pages, confirmation alerts are not useful.
 constexpr auto kChromeSettingsSubPages = std::to_array<base::cstring_view>({
@@ -158,11 +147,9 @@ constexpr auto kChromeSettingsSubPages = std::to_array<base::cstring_view>({
     chrome::kSearchEnginesSubPage,
     chrome::kSecuritySubPage,
     chrome::kSyncSetupSubPage,
-#if !BUILDFLAG(IS_CHROMEOS)
     chrome::kImportDataSubPage,
     chrome::kManageProfileSubPage,
     chrome::kPeopleSubPage,
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 });
 
 content::WebContents* GetWebContents(
@@ -184,7 +171,6 @@ lens::LensSearchboxController* GetLensSearchboxController(
   }
   return nullptr;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 constexpr std::string_view kEnglishLanguageCode = "en";
 constexpr std::string kEnglishExpansionCountryCodes[] = {"au", "ca", "gb",
@@ -244,11 +230,7 @@ ChromeAutocompleteProviderClient::ChromeAutocompleteProviderClient(
           unified_consent::UrlKeyedDataCollectionConsentHelper::
               NewPersonalizedDataCollectionConsentHelper(
                   SyncServiceFactory::GetForProfile(profile_))),
-#if BUILDFLAG(IS_ANDROID)
-      tab_matcher_(GetTemplateURLService(), profile_, web_contents_getter_),
-#else
       tab_matcher_(GetTemplateURLService(), profile_),
-#endif
       storage_partition_(nullptr),
       omnibox_triggered_feature_service_(
           std::make_unique<OmniboxTriggeredFeatureService>()) {
@@ -429,24 +411,18 @@ std::vector<std::u16string> ChromeAutocompleteProviderClient::GetBuiltinURLs() {
   std::vector<std::u16string> builtins;
   const base::span<const base::cstring_view> url_hosts =
       chrome::ChromeURLHosts();
-#if BUILDFLAG(IS_ANDROID)
-  builtins.reserve(url_hosts.size());
-#else
   builtins.reserve(url_hosts.size() + kChromeSettingsSubPages.size());
-#endif
 
   for (base::cstring_view chrome_builtin_host : url_hosts) {
     builtins.push_back(base::ASCIIToUTF16(chrome_builtin_host));
   }
   std::ranges::sort(builtins);
 
-#if !BUILDFLAG(IS_ANDROID)
   std::u16string settings(chrome::kChromeUISettingsHost16);
   settings += u"/";
   for (base::cstring_view chrome_settings_sub_page : kChromeSettingsSubPages) {
     builtins.push_back(settings + base::ASCIIToUTF16(chrome_settings_sub_page));
   }
-#endif
 
   return builtins;
 }
@@ -456,9 +432,7 @@ ChromeAutocompleteProviderClient::GetBuiltinsToProvideAsUserTypes() {
   std::vector<std::u16string> builtins_to_provide;
   builtins_to_provide.push_back(chrome::kChromeUIChromeURLsURL16);
   builtins_to_provide.push_back(chrome::kChromeUIFlagsURL16);
-#if !BUILDFLAG(IS_ANDROID)
   builtins_to_provide.push_back(chrome::kChromeUISettingsURL16);
-#endif
   builtins_to_provide.push_back(chrome::kChromeUIVersionURL16);
   return builtins_to_provide;
 }
@@ -536,16 +510,7 @@ bool ChromeAutocompleteProviderClient::IsGuestSession() const {
 }
 
 bool ChromeAutocompleteProviderClient::SearchSuggestEnabled() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  return profile_->GetPrefs()->GetBoolean(prefs::kSearchSuggestEnabled) &&
-         (!g_browser_process->platform_part() ||
-          !g_browser_process->platform_part()->essential_search_manager() ||
-          !g_browser_process->platform_part()
-               ->essential_search_manager()
-               ->ShouldDisableSearchSuggest());
-#else
   return profile_->GetPrefs()->GetBoolean(prefs::kSearchSuggestEnabled);
-#endif
 }
 
 bool ChromeAutocompleteProviderClient::AllowDeletingBrowserHistory() const {
@@ -595,11 +560,9 @@ void ChromeAutocompleteProviderClient::DeleteMatchingURLsForKeywordFromHistory(
 void ChromeAutocompleteProviderClient::PrefetchImage(const GURL& url) {
   // Note: Android uses different image fetching mechanism to avoid
   // penalty of copying byte buffers from C++ to Java.
-#if !BUILDFLAG(IS_ANDROID)
   BitmapFetcherService* bitmap_fetcher_service =
       BitmapFetcherServiceFactory::GetForBrowserContext(profile_);
   bitmap_fetcher_service->Prefetch(url);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ChromeAutocompleteProviderClient::StartServiceWorker(
@@ -640,23 +603,10 @@ bool ChromeAutocompleteProviderClient::IsIncognitoModeAvailable() const {
 }
 
 bool ChromeAutocompleteProviderClient::IsSharingHubAvailable() const {
-#if !BUILDFLAG(IS_ANDROID)
   return sharing_hub::SharingHubOmniboxEnabled(profile_);
-#else
-  return false;
-#endif
 }
 
 bool ChromeAutocompleteProviderClient::IsLensEnabled() const {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(lens::features::kLensOverlayAndroid)) {
-    JNIEnv* env = base::android::AttachCurrentThread();
-    return Java_LensSupportStatusHelper_isLensSearchSupported(
-        env, profile_->GetJavaObject(),
-        profile_->IsPrimaryOTRProfileWithRegularParent());
-  }
-
-#else
   if (auto* lens_search_controller =
           GetLensSearchController(GetWebContents(web_contents_getter_))) {
     // Guaranteed to exist if lens_search_controller is not null.
@@ -665,15 +615,11 @@ bool ChromeAutocompleteProviderClient::IsLensEnabled() const {
                    ->GetBrowserWindowInterface())
         ->IsEnabled();
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   return false;
 }
 
 bool ChromeAutocompleteProviderClient::AreLensEntrypointsVisible() const {
-#if BUILDFLAG(IS_ANDROID)
-  return IsLensEnabled();
-#else
   if (auto* lens_search_controller =
           GetLensSearchController(GetWebContents(web_contents_getter_))) {
     // Guaranteed to exist if lens_search_controller is  not null.
@@ -683,17 +629,14 @@ bool ChromeAutocompleteProviderClient::AreLensEntrypointsVisible() const {
         ->AreVisible();
   }
   return false;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 std::optional<bool> ChromeAutocompleteProviderClient::IsPagePaywalled() const {
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* web_contents = GetWebContents(web_contents_getter_)) {
     if (auto* tab_helper = OmniboxTabHelper::FromWebContents(web_contents)) {
       return tab_helper->IsPagePaywalled();
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   return false;
 }
 
@@ -711,19 +654,11 @@ bool ChromeAutocompleteProviderClient::ShouldSendPageTitleSuggestParam() const {
 }
 
 bool ChromeAutocompleteProviderClient::IsAskGShowChipEnabled() const {
-#if !BUILDFLAG(IS_ANDROID)
   return IsOmniboxNextAimPopupEnabled() && omnibox::kAskGShowChip.Get();
-#else
-  return false;
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 bool ChromeAutocompleteProviderClient::IsOmniboxNextAimPopupEnabled() const {
-#if !BUILDFLAG(IS_ANDROID)
   return omnibox::IsAimPopupEnabled(profile_);
-#else
-  return false;
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 bool ChromeAutocompleteProviderClient::IsGeminiStarterPackEnabled() const {
@@ -735,13 +670,11 @@ bool ChromeAutocompleteProviderClient::IsGeminiStarterPackEnabled() const {
 base::CallbackListSubscription
 ChromeAutocompleteProviderClient::GetLensSuggestInputsWhenReady(
     LensOverlaySuggestInputsCallback callback) const {
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* lens_searchbox_controller =
           GetLensSearchboxController(GetWebContents(web_contents_getter_))) {
     return lens_searchbox_controller->GetLensSuggestInputsWhenReady(
         std::move(callback));
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   std::move(callback).Run(std::nullopt);
   return {};
 }
@@ -757,39 +690,30 @@ bool ChromeAutocompleteProviderClient::IsWebUiNtpEnabledForDesktopAndroid()
 }
 
 void ChromeAutocompleteProviderClient::OpenSharingHub() {
-#if !BUILDFLAG(IS_ANDROID)
   if (BrowserWindowInterface* const bwi =
           GetLastActiveBrowserWindowInterfaceWithAnyProfile()) {
     chrome::ExecuteCommand(bwi, IDC_SHARING_HUB);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ChromeAutocompleteProviderClient::NewIncognitoWindow() {
-#if !BUILDFLAG(IS_ANDROID)
   chrome::NewIncognitoWindow(profile_);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ChromeAutocompleteProviderClient::OpenIncognitoClearBrowsingDataDialog() {
-#if !BUILDFLAG(IS_ANDROID)
   if (BrowserWindowInterface* const bwi =
           GetLastActiveBrowserWindowInterfaceWithAnyProfile()) {
     chrome::ShowIncognitoClearBrowsingDataDialog(bwi);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ChromeAutocompleteProviderClient::CloseIncognitoWindows() {
-#if !BUILDFLAG(IS_ANDROID)
   if (profile_->IsPrimaryOTRProfileWithRegularParent()) {
     chrome::CloseAllBrowsersWithIncognitoProfile(profile_);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 bool ChromeAutocompleteProviderClient::OpenJourneys(const std::string& query) {
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowInterface* const bwi =
       GetLastActiveBrowserWindowInterfaceWithAnyProfile();
   if (!bwi) {
@@ -803,13 +727,11 @@ bool ChromeAutocompleteProviderClient::OpenJourneys(const std::string& query) {
     return true;
   }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   return false;
 }
 
 bool ChromeAutocompleteProviderClient::ShouldOpenCoBrowsePanel() const {
-#if !BUILDFLAG(IS_ANDROID)
   // The CoBrowse side panel depends on sharing the current tab, so don't open
   // it when tab sharing isn't supported.
   if (!omnibox::AreContextualTasksEligible(profile_) ||
@@ -819,13 +741,9 @@ bool ChromeAutocompleteProviderClient::ShouldOpenCoBrowsePanel() const {
 
   return omnibox::kAskGCoBrowse.Get() ||
          omnibox::kAskGCoBrowseWithVisualSelection.Get();
-#else
-  return false;
-#endif
 }
 
 void ChromeAutocompleteProviderClient::OpenCoBrowsePanel() {
-#if !BUILDFLAG(IS_ANDROID)
   content::WebContents* web_contents = GetWebContents(web_contents_getter_);
   auto* tab = web_contents
                   ? tabs::TabInterface::MaybeGetFromContents(web_contents)
@@ -846,13 +764,11 @@ void ChromeAutocompleteProviderClient::OpenCoBrowsePanel() {
       }
     }
   }
-#endif
 }
 
 void ChromeAutocompleteProviderClient::OpenLensOverlay(
     bool show,
     lens::LensOverlayInvocationSource invocation_source) {
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* lens_search_controller =
           GetLensSearchController(GetWebContents(web_contents_getter_))) {
     if (show) {
@@ -868,14 +784,12 @@ void ChromeAutocompleteProviderClient::OpenLensOverlay(
           lens::LensOverlayInvocationSource::kOmnibox);
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ChromeAutocompleteProviderClient::IssueContextualSearchRequest(
     const GURL& destination_url,
     omnibox::AutocompleteMatchType match_type,
     bool is_zero_prefix_suggestion) {
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* web_contents = GetWebContents(web_contents_getter_)) {
     web_contents->Focus();
     if (auto* lens_search_controller = GetLensSearchController(web_contents)) {
@@ -889,11 +803,9 @@ void ChromeAutocompleteProviderClient::IssueContextualSearchRequest(
           grant_session_permission);
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ChromeAutocompleteProviderClient::PromptPageTranslation() {
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowInterface* const bwi =
       GetLastActiveBrowserWindowInterfaceWithAnyProfile();
   content::WebContents* contents = nullptr;
@@ -910,19 +822,14 @@ void ChromeAutocompleteProviderClient::PromptPageTranslation() {
           /*auto_translate=*/true, /*triggered_from_menu=*/true);
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 bool ChromeAutocompleteProviderClient::ShouldOpenComposeboxForAskG() const {
-#if !BUILDFLAG(IS_ANDROID)
   if (!omnibox::AreContextualTasksEligible(profile_)) {
     return false;
   }
 
   return omnibox::IsAimPopupFeatureEnabled() && omnibox::kAskGComposeBox.Get();
-#else
-  return false;
-#endif
 }
 
 // This is implemented in OmniboxEditModelActionClient.

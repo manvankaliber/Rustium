@@ -38,9 +38,6 @@ def _IsTargettingWindows(target_os):
   if target_os is not None:
     # Available choices are based on: gn help target_os
     assert target_os in [
-      'android',
-      'chromeos',
-      'ios',
       'linux',
       'mac',
       'nacl',

@@ -69,9 +69,7 @@
 #include <elf.h>
 #endif
 
-#if !defined(ANDROID)
 #include <link.h>  // For ElfW() macro.
-#endif
 
 // For systems where SIZEOF_VOID_P is not defined, determine it
 // based on __LP64__ (defined by gcc on 64-bit systems)

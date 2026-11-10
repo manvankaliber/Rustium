@@ -74,7 +74,7 @@ cargo_crate("lib") {
       "//third_party/rust/uds/v0_4:lib",
     ]
   }
-  if (is_ios || is_mac) {
+  if (is_mac) {
     deps += [ "//third_party/rust/mach2/v0_6:lib" ]
   }
   build_deps = [ "//third_party/rust/rustversion/v1:buildrs_support" ]

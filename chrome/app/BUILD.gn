@@ -12,10 +12,6 @@ import("//crypto/features.gni")
 import("//tools/grit/grit_rule.gni")
 import("//ui/webui/webui_features.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
 if (is_posix) {
   # Header-only target so non-:browser targets can include this header
   # without depending on the target that compiles it (//chrome/browser:browser
@@ -116,27 +112,6 @@ grit_strings("generated_resources") {
             ]
   output_dir = "$root_gen_dir/chrome"
   outputs = [ "grit/generated_resources.h" ]
-
-  if (is_android) {
-    create_android_resources = true
-  }
-}
-
-if (is_android) {
-  java_strings_grd_prebuilt("branded_resources_grd") {
-    generating_target = ":branded_strings"
-  }
-
-  java_strings_grd_prebuilt("generated_resources_grd") {
-    generating_target = ":generated_resources"
-  }
-
-  java_group("java_strings_grd") {
-    public_deps = [
-      ":branded_resources_grd",
-      ":generated_resources_grd",
-    ]
-  }
 }
 
 grit_strings("branded_strings") {
@@ -144,10 +119,6 @@ grit_strings("branded_strings") {
   defines = chrome_grit_defines
   output_dir = "$root_gen_dir/chrome"
   outputs = [ "grit/branded_strings.h" ]
-
-  if (is_android) {
-    create_android_resources = true
-  }
 }
 
 static_library("test_support") {
@@ -156,7 +127,6 @@ static_library("test_support") {
     ":win_unit_tests",
     "//chrome/test:test_support",
     "//chrome/test/base:chrome_test_suite",
-    "//chrome/test/base/chromeos/crosier:test_support",
   ]
 
   sources = [
@@ -200,16 +170,8 @@ static_library("test_support") {
   ]
   public_deps = [ "//ui/lottie" ]
 
-  if (is_mac || is_win || is_linux || is_chromeos) {
+  if (is_mac || is_win || is_linux) {
     deps += [ "//components/webapps/isolated_web_apps:scheme" ]
-  }
-
-  if (is_android) {
-    deps += [
-      "//chrome/browser/android",
-      "//chrome/browser/flags:flags_android",
-      "//components/crash/android:crash_android",
-    ]
   }
 
   if (is_mac) {
@@ -253,26 +215,11 @@ static_library("test_support") {
     ]
   }
 
-  if (is_chromeos) {
-    deps += [
-      "//ash/constants",
-      "//chrome/browser/ash/boot_times_recorder",
-      "//chrome/browser/ash/dbus",
-      "//chrome/browser/ash/locale",
-      "//chrome/browser/ash/schedqos",
-      "//chromeos/ash/components/memory",
-      "//chromeos/ash/experiences/arc:arc_base_utils",
-      "//chromeos/dbus/constants",
-    ]
-  }
-
   if (is_posix) {
     deps += [ ":chrome_crash_reporter_client" ]
   }
 
-  if (!is_android) {
-    deps += [ "//chrome/browser:chrome_process_singleton" ]
-  }
+  deps += [ "//chrome/browser:chrome_process_singleton" ]
 
   if (use_ozone) {
     deps += [ "//ui/ozone" ]
@@ -286,21 +233,19 @@ static_library("test_support") {
   }
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "chrome_main_delegate_browsertest.cc" ]
-    deps = [
-      "//base",
-      "//base/test:test_support",
-      "//chrome/test:test_support",
-      "//components/metrics:content",
-      "//content/test:test_support",
-      "//testing/gtest",
-      "//third_party/abseil-cpp:absl",
-    ]
-  }
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [ "chrome_main_delegate_browsertest.cc" ]
+  deps = [
+    "//base",
+    "//base/test:test_support",
+    "//chrome/test:test_support",
+    "//components/metrics:content",
+    "//content/test:test_support",
+    "//testing/gtest",
+    "//third_party/abseil-cpp:absl",
+  ]
 }
 
 source_set("unit_tests") {

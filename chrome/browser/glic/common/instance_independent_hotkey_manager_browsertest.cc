@@ -20,7 +20,6 @@
 #include "content/public/test/browser_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/test/metrics/histogram_tester.h"
 #include "base/test/run_until.h"
 #include "chrome/browser/glic/glic_selection_observer.h"
@@ -29,12 +28,7 @@
 #include "chrome/common/chrome_features.h"
 #include "components/tabs/public/tab_interface.h"
 #include "content/public/browser/web_contents.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/wm/window_pin_util.h"
-#include "ui/aura/window.h"
-#endif
 
 namespace glic {
 
@@ -66,22 +60,6 @@ class InstanceIndependentHotkeyManagerBrowserTest : public GlicBrowserTest {
   base::test::ScopedFeatureList scoped_feature_list_;
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_F(InstanceIndependentHotkeyManagerBrowserTest,
-                       CanHandleAcceleratorsReturnsFalseWhenLockedFullscreen) {
-  auto* hotkey_manager = coordinator().GetHotkeyManagerForTesting();
-  EXPECT_TRUE(hotkey_manager->CanHandleAccelerators());
-
-  // Pin the browser window in trusted (locked) fullscreen mode.
-  ash::PinWindow(GetBrowser()->GetWindow()->GetNativeWindow(),
-                 /*trusted=*/true);
-  EXPECT_FALSE(hotkey_manager->CanHandleAccelerators());
-
-  // Unpin the window and verify accelerators can be handled again.
-  ash::UnpinWindow(GetBrowser()->GetWindow()->GetNativeWindow());
-  EXPECT_TRUE(hotkey_manager->CanHandleAccelerators());
-}
-#endif
 
 IN_PROC_BROWSER_TEST_F(InstanceIndependentHotkeyManagerBrowserTest,
                        CanHandleAcceleratorsReturnsFalseWhenFreNotCompleted) {
@@ -125,7 +103,6 @@ IN_PROC_BROWSER_TEST_F(
   ASSERT_OK(WaitForGlicOpen());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(InstanceIndependentHotkeyManagerBrowserTest,
                        AcceleratorPressedReturnsFalseWhenGlobalScopeEnabled) {
   g_browser_process->local_state()->SetBoolean(
@@ -246,7 +223,6 @@ IN_PROC_BROWSER_TEST_F(InstanceIndependentHotkeyManagerPromptBoxBrowserTest,
       mojom::InvocationSource::kCaptureRegionHotkey, 1);
   EXPECT_TRUE(GlicSidePanelCoordinator::IsShowing(tab));
 }
-#endif
 
 class InstanceIndependentHotkeyManagerFeatureDisabledBrowserTest
     : public GlicBrowserTest {
@@ -267,7 +243,6 @@ class InstanceIndependentHotkeyManagerFeatureDisabledBrowserTest
 // On ChromeOS, the global hotkey is registered with ash's accelerator
 // controller, which FocusManager::ProcessAccelerator() falls through to, so
 // triggering the hotkey from the browser opens the panel via the global path.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(
     InstanceIndependentHotkeyManagerFeatureDisabledBrowserTest,
     AcceleratorPressedDoesNotLaunchGlicWhenLauncherEnabled) {
@@ -286,7 +261,6 @@ IN_PROC_BROWSER_TEST_F(
   WaitForDuration(base::Milliseconds(300));
   EXPECT_FALSE(coordinator().IsAnyPanelShowing());
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(
     InstanceIndependentHotkeyManagerFeatureDisabledBrowserTest,
@@ -333,10 +307,8 @@ IN_PROC_BROWSER_TEST_F(
     AcceleratorPressedLaunchesGlicWhenGlobalScopeEnabled) {
   g_browser_process->local_state()->SetBoolean(prefs::kGlicLauncherEnabled,
                                                true);
-#if !BUILDFLAG(IS_ANDROID)
   g_browser_process->local_state()->SetBoolean(
       prefs::kGlicHotkeyGlobalScopeEnabled, true);
-#endif
 
   EXPECT_TRUE(
       coordinator().GetHotkeyManagerForTesting()->CanHandleAccelerators());
@@ -346,7 +318,6 @@ IN_PROC_BROWSER_TEST_F(
   ASSERT_OK(WaitForGlicOpen());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(
     InstanceIndependentHotkeyManagerGeminiEnterpriseBrowserTest,
     CaptureRegionHotkeyNotRegistered) {
@@ -363,7 +334,6 @@ IN_PROC_BROWSER_TEST_F(
   EXPECT_NE(controller->state(), SelectionOverlayController::State::kOverlay);
   EXPECT_FALSE(coordinator().IsAnyPanelShowing());
 }
-#endif
 
 }  // namespace
 }  // namespace glic

@@ -11,7 +11,7 @@ to such a debug build.
 
 The first time, build with:
 ```
-tools/clang/scripts/build.py --without-android --without-fuchsia --extra-tools v8_handle_migrate
+tools/clang/scripts/build.py --extra-tools v8_handle_migrate
 ```
 Then, recompile with:
 ```

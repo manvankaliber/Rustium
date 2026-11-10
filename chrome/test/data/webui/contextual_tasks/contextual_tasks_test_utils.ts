@@ -4,14 +4,12 @@
 
 
 import type {ContextualTasksAppElement} from 'chrome://contextual-tasks/app.js';
-// <if expr="not is_android or enable_webui_contextual_tasks_composebox">
 import type {ContextualTasksComposeboxElement} from 'chrome://contextual-tasks/composebox.js';
 import {BrowserProxyImpl} from 'chrome://contextual-tasks/contextual_tasks_browser_proxy.js';
 import type {ContextualTasksInnerComposeboxElement} from 'chrome://contextual-tasks/contextual_tasks_inner_composebox.js';
 import {ToolbarBrowserProxyImpl} from 'chrome://contextual-tasks/contextual_tasks_toolbar_browser_proxy.js';
 import type {PageHandlerRemote as SearchboxPageHandlerRemote} from 'chrome://resources/mojo/components/omnibox/browser/searchbox.mojom-webui.js';
 import {assertDeepEquals, assertEquals, assertFalse, assertTrue} from 'chrome://webui-test/chai_assert.js';
-// </if>
 import {TestMock} from 'chrome://webui-test/test_mock.js';
 import {microtasksFinished} from 'chrome://webui-test/test_util.js';
 
@@ -154,7 +152,6 @@ export async function createContextualTasksAppElement(
   return {appElement, proxy, toolbarProxy};
 }
 
-// <if expr="not is_android or enable_webui_contextual_tasks_composebox">
 export interface CtComposeboxAppParts {
   app: ContextualTasksAppElement;
   wrapper: ContextualTasksComposeboxElement;
@@ -250,4 +247,3 @@ export async function verifyFileCarouselMatchesUploaded(
   assertEquals(fileInfo.fileName, file.name);
   assertDeepEquals(fileData.bytes, fileArray);
 }
-// </if>

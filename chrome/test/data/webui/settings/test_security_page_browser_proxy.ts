@@ -29,13 +29,6 @@ export class TestSecurityPageBrowserProxy extends TestBrowserProxy implements
       mode: SecureDnsMode.AUTOMATIC,
       config: '',
       managementMode: SecureDnsUiManagementMode.NO_OVERRIDE,
-      // <if expr="is_chromeos">
-      osMode: SecureDnsMode.AUTOMATIC,
-      osConfig: '',
-      dohWithIdentifiersActive: false,
-      configForDisplay: '',
-      dohDomainConfigSet: false,
-      // </if>
     };
 
     this.resolverList_ = [{name: 'Custom', value: 'custom', policy: ''}];

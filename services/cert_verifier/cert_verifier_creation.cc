@@ -119,9 +119,6 @@ class CertVerifyProcFactoryImpl : public net::CertVerifyProcFactory {
                                                 root_store_mtc_metadata);
 
     std::unique_ptr<net::SystemTrustStore> trust_store;
-#if BUILDFLAG(IS_CHROMEOS)
-    trust_store = net::CreateChromeOnlySystemTrustStore(std::move(chrome_root));
-#else
     if (instance_params.include_system_trust_store) {
       trust_store =
           net::CreateSslSystemTrustStoreChromeRoot(std::move(chrome_root));
@@ -129,7 +126,6 @@ class CertVerifyProcFactoryImpl : public net::CertVerifyProcFactory {
       trust_store =
           net::CreateChromeOnlySystemTrustStore(std::move(chrome_root));
     }
-#endif
 
 #if BUILDFLAG(IS_WIN)
     // Start initialization of TrustStoreWin on a separate thread if it hasn't
@@ -137,13 +133,6 @@ class CertVerifyProcFactoryImpl : public net::CertVerifyProcFactory {
     // constructor to avoid any unnecessary threading in unit tests that don't
     // use threads otherwise.
     net::InitializeTrustStoreWinSystem();
-#endif
-#if BUILDFLAG(IS_ANDROID)
-    // Start initialization of TrustStoreAndroid on a separate thread if it
-    // hasn't been done already. We do this here instead of in the
-    // TrustStoreAndroid constructor to avoid any unnecessary threading in unit
-    // tests that don't use threads otherwise.
-    net::InitializeTrustStoreAndroid();
 #endif
     // TODO(crbug.com/497882860): pass the key_pinning_state into the
     // CertVerifyProcBuiltin.
@@ -188,7 +177,7 @@ ConvertMojoListToInternalList(
 }  // namespace
 
 bool IsUsingCertNetFetcher() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
+#if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
   return true;
 #else
   return false;
@@ -231,10 +220,8 @@ void UpdateCertVerifierInstanceParams(
   instance_params->additional_distrusted_spkis =
       additional_certificates->distrusted_spkis;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   instance_params->include_system_trust_store =
       additional_certificates->include_system_trust_store;
-#endif
 
   instance_params->additional_trust_anchors_with_constraints =
       ConvertMojoListToInternalList(

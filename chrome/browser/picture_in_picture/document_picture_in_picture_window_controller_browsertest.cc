@@ -98,12 +98,6 @@
 #include "ui/views/window/frame_view.h"
 #include "ui/views/window/non_client_view.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ui/base/chromeos_ui_constants.h"
-#include "ui/aura/window.h"
-#include "ui/base/hit_test.h"
-#include "ui/events/test/event_generator.h"
-#endif
 
 #if BUILDFLAG(IS_OZONE)
 #include "ui/ozone/public/ozone_platform.h"
@@ -1020,41 +1014,6 @@ IN_PROC_BROWSER_TEST_P(DocumentPictureInPictureWindowControllerFrameViewTest,
                                               std::u16string());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Verify that it is possible to resize a document picture in picture window
-// using the resize outside bound in ChromeOS ASH.
-IN_PROC_BROWSER_TEST_F(DocumentPictureInPictureWindowControllerBrowserTest,
-                       CanResizeUsingOutsideBounds) {
-  // Attempt to create a Document PiP window with the minimum window size.
-  LoadTabAndEnterPictureInPicture(
-      browser(), PictureInPictureWindowManager::GetMinimumInnerWindowSize());
-  auto* pip_web_contents = window_controller()->GetChildWebContents();
-  ASSERT_NE(nullptr, pip_web_contents);
-  WaitForPageLoad(pip_web_contents);
-
-  // Get a point within the resize outside bounds.
-  auto* browser_view = static_cast<BrowserView*>(
-      BrowserWindow::FindBrowserWindowWithWebContents(pip_web_contents));
-  const auto left_center_point = browser_view->GetBounds().left_center();
-  const auto resize_outside_bound_point =
-      gfx::Point(left_center_point.x() - chromeos::kResizeInsideBoundsSize -
-                     chromeos::kResizeOutsideBoundsSize / 2,
-                 left_center_point.y());
-
-  // Perform a click on the left resize outside bound, followed by a drag to the
-  // left.
-  aura::Window* window = browser_view->GetNativeWindow();
-  const auto initial_window_size = window->GetBoundsInScreen().size();
-  ui::test::EventGenerator event_generator(window->GetRootWindow());
-  event_generator.set_current_screen_location(resize_outside_bound_point);
-  const int drag_distance = 10;
-  event_generator.DragMouseBy(-drag_distance, 0);
-
-  // Verify that the rezise took place.
-  const auto expected_size = initial_window_size + gfx::Size(drag_distance, 0);
-  ASSERT_EQ(expected_size, window->GetBoundsInScreen().size());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(DocumentPictureInPictureWindowControllerBoundsCacheTest,
                        WindowBoundsAreCached) {

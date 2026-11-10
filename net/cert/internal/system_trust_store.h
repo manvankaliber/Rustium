@@ -108,8 +108,7 @@ class SystemTrustStore {
 };
 
 #if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
-#if BUILDFLAG(USE_NSS_SERVER_CERTS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(USE_NSS_SERVER_CERTS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Creates an instance of SystemTrustStore that wraps the current platform's SSL
 // trust store for user added roots, but uses the Chrome Root Store trust
 // anchors. This cannot return nullptr.
@@ -142,11 +141,6 @@ NET_EXPORT void InitializeTrustStoreMacCache();
 NET_EXPORT void InitializeTrustStoreWinSystem();
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-// Initializes Android system trust store on a worker thread, if the builtin
-// verifier is enabled.
-NET_EXPORT void InitializeTrustStoreAndroid();
-#endif
 
 }  // namespace net
 

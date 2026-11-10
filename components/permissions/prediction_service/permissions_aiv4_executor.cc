@@ -92,19 +92,11 @@ void PermissionsAiv4Executor::SetThresholdValues(
     // ...
     // val < thr[4] -> High
     // val >= thr[4] -> VeryHigh
-#if BUILDFLAG(IS_ANDROID)  
-    if (request_type() == RequestType::kGeolocation) {
-      set_relevance_thresholds({0.075f, 0.223f, 0.64f, 0.85f});
-    } else {
-      set_relevance_thresholds({0.005f, 0.023f, 0.12f, 0.37f});
-    }
-#else
     if (request_type() == RequestType::kGeolocation) {
       set_relevance_thresholds({0.033f, 0.077f, 0.2f, 0.49f});
     } else {
       set_relevance_thresholds({0.008f, 0.024f, 0.11f, 0.32f});
     }
-#endif
     return;
   }
   const auto& thresholds = metadata.value().relevance_thresholds();

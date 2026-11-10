@@ -61,7 +61,6 @@ typedef InProcessBrowserTest FirstRunBrowserTest;
 
 namespace first_run {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 namespace {
 
 std::unique_ptr<KeyedService> BuildHistoryServiceAndRegisterCallback(
@@ -600,6 +599,5 @@ INSTANTIATE_TEST_SUITE_P(
         FirstRunInitialPrefsImportBookmarkFaviconBrowserTest::ParamType>&
            info) { return info.param.test_name; });
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace first_run

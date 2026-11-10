@@ -29,9 +29,7 @@ class LeakDetectionCheckFactoryImplTest : public testing::Test {
   ~LeakDetectionCheckFactoryImplTest() override = default;
 
   signin::IdentityTestEnvironment& identity_env() { return identity_test_env_; }
-#if !BUILDFLAG(IS_ANDROID)
   MockBulkLeakCheckDelegateInterface& bulk_delegate() { return bulk_delegate_; }
-#endif  // !BUILDFLAG(IS_ANDROID)
   const scoped_refptr<network::SharedURLLoaderFactory>& url_loader_factory() {
     return url_loader_factory_;
   }
@@ -40,9 +38,7 @@ class LeakDetectionCheckFactoryImplTest : public testing::Test {
  private:
   base::test::TaskEnvironment task_env_;
   signin::IdentityTestEnvironment identity_test_env_;
-#if !BUILDFLAG(IS_ANDROID)
   StrictMock<MockBulkLeakCheckDelegateInterface> bulk_delegate_;
-#endif  // !BUILDFLAG(IS_ANDROID)
   scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory_ =
       base::MakeRefCounted<network::TestSharedURLLoaderFactory>();
   LeakDetectionCheckFactoryImpl request_factory_;
@@ -54,14 +50,12 @@ TEST_F(LeakDetectionCheckFactoryImplTest, SignedOut) {
       identity_env().identity_manager(), url_loader_factory(), kChannel));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(LeakDetectionCheckFactoryImplTest, BulkCheck_SignedOut) {
   EXPECT_CALL(bulk_delegate(), OnError(LeakDetectionError::kNotSignIn));
   EXPECT_FALSE(request_factory().TryCreateBulkLeakCheck(
       &bulk_delegate(), identity_env().identity_manager(),
       url_loader_factory()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(LeakDetectionCheckFactoryImplTest, SignedIn) {
   identity_env().MakePrimaryAccountAvailable(kTestAccount,
@@ -70,7 +64,6 @@ TEST_F(LeakDetectionCheckFactoryImplTest, SignedIn) {
       identity_env().identity_manager(), url_loader_factory(), kChannel));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(LeakDetectionCheckFactoryImplTest, BulkCheck_SignedIn) {
   identity_env().MakePrimaryAccountAvailable(kTestAccount,
                                              signin::ConsentLevel::kSignin);
@@ -78,7 +71,6 @@ TEST_F(LeakDetectionCheckFactoryImplTest, BulkCheck_SignedIn) {
       &bulk_delegate(), identity_env().identity_manager(),
       url_loader_factory()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(LeakDetectionCheckFactoryImplTest, SignedInAndSyncing) {
   identity_env().SetPrimaryAccount(kTestAccount, signin::ConsentLevel::kSync);
@@ -86,7 +78,6 @@ TEST_F(LeakDetectionCheckFactoryImplTest, SignedInAndSyncing) {
       identity_env().identity_manager(), url_loader_factory(), kChannel));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(LeakDetectionCheckFactoryImplTest, BulkCheck_SignedInAndSyncing) {
   identity_env().MakePrimaryAccountAvailable(kTestAccount,
                                              signin::ConsentLevel::kSync);
@@ -94,5 +85,4 @@ TEST_F(LeakDetectionCheckFactoryImplTest, BulkCheck_SignedInAndSyncing) {
       &bulk_delegate(), identity_env().identity_manager(),
       url_loader_factory()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }  // namespace password_manager

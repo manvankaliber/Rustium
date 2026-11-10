@@ -87,7 +87,7 @@ source_set("importer") {
     "importer_bridge.h",
     "pstore_declarations.h",
   ]
-  if (is_chromeos || is_linux) {
+  if (is_linux) {
     sources += [ "firefox_importer_utils_linux.cc" ]
   } else if (is_mac) {
     sources += [
@@ -118,33 +118,31 @@ source_set("importer") {
   ]
 }
 
-if (!is_android) {
-  source_set("test_support") {
-    testonly = true
-    sources = [
-      "mock_importer_bridge.cc",
-      "mock_importer_bridge.h",
-    ]
+source_set("test_support") {
+  testonly = true
+  sources = [
+    "mock_importer_bridge.cc",
+    "mock_importer_bridge.h",
+  ]
 
-    deps = [
-      ":importer",
-      "//base",
-      "//components/user_data_importer/common",
-      "//testing/gmock",
-    ]
-  }
+  deps = [
+    ":importer",
+    "//base",
+    "//components/user_data_importer/common",
+    "//testing/gmock",
+  ]
+}
 
-  source_set("unit_tests") {
-    testonly = true
-    sources = [ "firefox_importer_utils_unittest.cc" ]
-    deps = [
-      ":importer",
-      "//base",
-      "//base/test:test_support",
-      "//chrome/app:generated_resources",
-      "//testing/gmock",
-      "//testing/gtest",
-      "//ui/base",
-    ]
-  }
+source_set("unit_tests") {
+  testonly = true
+  sources = [ "firefox_importer_utils_unittest.cc" ]
+  deps = [
+    ":importer",
+    "//base",
+    "//base/test:test_support",
+    "//chrome/app:generated_resources",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//ui/base",
+  ]
 }

@@ -16,7 +16,6 @@
 #include "base/memory/weak_ptr.h"
 #include "base/scoped_observation.h"
 #include "build/build_config.h"
-#include "components/account_manager_core/account_manager_facade.h"
 #include "components/signin/public/base/signin_client.h"
 #include "components/signin/public/identity_manager/identity_manager.h"
 #include "components/signin/public/identity_manager/identity_test_utils.h"
@@ -175,11 +174,9 @@ class IdentityTestEnvironment : public IdentityManager::DiagnosticsObserver,
   AccountInfo MakePrimaryAccountAvailable(std::string_view email,
                                           ConsentLevel consent_level);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Revokes sync consent from the primary account: the primary account is left
   // at ConsentLevel::kSignin.
   void RevokeSyncConsent();
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // Clears the primary account, removes all accounts and revokes the sync
   // consent. Blocks until the primary account is cleared.
@@ -441,10 +438,6 @@ class IdentityTestEnvironment : public IdentityManager::DiagnosticsObserver,
       SigninClient* signin_client,
       PrefService* pref_service,
       metrics::ProfileMetricsService* profile_metrics_service
-#if BUILDFLAG(IS_CHROMEOS)
-      ,
-      account_manager::AccountManagerFacade* account_manager_facade
-#endif
   );
 
   // IdentityManager::DiagnosticsObserver:

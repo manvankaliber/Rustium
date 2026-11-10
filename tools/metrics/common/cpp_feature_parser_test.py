@@ -534,10 +534,8 @@ class CppFeatureParserTest(unittest.TestCase):
       'windows': cpp_feature_parser.FeatureState.ENABLED,
       'mac': cpp_feature_parser.FeatureState.ENABLED,
       'linux': cpp_feature_parser.FeatureState.ENABLED,
-      'chromeos': cpp_feature_parser.FeatureState.ENABLED,
-      'android': cpp_feature_parser.FeatureState.DISABLED,
       'android_desktop': cpp_feature_parser.FeatureState.DISABLED,
-      'ios': cpp_feature_parser.FeatureState.DISABLED,
+
     }
     for platform, state in expected.items():
       with self.subTest(platform):

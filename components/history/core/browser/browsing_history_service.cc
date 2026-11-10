@@ -563,12 +563,10 @@ bool BrowsingHistoryService::ShouldQueryRemote(const QueryHistoryState& state) {
     return false;
   }
 
-#if !BUILDFLAG(IS_IOS)
   // Actor visits are local-only and user visits should not be queried.
   if (!state.original_options.include_user_visits) {
     return false;
   }
-#endif
 
   const size_t desired_count =
       static_cast<size_t>(state.original_options.EffectiveMaxCount());
@@ -698,13 +696,9 @@ void BrowsingHistoryService::MergeDuplicateResults(
       current_day_midnight = entry.time.LocalMidnight();
     }
 
-#if !BUILDFLAG(IS_IOS)
     auto& current_day_entries = entry.is_actor_visit
                                     ? actor_current_day_entries
                                     : non_actor_current_day_entries;
-#else
-    auto& current_day_entries = non_actor_current_day_entries;
-#endif
     GroupingKey key{.url = entry.url, .app_id = entry.app_id};
 
     // Keep this visit if it's the first visit to this URL on the current day.
@@ -805,13 +799,9 @@ BrowsingHistoryService::GroupSimilarVisits(QueryHistoryState* state) {
       current_day_midnight = entry.time.LocalMidnight();
     }
 
-#if !BUILDFLAG(IS_IOS)
     auto& current_day_entries = entry.is_actor_visit
                                     ? actor_current_day_entries
                                     : non_actor_current_day_entries;
-#else
-    auto& current_day_entries = non_actor_current_day_entries;
-#endif
 
     // TODO(b/481272035): Use the domain name that matches the displayed domain
     // name in the UI.
@@ -1019,21 +1009,11 @@ void BrowsingHistoryService::RecordDuplicateVisitsCount(
   // Note: The histogram max of 150 is chosen to match `RESULTS_PER_PAGE` from
   // chrome/browser/resources/history/constants.ts and `kMaxQueryCount` from
   // chrome/browser/android/history/browsing_history_bridge.cc.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // TODO(crbug.com/574346928): Android: switch to KEEP_ALL_DUPLICATES and
-  // record DuplicateVisitsCount2.
-  // TODO(crbug.com/581328417): iOS: switch to KEEP_ALL_DUPLICATES and record
-  // DuplicateVisitsCount2. Remove DuplicateVisitsCount once both have.
-  base::UmaHistogramCustomCounts(
-      "History.BrowsingHistoryResult.DuplicateVisitsCount",
-      duplicate_visits_count, 0, 150, 50);
-#else
   // Desktop (chrome://history) uses `QueryOptions::KEEP_ALL_DUPLICATES`, so all
   // duplicates are counted here rather than some being removed by the DB.
   base::UmaHistogramCustomCounts(
       "History.BrowsingHistoryResult.DuplicateVisitsCount2",
       duplicate_visits_count, 0, 150, 50);
-#endif
 }
 
 void BrowsingHistoryService::WebHistoryQueryComplete(

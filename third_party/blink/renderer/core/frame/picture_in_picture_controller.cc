@@ -16,12 +16,7 @@ namespace blink {
 namespace {
 
 bool IsDocumentPictureInPictureWindowLookupEnabled() {
-#if BUILDFLAG(TARGET_OS_IS_ANDROID)
-  return RuntimeEnabledFeatures::
-      DocumentPictureInPictureWindowLookupAndroidEnabled();
-#else
   return true;
-#endif  // BUILDFLAG(TARGET_OS_IS_ANDROID)
 }
 
 }  // namespace

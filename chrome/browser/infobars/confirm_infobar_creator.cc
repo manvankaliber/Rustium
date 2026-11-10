@@ -10,26 +10,15 @@
 #include "components/infobars/core/confirm_infobar_delegate.h"
 #include "components/infobars/core/infobar.h"
 
-#if BUILDFLAG(IS_ANDROID)
-// No platform-specific UI on Android.
-#else
 #include "chrome/browser/ui/views/infobars/confirm_infobar.h"
 #include "ui/views/view.h"
-#endif
 
 std::unique_ptr<infobars::InfoBar> CreateConfirmInfoBar(
     base::PassKey<ConfirmInfoBarCreationAllowlist> pass_key,
     std::unique_ptr<ConfirmInfoBarDelegate> delegate) {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(https://crbug.com/518840663): remove android support once
-  // extension dev tools infobar is migrated to other Android UI.
-  return std::make_unique<infobars::InfoBar>(std::move(delegate));
-#else
   return ConfirmInfoBar::Create(pass_key, std::move(delegate));
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 std::unique_ptr<infobars::InfoBar> CreateConfirmInfoBar(
     base::PassKey<ConfirmInfoBarCreationAllowlist> pass_key,
     std::unique_ptr<ConfirmInfoBarDelegate> delegate,
@@ -37,4 +26,3 @@ std::unique_ptr<infobars::InfoBar> CreateConfirmInfoBar(
   return ConfirmInfoBar::Create(pass_key, std::move(delegate),
                                 std::move(custom_message_view));
 }
-#endif

@@ -40,11 +40,7 @@ class HyphenationTest : public testing::Test {
     // accessible from the unit test, open the dictionary file directly for
     // testing.
     std::string filename = "hyph-" + locale.Ascii() + ".hyb";
-#if BUILDFLAG(IS_ANDROID)
-    base::FilePath path("/system/usr/hyphen-data");
-#else
     base::FilePath path = test::HyphenationDictionaryDir();
-#endif
     path = path.AppendASCII(filename);
     base::File file(path, base::File::FLAG_OPEN | base::File::FLAG_READ);
     if (file.IsValid()) {
@@ -152,12 +148,6 @@ TEST_F(HyphenationTest, MapLocale) {
 TEST_F(HyphenationTest, HyphenLocations) {
   scoped_refptr<Hyphenation> hyphenation =
       GetHyphenation(AtomicString("en-us"));
-#if BUILDFLAG(IS_ANDROID)
-  // Hyphenation is available only for Android M MR1 or later.
-  if (!hyphenation) {
-    return;
-  }
-#endif
   ASSERT_TRUE(hyphenation) << "Cannot find the hyphenation for en-us";
 
   // Get all hyphenation points by |HyphenLocations|.
@@ -209,12 +199,6 @@ TEST_F(HyphenationTest, WordToHyphenate) {
 TEST_F(HyphenationTest, LeadingSpaces) {
   scoped_refptr<Hyphenation> hyphenation =
       GetHyphenation(AtomicString("en-us"));
-#if BUILDFLAG(IS_ANDROID)
-  // Hyphenation is available only for Android M MR1 or later.
-  if (!hyphenation) {
-    return;
-  }
-#endif
   ASSERT_TRUE(hyphenation) << "Cannot find the hyphenation for en-us";
 
   String leading_space(" principle");
@@ -235,12 +219,6 @@ TEST_F(HyphenationTest, LeadingSpaces) {
 TEST_F(HyphenationTest, NonLetters) {
   scoped_refptr<Hyphenation> hyphenation =
       GetHyphenation(AtomicString("en-us"));
-#if BUILDFLAG(IS_ANDROID)
-  // Hyphenation is available only for Android M MR1 or later.
-  if (!hyphenation) {
-    return;
-  }
-#endif
 
   String non_letters("**********");
   EXPECT_EQ(0u,
@@ -254,12 +232,6 @@ TEST_F(HyphenationTest, NonLetters) {
 TEST_F(HyphenationTest, English) {
   scoped_refptr<Hyphenation> hyphenation =
       GetHyphenation(AtomicString("en-us"));
-#if BUILDFLAG(IS_ANDROID)
-  // Hyphenation is available only for Android M MR1 or later.
-  if (!hyphenation) {
-    return;
-  }
-#endif
   ASSERT_TRUE(hyphenation) << "Cannot find the hyphenation for en-us";
 
   Vector<wtf_size_t, 8> locations = hyphenation->HyphenLocations("hyphenation");
@@ -270,12 +242,6 @@ TEST_F(HyphenationTest, English) {
 TEST_F(HyphenationTest, German) {
   scoped_refptr<Hyphenation> hyphenation =
       GetHyphenation(AtomicString("de-1996"));
-#if BUILDFLAG(IS_ANDROID)
-  // Hyphenation is available only for Android M MR1 or later.
-  if (!hyphenation) {
-    return;
-  }
-#endif
   ASSERT_TRUE(hyphenation) << "Cannot find the hyphenation for de-1996";
 
   Vector<wtf_size_t, 8> locations =

@@ -184,7 +184,6 @@ std::string FormatInvokeDiagnosticInfo(
   return base::JoinString(parts, ";");
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 static tabs::TabInterface* CreateBrowserAndGetActiveTab(Profile* profile) {
   BrowserWindowInterface* browser = chrome::OpenEmptyWindow(profile);
   if (!browser) {
@@ -197,7 +196,6 @@ static tabs::TabInterface* CreateBrowserAndGetActiveTab(Profile* profile) {
   }
   return tab;
 }
-#endif
 
 // static
 GlicInvokeHandler::ResolvedTarget GlicInvokeHandler::ResolveTargetSurface(
@@ -214,24 +212,20 @@ GlicInvokeHandler::ResolvedTarget GlicInvokeHandler::ResolveTargetSurface(
       }
     }
 
-#if !BUILDFLAG(IS_ANDROID)
     tabs::TabInterface* tab = CreateBrowserAndGetActiveTab(profile);
     if (tab) {
       return TabSurface{tab, /*is_new=*/true};
     }
-#endif
 
     return {TabSurface{nullptr, /*is_new=*/false}};
   } else if (const auto* new_tab_opt = std::get_if<NewTab>(&target.surface)) {
     BrowserWindowInterface* browser = new_tab_opt->window;
     if (!browser ||
         browser->GetType() != BrowserWindowInterface::Type::TYPE_NORMAL) {
-#if !BUILDFLAG(IS_ANDROID)
       tabs::TabInterface* tab = CreateBrowserAndGetActiveTab(profile);
       if (tab) {
         return {TabSurface{tab, /*is_new=*/true}};
       }
-#endif
       return {TabSurface{/*tab=*/nullptr, /*is_new=*/false}};
     }
     tabs::TabInterface* tab = TabListInterface::From(browser)->OpenTab(
@@ -239,7 +233,6 @@ GlicInvokeHandler::ResolvedTarget GlicInvokeHandler::ResolveTargetSurface(
     if (tab) {
       // TODO(b/503310855): Test/handle Android invocations to see if same
       // issue is present.
-#if !BUILDFLAG(IS_ANDROID)
       if (!new_tab_opt->open_in_foreground) {
         // Force the background tab to start loading. Chromium defers loading
         // for background tabs to save resources. Calling WasShown() and then
@@ -251,7 +244,6 @@ GlicInvokeHandler::ResolvedTarget GlicInvokeHandler::ResolveTargetSurface(
           contents->WasHidden();
         }
       }
-#endif
       return {TabSurface{tab, /*is_new=*/true}};
     }
     return {TabSurface{/*tab=*/nullptr, /*is_new=*/false}};

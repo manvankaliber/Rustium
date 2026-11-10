@@ -30,16 +30,12 @@
 #include "media/base/media_switches.h"
 #include "ui/accessibility/accessibility_features.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_cueing/features.h"  // nogncheck
 #include "chrome/browser/download/download_warning_desktop_hats_utils.h"
 #include "chrome/browser/metrics/critical_user_journeys/critical_user_journey.h"
 #include "chrome/browser/metrics/critical_user_journeys/features.h"
 #include "components/performance_manager/public/features.h"  // nogncheck
 #include "components/permissions/constants.h"                // nogncheck
-#else
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif  // #if !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_COMPOSE)
 #include "components/compose/core/browser/compose_features.h"
@@ -96,7 +92,6 @@ std::vector<hats::SurveyConfig> GetAllSurveyConfigs() {
           permissions::kPermissionPromptSurveyPromptOptionsKey,
           permissions::kPermissionPromptSurveyPromptDisplayDurationKey});
 
-#if !BUILDFLAG(IS_ANDROID)
   // Dev tools surveys.
   survey_configs.emplace_back(&features::kHaTSDesktopDevToolsIssuesCOEP,
                               "devtools-issues-coep",
@@ -736,60 +731,6 @@ std::vector<hats::SurveyConfig> GetAllSurveyConfigs() {
       /*product_specific_string_data_fields=*/
       std::vector<std::string>{"CUJ", "hostname"});
 
-#else  // BUILDFLAG(IS_ANDROID)
-  survey_configs.emplace_back(&chrome::android::kChromeSurveyNextAndroid,
-                              kHatsSurveyTriggerAndroidStartupSurvey);
-
-  std::vector<std::string> signin_string_psd_fields{"Number of Google Accounts",
-                                                    "Sign-in Status"};
-  // This survey is for the First Run Experience, so it must run on new
-  // profiles.
-  survey_configs.emplace_back(
-      &switches::kChromeAndroidIdentitySurveyFirstRun,
-      kHatsSurveyTriggerSigninFirstRun, "HhgAhQYhw0tK1KeaPYj0NeTaRKBh",
-      std::vector<std::string>{}, signin_string_psd_fields,
-      /*log_responses_to_uma=*/false,
-      /*log_responses_to_ukm=*/false,
-      hats::SurveyConfig::ProfileAgeRequirement::kAnyAge);
-  survey_configs.emplace_back(
-      &switches::kChromeAndroidIdentitySurveyWeb, kHatsSurveyTriggerSigninWeb,
-      "36F2N72TP0tK1KeaPYj0SdXcHEJ4", std::vector<std::string>{},
-      signin_string_psd_fields);
-  survey_configs.emplace_back(
-      &switches::kChromeAndroidIdentitySurveyNtpSigninButton,
-      kHatsSurveyTriggerSigninNtpSigninButton, "yirfCKnhD0tK1KeaPYj0P9BTzPNw",
-      std::vector<std::string>{}, signin_string_psd_fields);
-  survey_configs.emplace_back(
-      &switches::kChromeAndroidIdentitySurveyNtpAccountAvatarTap,
-      kHatsSurveyTriggerSigninNtpAccountAvatarTap,
-      "DujcsCGkZ0tK1KeaPYj0RGm9FgKX", std::vector<std::string>{},
-      signin_string_psd_fields);
-  survey_configs.emplace_back(
-      &switches::kChromeAndroidIdentitySurveyNtpPromo,
-      kHatsSurveyTriggerSigninNtpPromo, "15CWgMniG0tK1KeaPYj0RkWoZ4B9",
-      std::vector<std::string>{}, signin_string_psd_fields);
-  survey_configs.emplace_back(
-      &switches::kChromeAndroidIdentitySurveyBookmarkPromo,
-      kHatsSurveyTriggerSigninBookmarkPromo, "o2YBX3ZJc0tK1KeaPYj0UveLWhmf",
-      std::vector<std::string>{}, signin_string_psd_fields);
-
-  // Red Warning Android surveys.
-  survey_configs.emplace_back(
-      &safe_browsing::kRedWarningSurveyAndroid,
-      kHatsSurveyTriggerRedWarningAndroid,
-      safe_browsing::kRedWarningSurveyAndroidTriggerId.Get(),
-      std::vector<std::string>{safe_browsing::kLearnMoreClicked,
-                               safe_browsing::kOpenDiagnostic,
-                               safe_browsing::kRepeatVisit,
-                               safe_browsing::kReportPhishingErrorClicked,
-                               safe_browsing::kShowMoreClicked},
-      std::vector<std::string>{
-          safe_browsing::kFlaggedUrl, safe_browsing::kMainFrameUrl,
-          safe_browsing::kReferrerUrl, safe_browsing::kReferringApp,
-          safe_browsing::kReportType, safe_browsing::kTimeWarningVisible,
-          safe_browsing::kUserAction, safe_browsing::kUserActivityWithUrls});
-
-#endif  // #if !BUILDFLAG(IS_ANDROID)
 
   // Suspicious Site Warning surveys.
   survey_configs.emplace_back(
@@ -805,9 +746,6 @@ std::vector<hats::SurveyConfig> GetAllSurveyConfigs() {
           "User choice",
           "Time prompt visible",
           "Referrer origin",
-#if BUILDFLAG(IS_ANDROID)
-          "Referring app",
-#endif
       });
 
   auto with_client_context_psd_fields = [](std::vector<std::string> fields) {

@@ -7,7 +7,6 @@ import '/strings.m.js';
 import type {ClickInfo} from 'chrome://resources/js/browser_command.mojom-webui.js';
 import {EventTracker} from 'chrome://resources/js/event_tracker.js';
 import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
-import {isChromeOS} from 'chrome://resources/js/platform.js';
 import {CrLitElement} from 'chrome://resources/lit/v3_0/lit.rollup.js';
 import type {Url} from 'chrome://resources/mojo/url/mojom/url.mojom-webui.js';
 
@@ -143,7 +142,7 @@ export class WhatsNewAppElement extends CrLitElement {
       return;
     }
 
-    const latest = this.isAutoOpen_ && !isChromeOS ? 'true' : 'false';
+    const latest = this.isAutoOpen_ ? 'true' : 'false';
     url += url.includes('?') ? '&' : '?';
     // The browser has auto-opened the page due to an upgrade.
     // Let the embedded page know to display the "up to date" banner.

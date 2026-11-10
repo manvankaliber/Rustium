@@ -6,23 +6,7 @@ import("//build/config/ui.gni")
 import("//components/safe_browsing/buildflags.gni")
 import("//components/signin/features.gni")
 
-if (is_chromeos) {
-  source_set("profile_indicator_icon") {
-    public = [ "profile_indicator_icon.h" ]
-    sources = [ "profile_indicator_icon.cc" ]
-    public_deps = [
-      "//ui/base",
-      "//ui/gfx",
-      "//ui/views",
-    ]
-    deps = [
-      "//chrome/browser/profiles:profile_util",
-      "//ui/compositor",
-    ]
-  }
-}
-
-if (is_win || is_mac || is_linux || is_chromeos) {
+if (is_win || is_mac || is_linux) {
   source_set("profile_menu_coordinator") {
     public = [ "profile_menu_coordinator.h" ]
     public_deps = [
@@ -58,9 +42,8 @@ if (is_win || is_mac || is_linux || is_chromeos) {
       "//components/signin/public/base:signin_buildflags",
       "//ui/views",
     ]
-    if (!is_chromeos) {
-      deps += [ ":profile_menu_view" ]
-    }
+
+    deps += [ ":profile_menu_view" ]
   }
 
   source_set("profile_menu_view_base") {
@@ -219,9 +202,9 @@ if (is_win || is_mac || is_linux || is_chromeos) {
       "//ui/views/controls/webview",
       "//url",
     ]
-    if (!is_chromeos) {
-      deps += [ "//chrome/browser/ui/webui/signin:profile" ]
-    }
+
+    deps += [ "//chrome/browser/ui/webui/signin:profile" ]
+
     if (enable_dice_support) {
       deps += [ "//chrome/browser/ui/webui/signin/signout_confirmation" ]
     }
@@ -371,7 +354,6 @@ if (toolkit_views) {
       "//components/sync/service",
       "//components/user_education/common",
       "//components/user_education/views",
-      "//components/user_manager",
       "//content/public/browser",
       "//content/public/common",
       "//content/test:test_support",
@@ -382,10 +364,6 @@ if (toolkit_views) {
       "//ui/base",
       "//ui/gfx",
     ]
-
-    if (is_chromeos) {
-      deps += [ "//ash/constants" ]
-    }
   }
 }
 
@@ -794,13 +772,11 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  if (!is_chromeos) {
-    sources += [ "profile_customization_bubble_sync_controller_unittest.cc" ]
-    deps += [
-      ":profile_customization_bubble_sync_controller",
-      "//chrome/browser/themes:test_support",
-    ]
-  }
+  sources += [ "profile_customization_bubble_sync_controller_unittest.cc" ]
+  deps += [
+    ":profile_customization_bubble_sync_controller",
+    "//chrome/browser/themes:test_support",
+  ]
 
   if (enable_dice_support) {
     sources += [ "dice_web_signin_interception_bubble_view_unittest.cc" ]
@@ -1314,25 +1290,23 @@ source_set("browser_tests") {
     "//testing/gtest",
   ]
 
-  if (!is_chromeos) {
-    sources += [
-      "dice_web_signin_interception_bubble_view_browsertest.cc",
-      "dice_web_signin_interception_bubble_view_pixel_browsertest.cc",
-      "profile_menu_view_browsertest.cc",
-      "signin_view_controller_delegate_views_browsertest.cc",
-    ]
-    deps += [
-      ":signin_view_controller_delegate_views",
-      "//chrome/browser/profiles/batch_upload:test_support",
-      "//chrome/browser/sync/test/integration:sync_integration_test_support",
-      "//chrome/browser/ui/webui/signin/signout_confirmation",
-      "//chrome/browser/ui/webui/signin/signout_confirmation:test_support",
-      "//components/signin/core/browser:test_support",
-      "//components/subscription_eligibility:tier_names",
-      "//components/sync_bookmarks",
-      "//components/sync_device_info:test_support",
-    ]
-  }
+  sources += [
+    "dice_web_signin_interception_bubble_view_browsertest.cc",
+    "dice_web_signin_interception_bubble_view_pixel_browsertest.cc",
+    "profile_menu_view_browsertest.cc",
+    "signin_view_controller_delegate_views_browsertest.cc",
+  ]
+  deps += [
+    ":signin_view_controller_delegate_views",
+    "//chrome/browser/profiles/batch_upload:test_support",
+    "//chrome/browser/sync/test/integration:sync_integration_test_support",
+    "//chrome/browser/ui/webui/signin/signout_confirmation",
+    "//chrome/browser/ui/webui/signin/signout_confirmation:test_support",
+    "//components/signin/core/browser:test_support",
+    "//components/subscription_eligibility:tier_names",
+    "//components/sync_bookmarks",
+    "//components/sync_device_info:test_support",
+  ]
 
   if (is_win || is_mac || is_linux) {
     sources += [
@@ -1410,7 +1384,7 @@ source_set("browser_tests") {
     }
   }
 
-  if (enable_dice_support || is_chromeos) {
+  if (enable_dice_support) {
     sources += [
       "batch_upload_dialog_view_browsertest.cc",
       "batch_upload_dialog_view_pixel_browsertest.cc",

@@ -83,12 +83,6 @@ export class SettingsBatteryPageElement extends SettingsBatteryPageElementBase {
         loadTimeData.getString('batterySaverLearnMoreUrl'));
   }
 
-  // <if expr="is_chromeos">
-  protected onOsPowerSettingsClick_() {
-    OpenWindowProxyImpl.getInstance().openUrl(
-        loadTimeData.getString('osPowerSettingsUrl'));
-  }
-  // </if>
 
   protected showSendFeedbackButton_(): boolean {
     // <if expr="_google_chrome">

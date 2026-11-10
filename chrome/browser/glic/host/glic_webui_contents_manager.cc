@@ -34,17 +34,12 @@
 #include "content/public/browser/web_contents.h"
 #include "printing/buildflags/buildflags.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/widget/scoped_modal_dialog_manager_delegate.h"
-#endif
 
 #if BUILDFLAG(ENABLE_PRINTING)
 #include "chrome/browser/printing/printing_init.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/actor/android/background_tabs/offscreen_rendering_manager_android.h"
-#endif
 
 namespace glic {
 
@@ -88,12 +83,6 @@ GlicWebUIContentsManager::~GlicWebUIContentsManager() {
   page_handler_ = nullptr;
   SetContentsManagerForWebContents(web_contents(), nullptr);
   Observe(nullptr);
-#if BUILDFLAG(IS_ANDROID)
-  if (web_contents_ &&
-      base::FeatureList::IsEnabled(features::kGlicAndroidOffscreenRendering)) {
-    actor::StopOffscreenRenderingForWebContents(web_contents_.get());
-  }
-#endif
   if (web_contents_) {
     web_contents_->ClosePage();
     web_contents_.reset();
@@ -112,11 +101,9 @@ void GlicWebUIContentsManager::AttachToHost(Host* host) {
 
 void GlicWebUIContentsManager::AttachModalDialogManagerDelegate(
     ScopedModalDialogManagerDelegate& delegate) {
-#if !BUILDFLAG(IS_ANDROID)
   if (web_contents_) {
     delegate.AddWebContents(web_contents_.get());
   }
-#endif
 }
 
 void GlicWebUIContentsManager::DidFinishNavigation(

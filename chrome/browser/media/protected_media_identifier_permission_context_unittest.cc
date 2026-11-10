@@ -14,10 +14,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chromeos/dbus/constants/dbus_switches.h"
-#endif
 
 class ProtectedMediaIdentifierPermissionContextTest : public testing::Test {
  public:
@@ -88,7 +84,7 @@ TEST_F(ProtectedMediaIdentifierPermissionContextTest,
   ASSERT_TRUE(IsOriginAllowed(requesting_sub_domain_origin_));
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
 TEST_F(ProtectedMediaIdentifierPermissionContextTest,
        ProtectedMediaIdentifierOnDifferentProfiles) {
   ASSERT_FALSE(IsProtectedMediaIdentifierEnabled(
@@ -100,30 +96,8 @@ TEST_F(ProtectedMediaIdentifierPermissionContextTest,
   ASSERT_TRUE(IsProtectedMediaIdentifierEnabled(
       profile_testing_helper_.regular_profile()));
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(ProtectedMediaIdentifierPermissionContextTest,
-       ProtectedMediaIdentifierDisabledOnDevMode) {
-  command_line_->AppendSwitch(chromeos::switches::kSystemDevMode);
-
-  // The protected media identifier should not be enabled if the system is on
-  // dev mode.
-  ASSERT_FALSE(IsProtectedMediaIdentifierEnabled(
-      profile_testing_helper_.regular_profile()));
-}
-
-TEST_F(ProtectedMediaIdentifierPermissionContextTest,
-       ProtectedMediaIdentifierEnabledOnDevModeWithAshSwitch) {
-  command_line_->AppendSwitch(chromeos::switches::kSystemDevMode);
-  command_line_->AppendSwitch(switches::kAllowRAInDevMode);
-
-  // As long as `kAllowRAInDevMode` is appended, then even if system is on dev
-  // mode, the protected media identifier should be enabled.
-  ASSERT_TRUE(IsProtectedMediaIdentifierEnabled(
-      profile_testing_helper_.regular_profile()));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(ProtectedMediaIdentifierPermissionContextTest,
        ProtectedContentIdentifierAllowedByPolicyDefault) {

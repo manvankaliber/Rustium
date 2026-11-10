@@ -41,21 +41,6 @@ static_library("util") {
   ]
 }
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-
-  proto_java_library("protocol_java") {
-    proto_path = "//"
-
-    # tab_context_container_access_token.proto imports
-    # google/protobuf/timestamp.proto, whose Java classes are excluded from
-    # //third_party/android_deps:protobuf_lite_runtime_java (see
-    # crbug.com/1103399) and not declared in `android_protoc_import_files`.
-    sources =
-        sync_protocol_sources - [ "tab_context_container_access_token.proto" ]
-  }
-}
-
 action("prepare_full_proto") {
   script = "prepare_full_proto.py"
 

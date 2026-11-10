@@ -21,9 +21,6 @@
 #include "components/passage_embeddings/core/passage_embeddings_service_controller.h"
 #include "components/permissions/features.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace passage_embeddings {
 
@@ -65,21 +62,7 @@ PassageEmbedderModelObserverFactory::BuildServiceInstanceForBrowserContext(
     return nullptr;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Restrict Android to "higher-end" devices.
-  if (base::SysInfo::AmountOfTotalPhysicalMemory() <
-      base::MiB(static_cast<uint32_t>(
-          std::max(0, kPassageEmbedderMinRequiredRamMb.Get())))) {
-    return nullptr;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!base::FeatureList::IsEnabled(
-          chromeos::features::kFeatureManagementPassageEmbedder)) {
-    return nullptr;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   Profile* profile = Profile::FromBrowserContext(context);
   OptimizationGuideGlobalStateHolderKeyedService* global_state_service =

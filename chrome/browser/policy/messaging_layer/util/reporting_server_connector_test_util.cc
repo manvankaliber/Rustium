@@ -20,7 +20,6 @@
 #include "chrome/browser/policy/messaging_layer/util/reporting_server_connector.h"
 #include "chrome/browser/policy/messaging_layer/util/test_response_payload.h"
 #include "chrome/test/base/testing_browser_process.h"
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
 #include "components/policy/core/common/cloud/cloud_policy_client.h"
 #include "components/policy/core/common/cloud/cloud_policy_constants.h"
 #include "components/policy/core/common/cloud/cloud_policy_core.h"
@@ -40,10 +39,6 @@
 #include "services/network/public/cpp/weak_wrapper_shared_url_loader_factory.h"
 #include "services/network/test/test_network_connection_tracker.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
-#include "chromeos/ash/components/system/statistics_provider.h"
-#endif
 
 namespace reporting {
 namespace {
@@ -80,12 +75,6 @@ ReportingServerConnector::TestEnvironment::TestEnvironment()
           store_.get(),
           base::SingleThreadTaskRunner::GetCurrentDefault(),
           network::TestNetworkConnectionTracker::CreateGetter())) {
-#if BUILDFLAG(IS_CHROMEOS)
-  fake_statistics_provider_ =
-      std::make_unique<ash::system::ScopedFakeStatisticsProvider>();
-  fake_statistics_provider_->SetMachineStatistic(ash::system::kSerialNumberKey,
-                                                 "fake-serial-number");
-#endif
   device_management_service_ =
       std::make_unique<policy::DeviceManagementService>(
           std::make_unique<policy::DeviceManagementServiceConfiguration>(

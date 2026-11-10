@@ -62,18 +62,18 @@
 #include "headless/embedded_resource_pack_strings.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "components/crash/core/app/crashpad.h"
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "components/crash/core/app/crash_switches.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_POSIX)
 #include <signal.h>
 
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_MAC)
 #include "v8/include/v8-wasm-trap-handler-posix.h"
 #endif
 #endif  // BUILDFLAG(IS_POSIX)
@@ -379,10 +379,10 @@ void HeadlessContentMainDelegate::InitCrashReporter(
       command_line.HasSwitch(switches::kEnableCrashReporter) &&
       !command_line.HasSwitch(switches::kDisableCrashReporter);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   enable_crash_reporter |=
       command_line.HasSwitch(crash_reporter::switches::kCrashpadHandlerPid);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   if (!enable_crash_reporter) {
     return;
@@ -397,7 +397,7 @@ void HeadlessContentMainDelegate::InitCrashReporter(
 #if !BUILDFLAG(IS_WIN)
     crash_reporter::InitializeCrashpad(process_type.empty(), process_type);
 #endif  // !BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
     crash_reporter::SetFirstChanceExceptionHandler(
         v8::TryHandleWebAssemblyTrapPosix);
 #endif
@@ -457,7 +457,7 @@ HeadlessContentMainDelegate::RunProcess(
   return browser_->exit_code();
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 void SIGTERMProfilingShutdown(int signal) {
   content::Profiling::Stop();
   struct sigaction sigact;
@@ -492,7 +492,7 @@ void HeadlessContentMainDelegate::ZygoteForked() {
     crash_keys::SetSwitchesFromCommandLine(command_line, nullptr);
   }
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 // static
 HeadlessContentMainDelegate* HeadlessContentMainDelegate::GetInstance() {

@@ -41,9 +41,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/gfx/geometry/size_conversions.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "net/base/url_util.h"
-#endif
 
 using content::WebContents;
 
@@ -77,25 +74,7 @@ void DestroyGuestIfUnattached(GuestViewBase* guest) {
 double GetStoredZoomLevel(const zoom::ZoomController& zoom_controller,
                           content::RenderFrameHost* rfh) {
   const double zoom_level = zoom_controller.GetZoomLevel();
-#if BUILDFLAG(IS_ANDROID)
-  if (zoom_controller.zoom_mode() == zoom::ZoomController::ZOOM_MODE_MANUAL) {
-    // In manual mode, the ZoomController keeps its own level, which isn't
-    // adjusted.
-    return zoom_level;
-  }
-  content::HostZoomMap* zoom_map =
-      content::HostZoomMap::Get(rfh->GetSiteInstance());
-  const content::GlobalRenderFrameHostId rfh_id = rfh->GetGlobalId();
-  if (zoom_map->UsesTemporaryZoomLevel(rfh_id)) {
-    // Temporary (per-frame) levels aren't adjusted either.
-    return zoom_level;
-  }
-  const GURL url = content::HostZoomMap::GetURLForRenderFrameHost(rfh_id);
-  return zoom_map->GetZoomLevelForHostAndScheme(url.GetScheme(),
-                                                net::GetHostOrSpecFromURL(url));
-#else
   return zoom_level;
-#endif
 }
 
 }  // namespace

@@ -78,56 +78,6 @@ def _DoSpawn(args):
     '-priority',
     '30',
   ]
-  if args.target_os == 'android':
-    if args.arch == 'x86':
-      # No x86 Android devices are available in swarming. So assume we want to
-      # run on emulators when building for x86 on Android.
-      args.swarming_os = 'Linux'
-      args.pool = 'chromium.tests.avd'
-      # android_28_google_apis_x86 == Android P emulator.
-      # See //tools/android/avd/proto/ for other options.
-      runner_args.append(
-        '--avd-config=../../tools/android/avd/proto/android_28_google_apis_x86.textpb'
-      )
-    elif args.device_type is None and args.device_os is None:
-      # The aliases for device type are stored here:
-      # luci/appengine/swarming/ui2/modules/alias.js
-      # for example 'blueline' = 'Pixel 3'
-      trigger_args += ['-d', 'device_type=' + DEFAULT_ANDROID_DEVICE_TYPE]
-  elif args.target_os == 'ios':
-    runner_args.append(f'--xcode-build-version={args.ios_xcode_build_version}')
-    runner_args.append('--xctest')
-    runner_args.append('--out-dir=${ISOLATED_OUTDIR}')
-
-    if args.ios_sim_version and args.ios_sim_platform:
-      # simulator test runner and trigger args
-      runner_args.append(f'--version={args.ios_sim_version}')
-      runner_args.extend(['--platform', args.ios_sim_platform])
-
-      version_with_underscore = args.ios_sim_version.replace('.', '_')
-      trigger_args.extend(
-        [
-          '-named-cache',
-          f'runtime_ios_{version_with_underscore}'
-          f'=Runtime-ios-{args.ios_sim_version}',
-        ]
-      )
-    elif args.ios_device:
-      # device trigger args
-      trigger_args.extend(['-d', f'device={args.ios_device}'])
-      trigger_args.extend(['-d', 'device_status=available'])
-    else:
-      raise Exception(
-        'Either both of --ios-sim-version and --ios-sim-platform '
-        'or --ios-device is required'
-      )
-
-    trigger_args.extend(
-      ['-named-cache', f'xcode_ios_{args.ios_xcode_build_version}=Xcode.app']
-    )
-    trigger_args.extend(
-      ['-cipd-package', '.:infra/tools/mac_toolchain/${platform}=latest']
-    )
 
   if args.service_account:
     account = args.service_account
@@ -145,9 +95,6 @@ def _DoSpawn(args):
 
   if args.device_type:
     trigger_args += ['-d', 'device_type=' + args.device_type]
-
-  if args.device_os:
-    trigger_args += ['-d', 'device_os=' + args.device_os]
 
   if args.gpu:
     trigger_args += ['-d', 'gpu=' + args.gpu]
@@ -259,9 +206,6 @@ def main():
     '--copies', '-n', type=int, default=1, help='Number of copies to spawn.'
   )
   parser.add_argument(
-    '--device-os', help='Run tests on the given version of Android.'
-  )
-  parser.add_argument(
     '--device-type',
     help='device_type specifier for Swarming'
     ' from https://chromium-swarm.appspot.com/botlist .',
@@ -312,21 +256,6 @@ def main():
     help='Optional service account that the swarming task will be run using. '
     'Default value will be set based on the "--swarming-instance".',
   )
-  # ios only args
-  parser.add_argument(
-    '--ios-xcode-build-version',
-    help='The version of xcode that will be used for all '
-    'xcodebuild CLI commands',
-  )
-  parser.add_argument(
-    '--ios-sim-version', help='iOS simulator version, ex. 17.2'
-  )
-  parser.add_argument(
-    '--ios-sim-platform', help='iOS simulator platform, ex. iPhone 14'
-  )
-  parser.add_argument(
-    '--ios-device', help='iOS physical device type, ex. iPhone12,1'
-  )
   parser.add_argument(
     'runner_args',
     nargs='*',
@@ -366,10 +295,9 @@ def main():
   if args.swarming_os is None:
     args.swarming_os = {
       'mac': 'Mac',
-      'ios': 'Mac',
       'win': 'Windows',
       'linux': 'Linux',
-      'android': 'Android',
+
 
     }[args.target_os]
 
@@ -379,10 +307,7 @@ def main():
 
   # Determine the CPU architecture of the test binary, if not specified.
   if args.arch == 'detect':
-    if args.target_os == 'ios':
-      print('iOS must specify --arch. Probably arm64 or x86-64.')
-      return 1
-    if args.target_os not in ('android', 'mac', 'win'):
+    if args.target_os not in ('mac', 'win'):
       executable_info = subprocess.check_output(
         ['file', os.path.join(args.out_dir, args.target_name)], text=True
       )
@@ -390,8 +315,6 @@ def main():
         args.arch = ('arm64',)
       else:
         args.arch = 'x86-64'
-    elif args.target_os == 'android':
-      args.arch = gn_args.get('target_cpu', 'detect')
 
   mb_cmd = [sys.executable, 'tools/mb/mb.py', 'isolate']
   if not args.build:

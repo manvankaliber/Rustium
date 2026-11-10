@@ -42,7 +42,6 @@ std::u16string GetExtensionNameForDevToolsWarning(
 
 // Android uses messages instead of desktop infobars, so the desktop infobar
 // controller is skipped on Android.
-#if !BUILDFLAG(IS_ANDROID)
 class ExtensionDevToolsInfoBarController {
  public:
   static ExtensionDevToolsInfoBarController* GetInstance();
@@ -70,7 +69,6 @@ class ExtensionDevToolsInfoBarController {
   std::u16string last_extension_name_;
   base::OneShotTimer autoclose_timer_;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class DebuggerFunction : public ExtensionFunction {
  protected:

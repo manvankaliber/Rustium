@@ -3824,10 +3824,6 @@ void LocalFrame::NotifyVirtualKeyboardOverlayRectObservers(
 
 void LocalFrame::SetVirtualKeyboardOverlayGeometry(const gfx::Rect& rect) {
   bool use_geometry_fixes = true;
-#if BUILDFLAG(IS_ANDROID)
-  use_geometry_fixes =
-      features::IsVirtualKeyboardGeometryAndInsetFixesEnabled();
-#endif
 
   // With the geometry fixes enabled, empty geometry means that the keyboard is
   // hidden. An empty gfx::Rect can still retain a nonzero position or size, so
@@ -4573,28 +4569,5 @@ void LocalFrame::OnFrameVisibilityChangedForMediaPlayback(bool is_hidden) {
 }
 
 // TODO(crbug.com/447973489) - Add test coverage for this method
-#if BUILDFLAG(IS_ANDROID)
-void LocalFrame::PerformFullContentSpellCheck() {
-  if (!base::FeatureList::IsEnabled(
-          blink::features::kAndroidSpellcheckFullApiBlink)) {
-    return;
-  }
-
-  // Interacting with the IME UI (which triggers this Mojo call) counts as a
-  // user interaction. Refresh the transient activation window so the
-  // on-demand spellchecker's security circuit break allows the request.
-  NotifyUserActivation(
-      mojom::blink::UserActivationNotificationType::kInteraction);
-
-  ContainerNode* container_node = HighestEditableRoot(
-      Selection().ComputeVisibleSelectionInDomTree().Start());
-  if (!container_node) {
-    return;
-  }
-
-  GetSpellChecker().GetOnDemandSpellCheckController().RequestFullChecking(
-      container_node);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace blink

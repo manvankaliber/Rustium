@@ -107,12 +107,9 @@
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/grit/contextual_tasks_extension_resources.h"
 #include "chrome/grit/contextual_tasks_extension_resources_map.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_tasks/contextual_tasks_web_contents_user_data.h"
 #endif
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/toolbar/pinned_toolbar/pinned_toolbar_actions_model.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
@@ -124,7 +121,6 @@
 #include "chrome/grit/webui_toolbar_shared_resources_map.h"
 #include "components/contextual_tasks/public/prefs.h"
 #include "components/feature_engagement/public/feature_constants.h"
-#endif
 
 #if !BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/grit/guest_view_shared_resources_map.h"  // nogncheck
@@ -337,11 +333,9 @@ bool IsLegacyOnlyContextualTasksResource(std::string_view path) {
 // `HandleContextualTasksRequest` multiplex both `WebUIToolbarLayoutCssHelper`
 // and `kProfileAvatarPathPrefix` requests.
 bool ShouldHandleContextualTasksRequest(const std::string& path) {
-#if !BUILDFLAG(IS_ANDROID)
   if (WebUIToolbarLayoutCssHelper::ShouldHandleRequest(path)) {
     return true;
   }
-#endif
   return base::StartsWith(path, kProfileAvatarPathPrefix);
 }
 
@@ -349,12 +343,10 @@ void HandleContextualTasksRequest(
     const base::WeakPtr<Profile>& profile,
     const std::string& path,
     content::WebUIDataSource::GotDataCallback callback) {
-#if !BUILDFLAG(IS_ANDROID)
   if (WebUIToolbarLayoutCssHelper::ShouldHandleRequest(path)) {
     WebUIToolbarLayoutCssHelper::HandleRequest(path, std::move(callback));
     return;
   }
-#endif
   scoped_refptr<base::RefCountedMemory> png_bytes;
   if (profile) {
     if (auto* identity_manager =
@@ -544,7 +536,6 @@ ContextualTasksUIBase::ContextualTasksUIBase(content::WebUI* web_ui)
   }
   is_contextual_tasks_eligible_on_init_ =
       contextual_tasks::EntryPointEligibilityManager::IsEligible(profile);
-#if !BUILDFLAG(IS_ANDROID)
   can_pin_or_unpin_ =
       contextual_tasks::EntryPointEligibilityManager::CanPinOrUnpin(profile);
   if (can_pin_or_unpin_) {
@@ -571,7 +562,6 @@ ContextualTasksUIBase::ContextualTasksUIBase(content::WebUI* web_ui)
             &ContextualTasksUIBase::OnCanPinOrUnpinMaybeChanged,
             base::Unretained(this)));
   }
-#endif
 
   std::vector<ui::ElementIdentifier> tracked_element_ids = {
       ContextualTasksUI::kSmartTabSharingMenuItemElementId,
@@ -584,11 +574,9 @@ ContextualTasksUIBase::ContextualTasksUIBase(content::WebUI* web_ui)
       // `chrome://contextual-tasks` (pre-rearchitecture `app.ts` and WebUI
       // Mocha tests), not only in the component extension subframe.
       kContextualTasksFaviconsElementId};
-#if !BUILDFLAG(IS_ANDROID)
   tracked_element_ids.push_back(
       PermissionChipView::kPermissionRequestChipElementId);
   tracked_element_ids.push_back(PermissionChipView::kIndicatorChipElementId);
-#endif
   ui::TrackedElementHandlerDocumentSingleton::Register(
       this, std::move(tracked_element_ids));
 }
@@ -683,12 +671,10 @@ content::WebUIDataSource* ContextualTasksUIBase::RegisterWebUIDataSource(
   source->AddResourcePaths(kContextualTasksExtensionResources);
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   content::URLDataSource::Add(profile, std::make_unique<ThemeSource>(profile));
   content::URLDataSource::Add(profile,
                               std::make_unique<SanitizedImageSource>(profile));
   source->AddResourcePaths(kWebuiToolbarSharedResources);
-#endif
   source->SetRequestFilter(
       base::BindRepeating(&ShouldHandleContextualTasksRequest),
       base::BindRepeating(&HandleContextualTasksRequest,
@@ -816,12 +802,7 @@ base::DictValue ContextualTasksUIBase::GetContextualTasksLoadTimeData(
 
   dict.Set("isSmallDeviceFormFactor",
            ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_PHONE);
-#if BUILDFLAG(IS_ANDROID)
-  dict.Set("isUserFeedbackAllowed",
-           profile->GetPrefs()->GetBoolean(prefs::kUserFeedbackAllowed));
-#else
   dict.Set("isUserFeedbackAllowed", true);
-#endif
   dict.Set("contextualTasksUnboundedMenuEnabled",
            contextual_tasks::IsContextualTasksUnboundedMenuEnabled());
 
@@ -850,7 +831,6 @@ void ContextualTasksUIBase::CreatePageHandler(
   toolbar_page_handler_receiver_.reset();
   toolbar_page_.Bind(std::move(page));
   toolbar_page_handler_receiver_.Bind(std::move(page_handler));
-#if !BUILDFLAG(IS_ANDROID)
   Profile* profile = GetProfile();
   can_pin_or_unpin_ =
       contextual_tasks::EntryPointEligibilityManager::CanPinOrUnpin(profile);
@@ -868,7 +848,6 @@ void ContextualTasksUIBase::CreatePageHandler(
       }
     }
   }
-#endif
   if (IsAiPage()) {
     NotifyAiPageStatusChanged(true);
   }
@@ -886,7 +865,6 @@ void ContextualTasksUIBase::CreatePageHandler(
 }
 
 void ContextualTasksUIBase::PinSidePanel() {
-#if !BUILDFLAG(IS_ANDROID)
   Profile* profile = GetProfile();
   if (!contextual_tasks::EntryPointEligibilityManager::CanPinOrUnpin(profile)) {
     return;
@@ -894,11 +872,9 @@ void ContextualTasksUIBase::PinSidePanel() {
   if (auto* model = PinnedToolbarActionsModel::Get(profile)) {
     model->UpdatePinnedState(kActionSidePanelShowContextualTasks, true);
   }
-#endif
 }
 
 void ContextualTasksUIBase::UnpinSidePanel() {
-#if !BUILDFLAG(IS_ANDROID)
   Profile* profile = GetProfile();
   if (!contextual_tasks::EntryPointEligibilityManager::CanPinOrUnpin(profile)) {
     return;
@@ -906,7 +882,6 @@ void ContextualTasksUIBase::UnpinSidePanel() {
   if (auto* model = PinnedToolbarActionsModel::Get(profile)) {
     model->UpdatePinnedState(kActionSidePanelShowContextualTasks, false);
   }
-#endif
 }
 
 void ContextualTasksUIBase::OpenMyActivityUi() {
@@ -1002,7 +977,7 @@ void ContextualTasksUIBase::MoveTaskUiToNewTab() {
 }
 
 void ContextualTasksUIBase::ShowThreadHistory() {
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   lens::ClientToSearchMessage message;
   message.mutable_open_threads_view();
 
@@ -1017,7 +992,6 @@ void ContextualTasksUIBase::ShowThreadHistory() {
 #endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextualTasksUIBase::OnActionsChanged() {
   if (auto* toolbar_page = GetToolbarPageRemote()) {
     toolbar_page->OnSidePanelPinStateChanged(
@@ -1055,7 +1029,6 @@ void ContextualTasksUIBase::OnCanPinOrUnpinMaybeChanged() {
         contextual_tasks::GetEffectivePinState(profile));
   }
 }
-#endif
 
 void ContextualTasksUIBase::OnTabClickedFromSourcesMenu(int32_t tab_id,
                                                         const GURL& url) {
@@ -1201,7 +1174,6 @@ bool ContextualTasksUIBase::CanTriggerPinningPromoForAiPage(
 }
 
 void ContextualTasksUIBase::MaybeTriggerPinningPromo() {
-#if !BUILDFLAG(IS_ANDROID)
   // Side panel is open & pinning/ephemeral button eligibility is active.
   auto* panel_controller = GetPanelController();
   if (!panel_controller || !panel_controller->IsPanelOpenForContextualTask() ||
@@ -1252,7 +1224,6 @@ void ContextualTasksUIBase::MaybeTriggerPinningPromo() {
   BrowserUserEducationInterface::From(browser_window)
       ->MaybeShowFeaturePromo(
           feature_engagement::kIPHSidePanelContextualTasksPinnableFeature);
-#endif
 }
 
 void ContextualTasksUIBase::BindInterface(
@@ -1388,12 +1359,10 @@ bool ContextualTasksUIBase::CanExpandToFullTab() const {
 }
 
 void ContextualTasksUIBase::UpdateExpandButtonEnabled(bool enabled) {
-#if !BUILDFLAG(IS_ANDROID)
   if (contextual_tasks_toolbar::mojom::Page* toolbar_page =
           GetToolbarPageRemote()) {
     toolbar_page->SetExpandButtonEnabled(enabled);
   }
-#endif
 }
 
 const std::optional<std::string>& ContextualTasksUIBase::GetThreadTitle() {

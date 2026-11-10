@@ -57,8 +57,7 @@ suite('ComposeboxVoiceSearchFlags', () => {
       voiceSearchCoherenceComposeboxesEnabled: false,
       voiceSearchCoherenceAnySearchboxExperimentEnabled: false,
       voiceSearchCoherenceCobrowsingComposeboxEnabled: false,
-      isSystemVoiceSearchEnabled: false,
-      androidSpeechRecognition: false,
+
     });
     document.body.innerHTML = window.trustedTypes!.emptyHTML;
     handler = installMock(
@@ -70,10 +69,8 @@ suite('ComposeboxVoiceSearchFlags', () => {
     searchboxHandler = installMock(
         SearchboxPageHandlerRemote,
         mock => ComposeboxProxyImpl.getInstance().searchboxHandler = mock);
-    // <if expr="not is_android">
     searchboxHandler.setResultMapperFor(
         'getSmartTabSharingActive', () => Promise.resolve({active: false}));
-    // </if>
     searchboxHandler.setResultFor(
         'getPageClassification',
         Promise.resolve({metricSource: 'NTP_REALBOX'}));

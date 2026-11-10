@@ -38,12 +38,6 @@ BASE_FEATURE(kDlpScanPastedImages, base::FEATURE_ENABLED_BY_DEFAULT);
 // Controls enabling bulk data entry support in Glic actuation logic.
 BASE_FEATURE(kGlicBulkDataEntrySupport, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// Controls whether files attached to web pages (file picker, drag-and-drop)
-// are scanned by enterprise content analysis on Clank.
-BASE_FEATURE(kEnableFileAttachedEnterpriseScanOnClank,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 // Controls whether cancellation of uploads is enabled for content analysis.
 //
@@ -59,11 +53,7 @@ BASE_FEATURE(kEnableFileAttachedEnterpriseScanOnClank,
 // TODO(crbug.com/399639311): Implement and test upload cancellation on Android
 // and iOS, then enable this feature on all platforms.
 BASE_FEATURE(kEnableCancelUploadOnContentAnalysis,
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-             base::FEATURE_DISABLED_BY_DEFAULT
-#else
              base::FEATURE_ENABLED_BY_DEFAULT
-#endif
 );
 
 // Controls whether a user cancelling a content analysis scan immediately stops

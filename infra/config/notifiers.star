@@ -21,24 +21,6 @@ luci.notifier(
 )
 
 luci.notifier(
-    name = "chromium-android-device-flasher",
-    # android-device-flasher runs only once a week. So have it sends
-    # notifications whenever there is an infra failure.
-    on_occurrence = ["INFRA_FAILURE"],
-    notify_emails = [
-        "chromium-infra+failures@google.com",
-    ],
-)
-
-luci.notifier(
-    name = "chromium-androidx-packager",
-    on_new_status = ["FAILURE"],
-    notify_emails = [
-        "clank-library-failures+androidx@google.com",
-    ],
-)
-
-luci.notifier(
     name = "chromium-infra",
     on_new_status = ["FAILURE", "INFRA_FAILURE"],
     notify_emails = [
@@ -157,28 +139,12 @@ tree_closure_notifier(
 )
 
 tree_closure_notifier(
-    name = "Deterministic Android",
-    notify_emails = ["agrieve@chromium.org"],
-)
-
-tree_closure_notifier(
     name = "Deterministic Linux",
     notify_emails = [
         "tikuta@chromium.org",
         "ukai@chromium.org",
         "yyanagisawa@chromium.org",
     ],
-)
-
-luci.notifier(
-    name = "Site Isolation Android",
-    notify_emails = [
-        "nasko+fyi-bots@chromium.org",
-        "creis+fyi-bots@chromium.org",
-        "lukasza+fyi-bots@chromium.org",
-        "alexmos+fyi-bots@chromium.org",
-    ],
-    on_new_status = ["FAILURE"],
 )
 
 luci.notifier(
@@ -360,13 +326,6 @@ luci.builder_health_notifier(
 
 luci.builder_health_notifier(
     owner_email = "bling-engprod@google.com",
-    ignore_buckets = ["try"],
-    notify_all_healthy = False,
-    gardened_builders_only = True,
-)
-
-luci.builder_health_notifier(
-    owner_email = "chromeos-chrome-build@google.com",
     ignore_buckets = ["try"],
     notify_all_healthy = False,
     gardened_builders_only = True,

@@ -47,12 +47,10 @@ namespace {
 
 // These settings are no longer used, and should be deleted on profile startup.
 
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
 const char kObsoleteInstalledWebAppMetadataExceptionsPref[] =
     "profile.content_settings.exceptions.installed_web_app_metadata";
 const char kObsoletePpapiBrokerExceptionsPref[] =
     "profile.content_settings.exceptions.ppapi_broker";
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
 const char
     kObsoleteGetDisplayMediaSetAutoSelectAllScreensAllowedForUrlsExceptionsPref
         [] = "profile.content_settings.exceptions.get_display_media_set_select_"
@@ -71,7 +69,6 @@ constexpr char kObsoleteTpcdHeuristicsGrantsPref[] =
 constexpr char kObsoleteTopLevelStorageAccessExceptionsPref[] =
     "profile.content_settings.exceptions.top_level_storage_access";
 
-#if !BUILDFLAG(IS_IOS)
 constexpr char kObsoleteTpcdTrialExceptionsPref[] =
     "profile.content_settings.exceptions.3pcd_support";
 constexpr char kObsoleteTopLevelTpcdTrialExceptionsPref[] =
@@ -89,7 +86,6 @@ constexpr char kLocalNetworkAccessMigrateExceptionsPref[] =
     "profile.content_settings.exceptions.has_migrated_local_network_access";
 constexpr char kObsoleteTrackingProtectionExceptionsPref[] =
     "profile.content_settings.exceptions.tracking_protection";
-#endif  // !BUILDFLAG(IS_IOS)
 
 }  // namespace
 
@@ -119,11 +115,9 @@ void PrefProvider::RegisterProfilePrefs(
 
   // These prefs have been removed, but need to be registered so they can
   // be deleted on startup.
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   registry->RegisterDictionaryPref(
       kObsoleteInstalledWebAppMetadataExceptionsPref);
   registry->RegisterDictionaryPref(kObsoletePpapiBrokerExceptionsPref);
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   registry->RegisterListPref(
       kObsoleteGetDisplayMediaSetAutoSelectAllScreensAllowedForUrlsExceptionsPref);
   registry->RegisterListPref(
@@ -132,7 +126,6 @@ void PrefProvider::RegisterProfilePrefs(
   registry->RegisterDictionaryPref(kObsoleteTpcdHeuristicsGrantsPref);
   registry->RegisterDictionaryPref(
       kObsoleteTopLevelStorageAccessExceptionsPref);
-#if !BUILDFLAG(IS_IOS)
   registry->RegisterDictionaryPref(kObsoleteTpcdTrialExceptionsPref);
   registry->RegisterDictionaryPref(kObsoleteTopLevelTpcdTrialExceptionsPref);
   registry->RegisterDictionaryPref(
@@ -142,7 +135,6 @@ void PrefProvider::RegisterProfilePrefs(
   registry->RegisterBooleanPref(kBug364820109AlreadyWorkedAroundPref, false);
   registry->RegisterBooleanPref(kLocalNetworkAccessMigrateExceptionsPref,
                                 false);
-#endif  // !BUILDFLAG(IS_IOS)
 }
 
 PrefProvider::PrefProvider(PrefService* prefs,
@@ -181,10 +173,8 @@ PrefProvider::PrefProvider(PrefService* prefs,
                                               base::Unretained(this)))));
   }
 
-#if !BUILDFLAG(IS_IOS)
   MigrateGeolocationExceptions();
   MigrateLocalNetworkAccessExceptions();
-#endif  // !BUILDFLAG(IS_IOS)
 
   size_t num_exceptions = 0;
   if (!off_the_record_) {
@@ -516,10 +506,8 @@ void PrefProvider::DiscardOrMigrateObsoletePreferences() {
 
   // These prefs were never stored on iOS/Android so they don't need to be
   // deleted.
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   prefs_->ClearPref(kObsoleteInstalledWebAppMetadataExceptionsPref);
   prefs_->ClearPref(kObsoletePpapiBrokerExceptionsPref);
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   prefs_->ClearPref(
       kObsoleteGetDisplayMediaSetAutoSelectAllScreensAllowedForUrlsExceptionsPref);
   prefs_->ClearPref(kObsoleteFederatedIdentityActiveSesssionExceptionsPref);
@@ -527,17 +515,14 @@ void PrefProvider::DiscardOrMigrateObsoletePreferences() {
   prefs_->ClearPref(kObsoleteTpcdHeuristicsGrantsPref);
   prefs_->ClearPref(kObsoleteTopLevelStorageAccessExceptionsPref);
 
-#if !BUILDFLAG(IS_IOS)
   prefs_->ClearPref(kObsoleteTpcdTrialExceptionsPref);
   prefs_->ClearPref(kObsoleteTopLevelTpcdTrialExceptionsPref);
   prefs_->ClearPref(kObsoleteTopLevelTpcdOriginTrialExceptionsPref);
   prefs_->ClearPref(kObsoleteTrackingProtectionExceptionsPref);
   // TODO(https://crbug.com/367181093): clean this up.
   prefs_->ClearPref(kBug364820109AlreadyWorkedAroundPref);
-#endif  // !BUILDFLAG(IS_IOS)
 }
 
-#if !BUILDFLAG(IS_IOS)
 void PrefProvider::MigrateGeolocationExceptions() {
   if (off_the_record_) {
     return;
@@ -627,7 +612,6 @@ void PrefProvider::MigrateLocalNetworkAccessExceptions() {
     prefs_->SetBoolean(kLocalNetworkAccessMigrateExceptionsPref, true);
   }
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 void PrefProvider::SetClockForTesting(const base::Clock* clock) {
   clock_ = clock;

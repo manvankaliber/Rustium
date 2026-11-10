@@ -192,11 +192,7 @@ class SharingDeviceRegistrationImplTest : public testing::Test {
   }
 
   bool supports_opt_guide() const {
-#if BUILDFLAG(IS_ANDROID)
-    return true;
-#else
     return false;
-#endif
   }
 
  protected:

@@ -16,9 +16,7 @@ namespace {
 static constexpr std::array kSupportedCommands = {
 // On Android, kClose is handled in GlicSidePanelUi to let Glic's internal
 // WebContents process Escape key first.
-#if !BUILDFLAG(IS_ANDROID)
     glic::LocalHotkeyManager::Command::kClose,
-#endif
     glic::LocalHotkeyManager::Command::kFocusToggle,
     glic::LocalHotkeyManager::Command::kZoomIn,
     glic::LocalHotkeyManager::Command::kZoomOut,
@@ -60,12 +58,10 @@ bool PanelFocusDependentHotkeyManager::AcceleratorPressed(
 
   switch (command) {
     case LocalHotkeyManager::Command::kClose: {
-#if !BUILDFLAG(IS_ANDROID)
       if (panel_->HasSelectionOverlay()) {
         panel_->CloseSelectionOverlay();
         return true;
       }
-#endif
       panel_->Close(CloseOptions());
       return true;
     }

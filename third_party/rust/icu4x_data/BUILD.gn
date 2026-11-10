@@ -19,12 +19,6 @@ declare_args() {
 
 if (icu4x_override_data_dir != "") {
   _icu4x_data_platform = icu4x_override_data_dir
-} else if (is_android) {
-  _icu4x_data_platform = "android"
-} else if (is_ios && !use_blink) {
-  _icu4x_data_platform = "ios"
-} else if (is_chromeos) {
-  _icu4x_data_platform = "chromeos"
 } else if (current_cpu == "wasm") {
   _icu4x_data_platform = "flutter"
 } else {

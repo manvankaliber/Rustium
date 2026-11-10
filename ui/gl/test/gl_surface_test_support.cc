@@ -16,7 +16,7 @@
 #include "ui/gl/gl_switches.h"
 #include "ui/gl/init/gl_factory.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "ui/platform_window/common/platform_window_defaults.h"  // nogncheck
 #endif
 
@@ -38,7 +38,7 @@ GLDisplay* InitializeOneOffHelper(bool init_extensions) {
   ui::OzonePlatform::InitializeForGPU(params);
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   ui::test::EnableTestConfigForPlatformWindows();
 #endif
 
@@ -51,10 +51,6 @@ GLDisplay* InitializeOneOffHelper(bool init_extensions) {
     use_software_gl = false;
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // On Android and iOS we always use hardware GL.
-  use_software_gl = false;
-#endif
 
   std::vector<GLImplementationParts> allowed_impls =
       init::GetAllowedGLImplementations();

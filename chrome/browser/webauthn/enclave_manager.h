@@ -39,9 +39,6 @@
 #include "chrome/common/chrome_version.h"
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include <variant>
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class GaiaId;
 
@@ -53,12 +50,6 @@ namespace crypto {
 class RefCountedUserVerifyingSigningKey;
 }  // namespace crypto
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace ash {
-class WebAuthNDialogController;
-class ActiveSessionAuthController;
-}  // namespace ash
-#endif
 
 namespace network {
 class SharedURLLoaderFactory;
@@ -129,11 +120,6 @@ class EnclaveManager : public EnclaveManagerInterface {
     // The RenderFrameHost from which the request originates.
     content::GlobalRenderFrameHostId render_frame_host_id;
 
-#if BUILDFLAG(IS_CHROMEOS)
-    std::variant<raw_ptr<ash::WebAuthNDialogController>,
-                 raw_ptr<ash::ActiveSessionAuthController>>
-        dialog_controller;
-#endif
 
     // An optional auth context. Currently only used to pass LAcontext to Apple
     // Keychain operations.

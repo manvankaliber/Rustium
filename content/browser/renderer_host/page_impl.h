@@ -34,9 +34,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/android/page_proxy.h"
-#endif
 
 namespace cc {
 struct BrowserControlsOffsetTagModifications;
@@ -73,9 +70,6 @@ class CONTENT_EXPORT PageImpl : public Page {
   base::SafeRef<Page> GetSafeRef() override;
   bool IsPageScaleFactorOne() override;
   const std::string& GetContentsMimeType() const override;
-#if BUILDFLAG(IS_ANDROID)
-  base::android::ScopedJavaLocalRef<jobject> GetJavaPage() override;
-#endif
 
   base::WeakPtr<PageImpl> GetWeakPtrImpl();
 
@@ -450,11 +444,6 @@ class CONTENT_EXPORT PageImpl : public Page {
   std::set<url::Origin> origins_with_form_edits_;
   std::set<url::Origin> origins_with_user_edits_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // For each C++ Page, there is a Java counterpart. It is the JNI bridge in
-  // between the two.
-  std::unique_ptr<PageProxy> page_proxy_;
-#endif
 
   base::WeakPtrFactory<PageImpl> weak_factory_{this};
 };

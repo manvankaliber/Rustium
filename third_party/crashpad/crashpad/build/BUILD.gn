@@ -61,28 +61,3 @@ if (crashpad_is_apple) {
     }
   }
 }
-
-if (crashpad_is_ios) {
-  group("ios_xctest") {
-    if (crashpad_is_in_chromium) {
-      public_configs = [ "//build/config/ios:xctest_config" ]
-    } else if (crashpad_is_standalone) {
-      public_configs = [
-        "//third_party/mini_chromium/mini_chromium/build/ios:xctest_config",
-      ]
-    }
-  }
-
-  if (crashpad_is_in_chromium) {
-    import("//build/config/ios/ios_sdk.gni")
-    crashpad_is_ios_app_extension = ios_is_app_extension
-  } else {
-    crashpad_is_ios_app_extension = false
-  }
-
-  config("crashpad_is_ios_app_extension") {
-    if (crashpad_is_ios_app_extension) {
-      defines = [ "CRASHPAD_IS_IOS_APP_EXTENSION" ]
-    }
-  }
-}

@@ -187,14 +187,6 @@ export function getHtml(this: SettingsSecurityPageElement) {
     <settings-secure-dns class="hr" id="secureDnsSettingNew">
     </settings-secure-dns>
   ` : ''}
-<if expr="is_chromeos">
-  ${this.showSecureDnsSettingLink_ ? html`
-    <cr-link-row id="openChromeOSSecureDnsSettings"
-        @click="${this.onOpenChromeOsSecureDnsSettingsClick_}"
-        label="$i18n{openChromeOSSecureDnsSettingsLabel}" external>
-    </cr-link-row>
-  ` : ''}
-</if>
   <cr-link-row id="javascriptOptimizerSettingLink" class="hr"
       @click="${this.onJavascriptOptimizerSettingsClick_}"
       label="$i18n{securityJavascriptOptimizerLinkTitle}"

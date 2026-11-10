@@ -112,9 +112,7 @@ def initial_settings(
         "gardener_rotation": "chrome_browser_release",
       }
       for p in (
-        "android",
         "cros",
-        "ios",
         "linux",
         "mac",
         "windows",

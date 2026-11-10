@@ -10,8 +10,6 @@ name="InProductHelp_Type"> in tools/metrics/actions/actions.xml (with 'IPH'
 stripped and '\_' prepended) and its histogram variant under <variants
 name="IPHFeature"> in
 tools/metrics/histograms/metadata/feature_engagement/histograms.xml.
-Alternatively, run python3 tools/feature_engagement/generate_iph_entry.py to
-generate all required UMA boilerplate.
 
 **Why.** Feature Engagement automatically records user actions and histograms
 (such as InProductHelp.NotifyEvent.IPH, InProductHelp.ShouldTriggerHelpUI.IPH,

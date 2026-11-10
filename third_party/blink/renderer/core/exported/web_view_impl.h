@@ -600,7 +600,6 @@ class CORE_EXPORT WebViewImpl final : public WebView,
   void DidChangeThemeColor(std::optional<SkColor> theme_color);
   void DidChangeBackgroundColor(SkColor4f background_color, bool color_adjust);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // Additional Windowing Controls API.
   using WindowingControlsChangeCallback = base::OnceCallback<void(bool)>;
   // Sends window.minimize() requests to the browser window.
@@ -611,7 +610,6 @@ class CORE_EXPORT WebViewImpl final : public WebView,
   void Restore(WindowingControlsChangeCallback);
   // Sends window.setResizable() requests to the browser window.
   void SetResizable(bool resizable, WindowingControlsChangeCallback);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   // TODO(crbug.com/1149992): This is called from the associated widget and this
   // code should eventually move out of WebView into somewhere else.

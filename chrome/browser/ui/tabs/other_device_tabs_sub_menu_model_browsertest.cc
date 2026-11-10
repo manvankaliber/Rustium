@@ -257,7 +257,6 @@ IN_PROC_BROWSER_TEST_F(OtherDeviceTabsSubMenuModelTest, EmptyWhenNotEligible) {
   pref_service->SetBoolean(prefs::kSavingBrowserHistoryDisabled, false);
   ASSERT_EQ(4u, CreateModel()->GetItemCount());
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // ShouldShowTabsFromOtherDevices() doesn't check sync settings on ChromeOS.
   SetTabSyncSelected(false);
   EXPECT_EQ(0u, CreateModel()->GetItemCount());
@@ -267,7 +266,6 @@ IN_PROC_BROWSER_TEST_F(OtherDeviceTabsSubMenuModelTest, EmptyWhenNotEligible) {
   // Equivalent of the SyncDisabled enterprise policy.
   pref_service->SetBoolean(syncer::prefs::internal::kSyncManaged, true);
   EXPECT_EQ(0u, CreateModel()->GetItemCount());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 // --- Active: inline device headers and tabs --------------------------------

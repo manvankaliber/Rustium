@@ -10,9 +10,6 @@
 #include "partition_alloc/build_config.h"
 #include "partition_alloc/buildflags.h"
 #include "partition_alloc/partition_alloc_base/time/time.h"
-#if PA_BUILDFLAG(IS_ANDROID) && !defined(__LP64__)
-#include <time64.h>
-#endif
 #include <unistd.h>
 
 #include "partition_alloc/partition_alloc_base/check.h"
@@ -49,15 +46,13 @@ int64_t ConvertTimespecToMicros(const struct timespec& ts) {
 // microsecond timebase. Minimum requirement is MONOTONIC_CLOCK to be supported
 // on the system. FreeBSD 6 has CLOCK_MONOTONIC but defines
 // _POSIX_MONOTONIC_CLOCK to -1.
-#if (PA_BUILDFLAG(IS_POSIX) && defined(_POSIX_MONOTONIC_CLOCK) && \
-     _POSIX_MONOTONIC_CLOCK >= 0) ||                              \
-    PA_BUILDFLAG(IS_BSD) || PA_BUILDFLAG(IS_ANDROID)
+#if PA_BUILDFLAG(IS_POSIX) && defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK >= 0 || PA_BUILDFLAG(IS_BSD)
 int64_t ClockNow(clockid_t clk_id) {
   struct timespec ts;
   PA_BASE_CHECK(clock_gettime(clk_id, &ts) == 0);
   return ConvertTimespecToMicros(ts);
 }
-#else  // _POSIX_MONOTONIC_CLOCK
+#else
 #error No usable tick clock function on this platform.
 #endif  // _POSIX_MONOTONIC_CLOCK
 
@@ -111,8 +106,7 @@ bool TimeTicks::IsConsistentAcrossProcesses() {
 
 namespace subtle {
 ThreadTicks ThreadTicksNowIgnoringOverride() {
-#if (defined(_POSIX_THREAD_CPUTIME) && (_POSIX_THREAD_CPUTIME >= 0)) || \
-    PA_BUILDFLAG(IS_ANDROID)
+#if defined(_POSIX_THREAD_CPUTIME) && _POSIX_THREAD_CPUTIME >= 0
   return ThreadTicks() + Microseconds(ClockNow(CLOCK_THREAD_CPUTIME_ID));
 #else
   PA_NOTREACHED();

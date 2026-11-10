@@ -58,9 +58,7 @@
 #include "components/metrics/structured/structured_metrics_client.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/selection/selection_overlay_controller.h"
-#endif
 
 namespace glic {
 
@@ -120,7 +118,6 @@ void RecordSelectionOverlayMetrics(
     const std::vector<raw_ptr<tabs::TabInterface>>& pinned_tabs,
     const GlicMetricReporter& reporter) {
 // Selection Overlays are not currently implemented on Android.
-#if !BUILDFLAG(IS_ANDROID)
   int selection_areas_count = 0;
   std::vector<int> polyline_point_counts;
   for (tabs::TabInterface* tab : pinned_tabs) {
@@ -146,7 +143,6 @@ void RecordSelectionOverlayMetrics(
           "Instance.InputSubmitted.Selection.PolylinePointCount", count);
     }
   }
-#endif
 }
 
 #if BUILDFLAG(STRUCTURED_METRICS_ENABLED)

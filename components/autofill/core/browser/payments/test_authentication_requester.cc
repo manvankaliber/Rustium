@@ -31,18 +31,7 @@ void TestAuthenticationRequester::OnCvcAuthenticationComplete(
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool TestAuthenticationRequester::ShouldOfferFidoAuth() const {
-  return false;
-}
 
-bool TestAuthenticationRequester::UserOptedInToFidoFromSettingsPageOnMobile()
-    const {
-  return false;
-}
-#endif
-
-#if !BUILDFLAG(IS_IOS)
 void TestAuthenticationRequester::OnFIDOAuthenticationComplete(
     const CreditCardFidoAuthenticator::FidoAuthenticationResponse& response) {
   did_succeed_ = response.did_succeed;
@@ -63,7 +52,6 @@ void TestAuthenticationRequester::IsUserVerifiableCallback(
     bool is_user_verifiable) {
   is_user_verifiable_ = is_user_verifiable;
 }
-#endif
 
 void TestAuthenticationRequester::OnOtpAuthenticationComplete(
     const CreditCardOtpAuthenticator::OtpAuthenticationResponse& response) {

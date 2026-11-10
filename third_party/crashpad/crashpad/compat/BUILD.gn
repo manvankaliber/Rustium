@@ -21,16 +21,8 @@ config("compat_config") {
     include_dirs += [ "mac" ]
   }
 
-  if (crashpad_is_ios) {
-    include_dirs += [ "ios" ]
-  }
-
-  if (crashpad_is_linux || crashpad_is_android) {
+  if (crashpad_is_linux) {
     include_dirs += [ "linux" ]
-  }
-
-  if (crashpad_is_android) {
-    include_dirs += [ "android" ]
   }
 
   if (crashpad_is_win) {
@@ -78,17 +70,7 @@ compat_target("compat") {
     sources += [ "non_mac/mach/mach.h" ]
   }
 
-  if (crashpad_is_ios) {
-    sources += [
-      "ios/mach/exc.defs",
-      "ios/mach/mach_exc.defs",
-      "ios/mach/mach_types.defs",
-      "ios/mach/machine/machine_types.defs",
-      "ios/mach/std_types.defs",
-    ]
-  }
-
-  if (crashpad_is_linux || crashpad_is_android) {
+  if (crashpad_is_linux) {
     sources += [
       "linux/signal.h",
       "linux/sys/mman.h",
@@ -96,10 +78,6 @@ compat_target("compat") {
       "linux/sys/ptrace.h",
       "linux/sys/user.h",
     ]
-  }
-
-  if (crashpad_is_android) {
-    sources += [ "android/elf.h" ]
   }
 
   if (crashpad_is_win) {

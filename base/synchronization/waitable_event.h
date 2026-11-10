@@ -192,7 +192,7 @@ class BASE_EXPORT WaitableEvent {
 
 #if BUILDFLAG(IS_WIN)
   win::ScopedHandle handle_;
-#elif BUILDFLAG(IS_APPLE) && (!BUILDFLAG(IS_IOS) || !BUILDFLAG(USE_BLINK))
+#elif BUILDFLAG(IS_APPLE)
   // iOS which supports blink must use the posix variant since opening
   // mach_ports is prevented inside sandbox profiles.
   //

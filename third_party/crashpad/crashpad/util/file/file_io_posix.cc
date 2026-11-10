@@ -148,7 +148,7 @@ FileHandle LoggingOpenFileForWrite(const base::FilePath& path,
   return fd;
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 FileHandle LoggingOpenMemoryFileForReadAndWrite(const base::FilePath& name) {
   DCHECK(name.value().find('/') == std::string::npos);
 
@@ -217,28 +217,6 @@ FileLockingResult LoggingLockFile(FileHandle file,
     if (errno == EWOULDBLOCK) {
       return FileLockingResult::kWouldBlock;
     }
-#if BUILDFLAG(IS_ANDROID)
-    if (errno == ENOSYS) {
-      // On Android, tests on non-rooted devices configure the crash database on
-      // /sdcard (via --breakpad-dump-location) so that adb can pull minidumps
-      // without root access. /sdcard is mounted via FUSE, which does not
-      // implement flock() and fails with ENOSYS.
-      //
-      // LoggingLockFile() is only used by Settings (for settings.dat).
-      // Proceeding without a lock here means concurrent accesses to
-      // settings.dat on FUSE are unsynchronized and could theoretically race
-      // (corrupting or losing a settings update), whereas failing here causes
-      // Settings::Initialize() to fail and prevents crashpad_handler from
-      // writing crash dumps (or triggers a DCHECK crash in
-      // SettingsReader::GetClientID()). Production databases live in the app's
-      // cache directory on /data (ext4/f2fs), where flock() is supported.
-      static std::atomic<bool> logged{false};
-      if (!logged.exchange(true, std::memory_order_relaxed)) {
-        PLOG(WARNING) << "flock (locking disabled)";
-      }
-      return FileLockingResult::kSuccess;
-    }
-#endif
     PLOG(ERROR) << "flock";
     return FileLockingResult::kFailure;
   }
@@ -247,11 +225,6 @@ FileLockingResult LoggingLockFile(FileHandle file,
 
 bool LoggingUnlockFile(FileHandle file) {
   int rv = flock(file, LOCK_UN);
-#if BUILDFLAG(IS_ANDROID)
-  if (rv != 0 && errno == ENOSYS) {
-    return true;
-  }
-#endif
   PLOG_IF(ERROR, rv != 0) << "flock";
   return rv == 0;
 }

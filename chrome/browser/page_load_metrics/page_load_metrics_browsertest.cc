@@ -1067,7 +1067,7 @@ IN_PROC_BROWSER_TEST_F(PageLoadMetricsBrowserTest, NoPaintForEmptyDocument) {
 }
 
 // TODO(crbug.com/41472183): Flaky on Win and Linux.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 #define MAYBE_NoPaintForEmptyDocumentInChildFrame \
   DISABLED_NoPaintForEmptyDocumentInChildFrame
 #else
@@ -2264,10 +2264,6 @@ class SessionRestorePageLoadMetricsBrowserTest
 
     SessionStartupPref::SetStartupPref(
         profile, SessionStartupPref(SessionStartupPref::LAST));
-#if BUILDFLAG(IS_CHROMEOS)
-    SessionServiceTestHelper helper(profile);
-    helper.SetForceBrowserNotAliveWithNoWindows(true);
-#endif
 
     auto keep_alive = std::make_unique<ScopedKeepAlive>(
         KeepAliveOrigin::SESSION_RESTORE, KeepAliveRestartOption::DISABLED);
@@ -3560,8 +3556,7 @@ INSTANTIATE_TEST_SUITE_P(
                        blink::kChromeUIProcessInternalsURL}));
 
 // Test is flaky. https://crbug.com/40202043
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 #define MAYBE_PageLCPAnimatedImage DISABLED_PageLCPAnimatedImage
 #else
 #define MAYBE_PageLCPAnimatedImage PageLCPAnimatedImage

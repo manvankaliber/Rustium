@@ -17,9 +17,6 @@ class MockDeviceAuthAvailabilityChecker : public DeviceAuthAvailabilityChecker {
 
   MOCK_METHOD(bool, CanAuthenticateWithBiometrics, (), (override));
   MOCK_METHOD(bool, CanAuthenticateWithBiometricOrScreenLock, (), (override));
-#if BUILDFLAG(IS_ANDROID)
-  MOCK_METHOD(BiometricStatus, GetBiometricAvailabilityStatus, (), (override));
-#endif
 };
 
 }  // namespace device_reauth

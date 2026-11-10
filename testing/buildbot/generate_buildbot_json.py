@@ -30,12 +30,6 @@ import buildbot_json_magic_substitutions as magic_substitutions
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-BROWSER_CONFIG_TO_TARGET_SUFFIX_MAP = {
-  'android-chromium': '_android_chrome',
-  'android-webview': '_android_webview',
-}
-
-
 class BBGenErr(Exception):
   def __init__(self, message):
     super(BBGenErr, self).__init__(message)
@@ -50,17 +44,8 @@ class BaseGenerator(object):
 
 
 class GPUTelemetryTestGenerator(BaseGenerator):
-  def __init__(
-    self,
-    bb_gen,
-    is_android_webview=False,
-    is_cast_streaming=False,
-    is_skylab=False,
-  ):
+  def __init__(self, bb_gen):
     super(GPUTelemetryTestGenerator, self).__init__(bb_gen)
-    self._is_android_webview = is_android_webview
-    self._is_cast_streaming = is_cast_streaming
-    self._is_skylab = is_skylab
 
   def generate(self, waterfall, tester_name, tester_config, input_tests):
     isolated_scripts = []
@@ -77,44 +62,10 @@ class GPUTelemetryTestGenerator(BaseGenerator):
           tester_config,
           test_name,
           config,
-          self._is_android_webview,
-          self._is_cast_streaming,
-          self._is_skylab,
         )
         if test:
           isolated_scripts.append(test)
 
-    return isolated_scripts
-
-
-class SkylabGPUTelemetryTestGenerator(GPUTelemetryTestGenerator):
-  def __init__(self, bb_gen):
-    super(SkylabGPUTelemetryTestGenerator, self).__init__(
-      bb_gen, is_skylab=True
-    )
-
-  def generate(self, *args, **kwargs):
-    # This should be identical to a regular GPU Telemetry test, but with any
-    # swarming arguments removed.
-    isolated_scripts = super(SkylabGPUTelemetryTestGenerator, self).generate(
-      *args, **kwargs
-    )
-    for test in isolated_scripts:
-      # chromium_Graphics is the Autotest wrapper created for browser GPU tests
-      # run in Skylab.
-      assert test['autotest_name'] == 'chromium_Graphics', (
-        f'GPU test {test["name"]} should always use chromium_Graphics, '
-        f'found {test["autotest_name"]}'
-      )
-      # As of 22Q4, Skylab tests are running on a CrOS flavored Autotest
-      # framework and it does not support the sub-args like
-      # extra-browser-args. So we have to pop it out and create a new
-      # key for it. See crrev.com/c/3965359 for details.
-      for idx, arg in enumerate(test.get('args', [])):
-        if '--extra-browser-args' in arg:
-          test['args'].pop(idx)
-          test['extra_browser_args'] = arg.replace('--extra-browser-args=', '')
-          break
     return isolated_scripts
 
 
@@ -171,18 +122,6 @@ class ScriptGenerator(BaseGenerator):
         scripts.append(test)
     return scripts
 
-
-class SkylabGenerator(BaseGenerator):
-  def generate(self, waterfall, tester_name, tester_config, input_tests):
-    scripts = []
-    for test_name, test_config in sorted(input_tests.items()):
-      for config in test_config:
-        test = self.bb_gen.generate_skylab_test(
-          waterfall, tester_name, tester_config, test_name, config
-        )
-        if test:
-          scripts.append(test)
-    return scripts
 
 
 def check_compound_references(
@@ -516,15 +455,6 @@ class BBJSONGenerator(object):
   # TOOD(kbr): require that os_type be specified for all bots in waterfalls.pyl.
   # Currently it is only mandatory for bots which run GPU tests. Change these to
   # use [] instead of .get().
-  def is_android(self, tester_config):
-    return tester_config.get('os_type') == 'android'
-
-  def is_chromeos(self, tester_config):
-    return tester_config.get('os_type') == 'chromeos'
-
-  def is_lacros(self, tester_config):
-    return tester_config.get('os_type') == 'lacros'
-
   def is_linux(self, tester_config):
     return tester_config.get('os_type') == 'linux'
 
@@ -555,12 +485,6 @@ class BBJSONGenerator(object):
     if remove_from:
       if tester_name in remove_from:
         return False
-      # TODO(kbr): this code path was added for some tests (including
-      # android_webview_unittests) on one machine (Nougat Phone
-      # Tester) which exists with the same name on two waterfalls,
-      # chromium.android and chromium.fyi; the tests are run on one
-      # but not the other. Once the bots are all uniquely named (a
-      # different ongoing project) this code should be removed.
       # TODO(kbr): add coverage.
       return (
         tester_name + ' ' + waterfall['name'] not in remove_from
@@ -683,19 +607,7 @@ class BBJSONGenerator(object):
 
   def resolve_os_conditional_values(self, test, builder):
     for key, fn in (
-      ('android_swarming', self.is_android),
-      ('chromeos_swarming', self.is_chromeos),
-    ):
-      swarming = test.pop(key, None)
-      if swarming and fn(builder):
-        self.merge_swarming(test['swarming'], swarming)
-
-    for key, fn in (
-      ('desktop_args', lambda cfg: not self.is_android(cfg)),
-      ('lacros_args', self.is_lacros),
       ('linux_args', self.is_linux),
-      ('android_args', self.is_android),
-      ('chromeos_args', self.is_chromeos),
       ('mac_args', self.is_mac),
       ('win_args', self.is_win),
       ('win64_args', self.is_win64),
@@ -794,51 +706,6 @@ class BBJSONGenerator(object):
       else:
         del test['swarming']
 
-    # Ensure all Android Swarming tests run only on userdebug builds if another
-    # build type was not specified.
-    if 'swarming' in test and self.is_android(builder):
-      dimensions = test.get('swarming', {}).get('dimensions', {})
-      if dimensions.get('os') == 'Android' and not dimensions.get(
-        'device_os_type'
-      ):
-        dimensions['device_os_type'] = 'userdebug'
-
-    skylab = test.pop('skylab', {})
-    if skylab.get('cros_board'):
-      if test.get('experiment_percentage') != 100:
-        skylab.setdefault('shard_level_retries_on_ctp', 1)
-
-      for k, v in skylab.items():
-        test[k] = v
-
-      # Should use chromiumos.test.api.TestSuite.test_case_tag_criteria.
-      # When this is set cros_test_platform(CTP) will find tests to run based
-      # on the criteria rather than one single test.
-      # The autotest wrapper that launches tast test is considered one single
-      # test at scheduling. If we specify test_case_tag_criteria, CTP can
-      # enumerate the tast tests and launches direct run of tast tests without
-      # autotest wrapper. In this case we don't need to populate autotest_name
-      # (maps to chromiumos.test.api.TestSuite.test_case_ids) to be the wrapper.
-      has_ctp_tag_criteria = bool(
-        test.keys()
-        & {
-          'cros_test_tags',
-          'cros_test_tags_exclude',
-          'cros_test_names',
-          'cros_test_names_exclude',
-          'cros_test_names_from_file',
-          'cros_test_names_exclude_from_file',
-        }
-      )
-
-      # For skylab, we need to pop the correct `autotest_name`. This field
-      # defines what wrapper we use in OS infra. e.g. for gtest it's
-      # https://source.chromium.org/chromiumos/chromiumos/codesearch/+/main:src/third_party/autotest/files/server/site_tests/chromium/chromium.py
-      if not has_ctp_tag_criteria:  # pragma: no cover
-        assert test.get('autotest_name'), (
-          f'{test} in {builder} does not have autotest_name'
-        )
-
     # Apply any replacements specified for the test for the builder
     self.replace_test_args(test, test_name, builder_name)
 
@@ -890,37 +757,7 @@ class BBJSONGenerator(object):
           )
 
   def add_common_test_properties(self, test, tester_config):
-    if self.is_chromeos(tester_config) and tester_config.get(
-      'use_swarming', True
-    ):
-      # The presence of the "device_type" dimension indicates that the tests
-      # are targeting CrOS hardware and so need the special trigger script.
-      if 'device_type' in test.get('swarming', {}).get('dimensions', {}):
-        test['trigger_script'] = {
-          'script': '//testing/trigger_scripts/chromeos_device_trigger.py',
-        }
-
-  def add_android_presentation_args(self, tester_config, result):
-    bucket = tester_config.get('results_bucket', 'chromium-result-details')
-    result.setdefault('args', []).append('--gs-results-bucket=%s' % bucket)
-
-    if (
-      'swarming' in result
-      and 'merge' not in 'result'
-      and not tester_config.get('skip_merge_script', False)
-    ):
-      result['merge'] = {
-        'args': [
-          '--bucket',
-          bucket,
-          '--test-name',
-          result['name'],
-        ],
-        'script': (
-          '//build/android/pylib/results/presentation/'
-          'test_results_presentation.py'
-        ),
-      }
+    pass
 
   def generate_gtest(
     self, waterfall, tester_name, tester_config, test_name, test_config
@@ -935,12 +772,6 @@ class BBJSONGenerator(object):
     result = self.apply_common_transformations(
       waterfall, tester_name, tester_config, result, test_name
     )
-    if self.is_android(tester_config) and 'swarming' in result:
-      if not result.get('use_isolated_scripts_api', False):
-        # TODO(crbug.com/40725094) make Android presentation work with
-        # isolated scripts in test_results_presentation.py merge script
-        self.add_android_presentation_args(tester_config, result)
-        result['args'] = result.get('args', []) + ['--recover-devices']
     self.add_common_test_properties(result, tester_config)
 
     if 'swarming' in result and not result.get('merge'):
@@ -966,11 +797,6 @@ class BBJSONGenerator(object):
     result = self.apply_common_transformations(
       waterfall, tester_name, tester_config, result, test_name
     )
-    if self.is_android(tester_config) and 'swarming' in result:
-      if tester_config.get('use_android_presentation', False):
-        # TODO(crbug.com/40725094) make Android presentation work with
-        # isolated scripts in test_results_presentation.py merge script
-        self.add_android_presentation_args(tester_config, result)
     self.add_common_test_properties(result, tester_config)
 
     if 'swarming' in result and not result.get('merge'):
@@ -1018,35 +844,6 @@ class BBJSONGenerator(object):
     result = {k: result[k] for k in self._SCRIPT_FIELDS if k in result}
     return result
 
-  def generate_skylab_test(
-    self, waterfall, tester_name, tester_config, test_name, test_config
-  ):
-    if not self.should_run_on_tester(waterfall, tester_name, test_config):
-      return None
-    result = copy.deepcopy(test_config)
-    result.setdefault('test', test_name)
-
-    skylab = result.setdefault('skylab', {})
-
-    for src, dst in (
-      ('cros_board', 'cros_board'),
-      ('cros_model', 'cros_model'),
-      ('cros_dut_pool', 'dut_pool'),
-      ('cros_build_target', 'cros_build_target'),
-      ('shard_level_retries_on_ctp', 'shard_level_retries_on_ctp'),
-    ):
-      if src in tester_config:
-        skylab[dst] = tester_config[src]
-
-    result = self.apply_common_transformations(
-      waterfall, tester_name, tester_config, result, test_name, swarmable=False
-    )
-
-    if 'cros_board' not in result:
-      raise BBGenErr('skylab tests must specify cros_board.')
-
-    return result
-
   def substitute_gpu_args(self, tester_config, test, args):
     substitutions = {
       # Any machine in waterfalls.pyl which desires to run GPU tests
@@ -1074,9 +871,6 @@ class BBJSONGenerator(object):
     tester_config,
     test_name,
     test_config,
-    is_android_webview,
-    is_cast_streaming,
-    is_skylab,
   ):
     # These are all just specializations of isolated script tests with
     # a bunch of boilerplate command line arguments added.
@@ -1096,9 +890,7 @@ class BBJSONGenerator(object):
     )
     if not result:
       return None
-    result['test'] = test_config.get('test') or self.get_default_isolate_name(
-      tester_config, is_android_webview
-    )
+    result['test'] = test_config.get('test') or self.get_default_isolate_name()
 
     # Populate test_id_prefix.
     gn_entry = self.gn_isolate_map[result['test']]
@@ -1121,39 +913,16 @@ class BBJSONGenerator(object):
     if 'swarming' in result:
       result['swarming']['idempotent'] = False
 
-    browser = ''
-    if is_cast_streaming:
-      browser = 'cast-streaming-shell'
-    elif is_android_webview:
-      browser = 'android-webview-instrumentation'
-    else:
-      browser = tester_config['browser_config']
+    browser = tester_config['browser_config']
 
     extra_browser_args = []
-
-    # Most platforms require --enable-logging=stderr to get useful browser logs.
-    # However, this actively messes with logging on CrOS (because Chrome's
-    # stderr goes nowhere on CrOS) AND --log-level=0 is required for some reason
-    # in order to see JavaScript console messages. See
-    # https://chromium.googlesource.com/chromium/src.git/+/HEAD/docs/chrome_os_logging.md
-    if self.is_chromeos(tester_config):
-      extra_browser_args.append('--log-level=0')
-    else:
-      # Stderr logging is not needed for Chrome browser on Fuchsia, as ordinary
-      # logging via syslog is captured.
-      extra_browser_args.append('--enable-logging=stderr')
+    # Stderr logging is not needed for Chrome browser on Fuchsia, as ordinary
+    # logging via syslog is captured.
+    extra_browser_args.append('--enable-logging=stderr')
 
     # --expose-gc allows the WebGL conformance tests to more reliably
     # reproduce GC-related bugs in the V8 bindings.
     extra_browser_args.append('--js-flags=--expose-gc')
-
-    # Skylab supports sharding, so reuse swarming's shard config.
-    if (
-      is_skylab
-      and 'shards' not in result
-      and test_config.get('swarming', {}).get('shards')
-    ):
-      result['shards'] = test_config['swarming']['shards']
 
     args = [
       test_to_run,
@@ -1175,42 +944,22 @@ class BBJSONGenerator(object):
 
   # LINT.ThenChange(//infra/config/lib/targets-internal/test-types/gpu_telemetry_test.star)
 
-  def get_default_isolate_name(self, tester_config, is_android_webview):
-    if self.is_android(tester_config):
-      if is_android_webview:
-        return 'telemetry_gpu_integration_test_android_webview'
-      return (
-        'telemetry_gpu_integration_test'
-        + BROWSER_CONFIG_TO_TARGET_SUFFIX_MAP[tester_config['browser_config']]
-      )
+  def get_default_isolate_name(self):
     return 'telemetry_gpu_integration_test'
 
   def get_test_generator_map(self):
     return {
-      'android_webview_gpu_telemetry_tests': GPUTelemetryTestGenerator(
-        self, is_android_webview=True
-      ),
-      'cast_streaming_tests': GPUTelemetryTestGenerator(
-        self, is_cast_streaming=True
-      ),
       'gpu_telemetry_tests': GPUTelemetryTestGenerator(self),
       'gtest_tests': GTestGenerator(self),
       'isolated_scripts': IsolatedScriptTestGenerator(self),
       'scripts': ScriptGenerator(self),
-      'skylab_tests': SkylabGenerator(self),
-      'skylab_gpu_telemetry_tests': SkylabGPUTelemetryTestGenerator(self),
     }
 
   def get_test_type_remapper(self):
     return {
       # These are a specialization of isolated_scripts with a bunch of
       # boilerplate command line arguments added to each one.
-      'android_webview_gpu_telemetry_tests': 'isolated_scripts',
-      'cast_streaming_tests': 'isolated_scripts',
       'gpu_telemetry_tests': 'isolated_scripts',
-      # These are the same as existing test types, just configured to run
-      # in Skylab instead of via normal swarming.
-      'skylab_gpu_telemetry_tests': 'skylab_tests',
     }
 
   def check_composition_type_test_suites(
@@ -1520,11 +1269,7 @@ class BBJSONGenerator(object):
           )
 
     for definition, location in definitions():
-      for swarming_attr in (
-        'swarming',
-        'android_swarming',
-        'chromeos_swarming',
-      ):
+      for swarming_attr in ('swarming',):
         if (
           swarming := definition.get(swarming_attr)
         ) and 'dimension_sets' in swarming:
@@ -1599,9 +1344,6 @@ class BBJSONGenerator(object):
       self.merge_swarming(
         new_test.setdefault('swarming', {}), mixin.pop('swarming')
       )
-
-    if 'skylab' in mixin:
-      new_test.setdefault('skylab', {}).update(mixin.pop('skylab'))
 
     for a in ('args', 'precommit_args', 'non_precommit_args'):
       if (value := mixin.pop(a, None)) is None:
@@ -1796,11 +1538,9 @@ class BBJSONGenerator(object):
       'chrome.pgo',
       'chrome.gpu.fyi',
       'internal.chrome.fyi',
-      'internal.chromeos.fyi',
       'internal.optimization_guide',
       'internal.translatekit',
       'internal.soda',
-      'chromeos.preuprev',
     ]
 
   def check_input_file_consistency(self, verbose=False):
@@ -2312,7 +2052,6 @@ class BBJSONGenerator(object):
       params_dict (dict): Dictionary of parameters and their values
                           to look for in the bot
         Ex: {
-          'device_os':'android',
           '--flag':True,
           'mixins': ['mixin1', 'mixin2'],
           'ex_key':'ex_value'

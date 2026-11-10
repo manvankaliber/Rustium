@@ -667,12 +667,6 @@ absl::Status TfLiteConverterCalculator::LoadOptions(CalculatorContext* cc) {
   ABSL_CHECK_GE(max_num_channels_, 1);
   ABSL_CHECK_LE(max_num_channels_, 4);
   ABSL_CHECK_NE(max_num_channels_, 2);
-#if defined(MEDIAPIPE_IOS)
-  if (cc->Inputs().HasTag(kGpuBufferTag))
-    // Currently on iOS, tflite gpu input tensor must be 4 channels,
-    // so input image must be 4 channels also (checked in InitGpu).
-    max_num_channels_ = 4;
-#endif
 
   // Get tensor type, float or quantized.
   use_quantized_tensors_ = options.use_quantized_tensors();

@@ -4,7 +4,7 @@
 
 #import "components/signin/public/identity_manager/objc/identity_manager_observer_bridge.h"
 
-#import "base/ios/block_types.h"
+#import "base/apple/block_types.h"
 #import "base/test/task_environment.h"
 #import "components/signin/public/base/signin_metrics.h"
 #import "components/signin/public/identity_manager/accounts_in_cookie_jar_info.h"

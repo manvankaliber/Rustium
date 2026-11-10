@@ -43,24 +43,14 @@
 #include "third_party/icu/source/common/unicode/udata.h"
 #include "third_party/icu/source/common/unicode/utrace.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/apk_assets.h"
-#endif
 
-#if BUILDFLAG(IS_IOS)
-#include "base/ios/ios_util.h"
-#endif
 
 #if BUILDFLAG(IS_APPLE)
 #include "base/apple/foundation_util.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "third_party/icu/source/common/unicode/unistr.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CASTOS)
+#if BUILDFLAG(IS_LINUX)
 #include "third_party/icu/source/i18n/unicode/timezone.h"
 #endif
 
@@ -98,9 +88,6 @@ const char kIcuDataFileName[] = "icudtl.dat";
 // For now, only Fuchsia has a meaningful use case for this feature, so it is
 // only implemented for OS_FUCHSIA.
 
-#if BUILDFLAG(IS_ANDROID)
-const char kAndroidAssetsIcuDataFileName[] = "assets/icudtl.dat";
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // File handle intentionally never closed. Not using File here because its
 // Windows implementation guards against two instances owning the same
@@ -113,14 +100,6 @@ void LazyInitIcuDataFile() {
   if (g_icudtl_pf != kInvalidPlatformFile) {
     return;
   }
-#if BUILDFLAG(IS_ANDROID)
-  int fd =
-      android::OpenApkAsset(kAndroidAssetsIcuDataFileName, &g_icudtl_region);
-  g_icudtl_pf = fd;
-  if (fd != -1) {
-    return;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   // For unit tests, data file is located on disk, so try there as a fallback.
 #if !BUILDFLAG(IS_APPLE)
   FilePath data_path;
@@ -146,12 +125,6 @@ void LazyInitIcuDataFile() {
 #else  // !BUILDFLAG(IS_APPLE)
   // Assume it is in the framework bundle's Resources directory.
   FilePath data_path = apple::PathForFrameworkBundleResource(kIcuDataFileName);
-#if BUILDFLAG(IS_IOS)
-  FilePath override_data_path = ios::FilePathOfEmbeddedICU();
-  if (!override_data_path.empty()) {
-    data_path = override_data_path;
-  }
-#endif  // !BUILDFLAG(IS_IOS)
   if (data_path.empty()) {
     LOG(ERROR) << kIcuDataFileName << " not found in bundle";
     return;
@@ -267,11 +240,9 @@ bool InitializeICUFromDataFile() {
   debug::Alias(&debug_icu_pf_filename);
 #endif  // BUILDFLAG(IS_WIN)
   // Excluding Chrome OS from this CHECK due to b/289684640.
-#if !BUILDFLAG(IS_CHROMEOS)
   // https://crbug.com/445616
   // https://crbug.com/1449816
   CHECK(result);
-#endif
 
   return result;
 }
@@ -281,8 +252,7 @@ bool InitializeICUFromDataFile() {
 // On some platforms, the time zone must be explicitly initialized zone rather
 // than relying on ICU's internal initialization.
 void InitializeIcuTimeZone() {
-#if BUILDFLAG(IS_CHROMEOS) || \
-    (BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CASTOS)) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   // To respond to the time zone change properly, the default time zone
   // cache in ICU has to be populated on starting up.
   // See TimeZoneMonitorLinux::NotifyClientsFromImpl().

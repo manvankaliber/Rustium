@@ -65,7 +65,6 @@
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
 #include "ui/gfx/range/range.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/actions/chrome_action_id.h"  // nogncheck
 #include "chrome/browser/ui/actions/chrome_actions.h"    // nogncheck
 #include "chrome/browser/ui/browser_actions.h"           // nogncheck
@@ -73,7 +72,6 @@
 #include "chrome/browser/ui/toolbar/pinned_toolbar/pinned_toolbar_actions_model.h"  // nogncheck
 #include "chrome/test/user_education/mock_browser_user_education_interface.h"
 #include "ui/actions/actions.h"  // nogncheck
-#endif
 
 namespace contextual_tasks {
 
@@ -82,9 +80,7 @@ using testing::NiceMock;
 using testing::Return;
 using testing::ReturnRef;
 
-#if !BUILDFLAG(IS_ANDROID)
 using ::kActionSidePanelShowContextualTasks;
-#endif
 
 constexpr char kAiPageUrl[] = "https://google.com/search?udm=50";
 constexpr char kQueryUrl[] = "https://google.com/search?q=test";
@@ -151,18 +147,12 @@ class ContextualTasksPageHandlerTest : public ChromeRenderViewHostTestHarness {
   }
 
   void SetUp() override {
-#if !BUILDFLAG(IS_ANDROID)
     feature_list_.InitWithFeatures(
         {kContextualTasksContextLibrary,
          kEnableContextualTasksPinButtonInToolbar,
          feature_engagement::kIPHSidePanelContextualTasksPinnableFeature},
         {kContextualTasksHideMenuOnAiPage});
     InitializeActionIdStringMapping();
-#else
-    feature_list_.InitWithFeatures({kContextualTasksContextLibrary,
-                                    kEnableContextualTasksPinButtonInToolbar},
-                                   {});
-#endif
     profile_manager_ = std::make_unique<TestingProfileManager>(
         TestingBrowserProcess::GetGlobal());
     ASSERT_TRUE(profile_manager_->SetUp());
@@ -225,9 +215,7 @@ class ContextualTasksPageHandlerTest : public ChromeRenderViewHostTestHarness {
     mock_panel_controller_.reset();
     mock_contextual_tasks_service_ = nullptr;
     mock_contextual_tasks_ui_service_ = nullptr;
-#if !BUILDFLAG(IS_ANDROID)
     actions::ActionIdMap::ResetMapsForTesting();
-#endif
     ChromeRenderViewHostTestHarness::TearDown();
     profile_manager_.reset();
   }

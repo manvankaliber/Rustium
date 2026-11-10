@@ -42,15 +42,14 @@ if (ozone_platform_headless) {
 
 if (ozone_platform_drm) {
   ozone_platforms += [ "drm" ]
-  ozone_platform_deps += [ "platform/drm:gbm" ]
-  ozone_platform_test_deps += [ "platform/drm:gbm_unittests" ]
-  ozone_platform_integration_test_deps +=
-      [ "platform/drm:drm_integration_tests" ]
+  ozone_platform_deps += []
+  ozone_platform_test_deps += []
+  ozone_platform_integration_test_deps += []
 }
 
 if (ozone_platform_cast) {
   ozone_platforms += [ "cast" ]
-  ozone_platform_deps += [ "platform/cast" ]
+  ozone_platform_deps += []
 }
 
 if (ozone_platform_wayland) {
@@ -154,9 +153,6 @@ component("ozone_base") {
   }
 
   visibility += [
-    # Everyone should depend on //ui/ozone instead except a handful of
-    # things that would otherwise create a cycle.
-    "//ui/base/ime/ash/*",
     "//ui/events/ozone/*",
     "//ui/ozone/common/*",
     "//ui/ozone/platform/*",

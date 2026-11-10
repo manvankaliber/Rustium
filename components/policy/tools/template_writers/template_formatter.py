@@ -22,14 +22,12 @@ from writers import (
   admx_writer,  # noqa: F401
   google_admx_writer,  # noqa: F401
   google_adml_writer,  # noqa: F401
-  android_policy_writer,  # noqa: F401
   reg_writer,  # noqa: F401
   doc_writer,  # noqa: F401
   doc_atomic_groups_writer,  # noqa: F401
   json_writer,  # noqa: F401
   plist_writer,  # noqa: F401
   plist_strings_writer,  # noqa: F401
-  ios_app_config_writer,  # noqa: F401
   jamf_writer,  # noqa: F401
 )
 
@@ -71,7 +69,6 @@ _WRITER_DESCS = [
   WriterDesc('admx', False, 'utf-16', None, True),
   WriterDesc('google_adml', True, 'utf-8', None, True),
   WriterDesc('google_admx', False, 'utf-8', None, True),
-  WriterDesc('android_policy', False, 'utf-8', None, False),
   WriterDesc('reg', False, 'utf-16', None, False),
   WriterDesc('doc', True, 'utf-8', None, False),
   WriterDesc('doc_atomic_groups', True, 'utf-8', None, False),
@@ -79,7 +76,6 @@ _WRITER_DESCS = [
   WriterDesc('plist', False, 'utf-8', None, False),
   WriterDesc('plist_strings', True, 'utf-8', MacLanguageMap, False),
   WriterDesc('jamf', False, 'utf-8', None, False),
-  WriterDesc('ios_app_config', False, 'utf-8', None, False),
 ]
 
 # Template writers that are not per-language use policy_templates.json from
@@ -153,7 +149,6 @@ def main():
            --languages <language_list>
            [--adm <adm_path>]
            ...
-           [--android_policy <android_policy_path>]
            -D <grit_define>
            -E <grit_env_variable>
            -t <grit_target_platform>
@@ -165,7 +160,7 @@ def main():
         'en,de,'
     adm, adml, google_adml, doc, plist_string: Absolute path of the
         corresponding file types. Must contain a ${lang} placeholder.
-    admx, google_admx, android_policy, reg, json, plist: Absolute path of the
+    admx, google_admx, reg, json, plist: Absolute path of the
         corresponding file types. Must NOT contain a ${lang} placeholder. There
         is only one output file, not one per language.
     D: List of grit defines, used to assemble writer configuration.
@@ -179,8 +174,6 @@ def main():
   parser.add_argument('--adm', action='append', dest='adm')
   parser.add_argument('--adml', action='append', dest='adml')
   parser.add_argument('--admx', action='append', dest='admx')
-  parser.add_argument('--chromeos_adml', action='append', dest='chromeos_adml')
-  parser.add_argument('--chromeos_admx', action='append', dest='chromeos_admx')
   parser.add_argument('--google_adml', action='append', dest='google_adml')
   parser.add_argument('--google_admx', action='append', dest='google_admx')
   parser.add_argument('--reg', action='append', dest='reg')
@@ -198,12 +191,6 @@ def main():
   parser.add_argument('--plist', action='append', dest='plist')
   parser.add_argument('--plist_strings', action='append', dest='plist_strings')
   parser.add_argument('--jamf', action='append', dest='jamf')
-  parser.add_argument(
-    '--android_policy', action='append', dest='android_policy'
-  )
-  parser.add_argument(
-    '--ios_app_config', action='append', dest='ios_app_config'
-  )
   parser.add_argument('-D', action='append', dest='grit_defines')
   parser.add_argument('-E', action='append', dest='grit_build_env')
   parser.add_argument('-t', action='append', dest='grit_target')

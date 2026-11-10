@@ -39,8 +39,6 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/color/chrome_color_id.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promo_trigger_service.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promo_trigger_service_factory.h"
 #include "chrome/browser/ui/exclusive_access/exclusive_access_manager.h"
 #include "chrome/browser/ui/exclusive_access/fullscreen_controller.h"
 #include "chrome/browser/ui/hats/hats_service.h"
@@ -137,7 +135,6 @@ namespace {
 
 // The amount of time to wait after the side panel opens before showing the
 // mobile promo.
-constexpr base::TimeDelta kMobilePromoShowDelay = base::Seconds(4);
 
 // Copy the objects of a vector into another without transferring
 // ownership.
@@ -375,13 +372,7 @@ void LensOverlayController::NotifyResultsPanelOpened() {
     page_->NotifyResultsPanelOpened();
   }
 
-  if (IsVisualSelectionType(lens_selection_type_)) {
-    base::SequencedTaskRunner::GetCurrentDefault()->PostDelayedTask(
-        FROM_HERE,
-        base::BindOnce(&LensOverlayController::MaybeShowMobilePromo,
-                       weak_factory_.GetWeakPtr()),
-        kMobilePromoShowDelay);
-  }
+
 }
 
 void LensOverlayController::TriggerCopy() {
@@ -2555,19 +2546,7 @@ void LensOverlayController::FetchPdfTextIfEligible() {
 #endif
 }
 
-void LensOverlayController::MaybeShowMobilePromo() {
-  if (MobilePromoOnDesktopTypeEnabled(
-          MobilePromoOnDesktopPromoType::kLensPromo)) {
-    IOSPromoTriggerService* service =
-        IOSPromoTriggerServiceFactory::GetForProfile(
-            Profile::FromBrowserContext(
-                tab_->GetContents()->GetBrowserContext()));
-    if (service) {
-      service->NotifyPromoShouldBeShown(
-          desktop_to_mobile_promos::PromoType::kLens);
-    }
-  }
-}
+
 
 lens::LensOverlayDismissalSource LensOverlayController::ConvertDismissalSource(
     DismissalSource dismissal_source) {

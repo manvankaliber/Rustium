@@ -14,7 +14,7 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include "util/process/process_memory_linux.h"
 #elif BUILDFLAG(IS_WIN)
 #include "util/process/process_memory_win.h"
@@ -27,7 +27,7 @@ namespace crashpad {
 #if DOXYGEN
 //! \brief Alias for platform-specific native implementation of ProcessMemory.
 using ProcessMemoryNative = ProcessMemoryWin;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
 using ProcessMemoryNative = ProcessMemoryLinux;
 #elif BUILDFLAG(IS_WIN)
 using ProcessMemoryNative = ProcessMemoryWin;

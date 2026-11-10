@@ -241,14 +241,12 @@ ChildModuleManager::SelectModuleForProcess(
   // TODO(crbug.com/558598893): Support macOS. Requires helper app bundle
   // resolution (Chromium Helper (Renderer).app) and Hardened Runtime / code
   // signing support.
-#if !BUILDFLAG(IS_CHROMEOS)
   // Observe `host` unconditionally on first selection and keep the observation
   // until RenderProcessHostDestroyed() so that ChildModuleManager is never
   // added or removed mid-ProcessDied() iteration.
   if (!rph_observations_.IsObservingSource(host)) {
     rph_observations_.AddObservation(host);
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   return user_data->OnProcessLaunching(std::move(selected_module));
 }

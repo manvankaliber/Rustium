@@ -22,10 +22,6 @@ class Speedometer1Story(press_story.PressStory):
   def ExecuteTest(self, action_runner):
     action_runner.tab.WaitForDocumentReadyStateToBeComplete()
     iterationCount = 10
-    # A single iteration on android takes ~75 seconds, the benchmark times out
-    # when running for 10 iterations.
-    if action_runner.tab.browser.platform.GetOSName() == 'android':
-      iterationCount = 3
 
     action_runner.ExecuteJavaScript(
       """

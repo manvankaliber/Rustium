@@ -397,18 +397,6 @@ bool VulkanFunctionPointers::BindInstanceFunctionPointers(
   }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-  if (gfx::HasExtension(enabled_extensions,
-                        VK_KHR_ANDROID_SURFACE_EXTENSION_NAME)) {
-    constexpr char kvkCreateAndroidSurfaceKHR[] = "vkCreateAndroidSurfaceKHR";
-    vkCreateAndroidSurfaceKHR = reinterpret_cast<PFN_vkCreateAndroidSurfaceKHR>(
-        vkGetInstanceProcAddr(vk_instance, kvkCreateAndroidSurfaceKHR));
-    if (!vkCreateAndroidSurfaceKHR) {
-      LogGetProcError(kvkCreateAndroidSurfaceKHR);
-      return false;
-    }
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   return true;
 }
@@ -1042,22 +1030,6 @@ bool VulkanFunctionPointers::BindDeviceFunctionPointers(
     return false;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (gfx::HasExtension(
-          enabled_extensions,
-          VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME)) {
-    constexpr char kvkGetAndroidHardwareBufferPropertiesANDROID[] =
-        "vkGetAndroidHardwareBufferPropertiesANDROID";
-    vkGetAndroidHardwareBufferPropertiesANDROID =
-        reinterpret_cast<PFN_vkGetAndroidHardwareBufferPropertiesANDROID>(
-            vkGetDeviceProcAddr(vk_device,
-                                kvkGetAndroidHardwareBufferPropertiesANDROID));
-    if (!vkGetAndroidHardwareBufferPropertiesANDROID) {
-      LogGetProcError(kvkGetAndroidHardwareBufferPropertiesANDROID);
-      return false;
-    }
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_POSIX)
   if (gfx::HasExtension(enabled_extensions,
@@ -1193,7 +1165,7 @@ bool VulkanFunctionPointers::BindDeviceFunctionPointers(
     }
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (gfx::HasExtension(enabled_extensions,
                         VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME)) {
     constexpr char kvkGetImageDrmFormatModifierPropertiesEXT[] =
@@ -1207,7 +1179,7 @@ bool VulkanFunctionPointers::BindDeviceFunctionPointers(
       return false;
     }
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   return true;
 }
@@ -1268,9 +1240,6 @@ void VulkanFunctionPointers::ResetForTesting() {
   vkGetPhysicalDeviceWin32PresentationSupportKHR = nullptr;
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-  vkCreateAndroidSurfaceKHR = nullptr;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   vkAllocateCommandBuffers = nullptr;
   vkAllocateDescriptorSets = nullptr;
@@ -1349,9 +1318,6 @@ void VulkanFunctionPointers::ResetForTesting() {
   vkUpdateDescriptorSets = nullptr;
   vkWaitForFences = nullptr;
 
-#if BUILDFLAG(IS_ANDROID)
-  vkGetAndroidHardwareBufferPropertiesANDROID = nullptr;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_POSIX)
   vkGetSemaphoreFdKHR = nullptr;
@@ -1379,9 +1345,9 @@ void VulkanFunctionPointers::ResetForTesting() {
   vkGetSwapchainImagesKHR = nullptr;
   vkQueuePresentKHR = nullptr;
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   vkGetImageDrmFormatModifierPropertiesEXT = nullptr;
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 }
 
 }  // namespace gpu

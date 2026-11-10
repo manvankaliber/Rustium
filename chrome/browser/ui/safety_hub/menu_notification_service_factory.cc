@@ -14,12 +14,10 @@
 #include "chrome/browser/ui/safety_hub/revoked_permissions_service_factory.h"
 #include "chrome/browser/ui/safety_hub/safety_hub_service.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/safety_hub/password_status_check_service_factory.h"
 #include "extensions/browser/extension_prefs.h"          // nogncheck
 #include "extensions/browser/extension_prefs_factory.h"  // nogncheck
 #include "extensions/browser/extension_registry.h"       // nogncheck
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // static
 SafetyHubMenuNotificationServiceFactory*
@@ -46,10 +44,8 @@ SafetyHubMenuNotificationServiceFactory::
               .WithAshInternals(ProfileSelection::kOriginalOnly)
               .Build()) {
   DependsOn(RevokedPermissionsServiceFactory::GetInstance());
-#if !BUILDFLAG(IS_ANDROID)
   DependsOn(PasswordStatusCheckServiceFactory::GetInstance());
   DependsOn(extensions::ExtensionPrefsFactory::GetInstance());
-#endif  // BUIDFLAG(IS_ANDROID)
 }
 
 SafetyHubMenuNotificationServiceFactory::
@@ -61,14 +57,9 @@ SafetyHubMenuNotificationServiceFactory::BuildServiceInstanceForBrowserContext(
   auto* profile = Profile::FromBrowserContext(context);
   RevokedPermissionsService* revoked_permissions_service =
       RevokedPermissionsServiceFactory::GetForProfile(profile);
-#if BUILDFLAG(IS_ANDROID)
-  return std::make_unique<SafetyHubMenuNotificationService>(
-      profile->GetPrefs(), revoked_permissions_service, profile);
-#else
   PasswordStatusCheckService* password_check_service =
       PasswordStatusCheckServiceFactory::GetForProfile(profile);
   return std::make_unique<SafetyHubMenuNotificationService>(
       profile->GetPrefs(), revoked_permissions_service, password_check_service,
       profile);
-#endif  // BUILDFLAG(IS_ANDROID)
 }

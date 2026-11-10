@@ -29,9 +29,7 @@ import {AimButtonMode} from './composebox_aim_button.js';
 import type {ComposeboxDropdownElement} from './composebox_dropdown.js';
 import type {ComposeboxFileInputsElement} from './composebox_file_inputs.js';
 import type {ComposeboxInputElement} from './composebox_input.js';
-// <if expr="not is_android">
 import {ComposeboxProxyImpl} from './composebox_proxy.js';
-// </if>
 import {ContextUploadStatus, InputType, ModelMode, ToolMode} from './composebox_query.mojom-webui.js';
 import type {ContextUploadErrorType, InputState} from './composebox_query.mojom-webui.js';
 import type {ComposeboxVoiceSearchElement, VoicePermissionPromptState} from './composebox_voice_search.js';
@@ -407,9 +405,7 @@ export const ComposeboxEmbedderMixin =
         // `resetDelayedTabContextRequests_()` to cancel them.
         private pendingDelayedTabRequests_: Set<object> = new Set();
         private smartComposeAnnounceTimeout_: number|null = null;
-        // <if expr="not is_android">
         private smartTabSharingUpdateGeneration_: number = 0;
-        // </if>
 
         get inputModel(): ComposeboxInputModel {
           return new ComposeboxInputModel({
@@ -456,7 +452,6 @@ export const ComposeboxEmbedderMixin =
                     this.setAimThreadRestoredTabs.bind(this)),
           ];
 
-          // <if expr="not is_android">
           const listenerId =
               ComposeboxProxyImpl.getInstance().observeSmartTabSharingActive(
                   (active: boolean) => {
@@ -475,7 +470,6 @@ export const ComposeboxEmbedderMixin =
                     }
                   });
           this.searchboxListenerIds.push(listenerId);
-          // </if>
 
           this.getSearchboxHandler().notifySessionStarted();
 
@@ -555,7 +549,6 @@ export const ComposeboxEmbedderMixin =
           // the flag self-correcting.
           this.fileUploadsComplete = this.computeFileUploadsComplete();
 
-          // <if expr="not is_android">
           if (changedPrivateProperties.has('smartTabSharingVisible')) {
             if (this.smartTabSharingVisible) {
               const generation = ++this.smartTabSharingUpdateGeneration_;
@@ -576,7 +569,6 @@ export const ComposeboxEmbedderMixin =
                   this.smartTabSharingActive) {
             this.clearContextForSmartTabSharingActive();
           }
-          // </if>
           // When the result initially gets set check if dropdown should show.
           if (changedPrivateProperties.has('input') ||
               changedPrivateProperties.has('result') ||
@@ -1480,7 +1472,6 @@ export const ComposeboxEmbedderMixin =
         }
 
         onSmartTabSharingActiveChanged(_e: CustomEvent<{active: boolean}>) {
-          // <if expr="not is_android">
           const active = _e.detail.active;
           this.smartTabSharingUpdateGeneration_++;
           this.smartTabSharingActive = active;
@@ -1490,7 +1481,6 @@ export const ComposeboxEmbedderMixin =
           }
           this.resetRestoredTabs();
           this.clearContextForSmartTabSharingActive();
-          // </if>
         }
 
         clearContextForSmartTabSharingActive() {
@@ -1764,9 +1754,7 @@ export const ComposeboxEmbedderMixin =
             mode: action?.preselectedTool ?? ToolMode.kUnspecified,
             model: action?.preselectedModel ?? ModelMode.kUnspecified,
             suggestInventory: action?.preferredInventory ?? undefined,
-            // <if expr="not is_android">
             smartTabSharingActive: false,
-            // </if>
           };
           this.selectAllOnStateUpdate_ =
               action?.queryActionOverride === QueryActionOverride.kPaste;
@@ -1999,14 +1987,6 @@ export const ComposeboxEmbedderMixin =
         }
 
         onVoiceSearchButtonClick() {
-          const isSystemVoiceSearchEnabled =
-              loadTimeData.valueExists('isSystemVoiceSearchEnabled') &&
-              loadTimeData.getBoolean('isSystemVoiceSearchEnabled');
-          if (isSystemVoiceSearchEnabled) {
-            this.getPageHandler().startPlatformVoiceRecognition();
-            return;
-          }
-
           if (this.inVoiceSearchMode) {
             return;
           }
@@ -2462,7 +2442,6 @@ export const ComposeboxEmbedderMixin =
           // leaves AI Mode.
           this.resetToolsAndModels();
           this.suggestInventory = null;
-          // <if expr="not is_android">
           if (this.smartTabSharingVisible && !afterSubmit && !this.submitting) {
             this.smartTabSharingActive = false;
             const generation = ++this.smartTabSharingUpdateGeneration_;
@@ -2473,7 +2452,6 @@ export const ComposeboxEmbedderMixin =
                   }
                 });
           }
-          // </if>
           this.fire(
               'close-composebox', {composeboxText: this.input, afterSubmit});
         }
@@ -2716,16 +2694,13 @@ export const ComposeboxEmbedderMixin =
          * handover.
          */
         resetSession() {
-          // <if expr="not is_android">
           const wasSubmitting = this.submitting;
-          // </if>
           this.submitting = false;
           this.clearAllInputs(
               /* querySubmitted= */ false,
               /* shouldBlockAutoSuggestedTabs= */ false);
           this.clearAutocompleteMatches();
           this.resetToolsAndModels();
-          // <if expr="not is_android">
           // Smart tab sharing choices are per session, but the browser-side
           // state outlives the page's session (e.g. a warm popup), so ask the
           // browser to forget it and adopt the resulting default. Avoid
@@ -2741,7 +2716,6 @@ export const ComposeboxEmbedderMixin =
                   }
                 });
           }
-          // </if>
         }
 
         computeSubmitEnabled(): boolean {

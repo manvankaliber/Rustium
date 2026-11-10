@@ -21,9 +21,6 @@
 #include "components/sync/test/sync_user_settings_mock.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif
 
 namespace syncer {
 
@@ -41,12 +38,6 @@ class MockSyncService : public SyncService {
   // SyncService implementation.
   syncer::SyncUserSettings* GetUserSettings() override;
   const syncer::SyncUserSettings* GetUserSettings() const override;
-#if BUILDFLAG(IS_ANDROID)
-  MOCK_METHOD(base::android::ScopedJavaLocalRef<jobject>,
-              GetJavaObject,
-              (),
-              (override));
-#endif  // BUILDFLAG(IS_ANDROID)
   MOCK_METHOD(void,
               AcknowledgeBookmarksLimitExceededError,
               (BookmarksLimitExceededHelpClickedSource source),
@@ -94,12 +85,6 @@ class MockSyncService : public SyncService {
               DataTypePreconditionChanged,
               (syncer::DataType type),
               (override));
-#if BUILDFLAG(IS_ANDROID)
-  MOCK_METHOD(void,
-              SetInvalidationsForSessionsEnabled,
-              (bool enabled),
-              (override));
-#endif  // BUILDFLAG(IS_ANDROID)
   MOCK_METHOD(void, SetPasskeysLocked, (bool passkeys_locked), (override));
   MOCK_METHOD(void, SendExplicitPassphraseToPlatformClient, (), (override));
   MOCK_METHOD(void, AddObserver, (SyncServiceObserver * observer), (override));

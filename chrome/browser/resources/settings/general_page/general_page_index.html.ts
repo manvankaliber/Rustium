@@ -16,10 +16,8 @@ export function getHtml(this: SettingsGeneralPageIndexElement) {
   <settings-downloads-page slot="view" id="downloads">
   </settings-downloads-page>
 
-<if expr="not is_chromeos">
   <settings-system-page slot="view" id="system">
   </settings-system-page>
-</if>
 
   <settings-reset-page slot="view" id="reset">
   </settings-reset-page>

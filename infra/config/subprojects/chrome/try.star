@@ -70,13 +70,6 @@ chrome_internal_verifier(
 )
 
 chrome_internal_verifier(
-    builder = "linux-chromeos-compile-chrome",
-    cq_settings = try_.cq_settings(
-        on_default_cq = True,
-    ),
-)
-
-chrome_internal_verifier(
     builder = "win-branded-compile-rel",
     cq_settings = try_.cq_settings(
         on_default_cq = True,
@@ -102,182 +95,6 @@ chrome_internal_verifier(
 )
 
 chrome_internal_verifier(
-    # TODO(https://crbug.com/400712231): Turn on branches for this bot.
-    #branch_selector = branches.selector.ANDROID_BRANCHES,
-    builder = "android-arm32-orderfile",
-)
-
-chrome_internal_verifier(
-    # TODO(https://crbug.com/400712231): Turn on branches for this bot.
-    #branch_selector = branches.selector.ANDROID_BRANCHES,
-    builder = "android-arm64-orderfile",
-)
-
-chrome_internal_verifier(
-    branch_selector = branches.selector.ANDROID_BRANCHES,
-    builder = "android-arm32-pgo",
-)
-
-chrome_internal_verifier(
-    branch_selector = branches.selector.ANDROID_BRANCHES,
-    builder = "android-arm64-pgo",
-)
-
-chrome_internal_verifier(
-    # TODO(https://crbug.com/400712231): Turn on branches for this bot.
-    #branch_selector = branches.selector.ANDROID_BRANCHES,
-    builder = "webview-arm-orderfile",
-)
-
-chrome_internal_verifier(
-    # TODO(https://crbug.com/400712231): Turn on branches for this bot.
-    #branch_selector = branches.selector.ANDROID_BRANCHES,
-    builder = "webview-arm64-orderfile",
-)
-
-chrome_internal_verifier(
-    builder = "android-internal-binary-size",
-)
-
-chrome_internal_verifier(
-    builder = "android-internal-dbg",
-)
-
-chrome_internal_verifier(
-    builder = "android-internal-rel",
-)
-
-chrome_internal_verifier(
-    branch_selector = branches.selector.ANDROID_BRANCHES,
-    builder = "android-arm-rel-ready",
-)
-
-chrome_internal_verifier(
-    branch_selector = branches.selector.ANDROID_BRANCHES,
-    builder = "android-x64-rel-ready",
-)
-
-chrome_internal_verifier(
-    builder = "android-webview-perf-trigger",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-arm64-generic-cfi-thin-lto-chrome",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-betty-chrome",
-)
-
-chrome_internal_verifier(
-    branch_selector = branches.selector.CROS_LTS_BRANCHES,
-    builder = "chromeos-betty-compile-chrome",
-    cq_settings = try_.cq_settings(
-        equivalent_builder = "{}:try/chromeos-betty-chrome-noop".format(settings.chrome_project),
-        equivalent_builder_percentage = 100,
-        equivalent_builder_whitelist = "googlers",
-        on_default_cq = True,
-    ),
-)
-
-chrome_internal_verifier(
-    branch_selector = branches.selector.CROS_LTS_BRANCHES,
-    builder = "chromeos-betty-chrome-gtest",
-    cq_settings = try_.cq_settings(
-        equivalent_builder = "{}:try/chromeos-betty-chrome-gtest-and-cqtast".format(settings.chrome_project),
-        equivalent_builder_percentage = 100,
-        equivalent_builder_whitelist = "google/chromeos-pa@google.com",
-        on_default_cq = True,
-    ),
-    owner_whitelist = ["googlers", "project-chromium-robot-committers"],
-)
-
-chrome_internal_verifier(
-    branch_selector = branches.selector.CROS_LTS_BRANCHES,
-    builder = "chromeos-betty-chrome-gtest-and-tast",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-betty-chrome-dchecks",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-betty-cfi-thin-lto-chrome",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-brya-chrome",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-eve-chrome",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-eve-compile-chrome",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-jacuzzi-chrome",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-jacuzzi-compile-chrome",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-octopus-chrome",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-octopus-compile-chrome",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-trogdor-chrome",
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-volteer-chrome",
-)
-
-chrome_internal_verifier(
-    branch_selector = branches.selector.ANDROID_BRANCHES,
-    builder = "cronet-arm64-gn2bp-debug",
-    cq_settings = try_.cq_settings(
-        location_filters = [
-            "components/cronet/.+",
-            "third_party/protobuf/.+",
-        ],
-    ),
-    # The limited traffic to the location_filters specified below makes this
-    # use of owner_whitelist acceptable (see
-    # https://crrev.com/c/6429907/4..6/infra/config/subprojects/chrome/try.star#b182).
-    owner_whitelist = ["googlers"],
-)
-
-chrome_internal_verifier(
-    builder = "chromeos-reven-chrome",
-)
-
-chrome_internal_verifier(
-    branch_selector = branches.selector.IOS_BRANCHES,
-    builder = "ios-rel-ready",
-)
-
-chrome_internal_verifier(
-    builder = "ios-simulator",
-)
-
-chrome_internal_verifier(
-    builder = "ipad-device",
-)
-
-chrome_internal_verifier(
-    builder = "iphone-device",
-)
-
-chrome_internal_verifier(
     builder = "linux-autofill-captured-sites-rel",
 )
 
@@ -292,10 +109,6 @@ chrome_internal_verifier(
 
 chrome_internal_verifier(
     builder = "linux-cft",
-)
-
-chrome_internal_verifier(
-    builder = "linux-chromeos-chrome",
 )
 
 chrome_internal_verifier(
@@ -361,14 +174,6 @@ chrome_internal_verifier(
 chrome_internal_verifier(
     branch_selector = branches.selector.MAC_BRANCHES,
     builder = "mac-rel-ready",
-)
-
-chrome_internal_verifier(
-    builder = "optimization_guide-ios-device",
-)
-
-chrome_internal_verifier(
-    builder = "optimization_guide-ios-simulator",
 )
 
 optimization_guide_cq_settings = try_.cq_settings(

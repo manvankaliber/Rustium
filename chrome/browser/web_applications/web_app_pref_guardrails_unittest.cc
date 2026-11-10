@@ -556,7 +556,6 @@ TEST_F(WebAppPrefsMLGuardrailsMaxStorageTest, ClearAndResetGuardrails) {
   EXPECT_EQ(agnostic_not_installed_count, 0);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class WebAppPrefsLinkCapturingIPHGuardrailsTest : public WebAppTest {
  public:
   WebAppPrefsLinkCapturingIPHGuardrailsTest()
@@ -687,6 +686,5 @@ TEST_F(WebAppPrefsLinkCapturingIPHGuardrailsTest, ClearAndResetGuardrails) {
   EXPECT_EQ(*agnostic_not_installed_count, 0);
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace web_app

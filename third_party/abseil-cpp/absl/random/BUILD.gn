@@ -275,9 +275,6 @@ absl_test("uniform_real_distribution_test") {
     "//third_party/abseil-cpp/absl/random/internal:sequence_urbg",
     "//third_party/abseil-cpp/absl/strings",
   ]
-  if (is_ios) {
-    sources = []
-  }
 }
 
 absl_test("zipf_distribution_test") {

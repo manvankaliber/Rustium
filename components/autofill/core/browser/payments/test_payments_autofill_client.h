@@ -36,27 +36,21 @@
 #include "components/autofill/core/browser/ui/payments/wallet_reminder_notice_ui_delegate.h"
 #include "components/autofill/core/common/autofill_prefs.h"
 
-#if !BUILDFLAG(IS_IOS)
 namespace webauthn {
 class InternalAuthenticator;
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 namespace autofill {
 
 class AutofillClient;
-#if !BUILDFLAG(IS_IOS)
 class AutofillDriver;
-#endif  // !BUILDFLAG(IS_IOS)
 class AutofillProgressDialogController;
 class BnplIssuer;
 class CardUnmaskOtpInputDialogController;
 class CardUnmaskPromptController;
 class CreditCardCvcAuthenticator;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 class OmniboxAutofillDelegate;
 enum class SuggestionHidingReason;
-#endif
 class TouchToFillPaymentMethodDelegate;
 
 namespace payments {
@@ -80,13 +74,6 @@ class TestPaymentsAutofillClient : public PaymentsAutofillClient {
       base::OnceCallback<void(const std::string&)> callback) override;
 
   // PaymentsAutofillClient:
-#if BUILDFLAG(IS_ANDROID)
-  AutofillSaveCardBottomSheetBridge*
-  GetOrCreateAutofillSaveCardBottomSheetBridge() override;
-  AutofillSaveIbanBottomSheetBridge*
-  GetOrCreateAutofillSaveIbanBottomSheetBridge() override;
-#endif
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   void ShowWebauthnOfferDialog(
       WebauthnDialogCallback offer_dialog_callback) override;
   void ShowWebauthnVerifyPendingDialog(
@@ -94,14 +81,6 @@ class TestPaymentsAutofillClient : public PaymentsAutofillClient {
   void UpdateWebauthnOfferDialogWithError() override;
   bool CloseWebauthnDialog() override;
   void HideVirtualCardEnrollBubbleAndIconIfVisible() override;
-#else   // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void ConfirmAccountNameFixFlow(
-      base::OnceCallback<void(const std::u16string&)> callback) override;
-  void ConfirmExpirationDateFixFlow(
-      const CreditCard& card,
-      base::OnceCallback<void(const std::u16string&, const std::u16string&)>
-          callback) override;
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   bool HasCreditCardScanFeature() const override;
   void ScanCreditCard(CreditCardScanCallback callback) override;
   bool LocalCardSaveIsSupported() override;
@@ -161,13 +140,6 @@ class TestPaymentsAutofillClient : public PaymentsAutofillClient {
       const CardUnmaskPromptOptions& card_unmask_prompt_options,
       base::WeakPtr<CardUnmaskDelegate> delegate) override;
   void OnUnmaskVerificationResult(PaymentsRpcResult result) override;
-#if BUILDFLAG(IS_IOS)
-  std::unique_ptr<AutofillProgressDialogController> ExtractProgressDialogModel()
-      override;
-  std::unique_ptr<CardUnmaskOtpInputDialogController>
-  ExtractOtpInputDialogModel() override;
-  CardUnmaskPromptController* GetCardUnmaskPromptModel() override;
-#endif
   VirtualCardEnrollmentManager* GetVirtualCardEnrollmentManager() override;
   CreditCardCvcAuthenticator& GetCvcAuthenticator() override;
   CreditCardOtpAuthenticator* GetOtpAuthenticator() override;
@@ -221,10 +193,8 @@ class TestPaymentsAutofillClient : public PaymentsAutofillClient {
   void HideTouchToFillPaymentMethod() override;
   void SetTouchToFillVisible(bool visible) override;
   PaymentsDataManager& GetPaymentsDataManager() final;
-#if !BUILDFLAG(IS_IOS)
   std::unique_ptr<webauthn::InternalAuthenticator>
   CreateCreditCardInternalAuthenticator(AutofillDriver* driver) override;
-#endif
   MockMandatoryReauthManager* GetOrCreatePaymentsMandatoryReauthManager()
       override;
   MockSaveAndFillManager* GetSaveAndFillManager() override;
@@ -259,7 +229,6 @@ class TestPaymentsAutofillClient : public PaymentsAutofillClient {
     wallet_reminder_notice_manager_ = std::move(wallet_reminder_notice_manager);
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   OmniboxAutofillDelegate* GetOmniboxAutofillDelegate() override;
   void ShowExpandedOmniboxAutofillChip(
       std::vector<Suggestion> suggestions,
@@ -275,7 +244,6 @@ class TestPaymentsAutofillClient : public PaymentsAutofillClient {
                const AutofillSuggestionDelegate::SuggestionMetadata&)>
           did_accept_suggestion) override;
   void HideOmniboxAutofillChip() override;
-#endif
 
   // Begin TestPaymentsAutofillClient-specific section.
 
@@ -297,11 +265,6 @@ class TestPaymentsAutofillClient : public PaymentsAutofillClient {
 
   bool GetMandatoryReauthOptInPromptWasReshown();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Set up a mock to simulate successful mandatory reauth when autofilling
-  // payment methods.
-  void SetUpDeviceBiometricAuthenticatorSuccessOnAutomotive();
-#endif
 
   bool autofill_progress_dialog_shown() {
     return autofill_progress_dialog_shown_;
@@ -424,11 +387,9 @@ class TestPaymentsAutofillClient : public PaymentsAutofillClient {
     bnpl_ui_delegate_ = std::move(bnpl_ui_delegate);
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   bool omnibox_autofill_chip_shown() { return omnibox_autofill_chip_shown_; }
 
   bool omnibox_autofill_chip_hidden() { return omnibox_autofill_chip_hidden_; }
-#endif
 
  private:
   const raw_ref<AutofillClient> client_;
@@ -511,11 +472,6 @@ class TestPaymentsAutofillClient : public PaymentsAutofillClient {
 
   std::unique_ptr<MockSaveAndFillManager> mock_save_and_fill_manager_;
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Populated if name fix flow was offered. True if bubble was shown, false
-  // otherwise.
-  bool credit_card_name_fix_flow_bubble_was_shown_ = false;
-#endif
 
   std::unique_ptr<MockMerchantPromoCodeManager>
       mock_merchant_promo_code_manager_;
@@ -540,7 +496,6 @@ class TestPaymentsAutofillClient : public PaymentsAutofillClient {
   std::unique_ptr<PaymentsChurnedUsersUiDelegate>
       payments_churned_users_ui_delegate_;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // The OmniboxAutofillDelegate used to handle the logic flow and user
   // interactions when the user triggers Autofill from the Omnibox.
   std::unique_ptr<OmniboxAutofillDelegate> omnibox_autofill_delegate_;
@@ -548,7 +503,6 @@ class TestPaymentsAutofillClient : public PaymentsAutofillClient {
   bool omnibox_autofill_chip_shown_ = false;
 
   bool omnibox_autofill_chip_hidden_ = false;
-#endif
 };
 
 }  // namespace payments

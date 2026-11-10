@@ -14,11 +14,6 @@ import("//tools/grit/grit_rule.gni")
 import("//tools/grit/repack.gni")
 import("//v8/gni/v8.gni")
 
-if (is_android) {
-  import("//build/config/android/config.gni")
-  import("//build/config/android/rules.gni")
-}
-
 blink_public_output_dir = "$root_gen_dir/third_party/blink/public"
 
 group("blink") {
@@ -29,9 +24,6 @@ group("blink") {
     "//third_party/blink/renderer/modules",
     "//third_party/blink/renderer/platform",
   ]
-  if (use_blink_extensions_webview) {
-    deps += [ "//third_party/blink/renderer/extensions/webview" ]
-  }
 }
 
 group("test_support") {
@@ -78,27 +70,6 @@ buildflag_header("buildflags") {
     "VERBOSE_PERSISTENT=$cppgc_enable_object_names",
     "ENABLE_SMART_CARD=$enable_smart_card",
   ]
-}
-
-if (is_android) {
-  java_cpp_enum("blink_headers_java_enums_srcjar") {
-    sources = [
-      "./common/context_menu_data/context_menu_data.h",
-      "./common/input/web_input_event.h",
-      "./mojom/context_menu/context_menu.mojom",
-      "./mojom/input/input_handler.mojom",
-      "./platform/web_text_input_mode.h",
-      "./platform/web_text_input_type.h",
-    ]
-  }
-
-  android_library("blink_headers_java") {
-    deps = [
-      "//services/network/public/mojom:mojom_java",
-      "//third_party/androidx:androidx_annotation_annotation_java",
-    ]
-    srcjar_deps = [ ":blink_headers_java_enums_srcjar" ]
-  }
 }
 
 source_set("test_headers") {
@@ -408,7 +379,7 @@ source_set("blink_headers") {
     ]
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [ "platform/linux/web_sandbox_support.h" ]
   }
 
@@ -573,27 +544,27 @@ grit("resources") {
     "//third_party/blink/renderer/core/xml/DocumentXMLTreeViewer.js",
     "//third_party/blink/renderer/platform/audio/resources/Composite.flac",
   ]
-  if (!is_android) {
-    inputs += [
-      "//third_party/blink/renderer/core/html/forms/resources/calendar_picker.css",
-      "//third_party/blink/renderer/core/html/forms/resources/calendar_picker.js",
-      "//third_party/blink/renderer/core/html/forms/resources/color_picker.css",
-      "//third_party/blink/renderer/core/html/forms/resources/color_picker.js",
-      "//third_party/blink/renderer/core/html/forms/resources/color_picker_common.js",
-      "//third_party/blink/renderer/core/html/forms/resources/color_suggestion_picker.css",
-      "//third_party/blink/renderer/core/html/forms/resources/color_suggestion_picker.js",
-      "//third_party/blink/renderer/core/html/forms/resources/datetimelocal_picker.js",
-      "//third_party/blink/renderer/core/html/forms/resources/list_picker.css",
-      "//third_party/blink/renderer/core/html/forms/resources/list_picker.js",
-      "//third_party/blink/renderer/core/html/forms/resources/month_picker.js",
-      "//third_party/blink/renderer/core/html/forms/resources/picker_common.css",
-      "//third_party/blink/renderer/core/html/forms/resources/picker_common.js",
-      "//third_party/blink/renderer/core/html/forms/resources/suggestion_picker.css",
-      "//third_party/blink/renderer/core/html/forms/resources/suggestion_picker.js",
-      "//third_party/blink/renderer/core/html/forms/resources/time_picker.css",
-      "//third_party/blink/renderer/core/html/forms/resources/time_picker.js",
-    ]
-  }
+
+  inputs += [
+    "//third_party/blink/renderer/core/html/forms/resources/calendar_picker.css",
+    "//third_party/blink/renderer/core/html/forms/resources/calendar_picker.js",
+    "//third_party/blink/renderer/core/html/forms/resources/color_picker.css",
+    "//third_party/blink/renderer/core/html/forms/resources/color_picker.js",
+    "//third_party/blink/renderer/core/html/forms/resources/color_picker_common.js",
+    "//third_party/blink/renderer/core/html/forms/resources/color_suggestion_picker.css",
+    "//third_party/blink/renderer/core/html/forms/resources/color_suggestion_picker.js",
+    "//third_party/blink/renderer/core/html/forms/resources/datetimelocal_picker.js",
+    "//third_party/blink/renderer/core/html/forms/resources/list_picker.css",
+    "//third_party/blink/renderer/core/html/forms/resources/list_picker.js",
+    "//third_party/blink/renderer/core/html/forms/resources/month_picker.js",
+    "//third_party/blink/renderer/core/html/forms/resources/picker_common.css",
+    "//third_party/blink/renderer/core/html/forms/resources/picker_common.js",
+    "//third_party/blink/renderer/core/html/forms/resources/suggestion_picker.css",
+    "//third_party/blink/renderer/core/html/forms/resources/suggestion_picker.js",
+    "//third_party/blink/renderer/core/html/forms/resources/time_picker.css",
+    "//third_party/blink/renderer/core/html/forms/resources/time_picker.js",
+  ]
+
   outputs = [
     "grit/blink_resources.h",
     "blink_resources.pak",

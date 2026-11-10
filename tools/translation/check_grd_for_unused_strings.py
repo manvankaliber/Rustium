@@ -20,11 +20,7 @@ import subprocess
 import sys
 import xml.sax
 
-_ANDROID_MANIFEST_PATTERN = re.compile('[\'"]@string/(?P<name>\\w*)[\'"]')
 _CPP_ID_PATTERN = re.compile(r'\bIDS_\w*\b')
-_JAVA_ID_PATTERN = re.compile(
-  r'\bR\s*\.\s*(string|plurals)\s*\.\s*(?P<name>\w*)\b'
-)
 
 _GRD_SKIP_LIST = {
   # These have special generated usage that static analysis can't detect, so
@@ -40,8 +36,6 @@ _GRD_SKIP_LIST = {
   pathlib.Path(
     'third_party', 'libaddressinput', 'chromium', 'address_input_strings.grdp'
   ),
-  # These strings should naturally age out.
-  pathlib.Path('ios', 'chrome', 'browser', 'whats_new', 'ui', 'strings'),
   # This example is not shipped.
   pathlib.Path('ui', 'views', 'examples', 'views_examples_resources.grd'),
 }
@@ -154,15 +148,6 @@ def parse_used_ids(path: pathlib.Path) -> set[str]:
       #
       # [0]: https://chromium.googlesource.com/chromium/src/+/main/base/win/embedded_i18n/create_string_rc.py
       return used_ids | {used_id.removesuffix('_BASE') for used_id in used_ids}
-  elif path.suffix in {'.java', '.xml'}:
-    if path.suffix == '.java':
-      pattern = _JAVA_ID_PATTERN
-    else:
-      pattern = _ANDROID_MANIFEST_PATTERN
-    with path.open() as stream:
-      content = stream.read()
-      names = {match['name'] for match in pattern.finditer(content)}
-      return {f'IDS_{name.upper()}' for name in names}
   else:
     return set()
 

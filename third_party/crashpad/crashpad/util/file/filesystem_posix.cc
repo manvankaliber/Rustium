@@ -35,10 +35,6 @@ bool FileModificationTime(const base::FilePath& path, timespec* mtime) {
 
 #if BUILDFLAG(IS_APPLE)
   *mtime = st.st_mtimespec;
-#elif BUILDFLAG(IS_ANDROID)
-  // This is needed to compile with traditional NDK headers.
-  mtime->tv_sec = st.st_mtime;
-  mtime->tv_nsec = st.st_mtime_nsec;
 #else
   *mtime = st.st_mtim;
 #endif

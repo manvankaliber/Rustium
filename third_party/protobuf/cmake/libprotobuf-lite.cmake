@@ -17,9 +17,6 @@ if(protobuf_HAVE_LD_VERSION_SCRIPT)
     LINK_DEPENDS ${protobuf_SOURCE_DIR}/src/libprotobuf-lite.map)
 endif()
 target_link_libraries(libprotobuf-lite PRIVATE ${CMAKE_THREAD_LIBS_INIT})
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
-  target_link_libraries(libprotobuf-lite PRIVATE log)
-endif()
 target_include_directories(libprotobuf-lite PUBLIC
   $<BUILD_INTERFACE:${protobuf_SOURCE_DIR}/src>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>

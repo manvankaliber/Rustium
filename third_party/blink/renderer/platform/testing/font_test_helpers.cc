@@ -145,7 +145,7 @@ Font* CreateAhemFont(float size) {
                         size);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 void TestFontPrewarmer::PrewarmFamily(const WebString& family_name) {
   family_names_.push_back(family_name);
 }

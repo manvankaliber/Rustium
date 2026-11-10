@@ -82,9 +82,7 @@
 #include "chrome/browser/extensions/api/identity/web_auth_flow_info_bar_delegate.h"
 #endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/startup/default_browser_prompt/default_browser_infobar_delegate.h"
-#endif
 
 #if BUILDFLAG(IS_MAC) && BUILDFLAG(ENABLE_UPDATER)
 #include "chrome/browser/ui/cocoa/keystone_infobar_delegate.h"
@@ -399,13 +397,9 @@ void InfoBarUiTest::ShowUi(const std::string& name) {
       break;
 
     case IBD::DEFAULT_BROWSER_INFOBAR_DELEGATE:
-#if BUILDFLAG(IS_CHROMEOS)
-      ADD_FAILURE() << "This infobar is not supported on this OS.";
-#else
       DefaultBrowserInfoBarDelegate::Create(GetInfoBarManager(),
                                             browser()->GetProfile(),
                                             /*can_pin_to_taskbar=*/false);
-#endif
       break;
 
     case IBD::GOOGLE_API_KEYS_INFOBAR_DELEGATE:
@@ -590,11 +584,9 @@ IN_PROC_BROWSER_TEST_P(InfoBarUiTest, InvokeUi_bad_flags) {
   ShowAndVerifyUi();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(InfoBarUiTest, InvokeUi_default_browser) {
   ShowAndVerifyUi();
 }
-#endif
 
 IN_PROC_BROWSER_TEST_P(InfoBarUiTest, InvokeUi_google_api_keys) {
   ShowAndVerifyUi();

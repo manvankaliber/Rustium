@@ -14,9 +14,7 @@ import '//resources/cr_elements/cr_icon/cr_icon.js';
 import '//resources/cr_elements/cr_link_row/cr_link_row.js';
 import '//resources/cr_elements/cr_toggle/cr_toggle.js';
 
-// <if expr="not is_chromeos">
 import type {CrToggleElement} from '//resources/cr_elements/cr_toggle/cr_toggle.js';
-// </if>
 import {assert, assertNotReached} from '//resources/js/assert.js';
 import {focusWithoutInk} from '//resources/js/focus_without_ink.js';
 import {PluralStringProxyImpl} from '//resources/js/plural_string_proxy.js';
@@ -35,12 +33,10 @@ export interface LocalCertsSectionElement {
     manageOsImportedCerts: HTMLElement,
     // </if>
 
-    // <if expr="not is_chromeos">
     importOsCerts: CrToggleElement,
     importOsCertsManagedIcon: HTMLElement,
     viewOsImportedCerts: HTMLElement,
     numSystemCerts: HTMLElement,
-    // </if>
   };
 }
 
@@ -62,9 +58,7 @@ export class LocalCertsSectionElement extends CrLitElement {
       numPolicyCertsString_: {type: String},
       numUserCertsString_: {type: String},
       certManagementMetadata_: {type: Object},
-      // <if expr="not is_chromeos">
       numSystemCertsString_: {type: String},
-      // </if>
     };
   }
 
@@ -72,9 +66,7 @@ export class LocalCertsSectionElement extends CrLitElement {
   protected accessor numUserCertsString_: string = '';
   protected accessor certManagementMetadata_: CertManagementMetadata|null =
       null;
-  // <if expr="not is_chromeos">
   protected accessor numSystemCertsString_: string = '';
-  // </if>
 
   override firstUpdated(changedProperties: PropertyValues<this>) {
     super.firstUpdated(changedProperties);
@@ -101,11 +93,9 @@ export class LocalCertsSectionElement extends CrLitElement {
         assert(adminLinkRow);
         focusWithoutInk(adminLinkRow);
         break;
-      // <if expr="not is_chromeos">
       case Page.PLATFORM_CERTS:
         focusWithoutInk(this.$.viewOsImportedCerts);
         break;
-      // </if>
       case Page.USER_CERTS:
         const userLinkRow = this.shadowRoot.querySelector<HTMLElement>(
             '#userCertsInstalledLinkRow');
@@ -120,9 +110,7 @@ export class LocalCertsSectionElement extends CrLitElement {
   private updateNumCertsStrings_() {
     if (!this.certManagementMetadata_) {
       this.numPolicyCertsString_ = '';
-      // <if expr="not is_chromeos">
       this.numSystemCertsString_ = '';
-      // </if>
       this.numUserCertsString_ = '';
     } else {
       PluralStringProxyImpl.getInstance()
@@ -132,7 +120,6 @@ export class LocalCertsSectionElement extends CrLitElement {
           .then(label => {
             this.numPolicyCertsString_ = label;
           });
-      // <if expr="not is_chromeos">
       PluralStringProxyImpl.getInstance()
           .getPluralString(
               'certificateManagerV2NumCerts',
@@ -140,7 +127,6 @@ export class LocalCertsSectionElement extends CrLitElement {
           .then(label => {
             this.numSystemCertsString_ = label;
           });
-      // </if>
       PluralStringProxyImpl.getInstance()
           .getPluralString(
               'certificateManagerV2NumCerts',
@@ -151,12 +137,10 @@ export class LocalCertsSectionElement extends CrLitElement {
     }
   }
 
-  // <if expr="not is_chromeos">
   protected onPlatformCertsLinkRowClick_(e: Event) {
     e.preventDefault();
     Router.getInstance().navigateTo(Page.PLATFORM_CERTS);
   }
-  // </if>
 
   protected onAdminCertsInstalledLinkRowClick_(e: Event) {
     e.preventDefault();
@@ -168,7 +152,6 @@ export class LocalCertsSectionElement extends CrLitElement {
     Router.getInstance().navigateTo(Page.USER_CERTS);
   }
 
-  // <if expr="not is_chromeos">
   protected importOsCertsEnabled_(): boolean {
     return !!this.certManagementMetadata_?.includeSystemTrustStore;
   }
@@ -181,7 +164,6 @@ export class LocalCertsSectionElement extends CrLitElement {
     return !!this.certManagementMetadata_ &&
         this.certManagementMetadata_.numUserAddedSystemCerts > 0;
   }
-  // </if>
 
   // If true, show the Custom Certs section.
   protected showCustomSection_(): boolean {
@@ -207,12 +189,10 @@ export class LocalCertsSectionElement extends CrLitElement {
   }
   // </if>
 
-  // <if expr="not is_chromeos">
   protected onOsCertsToggleChange_(e: CustomEvent<boolean>) {
     const proxy = browserProxyFactory.getInstance();
     proxy.handler.setIncludeSystemTrustStore(e.detail);
   }
-  // </if>
 }
 
 declare global {

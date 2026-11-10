@@ -34,7 +34,6 @@ base::FilePath GetChromeMLPath(const std::optional<std::string>& library_name) {
   }
 
   base::FilePath base_dir;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 #if BUILDFLAG(IS_MAC)
   if (base::apple::AmIBundled()) {
     base_dir = base::apple::FrameworkBundlePath().Append("Libraries");
@@ -44,7 +43,6 @@ base::FilePath GetChromeMLPath(const std::optional<std::string>& library_name) {
 #if BUILDFLAG(IS_MAC)
   }
 #endif  // BUILDFLAG(IS_MAC)
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS) &&
         // !BUILDFLAG(IS_FUCHSIA)
 
   return base_dir.AppendASCII(base::GetNativeLibraryName(

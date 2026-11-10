@@ -4,7 +4,6 @@
 
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 
-#include "ash/constants/web_app_id_constants.h"
 #include "base/callback_list.h"
 #include "base/json/json_reader.h"
 #include "base/scoped_observation.h"
@@ -75,11 +74,7 @@ constexpr char kCalculatorForceInstalled[] = R"([
   }
 ])";
 
-#if BUILDFLAG(IS_CHROMEOS)
-constexpr bool kShouldPreventClose = true;
-#else
 constexpr bool kShouldPreventClose = false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -500,12 +495,7 @@ IN_PROC_BROWSER_TEST_F(TabStripModelBrowserTest, CommandDuplicateSelected) {
 }
 
 // TODO(crbug.com/501991031): Fails on "chrome/ci/linux-chromeos-chrome".
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_TestCloseTabDuringMoveOperation \
-  DISABLED_TestCloseTabDuringMoveOperation
-#else
 #define MAYBE_TestCloseTabDuringMoveOperation TestCloseTabDuringMoveOperation
-#endif
 IN_PROC_BROWSER_TEST_F(TabStripModelBrowserTest,
                        MAYBE_TestCloseTabDuringMoveOperation) {
 #if BUILDFLAG(IS_LINUX)

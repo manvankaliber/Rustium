@@ -156,20 +156,13 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
       prefs::kGlicLastProfileReadyState,
       static_cast<int>(glic::mojom::ProfileReadyState::kReady));
   registry->RegisterIntegerPref(prefs::kGlicMarketingAutoOpenCount, 0);
-#if BUILDFLAG(IS_ANDROID)
-  registry->RegisterBooleanPref(prefs::kGlicLastCanActuateInBackground, false);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
   // On Android, hotkeys are scoped to the active browser window rather than
   // operating as OS-global background shortcuts. Therefore, the launcher
   // hotkey is enabled by default without requiring a default browser check.
-#if BUILDFLAG(IS_ANDROID)
-  registry->RegisterBooleanPref(prefs::kGlicLauncherEnabled, true);
-#else
   registry->RegisterBooleanPref(prefs::kGlicLauncherEnabled, false);
-#endif
 
   registry->RegisterStringPref(
       prefs::kGlicLauncherHotkey,

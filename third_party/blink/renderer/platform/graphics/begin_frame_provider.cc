@@ -114,11 +114,6 @@ bool BeginFrameProvider::ShouldThrottleBeginFrame(
     return false;
   }
   bool is_webview = false;
-#if BUILDFLAG(IS_ANDROID)
-  is_webview =
-      Platform::Current() &&
-      Platform::Current()->IsSynchronousCompositingEnabledForAndroidWebView();
-#endif
   base::TimeDelta throttled_interval =
       cc::SchedulerStateMachine::GetMainFrameThrottledInterval(args.interval,
                                                                is_webview);

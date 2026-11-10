@@ -27,25 +27,15 @@
 #include "ui/gl/vsync_provider_win.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "gpu/ipc/common/gpu_surface_lookup.h"
-#include "ui/gl/android/scoped_a_native_window.h"
-#endif
 
 namespace viz {
 namespace {
 
 // TODO(crbug.com/dawn/286): Dawn requires that surface format is BGRA8Unorm for
 // desktop and RGBA8Unorm for Android. Use GetPreferredSurfaceFormat when ready.
-#if BUILDFLAG(IS_ANDROID)
-constexpr SkColorType kSurfaceColorType = kRGBA_8888_SkColorType;
-constexpr wgpu::TextureFormat kSwapChainFormat =
-    wgpu::TextureFormat::RGBA8Unorm;
-#else
 constexpr SkColorType kSurfaceColorType = kBGRA_8888_SkColorType;
 constexpr wgpu::TextureFormat kSwapChainFormat =
     wgpu::TextureFormat::BGRA8Unorm;
-#endif
 
 constexpr wgpu::TextureUsage kUsage =
     wgpu::TextureUsage::RenderAttachment | wgpu::TextureUsage::TextureBinding |
@@ -87,10 +77,6 @@ class SkiaOutputDeviceDawnSwapChain : public SkiaOutputDeviceDawn {
   gl::ChildWindowWin child_window_;
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  // Use ScopedANativeWindow to keep the window alive
-  gl::ScopedANativeWindow android_native_window_;
-#endif
 };
 
 }  // namespace
@@ -260,23 +246,6 @@ bool SkiaOutputDeviceDawnSwapChain::Initialize(
   surface_desc.nextInChain = &hwnd_desc;
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  auto surface_record =
-      gpu::GpuSurfaceLookup::GetInstance()->AcquireJavaSurface(
-          surface_handle);
-  // Should only reach here if surface control is disabled. In which case
-  // browser should not be sending ScopedJavaSurfaceControl variant.
-  CHECK(std::holds_alternative<gl::ScopedJavaSurface>(
-      surface_record.surface_variant));
-  auto& scoped_java_surface =
-      std::get<gl::ScopedJavaSurface>(surface_record.surface_variant);
-  android_native_window_ = gl::ScopedANativeWindow(scoped_java_surface);
-
-  wgpu::SurfaceSourceAndroidNativeWindow android_native_window_desc;
-  android_native_window_desc.window =
-      android_native_window_.a_native_window();
-  surface_desc.nextInChain = &android_native_window_desc;
-#endif
 
   auto* context_provider = context_state_->dawn_context_provider();
   CHECK(context_provider && context_provider->GetDevice());

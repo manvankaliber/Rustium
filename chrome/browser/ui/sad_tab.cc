@@ -29,10 +29,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/memory/oom_memory_details.h"
-#include "chromeos/components/kiosk/kiosk_utils.h"
-#endif
 
 namespace {
 
@@ -76,9 +72,6 @@ bool SadTab::ShouldShow(base::TerminationStatus status) {
   switch (status) {
     case base::TERMINATION_STATUS_ABNORMAL_TERMINATION:
     case base::TERMINATION_STATUS_PROCESS_WAS_KILLED:
-#if BUILDFLAG(IS_CHROMEOS)
-    case base::TERMINATION_STATUS_PROCESS_WAS_KILLED_BY_OOM:
-#endif
     case base::TERMINATION_STATUS_PROCESS_CRASHED:
 #if BUILDFLAG(IS_WIN)
     case base::TERMINATION_STATUS_INTEGRITY_FAILURE:
@@ -88,9 +81,6 @@ bool SadTab::ShouldShow(base::TerminationStatus status) {
       return true;
     case base::TERMINATION_STATUS_NORMAL_TERMINATION:
     case base::TERMINATION_STATUS_STILL_RUNNING:
-#if BUILDFLAG(IS_ANDROID)
-    case base::TERMINATION_STATUS_OOM_PROTECTED:
-#endif
     case base::TERMINATION_STATUS_LAUNCH_FAILED:
     case base::TERMINATION_STATUS_MAX_ENUM:
       return false;
@@ -103,10 +93,6 @@ int SadTab::GetTitle() {
     return IDS_SAD_TAB_TITLE;
   }
   switch (kind_) {
-#if BUILDFLAG(IS_CHROMEOS)
-    case SAD_TAB_KIND_KILLED_BY_OOM:
-      return IDS_SAD_TAB_RELOAD_TITLE;
-#endif
     case SAD_TAB_KIND_OOM:
 #if BUILDFLAG(IS_WIN)  // Only Windows has OOM sad tab strings.
       return IDS_SAD_TAB_OOM_TITLE;
@@ -124,10 +110,6 @@ int SadTab::GetErrorCodeFormatString() {
 
 int SadTab::GetInfoMessage() {
   switch (kind_) {
-#if BUILDFLAG(IS_CHROMEOS)
-    case SAD_TAB_KIND_KILLED_BY_OOM:
-      return IDS_KILLED_TAB_BY_OOM_MESSAGE;
-#endif
     case SAD_TAB_KIND_OOM:
       if (is_repeatedly_crashing_) {
         return AreOtherTabsOpen() ? IDS_SAD_TAB_OOM_MESSAGE_TABS
@@ -162,10 +144,6 @@ std::vector<int> SadTab::GetSubMessages() {
   }
 
   switch (kind_) {
-#if BUILDFLAG(IS_CHROMEOS)
-    case SAD_TAB_KIND_KILLED_BY_OOM:
-      return std::vector<int>();
-#endif
     case SAD_TAB_KIND_OOM:
       return std::vector<int>();
     case SAD_TAB_KIND_CRASHED:
@@ -176,7 +154,7 @@ std::vector<int> SadTab::GetSubMessages() {
       if (!web_contents_->GetBrowserContext()->IsOffTheRecord()) {
         message_ids.insert(message_ids.begin(), IDS_SAD_TAB_RELOAD_INCOGNITO);
       }
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
       // Note: on macOS, Linux and ChromeOS, the first bullet is either one of
       // IDS_SAD_TAB_RELOAD_CLOSE_TABS or IDS_SAD_TAB_RELOAD_CLOSE_NOTABS
       // followed by one of the above suggestions.
@@ -244,27 +222,12 @@ SadTab::SadTab(content::WebContents* web_contents, SadTabKind kind)
     case SAD_TAB_KIND_CRASHED:
     case SAD_TAB_KIND_OOM:
       break;
-#if BUILDFLAG(IS_CHROMEOS)
-    case SAD_TAB_KIND_KILLED_BY_OOM: {
-      const std::string spec =
-          web_contents->GetURL().DeprecatedGetOriginAsURL().spec();
-      memory::OomMemoryDetails::Log("Tab OOM-Killed Memory details: " + spec +
-                                    ", ");
-      [[fallthrough]];
-    }
-#endif
     case SAD_TAB_KIND_KILLED:
       LOG(WARNING) << "Tab Killed: "
                    << web_contents->GetURL().DeprecatedGetOriginAsURL().spec();
       break;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Sending feedback is not allowed in the ChromeOS Kiosk mode.
-  if (chromeos::IsKioskSession()) {
-    return;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   // Only Google Chrome-branded browsers may show the Feedback button.

@@ -1498,9 +1498,7 @@ class LayerTreeHostScrollTestImplOnlyMultipleScrollSnap
 };
 
 // TODO(crbug.com/40787490): Test is flaky on Chrome OS (both Ash and Lacros).
-#if !BUILDFLAG(IS_CHROMEOS)
 MULTI_THREAD_TEST_F(LayerTreeHostScrollTestImplOnlyMultipleScrollSnap);
-#endif
 
 class LayerTreeHostScrollTestScrollZeroMaxScrollOffset
     : public LayerTreeHostScrollTest {
@@ -1747,15 +1745,8 @@ class LayerTreeHostScrollTestImplScrollUnderMainThreadScrollingParent
 
 // This test is flaky in the single threaded configuration, only on the
 // chromeos-amd64-generic-rel bot. https://crbug.com/1093078.
-#if BUILDFLAG(IS_CHROMEOS)
-// SINGLE_THREAD_TEST_F(
-//    LayerTreeHostScrollTestImplScrollUnderMainThreadScrollingParent);
-MULTI_THREAD_TEST_F(
-    LayerTreeHostScrollTestImplScrollUnderMainThreadScrollingParent);
-#else
 SINGLE_AND_MULTI_THREAD_TEST_F(
     LayerTreeHostScrollTestImplScrollUnderMainThreadScrollingParent);
-#endif
 
 class ThreadCheckingInputHandlerClient : public InputHandlerClient {
  public:

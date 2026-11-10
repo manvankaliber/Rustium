@@ -5,7 +5,7 @@
 #include "remoting/host/passthrough_register_support_host_request.h"
 
 #include "remoting/base/rsa_key_pair.h"
-#include "remoting/host/chromeos/chromeos_enterprise_params.h"
+#include "remoting/host/enterprise_session_params.h"
 
 namespace remoting {
 
@@ -25,7 +25,7 @@ void PassthroughRegisterSupportHostRequest::StartRequest(
     std::unique_ptr<net::ClientCertStore> client_cert_store,
     scoped_refptr<RsaKeyPair> key_pair,
     const std::string& authorized_helper,
-    std::optional<ChromeOsEnterpriseParams> params,
+    std::optional<EnterpriseSessionParams> params,
     RegisterCallback callback) {
   signal_strategy_ = signal_strategy;
   callback_ = std::move(callback);

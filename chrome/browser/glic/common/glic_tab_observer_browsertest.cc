@@ -39,13 +39,6 @@
 #include "ui/base/page_transition_types.h"
 #include "ui/events/keycodes/dom/dom_code.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "build/android_buildflags.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#endif
 
 namespace {
 // Simulates a click on a link with the given modifiers.
@@ -176,12 +169,6 @@ class GlicTabObserverBrowserTest
 
   void SetUpDefaultCommandLine(base::CommandLine* command_line) override {
     PlatformBrowserTest::SetUpDefaultCommandLine(command_line);
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-    command_line->AppendSwitch(switches::kForceDesktopAndroid);
-#endif
-#if BUILDFLAG(IS_ANDROID)
-    command_line->AppendSwitch("disable-fre");
-#endif
   }
 
   void SetUp() override {
@@ -201,7 +188,6 @@ class GlicTabObserverBrowserTest
     return CreateAdditionalBrowserWindow();
   }
 
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
   TabListInterface* CreateIncognitoTabList() {
     Profile* incognito_profile =
         GetProfile()->GetPrimaryOTRProfile(/*create_if_needed=*/true);
@@ -209,7 +195,6 @@ class GlicTabObserverBrowserTest
         glic::CreateBrowserWindow(incognito_profile);
     return TabListInterface::From(window);
   }
-#endif
 
   tabs::TabInterface* CreateTab(TabListInterface* tab_list = nullptr) {
     if (!tab_list) {
@@ -306,7 +291,6 @@ IN_PROC_BROWSER_TEST_F(GlicTabObserverBrowserTest,
 // Mobile Android does not support programmatically creating separate browser
 // window tasks with an OTR profile; attempting to do so triggers a profile
 // assertion crash in ChromeAndroidTaskImpl.java at startup.
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicTabObserverBrowserTest,
                        DoesNotObserveTabCreationInDifferentProfile) {
   TabListInterface* incognito_tab_list = CreateIncognitoTabList();
@@ -329,7 +313,6 @@ IN_PROC_BROWSER_TEST_F(GlicTabObserverBrowserTest,
     }
   }
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(GlicTabObserverBrowserTest, ObservesTabMutation) {
   GlicTabEventCollector collector(GetProfile());
@@ -514,13 +497,11 @@ IN_PROC_BROWSER_TEST_F(GlicTabObserverBrowserTest, LinkClickNewWindowTracking) {
                                           first_tab, params, collector));
   ASSERT_TRUE(creation.new_tab);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Android forces the NEW_WINDOW disposition to open in the same window,
   // returning the same BrowserWindowInterface pointer. Only assert they are
   // different on other platforms.
   EXPECT_NE(creation.new_tab->GetBrowserWindowInterface(),
             first_tab->GetBrowserWindowInterface());
-#endif
 
   // Verify the opener is preserved
   EXPECT_EQ(creation.opener.get(), first_tab);

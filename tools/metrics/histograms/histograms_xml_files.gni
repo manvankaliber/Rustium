@@ -341,22 +341,11 @@ histograms_and_variants_xml_files = [
   "//tools/metrics/histograms/variants.xml",
 ]
 
-android_xml_files = [
-  "//tools/metrics/histograms/metadata/android/enums.xml",
-  "//tools/metrics/histograms/metadata/android/histograms.xml",
-]
+android_xml_files = []
 
-chromeos_xml_files = [
-  "//tools/metrics/histograms/metadata/ash/enums.xml",
-  "//tools/metrics/histograms/metadata/ash/histograms.xml",
-  "//tools/metrics/histograms/metadata/chromeos/enums.xml",
-  "//tools/metrics/histograms/metadata/chromeos/histograms.xml",
-]
+chromeos_xml_files = []
 
-ios_xml_files = [
-  "//tools/metrics/histograms/metadata/ios/enums.xml",
-  "//tools/metrics/histograms/metadata/ios/histograms.xml",
-]
+ios_xml_files = []
 
 linux_xml_files = [
   "//tools/metrics/histograms/metadata/linux/enums.xml",
@@ -381,24 +370,19 @@ histograms_xml_files =
 # XML files from all platforms as inputs.
 _include_all_platforms = is_official_build && is_win
 
-if (is_android || _include_all_platforms) {
+if (_include_all_platforms) {
   histograms_xml_files += android_xml_files
-  histograms_and_variants_xml_files +=
-      [ "//tools/metrics/histograms/metadata/android/histograms.xml" ]
+  histograms_and_variants_xml_files += []
 }
 
-if (is_chromeos || _include_all_platforms) {
+if (_include_all_platforms) {
   histograms_xml_files += chromeos_xml_files
-  histograms_and_variants_xml_files += [
-    "//tools/metrics/histograms/metadata/ash/histograms.xml",
-    "//tools/metrics/histograms/metadata/chromeos/histograms.xml",
-  ]
+  histograms_and_variants_xml_files += []
 }
 
-if (is_ios || _include_all_platforms) {
+if (_include_all_platforms) {
   histograms_xml_files += ios_xml_files
-  histograms_and_variants_xml_files +=
-      [ "//tools/metrics/histograms/metadata/ios/histograms.xml" ]
+  histograms_and_variants_xml_files += []
 }
 
 if (is_linux || _include_all_platforms) {

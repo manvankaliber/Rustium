@@ -35,9 +35,6 @@
 #include "ui/shell_dialogs/select_file_policy.h"
 #include "ui/shell_dialogs/selected_file_info.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <set>
-#endif
 
 namespace content {
 
@@ -64,7 +61,6 @@ gfx::Size GetMinFileChooserWindowSize() {
   return kMinWindowSize;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void LogFileChooserWindowTooSmallDetails(WebContents* web_contents) {
   if (!web_contents) {
     return;
@@ -102,7 +98,6 @@ void LogFileChooserCancelledByWindowResize(WebContents* web_contents,
     LogFileChooserWindowTooSmallDetails(web_contents);
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Similar to base::FilePath::FinalExtension, but operates with the
 // understanding that the StringType passed in is an extension, not a path.
@@ -125,29 +120,6 @@ bool IsInvalidExtension(base::FilePath::StringType& extension) {
          FileSystemChooser::IsShellIntegratedExtension(extension);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Gets the list of all mime_types in all options from accepts and extensions.
-std::vector<std::u16string> ConvertAcceptsToMimeTypesList(
-    const blink::mojom::AcceptsTypesInfoPtr& accepts_types_info) {
-  std::set<std::u16string> mime_types;
-  for (const auto& option : accepts_types_info->accepts) {
-    // Add listed mime types.
-    for (const std::string& mime_type : option->mime_types) {
-      mime_types.insert(base::UTF8ToUTF16(mime_type));
-    }
-
-    // Lookup mime types from extensions.
-    for (const std::string& ext : option->extensions) {
-      std::string mime_type;
-      if (net::GetWellKnownMimeTypeFromExtension(ext, &mime_type)) {
-        mime_types.insert(base::UTF8ToUTF16(mime_type));
-      }
-    }
-  }
-
-  return std::vector<std::u16string>(mime_types.begin(), mime_types.end());
-}
-#endif
 
 // Converts the accepted mime types and extensions from `option` into a list
 // of just extensions to be passed to the file dialog implementation.
@@ -283,9 +255,6 @@ FileSystemChooser::Options::Options(
       // This value will be updated if the extension of `suggested_name`
       // matches an extension in `accepts_types_info->accepts`.
       default_file_type_index_(file_types_.extensions.empty() ? 0 : 1),
-#if BUILDFLAG(IS_ANDROID)
-      mime_types_(ConvertAcceptsToMimeTypesList(accepts_types_info)),
-#endif
       title_(std::move(title)),
       default_path_(default_directory.Append(
           ResolveSuggestedNameExtension(std::move(suggested_name),
@@ -392,19 +361,15 @@ void FileSystemChooser::CreateAndShow(
           WebContentsBasedCanceller::CancelCondition::kVisibility,
           min_window_size);
   if (!canceller) {
-#if !BUILDFLAG(IS_ANDROID)
     if (WebContentsBasedCanceller::IsWindowTooSmall(web_contents,
                                                     min_window_size)) {
       LogFileChooserSuppressedByWindowSize(web_contents, /*suppressed=*/true);
     }
-#endif
     VLOG(1) << "Not showing chooser";
     AbortedCallback(std::move(callback));
     return;
   }
-#if !BUILDFLAG(IS_ANDROID)
   LogFileChooserSuppressedByWindowSize(web_contents, /*suppressed=*/false);
-#endif
   // `listener` deletes itself.
   auto* listener =
       new FileSystemChooser(options.type(), std::move(callback),
@@ -421,10 +386,6 @@ void FileSystemChooser::CreateAndShow(
   }
 
   VLOG(1) << "Showing chooser";
-#if BUILDFLAG(IS_ANDROID)
-  listener->dialog_->SetAcceptTypes(options.mime_types());
-  listener->dialog_->SetOpenWritable(true);
-#endif
   listener->dialog_->SelectFile(
       options.type(), options.title(), options.default_path(),
       &options.file_type_info(), options.default_file_type_index(),
@@ -492,12 +453,10 @@ FileSystemChooser::FileSystemChooser(
 
 FileSystemChooser::~FileSystemChooser() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-#if !BUILDFLAG(IS_ANDROID)
   if (canceller_) {
     LogFileChooserCancelledByWindowResize(canceller_->web_contents(),
                                           /*cancelled=*/false);
   }
-#endif
   if (dialog_) {
     dialog_->ListenerDestroyed();
   }
@@ -532,7 +491,6 @@ void FileSystemChooser::FileSelectionCanceled() {
 
 void FileSystemChooser::OnCancelledByWebContents() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-#if !BUILDFLAG(IS_ANDROID)
   if (canceller_ &&
       WebContentsBasedCanceller::IsWindowTooSmall(
           canceller_->web_contents(), GetMinFileChooserWindowSize())) {
@@ -540,7 +498,6 @@ void FileSystemChooser::OnCancelledByWebContents() {
                                           /*cancelled=*/true);
     canceller_.reset();
   }
-#endif
   FileSelectionCanceled();
 }
 

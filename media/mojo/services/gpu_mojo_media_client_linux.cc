@@ -15,10 +15,10 @@
 #include "media/base/decoder.h"
 #include "media/base/media_log.h"
 #include "media/base/media_switches.h"
-#include "media/gpu/chromeos/mailbox_video_frame_converter.h"
-#include "media/gpu/chromeos/platform_video_frame_pool.h"
-#include "media/gpu/chromeos/simple_video_frame_converter.h"
-#include "media/gpu/chromeos/video_decoder_pipeline.h"
+#include "media/gpu/linux/mailbox_video_frame_converter.h"
+#include "media/gpu/linux/platform_video_frame_pool.h"
+#include "media/gpu/linux/simple_video_frame_converter.h"
+#include "media/gpu/linux/video_decoder_pipeline.h"
 
 namespace media {
 

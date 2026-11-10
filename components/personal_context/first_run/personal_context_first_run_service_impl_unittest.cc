@@ -84,7 +84,6 @@ class PersonalContextFirstRunServiceImplTest : public testing::Test {
   std::unique_ptr<PersonalContextFirstRunServiceImpl> service_;
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)  // Signing out does not work on ChromeOS.
 TEST_F(PersonalContextFirstRunServiceImplTest, ClearsPrefOnSignout) {
   SignIn("test@gmail.com");
   pref_service()->SetBoolean(
@@ -101,7 +100,6 @@ TEST_F(PersonalContextFirstRunServiceImplTest, ClearsPrefOnSignout) {
   EXPECT_TRUE(pref_service()->GetBoolean(
       prefs::kPersonalContextInAutofillSettingsToggleStatus));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(PersonalContextFirstRunServiceImplTest, ResetsNoticePrefsOnStartup) {
   pref_service()->SetBoolean(

@@ -273,7 +273,7 @@ TEST_F(LabelTest, Metadata) {
 }
 
 TEST_F(LabelTest, FontPropertySymbol) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // On linux, the fonts are mocked with a custom FontConfig. The "Courier New"
   // family name is mapped to Cousine-Regular.ttf (see: $build/test_fonts/*).
   std::string font_name("Courier New");
@@ -1595,13 +1595,8 @@ TEST_F(LabelTest, GetSubstringBounds) {
 }
 
 // TODO(crbug.com/40725997): Enable on ChromeOS along with the DCHECK in Label.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ChecksSubpixelRenderingOntoOpaqueSurface \
-  DISABLED_ChecksSubpixelRenderingOntoOpaqueSurface
-#else
 #define MAYBE_ChecksSubpixelRenderingOntoOpaqueSurface \
   ChecksSubpixelRenderingOntoOpaqueSurface
-#endif
 // Ensures DCHECK for subpixel rendering on transparent layer is working.
 TEST_F(LabelTest, MAYBE_ChecksSubpixelRenderingOntoOpaqueSurface) {
   View* view =
@@ -1624,9 +1619,7 @@ TEST_F(LabelTest, MAYBE_ChecksSubpixelRenderingOntoOpaqueSurface) {
   // Painting on a transparent layer should DCHECK.
   // TODO(crbug.com/40725997): The EXPECT_CHECK_DEATH needs
   // !BUILDFLAG(IS_CHROMEOS).
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_CHECK_DEATH(label->OnPaint(&canvas), base::NotFatalUntil::M163);
-#endif
 
   // We should not DCHECK if the check is skipped.
   label->SetSkipSubpixelRenderingOpacityCheck(true);

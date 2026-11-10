@@ -21,19 +21,8 @@ namespace autofill::features {
 // but only in certain countries on mobile.
 // Note that even on desktop, the Wallet private passes integration is only
 // launched outside of WALLET_UNSUPPORTED_COUNTRIES.
-#if BUILDFLAG(IS_ANDROID)
-#define DEFINE_FEATURE_WITH_MOBILE_COUNTRY_RESTRICTION(feature_name)           \
-  BASE_FEATURE_WITH_COUNTRY_RESTRICTIONS(feature_name,                         \
-                                         base::FEATURE_DISABLED_FOR_COUNTRIES, \
-                                         WALLET_UNSUPPORTED_COUNTRIES)
-#elif BUILDFLAG(IS_IOS)
-#define DEFINE_FEATURE_WITH_MOBILE_COUNTRY_RESTRICTION(feature_name) \
-  BASE_FEATURE_WITH_COUNTRY_RESTRICTIONS(                            \
-      feature_name, base::FEATURE_ENABLED_FOR_COUNTRIES, "us")
-#else
 #define DEFINE_FEATURE_WITH_MOBILE_COUNTRY_RESTRICTION(feature_name) \
   BASE_FEATURE(feature_name, base::FEATURE_ENABLED_BY_DEFAULT)
-#endif
 
 BASE_FEATURE(kActorFormFillingServiceEnableAddress,
              base::FEATURE_ENABLED_BY_DEFAULT);
@@ -168,19 +157,10 @@ BASE_FEATURE(kAutofillAiAlwaysTriggerServerModel,
 // If enabled Autofill AI becomes available by default and the previous enable
 // toggle controls whether online model runs and MQLS logging are allowed.
 // TODO(crbug.com/440488776): Remove once clean up happens.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-DEFINE_FEATURE_WITH_MOBILE_COUNTRY_RESTRICTION(kAutofillAiAvailableByDefault);
-#endif
 
 // If enabled, AutofillAi entities will be deduped on every major milestone.
 DEFINE_FEATURE_WITH_MOBILE_COUNTRY_RESTRICTION(kAutofillAiDedupeEntities);
 
-#if BUILDFLAG(IS_ANDROID)
-// When enabled, the entity save/update prompt displays an edit button that
-// opens the entity editor on click.
-BASE_FEATURE(kAutofillAiEditEntitiesFromSaveUpdatePrompt,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // If enabled, no GeoIp requirements are imposed for AutofillAi.
 // Note that this feature can be modified as follows (all assuming that
@@ -236,12 +216,6 @@ BASE_FEATURE(kAutofillAiOrder, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kAutofillAiPrivateAiShadowMetric,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// If enabled, the Autofill AI private inference notice is shown in the Touch To
-// Fill bottom sheet instead of an Android message.
-BASE_FEATURE(kAutofillAiPrivateInferenceNoticeBottomSheet,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // If enabled, AutofillAi requires re-auth when filling/viewing sensitive
 // fields. As part of this feature sensitive fields are also obfuscated during
@@ -319,22 +293,6 @@ BASE_FEATURE_PARAM(bool,
 // If enabled, AutofillAi supports shipment entities.
 BASE_FEATURE(kAutofillAiShipment, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// If enabled, the user is notified about a failure to upstream data to Wallet
-// via a dialog instead of a snackbar.
-BASE_FEATURE(kAutofillAiShowDialogInSettingsWhenUpstreamingFails,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-// If enabled, a loading dialog is shown to the user during the time their data
-// is fetched from the server for personal context entities.
-BASE_FEATURE(kAutofillAiShowPersonalContextFillingYourInfoDialog,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-// If enabled, a loading dialog is shown to the user during the time their data
-// is fetched from the server for server wallet entities.
-BASE_FEATURE(kAutofillAiShowServerWalletFillingYourInfoDialog,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Controls whether a banner is shown in settings when wallet data sharing is
 // disabled.
@@ -344,12 +302,6 @@ BASE_FEATURE(kAutofillAiShowWalletDisabledBanner,
 // If enabled, shows in-context source attribution verification UI.
 BASE_FEATURE(kAutofillAiSpiiVerification, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// If enabled, the entity editor on Android uses the date picker from the
-// material design library instead of the ad-hoc date picker implementation.
-BASE_FEATURE(kAutofillAiUseMaterialDatePickerInEntityEditor,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // If enabled, the client may trigger the server model for AutofillAI type
 // predictions using Private AI Compute.
@@ -377,15 +329,9 @@ BASE_FEATURE_PARAM(int,
                    0);
 
 // If enabled, AutofillAi supports private passes entities from Google Wallet.
-#if BUILDFLAG(IS_IOS)
-BASE_FEATURE_WITH_COUNTRY_RESTRICTIONS(kAutofillAiWalletPrivatePasses,
-                                       base::FEATURE_ENABLED_FOR_COUNTRIES,
-                                       "us");
-#else
 BASE_FEATURE_WITH_COUNTRY_RESTRICTIONS(kAutofillAiWalletPrivatePasses,
                                        base::FEATURE_DISABLED_FOR_COUNTRIES,
                                        WALLET_UNSUPPORTED_COUNTRIES);
-#endif
 
 // When enabled, account-related eligibility criteria (minor status, location)
 // are determined based on a capability, rather than approximated through
@@ -484,12 +430,6 @@ BASE_FEATURE(kAutofillAndroidDesktopSuppressAccessoryOnEmpty,
 BASE_FEATURE(kAutofillAndroidDisableSuggestionsOnJSFocus,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// Kill switch for hiding Autofill suggestions and the keyboard accessory when a
-// mouse-triggered context menu opens on Android.
-BASE_FEATURE(kAutofillAndroidHideSuggestionsOnContextMenu,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // If enabled, on Android, the Autofill keyboard accessory will not be
 // displayed attached to the keyboard but will be placed below or above the
@@ -499,13 +439,6 @@ BASE_FEATURE(kAutofillAndroidHideSuggestionsOnContextMenu,
 BASE_FEATURE(kAutofillAndroidKeyboardAccessoryDynamicPositioning,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// If enabled, on Android, hovering over an Autofill suggestion in the keyboard
-// accessory triggers a preview of the suggestion.
-// TODO(crbug.com/542535472): Remove when launched.
-BASE_FEATURE(kAutofillAndroidKeyboardAccessoryHoverPreview,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // If enabled, on Android, form comparisons are done by comparing
 // `FormGlobalId`s instead of checking form similarity via `SimilarFormAs()`.
@@ -617,11 +550,7 @@ BASE_FEATURE(kAutofillCustomFormControlScripts,
 // spotted.
 BASE_FEATURE(kAutofillDelayApcForPredictions,
 // The feature will be tested and rolled out independently on iOS.
-#if BUILDFLAG(IS_IOS)
              base::FEATURE_DISABLED_BY_DEFAULT);
-#else
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_IOS)
 
 // Kill switch for Autofill address import.
 BASE_FEATURE(kAutofillDisableAddressImport, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -772,12 +701,6 @@ BASE_FEATURE(kAutofillEnableNonAffiliatedLoyaltyCardsFilling,
 BASE_FEATURE(kAutofillEnableOneTimeCodeHeuristics,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// Controls if Chrome Autofill UI surfaces ignore touch events if something is
-// fully or partially obscuring the Chrome window.
-BASE_FEATURE(kAutofillEnableSecurityTouchEventFilteringAndroid,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Kill switch: If enabled, `AutofillField` may not suppress suggestions on
 // field that has autocomplete=unrecognized attribute.
@@ -1232,20 +1155,12 @@ BASE_FEATURE(kAutofillWipeInvalidNameStructure,
 // TODO(crbug.com/371933424). Clean up when launched, if not used for Autofill
 // experiments.
 BASE_FEATURE(kFieldClassificationModelCaching,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 // The feature will be tested and rolled out independently on iOS.
 BASE_FEATURE(kGlicActorAutofill,
-#if BUILDFLAG(IS_IOS)
              base::FEATURE_DISABLED_BY_DEFAULT
-#else
-             base::FEATURE_DISABLED_BY_DEFAULT
-#endif  // BUILDFLAG(IS_IOS)
 );
 
 // The amount of time to wait for a fill to happen if no credit card fetch is

@@ -27,17 +27,15 @@ group("remoting_all") {
   if (enable_remoting_host) {
     deps += [ "//remoting/host" ]
 
-    if (!is_chromeos && !is_android) {
-      deps += [
-        "//remoting/host:remoting_native_messaging_manifests",
-        "//remoting/host:remoting_start_host",
-      ]
+    deps += [
+      "//remoting/host:remoting_native_messaging_manifests",
+      "//remoting/host:remoting_start_host",
+    ]
 
-      # it2me.
-      deps += [ "//remoting/host/it2me:remote_assistance_host" ]
-      if (is_win) {
-        deps += [ "//remoting/host/it2me:remote_assistance_host_uiaccess" ]
-      }
+    # it2me.
+    deps += [ "//remoting/host/it2me:remote_assistance_host" ]
+    if (is_win) {
+      deps += [ "//remoting/host/it2me:remote_assistance_host_uiaccess" ]
     }
 
     if (is_linux) {
@@ -119,12 +117,6 @@ test("remoting_unittests") {
   }
 
   deps += [ "//third_party/webrtc_overrides:webrtc_component" ]
-
-  if (is_android) {
-    deps += [ "//net/android:net_java" ]
-
-    libs += [ "android" ]
-  }
 
   if (is_win) {
     defines += [ "_ALT_NO_EXCEPTIONS" ]

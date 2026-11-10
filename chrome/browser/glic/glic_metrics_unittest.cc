@@ -54,10 +54,6 @@
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/base/accelerators/command.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/test/glic_user_session_test_helper.h"
-#include "chromeos/ash/components/network/network_handler_test_helper.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace glic {
 namespace {
@@ -109,12 +105,6 @@ class GlicMetricsTestBase : public testing::Test {
     raw_ptr<TestingProfileManager> testing_profile_manager =
         TestingBrowserProcess::GetGlobal()->SetUpGlobalFeaturesForTesting(
             /*profile_manager=*/true);
-#if BUILDFLAG(IS_CHROMEOS)
-    glic_user_session_test_helper_.PreProfileSetUp(
-        testing_profile_manager->profile_manager());
-    startup_metric_utils::GetBrowser().RecordWebContentsStartTime(
-        base::TimeTicks::Now());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     profile_ = testing_profile_manager->CreateTestingProfile("profile");
   }
@@ -126,9 +116,6 @@ class GlicMetricsTestBase : public testing::Test {
 
     TestingBrowserProcess::GetGlobal()->TearDownGlobalFeaturesForTesting();
 
-#if BUILDFLAG(IS_CHROMEOS)
-    glic_user_session_test_helper_.PostProfileTearDown();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   void ExpectEntryPointImpressionLogged(
@@ -162,9 +149,6 @@ class GlicMetricsTestBase : public testing::Test {
 
  private:
   content::BrowserTaskEnvironment task_environment_;
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::NetworkHandlerTestHelper network_handler_test_helper_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   content::RenderViewHostTestEnabler enabler_;
 
@@ -172,10 +156,6 @@ class GlicMetricsTestBase : public testing::Test {
   base::UserActionTester user_action_tester_;
   ukm::TestAutoSetUkmRecorder ukm_tester_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // This test needs to run in user session, so set it up for ChromeOS cases.
-  ash::GlicUserSessionTestHelper glic_user_session_test_helper_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   signin::IdentityTestEnvironment identity_env_;
   raw_ptr<TestingProfile> profile_ = nullptr;
@@ -244,14 +224,12 @@ TEST_F(GlicMetricsTest, RecordGlicProfilePreferences) {
                                         true, 1);
   histogram_tester().ExpectUniqueSample("Glic.Preferences.ActuationOnWeb", true,
                                         1);
-#if !BUILDFLAG(IS_ANDROID)
   histogram_tester().ExpectUniqueSample("Glic.Selection.InlineCueMenuEnabled",
                                         true, 1);
   histogram_tester().ExpectUniqueSample("Glic.Selection.SiteExceptionsCount", 0,
                                         1);
   histogram_tester().ExpectUniqueSample(
       "Glic.Selection.RemovedDefaultBlockedSitesCount", 0, 1);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Set up preferences to false.
   profile()->GetPrefs()->SetBoolean(prefs::kGlicPinnedToTabstrip, false);
@@ -265,7 +243,6 @@ TEST_F(GlicMetricsTest, RecordGlicProfilePreferences) {
   profile()->GetPrefs()->SetBoolean(prefs::kGlicShakeTriggerEnabled, false);
   enabling()->SetUserEnabledActuationOnWeb(false);
 
-#if !BUILDFLAG(IS_ANDROID)
   HostContentSettingsMap* settings_map =
       HostContentSettingsMapFactory::GetForProfile(profile());
   settings_map->SetDefaultContentSetting(ContentSettingsType::INLINE_CUE_MENU,
@@ -280,7 +257,6 @@ TEST_F(GlicMetricsTest, RecordGlicProfilePreferences) {
                                              "https://default-blocked-1.com"));
   EXPECT_TRUE(UnblockDefaultSiteForInlineCue(profile(),
                                              "https://default-blocked-2.com"));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   metrics()->RecordGlicProfilePreferences();
 
@@ -325,7 +301,6 @@ TEST_F(GlicMetricsTest, RecordGlicProfilePreferences) {
   histogram_tester().ExpectBucketCount("Glic.Preferences.ActuationOnWeb", false,
                                        1);
 
-#if !BUILDFLAG(IS_ANDROID)
   histogram_tester().ExpectBucketCount("Glic.Selection.InlineCueMenuEnabled",
                                        true, 1);
   histogram_tester().ExpectBucketCount("Glic.Selection.InlineCueMenuEnabled",
@@ -340,7 +315,6 @@ TEST_F(GlicMetricsTest, RecordGlicProfilePreferences) {
       "Glic.Selection.RemovedDefaultBlockedSitesCount", 2, 1);
   histogram_tester().ExpectBucketCount(
       "Glic.Selection.RemovedDefaultBlockedSitesCount", 0, 1);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 TEST_F(GlicMetricsTest, FreUserInputEntrypointRecorded) {

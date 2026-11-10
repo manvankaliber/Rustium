@@ -34,9 +34,6 @@
 #include "ui/gfx/image/image_skia_rep.h"
 #include "ui/gfx/skia_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/tab_android.h"
-#endif
 
 namespace glic {
 
@@ -54,16 +51,6 @@ std::string GetTabMimeType(content::WebContents* web_contents) {
   if (!web_contents) {
     return std::string();
   }
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, PDFs are rendered via a native Java `PdfPage`, while the
-  // `WebContents` commits an empty `chrome-native://` document whose mime type
-  // is not "application/pdf".
-  if (auto* tab_android = TabAndroid::FromWebContents(web_contents)) {
-    if (tab_android->IsPdf()) {
-      return "application/pdf";
-    }
-  }
-#endif
   return web_contents->GetContentsMimeType();
 }
 
@@ -156,13 +143,11 @@ TabDataObserver::TabDataObserver(
       tab_data_changed_(std::move(tab_data_changed)),
       tab_(tab ? tab->GetWeakPtr() : nullptr) {
   if (web_contents) {
-#if !BUILDFLAG(IS_ANDROID)
     auto* favicon_driver =
         favicon::ContentFaviconDriver::FromWebContents(web_contents);
     if (favicon_driver) {
       favicon_driver->AddObserver(this);
     }
-#endif
     if (tab) {
       tab_detach_subscription_ = tab->RegisterWillDetach(base::BindRepeating(
           &TabDataObserver::OnTabWillDetach, base::Unretained(this)));
@@ -180,7 +165,6 @@ void TabDataObserver::ClearObservation() {
   // observer if the web contents is destroyed.
   // Note, we do not used a scoped observation because there is no event
   // notifying us when a web contents is destroyed.
-#if !BUILDFLAG(IS_ANDROID)
   if (web_contents()) {
     auto* favicon_driver =
         favicon::ContentFaviconDriver::FromWebContents(web_contents());
@@ -188,7 +172,6 @@ void TabDataObserver::ClearObservation() {
       favicon_driver->RemoveObserver(this);
     }
   }
-#endif
   Observe(nullptr);
   deferred_update_.Stop();
   updates_since_navigation_ = 0;
@@ -240,7 +223,6 @@ void TabDataObserver::SendUpdate() {
   change_causes_ = {};
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void TabDataObserver::OnFaviconUpdated(
     favicon::FaviconDriver* favicon_driver,
     NotificationIconType notification_icon_type,
@@ -250,7 +232,6 @@ void TabDataObserver::OnFaviconUpdated(
   change_causes_.Put(TabDataChangeCause::kFavicon);
   SendUpdate();
 }
-#endif
 
 void TabDataObserver::OnTabWillDetach(tabs::TabInterface* tab,
                                       tabs::TabInterface::DetachReason reason) {
@@ -299,11 +280,9 @@ glic::mojom::TabDataPtr CreateTabData(tabs::TabInterface* tab) {
     return nullptr;
   }
   content::WebContents* web_contents = tab->GetContents();
-#if !BUILDFLAG(IS_ANDROID)
   if (!web_contents) {
     return nullptr;
   }
-#endif
 
   int tab_id = GetTabId(tab);
 
@@ -321,7 +300,6 @@ glic::mojom::TabDataPtr CreateTabData(tabs::TabInterface* tab) {
 
   SkBitmap favicon;
   std::optional<GURL> favicon_url;
-#if !BUILDFLAG(IS_ANDROID)
   if (web_contents) {
     auto* favicon_driver =
         favicon::ContentFaviconDriver::FromWebContents(web_contents);
@@ -336,7 +314,6 @@ glic::mojom::TabDataPtr CreateTabData(tabs::TabInterface* tab) {
       }
     }
   }
-#endif
 
   std::string mime_type = GetTabMimeType(web_contents);
 
@@ -355,15 +332,9 @@ glic::mojom::TabDataPtr CreateTabData(tabs::TabInterface* tab) {
   bool is_window_active = false;
   if (base::FeatureList::IsEnabled(features::kGlicGetTabByIdApi)) {
     is_active_in_window = tab->IsActivated();
-#if !BUILDFLAG(IS_ANDROID)
     is_window_active = tab->GetBrowserWindowInterface()
                            ? IsActive(tab->GetBrowserWindowInterface())
                            : false;
-#else
-    // Not implemented on Android. It's currently not used, so this may never
-    // be implemented.
-    is_window_active = true;
-#endif
   }
   std::optional<std::vector<mojom::LightweightPageFeature>>
       lightweight_page_features;

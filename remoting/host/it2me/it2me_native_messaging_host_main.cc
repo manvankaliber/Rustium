@@ -30,7 +30,7 @@
 #include "remoting/host/resources.h"
 #include "remoting/host/usage_stats_consent.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #if defined(REMOTING_USE_X11)
 #include <gtk/gtk.h>
 
@@ -38,7 +38,7 @@
 #include "remoting/host/linux/thread_bound_x11_event_source.h"
 #include "ui/gfx/x/xlib_support.h"
 #endif  // defined(REMOTING_USE_X11)
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) &&
+#endif
 
 #if BUILDFLAG(IS_APPLE)
 #include "base/apple/scoped_nsautorelease_pool.h"
@@ -84,11 +84,11 @@ int It2MeNativeMessagingHostMain(int argc, char** argv) {
   base::ScopedMemoryConsumerRegistry<base::DummyMemoryConsumerRegistry>
       memory_consumer_registry;
 
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(REMOTING_USE_X11)
+#if BUILDFLAG(IS_LINUX) && defined(REMOTING_USE_X11)
   // Initialize Xlib for multi-threaded use, allowing non-Chromium code to
   // use X11 safely (such as the WebRTC capturer, GTK ...)
   x11::InitXlib();
-#endif  // (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) &&
+#endif
         // defined(REMOTING_USE_X11)
 
   // This object instance is required by Chrome code (such as
@@ -134,7 +134,7 @@ int It2MeNativeMessagingHostMain(int argc, char** argv) {
 
   remoting::LoadResources("");
 
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(REMOTING_USE_X11)
+#if BUILDFLAG(IS_LINUX) && defined(REMOTING_USE_X11)
   // Required for any calls into GTK functions, such as the Disconnect and
   // Continue windows. Calling with nullptr arguments because we don't have
   // any command line arguments for gtk to consume.
@@ -147,7 +147,7 @@ int It2MeNativeMessagingHostMain(int argc, char** argv) {
   // Need to prime the host OS version value for linux to prevent IO on the
   // network thread. base::GetLinuxDistro() caches the result.
   base::GetLinuxDistro();
-#endif  // (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) &&
+#endif
         // defined(REMOTING_USE_X11)
 
   base::File read_file;
@@ -263,14 +263,14 @@ int It2MeNativeMessagingHostMain(int argc, char** argv) {
       PolicyWatcher::CreateWithTaskRunner(context->file_task_runner(),
                                           context->management_service());
 
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(REMOTING_USE_X11)
+#if BUILDFLAG(IS_LINUX) && defined(REMOTING_USE_X11)
   // Create an X11EventSource on all UI threads, so X events on their
   // x11::Connection instances are dispatched.
   ThreadBoundX11EventSource::CreateForCurrentThread();
   context->input_task_runner()->PostTask(
       FROM_HERE,
       base::BindOnce(&ThreadBoundX11EventSource::CreateForCurrentThread));
-#endif  // (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) &&
+#endif
         // defined(REMOTING_USE_X11)
 
   std::unique_ptr<extensions::NativeMessageHost> host(

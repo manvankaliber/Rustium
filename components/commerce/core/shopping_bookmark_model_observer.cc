@@ -28,11 +28,7 @@ namespace commerce {
 
 namespace {
 bool IsTrackByDefaultEnabled() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return false;
-#else
   return true;
-#endif
 }
 }  // namespace
 

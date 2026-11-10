@@ -24,11 +24,7 @@ source_set("select_file_policy") {
     "//ui/base",
   ]
 
-  if (is_android) {
-    deps += [ "//ui/android" ]
-  } else {
-    deps += [ "//components/tabs:public" ]
-  }
+  deps += [ "//components/tabs:public" ]
 }
 
 source_set("unit_tests") {

@@ -57,66 +57,13 @@ cfg_if! {
     ))] {
         mod getentropy;
         pub use getentropy::*;
-    } else if #[cfg(any(
-        // Rust supports Android API level 19 (KitKat) [0] and the next upgrade targets
-        // level 21 (Lollipop) [1], while `getrandom(2)` was added only in
-        // level 23 (Marshmallow). Note that it applies only to the "old" `target_arch`es,
-        // RISC-V Android targets sufficiently new API level, same will apply for potential
-        // new Android `target_arch`es.
-        // [0]: https://blog.rust-lang.org/2023/01/09/android-ndk-update-r25.html
-        // [1]: https://github.com/rust-lang/rust/pull/120593
-        all(
-            target_os = "android",
-            any(
-                target_arch = "aarch64",
-                target_arch = "arm",
-                target_arch = "x86",
-                target_arch = "x86_64",
-            ),
-        ),
-        // Only on these `target_arch`es Rust supports Linux kernel versions (3.2+)
-        // that precede the version (3.17) in which `getrandom(2)` was added:
-        // https://doc.rust-lang.org/stable/rustc/platform-support.html
-        all(
-            target_os = "linux",
-            any(
-                target_arch = "aarch64",
-                target_arch = "arm",
-                target_arch = "powerpc",
-                target_arch = "powerpc64",
-                target_arch = "s390x",
-                target_arch = "x86",
-                target_arch = "x86_64",
-                // Minimum supported Linux kernel version for MUSL targets
-                // is not specified explicitly (as of Rust 1.77) and they
-                // are used in practice to target pre-3.17 kernels.
-                all(
-                    target_env = "musl",
-                    not(
-                        any(
-                            target_arch = "riscv64",
-                            target_arch = "riscv32",
-                        ),
-                    ),
-                ),
-            ),
-        )
-    ))] {
+    } else if #[cfg(all(target_os = "linux", any(target_arch = "aarch64", target_arch = "arm", target_arch = "powerpc", target_arch = "powerpc64", target_arch = "s390x", target_arch = "x86", target_arch = "x86_64", all(target_env = "musl", not(any(target_arch = "riscv64", target_arch = "riscv32"))))))] {
         mod use_file;
         mod linux_android_with_fallback;
         pub use linux_android_with_fallback::*;
-    } else if #[cfg(any(
-        target_os = "android",
-        target_os = "linux",
-        target_os = "dragonfly",
-        target_os = "freebsd",
-        target_os = "hurd",
-        target_os = "illumos",
-        target_os = "cygwin",
-        // Check for target_arch = "arm" to only include the 3DS. Does not
+    } else if #[cfg(any(target_os = "linux", target_os = "dragonfly", target_os = "freebsd", target_os = "hurd", target_os = "illumos", target_os = "cygwin", // Check for target_arch = "arm" to only include the 3DS. Does not
         // include the Nintendo Switch (which is target_arch = "aarch64").
-        all(target_os = "horizon", target_arch = "arm"),
-    ))] {
+        all(target_os = "horizon", target_arch = "arm")))] {
         mod getrandom;
         pub use getrandom::*;
     } else if #[cfg(target_os = "solaris")] {
@@ -125,12 +72,7 @@ cfg_if! {
     } else if #[cfg(target_os = "netbsd")] {
         mod netbsd;
         pub use netbsd::*;
-    }  else if #[cfg(any(
-        target_os = "ios",
-        target_os = "visionos",
-        target_os = "watchos",
-        target_os = "tvos",
-    ))] {
+    }  else if #[cfg(any(target_os = "visionos", target_os = "watchos", target_os = "tvos"))] {
         mod apple_other;
         pub use apple_other::*;
     } else if #[cfg(all(target_arch = "wasm32", target_os = "wasi"))] {

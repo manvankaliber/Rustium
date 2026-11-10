@@ -122,12 +122,10 @@ NavigationPredictorKeyedService::NavigationPredictorKeyedService(
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
   CHECK(!browser_context->IsOffTheRecord(), base::NotFatalUntil::M161);
 
-#if !BUILDFLAG(IS_ANDROID)
   if (!SearchEnginePreconnector::ShouldBeEnabledAsKeyedService()) {
     // Start preconnecting to the search engine.
     search_engine_preconnector_.StartPreconnecting(/*with_startup_delay=*/true);
   }
-#endif
 }
 
 NavigationPredictorKeyedService::~NavigationPredictorKeyedService() {

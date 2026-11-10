@@ -1,14 +1,4 @@
 {
-  "android": {
-    "exclusions": [
-      "chrome/android/profiles/newest.txt"
-    ]
-  },
-  "android_webview": {
-    "exclusions": [
-      "android_webview/.*"
-    ]
-  },
   "base": {
     "exclusions": [
       ".*isolate",
@@ -33,11 +23,6 @@
     ],
     "ignores": [
       "(.+/)?PRESUBMIT\\.py"
-    ]
-  },
-  "chromeos": {
-    "exclusions": [
-      "chromeos/CHROMEOS_LKGM"
     ]
   },
   "chromium": {
@@ -88,14 +73,6 @@
     "exclusions": [
       "third_party/dawn/webgpu-cts/compat-expectations.txt",
       "third_party/dawn/webgpu-cts/expectations.txt"
-    ]
-  },
-  "ios": {
-    "exclusions": [
-      "build/mac_toolchain.py",
-      "ios/build/bots/.*",
-      "tools/clang/dsymutil/bin/dsymutil.arm64.sha1",
-      "tools/clang/dsymutil/bin/dsymutil.x64.sha1"
     ]
   },
   "linux": {

@@ -23,11 +23,7 @@
 #include "content/public/test/navigation_simulator.h"
 #include "services/network/public/mojom/permissions_policy/permissions_policy_feature.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/optimization_guide/core/model_execution/test/fake_android_manifest_asset.h"
-#else
 #include "components/optimization_guide/core/model_execution/test/fake_model_assets.h"
-#endif
 
 namespace {
 
@@ -44,7 +40,6 @@ std::string GetUseCaseForSolutionConfig(const SolutionConfig& solution_config) {
   return optimization_guide::ToUseCaseName(*feature);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void SetupScenario(
     optimization_guide::TestManifestAssetManagerComponentState& component_state,
     SolutionConfig solution_config) {
@@ -85,7 +80,6 @@ void SetupScenario(
 
   builder.Finish();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -145,31 +139,9 @@ AITestUtils::AITestBase::AITestBase()
     : ChromeRenderViewHostTestHarness(
           base::test::TaskEnvironment::TimeSource::MOCK_TIME),
       component_user_dir_override_(component_updater::DIR_COMPONENT_USER) {
-#if BUILDFLAG(IS_ANDROID)
-  scoped_feature_list_.InitAndDisableFeature(
-      optimization_guide::kOptimizationGuideManifestBroker);
-#endif
 }
 AITestUtils::AITestBase::~AITestBase() = default;
 
-#if BUILDFLAG(IS_ANDROID)
-void AITestUtils::AITestBase::SetupBroker() {
-  // Use Android's built-in configs by default. Loading a fake adaptation here
-  // would race with availability checks and session creation.
-  fake_broker_ = std::make_unique<optimization_guide::FakeModelBrokerAndroid>(
-      optimization_guide::FakeModelBrokerAndroid::Options{});
-  fake_broker_->java_helper().settings().SetDefaultStatusCheckResult(
-      on_device_model::ModelDownloaderAndroid::ModelStatus::kDownloadable);
-}
-
-void AITestUtils::AITestBase::SetSolutionConfig(
-    SolutionConfig solution_config) {
-  const std::string use_case = GetUseCaseForSolutionConfig(solution_config);
-  auto asset = std::make_unique<optimization_guide::FakeAndroidManifestAsset>();
-  asset->AddSolutionConfig(use_case, std::move(solution_config));
-  fake_broker_->UpdateManifest(std::move(asset));
-}
-#else
 void AITestUtils::AITestBase::SetupBroker() {
   fake_broker_ = std::make_unique<optimization_guide::FakeManifestBroker>();
   SetupScenario(fake_broker_->component_state(), CreateSolution());
@@ -188,7 +160,6 @@ void AITestUtils::AITestBase::SetSolutionConfig(
   ai_manager_ =
       std::make_unique<AIManager>(main_rfh()->GetBrowserContext(), main_rfh());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void AITestUtils::AITestBase::SetUp() {
   ChromeRenderViewHostTestHarness::SetUp();
@@ -230,13 +201,8 @@ void AITestUtils::AITestBase::SetupMockOptimizationGuideKeyedService() {
                   })));
   ON_CALL(*mock_optimization_guide_keyed_service_, CreateModelBrokerClient())
       .WillByDefault([&]() {
-#if BUILDFLAG(IS_ANDROID)
-        return std::make_unique<optimization_guide::ModelBrokerClient>(
-            fake_broker_->BindAndPassRemote(), nullptr);
-#else
         return std::make_unique<optimization_guide::ModelBrokerClient>(
             fake_broker_->state().BindAndPassRemoteBroker(), nullptr);
-#endif
       });
 }
 
@@ -283,38 +249,22 @@ void AITestUtils::AITestBase::DisablePolicy(
 }
 
 void AITestUtils::AITestBase::InstallBaseModel() {
-#if BUILDFLAG(IS_ANDROID)
-  fake_broker_->InstallBaseModel();
-#else
   auto asset = std::make_unique<optimization_guide::FakeBaseModelAsset>();
   asset->set_version("1.0.0.0");
   fake_broker_->component_state().UpdateBaseModel("base_key", std::move(asset));
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void AITestUtils::AITestBase::UnInstallBaseModel() {
-#if BUILDFLAG(IS_ANDROID)
-  fake_broker_->UnInstallBaseModel();
-#else
   fake_broker_->component_state().Uninstall("base_key");
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void AITestUtils::AITestBase::SetSizeInTokens(uint32_t size) {
-#if BUILDFLAG(IS_ANDROID)
-  fake_broker_->java_helper().settings().SetSizeInTokens(size);
-#else
   fake_broker_->settings().set_size_in_tokens(size);
-#endif
 }
 
 void AITestUtils::AITestBase::SetExecuteResult(
     const std::vector<std::string>& result) {
-#if BUILDFLAG(IS_ANDROID)
-  fake_broker_->java_helper().settings().SetExecuteResult(result);
-#else
   fake_broker_->settings().set_execute_result(result);
-#endif
 }
 
 void AITestUtils::AITestBase::SetBuiltInAIAPIsEnterprisePolicy(bool allowed) {

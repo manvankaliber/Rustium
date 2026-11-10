@@ -264,7 +264,6 @@ TEST_F(HistorySignInStateWatcherTest, SignInPendingCanOptInToTabsSync) {
   EXPECT_EQ(final_expected_state, watcher.GetHistoryIdentityState());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Signing out again should once again change the state and trigger a
 // notification.
 TEST_F(HistorySignInStateWatcherTest, NotifiesOnSignOut) {
@@ -438,6 +437,5 @@ TEST_F(HistorySignInStateWatcherTest, NotifiesOnEnablingHistorySync) {
       .history_sync = HistoryIdentityState::SyncState::kTurnedOn};
   EXPECT_EQ(final_expected_state, watcher.GetHistoryIdentityState());
 }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace

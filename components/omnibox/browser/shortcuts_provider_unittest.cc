@@ -1129,7 +1129,6 @@ TEST_F(ShortcutsProviderTest, ScoreBoost) {
   }
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(ShortcutsProviderTest, HistoryClusterSuggestions) {
   const auto create_test_data =
       [](std::string text, bool is_history_cluster) -> TestShortcutData {
@@ -1204,4 +1203,3 @@ TEST_F(ShortcutsProviderTest, HistoryClusterSuggestions) {
   EXPECT_EQ(matches[5].suggestion_group_id, std::nullopt);
   EXPECT_EQ(matches[6].suggestion_group_id, std::nullopt);
 }
-#endif  // !BUILDFLAG(IS_IOS)

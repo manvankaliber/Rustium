@@ -866,7 +866,6 @@ constexpr std::initializer_list<std::string_view> kDisabledFlakyTests = {
     "Direct_ViaLink_LeftClick_WithOpener_TargetFrame",
     "NavigateExisting_BothStandalone_CaptureOnWithSelfLinkCapture_Tab_ScopeA2B_"
     "ServerSideViaA_ViaButton_LeftClick_WithoutOpener_TargetBlank"
-#elif BUILDFLAG(IS_CHROMEOS)
 #endif
 };
 

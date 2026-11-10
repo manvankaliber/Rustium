@@ -70,19 +70,6 @@ TEST_F(FeedApiReliabilityLoggingTest,
       surface.reliability_logging_bridge.GetEventsString());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(FeedApiReliabilityLoggingTest, AttachSurface_DisabledByDse) {
-  profile_prefs_.SetBoolean(prefs::kEnableSnippetsByDse, false);
-  CreateStream(/*wait_for_initialization=*/true);
-  TestForYouSurface surface(stream_.get());
-  EXPECT_EQ(
-      "LogFeedLaunchOtherStart\n"
-      "LogLaunchFinishedAfterStreamUpdate "
-      "result=INELIGIBLE_DISCOVER_DISABLED_BY_DSE\n"
-      "LogAboveTheFoldRender result=FULL_FEED_ERROR\n",
-      surface.reliability_logging_bridge.GetEventsString());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST_F(FeedApiReliabilityLoggingTest, AttachSurface_ClearAllInProgress) {
   TestForYouSurface surface(stream_.get());

@@ -35,7 +35,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
 class MockChromeSigninClient : public ChromeSigninClient {
  public:
@@ -142,11 +141,7 @@ TEST_F(ChromeSigninClientSignoutTest, ChildProfile) {
   EXPECT_TRUE(profile->IsChild());
 
   CreateClient(profile.get());
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_FALSE(client_->IsClearPrimaryAccountAllowed());
-#else
   EXPECT_TRUE(client_->IsClearPrimaryAccountAllowed());
-#endif
 }
 
 TEST_F(ChromeSigninClientSignoutTest, GetOAuthConsumerForContextualTasks) {
@@ -318,8 +313,7 @@ TEST_P(ChromeSigninClientSignoutSourceTest, UserSignoutAllowed) {
 
 // TODO(crbug.com/40240718): Enable |ChromeSigninClientSignoutSourceTest| test
 // suite on Android.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 TEST_P(ChromeSigninClientSignoutSourceTest, UserSignoutDisallowed) {
   signin_metrics::ProfileSignout signout_source = GetParam();
 
@@ -407,7 +401,6 @@ INSTANTIATE_TEST_SUITE_P(AllSignoutSources,
                          ChromeSigninClientSignoutSourceTest,
                          testing::ValuesIn(kSignoutSources));
 
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
 TEST(ChromeSigninClientTest, ClearSigninPrefsForIsolatedProfile) {
   content::BrowserTaskEnvironment task_environment;

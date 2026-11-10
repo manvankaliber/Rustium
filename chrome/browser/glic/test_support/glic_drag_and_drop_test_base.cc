@@ -14,11 +14,9 @@
 #include "net/dns/mock_host_resolver.h"
 #include "ui/gfx/geometry/rect.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/test/base/ui_test_utils.h"
 #include "third_party/blink/public/common/input/web_input_event.h"
 #include "third_party/blink/public/common/input/web_mouse_event.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "ui/events/platform/platform_event_source.h"
@@ -98,19 +96,6 @@ void GlicDragAndDropTestBase::PrepareGuestForDrag(Host& glic_host) {
   } else {
     ASSERT_OK(WaitForWebUiState(mojom::WebUiState::kReady));
   }
-#if BUILDFLAG(IS_ANDROID)
-  // Disable and blur the autofocus `<input id="inputBox">` in `test.html` so
-  // Android's `InputMethodManager` does not keep the soft keyboard open and
-  // resize the viewport mid-drag.
-  constexpr char kBlurGuestInputScript[] =
-      "const input = document.getElementById('inputBox');"
-      "if (input) { input.disabled = true; input.blur(); }"
-      "if (document.activeElement instanceof HTMLElement) {"
-      "  document.activeElement.blur();"
-      "}";
-  ASSERT_TRUE(
-      content::ExecJs(glic_host.GetGuestMainFrame(), kBlurGuestInputScript));
-#endif  // BUILDFLAG(IS_ANDROID)
 
   content::RenderWidgetHost* rwh =
       glic_host.GetGuestMainFrame()->GetRenderWidgetHost();
@@ -151,7 +136,6 @@ base::FilePath GlicDragAndDropTestBase::CreateTestFile(
   return test_file;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 content::WebContents*
 GlicDragAndDropTestBase::SetupSourceTabWithDraggableImage() {
   if (!ui_test_utils::NavigateToURL(
@@ -252,6 +236,5 @@ void GlicDragAndDropTestBase::SimulateMouseDragFromImage(
                               blink::WebMouseEvent::Button::kLeft,
                               drag_end_point);
 }
-#endif
 
 }  // namespace glic

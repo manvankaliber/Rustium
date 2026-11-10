@@ -11,9 +11,7 @@ import 'chrome://resources/cr_elements/cr_dialog/cr_dialog.js';
 import 'chrome://resources/cr_elements/cr_icon/cr_icon.js';
 import 'chrome://resources/cr_elements/cr_link_row/cr_link_row.js';
 import '../controls/settings_checkbox.js';
-// <if expr="not is_chromeos">
 import './clear_browsing_data_account_indicator.js';
-// </if>
 import './clear_browsing_data_time_picker.js';
 import './history_deletion_dialog.js';
 import './other_google_data_dialog.js';
@@ -514,14 +512,12 @@ export class SettingsClearBrowsingDataDialogElement extends
   }
 
   protected onSubLabelLinkClicked_(e: CustomEvent<{id: string}>) {
-    // <if expr="not is_chromeos">
     if (e.detail.id === 'signOutLink') {
       this.syncBrowserProxy_.signOut(/*delete_profile=*/ false);
       this.metricsBrowserProxy_.recordAction(
           'Settings.DeleteBrowsingData.CookiesSignOutLinkClick');
       return;
     }
-    // </if>
     assertNotReached(`Invalid sub-label link with id: ${e.detail.id}`);
   }
 }

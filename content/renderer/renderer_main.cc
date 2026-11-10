@@ -65,9 +65,6 @@
 #include "third_party/webrtc_overrides/init_webrtc.h"  // nogncheck
 #include "ui/base/ui_base_switches.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/library_loader/library_loader_hooks.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_MAC)
 #include <Carbon/Carbon.h>
@@ -79,11 +76,8 @@
 #include "third_party/blink/public/web/web_view.h"
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/system/core_scheduling.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "content/child/sandboxed_process_thread_type_handler.h"
 #endif
 
@@ -158,29 +152,10 @@ int RendererMain(MainFunctionParams parameters) {
   base::apple::ScopedNSAutoreleasePool* pool = parameters.autorelease_pool;
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // As the Zygote process starts up earlier than the browser process, it gets
-  // its own locale (at login time for Chrome OS). So we have to set the ICU
-  // default locale for the renderer process here.
-  // ICU locale will be used for fallback font selection, etc.
-  if (command_line.HasSwitch(switches::kLang)) {
-    const std::string locale =
-        command_line.GetSwitchValueASCII(switches::kLang);
-    std::optional<base::i18n::LanguageTag> lang_tag =
-        base::i18n::GetLanguageTagFromString(locale);
-    CHECK(lang_tag.has_value()) << "Invalid language tag: " << locale;
-    base::i18n::SetDefaultIcuLocale(base::i18n::DefaultIcuLocaleSetterKey(),
-                                    *lang_tag);
-  }
-
-  // When we start the renderer on ChromeOS if the system has core scheduling
-  // available we want to turn it on.
-  chromeos::system::EnableCoreSchedulingIfAvailable();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   InitializeSkia();
 
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_LINUX)
   // On Linux, Windows, and ChromeOS, the font manager is overridden or
   // specially handled in RendererBlinkPlatformImpl(). On other platforms,
   // initialise the default one on a thread pool, to avoid blocking on it later.
@@ -257,7 +232,7 @@ int RendererMain(MainFunctionParams parameters) {
     }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     // Thread type delegate of the process should be registered before
     // first thread type change in ChildProcess constructor.
     // It also needs to be registered before the process has multiple threads,
@@ -312,11 +287,6 @@ int RendererMain(MainFunctionParams parameters) {
 
     base::LockMetricsRecorder::EnableRecordingOnCurrentThread("CrRendererMain");
 
-#if BUILDFLAG(IS_ANDROID)
-    base::PlatformThreadPriorityMonitor::Get().RegisterCurrentThread(
-        "RendererMain");
-    base::PlatformThreadPriorityMonitor::Get().Start();
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(MOJO_RANDOM_DELAYS_ENABLED)
     mojo::BeginRandomMojoDelays();

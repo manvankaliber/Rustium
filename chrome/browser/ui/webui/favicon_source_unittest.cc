@@ -49,10 +49,8 @@
 #include "components/search/ntp_features.h"
 #endif  // BUILDFLAG(ENABLE_WEBUI_NTP)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_webui_profile.h"
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_webui_user_profile.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 using GotDataCallback = content::URLDataSource::GotDataCallback;
 using WebContentsGetter = content::WebContents::Getter;
@@ -600,7 +598,6 @@ TEST_F(FaviconResultReportingTest,
   tester.ExpectTotalCount("Settings.SearchEngines.GoogleIconMismatches", 0);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class FaviconSourceTopChromeWebUIProfileTest : public FaviconSourceTestBase {
  public:
   FaviconSourceTopChromeWebUIProfileTest()
@@ -635,4 +632,3 @@ TEST_F(FaviconSourceTopChromeWebUIProfileTest,
       base::BindLambdaForTesting([&] { return web_contents.get(); }),
       base::DoNothing());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

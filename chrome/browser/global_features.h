@@ -15,19 +15,15 @@
 #include "net/net_buildflags.h"
 #include "ui/base/unowned_user_data/user_data_factory.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace infobars {
 class BrowserInfoBarManager;
 }  // namespace infobars
-#endif
 
 class GlobalBrowserCollection;
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace autofill {
 class CustomFormControlScriptIndex;
 }  // namespace autofill
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace system_permission_settings {
 class PlatformHandle;
@@ -69,12 +65,10 @@ namespace safe_browsing {
 class ApplicationAdvancedProtectionStatusDetector;
 }  // namespace safe_browsing
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace child_module {
 class ChildModuleManager;
 }  // namespace child_module
 class ProfileLaunchObserver;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class GlassFrameService;
 
@@ -115,9 +109,7 @@ class TabDragSessionManager;
 #if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY)
 namespace request_header_integrity {
 class ChromeCompaneroHost;
-#if !BUILDFLAG(IS_ANDROID)
 class PlatformRuntimeHost;
-#endif
 }
 #endif
 
@@ -185,17 +177,13 @@ class GlobalFeatures {
   glic::GlicProfileManager* glic_profile_manager() {
     return glic_profile_manager_.get();
   }
-#if !BUILDFLAG(IS_ANDROID)
   glic::GlicBackgroundModeManager* glic_background_mode_manager() {
     return glic_background_mode_manager_.get();
   }
-#endif
-#if !BUILDFLAG(IS_ANDROID)
   omnibox_everywhere::OmniboxEverywhereController*
   omnibox_everywhere_controller() {
     return omnibox_everywhere_controller_.get();
   }
-#endif
 
   glic::GlicSyntheticTrialManager* glic_synthetic_trial_manager() {
     return synthetic_trial_manager_.get();
@@ -234,19 +222,16 @@ class GlobalFeatures {
     return global_browser_collection_.get();
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Null unless `autofill::features::kAutofillCustomFormControlScripts` is
   // enabled and `--autofill-custom-form-control-scripts-dir` is set. Desktop
   // only.
   autofill::CustomFormControlScriptIndex* custom_form_control_script_index() {
     return custom_form_control_script_index_.get();
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   static ui::UserDataFactoryWithOwner<BrowserProcess>&
   GetUserDataFactoryForTesting();
 
-#if !BUILDFLAG(IS_ANDROID)
   child_module::ChildModuleManager* child_module_manager() {
     return child_module_manager_.get();
   }
@@ -256,7 +241,6 @@ class GlobalFeatures {
   ProfileLaunchObserver* profile_launch_observer() {
     return profile_launch_observer_.get();
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   scheduled_restart::ScheduledRestartBubbleController*
@@ -278,11 +262,9 @@ class GlobalFeatures {
     return chrome_companero_host_.get();
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   request_header_integrity::PlatformRuntimeHost* platform_runtime_host() {
     return platform_runtime_host_.get();
   }
-#endif
 #endif
 
  protected:
@@ -306,10 +288,8 @@ class GlobalFeatures {
 #if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY)
   virtual std::unique_ptr<request_header_integrity::ChromeCompaneroHost>
   CreateChromeCompaneroHost();
-#if !BUILDFLAG(IS_ANDROID)
   virtual std::unique_ptr<request_header_integrity::PlatformRuntimeHost>
   CreatePlatformRuntimeHost();
-#endif
 #endif
 
  private:
@@ -320,10 +300,8 @@ class GlobalFeatures {
 
   std::unique_ptr<GlobalBrowserCollection> global_browser_collection_;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<autofill::CustomFormControlScriptIndex>
       custom_form_control_script_index_;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   std::unique_ptr<system_permission_settings::PlatformHandle>
       system_permissions_platform_handle_;
@@ -336,12 +314,10 @@ class GlobalFeatures {
 
   std::unique_ptr<glic::GlicGlobalEnabling> glic_global_enabling_;
   std::unique_ptr<glic::GlicProfileManager> glic_profile_manager_;
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<glic::GlicBackgroundModeManager>
       glic_background_mode_manager_;
   std::unique_ptr<omnibox_everywhere::OmniboxEverywhereController>
       omnibox_everywhere_controller_;
-#endif
   std::unique_ptr<glic::GlicSyntheticTrialManager> synthetic_trial_manager_;
 
   std::unique_ptr<ApplicationLocaleStorage> application_locale_storage_;
@@ -364,9 +340,7 @@ class GlobalFeatures {
   std::unique_ptr<local_network_access::IPAddressSpaceOverridesPrefsObserver>
       ip_address_space_overrides_prefs_observer_;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<infobars::BrowserInfoBarManager> browser_infobar_manager_;
-#endif
 
 #if BUILDFLAG(IS_WIN)
   std::unique_ptr<StartupLaunchManager> startup_launch_manager_;
@@ -378,7 +352,6 @@ class GlobalFeatures {
       unexportable_key_obsolete_profile_garbage_collector_;
 #endif  // BUILDFLAG(ENABLE_DEVICE_BOUND_SESSIONS)
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<child_module::ChildModuleManager> child_module_manager_;
 
   std::unique_ptr<on_device_translation::OnDeviceTranslationInstaller>
@@ -390,7 +363,6 @@ class GlobalFeatures {
       smart_restart_metrics_observer_;
 
   std::unique_ptr<smart_restart::SmartRestartManager> smart_restart_manager_;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   std::unique_ptr<scheduled_restart::ScheduledRestartBubbleController>
@@ -406,10 +378,8 @@ class GlobalFeatures {
 #if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY)
   std::unique_ptr<request_header_integrity::ChromeCompaneroHost>
       chrome_companero_host_;
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<request_header_integrity::PlatformRuntimeHost>
       platform_runtime_host_;
-#endif
 #endif
 };
 

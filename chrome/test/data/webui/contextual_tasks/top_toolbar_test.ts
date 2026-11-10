@@ -23,12 +23,10 @@ import {assertHTMLElement} from './contextual_tasks_test_utils.js';
 import {TestContextualTasksBrowserProxy, TestToolbarBrowserProxy} from './test_contextual_tasks_browser_proxy.js';
 
 // clang-format off
-// <if expr="not is_android">
 import {LhsChipIdentifier} from 'chrome://contextual-tasks/toolbar_ui_api_data_model.mojom-webui.js';
 
 import {createFakePermissionChip as createFakeChip} from './test_contextual_tasks_browser_proxy.js';
 import type {TestContextualTasksToolbarUiService} from './test_contextual_tasks_browser_proxy.js';
-// </if>
 // clang-format on
 
 suite('TopToolbarTest', () => {
@@ -858,13 +856,7 @@ suite('TopToolbarTest', () => {
       topToolbar.isAiPage = true;
       await microtasksFinished();
 
-      // <if expr="is_android">
-      assertEquals(
-          0, toolbarProxy.handler.getCallCount('maybeTriggerPinningPromo'));
-      // </if>
-      // <if expr="not is_android">
       await toolbarProxy.handler.whenCalled('maybeTriggerPinningPromo');
-      // </if>
     });
 
     test(
@@ -1108,7 +1100,6 @@ suite('TopToolbarTest', () => {
     assertFalse(topToolbar.$.overflowMenu.get().$.menu.open);
   });
 
-  // <if expr="not is_android">
   suite('Permission Dashboard Integration', () => {
     let toolbarUiService: TestContextualTasksToolbarUiService;
 
@@ -1330,7 +1321,6 @@ suite('TopToolbarTest', () => {
           assertTrue(gButtonStatus[1]);
         });
   });
-  // </if>
 
   suite('Profile indicator', () => {
     setup(async () => {

@@ -9,47 +9,21 @@ const EnterpriseProxyErrorCategory = {
   OTHER: '2',
 };
 
-// <if expr="is_ios">
-// Should match security_interstitials::SecurityInterstitialCommand.
-const SecurityInterstitialCommandId = {
-  CMD_DONT_PROCEED: 0,
-  CMD_OPEN_LOGIN: 7,
-};
-
-/**
- * Sends a command to the native iOS security interstitial page.
- * @param {number} cmd The command to send.
- */
-function sendCommand(cmd) {
-  window.webkit?.messageHandlers?.['IOSInterstitialMessage']?.postMessage(
-      {'command': cmd.toString()});
-}
-// </if>
 
 function goBackButtonClicked() {
-  // <if expr="is_ios">
-  sendCommand(SecurityInterstitialCommandId.CMD_DONT_PROCEED);
-  // </if>
-  // <if expr="not is_ios">
   if (window.history.length > 1) {
     window.history.back();
   } else {
     window.close();
   }
-  // </if>
 }
 
 function signinButtonClicked() {
-  // <if expr="is_ios">
-  sendCommand(SecurityInterstitialCommandId.CMD_OPEN_LOGIN);
-  // </if>
-  // <if expr="not is_ios">
   if (window.errorPageController) {
     window.errorPageController.portalSigninButtonClick();
   } else {
     window.location.reload();
   }
-  // </if>
 }
 
 document.addEventListener('DOMContentLoaded', () => {

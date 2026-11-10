@@ -230,8 +230,7 @@ constexpr auto kCommonSyncablePrefsAllowlist =
          {syncable_prefs_ids::kAutofillAiTravelEntitiesEnabled,
           syncer::PREFERENCES, PrefSensitivity::kNone, MergeBehavior::kNone,
           WriteBehavior::kWriteToBoth}},
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
         {autofill::prefs::kAutofillAiReauthBeforeViewingSensitiveData,
          {syncable_prefs_ids::kAutofillAiReauthBeforeViewingSensitiveData,
           syncer::PREFERENCES, PrefSensitivity::kNone, MergeBehavior::kNone,
@@ -405,16 +404,6 @@ constexpr auto kCommonSyncablePrefsAllowlist =
          {syncable_prefs_ids::kPrefTranslateAcceptedCount, syncer::PREFERENCES,
           PrefSensitivity::kNone, MergeBehavior::kNone,
           WriteBehavior::kWriteToBoth}},
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-        {translate::TranslatePrefs::kPrefTranslateAutoAlwaysCount,
-         {syncable_prefs_ids::kPrefTranslateAutoAlwaysCount,
-          syncer::PREFERENCES, PrefSensitivity::kNone, MergeBehavior::kNone,
-          WriteBehavior::kWriteToBoth}},
-        {translate::TranslatePrefs::kPrefTranslateAutoNeverCount,
-         {syncable_prefs_ids::kPrefTranslateAutoNeverCount, syncer::PREFERENCES,
-          PrefSensitivity::kNone, MergeBehavior::kNone,
-          WriteBehavior::kWriteToBoth}},
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
         {translate::TranslatePrefs::kPrefTranslateDeniedCount,
          {syncable_prefs_ids::kPrefTranslateDeniedCount, syncer::PREFERENCES,
           PrefSensitivity::kNone, MergeBehavior::kNone,
@@ -445,13 +434,11 @@ constexpr auto kCommonSyncablePrefsAllowlist =
           WriteBehavior::kWriteToBoth}},
 // For Ash, the OS_PRIORITY_PREFERENCES equivalent is defined in
 // chrome/browser/sync/prefs/chrome_syncable_prefs_database.cc instead.
-#if !BUILDFLAG(IS_CHROMEOS)
         {variations::kDogfoodGroupsSyncPrefName,
          {syncable_prefs_ids::kDogfoodGroupsSyncPrefName,
           syncer::PRIORITY_PREFERENCES,
           PrefSensitivity::kExemptFromUserControlWhileSignedIn,
           MergeBehavior::kNone, WriteBehavior::kWriteToBoth}},
-#endif
         {kSyncablePrefForTesting,
          {syncable_prefs_ids::kSyncablePrefForTesting, syncer::PREFERENCES,
           PrefSensitivity::kNone, MergeBehavior::kNone,
@@ -513,28 +500,6 @@ constexpr auto kCommonSyncablePrefsAllowlist =
          {syncable_prefs_ids::kSafeBrowsingNoProtectionReminderCount,
           syncer::PREFERENCES, PrefSensitivity::kNone, MergeBehavior::kNone,
           WriteBehavior::kWriteToBoth}},
-#if BUILDFLAG(IS_ANDROID)
-        {autofill::prefs::kFacilitatedPaymentsPix,
-         {syncable_prefs_ids::kFacilitatedPaymentsPix, syncer::PREFERENCES,
-          PrefSensitivity::kNone, MergeBehavior::kNone,
-          WriteBehavior::kWriteToBoth}},
-        {autofill::prefs::kFacilitatedPaymentsEwallet,
-         {syncable_prefs_ids::kFacilitatedPaymentsEwallet, syncer::PREFERENCES,
-          PrefSensitivity::kNone, MergeBehavior::kNone,
-          WriteBehavior::kWriteToBoth}},
-        {autofill::prefs::kFacilitatedPaymentsPixAccountLinking,
-         {syncable_prefs_ids::kFacilitatedPaymentsPixAccountLinking,
-          syncer::PREFERENCES, PrefSensitivity::kNone, MergeBehavior::kNone,
-          WriteBehavior::kWriteToBoth}},
-        {autofill::prefs::kFacilitatedPaymentsA2AEnabled,
-         {syncable_prefs_ids::kFacilitatedPaymentsA2AEnabled,
-          syncer::PREFERENCES, PrefSensitivity::kNone, MergeBehavior::kNone,
-          WriteBehavior::kWriteToBoth}},
-        {autofill::prefs::kFacilitatedPaymentsA2ATriggeredOnce,
-         {syncable_prefs_ids::kFacilitatedPaymentsA2ATriggeredOnce,
-          syncer::PREFERENCES, PrefSensitivity::kNone, MergeBehavior::kNone,
-          WriteBehavior::kWriteToBoth}},
-#endif  // BUILDFLAG(IS_ANDROID)
         {autofill::prefs::kAutofillBnplEnabled,
          {syncable_prefs_ids::kAutofillBnplEnabled, syncer::PREFERENCES,
           PrefSensitivity::kNone, MergeBehavior::kNone,

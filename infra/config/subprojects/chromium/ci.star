@@ -131,15 +131,12 @@ luci.gitiles_poller(
         "chromium.win",
         "chromium.mac",
         "chromium.linux",
-        "chromium.chromiumos",
-        "chromium.android",
         "chromium.angle",
         "chrome",
         "chromium.memory",
         "chromium.dawn",
         "chromium.gpu",
         "chromium.fyi",
-        "chromium.android.fyi",
         "chromium.cft",
         "chromium.clang",
         "chromium.fuzz",
@@ -172,26 +169,19 @@ register_gardener_rotation_consoles()
     category = "chrome",
     short_name = short_name,
 ) for name, short_name in (
-    ("linux-chromeos-chrome", "cro"),
     ("linux-chrome", "lnx"),
     ("mac-chrome", "mac"),
     ("win-chrome", "win"),
     ("win64-chrome", "win"),
 )]
 
-
 exec("./ci/blink.infra.star")
 exec("./ci/checks.star")
 exec("./ci/chromium.star")
 exec("./ci/chromium.accessibility.star")
-exec("./ci/chromium.android.star")
-exec("./ci/chromium.android.fyi.star")
-exec("./ci/chromium.android.desktop.star")
-exec("./ci/chromium.android.desktop.fyi.star")
 exec("./ci/chromium.angle.star")
 exec("./ci/chromium.bedrock.star")
 exec("./ci/chromium.cft.star")
-exec("./ci/chromium.chromiumos.star")
 exec("./ci/chromium.clang.star")
 exec("./ci/chromium.coverage.star")
 exec("./ci/chromium.dawn.star")

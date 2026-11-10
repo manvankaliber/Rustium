@@ -27,9 +27,6 @@
 #include "gpu/config/gpu_feature_info.h"
 #include "ui/gfx/geometry/size.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/gl/android/surface_texture.h"
-#endif
 
 namespace gpu {
 

@@ -5,21 +5,15 @@
 import("//build/config/chrome_build.gni")
 import("//build/config/ui.gni")
 
-# iOS cannot depend on files in //chrome
-if (!is_ios) {
-  import("//chrome/common/features.gni")
-}
+import("//chrome/common/features.gni")
+
+# Kept false for shared build manifests after platform retirement.
+enable_android_lens_overlay = false
 
 declare_args() {
   # Includes Lens features in the build. toolkit_views is used to ensure Lens
   # features are only included on Desktop devices running Chromium
   enable_lens_desktop = toolkit_views
-
-  # Controls whether the Lens Overlay feature is enabled on Android. Enabling
-  # this would incur binary increase of > 47 KiB.
-  # TODO(crbug.com/546302191): Assess whether this should be enabled for
-  # Desktop Android.
-  enable_android_lens_overlay = false
 }
 
 declare_args() {
@@ -33,6 +27,5 @@ declare_args() {
 
   # Controls the inclusion of the Lens Overlay C++ backend.
   # This prevents many callsites from needing blocks checking both flags.
-  enable_lens_overlay_backend =
-      enable_lens_desktop || enable_android_lens_overlay
+  enable_lens_overlay_backend = enable_lens_desktop
 }

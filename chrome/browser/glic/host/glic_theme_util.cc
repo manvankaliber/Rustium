@@ -11,16 +11,13 @@
 #include "ui/color/color_provider_key.h"
 #include "ui/color/color_provider_manager.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
-#endif
 
 namespace glic {
 
 SkColor GetGlicBackgroundColor(Profile* profile,
                                const ui::ColorProvider& color_provider) {
-#if !BUILDFLAG(IS_ANDROID)
   ThemeService* theme_service = ThemeServiceFactory::GetForProfile(profile);
   bool use_dark = theme_service->BrowserUsesDarkColors();
 
@@ -32,9 +29,6 @@ SkColor GetGlicBackgroundColor(Profile* profile,
       ui::ColorProviderManager::Get().GetColorProviderFor(key);
 
   return explicit_color_provider->GetColor(kColorGlicBackground);
-#else
-  return color_provider.GetColor(kColorGlicBackground);
-#endif
 }
 
 }  // namespace glic

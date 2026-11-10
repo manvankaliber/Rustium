@@ -21,9 +21,6 @@
 #include "content/public/test/browser_test.h"
 #include "content/public/test/browser_test_utils.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/browser_context_helper/browser_context_types.h"
-#endif
 
 namespace glic {
 
@@ -47,11 +44,6 @@ class GlicApiTestWithContextualCueing : public GlicApiBrowserTest {
 
   void SetUpBrowserContextKeyedServices(
       content::BrowserContext* browser_context) override {
-#if BUILDFLAG(IS_CHROMEOS)
-    if (!ash::IsUserBrowserContext(browser_context)) {
-      return;
-    }
-#endif
     fake_cueing_service_ = static_cast<FakeContextualCueingService*>(
         ContextualCueingServiceFactory::GetInstance()->SetTestingFactoryAndUse(
             browser_context,
@@ -100,13 +92,7 @@ IN_PROC_BROWSER_TEST_F(
   ExecuteJsTest();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(crbug.com/533085229): Re-enable on Android once close flakiness is
-// fixed.
-#define MAYBE_testNoZssWarmingStateMachine DISABLED_testNoZssWarmingStateMachine
-#else
 #define MAYBE_testNoZssWarmingStateMachine testNoZssWarmingStateMachine
-#endif
 IN_PROC_BROWSER_TEST_F(GlicApiTestWithContextualCueing,
                        MAYBE_testNoZssWarmingStateMachine) {
   tabs::TabInterface* tab1 = GetTabListInterface()->GetActiveTab();

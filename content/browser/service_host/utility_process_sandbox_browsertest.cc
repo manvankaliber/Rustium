@@ -26,10 +26,10 @@
 #include "sandbox/policy/switches.h"
 #include "services/on_device_model/public/mojom/on_device_model_service.mojom.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "media/gpu/buildflags.h"
 #include "media/media_buildflags.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 using sandbox::mojom::Sandbox;
 using sandbox::policy::SandboxLinux;
@@ -126,7 +126,7 @@ class UtilityProcessSandboxBrowserTest
       }
 
       case Sandbox::kAudio:
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
       case Sandbox::kShapeDetection:
       case Sandbox::kOnDeviceTranslation:
 #if BUILDFLAG(ENABLE_OOP_VIDEO_DECODER)
@@ -135,12 +135,7 @@ class UtilityProcessSandboxBrowserTest
 #if BUILDFLAG(USE_LINUX_VIDEO_ACCELERATION)
       case Sandbox::kHardwareVideoEncoding:
 #endif  // BUILDFLAG(USE_LINUX_VIDEO_ACCELERATION)
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-#if BUILDFLAG(IS_CHROMEOS)
-      case Sandbox::kIme:
-      case Sandbox::kTts:
-      case Sandbox::kNearby:
-#endif  // BUILDFLAG(IS_CHROMEOS)
+#endif
       case Sandbox::kNetwork:
       // kOnDeviceModelExecution launches from the unsandboxed zygote without
       // Layer-1 user or PID namespaces, but is protected by Layer-2 Seccomp-BPF

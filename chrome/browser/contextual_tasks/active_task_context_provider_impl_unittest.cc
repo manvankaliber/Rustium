@@ -49,9 +49,7 @@
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
 #include "ui/gfx/range/range.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/webui/webui_embedding_context.h"
-#endif
 
 namespace contextual_tasks {
 
@@ -846,7 +844,6 @@ TEST_F(ActiveTaskContextProviderImplTest,
         }
       }));
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<content::WebContents> panel_contents =
       content::WebContentsTester::CreateTestWebContents(profile_.get(),
                                                         nullptr);
@@ -872,7 +869,6 @@ TEST_F(ActiveTaskContextProviderImplTest,
   ON_CALL(*contextual_tasks_panel_controller_, GetActiveWebContents())
       .WillByDefault(Return(panel_contents.get()));
   panel_user_data->OnHandshakeComplete();
-#endif
 
   aim_tab_user_data->OnHandshakeComplete();
   EXPECT_TRUE(aim_tab_picker_states.empty());
@@ -886,18 +882,14 @@ TEST_F(ActiveTaskContextProviderImplTest,
     observer.OnTabAdded(*tab_list_, eligible_tab, 2);
   }
   EXPECT_THAT(aim_tab_picker_states, testing::ElementsAre(true));
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_THAT(panel_tab_picker_states, testing::ElementsAre(true));
-#endif
 
   // Navigating `eligible_tab` to `chrome://newtab` hides `TAB_PICKER`
   // (`false`).
   content::WebContentsTester::For(eligible_tab->GetContents())
       ->NavigateAndCommit(GURL("chrome://newtab"));
   EXPECT_THAT(aim_tab_picker_states, testing::ElementsAre(true, false));
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_THAT(panel_tab_picker_states, testing::ElementsAre(true, false));
-#endif
 
   // `OnWebContentsReplaced` with an eligible WebContents re-injects
   // `TAB_PICKER` (`true`).
@@ -918,9 +910,7 @@ TEST_F(ActiveTaskContextProviderImplTest,
                                    replacement_ptr);
   }
   EXPECT_THAT(aim_tab_picker_states, testing::ElementsAre(true, false, true));
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_THAT(panel_tab_picker_states, testing::ElementsAre(true, false, true));
-#endif
 
   // `OnTabRemoved` hides `TAB_PICKER` (`false`).
   open_tabs.pop_back();
@@ -930,11 +920,9 @@ TEST_F(ActiveTaskContextProviderImplTest,
   EXPECT_THAT(aim_tab_picker_states,
               testing::ElementsAre(true, false, true, false));
   EXPECT_TRUE(non_aim_tab_picker_states.empty());
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_THAT(panel_tab_picker_states,
               testing::ElementsAre(true, false, true, false));
   webui::SetBrowserWindowInterface(panel_contents.get(), nullptr);
-#endif
 }
 
 }  // namespace contextual_tasks

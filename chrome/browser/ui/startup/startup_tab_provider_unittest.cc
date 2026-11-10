@@ -21,11 +21,9 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/values.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/common/extension_builder.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 #include "base/strings/sys_string_conversions.h"
@@ -310,18 +308,10 @@ TEST(StartupTabProviderTest, GetCommandLineTabs) {
         instance.GetCommandLineTabs(command_line, base::FilePath(), &profile);
 
     auto has_tabs = instance.HasCommandLineTabs(command_line, base::FilePath());
-#if BUILDFLAG(IS_CHROMEOS)
-    // On Chrome OS (ash-chrome), settings page is allowed to be specified.
-    ASSERT_EQ(1u, output.size());
-    EXPECT_EQ(GURL("chrome://settings/syncSetup"), output[0].url);
-
-    EXPECT_EQ(CommandLineTabsPresent::kYes, has_tabs);
-#else
     // On other platforms, it is blocked.
     EXPECT_TRUE(output.empty());
 
     EXPECT_EQ(CommandLineTabsPresent::kNo, has_tabs);
-#endif
   }
 
   // about:blank URL.

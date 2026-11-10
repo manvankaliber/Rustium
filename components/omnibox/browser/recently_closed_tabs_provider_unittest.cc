@@ -161,12 +161,8 @@ TEST_F(RecentlyClosedTabsProviderTest, SkipsUnsupportedAndDuplicateEntries) {
 
   provider_->Start(CreateInput(u""), /*minimal_changes=*/false);
 
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_THAT(GetMatchUrls(), ElementsAre(GURL("https://example.com/")));
-#else
   EXPECT_THAT(GetMatchUrls(), ElementsAre(GURL("chrome://history/"),
                                           GURL("https://example.com/")));
-#endif
   // The most recently closed tab is kept for a duplicate URL.
   EXPECT_EQ(u"Example", provider_->matches().back().description);
 }
@@ -218,13 +214,8 @@ TEST_F(RecentlyClosedTabsProviderTest, OtherPageClassifications) {
     SCOPED_TRACE(page_classification);
     provider_->Start(CreateInput(u"", page_classification),
                      /*minimal_changes=*/false);
-#if BUILDFLAG(IS_ANDROID)
-    // Only the Tab Search overlay is supported on Android.
-    EXPECT_THAT(provider_->matches(), IsEmpty());
-#else
     // The desktop placeholder match is unchanged.
     EXPECT_THAT(GetMatchUrls(), ElementsAre(GURL("https://google.com")));
-#endif
   }
 }
 

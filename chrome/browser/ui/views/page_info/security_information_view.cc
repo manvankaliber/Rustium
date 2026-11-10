@@ -238,7 +238,7 @@ void SecurityInformationView::AddPasswordReuseButtons(
   layout->set_main_axis_alignment(views::BoxLayout::MainAxisAlignment::kStart);
   password_reuse_button_container_->SetLayoutManager(std::move(layout));
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
   if (change_password_button) {
     password_reuse_button_container_->AddChildView(
         std::move(change_password_button));

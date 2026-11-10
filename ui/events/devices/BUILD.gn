@@ -4,16 +4,6 @@
 
 import("//build/config/features.gni")
 
-if (is_android) {
-  import("//build/config/android/config.gni")
-  import("//build/config/android/rules.gni")
-  import("//third_party/jni_zero/jni_zero.gni")
-}
-
-if (is_ios) {
-  import("//build/config/apple/mobile_config.gni")  # For `target_platform`
-}
-
 component("devices") {
   sources = [
     "device_data_manager.cc",
@@ -39,18 +29,10 @@ component("devices") {
     "touchscreen_device.h",
   ]
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [
       "device_util_linux.cc",
       "device_util_linux.h",
-    ]
-  }
-
-  if (is_android) {
-    sources += [
-      "input_device_observer_android.cc",
-      "input_device_observer_android.h",
-      "input_device_observer_android_test_helper.h",
     ]
   }
 
@@ -59,14 +41,6 @@ component("devices") {
       "input_device_observer_win.cc",
       "input_device_observer_win.h",
     ]
-  }
-
-  if (is_ios && use_blink && target_platform == "iphoneos") {
-    sources += [
-      "input_device_observer_ios.h",
-      "input_device_observer_ios.mm",
-    ]
-    frameworks = [ "GameController.framework" ]
   }
 
   defines = [ "EVENTS_DEVICES_IMPLEMENTATION" ]
@@ -84,16 +58,6 @@ component("devices") {
     "//ui/gfx/geometry",
     "//ui/gfx/geometry:geometry_skia",
   ]
-
-  if (is_android) {
-    deps += [ ":ui_events_devices_jni_headers" ]
-  }
-}
-
-if (is_android) {
-  generate_jni("ui_events_devices_jni_headers") {
-    sources = [ "../../android/java/src/org/chromium/ui/events/devices/InputDeviceObserver.java" ]
-  }
 }
 
 source_set("unittests") {
@@ -103,14 +67,6 @@ source_set("unittests") {
     "input_device_unittest.cc",
     "touchscreen_device_unittest.cc",
   ]
-
-  if (is_android) {
-    sources += [ "input_device_observer_android_unittest.cc" ]
-  }
-
-  if (is_ios && use_blink && target_platform == "iphoneos") {
-    sources += [ "input_device_observer_ios_unittest.cc" ]
-  }
 
   deps = [
     ":devices",

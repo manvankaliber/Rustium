@@ -49,9 +49,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/page_transition_types.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#endif
 
 namespace {
 
@@ -96,11 +94,7 @@ class OmniboxPrerenderBrowserTest : public PlatformBrowserTest {
   }
 
   Profile* GetProfile() {
-#if BUILDFLAG(IS_ANDROID)
-    return chrome_test_utils::GetProfile(this);
-#else
     return browser()->GetProfile();
-#endif
   }
 
   predictors::AutocompleteActionPredictor* GetAutocompleteActionPredictor() {

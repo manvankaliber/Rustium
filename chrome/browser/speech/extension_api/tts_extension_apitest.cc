@@ -35,11 +35,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/accessibility/accessibility_features.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/speech/extension_api/tts_engine_extension_observer_chromeos.h"
-#include "chrome/browser/speech/extension_api/tts_engine_extension_observer_chromeos_factory.h"
-#include "chromeos/services/tts/tts_service.h"
-#endif  // IS_CHROMEOS
 
 using ::testing::_;
 using ::testing::AnyNumber;
@@ -366,14 +361,12 @@ class TtsApiTest : public ExtensionApiTest,
   base::test::ScopedFeatureList scoped_feature_list_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 // Android only support MV3 / service worker.
 INSTANTIATE_TEST_SUITE_P(
     PersistentBackground,
     TtsApiTest,
     ::testing::Values(FeaturesTestParam{
         .context_type = ContextType::kPersistentBackground}));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 INSTANTIATE_TEST_SUITE_P(
     ServiceWorker,
@@ -672,7 +665,6 @@ IN_PROC_BROWSER_TEST_P(TtsApiTest, UpdateVoicesApi) {
   ASSERT_TRUE(RunExtensionTest("tts_engine/update_voices_api")) << message_;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(TtsApiTest, UpdateLanguageCallsDelegate) {
   MockUpdateLanguageStatusDelegate delegate_;
   content::TtsController::GetInstance()->AddUpdateLanguageStatusDelegate(
@@ -688,7 +680,6 @@ IN_PROC_BROWSER_TEST_P(TtsApiTest, UpdateLanguageCallsDelegate) {
   content::TtsController::GetInstance()->RemoveUpdateLanguageStatusDelegate(
       &delegate_);
 }
-#endif
 
 IN_PROC_BROWSER_TEST_P(TtsApiTest, UninstallLanguageRequestEmitsEvent) {
   ASSERT_TRUE(StartEmbeddedTestServer());
@@ -777,93 +768,6 @@ IN_PROC_BROWSER_TEST_P(TtsApiTest, VoicesAreCached) {
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_P(TtsApiTest, OnSpeakWithAudioStream) {
-  TtsExtensionEngine::GetInstance()->DisableBuiltInTTSEngineForTesting();
-  TtsEngineExtensionObserverChromeOS* engine_observer =
-      TtsEngineExtensionObserverChromeOSFactory::GetForProfile(profile());
-  mojo::Remote<chromeos::tts::mojom::TtsService>* tts_service_remote =
-      engine_observer->tts_service_for_testing();
-  chromeos::tts::TtsService tts_service(
-      tts_service_remote->BindNewPipeAndPassReceiver());
-
-  EXPECT_CALL(mock_platform_impl_, IsSpeaking()).Times(AnyNumber());
-  EXPECT_CALL(mock_platform_impl_, StopSpeaking()).WillRepeatedly(Return(true));
-
-  ASSERT_TRUE(RunExtensionTest("tts_engine/on_speak_with_audio_stream"))
-      << message_;
-}
-
-IN_PROC_BROWSER_TEST_P(TtsApiTest, OnSpeakWithAudioStreamAudioOptions) {
-  TtsExtensionEngine::GetInstance()->DisableBuiltInTTSEngineForTesting();
-  TtsEngineExtensionObserverChromeOS* engine_observer =
-      TtsEngineExtensionObserverChromeOSFactory::GetForProfile(profile());
-  mojo::Remote<chromeos::tts::mojom::TtsService>* tts_service_remote =
-      engine_observer->tts_service_for_testing();
-  chromeos::tts::TtsService tts_service(
-      tts_service_remote->BindNewPipeAndPassReceiver());
-
-  EXPECT_CALL(mock_platform_impl_, IsSpeaking()).Times(AnyNumber());
-  EXPECT_CALL(mock_platform_impl_, StopSpeaking()).WillRepeatedly(Return(true));
-
-  ASSERT_TRUE(RunExtensionTest(
-      "tts_engine/on_speak_with_audio_stream_using_audio_options"))
-      << message_;
-}
-
-IN_PROC_BROWSER_TEST_P(TtsApiTest, OnSpeakWithAudioStreamUnauthorizedCaller) {
-  TtsExtensionEngine* engine = TtsExtensionEngine::GetInstance();
-  ASSERT_TRUE(engine);
-
-  engine->DisableBuiltInTTSEngineForTesting();
-  TtsEngineExtensionObserverChromeOS* engine_observer =
-      TtsEngineExtensionObserverChromeOSFactory::GetForProfile(profile());
-  mojo::Remote<chromeos::tts::mojom::TtsService>* tts_service_remote =
-      engine_observer->tts_service_for_testing();
-  chromeos::tts::TtsService tts_service(
-      tts_service_remote->BindNewPipeAndPassReceiver());
-
-  EXPECT_CALL(mock_platform_impl_, IsSpeaking()).Times(AnyNumber());
-  EXPECT_CALL(mock_platform_impl_, StopSpeaking()).WillRepeatedly(Return(true));
-
-  // When no utterance is speaking, IsCurrentUtteranceEngine should return false
-  // for any caller.
-  EXPECT_FALSE(engine->IsCurrentUtteranceEngine("unauthorized_extension_id"));
-
-  std::unique_ptr<content::TtsUtterance> utterance =
-      content::TtsUtterance::Create(profile());
-  utterance->SetEngineId("legitimate_engine");
-  utterance->SetVoiceName("Zach");
-  utterance->SetText("Testing audio stream authorization");
-  int utterance_id = utterance->GetId();
-
-  content::VoiceData voice;
-  voice.engine_id = "legitimate_engine";
-  voice.name = "Zach";
-  voice.events.insert(content::TTS_EVENT_END);
-  engine->Speak(utterance.get(), voice);
-
-  // Verify that an unauthorized extension ID is rejected as the speaking
-  // utterance engine, while the authorized extension is accepted.
-  EXPECT_FALSE(engine->IsCurrentUtteranceEngine("unauthorized_extension_id"));
-  EXPECT_TRUE(engine->IsCurrentUtteranceEngine("legitimate_engine"));
-
-  // Mismatched utterance ID should be dropped safely in SendAudioBuffer.
-  std::vector<float> audio_buffer(512, 0.0f);
-  engine->SendAudioBuffer(/*utterance_id=*/utterance_id + 1, audio_buffer,
-                          /*char_index=*/0, /*is_last_buffer=*/false);
-
-  // Sending audio buffer from the active utterance should succeed.
-  engine->SendAudioBuffer(utterance_id, audio_buffer,
-                          /*char_index=*/0, /*is_last_buffer=*/true);
-
-  engine->set_current_utterance_engine("");
-  EXPECT_FALSE(engine->IsCurrentUtteranceEngine("legitimate_engine"));
-  EXPECT_FALSE(engine->IsCurrentUtteranceEngine("unauthorized_extension_id"));
-
-  utterance->ClearBrowserContext();
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(TtsApiTest, SendTtsEventUnauthorizedCaller) {
   TtsExtensionEngine* engine = TtsExtensionEngine::GetInstance();

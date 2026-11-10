@@ -84,20 +84,5 @@ IN_PROC_BROWSER_TEST_F(TtcKeyedServiceActorDisabledBrowserTest,
   EXPECT_EQ(TtcKeyedService::Get(profile()), nullptr);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-class TtcKeyedServiceSystemRequirementNotMetBrowserTest
-    : public TtcKeyedServiceBrowserTest {
- public:
-  TtcKeyedServiceSystemRequirementNotMetBrowserTest() {
-    glic::GlicEnabling::SetSystemRequirementMetForTesting(false);
-  }
-  ~TtcKeyedServiceSystemRequirementNotMetBrowserTest() override = default;
-};
-
-IN_PROC_BROWSER_TEST_F(TtcKeyedServiceSystemRequirementNotMetBrowserTest,
-                       NotCreatedWhenSystemRequirementNotMet) {
-  EXPECT_EQ(TtcKeyedService::Get(profile()), nullptr);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace ttc

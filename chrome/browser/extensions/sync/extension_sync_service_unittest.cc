@@ -79,11 +79,9 @@
 #include "extensions/common/permissions/permissions_data.h"
 #include "extensions/test/test_extension_dir.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/themes/test/theme_service_changed_waiter.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -996,7 +994,6 @@ TEST_F(ExtensionSyncServiceTest, ReinstallSyncedExtensionWhenPolicyIsLifted) {
   EXPECT_TRUE(pending_extension_manager->IsIdPending(extension_id));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Disabled on Android since Android does not support Chrome Apps.
 TEST_F(ExtensionSyncServiceTest, GetSyncAppDataUserSettings) {
   InitializeEmptyExtensionService();
@@ -1100,7 +1097,6 @@ TEST_F(ExtensionSyncServiceTest, GetSyncAppDataUserSettingsOnExtensionMoved) {
     EXPECT_TRUE(app_launch_ordinals[0].LessThan(app_launch_ordinals[2]));
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ExtensionSyncServiceTest, DisableByExtensionDataNotSynced) {
   InitializeEmptyExtensionService();
@@ -2041,7 +2037,6 @@ TEST_F(ExtensionSyncServiceCustomGalleryTest,
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Disabled on Android since Android does not support themes.
 // Regression test for crbug.com/40445445
 TEST_F(ExtensionSyncServiceTest, DontSyncThemes) {
@@ -2071,7 +2066,6 @@ TEST_F(ExtensionSyncServiceTest, DontSyncThemes) {
   waiter.WaitForThemeChanged();
   EXPECT_TRUE(processor->changes().empty());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Tests sync behavior in the case of an item that starts out as an app and gets
 // updated to become an extension.
@@ -2304,7 +2298,6 @@ TEST_F(BlocklistedExtensionSyncServiceTest, InstallBlocklistedExtension) {
 }
 
 // Users should not be able to sign into transport mode on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 class ExtensionSyncServiceTransportModeTest : public ExtensionSyncServiceTest {
  public:
   ExtensionSyncServiceTransportModeTest() = default;
@@ -2566,7 +2559,6 @@ TEST_F(ExtensionSyncServiceTransportModeTest,
   EXPECT_THAT(signed_in_account_extensions,
               ::testing::ElementsAre(second_extension.get()));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Tests that, if disable reasons change during extension load, these are
 // properly handled and sent to the sync service.

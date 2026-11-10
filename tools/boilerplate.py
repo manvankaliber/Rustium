@@ -89,14 +89,6 @@ def _RemoveTestSuffix(filename):
   return base
 
 
-def _IsIOSFile(filename):
-  if os.path.splitext(os.path.basename(filename))[0].endswith('_ios'):
-    return True
-  if 'ios' in filename.split(os.path.sep):
-    return True
-  return False
-
-
 def _FilePathSlashesToCpp(filename):
   return filename.replace('\\', '/')
 

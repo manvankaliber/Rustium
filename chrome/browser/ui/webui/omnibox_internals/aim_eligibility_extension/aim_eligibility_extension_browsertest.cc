@@ -391,13 +391,8 @@ IN_PROC_BROWSER_TEST_F(AimEligibilityExtensionBrowserTest,
       << "Actual: " << result;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_JavaScriptErrorReportingCapturesConsoleError \
-  DISABLED_JavaScriptErrorReportingCapturesConsoleError
-#else
 #define MAYBE_JavaScriptErrorReportingCapturesConsoleError \
   JavaScriptErrorReportingCapturesConsoleError
-#endif
 IN_PROC_BROWSER_TEST_F(AimEligibilityExtensionBrowserTest,
                        MAYBE_JavaScriptErrorReportingCapturesConsoleError) {
   auto mock_processor = base::MakeRefCounted<MockJsErrorReportProcessor>();

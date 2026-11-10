@@ -30,9 +30,6 @@
 #include "partition_alloc/gwp_asan_support.h"
 #include "third_party/boringssl/src/include/openssl/rand.h"
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-#include "components/crash/core/app/crashpad.h"  // nogncheck
-#endif
 
 namespace gwp_asan {
 namespace internal {
@@ -209,26 +206,6 @@ bool GuardedPageAllocator::Init(const AllocatorSettings& settings,
       std::make_unique<AllocatorState::SlotMetadata[]>(state_.num_metadata);
   state_.metadata_addr = reinterpret_cast<uintptr_t>(metadata_.get());
 
-#if BUILDFLAG(IS_ANDROID)
-  // Explicitly allow memory ranges the crash_handler needs to read. This is
-  // required for WebView because it has a stricter set of privacy constraints
-  // on what it reads from the crashing process.
-  for (auto& memory_region : GetInternalMemoryRegions())
-    crash_reporter::AllowMemoryRange(memory_region.first, memory_region.second);
-#elif BUILDFLAG(IS_IOS)
-  // Explicitly add internal memory regions to Crashpad's iOS intermediate dump
-  // handler.
-  crashpad::SimpleAddressRangeBag* ios_extra_ranges =
-      crash_reporter::IntermediateDumpExtraMemoryRanges();
-  if (ios_extra_ranges) {
-    for (auto& memory_region : GetInternalMemoryRegions()) {
-      if (!ios_extra_ranges->Insert(memory_region.first,
-                                    memory_region.second)) {
-        PLOG(INFO) << "Failed to add InternalMemoryRegions to Crashpad.";
-      }
-    }
-  }
-#endif
 
   return true;
 }

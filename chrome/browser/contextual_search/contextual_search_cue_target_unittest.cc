@@ -46,10 +46,8 @@
 #include "third_party/omnibox_proto/chrome_aim_entry_point.pb.h"
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
 #include "chrome/browser/ui/lens/lens_search_controller.h"
-#endif
 
 namespace contextual_search {
 namespace {
@@ -58,7 +56,6 @@ using ::page_content_annotations::Category;
 using ::page_content_annotations::CategoryType;
 using ::page_content_annotations::PageContentAnnotationsResult;
 
-#if !BUILDFLAG(IS_ANDROID)
 class MockLensSearchController : public LensSearchController {
  public:
   explicit MockLensSearchController(tabs::TabInterface* tab)
@@ -74,7 +71,6 @@ class MockLensSearchController : public LensSearchController {
        omnibox::ChromeAimEntryPoint aim_entry_point),
       (override));
 };
-#endif
 
 class ContextualSearchCueTargetTest : public ChromeRenderViewHostTestHarness {
  public:
@@ -135,7 +131,6 @@ class ContextualSearchCueTargetTest : public ChromeRenderViewHostTestHarness {
         .WillRepeatedly(testing::Return(profile()));
     ON_CALL(*mock_tab_, GetUnownedUserDataHost())
         .WillByDefault(testing::ReturnRef(tab_user_data_host_));
-#if !BUILDFLAG(IS_ANDROID)
     mock_browser_window_interface_ =
         std::make_unique<testing::NiceMock<MockBrowserWindowInterface>>();
     ON_CALL(*mock_browser_window_interface_, GetUnownedUserDataHost())
@@ -145,7 +140,6 @@ class ContextualSearchCueTargetTest : public ChromeRenderViewHostTestHarness {
     mock_lens_search_controller_ =
         std::make_unique<testing::NiceMock<MockLensSearchController>>(
             mock_tab_.get());
-#endif
 
     target_ = std::make_unique<ContextualSearchCueTarget>(
         /*optimization_guide_keyed_service=*/nullptr, *mock_tab_);
@@ -153,10 +147,8 @@ class ContextualSearchCueTargetTest : public ChromeRenderViewHostTestHarness {
 
   void TearDown() override {
     target_.reset();
-#if !BUILDFLAG(IS_ANDROID)
     mock_lens_search_controller_.reset();
     mock_browser_window_interface_.reset();
-#endif
     mock_tab_.reset();
     identity_test_env_adaptor_.reset();
     ChromeRenderViewHostTestHarness::TearDown();
@@ -186,17 +178,14 @@ class ContextualSearchCueTargetTest : public ChromeRenderViewHostTestHarness {
   ui::UnownedUserDataHost window_user_data_host_;
   ui::UnownedUserDataHost tab_user_data_host_;
   std::unique_ptr<tabs::MockTabInterface> mock_tab_;
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<testing::NiceMock<MockBrowserWindowInterface>>
       mock_browser_window_interface_;
   std::unique_ptr<testing::NiceMock<MockLensSearchController>>
       mock_lens_search_controller_;
-#endif
 
   std::unique_ptr<ContextualSearchCueTarget> target_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualSearchCueTargetTest, IsEligible_HistorySync) {
   auto* sync_service = static_cast<syncer::TestSyncService*>(
       SyncServiceFactory::GetForProfile(profile()));
@@ -252,7 +241,6 @@ TEST_F(ContextualSearchCueTargetTest, IsEligible_SidePanelNotAvailable) {
           contextual_tasks::kContextualTasksRearchitecture});
   EXPECT_FALSE(target_->IsEligible());
 }
-#endif
 
 TEST_F(ContextualSearchCueTargetTest, IsPageEligible_LowScoreEdu) {
   auto result = CreateAnnotationResult(CategoryType::kEducation, 60);
@@ -409,7 +397,6 @@ TEST_F(ContextualSearchCueTargetTest, MetadataAndProperties) {
       contextual_cueing::CueIntrusiveness::kQuiet));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualSearchCueTargetTest,
        OnAnchoredMessageClicked_StartsContextualAimQueryInSidePanel) {
   ContextualSearchServiceFactory::GetInstance()->SetTestingFactory(
@@ -526,7 +513,6 @@ TEST_F(ContextualSearchCueTargetTest,
   cs_data.query = "compare headphones";
   target_->OnAnchoredMessageClicked(cs_data);
 }
-#endif
 }  // namespace
 
 // ---------------------------------------------------------------------------

@@ -484,15 +484,7 @@ std::vector<SSLServerCredential> EmbeddedTestServer::GenerateCertAndKeys() {
     // Create AIA server and start listening. Need to have the socket
     // initialized so the URL can be put in the AIA records of the generated
     // certs.
-#if BUILDFLAG(IS_IOS)
-    // Starting in iOS 27.2 Beta 3, trustd enforces SSRF protections
-    // (UseSSRFLiteralEnforcement and UseSSRFPortEnforcement) that block AIA
-    // and OCSP fetches to numeric loopback/private IP literals (such as
-    // 127.0.0.1) and to TCP ports other than 80 or 8080.
-    constexpr int kAiaServerPort = 8080;
-#else
     constexpr int kAiaServerPort = 0;
-#endif
     aia_http_server_ = std::make_unique<EmbeddedTestServer>(TYPE_HTTP);
     if (!aia_http_server_->InitializeAndListen(kAiaServerPort)) {
       return {};
@@ -648,11 +640,7 @@ EmbeddedTestServer::GenerateCertAndKey(
                                &ocsp_response)) {
     return std::nullopt;
   }
-#if BUILDFLAG(IS_IOS)
-  constexpr std::string_view kAiaServerHostname = "localhost";
-#else
   constexpr std::string_view kAiaServerHostname = "127.0.0.1";
-#endif
   if (!ocsp_response.empty()) {
     std::string ocsp_path = "/ocsp/" + leaf_serial_text;
     leaf_ocsp_urls.push_back(

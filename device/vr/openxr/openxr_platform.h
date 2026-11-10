@@ -18,9 +18,6 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <d3d11.h>
-#elif BUILDFLAG(IS_ANDROID)
-#include <EGL/egl.h>
-#include <jni.h>
 #elif BUILDFLAG(IS_LINUX)
 #include <vulkan/vulkan_core.h>
 #endif

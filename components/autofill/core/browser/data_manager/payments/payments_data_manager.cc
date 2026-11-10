@@ -16,7 +16,6 @@
 #include <variant>
 #include <vector>
 
-#include "base/android/device_info.h"
 #include "base/check.h"
 #include "base/check_op.h"
 #include "base/containers/extend.h"
@@ -1075,7 +1074,6 @@ void PaymentsDataManager::NotifyObservers() {
 
 bool PaymentsDataManager::IsCardEligibleForBenefits(
     const CreditCard& card) const {
-#if !BUILDFLAG(IS_IOS)
   const std::string& benefit_source = card.benefit_source();
   // Benefits sourced from American Express of Bank of Montreal are always
   // eligible.
@@ -1110,9 +1108,6 @@ bool PaymentsDataManager::IsCardEligibleForBenefits(
     }
   }
   return false;
-#else
-  return false;
-#endif  // !BUILDFLAG(IS_IOS)
 }
 
 bool PaymentsDataManager::ShouldBlockCardBenefitSuggestionLabels() const {
@@ -1352,22 +1347,11 @@ bool PaymentsDataManager::IsPaymentMethodsMandatoryReauthEnabled() {
 }
 
 bool PaymentsDataManager::ShouldShowPaymentMethodsMandatoryReauthPromo() {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   // There is no need to show the promo if the feature is already enabled.
   if (prefs::IsPaymentMethodsMandatoryReauthEnabled(pref_service_)) {
-#if BUILDFLAG(IS_ANDROID)
-    // The mandatory reauth feature is always enabled on automotive, there
-    // is/was no opt-in. As such, there is no need to log anything here on
-    // automotive.
-    if (!base::android::device_info::is_automotive()) {
-      LogMandatoryReauthOfferOptInDecision(
-          MandatoryReauthOfferOptInDecision::kAlreadyOptedIn);
-    }
-#else
     LogMandatoryReauthOfferOptInDecision(
         MandatoryReauthOfferOptInDecision::kAlreadyOptedIn);
-#endif  // BUILDFLAG(IS_ANDROID)
     return false;
   }
 
@@ -1391,7 +1375,7 @@ bool PaymentsDataManager::ShouldShowPaymentMethodsMandatoryReauthPromo() {
   return allowed_by_strike_database;
 #else
   return false;
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 }
 
@@ -1654,18 +1638,6 @@ void PaymentsDataManager::ClearLocalCvcs() {
   Refresh();
 }
 
-#if BUILDFLAG(IS_IOS)
-void PaymentsDataManager::CleanupForCrbug445879524() {
-  if (!GetProfileDatabase()) {
-    return;
-  }
-
-  GetProfileDatabase()->CleanupForCrbug445879524();
-
-  // Refresh our local cache and send notifications to observers.
-  Refresh();
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 void PaymentsDataManager::ClearAllServerDataForTesting() {
   // This could theoretically be called before we get the data back from the
@@ -2149,28 +2121,15 @@ bool PaymentsDataManager::HasPendingPaymentQueries() const {
 }
 
 bool PaymentsDataManager::AreBankAccountsSupported() const {
-#if BUILDFLAG(IS_ANDROID)
-  return true;
-#else
   return false;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool PaymentsDataManager::AreEwalletAccountsSupported() const {
-#if BUILDFLAG(IS_ANDROID)
-  return base::FeatureList::IsEnabled(features::kAutofillSyncEwalletAccounts);
-#else
   return false;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool PaymentsDataManager::AreEwalletCreationOptionsSupported() const {
-#if BUILDFLAG(IS_ANDROID)
-  return base::FeatureList::IsEnabled(
-      ::payments::facilitated::kEnableEwalletNewAccountLinking);
-#else
   return false;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool PaymentsDataManager::AreBnplIssuersSupported() const {

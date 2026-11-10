@@ -95,11 +95,6 @@
 #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/users/fake_chrome_user_manager.h"
-#include "components/account_id/account_id.h"
-#include "components/user_manager/scoped_user_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 const char* kUrl = "http://www.example.com/index.html";
 const char* kSecureUrl = "https://www.example.com/index.html";
@@ -399,19 +394,6 @@ class ScopedWebContentsTestHelper {
  public:
   explicit ScopedWebContentsTestHelper(bool off_the_record)
       : testing_profile_manager_(TestingBrowserProcess::GetGlobal()) {
-#if BUILDFLAG(IS_CHROMEOS)
-    auto fake_user_manager = std::make_unique<ash::FakeChromeUserManager>();
-    auto* fake_user_manager_ptr = fake_user_manager.get();
-    scoped_user_manager_ = std::make_unique<user_manager::ScopedUserManager>(
-        std::move(fake_user_manager));
-
-    const GaiaId kTestUserGaiaId("1111111111");
-    auto account_id =
-        AccountId::FromUserEmailGaiaId(kTestUserEmail, kTestUserGaiaId);
-    fake_user_manager_ptr->AddUserWithAffiliation(account_id,
-                                                  /*is_affiliated=*/true);
-    fake_user_manager_ptr->LoginUser(account_id);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     EXPECT_TRUE(testing_profile_manager_.SetUp());
     profile_ = testing_profile_manager_.CreateTestingProfile(
@@ -439,9 +421,6 @@ class ScopedWebContentsTestHelper {
  private:
   content::BrowserTaskEnvironment task_environment_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<user_manager::ScopedUserManager> scoped_user_manager_;
-#endif
 
   TestingProfileManager testing_profile_manager_;
   raw_ptr<Profile> profile_ = nullptr;
@@ -665,11 +644,9 @@ TEST_F(PageInfoBubbleViewTest, CheckToggleSettingForCapturedSurfaceControl) {
   auto* page_view = static_cast<PageInfoPermissionContentView*>(
       api_->current_view()->children()[1]);
   ASSERT_TRUE(page_view);
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(l10n_util::GetStringUTF16(
                 IDS_SITE_SETTINGS_TYPE_CAPTURED_SURFACE_CONTROL_SUB_MENU),
             page_view->GetTitleForTesting()->GetText());
-#endif
   // Verifies that there is a toggle in the permission page view.
   EXPECT_NE(page_view->GetToggleButtonForTesting(), nullptr);
 }
@@ -1317,11 +1294,9 @@ namespace {
 
 class MockPageInfoUiDelegate : public PageInfoUiDelegate {
  public:
-#if !BUILDFLAG(IS_ANDROID)
   MOCK_METHOD(bool, IsBlockAutoPlayEnabled, (), (override));
   MOCK_METHOD(bool, IsMultipleTabsOpen, (), (override));
   MOCK_METHOD(void, OpenSiteSettingsFileSystem, (), (override));
-#endif
   MOCK_METHOD(content::PermissionResult,
               GetPermissionResult,
               (blink::PermissionType permission),

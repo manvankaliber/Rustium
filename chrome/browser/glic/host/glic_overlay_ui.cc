@@ -15,6 +15,7 @@
 #include "chrome/browser/glic/resources/grit/glic_browser_resources.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
+#include "chrome/browser/ui/webui/theme_source.h"  // nogncheck
 #include "chrome/common/channel_info.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/common/chrome_switches.h"
@@ -31,10 +32,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/webui/web_ui_util.h"
 #include "ui/webui/webui_util.h"
-
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/webui/theme_source.h"  // nogncheck
-#endif
 
 namespace glic {
 
@@ -111,9 +108,7 @@ GlicOverlayUI::GlicOverlayUI(content::WebUI* web_ui)
   content::WebUIDataSource* source = content::WebUIDataSource::CreateAndAdd(
       profile, chrome::kChromeUIGlicHost);
 
-#if !BUILDFLAG(IS_ANDROID)
   content::URLDataSource::Add(profile, std::make_unique<ThemeSource>(profile));
-#endif
 
   webui::SetupWebUIDataSource(source, kGlicResources,
                               IDR_GLIC_GLIC_OVERLAY_HTML);
@@ -124,7 +119,6 @@ GlicOverlayUI::GlicOverlayUI(content::WebUI* web_ui)
   source->AddLocalizedStrings(kStrings);
 
   source->AddBoolean("isNoWebview", true);
-  source->AddBoolean("isAndroidMobile", false);
   source->AddBoolean("showErrorAllowed", IsShowErrorAllowed(profile));
 
   source->AddString("disabledByAdminNoticeWithLink",

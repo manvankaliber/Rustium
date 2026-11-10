@@ -75,9 +75,8 @@ source_set("skills") {
     "//ui/views/controls/webview",
     "//ui/webui",
   ]
-  if (!is_android) {
-    deps += [ "//ui/web_dialogs" ]
-  }
+
+  deps += [ "//ui/web_dialogs" ]
 }
 
 source_set("unit_tests") {
@@ -110,60 +109,52 @@ source_set("unit_tests") {
     "//testing/gmock",
     "//testing/gtest",
   ]
-  if (is_chromeos) {
-    deps += [
-      "//chrome/browser/chromeos/policy/dlp",
-      "//chrome/browser/chromeos/policy/dlp/test:test_support",
-    ]
-  }
 }
 
-if (!is_android) {
-  source_set("interactive_ui_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    configs += [ "//build/config/compiler:no_exit_time_destructors" ]
-    sources = [
-      "skills_page_interactive_uitest.cc",
-      "skills_webview_v2_interactive_uitest.cc",
-    ]
-    deps = [
-      ":skills",
-      "//chrome/app:generated_resources",
-      "//chrome/browser/glic",
-      "//chrome/browser/glic/test_support",
-      "//chrome/browser/optimization_guide",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/signin",
-      "//chrome/browser/skills",
-      "//chrome/browser/skills:public",
-      "//chrome/browser/sync",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/toasts",
-      "//chrome/browser/ui/toasts/api:toasts",
-      "//chrome/browser/ui/views/frame",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/common",
-      "//chrome/test:test_support",
-      "//chrome/test/data/webui/skills:generate_test_files",
-      "//components/keyed_service/content",
-      "//components/prefs",
-      "//components/signin/public/identity_manager",
-      "//components/signin/public/identity_manager:test_support",
-      "//components/skills:features",
-      "//components/skills/internal",
-      "//components/skills/public",
-      "//components/skills/public:metrics",
-      "//components/skills/public:mojo_bindings",
-      "//components/sync/model",
-      "//components/zoom",
-      "//content/public/browser",
-      "//content/test:test_support",
-      "//net:test_support",
-      "//ui/base",
-      "//ui/base/interaction",
-      "//ui/native_theme",
-      "//ui/views/controls/webview",
-    ]
-  }
+source_set("interactive_ui_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  configs += [ "//build/config/compiler:no_exit_time_destructors" ]
+  sources = [
+    "skills_page_interactive_uitest.cc",
+    "skills_webview_v2_interactive_uitest.cc",
+  ]
+  deps = [
+    ":skills",
+    "//chrome/app:generated_resources",
+    "//chrome/browser/glic",
+    "//chrome/browser/glic/test_support",
+    "//chrome/browser/optimization_guide",
+    "//chrome/browser/profiles:profile",
+    "//chrome/browser/signin",
+    "//chrome/browser/skills",
+    "//chrome/browser/skills:public",
+    "//chrome/browser/sync",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/toasts",
+    "//chrome/browser/ui/toasts/api:toasts",
+    "//chrome/browser/ui/views/frame",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+    "//chrome/common",
+    "//chrome/test:test_support",
+    "//chrome/test/data/webui/skills:generate_test_files",
+    "//components/keyed_service/content",
+    "//components/prefs",
+    "//components/signin/public/identity_manager",
+    "//components/signin/public/identity_manager:test_support",
+    "//components/skills:features",
+    "//components/skills/internal",
+    "//components/skills/public",
+    "//components/skills/public:metrics",
+    "//components/skills/public:mojo_bindings",
+    "//components/sync/model",
+    "//components/zoom",
+    "//content/public/browser",
+    "//content/test:test_support",
+    "//net:test_support",
+    "//ui/base",
+    "//ui/base/interaction",
+    "//ui/native_theme",
+    "//ui/views/controls/webview",
+  ]
 }

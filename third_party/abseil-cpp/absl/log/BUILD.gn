@@ -212,9 +212,6 @@ absl_test("absl_check_test") {
     ":absl_check",
     ":check_test_impl",
   ]
-  if (is_ios) {
-    sources = []
-  }
 }
 
 absl_test("absl_log_basic_test") {
@@ -367,9 +364,6 @@ absl_test("log_sink_test") {
     "//third_party/abseil-cpp/absl/log/internal:test_matchers",
     "//third_party/abseil-cpp/absl/strings:string_view",
   ]
-  if (is_ios) {
-    sources = []
-  }
 }
 
 absl_test("log_streamer_test") {
@@ -423,9 +417,6 @@ absl_test("scoped_mock_log_test") {
     "//third_party/abseil-cpp/absl/strings:string_view",
     "//third_party/abseil-cpp/absl/synchronization",
   ]
-  if (is_ios) {
-    sources = []
-  }
 }
 
 absl_test("stripping_test") {

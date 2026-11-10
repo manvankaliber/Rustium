@@ -15,11 +15,11 @@ import type {ObjectFieldsetElement} from './object_fieldset.js';
 import {Page} from './page.js';
 
 const PROPERTY_NAMES = {
-  // <if expr="is_android or is_macosx">
+  // <if expr="is_macosx">
   // Android and macOS do not expose the local adapter's hardware address.
   address: 'Address (obfuscated by the OS)',
   // </if>
-  // <if expr="not is_android and not is_macosx">
+  // <if expr="not is_macosx">
   address: 'Address',
   // </if>
   name: 'Name',
@@ -54,14 +54,6 @@ export class AdapterPage extends Page {
       this.pageDiv.dispatchEvent(new CustomEvent('refreshpressed'));
     });
 
-    // <if expr="is_chromeos">
-    const restartBluetoothBtn =
-        getRequiredElement<HTMLButtonElement>('restart-bluetooth-btn');
-    restartBluetoothBtn.addEventListener('click', () => {
-      restartBluetoothBtn.disabled = true;
-      this.pageDiv.dispatchEvent(new CustomEvent('restart-bluetooth-click'));
-    });
-    // </if>
   }
 
   /**
@@ -76,7 +68,6 @@ export class AdapterPage extends Page {
       delete infoCopy.systemName;
     }
 
-    // <if expr="not is_chromeos">
     // floss and extendedAdvertisementSupport is only set in ChromeOS anyway,
     // so it's irrelevant on other platforms. Delete them.
     if ('floss' in infoCopy) {
@@ -85,7 +76,6 @@ export class AdapterPage extends Page {
     if ('extendedAdvertisementSupport' in infoCopy) {
       delete infoCopy.extendedAdvertisementSupport;
     }
-    // </if>
 
     this.adapterFieldSet.dataset['value'] = JSON.stringify(infoCopy);
     this.refreshBtn_.disabled = false;

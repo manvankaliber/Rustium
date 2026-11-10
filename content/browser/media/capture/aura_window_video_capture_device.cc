@@ -97,9 +97,6 @@ class AuraWindowVideoCaptureDevice::WindowTracker final
     }
 
     video_capture_lock_ = target_window_->GetHost()->CreateVideoCaptureLock();
-#if BUILDFLAG(IS_CHROMEOS)
-    force_visible_.emplace(target_window_);
-#endif
     target_window_->AddObserver(this);
     device_task_runner_->PostTask(
         FROM_HERE,
@@ -125,9 +122,6 @@ class AuraWindowVideoCaptureDevice::WindowTracker final
     target_window_->RemoveObserver(this);
     target_window_ = nullptr;
 
-#if BUILDFLAG(IS_CHROMEOS)
-    force_visible_.reset();
-#endif
 
     device_task_runner_->PostTask(
         FROM_HERE,
@@ -136,30 +130,6 @@ class AuraWindowVideoCaptureDevice::WindowTracker final
     cursor_controller_->SetTargetView(gfx::NativeView());
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void OnWindowAddedToRootWindow(aura::Window* window) final {
-    CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M160);
-    CHECK_EQ(window, target_window_, base::NotFatalUntil::M160);
-
-    aura::Window* const root_window = target_window_->GetRootWindow();
-    if (!root_window) {
-      return;
-    }
-
-    viz::FrameSinkId new_frame_sink_id = root_window->GetFrameSinkId();
-
-    // Since the window is not destroyed, only re-parented, we can keep the
-    // same subtree ID and only update the FrameSinkId of the target.
-    CHECK(target_, base::NotFatalUntil::M160);
-    if (new_frame_sink_id != target_->frame_sink_id) {
-      target_->frame_sink_id = new_frame_sink_id;
-      device_task_runner_->PostTask(
-          FROM_HERE,
-          base::BindOnce(&FrameSinkVideoCaptureDevice::OnTargetChanged, device_,
-                         target_.value(), /*sub_capture_target_version=*/0));
-    }
-  }
-#endif
 
  private:
   // |device_| may be dereferenced only by tasks run by |device_task_runner_|.
@@ -174,10 +144,6 @@ class AuraWindowVideoCaptureDevice::WindowTracker final
   const DesktopMediaID::Type target_type_;
 
   raw_ptr<aura::Window> target_window_ = nullptr;
-#if BUILDFLAG(IS_CHROMEOS)
-  std::optional<aura::WindowOcclusionTracker::ScopedForceVisible>
-      force_visible_;
-#endif
 
   aura::ScopedWindowCaptureRequest capture_request_;
   std::optional<viz::VideoCaptureTarget> target_;

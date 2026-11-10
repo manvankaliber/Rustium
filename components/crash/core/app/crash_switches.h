@@ -12,13 +12,10 @@ namespace switches {
 
 extern const char kCrashpadHandler[];
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 extern const char kCrashpadHandlerPid[];
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_CHROMEOS)
-extern const char kCrashLoopBefore[];
 #endif
+
 
 }  // namespace switches
 }  // namespace crash_reporter

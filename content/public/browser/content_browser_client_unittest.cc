@@ -32,22 +32,5 @@ TEST(ContentBrowserClientTest, IsFullCookieAccessAllowed) {
       {}));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST(ContentBrowserClientTest, BlocksContentUriNavigationByDefault) {
-  ContentBrowserClient client;
-  EXPECT_FALSE(client.IsContentSchemeURLNavigationAllowed(
-      GURL("content://media/external/downloads/1")));
-}
-
-TEST(ContentBrowserClientTest,
-     AllowsContentUriNavigationWhenDefaultBlockingDisabled) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(
-      features::kBlockContentUriNavigationByDefault);
-  ContentBrowserClient client;
-  EXPECT_TRUE(client.IsContentSchemeURLNavigationAllowed(
-      GURL("content://media/external/downloads/1")));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace content

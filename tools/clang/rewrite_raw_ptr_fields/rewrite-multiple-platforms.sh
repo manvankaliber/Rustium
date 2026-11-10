@@ -13,7 +13,7 @@
 set -e  # makes the script quit on any command failure
 set -u  # unset variables are quit-worthy errors
 
-PLATFORMS="${1:-linux,android,chromeos,win,mac}"
+PLATFORMS="${1:-linux,win,mac}"
 
 COMPILE_DIRS=.
 EDIT_DIRS=.
@@ -29,30 +29,12 @@ mv third_party/llvm-build third_party/llvm-build-upstream
 # Build and test the rewriter.
 echo "*** Building the rewriter ***"
 time tools/clang/scripts/build.py \
-    --with-android \
     --extra-tools rewrite_raw_ptr_fields
 tools/clang/rewrite_raw_ptr_fields/tests/run_all_tests.py
 
 args_for_platform() {
     case "$1" in
 
-    android)
-        cat <<EOF
-target_os = "android"
-clang_use_chrome_plugins = false
-is_chrome_branded = true
-is_debug = false
-dcheck_always_on = true
-is_official_build = true
-symbol_level = 1
-use_remoteexec = false
-enable_remoting = true
-enable_webview_bundles = true
-ffmpeg_branding = "Chrome"
-proprietary_codecs = true
-force_enable_raw_ptr_exclusion = true
-EOF
-        ;;
 
     win)
         cat <<EOF
@@ -85,19 +67,6 @@ EOF
         ;;
 
 
-    chromeos)
-        cat <<EOF
-target_os = "chromeos"
-clang_use_chrome_plugins = false
-dcheck_always_on = true
-is_chrome_branded = true
-is_debug = false
-is_official_build = true
-use_remoteexec = false
-chrome_pgo_phase = 0
-force_enable_raw_ptr_exclusion = true
-EOF
-        ;;
 
     mac)
         cat <<EOF

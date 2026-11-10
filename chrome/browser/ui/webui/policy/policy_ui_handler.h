@@ -34,11 +34,9 @@ namespace enterprise_management {
 class GetUserEligiblePromotionsResponse;
 }  // namespace enterprise_management
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace enterprise_promotion {
 class PromotionEligibilityChecker;
 }  // namespace enterprise_promotion
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // The JavaScript message handler for the chrome://policy page.
 class PolicyUIHandler : public content::WebUIMessageHandler,
@@ -87,15 +85,11 @@ class PolicyUIHandler : public content::WebUIMessageHandler,
       SetLocalTestPoliciesCallback callback) override;
   void GetPolicyLogs(GetPolicyLogsCallback callback) override;
   void ReloadPolicies() override;
-#if !BUILDFLAG(IS_CHROMEOS)
   void UploadReport(UploadReportCallback callback) override;
-#endif
-#if !BUILDFLAG(IS_ANDROID)
   void CheckPromotionEligibility(
       CheckPromotionEligibilityCallback callback) override;
   void SetBannerDismissed() override;
   void RecordBannerRedirected() override;
-#endif
   void GetPoliciesJson(policy::mojom::GetPoliciesReason reason,
                        GetPoliciesJsonCallback callback) override;
 
@@ -108,15 +102,11 @@ class PolicyUIHandler : public content::WebUIMessageHandler,
   void HandleRestartBrowser(const base::ListValue& args);
   void HandleSetUserAffiliated(const base::ListValue& args);
   void HandleGetAppliedTestPolicies(const base::ListValue& args);
-#if !BUILDFLAG(IS_ANDROID)
   void HandleShouldShowPromotion(const base::ListValue& args);
   void HandleSetBannerDismissed(const base::ListValue& args);
   void HandleRecordBannerRedirected(const base::ListValue& args);
-#endif
   void HandleGetPoliciesJson(const base::ListValue& args);
-#if !BUILDFLAG(IS_CHROMEOS)
   void HandleUploadReport(const base::ListValue& args);
-#endif
 
   // Core logic for setting the user affiliation status for test policies.
   // This is used to simulate user affiliation for testing purposes.
@@ -157,7 +147,6 @@ class PolicyUIHandler : public content::WebUIMessageHandler,
   // information.
   void SendStatus();
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Core logic for uploading the enterprise browser and profile reports.
   // `on_report_uploaded` is run once the uploads have completed, successfully
   // or not.
@@ -169,9 +158,7 @@ class PolicyUIHandler : public content::WebUIMessageHandler,
 
   // Resolves the legacy WebUI `callback_id` of the "uploadReport" message.
   void OnReportUploadedWebUiWrapper(base::Value callback_id);
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
   void OnPromotionEligibilityFetchedWebUiWrapper(base::Value callback_id,
                                                  bool response);
 
@@ -181,7 +168,6 @@ class PolicyUIHandler : public content::WebUIMessageHandler,
 
   std::unique_ptr<enterprise_promotion::PromotionEligibilityChecker>
       promotion_eligibility_checker_;
-#endif
 
   // Builds a raw JSON string representation of all the policies.
   std::string GetPoliciesJsonImpl(policy::mojom::GetPoliciesReason reason);

@@ -88,9 +88,6 @@ CONTENT_EXPORT BASE_DECLARE_FEATURE(
     kBackForwardCacheCCNSIgnoreUnchangedCookies);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kBackToAdIntervention);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kBatterySaverModeAlignWakeUps);
-#if BUILDFLAG(IS_ANDROID)
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kBlockContentUriNavigationByDefault);
-#endif
 CONTENT_EXPORT BASE_DECLARE_FEATURE(
     kBrokerFileOperationsOnDiskCacheInNetworkService);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kBypassRedirectChecksPerRequest);
@@ -161,10 +158,6 @@ CONTENT_EXPORT BASE_DECLARE_FEATURE(kFencedFramesEnforceFocus);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kFedCmNavigationInterception);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kFedCmNativeIdPs);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kFileChooserMinWindowSize);
-#if BUILDFLAG(IS_ANDROID)
-CONTENT_EXPORT BASE_DECLARE_FEATURE(
-    kFocusRenderWidgetHostViewAndroidOnActionDown);
-#endif
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kForwardMemoryPressureToBlinkIsolates);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebIdentityDigitalCredentials);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebIdentityDigitalCredentialsCreation);
@@ -199,9 +192,6 @@ CONTENT_EXPORT BASE_DECLARE_FEATURE(kIsolateFencedFrames);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kIsolateOrigins);
 CONTENT_EXPORT extern const char kIsolateOriginsFieldTrialParamName[];
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kIsolateSubframeErrorPages);
-#if BUILDFLAG(IS_ANDROID)
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kJavalessRendererExperimentOn);
-#endif
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kKeepAliveReportBlockedByClient);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kLazyBrowserInterfaceBroker);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(
@@ -302,12 +292,6 @@ CONTENT_EXPORT BASE_DECLARE_FEATURE(kReduceSubresourceResponseStartedIPC);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kRegionCaptureOfOtherTabs);
 #endif  // BUILDFLAG(ENABLE_SCREEN_CAPTURE)
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kRenderDocument);
-#if BUILDFLAG(IS_ANDROID)
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kRendererProcessLimitOnAndroid);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kHigherRendererProcessLimitOnAndroid);
-CONTENT_EXPORT BASE_DECLARE_FEATURE_PARAM(size_t,
-                                          kRendererProcessLimitOnAndroidCount);
-#endif
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kResourceBroker);
 CONTENT_EXPORT BASE_DECLARE_FEATURE_PARAM(base::TimeDelta,
                                           kResourceBrokerGraceWindow);
@@ -326,9 +310,7 @@ CONTENT_EXPORT extern const base::FeatureParam<double>
     kProcessPerSiteMainFrameSiteScalingFactor;
 CONTENT_EXPORT extern const base::FeatureParam<double>
     kProcessPerSiteMainFrameTotalMemoryLimit;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kRunVideoCaptureServiceInBrowserProcess);
-#endif
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kSchedQoSOnResourcedForChrome);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kSecurePaymentConfirmation);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kSecurePaymentConfirmationDebug);
@@ -363,20 +345,10 @@ CONTENT_EXPORT BASE_DECLARE_FEATURE(kSyntheticPointerActions);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kTouchDragAndContextMenu);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kTrackEmptyRendererProcessesForReuse);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kTriggerNetworkDataMigration);
-#if BUILDFLAG(IS_ANDROID)
-CONTENT_EXPORT extern const base::FeatureParam<int>
-    kTouchDragMovementThresholdDip;
-#endif
-#if BUILDFLAG(IS_ANDROID) && BUILDFLAG(INCLUDE_BOTH_V8_SNAPSHOTS)
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kUseContextSnapshot);
-#endif
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kUnrestrictedSharedArrayBuffer);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kVerifyDidCommitParams);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kValidateCommitOriginAtCommit);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kV8VmFuture);
-#if BUILDFLAG(IS_ANDROID)
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kV8AndroidDesktopHighEndConfig);
-#endif
 
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebAssemblyBaseline);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(
@@ -390,71 +362,24 @@ CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebAssemblyTiering);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebAssemblyTrapHandler);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebBluetooth);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebBluetoothNewPermissionsBackend);
-#if BUILDFLAG(IS_ANDROID)
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebHidOnDesktopAndroidServiceWorkers);
-#endif  // BUILDFLAG(IS_ANDROID)
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebOtpBackendAuto);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebPayments);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebUICodeCache);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebUIBundledCodeCache);
 CONTENT_EXPORT extern const base::FeatureParam<bool>
     kWebUIBundledCodeCacheGenerateResourceMap;
-#if !BUILDFLAG(IS_ANDROID)
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebUIJSErrorReportingExtended);
-#endif
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebUIInProcessResourceLoadingV2);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebUsb);
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebViewPrefetchHighestPrefetchPriority);
 CONTENT_EXPORT extern const base::FeatureParam<size_t>
     kWebViewPrefetchHighestPrefetchPriorityBurstLimit;
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebXr);
-#if BUILDFLAG(IS_ANDROID)
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kAccessibilityCheckJavaNodeCacheFreshness);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kAccessibilityDeprecateJavaNodeCache);
-CONTENT_EXPORT extern const base::FeatureParam<bool>
-    kAccessibilityDeprecateJavaNodeCacheOptimizeScroll;
-CONTENT_EXPORT extern const base::FeatureParam<bool>
-    kAccessibilityDeprecateJavaNodeCacheDisableCache;
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kAccessibilitySyncFocusOnViewFocusGain);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kAccessibilityImeGetFormattedText);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kAccessibilitySliderStateDescription);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kAccessibilityRequestLayoutBasedActions);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(
-    kAccessibilityRequestScopedContentChangedEvents);
-CONTENT_EXPORT extern const base::FeatureParam<int>
-    kMaxContentChangedEventsToFireParam;
-CONTENT_EXPORT extern const base::FeatureParam<bool>
-    kPreventWindowContentChangesForNodesNotLikelyInAndroid;
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kAccessibilityPageZoomV2);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(
-    kAccessibilityPopulateSupplementalDescriptionApi);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kAccessibilitySequentialFocus);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(
-    kAccessibilityManageBroadcastReceiverOnBackground);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kAndroidDesktopZoomScaling);
-CONTENT_EXPORT extern const base::FeatureParam<int>
-    kAndroidDesktopZoomScalingFactor;
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kAndroidDisplayCursor);
-CONTENT_EXPORT extern const base::FeatureParam<int>
-    kAndroidMonitorZoomScalingFactor;
-CONTENT_EXPORT BASE_DECLARE_FEATURE(
-    kGinJavaBridgeMojoSkipClearObjectsOnMainDocumentReady);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kReduceGpuPriorityOnBackground);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(
-    kRestrictInteractionsInSwipeRegionOnFullscreen);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kSmartZoom);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kUserMediaScreenCapturing);
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kTextClassifierTimeout);
-CONTENT_EXPORT extern const base::FeatureParam<int> kTextClassifierTimeoutMs;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_MAC)
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kSonomaAccessibilityActivationRefinements);
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_ANDROID)
-CONTENT_EXPORT BASE_DECLARE_FEATURE(kWebauthnDisabledOnAuto);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 CONTENT_EXPORT BASE_DECLARE_FEATURE(kIOThreadInteractiveThreadType);
 
@@ -494,9 +419,6 @@ CONTENT_EXPORT bool IsVideoCaptureServiceEnabledForOutOfProcess();
 CONTENT_EXPORT bool IsVideoCaptureServiceEnabledForBrowserProcess();
 CONTENT_EXPORT bool IsPushSubscriptionChangeEventEnabled();
 
-#if BUILDFLAG(IS_ANDROID)
-CONTENT_EXPORT bool IsFluidResizeEnabled();
-#endif
 
 }  // namespace features
 

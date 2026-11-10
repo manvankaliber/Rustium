@@ -38,9 +38,7 @@
 #include "services/metrics/public/cpp/ukm_recorder.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/soda/soda_util.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace content {
 
@@ -125,14 +123,6 @@ void SpeechRecognitionDispatcherHost::Start(
   CHECK_CURRENTLY_ON(BrowserThread::IO, base::NotFatalUntil::M159);
 
   if (params->audio_forwarder.is_valid()) {
-#if BUILDFLAG(IS_ANDROID)
-    mojo::Remote<media::mojom::SpeechRecognitionSessionClient> client(
-        std::move(params->client));
-    client->ErrorOccurred(media::mojom::SpeechRecognitionError::New(
-        media::mojom::SpeechRecognitionErrorCode::kNotAllowed,
-        media::mojom::SpeechAudioErrorDetails::kNone));
-    return;
-#else
     if (params->channel_count <= 0) {
       mojo::ReportBadMessage("Channel count must be positive.");
       return;
@@ -141,7 +131,6 @@ void SpeechRecognitionDispatcherHost::Start(
       mojo::ReportBadMessage("Sample rate must be positive.");
       return;
     }
-#endif
   }
 
   GetUIThreadTaskRunner({})->PostTask(
@@ -167,25 +156,6 @@ void SpeechRecognitionDispatcherHost::StartRequestOnUI(
   WebContentsImpl* web_contents =
       static_cast<WebContentsImpl*>(WebContents::FromRenderFrameHost(rfh));
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, background speech recognition is not permitted. (Desktop
-  // intentionally allows background recognition).
-  // This matches the Blink-side check in
-  // SpeechRecognition::PageVisibilityChanged() in
-  // third_party/blink/renderer/modules/speech/speech_recognition.cc.
-  if (!web_contents ||
-      web_contents->GetPageVisibilityState() != PageVisibilityState::kVisible) {
-    if (params->client) {
-      mojo::Remote<media::mojom::SpeechRecognitionSessionClient> client(
-          std::move(params->client));
-      client->ErrorOccurred(media::mojom::SpeechRecognitionError::New(
-          media::mojom::SpeechRecognitionErrorCode::kNotAllowed,
-          media::mojom::SpeechAudioErrorDetails::kNone));
-    }
-    // Implicitly dropping params->session_receiver closes the Mojo pipe.
-    return;
-  }
-#endif
 
   // Disable BackForwardCache when using the SpeechRecognition feature, because
   // currently we do not handle speech recognition after placing the page in
@@ -240,22 +210,16 @@ void SpeechRecognitionDispatcherHost::StartRequestOnUI(
           params->language, GetContentClient()->browser()->GetAcceptLangs(
                                 GetUserBrowserContext(*rfh)));
 
-#if !BUILDFLAG(IS_ANDROID)
   bool on_device_available =
       GetContentClient()
           ->browser()
           ->GetOnDeviceSpeechRecognitionAvailabilityStatus(
               browser_context, language, params->quality) ==
       media::mojom::AvailabilityStatus::kAvailable;
-#else
-  bool on_device_available = false;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   bool use_on_device = false;
-#if !BUILDFLAG(IS_ANDROID)
   use_on_device = can_render_frame_use_on_device && params->on_device &&
                   (on_device_available || !params->allow_cloud_fallback);
-#endif
   int backend = GetSpeechRecognitionBackend(use_on_device, params->quality);
 
   ukm::builders::WebSpeech_Usage(rfh->GetPageUkmSourceId())

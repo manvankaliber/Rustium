@@ -31,7 +31,6 @@ constexpr char kNormalReportingSettingsPref[] = R"([
   }
 ])";
 
-#if !BUILDFLAG(IS_IOS)
 constexpr char kNormalNetworkRequestSettingsPref[] = R"([
   {
     "audit": {
@@ -51,7 +50,6 @@ constexpr char kRequestDomainOnlyNetworkRequestSettingsPref[] = R"([
     "tags": ["dlp"]
   }
 ])";
-#endif  // !BUILDFLAG(IS_IOS)
 
 }  // namespace
 
@@ -213,7 +211,6 @@ INSTANTIATE_TEST_SUITE_P(,
                                          kNormalReportingSettingsPref,
                                          kEmptySettingsPref));
 
-#if !BUILDFLAG(IS_IOS)
 template <bool enable_feature>
 class ConnectorsServiceBaseNetworkRequestTest : public testing::Test {
  public:
@@ -374,6 +371,5 @@ TEST_F(ConnectorsServiceBaseNetworkRequestEnabledTest, InnerTabUrl) {
       GURL("filesystem:https://nonmatching.com/temporary/file.txt"),
       GURL("https://bar.org")));
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 }  // namespace enterprise_connectors

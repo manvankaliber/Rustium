@@ -1,0 +1,10 @@
+--- a/gn/perfetto.gni
++++ b/gn/perfetto.gni
+@@ -131,7 +131,6 @@
+   import("//gn/standalone/toolchain/llvm.gni")
+ } else if (!defined(perfetto_root_path)) {
+   perfetto_root_path = "//third_party/perfetto/"
+-  import("//build/config/android/config.gni")  # For android_api_level
+ }
+ 
+ # Whether the ftrace producer and the service should be started

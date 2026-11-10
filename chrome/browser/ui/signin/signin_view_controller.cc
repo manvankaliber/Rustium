@@ -103,9 +103,7 @@
 #include "extensions/common/extension.h"
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/webui/signin/signin_ui_error.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -645,7 +643,6 @@ void SigninViewController::ShowModalManagedUserNoticeDialog(
 #endif
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void SigninViewController::ShowModalSigninErrorDialog(
     const SigninUIError& error) {
   // TODO(crbug.com/40225985): Check if the condition should be `!error.IsOk()`.
@@ -658,7 +655,6 @@ void SigninViewController::ShowModalSigninErrorDialog(
                                                               error),
       GetOnModalDialogClosedCallback());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 bool SigninViewController::ShowsModalDialog() {
   return dialog_ != nullptr;

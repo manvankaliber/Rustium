@@ -4,10 +4,6 @@
 
 import '/strings.m.js';
 import './feedback_shared_styles.css.js';
-// <if expr="is_chromeos">
-import './js/jelly_colors.js';
-
-// </if>
 
 import {assert} from 'chrome://resources/js/assert.js';
 import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
@@ -359,11 +355,6 @@ export class AppElement extends CrLitElement {
    * @param fileSelectedEvent The onChanged event for the file input box.
    */
   private onFileSelected(fileSelectedEvent: Event) {
-    // <if expr="is_chromeos">
-    // This is needed on CrOS. Otherwise, the feedback window will stay behind
-    // the Chrome window.
-    FeedbackBrowserProxyImpl.getInstance().showDialog();
-    // </if>
 
     const file = (fileSelectedEvent.target as HTMLInputElement).files![0];
     if (!file) {

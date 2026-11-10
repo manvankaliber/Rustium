@@ -87,10 +87,6 @@
 #include "components/rlz/rlz_tracker.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "components/app_restore/full_restore_utils.h"
-#endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/search_integrity/search_integrity.h"
@@ -108,12 +104,7 @@ namespace {
 // In other platforms, restore apps only when the browser is automatically
 // restarted.
 bool ShouldRestoreApps(bool is_post_restart, Profile* profile) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // In ChromeOS, restore apps only when there are apps launched before reboot.
-  return full_restore::HasAppTypeBrowser(profile->GetPath());
-#else
   return is_post_restart;
-#endif
 }
 
 void UrlsToTabs(const std::vector<GURL>& urls, StartupTabs* tabs) {
@@ -152,7 +143,7 @@ BrowserWindowInterface* GetExistingBrowserForOpenBehavior(
       },
       BrowserCollection::Order::kActivation);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
   // On Windows and ChromeOS we specifically want to select the last active
   // window on the current workspace if possible, see crbug.com/497494119.
   ProfileBrowserCollection::GetForProfile(profile)->ForEach(
@@ -590,13 +581,7 @@ void StartupBrowserCreatorImpl::DetermineURLsAndLaunch(
 #else
     bool was_mac_login_or_resume = false;
 #endif
-#if BUILDFLAG(IS_CHROMEOS)
-    bool has_create_browser_switch =
-        base::CommandLine::ForCurrentProcess()->HasSwitch(
-            ash::switches::kCreateBrowserOnStartupForTests);
-#else
     bool has_create_browser_switch = false;
-#endif
     restore_options = DetermineSynchronousRestoreOptions(
         browser_defaults::kAlwaysCreateTabbedBrowserOnSessionRestore,
         has_create_browser_switch, was_mac_login_or_resume,

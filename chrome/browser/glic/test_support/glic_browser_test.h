@@ -76,16 +76,8 @@
 #include "ui/gfx/geometry/point_conversions.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "ui/android/accelerator_manager_android.h"
-#include "ui/android/window_android.h"
-#else
 #include "ui/views/focus/focus_manager.h"
 #include "ui/views/widget/widget.h"
-#endif
 
 #if defined(TOOLKIT_VIEWS)
 #include "chrome/browser/ui/views/side_panel/side_panel_coordinator.h"
@@ -94,28 +86,10 @@
 
 namespace glic {
 
-#if BUILDFLAG(IS_ANDROID)
-void SetActivityOrientationForTesting(content::WebContents* web_contents,
-                                      int orientation);
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#define SKIP_TEST_FOR_NON_DESKTOP_ANDROID()            \
-  if (!base::android::device_info::is_desktop()) {     \
-    GTEST_SKIP() << "Skipping on non-desktop Android"; \
-  }
-#else
 #define SKIP_TEST_FOR_NON_DESKTOP_ANDROID()
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#define SKIP_NEEDS_ANDROID_IMPL(message) \
-  if (true) {                            \
-    GTEST_SKIP() << message;             \
-  }
-#else
 #define SKIP_NEEDS_ANDROID_IMPL(message)
-#endif
 
 // Runs `get_value` until it returns `expected_value`. Returns a
 // TestResult<> indicating success or failure.
@@ -282,17 +256,9 @@ class GlicBrowserTestMixin : public T {
       : T(std::forward<Args>(args)...) {
     std::vector<base::test::FeatureRefAndParams> enabled_features = {
         {features::kGlicMultiInstance, {}},
-#if BUILDFLAG(IS_ANDROID)
-        {chrome::android::kTabBottomSheet, {}},
-#endif
     // TODO(crbug.com/516793173): Remove this compile-time check once C++
     // browser tests automatically inherit --force-desktop-android just like
     // Java.
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-        {chrome::android::kEnableAndroidSidePanel, {}},
-        {chrome::android::kEnableAndroidSidePanelLogs, {}},
-        {features::kGlicAndroidSidePanel, {}},
-#endif
     };
 
     glic_test_environment_.SetGlicPagePath(
@@ -329,18 +295,6 @@ class GlicBrowserTestMixin : public T {
         GetGlicHttpsTestServer()));
     // TODO(crbug.com/516793173): Remove this switch once C++ browser tests
     // automatically inherit --force-desktop-android just like Java.
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-    // This is needed to force is_desktop() to return true for desktop Android
-    // builds.
-    command_line->AppendSwitch(switches::kForceDesktopAndroid);
-#endif
-#if BUILDFLAG(IS_ANDROID)
-    // Disable the first-run experience (FRE) so that when we launch a new
-    // ChromeTabbedActivity in tests, it shows the browser window instead of the
-    // FRE onboarding screens.
-    command_line->AppendSwitch("disable-fre");
-    command_line->AppendSwitch("disable-startup-promos-for-testing");
-#endif
   }
 
   void SetUp() override {
@@ -411,15 +365,6 @@ class GlicBrowserTestMixin : public T {
 
   void TearDown() override {
     T::TearDown();
-#if BUILDFLAG(IS_ANDROID)
-    // On Android, BrowserTestBase::SetUp() releases the BEST_EFFORT execution
-    // fence and tears down the browser at the end of SetUp() without shutting
-    // down ThreadPoolInstance. Flush any queued background tasks before ~Test()
-    // destroys the fixture's ScopedFeatureList instances.
-    if (auto* thread_pool = base::ThreadPoolInstance::Get()) {
-      thread_pool->FlushForTesting();
-    }
-#endif
   }
 
   // Toggles the Glic UI.
@@ -818,16 +763,7 @@ class GlicBrowserTestMixin : public T {
   // Android, then remove the #if/#else and just use the #if part.
   [[nodiscard]] BrowserWindowInterface* CreateAdditionalBrowserWindow() {
     BrowserWindowInterface* browser = nullptr;
-#if BUILDFLAG(IS_ANDROID)
-    BrowserWindowCreateParams create_params = BrowserWindowCreateParams(
-        BrowserWindowInterface::Type::TYPE_NORMAL, *T::GetProfile(),
-        /*from_user_gesture=*/false);
-    base::test::TestFuture<BrowserWindowInterface*> future;
-    CreateBrowserWindow(std::move(create_params), future.GetCallback());
-    browser = future.Get();
-#else
     browser = T::CreateBrowser(T::GetProfile());
-#endif
     CHECK(browser);
     CHECK(WaitForWindowActive(browser).has_value());
     CHECK(TabListInterface::From(browser)->GetActiveTab());
@@ -871,27 +807,7 @@ class GlicBrowserTestMixin : public T {
   }
 
   tabs::TabInterface* CreateUserInitiatedTab(const GURL& url) {
-#if BUILDFLAG(IS_ANDROID)
-    auto* tab_list = T::GetTabListInterface();
-    CHECK(tab_list) << "TabListInterface is null";
-    auto* tab_model = static_cast<TabModel*>(tab_list);
-    Profile* profile = T::GetProfile();
-    CHECK(profile) << "Profile is null";
-
-    std::unique_ptr<content::WebContents> web_contents =
-        content::WebContents::Create(
-            content::WebContents::CreateParams(profile));
-    web_contents->GetController().LoadURL(
-        url, content::Referrer(), ui::PAGE_TRANSITION_LINK, std::string());
-    tabs::TabInterface* new_tab =
-        tab_model->CreateTab(nullptr, std::move(web_contents), -1,
-                             TabModel::TabLaunchType::FROM_CHROME_UI, false);
-    tab_model->ActivateTab(new_tab->GetHandle());
-    CHECK(content::WaitForLoadStop(new_tab->GetContents()));
-    return new_tab;
-#else
     return CreateAndActivateTab(url);
-#endif
   }
 
   // Simulates a click on a link with the given modifiers.
@@ -950,12 +866,8 @@ class GlicBrowserTestMixin : public T {
     gfx::Point point = gfx::ToFlooredPoint(
         content::GetCenterCoordinatesOfElementWithId(contents, link_id));
 
-#if BUILDFLAG(IS_ANDROID)
-    content::SimulateTapWithModifiersAt(contents, modifiers, point);
-#else
     content::SimulateMouseClickAt(contents, modifiers,
                                   blink::WebMouseEvent::Button::kLeft, point);
-#endif
   }
 
   TestResult<> WaitForActiveEmbedderToMatchTab(GlicInstanceImpl* instance,
@@ -1243,33 +1155,12 @@ class GlicBrowserTestMixin : public T {
   }
 
   void TriggerHotkey(ui::Accelerator accelerator) {
-#if BUILDFLAG(IS_ANDROID)
-    gfx::NativeWindow window = GetBrowser()->GetWindow()->GetNativeWindow();
-    CHECK(window);
-    int accelerator_state = ui_controls::kNoAccelerator;
-    if (accelerator.IsCtrlDown()) {
-      accelerator_state |= ui_controls::kControl;
-    }
-    if (accelerator.IsShiftDown()) {
-      accelerator_state |= ui_controls::kShift;
-    }
-    if (accelerator.IsAltDown()) {
-      accelerator_state |= ui_controls::kAlt;
-    }
-    if (accelerator.IsCmdDown()) {
-      accelerator_state |= ui_controls::kCommand;
-    }
-    ui_controls::SendKeyEvents(
-        window, accelerator.key_code(),
-        ui_controls::kKeyPress | ui_controls::kKeyRelease, accelerator_state);
-#else
     views::Widget* widget = views::Widget::GetWidgetForNativeWindow(
         GetBrowser()->GetWindow()->GetNativeWindow());
     CHECK(widget);
     views::FocusManager* focus_manager = widget->GetFocusManager();
     CHECK(focus_manager);
     focus_manager->ProcessAccelerator(accelerator);
-#endif
   }
 
   void TriggerHotkey(LocalHotkeyManager::Command command) {
@@ -1316,7 +1207,6 @@ class GlicBrowserTestMixin : public T {
   // Hide functionality not available on Android to discourage use.
   // Callers can instead use, e.g. PlatformBrowserTest::browser(), or
   // redeclare PlatformBrowserTest::browser as public on the test fixture.
-#if !BUILDFLAG(IS_ANDROID)
   // Alternative: CreateAndActivateTab(GURL("about:blank"))
   using T::AddBlankTabAndShow;
   // Alternative: GetBrowser()
@@ -1328,7 +1218,6 @@ class GlicBrowserTestMixin : public T {
   using T::CreateBrowserForPopup;
   using T::CreateIncognitoBrowser;
   using T::OpenURLOffTheRecord;
-#endif
   GlicTestEnvironment glic_test_environment_;
   // Optional override for the HTTPS server hosting the guest; see
   // set_glic_https_test_server(). Not owned.

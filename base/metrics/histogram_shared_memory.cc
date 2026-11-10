@@ -50,11 +50,7 @@
 namespace base {
 
 BASE_FEATURE(kPassHistogramSharedMemoryOnLaunch,
-#if BUILDFLAG(IS_ANDROID)
-             FEATURE_DISABLED_BY_DEFAULT
-#else
              FEATURE_ENABLED_BY_DEFAULT
-#endif
 );
 
 HistogramSharedMemory::SharedMemory::SharedMemory(
@@ -110,9 +106,6 @@ bool HistogramSharedMemory::PassOnCommandLineIsEnabled(int process_type) {
   // content::ProcessType;
   [[maybe_unused]] constexpr int PROCESS_TYPE_UTILITY = 6;
   return (FeatureList::IsEnabled(kPassHistogramSharedMemoryOnLaunch)
-#if BUILDFLAG(IS_ANDROID)
-          && process_type != PROCESS_TYPE_UTILITY
-#endif
   );
 }
 

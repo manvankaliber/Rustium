@@ -102,10 +102,8 @@ INSTANTIATE_TEST_SUITE_P(
     All,
     SupervisedUserServiceBrowserTest,
     testing::Values(
-#if !BUILDFLAG(IS_CHROMEOS)
         // Only for platforms that support signed-out browser.
         SupervisionMixin::SignInMode::kSignedOut,
-#endif
         SupervisionMixin::SignInMode::kRegular,
         SupervisionMixin::SignInMode::kSupervised),
     ::testing::PrintToStringParamName());
@@ -168,10 +166,8 @@ INSTANTIATE_TEST_SUITE_P(
     All,
     SupervisedUserServiceForRegularUsersBrowserTest,
     testing::Values(
-#if !BUILDFLAG(IS_CHROMEOS)
         // Only for platforms that support signed-out browser.
         SupervisionMixin::SignInMode::kSignedOut,
-#endif
         SupervisionMixin::SignInMode::kRegular),
     ::testing::PrintToStringParamName());
 

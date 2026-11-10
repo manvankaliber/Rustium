@@ -82,12 +82,6 @@
 #include "extensions/browser/guest_view/web_view/web_view_renderer_state.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_extension_constants.h"
-#include "chrome/browser/chromeos/extensions/vpn_provider/vpn_service_factory.h"
-#include "chrome/browser/media_galleries/fileapi/media_file_system_backend.h"
-#include "components/user_manager/user_manager_impl.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_PDF)
 #include "pdf/pdf_features.h"
@@ -667,13 +661,7 @@ bool ChromeContentBrowserClientExtensionsPart::
   // of e.g. throwing errors in response to installation events (where the
   // worker is registered, but then immediately unregistered).
   if (!registered_version.IsValid()) {
-#if BUILDFLAG(IS_CHROMEOS)
-    // Make an exception for kiosk mode, since kiosk sessions use temporary
-    // profiles, which are discarded when a session ends.
-    return !user_manager::UserManager::Get()->IsLoggedInAsAnyKioskApp();
-#else
     return true;
-#endif
   }
 
   // Don't allow the unregistration of a valid, enabled service worker-based
@@ -732,21 +720,6 @@ bool ChromeContentBrowserClientExtensionsPart::IsBuiltinComponent(
 
   const auto& extension_id = origin.host();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Check if the component is the ODFS extension.
-  if (extension_id == extension_misc::kODFSExtensionId) {
-    // Check ODFS was loaded externally.
-    const Extension* extension = ExtensionRegistry::Get(browser_context)
-                                     ->GetInstalledExtension(extension_id);
-    if (!extension) {
-      // Occurs due to a race condition at startup where the ODFS is installed
-      // but does not yet appear in the extension registry.
-      LOG(ERROR) << "ODFS cannot be found in the extension registry";
-      return false;
-    }
-    return extension->location() == mojom::ManifestLocation::kExternalComponent;
-  }
-#endif
 
   // Check if the component is a loaded component extension.
   return ComponentLoader::Get(browser_context)->Exists(extension_id);
@@ -889,10 +862,6 @@ void ChromeContentBrowserClientExtensionsPart::
 
 void ChromeContentBrowserClientExtensionsPart::GetURLRequestAutoMountHandlers(
     std::vector<storage::URLRequestAutoMountHandler>* handlers) {
-#if BUILDFLAG(IS_CHROMEOS)
-  handlers->push_back(base::BindRepeating(
-      MediaFileSystemBackend::AttemptAutoMountForURLRequest));
-#endif
 }
 
 void ChromeContentBrowserClientExtensionsPart::

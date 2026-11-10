@@ -30,10 +30,6 @@ void TrustedVaultErrorSuggestionGenerator::GenerateSuggestions(
     const AutofillField* trigger_autofill_field,
     AutofillClient& client,
     base::OnceCallback<void(ReturnedSuggestions)> callback) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  std::move(callback).Run(
-      {SuggestionDataSource::kTrustedVaultError, {}});
-#else
   const PasswordManagerDelegate* password_delegate =
       client.GetPasswordManagerDelegate(trigger_field.global_id());
   if (!password_delegate) {
@@ -48,7 +44,6 @@ void TrustedVaultErrorSuggestionGenerator::GenerateSuggestions(
   }
   std::move(callback).Run(
       {SuggestionDataSource::kTrustedVaultError, std::move(suggestions)});
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 }
 
 }  // namespace autofill

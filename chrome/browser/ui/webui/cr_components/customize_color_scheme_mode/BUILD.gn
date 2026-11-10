@@ -4,8 +4,6 @@
 
 import("//ui/webui/webui_features.gni")
 
-assert(!is_android || enable_webui_ntp)
-
 source_set("customize_color_scheme_mode") {
   sources = [ "customize_color_scheme_mode_handler.cc" ]
   public = [ "customize_color_scheme_mode_handler.h" ]
@@ -20,21 +18,19 @@ source_set("customize_color_scheme_mode") {
   ]
 }
 
-if (!is_android) {
-  source_set("unit_tests") {
-    testonly = true
-    sources = [ "customize_color_scheme_mode_handler_unittest.cc" ]
-    deps = [
-      ":customize_color_scheme_mode",
-      "//base",
-      "//chrome/browser/themes",
-      "//chrome/test:test_support",
-      "//content/public/browser",
-      "//content/test:test_support",
-      "//mojo/public/cpp/bindings",
-      "//testing/gmock",
-      "//testing/gtest",
-      "//ui/webui/resources/cr_components/customize_color_scheme_mode:mojom",
-    ]
-  }
+source_set("unit_tests") {
+  testonly = true
+  sources = [ "customize_color_scheme_mode_handler_unittest.cc" ]
+  deps = [
+    ":customize_color_scheme_mode",
+    "//base",
+    "//chrome/browser/themes",
+    "//chrome/test:test_support",
+    "//content/public/browser",
+    "//content/test:test_support",
+    "//mojo/public/cpp/bindings",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//ui/webui/resources/cr_components/customize_color_scheme_mode:mojom",
+  ]
 }

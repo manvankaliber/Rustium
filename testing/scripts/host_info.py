@@ -12,10 +12,6 @@ import sys
 import common
 
 
-def is_linux():
-  return sys.platform.startswith('linux')
-
-
 def get_free_disk_space(failures):
   """Returns the amount of free space on the current disk, in GiB.
 
@@ -45,76 +41,6 @@ def get_num_cpus(failures):
     return 'unknown'
 
 
-def get_device_info(args, failures):
-  """Parses the device info for each attached device, and returns a summary
-  of the device info and any mismatches.
-
-  Returns:
-    A dict indicating the result.
-  """
-  if not is_linux():
-    return {}
-
-  with common.temporary_file() as tempfile_path:
-    test_cmd = [
-      sys.executable,
-      os.path.join(
-        args.paths['checkout'],
-        'third_party',
-        'catapult',
-        'devil',
-        'devil',
-        'android',
-        'tools',
-        'device_status.py',
-      ),
-      '--json-output',
-      tempfile_path,
-      '--denylist-file',
-      os.path.join(args.paths['checkout'], 'out', 'bad_devices.json'),
-    ]
-    if args.args:
-      test_cmd.extend(args.args)
-
-    rc = common.run_command(test_cmd)
-    if rc:
-      failures.append('device_status')
-      return {}
-
-    with open(tempfile_path, 'r') as src:
-      device_info = json.load(src)
-
-  results = {}
-  results['devices'] = sorted(v['serial'] for v in device_info)
-
-  details = [
-    v['ro.build.fingerprint'] for v in device_info if not v['denylisted']
-  ]
-
-  def unique_build_details(index):
-    return sorted(list({v.split(':')[index] for v in details}))
-
-  parsed_details = {
-    'device_names': unique_build_details(0),
-    'build_versions': unique_build_details(1),
-    'build_types': unique_build_details(2),
-  }
-
-  for k, v in parsed_details.items():
-    if len(v) == 1:
-      results[k] = v[0]
-    else:
-      results[k] = 'MISMATCH'
-      results['%s_list' % k] = v
-      failures.append(k)
-
-  for v in device_info:
-    if v['denylisted']:
-      failures.append('Device %s denylisted' % v['serial'])
-
-  return results
-
-
 def main_run(args):
   failures = []
   host_info = {}
@@ -128,7 +54,8 @@ def main_run(args):
   host_info['python_version'] = platform.python_version()
   host_info['python_path'] = sys.executable
 
-  host_info['devices'] = get_device_info(args, failures)
+  # Preserve the host-info result shape without retired device discovery.
+  host_info['devices'] = {}
 
   json.dump(
     {

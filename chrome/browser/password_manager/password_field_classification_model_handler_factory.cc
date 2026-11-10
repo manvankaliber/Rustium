@@ -70,11 +70,7 @@ PasswordFieldClassificationModelHandlerFactory::
 
 bool PasswordFieldClassificationModelHandlerFactory::
     ServiceIsCreatedWithBrowserContext() const {
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
   return true;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 content::BrowserContext*

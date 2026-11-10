@@ -23,8 +23,6 @@ namespace base {
 // Post-L versions of bionic define the GNU-specific strerror_r if _GNU_SOURCE
 // is defined, but the symbol is renamed to __gnu_strerror_r which only exists
 // on those later versions. For parity, add the same condition as bionic.
-#elif defined(__BIONIC__) && defined(_GNU_SOURCE) && __ANDROID_API__ >= 23
-#define USE_HISTORICAL_STRERROR_R 1
 #else
 #define USE_HISTORICAL_STRERROR_R 0
 #endif

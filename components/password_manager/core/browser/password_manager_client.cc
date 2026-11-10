@@ -53,15 +53,6 @@ bool PasswordManagerClient::IsAutoSignInEnabled() const {
   return false;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void PasswordManagerClient::ShowPasswordManagerErrorMessage(
-    ErrorMessageFlowType flow_type,
-    password_manager::PasswordStoreBackendErrorType error_type) {}
-
-void PasswordManagerClient::ShowKeyboardReplacingSurface(
-    PasswordManagerDriver* driver,
-    const autofill::PasswordSuggestionRequest& request) {}
-#endif
 
 bool PasswordManagerClient::IsReauthBeforeFillingRequired(
     device_reauth::DeviceAuthAvailabilityChecker*) {
@@ -209,17 +200,6 @@ PasswordManagerClient::GetWebAuthnCredentialsDelegateForDriver(
 void PasswordManagerClient::TriggerPersonalizationAndTrustSurvey(
     std::string_view filling_assistance) {}
 
-#if BUILDFLAG(IS_ANDROID)
-webauthn::WebAuthnCredManDelegate*
-PasswordManagerClient::GetWebAuthnCredManDelegateForDriver(
-    PasswordManagerDriver* driver) {
-  return nullptr;
-}
-
-void PasswordManagerClient::MarkSharedCredentialsAsNotified(
-    const url::Origin& origin) {}
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
 version_info::Channel PasswordManagerClient::GetChannel() const {
   return version_info::Channel::UNKNOWN;

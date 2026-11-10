@@ -135,7 +135,7 @@ class PopupBaseView::Widget : public views::Widget {
     // and setups is not consistent). This is not required for regular
     // Autofill popup use, but it makes certain attacks (those based on the
     // popup being obscured) less practical.
-    if constexpr (BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)) {
+    if constexpr (false || BUILDFLAG(IS_LINUX)) {
       // On ChromeOS and Linux, `Activatable::kYes` and `kSecuritySurface` are
       // incompatible because `kSecuritySurface` windows force accelerated
       // desktop-level widgets (subsurfaces) which do not support reliable

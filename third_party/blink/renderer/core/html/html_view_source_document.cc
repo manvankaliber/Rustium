@@ -73,7 +73,6 @@ class ViewSourceEventListener : public NativeEventListener {
         html_names::kClassAttr,
         checkbox_->Checked() ? AtomicString(kLineWrapClass) : g_empty_atom);
 
-#if !BUILDFLAG(IS_ANDROID)
     // TODO(crbug.com/40255878): The service is implemented in Chrome, so it may
     // not be provided in other embedders. Ensure that case is handled properly.
     // TODO(crbug.com/415945840): Implement the PersistentRendererPrefsService
@@ -85,7 +84,6 @@ class ViewSourceEventListener : public NativeEventListener {
     DCHECK(persistent_renderer_prefs_service);
     persistent_renderer_prefs_service->SetViewSourceLineWrapping(
         checkbox_->Checked());
-#endif
   }
 
   void Trace(Visitor* visitor) const override {

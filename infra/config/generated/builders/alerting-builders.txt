@@ -3,39 +3,11 @@ ci/ASAN Release
 ci/ASAN Release Media
 ci/ASan Release (32-bit x86 with V8-ARM)
 ci/ASan Release Media (32-bit x86 with V8-ARM)
-ci/Android FYI Experimental Release (Pixel 11)
-ci/Android FYI Experimental Release (Pixel 6)
-ci/Android FYI Release (Pixel 10)
-ci/Android FYI Release (Pixel 2)
-ci/Android FYI Release (Pixel 4)
-ci/Android FYI Release (Pixel 6)
-ci/Android FYI Release (Samsung A13)
-ci/Android FYI Release (Samsung A23)
-ci/Android FYI Release (Samsung S23)
-ci/Android Release (Pixel 2)
-ci/Android arm Builder (dbg)
-ci/Android arm64 Builder (dbg)
-ci/Android arm64 Builder All Targets (dbg)
-ci/Android x64 Builder (dbg)
-ci/Android x64 Builder All Targets (dbg)
-ci/Android x86 Builder (dbg)
 ci/CFI Linux CF
 ci/CFI Linux ToT
 ci/Centipede Upload Linux ASan
-ci/ChromeOS FYI Release (amd64-generic)
-ci/ChromiumOS ASAN Release
 ci/CrWinAsan
 ci/CrWinAsan(dll)
-ci/Dawn Android arm Builder
-ci/Dawn Android arm DEPS Builder
-ci/Dawn Android arm DEPS Release (Pixel 4)
-ci/Dawn Android arm Release (Pixel 4)
-ci/Dawn Android arm64 Builder
-ci/Dawn Android arm64 DEPS Builder
-ci/Dawn Android arm64 DEPS Release (Pixel 10)
-ci/Dawn Android arm64 DEPS Release (Pixel 6)
-ci/Dawn Android arm64 Release (Pixel 6)
-ci/Dawn Android arm64 Release (Samsung S24)
 ci/Dawn Chromium Presubmit
 ci/Dawn Linux x64 Builder
 ci/Dawn Linux x64 DEPS Builder
@@ -82,12 +54,8 @@ ci/Dawn Win11 arm64 Builder
 ci/Dawn Win11 arm64 DEPS Builder
 ci/Dawn Win11 arm64 DEPS Release (Qualcomm Snapdragon X Elite)
 ci/Dawn Win11 arm64 Release (Qualcomm Snapdragon X Elite)
-ci/Deterministic Android
-ci/Deterministic Android (dbg)
 ci/Deterministic Linux
 ci/Deterministic Linux (dbg)
-ci/GPU FYI Android arm Builder
-ci/GPU FYI Android arm64 Builder
 ci/GPU FYI Linux Builder
 ci/GPU FYI Linux Builder (dbg)
 ci/GPU FYI Linux Wayland Builder
@@ -108,7 +76,6 @@ ci/GPU Mac Builder (dbg)
 ci/GPU Mac arm64 Builder
 ci/GPU Win x64 Builder
 ci/GPU Win x64 Builder (dbg)
-ci/Libfuzzer Upload Chrome OS ASan
 ci/Libfuzzer Upload Linux ASan
 ci/Libfuzzer Upload Linux ASan Debug
 ci/Libfuzzer Upload Linux MSan
@@ -120,17 +87,12 @@ ci/Libfuzzer Upload Linux32 V8-ARM ASan
 ci/Libfuzzer Upload Linux32 V8-ARM ASan Debug
 ci/Libfuzzer Upload Mac ASan
 ci/Libfuzzer Upload Windows ASan
-ci/Libfuzzer Upload iOS Catalyst Debug
 ci/Linux ASan LSan Builder
 ci/Linux ASan LSan Tests (1)
 ci/Linux Builder
 ci/Linux Builder (Wayland)
 ci/Linux Builder (dbg)
 ci/Linux CFI
-ci/Linux Chromium OS ASan LSan Builder
-ci/Linux Chromium OS ASan LSan Tests (1)
-ci/Linux ChromiumOS MSan Builder
-ci/Linux ChromiumOS MSan Tests
 ci/Linux FYI Experimental Release (AMD 780M)
 ci/Linux FYI Experimental Release (AMD 890M)
 ci/Linux FYI Experimental Release (Intel UHD 630)
@@ -179,15 +141,6 @@ ci/Mac13 Tests
 ci/Network Service Linux
 ci/TSAN Debug
 ci/TSAN Release
-ci/ToTAndroid
-ci/ToTAndroid (dbg)
-ci/ToTAndroid x64
-ci/ToTAndroid x86
-ci/ToTAndroid64
-ci/ToTAndroidCoverage x86
-ci/ToTAndroidOfficial
-ci/ToTChromeOS
-ci/ToTChromeOS (dbg)
 ci/ToTLinux
 ci/ToTLinux (dbg)
 ci/ToTLinuxASan
@@ -216,8 +169,6 @@ ci/ToTWin64(dll)
 ci/ToTWin64PGO
 ci/ToTWinASanLibfuzzer
 ci/ToTWindowsCoverage
-ci/ToTiOS
-ci/ToTiOSDevice
 ci/UBSan Release
 ci/UBSan vptr Release
 ci/WebKit Win10
@@ -251,85 +202,6 @@ ci/Win11 FYI x64 Release (AMD RX 7600)
 ci/Win11 FYI x64 Release (NVIDIA RTX 4070 Super)
 ci/Win11 Tests x64
 ci/Windows deterministic
-ci/android-10-arm64-rel
-ci/android-10-x86-nofieldtrial-rel
-ci/android-10-x86-rel
-ci/android-11-x86-rel
-ci/android-12-x64-rel
-ci/android-12l-landscape-x64-dbg-tests
-ci/android-12l-x64-dbg-tests
-ci/android-12l-x64-rel-cq
-ci/android-13-x64-rel
-ci/android-14-arm64-rel
-ci/android-14-automotive-landscape-x64-rel
-ci/android-14-tablet-landscape-arm64-rel
-ci/android-14-x64-rel
-ci/android-15-tablet-landscape-x64-rel
-ci/android-15-tablet-x64-rel
-ci/android-15-x64-rel
-ci/android-16-x64-dbg-tests
-ci/android-16-x64-leakcanary-rel
-ci/android-16-x64-rel
-ci/android-androidx-packager
-ci/android-angle-chromium-arm64-builder
-ci/android-angle-chromium-arm64-pixel2
-ci/android-archive-rel
-ci/android-arm64-archive-rel
-ci/android-bfcache-rel
-ci/android-binary-size-generator
-ci/android-cast-arm-dbg
-ci/android-cast-arm-rel
-ci/android-cast-arm64-dbg
-ci/android-cast-arm64-rel
-ci/android-cronet-arm-dbg
-ci/android-cronet-arm-rel
-ci/android-cronet-arm64-dbg
-ci/android-cronet-arm64-rel
-ci/android-cronet-code-coverage-java
-ci/android-cronet-code-coverage-native
-ci/android-cronet-riscv64-dbg
-ci/android-cronet-riscv64-rel
-ci/android-cronet-x64-dbg
-ci/android-cronet-x64-dbg-12-tests
-ci/android-cronet-x64-dbg-13-tests
-ci/android-cronet-x64-dbg-14-tests
-ci/android-cronet-x64-dbg-15-tests
-ci/android-cronet-x64-dbg-16-tests
-ci/android-cronet-x64-rel
-ci/android-cronet-x86-dbg
-ci/android-cronet-x86-dbg-10-tests
-ci/android-cronet-x86-dbg-11-tests
-ci/android-cronet-x86-dbg-nougat-tests
-ci/android-cronet-x86-dbg-oreo-tests
-ci/android-cronet-x86-dbg-pie-tests
-ci/android-cronet-x86-rel
-ci/android-desktop-arm64-archive-rel
-ci/android-desktop-arm64-official
-ci/android-desktop-x64-archive-rel
-ci/android-desktop-x64-compile-rel
-ci/android-desktop-x64-official
-ci/android-desktop-x64-rel-15-tests
-ci/android-official
-ci/android-webview-10-x86-rel-tests
-ci/android-webview-13-x64-hostside-rel
-ci/android-x86-rel
-ci/chromeos-amd64-generic-asan-rel
-ci/chromeos-amd64-generic-cfi-thin-lto-rel
-ci/chromeos-amd64-generic-dbg
-ci/chromeos-amd64-generic-rel
-ci/chromeos-amd64-generic-rel-gtest
-ci/chromeos-arm-generic-dbg
-ci/chromeos-arm-generic-rel
-ci/chromeos-arm64-generic-rel
-ci/chromeos-x64-libfuzzer-asan-rel-tests
-ci/ios-angle-arm64-builder
-ci/ios-angle-m2
-ci/ios-asan
-ci/ios-catalyst
-ci/ios-device
-ci/ios-simulator
-ci/ios-simulator-full-configs
-ci/ios-simulator-noncq
 ci/linux-angle-chromium-amd
 ci/linux-angle-chromium-builder
 ci/linux-angle-chromium-intel
@@ -343,14 +215,6 @@ ci/linux-blink-asan-rel
 ci/linux-blink-leak-rel
 ci/linux-blink-msan-rel
 ci/linux-blink-web-tests-force-accessibility-rel
-ci/linux-cast-arm-rel
-ci/linux-cast-arm64-rel
-ci/linux-cast-x64-dbg
-ci/linux-cast-x64-rel
-ci/linux-cfm-rel
-ci/linux-chromeos-archive-rel
-ci/linux-chromeos-dbg
-ci/linux-chromeos-rel
 ci/linux-crossbench
 ci/linux-extended-tracing-rel
 ci/linux-gcc-rel
@@ -421,98 +285,10 @@ ci/win32-archive-rel
 ci/win32-official
 ci/windows-no-initial-webui-rel
 try/3pp-linux-amd64-packager
-try/android-10-arm64-rel
-try/android-10-x86-nofieldtrial-rel
-try/android-10-x86-rel
-try/android-11-x86-rel
-try/android-12-x64-dbg
-try/android-12-x64-rel
-try/android-12l-landscape-x64-dbg
-try/android-12l-x64-dbg
-try/android-12l-x64-rel-cq
-try/android-13-x64-rel
-try/android-14-arm64-rel
-try/android-14-automotive-landscape-x64-rel
-try/android-14-tablet-landscape-arm64-rel
-try/android-14-x64-rel
-try/android-15-tablet-landscape-x64-rel
-try/android-15-tablet-x64-rel
-try/android-15-x64-rel
-try/android-16-x64-dbg
-try/android-16-x64-leakcanary-rel
-try/android-16-x64-rel
-try/android-angle-chromium-try
-try/android-arm-compile-dbg
-try/android-arm64-compile-dbg
-try/android-arm64-rel
-try/android-bfcache-rel
-try/android-binary-size
-try/android-cast-arm-dbg
-try/android-cast-arm-rel
-try/android-cast-arm64-dbg
-try/android-cast-arm64-rel
-try/android-clobber-rel
-try/android-cronet-arm-dbg
-try/android-cronet-arm-rel
-try/android-cronet-arm64-dbg
-try/android-cronet-arm64-rel
-try/android-cronet-code-coverage-java
-try/android-cronet-code-coverage-native
-try/android-cronet-riscv64-dbg
-try/android-cronet-riscv64-rel
-try/android-cronet-x64-dbg
-try/android-cronet-x64-dbg-12-tests
-try/android-cronet-x64-dbg-13-tests
-try/android-cronet-x64-dbg-14-tests
-try/android-cronet-x64-dbg-15-tests
-try/android-cronet-x64-dbg-16-tests
-try/android-cronet-x64-rel
-try/android-cronet-x86-dbg
-try/android-cronet-x86-dbg-10-tests
-try/android-cronet-x86-dbg-11-tests
-try/android-cronet-x86-dbg-nougat-tests
-try/android-cronet-x86-dbg-oreo-tests
-try/android-cronet-x86-dbg-pie-tests
-try/android-cronet-x86-rel
-try/android-desktop-arm64-clobber-rel
-try/android-desktop-arm64-official
-try/android-desktop-x64-clobber-rel
-try/android-desktop-x64-official
-try/android-desktop-x64-rel
-try/android-official
-try/android-webview-10-x86-rel-tests
-try/android-webview-12-x64-dbg
-try/android-webview-13-x64-dbg
-try/android-webview-13-x64-hostside-rel
-try/android-x64-rel
-try/android-x86-rel
-try/android_compile_dbg
-try/android_compile_x64_dbg
-try/android_compile_x86_dbg
 try/branch-config-verifier
 try/builder-config-verifier
-try/chromeos-amd64-generic-asan-rel
-try/chromeos-amd64-generic-cfi-thin-lto-rel
-try/chromeos-amd64-generic-dbg
-try/chromeos-amd64-generic-rel
-try/chromeos-arm-generic-dbg
-try/chromeos-arm-generic-rel
-try/chromeos-arm64-generic-rel
-try/chromeos-js-coverage-rel
-try/chromeos-libfuzzer-asan-rel
-try/chromeos-x64-libfuzzer-asan-rel-tests
 try/compile-size
 try/gn-args-verifier
-try/gpu-fyi-try-android-a13-32
-try/gpu-fyi-try-android-a23-32
-try/gpu-fyi-try-android-arm64-pixel-11-exp
-try/gpu-fyi-try-android-pixel-10-64
-try/gpu-fyi-try-android-pixel-6-64
-try/gpu-fyi-try-android-pixel-6-64-exp
-try/gpu-fyi-try-android-q-pixel-2-32
-try/gpu-fyi-try-android-r-pixel-4-32
-try/gpu-fyi-try-android-s23-64
-try/gpu-fyi-try-chromeos-amd64-generic
 try/gpu-fyi-try-linux-amd-780m-exp
 try/gpu-fyi-try-linux-amd-890m-exp
 try/gpu-fyi-try-linux-amd-rel
@@ -560,19 +336,10 @@ try/gpu-fyi-try-win11-x64-amd-780m-exp
 try/gpu-fyi-try-win11-x64-amd-890m-exp
 try/gpu-fyi-try-win11-x64-amd-rx-9070xt-exp
 try/gpu-fyi-try-win11-x64-nvidia-rtx-5080-exp
-try/gpu-try-android-pixel-2-64
 try/gpu-try-linux-nvidia-rel
 try/gpu-try-mac-amd-retina-dbg
 try/gpu-try-mac-intel-dbg
 try/gpu-try-win-nvidia-dbg
-try/ios-angle-try-m2
-try/ios-asan
-try/ios-catalyst
-try/ios-device
-try/ios-simulator
-try/ios-simulator-exp
-try/ios-simulator-full-configs
-try/ios-simulator-noncq
 try/linux-angle-chromium-try
 try/linux-arm64-dbg
 try/linux-arm64-official
@@ -586,18 +353,7 @@ try/linux-blink-asan-rel
 try/linux-blink-leak-rel
 try/linux-blink-msan-rel
 try/linux-blink-web-tests-force-accessibility-rel
-try/linux-cast-arm-rel
-try/linux-cast-arm64-rel
-try/linux-cast-x64-dbg
-try/linux-cast-x64-rel
 try/linux-centipede-asan-rel
-try/linux-cfm-rel
-try/linux-chromeos-asan-rel
-try/linux-chromeos-clobber-rel
-try/linux-chromeos-compile-dbg
-try/linux-chromeos-dbg
-try/linux-chromeos-no-initial-webui-rel
-try/linux-chromeos-rel
 try/linux-clobber-rel
 try/linux-crossbench
 try/linux-dcheck-off-rel
@@ -645,8 +401,6 @@ try/linux-x86-libfuzzer-asan-rel-tests
 try/linux_chromium_archive_rel_ng
 try/linux_chromium_asan_rel_ng
 try/linux_chromium_cfi_rel_ng
-try/linux_chromium_chromeos_asan_rel_ng
-try/linux_chromium_chromeos_msan_rel_ng
 try/linux_chromium_compile_dbg_ng
 try/linux_chromium_compile_rel_ng
 try/linux_chromium_dbg_ng

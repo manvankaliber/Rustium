@@ -14,9 +14,6 @@
 #include "mojo/public/cpp/bindings/remote.h"
 #include "services/image_annotation/public/mojom/image_annotation.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "net/base/network_change_notifier.h"
-#endif
 
 class Profile;
 
@@ -39,11 +36,6 @@ class PrefRegistrySyncable;
 // command-line switch.
 class AccessibilityLabelsService
     : public KeyedService
-#if BUILDFLAG(IS_ANDROID)
-    // On Android, implement NetworkChangeObserver for "only on wifi" option.
-    ,
-      public net::NetworkChangeNotifier::NetworkChangeObserver
-#endif
 {
  public:
   // Use |AccessibilityLabelsServiceFactory::GetForProfile(..)| to get
@@ -75,13 +67,6 @@ class AccessibilityLabelsService
       mojo::PendingReceiver<image_annotation::mojom::ImageAnnotationService>)>;
   void OverrideImageAnnotatorBinderForTesting(ImageAnnotatorBinder binder);
 
-#if BUILDFLAG(IS_ANDROID)
-  // net::NetworkChangeNotifier::NetworkChangeObserver
-  void OnNetworkChanged(
-      net::NetworkChangeNotifier::ConnectionType type) override;
-
-  bool GetAndroidEnabledStatus();
-#endif
 
  private:
   friend class AccessibilityLabelsServiceFactory;

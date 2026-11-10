@@ -40,9 +40,6 @@
 #include "ui/base/l10n/l10n_util_collator.h"
 #include "ui/base/ui_base_paths.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/base/l10n/l10n_util_android.h"
-#endif
 
 #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
 #include <cstdlib>
@@ -71,7 +68,7 @@ class StringWrapper {
   std::u16string string_;
 };
 
-#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_APPLE)
 // On Mac, we are disabling this test because GetApplicationLocale() as an
 // API isn't something that we'll easily be able to unit test in this manner.
 // The meaning of that API, on the Mac, is "the locale used by Cocoa's main
@@ -80,7 +77,7 @@ class StringWrapper {
 
 // On Android, we are disabling this test since GetApplicationLocale() just
 // returns the system's locale, which, similarly, is not easily unit tested.
-#if BUILDFLAG(IS_POSIX) && defined(USE_GLIB) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_POSIX) && defined(USE_GLIB)
 const bool kPlatformHasDefaultLocale = true;
 const bool kUseLocaleFromEnvironment = true;
 const bool kSupportsLocalePreference = false;
@@ -692,11 +689,7 @@ TEST_F(L10nUtilTest, GetDisplayNameForLocale) {
 // redefined behavior for existing functions. As a result,
 // `l10n_util::GetDisplayNameForCountry` no longer produces the same output in
 // iOS17 as previous versions.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_GetDisplayNameForCountry DISABLED_GetDisplayNameForCountry
-#else
 #define MAYBE_GetDisplayNameForCountry GetDisplayNameForCountry
-#endif
 TEST_F(L10nUtilTest, MAYBE_GetDisplayNameForCountry) {
   std::u16string result = l10n_util::GetDisplayNameForCountry("BR", "en");
   EXPECT_EQ(u"Brazil", result);
@@ -735,9 +728,7 @@ TEST_F(L10nUtilTest, GetUserFacingUILocaleList) {
   // Chinese and Chinese (Hong Kong), as we do not have specific strings for
   // them (except on Android).
   EXPECT_FALSE(locales.contains("zh"));
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_FALSE(locales.contains("zh-HK"));
-#endif
   // Norwegian (no), as it does not specify a written form.
   EXPECT_FALSE(locales.contains("no"));
   // English (Germany). A valid locale and in ICU's list of locales, but not in
@@ -813,7 +804,7 @@ TEST_F(L10nUtilTest, FormatStringComputeCorrectOffsetInRTL) {
   // On Linux, an extra base::i18n::kRightToLeftMark character is appended for
   // the text rendering engine to render the string correctly. This should be
   // considered when computing the offsets.
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
   EXPECT_EQ(offsets[0], 11u);
 #else
   EXPECT_EQ(offsets[0], 10u);
@@ -889,23 +880,6 @@ TEST_F(L10nUtilTest, AllLegacyAcceptLanguagesWork) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(L10nUtilTest, SetRtlForTestingInvalidatesIsLayoutRtlCache) {
-  const bool initial_rtl = l10n_util::IsLayoutRtl();
-
-  l10n_util::SetRtlForTesting(true);
-  EXPECT_TRUE(l10n_util::IsLayoutRtl());
-
-  l10n_util::SetRtlForTesting(false);
-  EXPECT_FALSE(l10n_util::IsLayoutRtl());
-
-  l10n_util::SetRtlForTesting(true);
-  EXPECT_TRUE(l10n_util::IsLayoutRtl());
-
-  l10n_util::SetRtlForTesting(initial_rtl);
-  EXPECT_EQ(initial_rtl, l10n_util::IsLayoutRtl());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 }  // namespace l10n_util

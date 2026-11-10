@@ -60,9 +60,6 @@
 #include "base/mac/mac_util.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/accessibility/browser_accessibility_android.h"
-#endif
 
 #if BUILDFLAG(USE_ATK) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "content/browser/accessibility/accessibility_content_browsertest.h"
@@ -71,10 +68,7 @@
 using ::testing::ElementsAre;
 using ::testing::Pair;
 
-#if defined(NDEBUG) && !defined(ADDRESS_SANITIZER) &&              \
-    !defined(LEAK_SANITIZER) && !defined(MEMORY_SANITIZER) &&      \
-    !defined(THREAD_SANITIZER) && !defined(UNDEFINED_SANITIZER) && \
-    !BUILDFLAG(IS_ANDROID)
+#if defined(NDEBUG) && !defined(ADDRESS_SANITIZER) && !defined(LEAK_SANITIZER) && !defined(MEMORY_SANITIZER) && !defined(THREAD_SANITIZER) && !defined(UNDEFINED_SANITIZER)
 #define IS_FAST_BUILD
 constexpr int kDelayForDeferredUpdatesAfterPageLoad = 150;
 #endif
@@ -492,7 +486,6 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
 }
 
 // Android's text representation is different, so disable the test there.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        ReparentingANodeShouldReuseSameNativeWrapper) {
   LoadInitialAccessibilityTreeFromHtml(R"HTML(
@@ -533,7 +526,6 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
 
   EXPECT_EQ(wrapper1, wrapper2);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        UnselectedEditableTextAccessibility) {
@@ -1000,7 +992,6 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
 }
 
 // Android's text representation is different, so disable the test there.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        AXNodePositionTreeBoundary) {
   LoadInitialAccessibilityTreeFromHtml(R"HTML(
@@ -1093,10 +1084,8 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
   EXPECT_FALSE(test_position->AtStartOfAXTree());
   EXPECT_TRUE(test_position->AtEndOfAXTree());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Android's text representation is different, so disable the test there.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        NavigationSkipsCompositeItems) {
   LoadInitialAccessibilityTreeFromHtml(R"HTML(
@@ -1130,7 +1119,6 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
   test_position = position->CreatePositionAtEndOfAnchor();
   EXPECT_TRUE(position->IsValid());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if !BUILDFLAG(IS_MAC)
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
@@ -1189,7 +1177,6 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
 }
 #endif  // !BUILDFLAG(IS_MAC)
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        ContenteditableBRFrameChildDoesNotCrash) {
   ASSERT_TRUE(embedded_test_server()->Start());
@@ -1244,10 +1231,8 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
   ASSERT_NE(line_break, nullptr);
   EXPECT_EQ(0u, line_break->PlatformChildCount());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC) && \
-    !(BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
+#if !BUILDFLAG(IS_MAC)
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        GetBoundsRectIframes) {
   LoadInitialAccessibilityTreeFromHtml(std::string(R"HTML(
@@ -1514,13 +1499,12 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                second_list_item_bounds.y()),
       2);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC) && !(BUILDFLAG(IS_IOS)
+#endif
         // && BUILDFLAG(USE_BLINK))
 
 // Select controls behave differently on Mac/Android/iOS-Blink, this test
 // doesn't apply.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC) && \
-    !(BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
+#if !BUILDFLAG(IS_MAC)
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        GetBoundsRectWithScroll) {
   LoadInitialAccessibilityTreeFromHtml(std::string(R"HTML(
@@ -1616,11 +1600,11 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                third_list_item_bounds.y()),
       2);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC) && !(BUILDFLAG(IS_IOS)
+#endif
         // && BUILDFLAG(USE_BLINK))
 
 // Android and Mac do not expose <select>s the same as other platforms do.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC)
+#if !BUILDFLAG(IS_MAC)
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        SelectWithOptgroupActiveDescendant) {
   LoadInitialAccessibilityTreeFromHtml(R"HTML(
@@ -1836,14 +1820,13 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
     EXPECT_TRUE(option_2->HasState(ax::mojom::State::kInvisible));
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC)
+#endif
 
 // The color picker's popup behaves differently on Android/iOS-Blink, this test
 // doesn't apply.
 // TODO(crbug.com/40835208): This test is consistently failing in Fuchsia.
 // Similar to the test `ControlsIdsForDateTimePopup`, we should try to re-enable
 // it when content_browsertests runs in non-headless mode.
-#if !BUILDFLAG(IS_ANDROID) && !(BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        GetBoundsRectIframesForColorPicker) {
   LoadInitialAccessibilityTreeFromHtml(std::string(R"HTML(
@@ -1975,7 +1958,6 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
       [&]() { return !popup_area->GetLocation().IsEmpty(); }));
   EXPECT_EQ(gfx::SizeF(28, 24), previous_month_button->GetLocation().size());
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !(BUILDFLAG(IS_IOS) &&
         // BUILDFLAG(USE_BLINK))
 
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
@@ -2197,7 +2179,7 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
 }
 
 // TODO(crbug.com/40656480) re-enable when crashing on linux is resolved.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_LocalizedRoleDescription DISABLED_LocalizedRoleDescription
 #else
 #define MAYBE_LocalizedRoleDescription LocalizedRoleDescription
@@ -2392,7 +2374,6 @@ IN_PROC_BROWSER_TEST_F(
 
 // On Android root scroll offset is handled by the Java layer. The final rect
 // bounds is device specific.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        GetBoundsRectUnclippedRootFrameFromIFrame) {
   LoadInitialAccessibilityTreeFromHtmlFilePath(
@@ -2558,12 +2539,10 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
     ASSERT_NE(nullptr, popup_area);
     EXPECT_EQ(ax::mojom::Role::kGroup, popup_area->GetRole());
 
-#if !BUILDFLAG(IS_CASTOS) && !BUILDFLAG(IS_CAST_ANDROID)
     // Ensure that the bounding box of the popup area is at least 100
     // pixels down the page.
     gfx::Rect popup_bounds = popup_area->GetUnclippedRootFrameBoundsRect();
     EXPECT_GT(popup_bounds.y(), 100);
-#endif  // !BUILDFLAG(IS_CASTOS) && !BUILDFLAG(IS_CAST_ANDROID)
   }
 }
 
@@ -2805,41 +2784,9 @@ IN_PROC_BROWSER_TEST_F(
               root_accessibility_manager->GetFocus());
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // This test is checking behavior when ImplicitRootScroller is enabled which
 // applies only on Android.
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
-                       ImplicitRootScroller) {
-  LoadInitialAccessibilityTreeFromHtmlFilePath(
-      "/accessibility/scrolling/implicit-root-scroller.html");
-
-  ui::BrowserAccessibilityManager* manager = GetManager();
-  const ui::BrowserAccessibility* heading = FindNodeByRole(
-      manager->GetBrowserAccessibilityRoot(), ax::mojom::Role::kHeading);
-
-  // Ensure that this page has an implicit root scroller that's something
-  // other than the root of the accessibility tree.
-  ui::AXNodeID root_scroller_id = manager->GetTreeData().root_scroller_id;
-  ui::BrowserAccessibility* root_scroller =
-      manager->GetFromID(root_scroller_id);
-  ASSERT_TRUE(root_scroller);
-  EXPECT_NE(root_scroller_id, manager->GetBrowserAccessibilityRoot()->GetId());
-
-  // If we take the root scroll offsets into account (most platforms)
-  // the heading should be scrolled above the top.
-  manager->SetUseRootScrollOffsetsWhenComputingBoundsForTesting(true);
-  gfx::Rect bounds = heading->GetUnclippedRootFrameBoundsRect();
-  EXPECT_LT(bounds.y(), 0);
-
-  // If we don't take the root scroll offsets into account (Android)
-  // the heading should not have a negative top coordinate.
-  manager->SetUseRootScrollOffsetsWhenComputingBoundsForTesting(false);
-  bounds = heading->GetUnclippedRootFrameBoundsRect();
-  EXPECT_GT(bounds.y(), 0);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if defined(IS_FAST_BUILD)  // Avoid flakiness on slower debug/sanitizer builds.
 
@@ -3340,13 +3287,8 @@ IN_PROC_BROWSER_TEST_F(
 // size of the web contents, instead see the associated test in
 // WebContentsAccessibilityTest#testBoundingBoxUpdatesOnWindowResize().
 // TODO(crbug.com/40918989): Timeout on iOS-Blink
-#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
-#define MAYBE_FlexBoxBoundingBoxUpdatesOnWindowResize \
-  DISABLED_FlexBoxBoundingBoxUpdatesOnWindowResize
-#else
 #define MAYBE_FlexBoxBoundingBoxUpdatesOnWindowResize \
   FlexBoxBoundingBoxUpdatesOnWindowResize
-#endif
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        MAYBE_FlexBoxBoundingBoxUpdatesOnWindowResize) {
   // This is an edge case that was discovered on a mobile sign-in page.
@@ -3481,7 +3423,6 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
 }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        TestAccessibilityFocus) {
   LoadInitialAccessibilityTreeFromHtml("<button>ok</button>");
@@ -3496,9 +3437,7 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
 
   EXPECT_EQ(manager->GetAccessibilityFocus(), button_node);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
                        TestAccessibilityFocusInIframe) {
   LoadInitialAccessibilityTreeFromHtml(R"HTML(
@@ -3526,7 +3465,6 @@ IN_PROC_BROWSER_TEST_F(CrossPlatformAccessibilityBrowserTest,
 
   EXPECT_EQ(GetManager()->GetAccessibilityFocus(), button_node);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class AriaNotifyCrossPlatformAccessibilityBrowserTest
     : public CrossPlatformAccessibilityBrowserTest {
@@ -3962,7 +3900,7 @@ IN_PROC_BROWSER_TEST_F(AriaNotifyV2CrossPlatformAccessibilityBrowserTest,
   }
 }
 
-#if BUILDFLAG(HAS_NATIVE_ACCESSIBILITY) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(HAS_NATIVE_ACCESSIBILITY)
 class CanvasAccessibilityBrowserTest
     : public CrossPlatformAccessibilityBrowserTest {
  public:
@@ -4021,14 +3959,9 @@ IN_PROC_BROWSER_TEST_F(CanvasAccessibilityBrowserTest,
   ui::AXPlatformNodeBase* platform_node_base =
       static_cast<ui::AXPlatformNodeBase*>(platform_node);
   EXPECT_EQ(platform_node_base->GetName(), "Hello World");
-#elif BUILDFLAG(IS_ANDROID)
-  BrowserAccessibilityAndroid* android_canvas =
-      static_cast<BrowserAccessibilityAndroid*>(canvas_node);
-  EXPECT_EQ(android_canvas->GetAndroidContentDescription(), u"Hello World");
-  EXPECT_EQ(android_canvas->GetAndroidSupplementalDescription(), u"");
 #endif
 }
-#endif  // BUILDFLAG(HAS_NATIVE_ACCESSIBILITY) || BUILDFLAG(IS_ANDROID)
+#endif
 
 class MenuElementsAccessibilityBrowserTest
     : public CrossPlatformAccessibilityBrowserTest {

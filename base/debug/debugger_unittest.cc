@@ -14,7 +14,7 @@
 
 namespace {
 
-#if defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#if defined(GTEST_HAS_DEATH_TEST)
 void CrashWithBreakDebugger() {
   base::debug::SetSuppressDebugUI(false);
   base::debug::BreakDebugger();
@@ -29,7 +29,7 @@ void CrashWithBreakDebugger() {
 }  // namespace
 
 // Death tests misbehave on Android.
-#if defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#if defined(GTEST_HAS_DEATH_TEST)
 
 TEST(Debugger, CrashAtBreakpoint) {
   EXPECT_DEATH(CrashWithBreakDebugger(), "");
@@ -42,6 +42,6 @@ TEST(Debugger, DoesntExecuteBeyondBreakpoint) {
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#else   // defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#else
 TEST(Debugger, NoTest) {}
-#endif  // defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#endif

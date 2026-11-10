@@ -30,9 +30,7 @@
 #if BUILDFLAG(IS_OZONE)
 #include "ui/views/test/test_desktop_screen_ozone.h"
 #endif
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/test/ui_controls_ash.h"
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "base/win/scoped_com_initializer.h"
 #include "ui/aura/test/ui_controls_aurawin.h"
 #endif
@@ -90,9 +88,7 @@ void KombuchaInProcessFuzzer::SetUp() {
   // that live outside the ui_interaction_test directory.
   // The following is copied from
   // chrome/test/base/interactive_ui_tests_main.cc
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::test::EnableUIControlsAsh();
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   com_initializer_ = std::make_unique<base::win::ScopedCOMInitializer>();
   aura::test::EnableUIControlsAuraWin();
 #elif BUILDFLAG(IS_OZONE)

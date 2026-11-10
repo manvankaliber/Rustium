@@ -7,8 +7,4 @@
 
 DESKTOP = 'desktop'
 MOBILE = 'mobile'
-ANDROID_NOT_WEBVIEW = 'android-not-webview'
-ANDROID_WEBVIEW = 'android-webview'
-ANDROID = 'android'
 WIN10 = 'win10'
-CHROMEOS = 'chromeos'

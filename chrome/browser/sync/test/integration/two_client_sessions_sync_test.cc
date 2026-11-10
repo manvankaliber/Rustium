@@ -61,9 +61,7 @@ class TwoClientSessionsSyncTest
     if (!SyncTest::SetupClients()) {
       return false;
     }
-#if !BUILDFLAG(IS_ANDROID)
     AddBrowser(1);
-#endif
     return true;
   }
 

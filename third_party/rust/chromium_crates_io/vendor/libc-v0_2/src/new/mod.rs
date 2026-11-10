@@ -47,10 +47,7 @@ cfg_if! {
     if #[cfg(target_os = "aix")] {
         mod aix;
         pub(crate) use aix::*;
-    } else if #[cfg(target_os = "android")] {
-        mod bionic_libc;
-        pub(crate) use bionic_libc::*;
-    } else if #[cfg(target_vendor = "apple")] {
+    }  else if #[cfg(target_vendor = "apple")] {
         mod apple;
         pub(crate) use apple::*;
     } else if #[cfg(target_os = "cygwin")] {
@@ -175,11 +172,7 @@ cfg_if! {
 
 // Per-OS headers we export
 cfg_if! {
-    if #[cfg(target_os = "android")] {
-        use bionic_libc::kernel_uapi::linux;
-        pub use linux::types::*;
-        pub use sys::socket::*;
-    } else if #[cfg(target_os = "linux")] {
+    if #[cfg(any())] {} else if #[cfg(target_os = "linux")] {
         pub use asm::socket::*;
         pub use linux::can::bcm::*;
         pub use linux::can::error::*;

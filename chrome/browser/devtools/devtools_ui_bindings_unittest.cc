@@ -55,12 +55,10 @@
 #include "ui/base/test/test_dialog_model_host.h"
 #include "url/origin.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
 #include "third_party/skia/include/core/SkColor.h"
 #include "ui/base/mojom/themes.mojom.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/browser/search_engines/template_url_service_factory.h"
@@ -69,9 +67,6 @@
 #include "content/public/browser/render_process_host.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/common/extension_builder.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif
 #endif
 
 using testing::_;
@@ -1658,11 +1653,7 @@ TEST_F(DevToolsUIBindingsHostConfigTest, GetHostConfigGdpProfiles) {
   ASSERT_TRUE(gdp_profiles);
   std::optional<bool> gdp_enabled = gdp_profiles->FindBool("enabled");
   ASSERT_TRUE(gdp_enabled.has_value());
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_FALSE(*gdp_enabled);
-#else
   EXPECT_TRUE(*gdp_enabled);
-#endif
 
   const base::DictValue* gdp_profiles_availability =
       config.FindDict("devToolsGdpProfilesAvailability");
@@ -1670,7 +1661,7 @@ TEST_F(DevToolsUIBindingsHostConfigTest, GetHostConfigGdpProfiles) {
   std::optional<bool> availability_enabled =
       gdp_profiles_availability->FindBool("enabled");
   ASSERT_TRUE(availability_enabled.has_value());
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   EXPECT_TRUE(*availability_enabled);
 #else
   EXPECT_FALSE(*availability_enabled);
@@ -1705,13 +1696,11 @@ TEST_F(DevToolsUIBindingsHostConfigTest, SetChromeFlag) {
 }
 
 TEST_F(DevToolsUIBindingsHostConfigTest, GetHostConfigUserColorSourceDefault) {
-#if !BUILDFLAG(IS_ANDROID)
   ThemeService* theme_service =
       ThemeServiceFactory::GetForProfile(profile_.get());
   ASSERT_NE(theme_service, nullptr);
   EXPECT_FALSE(theme_service->GetIsGrayscale());
   EXPECT_TRUE(theme_service->GetIsBaseline());
-#endif
 
   base::DictValue config =
       DevToolsUIBindings::GetHostConfigDictionary(profile_.get());
@@ -1734,7 +1723,6 @@ TEST_F(DevToolsUIBindingsHostConfigTest,
   EXPECT_EQ(*user_color_source, "baseline-default");
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(DevToolsUIBindingsHostConfigTest,
        GetHostConfigUserColorSourceGrayscaleAndReset) {
   ThemeService* theme_service =
@@ -2067,7 +2055,6 @@ TEST_F(DevToolsUIBindingsThemeTest,
   theme_service()->SetUserColor(SK_ColorGREEN);
   theme_service()->UseDefaultTheme();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 class DevToolsUIBindingsExtensionsTest : public testing::Test {
@@ -2160,12 +2147,6 @@ TEST_F(DevToolsUIBindingsExtensionsTest, AddsExtensionsToLocalFrontend) {
 
 TEST_F(DevToolsUIBindingsExtensionsTest,
        UpdatesForbiddenOriginsOnSearchEngineChange) {
-#if BUILDFLAG(IS_ANDROID)
-  // On Desktop Android, non-Google search engines fall back to the native
-  // Java NTP unless `kUseWebUiNtp3PDSE` is enabled.
-  base::test::ScopedFeatureList feature_list(
-      chrome::android::kUseWebUiNtp3PDSE);
-#endif
   GURL local_url("devtools://devtools/bundled/devtools_app.html");
   content::NavigationSimulator::NavigateAndCommitFromBrowser(web_contents_,
                                                              local_url);

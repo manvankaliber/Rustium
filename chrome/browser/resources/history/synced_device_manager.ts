@@ -11,9 +11,7 @@ import '/strings.m.js';
 import {browserProxyFactory} from 'chrome://resources/cr_components/history/foreign_sessions.mojom-webui.js';
 import type {ForeignSession, ForeignSessionTab, ForeignSessionWindow} from 'chrome://resources/cr_components/history/foreign_sessions.mojom-webui.js';
 import {AccessPoint} from 'chrome://resources/cr_components/history/history.mojom-webui.js';
-// <if expr="not is_chromeos">
 import type {AccountInfo} from 'chrome://resources/cr_components/history/history.mojom-webui.js';
-// </if>
 import type {CrActionMenuElement} from 'chrome://resources/cr_elements/cr_action_menu/cr_action_menu.js';
 import type {CrLazyRenderLitElement} from 'chrome://resources/cr_elements/cr_lazy_render/cr_lazy_render_lit.js';
 import {WebUiListenerMixinLit} from 'chrome://resources/cr_elements/web_ui_listener_mixin_lit.js';
@@ -92,9 +90,7 @@ export class HistorySyncedDeviceManagerElement extends
 
       replaceSyncPromosWithSignInPromos_: {type: Boolean},
 
-      // <if expr="not is_chromeos">
       accountInfo_: {type: Object},
-      // </if>
     };
   }
 
@@ -111,10 +107,8 @@ export class HistorySyncedDeviceManagerElement extends
   protected accessor replaceSyncPromosWithSignInPromos_: boolean =
       loadTimeData.getBoolean('replaceSyncPromosWithSignInPromos');
   private signinPausedImpressionRecorded_: boolean = false;
-  // <if expr="not is_chromeos">
   protected accessor accountInfo_: AccountInfo|null = null;
   private onAccountInfoDataReceivedListenerId_: number|null = null;
-  // </if>
 
   private accessor historyIdentityState_: HistoryIdentityState = {
     signIn: HistorySignInState.SIGNED_OUT,
@@ -144,7 +138,6 @@ export class HistorySyncedDeviceManagerElement extends
         (identityState: HistoryIdentityState) => this.historyIdentityState_ =
             identityState);
 
-    // <if expr="not is_chromeos">
     this.onAccountInfoDataReceivedListenerId_ =
         BrowserProxyImpl.getInstance()
             .callbackRouter.sendAccountInfo.addListener(
@@ -152,20 +145,17 @@ export class HistorySyncedDeviceManagerElement extends
 
     BrowserProxyImpl.getInstance().handler.requestAccountInfo().then(
         ({accountInfo}) => this.handleAccountInfoChanged_(accountInfo));
-    // </if>
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.focusGrid_!.destroy();
 
-    // <if expr="not is_chromeos">
     if (this.onAccountInfoDataReceivedListenerId_ !== null) {
       BrowserProxyImpl.getInstance().callbackRouter.removeListener(
           this.onAccountInfoDataReceivedListenerId_);
       this.onAccountInfoDataReceivedListenerId_ = null;
     }
-    // </if>
   }
 
   override willUpdate(changedProperties: PropertyValues<this>) {
@@ -250,7 +240,6 @@ export class HistorySyncedDeviceManagerElement extends
     BrowserProxyImpl.getInstance().startTurnOnSyncFlow();
   }
 
-  // <if expr="not is_chromeos">
   protected onTurnOnHistorySyncClick_() {
     BrowserProxyImpl.getInstance().handler.turnOnHistorySync(
         AccessPoint.kRecentTabs);
@@ -259,7 +248,6 @@ export class HistorySyncedDeviceManagerElement extends
   private handleAccountInfoChanged_(accountInfo: AccountInfo) {
     this.accountInfo_ = accountInfo;
   }
-  // </if>
 
   private onOpenMenu_(e: CustomEvent<{tag: string, target: HTMLElement}>) {
     this.actionMenuModel_ = e.detail.tag;

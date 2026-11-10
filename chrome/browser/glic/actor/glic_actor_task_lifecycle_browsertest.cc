@@ -37,9 +37,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "third_party/blink/public/common/features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/public/browser/android/child_process_importance.h"
-#endif
 
 namespace mojo {
 
@@ -367,7 +364,7 @@ IN_PROC_BROWSER_TEST_F(GlicActorTaskLifecycleFunctionalBrowserTest,
 }
 
 // TODO(b/484011242): Fix flakiness and re-enable this test on Android and Mac.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_testPauseAndResumeCreatedTaskWithIframe \
   DISABLED_testPauseAndResumeCreatedTaskWithIframe
 #else
@@ -1174,26 +1171,11 @@ IN_PROC_BROWSER_TEST_F(GlicActorTaskLifecycleGmailOtpEnabledBrowserTest,
   ContinueJsTest();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 [[nodiscard]] TestResult<void> RunUntilPriorityIs(
     content::RenderProcessHost* rph,
     base::Process::Priority priority) {
   return RunUntilEqual([&]() { return rph->GetPriority(); }, priority);
 }
-#else
-[[nodiscard]] TestResult<void> RunUntilImportanceIs(
-    content::RenderProcessHost* rph,
-    content::ChildProcessImportance importance) {
-  return RunUntilEqual([&]() { return rph->GetEffectiveImportance(); },
-                       importance);
-}
-
-bool IsProtectRecentlyVisibleTabEnabled() {
-  return base::android::device_info::is_desktop() ||
-         base::FeatureList::IsEnabled(
-             chrome::android::kProtectRecentlyVisibleTab);
-}
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class GlicActorTaskLifecyclePriorityBrowserTest
     : public GlicActorTaskLifecycleFunctionalBrowserTest,
@@ -1248,30 +1230,12 @@ IN_PROC_BROWSER_TEST_P(GlicActorTaskLifecyclePriorityBrowserTest,
       WaitForWebUiContentsVisibility(instance, content::Visibility::HIDDEN));
   EXPECT_EQ(guest_contents->GetVisibility(), content::Visibility::HIDDEN);
 
-#if !BUILDFLAG(IS_ANDROID)
   if (!is_no_webview) {
     EXPECT_OK(
         RunUntilPriorityIs(webui_rph, base::Process::Priority::kBestEffort));
   }
   EXPECT_OK(
       RunUntilPriorityIs(guest_rph, base::Process::Priority::kBestEffort));
-#else
-
-  // When the feature is enabled, recently visible pages are protected.
-  content::ChildProcessImportance expected_importance_when_hidden =
-      IsProtectRecentlyVisibleTabEnabled()
-          ? content::ChildProcessImportance::NOT_PERCEPTIBLE
-          : content::ChildProcessImportance::NORMAL;
-
-  if (!is_no_webview) {
-    EXPECT_OK(RunUntilImportanceIs(webui_rph, expected_importance_when_hidden));
-    // TODO(crbug.com/525435394): Ensure the guest process is not protected.
-    EXPECT_OK(RunUntilImportanceIs(
-        guest_rph, content::ChildProcessImportance::NOT_PERCEPTIBLE));
-  } else {
-    EXPECT_OK(RunUntilImportanceIs(guest_rph, expected_importance_when_hidden));
-  }
-#endif
   ExecuteJsTest();
 
   // Task is now created and actuating. The process priority should be boosted.
@@ -1293,21 +1257,12 @@ IN_PROC_BROWSER_TEST_P(GlicActorTaskLifecyclePriorityBrowserTest,
     EXPECT_EQ(guest_contents->GetVisibility(), content::Visibility::HIDDEN);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (!is_no_webview) {
     EXPECT_OK(
         RunUntilPriorityIs(webui_rph, base::Process::Priority::kUserBlocking));
   }
   EXPECT_OK(
       RunUntilPriorityIs(guest_rph, base::Process::Priority::kUserBlocking));
-#else
-  if (!is_no_webview) {
-    EXPECT_OK(RunUntilImportanceIs(webui_rph,
-                                   content::ChildProcessImportance::IMPORTANT));
-  }
-  EXPECT_OK(RunUntilImportanceIs(guest_rph,
-                                 content::ChildProcessImportance::IMPORTANT));
-#endif
 
   // Open a second tab to make the initial tab hidden. The priority of glic
   // renderers should lower, but not drop to best effort.
@@ -1317,44 +1272,24 @@ IN_PROC_BROWSER_TEST_P(GlicActorTaskLifecyclePriorityBrowserTest,
   ASSERT_NE(second_tab, first_tab);
   EXPECT_EQ(active_tab(), second_tab);
 
-#if !BUILDFLAG(IS_ANDROID)
   if (!is_no_webview) {
     EXPECT_OK(
         RunUntilPriorityIs(webui_rph, base::Process::Priority::kUserVisible));
   }
   EXPECT_OK(
       RunUntilPriorityIs(guest_rph, base::Process::Priority::kUserVisible));
-#else
-  if (!is_no_webview) {
-    EXPECT_OK(RunUntilImportanceIs(webui_rph,
-                                   content::ChildProcessImportance::MODERATE));
-  }
-  EXPECT_OK(RunUntilImportanceIs(guest_rph,
-                                 content::ChildProcessImportance::MODERATE));
-#endif
 
   // Finish/stop the task.
   ContinueJsTest({.instance = instance});
   EXPECT_FALSE(instance->IsActuating());
 
   // Now Glic is not actuating, so the priority should drop.
-#if !BUILDFLAG(IS_ANDROID)
   if (!is_no_webview) {
     EXPECT_OK(
         RunUntilPriorityIs(webui_rph, base::Process::Priority::kBestEffort));
   }
   EXPECT_OK(
       RunUntilPriorityIs(guest_rph, base::Process::Priority::kBestEffort));
-#else
-  if (!is_no_webview) {
-    EXPECT_OK(RunUntilImportanceIs(webui_rph, expected_importance_when_hidden));
-    // TODO(crbug.com/525435394): Ensure the guest process is not protected.
-    EXPECT_OK(RunUntilImportanceIs(
-        guest_rph, content::ChildProcessImportance::NOT_PERCEPTIBLE));
-  } else {
-    EXPECT_OK(RunUntilImportanceIs(guest_rph, expected_importance_when_hidden));
-  }
-#endif
 }
 
 INSTANTIATE_TEST_SUITE_P(

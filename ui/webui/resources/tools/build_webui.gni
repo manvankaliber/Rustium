@@ -27,24 +27,6 @@ if (use_blink) {
   import("//chrome/common/features.gni")
 }
 
-if (is_chromeos) {
-  # Folders hosting Ash-only WebUIs. Should be kept in sync with
-  # //tools/typescript/path_utils.py. This is used later in this file to choose
-  # a CrOS-specific default TS config file for some targets.
-  ash_folders = [
-    # Source code folders
-    "//ash/webui",
-    "//chrome/browser/resources/ash",
-    "//chrome/browser/resources/chromeos",
-    "//chrome/browser/resources/dlp_internals",
-    "//ui/file_manager",
-
-    # Test folders
-    "//chrome/test/data/webui/chromeos",
-    "//chrome/test/data/webui/cr_components/chromeos",
-  ]
-}
-
 # See documentation at https://chromium.googlesource.com/chromium/src/+/HEAD/docs/webui/webui_build_configuration.md#build_webui
 template("build_webui") {
   not_needed([ "target_name" ])
@@ -317,15 +299,6 @@ template("build_webui") {
 
   # Determine whether the current invocation corresponds to an Ash WebUI.
   is_ash_webui = false
-  if (is_chromeos) {
-    target_dir = get_label_info(":build_ts", "dir")
-
-    foreach(prefix, ash_folders) {
-      if (!is_ash_webui) {
-        is_ash_webui = string_replace(target_dir, prefix, "") != target_dir
-      }
-    }
-  }
 
   # Determine if there is a Lit and/or Polymer dependency. This information is
   # used for determining the default template for html_to_wrapper() as well as
@@ -370,8 +343,7 @@ template("build_webui") {
           }
         } else if (has_polymer) {
           template = "polymer"
-          if (defined(invoker.icons_html_files) &&
-              (!is_chromeos || !is_ash_webui)) {
+          if (defined(invoker.icons_html_files)) {
             # Need to use detect for non-Ash Polymer UIs using icons files,
             # because only cr-iconset is supported for non-Ash WebUIs.
             template = "detect"
@@ -491,12 +463,6 @@ template("build_webui") {
         } else {
           tsconfig_base = "//tools/typescript/tsconfig_base_polymer.json"
         }
-
-        # Detect whether the target corresponds to an Ash-only WebUI and use
-        # tsconfig_base_polymer_cros.json instead in such cases.
-        if (is_chromeos && is_ash_webui) {
-          tsconfig_base = "//tools/typescript/tsconfig_base_polymer_cros.json"
-        }
       } else if (has_lit) {
         tsconfig_base = "//tools/typescript/tsconfig_base_lit.json"
       }
@@ -589,9 +555,6 @@ template("build_webui") {
       }
 
       legacy_chrome_send_users = [
-        # Note: DO NOT add new entries to the list below. All new WebUIs should
-        # use Mojo instead, see https://chromium.googlesource.com/chromium/src/+/main/docs/webui/webui_explainer.md#Pre_Mojo-alternative_chrome_send_WebUIMessageHandler
-        "//ios/chrome/app/resources/profile_internals",
         "//chrome/browser/resources/about_sys",
         "//chrome/browser/resources/access_code_cast",
         "//chrome/browser/resources/accessibility",
@@ -626,7 +589,7 @@ template("build_webui") {
         "//chrome/browser/resources/signin/profile_picker",
         "//chrome/browser/resources/support_tool",
         "//chrome/browser/resources/tab_search",
-        "//chrome/browser/resources/webapks",
+
         "//chrome/browser/resources/webui_toolbar",
         "//components/autofill/core/browser/autofill_and_password_manager_internals",
         "//components/crash/core/browser/resources",
@@ -663,11 +626,6 @@ template("build_webui") {
         "//chrome/browser/resources/tab_search",
         "//ui/webui/resources/js",
       ]
-
-      if (is_android) {
-        no_explicit_any_exceptions +=
-            [ "//chrome/browser/resources/contextual_tasks" ]
-      }
 
       if (!is_ash_webui && filter_include([ get_label_info(":lint_ts", "dir") ],
                                           no_explicit_any_exceptions) == []) {

@@ -83,10 +83,6 @@
 #include "ui/gfx/image/image_unittest_util.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/webauthn/android/cred_man_support.h"
-#include "components/webauthn/android/webauthn_cred_man_delegate.h"
-#endif
 
 namespace password_manager {
 
@@ -250,8 +246,7 @@ class TestPasswordManagerClient : public StubPasswordManagerClient {
               GetDeviceAuthAvailabilityChecker,
               (),
               (override));
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   MOCK_METHOD(
       std::unique_ptr<
           password_manager::PasswordCrossDomainConfirmationPopupController>,
@@ -264,9 +259,7 @@ class TestPasswordManagerClient : public StubPasswordManagerClient {
        base::OnceClosure confirmation_callback),
       (override));
 #endif
-#if !BUILDFLAG(IS_ANDROID)
   MOCK_METHOD(bool, IsActorTaskActive, (), (override));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
  private:
   MockPasswordManagerDriver driver_;
@@ -369,10 +362,8 @@ class PasswordAutofillManagerTest : public testing::Test {
                                          MockAutofillClient* autofill_client) {
     password_autofill_manager_ = std::make_unique<PasswordAutofillManager>(
         client->mock_driver(), autofill_client, client);
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     password_autofill_manager_->SetManualFallbackFlowForTest(
         std::make_unique<NiceMock<MockPasswordSuggestionFlow>>());
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     favicon::MockFaviconService favicon_service;
     EXPECT_CALL(*client, GetFaviconService())
         .WillOnce(Return(&favicon_service));
@@ -395,9 +386,7 @@ class PasswordAutofillManagerTest : public testing::Test {
 
     EXPECT_CALL(*client->mock_driver(), CanShowAutofillUi)
         .WillRepeatedly(Return(true));
-#if !BUILDFLAG(IS_ANDROID)
     ON_CALL(*client, IsActorTaskActive).WillByDefault(Return(false));
-#endif  //! BUILDFLAG(IS_ANDROID)
   }
 
   autofill::PasswordFormFillData CreateTestFormFillData() {
@@ -420,12 +409,10 @@ class PasswordAutofillManagerTest : public testing::Test {
     EXPECT_CALL(*authenticator, AuthenticateWithMessage);
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   MockPasswordSuggestionFlow& manual_fallback_flow() {
     return *static_cast<MockPasswordSuggestionFlow*>(
         password_autofill_manager_->manual_fallback_flow());
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   PasskeyCredential MakeTestPasskeyCredential() {
     return PasskeyCredential(PasskeyCredential::Source::kAndroidPhone,
@@ -1083,7 +1070,6 @@ TEST_F(PasswordAutofillManagerTest, ShowAllPasswordsOptionOnNonPasswordField) {
             autofill::AutofillSuggestionTriggerSource::kPasswordManager);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Tests that the "Manage passwords" fallback shows up in non-password
 // fields of login forms.
 TEST_F(PasswordAutofillManagerTest, ActorActiveSuppressesDropdown) {
@@ -1101,7 +1087,6 @@ TEST_F(PasswordAutofillManagerTest, ActorActiveSuppressesDropdown) {
   field.typed_username = test_username_;
   password_autofill_manager_->ShowSuggestions(field);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 TEST_F(PasswordAutofillManagerTest,
        MaybeShowPasswordSuggestionsWithGenerationNoCredentials) {
   TestPasswordManagerClient client;
@@ -1661,10 +1646,6 @@ INSTANTIATE_FEATURE_OVERRIDE_TEST_SUITE(PasswordAutofillManagerReauthTest);
 
 TEST_F(PasswordAutofillManagerTest,
        ShowsWebAuthnSuggestionsWhenUsePasskeyOnAnotherDeviceInAutofill) {
-#if BUILDFLAG(IS_ANDROID)
-  webauthn::WebAuthnCredManDelegate::override_cred_man_support_for_testing(
-      webauthn::CredManSupport::DISABLED);
-#endif  // BUILDFLAG(IS_ANDROID)
   TestPasswordManagerClient client;
   NiceMock<MockAutofillClient> autofill_client;
   InitializePasswordAutofillManager(&client, &autofill_client);
@@ -1691,9 +1672,7 @@ TEST_F(PasswordAutofillManagerTest,
                   autofill::SuggestionType::kWebauthnCredential,
                   autofill::SuggestionType::kPasswordEntry,
                   autofill::SuggestionType::kSeparator,
-#if !BUILDFLAG(IS_ANDROID)
                   autofill::SuggestionType::kWebauthnSignInWithAnotherDevice,
-#endif  // !BUILDFLAG(IS_ANDROID)
                   autofill::SuggestionType::kAllSavedPasswordsEntry));
   EXPECT_EQ(open_args.suggestions[0].GetPayload<Suggestion::Guid>().value(),
             GetPasskeyIdBase64());
@@ -1732,15 +1711,13 @@ TEST_F(PasswordAutofillManagerTest,
                       std::optional(FillingProduct::kPassword)))
       .Times(0);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Check that the button that triggers passkeys from a different devices uses
   // the "Use a *different* passkey" string since passkeys are being offered.
   EXPECT_EQ(
       open_args.suggestions[3].main_text.value,
       l10n_util::GetStringUTF16(
-          BUILDFLAG(IS_IOS) ? IDS_PASSWORD_MANAGER_USE_DIFFERENT_PASSKEY
+          false ? IDS_PASSWORD_MANAGER_USE_DIFFERENT_PASSKEY
                             : IDS_PASSWORD_MANAGER_USE_PASSKEY_OTHER_DEVICE));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   EXPECT_CALL(*client.mock_driver(), CanShowAutofillUi)
       .WillRepeatedly(Return(true));
@@ -1750,10 +1727,6 @@ TEST_F(PasswordAutofillManagerTest,
 }
 
 TEST_F(PasswordAutofillManagerTest, ShowsWebAuthnSuggestions) {
-#if BUILDFLAG(IS_ANDROID)
-  webauthn::WebAuthnCredManDelegate::override_cred_man_support_for_testing(
-      webauthn::CredManSupport::DISABLED);
-#endif  // BUILDFLAG(IS_ANDROID)
   TestPasswordManagerClient client;
   NiceMock<MockAutofillClient> autofill_client;
   InitializePasswordAutofillManager(&client, &autofill_client);
@@ -1780,9 +1753,7 @@ TEST_F(PasswordAutofillManagerTest, ShowsWebAuthnSuggestions) {
                   autofill::SuggestionType::kWebauthnCredential,
                   autofill::SuggestionType::kPasswordEntry,
                   autofill::SuggestionType::kSeparator,
-#if !BUILDFLAG(IS_ANDROID)
                   autofill::SuggestionType::kWebauthnSignInWithAnotherDevice,
-#endif  // !BUILDFLAG(IS_ANDROID)
                   autofill::SuggestionType::kAllSavedPasswordsEntry));
   EXPECT_EQ(open_args.suggestions[0].GetPayload<Suggestion::Guid>().value(),
             GetPasskeyIdBase64());
@@ -1914,7 +1885,6 @@ TEST_F(PasswordAutofillManagerTest, ShowsIdentitySuggestions) {
       suggestion, SuggestionPosition{.multi_index = {0}});
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(PasswordAutofillManagerTest, ShowsWebAuthnSignInWithAnotherDevice) {
   TestPasswordManagerClient client;
   NiceMock<MockAutofillClient> autofill_client;
@@ -1948,7 +1918,7 @@ TEST_F(PasswordAutofillManagerTest, ShowsWebAuthnSignInWithAnotherDevice) {
   EXPECT_EQ(
       open_args.suggestions[2].main_text.value,
       l10n_util::GetStringUTF16(
-          BUILDFLAG(IS_IOS) ? IDS_PASSWORD_MANAGER_USE_PASSKEY
+          false ? IDS_PASSWORD_MANAGER_USE_PASSKEY
                             : IDS_PASSWORD_MANAGER_USE_PASSKEY_OTHER_DEVICE));
 }
 
@@ -2064,9 +2034,7 @@ TEST_F(PasswordAutofillManagerTest, WebAuthnFaviconWithoutPasswords) {
               SuggestionVectorIdsAre(
                   autofill::SuggestionType::kWebauthnCredential,
                   autofill::SuggestionType::kSeparator,
-#if !BUILDFLAG(IS_ANDROID)
                   autofill::SuggestionType::kWebauthnSignInWithAnotherDevice,
-#endif  // !BUILDFLAG(IS_ANDROID)
                   autofill::SuggestionType::kAllSavedPasswordsEntry));
   EXPECT_TRUE(
       std::holds_alternative<gfx::Image>(open_args.suggestions[0].custom_icon));
@@ -2110,7 +2078,7 @@ TEST_F(PasswordAutofillManagerTest, ShowsWebAuthnSignInWithoutPasswordData) {
   EXPECT_EQ(
       open_args.suggestions[0].main_text.value,
       l10n_util::GetStringUTF16(
-          BUILDFLAG(IS_IOS) ? IDS_PASSWORD_MANAGER_USE_PASSKEY
+          false ? IDS_PASSWORD_MANAGER_USE_PASSKEY
                             : IDS_PASSWORD_MANAGER_USE_PASSKEY_OTHER_DEVICE));
 }
 
@@ -2233,7 +2201,6 @@ TEST_F(PasswordAutofillManagerTest,
   password_autofill_manager_->ShowSuggestions(kTriggeringField);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(PasswordAutofillManagerTest, NoPreviewSuggestionWithAuthBeforeFilling) {
   TestPasswordManagerClient client;
@@ -2249,7 +2216,6 @@ TEST_F(PasswordAutofillManagerTest, NoPreviewSuggestionWithAuthBeforeFilling) {
   testing::Mock::VerifyAndClearExpectations(client.mock_driver());
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(PasswordAutofillManagerTest, ManualFallback_InvokesFlow) {
   base::test::ScopedFeatureList security_checks_feature_list{
       features::kPasswordManualFallbackSecurityChecks};
@@ -2377,7 +2343,6 @@ TEST_F(PasswordAutofillManagerTest,
       RunFlow(kTriggeringField.element_id, field.bounds, field.text_direction));
   password_autofill_manager_->ShowSuggestions(field);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 TEST_F(PasswordAutofillManagerTest,
        WebAuthnCredentialSuggestionsPersistLoadingStateUntilHidePopup) {
@@ -2464,8 +2429,7 @@ TEST_F(PasswordAutofillManagerTest,
               ::testing::IsEmpty());
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 TEST_F(PasswordAutofillManagerTest, ShowCrossDomainConfirmationPopup) {
   TestPasswordManagerClient client;
   NiceMock<MockAutofillClient> autofill_client;
@@ -2563,10 +2527,6 @@ TEST_F(PasswordAutofillManagerTest,
 TEST_F(PasswordAutofillManagerTest, WaitForPasskeysWithAutofocusTrigger) {
   base::test::ScopedFeatureList wait_for_passkey_feature_list_(
       features::kDelaySuggestionsOnAutofocusWaitingForPasskeys);
-#if BUILDFLAG(IS_ANDROID)
-  webauthn::WebAuthnCredManDelegate::override_cred_man_support_for_testing(
-      webauthn::CredManSupport::DISABLED);
-#endif  // BUILDFLAG(IS_ANDROID)
   TestPasswordManagerClient client;
   NiceMock<MockAutofillClient> autofill_client;
   InitializePasswordAutofillManager(&client, &autofill_client);
@@ -2615,10 +2575,6 @@ TEST_F(PasswordAutofillManagerTest,
        WaitForPasskeysOverriddenByNonAutofocusTrigger) {
   base::test::ScopedFeatureList wait_for_passkey_feature_list_(
       features::kDelaySuggestionsOnAutofocusWaitingForPasskeys);
-#if BUILDFLAG(IS_ANDROID)
-  webauthn::WebAuthnCredManDelegate::override_cred_man_support_for_testing(
-      webauthn::CredManSupport::DISABLED);
-#endif  // BUILDFLAG(IS_ANDROID)
   TestPasswordManagerClient client;
   NiceMock<MockAutofillClient> autofill_client;
   InitializePasswordAutofillManager(&client, &autofill_client);
@@ -2662,10 +2618,6 @@ TEST_F(PasswordAutofillManagerTest,
        WaitForPasskeysIgnoredWhenWebAuthnRequestAborted) {
   base::test::ScopedFeatureList wait_for_passkey_feature_list_(
       features::kDelaySuggestionsOnAutofocusWaitingForPasskeys);
-#if BUILDFLAG(IS_ANDROID)
-  webauthn::WebAuthnCredManDelegate::override_cred_man_support_for_testing(
-      webauthn::CredManSupport::DISABLED);
-#endif  // BUILDFLAG(IS_ANDROID)
   TestPasswordManagerClient client;
   NiceMock<MockAutofillClient> autofill_client;
   InitializePasswordAutofillManager(&client, &autofill_client);

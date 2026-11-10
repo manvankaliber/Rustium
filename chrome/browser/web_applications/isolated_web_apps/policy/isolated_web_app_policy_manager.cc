@@ -53,9 +53,6 @@
 #include "third_party/abseil-cpp/absl/functional/overload.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_pref_names.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace web_app {
 
@@ -112,31 +109,6 @@ using AppActions = base::flat_map<web_package::SignedWebBundleId, AppAction>;
 
 bool g_run_bundle_cleanup_without_delay_for_testing = false;
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool g_first_policy_processing_delay_recorded = false;
-
-// Records the elapsed time between the first user sign-in and the beginning
-// of the actual processing of the IsolatedWebAppInstallForceList policy with
-// a lock. Called once per the lifetime of the browser process (we don't need
-// to track this more often).
-void MaybeRecordFirstPolicyProcessingDelay(Profile* profile) {
-  PrefService* prefs = profile->GetPrefs();
-  if (g_first_policy_processing_delay_recorded ||
-      !prefs->HasPrefPath(ash::prefs::kAshLoginSessionStartedTime)) {
-    // `ash::prefs::kAshLoginSessionStartedTime` is not defined in tests or
-    // linux-chromeos builds.
-    return;
-  }
-  g_first_policy_processing_delay_recorded = true;
-
-  base::UmaHistogramCustomTimes(
-      "WebApp.Isolated.FirstPolicyProcessingDelay",
-      base::Time::Now() -
-          prefs->GetTime(ash::prefs::kAshLoginSessionStartedTime),
-      /*min=*/base::Milliseconds(100),
-      /*max=*/base::Seconds(20), /*buckets=*/50);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 base::RepeatingCallback<void(web_package::SignedWebBundleId,
                              IwaInstaller::Result)>&
@@ -310,9 +282,6 @@ void IsolatedWebAppPolicyManager::CleanupAndProcessPolicyOnSessionStart() {
 
 void IsolatedWebAppPolicyManager::DoProcessPolicy(AllAppsLock& lock,
                                                   base::DictValue& debug_info) {
-#if BUILDFLAG(IS_CHROMEOS)
-  MaybeRecordFirstPolicyProcessingDelay(profile_);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   IwaRuntimeDataProvider::GetInstance().WriteDebugMetadata(debug_info);
 

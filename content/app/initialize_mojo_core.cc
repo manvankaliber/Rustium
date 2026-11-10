@@ -42,14 +42,14 @@ void InitializeMojoCore() {
       config.force_direct_shared_memory_allocation = true;
     }
   } else {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
     // On Windows, Android and Apple platforms it is not necessary to broker
     // shared memory allocation. Sandboxed processes are allowed to allocate
     // shared memory directly.
     config.force_direct_shared_memory_allocation = true;
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     // Renderer and GPU processes create a lot of unsafe regions (data pipes,
     // large IPC payloads) and their seccomp policies allow the memfd
     // creation, sizing and sealing that base needs for one, so let them skip
@@ -76,7 +76,7 @@ void InitializeMojoCore() {
   // Note #2: some platforms can directly allocated shared memory in a
   // sandboxed process. The defines below must be in sync with
   // mojo::core::ipcz_driver::BaseSharedMemoryService::CreateWritableRegion().
-#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_APPLE)
   if (sandbox::policy::IsUnsandboxedSandboxType(
           sandbox::policy::SandboxTypeFromCommandLine(
               *base::CommandLine::ForCurrentProcess()))) {

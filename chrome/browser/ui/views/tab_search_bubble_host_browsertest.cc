@@ -30,9 +30,6 @@
 #include "ui/gfx/geometry/rect.h"
 #include "ui/views/bubble/bubble_frame_view.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ui/frame/multitask_menu/multitask_menu_nudge_controller.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "ui/base/test/scoped_fake_nswindow_fullscreen.h"
@@ -169,9 +166,6 @@ class FullscreenTabSearchBubbleDialogTest : public DialogBrowserTest {
     // search bubble.
     scoped_feature_list_.InitAndDisableFeature(
         organizer_panel::kOrganizerPanel);
-#if BUILDFLAG(IS_CHROMEOS)
-    chromeos::MultitaskMenuNudgeController::SetSuppressNudgeForTesting(true);
-#endif
   }
 
   FullscreenTabSearchBubbleDialogTest(

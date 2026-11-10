@@ -11,7 +11,6 @@
 #include "build/build_config.h"
 #include "ui/base/interaction/element_identifier.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 
 namespace content {
 class WebContents;
@@ -43,6 +42,5 @@ void ShowConfirmProtocolHandlerDialog(
 
 }  // namespace extensions
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #endif  // CHROME_BROWSER_UI_EXTENSIONS_CONFIRM_PROTOCOL_HANDLER_DIALOG_H_

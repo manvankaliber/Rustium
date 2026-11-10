@@ -36,10 +36,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/profiles/profile_test_util.h"
-#include "chromeos/components/kiosk/kiosk_test_utils.h"
-#endif
 
 namespace extensions {
 
@@ -125,16 +121,6 @@ TEST_F(ExtensionUIUtilUnittest, ShouldShowReviewPrompt_ProfileTypes) {
   EXPECT_FALSE(
       ui_util::ShouldShowReviewPrompt(*extension, *guest_profile));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  {
-    profiles::testing::ScopedTestManagedGuestSession managed_guest_session;
-    EXPECT_FALSE(ui_util::ShouldShowReviewPrompt(*extension, *profile()));
-  }
-  EXPECT_TRUE(ui_util::ShouldShowReviewPrompt(*extension, *profile()));
-
-  chromeos::SetUpFakeChromeAppKioskSession();
-  EXPECT_FALSE(ui_util::ShouldShowReviewPrompt(*extension, *profile()));
-#endif
 }
 
 TEST_F(ExtensionUIUtilUnittest, ShouldShowReviewPrompt_EnterprisePrefDisabled) {

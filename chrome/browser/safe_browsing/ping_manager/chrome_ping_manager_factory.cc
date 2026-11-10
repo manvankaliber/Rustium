@@ -26,9 +26,7 @@
 #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
 #include "content/public/browser/browser_thread.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/safe_browsing/android/chrome_safe_browsing_hats_delegate_android.h"
-#elif BUILDFLAG(FULL_SAFE_BROWSING)
+#if BUILDFLAG(FULL_SAFE_BROWSING)
 #include "chrome/browser/safe_browsing/chrome_safe_browsing_hats_delegate_desktop.h"
 #endif
 
@@ -60,7 +58,7 @@ ChromePingManagerFactory::ChromePingManagerFactory()
               .WithGuest(ProfileSelection::kNone)
               .Build()) {
   DependsOn(IdentityManagerFactory::GetInstance());
-#if BUILDFLAG(FULL_SAFE_BROWSING) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(FULL_SAFE_BROWSING)
   DependsOn(HatsServiceFactory::GetInstance());
 #endif
 }
@@ -72,10 +70,7 @@ ChromePingManagerFactory::BuildServiceInstanceForBrowserContext(
     content::BrowserContext* context) const {
   Profile* profile = Profile::FromBrowserContext(context);
   std::unique_ptr<SafeBrowsingHatsDelegate> hats_delegate;
-#if BUILDFLAG(IS_ANDROID)
-  hats_delegate =
-      std::make_unique<ChromeSafeBrowsingHatsDelegateAndroid>(profile);
-#elif BUILDFLAG(FULL_SAFE_BROWSING)
+#if BUILDFLAG(FULL_SAFE_BROWSING)
   hats_delegate =
       std::make_unique<ChromeSafeBrowsingHatsDelegateDesktop>(profile);
 #endif

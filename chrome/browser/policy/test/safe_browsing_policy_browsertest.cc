@@ -104,7 +104,6 @@ IN_PROC_BROWSER_TEST_F(SafeBrowsingPolicyTest, SafeBrowsingAllowlistDomains) {
   EXPECT_TRUE(canonicalized_domains.empty());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Test that when Safe Browsing state is managed by policy, the enhanced
 // protection message does not appear on SSL blocking pages.
 IN_PROC_BROWSER_TEST_F(SafeBrowsingPolicyTest, SafeBrowsingStatePolicyManaged) {
@@ -156,12 +155,7 @@ IN_PROC_BROWSER_TEST_F(SafeBrowsingPolicyTest, PasswordProtectionLoginURLs) {
       prefs->FindPreference(prefs::kPasswordProtectionLoginURLs)->IsManaged());
   std::vector<GURL> login_urls;
   safe_browsing::GetPasswordProtectionLoginURLsPref(*prefs, &login_urls);
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS prepopulates chrome:// URLs.
-  EXPECT_FALSE(login_urls.empty());
-#else
   EXPECT_TRUE(login_urls.empty());
-#endif
   // Add 2 login URLs to this enterprise policy .
   PolicyMap policies;
   base::ListValue login_url_values;
@@ -174,16 +168,9 @@ IN_PROC_BROWSER_TEST_F(SafeBrowsingPolicyTest, PasswordProtectionLoginURLs) {
   EXPECT_TRUE(
       prefs->FindPreference(prefs::kPasswordProtectionLoginURLs)->IsManaged());
   safe_browsing::GetPasswordProtectionLoginURLsPref(*prefs, &login_urls);
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(3u, login_urls.size());
-  EXPECT_EQ(GURL("chrome://os-settings"), login_urls[0]);
-  EXPECT_EQ(GURL("https://login.mydomain.com"), login_urls[1]);
-  EXPECT_EQ(GURL("https://mydomian.com/login.html"), login_urls[2]);
-#else
   EXPECT_EQ(2u, login_urls.size());
   EXPECT_EQ(GURL("https://login.mydomain.com"), login_urls[0]);
   EXPECT_EQ(GURL("https://mydomian.com/login.html"), login_urls[1]);
-#endif
 
   // Verify unsupported schemes, or invalid URLs will be skipped.
   login_url_values.clear();
@@ -197,12 +184,7 @@ IN_PROC_BROWSER_TEST_F(SafeBrowsingPolicyTest, PasswordProtectionLoginURLs) {
       prefs->FindPreference(prefs::kPasswordProtectionLoginURLs)->IsManaged());
   login_urls.clear();
   safe_browsing::GetPasswordProtectionLoginURLsPref(*prefs, &login_urls);
-#if BUILDFLAG(IS_CHROMEOS)
-  // Prepopulated URL should be present.
-  EXPECT_FALSE(login_urls.empty());
-#else
   EXPECT_TRUE(login_urls.empty());
-#endif
 }
 
 // Test that when password protection change password URL is set by policy,
@@ -384,6 +366,5 @@ IN_PROC_BROWSER_TEST_F(SafeBrowsingPolicyTest,
 }
 
 #endif  // BUILDFLAG(SAFE_BROWSING_AVAILABLE)
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace policy

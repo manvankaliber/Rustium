@@ -108,10 +108,6 @@ class CONTENT_EXPORT WebContentsViewDelegate {
   // Notifies the delegate that the drag operation has ended.
   virtual void WebContentsDragEnded();
 
-#if BUILDFLAG(IS_ANDROID)
-  virtual bool ShouldShowBlurTransitionAnimation(
-      NavigationHandle* navigation_handle);
-#endif
 };
 
 }  // namespace content

@@ -7,16 +7,6 @@
 
 #include "content/public/browser/invalidate_type.h"
 
-#if BUILDFLAG(IS_ANDROID)
-namespace gfx {
-class ColorSpace;
-enum class ContentColorUsage : uint8_t;
-}  // namespace gfx
-
-namespace viz {
-class RasterContextProvider;
-}  // namespace viz
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace content {
 
@@ -55,13 +45,6 @@ class NavigationControllerDelegate {
 
   virtual void UpdateOverridingUserAgent() = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-  virtual scoped_refptr<viz::RasterContextProvider>
-  GetRasterContextProvider() = 0;
-  virtual gfx::ColorSpace GetOutputColorSpace(
-      gfx::ContentColorUsage color_usage,
-      bool needs_alpha) = 0;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace content

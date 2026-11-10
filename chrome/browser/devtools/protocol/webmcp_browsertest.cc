@@ -16,7 +16,6 @@
 #include "third_party/blink/public/common/features.h"
 #include "third_party/blink/public/common/features_generated.h"
 
-#if (!BUILDFLAG(IS_ANDROID))
 namespace {
 class TestDevToolsClient : public ::content::DevToolsAgentHostClient {
  public:
@@ -427,5 +426,3 @@ INSTANTIATE_TEST_SUITE_P(All,
                            return info.param ? "BFCacheEnabled"
                                              : "BFCacheDisabled";
                          });
-
-#endif  // !BUILDFLAG(IS_ANDROID)

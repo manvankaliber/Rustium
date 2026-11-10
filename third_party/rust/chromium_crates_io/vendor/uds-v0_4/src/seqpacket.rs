@@ -140,8 +140,8 @@ macro_rules! impl_mio_if_enabled {($type:tt) => {
 ///
 /// Connect to a listener on an abstract address:
 ///
-#[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-#[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+#[cfg_attr(target_os="linux", doc="```")]
+#[cfg_attr(not(target_os="linux"), doc="```no_run")]
 /// use uds::{UnixSeqpacketListener, UnixSeqpacketConn, UnixSocketAddr};
 ///
 /// let addr = UnixSocketAddr::new("@seqpacket example").unwrap();
@@ -599,8 +599,8 @@ impl UnixSeqpacketListener {
     ///
     /// # Examples
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use uds::{UnixSeqpacketListener, UnixSocketAddr};
     /// # use std::io::ErrorKind;
     /// # use std::time::Duration;
@@ -635,8 +635,8 @@ impl UnixSeqpacketListener {
     ///
     /// # Examples
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use uds::{UnixSeqpacketListener, UnixSocketAddr};
     /// # use std::time::Duration;
     /// #
@@ -1080,8 +1080,8 @@ impl NonblockingUnixSeqpacketListener {
     ///
     /// # Examples
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// let listener = uds::nonblocking::UnixSeqpacketListener::bind_unix_addr(
     ///     &uds::UnixSocketAddr::new("@nonblocking_take_error").unwrap()
     /// ).unwrap();

@@ -622,7 +622,6 @@ TEST_F(ActorUiStateManagerUiEventUiTabScopedTest,
       mock_tab().GetHandle()));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class ActorUiStateManagerCursorChipTest : public ActorUiStateManagerTest {
  public:
   void SetUp() override {
@@ -833,7 +832,6 @@ TEST_F(ActorUiStateManagerTest, CursorChip_FlagDisabled_DoesNotUpdateChip) {
   actor_ui_state_manager()->OnUiEvent(
       StoppedActingOnTab(mock_tab().GetHandle()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 }  // namespace actor::ui

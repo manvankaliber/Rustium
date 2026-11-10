@@ -32,9 +32,6 @@
 #include "media/gpu/macros.h"
 #include "media/video/video_encode_accelerator.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "media/gpu/android/ndk_video_encode_accelerator.h"
-#endif
 #if BUILDFLAG(IS_MAC)
 #include "media/gpu/mac/vt_video_encode_accelerator_mac.h"
 #endif
@@ -59,14 +56,7 @@ std::unique_ptr<VideoEncodeAccelerator> CreateV4L2VEA(
     const gpu::GpuPreferences&,
     const gpu::GpuDriverBugWorkarounds&,
     const gpu::GPUInfo::GPUDevice&) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // TODO(crbug.com/901264): Encoders use hack for passing offset within
-  // a DMA-buf, which is not supported upstream.
-  return base::WrapUnique<VideoEncodeAccelerator>(
-      new V4L2VideoEncodeAccelerator(base::MakeRefCounted<V4L2Device>()));
-#else
   return nullptr;
-#endif
 }
 #endif
 
@@ -85,15 +75,6 @@ std::unique_ptr<VideoEncodeAccelerator> CreateVaapiVEA(
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-std::unique_ptr<VideoEncodeAccelerator> CreateAndroidVEA(
-    const gpu::GpuPreferences&,
-    const gpu::GpuDriverBugWorkarounds& gpu_workarounds,
-    const gpu::GPUInfo::GPUDevice&) {
-  return base::WrapUnique<VideoEncodeAccelerator>(new NdkVideoEncodeAccelerator(
-      base::SequencedTaskRunner::GetCurrentDefault(), gpu_workarounds));
-}
-#endif
 
 #if BUILDFLAG(IS_MAC)
 std::unique_ptr<VideoEncodeAccelerator> CreateVTVEA(
@@ -195,9 +176,6 @@ base::span<const VEAFactoryFunction> GetVEAFactoryFunctions(
     default:
       return {};
   }
-#elif BUILDFLAG(IS_ANDROID)
-  static constexpr VEAFactoryFunction kFactories[] = {&CreateAndroidVEA};
-  return kFactories;
 #elif BUILDFLAG(IS_MAC)
   static constexpr VEAFactoryFunction kFactories[] = {&CreateVTVEA};
   return kFactories;

@@ -195,20 +195,14 @@ class WebContentsFrameTrackerTest : public RenderViewHostTestHarness {
   // The controller is ignored on iOS, and must be initialized on all
   // other platforms.
   MouseCursorOverlayController* controller() {
-#if BUILDFLAG(IS_IOS)
-    return nullptr;
-#else
     return &controller_;
-#endif
   }
   WebContentsFrameTracker* tracker() { return tracker_.get(); }
   SimpleContext* context() { return raw_context_; }
   StrictMock<MockCaptureDevice>* device() { return device_.get(); }
 
  private:
-#if !BUILDFLAG(IS_IOS)
   MouseCursorOverlayController controller_;
-#endif
 
   std::unique_ptr<TestWebContents> web_contents_;
   std::unique_ptr<StrictMock<MockCaptureDevice>> device_;
@@ -426,18 +420,12 @@ class WebContentsFrameTrackerRoutingIdTest : public RenderViewHostTestHarness {
   // The controller is ignored on iOS, and must be initialized on all
   // other platforms.
   MouseCursorOverlayController* controller() {
-#if BUILDFLAG(IS_IOS)
-    return nullptr;
-#else
     return &controller_;
-#endif
   }
 
  private:
   base::test::ScopedFeatureList feature_list_;
-#if !BUILDFLAG(IS_IOS)
   MouseCursorOverlayController controller_;
-#endif
 };
 
 TEST_F(WebContentsFrameTrackerRoutingIdTest,

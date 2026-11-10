@@ -79,21 +79,6 @@ def parse_args(argv):
         help="Enable installation of 32-bit libraries, e.g. for V8 snapshot",
     )
     parser.add_argument(
-        "--android",
-        action="store_true",
-        # Deprecated flag retained as functional for backward compatibility:
-        # Enable installation of android dependencies
-        help=argparse.SUPPRESS,
-    )
-    parser.add_argument(
-        "--no-android",
-        action="store_false",
-        dest="android",
-        # Deprecated flag retained as functional for backward compatibility:
-        # Enable installation of android dependencies
-        help=argparse.SUPPRESS,
-    )
-    parser.add_argument(
         "--arm",
         action="store_true",
         help="Enable installation of arm cross toolchain",
@@ -103,17 +88,6 @@ def parse_args(argv):
         action="store_false",
         dest="arm",
         help="Disable installation of arm cross toolchain",
-    )
-    parser.add_argument(
-        "--chromeos-fonts",
-        action="store_true",
-        help="Enable installation of Chrome OS fonts",
-    )
-    parser.add_argument(
-        "--no-chromeos-fonts",
-        action="store_false",
-        dest="chromeos_fonts",
-        help="Disable installation of Chrome OS fonts",
     )
     parser.add_argument(
         "--nacl",
@@ -159,7 +133,7 @@ def parse_args(argv):
 
     options = parser.parse_args(argv)
 
-    if options.arm or options.android:
+    if options.arm:
         options.lib32 = True
 
     return options
@@ -378,8 +352,7 @@ def dev_list():
         packages.append("binutils-mips64el-linux-gnuabi64")
 
     # 64-bit systems need a minimum set of 32-bit compat packages for the
-    # pre-built NaCl binaries or Android SDK
-    # See https://developer.android.com/sdk/installing/index.html?pkg=tools
+    # pre-built desktop compatibility tools.
     if (
         "ELF 64-bit"
         in subprocess.check_output(["file", "-L", "/sbin/init"]).decode()
@@ -527,8 +500,6 @@ def lib32_list(options):
 
     packages = [
         # 32-bit libraries needed for a 32-bit build
-        # includes some 32-bit libraries required by the Android SDK
-        # See https://developer.android.com/sdk/installing/index.html?pkg=tools
         "libasound2:i386",
         "libatk-bridge2.0-0:i386",
         "libatk1.0-0:i386",
@@ -549,7 +520,7 @@ def lib32_list(options):
         "libxrandr2:i386",
         "libxtst6:i386",
         "zlib1g:i386",
-        # 32-bit libraries needed e.g. to compile V8 snapshot for Android or armhf
+        # 32-bit libraries needed e.g. to compile V8 snapshots for armhf
         "linux-libc-dev:i386",
         "libexpat1:i386",
         "libpci3:i386",
@@ -956,47 +927,6 @@ def install_packages(options):
         sys.exit(100)
 
 
-# Install the Chrome OS default fonts. This must go after running
-# apt-get, since install-chromeos-fonts depends on curl.
-def install_chromeos_fonts(options):
-    if not options.chromeos_fonts:
-        logger.info("Skipping installation of Chrome OS fonts.")
-        return
-    logger.info("Installing Chrome OS fonts.")
-
-    dir = os.path.abspath(os.path.dirname(__file__))
-
-    try:
-        subprocess.check_call(
-            ["sudo", os.path.join(dir, "linux", "install-chromeos-fonts.py")]
-        )
-    except subprocess.CalledProcessError:
-        logger.error("The installation of the Chrome OS default fonts failed.")
-        if (
-            subprocess.check_output(
-                ["stat", "-f", "-c", "%T", dir],
-            )
-            .decode()
-            .startswith("nfs")
-        ):
-            logger.error(
-                "The reason is that your repo is installed on a remote file system."
-            )
-        else:
-            logger.info(
-                "This is expected if your repo is installed on a remote file system."
-            )
-
-        logger.info(
-            "It is recommended to install your repo on a local file system."
-        )
-        logger.info(
-            "You can skip the installation of the Chrome OS default fonts with"
-        )
-        logger.info("the command line option: --no-chromeos-fonts.")
-        sys.exit(1)
-
-
 def install_locales():
     logger.info("Installing locales.")
     CHROMIUM_LOCALES = [
@@ -1035,7 +965,6 @@ def main():
     check_root()
     apt_update(options)
     install_packages(options)
-    install_chromeos_fonts(options)
     install_locales()
     return 0
 

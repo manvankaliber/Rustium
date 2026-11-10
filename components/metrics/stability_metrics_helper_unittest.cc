@@ -49,24 +49,6 @@ class StabilityMetricsHelperTest : public testing::Test {
 
 }  // namespace
 
-#if BUILDFLAG(IS_IOS)
-TEST_F(StabilityMetricsHelperTest, LogRendererCrash) {
-  StabilityMetricsHelper helper(prefs());
-  base::HistogramTester histogram_tester;
-
-  helper.LogRendererCrash();
-
-  constexpr int kDummyExitCode = 105;
-  histogram_tester.ExpectUniqueSample("CrashExitCodes.Renderer", kDummyExitCode,
-                                      1);
-  histogram_tester.ExpectBucketCount("BrowserRenderProcessHost.ChildCrashes",
-                                     RENDERER_TYPE_RENDERER, 1);
-  histogram_tester.ExpectBucketCount("Stability.Counts2",
-                                     StabilityEventType::kRendererCrash, 1);
-  histogram_tester.ExpectBucketCount("Stability.Counts2",
-                                     StabilityEventType::kExtensionCrash, 0);
-}
-#elif !BUILDFLAG(IS_ANDROID)
 TEST_F(StabilityMetricsHelperTest, LogRendererCrash) {
   StabilityMetricsHelper helper(prefs());
   base::HistogramTester histogram_tester;
@@ -117,7 +99,6 @@ TEST_F(StabilityMetricsHelperTest, LogRendererCrash) {
   histogram_tester.ExpectBucketCount(
       "BrowserRenderProcessHost.ChildLaunchFailureCodes", 1, 1);
 }
-#endif
 
 // Note: ENABLE_EXTENSIONS is set to false in Android
 #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -156,7 +137,6 @@ TEST_F(StabilityMetricsHelperTest, LogRendererCrashEnableExtensions) {
 }
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Verifies that "Stability.RendererAbnormalTermination2.*" histograms are
 // correctly recorded by `LogRendererCrash`.
 TEST_F(StabilityMetricsHelperTest, RendererAbnormalTerminationCount) {
@@ -177,9 +157,6 @@ TEST_F(StabilityMetricsHelperTest, RendererAbnormalTerminationCount) {
            base::TERMINATION_STATUS_PROCESS_WAS_KILLED,
            base::TERMINATION_STATUS_PROCESS_CRASHED,
            base::TERMINATION_STATUS_STILL_RUNNING,
-#if BUILDFLAG(IS_CHROMEOS)
-           base::TERMINATION_STATUS_PROCESS_WAS_KILLED_BY_OOM,
-#endif
            base::TERMINATION_STATUS_LAUNCH_FAILED,
            base::TERMINATION_STATUS_OOM,
            base::TERMINATION_STATUS_EVICTED_FOR_MEMORY,
@@ -258,6 +235,5 @@ TEST_F(StabilityMetricsHelperTest, RendererAbnormalTerminationCount) {
     }
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 }  // namespace metrics

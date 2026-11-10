@@ -475,8 +475,6 @@ IN_PROC_BROWSER_TEST_F(BrowserSideFlingBrowserTest,
 // TODO(crbug.com/40857753): Re-enable on Linux MSAN once not flaky.
 #if BUILDFLAG(IS_LINUX) && defined(MEMORY_SANITIZER)
 #define MAYBE_TouchscreenFlingInOOPIF DISABLED_TouchscreenFlingInOOPIF
-#elif BUILDFLAG(IS_ANDROID)
-#define MAYBE_TouchscreenFlingInOOPIF DISABLED_TouchscreenFlingInOOPIF
 #else
 #define MAYBE_TouchscreenFlingInOOPIF TouchscreenFlingInOOPIF
 #endif
@@ -514,25 +512,6 @@ IN_PROC_BROWSER_TEST_F(BrowserSideFlingBrowserTest,
 }
 
 // Touchpad fling only happens on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_F(BrowserSideFlingBrowserTest,
-                       TouchpadInertialGSUsBubbleFromOOPIF) {
-  LoadPageWithOOPIF();
-  // Scroll the parent down so that it is scrollable upward.
-  EXPECT_TRUE(
-      ExecJs(GetRootNode()->current_frame_host(), "window.scrollTo(0, 20)"));
-  // We expect to have window.scrollY == 20 after scrolling but with zoom for
-  // dsf enabled on android we get window.scrollY == 19 (see
-  // https://crbug.com/891860).
-  WaitForFrameScroll(GetRootNode(), 19);
-  SynchronizeThreads();
-
-  // Fling and wait for the parent to scroll upward.
-  gfx::Vector2d fling_velocity(0, 2000);
-  SimulateTouchpadFling(child_view_->host(), GetWidgetHost(), fling_velocity);
-  WaitForFrameScroll(GetRootNode(), 15, true /* upward */);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // TODO(crbug.com/40230295): flaky.
 IN_PROC_BROWSER_TEST_F(BrowserSideFlingBrowserTest,
@@ -766,13 +745,8 @@ class PhysicsBasedFlingCurveBrowserTest : public BrowserSideFlingBrowserTest {
 };
 
 // TODO(crbug.com/40737075): Re-enable on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_TargetScrollOffsetForFlingAnimation \
-  DISABLED_TargetScrollOffsetForFlingAnimation
-#else
 #define MAYBE_TargetScrollOffsetForFlingAnimation \
   TargetScrollOffsetForFlingAnimation
-#endif
 IN_PROC_BROWSER_TEST_F(PhysicsBasedFlingCurveBrowserTest,
                        MAYBE_TargetScrollOffsetForFlingAnimation) {
   LoadPageWithOOPIF();

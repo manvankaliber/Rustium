@@ -124,13 +124,13 @@
 #include "third_party/blink/public/web/win/web_font_rendering.h"
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 #include "content/child/font_data/font_data_manager.h"
 #endif
 
 #if BUILDFLAG(IS_MAC)
 #include "content/child/child_process_sandbox_support_impl_mac.h"
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
 #include "content/child/child_process_sandbox_support_impl_linux.h"
 #include "content/child/sandboxed_process_thread_type_handler.h"
 #endif
@@ -139,9 +139,6 @@
 #include "base/file_descriptor_posix.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/common/android/sync_compositor_statics.h"
-#endif
 
 using blink::Platform;
 using blink::WebAudioDevice;
@@ -204,13 +201,13 @@ RendererBlinkPlatformImpl::RendererBlinkPlatformImpl(
       is_locked_to_site_(false),
       main_thread_scheduler_(main_thread_scheduler),
       next_frame_sink_id_(uint32_t{std::numeric_limits<int32_t>::max()} + 1) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   sk_sp<font_service::FontLoader> font_loader;
 #endif
 
   // RenderThread may not exist in some tests.
   if (RenderThreadImpl::current()) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     mojo::PendingRemote<font_service::mojom::FontService> font_service;
     RenderThreadImpl::current()->BindHostReceiver(
         font_service.InitWithNewPipeAndPassReceiver());
@@ -218,7 +215,7 @@ RendererBlinkPlatformImpl::RendererBlinkPlatformImpl(
     SkFontConfigInterface::SetGlobal(font_loader);
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
     // Create a FontDataManager if it's enabled, and if we're not in a
     // single-process environment. In single process, the SkFontMgr is already
     // installed by browser process code at this point.
@@ -228,8 +225,7 @@ RendererBlinkPlatformImpl::RendererBlinkPlatformImpl(
 #endif
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   if (sandboxEnabled()) {
 #if BUILDFLAG(IS_MAC)
     sandbox_support_ = std::make_unique<WebSandboxSupportMac>();
@@ -278,7 +274,7 @@ std::string RendererBlinkPlatformImpl::GetNameForHistogram(const char* name) {
                             : std::string{name};
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 void RendererBlinkPlatformImpl::SetThreadType(base::PlatformThreadId thread_id,
                                               base::ThreadType thread_type) {
   // TODO: both of the usages of this method could just be switched to use
@@ -301,8 +297,7 @@ RendererBlinkPlatformImpl::GetWebUIBundledCodeCacheResourceId(
 }
 
 blink::WebSandboxSupport* RendererBlinkPlatformImpl::GetSandboxSupport() {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   return sandbox_support_.get();
 #else
   // These platforms do not require sandbox support.
@@ -467,23 +462,6 @@ bool RendererBlinkPlatformImpl::IsGpuCompositingDisabled() const {
   return thread->IsGpuCompositingDisabled();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool RendererBlinkPlatformImpl::
-    IsSynchronousCompositingEnabledForAndroidWebView() {
-  return GetContentClient()->UsingSynchronousCompositing();
-}
-
-bool RendererBlinkPlatformImpl::
-    IsZeroCopySynchronousSwDrawEnabledForAndroidWebView() {
-  return base::CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kSingleProcess);
-}
-
-SkCanvas*
-RendererBlinkPlatformImpl::SynchronousCompositorGetSkCanvasForAndroidWebView() {
-  return content::SynchronousCompositorGetSkCanvas();
-}
-#endif
 
 bool RendererBlinkPlatformImpl::IsLcdTextEnabled() {
   RenderThreadImpl* thread = RenderThreadImpl::current();
@@ -1185,19 +1163,6 @@ RendererBlinkPlatformImpl::VideoFrameCompositorTaskRunner() {
   return video_frame_compositor_thread_->task_runner();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void RendererBlinkPlatformImpl::SetPrivateMemoryFootprint(
-    uint64_t private_memory_footprint_bytes) {
-  auto* render_thread = RenderThreadImpl::current();
-  CHECK(render_thread);
-  render_thread->SetPrivateMemoryFootprint(private_memory_footprint_bytes);
-}
-
-bool RendererBlinkPlatformImpl::IsUserLevelMemoryPressureSignalEnabled() {
-  return base::SysInfo::Is4GbDevice() || base::SysInfo::Is6GbDevice();
-}
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void RendererBlinkPlatformImpl::OnV8HeapLastResortGC() {
   if (auto* policy = LastResortGCPolicy::Get()) {

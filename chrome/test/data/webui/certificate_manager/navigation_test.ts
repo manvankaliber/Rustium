@@ -49,9 +49,7 @@ suite('NavigationV2Test', () => {
     checkPathAndParsing(Page.CLIENT_CERTS);
     checkPathAndParsing(Page.CRS_CERTS);
     checkPathAndParsing(Page.ADMIN_CERTS);
-    // <if expr="not is_chromeos">
     checkPathAndParsing(Page.PLATFORM_CERTS);
-    // </if>
     checkPathAndParsing(Page.PLATFORM_CLIENT_CERTS);
     checkPathAndParsing(Page.USER_CERTS);
   });

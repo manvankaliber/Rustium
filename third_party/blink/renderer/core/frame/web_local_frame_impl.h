@@ -247,10 +247,6 @@ class CORE_EXPORT WebLocalFrameImpl final
       WebFrame::TextGranularity = kCharacterGranularity) override;
   void MoveCaretSelection(const gfx::Point&) override;
 
-#if BUILDFLAG(IS_IOS)
-  void StartAutoscrollForSelectionToPoint(const gfx::PointF&);
-  void StopAutoscroll();
-#endif  // BUILDFLAG(IS_IOS)
 
   bool SetEditableSelectionOffsets(int start, int end) override;
   bool AddImeTextSpansToExistingText(
@@ -308,12 +304,6 @@ class CORE_EXPORT WebLocalFrameImpl final
   void UsageCountChromeLoadTimes(const WebString& metric) override;
   void UsageCountChromeCSI(const WebString& metric) override;
   bool DispatchedPagehideAndStillHidden() const override;
-#if BUILDFLAG(IS_ANDROID)
-  void PostEmbedderMessageEvent(
-      const WebSecurityOrigin& target_origin,
-      std::vector<MessagePortDescriptor> ports,
-      base::UnsafeSharedMemoryRegion region) override;
-#endif
   FrameScheduler* Scheduler() const override;
   scheduler::WebAgentGroupScheduler* GetAgentGroupScheduler() const override;
   scoped_refptr<base::SingleThreadTaskRunner> GetTaskRunner(TaskType) override;

@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "base/callback_list.h"
 #include "base/check_is_test.h"
 #include "base/containers/flat_set.h"
@@ -74,25 +74,11 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "chrome/browser/ash/apps/apk_web_app_service.h"
-#include "chrome/browser/ash/system_web_apps/color_helpers.h"
-#include "chrome/browser/ui/tabs/tab_strip_model.h"
-#include "chrome/browser/web_applications/chromeos_web_app_experiments.h"
-#include "chromeos/ash/components/browser_delegate/browser_controller.h"
-#include "chromeos/ash/experiences/system_web_apps/types/system_web_app_delegate.h"
-#include "components/tabs/public/tab_context_menu_command.h"
-#include "ui/menus/simple_menu_model.h"
-#endif
 
 namespace web_app {
 
 namespace {
 
-#if BUILDFLAG(IS_CHROMEOS)
-constexpr char kRelationship[] = "delegate_permission/common.handle_all_urls";
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 base::OnceClosure& IconLoadCallbackForTesting() {
   static base::NoDestructor<base::OnceClosure> callback;
@@ -110,15 +96,9 @@ WebAppBrowserController::WebAppBrowserController(
     WebAppProvider& provider,
     BrowserWindowInterface* browser,
     webapps::AppId app_id,
-#if BUILDFLAG(IS_CHROMEOS)
-    const ash::SystemWebAppDelegate* system_app,
-#endif  // BUILDFLAG(IS_CHROMEOS)
     bool has_tab_strip)
     : AppBrowserController(browser, std::move(app_id), has_tab_strip),
       provider_(provider),
-#if BUILDFLAG(IS_CHROMEOS)
-      system_app_(system_app),
-#endif  // BUILDFLAG(IS_CHROMEOS)
       has_pinned_home_tab_(has_tab_strip &&
                            provider.registrar_unsafe()
                                .GetAppPinnedHomeTabUrl(this->app_id())
@@ -164,15 +144,6 @@ bool WebAppBrowserController::HasMinimalUiButtons() const {
   return effective_display_mode_ == DisplayMode::kMinimalUi;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-std::optional<base::flat_set<tabs::TabContextMenuCommand>>
-WebAppBrowserController::GetAllowedTabMenuCommands() const {
-  if (system_app()) {
-    return system_app()->GetAllowedTabMenuCommands();
-  }
-  return std::nullopt;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool WebAppBrowserController::AppUsesWindowControlsOverlay() const {
   return effective_display_mode_ == DisplayMode::kWindowControlsOverlay;
@@ -252,21 +223,10 @@ void WebAppBrowserController::SetIsolatedWebAppTrueForTesting() {
 }
 
 gfx::Rect WebAppBrowserController::GetDefaultBounds() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (system_app_) {
-    return system_app_->GetDefaultBounds(
-        ash::BrowserController::GetInstance()->GetDelegate(browser()));
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   return gfx::Rect();
 }
 
 bool WebAppBrowserController::HasReloadButton() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (system_app_) {
-    return system_app_->ShouldHaveReloadButtonInMinimalUi();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   return true;
 }
 
@@ -333,31 +293,20 @@ void WebAppBrowserController::CreateMetadataAndTriggerAppMigrationDialog(
 bool WebAppBrowserController::IsWindowCaptureHandleAllowed() const {
 // TODO(crbug.com/510716187): Enable for other platforms once macOS native
 // window ID translation is implemented.
-#if BUILDFLAG(IS_CHROMEOS)
-  // Drop PWAs that are actively rendering with a tab strip.
-  if (has_tab_strip()) {
-    return false;
-  }
-
-  return registrar().AppMatches(
-      app_id(), web_app::WebAppFilter::IsWindowCaptureHandleAllowed());
-#else
   return false;
-#endif
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 bool WebAppBrowserController::HasProfileMenuButton() const {
 #if BUILDFLAG(IS_MAC)
   return true;
 #else
-  return app_id() == ash::kPasswordManagerAppId;
+  return app_id() == webapps::kPasswordManagerAppId;
 #endif
 }
 
 bool WebAppBrowserController::IsProfileMenuButtonVisible() const {
   CHECK(HasProfileMenuButton());
-  if (app_id() == ash::kPasswordManagerAppId) {
+  if (app_id() == webapps::kPasswordManagerAppId) {
     return true;
   }
 #if BUILDFLAG(IS_MAC)
@@ -367,13 +316,7 @@ bool WebAppBrowserController::IsProfileMenuButtonVisible() const {
   NOTREACHED();
 #endif
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-const ash::SystemWebAppDelegate* WebAppBrowserController::system_app() const {
-  return system_app_;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_MAC)
 bool WebAppBrowserController::AlwaysShowToolbarInFullscreen() const {
@@ -399,47 +342,6 @@ void WebAppBrowserController::ToggleAlwaysShowToolbarInFullscreen() {
 }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool WebAppBrowserController::ShouldShowCustomTabBar() const {
-  if (AppBrowserController::ShouldShowCustomTabBar()) {
-    return true;
-  }
-
-  return is_verified_.value_or(false);
-}
-
-void WebAppBrowserController::CheckDigitalAssetLinkRelationshipForAndroidApp(
-    const std::string& package_name,
-    const std::string& fingerprint) {
-  // base::Unretained is safe as |asset_link_handler_| is owned by this object
-  // and will be destroyed if this object is destroyed.
-  // TODO(swestphal): Support passing several fingerprints for verification.
-  std::vector<std::string> fingerprints{fingerprint};
-  asset_link_handler_->CheckDigitalAssetLinkRelationshipForAndroidApp(
-      url::Origin::Create(GetAppStartUrl()), kRelationship,
-      std::move(fingerprints), package_name,
-      base::BindOnce(&WebAppBrowserController::OnRelationshipCheckComplete,
-                     base::Unretained(this)));
-}
-
-void WebAppBrowserController::OnRelationshipCheckComplete(
-    content_relationship_verification::RelationshipCheckResult result) {
-  bool should_show_cct = false;
-  switch (result) {
-    case content_relationship_verification::RelationshipCheckResult::kSuccess:
-      should_show_cct = false;
-      break;
-    case content_relationship_verification::RelationshipCheckResult::kFailure:
-    case content_relationship_verification::RelationshipCheckResult::
-        kNoConnection:
-      should_show_cct = true;
-      break;
-  }
-  is_verified_ = should_show_cct;
-  BrowserWindow::FromBrowser(browser())->UpdateCustomTabBarVisibility(
-      should_show_cct, false /* animate */);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void WebAppBrowserController::OnWebAppUninstalled(
     const webapps::AppId& uninstalled_app_id,
@@ -492,13 +394,6 @@ ui::ImageModel WebAppBrowserController::GetWindowAppIcon() const {
   }
   app_icon_ = GetFallbackAppIcon();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (apps::AppServiceProxyFactory::IsAppServiceAvailableForProfile(
-          browser()->GetProfile())) {
-    LoadAppIcon(true /* allow_placeholder_icon */);
-    return *app_icon_;
-  }
-#endif
 
   if (provider_->icon_manager().HasSmallestIcon(app_id(), {IconPurpose::ANY},
                                                 kWebAppIconSmall)) {
@@ -528,13 +423,6 @@ ui::ImageModel WebAppBrowserController::GetWindowIcon() const {
 }
 
 std::optional<SkColor> WebAppBrowserController::GetThemeColor() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  // System App popups (settings pages) always use default theme.
-  if (system_app() &&
-      browser()->GetType() == BrowserWindowInterface::Type::TYPE_APP_POPUP) {
-    return std::nullopt;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   std::optional<SkColor> web_theme_color =
       AppBrowserController::GetThemeColor();
@@ -542,17 +430,6 @@ std::optional<SkColor> WebAppBrowserController::GetThemeColor() const {
     return web_theme_color;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (ChromeOsWebAppExperiments::IgnoreManifestColor(app_id())) {
-    return std::nullopt;
-  }
-
-  // System Apps with dynamic color ignore manifest and pull theme color from
-  // the OS.
-  if (system_app() && system_app()->UseSystemThemeColor()) {
-    return ash::GetSystemThemeColor();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   if (ui::NativeTheme::GetInstanceForNativeUi()->preferred_color_scheme() ==
       ui::NativeTheme::PreferredColorScheme::kDark) {
@@ -570,11 +447,6 @@ std::optional<SkColor> WebAppBrowserController::GetBackgroundColor() const {
       AppBrowserController::GetBackgroundColor();
   std::optional<SkColor> manifest_color = GetResolvedManifestBackgroundColor();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (ChromeOsWebAppExperiments::IgnoreManifestColor(app_id())) {
-    manifest_color = std::nullopt;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Prefer an available web contents color but when such a color is
   // unavailable (i.e. in the time between when a window launches and it's web
@@ -582,13 +454,6 @@ std::optional<SkColor> WebAppBrowserController::GetBackgroundColor() const {
   std::optional<SkColor> result =
       web_contents_color ? web_contents_color : manifest_color;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (system_app() && system_app()->UseSystemThemeColor()) {
-    // With jelly enabled, some system apps prefer system color over manifest.
-    SkColor os_color = ash::GetSystemBackgroundColor();
-    result = web_contents_color ? web_contents_color : os_color;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   return result;
 }
@@ -608,13 +473,6 @@ content::WebContents* WebAppBrowserController::GetPinnedHomeTab() const {
 }
 
 bool WebAppBrowserController::ShouldHideNewTabButton() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  // Configure new tab button visibility for system apps based on their delegate
-  // implementation.
-  if (system_app() && system_app()->ShouldHaveTabStrip()) {
-    return system_app()->ShouldHideNewTabButton();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   if (!registrar().IsTabbedWindowModeEnabled(app_id())) {
     return true;
@@ -631,20 +489,10 @@ bool WebAppBrowserController::IsUrlInHomeTabScope(const GURL& url) const {
 }
 
 bool WebAppBrowserController::ShouldShowAppIconOnTab(int index) const {
-#if BUILDFLAG(IS_CHROMEOS)
-  return !system_app() &&
-         web_app::IsPinnedHomeTab(browser()->tab_strip_model(), index);
-#else
   return web_app::IsPinnedHomeTab(browser()->tab_strip_model(), index);
-#endif
 }
 
 bool WebAppBrowserController::IsUrlInAppScope(const GURL& url) const {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (system_app() && system_app()->IsUrlInSystemAppScope(url)) {
-    return true;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   std::optional<WebAppScope> scope = registrar().GetEffectiveScope(app_id());
   if (!scope.has_value()) {
@@ -700,14 +548,6 @@ std::u16string WebAppBrowserController::GetTitle() const {
     return app_name;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Do not omit the page title for System Web Apps (such as Terminal, Files, or
-  // Settings), as ChromeOS window management and Tast tests rely on the active
-  // page/tab title being present in the window title.
-  if (system_app()) {
-    return base::StrCat({app_name, u" - ", raw_title});
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   if (!has_tab_strip() &&
       provider_->ui_manager().GetNumWindowsForApp(app_id()) == 1) {
@@ -851,29 +691,6 @@ void WebAppBrowserController::OnReadIcon(IconPurpose purpose, SkBitmap bitmap) {
 
 void WebAppBrowserController::PerformDigitalAssetLinkVerification(
     BrowserWindowInterface* browser) {
-#if BUILDFLAG(IS_CHROMEOS)
-  asset_link_handler_ = std::make_unique<
-      content_relationship_verification::DigitalAssetLinksHandler>(
-      browser->GetProfile()->GetURLLoaderFactory());
-  is_verified_ = std::nullopt;
-
-  ash::ApkWebAppService* apk_web_app_service =
-      ash::ApkWebAppService::Get(browser->GetProfile());
-  if (!apk_web_app_service || !apk_web_app_service->IsWebOnlyTwa(app_id())) {
-    return;
-  }
-
-  const std::optional<std::string> package_name =
-      apk_web_app_service->GetPackageNameForWebApp(app_id());
-  const std::optional<std::string> fingerprint =
-      apk_web_app_service->GetCertificateSha256Fingerprint(app_id());
-
-  // Any web-only TWA should have an associated package name and fingerprint.
-  CHECK(package_name.has_value(), base::NotFatalUntil::M162);
-  CHECK(fingerprint.has_value(), base::NotFatalUntil::M162);
-
-  CheckDigitalAssetLinkRelationshipForAndroidApp(*package_name, *fingerprint);
-#endif
 }
 
 void WebAppBrowserController::OnMetadataObtainedTriggerUpdateDialog(

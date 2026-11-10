@@ -21,7 +21,6 @@
 #include "content/public/browser/web_ui_data_source.h"
 #include "ui/webui/webui_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/actor/glic_actor_policy_checker.h"  // nogncheck
 #include "chrome/browser/glic/public/glic_enabling.h"             // nogncheck
 #include "chrome/browser/glic/public/glic_keyed_service.h"        // nogncheck
@@ -29,7 +28,6 @@
 #include "chrome/browser/ui/webui/sanitized_image/sanitized_image_source.h"  // nogncheck
 #include "components/favicon_base/favicon_url_parser.h"
 #include "content/public/browser/url_data_source.h"
-#endif
 
 bool ContextHubUIConfig::IsWebUIEnabled(
     content::BrowserContext* browser_context) {
@@ -59,14 +57,12 @@ ContextHubUI::ContextHubUI(content::WebUI* web_ui)
       "kAutoTodos",
       base::FeatureList::IsEnabled(browser::context_hub::mojom::kAutoTodos));
   bool can_act_on_web = false;
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(features::kGlicActor) &&
       glic::GlicEnabling::IsEnabledForProfile(profile)) {
     glic::GlicKeyedService* glic_service = glic::GlicKeyedService::Get(profile);
     can_act_on_web = glic_service && glic_service->HasActorPolicyChecker() &&
                      glic_service->actor_policy_checker().CanActOnWeb();
   }
-#endif
   source->AddBoolean("can_act_on_web", can_act_on_web);
   source->AddBoolean(
       "kSmartSearch",
@@ -88,13 +84,11 @@ ContextHubUI::ContextHubUI(content::WebUI* web_ui)
       "kMaxMemoryBankChatHistoryTurns",
       context_hub::features::kMaxMemoryBankChatHistoryTurns.Get());
 
-#if !BUILDFLAG(IS_ANDROID)
   content::URLDataSource::Add(
       profile, std::make_unique<FaviconSource>(
                    profile, chrome::FaviconUrlFormat::kFavicon2));
   content::URLDataSource::Add(profile,
                               std::make_unique<SanitizedImageSource>(profile));
-#endif
 }
 
 ContextHubUI::~ContextHubUI() = default;

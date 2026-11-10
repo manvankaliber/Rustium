@@ -33,14 +33,6 @@ std::unique_ptr<url::Origin> CreateOriginWithDefaultPortIfNecessary(
       IsolatedOriginUtil::CreateOriginWithDefaultPortIfNecessary(origin));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-std::unique_ptr<GURL> NormalizeExternalFileUrl(const GURL& url) {
-  GURL::Replacements replacements;
-  replacements.ClearQuery();
-  replacements.ClearRef();
-  return std::make_unique<GURL>(url.ReplaceComponents(replacements));
-}
-#endif
 
 bool CanCommitMaybeOpaqueNewOrigin(ChildProcessId child_id,
                                    const GURL& url,

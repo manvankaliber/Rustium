@@ -34,7 +34,6 @@
 #include "mojo/public/cpp/bindings/self_owned_receiver.h"
 #include "third_party/blink/public/common/permissions/permission_utils.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/barrier_callback.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"  // nogncheck crbug.com/40147906
 #include "chrome/browser/optimization_guide/optimization_guide_keyed_service.h"
@@ -133,12 +132,10 @@ media::mojom::AvailabilityStatus ApplyOriginMasking(
 }
 
 }  // namespace
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace speech {
 
 OnDeviceSpeechRecognitionImpl::~OnDeviceSpeechRecognitionImpl() {
-#if !BUILDFLAG(IS_ANDROID)
   speech::SodaInstaller* soda_installer = speech::SodaInstaller::GetInstance();
   // `soda_installer` is not guaranteed to be valid, since it's possible for
   // this class to out-live it. This means that this class cannot use
@@ -146,7 +143,6 @@ OnDeviceSpeechRecognitionImpl::~OnDeviceSpeechRecognitionImpl() {
   if (soda_installer) {
     soda_installer->RemoveObserver(this);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void OnDeviceSpeechRecognitionImpl::Bind(
@@ -158,9 +154,6 @@ void OnDeviceSpeechRecognitionImpl::Available(
     const std::vector<std::string>& languages,
     media::mojom::SpeechRecognitionQuality quality,
     OnDeviceSpeechRecognitionImpl::AvailableCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  std::move(callback).Run(media::mojom::AvailabilityStatus::kUnavailable);
-#else
   if (!CanRenderFrameHostUseOnDeviceSpeechRecognition()) {
     std::move(callback).Run(media::mojom::AvailabilityStatus::kUnavailable);
     return;
@@ -239,16 +232,12 @@ void OnDeviceSpeechRecognitionImpl::Available(
                                      accept_languages_list, has_mic_permission,
                                      profile_prefs, barrier_callback);
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void OnDeviceSpeechRecognitionImpl::Install(
     const std::vector<std::string>& languages,
     media::mojom::SpeechRecognitionQuality quality,
     OnDeviceSpeechRecognitionImpl::InstallCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  std::move(callback).Run(false);
-#else
   if (!CanRenderFrameHostUseOnDeviceSpeechRecognition()) {
     std::move(callback).Run(false);
     return;
@@ -387,10 +376,8 @@ void OnDeviceSpeechRecognitionImpl::Install(
   for (std::string_view language : language_names_key) {
     SetOnDeviceLanguageDownloaded(language);
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void OnDeviceSpeechRecognitionImpl::OnSodaInstalled(
     speech::LanguageCode language_code) {
   ProcessLanguageInstallationUpdate(GetLanguageName(language_code),
@@ -403,17 +390,14 @@ void OnDeviceSpeechRecognitionImpl::OnSodaInstallError(
   ProcessLanguageInstallationUpdate(GetLanguageName(language_code),
                                     /*installation_success=*/false);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 OnDeviceSpeechRecognitionImpl::OnDeviceSpeechRecognitionImpl(
     content::RenderFrameHost* frame_host)
     : content::DocumentUserData<OnDeviceSpeechRecognitionImpl>(frame_host) {
-#if !BUILDFLAG(IS_ANDROID)
   speech::SodaInstaller* soda_installer = speech::SodaInstaller::GetInstance();
   if (soda_installer) {
     soda_installer->AddObserver(this);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 bool OnDeviceSpeechRecognitionImpl::
@@ -439,7 +423,6 @@ bool OnDeviceSpeechRecognitionImpl::
   return true;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 void OnDeviceSpeechRecognitionImpl::ProcessLanguageInstallationUpdate(
     std::string_view language,
@@ -641,7 +624,6 @@ void OnDeviceSpeechRecognitionImpl::OnModelClientAvailable(
     ProcessLanguageInstallationUpdate(language, !!client);
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 DOCUMENT_USER_DATA_KEY_IMPL(OnDeviceSpeechRecognitionImpl);
 

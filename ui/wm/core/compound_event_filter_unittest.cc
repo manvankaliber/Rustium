@@ -20,11 +20,11 @@
 
 namespace {
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 base::TimeTicks GetTime() {
   return ui::EventTimeForNow();
 }
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#endif
 }
 
 namespace wm {
@@ -51,73 +51,8 @@ class ConsumeGestureEventFilter : public ui::EventHandler {
 
 typedef aura::test::AuraTestBase CompoundEventFilterTest;
 
-#if BUILDFLAG(IS_CHROMEOS)
-// A keypress only hides the cursor on ChromeOS (crbug.com/304296).
-TEST_F(CompoundEventFilterTest, CursorVisibilityChange) {
-  std::unique_ptr<CompoundEventFilter> compound_filter(new CompoundEventFilter);
-  aura::Env::GetInstance()->AddPreTargetHandler(compound_filter.get());
-  aura::test::TestWindowDelegate delegate;
-  std::unique_ptr<aura::Window> window =
-      aura::test::CreateTestWindow({.delegate = &delegate,
-                                    .parent = root_window(),
-                                    .bounds = {5, 5, 100, 100},
-                                    .window_id = 1234});
-  window->Show();
-  window->SetCapture();
 
-  aura::test::TestCursorClient cursor_client(root_window());
-
-  // Send key event to hide the cursor.
-  ui::KeyEvent key = ui::KeyEvent::FromCharacter(
-      'a', ui::VKEY_A, ui::DomCode::NONE, ui::EF_NONE);
-  DispatchEventUsingWindowDispatcher(&key);
-  EXPECT_FALSE(cursor_client.IsCursorVisible());
-
-  // Synthesized mouse event should not show the cursor.
-  ui::MouseEvent enter(ui::EventType::kMouseEntered, gfx::Point(10, 10),
-                       gfx::Point(10, 10), ui::EventTimeForNow(), 0, 0);
-  enter.SetFlags(enter.flags() | ui::EF_IS_SYNTHESIZED);
-  DispatchEventUsingWindowDispatcher(&enter);
-  EXPECT_FALSE(cursor_client.IsCursorVisible());
-
-  ui::MouseEvent move(ui::EventType::kMouseMoved, gfx::Point(10, 10),
-                      gfx::Point(10, 10), ui::EventTimeForNow(), 0, 0);
-  move.SetFlags(enter.flags() | ui::EF_IS_SYNTHESIZED);
-  DispatchEventUsingWindowDispatcher(&move);
-  EXPECT_FALSE(cursor_client.IsCursorVisible());
-
-  // A real mouse event should show the cursor.
-  ui::MouseEvent real_move(ui::EventType::kMouseMoved, gfx::Point(10, 10),
-                           gfx::Point(10, 10), ui::EventTimeForNow(), 0, 0);
-  DispatchEventUsingWindowDispatcher(&real_move);
-  EXPECT_TRUE(cursor_client.IsCursorVisible());
-
-  // Disallow hiding the cursor on keypress.
-  cursor_client.set_should_hide_cursor_on_key_event(false);
-  key = ui::KeyEvent::FromCharacter('a', ui::VKEY_A, ui::DomCode::NONE,
-                                    ui::EF_NONE);
-  DispatchEventUsingWindowDispatcher(&key);
-  EXPECT_TRUE(cursor_client.IsCursorVisible());
-
-  // Allow hiding the cursor on keypress.
-  cursor_client.set_should_hide_cursor_on_key_event(true);
-  key = ui::KeyEvent::FromCharacter('a', ui::VKEY_A, ui::DomCode::NONE,
-                                    ui::EF_NONE);
-  DispatchEventUsingWindowDispatcher(&key);
-  EXPECT_FALSE(cursor_client.IsCursorVisible());
-
-  // Mouse synthesized exit event should not show the cursor.
-  ui::MouseEvent exit(ui::EventType::kMouseExited, gfx::Point(10, 10),
-                      gfx::Point(10, 10), ui::EventTimeForNow(), 0, 0);
-  exit.SetFlags(enter.flags() | ui::EF_IS_SYNTHESIZED);
-  DispatchEventUsingWindowDispatcher(&exit);
-  EXPECT_FALSE(cursor_client.IsCursorVisible());
-
-  aura::Env::GetInstance()->RemovePreTargetHandler(compound_filter.get());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 // Touch visually hides the cursor on ChromeOS and Windows.
 TEST_F(CompoundEventFilterTest, TouchHidesCursor) {
   std::unique_ptr<CompoundEventFilter> compound_filter(new CompoundEventFilter);
@@ -178,7 +113,7 @@ TEST_F(CompoundEventFilterTest, TouchHidesCursor) {
   EXPECT_FALSE(cursor_client.IsCursorVisible());
   aura::Env::GetInstance()->RemovePreTargetHandler(compound_filter.get());
 }
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#endif
 
 // Tests that if an event filter consumes a gesture, then it doesn't focus the
 // window.

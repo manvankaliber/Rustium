@@ -29,11 +29,6 @@ void BlinkPerfTestSuite::Initialize() {
       base::CommandLine::ForCurrentProcess()->GetSwitchValuePath("log-file");
   if (log_path.empty()) {
     base::PathService::Get(base::FILE_EXE, &log_path);
-#if BUILDFLAG(IS_ANDROID)
-    base::FilePath tmp_dir;
-    base::PathService::Get(base::DIR_CACHE, &tmp_dir);
-    log_path = tmp_dir.Append(log_path.BaseName());
-#endif
     log_path = log_path.ReplaceExtension(FILE_PATH_LITERAL("log"));
     log_path = log_path.InsertBeforeExtension(FILE_PATH_LITERAL("_perf"));
   }

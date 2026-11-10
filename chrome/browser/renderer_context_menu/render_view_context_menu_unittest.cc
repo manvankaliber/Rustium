@@ -143,18 +143,6 @@
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chrome/browser/chromeos/policy/dlp/dlp_policy_constants.h"
-#include "chrome/browser/chromeos/policy/dlp/dlp_rules_manager.h"
-#include "chrome/browser/chromeos/policy/dlp/dlp_rules_manager_impl.h"
-#include "chrome/browser/chromeos/policy/dlp/test/dlp_rules_manager_test_utils.h"
-#include "chrome/test/base/testing_browser_process.h"
-#include "chrome/test/base/testing_profile_manager.h"
-#include "components/account_id/account_id.h"
-#include "components/user_manager/fake_user_manager.h"
-#include "components/user_manager/scoped_user_manager.h"
-#endif
 
 using extensions::Extension;
 using extensions::MenuItem;
@@ -249,13 +237,6 @@ class TestNavigationDelegate : public content::WebContentsDelegate {
   std::optional<content::OpenURLParams> last_navigation_params_;
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-class MockDlpRulesManager : public policy::DlpRulesManagerImpl {
- public:
-  explicit MockDlpRulesManager(PrefService* local_state, Profile* profile)
-      : DlpRulesManagerImpl(local_state, profile) {}
-};
-#endif
 
 // Installs a `ReadingListModelImpl` backed by `FakeReadingListModelStorage` on
 // `profile`, optionally completing its initial storage and sync metadata load.
@@ -654,230 +635,6 @@ TEST_F(RenderViewContextMenuPrefsTest,
 }
 #endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
 
-#if BUILDFLAG(IS_CHROMEOS)
-class RenderViewContextMenuDlpPrefsTest
-    : public RenderViewContextMenuPrefsTest {
- public:
-  RenderViewContextMenuDlpPrefsTest() = default;
-
-  RenderViewContextMenuDlpPrefsTest(const RenderViewContextMenuDlpPrefsTest&) =
-      delete;
-  RenderViewContextMenuDlpPrefsTest& operator=(
-      const RenderViewContextMenuDlpPrefsTest&) = delete;
-
-  void SetDlpClipboardRestriction() {
-    policy::dlp_test_util::DlpRule rule("Rule #1", "Block", "testid1");
-    rule.AddSrcUrl(PAGE_URL)
-        .AddDstUrl(RESTRICTED_URL)
-        .AddRestriction(data_controls::kRestrictionClipboard,
-                        data_controls::kLevelBlock);
-
-    base::ListValue rules;
-    rules.Append(rule.Create());
-    TestingBrowserProcess::GetGlobal()->local_state()->SetList(
-        policy::policy_prefs::kDlpRulesList, std::move(rules));
-  }
-
-  static constexpr char PAGE_URL[] = "http://www.foo.com/";
-  static constexpr char RESTRICTED_URL[] = "http://www.bar.com/";
-  static constexpr char NOT_RESTRICTED_URL[] = "http://www.site.com/";
-};
-
-// Verifies that OpenLinkInNewTab field is enabled/disabled based on DLP rules.
-TEST_F(RenderViewContextMenuDlpPrefsTest,
-       DisableOpenLinkInNewTabWhenClipboardIsBlocked) {
-  content::ContextMenuParams params = CreateParams(MenuItem::LINK);
-  params.page_url = GURL(PAGE_URL);
-  params.link_url = GURL(RESTRICTED_URL);
-  auto menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->set_dlp_rules_manager(nullptr);
-
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKNEWTAB));
-
-  TestingProfile profile;
-  MockDlpRulesManager mock_dlp_rules_manager(
-      TestingBrowserProcess::GetGlobal()->local_state(), &profile);
-  menu->set_dlp_rules_manager(&mock_dlp_rules_manager);
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKNEWTAB));
-
-  SetDlpClipboardRestriction();
-  EXPECT_FALSE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKNEWTAB));
-
-  params.link_url = GURL(NOT_RESTRICTED_URL);
-  menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->set_dlp_rules_manager(&mock_dlp_rules_manager);
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKNEWTAB));
-}
-
-// Verifies that OpenLinkInNewWindow field is enabled/disabled based on DLP
-// rules.
-TEST_F(RenderViewContextMenuDlpPrefsTest,
-       DisableOpenLinkInNewWindowWhenClipboardIsBlocked) {
-  content::ContextMenuParams params = CreateParams(MenuItem::LINK);
-  params.page_url = GURL(PAGE_URL);
-  params.link_url = GURL(RESTRICTED_URL);
-  auto menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->set_dlp_rules_manager(nullptr);
-
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKNEWWINDOW));
-
-  TestingProfile profile;
-  MockDlpRulesManager mock_dlp_rules_manager(
-      TestingBrowserProcess::GetGlobal()->local_state(), &profile);
-  menu->set_dlp_rules_manager(&mock_dlp_rules_manager);
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKNEWWINDOW));
-
-  SetDlpClipboardRestriction();
-  EXPECT_FALSE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKNEWWINDOW));
-
-  params.link_url = GURL(NOT_RESTRICTED_URL);
-  menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->set_dlp_rules_manager(&mock_dlp_rules_manager);
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKNEWWINDOW));
-}
-
-// Verifies that OpenLinkInProfileTab field is enabled/disabled based on DLP
-// rules.
-TEST_F(RenderViewContextMenuDlpPrefsTest,
-       DisableOpenLinkInProfileTabWhenClipboardIsBlocked) {
-  content::ContextMenuParams params = CreateParams(MenuItem::LINK);
-  params.page_url = GURL(PAGE_URL);
-  params.link_url = GURL(RESTRICTED_URL);
-  auto menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->set_dlp_rules_manager(nullptr);
-
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKINPROFILE));
-
-  TestingProfile profile;
-  MockDlpRulesManager mock_dlp_rules_manager(
-      TestingBrowserProcess::GetGlobal()->local_state(), &profile);
-  menu->set_dlp_rules_manager(&mock_dlp_rules_manager);
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKINPROFILE));
-
-  SetDlpClipboardRestriction();
-  EXPECT_FALSE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKINPROFILE));
-
-  params.link_url = GURL(NOT_RESTRICTED_URL);
-  menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->set_dlp_rules_manager(&mock_dlp_rules_manager);
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKINPROFILE));
-}
-
-// Verifies that OpenLinkInWebApp field is enabled/disabled based on DLP rules.
-TEST_F(RenderViewContextMenuDlpPrefsTest,
-       DisableOpenLinkInWebAppWhenClipboardIsBlocked) {
-  content::ContextMenuParams params = CreateParams(MenuItem::LINK);
-  params.page_url = GURL(PAGE_URL);
-  params.link_url = GURL(RESTRICTED_URL);
-  auto menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->set_dlp_rules_manager(nullptr);
-
-  EXPECT_TRUE(
-      menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKBOOKMARKAPP));
-
-  TestingProfile profile;
-  MockDlpRulesManager mock_dlp_rules_manager(
-      TestingBrowserProcess::GetGlobal()->local_state(), &profile);
-  menu->set_dlp_rules_manager(&mock_dlp_rules_manager);
-  EXPECT_TRUE(
-      menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKBOOKMARKAPP));
-
-  SetDlpClipboardRestriction();
-  EXPECT_FALSE(
-      menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKBOOKMARKAPP));
-
-  params.link_url = GURL(NOT_RESTRICTED_URL);
-  menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->set_dlp_rules_manager(&mock_dlp_rules_manager);
-  EXPECT_TRUE(
-      menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKBOOKMARKAPP));
-}
-
-// Verifies that GoToURL field is enabled/disabled based on DLP rules.
-TEST_F(RenderViewContextMenuDlpPrefsTest,
-       DisableGoToURLWhenClipboardIsBlocked) {
-  content::ContextMenuParams params = CreateParams(MenuItem::SELECTION);
-  params.page_url = GURL(PAGE_URL);
-  auto menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->set_dlp_rules_manager(nullptr);
-  menu->set_selection_navigation_url(GURL(RESTRICTED_URL));
-
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_GOTOURL));
-
-  TestingProfile profile;
-  MockDlpRulesManager mock_dlp_rules_manager(
-      TestingBrowserProcess::GetGlobal()->local_state(), &profile);
-  menu->set_dlp_rules_manager(&mock_dlp_rules_manager);
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_GOTOURL));
-
-  SetDlpClipboardRestriction();
-  EXPECT_FALSE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_GOTOURL));
-
-  menu->set_selection_navigation_url(GURL(NOT_RESTRICTED_URL));
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_GOTOURL));
-}
-
-// Verifies that SearchWebFor field is enabled/disabled based on DLP rules.
-TEST_F(RenderViewContextMenuDlpPrefsTest,
-       DisableSearchWebForWhenClipboardIsBlocked) {
-  content::ContextMenuParams params = CreateParams(MenuItem::SELECTION);
-  params.page_url = GURL(PAGE_URL);
-  auto menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->set_dlp_rules_manager(nullptr);
-  menu->set_selection_navigation_url(GURL(RESTRICTED_URL));
-
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_SEARCHWEBFOR));
-
-  TestingProfile profile;
-  MockDlpRulesManager mock_dlp_rules_manager(
-      TestingBrowserProcess::GetGlobal()->local_state(), &profile);
-  menu->set_dlp_rules_manager(&mock_dlp_rules_manager);
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_SEARCHWEBFOR));
-
-  SetDlpClipboardRestriction();
-  EXPECT_FALSE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_SEARCHWEBFOR));
-
-  menu->set_selection_navigation_url(GURL(NOT_RESTRICTED_URL));
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_SEARCHWEBFOR));
-}
-
-// Verifies that SearchWebForNewTab field is enabled/disabled based on DLP
-// rules.
-TEST_F(RenderViewContextMenuDlpPrefsTest,
-       DisableSearchWebForNewTabWhenClipboardIsBlocked) {
-  content::ContextMenuParams params = CreateParams(MenuItem::SELECTION);
-  params.page_url = GURL(PAGE_URL);
-  auto menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->set_dlp_rules_manager(nullptr);
-  menu->set_selection_navigation_url(GURL(RESTRICTED_URL));
-
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_SEARCHWEBFORNEWTAB));
-
-  TestingProfile profile;
-  MockDlpRulesManager mock_dlp_rules_manager(
-      TestingBrowserProcess::GetGlobal()->local_state(), &profile);
-  menu->set_dlp_rules_manager(&mock_dlp_rules_manager);
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_SEARCHWEBFORNEWTAB));
-
-  SetDlpClipboardRestriction();
-  EXPECT_FALSE(
-      menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_SEARCHWEBFORNEWTAB));
-
-  menu->set_selection_navigation_url(GURL(NOT_RESTRICTED_URL));
-  EXPECT_TRUE(menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_SEARCHWEBFORNEWTAB));
-}
-#endif
 
 // Verifies Incognito Mode is not enabled for links disallowed in Incognito.
 TEST_F(RenderViewContextMenuPrefsTest,
@@ -885,11 +642,7 @@ TEST_F(RenderViewContextMenuPrefsTest,
   std::unique_ptr<TestRenderViewContextMenu> menu(
       CreateContextMenuOnChromeLink());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // We hide the item for links to WebUI.
-#else
   ASSERT_TRUE(menu->IsItemPresent(IDC_CONTENT_CONTEXT_OPENLINKOFFTHERECORD));
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   EXPECT_FALSE(
       menu->IsCommandIdEnabled(IDC_CONTENT_CONTEXT_OPENLINKOFFTHERECORD));
@@ -2342,7 +2095,6 @@ TEST_F(RenderViewContextMenuPrefsTest,
 
 #endif  // BUILDFLAG(ENABLE_LENS_DESKTOP_GOOGLE_BRANDED_FEATURES)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(RenderViewContextMenuPrefsTest,
        TextSelectionShowsPartialTranslateWhenMenuSimplificationDisabled) {
   base::test::ScopedFeatureList feature_list;
@@ -2369,7 +2121,6 @@ TEST_F(RenderViewContextMenuPrefsTest,
 
   EXPECT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_PRINTING)
 TEST_F(RenderViewContextMenuPrefsTest, PrintSelectionLabel) {
@@ -2562,11 +2313,7 @@ class RenderViewContextMenuReadAnythingTest
 };
 
 // TODO(crbug.com/516289866): Disabled on ChromeOS due to flakiness.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_AppendPageItems DISABLED_AppendPageItems
-#else
 #define MAYBE_AppendPageItems AppendPageItems
-#endif
 TEST_P(RenderViewContextMenuReadAnythingTest, MAYBE_AppendPageItems) {
   const auto& params = GetParam();
   const std::string& group = std::get<0>(params);
@@ -2918,7 +2665,6 @@ TEST_F(RenderViewContextMenuMenuSimplificationTest, LinkAndSelectionLayout) {
   EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_OPEN_IN_READING_MODE));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(RenderViewContextMenuMenuSimplificationTest,
        TranslateSelectionOnlyOnce_NonEditable) {
   auto reset_ignore_missing_key = SetUpTranslateClient();
@@ -3006,23 +2752,6 @@ TEST_F(RenderViewContextMenuMenuSimplificationTest,
 
   EXPECT_FALSE(menu->IsItemPresent(IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE));
 }
-#else
-TEST_F(RenderViewContextMenuMenuSimplificationTest,
-       PartialTranslateNotPresentOnChromeOS) {
-  auto reset_ignore_missing_key = SetUpTranslateClient();
-
-  content::ContextMenuParams params;
-  params.selection_text = u"hello world";
-  params.is_editable = false;
-
-  auto menu = std::make_unique<TestRenderViewContextMenu>(
-      *web_contents()->GetPrimaryMainFrame(), params);
-  menu->SetBrowser(GetBrowser());
-  menu->Init();
-
-  EXPECT_FALSE(menu->IsItemPresent(IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE));
-}
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(
     RenderViewContextMenuMenuSimplificationTest,
@@ -3797,9 +3526,7 @@ TEST_F(RenderViewContextMenuOrderTest, SelectedTextMenu_SearchTextOrder) {
                   IDC_CONTENT_CONTEXT_COPY, IDC_CONTENT_CONTEXT_COPYLINKTOTEXT,
                   IDC_CONTENT_CONTEXT_SEARCHWEBFOR, IDC_PRINT,
                   IDC_CONTENT_CONTEXT_OPEN_IN_READING_MODE,
-#if !BUILDFLAG(IS_CHROMEOS)
                   IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE,
-#endif
                   kSeparatorId, IDC_CONTENT_CONTEXT_INSPECTELEMENT));
 }
 
@@ -3814,9 +3541,7 @@ TEST_F(RenderViewContextMenuOrderTest, SelectedTextMenu_UrlTextOrder) {
                   IDC_CONTENT_CONTEXT_COPY, IDC_CONTENT_CONTEXT_COPYLINKTOTEXT,
                   IDC_CONTENT_CONTEXT_GOTOURL, IDC_PRINT,
                   IDC_CONTENT_CONTEXT_OPEN_IN_READING_MODE,
-#if !BUILDFLAG(IS_CHROMEOS)
                   IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE,
-#endif
                   kSeparatorId, IDC_CONTENT_CONTEXT_INSPECTELEMENT));
 }
 
@@ -3837,9 +3562,7 @@ TEST_F(RenderViewContextMenuOrderTest, LinkAndSelectionMenu_Order) {
                   IDC_CONTENT_CONTEXT_COPYLINKLOCATION, kSeparatorId,
                   IDC_CONTENT_CONTEXT_COPY, IDC_CONTENT_CONTEXT_COPYLINKTOTEXT,
                   IDC_CONTENT_CONTEXT_SEARCHWEBFOR, IDC_PRINT,
-#if !BUILDFLAG(IS_CHROMEOS)
                   IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE,
-#endif
                   kSeparatorId, IDC_CONTENT_CONTEXT_INSPECTELEMENT));
 }
 
@@ -3861,9 +3584,6 @@ TEST_F(RenderViewContextMenuOrderTest, EditableTextMenu_EmptySelectionOrder) {
   expected.push_back(IDC_CONTENT_CONTEXT_COPY);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE_AND_MATCH_STYLE);
-#if BUILDFLAG(IS_CHROMEOS)
-  expected.push_back(IDC_CONTENT_PASTE_FROM_CLIPBOARD);
-#endif
   expected.push_back(IDC_CONTENT_CONTEXT_SELECTALL);
   expected.push_back(IDC_CONTENT_CONTEXT_OPEN_IN_READING_MODE);
   expected.push_back(kSeparatorId);
@@ -3901,17 +3621,12 @@ TEST_F(RenderViewContextMenuOrderTest, EditableTextMenu_WithSelectionOrder) {
   expected.push_back(IDC_CONTENT_CONTEXT_COPY);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE_AND_MATCH_STYLE);
-#if BUILDFLAG(IS_CHROMEOS)
-  expected.push_back(IDC_CONTENT_PASTE_FROM_CLIPBOARD);
-#endif
   expected.push_back(IDC_CONTENT_CONTEXT_SELECTALL);
   expected.push_back(IDC_CONTENT_CONTEXT_OPEN_IN_READING_MODE);
   expected.push_back(kSeparatorId);
   expected.push_back(IDC_CONTENT_CONTEXT_SEARCHWEBFOR);
   expected.push_back(IDC_PRINT);
-#if !BUILDFLAG(IS_CHROMEOS)
   expected.push_back(IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE);
-#endif
   expected.push_back(kSeparatorId);
 #if BUILDFLAG(IS_MAC)
   expected.push_back(IDC_CONTENT_CONTEXT_LANGUAGE_SETTINGS);
@@ -3960,9 +3675,6 @@ TEST_F(RenderViewContextMenuOrderTest, EditableTextMenu_MisspelledWordOrder) {
       IDC_CONTENT_CONTEXT_CUT,
       IDC_CONTENT_CONTEXT_COPY,
       IDC_CONTENT_CONTEXT_PASTE,
-#if BUILDFLAG(IS_CHROMEOS)
-      IDC_CONTENT_PASTE_FROM_CLIPBOARD,
-#endif
       IDC_CONTENT_CONTEXT_OPEN_IN_READING_MODE,
       kSeparatorId,
       IDC_CONTENT_CONTEXT_INSPECTELEMENT,
@@ -3994,16 +3706,11 @@ TEST_F(RenderViewContextMenuOrderTest, PasswordFieldMenu_WithSelectionOrder) {
   expected.push_back(IDC_CONTENT_CONTEXT_COPY);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE_AND_MATCH_STYLE);
-#if BUILDFLAG(IS_CHROMEOS)
-  expected.push_back(IDC_CONTENT_PASTE_FROM_CLIPBOARD);
-#endif
   expected.push_back(IDC_CONTENT_CONTEXT_SELECTALL);
   expected.push_back(IDC_CONTENT_CONTEXT_OPEN_IN_READING_MODE);
   expected.push_back(kSeparatorId);
   expected.push_back(IDC_PRINT);
-#if !BUILDFLAG(IS_CHROMEOS)
   expected.push_back(IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE);
-#endif
   expected.push_back(kSeparatorId);
 #if BUILDFLAG(IS_MAC)
   expected.push_back(IDC_CONTENT_CONTEXT_LANGUAGE_SETTINGS);
@@ -4245,9 +3952,7 @@ TEST_F(RenderViewContextMenuSimplifiedOrderTest,
                   IDC_CONTENT_CONTEXT_COPY, IDC_CONTENT_CONTEXT_COPYLINKTOTEXT,
                   IDC_PRINT, kSeparatorId, IDC_CONTENT_CONTEXT_SEARCHWEBFOR,
                   IDC_CONTENT_CONTEXT_OPEN_IN_READING_MODE,
-#if !BUILDFLAG(IS_CHROMEOS)
                   IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE,
-#endif
                   kSeparatorId, IDC_CONTENT_CONTEXT_INSPECTELEMENT));
 }
 
@@ -4263,9 +3968,7 @@ TEST_F(RenderViewContextMenuSimplifiedOrderTest,
                   IDC_CONTENT_CONTEXT_COPY, IDC_CONTENT_CONTEXT_COPYLINKTOTEXT,
                   IDC_PRINT, kSeparatorId, IDC_CONTENT_CONTEXT_GOTOURL,
                   IDC_CONTENT_CONTEXT_OPEN_IN_READING_MODE,
-#if !BUILDFLAG(IS_CHROMEOS)
                   IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE,
-#endif
                   kSeparatorId, IDC_CONTENT_CONTEXT_INSPECTELEMENT));
 }
 
@@ -4287,9 +3990,7 @@ TEST_F(RenderViewContextMenuSimplifiedOrderTest, LinkAndSelectionMenu_Order) {
           IDC_CONTENT_CONTEXT_ADD_LINK_TO_READING_LIST, kSeparatorId,
           IDC_CONTENT_CONTEXT_COPY, IDC_CONTENT_CONTEXT_COPYLINKTOTEXT,
           IDC_CONTENT_CONTEXT_SEARCHWEBFOR, IDC_PRINT,
-#if !BUILDFLAG(IS_CHROMEOS)
           IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE,
-#endif
           kSeparatorId, IDC_CONTENT_CONTEXT_INSPECTELEMENT));
 }
 
@@ -4312,9 +4013,6 @@ TEST_F(RenderViewContextMenuSimplifiedOrderTest,
   expected.push_back(IDC_CONTENT_CONTEXT_COPY);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE_AND_MATCH_STYLE);
-#if BUILDFLAG(IS_CHROMEOS)
-  expected.push_back(IDC_CONTENT_PASTE_FROM_CLIPBOARD);
-#endif
   expected.push_back(IDC_CONTENT_CONTEXT_SELECTALL);
   expected.push_back(kSeparatorId);
 #if BUILDFLAG(IS_MAC)
@@ -4352,16 +4050,11 @@ TEST_F(RenderViewContextMenuSimplifiedOrderTest,
   expected.push_back(IDC_CONTENT_CONTEXT_COPY);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE_AND_MATCH_STYLE);
-#if BUILDFLAG(IS_CHROMEOS)
-  expected.push_back(IDC_CONTENT_PASTE_FROM_CLIPBOARD);
-#endif
   expected.push_back(IDC_CONTENT_CONTEXT_SELECTALL);
   expected.push_back(kSeparatorId);
   expected.push_back(IDC_CONTENT_CONTEXT_SEARCHWEBFOR);
   expected.push_back(IDC_PRINT);
-#if !BUILDFLAG(IS_CHROMEOS)
   expected.push_back(IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE);
-#endif
   expected.push_back(kSeparatorId);
 #if BUILDFLAG(IS_MAC)
   expected.push_back(IDC_CONTENT_CONTEXT_LANGUAGE_SETTINGS);
@@ -4394,9 +4087,6 @@ TEST_F(RenderViewContextMenuSimplifiedOrderTest,
   expected.push_back(IDC_CONTENT_CONTEXT_COPY);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE_AND_MATCH_STYLE);
-#if BUILDFLAG(IS_CHROMEOS)
-  expected.push_back(IDC_CONTENT_PASTE_FROM_CLIPBOARD);
-#endif
   expected.push_back(IDC_CONTENT_CONTEXT_SELECTALL);
   expected.push_back(kSeparatorId);
   expected.push_back(IDC_CONTENT_CONTEXT_INSPECTELEMENT);
@@ -4428,9 +4118,6 @@ TEST_F(RenderViewContextMenuSimplifiedOrderTest,
   expected.push_back(IDC_CONTENT_CONTEXT_COPY);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE_AND_MATCH_STYLE);
-#if BUILDFLAG(IS_CHROMEOS)
-  expected.push_back(IDC_CONTENT_PASTE_FROM_CLIPBOARD);
-#endif
   expected.push_back(IDC_CONTENT_CONTEXT_SELECTALL);
   expected.push_back(kSeparatorId);
   expected.push_back(IDC_CONTENT_CONTEXT_INSPECTELEMENT);
@@ -4462,15 +4149,10 @@ TEST_F(RenderViewContextMenuSimplifiedOrderTest,
   expected.push_back(IDC_CONTENT_CONTEXT_COPY);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE);
   expected.push_back(IDC_CONTENT_CONTEXT_PASTE_AND_MATCH_STYLE);
-#if BUILDFLAG(IS_CHROMEOS)
-  expected.push_back(IDC_CONTENT_PASTE_FROM_CLIPBOARD);
-#endif
   expected.push_back(IDC_CONTENT_CONTEXT_SELECTALL);
   expected.push_back(kSeparatorId);
   expected.push_back(IDC_PRINT);
-#if !BUILDFLAG(IS_CHROMEOS)
   expected.push_back(IDC_CONTENT_CONTEXT_PARTIAL_TRANSLATE);
-#endif
   expected.push_back(kSeparatorId);
 #if BUILDFLAG(IS_MAC)
   expected.push_back(IDC_CONTENT_CONTEXT_LANGUAGE_SETTINGS);

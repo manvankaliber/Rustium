@@ -174,13 +174,13 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
           },
           {
               7,  // id
-              "GpuControlListEntryTest.ChromeOSEntry",
+              "GpuControlListEntryTest.GenericAnyOsEntry",
               base::span(kFeatureListForGpuControlTestingEntry7),  // features
               base::span<const char* const>(),  // DisabledExtensions
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsChromeOS,  // os_type
+                  GpuControlList::kOsAny,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -205,7 +205,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsAny,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -230,7 +230,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsLinux,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -255,7 +255,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsAny,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -556,7 +556,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsAny,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -657,7 +657,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsAny,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -1013,7 +1013,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsWin,  // os_type
                   {GpuControlList::kLT, GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, "4.2",
                    nullptr},                                   // os_version
@@ -1037,7 +1037,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsWin,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -1818,7 +1818,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsChromeOS,  // os_type
+                  GpuControlList::kOsAny,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -1843,7 +1843,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsChromeOS,  // os_type
+                  GpuControlList::kOsAny,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -2044,7 +2044,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsLinux,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -2069,7 +2069,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsAny,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -2094,7 +2094,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsAny,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -2119,7 +2119,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsAny,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,
@@ -2169,7 +2169,7 @@ const std::array<GpuControlList::Entry, 87>& GetGpuControlListTestingEntries() {
               base::span<const char* const>(),  // DisabledWebGLExtensions
               base::span<const uint32_t>(),     // CrBugs
               {
-                  GpuControlList::kOsAndroid,  // os_type
+                  GpuControlList::kOsAny,  // os_type
                   {GpuControlList::kUnknown,
                    GpuControlList::kVersionStyleNumerical,
                    GpuControlList::kVersionSchemaCommon, nullptr,

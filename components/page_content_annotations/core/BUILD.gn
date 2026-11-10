@@ -132,10 +132,8 @@ source_set("unit_tests") {
     "page_visibility_model_handler_unittest.cc",
   ]
 
-  # crbug.com/1279884 Flaky on CrOS
-  if (!is_chromeos) {
-    sources += [ "page_content_annotations_model_manager_unittest.cc" ]
-  }
+  sources += [ "page_content_annotations_model_manager_unittest.cc" ]
+
   deps = [
     ":core",
     ":features",
@@ -149,9 +147,6 @@ source_set("unit_tests") {
     "//testing/gmock",
     "//testing/gtest",
   ]
-  if (is_ios) {
-    deps += [ "//components/test:page_content_annotations_test_bundle_data" ]
-  }
 }
 
 fuzzer_test("optimization_guide_page_visibility_model_fuzzer") {

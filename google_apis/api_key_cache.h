@@ -36,21 +36,7 @@ class COMPONENT_EXPORT(GOOGLE_APIS) ApiKeyCache {
   const std::string& api_key_partial_translate() const {
     return api_key_partial_translate_;
   }
-#if !BUILDFLAG(IS_ANDROID)
   const std::string& api_key_hats() const { return api_key_hats_; }
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-  const std::string& api_key_sharing() const { return api_key_sharing_; }
-  const std::string& api_key_read_aloud() const { return api_key_read_aloud_; }
-  const std::string& api_key_fresnel() const { return api_key_fresnel_; }
-  const std::string& api_key_boca() const { return api_key_boca_; }
-  const std::string& api_key_cros_system_geo() const {
-    return api_key_cros_system_geo_;
-  }
-  const std::string& api_key_cros_chrome_geo() const {
-    return api_key_cros_chrome_geo_;
-  }
-#endif
 
   const std::string& metrics_key() const { return metrics_key_; }
 
@@ -79,17 +65,7 @@ class COMPONENT_EXPORT(GOOGLE_APIS) ApiKeyCache {
   std::string api_key_remoting_;
   std::string api_key_soda_;
   std::string api_key_partial_translate_;
-#if !BUILDFLAG(IS_ANDROID)
   std::string api_key_hats_;
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-  std::string api_key_sharing_;
-  std::string api_key_read_aloud_;
-  std::string api_key_fresnel_;
-  std::string api_key_boca_;
-  std::string api_key_cros_system_geo_;
-  std::string api_key_cros_chrome_geo_;
-#endif
 
   std::string metrics_key_;
 

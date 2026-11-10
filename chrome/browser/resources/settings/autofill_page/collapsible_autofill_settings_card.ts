@@ -83,7 +83,7 @@ export class CollapsibleAutofillSettingsCardElement extends
       /**
        * Indicates whether the feature `kAutofillAiReauthRequired` is enabled.
        */
-      // <if expr="is_win or is_macosx or is_chromeos">
+      // <if expr="is_win or is_macosx">
       autofillAiReauthOnViewingSensitiveDataEnabled_: {type: Boolean},
       // </if>
 
@@ -102,13 +102,13 @@ export class CollapsibleAutofillSettingsCardElement extends
   }
 
   protected accessor expanded_: boolean = false;
-  // <if expr="is_win or is_macosx or is_chromeos">
+  // <if expr="is_win or is_macosx">
   protected accessor enhancedAutofillEligibleUser_: boolean =
       loadTimeData.getBoolean('userEligibleForAutofillAi');
   protected accessor autofillAiReauthOnViewingSensitiveDataEnabled_: boolean =
       loadTimeData.getBoolean('autofillAiReauthOnViewingSensitiveDataEnabled');
   // </if>
-  // <if expr="not (is_win or is_macosx or is_chromeos)">
+  // <if expr="not (is_win or is_macosx)">
   private accessor enhancedAutofillEligibleUser_: boolean =
       loadTimeData.getBoolean('userEligibleForAutofillAi');
   // </if>
@@ -175,7 +175,7 @@ export class CollapsibleAutofillSettingsCardElement extends
     }
   }
 
-  // <if expr="is_win or is_macosx or is_chromeos">
+  // <if expr="is_win or is_macosx">
   protected onChangeAuthenticationRequirementClick_(e: Event) {
     e.preventDefault();
     if (!this.enhancedAutofillEligibleUser_) {

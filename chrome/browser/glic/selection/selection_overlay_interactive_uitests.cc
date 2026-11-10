@@ -89,10 +89,6 @@
 #include "ui/ozone/public/ozone_platform.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/shell.h"
-#include "chromeos/constants/chromeos_features.h"
-#endif
 
 namespace glic {
 
@@ -1401,8 +1397,7 @@ IN_PROC_BROWSER_TEST_F(SelectionOverlayInteractiveTest,
 // therefore the selection overlay in the first tab.
 //
 // Fails on Wayland platforms and flaky on Mac.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #define MAYBE_EscDismissesFloatyOnSecondTab \
   DISABLED_EscDismissesFloatyOnSecondTab
 #else
@@ -1730,17 +1725,10 @@ class SelectionOverlayHotkeyInteractiveTest
   static bool IsHotkeySupported() {
     // ChromeOS uses ash's accelerator controller rather than global accelerator
     // listener.
-#if BUILDFLAG(IS_CHROMEOS)
-    if (ash::Shell::HasInstance()) {
-      return ash::Shell::Get()->accelerator_controller() != nullptr;
-    }
-    return false;
-#else
     auto* const global_shortcut_listener =
         ui::GlobalAcceleratorListener::GetInstance();
     return global_shortcut_listener != nullptr &&
            !global_shortcut_listener->IsRegistrationHandledExternally();
-#endif
   }
 
  private:

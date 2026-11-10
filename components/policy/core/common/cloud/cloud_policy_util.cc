@@ -56,11 +56,6 @@
 #endif
 #include "components/version_info/version_info.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system/statistics_provider.h"
-#include "components/session_manager/core/session.h"
-#include "components/session_manager/core/session_manager.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/strings/stringprintf.h"
@@ -78,21 +73,10 @@
 #include "base/strings/sys_string_conversions.h"
 #endif
 
-#if BUILDFLAG(IS_IOS)
-#include "base/ios/device_util.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/android/device_info.h"
-#include "base/feature_list.h"
-#endif
 
 namespace policy {
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kReportAndroidMachineName, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace em = enterprise_management;
 
@@ -109,9 +93,6 @@ std::string GetMachineName() {
     return hostname;
   }
   return std::string();
-#elif BUILDFLAG(IS_IOS)
-  // Use the Vendor ID as the machine name.
-  return ios::device_util::GetVendorId();
 #elif BUILDFLAG(IS_MAC)
   // Do not use NSHost currentHost, as it's very slow. http://crbug.com/138570
   SCDynamicStoreContext context = {0, NULL, NULL, NULL};
@@ -151,27 +132,13 @@ std::string GetMachineName() {
     return result;
   }
   return std::string();
-#elif BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(kReportAndroidMachineName)) {
-    return std::string();
-  }
-  std::string device_name = base::android::device_info::device_name();
-  if (!device_name.empty()) {
-    return device_name;
-  }
-  // Fall back to the hardware model (`Build.MODEL`) when the user-configured
-  // device name (`Settings.Global.DEVICE_NAME`) is unset or inaccessible.
-  return base::android::android_info::model();
-#elif BUILDFLAG(IS_CHROMEOS)
-  NOTREACHED();
 #else
 #error Unsupported platform
 #endif
 }
 
 std::string GetOSVersion() {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_APPLE)
   return base::SysInfo::OperatingSystemVersion();
 #elif BUILDFLAG(IS_WIN)
   base::win::OSInfo::VersionNumber version_number =
@@ -213,20 +180,6 @@ std::string GetOSUsername() {
   }
 
   return base::WideToUTF8(username);
-#elif BUILDFLAG(IS_CHROMEOS)
-  auto* session_manager = session_manager::SessionManager::Get();
-  if (!session_manager) {
-    return std::string();
-  }
-  const auto* primary_session = session_manager->GetPrimarySession();
-  if (!primary_session) {
-    return std::string();
-  }
-  return primary_session->account_id().GetUserEmail();
-#elif BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/40200780): This should be fully implemented when there is
-  // support in fuchsia.
-  return std::string();
 #else
   NOTREACHED();
 #endif
@@ -248,17 +201,7 @@ em::Channel ConvertToProtoChannel(version_info::Channel channel) {
 }
 
 std::string GetDeviceName() {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (ash::system::StatisticsProvider::GetInstance()->GetLoadingState() ==
-      ash::system::StatisticsProvider::LoadingState::kNotStarted) {
-    return std::string();
-  }
-  return std::string(
-      ash::system::StatisticsProvider::GetInstance()->GetMachineID().value_or(
-          ""));
-#else
   return GetMachineName();
-#endif
 }
 
 std::unique_ptr<em::BrowserDeviceIdentifier> GetBrowserDeviceIdentifier() {

@@ -56,7 +56,7 @@ inline constexpr char kChromeUIAppsWithForceInstalledDeprecationDialogURL[] =
 inline constexpr char kChromeUIAutofillAiPath[] = "/enhancedAutofill";
 inline constexpr char kChromeUIAutofillPath[] = "/autofill";
 inline constexpr char kChromeUIAutofillInternalsHost[] = "autofill-internals";
-#if BUILDFLAG(ENABLE_DICE_SUPPORT) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
 inline constexpr char kChromeUIBatchUploadHost[] = "batch-upload";
 inline constexpr char kChromeUIBatchUploadURL[] = "chrome://batch-upload/";
 #endif
@@ -82,10 +82,8 @@ inline constexpr char kChromeUIConstrainedHTMLTestURL[] =
 inline constexpr char kChromeUIContactInfoPath[] = "/contactInfo";
 inline constexpr char kChromeUIContextHubHost[] = "context-hub";
 inline constexpr char kChromeUIContextHubURL[] = "chrome://context-hub/";
-#if !BUILDFLAG(IS_ANDROID)
 inline constexpr char kChromeUIContextualCueingInternalsHost[] =
     "contextual-cueing-internals";
-#endif
 inline constexpr char kChromeUIContextualTasksHost[] = "contextual-tasks";
 inline constexpr char kChromeUIContextualTasksURL[] =
     "chrome://contextual-tasks/";
@@ -98,9 +96,7 @@ inline constexpr char kChromeUIContentSettingsURL[] =
     "chrome://settings/content";
 inline constexpr char16_t kChromeUICookieSettingsURL[] =
     u"chrome://settings/cookies";
-#if !BUILDFLAG(IS_ANDROID)
 inline constexpr char kChromeUICraftHost[] = "craft";
-#endif
 inline constexpr char kChromeUICrashesHost[] = "crashes";
 inline constexpr char kChromeUICrashesUrl[] = "chrome://crashes";
 inline constexpr char kChromeUICreditsHost[] = "credits";
@@ -375,21 +371,6 @@ inline constexpr char kChromeUIWebUIToolbarHost[] = "webui-toolbar.top-chrome";
 inline constexpr char kChromeUIWebNNInternalsHost[] = "webnn-internals";
 inline constexpr char kChromeUIIndigoInternalsHost[] = "indigo-internals";
 
-#if BUILDFLAG(IS_ANDROID)
-inline constexpr char kChromeUIChromeFindsInternalsHost[] =
-    "chrome-finds-internals";
-inline constexpr char kChromeUIJavaCrashURL[] = "chrome://java-crash/";
-inline constexpr char kChromeUINativeBookmarksURL[] =
-    "chrome-native://bookmarks/";
-inline constexpr char kChromeUINativeNewTabURL[] = "chrome-native://newtab/";
-inline constexpr char kChromeUINotificationsInternalsHost[] =
-    "notifications-internals";
-inline constexpr char kChromeUISnippetsInternalsHost[] = "snippets-internals";
-inline constexpr char kChromeUITabStripNtbHost[] = "tabstrip-ntb.top-chrome";
-inline constexpr char kChromeUITabStripNtbURL[] =
-    "chrome://tabstrip-ntb.top-chrome/";
-inline constexpr char kChromeUIWebApksHost[] = "webapks";
-#else
 inline constexpr char kChromeUIAppServiceInternalsHost[] =
     "app-service-internals";
 inline constexpr char kChromeUIAutofillMlInternalsHost[] =
@@ -444,17 +425,9 @@ inline constexpr char kChromeUIWebuiBrowserHost[] = "webui-browser";
 inline constexpr char kChromeUIWebuiBrowserURL[] = "chrome://webui-browser/";
 inline constexpr char kChromeUIWebUIJsErrorHost[] = "webuijserror";
 inline constexpr char kChromeUIWebUIJsErrorURL[] = "chrome://webuijserror/";
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Returns true if this web UI is part of the "system UI". Generally this is
-// UI that opens in a window (not a browser tab) and that on other operating
-// systems would be considered part of the OS or window manager.
-bool IsSystemWebUIHost(std::string_view host);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_DESKTOP_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 inline constexpr char kChromeUIDiscardsHost[] = "discards";
 inline constexpr char kChromeUIDiscardsURL[] = "chrome://discards/";
 #endif
@@ -477,12 +450,11 @@ inline constexpr char kChromeUIDefaultBrowserVisualGuidedSetterHost[] =
     "default-browser";
 #endif
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 inline constexpr char kChromeUILinuxProxyConfigHost[] = "linux-proxy-config";
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 inline constexpr char kChromeUISandboxHost[] = "sandbox";
 #endif
 
@@ -603,12 +575,6 @@ inline constexpr char kSearchSubPage[] = "search";
 inline constexpr char kSecuritySubPage[] = "security";
 inline constexpr char kSignOutSubPage[] = "signOut";
 inline constexpr char kSiteDetailsSubpage[] = "content/siteDetails";
-#if BUILDFLAG(IS_ANDROID)
-// Android shows settings in a native page rather than the settings WebUI, and
-// does not nest the site details page under the content settings page. Keep in
-// sync with the route registered in SettingsFragmentRegistry.java.
-inline constexpr char kAndroidSiteDetailsSubpage[] = "siteDetails";
-#endif  // BUILDFLAG(IS_ANDROID)
 inline constexpr char kSuggestionsFromGeminiSubPage[] = "enhancedAutofill";
 inline constexpr char kSuggestionsSubPage[] = "ai/suggestions";
 inline constexpr char kSyncSetupSubPage[] = "syncSetup";
@@ -616,7 +582,7 @@ inline constexpr char kSyncSetupAdvancedSubPage[] = "syncSetup/advanced";
 inline constexpr char kTriggeredResetProfileSettingsSubPage[] =
     "triggeredResetProfileSettings";
 
-#if !BUILDFLAG(IS_ANDROID) && BUILDFLAG(GOOGLE_CHROME_BRANDING)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 inline constexpr char kChromeUICastFeedbackHost[] = "cast-feedback";
 inline constexpr char kChromeUICastFeedbackURL[] = "chrome://cast-feedback";
 #endif

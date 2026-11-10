@@ -30,13 +30,6 @@ namespace features {
 // alongside the definition of their values in the .cc file.
 GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kAggressiveShaderCacheLimits);
 
-#if BUILDFLAG(IS_ANDROID)
-GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kAndroidSurfaceControl);
-GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kWebViewSurfaceControl);
-GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kWebViewSurfaceControlForTV);
-GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kLimitAImageReaderMaxSizeToOne);
-GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kWebViewThreadSafeMediaDefault);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kDefaultEnableGpuRasterization);
 
@@ -52,7 +45,7 @@ GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kEnableMSAAOnNewIntelGPUs);
 GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kNoUndamagedOverlayPromotion);
 #endif
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC)
 GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kAdjustGpuProcessPriority);
 #endif
 
@@ -206,7 +199,7 @@ GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kPruneOldTransferCacheEntries);
 
 GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kRemoveGPULegacyIPC);
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kSharedImageStubHighPriority);
 #endif
 
@@ -253,12 +246,6 @@ GPU_CONFIG_EXPORT bool IsSkiaGraphitePrecompilationEnabled(
 GPU_CONFIG_EXPORT bool EnablePruneOldTransferCacheEntries();
 GPU_CONFIG_EXPORT bool IsLegacyIpcDisabled();
 
-#if BUILDFLAG(IS_ANDROID)
-GPU_CONFIG_EXPORT bool IsAndroidSurfaceControlEnabled();
-GPU_CONFIG_EXPORT bool LimitAImageReaderMaxSizeToOne();
-GPU_CONFIG_EXPORT bool IncreaseBufferCountForHighFrameRate();
-GPU_CONFIG_EXPORT bool IncreaseBufferCountForWebViewOverlays();
-#endif
 
 GPU_CONFIG_EXPORT BASE_DECLARE_FEATURE(kSyncPointGraphValidation);
 

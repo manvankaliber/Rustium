@@ -106,7 +106,7 @@ GpuRasterBufferProvider::GpuRasterBufferProvider(
       pending_raster_queries_(pending_raster_queries),
       raster_metric_probability_(raster_metric_probability),
       is_using_dmsaa_(
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
           true
 #else
           false

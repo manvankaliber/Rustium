@@ -57,15 +57,6 @@ void PageHandler::PrintToPDF(std::optional<bool> landscape,
                              std::unique_ptr<PrintToPDFCallback> callback) {
   CHECK(callback, base::NotFatalUntil::M161);
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, Page.printToPDF is only available to trusted clients. Fall
-  // through so that untrusted clients observe the same behavior as when this
-  // handler is not instantiated.
-  if (!is_trusted_) {
-    callback->fallThrough();
-    return;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_PRINTING)
   if (!web_contents_) {

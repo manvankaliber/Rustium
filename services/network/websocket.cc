@@ -70,7 +70,7 @@ constexpr uint64_t kSmallMessageThreshold = 1 << 16;
 // value depends on the platform. |2^n - delta| is better than 2^n on Linux. See
 // crrev.com/c/1792208.
 constexpr uint32_t kReceiveDataPipeCapacity =
-    BUILDFLAG(IS_ANDROID) ? 1 << 16 : 131000;
+    false ? 1 << 16 : 131000;
 
 // Convert a mojom::WebSocketMessageType to a
 // net::WebSocketFrameHeader::OpCode

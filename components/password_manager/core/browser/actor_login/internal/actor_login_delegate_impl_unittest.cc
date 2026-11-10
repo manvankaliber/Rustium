@@ -44,10 +44,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/webauthn/android/cred_man_support.h"
-#include "components/webauthn/android/webauthn_cred_man_delegate.h"
-#endif
 
 // TODO(crbug.com/519172533): Write integration tests to check the interaction
 // between the delegate, the `ActorLoginSiwgController`, the
@@ -187,12 +183,6 @@ class ActorLoginDelegateImplTest : public testing::Test {
     ON_CALL(mock_driver_, GetLastCommittedOrigin())
         .WillByDefault(ReturnRef(test_origin_));
 
-#if BUILDFLAG(IS_ANDROID)
-    prefs_.registry()->RegisterBooleanPref(
-        autofill::prefs::kAutofillUsingPlatformAutofill, false);
-    webauthn::WebAuthnCredManDelegate::override_cred_man_support_for_testing(
-        webauthn::CredManSupport::DISABLED);
-#endif
 
     mock_cleaning_service_ =
         std::make_unique<NiceMock<MockActorLoginPermissionCleaningService>>();
@@ -312,80 +302,6 @@ TEST_F(ActorLoginDelegateImplTest, GetCredentialsSuccess_FeatureOn) {
   EXPECT_TRUE(future.Get().value().empty());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(ActorLoginDelegateImplTest, GetCredentials_NullClient) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      password_manager::features::kActorLogin);
-  SetUpGetCredentialsDeps();
-  EXPECT_CALL(mock_form_cache_, GetFormManagers()).Times(0);
-
-  // Create a delegate with nullptr client and nullptr driver.
-  ActorLoginDelegateImpl::RemoveFromUserDataForTesting(delegate_client_.get());
-  delegate_ = nullptr;
-  delegate_client_ = std::make_unique<FakeActorLoginDelegateClient>(
-      &prefs_, test_origin_, &mock_driver_, nullptr,
-      mock_cleaning_service_.get());
-  auto* delegate =
-      ActorLoginDelegateImpl::CreateForUserData(delegate_client_.get());
-
-  base::test::TestFuture<CredentialsOrError> future;
-  delegate->GetCredentials(/*has_sign_in_with_google_button=*/false,
-                           mqls_logger(), future.GetCallback());
-
-  ASSERT_TRUE(future.Get().has_value());
-  EXPECT_TRUE(future.Get().value().empty());
-}
-
-TEST_F(ActorLoginDelegateImplTest, GetCredentials_NullClient_HasPasswords) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      password_manager::features::kActorLogin);
-  GURL url = GURL(kTestUrl);
-  std::vector<password_manager::PasswordForm> saved_forms;
-  saved_forms.push_back(CreateSavedPasswordForm(url, kTestUsername));
-  form_fetcher_.SetBestMatches(saved_forms);
-  SetUpGetCredentialsDeps();
-  EXPECT_CALL(mock_form_cache_, GetFormManagers()).Times(0);
-
-  // Create a delegate with nullptr client and nullptr driver.
-  ActorLoginDelegateImpl::RemoveFromUserDataForTesting(delegate_client_.get());
-  delegate_ = nullptr;
-  delegate_client_ = std::make_unique<FakeActorLoginDelegateClient>(
-      &prefs_, test_origin_, &mock_driver_, nullptr,
-      mock_cleaning_service_.get());
-  auto* delegate =
-      ActorLoginDelegateImpl::CreateForUserData(delegate_client_.get());
-
-  base::test::TestFuture<CredentialsOrError> future;
-  delegate->GetCredentials(/*has_sign_in_with_google_button=*/false,
-                           mqls_logger(), future.GetCallback());
-
-  ASSERT_TRUE(future.Get().has_value());
-  EXPECT_TRUE(future.Get().value().empty());
-}
-
-TEST_F(ActorLoginDelegateImplTest,
-       GetCredentials_UsingThirdPartyPasswordManager) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      password_manager::features::kActorLogin);
-
-  prefs_.SetBoolean(autofill::prefs::kAutofillUsingPlatformAutofill, true);
-
-  GURL url = GURL(kTestUrl);
-  std::vector<password_manager::PasswordForm> saved_forms;
-  saved_forms.push_back(CreateSavedPasswordForm(url, kTestUsername));
-  form_fetcher_.SetBestMatches(saved_forms);
-
-  SetUpGetCredentialsDeps();
-  EXPECT_CALL(mock_form_cache_, GetFormManagers()).Times(0);
-
-  base::test::TestFuture<CredentialsOrError> future;
-  delegate_->GetCredentials(/*has_sign_in_with_google_button=*/false,
-                            mqls_logger(), future.GetCallback());
-
-  ASSERT_TRUE(future.Get().has_value());
-  EXPECT_TRUE(future.Get().value().empty());
-}
-#endif
 
 TEST_F(ActorLoginDelegateImplTest, GetCredentialsLogsDomainAndLanguage) {
   base::test::ScopedFeatureList scoped_feature_list(
@@ -640,7 +556,6 @@ TEST_F(ActorLoginDelegateImplTest, ContextDestroyedDuringAttemptLogin) {
   EXPECT_FALSE(future.IsReady());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class ActorLoginDelegateImplReauthTest : public base::test::WithFeatureOverride,
                                          public ActorLoginDelegateImplTest {
  public:
@@ -708,7 +623,6 @@ TEST_P(ActorLoginDelegateImplReauthTest, FillingReauthRequiredWindowNotActive) {
 }
 
 INSTANTIATE_FEATURE_OVERRIDE_TEST_SUITE(ActorLoginDelegateImplReauthTest);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ActorLoginDelegateImplTest, RecordActorLoginMetricsNoCredentials) {
   base::test::ScopedFeatureList feature_list(

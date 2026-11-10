@@ -256,31 +256,6 @@ TEST_F(ChromeContentVerifierTest, ComponentExtensionsAreNotVerified) {
             delegate.GetVerifierSourceType(*component_ext));
 }
 
-#if BUILDFLAG(PLATFORM_CFM)
-// Content should be verified on a CfM without the
-// kDisableAppContentVerification flag.
-TEST_F(ChromeContentVerifierTest, CfmChecksHashWithoutForceFlag) {
-  ASSERT_FALSE(base::CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kDisableAppContentVerification));
-  InitContentVerifier();
-  ASSERT_TRUE(InstallExtension(kCaseSensitiveManifestPathsCrx));
-  // Ensure that content verifier has checked hashes from |extension|.
-  EXPECT_EQ(ChromeContentVerifierDelegate::VerifierSourceType::SIGNED_HASHES,
-            GetVerifierSourceType(extension()));
-}
-
-// Content should NOT be verified on a CfM only when the
-// kDisableAppContentVerification flag is present.
-TEST_F(ChromeContentVerifierTest, CfmDoesNotCheckHashWithForceFlag) {
-  base::CommandLine::ForCurrentProcess()->AppendSwitch(
-      switches::kDisableAppContentVerification);
-  InitContentVerifier();
-  ASSERT_TRUE(InstallExtension(kCaseSensitiveManifestPathsCrx));
-  // Ensure that content verifier has NOT checked hashes from |extension|.
-  EXPECT_EQ(ChromeContentVerifierDelegate::VerifierSourceType::NONE,
-            GetVerifierSourceType(extension()));
-}
-#else   // BUILDFLAG(PLATFORM_CFM)
 // Content should be verified on non-CfM builds even when the
 // kDisableAppContentVerification flag is present.
 TEST_F(ChromeContentVerifierTest, NonCfmChecksHashEvenWithForceFlag) {
@@ -292,6 +267,5 @@ TEST_F(ChromeContentVerifierTest, NonCfmChecksHashEvenWithForceFlag) {
   EXPECT_EQ(ChromeContentVerifierDelegate::VerifierSourceType::SIGNED_HASHES,
             GetVerifierSourceType(extension()));
 }
-#endif  // BUILDFLAG(PLATFORM_CFM)
 
 }  // namespace extensions

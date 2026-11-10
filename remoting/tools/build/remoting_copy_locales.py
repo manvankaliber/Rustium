@@ -42,7 +42,7 @@ class Usage(Exception):
 def calc_output(locale):
   """Determine the file that will be generated for the given locale."""
   # e.g. '<(INTERMEDIATE_DIR)/remoting_locales/da.pak',
-  if OS == 'mac' or OS == 'ios':
+  if OS == 'mac':
     # For Cocoa to find the locale at runtime, it needs to use '_' instead
     # of '-' (http://crbug.com/20441).
     return os.path.join(

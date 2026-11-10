@@ -4,13 +4,8 @@
 
 import {html} from '//resources/lit/v3_0/lit.rollup.js';
 
-// <if expr="not is_chromeos">
 import {HistorySignInState} from './constants.js';
-// </if>
 
-// <if expr="is_android">
-import {getHtml as getIllustrationHtml} from './empty_state_illustration.html.js';
-// </if>
 import type {HistorySyncedDeviceManagerElement} from './synced_device_manager.js';
 
 export function getHtml(this: HistorySyncedDeviceManagerElement) {
@@ -29,9 +24,6 @@ export function getHtml(this: HistorySyncedDeviceManagerElement) {
 </div>
 <div id="noSyncedTabs" class="centered-message"
     ?hidden="${!this.showNoSyncedMessage_()}">
-<if expr="is_android">
-  ${this.fetchingSyncedTabs_ ? '' : getIllustrationHtml()}
-</if>
   ${this.noSyncedTabsMessage_()}
 </div>
 
@@ -47,7 +39,6 @@ export function getHtml(this: HistorySyncedDeviceManagerElement) {
   </cr-button>
 </div>
 
-<if expr="not is_chromeos">
 ${this.shouldShowHistorySyncOptIn_() ? html`
   <div id="history-sync-optin" class="history-sync-optin">
     ${this.isSignInState_(HistorySignInState.SIGNED_OUT) ||
@@ -144,7 +135,6 @@ ${this.shouldShowHistorySyncOptIn_() ? html`
     `}
   </div>
 ` : ''}
-</if>
 
 <cr-lazy-render-lit id="menu"
     .template="${() => html`

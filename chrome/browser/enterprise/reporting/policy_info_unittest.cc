@@ -23,11 +23,9 @@
 #include "content/public/test/browser_task_environment.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "extensions/browser/extension_registry.h"
 #include "extensions/common/extension_builder.h"
 #include "extensions/common/manifest_constants.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace em = enterprise_management;
 
@@ -174,7 +172,6 @@ TEST_F(PolicyInfoTest, ConflictPolicy) {
   EXPECT_EQ(em::Policy_PolicySource_SOURCE_PLATFORM, conflict2.source());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Verify that extension policies are correctly processed and included in
 // enterprise reporting.
 TEST_F(PolicyInfoTest, ExtensionPolicy) {
@@ -224,15 +221,12 @@ TEST_F(PolicyInfoTest, ExtensionPolicy) {
   // Extension policies should show standard error message for unknown policies.
   EXPECT_EQ("Unknown policy.", policy1.error());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(PolicyInfoTest, MachineLevelUserCloudPolicyFetchTimestamp) {
   em::ChromeUserProfileInfo profile_info;
-#if !BUILDFLAG(IS_CHROMEOS)
   AppendCloudPolicyFetchTimestamp(
       &profile_info, g_browser_process->browser_policy_connector()
                          ->machine_level_user_cloud_policy_manager());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(0, profile_info.policy_fetched_timestamps_size());
 }
 

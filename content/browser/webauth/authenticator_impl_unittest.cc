@@ -152,11 +152,6 @@
 #include "third_party/microsoft_webauthn/src/webauthn.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/dbus/tpm_manager/tpm_manager_client.h"
-#include "chromeos/dbus/u2f/u2f_client.h"
-#include "device/bluetooth/floss/floss_features.h"
-#endif
 
 namespace content {
 
@@ -1195,12 +1190,6 @@ TEST_F(AuthenticatorImplTest, WinGetAssertionUnparsableResponse) {
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(AuthenticatorImplTest, IsUVPAA) {
-  NavigateAndCommit(GURL(kTestOrigin1));
-  EXPECT_FALSE(AuthenticatorIsUvpaa());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 enum class EnterprisePolicy {
   LISTED,

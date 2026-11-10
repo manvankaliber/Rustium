@@ -26,9 +26,7 @@ namespace {
 // Tells whether the component is supported on a particular platform wrt to
 // the feature flags.
 bool IsComponentSupported() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return true;
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Key Distribution component is necessary for full IWAs support as it
   // involves the IWA allowlist necessary to install IWAs in prod...
   return base::FeatureList::IsEnabled(features::kIsolatedWebApps);

@@ -1315,13 +1315,8 @@ TEST(ExcServerVariants, ThreadStates) {
 #endif  // BUILDFLAG(IS_MAC)
 
 TEST(ExcServerVariants, ExcServerSuccessfulReturnValue) {
-#if BUILDFLAG(IS_IOS)
-  // iOS 9 ≅ OS X 10.11.
-  const kern_return_t prefer_not_set_thread_state = KERN_SUCCESS;
-#else
   const kern_return_t prefer_not_set_thread_state =
       MacOSVersionNumber() < 10'11'00 ? MACH_RCV_PORT_DIED : KERN_SUCCESS;
-#endif
 
   const struct {
     exception_type_t exception;

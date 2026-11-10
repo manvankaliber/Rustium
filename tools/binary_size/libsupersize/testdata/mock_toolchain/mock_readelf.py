@@ -220,6 +220,9 @@ Relocation section '.rel.plt' at offset 0x2f313c contains 1 entries:
 """
 
 
+_OBJECT_OUTPUTS = {os.path.normpath(k): v for k, v in _OBJECT_OUTPUTS.items()}
+
+
 def _PrintHeader(path):
   sys.stdout.write('\n')
   sys.stdout.write('File: ' + path + '\n')

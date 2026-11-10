@@ -15,7 +15,6 @@
 #include "cc/test/pixel_comparator.h"
 #include "cc/test/solid_color_content_layer_client.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 
 namespace cc {
 namespace {
@@ -149,11 +148,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, BackdropFilterInvalid) {
 }
 
 // TODO(crbug.com/40256786): currently do not pass on iOS.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_BackdropFilterBlurRadius DISABLED_BackdropFilterBlurRadius
-#else
 #define MAYBE_BackdropFilterBlurRadius BackdropFilterBlurRadius
-#endif  // BUILDFLAG(IS_IOS)
 TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_BackdropFilterBlurRadius) {
 #if defined(MEMORY_SANITIZER)
   if (renderer_type() == viz::RendererType::kSkiaVk) {
@@ -320,11 +315,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, BackdropFilterQuality_0_33) {
   blur->SetBackdropFilters(filters);
   blur->SetBackdropFilterQuality(0.33);
 
-#if BUILDFLAG(IS_IOS)
-  // iOS has imperceptible pixel differences (max error of 1 per channel).
-  pixel_comparator_ =
-      std::make_unique<AlphaDiscardingFuzzyPixelOffByOneComparator>();
-#elif BUILDFLAG(IS_WIN) || defined(ARCH_CPU_ARM64)
+#if BUILDFLAG(IS_WIN) || defined(ARCH_CPU_ARM64)
   // Windows and ARM64 (non-iOS) have 436 pixels off by 1: crbug.com/259915
   pixel_comparator_ = std::make_unique<FuzzyPixelComparator>(
       FuzzyPixelComparator()
@@ -360,11 +351,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, BackdropFilterQuality_1_0) {
   blur->SetBackdropFilters(filters);
   blur->SetBackdropFilterQuality(1.0);
 
-#if BUILDFLAG(IS_IOS)
-  // iOS has imperceptible pixel differences (max error of 1 per channel).
-  pixel_comparator_ =
-      std::make_unique<AlphaDiscardingFuzzyPixelOffByOneComparator>();
-#elif BUILDFLAG(IS_WIN) || defined(ARCH_CPU_ARM64)
+#if BUILDFLAG(IS_WIN) || defined(ARCH_CPU_ARM64)
   // Windows and ARM64 (non-iOS) have 436 pixels off by 1: crbug.com/259915
   pixel_comparator_ = std::make_unique<FuzzyPixelComparator>(
       FuzzyPixelComparator()
@@ -633,11 +620,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, ImageFilterClipped) {
 }
 
 // TODO(crbug.com/40256786): currently do not pass on iOS.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_ImageFilterScaled DISABLED_ImageFilterScaled
-#else
 #define MAYBE_ImageFilterScaled ImageFilterScaled
-#endif  // BUILDFLAG(IS_IOS)
 TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_ImageFilterScaled) {
   scoped_refptr<SolidColorLayer> background =
       CreateSolidColorLayer(gfx::Rect(200, 200), SK_ColorWHITE);
@@ -677,13 +660,12 @@ TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_ImageFilterScaled) {
   filter->SetBackdropFilters(filters);
   filter->ClearBackdropFilterBounds();
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS) || \
-    defined(_MIPS_ARCH_LOONGSON) || defined(ARCH_CPU_ARM64)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || defined(_MIPS_ARCH_LOONGSON) || defined(ARCH_CPU_ARM64)
 #if BUILDFLAG(IS_WIN)
   // Windows has 153 pixels off by at most 2: crbug.com/225027
   float percentage_pixels_error = 0.3825f;  // 153px / (200*200)
   int error_allowed = 2;
-#elif BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_MAC)
   // There's a 1 pixel error on MacOS and ChromeOS
   float percentage_pixels_error = 0.0025f;  // 1px / (200*200)
   int error_allowed = 1;
@@ -711,14 +693,11 @@ TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_ImageFilterScaled) {
 
 // TODO(crbug.com/40256786): currently do not pass on iOS.
 // TODO(crbug.com/401029604): Times out in arm64 windows and linux TSAN.
-#if BUILDFLAG(IS_IOS) ||                                        \
-    (defined(ARCH_CPU_ARM_FAMILY) && defined(ARCH_CPU_ARM64) && \
-     BUILDFLAG(IS_WIN)) ||                                      \
-    (defined(THREAD_SANITIZER) && BUILDFLAG(IS_LINUX))
+#if defined(ARCH_CPU_ARM_FAMILY) && defined(ARCH_CPU_ARM64) && BUILDFLAG(IS_WIN) || defined(THREAD_SANITIZER) && BUILDFLAG(IS_LINUX)
 #define MAYBE_BackdropFilterRotated DISABLED_BackdropFilterRotated
 #else
 #define MAYBE_BackdropFilterRotated BackdropFilterRotated
-#endif  // BUILDFLAG(IS_IOS)
+#endif
 TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_BackdropFilterRotated) {
   if (renderer_type() == viz::RendererType::kSkiaVk) {
     // TODO(crbug.com/40859233): The vulkan expected image requires rebasing
@@ -777,11 +756,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_BackdropFilterRotated) {
 }
 
 // TODO(crbug.com/40256786): currently do not pass on iOS.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_ImageRenderSurfaceScaled DISABLED_ImageRenderSurfaceScaled
-#else
 #define MAYBE_ImageRenderSurfaceScaled ImageRenderSurfaceScaled
-#endif  // BUILDFLAG(IS_IOS)
 TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_ImageRenderSurfaceScaled) {
   // A filter will cause a render surface to be used.  Here we force the
   // render surface on, and scale the result to make sure that we rasterize at
@@ -843,11 +818,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_ImageRenderSurfaceScaled) {
 }
 
 // TODO(crbug.com/40256786): currently does not pass on iOS.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_ZoomFilter DISABLED_ZoomFilter
-#else
 #define MAYBE_ZoomFilter ZoomFilter
-#endif  // BUILDFLAG(IS_IOS)
 TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_ZoomFilter) {
   // ZOOM_FILTER is unsupported by software_renderer (crbug.com/1451898)
   if (use_software_renderer()) {
@@ -957,11 +928,7 @@ TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_ZoomFilter) {
 }
 
 // TODO(crbug.com/40256786): currently do not pass on iOS.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_RotatedFilter DISABLED_RotatedFilter
-#else
 #define MAYBE_RotatedFilter RotatedFilter
-#endif  // BUILDFLAG(IS_IOS)
 TEST_P(LayerTreeHostFiltersPixelTest, MAYBE_RotatedFilter) {
   scoped_refptr<SolidColorLayer> background =
       CreateSolidColorLayer(gfx::Rect(300, 300), SK_ColorWHITE);
@@ -1041,23 +1008,17 @@ TEST_P(LayerTreeHostFiltersPixelTest, RotatedDropShadowFilter) {
 
   background->AddChild(child);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS) || \
-    defined(ARCH_CPU_ARM64) || BUILDFLAG(IS_OZONE)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || defined(ARCH_CPU_ARM64) || BUILDFLAG(IS_OZONE)
 #if defined(ARCH_CPU_ARM64) && \
     (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX))
 
   // Windows, macOS, Fuchsia and Linux on ARM64 has some pixels difference.
   // crbug.com/1029728, crbug.com/1128443
-#if !BUILDFLAG(IS_IOS)
   float percentage_pixels_error = 0.89f;
-#else
-  // iOS on ARM64 has some more differing pixels.
-  float percentage_pixels_error = 0.96f;
-#endif
 
   float average_error_allowed_in_bad_pixels = 5.f;
   int error_allowed = 17;
-#elif BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_OZONE)
+#elif BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_OZONE)
   // There's a 1 pixel error on MacOS and ChromeOS
   float percentage_pixels_error = 0.00111112f;  // 1px / (300*300)
   float average_error_allowed_in_bad_pixels = 1.f;
@@ -1320,13 +1281,6 @@ INSTANTIATE_TEST_SUITE_P(All,
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(BackdropFilterOffsetTest);
 
 TEST_P(BackdropFilterOffsetTest, StandardDpi) {
-#if BUILDFLAG(IS_IOS)
-  // iOS has imperceptible pixel differences with SkiaGraphiteDawn.
-  if (renderer_type() == viz::RendererType::kSkiaGraphiteDawn) {
-    pixel_comparator_ =
-        std::make_unique<AlphaDiscardingFuzzyPixelOffByOneComparator>();
-  }
-#endif
   RunPixelTestType(1.f);
 }
 
@@ -1381,22 +1335,11 @@ INSTANTIATE_TEST_SUITE_P(All,
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(BackdropFilterInvertTest);
 
 TEST_P(BackdropFilterInvertTest, StandardDpi) {
-#if BUILDFLAG(IS_IOS)
-  // iOS has imperceptible pixel differences with SkiaGraphiteDawn.
-  if (renderer_type() == viz::RendererType::kSkiaGraphiteDawn) {
-    pixel_comparator_ =
-        std::make_unique<AlphaDiscardingFuzzyPixelOffByOneComparator>();
-  }
-#endif
   RunPixelTestType(1.f);
 }
 
 // TODO(crbug.com/40256786): currently do not pass on iOS.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_HiDpi DISABLED_HiDpi
-#else
 #define MAYBE_HiDpi HiDpi
-#endif  // BUILDFLAG(IS_IOS)
 TEST_P(BackdropFilterInvertTest, MAYBE_HiDpi) {
   RunPixelTestType(2.f);
 }
@@ -1495,5 +1438,3 @@ TEST_P(MixedFilterZoomAndOffsetTest, HiDpi) {
 
 }  // namespace
 }  // namespace cc
-
-#endif  // BUILDFLAG(IS_ANDROID)

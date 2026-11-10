@@ -18,11 +18,7 @@
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/safe_browsing/tailored_security/unconsented_message_android.h"
-#else
 #include "chrome/browser/ui/views/safe_browsing/tailored_security_unconsented_modal.h"
-#endif
 
 namespace safe_browsing {
 
@@ -67,27 +63,9 @@ void TailoredSecurityUrlObserver::OnTailoredSecurityBitChanged(
       prefs::kAccountTailoredSecurityShownNotification, true);
 
   if (base::Time::Now() - previous_update <= kThresholdForInFlowNotification) {
-#if BUILDFLAG(IS_ANDROID)
-    message_ = std::make_unique<TailoredSecurityUnconsentedMessageAndroid>(
-        web_contents(),
-        base::BindOnce(&TailoredSecurityUrlObserver::MessageDismissed,
-                       // Unretained is safe because |this| owns |message_|.
-                       base::Unretained(this)),
-        /*is_in_flow=*/true);
-#else
       TailoredSecurityUnconsentedModal::ShowForWebContents(web_contents());
-#endif
   } else {
-#if BUILDFLAG(IS_ANDROID)
-    message_ = std::make_unique<TailoredSecurityUnconsentedMessageAndroid>(
-        web_contents(),
-        base::BindOnce(&TailoredSecurityUrlObserver::MessageDismissed,
-                       // Unretained is safe because |this| owns |message_|.
-                       base::Unretained(this)),
-        /*is_in_flow=*/false);
-#else
     DisplayTailoredSecurityUnconsentedPromotionNotification(profile);
-#endif
   }
 }
 
@@ -141,10 +119,5 @@ void TailoredSecurityUrlObserver::UpdateFocusAndURL(bool focused,
   last_url_ = url;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void TailoredSecurityUrlObserver::MessageDismissed() {
-  message_.reset();
-}
-#endif
 
 }  // namespace safe_browsing

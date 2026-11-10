@@ -36,10 +36,6 @@
 #include "ui/base/resource/resource_scale_factor.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/dbus/tpm_manager/tpm_manager_client.h"
-#include "chromeos/dbus/u2f/u2f_client.h"
-#endif
 
 namespace content {
 
@@ -402,10 +398,6 @@ void AuthenticatorTestBase::SetUp() {
   mojo::SetDefaultProcessErrorHandler(base::BindRepeating(
       &AuthenticatorTestBase::OnMojoError, base::Unretained(this)));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  chromeos::TpmManagerClient::InitializeFake();
-  chromeos::U2FClient::InitializeFake();
-#endif
 
 #if BUILDFLAG(IS_WIN)
   // Disable the Windows WebAuthn API integration by default. Individual tests
@@ -431,10 +423,6 @@ void AuthenticatorTestBase::TearDown() {
 
   virtual_device_factory_ = nullptr;
   AuthenticatorEnvironment::GetInstance()->Reset();
-#if BUILDFLAG(IS_CHROMEOS)
-  chromeos::U2FClient::Shutdown();
-  chromeos::TpmManagerClient::Shutdown();
-#endif
 }
 
 void AuthenticatorTestBase::ResetVirtualDevice() {

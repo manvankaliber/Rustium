@@ -17,38 +17,22 @@ namespace glic {
 inline base::CallbackListSubscription RegisterBrowserDidClose(
     BrowserWindowInterface* browser_window,
     base::RepeatingCallback<void(BrowserWindowInterface*)> callback) {
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
   return browser_window->RegisterBrowserDidClose(std::move(callback));
-#else
-  return base::CallbackListSubscription();
-#endif
 }
 
 inline base::CallbackListSubscription RegisterActiveTabDidChange(
     BrowserWindowInterface* browser_window,
     base::RepeatingCallback<void(BrowserWindowInterface*)> callback) {
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
   return browser_window->RegisterActiveTabDidChange(std::move(callback));
-#else
-  return base::CallbackListSubscription();
-#endif
 }
 
 inline bool IsActive(BrowserWindowInterface* browser_window) {
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
   return browser_window->IsActive();
-#else
-  return true;
-#endif
 }
 
 inline base::WeakPtr<BrowserWindowInterface> GetBrowserWindowInterfaceWeakPtr(
     BrowserWindowInterface* browser_window) {
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
   return browser_window ? browser_window->GetWeakPtr() : nullptr;
-#else
-  return nullptr;
-#endif
 }
 
 }  // namespace glic

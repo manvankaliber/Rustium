@@ -377,9 +377,6 @@ void FileSystemAccessHandleBase::RunWithSensitiveEntryAccess(
 
   if (url.type() == storage::FileSystemType::kFileSystemTypeLocal &&
       !url.path().IsAbsolute()
-#if BUILDFLAG(IS_ANDROID)
-      && !url.path().IsContentUri()
-#endif
   ) {
     // Local file system paths must be absolute (or Android content-URIs) to be
     // evaluated against the sensitive entry blocklist. Synthetic relative paths

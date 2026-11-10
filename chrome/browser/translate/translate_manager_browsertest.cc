@@ -1557,7 +1557,6 @@ IN_PROC_BROWSER_TEST_F(TranslateManagerBrowserTest, NoAutoTranslateNoToast) {
   EXPECT_TRUE(IsTranslateBubbleShown());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Tests the integration between ChromeTranslateClient and Reading Mode. These
 // tests only check whether Reading Mode is open or closed, not its content, so
 // Reading Mode is frozen to ignore distillation results. Otherwise, an empty
@@ -1830,8 +1829,7 @@ IN_PROC_BROWSER_TEST_F(TranslateManagerReadingModeBrowserTest,
 // and Mac.
 // TODO(crbug.com/568775395): Fix test failure on Linux.
 // TODO(crbug.com/569866044): Fix test failure on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS) || \
-    defined(MEMORY_SANITIZER) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
+#if defined(MEMORY_SANITIZER) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #define MAYBE_RevertTranslationClosesSidePanelViaTranslateManager \
   DISABLED_RevertTranslationClosesSidePanelViaTranslateManager
 #else
@@ -1860,7 +1858,7 @@ IN_PROC_BROWSER_TEST_F(
 
 // TODO(crbug.com/568775395): Fix test failure on Linux.
 // TODO(crbug.com/569866044): Fix test failure on ChromeOS.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_ClosingSidePanelRevertsPdfTranslation \
   DISABLED_ClosingSidePanelRevertsPdfTranslation
 #else
@@ -1977,7 +1975,7 @@ IN_PROC_BROWSER_TEST_F(
 
 // TODO(crbug.com/568775395): Fix test failure on Linux.
 // TODO(crbug.com/569866044): Fix test failure on ChromeOS.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_ClosingSidePanelAfterTabSwitchRevertsPdfTranslation \
   DISABLED_ClosingSidePanelAfterTabSwitchRevertsPdfTranslation
 #else
@@ -2158,7 +2156,6 @@ IN_PROC_BROWSER_TEST_F(TranslateManagerReadingModeBrowserTest,
       recorder.reasons(),
       ::testing::ElementsAre(ReadAnythingCloseReason::kClosedByPdfTranslation));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_PDF)
 class TranslateManagerPdfBrowserTest : public TranslateManagerBrowserTest {

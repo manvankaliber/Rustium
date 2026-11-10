@@ -9,11 +9,9 @@ import {loadTimeData, ProfileInfoBrowserProxyImpl, resetRouterForTesting, SyncBr
 import {assertEquals, assertTrue} from 'chrome://webui-test/chai_assert.js';
 import {isChildVisible, microtasksFinished} from 'chrome://webui-test/test_util.js';
 // clang-format off
-// <if expr="not is_chromeos">
 import {ChromeSigninAccessPoint, Router, routes, SignedInState, StatusAction} from 'chrome://settings/settings.js';
 import type {SyncStatus} from 'chrome://settings/settings.js';
 import {assertFalse} from 'chrome://webui-test/chai_assert.js';
-// </if>
 // clang-format on
 
 
@@ -48,7 +46,6 @@ suite('AutofillAccount', function() {
     document.body.appendChild(accountCardElement);
   }
 
-  // <if expr="not is_chromeos">
   async function setupSync(syncStatus: SyncStatus) {
     syncBrowserProxy.testSyncStatus = syncStatus;
     webUIListenerCallback('sync-status-changed', syncStatus);
@@ -187,34 +184,5 @@ suite('AutofillAccount', function() {
         ChromeSigninAccessPoint.SETTINGS_YOUR_SAVED_INFO, accessPoint,
         'Sign-in should be called with SettingsYourSavedInfo Access point');
   });
-  // </if>
 
-  // <if expr="is_chromeos">
-  test('displaysProfileNameOnChromeOS', async function() {
-    loadTimeData.overrideValues({
-      isAccountManagerEnabled: false,
-    });
-    resetRouterForTesting();
-    // Re-create the element to apply the new loadTimeData.
-    createAccountCardElement();
-    await microtasksFinished();
-    await profileInfoBrowserProxy.whenCalled('getProfileInfo');
-
-    assertEquals(
-        profileInfoBrowserProxy.fakeProfileInfo.name,
-        accountCardElement.shadowRoot!
-            .querySelector<HTMLElement>('#profile-name')!.textContent.trim());
-
-    // Update profile info and check again.
-    webUIListenerCallback(
-        'profile-info-changed', {name: 'pushedName', iconUrl: ICON_DATA_URL});
-    await microtasksFinished();
-
-    assertEquals(
-        'pushedName',
-        accountCardElement.shadowRoot!
-            .querySelector<HTMLElement>('#profile-name')!.textContent.trim());
-    assertTrue(isChildVisible(accountCardElement, '#profile-name'));
-  });
-  // </if>
 });

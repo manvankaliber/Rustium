@@ -79,17 +79,10 @@
 #include "ui/gfx/geometry/point.h"
 #include "ui/gfx/geometry/point_conversions.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/sessions/tab_restore_service_factory.h"
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "components/sessions/core/tab_restore_service.h"
-#include "content/public/browser/web_contents.h"
-#else
 #include "chrome/app/chrome_command_ids.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/test/base/ui_test_utils.h"
 #include "ui/views/test/widget_activation_waiter.h"
-#endif
 
 #if BUILDFLAG(ENABLE_PRINT_PREVIEW)
 #include "chrome/browser/printing/browser_printing_context_factory_for_test.h"
@@ -153,15 +146,7 @@ class GlicInstanceCoordinatorBrowserTest
   }
 
   void RestoreMostRecentTab() {
-#if BUILDFLAG(IS_ANDROID)
-    TabModel* tab_model = static_cast<TabModel*>(GetTabListInterface());
-    sessions::LiveTabContext* live_tab_context = tab_model->GetLiveTabContext();
-    sessions::TabRestoreService* service =
-        TabRestoreServiceFactory::GetForProfile(GetProfile());
-    service->RestoreMostRecentEntry(live_tab_context);
-#else
     chrome::RestoreTab(PlatformBrowserTest::browser());
-#endif
   }
 
  protected:
@@ -188,11 +173,7 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
 }
 
 // ClearPrimaryAccount is not supported on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_SignOutClosesAllInstances DISABLED_SignOutClosesAllInstances
-#else
 #define MAYBE_SignOutClosesAllInstances SignOutClosesAllInstances
-#endif
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        MAYBE_SignOutClosesAllInstances) {
   ASSERT_OK(OpenGlicForActiveTab());
@@ -346,27 +327,10 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
   // Simulate opening a bookmark in a new foreground tab.
   GlicTestTabAddedWaiter waiter(GetProfile());
 
-#if BUILDFLAG(IS_ANDROID)
-  TabListInterface* tab_list = GetTabListInterface();
-  TabModel* tab_model = static_cast<TabModel*>(tab_list);
-  Profile* profile = GetProfile();
-
-  std::unique_ptr<content::WebContents> web_contents =
-      content::WebContents::Create(content::WebContents::CreateParams(profile));
-  web_contents->GetController().LoadURL(
-      GURL("about:blank"), content::Referrer(),
-      ui::PAGE_TRANSITION_AUTO_BOOKMARK, std::string());
-
-  tabs::TabInterface* tab2 = tab_model->CreateTab(
-      nullptr, std::move(web_contents), -1,
-      TabModel::TabLaunchType::FROM_BOOKMARK_BAR_BACKGROUND, false);
-  tab_model->ActivateTab(tab2->GetHandle());
-#else
   NavigateParams params(PlatformBrowserTest::browser(), GURL("about:blank"),
                         ui::PAGE_TRANSITION_AUTO_BOOKMARK);
   params.disposition = ui::mojom::WindowOpenDisposition::kNewForegroundTab;
   Navigate(&params);
-#endif
 
   tabs::TabInterface* tab2_result = waiter.Wait();
 
@@ -375,7 +339,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
 }
 
 // Glic floaty and live modes are not supported on Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        SidePanelActivationStopsFloatyListening) {
   // Open floaty and start listening
@@ -413,7 +376,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
   EXPECT_EQ(floaty_instance->host().microphone_status(),
             mojom::MicrophoneStatus::kNotListening);
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        ShowOpensPanelAndDoesNotClose) {
@@ -496,7 +458,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
 }
 
 // Glic floaty is not supported on Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        WebClientLinkClickDaisyChainingFromFloaty) {
   // Open floaty
@@ -540,7 +501,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
     EXPECT_NE(GetTabListInterface()->GetActiveTab(), tab3);
   }
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        ActiveEmbedderFollowsActiveTab) {
@@ -1345,7 +1305,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorNoWarmingTest,
   EXPECT_FALSE(warming_pool.GetDelayTimerForTesting().IsRunning());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        StabilizationTaskSafeWithDestroyedWebContents) {
   // Create a tab.
@@ -1435,10 +1394,8 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorActuationBrowserTest,
   // Wait for the handler to complete.
   EXPECT_TRUE(handler_completion_future.Wait());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        SaasUsageReportingOnOpen) {
   // Set the policy to include the GiC virtual domain.
@@ -1530,7 +1487,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorLocalHotkeyScopeTest,
   ASSERT_OK(WaitForGlicClose());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorLocalHotkeyScopeTest,
                        HotkeyWhenDetachedActiveCloses) {
   // Open Glic and detach it into a floating window.
@@ -1547,7 +1503,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorLocalHotkeyScopeTest,
   ASSERT_OK(WaitForGlicClose(instance));
   EXPECT_EQ(coordinator().GetInstanceWithFloaty(), nullptr);
 }
-#endif
 
 class GlicInstanceCoordinatorLocalHotkeyScopeDisabledTest
     : public GlicInstanceCoordinatorBrowserTest {
@@ -1672,7 +1627,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
   EXPECT_FALSE(instance->HasActiveEmbedder());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        LastActiveOrNewSurface_ResolvesToFloating) {
   // Use Toggle without a browser to create a new Glic instance as a floating
@@ -1750,7 +1704,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorCriticalActionHistoryTest,
   // Leave the detached panel open so that it is closed by GlicInstanceImpl's
   // destructor during profile teardown.
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        TabRestoration_ReusesDyingInstanceBeforeDeletion) {
@@ -1789,7 +1742,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
   EXPECT_EQ(coordinator().GetInstanceImplFor(instance_id), instance);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        GetRecentlyActiveInstances) {
   tabs::TabInterface* tab1 = GetTabListInterface()->GetActiveTab();
@@ -1851,7 +1803,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
     EXPECT_EQ(result[0].instance_id, instance3->id());
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class GlicInstanceCoordinatorRemoveBlankInstancesTest
     : public GlicInstanceCoordinatorBrowserTest {
@@ -1878,7 +1829,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorRemoveBlankInstancesTest,
   ASSERT_OK(WaitForInstanceDeletion(weak_instance));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        DetachedPanelActivationWithMultipleInstances) {
   // 1. Open glic detached and activate live mode
@@ -1917,7 +1867,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
   EXPECT_EQ(coordinator().GetInstanceWithFloaty(), floaty_instance);
   EXPECT_EQ(coordinator().GetActiveInstance(), floaty_instance);
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorBrowserTest,
                        ShowDoesNotCrashIfEmbedderDeactivatedDuringShow) {

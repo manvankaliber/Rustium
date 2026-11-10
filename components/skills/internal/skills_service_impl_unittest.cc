@@ -835,7 +835,6 @@ TEST_F(SkillsServiceImplTest, FetchDiscoverySkills_Failure) {
   run_loop.Run();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(SkillsServiceImplTest, FetchDiscoverySkills_FromService_Success) {
   scoped_feature_list_.InitWithFeatures(
       {features::kSkillsEnabled, features::kSkillsServiceApi}, {});
@@ -909,7 +908,6 @@ TEST_F(SkillsServiceImplTest, FetchDiscoverySkills_FromService_Fallback) {
 
   run_loop.Run();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(SkillsServiceImplTest, AddSkillSortsByLastUpdateTime) {
   InitService();

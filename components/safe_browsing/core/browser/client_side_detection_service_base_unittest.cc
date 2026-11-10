@@ -169,16 +169,8 @@ class ClientSideDetectionServiceBaseTest : public testing::Test {
                                 .AppendASCII("data")
                                 .AppendASCII("safe_browsing");
 
-#if BUILDFLAG(IS_ANDROID)
-    additional_files_path =
-        additional_files_path.AppendASCII("visual_model_android.tflite");
-#elif BUILDFLAG(IS_IOS)
-    additional_files_path =
-        additional_files_path.AppendASCII("visual_model_ios.tflite");
-#else
     additional_files_path =
         additional_files_path.AppendASCII("visual_model_desktop.tflite");
-#endif
     ValidateModel(model_file_path, {additional_files_path});
   }
 

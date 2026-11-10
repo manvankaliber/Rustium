@@ -32,9 +32,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 namespace actor {
 namespace {
@@ -94,16 +91,9 @@ class ActorNavigationThrottleTest : public ChromeRenderViewHostTestHarness {
                               features::kGlicActor},
         /*disabled_features=*/{});
     ChromeRenderViewHostTestHarness::SetUp();
-#if BUILDFLAG(IS_ANDROID)
-    // Only desktop form factors confirm user UI navigations on Android.
-    base::android::device_info::set_is_desktop_for_testing(true);
-#endif
   }
 
   void TearDown() override {
-#if BUILDFLAG(IS_ANDROID)
-    base::android::device_info::reset_is_desktop_for_testing();
-#endif
     tab_controller_.reset();
     tab_state_.reset();
     ChromeRenderViewHostTestHarness::TearDown();
@@ -403,7 +393,6 @@ TEST_F(ActorNavigationThrottleTest,
   EXPECT_FALSE(test_delegate.confirm_navigation_called());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // With the confirmation feature disabled on Desktop, browser-initiated user UI
 // navigations (including speculative prerenders) proceed without cancelling or
 // prompting.
@@ -439,58 +428,6 @@ TEST_F(ActorNavigationThrottleTest,
             throttle.WillStartRequest().action());
   EXPECT_FALSE(test_delegate.confirm_navigation_called());
 }
-#else
-// On Android phones, browser-initiated user UI navigations (including
-// speculative prerenders and history navigations) proceed without cancelling or
-// prompting.
-TEST_F(ActorNavigationThrottleTest,
-       BrowserInitiated_PhoneProceedsWithoutPrompt) {
-  base::android::device_info::set_is_desktop_for_testing(false);
-
-  ActorKeyedService* service = ActorKeyedService::Get(profile());
-  TaskId task_id =
-      service->CreateTask(TestTaskSourceInfo(), NoEnterprisePolicyChecker());
-  ActorTask* task = service->GetTask(task_id);
-  ASSERT_TRUE(task);
-
-  NavigateAndCommit(GURL("https://source.com"));
-
-  TestActorNavigationDelegate test_delegate;
-  test_delegate.set_should_defer(true);
-  task->SetNavigationDelegate(test_delegate.GetWeakPtr());
-
-  for (bool is_prerender : {false, true}) {
-    SCOPED_TRACE(is_prerender);
-    testing::NiceMock<content::MockNavigationHandle> handle(
-        GURL("https://destination.com"), main_rfh());
-    ON_CALL(handle, IsInPrerenderedMainFrame())
-        .WillByDefault(Return(is_prerender));
-    handle.set_is_renderer_initiated(false);
-    handle.set_page_transition(::ui::PageTransitionFromInt(
-        ::ui::PAGE_TRANSITION_TYPED | ::ui::PAGE_TRANSITION_FROM_ADDRESS_BAR));
-
-    content::MockNavigationThrottleRegistry registry(&handle);
-    ActorNavigationThrottle throttle =
-        ActorNavigationThrottle::CreateForTesting(registry, *task);
-
-    EXPECT_EQ(content::NavigationThrottle::PROCEED,
-              throttle.WillStartRequest().action());
-  }
-
-  testing::NiceMock<content::MockNavigationHandle> history_handle(
-      GURL("https://destination.com"), main_rfh());
-  history_handle.set_is_renderer_initiated(false);
-  history_handle.set_page_transition(::ui::PageTransitionFromInt(
-      ::ui::PAGE_TRANSITION_LINK | ::ui::PAGE_TRANSITION_FORWARD_BACK));
-  content::MockNavigationThrottleRegistry history_registry(&history_handle);
-  ActorNavigationThrottle history_throttle =
-      ActorNavigationThrottle::CreateForTesting(history_registry, *task);
-  EXPECT_EQ(content::NavigationThrottle::PROCEED,
-            history_throttle.WillStartRequest().action());
-
-  EXPECT_FALSE(test_delegate.confirm_navigation_called());
-}
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ActorNavigationThrottleTest,
        BrowserInitiated_NoDeferForNonUiTransition) {

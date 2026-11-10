@@ -88,9 +88,7 @@
 #include "url/gurl.h"
 #include "url/url_constants.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/renderer/accessibility/read_anything/read_anything_app_controller.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 #include "components/safe_browsing/content/renderer/phishing_classifier/content_phishing_classifier_delegate.h"
@@ -137,20 +135,6 @@ const char kImageJpeg[] = "image/jpeg";
 const char kImagePng[] = "image/png";
 const char kImageWebp[] = "image/webp";
 
-#if BUILDFLAG(IS_ANDROID)
-base::Lock& GetFrameHeaderMapLock() {
-  static base::NoDestructor<base::Lock> s;
-  return *s;
-}
-
-using FrameHeaderMap = std::map<blink::LocalFrameToken, std::string>;
-
-FrameHeaderMap& GetFrameHeaderMap() {
-  GetFrameHeaderMapLock().AssertAcquired();
-  static base::NoDestructor<FrameHeaderMap> s;
-  return *s;
-}
-#endif
 
 // Renderers can handle multiple pages, especially in low-memory conditions.
 // Record crash keys for a few origins, in the hope of finding more culprit
@@ -199,14 +183,10 @@ void UpdateLoadedOriginCrashKeys() {
 }
 
 bool ShouldForceTranslateAgentCreation(const GURL& url) {
-#if !BUILDFLAG(IS_ANDROID)
   // The Reading Mode side panel is a Top Chrome WebUI, but it exceptionally
   // requires a TranslateAgent to support PDF translation.
   return url.SchemeIs("chrome-untrusted") &&
          url.host() == chrome::kChromeUIUntrustedReadAnythingSidePanelHost;
-#else
-  return false;
-#endif
 }
 
 #if BUILDFLAG(ENABLE_PDF)
@@ -256,15 +236,6 @@ ChromeRenderFrameObserver::ChromeRenderFrameObserver(
 
 ChromeRenderFrameObserver::~ChromeRenderFrameObserver() = default;
 
-#if BUILDFLAG(IS_ANDROID)
-std::string ChromeRenderFrameObserver::GetCCTClientHeader(
-    const blink::LocalFrameToken& frame_token) {
-  base::AutoLock auto_lock(GetFrameHeaderMapLock());
-  auto frame_map = GetFrameHeaderMap();
-  auto iter = frame_map.find(frame_token);
-  return iter == frame_map.end() ? std::string() : iter->second;
-}
-#endif
 
 void ChromeRenderFrameObserver::OnInterfaceRequestForFrame(
     const std::string& interface_name,
@@ -378,14 +349,12 @@ void ChromeRenderFrameObserver::DidCommitProvisionalLoad(
   static crash_reporter::CrashKeyString<8> view_count_key("view-count");
   view_count_key.Set(base::NumberToString(blink::WebView::GetWebViewCount()));
 
-#if !BUILDFLAG(IS_ANDROID)
   if (render_frame()->GetEnabledBindings().HasAny(
           content::kWebUIBindingsPolicySet)) {
     for (const auto& script : webui_javascript_)
       render_frame()->ExecuteJavaScript(script);
     webui_javascript_.clear();
   }
-#endif
 }
 
 void ChromeRenderFrameObserver::DidClearWindowObject() {
@@ -395,7 +364,6 @@ void ChromeRenderFrameObserver::DidClearWindowObject() {
   }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   // Install ReadAnythingAppController on render frames with the Read Anything
   // url, which is chrome-untrusted. ReadAnythingAppController installs v8
   // bindings in the chrome.readingMode namespace which are consumed by
@@ -404,7 +372,6 @@ void ChromeRenderFrameObserver::DidClearWindowObject() {
       chrome::kChromeUIUntrustedReadAnythingSidePanelURL) {
     ReadAnythingAppController::Install(render_frame());
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(ENABLE_GUEST_VIEW) && !BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   guest_view::SlimWebViewBindings::MaybeInstall(*render_frame());
 #endif  // BUILDFLAG(ENABLE_GUEST_VIEW) && !BUILDFLAG(ENABLE_EXTENSIONS_CORE)
@@ -427,11 +394,6 @@ void ChromeRenderFrameObserver::OnDestruct() {
 }
 
 void ChromeRenderFrameObserver::WillDetach(blink::DetachReason detach_reason) {
-#if BUILDFLAG(IS_ANDROID)
-  base::AutoLock auto_lock(GetFrameHeaderMapLock());
-  GetFrameHeaderMap().erase(
-      render_frame()->GetWebFrame()->GetLocalFrameToken());
-#endif
 }
 
 void ChromeRenderFrameObserver::SetWindowFeatures(
@@ -442,9 +404,7 @@ void ChromeRenderFrameObserver::SetWindowFeatures(
 
 void ChromeRenderFrameObserver::ExecuteWebUIJavaScript(
     const std::u16string& javascript) {
-#if !BUILDFLAG(IS_ANDROID)
   webui_javascript_.push_back(javascript);
-#endif
 }
 
 void ChromeRenderFrameObserver::RequestImageForContextNode(
@@ -651,16 +611,6 @@ void ChromeRenderFrameObserver::RequestReloadImageForContextNode() {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void ChromeRenderFrameObserver::SetCCTClientHeader(const std::string& header) {
-  auto* web_frame = render_frame()->GetWebFrame();
-  if (!web_frame) {
-    return;
-  }
-  base::AutoLock auto_lock(GetFrameHeaderMapLock());
-  GetFrameHeaderMap()[web_frame->GetLocalFrameToken()] = header;
-}
-#endif
 
 void ChromeRenderFrameObserver::GetMediaFeedURL(
     GetMediaFeedURLCallback callback) {

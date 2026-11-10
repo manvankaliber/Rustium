@@ -19,9 +19,6 @@
 #include "content/public/browser/web_contents.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/background_sync_launcher_android.h"
-#endif
 
 BackgroundSyncDelegateImpl::BackgroundSyncDelegateImpl(Profile* profile)
     : SiteEngagementObserver(
@@ -40,7 +37,6 @@ BackgroundSyncDelegateImpl::BackgroundSyncDelegateImpl(Profile* profile)
 
 BackgroundSyncDelegateImpl::~BackgroundSyncDelegateImpl() = default;
 
-#if !BUILDFLAG(IS_ANDROID)
 BackgroundSyncDelegateImpl::BackgroundSyncEventKeepAliveImpl::
     BackgroundSyncEventKeepAliveImpl(Profile* profile) {
   keepalive_ = std::unique_ptr<ScopedKeepAlive,
@@ -67,7 +63,6 @@ BackgroundSyncDelegateImpl::CreateBackgroundSyncEventKeepAlive() {
     return std::make_unique<BackgroundSyncEventKeepAliveImpl>(profile_);
   return nullptr;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void BackgroundSyncDelegateImpl::GetUkmSourceId(
     const url::Origin& origin,
@@ -124,29 +119,6 @@ int BackgroundSyncDelegateImpl::GetSiteEngagementPenalty(const GURL& url) {
   NOTREACHED();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-
-void BackgroundSyncDelegateImpl::ScheduleBrowserWakeUpWithDelay(
-    blink::mojom::BackgroundSyncType sync_type,
-    base::TimeDelta delay) {
-  BackgroundSyncLauncherAndroid::ScheduleBrowserWakeUpWithDelay(sync_type,
-                                                                delay);
-}
-
-void BackgroundSyncDelegateImpl::CancelBrowserWakeup(
-    blink::mojom::BackgroundSyncType sync_type) {
-  BackgroundSyncLauncherAndroid::CancelBrowserWakeup(sync_type);
-}
-
-bool BackgroundSyncDelegateImpl::ShouldDisableBackgroundSync() {
-  return BackgroundSyncLauncherAndroid::ShouldDisableBackgroundSync();
-}
-
-bool BackgroundSyncDelegateImpl::ShouldDisableAndroidNetworkDetection() {
-  return false;
-}
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void BackgroundSyncDelegateImpl::OnEngagementEvent(
     content::WebContents* web_contents,

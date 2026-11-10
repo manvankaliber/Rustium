@@ -74,12 +74,10 @@ using MatchedDetector = ::chrome::cros::reporting::proto::MatchedDetector;
 
 #endif  // BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 const char kEndpointVerificationRetrievalFailed[] =
     "Failed to retrieve the endpoint verification data.";
 const char kEndpointVerificationStoreFailed[] =
     "Failed to store the endpoint verification data.";
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
 
@@ -367,7 +365,6 @@ bool CanReturnResponse(content::BrowserContext* browser_context) {
 
 }  // namespace
 
-#if !BUILDFLAG(IS_CHROMEOS)
 namespace enterprise_reporting {
 const char kDeviceIdNotFound[] = "Failed to retrieve the device id.";
 }  // namespace enterprise_reporting
@@ -608,7 +605,6 @@ void EnterpriseReportingPrivateGetDeviceInfoFunction::OnDeviceInfoRetrieved(
   Respond(WithArguments(ToDeviceInfo(device_signals).ToValue()));
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // getContextInfo
 

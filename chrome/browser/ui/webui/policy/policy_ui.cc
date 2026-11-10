@@ -49,11 +49,9 @@
 #include "ui/base/webui/web_ui_util.h"
 #include "ui/webui/webui_util.h"
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 #include "base/command_line.h"
 #include "chrome/browser/enterprise/reporting/browser_launch/scoped_initial_command_line.h"
 #include "chrome/common/chrome_switches.h"
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
 // LINT.IfChange
 
@@ -62,21 +60,9 @@ namespace {
 // Returns the operating system information to be displayed on
 // chrome://policy/logs page.
 std::string GetOsInfo() {
-#if BUILDFLAG(IS_ANDROID)
-  // The base format for the OS version and build.
-  constexpr char kOSVersionAndBuildFormat[] = "Android %s %s";
-  return base::StringPrintf(
-      kOSVersionAndBuildFormat,
-      (base::SysInfo::OperatingSystemVersion()).c_str(),
-      (embedder_support::GetAndroidOSInfo(
-           embedder_support::IncludeAndroidBuildNumber::Include,
-           embedder_support::IncludeAndroidModel::Include))
-          .c_str());
-#else
   return base::StringPrintf("%s %s",
                             base::SysInfo::OperatingSystemName().c_str(),
                             base::SysInfo::OperatingSystemVersion().c_str());
-#endif  //  BUILDFLAG (IS_ANDROID)
 }
 
 // Returns the version information to be displayed on the chrome://policy/logs
@@ -92,7 +78,6 @@ base::DictValue GetVersionInfo() {
   return version_info;
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 namespace {
 
 // List of command-line switches that are not considered user-specified,
@@ -120,7 +105,6 @@ std::string GetCustomCommandLineArguments(
 
   return arguments;
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
 void CreateAndAddPolicyUIHtmlSource(Profile* profile) {
   content::WebUIDataSource* source = content::WebUIDataSource::CreateAndAdd(
@@ -199,16 +183,12 @@ void CreateAndAddPolicyUIHtmlSource(Profile* profile) {
       {"statusUpdater", IDS_POLICY_STATUS_UPDATER},
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
       {"statusUser", IDS_POLICY_STATUS_USER},
-#if !BUILDFLAG(IS_CHROMEOS)
       {"uploadReport", IDS_UPLOAD_REPORT},
-#endif  // !BUILDFLAG(IS_CHROMEOS)
       {"viewLogs", IDS_VIEW_POLICY_LOGS},
-#if !BUILDFLAG(IS_ANDROID)
       {"commandLineFlagsWarning", IDS_POLICY_COMMAND_LINE_FLAGS_WARNING},
       {"promotionBannerTitle", IDS_POLICY_BANNER_PROMOTION_TITLE},
       {"promotionBannerDesc", IDS_POLICY_BANNER_PROMOTION_DESC},
       {"promotionBannerBtn", IDS_POLICY_BANNER_PROMOTION_BTN},
-#endif
   };
   source->AddLocalizedStrings(kStrings);
 
@@ -307,13 +287,11 @@ void CreateAndAddPolicyUIHtmlSource(Profile* profile) {
 
   source->AddBoolean("hideUploadReportButton", profile->IsOffTheRecord());
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   std::string custom_arguments =
       GetCustomCommandLineArguments(GetInitialBrowserCommandLine());
   source->AddBoolean(policy::kHasCustomCommandLineArguments,
                      !custom_arguments.empty());
   source->AddString(policy::kCustomCommandLineArguments, custom_arguments);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 }
 
 }  // namespace

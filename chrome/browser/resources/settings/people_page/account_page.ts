@@ -175,12 +175,6 @@ export class SettingsAccountPageElement extends SettingsAccountPageElementBase {
         loadTimeData.getString('googleAccountUrl'));
   }
 
-  // <if expr="is_chromeos">
-  protected onManageDeviceAccountsClick_() {
-    OpenWindowProxyImpl.getInstance().openUrl(
-        loadTimeData.getString('osSettingsAccountsPageUrl'));
-  }
-  //</if>
 
   private computeExistingPassphraseLabel_(): string {
     if (!this.syncPrefs || !this.syncPrefs.encryptAllData) {

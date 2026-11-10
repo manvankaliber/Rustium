@@ -52,20 +52,10 @@
 #include "ui/base/models/dialog_model.h"
 #include "ui/shell_dialogs/selected_file_info.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/file_manager/fileapi_util.h"
-#include "chrome/browser/ash/fusebox/fusebox_server.h"
-#include "content/public/browser/site_instance.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/content_uri_utils.h"
-#include "components/enterprise/connectors/core/features.h"
-#else
 #include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
 #include "chrome/browser/picture_in_picture/scoped_disallow_picture_in_picture.h"
 #include "chrome/browser/picture_in_picture/scoped_tuck_picture_in_picture.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 using blink::mojom::FileChooserFileInfo;
 using blink::mojom::FileChooserFileInfoPtr;
@@ -78,7 +68,6 @@ DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kCancelButtonId);
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 // The minimum size of the top-level window to safely show a file chooser
 // dialog without occlusion risk (See crbug.com/479258455).
 constexpr gfx::Size kMinFileChooserWindowSize(400, 300);
@@ -127,7 +116,6 @@ void LogFileChooserCancelledByWindowResize(content::WebContents* web_contents,
     LogFileChooserWindowTooSmallDetails(web_contents);
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void DeleteFiles(std::vector<base::FilePath> paths) {
   for (auto& file_path : paths)
@@ -146,30 +134,14 @@ bool IsValidProfile(Profile* profile) {
   return g_browser_process->profile_manager()->IsValidProfile(profile);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-std::u16string GetDisplayName(const base::FilePath& content_uri) {
-  std::u16string display_name;
-  if (!base::MaybeGetFileDisplayName(content_uri, &display_name)) {
-    display_name = content_uri.BaseName().AsUTF16Unsafe();
-  }
-  return display_name;
-}
-#endif
 
-#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
 // Returns whether files picked by the user can be scanned by enterprise
 // content analysis.
 bool IsFileAttachedScanningEnabled() {
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, scanning stays behind a flag until the content analysis UI is
-  // implemented there.
-  return base::FeatureList::IsEnabled(
-      enterprise_connectors::kEnableFileAttachedEnterpriseScanOnClank);
-#else
   return true;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
-#endif  // BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#endif
 
 }  // namespace
 
@@ -270,11 +242,6 @@ void FileSelectHelper::OnListFile(
     return;
 
   std::vector<std::u16string> base_subdirs;
-#if BUILDFLAG(IS_ANDROID)
-  for (const auto& subdir : data.info.subdirs()) {
-    base_subdirs.push_back(base::UTF8ToUTF16(subdir));
-  }
-#endif
   directory_enumeration_->results_.push_back(blink::mojom::NativeFileInfo::New(
       data.path, data.info.GetName().AsUTF16Unsafe(), std::move(base_subdirs)));
 }
@@ -357,26 +324,6 @@ void FileSelectHelper::ConvertToFileChooserFileInfoList(
   if (AbortIfWebContentsDestroyed())
     return;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!files.empty()) {
-    if (!IsValidProfile(profile_)) {
-      RunFileChooserEnd();
-      return;
-    }
-    // Converts |files| into FileChooserFileInfo with handling of non-native
-    // files.
-    content::SiteInstance* site_instance =
-        render_frame_host_->GetSiteInstance();
-    storage::FileSystemContext* file_system_context =
-        profile_->GetStoragePartition(site_instance)->GetFileSystemContext();
-    file_manager::util::ConvertSelectedFileInfoListToFileChooserFileInfoList(
-        file_system_context, render_frame_host_->GetLastCommittedOrigin(),
-        files,
-        base::BindOnce(&FileSelectHelper::PerformContentAnalysisIfNeeded,
-                       this));
-    return;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   std::vector<FileChooserFileInfoPtr> chooser_files;
   for (const auto& file : files) {
@@ -391,37 +338,7 @@ void FileSelectHelper::ConvertToFileChooserFileInfoList(
 
 base::FilePath FileSelectHelper::MaybeSubstituteFuseboxFilePath(
     const blink::mojom::FileSystemFileInfo& file_system_info) {
-#if BUILDFLAG(IS_CHROMEOS)
-  content::SiteInstance* site_instance = render_frame_host_->GetSiteInstance();
-  storage::FileSystemContext* file_system_context =
-      profile_->GetStoragePartition(site_instance)->GetFileSystemContext();
-  if (!file_system_context) {
-    return base::FilePath();
-  }
-
-  const storage::FileSystemURL cracked_url =
-      file_system_context->CrackURLInFirstPartyContext(file_system_info.url);
-  if (!cracked_url.is_valid()) {
-    return base::FilePath();
-  }
-
-  GURL external_gurl;
-  if (!file_manager::util::ConvertAbsoluteFilePathToFileSystemUrl(
-          profile_, cracked_url.path(), file_manager::util::GetFileManagerURL(),
-          &external_gurl)) {
-    return base::FilePath();
-  }
-
-  const storage::FileSystemURL external_cracked_url =
-      file_system_context->CrackURLInFirstPartyContext(external_gurl);
-  if (!external_cracked_url.is_valid()) {
-    return base::FilePath();
-  }
-
-  return fusebox::Server::SubstituteFuseboxFilePath(external_cracked_url);
-#else
   return base::FilePath();
-#endif
 }
 
 void FileSelectHelper::PerformContentAnalysisIfNeeded(
@@ -429,7 +346,7 @@ void FileSelectHelper::PerformContentAnalysisIfNeeded(
   if (AbortIfWebContentsDestroyed())
     return;
 
-#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
   enterprise_connectors::ContentAnalysisDelegate::Data data;
   if (IsFileAttachedScanningEnabled() &&
       enterprise_connectors::ContentAnalysisDelegate::IsEnabled(
@@ -448,15 +365,6 @@ void FileSelectHelper::PerformContentAnalysisIfNeeded(
       if (file->is_native_file()) {
         data.paths.push_back(file->get_native_file()->file_path);
       }
-#if BUILDFLAG(IS_CHROMEOS)
-      else if (file->is_file_system()) {
-        base::FilePath path =
-            MaybeSubstituteFuseboxFilePath(*file->get_file_system());
-        if (!path.empty()) {
-          data.paths.push_back(std::move(path));
-        }
-      }
-#endif
     }
 
     if (data.paths.empty()) {
@@ -473,10 +381,10 @@ void FileSelectHelper::PerformContentAnalysisIfNeeded(
   }
 #else
   NotifyListenerAndEnd(std::move(list));
-#endif  // BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#endif
 }
 
-#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
 void FileSelectHelper::ContentAnalysisCompletionCallback(
     std::vector<blink::mojom::FileChooserFileInfoPtr> list,
     const enterprise_connectors::ContentAnalysisDelegate::Data& data,
@@ -513,12 +421,6 @@ void FileSelectHelper::ContentAnalysisCompletionCallback(
     if ((*it)->is_native_file()) {
       is_scanned = true;
     }
-#if BUILDFLAG(IS_CHROMEOS)
-    else if ((*it)->is_file_system()) {
-      is_scanned =
-          !MaybeSubstituteFuseboxFilePath(*(*it)->get_file_system()).empty();
-    }
-#endif
 
     if (is_scanned) {
       if (!result.paths_results[i]) {
@@ -534,7 +436,7 @@ void FileSelectHelper::ContentAnalysisCompletionCallback(
 
   NotifyListenerAndEnd(std::move(list));
 }
-#endif  // BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#endif
 
 void FileSelectHelper::NotifyListenerAndEnd(
     std::vector<blink::mojom::FileChooserFileInfoPtr> list) {
@@ -707,7 +609,6 @@ void FileSelectHelper::RunFileChooser(
   listener_ = std::move(listener);
   InitLifecycleObserver(web_contents_);
 
-#if !BUILDFLAG(IS_ANDROID)
   if (PictureInPictureWindowManager::GetInstance()
           ->ShouldFileDialogBlockPictureInPicture(web_contents_)) {
     scoped_disallow_picture_in_picture_ =
@@ -717,7 +618,6 @@ void FileSelectHelper::RunFileChooser(
     scoped_tuck_picture_in_picture_ =
         std::make_unique<ScopedTuckPictureInPicture>();
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   base::ThreadPool::PostTask(
       FROM_HERE, {base::MayBlock()},
@@ -770,7 +670,6 @@ void FileSelectHelper::RunFileChooserOnUIThread(
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // The dialog is parented to the browser window rather than to the tab, so
   // showing it for a tab that is not the active tab would put it on top of
   // whichever page the user is actually looking at. That is reachable both
@@ -801,7 +700,6 @@ void FileSelectHelper::RunFileChooserOnUIThread(
   }
   web_contents_based_canceller_->SetCancelCallback(base::BindOnce(
       &FileSelectHelper::OnCancelledByWindowSize, base::Unretained(this)));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   select_file_dialog_ = ui::SelectFileDialog::Create(
       this, std::make_unique<ChromeSelectFilePolicy>(web_contents_));
@@ -829,10 +727,6 @@ void FileSelectHelper::RunFileChooserOnUIThread(
   gfx::NativeWindow owning_window =
       platform_util::GetTopLevel(web_contents_->GetNativeView());
 
-#if BUILDFLAG(IS_ANDROID)
-  select_file_dialog_->SetAcceptTypes(params->accept_types);
-  select_file_dialog_->SetUseMediaCapture(params->use_media_capture);
-#endif
 
   // Never consider the current scope as hung. The hang watching deadline (if
   // any) is not valid since the user can take unbounded time to choose the
@@ -860,7 +754,6 @@ void FileSelectHelper::RunFileChooserOnUIThread(
 // dialog or if the renderer was destroyed. Perform any cleanup and release the
 // reference we added in RunFileChooser().
 void FileSelectHelper::RunFileChooserEnd() {
-#if !BUILDFLAG(IS_ANDROID)
   // Ensure picture-in-picture occlusion mitigation stops, even if we need to
   // keep this instance alive for temporary files.
   scoped_disallow_picture_in_picture_.reset();
@@ -869,7 +762,6 @@ void FileSelectHelper::RunFileChooserEnd() {
   if (web_contents_based_canceller_) {
     LogFileChooserCancelledByWindowResize(web_contents_, /*cancelled=*/false);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   web_contents_based_canceller_.reset();
   tab_deactivated_subscription_ = {};
@@ -913,7 +805,6 @@ void FileSelectHelper::EnumerateDirectoryImpl(
   // we return to the caller, until the last callback is received from the
   // enumeration code. At that point, we must call EnumerateDirectoryEnd().
   self_ptr_ = this;
-#if !BUILDFLAG(IS_ANDROID)
   web_contents_based_canceller_ = content::WebContentsBasedCanceller::Create(
       web_contents_->GetPrimaryMainFrame(),
       content::WebContentsBasedCanceller::CancelCondition::kWindowSize,
@@ -926,15 +817,6 @@ void FileSelectHelper::EnumerateDirectoryImpl(
   }
   web_contents_based_canceller_->SetCancelCallback(base::BindOnce(
       &FileSelectHelper::OnCancelledByWindowSize, base::Unretained(this)));
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  if (path.IsContentUri()) {
-    base::ThreadPool::PostTaskAndReplyWithResult(
-        FROM_HERE, {base::MayBlock()}, base::BindOnce(&GetDisplayName, path),
-        base::BindOnce(&FileSelectHelper::StartNewEnumeration, this, path));
-    return;
-  }
-#endif
   StartNewEnumeration(path, path.BaseName().AsUTF16Unsafe());
 }
 
@@ -973,7 +855,6 @@ void FileSelectHelper::WebContentsDestroyed() {
 }
 
 void FileSelectHelper::OnVisibilityChanged(content::Visibility visibility) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!web_contents_) {
     return;
   }
@@ -986,7 +867,6 @@ void FileSelectHelper::OnVisibilityChanged(content::Visibility visibility) {
       dialog_type_ == ui::SelectFileDialog::SELECT_NONE) {
     EnumerateDirectoryEnd();
   }
-#endif
 }
 
 void FileSelectHelper::InitLifecycleObserver(
@@ -1008,10 +888,8 @@ void FileSelectHelper::OnTabDeactivated(tabs::TabInterface* tab) {
 }
 
 void FileSelectHelper::OnCancelledByWindowSize() {
-#if !BUILDFLAG(IS_ANDROID)
   LogFileChooserCancelledByWindowResize(web_contents_, /*cancelled=*/true);
   web_contents_based_canceller_.reset();
-#endif
   RunFileChooserEnd();
 }
 

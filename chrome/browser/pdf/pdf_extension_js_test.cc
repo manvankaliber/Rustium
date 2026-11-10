@@ -52,9 +52,6 @@
 #include "ui/shell_dialogs/select_file_dialog.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/base/resource/resource_bundle_android.h"
-#endif
 
 class PDFExtensionJSTestBase : public PDFExtensionTestBase {
  protected:
@@ -68,15 +65,11 @@ class PDFExtensionJSTestBase : public PDFExtensionTestBase {
     PDFExtensionTestBase::SetUpOnMainThread();
 
     // Load the pak file holding the resources served from chrome://webui-test.
-#if BUILDFLAG(IS_ANDROID)
-    ui::LoadPackFileFromApk("assets/browser_tests.pak", /*split_name=*/"");
-#else
     base::FilePath pak_path;
     ASSERT_TRUE(base::PathService::Get(base::DIR_ASSETS, &pak_path));
     pak_path = pak_path.AppendASCII("browser_tests.pak");
     ui::ResourceBundle::GetSharedInstance().AddDataPackFromPath(
         pak_path, ui::kScaleFactorNone);
-#endif
 
     // Register the chrome://webui-test data source.
     webui::CreateAndAddWebUITestDataSource(browser()->GetProfile());
@@ -376,11 +369,6 @@ IN_PROC_BROWSER_TEST_P(PDFExtensionJSTest, PostMessageProxy) {
   RunTestsInJsModule("post_message_proxy_test.js", "test.pdf");
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_P(PDFExtensionJSTest, Printing) {
-  RunTestsInJsModule("printing_icon_test.js", "test.pdf");
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(PDFExtensionJSTest, ViewerFilePicker) {
   base::ScopedAllowBlockingForTesting allow_blocking;
@@ -586,7 +574,6 @@ IN_PROC_BROWSER_TEST_P(PDFExtensionServiceWorkerJSTest, Interception) {
 }
 
 #if BUILDFLAG(ENABLE_PDF_INK2)
-#if !BUILDFLAG(IS_CHROMEOS)
 // Test behavior when Ink2 and annotation mode are disabled for the PDF viewer.
 // Don't run this test on Ash, as annotation mode is always enabled there.
 class PDFExtensionJSNoInk2Test : public PDFExtensionJSTest {
@@ -601,7 +588,6 @@ class PDFExtensionJSNoInk2Test : public PDFExtensionJSTest {
 IN_PROC_BROWSER_TEST_P(PDFExtensionJSNoInk2Test, Ink2Disabled) {
   RunTestsInJsModule("ink2_disabled_test.js", "test.pdf");
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 class PDFExtensionJSInk2Test : public PDFExtensionJSTest {
  protected:
@@ -955,9 +941,7 @@ INSTANTIATE_FEATURE_OVERRIDE_TEST_SUITE(PDFExtensionJSTest);
 INSTANTIATE_FEATURE_OVERRIDE_TEST_SUITE(PDFExtensionContentSettingJSTest);
 INSTANTIATE_FEATURE_OVERRIDE_TEST_SUITE(PDFExtensionWebUICodeCacheJSTest);
 INSTANTIATE_FEATURE_OVERRIDE_TEST_SUITE(PDFExtensionServiceWorkerJSTest);
-#if !BUILDFLAG(IS_CHROMEOS)
 INSTANTIATE_FEATURE_OVERRIDE_TEST_SUITE(PDFExtensionJSNoInk2Test);
-#endif
 #if BUILDFLAG(ENABLE_PDF_INK2)
 INSTANTIATE_FEATURE_OVERRIDE_TEST_SUITE(PDFExtensionJSInk2Test);
 INSTANTIATE_FEATURE_OVERRIDE_TEST_SUITE(PDFExtensionJSInk2TextTest);

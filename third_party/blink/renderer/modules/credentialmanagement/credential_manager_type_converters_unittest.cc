@@ -163,32 +163,6 @@ TEST(CredentialManagerTypeConvertersTest,
   EXPECT_TRUE(blink_type->appid());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST(CredentialManagerTypeConvertersTest,
-     AuthenticationExtensionsClientOutputs_userVerificationMethods) {
-  auto mojo_type =
-      blink::mojom::blink::AuthenticationExtensionsClientOutputs::New();
-  mojo_type->echo_user_verification_methods = true;
-  mojo_type->user_verification_methods =
-      Vector<blink::mojom::blink::UvmEntryPtr>();
-  mojo_type->user_verification_methods->emplace_back(
-      blink::mojom::blink::UvmEntry::New(/*user_verification_method=*/1,
-                                         /*key_protection_type=*/2,
-                                         /*matcher_protection_type=*/3));
-  mojo_type->user_verification_methods->emplace_back(
-      blink::mojom::blink::UvmEntry::New(/*user_verification_method=*/4,
-                                         /*key_protection_type=*/5,
-                                         /*matcher_protection_type=*/6));
-
-  auto* blink_type =
-      ConvertTo<blink::AuthenticationExtensionsClientOutputs*>(mojo_type);
-
-  EXPECT_TRUE(blink_type->hasUvm());
-  EXPECT_THAT(blink_type->uvm(),
-              ::testing::ElementsAre(Vector<uint32_t>{1, 2, 3},
-                                     Vector<uint32_t>{4, 5, 6}));
-}
-#endif
 
 MATCHER_P(DOMArrayBufferEqualTo, vector, "") {
   if (arg->ByteLength() != std::size(vector)) {
@@ -358,20 +332,6 @@ TEST(CredentialManagerTypeConvertersTest,
   ASSERT_EQ(mojo_type->appid, "app-id");
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST(CredentialManagerTypeConvertersTest,
-     AuthenticationExtensionsClientInputsTest_uvm) {
-  blink::AuthenticationExtensionsClientInputs* blink_type =
-      blink::AuthenticationExtensionsClientInputs::Create();
-  blink_type->setUvm(true);
-
-  blink::mojom::blink::AuthenticationExtensionsClientInputsPtr mojo_type =
-      ConvertTo<blink::mojom::blink::AuthenticationExtensionsClientInputsPtr>(
-          *blink_type);
-
-  ASSERT_EQ(mojo_type->user_verification_methods, true);
-}
-#endif
 
 TEST(CredentialManagerTypeConvertersTest,
      AuthenticationExtensionsClientInputsTest_largeBlobWrite) {

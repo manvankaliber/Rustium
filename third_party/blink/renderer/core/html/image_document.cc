@@ -30,9 +30,6 @@
 #include "base/containers/span.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 #include "third_party/blink/public/platform/web_content_settings_client.h"
 #include "third_party/blink/renderer/core/css/css_color.h"
 #include "third_party/blink/renderer/core/dom/events/native_event_listener.h"
@@ -218,21 +215,7 @@ ImageDocument::ImageDocument(const DocumentInit& initializer)
       should_shrink_image_(ShouldShrinkToFit()),
       image_is_loaded_(false),
       shrink_to_fit_mode_(
-#if BUILDFLAG(IS_ANDROID)
-          // Android enables viewport for all webpages. With kViewport as
-          // shrink_to_fit_mode_, large images will be sized to fit the viewport
-          // width, and height will be determined by the image aspect ratio. On
-          // Android desktop, we want images to be sized to fit the viewport
-          // width and height, similar to kDesktop shrink_to_fit_mode_.
-          // TODO (crbug.com/548009251): Fix additional vertical scrolling for
-          // images on Android Desktop.
-          base::android::device_info::is_desktop()
-              ? kDesktop
-              : (GetFrame()->GetSettings()->GetViewportEnabled() ? kViewport
-                                                                 : kDesktop)
-#else
           GetFrame()->GetSettings()->GetViewportEnabled() ? kViewport : kDesktop
-#endif
       ) {
   SetCompatibilityMode(kNoQuirksMode);
   LockCompatibilityMode();

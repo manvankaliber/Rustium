@@ -69,14 +69,13 @@ void GetTimeOfDay(timeval* tv);
 
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    DOXYGEN
+#if BUILDFLAG(IS_LINUX) || DOXYGEN
 //! \brief Get the kernel boot time. Subsequent calls to this function may
 //!     return different results due to the system clock being changed or
 //!     imprecision in measuring the boot time.
 //! \return `true` on success. Otherwise, `false` with a message logged.
 bool GetBootTime(timespec* ts);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID) || DOXYGEN
 
 }  // namespace crashpad

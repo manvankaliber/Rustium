@@ -29,12 +29,6 @@
 #include "ui/views/test/widget_test.h"
 #include "ui/views/vector_icons.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/users/fake_chrome_user_manager.h"
-#include "components/account_id/account_id.h"
-#include "components/user_manager/scoped_user_manager.h"
-#include "google_apis/gaia/gaia_id.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -74,19 +68,6 @@ class PageInfoCookiesContentViewBaseTestClass : public ChromeViewsTestBase {
     feature_list_.InitWithFeaturesAndParameters(EnabledFeatures(), {});
     ChromeViewsTestBase::SetUp();
 
-#if BUILDFLAG(IS_CHROMEOS)
-    auto fake_user_manager = std::make_unique<ash::FakeChromeUserManager>();
-    auto* fake_user_manager_ptr = fake_user_manager.get();
-    scoped_user_manager_ = std::make_unique<user_manager::ScopedUserManager>(
-        std::move(fake_user_manager));
-
-    const GaiaId kTestUserGaiaId("1111111111");
-    auto account_id =
-        AccountId::FromUserEmailGaiaId("test@example.com", kTestUserGaiaId);
-    fake_user_manager_ptr->AddUserWithAffiliation(account_id,
-                                                  /*is_affiliated=*/true);
-    fake_user_manager_ptr->LoginUser(account_id);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     const GURL url("http://a.com");
     profile_ = std::make_unique<TestingProfile>();
@@ -107,9 +88,6 @@ class PageInfoCookiesContentViewBaseTestClass : public ChromeViewsTestBase {
     presenter_.reset();
     web_contents_.reset();
     profile_.reset();
-#if BUILDFLAG(IS_CHROMEOS)
-    scoped_user_manager_.reset();
-#endif  // BUILDFLAG(IS_CHROMEOS)
     ChromeViewsTestBase::TearDown();
   }
 
@@ -165,9 +143,6 @@ class PageInfoCookiesContentViewBaseTestClass : public ChromeViewsTestBase {
     return {};
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<user_manager::ScopedUserManager> scoped_user_manager_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   content::RenderViewHostTestEnabler rvh_test_enabler_;
   std::unique_ptr<TestingProfile> profile_;

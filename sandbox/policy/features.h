@@ -17,7 +17,7 @@ namespace sandbox::policy::features {
 #if !BUILDFLAG(IS_MAC)
 SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kNetworkServiceSandbox);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kNetworkServiceSyscallFilter);
 SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kNetworkServiceFileAllowlist);
 // Gating multi-threaded sandbox initialization for OnDeviceModelExecution with
@@ -25,7 +25,7 @@ SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kNetworkServiceFileAllowlist);
 // such issues are found.
 SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(
     kOnDeviceModelExecutionMultiThreadedSandbox);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #endif
 
@@ -45,26 +45,16 @@ SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kWinSboxStrictHandleChecks);
 SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kWinSboxModuleTamperingProtection);
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS)
-SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kSpectreVariant2Mitigation);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kHigherRendererMemoryLimit);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_MAC)
 SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kCacheMacSandboxProfiles);
 SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kEnableSandboxLogging);
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_ANDROID)
-SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kAndroidGpuSandbox);
-SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kSeccompFilterGpuSandbox);
-SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kUseRendererProcessPolicy);
-SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kRestrictRendererPoliciesInBaseline);
-SANDBOX_POLICY_EXPORT BASE_DECLARE_FEATURE(kRestrictCloneParameters);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 // Returns whether the network sandbox is supported. This is different from

@@ -92,50 +92,18 @@
 #include "partition_alloc/stack/stack.h"
 #include "partition_alloc/thread_cache.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/background_thread_pool_field_trial.h"
-#include "base/system/sys_info.h"
-#endif
 
-#if BUILDFLAG(IS_IOS)
-#include "base/ios/ios_util.h"
-#endif
 
 #if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
 #include "partition_alloc/memory_reclaimer.h"
 #include "partition_alloc/shim/allocator_shim_default_dispatch_to_partition_alloc.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID) && PA_BUILDFLAG(HAS_MEMORY_TAGGING)
-#include <sys/system_properties.h>
-#endif
 
 namespace base::allocator {
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID) && PA_BUILDFLAG(HAS_MEMORY_TAGGING)
-enum class BootloaderOverride {
-  kDefault,
-  kForceOn,
-  kForceOff,
-};
-
-BootloaderOverride GetBootloaderOverride() {
-  char bootloader_override_str[PROP_VALUE_MAX];
-  __system_property_get(
-      "persist.device_config.runtime_native_boot.bootloader_override",
-      bootloader_override_str);
-
-  if (UNSAFE_TODO(strcmp(bootloader_override_str, "force_on")) == 0) {
-    return BootloaderOverride::kForceOn;
-  }
-  if (UNSAFE_TODO(strcmp(bootloader_override_str, "force_off")) == 0) {
-    return BootloaderOverride::kForceOff;
-  }
-  return BootloaderOverride::kDefault;
-}
-#endif
 
 // Avoid running periodic purging or reclaim for the first minute after the
 // first attempt. This is based on the insight that processes often don't live
@@ -355,50 +323,6 @@ std::map<std::string, std::string> ProposeSyntheticFinchTrials() {
     } else {
       trials.emplace("MemoryTaggingDogfood", "Disabled");
     }
-#if BUILDFLAG(IS_ANDROID)
-    BootloaderOverride bootloader_override = GetBootloaderOverride();
-    partition_alloc::TagViolationReportingMode reporting_mode =
-        partition_alloc::TagViolationReportingMode::kUndefined;
-#if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
-    reporting_mode = allocator_shim::internal::PartitionAllocMalloc::Allocator(
-                         allocator_shim::kDefaultPartitionIndex)
-                         ->memory_tagging_reporting_mode();
-#endif  // PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
-    switch (bootloader_override) {
-      case BootloaderOverride::kDefault:
-        trials.emplace("MemoryTaggingBootloaderOverride", "Default");
-        break;
-      case BootloaderOverride::kForceOn:
-        if (has_mte) {
-          switch (reporting_mode) {
-            case partition_alloc::TagViolationReportingMode::kAsynchronous:
-              trials.emplace("MemoryTaggingBootloaderOverride", "ForceOnAsync");
-              break;
-            case partition_alloc::TagViolationReportingMode::kSynchronous:
-              // This should not happen unless user forces it.
-              trials.emplace("MemoryTaggingBootloaderOverride", "ForceOnSync");
-              break;
-            default:
-              // This should not happen unless user forces it.
-              trials.emplace("MemoryTaggingBootloaderOverride",
-                             "ForceOnDisabled");
-          }
-        } else {
-          // This should not happen unless user forces it.
-          trials.emplace("MemoryTaggingBootloaderOverride",
-                         "ForceOnWithoutMte");
-        }
-        break;
-      case BootloaderOverride::kForceOff:
-        if (!has_mte) {
-          trials.emplace("MemoryTaggingBootloaderOverride", "ForceOff");
-        } else {
-          // This should not happen unless user forces it.
-          trials.emplace("MemoryTaggingBootloaderOverride", "ForceOffWithMte");
-        }
-        break;
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 #endif  // PA_BUILDFLAG(HAS_MEMORY_TAGGING)
 
@@ -717,9 +641,6 @@ void CheckDanglingRawPtrBufferEmpty() {
   internal::PartitionAutoLock guard(g_stack_trace_buffer_lock);
 
   // TODO(crbug.com/40260713): Check for leaked refcount on Android.
-#if BUILDFLAG(IS_ANDROID)
-  g_stack_trace_buffer = DanglingRawPtrBuffer();
-#else
   bool errors = false;
   for (const auto& entry : g_stack_trace_buffer) {
     if (!entry) {
@@ -759,7 +680,6 @@ void CheckDanglingRawPtrBufferEmpty() {
 #endif
   }
   CHECK(!errors);
-#endif
 }
 
 }  // namespace
@@ -999,18 +919,6 @@ PartitionAllocSupport::GetBrpConfiguration(std::string_view process_type) {
 #if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && \
     PA_BUILDFLAG(ENABLE_BACKUP_REF_PTR_SUPPORT) && \
     !PA_BUILDFLAG(FORCE_DISABLE_BACKUP_REF_PTR_FEATURE)
-#if BUILDFLAG(IS_IOS)
-  // Disable BackupRefPtr on iOS < 26.5 due to a XNU memory corruption
-  // bug (crbug.com/416518940).
-  if (!base::ios::IsRunningOnOrLater(26, 5, 0)) {
-    return {
-        .enable_brp = false,
-        .extra_extras_size = 0,
-        .suppress_double_free_detected_crash = false,
-        .suppress_corruption_detected_crash = false,
-    };
-  }
-#endif  // BUILDFLAG(IS_IOS)
 
   if (base::FeatureList::IsEnabled(
           base::features::kPartitionAllocBackupRefPtr) &&
@@ -1065,13 +973,6 @@ void PartitionAllocSupport::ReconfigureEarlyish(std::string_view process_type) {
     ReconfigurePartitionForKnownProcess(process_type);
   }
 
-#if PA_BUILDFLAG(ENABLE_PARTITION_LOCK_PRIORITY_INHERITANCE) && \
-    PA_BUILDFLAG(IS_ANDROID)
-  if (base::android::BackgroundThreadPoolFieldTrial::
-          ShouldUsePriorityInheritanceLocks()) {
-    partition_alloc::internal::SpinningMutex::EnableUsePriorityInheritance();
-  }
-#endif  // PA_BUILDFLAG(ENABLE_PARTITION_LOCK_PRIORITY_INHERITANCE) &&
         // PA_BUILDFLAG(IS_ANDROID)
 
   // These initializations are only relevant for PartitionAlloc-Everywhere
@@ -1167,14 +1068,6 @@ void PartitionAllocSupport::ReconfigureAfterFeatureListInit(
   DCHECK_NE(process_type, switches::kZygoteProcess);
   [[maybe_unused]] BrpConfiguration brp_config =
       GetBrpConfiguration(process_type);
-#if PA_BUILDFLAG(IS_IOS) && PA_BUILDFLAG(ENABLE_BACKUP_REF_PTR_SUPPORT)
-  if (brp_config.suppress_double_free_detected_crash) {
-    partition_alloc::internal::SuppressDoubleFreeDetectedCrash();
-  }
-  if (brp_config.suppress_corruption_detected_crash) {
-    partition_alloc::internal::SuppressCorruptionDetectedCrash();
-  }
-#endif  // PA_BUILDFLAG(IS_IOS) && PA_BUILDFLAG(ENABLE_BACKUP_REF_PTR_SUPPORT)
 
   // Configure ASAN hooks to report the `MiraclePtr status`. This is enabled
   // only if BackupRefPtr is normally enabled in the current process for the
@@ -1267,64 +1160,6 @@ void PartitionAllocSupport::ReconfigureAfterFeatureListInit(
               << process_type << ")";
     } else {
       enable_memory_tagging = ShouldEnableMemoryTagging(process_type);
-#if BUILDFLAG(IS_ANDROID)
-      // Android Scudo does not allow MTE to be re-enabled if MTE was disabled.
-      if (enable_memory_tagging &&
-          startup_memory_tagging_reporting_mode ==
-              partition_alloc::TagViolationReportingMode::kDisabled) {
-        LOG(ERROR) << "PartitionAlloc: Failed to enable memory tagging due to "
-                      "MTE disabled at startup (Process: "
-                   << process_type << ")";
-        debug::DumpWithoutCrashing();
-        enable_memory_tagging = false;
-      }
-
-      if (enable_memory_tagging) {
-        // Configure MTE.
-        switch (base::features::kMemtagModeParam.Get()) {
-          case base::features::MemtagMode::kSync:
-            memory_tagging_reporting_mode =
-                partition_alloc::TagViolationReportingMode::kSynchronous;
-            break;
-          case base::features::MemtagMode::kAsync:
-            memory_tagging_reporting_mode =
-                partition_alloc::TagViolationReportingMode::kAsynchronous;
-            break;
-        }
-        bool enable_permissive_mte = base::FeatureList::IsEnabled(
-            base::features::kPartitionAllocPermissiveMte);
-        partition_alloc::PermissiveMte::SetEnabled(enable_permissive_mte);
-        CHECK(partition_alloc::internal::
-                  ChangeMemoryTaggingModeForAllThreadsPerProcess(
-                      memory_tagging_reporting_mode));
-        CHECK_EQ(
-            partition_alloc::internal::GetMemoryTaggingModeForCurrentThread(),
-            memory_tagging_reporting_mode);
-        VLOG(1)
-            << "PartitionAlloc: Memory tagging enabled in "
-            << (memory_tagging_reporting_mode ==
-                        partition_alloc::TagViolationReportingMode::kSynchronous
-                    ? "SYNC"
-                    : "ASYNC")
-            << " mode (Process: " << process_type << ")";
-        if (enable_permissive_mte) {
-          VLOG(1) << "PartitionAlloc: Permissive MTE enabled (Process: "
-                  << process_type << ")";
-        }
-      } else if (base::CPU::GetInstanceNoAllocation().has_mte()) {
-        // Disable MTE.
-        memory_tagging_reporting_mode =
-            partition_alloc::TagViolationReportingMode::kDisabled;
-        CHECK(partition_alloc::internal::
-                  ChangeMemoryTaggingModeForAllThreadsPerProcess(
-                      memory_tagging_reporting_mode));
-        CHECK_EQ(
-            partition_alloc::internal::GetMemoryTaggingModeForCurrentThread(),
-            memory_tagging_reporting_mode);
-        VLOG(1) << "PartitionAlloc: Memory tagging disabled (Process: "
-                << process_type << ")";
-      }
-#endif  // BUILDFLAG(IS_ANDROID)
     }
   }
 #endif  // PA_BUILDFLAG(HAS_MEMORY_TAGGING)
@@ -1367,14 +1202,12 @@ void PartitionAllocSupport::ReconfigureAfterFeatureListInit(
   }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   // Android uses a different way to set the stack top to the top of the Chrome
   // portion of the stack while ignoring the Android Framework portion.
   // See `MessagePumpAndroid::MaybeUpdatePseudoStackTop()` in
   // base/message_loop/message_pump_android.cc for more details. This is done to
   // improve startup performance and reduce ANRs, see crbug.com/518605818.
   partition_alloc::internal::StackTopRegistry::Get().NotifyThreadCreated();
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   for (size_t partition_index = 0;
        partition_index < allocator_shim::kNumPartitions; partition_index++) {
@@ -1453,14 +1286,6 @@ void PartitionAllocSupport::ReconfigureAfterTaskRunnerInit(
 
   base::allocator::StartThreadCachePeriodicPurge();
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  // Lower thread cache limits to avoid stranding too much memory in the caches.
-  if (SysInfo::IsLowEndDeviceOrPartialLowEndModeEnabled(
-          features::kPartialLowEndModeExcludePartitionAllocSupport)) {
-    ::partition_alloc::ThreadCache::SetThreadCacheMultiplier(
-        ::partition_alloc::ThreadCache::kDefaultMultiplier / 2.);
-  }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
 
   // Renderer processes are more performance-sensitive, increase thread cache
   // limits.
@@ -1469,15 +1294,6 @@ void PartitionAllocSupport::ReconfigureAfterTaskRunnerInit(
           base::features::kPartitionAllocLargeThreadCacheSize)) {
     largest_cached_size_ = ::partition_alloc::kThreadCacheLargeSizeThreshold;
 
-#if BUILDFLAG(IS_ANDROID)
-    // Use appropriately lower amount for Android devices with 3GB or less.
-    // Devices almost always report less physical memory than what they actually
-    // have, so use 3.2GB (a threshold commonly uses throughout code) to avoid
-    // accidentally catching devices advertised as 4GB.
-    if (base::SysInfo::AmountOfTotalPhysicalMemory().InGiBF() < 3.2) {
-      largest_cached_size_ = ::partition_alloc::kThreadCacheDefaultSizeThreshold;
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
 
     ::partition_alloc::ThreadCache::SetLargestCachedSize(largest_cached_size_);
   }

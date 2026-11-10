@@ -13,13 +13,11 @@ import type {TopToolbarElement} from './top_toolbar.js';
 export function getHtml(this: TopToolbarElement) {
   return html`<!--_html_template_start_-->
 <div id="top-row" data-element-id="kContextualTasksWebUIToolbarElementId">
-  <if expr="not is_android">
     <permission-dashboard
         .delegate="${this.permissionChipDelegate_}"
         .dashboardState="${this.permissionDashboardState}"
         ?hidden="${!this.isPermissionShowing_()}">
     </permission-dashboard>
-  </if>
   <div class="top-toolbar-logo-container"
       ?hidden="${this.isPermissionShowing_()}">
     ${this.isSidePanelRearchitectureEnabled_ ? html`

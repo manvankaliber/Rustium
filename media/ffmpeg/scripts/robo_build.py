@@ -87,7 +87,7 @@ def ImportFFmpegConfigsIntoChromium(robo_configuration, write_git_file=False):
 
 
 def CopyConfigPythonTranslation(robo_configuration):
-    for opsys in ("android", "linux", "linux-noasm", "mac", "win"):
+    for opsys in ("linux", "linux-noasm", "mac", "win"):
         for target in ("Chromium", "Chrome"):
             for arch in (
                 "arm",
@@ -129,30 +129,6 @@ def CopyConfigPythonTranslation(robo_configuration):
                             os.makedirs(os.path.dirname(copy_to))
                         print(f'CP {copy_from} {copy_to}')
                         shutil.copy(copy_from, copy_to)
-                # Since we cannot cross-compile for ios, we just duplicate the
-                # mac config for this platform and arch.
-                if opsys == "mac":
-                    copy_from = export_dir
-                    ios_dir = robo_configuration.exported_configs_directory(
-                        arch, 'ios', target
-                    )
-                    if robo_configuration.Call(["mkdir", "-p", ios_dir]):
-                        raise Exception(
-                            f"Could not make iOS config directory {ios_dir}"
-                        )
-                    # `cp -r` is a little odd.  If the target directory does
-                    # not exist, then `cp a b` will copy the contents of `a`
-                    # into a newly created `b` such that `ls a` and `ls b`
-                    # will show the same files.  If the target directory does
-                    # exist already (e.g., if you run the command twice), then
-                    # the second copy will result in a subdirectory called `a`
-                    # inside `b`.  `-T` fixes this.
-                    if robo_configuration.Call(
-                        ["cp", "-rT", copy_from, ios_dir]
-                    ):
-                        raise Exception(
-                            f"Failed cp of iOS configs {copy_from} to {ios_dir}"
-                        )
 
 
 def BuildAndImportAllFFmpegConfigs(robo_configuration):
@@ -251,7 +227,6 @@ def BuildChromex86(robo_configuration):
       robo_configuration: RoboConfiguration.
     """
     target = "media_unittests"
-    # We choose chromeos rather than linux because x86 linux isn't supported.
     shell.log(f"Building x86 {target}")
     robo_configuration.chdir_to_chrome_src()
     if robo_configuration.Call(

@@ -122,8 +122,6 @@ std::string_view GetPlatformHelpSuffix() {
   return "_win";
 #elif BUILDFLAG(IS_MAC)
   return "_mac";
-#elif BUILDFLAG(IS_CHROMEOS)
-  return "_chromeos";
 #elif BUILDFLAG(IS_LINUX)
   return "_linux";
 #else

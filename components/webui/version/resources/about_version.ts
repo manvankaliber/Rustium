@@ -7,16 +7,13 @@
 // asynchronously by the host.
 
 // clang-format off
-// <if expr="is_ios">
-import 'chrome://resources/js/ios/web_ui.js';
-// </if>
 
 import '/strings.m.js';
 
 import {sendWithPromise} from 'chrome://resources/js/cr.js';
 import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
 import {getRequiredElement} from 'chrome://resources/js/util.js';
-// <if expr="is_chromeos or is_win">
+// <if expr="is_win">
 import {addWebUiListener} from 'chrome://resources/js/cr.js';
 // </if>
 // clang-format on
@@ -91,46 +88,6 @@ function returnOsVersion(osVersion: string) {
 }
 // </if>
 
-// <if expr="is_chromeos">
-/**
- * Callback from the backend with the ChromeOS platform version to display.
- * @param platformVersion The platform version to display.
- */
-function returnPlatformVersion(platformVersion: string) {
-  getRequiredElement('platform_version').textContent = platformVersion;
-}
-
-/**
- * Callback from the backend with the firmware version to display.
- */
-function returnFirmwareVersion(firmwareVersion: string) {
-  getRequiredElement('firmware_version').textContent = firmwareVersion;
-}
-
-/**
- * Callback from the backend with the ARC Android SDK version to display.
- * @param arcAndroidSdkVersion The ARC Android SDK version to display,
- *     already localized.
- */
-function returnArcAndArcAndroidSdkVersions(arcAndroidSdkVersion: string) {
-  getRequiredElement('arc_holder').hidden = false;
-  getRequiredElement('arc_and_arc_android_sdk_versions').textContent =
-      arcAndroidSdkVersion;
-}
-
-/**
- * Callback from chromeosInfoPrivate with the value of the customization ID.
- */
-function returnCustomizationId(response: {[customizationId: string]: unknown}) {
-  if (!response['customizationId']) {
-    return;
-  }
-  getRequiredElement('customization_id_holder').hidden = false;
-  getRequiredElement('customization_id').textContent =
-      response['customizationId'] as string;
-}
-
-// </if>
 
 async function copyVersionToClipboard() {
   await navigator.clipboard.writeText(
@@ -180,16 +137,6 @@ function initialize() {
   addWebUiListener('return-os-version', returnOsVersion);
   // </if>
 
-  // <if expr="is_chromeos">
-  addWebUiListener('return-platform-version', returnPlatformVersion);
-  addWebUiListener('return-firmware-version', returnFirmwareVersion);
-  addWebUiListener(
-      'return-arc-and-arc-android-sdk-versions',
-      returnArcAndArcAndroidSdkVersions);
-  getRequiredElement('arc_holder').hidden = true;
-  chrome.chromeosInfoPrivate.get(['customizationId'])
-      .then(returnCustomizationId);
-  // </if>
 
   chrome.send('requestVersionInfo');
   const includeVariationsCmd = location.search.includes('show-variations-cmd');

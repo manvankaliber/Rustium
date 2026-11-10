@@ -92,18 +92,8 @@
 #include "base/win/scoped_com_initializer.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "content/browser/gpu/chromeos/video_capture_dependencies.h"
-#include "media/capture/video/chromeos/camera_hal_dispatcher_impl.h"
-#include "media/capture/video/chromeos/jpeg_accelerator_provider.h"
-#include "media/capture/video/chromeos/public/cros_features.h"
-#include "media/capture/video/chromeos/system_event_monitor_impl.h"
-#include "media/capture/video/chromeos/video_capture_device_factory_chromeos.h"
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "content/browser/media/captured_surface_controller.h"
-#endif
 
 using ::blink::mojom::MediaDeviceType;
 
@@ -126,13 +116,7 @@ using ::blink::mojom::StreamSelectionInfoPtr;
 // If enabled, the device name is also used when comparing devices in
 // FindExistingRequestedDevice.
 BASE_FEATURE(kEnumerateDevicesUseNameInDeviceComparison,
-#if BUILDFLAG(IS_CHROMEOS)
-             // Disabled on ChromeOS as CRAS default streams automatically track
-             // the active input node (https://crbug.com/531681896).
-             base::FEATURE_DISABLED_BY_DEFAULT
-#else
              base::FEATURE_ENABLED_BY_DEFAULT
-#endif
 );
 
 namespace {
@@ -456,7 +440,6 @@ bool ChangeSourceSupported(const MediaStreamDevices& devices) {
   return true;  // getDisplayMedia() now supported by default.
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 MediaStreamManager::CapturedSurfaceControllerFactoryCallback
 MakeDefaultCapturedSurfaceControllerFactory() {
   return base::BindRepeating(
@@ -467,7 +450,6 @@ MakeDefaultCapturedSurfaceControllerFactory() {
             capturer_rfh_id, captured_wc_id, on_zoom_level_change_callback);
       });
 }
-#endif
 
 const blink::MediaStreamDevice* GetStreamDevice(
     const blink::mojom::StreamDevices& stream_devices,
@@ -684,9 +666,6 @@ class MediaStreamManager::DeviceRequest {
       state_[static_cast<int>(stream_type)] = new_state;
     }
 
-#if BUILDFLAG(IS_CHROMEOS)
-    NotifyMultiCaptureStateChanged(requesting_render_frame_host_id, new_state);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     MediaObserver* media_observer =
         GetContentClient()->browser()->GetMediaObserver();
@@ -857,7 +836,6 @@ class MediaStreamManager::DeviceRequest {
       blink::mojom::MediaStreamType type,
       media::mojom::CaptureHandlePtr capture_handle) {}
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // If capturing a tab, returns the tab's |WebContentsMediaCaptureId|.
   // Otherwise, returns an empty |WebContentsMediaCaptureId|.
   WebContentsMediaCaptureId GetCapturedTabId() const {
@@ -895,7 +873,6 @@ class MediaStreamManager::DeviceRequest {
 
   // If capturing a tab, zoom-level updates are received through this callback.
   virtual void OnZoomLevelChange(const std::string& label, int zoom_level) {}
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   // Marks that CSC was used at least once during this capture-session.
   void SetCapturedSurfaceControlActive() {
@@ -948,66 +925,6 @@ class MediaStreamManager::DeviceRequest {
   virtual base::WeakPtr<DeviceRequest> GetWeakPtr() = 0;
 
  private:
-#if BUILDFLAG(IS_CHROMEOS)
-  void NotifyMultiCaptureStateChanged(GlobalRenderFrameHostId frame_host_id,
-                                      MediaRequestState new_state) {
-    if (!IsGetAllScreensMedia()) {
-      return;
-    }
-    switch (new_state) {
-      case MediaRequestState::MEDIA_REQUEST_STATE_OPENING: {
-        base::OnceClosure stop_callback = base::BindPostTask(
-            GetIOThreadTaskRunner({}),
-            base::BindOnce(&MediaStreamManager::StopMediaStreamFromBrowser,
-                           base::Unretained(MediaStreamManager::GetInstance()),
-                           label_));
-        GetUIThreadTaskRunner({})->PostTask(
-            FROM_HERE,
-            base::BindOnce(
-                [](GlobalRenderFrameHostId renderer_id, std::string label,
-                   base::OnceClosure stop_callback) {
-                  GetContentClient()->browser()->NotifyMultiCaptureStateChanged(
-                      renderer_id, label,
-                      ContentBrowserClient::MultiCaptureChanged::kStarted,
-                      std::move(stop_callback));
-                },
-                frame_host_id, label_, std::move(stop_callback)));
-        break;
-      }
-      case MediaRequestState::MEDIA_REQUEST_STATE_ERROR:
-        GetUIThreadTaskRunner({})->PostTask(
-            FROM_HERE,
-            base::BindOnce(
-                [](GlobalRenderFrameHostId renderer_id, std::string label) {
-                  GetContentClient()->browser()->NotifyMultiCaptureStateChanged(
-                      renderer_id, label,
-                      ContentBrowserClient::MultiCaptureChanged::kStopped,
-                      base::NullCallback());
-                },
-                frame_host_id, label_));
-        break;
-      case MediaRequestState::MEDIA_REQUEST_STATE_CLOSING:
-        GetUIThreadTaskRunner({})->PostTask(
-            FROM_HERE,
-            base::BindOnce(
-                [](GlobalRenderFrameHostId renderer_id, std::string label) {
-                  GetContentClient()->browser()->NotifyMultiCaptureStateChanged(
-                      renderer_id, label,
-                      ContentBrowserClient::MultiCaptureChanged::kStopped,
-                      base::NullCallback());
-                },
-                frame_host_id, label_));
-        break;
-      case MediaRequestState::MEDIA_REQUEST_STATE_NOT_REQUESTED:
-      case MediaRequestState::MEDIA_REQUEST_STATE_REQUESTED:
-      case MediaRequestState::MEDIA_REQUEST_STATE_PENDING_APPROVAL:
-      case MediaRequestState::MEDIA_REQUEST_STATE_DONE:
-        // Nothing to do as usage indicators only need to shown while the
-        // capture is active.
-        break;
-    }
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Mark true if the MediaStreamDevice of |MediaStreamType| type should be
   // stopped but can't at the moment because of ongoing transfers.
@@ -1028,9 +945,7 @@ class MediaStreamManager::DeviceRequest {
   std::optional<std::string> video_raw_id_;
   GlobalRenderFrameHostId target_render_frame_host_id_;
   std::string label_;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   std::unique_ptr<CapturedSurfaceController> captured_surface_controller_;
-#endif
   bool captured_surface_control_active_ = false;
 };
 
@@ -1252,7 +1167,6 @@ class MediaStreamManager::CreateDeviceRequest
     }
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   void OnZoomLevelChange(const std::string& label, int zoom_level) override {
     CHECK_CURRENTLY_ON(BrowserThread::IO, base::NotFatalUntil::M158);
 
@@ -1284,7 +1198,6 @@ class MediaStreamManager::CreateDeviceRequest
 
     zoom_level_change_callback_.Run(label, *device, zoom_level);
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
  private:
   DeviceChangedCallback device_changed_callback_;
@@ -1587,10 +1500,8 @@ MediaStreamManager::MediaStreamManager(
     media::AudioSystem* audio_system,
     std::unique_ptr<VideoCaptureProvider> video_capture_provider)
     :
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
       captured_surface_controller_factory_(
           MakeDefaultCapturedSurfaceControllerFactory()),
-#endif
       audio_system_(audio_system) {
   bool use_fake_ui_factory = false;
 
@@ -1644,18 +1555,6 @@ MediaStreamManager::MediaStreamManager(
     device_task_runner = video_capture_thread_->task_runner();
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-    if (media::ShouldUseCrosCameraService()) {
-      jpeg_accelerator_provider_ =
-          std::make_unique<media::JpegAcceleratorProviderImpl>(
-              base::BindRepeating(
-                  &VideoCaptureDependencies::CreateJpegDecodeAccelerator),
-              base::BindRepeating(
-                  &VideoCaptureDependencies::CreateJpegEncodeAccelerator));
-      system_event_monitor_ = std::make_unique<media::SystemEventMonitorImpl>();
-      media::CameraHalDispatcherImpl::GetInstance()->Start();
-    }
-#endif
     video_capture_provider = std::make_unique<VideoCaptureProviderSwitcher>(
         std::make_unique<ServiceVideoCaptureProvider>(
             base::BindRepeating(&SendVideoCaptureLogMessage)),
@@ -2449,7 +2348,6 @@ bool MediaStreamManager::ValidateVideoSession(
   return ValidateSession(session_id, render_frame_host_id, SessionType::kVideo);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 CapturedSurfaceController* MediaStreamManager::GetCapturedSurfaceController(
     GlobalRenderFrameHostId capturer_rfh_id,
@@ -2478,7 +2376,6 @@ CapturedSurfaceController* MediaStreamManager::GetCapturedSurfaceController(
   result = blink::mojom::CapturedSurfaceControlResult::kSuccess;
   return controller;
 }
-#endif
 
 std::optional<MediaStreamDevice> MediaStreamManager::CloneExistingOpenDevice(
     const base::UnguessableToken& existing_device_session_id,
@@ -2613,21 +2510,6 @@ void MediaStreamManager::DeleteRequest(
 
   SendLogMessage(base::StringPrintf("DeleteRequest([label=%s])",
                                     request_it->first.c_str()));
-#if BUILDFLAG(IS_CHROMEOS)
-  if (request_it->second->IsGetAllScreensMedia()) {
-    GetUIThreadTaskRunner({})->PostTask(
-        FROM_HERE,
-        base::BindOnce(
-            [](GlobalRenderFrameHostId renderer_id, std::string label) {
-              GetContentClient()->browser()->NotifyMultiCaptureStateChanged(
-                  renderer_id, label,
-                  ContentBrowserClient::MultiCaptureChanged::kStopped,
-                  base::NullCallback());
-            },
-            request_it->second->requesting_render_frame_host_id,
-            request_it->first));
-  }
-#endif
 
   // Clean up permission controller subscription.
   GetUIThreadTaskRunner({})->PostTask(
@@ -3170,7 +3052,6 @@ void MediaStreamManager::FinalizeGenerateStreams(const std::string& label,
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   CHECK(!request->captured_surface_controller());
   const WebContentsMediaCaptureId captured_tab_id = request->GetCapturedTabId();
   if (!captured_tab_id.is_null()) {
@@ -3180,7 +3061,6 @@ void MediaStreamManager::FinalizeGenerateStreams(const std::string& label,
             base::BindRepeating(&DeviceRequest::OnZoomLevelChange,
                                 request->GetWeakPtr(), label)));
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   // TODO(crbug.com/40216442): Generalize to multiple streams.
   CHECK_EQ(1u, request->stream_devices_set.stream_devices.size(),
@@ -3261,7 +3141,6 @@ void MediaStreamManager::PanTiltZoomPermissionChecked(
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // 1. Only the first call to SetCapturedDisplaySurfaceFocus() has an
   //    effect, so a direct call to SetCapturedDisplaySurfaceFocus()
   //    before the scheduled task is executed would render the scheduled
@@ -3279,7 +3158,6 @@ void MediaStreamManager::PanTiltZoomPermissionChecked(
                      /*is_from_microtask=*/false,
                      /*is_from_timer=*/true),
       conditional_focus_window_);
-#endif
 
   // We only start tracking once stream generation is truly complete.
   // If the CaptureHandle observable by this capturer has changed asynchronously
@@ -3893,7 +3771,6 @@ void MediaStreamManager::HandleChangeSourceRequestResponse(
                             ? request->stream_controls().audio.stream_type
                             : MediaStreamType::NO_SERVICE);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (CapturedSurfaceController* const captured_surface_controller =
           request->captured_surface_controller()) {
     // Either inform the controller that it's now controlling a new tab,
@@ -3901,7 +3778,6 @@ void MediaStreamManager::HandleChangeSourceRequestResponse(
     captured_surface_controller->UpdateCaptureTarget(
         request->GetCapturedTabId());
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 }
 
 void MediaStreamManager::StopMediaStreamFromBrowser(const std::string& label) {
@@ -4013,18 +3889,6 @@ void MediaStreamManager::WillDestroyCurrentMessageLoop() {
     audio_input_device_manager_->UnregisterListener(this);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // SystemEventMonitorImpl and JpegAcceleratorProviderImpl are created on the
-  // UI thread and must be destroyed there before the UI message loop stops.
-  if (system_event_monitor_) {
-    GetUIThreadTaskRunner({})->DeleteSoon(FROM_HERE,
-                                          std::move(system_event_monitor_));
-  }
-  if (jpeg_accelerator_provider_) {
-    GetUIThreadTaskRunner({})->DeleteSoon(
-        FROM_HERE, std::move(jpeg_accelerator_provider_));
-  }
-#endif
 
   audio_input_device_manager_ = nullptr;
   video_capture_manager_ = nullptr;
@@ -4242,7 +4106,6 @@ void MediaStreamManager::SetStateForTesting(
   requests_iterator->second->SetState(stream_type, new_state);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void MediaStreamManager::SetConditionalFocusWindowForTesting(
     base::TimeDelta window) {
   conditional_focus_window_ = window;
@@ -4253,7 +4116,6 @@ void MediaStreamManager::SetCapturedSurfaceControllerFactoryForTesting(
   CHECK_CURRENTLY_ON(BrowserThread::IO, base::NotFatalUntil::M158);
   captured_surface_controller_factory_ = std::move(factory);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 void MediaStreamManager::SetGenerateStreamsCallbackForTesting(
     GenerateStreamTestCallback test_callback) {
@@ -4503,7 +4365,6 @@ void MediaStreamManager::SetCapturedDisplaySurfaceFocus(
 }
 #endif  // BUILDFLAG(ENABLE_SCREEN_CAPTURE)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void MediaStreamManager::SendWheel(
     GlobalRenderFrameHostId capturer_rfh_id,
     const base::UnguessableToken& session_id,
@@ -4573,7 +4434,6 @@ void MediaStreamManager::RequestCapturedSurfaceControlPermission(
   controller->RequestPermission(std::move(callback));
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 void MediaStreamManager::RegisterDispatcherHost(
     std::unique_ptr<blink::mojom::MediaStreamDispatcherHost> host,

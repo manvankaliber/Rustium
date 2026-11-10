@@ -22,35 +22,7 @@ namespace {
 // Returns string that represents system in UserAgent.
 std::string GetSystemString() {
   std::string system;
-#if BUILDFLAG(IS_CHROMEOS)
-  system = "CROS ";
-#elif BUILDFLAG(IS_ANDROID)
-  switch (ui::GetDeviceFormFactor()) {
-    case ui::DEVICE_FORM_FACTOR_PHONE:
-    // Foldables are also considered phones here.
-    case ui::DEVICE_FORM_FACTOR_FOLDABLE:
-      system = "ANDROID-PHONE ";
-      break;
-    case ui::DEVICE_FORM_FACTOR_TABLET:
-      system = "ANDROID-TABLET ";
-      break;
-    case ui::DEVICE_FORM_FACTOR_DESKTOP:
-      system = "ANDROID-DESKTOP ";
-      break;
-    // These form factors shouldn't occur in practice (no sync on such devices).
-    case ui::DEVICE_FORM_FACTOR_TV:
-    case ui::DEVICE_FORM_FACTOR_AUTOMOTIVE:
-    case ui::DEVICE_FORM_FACTOR_XR:
-      system = "ANDROID ";
-      break;
-  }
-#elif BUILDFLAG(IS_IOS)
-  if (ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_TABLET) {
-    system = "IOS-TABLET ";
-  } else {
-    system = "IOS-PHONE ";
-  }
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   system = "WIN ";
 #elif BUILDFLAG(IS_LINUX)
   system = "LINUX ";

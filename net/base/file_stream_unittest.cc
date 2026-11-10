@@ -48,11 +48,7 @@
 using net::test::IsError;
 using net::test::IsOk;
 
-#if BUILDFLAG(IS_ANDROID)
-#include <cerrno>
-
-#include "base/test/test_file_util.h"
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include <windows.h>
 
 #include <namedpipeapi.h>
@@ -954,65 +950,6 @@ TEST_F(FileStreamTest, AsyncFlagMismatch) {
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(crbug.com/41420277): flaky on both android and cronet bots.
-TEST_F(FileStreamTest, DISABLED_ContentUriRead) {
-  base::FilePath test_dir;
-  base::PathService::Get(base::DIR_SRC_TEST_DATA_ROOT, &test_dir);
-  test_dir = test_dir.AppendASCII("net");
-  test_dir = test_dir.AppendASCII("data");
-  test_dir = test_dir.AppendASCII("file_stream_unittest");
-  ASSERT_TRUE(base::PathExists(test_dir));
-  base::FilePath image_file = test_dir.Append(FILE_PATH_LITERAL("red.png"));
-
-  // Insert the image into MediaStore. MediaStore will do some conversions, and
-  // return the content URI.
-  base::FilePath path = base::InsertImageIntoMediaStore(image_file);
-  EXPECT_TRUE(path.IsContentUri());
-  EXPECT_TRUE(base::PathExists(path));
-  std::optional<int64_t> file_size = base::GetFileSize(temp_file_path());
-  ASSERT_TRUE(file_size.has_value());
-  EXPECT_LT(0, file_size.value());
-
-  FileStream stream(base::SingleThreadTaskRunner::GetCurrentDefault());
-  int flags = base::File::FLAG_OPEN | base::File::FLAG_READ |
-              base::File::FLAG_ASYNC;
-  TestCompletionCallback callback;
-  int rv = stream.Open(path, flags, AsErrorCallback(callback.callback()));
-  EXPECT_THAT(rv, IsError(ERR_IO_PENDING));
-  EXPECT_THAT(callback.WaitForResult(), IsOk());
-
-  uint64_t total_bytes_read = 0;
-
-  std::string data_read;
-  for (;;) {
-    TestReadWriteCallback rw_callback;
-    scoped_refptr<IOBufferWithSize> buf =
-        base::MakeRefCounted<IOBufferWithSize>(4);
-    ReadWriteResult result = rw_callback.GetResult(
-        stream.Read(buf.get(), buf->size(), rw_callback.callback()));
-    ASSERT_TRUE(result.has_value());
-    if (result->is_zero()) {
-      break;
-    }
-    total_bytes_read += result->InBytes();
-    data_read.append(buf->data(), result->InBytes());
-  }
-  EXPECT_EQ(static_cast<uint64_t>(file_size.value()), total_bytes_read);
-}
-
-TEST_F(FileStreamTest, ContentUriOpenFailureDoesNotUseErrno) {
-  FileStream stream(base::SingleThreadTaskRunner::GetCurrentDefault());
-  int flags =
-      base::File::FLAG_OPEN | base::File::FLAG_READ | base::File::FLAG_ASYNC;
-  TestCompletionCallback callback;
-  errno = 0;
-  int rv = stream.Open(base::FilePath("content://org.chromium.NonExistent/1"),
-                       flags, AsErrorCallback(callback.callback()));
-  EXPECT_THAT(callback.GetResult(rv), testing::Not(IsOk()));
-  EXPECT_FALSE(stream.IsOpen());
-}
-#endif
 
 #if BUILDFLAG(IS_WIN)
 // A test fixture with helpers to create and connect to a named pipe for the

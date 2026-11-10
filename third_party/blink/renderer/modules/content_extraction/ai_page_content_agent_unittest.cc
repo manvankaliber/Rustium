@@ -7344,7 +7344,6 @@ TEST_F(AIPageContentAgentTest, AdditionalLabelFallbacks) {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(AIPageContentAgentTest, PopupRedundantLabels) {
   base::test::ScopedFeatureList popup_feature;
   popup_feature.InitAndEnableFeature(
@@ -7396,7 +7395,6 @@ TEST_F(AIPageContentAgentTest, PopupRedundantLabels) {
   }
   popup->ClosePopup();
 }
-#endif
 
 TEST_F(AIPageContentAgentTest, LabelWholeWordMatching) {
   ScopedAIPageContentLabelRemoveRedundantForTest remove_redundant_labels(true);

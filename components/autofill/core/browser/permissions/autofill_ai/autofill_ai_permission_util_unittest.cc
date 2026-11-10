@@ -264,10 +264,6 @@ TEST_P(AutofillAiMayPerformActionTest, FeatureParamForModelCacheUseOff) {
 // enterprise policy.
 TEST_P(AutofillAiMayPerformActionTest,
        ActionsWhenAutofillAiEnterprisePolicyDisabled) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  base::test::ScopedFeatureList feature_list{
-      features::kAutofillAiAvailableByDefault};
-#endif
   client().GetPrefs()->SetInteger(
       optimization_guide::prefs::
           kAutofillPredictionImprovementsEnterprisePolicyAllowed,
@@ -307,10 +303,6 @@ TEST_P(AutofillAiMayPerformActionTest,
 
 // Verifies that only MQLS logging and online model calls require an opt-in.
 TEST_P(AutofillAiMayPerformActionTest, ActionsWhenNotOptedIntoAutofillAi) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  base::test::ScopedFeatureList feature_list{
-      features::kAutofillAiAvailableByDefault};
-#endif
   SetAutofillAiOptInStatus(client(), AutofillAiOptInStatus::kOptedOut);
   constexpr auto kAllowedActions =
       DenseSet({AutofillAiAction::kAddLocalEntityInstanceInSettings,
@@ -327,7 +319,6 @@ TEST_P(AutofillAiMayPerformActionTest, ActionsWhenNotOptedIntoAutofillAi) {
       kAllowedActions.contains(GetParam()));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)  // Signing out does not work on ChromeOS.
 // Tests that every action other than listing and editing data requires the user
 // to be signed in.
 TEST_P(AutofillAiMayPerformActionTest, SignedOut) {
@@ -374,7 +365,6 @@ TEST_P(AutofillAiMayPerformActionTest, SignInPending) {
   }
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Tests that the check whether a client can use model execution features is
 // ignored.
@@ -726,25 +716,6 @@ TEST_F(AutofillAiPermissionUtilsTest, kAmbientAutofill) {
       MayPerformAutofillAiAction(client(), AutofillAiAction::kAmbientAutofill));
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-TEST_F(AutofillAiPermissionUtilsTest, AmbientAutofillFillingRequiresOptIn) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(features::kAutofillAiAvailableByDefault);
-
-  client().set_personal_context_eligibility_state(
-      personal_context::PersonalContextEligibilityState::kEligible);
-
-  // Opted out.
-  SetAutofillAiOptInStatus(client(), AutofillAiOptInStatus::kOptedOut);
-  EXPECT_FALSE(
-      MayPerformAutofillAiAction(client(), AutofillAiAction::kAmbientAutofill));
-
-  // Opted in.
-  SetAutofillAiOptInStatus(client(), AutofillAiOptInStatus::kOptedIn);
-  EXPECT_TRUE(
-      MayPerformAutofillAiAction(client(), AutofillAiAction::kAmbientAutofill));
-}
-#endif
 
 TEST_F(AutofillAiPermissionUtilsTest,
        AmbientAutofillRequiresPersonalContextPref) {
@@ -791,7 +762,6 @@ INSTANTIATE_TEST_SUITE_P(
            AutofillAiAction::kTypeSupportsAmbientAutofillData),
     GetTestSuffix);
 
-#if !BUILDFLAG(IS_CHROMEOS)  // Signing out does not work on ChromeOS.
 // Tests that opt-in status is tied to a GAIA id.
 TEST_F(AutofillAiPermissionUtilsTest, OptInStatus) {
   const std::string initial_email =
@@ -830,7 +800,6 @@ TEST_F(AutofillAiPermissionUtilsTest, OptInStatus) {
       SetAutofillAiOptInStatus(client(), AutofillAiOptInStatus::kOptedOut));
   EXPECT_FALSE(GetAutofillAiOptInStatus(client()));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(AutofillAiPermissionUtilsTest, OptInStatusWithUsePrivateAi) {
   base::test::ScopedFeatureList feature_list{features::kAutofillAiUsePrivateAi};

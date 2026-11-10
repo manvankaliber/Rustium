@@ -40,11 +40,9 @@ bool LoadResources(const std::string& pref_locale) {
 }
 
 void UnloadResources() {
-#if !BUILDFLAG(IS_CHROMEOS)
   // On ChromeOS, the shared ResourceBundle is owned by the browser or
   // ChromeOSRemotingTestSuite.
   ui::ResourceBundle::CleanupSharedInstance();
-#endif
 }
 
 }  // namespace remoting

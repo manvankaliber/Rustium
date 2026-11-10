@@ -32,9 +32,6 @@
 #include "net/third_party/mozilla_security_manager/nsNSSCertificateDB.h"
 #include "net/third_party/mozilla_security_manager/nsPKCS12Blob.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "crypto/chaps_support.h"
-#endif
 
 // PSM = Mozilla's Personal Security Manager.
 namespace psm = mozilla_security_manager;
@@ -123,20 +120,6 @@ void NSSCertDatabase::ListCertsInSlot(ListCertsCallback callback,
       std::move(callback));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-crypto::ScopedPK11Slot NSSCertDatabase::GetSystemSlot() const {
-  return crypto::ScopedPK11Slot();
-}
-
-// static
-bool NSSCertDatabase::IsCertificateOnSlot(CERTCertificate* cert,
-                                          PK11SlotInfo* slot) {
-  if (!slot)
-    return false;
-
-  return PK11_FindCertInSlot(slot, cert, nullptr) != CK_INVALID_HANDLE;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 crypto::ScopedPK11Slot NSSCertDatabase::GetPublicSlot() const {
   return crypto::ScopedPK11Slot(PK11_ReferenceSlot(public_slot_.get()));
@@ -189,7 +172,6 @@ int NSSCertDatabase::ImportFromPKCS12(
     const std::u16string& password,
     bool is_extractable,
     ScopedCERTCertificateList* imported_certs_with_keys) {
-#if !BUILDFLAG(IS_CHROMEOS)
   // A PKCS #12 blob contains any number of keys and certificates. Some
   // certificates are not associated with a key in the blob. These are typically
   // meant to be sent by the client as intermediate CA certificates.
@@ -199,39 +181,6 @@ int NSSCertDatabase::ImportFromPKCS12(
   // token. The latter would cause unit tests to persist state. They should all
   // go to `slot_info`.
   SECPKCS12TargetTokenCAs token_cas = SECPKCS12TargetTokenAllCAs;
-#else
-  // On ChromeOS, several bugs/quirks conspire to make the Linux behavior
-  // undesirable.
-  //
-  // Originally, this code used NSS's defaults, which was
-  // `SECPKCS12TargetTokenNoCAs`. Despite the name, this means that CA
-  // certificates are imported to the default slot, instead of `slot_info`.
-  // However, on ChromeOS, the default slot is read-only and unwritable.
-  // Importing them fails, but then NSS discards the error. Thus the original
-  // behavior was not to import the CA certificates, but discard them.
-  //
-  // While importing would be desirable in principle, ChromeOS is migrating off
-  // of NSS, with client certificate storage migrating to Kcer (see
-  // crbug.com/264392421). Kcer does not store CA certificates either and skips
-  // them when importing PKCS #12 files.
-  //
-  // If we were to import these certificates on ChromeOS, we would need to
-  // import them as untrusted intermediates in the ServerCertificateDatabase.
-  // Despite the name, its intermediates that are consulted by the
-  // ClientCertStore during lookup. See https://crrev.com/c/6023868.
-  // (Alternatively, we could store them somewhere separate, if we do not want
-  // these imports to impact server certificate verification.)
-  //
-  // NSS's PKCS #12 APIs make this difficult, but this is moot because this
-  // codepath should ultimately be removed on ChromeOS. Instead, any importing
-  // should be added to the Kcer codepath. In the meantime, we preserve the
-  // original `SECPKCS12TargetTokenNoCAs` setting, which actually discards the
-  // intermediates, but for very non-obvious reasons.
-  //
-  // TODO(crbug.com/264392421): Remove all calls to this function on Chrome OS,
-  // so this confusing reliance on a read-only default store can be removed.
-  SECPKCS12TargetTokenCAs token_cas = SECPKCS12TargetTokenNoCAs;
-#endif
   int result = psm::nsPKCS12Blob_Import(slot_info, token_cas, data.data(),
                                         data.size(), password, is_extractable,
                                         imported_certs_with_keys);
@@ -417,26 +366,6 @@ bool NSSCertDatabase::IsHardwareBacked(const CERTCertificate* cert) {
   if (!slot)
     return false;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // For keys in Chaps, it's possible that they are truly hardware backed, or
-  // they can be software-backed, such as if the creator requested it, or if the
-  // TPM does not support the key algorithm. Chaps sets a kKeyInSoftware
-  // attribute to true for private keys that aren't wrapped by the TPM.
-  if (crypto::IsSlotProvidedByChaps(slot)) {
-    constexpr CK_ATTRIBUTE_TYPE kKeyInSoftware = CKA_VENDOR_DEFINED + 5;
-    SECKEYPrivateKey* private_key = PK11_FindPrivateKeyFromCert(
-        slot, const_cast<CERTCertificate*>(cert), nullptr);
-    // PK11_HasAttributeSet returns true if the object in the given slot has
-    // the attribute set to true. Otherwise it returns false.
-    if (private_key &&
-        PK11_HasAttributeSet(slot, private_key->pkcs11ID, kKeyInSoftware,
-                             /*haslock=*/PR_FALSE)) {
-      return false;
-    }
-    // All keys in chaps without the attribute are hardware backed.
-    return true;
-  }
-#endif
   return PK11_IsHW(slot);
 }
 

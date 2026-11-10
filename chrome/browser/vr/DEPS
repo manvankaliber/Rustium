@@ -5,7 +5,6 @@ include_rules = [
   "+components/webxr",
   "+device/gamepad/public/mojom",
   "+device/vr",
-  "+third_party/jni_zero",
   # The third_party version of openxr_platform depends on certain platform
   # headers being included before it, so we disallow direct dependency on it.
   # Places needing to take a dependency on code in openxr_platform.h should

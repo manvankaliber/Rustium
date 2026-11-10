@@ -22,8 +22,6 @@
 #elif BUILDFLAG(IS_LINUX)
 #include "net/proxy_resolution/linux/linux_system_proxy_resolution_service.h"
 #include "services/network/linux_system_proxy_resolver_mojo.h"
-#elif BUILDFLAG(IS_CHROMEOS)
-#include "services/network/dhcp_pac_file_fetcher_mojo.h"
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
 
@@ -47,22 +45,12 @@ void URLRequestContextBuilderMojo::SetMojoSystemProxyResolver(
 }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if BUILDFLAG(IS_CHROMEOS)
-void URLRequestContextBuilderMojo::SetDhcpWpadUrlClient(
-    mojo::PendingRemote<network::mojom::DhcpWpadUrlClient>
-        dhcp_wpad_url_client) {
-  dhcp_wpad_url_client_ = std::move(dhcp_wpad_url_client);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 std::unique_ptr<net::DhcpPacFileFetcher>
 URLRequestContextBuilderMojo::CreateDhcpPacFileFetcher(
     net::URLRequestContext* context) {
 #if BUILDFLAG(IS_WIN)
   return std::make_unique<net::DhcpPacFileFetcherWin>(context);
-#elif BUILDFLAG(IS_CHROMEOS)
-  return std::make_unique<DhcpPacFileFetcherMojo>(
-      context, std::move(dhcp_wpad_url_client_));
 #else
   return std::make_unique<net::DoNothingDhcpPacFileFetcher>();
 #endif

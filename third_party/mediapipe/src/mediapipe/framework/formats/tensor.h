@@ -38,18 +38,6 @@
 // Exports MEDIAPIPE_TENSOR_USE_AHWB macro.
 #include "mediapipe/framework/port.h"
 
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-
-#include <list>
-
-#include "absl/log/absl_check.h"  // from @com_google_absl
-#include "mediapipe/framework/formats/hardware_buffer.h"
-#include "mediapipe/framework/formats/hardware_buffer_pool.h"
-#include "mediapipe/framework/formats/tensor_ahwb_usage.h"
-#include "mediapipe/framework/formats/unique_fd.h"
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 
 #if MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
 #include "mediapipe/gpu/gl_base.h"
@@ -226,92 +214,6 @@ class Tensor {
       uint64_t source_location_hash =
           tensor_internal::FnvHash64(builtin_FILE(), builtin_LINE())) const;
 
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-  using FinishingFunc = std::function<bool(bool)>;
-
-  class AHardwareBufferView : public View {
-   public:
-    // Returns the AHardwareBuffer handle. Note that writes to the handle may be
-    // pending. To enable synchronized read access, a fence FD can be obtained
-    // from GetWriteCompleteFenceFd().
-    AHardwareBuffer* handle() const {
-      return hardware_buffer_->GetAHardwareBuffer();
-    }
-    AHardwareBufferView(AHardwareBufferView&& src)
-        : View(std::move(src.lock_)) {
-      hardware_buffer_ = std::move(src.hardware_buffer_);
-      write_complete_fence_fd_ =
-          std::exchange(src.write_complete_fence_fd_, nullptr);
-      ahwb_usage_ = std::exchange(src.ahwb_usage_, nullptr);
-      is_write_view_ = src.is_write_view_;
-    }
-
-    // Returns a file descriptor fence that signals the end of a pending write
-    // operation.
-    // Note that the provided file descriptor is valid only during the lifetime
-    // of the view and must be duplicated if used outside of the view.
-    int GetWriteCompleteFenceFd() const {
-      ABSL_CHECK(!is_write_view_)
-          << "AHWB write view can't return write complete fence FD'";
-      return write_complete_fence_fd_->Get();
-    }
-
-    // TODO: verify if multiple functions can be specified.
-    void SetReadingFinishedFunc(FinishingFunc&& func) {
-      ABSL_CHECK(!is_write_view_)
-          << "AHWB write view can't accept 'reading finished callback'";
-      ABSL_CHECK(ahwb_usage_->is_complete_fn == nullptr)
-          << "AHWB reading finished callback is already set.";
-      ahwb_usage_->is_complete_fn = std::move(func);
-    }
-
-    // TODO: verify if multiple functions can be specified.
-    void SetWritingFinishedFD(int fd, FinishingFunc func = nullptr) {
-      ABSL_CHECK(is_write_view_)
-          << "AHWB read view can't accept 'writing finished file descriptor'";
-      ABSL_CHECK(!write_complete_fence_fd_->IsValid())
-          << "AHWB write complete fence FD is already set.";
-      ABSL_CHECK(ahwb_usage_->is_complete_fn == nullptr)
-          << "AHWB write finished callback is already set.";
-      *write_complete_fence_fd_ = UniqueFd(fd);
-      ahwb_usage_->is_complete_fn = std::move(func);
-    }
-
-    // Passed `callback` is invoked when the tensor is being released.
-    // TODO: rename to Add* or set a single callback only.
-    void SetReleaseCallback(absl::AnyInvocable<void()> callback) {
-      ahwb_usage_->release_callbacks.push_back(std::move(callback));
-    }
-
-    // Passed `callback` is invoked when the underlying HardwareBuffer is
-    // released (e.g., on destruction or pool eviction).
-    void AddHardwareBufferReleaseCallback(
-        absl::AnyInvocable<void() &&> callback) const {
-      hardware_buffer_->AddReleaseCallback(std::move(callback));
-    }
-
-   protected:
-    friend class Tensor;
-    AHardwareBufferView(HardwareBuffer* hardware_buffer,
-                        UniqueFd* write_complete_fence_fd,
-                        TensorAhwbUsage* ahwb_usage,
-                        std::unique_ptr<absl::MutexLock>&& lock,
-                        bool is_write_view)
-        : View(std::move(lock)),
-          hardware_buffer_(hardware_buffer),
-          write_complete_fence_fd_(write_complete_fence_fd),
-          ahwb_usage_(ahwb_usage),
-          is_write_view_(is_write_view) {}
-
-    HardwareBuffer* hardware_buffer_ = nullptr;
-    UniqueFd* write_complete_fence_fd_ = nullptr;
-    TensorAhwbUsage* ahwb_usage_ = nullptr;
-    bool is_write_view_ = false;
-  };
-
-  AHardwareBufferView GetAHardwareBufferReadView() const;
-  AHardwareBufferView GetAHardwareBufferWriteView() const;
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 
 #if MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
   // TODO: Use GlTextureView instead.
@@ -591,33 +493,6 @@ class Tensor {
   mutable wgpu::Texture webgpu_texture2d_;
 #endif  // MEDIAPIPE_USE_WEBGPU
 
-#ifdef MEDIAPIPE_TENSOR_USE_AHWB
-  mutable std::shared_ptr<HardwareBuffer> ahwb_;
-
-  // Allocates and pools HardwareBuffer instances. Holding the shared_ptr to the
-  // pool ensures it outlives the internal ahwb_.
-  std::shared_ptr<HardwareBufferPool> hardware_buffer_pool_;
-
-  // Signals when GPU finished writing into SSBO so AHWB can be used then. Or
-  // signals when writing into AHWB has been finished so GPU can read from SSBO.
-  // Sync and FD are bound together.
-  mutable EGLSyncKHR fence_sync_ = EGL_NO_SYNC_KHR;
-
-  // Filehandle to signal when the writing into the AHWB has been finished.
-  mutable UniqueFd write_complete_fence_fd_;
-
-  // Reading from SSBO has been finished so SSBO can be released.
-  mutable GLsync ssbo_read_ = 0;
-
-  // Keeps track of current AHWB usages (e.g. multiple reads - two inference
-  // calculators use the same input tensor and import buffer by FD which results
-  // in two buffer handles that must be released.)
-  mutable std::list<TensorAhwbUsage> ahwb_usages_;
-
-  absl::Status AllocateAHardwareBuffer() const;
-
-  void CreateEglSyncAndFd() const;
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 
   // Use Ahwb for other views: OpenGL / CPU buffer.
   mutable bool use_ahwb_ = false;

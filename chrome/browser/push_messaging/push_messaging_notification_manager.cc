@@ -51,14 +51,9 @@
 #include "extensions/common/manifest_handlers/background_info.h"
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#else
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"  // nogncheck crbug.com/40147906
 #include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif
 
 using content::BrowserThread;
 using content::NotificationDatabaseData;
@@ -154,15 +149,6 @@ void PushMessagingNotificationManager::DidCountVisibleNotifications(
   bool notification_needed = true;
 
   // Sites with a currently visible tab don't need to show notifications.
-#if BUILDFLAG(IS_ANDROID)
-  TabModelList::ForEach(profile_, [&](TabModel* model) {
-    if (IsTabVisible(profile_, model->GetActiveWebContents(), origin)) {
-      notification_needed = false;
-      return false;
-    }
-    return true;
-  });
-#else
   ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
       [this, &origin, &notification_needed](BrowserWindowInterface* browser) {
         Profile* const profile = browser->GetProfile();
@@ -173,7 +159,6 @@ void PushMessagingNotificationManager::DidCountVisibleNotifications(
         }
         return notification_needed;
       });
-#endif
 
   // If more than one notification is showing for this Service Worker, close
   // the default notification if it happens to be part of this group.

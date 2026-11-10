@@ -9,7 +9,6 @@
 #include <string>
 
 #include "base/memory/weak_ptr.h"
-#include "chrome/browser/payments/webapps/twa_package_helper.h"
 #include "components/payments/content/content_payment_request_delegate.h"
 #include "content/public/browser/global_routing_id.h"
 
@@ -70,7 +69,7 @@ class ChromePaymentRequestDelegate : public ContentPaymentRequestDelegate {
       PaymentHandlerOpenWindowCallback callback) override;
   bool IsInteractive() const override;
   std::string GetInvalidSslCertificateErrorMessage() override;
-  void GetTwaPackageName(GetTwaPackageNameCallback callback) const override;
+
   PaymentRequestDialog* GetDialogForTesting() override;
 
   const base::WeakPtr<PaymentUIObserver> GetPaymentUIObserver() const override;
@@ -95,7 +94,6 @@ class ChromePaymentRequestDelegate : public ContentPaymentRequestDelegate {
 
   const content::GlobalRenderFrameHostId frame_routing_id_;
 
-  TwaPackageHelper twa_package_helper_;
 };
 
 }  // namespace payments

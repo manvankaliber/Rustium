@@ -451,34 +451,6 @@ std::unique_ptr<VulkanImageRepresentation> SharedImageManager::ProduceVulkan(
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-std::unique_ptr<LegacyOverlayImageRepresentation>
-SharedImageManager::ProduceLegacyOverlay(const Mailbox& mailbox,
-                                         MemoryTypeTracker* tracker) {
-  CALLED_ON_VALID_THREAD();
-
-  AutoLock autolock(this);
-  auto* backing = GetBacking(mailbox);
-  if (!backing) {
-    LOG(ERROR)
-        << "SharedImageManager::ProduceLegacyOverlay: Trying to Produce a "
-           "Legacy Overlay representation from a non-existent mailbox.";
-    return nullptr;
-  }
-
-  EnforceSharedImageUsage(backing, {SHARED_IMAGE_USAGE_SCANOUT});
-  auto representation = backing->ProduceLegacyOverlay(this, tracker);
-  if (!representation) {
-    LOG(ERROR)
-        << "SharedImageManager::ProduceLegacyOverlay: Trying to produce a "
-           "Legacy Overlay representation from an incompatible backing: "
-        << backing->GetName();
-    return nullptr;
-  }
-
-  return representation;
-}
-#endif
 
 #if BUILDFLAG(IS_WIN)
 void SharedImageManager::UpdateExternalFence(
@@ -632,9 +604,7 @@ scoped_refptr<gfx::NativePixmap> SharedImageManager::GetNativePixmap(
 bool SharedImageManager::SupportsScanoutImages() {
 #if BUILDFLAG(IS_APPLE)
   return true;
-#elif BUILDFLAG(IS_ANDROID)
-  return true;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   return supports_overlays_on_ozone_;
 #elif BUILDFLAG(IS_WIN)
   return gl::DirectCompositionTextureSupported();
@@ -644,30 +614,10 @@ bool SharedImageManager::SupportsScanoutImages() {
 }
 
 void SharedImageManager::QueryMultiplanarTextureSamplingSupport() {
-#if BUILDFLAG(IS_CHROMEOS)
-  auto* ozone_platform = ui::OzonePlatform::GetInstance();
-  auto* surface_factory = ozone_platform->GetSurfaceFactoryOzone();
-  supports_ycbcr_nv12_sampling_ =
-      surface_factory->IsFormatSupportedForTexturing(
-          viz::MultiPlaneFormat::kNV12) &&
-      ozone_platform->IsNativePixmapConfigSupported(
-          viz::MultiPlaneFormat::kNV12,
-          gfx::BufferUsage::GPU_READ_CPU_READ_WRITE);
-  supports_ycbcr_p010_sampling_ =
-      surface_factory->IsFormatSupportedForTexturing(
-          viz::MultiPlaneFormat::kP010);
-  is_texture_sampling_queried_ = true;
-#endif
 }
 
 bool SharedImageManager::SupportsNV12TextureSampling() {
-#if BUILDFLAG(IS_CHROMEOS)
-  AutoLock autolock(this);
-  if (!is_texture_sampling_queried_) {
-    QueryMultiplanarTextureSamplingSupport();
-  }
-  return supports_ycbcr_nv12_sampling_;
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
   return true;
 #else
   return false;
@@ -675,13 +625,7 @@ bool SharedImageManager::SupportsNV12TextureSampling() {
 }
 
 bool SharedImageManager::SupportsP010TextureSampling() {
-#if BUILDFLAG(IS_CHROMEOS)
-  AutoLock autolock(this);
-  if (!is_texture_sampling_queried_) {
-    QueryMultiplanarTextureSamplingSupport();
-  }
-  return supports_ycbcr_p010_sampling_;
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
   return true;
 #else
   return false;

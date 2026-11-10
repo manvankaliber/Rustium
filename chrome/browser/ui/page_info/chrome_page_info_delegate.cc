@@ -71,18 +71,10 @@
 #include "url/url_constants.h"
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/safe_browsing/android/suspicious_site_controller_android.h"  // nogncheck
-#else
 #include "chrome/browser/safe_browsing/suspicious_site_warnings/suspicious_site_controller_desktop.h"  // nogncheck
-#endif
 #include "components/safe_browsing/core/browser/suspicious_site_warning_allowlist.h"  // nogncheck
 #endif  // BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/grit/branded_strings.h"
-#include "ui/base/l10n/l10n_util.h"
-#else
 #include "chrome/browser/certificate_viewer.h"
 #include "chrome/browser/infobars/infobar_spec.h"
 #include "chrome/browser/lookalikes/safety_tip_ui_helper.h"
@@ -106,18 +98,8 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/ui_base_features.h"
 #include "ui/events/event.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "chrome/browser/ash/floating_sso/floating_sso_service.h"
-#include "chrome/browser/ash/floating_sso/floating_sso_service_factory.h"
-#endif
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-#include "chrome/browser/smart_card/smart_card_permission_context.h"
-#include "chrome/browser/smart_card/smart_card_permission_context_factory.h"
-#endif
 
 namespace {
 
@@ -146,10 +128,8 @@ ChromePageInfoDelegate::ChromePageInfoDelegate(
     : get_browser_callback_(std::move(get_browser_callback)),
       web_contents_(web_contents) {
   CHECK(get_browser_callback_);
-#if !BUILDFLAG(IS_ANDROID)
   sentiment_service_ =
       TrustSafetySentimentServiceFactory::GetForProfile(GetProfile());
-#endif
   base::UmaHistogramBoolean("Security.PageInfo.AboutThisSiteLanguageSupported",
                             page_info::IsAboutThisSiteFeatureEnabled(
                                 g_browser_process->GetApplicationLocale()));
@@ -181,11 +161,6 @@ ChromePageInfoDelegate::GetChooserContext(ContentSettingsType type) {
     case ContentSettingsType::HID_CHOOSER_DATA:
       return HidChooserContextFactory::GetForProfile(GetProfile());
     case ContentSettingsType::SMART_CARD_DATA:
-#if BUILDFLAG(ENABLE_SMART_CARD)
-      if (base::FeatureList::IsEnabled(blink::features::kSmartCard)) {
-        return &SmartCardPermissionContextFactory::GetForProfile(*GetProfile());
-      }
-#endif
       return nullptr;
     default:
       NOTREACHED();
@@ -248,7 +223,6 @@ content::PermissionResult ChromePageInfoDelegate::GetPermissionResult(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ChromePageInfoDelegate::FocusWebContents() {
   BrowserWindowInterface* browser = get_browser_callback_.Run(web_contents_);
   BrowserWebContentsDelegate::From(browser)->ActivateContents(web_contents_);
@@ -455,7 +429,6 @@ void ChromePageInfoDelegate::OnUIClosing() {
     sentiment_service_->PageInfoClosed();
   }
 }
-#endif
 
 void ChromePageInfoDelegate::OpenSafeBrowsingHelpCenterPage(
     const ui::Event* event,
@@ -475,23 +448,12 @@ void ChromePageInfoDelegate::OpenSafeBrowsingHelpCenterPage(
 
 void ChromePageInfoDelegate::OnSuspiciousSiteBackToSafety() {
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
-#if BUILDFLAG(IS_ANDROID)
-  if (auto* ssc =
-          safe_browsing::SuspiciousSiteControllerAndroid::FromWebContents(
-              web_contents_)) {
-    ssc->HandleBackNavigation(
-        safe_browsing::SuspiciousSiteWarningUserInteraction::
-            kBackToSafetyButton);
-    return;
-  }
-#else
   if (auto* ssc =
           safe_browsing::SuspiciousSiteControllerDesktop::FromWebContents(
               web_contents_)) {
     ssc->OnBackToSafetyClicked();
     return;
   }
-#endif
   if (!web_contents_) {
     return;
   }
@@ -520,21 +482,12 @@ void ChromePageInfoDelegate::OnSuspiciousSiteBackToSafety() {
 
 void ChromePageInfoDelegate::OnSuspiciousSiteMarkAsSafe() {
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
-#if BUILDFLAG(IS_ANDROID)
-  if (auto* ssc =
-          safe_browsing::SuspiciousSiteControllerAndroid::FromWebContents(
-              web_contents_)) {
-    ssc->OnContinueButtonClicked();
-    return;
-  }
-#else
   if (auto* ssc =
           safe_browsing::SuspiciousSiteControllerDesktop::FromWebContents(
               web_contents_)) {
     ssc->OnMarkAsSafeClicked();
     return;
   }
-#endif
   if (!web_contents_) {
     return;
   }
@@ -592,11 +545,6 @@ bool ChromePageInfoDelegate::IsSubresourceFilterActivated(
 }
 
 bool ChromePageInfoDelegate::HasAutoPictureInPictureBeenRegistered() {
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(media::kAutoPictureInPictureAndroid)) {
-    return false;
-  }
-#endif
   auto* auto_pip_tab_helper =
       AutoPictureInPictureTabHelper::FromWebContents(web_contents_);
   return auto_pip_tab_helper &&
@@ -643,11 +591,6 @@ ChromePageInfoDelegate::GetPageSpecificContentSettingsDelegate() {
   return std::move(delegate);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-const std::u16string ChromePageInfoDelegate::GetClientApplicationName() {
-  return l10n_util::GetStringUTF16(IDS_SHORT_PRODUCT_NAME);
-}
-#endif
 
 bool ChromePageInfoDelegate::IsHttpsFirstModeEnabledForUrl(const GURL& url) {
   return IsInterstitialEnabled(ComputeInterstitialState(web_contents_, url));
@@ -664,18 +607,3 @@ void ChromePageInfoDelegate::SetSecurityStateForTests(
   security_level_for_tests_ = security_level;
   visible_security_state_for_tests_ = visible_security_state;
 }
-
-#if BUILDFLAG(IS_CHROMEOS)
-bool ChromePageInfoDelegate::ShouldSyncCookiesForUrl(const GURL& url) {
-  if (!ash::features::IsFloatingSsoAllowed()) {
-    return false;
-  }
-  // Floating SSO is an internal name for the feature which can sync cookies for
-  // ChromeOS enterprise users.
-  auto* floating_sso_service =
-      ash::floating_sso::FloatingSsoServiceFactory::GetForProfile(GetProfile());
-  // Even when cookie sync is enabled, it isn't applied to every site.
-  return floating_sso_service && floating_sso_service->IsFloatingSsoEnabled() &&
-         floating_sso_service->ShouldSyncCookiesForUrl(url);
-}
-#endif

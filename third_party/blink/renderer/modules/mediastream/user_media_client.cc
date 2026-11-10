@@ -67,11 +67,9 @@ class UserMediaClient::RequestQueue final
   void EnqueueAndMaybeProcess(Request* request);
   bool IsCapturing() { return user_media_processor_->HasActiveSources(); }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   void FocusCapturedSurface(const String& label, bool focus) {
     user_media_processor_->FocusCapturedSurface(label, focus);
   }
-#endif
 
   void CancelUserMediaRequest(UserMediaRequest* user_media_request);
   void DeleteAllUserMediaRequests();
@@ -406,11 +404,9 @@ bool UserMediaClient::IsCapturing() {
          pending_display_requests_->IsCapturing();
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void UserMediaClient::FocusCapturedSurface(const String& label, bool focus) {
   pending_display_requests_->FocusCapturedSurface(label, focus);
 }
-#endif
 
 void UserMediaClient::CancelUserMediaRequest(
     UserMediaRequest* user_media_request) {

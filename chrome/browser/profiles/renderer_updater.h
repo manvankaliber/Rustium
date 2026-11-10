@@ -21,15 +21,12 @@
 #include "mojo/public/cpp/bindings/associated_remote.h"
 #include "mojo/public/cpp/bindings/remote.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/signin/oauth2_login_manager.h"
-#endif
 
 #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
 class BoundSessionCookieRefreshService;
 #endif
 
-#if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY)
 namespace net {
 class HttpRequestHeaders;
 }
@@ -43,10 +40,6 @@ class RenderProcessHost;
 
 // The RendererUpdater is responsible for updating renderers about state change.
 class RendererUpdater : public KeyedService
-#if BUILDFLAG(IS_CHROMEOS)
-    ,
-                        public ash::OAuth2LoginManager::Observer
-#endif
 {
  public:
   explicit RendererUpdater(Profile* profile);
@@ -71,12 +64,6 @@ class RendererUpdater : public KeyedService
   mojo::AssociatedRemote<chrome::mojom::RendererConfiguration>
   GetRendererConfiguration(content::RenderProcessHost* render_process_host);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // ash::OAuth2LoginManager::Observer:
-  void OnSessionRestoreStateChanged(
-      Profile* user_profile,
-      ash::OAuth2LoginManager::SessionRestoreState state) override;
-#endif
 
   // Update all renderers due to a configuration change.
   void UpdateAllRenderers();
@@ -88,7 +75,7 @@ class RendererUpdater : public KeyedService
   GetBoundSessionThrottlerParams() const;
 #endif
 
-#if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY)
   // Returns the browser's current Platform Runtime header block, or empty
   // if there is none yet.
   net::HttpRequestHeaders GetPlatformRuntimeHeaders() const;
@@ -101,12 +88,6 @@ class RendererUpdater : public KeyedService
   const bool is_off_the_record_;
   const raw_ptr<Profile> original_profile_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  raw_ptr<ash::OAuth2LoginManager> oauth2_login_manager_;
-  bool merge_session_running_;
-  std::vector<mojo::Remote<chrome::mojom::ChromeOSListener>>
-      chromeos_listeners_;
-#endif
 #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
   const raw_ptr<BoundSessionCookieRefreshService>
       bound_session_cookie_refresh_service_ = nullptr;
@@ -119,7 +100,7 @@ class RendererUpdater : public KeyedService
   IntegerPrefMember force_youtube_restrict_;
   StringPrefMember allowed_domains_for_apps_;
 
-#if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY)
   // The Platform Runtime header block is global rather than per-profile, so
   // every profile's updater subscribes to the same browser-wide host and
   // rebroadcasts to its own renderers.

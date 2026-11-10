@@ -15,37 +15,13 @@
     "channel": "stable",
     "extension_types": ["extension", "platform_app"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
-  "accessibilityFeatures.read": [{
+  "accessibilityFeatures.read": {
     "channel": "stable",
     "extension_types": ["extension", "platform_app"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
-  }, {
-    "channel": "stable",
-    "extension_types": ["legacy_packaged_app"],
-    "platforms": ["chromeos"],
-    "allowlist": [
-      // http://crbug.com/41384528
-      "0EA6B717932AD64C469C1CCB6911457733295907",
-      // http://crbug.com/41384528 (SHA-256 Stable)
-      "64444C82CD0FC7251F3F9839E164AC5E312F094351E438AC4941C88FEDBE4203",
-      // http://crbug.com/41384528
-      "58B0C2968C335964D5433E89CA4D86628A0E3D4B",
-      // http://crbug.com/41384528 (SHA-256 Dev)
-      "5F13EB3D4C8E5A012DF6F03BB4766532C41A07E23CC9F7963FEEB77BBBC7334D"
-    ]
-  }],
-  "accessibilityServicePrivate": {
-    "channel": "stable",
-    "component_extensions_auto_granted": false,
-    "extension_types": ["extension"],
-    "location": "component",
-    "platforms": ["chromeos"],
-    "allowlist": [
-      "3CD7D4ABEB04E8C4D20552C60B8B20983DD10A2F"   // Embedded A11y Helper.
-    ]
+    "platforms": ["linux", "mac", "win"]
   },
   "activityLogPrivate": {
     "channel": "stable",
@@ -62,7 +38,7 @@
     "extension_types": ["extension", "platform_app"],
     "location": "component",
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "background": {
     "channel": "stable",
@@ -79,7 +55,7 @@
     "extension_types": ["extension", "legacy_packaged_app", "platform_app"],
     "location": "component",
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "browsingData": {
     "channel": "stable",
@@ -92,45 +68,6 @@
       "2462D64ACB971A7E708757159C2B17761D4FF54A",  // Citrix Receiver
       "3010EF507AFEF487EEA9CDE2930EC94867C60936",  // Citrix Receiver Beta
       "ABAABC5F49E022A76CBB12972A53B58354C04AC6"   // Citrix Receiver Dev
-    ]
-  },
-  "chromeosInfoPrivate": {
-    "channel": "stable",
-    "extension_types": ["extension", "legacy_packaged_app", "platform_app"],
-    "platforms": ["chromeos"],
-    "allowlist": [
-      "1C93BD3CF875F4A73C0B2A163BB8FBDA8B8B3D80",  // http://crbug.com/41054250
-      "A3BC37E2148AC4E99BE4B16AF9D42DD1E592BBBE",  // http://crbug.com/41054250
-      "8C3741E3AF0B93B6E8E0DDD499BB0B74839EA578",  // http://crbug.com/41008558
-      "E703483CEF33DEC18B4B6DD84B5C776FB9182BDB",  // http://crbug.com/41008558
-      "307E96539209F95A1A8740C713E6998A73657D96",  // http://crbug.com/41080890
-      "A291B26E088FA6BA53FFD72F0916F06EBA7C585A",  // http://crbug.com/40350570
-      // TODO(ntang): Remove this hash when the app is no longer active.
-      "D7986543275120831B39EF28D1327552FC343960",  // http://crbug.com/40345217
-      "4F25792AF1AA7483936DE29C07806F203C7170A0",  // http://crbug.com/40381325
-      "BD8781D757D830FC2E85470A1B6E8A718B7EE0D9",  // http://crbug.com/40381325
-      "4AC2B6C63C6480D150DFDA13E4A5956EB1D0DDBB",  // http://crbug.com/40381325
-      "81986D4F846CEDDDB962643FA501D1780DD441BB",  // http://crbug.com/40381325
-      // TODO(ntang): Remove these 2 hashes when the app is no longer active.
-      "B620CF4203315F9F2E046EDED22C7571A935958D",  // http://crbug.com/40426768
-      "B206D8716769728278D2D300349C6CB7D7DE2EF9",  // http://crbug.com/40426768
-      "8EBDF73405D0B84CEABB8C7513C9B9FA9F1DC2CE",  // http://crbug.com/41273958
-      "72445193EB86716465275D4E2E84DACF47558FCF",  // http://crbug.com/41273958
-      "51E46A03961884A4BA74CE7CA30A75CC6F360D74",  // http://crbug.com/41273958
-      "6844C0E4DF3034BD3ED04E7BD957C7DE0EA83443",  // Browser Test id.
-      "2B6C6A4A5940017146F3E58B7F90116206E84685",  // http://crbug.com/41272652
-      "B6C2EFAB3EC3BF6EF03701408B6B09A67B2D0069",  // http://crbug.com/41272652
-      "96FF2FFA5C9173C76D47184B3E86D267B37781DE",  // http://crbug.com/41272652
-      "0136FCB13DB29FD5CD442F56E59E53B61F1DF96F",  // http://crbug.com/41272652
-      "9834387FDA1F66A1B5CA06CB442137B556F12F2A",  // http://crbug.com/40543552
-      "930F7D9989A5FBCDCCD7D85BB5C3B7006C24D91D",  // http://crbug.com/41353842
-      "A9A9FC0228ADF541F0334F22BEFB8F9C245B21D7",  // http://crbug.com/40574652
-      "46578A13607D38F1DC8E280C4F499FB0A2F9565C",  // http://crbug.com/40575487
-      "898FB5A39687D210766B8998BA4530B99C9E6586",  // http://crbug.com/40575487
-      "82F30B65397BC3E4ADE627BBD857AB8A58210648",  // http://crbug.com/40575487
-      "C74B2AF138F9EDECD04D0965AB36CA66C8290466",  // http://crbug.com/40625183
-      "754A9CB3C8623093180E10CF4C3AB64837179E68",  // https://crbug.com/40762570
-      "CF6B19571334F49878327D557597D23B1458AA39"   // https://crbug.com/40762570
     ]
   },
   "clipboardRead": {
@@ -150,7 +87,7 @@
     "extension_types": ["extension", "legacy_packaged_app", "platform_app"],
     "location": "component",
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "commands.accessibility": {
     "channel": "stable",
@@ -172,7 +109,7 @@
     "channel": "stable",
     "extension_types": ["extension"],
     "location": "component",
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "feature_flag": "ApiContextualTasksPrivate",
     "allowlist": [
       "0D9E73D7176D542D1CDD17F148C15EFED3F574C0" // Contextual Tasks Component Extension
@@ -181,7 +118,7 @@
     "channel": "stable",
     "extension_types": ["extension"],
     "location": "component",
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "feature_flag": "ApiContextualTasksPrivateAba",
     "allowlist": [
       "0D9E73D7176D542D1CDD17F148C15EFED3F574C0" // Contextual Tasks Component Extension
@@ -256,12 +193,7 @@
       "C811DB5C295612ABA7EBB8380EAE8380E30800D9"  // Dictation Component Extension
     ],
     // TODO(crbug.com/502587072): Support "desktop_android".
-    "platforms": ["chromeos", "linux", "mac", "win"]
-  },
-  "documentScan": {
-    "channel": "stable",
-    "extension_types": ["extension", "platform_app"],
-    "platforms": ["chromeos"]
+    "platforms": ["linux", "mac", "win"]
   },
   "downloads": {
     "channel": "stable",
@@ -279,107 +211,16 @@
     "channel": "stable",
     "extension_types": ["extension"]
   },
-  "enterprise.deviceAttributes": [{
-    "channel": "stable",
-    "extension_types": ["extension", "platform_app"],
-    "location": "policy",
-    "platforms": ["chromeos"]
-  }, {
-    "channel": "stable",
-    "dependencies": ["behavior:imprivata_login_screen_extension"],
-    "extension_types": ["login_screen_extension"],
-    "location": "policy",
-    "platforms": ["chromeos"]
-  }, {
-    "channel": "stable",
-    "extension_types": ["login_screen_extension"],
-    "location": "policy",
-    "platforms": ["chromeos"],
-    "allowlist": [
-      "4B7E9789426EBD1BB3F99D72690DAE303FC042DF"   // AuthX Secure for ChromeOS
-    ]
-  }],
-  "enterprise.networkingAttributes": [{
-    "channel": "stable",
-    "extension_types": ["extension"],
-    "location": "policy",
-    "platforms": ["chromeos"]
-  }, {
-    "channel": "stable",
-    "dependencies": ["behavior:imprivata_login_screen_extension"],
-    "extension_types": ["login_screen_extension"],
-    "location": "policy",
-    "platforms": ["chromeos"]
-  }],
   "enterprise.hardwarePlatform": {
     "channel": "stable",
     "extension_types": ["extension"],
     "location": "policy"
   },
-  "enterprise.kioskInput": {
-    "channel": "stable",
-    "extension_types": ["extension"],
-    "location": "policy",
-    "platforms": ["chromeos"],
-    "session_types": ["kiosk"],
-    // TODO(b/307230150): Clean up API flag
-    "feature_flag": "ApiEnterpriseKioskInput"
-  },
-  "enterprise.login": {
-    "channel": "stable",
-    "extension_types": ["extension"],
-    "location": "policy",
-    "platforms": ["chromeos"]
-  },
-  "enterprise.platformKeys": [{
-    "channel": "stable",
-    "platforms": ["chromeos"],
-    "extension_types": ["extension", "platform_app", "legacy_packaged_app"],
-    "location": "policy"
-  },
-  {
-    "channel": "stable",
-    "dependencies": ["behavior:imprivata_login_screen_extension"],
-    "extension_types": ["login_screen_extension"],
-    "location": "policy",
-    "platforms": ["chromeos"]
-  },
-  {
-    "channel": "stable",
-    "extension_types": ["extension"],
-    "location": "external_component",
-    "platforms": ["chromeos"],
-    "allowlist": [
-      "EC8EA268128FECE14CEC68B90686D87755D87083"   // http://crbug.com/40581622
-    ]
-  },
-  {
-    "channel": "stable",
-    "platforms": ["chromeos"],
-    "extension_types": ["extension"],
-    "allowlist": [
-      "A4CC6F00ACF41015AF38F1D5C98E97C2B8B3B320",  // http://crbug.com/40281960
-      "4E09F1C1EEC4D27F1F7DF18BA3643307107A7C41"   // http://crbug.com/40281960
-    ]
-  }],
-  "enterprise.platformKeysPrivate": {
-    "channel": "stable",
-    "extension_types": ["extension", "legacy_packaged_app"],
-    "platforms": ["chromeos"],
-    "allowlist": [
-      "657FEC7E77355CA205B0E226586621F86B33F611",  // http://crbug.com/41016122
-      "5894126C625EF31852F215ED301A5FF1F9B7D026",  // http://crbug.com/41016122
-      "8DAE23A10703C926B21862B2F318FB4E110B17BD",  // http://crbug.com/40417940
-      "34412790FC81BC9B563CBE599ED10ABF26B209F7",  // http://crbug.com/41187843
-      "7F782E724FF51789B54DA82C7363DAB5043C1677",  // http://crbug.com/40449487
-      "2C18988BCDC297196D5D6893005175DA1BC1E893"   // http://crbug.com/40449487
-    ]
-  },
   "enterprise.reportingPrivate": {
     "channel": "stable",
     "extension_types": ["extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "allowlist" : [
       "031E5E4A54C39E4F46E11CE643584E9187915908",  // https://crbug.com/40592958 SecureConnect
       "349E89FE0296161007623C0B4096B617D7CECD54",  // https://crbug.com/40592958 SecureConnect
@@ -417,20 +258,20 @@
     "channel": "stable",
     "command_line_switch": "extension-actor-api",
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "experimentalAiData": {
     "extension_types": ["extension"],
     "channel": "stable",
     "command_line_switch": "extension-ai-data-collection",
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "glicPrivate": {
     "extension_types": ["extension"],
     "channel": "stable",
     "location": "component",
-    "platforms": ["chromeos", "desktop_android", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "allowlist": [
       "56D158B3E10A304CB840CD4C28C7AF74A4B11433"  // Glic Component Extension
     ],
@@ -441,7 +282,7 @@
     "extension_types": ["extension"],
     "location": "component",
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "allowlist": [
       "56D158B3E10A304CB840CD4C28C7AF74A4B11433"  // Glic Component Extension
     ],
@@ -483,60 +324,13 @@
     "allowlist": ["632DD33AD22AD33ED4197BB6F191F3841C52A9D6"],
     "location": "component"
   },
-  "input": {
-    "channel": "stable",
-    "extension_types": ["extension", "legacy_packaged_app"],
-    "platforms": ["chromeos"]
-  },
-  "languageSettingsPrivate": [
-    {
+  "languageSettingsPrivate": {
       "channel": "trunk",
       "extension_types": ["extension", "platform_app"],
       "location": "component",
       // "desktop_android" is not supported.
-      "platforms": ["chromeos", "linux", "mac", "win"]
+      "platforms": ["linux", "mac", "win"]
     },
-    {
-      "channel": "stable",
-      "extension_types": ["extension"],
-      "location": "component",
-      "platforms": ["chromeos"],
-      "allowlist": [
-        "371AC6869D2138CE58123741E69F67469206909F" // AccessibilityCommon extension. https://crbug.com/40186322
-      ]
-    }
-  ],
-  "lockWindowFullscreenPrivate": {
-    "channel": "stable",
-    "component_extensions_auto_granted": false,
-    "extension_types": ["extension"],
-    "platforms": ["chromeos"],
-    "allowlist": [
-      "6A4A0389E8D47118E96E6221B0B7221CA3715801",  // Apitest extension
-      "EC8EA268128FECE14CEC68B90686D87755D87083",  // Assessment Assistant
-      "AA1C88257F51F7A9AFB947720AACE8CA7E9CF85C",  // Assessment Assistant (dev)
-      "A4577D8C2AF4CF26F40CBCA83FFA4251D6F6C8F8",  // Share to Classroom
-      "EFCF5358672FEE04789FD2EC3638A67ADEDB6C8C",  // Share to Classroom (test)
-      "A8208CCC87F8261AFAEB6B85D5E8D47372DDEA6B"   // Share to Classroom
-                                                   // (staging)
-    ]
-  },
-  "webcamPrivate": {
-    "channel": "stable",
-    "extension_types": ["extension", "platform_app"],
-    "allowlist": [
-      "E703483CEF33DEC18B4B6DD84B5C776FB9182BDB",  // http://crbug.com/41418548
-      "A3BC37E2148AC4E99BE4B16AF9D42DD1E592BBBE",  // http://crbug.com/41418548
-      "1C93BD3CF875F4A73C0B2A163BB8FBDA8B8B3D80",  // http://crbug.com/41418548
-      "307E96539209F95A1A8740C713E6998A73657D96",  // http://crbug.com/41418548
-      "4F25792AF1AA7483936DE29C07806F203C7170A0",  // http://crbug.com/41418548
-      "BD8781D757D830FC2E85470A1B6E8A718B7EE0D9",  // http://crbug.com/41418548
-      "4AC2B6C63C6480D150DFDA13E4A5956EB1D0DDBB",  // http://crbug.com/41418548
-      "81986D4F846CEDDDB962643FA501D1780DD441BB",  // http://crbug.com/41418548
-      "A9A9FC0228ADF541F0334F22BEFB8F9C245B21D7"   // http://crbug.com/41418548
-    ],
-    "platforms": ["chromeos"]
-  },
   "management": [
     {
       "channel": "stable",
@@ -563,38 +357,8 @@
         "82F30B65397BC3E4ADE627BBD857AB8A58210648",  // http://crbug.com/40565964
         "C74B2AF138F9EDECD04D0965AB36CA66C8290466"   // http://crbug.com/40625183
       ]
-    }, {
-      "channel": "stable",
-      "extension_types": ["platform_app"],
-      "session_types": ["kiosk"]
-    }, {
-      "channel": "stable",
-      "dependencies": ["behavior:imprivata_login_screen_extension"],
-      "extension_types": ["login_screen_extension"]
-    }, {
-      "channel": "stable",
-      "extension_types": ["login_screen_extension"],
-      "location": "policy",
-      "platforms": ["chromeos"],
-      "allowlist": [
-        // Identity Card Connector
-        "93B7178E8C275515C38D4F43D9DF4648F0EA9B03",
-        // Identity Card Connector (SHA-256)
-        "BABE7AD8BDBAFCD146D50861BF6981DA7AC2961C1982E5F78EDBD7A5FAA62259",
-        // https://crbug.com/383855830
-        // IDmelon Accesskey
-        "1FC31C9D42DF1B51EA7648F73DF26400322999A8",
-        // IDmelon Accesskey (SHA-256)
-        "C42CACC20C2A7F53A6F8DD2EE85F1FC2333DD6EB030BEA91B9CA9D9DDD6D570D"
-      ]
     }
   ],
-  "mediaPlayerPrivate": {
-    "channel": "stable",
-    "extension_types": ["extension", "legacy_packaged_app", "platform_app"],
-    "location": "component",
-    "platforms": ["chromeos"]
-  },
   "mdns": [{
     "channel": "stable",
     "extension_types": ["extension"],
@@ -608,9 +372,9 @@
   {
     "channel": "stable",
     "extension_types": ["platform_app"],
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   }],
-  "notifications": [{
+  "notifications": {
     // The chrome.notifications functionality listed in notifications.webidl
     // is available only to extension/platform_app types. The implementation
     // of that functionality enforces that restriction in
@@ -621,19 +385,7 @@
     "extension_types": [
       "extension", "legacy_packaged_app", "hosted_app", "platform_app"
     ]
-  }, {
-    "channel": "stable",
-    "component_extensions_auto_granted": false,
-    "extension_types": ["login_screen_extension"],
-    "location": "policy",
-    "platforms": ["chromeos"],
-    "allowlist": [
-      // https://crbug.com/40758574
-      "6B748A5C005F21B7CBCF4170C2F883E435DEB511",   // DriveLock Smart Card Middleware
-      "075FF17D52ED6E3C2E5EC4D99F188E7A25AF47EA",   // Beta DriveLock Smart Card Middleware
-      "5C825E850034490380BCB756D43ABB2CF537AA91"    // b/359290130
-    ]
-  }],
+  },
   "pageCapture": {
     "channel": "stable",
     "extension_types": ["extension", "legacy_packaged_app"]
@@ -643,27 +395,17 @@
     "extension_types": ["extension", "platform_app"],
     "location": "component",
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "pdfViewerPrivate": {
     "channel": "stable",
     "extension_types": ["extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "allowlist": [
       "CBCC42ABED43A4B58FE3810E62AFFA010EB0349F"  // PDF Viewer
     ]
   },
-  "platformKeys": [{
-    "channel": "stable",
-    "extension_types": ["extension", "platform_app"],
-    "platforms": ["chromeos"]
-  }, {
-    "channel": "stable",
-    "dependencies": ["behavior:imprivata_login_screen_extension"],
-    "extension_types": ["login_screen_extension"],
-    "platforms": ["chromeos"]
-  }],
   "plugin": {
     "channel": "stable",
     "extension_types": ["extension", "legacy_packaged_app"]
@@ -695,7 +437,7 @@
   "proxyOverrideRulesPrivate": {
     "channel": "stable",
     "extension_types": ["extension"],
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "allowlist" : [
       "031E5E4A54C39E4F46E11CE643584E9187915908",  // https://crbug.com/40592958 SecureConnect
       "349E89FE0296161007623C0B4096B617D7CECD54",  // https://crbug.com/40592958 SecureConnect
@@ -709,7 +451,7 @@
   "imageWriterPrivate": {
     "channel": "stable",
     "extension_types": ["extension", "platform_app"],
-    "platforms": ["chromeos", "desktop_android", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "allowlist": [
       // TODO(ntang): Remove these 2 hashes when the app is no longer active.
       "A291B26E088FA6BA53FFD72F0916F06EBA7C585A", // http://crbug.com/40345217
@@ -738,13 +480,13 @@
     ],
     "location": "component",
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "safeBrowsingPrivate": {
     "channel": "stable",
     "extension_types": ["extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "allowlist": [
       "B281B98DDD6A379EF50D59BB1135419536C1C353",  // Report site to Safe Browsing Extension, crbug.com/41441421
       "FD15C63ABA854733FDCBC1D4D34A71E963A12ABD",  // Chrome Reporting Extension
@@ -769,7 +511,7 @@
     "extension_types": ["extension", "platform_app"],
     "location": "component",
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   {
     // TODO(devlin): Remove these entries. Unfortunately, this causes a bit of
@@ -778,41 +520,24 @@
     "channel": "stable",
     "extension_types": ["extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "allowlist": [
       "63ED55E43214C211F82122ED56407FF1A807F2A3",  // Media Router Dev
       "226CF815E39A363090A1E547D53063472B8279FA"   // Media Router Release
-    ]
-  },
-  {
-    "channel": "stable",
-    "extension_types": ["platform_app"],
-    "platforms": ["chromeos"],
-    "session_types": ["kiosk"],
-    "allowlist": [
-      "E703483CEF33DEC18B4B6DD84B5C776FB9182BDB",  // https://crbug.com/40558669
-      "A3BC37E2148AC4E99BE4B16AF9D42DD1E592BBBE",  // https://crbug.com/40558669
-      "1C93BD3CF875F4A73C0B2A163BB8FBDA8B8B3D80",  // https://crbug.com/40558669
-      "307E96539209F95A1A8740C713E6998A73657D96",  // https://crbug.com/40558669
-      "4F25792AF1AA7483936DE29C07806F203C7170A0",  // https://crbug.com/40558669
-      "BD8781D757D830FC2E85470A1B6E8A718B7EE0D9",  // https://crbug.com/40558669
-      "4AC2B6C63C6480D150DFDA13E4A5956EB1D0DDBB",  // https://crbug.com/40558669
-      "81986D4F846CEDDDB962643FA501D1780DD441BB",  // https://crbug.com/40558669
-      "A9A9FC0228ADF541F0334F22BEFB8F9C245B21D7"   // https://crbug.com/40574652
     ]
   }],
   "sidePanel": {
     "channel": "stable",
     "extension_types": ["extension"],
     "min_manifest_version": 3,
-    "platforms": ["chromeos", "desktop_android", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "systemPrivate": {
     "channel": "stable",
     "extension_types": ["extension", "legacy_packaged_app", "platform_app"],
     "location": "component",
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "tabGroups": {
     "channel": "stable",
@@ -837,29 +562,6 @@
   "tabCapture": {
     "channel": "stable",
     "extension_types": ["extension", "legacy_packaged_app"]
-  },
-  "terminalPrivate": {
-    "channel": "stable",
-    "extension_types": ["extension", "legacy_packaged_app", "platform_app"],
-    "platforms": ["chromeos"],
-    "allowlist": [
-      // Secure Shell App (stable) (SHA-1)
-      "0EA6B717932AD64C469C1CCB6911457733295907",
-      // Secure Shell App (stable) (SHA-256)
-      "64444C82CD0FC7251F3F9839E164AC5E312F094351E438AC4941C88FEDBE4203",
-      // Secure Shell App (dev)
-      "58B0C2968C335964D5433E89CA4D86628A0E3D4B",
-      // Secure Shell App (dev) (SHA-256)
-      "5F13EB3D4C8E5A012DF6F03BB4766532C41A07E23CC9F7963FEEB77BBBC7334D",
-      // Secure Shell Ext (stable)
-      "3BC1ED0B3E6EFDC7BD4D3D1D75D44B52DEE0A226",
-      // Secure Shell Ext (stable) (SHA-256)
-      "016C557CDCA68B397FF4A18FC90127C08FCA46663BFB82C301F58734482E37E8",
-      // Secure Shell Ext (dev)
-      "38C361D4A0726CE45D3572D65071B6BDB3092371",
-      // Secure Shell Ext (dev) (SHA-256)
-      "EF9B72731592D220DACCE1EA67179A9F4CB0B8AAD0BBDC87D3C4815E16461C81"
-    ]
   },
   "topSites": {
     "channel": "stable",
@@ -893,7 +595,7 @@
     "channel": "stable",
     "extension_types": ["extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "allowlist": [
       // Hangouts test extension
       "80B9DC58E5210749F052F5B4DB239C50CF72AEB6",

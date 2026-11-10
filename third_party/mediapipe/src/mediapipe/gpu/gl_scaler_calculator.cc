@@ -29,14 +29,7 @@
 #include "mediapipe/gpu/gpu_buffer_storage_ahwb.h"  // IWYU pragma: keep (GpuBufferStorageAhwb)
 #include "mediapipe/gpu/shader_util.h"
 
-#ifdef __ANDROID__
-// The size of Java arrays is dynamic, which makes it difficult to
-// generate the right packet type with a fixed size. Therefore, we
-// are using unsized arrays on Android.
-typedef int DimensionsPacketType[];
-#else
 typedef int DimensionsPacketType[2];
-#endif
 
 namespace mediapipe {
 
@@ -110,9 +103,6 @@ class GlScalerCalculator : public CalculatorBase {
   FrameRotation rotation_;
   std::unique_ptr<QuadRenderer> rgb_renderer_;
   std::unique_ptr<QuadRenderer> yuv_renderer_;
-#ifdef __ANDROID__
-  std::unique_ptr<QuadRenderer> ext_rgb_renderer_;
-#endif
   bool vertical_flip_output_;
   bool horizontal_flip_output_;
   FrameScaleMode scale_mode_ = FrameScaleMode::kStretch;
@@ -212,28 +202,12 @@ absl::Status GlScalerCalculator::Open(CalculatorContext* cc) {
   }
   if (output_target_ == GlScalerCalculatorOptions::AHWB_TEXTURE_VIEW) {
     ABSL_RETURN_IF_ERROR(helper_.RunInGlContext([this]() -> absl::Status {
-#if defined(MEDIAPIPE_GPU_BUFFER_USE_AHWB)
-      if (!mediapipe::AhwbSupportsGlViews()) {
-        return absl::UnavailableError(
-            "AHWB_TEXTURE_VIEW requested, but AHWB GL views are not supported "
-            "on this platform.");
-      }
-      use_ahwb_ = true;
-      return absl::OkStatus();
-#else
       return absl::UnavailableError(
           "AHWB_TEXTURE_VIEW requested, but MEDIAPIPE_GPU_BUFFER_USE_AHWB is "
           "not defined.");
-#endif
     }));
   } else if (output_target_ ==
              GlScalerCalculatorOptions::AHWB_TEXTURE_VIEW_IF_AVAILABLE) {
-#if defined(MEDIAPIPE_GPU_BUFFER_USE_AHWB)
-    ABSL_RETURN_IF_ERROR(helper_.RunInGlContext([this]() -> absl::Status {
-      use_ahwb_ = mediapipe::AhwbSupportsGlViews();
-      return absl::OkStatus();
-    }));
-#endif
   }
   if (HasTagOrIndex(cc->InputSidePackets(), "OUTPUT_DIMENSIONS", 1)) {
     const auto& dimensions =
@@ -297,16 +271,6 @@ absl::Status GlScalerCalculator::Process(CalculatorContext* cc) {
 #endif      // __APPLE__
     {
       src1 = helper_.CreateSourceTexture(input);
-#ifdef __ANDROID__
-      if (src1.target() == GL_TEXTURE_EXTERNAL_OES) {
-        if (!ext_rgb_renderer_) {
-          ext_rgb_renderer_ = absl::make_unique<QuadRenderer>();
-          ABSL_RETURN_IF_ERROR(ext_rgb_renderer_->GlSetup(
-              kBasicTexturedFragmentShaderOES, {"video_frame"}));
-        }
-        renderer = ext_rgb_renderer_.get();
-      } else  // NOLINT(readability/braces)
-#endif        // __ANDROID__
       {
         if (!rgb_renderer_) {
           rgb_renderer_ = std::make_unique<QuadRenderer>();
@@ -347,14 +311,6 @@ absl::Status GlScalerCalculator::Process(CalculatorContext* cc) {
     GlTexture dst;
 
     if (use_ahwb_) {
-#if defined(MEDIAPIPE_GPU_BUFFER_USE_AHWB)
-      // Zero-copy AHWB output (b/531915132): render straight into an
-      // AHardwareBuffer-backed GpuBuffer so downstream consumers (e.g. the
-      // effects pipeline's AHWB observer) receive it without an extra copy.
-      GpuBuffer ahwb_buffer(std::make_shared<mediapipe::GpuBufferStorageAhwb>(
-          dst_width, dst_height, output_format));
-      dst = helper_.CreateDestinationTexture(ahwb_buffer);
-#endif
     } else {
       dst = helper_.CreateDestinationTexture(dst_width, dst_height,
                                              output_format);

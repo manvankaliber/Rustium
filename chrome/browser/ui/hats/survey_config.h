@@ -14,7 +14,6 @@
 #include "components/compose/buildflags.h"
 #include "pdf/buildflags.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 // Trigger identifiers currently used; duplicates not allowed.
 inline constexpr char kHatsSurveyTriggerAutofillAddress[] = "autofill-address";
 inline constexpr char kHatsSurveyTriggerAutofillAiSavePrompt[] =
@@ -169,21 +168,6 @@ inline constexpr char kHatsSurveyTriggerComposeNudgeClose[] =
 #endif  // #if BUILDFLAG(ENABLE_COMPOSE)
 inline constexpr char kHatsSurveyTriggerWhatsNew[] = "whats-new";
 inline constexpr char kHatsSurveyTriggerReadingModeExit[] = "reading-mode-exit";
-#else   // BUILDFLAG(IS_ANDROID)
-inline constexpr char kHatsSurveyTriggerAndroidStartupSurvey[] =
-    "startup_survey";
-inline constexpr char kHatsSurveyTriggerRedWarningAndroid[] =
-    "red-warning-android";
-inline constexpr char kHatsSurveyTriggerSigninFirstRun[] = "signin-first-run";
-inline constexpr char kHatsSurveyTriggerSigninWeb[] = "signin-web";
-inline constexpr char kHatsSurveyTriggerSigninNtpSigninButton[] =
-    "signin-ntp-signin-button";
-inline constexpr char kHatsSurveyTriggerSigninNtpAccountAvatarTap[] =
-    "signin-ntp-account-avatar-tap";
-inline constexpr char kHatsSurveyTriggerSigninNtpPromo[] = "signin-ntp-promo";
-inline constexpr char kHatsSurveyTriggerSigninBookmarkPromo[] =
-    "signin-bookmark-promo";
-#endif  // #if !BUILDFLAG(IS_ANDROID)
 
 inline constexpr char kHatsSurveyTriggerSuspiciousSiteWarning[] =
     "suspicious-site-warning";

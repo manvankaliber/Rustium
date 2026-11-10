@@ -14,9 +14,7 @@ import 'chrome://resources/cr_elements/cr_link_row/cr_link_row.js';
 import 'chrome://resources/cr_elements/icons.html.js';
 import 'chrome://resources/cr_elements/policy/cr_policy_indicator.js';
 import '../controls/settings_toggle_button.js';
-// <if expr="not is_chromeos">
 import '../people_page/sync_account_control.js';
-// </if>
 import '../icons.html.js';
 
 import type {ProfileInfo} from '/shared/settings/people_page/profile_info_browser_proxy.js';
@@ -33,11 +31,6 @@ import {routes} from '../route.js';
 import {Router} from '../router.js';
 
 // clang-format off
-// <if expr="is_chromeos">
-import {convertImageSequenceToPng} from 'chrome://resources/ash/common/cr_picture/png.js';
-
-import {AccountManagerBrowserProxyImpl} from '../people_page/account_manager_browser_proxy.js';
-// </if>
 // clang-format on
 
 
@@ -74,7 +67,6 @@ export class SettingsAccountCardElement extends SettingsAccountCardElementBase {
        */
       syncStatus: {type: Object},
 
-      // <if expr="not is_chromeos">
       /**
        * Stored accounts to the system, supplied by SyncBrowserProxy.
        */
@@ -83,25 +75,7 @@ export class SettingsAccountCardElement extends SettingsAccountCardElementBase {
       primaryAccountName_: {type: String},
       primaryAccountEmail_: {type: String},
       primaryAccountIconUrl_: {type: String},
-      // </if>
 
-      // <if expr="is_chromeos">
-      /**
-       * The currently selected profile icon URL. May be a data URL.
-       */
-      profileIconUrl_: {type: String},
-
-      /**
-       * The current profile name.
-       */
-      profileName_: {type: String},
-
-      /**
-       * Whether the profile row is clickable. The behavior depends on the
-       * platform.
-       */
-      isProfileActionable_: {type: Boolean},
-      // </if>
     };
   }
 
@@ -109,19 +83,11 @@ export class SettingsAccountCardElement extends SettingsAccountCardElementBase {
       loadTimeData.getBoolean('signinAllowed');
   accessor syncStatus: SyncStatus|null = null;
 
-  // <if expr="not is_chromeos">
   accessor storedAccounts: StoredAccount[]|null = null;
   protected accessor primaryAccountName_: string = '';
   private accessor primaryAccountEmail_: string = '';
   protected accessor primaryAccountIconUrl_: string = '';
-  // </if>
 
-  // <if expr="is_chromeos">
-  protected accessor profileIconUrl_: string = '';
-  protected accessor profileName_: string = '';
-  protected accessor isProfileActionable_: boolean =
-      loadTimeData.getBoolean('isAccountManagerEnabled');
-  // </if>
 
   private syncBrowserProxy_: SyncBrowserProxy =
       SyncBrowserProxyImpl.getInstance();
@@ -129,73 +95,18 @@ export class SettingsAccountCardElement extends SettingsAccountCardElementBase {
   override connectedCallback() {
     super.connectedCallback();
 
-    // <if expr="is_chromeos">
-    if (loadTimeData.getBoolean('isAccountManagerEnabled')) {
-      // If this is SplitSettings and we have the Google Account manager,
-      // prefer the GAIA name and icon.
-      this.addWebUiListener(
-          'accounts-changed', this.updateAccounts_.bind(this));
-      this.updateAccounts_();
-    } else {
-      ProfileInfoBrowserProxyImpl.getInstance().getProfileInfo().then(
-          this.handleProfileInfo_.bind(this));
-      this.addWebUiListener(
-          'profile-info-changed', this.handleProfileInfo_.bind(this));
-    }
-    // </if>
 
     this.syncBrowserProxy_.getSyncStatus().then(
         this.handleSyncStatus_.bind(this));
     this.addWebUiListener(
         'sync-status-changed', this.handleSyncStatus_.bind(this));
 
-    // <if expr="not is_chromeos">
     this.syncBrowserProxy_.getStoredAccounts().then(
         this.handleStoredAccounts_.bind(this));
     this.addWebUiListener(
         'stored-accounts-updated', this.handleStoredAccounts_.bind(this));
-    // </if>
   }
 
-  // <if expr="is_chromeos">
-  /**
-   * Handler for when the profile's icon and name is updated.
-   */
-  private handleProfileInfo_(info: ProfileInfo) {
-    this.profileName_ = info.name;
-    /**
-     * Extract first frame from image by creating a single frame PNG using
-     * url as input if base64 encoded and potentially animated.
-     */
-    if (info.iconUrl.startsWith('data:image/png;base64')) {
-      this.profileIconUrl_ = convertImageSequenceToPng([info.iconUrl]);
-      return;
-    }
-
-    this.profileIconUrl_ = info.iconUrl;
-  }
-
-  private async updateAccounts_() {
-    const accounts =
-        await AccountManagerBrowserProxyImpl.getInstance().getAccounts();
-    // The user might not have any GAIA accounts (e.g. guest mode or Active
-    // Directory). In these cases the profile row is hidden, so there's nothing
-    // to do.
-    if (accounts.length === 0) {
-      return;
-    }
-    this.profileName_ = accounts[0].fullName;
-    this.profileIconUrl_ = accounts[0].pic;
-  }
-
-  protected onProfileClick_() {
-    if (loadTimeData.getBoolean('isAccountManagerEnabled')) {
-      // Post-SplitSettings. The browser C++ code loads OS settings in a window.
-      OpenWindowProxyImpl.getInstance().openUrl(
-          loadTimeData.getString('osSettingsAccountsPageUrl'));
-    }
-  }
-  // </if>
 
   /**
    * Handler for when the sync state is pushed from the browser.
@@ -204,7 +115,6 @@ export class SettingsAccountCardElement extends SettingsAccountCardElementBase {
     this.syncStatus = syncStatus;
   }
 
-  // <if expr="not is_chromeos">
   protected onAccountClick_() {
     Router.getInstance().navigateTo(routes.ACCOUNT);
   }
@@ -245,7 +155,6 @@ export class SettingsAccountCardElement extends SettingsAccountCardElementBase {
 
     return this.primaryAccountEmail_;
   }
-  // </if>
 
   /**
    * @return A CSS image-set for multiple scale factors.

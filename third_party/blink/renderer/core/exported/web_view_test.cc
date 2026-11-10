@@ -185,10 +185,6 @@
 #include "ui/gfx/geometry/size.h"
 #include "v8/include/v8.h"
 
-#if BUILDFLAG(ENABLE_UNHANDLED_TAP)
-#include "third_party/blink/public/mojom/unhandled_tap_notifier/unhandled_tap_notifier.mojom-blink.h"
-#include "third_party/blink/renderer/platform/testing/testing_platform_support.h"
-#endif  // BUILDFLAG(ENABLE_UNHANDLED_TAP)
 
 using blink::frame_test_helpers::LoadFrame;
 using blink::test::RunPendingTasks;
@@ -1009,12 +1005,10 @@ void WebViewTest::TestAutoResize(
   EXPECT_EQ(expected_height, client.GetTestData().Height());
 
 // Android disables main frame scrollbars.
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_EQ(expected_horizontal_state,
             client.GetTestData().GetHorizontalScrollbarState());
   EXPECT_EQ(expected_vertical_state,
             client.GetTestData().GetVerticalScrollbarState());
-#endif
 
   // Explicitly reset to break dependency on locally scoped client.
   web_view_helper_.Reset();
@@ -6895,214 +6889,6 @@ TEST_F(WebViewTest, PreferredSizeWithGridMinWidthFlexibleTracks) {
   EXPECT_EQ(200, size.width());
 }
 
-#if BUILDFLAG(ENABLE_UNHANDLED_TAP)
-
-// Helps set up any test that uses a mock Mojo implementation.
-class MojoTestHelper {
- public:
-  MojoTestHelper(const String& test_file,
-                 frame_test_helpers::WebViewHelper& web_view_helper)
-      : web_view_helper_(web_view_helper) {
-    web_view_ =
-        web_view_helper.InitializeAndLoad(test_file.Utf8(), &web_frame_client_);
-  }
-
-  ~MojoTestHelper() {
-    web_view_helper_->Reset();  // Remove dependency on locally scoped client.
-  }
-
-  WebViewImpl* WebView() const { return web_view_; }
-
- private:
-  raw_ptr<WebViewImpl, UnprotectedInRelease | DanglingUntriaged> web_view_;
-  const raw_ref<frame_test_helpers::WebViewHelper,
-                UnprotectedInRelease | DanglingUntriaged>
-      web_view_helper_;
-  frame_test_helpers::TestWebFrameClient web_frame_client_;
-};
-
-// Mock implementation of the UnhandledTapNotifier Mojo receiver, for testing
-// the ShowUnhandledTapUIIfNeeded notification.
-class MockUnhandledTapNotifierImpl : public mojom::blink::UnhandledTapNotifier {
- public:
-  MockUnhandledTapNotifierImpl() = default;
-  ~MockUnhandledTapNotifierImpl() override = default;
-
-  void Bind(mojo::ScopedMessagePipeHandle handle) {
-    receiver_.Bind(mojo::PendingReceiver<mojom::blink::UnhandledTapNotifier>(
-        std::move(handle)));
-  }
-
-  void ShowUnhandledTapUIIfNeeded(
-      mojom::blink::UnhandledTapInfoPtr unhandled_tap_info) override {
-    was_unhandled_tap_ = true;
-    tapped_position_ = unhandled_tap_info->tapped_position_in_viewport;
-  }
-  bool WasUnhandledTap() const { return was_unhandled_tap_; }
-  int GetTappedXPos() const { return tapped_position_.x(); }
-  int GetTappedYPos() const { return tapped_position_.y(); }
-  void Reset() {
-    was_unhandled_tap_ = false;
-    tapped_position_ = gfx::Point();
-    receiver_.reset();
-  }
-
- private:
-  bool was_unhandled_tap_ = false;
-  gfx::Point tapped_position_;
-
-  mojo::Receiver<mojom::blink::UnhandledTapNotifier> receiver_{this};
-};
-
-// A Test Fixture for testing ShowUnhandledTapUIIfNeeded usages.
-class ShowUnhandledTapTest : public WebViewTest {
- public:
-  void SetUp() override {
-    WebViewTest::SetUp();
-    std::string test_file = "show_unhandled_tap.html";
-    RegisterMockedHttpURLLoad("Ahem.ttf");
-    RegisterMockedHttpURLLoad(test_file);
-
-    mojo_test_helper_ = std::make_unique<MojoTestHelper>(
-        WebString::FromUtf8(base_url_ + test_file), web_view_helper_);
-
-    web_view_ = mojo_test_helper_->WebView();
-    web_view_->MainFrameViewWidget()->Resize(gfx::Size(500, 300));
-    web_view_->MainFrameWidget()->UpdateAllLifecyclePhases(
-        DocumentUpdateReason::kTest);
-    RunPendingTasks();
-
-    WebLocalFrameImpl* web_local_frame = web_view_->MainFrameImpl();
-    web_local_frame->GetFrame()
-        ->GetBrowserInterfaceBroker()
-        .SetBinderForTesting(mojom::blink::UnhandledTapNotifier::Name_,
-                             BindRepeating(&MockUnhandledTapNotifierImpl::Bind,
-                                           Unretained(&mock_notifier_)));
-  }
-
-  void TearDown() override {
-    WebLocalFrameImpl* web_local_frame = web_view_->MainFrameImpl();
-    web_local_frame->GetFrame()
-        ->GetBrowserInterfaceBroker()
-        .SetBinderForTesting(mojom::blink::UnhandledTapNotifier::Name_, {});
-
-    WebViewTest::TearDown();
-  }
-
- protected:
-  // Tap on the given element by ID.
-  void Tap(const String& element_id) {
-    mock_notifier_.Reset();
-    EXPECT_TRUE(SimulateGestureAtElementById(WebInputEvent::Type::kGestureTap,
-                                             element_id));
-  }
-
-  // Set up a test script for the given |operation| with the given |handler|.
-  void SetTestScript(const String& operation, const String& handler) {
-    String test_key = operation + "-" + handler;
-    web_view_->MainFrameImpl()->ExecuteScript(
-        WebScriptSource(String("setTest('" + test_key + "');")));
-  }
-
-  // Test each mouse event combination with the given |handler|, and verify the
-  // |expected| outcome.
-  void TestEachMouseEvent(const String& handler, bool expected) {
-    SetTestScript("mousedown", handler);
-    Tap("target");
-    EXPECT_EQ(expected, mock_notifier_.WasUnhandledTap());
-
-    SetTestScript("mouseup", handler);
-    Tap("target");
-    EXPECT_EQ(expected, mock_notifier_.WasUnhandledTap());
-
-    SetTestScript("click", handler);
-    Tap("target");
-    EXPECT_EQ(expected, mock_notifier_.WasUnhandledTap());
-  }
-
-  raw_ptr<WebViewImpl, UnprotectedInRelease | DanglingUntriaged> web_view_;
-  MockUnhandledTapNotifierImpl mock_notifier_;
-
- private:
-  std::unique_ptr<MojoTestHelper> mojo_test_helper_;
-};
-
-TEST_F(ShowUnhandledTapTest, ShowUnhandledTapUIIfNeeded) {
-  // Scroll the bottom into view so we can distinguish window coordinates from
-  // document coordinates.
-  Tap("bottom");
-  EXPECT_TRUE(mock_notifier_.WasUnhandledTap());
-  EXPECT_EQ(64, mock_notifier_.GetTappedXPos());
-  EXPECT_EQ(278, mock_notifier_.GetTappedYPos());
-
-  // Test basic tap handling and notification.
-  Tap("target");
-  EXPECT_TRUE(mock_notifier_.WasUnhandledTap());
-  EXPECT_EQ(144, mock_notifier_.GetTappedXPos());
-  EXPECT_EQ(82, mock_notifier_.GetTappedYPos());
-
-  // Test correct conversion of coordinates to viewport space under pinch-zoom.
-  constexpr float scale = 1.5f;
-  constexpr float visual_x = 6.f;
-  constexpr float visual_y = 10.f;
-
-  web_view_->SetPageScaleFactor(scale);
-  web_view_->SetVisualViewportOffset(gfx::PointF(visual_x, visual_y));
-
-  Tap("target");
-
-  // Ensure position didn't change as a result of scroll into view.
-  ASSERT_EQ(visual_x, web_view_->VisualViewportOffset().x());
-  ASSERT_EQ(visual_y, web_view_->VisualViewportOffset().y());
-
-  EXPECT_TRUE(mock_notifier_.WasUnhandledTap());
-
-  constexpr float expected_x = 144 * scale - (scale * visual_x);
-  constexpr float expected_y = 82 * scale - (scale * visual_y);
-  EXPECT_EQ(expected_x, mock_notifier_.GetTappedXPos());
-  EXPECT_EQ(expected_y, mock_notifier_.GetTappedYPos());
-}
-
-TEST_F(ShowUnhandledTapTest, ShowUnhandledTapUIIfNeededWithMutateDom) {
-  // Test dom mutation.
-  TestEachMouseEvent("mutateDom", false);
-
-  // Test without any DOM mutation.
-  TestEachMouseEvent("none", true);
-}
-
-TEST_F(ShowUnhandledTapTest, ShowUnhandledTapUIIfNeededWithMutateStyle) {
-  // Test style mutation.
-  TestEachMouseEvent("mutateStyle", false);
-
-  // Test checkbox:indeterminate style mutation.
-  TestEachMouseEvent("mutateIndeterminate", false);
-
-  // Test click div with :active style.
-  Tap("style_active");
-  EXPECT_FALSE(mock_notifier_.WasUnhandledTap());
-}
-
-TEST_F(ShowUnhandledTapTest, ShowUnhandledTapUIIfNeededWithPreventDefault) {
-  // Test swallowing.
-  TestEachMouseEvent("preventDefault", false);
-
-  // Test without any preventDefault.
-  TestEachMouseEvent("none", true);
-}
-
-TEST_F(ShowUnhandledTapTest, ShowUnhandledTapUIIfNeededWithNonTriggeringNodes) {
-  Tap("image");
-  EXPECT_FALSE(mock_notifier_.WasUnhandledTap());
-
-  Tap("editable");
-  EXPECT_FALSE(mock_notifier_.WasUnhandledTap());
-
-  Tap("focusable");
-  EXPECT_FALSE(mock_notifier_.WasUnhandledTap());
-}
-
-#endif  // BUILDFLAG(ENABLE_UNHANDLED_TAP)
 
 TEST_F(WebViewTest, PasswordFieldEditingIsUserGesture) {
   RegisterMockedHttpURLLoad("input_field_password.html");
@@ -7451,19 +7237,19 @@ TEST_F(WebViewTest, ApplyWebPreferencesSkipsPrewarmingEmptyFontFamilies) {
   empty_font_prefs.math_font_family_map.clear();
 
   {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
     test::ScopedTestFontPrewarmer prewarmer;
 #endif
     WebView::ApplyWebPreferences(empty_font_prefs, web_view_impl);
     EXPECT_TRUE(font_settings.Get(GenericFontFamily::kSerif).empty());
     EXPECT_TRUE(font_settings.Get(GenericFontFamily::kSansSerif).empty());
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
     EXPECT_TRUE(prewarmer.PrewarmedFamilyNames().empty());
 #endif
   }
 
   {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
     test::ScopedTestFontPrewarmer prewarmer;
 #endif
     web_pref::WebPreferences default_prefs;
@@ -7474,9 +7260,6 @@ TEST_F(WebViewTest, ApplyWebPreferencesSkipsPrewarmingEmptyFontFamilies) {
     ASSERT_EQ(2u, prewarmer.PrewarmedFamilyNames().size());
     EXPECT_EQ("Times New Roman", prewarmer.PrewarmedFamilyNames()[0]);
     EXPECT_EQ("Arial", prewarmer.PrewarmedFamilyNames()[1]);
-#elif BUILDFLAG(IS_ANDROID)
-    ASSERT_EQ(1u, prewarmer.PrewarmedFamilyNames().size());
-    EXPECT_EQ("Arial", prewarmer.PrewarmedFamilyNames()[0]);
 #endif
   }
 }
@@ -7683,7 +7466,7 @@ TEST_F(WebViewTest, ResizeWithFixedPosCrash) {
   frame->PrintEnd();
 }
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 class OverlayScrollbarWebViewTest : public WebViewTest {
  protected:
   void SetUp() override {
@@ -7769,7 +7552,7 @@ TEST_F(OverlayScrollbarWebViewTest,
   ASSERT_NE(nullptr, layout_viewport->VerticalScrollbar());
   EXPECT_TRUE(layout_viewport->VerticalScrollbar()->IsOverlayScrollbar());
 }
-#endif  // (BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN))
+#endif
 
 TEST_F(WebViewTest, DeviceEmulationResetScrollbars) {
   WebViewImpl* web_view = web_view_helper_.Initialize();

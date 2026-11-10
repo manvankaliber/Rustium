@@ -40,21 +40,17 @@
 #include "services/network/public/cpp/features.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "services/device/public/cpp/device_features.h"
-#endif  // !BUILDFLAG(IS_IOS)
 
 namespace content_settings {
 
 namespace {
 
 // These settings are no longer used, and should be deleted on profile startup.
-#if !BUILDFLAG(IS_IOS)
 // The "nfc" preference was superseded by "nfc-devices" once Web NFC gained the
 // ability to make NFC tags permanently read-only. See crbug.com/1275576
 const char kObsoleteNfcDefaultPref[] =
     "profile.default_content_setting_values.nfc";
-#if !BUILDFLAG(IS_ANDROID)
 const char kObsoleteMouseLockDefaultPref[] =
     "profile.default_content_setting_values.mouselock";
 const char kObsoletePluginsDefaultPref[] =
@@ -69,8 +65,6 @@ const char kObsoleteInstalledWebAppMetadataDefaultPref[] =
     "profile.default_content_setting_values.installed_web_app_metadata";
 const char kObsoletePpapiBrokerDefaultPref[] =
     "profile.default_content_setting_values.ppapi_broker";
-#endif  // !BUILDFLAG(IS_ANDROID)
-#endif  // !BUILDFLAG(IS_IOS)
 constexpr char kObsoleteFederatedIdentityDefaultPref[] =
     "profile.default_content_setting_values.fedcm_active_session";
 
@@ -84,7 +78,6 @@ constexpr char kObsoleteTopLevelStorageAccessDefaultPref[] =
 constexpr char kGeolocationMigrateDefaultValue[] =
     "profile.default_content_setting_values.migrate_geolocation";
 
-#if !BUILDFLAG(IS_IOS)
 constexpr char kObsoleteTpcdTrialDefaultPref[] =
     "profile.default_content_setting_values.3pcd_support";
 constexpr char kObsoleteTopLevelTpcdTrialDefaultPref[] =
@@ -102,7 +95,6 @@ constexpr char kLocalNetworkAccessMigrateDefaultValuePref[] =
     "profile.default_content_setting_values.has_migrated_local_network_access";
 constexpr char kObsoleteTrackingProtectionDefaultPref[] =
     "profile.default_content_setting_values.tracking_protection";
-#endif  // !BUILDFLAG(IS_IOS)
 
 base::Value GetDefaultValue(const WebsiteSettingsInfo* info) {
   const base::Value& initial_default = info->initial_default_value();
@@ -143,22 +135,18 @@ void DefaultProvider::RegisterProfilePrefs(
   }
 
   registry->RegisterBooleanPref(kGeolocationMigrateDefaultValue, false);
-#if !BUILDFLAG(IS_IOS)
   registry->RegisterBooleanPref(kLocalNetworkAccessMigrateDefaultValuePref,
                                 false);
-#endif  // !BUILDFLAG(IS_IOS)
 
   // Obsolete prefs -------------------------------------------------------
 
   // These prefs have been deprecated, but need to be registered so they can
   // be deleted on startup (see DiscardOrMigrateObsoletePreferences).
-#if !BUILDFLAG(IS_IOS)
   registry->RegisterIntegerPref(kObsoleteNfcDefaultPref, 0);
   registry->RegisterIntegerPref(kObsoleteTpcdTrialDefaultPref, 0);
   registry->RegisterIntegerPref(kObsoleteTopLevelTpcdTrialDefaultPref, 0);
   registry->RegisterIntegerPref(kObsoleteTopLevelTpcdOriginTrialDefaultPref, 0);
   registry->RegisterIntegerPref(kObsoleteTrackingProtectionDefaultPref, 0);
-#if !BUILDFLAG(IS_ANDROID)
   registry->RegisterIntegerPref(
       kObsoleteMouseLockDefaultPref, 0,
       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
@@ -168,16 +156,12 @@ void DefaultProvider::RegisterProfilePrefs(
   registry->RegisterIntegerPref(kObsoleteFontAccessDefaultPref, 0);
   registry->RegisterIntegerPref(kObsoleteInstalledWebAppMetadataDefaultPref, 0);
   registry->RegisterIntegerPref(kObsoletePpapiBrokerDefaultPref, 0);
-#endif  // !BUILDFLAG(IS_ANDROID)
-#endif  // !BUILDFLAG(IS_IOS)
   registry->RegisterIntegerPref(kObsoleteFederatedIdentityDefaultPref, 0);
   registry->RegisterIntegerPref(kObsoletePrivateNetworkGuardDefaultPref, 0);
   registry->RegisterIntegerPref(kObsoleteTopLevelStorageAccessDefaultPref, 0);
 
-#if !BUILDFLAG(IS_IOS)
   // TODO(https://crbug.com/367181093): clean this up.
   registry->RegisterBooleanPref(kBug364820109AlreadyWorkedAroundPref, false);
-#endif  // !BUILDFLAG(IS_IOS)
 }
 
 DefaultProvider::DefaultProvider(PrefService* prefs,
@@ -196,10 +180,8 @@ DefaultProvider::DefaultProvider(PrefService* prefs,
   ReadDefaultSettings();
 
   MigrateGeolocationDefaultValue();
-#if !BUILDFLAG(IS_IOS)
   MigrateLocalNetworkAccessDefaultValue();
   MigrateSensorsDefaultValue();
-#endif  // !BUILDFLAG(IS_IOS)
 
   if (should_record_metrics)
     RecordHistogramMetrics();
@@ -411,13 +393,11 @@ void DefaultProvider::DiscardOrMigrateObsoletePreferences() {
     return;
   // These prefs were never stored on iOS/Android so they don't need to be
   // deleted.
-#if !BUILDFLAG(IS_IOS)
   prefs_->ClearPref(kObsoleteNfcDefaultPref);
   prefs_->ClearPref(kObsoleteTpcdTrialDefaultPref);
   prefs_->ClearPref(kObsoleteTopLevelTpcdTrialDefaultPref);
   prefs_->ClearPref(kObsoleteTopLevelTpcdOriginTrialDefaultPref);
   prefs_->ClearPref(kObsoleteTrackingProtectionDefaultPref);
-#if !BUILDFLAG(IS_ANDROID)
   prefs_->ClearPref(kObsoleteMouseLockDefaultPref);
   prefs_->ClearPref(kObsoletePluginsDefaultPref);
   prefs_->ClearPref(kObsoletePluginsDataDefaultPref);
@@ -425,16 +405,12 @@ void DefaultProvider::DiscardOrMigrateObsoletePreferences() {
   prefs_->ClearPref(kObsoleteFontAccessDefaultPref);
   prefs_->ClearPref(kObsoleteInstalledWebAppMetadataDefaultPref);
   prefs_->ClearPref(kObsoletePpapiBrokerDefaultPref);
-#endif  // !BUILDFLAG(IS_ANDROID)
-#endif  // !BUILDFLAG(IS_IOS)
   prefs_->ClearPref(kObsoleteFederatedIdentityDefaultPref);
   prefs_->ClearPref(kObsoletePrivateNetworkGuardDefaultPref);
   prefs_->ClearPref(kObsoleteTopLevelStorageAccessDefaultPref);
 
-#if !BUILDFLAG(IS_IOS)
   // TODO(https://crbug.com/367181093): clean this up.
   prefs_->ClearPref(kBug364820109AlreadyWorkedAroundPref);
-#endif  // !BUILDFLAG(IS_IOS)
 }
 
 void DefaultProvider::MigrateGeolocationDefaultValue() {
@@ -473,7 +449,6 @@ void DefaultProvider::MigrateGeolocationDefaultValue() {
   }
 }
 
-#if !BUILDFLAG(IS_IOS)
 void DefaultProvider::MigrateLocalNetworkAccessDefaultValue() {
   if (is_off_the_record_) {
     return;
@@ -521,7 +496,6 @@ void DefaultProvider::MigrateSensorsDefaultValue() {
     }
   }
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 void DefaultProvider::RecordHistogramMetrics() {
   base::UmaHistogramEnumeration(
@@ -543,7 +517,6 @@ void DefaultProvider::RecordHistogramMetrics() {
       CONTENT_SETTING_NUM_SETTINGS);
 #endif
 
-#if !BUILDFLAG(IS_IOS)
   base::UmaHistogramEnumeration(
       "ContentSettings.RegularProfile.DefaultImagesSetting",
       IntToContentSetting(
@@ -632,25 +605,8 @@ void DefaultProvider::RecordHistogramMetrics() {
       IntToContentSetting(
           prefs_->GetInteger(GetPrefName(ContentSettingsType::SENSORS))),
       CONTENT_SETTING_NUM_SETTINGS);
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-  base::UmaHistogramEnumeration(
-      "ContentSettings.RegularProfile.DefaultAutoDarkWebContentSetting",
-      IntToContentSetting(prefs_->GetInteger(
-          GetPrefName(ContentSettingsType::AUTO_DARK_WEB_CONTENT))),
-      CONTENT_SETTING_NUM_SETTINGS);
 
-#endif
-
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  base::UmaHistogramEnumeration(
-      "ContentSettings.RegularProfile.DefaultRequestDesktopSiteSetting",
-      IntToContentSetting(prefs_->GetInteger(
-          GetPrefName(ContentSettingsType::REQUEST_DESKTOP_SITE))),
-      CONTENT_SETTING_NUM_SETTINGS);
-
-#endif
 }
 
 }  // namespace content_settings

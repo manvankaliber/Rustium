@@ -121,10 +121,6 @@ config("tflite_config") {
   if (is_win) {
     cflags = [ "-Wno-sign-compare" ]
   }
-
-  if (is_android) {
-    libs = [ "log" ]
-  }
 }
 
 # The config `tflite_config_no_undef` is used when compiling WebRTC outside the
@@ -647,12 +643,7 @@ tflite_static_library("litert_runtime") {
     "src/litert/runtime/tfl_utils.cc",
     "src/weight_loader/external_weight_loader_litert.cc",
   ]
-  if (is_android) {
-    sources += [
-      "src/litert/runtime/ahwb_buffer.cc",
-      "src/litert/runtime/ahwb_wrapper.cc",
-    ]
-  }
+
   deps = [ ":litert_headers" ]
   if (use_litert_tflite) {
     conditional_deps = [
@@ -1675,13 +1666,9 @@ if (use_litert_tflite) {
     _configs = configs
     configs = []
     configs = [ "//third_party/tflite:tflite_shim_config" ] + _configs
-    if (is_ios) {
-      sources = [ "src/tflite/minimal_logging_ios.cc" ]
-    } else if (is_android) {
-      sources = [ "src/tflite/minimal_logging_android.cc" ]
-    } else {
-      sources = [ "src/tflite/minimal_logging_default.cc" ]
-    }
+
+    sources = [ "src/tflite/minimal_logging_default.cc" ]
+
     deps = [ ":tflite_public_headers" ]
 
     configs += [
@@ -1725,78 +1712,6 @@ if (use_litert_tflite) {
       ":*",
       "//third_party/tflite:*",
     ]
-  }
-
-  if (is_ios) {
-    tflite_source_set("tflite_coreml_delegate") {
-      sources = [
-        "src/tflite/delegates/coreml/builders/activation_layer_builder.cc",
-        "src/tflite/delegates/coreml/builders/activation_layer_builder.h",
-        "src/tflite/delegates/coreml/builders/add_op_builder.cc",
-        "src/tflite/delegates/coreml/builders/add_op_builder.h",
-        "src/tflite/delegates/coreml/builders/concatenation_op_builder.cc",
-        "src/tflite/delegates/coreml/builders/concatenation_op_builder.h",
-        "src/tflite/delegates/coreml/builders/convolution_op_builder.cc",
-        "src/tflite/delegates/coreml/builders/convolution_op_builder.h",
-        "src/tflite/delegates/coreml/builders/dummy_op_builder.cc",
-        "src/tflite/delegates/coreml/builders/dummy_op_builder.h",
-        "src/tflite/delegates/coreml/builders/fully_connected_op_builder.cc",
-        "src/tflite/delegates/coreml/builders/fully_connected_op_builder.h",
-        "src/tflite/delegates/coreml/builders/hardswish_op_builder.cc",
-        "src/tflite/delegates/coreml/builders/hardswish_op_builder.h",
-        "src/tflite/delegates/coreml/builders/mul_op_builder.cc",
-        "src/tflite/delegates/coreml/builders/mul_op_builder.h",
-        "src/tflite/delegates/coreml/builders/op_builder.cc",
-        "src/tflite/delegates/coreml/builders/op_builder.h",
-        "src/tflite/delegates/coreml/builders/op_factory.h",
-        "src/tflite/delegates/coreml/builders/op_validator.h",
-        "src/tflite/delegates/coreml/builders/pad_op_builder.cc",
-        "src/tflite/delegates/coreml/builders/pad_op_builder.h",
-        "src/tflite/delegates/coreml/builders/pooling_layer_builder.cc",
-        "src/tflite/delegates/coreml/builders/pooling_layer_builder.h",
-        "src/tflite/delegates/coreml/builders/reshape_op_builder.cc",
-        "src/tflite/delegates/coreml/builders/reshape_op_builder.h",
-        "src/tflite/delegates/coreml/builders/resize_bilinear_op_builder.cc",
-        "src/tflite/delegates/coreml/builders/resize_bilinear_op_builder.h",
-        "src/tflite/delegates/coreml/builders/softmax_op_builder.cc",
-        "src/tflite/delegates/coreml/builders/softmax_op_builder.h",
-        "src/tflite/delegates/coreml/builders/threshold_layer_builder.cc",
-        "src/tflite/delegates/coreml/builders/threshold_layer_builder.h",
-        "src/tflite/delegates/coreml/builders/util.cc",
-        "src/tflite/delegates/coreml/builders/util.h",
-        "src/tflite/delegates/coreml/coreml_delegate.h",
-        "src/tflite/delegates/coreml/coreml_delegate.mm",
-        "src/tflite/delegates/coreml/coreml_delegate_kernel.h",
-        "src/tflite/delegates/coreml/coreml_delegate_kernel.mm",
-        "src/tflite/delegates/coreml/coreml_executor.h",
-        "src/tflite/delegates/coreml/coreml_executor.mm",
-      ]
-      configs_to_add = [
-        ":tflite_config",
-        ":tflite_flags",
-        ":tflite_coreml_flags",
-        "//third_party/eigen3:eigen_includes",
-      ]
-      public_deps = [
-        ":tflite_kernel_common_headers",
-        ":tflite_kernel_internals",
-        ":tflite_public_headers",
-      ]
-      deps = [
-        "//third_party/abseil-cpp:absl",
-        "//third_party/coremltools:modelformat_proto",
-        "//third_party/flatbuffers",
-        "//third_party/fp16",
-        "//third_party/gemmlowp",
-      ]
-      frameworks = [
-        "CoreML.framework",
-        "Foundation.framework",
-      ]
-      include_dirs = [ "$root_gen_dir/third_party/coremltools" ]
-      check_includes = false
-      visibility = [ ":*" ]
-    }
   }
 
   tflite_static_library("tflite_framework_core") {
@@ -1901,18 +1816,6 @@ if (use_litert_tflite) {
       sources += [ "src/tflite/converter/mmap_allocation.cc" ]
     }
 
-    if (is_ios) {
-      sources += [
-        "src/tflite/profiling/signpost_profiler.h",
-        "src/tflite/profiling/signpost_profiler.mm",
-      ]
-    } else if (is_android) {
-      sources += [
-        "src/tflite/profiling/atrace_profiler.cc",
-        "src/tflite/profiling/atrace_profiler.h",
-      ]
-    }
-
     deps = [
       ":tflite_core_c",
       ":tflite_kernel_internals",
@@ -1930,9 +1833,6 @@ if (use_litert_tflite) {
     ]
 
     conditional_public_deps = [ ":tflite_litert" ]
-    if (is_ios) {
-      conditional_public_deps += [ ":tflite_coreml_delegate" ]
-    }
 
     public_deps = [
       ":mutable_tflite_schema",
@@ -2099,10 +1999,6 @@ if (use_litert_tflite) {
     # absl::Cord::CopyToArray is not available on fuchsia but is required by
     # this library.
     conditional_public_deps += [ ":tflite_op_shim" ]
-
-    if (is_ios) {
-      conditional_public_deps += [ ":tflite_coreml_delegate" ]
-    }
 
     public_deps = [
       ":mutable_tflite_schema",

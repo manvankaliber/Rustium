@@ -335,14 +335,7 @@ IN_PROC_BROWSER_TEST_F(WebUIHomeControlBrowserTest, DropFile_FromOs) {
   ASSERT_NO_FATAL_FAILURE(SetUpHomeButtonDropTest());
   SimulateFileDrop(file_path, DragOrigin::kOs);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS cannot tell an OS-local drag from a renderer drag, so it treats
-  // every drag as renderer-originated (b/256022714). The dragged file path is
-  // then never cached, leaving the drop with nothing to act on.
-  ExpectDropIgnored();
-#else
   ExpectHomePageSetTo(net::FilePathToFileURL(file_path));
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(WebUIHomeControlBrowserTest, DropFilePath_FromWebPage) {
@@ -456,19 +449,11 @@ IN_PROC_BROWSER_TEST_F(WebUIHomeControlBrowserTest,
   ASSERT_NO_FATAL_FAILURE(SetUpHomeButtonDropTest());
   const GURL url("chrome://version/");
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS cannot tell an OS-local drag from a renderer drag, so it treats
-  // every drag as renderer-originated (b/256022714), which rejects privileged
-  // schemes whether or not a URL was synthesized.
-  SimulateTextDrop(url.spec(), DragOrigin::kOs);
-  ExpectDropIgnored();
-#else
   if (SimulateTextDrop(url.spec(), DragOrigin::kOs)) {
     ExpectHomePageSetTo(url);
   } else {
     ExpectNavigatedTo(url);
   }
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(WebUIHomeControlBrowserTest, DropUrlLinkAndUndo) {
@@ -512,14 +497,6 @@ IN_PROC_BROWSER_TEST_F(WebUIHomeControlBrowserTest, DropFileAndUndo) {
 
   ASSERT_NO_FATAL_FAILURE(SetUpHomeButtonDropTest());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS cannot tell an OS-local drag from a renderer drag, so it treats
-  // every drag as renderer-originated (b/256022714). The dragged file path is
-  // then never cached, so the home page is never set and there is nothing to
-  // undo.
-  SimulateFileDrop(file_path, DragOrigin::kOs);
-  ExpectDropIgnored();
-#else
   PrefService* prefs = browser()->GetProfile()->GetPrefs();
   const GURL old_url(prefs->GetString(prefs::kHomePage));
   const bool old_is_ntp = prefs->GetBoolean(prefs::kHomePageIsNewTabPage);
@@ -531,5 +508,4 @@ IN_PROC_BROWSER_TEST_F(WebUIHomeControlBrowserTest, DropFileAndUndo) {
 
   EXPECT_EQ(old_url.spec(), prefs->GetString(prefs::kHomePage));
   EXPECT_EQ(old_is_ntp, prefs->GetBoolean(prefs::kHomePageIsNewTabPage));
-#endif
 }

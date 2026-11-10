@@ -52,9 +52,6 @@
 #include "extensions/common/manifest_handlers/web_accessible_resources_info.h"
 #include "extensions/common/manifest_handlers/webview_info.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "extensions/common/manifest_handlers/input_components_handler.h"
-#endif
 
 namespace extensions {
 
@@ -84,9 +81,6 @@ void RegisterCommonManifestHandlers(ManifestHandlerRegistry* registry) {
   registry->RegisterHandler(std::make_unique<IconsHandler>());
   registry->RegisterHandler(std::make_unique<IconVariantsHandler>());
   registry->RegisterHandler(std::make_unique<IncognitoHandler>());
-#if BUILDFLAG(IS_CHROMEOS)
-  registry->RegisterHandler(std::make_unique<InputComponentsHandler>());
-#endif
   registry->RegisterHandler(std::make_unique<KioskModeHandler>());
   registry->RegisterHandler(std::make_unique<MessageSerializationHandler>());
   registry->RegisterHandler(std::make_unique<MimeTypesHandlerParser>());

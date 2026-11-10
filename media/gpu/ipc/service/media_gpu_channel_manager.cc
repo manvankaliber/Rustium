@@ -10,7 +10,6 @@
 #include "gpu/ipc/service/gpu_channel.h"
 #include "gpu/ipc/service/gpu_channel_manager.h"
 #include "media/base/media_switches.h"
-#include "media/gpu/ipc/service/media_gpu_channel.h"
 
 #if BUILDFLAG(IS_WIN)
 #include "media/gpu/windows/d3d12_helpers.h"
@@ -29,15 +28,11 @@ void MediaGpuChannelManager::AddChannel(
     const base::UnguessableToken& channel_token) {
   gpu::GpuChannel* gpu_channel = channel_manager_->LookupChannel(client_id);
   DCHECK(gpu_channel);
-  auto media_gpu_channel =
-      std::make_unique<MediaGpuChannel>(gpu_channel, overlay_factory_cb_);
-  media_gpu_channels_[client_id] = std::move(media_gpu_channel);
   channel_to_token_[client_id] = channel_token;
   token_to_channel_[channel_token] = client_id;
 }
 
 void MediaGpuChannelManager::RemoveChannel(int32_t client_id) {
-  media_gpu_channels_.erase(client_id);
   const auto it = channel_to_token_.find(client_id);
   if (it != channel_to_token_.end()) {
     token_to_channel_.erase(it->second);
@@ -46,7 +41,6 @@ void MediaGpuChannelManager::RemoveChannel(int32_t client_id) {
 }
 
 void MediaGpuChannelManager::DestroyAllChannels() {
-  media_gpu_channels_.clear();
   token_to_channel_.clear();
   channel_to_token_.clear();
 }
@@ -57,15 +51,6 @@ gpu::GpuChannel* MediaGpuChannelManager::LookupChannel(
   if (it == token_to_channel_.end())
     return nullptr;
   return channel_manager_->LookupChannel(it->second);
-}
-
-void MediaGpuChannelManager::SetOverlayFactory(
-    AndroidOverlayMojoFactoryCB overlay_factory_cb) {
-  overlay_factory_cb_ = std::move(overlay_factory_cb);
-}
-
-AndroidOverlayMojoFactoryCB MediaGpuChannelManager::GetOverlayFactory() {
-  return overlay_factory_cb_;
 }
 
 scoped_refptr<gpu::SharedContextState>

@@ -47,10 +47,6 @@
 #include "third_party/blink/renderer/platform/testing/runtime_enabled_features_test_helpers.h"
 #include "third_party/blink/renderer/platform/testing/unit_test_helpers.h"
 
-#if BUILDFLAG(ENABLE_UNHANDLED_TAP)
-#include "third_party/blink/public/mojom/unhandled_tap_notifier/unhandled_tap_notifier.mojom-blink.h"
-#include "third_party/blink/renderer/platform/testing/testing_platform_support.h"
-#endif  // BUILDFLAG(ENABLE_UNHANDLED_TAP)
 
 namespace blink {
 
@@ -2578,95 +2574,7 @@ TEST_F(TextFragmentAnchorTest, ShouldOpenContextMenuOnTap) {
                    .ContextMenuNodeForFrame(GetDocument().GetFrame()));
 }
 
-#if BUILDFLAG(ENABLE_UNHANDLED_TAP)
-// Mock implementation of the UnhandledTapNotifier Mojo receiver, for testing
-// the ShowUnhandledTapUIIfNeeded notification.
-class MockUnhandledTapNotifierImpl : public mojom::blink::UnhandledTapNotifier {
- public:
-  MockUnhandledTapNotifierImpl() = default;
 
-  void Bind(mojo::ScopedMessagePipeHandle handle) {
-    receiver_.Bind(mojo::PendingReceiver<mojom::blink::UnhandledTapNotifier>(
-        std::move(handle)));
-  }
-
-  void ShowUnhandledTapUIIfNeeded(
-      mojom::blink::UnhandledTapInfoPtr unhandled_tap_info) override {
-    was_unhandled_tap_ = true;
-  }
-  bool WasUnhandledTap() const { return was_unhandled_tap_; }
-  bool ReceiverIsBound() const { return receiver_.is_bound(); }
-  void Reset() {
-    was_unhandled_tap_ = false;
-    receiver_.reset();
-  }
-
- private:
-  bool was_unhandled_tap_ = false;
-
-  mojo::Receiver<mojom::blink::UnhandledTapNotifier> receiver_{this};
-};
-#endif  // BUILDFLAG(ENABLE_UNHANDLED_TAP)
-
-#if BUILDFLAG(ENABLE_UNHANDLED_TAP)
-// Test that on Android, when a user taps on a text, ShouldNotRequestUnhandled
-// does not get triggered. When a user taps on a highlight, no text should be
-// selected. RuntimeEnabledFeature is enabled.
-TEST_F(TextFragmentAnchorTest,
-       ShouldNotRequestUnhandledTapNotifierWhenTapOnTextFragment) {
-  LoadAhem();
-  SimRequest request(
-      "https://example.com/"
-      "test.html#:~:text=this%20is%20a%20test%20page",
-      "text/html");
-  LoadURL(
-      "https://example.com/"
-      "test.html#:~:text=this%20is%20a%20test%20page");
-  request.Complete(R"HTML(
-    <!DOCTYPE html>
-    <style>p { font: 10px/1 Ahem; }</style>
-    <p id="first">This is a test page</p>
-    <p id="two">Second test page two</p>
-  )HTML");
-  RunUntilTextFragmentFinalization();
-
-  MockUnhandledTapNotifierImpl mock_notifier;
-  GetDocument().GetFrame()->GetBrowserInterfaceBroker().SetBinderForTesting(
-      mojom::blink::UnhandledTapNotifier::Name_,
-      BindRepeating(&MockUnhandledTapNotifierImpl::Bind,
-                    Unretained(&mock_notifier)));
-
-  Range* range = Range::Create(GetDocument());
-  range->setStart(GetElementById("first"), 0, IGNORE_EXCEPTION_FOR_TESTING);
-  range->setEnd(GetElementById("first"), 1, IGNORE_EXCEPTION_FOR_TESTING);
-  ASSERT_EQ("This is a test page", range->GetText());
-
-  mock_notifier.Reset();
-  gfx::Point tap_point = range->BoundingBox().CenterPoint();
-  SimulateTap(tap_point.x(), tap_point.y());
-
-  base::RunLoop().RunUntilIdle();
-  if (RuntimeEnabledFeatures::TextFragmentTapOpensContextMenuEnabled()) {
-    EXPECT_FALSE(mock_notifier.WasUnhandledTap());
-    EXPECT_FALSE(mock_notifier.ReceiverIsBound());
-  } else {
-    EXPECT_TRUE(mock_notifier.WasUnhandledTap());
-    EXPECT_TRUE(mock_notifier.ReceiverIsBound());
-  }
-
-  range->setStart(GetElementById("two"), 0, IGNORE_EXCEPTION_FOR_TESTING);
-  range->setEndAfter(GetElementById("two"), IGNORE_EXCEPTION_FOR_TESTING);
-  ASSERT_EQ("Second test page two", range->GetText());
-
-  mock_notifier.Reset();
-  tap_point = range->BoundingBox().CenterPoint();
-  SimulateTap(tap_point.x(), tap_point.y());
-
-  base::RunLoop().RunUntilIdle();
-  EXPECT_TRUE(mock_notifier.WasUnhandledTap());
-  EXPECT_TRUE(mock_notifier.ReceiverIsBound());
-}
-#endif  // BUILDFLAG(ENABLE_UNHANDLED_TAP)
 
 TEST_F(TextFragmentAnchorTest, TapOpeningContextMenuWithDirtyLifecycleNoCrash) {
   ScopedTextFragmentTapOpensContextMenuForTest tap_opens_context_menu(true);

@@ -337,17 +337,7 @@ void MaybeOutputReason(std::string* out, std::string_view message) {
       !IsAutofillAiDisabledByEnterprisePolicy(prefs);
   const bool personal_context_pref_enabled = prefs->GetBoolean(
       personal_context::prefs::kPersonalContextInAutofillSettingsToggleStatus);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  const bool autofill_ai_available =
-      GetAutofillAiOptInStatus(prefs, identity_manager) ||
-      IsAutofillAiDefaultAvailabilityEnabled();
-  // Note that the policy can become disabled even after a user has opted in.
-  const bool is_allowed_by_opt_in_or_default =
-      IsAutofillAiDefaultAvailabilityEnabled() ||
-      (policy_pref_enabled && autofill_ai_available);
-#else
   const bool is_allowed_by_opt_in_or_default = true;
-#endif
   switch (action) {
     case AutofillAiAction::kLogToMqls:
     case AutofillAiAction::kServerClassificationModel:
@@ -866,11 +856,7 @@ bool IsAutofillAiEntityTypeBlockedByPolicy(const AutofillClient& client,
 }
 
 bool IsAutofillAiDefaultAvailabilityEnabled() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return base::FeatureList::IsEnabled(features::kAutofillAiAvailableByDefault);
-#else
   return true;
-#endif
 }
 
 DenseSet<EntityType> GetAutofillAmbientAutofillSupportedEntityTypes() {

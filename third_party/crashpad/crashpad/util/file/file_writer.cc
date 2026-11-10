@@ -80,16 +80,7 @@ bool WeakFileHandleFileWriter::WriteIoVec(std::vector<WritableIoVec>* iovecs) {
   iovec* iov = reinterpret_cast<iovec*>(&(*iovecs)[0]);
   size_t remaining_iovecs = iovecs->size();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Android does not expose the IOV_MAX macro, but makes its value available
-  // via sysconf(). See Android 7.0.0 bionic/libc/bionic/sysconf.cpp sysconf().
-  // Bionic defines IOV_MAX at bionic/libc/include/limits.h, but does not ship
-  // this file to the NDK as <limits.h>, substituting
-  // bionic/libc/include/bits/posix_limits.h.
-  const size_t kIovMax = sysconf(_SC_IOV_MAX);
-#else
   const size_t kIovMax = IOV_MAX;
-#endif
 
   while (size > 0) {
     size_t writev_iovec_count = std::min(remaining_iovecs, kIovMax);
@@ -172,7 +163,7 @@ bool FileWriter::Open(const base::FilePath& path,
   return true;
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 bool FileWriter::OpenMemfd(const base::FilePath& path) {
   CHECK(!file_.is_valid());
   file_.reset(LoggingOpenMemoryFileForReadAndWrite(path));

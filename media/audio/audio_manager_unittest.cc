@@ -56,9 +56,6 @@
 #include "media/audio/pulse/pulse_util.h"
 #endif  // defined(USE_PULSEAUDIO)
 
-#if BUILDFLAG(USE_CRAS)
-#include "media/audio/cras/audio_manager_cras.h"
-#endif
 
 namespace media {
 namespace {
@@ -557,7 +554,7 @@ TEST_F(AudioManagerTest, CheckMakeOutputStreamWithPreferredParameters) {
   stream->Close();
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(USE_CRAS)
+#if BUILDFLAG(IS_MAC)
 class TestAudioSourceCallback : public AudioOutputStream::AudioSourceCallback {
  public:
   TestAudioSourceCallback(int expected_frames_per_buffer,
@@ -593,8 +590,6 @@ TEST_F(AudioManagerTest, CheckMinMaxAudioBufferSizeCallbacks) {
 
 #if BUILDFLAG(IS_MAC)
   CreateAudioManagerForTesting<AudioManagerMac>();
-#elif BUILDFLAG(USE_CRAS) && BUILDFLAG(IS_CHROMEOS)
-  CreateAudioManagerForTesting<AudioManagerCras>();
 #endif
 
   DCHECK(audio_manager_);
@@ -610,7 +605,7 @@ TEST_F(AudioManagerTest, CheckMinMaxAudioBufferSizeCallbacks) {
   ASSERT_GT(default_params.frames_per_buffer(),
             default_params.hardware_capabilities()->min_frames_per_buffer);
 #else
-  static_assert(BUILDFLAG(USE_CRAS));
+  static_assert(false);
   // On CRAS the preferred output buffer size varies per board and may be as low
   // as the minimum for some boards.
   ASSERT_GE(default_params.frames_per_buffer(),

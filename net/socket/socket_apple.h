@@ -185,9 +185,7 @@
 // FB19384824 will be fixed in macOS 26.1 and iOS 26.1 (the fix is present as of
 // 26.1b2). When the minimum runtime OS version is at or beyond this, disable
 // the workaround entirely at compile time.
-#if !defined(ADDRESS_SANITIZER) && !defined(THREAD_SANITIZER) &&          \
-    ((BUILDFLAG(IS_MAC) && __MAC_OS_X_VERSION_MIN_REQUIRED < 26'01'00) || \
-     (BUILDFLAG(IS_IOS) && __IPHONE_OS_VERSION_MIN_REQUIRED < 26'01'00))
+#if !defined(ADDRESS_SANITIZER) && !defined(THREAD_SANITIZER) && BUILDFLAG(IS_MAC) && __MAC_OS_X_VERSION_MIN_REQUIRED < 26'01'00
 #define WORK_AROUND_CRBUG_40064248 1
 
 namespace net {

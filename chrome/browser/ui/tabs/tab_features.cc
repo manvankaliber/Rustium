@@ -220,8 +220,7 @@
 #include "chrome/browser/metrics/desktop_session_duration/desktop_session_duration_observer.h"
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/contextual_tasks/contextual_tasks_tab_navigation_observer.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_tab_visit_tracker.h"
 #include "chrome/browser/contextual_tasks/search_journey_tab_feature.h"
@@ -301,20 +300,8 @@
 #include "ui/accessibility/accessibility_features.h"
 #include "ui/base/unowned_user_data/user_data_factory.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/apps/app_service/app_service_proxy_factory.h"  // nogncheck
-#include "chrome/browser/ash/boot_times_recorder/boot_times_recorder_tab_helper.h"
-#include "chrome/browser/ash/growth/campaigns_manager_session_tab_helper.h"
-#include "chrome/browser/ash/mahi/web_contents/mahi_tab_helper.h"
-#include "chrome/browser/chromeos/gemini_app/gemini_app_tab_helper.h"
-#include "chrome/browser/chromeos/policy/dlp/dlp_content_tab_helper.h"
-#include "chrome/browser/ui/ash/google_one/google_one_offer_iph_tab_helper.h"
-#include "chrome/browser/ui/views/web_apps/protocol_handler_picker_coordinator.h"
-#include "chromeos/ash/experiences/isolated_web_app/cros_isolated_web_app_enabler.h"
-#endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/ui/hats/hats_helper.h"
 #include "chrome/browser/ui/performance_controls/performance_controls_hats_service_factory.h"
 #include "chrome/browser/ui/shared_highlighting/shared_highlighting_promo.h"
@@ -920,8 +907,7 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
       metrics::DesktopSessionDurationObserver::MaybeCreate(tab.GetContents());
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   inactive_window_mouse_event_controller_ =
       GetUserDataFactory().CreateInstance<InactiveWindowMouseEventController>(
           tab, tab);
@@ -1032,29 +1018,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
       GetUserDataFactory().CreateInstance<lens::TabContextualizationController>(
           tab, &tab);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (apps::AppServiceProxyFactory::IsAppServiceAvailableForProfile(profile)) {
-    protocol_handler_picker_coordinator_ =
-        GetUserDataFactory()
-            .CreateInstance<web_app::ProtocolHandlerPickerCoordinator>(
-                tab, tab, apps::AppServiceProxyFactory::GetForProfile(profile));
-  }
-  google_one_offer_iph_tab_helper_ =
-      std::make_unique<GoogleOneOfferIphTabHelper>(tab.GetContents());
-  // Do not create for Incognito mode.
-  if (!profile->IsOffTheRecord()) {
-    campaigns_manager_session_tab_helper_ =
-        std::make_unique<CampaignsManagerSessionTabHelper>(tab.GetContents());
-  }
-  cros_isolated_web_app_enabler_ =
-      std::make_unique<ash::CrosIsolatedWebAppEnabler>(tab.GetContents());
-  gemini_app_tab_helper_ = GeminiAppTabHelper::MaybeCreate(tab.GetContents());
-  mahi_tab_helper_ = mahi::MahiTabHelper::MaybeCreate(tab.GetContents());
-  boot_times_recorder_tab_helper_ =
-      ash::BootTimesRecorderTabHelper::MaybeCreate(tab.GetContents());
-  dlp_content_tab_helper_ =
-      policy::DlpContentTabHelper::MaybeCreate(tab, tab.GetContents());
-#endif
 
   // The controller is created for all tabs but only affects back button
   // behavior for destination tabs with opener relationships.
@@ -1070,8 +1033,7 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
         std::make_unique<dictation::DictationIphController>(tab);
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   if (base::FeatureList::IsEnabled(enterprise_reporting::kSaasUsageReporting)) {
     saas_usage_navigation_observer_ =
         std::make_unique<enterprise_reporting::SaasUsageNavigationObserver>(
@@ -1088,8 +1050,7 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
       std::make_unique<SharedHighlightingPromo>(tab.GetContents());
 #endif
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   if (base::FeatureList::IsEnabled(multistep_filter::kMultistepFilter)) {
     filter_ui_controller_ =
         GetUserDataFactory()
@@ -1313,21 +1274,12 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
           .CreateInstance<chrome_browser_net::NetErrorTabHelper>(
               tab, tab, tab.GetContents());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Do not create for Incognito and Isolated mode.
-  if (!profile->IsPrimaryOTRProfileWithRegularParent()) {
-    supervised_user_navigation_observer_ =
-        GetUserDataFactory().CreateInstance<SupervisedUserNavigationObserver>(
-            tab, tab, tab.GetContents());
-  }
-#else
   // Do not create for OTR.
   if (!profile->IsOffTheRecord()) {
     supervised_user_navigation_observer_ =
         GetUserDataFactory().CreateInstance<SupervisedUserNavigationObserver>(
             tab, tab, tab.GetContents());
   }
-#endif
 
   browser_synced_tab_delegate_ =
       GetUserDataFactory().CreateInstance<BrowserSyncedTabDelegate>(
@@ -1780,8 +1732,7 @@ void TabFeatures::WillDiscardContents(tabs::TabInterface* tab,
       std::make_unique<web_app::WindowManagementContentSettingObserver>(
           new_contents);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   if (saas_usage_navigation_observer_) {
     saas_usage_navigation_observer_ =
         std::make_unique<enterprise_reporting::SaasUsageNavigationObserver>(
@@ -1804,23 +1755,6 @@ void TabFeatures::WillDiscardContents(tabs::TabInterface* tab,
       metrics::DesktopSessionDurationObserver::MaybeCreate(new_contents);
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  google_one_offer_iph_tab_helper_ =
-      std::make_unique<GoogleOneOfferIphTabHelper>(new_contents);
-  if (campaigns_manager_session_tab_helper_) {
-    campaigns_manager_session_tab_helper_ =
-        std::make_unique<CampaignsManagerSessionTabHelper>(new_contents);
-  }
-  cros_isolated_web_app_enabler_ =
-      std::make_unique<ash::CrosIsolatedWebAppEnabler>(new_contents);
-  gemini_app_tab_helper_ = GeminiAppTabHelper::MaybeCreate(new_contents);
-  mahi_tab_helper_ = mahi::MahiTabHelper::MaybeCreate(new_contents);
-  boot_times_recorder_tab_helper_ =
-      ash::BootTimesRecorderTabHelper::MaybeCreate(new_contents);
-  dlp_content_tab_helper_.reset();
-  dlp_content_tab_helper_ =
-      policy::DlpContentTabHelper::MaybeCreate(*tab, new_contents);
-#endif
 
 #if BUILDFLAG(ENABLE_RLZ)
   chrome_rlz_tracker_web_contents_observer_ =

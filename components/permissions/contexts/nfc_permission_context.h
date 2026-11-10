@@ -17,10 +17,6 @@ class NfcPermissionContext : public ContentSettingPermissionContextBase {
    public:
     virtual ~Delegate() = default;
 
-#if BUILDFLAG(IS_ANDROID)
-    // Returns whether or not this |web_contents| is interactable.
-    virtual bool IsInteractable(content::WebContents* web_contents) = 0;
-#endif
   };
 
   NfcPermissionContext(content::BrowserContext* browser_context,

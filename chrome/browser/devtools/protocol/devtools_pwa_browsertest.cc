@@ -23,9 +23,6 @@
 #include "chrome/browser/devtools/protocol/devtools_protocol_test_support.h"
 #include "chrome/common/chrome_switches.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/dbus/constants/dbus_switches.h"
-#endif
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
@@ -288,10 +285,6 @@ IN_PROC_BROWSER_TEST_F(PWAProtocolTestWithoutApp,
   DetachProtocolClient();
   base::CommandLine::ForCurrentProcess()->AppendSwitch(
       switches::kEnableDevToolsPwaHandler);
-#if BUILDFLAG(IS_CHROMEOS)
-  base::CommandLine::ForCurrentProcess()->AppendSwitch(
-      chromeos::switches::kSystemDevMode);
-#endif
   AttachToBrowserTarget();
   ASSERT_FALSE(SendCommandSync(
       "PWA.getOsAppState",
@@ -1130,13 +1123,7 @@ IN_PROC_BROWSER_TEST_F(PWAProtocolTest, ChangeAppUserSettings_ChangeNothing) {
             GetAppUserSettings(InstallableWebAppManifestId()));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Setting linkCapturing on ChromeOS is not supported yet.
-// TODO(crbug.com/339453269): Implement setting linkCapturing on ChromeOS.
-#define DISABLE_ON_CHROMEOS(x) DISABLED_##x
-#else
 #define DISABLE_ON_CHROMEOS(x) x
-#endif
 
 IN_PROC_BROWSER_TEST_F(PWAProtocolTest,
                        DISABLE_ON_CHROMEOS(ChangeAppUserSettings_NoApp)) {

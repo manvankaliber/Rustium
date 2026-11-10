@@ -34,8 +34,7 @@ class ExtensionApiWindowsTest : public extensions::ExtensionApiTest {
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 
 // Flaky on Windows, Mac and Linux. http://crbug.com/41375473.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #define MAYBE_UpdateWindowResize DISABLED_UpdateWindowResize
 #else
 #define MAYBE_UpdateWindowResize UpdateWindowResize
@@ -77,7 +76,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiWindowsTest, MAYBE_UpdateWindowShowState) {
 // ExtensionWindowControllerBridge. Because of this, Android PiP windows are
 // invisible to chrome.windows.getAll() and chrome.windows.update().
 // If this changes, we should enable this test on Android.
-#if !BUILDFLAG(IS_ANDROID)
 // Verify that extensions cannot resize Picture-in-Picture windows beyond the
 // set bounds (https://crbug.com/514080341).
 IN_PROC_BROWSER_TEST_F(ExtensionApiWindowsTest,
@@ -86,4 +84,3 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiWindowsTest,
                                {.extension_url = "test.html"}))
       << message_;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

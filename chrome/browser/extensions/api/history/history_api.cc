@@ -39,9 +39,7 @@
 #include "extensions/common/event_args.h"
 #include "ui/base/page_transition_types.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/webapps/isolated_web_apps/scheme.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -237,7 +235,6 @@ bool HistoryFunction::ValidateUrl(const std::string& url_string,
     *error = kInvalidUrlError;
     return false;
   }
-#if !BUILDFLAG(IS_ANDROID)
   // Match tabs.create/tabs.update and bookmarks.create: extensions may not
   // plant isolated-app:// deep-link history entries. Opening such an entry
   // would deep-link the IWA via PAGE_TRANSITION_AUTO_BOOKMARK, bypassing
@@ -246,7 +243,6 @@ bool HistoryFunction::ValidateUrl(const std::string& url_string,
     *error = kInvalidUrlError;
     return false;
   }
-#endif
   url->Swap(&temp_url);
   return true;
 }

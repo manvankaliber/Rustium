@@ -22,7 +22,7 @@
 namespace remoting {
 
 std::string GetUsername() {
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   long buf_size = sysconf(_SC_GETPW_R_SIZE_MAX);
   if (buf_size <= 0) {
     PLOG(ERROR) << "sysconf(_SC_GETPW_R_SIZE_MAX) failed";
@@ -83,7 +83,7 @@ std::string GetUsername() {
 #else
   NOTIMPLEMENTED();
   return std::string();
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#endif
 }
 
 #if BUILDFLAG(IS_LINUX)

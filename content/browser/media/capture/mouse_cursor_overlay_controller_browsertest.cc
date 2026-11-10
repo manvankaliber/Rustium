@@ -22,15 +22,7 @@
 #include "ui/gfx/geometry/size.h"
 #include "ui/gfx/geometry/size_f.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/media/capture/android_cursor_renderer.h"
-#include "ui/android/view_android.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ui/aura/client/cursor_shape_client.h"
-#include "ui/wm/core/cursor_loader.h"  // nogncheck
-#endif                                 // BUILDFLAG(IS_CHROMEOS)
 
 using ::testing::Mock;
 
@@ -95,17 +87,7 @@ class MouseCursorOverlayControllerBrowserTest : public ContentBrowserTest {
 
     // On Ash content browsertests, ash::Shell isn't initialized and thus
     // neither NativeCursorManagerAsh, the owner of CursorLoader.
-#if BUILDFLAG(IS_CHROMEOS)
-    cursor_loader_ = std::make_unique<wm::CursorLoader>();
-    aura::client::SetCursorShapeClient(cursor_loader_.get());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-    // Save the target size so that Android's
-    // ComputeRelativeBoundsForOverlay has a fallback when the view is
-    // disconnected as done below by DisconnectFromToolkitForTesting().
-    controller_.SetTargetSize(GetAbsoluteViewSize());
-#endif
 
     controller_.SetTargetView(shell()->web_contents()->GetNativeView());
     controller_.DisconnectFromToolkitForTesting();
@@ -246,17 +228,9 @@ class MouseCursorOverlayControllerBrowserTest : public ContentBrowserTest {
 
   gfx::SizeF GetExpectedOverlaySize() const {
     const gfx::Size& view_size = GetAbsoluteViewSize();
-#if BUILDFLAG(IS_ANDROID)
-    // On Android, ComputeRelativeBoundsForOverlay uses the logical cursor size
-    // scaled by dip_scale. For the test, the fallback dip_scale is 1.0f, so the
-    // expected size is just the logical cursor size.
-    const gfx::SizeF image_size =
-        gfx::SizeF(AndroidCursorRenderer::GetCursorSize());
-#else
     const SkBitmap image =
         controller_.GetCursorImage(controller_.GetCurrentCursorOrDefault());
     const gfx::SizeF image_size(image.width(), image.height());
-#endif
     return gfx::SizeF(image_size.width() / view_size.width(),
                       image_size.height() / view_size.height());
   }
@@ -269,9 +243,6 @@ class MouseCursorOverlayControllerBrowserTest : public ContentBrowserTest {
     base::RunLoop().RunUntilIdle();
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<wm::CursorLoader> cursor_loader_;
-#endif
 };
 
 IN_PROC_BROWSER_TEST_F(MouseCursorOverlayControllerBrowserTest,
@@ -359,18 +330,6 @@ IN_PROC_BROWSER_TEST_F(MouseCursorOverlayControllerBrowserTest,
   EXPECT_TRUE(IsUserInteractingWithView());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(MouseCursorOverlayControllerBrowserTest,
-                       DoesNotCrashWhenViewAndroidDestroyed) {
-  auto dummy_view = std::make_unique<ui::ViewAndroid>();
-  controller_.SetTargetView(dummy_view.get());
-
-  dummy_view.reset();
-
-  // This accesses the observer's target view when updating the overlay.
-  controller_.OnMouseMoved(gfx::PointF());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // This test verifies that MouseCoordinatesUpdated calls are forwarded to the
 // overlay.

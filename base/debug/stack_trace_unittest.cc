@@ -31,13 +31,13 @@
 #include "partition_alloc/shim/allocator_shim.h"
 #endif
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
 #include "base/test/multiprocess_test.h"
 #endif
 
 namespace base::debug {
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
 typedef MultiProcessTest StackTraceTest;
 #else
 typedef testing::Test StackTraceTest;
@@ -102,13 +102,6 @@ TEST_F(StackTraceTest, OutputToStream) {
       << backtrace_message;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(StackTraceTest, AndroidBuildIdInOutput) {
-  StackTrace trace;
-  std::string trace_string = trace.ToString();
-  EXPECT_THAT(trace_string, testing::HasSubstr(" (BuildId: "));
-}
-#endif
 
 #if !defined(OFFICIAL_BUILD) && !BUILDFLAG(EXCLUDE_UNWIND_TABLES)
 // Disabled in Official builds, where Link-Time Optimization can result in two
@@ -171,7 +164,7 @@ TEST_F(StackTraceTest, DebugOutputToStreamWithNullPrefix) {
 
 #endif  // !defined(__UCLIBC__) && !defined(_AIX)
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 // Since Mac's base::debug::StackTrace().Print() is not malloc-free, skip
 // StackDumpSignalHandlerIsMallocFree if BUILDFLAG(IS_MAC).
 #if PA_BUILDFLAG(USE_ALLOCATOR_SHIM) && !BUILDFLAG(IS_MAC)
@@ -350,7 +343,7 @@ TEST_F(StackTraceTest, itoa_r) {
   EXPECT_EQ("0688", itoa_r_wrapper(0x688, 128, 16, 4));
   EXPECT_EQ("00688", itoa_r_wrapper(0x688, 128, 16, 5));
 }
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 #if BUILDFLAG(CAN_UNWIND_WITH_FRAME_POINTERS)
 
@@ -410,7 +403,7 @@ TEST_F(StackTraceTest, MAYBE_TraceStackFramePointers) {
   ExpectStackFramePointers<kDepth>(frames);
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_StackEnd StackEnd
 #else
 #define MAYBE_StackEnd DISABLED_StackEnd
@@ -422,7 +415,7 @@ TEST_F(StackTraceTest, MAYBE_StackEnd) {
 
 #endif  // BUILDFLAG(CAN_UNWIND_WITH_FRAME_POINTERS)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 
 #if !defined(ADDRESS_SANITIZER) && !defined(UNDEFINED_SANITIZER)
 
@@ -488,7 +481,7 @@ TEST(CheckExitCodeAfterSignalHandlerDeathTest, CheckSIGILL) {
   EXPECT_EXIT(raise_sigill(), ::testing::KilledBySignal(SIGILL), "");
 }
 
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#endif
 
 #if BUILDFLAG(IS_WIN)
 TEST(StackTraceTest, EnabledStackTraces) {

@@ -2301,9 +2301,6 @@ class FakeClipboardContext : public ClipboardHostImpl::Context {
   }
   void OnTextCopiedToClipboard(const std::u16string&) override {}
 
-#if BUILDFLAG(IS_CHROMEOS)
-  bool IncludeAllTypesWhenFilesPresent() override { return false; }
-#endif
 
  private:
   const raw_ref<BrowserContext> browser_context_;

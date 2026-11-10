@@ -9,7 +9,7 @@ action("chromium_git_revision") {
   script = "version.py"
 
   template_file = "chromium_git_revision.h.in"
-  inputs = [ "android_chrome_version.py" ]
+  inputs = []
 
   sources = [
     lastchange_file,

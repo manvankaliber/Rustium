@@ -380,7 +380,6 @@ TEST_F(CertDatabaseNSSTest, ImportFromPKCS12WithIntermediates) {
     nicknames.emplace_back(cert->nickname);
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // All certificates should have been imported and assigned nicknames. Check
   // for prefixes because NSS will add suffixes like " #2" if other certificates
   // with these nicknames are already in the store. In particular, dev or CI
@@ -390,12 +389,6 @@ TEST_F(CertDatabaseNSSTest, ImportFromPKCS12WithIntermediates) {
                              testing::StartsWith("Test DB:Client Cert A"),
                              testing::StartsWith("Test DB:B CA"),
                              testing::StartsWith("Test DB:C Root CA")));
-#else
-  // On ChromeOS, only the leaf certificate gets imported. See the comment in
-  // NSSCertDatabase::ImportFromPKCS12.
-  EXPECT_THAT(nicknames, testing::UnorderedElementsAre(
-                             testing::StartsWith("Test DB:Client Cert A")));
-#endif
 
   base::RunLoop().RunUntilIdle();
   EXPECT_EQ(1, observer_->client_cert_store_changes());

@@ -50,27 +50,7 @@
 #include "extensions/browser/api/usb/usb_device_resource.h"
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "extensions/browser/api/audio/audio_api.h"
-#include "extensions/browser/api/bluetooth/bluetooth_api.h"
-#include "extensions/browser/api/bluetooth/bluetooth_private_api.h"
-#include "extensions/browser/api/bluetooth_low_energy/bluetooth_api_advertisement.h"
-#include "extensions/browser/api/bluetooth_low_energy/bluetooth_low_energy_connection.h"
-#include "extensions/browser/api/bluetooth_low_energy/bluetooth_low_energy_notify_session.h"
-#include "extensions/browser/api/bluetooth_socket/bluetooth_api_socket.h"
-#include "extensions/browser/api/bluetooth_socket/bluetooth_socket_event_dispatcher.h"
-#include "extensions/browser/api/clipboard/clipboard_api.h"
-#include "extensions/browser/api/serial/serial_connection.h"
-#include "extensions/browser/api/serial/serial_port_manager.h"
-#include "extensions/browser/api/socket/app_firewall_hole_manager.h"
-#include "extensions/browser/api/webcam_private/webcam_private_api.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "extensions/browser/api/feedback_private/log_source_resource.h"
-#include "extensions/browser/api/media_perception_private/media_perception_api_manager.h"
-#include "extensions/browser/api/virtual_keyboard_private/virtual_keyboard_private_api.h"  // nogncheck
-#endif
 
 namespace extensions {
 
@@ -88,9 +68,6 @@ void EnsureApiBrowserContextKeyedServiceFactoriesBuilt() {
   RuntimeAPI::GetFactoryInstance();
   SessionStorageManager::GetFactory();
   StorageFrontend::GetFactoryInstance();
-#if BUILDFLAG(IS_ANDROID)
-  SystemDisplayAPI::GetFactoryInstance();
-#endif
   TestStartedAndFinishedEventQueue::GetFactoryInstance();
   WebRequestAPI::GetFactoryInstance();
   WebRequestProxyingURLLoaderFactory::EnsureAssociatedFactoryBuilt();
@@ -101,54 +78,23 @@ void EnsureApiBrowserContextKeyedServiceFactoriesBuilt() {
 // The following are not supported in the experimental desktop-android build.
 // TODO(https://crbug.com/356905053): Enable these APIs on desktop-android.
 #if BUILDFLAG(ENABLE_EXTENSIONS)
-#if BUILDFLAG(IS_CHROMEOS)
-  ApiResourceManager<BluetoothApiAdvertisement>::GetFactoryInstance();
-  ApiResourceManager<BluetoothApiSocket>::GetFactoryInstance();
-  ApiResourceManager<BluetoothLowEnergyConnection>::GetFactoryInstance();
-  ApiResourceManager<BluetoothLowEnergyNotifySession>::GetFactoryInstance();
-#endif
   ApiResourceManager<HidConnectionResource>::GetFactoryInstance();
-#if BUILDFLAG(IS_CHROMEOS)
-  ApiResourceManager<LogSourceResource>::GetFactoryInstance();
-#endif
   ApiResourceManager<ResumableTCPServerSocket>::GetFactoryInstance();
   ApiResourceManager<ResumableTCPSocket>::GetFactoryInstance();
   ApiResourceManager<ResumableUDPSocket>::GetFactoryInstance();
-#if BUILDFLAG(IS_CHROMEOS)
-  ApiResourceManager<SerialConnection>::GetFactoryInstance();
-#endif
   ApiResourceManager<Socket>::GetFactoryInstance();
   ApiResourceManager<UsbDeviceResource>::GetFactoryInstance();
-#if BUILDFLAG(IS_CHROMEOS)
-  api::BluetoothSocketEventDispatcher::GetFactoryInstance();
-  api::SerialPortManager::GetFactoryInstance();
-#endif
   api::TCPServerSocketEventDispatcher::GetFactoryInstance();
   api::TCPSocketEventDispatcher::GetFactoryInstance();
   api::UDPSocketEventDispatcher::GetFactoryInstance();
-#if BUILDFLAG(IS_CHROMEOS)
-  AppFirewallHoleManager::EnsureFactoryBuilt();
-  AudioAPI::GetFactoryInstance();
-  BluetoothAPI::GetFactoryInstance();
-  BluetoothPrivateAPI::GetFactoryInstance();
-  ClipboardAPI::GetFactoryInstance();
-#endif
   FeedbackPrivateAPI::GetFactoryInstance();
   HidDeviceManager::GetFactoryInstance();
-#if BUILDFLAG(IS_CHROMEOS)
-  MediaPerceptionAPIManager::GetFactoryInstance();
-#endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   NetworkingPrivateEventRouterFactory::GetInstance();
 #endif
   PrinterProviderAPIFactory::GetInstance();
   SystemInfoAPI::GetFactoryInstance();
   UsbDeviceManager::GetFactoryInstance();
-#if BUILDFLAG(IS_CHROMEOS)
-  VirtualKeyboardAPI::GetFactoryInstance();
-  WebcamPrivateAPI::GetFactoryInstance();
-#endif
   ProtocolHandlersManager::GetFactoryInstance();
   WriteQuotaChecker::GetFactoryInstance();
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)

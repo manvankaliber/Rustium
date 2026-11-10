@@ -150,7 +150,6 @@ TEST_F(TranslateScriptTest, CheckScriptParameters) {
                              &callback);
   EXPECT_EQ(std::string(TranslateScript::kCallbackQueryValue), callback);
 
-#if !BUILDFLAG(IS_IOS)
   // iOS does not have specific loaders for the isolated world.
   std::string css_loader_callback;
   net::GetValueForKeyInQuery(url, TranslateScript::kCssLoaderCallbackQueryName,
@@ -164,7 +163,6 @@ TEST_F(TranslateScriptTest, CheckScriptParameters) {
       &javascript_loader_callback);
   EXPECT_EQ(std::string(TranslateScript::kJavascriptLoaderCallbackQueryValue),
             javascript_loader_callback);
-#endif  // !BUILDFLAG(IS_IOS)
   script_.reset();
 }
 

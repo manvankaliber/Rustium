@@ -1747,7 +1747,7 @@ class VerticalTabStripFocusSwipeTest : public VerticalTabStripRegionViewTest {
     return enabled;
   }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   void SendMouseWheelEvent(int x_offset, int y_offset) {
     ui::MouseWheelEvent wheel_event(gfx::Vector2d(x_offset, y_offset),
                                     gfx::PointF(10, 10), gfx::PointF(10, 10),
@@ -1768,10 +1768,10 @@ class VerticalTabStripFocusSwipeTest : public VerticalTabStripRegionViewTest {
     region_view()->focus_swipe_controller_for_testing()->OnScrollEvent(
         &scroll_event);
   }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 };
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 IN_PROC_BROWSER_TEST_F(VerticalTabStripFocusSwipeTest,
                        MouseWheelSwipeRotatesFocusedGroup) {
   EnterVerticalTabsMode();
@@ -1939,4 +1939,4 @@ IN_PROC_BROWSER_TEST_F(VerticalTabStripFocusSwipeTest,
   SendScrollEvent(-kSwipeOverThreshold, 0.0f);
   EXPECT_EQ(group2, tab_strip_model()->GetFocusedGroup());
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif

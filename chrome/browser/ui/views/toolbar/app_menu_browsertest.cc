@@ -312,10 +312,8 @@ IN_PROC_BROWSER_TEST_F(AppMenuBrowserTest, MAYBE_InvokeUi_main_guest) {
 // TODO(crbug.com/40899974): ChromeOS specific profile logic still needs to be
 // updated, setup this test for a Guest user session with appropriate command
 // line switches afterwards.
-#if !BUILDFLAG(IS_CHROMEOS)
   auto browser_resetter = SetBrowser(CreateGuestBrowser());
   ShowAndVerifyUi();
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(AppMenuBrowserTest, DISABLED_InvokeUi_main_incognito) {
@@ -493,7 +491,6 @@ IN_PROC_BROWSER_TEST_F(AppMenuBrowserTest, InvokeUi_save_and_share) {
   ShowAndVerifyUi();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 // TODO(crbug.com/520132855): Re-enable test after features::kMenuSimplification
 // is fully enabled
@@ -678,7 +675,6 @@ IN_PROC_BROWSER_TEST_F(
 
   ShowAndVerifyUi();
 }
-#endif
 
 // Test case for Safety Hub notification.
 IN_PROC_BROWSER_TEST_F(AppMenuBrowserTest, Safety_Hub_shown_notification) {
@@ -712,7 +708,6 @@ IN_PROC_BROWSER_TEST_F(AppMenuBrowserTest, Safety_Hub_shown_notification) {
   app_menu_test_accessor().CloseMenu();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class AppMenuProfileGradientRingBrowserTest : public AppMenuBrowserTest {
  public:
   AppMenuProfileGradientRingBrowserTest() {
@@ -836,6 +831,5 @@ IN_PROC_BROWSER_TEST_F(AppMenuProfileGradientRingBrowserTest,
   EXPECT_EQ(size_with_dotted_ring, initial_size);
   CloseMenuAndWait();
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace

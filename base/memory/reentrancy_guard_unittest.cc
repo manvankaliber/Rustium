@@ -205,7 +205,7 @@ TEST_F(ReentrancyGuardTest, Basic) {
   RunSimpleTestCase();
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 
 TEST_F(ReentrancyGuardTest, TooManyKeys) {
   internal::ReentrancyState::ResetKeyForTesting();
@@ -227,7 +227,7 @@ TEST_F(ReentrancyGuardTest, TooManyKeys) {
   }
 }
 
-#endif  //  BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 TEST_F(ReentrancyGuardTest, MultiThreads) {
   internal::ReentrancyState::InitializeKey();

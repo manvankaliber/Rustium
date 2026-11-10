@@ -62,12 +62,7 @@ bool HasUserActionableErrorBlockingSendTabToSelf(
     case syncer::SyncService::UserActionableError::
         kTrustedVaultRecoverabilityDegradedForEverything:
     case syncer::SyncService::UserActionableError::kBookmarksLimitExceeded:
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
     case syncer::SyncService::UserActionableError::kPasskeysLocked:
-#endif
-#if BUILDFLAG(IS_ANDROID)
-    case syncer::SyncService::UserActionableError::kNeedsUPMBackendUpgrade:
-#endif
       return false;
 
     case syncer::SyncService::UserActionableError::kSignInNeedsUpdate:
@@ -75,13 +70,8 @@ bool HasUserActionableErrorBlockingSendTabToSelf(
     case syncer::SyncService::UserActionableError::
         kNeedsTrustedVaultKeyForEverything:
     case syncer::SyncService::UserActionableError::kNeedsClientUpgrade:
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
     case syncer::SyncService::UserActionableError::kNeedsSettingsConfirmation:
     case syncer::SyncService::UserActionableError::kUnrecoverableError:
-#endif
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-    case syncer::SyncService::UserActionableError::kDeviceManagementError:
-#endif
       return true;
   }
 }

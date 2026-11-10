@@ -50,7 +50,6 @@ class COMPONENT_EXPORT(UI_BASE) ThemeProvider {
   // needs the tint/display-property half, which the WebUI NTP uses for color
   // theming. Anything guarded here must stay out of code that builds on
   // Android.
-#if !BUILDFLAG(IS_ANDROID)
   // Get the image specified by |id|. An implementation of ThemeProvider should
   // have its own source of ids (e.g. an enum, or external resource bundle).
   virtual gfx::ImageSkia* GetImageSkiaNamed(int id) const = 0;
@@ -69,7 +68,6 @@ class COMPONENT_EXPORT(UI_BASE) ThemeProvider {
   virtual scoped_refptr<base::RefCountedMemory> GetRawData(
       int id,
       ui::ResourceScaleFactor scale_factor) const = 0;
-#endif  // !BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace ui

@@ -45,14 +45,7 @@
 #include "third_party/skia/include/private/chromium/GrDeferredDisplayList.h"
 #include "ui/gfx/gpu_fence_handle.h"
 
-#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_CHROMEOS) && \
-    BUILDFLAG(USE_V4L2_CODEC)
-#include "media/gpu/chromeos/vulkan_overlay_adaptor.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/gfx/android/surface_control_frame_rate.h"
-#endif
 
 namespace gfx {
 namespace mojom {
@@ -217,9 +210,6 @@ class SkiaOutputSurfaceImplOnGpu
 
   void SetVSyncDisplayID(int64_t display_id, bool force_update);
 
-#if BUILDFLAG(IS_ANDROID)
-  void SetFrameRate(gfx::SurfaceControlFrameRate frame_rate);
-#endif
 
   bool was_context_lost() { return context_state_->context_lost(); }
 
@@ -273,10 +263,6 @@ class SkiaOutputSurfaceImplOnGpu
   void DestroySharedImage(gpu::Mailbox mailbox);
   void SetSharedImagePurgeable(const gpu::Mailbox& mailbox, bool purgeable);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Called on the viz thread!
-  base::ScopedClosureRunner GetCacheBackBufferCb();
-#endif
 
   // Checks the relevant context for completed tasks and, indirectly, causes
   // associated completion callbacks to run.
@@ -290,18 +276,6 @@ class SkiaOutputSurfaceImplOnGpu
     return shared_image_factory_.get();
   }
 
-#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_CHROMEOS) && \
-    BUILDFLAG(USE_V4L2_CODEC)
-  void DetileOverlay(gpu::Mailbox input,
-                     const gfx::Size& input_visible_size,
-                     gpu::Mailbox output,
-                     const gfx::RectF& display_rect,
-                     const gfx::RectF& crop_rect,
-                     gfx::OverlayTransform transform,
-                     bool is_10bit);
-
-  void CleanupImageProcessor();
-#endif
 
   void ReadbackForTesting(
       CopyOutputRequest::CopyOutputRequestCallback result_callback);
@@ -628,11 +602,6 @@ class SkiaOutputSurfaceImplOnGpu
 
   THREAD_CHECKER(thread_checker_);
 
-#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_CHROMEOS) && \
-    BUILDFLAG(USE_V4L2_CODEC)
-  std::unique_ptr<media::VulkanOverlayAdaptor> vulkan_overlay_adaptor_ =
-      nullptr;
-#endif
 
   base::WeakPtr<SkiaOutputSurfaceImplOnGpu> weak_ptr_;
   base::WeakPtrFactory<SkiaOutputSurfaceImplOnGpu> weak_ptr_factory_{this};

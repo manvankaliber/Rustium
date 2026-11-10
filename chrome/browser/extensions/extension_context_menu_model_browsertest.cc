@@ -72,9 +72,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif
 
 namespace extensions {
 
@@ -648,47 +645,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionContextMenuModelTest,
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Desktop Android hosts settings in a tab, where pages are addressed by URL
-// only once SettingsInTabUrlNav is enabled.
-class ExtensionContextMenuModelSettingsUrlNavTest
-    : public ExtensionContextMenuModelTest {
- public:
-  ExtensionContextMenuModelSettingsUrlNavTest() {
-    feature_list_.InitAndEnableFeature(chrome::android::kSettingsInTabUrlNav);
-  }
-
- private:
-  base::test::ScopedFeatureList feature_list_;
-};
-
-// Tests that "view web permissions" opens the site details page for the
-// extension's own origin.
-IN_PROC_BROWSER_TEST_F(ExtensionContextMenuModelSettingsUrlNavTest,
-                       ViewWebPermissionsOpensSiteDetails) {
-  scoped_refptr<const Extension> extension =
-      ExtensionBuilder("extension").Build();
-  InitializeAndAddExtension(*extension);
-
-  ExtensionContextMenuModel menu(extension.get(), browser_window_interface(),
-                                 /*is_pinned=*/true, nullptr, true,
-                                 ContextMenuSource::kToolbarAction);
-  ASSERT_EQ(
-      GetCommandState(menu, ExtensionContextMenuModel::VIEW_WEB_PERMISSIONS),
-      CommandState::kEnabled);
-
-  menu.ExecuteCommand(ExtensionContextMenuModel::VIEW_WEB_PERMISSIONS, 0);
-
-  // The page is opened in a new tab by its URL, which names the extension by
-  // origin. The load itself is not awaited: settings is a native page, so what
-  // this test can meaningfully assert is the URL the tab was sent to.
-  EXPECT_EQ(GetTabCount(), 2);
-  EXPECT_EQ(GetActiveWebContents()->GetVisibleURL(),
-            GURL(base::StrCat({"chrome://settings/siteDetails"
-                               "?site=chrome-extension%3A%2F%2F",
-                               extension->id()})));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ExtensionContextMenuModelTest,
                        ExtensionContextMenuToggleVisibilityEntryVisibility) {

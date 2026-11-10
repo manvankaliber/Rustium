@@ -289,9 +289,7 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
   private pageHandler_: PageHandlerInterface;
   private autocompleteResultChangedListenerId_: number|null = null;
   private inputStateListenerId_: number|null = null;
-  // <if expr="not is_android">
   private smartTabSharingUpdateGeneration_: number = 0;
-  // </if>
 
   constructor() {
     performance.mark('searchbox-creation-start');
@@ -331,13 +329,11 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
       this.inputState_.activeModel = ModelMode.kUnspecified;
     }
 
-    // <if expr="not is_android">
     const stsGeneration = ++this.smartTabSharingUpdateGeneration_;
     const {active} = await this.pageHandler().getSmartTabSharingActive();
     if (stsGeneration === this.smartTabSharingUpdateGeneration_) {
       this.smartTabSharingActive = active;
     }
-    // </if>
   }
 
   override disconnectedCallback() {
@@ -562,14 +558,12 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
 
   protected onSmartTabSharingActiveChanged_(
       _e: CustomEvent<{active: boolean}>) {
-    // <if expr="not is_android">
     this.smartTabSharingUpdateGeneration_++;
     this.smartTabSharingActive = _e.detail.active;
     this.pageHandler().setSmartTabSharingActive(_e.detail.active);
     if (_e.detail.active) {
       this.openComposebox_();
     }
-    // </if>
   }
 
   /**
@@ -578,7 +572,6 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
    * cleared because the composebox component initiates the backend reset.
    */
   resetSmartTabSharing(_resetBackend: boolean = false) {
-    // <if expr="not is_android">
     this.smartTabSharingActive = false;
     if (_resetBackend) {
       const generation = ++this.smartTabSharingUpdateGeneration_;
@@ -588,7 +581,6 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
         }
       });
     }
-    // </if>
   }
 
   protected onShareTabsFlyoutOpenChanged_(e: CustomEvent<{open: boolean}>) {
@@ -848,9 +840,7 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
       model: model,
       enterAimMode: enterAimMode,
       error: error,
-      // <if expr="not is_android">
       smartTabSharingActive: this.smartTabSharingActive,
-      // </if>
     });
     this.setInputText('');
   }

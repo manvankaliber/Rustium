@@ -439,21 +439,12 @@ class WebMediaPlayerImplTest
     decoder_factory_ = std::make_unique<media::DefaultDecoderFactory>(nullptr);
     media::MediaPlayerLoggingID player_id =
         media::GetNextMediaPlayerLoggingID();
-#if BUILDFLAG(IS_ANDROID)
-    factory_selector->AddBaseFactory(
-        media::RendererType::kRendererImpl,
-        std::make_unique<media::RendererImplFactory>(
-            media_log.get(), decoder_factory_.get(),
-            media::RendererImplFactory::GetGpuFactoriesCB(), player_id));
-    factory_selector->StartRequestRemotePlayStateCB(base::DoNothing());
-#else
     factory_selector->AddBaseFactory(
         media::RendererType::kRendererImpl,
         std::make_unique<media::RendererImplFactory>(
             media_log.get(), decoder_factory_.get(),
             media::RendererImplFactory::GetGpuFactoriesCB(), player_id,
             nullptr));
-#endif
 
     mojo::Remote<media::mojom::blink::MediaMetricsProvider> provider;
     media::MediaMetricsProvider::Create(

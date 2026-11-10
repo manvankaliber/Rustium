@@ -977,7 +977,6 @@ TEST_P(PrerenderHostRegistryLimitGroupTest, Embedder) {
       histogram_suffix, 1);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_P(PrerenderHostRegistryLimitGroupTest, StatefulNumberLimit) {
   // Set memory limit to 50%.
   {
@@ -1014,7 +1013,6 @@ TEST_P(PrerenderHostRegistryLimitGroupTest, StatefulNumberLimit) {
             registry().GetHostCountByLimitGroupForTesting(
                 PrerenderLimitGroup::kSpeculationRulesImmediate));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class PrerenderHostRegistryLegacyMemoryControlsTest
     : public PrerenderHostRegistryTest {
@@ -1049,7 +1047,6 @@ TEST_F(PrerenderHostRegistryLegacyMemoryControlsTest,
   EXPECT_TRUE(registry().FindNonReservedHostById(prerender_host_id));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(PrerenderHostRegistryLegacyMemoryControlsTest,
        StatefulNumberLimit_Disabled_Critical) {
   const GURL prerendering_url("https://example.com/next");
@@ -1134,7 +1131,6 @@ TEST_P(PrerenderHostRegistryLimitGroupTest, StatefulNumberLimit_Critical) {
     run_loop.Run();
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(PrerenderHostRegistryTest, MemoryControlsDisabled_NoOp) {
   const GURL prerendering_url("https://example.com/next");
@@ -1157,7 +1153,6 @@ TEST_F(PrerenderHostRegistryTest, MemoryControlsDisabled_NoOp) {
   EXPECT_TRUE(registry().FindNonReservedHostById(prerender_host_id));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_P(PrerenderHostRegistryLimitGroupTest, StatefulActiveEviction) {
   const int initial_count = 10;
   std::vector<PrerenderHostId> prerender_host_ids;
@@ -1420,7 +1415,6 @@ INSTANTIATE_TEST_SUITE_P(
                       StatefulPerGroupScalingParams{false, true, false},
                       StatefulPerGroupScalingParams{false, false, true},
                       StatefulPerGroupScalingParams{true, true, true}));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(PrerenderHostRegistryTest,
        ReserveHostToActivateBeforeReadyForActivation) {

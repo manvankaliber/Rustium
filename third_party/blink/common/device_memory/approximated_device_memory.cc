@@ -61,15 +61,6 @@ void ApproximatedDeviceMemory::CalculateAndSetApproximatedDeviceMemory() {
   float kMinMemory = 2.0f;
   float kMaxMemory = 32.0f;
 
-#if BUILDFLAG(IS_ANDROID)
-    // Allow smaller lower limits on Android where lower RAM is still common.
-    // Note: As of Jan-2026 some Google Search tests in our test suite
-    // (GoogleAmpSXGStory2019 and BackgroundGoogleStory2019) serve different
-    // content to 1GB and lower. So when increasing this lower limit you will
-    // likely see memory regressions.
-    kMinMemory = 1.0f;
-    kMaxMemory = 8.0f;
-#endif
 
   if (approximated_device_memory_gb_ < kMinMemory) {
     approximated_device_memory_gb_ = kMinMemory;

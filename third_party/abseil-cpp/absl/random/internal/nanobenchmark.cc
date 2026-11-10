@@ -38,9 +38,6 @@
 #define ABSL_OS_WIN
 #include <windows.h>  // NOLINT
 
-#elif defined(__ANDROID__)
-#define ABSL_OS_ANDROID
-
 #elif defined(__linux__)
 #define ABSL_OS_LINUX
 #include <sched.h>        // NOLINT

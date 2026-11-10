@@ -21,7 +21,7 @@
 
 namespace {
 constexpr size_t kMobileMostVisitedTilesLimit = 10;
-constexpr bool is_android = !!BUILDFLAG(IS_ANDROID);
+constexpr bool is_android = !!false;
 constexpr size_t kMaxSuggestionsPerUnscopedExtension = 4;
 constexpr size_t kMaxExtensions = 2;
 }  // namespace

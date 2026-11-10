@@ -307,8 +307,7 @@
 #include "url/origin.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "components/webapps/isolated_web_apps/scheme.h"
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
@@ -362,36 +361,11 @@
 #include "chrome/grit/theme_resources.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(GOOGLE_CHROME_BRANDING)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "ui/base/menu_source_utils.h"
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(GOOGLE_CHROME_BRANDING)
-
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "ash/public/cpp/clipboard_history_controller.h"
-#include "ash/webui/settings/public/constants/routes.mojom.h"
-#include "chrome/browser/ash/arc/arc_util.h"
-#include "chrome/browser/ash/arc/intent_helper/arc_intent_helper_mojo_ash.h"
-#include "chrome/browser/ash/boca/on_task/on_task_locked_controller.h"
-#include "chrome/browser/ash/input_method/editor_mediator.h"
-#include "chrome/browser/chromeos/arc/open_with_menu.h"
-#include "chrome/browser/chromeos/arc/start_smart_selection_action_menu.h"
-#include "chrome/browser/chromeos/policy/dlp/dlp_rules_manager.h"
-#include "chrome/browser/chromeos/policy/dlp/dlp_rules_manager_factory.h"
-#include "chrome/browser/renderer_context_menu/read_write_card_observer.h"
-#include "chrome/browser/ui/ash/system_web_apps/system_web_app_ui_utils.h"
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#include "chrome/browser/ui/settings_window_manager_chromeos.h"
-#include "chrome/browser/ui/webui/ash/system_web_dialog/system_web_dialog_delegate.h"
-#include "chromeos/ash/components/system_web_apps/system_web_app_type.h"
-#include "chromeos/ash/experiences/system_web_apps/types/system_web_app_delegate.h"
-#include "chromeos/ui/clipboard_history/clipboard_history_submenu_model.h"
-#include "chromeos/ui/clipboard_history/clipboard_history_types.h"
-#include "chromeos/ui/clipboard_history/clipboard_history_util.h"
-#include "ui/aura/window.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
+
 #include "chrome/browser/devtools/devtools_policy_dialog.h"
 #include "chrome/browser/ui/toasts/api/toast_id.h"
 #include "chrome/browser/ui/toasts/toast_controller.h"
@@ -403,7 +377,6 @@
 #include "components/tabs/public/split_tab_data.h"
 #include "components/tabs/public/tab_interface.h"
 #include "ui/base/page_transition_types.h"
-#endif
 
 using base::UserMetricsAction;
 using blink::ContextMenuData;
@@ -865,7 +838,6 @@ content::WebContents* GetWebContentsToUse(
 
 bool g_custom_id_ranges_initialized = false;
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void AddAvatarToLastMenuItem(const gfx::Image& icon,
                              ui::SimpleMenuModel* menu) {
   // Don't try to scale too small icons.
@@ -880,7 +852,6 @@ void AddAvatarToLastMenuItem(const gfx::Image& icon,
   menu->SetIcon(menu->GetItemCount() - 1,
                 ui::ImageModel::FromImage(sized_icon));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 void OnBrowserCreated(const GURL& link_url,
                       url::Origin initiator_origin,
@@ -926,26 +897,6 @@ bool DoesFormControlTypeSupportEmoji(
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// If the link points to a system web app (in |profile|), return its type.
-// Otherwise nullopt.
-std::optional<ash::SystemWebAppType> GetLinkSystemAppType(Profile* profile,
-                                                          const GURL& url) {
-  std::optional<webapps::AppId> link_app_id =
-      web_app::FindInstalledAppWithUrlInScope(profile, url);
-
-  if (!link_app_id) {
-    return std::nullopt;
-  }
-
-  return ash::GetSystemWebAppTypeForAppId(profile, *link_app_id);
-}
-
-bool IsCaptivePortalProfile(Profile* profile) {
-  return profile->IsOffTheRecord() &&
-         profile->GetOTRProfileID().IsCaptivePortal();
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool IsFrameInPdfViewer(content::RenderFrameHost* rfh) {
   if (!rfh) {
@@ -1032,7 +983,6 @@ bool IsPrintPreviewContent(const GURL& current_url) {
 #endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 std::pair<int, const gfx::VectorIcon*> GetOpenLinkInSplitStringAndIcon(
     tabs::TabInterface* tab,
     BrowserWindowInterface* const browser) {
@@ -1071,7 +1021,6 @@ std::pair<int, const gfx::VectorIcon*> GetOpenLinkInSplitStringAndIcon(
   }
   return {string_id, icon};
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Resolves a blink::FrameToken from a renderer process to its corresponding
 // RenderFrameHost. Handles both same-process (LocalFrameToken) and
@@ -1173,12 +1122,6 @@ RenderViewContextMenu::RenderViewContextMenu(
   set_content_type(
       ContextMenuContentTypeFactory::Create(&render_frame_host, params));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  web_app::AppBrowserController* app_controller =
-      GetBrowser() ? web_app::AppBrowserController::From(GetBrowser())
-                   : nullptr;
-  system_app_ = app_controller ? app_controller->system_app() : nullptr;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   observers_.AddObserver(&autofill_context_menu_manager_);
 }
@@ -1273,7 +1216,6 @@ void RenderViewContextMenu::WriteURLToClipboard(const GURL& url, int id) {
   scw.SetDataSourceURL(main_frame_url_, current_url_);
   scw.WriteText(FormatURLForClipboard(url));
 
-#if !BUILDFLAG(IS_ANDROID)
   if (id == IDC_CONTENT_CONTEXT_COPYLINKLOCATION &&
       toast_features::IsEnabled(toast_features::kLinkCopiedToast)) {
     auto* const toast_controller = GetToastController();
@@ -1281,7 +1223,6 @@ void RenderViewContextMenu::WriteURLToClipboard(const GURL& url, int id) {
       toast_controller->MaybeShowToast(ToastParams(ToastId::kLinkCopied));
     }
   }
-#endif
 }
 
 void RenderViewContextMenu::IssuePreconnectionToUrl(
@@ -1515,7 +1456,6 @@ void RenderViewContextMenu::InitMenu() {
   }
 
   // Partial Translate is not supported on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
   if (content_type_->SupportsGroup(
           ContextMenuContentType::ITEM_GROUP_PARTIAL_TRANSLATE) &&
       !features::IsMenuSimplificationEnabled() &&
@@ -1532,7 +1472,6 @@ void RenderViewContextMenu::InitMenu() {
       AppendTranslateItem();
     }
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // Spell check, language settings, and writing direction.
   if (editable && params_.misspelled_word.empty()) {
@@ -1562,13 +1501,6 @@ void RenderViewContextMenu::InitMenu() {
   }
 
   bool supports_smart_text_selection = false;
-#if BUILDFLAG(IS_CHROMEOS)
-  if (content_type_->SupportsGroup(
-          ContextMenuContentType::ITEM_GROUP_SMART_SELECTION)) {
-    supports_smart_text_selection =
-        arc::IsArcPlayStoreEnabledForProfile(GetProfile());
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   if (supports_smart_text_selection) {
     AppendSmartSelectionActionItems();
   }
@@ -1993,64 +1925,6 @@ void RenderViewContextMenu::AppendLinkItems() {
       show_open_in_new_window = false;
     }
 
-#if BUILDFLAG(IS_CHROMEOS)
-    Profile* profile = GetProfile();
-
-    // Disable opening links in a new tab or window for captive portal signin.
-    if (IsCaptivePortalProfile(profile)) {
-      show_open_in_new_tab = false;
-      show_open_in_new_window = false;
-      show_open_link_off_the_record = false;
-    }
-
-    const bool in_system_web_dialog =
-        ash::SystemWebDialogDelegate::HasInstance(current_url_);
-
-    std::optional<ash::SystemWebAppType> link_system_app_type =
-        GetLinkSystemAppType(profile, params_.link_url);
-
-    // true if the link points to a WebUI page, including SWA.
-    const bool link_to_webui = content::HasWebUIScheme(params_.link_url);
-
-    // Opening a WebUI page in an incognito window makes little sense, so we
-    // don't show the item.
-    if (link_to_webui) {
-      show_open_link_off_the_record = false;
-    }
-
-    // Basically, we don't show "Open link in new tab" and "Open link in new
-    // window" items inside SWAs/SystemWebDialogs if that link is to WebUI.
-    if ((system_app_ || in_system_web_dialog) && link_to_webui) {
-      // We don't show "Open in new tab" if the current app doesn't have a tab
-      // strip.
-      //
-      // Even if the app has a tab strip, we don't show the item for
-      // links to a different SWA, because two SWAs can't share the same browser
-      // window.
-      if (in_system_web_dialog || !system_app_->ShouldHaveTabStrip() ||
-          system_app_->GetType() != link_system_app_type) {
-        show_open_in_new_tab = false;
-      }
-
-      // Don't show "open in new window", this is instead handled below in
-      // |AppendOpenInWebAppLinkItems| (which includes app's name and icon).
-      show_open_in_new_window = false;
-    }
-
-    // If the current browser is a system app or a SystemWebDialog, hide "Open
-    // link in ..." items on button-like links i.e. links that have a href='#'.
-    // Since most of those links are used to do something in their JavaScript
-    // click handlers, opening '#' links in another browser tab/window makes
-    // little sense.
-    const bool button_like_link =
-        current_url_.EqualsIgnoringRef(params_.link_url) &&
-        params_.link_url.has_ref() && params_.link_url.GetRef().empty();
-    if ((system_app_ || in_system_web_dialog) && button_like_link) {
-      show_open_in_new_tab = false;
-      show_open_in_new_window = false;
-      show_open_link_off_the_record = false;
-    }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     const bool is_link_to_iwa = IsLinkToIsolatedWebApp();
     // Opening links to IWAs in Chrome windows is not supported - opening in
@@ -2077,7 +1951,6 @@ void RenderViewContextMenu::AppendLinkItems() {
                                   : kOpenInNewOldIcon);
     }
 
-#if !BUILDFLAG(IS_ANDROID)
     if (show_open_in_new_tab) {
       // Opening a link in split view should also go through the same
       // constraints as opening a link in a new tab since a split view tab is a
@@ -2101,7 +1974,6 @@ void RenderViewContextMenu::AppendLinkItems() {
                                            kOpenLinkInSplitMenuItem);
       }
     }
-#endif
 
     if (params_.link_url.is_valid()) {
       AppendProtocolHandlerSubMenu();
@@ -2143,7 +2015,6 @@ void RenderViewContextMenu::AppendLinkItems() {
     AppendOpenWithLinkItems();
 
     // ChromeOS supports multiple profiles, but only one can be open at a time.
-#if !BUILDFLAG(IS_CHROMEOS)
     // g_browser_process->profile_manager() is null during unit tests.
     if (g_browser_process->profile_manager() &&
         !GetProfile()->IsOffTheRecord()) {
@@ -2220,7 +2091,6 @@ void RenderViewContextMenu::AppendLinkItems() {
         }
       }
     }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
     menu_model_.AddSeparator(ui::NORMAL_SEPARATOR);
 
@@ -2266,39 +2136,12 @@ void RenderViewContextMenu::AppendCopyLinkLocationItem() {
 }
 
 void RenderViewContextMenu::AppendOpenWithLinkItems() {
-#if BUILDFLAG(IS_CHROMEOS)
-  open_with_menu_observer_ =
-      std::make_unique<arc::OpenWithMenu>(browser_context_, this);
-  observers_.AddObserver(open_with_menu_observer_.get());
-  open_with_menu_observer_->InitMenu(params_);
-#endif
 }
 
 void RenderViewContextMenu::AppendReadWriteCardItems() {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!read_write_card_observer_) {
-    read_write_card_observer_ =
-        std::make_unique<ReadWriteCardObserver>(this, GetProfile());
-  }
-
-  observers_.AddObserver(read_write_card_observer_.get());
-  read_write_card_observer_->InitMenu(params_);
-#endif
 }
 
 void RenderViewContextMenu::AppendSmartSelectionActionItems() {
-#if BUILDFLAG(IS_CHROMEOS)
-  start_smart_selection_action_menu_observer_ =
-      std::make_unique<arc::StartSmartSelectionActionMenu>(
-          browser_context_, this,
-          std::make_unique<arc::ArcIntentHelperMojoAsh>());
-  observers_.AddObserver(start_smart_selection_action_menu_observer_.get());
-
-  if (menu_model_.GetItemCount()) {
-    menu_model_.AddSeparator(ui::NORMAL_SEPARATOR);
-  }
-  start_smart_selection_action_menu_observer_->InitMenu(params_);
-#endif
 }
 
 void RenderViewContextMenu::AppendOpenInWebAppLinkItems() {
@@ -2319,16 +2162,6 @@ void RenderViewContextMenu::AppendOpenInWebAppLinkItems() {
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Don't show "Open link in new app window", if the link points to the
-  // current app, and the app would reuse an existing window.
-  if (system_app_ &&
-      system_app_->GetType() ==
-          ash::GetSystemWebAppTypeForAppId(profile, *link_app_id) &&
-      system_app_->GetWindowForLaunch(profile, params_.link_url) != nullptr) {
-    return;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Only applies to apps that open in an app window.
   if (provider->registrar_unsafe().GetAppUserDisplayMode(*link_app_id) ==
@@ -2938,7 +2771,6 @@ void RenderViewContextMenu::AppendTranslateItem() {
 }
 
 void RenderViewContextMenu::AppendTranslateOrPartialTranslateItem() {
-#if !BUILDFLAG(IS_CHROMEOS)
   if (search::DefaultSearchProviderIsGoogle(GetProfile()) &&
       CanTranslate(/*menu_logging=*/false)) {
     if (CanPartiallyTranslateTargetLanguage()) {
@@ -2947,7 +2779,6 @@ void RenderViewContextMenu::AppendTranslateOrPartialTranslateItem() {
       AppendTranslateItem();
     }
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 void RenderViewContextMenu::AppendMediaRouterItem() {
@@ -3241,19 +3072,6 @@ void RenderViewContextMenu::AppendOtherEditableItems() {
                                     IDS_CONTENT_CONTEXT_PASTE_AND_MATCH_STYLE);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Insert a submenu of clipboard history descriptors.
-  // `submenu_model_` is a class member. Therefore, it is safe to use `this`
-  // pointer in the callback.
-  submenu_model_ = chromeos::clipboard_history::ClipboardHistorySubmenuModel::
-      CreateClipboardHistorySubmenuModel(
-          chromeos::clipboard_history::ShowSource::kRenderViewContextSubmenu,
-          base::BindRepeating(&RenderViewContextMenu::ShowClipboardHistoryMenu,
-                              base::Unretained(this)));
-  menu_model_.AddSubMenuWithStringId(IDC_CONTENT_PASTE_FROM_CLIPBOARD,
-                                     IDS_CONTEXT_MENU_PASTE_FROM_CLIPBOARD,
-                                     submenu_model_.get());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   if (!has_misspelled_word) {
     menu_model_.AddItemWithStringId(IDC_CONTENT_CONTEXT_SELECTALL,
@@ -3516,47 +3334,6 @@ void RenderViewContextMenu::AppendLiveCaptionItem() {
 // Menu delegate functions -----------------------------------------------------
 
 bool RenderViewContextMenu::IsCommandIdEnabled(int id) const {
-#if BUILDFLAG(IS_CHROMEOS)
-  // Disable context menu in locked fullscreen mode to prevent users from
-  // exiting this mode (the menu is not really disabled as the user can still
-  // open it, but all the individual context menu entries are disabled / greyed
-  // out). We also extend the same restrictions with or without locked
-  // fullscreen mode for OnTask to enforce consistency in UX, with the exception
-  // of page navigation commands as well as extension ones being enabled in this
-  // setup (only relevant for non-web browser scenarios).
-  //
-  // NOTE: If new commands are being added, please disable them by default and
-  // notify the ChromeOS team by filing a bug under this component --
-  // b/?q=componentid:1389107.
-  BrowserWindowInterface* const browser_window = GetBrowser();
-  if (features::IsUseUnifiedLockedStateControllerEnabled()) {
-    if (browser_window && !chromeos::LockedStateController::From(browser_window)
-                               ->IsCommandIdEnabled(id)) {
-      return false;
-    }
-  } else {
-    bool should_disable_command_for_locked_fullscreen_or_on_task = false;
-    if (browser_window &&
-        platform_util::IsBrowserLockedFullscreen(browser_window)) {
-      should_disable_command_for_locked_fullscreen_or_on_task = true;
-    }
-    if (browser_window &&
-        ash::boca::OnTaskLockedController::From(browser_window)
-            ->is_locked_for_on_task()) {
-      bool is_page_nav_command =
-          (id == IDC_BACK) || (id == IDC_FORWARD) || (id == IDC_RELOAD);
-      bool is_allowed_content_context_command =
-          (id == IDC_CONTENT_CONTEXT_COPYIMAGE) ||
-          (id == IDC_CONTENT_CONTEXT_COPYIMAGELOCATION);
-      should_disable_command_for_locked_fullscreen_or_on_task =
-          !is_page_nav_command && !is_allowed_content_context_command &&
-          !ContextMenuMatcher::IsExtensionsCustomCommandId(id);
-    }
-    if (should_disable_command_for_locked_fullscreen_or_on_task) {
-      return false;
-    }
-  }
-#endif
 
   bool enabled = false;
   if (RenderViewContextMenuBase::IsCommandIdKnown(id, &enabled)) {
@@ -3605,12 +3382,6 @@ bool RenderViewContextMenu::IsCommandIdEnabled(int id) const {
   // protect user privacy. Since some policies prevent Incognito browsing,
   // disable options that trigger navigation in the context menu.
   bool navigation_allowed = true;
-#if BUILDFLAG(IS_CHROMEOS)
-  Profile* profile = GetProfile();
-  if (IsCaptivePortalProfile(profile)) {
-    navigation_allowed = false;
-  }
-#endif
   bool isolated_mode_enabled =
       enterprise_isolated_mode::IsolatedModeReplacesIncognito(GetProfile());
 
@@ -3856,11 +3627,7 @@ bool RenderViewContextMenu::IsCommandIdEnabled(int id) const {
       return true;
 
     case IDC_CONTENT_PASTE_FROM_CLIPBOARD:
-#if BUILDFLAG(IS_CHROMEOS)
-      return ash::ClipboardHistoryController::Get()->HasAvailableHistoryItems();
-#else
       NOTREACHED() << "Unhandled id: " << id;
-#endif
 
     default:
       DUMP_WILL_BE_NOTREACHED() << "Unhandled id: " << id;
@@ -4047,9 +3814,7 @@ void RenderViewContextMenu::ExecuteCommand(int id, int event_flags) {
       break;
 
     case IDC_CONTENT_CONTEXT_OPENLINKSPLITVIEW:
-#if !BUILDFLAG(IS_ANDROID)
       OpenLinkInSplitView();
-#endif  // !BUILDFLAG(IS_ANDROID)
       break;
     case IDC_CONTENT_CONTEXT_SAVELINKAS:
       CheckSupervisedUserURLFilterAndSaveLinkAs();
@@ -4318,9 +4083,7 @@ void RenderViewContextMenu::ExecuteCommand(int id, int event_flags) {
       // the RenderFrameHost, respectively).
       if (!DevToolsWindow::AllowDevToolsFor(GetProfile(),
                                             source_web_contents_)) {
-#if !BUILDFLAG(IS_ANDROID)
         DevToolsPolicyDialog::Show(source_web_contents_);
-#endif
       } else {
         if (id == IDC_VIEW_SOURCE) {
           embedder_web_contents_->GetPrimaryMainFrame()->ViewSource();
@@ -4615,12 +4378,6 @@ void RenderViewContextMenu::EscapeAmpersands(std::u16string* text) {
   base::ReplaceChars(*text, u"&", u"&&", text);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-const policy::DlpRulesManager* RenderViewContextMenu::GetDlpRulesManager()
-    const {
-  return policy::DlpRulesManagerFactory::GetForPrimaryProfile();
-}
-#endif
 
 bool RenderViewContextMenu::IsSaveAsItemAllowedByPolicy(
     const GURL& item_url) const {
@@ -4809,22 +4566,7 @@ bool RenderViewContextMenu::IsPasteEnabled() const {
 }
 
 bool RenderViewContextMenu::IsOpenLinkAllowedByDlp(const GURL& link_url) const {
-#if BUILDFLAG(IS_CHROMEOS)
-  const policy::DlpRulesManager* dlp_rules_manager = GetDlpRulesManager();
-  if (!dlp_rules_manager) {
-    return true;
-  }
-  policy::DlpRulesManager::Level level =
-      dlp_rules_manager->IsRestrictedDestination(
-          params_.page_url, link_url,
-          policy::DlpRulesManager::Restriction::kClipboard,
-          /*out_source_pattern=*/nullptr, /*out_destination_pattern=*/nullptr,
-          /*out_rule_metadata=*/nullptr);
-  // TODO(crbug.com/1222057): show a warning if the level is kWarn
-  return level != policy::DlpRulesManager::Level::kBlock;
-#else
   return true;
-#endif
 }
 
 bool RenderViewContextMenu::IsPasteAndMatchStyleEnabled() const {
@@ -5187,7 +4929,6 @@ void RenderViewContextMenu::ExecListenToThisPage() {
 }
 
 void RenderViewContextMenu::ExecSaveToMemoryBanks() {
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowInterface* browser = GetBrowser();
   if (!browser || !source_web_contents_) {
     return;
@@ -5225,18 +4966,15 @@ void RenderViewContextMenu::ExecSaveToMemoryBanks() {
   SaveToMemoryBankBubbleController::GetOrCreateForWebContents(
       source_web_contents_)
       ->ShowBubble();
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void RenderViewContextMenu::ExecBrowseMemoryBanks() {
-#if !BUILDFLAG(IS_ANDROID)
   if (!GetBrowser() || !source_web_contents_) {
     return;
   }
   MemoryBanksPaletteBubbleController::GetOrCreateForWebContents(
       source_web_contents_)
       ->ShowBubble();
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void RenderViewContextMenu::ExecInspectElement() {
@@ -5524,7 +5262,6 @@ void RenderViewContextMenu::ExecCopyImageAt() {
     frame_host->CopyImageAt(params_.x, params_.y);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (enterprise_data_protection::IsClipboardCopyAllowedByPolicyForUI(
           GetWebContentsForDataControls()) &&
       toast_features::IsEnabled(toast_features::kImageCopiedToast)) {
@@ -5533,7 +5270,6 @@ void RenderViewContextMenu::ExecCopyImageAt() {
       toast_controller->MaybeShowToast(ToastParams(ToastId::kImageCopied));
     }
   }
-#endif
 }
 
 void RenderViewContextMenu::ExecSearchLensForImage(int event_flags) {
@@ -5723,7 +5459,6 @@ void RenderViewContextMenu::ExecCopyVideoFrame() {
   MediaPlayerAction(blink::mojom::MediaPlayerAction(
       blink::mojom::MediaPlayerActionType::kCopyVideoFrame,
       /*enable=*/true));
-#if !BUILDFLAG(IS_ANDROID)
   if (enterprise_data_protection::IsClipboardCopyAllowedByPolicyForUI(
           GetWebContentsForDataControls()) &&
       toast_features::IsEnabled(toast_features::kVideoFrameCopiedToast)) {
@@ -5732,7 +5467,6 @@ void RenderViewContextMenu::ExecCopyVideoFrame() {
       toast_controller->MaybeShowToast(ToastParams(ToastId::kVideoFrameCopied));
     }
   }
-#endif
 }
 
 void RenderViewContextMenu::ExecSearchForVideoFrame(int event_flags,
@@ -5805,9 +5539,6 @@ void RenderViewContextMenu::ExecPrint() {
   }
 
   printing::StartPrint(source_web_contents_,
-#if BUILDFLAG(IS_CHROMEOS)
-                       mojo::NullAssociatedRemote(),
-#endif
                        print_preview_disabled, !params_.selection_text.empty());
 #endif  // BUILDFLAG(ENABLE_PRINTING)
 }
@@ -5865,15 +5596,10 @@ void RenderViewContextMenu::ExecLanguageSettings(int event_flags) {
 // Open the browser language settings.
 // Exception: On Ash, the browser language settings consists solely of a link to
 // the OS language settings, so just open the OS settings directly.
-#if BUILDFLAG(IS_CHROMEOS)
-  chrome::SettingsWindowManager::GetInstance()->ShowOSSettings(
-      GetProfile(), chromeos::settings::mojom::kLanguagesSubpagePath);
-#else
   ui::mojom::WindowOpenDisposition disposition = ui::DispositionFromEventFlags(
       event_flags, ui::mojom::WindowOpenDisposition::kNewForegroundTab);
   GURL url = chrome::GetSettingsUrl(chrome::kLanguageOptionsSubPage);
   OpenURL(url, GURL(), {}, disposition, ui::PAGE_TRANSITION_LINK);
-#endif
 }
 
 void RenderViewContextMenu::ExecProtocolHandlerSettings(int event_flags) {
@@ -6165,13 +5891,11 @@ ToastController* RenderViewContextMenu::GetToastController() const {
   // If the context menu is opened in a normal tab, get the browser directly.
   BrowserWindowInterface* browser = GetBrowser();
 
-#if !BUILDFLAG(IS_ANDROID)
   // Otherwise, if the menu is opened in embedded WebUI, attempt to find the
   // related browser from its embedding context.
   if (!browser) {
     browser = webui::GetBrowserWindowInterface(embedder_web_contents_);
   }
-#endif
 
   return browser ? ToastController::From(browser) : nullptr;
 }
@@ -6208,30 +5932,7 @@ void RenderViewContextMenu::MaybePrepareForLensQuery() {
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void RenderViewContextMenu::ShowClipboardHistoryMenu(int event_flags) {
-  auto* const host_native_view =
-      GetRenderFrameHost() ? GetRenderFrameHost()->GetNativeView() : nullptr;
-  if (!host_native_view) {
-    return;
-  }
 
-  // Calculate the anchor point in screen coordinates.
-  gfx::Point anchor_point_in_screen =
-      host_native_view->GetBoundsInScreen().origin();
-  anchor_point_in_screen.Offset(params_.x, params_.y);
-
-  // Calculate the menu source type from `event_flags`.
-  const ui::mojom::MenuSourceType source_type =
-      ui::GetMenuSourceType(event_flags);
-
-  ash::ClipboardHistoryController::Get()->ShowMenu(
-      gfx::Rect(anchor_point_in_screen, gfx::Size()), source_type,
-      chromeos::clipboard_history::ShowSource::kRenderViewContextMenu);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if !BUILDFLAG(IS_ANDROID)
 void RenderViewContextMenu::OpenLinkInSplitView() {
   BrowserWindowInterface* const browser = GetBrowser();
   CHECK(browser);
@@ -6291,7 +5992,6 @@ void RenderViewContextMenu::OpenLinkInSplitView() {
         tab_strip_model->GetIndexOfWebContents(new_web_contents));
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void RenderViewContextMenu::AddItemWithOptionalIcon(
     int command,
@@ -6459,8 +6159,7 @@ void RenderViewContextMenu::AppendRevisedTextSelectionSection() {
   }
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 bool RenderViewContextMenu::IsLinkToIsolatedWebApp() const {
   // Using `unfiltered_link_url`, because `link_url` is being replaced with
   // about:blank#blocked if the source is a normal site.

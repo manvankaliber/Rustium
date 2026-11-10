@@ -370,7 +370,6 @@ IN_PROC_BROWSER_TEST_F(AiDataKeyedServiceBrowserTest, SpecifierOff) {
   EXPECT_EQ(ai_data->site_engagement().entries().size(), 0);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(AiDataKeyedServiceBrowserTest,
                        GetFormDataByFieldGlobalIdForModelPrototyping) {
   LoadSimplePage();
@@ -412,7 +411,6 @@ IN_PROC_BROWSER_TEST_F(AiDataKeyedServiceBrowserTest,
   EXPECT_EQ(actual_form.fields(0).field_label(), "Field 1");
   EXPECT_EQ(actual_form.fields(1).field_label(), "Field 2");
 }
-#endif
 
 class AiDataKeyedServiceBrowserTestWithBlocklistedExtensions
     : public AiDataKeyedServiceBrowserTest {

@@ -15,10 +15,8 @@
 #include "chrome/browser/profiles/profile.h"
 #include "content/public/browser/navigation_controller.h"
 #include "ui/base/page_transition_types.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/test/browser_test.h"
 #include "content/public/test/browser_test_utils.h"
@@ -815,7 +813,6 @@ IN_PROC_BROWSER_TEST_F(SitePermissionsHelperOptionalHostPermissions,
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(SitePermissionsHelperBrowserTest,
                        UpdateSiteAccess_MultipleTabsSameOrigin) {
   content::WebContents* tab_a = GetActiveWebContents();
@@ -900,6 +897,5 @@ IN_PROC_BROWSER_TEST_F(
   EXPECT_TRUE(active_tab_helper->IsReloadRequired());
   EXPECT_TRUE(ContentScriptInjected());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace extensions

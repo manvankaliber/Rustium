@@ -87,7 +87,6 @@ class IncognitoClearBrowsingDataDialogCoordinator;
 class InitialWebUIManager;
 class InitialWebUIWindowMetricsManager;
 class InstantController;
-class IOSPromoController;
 class LocationBarModel;
 class MemorySaverOptInIPHController;
 class ProfileMenuCoordinator;
@@ -133,9 +132,7 @@ class WindowsTaskbarIconUpdater;
 class ProfileCustomizationBubbleSyncController;
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class DownloadToolbarUIController;
-#endif
 
 #if defined(USE_AURA)
 class OverscrollPrefManager;
@@ -145,15 +142,6 @@ class OverscrollPrefManager;
 class DefaultSearchExtensionControlledController;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace ash::boca {
-class OnTaskLockedController;
-}  // namespace ash::boca
-
-namespace chromeos {
-class LockedStateController;
-}  // namespace chromeos
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace chrome {
 class BrowserCommandController;
@@ -404,7 +392,6 @@ class BrowserWindowFeatures {
   std::unique_ptr<InitialWebUIWindowMetricsManager>
       initial_webui_window_metrics_manager_;
   std::unique_ptr<InstantController> instant_controller_;
-  std::unique_ptr<IOSPromoController> ios_promo_controller_;
   std::unique_ptr<lens::LensOverlayEntryPointController>
       lens_overlay_entry_point_controller_;
   std::unique_ptr<lens::LensRegionSearchController>
@@ -535,14 +522,8 @@ class BrowserWindowFeatures {
       session_restore_infobar_controller_;
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<chromeos::LockedStateController> locked_state_controller_;
-  std::unique_ptr<ash::boca::OnTaskLockedController> on_task_locked_controller_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_CHROMEOS)
   std::unique_ptr<DownloadToolbarUIController> download_toolbar_ui_controller_;
-#endif
 
 #if defined(USE_AURA)
   std::unique_ptr<OverscrollPrefManager> overscroll_pref_manager_;

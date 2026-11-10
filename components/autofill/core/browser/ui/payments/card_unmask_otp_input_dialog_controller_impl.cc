@@ -161,11 +161,6 @@ CardUnmaskOtpInputDialogControllerImpl::GetTextfieldPlaceholderText() const {
       base::NumberToString16(otp_length_));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-int CardUnmaskOtpInputDialogControllerImpl::GetExpectedOtpLength() const {
-  return otp_length_;
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 bool CardUnmaskOtpInputDialogControllerImpl::IsValidOtp(
     const std::u16string& otp) const {
@@ -211,12 +206,6 @@ CardUnmaskOtpInputDialogControllerImpl::GetWeakPtr() {
   return weak_ptr_factory_.GetWeakPtr();
 }
 
-#if BUILDFLAG(IS_IOS)
-base::WeakPtr<CardUnmaskOtpInputDialogControllerImpl>
-CardUnmaskOtpInputDialogControllerImpl::GetImplWeakPtr() {
-  return weak_ptr_factory_.GetWeakPtr();
-}
-#endif
 
 void CardUnmaskOtpInputDialogControllerImpl::ShowInvalidState(
     OtpUnmaskResult otp_unmask_result) {

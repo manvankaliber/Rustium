@@ -72,28 +72,6 @@
     "help": "List tagged revisions at regular intervals",
     "virtualenv": false
   },
-  "install-android-emulator": {
-    "path": "android.py",
-    "script": "run_install",
-    "parser": "get_parser_install",
-    "help": "Setup the Android emulator",
-    "virtualenv": true,
-    "requirements": [
-      "requirements.txt",
-      "requirements_android.txt"
-    ]
-  },
-  "start-android-emulator": {
-    "path": "android.py",
-    "script": "run_start",
-    "parser": "get_parser_start",
-    "help": "Start the Android emulator",
-    "virtualenv": true,
-    "requirements": [
-      "requirements.txt",
-      "requirements_android.txt"
-    ]
-  },
   "metadata-validate": {
     "path": "metadata.py",
     "script": "run_validate",

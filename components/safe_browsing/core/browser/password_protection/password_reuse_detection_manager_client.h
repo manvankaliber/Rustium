@@ -72,11 +72,6 @@ class PasswordReuseDetectionManagerClient {
       uint64_t reused_password_hash,
       const std::string& domain) = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Informs `PasswordReuseDetectionManager` about reused passwords selected
-  // from the AllPasswordsBottomSheet.
-  virtual void OnPasswordSelected(const std::u16string& text) = 0;
-#endif
 };
 
 }  // namespace safe_browsing

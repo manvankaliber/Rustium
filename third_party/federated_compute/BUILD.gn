@@ -345,7 +345,7 @@ source_set("confidential_compute_crypto_test_util") {
   ]
 }
 
-if (!is_win && !is_android && !is_ios) {
+if (!is_win) {
   test("federated_compute_tests") {
     testonly = true
     public = [ "chromium/fcp/testing/testing.h" ]

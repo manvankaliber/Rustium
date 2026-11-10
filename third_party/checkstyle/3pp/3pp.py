@@ -19,6 +19,8 @@ import graalvm
 
 _PROJECT = 'checkstyle/checkstyle'
 _ARTIFACT_REGEX = r'-all.*\.jar$'
+# Checkstyle ships this generic configuration in its JAR (checkstyle.org/cmdline.html).
+_DEFAULT_STYLE = '/google_checks.xml'
 
 
 def _extract_checkstyle_metadata(jar_path):
@@ -27,6 +29,10 @@ def _extract_checkstyle_metadata(jar_path):
     resources = []
     with zipfile.ZipFile(jar_path) as z:
         for name in z.namelist():
+            # Bundled style/suppression XML files can live outside the module package.
+            if name.endswith('.xml') and not name.startswith(
+                    'com/puppycrawl/tools/checkstyle/'):
+                resources.append({'glob': name})
             if not name.startswith('com/puppycrawl/tools/checkstyle/'):
                 continue
             if name.endswith('.class'):
@@ -60,22 +66,6 @@ def do_install(args):
         artifact_regex=_ARTIFACT_REGEX,
     )
 
-    style_xml = common.path_within_checkout(
-        'tools/android/checkstyle/chromium-style-5.0.xml')
-    # chromium-style-5.0.xml references tools/android/checkstyle/suppressions.xml
-    # relative to CWD. Write a minimal stub so we don't need suppressions.xml in
-    # runtime_deps (which would rebuild checkstyle on every suppression change).
-    suppressions_xml = pathlib.Path(
-        'tools/android/checkstyle/suppressions.xml')
-    suppressions_xml.parent.mkdir(parents=True, exist_ok=True)
-    suppressions_xml.write_text(
-        '<!DOCTYPE suppressions PUBLIC '
-        '"-//Puppy Crawl//DTD Suppressions 1.1//EN" '
-        '"http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">\n'
-        '<suppressions><suppress checks="Foo" files="Bar"/></suppressions>\n',
-        encoding='utf-8',
-    )
-
     sample_java = os.path.abspath('Sample.java')
     pathlib.Path(sample_java).write_text(
         'package foo;\nimport java.util.List;\npublic class Sample {}\n',
@@ -86,16 +76,16 @@ def do_install(args):
     graalvm.build_native_image(
         jar_path,
         output_bin,
-        tracing_args_list=[['-c', style_xml, '-f', 'xml', sample_java]],
+        tracing_args_list=[['-c', _DEFAULT_STYLE, '-f', 'xml', sample_java]],
         extra_reachability_metadata=_extract_checkstyle_metadata(jar_path),
         # Checking JDK sources is used as a representative workload for
         # profile-guided optimizations.
-        pgo_args_list=[['-c', style_xml, '-f', 'xml', '-o', 'pgo_out.xml'] +
+        pgo_args_list=[['-c', _DEFAULT_STYLE, '-f', 'xml', '-o', 'pgo_out.xml'] +
                        graalvm.extract_jdk_sources(os.path.abspath('pgo_src'))
                        ],
     )
 
-    # Validate the compiled binary against Chromium's checkstyle config.
+    # Validate the compiled binary using Checkstyle's bundled Google style.
     valid_java = os.path.abspath('ValidSample.java')
     pathlib.Path(valid_java).write_text(
         'package org.chromium;\n\n'
@@ -103,16 +93,13 @@ def do_install(args):
         'public class ValidSample {}\n',
         encoding='utf-8',
     )
-    common.run_cmd([output_bin, '-c', style_xml, '-f', 'xml', valid_java])
+    common.run_cmd([output_bin, '-c', _DEFAULT_STYLE, '-f', 'xml', valid_java])
 
 
 def main():
-    style_xml = '//tools/android/checkstyle/chromium-style-5.0.xml'
     common.main(
         do_latest=do_latest,
         do_install=do_install,
-        runtime_deps=[style_xml],
-        version_deps=[style_xml],
         version_strings_func=graalvm.version_strings,
     )
 

@@ -16,11 +16,11 @@
 #include "base/memory/weak_ptr.h"
 #include "base/sequence_checker.h"
 #include "base/values.h"
-#include "chromecast/cast_core/grpc/grpc_server.h"
-#include "chromecast/cast_core/grpc/grpc_unary_handler.h"
+#include "components/policy/test_support/grpc/grpc_server.h"
+#include "components/policy/test_support/grpc/grpc_unary_handler.h"
 #include "components/policy/test_support/client_storage.h"
 #include "components/policy/test_support/embedded_policy_test_server.h"
-#include "components/policy/test_support/remote_commands_service.castcore.pb.h"
+#include "components/policy/test_support/remote_commands_service_handler.h"
 #include "components/policy/test_support/remote_commands_state.h"
 
 /*
@@ -252,7 +252,7 @@ class FakeDMServer : public policy::EmbeddedPolicyTestServer {
   // functions called by HandleRequest
   SEQUENCE_CHECKER(embedded_server_sequence_checker_);
 
-  std::optional<cast::utils::GrpcServer> grpc_server_;
+  std::optional<policy::test::GrpcServer> grpc_server_;
   // Callback to shut down the grpc server.
   base::OnceClosure shut_down_on_main_task_runner_;
   // Callback to reset the grpc server then shut down the fake_dmserver main.

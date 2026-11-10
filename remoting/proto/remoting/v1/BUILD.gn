@@ -18,18 +18,6 @@ proto_library("directory_proto") {
   deps = [ ":host_info_proto" ]
 }
 
-if (is_android) {
-  import("///build/config/android/rules.gni")
-
-  proto_java_library("directory_proto_java") {
-    proto_path = "."
-    sources = [
-      "directory_messages.proto",
-      "host_info.proto",
-    ]
-  }
-}
-
 proto_library("network_traversal_proto") {
   sources = [ "network_traversal_messages.proto" ]
   deps = [ ":duration" ]

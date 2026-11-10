@@ -234,13 +234,11 @@ TEST_P(ExtensionsPushMessagingNotificationManagerTest,
 }
 
 // Android only supports manifest V3 with service worker.
-#if !BUILDFLAG(IS_ANDROID)
 INSTANTIATE_TEST_SUITE_P(
     NonWorkerExtension,
     ExtensionsPushMessagingNotificationManagerTest,
     ::testing::ValuesIn({ContextType::kEventPage,
                          ContextType::kPersistentBackground}));
-#endif
 INSTANTIATE_TEST_SUITE_P(WorkerBasedExtension,
                          ExtensionsPushMessagingNotificationManagerTest,
                          ::testing::Values(ContextType::kServiceWorker));

@@ -12,7 +12,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
 #include <asm/unistd.h>
 #include <sys/syscall.h>
 #include <unistd.h>
@@ -80,7 +80,7 @@ void RandomBytes(absl::Span<uint8_t> destination) {
 #if BUILDFLAG(IS_WIN)
   static decltype(&ProcessPrng) process_prng_fn = GetProcessPrng();
   process_prng_fn(destination.data(), destination.size());
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
   while (!destination.empty()) {
     ssize_t result =
         syscall(__NR_getrandom, destination.data(), destination.size(), 0);
@@ -96,8 +96,6 @@ void RandomBytes(absl::Span<uint8_t> destination) {
 #elif BUILDFLAG(IS_MAC)
   const bool ok = getentropy(destination.data(), destination.size()) == 0;
   ABSL_ASSERT(ok);
-#elif BUILDFLAG(IS_IOS)
-  RandomBytesFromDevUrandom(destination);
 #else
 #error "Unsupported platform"
 #endif

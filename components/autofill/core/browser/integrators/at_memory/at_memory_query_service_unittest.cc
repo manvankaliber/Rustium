@@ -2337,45 +2337,6 @@ TEST_F(AtMemoryQueryServiceTest,
       personal_context::PersonalContextNonEligibilityReason::kEligible, 2);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Tests that `Autofill.AtMemory.PersonalContext.NonEligibilityReason` logs
-// `kEligible` when the Android device is supported, even if the user's
-// subscription tier is not in the eligible tiers list.
-TEST_F(AtMemoryQueryServiceTest,
-       LogsAtMemoryEligibilityReasonOnAndroidPremiumDevice) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitWithFeaturesAndParameters(
-      {{features::kAutofillAtMemory,
-        {{"at_memory_eligible_tiers", "1,2"},
-         {"at_memory_enabled_devices", base::SysInfo::HardwareModelName()}}}},
-      {});
-
-  // Set tier to an eligible tier (1) before startup delay.
-  pref_service().SetInteger(
-      subscription_eligibility::prefs::kAiSubscriptionTier, 1);
-
-  auto service = std::make_unique<AtMemoryQueryService>(
-      std::make_unique<FakeMemoryDataProvider>(), &mock_service(), "en-US",
-      &mock_eligibility_service(), &subscription_eligibility_service(),
-      &pref_service(), /*log_router=*/nullptr);
-
-  // Fast forward by 31 seconds to complete startup logging.
-  FastForwardBy(base::Seconds(31));
-
-  histogram_tester().ExpectBucketCount(
-      "Autofill.AtMemory.PersonalContext.NonEligibilityReason",
-      personal_context::PersonalContextNonEligibilityReason::kEligible, 1);
-
-  // Then change tier to an ineligible tier (99). Since the Android device is
-  // supported, the user remains eligible (`kEligible`), so no duplicate sample
-  // is logged.
-  pref_service().SetInteger(
-      subscription_eligibility::prefs::kAiSubscriptionTier, 99);
-  histogram_tester().ExpectBucketCount(
-      "Autofill.AtMemory.PersonalContext.NonEligibilityReason",
-      personal_context::PersonalContextNonEligibilityReason::kEligible, 1);
-}
-#endif
 
 class MockLogReceiver : public LogReceiver {
  public:

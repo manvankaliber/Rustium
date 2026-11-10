@@ -25,14 +25,14 @@
 #include "base/strings/sys_string_conversions.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include <sys/mman.h>
 #include <sys/utsname.h>
 #endif
 
 namespace memory_instrumentation {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 namespace {
 const char kTestSmaps1[] =
     "00400000-004be000 r-xp 00000000 fc:01 1234              /file/1\n"
@@ -155,7 +155,7 @@ bool IsSmapsRollupSupported() {
 }
 
 }  // namespace
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 TEST(OSMetricsTest, GivesNonZeroResults) {
@@ -165,7 +165,7 @@ TEST(OSMetricsTest, GivesNonZeroResults) {
   OSMetrics::MemDumpFlagSet flags = OSMetrics::MemDumpFlagSet::All();
   EXPECT_TRUE(OSMetrics::FillOSMemoryDump(handle, flags, &dump));
   EXPECT_TRUE(dump.platform_private_footprint);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   EXPECT_GT(dump.platform_private_footprint->rss_anon_bytes, 0u);
 #elif BUILDFLAG(IS_WIN)
   EXPECT_GT(dump.platform_private_footprint->private_bytes, 0u);
@@ -174,7 +174,7 @@ TEST(OSMetricsTest, GivesNonZeroResults) {
 #endif
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 TEST(OSMetricsTest, ParseProcSmaps) {
   const uint32_t kProtR = mojom::VmRegion::kProtectionFlagsRead;
   const uint32_t kProtW = mojom::VmRegion::kProtectionFlagsWrite;
@@ -354,7 +354,7 @@ TEST(OSMetricsTest, PssDisabled) {
   EXPECT_EQ(dump.swap_pss_kb, 0u);
 }
 
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)

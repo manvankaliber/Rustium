@@ -31,8 +31,5 @@ void FakeDisplayClient::AddChildWindowToBrowser(
 void FakeDisplayClient::DidCompleteSwapWithNewSize(const gfx::Size& size) {}
 #endif  // BUILDFLAG(IS_LINUX) && BUILDFLAG(SUPPORTS_OZONE_X11)
 
-#if BUILDFLAG(IS_CHROMEOS)
-void FakeDisplayClient::SetPreferredRefreshRate(float refresh_rate) {}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace viz

@@ -36,9 +36,7 @@
 #include "extensions/buildflags/buildflags.h"
 #include "ui/gfx/geometry/size.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/themes/theme_service_observer.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "extensions/browser/extension_registry.h"
@@ -79,9 +77,7 @@ class DevToolsUIBindings : public DevToolsEmbedderMessageDispatcher::Delegate,
                            public DevToolsAndroidBridge::DeviceCountListener,
                            public content::DevToolsAgentHostClient,
                            public TemplateURLServiceObserver,
-#if !BUILDFLAG(IS_ANDROID)
                            public ThemeServiceObserver,
-#endif
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
                            public extensions::ExtensionRegistryObserver,
 #endif
@@ -170,10 +166,8 @@ class DevToolsUIBindings : public DevToolsEmbedderMessageDispatcher::Delegate,
   void Detach();
   bool IsAttachedTo(content::DevToolsAgentHost* agent_host);
 
-#if !BUILDFLAG(IS_ANDROID)
   // ThemeServiceObserver implementation
   void OnThemeChanged() override;
-#endif
 
   void SetHttpServiceRegistryForTesting(
       std::unique_ptr<DevToolsHttpServiceRegistry> service_registry);

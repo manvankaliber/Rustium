@@ -143,9 +143,6 @@ bool StructTraits<media::mojom::VideoFrameMetadataDataView,
   READ_AND_ASSIGN_OPT(base::TimeDelta, wallclock_frame_duration,
                       WallclockFrameDuration);
 
-#if BUILDFLAG(IS_ANDROID)
-  READ_AND_ASSIGN_OPT(gpu::VulkanYCbCrInfo, ycbcr_info, YcbcrInfo);
-#endif
 
   return true;
 }

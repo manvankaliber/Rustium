@@ -21,12 +21,10 @@ source_set("sharing") {
     "//components/sync_device_info",
   ]
 
-  if (!is_android) {
-    sources += [
-      "sharing_notification_handler.h",
-      "sharing_ui_controller.h",
-    ]
-  }
+  sources += [
+    "sharing_notification_handler.h",
+    "sharing_ui_controller.h",
+  ]
 }
 
 source_set("impl") {
@@ -61,25 +59,18 @@ source_set("impl") {
     "//ui/strings:ui_strings",
   ]
 
-  if (!is_android) {
-    sources += [
-      "sharing_notification_handler.cc",
-      "sharing_ui_controller.cc",
-    ]
-    deps += [
-      "//chrome/browser/sync:factories",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:singleton_tabs",
-      "//chrome/browser/ui/views/sharing",
-      "//components/send_tab_to_self:features",
-      "//components/sharing_message/proto",
-    ]
-  } else {
-    deps += [
-      "//chrome/android:jni_headers",
-      "//chrome/browser/sharing/sms",
-    ]
-  }
+  sources += [
+    "sharing_notification_handler.cc",
+    "sharing_ui_controller.cc",
+  ]
+  deps += [
+    "//chrome/browser/sync:factories",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui:singleton_tabs",
+    "//chrome/browser/ui/views/sharing",
+    "//components/send_tab_to_self:features",
+    "//components/sharing_message/proto",
+  ]
 }
 
 source_set("unit_tests") {

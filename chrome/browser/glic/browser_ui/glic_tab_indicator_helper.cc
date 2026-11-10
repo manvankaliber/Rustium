@@ -18,11 +18,9 @@
 #include "content/public/browser/web_contents.h"
 #include "ui/base/unowned_user_data/scoped_unowned_user_data.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/tabs/tab_change_type.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif
 
 namespace glic {
 DEFINE_USER_DATA(GlicTabIndicatorHelper);
@@ -97,10 +95,8 @@ void GlicTabIndicatorHelper::UpdateTab() {
   // TODO(crbug.com/422748580): The model should not be notified when the alert
   // state changes after all clients that cares about tab alerts subscribe to
   // the TabAlertController.
-#if !BUILDFLAG(IS_ANDROID)
   auto* const model = tab_->GetBrowserWindowInterface()->GetTabStripModel();
   model->UpdateWebContentsState(tab_->GetContents(), TabChangeType::kAll);
-#endif
 }
 
 void GlicTabIndicatorHelper::OnFocusedTabChanged(

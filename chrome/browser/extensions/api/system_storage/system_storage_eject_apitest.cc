@@ -24,7 +24,7 @@
 #include "extensions/test/extension_test_message_listener.h"
 
 // This API is not supported on Android.
-static_assert(!BUILDFLAG(IS_ANDROID));
+static_assert(!false);
 
 namespace {
 

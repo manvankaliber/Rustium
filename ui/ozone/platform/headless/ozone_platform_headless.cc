@@ -107,7 +107,7 @@ class OzonePlatformHeadlessImpl : public OzonePlatformHeadless {
   }
 
 // Desktop Linux, not CastOS.
-#if BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CASTOS)
+#if BUILDFLAG(IS_LINUX)
   const PlatformProperties& GetPlatformProperties() override {
     static base::NoDestructor<OzonePlatform::PlatformProperties> properties;
     static bool initialized = false;

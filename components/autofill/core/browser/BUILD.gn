@@ -25,10 +25,6 @@ source_set("country_data") {
   ]
 }
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
 grit("autofill_address_rewriter_resources") {
   source = "geo/autofill_address_rewriter_resources.grd"
   inputs = [
@@ -1413,85 +1409,29 @@ static_library("browser") {
   sources += get_target_outputs(":regex_patterns_inl_h")
   sources += get_target_outputs(":entity_schema_enums_and_functions")
 
-  if (!is_android && !is_ios) {
-    sources += [
-      "metrics/payments/credit_card_save_metrics_desktop.cc",
-      "metrics/payments/credit_card_save_metrics_desktop.h",
-      "metrics/payments/omnibox_autofill_metrics.cc",
-      "metrics/payments/omnibox_autofill_metrics.h",
-      "payments/desktop_bnpl_strategy.cc",
-      "payments/desktop_bnpl_strategy.h",
-      "ui/payments/omnibox_autofill_delegate.cc",
-      "ui/payments/omnibox_autofill_delegate.h",
-    ]
-  }
+  sources += [
+    "metrics/payments/credit_card_save_metrics_desktop.cc",
+    "metrics/payments/credit_card_save_metrics_desktop.h",
+    "metrics/payments/omnibox_autofill_metrics.cc",
+    "metrics/payments/omnibox_autofill_metrics.h",
+    "payments/desktop_bnpl_strategy.cc",
+    "payments/desktop_bnpl_strategy.h",
+    "ui/payments/omnibox_autofill_delegate.cc",
+    "ui/payments/omnibox_autofill_delegate.h",
+  ]
 
-  if (is_ios) {
-    sources += [
-      "form_import/addresses/autofill_save_update_address_profile_delegate_ios.cc",
-      "form_import/addresses/autofill_save_update_address_profile_delegate_ios.h",
-    ]
-  }
+  sources += [
+    "payments/credit_card_fido_authenticator.cc",
+    "payments/credit_card_fido_authenticator.h",
+    "permissions/autofill_policy_handler.cc",
+    "permissions/autofill_policy_handler.h",
+    "strike_databases/payments/fido_authentication_strike_database.h",
+  ]
 
-  if (is_android) {
-    sources += [
-      "data_model/valuables/android/loyalty_card_android.h",
-      "metrics/payments/credit_card_save_metrics_android.cc",
-      "metrics/payments/credit_card_save_metrics_android.h",
-      "payments/android_bnpl_strategy.cc",
-      "payments/android_bnpl_strategy.h",
-      "payments/autofill_save_iban_ui_info.cc",
-      "payments/autofill_save_iban_ui_info.h",
-      "ui/addresses/android/autofill_address_editor_ui_info_android.cc",
-      "ui/addresses/android/autofill_address_editor_ui_info_android.h",
-      "ui/addresses/android/autofill_address_ui_component_android.cc",
-      "ui/addresses/android/autofill_address_ui_component_android.h",
-      "ui/addresses/android/dropdown_key_value_android.cc",
-      "ui/addresses/android/dropdown_key_value_android.h",
-      "ui/addresses/android/supported_countries_cache.cc",
-      "ui/addresses/android/supported_countries_cache.h",
-      "ui/autofill_tapjacking_protector.cc",
-      "ui/autofill_tapjacking_protector.h",
-    ]
-  }
-
-  if (is_ios || is_android) {
-    sources += [
-      "payments/autofill_save_card_delegate.cc",
-      "payments/autofill_save_card_delegate.h",
-      "payments/autofill_save_card_infobar_delegate_mobile.cc",
-      "payments/autofill_save_card_infobar_delegate_mobile.h",
-      "payments/autofill_save_card_ui_info.cc",
-      "payments/autofill_save_card_ui_info.h",
-      "payments/autofill_virtual_card_enrollment_bottom_sheet_delegate_mobile.cc",
-      "payments/autofill_virtual_card_enrollment_bottom_sheet_delegate_mobile.h",
-      "ui/payments/card_expiration_date_fix_flow_controller.h",
-      "ui/payments/card_expiration_date_fix_flow_controller_impl.cc",
-      "ui/payments/card_expiration_date_fix_flow_controller_impl.h",
-      "ui/payments/card_expiration_date_fix_flow_view.h",
-      "ui/payments/card_name_fix_flow_controller.h",
-      "ui/payments/card_name_fix_flow_controller_impl.cc",
-      "ui/payments/card_name_fix_flow_controller_impl.h",
-      "ui/payments/card_name_fix_flow_view.h",
-    ]
-  }
-
-  if (!is_ios) {
-    sources += [
-      "payments/credit_card_fido_authenticator.cc",
-      "payments/credit_card_fido_authenticator.h",
-      "permissions/autofill_policy_handler.cc",
-      "permissions/autofill_policy_handler.h",
-      "strike_databases/payments/fido_authentication_strike_database.h",
-    ]
-  }
-
-  if (!is_android) {
-    sources += [
-      "ui/autofill_image_fetcher.cc",
-      "ui/autofill_image_fetcher.h",
-    ]
-  }
+  sources += [
+    "ui/autofill_image_fetcher.cc",
+    "ui/autofill_image_fetcher.h",
+  ]
 
   configs += [ "//build/config:precompiled_headers" ]
 
@@ -1610,35 +1550,14 @@ static_library("browser") {
     ]
   }
 
-  if (is_android) {
-    deps += [
-      "//components/autofill/android:main_autofill_jni_headers",
-      "//components/autofill/android:payments_jni_headers",
-      "//components/messages/android:feature_flags",
-      "//components/resources:android_resources",
-    ]
-  }
+  sources += [
+    "crowdsourcing/server_prediction_overrides.cc",
+    "crowdsourcing/server_prediction_overrides.h",
+  ]
 
-  if (is_ios || is_android) {
-    deps += [ "//components/strings" ]
-  }
+  deps += [ "//ui/native_theme" ]
 
-  if (!is_android) {
-    sources += [
-      "crowdsourcing/server_prediction_overrides.cc",
-      "crowdsourcing/server_prediction_overrides.h",
-    ]
-  }
-
-  if (!is_android && !is_ios) {
-    deps += [ "//ui/native_theme" ]
-  }
-
-  if (is_ios) {
-    deps += [ "//components/autofill/ios/common" ]
-  }
-
-  if (is_win || is_mac || is_linux || is_chromeos || is_android) {
+  if (is_win || is_mac || is_linux) {
     sources += [
       "metrics/cross_tab_copy_paste_tracker.cc",
       "metrics/cross_tab_copy_paste_tracker.h",
@@ -1670,20 +1589,6 @@ source_set("payments_sync_utils") {
     "//components/sync/protocol",
     "//components/sync/protocol:util",
   ]
-}
-
-if (is_android) {
-  java_cpp_enum("autofill_ai_core_browser_java_enums") {
-    sources = [
-      "$target_gen_dir/data_model/autofill_ai/entity_type_names.h",
-      "data_model/autofill_ai/entity_instance.h",
-      "data_model/autofill_ai/entity_type.h",
-      "integrators/autofill_ai/metrics/autofill_ai_metrics.h",
-      "permissions/autofill_ai/autofill_ai_permission_util.h",
-      "ui/autofill_ai/entity_attribute_update_details.h",
-    ]
-    deps = [ ":entity_schema_enums_and_functions" ]
-  }
 }
 
 static_library("test_support") {
@@ -2003,13 +1908,6 @@ static_library("test_support") {
     deps += [
       "//components/webauthn/core/browser",
       "//third_party/blink/public/common",
-    ]
-  }
-
-  if (is_android) {
-    sources += [
-      "ui/mock_autofill_tapjacking_protector.cc",
-      "ui/mock_autofill_tapjacking_protector.h",
     ]
   }
 
@@ -2381,45 +2279,20 @@ source_set("unit_tests") {
     "webdata/web_data_service_unittest.cc",
   ]
 
-  if (is_ios) {
-    sources += [ "form_import/addresses/autofill_save_update_address_profile_delegate_ios_unittest.cc" ]
-  }
+  sources += [
+    "permissions/autofill_policy_handler_unittest.cc",
 
-  if (is_android) {
-    sources += [
-      "payments/android_bnpl_strategy_unittest.cc",
-      "payments/autofill_save_iban_ui_info_unittest.cc",
-      "ui/addresses/android/supported_countries_cache_unittest.cc",
-    ]
-  }
+    # Not included on iOS because the files need to be bundled specially.
+    "heuristic_classification_unittest.cc",
+  ]
 
-  if (is_ios || is_android) {
-    sources += [
-      "payments/autofill_save_card_delegate_unittest.cc",
-      "payments/autofill_save_card_ui_info_unittest.cc",
-      "ui/payments/card_expiration_date_fix_flow_controller_impl_unittest.cc",
-      "ui/payments/card_name_fix_flow_controller_impl_unittest.cc",
-    ]
-  }
+  sources += [
+    "crowdsourcing/server_prediction_overrides_unittest.cc",
+    "ui/autofill_image_fetcher_unittest.cc",
+    "ui/payments/bnpl_tos_controller_impl_unittest.cc",
+  ]
 
-  if (!is_ios) {
-    sources += [
-      "permissions/autofill_policy_handler_unittest.cc",
-
-      # Not included on iOS because the files need to be bundled specially.
-      "heuristic_classification_unittest.cc",
-    ]
-  }
-
-  if (!is_android) {
-    sources += [
-      "crowdsourcing/server_prediction_overrides_unittest.cc",
-      "ui/autofill_image_fetcher_unittest.cc",
-      "ui/payments/bnpl_tos_controller_impl_unittest.cc",
-    ]
-  }
-
-  if (is_win || is_mac || is_android) {
+  if (is_win || is_mac) {
     sources += [
       "metrics/payments/better_auth_metrics_unittest.cc",
       "payments/credit_card_access_manager_better_auth_log_unittest.cc",
@@ -2428,17 +2301,15 @@ source_set("unit_tests") {
     ]
   }
 
-  if (is_win || is_mac || is_android || is_ios) {
+  if (is_win || is_mac) {
     sources +=
         [ "payments/credit_card_access_manager_mandatory_reauth_unittest.cc" ]
   }
 
-  if (!is_ios && !is_android) {
-    sources += [
-      "payments/desktop_bnpl_strategy_unittest.cc",
-      "ui/payments/omnibox_autofill_delegate_unittest.cc",
-    ]
-  }
+  sources += [
+    "payments/desktop_bnpl_strategy_unittest.cc",
+    "ui/payments/omnibox_autofill_delegate_unittest.cc",
+  ]
 
   sources += [
     "filling/autofill_ai/autofill_ai_access_manager_unittest.cc",
@@ -2541,17 +2412,7 @@ source_set("unit_tests") {
     "//url",
   ]
 
-  if (is_ios || is_android) {
-    deps += [ "//build:branding_buildflags" ]
-  }
-
-  if (is_android) {
-    deps += [ "//components/autofill/android:main_autofill_jni_headers" ]
-  }
-
-  if (!is_ios && !is_android) {
-    deps += [ "//ui/native_theme" ]
-  }
+  deps += [ "//ui/native_theme" ]
 
   if (use_blink) {
     deps += [
@@ -2560,15 +2421,11 @@ source_set("unit_tests") {
     ]
   }
 
-  if (is_ios) {
-    deps += [ "//components/autofill/ios/common" ]
-  }
-
   deps += [ "//components/variations/service" ]
 
   deps += [ "//components/autofill/core/browser/policy:unit_tests" ]
 
-  if (is_win || is_mac || is_linux || is_chromeos || is_android) {
+  if (is_win || is_mac || is_linux) {
     sources += [ "metrics/cross_tab_copy_paste_tracker_unittest.cc" ]
     deps += [ "//ui/base/clipboard:clipboard_test_support" ]
   }
@@ -2591,10 +2448,7 @@ fuzzer_test("form_structure_fuzzer") {
     "//ui/base",
     "//ui/resources:ui_test_pak",
   ]
-  if (is_android) {
-    # Provides org.chromium.ui.base.ResourceBundle.
-    deps += [ "//ui/android:ui_no_recycler_view_java" ]
-  }
+
   data_deps = [
     "//components:components_tests_pak",
     "//ui/resources:ui_test_pak_data",

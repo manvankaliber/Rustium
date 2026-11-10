@@ -32,14 +32,6 @@ source_set("ipcz") {
   ]
   public_configs = [ ":ipcz_include_dir" ]
   configs += [ ":ipcz_include_src_dir" ]
-
-  # ChromeOS profiling data indicates that ipcz consumes 1.5% of Chrome's
-  # cycles on that platform; per go/cr-os, it shouldn't be optimized for
-  # size on that platform.
-  if (is_chromeos) {
-    configs -= [ "//build/config/compiler:default_optimization" ]
-    configs += [ "//build/config/compiler:optimize_speed" ]
-  }
 }
 
 source_set("reference_drivers") {
@@ -83,9 +75,6 @@ source_set("reference_drivers") {
     ":impl",
     ":util",
   ]
-  if (is_android) {
-    deps += [ "//base/android/linker:ashmem" ]
-  }
 
   public_deps = [
     ":ipcz_header",

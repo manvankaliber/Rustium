@@ -225,45 +225,6 @@ void FindInPage::SetClient(
                frame_->GetTaskRunner(blink::TaskType::kInternalDefault));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-gfx::RectF FindInPage::ActiveFindMatchRect() {
-  if (GetTextFinder())
-    return GetTextFinder()->ActiveFindMatchRect();
-  return gfx::RectF();
-}
-
-void FindInPage::ActivateNearestFindResult(int request_id,
-                                           const gfx::PointF& point) {
-  gfx::Rect active_match_rect;
-  std::optional<wtf_size_t> ordinal =
-      EnsureTextFinder().SelectNearestFindMatch(point, &active_match_rect);
-  if (!ordinal) {
-    // Something went wrong, so send a no-op reply (force the frame to report
-    // the current match count) in case the host is waiting for a response due
-    // to rate-limiting.
-    EnsureTextFinder().IncreaseMatchCount(request_id, 0);
-    return;
-  }
-  ReportFindInPageSelection(request_id, *ordinal, active_match_rect,
-                            true /* final_update */);
-}
-
-void FindInPage::GetNearestFindResult(const gfx::PointF& point,
-                                      GetNearestFindResultCallback callback) {
-  float distance;
-  EnsureTextFinder().NearestFindMatch(point, &distance);
-  std::move(callback).Run(distance);
-}
-
-void FindInPage::FindMatchRects(int current_version,
-                                FindMatchRectsCallback callback) {
-  int rects_version = FindMatchMarkersVersion();
-  Vector<gfx::RectF> rects;
-  if (current_version != rects_version)
-    rects = EnsureTextFinder().FindMatchRects();
-  std::move(callback).Run(rects_version, rects, ActiveFindMatchRect());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void FindInPage::ClearActiveFindMatch() {
   // TODO(rakina): Do collapse selection as this currently does nothing.

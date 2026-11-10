@@ -23,9 +23,7 @@
 #define METRICS_OS_NAME "Mac"
 #elif BUILDFLAG(IS_WIN)
 #define METRICS_OS_NAME "Win"
-#elif BUILDFLAG(IS_ANDROID)
-#define METRICS_OS_NAME "Android"
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
 #define METRICS_OS_NAME "Linux"
 #endif
 
@@ -113,21 +111,6 @@ void Metrics::HandlerCrashed(uint32_t exception_code) {
       "Crashpad.HandlerCrash.ExceptionCode." METRICS_OS_NAME, exception_code);
 }
 
-#if BUILDFLAG(IS_IOS)
-// static
-void Metrics::MissingIntermediateDumpKey(
-    const internal::IntermediateDumpKey& key) {
-  base::UmaHistogramSparse("Crashpad.IntermediateDump.Reader.MissingKey",
-                           static_cast<uint16_t>(key));
-}
-
-// static
-void Metrics::InvalidIntermediateDumpKeySize(
-    const internal::IntermediateDumpKey& key) {
-  base::UmaHistogramSparse("Crashpad.IntermediateDump.Reader.InvalidKeySize",
-                           static_cast<uint16_t>(key));
-}
-#endif
 
 // static
 

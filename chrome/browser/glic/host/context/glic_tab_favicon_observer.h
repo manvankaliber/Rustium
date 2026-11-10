@@ -15,9 +15,6 @@
 #include "third_party/abseil-cpp/absl/container/flat_hash_map.h"
 #include "third_party/abseil-cpp/absl/container/flat_hash_set.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/tab_favicon.h"
-#endif
 
 class Profile;
 
@@ -43,10 +40,6 @@ class GlicTabFaviconObserver {
   // For internal use.
   void ScheduleCleanupForTab(tabs::TabHandle tab_handle);
 
-#if BUILDFLAG(IS_ANDROID)
-  TabFavicon::Observer* GetTabFaviconObserverForTesting(
-      tabs::TabInterface::Handle handle);
-#endif
 
   bool HasTabObserverForTesting(tabs::TabInterface::Handle handle);
   void FireCleanupTimerForTesting();

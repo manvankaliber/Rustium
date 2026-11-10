@@ -1498,7 +1498,7 @@ TEST_F(WebGLDrawBuffersTest, RestoresFramebufferBindings) {
       .WillOnce(SetArgPointee<1>(8))
       .RetiresOnSaturation();
 
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_MAC)
 #if DCHECK_IS_ON()
   EXPECT_CALL(*gl_, GetError())
       .WillOnce(Return(GL_NO_ERROR))
@@ -1553,7 +1553,7 @@ TEST_F(WebGLDrawBuffersTest, RestoresFramebufferBindings) {
       .WillOnce(Return(GL_NO_ERROR))
       .RetiresOnSaturation();
 #endif
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_ANDROID)
+#endif
 
   auto info = base::MakeRefCounted<FeatureInfo>();
   info->Initialize(CONTEXT_TYPE_WEBGL1, false, DisallowedFeatures());

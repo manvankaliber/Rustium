@@ -7,8 +7,6 @@ import("//build/config/ozone.gni")
 import("//build/config/ui.gni")
 import("//extensions/buildflags/buildflags.gni")
 
-assert(!is_android)
-
 source_set("safe_invoke") {
   sources = [ "safe_invoke/safe_invoke.h" ]
 
@@ -77,305 +75,6 @@ source_set("picture_in_picture_browser_frame_view") {
   }
   if (enable_extensions_core) {
     deps += [ "//extensions/common:common_constants" ]
-  }
-}
-
-# immersive_mode_tester is only built on ChromeOS, matching the platforms
-# where its immersive-fullscreen consumers compile it.
-if (is_chromeos) {
-  source_set("immersive_mode_tester") {
-    testonly = true
-
-    sources = [
-      "immersive_mode_tester.cc",
-      "immersive_mode_tester.h",
-    ]
-
-    public_deps = [
-      "//base",
-      "//base/test:test_support",
-      "//chrome/browser/ui:ui_features",
-      "//chrome/browser/ui/immersive:immersive_mode_controller",
-      "//testing/gtest",
-      "//ui/base",
-    ]
-
-    deps = [
-      "//chrome/browser/ui:browser_command_controller",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/views",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-    ]
-  }
-
-  source_set("browser_frame_view_chromeos") {
-    public = [ "browser_frame_view_chromeos.h" ]
-    sources = [ "browser_frame_view_chromeos.cc" ]
-    public_deps = [
-      ":browser_frame_header_chromeos",
-      ":browser_frame_view",
-      "//base",
-      "//chrome/browser/ui/immersive:immersive_mode_controller",
-      "//chrome/browser/ui/views",
-      "//chromeos/ui/frame",
-      "//components/services/app_service/public/cpp:app_types",
-      "//ui/aura",
-      "//ui/base/metadata",
-      "//ui/display",
-      "//ui/gfx/geometry",
-    ]
-    deps = [
-      ":browser_view_header",
-      ":browser_widget",
-      ":frame",
-      ":safe_invoke",
-      ":top_container_view",
-      "//ash",
-      "//ash/public/cpp",
-      "//build:buildflag_header_h",
-      "//chrome/browser:browser_process",
-      "//chrome/browser/apps/app_service",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/profiles:profile_manager",
-      "//chrome/browser/profiles:profile_util",
-      "//chrome/browser/themes",
-      "//chrome/browser/ui:browser_element_identifiers",
-      "//chrome/browser/ui/ash/session",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/chromeos/locked_state",
-      "//chrome/browser/ui/color:color_headers",
-      "//chrome/browser/ui/color:mixers",
-      "//chrome/browser/ui/exclusive_access",
-      "//chrome/browser/ui/views:tab_icon_view",
-      "//chrome/browser/ui/views/profiles:profile_indicator_icon",
-      "//chrome/browser/ui/views/side_panel",
-      "//chrome/browser/ui/views/tabs:tab_strip",
-      "//chrome/browser/ui/views/toolbar",
-      "//chrome/browser/ui/web_applications",
-      "//chrome/browser/ui/window_feature_controller",
-      "//chrome/browser/ui/window_metadata",
-      "//chromeos/ash/experiences/system_web_apps/types",
-      "//chromeos/components/kiosk",
-      "//chromeos/constants",
-      "//chromeos/ui/base",
-      "//chromeos/ui/frame",
-      "//chromeos/ui/wm",
-      "//content/public/browser",
-      "//skia",
-      "//ui/accessibility",
-      "//ui/base",
-      "//ui/base/mojom:ui_base_types",
-      "//ui/chromeos/styles:cros_styles_views_generator",
-      "//ui/display",
-      "//ui/gfx",
-      "//ui/gfx/geometry",
-      "//ui/views",
-      "//ui/views/controls/webview",
-    ]
-  }
-
-  source_set("browser_frame_view_factory_chromeos") {
-    sources = [ "browser_frame_view_factory_chromeos.cc" ]
-    deps = [
-      ":browser_frame_view_chromeos",
-      ":browser_view_header",
-      ":picture_in_picture_browser_frame_view_ash",
-    ]
-  }
-
-  source_set("browser_native_widget_ash") {
-    public = [ "browser_native_widget_ash.h" ]
-    public_deps = [
-      ":browser_native_widget",
-      "//base",
-      "//ui/base/mojom:ui_base_types",
-      "//ui/views",
-    ]
-  }
-
-  source_set("browser_native_widget_ash_impl") {
-    sources = [ "browser_native_widget_ash.cc" ]
-    public_deps = [ ":browser_native_widget_ash" ]
-    deps = [
-      ":browser_widget",
-      "//ash",
-      "//ash/public/cpp",
-      "//base",
-      "//build:buildflag_header_h",
-      "//chrome/browser/lifetime",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_init_state",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/browser/ui/web_applications",
-      "//chromeos/ui/base",
-      "//chromeos/ui/frame",
-      "//components/app_restore",
-      "//components/sessions:session_id",
-      "//ui/aura",
-      "//ui/base/mojom:ui_base_types",
-      "//ui/views",
-    ]
-  }
-
-  source_set("browser_native_widget_factory_chromeos") {
-    sources = [ "browser_native_widget_factory_chromeos.cc" ]
-    deps = [
-      ":browser_native_widget_ash",
-      ":browser_native_widget_factory",
-    ]
-  }
-
-  source_set("picture_in_picture_browser_frame_view_ash") {
-    public = [ "picture_in_picture_browser_frame_view_ash.h" ]
-    sources = [ "picture_in_picture_browser_frame_view_ash.cc" ]
-    public_deps = [
-      ":picture_in_picture_browser_frame_view",
-      "//base",
-      "//ui/aura",
-    ]
-    deps = [
-      "//ash",
-      "//chrome/browser/ui/color:color_headers",
-      "//chromeos/constants",
-      "//chromeos/ui/base",
-      "//chromeos/ui/frame",
-      "//chromeos/ui/wm",
-      "//ui/views",
-    ]
-  }
-
-  source_set("browser_frame_header_chromeos") {
-    public = [ "browser_frame_header_chromeos.h" ]
-    public_deps = [
-      "//base",
-      "//chromeos/ui/frame",
-      "//ui/gfx",
-    ]
-  }
-
-  source_set("browser_frame_header_chromeos_impl") {
-    sources = [ "browser_frame_header_chromeos.cc" ]
-    public_deps = [ ":browser_frame_header_chromeos" ]
-    deps = [
-      ":browser_frame_view_chromeos",
-      ":safe_invoke",
-      "//base",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/browser/ui/web_applications",
-      "//chromeos/ash/experiences/system_web_apps/types",
-      "//chromeos/ui/base",
-      "//chromeos/ui/frame",
-      "//skia",
-      "//ui/base",
-      "//ui/color",
-      "//ui/display",
-      "//ui/gfx",
-      "//ui/gfx/geometry",
-      "//ui/views",
-    ]
-  }
-
-  source_set("top_controls_slide_controller_chromeos") {
-    public = [ "top_controls_slide_controller_chromeos.h" ]
-    public_deps = [
-      ":top_controls_slide_controller",
-      "//base",
-      "//chrome/browser/ash/accessibility",
-      "//chrome/browser/ui/location_bar",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//ui/display",
-      "//ui/views",
-    ]
-  }
-
-  source_set("top_controls_slide_controller_chromeos_impl") {
-    sources = [ "top_controls_slide_controller_chromeos.cc" ]
-    public_deps = [ ":top_controls_slide_controller_chromeos" ]
-    deps = [
-      ":safe_invoke",
-      ":top_container_view",
-      ":top_controls_slide_controller",
-      "//ash",
-      "//ash/constants",
-      "//base",
-      "//cc",
-      "//chrome/browser/ash/accessibility",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/search",
-      "//chrome/browser/ssl",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/tabs:tab_enums",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/browser/ui/views/location_bar",
-      "//chrome/browser/ui/views/omnibox",
-      "//chrome/common:constants",
-      "//components/permissions",
-      "//content/public/browser",
-      "//extensions/common:common_constants",
-      "//ui/aura",
-      "//ui/compositor",
-      "//ui/display",
-      "//ui/views",
-    ]
-  }
-
-  source_set("browser_view_ash") {
-    public = [ "browser_view_ash.h" ]
-    sources = [ "browser_view_ash.cc" ]
-    public_deps = [
-      "//base",
-      "//ui/gfx/geometry",
-    ]
-    deps = [
-      ":multi_contents_view",
-      ":scrim_view",
-      "//ash",
-      "//chrome/browser/glic/browser_ui:glow",
-      "//chrome/browser/ui/color:color_headers",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chromeos/ui/frame",
-      "//components/search",
-      "//ui/compositor",
-      "//ui/views",
-      "//ui/views/controls/webview",
-    ]
-  }
-
-  source_set("immersive_mode_controller_chromeos") {
-    public = [ "immersive_mode_controller_chromeos.h" ]
-    public_deps = [
-      "//base",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/immersive:immersive_mode_controller",
-      "//chromeos/ui/frame",
-      "//ui/aura",
-      "//ui/gfx/geometry",
-    ]
-
-    sources = [ "immersive_mode_controller_chromeos.cc" ]
-    deps = [
-      ":top_container_view",
-      "//ash",
-      "//base",
-      "//chrome/browser:primitives",
-      "//chrome/browser/ui:browser_element_identifiers",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/exclusive_access",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/browser/ui/views/interaction",
-      "//chromeos/ui/base",
-      "//chromeos/ui/frame",
-      "//content/public/browser",
-      "//ui/aura",
-      "//ui/base/mojom:ui_base_types",
-      "//ui/compositor",
-      "//ui/display",
-      "//ui/gfx/geometry",
-      "//ui/views",
-    ]
   }
 }
 
@@ -988,23 +687,7 @@ source_set("browser_view") {
       "//ui/aura",
     ]
   }
-  if (is_chromeos) {
-    deps += [
-      ":browser_frame_view_chromeos",
-      ":immersive_mode_controller_chromeos",
-      ":top_controls_slide_controller_chromeos",
-      "//ash",
-      "//ash/constants",
-      "//ash/public/cpp",
-      "//chrome/browser/ash/boca/on_task",
-      "//chrome/browser/lifetime",
-      "//chrome/browser/ui/chromeos/locked_state",
-      "//chromeos/components/mgs",
-      "//chromeos/ui/base",
-      "//chromeos/ui/frame",
-      "//chromeos/ui/wm",
-    ]
-  }
+
   if (is_mac) {
     deps += [
       ":immersive_mode_overlay_views_mac",
@@ -1059,10 +742,6 @@ source_set("immersive_mode_controller_factory_views") {
 
   if (is_mac) {
     deps += [ ":immersive_mode_controller_mac" ]
-  }
-
-  if (is_chromeos) {
-    deps += [ ":immersive_mode_controller_chromeos" ]
   }
 }
 
@@ -1357,13 +1036,6 @@ source_set("browser_window_factory") {
   if (use_aura) {
     deps += [ "//ui/aura" ]
   }
-
-  if (is_chromeos) {
-    deps += [
-      ":browser_view_ash",
-      "//chromeos/components/kiosk",
-    ]
-  }
 }
 
 source_set("browser_native_widget_factory") {
@@ -1410,7 +1082,7 @@ source_set("contents_web_view") {
       "//ui/wm",
     ]
   }
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     deps += [ "//chrome/browser/actor" ]
   }
 }
@@ -1523,9 +1195,7 @@ source_set("system_menu_model_delegate_impl") {
     "//components/sessions",
     "//ui/base",
   ]
-  if (is_chromeos) {
-    deps += [ "//chromeos/ui/frame" ]
-  }
+
   if (is_win) {
     deps += [ "//ui/aura" ]
   }
@@ -2145,20 +1815,8 @@ source_set("system_menu_model_builder_impl") {
     "//ui/base",
     "//ui/menus",
   ]
-  if (is_chromeos) {
-    deps += [
-      "//ash",
-      "//chrome/browser/ash/boca/on_task",
-      "//chrome/browser/ui:settings_window_manager_chromeos",
-      "//chrome/browser/ui/ash/multi_user",
-      "//chrome/browser/ui/chromeos/locked_state",
-      "//chromeos/strings",
-      "//chromeos/ui/frame",
-      "//components/account_id",
-      "//components/user_manager",
-    ]
-  }
-  if (use_ozone && !is_chromeos) {
+
+  if (use_ozone) {
     deps += [ "//ui/ozone" ]
   }
 }
@@ -2217,13 +1875,11 @@ source_set("unit_tests") {
     deps += [ ":windows_caption_button" ]
   }
 
-  if (!is_chromeos) {
-    sources += [ "opaque_browser_frame_view_layout_unittest.cc" ]
-    deps += [
-      ":opaque_browser_frame_view_layout",
-      "//chrome/browser/ui/views:tab_icon_view",
-    ]
-  }
+  sources += [ "opaque_browser_frame_view_layout_unittest.cc" ]
+  deps += [
+    ":opaque_browser_frame_view_layout",
+    "//chrome/browser/ui/views:tab_icon_view",
+  ]
 }
 
 source_set("browser_tests") {
@@ -2285,7 +1941,6 @@ source_set("browser_tests") {
     "//chrome/browser/ui/window_metadata",
     "//components/enterprise/data_controls/core/browser:test_support",
     "//components/safe_browsing/core/browser/realtime:test_support",
-    "//components/user_manager",
     "//ui/accessibility:test_support",
     "//ui/base:data_exchange",
     "//ui/base:ozone_buildflags",
@@ -2331,63 +1986,13 @@ source_set("browser_tests") {
     ]
   }
 
-  if (!is_chromeos) {
-    sources += [ "opaque_browser_frame_view_browsertest.cc" ]
-    deps += [
-      ":opaque_browser_frame_view",
-      ":opaque_browser_frame_view_layout",
-      "//chrome/browser/ui/views/web_apps/frame_toolbar:test_support",
-      "//chrome/browser/ui/views/web_apps/frame_toolbar:web_app_toolbar_button_container",
-    ]
-  }
-
-  if (is_chromeos) {
-    sources += [
-      "browser_frame_ash_browsertest.cc",
-      "browser_frame_view_chromeos_browsertest.cc",
-      "immersive_mode_browser_view_browsertest.cc",
-      "immersive_mode_controller_chromeos_browsertest.cc",
-      "system_menu_model_builder_browsertest_chromeos.cc",
-      "system_web_app_frame_view_browsertest.cc",
-      "top_controls_slide_controller_chromeos_browsertest.cc",
-    ]
-
-    deps += [
-      ":browser_frame_view_chromeos",
-      ":browser_native_widget_ash",
-      ":frame",
-      ":immersive_mode_controller_chromeos",
-      ":immersive_mode_tester",
-      ":top_controls_slide_controller",
-      "//chrome/browser/ash/boca/on_task",
-      "//chrome/browser/ash/fileapi",
-      "//chrome/browser/ash/login:test_support",
-      "//chrome/browser/ash/system_web_apps/test_support",
-      "//chrome/browser/ash/system_web_apps/test_support:test_support_ui",
-      "//chrome/browser/prefs:util",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:settings_window_manager_chromeos",
-      "//chrome/browser/ui/ash:test_support",
-      "//chrome/browser/ui/ash/multi_user",
-      "//chrome/browser/ui/ash/session",
-      "//chrome/browser/ui/ash/system_web_apps",
-      "//chrome/browser/ui/chromeos/locked_state",
-      "//chrome/browser/ui/views:tab_search_bubble_host",
-      "//chrome/browser/ui/views/page_info",
-      "//chrome/browser/ui/views/profiles:profile_indicator_icon",
-      "//chrome/browser/ui/views/web_apps/frame_toolbar:web_app_toolbar_button_container",
-      "//chrome/browser/web_applications:prevent_close_test_support",
-      "//chrome/test:test_support",
-      "//chromeos/ash/services/multidevice_setup/public/cpp:prefs",
-      "//chromeos/ui/frame",
-      "//chromeos/ui/frame:test_support",
-      "//components/account_id:test_support",
-      "//ui/events:test_support",
-    ]
-  }
-  if (is_chromeos) {
-    deps += [ "//chrome/browser/ui/ash/login" ]
-  }
+  sources += [ "opaque_browser_frame_view_browsertest.cc" ]
+  deps += [
+    ":opaque_browser_frame_view",
+    ":opaque_browser_frame_view_layout",
+    "//chrome/browser/ui/views/web_apps/frame_toolbar:test_support",
+    "//chrome/browser/ui/views/web_apps/frame_toolbar:web_app_toolbar_button_container",
+  ]
 }
 
 source_set("interactive_ui_tests") {
@@ -2466,13 +2071,6 @@ source_set("interactive_ui_tests") {
 
   if (use_ozone) {
     deps += [ "//ui/ozone" ]
-  }
-
-  if (is_chromeos) {
-    deps += [
-      "//chrome/browser/ash/boca/on_task",
-      "//chrome/browser/ui/chromeos/locked_state",
-    ]
   }
 
   if (is_linux) {
@@ -2775,52 +2373,50 @@ source_set("opaque_browser_frame_view_layout") {
   ]
 }
 
-if (!is_chromeos) {
-  source_set("opaque_browser_frame_view_impl") {
-    sources = [ "opaque_browser_frame_view.cc" ]
-    public_deps = [ ":opaque_browser_frame_view" ]
-    deps = [
-      ":browser_native_widget",
-      ":browser_view_header",
-      ":browser_widget",
-      ":caption_button_placeholder_container",
-      ":opaque_browser_frame_view_layout",
-      ":top_container_view",
-      "//base",
-      "//build:buildflag_header_h",
-      "//chrome/app:generated_resources",
-      "//chrome/app/theme:theme_resources",
-      "//chrome/browser/ui:layout_constants",
-      "//chrome/browser/ui/color:color_headers",
-      "//chrome/browser/ui/views:tab_icon_view",
-      "//chrome/browser/ui/views/tabs:new_tab_button",
-      "//chrome/browser/ui/views/tabs:tab_strip",
-      "//chrome/browser/ui/views/toolbar",
-      "//components/strings:components_strings",
-      "//content/public/browser",
-      "//skia",
-      "//ui/accessibility:ax_enums_mojo",
-      "//ui/base",
-      "//ui/base:features",
-      "//ui/base/metadata",
-      "//ui/base/mojom:ui_base_types",
-      "//ui/color",
-      "//ui/compositor",
-      "//ui/gfx",
-      "//ui/gfx/geometry",
-      "//ui/views",
-      "//ui/views/window/vector_icons",
-    ]
-    if (is_linux) {
-      deps += [ "//ui/linux:linux_ui" ]
-    }
-    if (is_win) {
-      deps += [ "//ui/display" ]
-    }
+source_set("opaque_browser_frame_view_impl") {
+  sources = [ "opaque_browser_frame_view.cc" ]
+  public_deps = [ ":opaque_browser_frame_view" ]
+  deps = [
+    ":browser_native_widget",
+    ":browser_view_header",
+    ":browser_widget",
+    ":caption_button_placeholder_container",
+    ":opaque_browser_frame_view_layout",
+    ":top_container_view",
+    "//base",
+    "//build:buildflag_header_h",
+    "//chrome/app:generated_resources",
+    "//chrome/app/theme:theme_resources",
+    "//chrome/browser/ui:layout_constants",
+    "//chrome/browser/ui/color:color_headers",
+    "//chrome/browser/ui/views:tab_icon_view",
+    "//chrome/browser/ui/views/tabs:new_tab_button",
+    "//chrome/browser/ui/views/tabs:tab_strip",
+    "//chrome/browser/ui/views/toolbar",
+    "//components/strings:components_strings",
+    "//content/public/browser",
+    "//skia",
+    "//ui/accessibility:ax_enums_mojo",
+    "//ui/base",
+    "//ui/base:features",
+    "//ui/base/metadata",
+    "//ui/base/mojom:ui_base_types",
+    "//ui/color",
+    "//ui/compositor",
+    "//ui/gfx",
+    "//ui/gfx/geometry",
+    "//ui/views",
+    "//ui/views/window/vector_icons",
+  ]
+  if (is_linux) {
+    deps += [ "//ui/linux:linux_ui" ]
+  }
+  if (is_win) {
+    deps += [ "//ui/display" ]
   }
 }
 
-if (use_aura && !is_chromeos) {
+if (use_aura) {
   source_set("browser_native_widget_aura") {
     public = [ "browser_native_widget_aura.h" ]
     public_deps = [
@@ -3329,14 +2925,7 @@ source_set("browser_widget_impl") {
   if (use_aura) {
     deps += [ "//ui/wm" ]
   }
-  if (is_chromeos) {
-    deps += [
-      "//chromeos/ui/base",
-      "//chromeos/ui/wm",
-      "//components/user_manager",
-      "//ui/aura",
-    ]
-  }
+
   if (is_linux) {
     deps += [ "//ui/linux:linux_ui" ]
   }

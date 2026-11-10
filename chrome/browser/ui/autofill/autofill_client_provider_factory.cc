@@ -13,10 +13,6 @@
 #include "chrome/browser/ui/autofill/autofill_client_provider.h"
 #include "content/public/browser/browser_context.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/autofill/android/android_sms_otp_backend_factory.h"
-#include "chrome/browser/autofill/sms_otp_service_factory.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace autofill {
 
@@ -46,10 +42,6 @@ AutofillClientProviderFactory::AutofillClientProviderFactory()
               .WithAshInternals(ProfileSelection::kRedirectedToOriginal)
               .WithSystem(ProfileSelection::kNone)
               .Build()) {
-#if BUILDFLAG(IS_ANDROID)
-  DependsOn(AndroidSmsOtpBackendFactory::GetInstance());
-  DependsOn(SmsOtpServiceFactory::GetInstance());
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 AutofillClientProviderFactory::~AutofillClientProviderFactory() = default;

@@ -8,14 +8,10 @@ import("//printing/buildflags/buildflags.gni")
 declare_args() {
   # Enable Skia Graphite Dawn backend. Enabled on platforms where the team has
   # verified that at least basic rendering to the screen is working.
-  skia_use_dawn =
-      is_mac || is_win ||
-      (is_android && target_cpu != "x86" && target_cpu != "x64") ||
-      (is_ios && use_blink) || (is_linux && !is_castos) || is_desktop_android
+  skia_use_dawn = is_mac || is_win || is_linux
 
   # Enable experimental Graphite Vulkan backend.
-  skia_use_graphite_vulkan =
-      is_android && target_cpu != "x86" && target_cpu != "x64"
+  skia_use_graphite_vulkan = false
 }
 
 # Skia only needs to support GPU rasterization if we use the full Chromium
@@ -31,7 +27,7 @@ skia_support_pdf = use_blink && (enable_printing || enable_printing_tests)
 
 # Skottie is not used on Android or CastOS. To keep binary size small the
 # skottie library is excluded from the binary.
-skia_support_skottie = !is_android && !is_castos
+skia_support_skottie = true
 
 # Skia needs XMP support for gainmap HDR image decoding in blink.
 skia_support_xmp = use_blink

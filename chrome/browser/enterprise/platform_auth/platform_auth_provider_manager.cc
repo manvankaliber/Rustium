@@ -45,8 +45,6 @@
 #include "chrome/browser/enterprise/platform_auth/extensible_enterprise_sso_prefs_handler.h"
 #include "chrome/browser/enterprise/platform_auth/extensible_enterprise_sso_provider_mac.h"
 #include "chrome/browser/enterprise/platform_auth/platform_auth_features.h"
-#elif BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/enterprise/platform_auth/entra_provider_android.h"
 #endif
 
 namespace enterprise_auth {
@@ -60,8 +58,6 @@ std::unique_ptr<PlatformAuthProvider> MakeProvider() {
   return std::make_unique<CloudApProviderWin>();
 #elif BUILDFLAG(IS_MAC)
   return std::make_unique<ExtensibleEnterpriseSSOProvider>();
-#elif BUILDFLAG(IS_ANDROID)
-  return std::make_unique<EntraProviderAndroid>();
 #else
 #error Unsupported platform
 #endif
@@ -108,14 +104,6 @@ bool ShouldBeEnabled(PrefService* local_state) {
   }
 
   return true;
-}
-
-#elif BUILDFLAG(IS_ANDROID)
-
-bool ShouldBeEnabled(PrefService* local_state) {
-  // Enable the manager on Android if the policy is enabled.
-  return local_state->GetInteger(prefs::kAndroidEntraSSOEnabled) !=
-         kPolicyDisabled;
 }
 
 #else

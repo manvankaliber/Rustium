@@ -7,23 +7,12 @@ import json
 
 
 class JsonConfig:
+
   def __init__(self, json_obj):
     self._json_obj = json_obj
 
-  def _ApkSplit(self, split_name):
-    return self._json_obj.get('apk_splits', {}).get(split_name, {})
-
   def _NativeFile(self, basename):
     return self._json_obj.get('native_files', {}).get(basename, {})
-
-  def DefaultComponentForSplit(self, split_name):
-    return self._ApkSplit(split_name).get('default_component', '')
-
-  def ApkPathDefaults(self):
-    return {
-      k: v['source_path']
-      for k, v in self._json_obj.get('apk_files', {}).items()
-    }
 
   def ComponentForNativeFile(self, basename):
     return self._NativeFile(basename).get('component')

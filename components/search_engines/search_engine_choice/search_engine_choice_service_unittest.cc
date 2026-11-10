@@ -111,7 +111,6 @@ class SearchEngineChoiceServiceTest : public SearchEngineChoiceServiceTestBase {
   }
 };
 
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
 TEST_F(SearchEngineChoiceServiceTest, GuestSessionDsePropagation) {
   InitService({.force_reset = true,
                .is_profile_eligible_for_dse_guest_propagation = true});
@@ -165,16 +164,13 @@ TEST_F(SearchEngineChoiceServiceTest,
   EXPECT_EQ(manager.GetDefaultSearchEngine(&source)->prepopulate_id, 2);
   EXPECT_EQ(source, DefaultSearchManager::Source::FROM_FALLBACK);
 }
-#endif
 
 TEST_F(SearchEngineChoiceServiceTest, PreserveImportedChoice) {
   base::CommandLine::ForCurrentProcess()->RemoveSwitch(
       switches::kSearchEngineChoiceCountry);
 
-#if !BUILDFLAG(IS_IOS)
   base::test::ScopedFeatureList scoped_feature_list{
       switches::kInvalidateSearchEngineChoiceOnDeviceRestoreDetection};
-#endif
 
   InitServiceArgs args = {
       .force_reset = true,
@@ -553,67 +549,6 @@ TEST_F(SearchEngineChoiceServiceTest, RecordChoiceMade_ByLocation_Waffle) {
   }
 }
 
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-TEST_F(SearchEngineChoiceServiceTest, RecordChoiceMade_ByLocation_Taiyaki) {
-  if (!regional_capabilities::IsClientCompatibleWithProgram(
-          regional_capabilities::Program::kTaiyaki)) {
-    GTEST_SKIP();
-  }
-
-  base::CommandLine::ForCurrentProcess()->RemoveSwitch(
-      switches::kSearchEngineChoiceCountry);
-  base::CommandLine::ForCurrentProcess()->AppendSwitchASCII(
-      switches::kSearchEngineChoiceCountry, switches::kTaiyakiProgramOverride);
-  EXPECT_EQ(template_url_service().GetDefaultSearchProvider()->prepopulate_id(),
-            TemplateURLPrepopulateData::google.id);
-
-  auto locations = {ChoiceMadeLocation::kChoiceScreen,
-                    ChoiceMadeLocation::kSearchSettings,
-                    ChoiceMadeLocation::kSearchEngineSettings};
-  for (const ChoiceMadeLocation& choice_location : locations) {
-    base::HistogramTester scoped_histogram_tester;
-    int expected_v1_records = 0;
-    int expected_v2_records = 0;
-    bool expect_choice_prefs_presence = false;
-    switch (choice_location) {
-      case ChoiceMadeLocation::kChoiceScreen:
-      case ChoiceMadeLocation::kDeviceChoiceImport:
-        // For the choice screen, the choice should be recorded in the both
-        // histograms.
-        expected_v1_records = 1;
-        expected_v2_records = 1;
-        expect_choice_prefs_presence = true;
-        break;
-
-      case ChoiceMadeLocation::kSearchSettings:
-      case ChoiceMadeLocation::kSearchEngineSettings:
-        // For other locations, the choice should not be recorded.
-        break;
-      case ChoiceMadeLocation::kOther:
-        NOTREACHED();  // Not an allowed value for `RecordChoiceMade()`.
-    }
-
-    search_engine_choice_service().RecordChoiceMade(choice_location,
-                                                    &template_url_service());
-    scoped_histogram_tester.ExpectBucketCount(
-        search_engines::
-            kSearchEngineChoiceScreenDefaultSearchEngineTypeHistogram,
-        SearchEngineType::SEARCH_ENGINE_GOOGLE, expected_v1_records);
-    scoped_histogram_tester.ExpectBucketCount(
-        search_engines::
-            kSearchEngineChoiceScreenDefaultSearchEngineType2Histogram,
-        SearchEngineType::SEARCH_ENGINE_GOOGLE, expected_v2_records);
-
-    EXPECT_EQ(
-        expect_choice_prefs_presence,
-        pref_service()->HasPrefPath(
-            prefs::kDefaultSearchProviderChoiceScreenCompletionTimestamp));
-
-    WipeSearchEngineChoicePrefs(*pref_service(),
-                                SearchEngineChoiceWipeReason::kCommandLineFlag);
-  }
-}
-#endif
 
 TEST_F(SearchEngineChoiceServiceTest, RecordChoiceMade_DistributionCustom) {
   // A distribution custom search engine will have a `prepopulate_id` > 1000.
@@ -810,44 +745,6 @@ TEST_F(SearchEngineChoiceServiceDisplayStateRecordTest, Record) {
       prefs::kDefaultSearchProviderPendingChoiceScreenDisplayState));
 }
 
-#if BUILDFLAG(IS_IOS)
-TEST_F(SearchEngineChoiceServiceDisplayStateRecordTest, Record_Taiyaki) {
-  if (!regional_capabilities::IsClientCompatibleWithProgram(
-          regional_capabilities::Program::kTaiyaki)) {
-    GTEST_SKIP();
-  }
-
-  InitService({.variation_country_id = kJapanCountryId,
-               .client_country_id = kJapanCountryId,
-               .force_reset = true});
-  ChoiceScreenData choice_screen_data(
-      OwnedTemplateURLVectorFromPrepopulatedEngines(
-          {&TemplateURLPrepopulateData::google,
-           &TemplateURLPrepopulateData::bing,
-           &TemplateURLPrepopulateData::yahoo}),
-      /*current_default_to_highlight=*/nullptr, kJapanCountryId,
-      SearchTermsData());
-  ChoiceScreenDisplayState display_state = choice_screen_data.display_state();
-  display_state.selected_engine_index = 2;
-
-  base::HistogramTester histogram_tester;
-  search_engine_choice_service().MaybeRecordChoiceScreenDisplayState(
-      display_state);
-
-  CheckExpectations(
-      histogram_tester,
-      {.country_mismatch = ExpectHistogramBucket(false),
-       .selected_index = ExpectHistogramBucket(2),
-       .display_state_status = ExpectHistogramNever(),
-       .impression_at_index = {ExpectHistogramBucket(SEARCH_ENGINE_GOOGLE),
-                               ExpectHistogramBucket(SEARCH_ENGINE_BING),
-                               ExpectHistogramBucket(SEARCH_ENGINE_YAHOO)}});
-
-  // We logged the display state, so we don't need to cache it.
-  EXPECT_FALSE(pref_service()->HasPrefPath(
-      prefs::kDefaultSearchProviderPendingChoiceScreenDisplayState));
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 TEST_F(SearchEngineChoiceServiceDisplayStateRecordTest,
        RecordNoop_UnsupportedCountry) {
@@ -1733,7 +1630,6 @@ TEST_F(SearchEngineChoiceServiceTest, WipeOnMissingDSE) {
       SearchEngineChoiceWipeReason::kMissingDefaultSearchEngine, 1);
 }
 
-#if !BUILDFLAG(IS_IOS)
 struct DeviceRestoreTestParam {
   std::string test_suffix;
   bool restore_detected_in_current_session;
@@ -1829,10 +1725,6 @@ TEST_P(SearchEngineChoiceServiceDeviceRestoreTest, RepromptOnRestoreDetection) {
           policy_service(), template_url_service());
   search_engine_choice_service().RecordProfileLoadEligibility(
       static_eligibility);
-#if BUILDFLAG(IS_IOS)
-  search_engine_choice_service().RecordLegacyStaticEligibility(
-      static_eligibility);
-#endif  // BUILDFLAG(IS_IOS)
 
   search_engine_choice_service().RecordTriggeringEligibility(
       search_engine_choice_service().GetDynamicChoiceScreenConditions(
@@ -1905,7 +1797,6 @@ TEST_P(SearchEngineChoiceServiceDeviceRestoreTest, RepromptOnRestoreDetection) {
       search_engines::kSearchEngineChoiceRepromptHistogram,
       RepromptResult::kInvalidDictionary, 0);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 struct RepromptTestParam {
   // Whether the user should be reprompted or not.

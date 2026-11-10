@@ -54,12 +54,7 @@
 #include "chrome/browser/sessions/session_service_factory.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/feed/feed_service_factory.h"
-#include "components/feed/feed_feature_list.h"
-#else
 #include "chrome/browser/new_tab_page/microsoft_auth/microsoft_auth_service_factory.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // static
 ChromeBrowsingDataRemoverDelegateFactory*
@@ -133,15 +128,7 @@ ChromeBrowsingDataRemoverDelegateFactory::
   DependsOn(SessionServiceFactory::GetInstance());
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  DependsOn(feed::FeedServiceFactory::GetInstance());
-  // The delegate also uses offline_pages::OfflinePageModelFactory, but no
-  // DependsOn() can be declared for it: it is a SimpleKeyedServiceFactory
-  // registered with SimpleDependencyManager, not a
-  // BrowserContextKeyedServiceFactory.
-#else
   DependsOn(MicrosoftAuthServiceFactory::GetInstance());
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 ChromeBrowsingDataRemoverDelegateFactory::

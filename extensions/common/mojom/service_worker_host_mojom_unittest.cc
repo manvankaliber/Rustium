@@ -85,9 +85,6 @@ class TestServiceWorkerHostImpl : public mojom::ServiceWorkerHost {
       override {}
   void OpenChannelToNativeApp(
       const std::string& native_app_name,
-#if BUILDFLAG(IS_ANDROID)
-      const std::vector<std::vector<uint8_t>>& android_certificates,
-#endif
       const PortId& port_id,
       mojo::PendingAssociatedRemote<mojom::MessagePort> port,
       mojo::PendingAssociatedReceiver<mojom::MessagePortHost> port_host)

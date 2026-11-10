@@ -26,21 +26,8 @@
 #include "net/base/url_util.h"
 #include "services/network/public/mojom/permissions_policy/permissions_policy_feature.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include <utility>
 
-#include "ash/constants/ash_switches.h"
-#include "chromeos/ash/components/settings/cros_settings.h"
-#include "chromeos/ash/components/settings/cros_settings_names.h"
-#include "chromeos/dbus/constants/dbus_switches.h"
-#include "components/permissions/permission_request.h"
-#include "components/permissions/permission_uma_util.h"
-#include "components/permissions/request_type.h"
-#include "components/pref_registry/pref_registry_syncable.h"
-#include "components/user_prefs/user_prefs.h"
-#endif
-
-#if !(BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS))
+#if !BUILDFLAG(IS_WIN)
 #error This file currently only supports Chrome OS, Android and Windows.
 #endif
 
@@ -89,9 +76,6 @@ ProtectedMediaIdentifierPermissionContext::GetContentSettingStatusInternal(
   // TODO(crbug.com/576042411): CHECK-exclusion: Convert to a CHECK once we are
   // confident it won't be triggered.
   DCHECK(content_setting == CONTENT_SETTING_ALLOW ||
-#if BUILDFLAG(IS_ANDROID)
-         content_setting == CONTENT_SETTING_ASK ||
-#endif
          content_setting == CONTENT_SETTING_BLOCK);
 
   // For automated testing of protected content - having a prompt that
@@ -143,7 +127,7 @@ void ProtectedMediaIdentifierPermissionContext::UpdateTabContext(
 // static
 bool ProtectedMediaIdentifierPermissionContext::
     IsProtectedMediaIdentifierEnabled(Profile* profile) {
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Identifier is not allowed in incognito or guest mode.
   if (profile != nullptr &&
       (profile->IsOffTheRecord() || profile->IsGuestSession())) {
@@ -152,28 +136,7 @@ bool ProtectedMediaIdentifierPermissionContext::
     return false;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(chromeos::switches::kSystemDevMode) &&
-      !command_line->HasSwitch(switches::kAllowRAInDevMode)) {
-    DVLOG(1) << "Protected media identifier disabled in dev mode.";
-    return false;
-  }
-
-  // This could be disabled by the device policy or by a switch in content
-  // settings.
-  bool attestation_enabled = true;
-  if (!ash::CrosSettings::Get()->GetBoolean(
-          ash::kAttestationForContentProtectionEnabled, &attestation_enabled)) {
-    attestation_enabled = false;
-  }
-  if (!attestation_enabled) {
-    DVLOG(1) << "Protected media identifier disabled by the user or by device "
-                "policy.";
-    return false;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#endif
 
   if (!IsProtectedContentIdentifierAllowedByPolicy(profile)) {
     DVLOG(1)

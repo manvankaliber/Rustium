@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// <if expr="is_ios">
-import 'chrome://resources/js/ios/web_ui.js';
-// </if>
 import 'chrome://resources/cr_elements/cr_action_menu/cr_action_menu.js';
 import 'chrome://resources/cr_elements/cr_toast/cr_toast.js';
 import 'chrome://resources/cr_elements/cr_tooltip/cr_tooltip.js';
@@ -161,24 +158,17 @@ export class FlagsAppElement extends CrLitElement {
 
   protected accessor tabNames_: string[] = [
     loadTimeData.getString('available'),
-    // <if expr="not is_ios">
     loadTimeData.getString('unavailable'),
-    // </if>
   ];
   protected accessor selectedTabIndex_: number = 0;
 
   protected accessor data: ExperimentalFeaturesData = {
     supportedFeatures: [],
-    // <if expr="not is_ios">
     unsupportedFeatures: [],
-    // </if>
     needsRestart: false,
     showBetaChannelPromotion: false,
     showDevChannelPromotion: false,
     importExportEnabled: false,
-    // <if expr="is_chromeos">
-    showOwnerWarning: false,
-    // </if>
   };
 
   protected accessor defaultFeatures: Feature[] = [];
@@ -195,13 +185,11 @@ export class FlagsAppElement extends CrLitElement {
   private flagSearch: FlagSearch|null = null;
   private flagsRedirects_: Record<string, string> = FLAG_REDIRECTS;
   private lastChanged: HTMLElement|null = null;
-  // <if expr="not is_ios">
   private lastFocused: HTMLElement|null = null;
 
   // Whether the current URL is chrome://flags/deprecated. Only updated on
   // initial load.
   private isFlagsDeprecatedUrl_: boolean = false;
-  // </if>
 
   private eventTracker_: EventTracker|null = null;
 
@@ -218,18 +206,15 @@ export class FlagsAppElement extends CrLitElement {
   override connectedCallback() {
     super.connectedCallback();
 
-    // <if expr="not is_ios">
     const pathname = new URL(window.location.href).pathname;
     this.isFlagsDeprecatedUrl_ =
         ['/deprecated', '/deprecated/test_loader.html'].includes(pathname);
-    // </if>
 
     // Get and display the data upon loading.
     this.requestExperimentalFeaturesData();
 
     FocusOutlineManager.forDocument(document);
 
-    // <if expr="not is_ios">
     if (this.isFlagsDeprecatedUrl_) {
       // Update strings that are slightly different when on
       // chrome://flags/deprecated
@@ -245,7 +230,6 @@ export class FlagsAppElement extends CrLitElement {
         element.textContent = loadTimeData.getString('deprecatedNoResults');
       }
     }
-    // </if>
 
     this.eventTracker_ = new EventTracker();
 
@@ -314,9 +298,7 @@ export class FlagsAppElement extends CrLitElement {
     super.updated(changedProperties);
 
     if (this.defaultFeatures.length === 0 &&
-        // <if expr="not is_ios">
         this.data.unsupportedFeatures.length === 0 &&
-        // </if>
         this.nonDefaultFeatures.length === 0) {
       // Return early if this update corresponds to the initial dummy data, to
       // avoid triggering `featuresResolver` prematurely in tests.
@@ -327,12 +309,10 @@ export class FlagsAppElement extends CrLitElement {
     this.featuresResolver.resolve();
   }
 
-  // <if expr="not is_ios">
   private getRestartButton(): HTMLButtonElement {
     return this.getRequiredElement<HTMLButtonElement>(
         '#experiment-restart-button');
   }
-  // </if>
 
   setAnnounceStatusDelayMsForTesting(delay: number) {
     this.announceStatusDelayMs = delay;
@@ -381,7 +361,6 @@ export class FlagsAppElement extends CrLitElement {
         this.getRequiredElement('#tab-content-available .no-match');
     noMatchMsg.toggleAttribute('hidden', availableExperimentsHits > 0);
 
-    // <if expr="not is_ios">
     // Unavailable experiments, which are undefined on iOS.
     const unavailableExperiments =
         this.shadowRoot.querySelectorAll<FlagsExperimentElement>(
@@ -390,17 +369,11 @@ export class FlagsAppElement extends CrLitElement {
         await highlightAllMatches(unavailableExperiments, searchTerm);
     noMatchMsg = this.getRequiredElement('#tab-content-unavailable .no-match');
     noMatchMsg.toggleAttribute('hidden', unavailableExperimentsHits > 0);
-    // </if>
 
     if (this.searching) {
-      // <if expr="is_ios">
-      await this.announceSearchResults(searchTerm, availableExperimentsHits);
-      // </if>
-      // <if expr="not is_ios">
       const hits = this.selectedTabIndex_ === 0 ? availableExperimentsHits :
                                                   unavailableExperimentsHits;
       await this.announceSearchResults(searchTerm, hits);
-      // </if>
     }
 
     await this.updateComplete;
@@ -429,10 +402,8 @@ export class FlagsAppElement extends CrLitElement {
   protected onResetAllKeydown_(e: KeyboardEvent) {
     if (this.lastChanged && e.key === 'Tab' && !e.shiftKey) {
       e.preventDefault();
-      // <if expr="not is_ios">
       this.lastFocused = this.lastChanged;
       this.getRestartButton().focus();
-      // </if>
     }
   }
 
@@ -479,7 +450,6 @@ export class FlagsAppElement extends CrLitElement {
     // Highlight the referenced element.
     experiment.classList.add('referenced');
 
-    // <if expr="not is_ios">
     // Switch to unavailable tab if the flag is in this section.
     if (this.getRequiredElement('#tab-content-unavailable')
             .contains(experiment)) {
@@ -487,7 +457,6 @@ export class FlagsAppElement extends CrLitElement {
       await this.updateComplete;
       await this.getRequiredElement('cr-tabs').updateComplete;
     }
-    // </if>
     experiment.scrollIntoView();
   }
 
@@ -495,15 +464,9 @@ export class FlagsAppElement extends CrLitElement {
    * Gets details and configuration about the available features.
    */
   private async requestExperimentalFeaturesData() {
-    // <if expr="not is_ios">
     const data = this.isFlagsDeprecatedUrl_ ?
         await FlagsBrowserProxyImpl.getInstance().requestDeprecatedFeatures() :
         await FlagsBrowserProxyImpl.getInstance().requestExperimentalFeatures();
-    // </if>
-    // <if expr="is_ios">
-    const data =
-        await FlagsBrowserProxyImpl.getInstance().requestExperimentalFeatures();
-    // </if>
 
     this.data = data;
   }
@@ -672,10 +635,8 @@ export class FlagsAppElement extends CrLitElement {
       if (e.key === 'Tab' && !e.shiftKey) {
         assert(this.lastChanged === select);
         e.preventDefault();
-        // <if expr="not is_ios">
         this.lastFocused = this.lastChanged;
         this.getRestartButton().focus();
-        // </if>
       }
     });
 
@@ -695,11 +656,9 @@ export class FlagsAppElement extends CrLitElement {
     this.needsRestart = true;
   }
 
-  // <if expr="not is_ios">
   protected onRestartButtonClick_() {
     FlagsBrowserProxyImpl.getInstance().restartBrowser();
   }
-  // </if>
 
   protected getNeedsRestartRole_(): string {
     return this.needsRestart ? 'alert' : 'none';
@@ -721,7 +680,6 @@ export class FlagsAppElement extends CrLitElement {
     return index === this.selectedTabIndex_;
   }
 
-  // <if expr="not is_ios">
   /**
    * Allows the restart button to jump back to the previously focused experiment
    * in the list instead of going to the top of the page.
@@ -736,7 +694,6 @@ export class FlagsAppElement extends CrLitElement {
   protected onRestartButtonBlur_() {
     this.lastFocused = null;
   }
-  // </if>
 }
 
 declare global {

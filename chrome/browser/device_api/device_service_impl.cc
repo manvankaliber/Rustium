@@ -30,62 +30,8 @@
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_pref_names.h"
-#include "chrome/browser/ash/app_mode/isolated_web_app/kiosk_iwa_data.h"
-#include "chrome/browser/ash/app_mode/isolated_web_app/kiosk_iwa_manager.h"
-#include "chrome/browser/ash/app_mode/web_app/kiosk_web_app_data.h"
-#include "chrome/browser/ash/app_mode/web_app/kiosk_web_app_manager.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-#include "chrome/common/url_constants.h"
-#include "chromeos/components/kiosk/kiosk_utils.h"
-#include "components/user_manager/user_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
-#if BUILDFLAG(IS_CHROMEOS)
-
-// Returns an origin of the current kiosk web app.
-// Should only be called when the current user is a web kiosk.
-url::Origin GetWebKioskOrigin() {
-  const AccountId& account_id =
-      user_manager::UserManager::Get()->GetPrimaryUser()->GetAccountId();
-  CHECK(ash::KioskWebAppManager::IsInitialized());
-  const ash::KioskWebAppData* app_data =
-      ash::KioskWebAppManager::Get()->GetAppByAccountId(account_id);
-  return url::Origin::Create(CHECK_DEREF(app_data).install_url());
-}
-
-// Returns an origin of the current kiosk isolated web app.
-// Should only be called when the current user is an IWA kiosk.
-url::Origin GetIwaKioskOrigin() {
-  const AccountId& account_id =
-      user_manager::UserManager::Get()->GetPrimaryUser()->GetAccountId();
-  const ash::KioskIwaData* iwa_data =
-      CHECK_DEREF(ash::KioskIwaManager::Get()).GetApp(account_id);
-  return CHECK_DEREF(iwa_data).origin();
-}
-
-std::optional<url::Origin> MaybeGetCurrentKioskOrigin() {
-  if (chromeos::IsWebKioskSession()) {
-    return GetWebKioskOrigin();
-  }
-  if (chromeos::IsIwaKioskSession()) {
-    return GetIwaKioskOrigin();
-  }
-  return std::nullopt;
-}
-
-// Check whether the target origin is the same as the main application running
-// in the Kiosk session.
-bool IsEqualToKioskOrigin(const url::Origin& origin) {
-  std::optional<url::Origin> current_kiosk_origin =
-      MaybeGetCurrentKioskOrigin();
-  return current_kiosk_origin.has_value() &&
-         (current_kiosk_origin.value() == origin);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 Profile* GetProfile(content::RenderFrameHost& host) {
   return Profile::FromBrowserContext(host.GetBrowserContext());
@@ -101,40 +47,6 @@ GetRegistrar(content::RenderFrameHost& host) {
   return web_app_provider->registrar_unsafe();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Check whether an app with the target origin is in the WebAppRegistrar and is
-// a dev mode installed IWA.
-bool IsDevModeInstalledIwaOrigin(content::RenderFrameHost& host,
-                                 const url::Origin& origin) {
-  ASSIGN_OR_RETURN(const web_app::WebAppRegistrar& registrar,
-                   GetRegistrar(host), [] { return false; });
-  return registrar
-      .FindBestAppWithUrlInScope(
-          origin.GetURL(), web_app::WebAppFilter::IsDevModeIsolatedApp(),
-          {.scope_score_options = {.exclude_scope_extensions = true}})
-      .has_value();
-}
-
-bool IsAffiliatedUser(Profile* profile) {
-  const user_manager::User* user =
-      ash::ProfileHelper::Get()->GetUserByProfile(profile);
-  return (user != nullptr) && user->IsAffiliated();
-}
-
-bool IsAllowedByContentSettings(content::RenderFrameHost& host,
-                                const url::Origin& origin) {
-  switch (HostContentSettingsMapFactory::GetForProfile(GetProfile(host))
-              ->GetContentSetting(origin.GetURL(), origin.GetURL(),
-                                  ContentSettingsType::DEVICE_ATTRIBUTES)) {
-    case CONTENT_SETTING_ALLOW:
-      return true;
-    case CONTENT_SETTING_BLOCK:
-      return false;
-    default:
-      NOTREACHED();
-  }
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool IsTrustedContext(content::RenderFrameHost& host,
                       const url::Origin& origin) {
@@ -143,19 +55,6 @@ bool IsTrustedContext(content::RenderFrameHost& host,
     return false;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (IsRunningInAppMode()) {
-    if (base::FeatureList::IsEnabled(
-            permissions::features::
-                kAllowMultipleOriginsForWebKioskPermissions)) {
-      return IsEqualToKioskOrigin(origin) ||
-             IsWebKioskOriginAllowed(GetProfile(host)->GetPrefs(),
-                                     origin.GetURL());
-    }
-
-    return IsEqualToKioskOrigin(origin);
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   ASSIGN_OR_RETURN(const web_app::WebAppRegistrar& registrar,
                    GetRegistrar(host), [] { return false; });
@@ -191,14 +90,6 @@ DeviceServiceImpl::DeviceServiceImpl(
       ::prefs::kIsolatedWebAppInstallForceList,
       base::BindRepeating(&DeviceServiceImpl::OnDisposingIfNeeded,
                           base::Unretained(this)));
-#if BUILDFLAG(IS_CHROMEOS)
-  pref_change_registrar_.Add(
-      ash::prefs::kKioskBrowserPermissionsAllowedForOrigins,
-      base::BindRepeating(&DeviceServiceImpl::OnDisposingIfNeeded,
-                          base::Unretained(this)));
-  content_settings_observation_.Observe(
-      HostContentSettingsMapFactory::GetForProfile(profile));
-#endif  // BUILDFLAG(IS_CHROMEOS)
   auto& provider = CHECK_DEREF(web_app::WebAppProvider::GetForWebApps(profile));
   install_manager_observation_.Observe(&provider.install_manager());
 }
@@ -264,17 +155,6 @@ void DeviceServiceImpl::OnWebAppInstallManagerDestroyed() {
   install_manager_observation_.Reset();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void DeviceServiceImpl::OnContentSettingChanged(
-    const ContentSettingsPattern& primary_pattern,
-    const ContentSettingsPattern& secondary_pattern,
-    ContentSettingsTypeSet content_type_set) {
-  if (!content_type_set.Contains(ContentSettingsType::DEVICE_ATTRIBUTES)) {
-    return;
-  }
-  OnDisposingIfNeeded();
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void DeviceServiceImpl::OnDisposingIfNeeded() {
   // DeviceServiceImpl is allocated on the heap, thus it is safe to remove it
@@ -312,20 +192,5 @@ void DeviceServiceImpl::GetDeviceAttribute(
     [[maybe_unused]] void (DeviceAttributeApi::*method)(
         DeviceAttributeCallback callback),
     DeviceAttributeCallback callback) {
-#if !BUILDFLAG(IS_CHROMEOS)
   device_attribute_api_->ReportNotSupportedPlatformError(std::move(callback));
-#else
-  if (!IsAffiliatedUser(GetProfile(render_frame_host())) &&
-      !IsDevModeInstalledIwaOrigin(render_frame_host(), origin())) {
-    device_attribute_api_->ReportNotAffiliatedError(std::move(callback));
-    return;
-  }
-
-  if (!IsAllowedByContentSettings(render_frame_host(), origin())) {
-    device_attribute_api_->ReportNotAllowedError(std::move(callback));
-    return;
-  }
-
-  (device_attribute_api_.get()->*method)(std::move(callback));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }

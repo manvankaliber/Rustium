@@ -39,17 +39,8 @@ component("idle") {
     "idle_time_provider.h",
   ]
 
-  if (is_chromeos) {
-    sources += [ "idle_chromeos.cc" ]
-    deps += [ "//chromeos/ash/components/dbus/session_manager" ]
-  }
-
   if (is_mac) {
     sources += [ "idle_mac.mm" ]
-  }
-
-  if (is_ios) {
-    sources += [ "idle_ios.mm" ]
   }
 
   if (is_win) {
@@ -70,11 +61,6 @@ component("idle") {
         "//dbus",
       ]
     }
-  }
-
-  if (is_android) {
-    deps += [ "//ui/base:ui_base_jni_headers" ]
-    sources += [ "idle_android.cc" ]
   }
 
   if (is_mac) {

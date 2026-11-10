@@ -94,7 +94,6 @@ generate_wrapper("perfetto_diff_tests") {
     "//third_party/perfetto/protos/perfetto/trace/gpu:gpu_interned_data_descriptor",
     "//third_party/perfetto/protos/perfetto/trace/gpu:gpu_track_event_descriptor",
     "//third_party/perfetto/protos/perfetto/trace_summary:descriptor",
-    "//third_party/perfetto/protos/third_party/android:extension_descriptor_gen",
     "//third_party/perfetto/src/trace_processor:trace_processor_shell",
   ]
 

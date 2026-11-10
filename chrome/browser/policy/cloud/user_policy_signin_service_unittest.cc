@@ -66,11 +66,7 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/policy/cloud/user_policy_signin_service_mobile.h"
-#else
 #include "chrome/browser/policy/cloud/user_policy_signin_service.h"
-#endif
 
 namespace em = enterprise_management;
 
@@ -384,7 +380,6 @@ TEST_F(UserPolicySigninServiceTest, InitWhileSignedOut) {
 // TODO(crbug.com/40831734): Extend the test coverage by merging tests from
 // ios/chrome/browser/policy/cloud/user_policy_signin_service_unittest.mm here.
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(UserPolicySigninServiceTest, InitRefreshTokenAvailableBeforeSignin) {
   // Make sure user is not signed in.
   ASSERT_FALSE(identity_test_env()->identity_manager()->HasPrimaryAccount(
@@ -412,12 +407,10 @@ TEST_F(UserPolicySigninServiceTest, InitRefreshTokenAvailableBeforeSignin) {
   ASSERT_TRUE(IsRequestActive());
   EXPECT_TRUE(manager_->ArePoliciesRequired());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // TODO(joaodasilva): these tests rely on issuing the OAuth2 login refresh
 // token after signin. Revisit this after figuring how to handle that on
 // Android.
-#if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(UserPolicySigninServiceSignedInTest, InitWhileSignedIn) {
   // UserCloudPolicyManager should be initialized.
@@ -777,7 +770,6 @@ TEST_F(UserPolicySigninServiceTest,
   EXPECT_TRUE(future.Get());
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(UserPolicySigninServiceSignedInTest, SignOutAfterInit) {
   // UserCloudPolicyManager should be initialized.
@@ -1111,194 +1103,6 @@ TEST_F(UserPolicySigninServiceTest, UpdaterRunsBeforePolicyServiceOnSignIn) {
   EXPECT_TRUE(manager->core()->service());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-class StoreLoadObserver : public CloudPolicyStore::Observer {
- public:
-  explicit StoreLoadObserver(base::RepeatingClosure quit_closure)
-      : quit_closure_(std::move(quit_closure)) {}
-  void OnStoreLoaded(CloudPolicyStore* store) override { quit_closure_.Run(); }
-  void OnStoreError(CloudPolicyStore* store) override { quit_closure_.Run(); }
-
- private:
-  base::RepeatingClosure quit_closure_;
-};
-
-TEST_F(UserPolicySigninServiceTest, CanApplyPoliciesMetricOnSignIn) {
-  UserPolicySigninService* signin_service =
-      UserPolicySigninServiceFactory::GetForProfile(profile_.get());
-
-  // Disable testing override.
-  signin_service->set_profile_can_be_managed_for_testing(false);
-
-  // Seed the account as managed.
-  AccountInfo account_info =
-      identity_test_env()->MakeAccountAvailable(kTestUser);
-  AccountInfo::Builder builder(account_info);
-  builder.SetHostedDomain("test.com");
-  identity_test_env()->UpdateAccountInfoForAccount(builder.Build());
-
-  base::HistogramTester tester;
-
-  // Sign in. This should trigger OnPrimaryAccountChanged -> CanApplyPolicies.
-  identity_test_env()->SetPrimaryAccount(kTestUser,
-                                         signin::ConsentLevel::kSignin);
-
-  // Since ProfileCanBeManaged will return false (no profile manager or not set
-  // up), we expect the metric to be logged as false.
-  tester.ExpectUniqueSample(
-      "Enterprise.CloudPolicy.ProfileCanBeManagedForManagedUser", false, 1);
-}
-
-TEST_F(UserPolicySigninServiceTest,
-       AcceptanceRecoveryAndClientErrorsClearCheckTimeAndRegisterImmediately) {
-  UserPolicySigninService* signin_service =
-      UserPolicySigninServiceFactory::GetForProfile(profile_.get());
-  ASSERT_TRUE(signin_service);
-
-  // Sign in to establish primary account for policy application.
-  SigninToChrome();
-
-  // Set a non-zero last policy check time to simulate a previous check/delay.
-  profile_->GetPrefs()->SetInt64(
-      policy_prefs::kLastPolicyCheckTime,
-      base::Time::Now().ToDeltaSinceWindowsEpoch().InMicroseconds());
-  EXPECT_NE(0,
-            profile_->GetPrefs()->GetInt64(policy_prefs::kLastPolicyCheckTime));
-
-  // (1) When policy manager is shut down (e.g. sign-out or recovery reset),
-  // kLastPolicyCheckTime should be cleared so future registrations aren't
-  // delayed.
-  signin_service->ShutdownCloudPolicyManager();
-  EXPECT_EQ(0,
-            profile_->GetPrefs()->GetInt64(policy_prefs::kLastPolicyCheckTime));
-  EXPECT_FALSE(manager_->core()->service());
-
-  // (2) When management acceptance is gained, kLastPolicyCheckTime should also
-  // be cleared to allow immediate registration without waiting for backoff.
-  profile_->GetPrefs()->SetInt64(
-      policy_prefs::kLastPolicyCheckTime,
-      base::Time::Now().ToDeltaSinceWindowsEpoch().InMicroseconds());
-  signin_service->OnProfileUserManagementAcceptanceChanged(profile_->GetPath());
-  EXPECT_EQ(0,
-            profile_->GetPrefs()->GetInt64(policy_prefs::kLastPolicyCheckTime));
-  EXPECT_TRUE(manager_->core()->service());
-
-  // (3) When store load fails with a non-OK status (STATUS_LOAD_ERROR),
-  // kLastPolicyCheckTime should be cleared and registration triggered
-  // immediately (which updates kLastPolicyCheckTime to Now).
-  const int64_t initial_check_time = (base::Time::Now() - base::Hours(1))
-                                         .ToDeltaSinceWindowsEpoch()
-                                         .InMicroseconds();
-  profile_->GetPrefs()->SetInt64(policy_prefs::kLastPolicyCheckTime,
-                                 initial_check_time);
-  mock_store_->status_ = CloudPolicyStore::STATUS_LOAD_ERROR;
-  mock_store_->NotifyStoreError();
-  EXPECT_GT(profile_->GetPrefs()->GetInt64(policy_prefs::kLastPolicyCheckTime),
-            initial_check_time);
-  EXPECT_TRUE(IsRequestActive());
-}
-
-TEST_F(UserPolicySigninServiceTest,
-       OversizedPolicyCacheTriggersImmediateRegistration) {
-  base::ScopedTempDir temp_dir;
-  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
-
-  base::FilePath profile_path = temp_dir.GetPath().AppendASCII("test_profile");
-  ASSERT_TRUE(base::CreateDirectory(profile_path));
-  base::FilePath policy_dir = profile_path.AppendASCII("User Policy");
-  ASSERT_TRUE(base::CreateDirectory(policy_dir));
-  base::FilePath policy_file = policy_dir.AppendASCII("Policy");
-  base::FilePath key_file = policy_dir.AppendASCII("Key");
-
-  // Create an oversized policy cache file exceeding the max cache size limit
-  // (> 5 MB, so it triggers STATUS_LOAD_ERROR under both 1 MB and 5 MB limits).
-  std::string oversized_data(5 * 1024 * 1024 + 1024, 'x');
-  ASSERT_TRUE(base::WriteFile(policy_file, oversized_data));
-
-  // Build a UserCloudPolicyStore backed by this policy file.
-  auto real_store = std::make_unique<UserCloudPolicyStore>(
-      policy_file, key_file, dm_protocol::GetChromeUserPolicyType(),
-      base::SingleThreadTaskRunner::GetCurrentDefault());
-
-  auto real_manager = std::make_unique<UserCloudPolicyManager>(
-      std::move(real_store), nullptr, base::FilePath(), nullptr,
-      base::SingleThreadTaskRunner::GetCurrentDefault(),
-      network::TestNetworkConnectionTracker::CreateGetter());
-
-  auto prefs = std::make_unique<sync_preferences::TestingPrefServiceSyncable>();
-  RegisterUserProfilePrefs(prefs->registry());
-
-  TestingProfile::TestingFactories testing_factories =
-      IdentityTestEnvironmentProfileAdaptor::
-          GetIdentityTestEnvironmentFactoriesWithAppendedFactories(
-              {TestingProfile::TestingFactory{
-                  ChromeSigninClientFactory::GetInstance(),
-                  base::BindRepeating(&signin::BuildTestSigninClient)}});
-
-  TestingProfile::Builder builder;
-  builder.SetPath(profile_path);
-  builder.SetPrefService(std::move(prefs));
-  builder.AddTestingFactories(std::move(testing_factories));
-  builder.SetUserCloudPolicyManager(std::move(real_manager));
-
-  std::unique_ptr<TestingProfile> test_profile =
-      IdentityTestEnvironmentProfileAdaptor::
-          CreateProfileForIdentityTestEnvironment(builder);
-  ASSERT_TRUE(test_profile);
-
-  UserPolicySigninService* signin_service =
-      UserPolicySigninServiceFactory::GetForProfile(test_profile.get());
-  ASSERT_TRUE(signin_service);
-  signin_service->set_profile_can_be_managed_for_testing(true);
-
-  IdentityTestEnvironmentProfileAdaptor test_env_adaptor(test_profile.get());
-  signin::IdentityTestEnvironment* test_identity_env =
-      test_env_adaptor.identity_test_env();
-
-  UserCloudPolicyManager* manager = test_profile->GetUserCloudPolicyManager();
-  ASSERT_TRUE(manager);
-  manager->Init(&schema_registry_);
-
-  // Pre-populate kLastPolicyCheckTime to simulate a past check.
-  const int64_t initial_check_time = (base::Time::Now() - base::Hours(1))
-                                         .ToDeltaSinceWindowsEpoch()
-                                         .InMicroseconds();
-  test_profile->GetPrefs()->SetInt64(policy_prefs::kLastPolicyCheckTime,
-                                     initial_check_time);
-  EXPECT_NE(0, test_profile->GetPrefs()->GetInt64(
-                   policy_prefs::kLastPolicyCheckTime));
-
-  // Sign in to Chrome.
-  test_identity_env->MakePrimaryAccountAvailable(kTestUser,
-                                                 signin::ConsentLevel::kSignin);
-  test_identity_env->SetRefreshTokenForPrimaryAccount();
-  signin_service->OnProfileReady(test_profile.get());
-  ASSERT_TRUE(manager->core()->service());
-
-  // Wait for the policy store load to complete.
-  base::test::TestFuture<void> store_done;
-  StoreLoadObserver store_observer(store_done.GetRepeatingCallback());
-  manager->core()->store()->AddObserver(&store_observer);
-  if (manager->core()->store()->is_initialized()) {
-    store_done.SetValue();
-  } else {
-    EXPECT_TRUE(store_done.Wait());
-  }
-  manager->core()->store()->RemoveObserver(&store_observer);
-  EXPECT_EQ(CloudPolicyStore::STATUS_LOAD_ERROR,
-            manager->core()->store()->status());
-
-  // On store load error, registration is triggered immediately, which updates
-  // kLastPolicyCheckTime to current time.
-  EXPECT_GT(
-      test_profile->GetPrefs()->GetInt64(policy_prefs::kLastPolicyCheckTime),
-      initial_check_time);
-  // Furthermore, registration request should be immediately active.
-  EXPECT_TRUE(
-      test_env_adaptor.identity_test_env()->IsAccessTokenRequestPending() ||
-      test_url_loader_factory_.NumPending() > 0);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 

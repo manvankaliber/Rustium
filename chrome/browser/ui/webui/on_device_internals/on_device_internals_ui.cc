@@ -26,7 +26,7 @@ OnDeviceInternalsUI::OnDeviceInternalsUI(content::WebUI* web_ui)
                               IDR_ON_DEVICE_INTERNALS_ON_DEVICE_INTERNALS_HTML);
 
   source->AddBoolean("useChromeOSModelService",
-                     BUILDFLAG(USE_CHROMEOS_MODEL_SERVICE));
+                     false);
 }
 
 OnDeviceInternalsUI::~OnDeviceInternalsUI() = default;

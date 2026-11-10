@@ -502,16 +502,6 @@ void GPUCanvasContext::configure(const GPUCanvasConfiguration* descriptor,
   device_->GetHandle().ValidateTextureDescriptor(&texture_descriptor_);
 
   copy_to_swap_texture_required_ = false;
-#if BUILDFLAG(IS_ANDROID)
-  if (texture_descriptor_.format == wgpu::TextureFormat::BGRA8Unorm) {
-    // BGRA8Unorm is not natively supported by Android's compositor.
-    copy_to_swap_texture_required_ = true;
-  }
-  if ((texture_descriptor_.usage & wgpu::TextureUsage::StorageBinding) != 0) {
-    // Storage images are not supported on some AHB/gralloc versions.
-    copy_to_swap_texture_required_ = true;
-  }
-#endif
 #if BUILDFLAG(IS_MAC)
   if (texture_descriptor_.format == wgpu::TextureFormat::RGBA8Unorm) {
     // RGBA8Unorm is not natively supported by MacOS's compositor.

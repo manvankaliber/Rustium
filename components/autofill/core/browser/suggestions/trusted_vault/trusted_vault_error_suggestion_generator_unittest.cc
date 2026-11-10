@@ -67,7 +67,6 @@ class TrustedVaultErrorSuggestionGeneratorTest
   FormData form_;
 };
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(TrustedVaultErrorSuggestionGeneratorTest,
        FetchCreatesValidSuggestionForGenerate) {
   Suggestion suggestion(SuggestionType::kPendingStateTrustedVaultError);
@@ -94,7 +93,6 @@ TEST_F(TrustedVaultErrorSuggestionGeneratorTest,
                                   /*trigger_autofill_field=*/nullptr, client(),
                                   generate_cb.Get());
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 }  // namespace
 }  // namespace autofill

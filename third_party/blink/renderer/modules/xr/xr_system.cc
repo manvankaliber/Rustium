@@ -1506,11 +1506,6 @@ void XRSystem::OnRequestSessionReturned(
 // On Android, due to the way the device renderer is configured, we may need
 // to enter fullscreen, so if we aren't supposed to enter DOMOverlay, we simply
 // fullscreen the document body.
-#if BUILDFLAG(IS_ANDROID)
-  if (!fullscreen_element && result->get_success()->session->wants_fullscreen) {
-    fullscreen_element = DomWindow()->document()->body();
-  }
-#endif
 
   // If we don't need to enter fullscreen continue with session setup.
   if (!fullscreen_element) {

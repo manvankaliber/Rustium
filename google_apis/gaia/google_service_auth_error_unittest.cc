@@ -11,9 +11,6 @@
 #include "net/base/net_errors.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#endif
 
 namespace {
 
@@ -79,16 +76,6 @@ TEST(GoogleServiceAuthErrorTest, FromDeviceManagementError) {
   EXPECT_TRUE(error.IsPersistentError());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST(GoogleServiceAuthErrorTest, DeviceManagementErrorJavaConversion) {
-  JNIEnv* env = base::android::AttachCurrentThread();
-  GoogleServiceAuthError error =
-      GoogleServiceAuthError::FromDeviceManagementError(
-          gaia::CreateFakeDeviceManagementErrorDetails());
-  EXPECT_EQ(error, GoogleServiceAuthError::FromJavaObject(
-                       env, error.ToJavaObject(env)));
-}
-#endif
 
 TEST(GoogleServiceAuthErrorTest, FromInvalidGaiaCredentialsReason) {
   GoogleServiceAuthError error =

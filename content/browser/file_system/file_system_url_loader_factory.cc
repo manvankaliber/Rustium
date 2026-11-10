@@ -293,13 +293,9 @@ class FileSystemEntryURLLoader : public network::mojom::URLLoader {
           case storage::kFileSystemTypeTest:
             return true;
           default:
-#if BUILDFLAG(IS_CHROMEOS)
-            return false;
-#else
             // On non-ChromeOS platforms, all external mounts should be strictly
             // governed by ChildProcessSecurityPolicy.
             return true;
-#endif
         }
       default:
         return false;

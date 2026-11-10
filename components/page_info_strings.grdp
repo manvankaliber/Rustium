@@ -123,7 +123,7 @@
   </if>
 
   <!-- Strings below are not used on iOS. -->
-  <if expr="not is_ios">
+
 
     <!-- Certificate exception decision UI (after clicking through an SSL certificate error) -->
     <!-- TODO(crbug.com/41183997): Support revoking certificate overrides on iOS Page Info. -->
@@ -217,32 +217,27 @@
     </message>
 
     <!-- Certificate Info strings -->
-    <if expr="is_android">
-    <!-- Only used in the dialog shown after tapping "Details" in page info -->
-    <message name="IDS_PAGE_INFO_SECURE_IDENTITY_VERIFIED" desc="The text of the identity section when the page is secure and uses a valid certificate">
-      <ph name="BROWSER">$1<ex>Chromium</ex></ph> verified that <ph name="ISSUER">$2<ex>VeriSign</ex></ph> issued this website's certificate.
-    </message>
-    </if>
+
 
     <!-- Cookies -->
-    <if expr="not is_android">
+
       <message name="IDS_PAGE_INFO_COOKIES" desc="The label for the Cookies setting in the Page Information Window.">
         Cookies
       </message>
       <message name="IDS_PAGE_INFO_COOKIES_TOOLTIP" desc="A tooltip that appears when the user hovers over the 'Cookies and site data' button. Options on the next screen include: Block third-party cookies, Manage cookies and site data, and See related sites.">
         Options for cookies and site data
       </message>
-    </if>
+
 
     <!-- Permission values -->
-    <if expr="not is_android">
+
     <message name="IDS_PAGE_INFO_BUTTON_TEXT_AUTOMATIC_BY_DEFAULT" desc="The Page Info popup contains several buttons for opening dropdown menus and changing site permissions. This is the text of such a button if the button controls the sound permission and is set to the default setting and the default setting is automatic.">
       Automatic (default)
     </message>
     <message name="IDS_PAGE_INFO_BUTTON_TEXT_MUTED_BY_DEFAULT" desc="The Page Info popup contains several buttons for opening dropdown menus and changing site permissions. This is the text of such a button if the button controls the sound permission and is set to the default setting and the default setting is mute.">
       Mute (default)
     </message>
-    </if>
+
 
     <message name="IDS_PAGE_INFO_STATE_TEXT_ALLOWED" desc="The Page Info permission subpage and the main page info page contain a label which shows the state of the site permission. This is the text shown if the permission is allowed by any source (the user, the administrator, etc.).">
       Allowed
@@ -409,17 +404,7 @@
     <message name="IDS_PAGE_INFO_DELETE_HID_DEVICE_WITH_NAME" desc="The tooltip displayed when hovering over the button that will remove permission to access a HID device that the user previously granted to the site.">
       Revoke access for <ph name="DEVICE_NAME">$1<ex>Stadia Controller</ex></ph>
     </message>
-    <if expr="enable_smart_card">
-      <message name="IDS_PAGE_INFO_SMART_CARD_READER_ALLOWED_BY_POLICY_LABEL" desc="The label displayed underneath the device name to inform the user that the item listed is refering to a Smart card reader device explicitly allowed by the user's enterprise policy.">
-        Smart card reader allowed by your administrator
-      </message>
-      <message name="IDS_PAGE_INFO_SMART_CARD_READER_SECONDARY_LABEL" desc="The label displayed underneath the device name to inform the user that the item refers to a smart card reader.">
-        Smart card reader
-      </message>
-      <message name="IDS_PAGE_INFO_DELETE_SMART_CARD_READER_WITH_NAME" desc="The tooltip displayed when hovering over the button that will remove permission to access a Smart Card Reader that the user previously granted to the site.">
-        Revoke access for <ph name="DEVICE_NAME">$1<ex>Reader 1</ex></ph>
-      </message>
-    </if>
+
 
     <!-- Site settings link -->
     <message name="IDS_PAGE_INFO_SITE_SETTINGS_LINK" desc="This is the text of the link pointing to Chrome's Site Settings page. This appears at the bottom of the Permissions pane of the Page Information Window.">
@@ -487,14 +472,14 @@
     </message>
 
     <!-- Permission change infobar. -->
-    <if expr="not is_android">
+
       <message name="IDS_PAGE_INFO_INFOBAR_TEXT" desc="The string shown in the infobar after the user has changed site permissions settings, reminding them to reload the page in order for the new settings to take effect.  Deliberately similar to IDS_EXTENSION_SITE_RELOAD_PAGE_BUBBLE_HEADING, but used for an different permission setting so they are not combined. If updating the one, please update the other or consult the extensions and privacy teams.">
         Reload this page to apply your updated settings on this site
       </message>
       <message name="IDS_PAGE_INFO_INFOBAR_BUTTON" desc="The string used in the infobar button allowing the user to reload the page directly from the infobar.">
         Reload
       </message>
-    </if>
+
 
     <!-- Permission usage strings -->
     <message name="IDS_PAGE_INFO_PERMISSION_USING_NOW" desc="The label used underneath a permission listed in the Page Info bubble if a feature gated behind the permission is used by a page.">
@@ -567,7 +552,7 @@
     <message name="IDS_PAGE_INFO_ALLOWLIST_PASSWORD_REUSE_BUTTON" desc="The string used in the page info allowlist password reuse button.">
       Site is legitimate
     </message>
-  </if>
+
 
      <!-- Billing -->
     <message name="IDS_PAGE_INFO_BILLING_SUMMARY" desc="A one-line summary at the top of the Page Info bubble (which shows when you click the security indicator) if the website has been flagged for a billing interstitial">
@@ -631,7 +616,7 @@
   </message>
 
   <!-- WebUI Certificate viewer dialog strings. Android uses an OS-level certificate manager. -->
-  <if expr="not is_android">
+
     <!-- Certificate detail field labels shared across platforms -->
     <message name="IDS_CERT_DETAILS_VERSION" desc="The label of the Version element in the details page of the certificate info dialog.">
       Version
@@ -800,19 +785,7 @@
     <message name="IDS_CERT_EKU_TIME_STAMPING" desc="description of extended key usage Time Stamping">
       Time Stamping
     </message>
-    <if expr="is_ios">
-      <then>
-        <message name="IDS_CERT_EKU_TLS_WEB_SERVER_AUTHENTICATION" desc="description of extended key usage Server Authentication">
-          Server Authentication
-        </message>
-        <message name="IDS_CERT_EKU_TLS_WEB_CLIENT_AUTHENTICATION" desc="description of extended key usage Client Authentication">
-          Client Authentication
-        </message>
-        <message name="IDS_CERT_EKU_OCSP_SIGNING" desc="description of extended key usage OCSP Signing">
-          OCSP Signing
-        </message>
-      </then>
-      <else>
+
         <message name="IDS_CERT_EKU_TLS_WEB_SERVER_AUTHENTICATION" desc="description of extended key usage TLS WWW Server Authentication">
           TLS WWW Server Authentication
         </message>
@@ -822,22 +795,14 @@
         <message name="IDS_CERT_EKU_OCSP_SIGNING" desc="description of extended key usage Signing OCSP Responses">
           Signing OCSP Responses
         </message>
-      </else>
-    </if>
+
 
     <!-- Certificate Key Usage strings shared across platforms -->
-    <if expr="is_ios">
-      <then>
-        <message name="IDS_CERT_X509_KEY_USAGE_SIGNING" desc="description of certificate usage Digital Signature">
-          Digital Signature
-        </message>
-      </then>
-      <else>
+
         <message name="IDS_CERT_X509_KEY_USAGE_SIGNING" desc="description of certificate usage Signing">
           Signing
         </message>
-      </else>
-    </if>
+
     <message name="IDS_CERT_X509_KEY_USAGE_NONREP" desc="description of certificate usage Non-repudiation">
       Non-repudiation
     </message>
@@ -881,7 +846,7 @@
     <message name="IDS_CERT_QC_ETSI_QCT_WEB" desc="description of ETSI qualified certificate statement certificate type for web site authentication" translateable="false">
       ETSI qct-web
     </message>
-  </if>
+
 
   <!-- Subpages headers -->
   <message name="IDS_PAGE_INFO_SECURITY_SUBPAGE_BUTTON" desc="The label of the button to open the Security subpage in Page Info bubble.">
@@ -1014,25 +979,7 @@
   </message>
 
   <!-- History strings -->
-  <if expr="is_ios">
-    <then>
-      <message name="IDS_PAGE_INFO_HISTORY" desc="Title of the Last Visited row in Page Info on iOS. The button opens history page for the site.">
-        Last visited
-      </message>
-      <message name="IDS_PAGE_INFO_HISTORY_LAST_VISIT_TODAY" desc="Summary string for the Last Visited row in Page Info on iOS. The site was last visited today.">
-        Today
-      </message>
-      <message name="IDS_PAGE_INFO_HISTORY_LAST_VISIT_YESTERDAY" desc="Summary string for the Last Visited row in Page Info on iOS. The site was last visited yesterday.">
-        Yesterday
-      </message>
-      <message name="IDS_PAGE_INFO_HISTORY_LAST_VISIT_DAYS" desc="Summary string for the Last Visited row in Page Info on iOS. The site was last visited NUM_DAYS days ago.">
-        <ph name="NUM_DAYS">$1<ex>2</ex></ph> days ago
-      </message>
-      <message name="IDS_PAGE_INFO_HISTORY_LAST_VISIT_DATE" desc="Summary string for the Last Visited row in Page Info on iOS. The site was last visited on a particular date.">
-        <ph name="DATE">$1<ex>Apr 4, 2021</ex></ph>
-      </message>
-    </then>
-    <else>
+
       <message name="IDS_PAGE_INFO_HISTORY" desc="The button label of the 'History' row in Page Info bubble. The button opens history page for the site.">
         History
       </message>
@@ -1048,8 +995,7 @@
       <message name="IDS_PAGE_INFO_HISTORY_LAST_VISIT_DATE" desc="Summary string for page info history row. The site was last visited on a particular date.">
         Last visited <ph name="DATE">$1<ex>Apr 4, 2021</ex></ph>
       </message>
-    </else>
-  </if>
+
 
   <!-- Enterprise interstitial strings -->
   <message name="IDS_PAGE_INFO_ENTERPRISE_WARN_SUMMARY" desc="A one-line summary at the top of the Page Info bubble (which shows when you click the security indicator) if the website has been flagged by your admin to show a warning">

@@ -42,11 +42,6 @@
 #include "ui/base/data_transfer_policy/data_transfer_endpoint.h"
 #include "ui/base/data_transfer_policy/data_transfer_policy_controller.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "base/barrier_closure.h"
-#include "base/strings/strcat.h"
-#include "ui/ozone/public/platform_clipboard.h"
-#endif
 
 namespace ui {
 
@@ -391,9 +386,6 @@ class ClipboardDataBuilder {
   static void CommitToClipboard(ClipboardInternal& clipboard,
                                 std::optional<DataTransferEndpoint> data_src) {
     ClipboardData* data = GetCurrentData();
-#if BUILDFLAG(IS_CHROMEOS)
-    data->set_commit_time(base::Time::Now());
-#endif  // BUILDFLAG(IS_CHROMEOS)
     data->set_source(std::move(data_src));
     clipboard.WriteData(TakeCurrentData());
   }
@@ -507,18 +499,6 @@ ClipboardNonBacked::~ClipboardNonBacked() {
   UnregisterInstance(this);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void ClipboardNonBacked::SetPlatformClipboard(
-    PlatformClipboard* platform_clipboard) {
-  CHECK(!platform_clipboard_);
-  CHECK(platform_clipboard);
-  platform_clipboard_ = platform_clipboard;
-  platform_clipboard_->SetClipboardDataChangedCallback(
-      base::BindRepeating(&ClipboardNonBacked::OnPlatformClipboardDataChanged,
-                          weak_factory_.GetWeakPtr()));
-  OnPlatformClipboardDataChanged(ClipboardBuffer::kCopyPaste);
-}
-#endif
 
 const ClipboardData* ClipboardNonBacked::GetClipboardData(
     DataTransferEndpoint* data_dst,
@@ -537,16 +517,10 @@ std::unique_ptr<ClipboardData> ClipboardNonBacked::WriteClipboardData(
     std::unique_ptr<ClipboardData> data,
     ClipboardBuffer buffer) {
   CHECK(CalledOnValidThread(), base::NotFatalUntil::M163);
-#if BUILDFLAG(IS_CHROMEOS)
-  SyncToPlatform(buffer, *data);
-#endif
   return GetInternalClipboard(buffer).WriteData(std::move(data));
 }
 
 void ClipboardNonBacked::OnPreShutdown() {
-#if BUILDFLAG(IS_CHROMEOS)
-  platform_clipboard_ = nullptr;
-#endif
 }
 
 void ClipboardNonBacked::GetSource(ClipboardBuffer buffer,
@@ -640,15 +614,6 @@ void ClipboardNonBacked::Clear(ClipboardBuffer buffer) {
   CHECK(CalledOnValidThread(), base::NotFatalUntil::M163);
   CHECK(IsSupportedClipboardBuffer(buffer), base::NotFatalUntil::M163);
   GetInternalClipboard(buffer).Clear();
-#if BUILDFLAG(IS_CHROMEOS)
-  if (platform_clipboard_) {
-    platform_clipboard_->OfferClipboardData(buffer, {});
-    if (buffer == ClipboardBuffer::kCopyPaste &&
-        platform_clipboard_->IsSelectionBufferAvailable()) {
-      platform_clipboard_->OfferClipboardData(ClipboardBuffer::kSelection, {});
-    }
-  }
-#endif
 }
 
 void ClipboardNonBacked::GetStandardFormats(
@@ -732,18 +697,12 @@ void ClipboardNonBacked::ReadText(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RecordTimeIntervalBetweenCommitAndRead(clipboard_internal.GetData());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   RecordRead(ClipboardFormatMetric::kText);
   std::u16string result;
   clipboard_internal.ReadText(&result);
   std::move(callback).Run(std::move(result));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ClipboardMonitor::GetInstance()->NotifyClipboardDataRead();
-#endif
 }
 
 void ClipboardNonBacked::ReadAsciiText(
@@ -760,18 +719,12 @@ void ClipboardNonBacked::ReadAsciiText(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RecordTimeIntervalBetweenCommitAndRead(clipboard_internal.GetData());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   RecordRead(ClipboardFormatMetric::kText);
   std::string result;
   clipboard_internal.ReadAsciiText(&result);
   std::move(callback).Run(std::move(result));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ClipboardMonitor::GetInstance()->NotifyClipboardDataRead();
-#endif
 }
 
 void ClipboardNonBacked::ReadHTML(
@@ -788,9 +741,6 @@ void ClipboardNonBacked::ReadHTML(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RecordTimeIntervalBetweenCommitAndRead(clipboard_internal.GetData());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   RecordRead(ClipboardFormatMetric::kHtml);
   std::u16string markup;
@@ -802,9 +752,6 @@ void ClipboardNonBacked::ReadHTML(
   std::move(callback).Run(std::move(markup), GURL(src_url), fragment_start,
                           fragment_end);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ClipboardMonitor::GetInstance()->NotifyClipboardDataRead();
-#endif
 }
 
 void ClipboardNonBacked::ReadSvg(
@@ -821,18 +768,12 @@ void ClipboardNonBacked::ReadSvg(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RecordTimeIntervalBetweenCommitAndRead(clipboard_internal.GetData());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   RecordRead(ClipboardFormatMetric::kSvg);
   std::u16string result;
   clipboard_internal.ReadSvg(&result);
   std::move(callback).Run(std::move(result));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ClipboardMonitor::GetInstance()->NotifyClipboardDataRead();
-#endif
 }
 
 void ClipboardNonBacked::ReadRTF(
@@ -849,18 +790,12 @@ void ClipboardNonBacked::ReadRTF(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RecordTimeIntervalBetweenCommitAndRead(clipboard_internal.GetData());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   RecordRead(ClipboardFormatMetric::kRtf);
   std::string result;
   clipboard_internal.ReadRTF(&result);
   std::move(callback).Run(std::move(result));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ClipboardMonitor::GetInstance()->NotifyClipboardDataRead();
-#endif
 }
 
 void ClipboardNonBacked::ReadPng(
@@ -877,16 +812,10 @@ void ClipboardNonBacked::ReadPng(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RecordTimeIntervalBetweenCommitAndRead(clipboard_internal.GetData());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   RecordRead(ClipboardFormatMetric::kPng);
   clipboard_internal.ReadPng(std::move(callback));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ClipboardMonitor::GetInstance()->NotifyClipboardDataRead();
-#endif
 }
 
 void ClipboardNonBacked::ReadDataTransferCustomData(
@@ -905,18 +834,12 @@ void ClipboardNonBacked::ReadDataTransferCustomData(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RecordTimeIntervalBetweenCommitAndRead(clipboard_internal.GetData());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   RecordRead(ClipboardFormatMetric::kCustomData);
   std::u16string result;
   clipboard_internal.ReadDataTransferCustomData(type, &result);
   std::move(callback).Run(std::move(result));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ClipboardMonitor::GetInstance()->NotifyClipboardDataRead();
-#endif
 }
 
 void ClipboardNonBacked::ReadFilenames(
@@ -933,16 +856,10 @@ void ClipboardNonBacked::ReadFilenames(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RecordTimeIntervalBetweenCommitAndRead(clipboard_internal.GetData());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   RecordRead(ClipboardFormatMetric::kFilenames);
   std::move(callback).Run(clipboard_internal.ReadFilenames());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ClipboardMonitor::GetInstance()->NotifyClipboardDataRead();
-#endif
 }
 
 void ClipboardNonBacked::ReadURL(
@@ -959,9 +876,6 @@ void ClipboardNonBacked::ReadURL(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RecordTimeIntervalBetweenCommitAndRead(clipboard_internal.GetData());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   RecordRead(ClipboardFormatMetric::kUrl);
   std::u16string title;
@@ -972,9 +886,6 @@ void ClipboardNonBacked::ReadURL(
   url_info.title = std::move(title);
   std::move(callback).Run(std::move(url_info));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ClipboardMonitor::GetInstance()->NotifyClipboardDataRead();
-#endif
 }
 
 void ClipboardNonBacked::ReadData(
@@ -996,18 +907,12 @@ void ClipboardNonBacked::ReadData(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RecordTimeIntervalBetweenCommitAndRead(clipboard_internal.GetData());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   RecordRead(ClipboardFormatMetric::kData);
   std::string result;
   clipboard_internal.ReadData(format, &result);
   std::move(callback).Run(std::move(result));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ClipboardMonitor::GetInstance()->NotifyClipboardDataRead();
-#endif
 }
 
 #if BUILDFLAG(IS_OZONE)
@@ -1039,9 +944,6 @@ void ClipboardNonBacked::WritePortableAndPlatformRepresentations(
   ClipboardDataBuilder::CommitToClipboard(
       clipboard_internal, base::OptionalFromPtr(data_src.get()));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  SyncToPlatform(buffer, *clipboard_internal.GetData());
-#endif
 }
 
 void ClipboardNonBacked::WriteText(std::string_view text) {
@@ -1093,189 +995,5 @@ ClipboardInternal& ClipboardNonBacked::GetInternalClipboard(
   return *internal_clipboards_.at(buffer);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace {
-
-constexpr auto kSupportedMimeTypes = std::to_array<const char*>({
-    kMimeTypeHtml,
-    kMimeTypeSvg,
-    kMimeTypeRtf,
-    kMimeTypePng,
-    kMimeTypeUriList,
-    // Text MIME types must be at the end because OnGetAvailableMimeTypes()
-    // breaks after adding the first matching text MIME type.
-    kMimeTypePlainText,
-    kMimeTypeLinuxUtf8String,
-    kMimeTypeLinuxText,
-    kMimeTypeLinuxString,
-    kMimeTypeUtf8PlainText,
-});
-
-}  // namespace
-
-void ClipboardNonBacked::SyncToPlatform(ClipboardBuffer buffer,
-                                        const ClipboardData& data) {
-  if (!platform_clipboard_) {
-    return;
-  }
-
-  auto to_refcounted_bytes = [](const auto& str) {
-    return base::MakeRefCounted<base::RefCountedBytes>(base::as_byte_span(str));
-  };
-
-  PlatformClipboard::DataMap data_map;
-  if (!data.text().empty()) {
-    // Populate `data_map` with `data.text()` for all standard and Linux/X11
-    // plain-text MIME types.
-    auto text_bytes = to_refcounted_bytes(data.text());
-    const size_t first_text_index = std::distance(
-        kSupportedMimeTypes.begin(),
-        std::ranges::find(kSupportedMimeTypes, kMimeTypePlainText));
-    for (const char* mime :
-         base::span(kSupportedMimeTypes).subspan(first_text_index)) {
-      data_map[mime] = text_bytes;
-    }
-    if (buffer == ClipboardBuffer::kCopyPaste &&
-        platform_clipboard_->IsSelectionBufferAvailable()) {
-      platform_clipboard_->OfferClipboardData(ClipboardBuffer::kSelection,
-                                              data_map);
-    }
-  }
-  if (!data.markup_data().empty()) {
-    data_map[kMimeTypeHtml] = to_refcounted_bytes(data.markup_data());
-  }
-  if (!data.svg_data().empty()) {
-    data_map[kMimeTypeSvg] = to_refcounted_bytes(data.svg_data());
-  }
-  if (!data.rtf_data().empty()) {
-    data_map[kMimeTypeRtf] = to_refcounted_bytes(data.rtf_data());
-  }
-  if (!data.filenames().empty()) {
-    std::string uri_list = ui::FileInfosToURIList(data.filenames());
-    data_map[kMimeTypeUriList] = to_refcounted_bytes(uri_list);
-  }
-  if (data.maybe_png().has_value()) {
-    data_map[kMimeTypePng] =
-        base::MakeRefCounted<base::RefCountedBytes>(*data.maybe_png());
-  } else if (data.GetBitmapIfPngNotEncoded().has_value()) {
-    std::vector<uint8_t> png_bytes =
-        clipboard_util::EncodeBitmapToPngAcceptJank(
-            *data.GetBitmapIfPngNotEncoded());
-    if (!png_bytes.empty()) {
-      data_map[kMimeTypePng] =
-          base::MakeRefCounted<base::RefCountedBytes>(std::move(png_bytes));
-    }
-  }
-  if (!data.bookmark_url().empty()) {
-    std::u16string bookmark =
-        base::StrCat({base::UTF8ToUTF16(data.bookmark_url()), u"\n",
-                      base::UTF8ToUTF16(data.bookmark_title())});
-    data_map[kMimeTypeMozillaUrl] = to_refcounted_bytes(bookmark);
-  }
-
-  platform_clipboard_->OfferClipboardData(buffer, data_map);
-}
-
-void ClipboardNonBacked::OnPlatformClipboardDataChanged(
-    ClipboardBuffer buffer) {
-  // ChromeOS does not support the primary selection buffer, so ignore selection
-  // changes from the host platform.
-  if (!platform_clipboard_ || buffer != ClipboardBuffer::kCopyPaste) {
-    return;
-  }
-  uint64_t sync_id = ++sync_sequence_id_[buffer];
-  platform_clipboard_->IsSelectionOwner(
-      buffer,
-      base::BindOnce(
-          [](base::WeakPtr<ClipboardNonBacked> self, ClipboardBuffer buffer,
-             uint64_t sync_id, bool is_owner) {
-            // Ignore the notification if `self` was destroyed, if a newer
-            // clipboard change has occurred (`sync_id` is stale), if this
-            // instance already owns the platform selection (meaning the change
-            // originated from `SyncToPlatform()` or `Clear()`), or if
-            // `platform_clipboard_` has been reset during shutdown.
-            if (!self || sync_id != self->sync_sequence_id_[buffer] ||
-                is_owner || !self->platform_clipboard_) {
-              return;
-            }
-            self->platform_clipboard_->GetAvailableMimeTypes(
-                buffer,
-                base::BindOnce(&ClipboardNonBacked::OnGetAvailableMimeTypes,
-                               self, buffer, sync_id));
-          },
-          weak_factory_.GetWeakPtr(), buffer, sync_id));
-}
-
-void ClipboardNonBacked::OnGetAvailableMimeTypes(
-    ClipboardBuffer buffer,
-    uint64_t sync_id,
-    const std::vector<std::string>& mime_types) {
-  if (sync_id != sync_sequence_id_[buffer] || !platform_clipboard_) {
-    return;
-  }
-
-  std::vector<std::string> requests;
-  bool is_text_mime = false;
-  for (const char* mime : kSupportedMimeTypes) {
-    is_text_mime |= (mime == kMimeTypePlainText);
-    if (std::ranges::contains(mime_types, mime)) {
-      requests.push_back(mime);
-      if (is_text_mime) {
-        break;
-      }
-    }
-  }
-
-  if (requests.empty()) {
-    GetInternalClipboard(buffer).Clear();
-    return;
-  }
-
-  auto new_data = std::make_unique<ClipboardData>();
-  ClipboardData* data_ptr = new_data.get();
-
-  auto on_done = base::BindOnce(
-      [](base::WeakPtr<ClipboardNonBacked> self, ClipboardBuffer buffer,
-         uint64_t sync_id, std::unique_ptr<ClipboardData> new_data) {
-        if (!self || sync_id != self->sync_sequence_id_[buffer]) {
-          return;
-        }
-        self->GetInternalClipboard(buffer).WriteData(std::move(new_data));
-      },
-      weak_factory_.GetWeakPtr(), buffer, sync_id, std::move(new_data));
-
-  auto barrier = base::BarrierClosure(requests.size(), std::move(on_done));
-
-  for (const std::string& mime_type : requests) {
-    platform_clipboard_->RequestClipboardData(
-        buffer, mime_type,
-        base::BindOnce(
-            [](ClipboardData* data_ptr, std::string mime_type,
-               base::RepeatingClosure barrier,
-               const PlatformClipboard::Data& data) {
-              if (data && !data->as_vector().empty()) {
-                auto as_string = [&]() {
-                  return std::string(base::as_string_view(data->as_vector()));
-                };
-                if (mime_type == kMimeTypeHtml) {
-                  data_ptr->set_markup_data(as_string());
-                } else if (mime_type == kMimeTypeSvg) {
-                  data_ptr->set_svg_data(as_string());
-                } else if (mime_type == kMimeTypeRtf) {
-                  data_ptr->SetRTFData(as_string());
-                } else if (mime_type == kMimeTypePng) {
-                  data_ptr->SetPngData(data->as_vector());
-                } else if (mime_type == kMimeTypeUriList) {
-                  data_ptr->set_filenames(ui::URIListToFileInfos(as_string()));
-                } else {
-                  data_ptr->set_text(as_string());
-                }
-              }
-              std::move(barrier).Run();
-            },
-            data_ptr, mime_type, barrier));
-  }
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace ui

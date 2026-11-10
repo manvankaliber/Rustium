@@ -369,12 +369,7 @@ export class Service implements ServiceInterface {
     assert(extension && extension.optionsPage);
     // We can't handle embedded options on android because guest_view is not
     // supported.
-    // <if expr="is_android">
-    const openInTab = true;
-    // </if>
-    // <if expr="not is_android">
     const openInTab = extension.optionsPage.openInTab;
-    // </if>
 
     if (openInTab) {
       chrome.developerPrivate.showOptions(extension.id).catch(error => {

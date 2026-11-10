@@ -34,7 +34,6 @@
 #include "ui/base/window_open_disposition_utils.h"
 #include "ui/events/event.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/tabs/public/tab_dialog_manager.h"
 #include "ui/views/bubble/bubble_dialog_model_host.h"
@@ -42,10 +41,6 @@
 #include "ui/views/controls/label.h"
 #include "ui/views/layout/layout_provider.h"
 #include "ui/views/style/typography.h"
-#else
-#include "ui/android/modal_dialog_wrapper.h"
-#include "ui/android/window_android.h"
-#endif
 
 using HttpWarningReason =
     security_interstitials::https_only_mode::InterstitialReason;
@@ -69,13 +64,8 @@ void AddAskBeforeHttpDialogText(ui::DialogModel::Builder& dialog_model,
         AskBeforeHttpDialogController::kDescriptionTextId);
     return;
   } else if (warning_reason == HttpWarningReason::kAdvancedProtection) {
-#if !BUILDFLAG(IS_ANDROID)
     auto description_text = ui::DialogModelLabel::CreateWithReplacement(
         IDS_ABH_PROMPT_ADVANCED_PROTECTION_PRIMARY_PARAGRAPH, link);
-#else
-    auto description_text = ui::DialogModelLabel::CreateWithReplacement(
-        IDS_ABH_PROMPT_ADVANCED_PROTECTION_PRIMARY_PARAGRAPH_ANDROID, link);
-#endif
     dialog_model.AddParagraph(
         description_text, /*header=*/u"",
         AskBeforeHttpDialogController::kDescriptionTextId);
@@ -104,7 +94,6 @@ void AddAskBeforeHttpDialogText(ui::DialogModel::Builder& dialog_model,
     return;
   } else if (warning_reason == HttpWarningReason::kPref ||
              warning_reason == HttpWarningReason::kBalanced) {
-#if !BUILDFLAG(IS_ANDROID)
     // Default text includes parts as a bulleted list.
     // TODO(crbug.com/351990829): Replace this with a custom implementation.
     // The existing BulletedLabelListView is pretty minimal and doesn't allow
@@ -124,14 +113,6 @@ void AddAskBeforeHttpDialogText(ui::DialogModel::Builder& dialog_model,
         std::make_unique<views::BubbleDialogModelHost::CustomView>(
             std::move(bullet_list_view),
             views::BubbleDialogModelHost::FieldType::kText));
-#else
-    // Android does not support views::BulletedLabelListView, so we add the
-    // list items as paragraphs.
-    dialog_model.AddParagraph(ui::DialogModelLabel(l10n_util::GetStringUTF16(
-        IDS_ABH_PROMPT_BALANCED_MODE_FIRST_ITEM_TEXT)));
-    dialog_model.AddParagraph(ui::DialogModelLabel(l10n_util::GetStringUTF16(
-        IDS_ABH_PROMPT_BALANCED_MODE_SECOND_ITEM_TEXT)));
-#endif
 
     auto description_text = ui::DialogModelLabel::CreateWithReplacement(
         IDS_ABH_PROMPT_SECONDARY_TEXT, link);
@@ -187,12 +168,6 @@ void AskBeforeHttpDialogController::ShowDialog(
   if (!web_contents) {
     return;
   }
-#if BUILDFLAG(IS_ANDROID)
-  ui::WindowAndroid* window = web_contents->GetTopLevelNativeWindow();
-  if (!window || !window->GetModalDialogManagerBridge()) {
-    return;
-  }
-#endif
   Observe(web_contents);
   // Track the source ID for the navigation that triggered the dialog.
   navigation_source_id_ = navigation_source_id;
@@ -210,7 +185,6 @@ void AskBeforeHttpDialogController::ShowDialog(
   std::unique_ptr<ui::DialogModel> dialog_model =
       CreateDialogModel(request_url);
 
-#if !BUILDFLAG(IS_ANDROID)
   // The widget will own `model_host` through DialogDelegate.
   views::BubbleDialogModelHost* model_host =
       views::BubbleDialogModelHost::CreateModal(std::move(dialog_model),
@@ -253,18 +227,10 @@ void AskBeforeHttpDialogController::ShowDialog(
   views::View* focused_view = model_host->GetInitiallyFocusedView();
   CHECK(focused_view);
   focused_view->RequestFocus();
-#else
-  current_dialog_model_ = dialog_model.get();
-  ui::ModalDialogWrapper::ShowTabModal(std::move(dialog_model), window);
-#endif
 }
 
 bool AskBeforeHttpDialogController::HasOpenDialog() const {
-#if !BUILDFLAG(IS_ANDROID)
   return dialog_widget_ && !dialog_widget_->IsClosed();
-#else
-  return current_dialog_model_ != nullptr;
-#endif
 }
 
 void AskBeforeHttpDialogController::CloseDialog() {
@@ -272,32 +238,11 @@ void AskBeforeHttpDialogController::CloseDialog() {
 // Android ModalDialogWrapper. On Desktop, we just defer to CloseDialogWidget()
 // to reuse code across different cases where the dialog widget is closed. On
 // Android, we handle this here directly, as we can't use Views code.
-#if !BUILDFLAG(IS_ANDROID)
   if (HasOpenDialog()) {
     CloseDialogWidget(views::Widget::ClosedReason::kUnspecified);
   }
-#else
-  if (HasOpenDialog()) {
-    // Programmatically close the dialog. This will trigger OnDialogDestroying.
-    if (current_dialog_model_ && current_dialog_model_->host()) {
-      current_dialog_model_->host()->Close();
-    }
-  }
-
-  if (navigation_source_id_ != ukm::kInvalidSourceId) {
-    RecordHttpsFirstModeUKM(navigation_source_id_, fallback_reason_,
-                            security_interstitials::https_only_mode::
-                                BlockingResult::kInterstitialDontProceed);
-    metrics_helper_->RecordUserDecision(
-        security_interstitials::MetricsHelper::DONT_PROCEED);
-    navigation_source_id_ = ukm::kInvalidSourceId;
-  }
-
-  is_suspended_ = false;
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void AskBeforeHttpDialogController::CloseDialogWidget(
     views::Widget::ClosedReason reason) {
   // If the user explicitly closed the dialog via ESC key or the close button,
@@ -328,7 +273,6 @@ void AskBeforeHttpDialogController::CloseDialogWidget(
   navigation_source_id_ = ukm::kInvalidSourceId;
   dialog_widget_.reset();
 }
-#endif
 
 void AskBeforeHttpDialogController::ProceedForTesting() {
   OnContinueButtonClicked(request_url_);
@@ -350,63 +294,13 @@ void AskBeforeHttpDialogController::ClickLearnMoreForTesting() {
 }
 
 void AskBeforeHttpDialogController::OnDialogDestroying() {
-#if BUILDFLAG(IS_ANDROID)
-  current_dialog_model_ = nullptr;
-  if (navigation_source_id_ != ukm::kInvalidSourceId) {
-    // The dialog was destroyed but the user didn't dismiss it!
-    // This happens on TAB_SWITCHED or SUSPENDED.
-    is_suspended_ = true;
-  }
-#endif
 }
 
 void AskBeforeHttpDialogController::OnUserDismissed() {
-#if BUILDFLAG(IS_ANDROID)
-  if (current_dialog_model_) {
-    ui::ModalDialogWrapper* wrapper =
-        static_cast<ui::ModalDialogWrapper*>(current_dialog_model_->host());
-    if (wrapper) {
-      std::optional<ui::ModalDialogWrapper::DismissalCause> cause =
-          wrapper->GetDismissalCause();
-      // Only treat NAVIGATE_BACK and TOUCH_OUTSIDE as user dismissal. These
-      // correspond to the user dismissing (but not actively making a decision)
-      // on the dialog on Desktop, where we want to additionally trigger a "back
-      // to safety" navigation.
-      if (cause.has_value() &&
-          (cause.value() ==
-               ui::ModalDialogWrapper::DismissalCause::NAVIGATE_BACK ||
-           cause.value() ==
-               ui::ModalDialogWrapper::DismissalCause::TOUCH_OUTSIDE)) {
-        OnGoBackButtonClicked();
-      }
-    }
-  }
-#endif
 }
 
 void AskBeforeHttpDialogController::OnVisibilityChanged(
     content::Visibility visibility) {
-#if BUILDFLAG(IS_ANDROID)
-  if (visibility == content::Visibility::VISIBLE && is_suspended_) {
-    // Post a task so that the dialog is re-created after Java tab-switching
-    // logic (like TabModalLifetimeHandler) has completed its cleanups.
-    base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-        FROM_HERE,
-        base::BindOnce(
-            [](base::WeakPtr<AskBeforeHttpDialogController> controller) {
-              if (controller && controller->is_suspended_ &&
-                  controller->web_contents() &&
-                  controller->web_contents()->GetVisibility() ==
-                      content::Visibility::VISIBLE) {
-                controller->ShowDialog(controller->web_contents(),
-                                       controller->request_url_,
-                                       controller->navigation_source_id_,
-                                       controller->fallback_reason_);
-              }
-            },
-            weak_ptr_factory_.GetWeakPtr()));
-  }
-#endif
 }
 
 std::unique_ptr<ui::DialogModel>
@@ -423,13 +317,11 @@ AskBeforeHttpDialogController::CreateDialogModel(const GURL& request_url) {
                   l10n_util::GetStringUTF16(IDS_HTTPS_ONLY_MODE_BACK_BUTTON))
               .SetStyle(ui::ButtonStyle::kProminent)
               .SetId(kGoBackButtonId))
-#if !BUILDFLAG(IS_ANDROID)
       // This is skipped on Android because on Android we want the default
       // button set so "Go back" is prominently styled. Android keyboard focus
       // does not immediately go to the default button, so this only impacts
       // button styling.
       .OverrideDefaultButton(ui::mojom::DialogButton::kNone)
-#endif
       .SetInitiallyFocusedField(kGoBackButtonId)
       .SetDialogDestroyingCallback(
           base::BindOnce(&AskBeforeHttpDialogController::OnDialogDestroying,
@@ -438,7 +330,6 @@ AskBeforeHttpDialogController::CreateDialogModel(const GURL& request_url) {
           base::BindOnce(&AskBeforeHttpDialogController::OnUserDismissed,
                          weak_ptr_factory_.GetWeakPtr()));
 
-#if !BUILDFLAG(IS_ANDROID)
   builder.AddExtraButton(
       base::BindRepeating(
           [](base::WeakPtr<AskBeforeHttpDialogController> controller,
@@ -453,17 +344,6 @@ AskBeforeHttpDialogController::CreateDialogModel(const GURL& request_url) {
               l10n_util::GetStringUTF16(IDS_HTTPS_ONLY_MODE_SUBMIT_BUTTON))
           .SetStyle(ui::ButtonStyle::kDefault)
           .SetId(kContinueButtonId));
-#else
-  // Android uses Cancel button instead of Extra button.
-  builder.AddCancelButton(
-      base::BindOnce(&AskBeforeHttpDialogController::OnContinueButtonClicked,
-                     weak_ptr_factory_.GetWeakPtr(), request_url),
-      ui::DialogModel::Button::Params()
-          .SetLabel(
-              l10n_util::GetStringUTF16(IDS_HTTPS_ONLY_MODE_SUBMIT_BUTTON))
-          .SetStyle(ui::ButtonStyle::kDefault)
-          .SetId(kContinueButtonId));
-#endif
 
   // We separately add on the main warning text, including the learn more link.
   ui::DialogModelLabel::TextReplacement link = ui::DialogModelLabel::CreateLink(
@@ -511,11 +391,7 @@ void AskBeforeHttpDialogController::OnGoBackButtonClicked() {
     metrics_helper_->RecordUserDecision(
         security_interstitials::MetricsHelper::DONT_PROCEED);
     navigation_source_id_ = ukm::kInvalidSourceId;
-#if BUILDFLAG(IS_ANDROID)
-    current_dialog_model_ = nullptr;
-#else
     dialog_widget_.reset();
-#endif
   }
 
   // LINT.IfChange(HttpsFirstModeGoBackLogic)
@@ -542,12 +418,7 @@ void AskBeforeHttpDialogController::OnContinueButtonClicked(
     metrics_helper_->RecordUserDecision(
         security_interstitials::MetricsHelper::PROCEED);
     navigation_source_id_ = ukm::kInvalidSourceId;
-#if BUILDFLAG(IS_ANDROID)
-    current_dialog_model_ = nullptr;
-    // Android automatically closes the dialog on button click.
-#else
     dialog_widget_.reset();
-#endif
   }
 
   // LINT.IfChange(HttpsFirstModeProceedLogic)

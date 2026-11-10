@@ -4,12 +4,6 @@
 
 import("//device/vr/buildflags/buildflags.gni")
 
-if (is_android) {
-  import("//build/config/android/config.gni")
-  import("//build/config/android/rules.gni")
-  import("//third_party/jni_zero/jni_zero.gni")
-}
-
 config("vr_gl_mode") {
   if (use_command_buffer) {
     defines = [
@@ -274,35 +268,6 @@ if (enable_vr) {
         deps += [ ":directx_helpers" ]
       }
 
-      if (is_android) {
-        sources += [
-          "openxr/android/openxr_anchor_manager_android.cc",
-          "openxr/android/openxr_anchor_manager_android.h",
-          "openxr/android/openxr_depth_sensor_android.cc",
-          "openxr/android/openxr_depth_sensor_android.h",
-          "openxr/android/openxr_graphics_binding_open_gles.cc",
-          "openxr/android/openxr_graphics_binding_open_gles.h",
-          "openxr/android/openxr_hit_test_manager_android.cc",
-          "openxr/android/openxr_hit_test_manager_android.h",
-          "openxr/android/openxr_light_estimator_android.cc",
-          "openxr/android/openxr_light_estimator_android.h",
-          "openxr/android/openxr_mesh_manager_android.cc",
-          "openxr/android/openxr_mesh_manager_android.h",
-          "openxr/android/openxr_plane_manager_android.cc",
-          "openxr/android/openxr_plane_manager_android.h",
-          "openxr/android/openxr_platform_helper_android_statics.cc",
-          "openxr/android/openxr_scene_understanding_manager_android.cc",
-          "openxr/android/openxr_scene_understanding_manager_android.h",
-          "openxr/android/openxr_unbounded_space_provider_android.cc",
-          "openxr/android/openxr_unbounded_space_provider_android.h",
-        ]
-
-        deps += [
-          "//device/vr/android:vr_android",
-          "//third_party/angle:includes",
-        ]
-      }
-
       if (is_linux) {
         sources += [
           "openxr/linux/openxr_graphics_binding_vulkan.cc",
@@ -416,8 +381,6 @@ if (enable_openxr) {
     sources = []
     if (is_win) {
       sources += [ "openxr/test/openxr_win.json" ]
-    } else if (is_android) {
-      sources += [ "openxr/test/openxr_android.json" ]
     } else if (is_linux) {
       sources += [ "openxr/test/openxr_linux.json" ]
     }
@@ -466,7 +429,7 @@ if (enable_openxr) {
     }
   }
 
-  if (is_win || is_android || is_linux) {
+  if (is_win || is_linux) {
     source_set("openxr_test_helper") {
       testonly = true
 
@@ -525,8 +488,6 @@ if (enable_openxr) {
         # symbolization caveat noted above does not apply to Linux.
         output_name = "libmockopenxrruntime"
         output_dir = "$root_out_dir/mock_vr_clients/bin/openxr"
-      } else if (is_android) {
-        output_name = "libmockopenxrruntime"
       }
 
       defines = [
@@ -542,7 +503,7 @@ if (enable_openxr) {
 
       if (is_win) {
         sources += [ "openxr/test/openxr.def" ]
-      } else if (is_android || is_linux) {
+      } else if (is_linux) {
         configs -= [ "//build/config/gcc:symbol_visibility_hidden" ]
         configs += [ "//build/config/gcc:symbol_visibility_default" ]
         ldflags = [ "-Wl,--version-script=" +
@@ -558,18 +519,6 @@ if (enable_openxr) {
       # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
       # enable the diagnostic by removing this line.
       configs += [ "//build/config/compiler:no_exit_time_destructors" ]
-    }
-
-    if (is_android) {
-      android_apk("openxr_test_support_apk") {
-        testonly = true
-
-        shared_libraries = [ ":openxr_mock" ]
-        library_always_compress = [ "libmockopenxrruntime.so" ]
-
-        apk_name = "OpenXrTestSupport"
-        android_manifest = "openxr/test/AndroidManifest.xml"
-      }
     }
   }
 }

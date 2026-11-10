@@ -174,14 +174,6 @@ source_set("impl") {
     "//ui/views",
   ]
 
-  if (is_chromeos) {
-    deps += [
-      "//chrome/browser/ash/boca/on_task",
-      "//chrome/browser/ui/chromeos/locked_state",
-      "//chromeos/ash/experiences/system_web_apps/types",
-    ]
-  }
-
   public_deps = [
     ":common",
     "//chrome/browser/ui/tabs/alert:tab_alert",

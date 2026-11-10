@@ -50,10 +50,8 @@
 #include "ui/base/mojom/window_open_disposition.mojom-forward.h"
 #include "ui/webui/resources/cr_components/composebox/composebox.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/views/drive_picker_host/drive_picker_result_handler.mojom.h"
 #include "components/contextual_search/footprints/public/drive_disclaimer_controller.h"
-#endif
 
 class BrowserWindowInterface;
 class Profile;
@@ -141,10 +139,8 @@ class ContextualSearchboxHandler
       public SearchboxHandler,
       public TabListInterfaceObserver,
       public ContextualSearchboxScreenshareController::Host
-#if !BUILDFLAG(IS_ANDROID)
     ,
       public drive_picker_host::mojom::DrivePickerResultHandler
-#endif
 {
  public:
   using RecontextualizeTabCallback = base::OnceCallback<void(bool)>;
@@ -252,11 +248,9 @@ class ContextualSearchboxHandler
     return !drive_upload_click_callback_.is_null();
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   bool has_drive_picker_deactivation_blocker_for_testing() const {
     return drive_picker_deactivation_blocker_ != nullptr;
   }
-#endif
   void QueryAutocomplete(int32_t query_id,
                          std::optional<int32_t> tab_id,
                          const std::u16string& input,
@@ -267,18 +261,15 @@ class ContextualSearchboxHandler
                          const std::string& keyword,
                          searchbox::mojom::InputMethod input_method) override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // drive_picker_host::mojom::DrivePickerResultHandler:
   void OnSelection(
       std::vector<drive_picker_host::mojom::DriveFilePtr> files) override;
   void OnCancel() override;
   void OnError(drive_picker_host::mojom::DrivePickerError error) override;
-#endif
 
   // Returns true if smart tab sharing is active for the current query.
   virtual bool IsSmartTabSharingActive() const;
 
-#if !BUILDFLAG(IS_ANDROID)
   void SetSmartTabSharingActive(bool active) override;
   void GetSmartTabSharingActive(
       searchbox::mojom::PageHandler::GetSmartTabSharingActiveCallback callback)
@@ -286,7 +277,6 @@ class ContextualSearchboxHandler
   void ResetSmartTabSharing(
       searchbox::mojom::PageHandler::ResetSmartTabSharingCallback callback)
       override;
-#endif
 
   // Returns the list of selected tab IDs that should be transferred.
   virtual std::vector<int32_t> GetSelectedTabIds() const;
@@ -610,7 +600,6 @@ class ContextualSearchboxHandler
   // hook into the cleanup lifetime and coordinate widget focus/dismissal state.
   virtual void CleanupDrivePicker();
 
-#if !BUILDFLAG(IS_ANDROID)
   // Returns true if the user is signed in to the primary account with a valid
   // refresh token that is not in a persistent error state.
   bool IsSignedInWithValidCredentials() const;
@@ -638,7 +627,6 @@ class ContextualSearchboxHandler
       composebox_drive_signin_promo_controller_;
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   std::unique_ptr<ContextualSearchboxScreenshareController>
       screenshare_controller_;

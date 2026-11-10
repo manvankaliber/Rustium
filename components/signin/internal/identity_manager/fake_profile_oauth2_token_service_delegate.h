@@ -18,10 +18,6 @@
 #include "google_apis/gaia/google_service_auth_error.h"
 #include "services/network/public/cpp/weak_wrapper_shared_url_loader_factory.h"
 #include "services/network/test/test_url_loader_factory.h"
-#if BUILDFLAG(IS_IOS)
-#include "components/signin/public/identity_manager/access_token_fetcher.h"
-#include "components/signin/public/identity_manager/access_token_info.h"
-#endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 #include "components/signin/public/base/binding_key_registration_token_result.h"
@@ -51,20 +47,10 @@ class FakeProfileOAuth2TokenServiceDelegate
       OAuth2AccessTokenConsumer* consumer,
       const std::string& token_binding_challenge) override;
 
-#if BUILDFLAG(IS_IOS)
-  void GetRefreshTokenFromDevice(
-      const CoreAccountId& account_id,
-      const OAuth2AccessTokenManager::ScopeSet& scopes,
-      signin::AccessTokenFetcher::TokenCallback callback) override;
-#endif
 
   // Overriden to make sure it works on Android.
   bool RefreshTokenIsAvailable(const CoreAccountId& account_id) const override;
 
-#if BUILDFLAG(IS_IOS)
-  bool RefreshTokenIsAvailableOnDevice(
-      const CoreAccountId& account_id) const override;
-#endif  // BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
   bool GenerateBindingKeyRegistrationToken(
@@ -94,9 +80,6 @@ class FakeProfileOAuth2TokenServiceDelegate
 
   std::vector<CoreAccountId> GetAccounts() const override;
 
-#if BUILDFLAG(IS_IOS)
-  std::vector<AccountInfo> GetAccountsOnDevice() const override;
-#endif  // BUILDFLAG(IS_IOS)
 
   scoped_refptr<network::SharedURLLoaderFactory> GetURLLoaderFactory()
       const override;
@@ -135,9 +118,6 @@ class FakeProfileOAuth2TokenServiceDelegate
       const std::string& token,
       const signin::TokenBindingInfo& token_binding_info);
 
-#if BUILDFLAG(IS_ANDROID)
-  base::android::ScopedJavaLocalRef<jobject> GetJavaObject() override;
-#endif
 
   // The account IDs, in the order they were first added.
   // A given account ID appears at most once in this list.

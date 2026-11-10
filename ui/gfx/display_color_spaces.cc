@@ -30,7 +30,7 @@ viz::SharedImageFormat DefaultFormat() {
   // too so that it matches with --ensure-forced-color-profile.
   // https://crbug.com/1478708
   // The default format on Windows is BGRA in screen_win.cc.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   return viz::SinglePlaneFormat::kBGRA_8888;
 #else
   return viz::SinglePlaneFormat::kRGBA_8888;

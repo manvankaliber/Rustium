@@ -92,11 +92,9 @@
 #include "ui/gfx/geometry/size.h"
 #include "ui/gfx/image/image.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/tab_list/tab_removed_reason.h"
 #include "chrome/browser/ui/browser_tab_strip_tracker.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif
 
 namespace context_hub {
 
@@ -508,11 +506,9 @@ ContextHubService::ContextHubService(
             weak_factory_.GetWeakPtr()));
     MaybeTriggerFirstPartyAutoTodosGeneration();
 
-#if !BUILDFLAG(IS_ANDROID)
     browser_tab_strip_tracker_ =
         std::make_unique<BrowserTabStripTracker>(this, this);
     browser_tab_strip_tracker_->Init();
-#endif
   }
   // Embeddings are only stored in the database backend. Observe last since the
   // provider may notify synchronously, which starts the embeddings backfill.
@@ -542,7 +538,6 @@ ContextHubService::~ContextHubService() {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 bool ContextHubService::ShouldTrackBrowser(BrowserWindowInterface* browser) {
   return browser->GetProfile() == &profile_.get();
 }
@@ -571,7 +566,6 @@ void ContextHubService::OnTabStripModelChanged(
     }
   }
 }
-#endif
 
 void ContextHubService::MaybeTriggerFirstPartyAutoTodosGeneration() {
   if (!identity_manager_->HasPrimaryAccount(signin::ConsentLevel::kSignin) ||

@@ -70,9 +70,7 @@ class MODULES_EXPORT MediaStreamDeviceObserver
         on_device_capture_configuration_change_cb;
     WebMediaStreamDeviceObserver::OnDeviceCaptureHandleChangeCb
         on_device_capture_handle_change_cb;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     WebMediaStreamDeviceObserver::OnZoomLevelChangeCb on_zoom_level_change_cb;
-#endif
     MediaStreamDevices audio_devices;
     MediaStreamDevices video_devices;
 

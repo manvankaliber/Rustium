@@ -422,7 +422,6 @@ bool BackgroundModeManager::UnregisterProfile(Profile* profile) {
 void BackgroundModeManager::LaunchBackgroundApplication(
     Profile* profile,
     const Extension* extension) {
-#if !BUILDFLAG(IS_CHROMEOS)
   web_app::LaunchExtensionOrWebApp(
       profile,
       CreateAppLaunchParamsUserContainer(
@@ -430,12 +429,6 @@ void BackgroundModeManager::LaunchBackgroundApplication(
           ui::mojom::WindowOpenDisposition::kNewForegroundTab,
           apps::LaunchSource::kFromBackgroundMode),
       base::DoNothing());
-#else
-  // background mode is not used in Chrome OS platform.
-  // TODO(crbug.com/40212901): Remove the background mode manager from Chrome OS
-  // build.
-  NOTIMPLEMENTED();
-#endif
 }
 
 // static
@@ -927,7 +920,7 @@ gfx::ImageSkia GetStatusTrayIcon() {
   }
 
   return family->CreateExact(size).AsImageSkia();
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   return *ui::ResourceBundle::GetSharedInstance().GetImageSkiaNamed(
       IDR_PRODUCT_LOGO_128);
 #elif BUILDFLAG(IS_MAC)
@@ -946,7 +939,7 @@ void BackgroundModeManager::CreateStatusTrayIcon() {
 
   // Since there are multiple profiles which share the status tray, we now
   // use the browser process to keep track of it.
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_MAC)
   if (!status_tray_) {
     status_tray_ = g_browser_process->status_tray();
   }

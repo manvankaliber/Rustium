@@ -80,8 +80,6 @@ bool IsOpenGlVersionSameOrAbove(const OpenGlVersion& version,
 static void SetThreadName(const char* name) {
 #if defined(__GLIBC_PREREQ)
 #define LINUX_STYLE_SETNAME_NP __GLIBC_PREREQ(2, 12)
-#elif defined(__BIONIC__)
-#define LINUX_STYLE_SETNAME_NP 1
 #endif  // __GLIBC_PREREQ
 #if LINUX_STYLE_SETNAME_NP
   char thread_name[16];  // Linux requires names (with nul) fit in 16 chars

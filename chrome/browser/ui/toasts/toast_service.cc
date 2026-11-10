@@ -616,7 +616,6 @@ void ToastService::RegisterToasts() {
           IDS_REPORT_UNSAFE_SITE_CONFIRMATION_TOAST)
           .Build());
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Global-scoped: on the visual guide path this is triggered as the guide tab
   // navigates to the New Tab Page, and a tab-scoped toast would be dismissed
   // by that navigation before the user could see it.
@@ -627,7 +626,6 @@ void ToastService::RegisterToasts() {
           IDS_DEFAULT_BROWSER_SUCCESS_TOAST_BODY)
           .AddGlobalScoped()
           .Build());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   if (base::FeatureList::IsEnabled(features::kIndigo)) {
     toast_registry_->RegisterToast(

@@ -24,7 +24,7 @@ use libc::{MSG_TRUNC, MSG_CTRUNC};
 use libc::{CMSG_SPACE, CMSG_LEN, CMSG_DATA, CMSG_FIRSTHDR, CMSG_NXTHDR};
 //#[cfg(not(any(target_os="illumos", target_os="solaris")))]
 use libc::{SOL_SOCKET, SCM_RIGHTS};
-#[cfg(any(target_os="linux", target_os="android"))]
+#[cfg(target_os="linux")]
 use libc::SCM_CREDENTIALS;
 #[cfg(not(any(target_vendor="apple", target_os="illumos", target_os="solaris", target_os = "haiku")))]
 use libc::MSG_CMSG_CLOEXEC;
@@ -32,23 +32,15 @@ use libc::MSG_CMSG_CLOEXEC;
 use crate::helpers::*;
 use crate::UnixSocketAddr;
 use crate::credentials::{SendCredentials, ReceivedCredentials};
-#[cfg(any(target_os="linux", target_os="android"))]
+#[cfg(target_os="linux")]
 use crate::credentials::RawReceivedCredentials;
 
 // Type of cmsghdr.cmsg_len, which varies between OSes and C libraries
 // (can't get away with using ` as _` because we use the max value in some places.)
 // cfg based on libc 0.2.82 source code.
-#[cfg(any(
-    all(target_os="linux", not(target_env="musl")),
-    target_os="android",
-    target_env="uclibc",
-))]
+#[cfg(any(all(target_os="linux", not(target_env="musl")), target_env="uclibc"))]
 type ControlLen = usize;
-#[cfg(not(any(
-    all(target_os="linux", not(target_env="musl")),
-    target_os="android",
-    target_env="uclibc",
-)))]
+#[cfg(not(any(all(target_os="linux", not(target_env="musl")), target_env="uclibc")))]
 type ControlLen = libc::socklen_t;
 
 /// Safe wrapper around `sendmsg()`.
@@ -56,7 +48,7 @@ pub fn send_ancillary(
     socket: RawFd,  to: Option<&UnixSocketAddr>,  flags: c_int,
     bytes: &[IoSlice],  fds: &[RawFd],  creds: Option<SendCredentials>
 ) -> Result<usize, io::Error> {
-    #[cfg(not(any(target_os="linux", target_os="android")))]
+    #[cfg(not(target_os="linux"))]
     let _ = creds; // silence `unused` warning
     unsafe {
         let mut msg: msghdr = mem::zeroed();
@@ -80,7 +72,7 @@ pub fn send_ancillary(
         }
 
         let mut needed_capacity = 0;
-        #[cfg(any(target_os="linux", target_os="android"))]
+        #[cfg(target_os="linux")]
         let creds = creds.map(|creds| {
             let creds = creds.into_raw();
             needed_capacity += CMSG_SPACE(mem::size_of_val(&creds) as u32);
@@ -124,7 +116,7 @@ pub fn send_ancillary(
                 assert!(!header_ptr.is_null(), "CMSG_FIRSTHDR returned unexpected NULL pointer");
                 #[allow(unused_mut)]
                 let mut header = &mut*header_ptr;
-                #[cfg(any(target_os="linux", target_os="android"))] {
+                #[cfg(target_os="linux")] {
                     if let Some(creds) = creds {
                         header.cmsg_level = SOL_SOCKET;
                         header.cmsg_type = SCM_CREDENTIALS;
@@ -418,7 +410,7 @@ impl<'a> Iterator for Ancillary<'a> {
                     let fds = FdSlice::new(first_fd, num_fds);
                     AncillaryItem::Fds(fds)
                 }
-                #[cfg(any(target_os="linux", target_os="android"))]
+                #[cfg(target_os="linux")]
                 (SOL_SOCKET, SCM_CREDENTIALS) => {
                     // FIXME check payload size?
                     let creds_ptr = CMSG_DATA(self.next_message) as *const c_void;

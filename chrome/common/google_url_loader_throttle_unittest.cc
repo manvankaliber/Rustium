@@ -72,9 +72,6 @@ class GoogleURLLoaderThrottleTest : public ::testing::Test {
     delegate_ = std::make_unique<MockThrottleDelegate>();
 
     throttle_ = std::make_unique<GoogleURLLoaderThrottle>(
-#if BUILDFLAG(IS_ANDROID)
-        "",
-#endif
 #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
         /*bound_session_request_throttled_handler=*/nullptr,
 #endif
@@ -350,9 +347,6 @@ class GoogleURLLoaderThrottleBoundSessionCredentialsTest
     delegate_ = std::make_unique<MockThrottleDelegate>();
 
     throttle_ = std::make_unique<GoogleURLLoaderThrottle>(
-#if BUILDFLAG(IS_ANDROID)
-        "",
-#endif
         std::move(bound_session_handler), std::move(dynamic_params));
     throttle_->set_delegate(delegate_.get());
   }

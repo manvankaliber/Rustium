@@ -4,7 +4,7 @@
 
 #include "chrome/browser/web_applications/preinstalled_web_apps/gmail.h"
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "base/functional/bind.h"
 #include "base/strings/utf_string_conversions.h"
 #include "build/build_config.h"
@@ -21,11 +21,7 @@ ExternalInstallOptions GetConfigForGmail() {
   ExternalInstallOptions options(
       /*install_url=*/GURL(
           "https://mail.google.com/mail/installwebapp?usp=chrome_default"),
-#if BUILDFLAG(IS_CHROMEOS)
-      /*user_display_mode=*/mojom::UserDisplayMode::kStandalone,
-#else
       /*user_display_mode=*/mojom::UserDisplayMode::kBrowser,
-#endif  // BUILDFLAG(IS_CHROMEOS)
       /*install_source=*/ExternalInstallSource::kExternalDefault);
 
   options.user_type_allowlist = {"unmanaged", "managed", "child"};
@@ -46,7 +42,7 @@ ExternalInstallOptions GetConfigForGmail() {
         LoadBundledIcons({IDR_PREINSTALLED_WEB_APPS_GMAIL_ICON_192_PNG});
     return info;
   });
-  options.expected_app_id = ash::kGmailAppId;
+  options.expected_app_id = webapps::kGmailAppId;
 
   return options;
 }

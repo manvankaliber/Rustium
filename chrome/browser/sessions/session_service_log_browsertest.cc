@@ -33,9 +33,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#endif
 
 class SessionServiceLogTest : public InProcessBrowserTest {
  public:
@@ -43,12 +40,6 @@ class SessionServiceLogTest : public InProcessBrowserTest {
   ~SessionServiceLogTest() override = default;
 
  protected:
-#if BUILDFLAG(IS_CHROMEOS)
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    // TODO(nkostylev): Investigate if we can remove this switch.
-    command_line->AppendSwitch(ash::switches::kCreateBrowserOnStartupForTests);
-  }
-#endif
 
   void PreRunTestOnMainThread() override {
     InProcessBrowserTest::PreRunTestOnMainThread();

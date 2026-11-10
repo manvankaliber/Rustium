@@ -34,9 +34,9 @@ const int kBackgroundRefreshTypesMask =
 #if BUILDFLAG(IS_WIN)
     REFRESH_TYPE_START_TIME | REFRESH_TYPE_CPU_TIME |
 #endif  // BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
     REFRESH_TYPE_FD_COUNT |
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#endif
     REFRESH_TYPE_PRIORITY;
 
 #if BUILDFLAG(IS_WIN)
@@ -94,10 +94,10 @@ TaskGroup::TaskGroup(
                             weak_ptr_factory_.GetWeakPtr()),
         base::BindRepeating(&TaskGroup::OnIdleWakeupsRefreshDone,
                             weak_ptr_factory_.GetWeakPtr()),
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
         base::BindRepeating(&TaskGroup::OnOpenFdCountRefreshDone,
                             weak_ptr_factory_.GetWeakPtr()),
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#endif
         base::BindRepeating(&TaskGroup::OnProcessPriorityDone,
                             weak_ptr_factory_.GetWeakPtr()));
 
@@ -109,10 +109,6 @@ TaskGroup::TaskGroup(
 
 TaskGroup::~TaskGroup() {
   shared_sampler_->UnregisterCallback(process_id_);
-#if BUILDFLAG(IS_CHROMEOS)
-  if (arc_shared_sampler_)
-    arc_shared_sampler_->UnregisterCallback(process_id_);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void TaskGroup::AddTask(Task* task) {
@@ -207,15 +203,6 @@ bool TaskGroup::AreBackgroundCalculationsDone() const {
   return expected_on_bg_done_flags_ == current_on_bg_done_flags_;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void TaskGroup::SetArcSampler(ArcSharedSampler* sampler) {
-  CHECK(sampler, base::NotFatalUntil::M162);
-  arc_shared_sampler_ = sampler;
-  arc_shared_sampler_->RegisterCallback(
-      process_id_, base::BindRepeating(&TaskGroup::OnArcSamplerRefreshDone,
-                                       weak_ptr_factory_.GetWeakPtr()));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void TaskGroup::RefreshGpuMemory(
     const gpu::VideoMemoryUsageStats& gpu_memory_stats) {
@@ -237,14 +224,14 @@ void TaskGroup::RefreshWindowsHandles() {
 #endif  // BUILDFLAG(IS_WIN)
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 void TaskGroup::OnOpenFdCountRefreshDone(int open_fd_count) {
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M162);
 
   open_fd_count_ = open_fd_count;
   OnBackgroundRefreshTypeFinished(REFRESH_TYPE_FD_COUNT);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#endif
 
 void TaskGroup::OnCpuRefreshDone(double cpu_usage) {
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M162);
@@ -302,14 +289,6 @@ void TaskGroup::OnSamplerRefreshDone(
                                   shared_sampler_->GetSupportedFlags());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void TaskGroup::OnArcSamplerRefreshDone(
-    std::optional<ArcSharedSampler::MemoryFootprintBytes> memory_footprint) {
-  if (memory_footprint.has_value()) {
-    set_footprint(base::ByteSize(memory_footprint.value()));
-  }
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void TaskGroup::OnBackgroundRefreshTypeFinished(int64_t finished_refresh_type) {
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M162);

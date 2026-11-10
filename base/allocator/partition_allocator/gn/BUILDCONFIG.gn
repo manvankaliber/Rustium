@@ -47,10 +47,10 @@ if (current_cpu == "") {
   current_cpu = target_cpu
 }
 
-is_android = current_os == "android"
+is_android = false
 is_chromeos = false
 
-is_ios = current_os == "ios"
+is_ios = false
 is_linux = current_os == "linux"
 is_mac = current_os == "mac"
 is_win = current_os == "win" || current_os == "winuwp"
@@ -60,7 +60,7 @@ enable_expensive_dchecks = false
 dcheck_is_configurable = false
 can_unwind_with_frame_pointers = false
 is_posix = !is_win
-is_apple = is_mac || is_ios
+is_apple = is_mac
 
 # TODO(crbug.com/41481467): Consider expanding the standalone configuration for
 # additional OSes.

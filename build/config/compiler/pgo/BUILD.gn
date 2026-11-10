@@ -82,21 +82,6 @@ config("pgo_optimization_flags") {
       }
     } else if (is_linux) {
       _pgo_target = "linux"
-    } else if (is_android) {
-      # Use |current_cpu| and not |target_cpu|; for Android we may built both.
-      if (is_desktop_android && current_cpu == "x64") {
-        _pgo_target = "android-desktop-x64"
-      } else if (current_cpu == "arm64") {
-        _pgo_target = "android-arm64"
-      } else {
-        _pgo_target = "android-arm32"
-      }
-    } else if (is_ios && use_blink) {
-      if (target_cpu == "arm64") {
-        _pgo_target = "mac-arm"
-      } else {
-        _pgo_target = "mac"
-      }
     }
 
     if (_pgo_target == "win-arm64") {
@@ -111,10 +96,6 @@ config("pgo_optimization_flags") {
       inputs = [ "//chrome/build/mac.pgo.txt" ]
     } else if (_pgo_target == "linux") {
       inputs = [ "//chrome/build/linux.pgo.txt" ]
-    } else if (_pgo_target == "android-arm32") {
-      inputs = [ "//chrome/build/android-arm32.pgo.txt" ]
-    } else if (_pgo_target == "android-desktop-x64") {
-      inputs = [ "//chrome/build/android-desktop-x64.pgo.txt" ]
     }
 
     if (_pgo_target != "" && pgo_data_path == "") {
@@ -165,14 +146,6 @@ config("pgo_optimization_flags") {
       # See https://crbug.com/978401
       "-Wno-backend-plugin",
     ]
-
-    # TODO(crbug.com/383537825): Try enabling on all platforms.
-    if (is_android) {
-      cflags += [
-        "-mllvm",
-        "-pgo-cold-func-opt=minsize",
-      ]
-    }
 
     # Enable basic block layout based on the extended TSP problem. This aims to
     # improve icache utilization and reduce the binary size.

@@ -90,10 +90,8 @@ class GlicActivityManagerTest : public testing::Test {
     profile_ = testing_profile_manager_.CreateTestingProfile(
         "profile", std::move(factories));
 
-#if !BUILDFLAG(IS_ANDROID)
     display_service_tester_ =
         std::make_unique<NotificationDisplayServiceTester>(profile_);
-#endif
     actor_service_ = static_cast<actor::ActorKeyedServiceFake*>(
         actor::ActorKeyedServiceFactory::GetActorKeyedService(profile_));
 
@@ -128,9 +126,7 @@ class GlicActivityManagerTest : public testing::Test {
     manager_ = nullptr;
     mock_glic_service_ = nullptr;
     actor_service_ = nullptr;
-#if !BUILDFLAG(IS_ANDROID)
     display_service_tester_.reset();
-#endif
     profile_ = nullptr;
     testing_profile_manager_.DeleteAllTestingProfiles();
     scoped_glic_bypass_.reset();
@@ -162,11 +158,9 @@ class GlicActivityManagerTest : public testing::Test {
     return task_environment_;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   NotificationDisplayServiceTester* display_service_tester() {
     return display_service_tester_.get();
   }
-#endif
 
  protected:
   content::BrowserTaskEnvironment task_environment_;
@@ -177,9 +171,7 @@ class GlicActivityManagerTest : public testing::Test {
   signin::IdentityTestEnvironment identity_test_env_;
   glic::GlicProfileManager glic_profile_manager_;
   raw_ptr<TestingProfile> profile_;
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<NotificationDisplayServiceTester> display_service_tester_;
-#endif
   raw_ptr<actor::ActorKeyedServiceFake> actor_service_;
   raw_ptr<GlicActivityManager> manager_;
   raw_ptr<MockGlicKeyedService> mock_glic_service_ = nullptr;
@@ -526,7 +518,6 @@ TEST_F(GlicActivityManagerTest, CancelledTaskClearsTracking) {
   EXPECT_FALSE(manager()->activities().contains(key));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class GlicActivityManagerOsNotificationTest : public GlicActivityManagerTest {
  public:
   GlicActivityManagerOsNotificationTest() {
@@ -698,7 +689,6 @@ TEST_F(GlicActivityManagerOsNotificationTest,
 // disabled.
 TEST_F(GlicActivityManagerTest,
        ExperimentalTriggeringTask_FeatureDisabled_DoesNotShowNotification) {
-#if !BUILDFLAG(IS_ANDROID)
   base::test::ScopedFeatureList scoped_feature_list;
   scoped_feature_list.InitAndDisableFeature(
       features::kGlicExperimentalTriggeringOsNotification);
@@ -718,7 +708,6 @@ TEST_F(GlicActivityManagerTest,
       "actor_task_start_" + base::NumberToString(task_id.value());
   EXPECT_FALSE(
       display_service_tester.GetNotification(notification_id).has_value());
-#endif
 }
 
 // Verifies that non-experimental actor tasks do not trigger an OS notification.
@@ -792,7 +781,6 @@ TEST_F(GlicActivityManagerOsNotificationTest,
   EXPECT_FALSE(
       display_service_tester()->GetNotification(notification_id).has_value());
 }
-#endif
 
 class MockActivityNudgeStateChangeSubscriber {
  public:

@@ -32,14 +32,8 @@
 #include "ui/gfx/image/image_skia.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/service_tab_launcher.h"
-#include "content/public/browser/page_navigator.h"
-#include "content/public/common/referrer.h"
-#else
 #include "chrome/browser/ui/navigator/browser_navigator.h"
 #include "chrome/browser/ui/navigator/browser_navigator_params.h"
-#endif
 
 using offline_items_collection::ContentId;
 using offline_items_collection::LaunchLocation;
@@ -134,12 +128,7 @@ std::vector<gfx::Size> ContentIndexProviderImpl::GetIconSizes(
   if (icon_sizes_for_testing_)
     return *icon_sizes_for_testing_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Recommended notification icon size for Android.
-  return {{192, 192}};
-#else
   return {};
-#endif
 }
 
 void ContentIndexProviderImpl::OnContentAdded(
@@ -195,22 +184,10 @@ void ContentIndexProviderImpl::DidGetEntryToOpen(
   if (!entry)
     return;
 
-#if BUILDFLAG(IS_ANDROID)
-  content::OpenURLParams params =
-      content::OpenURLParams::CreateBrowserInitiated(
-          entry->launch_url,
-          ui::mojom::WindowOpenDisposition::kNewForegroundTab,
-          ui::PAGE_TRANSITION_LINK);
-  ServiceTabLauncher::GetInstance()->LaunchTab(
-      profile_, params,
-      base::BindOnce(&ContentIndexProviderImpl::DidOpenTab,
-                     weak_ptr_factory_.GetWeakPtr(), std::move(*entry)));
-#else
   NavigateParams nav_params(profile_, entry->launch_url,
                             ui::PAGE_TRANSITION_LINK);
   Navigate(&nav_params);
   DidOpenTab(std::move(*entry), nav_params.navigated_or_inserted_contents);
-#endif
 }
 
 void ContentIndexProviderImpl::DidOpenTab(content::ContentIndexEntry entry,

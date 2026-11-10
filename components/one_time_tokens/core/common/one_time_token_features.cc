@@ -12,11 +12,7 @@ namespace one_time_tokens::features {
 // If enabled, Autofill will retrieve one-time passwords from Gmail.
 // TODO(crbug.com/452607505): Clean up when launched.
 BASE_FEATURE(kGmailOtpRetrievalService,
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
              base::FEATURE_ENABLED_BY_DEFAULT
-#else
-             base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 const base::FeatureParam<base::TimeDelta> kGmailOtpSubscriptionPeriodParam{

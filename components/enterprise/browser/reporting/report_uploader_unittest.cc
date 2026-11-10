@@ -61,11 +61,7 @@ class ReportUploaderTest : public ::testing::Test {
   // Different CloudPolicyClient functions will be used in test cases based
   // on the current operation system. They share same retry and error handling
   // behaviors provided by ReportUploader.
-#if BUILDFLAG(IS_CHROMEOS)
-#define UploadReport UploadChromeOsUserReport
-#else
 #define UploadReport UploadChromeDesktopReport
-#endif
 
   ReportUploaderTest()
       : task_environment_(base::test::TaskEnvironment::TimeSource::MOCK_TIME) {
@@ -168,7 +164,7 @@ class ReportUploaderTestWithReportType
 };
 
 // TODO(crbug.com/40483507) This death test does not work on Android.
-#if defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#if defined(GTEST_HAS_DEATH_TEST)
 TEST_F(ReportUploaderTest, NotRegisteredCrashes) {
   CreateUploader(/* retry_count = */ 1);
   EXPECT_CALL(client_, UploadReport)
@@ -183,7 +179,7 @@ TEST_F(ReportUploaderTest, NotRegisteredCrashes) {
       std::move(requests), future.GetCallback());
   ASSERT_DEATH(std::ignore = future.Get(), "");
 }
-#endif  // defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 TEST_F(ReportUploaderTest, PersistentError) {
   CreateUploader(/* retry_count = */ 1);

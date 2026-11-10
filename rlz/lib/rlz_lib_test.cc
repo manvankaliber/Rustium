@@ -48,13 +48,6 @@
 #include "services/network/public/mojom/url_loader_factory.mojom.h"
 #include "services/network/test/test_url_loader_factory.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "base/files/important_file_writer.h"
-#include "chromeos/ash/components/dbus/dbus_thread_manager.h"
-#include "chromeos/ash/components/dbus/debug_daemon/debug_daemon_client.h"
-#include "chromeos/ash/components/dbus/debug_daemon/fake_debug_daemon_client.h"
-#include "rlz/chromeos/lib/rlz_value_store_chromeos.h"
-#endif
 
 namespace {
 
@@ -255,9 +248,7 @@ TEST_F(RlzLibTest, ValueStoreReadPingTimeAndProductEvents) {
   EXPECT_TRUE(store->WritePingTime(rlz_lib::TOOLBAR_NOTIFIER, 123456789));
   EXPECT_EQ(123456789, store->ReadPingTime(rlz_lib::TOOLBAR_NOTIFIER));
   EXPECT_TRUE(store->ClearPingTime(rlz_lib::TOOLBAR_NOTIFIER));
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(std::nullopt, store->ReadPingTime(rlz_lib::TOOLBAR_NOTIFIER));
-#endif
 
   EXPECT_TRUE(rlz_lib::ClearAllProductEvents(rlz_lib::TOOLBAR_NOTIFIER));
   EXPECT_TRUE(store->ReadProductEvents(rlz_lib::TOOLBAR_NOTIFIER).empty());
@@ -286,86 +277,6 @@ TEST_F(RlzLibTest, SetAccessPointRlz) {
   EXPECT_EQ("IeTbRlz", rlz_lib::GetAccessPointRlz(rlz_lib::IETB_SEARCH_BOX));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(RlzLibTest, SetAccessPointRlzOnlyOnce) {
-  // On Chrome OS, an RLZ string can be set only once.
-  EXPECT_TRUE(rlz_lib::SetAccessPointRlz(rlz_lib::IETB_SEARCH_BOX, "First"));
-  EXPECT_EQ("First", rlz_lib::GetAccessPointRlz(rlz_lib::IETB_SEARCH_BOX));
-
-  EXPECT_TRUE(rlz_lib::SetAccessPointRlz(rlz_lib::IETB_SEARCH_BOX, "Second"));
-  EXPECT_EQ("First", rlz_lib::GetAccessPointRlz(rlz_lib::IETB_SEARCH_BOX));
-}
-
-TEST_F(RlzLibTest, UpdateExistingAccessPointRlz) {
-  // This test writes directly to disk to simulate store state and expects the
-  // store to reload it. However, under a global branding lock (active when
-  // SupplementaryBranding is not empty), the in-memory store is reused and
-  // does not reload from disk. Additionally, the production
-  // UpdateExistingAccessPointRlz() has a DCHECK asserting no supplementary
-  // brand is active. Thus, we must skip this test when branding is active.
-  if (!rlz_lib::SupplementaryBranding::GetBrand().empty()) {
-    return;
-  }
-
-  const std::string json_data = R"({
-   "access_points": {
-      "CA": {
-         "_": "1CANPEC_enUS818"
-      },
-      "CB": {
-         "_": "1CBNPE"
-      },
-      "CC": {
-         "_": "1CANPEC_enUS818"
-      }
-   },
-   "product_events": {
-      "C": {
-         "_": [ "CAS" ]
-      }
-   }
-})";
-  ASSERT_TRUE(base::ImportantFileWriter::WriteFileAtomically(
-      base::FilePath(rlz_lib::testing::RlzStoreFilenameStr()), json_data));
-  // Verify that the initial values are read correctly.
-  EXPECT_EQ("1CANPEC_enUS818",
-            rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_OMNIBOX));
-  EXPECT_EQ("1CBNPE", rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_HOME_PAGE));
-  EXPECT_EQ("1CANPEC_enUS818",
-            rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_APP_LIST));
-  EXPECT_EQ("events=CAS", rlz_lib::GetProductEventsAsCgi(rlz_lib::CHROME));
-
-  // Verify that if the brand code doesn't consist of four letters, none of the
-  // access point RLZ strings is updated.
-  EXPECT_EQ("1CANPEC_enUS818",
-            rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_OMNIBOX));
-  EXPECT_EQ("1CBNPE", rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_HOME_PAGE));
-  EXPECT_EQ("1CANPEC_enUS818",
-            rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_APP_LIST));
-
-  // Update the RLZ strings with a valid brand code. Verify that the RLZ string
-  // is updated if it also has valid format.
-  EXPECT_TRUE(rlz_lib::UpdateExistingAccessPointRlz("BMGD"));
-  EXPECT_EQ("1CABMGD_enUS818",
-            rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_OMNIBOX));
-  // The RLZ string remains unchanged if it has fewer than seven characters.
-  EXPECT_EQ("1CBNPE", rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_HOME_PAGE));
-  // The RLZ string remains unchanged if the access point names don't match.
-  EXPECT_EQ("1CANPEC_enUS818",
-            rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_APP_LIST));
-  // The product events remain unchanged.
-  EXPECT_EQ("events=CAS", rlz_lib::GetProductEventsAsCgi(rlz_lib::CHROME));
-
-  // Verify a second update is no-op.
-  EXPECT_FALSE(rlz_lib::UpdateExistingAccessPointRlz("BMGD"));
-  EXPECT_EQ("1CABMGD_enUS818",
-            rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_OMNIBOX));
-  EXPECT_EQ("1CBNPE", rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_HOME_PAGE));
-  EXPECT_EQ("1CANPEC_enUS818",
-            rlz_lib::GetAccessPointRlz(rlz_lib::CHROMEOS_APP_LIST));
-  EXPECT_EQ("events=CAS", rlz_lib::GetProductEventsAsCgi(rlz_lib::CHROME));
-}
-#endif
 
 TEST_F(RlzLibTest, GetAccessPointRlz) {
   EXPECT_TRUE(rlz_lib::SetAccessPointRlz(rlz_lib::IETB_SEARCH_BOX, ""));
@@ -527,27 +438,15 @@ TEST_F(RlzLibTest, ParsePingResponse) {
     "crc32: 321334F5\r\n";
   EXPECT_TRUE(rlz_lib::ParsePingResponse(rlz_lib::TOOLBAR_NOTIFIER,
                                          kPingResponse2));
-#if BUILDFLAG(IS_CHROMEOS)
-  // On Chrome OS, the RLZ string is not modified by response once set.
-  EXPECT_EQ("1T4_____en__252",
-            rlz_lib::GetAccessPointRlz(rlz_lib::IETB_SEARCH_BOX));
-#else
   EXPECT_EQ("1T4_____de__253",
             rlz_lib::GetAccessPointRlz(rlz_lib::IETB_SEARCH_BOX));
-#endif
 
   const char* kPingResponse3 =
     "crc32: 0\r\n";  // Good RLZ - empty response.
   EXPECT_TRUE(rlz_lib::ParsePingResponse(rlz_lib::TOOLBAR_NOTIFIER,
                                          kPingResponse3));
-#if BUILDFLAG(IS_CHROMEOS)
-  // On Chrome OS, the RLZ string is not modified by response once set.
-  EXPECT_EQ("1T4_____en__252",
-            rlz_lib::GetAccessPointRlz(rlz_lib::IETB_SEARCH_BOX));
-#else
   EXPECT_EQ("1T4_____de__253",
             rlz_lib::GetAccessPointRlz(rlz_lib::IETB_SEARCH_BOX));
-#endif
 }
 
 // Test whether a stateful event will only be sent in financial pings once.
@@ -1082,133 +981,4 @@ TEST_F(RlzLibTest, LockAcquistionSucceedsButStoreFileCannotBeCreated) {
       rlz_lib::IE_DEFAULT_SEARCH, rlz_lib::INSTALL));
 }
 
-#endif
-
-#if BUILDFLAG(IS_CHROMEOS)
-class ScopedTestDebugDaemonClient : public ash::FakeDebugDaemonClient {
- public:
-  ScopedTestDebugDaemonClient() {
-    ash::DebugDaemonClient::SetInstanceForTest(this);
-  }
-
-  ScopedTestDebugDaemonClient(const ScopedTestDebugDaemonClient&) = delete;
-  ScopedTestDebugDaemonClient& operator=(const ScopedTestDebugDaemonClient&) =
-      delete;
-
-  ~ScopedTestDebugDaemonClient() override {
-    ash::DebugDaemonClient::SetInstanceForTest(nullptr);
-  }
-
-  int num_set_rlz_ping_sent() const { return num_set_rlz_ping_sent_; }
-
-  // Sets the result returned by the callback in order to test both success and
-  // failure cases.
-  void set_default_result(bool default_result) {
-    default_result_ = default_result;
-  }
-
-  void SetRlzPingSent(SetRlzPingSentCallback callback) override {
-    ++num_set_rlz_ping_sent_;
-    std::move(callback).Run(default_result_);
-  }
-
- private:
-  int num_set_rlz_ping_sent_ = 0;
-  bool default_result_ = false;
-};
-
-TEST_F(RlzLibTest, SetRlzPingSent) {
-  ash::DBusThreadManager::Initialize();
-  auto debug_daemon_client = std::make_unique<ScopedTestDebugDaemonClient>();
-  const char* kPingResponse =
-      "stateful-events: CAF\r\n"
-      "crc32: 3BB2FEAE\r\n";
-
-  // Verify that a |SetRlzPingSent| dbus call is made and it's made only once
-  // if success status is returned.
-  debug_daemon_client->set_default_result(true);
-  EXPECT_TRUE(
-      rlz_lib::ParsePingResponse(rlz_lib::TOOLBAR_NOTIFIER, kPingResponse));
-  EXPECT_EQ(debug_daemon_client->num_set_rlz_ping_sent(), 1);
-
-  // Verify that a maximum of |kMaxRetryCount| times of attempts are made if
-  // |SetRlzPingSent| returns failure status.
-  debug_daemon_client->set_default_result(false);
-  EXPECT_TRUE(
-      rlz_lib::ParsePingResponse(rlz_lib::TOOLBAR_NOTIFIER, kPingResponse));
-  EXPECT_EQ(debug_daemon_client->num_set_rlz_ping_sent(),
-            1 + rlz_lib::RlzValueStoreChromeOS::kMaxRetryCount);
-  debug_daemon_client.reset();
-  ash::DBusThreadManager::Shutdown();
-}
-
-TEST_F(RlzLibTest, NoRecordCAFEvent) {
-  // Setup as if a new machine where "should send RLZ" is true.
-  statistics_provider_->SetMachineStatistic(
-      ash::system::kShouldSendRlzPingKey,
-      ash::system::kShouldSendRlzPingValueTrue);
-
-  // Record a first search event, make sure it is written correctly.
-  rlz_lib::RecordProductEvent(rlz_lib::CHROME, rlz_lib::CHROMEOS_OMNIBOX,
-                              rlz_lib::FIRST_SEARCH);
-  std::optional<std::string> cgi =
-      rlz_lib::GetProductEventsAsCgi(rlz_lib::CHROME);
-  ASSERT_TRUE(cgi);
-  EXPECT_THAT(*cgi, HasSubstr("CAF"));
-
-  // Simulate another user on the machine sending the RLZ ping, so "should send
-  // RLZ" is now false.
-  statistics_provider_->SetMachineStatistic(
-      ash::system::kShouldSendRlzPingKey,
-      ash::system::kShouldSendRlzPingValueFalse);
-
-  // The first search event should no longer appear, so there are no events
-  // to report.
-  EXPECT_EQ(std::nullopt, rlz_lib::GetProductEventsAsCgi(rlz_lib::CHROME));
-
-  // The event should be permanently deleted, so setting the flag back to
-  // true should still not return the event.
-  statistics_provider_->SetMachineStatistic(
-      ash::system::kShouldSendRlzPingKey,
-      ash::system::kShouldSendRlzPingValueTrue);
-  EXPECT_EQ(std::nullopt, rlz_lib::GetProductEventsAsCgi(rlz_lib::CHROME));
-}
-
-TEST_F(RlzLibTest, NoRecordCAFEvent2) {
-  // Setup as if a new machine where "should send RLZ" is true.
-  statistics_provider_->SetMachineStatistic(
-      ash::system::kShouldSendRlzPingKey,
-      ash::system::kShouldSendRlzPingValueTrue);
-
-  // Record install and first search events, make sure they are written.
-  rlz_lib::RecordProductEvent(rlz_lib::CHROME, rlz_lib::CHROMEOS_OMNIBOX,
-                              rlz_lib::INSTALL);
-  rlz_lib::RecordProductEvent(rlz_lib::CHROME, rlz_lib::CHROMEOS_OMNIBOX,
-                              rlz_lib::FIRST_SEARCH);
-  std::optional<std::string> cgi =
-      rlz_lib::GetProductEventsAsCgi(rlz_lib::CHROME);
-  ASSERT_TRUE(cgi);
-  EXPECT_THAT(*cgi, HasSubstr("CAF"));
-  EXPECT_THAT(*cgi, HasSubstr("CAI"));
-
-  // Simulate another user on the machine sending the RLZ ping, so "should send
-  // RLZ" is now false.
-  statistics_provider_->SetMachineStatistic(
-      ash::system::kShouldSendRlzPingKey,
-      ash::system::kShouldSendRlzPingValueFalse);
-
-  // Only the "CAI" event should appear.
-  cgi = rlz_lib::GetProductEventsAsCgi(rlz_lib::CHROME);
-  ASSERT_TRUE(cgi);
-  EXPECT_THAT(*cgi, HasSubstr("CAI"));
-
-  // The event should be permanently deleted, so setting the flag back to
-  // true should still not return the "CAF" event.
-  statistics_provider_->SetMachineStatistic(
-      ash::system::kShouldSendRlzPingKey,
-      ash::system::kShouldSendRlzPingValueTrue);
-  cgi = rlz_lib::GetProductEventsAsCgi(rlz_lib::CHROME);
-  ASSERT_TRUE(cgi);
-  EXPECT_THAT(*cgi, HasSubstr("CAI"));
-}
 #endif

@@ -223,7 +223,6 @@ suite('VoiceLanguageController', () => {
         [availableLang], audioBrowserProxy.getLanguagesEnabledInPref());
   });
 
-  // <if expr="not is_chromeos">
   test(
       'restoreFromPrefs adds unavailable language to prefs once available',
       () => {
@@ -248,7 +247,6 @@ suite('VoiceLanguageController', () => {
             [previouslyAvailableLang],
             audioBrowserProxy.getLanguagesEnabledInPref());
       });
-  // </if>
 
   suite('restoreFromPrefs populates enabled languages', () => {
     const langs = ['si', 'km', 'th'];
@@ -460,7 +458,6 @@ suite('VoiceLanguageController', () => {
         assertEquals(voice, voiceLanguageController.getCurrentVoice());
       });
 
-  // <if expr="not is_chromeos">
   test('onVoicesChanged enables newly available langs', () => {
     const lang1 = 'en-gb';
     const lang2 = 'fr';
@@ -495,7 +492,6 @@ suite('VoiceLanguageController', () => {
     assertTrue(voiceLanguageController.isLangEnabled(lang3));
     assertTrue(onEnabledLangsChange);
   });
-  // </if>
 
   test('onVoicesChanged after new tts engine installs google locales', () => {
     const lang1 = 'bn-bd';
@@ -1243,37 +1239,7 @@ suite('VoiceLanguageController', () => {
       assertFalse(audioBrowserProxy.getLanguagesEnabledInPref().includes(lang));
     });
 
-    // <if expr="is_chromeos">
-    test('chromeOS should disable if no google voices', () => {
-      const lang1 = 'en-US';
-      const lang2 = 'fr';
-      const lang3 = 'yue';
-      voiceLanguageController.enableLang(lang1);
-      audioBrowserProxy.onLanguagePrefChange(lang1.toLowerCase(), true);
-      voiceLanguageController.enableLang(lang2);
-      audioBrowserProxy.onLanguagePrefChange(lang2, true);
-      voiceLanguageController.enableLang(lang3);
-      audioBrowserProxy.onLanguagePrefChange(lang3, true);
-      createAndSetVoices(speech, [
-        {lang: lang1, name: 'Henry'},
-        {lang: lang2, name: 'Google Thomas'},
-      ]);
 
-      voiceLanguageController.updateLanguageStatus(lang1, 'kOther');
-      voiceLanguageController.updateLanguageStatus(lang2, 'kOther');
-      voiceLanguageController.updateLanguageStatus(lang3, 'kOther');
-
-      const langsInPrefs = audioBrowserProxy.getLanguagesEnabledInPref();
-      assertFalse(langsInPrefs.includes(lang1.toLowerCase()));
-      assertTrue(langsInPrefs.includes(lang2));
-      assertFalse(langsInPrefs.includes(lang3));
-      assertFalse(voiceLanguageController.isLangEnabled(lang1));
-      assertTrue(voiceLanguageController.isLangEnabled(lang2));
-      assertFalse(voiceLanguageController.isLangEnabled(lang3));
-    });
-    // </if>
-
-    // <if expr="not is_chromeos">
     test('desktop should only disable if no voices at all', () => {
       const lang1 = 'en-US';
       const lang2 = 'fr';
@@ -1302,7 +1268,6 @@ suite('VoiceLanguageController', () => {
       assertTrue(voiceLanguageController.isLangEnabled(lang2));
       assertFalse(voiceLanguageController.isLangEnabled(lang3), 'lang3');
     });
-    // </if>
 
     test(
         'when language-pack lang does not match voice lang, still disables it',

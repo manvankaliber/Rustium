@@ -307,12 +307,6 @@ void ProcessSnapshotLinux::InitializeModules() {
 }
 
 void ProcessSnapshotLinux::InitializeAnnotations() {
-#if BUILDFLAG(IS_ANDROID)
-  const std::string& abort_message = process_reader_.AbortMessage();
-  if (!abort_message.empty()) {
-    annotations_simple_map_["abort_message"] = abort_message;
-  }
-#endif
 }
 
 }  // namespace crashpad

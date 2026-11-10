@@ -387,11 +387,7 @@ class ShadowColorTest : public ShadowTest,
   ~ShadowColorTest() override = default;
 
   static std::vector<Shadow::Style> GetTestParamValues() {
-#if BUILDFLAG(IS_CHROMEOS)
-    return {Shadow::Style::kMaterialDesign, Shadow::Style::kChromeOSSystemUI};
-#else
     return {Shadow::Style::kMaterialDesign};
-#endif
   }
 };
 
@@ -464,19 +460,6 @@ TEST(ShadowStaticTest, MakeShadowValues) {
   EXPECT_EQ(custom_md_values, gfx::ShadowValue::MakeMdShadowValues(
                                   kElevation, key_color, ambient_color));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  const gfx::ShadowValues default_cros_values =
-      Shadow::MakeShadowValues(kElevation, Shadow::Style::kChromeOSSystemUI);
-  EXPECT_EQ(default_cros_values,
-            gfx::ShadowValue::MakeChromeOSSystemUIShadowValues(kElevation,
-                                                               SK_ColorBLACK));
-
-  const gfx::ShadowValues custom_cros_values = Shadow::MakeShadowValues(
-      kElevation, Shadow::Style::kChromeOSSystemUI, colors);
-  EXPECT_EQ(custom_cros_values,
-            gfx::ShadowValue::MakeChromeOSSystemUIShadowValues(
-                kElevation, key_color, ambient_color));
-#endif
 }
 
 }  // namespace

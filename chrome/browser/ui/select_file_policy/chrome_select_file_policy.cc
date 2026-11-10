@@ -15,16 +15,12 @@
 #include "content/public/browser/web_contents.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/android/window_android.h"
-#else
 #include "chrome/browser/infobars/browser_infobar_manager.h"
 #include "chrome/browser/infobars/infobar_features.h"
 #include "chrome/browser/infobars/simple_alert_infobar_creator.h"
 #include "components/infobars/content/content_infobar_manager.h"
 #include "components/infobars/core/infobar_delegate.h"
 #include "components/tabs/public/tab_interface.h"
-#endif
 
 ChromeSelectFilePolicy::ChromeSelectFilePolicy(
     content::WebContents* source_contents)
@@ -52,13 +48,6 @@ void ChromeSelectFilePolicy::SelectFileDenied() {
   // If the WebContents is in a browser window, show a toast / infobar saying
   // that file selection dialogs are disabled.
   if (source_contents_) {
-#if BUILDFLAG(IS_ANDROID)
-    // Show a toast on Clank instead of an infobar.
-    if (auto* window = source_contents_->GetTopLevelNativeWindow()) {
-      window->ShowToast(
-          l10n_util::GetStringUTF8(IDS_FILE_SELECTION_DIALOG_INFOBAR));
-    }
-#else
     if (infobars::IsInfoBarMigrated(
             infobars::InfoBarDelegate::FILE_ACCESS_DISABLED_INFOBAR_DELEGATE)) {
       tabs::TabInterface* tab =
@@ -83,7 +72,6 @@ void ChromeSelectFilePolicy::SelectFileDenied() {
           nullptr,
           l10n_util::GetStringUTF16(IDS_FILE_SELECTION_DIALOG_INFOBAR));
     }
-#endif
   }
 }
 

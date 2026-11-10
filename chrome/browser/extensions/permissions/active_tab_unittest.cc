@@ -52,9 +52,6 @@
 #include "extensions/common/permissions/permissions_data.h"
 #include "extensions/test/test_extension_dir.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/webui/os_feedback_ui/url_constants.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -448,26 +445,6 @@ TEST_F(ActiveTabTest, CapturingFeedbackDisallowed) {
       kFeedbackUrl, tab_id(), &error, CaptureRequirement::kActiveTabOrAllUrls));
   EXPECT_EQ(manifest_errors::kCannotAccessChromeUrl, error);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Repeat the test for the ChromeOS feedback URL.
-  const GURL kOSFeedbackUrl(ash::kChromeUIOSFeedbackUrl);
-  NavigateAndCommit(kOSFeedbackUrl);
-  EXPECT_EQ(kOSFeedbackUrl, web_contents()->GetLastCommittedURL());
-
-  error.clear();
-  EXPECT_FALSE(extension->permissions_data()->CanCaptureVisiblePage(
-      kOSFeedbackUrl, tab_id(), &error,
-      CaptureRequirement::kActiveTabOrAllUrls));
-  EXPECT_EQ(manifest_errors::kCannotAccessChromeUrl, error);
-
-  active_tab_permission_granter()->GrantIfRequested(extension.get(),
-                                                    base::DoNothing());
-  error.clear();
-  EXPECT_FALSE(extension->permissions_data()->CanCaptureVisiblePage(
-      kOSFeedbackUrl, tab_id(), &error,
-      CaptureRequirement::kActiveTabOrAllUrls));
-  EXPECT_EQ(manifest_errors::kCannotAccessChromeUrl, error);
-#endif
 }
 
 TEST_F(ActiveTabTest, ChromeSchemeNavigationsClearActiveTab) {

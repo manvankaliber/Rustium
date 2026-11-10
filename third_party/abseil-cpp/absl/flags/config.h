@@ -20,14 +20,9 @@
 // By default we strip string literals on mobile platforms.
 #if !defined(ABSL_FLAGS_STRIP_NAMES)
 
-#if defined(__ANDROID__)
-#define ABSL_FLAGS_STRIP_NAMES 1
-
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
 #include <TargetConditionals.h>
-#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
-#define ABSL_FLAGS_STRIP_NAMES 1
-#elif defined(TARGET_OS_EMBEDDED) && TARGET_OS_EMBEDDED
+#if defined(TARGET_OS_EMBEDDED) && TARGET_OS_EMBEDDED
 #define ABSL_FLAGS_STRIP_NAMES 1
 #endif  // TARGET_OS_*
 #endif

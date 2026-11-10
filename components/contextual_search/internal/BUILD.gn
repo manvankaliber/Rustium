@@ -7,11 +7,9 @@ source_set("internal") {
     ":*",
     "..:impl",
     "//chrome/browser:*",
-    "//chrome/browser/android",
     "//chrome/browser/ui/lens:*",
     "//chrome/test:*",
     "//chrome/test/base:chrome_test_suite",
-    "//components/contextual_search/internal/ios:*",
   ]
 
   sources = [

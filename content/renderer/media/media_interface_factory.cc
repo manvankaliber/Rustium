@@ -111,44 +111,7 @@ void MediaInterfaceFactory::CreateDefaultRenderer(
                                                     std::move(receiver));
 }
 
-#if BUILDFLAG(ENABLE_CAST_RENDERER)
-void MediaInterfaceFactory::CreateCastRenderer(
-    const base::UnguessableToken& overlay_plane_id,
-    mojo::PendingReceiver<media::mojom::Renderer> receiver) {
-  if (!task_runner_->BelongsToCurrentThread()) {
-    task_runner_->PostTask(
-        FROM_HERE,
-        base::BindOnce(&MediaInterfaceFactory::CreateCastRenderer, weak_this_,
-                       overlay_plane_id, std::move(receiver)));
-    return;
-  }
 
-  DVLOG(1) << __func__;
-  GetMediaInterfaceFactory()->CreateCastRenderer(overlay_plane_id,
-                                                 std::move(receiver));
-}
-#endif
-
-#if BUILDFLAG(IS_ANDROID)
-void MediaInterfaceFactory::CreateFlingingRenderer(
-    const std::string& presentation_id,
-    mojo::PendingRemote<media::mojom::FlingingRendererClientExtension>
-        client_extension,
-    mojo::PendingReceiver<media::mojom::Renderer> receiver) {
-  if (!task_runner_->BelongsToCurrentThread()) {
-    task_runner_->PostTask(
-        FROM_HERE,
-        base::BindOnce(&MediaInterfaceFactory::CreateFlingingRenderer,
-                       weak_this_, presentation_id, std::move(client_extension),
-                       std::move(receiver)));
-    return;
-  }
-
-  DVLOG(1) << __func__;
-  GetMediaInterfaceFactory()->CreateFlingingRenderer(
-      presentation_id, std::move(client_extension), std::move(receiver));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 void MediaInterfaceFactory::CreateMediaFoundationRenderer(

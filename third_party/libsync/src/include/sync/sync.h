@@ -25,7 +25,7 @@
  * empty other than the ndk/sync.h include, that file will be renamed to
  * replace this one.
  *
- * New code should continue to include this file (#include <android/sync.h>)
+ * New code should continue to include this file (#include <libsync/sync.h>)
  * instead of ndk/sync.h so the eventual rename is seamless, but should only
  * use the things declared in ndk/sync.h.
  *

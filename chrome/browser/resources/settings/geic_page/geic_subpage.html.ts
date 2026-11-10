@@ -112,13 +112,11 @@ export function getHtml(this: SettingsGeicSubpageElement) {
       </cr-button>
     </div>
   ` : ''}
-<if expr="not is_chromeos">
   ${this.shouldShowRelaunchDialog ? html`
     <relaunch-confirmation-dialog .restartType="${RestartType.RELAUNCH}"
         @close="${this.onRelaunchDialogClose}">
     </relaunch-confirmation-dialog>
   ` : ''}
-</if>
 </settings-subpage>
 <!--_html_template_end_-->`;
 }

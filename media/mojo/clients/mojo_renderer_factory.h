@@ -57,20 +57,7 @@ class MojoRendererFactory final : public RendererFactory {
       VideoRendererSink* video_renderer_sink);
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(ENABLE_CAST_RENDERER)
-  std::unique_ptr<MojoRenderer> CreateCastRenderer(
-      const scoped_refptr<base::SequencedTaskRunner>& media_task_runner,
-      VideoRendererSink* video_renderer_sink);
-#endif  // BUILDFLAG(ENABLE_CAST_RENDERER)
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<MojoRenderer> CreateFlingingRenderer(
-      const std::string& presentation_id,
-      mojo::PendingRemote<mojom::FlingingRendererClientExtension>
-          client_extenion_ptr,
-      const scoped_refptr<base::SequencedTaskRunner>& media_task_runner,
-      VideoRendererSink* video_renderer_sink);
-#endif  // defined (OS_ANDROID)
 
  private:
   // InterfaceFactory or InterfaceProvider used to create or connect to remote

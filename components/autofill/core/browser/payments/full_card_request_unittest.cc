@@ -79,13 +79,6 @@ class MockUIDelegate : public FullCardRequest::UIDelegate {
               OnUnmaskVerificationResult,
               (PaymentsRpcResult),
               (override));
-#if BUILDFLAG(IS_ANDROID)
-  MOCK_METHOD(bool, ShouldOfferFidoAuth, (), (const, override));
-  MOCK_METHOD(bool,
-              UserOptedInToFidoFromSettingsPageOnMobile,
-              (),
-              (const, override));
-#endif
 
   base::WeakPtr<MockUIDelegate> AsWeakPtr() {
     return weak_ptr_factory_.GetWeakPtr();
@@ -762,15 +755,11 @@ class FullCardRequestCardBenefitsTest
   }
 
   bool ShouldShowCardBenefits() const {
-#if !BUILDFLAG(IS_IOS)
     // Benefits sourced from Curinos currently only supports flat rate benefits.
     if (GetBenefitSource() == "curinos") {
       return std::holds_alternative<CreditCardFlatRateBenefit>(GetBenefit());
     }
     return true;
-#else
-    return false;
-#endif  // !BUILDFLAG(IS_IOS)
   }
 
   const CreditCard& card() { return card_; }

@@ -82,11 +82,6 @@ inline constexpr int kMaxSubsamplesPerBuffer = 65535;
 #if BUILDFLAG(IS_MAC)
 inline constexpr int kMinAudioBufferSize = 128;
 inline constexpr int kMaxAudioBufferSize = 4096;
-#elif BUILDFLAG(USE_CRAS)
-// Though CRAS has different per-board defaults, allow explicitly requesting
-// this buffer size on any board.
-inline constexpr int kMinAudioBufferSize = 256;
-inline constexpr int kMaxAudioBufferSize = 8192;
 #endif
 
 // Minimum and maximum buffer size supported by Web Audio.

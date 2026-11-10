@@ -14,9 +14,6 @@
   color: var(--cr-primary-text-color);
   display: flex;
   flex-direction: column;
-<if expr="is_android">
-  font-family: 'Google Sans Text', Arial, sans-serif;
-</if>
   height: 100%;
   line-height: 1.54;  /* 20px. */
   overflow: hidden;
@@ -77,10 +74,3 @@
     * area, below the entirety of the toolbar. */
   position-anchor: --main-container;
 }
-
-<if expr="is_android">
-cr-drawer {
-  --cr-drawer-background-color: var(--color-sys-surface-container,
-      var(--md-background-color));
-}
-</if>

@@ -24,7 +24,7 @@
 #include "gpu/command_buffer/client/shared_image_interface.h"
 #include "gpu/ipc/service/command_buffer_stub.h"
 #include "media/base/encoder_status.h"
-#include "media/gpu/chromeos/image_processor.h"
+#include "media/gpu/linux/image_processor.h"
 #include "media/gpu/media_gpu_export.h"
 #include "media/gpu/v4l2/v4l2_device.h"
 #include "media/video/video_encode_accelerator.h"

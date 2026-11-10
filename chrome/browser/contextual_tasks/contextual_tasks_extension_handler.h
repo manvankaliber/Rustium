@@ -19,6 +19,7 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_types.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service.h"
 #include "chrome/browser/ui/views/permissions/permission_prompt_observer.h"
+#include "chrome/browser/ui/webui/cr_components/searchbox/contextual_searchbox_tab_favicon_helper.h"
 #include "components/omnibox/browser/searchbox.mojom.h"
 #include "content/public/browser/document_user_data.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
@@ -31,10 +32,6 @@
 #include "ui/webui/resources/cr_components/composebox/composebox.mojom.h"
 #include "ui/webui/resources/js/tracked_element/tracked_element.mojom-forward.h"
 #include "url/gurl.h"
-
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/webui/cr_components/searchbox/contextual_searchbox_tab_favicon_helper.h"
-#endif
 
 // Handles Mojo connection requests from the Contextual Tasks extension
 // document, implementing composebox and searchbox page handler interfaces.
@@ -128,7 +125,7 @@ class ContextualTasksExtensionHandler
 
   // composebox::mojom::PageHandler stubs:
   void FocusChanged(bool focused) override;
-  void StartPlatformVoiceRecognition() override;
+
   void HandleFileUpload(bool is_image) override;
   void NavigateUrl(const GURL& url) override;
   void CloseLensOverlayFromWebUI(
@@ -257,9 +254,7 @@ class ContextualTasksExtensionHandler
   contextual_search::ContextualSearchSessionHandle*
   GetOrCreateContextualSessionHandle();
   std::optional<base::UnguessableToken> GetLensOverlayToken();
-#if !BUILDFLAG(IS_ANDROID)
   LensSearchController* GetLensSearchController() const;
-#endif
 
   void InitializeInputStateModel();
   void OnInputStateChanged(const omnibox::InputState& state);
@@ -314,9 +309,7 @@ class ContextualTasksExtensionHandler
   omnibox::ModelMode active_model_ = omnibox::MODEL_MODE_UNSPECIFIED;
 
   std::unique_ptr<ui::TrackedElementHandler> tracked_element_handler_;
-#if !BUILDFLAG(IS_ANDROID)
   ContextualSearchboxTabFaviconHelper tab_favicon_helper_;
-#endif
 
   base::WeakPtrFactory<ContextualTasksExtensionHandler> weak_ptr_factory_{this};
 };

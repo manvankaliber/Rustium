@@ -20,13 +20,8 @@
 
 // TopChrome doesn't exist on Android, so inherit from the base WebUIController
 // instead.
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/webui/top_chrome/untrusted_top_chrome_web_ui_controller.h"
 using AiOverlayDialogUntrustedUIBase = UntrustedTopChromeWebUIController;
-#else
-#include "ui/webui/untrusted_web_ui_controller.h"
-using AiOverlayDialogUntrustedUIBase = ui::UntrustedWebUIController;
-#endif
 
 namespace ttc {
 

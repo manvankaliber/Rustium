@@ -76,9 +76,7 @@
 #include "third_party/blink/public/mojom/script_source_location.mojom.h"
 #include "third_party/perfetto/include/perfetto/tracing/track.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "content/browser/direct_sockets/direct_sockets_service_impl.h"
-#endif
 
 namespace content {
 
@@ -805,7 +803,6 @@ bool DedicatedWorkerHost::CheckCOEP() {
   return false;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void DedicatedWorkerHost::CreateDirectSocketsService(
     mojo::PendingReceiver<blink::mojom::DirectSocketsService> receiver) {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M160);
@@ -820,7 +817,6 @@ void DedicatedWorkerHost::CreateDirectSocketsService(
   DirectSocketsServiceImpl::CreateForFrame(ancestor_render_frame_host,
                                            std::move(receiver));
 }
-#endif
 
 void DedicatedWorkerHost::CreateWebUsbService(
     mojo::PendingReceiver<blink::mojom::WebUsbService> receiver) {

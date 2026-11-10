@@ -237,18 +237,7 @@ suite('Logger', () => {
         await metrics.whenCalled('recordVoiceType'));
   });
 
-  // <if expr="is_chromeos">
-  test('logSpeechPlaySession with other voice on ChromeOS', async () => {
-    logger.logSpeechPlaySession(
-        defaultSpeechStartTime, createSpeechSynthesisVoice({name: 'Sleepy'}));
 
-    assertEquals(
-        ReadAnythingVoiceType.CHROMEOS,
-        await metrics.whenCalled('recordVoiceType'));
-  });
-  // </if>
-
-  // <if expr="not is_chromeos">
   test('logSpeechPlaySession with other voice on Desktop', async () => {
     logger.logSpeechPlaySession(
         defaultSpeechStartTime, createSpeechSynthesisVoice({name: 'Dopey'}));
@@ -257,7 +246,6 @@ suite('Logger', () => {
         ReadAnythingVoiceType.SYSTEM,
         await metrics.whenCalled('recordVoiceType'));
   });
-  // </if>
 
   test('logSpeechPlaySession supported locale', async () => {
     const lang = 'pt-BR';

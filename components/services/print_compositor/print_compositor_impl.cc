@@ -35,7 +35,7 @@
 #elif BUILDFLAG(IS_APPLE)
 #include "third_party/blink/public/platform/platform.h"
 #include "third_party/skia/include/core/SkFontMgr.h"
-#elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_POSIX)
 #include "third_party/blink/public/platform/platform.h"
 #endif
 
@@ -103,7 +103,7 @@ PrintCompositorImpl::PrintCompositorImpl(
   SkGraphics::SetImageGeneratorFromEncodedDataFactory(
       blink::WebImageGenerator::CreateAsSkImageGenerator);
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   content::UtilityThread::Get()->EnsureBlinkInitializedWithSandboxSupport();
   // Check that we have sandbox support on this platform.
   DCHECK(blink::Platform::Current()->GetSandboxSupport());

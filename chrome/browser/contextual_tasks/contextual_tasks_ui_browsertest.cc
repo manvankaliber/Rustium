@@ -18,6 +18,7 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_composebox_handler.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_cookie_synchronizer.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_eligibility_manager.h"
+#include "chrome/browser/contextual_tasks/contextual_tasks_location_bar.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_panel_controller.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_permission_controller.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_service_factory.h"
@@ -28,11 +29,17 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service_delegate_desktop.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service_factory.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_utils.h"
-
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/contextual_tasks/contextual_tasks_location_bar.h"
+#include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/search_engines/template_url_service_factory.h"
+#include "chrome/browser/signin/identity_manager_factory.h"
+#include "chrome/browser/signin/identity_test_environment_profile_adaptor.h"
+#include "chrome/browser/tab_list/tab_list_interface.h"
+#include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/interaction/browser_elements.h"
+#include "chrome/browser/ui/lens/lens_search_controller.h"
+#include "chrome/browser/ui/tabs/public/tab_features.h"
 #include "chrome/browser/ui/views/bubble_anchor_util_views.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 #include "chrome/browser/ui/views/permissions/chip/chip_controller.h"
@@ -41,29 +48,11 @@
 #include "chrome/browser/ui/views/permissions/chip/webui_permission_dashboard.h"
 #include "chrome/browser/ui/views/permissions/permission_prompt_bubble_base_view.h"
 #include "chrome/browser/ui/views/permissions/permission_prompt_observer.h"
-#include "chrome/test/permissions/permission_request_manager_test_api.h"
-#include "components/content_settings/browser/page_specific_content_settings.h"
-#include "components/permissions/permission_request_manager.h"
-#include "components/permissions/permission_uma_constants.h"
-#include "components/permissions/request_type.h"
-#include "components/permissions/test/permission_request_observer.h"
-#include "ui/base/interaction/element_identifier.h"
-#include "ui/base/interaction/element_test_util.h"
-#include "ui/webui/tracked_element/tracked_element_handler.h"
-#include "ui/webui/tracked_element/tracked_element_handler_document_singleton.h"
-#endif
-#include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/search_engines/template_url_service_factory.h"
-#include "chrome/browser/signin/identity_manager_factory.h"
-#include "chrome/browser/signin/identity_test_environment_profile_adaptor.h"
-#include "chrome/browser/tab_list/tab_list_interface.h"
-#include "chrome/browser/ui/browser_commands.h"
-#include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
-#include "chrome/browser/ui/tabs/public/tab_features.h"
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/test/base/in_process_browser_test.h"
 #include "chrome/test/base/ui_test_utils.h"
+#include "chrome/test/permissions/permission_request_manager_test_api.h"
+#include "components/content_settings/browser/page_specific_content_settings.h"
 #include "components/contextual_search/contextual_search_service.h"
 #include "components/contextual_search/input_state_model.h"
 #include "components/contextual_tasks/public/contextual_task_context.h"
@@ -74,6 +63,10 @@
 #include "components/lens/lens_overlay_invocation_source.h"
 #include "components/omnibox/browser/mock_aim_eligibility_service.h"
 #include "components/omnibox/browser/searchbox.mojom.h"
+#include "components/permissions/permission_request_manager.h"
+#include "components/permissions/permission_uma_constants.h"
+#include "components/permissions/request_type.h"
+#include "components/permissions/test/permission_request_observer.h"
 #include "components/signin/public/base/consent_level.h"
 #include "components/signin/public/identity_manager/identity_manager.h"
 #include "components/signin/public/identity_manager/identity_test_environment.h"
@@ -91,10 +84,14 @@
 #include "net/base/url_util.h"
 #include "testing/gmock/include/gmock/gmock.h"
 #include "third_party/lens_server_proto/aim_communication.pb.h"
+#include "ui/base/interaction/element_identifier.h"
+#include "ui/base/interaction/element_test_util.h"
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 #include "ui/base/ui_base_switches.h"
 #include "ui/webui/resources/cr_components/composebox/composebox.mojom.h"
+#include "ui/webui/tracked_element/tracked_element_handler.h"
+#include "ui/webui/tracked_element/tracked_element_handler_document_singleton.h"
 
 namespace {
 
@@ -871,7 +868,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksNoMockBrowserTest,
       tab, GURL("https://example.com")));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace {
 
 DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kTestChipElementId);
@@ -1300,44 +1296,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksNoMockBrowserTest,
 
   prompt_observer->RemoveObserver(&test_observer);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_ANDROID)
-class ContextualTasksDarkModeBrowserTest
-    : public ContextualTasksNoMockBrowserTest {
- public:
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    ContextualTasksNoMockBrowserTest::SetUpCommandLine(command_line);
-    command_line->AppendSwitch(switches::kForceDarkMode);
-  }
-};
-
-IN_PROC_BROWSER_TEST_F(ContextualTasksDarkModeBrowserTest,
-                       DarkModeLoadTimeData) {
-  EXPECT_TRUE(ui_test_utils::NavigateToURL(
-      browser(), GURL(chrome::kChromeUIContextualTasksURL)));
-  content::WebContents* web_contents =
-      TabListInterface::From(browser())->GetActiveTab()->GetContents();
-
-  bool is_dark_mode =
-      content::EvalJs(web_contents, "loadTimeData.getBoolean('darkMode')")
-          .ExtractBool();
-  EXPECT_TRUE(is_dark_mode);
-}
-
-IN_PROC_BROWSER_TEST_F(ContextualTasksNoMockBrowserTest,
-                       LightModeLoadTimeData) {
-  EXPECT_TRUE(ui_test_utils::NavigateToURL(
-      browser(), GURL(chrome::kChromeUIContextualTasksURL)));
-  content::WebContents* web_contents =
-      TabListInterface::From(browser())->GetActiveTab()->GetContents();
-
-  bool is_dark_mode =
-      content::EvalJs(web_contents, "loadTimeData.getBoolean('darkMode')")
-          .ExtractBool();
-  EXPECT_FALSE(is_dark_mode);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ContextualTasksUIBrowserTest,
                        UpdateModelFromUrlOnNavigation) {
@@ -1624,26 +1582,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksInternalsPostRearchitectureBrowserTest,
   EXPECT_FALSE(web_contents->IsCrashed());
   EXPECT_TRUE(web_contents->GetPrimaryMainFrame()->IsErrorDocument());
   EXPECT_EQ(web_contents->GetWebUI(), nullptr);
-}
-
-IN_PROC_BROWSER_TEST_F(ContextualTasksInternalsPostRearchitectureBrowserTest,
-                       OnVoiceTranscribedSafelyNoOps) {
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(
-      browser(), GURL("chrome://contextual-tasks/internals")));
-  content::WebContents* web_contents =
-      TabListInterface::From(browser())->GetActiveTab()->GetContents();
-  ASSERT_NE(web_contents->GetWebUI(), nullptr);
-
-  // Invoking `OnVoiceTranscribed()` when the active WebUI controller is
-  // `ContextualTasksUIPostRearchitecture` must safely no-op without downcasting
-  // to `ContextualTasksUI`.
-  auto* ui_service =
-      contextual_tasks::ContextualTasksUiServiceFactory::GetForBrowserContext(
-          browser()->GetProfile());
-  ASSERT_NE(ui_service, nullptr);
-  ui_service->StartPlatformVoiceRecognition(browser(), web_contents);
-  ui_service->OnVoiceTranscribed("test voice query");
-  EXPECT_EQ(contextual_tasks::GetWebUiInterface(web_contents), nullptr);
 }
 
 IN_PROC_BROWSER_TEST_F(ContextualTasksInternalsPostRearchitectureBrowserTest,

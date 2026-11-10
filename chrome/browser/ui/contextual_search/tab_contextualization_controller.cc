@@ -45,9 +45,6 @@
 #include "pdf/mojom/pdf.mojom.h"
 #endif  // BUILDFLAG(ENABLE_PDF)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace lens {
 
@@ -193,45 +190,6 @@ TabContextualizationController::GetPageContextAvailability() const {
   if (web_contents->IsDocumentOnLoadCompletedInPrimaryMainFrame()) {
     return PageContextAvailability::kReadyToExtract;
   }
-#if BUILDFLAG(IS_ANDROID)
-  const bool is_optimization_enabled = base::FeatureList::IsEnabled(
-      chrome::android::kOnDemandBackgroundTabContextCaptureOptimization);
-  const bool is_activated = tab_->IsActivated();
-
-  // If the initial visual paint has already completed, the page is visually
-  // rendered and the primary DOM is ready. We can safely extract immediately
-  // without waiting for subresources or ads to finish loading, provided either:
-  // 1) early first paint completion is enabled, or
-  // 2) this is the active foreground tab and skip_delay_for_active_tab is on.
-  const bool is_first_paint_optimization_enabled =
-      is_optimization_enabled &&
-      (chrome::android::kOnDemandBackgroundTabContextCaptureEnableFirstPaint
-           .Get() ||
-       (is_activated &&
-        chrome::android::
-            kOnDemandBackgroundTabContextCaptureSkipDelayForActiveTab.Get()));
-  const bool has_first_paint =
-      did_first_visually_non_empty_paint_ ||
-      web_contents->CompletedFirstVisuallyNonEmptyPaint();
-  if (has_first_paint && is_first_paint_optimization_enabled) {
-    return PageContextAvailability::kReadyToExtract;
-  }
-
-  // First paint is unreliable for background tabs, so it cannot be the only
-  // readiness signal. Annotated page content is extracted from the DOM rather
-  // than from pixels, so a parsed document is sufficient to extract.
-  const bool is_background_dom_content_loaded_enabled =
-      !is_activated && is_optimization_enabled &&
-      chrome::android::
-          kOnDemandBackgroundTabContextCaptureBackgroundTabUseDomContentLoaded
-              .Get();
-  const bool has_dom_content_loaded =
-      did_dom_content_loaded_ ||
-      web_contents->GetPrimaryMainFrame()->IsDOMContentLoaded();
-  if (has_dom_content_loaded && is_background_dom_content_loaded_enabled) {
-    return PageContextAvailability::kReadyToExtract;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   return web_contents->IsLoading() ? PageContextAvailability::kLoading
                                    : PageContextAvailability::kUnavailable;
 }
@@ -503,31 +461,6 @@ void TabContextualizationController::GetPageContext(
   }
   deferred_page_context_requests_.push_back(
       {scoped_cancellation_id_, std::move(callback)});
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(
-          chrome::android::
-              kOnDemandBackgroundTabContextCaptureOptimization)) {
-    const bool use_active_tab_timeout =
-        tab_->IsActivated() &&
-        chrome::android::
-            kOnDemandBackgroundTabContextCaptureSkipDelayForActiveTab.Get();
-    const int timeout_sec =
-        use_active_tab_timeout
-            ? chrome::android::
-                  kOnDemandBackgroundTabContextCaptureActiveTabFlushTimeoutSeconds
-                      .Get()
-            : chrome::android::
-                  kOnDemandBackgroundTabContextCaptureOverallFlushTimeoutSeconds
-                      .Get();
-    if (timeout_sec > 0 && !pending_page_context_timer_.IsRunning()) {
-      pending_page_context_timer_.Start(
-          FROM_HERE, base::Seconds(timeout_sec),
-          base::BindOnce(&TabContextualizationController::
-                             CompleteDeferredPageContextRequests,
-                         weak_ptr_factory_.GetWeakPtr(), true));
-    }
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void TabContextualizationController::GetPageContext(

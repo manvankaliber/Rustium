@@ -203,12 +203,6 @@ class WebUIToolbarInternalWebView : public views::WebView {
   void PreHandleDragUpdate(const content::DropData& drop_data,
                            const gfx::PointF& client_pt) override {
     bool did_originate_from_renderer = drop_data.did_originate_from_renderer;
-#if BUILDFLAG(IS_CHROMEOS)
-    // On ChromeOS, drag origin provenance cannot be reliably distinguished
-    // between OS-local and renderer sources (b/256022714). To ensure security
-    // by default, all drags are conservatively treated as renderer-originated.
-    did_originate_from_renderer = true;
-#endif
     if (!did_originate_from_renderer && !drop_data.filenames.empty()) {
       cached_dragged_file_path_ = drop_data.filenames.front().path;
       cached_dragged_file_position_ = client_pt;

@@ -7,24 +7,16 @@ use std::os::unix::io::RawFd;
 use std::{io, fmt};
 use std::num::NonZeroU32;
 use std::io::ErrorKind::*;
-#[cfg(any(
-    target_os="linux", target_os="android",
-    target_os="freebsd", target_os="dragonfly", target_vendor="apple",
-    target_os="openbsd", target_os="netbsd"
-))]
+#[cfg(any(target_os="linux", target_os="freebsd", target_os="dragonfly", target_vendor="apple", target_os="openbsd", target_os="netbsd"))]
 use std::mem;
 #[cfg(any(target_os="illumos", target_os="solaris"))]
 use std::ptr;
 
-#[cfg(any(
-    target_os="linux", target_os="android",
-    target_os="freebsd", target_os="dragonfly", target_vendor="apple",
-    target_os="openbsd", target_os="netbsd"
-))]
+#[cfg(any(target_os="linux", target_os="freebsd", target_os="dragonfly", target_vendor="apple", target_os="openbsd", target_os="netbsd"))]
 use libc::{getsockopt, c_void, socklen_t};
-#[cfg(any(target_os="linux", target_os="android"))]
+#[cfg(target_os="linux")]
 use libc::{pid_t, uid_t, gid_t, getpid, getuid, geteuid, getgid, getegid};
-#[cfg(any(target_os="linux", target_os="android"))]
+#[cfg(target_os="linux")]
 use libc::{ucred, SOL_SOCKET, SO_PEERCRED, SO_PEERSEC};
 #[cfg(any(target_os="freebsd", target_os="dragonfly", target_vendor="apple"))]
 use libc::{xucred, XUCRED_VERSION, LOCAL_PEERCRED};
@@ -50,7 +42,7 @@ pub enum SendCredentials {
     Real,
     Custom{ pid: u32, uid: u32, gid: u32 }
 }
-#[cfg(any(target_os="linux", target_os="android"))]
+#[cfg(target_os="linux")]
 impl SendCredentials {
     pub fn into_raw(self) -> ucred {
         let mut ucred: ucred = unsafe { mem::zeroed() };
@@ -68,7 +60,7 @@ impl SendCredentials {
 
 
 
-#[cfg(any(target_os="linux", target_os="android"))]
+#[cfg(target_os="linux")]
 pub fn selinux_context(fd: RawFd,  buffer: &mut[u8]) -> Result<usize, io::Error> {
     unsafe {
         let ptr = buffer.as_mut_ptr() as *mut c_void;
@@ -80,7 +72,7 @@ pub fn selinux_context(fd: RawFd,  buffer: &mut[u8]) -> Result<usize, io::Error>
     }
 }
 
-#[cfg(not(any(target_os="linux", target_os="android")))]
+#[cfg(not(target_os="linux"))]
 pub fn selinux_context(_fd: RawFd,  _buffer: &mut[u8]) -> Result<usize, io::Error> {
     Err(io::Error::new(Other, "not available"))
 }
@@ -193,7 +185,7 @@ impl fmt::Debug for ConnCredentials {
 }
 
 
-#[cfg(any(target_os="linux", target_os="android"))]
+#[cfg(target_os="linux")]
 pub fn peer_credentials(conn: RawFd) -> Result<ConnCredentials, io::Error> {
     let mut ucred: ucred = unsafe { mem::zeroed() };
     unsafe {
@@ -347,19 +339,14 @@ pub fn peer_credentials(conn: RawFd) -> Result<ConnCredentials, io::Error> {
     }
 }
 
-#[cfg(not(any(
-    target_os="linux", target_os="android",
-    target_os="freebsd", target_os="dragonfly", target_vendor="apple",
-    target_os="openbsd", target_os="netbsd",
-    target_os="illumos", target_os="solaris",
-)))]
+#[cfg(not(any(target_os="linux", target_os="freebsd", target_os="dragonfly", target_vendor="apple", target_os="openbsd", target_os="netbsd", target_os="illumos", target_os="solaris")))]
 pub fn peer_credentials(_: RawFd) -> Result<ConnCredentials, io::Error> {
     Err(io::Error::new(Other, "Not available"))
 }
 
 
 
-#[cfg(any(target_os="linux", target_os="android"))]
+#[cfg(target_os="linux")]
 pub type RawReceivedCredentials = libc::ucred;
 
 
@@ -377,11 +364,11 @@ pub type RawReceivedCredentials = libc::ucred;
 /// * OpenBSD doesn't appear to support receiving credentials.
 #[derive(Clone,Copy, PartialEq,Eq,Hash, Debug)]
 pub struct ReceivedCredentials {
-    #[cfg(any(target_os="linux", target_os="android", target_os="dragonfly"))]
+    #[cfg(any(target_os="linux", target_os="dragonfly"))]
     pid: u32,
-    #[cfg(any(target_os="linux", target_os="android"))]
+    #[cfg(target_os="linux")]
     uid: u32,
-    #[cfg(any(target_os="linux", target_os="android"))]
+    #[cfg(target_os="linux")]
     gid: u32,
 
     #[cfg(any(
@@ -413,7 +400,7 @@ pub struct ReceivedCredentials {
 
 #[allow(unused)] // TODO
 impl ReceivedCredentials {
-    #[cfg(any(target_os="linux", target_os="android"))]
+    #[cfg(target_os="linux")]
     pub(crate) fn from_raw(creds: libc::ucred) -> Self {
         ReceivedCredentials {
             pid: creds.pid as u32,
@@ -426,15 +413,15 @@ impl ReceivedCredentials {
     ///
     /// This information is only available on Linux, Android and DragonFly BSD.
     pub fn pid(&self) -> Option<u32> {
-        #[cfg(any(target_os="linux", target_os="android", target_os="dragonfly"))] {
+        #[cfg(any(target_os="linux", target_os="dragonfly"))] {
             Some(self.pid)
         }
-        #[cfg(not(any(target_os="linux", target_os="android", target_os="dragonfly")))] {
+        #[cfg(not(any(target_os="linux", target_os="dragonfly")))] {
             None
         }
     }
     pub fn effective_or_sent_uid(&self) -> u32 {
-        #[cfg(any(target_os="linux", target_os="android"))] {
+        #[cfg(target_os="linux")] {
             self.uid
         }
         #[cfg(any(
@@ -443,16 +430,12 @@ impl ReceivedCredentials {
         ))] {
             self.effective_uid
         }
-        #[cfg(not(any(
-            target_os="linux", target_os="android",
-            target_os="freebsd", target_os="netbsd", target_os="dragonfly",
-            target_os="illumos", target_os="solaris", target_os="macos",
-        )))] {
+        #[cfg(not(any(target_os="linux", target_os="freebsd", target_os="netbsd", target_os="dragonfly", target_os="illumos", target_os="solaris", target_os="macos")))] {
             unreachable!("struct cannot be created on unsupported OSes")
         }
     }
     pub fn real_or_sent_uid(&self) -> u32 {
-        #[cfg(any(target_os="linux", target_os="android"))] {
+        #[cfg(target_os="linux")] {
             self.uid
         }
         #[cfg(any(
@@ -461,16 +444,12 @@ impl ReceivedCredentials {
         ))] {
             self.real_uid
         }
-        #[cfg(not(any(
-            target_os="linux", target_os="android",
-            target_os="freebsd", target_os="netbsd", target_os="dragonfly",
-            target_os="illumos", target_os="solaris", target_os="macos",
-        )))] {
+        #[cfg(not(any(target_os="linux", target_os="freebsd", target_os="netbsd", target_os="dragonfly", target_os="illumos", target_os="solaris", target_os="macos")))] {
             unreachable!("struct cannot be created on unsupported OSes")
         }
     }
     pub fn effective_or_sent_gid(&self) -> Option<u32> {
-        #[cfg(any(target_os="linux", target_os="android"))] {
+        #[cfg(target_os="linux")] {
             Some(self.gid)
         }
         #[cfg(any(
@@ -479,16 +458,12 @@ impl ReceivedCredentials {
         ))] {
             Some(self.effective_gid)
         }
-        #[cfg(not(any(
-            target_os="linux", target_os="android",
-            target_os="freebsd", target_os="netbsd",
-            target_os="illumos", target_os="solaris", target_os="macos",
-        )))] {
+        #[cfg(not(any(target_os="linux", target_os="freebsd", target_os="netbsd", target_os="illumos", target_os="solaris", target_os="macos")))] {
             None
         }
     }
     pub fn real_or_sent_gid(&self) -> u32 {
-        #[cfg(any(target_os="linux", target_os="android"))] {
+        #[cfg(target_os="linux")] {
             self.gid
         }
         #[cfg(any(
@@ -497,11 +472,7 @@ impl ReceivedCredentials {
         ))] {
             self.real_gid
         }
-        #[cfg(not(any(
-            target_os="linux", target_os="android",
-            target_os="freebsd", target_os="netbsd", target_os="dragonfly",
-            target_os="illumos", target_os="solaris", target_os="macos",
-        )))] {
+        #[cfg(not(any(target_os="linux", target_os="freebsd", target_os="netbsd", target_os="dragonfly", target_os="illumos", target_os="solaris", target_os="macos")))] {
             unreachable!("struct cannot be created on unsupported OSes")
         }
     }

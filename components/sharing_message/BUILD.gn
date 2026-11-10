@@ -2,20 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
-if (is_android) {
-  java_cpp_enum("sharing_send_message_result_generated_enum") {
-    sources = [ "sharing_send_message_result.h" ]
-  }
-
-  java_cpp_enum("sharing_dialog_type_generated_enum") {
-    sources = [ "sharing_metrics.h" ]
-  }
-}
-
 source_set("sharing_message") {
   sources = [
     "ack_message_handler.cc",

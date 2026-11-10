@@ -12,11 +12,9 @@ namespace device_signals {
 void RegisterProfilePrefs(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(
       prefs::kUnmanagedDeviceSignalsConsentFlowEnabled, false);
-#if !BUILDFLAG(IS_ANDROID)
   // On Android, consent is stored per account in `SigninPrefs` instead.
   registry->RegisterBooleanPref(prefs::kDeviceSignalsConsentReceived, false);
   registry->RegisterBooleanPref(prefs::kDeviceSignalsPermanentConsentReceived,
                                 false);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 }  // namespace device_signals

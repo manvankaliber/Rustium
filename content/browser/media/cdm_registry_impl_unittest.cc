@@ -107,11 +107,7 @@ class CdmRegistryImplTest : public testing::Test {
   void SetUp() final {
     DVLOG(1) << __func__;
 
-    if constexpr (BUILDFLAG(IS_CHROMEOS)) {
-      // On ChromeOS, only HARDWARE_GL is available, so we cannot disable the
-      // ACCELERATED_GL feature without leaving no usable GPU mode.
-      GTEST_SKIP();
-    }
+    {}
 
     auto* gpu_data_manager = GpuDataManagerImpl::GetInstance();
 
@@ -257,14 +253,6 @@ class CdmRegistryImplTest : public testing::Test {
     scoped_feature_list_.InitWithFeatures(enabled_features, disabled_features);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android checking for key system support can be run on a separate
-  // thread. Disable this for testing.
-  void DisableMediaDrmQueryInSeparateProcess() {
-    scoped_feature_list_.InitAndDisableFeature(
-        media::kMediaDrmQueryInSeparateProcess);
-  }
-#endif
 
   void ClearCapabilityTestOverride() {
     cdm_registry_.SetCapabilityCBForTesting(base::NullCallback());
@@ -1201,9 +1189,6 @@ TEST_F(
 }
 
 TEST_F(CdmRegistryImplTest, KeySystemCapabilities_NoOverride) {
-#if BUILDFLAG(IS_ANDROID)
-  DisableMediaDrmQueryInSeparateProcess();
-#endif
 
   // kTestKeySystem doesn't exist on any platform, but this should at least
   // exercise a bit more of the code (and leave the capabilities as nullptr).

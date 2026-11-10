@@ -338,9 +338,6 @@ source_set("anonymous_tokens_tests") {
     "//testing/gtest",
     "//third_party/abseil-cpp:absl",
   ]
-  if (is_ios) {
-    deps += [ ":test_data" ]
-  }
 }
 
 # Anonymous Tokens with Hidden Metadata (ATHM), built from the autorolled

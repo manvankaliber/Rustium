@@ -27,11 +27,6 @@ def pytest_addoption(parser):
       'linux',
       'win',
       'mac',
-      'android',
-      'webview',
-      'android_webview',
-      'cros',
-      'lacros',
     ],
     help='If present, run for the target platform, '
     'defaults to the host platform.',

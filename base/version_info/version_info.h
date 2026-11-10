@@ -26,13 +26,9 @@ constexpr std::string_view GetProductName() {
 }
 
 // Returns the version number, e.g. "6.0.490.1".
-#if BUILDFLAG(IS_ANDROID)
-std::string_view GetVersionNumber();
-#else
 constexpr std::string_view GetVersionNumber() {
   return PRODUCT_VERSION;
 }
-#endif
 
 // Returns the major component (aka the milestone) of the version as an int,
 // e.g. 6 when the version is "6.0.490.1".
@@ -60,18 +56,8 @@ constexpr bool IsOfficialBuild() {
 constexpr std::string_view GetOSType() {
 #if BUILDFLAG(IS_WIN)
   return "Windows";
-#elif BUILDFLAG(IS_IOS)
-  return "iOS";
 #elif BUILDFLAG(IS_MAC)
   return "Mac OS X";
-#elif BUILDFLAG(IS_CHROMEOS)
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-  return "ChromeOS";
-#else
-  return "ChromiumOS";
-#endif
-#elif BUILDFLAG(IS_ANDROID)
-  return "Android";
 #elif BUILDFLAG(IS_LINUX)
   return "Linux";
 #elif BUILDFLAG(IS_FREEBSD)

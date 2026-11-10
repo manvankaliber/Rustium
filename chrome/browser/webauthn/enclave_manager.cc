@@ -116,9 +116,6 @@
 #include "third_party/boringssl/src/include/openssl/base.h"
 #include "third_party/boringssl/src/include/openssl/bytestring.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/shell.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "chrome/browser/webauthn/icloud_recovery.h"
@@ -776,8 +773,7 @@ base::flat_set<GaiaId> GetGaiaIDs(
 }
 
 std::string UserVerifyingLabelToString(crypto::UserVerifyingKeyLabel label) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   return label;
 #else
   return std::string("placeholder");
@@ -786,8 +782,7 @@ std::string UserVerifyingLabelToString(crypto::UserVerifyingKeyLabel label) {
 
 std::optional<crypto::UserVerifyingKeyLabel> UserVerifyingKeyLabelFromString(
     std::string saved_label) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   return saved_label;
 #else
   return std::nullopt;
@@ -989,22 +984,6 @@ base::flat_map<int32_t, std::vector<uint8_t>> GetNewSecretsToStore(
   return new_secrets;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-UserVerifyingKeyProviderConfigChromeos MakeUserVerifyingKeyConfig(
-    EnclaveManager::UVKeyOptions options) {
-  UserVerifyingKeyProviderConfigChromeos config{options.dialog_controller,
-                                                /*window=*/nullptr,
-                                                options.rp_id};
-  if (options.render_frame_host_id) {
-    auto* rfh = content::RenderFrameHost::FromID(options.render_frame_host_id);
-    // This is ultimately invoked from GpmEnclaveController, which can't outlive
-    // the RFH where the request originated.
-    CHECK(rfh);
-    config.window = rfh->GetNativeView()->GetToplevelWindow();
-  }
-  return config;
-}
-#else
 crypto::UserVerifyingKeyProvider::Config MakeUserVerifyingKeyConfig(
     EnclaveManager::UVKeyOptions options) {
   crypto::UserVerifyingKeyProvider::Config config;
@@ -1015,7 +994,6 @@ crypto::UserVerifyingKeyProvider::Config MakeUserVerifyingKeyConfig(
 #endif  // BUILDFLAG(IS_MAC)
   return config;
 }
-#endif
 
 std::unique_ptr<crypto::UserVerifyingKeyProvider>
 GetUserVerifyingKeyProviderForSigning(EnclaveManager::UVKeyOptions options) {
@@ -4208,13 +4186,8 @@ void EnclaveManager::AreUserVerifyingKeysSupported(Callback callback) {
         FROM_HERE, base::BindOnce(std::move(callback), true));
     return;
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS doesn't have HW-backed UV keys, but uses a software provider.
-  std::move(callback).Run(true);
-#else
   crypto::AreUserVerifyingKeysSupported(
       MakeUserVerifyingKeyConfig(/*options=*/{}), std::move(callback));
-#endif
 }
 
 std::unique_ptr<signin::PrimaryAccountAccessTokenFetcher>

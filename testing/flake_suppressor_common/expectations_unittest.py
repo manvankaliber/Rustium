@@ -1027,7 +1027,7 @@ class FindBestInsertionLineForExpectationUnittest(
     """Tests behavior when there are no expectations with matching tags."""
     insertion_line, tags = (
       self._expectations.FindBestInsertionLineForExpectation(
-        tuple(['android']), self.expectation_file
+        tuple([]), self.expectation_file
       )
     )
     self.assertEqual(insertion_line, -1)

@@ -16,7 +16,7 @@ template("manifest") {
     inputs = [
       version_file,
       version_script,
-      "//build/util/android_chrome_version.py",
+
       "//build/util/LASTCHANGE",
       "//build/util/LASTCHANGE.dummy",
       "//tools/json_comment_eater/json_comment_eater.py",

@@ -83,10 +83,6 @@
 #include "ui/linux/linux_ui.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ui/aura/window.h"
-#include "ui/wm/core/ime_util_chromeos.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "ui/base/cocoa/secure_password_input.h"
@@ -622,11 +618,7 @@ bool TextfieldTest::TestingNativeMac() const {
 }
 
 bool TextfieldTest::TestingNativeCrOs() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  return true;
-#else
   return false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void TextfieldTest::SendKeyPress(ui::KeyboardCode key_code, int flags) {
@@ -1126,7 +1118,7 @@ TEST_F(TextfieldTest, KeyTest) {
   }
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // Control key shouldn't generate a printable character on Linux.
 TEST_F(TextfieldTest, KeyTestControlModifier) {
   InitTextfield();
@@ -1570,7 +1562,7 @@ TEST_F(TextfieldTest, InsertionDeletionTest) {
   SendWordEvent(ui::VKEY_LEFT, shift);
   shift = true;
   SendWordEvent(ui::VKEY_BACK, shift);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   EXPECT_EQ(u"three ", textfield_->GetText());
 #else
   EXPECT_EQ(u"one three ", textfield_->GetText());
@@ -1591,7 +1583,7 @@ TEST_F(TextfieldTest, InsertionDeletionTest) {
   SendWordEvent(ui::VKEY_RIGHT, shift);
   shift = true;
   SendWordEvent(ui::VKEY_DELETE, shift);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   EXPECT_EQ(u" two", textfield_->GetText());
 #elif BUILDFLAG(IS_WIN)
   EXPECT_EQ(u"two four", textfield_->GetText());
@@ -3594,7 +3586,7 @@ TEST_F(TextfieldTest, CommitEmptyComposingTextTest) {
   EXPECT_EQ(composed_text_length, 0u);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 // SetCompositionFromExistingText is only available on Windows and Chrome OS.
 TEST_F(TextfieldTest, SetCompositionFromExistingTextTest) {
   InitTextfield();
@@ -4534,41 +4526,6 @@ TEST_F(TextfieldTest, AccessibleNameFromLabel) {
             label_data.id);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Check that when accessibility virtual keyboard is enabled, windows are
-// shifted up when focused and restored when focus is lost.
-TEST_F(TextfieldTest, VirtualKeyboardFocusEnsureCaretNotInRect) {
-  InitTextfield();
-
-  aura::Window* root_window = GetRootWindow(widget_.get());
-  int keyboard_height = 200;
-  gfx::Rect root_bounds = root_window->bounds();
-  gfx::Rect orig_widget_bounds = gfx::Rect(0, 300, 400, 200);
-  gfx::Rect shifted_widget_bounds = gfx::Rect(0, 200, 400, 200);
-  gfx::Rect keyboard_view_bounds =
-      gfx::Rect(0, root_bounds.height() - keyboard_height, root_bounds.width(),
-                keyboard_height);
-
-  // Focus the window.
-  widget_->SetBounds(orig_widget_bounds);
-  input_method()->SetFocusedTextInputClient(textfield_);
-  EXPECT_EQ(widget_->GetNativeView()->bounds(), orig_widget_bounds);
-
-  // Simulate virtual keyboard.
-  input_method()->SetVirtualKeyboardBounds(keyboard_view_bounds);
-
-  // Window should be shifted.
-  EXPECT_EQ(widget_->GetNativeView()->bounds(), shifted_widget_bounds);
-
-  // Detach the textfield from the IME
-  input_method()->DetachTextInputClient(textfield_);
-  wm::RestoreWindowBoundsOnClientFocusLost(
-      widget_->GetNativeView()->GetToplevelWindow());
-
-  // Window should be restored.
-  EXPECT_EQ(widget_->GetNativeView()->bounds(), orig_widget_bounds);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // No touch on desktop Mac. Tracked in http://crbug.com/445520.
 #if !BUILDFLAG(IS_MAC)

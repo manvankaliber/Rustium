@@ -579,7 +579,6 @@ TEST_F(FeaturePromoControllerQueueTest, HelpBubbleArrowCallback) {
   EXPECT_EQ(HelpBubbleArrow::kBottomLeft, GetHelpBubble()->params().arrow);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(FeaturePromoControllerQueueTest, FeatureEngagementConfig) {
   UNCALLED_MOCK_CALLBACK(FeaturePromoController::ShowPromoResultCallback,
@@ -605,7 +604,6 @@ TEST_F(FeaturePromoControllerQueueTest, FeatureEngagementConfig) {
                                                promo_context()));
 }
 
-#endif
 
 TEST_F(FeaturePromoControllerQueueTest, ShowWithInvalidContextFails) {
   UNCALLED_MOCK_CALLBACK(FeaturePromoController::ShowPromoResultCallback,

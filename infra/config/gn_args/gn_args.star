@@ -6,133 +6,11 @@
 
 load("@chromium-luci//gn_args.star", "gn_args")
 
-gn_args.config(
-    name = "amd64-generic",
-    args_file = "//build/args/chromeos/amd64-generic.gni",
-)
-
-gn_args.config(
-    name = "amd64-generic-crostoolchain",
-    args_file = "//build/args/chromeos/amd64-generic-crostoolchain.gni",
-)
-
-gn_args.config(
-    name = "amd64-generic-vm",
-    args_file = "//build/args/chromeos/amd64-generic-vm.gni",
-)
-
-gn_args.config(
-    name = "android",
-    args = {
-        "target_os": "android",
-    },
-)
-
-gn_args.config(
-    name = "android_asan",
-    args = {
-        "is_asan": True,
-        "default_min_sdk_version": 27,
-    },
-)
-
-# We build Android with codecs on most bots to ensure maximum test
-# coverage, but use 'android_builder_without_codecs' on bots responsible for
-# building publicly advertised non-Official Android builds --
-# which are not allowed to have proprietary codecs enabled.
-gn_args.config(
-    name = "android_builder",
-    configs = [
-        "android_builder_without_codecs",
-        "chrome_with_codecs",
-    ],
-)
-
-# Builders never have a use for android:debuggable="true". They do not use
-# JWDP (java debugger), and do not need it to access application files
-# since they always use userdebug OS builds (which have root access).
-# android:debuggable="true" causes ART to run more slowly, so tests run
-# faster without it. https://crbug.com/1276429
-gn_args.config(
-    name = "android_non_debuggable",
-    args = {
-        "debuggable_apks": False,
-    },
-)
-
-gn_args.config(
-    name = "android_builder_without_codecs",
-    configs = [
-        "android",
-        "android_non_debuggable",
-    ],
-)
-
 # For builds requiring debuggable_apks.
 gn_args.config(
     name = "debuggable_apks",
     args = {
         "debuggable_apks": True,
-    },
-)
-
-# For Android builds requiring is_desktop_android.
-gn_args.config(
-    name = "android_desktop",
-    args = {
-        "is_desktop_android": True,
-    },
-)
-
-# Representative GN args for Android developer builds.
-gn_args.config(
-    name = "android_developer",
-    args = {
-        # Developer uses build_server, but that needs autoninja. So disable static analysis on bots.
-        "android_static_analysis": "off",
-    },
-    configs = [
-        "android",
-        "debug",
-        "minimal_symbols",
-        "x64",
-    ],
-)
-
-# It's significantly faster to build without static analysis checks.
-gn_args.config(
-    name = "android_fastbuild",
-    args = {
-        "android_static_analysis": "off",
-        # Still want TraceReferences checks, which impact targets that enable R8.
-        "enable_r8_tracerefs": True,
-    },
-)
-
-# This will not be the default anymore so must explicitly be set on bots.
-gn_args.config(
-    name = "android_with_static_analysis",
-    args = {
-        "android_static_analysis": "on",
-    },
-)
-
-gn_args.config(
-    name = "android_low_end_secondary_toolchain",
-    args = {
-        "is_high_end_android_secondary_toolchain": False,
-    },
-)
-
-# TODO(crbug.com/40105916): This is temporary. We'd like to run a
-# smoke test on android_binary_sizes to ensure coverage of proguard, at
-# which point we can merge this into android_fastbuild. Until then, only
-# disable proguard on a few bots to gather metrics on the effect on build
-# times.
-gn_args.config(
-    name = "android_no_proguard",
-    args = {
-        "is_java_debug": True,
     },
 )
 
@@ -151,35 +29,10 @@ gn_args.config(
 )
 
 gn_args.config(
-    name = "arm-generic",
-    args_file = "//build/args/chromeos/arm-generic.gni",
-)
-
-gn_args.config(
-    name = "arm-generic-crostoolchain",
-    args_file = "//build/args/chromeos/arm-generic-crostoolchain.gni",
-)
-
-gn_args.config(
     name = "arm64",
     args = {
         "target_cpu": "arm64",
     },
-)
-
-gn_args.config(
-    name = "arm64-generic",
-    args_file = "//build/args/chromeos/arm64-generic.gni",
-)
-
-gn_args.config(
-    name = "arm64-generic-crostoolchain",
-    args_file = "//build/args/chromeos/arm64-generic-crostoolchain.gni",
-)
-
-gn_args.config(
-    name = "arm64-generic-vm",
-    args_file = "//build/args/chromeos/arm64-generic-vm.gni",
 )
 
 gn_args.config(
@@ -211,28 +64,6 @@ gn_args.config(
     args = {
         "blink_symbol_level": 1,
     },
-)
-
-gn_args.config(
-    name = "cast_android",
-    args_file = "//chromecast/build/args/config/android.gni",
-    configs = [
-        "cast_receiver",
-        "android",
-        "minimal_symbols",
-        "static",
-    ],
-)
-
-gn_args.config(
-    name = "cast_linux",
-    args_file = "//chromecast/build/args/config/linux.gni",
-    configs = [
-        "cast_receiver",
-        "linux",
-        "minimal_symbols",
-        "static",
-    ],
 )
 
 gn_args.config(
@@ -275,13 +106,6 @@ gn_args.config(
     name = "disable_jni_multiplexing",
     args = {
         "enable_jni_multiplexing": False,
-    },
-)
-
-gn_args.config(
-    name = "cast_receiver",
-    args = {
-        "enable_cast_receiver": True,
     },
 )
 
@@ -331,13 +155,6 @@ gn_args.config(
 )
 
 gn_args.config(
-    name = "cfm",
-    args = {
-        "is_cfm": True,
-    },
-)
-
-gn_args.config(
     name = "chrome_for_testing",
     args = {
         "is_chrome_for_testing": True,
@@ -352,41 +169,6 @@ gn_args.config(
     configs = [
         "ffmpeg_branding_chrome",
     ],
-)
-
-gn_args.config(
-    name = "chromeos",
-    args = {
-        "target_os": "chromeos",
-    },
-)
-
-gn_args.config(
-    name = "chromeos_codecs",
-    args = {
-        "proprietary_codecs": True,
-    },
-    configs = [
-        "ffmpeg_branding_chromeos",
-    ],
-)
-
-gn_args.config(
-    name = "chromeos_with_codecs",
-    configs = [
-        "chromeos",
-        "chromeos_codecs",
-    ],
-)
-
-gn_args.config(
-    name = "chromeos_device",
-    configs = [
-        "chromeos",
-    ],
-    args = {
-        "is_chromeos_device": True,
-    },
 )
 
 gn_args.config(
@@ -441,20 +223,6 @@ gn_args.config(
     name = "compile_only",
     configs = [
         "no_symbols",
-    ],
-)
-
-gn_args.config(
-    name = "cronet_android",
-    args = {
-        # DO NOT ADD GN ARGS HERE. Special snowflake gn args are a pain to
-        # maintain; see https://crbug.com/40287068. Instead, change the GN arg
-        # declaration so that the default value for the arg is derived from the
-        # `is_cronet_build` GN arg.
-    },
-    configs = [
-        "android",
-        "cronet_common",
     ],
 )
 
@@ -538,7 +306,6 @@ gn_args.config(
 gn_args.config(
     name = "dev_channel",
     args = {
-        "android_channel": "dev",
     },
 )
 
@@ -563,13 +330,6 @@ gn_args.config(
     configs = [
         "enable_vulkan",
     ],
-)
-
-gn_args.config(
-    name = "enable_android_secondary_abi",
-    args = {
-        "enable_android_secondary_abi": True,
-    },
 )
 
 # Enables Asan backup ref ptr v2 service for Asan build. This enables raw_ptr
@@ -627,16 +387,6 @@ gn_args.config(
     },
 )
 
-# iOS can't use enable_dangling_raw_ptr_checks, since there are some configurations
-# that do not build with backup ref ptr. Instead, enable dangling_raw_ptr via
-# ios_enable_dangling_raw_ptr_checks
-gn_args.config(
-    name = "ios_enable_dangling_raw_ptr_checks",
-    args = {
-        "ios_enable_dangling_raw_ptr_checks": True,
-    },
-)
-
 # Changes the default of the dangling raw pointer detection feature flag,
 # enabling it on all runs.
 gn_args.config(
@@ -678,13 +428,6 @@ gn_args.config(
 )
 
 gn_args.config(
-    name = "fail_on_android_expectations",
-    args = {
-        "fail_on_android_expectations": True,
-    },
-)
-
-gn_args.config(
     name = "fail_on_san_warnings",
     args = {
         "fail_on_san_warnings": True,
@@ -695,13 +438,6 @@ gn_args.config(
     name = "ffmpeg_branding_chrome",
     args = {
         "ffmpeg_branding": "Chrome",
-    },
-)
-
-gn_args.config(
-    name = "ffmpeg_branding_chromeos",
-    args = {
-        "ffmpeg_branding": "ChromeOS",
     },
 )
 
@@ -758,98 +494,6 @@ gn_args.config(
     args = {
         "exclude_unwind_tables": False,
     },
-)
-
-gn_args.config(
-    name = "ios",
-    args = {
-        "target_os": "ios",
-    },
-)
-
-gn_args.config(
-    name = "ios_build_chrome_false",
-    args = {
-        "ios_build_chrome": False,
-    },
-)
-
-gn_args.config(
-    name = "ios_catalyst",
-    args = {
-        "target_environment": "catalyst",
-        "use_lld": False,
-    },
-    configs = [
-        "ios",
-    ],
-)
-
-gn_args.config(
-    name = "ios_developer",
-    # Settings from ios/build/tools/setup-gn.py, which is used by 90% of iOS developer builds now.
-    args = {
-        "bundle_pool_depth": 64,
-        "enable_dsyms": False,
-        "enable_remoting": False,
-        "enable_stripping": False,
-        "is_chrome_branded": False,
-        "is_official_build": False,
-        "target_platform": "iphoneos",
-        "use_official_google_api_keys": False,
-    },
-    configs = ["ios_simulator"],
-)
-
-gn_args.config(
-    name = "ios_device",
-    args = {"target_environment": "device"},
-    configs = ["ios"],
-)
-
-# defaults to true under ios_sdk.gni
-gn_args.config(
-    name = "ios_disable_code_signing",
-    args = {
-        "ios_enable_code_signing": False,
-    },
-)
-
-gn_args.config(
-    name = "ios_google_cert",
-    args = {
-        "ios_code_signing_identity_description": "Apple Development",
-    },
-)
-
-gn_args.config(
-    name = "ios_simulator",
-    args = {"target_environment": "simulator"},
-    configs = ["ios"],
-)
-
-gn_args.config(
-    name = "tvos_platform",
-    args = {"target_platform": "tvos"},
-)
-
-gn_args.config(
-    name = "is_skylab",
-    args = {
-        "is_skylab": True,
-    },
-)
-
-gn_args.config(
-    name = "jacuzzi",
-    args_file = "//build/args/chromeos/jacuzzi.gni",
-)
-
-gn_args.config(
-    name = "chromeos_on_linux",
-    configs = [
-        "chromeos",
-    ],
 )
 
 gn_args.config(
@@ -1083,11 +727,6 @@ gn_args.config(
 )
 
 gn_args.config(
-    name = "octopus",
-    args_file = "//build/args/chromeos/octopus.gni",
-)
-
-gn_args.config(
     name = "official_optimize",
     args = {
         "is_official_build": True,
@@ -1275,7 +914,6 @@ gn_args.config(
 gn_args.config(
     name = "stable_channel",
     args = {
-        "android_channel": "stable",
     },
 )
 
@@ -1520,35 +1158,6 @@ gn_args.config(
 )
 
 gn_args.config(
-    name = "volteer",
-    args_file = "//build/args/chromeos/volteer.gni",
-)
-
-gn_args.config(
-    name = "webview_google",
-    args = {
-        "system_webview_package_name": "com.google.android.webview",
-    },
-)
-
-# Mainly used by builders that use android emulator.
-# See https://bit.ly/3B1cyyt for more details.
-gn_args.config(
-    name = "webview_shell",
-    args = {
-        "system_webview_shell_package_name": "org.chromium.my_webview_shell",
-    },
-)
-
-# For Android >=Q, only userdebug/eng
-gn_args.config(
-    name = "webview_debug_package_name",
-    args = {
-        "system_webview_package_name": "com.google.android.webview.debug",
-    },
-)
-
-gn_args.config(
     name = "windows_developer",
     # Currently, 70% of Windows developers use this configuration.
     # See: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/windows_build_instructions.md#faster-builds
@@ -1591,19 +1200,6 @@ gn_args.config(
     name = "x86",
     args = {
         "target_cpu": "x86",
-    },
-)
-
-gn_args.config(
-    name = "xctest",
-    args = {"enable_run_ios_unittests_with_xctest": True},
-    configs = ["ios"],
-)
-
-gn_args.config(
-    name = "ios_chrome_enable_profile_altering_tests",
-    args = {
-        "ios_chrome_enable_profile_altering_tests": True,
     },
 )
 

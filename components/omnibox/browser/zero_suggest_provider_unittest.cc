@@ -51,7 +51,7 @@
 
 using testing::_;
 using CacheEntry = ZeroSuggestCacheService::CacheEntry;
-constexpr bool is_ios = !!BUILDFLAG(IS_IOS);
+constexpr bool is_ios = !!false;
 
 class ZeroSuggestProviderTest : public testing::Test,
                                 public AutocompleteProviderListener {
@@ -682,7 +682,6 @@ TEST_F(ZeroSuggestProviderTest, SendRequestForThreadsSuggestionNtpComposebox) {
   EXPECT_EQ(3U, provider_->matches().size());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ZeroSuggestProviderTest, FallbackMatchesOnEmptyResponse) {
   EXPECT_CALL(*client_, IsAuthenticated())
       .WillRepeatedly(testing::Return(true));
@@ -768,7 +767,6 @@ TEST_F(ZeroSuggestProviderTest, FallbackMatchesOnParseFailure) {
               match.suggestion_group_id);
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ZeroSuggestProviderTest, SendRequestWithLensInteractionResponse) {
   AutocompleteInput input = ZeroPrefixInputForLens();
@@ -1256,11 +1254,7 @@ TEST_F(ZeroSuggestProviderTest,
 }
 
 // Disabled on iOS due to crbug.com/441269008.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_SyncMatchesOnly DISABLED_SyncMatchesOnly
-#else
 #define MAYBE_SyncMatchesOnly SyncMatchesOnly
-#endif
 TEST_F(ZeroSuggestProviderTest, MAYBE_SyncMatchesOnly) {
   EXPECT_CALL(*client_, IsAuthenticated())
       .WillRepeatedly(testing::Return(true));
@@ -2459,7 +2453,6 @@ TEST_F(ZeroSuggestProviderTest, TestComposeboxPrefetchWithSuggestInventory) {
             prefs->GetString(omnibox::kZeroSuggestCachedResultsComposebox));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ZeroSuggestProviderTest,
        FallbackSuggestionsForSuggestInventoryOnFailure) {
   EXPECT_CALL(*client_, IsAuthenticated())
@@ -2490,7 +2483,6 @@ TEST_F(ZeroSuggestProviderTest,
     EXPECT_FALSE(match.contents.empty());
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ZeroSuggestProviderTest, TestCacheStateWithSRPPrefetchDisabled) {
   EXPECT_CALL(*client_, IsAuthenticated())

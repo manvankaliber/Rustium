@@ -136,15 +136,6 @@ class TranslateUIDelegate {
   // Returns whether or not the current session is off-the-record.
   bool IsIncognito() const;
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Returns whether "Always Translate Language" should automatically trigger.
-  // If true, this method has the side effect of mutating some prefs.
-  bool ShouldAutoAlwaysTranslate();
-
-  // Returns whether "Never Translate Language" should automatically trigger.
-  // If true, this method has the side effect of mutating some prefs.
-  bool ShouldAutoNeverTranslate();
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
  private:
   FRIEND_TEST_ALL_PREFIXES(TranslateUIDelegateTest, GetPageHost);

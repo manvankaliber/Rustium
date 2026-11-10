@@ -104,7 +104,7 @@ void KeySystemSupportImpl::InitializePermissions() {
 
 // Initialize permissions for platforms that supports
 // PROTECTED_MEDIA_IDENTIFIER.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Don't call RequestPermissionFromCurrentDocument API that requests
   // permission right away since `is_protected_identifier_allowed_` flag is used
   // only when deciding whether we allow or disallow hardware secure capability
@@ -135,7 +135,7 @@ void KeySystemSupportImpl::InitializePermissions() {
 }
 
 void KeySystemSupportImpl::SetUpPermissionListeners() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Setup permission listeners.
   permission_subscription_ =
       render_frame_host()

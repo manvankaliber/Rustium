@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-
 import argparse
 import codecs
 import datetime
@@ -34,7 +33,6 @@ BUNDLE_ICON_PATTERNS_MAP = {
     ".app": re.compile('AppIcon' + ICON_SUFFIX_PATTERN),
     ".appex": re.compile('ExtensionIcon' + ICON_SUFFIX_PATTERN),
 }
-
 
 basestring_compat = str
 
@@ -69,8 +67,7 @@ def GetProvisioningProfilesDirs():
             'Library',
             'MobileDevice',
             'Provisioning Profiles',
-        )
-    )
+        ))
     # For Xcode 16 and later, include the new location,
     # `~/Library/Developer/Xcode/UserData/Provisioning Profiles`.
     paths.append(
@@ -81,8 +78,7 @@ def GetProvisioningProfilesDirs():
             'Xcode',
             'UserData',
             'Provisioning Profiles',
-        )
-    )
+        ))
     return paths
 
 
@@ -113,9 +109,7 @@ def LoadPlistFile(plist_path):
     if sys.version_info.major == 2:
         return plistlib.readPlistFromString(
             subprocess.check_output(
-                ['xcrun', 'plutil', '-convert', 'xml1', '-o', '-', plist_path]
-            )
-        )
+                ['xcrun', 'plutil', '-convert', 'xml1', '-o', '-', plist_path]))
     else:
         with open(plist_path, 'rb') as fp:
             return plistlib.load(fp)
@@ -143,19 +137,12 @@ class Bundle(object):
 
     @staticmethod
     def Kind(platform, extension):
-        if platform in ('iphoneos', 'iphonesimulator'):
-            return 'ios'
         if platform == 'macosx':
             if extension == '.framework':
                 return 'mac_framework'
             return 'mac'
-        if platform in ('watchos', 'watchsimulator'):
-            return 'watchos'
-        if platform in ('appletvos', 'appletvsimulator'):
-            return 'tvos'
-        raise ValueError(
-            'unknown bundle type %s for %s' % (extension, platform)
-        )
+        raise ValueError('unknown bundle type %s for %s' %
+                         (extension, platform))
 
     @property
     def kind(self):
@@ -256,28 +243,21 @@ class ProvisioningProfile(object):
             start = raw.find(b'<?xml')
             end = raw.find(b'</plist>')
             if start == -1 or end == -1:
-                raise ValueError(
-                    'Failed to extract plist from %s'
-                    % provisioning_profile_path
-                )
-            self._data = ReadPlistFromString(
-                raw[start : end + len(b'</plist>')]
-            )
+                raise ValueError('Failed to extract plist from %s' %
+                                 provisioning_profile_path)
+            self._data = ReadPlistFromString(raw[start:end + len(b'</plist>')])
         else:
             self._data = ReadPlistFromString(
-                subprocess.check_output(
-                    [
-                        'xcrun',
-                        'security',
-                        'cms',
-                        '-D',
-                        '-u',
-                        'certUsageAnyCA',
-                        '-i',
-                        provisioning_profile_path,
-                    ]
-                )
-            )
+                subprocess.check_output([
+                    'xcrun',
+                    'security',
+                    'cms',
+                    '-D',
+                    '-u',
+                    'certUsageAnyCA',
+                    '-i',
+                    provisioning_profile_path,
+                ]))
 
     @property
     def path(self):
@@ -293,9 +273,8 @@ class ProvisioningProfile(object):
 
     @property
     def application_identifier_pattern(self):
-        return self._data.get('Entitlements', {}).get(
-            'application-identifier', ''
-        )
+        return self._data.get('Entitlements', {}).get('application-identifier',
+                                                      '')
 
     @property
     def application_identifier_prefix(self):
@@ -349,7 +328,7 @@ class Entitlements(object):
     def _ExpandVariables(self, data, substitutions):
         if isinstance(data, basestring_compat):
             for key, substitution in substitutions.items():
-                data = data.replace('$(%s)' % (key,), substitution)
+                data = data.replace('$(%s)' % (key, ), substitution)
             return data
 
         if isinstance(data, dict):
@@ -376,9 +355,8 @@ class Entitlements(object):
                 plistlib.dump(self._data, fp)
 
 
-def FindProvisioningProfile(
-    provisioning_profile_paths, bundle_identifier, required
-):
+def FindProvisioningProfile(provisioning_profile_paths, bundle_identifier,
+                            required):
     """Finds mobile provisioning profile to use to sign bundle.
 
     Args:
@@ -391,8 +369,7 @@ def FindProvisioningProfile(
     if not provisioning_profile_paths:
         for path in GetProvisioningProfilesDirs():
             provisioning_profile_paths.extend(
-                glob.glob(os.path.join(path, '*.mobileprovision'))
-            )
+                glob.glob(os.path.join(path, '*.mobileprovision')))
 
     # Iterate over all installed mobile provisioning profiles and filter those
     # that can be used to sign the bundle, ignoring expired ones.
@@ -403,9 +380,8 @@ def FindProvisioningProfile(
         provisioning_profile = ProvisioningProfile(provisioning_profile_path)
         if provisioning_profile.expiration_date - now < one_hour:
             sys.stderr.write(
-                'Warning: ignoring expired provisioning profile: %s.\n'
-                % provisioning_profile_path
-            )
+                'Warning: ignoring expired provisioning profile: %s.\n' %
+                provisioning_profile_path)
             continue
         if provisioning_profile.ValidToSignBundle(bundle_identifier):
             valid_provisioning_profiles.append(provisioning_profile)
@@ -414,8 +390,7 @@ def FindProvisioningProfile(
         if required:
             sys.stderr.write(
                 'Error: no mobile provisioning profile found for "%s" in %s.\n'
-                % (bundle_identifier, provisioning_profile_paths)
-            )
+                % (bundle_identifier, provisioning_profile_paths))
             sys.exit(1)
         return None
 
@@ -433,9 +408,8 @@ def FindProvisioningProfile(
     one_week = datetime.timedelta(7)
     if selected_provisioning_profile.expiration_date - now < 2 * one_week:
         sys.stderr.write(
-            'Warning: selected provisioning profile will expire soon: %s'
-            % selected_provisioning_profile.path
-        )
+            'Warning: selected provisioning profile will expire soon: %s' %
+            selected_provisioning_profile.path)
     return selected_provisioning_profile
 
 
@@ -444,14 +418,14 @@ def CodeSignBundle(bundle_path, identity, extra_args):
         if identity and identity != '-':
             sys.stderr.write(
                 'Note: skipping cryptographic codesign of %s on %s '
-                '(identity=%s).\n'
-                % (os.path.basename(bundle_path), sys.platform, identity)
-            )
+                '(identity=%s).\n' %
+                (os.path.basename(bundle_path), sys.platform, identity))
         return
     process = subprocess.Popen(
-        ['xcrun', 'codesign', '--force', '--sign', identity, '--timestamp=none']
-        + list(extra_args)
-        + [bundle_path],
+        [
+            'xcrun', 'codesign', '--force', '--sign', identity,
+            '--timestamp=none'
+        ] + list(extra_args) + [bundle_path],
         stderr=subprocess.PIPE,
         universal_newlines=True,
     )
@@ -507,7 +481,8 @@ def VerifyBundleManifest(bundle, manifest):
         lambda p: p == bundle.relative_embedded_mobileprovision,
         lambda p: IsSubPath(p, bundle.relative_signature_dir),
     ]
-    filtered = lambda path: any(map(lambda pattern: pattern(path), patterns))  # noqa: E731
+    filtered = lambda path: any(map(lambda pattern: pattern(path), patterns)
+                                )  # noqa: E731
     manifest = set(path for path in manifest if not filtered(path))
 
     # Create a set of all directories in the manifest. Used to avoid doing
@@ -541,8 +516,7 @@ def VerifyBundleManifest(bundle, manifest):
     # passed to the build/toolchain/apple/compile_xcassets.py script). Skip
     # them if present.
     bundle_icon_pattern = BUNDLE_ICON_PATTERNS_MAP.get(
-        os.path.splitext(bundle.path)[-1], None
-    )
+        os.path.splitext(bundle.path)[-1], None)
 
     # Iterate over the content of the bundle.
     for dirpath, dirnames, filenames in os.walk(bundle.path):
@@ -575,8 +549,7 @@ def VerifyBundleManifest(bundle, manifest):
             filepath = os.path.normpath(os.path.join(reldirpath, filename))
             if filepath not in manifest:
                 if not bundle_icon_pattern or not bundle_icon_pattern.match(
-                    filename
-                ):
+                        filename):
                     print(
                         f'warning: deleting old file: {filepath}',
                         file=sys.stderr,
@@ -609,9 +582,8 @@ def CopyWritable(src, dst, copy_function=shutil.copy2):
 
 def InstallSystemFramework(framework_path, bundle_path, args):
     """Install framework from |framework_path| to |bundle| and code-re-sign it."""
-    installed_framework_path = os.path.join(
-        bundle_path, 'Frameworks', os.path.basename(framework_path)
-    )
+    installed_framework_path = os.path.join(bundle_path, 'Frameworks',
+                                            os.path.basename(framework_path))
 
     if os.path.isfile(framework_path):
         CopyWritable(framework_path, installed_framework_path)
@@ -647,8 +619,7 @@ def VerifyLoadOrder(binary_path, expected_first_framework):
                 'Release+Asserts',
                 'bin',
                 'llvm-otool',
-            )
-        )
+            ))
     try:
         output = subprocess.check_output(
             [otool_bin, '-l', binary_path],
@@ -679,8 +650,7 @@ def VerifyLoadOrder(binary_path, expected_first_framework):
     if not first_dylib:
         sys.stderr.write(
             'Error: No LC_LOAD_DYLIB found in %s, but expected %s to be first.\n'
-            % (binary_path, expected_first_framework)
-        )
+            % (binary_path, expected_first_framework))
         sys.exit(1)
 
     # The framework path ends with .../FrameworkName.framework/FrameworkName
@@ -691,8 +661,7 @@ def VerifyLoadOrder(binary_path, expected_first_framework):
     if not first_dylib.endswith(expected_suffix):
         sys.stderr.write(
             'Error: First LC_LOAD_DYLIB in %s is "%s", expected to end with "%s".\n'
-            % (binary_path, first_dylib, expected_suffix)
-        )
+            % (binary_path, first_dylib, expected_suffix))
         sys.exit(1)
 
 
@@ -708,16 +677,13 @@ def GenerateEntitlements(path, provisioning_profile, bundle_identifier):
     if provisioning_profile:
         entitlements.LoadDefaults(provisioning_profile.entitlements)
         app_identifier_prefix = (
-            provisioning_profile.application_identifier_prefix + '.'
-        )
+            provisioning_profile.application_identifier_prefix + '.')
     else:
         app_identifier_prefix = '*.'
-    entitlements.ExpandVariables(
-        {
-            'CFBundleIdentifier': bundle_identifier,
-            'AppIdentifierPrefix': app_identifier_prefix,
-        }
-    )
+    entitlements.ExpandVariables({
+        'CFBundleIdentifier': bundle_identifier,
+        'AppIdentifierPrefix': app_identifier_prefix,
+    })
     return entitlements
 
 
@@ -740,18 +706,15 @@ def GenerateBundleInfoPlist(bundle, plist_compiler, partial_plist):
             filtered_partial_plist.append(plist)
 
     # Invoke the plist_compiler script. It needs to be a python script.
-    subprocess.check_call(
-        [
-            'python3',
-            plist_compiler,
-            'merge',
-            '-f',
-            'binary1',
-            '-o',
-            bundle.info_plist_path,
-        ]
-        + filtered_partial_plist
-    )
+    subprocess.check_call([
+        'python3',
+        plist_compiler,
+        'merge',
+        '-f',
+        'binary1',
+        '-o',
+        bundle.info_plist_path,
+    ] + filtered_partial_plist)
 
 
 class Action(object):
@@ -778,7 +741,7 @@ class CodeSignBundleAction(Action):
             dest='entitlements_path',
             help='path to the entitlements file to use',
         )
-        parser.add_argument('path', help='path to the iOS bundle to codesign')
+        parser.add_argument('path', help='path to the macOS bundle to codesign')
         parser.add_argument(
             '--identity',
             '-i',
@@ -789,7 +752,7 @@ class CodeSignBundleAction(Action):
             '--binary',
             '-b',
             required=True,
-            help='path to the iOS bundle binary',
+            help='path to the macOS bundle binary',
         )
         parser.add_argument(
             '--framework',
@@ -816,6 +779,7 @@ class CodeSignBundleAction(Action):
             '--platform',
             '-t',
             required=True,
+            choices=('macosx', ),
             help='platform the signed bundle is targeting',
         )
         parser.add_argument(
@@ -823,7 +787,8 @@ class CodeSignBundleAction(Action):
             '-p',
             action='append',
             default=[],
-            help='path to partial Info.plist to merge to create bundle Info.plist',
+            help=
+            'path to partial Info.plist to merge to create bundle Info.plist',
         )
         parser.add_argument(
             '--plist-compiler-path',
@@ -837,8 +802,9 @@ class CodeSignBundleAction(Action):
             action='append',
             default=[],
             dest='mobileprovision_files',
-            help='list of mobileprovision files to use. If empty, uses the files '
-            + 'in $HOME/Library/MobileDevice/Provisioning Profiles',
+            help=
+            'list of mobileprovision files to use. If empty, uses the files ' +
+            'in $HOME/Library/MobileDevice/Provisioning Profiles',
         )
         parser.add_argument(
             '--mobileprovision-list',
@@ -846,7 +812,8 @@ class CodeSignBundleAction(Action):
             action=FileListAction,
             dest='mobileprovision_files',
             help='path to a file containing a list of mobileprovision files to '
-            + 'use (this will behave as each "-m $line" was passsed for each line '
+            +
+            'use (this will behave as each "-m $line" was passsed for each line '
             + 'in that file)',
         )
         parser.add_argument(
@@ -856,9 +823,10 @@ class CodeSignBundleAction(Action):
             action=FileListAction,
             dest='manifest',
             help='if present, path to a file containing the list of files that '
-            + 'are part of the bundle to codesign. The script will delete any '
-            + 'files found that are not listed, and will fail if any files is '
-            + 'missing.',
+            +
+            'are part of the bundle to codesign. The script will delete any ' +
+            'files found that are not listed, and will fail if any files is ' +
+            'missing.',
         )
         parser.add_argument(
             '--verify-load-order-first',
@@ -875,9 +843,8 @@ class CodeSignBundleAction(Action):
         bundle = Bundle(args.path, args.platform)
 
         if args.partial_info_plist:
-            GenerateBundleInfoPlist(
-                bundle, args.plist_compiler_path, args.partial_info_plist
-            )
+            GenerateBundleInfoPlist(bundle, args.plist_compiler_path,
+                                    args.partial_info_plist)
 
         # The bundle Info.plist may have been updated by GenerateBundleInfoPlist()
         # above. Load the bundle information from Info.plist after the modification
@@ -900,19 +867,15 @@ class CodeSignBundleAction(Action):
         # Apple documentation is available at:
         # https://developer.apple.com/library/content/documentation/CoreFoundation/Conceptual/CFBundles/BundleTypes/BundleTypes.html
         bundle_name = os.path.splitext(os.path.basename(bundle.path))[0]
-        errors = bundle.Validate(
-            {
-                'CFBundleName': bundle_name,
-                'CFBundleExecutable': bundle_name,
-            }
-        )
+        errors = bundle.Validate({
+            'CFBundleName': bundle_name,
+            'CFBundleExecutable': bundle_name,
+        })
         if errors:
             for key in sorted(errors):
                 value, expected_value = errors[key]
-                sys.stderr.write(
-                    '%s: error: %s value incorrect: %s != %s\n'
-                    % (bundle.path, key, value, expected_value)
-                )
+                sys.stderr.write('%s: error: %s value incorrect: %s != %s\n' %
+                                 (bundle.path, key, value, expected_value))
             sys.stderr.flush()
             sys.exit(1)
 
@@ -971,26 +934,21 @@ class CodeSignBundleAction(Action):
         # the created symlinks as part of the manifest (since they are generated
         # conditionally, it is difficult to explicit list them all).
         if args.manifest:
-            VerifyBundleManifest(
-                bundle, set(args.manifest) | set(created_symlinks)
-            )
+            VerifyBundleManifest(bundle,
+                                 set(args.manifest) | set(created_symlinks))
 
         if args.verify_load_order_first:
             VerifyLoadOrder(bundle.binary_path, args.verify_load_order_first)
 
         if args.no_signature:
-            if sys.platform != 'darwin' and (
-                args.platform and not args.platform.endswith('simulator')
-            ):
+            if sys.platform != 'darwin':
                 sys.stderr.write(
                     'Note: skipping cryptographic codesign of %s on %s '
-                    '(%s).\n'
-                    % (
+                    '(%s).\n' % (
                         os.path.basename(bundle.path),
                         sys.platform,
                         args.platform,
-                    )
-                )
+                    ))
             return
 
         codesign_extra_args = []
@@ -1005,16 +963,14 @@ class CodeSignBundleAction(Action):
                 bundle.identifier,
                 provisioning_profile_required,
             )
-            if provisioning_profile and not args.platform.endswith('simulator'):
+            if provisioning_profile:
                 provisioning_profile.Install(embedded_provisioning_profile)
 
                 if args.entitlements_path is not None:
                     temporary_entitlements_file = tempfile.NamedTemporaryFile(
-                        suffix='.xcent'
-                    )
+                        suffix='.xcent')
                     codesign_extra_args.extend(
-                        ['--entitlements', temporary_entitlements_file.name]
-                    )
+                        ['--entitlements', temporary_entitlements_file.name])
 
                     entitlements = GenerateEntitlements(
                         args.entitlements_path,
@@ -1088,9 +1044,8 @@ class GenerateEntitlementsAction(Action):
             dest='entitlements_path',
             help='path to the entitlements file to use',
         )
-        parser.add_argument(
-            'path', help='path to the entitlements file to generate'
-        )
+        parser.add_argument('path',
+                            help='path to the entitlements file to generate')
         parser.add_argument(
             '--info-plist',
             '-p',
@@ -1112,7 +1067,8 @@ class GenerateEntitlementsAction(Action):
             action=FileListAction,
             dest='mobileprovision_files',
             help='path to a file containing a list of mobileprovision files to '
-            + 'use (this will behave as each "-m $line" was passsed for each line '
+            +
+            'use (this will behave as each "-m $line" was passsed for each line '
             + 'in that file)',
         )
 
@@ -1121,11 +1077,10 @@ class GenerateEntitlementsAction(Action):
         info_plist = LoadPlistFile(args.info_plist)
         bundle_identifier = info_plist['CFBundleIdentifier']
         provisioning_profile = FindProvisioningProfile(
-            args.mobileprovision_files, bundle_identifier, False
-        )
-        entitlements = GenerateEntitlements(
-            args.entitlements_path, provisioning_profile, bundle_identifier
-        )
+            args.mobileprovision_files, bundle_identifier, False)
+        entitlements = GenerateEntitlements(args.entitlements_path,
+                                            provisioning_profile,
+                                            bundle_identifier)
         entitlements.WriteTo(args.path)
 
 
@@ -1137,9 +1092,10 @@ class FindProvisioningProfileAction(Action):
 
     @staticmethod
     def _Register(parser):
-        parser.add_argument(
-            '--bundle-id', '-b', required=True, help='bundle identifier'
-        )
+        parser.add_argument('--bundle-id',
+                            '-b',
+                            required=True,
+                            help='bundle identifier')
         parser.add_argument(
             '--mobileprovision',
             '-m',
@@ -1155,7 +1111,8 @@ class FindProvisioningProfileAction(Action):
             action=FileListAction,
             dest='mobileprovision_files',
             help='path to a file containing a list of mobileprovision files to '
-            + 'use (this will behave as each "-m $line" was passsed for each line '
+            +
+            'use (this will behave as each "-m $line" was passsed for each line '
             + 'in that file)',
         )
 
@@ -1163,13 +1120,11 @@ class FindProvisioningProfileAction(Action):
     def _Execute(args):
         provisioning_profile_info = {}
         provisioning_profile = FindProvisioningProfile(
-            args.mobileprovision_files, args.bundle_id, False
-        )
+            args.mobileprovision_files, args.bundle_id, False)
         for key in ('team_identifier', 'name', 'path'):
             if provisioning_profile:
                 provisioning_profile_info[key] = getattr(
-                    provisioning_profile, key
-                )
+                    provisioning_profile, key)
             else:
                 provisioning_profile_info[key] = ''
         print(json.dumps(provisioning_profile_info))
@@ -1180,7 +1135,7 @@ def Main():
     # https://crbug.com/999461#c12 for more details.
     codecs.lookup('utf-8')
 
-    parser = argparse.ArgumentParser('codesign iOS bundles')
+    parser = argparse.ArgumentParser('codesign macOS bundles')
     subparsers = parser.add_subparsers()
 
     actions = [

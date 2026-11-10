@@ -223,8 +223,7 @@ class AmountExtractionManagerTest
       mock_ai_amount_extraction_callback_;
 };
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 TEST_F(AmountExtractionManagerTest, ShouldTriggerWhenEligible) {
   base::test::ScopedFeatureList scoped_feature_list;
   scoped_feature_list.InitWithFeatures(
@@ -321,8 +320,7 @@ TEST_F(AmountExtractionManagerTest,
       IsEmpty());
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 TEST_F(
     AmountExtractionManagerTest,
     PayLaterTabs_AiBasedAmountExtractionShouldNotTriggerWhenNoBnplSuggestionAndNoLoadingThrobber) {
@@ -419,8 +417,7 @@ TEST_F(
 #endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_LINUX) && \
-    !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_LINUX)
 TEST_F(AmountExtractionManagerTest,
        PayLaterTabs_AiBasedAmountExtractionNotTriggeredOnNonDesktop) {
   base::test::ScopedFeatureList scoped_feature_list;

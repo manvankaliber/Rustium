@@ -425,7 +425,6 @@ TEST_F(PrerenderHostTest, DontCancelPrerenderWhenTriggerGetsVisible) {
 }
 
 // Skip this test on Android as it doesn't support the OCCLUDED state.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(PrerenderHostTest, DontCancelPrerenderWhenTriggerGetsOcculded) {
   const GURL kPrerenderingUrl = GURL("https://example.com/empty.html");
   const PrerenderHostId prerender_host_id = registry().CreateAndStartHost(
@@ -441,7 +440,6 @@ TEST_F(PrerenderHostTest, DontCancelPrerenderWhenTriggerGetsOcculded) {
   contents()->ActivatePrerenderedPage(kPrerenderingUrl);
   ExpectFinalStatus(PrerenderFinalStatus::kActivated);
 }
-#endif
 
 TEST_F(PrerenderHostTest, UrlMatchPredicate) {
   const GURL kPrerenderingUrl = GURL("https://example.com/empty.html");
@@ -530,9 +528,6 @@ TEST(AreHttpRequestHeadersCompatible, IgnoreRTT) {
   const std::string potential_activation_headers = "rtt: 2 \r\n downlink: 4";
   EXPECT_TRUE(PrerenderHost::AreHttpRequestHeadersCompatible(
       potential_activation_headers,
-#if BUILDFLAG(IS_ANDROID)
-      /*potential_activation_additional_headers=*/"",
-#endif  // BUILDFLAG(IS_ANDROID)
       prerender_headers, PreloadingTriggerType::kSpeculationRule,
       /*histogram_suffix=*/"", /*allow_x_header_mismatch=*/false, reason));
 }
@@ -544,9 +539,6 @@ TEST(AreHttpRequestHeadersCompatible, IgnoreECT) {
   const std::string potential_activation_headers = "ect: 3g";
   EXPECT_TRUE(PrerenderHost::AreHttpRequestHeadersCompatible(
       potential_activation_headers,
-#if BUILDFLAG(IS_ANDROID)
-      /*potential_activation_additional_headers=*/"",
-#endif  // BUILDFLAG(IS_ANDROID)
       prerender_headers, PreloadingTriggerType::kSpeculationRule,
       /*histogram_suffix=*/"", /*allow_x_header_mismatch=*/false, reason));
 }
@@ -559,17 +551,11 @@ TEST(AreHttpRequestHeadersCompatible, XHeaders) {
 
   EXPECT_FALSE(PrerenderHost::AreHttpRequestHeadersCompatible(
       potential_activation_headers,
-#if BUILDFLAG(IS_ANDROID)
-      /*potential_activation_additional_headers=*/"",
-#endif  // BUILDFLAG(IS_ANDROID)
       prerender_headers, PreloadingTriggerType::kSpeculationRule,
       /*histogram_suffix=*/"", /*allow_x_header_mismatch=*/false, reason));
 
   EXPECT_TRUE(PrerenderHost::AreHttpRequestHeadersCompatible(
       potential_activation_headers,
-#if BUILDFLAG(IS_ANDROID)
-      /*potential_activation_additional_headers=*/"",
-#endif  // BUILDFLAG(IS_ANDROID)
       prerender_headers, PreloadingTriggerType::kSpeculationRule,
       /*histogram_suffix=*/"", /*allow_x_header_mismatch=*/true, reason));
 }
@@ -583,9 +569,6 @@ TEST(AreHttpRequestHeadersCompatible, IgnoreXGeo) {
   // Should ignore X-Geo mismatch when trigger type is kEmbedder.
   EXPECT_TRUE(PrerenderHost::AreHttpRequestHeadersCompatible(
       potential_activation_headers,
-#if BUILDFLAG(IS_ANDROID)
-      /*potential_activation_additional_headers=*/"",
-#endif  // BUILDFLAG(IS_ANDROID)
       prerender_headers, PreloadingTriggerType::kEmbedder,
       /*embedder_histogram_suffix=*/"", /*allow_x_header_mismatch=*/false,
       reason));

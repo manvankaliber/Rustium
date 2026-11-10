@@ -1481,52 +1481,6 @@ TEST_P(WebMediaPlayerMSTest, CreateHardwareFrames) {
   EXPECT_CALL(*this, DoSetCcLayer(false));
   EXPECT_CALL(*submitter_ptr_, StopUsingProvider());
 }
-#if BUILDFLAG(IS_ANDROID)
-TEST_P(WebMediaPlayerMSTest, HiddenPlayerTests) {
-  InitializeWebMediaPlayerMS();
-  LoadAndGetFrameProvider(true);
-
-  // Hidden status should not affect playback.
-  delegate_.set_page_hidden(true);
-  player_->Play();
-  EXPECT_FALSE(player_->Paused());
-
-  // A hidden player should start still be playing upon shown.
-  delegate_.set_page_hidden(false);
-  player_->OnPageShown();
-  EXPECT_FALSE(player_->Paused());
-
-  // A hidden event should not pause the player.
-  delegate_.set_page_hidden(true);
-  player_->OnPageHidden();
-  EXPECT_FALSE(player_->Paused());
-
-  // A user generated pause() should clear the automatic resumption.
-  player_->Pause(WebMediaPlayer::PauseReason::kPauseCalled);
-  delegate_.set_page_hidden(false);
-  player_->OnPageShown();
-  EXPECT_TRUE(player_->Paused());
-
-  // A user generated play() should start playback.
-  player_->Play();
-  EXPECT_FALSE(player_->Paused());
-
-  // An OnSuspendRequested() without forced suspension should do nothing.
-  player_->OnIdleTimeout();
-  EXPECT_FALSE(player_->Paused());
-
-  // An OnSuspendRequested() with forced suspension should pause playback.
-  player_->SuspendForFrameClosed();
-  EXPECT_TRUE(player_->Paused());
-
-  // OnShown() should restart after a forced suspension.
-  player_->OnPageShown();
-  EXPECT_FALSE(player_->Paused());
-  EXPECT_CALL(*this, DoSetCcLayer(false));
-
-  base::RunLoop().RunUntilIdle();
-}
-#endif
 
 TEST_P(WebMediaPlayerMSTest, RequestVideoFrameCallback) {
   TestRequestFrameCallbackWithVideoFrameMetadata(/*algorithm_enabled=*/true);

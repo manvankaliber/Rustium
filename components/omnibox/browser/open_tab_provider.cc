@@ -10,9 +10,6 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "components/omnibox/browser/suggestion_group_util.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "components/browser_ui/util/android/url_constants.h"
-#endif
 #include "components/omnibox/browser/autocomplete_input.h"
 #include "components/omnibox/browser/autocomplete_match.h"
 #include "components/omnibox/browser/autocomplete_match_classification.h"
@@ -35,32 +32,12 @@
 
 namespace {
 
-constexpr bool is_android = !!BUILDFLAG(IS_ANDROID);
+constexpr bool is_android = !!false;
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr char kChromeUINewTabHost[] = "newtab";
-// Returns true if the given `tab` is a chrome newtab page.
-bool IsNewTabPage(const TabMatcher::TabWrapper& tab) {
-  if (tab.url.scheme() != content::kChromeUIScheme &&
-      tab.url.scheme() != content::kChromeNativeScheme) {
-    return false;
-  }
-  return tab.url.host() == kChromeUINewTabHost;
-}
-#endif
 
 int Score(const AutocompleteInput& input,
           const query_parser::QueryNodeVector& input_query_nodes,
           const TabMatcher::TabWrapper& tab) {
-#if BUILDFLAG(IS_ANDROID)
-  // For Hub Search, remove both ZPS and search suggestions that involve open
-  // chrome new tab pages. This is done by returning a score of 0 for all such
-  // tabs.
-  if (omnibox::IsAndroidHubOrTabSearch(input.current_page_classification()) &&
-      IsNewTabPage(tab)) {
-    return 0;
-  }
-#endif
 
   if ((input.IsZeroSuggest() || input.text().empty()) && is_android) {
     return omnibox::kOpenTabMatchZeroSuggestRelevance +
@@ -232,11 +209,6 @@ AutocompleteMatch OpenTabProvider::CreateOpenTabMatch(
     match.from_keyword = true;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (omnibox::IsAndroidHubOrTabSearch(input.current_page_classification())) {
-    match.suggestion_group_id = omnibox::GROUP_MOBILE_OPEN_TABS;
-  }
-#endif
 
   return match;
 }

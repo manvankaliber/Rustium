@@ -148,11 +148,11 @@ class CppBundleGenerator(object):
       return None
     ifdefs = []
     for platform in model_object.platforms:
-      if platform == Platforms.CHROMEOS:
-        ifdefs.append('BUILDFLAG(IS_CHROMEOS)')
-      elif platform == Platforms.DESKTOP_ANDROID:
-        ifdefs.append('BUILDFLAG(IS_DESKTOP_ANDROID)')
-      elif platform == Platforms.LINUX:
+      # Shared schemas may retain legacy availability tags. They cannot
+      # enable registration on the supported desktop platforms.
+      if platform in (Platforms.CHROMEOS, Platforms.DESKTOP_ANDROID):
+        continue
+      if platform == Platforms.LINUX:
         ifdefs.append('BUILDFLAG(IS_LINUX)')
       elif platform == Platforms.MAC:
         ifdefs.append('BUILDFLAG(IS_MAC)')
@@ -160,7 +160,7 @@ class CppBundleGenerator(object):
         ifdefs.append('BUILDFLAG(IS_WIN)')
       else:
         raise ValueError("Unsupported platform ifdef: %s" % platform.name)
-    return ' || '.join(ifdefs)
+    return ' || '.join(ifdefs) or '0'
 
   def _GenerateRegistrationEntry(self, namespace_name, function):
     c = code_util.Code()
@@ -280,7 +280,6 @@ class _APICCGenerator(object):
       )
     )
     c.Append()
-    c.Append('#include "build/android_buildflags.h"')
     c.Append('#include "build/build_config.h"')
     c.Append()
     for namespace in self._bundle._model.namespaces.values():

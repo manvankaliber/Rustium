@@ -18,11 +18,6 @@
 #include "gpu/ipc/service/gpu_channel.h"
 #include "gpu/ipc/service/gpu_channel_manager.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "gpu/command_buffer/service/ref_counted_lock.h"
-#include "gpu/command_buffer/service/shared_image/android_video_image_backing.h"
-#include "gpu/command_buffer/service/stream_texture_shared_image_interface.h"
-#endif
 
 namespace gpu {
 
@@ -55,50 +50,6 @@ GpuChannelSharedImageInterface::~GpuChannelSharedImageInterface() {
 }
 
 // Public functions specific to GpuChannelSharedImageInterface:
-#if BUILDFLAG(IS_ANDROID)
-scoped_refptr<ClientSharedImage>
-GpuChannelSharedImageInterface::CreateSharedImageForAndroidVideo(
-    const gfx::Size& size,
-    const gfx::ColorSpace& color_space,
-    SharedImageUsageSet usage,
-    scoped_refptr<StreamTextureSharedImageInterface> image,
-    scoped_refptr<RefCountedLock> drdc_lock) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(gpu_sequence_checker_);
-
-  if (!shared_image_stub_) {
-    return nullptr;
-  }
-
-  auto mailbox = Mailbox::Generate();
-
-  scoped_refptr<SharedContextState> shared_context =
-      shared_image_stub_->shared_context_state();
-
-  if (shared_context->context_lost()) {
-    return nullptr;
-  }
-
-  SharedImageInfo si_info(viz::SinglePlaneFormat::kRGBA_8888, size, color_space,
-                          kTopLeft_GrSurfaceOrigin, kPremul_SkAlphaType, usage,
-                          /*debug_label=*/"SIForAndroidVideo");
-
-  auto shared_image_backing = AndroidVideoImageBacking::Create(
-      mailbox, si_info, std::move(image), std::move(shared_context),
-      std::move(drdc_lock));
-
-  // Register it with shared image mailbox. This keeps |shared_image_backing|
-  // around until its destruction cb is called.
-  DCHECK(shared_image_stub_->channel()
-             ->gpu_channel_manager()
-             ->shared_image_manager());
-  shared_image_stub_->factory()->RegisterBacking(
-      std::move(shared_image_backing));
-
-  return base::WrapRefCounted<ClientSharedImage>(
-      new ClientSharedImage(mailbox, si_info, GenVerifiedSyncToken(), holder_,
-                            GL_TEXTURE_EXTERNAL_OES));
-}
-#endif
 
 #if BUILDFLAG(IS_WIN)
 scoped_refptr<ClientSharedImage>

@@ -12,19 +12,11 @@
 #include "content/public/browser/browser_main_parts.h"
 #include "content/shell/browser/shell_browser_context.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "services/device/public/cpp/geolocation/geolocation_system_permission_manager.h"
-#endif
 
 namespace performance_manager {
 class PerformanceManagerLifetime;
 }  // namespace performance_manager
 
-#if BUILDFLAG(IS_ANDROID)
-namespace crash_reporter {
-class ChildExitObserver;
-}
-#endif
 
 namespace content {
 class ShellPlatformDelegate;
@@ -52,10 +44,6 @@ class ShellBrowserMainParts : public BrowserMainParts {
       std::unique_ptr<base::RunLoop>& run_loop) override;
   void PostMainMessageLoopRun() override;
   void PostDestroyThreads() override;
-#if BUILDFLAG(IS_IOS)
-  device::GeolocationSystemPermissionManager*
-  GetGeolocationSystemPermissionManager();
-#endif
 
   ShellBrowserContext* browser_context() { return browser_context_.get(); }
   ShellBrowserContext* off_the_record_browser_context() {
@@ -82,9 +70,6 @@ class ShellBrowserMainParts : public BrowserMainParts {
 
   std::unique_ptr<performance_manager::PerformanceManagerLifetime>
       performance_manager_lifetime_;
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<crash_reporter::ChildExitObserver> child_exit_observer_;
-#endif
 };
 
 }  // namespace content

@@ -20,11 +20,6 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "extensions/buildflags/buildflags.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/accessibility/accessibility_controller.h"
-#include "ash/constants/ash_features.h"
-#include "chrome/browser/speech/cros_speech_recognition_service_factory.h"
-#endif
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/test/base/in_process_browser_test.h"
@@ -54,10 +49,6 @@ namespace speech {
 class ChromeSpeechRecognitionTest : public InProcessBrowserTest {
  public:
   ChromeSpeechRecognitionTest() {
-#if BUILDFLAG(IS_CHROMEOS)
-    scoped_feature_list_.InitAndEnableFeature(
-        ash::features::kOnDeviceSpeechRecognition);
-#endif
   }
 
   ChromeSpeechRecognitionTest(const ChromeSpeechRecognitionTest&) = delete;
@@ -100,9 +91,6 @@ class ChromeSpeechRecognitionTest : public InProcessBrowserTest {
   ChromeSpeechRecognitionManagerDelegate delegate_;
   content::FakeSpeechRecognitionManager fake_speech_recognition_manager_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  base::test::ScopedFeatureList scoped_feature_list_;
-#endif
 };
 
 class SpeechWebContentsObserver : public content::WebContentsObserver {
@@ -223,48 +211,12 @@ IN_PROC_BROWSER_TEST_F(ChromeSpeechRecognitionTest, TOCTOUPermissionBypass) {
 // active.
 IN_PROC_BROWSER_TEST_F(ChromeSpeechRecognitionTest,
                        BrowserInitiatedRecognitionWithoutRenderFrameHost) {
-#if BUILDFLAG(IS_CHROMEOS)
-  content::SpeechRecognitionSessionConfig config;
-  config.initial_context.global_id = content::GlobalRenderFrameHostId();
-  int session_id = fake_speech_recognition_manager_.CreateSession(config);
-
-  ASSERT_TRUE(ash::AccessibilityController::Get());
-  EXPECT_FALSE(ash::AccessibilityController::Get()->dictation_active());
-
-  base::test::TestFuture<bool /* ask_user */, bool /* is_allowed */>
-      denied_future;
-  content::GetIOThreadTaskRunner({})->PostTask(
-      FROM_HERE,
-      base::BindOnce(&ChromeSpeechRecognitionTest::CheckRecognitionIsAllowed,
-                     base::Unretained(this), session_id,
-                     base::BindPostTask(content::GetUIThreadTaskRunner({}),
-                                        denied_future.GetCallback())));
-  EXPECT_FALSE(denied_future.Get<0>());
-  EXPECT_FALSE(denied_future.Get<1>());
-
-  ash::AccessibilityController::Get()->SetDictationActive(true);
-  EXPECT_TRUE(ash::AccessibilityController::Get()->dictation_active());
-
-  base::test::TestFuture<bool /* ask_user */, bool /* is_allowed */>
-      allowed_future;
-  content::GetIOThreadTaskRunner({})->PostTask(
-      FROM_HERE,
-      base::BindOnce(&ChromeSpeechRecognitionTest::CheckRecognitionIsAllowed,
-                     base::Unretained(this), session_id,
-                     base::BindPostTask(content::GetUIThreadTaskRunner({}),
-                                        allowed_future.GetCallback())));
-  EXPECT_FALSE(allowed_future.Get<0>());
-  EXPECT_TRUE(allowed_future.Get<1>());
-
-  ash::AccessibilityController::Get()->SetDictationActive(false);
-#else
   base::test::TestFuture<bool /* ask_user */, bool /* is_allowed */> future;
   CheckRenderFrameType(base::BindPostTask(content::GetUIThreadTaskRunner({}),
                                           future.GetCallback()),
                        content::GlobalRenderFrameHostId());
   EXPECT_FALSE(future.Get<0>());
   EXPECT_FALSE(future.Get<1>());
-#endif
 }
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -299,7 +251,6 @@ IN_PROC_BROWSER_TEST_F(ChromeSpeechRecognitionTest,
 }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ChromeSpeechRecognitionTest,
                        IncognitoRoutesToIncognitoService) {
   BrowserWindowInterface* incognito_browser = CreateIncognitoBrowser();
@@ -325,13 +276,8 @@ IN_PROC_BROWSER_TEST_F(ChromeSpeechRecognitionTest,
       },
       base::Unretained(context_ptr));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  CrosSpeechRecognitionServiceFactory::GetInstanceForTest()->SetTestingFactory(
-      incognito_browser->GetProfile(), std::move(testing_factory));
-#else
   SpeechRecognitionServiceFactory::GetInstanceForTest()->SetTestingFactory(
       incognito_browser->GetProfile(), std::move(testing_factory));
-#endif
 
   WebContents* web_contents =
       incognito_browser->GetTabStripModel()->GetActiveWebContents();
@@ -351,6 +297,5 @@ IN_PROC_BROWSER_TEST_F(ChromeSpeechRecognitionTest,
 
   EXPECT_TRUE(context_ptr->created);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace speech

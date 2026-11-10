@@ -17,9 +17,6 @@ import './certificate_subpage.js';
 import './certificate_manager_icons.html.js';
 import './crs_section.js';
 import './local_certs_section.js';
-// <if expr="is_chromeos">
-import './certificate_provisioning_list.js';
-// </if>
 import '//resources/cr_elements/cr_icon/cr_icon.js';
 import '//resources/cr_elements/cr_toast/cr_toast.js';
 import '//resources/cr_elements/cr_toolbar/cr_toolbar.js';
@@ -69,9 +66,6 @@ export interface CertificateManagerElement {
     // <if expr="is_win or is_macosx or is_linux">
     provisionedClientCerts: CertificateListElement,
     // </if>
-    // <if expr="is_chromeos">
-    extensionsClientCerts: CertificateListElement,
-    // </if>
     toast: CrToastElement,
     viewOsImportedClientCerts: HTMLElement,
     // <if expr="is_win or is_macosx">
@@ -87,9 +81,7 @@ export interface CertificateManagerElement {
     crsCertSection: CrsSectionElement,
     adminCertsSection: CertificateSubpageElement,
     userCertsSection: CertificateSubpageElement,
-    // <if expr="not is_chromeos">
     platformCertsSection: CertificateSubpageElement,
-    // </if>
     platformClientCertsSection: CertificateSubpageElement,
     scrollableShadow: HTMLElement,
   };
@@ -113,9 +105,7 @@ export class CertificateManagerElement extends CertificateManagerElementBase {
       selectedPage_: {type: String},
       clientPlatformSubpageLists_: {type: Array},
       enterpriseSubpageLists_: {type: Array},
-      // <if expr="not is_chromeos">
       platformSubpageLists_: {type: Array},
-      // </if>
 
       userSubpageLists_: {type: Array},
 
@@ -180,21 +170,11 @@ export class CertificateManagerElement extends CertificateManagerElementBase {
           loadTimeData.getString('certificateManagerV2ClientCertsFromPlatform'),
       certSource: CertificateSource.kPlatformClientCert,
       hideExport: true,
-      // <if expr="is_chromeos">
-      showImport: loadTimeData.getBoolean('clientCertImportAllowed'),
-      showImportAndBind: loadTimeData.getBoolean(
-          'clientCertImportAndBindAllowed'),
-      // TODO(crbug.com/40928765): Figure out how we want to display the
-      // import buttons/etc on this subpage. For now just show the header
-      // when we need the import buttons to be visible.
-      hideHeader: !loadTimeData.getBoolean('clientCertImportAllowed') &&
-          !loadTimeData.getBoolean('clientCertImportAndBindAllowed'),
-      // </if>
       // <if expr="is_linux">
       showImport: true,
       hideHeader: false,
       // </if>
-      // <if expr="not is_chromeos and not is_linux">
+      // <if expr="not is_linux">
       hideHeader: true,
       // </if>
     },
@@ -219,7 +199,6 @@ export class CertificateManagerElement extends CertificateManagerElementBase {
     },
   ];
 
-  // <if expr="not is_chromeos">
   protected accessor platformSubpageLists_: SubpageCertificateList[] = [
     {
       headerText:
@@ -239,7 +218,6 @@ export class CertificateManagerElement extends CertificateManagerElementBase {
       hideIfEmpty: true,
     },
   ];
-  // </if>
   protected accessor numPlatformClientCertsString_: string = '';
   protected accessor webuiRoundedIconsEnabled_: boolean =
       loadTimeData.getBoolean('webuiRoundedIconsEnabled');
@@ -351,11 +329,9 @@ export class CertificateManagerElement extends CertificateManagerElementBase {
         case Page.ADMIN_CERTS:
           this.$.adminCertsSection.setInitialFocus();
           break;
-        // <if expr="not is_chromeos">
         case Page.PLATFORM_CERTS:
           this.$.platformCertsSection.setInitialFocus();
           break;
-        // </if>
         case Page.PLATFORM_CLIENT_CERTS:
           this.$.platformClientCertsSection.setInitialFocus();
           break;
@@ -374,13 +350,11 @@ export class CertificateManagerElement extends CertificateManagerElementBase {
             this.$.localCertSection.setFocusToLinkRow(oldRoute.page);
           }
           break;
-        // <if expr="not is_chromeos">
         case Page.PLATFORM_CERTS:
           if (route.page === Page.LOCAL_CERTS) {
             this.$.localCertSection.setFocusToLinkRow(oldRoute.page);
           }
           break;
-        // </if>
         case Page.PLATFORM_CLIENT_CERTS:
           if (route.page === Page.CLIENT_CERTS) {
             focusWithoutInk(this.$.viewOsImportedClientCerts);
@@ -405,9 +379,7 @@ export class CertificateManagerElement extends CertificateManagerElementBase {
 
   protected getSelectedTopLevelHref_(): string {
     switch (this.selectedPage_) {
-      // <if expr="not is_chromeos">
       case Page.PLATFORM_CERTS:
-      // </if>
       case Page.ADMIN_CERTS:
       case Page.USER_CERTS:
         return this.generateHrefForPage_(Page.LOCAL_CERTS);

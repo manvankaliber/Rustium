@@ -36,9 +36,7 @@
 #include "ui/gfx/image/image_unittest_util.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "ui/base/clipboard/test/test_clipboard.h"  // nogncheck
-#endif
 
 namespace {
 
@@ -165,7 +163,6 @@ TEST_F(ClipboardProviderTest, EmptyClipboard) {
   EXPECT_TRUE(provider_->matches().empty());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ClipboardProviderTest, MatchesImage) {
   client_->set_template_url_service(
       search_engines_test_environment_.template_url_service());
@@ -182,7 +179,6 @@ TEST_F(ClipboardProviderTest, MatchesImage) {
   EXPECT_EQ(omnibox::AutocompleteMatchType::kClipboardImage,
             matches_image_match_->type);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ClipboardProviderTest, DeleteMatch) {
   client_->set_template_url_service(
@@ -424,81 +420,4 @@ TEST_F(ClipboardProviderTest, NewClipboardImageMatchWithEmptyOrNullImageSkia) {
     provider_->NewClipboardImageMatch(gfx::Image(), future.GetCallback());
     EXPECT_EQ(std::nullopt, future.Get());
   }
-#if BUILDFLAG(IS_IOS)
-  {
-    SCOPED_TRACE("Non-empty gfx::Image with null ToImageSkia()");
-    std::vector<gfx::ImagePNGRep> reps = {gfx::ImagePNGRep(
-        base::MakeRefCounted<base::RefCountedString>("invalid"), -1.0f)};
-    gfx::Image invalid_image(reps);
-    ASSERT_FALSE(invalid_image.IsEmpty());
-    ASSERT_TRUE(invalid_image.ToImageSkia()->isNull());
-
-    base::test::TestFuture<std::optional<AutocompleteMatch>> future;
-    provider_->NewClipboardImageMatch(invalid_image, future.GetCallback());
-    EXPECT_EQ(std::nullopt, future.Get());
-  }
-#endif  // BUILDFLAG(IS_IOS)
 }
-
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(ClipboardProviderTest, Android_MergedWithPZPSGroupOnNTP) {
-  SetClipboardText(kClipboardText);
-  client_->set_template_url_service(
-      search_engines_test_environment_.template_url_service());
-
-  AutocompleteInput input(std::u16string(), metrics::OmniboxEventProto::NTP,
-                          classifier_);
-  input.set_focus_type(metrics::OmniboxFocusType::INTERACTION_FOCUS);
-
-  provider_->Start(input, false);
-
-  // Expect the clipboard entry, but not the content. Content is not directly
-  // available on mobile devices - the user needs to explicitly ask to reveal
-  // the content.
-  ASSERT_EQ(provider_->matches().size(), 1U);
-  const auto& match = provider_->matches().back();
-  EXPECT_EQ(omnibox::AutocompleteMatchType::kClipboardText, match.type);
-  EXPECT_EQ(omnibox::GROUP_PERSONALIZED_ZERO_SUGGEST,
-            match.suggestion_group_id);
-}
-
-TEST_F(ClipboardProviderTest, Android_StandaloneSuggestionOnSearchActivity) {
-  SetClipboardText(kClipboardText);
-  client_->set_template_url_service(
-      search_engines_test_environment_.template_url_service());
-
-  AutocompleteInput input(std::u16string(),
-                          metrics::OmniboxEventProto::ANDROID_SHORTCUTS_WIDGET,
-                          classifier_);
-  input.set_focus_type(metrics::OmniboxFocusType::INTERACTION_FOCUS);
-
-  provider_->Start(input, false);
-
-  // Expect the clipboard entry, but not the content. Content is not directly
-  // available on mobile devices - the user needs to explicitly ask to reveal
-  // the content.
-  ASSERT_EQ(provider_->matches().size(), 1U);
-  const auto& match = provider_->matches().back();
-  EXPECT_EQ(omnibox::AutocompleteMatchType::kClipboardText, match.type);
-  EXPECT_EQ(omnibox::GROUP_MOBILE_CLIPBOARD, match.suggestion_group_id);
-}
-
-TEST_F(ClipboardProviderTest, Android_StandaloneSuggestionInNonNTPContext) {
-  SetClipboardText(kClipboardText);
-  client_->set_template_url_service(
-      search_engines_test_environment_.template_url_service());
-
-  AutocompleteInput input =
-      CreateAutocompleteInput(metrics::OmniboxFocusType::INTERACTION_FOCUS);
-
-  provider_->Start(input, false);
-
-  // Expect the clipboard entry, but not the content. Content is not directly
-  // available on mobile devices - the user needs to explicitly ask to reveal
-  // the content.
-  ASSERT_EQ(provider_->matches().size(), 1U);
-  const auto& match = provider_->matches().back();
-  EXPECT_EQ(omnibox::AutocompleteMatchType::kClipboardText, match.type);
-  EXPECT_EQ(omnibox::GROUP_MOBILE_CLIPBOARD, match.suggestion_group_id);
-}
-#endif

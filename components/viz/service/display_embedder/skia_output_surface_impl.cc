@@ -1011,15 +1011,6 @@ void SkiaOutputSurfaceImpl::ScheduleOverlays(
                  /*make_current=*/false, /*need_framebuffer=*/false);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void SkiaOutputSurfaceImpl::SetFrameRate(
-    gfx::SurfaceControlFrameRate frame_rate) {
-  auto task = base::BindOnce(&SkiaOutputSurfaceImplOnGpu::SetFrameRate,
-                             base::Unretained(impl_on_gpu_.get()), frame_rate);
-  EnqueueGpuTask(std::move(task), {}, /*make_current=*/false,
-                 /*need_framebuffer=*/false);
-}
-#endif
 
 void SkiaOutputSurfaceImpl::SetCapabilitiesForTesting(
     gfx::SurfaceOrigin output_surface_origin) {
@@ -1466,7 +1457,7 @@ GrBackendFormat SkiaOutputSurfaceImpl::GetGrBackendFormatForTexture(
                                         VK_IMAGE_TILING_OPTIMAL, vk_format,
                                         si_format, image_context->color_space(),
                                         image_context->ycbcr_info());
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     // Textures that were allocated _on linux_ with ycbcr info came from
     // VaapiVideoDecoder, which exports using DRM format modifiers.
     return GrBackendFormats::MakeVk(gr_ycbcr_info,
@@ -1499,12 +1490,6 @@ void SkiaOutputSurfaceImpl::SetNeedsSwapSizeNotifications(
   needs_swap_size_notifications_ = needs_swap_size_notifications;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-base::ScopedClosureRunner SkiaOutputSurfaceImpl::GetCacheBackBufferCb() {
-  // Note, that we call it directly on viz thread to get the callback.
-  return impl_on_gpu_->GetCacheBackBufferCb();
-}
-#endif
 
 void SkiaOutputSurfaceImpl::AddContextLostObserver(
     ContextLostObserver* observer) {
@@ -1628,11 +1613,7 @@ void SkiaOutputSurfaceImpl::SetSharedImagePurgeable(const gpu::Mailbox& mailbox,
 bool SkiaOutputSurfaceImpl::SupportsBGRA() const {
   if (graphite_recorder_) {
     // TODO(crbug.com/40270686): Implement properly for Graphite.
-#if BUILDFLAG(IS_IOS)
-    return false;
-#else
     return true;
-#endif  // BUILDFLAG(IS_IOS)
   }
 
   return gr_context_thread_safe_
@@ -1641,32 +1622,6 @@ bool SkiaOutputSurfaceImpl::SupportsBGRA() const {
       .isValid();
 }
 
-#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_CHROMEOS) && \
-    BUILDFLAG(USE_V4L2_CODEC)
-void SkiaOutputSurfaceImpl::DetileOverlay(
-    gpu::Mailbox input,
-    const gfx::Size& input_visible_size,
-    std::vector<gpu::SyncToken> input_sync_tokens,
-    gpu::Mailbox output,
-    const gfx::RectF& display_rect,
-    const gfx::RectF& crop_rect,
-    gfx::OverlayTransform transform,
-    bool is_10bit) {
-  auto task = base::BindOnce(&SkiaOutputSurfaceImplOnGpu::DetileOverlay,
-                             base::Unretained(impl_on_gpu_.get()), input,
-                             input_visible_size, output, display_rect,
-                             crop_rect, transform, is_10bit);
-  EnqueueGpuTask(std::move(task), std::move(input_sync_tokens),
-                 /*make_current=*/false, /*need_framebuffer=*/false);
-}
-
-void SkiaOutputSurfaceImpl::CleanupImageProcessor() {
-  auto task = base::BindOnce(&SkiaOutputSurfaceImplOnGpu::CleanupImageProcessor,
-                             base::Unretained(impl_on_gpu_.get()));
-  EnqueueGpuTask(std::move(task), {}, /*make_current=*/false,
-                 /*need_framebuffer=*/false);
-}
-#endif
 
 void SkiaOutputSurfaceImpl::ReadbackForTesting(
     CopyOutputRequest::CopyOutputRequestCallback result_callback) {

@@ -35,11 +35,6 @@
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/base/accelerators/global_accelerator_listener/global_accelerator_listener.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/platform_util.h"
-#include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "chrome/browser/startup/startup_launch_manager.h"
@@ -166,20 +161,6 @@ ui::Accelerator GlicBackgroundModeManager::GetHotkeyToShow() const {
 
 namespace {
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool IsAnyBrowserLockedFullscreen() {
-  bool locked = false;
-  ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
-      [&](BrowserWindowInterface* browser) {
-        if (platform_util::IsBrowserLockedFullscreen(browser)) {
-          locked = true;
-          return false;  // stop iterating
-        }
-        return true;  // continue iterating
-      });
-  return locked;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 GlicKeyedService* GetKeyedServiceForLaunch() {
   Profile* profile = GlicProfileManager::GetInstance()->GetProfileForLaunch();
@@ -209,11 +190,6 @@ void GlicBackgroundModeManager::RefreshStatusIconToggleLabel() {
 
 void GlicBackgroundModeManager::HandleHotkey(
     const ui::Accelerator& accelerator) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (IsAnyBrowserLockedFullscreen()) {
-    return;
-  }
-#endif
 
   auto it = std::find(actual_registered_hotkeys_.begin(),
                       actual_registered_hotkeys_.end(), accelerator);

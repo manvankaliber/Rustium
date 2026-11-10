@@ -35,7 +35,6 @@
 #include "net/net_buildflags.h"
 #include "ui/base/ui_base_features.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "chrome/browser/background/glic/glic_background_mode_manager.h"
@@ -47,7 +46,6 @@
 #include "components/autofill/content/browser/integrators/custom_form_controls/custom_form_control_script_index.h"
 #include "components/autofill/core/common/autofill_features.h"
 #include "components/autofill/core/common/autofill_switches.h"
-#endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/default_browser/default_browser_manager.h"
@@ -65,13 +63,11 @@
 #include "chrome/browser/lifetime/scheduled_restart_manager.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/lifetime/smart_restart_manager.h"
 #include "chrome/browser/lifetime/smart_restart_metrics_observer.h"
 #include "chrome/browser/ui/startup/profile_launch_observer.h"
 #include "chrome/browser/upgrade_detector/upgrade_detector.h"
 #include "chrome/common/chrome_features.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/lifetime/scheduled_restart_manager.h"
@@ -95,9 +91,7 @@
 #if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY)
 #include "chrome/browser/request_header_integrity/chrome_companero_host.h"
 #include "chrome/common/request_header_integrity/request_header_integrity_url_loader_throttle.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/request_header_integrity/platform_runtime_host.h"
-#endif
 #endif
 
 namespace {
@@ -145,10 +139,8 @@ void GlobalFeatures::PostBrowserProcessInit() {
   // Many tests do not initialize profile_manager so we gate on that too.
   if (g_browser_process->profile_manager()) {
     glic_profile_manager_ = std::make_unique<glic::GlicProfileManager>();
-#if !BUILDFLAG(IS_ANDROID)
     glic_background_mode_manager_ =
         std::make_unique<glic::GlicBackgroundModeManager>();
-#endif
     synthetic_trial_manager_ =
         std::make_unique<glic::GlicSyntheticTrialManager>();
   }
@@ -180,7 +172,6 @@ void GlobalFeatures::PostBrowserProcessInit() {
       on_device_translation::OnDeviceTranslationInstallerImpl>();
 #endif  // BUILDFLAG(ENABLE_ON_DEVICE_TRANSLATION)
 
-#if !BUILDFLAG(IS_ANDROID)
   profile_launch_observer_ = std::make_unique<ProfileLaunchObserver>();
 
   if (base::FeatureList::IsEnabled(features::kSmartRestartMetrics)) {
@@ -194,7 +185,6 @@ void GlobalFeatures::PostBrowserProcessInit() {
         std::make_unique<smart_restart::SmartRestartManager>(
             UpgradeDetector::GetInstance());
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   default_browser_manager_ =
@@ -214,20 +204,16 @@ void GlobalFeatures::PostBrowserProcessInit() {
   }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   tab_drag_session_manager_ = std::make_unique<tabs_api::TabDragSessionManager>(
       std::make_unique<tabs_api::TabDragSessionDesktopInjector>());
-#endif
 }
 
 void GlobalFeatures::PostBrowserProcessInitCore() {
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(infobars::kCentralizedInfoBarFramework)) {
     browser_infobar_manager_ =
         GetUserDataFactory().CreateInstance<infobars::BrowserInfoBarManager>(
             *g_browser_process, g_browser_process);
   }
-#endif
   system_permissions_platform_handle_ = CreateSystemPermissionsPlatformHandle();
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   // TODO(crbug.com/463742800): Migrate WhatsNewRegistry (and other non-core
@@ -267,9 +253,7 @@ void GlobalFeatures::PostBrowserProcessInitCore() {
   if (request_header_integrity::RequestHeaderIntegrityURLLoaderThrottle::
           IsFeatureEnabled()) {
     chrome_companero_host_ = CreateChromeCompaneroHost();
-#if !BUILDFLAG(IS_ANDROID)
     platform_runtime_host_ = CreatePlatformRuntimeHost();
-#endif
   }
 #endif
 }
@@ -279,7 +263,6 @@ void GlobalFeatures::Init() {
 }
 
 void GlobalFeatures::PreMainMessageLoopRun() {
-#if !BUILDFLAG(IS_ANDROID)
   // Custom form control scripts are only supported on desktop. For now, they
   // only come from a local directory given by
   // `--autofill-custom-form-control-scripts-dir` (also settable in
@@ -300,7 +283,6 @@ void GlobalFeatures::PreMainMessageLoopRun() {
     child_module_manager_ = std::make_unique<child_module::ChildModuleManager>(
         *g_browser_process->local_state());
   }
-#endif
 
 #if BUILDFLAG(IS_MAC)
   if (features::IsGlassFrameEnabled()) {
@@ -312,25 +294,21 @@ void GlobalFeatures::PreMainMessageLoopRun() {
 }
 
 void GlobalFeatures::PostMainMessageLoopRun() {
-#if !BUILDFLAG(IS_ANDROID)
   child_module_manager_.reset();
   smart_restart_manager_.reset();
   smart_restart_metrics_observer_.reset();
   profile_launch_observer_.reset();
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   scheduled_restart_bubble_controller_.reset();
   scheduled_restart_manager_.reset();
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   if (glic_background_mode_manager_) {
     glic_background_mode_manager_->Shutdown();
     glic_background_mode_manager_.reset();
   }
   omnibox_everywhere_controller_.reset();
-#endif
   if (glic_profile_manager_) {
     glic_profile_manager_->Shutdown();
     glic_profile_manager_.reset();
@@ -346,9 +324,7 @@ void GlobalFeatures::PostMainMessageLoopRun() {
 
 #if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY)
   chrome_companero_host_.reset();
-#if !BUILDFLAG(IS_ANDROID)
   platform_runtime_host_.reset();
-#endif
 #endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
@@ -359,11 +335,9 @@ void GlobalFeatures::PostMainMessageLoopRun() {
 }
 
 void GlobalFeatures::PostDestroyThreads() {
-#if !BUILDFLAG(IS_ANDROID)
   // BrowserInfoBarManager should be destroyed before GlobalBrowserCollection
   // since it observes GlobalBrowserCollection.
   browser_infobar_manager_.reset();
-#endif  // !BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_WIN)
   // Startup launch manager should be destroyed before GlobalBrowserCollection
   // since its infobar manager observes GlobalBrowserCollection.
@@ -402,12 +376,10 @@ GlobalFeatures::CreateChromeCompaneroHost() {
   return std::make_unique<request_header_integrity::ChromeCompaneroHost>();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 std::unique_ptr<request_header_integrity::PlatformRuntimeHost>
 GlobalFeatures::CreatePlatformRuntimeHost() {
   return std::make_unique<request_header_integrity::PlatformRuntimeHost>();
 }
-#endif
 #endif
 
 // static

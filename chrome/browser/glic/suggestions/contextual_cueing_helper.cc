@@ -54,14 +54,9 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#else
 #include "chrome/browser/contextual_tasks/contextual_tasks_side_panel_coordinator.h"  // nogncheck crbug.com/40147906
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
 #include "chrome/browser/ui/views/glic/glic_button_interface.h"  // nogncheck crbug.com/40147906
-#endif
 
 namespace glic {
 
@@ -337,7 +332,6 @@ bool ContextualCueingHelper::IsBrowserBlockingNudges(
   BrowserWindowInterface* browser_window_interface =
       tab_interface->GetBrowserWindowInterface();
 
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
   if (!browser_window_interface) {
     return false;
   }
@@ -352,7 +346,6 @@ bool ContextualCueingHelper::IsBrowserBlockingNudges(
     recorder->set_nudge_decision(NudgeDecision::kNudgeNotShownIPH);
     return true;
   }
-#endif
 
   Profile* profile =
       Profile::FromBrowserContext(web_contents()->GetBrowserContext());
@@ -377,7 +370,6 @@ bool ContextualCueingHelper::IsBrowserBlockingNudges(
     return true;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   auto* controller = contextual_tasks::ContextualTasksPanelController::From(
       browser_window_interface);
   if (controller && controller->IsPanelOpenForContextualTask()) {
@@ -385,7 +377,6 @@ bool ContextualCueingHelper::IsBrowserBlockingNudges(
         NudgeDecision::kNudgeNotShownContextualTasksSidePanelForTabShowing);
     return true;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   return false;
 }
@@ -478,21 +469,17 @@ ContextualCueingHelper::AutoOpenGlicSidePanel(
   Profile* profile =
       Profile::FromBrowserContext(web_contents()->GetBrowserContext());
   bool vertical_tabs_enabled = false;
-#if !BUILDFLAG(IS_ANDROID)
   vertical_tabs_enabled =
       profile->GetPrefs()->GetBoolean(::prefs::kVerticalTabsEnabled);
-#endif
 
   if (vertical_tabs_enabled) {
     return RecordAutoOpenResult(GlicAutoOpenResult::kPreventedFromVerticalTabs);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (!glic::GlicButtonInterface::IsVisible(bwi)) {
     return RecordAutoOpenResult(
         GlicAutoOpenResult::kPreventedFromButtonNotVisible);
   }
-#endif
 
   if (is_pdf_candidate) {
     // Prevention reasons for auto-opening on pdfs

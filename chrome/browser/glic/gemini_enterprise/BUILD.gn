@@ -188,7 +188,7 @@ source_set("browser_tests") {
     "//url",
   ]
 
-  if (enterprise_data_controls && !is_android) {
+  if (enterprise_data_controls) {
     sources += [ "geic_paste_policy_browsertest.cc" ]
     deps += [
       "//chrome/browser/enterprise/connectors/test:test_support",

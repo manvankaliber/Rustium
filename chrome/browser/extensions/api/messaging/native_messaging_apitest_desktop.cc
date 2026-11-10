@@ -155,7 +155,6 @@ IN_PROC_BROWSER_TEST_F(NativeMessagingApiTest,
   ASSERT_TRUE(RunExtensionTest("native_messaging_connect")) << message_;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 base::CommandLine CreateNativeMessagingConnectCommandLine(
     const std::string& connect_id,
@@ -511,7 +510,6 @@ IN_PROC_BROWSER_TEST_F(NativeMessagingLaunchBackgroundModeApiTest,
   ASSERT_NO_FATAL_FAILURE(TestKeepAliveStateObserver().WaitForNoKeepAlive());
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
 class NativeHostExecutablesLaunchDirectlyPolicyTest

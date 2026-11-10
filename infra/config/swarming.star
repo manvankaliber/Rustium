@@ -36,7 +36,6 @@ swarming.task_accounts(
         # TODO(crbug.com/40554235): Migrate uses of this account to a dedicated
         # public test task account that's part of the group above, then delete
         # this.
-        "ios-isolated-tester@chops-service-accounts.iam.gserviceaccount.com",
     ],
 )
 

@@ -12,8 +12,6 @@ import os
 import stat
 import sys
 
-import android_chrome_version
-
 
 def FetchValuesFromFile(values_dict, file_name):
     """
@@ -174,7 +172,7 @@ def BuildParser():
         '-a',
         '--arch',
         default=None,
-        choices=android_chrome_version.ARCH_CHOICES,
+        choices=('arm', 'arm64', 'x86', 'x64', 'riscv64'),
         help='Set which cpu architecture the build is for.',
     )
     parser.add_argument('--os', default=None, help='Set the target os.')
@@ -238,14 +236,6 @@ def GenerateValues(options, evals):
 
     for key, val in evals.items():
         values[key] = str(eval(val, globals(), values))
-
-    if options.os == 'android':
-        android_chrome_version_codes = (
-            android_chrome_version.GenerateVersionCodes(
-                int(values['BUILD']), int(values['PATCH']), options.arch
-            )
-        )
-        values.update(android_chrome_version_codes)
 
     return values
 

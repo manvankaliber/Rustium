@@ -51,9 +51,6 @@ TEST(PasswordStoreUtilTest, JoinChangesPreservesOrderAndInput) {
 TEST(PasswordStoreUtilTest, JoinChangesPreservesFirstErrorAndItsDetails) {
   PasswordStoreBackendError first_error(
       PasswordStoreBackendErrorType::kAuthErrorResolvable);
-#if BUILDFLAG(IS_ANDROID)
-  first_error.android_backend_api_error = 7;
-#endif
   const PasswordStoreBackendError second_error(
       PasswordStoreBackendErrorType::kUncategorized);
 

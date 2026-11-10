@@ -148,13 +148,8 @@ TEST_F(ActionAppMenuManagerTest, BlockActionsGuestSessionExcludesIncognito) {
 }
 
 // Profile submenu is disabled for ChromeOS
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ProfileSubmenu DISABLED_ProfileSubmenu
-#define MAYBE_ProfileSubmenuSingleProfile DISABLED_ProfileSubmenuSingleProfile
-#else
 #define MAYBE_ProfileSubmenu ProfileSubmenu
 #define MAYBE_ProfileSubmenuSingleProfile ProfileSubmenuSingleProfile
-#endif
 TEST_F(ActionAppMenuManagerTest, MAYBE_ProfileSubmenu) {
   TestingProfileManager profile_manager(TestingBrowserProcess::GetGlobal());
   ASSERT_TRUE(profile_manager.SetUp());
@@ -546,7 +541,6 @@ TEST_F(ActionAppMenuManagerTest, NotificationHeaderNoNotification) {
   EXPECT_TRUE(notification_section->GetChildren().children().empty());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ActionAppMenuManagerTest, NotificationHeaderUpgradeNotification) {
   if (!browser_defaults::kShowUpgradeMenuItem) {
     GTEST_SKIP() << "Upgrade menu item is not supported on this platform.";
@@ -591,7 +585,6 @@ TEST_F(ActionAppMenuManagerTest, NotificationHeaderUpgradeNotification) {
       section_children[0]->GetProperty(AppMenuActionItem::kContainerColorKey),
       ui::kColorAppMenuUpgradeRowBackground);
 }
-#endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 TEST_F(ActionAppMenuManagerTest,
@@ -676,9 +669,7 @@ TEST_F(ActionAppMenuManagerTest, NotificationHeaderSafetyHubNotification) {
         Profile* profile = Profile::FromBrowserContext(context);
         auto service = std::make_unique<SafetyHubMenuNotificationService>(
             profile->GetPrefs(), nullptr,
-#if !BUILDFLAG(IS_ANDROID)
             nullptr,
-#endif
             profile);
         auto getter = base::BindRepeating(
             []() -> std::optional<std::unique_ptr<SafetyHubResult>> {
@@ -779,7 +770,6 @@ TEST_F(ActionAppMenuManagerTest, ZoomSubmenuHasExpandedHeightProperty) {
             AppMenuActionItem::ItemHeight::kExpanded);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ActionAppMenuManagerTest, NotificationHeaderDefaultBrowserPrompt) {
   actions::ActionItem* default_browser_action =
       actions::ActionManager::Get().FindAction(kActionSetBrowserAsDefault,
@@ -821,7 +811,6 @@ TEST_F(ActionAppMenuManagerTest, NotificationHeaderDefaultBrowserPrompt) {
       section_children[0]->GetProperty(AppMenuActionItem::kContainerColorKey),
       ui::kColorAppMenuUpgradeRowBackground);
 }
-#endif
 
 TEST_F(ActionAppMenuManagerTest, VerticalTabsNewBadgeProperty) {
   tabs::test::MockVerticalTabStripStateController vertical_tabs_controller(

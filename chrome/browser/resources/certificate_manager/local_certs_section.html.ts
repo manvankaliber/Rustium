@@ -12,7 +12,6 @@ export function getHtml(this: LocalCertsSectionElement) {
   <h2 class="page-title">$i18n{certificateManagerV2LocalCerts}</h2>
   $i18n{certificateManagerV2LocalCertsDescription}
 
-<if expr="not is_chromeos">
   <h3 class="section-title">$i18n{certificateManagerV2Platform}</h3>
   <div class="card">
     <div class="cr-row first">
@@ -49,7 +48,6 @@ export function getHtml(this: LocalCertsSectionElement) {
     </cr-link-row>
 </if>
   </div>
-</if>
 
   ${this.showCustomSection_() ? html`
     <div id="customCertsSection">

@@ -14,11 +14,7 @@
 namespace {
 
 bool ShouldLoadAndroidCSS() {
-#if BUILDFLAG(IS_ANDROID)
-  return true;
-#else
   return blink::RuntimeEnabledFeatures::MobileLayoutThemeEnabled();
-#endif
 }
 
 }  // namespace

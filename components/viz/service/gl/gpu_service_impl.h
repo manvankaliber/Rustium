@@ -62,11 +62,6 @@
 #include "ui/gl/direct_composition_support.h"
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-namespace base::android {
-class ScudoPurgeCoordinator;
-}  // namespace base::android
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace gpu {
 class DawnContextProvider;
@@ -141,26 +136,12 @@ class VIZ_SERVICE_EXPORT GpuServiceImpl
   void UpdateGPUInfo();
   void UpdateGPUInfoGL();
 
-#if BUILDFLAG(IS_ANDROID)
-  void InitializeWithHost(
-      mojo::PendingRemote<mojom::GpuHost> gpu_host,
-      gpu::GpuProcessShmCount use_shader_cache_shm_count,
-      scoped_refptr<gl::GLSurface> default_offscreen_surface,
-      mojom::GpuServiceCreationParamsPtr creation_params,
-      gpu::SyncPointManager* sync_point_manager = nullptr,
-      gpu::SharedImageManager* shared_image_manager = nullptr,
-      gpu::Scheduler* scheduler = nullptr,
-      base::WaitableEvent* shutdown_event = nullptr,
-      const gpu::SharedContextState::GrContextOptionsProvider*
-          gr_context_options_provider = nullptr);
-#else
   void InitializeWithHost(
       mojo::PendingRemote<mojom::GpuHost> gpu_host,
       gpu::GpuProcessShmCount use_shader_cache_shm_count,
       scoped_refptr<gl::GLSurface> default_offscreen_surface,
       mojom::GpuServiceCreationParamsPtr creation_params,
       base::WaitableEvent* shutdown_event = nullptr);
-#endif
 
   void Bind(mojo::PendingReceiver<mojom::GpuService> pending_receiver);
 
@@ -193,14 +174,6 @@ class VIZ_SERVICE_EXPORT GpuServiceImpl
   void OnDiskCacheHandleDestoyed(
       const gpu::GpuDiskCacheHandle& handle) override;
   void CloseChannel(int32_t client_id) override;
-#if BUILDFLAG(IS_CHROMEOS)
-  void CreateJpegDecodeAccelerator(
-      mojo::PendingReceiver<chromeos_camera::mojom::MjpegDecodeAccelerator>
-          jda_receiver) override;
-  void CreateJpegEncodeAccelerator(
-      mojo::PendingReceiver<chromeos_camera::mojom::JpegEncodeAccelerator>
-          jea_receiver) override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
   void RegisterDCOMPSurfaceHandle(
@@ -388,9 +361,6 @@ class VIZ_SERVICE_EXPORT GpuServiceImpl
 
   base::ProcessId host_process_id() const { return host_process_id_; }
 
-#if BUILDFLAG(IS_ANDROID)
-  void SetHostProcessId(base::ProcessId pid);
-#endif
 
   using PriorityChangedCallback =
       base::RepeatingCallback<void(base::Process::Priority /*priority*/)>;
@@ -586,11 +556,6 @@ class VIZ_SERVICE_EXPORT GpuServiceImpl
   // browser start after the disk cache is cleared.
   const bool clear_shader_cache_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Owned and accessed exclusively on main_runner_.
-  std::unique_ptr<base::android::ScudoPurgeCoordinator>
-      scudo_purge_coordinator_;
-#endif
 
   base::WeakPtr<GpuServiceImpl> weak_ptr_;
   base::WeakPtrFactory<GpuServiceImpl> weak_ptr_factory_{this};

@@ -45,7 +45,7 @@
 #include "services/tracing/public/cpp/trace_startup.h"
 #include "services/video_capture/public/mojom/video_capture_service.mojom.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "base/file_descriptor_store.h"
 #include "base/files/file_util.h"
 #include "base/pickle.h"
@@ -90,16 +90,12 @@
 #include "services/screen_ai/sandbox/screen_ai_sandbox_hook_linux.h"  // nogncheck
 #endif
 
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_VR)
 #include "content/services/isolated_xr_device/xr_sandbox_hook_linux.h"
 #endif  // BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_VR)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/services/ime/ime_sandbox_hook.h"
-#include "chromeos/services/tts/tts_sandbox_hook.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_MAC)
 #include "base/message_loop/message_pump_apple.h"
@@ -126,8 +122,7 @@
 sandbox::TargetServices* g_utility_target_services = nullptr;
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(ENABLE_ON_DEVICE_TRANSLATION) && \
-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS))
+#if BUILDFLAG(ENABLE_ON_DEVICE_TRANSLATION) && BUILDFLAG(IS_LINUX)
 #include "components/on_device_translation/service/sandbox_hook.h"
 #endif  // BUILDFLAG(ENABLE_ON_DEVICE_TRANSLATION) &&  (BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS))
@@ -136,7 +131,7 @@ namespace content {
 
 namespace {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 std::vector<std::string> GetNetworkContextsParentDirectories() {
   base::MemoryMappedFile::Region region;
   base::ScopedFD read_pipe_fd = base::FileDescriptorStore::GetInstance().TakeFD(
@@ -181,7 +176,7 @@ bool ShouldUseAmdGpuPolicy(sandbox::mojom::Sandbox sandbox_type) {
 #endif  // BUILDFLAG(USE_LINUX_VIDEO_ACCELERATION)
   return false;
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_WIN)
 // Handle pre-lockdown sandbox hooks
@@ -295,13 +290,13 @@ int UtilityMain(MainFunctionParams parameters) {
   // so the broker process can be safely forked before driver warming spawns
   // threads. Any threads spawned by `PreSandboxInit()` are then covered by
   // Seccomp-BPF via TSYNC.
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_LINUX)
   if (utility_sub_type == on_device_model::mojom::OnDeviceModelService::Name_) {
     CHECK(on_device_model::PreSandboxInit());
   }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 
 #if BUILDFLAG(ENABLE_OOP_VIDEO_DECODER) && BUILDFLAG(USE_VAAPI)
   // Regardless of the sandbox status, the VaapiWrapper needs to be initialized
@@ -359,8 +354,7 @@ int UtilityMain(MainFunctionParams parameters) {
       pre_sandbox_hook = base::BindOnce(&vr::XrPreSandboxHook);
       break;
 #endif  // BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_VR)
-#if BUILDFLAG(ENABLE_ON_DEVICE_TRANSLATION) && \
-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS))
+#if BUILDFLAG(ENABLE_ON_DEVICE_TRANSLATION) && BUILDFLAG(IS_LINUX)
     case sandbox::mojom::Sandbox::kOnDeviceTranslation:
       pre_sandbox_hook = base::BindOnce(
           &on_device_translation::OnDeviceTranslationSandboxHook);
@@ -377,7 +371,7 @@ int UtilityMain(MainFunctionParams parameters) {
 #else
       NOTREACHED();
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     case sandbox::mojom::Sandbox::kShapeDetection:
       pre_sandbox_hook =
           base::BindOnce(&shape_detection::ShapeDetectionPreSandboxHook);
@@ -394,15 +388,7 @@ int UtilityMain(MainFunctionParams parameters) {
           base::BindOnce(&media::HardwareVideoEncodingPreSandboxHook);
       break;
 #endif  // BUILDFLAG(USE_LINUX_VIDEO_ACCELERATION)
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-#if BUILDFLAG(IS_CHROMEOS)
-    case sandbox::mojom::Sandbox::kIme:
-      pre_sandbox_hook = base::BindOnce(&ash::ime::ImePreSandboxHook);
-      break;
-    case sandbox::mojom::Sandbox::kTts:
-      pre_sandbox_hook = base::BindOnce(&chromeos::tts::TtsPreSandboxHook);
-      break;
-#endif  // BUILDFLAG(IS_CHROMEOS)
+#endif
     default:
       break;
   }

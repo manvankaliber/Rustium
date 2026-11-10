@@ -8,7 +8,6 @@ from __future__ import print_function
 
 import atexit
 import collections
-import functools  # noqa: F401
 import glob
 import optparse
 import os
@@ -26,9 +25,6 @@ ROBO_CONFIGURATION = config.RoboConfiguration()
 FFMPEG_DIR = ROBO_CONFIGURATION.ffmpeg_src()
 FFMPEG_HOME = ROBO_CONFIGURATION.ffmpeg_home()
 CHROMIUM_ROOT_DIR = ROBO_CONFIGURATION.chrome_src()
-NDK_ROOT_DIR = os.path.abspath(
-    os.path.join(CHROMIUM_ROOT_DIR, 'third_party', 'android_toolchain', 'ndk')
-)
 # Token to indicate that a build has completed successfully, so that we can
 # skip it with `--fast`.
 SUCCESS_TOKEN = 'THIS_BUILD_WORKED'
@@ -42,7 +38,6 @@ BRANDINGS = [
 ]
 
 ARCH_MAP = {
-    'android': ['ia32', 'x64', 'arm-neon', 'arm64'],
     'linux': ['ia32', 'x64', 'noasm-x64', 'arm-neon', 'arm64', 'riscv64'],
     'mac': ['x64', 'arm64'],
     'win': ['ia32', 'x64', 'arm64'],
@@ -52,8 +47,7 @@ USAGE_BEGIN = (
     """Usage: %prog TARGET_OS TARGET_ARCH [options] -- [configure_args]"""
 )
 USAGE_END = """
-Valid combinations are android     [%(android)s]
-                       linux       [%(linux)s]
+Valid combinations are linux       [%(linux)s]
                        mac         [%(mac)s]
                        win         [%(win)s]
 
@@ -61,10 +55,6 @@ If no target architecture is specified all will be built. Usually you don't want
 to run this script manually and should instead be using robosushi.py.
 
 Platform specific build notes:
-  android:
-    Script can be run on a normal x64 Ubuntu box with an Android-ready Chromium
-    checkout: https://chromium.googlesource.com/chromium/src/+/master/docs/android_build_instructions.md
-
   linux ia32/x64:
     Script can run on a normal Ubuntu box.
 
@@ -127,7 +117,7 @@ def PrintAndCheckCall(argv, *args, **kwargs):
 
 
 def GetDsoName(target_os, dso_name, dso_version):
-    if target_os in ('linux', 'linux-noasm', 'android'):
+    if target_os in ('linux', 'linux-noasm', ):
         return 'lib%s.so.%s' % (dso_name, dso_version)
     elif target_os == 'mac':
         return 'lib%s.%s.dylib' % (dso_name, dso_version)
@@ -144,150 +134,6 @@ def RewriteFile(path, search_replace):
         for search, replace in search_replace:
             contents = re.sub(search, replace, contents)
         f.write(contents)
-
-
-# Class for determining the 32-bit and 64-bit Android API levels that Chromium
-# uses. Since @functools.cache is not available for easy memoization of the
-# determination result, we use a lazy singleton instance constructed by calling
-# Get().
-class AndroidApiLevels:
-    __instance = None
-
-    # Extracts the Android API levels from the Chromium Android GN config.
-    # Before Q1 2021, these were grep'able from build/config/android/config.gni.
-    # With conditional logic introduced in that gni file, we seek to avoid
-    # fragility going forwards, at the cost of creating a full temporary GN
-    # Chromium Android build configuration just to extract the API levels here.
-    # Caches the results in api32 and api64 instance variables.
-    def Setup(self):
-        print('Creating a temporary GN config to retrieve Android API levels:')
-
-        # Make a temporary GN build output folder
-        # No tempfile.TemporaryDirectory until python 3.2, so instead:
-        tmp_dir = tempfile.mkdtemp(
-            prefix='android_build_ffmpeg_for_api_level_config'
-        )
-        print('Created temporary directory ' + tmp_dir)
-
-        # Populate that GN build output folder with generated config for Android as
-        # target OS.
-        with open(os.path.join(tmp_dir, 'args.gn'), 'w') as args_gn_file:
-            args_gn_file.write('target_os = "android"\n')
-            print('Created ' + os.path.realpath(args_gn_file.name))
-
-        # Ask GN to generate build files.
-        PrintAndCheckCall(['gn', 'gen', tmp_dir], cwd=CHROMIUM_ROOT_DIR)
-
-        # Query the API levels in the generated build config.
-        print('Retrieving config vars')
-        config_output = subprocess.check_output(
-            ['gn', 'args', tmp_dir, '--short', '--list'], cwd=CHROMIUM_ROOT_DIR
-        ).decode('utf-8')
-
-        # Remove the temporary GN build output folder
-        print('removing temp dir ' + tmp_dir)
-        shutil.rmtree(tmp_dir, ignore_errors=False)
-
-        api_match = re.search(
-            r'android_ndk_api_level\s*=\s*(\d{2})', config_output
-        )
-        if not api_match:
-            raise Exception('Failed to find the android api levels')
-
-        self.api32 = api_match.group(1)
-        self.api64 = api_match.group(1)
-
-    def ApiLevels(self):
-        return (self.api32, self.api64)
-
-    @classmethod
-    def Get(cls):
-        if cls.__instance is None:
-            cls.__instance = AndroidApiLevels()
-            cls.__instance.Setup()
-        return cls.__instance.ApiLevels()
-
-
-# Sets up cross-compilation (specific to host being linux-x64_64) for compiling
-# Android.
-# Returns the necessary configure flags as a list.
-# See also https://developer.android.com/ndk/guides/other_build_systems
-# As of M90, //third_party/android_ndk no longer includes mipsel or mips64el
-# toolchains; they were not previously supported by default by this script, and
-# currently are unsupported due to lack of toolchain in checkout.
-def SetupAndroidToolchain(target_arch):
-    api_level, api64_level = AndroidApiLevels.Get()
-    print(
-        'Determined Android API levels: 32bit='
-        + api_level
-        + ', 64bit='
-        + api64_level
-    )
-
-    # Toolchain prefix misery, for when just one pattern is not enough :/
-    toolchain_level = api_level
-    toolchain_bin_prefix = target_arch
-
-    if target_arch == 'arm-neon':
-        toolchain_bin_prefix = 'arm-linux-androideabi'
-    elif target_arch == 'arm64':
-        toolchain_level = api64_level
-        toolchain_bin_prefix = 'aarch64-linux-android'
-    elif target_arch == 'ia32':
-        toolchain_bin_prefix = 'i686-linux-android'
-    elif target_arch == 'x64':
-        toolchain_level = api64_level
-        toolchain_bin_prefix = 'x86_64-linux-android'
-    elif target_arch == 'mipsel':  # Unsupported beginning in M90
-        toolchain_bin_prefix = 'mipsel-linux-android'
-    elif target_arch == 'mips64el':  # Unsupported beginning in M90
-        toolchain_level = api64_level
-        toolchain_bin_prefix = 'mips64el-linux-android'
-
-    clang_toolchain_dir = (
-        NDK_ROOT_DIR + '/toolchains/llvm/prebuilt/linux-x86_64/'
-    )
-
-    # Big old nasty hack here, beware! The new android ndk has some foolery with
-    # libgcc.a -- clang still uses gcc for its linker when cross compiling.
-    # It can't just be that simple though - the |libgcc.a| file is actually a
-    # super secret linkerscript which links libgcc_real.a, because apparently
-    # someone decided that more flags are needed, including -lunwind; that's where
-    # our story begins. ffmpeg doesn't use linunwind, and we dont really have a
-    # good way to get a cross-compiled version anyway, but this silly linker
-    # script insists that we must link with it, or face all sorts of horrible
-    # consequences -- namely configure failures. Anyway, there is a way around it:
-    # the "big old nasty hack" mentioned what feels like forever ago now. It's
-    # simple, we uhh, kill the batman. Actually we just make a fake libunwind.a
-    # linker script and drop it someplace nobody will ever find, like I dunno, say
-    # /tmp/fakelinkerscripts or something. Then we add that path to the ldflags
-    # flags and everything works again.
-    fakedir = '/tmp/fakelinkerscripts'
-    os.system(
-        'mkdir -p {fakedir} && touch {fakedir}/libunwind.a'.format(
-            fakedir=fakedir
-        )
-    )
-
-    return [
-        '--enable-pic',
-        '--cc=clang',
-        '--cxx=clang++',
-        '--ld=clang',
-        '--enable-cross-compile',
-        '--sysroot=' + clang_toolchain_dir + 'sysroot',
-        '--extra-cflags=-I' + clang_toolchain_dir + 'sysroot/usr/include',
-        '--extra-cflags=-I'
-        + clang_toolchain_dir
-        + 'sysroot/usr/include/'
-        + toolchain_bin_prefix,
-        '--extra-cflags=--target=' + toolchain_bin_prefix + toolchain_level,
-        '--extra-ldflags=--target=' + toolchain_bin_prefix + toolchain_level,
-        '--extra-ldflags=-L{}'.format(fakedir),
-        '--extra-ldflags=-L' + clang_toolchain_dir + toolchain_bin_prefix,
-        '--extra-ldflags=--gcc-toolchain=' + clang_toolchain_dir,
-        '--target-os=android',
-    ]
 
 
 def SetupWindowsCrossCompileToolchain(target_arch):
@@ -320,7 +166,7 @@ def SetupWindowsCrossCompileToolchain(target_arch):
             # When cross-compiling (from Linux), armasm64.exe is not available.
             '--as=clang-cl',
             # FFMPEG is not yet enlightened for ARM64 Windows.
-            # Imitate Android workaround.
+            # Use the Windows ARM64 workaround.
             '--extra-cflags=--target=arm64-windows',
         ]
 
@@ -526,15 +372,6 @@ def BuildFFmpeg(
         )
     ]
 
-    if target_os == 'android':
-        pre_make_rewrites += [
-            (
-                r'(#define HAVE_POSIX_MEMALIGN [01])',
-                r'#define HAVE_POSIX_MEMALIGN 0 /* \1 -- forced to 0. See '
-                r'https://crbug.com/604451 */',
-            )
-        ]
-
     # Linux configs is also used on Fuchsia. They are mostly compatible with
     # Fuchsia except that Fuchsia doesn't support sysctl(). On Linux sysctl()
     # isn't actually used, so it's safe to set HAVE_SYSCTL to 0. Linux is also
@@ -643,7 +480,7 @@ def BuildFFmpeg(
         )
 
     if (
-        target_os in (host_os, host_os + '-noasm', 'android', 'win', 'mac')
+        target_os in (host_os, host_os + '-noasm', 'win', 'mac')
         and not config_only
     ):
         PrintAndCheckCall(['make', '-j%d' % parallel_jobs], cwd=config_dir)
@@ -724,7 +561,6 @@ def main(argv):
     configure_args = args[2:]
 
     if target_os not in (
-        'android',
         'linux',
         'linux-noasm',
         'mac',
@@ -832,57 +668,38 @@ def ConfigureAndBuild(
             '--extra-cflags=-I'
             + os.path.join(CHROMIUM_ROOT_DIR, 'third_party/opus/src/include'),
             # Disable usage of Linux Performance API. Not used in production code, but
-            # missing system headers break some Android builds.
+            # missing system headers can break cross-compiles.
             '--disable-linux-perf',
             # Force usage of nasm.
             '--x86asmexe=nasm',
         ]
     )
+    configure_flags['Common'].extend(
+        [
+            # --optflags doesn't append multiple entries, so set all at once.
+            '--optflags="-O2"',
+        ]
+    )
 
-    if target_os == 'android':
-        configure_flags['Common'].extend(
-            [
-                # This replaces --optflags="-Os" since it implies it and since if it is
-                # also specified, configure ends up dropping all optflags :/
-                '--enable-small',
-            ]
-        )
-
-        configure_flags['Common'].extend(SetupAndroidToolchain(target_arch))
-    else:
-        configure_flags['Common'].extend(
-            [
-                # --optflags doesn't append multiple entries, so set all at once.
-                '--optflags="-O2"',
-            ]
-        )
-
-    if target_os in ('linux', 'linux-noasm', 'android'):
+    if target_os in ('linux', 'linux-noasm', ):
         if target_arch == 'x64':
-            if target_os == 'android':
-                configure_flags['Common'].extend(
-                    [
-                        '--arch=x86_64',
-                    ]
-                )
-            else:
-                configure_flags['Common'].extend(
-                    [
-                        '--enable-lto',
-                        '--arch=x86_64',
-                        '--target-os=linux',
-                    ]
-                )
+            configure_flags['Common'].extend(
+                [
+                    '--enable-lto',
+                    '--arch=x86_64',
+                    '--target-os=linux',
+                ]
+            )
 
-                if host_arch != 'x64':
-                    configure_flags['Common'].extend(
-                        [
-                            '--enable-cross-compile',
-                            '--cross-prefix=/usr/bin/x86_64-linux-gnu-',
-                            '--extra-cflags=--target=x86_64-linux-gnu',
-                            '--extra-ldflags=--target=x86_64-linux-gnu',
-                        ]
-                    )
+            if host_arch != 'x64':
+                configure_flags['Common'].extend(
+                    [
+                        '--enable-cross-compile',
+                        '--cross-prefix=/usr/bin/x86_64-linux-gnu-',
+                        '--extra-cflags=--target=x86_64-linux-gnu',
+                        '--extra-ldflags=--target=x86_64-linux-gnu',
+                    ]
+                )
         elif target_arch == 'ia32':
             configure_flags['Common'].extend(
                 [
@@ -891,14 +708,6 @@ def ConfigureAndBuild(
                     '--extra-ldflags="-m32"',
                 ]
             )
-            # Android ia32 can't handle textrels and ffmpeg can't compile without
-            # them.  http://crbug.com/559379
-            if target_os == 'android':
-                configure_flags['Common'].extend(
-                    [
-                        '--disable-x86asm',
-                    ]
-                )
         elif target_arch == 'arm-neon':
             # TODO(ihf): ARM compile flags are tricky. The final options
             # overriding everything live in chroot /build/*/etc/make.conf
@@ -920,69 +729,53 @@ def ConfigureAndBuild(
                     '--extra-cflags=-march=armv7-a',
                 ]
             )
-
-            if target_os == 'android':
+            if host_arch != 'arm':
                 configure_flags['Common'].extend(
                     [
-                        # Runtime neon detection requires /proc/cpuinfo access, so ensure
-                        # av_get_cpu_flags() is run outside of the sandbox when enabled.
-                        '--enable-neon',
-                        '--extra-cflags=-mtune=generic-armv7-a',
-                        '--extra-cflags=-mfpu=neon',
-                        # Enabling softfp lets us choose either softfp or hardfp when doing
-                        # the chrome build.
-                        '--extra-cflags=-mfloat-abi=softfp',
-                    ]
-                )
-            else:
-                if host_arch != 'arm':
-                    configure_flags['Common'].extend(
-                        [
-                            '--enable-cross-compile',
-                            '--target-os=linux',
-                            '--extra-cflags=--target=arm-linux-gnueabihf',
-                            '--extra-ldflags=--target=arm-linux-gnueabihf',
-                            '--sysroot='
-                            + os.path.join(
-                                CHROMIUM_ROOT_DIR,
-                                'build/linux/debian_bullseye_armhf-sysroot',
-                            ),
-                            '--extra-cflags=-mtune=cortex-a8',
-                            # NOTE: we don't need softfp for this hardware.
-                            '--extra-cflags=-mfloat-abi=hard',
-                            # For some reason configure drops this...
-                            '--extra-cflags=-O2',
-                        ]
-                    )
-
-                configure_flags['Common'].extend(
-                    [
-                        '--enable-neon',
-                        '--extra-cflags=-mfpu=neon',
-                    ]
-                )
-        elif target_arch == 'arm64':
-            if target_os != 'android':
-                if host_arch != 'arm64':
-                    configure_flags['Common'].extend(
-                        [
-                            '--enable-cross-compile',
-                            '--cross-prefix=/usr/bin/aarch64-linux-gnu-',
-                            '--extra-cflags=--target=aarch64-linux-gnu',
-                            '--extra-ldflags=--target=aarch64-linux-gnu',
-                        ]
-                    )
-
-                configure_flags['Common'].extend(
-                    [
+                        '--enable-cross-compile',
                         '--target-os=linux',
+                        '--extra-cflags=--target=arm-linux-gnueabihf',
+                        '--extra-ldflags=--target=arm-linux-gnueabihf',
                         '--sysroot='
                         + os.path.join(
                             CHROMIUM_ROOT_DIR,
-                            'build/linux/debian_bullseye_arm64-sysroot',
+                            'build/linux/debian_bullseye_armhf-sysroot',
                         ),
+                        '--extra-cflags=-mtune=cortex-a8',
+                        # NOTE: we don't need softfp for this hardware.
+                        '--extra-cflags=-mfloat-abi=hard',
+                        # For some reason configure drops this...
+                        '--extra-cflags=-O2',
                     ]
                 )
+
+            configure_flags['Common'].extend(
+                [
+                    '--enable-neon',
+                    '--extra-cflags=-mfpu=neon',
+                ]
+            )
+        elif target_arch == 'arm64':
+            if host_arch != 'arm64':
+                configure_flags['Common'].extend(
+                    [
+                        '--enable-cross-compile',
+                        '--cross-prefix=/usr/bin/aarch64-linux-gnu-',
+                        '--extra-cflags=--target=aarch64-linux-gnu',
+                        '--extra-ldflags=--target=aarch64-linux-gnu',
+                    ]
+                )
+
+            configure_flags['Common'].extend(
+                [
+                    '--target-os=linux',
+                    '--sysroot='
+                    + os.path.join(
+                        CHROMIUM_ROOT_DIR,
+                        'build/linux/debian_bullseye_arm64-sysroot',
+                    ),
+                ]
+            )
             configure_flags['Common'].extend(
                 [
                     '--arch=aarch64',
@@ -1035,15 +828,6 @@ def ConfigureAndBuild(
                     '--extra-ldflags=-z notext',
                 ]
             )
-            if target_os == 'android':
-                configure_flags['Common'].extend(
-                    [
-                        '--enable-mips64r6',
-                        '--extra-cflags=-mcpu=mips64r6',
-                        '--disable-mips64r2',
-                        '--enable-msa',
-                    ]
-                )
             if target_os == 'linux':
                 configure_flags['Common'].extend(
                     [
@@ -1099,7 +883,7 @@ def ConfigureAndBuild(
             ]
         )
 
-    if 'win' not in target_os and 'android' not in target_os:
+    if 'win' not in target_os:
         configure_flags['Common'].extend(
             [
                 '--enable-pic',
@@ -1202,14 +986,6 @@ def ConfigureAndBuild(
         ]
     )
 
-    configure_flags['ChromeAndroid'].extend(
-        [
-            '--enable-demuxer=aac',
-            '--enable-parser=aac',
-            '--enable-decoder=aac',
-        ]
-    )
-
     def do_build_ffmpeg(branding, configure_flags):
         if options.brandings and branding not in options.brandings:
             print('%s skipped' % branding)
@@ -1227,30 +1003,18 @@ def ConfigureAndBuild(
             configure_flags,
             options,
         )
-
-    # Don't build video decoders for 32-bit Android ARM due to binary size
-    # concerns.
-    if target_os != 'android' or target_arch != "arm-neon":
-        do_build_ffmpeg(
-            'Chromium',
-            configure_flags['Common']
-            + configure_flags['Chromium']
-            + configure_args,
-        )
-        do_build_ffmpeg(
-            'Chrome',
-            configure_flags['Common']
-            + configure_flags['Chrome']
-            + configure_args,
-        )
-    else:
-        do_build_ffmpeg('Chromium', configure_flags['Common'] + configure_args)
-        do_build_ffmpeg(
-            'Chrome',
-            configure_flags['Common']
-            + configure_flags['ChromeAndroid']
-            + configure_args,
-        )
+    do_build_ffmpeg(
+        'Chromium',
+        configure_flags['Common']
+        + configure_flags['Chromium']
+        + configure_args,
+    )
+    do_build_ffmpeg(
+        'Chrome',
+        configure_flags['Common']
+        + configure_flags['Chrome']
+        + configure_args,
+    )
 
     print(
         'Done. If desired you may copy config.h/config.asm into the '

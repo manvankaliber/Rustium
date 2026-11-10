@@ -37,11 +37,7 @@ static const size_t kDataSize = 1024;
 static bool CheckReadOnlySharedMemoryFdPosix(int fd) {
 // Note that the error on Android is EPERM, unlike other platforms where
 // it will be EACCES.
-#if BUILDFLAG(IS_ANDROID)
-  const int kExpectedErrno = EPERM;
-#else
   const int kExpectedErrno = EACCES;
-#endif
   errno = 0;
   void* address =
       mmap(nullptr, kDataSize, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
@@ -102,8 +98,6 @@ bool CheckReadOnlyPlatformSharedMemoryRegionForTesting(
   return CheckReadOnlySharedMemoryMachPort(region.GetPlatformHandle());
 #elif BUILDFLAG(IS_WIN)
   return CheckReadOnlySharedMemoryWindowsHandle(region.GetPlatformHandle());
-#elif BUILDFLAG(IS_ANDROID)
-  return CheckReadOnlySharedMemoryFdPosix(region.GetPlatformHandle());
 #else
   return CheckReadOnlySharedMemoryFdPosix(region.GetPlatformHandle().fd);
 #endif

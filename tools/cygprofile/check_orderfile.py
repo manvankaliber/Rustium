@@ -7,12 +7,10 @@
 import argparse
 import dataclasses
 import logging
-import pathlib
 import sys
 from typing import Dict
 from typing import Set
 
-import orderfile_shared
 import symbol_extractor
 
 _DEFAULT_THRESHOLD = 80
@@ -157,11 +155,9 @@ def CreateArgumentParser():
   """Creates and returns the argument parser."""
   parser = argparse.ArgumentParser()
   parser.add_argument(
-    '-C',
-    '--out-dir',
-    type=pathlib.Path,
+    '--binary',
     required=True,
-    help='Path to the output directory.',
+    help='Path to the binary whose symbol order will be checked.',
   )
   parser.add_argument(
     '--orderfile-path', required=True, help='Path to the orderfile to verify.'
@@ -196,9 +192,8 @@ def main():
     level=level, format='%(levelname).1s %(relativeCreated)6d %(message)s'
   )
 
-  lib_chrome_so = orderfile_shared.GetLibchromeSoPath(options.out_dir)
   if ExtractAndVerifySymbolOrder(
-    lib_chrome_so, options.orderfile_path, options.threshold
+    options.binary, options.orderfile_path, options.threshold
   ):
     return 0
   return 1

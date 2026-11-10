@@ -106,8 +106,7 @@ GURL CanonicalizeGuestUrl(const GURL& input_url) {
 
 const policy::PolicyMap::Entry* GetGeminiEnterpriseUrlPolicyEntry(
     Profile* profile) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   if (!profile || !profile->GetProfilePolicyConnector() ||
       !profile->GetProfilePolicyConnector()->policy_service()) {
     return nullptr;

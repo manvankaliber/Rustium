@@ -26,11 +26,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "base/test/scoped_feature_list.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif
 
 namespace {
 
@@ -48,17 +43,9 @@ class TopSitesFactoryTest : public testing::Test {
     // can be read back through the public history::TopSites API.
     TopSitesFactory::GetInstance()->SetTestingFactory(
         profile(), TopSitesFactory::GetDefaultFactory());
-#if BUILDFLAG(IS_ANDROID)
-    // Default to the WebUI NTP being enabled for Android.
-    scoped_feature_list_.InitAndEnableFeature(
-        chrome::android::kUseWebUiNtpAndroid);
-#endif
   }
 
   void TearDown() override {
-#if BUILDFLAG(IS_ANDROID)
-    base::android::device_info::reset_is_desktop_for_testing();
-#endif
     test_util_.reset();
   }
 
@@ -105,13 +92,9 @@ class TopSitesFactoryTest : public testing::Test {
   TestingProfile* profile() { return test_util_->profile(); }
 
   content::BrowserTaskEnvironment task_environment_;
-#if BUILDFLAG(IS_ANDROID)
-  base::test::ScopedFeatureList scoped_feature_list_;
-#endif
   std::unique_ptr<TemplateURLServiceTestUtil> test_util_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(TopSitesFactoryTest, Desktop_GoogleDSE_ContainsWebStore) {
   SetGoogleAsDefaultSearchProvider();
@@ -130,95 +113,5 @@ TEST_F(TopSitesFactoryTest, Desktop_HideWebStoreIcon_Empty) {
   EXPECT_TRUE(GetPrepopulatedPages().empty());
 }
 
-#elif BUILDFLAG(ENABLE_EXTENSIONS_CORE)  // Desktop Android.
-
-TEST_F(TopSitesFactoryTest,
-       DesktopAndroid_WebUiNtp3PDSEEnabled_NotGoogleDSE_ContainsWebStore) {
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{chrome::android::kUseWebUiNtp3PDSE},
-      /*disabled_features=*/{});
-  SetBingAsDefaultSearchProvider();
-
-  ExpectWebStoreOnly();
-}
-
-TEST_F(TopSitesFactoryTest,
-       DesktopAndroid_WebUiNtp3PDSEEnabled_GoogleDSE_Empty) {
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{chrome::android::kUseWebUiNtp3PDSE},
-      /*disabled_features=*/{});
-  SetGoogleAsDefaultSearchProvider();
-
-  EXPECT_TRUE(GetPrepopulatedPages().empty());
-}
-
-TEST_F(TopSitesFactoryTest,
-       DesktopAndroid_WebUiNtp3PDSEDisabled_NotGoogleDSE_Empty) {
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{},
-      /*disabled_features=*/{chrome::android::kUseWebUiNtp3PDSE});
-  SetBingAsDefaultSearchProvider();
-
-  EXPECT_TRUE(GetPrepopulatedPages().empty());
-}
-
-TEST_F(TopSitesFactoryTest,
-       DesktopAndroid_WebUiNtpDisabled_NotGoogleDSE_Empty) {
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{chrome::android::kUseWebUiNtp3PDSE},
-      /*disabled_features=*/{chrome::android::kUseWebUiNtpAndroid});
-  SetBingAsDefaultSearchProvider();
-
-  EXPECT_TRUE(GetPrepopulatedPages().empty());
-}
-
-TEST_F(TopSitesFactoryTest, DesktopAndroid_HideWebStoreIcon_Empty) {
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{chrome::android::kUseWebUiNtp3PDSE},
-      /*disabled_features=*/{});
-  SetBingAsDefaultSearchProvider();
-  profile()->GetPrefs()->SetBoolean(policy::policy_prefs::kHideWebStoreIcon,
-                                    true);
-
-  EXPECT_TRUE(GetPrepopulatedPages().empty());
-}
-
-TEST_F(TopSitesFactoryTest, NonDesktopFormFactor_NotGoogleDSE_Empty) {
-  base::android::device_info::set_is_desktop_for_testing(false);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{chrome::android::kUseWebUiNtp3PDSE},
-      /*disabled_features=*/{});
-  SetBingAsDefaultSearchProvider();
-
-  EXPECT_TRUE(GetPrepopulatedPages().empty());
-}
-
-#else  // Android builds without the extensions platform (mobile).
-
-TEST_F(TopSitesFactoryTest, MobileAndroid_Empty) {
-  // Prepopulated pages are compiled out: even the Desktop Android conditions
-  // must not produce any.
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{chrome::android::kUseWebUiNtp3PDSE},
-      /*disabled_features=*/{});
-  SetBingAsDefaultSearchProvider();
-
-  EXPECT_TRUE(GetPrepopulatedPages().empty());
-}
-
-#endif
 
 }  // namespace

@@ -42,9 +42,7 @@ class PageHandler : public protocol::Page::Backend {
 
   ~PageHandler() override;
 
-#if !BUILDFLAG(IS_ANDROID)
   void ToggleAdBlocking(bool enabled);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Page::Backend:
   protocol::Response Enable(
@@ -90,7 +88,6 @@ class PageHandler : public protocol::Page::Backend {
       std::unique_ptr<GetAnnotatedPageContentCallback> callback) override;
 
  private:
-#if !BUILDFLAG(IS_ANDROID)
   static void GotInstallabilityErrors(
       std::unique_ptr<GetInstallabilityErrorsCallback> callback,
       std::vector<content::InstallabilityError> installability_errors);
@@ -101,7 +98,6 @@ class PageHandler : public protocol::Page::Backend {
 
   void OnDidGetManifest(std::unique_ptr<GetAppIdCallback> callback,
                         const webapps::InstallableData& data);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_PRINTING)
   void OnPDFCreated(bool return_as_stream,
@@ -117,9 +113,7 @@ class PageHandler : public protocol::Page::Backend {
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
   base::WeakPtr<content::WebContents> web_contents_;
 
-#if !BUILDFLAG(IS_ANDROID)
   bool enabled_ = false;
-#endif  // !BUILDFLAG(IS_ANDROID)
   const bool is_trusted_;
 
   base::WeakPtrFactory<PageHandler> weak_ptr_factory_{this};

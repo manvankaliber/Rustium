@@ -16,9 +16,6 @@
 #include "base/time/time_override.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID) && !defined(__LP64__)
-#include <time64.h>
-#endif
 // non-POSIX implementation is used for sampling the system clocks.
 #if BUILDFLAG(IS_APPLE)
 #error "This implementation is for POSIX platforms other than Mac."
@@ -45,9 +42,7 @@ int64_t ConvertTimespecToMicros(const struct timespec& ts) {
 // microsecond timebase. Minimum requirement is MONOTONIC_CLOCK to be supported
 // on the system. FreeBSD 6 has CLOCK_MONOTONIC but defines
 // _POSIX_MONOTONIC_CLOCK to -1.
-#if (BUILDFLAG(IS_POSIX) && defined(_POSIX_MONOTONIC_CLOCK) && \
-     _POSIX_MONOTONIC_CLOCK >= 0) ||                           \
-    BUILDFLAG(IS_BSD) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK >= 0 || BUILDFLAG(IS_BSD)
 int64_t ClockNow(clockid_t clk_id) {
   struct timespec ts;
   CHECK(clock_gettime(clk_id, &ts) == 0);
@@ -63,7 +58,7 @@ std::optional<int64_t> MaybeClockNow(clockid_t clk_id) {
   return std::nullopt;
 }
 
-#else  // _POSIX_MONOTONIC_CLOCK
+#else
 #error No usable tick clock function on this platform.
 #endif  // _POSIX_MONOTONIC_CLOCK
 
@@ -153,8 +148,7 @@ time_internal::RealTicks RealTicksNowIgnoringOverride() {
 
 namespace subtle {
 ThreadTicks ThreadTicksNowIgnoringOverride() {
-#if (defined(_POSIX_THREAD_CPUTIME) && (_POSIX_THREAD_CPUTIME >= 0)) || \
-    BUILDFLAG(IS_ANDROID)
+#if defined(_POSIX_THREAD_CPUTIME) && _POSIX_THREAD_CPUTIME >= 0
   return ThreadTicks() + Microseconds(ClockNow(CLOCK_THREAD_CPUTIME_ID));
 #else
   NOTREACHED();

@@ -18,9 +18,6 @@
 #include "content/public/browser/render_frame_host.h"
 #include "services/viz/privileged/mojom/compositing/frame_sink_manager.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/renderer_host/render_widget_host_view_android.h"
-#endif
 
 namespace content {
 XrFrameSinkClientImpl::XrFrameSinkClientImpl(
@@ -132,19 +129,6 @@ void XrFrameSinkClientImpl::ConfigureDOMOverlay() {
 // Since we don't have the ability to get updates to the surface id on non-
 // Android OS's, we let it stay null, which callers can use to as a signal that
 // DOMOverlay will not work.
-#if BUILDFLAG(IS_ANDROID)
-  RenderWidgetHostViewAndroid* view =
-      static_cast<RenderWidgetHostViewAndroid*>(root_view);
-  if (!view)
-    return;
-
-  // The returned CallbackListSubscription manages the lifetime of this callback
-  // and thus makes Unretained safe.
-  surface_id_changed_subscription_ =
-      view->SubscribeToSurfaceIdChanges(base::BindRepeating(
-          &XrFrameSinkClientImpl::OnSurfaceIdUpdated, base::Unretained(this)));
-  dom_surface_id_ = view->GetCurrentSurfaceId();
-#endif
 
   if (dom_surface_id_ && dom_surface_id_->is_valid()) {
     const viz::FrameSinkId dom_frame_sink_id = dom_surface_id_->frame_sink_id();

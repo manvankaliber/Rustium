@@ -278,7 +278,6 @@ suite('Main', function() {
   // HTTPS-First Mode Settings flag is enabled.
   // Regression test for crbug.com/365884462
   // TODO(crbug.com/349860796): Remove when Balanced Mode is fully launched.
-  // <if expr="not is_chromeos">
   test('SecureDnsToggleNotDuplicated', function() {
     // Check that the setting under the new element ID visible.
     assertTrue(isChildVisible(page, '#secureDnsSettingNew'));
@@ -286,7 +285,6 @@ suite('Main', function() {
     // Check that the setting under the old element ID is not visible.
     assertFalse(isChildVisible(page, '#secureDnsSettingOld'));
   });
-  // </if>
 });
 
 suite('SecurityPageHappinessTrackingSurveys', function() {
@@ -506,7 +504,6 @@ suite('FlagsDisabled', function() {
   // HTTPS-First Mode Settings flag is disabled.
   // Regression test for crbug.com/365884462
   // TODO(crbug.com/349860796): Remove when Balanced Mode is fully launched.
-  // <if expr="not is_chromeos">
   test('SecureDnsToggleNotDuplicated', function() {
     // Check that the setting under the new element ID is not visible.
     assertFalse(isChildVisible(page, '#secureDnsSettingNew'));
@@ -514,7 +511,6 @@ suite('FlagsDisabled', function() {
     // Check that the setting under the old element ID is visible.
     assertTrue(isChildVisible(page, '#secureDnsSettingOld'));
   });
-  // </if>
 
   // TODO(crbug.com/349439367): Remove the test once
   // kExtendedReportingRemovePrefDependency is fully launched.

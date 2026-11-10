@@ -447,10 +447,6 @@ class PaymentsAutofillTable : public WebDatabaseTable {
   // This will clear all the local cvcs.
   bool ClearLocalCvcs();
 
-#if BUILDFLAG(IS_IOS)
-  // Method to clean up for crbug.com/445879524.
-  bool CleanupForCrbug445879524();
-#endif  // BUILDFLAG(IS_IOS)
 
   // Methods to add, update, remove and get the metadata for server cards and
   // IBANs.

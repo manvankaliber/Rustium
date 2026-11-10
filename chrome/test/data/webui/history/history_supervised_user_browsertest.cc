@@ -14,10 +14,6 @@
 #include "components/prefs/pref_service.h"
 #include "content/public/test/browser_test.h"
 
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-#include "base/test/scoped_feature_list.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif  // BUILDFLAG(IS_DESKTOP_ANDROID)
 
 class HistorySupervisedUserTest : public WebUIMochaBrowserTest {
  public:
@@ -47,12 +43,6 @@ class HistorySupervisedUserTest : public WebUIMochaBrowserTest {
   }
 
  private:
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-  // On Desktop Android the History WebUI is still behind a flag, so the
-  // tests have to turn it on themselves.
-  base::test::ScopedFeatureList scoped_feature_list_{
-      chrome::android::kAndroidDesktopWebUiHistory};
-#endif  // BUILDFLAG(IS_DESKTOP_ANDROID)
 
   // The HistoryService is owned by the profile.
   raw_ptr<history::HistoryService> history_ = nullptr;

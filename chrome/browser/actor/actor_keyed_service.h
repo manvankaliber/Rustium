@@ -357,14 +357,6 @@ class ActorKeyedService : public KeyedService,
   base::CallbackListSubscription AddPendingTaskAddedCallback(
       PendingTaskAddedCallback callback);
 
-#if BUILDFLAG(IS_ANDROID)
-  using EnsureForegroundServiceStartedCallback =
-      base::RepeatingCallback<void(const std::string&)>;
-  base::CallbackListSubscription AddForegroundServiceStartedCallback(
-      EnsureForegroundServiceStartedCallback callback);
-  void EnsureForegroundServiceStarted(
-      const std::string& glic_trigger_message_id);
-#endif
 
   base::WeakPtr<ActorKeyedService> GetWeakPtr();
 
@@ -470,10 +462,6 @@ class ActorKeyedService : public KeyedService,
   // in `pending_tasks_`.
   base::OneShotTimer external_trigger_expiry_;
 
-#if BUILDFLAG(IS_ANDROID)
-  base::RepeatingCallbackList<void(const std::string&)>
-      ensure_foreground_service_started_callbacks_;
-#endif
 
   // Owns this.
   raw_ptr<Profile> profile_;

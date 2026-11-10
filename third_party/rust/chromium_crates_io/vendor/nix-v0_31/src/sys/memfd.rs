@@ -106,16 +106,7 @@ pub fn memfd_create<P: NixPath + ?Sized>(
     let res = name.with_nix_path(|cstr| {
         unsafe {
             cfg_if! {
-            if #[cfg(all(
-                // Android does not have a memfd_create symbol
-                not(target_os = "android"),
-                any(
-                    target_os = "freebsd",
-                    // If the OS is Linux, gnu/musl/ohos expose a memfd_create symbol but not uclibc
-                    target_env = "gnu",
-                    target_env = "musl",
-                    target_env = "ohos"
-                )))]
+            if #[cfg(any(target_os = "freebsd", target_env = "gnu", target_env = "musl", target_env = "ohos"))]
             {
                 libc::memfd_create(cstr.as_ptr(), flags.bits())
             } else {

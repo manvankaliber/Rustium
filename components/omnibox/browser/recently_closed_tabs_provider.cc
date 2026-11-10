@@ -33,9 +33,6 @@
 #include "third_party/omnibox_proto/groups.pb.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/browser_ui/util/android/url_constants.h"
-#endif
 
 namespace {
 
@@ -56,12 +53,6 @@ bool ShouldSkipUrl(const GURL& url) {
   if (!url.is_valid()) {
     return true;
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (url.SchemeIs(browser_ui::kChromeUINativeScheme) ||
-      url.SchemeIs(content::kChromeUIScheme)) {
-    return true;
-  }
-#endif
   return false;
 }
 
@@ -130,11 +121,6 @@ void RecentlyClosedTabsProvider::Start(const AutocompleteInput& input,
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // This provider exists for every Android omnibox when the feature is
-  // enabled, so don't fall through to the desktop placeholder.
-  matches_.clear();
-#else
   // TODO(crbug.com/574631471): Remove this placeholder or replace it with real
   // results.
   if (minimal_changes) {
@@ -159,7 +145,6 @@ void RecentlyClosedTabsProvider::Start(const AutocompleteInput& input,
                                              ACMatchClassification::NONE,
                                              ACMatchClassification::URL);
   matches_.push_back(match);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void RecentlyClosedTabsProvider::Stop(AutocompleteStopReason stop_reason) {

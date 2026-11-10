@@ -79,13 +79,6 @@ class GlicActorAttemptOtpFillingBrowserTest
 
   void SetUpBrowserContextKeyedServices(
       content::BrowserContext* context) override {
-#if BUILDFLAG(IS_ANDROID)
-    Profile* profile = Profile::FromBrowserContext(context);
-    profile->GetPrefs()->SetBoolean(
-        autofill::prefs::kAutofillUsingPlatformAutofill, false);
-    profile->GetPrefs()->SetBoolean(
-        autofill::prefs::kAutofillThirdPartyPasswordManagersAllowed, false);
-#endif
     GmailOtpBackendFactory::GetInstance()->SetTestingFactoryAndUse(
         context,
         base::BindRepeating(

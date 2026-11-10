@@ -77,7 +77,7 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 #include <fcntl.h>
 #include <sys/stat.h>
 
@@ -86,12 +86,6 @@
 #include "base/threading/scoped_blocking_call.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/strings/utf_string_conversions.h"
-#include "content/public/browser/file_select_listener.h"
-#include "content/public/browser/web_contents_delegate.h"
-#include "third_party/blink/public/mojom/choosers/file_chooser.mojom.h"
-#endif
 
 namespace content {
 
@@ -107,7 +101,7 @@ namespace {
 constexpr char kThirdPartyIframesNotAllowedToShowFilePicker[] =
     "Third party iframes are not allowed to show a file picker.";
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 base::File::Error CreateAndTruncateLocalFile(const base::FilePath& path) {
   base::ScopedBlockingCall scoped_blocking_call(FROM_HERE,
                                                 base::BlockingType::MAY_BLOCK);
@@ -171,52 +165,6 @@ std::optional<ResolvedFrame> ResolveAndValidateFrame(
   return ResolvedFrame{rfh, web_contents, outermost_rfh};
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Adaptor between FileSystemChooser::ResultCallback and FileSelectListener
-// used when delegating file choosing to WebContentsDelegate.
-class WebContentsDelegateListener : public FileSelectListener {
- public:
-  explicit WebContentsDelegateListener(
-      FileSystemChooser::ResultCallback callback)
-      : callback_(std::move(callback)) {}
-  WebContentsDelegateListener(const WebContentsDelegateListener&) = delete;
-  WebContentsDelegateListener& operator=(const WebContentsDelegateListener&) =
-      delete;
-
- private:
-  ~WebContentsDelegateListener() override = default;
-
-  void FileSelected(std::vector<blink::mojom::FileChooserFileInfoPtr> files,
-                    const base::FilePath& base_dir,
-                    blink::mojom::FileChooserParams::Mode mode) override {
-    std::vector<content::PathInfo> result;
-    for (const auto& file : files) {
-      CHECK(file->is_native_file());
-      base::FilePath path = file->get_native_file()->file_path;
-      if (path.empty()) {
-        continue;
-      }
-      std::string display_name =
-          base::UTF16ToUTF8(file->get_native_file()->display_name);
-      if (display_name.empty()) {
-        display_name = path.BaseName().AsUTF8Unsafe();
-      }
-      result.emplace_back(content::PathType::kLocal, std::move(path),
-                          std::move(display_name));
-    }
-    std::move(callback_).Run(file_system_access_error::Ok(), std::move(result));
-  }
-
-  void FileSelectionCanceled() override {
-    std::move(callback_).Run(
-        file_system_access_error::FromStatus(
-            blink::mojom::FileSystemAccessStatus::kOperationAborted),
-        {});
-  }
-
-  FileSystemChooser::ResultCallback callback_;
-};
-#endif
 
 void ShowFilePickerOnUIThread(
     FileSystemAccessPermissionContext* permission_context,
@@ -299,41 +247,6 @@ void ShowFilePickerOnUIThread(
     outermost_rfh = re_resolved->outermost_rfh;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Allow android WebView to handle chooser.
-  WebContentsDelegate* delegate = web_contents->GetDelegate();
-  if (delegate && delegate->UseFileChooserForFileSystemAccess()) {
-    blink::mojom::FileChooserParams params;
-    switch (options.type()) {
-      case ui::SelectFileDialog::SELECT_OPEN_FILE:
-        params.mode = blink::mojom::FileChooserParams::Mode::kOpen;
-        break;
-      case ui::SelectFileDialog::SELECT_OPEN_MULTI_FILE:
-        params.mode = blink::mojom::FileChooserParams::Mode::kOpenMultiple;
-        break;
-      case ui::SelectFileDialog::SELECT_SAVEAS_FILE:
-        params.mode = blink::mojom::FileChooserParams::Mode::kSave;
-        break;
-      case ui::SelectFileDialog::SELECT_FOLDER:
-        params.mode = blink::mojom::FileChooserParams::Mode::kOpenDirectory;
-        break;
-      default:
-        NOTREACHED();
-    }
-    params.title = options.title();
-    params.default_file_name = options.default_path();
-    for (const auto& ext_list : options.file_type_info().extensions) {
-      for (const auto& ext : ext_list) {
-        params.accept_types.push_back(u"." + base::UTF8ToUTF16(ext));
-      }
-    }
-    params.open_writable = true;
-    auto listener =
-        base::MakeRefCounted<WebContentsDelegateListener>(std::move(callback));
-    delegate->RunFileChooser(rfh, std::move(listener), params);
-    return;
-  }
-#endif
 
   auto blocker =
       web_contents->ForSecurityDropFullscreen(display::kInvalidDisplayId);
@@ -1217,11 +1130,6 @@ bool IsValidRootPath(FileSystemAccessHandleData::DataCase data_case,
     return false;
   }
   if (data_case == FileSystemAccessHandleData::kLocal) {
-#if BUILDFLAG(IS_ANDROID)
-    if (root_path.IsContentUri()) {
-      return true;
-    }
-#endif
     return root_path.IsAbsolute();
   }
   return true;
@@ -2124,7 +2032,7 @@ void FileSystemAccessManagerImpl::OnCheckPathsAgainstEnterprisePolicy(
         weak_factory_.GetWeakPtr(), binding_context, entries.front(), fs_url,
         std::move(callback));
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
     if (entries.front().type == PathType::kLocal) {
       context()->default_file_task_runner()->PostTaskAndReplyWithResult(
           FROM_HERE, base::BindOnce(&CreateAndTruncateLocalFile, fs_url.path()),

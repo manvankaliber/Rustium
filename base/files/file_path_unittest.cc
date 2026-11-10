@@ -1542,8 +1542,7 @@ TEST_F(FilePathTest, FromUTF8Unsafe_And_AsUTF8Unsafe) {
        "\xEF\xBC\xA1\xEF\xBC\xA2\xEF\xBC\xA3.txt"},
   });
 
-#if !defined(SYSTEM_NATIVE_UTF8) && \
-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS))
+#if !defined(SYSTEM_NATIVE_UTF8) && BUILDFLAG(IS_LINUX)
   ScopedLocale locale("en_US.UTF-8");
 #endif
 
@@ -1674,33 +1673,6 @@ TEST_F(FilePathTest, AsEndingWithSeparator) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(FilePathTest, ContentUriTest) {
-  const auto cases = std::to_array<UnaryBooleanTestData>({
-      {FPL("content://foo.bar"), true},
-      {FPL("content://foo.bar/"), true},
-      {FPL("content://foo/bar"), true},
-      {FPL("CoNTenT://foo.bar"), true},
-      {FPL("content://"), true},
-      {FPL("content:///foo.bar"), true},
-      {FPL("content://3foo/bar"), true},
-      {FPL("content://_foo/bar"), true},
-      {FPL(".. "), false},
-      {FPL("foo.bar"), false},
-      {FPL("content:foo.bar"), false},
-      {FPL("content:/foo.ba"), false},
-      {FPL("content:/dir/foo.bar"), false},
-      {FPL("content: //foo.bar"), false},
-      {FPL("content%2a%2f%2f"), false},
-  });
-
-  for (const auto& test_case : cases) {
-    FilePath input(test_case.input);
-    bool observed = input.IsContentUri();
-    EXPECT_EQ(test_case.expected, observed) << "input: " << input.value();
-  }
-}
-#endif
 
 // Test the operator<<(ostream, FilePath).
 TEST_F(FilePathTest, PrintToOstream) {

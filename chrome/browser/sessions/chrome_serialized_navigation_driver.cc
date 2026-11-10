@@ -11,31 +11,9 @@
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/common/referrer.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/search/search.h"
-#include "content/public/common/content_features.h"
-#include "third_party/blink/public/common/page_state/page_state.h"
-#endif
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-// Mutates |navigation| so that it targets |new_destination_url| and has no
-// referrer information.
-void ChangeDestination(const GURL& new_destination_url,
-                       sessions::SerializedNavigationEntry* navigation) {
-  navigation->set_virtual_url(new_destination_url);
-  navigation->set_original_request_url(new_destination_url);
-  navigation->set_encoded_page_state(
-      blink::PageState::CreateFromURL(new_destination_url).ToEncodedData());
-
-  // Make sure the referrer stored in the PageState (above) and in the
-  // SerializedNavigationEntry (below) are in-sync.
-  navigation->set_referrer_url(GURL());
-  navigation->set_referrer_policy(
-      static_cast<int>(network::mojom::ReferrerPolicy::kDefault));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -68,12 +46,6 @@ void ChromeSerializedNavigationDriver::Sanitize(
         driver->StripReferrerFromPageState(navigation->encoded_page_state()));
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Rewrite the old new tab URL to the new NTP URL.
-  if (search::IsNewTabOrigin(navigation->virtual_url())) {
-    ChangeDestination(GURL(chrome::kChromeUINativeNewTabURL), navigation);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 ChromeSerializedNavigationDriver::ChromeSerializedNavigationDriver() = default;

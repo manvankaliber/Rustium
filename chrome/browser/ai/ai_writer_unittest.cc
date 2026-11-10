@@ -723,7 +723,6 @@ TEST_F(AIWriterTest, VerifyPromptComposition) {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class AIWriterWithFeatureConfigTest : public AIWriterTest {
  public:
   void SetupBroker() override {
@@ -806,6 +805,5 @@ TEST_F(AIWriterWithFeatureConfigTest, CanCreateBeforeDownloadGemma4) {
   EXPECT_EQ(future.Get(),
             blink::mojom::ModelAvailabilityCheckResult::kDownloadable);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace

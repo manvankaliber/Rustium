@@ -15,30 +15,12 @@
 #include "chrome/browser/ui/navigator/browser_navigator_params.h"
 #include "content/public/browser/navigation_handle.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"
-#endif
 
 namespace glic {
 
 namespace {
 
 void EnsureBrowserForNavigateParams(NavigateParams* params) {
-#if BUILDFLAG(IS_ANDROID)
-  if (!params->browser) {
-    BrowserWindowInterface* last_active_browser = nullptr;
-    ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
-        [&](BrowserWindowInterface* browser) {
-          if (browser->GetProfile() == params->initiating_profile) {
-            last_active_browser = browser;
-            return false;  // stop iterating once found
-          }
-          return true;  // keep iterating
-        });
-    params->browser = last_active_browser;
-  }
-#endif
 }
 
 }  // namespace

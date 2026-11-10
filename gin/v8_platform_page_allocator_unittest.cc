@@ -11,7 +11,7 @@
 #include "v8/include/v8-platform.h"
 
 // includes for Branch Target Instruction tests
-#if defined(ARCH_CPU_ARM64) && (OS_LINUX || OS_ANDROID)
+#if defined(ARCH_CPU_ARM64) && OS_LINUX
 // BTI is only available for AArch64, relevant platform are Android and Linux
 
 #include "partition_alloc/arm_bti_test_functions.h"
@@ -20,7 +20,7 @@
 #include <signal.h>
 #include "testing/gtest/include/gtest/gtest-death-test.h"
 #endif
-#endif  // defined(ARCH_CPU_ARM64) && (OS_LINUX || OS_ANDROID)
+#endif
 
 namespace gin {
 
@@ -66,7 +66,7 @@ TEST(V8PlatformPageAllocatorTest, VerifyGetPageConfig) {
                 kInaccessibleWillJitLater);
 }
 
-#if defined(ARCH_CPU_ARM64) && (OS_LINUX || OS_ANDROID)
+#if defined(ARCH_CPU_ARM64) && OS_LINUX
 
 #ifdef GTEST_HAS_DEATH_TEST
 using BTITestFunction = int64_t (*)(int64_t);
@@ -141,6 +141,6 @@ INSTANTIATE_TEST_SUITE_P(
                     v8::PageAllocator::Permission::kReadWriteExecute));
 
 #endif  // GTEST_HAS_DEATH_TEST
-#endif  // if defined(ARCH_CPU_ARM64) && (OS_LINUX || OS_ANDROID)
+#endif
 
 }  // namespace gin

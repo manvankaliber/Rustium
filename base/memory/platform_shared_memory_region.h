@@ -95,13 +95,10 @@ class BASE_EXPORT PlatformSharedMemoryRegion {
   enum class TakeError {
     kExpectedReadOnlyButNot,
     kExpectedWritableButNot,
-#if BUILDFLAG(IS_ANDROID)
-    kFailedToGetAshmemRegionProtectionMask,
-#endif
 #if BUILDFLAG(IS_APPLE)
     kVmMapFailed,
 #endif
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
     kFcntlFailed,
     kReadOnlyFdNotReadOnly,
     kUnexpectedReadOnlyFd,
@@ -114,7 +111,7 @@ class BASE_EXPORT PlatformSharedMemoryRegion {
   static PlatformSharedMemoryRegion CreateWritable(size_t size);
   static PlatformSharedMemoryRegion CreateUnsafe(size_t size);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Creates a new kUnsafe region backed by an anonymous file (memfd) without
   // touching the filesystem, so that it also works inside a sandbox whose
   // seccomp policy allows memfd_create(2) (the baseline policy does). Unlike
@@ -140,7 +137,7 @@ class BASE_EXPORT PlatformSharedMemoryRegion {
       size_t size,
       const UnguessableToken& guid);
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
   // Specialized version of Take() for POSIX that takes only one file descriptor
   // instead of pair. Cannot be used with kWritable |mode|.
   static PlatformSharedMemoryRegion Take(ScopedFD handle,
@@ -257,7 +254,7 @@ class BASE_EXPORT PlatformSharedMemoryRegion {
                            CheckPlatformHandlePermissionsCorrespondToMode);
   static PlatformSharedMemoryRegion Create(Mode mode,
                                            size_t size
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
                                            ,
                                            bool executable = false
 #endif

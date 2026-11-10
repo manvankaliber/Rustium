@@ -49,11 +49,6 @@ bool GetUintFromSwitch(const base::CommandLine* command_line,
 // the native implementation.
 VulkanImplementationName ParseVulkanImplementationName(
     const base::CommandLine* command_line) {
-#if BUILDFLAG(IS_ANDROID)
-  if (command_line->HasSwitch(switches::kWebViewDrawFunctorUsesVulkan)) {
-    return VulkanImplementationName::kForcedNative;
-  }
-#endif
 
   if (command_line->HasSwitch(switches::kUseVulkan)) {
     auto value = command_line->GetSwitchValueASCII(switches::kUseVulkan);
@@ -381,10 +376,6 @@ namespace {
 
 // Multiplier policy for kAggressiveShaderCacheLimits enabled.
 double GetAggressiveMemoryLimitMultiplier(base::MemoryLimit memory_limit) {
-#if BUILDFLAG(IS_ANDROID)
-  // Android ignores pressure notifications in aggressive mode.
-  return 1.0;
-#else
   // Desktop ignores pressure above the Moderate threshold (50%).
   if (memory_limit >= base::MemoryLimit::ModeratePressureThreshold()) {
     return 1.0;
@@ -396,7 +387,6 @@ double GetAggressiveMemoryLimitMultiplier(base::MemoryLimit memory_limit) {
                  memory_limit.percent()) /
              base::MemoryLimit::ModeratePressureThreshold().percent();
   return std::lerp(1.0, 0.25, t);
-#endif
 }
 
 // Multiplier policy for kAggressiveShaderCacheLimits disabled.

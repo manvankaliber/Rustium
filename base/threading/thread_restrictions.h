@@ -159,9 +159,6 @@ StartupProfilePathInfo GetStartupProfilePath(
     const base::CommandLine& command_line,
     bool ignore_profile_picker);
 
-#if BUILDFLAG(IS_IOS)
-class ProfileIOSDirectoryBuilder;
-#endif
 
 Profile* GetLastProfileMac();
 bool HasWaylandDisplay(base::Environment* env);
@@ -234,9 +231,6 @@ class BrowserGpuChannelHostFactory;
 class BrowserMainLoop;
 class BrowserProcessIOThread;
 class BrowserTestBase;
-#if BUILDFLAG(IS_IOS)
-class ContentMainRunnerImpl;
-#endif  // BUILDFLAG(IS_IOS)
 class DesktopCaptureDevice;
 class DWriteFontCollectionProxy;
 class DWriteFontProxyImpl;
@@ -523,13 +517,9 @@ class Thread;
 
 // NaCL doesn't support stack capture.
 // Android can hang in stack capture (crbug.com/959139).
-#if BUILDFLAG(IS_ANDROID)
-#define CAPTURE_THREAD_RESTRICTIONS_STACK_TRACES() false
-#else
 // Stack capture is slow. Only enable it in developer builds, to avoid user
 // visible jank when thread restrictions are set.
 #define CAPTURE_THREAD_RESTRICTIONS_STACK_TRACES() EXPENSIVE_DCHECKS_ARE_ON()
-#endif
 
 // A boolean and the stack from which it was set. Note: The stack is not
 // captured in all builds, see `CAPTURE_THREAD_RESTRICTIONS_STACK_TRACES()`.
@@ -676,9 +666,6 @@ class BASE_EXPORT ScopedAllowBlocking {
   friend class content::SlowWebPreferenceCache;  // http://crbug.com/1262162
   friend class media::GpuMojoMediaClientWin;     // https://crbug.com/360642944
   friend class gfx::WUCBackdrop;
-#endif
-#if BUILDFLAG(IS_IOS)
-  friend class ::ProfileIOSDirectoryBuilder;
 #endif
 
   // Sorted by function name (with namespace), ignoring the return type.
@@ -1035,9 +1022,6 @@ class BASE_EXPORT PermanentThreadAllowance {
   friend class base::TestCustomDisallow;
   friend class content::BrowserMainLoop;
   friend class content::BrowserTestBase;
-#if BUILDFLAG(IS_IOS)
-  friend class content::ContentMainRunnerImpl;
-#endif  // BUILDFLAG(IS_IOS)
   friend class web::WebMainLoop;
 
   static void AllowBlocking();

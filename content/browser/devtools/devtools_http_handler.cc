@@ -61,9 +61,6 @@
 #include "url/origin.h"
 #include "v8/include/v8-version-string.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/apk_info.h"
-#endif
 
 #if BUILDFLAG(ENABLE_DEVTOOLS_FRONTEND)
 extern const int kCcompressedProtocolJSON;
@@ -320,10 +317,8 @@ void StartServerOnHandlerThread(
       }
     }
   } else {
-#if !BUILDFLAG(IS_ANDROID)
     // Android uses UNIX domain sockets which don't have an IP address.
     LOG(ERROR) << "Cannot start http server for devtools.";
-#endif
   }
 
   GetUIThreadTaskRunner({})->PostTask(
@@ -647,10 +642,6 @@ void DevToolsHttpHandler::OnJsonRequest(
     version.Set(
         kTargetWebSocketDebuggerUrlField,
         base::StringPrintf("ws://%s%s", host.c_str(), browser_guid_.c_str()));
-#if BUILDFLAG(IS_ANDROID)
-    version.Set("Android-Package",
-                base::android::apk_info::host_package_name());
-#endif
     SendJson(connection_id, net::HTTP_OK, version, "");
     return;
   }

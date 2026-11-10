@@ -3,18 +3,15 @@
 // found in the LICENSE file.
 
 import {html} from '//resources/lit/v3_0/lit.rollup.js';
-// <if expr="not is_chromeos">
 import {ChromeSigninUserChoice} from '/shared/settings/people_page/sync_browser_proxy.js';
 
 import {RestartType} from '../relaunch_mixin_lit.js';
 
-// </if>
 
 import type {SettingsPersonalizationOptionsElement} from './personalization_options.js';
 
 export function getHtml(this: SettingsPersonalizationOptionsElement) {
   return html`<!--_html_template_start_-->
-<if expr="not is_chromeos">
 <div id="chromeSigninUserChoiceSetting" class="hr cr-row" role="group"
     ?hidden="${!this.chromeSigninUserChoiceInfo_?.shouldShowSettings}"
     aria-label="$i18n{chromeSigninChoiceTitle}">
@@ -54,19 +51,9 @@ export function getHtml(this: SettingsPersonalizationOptionsElement) {
         this.onSigninAllowedSettingsBooleanControlChange_}"
     no-set-pref>
 </settings-toggle-button>
-</if><!-- not chromeos -->
+<!-- not chromeos -->
 <if expr="_google_chrome">
-<if expr="is_chromeos">
-<!-- Ash Browser settings show a link to the OS settings instead. -->
-${!this.shouldUseMetricsConsentRestructure_ ? html`
-  <cr-link-row id="metricsReportingLink" class="hr"
-      label="$i18n{enablePersonalizationLogging}"
-      sub-label="$i18n{enablePersonalizationLoggingDesc}"
-      @click="${this.onMetricsReportingLinkClick_}" external>
-  </cr-link-row>
-` : ''}
-</if><!-- chromeos -->
-<if expr="not is_chromeos">
+<!-- chromeos -->
 ${!this.shouldUseMetricsConsentRestructure_ ? html`
   <div class="cr-row hr toggle-button-wrapper">
     <div class="flex cr-padded-text">
@@ -93,7 +80,7 @@ ${!this.shouldUseMetricsConsentRestructure_ ? html`
     </cr-toggle>
   </div>
 ` : ''}
-</if><!-- not chromeos -->
+<!-- not chromeos -->
 </if><!-- _google_chrome -->
 <settings-toggle-button id="urlCollectionToggle" class="hr"
     pref-key="url_keyed_anonymized_data_collection.enabled"
@@ -101,7 +88,6 @@ ${!this.shouldUseMetricsConsentRestructure_ ? html`
     sub-label="$i18n{urlKeyedAnonymizedDataCollectionDesc}">
 </settings-toggle-button>
 <if expr="_google_chrome">
-<if expr="not is_chromeos">
 <settings-toggle-button id="spellCheckControl" class="hr"
     pref-key="spellcheck.use_spelling_service"
     @settings-boolean-control-change="${
@@ -109,16 +95,7 @@ ${!this.shouldUseMetricsConsentRestructure_ ? html`
     label="$i18n{spellingPref}" sub-label="$i18n{spellingDescription}"
     ?hidden="${!this.showSpellCheckControlToggle_()}">
 </settings-toggle-button>
-</if>
-<if expr="is_chromeos">
-<!-- On ChromeOS the toggle for spellcheck is shown in the OS settings,
-         and Ash Browser settings show a link to the OS settings instead. -->
-<cr-link-row id="spellCheckLink" class="hr" label="$i18n{spellingPref}"
-    sub-label="$i18n{spellingDescription}"
-    ?hidden="${!this.showSpellCheckControlLink_()}"
-    @click="${this.onUseSpellingServiceLinkClick_}" external>
-</cr-link-row>
-</if><!-- chromeos -->
+<!-- chromeos -->
 </if><!-- _google_chrome -->
 ${this.showSearchSuggestToggle_() ? html`
   <settings-toggle-button id="searchSuggestToggle" class="hr"
@@ -152,7 +129,6 @@ ${this.showSignoutDialog_ ? html`
   </settings-signout-dialog>
 ` : ''}
 
-<if expr="not is_chromeos">
 <cr-toast id="toast">
   <div>$i18n{restartToApplyChanges}</div>
   <cr-button @click="${this.onRestartClick_}">$i18n{restart}</cr-button>
@@ -166,6 +142,5 @@ ${this.shouldShowRelaunchDialog ? html`
 <cr-toast id="chromeSigninUserChoiceToast" duration="5000">
   <div>$i18n{chromeSigninChoiceToast}</div>
 </cr-toast>
-</if>
 <!--_html_template_end_-->`;
 }

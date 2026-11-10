@@ -54,7 +54,6 @@ BASE_DECLARE_FEATURE(kSyncJourney);
 // Enables syncing entity suppression records for Autofill AI.
 BASE_DECLARE_FEATURE(kSyncAutofillEntitySuppression);
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
 // Flag that controls Uno fast-follow features which are:
 // On Android:
 // - Batch upload of left-behind bookmarks from the bookmark manager
@@ -64,13 +63,7 @@ BASE_DECLARE_FEATURE(kSyncAutofillEntitySuppression);
 // On desktop:
 // Adding history sync opt-in entry points, and other Uno phase 2 follow-ups.
 BASE_DECLARE_FEATURE(kUnoPhase2FollowUp);
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Do not use this flag directly. Use
-// IsContactInfoDataTypeForCustomPassphraseUsersEnabled() instead.
-BASE_DECLARE_FEATURE(kSyncEnableContactInfoDataTypeForCustomPassphraseUsers);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // If enabled, the Contact Info data type will be enabled for users with custom
 // passphrase.
@@ -85,21 +78,13 @@ bool IsReplaceSyncPromosWithSignInPromosEnabled();
 
 // AutofillAi is launched globally on desktop, but restricted to certain
 // countries on mobile.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-#define DECLARE_SYNC_AUTOFILL_AI_FEATURE(feature_name) \
-  BASE_DECLARE_FEATURE_WITH_COUNTRY_RESTRICTIONS(feature_name)
-#else
 #define DECLARE_SYNC_AUTOFILL_AI_FEATURE(feature_name) \
   BASE_DECLARE_FEATURE(feature_name)
-#endif
 
 // Enables syncing of settings from the user's account.
 DECLARE_SYNC_AUTOFILL_AI_FEATURE(kSyncAccountSettings);
 
 // Enables syncing of valuables from the user's account.
-#if BUILDFLAG(IS_IOS)
-DECLARE_SYNC_AUTOFILL_AI_FEATURE(kSyncAutofillValuable);
-#endif
 
 // Enables syncing of usage metadata from Google Wallet passes.
 DECLARE_SYNC_AUTOFILL_AI_FEATURE(kSyncAutofillValuableMetadata);
@@ -131,28 +116,12 @@ inline constexpr base::FeatureParam<double>
         &kSyncIncreaseNudgeDelayForSingleClient,
         "SyncIncreaseNudgeDelayForSingleClientFactor", 2.0};
 
-#if BUILDFLAG(IS_ANDROID)
-// If enabled, the error message to unlock passwords is shown for longer.
-BASE_DECLARE_FEATURE(kSyncTrustedVaultErrorMessageDuration);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // If enabled, use the access token propagated from SyncSchedulerImpl through
 // SyncCycle rather than reading from ServerConnectionManager's cache.
 BASE_DECLARE_FEATURE(kSyncUsePropagatedAccessToken);
 
-#if BUILDFLAG(IS_ANDROID)
-// If enabled, search engines and site search will be synced on Android LFF.
-BASE_DECLARE_FEATURE(kSyncSearchEnginesAndroidLFF);
 
-// If enabled, ignores the value set in sessions_invalidations_enabled_ and
-// always registers for sessions invalidations.
-BASE_DECLARE_FEATURE(kAlwaysRegisterSessionsInvalidationsAndroid);
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_CHROMEOS)
-// Feature flag for ChromeOS only to estimate new sign-in users population.
-BASE_DECLARE_FEATURE(kEstimateNewSignInUsersWithFinchAvailablePopulation);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // If enabled, disambiguates duplicate device display names using release
 // channel labels (e.g., "(Canary)").
@@ -170,7 +139,6 @@ BASE_DECLARE_FEATURE(kSyncMigrateFromImplicitPassphrase);
 // hash and deterministic server IDs for bookmarks.
 BASE_DECLARE_FEATURE(kSyncMigrateLoopbackServerBookmarksToClientTagHash);
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // If enabled, prevents registration of controllers for APPS and APP_SETTINGS
 // data types. Used as a kill switch during deprecation.
 BASE_DECLARE_FEATURE(kSyncDoNotSyncAppsAndAppSettings);
@@ -180,9 +148,7 @@ BASE_DECLARE_FEATURE(kSyncDoNotSyncAppsAndAppSettings);
 // TODO(crbug.com/40267153): Enabled by default in October 2026; remove in a
 // year (around October 2027).
 BASE_DECLARE_FEATURE(kSyncWipeAppsAndAppSettingsData);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Enables the "Device tab visibility" subpage in Chrome Settings to choose
 // which synced devices appear in cross-device tab lists.
 BASE_DECLARE_FEATURE(kDeviceTabVisibilitySettings);
@@ -191,7 +157,6 @@ BASE_DECLARE_FEATURE(kDeviceTabVisibilitySettings);
 // tabs from the user's other devices, and removes them from the History
 // submenu.
 BASE_DECLARE_FEATURE(kCrossDeviceTabsInAppMenu);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // If enabled, tracks metrics about the user's storage of data on other devices.
 BASE_DECLARE_FEATURE(kSyncRecordDeviceStatisticsMetrics);

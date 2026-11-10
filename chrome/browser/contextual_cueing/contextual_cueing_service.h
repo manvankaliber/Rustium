@@ -22,9 +22,7 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_cueing/internals/contextual_cueing_internals.mojom.h"
-#endif
 
 class PrefService;
 
@@ -89,7 +87,6 @@ class ContextualCueingService : public KeyedService {
   // Returns the total number of impressions across all targets.
   int GetTotalImpressions() const;
 
-#if !BUILDFLAG(IS_ANDROID)
   using CueLogPtr = contextual_cueing_internals::mojom::CueLogPtr;
 
   // Logs metadata for a cue shown to the user for WebUI debugging.
@@ -99,7 +96,6 @@ class ContextualCueingService : public KeyedService {
   const base::circular_deque<CueLogPtr>& shown_cues() const {
     return shown_cues_;
   }
-#endif
 
  private:
   // A counter for how many subsequent page load events will be prevented from
@@ -137,9 +133,7 @@ class ContextualCueingService : public KeyedService {
 
   SEQUENCE_CHECKER(sequence_checker_);
 
-#if !BUILDFLAG(IS_ANDROID)
   base::circular_deque<CueLogPtr> shown_cues_;
-#endif
 };
 
 }  // namespace contextual_cueing

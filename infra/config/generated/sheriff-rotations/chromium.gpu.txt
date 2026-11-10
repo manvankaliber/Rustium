@@ -1,16 +1,3 @@
-ci/Android FYI Experimental Release (Pixel 11)
-ci/Android FYI Experimental Release (Pixel 6)
-ci/Android FYI Release (Pixel 10)
-ci/Android FYI Release (Pixel 2)
-ci/Android FYI Release (Pixel 4)
-ci/Android FYI Release (Pixel 6)
-ci/Android FYI Release (Samsung A13)
-ci/Android FYI Release (Samsung A23)
-ci/Android FYI Release (Samsung S23)
-ci/Android Release (Pixel 2)
-ci/ChromeOS FYI Release (amd64-generic)
-ci/GPU FYI Android arm Builder
-ci/GPU FYI Android arm64 Builder
 ci/GPU FYI Linux Builder
 ci/GPU FYI Linux Builder (dbg)
 ci/GPU FYI Linux Wayland Builder

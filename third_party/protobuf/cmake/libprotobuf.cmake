@@ -20,9 +20,6 @@ target_link_libraries(libprotobuf PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 if(protobuf_WITH_ZLIB)
   target_link_libraries(libprotobuf PRIVATE ${ZLIB_LIBRARIES})
 endif()
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
-  target_link_libraries(libprotobuf PRIVATE log)
-endif()
 target_include_directories(libprotobuf PUBLIC
   $<BUILD_INTERFACE:${protobuf_SOURCE_DIR}/src>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>

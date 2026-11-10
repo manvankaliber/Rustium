@@ -25,7 +25,7 @@
 #include "ui/strings/grit/ui_strings.h"
 
 // Android uses messages instead of infobars.
-static_assert(!BUILDFLAG(IS_ANDROID));
+static_assert(!false);
 
 namespace extensions {
 

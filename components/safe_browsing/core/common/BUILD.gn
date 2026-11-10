@@ -65,9 +65,6 @@ source_set("unit_tests") {
     "//ui/gfx:color_utils",
     "//url",
   ]
-  if (is_ios) {
-    deps += [ "//components/test:safe_browsing_test_bundle_data" ]
-  }
 }
 
 source_set("visual_utils") {
@@ -86,11 +83,6 @@ source_set("visual_utils") {
     "//ui/gfx",
     "//ui/gfx:color_utils",
   ]
-
-  if (is_ios) {
-    sources += [ "visual_utils_ios.mm" ]
-    frameworks = [ "UIKit.framework" ]
-  }
 }
 
 source_set("common") {

@@ -13,9 +13,6 @@
 #include "third_party/blink/renderer/platform/runtime_enabled_features.h"
 #include "third_party/blink/renderer/platform/wtf/text/string_builder.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 #if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN)
 #include <sys/utsname.h>
@@ -28,28 +25,17 @@ namespace blink {
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 constexpr char kLinuxX86_64[] = "Linux x86_64";
 #endif
 
 String GetReducedNavigatorPlatform() {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_desktop() ||
-      base::android::device_info::is_xr()) {
-    if (base::FeatureList::IsEnabled(
-            blink::features::kAndroidDesktopUASpoofAsChromeOS)) {
-      return kLinuxX86_64;
-    }
-  }
-  return "Linux armv81";
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
   return "MacIntel";
 #elif BUILDFLAG(IS_WIN)
   return "Win32";
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   return kLinuxX86_64;
-#elif BUILDFLAG(IS_IOS)
-  return "iPhone";
 #else
 #error Unsupported platform
 #endif
@@ -66,13 +52,6 @@ String NavigatorBase::userAgent() const {
 }
 
 String NavigatorBase::platform() const {
-#if BUILDFLAG(IS_ANDROID)
-  // We need to check the ReduceUserAgentMinorVersion feature flag for
-  // Android WebView, which does not currently ship a reduced User-Agent.
-  if (!RuntimeEnabledFeatures::ReduceUserAgentMinorVersionEnabled()) {
-    return NavigatorID::platform();
-  }
-#endif
   return GetReducedNavigatorPlatform();
 }
 

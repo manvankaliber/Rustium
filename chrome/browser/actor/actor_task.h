@@ -344,9 +344,6 @@ class ActorTask : public base::SupportsUserData {
 
   bool has_visible_tab() const { return has_visible_tab_; }
   bool is_in_pip() const { return is_in_pip_; }
-#if BUILDFLAG(IS_ANDROID)
-  void SetIsInPip(bool is_in_pip);
-#endif
   ActorUiMode GetUiMode() const;
 
   // These observations will be added to the final ActionsResult returned by the

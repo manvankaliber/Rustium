@@ -1266,9 +1266,6 @@ TEST(PrecombineLengthMix, ShortStringCollision) {
 #if defined(__wasm__)
   GTEST_SKIP() << "Fails flakily on wasm due to no ASLR and 32-bit size_t.";
 #endif
-#if defined(__ANDROID__) && defined(__arm__)
-  GTEST_SKIP() << "Fails on 32-bit Android due to layout changes.";
-#endif
   constexpr char kMinChar = 0;
   constexpr char kMaxChar = sizeof(size_t) * 4;
   // We use standard map to avoid the second dependency on the same hash.

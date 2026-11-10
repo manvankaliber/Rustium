@@ -30,43 +30,8 @@ try_.defaults.set(
 consoles.list_view(
     name = "tryserver.chromium",
     branch_selector = [
-        branches.selector.ANDROID_BRANCHES,
         branches.selector.DESKTOP_BRANCHES,
-
     ],
-)
-
-try_.builder(
-    name = "android-official",
-    branch_selector = branches.selector.ANDROID_BRANCHES,
-    mirrors = [
-        "ci/android-official",
-    ],
-    gn_args = "ci/android-official",
-    builderless = False,
-    contact_team_email = "clank-engprod@google.com",
-)
-
-try_.builder(
-    name = "android-desktop-arm64-official",
-    branch_selector = branches.selector.ANDROID_BRANCHES,
-    mirrors = [
-        "ci/android-desktop-arm64-official",
-    ],
-    gn_args = "ci/android-desktop-arm64-official",
-    builderless = False,
-    contact_team_email = "clank-engprod@google.com",
-)
-
-try_.builder(
-    name = "android-desktop-x64-official",
-    branch_selector = branches.selector.ANDROID_BRANCHES,
-    mirrors = [
-        "ci/android-desktop-x64-official",
-    ],
-    gn_args = "ci/android-desktop-x64-official",
-    builderless = False,
-    contact_team_email = "clank-engprod@google.com",
 )
 
 try_.builder(

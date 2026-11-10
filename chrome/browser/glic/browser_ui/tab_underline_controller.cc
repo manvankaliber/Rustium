@@ -16,9 +16,7 @@
 #include "components/contextual_tasks/public/features.h"
 #include "components/tabs/public/tab_interface.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/dictation/dictation_keyed_service.h"
-#endif
 
 namespace glic {
 
@@ -522,7 +520,6 @@ void TabUnderlineController::MaybeObserveContextualTasks() {
 }
 
 void TabUnderlineController::MaybeObserveDictation() {
-#if !BUILDFLAG(IS_ANDROID)
   tabs::TabInterface* tab = GetTabInterface();
   if (!tab || dictation_tab_changed_subscription_) {
     return;
@@ -534,7 +531,6 @@ void TabUnderlineController::MaybeObserveDictation() {
             base::BindRepeating(&TabUnderlineController::OnDictationTabChanged,
                                 base::Unretained(this)));
   }
-#endif
 }
 
 }  // namespace glic

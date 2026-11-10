@@ -61,11 +61,9 @@ PLATFORM_TO_CONDITION = {
   'windows': 'IS_WIN',
   'mac': 'IS_MAC',
   'linux': 'IS_LINUX',
-  'chromeos': 'IS_CHROMEOS',
-  'android': 'IS_ANDROID',
   'android_webview': 'IS_ANDROID',
   'android_desktop': 'IS_ANDROID',
-  'ios': 'IS_IOS',
+
 }
 
 DERIVED_PLATFORM_CONDITIONS = {

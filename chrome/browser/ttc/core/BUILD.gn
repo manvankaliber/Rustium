@@ -12,15 +12,6 @@ buildflag_header("buildflags") {
   flags = [ "ENABLE_TTC_WEBUI=$enable_ttc_webui" ]
 }
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-
-  java_cpp_enum("enums_java") {
-    sources = [ "states.h" ]
-    visibility = [ "//chrome/browser/ttc/*" ]
-  }
-}
-
 source_set("features") {
   public = [ "features.h" ]
   sources = [ "features.cc" ]
@@ -162,39 +153,28 @@ source_set("impl") {
     "//ui/actions:actions_headers",
     "//url",
   ]
-  if (is_android) {
-    sources += [
-      "voice_focused_contents_tracker_android.cc",
-      "voice_focused_contents_tracker_android.h",
-    ]
-    deps += [
-      "//chrome/browser/android:tabs_public",
-      "//chrome/browser/ttc/android",
-      "//chrome/browser/ui/android/tab_model",
-    ]
-  } else {
-    sources += [
-      "overlay_controller.cc",
-      "overlay_controller.h",
-      "session_view_impl.cc",
-      "session_view_impl.h",
-      "voice_focused_contents_tracker_desktop.cc",
-      "voice_focused_contents_tracker_desktop.h",
-    ]
-    public_deps += [ "//chrome/browser/ui/views/ttc" ]
-    deps += [
-      "//chrome/browser/lifetime",
-      "//chrome/browser/ui:browser_element_identifiers",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/toasts",
-      "//chrome/browser/ui/toasts/api:toasts",
-      "//chrome/browser/ui/toolbar/pinned_toolbar",
-      "//chrome/browser/ui/views/interaction",
-      "//chrome/browser/ui/views/toolbar",
-      "//ui/views",
-    ]
-  }
+
+  sources += [
+    "overlay_controller.cc",
+    "overlay_controller.h",
+    "session_view_impl.cc",
+    "session_view_impl.h",
+    "voice_focused_contents_tracker_desktop.cc",
+    "voice_focused_contents_tracker_desktop.h",
+  ]
+  public_deps += [ "//chrome/browser/ui/views/ttc" ]
+  deps += [
+    "//chrome/browser/lifetime",
+    "//chrome/browser/ui:browser_element_identifiers",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/toasts",
+    "//chrome/browser/ui/toasts/api:toasts",
+    "//chrome/browser/ui/toolbar/pinned_toolbar",
+    "//chrome/browser/ui/views/interaction",
+    "//chrome/browser/ui/views/toolbar",
+    "//ui/views",
+  ]
 }
 
 source_set("test_support") {
@@ -250,23 +230,9 @@ source_set("unit_tests") {
     "//testing/gtest",
     "//url",
   ]
-  if (is_android) {
-    sources += [ "voice_focused_contents_tracker_android_unittest.cc" ]
-    deps += [
-      "//chrome/browser/android:tabs_public",
-      "//chrome/browser/flags:flags_android",
-      "//chrome/browser/ui/android/tab_model",
-      "//chrome/browser/ui/android/tab_model:test_support",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/browser_window/test:native_unit_test_support_jni",
-      "//chrome/browser/ui/browser_window/test:test_support",
-      "//components/sessions:session_id",
-      "//components/tabs:public",
-    ]
-  } else {
-    sources += [ "session_view_impl_unittest.cc" ]
-    deps += [ "//chrome/browser/ui/toasts/api:toasts" ]
-  }
+
+  sources += [ "session_view_impl_unittest.cc" ]
+  deps += [ "//chrome/browser/ui/toasts/api:toasts" ]
 }
 
 source_set("browser_test_support") {
@@ -356,63 +322,61 @@ source_set("browser_tests") {
     "//ui/gfx/codec",
     "//url",
   ]
-  if (!is_android) {
-    sources += [ "voice_focused_contents_tracker_browsertest.cc" ]
-    deps += [
-      "//chrome/browser/glic/test_support",
-      "//chrome/browser/profiles/keep_alive",
-      "//chrome/browser/ttc/app:browser_tests",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//components/keep_alive_registry",
-      "//third_party/blink/public/common",
-    ]
-  }
+
+  sources += [ "voice_focused_contents_tracker_browsertest.cc" ]
+  deps += [
+    "//chrome/browser/glic/test_support",
+    "//chrome/browser/profiles/keep_alive",
+    "//chrome/browser/ttc/app:browser_tests",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//components/keep_alive_registry",
+    "//third_party/blink/public/common",
+  ]
+
   if (use_ozone) {
     deps += [ "//ui/ozone" ]
   }
 }
 
-if (!is_android) {
-  source_set("interactive_ui_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [
-      "entrypoint_controller_interactive_test.cc",
-      "session_view_impl_browsertest.cc",
-      "ttc_interactive_browser_test_base.cc",
-      "ttc_interactive_browser_test_base.h",
-    ]
-    deps = [
-      ":core",
-      ":impl",
-      ":test_support",
-      "//base",
-      "//base/test:test_support",
-      "//chrome/app:command_ids",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/ui:browser_actions",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_element_identifiers",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:ui_features",
-      "//chrome/browser/ui/actions:actions_headers",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/interaction",
-      "//chrome/browser/ui/toasts",
-      "//chrome/browser/ui/toolbar/pinned_toolbar",
-      "//chrome/browser/ui/views/toolbar",
-      "//chrome/browser/ui/views/ttc",
-      "//chrome/test:test_support",
-      "//chrome/test/interaction",
-      "//components/keyed_service/core",
-      "//components/ttc/app/public",
-      "//content/public/browser",
-      "//content/test:test_support",
-      "//testing/gmock",
-      "//testing/gtest",
-      "//ui/base/interaction",
-      "//ui/views",
-    ]
-  }
+source_set("interactive_ui_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [
+    "entrypoint_controller_interactive_test.cc",
+    "session_view_impl_browsertest.cc",
+    "ttc_interactive_browser_test_base.cc",
+    "ttc_interactive_browser_test_base.h",
+  ]
+  deps = [
+    ":core",
+    ":impl",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//chrome/app:command_ids",
+    "//chrome/browser/profiles:profile",
+    "//chrome/browser/ui:browser_actions",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_element_identifiers",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui:ui_features",
+    "//chrome/browser/ui/actions:actions_headers",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/interaction",
+    "//chrome/browser/ui/toasts",
+    "//chrome/browser/ui/toolbar/pinned_toolbar",
+    "//chrome/browser/ui/views/toolbar",
+    "//chrome/browser/ui/views/ttc",
+    "//chrome/test:test_support",
+    "//chrome/test/interaction",
+    "//components/keyed_service/core",
+    "//components/ttc/app/public",
+    "//content/public/browser",
+    "//content/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//ui/base/interaction",
+    "//ui/views",
+  ]
 }

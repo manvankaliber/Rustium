@@ -17,12 +17,8 @@
 #include "chrome/browser/ai/ai_manager.h"
 #include "chrome/browser/optimization_guide/mock_optimization_guide_keyed_service.h"
 #include "chrome/test/base/chrome_render_view_host_test_harness.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "components/optimization_guide/core/model_execution/test/fake_model_broker_android.h"
-#else
 #include "components/optimization_guide/core/model_execution/manifest_broker/test/fake_manifest_broker.h"
 #include "components/optimization_guide/core/model_execution/manifest_broker/test/scenario_builder.h"
-#endif
 #include "components/optimization_guide/proto/manifest.pb.h"
 #include "components/optimization_guide/proto/on_device_model_execution_config.pb.h"
 #include "components/update_client/crx_update_item.h"
@@ -136,13 +132,8 @@ class AITestUtils {
     raw_ptr<MockOptimizationGuideKeyedService>
         mock_optimization_guide_keyed_service_;
 
-#if BUILDFLAG(IS_ANDROID)
-    base::test::ScopedFeatureList scoped_feature_list_;
-    std::unique_ptr<optimization_guide::FakeModelBrokerAndroid> fake_broker_;
-#else
     optimization_guide::ScopedModelBrokerFeatureList model_broker_feature_list_;
     std::unique_ptr<optimization_guide::FakeManifestBroker> fake_broker_;
-#endif
 
     std::unique_ptr<AIManager> ai_manager_;
 

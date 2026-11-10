@@ -20,7 +20,6 @@
 
 namespace reporting {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // static
 std::unique_ptr<ReportingClient::TestEnvironment>
 ReportingClient::TestEnvironment::CreateWithLocalStorage(
@@ -51,7 +50,6 @@ void ReportingClient::TestEnvironment::StartUploader(
   ReportingClient::AsyncStartUploader(client_->GetWeakPtr(), reason,
                                       std::move(start_uploader_cb));
 }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // static
 std::unique_ptr<ReportingClient::TestEnvironment>

@@ -28,13 +28,10 @@ need to be translated for each locale. Note that some accessibility strings rema
     <output filename="auto_image_annotation_strings_en-GB.pak" type="data_package" lang="en-GB" />
     <output filename="auto_image_annotation_strings_en-US.pak" type="data_package" lang="en" />
     <output filename="auto_image_annotation_strings_es.pak" type="data_package" lang="es" />
-    <if expr="is_ios">
-      <!-- iOS uses es-MX for es-419 -->
-      <output filename="auto_image_annotation_strings_es-MX.pak" type="data_package" lang="es-419" />
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="auto_image_annotation_strings_es-419.pak" type="data_package" lang="es-419" />
-    </if>
+
     <output filename="auto_image_annotation_strings_et.pak" type="data_package" lang="et" />
     <output filename="auto_image_annotation_strings_eu.pak" type="data_package" lang="eu" />
     <output filename="auto_image_annotation_strings_fa.pak" type="data_package" lang="fa" />
@@ -75,13 +72,10 @@ need to be translated for each locale. Note that some accessibility strings rema
     <output filename="auto_image_annotation_strings_nb.pak" type="data_package" lang="no" />
     <output filename="auto_image_annotation_strings_pa.pak" type="data_package" lang="pa" />
     <output filename="auto_image_annotation_strings_pl.pak" type="data_package" lang="pl" />
-    <if expr="is_ios">
-      <!-- iOS uses pt for pt-BR -->
-      <output filename="auto_image_annotation_strings_pt.pak" type="data_package" lang="pt-BR" />
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="auto_image_annotation_strings_pt-BR.pak" type="data_package" lang="pt-BR" />
-    </if>
+
     <output filename="auto_image_annotation_strings_pt-PT.pak" type="data_package" lang="pt-PT" />
     <output filename="auto_image_annotation_strings_or.pak" type="data_package" lang="or" />
     <output filename="auto_image_annotation_strings_ro.pak" type="data_package" lang="ro" />
@@ -209,11 +203,7 @@ need to be translated for each locale. Note that some accessibility strings rema
           </message>
         </else>
       </if>
-      <if expr="is_android">
-        <message name="IDS_AX_IMAGE_ELIGIBLE_FOR_ANNOTATION_ANDROID" desc="Accessibility message spoken out loud to screen reader users on Android to inform them that they can get a description of an image by opening the 'More Options' at the top of the browser." is_accessibility_with_no_ui="true">
-          This image isn’t labeled. Use the more options button at the top of the browser to get image descriptions.
-        </message>
-      </if>
+
       <message name="IDS_AX_IMAGE_ELIGIBLE_FOR_ANNOTATION" desc="Accessibility message spoken out loud to screen reader users to inform them that they can get a description of an image by opening the context menu." is_accessibility_with_no_ui="true">
         To get missing image descriptions, open the context menu.
       </message>

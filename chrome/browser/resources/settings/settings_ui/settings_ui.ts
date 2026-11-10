@@ -168,14 +168,6 @@ export class SettingsUiElement extends SettingsUiElementBase {
       controlledSettingParent:
           loadTimeData.getString('controlledSettingParent'),
 
-      // <if expr="is_chromeos">
-      controlledSettingShared:
-          loadTimeData.getString('controlledSettingShared'),
-      controlledSettingWithOwner:
-          loadTimeData.getString('controlledSettingWithOwner'),
-      controlledSettingNoOwner:
-          loadTimeData.getString('controlledSettingNoOwner'),
-      // </if>
     };
   }
 

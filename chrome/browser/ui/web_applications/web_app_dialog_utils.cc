@@ -66,12 +66,6 @@
 #include "chrome/browser/web_applications/os_integration/mac/icon_utils.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-// TODO(crbug.com/40147906): Enable gn check once it handles conditional
-// includes
-#include "components/metrics/structured/structured_events.h"  // nogncheck
-#include "components/metrics/structured/structured_metrics_client.h"  // nogncheck
-#endif
 
 namespace web_app {
 
@@ -80,9 +74,6 @@ namespace {
 constexpr base::TimeDelta kProgressDelay = base::Seconds(2);
 constexpr int kProgressDelaySteps = 100;
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace cros_events = metrics::structured::events::v2::cr_os_events;
-#endif
 
 // When non-null, the next WebAppInstallFlowDialog Show() is captured here
 // instead of running.
@@ -153,9 +144,6 @@ void OnWebAppInstallShowInstallDialog(
     WebAppInstallationAcceptanceCallback web_app_acceptance_callback) {
   CHECK(web_app_info, base::NotFatalUntil::M162);
   InstallOsType os_type = InstallOsType::kOther;
-#if BUILDFLAG(IS_CHROMEOS)
-  os_type = InstallOsType::kCros;
-#endif
 #if BUILDFLAG(IS_MAC)
   os_type = InstallOsType::kMac;
 #endif
@@ -166,15 +154,6 @@ void OnWebAppInstallShowInstallDialog(
   switch (flow) {
     case WebAppInstallFlow::kInstallSite: {
       web_app_info->user_display_mode = mojom::UserDisplayMode::kStandalone;
-#if BUILDFLAG(IS_CHROMEOS)
-      if (install_source == webapps::WebappInstallSource::MENU_BROWSER_TAB) {
-        webapps::AppId app_id =
-            web_app::GenerateAppIdFromManifestId(web_app_info->manifest_id());
-        metrics::structured::StructuredMetricsClient::Record(
-            cros_events::AppDiscovery_Browser_ClickInstallAppFromMenu()
-                .SetAppId(app_id));
-      }
-#endif
       if (base::FeatureList::IsEnabled(features::kWebAppInstallDialog)) {
         InstallDialogType install_type = kSimple;
         if (screenshot_fetcher) {
@@ -244,22 +223,6 @@ void OnWebAppInstallShowInstallDialog(
         return;
       }
     }
-#if BUILDFLAG(IS_CHROMEOS)
-    case WebAppInstallFlow::kCreateShortcut: {
-      webapps::AppId app_id =
-          web_app::GenerateAppIdFromManifestId(web_app_info->manifest_id());
-      metrics::structured::StructuredMetricsClient::Record(
-          cros_events::AppDiscovery_Browser_CreateShortcut().SetAppId(app_id));
-
-      auto launch_app_on_install_success =
-          AdaptToLaunchOnInstallSuccess(std::move(web_app_acceptance_callback));
-
-      ShowCreateShortcutDialog(initiator_web_contents, std::move(web_app_info),
-                               std::move(install_tracker),
-                               std::move(launch_app_on_install_success));
-      return;
-    }
-#endif
     case WebAppInstallFlow::kUnknown:
       NOTREACHED();
   }
@@ -343,11 +306,6 @@ void CreateWebAppFromCurrentWebContents(BrowserWindowInterface* browser,
   webapps::WebappInstallSource install_source =
       webapps::InstallableMetrics::GetInstallSource(
           web_contents,
-#if BUILDFLAG(IS_CHROMEOS)
-          flow == WebAppInstallFlow::kCreateShortcut
-              ? webapps::InstallTrigger::CREATE_SHORTCUT
-              :
-#endif
               webapps::InstallTrigger::MENU);
 
   std::unique_ptr<webapps::MlInstallOperationTracker> install_tracker =
@@ -358,11 +316,6 @@ void CreateWebAppFromCurrentWebContents(BrowserWindowInterface* browser,
   // Appropriately set the fallback behavior to distinguish installation of DIY
   // apps with the create shortcut flow.
   FallbackBehavior fallback_behavior =
-#if BUILDFLAG(IS_CHROMEOS)
-      flow == WebAppInstallFlow::kCreateShortcut
-          ? FallbackBehavior::kAllowFallbackDataAlways
-          :
-#endif
           FallbackBehavior::kUseFallbackInfoWhenNotInstallable;
 
   provider->scheduler().FetchManifestAndInstall(
@@ -483,12 +436,6 @@ void ShowPwaInstallDialog(BrowserWindowInterface* bwi) {
     iph_state = PwaInProductHelpState::kShown;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  metrics::structured::StructuredMetricsClient::Record(
-      metrics::structured::events::v2::cr_os_events::
-          AppDiscovery_Browser_OmniboxInstallIconClicked()
-              .SetIPHShown(install_icon_clicked_after_iph_shown));
-#endif
 
   CreateWebAppFromManifest(web_contents,
                            webapps::WebappInstallSource::OMNIBOX_INSTALL_ICON,

@@ -229,9 +229,7 @@ void GLSurfacePresentationHelper::OnMakeCurrent(GLContext* context,
 
 // https://crbug.com/854298 : disable GLFence on Android as they seem to cause
 // issues on some devices.
-#if !BUILDFLAG(IS_ANDROID)
   gl_fence_supported_ = GLFence::IsSupported();
-#endif
 }
 
 void GLSurfacePresentationHelper::PreSwapBuffers(

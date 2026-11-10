@@ -180,11 +180,7 @@ INSTANTIATE_TEST_SUITE_P(
     PreloadingDeciderNonImmediateBrowserTest::DescribeParams);
 
 // TODO(crbug.com/562033291): Flaky on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_EnactModerateCandidate DISABLED_EnactModerateCandidate
-#else
 #define MAYBE_EnactModerateCandidate EnactModerateCandidate
-#endif
 IN_PROC_BROWSER_TEST_P(PreloadingDeciderNonImmediateBrowserTest,
                        MAYBE_EnactModerateCandidate) {
   base::ScopedMockElapsedTimersForTest mock_elapsed_timer;

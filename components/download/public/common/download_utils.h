@@ -136,22 +136,6 @@ void DetermineLocalPath(DownloadItem* download,
                         const base::FilePath& virtual_path,
                         LocalPathCallback callback);
 
-#if BUILDFLAG(IS_ANDROID)
-// Determine the file path for the save package file given the `suggested_path`.
-COMPONENTS_DOWNLOAD_EXPORT
-void DetermineSavePackagePath(const GURL& url,
-                              const base::FilePath& suggested_path,
-                              LocalPathCallback callback);
-
-using DisplayNames = std::unique_ptr<
-    std::map<std::string /*content URI*/, base::FilePath /* display name*/>>;
-using GetDisplayNamesCallback = base::OnceCallback<void(DisplayNames)>;
-
-// Gets the display names for the given `content_uris` and runs `callback`.
-COMPONENTS_DOWNLOAD_EXPORT
-void GetDisplayNamesForDownloads(std::vector<base::FilePath> content_uris,
-                                 GetDisplayNamesCallback callback);
-#endif
 
 // Finch parameter key value for number of bytes used for content validation
 // during resumption.

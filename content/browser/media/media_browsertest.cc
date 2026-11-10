@@ -30,20 +30,10 @@
 #include "url/url_util.h"
 
 // Proprietary codecs require acceleration on Android.
-#if BUILDFLAG(IS_ANDROID) && !BUILDFLAG(ENABLE_FFMPEG_VIDEO_DECODERS)
-#define REQUIRE_ACCELERATION_ON_ANDROID() \
-  if (!is_accelerated())                  \
-  return
-#else
 #define REQUIRE_ACCELERATION_ON_ANDROID()
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace content {
 
-#if BUILDFLAG(IS_ANDROID)
-// Title set by android cleaner page after short timeout.
-const char16_t kClean[] = u"CLEAN";
-#endif
 
 void MediaBrowserTest::SetUpCommandLine(base::CommandLine* command_line) {
   command_line->AppendSwitchASCII(
@@ -52,9 +42,6 @@ void MediaBrowserTest::SetUpCommandLine(base::CommandLine* command_line) {
   command_line->AppendSwitch(switches::kExposeInternalsForTesting);
 
   std::vector<base::test::FeatureRef> enabled_features = {
-#if BUILDFLAG(IS_ANDROID)
-      features::kLogJsConsoleMessages,
-#endif
   };
 
   std::vector<base::test::FeatureRef> disabled_features = {
@@ -66,7 +53,7 @@ void MediaBrowserTest::SetUpCommandLine(base::CommandLine* command_line) {
       // hardware/software decoder selection.
       media::kResolutionBasedDecoderPriority,
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
       // Disable out of process audio on Linux due to process spawn
       // failures. http://crbug.com/986021
       features::kAudioServiceOutOfProcess,
@@ -110,17 +97,6 @@ std::string MediaBrowserTest::RunTest(const GURL& gurl,
 }
 
 void MediaBrowserTest::CleanupTest() {
-#if BUILDFLAG(IS_ANDROID)
-  // We only do this cleanup on Android, as a workaround for a test-only OOM
-  // bug. See http://crbug.com/727542
-  const std::u16string cleaner_title = kClean;
-  TitleWatcher clean_title_watcher(shell()->web_contents(), cleaner_title);
-  GURL cleaner_url = content::GetFileUrlWithQuery(
-      media::GetTestDataFilePath("cleaner.html"), "");
-  EXPECT_TRUE(NavigateToURL(shell(), cleaner_url));
-  std::u16string cleaner_result = clean_title_watcher.WaitAndGetTitle();
-  EXPECT_EQ(cleaner_result, cleaner_title);
-#endif
 }
 
 std::string MediaBrowserTest::EncodeErrorMessage(
@@ -243,7 +219,6 @@ IN_PROC_BROWSER_TEST_P(MediaTest, VideoBearSilentWebm) {
 }
 
 // We don't expect android devices to support highbit yet.
-#if !BUILDFLAG(IS_ANDROID)
 
 // TODO(crbug.com/40242077): DEMUXER_ERROR_NO_SUPPORTED_STREAMS error on
 // Fuchsia Arm64.
@@ -262,7 +237,6 @@ IN_PROC_BROWSER_TEST_P(MediaTest, MAYBE_VideoBear12DepthVP9) {
   }
   PlayVideo("bear-320x180-hi12p-vp9.webm");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(MediaTest, VideoBearMp4Vp9) {
   PlayVideo("bear-320x240-v_frag-vp9.mp4");
@@ -395,7 +369,7 @@ IN_PROC_BROWSER_TEST_P(MediaTest, VideoBearHighBitDepthMp4) {
 // Android can't reliably load lots of videos on a page.
 // See http://crbug.com/749265
 // TODO(crbug.com/40774322): Flaky on Mac.
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_LoadManyVideos DISABLED_LoadManyVideos
 #else
 #define MAYBE_LoadManyVideos LoadManyVideos
@@ -433,11 +407,7 @@ IN_PROC_BROWSER_TEST_P(MediaTest, VideoBearWavPcm) {
 
 // TODO(crbug.com/382588633): Times out on Android (and hits a SyncSocket
 // timeout DCHECK in DCHECK builds).
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_VideoBearWavPcm3kHz DISABLED_VideoBearWavPcm3kHz
-#else
 #define MAYBE_VideoBearWavPcm3kHz VideoBearWavPcm3kHz
-#endif
 IN_PROC_BROWSER_TEST_P(MediaTest, MAYBE_VideoBearWavPcm3kHz) {
   PlayAudio("bear_3kHz.wav");
 }

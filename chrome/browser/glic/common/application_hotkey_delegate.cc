@@ -14,15 +14,8 @@
 #include "ui/base/accelerators/accelerator_manager.h"
 #include "ui/base/base_window.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/views/frame/browser_view.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/android/accelerator_manager_android.h"
-#include "ui/android/view_android.h"
-#include "ui/android/window_android.h"
-#endif
 
 namespace glic {
 
@@ -69,7 +62,6 @@ class ApplicationScopedHotkeyRegistration
 
   void RegisterAccelerator(BrowserWindowInterface* browser_window_interface) {
     CHECK(target_);
-#if !BUILDFLAG(IS_ANDROID)
     if (auto* const browser_view =
             BrowserView::GetBrowserViewForBrowser(browser_window_interface)) {
       browser_view->GetFocusManager()->RegisterAccelerator(
@@ -77,34 +69,14 @@ class ApplicationScopedHotkeyRegistration
           ui::AcceleratorManager::HandlerPriority::kNormalPriority,
           target_.get());
     }
-#else
-    if (auto* window = browser_window_interface->GetWindow()) {
-      auto* accelerator_manager =
-          ui::AcceleratorManagerAndroid::FromWindow(window->GetNativeWindow());
-      CHECK(accelerator_manager);
-      accelerator_manager->RegisterAccelerator(
-          accelerator_,
-          ui::AcceleratorManager::HandlerPriority::kNormalPriority,
-          target_.get());
-    }
-#endif
   }
 
   void UnregisterAccelerator(BrowserWindowInterface* browser_window_interface) {
-#if !BUILDFLAG(IS_ANDROID)
     if (auto* const browser_view =
             BrowserView::GetBrowserViewForBrowser(browser_window_interface)) {
       browser_view->GetFocusManager()->UnregisterAccelerator(accelerator_,
                                                              target_.get());
     }
-#else
-    if (auto* window = browser_window_interface->GetWindow()) {
-      if (auto* accelerator_manager = ui::AcceleratorManagerAndroid::FromWindow(
-              window->GetNativeWindow())) {
-        accelerator_manager->UnregisterAccelerator(accelerator_, target_.get());
-      }
-    }
-#endif
   }
 
   ui::Accelerator accelerator_;

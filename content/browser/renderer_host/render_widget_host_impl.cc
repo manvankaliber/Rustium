@@ -168,10 +168,6 @@
 #include "ui/gfx/skbitmap_operations.h"
 #include "ui/snapshot/snapshot.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/renderer_host/input/fling_scheduler_android.h"
-#include "ui/android/view_android.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "content/browser/renderer_host/input/fling_scheduler_mac.h"
@@ -371,14 +367,6 @@ bool ShouldProcessKeyEventForListeners(
     return true;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (event.GetType() == WebKeyboardEvent::Type::kKeyDown &&
-      event.is_confirmed_physical_keyboard_input &&
-      base::FeatureList::IsEnabled(
-          features::kAllowKeyDownInKeyPressListeners)) {
-    return true;
-  }
-#endif
 
   return false;
 }
@@ -1055,27 +1043,6 @@ void RenderWidgetHostImpl::CancelSuccessfulPresentationTimeRequest() {
   blink_widget_->CancelSuccessfulPresentationTimeRequest();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void RenderWidgetHostImpl::SetImportance(ChildProcessImportance importance) {
-  if (importance_ == importance) {
-    return;
-  }
-  importance_ = importance;
-  GetProcess()->UpdateClientPriority(this);
-}
-
-void RenderWidgetHostImpl::AddImeInputEventObserver(
-    RenderWidgetHost::InputEventObserver* observer) {
-  if (!ime_input_event_observers_.HasObserver(observer)) {
-    ime_input_event_observers_.AddObserver(observer);
-  }
-}
-
-void RenderWidgetHostImpl::RemoveImeInputEventObserver(
-    RenderWidgetHost::InputEventObserver* observer) {
-  ime_input_event_observers_.RemoveObserver(observer);
-}
-#endif
 
 blink::VisualProperties RenderWidgetHostImpl::GetInitialVisualProperties() {
   was_fullscreen_ = false;
@@ -2293,9 +2260,6 @@ base::TimeDelta RenderWidgetHostImpl::GetHungRendererDelayForTesting() {
 RenderProcessHostPriorityClient::Priority RenderWidgetHostImpl::GetPriority() {
   RenderProcessHostPriorityClient::Priority priority = {
       is_hidden_,  frame_depth_, intersects_viewport_, is_discarding_,
-#if BUILDFLAG(IS_ANDROID)
-      importance_,
-#endif
   };
   bool should_contribute = should_contribute_priority_to_process_;
   if (owner_delegate_ && !owner_delegate_->IsMainFrameActive()) {
@@ -2312,9 +2276,6 @@ RenderProcessHostPriorityClient::Priority RenderWidgetHostImpl::GetPriority() {
     priority.is_hidden = true;
     priority.frame_depth = RenderProcessHostImpl::kMaxFrameDepthForPriority;
     priority.is_discarding = false;
-#if BUILDFLAG(IS_ANDROID)
-    priority.importance = ChildProcessImportance::NORMAL;
-#endif
   }
   return priority;
 }
@@ -2520,11 +2481,6 @@ void RenderWidgetHostImpl::ImeSetComposition(
       text, ime_text_spans, replacement_range, selection_start, selection_end,
       ime_state, /*target_dom_node_id=*/blink::DOMNodeIdType(),
       blink::mojom::WidgetInputHandler::ImeSetCompositionCallback());
-#if BUILDFLAG(IS_ANDROID)
-  for (auto& observer : ime_input_event_observers_) {
-    observer.OnImeSetComposingTextEvent(text);
-  }
-#endif
 }
 
 void RenderWidgetHostImpl::ImeCommitText(
@@ -2536,20 +2492,10 @@ void RenderWidgetHostImpl::ImeCommitText(
   GetWidgetInputHandler()->ImeCommitText(
       text, ime_text_spans, replacement_range, relative_cursor_pos,
       /*target_dom_node_id=*/blink::DOMNodeIdType(), base::OnceClosure());
-#if BUILDFLAG(IS_ANDROID)
-  for (auto& observer : ime_input_event_observers_) {
-    observer.OnImeTextCommittedEvent(text);
-  }
-#endif
 }
 
 void RenderWidgetHostImpl::ImeFinishComposingText(bool keep_selection) {
   GetWidgetInputHandler()->ImeFinishComposingText(keep_selection);
-#if BUILDFLAG(IS_ANDROID)
-  for (auto& observer : ime_input_event_observers_) {
-    observer.OnImeFinishComposingTextEvent();
-  }
-#endif
 }
 
 void RenderWidgetHostImpl::ImeCancelComposition() {
@@ -3284,34 +3230,6 @@ void RenderWidgetHostImpl::StartDragging(
                       offset, rect, *event_info);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void RenderWidgetHostImpl::AsyncStartDragging(
-    WeakDocumentPtr source_document,
-    blink::mojom::DragDataPtr drag_data,
-    blink::DragOperationsMask drag_operations_mask,
-    const SkBitmap& unsafe_bitmap,
-    const gfx::Vector2d& cursor_offset_in_dip,
-    const gfx::Rect& drag_obj_rect_in_dip,
-    blink::mojom::DragEventSourceInfoPtr event_info) {
-  RenderFrameHost* source_rfh = source_document.AsRenderFrameHostIfValid();
-  if (!source_rfh) {
-    // This should be relatively rare: if the drag can't start because the
-    // source document is already gone, the input sequence is consumed and
-    // nothing will happen.
-    return;
-  }
-  if (source_rfh->IsInactiveAndDisallowActivation(
-          DisallowActivationReasonId::kStartDragging)) {
-    // Don't process dragging from inactive documents.
-    // TODO(crbug.com/523886022): Add more checks for e.g. visibility.
-    return;
-  }
-
-  StartDragging(*source_rfh, std::move(drag_data), drag_operations_mask,
-                unsafe_bitmap, cursor_offset_in_dip, drag_obj_rect_in_dip,
-                std::move(event_info));
-}
-#endif
 
 // static
 bool RenderWidgetHostImpl::DidVisualPropertiesSizeChange(
@@ -3655,12 +3573,6 @@ void RenderWidgetHostImpl::OnUpdateElementFocusForStylusWritingHandled(
 
 void RenderWidgetHostImpl::PassImeRenderWidgetHost(
     mojo::PendingRemote<blink::mojom::ImeRenderWidgetHost> pending_remote) {
-#if BUILDFLAG(IS_ANDROID)
-  if (!blink_frame_widget_) {
-    return;
-  }
-  blink_frame_widget_->PassImeRenderWidgetHost(std::move(pending_remote));
-#endif
 }
 
 void RenderWidgetHostImpl::SetMouseCapture(bool capture) {
@@ -3887,14 +3799,9 @@ RenderWidgetHostImpl::BindAndGenerateCreateFrameWidgetParams() {
   // We currently skip the early frame sink creation optimization on ChromeOS
   // due to issues with tab-dragging on tablet mode.
   // TODO(crbug.com/496408117): Make this work on ChromeOS too.
-#if !BUILDFLAG(IS_CHROMEOS)
   // We can't do early frame sink creation if synchronous compositor is used.
   const bool using_sync_compositing =
-#if BUILDFLAG(IS_ANDROID)
-      GetContentClient()->UsingSynchronousCompositing();
-#else
       false;
-#endif  // !BUILDFLAG(IS_ANDROID)
   if (!using_sync_compositing && GetProcess()->ShouldSendGpuChannelEarly()) {
     auto initial_frame_sink_params =
         blink::mojom::InitialFrameSinkParams::New();
@@ -3915,7 +3822,6 @@ RenderWidgetHostImpl::BindAndGenerateCreateFrameWidgetParams() {
                       std::move(initial_frame_sink_pipes_->viz_rir_client));
     }
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   params->visual_properties = GetInitialVisualProperties();
 
@@ -4030,14 +3936,7 @@ void RenderWidgetHostImpl::WindowSnapshotReachedScreen(int snapshot_id) {
   CHECK(base::CurrentUIThread::IsSet());
 
   if (!pending_browser_snapshots_.empty()) {
-#if BUILDFLAG(IS_ANDROID)
-    // On Android, call sites should pass in the bounds with correct offset
-    // to capture the intended content area.
-    gfx::Rect snapshot_bounds(GetView()->GetViewBounds());
-    snapshot_bounds.Offset(0, GetView()->GetNativeView()->content_offset());
-#else
     gfx::Rect snapshot_bounds(GetView()->GetViewBounds().size());
-#endif
 
     ui::GrabViewSnapshot(
         GetView()->GetNativeView(), snapshot_bounds,
@@ -4332,8 +4231,6 @@ std::unique_ptr<input::FlingSchedulerBase>
 RenderWidgetHostImpl::MakeFlingScheduler() {
 #if BUILDFLAG(IS_MAC)
   return std::make_unique<FlingSchedulerMac>(this);
-#elif BUILDFLAG(IS_ANDROID)
-  return std::make_unique<FlingSchedulerAndroid>(this);
 #else
   return std::make_unique<FlingScheduler>(this);
 #endif

@@ -47,11 +47,9 @@
 #include "services/network/public/cpp/simple_url_loader_stream_consumer.h"
 #include "services/network/public/mojom/url_response_head.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 #include "base/command_line.h"
 #include "content/public/browser/devtools_frontend_host.h"
 #include "content/shell/common/shell_switches.h"
-#endif
 
 namespace content {
 
@@ -194,7 +192,6 @@ ShellDevToolsBindings::~ShellDevToolsBindings() {
 
 void ShellDevToolsBindings::ReadyToCommitNavigation(
     NavigationHandle* navigation_handle) {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   content::RenderFrameHost* frame = navigation_handle->GetRenderFrameHost();
   if (navigation_handle->IsInPrimaryMainFrame()) {
     frontend_host_ = DevToolsFrontendHost::Create(
@@ -213,18 +210,13 @@ void ShellDevToolsBindings::ReadyToCommitNavigation(
       "%s(\"%s\")", it->second.c_str(),
       base::Uuid::GenerateRandomV4().AsLowercaseString().c_str());
   DevToolsFrontendHost::SetupExtensionsAPI(frame, script);
-#endif
 }
 
 void ShellDevToolsBindings::AttachInternal() {
   if (agent_host_) {
     agent_host_->DetachClient(this);
   }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  const bool create_for_tab = false;
-#else
   const bool create_for_tab = true;
-#endif
   agent_host_ = create_for_tab
                     ? DevToolsAgentHost::GetOrCreateForTab(inspected_contents_)
                     : DevToolsAgentHost::GetOrCreateFor(inspected_contents_);

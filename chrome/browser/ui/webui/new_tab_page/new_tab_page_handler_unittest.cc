@@ -90,13 +90,11 @@
 
 // TODO(b/502297163): Remove this guard once these desktop-only features are
 // enabled on Android.
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/hats/hats_service_factory.h"
 #include "chrome/browser/ui/hats/mock_hats_service.h"
 #include "chrome/browser/ui/views/side_panel/customize_chrome/side_panel_controller_views.h"
 #include "chrome/browser/ui/webui/side_panel/customize_chrome/customize_chrome_section.h"
 #include "chrome/browser/ui/webui/util/webui_util_desktop.h"
-#endif
 
 namespace {
 
@@ -123,10 +121,8 @@ class MockPage : public new_tab_page::mojom::Page {
               SetDisabledModules,
               (bool, const std::vector<std::string>&));
   MOCK_METHOD(void, SetModulesLoadable, ());
-#if !BUILDFLAG(IS_ANDROID)
   MOCK_METHOD(void, SetModulesFreVisibility, (bool));
   MOCK_METHOD(void, SetCustomizeChromeSidePanelVisibility, (bool));
-#endif
   MOCK_METHOD(void, SetActionChipsVisibility, (bool));
   MOCK_METHOD(void, ShowWebstoreToast, ());
   MOCK_METHOD(void, SetWallpaperSearchButtonVisibility, (bool));
@@ -227,14 +223,12 @@ class MockThemeProvider : public ui::ThemeProvider {
  public:
   MOCK_CONST_METHOD1(GetTint, color_utils::HSL(int));
   MOCK_CONST_METHOD1(GetDisplayProperty, int(int));
-#if !BUILDFLAG(IS_ANDROID)
   MOCK_CONST_METHOD1(GetImageSkiaNamed, gfx::ImageSkia*(int));
   MOCK_CONST_METHOD0(ShouldUseNativeFrame, bool());
   MOCK_CONST_METHOD1(HasCustomImage, bool(int));
   MOCK_CONST_METHOD2(
       GetRawData,
       scoped_refptr<base::RefCountedMemory>(int, ui::ResourceScaleFactor));
-#endif  // !BUILDFLAG(IS_ANDROID)
 };
 
 class MockThemeService : public ThemeService {
@@ -253,7 +247,6 @@ class MockThemeService : public ThemeService {
   ThemeHelper theme_helper_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 class MockCustomizeChromeTabHelper
     : public customize_chrome::SidePanelController {
  public:
@@ -279,7 +272,6 @@ int GetDictPrefKeyCount(Profile* profile,
   std::optional<int> count = counts_dict.FindInt(key);
   return count.has_value() ? count.value() : 0;
 }
-#endif
 
 }  // namespace
 
@@ -290,19 +282,15 @@ class NewTabPageHandlerTest : public testing::Test {
             MakeTestingProfile(test_url_loader_factory_.GetSafeWeakWrapper())),
         mock_ntp_custom_background_service_(profile_.get()),
         web_contents_(factory_.CreateWebContents(profile_.get()))
-#if !BUILDFLAG(IS_ANDROID)
         ,
         mock_customize_chrome_tab_helper_(
             std::make_unique<MockCustomizeChromeTabHelper>())
-#endif
   {
-#if !BUILDFLAG(IS_ANDROID)
     mock_hats_service_ = static_cast<MockHatsService*>(
         HatsServiceFactory::GetInstance()->SetTestingFactoryAndUse(
             profile_.get(), base::BindRepeating(&BuildMockHatsService)));
     EXPECT_CALL(*mock_hats_service(), CanShowAnySurvey(_))
         .WillRepeatedly(testing::Return(true));
-#endif
   }
 
   ~NewTabPageHandlerTest() override = default;
@@ -328,11 +316,9 @@ class NewTabPageHandlerTest : public testing::Test {
     }
     web_contents_->SetColorProviderSource(&mock_color_provider_source_);
 
-#if !BUILDFLAG(IS_ANDROID)
     webui::SetThemeProviderForTestingDeprecated(&mock_theme_provider_);
     EXPECT_FALSE(
         mock_customize_chrome_tab_helper_->IsCustomizeChromeEntryShowing());
-#endif
     handler_ = std::make_unique<NewTabPageHandler>(
         mojo::PendingReceiver<new_tab_page::mojom::PageHandler>(),
         mock_page_.BindAndGetRemote(), profile_.get(),
@@ -396,11 +382,9 @@ class NewTabPageHandlerTest : public testing::Test {
 
   testing::NiceMock<MockThemeService> mock_theme_service_;
   testing::NiceMock<MockThemeProvider> mock_theme_provider_;
-#if !BUILDFLAG(IS_ANDROID)
   MockHatsService* mock_hats_service() { return mock_hats_service_; }
   std::unique_ptr<MockCustomizeChromeTabHelper>
       mock_customize_chrome_tab_helper_;
-#endif
 
   std::unique_ptr<NewTabPageHandler> handler_;
   raw_ptr<ThemeServiceObserver> theme_service_observer_;
@@ -410,12 +394,9 @@ class NewTabPageHandlerTest : public testing::Test {
  private:
   const std::vector<ntp::ModuleIdDetail> module_id_details = {
       {ntp_modules::kDriveModuleId, IDS_NTP_MODULES_DRIVE_NAME}};
-#if !BUILDFLAG(IS_ANDROID)
   raw_ptr<MockHatsService> mock_hats_service_;
-#endif
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 class NewTabPageHandlerThemeTest : public NewTabPageHandlerTest,
                                    public ::testing::WithParamInterface<bool> {
  public:
@@ -787,7 +768,6 @@ TEST_P(NewTabPageHandlerThemeTest, SetThirdPartyTheme) {
 }
 
 INSTANTIATE_TEST_SUITE_P(All, NewTabPageHandlerThemeTest, ::testing::Bool());
-#endif
 
 TEST_F(NewTabPageHandlerTest, Histograms) {
   histogram_tester_.ExpectTotalCount(
@@ -1476,7 +1456,6 @@ TEST_F(NewTabPageHandlerTest, SetModulesDisabledEmptyList) {
             profile_->GetPrefs()->GetList(prefs::kNtpDisabledModules));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(NewTabPageHandlerTest, SurveyLaunchedEligibleModulesCriteria) {
   base::test::ScopedFeatureList features;
   features.InitWithFeaturesAndParameters(
@@ -1525,7 +1504,6 @@ TEST_F(NewTabPageHandlerTest, SurveyLaunchSkippedEligibleModulesCriteria) {
                                prefs::kNtpModulesLoadedCountDict, module_id));
   }
 }
-#endif
 
 TEST_F(NewTabPageHandlerTest, SetModuleDisabled) {
   base::ListValue disabled_modules_list;
@@ -1714,7 +1692,6 @@ TEST_F(NewTabPageHandlerTest, UpdateActionChipsVisibility) {
   EXPECT_TRUE(profile_->GetPrefs()->GetBoolean(prefs::kNtpToolChipsVisible));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(NewTabPageHandlerTest, ShowWebstoreToast) {
   profile_->GetPrefs()->SetInteger(prefs::kSeedColorChangeCount, 1);
 
@@ -1728,7 +1705,6 @@ TEST_F(NewTabPageHandlerTest, DoNotShowWebstoreToastOnCountExceeded) {
   EXPECT_CALL(mock_page_, ShowWebstoreToast).Times(0);
   mock_page_.FlushForTesting();
 }
-#endif
 
 TEST_F(NewTabPageHandlerTest, IncrementComposeButtonShownCount) {
   EXPECT_EQ(profile_->GetPrefs()->GetInteger(
@@ -1742,7 +1718,6 @@ TEST_F(NewTabPageHandlerTest, IncrementComposeButtonShownCount) {
             1);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class NewTabPageHandlerHaTSTest : public NewTabPageHandlerTest {
  public:
   static constexpr char kSampleModuleId[] = "sample_module_id";
@@ -1867,7 +1842,6 @@ TEST_F(NewTabPageHandlerHaTSTest, InteractedModuleDoesNotTriggerIgnoredHaTS) {
       GetDictPrefKeyCount(profile_.get(), prefs::kNtpModulesLoadedCountDict,
                           NewTabPageHandlerHaTSTest::kSampleModuleId));
 }
-#endif
 
 TEST_F(NewTabPageHandlerTest, RealboxContextMenuAnimation) {
   PrefService* prefs = profile_->GetPrefs();

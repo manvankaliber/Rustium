@@ -13,29 +13,11 @@
 namespace ui {
 
 Clipboard* Clipboard::Create() {
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS builds (both on-device and linux-chromeos), always use
-  // ClipboardNonBacked so that Ash clipboard features (e.g. ClipboardHistory)
-  // function properly. On linux-chromeos with --use-system-clipboard,
-  // ClipboardNonBacked bridges to Ozone's PlatformClipboard (e.g.
-  // X11ClipboardOzone).
-  auto* clipboard = new ClipboardNonBacked;
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kUseSystemClipboard) &&
-      OzonePlatform::IsInitialized()) {
-    if (auto* platform_clipboard =
-            OzonePlatform::GetInstance()->GetPlatformClipboard()) {
-      clipboard->SetPlatformClipboard(platform_clipboard);
-    }
-  }
-  return clipboard;
-#else
   // On Linux Desktop, Ozone's Clipboard impl is always used.
   if (OzonePlatform::GetInstance()->GetPlatformClipboard()) {
     return new ClipboardOzone;
   }
   return new ClipboardNonBacked;
-#endif
 }
 
 }  // namespace ui

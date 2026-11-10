@@ -135,14 +135,6 @@ source_set("test_support") {
 
 test("blink_heap_unittests") {
   deps = [ ":blink_heap_unittests_sources" ]
-
-  if (is_android) {
-    deps += [
-      "//content/shell/android:content_shell_assets",
-      "//net/android:net_java",
-      "//ui/android:ui_full_java",
-    ]
-  }
 }
 
 source_set("blink_heap_unittests_sources") {
@@ -192,14 +184,6 @@ test("blink_heap_perftests") {
   configs += [ "//build/config/compiler:thinlto_optimize_max" ]
 
   deps = [ ":blink_heap_perftests_sources" ]
-
-  if (is_android) {
-    deps += [
-      "//content/shell/android:content_shell_assets",
-      "//net/android:net_java",
-      "//ui/android:ui_full_java",
-    ]
-  }
 }
 
 source_set("blink_heap_perftests_sources") {

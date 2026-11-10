@@ -22,7 +22,7 @@
 #include "third_party/blink/public/mojom/page/widget.mojom-test-utils.h"
 #include "ui/gfx/geometry/rect.h"
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
 #include <vector>
 
 #include "mojo/public/cpp/bindings/pending_remote.h"
@@ -85,7 +85,7 @@ class ShowPopupWidgetWaiter
   void Wait();
 
  private:
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
   // Helper that waits for a `ShowPopupMenu()` call and then invokes the
   // observer callback with the requested bounds.  The actual call to show the
   // popup menu is treated as if it were cancelled.
@@ -129,7 +129,7 @@ class ShowPopupWidgetWaiter
                  ShowPopupCallback callback) override;
 
   CreateNewPopupWidgetInterceptor create_new_popup_widget_interceptor_;
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
   ShowPopupMenuInterceptor show_popup_menu_interceptor_;
 #endif
   base::RunLoop run_loop_;

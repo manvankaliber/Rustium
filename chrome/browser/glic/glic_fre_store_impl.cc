@@ -25,13 +25,11 @@
 #include "chrome/common/chrome_switches.h"
 #include "components/prefs/pref_service.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/background/glic/glic_launcher_configuration.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/profile_browser_collection.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
 #include "components/feature_engagement/public/event_constants.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace glic {
 
@@ -62,7 +60,6 @@ class GeminiGlicFreStore final : public GlicFreStore {
     }
     SetStatus(profile, prefs::FreStatus::kCompleted);
 
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
     GlicLauncherConfiguration::CheckDefaultBrowserToEnableLauncher();
 
     BrowserWindowInterface* browser =
@@ -71,7 +68,6 @@ class GeminiGlicFreStore final : public GlicFreStore {
       interface->NotifyAdditionalConditionEvent(
           feature_engagement::events::kGlicOnboardingCompleted);
     }
-#endif  // !BUILDFLAG(IS_ANDROID)
   }
 
   void ResetForDebugging(Profile* profile) const override {

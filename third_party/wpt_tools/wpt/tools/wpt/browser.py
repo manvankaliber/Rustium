@@ -9,7 +9,6 @@ import stat
 import subprocess
 import sys
 import tempfile
-from abc import ABCMeta, abstractmethod
 from datetime import datetime, timedelta, timezone
 from shutil import which
 from typing import Any, Dict, List, Mapping, Optional, Tuple
@@ -428,48 +427,6 @@ class FirefoxVcsResources:
         return [max(tags)[1], default]
 
 
-class FirefoxAndroidVcsResources(FirefoxVcsResources):
-    def get_openh264_data(self, binary: Optional[str], channel: Optional[str]) -> Optional[Mapping[str, Any]]:
-        raise NotImplementedError
-
-    def get_git_refs(self, version: Optional[str], channel: str, rev: Optional[str]) -> List[str]:
-        if rev is not None:
-            return [rev]
-
-        tags = []
-        ref_prefix = "FIREFOX-ANDROID_"
-        ref_re = None
-        default = None
-        if channel == "stable":
-            default = "release"
-            if version is not None:
-                return ["FIREFOX-ANDROID_%s_RELEASE" % version.replace(".", "_")]
-
-            ref_re = re.compile(r"FIREFOX-ANDROID_(\d+)_(\d+)(?:_(\d+))?_RELEASE")
-
-        elif channel == "beta":
-            default = "beta"
-            if version:
-                ref_prefix = "FIREFOX-ANDROID_%s" % version.replace(".", "_")
-            ref_re = re.compile(r"FIREFOX-ANDROID_(\d+)_(\d+)b(\d+)_RELEASE")
-        else:
-            return ["main"]
-
-        assert ref_re is not None
-        for tag in self.get_git_tags(ref_prefix):
-            m = ref_re.match(tag)
-            if m is None:
-                continue
-            order = [int(item) for item in m.groups() if item is not None]
-            tags.append((tuple(order), tag))
-
-        if not tags:
-            self.logger.warning(f"No tag found for {version} {channel}")
-            return [default]
-
-        return [max(tags)[1], default]
-
-
 class Firefox(Browser):
     """Firefox-specific interface.
 
@@ -795,60 +752,6 @@ class Firefox(Browser):
         if not m:
             return None
         return m.group(1)
-
-
-class FirefoxAndroid(Browser):
-    """Android-specific Firefox interface."""
-
-    product = "firefox_android"
-    requirements = "requirements_firefox.txt"
-
-    def __init__(self, logger):
-        super().__init__(logger)
-        self.apk_path = None
-        self._fx_browser = Firefox(self.logger)
-
-    def download(self, dest=None, channel=None, rename=None, url=None):
-        if url is None:
-            if dest is None:
-                dest = os.pwd
-
-            branches = {
-                "stable": "mozilla-release",
-                "beta": "mozilla-beta",
-            }
-            branch = branches.get(channel, "mozilla-central")
-
-            resp = get_taskcluster_artifact(
-                f"gecko.v2.{branch}.shippable.latest.mobile.android-x86_64-opt",
-                "public/build/geckoview-test_runner.apk")
-        else:
-            resp = get(url)
-
-        filename = "geckoview-test_runner.apk"
-        if rename:
-            filename = "%s%s" % (rename, get_ext(filename)[1])
-        self.apk_path = os.path.join(dest, filename)
-
-        with open(self.apk_path, "wb") as f:
-            f.write(resp.content)
-
-        return self.apk_path
-
-    def install(self, dest=None, channel=None, url=None):
-        return self.download(dest, channel, url)
-
-    def install_prefs(self, binary, dest=None, channel=None):
-        return FirefoxAndroidVcsResources(self.logger).install_prefs(binary, dest, channel)
-
-    def find_binary(self, venv_path=None, channel=None):
-        return self.apk_path
-
-    def find_webdriver(self, venv_path=None, channel=None):
-        return self._fx_browser.find_webdriver(venv_path, channel)
-
-    def install_webdriver(self, dest=None, channel=None, browser_binary=None):
-        return self._fx_browser.install_webdriver(dest, channel, None)
 
 
 class ChromeChromiumBase(Browser):
@@ -1700,128 +1603,6 @@ class HeadlessShell(ChromeChromiumBase):
     def version(self, binary=None, webdriver_binary=None):
         # TODO(crbug.com/327767951): Support `headless_shell --version`.
         return "N/A"
-
-
-class ChromeAndroidBase(Browser, metaclass=ABCMeta):
-    """A base class for ChromeAndroid and AndroidWebView.
-
-    On Android, WebView is based on Chromium open source project, and on some
-    versions of Android we share the library with Chrome. Therefore, we have
-    a very similar WPT runner implementation.
-    Includes webdriver installation.
-    """
-
-    def __init__(self, logger):
-        super().__init__(logger)
-        self.device_serial = None
-        self.adb_binary = "adb"
-
-    @abstractmethod
-    def find_binary(self, venv_path=None, channel=None):
-        pass
-
-    def find_webdriver(self, venv_path=None, channel=None):
-        return which("chromedriver")
-
-    def install_webdriver(self, dest=None, channel=None, browser_binary=None):
-        if browser_binary is None:
-            browser_binary = self.find_binary(channel)
-        chrome = Chrome(self.logger)
-        return chrome.install_webdriver_by_version(self.version(browser_binary), dest, channel)
-
-    def version(self, binary=None, webdriver_binary=None):
-        if not binary:
-            self.logger.warning("No package name provided.")
-            return None
-
-        command = [self.adb_binary]
-        if self.device_serial:
-            # Assume we have same version of browser on all devices
-            command.extend(['-s', self.device_serial[0]])
-        command.extend(['shell', 'dumpsys', 'package', binary])
-        try:
-            output = call(*command)
-        except (subprocess.CalledProcessError, OSError):
-            self.logger.warning("Failed to call %s" % " ".join(command))
-            return None
-        match = re.search(r'versionName=(.*)', output)
-        if not match:
-            self.logger.warning("Failed to find versionName")
-            return None
-        return match.group(1)
-
-
-class ChromeAndroid(ChromeAndroidBase):
-    """Chrome-specific interface for Android.
-    """
-
-    product = "chrome_android"
-    requirements = "requirements_chromium.txt"
-
-    def find_binary(self, venv_path=None, channel=None):
-        if channel in ("beta", "dev", "canary"):
-            return "com.chrome." + channel
-        return "com.android.chrome"
-
-
-class AndroidWebview(ChromeAndroidBase):
-    """Webview-specific interface for Android.
-
-    Design doc:
-    https://docs.google.com/document/d/19cGz31lzCBdpbtSC92svXlhlhn68hrsVwSB7cfZt54o/view
-    """
-
-    product = "android_webview"
-    requirements = "requirements_chromium.txt"
-
-    def find_binary(self, venv_path=None, channel=None):
-        # Just get the current package name of the WebView provider.
-        # For WebView, it is not trivial to change the WebView provider, so
-        # we will just grab whatever is available.
-        # https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/channels.md
-        command = [self.adb_binary]
-        if self.device_serial:
-            command.extend(['-s', self.device_serial[0]])
-        command.extend(['shell', 'dumpsys', 'webviewupdate'])
-        try:
-            output = call(*command)
-        except (subprocess.CalledProcessError, OSError):
-            self.logger.warning("Failed to call %s" % " ".join(command))
-            return None
-        m = re.search(r'^\s*Current WebView package \(name, version\): \((.*), ([0-9.]*)\)$',
-                      output, re.M)
-        if m is None:
-            self.logger.warning("Unable to find current WebView package in dumpsys output")
-            return None
-        self.logger.warning("Final package name: " + m.group(1))
-        return m.group(1)
-
-
-class ChromeiOS(Browser):
-    """Chrome-specific interface for iOS.
-    """
-
-    product = "chrome_ios"
-    requirements = None
-
-    def version(self, binary=None, webdriver_binary=None):
-        if webdriver_binary is None:
-            self.logger.warning(
-                "Cannot find ChromeiOS version without CWTChromeDriver")
-            return None
-        # Use `chrome iOS driver --version` to get the version. Example output:
-        # "125.0.6378.0"
-        try:
-            version_string = call(webdriver_binary, "--version").strip()
-        except subprocess.CalledProcessError as e:
-            self.logger.warning(f"Failed to call {webdriver_binary}: {e}")
-            return None
-        m = re.match(r"[\d][\d\.]*", version_string)
-        if not m:
-            self.logger.warning(
-                f"Failed to extract version from: {version_string}")
-            return None
-        return m.group(0)
 
 
 class Opera(Browser):

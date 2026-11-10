@@ -154,25 +154,11 @@ disk_cache::BackendResult HttpCache::DefaultBackend::CreateBackend(
       hard_reset_ ? disk_cache::ResetHandling::kReset
                   : disk_cache::ResetHandling::kResetOnError;
   UMA_HISTOGRAM_BOOLEAN("HttpCache.HardReset", hard_reset_);
-#if BUILDFLAG(IS_ANDROID)
-  if (app_status_listener_getter_) {
-    return disk_cache::CreateCacheBackend(
-        type_, backend_type_, file_operations_factory_, path_, max_bytes_,
-        reset_handling, net_log, cache_encryption_delegate_,
-        std::move(callback), app_status_listener_getter_);
-  }
-#endif
   return disk_cache::CreateCacheBackend(
       type_, backend_type_, file_operations_factory_, path_, max_bytes_,
       reset_handling, net_log, cache_encryption_delegate_, std::move(callback));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void HttpCache::DefaultBackend::SetAppStatusListenerGetter(
-    disk_cache::ApplicationStatusListenerGetter app_status_listener_getter) {
-  app_status_listener_getter_ = std::move(app_status_listener_getter);
-}
-#endif
 
 std::optional<CacheType> HttpCache::BackendFactory::GetCacheType() const {
   return std::nullopt;
@@ -219,7 +205,6 @@ void HttpCache::DefaultBackend::HasExistingFileToLoad(
 // is called when the browser process creates a NetworkContext, and that
 // function explicitly ensures the/ cache directory is created.
 // Thus we need to check if cache files actually exist.
-#if !BUILDFLAG(IS_ANDROID)
             if (!ops->PathExists(path)) {
               return false;
             }
@@ -229,18 +214,6 @@ void HttpCache::DefaultBackend::HasExistingFileToLoad(
 // For Android, we don't create the directory so checking
 // the directory is enough and we should minimize file operations
 // as much as possible during browser startup.
-#else
-            if (!ops->PathExists(path)) {
-              return false;
-            }
-            bool did_delete_empty_index =
-                disk_cache::DeleteIndexFilesIfCacheIsEmpty(path);
-            if (did_delete_empty_index) {
-              ops->DeleteFile(path);
-              return false;
-            }
-            return true;
-#endif
           },
           std::move(file_ops), path_),
       std::move(callback));

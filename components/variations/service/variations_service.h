@@ -71,9 +71,6 @@ class RuntimeMutableFeaturesHandlerBase;
 
 namespace variations {
 
-#if BUILDFLAG(IS_CHROMEOS)
-class DeviceVariationsRestrictionByPolicyApplicator;
-#endif
 
 // When enabled, runtime mutable field trials from the periodically fetched
 // seeds will be applied to the current session.
@@ -625,10 +622,6 @@ class VariationsService
   // `kMaxRuntimeMutableSeedRetries`) and is never reset.
   int runtime_mutable_seed_retry_count_ = 0;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<DeviceVariationsRestrictionByPolicyApplicator>
-      device_variations_restrictions_by_policy_applicator_;
-#endif
 
   SEQUENCE_CHECKER(sequence_checker_);
 

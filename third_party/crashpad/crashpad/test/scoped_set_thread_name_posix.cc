@@ -26,8 +26,6 @@
 
 #if BUILDFLAG(IS_APPLE)
 #include <mach/thread_info.h>
-#elif BUILDFLAG(IS_ANDROID)
-#include <sys/prctl.h>
 #endif
 
 namespace crashpad {
@@ -37,7 +35,7 @@ namespace {
 
 #if BUILDFLAG(IS_APPLE)
 constexpr size_t kPthreadNameMaxLen = MAXTHREADNAMESIZE;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
 // The kernel headers define this in linux/sched.h as TASK_COMM_LEN, but the
 // userspace copy of that header does not define it.
 constexpr size_t kPthreadNameMaxLen = 16;

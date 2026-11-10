@@ -53,7 +53,6 @@ HoverType GetPrimaryHoverType() {
   return GetPrimaryHoverType(available_pointer_types, available_hover_types);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 PointerType GetPrimaryPointerType(int available_pointer_types) {
   if (available_pointer_types & POINTER_TYPE_FINE) {
     return POINTER_TYPE_FINE;
@@ -74,7 +73,6 @@ HoverType GetPrimaryHoverType(int available_pointer_types,
   CHECK_EQ(available_hover_types, HOVER_TYPE_NONE, base::NotFatalUntil::M163);
   return HOVER_TYPE_NONE;
 }
-#endif
 
 #if !BUILDFLAG(IS_WIN)
 std::optional<PointerDevice> GetPointerDevice(PointerDevice::Key key) {

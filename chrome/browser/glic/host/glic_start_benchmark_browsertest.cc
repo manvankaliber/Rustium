@@ -52,18 +52,14 @@
 #include "net/test/embedded_test_server/http_response.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/signin/e2e_tests/signin_util.h"
-#endif
 
 namespace glic {
 
 namespace {
-#if !BUILDFLAG(IS_ANDROID)
 constexpr base::FilePath::StringViewType kTestAccountFilePath =
     FILE_PATH_LITERAL(
         "chrome/browser/internal/resources/signin/test_accounts.json");
-#endif
 
 bool IsProdMode() {
   return base::CommandLine::ForCurrentProcess()->HasSwitch(
@@ -328,14 +324,6 @@ class GlicInitializationBenchmark
       disabled.push_back(features::kGlicNoWebview);
     }
 
-#if BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_DESKTOP_ANDROID)
-    // Mobile Android does not warm a spare renderer by default in production
-    // (neither kSitePerProcess nor kAndroidWarmUpSpareRendererWithTimeout is
-    // enabled by default). Disable the fieldtrial_testing_config.json study so
-    // the benchmark measures Mobile Android's real no-spare behavior rather
-    // than warming a one-off spare after the warmup tab loads.
-    disabled.push_back(::features::kAndroidWarmUpSpareRendererWithTimeout);
-#endif
 
     if (IsProdMode()) {
       // Use real Gaia sign-in with the OTA rather than fake IdentityManager.
@@ -374,7 +362,6 @@ class GlicInitializationBenchmark
   }
 
   void SignInForProdModeIfNeeded() {
-#if !BUILDFLAG(IS_ANDROID)
     if (!IsProdMode()) {
       return;
     }
@@ -414,7 +401,6 @@ class GlicInitializationBenchmark
     SetGlicCapability(GetProfile(), true);
     SetFRECompletion(GetProfile(), prefs::FreStatus::kCompleted);
     coordinator().GetWebContentsWarmingPoolForTesting().Shutdown();
-#endif
   }
 
   // Warms the network service (disk cache backend, cookie store, cert verifier,

@@ -16,7 +16,7 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include <unistd.h>
 #endif
 
@@ -24,7 +24,7 @@ namespace crashpad {
 namespace test {
 
 ProcessType GetSelfProcess() {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   return getpid();
 #elif BUILDFLAG(IS_WIN)
   return GetCurrentProcess();

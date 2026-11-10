@@ -57,10 +57,8 @@
 #include "ui/views/mouse_watcher_view_host.h"
 #include "ui/views/view_class_properties.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/feature_list.h"
 #include "base/time/time.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace {
 

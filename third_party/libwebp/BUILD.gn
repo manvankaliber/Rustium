@@ -29,12 +29,11 @@ config("libwebp_config") {
   ]
 
   # WEBP_REDUCE_SIZE is defined for non-desktop platforms only.
-  if (!is_chromeos && !is_win && !is_mac && !is_linux) {
+  if (!is_win && !is_mac && !is_linux) {
     defines += [ "WEBP_REDUCE_SIZE" ]
   }
-  if (!is_ios) {
-    defines += [ "WEBP_REDUCE_CSP" ]
-  }
+
+  defines += [ "WEBP_REDUCE_CSP" ]
 }
 
 set_opt_level =
@@ -217,9 +216,7 @@ static_library("libwebp_dsp") {
     deps += [ ":libwebp_dsp_neon" ]
   }
   public_deps = [ ":libwebp_dsp_headers" ]
-  if (is_android) {
-    deps += [ "//third_party/cpu_features:ndk_compat" ]
-  }
+
   if (current_cpu == "x86" || current_cpu == "x64") {
     defines = [
       "WEBP_HAVE_SSE2",

@@ -39,10 +39,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif
 
 #if BUILDFLAG(ENABLE_WEBUI_NTP)
 #include "chrome/browser/search/instant_service.h"
@@ -176,31 +172,12 @@ struct NewTabURLDetails {
 
     const bool default_is_google = DefaultSearchProviderIsGoogle(profile);
 
-#if BUILDFLAG(IS_ANDROID)
-    const bool is_desktop_android = IsWebUiNtpEnabledForDesktopAndroid();
-    GURL local_url(
-        is_desktop_android ? chrome::ChromeUINewTabPageURLAsGURL() : GURL());
-    if (is_desktop_android) {
-      if (default_is_google) {
-        return NewTabURLDetails(local_url, NEW_TAB_URL_VALID);
-      } else {
-        // If the WebUI NTP 3PDSE flag is not enabled, then fallback to using
-        // the native Java NTP.
-        if (!base::FeatureList::IsEnabled(chrome::android::kUseWebUiNtp3PDSE)) {
-          return NewTabURLDetails(GURL(chrome::kChromeUINativeNewTabURL),
-                                  NEW_TAB_URL_VALID);
-        }
-        local_url = GURL(chrome::kChromeUINewTabPageThirdPartyURL);
-      }
-    }
-#else
     const GURL local_url(default_is_google
                              ? chrome::ChromeUINewTabPageURLAsGURL()
                              : GURL(chrome::kChromeUINewTabPageThirdPartyURL));
     if (default_is_google) {
       return NewTabURLDetails(local_url, NEW_TAB_URL_VALID);
     }
-#endif
 
     const TemplateURL* template_url =
         GetDefaultSearchProviderTemplateURL(profile);
@@ -328,17 +305,7 @@ bool IsNTPURL(const GURL& url) {
       url.host() == chrome::kChromeSearchRemoteNtpHost) {
     return true;
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (IsWebUiNtpEnabledForDesktopAndroid()) {
-    if (IsNewTabPageOrigin(url) || IsThirdPartyNewTabPageOrigin(url)) {
-      return true;
-    }
-  }
-  return url.SchemeIs(chrome::kChromeNativeScheme) &&
-         url.host() == chrome::kChromeUINewTabHost;
-#else
   return IsNewTabPageOrigin(url) || IsThirdPartyNewTabPageOrigin(url);
-#endif
 }
 
 bool IsInstantNTP(content::WebContents* contents) {
@@ -382,12 +349,7 @@ bool IsInstantNTPURL(const GURL& url, Profile* profile) {
 }
 
 bool IsWebUiNtpEnabledForDesktopAndroid() {
-#if BUILDFLAG(IS_ANDROID)
-  return base::android::device_info::is_desktop() &&
-         base::FeatureList::IsEnabled(chrome::android::kUseWebUiNtpAndroid);
-#else
   return false;
-#endif
 }
 
 bool IsSplitViewNewTabPage(const GURL& url) {

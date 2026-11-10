@@ -26,7 +26,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
 #include "chrome/browser/ui/tabs/tab_list_bridge.h"
@@ -38,7 +37,6 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/test/test_renderer_host.h"
 #include "content/public/test/web_contents_tester.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace actor {
 
@@ -54,7 +52,6 @@ auto MatchUrl(std::string_view url) {
   return Field("url", &PageMatch::url, GURL(url));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 auto MatchTab(tabs::TabInterface* tab) {
   return Field("handle", &TabMatch::handle, tab->GetHandle());
 }
@@ -114,7 +111,6 @@ class TestBrowserInstance {
   TabStripModel tab_strip_model_;
   TabListBridge tab_list_bridge_;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -229,7 +225,6 @@ class PageSearchUtilsTest : public testing::Test {
 
  protected:
   content::BrowserTaskEnvironment task_environment_;
-#if !BUILDFLAG(IS_ANDROID)
   // TabModel eagerly initializes real TabFeatures for every tab it creates.
   // One of them, PinnedTranslateActionListener, fires on tab activation and
   // calls BrowserActions::From(browser)->root_action_item(). The mock window
@@ -237,7 +232,6 @@ class PageSearchUtilsTest : public testing::Test {
   // crashes. None of these features are under test here, so skip them.
   tabs::TabModel::PreventFeatureInitializationForTesting prevent_tab_features_;
   content::RenderViewHostTestEnabler rvh_test_enabler_;
-#endif  // !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<TestingProfile> profile_;
   raw_ptr<bookmarks::BookmarkModel> bookmark_model_ = nullptr;
   raw_ptr<history::HistoryService> history_service_ = nullptr;
@@ -361,7 +355,6 @@ TEST_F(PageSearchUtilsTest, FindMatchingHistory_MatchesVisits) {
   EXPECT_THAT(no_match_future.Get(), IsEmpty());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(PageSearchUtilsTest, FindMatchingTabs_EmptyAndNull) {
   TestBrowserInstance browser_instance(profile());
   EXPECT_THAT(FindMatchingTabs(nullptr, "test"), IsEmpty());
@@ -500,6 +493,5 @@ TEST_F(PageSearchUtilsTest, ResolveTabInWindow_RejectsNullBrowser) {
   ASSERT_EQ(matches.size(), 1u);
   EXPECT_EQ(ResolveTabInWindow(matches[0], nullptr), nullptr);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace actor

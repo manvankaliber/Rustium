@@ -57,7 +57,7 @@ ffmpeg_nasm_include_dirs = []
 ffmpeg_c_deps = []
 ffmpeg_asm_deps = []
 
-use_linux_config = is_linux || is_chromeos
+use_linux_config = is_linux
 
 """
 GN_CONDITION_BEGIN = """if (%s) {
@@ -82,7 +82,7 @@ Attr = collections.namedtuple('Attr', _Attrs)(*_Attrs)
 SUPPORT_MATRIX = {
     Attr.ARCHITECTURE: set(['ia32', 'x64', 'arm64', 'arm-neon', 'riscv64']),
     Attr.TARGET: set(['Chromium', 'Chrome']),
-    Attr.PLATFORM: set(['android', 'linux', 'win', 'mac']),
+    Attr.PLATFORM: set(['linux', 'win', 'mac']),
 }
 
 

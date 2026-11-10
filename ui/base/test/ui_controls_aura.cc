@@ -27,11 +27,11 @@ void CheckUIControlsEnabled() {
 
 }  // namespace
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_WIN)
+#if !BUILDFLAG(IS_WIN)
 void EnableUIControls() {
   g_ui_controls_enabled = true;
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_WIN)
+#endif
 
 void ResetUIControlsIfEnabled() {}
 
@@ -163,22 +163,6 @@ bool SendTouchEvents(int action, int num, int x, int y) {
   CheckUIControlsEnabled();
   return g_instance->SendTouchEvents(action, num, x, y);
 }
-#elif BUILDFLAG(IS_CHROMEOS)
-// static
-bool SendTouchEvents(int action, int id, int x, int y) {
-  return SendTouchEventsNotifyWhenDone(action, id, x, y, base::OnceClosure());
-}
-
-// static
-bool SendTouchEventsNotifyWhenDone(int action,
-                                   int id,
-                                   int x,
-                                   int y,
-                                   base::OnceClosure task) {
-  CheckUIControlsEnabled();
-  return g_instance->SendTouchEventsNotifyWhenDone(action, id, x, y,
-                                                   std::move(task));
-}
 #endif
 
 UIControlsAura::UIControlsAura() {
@@ -187,13 +171,13 @@ UIControlsAura::UIControlsAura() {
 UIControlsAura::~UIControlsAura() {
 }
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 // static. declared in ui_controls.h
 void InstallUIControlsAura(UIControlsAura* instance) {
   g_ui_controls_enabled = true;
   delete g_instance;
   g_instance = instance;
 }
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#endif
 
 }  // namespace ui_controls

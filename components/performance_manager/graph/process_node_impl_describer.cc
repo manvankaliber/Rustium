@@ -77,11 +77,6 @@ base::Value GetProcessValueDict(const base::Process& process) {
     ret.Set("is_current", true);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (process.GetPidInNamespace() != base::kNullProcessId) {
-    ret.Set("pid_in_namespace", process.GetPidInNamespace());
-  }
-#endif
 
 #if BUILDFLAG(IS_WIN)
   // Creation time is always available on Windows, even for dead processes.
@@ -96,7 +91,7 @@ base::Value GetProcessValueDict(const base::Process& process) {
 #if !BUILDFLAG(IS_APPLE)
     ret.Set("priority", base::ProcessPriorityToString(process.GetPriority()));
 #endif
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN)
+#if !BUILDFLAG(IS_WIN)
     ret.Set("creation_time",
             base::TimeFormatTimeOfDayWithMilliseconds(process.CreationTime()));
 #endif

@@ -36,10 +36,6 @@
 #include "content/public/browser/browser_thread.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chrome/browser/ui/ash/login/login_display_host.h"
-#endif
 
 using content::BrowserThread;
 
@@ -121,15 +117,12 @@ void SetBrowserStartupIsComplete(StartupIsCompleteReason reason) {
     return;
 
   size_t browser_count = 0;
-#if !BUILDFLAG(IS_ANDROID)
   browser_count = GlobalBrowserCollection::GetInstance()->GetSize();
-#endif  // !BUILDFLAG(IS_ANDROID)
   TRACE_EVENT_INSTANT1("startup", "Startup.StartupComplete",
                        TRACE_EVENT_SCOPE_GLOBAL, "BrowserCount", browser_count);
   GetStartupCompleteFlag().Set();
   base::UmaHistogramEnumeration("Startup.BrowserStartupCompleteReason", reason);
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   // Process::Current().CreationTime() is not available on all platforms.
   const base::Time process_creation_time =
       base::Process::Current().CreationTime();
@@ -152,7 +145,6 @@ bool g_is_monitoring_started = false;
 
 // For Android, startup completion is signaled via AfterStartupTaskUtils.java.
 // We do not use the StartupObserver or startup refs on Android.
-#if !BUILDFLAG(IS_ANDROID)
 // We initialize `g_ref_count` to 1 to represent the startup sequence itself.
 // This implicit reference is released in `BeginMonitoringStartupCompletion()`
 // when the startup sequence finishes registering its initial tasks. This
@@ -341,15 +333,6 @@ class StartupObserver : public performance_manager::GraphOwned,
 bool IsSilentStartupWithoutWindow() {
   const base::CommandLine& command_line =
       *base::CommandLine::ForCurrentProcess();
-#if BUILDFLAG(IS_CHROMEOS)
-  // On the ChromeOS login/OOBE screen (--login-manager), --no-startup-window
-  // may still be passed (e.g. by test harnesses) while OOBE WebUI loads in
-  // LoginDisplayHost. Non-WebUI login screens are already handled in
-  // FinishStartupRegistration().
-  if (command_line.HasSwitch(ash::switches::kLoginManager)) {
-    return false;
-  }
-#endif
   return command_line.HasSwitch(switches::kNoStartupWindow) ||
          command_line.HasSwitch(switches::kSilentLaunch);
 }
@@ -380,7 +363,6 @@ void StartupObserver::Start(performance_manager::Graph* graph) {
   // notified when loading completes. The performance manager takes ownership.
   graph->PassToGraph(base::WrapUnique(new StartupObserver()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -389,11 +371,9 @@ void AfterStartupTaskUtils::BeginMonitoringStartupCompletion() {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M162);
   CHECK(!g_is_monitoring_started);
   performance_manager::Graph* graph = nullptr;
-#if !BUILDFLAG(IS_ANDROID)
   // StartupObserver isn't used on Android, so no need for PerformanceManager.
   CHECK(performance_manager::PerformanceManager::IsAvailable());
   graph = performance_manager::PerformanceManager::GetGraph();
-#endif  // !BUILDFLAG(IS_ANDROID)
   AfterStartupTaskUtils::FinishStartupRegistration(graph);
 }
 
@@ -412,27 +392,13 @@ void AfterStartupTaskUtils::FinishStartupRegistration(
     performance_manager::Graph* graph) {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M162);
   g_is_monitoring_started = true;
-#if BUILDFLAG(IS_CHROMEOS)
-  // If we are on a login screen which does not expect WebUI to be loaded,
-  // Browser won't be created at startup.
-  if (ash::LoginDisplayHost::default_host() &&
-      !ash::LoginDisplayHost::default_host()->IsWebUIStarted()) {
-    content::GetUIThreadTaskRunner({})->PostTask(
-        FROM_HERE,
-        base::BindOnce(&SetBrowserStartupIsComplete,
-                       StartupIsCompleteReason::kChromeOSLoginScreen));
-    return;
-  }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
   StartupObserver::Start(graph);
 
   // Release the implicit reference representing the startup sequence. This
   // enables considering startup complete once all other registered references
   // (e.g., paint, idle, restore) are released.
   ReleaseRef(StartupIsCompleteReason::kStartupRegistrationDone);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Add failsafe timeout
   content::GetUIThreadTaskRunner({})->PostDelayedTask(
@@ -442,7 +408,6 @@ void AfterStartupTaskUtils::FinishStartupRegistration(
       GetFailsafeTimeout());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 AfterStartupTaskUtils::StartupInProgressRef::StartupInProgressRef(
     StartupIsCompleteReason reason)
     : reason_(reason) {}
@@ -462,7 +427,6 @@ AfterStartupTaskUtils::RegisterStartupInProgressRef(
   g_ref_count++;
   return std::make_unique<AfterStartupTaskUtils::StartupInProgressRef>(reason);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void AfterStartupTaskUtils::PostTask(
     const base::Location& from_here,
@@ -498,9 +462,7 @@ void AfterStartupTaskUtils::UnsafeResetForTesting() {
   if (!IsBrowserStartupComplete())
     return;
   GetStartupCompleteFlag().UnsafeResetForTesting();  // IN-TEST
-#if !BUILDFLAG(IS_ANDROID)
   g_ref_count = 1;
-#endif
   g_is_monitoring_started = false;
   CHECK(!IsBrowserStartupComplete(), base::NotFatalUntil::M162);
 }

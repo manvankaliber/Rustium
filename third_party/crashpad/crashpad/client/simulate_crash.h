@@ -20,11 +20,9 @@
 // IWYU pragma: begin_exports
 #if BUILDFLAG(IS_MAC)
 #include "client/simulate_crash_mac.h"
-#elif BUILDFLAG(IS_IOS)
-#include "client/simulate_crash_ios.h"
 #elif BUILDFLAG(IS_WIN)
 #include "client/simulate_crash_win.h"
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
 #include "client/simulate_crash_linux.h"
 #endif
 // IWYU pragma: end_exports

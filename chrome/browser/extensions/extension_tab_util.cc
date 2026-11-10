@@ -69,10 +69,6 @@
 #include "url/gurl.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#else
 #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_external.h"
 // nogncheck
 #include "chrome/browser/ui/navigator/browser_navigator_params.h"  // nogncheck
@@ -85,11 +81,7 @@
 #include "chrome/common/url_constants.h"
 #include "content/public/browser/back_forward_cache.h"
 #include "extensions/common/manifest_handlers/incognito_info.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/webui/os_feedback_ui/url_constants.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -220,11 +212,7 @@ void RecordNavigationScheme(const GURL& url,
 bool ShouldOpenInTab(const Extension* extension) {
 // We always open the options page in new tab on android. Embedding the page on
 // chrome://extensions is done with guest_view, but it's not enabled on android.
-#if BUILDFLAG(IS_ANDROID)
-  return true;
-#else
   return OptionsPageInfo::ShouldOpenInTab(extension);
-#endif
 }
 
 // Returns the URL to the extension's options page, if any.
@@ -411,11 +399,6 @@ api::tabs::Tab ExtensionTabUtil::CreateTabObject(
 
   tab_object.audible = get_audible();
 
-#if BUILDFLAG(IS_ANDROID)
-  tab_object.discarded = contents->WasDiscarded();
-  // TODO(crbug.com/505306735): Determine auto-discardable and frozen states on
-  // desktop Android where the TabLifecycleUnit is not available.
-#else
   auto* tab_lifecycle_unit_external =
       resource_coordinator::TabLifecycleUnitExternal::FromWebContents(contents);
 
@@ -433,7 +416,6 @@ api::tabs::Tab ExtensionTabUtil::CreateTabObject(
   tab_object.frozen = tab_lifecycle_unit_external &&
                       tab_lifecycle_unit_external->GetTabState() ==
                           ::mojom::LifecycleUnitState::FROZEN;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   tab_object.muted_info = CreateMutedInfo(contents);
 
@@ -547,11 +529,7 @@ bool ExtensionTabUtil::GetTabListInterface(content::WebContents& web_contents,
   }
 
   BrowserWindowInterface* browser =
-#if BUILDFLAG(IS_ANDROID)
-      browser_window_util::GetBrowserForTabContents(web_contents);
-#else
       tab_interface->GetBrowserWindowInterface();
-#endif
 
   if (!browser) {
     return false;
@@ -746,13 +724,8 @@ bool ExtensionTabUtil::SupportsTabGroups(BrowserWindowInterface* browser) {
   if (!browser) {
     return false;
   }
-#if BUILDFLAG(IS_ANDROID)
-  // Android only supports tab groups for normal browser windows.
-  return browser->GetType() == BrowserWindowInterface::TYPE_NORMAL;
-#else
   // Other platforms have more complex logic (i.e. more browser types).
   return browser->GetTabStripModel()->SupportsTabGroups();
-#endif
 }
 
 // static
@@ -924,12 +897,7 @@ bool ExtensionTabUtil::GetSharedStateOfGroup(const tab_groups::TabGroupId& id) {
     return false;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // TabGroupService uses a different type on Android.
-  const base::Token local_id = id.token();
-#else
   const tab_groups::TabGroupId local_id = id;
-#endif
   std::optional<tab_groups::SavedTabGroup> saved_group =
       tab_group_service->GetGroup(local_id);
   if (!saved_group) {
@@ -1177,9 +1145,6 @@ base::expected<GURL, std::string> ExtensionTabUtil::PrepareURLForNavigation(
   // by) extensions.
   if (extension && url.SchemeIs(content::kChromeUIScheme) &&
       (url.host() == chrome::kChromeUIFeedbackHost
-#if BUILDFLAG(IS_CHROMEOS)
-       || url.host() == ash::kChromeUIOSFeedbackHost
-#endif
        )) {
     return base::unexpected(kCannotNavigateToInternalPage);
   }
@@ -1275,12 +1240,10 @@ bool ExtensionTabUtil::BrowserSupportsTabs(BrowserWindowInterface* browser) {
 
   // On non-android platforms, devtools windows are backed by a Browser
   // instance.
-#if !BUILDFLAG(IS_ANDROID)
   // TODO(devlin): Should we be checking for other types, too? Like PiP?
   if (browser->GetType() == BrowserWindowInterface::TYPE_DEVTOOLS) {
     return false;
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   return true;
 }

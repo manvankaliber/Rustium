@@ -50,7 +50,7 @@
 #include "ui/shell_dialogs/select_file_policy.h"
 #include "ui/shell_dialogs/selected_file_info.h"
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -68,7 +68,7 @@ using SensitiveEntryResult =
 
 static constexpr char kTestMountPoint[] = "testfs";
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 namespace {
 
 class ScopedUmaskSetter {
@@ -345,7 +345,7 @@ IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest, SaveFile_NonExistingFile) {
   ASSERT_TRUE(
       NavigateToURL(shell(), embedded_test_server()->GetURL("/title1.html")));
   {
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
     ScopedUmaskSetter scoped_umask(0002);
 #endif
     EXPECT_EQ(test_file.BaseName().AsUTF8Unsafe(),
@@ -355,7 +355,7 @@ IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest, SaveFile_NonExistingFile) {
                      "  self.entry = e;"
                      "  return e.name; })()"));
   }
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   {
     base::ScopedAllowBlockingForTesting allow_blocking;
     int mode;
@@ -383,7 +383,7 @@ IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest, SaveFile_NonExistingFile) {
 IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest,
                        SaveFile_TruncatesExistingFile) {
   const base::FilePath test_file = CreateTestFile("Hello World");
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   constexpr int kInitialMode = 0620;
   {
     base::ScopedAllowBlockingForTesting allow_blocking;
@@ -407,7 +407,7 @@ IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest,
             EvalJs(shell(),
                    "(async () => { const file = await self.entry.getFile(); "
                    "return await file.text(); })()"));
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   base::ScopedAllowBlockingForTesting allow_blocking;
   int mode;
   ASSERT_TRUE(base::GetPosixFilePermissions(test_file, &mode));
@@ -475,7 +475,7 @@ IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest,
   EXPECT_FALSE(base::PathExists(test_file));
 }
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest,
                        SaveFile_RejectsSymbolicLink) {
   const std::string target_contents = "target contents";
@@ -565,7 +565,7 @@ IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest,
 }
 #endif
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_POSIX)
 IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest,
                        SaveFile_ExternalPathUsesStorageBackend) {
   const base::FilePath test_file =
@@ -2466,11 +2466,7 @@ IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest, DontShowWhileInactive) {
 // WebContents is no longer displayed to the user for android since the
 // intent to select a file always causes a HIDDEN event as the whole app
 // receives onStop().
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ShowThenHide DISABLED_ShowThenHide
-#else
 #define MAYBE_ShowThenHide ShowThenHide
-#endif
 // Show the dialog then hide the WebContents and ensure the dialog is dismissed.
 IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest, MAYBE_ShowThenHide) {
   GURL url = embedded_test_server()->GetURL("/title1.html");
@@ -2508,13 +2504,8 @@ IN_PROC_BROWSER_TEST_F(FileSystemChooserBrowserTest, MAYBE_ShowThenHide) {
                                 false, 1);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_DontShowInSmallWindow DISABLED_DontShowInSmallWindow
-#define MAYBE_ShowThenResizeSmall DISABLED_ShowThenResizeSmall
-#else
 #define MAYBE_DontShowInSmallWindow DontShowInSmallWindow
 #define MAYBE_ShowThenResizeSmall ShowThenResizeSmall
-#endif
 
 class WindowBoundsWebContentsDelegate : public content::WebContentsDelegate {
  public:

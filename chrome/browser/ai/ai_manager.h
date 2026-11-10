@@ -38,9 +38,7 @@
 #include "third_party/blink/public/mojom/ai/ai_manager.mojom.h"
 #include "third_party/blink/public/mojom/devtools/console_message.mojom-forward.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ai/decision_model_schema_compiler.h"
-#endif
 
 namespace base {
 class SupportsUserData;
@@ -61,9 +59,7 @@ class AIManager : public base::SupportsUserData::Data,
                   public blink::mojom::AIManager,
                   public content::RenderWidgetHostObserver {
  public:
-#if !BUILDFLAG(IS_ANDROID)
   using DecisionModelBackend = blink::mojom::AIDecisionModelBackend;
-#endif
 
   using AILanguageModelOrCreationError =
       base::expected<std::unique_ptr<AILanguageModel>,
@@ -211,7 +207,6 @@ class AIManager : public base::SupportsUserData::Data,
       mojo::PendingRemote<blink::mojom::AIManagerCreateSemanticEmbedderClient>
           client);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Validates `options` (setting `backend` if unset) and compiles the schema.
   base::expected<DecisionModelSchemaCompiler::CompiledSchema,
                  blink::mojom::ModelAvailabilityCheckResult>
@@ -260,7 +255,6 @@ class AIManager : public base::SupportsUserData::Data,
           client,
       blink::mojom::AIDecisionModelCreateOptionsPtr options,
       base::WeakPtr<optimization_guide::ModelClient> model_client);
-#endif
 
   // Creates an `AILanguageModel`, as a new session. Clones are created
   // internally within the `AILanguageModel` object.

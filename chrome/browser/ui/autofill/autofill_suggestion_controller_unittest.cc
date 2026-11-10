@@ -60,11 +60,7 @@
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/text_utils.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/autofill/test_autofill_keyboard_accessory_controller_autofill_client.h"
-#else
 #include "chrome/browser/ui/autofill/test_autofill_popup_controller_autofill_client.h"
-#endif
 
 namespace autofill {
 namespace {
@@ -80,11 +76,7 @@ using ::testing::Optional;
 using ::testing::Return;
 
 using TestAutofillSuggestionControllerAutofillClient =
-#if BUILDFLAG(IS_ANDROID)
-    TestAutofillKeyboardAccessoryControllerAutofillClient<>;
-#else
     TestAutofillPopupControllerAutofillClient<>;
-#endif
 
 
 content::RenderFrameHost* NavigateAndCommitFrame(content::RenderFrameHost* rfh,
@@ -394,7 +386,6 @@ TEST_F(AutofillSuggestionControllerTest, ShouldReportHidingPopupReason) {
 // to the popup view to check if the autofill popup bounds overlap with the
 // picture-in-picture window.
 // TODO(crbug.com/40280362): Implement PIP overlap checks on Android.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(AutofillSuggestionControllerTest,
        CheckBoundsOverlapWithPictureInPicture) {
   ShowSuggestions(manager(), {SuggestionType::kAddressEntry});
@@ -403,7 +394,6 @@ TEST_F(AutofillSuggestionControllerTest,
   EXPECT_CALL(*client().popup_view(), OverlapsWithPictureInPictureWindow);
   picture_in_picture_window_manager->NotifyObserversOnEnterPictureInPicture();
 }
-#endif
 
 // Tests that a change to a text field does not hide a popup with an
 // Autocomplete suggestion.

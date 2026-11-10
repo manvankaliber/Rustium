@@ -40,12 +40,6 @@
 #include "services/network/public/cpp/simple_url_loader.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/network/network_handler.h"
-#include "chromeos/ash/components/network/network_state.h"
-#include "chromeos/ash/components/network/network_state_handler.h"
-#include "chromeos/ash/components/network/network_state_handler_observer.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace features {
 BASE_FEATURE(kManagedConfigurationRecoverFromFailedFetches,
@@ -545,60 +539,6 @@ class ManagedConfigurationAPI::OriginConfiguration {
   base::WeakPtrFactory<OriginConfiguration> weak_ptr_factory_{this};
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-// On ChromeOS, `NetworkConnectionTracker` fires once when Shill enters a
-// connected state (often before DHCP or captive portal checks finish) and does
-// not fire again when the network reaches `online`. Observe
-// `ash::NetworkStateHandler` directly instead.
-class ManagedConfigurationAPI::NetworkStateObserver
-    : public ash::NetworkStateHandlerObserver {
- public:
-  explicit NetworkStateObserver(ManagedConfigurationAPI* api) : api_(api) {
-    if (!ash::NetworkHandler::IsInitialized()) {
-      return;
-    }
-    ash::NetworkStateHandler* handler =
-        ash::NetworkHandler::Get()->network_state_handler();
-    if (const ash::NetworkState* default_network = handler->DefaultNetwork();
-        default_network && default_network->IsConnectedState()) {
-      default_service_path_ = default_network->path();
-      was_online_ = default_network->IsOnline();
-    }
-    observation_.Observe(handler);
-  }
-
-  NetworkStateObserver(const NetworkStateObserver&) = delete;
-  NetworkStateObserver& operator=(const NetworkStateObserver&) = delete;
-  ~NetworkStateObserver() override = default;
-
-  // ash::NetworkStateHandlerObserver:
-  void DefaultNetworkChanged(
-      const ash::NetworkState* default_network) override {
-    if (!default_network || !default_network->IsConnectedState()) {
-      default_service_path_.clear();
-      was_online_ = false;
-      return;
-    }
-    const bool network_changed =
-        default_network->path() != default_service_path_;
-    const bool became_online = !was_online_ && default_network->IsOnline();
-    default_service_path_ = default_network->path();
-    was_online_ = default_network->IsOnline();
-
-    if (network_changed || became_online) {
-      api_->OnNetworkAvailable();
-    }
-  }
-
-  void OnShuttingDown() override { observation_.Reset(); }
-
- private:
-  const raw_ptr<ManagedConfigurationAPI> api_;
-  std::string default_service_path_;
-  bool was_online_ = false;
-  ash::NetworkStateHandlerScopedObservation observation_{this};
-};
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 ManagedConfigurationAPI::ManagedConfigurationAPI(Profile* profile)
     : profile_(profile),
@@ -613,12 +553,6 @@ ManagedConfigurationAPI::ManagedConfigurationAPI(Profile* profile)
           weak_ptr_factory_.GetWeakPtr()));
   if (IsRecoveryEnabled()) {
     bool observing_ash_network_state = false;
-#if BUILDFLAG(IS_CHROMEOS)
-    if (ash::NetworkHandler::IsInitialized()) {
-      network_state_observer_ = std::make_unique<NetworkStateObserver>(this);
-      observing_ash_network_state = true;
-    }
-#endif  // BUILDFLAG(IS_CHROMEOS)
     if (!observing_ash_network_state) {
       if (auto* tracker = content::GetNetworkConnectionTracker()) {
         network_connection_observation_.Observe(tracker);

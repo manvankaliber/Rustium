@@ -707,11 +707,7 @@ TEST_F(MediaControlsImplTest, DownloadButtonNotDisplayedForContentUrl) {
       AtomicString("content://media/external/video/media/1"));
   test::RunPendingTasks();
   SimulateLoadedMetadata();
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_FALSE(IsOverflowElementVisible(*download_button));
-#else
   EXPECT_TRUE(IsOverflowElementVisible(*download_button));
-#endif
 }
 
 TEST_F(MediaControlsImplTest, DownloadButtonNotDisplayedInfiniteDuration) {

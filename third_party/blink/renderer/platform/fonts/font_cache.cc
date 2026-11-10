@@ -83,11 +83,8 @@ namespace blink {
 const char kColorEmojiLocale[] = "und-Zsye";
 const char kMonoEmojiLocale[] = "und-Zsym";
 
-#if BUILDFLAG(IS_ANDROID)
-extern const char kNotoColorEmojiCompat[] = "Noto Color Emoji Compat";
-#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 float FontCache::device_scale_factor_ = 1.0;
 #endif
 
@@ -96,7 +93,7 @@ bool FontCache::antialiased_text_enabled_ = false;
 bool FontCache::lcd_text_enabled_ = false;
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 WebFontPrewarmer* FontCache::prewarmer_ = nullptr;
 
 // static
@@ -141,7 +138,7 @@ void FontCache::Trace(Visitor* visitor) const {
 const FontPlatformData* FontCache::SystemFontPlatformData(
     const FontDescription& font_description) {
   const AtomicString& family = FontCache::SystemFontFamily();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_LINUX)
   if (family.empty() || family == font_family_names::kSystemUi) {
     return nullptr;
   }

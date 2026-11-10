@@ -132,12 +132,6 @@ TEST_F(MemoryBanksShortcutTest, RejectsBrowserNavigationShortcut) {
 }
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(MemoryBanksShortcutTest, RejectsSearchKey) {
-  EXPECT_EQ(MemoryBanksShortcutStatus::kDisallowedModifiers, Set("Search+K"));
-  EXPECT_EQ("", GetPref());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(MemoryBanksShortcutTest, RejectsProfileMenuShortcut) {
   EXPECT_EQ(MemoryBanksShortcutStatus::kConflictsWithBrowserShortcut,
@@ -177,9 +171,6 @@ TEST_F(MemoryBanksShortcutTest, SuggestedShortcutMatchesPlatform) {
   // Control+Command+M.
   const ui::Accelerator expected(ui::VKEY_M,
                                  ui::EF_CONTROL_DOWN | ui::EF_COMMAND_DOWN);
-#elif BUILDFLAG(IS_CHROMEOS)
-  // Alt+M.
-  const ui::Accelerator expected(ui::VKEY_M, ui::EF_ALT_DOWN);
 #else
   // Alt+Shift+M.
   const ui::Accelerator expected(ui::VKEY_M,

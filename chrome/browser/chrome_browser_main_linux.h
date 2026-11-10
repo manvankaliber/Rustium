@@ -14,13 +14,8 @@
 #include "build/config/linux/dbus/buildflags.h"
 #include "chrome/browser/chrome_browser_main_posix.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace metrics {
-class StackSamplingRecorder;
-}
-#endif
 
-#if BUILDFLAG(USE_DBUS) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(USE_DBUS)
 class SessionEndListenerLinux;
 #endif
 
@@ -36,7 +31,7 @@ class ChromeBrowserMainPartsLinux : public ChromeBrowserMainPartsPosix {
   ~ChromeBrowserMainPartsLinux() override;
 
   // ChromeBrowserMainPartsPosix overrides.
-#if !BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(USE_DBUS)
+#if BUILDFLAG(USE_DBUS)
   void PreCreateMainMessageLoop() override;
 #endif
   void PostCreateMainMessageLoop() override;
@@ -44,7 +39,7 @@ class ChromeBrowserMainPartsLinux : public ChromeBrowserMainPartsPosix {
   void PostMainMessageLoopRun() override;
 #endif
   void PreProfileInit() override;
-#if BUILDFLAG(USE_DBUS) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(USE_DBUS)
   // Only needed for native Linux, to set up the low-memory-monitor-based memory
   // monitoring (which depends on D-Bus).
   void PostBrowserStart() override;
@@ -52,12 +47,7 @@ class ChromeBrowserMainPartsLinux : public ChromeBrowserMainPartsPosix {
   void PostDestroyThreads() override;
 
  private:
-#if BUILDFLAG(IS_CHROMEOS)
-  // Used by ChromeOS tast tests. This is in ChromeBrowserMainPartsLinux for
-  // historical reasons and should be moved to ChromeBrowserMainPartsAsh.
-  scoped_refptr<metrics::StackSamplingRecorder> stack_sampling_recorder_;
-#endif
-#if BUILDFLAG(USE_DBUS) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(USE_DBUS)
   std::unique_ptr<SessionEndListenerLinux> session_end_listener_;
 #endif
 };

@@ -457,7 +457,7 @@ TEST(ClientSharedImageTest, GetTextureTarget_MultiplanarFormats) {
   }
 }
 
-#if BUILDFLAG(IS_OZONE) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_OZONE)
 // On Ozone/Android, the target for native buffers should be used if a
 // multiplanar format with external sampling is passed.
 TEST(ClientSharedImageTest,

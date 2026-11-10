@@ -227,17 +227,6 @@ void JsToBrowserMessaging::PostMessage(
     std::vector<blink::MessagePortDescriptor> ports) {
   DCHECK(render_frame_host_);
 
-#if BUILDFLAG(IS_ANDROID)
-  // `JsWebMessage` is shared by both directions, but SharedArrayBuffers are
-  // only supported from the browser to the renderer. The renderer never sends
-  // one, so receiving it means the renderer is compromised. Reject it here
-  // rather than letting it reach the embedder, which cannot handle it.
-  if (std::holds_alternative<base::UnsafeSharedMemoryRegion>(message)) {
-    mojo::ReportBadMessage(
-        "SharedArrayBuffer cannot be sent from the renderer.");
-    return;
-  }
-#endif
 
   // For prerendering, messages will be queued until activation.
   if (!render_frame_host_->IsInLifecycleState(

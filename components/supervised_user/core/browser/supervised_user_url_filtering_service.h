@@ -235,16 +235,6 @@ class SupervisedUserUrlFilteringService : public KeyedService,
   const UrlFilteringDelegate& GetFamilyLinkUrlFilter() const;
   const UrlFilteringDelegate& GetDeviceParentalControlsUrlFilter() const;
 
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-  // Test-only accessor for the family link url filter delegate. Used only in
-  // integration tests on mobile platforms that cannot use testing factory
-  // substitution.
-  // TODO(crbug.com/297313665): Rethink or unify testing APIs for supervised
-  // user stack.
-  UrlFilteringDelegate& GetFamilyLinkUrlFilterForTesting() const {
-    return *family_link_url_filter_.get();
-  }
-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
 
  private:
   // Notifies observers that the url filtering result is ready.

@@ -45,9 +45,7 @@ class GlicInactiveSidePanelUi : public GlicUiEmbedder,
   bool HasFocus() override;
   std::string DescribeForTesting() override;
 
-#if !BUILDFLAG(IS_ANDROID)
   base::WeakPtr<views::View> GetView() override;
-#endif
   mojom::PanelState GetPanelState() const override;
   gfx::Size GetPanelSize() override;
 

@@ -25,7 +25,6 @@ class ActorUiStateManagerInterface {
   // Handles a UiEvent that must be processed synchronously.
   virtual void OnUiEvent(SyncUiEvent event) = 0;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Lazily initializes the tab strip tracker when the first actor task is
   // created.
   // Since ActorKeyedService is constructed during Profile/TestingProfile
@@ -36,7 +35,6 @@ class ActorUiStateManagerInterface {
   // a complete UI environment. Delaying until the first task ensures the UI
   // environment is fully set up.
   virtual void LazyInitTabTracker() = 0;
-#endif
 
   virtual base::WeakPtr<ActorNavigationThrottle::Delegate>
   GetNavigationDelegate() = 0;

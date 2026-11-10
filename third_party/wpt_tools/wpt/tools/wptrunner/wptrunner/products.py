@@ -40,15 +40,11 @@ JSON: TypeAlias = "Mapping[str, 'JSON'] | Sequence['JSON'] | str | int | float |
 # Hardcoded tuple of built-in products
 BUILTIN_PRODUCTS = frozenset(
     (
-        "android_webview",
         "chrome",
-        "chrome_android",
-        "chrome_ios",
         "chromium",
         "edge",
         "epiphany",
         "firefox",
-        "firefox_android",
         "headless_shell",
         "ladybird",
         "opera",

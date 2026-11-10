@@ -31,7 +31,5 @@ function observeUserAction(userAction: string): void {
 
 document.addEventListener('DOMContentLoaded', function() {
   addWebUiListener('user-action', observeUserAction);
-  // <if expr="not is_ios">
   chrome.send('pageLoaded');
-  // </if>
 });

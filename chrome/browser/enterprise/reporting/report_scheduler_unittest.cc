@@ -48,13 +48,8 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/enterprise/reporting/report_scheduler_android.h"
-#include "chrome/browser/enterprise/reporting/reporting_delegate_factory_android.h"
-#else
 #include "chrome/browser/enterprise/reporting/report_scheduler_desktop.h"
 #include "chrome/browser/enterprise/reporting/reporting_delegate_factory_desktop.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 using ::base::test::RunOnceCallback;
 using ::testing::_;
@@ -129,15 +124,9 @@ ACTION(ScheduleProfileRequestGeneratorEmptyReportCallback) {
 
 class MockReportGenerator : public ReportGenerator {
  public:
-#if BUILDFLAG(IS_ANDROID)
-  explicit MockReportGenerator(
-      ReportingDelegateFactoryAndroid* delegate_factory)
-      : ReportGenerator(delegate_factory) {}
-#else
   explicit MockReportGenerator(
       ReportingDelegateFactoryDesktop* delegate_factory)
       : ReportGenerator(delegate_factory) {}
-#endif  // BUILDFLAG(IS_ANDROID)
   void Generate(ReportType report_type, ReportCallback callback) override {
     OnGenerate(report_type, callback);
   }
@@ -166,13 +155,8 @@ class MockReportUploader : public ReportUploader {
 
 class MockChromeProfileRequestGenerator : public ChromeProfileRequestGenerator {
  public:
-#if BUILDFLAG(IS_ANDROID)
-  explicit MockChromeProfileRequestGenerator(
-      ReportingDelegateFactoryAndroid* delegate_factory)
-#else
   explicit MockChromeProfileRequestGenerator(
       ReportingDelegateFactoryDesktop* delegate_factory)
-#endif  // BUILDFLAG(IS_ANDROID)
       : ChromeProfileRequestGenerator(/*profile_path=*/base::FilePath(),
                                       delegate_factory) {
   }
@@ -210,9 +194,7 @@ class ReportSchedulerTest : public ::testing::Test {
             &report_delegate_factory_);
     profile_request_generator_ = profile_request_generator_ptr_.get();
 
-#if !BUILDFLAG(IS_CHROMEOS)
     SetLastUploadVersion(chrome::kChromeVersion);
-#endif
     Init(true, kDMToken, kClientId);
   }
 
@@ -220,10 +202,8 @@ class ReportSchedulerTest : public ::testing::Test {
             const std::string& dm_token,
             const std::string& client_id) {
     ToggleCloudReport(policy_enabled);
-#if !BUILDFLAG(IS_CHROMEOS)
     storage_.SetDMToken(dm_token);
     storage_.SetClientId(client_id);
-#endif
   }
 
   void CreateScheduler() {
@@ -235,17 +215,12 @@ class ReportSchedulerTest : public ::testing::Test {
     scheduler_->QueueReportUploaderForTesting(std::move(uploader_ptr_));
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   void CreateSchedulerForProfileReporting(Profile* profile) {
     ReportScheduler::CreateParams params;
     params.client = client_;
     client_->SetDMToken("dm-token");
     params.delegate =
-#if BUILDFLAG(IS_ANDROID)
-        std::make_unique<ReportSchedulerAndroid>(profile);
-#else
         std::make_unique<ReportSchedulerDesktop>(profile);
-#endif  // BUILDFLAG(IS_ANDROID)
     if (params.delegate->GetPrefService()
             ->GetTime(kLastUploadTimestamp)
             .is_null()) {
@@ -256,7 +231,6 @@ class ReportSchedulerTest : public ::testing::Test {
     scheduler_ = std::make_unique<ReportScheduler>(std::move(params));
     scheduler_->QueueReportUploaderForTesting(std::move(uploader_ptr_));
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   void SetLastUploadInHour(base::TimeDelta gap, Profile* profile = nullptr) {
     previous_set_last_upload_timestamp_ = base::Time::Now() - gap;
@@ -283,7 +257,6 @@ class ReportSchedulerTest : public ::testing::Test {
         kCloudReportingEnabled, std::make_unique<base::Value>(enabled));
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   void SetLastUploadVersion(const std::string& version) {
     TestingBrowserProcess::GetGlobal()->local_state()->SetString(
         kLastUploadVersion, version);
@@ -294,7 +267,6 @@ class ReportSchedulerTest : public ::testing::Test {
                   kLastUploadVersion),
               version);
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // If lastUploadTimestamp is updated recently, it should be updated as Now().
   // Otherwise, it should be same as previous set timestamp.
@@ -319,13 +291,9 @@ class ReportSchedulerTest : public ::testing::Test {
 
   // Chrome OS needn't setup registration.
   void EXPECT_CALL_SetupRegistration() {
-#if BUILDFLAG(IS_CHROMEOS)
-    EXPECT_CALL(*client_, SetupRegistration(_, _, _)).Times(0);
-#else
     EXPECT_CALL(*client_, SetupRegistration(kDMToken, kClientId, _))
         .WillOnce(WithArgs<0>(
             Invoke(client_.get(), &policy::MockCloudPolicyClient::SetDMToken)));
-#endif
   }
 
   // This function is virtual to allow derived classes to override it and test
@@ -336,11 +304,7 @@ class ReportSchedulerTest : public ::testing::Test {
       base::test::TaskEnvironment::TimeSource::MOCK_TIME};
   TestingProfileManager profile_manager_{TestingBrowserProcess::GetGlobal()};
 
-#if BUILDFLAG(IS_ANDROID)
-  ReportingDelegateFactoryAndroid report_delegate_factory_;
-#else
   ReportingDelegateFactoryDesktop report_delegate_factory_;
-#endif  // BUILDFLAG(IS_ANDROID)
   std::unique_ptr<policy::MockCloudPolicyClient> client_ptr_;
   std::unique_ptr<MockReportGenerator> generator_ptr_;
   std::unique_ptr<MockReportUploader> uploader_ptr_;
@@ -354,9 +318,7 @@ class ReportSchedulerTest : public ::testing::Test {
   raw_ptr<MockChromeProfileRequestGenerator> profile_request_generator_ =
       nullptr;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   policy::FakeBrowserDMTokenStorage storage_;
-#endif
   base::Time previous_set_last_upload_timestamp_;
   base::HistogramTester histogram_tester_;
   base::test::ScopedFeatureList scoped_feature_list_;
@@ -369,7 +331,6 @@ TEST_F(ReportSchedulerTest, NoReportWithoutPolicy) {
 }
 
 // Chrome OS needn't set dm token and client id in the report scheduler.
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ReportSchedulerTest, NoReportWithoutDMToken) {
   Init(true, "", kClientId);
   CreateScheduler();
@@ -381,7 +342,6 @@ TEST_F(ReportSchedulerTest, NoReportWithoutClientId) {
   CreateScheduler();
   EXPECT_FALSE(scheduler_->IsNextReportScheduledForTesting());
 }
-#endif
 
 TEST_F(ReportSchedulerTest, UploadReportSucceeded) {
   EXPECT_CALL_SetupRegistration();
@@ -791,7 +751,6 @@ TEST_F(ReportSchedulerTest, ManualReportWithRegularOneOngoing) {
 }
 
 // Android does not support version updates
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
 // Tests that a basic report is generated and uploaded when a browser update is
 // detected.
@@ -1035,9 +994,7 @@ TEST_F(ReportSchedulerTest, UploadReportSucceededForProfileReporting) {
   ::testing::Mock::VerifyAndClearExpectations(client_);
   ::testing::Mock::VerifyAndClearExpectations(profile_request_generator_);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Profile security signals are not supported on ChromeOS.
 class UploadReportOnProfileOpenReportSchedulerTest
     : public ReportSchedulerTest {
@@ -1508,13 +1465,8 @@ TEST_F(EnabledProfileSecuritySignalsReportSchedulerTest,
 
   // Trigger security report via delegate callback.
   auto* delegate = scheduler_->GetDelegateForTesting();
-#if BUILDFLAG(IS_ANDROID)
-  static_cast<ReportSchedulerAndroid*>(delegate)->OnReportEventTriggered(
-      SecurityReportTrigger::kTimer);
-#else
   static_cast<ReportSchedulerDesktop*>(delegate)->OnReportEventTriggered(
       SecurityReportTrigger::kTimer);
-#endif
 
   EXPECT_NE(scheduler_->GetActiveTriggerForTesting(),
             ReportTrigger::kTriggerSecurity);
@@ -2053,7 +2005,6 @@ TEST_F(EnabledProfileSecuritySignalsReportSchedulerTest,
   EXPECT_FALSE(scheduler_->GetLastUploadedSignals());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(EnabledProfileSecuritySignalsReportSchedulerTest,
        IsolatedProfile_BlocksStatusReportsAndProfileOpenedTrigger) {
   base::test::ScopedFeatureList feature_list{
@@ -2121,8 +2072,6 @@ TEST_F(EnabledProfileSecuritySignalsReportSchedulerTest,
 
   histogram_tester_.ExpectUniqueSample(kSignalsReportingModeMetricName, 2, 2);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace enterprise_reporting

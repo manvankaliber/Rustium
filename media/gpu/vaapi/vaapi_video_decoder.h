@@ -29,7 +29,7 @@
 #include "media/base/video_aspect_ratio.h"
 #include "media/base/video_codecs.h"
 #include "media/base/video_frame_layout.h"
-#include "media/gpu/chromeos/video_decoder_pipeline.h"
+#include "media/gpu/linux/video_decoder_pipeline.h"
 #include "media/gpu/vaapi/vaapi_decode_surface_handler.h"
 #include "media/gpu/vaapi/vaapi_status.h"
 #include "ui/gfx/geometry/rect.h"
@@ -271,11 +271,6 @@ class VaapiVideoDecoder : public VideoDecoderMixin,
 
   EncryptionScheme encryption_scheme_ GUARDED_BY_CONTEXT(sequence_checker_);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // To keep the CdmContext event callback registered.
-  std::unique_ptr<CallbackRegistration> cdm_event_cb_registration_
-      GUARDED_BY_CONTEXT(sequence_checker_);
-#endif
 
   // Platform and codec specific video decoder.
   std::unique_ptr<AcceleratedVideoDecoder> decoder_

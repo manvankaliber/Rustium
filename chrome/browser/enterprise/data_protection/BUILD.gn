@@ -48,8 +48,7 @@ source_set("unit_tests") {
     "//ui/base/clipboard:clipboard_test_support",
   ]
 
-  if ((enterprise_data_controls || enterprise_screenshot_protection) &&
-      !is_android) {
+  if (enterprise_data_controls || enterprise_screenshot_protection) {
     sources += [ "paste_allowed_request_unittest.cc" ]
     deps += [ "//components/enterprise/connectors/core:cloud_content_scanning" ]
   }
@@ -68,11 +67,10 @@ source_set("unit_tests") {
       "//components/enterprise/data_controls/content/browser",
       "//components/enterprise/data_controls/core/browser:features",
     ]
-    if (!is_android) {
-      sources += [ "clipboard_toast_tracker_unittest.cc" ]
-      if (toolkit_views) {
-        deps += [ "//ui/views:test_support" ]
-      }
+
+    sources += [ "clipboard_toast_tracker_unittest.cc" ]
+    if (toolkit_views) {
+      deps += [ "//ui/views:test_support" ]
     }
   }
 
@@ -98,38 +96,36 @@ source_set("unit_tests") {
   }
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "view_source_navigation_throttle_browsertest.cc" ]
-    deps = [
-      "//base",
-      "//chrome/test:test_support",
-      "//components/safe_browsing/core/browser/realtime:test_support",
-      "//content/test:test_support",
-      "//testing/gmock",
-      "//testing/gtest",
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [ "view_source_navigation_throttle_browsertest.cc" ]
+  deps = [
+    "//base",
+    "//chrome/test:test_support",
+    "//components/safe_browsing/core/browser/realtime:test_support",
+    "//content/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+  ]
+  if (enterprise_data_controls) {
+    sources += [
+      "clipboard_toast_tracker_browsertest.cc",
+      "data_protection_clipboard_utils_browsertest.cc",
+      "data_protection_navigation_controller_browsertest.cc",
+      "data_protection_telemetry_browsertest.cc",
     ]
-    if (enterprise_data_controls) {
-      sources += [
-        "clipboard_toast_tracker_browsertest.cc",
-        "data_protection_clipboard_utils_browsertest.cc",
-        "data_protection_navigation_controller_browsertest.cc",
-        "data_protection_telemetry_browsertest.cc",
-      ]
-      deps += [
-        "//chrome/browser/enterprise/connectors/test:test_support",
-        "//chrome/browser/enterprise/data_controls:test_support",
-        "//chrome/browser/ui:browser_tabstrip",
-        "//components/enterprise/connectors/core:test_support",
-        "//ui/base/clipboard:clipboard_test_support",
-      ]
-    }
+    deps += [
+      "//chrome/browser/enterprise/connectors/test:test_support",
+      "//chrome/browser/enterprise/data_controls:test_support",
+      "//chrome/browser/ui:browser_tabstrip",
+      "//components/enterprise/connectors/core:test_support",
+      "//ui/base/clipboard:clipboard_test_support",
+    ]
   }
 }
 
-if (enterprise_data_controls && !is_android) {
+if (enterprise_data_controls) {
   source_set("interactive_ui_tests") {
     testonly = true
     defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]

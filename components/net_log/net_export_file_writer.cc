@@ -25,9 +25,6 @@
 #include "base/values.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/path_utils.h"
-#endif
 
 #include "components/net_log/chrome_net_log.h"
 #include "net/log/file_net_log_observer.h"
@@ -111,11 +108,7 @@ scoped_refptr<base::SequencedTaskRunner> CreateFileTaskRunner() {
 
 NetExportFileWriter::NetExportFileWriter()
     : default_log_base_dir_getter_(
-#if BUILDFLAG(IS_ANDROID)
-          base::BindRepeating(&base::android::GetDownloadsDirectory)
-#else
           base::BindRepeating(&base::GetTempDir)
-#endif
       ) {
 }
 

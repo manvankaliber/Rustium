@@ -36,7 +36,6 @@ using ::testing::_;
 using ::testing::AllOf;
 using ::testing::Field;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 constexpr char kLegalMessageLines[] =
     "{"
@@ -1090,7 +1089,6 @@ TEST_F(IbanSaveManagerTest, UploadSaveIban_UserAcceptsBeforeRiskDataReady) {
       .Run("delayed risk data");
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 }  // namespace
 }  // namespace autofill

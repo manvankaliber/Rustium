@@ -11,16 +11,6 @@ import("//build/config/sanitizers/sanitizers.gni")
 import("//build/toolchain/toolchain.gni")
 import("//build_overrides/build.gni")
 
-if (is_ios) {
-  import("//build/config/apple/mobile_config.gni")
-}
-
-declare_args() {
-  # Allow building official with ASAN enabled to help with
-  # debugging https://crbug.com/371135823.
-  ios_allow_asan_for_official_to_debug_371135823 = false
-}
-
 # libfuzzer can't cope with shared objects being unloaded, which sometimes
 # occurs for large fuzzers that involve our graphics stack. Shim out dlclose
 # so that this doesn't occur.
@@ -30,7 +20,7 @@ declare_args() {
 # platforms, hence the restriction to Linux and ChromeOS. We might eventually
 # want to disable shared library unloading on all platforms, but we have not
 # noticed a need for it as the known-affected large fuzzers only run on Linux.
-use_dlcloseshim = use_libfuzzer && (is_linux || is_chromeos)
+use_dlcloseshim = use_libfuzzer && is_linux
 
 # Contains the dependencies needed for sanitizers to link into executables and
 # shared_libraries.
@@ -95,25 +85,9 @@ if ((is_apple || is_win) && (is_asan || is_ubsan_any)) {
   _clang_rt_dso_full_path =
       "$clang_base_path/lib/clang/$clang_version/lib/$clang_rt_dso_path"
 
-  if (!is_ios) {
-    copy("copy_sanitizer_runtime") {
-      sources = [ _clang_rt_dso_full_path ]
-      outputs = [ "$root_out_dir/{{source_file_part}}" ]
-    }
-  } else {
-    # On iOS, the runtime library need to be code signed (adhoc signature)
-    # starting with Xcode 8, so use an action instead of a copy on iOS.
-    action("copy_sanitizer_runtime") {
-      script = "//build/config/apple/codesign.py"
-      sources = [ _clang_rt_dso_full_path ]
-      outputs = [ "$root_out_dir/" + get_path_info(sources[0], "file") ]
-      args = [
-        "code-sign-file",
-        "--identity=" + ios_code_signing_identity,
-        "--output=" + rebase_path(outputs[0], root_build_dir),
-        rebase_path(sources[0], root_build_dir),
-      ]
-    }
+  copy("copy_sanitizer_runtime") {
+    sources = [ _clang_rt_dso_full_path ]
+    outputs = [ "$root_out_dir/{{source_file_part}}" ]
   }
 
   if (is_apple) {
@@ -357,12 +331,10 @@ config("common_sanitizer_flags") {
   if (using_sanitizer) {
     assert(is_clang, "sanitizers only supported with clang")
 
-    if (!is_ios || !ios_allow_asan_for_official_to_debug_371135823) {
-      # Allow non-default toolchains to enable sanitizers in toolchain_args even
-      # in official builds.
-      assert(current_toolchain != default_toolchain || !is_official_build,
-             "sanitizers not supported in official builds")
-    }
+    # Allow non-default toolchains to enable sanitizers in toolchain_args even
+    # in official builds.
+    assert(current_toolchain != default_toolchain || !is_official_build,
+           "sanitizers not supported in official builds")
 
     cflags += [
       # Column info in debug data confuses Visual Studio's debugger, so don't
@@ -505,9 +477,6 @@ config("coverage_flags") {
         # well with `pc-table` instrumentation enabled by `fuzzer-no-link`.
         cflags += [ "-fno-sanitize-coverage=pc-table" ]
       }
-      if (is_android) {
-        cflags += [ "-fno-sanitize-coverage=stack-depth" ]
-      }
     } else {
       cflags += [
         "-fsanitize-coverage=$sanitizer_coverage_flags",
@@ -557,8 +526,7 @@ config("lsan_flags") {
 
 config("msan_flags") {
   if (is_msan) {
-    assert(is_linux || is_chromeos,
-           "msan only supported on linux x86_64/ChromeOS")
+    assert(is_linux, "msan only supported on linux x86_64/ChromeOS")
     if (!defined(msan_ignorelist_path)) {
       msan_ignorelist_path =
           rebase_path("//tools/msan/ignorelist.txt", root_build_dir)
@@ -582,7 +550,7 @@ config("msan_flags") {
 
 config("tsan_flags") {
   if (is_tsan) {
-    assert(is_linux || is_chromeos, "tsan only supported on linux x86_64")
+    assert(is_linux, "tsan only supported on linux x86_64")
     if (!defined(tsan_ignorelist_path)) {
       tsan_ignorelist_path =
           rebase_path("//tools/memory/tsan_v2/ignores.txt", root_build_dir)
@@ -776,7 +744,7 @@ config("alloc_token") {
       "-Xclang",
       "-falloc-token-mode=typefunchashpointersplit",
     ]
-    if (is_linux || is_chromeos) {
+    if (is_linux) {
       ldflags = [
         # go/keep-sorted start
         "-Wl,--export-dynamic-symbol=__alloc_token__Znam",

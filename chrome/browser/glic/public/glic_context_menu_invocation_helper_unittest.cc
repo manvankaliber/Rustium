@@ -28,9 +28,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/tabs/page_context_eligibility_helper.h"
-#endif
 
 namespace glic {
 
@@ -243,7 +241,6 @@ TEST_F(GlicContextMenuInvocationHelperUnittest, HandleClickDisabled) {
   GlicContextMenuInvocationHelper::HandleContextualMenuClick(&mock_tab);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace {
 
 class FakePageContextEligibilityHelper
@@ -436,6 +433,5 @@ TEST_F(
   GlicContextMenuInvocationHelper::HandleContextualMenuClick(
       &mock_tab, u"Selected text to ask Gemini");
 }
-#endif
 
 }  // namespace glic

@@ -23,13 +23,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <jni.h>
-
-#include "base/android/jni_android.h"
-#include "components/signin/internal/identity_manager/account_capabilities_fetcher_android.h"
-#include "components/signin/public/android/test_support_jni_headers/AccountCapabilitiesFetcherTestUtil_jni.h"
-#else
 
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
@@ -44,7 +37,6 @@
 #include "services/network/public/cpp/weak_wrapper_shared_url_loader_factory.h"
 #include "services/network/test/test_url_loader_factory.h"
 #include "services/network/test/test_utils.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -59,87 +51,6 @@ CoreAccountInfo GetTestAccountInfoByEmail(const std::string& email) {
   return result;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-class TestSupportAndroid {
- public:
-  TestSupportAndroid() {
-    JNIEnv* env = base::android::AttachCurrentThread();
-    base::android::ScopedJavaLocalRef<jobject> java_ref =
-        signin::Java_AccountCapabilitiesFetcherTestUtil_Constructor(env);
-    java_test_util_ref_.Reset(env, java_ref);
-  }
-
-  ~TestSupportAndroid() {
-    JNIEnv* env = base::android::AttachCurrentThread();
-    signin::Java_AccountCapabilitiesFetcherTestUtil_destroy(
-        env, java_test_util_ref_);
-  }
-
-  void AddAccount(const CoreAccountInfo& account_info) {
-    signin::Java_AccountCapabilitiesFetcherTestUtil_expectAccount(
-        base::android::AttachCurrentThread(), java_test_util_ref_,
-        account_info);
-  }
-
-  std::unique_ptr<AccountCapabilitiesFetcher> CreateFetcher(
-      const CoreAccountInfo& account_info,
-      AccountCapabilitiesFetcher::FetchPriority fetch_priority,
-      AccountCapabilitiesFetcher::OnSomeCapabilitiesFetchedCallback
-          on_some_capabilities_fetched_callback,
-      AccountCapabilitiesFetcher::OnAllFetchesCompleteCallback
-          on_all_fetches_complete_callback) {
-    return std::make_unique<AccountCapabilitiesFetcherAndroid>(
-        account_info, fetch_priority,
-        std::move(on_some_capabilities_fetched_callback),
-        std::move(on_all_fetches_complete_callback));
-  }
-
-  void ReturnAccountCapabilitiesFetchSuccess(
-      const CoreAccountInfo& account_info,
-      bool capability_value) {
-    AccountCapabilities capabilities;
-    AccountCapabilitiesTestMutator mutator(&capabilities);
-    mutator.SetAllSupportedCapabilities(capability_value);
-    ReturnFetchResults(account_info, capabilities);
-  }
-
-  void ReturnAccountCapabilitiesFetchPartialSuccess(
-      const CoreAccountInfo& account_info,
-      base::span<const std::string_view> capability_names,
-      bool capability_value) {
-    AccountCapabilities capabilities;
-    AccountCapabilitiesTestMutator mutator(&capabilities);
-    for (std::string_view name : capability_names) {
-      mutator.SetCapability(std::string(name), capability_value);
-    }
-    ReturnFetchResults(account_info, capabilities);
-  }
-
-  void ReturnAccountCapabilitiesFetchFailure(
-      const CoreAccountInfo& account_info) {
-    // Return an empty `AccountCapabilities` object.
-    ReturnFetchResults(account_info, AccountCapabilities());
-  }
-
-  void SimulateIssueAccessTokenPersistentError(
-      const CoreAccountInfo& account_info) {
-    NOTREACHED();
-  }
-
- private:
-  void ReturnFetchResults(const CoreAccountInfo& account_info,
-                          const AccountCapabilities& capabilities) {
-    JNIEnv* env = base::android::AttachCurrentThread();
-    signin::Java_AccountCapabilitiesFetcherTestUtil_returnCapabilities(
-        env, java_test_util_ref_, account_info,
-        capabilities.ConvertToJavaAccountCapabilities(env));
-  }
-
-  base::android::ScopedJavaGlobalRef<jobject> java_test_util_ref_;
-};
-
-using TestSupport = TestSupportAndroid;
-#else
 using TokenResponseBuilder = OAuth2AccessTokenConsumer::TokenResponse::Builder;
 
 const char kAccountCapabilitiesResponseFormat[] =
@@ -285,7 +196,6 @@ class TestSupportGaia {
 };
 
 using TestSupport = TestSupportGaia;
-#endif
 
 }  // namespace
 
@@ -357,7 +267,6 @@ TEST_F(AccountCapabilitiesFetcherTest, Success_True) {
   EXPECT_CALL(on_all_fetches_complete_callback, Run(account_id()));
   ReturnAccountCapabilitiesFetchSuccess(true);
 
-#if !BUILDFLAG(IS_ANDROID)
   tester.ExpectTotalCount(
       "Signin.AccountCapabilities.Foreground.FetchDuration.Success", 1);
   tester.ExpectTotalCount(
@@ -365,7 +274,6 @@ TEST_F(AccountCapabilitiesFetcherTest, Success_True) {
   tester.ExpectUniqueSample(
       "Signin.AccountCapabilities.Foreground.FetchResult",
       AccountCapabilitiesFetcherGaia::FetchResult::kSuccess, 1);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 TEST_F(AccountCapabilitiesFetcherTest, Success_True_Background) {
@@ -389,7 +297,6 @@ TEST_F(AccountCapabilitiesFetcherTest, Success_True_Background) {
   EXPECT_CALL(on_all_fetches_complete_callback, Run(account_id()));
   ReturnAccountCapabilitiesFetchSuccess(true);
 
-#if !BUILDFLAG(IS_ANDROID)
   tester.ExpectTotalCount(
       "Signin.AccountCapabilities.Background.FetchDuration.Success", 1);
   tester.ExpectTotalCount(
@@ -397,7 +304,6 @@ TEST_F(AccountCapabilitiesFetcherTest, Success_True_Background) {
   tester.ExpectUniqueSample(
       "Signin.AccountCapabilities.Background.FetchResult",
       AccountCapabilitiesFetcherGaia::FetchResult::kSuccess, 1);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 TEST_F(AccountCapabilitiesFetcherTest, Success_False) {
@@ -441,7 +347,6 @@ TEST_F(AccountCapabilitiesFetcherTest, PartialSuccess) {
   ReturnAccountCapabilitiesFetchPartialSuccess(
       {kCanFetchFamilyMemberInfoCapabilityName}, true);
 
-#if !BUILDFLAG(IS_ANDROID)
   tester.ExpectTotalCount(
       "Signin.AccountCapabilities.Foreground.FetchDuration.Success", 1);
   tester.ExpectTotalCount(
@@ -449,7 +354,6 @@ TEST_F(AccountCapabilitiesFetcherTest, PartialSuccess) {
   tester.ExpectUniqueSample(
       "Signin.AccountCapabilities.Foreground.FetchResult",
       AccountCapabilitiesFetcherGaia::FetchResult::kPartialSuccess, 1);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 TEST_F(AccountCapabilitiesFetcherTest, FetchFailure) {
@@ -464,19 +368,10 @@ TEST_F(AccountCapabilitiesFetcherTest, FetchFailure) {
   base::HistogramTester tester;
 
   fetcher->Start();
-#if BUILDFLAG(IS_ANDROID)
-  // Android never returns std::nullopt even if the fetcher has failed to get
-  // all capabilities.
-  AccountCapabilities expected_capabilities;
-  EXPECT_CALL(on_some_capabilities_fetched_callback,
-              Run(account_id(), Eq(expected_capabilities)));
-#else
   EXPECT_CALL(on_some_capabilities_fetched_callback, Run(_, _)).Times(0);
-#endif
   EXPECT_CALL(on_all_fetches_complete_callback, Run(account_id()));
   ReturnAccountCapabilitiesFetchFailure();
 
-#if !BUILDFLAG(IS_ANDROID)
   tester.ExpectTotalCount(
       "Signin.AccountCapabilities.Foreground.FetchDuration.Success", 0);
   tester.ExpectTotalCount(
@@ -484,12 +379,10 @@ TEST_F(AccountCapabilitiesFetcherTest, FetchFailure) {
   tester.ExpectUniqueSample(
       "Signin.AccountCapabilities.Foreground.FetchResult",
       AccountCapabilitiesFetcherGaia::FetchResult::kOAuthError, 1);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 // Exclude Android because `AccountCapabilitiesFetcherAndroid` doesn't request
 // an access token.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(AccountCapabilitiesFetcherTest, TokenFailure) {
   base::MockCallback<
       AccountCapabilitiesFetcher::OnSomeCapabilitiesFetchedCallback>
@@ -514,7 +407,6 @@ TEST_F(AccountCapabilitiesFetcherTest, TokenFailure) {
       "Signin.AccountCapabilities.Foreground.FetchResult",
       AccountCapabilitiesFetcherGaia::FetchResult::kGetTokenFailure, 1);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(AccountCapabilitiesFetcherTest, Cancelled) {
   base::MockCallback<
@@ -532,7 +424,6 @@ TEST_F(AccountCapabilitiesFetcherTest, Cancelled) {
   EXPECT_CALL(on_all_fetches_complete_callback, Run(_)).Times(0);
   fetcher.reset();
 
-#if !BUILDFLAG(IS_ANDROID)
   tester.ExpectTotalCount(
       "Signin.AccountCapabilities.Foreground.FetchDuration.Success", 0);
   tester.ExpectTotalCount(
@@ -540,9 +431,4 @@ TEST_F(AccountCapabilitiesFetcherTest, Cancelled) {
   tester.ExpectUniqueSample(
       "Signin.AccountCapabilities.Foreground.FetchResult",
       AccountCapabilitiesFetcherGaia::FetchResult::kCancelled, 1);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
-
-#if BUILDFLAG(IS_ANDROID)
-DEFINE_JNI(AccountCapabilitiesFetcherTestUtil)
-#endif

@@ -23,9 +23,6 @@
 #include "components/viz/common/frame_sinks/begin_frame_args.h"
 #include "third_party/perfetto/include/perfetto/tracing/track.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 namespace cc {
 
@@ -36,15 +33,7 @@ constexpr int kMaxPendingSubmitFrames = 1;
 constexpr float kFrameThrottlingSlackFactor = 0.9;
 
 bool IsEligibleToThrottleMainFrameRate() {
-#if BUILDFLAG(IS_ANDROID)
-  // Still requires balancing tradeoffs for desktop Android, not enabled
-  // unconditionally yet.
-  return !base::android::device_info::is_desktop() ||
-         base::FeatureList::IsEnabled(
-             features::kThrottleMainFrameTo60HzDesktopAndroid);
-#else
   return true;
-#endif
 }
 
 base::TimeDelta ThrottledFrameRateWithSlack(base::TimeDelta frame_interval,
@@ -1482,14 +1471,12 @@ base::TimeDelta SchedulerStateMachine::GetMainFrameThrottledInterval(
 void SchedulerStateMachine::FrameIntervalUpdated(
     base::TimeDelta frame_interval) {
   unthrottled_frame_interval_ = frame_interval;
-#if !BUILDFLAG(IS_ANDROID)
   // The browser compositor drives the application UI animations, which we want
   // to be running at the nominal framerate.
   if (settings_.commit_to_active_tree || settings_.single_threaded_proxy) {
     main_frame_throttled_interval_ = base::TimeDelta();
     return;
   }
-#endif
   main_frame_throttled_interval_ = GetMainFrameThrottledInterval(
       frame_interval, settings_.using_synchronous_renderer_compositor);
   if (!main_frame_throttled_interval_.is_zero()) {

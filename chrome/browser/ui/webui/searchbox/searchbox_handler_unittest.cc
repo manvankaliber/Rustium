@@ -95,7 +95,6 @@
 // Exclude desktop-only headers for WebuiOmniboxHandler and
 // OmniboxComposeboxHandler, which are dedicated to the desktop Omnibox Popup
 // and not compiled on Android.
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_tasks/contextual_tasks_cookie_synchronizer.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_eligibility_manager.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service.h"
@@ -115,7 +114,6 @@
 #include "components/lens/lens_features.h"
 #include "components/omnibox/common/composebox_features.h"
 #include "components/sessions/content/session_tab_helper.h"
-#endif
 
 namespace {
 class RealboxHandlerPublic : public RealboxHandler {
@@ -360,17 +358,10 @@ TEST_F(SearchboxHandlerTest, KeywordSpaceTriggeringDynamicPrefChange) {
       content::WebContents::CreateParams(profile()));
   testing::NiceMock<MockBrowserWindowInterface> browser_window_interface;
   ui::UnownedUserDataHost unowned_user_data_host;
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowFeatures browser_window_features;
   SetupMockBrowserWindowInterface(browser_window_interface, profile(),
                                   browser_window_features,
                                   unowned_user_data_host);
-#else
-  ON_CALL(browser_window_interface, GetProfile())
-      .WillByDefault(testing::Return(profile()));
-  ON_CALL(browser_window_interface, GetUnownedUserDataHost())
-      .WillByDefault(testing::ReturnRef(unowned_user_data_host));
-#endif
   webui::SetBrowserWindowInterface(web_contents.get(),
                                    &browser_window_interface);
 
@@ -458,17 +449,10 @@ TEST_F(SearchboxHandlerTest, AvailableKeywordModels) {
       content::WebContents::CreateParams(profile()));
   testing::NiceMock<MockBrowserWindowInterface> browser_window_interface;
   ui::UnownedUserDataHost unowned_user_data_host;
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowFeatures browser_window_features;
   SetupMockBrowserWindowInterface(browser_window_interface, profile(),
                                   browser_window_features,
                                   unowned_user_data_host);
-#else
-  ON_CALL(browser_window_interface, GetProfile())
-      .WillByDefault(testing::Return(profile()));
-  ON_CALL(browser_window_interface, GetUnownedUserDataHost())
-      .WillByDefault(testing::ReturnRef(unowned_user_data_host));
-#endif
   webui::SetBrowserWindowInterface(web_contents.get(),
                                    &browser_window_interface);
 
@@ -608,17 +592,10 @@ TEST_F(SearchboxHandlerTest, QuestionMarkKeywordInput) {
 
   testing::NiceMock<MockBrowserWindowInterface> browser_window_interface;
   ui::UnownedUserDataHost unowned_user_data_host;
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowFeatures browser_window_features;
   SetupMockBrowserWindowInterface(browser_window_interface, profile(),
                                   browser_window_features,
                                   unowned_user_data_host);
-#else
-  ON_CALL(browser_window_interface, GetProfile())
-      .WillByDefault(testing::Return(profile()));
-  ON_CALL(browser_window_interface, GetUnownedUserDataHost())
-      .WillByDefault(testing::ReturnRef(unowned_user_data_host));
-#endif
   webui::SetBrowserWindowInterface(web_contents.get(),
                                    &browser_window_interface);
 
@@ -692,17 +669,10 @@ TEST_F(SearchboxHandlerTest, QueryAutocomplete_IsOnFocusDoesNotSetUserText) {
 
   testing::NiceMock<MockBrowserWindowInterface> browser_window_interface;
   ui::UnownedUserDataHost unowned_user_data_host;
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowFeatures browser_window_features;
   SetupMockBrowserWindowInterface(browser_window_interface, profile(),
                                   browser_window_features,
                                   unowned_user_data_host);
-#else
-  ON_CALL(browser_window_interface, GetProfile())
-      .WillByDefault(testing::Return(profile()));
-  ON_CALL(browser_window_interface, GetUnownedUserDataHost())
-      .WillByDefault(testing::ReturnRef(unowned_user_data_host));
-#endif
   webui::SetBrowserWindowInterface(web_contents.get(),
                                    &browser_window_interface);
 
@@ -768,9 +738,7 @@ class RealboxHandlerTest : public SearchboxHandlerTest {
   std::unique_ptr<content::WebContents> web_contents_;
   std::unique_ptr<RealboxHandlerPublic> handler_;
   testing::NiceMock<MockBrowserWindowInterface> browser_window_interface_;
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowFeatures browser_window_features_;
-#endif
   ui::UnownedUserDataHost unowned_user_data_host_;
 
   void SetUp() override {
@@ -779,20 +747,11 @@ class RealboxHandlerTest : public SearchboxHandlerTest {
     web_contents_ =
         content::WebContentsTester::CreateTestWebContents(profile(), nullptr);
 
-#if !BUILDFLAG(IS_ANDROID)
     SetupMockBrowserWindowInterface(browser_window_interface_, profile(),
                                     browser_window_features_,
                                     unowned_user_data_host_);
     webui::SetBrowserWindowInterface(web_contents_.get(),
                                      &browser_window_interface_);
-#else
-    ON_CALL(browser_window_interface_, GetProfile())
-        .WillByDefault(testing::Return(profile()));
-    ON_CALL(browser_window_interface_, GetUnownedUserDataHost())
-        .WillByDefault(testing::ReturnRef(unowned_user_data_host_));
-    webui::SetBrowserWindowInterface(web_contents_.get(),
-                                     &browser_window_interface_);
-#endif
 
     handler_ = std::make_unique<RealboxHandlerPublic>(
         mojo::PendingReceiver<searchbox::mojom::PageHandler>(),
@@ -1429,7 +1388,6 @@ TEST_F(LensSearchboxHandlerTest, Lens_AutocompleteController_Start) {
 
 // WebuiOmniboxHandler is dedicated to the desktop Omnibox Popup and out of
 // scope for Android WebUI NTP.
-#if !BUILDFLAG(IS_ANDROID)
 namespace {
 class FakeOmniboxPopupView : public OmniboxPopupView {
  public:
@@ -3106,7 +3064,6 @@ TEST_F(WebuiOmniboxHandlerTabScopingTest,
   EXPECT_FALSE(context->invocation_source.has_value());
 }
 
-#endif
 
 namespace {
 class DeletingWebContentsDelegate : public content::WebContentsDelegate {
@@ -3189,7 +3146,6 @@ TEST_F(SearchboxOmniboxClientNavigationTest,
 
 // OmniboxComposeboxHandler is dedicated to the desktop Omnibox Popup and out of
 // scope for Android WebUI NTP.
-#if !BUILDFLAG(IS_ANDROID)
 
 class MockContextualTasksUiService
     : public contextual_tasks::ContextualTasksUiService {
@@ -3939,4 +3895,3 @@ TEST_F(
 
   AimEligibilityServiceFactory::GetInstance()->SetTestingFactory(profile(), {});
 }
-#endif

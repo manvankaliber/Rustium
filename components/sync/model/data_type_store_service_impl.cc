@@ -150,12 +150,8 @@ DataTypeStoreServiceImpl::DataTypeStoreServiceImpl(
   bool migrate_rl_from_local_to_account = pref_service_->GetBoolean(
       prefs::internal::kMigrateReadingListFromLocalToAccount);
   bool wipe_apps_and_app_settings =
-#if !BUILDFLAG(IS_CHROMEOS)
       base::FeatureList::IsEnabled(kSyncWipeAppsAndAppSettingsData) &&
       !pref_service_->GetBoolean(prefs::internal::kWipedAppsAndAppSettingsData);
-#else
-      false;
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   backend_task_runner_->PostTaskAndReplyWithResult(
       FROM_HERE,
       base::BindOnce(&InitOnBackendSequence, leveldb_path_, store_backend_,
@@ -185,12 +181,10 @@ void DataTypeStoreServiceImpl::BackendInitializationDone(
         error ? ReadingListMigrationStep::kMigrationFailed
               : ReadingListMigrationStep::kMigrationFinishedAndPrefCleared);
   }
-#if !BUILDFLAG(IS_CHROMEOS)
   if (!error && base::FeatureList::IsEnabled(kSyncWipeAppsAndAppSettingsData)) {
     pref_service_->SetBoolean(prefs::internal::kWipedAppsAndAppSettingsData,
                               true);
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   base::UmaHistogramBoolean("Sync.DataTypeStoreBackendInitializationSuccess",
                             !error.has_value());

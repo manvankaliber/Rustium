@@ -30,15 +30,12 @@
 #include "extensions/common/extension.h"
 #include "extensions/test/test_extension_dir.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 namespace extensions {
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 void GetNextDialog(javascript_dialogs::AppModalDialogView** view) {
   CHECK(view, base::NotFatalUntil::M161);
   *view = nullptr;
@@ -66,7 +63,6 @@ void CancelDialog() {
   ASSERT_NO_FATAL_FAILURE(GetNextDialog(&dialog));
   dialog->CancelAppModalDialog();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void CheckAlertResult(const std::string& dialog_name,
                       size_t* call_count,
@@ -158,14 +154,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiTest, AlertBasic) {
       u"alert('This should not crash.');", base::NullCallback(),
       content::ISOLATED_WORLD_ID_GLOBAL);
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, background pages do not have an associated WindowAndroid, so
-  // the alert is immediately canceled and no dialog is queued or shown.
-  EXPECT_FALSE(javascript_dialogs::AppModalDialogQueue::GetInstance()
-                   ->HasActiveDialog());
-#else
   ASSERT_NO_FATAL_FAILURE(CloseDialog());
-#endif
 }
 
 // Calls "alert()" multiple times from an extension background page.
@@ -190,14 +179,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiTest, AlertQueue) {
         content::ISOLATED_WORLD_ID_GLOBAL);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, background pages have no associated WindowAndroid, so all
-  // dialogs are immediately canceled without queueing.
-  ASSERT_TRUE(
-      base::test::RunUntil([&]() { return call_count == num_dialogs; }));
-  EXPECT_FALSE(javascript_dialogs::AppModalDialogQueue::GetInstance()
-                   ->HasActiveDialog());
-#else
   // Closes these dialogs.
   for (size_t i = 0; i != num_dialogs; ++i) {
     ASSERT_NO_FATAL_FAILURE(AcceptDialog());
@@ -212,7 +193,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiTest, AlertQueue) {
   while (call_count < num_dialogs) {
     ASSERT_NO_FATAL_FAILURE(content::RunAllPendingInMessageLoop());
   }
-#endif
 }
 
 // Calls "confirm()" multiple times from an extension background page.
@@ -225,26 +205,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiTest, ConfirmQueue) {
           extension->id());
   ASSERT_TRUE(host);
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, background pages have no associated WindowAndroid, so confirm()
-  // calls are immediately canceled and resolve to false without showing
-  // dialogs.
-  const size_t num_dialogs = 6;
-  size_t call_count = 0;
-  for (size_t i = 0; i != num_dialogs; ++i) {
-    const std::string dialog_name = "Dialog #" + base::NumberToString(i) + ".";
-    host->host_contents()->GetPrimaryMainFrame()->ExecuteJavaScriptForTests(
-        u"confirm('" + base::ASCIIToUTF16(dialog_name) + u"');",
-        base::BindOnce(&CheckConfirmResult, dialog_name, false,
-                       base::Unretained(&call_count)),
-        content::ISOLATED_WORLD_ID_GLOBAL);
-  }
-  ASSERT_TRUE(
-      base::test::RunUntil([&]() { return call_count == num_dialogs; }));
-
-  EXPECT_FALSE(javascript_dialogs::AppModalDialogQueue::GetInstance()
-                   ->HasActiveDialog());
-#else
   // Creates several dialogs at the same time.
   const size_t num_accepted_dialogs = 3;
   const size_t num_cancelled_dialogs = 3;
@@ -285,7 +245,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiTest, ConfirmQueue) {
   while (call_count < num_accepted_dialogs + num_cancelled_dialogs) {
     ASSERT_NO_FATAL_FAILURE(content::RunAllPendingInMessageLoop());
   }
-#endif
 }
 
 }  // namespace extensions

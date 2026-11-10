@@ -16,7 +16,6 @@
 namespace signin {
 namespace {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 TEST(DeviceIdHelper, GenerateSigninScopedDeviceId) {
   EXPECT_FALSE(GenerateSigninScopedDeviceId().empty());
@@ -61,89 +60,6 @@ TEST(DeviceIdHelper, GetSigninScopedDeviceId) {
             prefs.GetString(prefs::kGoogleServicesSigninScopedDeviceId));
 }
 
-#else
-
-constexpr char kEphemeralPrefix[] = "t_";
-
-TEST(DeviceIdHelper, NonEphemeralDeviceIdsAreNotEmpty) {
-  EXPECT_FALSE(GenerateSigninScopedDeviceId(/*for_ephemeral=*/false).empty());
-}
-
-TEST(DeviceIdHelper, NonEphemeralDeviceIdsDoNotHaveTheEphemeralPrefix) {
-  EXPECT_FALSE(GenerateSigninScopedDeviceId(/*for_ephemeral=*/false)
-                   .starts_with(kEphemeralPrefix));
-}
-
-TEST(DeviceIdHelper,
-     NonEphemeralDeviceIdsAreUniqueIfStableDeviceIdFeatureIsDisabled) {
-  base::test::ScopedFeatureList features;
-  features.InitAndDisableFeature(switches::kStableDeviceId);
-
-  const std::string device_id1 =
-      GenerateSigninScopedDeviceId(/*for_ephemeral=*/false);
-
-  const std::string device_id2 =
-      GenerateSigninScopedDeviceId(/*for_ephemeral=*/false);
-
-  // Newly generated id is not the same as the previous one.
-  EXPECT_NE(device_id2, device_id1);
-}
-
-TEST(DeviceIdHelper,
-     NonEphemeralDeviceIdsAreNotUniqueIfStableDeviceIdFeatureIsEnabled) {
-  base::test::ScopedFeatureList features;
-  features.InitAndEnableFeature(switches::kStableDeviceId);
-
-  const std::string device_id1 =
-      GenerateSigninScopedDeviceId(/*for_ephemeral=*/false);
-
-  const std::string device_id2 =
-      GenerateSigninScopedDeviceId(/*for_ephemeral=*/false);
-
-  // Newly generated id is the same as the previous one.
-  EXPECT_EQ(device_id2, device_id1);
-}
-
-TEST(DeviceIdHelper, EphemeralDeviceIdsAreNotEmpty) {
-  EXPECT_FALSE(GenerateSigninScopedDeviceId(/*for_ephemeral=*/true).empty());
-}
-
-TEST(DeviceIdHelper, EphemeralDeviceIdsHaveTheEphemeralPrefix) {
-  EXPECT_TRUE(GenerateSigninScopedDeviceId(/*for_ephemeral=*/true)
-                  .starts_with(kEphemeralPrefix));
-}
-
-TEST(DeviceIdHelper,
-     EphemeralDeviceIdsAreUniqueIfStableDeviceIdFeatureIsDisabled) {
-  base::test::ScopedFeatureList features;
-  features.InitAndDisableFeature(switches::kStableDeviceId);
-
-  const std::string device_id1 =
-      GenerateSigninScopedDeviceId(/*for_ephemeral=*/true);
-
-  const std::string device_id2 =
-      GenerateSigninScopedDeviceId(/*for_ephemeral=*/true);
-
-  // Newly generated id is not the same as the previous one.
-  EXPECT_NE(device_id2, device_id1);
-}
-
-TEST(DeviceIdHelper,
-     EphemeralDeviceIdsAreUniqueIfStableDeviceIdFeatureIsEnabled) {
-  base::test::ScopedFeatureList features;
-  features.InitAndEnableFeature(switches::kStableDeviceId);
-
-  const std::string device_id1 =
-      GenerateSigninScopedDeviceId(/*for_ephemeral=*/true);
-
-  const std::string device_id2 =
-      GenerateSigninScopedDeviceId(/*for_ephemeral=*/true);
-
-  // Newly generated id is not the same as the previous one.
-  EXPECT_NE(device_id2, device_id1);
-}
-
-#endif
 
 }  // namespace
 }  // namespace signin

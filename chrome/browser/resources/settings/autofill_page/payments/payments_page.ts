@@ -149,7 +149,7 @@ export class SettingsPaymentsPageElement extends
       /**
        * Checks if we can use device authentication to authenticate the user.
        */
-      // <if expr="is_win or is_macosx or is_chromeos">
+      // <if expr="is_win or is_macosx">
       deviceAuthAvailable_: {type: Boolean},
       // </if>
 
@@ -161,7 +161,7 @@ export class SettingsPaymentsPageElement extends
       /**
        * Checks if a mandatory reauth feature flag is enabled.
        */
-      // <if expr="is_win or is_macosx or is_chromeos">
+      // <if expr="is_win or is_macosx">
       mandatoryReauthFeatureFlagEnabled_: {type: Boolean},
       // </if>
 
@@ -193,7 +193,7 @@ export class SettingsPaymentsPageElement extends
       false;
   protected accessor showLocalIbanRemoveConfirmationDialog_: boolean = false;
   protected accessor showVirtualCardUnenrollDialog_: boolean = false;
-  // <if expr="is_win or is_macosx or is_chromeos">
+  // <if expr="is_win or is_macosx">
   private accessor deviceAuthAvailable_: boolean =
       loadTimeData.getBoolean('deviceAuthAvailable');
   protected accessor mandatoryReauthFeatureFlagEnabled_: boolean =
@@ -263,7 +263,7 @@ export class SettingsPaymentsPageElement extends
     this.paymentsManager_.setPersonalDataManagerListener(
         setPersonalDataListener);
 
-    // <if expr="is_win or is_macosx or is_chromeos">
+    // <if expr="is_win or is_macosx">
     this.paymentsManager_.checkIfDeviceAuthAvailable().then(
         result => this.deviceAuthAvailable_ = result);
     // </if>
@@ -600,7 +600,7 @@ export class SettingsPaymentsPageElement extends
     this.paymentsManager_.removeVirtualCard(event.detail);
   }
 
-  // <if expr="is_win or is_macosx or is_chromeos">
+  // <if expr="is_win or is_macosx">
   /**
    * Checks if we should disable the mandatory reauth toggle.
    * This method checks that one of the following conditions are met:

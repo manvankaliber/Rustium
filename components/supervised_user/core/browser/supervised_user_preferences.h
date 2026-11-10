@@ -30,9 +30,6 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry);
 void EnableParentalControls(PrefService& pref_service);
 void DisableParentalControls(PrefService& pref_service);
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool IsChildAccountStatusKnown(const PrefService& pref_service);
-#endif
 
 // Returns true if both the primary account is a child account subject to
 // parental controls and the platform supports Family Link supervision features.

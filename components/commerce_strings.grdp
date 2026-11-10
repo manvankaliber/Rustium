@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <grit-part>
   <!-- Desktop only -->
-  <if expr="not is_android and not is_ios">
+
     <!-- For Desktop Price Tracking -->
     <message name="IDS_OMNIBOX_TRACK_PRICE_DIALOG_TITLE" desc="The title text for the dialog that is shown when a user tracks the product displayed on the current web page.">
       Track price
@@ -252,42 +252,10 @@
     <message name="IDS_DISCOUNTS_COUPON_CODE_BUTTON_TOOLTIP_CLICKED" desc="The tooltip message for a button containing a copyable coupon code in the discounts bubble on Desktop. This message is shown when the button is hovered over and if the button has been clicked.">
       Copied to clipboard
     </message>
-  </if>
+
 
   <!-- Android only -->
-  <if expr="is_android">
-    <!-- For Android Price Tracking -->
-    <message name="IDS_PRICE_NOTIFICATIONS_SETTINGS_TITLE" desc="The title text for price notifications settings in Google services. User can click into this item to view the detailed settings." formatter_data="android_java">
-      Get price tracking notifications
-    </message>
-    <message name="IDS_PRICE_NOTIFICATIONS_SETTINGS_DESCRIPTION" desc="The description text for price notifications settings in Google services. User can click into this item to view the detailed settings." formatter_data="android_java">
-      Manage mobile and email notifications
-    </message>
-    <message name="IDS_PRICE_NOTIFICATIONS_SETTINGS_DETAILED_PAGE_TITLE" desc="The title text for the detailed page settings of price notifications in Google services." formatter_data="android_java">
-      Price tracking notifications
-    </message>
-    <message name="IDS_PRICE_NOTIFICATIONS_SETTINGS_DETAILED_PAGE_DESCRIPTION" desc="The description text for the detailed page settings of price notifications in Google services." formatter_data="android_java">
-      Manage how you receive price drop alerts for products you track
-    </message>
-    <message name="IDS_PRICE_NOTIFICATIONS_SETTINGS_MOBILE_TITLE" desc="The title text for managing mobile price drop popup notifications shown on the detailed page settings in Google services." formatter_data="android_java">
-      Mobile
-    </message>
-    <message name="IDS_PRICE_NOTIFICATIONS_SETTINGS_MOBILE_DESCRIPTION_ON" desc="The description text for managing mobile price drop popup notifications when the notification is currently enabled. Shown on the detailed page settings in Google services. It tells users that they can disable the popup notification in the Chrome notification settings." formatter_data="android_java">
-      Price drop alerts are on. You can change this in <ph name="BEGIN_LINK">&lt;link&gt;</ph><ph name="NOTIFICATION_SETTINGS">%1$s<ex>settings</ex></ph><ph name="END_LINK">&lt;/link&gt;</ph>.
-    </message>
-    <message name="IDS_PRICE_NOTIFICATIONS_SETTINGS_MOBILE_DESCRIPTION_OFF" desc="The description text for managing mobile price drop popup notifications when the notification is currently disabled. Shown on the detailed page settings in Google services. It tells users that they can enable the popup notification in the Chrome notification settings." formatter_data="android_java">
-      Chrome notifications must be on. You can turn them on in <ph name="BEGIN_LINK">&lt;link&gt;</ph><ph name="NOTIFICATION_SETTINGS">%1$s<ex>settings</ex></ph><ph name="END_LINK">&lt;/link&gt;</ph>.
-    </message>
-    <message name="IDS_CHROME_NOTIFICATION_SETTINGS_FOR_PRICE_TRACKING" desc="The button text within the description for managing mobile price drop popup notifications. When user clicks this button, we send them to the Chrome notification settings." formatter_data="android_java">
-      settings
-    </message>
-    <message name="IDS_PRICE_NOTIFICATIONS_SETTINGS_EMAIL_TITLE" desc="The title text for managing price drop email notifications shown on the detailed page settings in Google services. User can turn on or off the toggle next to this item to manage whether they want to receive price drop emails." formatter_data="android_java">
-      Email
-    </message>
-    <message name="IDS_PRICE_NOTIFICATIONS_SETTINGS_EMAIL_DESCRIPTION" desc="The description text for managing price drop email notifications shown on the detailed page settings in Google services. User can turn on or off the toggle next to this item to manage whether they want to receive price drop emails." formatter_data="android_java">
-      Send to <ph name="EMAIL_ADDRESS">%1$s<ex>example@google.com</ex></ph>
-    </message>
-  </if>
+
 
   <!-- For Price Tracking on all platforms -->
   <message name="IDS_PRICE_DROP_POPUP_CONTENT_TITLE" desc="Text shown on the price drop popup notification. It tells users how much price drop on the corresponding product." formatter_data="android_java">
@@ -416,39 +384,10 @@
     </message>
   </if> <!-- not use_titlecase -->
     <!-- Discounts Android only -->
-  <if expr="is_android">
-    <then>
-      <message name="IDS_DISCOUNT_CODE_COPY_BUTTON_TEXT" desc="The copy button text. User uses this button to copy the discount code, so that they can paste the code during checkout." formatter_data="android_java" translateable="false">
-        Copy code
-      </message>
-    </then>
-    <else>
+
       <message name="IDS_DISCOUNT_CODE_COPY_BUTTON_TEXT" desc="The copy button text. User uses this button to copy the discount code, so that they can paste the code during checkout." formatter_data="android_java" translateable="false">
         Copy
       </message>
-    </else>
-  </if>
-  <if expr="is_android">
-    <message name="IDS_DISCOUNT_CODE_COPIED_BUTTON_TEXT" desc="The copy button text. User uses this button to copy the discount code, so that they can paste the code during checkout. This text will show on the button after user has clicked on the copy button to indicate that the discount code has been copied." formatter_data="android_java">
-      Copied
-    </message>
-    <message name="IDS_DISCOUNT_CONTAINER_TITLE" desc="The title of the discount container, indicating the discount section in the commerce bottom sheet." formatter_data="android_java" translateable="false">
-      Discounts
-    </message>
-    <message name="IDS_DISCOUNT_EXPIRATION_DATE_ANDROID" desc="Text shown in the discount dialog to tell users the discount expiration date." formatter_data="android_java" translateable="false">
-      Valid until <ph name="DATE">%1$s<ex>2023-01-01</ex></ph>
-    </message>
-    <message name="IDS_COMMERCE_BOTTOM_SHEET_CONTENT_DESCRIPTION" desc="Accessibility string that describes the commerce bottom sheet." formatter_data="android_java">
-      Commerce bottom sheet
-    </message>
-    <message name="IDS_COMMERCE_BOTTOM_SHEET_CONTENT_OPENED_FULL" desc="Accessibility string that describes fully opening the commerce bottom sheet." formatter_data="android_java">
-      Commerce bottom sheet opened at full height
-    </message>
-    <message name="IDS_COMMERCE_BOTTOM_SHEET_CONTENT_CLOSED" desc="Accessibility string that describes closing the commerce bottom sheet." formatter_data="android_java">
-      Commerce bottom sheet closed
-    </message>
-    <message name="IDS_COMMERCE_BOTTOM_SHEET_CONTENT_OPENED_HALF" desc="Accessibility string that describes half opening the commerce bottom sheet." formatter_data="android_java">
-      Commerce bottom sheet opened at half height
-    </message>
-  </if> <!-- is_android -->
+
+   <!-- is_android -->
 </grit-part>

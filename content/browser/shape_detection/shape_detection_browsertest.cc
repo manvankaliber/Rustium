@@ -28,11 +28,7 @@ struct TestParameters {
     {"FaceDetector", "/blank.jpg", {}},
     {"FaceDetector",
      "/single_face.jpg",
-#if BUILDFLAG(IS_ANDROID)
-     {{23, 20, 42, 42}}
-#else
      {{23, 26, 42, 42}}
-#endif
     },
 };
 
@@ -96,7 +92,7 @@ class ShapeDetectionBrowserTest
 };
 
 // TODO(crbug.com/41282827): Enable the test on other platforms.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_DetectShapesInImage DetectShapesInImage
 #else
 #define MAYBE_DetectShapesInImage DISABLED_DetectShapesInImage

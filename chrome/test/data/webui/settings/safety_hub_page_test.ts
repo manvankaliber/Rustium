@@ -18,9 +18,7 @@ import {TestSafetyHubBrowserProxy} from './test_safety_hub_browser_proxy.js';
 import {TestPasswordManagerProxy} from './test_password_manager_proxy.js';
 import {TestMetricsBrowserProxy} from './test_metrics_browser_proxy.js';
 
-// <if expr="not is_chromeos">
 import {eventToPromise} from 'chrome://webui-test/test_util.js';
-// </if>
 // clang-format on
 
 suite('SafetyHubPage', function() {
@@ -294,15 +292,12 @@ suite('SafetyHubPage', function() {
         testElement.$.version.getAttribute('aria-description'),
         testElement.i18n('safetyHubVersionRelaunchAriaLabel'));
 
-    // <if expr="not is_chromeos">
     lifetimeBrowserProxy.setShouldShowRelaunchConfirmationDialog(true);
     lifetimeBrowserProxy.setRelaunchConfirmationDialogDescription(
         'Test description.');
-    // </if>
 
     testElement.$.version.click();
 
-    // <if expr="not is_chromeos">
     // Ensure the confirmation dialog is always shown.
     await eventToPromise('cr-dialog-open', testElement);
     const relaunchConfirmationDialogElement =
@@ -321,7 +316,6 @@ suite('SafetyHubPage', function() {
         'Test description.', description.assignedNodes()[0]!.textContent);
 
     relaunchConfirmationDialogElement.$.confirm.click();
-    // </if>
 
     // Ensure the card state on click metrics are recorded.
     await safetyHubBrowserProxy.whenCalled('recordSafetyHubInteraction');

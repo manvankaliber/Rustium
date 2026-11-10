@@ -513,43 +513,6 @@ class TelemetryCommandGeneratorTest(unittest.TestCase):
     network_dict = json.loads(crossbench_test.network[0].split('=', 1)[1])
     self.assertDictEqual(network_dict, expected_dict)
 
-  @mock.patch.object(run_performance_tests.browser_finder, 'FindBrowser')
-  def testCrossbenchFindBrowserFromEmbedder(self, _):
-    fake_args = _create_crossbench_args(
-      'android-webview-standalone-google-bundle'
-    ) + ['--embedder=org.foo.bar']
-    options = run_performance_tests.parse_arguments(fake_args)
-
-    crossbench_test = run_performance_tests.CrossbenchTest(options, 'dir')
-
-    expected_hjson = crossbench_test.ANDROID_HJSON % ('org.foo.bar', '')
-    expected_browser = crossbench_test.CHROME_BROWSER % expected_hjson
-    self.assertEqual(crossbench_test.browser, expected_browser)
-
-  @mock.patch.object(run_performance_tests.browser_finder, 'FindBrowser')
-  def testCrossbenchAndroidDefaultPowerMode(self, _):
-    fake_args = _create_crossbench_args('android-chrome-bundle')
-    options = run_performance_tests.parse_arguments(fake_args)
-
-    crossbench_test = run_performance_tests.CrossbenchTest(options, 'dir')
-
-    self.assertEqual(
-      crossbench_test.env, ['--env={"cpu_power_mode":"performance"}']
-    )
-
-  @mock.patch.object(run_performance_tests.browser_finder, 'FindBrowser')
-  def testCrossbenchAndroidWebPowerUsesSchedPixel(self, _):
-    fake_args = _create_crossbench_args(
-      'android-chrome-bundle', benchmarks='web-power'
-    )
-    options = run_performance_tests.parse_arguments(fake_args)
-
-    crossbench_test = run_performance_tests.CrossbenchTest(options, 'dir')
-
-    self.assertEqual(
-      crossbench_test.env, ['--env={"cpu_power_mode":"sched_pixel"}']
-    )
-
   def testCrossbenchOfficialBrowser(self):
     fake_args = _create_crossbench_args()
     fake_args.append('--official-browser=chrome-stable-1.2.3.4')

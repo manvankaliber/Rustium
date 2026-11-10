@@ -170,19 +170,7 @@ cfg_if::cfg_if! {
         pub(crate) mod miri;
         use self::miri::trace as trace_imp;
         pub(crate) use self::miri::Frame as FrameImp;
-    } else if #[cfg(
-        any(
-            all(
-                unix,
-                not(target_os = "emscripten"),
-                not(all(target_os = "ios", target_arch = "arm")),
-            ),
-            all(
-                target_env = "sgx",
-                target_vendor = "fortanix",
-            ),
-        )
-    )] {
+    } else if #[cfg(any(all(unix, not(target_os = "emscripten")), all(target_env = "sgx", target_vendor = "fortanix")))] {
         mod libunwind;
         use self::libunwind::trace as trace_imp;
         pub(crate) use self::libunwind::Frame as FrameImp;

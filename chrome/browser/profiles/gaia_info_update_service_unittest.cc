@@ -56,12 +56,10 @@
 #include "ui/gfx/image/image.h"
 #include "ui/gfx/image/image_unittest_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/glic_pref_names.h"       // nogncheck
 #include "chrome/browser/glic/public/glic_enabling.h"  // nogncheck
 #include "chrome/browser/glic/test_support/glic_test_environment.h"  // nogncheck
 #include "chrome/browser/glic/test_support/glic_test_util.h"  // nogncheck
-#endif
 
 using ::testing::Return;
 
@@ -178,9 +176,7 @@ class GAIAInfoUpdateServiceTest : public testing::Test {
         .SetChromeSigninInterceptionUserChoice(gaia_id,
                                                ChromeSigninUserChoice::kSignin);
   }
-#if !BUILDFLAG(IS_ANDROID)
   glic::GlicUnitTestEnvironment glic_test_env_;
-#endif
   content::BrowserTaskEnvironment task_environment_;
   raw_ptr<TestingProfileManager> testing_profile_manager_ = nullptr;
   raw_ptr<TestingProfile> profile_ = nullptr;
@@ -500,7 +496,6 @@ TEST_F(GAIAInfoUpdateServiceTest,
   EXPECT_FALSE(HasAccountPrefs(gaia_id));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class GAIAInfoUpdateServiceWithGlicEnablingTest
     : public GAIAInfoUpdateServiceTest {
  public:
@@ -586,4 +581,3 @@ TEST_F(GAIAInfoUpdateServiceWithGlicEnablingTest, LogInLogOut) {
   EXPECT_EQ(entry->GetIsManaged(), signin::Tribool::kFalse);
   EXPECT_FALSE(entry->IsGlicEligible());
 }
-#endif

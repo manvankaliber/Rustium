@@ -108,10 +108,6 @@ class CaptionBubbleTest : public views::ViewsTestBase {
         /*application_locale=*/std::string(),
         /*destroyed_callback=*/base::DoNothing());
     bubble_ = bubble.get();
-#if BUILDFLAG(IS_CHROMEOS)
-    // The caption bubble has no parent, so give its widget a context.
-    test_views_delegate()->set_context(GetContext());
-#endif
     widget_ = views::BubbleDialogDelegateView::CreateBubble(std::move(bubble));
     widget_->Show();
     bubble_->SetModel(model_.get());

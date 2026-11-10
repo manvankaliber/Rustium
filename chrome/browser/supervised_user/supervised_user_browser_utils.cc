@@ -34,12 +34,10 @@
 #include "google_apis/gaia/core_account_id.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "chrome/browser/supervised_user/supervised_user_verification_controller_client.h"
 #include "chrome/browser/supervised_user/supervised_user_verification_page_blocked_sites.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-        // BUILDFLAG(IS_ANDROID)
+#endif
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "chrome/browser/supervised_user/supervised_user_verification_page_youtube.h"
@@ -115,20 +113,11 @@ bool ShouldContentSkipParentAllowlistFiltering(content::WebContents* contents) {
 }
 
 ProfileSelections BuildProfileSelectionsForRegularAndGuest() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return ProfileSelections::Builder()
-      .WithRegular(ProfileSelection::kRedirectedToOriginal)
-      .WithGuest(ProfileSelection::kOwnInstance)
-      // TODO(crbug.com/41488885): Check if this is needed for Ash Internals.
-      .WithAshInternals(ProfileSelection::kOriginalOnly)
-      .Build();
-#else
   // Do not create for Incognito profile.
   return ProfileSelections::Builder()
       .WithRegular(ProfileSelection::kOriginalOnly)
       .WithGuest(ProfileSelection::kRedirectedToOriginal)
       .Build();
-#endif
 }
 
 std::string GetAccountGivenName(Profile& profile) {
@@ -170,8 +159,7 @@ std::string CreateReauthenticationInterstitialForYouTube(
 }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 std::string CreateReauthenticationInterstitialForBlockedSites(
     content::NavigationHandle& navigation_handle) {
   content::WebContents* web_contents = navigation_handle.GetWebContents();

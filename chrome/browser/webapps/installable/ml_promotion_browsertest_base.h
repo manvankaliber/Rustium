@@ -14,9 +14,7 @@
 #include "content/public/test/content_mock_cert_verifier.h"
 #include "net/test/embedded_test_server/embedded_test_server.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/web_applications/os_integration/os_integration_manager.h"
-#endif
 
 namespace content {
 class WebContents;
@@ -59,10 +57,8 @@ class MLPromotionBrowserTestBase : public PlatformBrowserTest {
   Profile* profile();
 
  private:
-#if !BUILDFLAG(IS_ANDROID)
   std::optional<web_app::OsIntegrationManager::ScopedSuppressForTesting>
       os_hooks_suppress_;
-#endif  // BUILDFLAG(IS_ANDROID)
   // Similar to net::MockCertVerifier, but also updates the CertVerifier
   // used by the NetworkService.
   net::EmbeddedTestServer https_server_;

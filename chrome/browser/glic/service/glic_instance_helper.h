@@ -14,9 +14,6 @@
 #include "chrome/browser/glic/service/metrics/metrics_types.h"
 #include "ui/base/unowned_user_data/scoped_unowned_user_data.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif
 
 namespace glic {
 
@@ -63,18 +60,10 @@ class GlicInstanceHelper {
   base::CallbackListSubscription SubscribeToDestruction(
       base::RepeatingCallback<void(tabs::TabInterface*)> callback);
 
-#if BUILDFLAG(IS_ANDROID)
-  base::android::ScopedJavaLocalRef<jobject> GetJavaObject();
-  void OnInstanceChanged();
-#endif
 
  private:
   void UpdateGlicPinnedToVisibleInstanceProperty();
 
-#if BUILDFLAG(IS_ANDROID)
-  void InitJavaObject();
-  void NotifyJavaInstanceChanged();
-#endif
 
   raw_ptr<Instance> bound_instance_ = nullptr;
   base::flat_set<raw_ptr<Instance>> pinned_instances_;
@@ -84,9 +73,6 @@ class GlicInstanceHelper {
   base::RepeatingCallbackList<void(tabs::TabInterface*)>
       on_destroy_callback_list_;
 
-#if BUILDFLAG(IS_ANDROID)
-  base::android::ScopedJavaGlobalRef<jobject> java_ref_;
-#endif
 };
 
 }  // namespace glic

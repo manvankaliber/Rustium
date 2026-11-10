@@ -191,23 +191,16 @@
 #include "url/origin.h"
 #include "v8/include/v8-isolate.h"
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "components/webapps/isolated_web_apps/scheme.h"
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/renderer/sandbox_status_extension_android.h"
-#include "chrome/renderer/wallet/boarding_pass_extractor.h"
-#include "components/feed/feed_feature_list.h"
-#else
 #include "chrome/renderer/indigo/indigo_agent.h"
 #include "chrome/renderer/indigo/onboarding_agent.h"
 #include "chrome/renderer/password_manager/remote_actor_credential_sharing_extension.h"
 #include "components/record_replay/content/renderer/record_replay_agent.h"
 #include "components/record_replay/core/common/record_replay_features.h"
-#endif
 
 #if BUILDFLAG(ENABLE_SPEECH_SERVICE)
 #include "chrome/renderer/media/chrome_speech_recognition_client.h"
@@ -272,7 +265,7 @@
 #include "chrome/common/request_header_integrity/request_header_integrity_url_loader_throttle.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(ENABLE_LIBRARY_CDMS) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_LIBRARY_CDMS) || BUILDFLAG(IS_WIN)
 #include "chrome/renderer/media/chrome_key_systems.h"
 #endif
 
@@ -390,10 +383,8 @@ ChromeContentRendererClient::ChromeContentRendererClient(
   // The profiler can't start before the sandbox is initialized on
   // ChromeOS due to ChromeOS's sandbox initialization code's use of
   // AssertSingleThreaded().
-#if !BUILDFLAG(IS_CHROMEOS)
   main_thread_profiler_ =
       sampling_profiler::ThreadProfiler::CreateAndStartOnMainThread();
-#endif
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   if (create_extensions_client) {
     extensions_client_ =
@@ -471,8 +462,7 @@ void ChromeContentRendererClient::RenderThreadStarted() {
   extensions_renderer_client->RenderThreadStarted();
   WebSecurityPolicy::RegisterURLSchemeAsExtension(
       WebString::FromAscii(extensions::kExtensionScheme));
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   WebSecurityPolicy::RegisterURLSchemeAsIsolatedApp(
       WebString::FromAscii(webapps::kIsolatedAppScheme));
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
@@ -506,7 +496,6 @@ void ChromeContentRendererClient::RenderThreadStarted() {
   WebSecurityPolicy::RegisterURLSchemeAsFirstPartyWhenTopLevelEmbeddingSecure(
       chrome_scheme);
 
-#if !BUILDFLAG(IS_ANDROID)
   // TODO(crbug.com/483614998): Granting Lens side panel is a temporary
   // exception to use SameSite cookies while it migrates to a <webview>
   // approach. This should not be done for other untrusted WebUI.
@@ -514,7 +503,6 @@ void ChromeContentRendererClient::RenderThreadStarted() {
       GURL(chrome::kChromeUILensUntrustedSidePanelURL);
   WebSecurityPolicy::RegisterURLAsFirstPartyWhenTopLevelEmbeddingSecure(
       chrome_lens_url);
-#endif
 
   // chrome-native: is a scheme used for placeholder navigations that allow
   // UIs to be drawn with platform native widgets instead of HTML.  These pages
@@ -534,8 +522,7 @@ void ChromeContentRendererClient::RenderThreadStarted() {
   WebString chrome_search_scheme(
       WebString::FromAscii(chrome::kChromeSearchScheme));
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   // IWAs can be enabled by either the feature flag or by enterprise
   // policy. In either case the kEnableIsolatedWebAppsInRenderer flag is passed
   // to the renderer process.
@@ -589,8 +576,7 @@ void ChromeContentRendererClient::RenderThreadStarted() {
   // TODO(nyquist): Add test to ensure this happens when the flag is set.
   WebSecurityPolicy::RegisterURLSchemeAsDisplayIsolated(dom_distiller_scheme);
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   if (base::FeatureList::IsEnabled(features::kGoogleChromeScheme)) {
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
     WebSecurityPolicy::RegisterURLSchemeAsDirectLaunch(
@@ -602,10 +588,6 @@ void ChromeContentRendererClient::RenderThreadStarted() {
   }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  WebSecurityPolicy::RegisterURLSchemeAsAllowedForReferrer(
-      WebString::FromUtf8(content::kAndroidAppScheme));
-#endif
 
   // chrome-search: pages should not be accessible by bookmarklets
   // or javascript: URLs typed in the omnibox.
@@ -694,18 +676,13 @@ void ChromeContentRendererClient::RenderFrameCreated(
   new paint_preview::PaintPreviewRecorderImpl(render_frame);
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  SandboxStatusExtension::Create(render_frame);
-#endif
 
   TabContextDecryptionTokenExtension::Create(render_frame);
   TrustedVaultEncryptionKeysExtension::Create(render_frame);
-#if !BUILDFLAG(IS_ANDROID)
   if (password_manager::features::RemoteActorCredentialSharingEnabled() &&
       render_frame->IsMainFrame()) {
     RemoteActorCredentialSharingExtension::Create(render_frame);
   }
-#endif
   GoogleAccountsPrivateApiExtension::Create(render_frame);
 
   if (render_frame->IsMainFrame())
@@ -774,14 +751,12 @@ void ChromeContentRendererClient::RenderFrameCreated(
     }
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(
           record_replay::features::kRecordReplayBase)) {
     new record_replay::RecordReplayAgent(render_frame, associated_interfaces);
   }
   indigo::IndigoAgent::MaybeCreate(render_frame, associated_interfaces);
   indigo::OnboardingAgent::MaybeCreate(render_frame, associated_interfaces);
-#endif
 
   if (content_capture::features::IsContentCaptureEnabled()) {
     new content_capture::ContentCaptureSender(render_frame,
@@ -834,12 +809,6 @@ void ChromeContentRendererClient::RenderFrameCreated(
     new commerce::CommerceWebExtractor(render_frame, registry);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(features::kBoardingPassDetector) &&
-      render_frame->IsMainFrame()) {
-    new wallet::BoardingPassExtractor(render_frame, registry);
-  }
-#endif
 
   // Shared by Wallet pass detection and payment QR code detection. The main
   // frame check precedes the feature flag checks so that subframes never enroll
@@ -862,11 +831,9 @@ void ChromeContentRendererClient::RenderFrameCreated(
                                                         associated_interfaces);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(features::kWebium)) {
     WebUIBrowserRendererExtension::Create(render_frame);
   }
-#endif
 
   // Wire up the PageStabilityMonitorManager to allow components to
   // request stability monitors for this frame.
@@ -1002,7 +969,6 @@ bool ChromeContentRendererClient::OverrideCreatePlugin(
     WebPlugin** plugin) {
   std::string orig_mime_type = params.mime_type.Utf8();
 
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(surface_embed::features::kSurfaceEmbed)) {
     GURL url = render_frame->GetWebFrame()->GetDocument().Url();
     if (url.SchemeIs(content::kChromeUIScheme) &&
@@ -1012,7 +978,6 @@ bool ChromeContentRendererClient::OverrideCreatePlugin(
       }
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
   // Used for plugins.
@@ -1277,11 +1242,6 @@ void ChromeContentRendererClient::PrepareErrorPageForHttpStatusError(
 }
 
 void ChromeContentRendererClient::PostSandboxInitialized() {
-#if BUILDFLAG(IS_CHROMEOS)
-  DCHECK(!main_thread_profiler_);
-  main_thread_profiler_ =
-      sampling_profiler::ThreadProfiler::CreateAndStartOnMainThread();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void ChromeContentRendererClient::PostIOThreadCreated(
@@ -1476,7 +1436,7 @@ std::unique_ptr<media::KeySystemSupportRegistration>
 ChromeContentRendererClient::GetSupportedKeySystems(
     content::RenderFrame* render_frame,
     media::GetSupportedKeySystemsCB cb) {
-#if BUILDFLAG(ENABLE_LIBRARY_CDMS) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_LIBRARY_CDMS) || BUILDFLAG(IS_WIN)
   return GetChromeKeySystems(render_frame, std::move(cb));
 #else
   std::move(cb).Run({});
@@ -1542,8 +1502,7 @@ void ChromeContentRendererClient::
 
 // Web Share is conditionally enabled here in chrome/, to avoid it
 // being made available in WebView or Linux.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   blink::WebRuntimeFeatures::EnableWebShare(true);
 #endif
 
@@ -1568,11 +1527,6 @@ void ChromeContentRendererClient::
   if (IsStandaloneContentExtensionProcess()) {
     // These Web API features are exposed in extensions.
     blink::WebRuntimeFeatures::EnableWebUSBOnServiceWorkers(true);
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-    if (base::FeatureList::IsEnabled(blink::features::kWebHID) &&
-        base::FeatureList::IsEnabled(
-            features::kWebHidOnDesktopAndroidServiceWorkers))
-#endif  // BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
     {
       blink::WebRuntimeFeatures::EnableWebHIDOnServiceWorkers(true);
     }

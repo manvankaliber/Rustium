@@ -10,11 +10,9 @@
 #include "components/enterprise/connectors/core/service_provider_config.h"
 #include "components/file_access/scoped_file_access.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/common/safe_browsing/archive_analyzer_results.h"
 #include "chrome/services/file_util/public/cpp/sandboxed_rar_analyzer.h"
 #include "chrome/services/file_util/public/cpp/sandboxed_zip_analyzer.h"
-#endif  //! BUILDFLAG(IS_ANDROID)
 
 namespace safe_browsing {
 
@@ -41,7 +39,6 @@ class FileAnalysisRequest
   ~FileAnalysisRequest() override;
 
  private:
-#if !BUILDFLAG(IS_ANDROID)
   void ProcessZipFile(Data data) override;
   void ProcessRarFile(Data data) override;
 
@@ -54,7 +51,6 @@ class FileAnalysisRequest
   std::unique_ptr<SandboxedRarAnalyzer, base::OnTaskRunnerDeleter>
       rar_analyzer_{nullptr, base::OnTaskRunnerDeleter(nullptr)};
 
-#endif
   base::WeakPtrFactory<FileAnalysisRequest> weakptr_factory_{this};
 };
 

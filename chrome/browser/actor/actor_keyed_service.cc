@@ -28,10 +28,6 @@
 #include "chrome/browser/actor/actor_task.h"
 #include "components/sessions/core/session_id.h"
 #include "ui/base/page_transition_types.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/application_status_listener.h"
-#include "chrome/browser/actor/android/actor_keyed_service_android.h"
-#endif
 #include "chrome/browser/actor/actor_task_metadata.h"
 #include "chrome/browser/actor/actor_util.h"
 #include "chrome/browser/actor/enterprise_policy_checker.h"
@@ -420,46 +416,6 @@ void ActorKeyedService::CreateActorTab(TaskId task_id,
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::android::ApplicationStatusListener::HasVisibleActivities()) {
-    CreateBackgroundTabForTask(
-        profile_, task_id,
-        base::BindOnce(
-            [](base::WeakPtr<ActorKeyedService> service, TaskId task_id,
-               CreateActorTabCallback callback, tabs::TabInterface* tab) {
-              if (!service) {
-                if (tab) {
-                  tab->Close();
-                }
-                std::move(callback).Run(nullptr);
-                return;
-              }
-              if (!tab) {
-                service->GetJournal().Log(
-                    GURL(), task_id, "CreateBackgroundTabForTask",
-                    JournalDetailsBuilder()
-                        .AddError("Background tab creation failed")
-                        .Build());
-              } else {
-                service->GetJournal().Log(
-                    GURL(), task_id, "CreateBackgroundTabForTask",
-                    JournalDetailsBuilder().Add("Success", true).Build());
-              }
-              ActorTask* task = service->GetTask(task_id);
-              if (!task) {
-                if (tab) {
-                  tab->Close();
-                }
-                std::move(callback).Run(nullptr);
-                return;
-              }
-              OnCreateActorTabComplete(*task, std::move(callback),
-                                       service->GetJournal(), tab);
-            },
-            weak_ptr_factory_.GetWeakPtr(), task_id, std::move(callback)));
-    return;
-  }
-#endif
 
   // If the initiating tab is still live, create the new tab in the same window.
   // (Cross-profile initiator tabs were already rejected above.)
@@ -475,7 +431,6 @@ void ActorKeyedService::CreateActorTab(TaskId task_id,
   } else if (!initiator_tab) {
     // TODO(b/482430429): Figure out how to proceed from just a window ID on
     // Android.
-#if !BUILDFLAG(IS_ANDROID)
     // If the tab was closed, open it in the window it was in (at the time of
     // task initiation).
     window_for_new_tab =
@@ -491,7 +446,6 @@ void ActorKeyedService::CreateActorTab(TaskId task_id,
               .Add("Using initiator_window", initiator_window_id.id())
               .Build());
     }
-#endif
   }
 
   NavigateParams params(profile_.get(), GURL(url::kAboutBlankURL),
@@ -516,14 +470,6 @@ void ActorKeyedService::CreateActorTab(TaskId task_id,
         }
       }
     }
-#if BUILDFLAG(IS_ANDROID)
-    if (open_in_background) {
-      // Workaround for b/489440503. On Android we ignore
-      // `::ui::mojom::WindowOpenDisposition::kNewBackgroundTab` when a
-      // tabstrip_index is set, so revert the index to its default value.
-      params.tabstrip_index = -1;
-    }
-#endif
   } else {
     GetJournal().Log(
         GURL(), task_id, "CreateActorTab",
@@ -666,9 +612,7 @@ TaskId ActorKeyedService::CreateTaskImpl(
 
   active_tasks_[task_id] = std::move(actor_task);
 
-#if !BUILDFLAG(IS_ANDROID)
   ui_state_manager->LazyInitTabTracker();
-#endif
   active_tasks_[task_id]->SetNavigationDelegate(
       ui_state_manager->GetNavigationDelegate());
 
@@ -1182,18 +1126,6 @@ void ActorKeyedService::NotifyPendingTaskCountChanged() {
   pending_task_count_change_callback_list_.Notify(GetPendingTasksCount());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-base::CallbackListSubscription
-ActorKeyedService::AddForegroundServiceStartedCallback(
-    EnsureForegroundServiceStartedCallback callback) {
-  return ensure_foreground_service_started_callbacks_.Add(std::move(callback));
-}
-
-void ActorKeyedService::EnsureForegroundServiceStarted(
-    const std::string& glic_trigger_message_id) {
-  ensure_foreground_service_started_callbacks_.Notify(glic_trigger_message_id);
-}
-#endif
 
 void ActorKeyedService::RemoveExternalTriggerPendingTask() {
   external_trigger_expiry_.Stop();

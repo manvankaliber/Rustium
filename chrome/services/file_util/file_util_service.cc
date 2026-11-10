@@ -15,13 +15,10 @@
 #include "components/safe_browsing/buildflags.h"
 #include "mojo/public/cpp/bindings/self_owned_receiver.h"
 
-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 #include "chrome/services/file_util/safe_archive_analyzer.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/services/file_util/zip_file_creator.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTRACTORS)
 #include "chrome/services/file_util/single_file_tar_file_extractor.h"
@@ -35,14 +32,8 @@ FileUtilService::FileUtilService(
 
 FileUtilService::~FileUtilService() = default;
 
-#if BUILDFLAG(IS_CHROMEOS)
-void FileUtilService::BindZipFileCreator(
-    mojo::PendingReceiver<chrome::mojom::ZipFileCreator> receiver) {
-  new chrome::ZipFileCreator(std::move(receiver));  // self deleting
-}
-#endif
 
-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 void FileUtilService::BindSafeArchiveAnalyzer(
     mojo::PendingReceiver<chrome::mojom::SafeArchiveAnalyzer> receiver) {
   scoped_refptr<base::SequencedTaskRunner> runner =

@@ -711,10 +711,8 @@ class LensOverlayControllerBrowserTest : public InProcessBrowserTest {
   void SetUp() override {
     ASSERT_TRUE(embedded_test_server()->InitializeAndListen());
     SetupFeatureList();
-#if !BUILDFLAG(IS_CHROMEOS)
     base::CommandLine::ForCurrentProcess()->AppendSwitch(
         switches::kEnableChromeBrowserCloudManagement);
-#endif
     policy_provider_.SetDefaultReturns(
         /*is_initialization_complete_return=*/true,
         /*is_first_policy_load_complete_return=*/true);
@@ -5866,11 +5864,9 @@ IN_PROC_BROWSER_TEST_F(LensOverlayControllerBrowserTest,
   coordinator->RequestSendFeedback();
 
 // ChromeOS opens its own feedback dialog.
-#if !BUILDFLAG(IS_CHROMEOS)
   // Wait for the feedback dialog to appear instead of a new tab.
   ASSERT_TRUE(base::test::RunUntil(
       []() { return FeedbackDialog::GetInstanceForTest() != nullptr; }));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   histogram_tester.ExpectTotalCount("Feedback.RequestSource", 1);
 }

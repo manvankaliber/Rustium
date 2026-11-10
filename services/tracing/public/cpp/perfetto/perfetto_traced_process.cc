@@ -55,7 +55,7 @@ void OnPerfettoLogMessage(perfetto::base::LogMessageCallbackArgs args) {
       << args.message;
 }
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 // The async socket connection function passed to the client library for
 // connecting the producer socket in the browser process via mojo IPC.
 // |cb| is a callback from within the client library this function calls when
@@ -173,12 +173,12 @@ void PerfettoTracedProcess::RestartThreadInSandbox() {
   tracing_backend_->DetachFromMuxerSequence();
   CustomEventRecorder::GetInstance()->DetachFromSequence();
   will_trace_thread_restart_ = false;
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   if (system_tracing_producer_socket_cb_) {
     task_runner_->PostTask(FROM_HERE,
                            std::move(system_tracing_producer_socket_cb_));
   }
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#endif
 }
 
 // static
@@ -272,7 +272,7 @@ base::SequencedTaskRunner* PerfettoTracedProcess::GetTaskRunner() {
   return PerfettoTracedProcess::Get().task_runner_.get();
 }
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 void PerfettoTracedProcess::DeferOrConnectProducerSocket(
     perfetto::CreateSocketCallback cb) {
   CHECK(!system_tracing_producer_socket_cb_);
@@ -284,7 +284,7 @@ void PerfettoTracedProcess::DeferOrConnectProducerSocket(
     ConnectProducerSocketViaMojo(cb, base::Milliseconds(100));
   }
 }
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 void PerfettoTracedProcess::SetupClientLibrary(bool enable_consumer,
                                                bool enable_system_backend) {
@@ -306,7 +306,7 @@ void PerfettoTracedProcess::SetupClientLibrary(bool enable_consumer,
   if (enable_system_backend) {
     init_args.backends |= perfetto::kSystemBackend;
     init_args.tracing_policy = this;
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
     if (!TraceStartupConfig::GetInstance().GetProcessType().empty()) {
       // Sandboxed. Need to delegate to the browser process using Mojo.
       init_args.create_socket_async = ConnectProducerSocketAsync;

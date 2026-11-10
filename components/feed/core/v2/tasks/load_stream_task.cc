@@ -22,7 +22,7 @@
 #include "components/feed/core/v2/feed_network.h"
 #include "components/feed/core/v2/feed_stream.h"
 #include "components/feed/core/v2/feedstore_util.h"
-#include "components/feed/core/v2/ios_shared_prefs.h"
+#include "components/feed/core/v2/shared_prefs.h"
 #include "components/feed/core/v2/launch_reliability_logger.h"
 #include "components/feed/core/v2/metrics_reporter.h"
 #include "components/feed/core/v2/proto_util.h"

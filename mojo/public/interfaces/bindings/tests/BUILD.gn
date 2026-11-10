@@ -7,10 +7,6 @@ import("//build/config/python.gni")
 import("//mojo/public/interfaces/bindings/tests/validation_data_files.gni")
 import("../../../tools/bindings/mojom.gni")
 
-if (is_ios) {
-  import("//build/config/ios/bundle_data_from_filelist.gni")
-}
-
 group("test_data_deps") {
   testonly = true
   data_deps = [
@@ -19,13 +15,6 @@ group("test_data_deps") {
     ":validation_test_data",
     ":validation_test_data_list",
   ]
-}
-
-if (is_ios) {
-  bundle_data_from_filelist("validation_unittest_bundle_data") {
-    testonly = true
-    filelist_name = "validation_unittest_bundle_data.filelist"
-  }
 }
 
 copy("validation_test_data") {
@@ -51,22 +40,21 @@ action_foreach("validation_test_data_list") {
 mojom("test_deserializer_interface") {
   generate_blink = true
   testonly = true
-  generate_java = true
+
   sources = [ "deserializer.test-mojom" ]
   js_generate_struct_deserializers = true
 }
 
 mojom("test_jni_interfaces") {
   testonly = true
-  generate_java = true
-  generate_jni = true
+
   sources = [ "jni.test-mojom" ]
 }
 
 mojom("test_interfaces") {
   generate_blink = true
   testonly = true
-  generate_java = true
+
   webui_module_path = "/"
   generate_legacy_js_bindings = true
 
@@ -209,7 +197,7 @@ mojom("test_interfaces") {
 
 mojom("test_interfaces_for_containers_of_optionals") {
   testonly = true
-  generate_java = false
+
   sources = [ "containers_of_nullable_types.test-mojom" ]
   cpp_typemaps = [
     {
@@ -293,7 +281,7 @@ mojom("test_export2") {
 mojom("test_mojom_import") {
   generate_blink = true
   testonly = true
-  generate_java = true
+
   webui_module_path = "/"
   generate_legacy_js_bindings = true
   sources = [ "sample_import.test-mojom" ]
@@ -302,21 +290,21 @@ mojom("test_mojom_import") {
 mojom("test_mojom_import_wrapper") {
   generate_blink = true
   testonly = true
-  generate_java = true
+
   public_deps = [ ":test_mojom_import" ]
 }
 
 mojom("test_mojom_import_wrapper_wrapper") {
   generate_blink = true
   testonly = true
-  generate_java = true
+
   public_deps = [ ":test_mojom_import_wrapper" ]
 }
 
 mojom("test_mojom_import2") {
   generate_blink = true
   testonly = true
-  generate_java = true
+
   webui_module_path = "/"
   generate_legacy_js_bindings = true
   sources = [ "sample_import2.test-mojom" ]
@@ -416,7 +404,7 @@ mojom("test_no_sources") {
 mojom("echo") {
   generate_blink = true
   testonly = true
-  generate_java = true
+
   sources = [
     "echo.test-mojom",
     "echo_import/echo_import.test-mojom",
@@ -426,7 +414,7 @@ mojom("echo") {
 # These could probably be merged with "test_interfaces" at some point.
 mojom("other_test_interfaces") {
   testonly = true
-  generate_java = true
+
   sources = [ "new_endpoint_types.test-mojom" ]
 }
 
@@ -439,8 +427,4 @@ group("test_generation") {
     ":other_test_interfaces",
     ":other_test_interfaces_js",
   ]
-
-  if (is_android) {
-    deps += [ ":other_test_interfaces_java" ]
-  }
 }

@@ -12,31 +12,15 @@ import shlex
 import subprocess
 import os
 import re
-import sys
 import pathlib
 import difflib
 from typing import Set, List
 
 REPOSITORY_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)
-)
+    os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir))
 
-sys.path.append(os.path.join(REPOSITORY_ROOT, 'build', 'android'))
-import java_home  # noqa: E402
-
-JAVA_HOME = java_home.JAVA_HOME
-JAR_PATH = os.path.abspath(os.path.join(JAVA_HOME, 'bin', 'jar'))
-JAVAC_PATH = os.path.abspath(os.path.join(JAVA_HOME, 'bin', 'javac'))
-JAVAP_PATH = os.path.abspath(os.path.join(JAVA_HOME, 'bin', 'javap'))
-
-_MB_PATH = os.path.join(REPOSITORY_ROOT, 'tools/mb/mb.py')
 GN_PATH = os.path.join(REPOSITORY_ROOT, 'buildtools/linux64/gn')
 NINJA_PATH = os.path.join(REPOSITORY_ROOT, 'third_party/ninja/ninja')
-# Cronet in Android is distributed via Mainline
-# (https://source.android.com/docs/core/ota/modular-system) to devices back to
-# Android R (API 30).
-MIN_SDK_VERSION_FOR_AOSP = 30
-ARCHS = ['x86', 'x64', 'arm', 'arm64', 'riscv64']
 _GN_ARG_MATCHER = re.compile("^.*=.*$")
 # The current value of 500 is a heuristic that seems to work. If command
 # line length limitation is exceeded, reduce this number.
@@ -55,7 +39,7 @@ def build_targets_list_chunking(out_path: str, targets: List[str]) -> None:
     # Split the build script actions into chunk of _MAX_TARGETS_PER_NINJA_EXECUTION.
     # This is needed in order not to exceed the command-line length.
     build_script_actions_chunks = [
-        targets[i : i + _MAX_TARGETS_PER_NINJA_EXECUTION]
+        targets[i:i + _MAX_TARGETS_PER_NINJA_EXECUTION]
         for i in range(0, len(targets), _MAX_TARGETS_PER_NINJA_EXECUTION)
     ]
     for chunk in build_script_actions_chunks:
@@ -88,11 +72,8 @@ def run_and_get_stdout(command, verbose=True, **kwargs):
     """
     if verbose:
         print('Executing: ' + ' '.join(shlex.quote(arg) for arg in command))
-    return (
-        subprocess.run(command, capture_output=True, check=True, **kwargs)
-        .stdout.decode('utf-8')
-        .strip()
-    )
+    return (subprocess.run(command, capture_output=True, check=True,
+                           **kwargs).stdout.decode('utf-8').strip())
 
 
 def gn(out_dir, gn_args, gn_extra=None, **kwargs):
@@ -113,9 +94,8 @@ def gn(out_dir, gn_args, gn_extra=None, **kwargs):
     run(cmd, **kwargs)
 
 
-def compare_text_and_generate_diff(
-    generated_text, golden_text, golden_file_path
-):
+def compare_text_and_generate_diff(generated_text, golden_text,
+                                   golden_file_path):
     """
     Compares the generated text with the golden text.
 
@@ -179,27 +159,21 @@ def build_all(out_dir, build_targets, extra_options=None):
     run(cmd)
 
 
-def get_transitive_deps_build_files(
-    repo_path: str, out_dir: str, gn_targets: List[str]
-) -> Set[str]:
+def get_transitive_deps_build_files(repo_path: str, out_dir: str,
+                                    gn_targets: List[str]) -> Set[str]:
     """Executes gn desc |out_dir| |gn_target| deps --all --as=buildfile for each gn target"""
     all_deps = set()
     for gn_target in gn_targets:
         all_deps.update(
-            subprocess.check_output(
-                [
-                    GN_PATH,
-                    "desc",
-                    out_dir,
-                    gn_target,
-                    "deps",
-                    "--all",
-                    "--as=buildfile",
-                ]
-            )
-            .decode("utf-8")
-            .split("\n")
-        )
+            subprocess.check_output([
+                GN_PATH,
+                "desc",
+                out_dir,
+                gn_target,
+                "deps",
+                "--all",
+                "--as=buildfile",
+            ]).decode("utf-8").split("\n"))
         # gn desc deps does not return the build file that includes the target
         # which we want to find its transitive dependencies, in order to
         # account for this corner case, the BUILD file for the current target
@@ -214,82 +188,6 @@ def get_transitive_deps_build_files(
     return all_deps
 
 
-def get_gn_args_for_aosp(arch: str) -> List[str]:
-    # This is the source of truth for GN args for Cronet in Android.
-    # Note: for readability and discoverability, prefer to make the default value
-    # of the GN arg depend on `is_cronet_for_aosp_build` GN arg whenever possible,
-    # instead of setting the value here.
-    return (
-        # TODO: https://crbug.com/446652679 - It might be possible to drop this.
-        'dcheck_always_on = false',
-        # TODO: https://crbug.com/446652679 - It might be possible to drop this.
-        'debuggable_apks = false',
-        # Override here, instead of modifying `default_min_sdk_version`'s
-        # declaration to avoid hardcoding this value twice (there is no easy way
-        # to share a constant between GN and python files).
-        f'default_min_sdk_version={MIN_SDK_VERSION_FOR_AOSP}',
-        # TODO: https://crbug.com/446652679 - It might be possible to drop this.
-        'is_debug = false',
-        'is_cronet_for_aosp_build=true',
-        # TODO: https://crbug.com/446652679 - It might be possible to drop this.
-        'is_component_build = false',
-        # TODO: https://crbug.com/446652193 - It might be possible to drop this.
-        'is_official_build = true',
-        # TODO: https://crbug.com/446652679 - It might be possible to drop this.
-        'strip_debug_info = true',
-        # TODO: https://crbug.com/446652679 - It might be possible to drop this.
-        'symbol_level = 1',
-        f'target_cpu = "{arch}"',
-        'target_os = "android"',
-    )
-
-
-def android_gn_gen(is_release, target_cpu, out_dir):
-    """Runs `gn gen` using Cronet's android gn_args.
-
-    Creates a local GN configuration under |out_dir| with the provided argument
-    as input to `get_android_gn_args`, see the documentation of
-    `get_android_gn_args` for more information.
-    """
-    return gn(out_dir, ' '.join(get_android_gn_args(is_release, target_cpu)))
-
-
-def get_android_gn_args(is_release, target_cpu):
-    """Fetches the gn args for a specific builder.
-
-    Returns a list of gn args used by the builders whose target cpu
-    is |target_cpu| and (dev or rel) depending on is_release.
-
-    See https://ci.chromium.org/p/chromium/g/chromium.android/console for
-    a list of the builders
-
-    Example:
-
-    get_android_gn_args(true, 'x86') -> GN Args for `android-cronet-x86-rel`
-    get_android_gn_args(false, 'x86') -> GN Args for `android-cronet-x86-dev`
-    """
-    group_name = 'chromium.android'
-    builder_name = _map_config_to_android_builder(is_release, target_cpu)
-    # Ideally we would call `mb_py gen` directly, but we need to filter out the
-    # use_remoteexec arg, as that cannot be used in a local environment.
-    gn_args = (
-        subprocess.check_output(
-            [
-                'python3',
-                _MB_PATH,
-                'lookup',
-                '-m',
-                group_name,
-                '-b',
-                builder_name,
-            ]
-        )
-        .decode('utf-8')
-        .strip()
-    )
-    return filter_gn_args(gn_args.split("\n"), [])
-
-
 def get_path_from_gn_label(gn_label: str) -> str:
     """Returns the path part from a GN Label
 
@@ -299,26 +197,7 @@ def get_path_from_gn_label(gn_label: str) -> str:
     """
     if ":" not in gn_label:
         raise ValueError(f"Provided gn label {gn_label} is not a proper label")
-    return gn_label[: gn_label.find(":")]
-
-
-def _map_config_to_android_builder(is_release, target_cpu):
-    target_cpu_to_base_builder = {
-        'x86': 'android-cronet-x86',
-        'x64': 'android-cronet-x64',
-        'arm': 'android-cronet-arm',
-        'arm64': 'android-cronet-arm64',
-        'riscv64': 'android-cronet-riscv64',
-    }
-    if target_cpu not in target_cpu_to_base_builder:
-        raise ValueError('Unsupported target CPU')
-
-    builder_name = target_cpu_to_base_builder[target_cpu]
-    if is_release:
-        builder_name += '-rel'
-    else:
-        builder_name += '-dbg'
-    return builder_name
+    return gn_label[:gn_label.find(":")]
 
 
 def _should_remove_arg(arg, keys):
@@ -339,7 +218,6 @@ def filter_gn_args(gn_args, keys_to_remove):
     filtered_args = []
     for arg in gn_args:
         if _GN_ARG_MATCHER.match(arg) and not _should_remove_arg(
-            arg, keys_to_remove
-        ):
+                arg, keys_to_remove):
             filtered_args.append(arg)
     return filtered_args

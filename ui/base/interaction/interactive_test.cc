@@ -192,7 +192,6 @@ InteractionSequence::StepBuilder InteractiveTestApi::FocusElement(
   return builder;
 }
 
-#if !BUILDFLAG(IS_IOS)
 InteractionSequence::StepBuilder InteractiveTestApi::SendAccelerator(
     ElementSpecifier element,
     Accelerator accelerator) {
@@ -232,7 +231,6 @@ InteractionSequence::StepBuilder InteractiveTestApi::SendKeyPress(
   return builder;
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 InteractionSequence::StepBuilder InteractiveTestApi::Confirm(
     ElementSpecifier element) {

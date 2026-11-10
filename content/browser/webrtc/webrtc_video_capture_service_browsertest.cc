@@ -952,7 +952,7 @@ IN_PROC_BROWSER_TEST_F(WebRtcVideoCaptureServiceBrowserTest,
 // TODO(crbug.com/40781953): This test is flakey on macOS.
 // TODO(crbug.com/41484083): This test is flakey on ChromeOS.
 // TODO(crbug.com/576838747): This test is flakey on Linux.
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #define MAYBE_FramesSentThroughTextureVirtualDeviceGetDisplayedOnPage \
   DISABLED_FramesSentThroughTextureVirtualDeviceGetDisplayedOnPage
 #else

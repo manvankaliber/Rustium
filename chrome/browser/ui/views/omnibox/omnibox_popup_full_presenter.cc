@@ -59,9 +59,6 @@
 #include "ui/views/view_class_properties.h"
 #include "ui/views/view_utils.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/ash_element_identifiers.h"
-#endif
 
 OmniboxPopupFullPresenter::OmniboxPopupFullPresenter(
     LocationBar* location_bar,
@@ -156,12 +153,6 @@ void OmniboxPopupFullPresenter::Show() {
         app_menu_control_observation_.Observe(
             browser_view->toolbar_button_provider()->GetAppMenuControl());
       }
-#if BUILDFLAG(IS_CHROMEOS)
-      if (browser_view->top_container() &&
-          !top_container_observation_.IsObserving()) {
-        top_container_observation_.Observe(browser_view->top_container());
-      }
-#endif
       if (auto* elements =
               BrowserElementsViews::From(browser_view->browser())) {
         for (views::View* view :
@@ -193,9 +184,6 @@ void OmniboxPopupFullPresenter::Hide() {
   }
   app_menu_control_observation_.Reset();
   occluding_view_observations_.RemoveAllObservations();
-#if BUILDFLAG(IS_CHROMEOS)
-  top_container_observation_.Reset();
-#endif
   UpdatePopupOcclusion();
 
   event_monitor_.reset();
@@ -595,51 +583,9 @@ void OmniboxPopupFullPresenter::BlurIfBrowserOrPopupInactive() {
   if (IsBrowserOrPopupActive()) {
     return;
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  // The system emoji picker took activation, e.g. from the Emoji item of the
-  // omnibox's context menu. Once an emoji is picked, it closes and inserts the
-  // emoji into the text input that is focused when its window is reactivated,
-  // as the Views omnibox's `FocusManager` restores focus to it. Keep the
-  // omnibox focused with the popup open, hand focus back to the popup once
-  // the browser window or popup is reactivated, and check again once the
-  // picker closes, in case the user left the browser window instead.
-  if (IsEmojiPickerShown() &&
-      controller()->popup_state_manager()->popup_state() ==
-          OmniboxPopupState::kFull &&
-      controller()->edit_model()->has_focus()) {
-    refocus_on_activation_ = true;
-    if (!emoji_picker_hidden_subscription_) {
-      emoji_picker_hidden_subscription_ =
-          ui::ElementTracker::GetElementTracker()
-              ->AddElementHiddenInAnyContextCallback(
-                  ash::kEmojiPickerElementId,
-                  base::BindRepeating(
-                      &OmniboxPopupFullPresenter::OnEmojiPickerHidden,
-                      base::Unretained(this)));
-    }
-    return;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   BlurForWindowDeactivation();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// static
-bool OmniboxPopupFullPresenter::IsEmojiPickerShown() {
-  return !!ui::ElementTracker::GetElementTracker()->GetElementInAnyContext(
-      ash::kEmojiPickerElementId);
-}
-
-void OmniboxPopupFullPresenter::OnEmojiPickerHidden(
-    ui::TrackedElement* element) {
-  emoji_picker_hidden_subscription_ = {};
-  // Check once activation has moved to the next window.
-  base::SequencedTaskRunner::GetCurrentDefault()->PostTask(
-      FROM_HERE,
-      base::BindOnce(&OmniboxPopupFullPresenter::BlurIfBrowserOrPopupInactive,
-                     weak_factory_.GetWeakPtr()));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void OmniboxPopupFullPresenter::BlurForWindowDeactivation() {
   if (controller()->popup_state_manager()->popup_state() !=
@@ -1042,23 +988,10 @@ void OmniboxPopupFullPresenter::OnViewVisibilityChanged(
 
 void OmniboxPopupFullPresenter::OnViewBoundsChanged(
     views::View* observed_view) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // Keep the popup over the location bar as the immersive fullscreen reveal
-  // slides top chrome in or out.
-  if (top_container_observation_.IsObservingSource(observed_view) &&
-      IsShown()) {
-    SynchronizePopupBounds();
-  }
-#endif
   UpdatePopupOcclusion();
 }
 
 void OmniboxPopupFullPresenter::OnViewIsDeleting(views::View* observed_view) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (top_container_observation_.IsObservingSource(observed_view)) {
-    top_container_observation_.Reset();
-  }
-#endif
   if (occluding_view_observations_.IsObservingSource(observed_view)) {
     occluding_view_observations_.RemoveObservation(observed_view);
   }

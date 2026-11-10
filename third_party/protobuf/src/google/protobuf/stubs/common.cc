@@ -23,9 +23,6 @@
 #include <windows.h>
 #define snprintf _snprintf    // see comment in strutil.cc
 #endif
-#if defined(__ANDROID__)
-#include <android/log.h>
-#endif
 
 #include "absl/log/absl_log.h"
 #include "absl/status/status.h"

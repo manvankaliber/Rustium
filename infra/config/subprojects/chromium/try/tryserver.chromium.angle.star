@@ -32,25 +32,6 @@ consoles.list_view(
 )
 
 shared_gpu.try_.linux_rate_limited_builder(
-    name = "android-angle-chromium-try",
-    description_html = "Builds and tests ANGLE on arm64 Android using ToT ANGLE and a known good Chromium revision.",
-    mirrors = [
-        "ci/android-angle-chromium-arm64-builder",
-        "ci/android-angle-chromium-arm64-pixel2",
-    ],
-    builder_config_settings = builder_config.try_settings(
-        retry_failed_shards = False,
-    ),
-    gn_args = gn_args.config(
-        configs = [
-            "ci/android-angle-chromium-arm64-builder",
-            "no_symbols",
-        ],
-    ),
-    contact_team_email = "angle-team@google.com",
-)
-
-shared_gpu.try_.linux_rate_limited_builder(
     name = "linux-angle-chromium-try",
     description_html = "Builds and tests ANGLE on x64 Linux using ToT ANGLE and a known good Chromium revision.",
     mirrors = [

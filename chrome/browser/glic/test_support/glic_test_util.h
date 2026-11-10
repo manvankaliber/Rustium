@@ -32,7 +32,6 @@ namespace prefs {
 enum class FreStatus;
 }  // namespace prefs
 
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
 // Tracks a glic instance. Always tracks glic instance associated with the first
 // browser. May track based on tab, instance id, or whether the instance is
 // floating.
@@ -114,7 +113,6 @@ class GlicInstanceTracker {
   bool track_floating_glic_instance_ = false;
   bool track_only_glic_instance_ = false;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class GlicClientConnectionObserverImpl;
 

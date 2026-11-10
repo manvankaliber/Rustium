@@ -9,9 +9,6 @@
 #include "build/build_config.h"
 #include "ui/accessibility/platform/browser_accessibility.h"
 #include "ui/accessibility/platform/browser_accessibility_manager.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/accessibility/browser_accessibility_manager_android.h"
-#endif
 #include "content/public/test/browser_task_environment.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/accessibility/platform/test_ax_node_id_delegate.h"
@@ -20,19 +17,6 @@ namespace content {
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-class TestBrowserAccessibilityManager
-    : public BrowserAccessibilityManagerAndroid {
- public:
-  explicit TestBrowserAccessibilityManager(
-      const ui::AXTreeUpdate& initial_tree,
-      ui::AXNodeIdDelegate& node_id_delegate)
-      : BrowserAccessibilityManagerAndroid(initial_tree,
-                                           nullptr,
-                                           node_id_delegate,
-                                           nullptr) {}
-};
-#else
 class TestBrowserAccessibilityManager : public ui::BrowserAccessibilityManager {
  public:
   explicit TestBrowserAccessibilityManager(
@@ -42,7 +26,6 @@ class TestBrowserAccessibilityManager : public ui::BrowserAccessibilityManager {
     Initialize(initial_tree);
   }
 };
-#endif
 
 }  // namespace
 

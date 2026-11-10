@@ -10,28 +10,16 @@ import {assertEquals, assertFalse, assertTrue} from 'chrome-untrusted://webui-te
 import {microtasksFinished} from 'chrome-untrusted://webui-test/test_util.js';
 
 import {setupTestEnvironment} from './common.js';
-// <if expr="is_chromeos">
-import type {TestAudioBrowserProxy} from './test_audio_browser_proxy.js';
-// </if>
 
 suite('LanguageToast', () => {
   let toast: LanguageToastElement;
-  // <if expr="is_chromeos">
-  let audioBrowserProxy: TestAudioBrowserProxy;
-  // </if>
 
   function getTitle(): string {
     return toast.$.toast.querySelector<HTMLElement>('#toastTitle')!.textContent;
   }
 
   setup(() => {
-    // <if expr="is_chromeos">
-    const result = setupTestEnvironment();
-    audioBrowserProxy = result.audioBrowserProxy;
-    // </if>
-    // <if expr="not is_chromeos">
     setupTestEnvironment();
-    // </if>
 
     toast = document.createElement('language-toast');
     document.body.appendChild(toast);
@@ -39,46 +27,7 @@ suite('LanguageToast', () => {
     return microtasksFinished();
   });
 
-  // <if expr="is_chromeos">
-  test('shows downloaded message on ChromeOS', async () => {
-    audioBrowserProxy.localeToDisplayName['pt-br'] = 'Português (Brasil)';
-    const lang = 'pt-br';
-    toast.notify(NotificationType.DOWNLOADING, lang);
-    toast.notify(NotificationType.DOWNLOADED, lang);
-    await microtasksFinished();
 
-    assertTrue(toast.$.toast.open);
-    assertEquals(
-        'High-quality Português (Brasil) voice files downloaded', getTitle());
-  });
-
-  test('does not show toast if not newly downloaded', async () => {
-    const lang = 'pt-br';
-    toast.notify(NotificationType.DOWNLOADED, lang);
-    await microtasksFinished();
-
-    assertFalse(toast.$.toast.open);
-  });
-
-  test('does not show toast if still downloading', async () => {
-    const lang = 'pt-br';
-    toast.notify(NotificationType.DOWNLOADING, lang);
-    await microtasksFinished();
-
-    assertFalse(toast.$.toast.open);
-  });
-
-  test('does not show toast if error while downloading', async () => {
-    const lang = 'pt-br';
-    toast.notify(NotificationType.DOWNLOADING, lang);
-    toast.notify(NotificationType.NO_INTERNET, lang);
-    await microtasksFinished();
-
-    assertFalse(toast.$.toast.open);
-  });
-  // </if>
-
-  // <if expr="not is_chromeos">
   test('no downloaded message outside ChromeOS', async () => {
     const lang = 'pt-br';
     toast.notify(NotificationType.DOWNLOADING, lang);
@@ -87,7 +36,6 @@ suite('LanguageToast', () => {
 
     assertFalse(toast.$.toast.open);
   });
-  // </if>
 
   test('shows error message if enabled', async () => {
     const lang = 'pt-br';

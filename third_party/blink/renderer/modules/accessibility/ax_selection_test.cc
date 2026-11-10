@@ -491,7 +491,6 @@ TEST_F(AccessibilitySelectionTest, SetSelectionInText) {
 
 TEST_F(AccessibilitySelectionTest, SetSelectionInMultilineTextarea) {
 // On Android we use an ifdef to disable inline text boxes.
-#if !BUILDFLAG(IS_ANDROID)
   ax_context_->SetAXMode(ui::kAXModeDefaultForTests);
   GetAXObjectCache().MarkDocumentDirty();
   GetAXObjectCache().UpdateAXForAllDocuments();
@@ -567,7 +566,6 @@ TEST_F(AccessibilitySelectionTest, SetSelectionInMultilineTextarea) {
   // so that "text" is the selection.
   EXPECT_EQ(11u, ToTextControl(*textarea).selectionStart());
   EXPECT_EQ(13u, ToTextControl(*textarea).selectionEnd());
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 TEST_F(AccessibilitySelectionTest, SetSelectionInTextWithWhiteSpace) {

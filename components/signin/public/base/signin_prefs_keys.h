@@ -10,9 +10,6 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/device_signals/core/browser/pref_names.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace signin::internal {
 
@@ -120,14 +117,6 @@ inline constexpr std::string_view kExtensionsExplicitBrowserSigninEnabled =
 inline constexpr std::string_view kBookmarksExplicitBrowserSigninEnabled =
     "BookmarksExplicitBrowserSigninEnabled";
 
-#if BUILDFLAG(IS_ANDROID)
-// Whether a managed user has consented to the device signals collection.
-// Shares its key with the desktop profile pref
-// `device_signals::prefs::kDeviceSignalsPermanentConsentReceived`, but on
-// Android it is stored per account.
-inline constexpr std::string_view kDeviceSignalsPermanentConsentReceived =
-    device_signals::prefs::kDeviceSignalsPermanentConsentReceived;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // History sync promo on the history page.
 //

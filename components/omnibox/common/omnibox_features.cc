@@ -8,17 +8,12 @@
 #include "build/android_buildflags.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/feature_map.h"
-#include "base/no_destructor.h"
-#include "components/omnibox/common/jni_headers/OmniboxFeatureMap_jni.h"
-#endif
 
 namespace omnibox {
 namespace {
-constexpr bool IS_ANDROID = !!BUILDFLAG(IS_ANDROID);
-constexpr bool IS_CHROMEOS = !!BUILDFLAG(IS_CHROMEOS);
-constexpr bool IS_IOS = !!BUILDFLAG(IS_IOS);
+constexpr bool IS_ANDROID = !!false;
+constexpr bool IS_CHROMEOS = !!false;
+constexpr bool IS_IOS = !!false;
 
 constexpr base::FeatureState DISABLED = base::FEATURE_DISABLED_BY_DEFAULT;
 constexpr base::FeatureState ENABLED = base::FEATURE_ENABLED_BY_DEFAULT;
@@ -572,23 +567,6 @@ BASE_FEATURE(kComposeboxDriveContextMenuOptionDisclaimer, DISABLED);
 const base::FeatureParam<int> kComposeboxDriveConsentFlowId{
     &kComposeboxDriveContextMenuOptionDisclaimer, "flow_id", 76};
 
-#if BUILDFLAG(IS_IOS)
-// For Chrome on iOS:
-// - Product ID: Chrome iOS (71720513)
-// - Product Surface: SEARCH_AIM (29)
-const base::FeatureParam<int> kComposeboxDriveConsentProductId{
-    &kComposeboxDriveContextMenuOptionDisclaimer, "product_id", 71720513};
-const base::FeatureParam<int> kComposeboxDriveConsentProductSurface{
-    &kComposeboxDriveContextMenuOptionDisclaimer, "product_surface", 29};
-#elif BUILDFLAG(IS_ANDROID)
-// For Chrome on Android:
-// - Product ID: Chrome Android (111611457)
-// - Product Surface: SEARCH_AIM (29)
-const base::FeatureParam<int> kComposeboxDriveConsentProductId{
-    &kComposeboxDriveContextMenuOptionDisclaimer, "product_id", 111611457};
-const base::FeatureParam<int> kComposeboxDriveConsentProductSurface{
-    &kComposeboxDriveContextMenuOptionDisclaimer, "product_surface", 29};
-#else
 // For Chrome on Desktop:
 // - Product ID: Chrome Desktop (67911908)
 // - Product Surface: CHROME_DESKTOP_NEW_TAB_PAGE (76)
@@ -596,7 +574,6 @@ const base::FeatureParam<int> kComposeboxDriveConsentProductId{
     &kComposeboxDriveContextMenuOptionDisclaimer, "product_id", 67911908};
 const base::FeatureParam<int> kComposeboxDriveConsentProductSurface{
     &kComposeboxDriveContextMenuOptionDisclaimer, "product_surface", 76};
-#endif
 const base::FeatureParam<std::string> kComposeboxDriveConsentEntrypointId{
     &kComposeboxDriveContextMenuOptionDisclaimer, "entrypoint_id", "aim-drive"};
 
@@ -674,119 +651,6 @@ const base::FeatureParam<bool> kVoiceSearchCoherenceRealboxKeepLegacyUi{
     &kVoiceSearchCoherenceSearchbox, "VoiceSearchCoherenceRealboxKeepLegacyUi",
     false};
 
-#if BUILDFLAG(IS_ANDROID)
-// Prevents intermediate AutocompleteResult updates from being sent to Java on
-// low-end devices. This aims at eliminating time spent on constructing,
-// measuring, and laying out views that are about to be discarded, and reducing
-// the volume of JNI jumps.
-BASE_FEATURE(kSuppressIntermediateACUpdatesOnLowEndDevices, DISABLED);
-
-// When enabled, delay focusTab to prioritize navigation
-// (https://crbug.com/374852568).
-BASE_FEATURE(kPostDelayedTaskFocusTab, ENABLED);
-
-// Controls various Omnibox Diagnostics features.
-BASE_FEATURE(kDiagnostics, "OmniboxDiagnostics", DISABLED);
-
-// Force the realbox on Android regardless of platform/configuration checks.
-BASE_FEATURE(kForceAndroidRealbox, DISABLED);
-
-// If enabled, disables ligatures in the URL bar on Android.
-BASE_FEATURE(kUrlBarWithoutLigatures, ENABLED);
-
-// Kill switch: when enabled, the URL bar's stylus handwriting bounds do not
-// extend above the URL bar. The Android platform default extends the
-// handwriting-initiation area 40dp above an editable TextView, which overlaps
-// the tablet tab strip and causes stylus drags on tabs to start handwriting in
-// the omnibox instead (b/514550853).
-BASE_FEATURE(kUrlBarNoHandwritingBoundsAbove, ENABLED);
-
-// If enabled, Java-cached ZPS will be served.
-// The cached ZPS made sense on sub-4GB Android Go devices
-BASE_FEATURE(kServeJavaCachedZeroSuggest, ENABLED);
-
-// If enabled, OmniboxSuggestionsDropdown will force reset the scroll position
-// of the Omnibox suggestion list to the top during any re-layout.
-BASE_FEATURE(kResetSuggestionsScroll, DISABLED);
-
-// If enabled, the typed-text autocomplete request is started right after the
-// next frame is drawn (i.e. once the location bar has repainted with the new
-// character), rather than after a fixed 30ms delay. The fixed delay is the
-// single largest component of keystroke-to-suggestions latency
-// (b/578525544).
-BASE_FEATURE(kOmniboxPostFrameAutocompleteStart, DISABLED);
-
-// Kill switch for special handling for session-less voice search queries
-// (e.g. from NTP fakebox). This special case was added to address b/541295247.
-BASE_FEATURE(kOmniboxSessionlessVoiceSearch, ENABLED);
-
-// Kill switch for suppressing status icon during HTTP/HTTPS navigation.
-BASE_FEATURE(kSuppressStatusIconDuringHttpNavigation, ENABLED);
-
-// Enables computing and probing alternative navigation matches for intranet
-// redirects on Android.
-BASE_FEATURE(kOmniboxAndroidIntranetRedirect, DISABLED);
-
-// If enabled, the Omnibox, New Tab Page and toolbar mic buttons delegate voice
-// capture and transcription to the Android Google App Voice Plate (via an
-// explicit activity intent), and navigate directly upon receiving the
-// transcription.
-BASE_FEATURE(kOmniboxVoicePlateIntent, DISABLED);
-
-// If enabled, Omnibox suggestion icons are rasterized from the native
-// gfx::VectorIcon definitions (shared with desktop) instead of being sourced
-// from Android XML drawables.
-BASE_FEATURE(kOmniboxNativeVectorIcons, DISABLED);
-
-namespace android {
-static int64_t JNI_OmniboxFeatureMap_GetNativeMap(JNIEnv* env) {
-  static const base::Feature* const kFeaturesExposedToJava[] = {
-      &kDiagnostics,
-      &kForceAndroidRealbox,
-      &kOmniboxTouchDownTriggerForPrefetch,
-      &kOmniboxPrefetchSelectedSuggestionsOmtAndroid,
-      &kOmniboxFuseboxAsyncInflation,
-      &kOmniboxEarlyInflation,
-      &kRichAutocompletion,
-      &kUrlBarWithoutLigatures,
-      &kUrlBarNoHandwritingBoundsAbove,
-      &kPostDelayedTaskFocusTab,
-      &kOmniboxMobileParityUpdateV2,
-      &kOmniboxXGeoFailClosedOnPreciseLeak,
-      &kPlatformAgnosticXGeo,
-      &kInlineLocationSignaling,
-      &kOmniboxSiteSearch,
-      &kOmniboxMultimodalInput,
-      &kOmniboxFuseboxPopupVariations,
-      &kOmniboxFuseboxUserEdModelSubtitles,
-      &kOmniboxFuseboxUserEdPlusButtonIph,
-      &kOmniboxFuseboxUserEdTabPickerIph,
-      &kOmniboxFuseboxUserEdFakeboxAnimation,
-      &kOmniboxFuseboxUserEdGuidedTour,
-      &kServeJavaCachedZeroSuggest,
-      &kAIMSuppressVerbatimMatch,
-      &kAim3pEntrypoint,
-      &kResetSuggestionsScroll,
-      &kOmniboxPostFrameAutocompleteStart,
-      &kExactMatchFavicons,
-      &kStarterPackExpansion,
-      &kOmniboxSearchPrefetchOnEnterKeyDown,
-      &kOmniboxAimImageDownscaling,
-      &kOmniboxDebounceKeyboardVisibility,
-      &kOmniboxDisableTabsForCanvas,
-      &kOmniboxAimOpenInNewTab,
-      &kOmniboxSessionlessVoiceSearch,
-      &kSuppressStatusIconDuringHttpNavigation,
-      &kZeroSuggestPrefetchOnPageLoadAndTabSwitch,
-      &kAndroidTabSearchCloseTabButton,
-      &kOmniboxVoicePlateIntent,
-      &kOmniboxNativeVectorIcons};
-  static base::NoDestructor<base::android::FeatureMap> kFeatureMap(
-      kFeaturesExposedToJava);
-  return reinterpret_cast<int64_t>(kFeatureMap.get());
-}
-}  // namespace android
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // If enabled, X-Geo headers are sent using the platform-agnostic C++
 // implementation. On Android, enabling this flag will disable the legacy Java
@@ -874,7 +738,3 @@ const char kOmniboxDebugLogsDescription[] =
 }  // namespace flag_descriptions
 
 }  // namespace omnibox
-
-#if BUILDFLAG(IS_ANDROID)
-DEFINE_JNI(OmniboxFeatureMap)
-#endif

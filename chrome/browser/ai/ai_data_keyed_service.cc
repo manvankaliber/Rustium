@@ -63,13 +63,11 @@
 #include "ui/gfx/codec/png_codec.h"
 #include "ui/gfx/geometry/rect.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/tabs/tab_group_model.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "components/tabs/public/tab_group.h"
-#endif
 
 #if BUILDFLAG(ENABLE_PDF)
 // GN doesn't understand buildflags, erroring on Android builds
@@ -294,7 +292,6 @@ void OnDataCollectionsComplete(AiDataKeyedService::AiDataCallback callback,
   std::move(callback).Run(std::move(data));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void OnGetTabInnerText(
     int64_t tab_id,
     std::string title,
@@ -430,7 +427,6 @@ void GetFormDataByFieldGlobalIdForModelPrototyping(
       autofill::FormDataProtoConversionReason::kExtensionAPI);
   std::move(continue_callback).Run(std::move(data));
 }
-#endif
 
 std::string EncodePngOnBackgroundThread(const SkBitmap& bitmap) {
   TRACE_EVENT0("browser", "EncodePngOnBackgroundThread");
@@ -569,7 +565,6 @@ void GetModelPrototypingAiData(AiDataKeyedService::AiDataSpecifier specifiers,
     GetTabScreenshotForModelPrototyping(web_contents,
                                         concurrent.CreateCallback());
   }
-#if !BUILDFLAG(IS_ANDROID)
   // TODO(https://crbug.com/385777825): generalize this logic and support other
   // page contexts for tabs.
   auto tab_specifier =
@@ -590,7 +585,6 @@ void GetModelPrototypingAiData(AiDataKeyedService::AiDataSpecifier specifiers,
         web_contents, page_context_specifier.field_global_id(),
         concurrent.CreateCallback());
   }
-#endif
 #if BUILDFLAG(ENABLE_PDF)
   if (page_context_specifier.pdf_data()) {
     RequestPdfBytesForModelPrototyping(web_contents,

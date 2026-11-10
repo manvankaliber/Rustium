@@ -40,7 +40,7 @@
 #include "content/public/test/test_service.mojom.h"
 #include "mojo/public/cpp/bindings/remote.h"
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include <sys/wait.h>
 #endif
 
@@ -261,13 +261,7 @@ class UtilityProcessHostBrowserTest : public BrowserChildProcessObserver,
       const ChildProcessData& data,
       const ChildProcessTerminationInfo& info) override {
     DCHECK_CURRENTLY_ON(BrowserThread::UI);
-#if BUILDFLAG(IS_ANDROID)
-    // Android does not send crash notifications but sends kills. See comment in
-    // browser_child_process_observer.h.
-    BrowserChildProcessCrashed(data, info);
-#else
     FAIL() << "Killed notifications should only happen on Android.";
-#endif
   }
 
   void BrowserChildProcessCrashed(
@@ -277,7 +271,7 @@ class UtilityProcessHostBrowserTest : public BrowserChildProcessObserver,
 
 #if BUILDFLAG(IS_WIN)
     EXPECT_EQ(EXCEPTION_BREAKPOINT, static_cast<DWORD>(info.exit_code));
-#elif BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
     EXPECT_TRUE(WIFSIGNALED(info.exit_code));
 #if defined(OFFICIAL_BUILD) || (defined(ARCH_CPU_ARM64) && BUILDFLAG(IS_LINUX))
     EXPECT_EQ(SIGTRAP, WTERMSIG(info.exit_code));
@@ -286,7 +280,7 @@ class UtilityProcessHostBrowserTest : public BrowserChildProcessObserver,
     EXPECT_EQ(SIGABRT, WTERMSIG(info.exit_code));
 #endif  // defined(OFFICIAL_BUILD) || (defined(ARCH_CPU_ARM64) &&
         // BUILDFLAG(IS_LINUX)
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
     EXPECT_EQ(kTestProcessName, data.metrics_name);
     EXPECT_EQ(false, has_crashed_);
     has_crashed_ = true;
@@ -337,11 +331,7 @@ IN_PROC_BROWSER_TEST_F(UtilityProcessHostBrowserTest, SkiaInitialized) {
 // TODO(crbug.com/40253015): Re-enable this test on Android when
 // `files_to_preload` is actually fixed there.
 // TODO(crbug.com/41484083): Re-enable this test on ChromeOS.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_FileDescriptorStore DISABLED_FileDescriptorStore
-#else
 #define MAYBE_FileDescriptorStore FileDescriptorStore
-#endif
 IN_PROC_BROWSER_TEST_F(UtilityProcessHostBrowserTest,
                        MAYBE_FileDescriptorStore) {
   UtilityProcessHost::Options options = DefaultOptions();
@@ -429,8 +419,7 @@ IN_PROC_BROWSER_TEST_F(UtilityProcessHostBrowserTest,
 // `BrowserChildProcessCrashed` function above without raising a bug in
 // Internals>Core.
 // ** READ THIS **
-#if !(BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_ARM64))
-#if (BUILDFLAG(IS_LINUX) && defined(ARCH_CPU_X86_64)) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) && defined(ARCH_CPU_X86_64)
 #define MAYBE_LaunchProcessAndCrash DISABLED_LaunchProcessAndCrash
 #else
 #define MAYBE_LaunchProcessAndCrash LaunchProcessAndCrash
@@ -444,7 +433,6 @@ IN_PROC_BROWSER_TEST_F(UtilityProcessHostBrowserTest,
   ASSERT_TRUE(crash_was_pre_ipc_.has_value());
   EXPECT_FALSE(crash_was_pre_ipc_.value());
 }
-#endif
 
 // This test won't work as-is on POSIX platforms, where fork()+exec() is used to
 // launch child processes, failure does not happen until exec(), therefore the

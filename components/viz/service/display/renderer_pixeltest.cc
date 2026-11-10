@@ -3904,12 +3904,7 @@ TEST_P(RendererPixelTest, RoundedCornerOnRenderPass) {
       &pass_list, path, cc::AlphaDiscardingFuzzyPixelOffByOneComparator()));
 }
 
-#if BUILDFLAG(IS_IOS)
-// TODO(crbug.com/40259140): currently failing on iOS.
-#define MAYBE_LinearGradientOnRenderPass DISABLED_LinearGradientOnRenderPass
-#else
 #define MAYBE_LinearGradientOnRenderPass LinearGradientOnRenderPass
-#endif  // BUILDFLAG(IS_IOS)
 TEST_P(GPURendererPixelTest, MAYBE_LinearGradientOnRenderPass) {
   gfx::Rect viewport_rect(this->device_viewport_size_);
   constexpr int kCornerRadius = 20;
@@ -3955,13 +3950,7 @@ TEST_P(GPURendererPixelTest, MAYBE_LinearGradientOnRenderPass) {
           0.6f)));
 }
 
-#if BUILDFLAG(IS_IOS)
-// TODO(crbug.com/40259140): currently failing on iOS.
-#define MAYBE_MultiLinearGradientOnRenderPass \
-  DISABLED_MultiLinearGradientOnRenderPass
-#else
 #define MAYBE_MultiLinearGradientOnRenderPass MultiLinearGradientOnRenderPass
-#endif  // BUILDFLAG(IS_IOS)
 TEST_P(GPURendererPixelTest, MAYBE_MultiLinearGradientOnRenderPass) {
   gfx::Rect viewport_rect(this->device_viewport_size_);
   constexpr int kCornerRadius = 20;

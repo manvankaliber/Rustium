@@ -5,10 +5,6 @@
 import("//base/debug/debug.gni")
 import("//components/gwp_asan/buildflags/buildflags.gni")
 
-if (is_android) {
-  import("//build/config/android/config.gni")
-}
-
 source_set("lib") {
   visibility = [ ":*" ]
 
@@ -23,72 +19,70 @@ source_set("lib") {
   ]
 }
 
-if (!is_ios) {
-  source_set("shared_memory_data_source") {
-    sources = [
-      "shared_memory_user_stream_data_source.cc",
-      "shared_memory_user_stream_data_source.h",
-    ]
+source_set("shared_memory_data_source") {
+  sources = [
+    "shared_memory_user_stream_data_source.cc",
+    "shared_memory_user_stream_data_source.h",
+  ]
 
-    deps = [
-      "//base",
-      "//components/crash/core/common:shared_memory_user_stream",
-      "//third_party/crashpad/crashpad/handler",
-      "//third_party/crashpad/crashpad/minidump",
-    ]
-  }
+  deps = [
+    "//base",
+    "//components/crash/core/common:shared_memory_user_stream",
+    "//third_party/crashpad/crashpad/handler",
+    "//third_party/crashpad/crashpad/minidump",
+  ]
+}
 
-  if (is_win || is_linux || is_chromeos || is_android || is_mac) {
-    source_set("shared_memory_user_stream_args") {
-      sources = []
-      deps = [ "//base" ]
+if (is_win || is_linux || is_mac) {
+  source_set("shared_memory_user_stream_args") {
+    sources = []
+    deps = [ "//base" ]
 
-      if (is_win || is_linux || is_chromeos || is_android) {
-        sources += [
-          "shared_memory_user_stream_args.cc",
-          "shared_memory_user_stream_args.h",
-        ]
-        public_deps = [ "//third_party/crashpad/crashpad/util" ]
-      }
+    if (is_win || is_linux) {
+      sources += [
+        "shared_memory_user_stream_args.cc",
+        "shared_memory_user_stream_args.h",
+      ]
+      public_deps = [ "//third_party/crashpad/crashpad/util" ]
+    }
 
-      if (is_mac) {
-        sources += [
-          "shared_memory_user_stream_mach_port.cc",
-          "shared_memory_user_stream_mach_port.h",
-        ]
-      }
+    if (is_mac) {
+      sources += [
+        "shared_memory_user_stream_mach_port.cc",
+        "shared_memory_user_stream_mach_port.h",
+      ]
     }
   }
+}
 
-  source_set("crashpad_handler_main") {
-    sources = [ "crashpad_handler_main.cc" ]
+source_set("crashpad_handler_main") {
+  sources = [ "crashpad_handler_main.cc" ]
 
-    deps = [
-      ":shared_memory_data_source",
-      "//base:debugging_buildflags",
-      "//components/crash/core/common:shared_memory_user_stream",
-      "//components/gwp_asan/buildflags",
-      "//third_party/crashpad/crashpad/handler",
-      "//third_party/crashpad/crashpad/minidump",
-    ]
+  deps = [
+    ":shared_memory_data_source",
+    "//base:debugging_buildflags",
+    "//components/crash/core/common:shared_memory_user_stream",
+    "//components/gwp_asan/buildflags",
+    "//third_party/crashpad/crashpad/handler",
+    "//third_party/crashpad/crashpad/minidump",
+  ]
 
-    if (is_linux || is_chromeos || is_android || is_mac) {
-      deps += [ ":shared_memory_user_stream_args" ]
-    }
+  if (is_linux || is_mac) {
+    deps += [ ":shared_memory_user_stream_args" ]
+  }
 
-    if (is_linux || is_chromeos || is_mac) {
-      deps += [ "//components/stability_report" ]
-    }
+  if (is_linux || is_mac) {
+    deps += [ "//components/stability_report" ]
+  }
 
-    if (enable_gwp_asan) {
-      deps += [ "//components/gwp_asan/crash_handler" ]
-    }
+  if (enable_gwp_asan) {
+    deps += [ "//components/gwp_asan/crash_handler" ]
+  }
 
-    if (build_allocation_stack_trace_recorder) {
-      # The allocation stack trace report will be included only if the
-      # recorder was enabled.
-      deps += [ "//components/allocation_recorder/crash_handler" ]
-    }
+  if (build_allocation_stack_trace_recorder) {
+    # The allocation stack trace report will be included only if the
+    # recorder was enabled.
+    deps += [ "//components/allocation_recorder/crash_handler" ]
   }
 }
 
@@ -102,15 +96,6 @@ static_library("app") {
     "crashpad.cc",
     "crashpad.h",
   ]
-
-  if (is_castos) {
-    sources += [
-      "breakpad_linux.cc",
-      "breakpad_linux.h",
-      "breakpad_linux_impl.cc",
-      "breakpad_linux_impl.h",
-    ]
-  }
 
   defines = [ "CRASH_IMPLEMENTATION" ]
 
@@ -128,41 +113,21 @@ static_library("app") {
     "//third_party/crashpad/crashpad/util",
   ]
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [ "crashpad_linux.cc" ]
     data_deps = [ ":chrome_crashpad_handler" ]
   }
 
-  if (is_ios) {
-    deps -= [ "//content/public/common:content_descriptors" ]
-    public_deps += [ "//third_party/crashpad/crashpad/client" ]
-  }
-
-  if (is_android) {
-    sources += [ "crashpad_android.cc" ]
-    deps += [
-      ":crashpad_handler_main",
-      "//components/crash/android:package_paths_jni",
-      "//third_party/crashpad/crashpad/handler",
-      "//third_party/crashpad/crashpad/snapshot",
-    ]
-    libs = [ "log" ]
-  }
-
-  if (is_win || is_linux || is_chromeos || is_android || is_mac) {
+  if (is_win || is_linux || is_mac) {
     deps += [ ":shared_memory_user_stream_args" ]
   }
 
-  if (is_android || is_linux || is_chromeos) {
+  if (is_linux) {
     deps += [
       "//base:base_static",
       "//components/crash/core/common",
       "//sandbox",
     ]
-  }
-
-  if (is_castos) {
-    deps += [ "//third_party/breakpad:client" ]
   }
 
   if (is_win) {
@@ -180,11 +145,6 @@ static_library("app") {
       "//third_party/crashpad/crashpad/minidump",
       "//third_party/crashpad/crashpad/snapshot",
     ]
-  }
-
-  if (is_ios) {
-    sources += [ "crashpad_ios.mm" ]
-    deps += [ "//third_party/crashpad/crashpad/minidump" ]
   }
 }
 
@@ -273,7 +233,7 @@ if (is_win) {
   }
 }
 
-if (is_mac || is_android || is_linux || is_chromeos) {
+if (is_mac || is_linux) {
   # We build a chromium-specific crashpad_handler executable so that we can
   # define custom UserStreamDataSources.
   executable("chrome_crashpad_handler") {
@@ -310,20 +270,6 @@ if (is_mac || is_android || is_linux || is_chromeos) {
   }
 }
 
-if (is_android) {
-  # There is not any normal way to package native executables in an Android APK.
-  # It is normal to package native code as a loadable module but Android's APK
-  # installer will ignore files not named like a shared object, so give the
-  # handler executable an acceptable name.
-  copy("chrome_crashpad_handler_named_as_so") {
-    deps = [ ":chrome_crashpad_handler" ]
-
-    sources = [ "$root_out_dir/chrome_crashpad_handler" ]
-
-    outputs = [ "$root_out_dir/libchrome_crashpad_handler.so" ]
-  }
-}
-
 # This source set provides the functionality required for tests, which on
 # Windows link the export thunks directly into the test binary.
 source_set("test_support") {
@@ -350,24 +296,22 @@ source_set("unit_tests") {
     "//third_party/crashpad/crashpad/minidump",
   ]
 
-  if (!is_ios) {
-    sources += [ "shared_memory_user_stream_data_source_unittest.cc" ]
-    deps += [
-      ":crashpad_handler_main",
-      ":shared_memory_data_source",
-    ]
+  sources += [ "shared_memory_user_stream_data_source_unittest.cc" ]
+  deps += [
+    ":crashpad_handler_main",
+    ":shared_memory_data_source",
+  ]
 
-    if (is_win || is_linux || is_chromeos || is_android || is_mac) {
-      deps += [ ":shared_memory_user_stream_args" ]
-    }
+  if (is_win || is_linux || is_mac) {
+    deps += [ ":shared_memory_user_stream_args" ]
+  }
 
-    if (is_win || is_linux || is_chromeos || is_android) {
-      sources += [ "shared_memory_user_stream_args_unittest.cc" ]
-    }
+  if (is_win || is_linux) {
+    sources += [ "shared_memory_user_stream_args_unittest.cc" ]
+  }
 
-    if (is_mac) {
-      sources += [ "shared_memory_user_stream_mach_port_unittest.cc" ]
-    }
+  if (is_mac) {
+    sources += [ "shared_memory_user_stream_mach_port_unittest.cc" ]
   }
 
   if (is_win) {
@@ -383,15 +327,6 @@ source_set("unit_tests") {
       "//third_party/crashpad/crashpad/client",
       "//third_party/crashpad/crashpad/snapshot",
       "//third_party/crashpad/crashpad/util",
-    ]
-  }
-  if (is_ios) {
-    sources += [ "crashpad_ios_unittest.mm" ]
-    deps += [
-      ":app",
-      "//components/crash/core/common:reporter_running_ios",
-      "//third_party/crashpad/crashpad/client:common",
-      "//third_party/crashpad/crashpad/test",
     ]
   }
 }

@@ -54,9 +54,7 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 #include "chrome/browser/actor/tools/load_and_extract_content_tool_request.h"
-#endif
 
 namespace actor {
 namespace {
@@ -375,7 +373,6 @@ TEST(ToolRegistryTest, CloseWindowToolDefinition) {
               RequiresParam(CloseWindowToolRequest::kWindowIdParam));
 }
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 TEST(ToolRegistryTest, LoadAndExtractContentToolDefinition) {
   const std::optional<ToolDefinition> definition =
       LoadAndExtractContentToolRequest::GetToolDefinition();
@@ -389,7 +386,6 @@ TEST(ToolRegistryTest, LoadAndExtractContentToolDefinition) {
   EXPECT_THAT(*definition,
               RequiresParam(LoadAndExtractContentToolRequest::kUrlsParam));
 }
-#endif
 
 TEST(ToolRegistryTest, FindAndHighlightToolDefinition) {
   const std::optional<ToolDefinition> definition =
@@ -905,7 +901,6 @@ TEST(ToolRegistryTest, GetAllToolsContainsCloseWindowTool) {
                                     ToolId::kCloseWindow, &ToolDefinition::id));
 }
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 TEST(ToolRegistryTest, GetAllToolsContainsLoadAndExtractContentTool) {
   base::test::ScopedFeatureList scoped_feature_list(features::kGlicActor);
   content::BrowserTaskEnvironment task_environment;
@@ -917,7 +912,6 @@ TEST(ToolRegistryTest, GetAllToolsContainsLoadAndExtractContentTool) {
                                     ToolId::kLoadAndExtractContent,
                                     &ToolDefinition::id));
 }
-#endif
 
 TEST(ToolRegistryTest, GetAllToolsContainsFindAndHighlightTool) {
   base::test::ScopedFeatureList scoped_feature_list(features::kGlicActor);

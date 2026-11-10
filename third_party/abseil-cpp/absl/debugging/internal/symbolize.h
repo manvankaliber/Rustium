@@ -30,7 +30,7 @@
 
 #ifdef ABSL_INTERNAL_HAVE_ELF_SYMBOLIZE
 #error ABSL_INTERNAL_HAVE_ELF_SYMBOLIZE cannot be directly set
-#elif defined(__ELF__) && defined(__linux__) && !defined(__ANDROID__)
+#elif defined(__ELF__) && defined(__linux__)
 #define ABSL_INTERNAL_HAVE_ELF_SYMBOLIZE 1
 
 #include <elf.h>

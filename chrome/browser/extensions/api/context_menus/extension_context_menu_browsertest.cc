@@ -59,21 +59,8 @@
 #include "ui/base/models/menu_model.h"
 #include "ui/menus/simple_menu_model.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/wm/window_pin_util.h"
-#include "base/test/scoped_feature_list.h"
-#include "chrome/browser/ash/boca/on_task/on_task_locked_controller.h"
-#include "chrome/browser/ui/browser_window.h"
-#include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#include "chrome/common/chrome_features.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/extensions/test_extension_menu_model_android.h"
-#else
 #include "chrome/browser/renderer_context_menu/render_view_context_menu_test_util.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -86,11 +73,7 @@ namespace {
 // Defines `PlatformContextMenu`, which maps to different types based on
 // platform. This is similar to PlatformBrowserTest, which maps to
 // InProcessBrowserTest or AndroidBrowserTest based on platform.
-#if BUILDFLAG(IS_ANDROID)
-using PlatformContextMenu = TestExtensionMenuModel;
-#else
 using PlatformContextMenu = TestRenderViewContextMenu;
-#endif
 
 constexpr char kPersistentExtensionId[] = "knldjmfmopnpolahpmmgbagdohdnhkik";
 
@@ -99,15 +82,9 @@ constexpr char kPersistentExtensionId[] = "knldjmfmopnpolahpmmgbagdohdnhkik";
 std::unique_ptr<PlatformContextMenu> CreateContextMenu(
     content::RenderFrameHost* frame,
     const content::ContextMenuParams& params) {
-#if BUILDFLAG(IS_ANDROID)
-  auto menu = std::make_unique<TestExtensionMenuModel>(*frame, params);
-  menu->PopulateModel();
-  return menu;
-#else
   auto menu = std::make_unique<TestRenderViewContextMenu>(*frame, params);
   menu->Init();
   return menu;
-#endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 }
 
 // Creates a platform-specific context menu containing extension items for a
@@ -649,29 +626,17 @@ static void VerifyMenuForSeparatorsTest(const MenuModel& menu) {
   //  normal3
 
   size_t index = 0;
-#if BUILDFLAG(IS_CHROMEOS)
-  ASSERT_EQ(7u, menu.GetItemCount());
-#else
   ASSERT_EQ(11u, menu.GetItemCount());
-#endif  // BUILDFLAG(IS_CHROMEOS)
   ExpectLabelAndType("radio1", MenuModel::TYPE_RADIO, menu, index++);
   ExpectLabelAndType("radio2", MenuModel::TYPE_RADIO, menu, index++);
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(MenuModel::TYPE_SEPARATOR, menu.GetTypeAt(index++));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   ExpectLabelAndType("normal1", MenuModel::TYPE_COMMAND, menu, index++);
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(MenuModel::TYPE_SEPARATOR, menu.GetTypeAt(index++));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   ExpectLabelAndType("normal2", MenuModel::TYPE_COMMAND, menu, index++);
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(MenuModel::TYPE_SEPARATOR, menu.GetTypeAt(index++));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   ExpectLabelAndType("radio3", MenuModel::TYPE_RADIO, menu, index++);
   ExpectLabelAndType("radio4", MenuModel::TYPE_RADIO, menu, index++);
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(MenuModel::TYPE_SEPARATOR, menu.GetTypeAt(index++));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   ExpectLabelAndType("normal3", MenuModel::TYPE_COMMAND, menu, index++);
 }
 
@@ -860,7 +825,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionContextMenuLazyTest, StartDisabled) {
   TestEnabledContextMenu(false);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Not relevant on Android, which only supports service worker.
 IN_PROC_BROWSER_TEST_F(ExtensionContextMenuLazyTest, EventPage) {
   GURL about_blank("about:blank");
@@ -927,7 +891,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionContextMenuLazyTest,
   profile()->DestroyOffTheRecordProfile(incognito);
   ASSERT_EQ(1u, GetItems().size());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Tests updating checkboxes' checked state to true and false.
 IN_PROC_BROWSER_TEST_F(ExtensionContextMenuLazyTest, UpdateCheckboxes) {
@@ -962,77 +925,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionContextMenuLazyTest, UpdateCheckboxes) {
                                 false);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Extension context menu tests with and without locked fullscreen when locked
-// and not locked for OnTask. Only relevant for non-web browser scenarios.
-// TODO(crbug.com/438540029): Rename this test suite to "TrustedPinned" to
-// disambiguate between LockedFullscreen (which is for extension API) and OnTask
-// locked (which is for class tools).
-class ExtensionContextMenuLockedFullscreenTest
-    : public ExtensionContextMenuBrowserTest,
-      public testing::WithParamInterface<std::tuple<bool, bool, bool>> {
- public:
-  ExtensionContextMenuLockedFullscreenTest() {
-    scoped_feature_list_.InitWithFeatureState(
-        features::kUseUnifiedLockedStateController, std::get<2>(GetParam()));
-  }
-
- protected:
-  bool TestLockedFullscreen() { return std::get<0>(GetParam()); }
-  bool TestLockedForOnTask() { return std::get<1>(GetParam()); }
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_P(ExtensionContextMenuLockedFullscreenTest,
-                       VerifyItemStateForOnTask) {
-  if (features::IsUseUnifiedLockedStateControllerEnabled()) {
-    auto* controller = chromeos::LockedStateController::From(browser());
-    if (TestLockedFullscreen()) {
-      controller->Lock(TestLockedForOnTask()
-                           ? chromeos::LockedState::kOnTaskLocked
-                           : chromeos::LockedState::kExtensionLocked);
-    } else if (TestLockedForOnTask()) {
-      controller->Lock(chromeos::LockedState::kOnTaskPrepared);
-    }
-  } else {
-    ash::boca::OnTaskLockedController::From(browser())->set_locked_for_on_task(
-        TestLockedForOnTask());
-    if (TestLockedFullscreen()) {
-      ash::PinWindow(browser()->GetWindow()->GetNativeWindow(),
-                     /*trusted=*/true);
-    }
-  }
-
-  // Load test extension and wait for js test code to create context menu with
-  // one item.
-  ExtensionTestMessageListener listener("created context menu");
-  base::FilePath extension_dir = GetRootDir().AppendASCII("locked_fullscreen");
-  ASSERT_TRUE(
-      LoadExtension(extension_dir, {.wait_for_registration_stored = true}));
-  ASSERT_TRUE(listener.WaitUntilSatisfied());
-
-  // Create / build the context menu and verify item state is enabled if the
-  // instance is locked for OnTask or if the instance is not in locked
-  // fullscreen mode.
-  const GURL page_url("http://www.google.com");
-  const std::unique_ptr<TestRenderViewContextMenu> menu(
-      TestRenderViewContextMenu::Create(GetActiveWebContents(), page_url));
-  int command_id = ContextMenuMatcher::ConvertToExtensionsCustomCommandId(0);
-  bool expect_command_enabled =
-      TestLockedForOnTask() || !TestLockedFullscreen();
-  ASSERT_EQ(expect_command_enabled, menu->IsCommandIdEnabled(command_id));
-}
-
-INSTANTIATE_TEST_SUITE_P(
-    ExtensionContextMenuLockedFullscreenTests,
-    ExtensionContextMenuLockedFullscreenTest,
-    ::testing::Combine(
-        /*TestLockedFullscreen=*/::testing::Bool(),
-        /*TestLockedForOnTask=*/::testing::Bool(),
-        /*IsUseUnifiedLockedStateControllerEnabled=*/::testing::Bool()));
-#endif
 
 class ExtensionContextMenuActiveTabBrowserTest
     : public ExtensionContextMenuBrowserTest {

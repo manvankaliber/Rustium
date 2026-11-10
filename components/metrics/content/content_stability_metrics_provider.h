@@ -18,9 +18,6 @@
 #include "content/public/browser/render_process_host_observer.h"
 #include "content/public/common/child_process_id.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/crash/content/browser/crash_metrics_reporter_android.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class PrefService;
 
@@ -33,9 +30,6 @@ class ExtensionsHelper;
 class ContentStabilityMetricsProvider
     : public MetricsProvider,
       public content::BrowserChildProcessObserver,
-#if BUILDFLAG(IS_ANDROID)
-      public crash_reporter::CrashMetricsReporter::Observer,
-#endif
       public content::RenderProcessHostCreationObserver,
       public content::RenderProcessHostObserver {
  public:
@@ -55,14 +49,6 @@ class ContentStabilityMetricsProvider
   void OnRecordingEnabled() override;
   void OnRecordingDisabled() override;
   void OnPageLoadStarted() override;
-#if BUILDFLAG(IS_ANDROID)
-  // A couple Local-State-pref-based stability counts are retained for Android
-  // WebView. Other platforms, including Android Chrome and WebLayer, should use
-  // Stability.Counts2 as the source of truth for these counts.
-  void ProvideStabilityMetrics(
-      SystemProfileProto* system_profile_proto) override;
-  void ClearSavedStabilityMetrics() override;
-#endif  // BUILDFLAG(IS_ANDROID)
 
  private:
   FRIEND_TEST_ALL_PREFIXES(ContentStabilityMetricsProviderTest,
@@ -77,10 +63,6 @@ class ContentStabilityMetricsProvider
   FRIEND_TEST_ALL_PREFIXES(ContentStabilityMetricsProviderTest,
                            MediaFoundationServiceProcessObserverUtility);
 #endif  // BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_ANDROID)
-  FRIEND_TEST_ALL_PREFIXES(ContentStabilityMetricsProviderTest,
-                           MediaDrmSupportProcessObserverUtility);
-#endif  // BUILDFLAG(IS_ANDROID)
   FRIEND_TEST_ALL_PREFIXES(ContentStabilityMetricsProviderTest,
                            UnknownCdmServiceProcessObserverUtility);
   FRIEND_TEST_ALL_PREFIXES(ContentStabilityMetricsProviderTest,
@@ -113,17 +95,6 @@ class ContentStabilityMetricsProvider
       const content::ChildProcessData& data,
       const content::ChildProcessTerminationInfo& info) override;
 
-#if BUILDFLAG(IS_ANDROID)
-  // crash_reporter::CrashMetricsReporter::Observer:
-  void OnCrashDumpProcessed(
-      content::ChildProcessId rph_id,
-      const crash_reporter::CrashMetricsReporter::ReportedCrashTypeSet&
-          reported_counts) override;
-
-  base::ScopedObservation<crash_reporter::CrashMetricsReporter,
-                          crash_reporter::CrashMetricsReporter::Observer>
-      scoped_observation_{this};
-#endif  // BUILDFLAG(IS_ANDROID)
 
   StabilityMetricsHelper helper_;
 

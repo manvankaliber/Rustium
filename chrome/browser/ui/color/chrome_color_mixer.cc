@@ -796,7 +796,6 @@ void AddChromeColorMixer(ui::ColorProvider* provider,
   mixer[kColorTabThrobber] = {ui::kColorThrobber};
   mixer[kColorTabThrobberPreconnect] = {ui::kColorThrobberPreconnect};
   mixer[kColorTaskManagerBackground] = {ui::kColorDialogBackground};
-#if !BUILDFLAG(IS_ANDROID)
   mixer[kColorTaskManagerBackground] = {ui::kColorSysSurface};
 
   mixer[kColorTaskManagerTableBackground] = {ui::kColorSysSurface3};
@@ -817,7 +816,6 @@ void AddChromeColorMixer(ui::ColorProvider* provider,
   mixer[kColorTaskManagerSearchBarTransparent] = {SK_ColorTRANSPARENT};
   mixer[kColorTaskManagerSearchBarPlaceholderText] = {
       ui::kColorTextfieldForeground};
-#endif  // !BUILDFLAG(IS_ANDROID)
   mixer[kColorThumbnailTabBackground] =
       ui::PickGoogleColor(ui::kColorAccent, ui::kColorFrameActive,
                           color_utils::kMinimumVisibleContrastRatio);

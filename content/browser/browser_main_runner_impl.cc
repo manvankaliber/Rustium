@@ -30,9 +30,6 @@
 #include "ui/base/ime/init/input_method_initializer.h"
 #include "ui/gfx/font_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/android/tracing_controller_android.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/win/win_util.h"
@@ -159,11 +156,6 @@ void BrowserMainRunnerImpl::Shutdown() {
   CHECK(initialization_started_, base::NotFatalUntil::M159);
   CHECK(!is_shutdown_, base::NotFatalUntil::M159);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Reduces shutdown hangs on CrOS.
-  // Googlers: see go/cros-no-op-free-2024 for the experiment write-up.
-  base::allocator::MakeFreeNoOp();
-#endif
 
   main_loop_->PreShutdown();
 

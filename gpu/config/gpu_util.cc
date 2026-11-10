@@ -61,14 +61,6 @@
 #include "ui/gl/gl_switches.h"
 #include "ui/gl/gl_utils.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "base/no_destructor.h"
-#include "base/synchronization/lock.h"
-#include "ui/gfx/android/android_surface_control_compat.h"
-#include "ui/gl/gl_surface_egl.h"
-#include "ui/gl/init/gl_factory.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace gpu {
 
@@ -510,10 +502,6 @@ uint32_t GetSystemCommitLimitMb() {
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-GPUInfo* g_gpu_info_cache = nullptr;
-GpuFeatureInfo* g_gpu_feature_info_cache = nullptr;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void SetKeysForCrashLoggingForNpu(const GPUInfo& gpu_info) {
   if (gpu_info.npus.empty()) {
@@ -529,9 +517,7 @@ void SetKeysForCrashLoggingForNpu(const GPUInfo& gpu_info) {
     crash_keys::npu_device_id.Set(base::StringPrintf("0x%04x", npu.device_id));
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   crash_keys::npu_count.Set(base::StringPrintf("%d", gpu_info.npus.size()));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   crash_keys::npu_driver_version.Set(npu.driver_version);
 }
@@ -670,17 +656,9 @@ GpuFeatureInfo ComputeGpuFeatureInfo(const GPUInfo& gpu_info,
     *needs_more_info = blocklist_needs_more_info;
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   gpu_feature_info.status_values[GPU_FEATURE_TYPE_GPU_TILE_RASTERIZATION] =
       GetGpuRasterizationFeatureStatus(blocklisted_features, *command_line,
                                        use_software_gl);
-#else
-  // TODO(penghuang): call GetGpuRasterizationFeatureStatus() with
-  // |use_software_gl|.
-  gpu_feature_info.status_values[GPU_FEATURE_TYPE_GPU_TILE_RASTERIZATION] =
-      GetGpuRasterizationFeatureStatus(blocklisted_features, *command_line,
-                                       /*use_software_gl=*/false);
-#endif
   gpu_feature_info.status_values[GPU_FEATURE_TYPE_ACCELERATED_WEBGL] =
       GetWebGLFeatureStatus(blocklisted_features, use_software_gl);
   gpu_feature_info.status_values[GPU_FEATURE_TYPE_ACCELERATED_WEBGL2] =
@@ -751,14 +729,6 @@ GpuFeatureInfo ComputeGpuFeatureInfo(const GPUInfo& gpu_info,
     enabled_driver_bug_workarounds = list->MakeDecision(
         GpuControlList::kOsAny, std::string(), gpu_info, target_test_group,
         gpu_preferences.ignored_gpu_blocklist_entries);
-#if BUILDFLAG(IS_ANDROID)
-    // On Android Desktop, site isolation is active. enable
-    // enable_webgl_timer_query_extensions.
-    if (base::android::device_info::is_desktop()) {
-      enabled_driver_bug_workarounds.insert(
-          gpu::ENABLE_WEBGL_TIMER_QUERY_EXTENSIONS);
-    }
-#endif
     gpu_feature_info.applied_gpu_driver_bug_list_entries =
         list->GetActiveEntries();
 
@@ -857,7 +827,7 @@ void SetKeysForCrashLogging(const GPUInfo& gpu_info) {
   const GPUInfo::GPUDevice& active_gpu = gpu_info.active_gpu();
 
   // Don't record vendor/device ids on Android when running with GL.
-  constexpr bool record_zero_ids = !BUILDFLAG(IS_ANDROID);
+  constexpr bool record_zero_ids = !false;
   if (record_zero_ids || active_gpu.vendor_id) {
     crash_keys::gpu_vendor_id.Set(
         base::StringPrintf("0x%04x", active_gpu.vendor_id));
@@ -866,9 +836,7 @@ void SetKeysForCrashLogging(const GPUInfo& gpu_info) {
     crash_keys::gpu_device_id.Set(
         base::StringPrintf("0x%04x", active_gpu.device_id));
   }
-#if !BUILDFLAG(IS_ANDROID)
   crash_keys::gpu_count.Set(base::StringPrintf("%d", gpu_info.GpuCount()));
-#endif  // !BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_WIN)
   crash_keys::gpu_sub_sys_id.Set(
       base::StringPrintf("0x%08x", active_gpu.sub_sys_id));
@@ -887,86 +855,6 @@ void SetKeysForCrashLogging(const GPUInfo& gpu_info) {
 #endif
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void CacheGPUInfo(const GPUInfo& gpu_info) {
-  DCHECK(!g_gpu_info_cache);
-  g_gpu_info_cache = new GPUInfo;
-  *g_gpu_info_cache = gpu_info;
-}
-
-bool PopGPUInfoCache(GPUInfo* gpu_info) {
-  if (!g_gpu_info_cache)
-    return false;
-  *gpu_info = *g_gpu_info_cache;
-  delete g_gpu_info_cache;
-  g_gpu_info_cache = nullptr;
-  return true;
-}
-
-void CacheGpuFeatureInfo(const GpuFeatureInfo& gpu_feature_info) {
-  DCHECK(!g_gpu_feature_info_cache);
-  g_gpu_feature_info_cache = new GpuFeatureInfo;
-  *g_gpu_feature_info_cache = gpu_feature_info;
-}
-
-bool PopGpuFeatureInfoCache(GpuFeatureInfo* gpu_feature_info) {
-  if (!g_gpu_feature_info_cache)
-    return false;
-  *gpu_feature_info = *g_gpu_feature_info_cache;
-  delete g_gpu_feature_info_cache;
-  g_gpu_feature_info_cache = nullptr;
-  return true;
-}
-
-gl::GLDisplay* InitializeGLThreadSafe(base::CommandLine* command_line,
-                                      const GpuPreferences& gpu_preferences,
-                                      GPUInfo* out_gpu_info,
-                                      GpuFeatureInfo* out_gpu_feature_info) {
-  static base::NoDestructor<base::Lock> gl_bindings_initialization_lock;
-  base::AutoLock auto_lock(*gl_bindings_initialization_lock);
-  DCHECK(command_line);
-  DCHECK(out_gpu_info && out_gpu_feature_info);
-  bool gpu_info_cached = PopGPUInfoCache(out_gpu_info);
-  bool gpu_feature_info_cached = PopGpuFeatureInfoCache(out_gpu_feature_info);
-  DCHECK_EQ(gpu_info_cached, gpu_feature_info_cached);
-  if (gpu_info_cached) {
-    // GL bindings have already been initialized in another thread.
-    DCHECK_NE(gl::kGLImplementationNone, gl::GetGLImplementation());
-    return gl::GetDefaultDisplayEGL();
-  }
-
-  gl::GLDisplay* gl_display = nullptr;
-  if (gl::GetGLImplementation() == gl::kGLImplementationNone) {
-    // Some tests initialize bindings by themselves.
-    gl_display = gl::init::InitializeGLNoExtensionsOneOff(
-        /*init_bindings=*/true,
-        /*gpu_preference=*/gl::GpuPreference::kDefault);
-    if (!gl_display) {
-      VLOG(1) << "gl::init::InitializeGLNoExtensionsOneOff failed";
-      return nullptr;
-    }
-  } else {
-    gl_display = gl::GetDefaultDisplayEGL();
-  }
-  out_gpu_info->gl_implementation_parts = gl::GetGLImplementationParts();
-  out_gpu_info->passthrough_cmd_decoder =
-      gpu_preferences.use_passthrough_cmd_decoder;
-  CollectContextGraphicsInfo(out_gpu_info);
-  *out_gpu_feature_info = ComputeGpuFeatureInfo(*out_gpu_info, gpu_preferences,
-                                                command_line, nullptr);
-  if (!out_gpu_feature_info->disabled_extensions.empty()) {
-    gl::init::SetDisabledExtensionsPlatform(
-        out_gpu_feature_info->disabled_extensions);
-  }
-  if (!gl::init::InitializeExtensionSettingsOneOffPlatform(gl_display)) {
-    VLOG(1) << "gl::init::InitializeExtensionSettingsOneOffPlatform failed";
-    return nullptr;
-  }
-  CacheGPUInfo(*out_gpu_info);
-  CacheGpuFeatureInfo(*out_gpu_feature_info);
-  return gl_display;
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 bool EnableSwiftShaderIfNeeded(base::CommandLine* command_line,
                                const GpuFeatureInfo& gpu_feature_info,

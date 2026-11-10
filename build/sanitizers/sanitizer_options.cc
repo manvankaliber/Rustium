@@ -40,7 +40,7 @@ SANITIZER_HOOK_ATTRIBUTE void _sanitizer_options_link_helper() {}
 //   symbolize=1 - enable in-process symbolization.
 //   external_symbolizer_path=... - provides the path to llvm-symbolizer
 //     relative to the main executable
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) | BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_LINUX) || 0 | BUILDFLAG(IS_APPLE)
 const char kAsanDefaultOptions[] =
     "strip_path_prefix=/../../ fast_unwind_on_fatal=1 "
     "detect_stack_use_after_return=1 symbolize=1 detect_leaks=0 "
@@ -52,10 +52,9 @@ const char* kAsanDefaultOptions =
     "detect_stack_use_after_return=1 symbolize=1 "
     "external_symbolizer_path=%d/../../third_party/"
     "llvm-build/Release+Asserts/bin/llvm-symbolizer.exe";
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE)
+#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN)
 
 SANITIZER_HOOK_ATTRIBUTE const char* __asan_default_options() {
   return kAsanDefaultOptions;
@@ -66,11 +65,11 @@ extern char kASanDefaultSuppressions[];
 SANITIZER_HOOK_ATTRIBUTE const char* __asan_default_suppressions() {
   return kASanDefaultSuppressions;
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE)
+#endif
         // || BUILDFLAG(IS_WIN)
 #endif  // ADDRESS_SANITIZER
 
-#if defined(THREAD_SANITIZER) && (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS))
+#if defined(THREAD_SANITIZER) && BUILDFLAG(IS_LINUX)
 // Default options for ThreadSanitizer in various configurations:
 //   second_deadlock_stack=1 - more verbose deadlock reports.
 //   report_signal_unsafe=0 - do not report async-signal-unsafe functions

@@ -39,9 +39,7 @@ class InstanceIndependentHotkeyManager
   bool CanHandleAccelerators() const override;
 
  private:
-#if !BUILDFLAG(IS_ANDROID)
   void RequestCaptureRegion();
-#endif
 
   void UpdateHotkeyRegistration();
 

@@ -16,20 +16,7 @@
   <message name="IDS_ERRORPAGE_FUN_DISABLED" desc="Explanation for when easter egg has been disabled by administrator">
     The owner of this device turned off the dinosaur game.
   </message>
-  <if expr="is_android">
-    <message name="IDS_ERRORPAGES_BUTTON_DOWNLOAD" desc="Label for the button on an error page to download the failed-to-load page at a later time">
-      Download when online
-    </message>
-    <message name="IDS_ERRORPAGES_BUTTON_DOWNLOADING" desc="Label for the button on an error page when it is clicked to queue the download for the failed-to-load page">
-      Waiting for connection…
-    </message>
-    <message name="IDS_ERRORPAGES_SAVE_PAGE_BUTTON" desc="Label for the button that will save the page for later. The saved page is not retained in Downloads, unlike with the DOWNLOAD button.">
-      Load page later
-    </message>
-    <message name="IDS_ERRORPAGES_CANCEL_SAVE_PAGE_BUTTON" desc="Label for the button that will cancel the request to save the page for later. 'Cancel' is colored blue with the 'a' tag.">
-      Chrome will let you know when this page is ready. &lt;a&gt;Cancel&lt;/a&gt;
-    </message>
-  </if>
+
 
   <message name="IDS_ERRORPAGES_SUGGESTION_RELOAD_REPOST_SUMMARY" desc="When a page fails to load, sometimes we suggest reloading a page.  In the case that reloading the page requires resubmitting data to a website, this is displayed in a list.">
     Press the reload button to resubmit the data needed to load the page.
@@ -41,7 +28,7 @@
     Check any cables and reboot any routers, modems, or other network
     devices you may be using.
   </message>
-  <if expr="not is_ios">
+
     <message name="IDS_ERRORPAGES_SUGGESTION_SECURE_DNS_CONFIG_HEADER" desc="When a page fails to load, sometimes we suggest checking the secure DNS configuration.  This is a header above above some details.">
       Check your Secure DNS settings
     </message>
@@ -49,8 +36,8 @@
     suggestion.">
       Check your secure DNS settings. You may have configured a secure DNS server to which connections are failing.
     </message>
-  </if>
-  <if expr="not is_ios or not is_android">
+
+
     <message name="IDS_ERRORPAGES_SUGGESTION_DNS_CONFIG_HEADER" desc="When a page fails to load, sometimes we suggest checking the DNS configuration.  This is a header above above some details.">
       Check your DNS settings
     </message>
@@ -73,15 +60,11 @@
       be using a proxy server:
       <ph name="PLATFORM_TEXT">$1<ex>Goto the wrench menu and choose Fix It.</ex></ph>
     </message>
-  </if>
+
   <message name="IDS_ERRORPAGES_SUGGESTION_CAPTIVE_PORTAL_SIGNIN" desc="ChromeOS instructions for signing in to a WiFi captive portal.">
     <ph name="BEGIN_LINK">&lt;a href="javascript:portalSignin()"&gt;</ph>Signing in<ph name="END_LINK">&lt;/a&gt;</ph> to the WiFi network
   </message>
-  <if expr="is_chromeos">
-    <message name="IDS_ERRORPAGES_SUGGESTION_PROXY_DISABLE_PLATFORM" desc="ChromeOS instructions for disabling use of a proxy server.">
-      You can disable any proxies configured for a connection from the settings page.
-    </message>
-  </if>
+
   <message name="IDS_ERRORPAGES_SUGGESTION_VIEW_POLICIES_HEADER" desc="When a webpage fails to load, sometimes we suggest to the user to view the current policies.  This is a header above some instructions.">
     Check your administrator's policies
   </message>
@@ -183,16 +166,12 @@
   <message name="IDS_ERRORPAGES_SUMMARY_CACHE_READ_FAILURE" desc="Summary in the error page when we encountered an error reading from the cache.  Generally this happens when the disk cache is corrupted from improper shutdown.">
     The saved (cached) copy of this site was unreadable.
   </message>
-  <if expr="is_android or is_ios">
-    <message name="IDS_ERRORPAGES_SUMMARY_NETWORK_IO_SUSPENDED" desc="Mobile: Summary in the error page when a page load failed due to the device entering sleep/suspend mode.">
-      Your device went to sleep.
-    </message>
-  </if>
-  <if expr="not is_android and not is_ios">
+
+
     <message name="IDS_ERRORPAGES_SUMMARY_NETWORK_IO_SUSPENDED" desc="Summary in the error page when a page load failed due to the computer entering sleep/suspend mode.">
       Your computer went to sleep.
     </message>
-  </if>
+
   <message name="IDS_ERRORPAGES_SUMMARY_NOT_FOUND" desc="Summary in the error page when the server returns a 404.">
     No webpage was found for the web address: <ph name="URL">&lt;strong&gt;$1&lt;/strong&gt;</ph>
   </message>
@@ -285,12 +264,8 @@
   <message name="IDS_ERRORPAGES_SUGGESTION_CHECK_CONNECTION_SUMMARY" desc="The message displayed in a list of suggestions following a network error, suggesting the user should try checking their connnection. The suggestions list is prefixed with 'Try:'.">
     Checking the connection
   </message>
-  <if expr="is_android">
-    <message name="IDS_ERRORPAGES_SUGGESTION_CHECK_SECURE_DNS_SUMMARY" desc="The message displayed in a list of suggestions following a network error suggesting the user should try checking their secure DNS configuration. The suggestions list is prefixed with 'Try:'.">
-      <ph name="BEGIN_LINK">&lt;a href="#buttons" onclick="toggleHelpBox()"&gt;</ph>Checking the secure DNS configuration<ph name="END_LINK">&lt;/a&gt;<ex>&lt;/a&gt;</ex></ph>
-    </message>
-  </if>
-  <if expr="not is_ios or not is_android">
+
+
     <message name="IDS_ERRORPAGES_SUGGESTION_CHECK_PROXY_FIREWALL_DNS_SUMMARY" desc="The message displayed in a list of suggestions following a network error suggesting the user should try checking their proxy, firewall and DNS configuration. The suggestions list is prefixed with 'Try:'.">
       <ph name="BEGIN_LINK">&lt;a href="#buttons" onclick="toggleHelpBox()"&gt;</ph>Checking the proxy, firewall, and DNS configuration<ph name="END_LINK">&lt;/a&gt;<ex>&lt;/a&gt;</ex></ph>
     </message>
@@ -306,7 +281,7 @@
     <message name="IDS_ERRORPAGES_SUGGESTION_CHECK_PROXY_ADDRESS_SUMMARY" desc="The message displayed in a list of suggestions following a network error suggesting to check the proxy address. The suggestions list is prefixed with 'Try:'.">
       <ph name="BEGIN_LINK">&lt;a href="#buttons" onclick="toggleHelpBox()"&gt;</ph>Checking the proxy address<ph name="END_LINK">&lt;/a&gt;<ex>&lt;/a&gt;</ex></ph>
     </message>
-  </if>
+
   <message name="IDS_ERRORPAGES_SUGGESTION_CONTACT_ADMIN_SUMMARY" desc="The message displayed in a list of suggestions following a network error suggesting to the user to contact their system administrator. The suggestions list is prefixed with 'Try:'.">
     Contacting the system admin
   </message>
@@ -322,17 +297,7 @@
   <message name="IDS_ERRORPAGES_SUGGESTION_DELETE_COOKIES_SUMMARY" desc="The message displayed following a network error suggesting the user could try deleting their cookies. We also provide a link to the help center to learn more about the failure.">
     <ph name="BEGIN_LINK">&lt;a href="$1"&gt;</ph>Try deleting your cookies<ph name="END_LINK">&lt;/a&gt;<ex>&lt;/a&gt;</ex>.</ph>
   </message>
-  <if expr="is_ios or is_android">
-    <message name="IDS_ERRORPAGES_SUGGESTION_TURN_OFF_AIRPLANE_SUMMARY" desc="When a page fails to load and the device is offline, we provide a suggestion that the user try turning off airplane mode. The suggestions list is prefixed with 'Try:'.">
-      Turning off airplane mode
-    </message>
-    <message name="IDS_ERRORPAGES_SUGGESTION_TURN_ON_DATA_SUMMARY" desc="When a page fails to load and the device is offline, we provide a suggestion that the user try turning on their mobile data or Wi-Fi. The suggestions list is prefixed with 'Try:'.">
-      Turning on mobile data or Wi-Fi
-    </message>
-    <message name="IDS_ERRORPAGES_SUGGESTION_CHECKING_SIGNAL_SUMMARY" desc="When a page fails to load and the device is offline, we provide a suggestion that the user check their mobile signal. The suggestions list is prefixed with 'Try:'.">
-      Checking the signal in your area
-    </message>
-  </if>
+
   <message name="IDS_ERRORPAGES_SUGGESTION_CHECK_HARDWARE_SUMMARY" desc="The message displayed in a list of suggestions following a network error suggesting to check the network cables, modem, and router. The suggestions list is prefixed with 'Try:'.">
     Checking the network cables, modem, and router
   </message>
@@ -368,29 +333,9 @@
       If spelling is correct, <ph name="BEGIN_LINK">&lt;a href="javascript:diagnoseErrors()" id="diagnose-link"&gt;</ph>try running Windows Network Diagnostics<ph name="END_LINK">&lt;/a&gt;</ph>.
     </message>
   </if>
-  <if expr="is_chromeos">
-    <message name="IDS_ERRORPAGES_SUGGESTION_DIAGNOSE" desc="Label for the link that invokes the connection diagnostic tool on the error page displayed in a list of suggestions. The suggestions list is prefixed with 'Try:'.">
-      <ph name="BEGIN_LINK">&lt;a href="javascript:diagnoseErrors()" id="diagnose-link"&gt;</ph>Running Connectivity Diagnostics<ph name="END_LINK">&lt;/a&gt;</ph>
-    </message>
-    <message name="IDS_ERRORPAGES_SUGGESTION_DIAGNOSE_STANDALONE" desc="Standalone text for the link that invokes the connection diagnostic tool on the error page">
-      <ph name="BEGIN_LINK">&lt;a href="javascript:diagnoseErrors()" id="diagnose-link"&gt;</ph>Try running Connectivity Diagnostics<ph name="END_LINK">&lt;/a&gt;</ph>.
-    </message>
-    <message name="IDS_ERRORPAGES_SUGGESTION_DIAGNOSE_CHECK_TYPO_STANDALONE" desc="Suggestion text that follows request to check for typos in the URL. This provides a link that invokes the connection diagnostic tool on the error page">
-      If spelling is correct, <ph name="BEGIN_LINK">&lt;a href="javascript:diagnoseErrors()" id="diagnose-link"&gt;</ph>try running Connectivity Diagnostics<ph name="END_LINK">&lt;/a&gt;</ph>.
-    </message>
-  </if>
-  <if expr="is_android or is_ios">
-    <message name="IDS_ERRORPAGES_GAME_INSTRUCTIONS" desc="Mobile: Instructions on how to start playing the offline game. 'dino' is an acceptable English nickname that refers to 'dinosaur'">
-      Tap the dino to play
-    </message>
-    <message name="IDS_ERRORPAGE_DINO_GAME_DESCRIPTION" desc="Message to be spoken by a screen reader to give the user context and instructions for playing the net error dino game. Tapping the screen activates the game and causes the dinosaur to jump. Mobile platforms only.">
-      Dino game. A pixelated dinosaur dodges cacti and pterodactyls as it runs across a desolate landscape. When you hear an audio cue, tap to jump over obstacles.
-    </message>
-    <message name="IDS_ERRORPAGE_DINO_ARIA_LABEL" desc="Message to be spoken by a screen reader for the dino button element used to start the net error dino game.">
-    Dino game, tap to play
-    </message>
-  </if>
-  <if expr="not is_android and not is_ios">
+
+
+
     <message name="IDS_ERRORPAGES_GAME_INSTRUCTIONS" desc="Instructions on how to start playing the offline game.">
       Press space to play
     </message>
@@ -400,7 +345,7 @@
     <message name="IDS_ERRORPAGE_DINO_ARIA_LABEL" desc="Message to be spoken by a screen reader for the dino button element used to start the net error dino game.">
     Dino game, press space to play
     </message>
-  </if>
+
   <message name="IDS_ERRORPAGE_DINO_GAME_START" desc="Message to be spoken by a screen reader to notify the user that the dino game has started and the dinosaur is running.">
     Game started.
   </message>

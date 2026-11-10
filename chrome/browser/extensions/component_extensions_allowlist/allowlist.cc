@@ -27,12 +27,6 @@
 #include "chrome/grit/new_tab_page_extension_resources.h"
 #endif  // BUILDFLAG(ENABLE_WEBUI_NTP)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_extension_constants.h"
-#include "ash/keyboard/ui/grit/keyboard_resources.h"
-#include "chrome/browser/ash/input_method/component_extension_ime_manager_delegate_impl.h"
-#include "ui/file_manager/grit/file_manager_resources.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -48,45 +42,18 @@ bool IsComponentExtensionAllowlisted(const std::string& extension_id) {
       extension_misc::kNewTabPageExtensionId,
 #endif  // BUILDFLAG(ENABLE_WEBUI_NTP)
       extension_misc::kPdfExtensionId,
-#if BUILDFLAG(IS_CHROMEOS)
-      extension_misc::kAssessmentAssistantExtensionId,
-      extension_misc::kAccessibilityCommonExtensionId,
-      extension_misc::kChromeVoxExtensionId,
-      extension_misc::kEnhancedNetworkTtsExtensionId,
-      extension_misc::kEspeakSpeechSynthesisExtensionId,
-      extension_misc::kGoogleSpeechSynthesisExtensionId,
-      extension_misc::kGuestModeTestExtensionId,
-      extension_misc::kSelectToSpeakExtensionId,
-      extension_misc::kSwitchAccessExtensionId,
-      extension_misc::kDeskApiExtensionId,
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-      extension_misc::kQuickOfficeComponentExtensionId,
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
-#endif  // BUILDFLAG(IS_CHROMEOS)
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
       extension_misc::kTTSEngineExtensionId,
       extension_misc::kComponentUpdaterTTSEngineExtensionId,
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
-#if !BUILDFLAG(IS_ANDROID)
       extension_misc::kIndigoExtensionId,
       extension_misc::kDictationConnectorExtensionId,
-#endif  // !BUILDFLAG(IS_ANDROID)
   });
 
   if (kAllowed.contains(extension_id)) {
     return true;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (extension_id == extension_misc::kODFSExtensionId) {
-    return true;
-  }
-
-  if (ash::input_method::ComponentExtensionIMEManagerDelegateImpl::
-          IsIMEExtensionID(extension_id)) {
-    return true;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   LOG(ERROR) << "Component extension with id " << extension_id << " not in "
              << "allowlist and is not being loaded as a result.";
   NOTREACHED() << "Component extension with id " << extension_id << " not in "
@@ -110,18 +77,6 @@ bool IsComponentExtensionAllowlisted(int manifest_resource_id) {
     case IDR_NETWORK_SPEECH_SYNTHESIS_MANIFEST_MV3:
     case IDR_WEBSTORE_MANIFEST:
 
-#if BUILDFLAG(IS_CHROMEOS)
-    // Separate ChromeOS list, as it is quite large.
-    case IDR_ARC_SUPPORT_MANIFEST:
-    case IDR_CHROME_APP_MANIFEST:
-    case IDR_IMAGE_LOADER_MANIFEST:
-    case IDR_KEYBOARD_MANIFEST:
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-    case IDR_HELP_MANIFEST:
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
-    case IDR_DESK_API_MANIFEST:
-    case IDR_ECHO_MANIFEST:
-#endif  // BUILDFLAG(IS_CHROMEOS)
       return true;
   }
 
@@ -133,20 +88,5 @@ bool IsComponentExtensionAllowlisted(int manifest_resource_id) {
                << "loaded as a result.";
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool IsComponentExtensionAllowlistedForSignInProfile(
-    const std::string& extension_id) {
-  constexpr auto kAllowed = base::MakeFixedFlatSet<std::string_view>({
-      extension_misc::kAccessibilityCommonExtensionId,
-      extension_misc::kChromeVoxExtensionId,
-      extension_misc::kEspeakSpeechSynthesisExtensionId,
-      extension_misc::kGoogleSpeechSynthesisExtensionId,
-      extension_misc::kSelectToSpeakExtensionId,
-      extension_misc::kSwitchAccessExtensionId,
-  });
-
-  return kAllowed.contains(extension_id);
-}
-#endif
 
 }  // namespace extensions

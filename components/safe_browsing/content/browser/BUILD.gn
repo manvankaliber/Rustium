@@ -320,12 +320,5 @@ if (safe_browsing_mode != 0) {
       "//ui/display",
       "//ui/gfx/codec",
     ]
-
-    if (is_android) {
-      deps += [
-        "//components/safe_browsing/core/browser:referring_app_info",
-        "//ui/android",
-      ]
-    }
   }
 }

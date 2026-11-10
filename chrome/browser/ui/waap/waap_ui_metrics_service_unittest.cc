@@ -40,7 +40,6 @@ class WaapUIMetricsServiceTest : public testing::Test {
   TestingProfile profile_;
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Tests that the OnFirstPaint method records a histogram on the first call,
 // and does not record it again on subsequent calls.
 TEST_F(WaapUIMetricsServiceTest, OnFirstPaint) {
@@ -96,7 +95,6 @@ TEST_F(WaapUIMetricsServiceTest, OnFirstContentfulPaint) {
   histogram_tester()->ExpectTotalCount(
       "InitialWebUI.Startup.ReloadButton.FirstContentfulPaint", 1);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Tests that the OnReloadButtonInput method records a histogram.
 TEST_F(WaapUIMetricsServiceTest, OnReloadButtonInput) {

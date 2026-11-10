@@ -119,9 +119,7 @@ source_set("impl") {
     "//url",
   ]
 
-  if (!is_android) {
-    deps += [ "//chrome/browser/ui/views/frame:browser_view_header" ]
-  }
+  deps += [ "//chrome/browser/ui/views/frame:browser_view_header" ]
 }
 
 source_set("test_support") {
@@ -224,9 +222,7 @@ source_set("browser_tests") {
     "//services/device/public/mojom",
   ]
 
-  if (!is_android) {
-    deps += [ "//chrome/browser/ui/views/frame:browser_view_header" ]
-  }
+  deps += [ "//chrome/browser/ui/views/frame:browser_view_header" ]
 }
 
 source_set("interactive_ui_tests") {
@@ -251,7 +247,5 @@ source_set("interactive_ui_tests") {
     "//content/test:test_support",
   ]
 
-  if (!is_android) {
-    deps += [ "//chrome/browser/ui/views/frame:browser_view_header" ]
-  }
+  deps += [ "//chrome/browser/ui/views/frame:browser_view_header" ]
 }

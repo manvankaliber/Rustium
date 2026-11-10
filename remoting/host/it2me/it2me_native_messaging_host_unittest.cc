@@ -28,7 +28,7 @@
 #include "components/policy/policy_constants.h"
 #include "remoting/base/auto_thread_task_runner.h"
 #include "remoting/base/oauth_token_getter.h"
-#include "remoting/host/chromeos/chromeos_enterprise_params.h"
+#include "remoting/host/enterprise_session_params.h"
 #include "remoting/host/chromoting_host_context.h"
 #include "remoting/host/it2me/it2me_constants.h"
 #include "remoting/host/it2me/it2me_helpers.h"
@@ -275,7 +275,7 @@ class It2MeNativeMessagingHostTest : public testing::Test {
 
   MockIt2MeHost* mock_it2me_host() { return factory_raw_ptr_->host.get(); }
 
-  const std::optional<ChromeOsEnterpriseParams>
+  const std::optional<EnterpriseSessionParams>
   get_chrome_os_enterprise_params() {
     return factory_raw_ptr_->host->chrome_os_enterprise_params_;
   }
@@ -334,9 +334,6 @@ void It2MeNativeMessagingHostTest::SetUp() {
       base::BindOnce(&It2MeNativeMessagingHostTest::ExitTest,
                      base::Unretained(this)));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  test_url_loader_factory_ = new network::TestSharedURLLoaderFactory();
-#endif
 
   host_task_runner_->PostTask(
       FROM_HERE, base::BindOnce(&It2MeNativeMessagingHostTest::StartHost,
@@ -696,7 +693,7 @@ TEST_F(It2MeNativeMessagingHostTest,
        ConnectRespectsEnterpriseOptionsParameterOnChromeOsOnly) {
   int next_id = 1;
   base::DictValue connect_message = CreateConnectMessage(next_id);
-  ChromeOsEnterpriseParams params;
+  EnterpriseSessionParams params;
   params.suppress_user_dialogs = true;
   params.suppress_notifications = true;
   params.terminate_upon_input = true;
@@ -704,14 +701,14 @@ TEST_F(It2MeNativeMessagingHostTest,
   params.allow_remote_input = false;
   params.allow_clipboard_sync = false;
   params.connection_auto_accept_timeout = base::Hours(8);
-  params.request_origin = ChromeOsEnterpriseRequestOrigin::kEnterpriseAdmin;
-  params.audio_playback = ChromeOsEnterpriseAudioPlayback::kLocalOnly;
-#if BUILDFLAG(IS_CHROMEOS) || !defined(NDEBUG)
+  params.request_origin = EnterpriseSessionRequestOrigin::kEnterpriseAdmin;
+  params.audio_playback = EnterpriseSessionAudioPlayback::kLocalOnly;
+#if !defined(NDEBUG)
   it2me_host_raw_ptr_->set_chrome_os_enterprise_params(params);
 #endif
   WriteMessageToInputPipe(connect_message);
   VerifyConnectResponses(next_id);
-#if BUILDFLAG(IS_CHROMEOS) || !defined(NDEBUG)
+#if !defined(NDEBUG)
   ASSERT_TRUE(get_chrome_os_enterprise_params().has_value());
   ASSERT_TRUE(get_chrome_os_enterprise_params()->suppress_user_dialogs);
   ASSERT_TRUE(get_chrome_os_enterprise_params()->suppress_notifications);
@@ -722,9 +719,9 @@ TEST_F(It2MeNativeMessagingHostTest,
   ASSERT_EQ(get_chrome_os_enterprise_params()->connection_auto_accept_timeout,
             base::Hours(8));
   ASSERT_EQ(get_chrome_os_enterprise_params()->request_origin,
-            ChromeOsEnterpriseRequestOrigin::kEnterpriseAdmin);
+            EnterpriseSessionRequestOrigin::kEnterpriseAdmin);
   ASSERT_EQ(get_chrome_os_enterprise_params()->audio_playback,
-            ChromeOsEnterpriseAudioPlayback::kLocalOnly);
+            EnterpriseSessionAudioPlayback::kLocalOnly);
 #else
   ASSERT_FALSE(get_chrome_os_enterprise_params().has_value());
 #endif
@@ -737,15 +734,15 @@ TEST_F(It2MeNativeMessagingHostTest,
        ConnectRespectsIsEnterpriseAdminUserParameterOnChromeOsOnly) {
   int next_id = 1;
   base::DictValue connect_message = CreateConnectMessage(next_id);
-#if BUILDFLAG(IS_CHROMEOS) || !defined(NDEBUG)
-  ChromeOsEnterpriseParams params;
-  params.request_origin = ChromeOsEnterpriseRequestOrigin::kEnterpriseAdmin;
-  params.audio_playback = ChromeOsEnterpriseAudioPlayback::kLocalOnly;
+#if !defined(NDEBUG)
+  EnterpriseSessionParams params;
+  params.request_origin = EnterpriseSessionRequestOrigin::kEnterpriseAdmin;
+  params.audio_playback = EnterpriseSessionAudioPlayback::kLocalOnly;
   it2me_host_raw_ptr_->set_chrome_os_enterprise_params(params);
 #endif
   WriteMessageToInputPipe(connect_message);
   VerifyConnectResponses(next_id);
-#if BUILDFLAG(IS_CHROMEOS) || !defined(NDEBUG)
+#if !defined(NDEBUG)
   EXPECT_TRUE(factory_raw_ptr_->host->is_enterprise_session());
 #else
   EXPECT_FALSE(factory_raw_ptr_->host->is_enterprise_session());
@@ -760,7 +757,7 @@ TEST_F(It2MeNativeMessagingHostTest,
   int next_id = 1;
   base::DictValue connect_message = CreateConnectMessage(next_id);
   connect_message.Set(kIsEnterpriseAdminUser, true);
-  ChromeOsEnterpriseParams params;
+  EnterpriseSessionParams params;
   params.suppress_user_dialogs = true;
   params.suppress_notifications = true;
   params.terminate_upon_input = true;
@@ -768,8 +765,8 @@ TEST_F(It2MeNativeMessagingHostTest,
   params.allow_remote_input = false;
   params.allow_clipboard_sync = false;
   params.connection_auto_accept_timeout = base::Hours(8);
-  params.request_origin = ChromeOsEnterpriseRequestOrigin::kEnterpriseAdmin;
-  params.audio_playback = ChromeOsEnterpriseAudioPlayback::kLocalOnly;
+  params.request_origin = EnterpriseSessionRequestOrigin::kEnterpriseAdmin;
+  params.audio_playback = EnterpriseSessionAudioPlayback::kLocalOnly;
   connect_message.Merge(params.ToDict());
   WriteMessageToInputPipe(connect_message);
   VerifyConnectResponses(next_id);

@@ -126,14 +126,6 @@ void GlCalculatorHelper::CreateFramebuffer() {
 }
 
 void GlCalculatorHelper::BindFramebuffer(const GlTexture& dst) {
-#ifdef __ANDROID__
-  // On (some?) Android devices, attaching a new texture to the frame buffer
-  // does not seem to detach the old one. As a result, using that texture
-  // for texturing can produce incorrect output. See b/32091368 for details.
-  // To fix this, we have to call either glBindFramebuffer with a FBO id of 0
-  // or glFramebufferTexture2D with a texture ID of 0.
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#endif
   if (!framebuffer_) {
     CreateFramebuffer();
   }

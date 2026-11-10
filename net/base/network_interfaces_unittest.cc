@@ -13,7 +13,7 @@
 #include "net/base/ip_endpoint.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 #include <net/if.h>
 #elif BUILDFLAG(IS_WIN)
 #include <objbase.h>
@@ -56,7 +56,7 @@ TEST(NetworkInterfacesTest, GetNetworkList) {
               ConvertInterfaceLuidToGuid(&luid, &guid));
     auto name = base::win::WStringFromGUID(guid);
     EXPECT_EQ(base::UTF8ToWide(it->name), name);
-#elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_POSIX)
     char name[IF_NAMESIZE];
     EXPECT_TRUE(if_indextoname(it->interface_index, name));
     EXPECT_STREQ(it->name.c_str(), name);

@@ -44,15 +44,9 @@
 namespace supervised_user {
 namespace {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 bool ShouldShowReAuthInterstitial(
     content::NavigationHandle& navigation_handle) {
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(kSupervisedUserVerificationPageOnAndroid)) {
-    return false;
-  }
-#endif
   Profile* profile = Profile::FromBrowserContext(
       navigation_handle.GetWebContents()->GetBrowserContext());
   ChildAccountService* child_account_service =
@@ -244,8 +238,7 @@ void ClassifyUrlNavigationThrottle::OnInterstitialResult(
     }
     case InterstitialResultCallbackActions::kCancelWithInterstitial: {
       CHECK(navigation_handle());
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
       if (ShouldShowReAuthInterstitial(*navigation_handle())) {
         // Show the re-authentication interstitial if the user signed out of
         // the content area, as parent's approval requires authentication.
@@ -270,19 +263,6 @@ std::string ClassifyUrlNavigationThrottle::GetInterstitialHTML(
     WebFilteringResult result,
     bool already_sent_request,
     bool is_main_frame) const {
-#if BUILDFLAG(IS_ANDROID)
-  switch (result.interstitial_mode) {
-    case InterstitialMode::kLearnMoreInterstitial:
-      return SupervisedUserInterstitial::GetHTMLContentsWithoutApprovals(
-          result.url, g_browser_process->GetApplicationLocale());
-    case InterstitialMode::kParentalReviewInterstitial:
-      return SupervisedUserInterstitial::GetHTMLContentsWithApprovals(
-          supervised_user_service(), result.reason, already_sent_request,
-          is_main_frame, g_browser_process->GetApplicationLocale());
-    default:
-      NOTREACHED();
-  }
-#endif
   SCOPED_CRASH_KEY_BOOL(
       "SupervisedUser", "dpc_web_filter_enabled",
       g_browser_process->device_parental_controls().IsWebFilteringEnabled());

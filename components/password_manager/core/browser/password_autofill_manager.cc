@@ -230,31 +230,20 @@ PasswordAutofillManager::PasswordAutofillManager(
       password_manager_driver_(password_manager_driver),
       autofill_client_(autofill_client),
       password_client_(password_client)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
       ,
       manual_fallback_metrics_recorder_(
           std::make_unique<PasswordManualFallbackMetricsRecorder>())
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 {
 }
 
 PasswordAutofillManager::~PasswordAutofillManager() {
   CancelBiometricReauthIfOngoing();
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // `manual_fallback_flow_` holds a raw pointer to
   // `manual_fallback_metrics_recorder_`, so the flow should be reset first.
   manual_fallback_flow_.reset();
   manual_fallback_metrics_recorder_.reset();
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void PasswordAutofillManager::ShowKeyboardReplacingSurface(
-    const autofill::PasswordSuggestionRequest& request) {
-  password_client_->ShowKeyboardReplacingSurface(password_manager_driver_,
-                                                 request);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 std::optional<autofill::Suggestion>
 PasswordAutofillManager::GetWebauthnSignInWithAnotherDeviceSuggestion() const {
@@ -458,8 +447,7 @@ void PasswordAutofillManager::DidAcceptSuggestion(
           base::BindOnce(&PasswordAutofillManager::FillBackupSuggestion,
                          weak_ptr_factory_.GetWeakPtr(), payload);
       if (payload.is_cross_domain) {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
         cross_domain_confirmation_controller_ =
             password_client_->ShowCrossDomainConfirmationPopup(
                 last_popup_open_args_.element_bounds,
@@ -509,8 +497,7 @@ void PasswordAutofillManager::DidAcceptSuggestion(
           base::BindOnce(&PasswordAutofillManager::FillSuggestion,
                          weak_ptr_factory_.GetWeakPtr(), *password_credential);
       if (password_credential->is_grouped_affiliation) {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
         cross_domain_confirmation_controller_ =
             password_client_->ShowCrossDomainConfirmationPopup(
                 last_popup_open_args_.element_bounds,
@@ -619,17 +606,13 @@ void PasswordAutofillManager::DeleteFillData() {
 
 void PasswordAutofillManager::ShowSuggestions(
     const autofill::TriggeringField& field) {
-#if !BUILDFLAG(IS_ANDROID)
   if (password_client_->IsActorTaskActive()) {
     // Disables password suggestions if actor is active on the tab.
     return;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (MaybeTriggerPasswordManualFallback(field)) {
     return;
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   if (ShouldWaitForPasskeys(field)) {
     WaitForPasskeys(field);
@@ -760,15 +743,12 @@ void PasswordAutofillManager::DidNavigateFrame() {
   CancelBiometricReauthIfOngoing();
   favicon_tracker_.TryCancelAll();
   page_favicon_ = gfx::Image();
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // `manual_fallback_flow_` holds a raw pointer to
   // `manual_fallback_metrics_recorder_`, so the flow should be reset first.
   manual_fallback_flow_.reset();
   manual_fallback_metrics_recorder_ =
       std::make_unique<PasswordManualFallbackMetricsRecorder>();
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   cross_domain_confirmation_controller_.reset();
 #endif
   wait_for_passkeys_timer_.Stop();
@@ -1012,12 +992,12 @@ void PasswordAutofillManager::OnPasswordCredentialSuggestionAccepted(
       &PasswordAutofillManager::OnBiometricReauthCompleted,
       weak_ptr_factory_.GetWeakPtr(), std::move(fill_suggestion_callback));
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   const std::u16string origin = base::UTF8ToUTF16(GetShownOrigin(
       url::Origin::Create(password_manager_driver_->GetLastCommittedURL())));
   message =
       l10n_util::GetStringFUTF16(IDS_PASSWORD_MANAGER_FILLING_REAUTH, origin);
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
   authenticator_->AuthenticateWithMessage(
       message, metrics_util::TimeCallbackMediumTimes(
                    std::move(on_reauth_complete),
@@ -1070,7 +1050,6 @@ std::vector<autofill::Suggestion> PasswordAutofillManager::GetSuggestions(
       show_identity_credentials);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void PasswordAutofillManager::SetManualFallbackFlowForTest(
     std::unique_ptr<PasswordSuggestionFlow> manual_fallback_flow) {
   manual_fallback_flow_.swap(manual_fallback_flow);
@@ -1117,6 +1096,5 @@ bool PasswordAutofillManager::MaybeTriggerPasswordManualFallback(
                                  field.text_direction);
   return true;
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 }  //  namespace password_manager

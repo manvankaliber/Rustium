@@ -31,7 +31,6 @@
 #include "base/values.h"
 #include "build/build_config.h"
 #include "build/chromeos_buildflags.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_crx_util.h"
 #include "chrome/browser/extensions/extension_browser_test_util.h"
@@ -96,11 +95,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chrome/browser/ash/test/kiosk_app_logged_in_browser_test_mixin.h"
-#include "chrome/browser/extensions/extension_assets_manager_chromeos.h"
-#endif
 
 namespace extensions {
 
@@ -1259,103 +1253,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionCrxInstallerTest,
             *installation_failure.install_error_detail);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_F(ExtensionCrxInstallerTest, KioskOnlyUninstallableTest) {
-  base::ScopedAllowBlockingForTesting allow_io;
-  // Expect kiosk_only extensions are not allowed outside kiosk.
-  base::FilePath crx_path = test_data_dir_.AppendASCII("kiosk/kiosk_only.crx");
-  EXPECT_FALSE(InstallExtension(crx_path, 0));
-}
-
-class ExtensionCrxInstallerKioskTest
-    : public InProcessBrowserTestMixinHostSupport<ExtensionCrxInstallerTest> {
- public:
-  ExtensionCrxInstallerKioskTest() { set_chromeos_user_ = false; }
-
- private:
-  ash::KioskAppLoggedInBrowserTestMixin kiosk_mixin_{&mixin_host_,
-                                                     "kiosk-account"};
-};
-
-IN_PROC_BROWSER_TEST_F(ExtensionCrxInstallerKioskTest, InstallTest) {
-  base::FilePath crx_path = test_data_dir_.AppendASCII("kiosk/kiosk_only.crx");
-  EXPECT_TRUE(InstallExtension(crx_path, 1));
-  LOG(INFO) << "Extension installed in simulated kiosk mode.";
-}
-
-IN_PROC_BROWSER_TEST_F(ExtensionCrxInstallerTest, InstallToSharedLocation) {
-  base::ScopedAllowBlockingForTesting allow_io;
-  base::CommandLine::ForCurrentProcess()->AppendSwitch(
-      ash::switches::kEnableExtensionAssetsSharing);
-  base::ScopedTempDir cache_dir;
-  ASSERT_TRUE(cache_dir.CreateUniqueTempDir());
-  ExtensionAssetsManagerChromeOS::SetSharedInstallDirForTesting(
-      cache_dir.GetPath());
-
-  base::FilePath crx_path = test_data_dir_.AppendASCII("crx_installer/v1.crx");
-  const Extension* extension =
-      InstallExtension(crx_path, 1, mojom::ManifestLocation::kExternalPref);
-  base::FilePath extension_path = extension->path();
-  EXPECT_TRUE(cache_dir.GetPath().IsParent(extension_path));
-  EXPECT_TRUE(base::PathExists(extension_path));
-
-  extensions::ExtensionId extension_id = extension->id();
-  UninstallExtension(extension_id);
-  ExtensionRegistry* registry = ExtensionRegistry::Get(profile());
-  EXPECT_FALSE(registry->enabled_extensions().GetByID(extension_id));
-
-  content::RunAllTasksUntilIdle();
-
-  EXPECT_FALSE(base::PathExists(extension_path));
-}
-
-IN_PROC_BROWSER_TEST_F(ExtensionCrxInstallerTest,
-                       SharedLocationManifestMismatchFallsBackToLocalInstall) {
-  base::ScopedAllowBlockingForTesting allow_io;
-  base::CommandLine::ForCurrentProcess()->AppendSwitch(
-      ash::switches::kEnableExtensionAssetsSharing);
-  base::ScopedTempDir cache_dir;
-  ASSERT_TRUE(cache_dir.CreateUniqueTempDir());
-  ExtensionAssetsManagerChromeOS::SetSharedInstallDirForTesting(
-      cache_dir.GetPath());
-
-  base::FilePath crx_path = test_data_dir_.AppendASCII("crx_installer/v1.crx");
-  const Extension* shared_extension =
-      InstallExtension(crx_path, 1, mojom::ManifestLocation::kExternalPref);
-  ASSERT_TRUE(shared_extension);
-  const base::FilePath shared_version_dir = shared_extension->path();
-  ASSERT_TRUE(cache_dir.GetPath().IsParent(shared_version_dir));
-
-  // Modify the shared copy's manifest on disk (e.g. simulating a shared copy
-  // written with a different differential_fingerprint).
-  base::DictValue modified_manifest =
-      shared_extension->manifest()->value()->Clone();
-  modified_manifest.Set("description", "modified shared manifest");
-  std::optional<std::string> json = base::WriteJson(modified_manifest);
-  ASSERT_TRUE(json.has_value());
-  ASSERT_TRUE(
-      base::WriteFile(shared_version_dir.Append(kManifestFilename), *json));
-
-  // Re-installing the same CRX resolves to `shared_version_dir` first, detects
-  // the mismatch, and falls back to installing `unpacked_extension_root_` into
-  // the profile's local `install_directory()`.
-  base::HistogramTester histogram_tester;
-  const Extension* local_extension =
-      InstallExtension(crx_path, 0, mojom::ManifestLocation::kExternalPref);
-  ASSERT_TRUE(local_extension);
-  EXPECT_TRUE(ExtensionRegistrar::Get(profile())->install_directory().IsParent(
-      local_extension->path()));
-  EXPECT_TRUE(base::PathExists(shared_version_dir));
-  histogram_tester.ExpectBucketCount(
-      "Extensions.CrxInstaller.ReloadManifestMismatch",
-      CrxInstaller::ReloadManifestVerificationResult::
-          kSharedCopyMismatchFallback,
-      1);
-  histogram_tester.ExpectBucketCount(
-      "Extensions.CrxInstaller.ReloadManifestMismatch",
-      CrxInstaller::ReloadManifestVerificationResult::kMatch, 1);
-}
-#endif
 
 IN_PROC_BROWSER_TEST_F(ExtensionCrxInstallerTest, DoNotSync) {
   scoped_refptr<CrxInstaller> crx_installer(
@@ -1474,7 +1371,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionCrxInstallerTest, InstallDuringShutdown) {
 }
 #endif  // !defined(LEAK_SANITIZER)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(ExtensionCrxInstallerTest,
                        InstallFailsDuringProfileShutdown) {
   // Setup: artificially trigger the async destruction path in ProfileDestroyer
@@ -1534,7 +1430,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionCrxInstallerTest,
 
   ASSERT_FALSE(weak_profile);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Tests that the Extensions.ExtensionInstalled.NewFromWebstore histogram is
 // only emitted when a new extension from the webstore is installed. If any

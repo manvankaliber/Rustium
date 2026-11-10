@@ -64,7 +64,6 @@
 #include "ui/strings/grit/ui_strings.h"
 #include "url/origin.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"  // nogncheck crbug.com/40147906
@@ -75,18 +74,12 @@
 #include "chrome/browser/web_applications/web_app_icon_manager.h"
 #include "chrome/browser/web_applications/web_app_provider.h"
 #include "chrome/browser/web_applications/web_app_registrar.h"
-#else
-#include "chrome/browser/safe_browsing/android/notification_content_detection_manager_android.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "extensions/browser/extension_registry.h"
 #include "extensions/common/constants.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "base/metrics/histogram_functions.h"
-#endif  // IS_CHROMEOS
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 #include "chrome/browser/safe_browsing/notification_content_detection/notification_content_detection_service_factory.h"
@@ -105,21 +98,11 @@ constexpr char
         "SafeBrowsing.NotificationContentDetection."
         "DisplayPersistentNotificationEvent";
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-constexpr char kNotificationResourceImageMemorySizeHistogram[] =
-    "Ash.NotificationResource.ImageMemorySizeInKB";
-
-#endif  // IS_CHROMEOS
 
 // Whether a web notification should be displayed when chrome is in full
 // screen mode.
 static bool ShouldDisplayWebNotificationOnFullScreen(Profile* profile,
                                                      const GURL& origin) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTIMPLEMENTED();
-  return false;
-#else
   // Check to see if this notification comes from a webpage that is displaying
   // fullscreen content.
   bool found = false;
@@ -156,7 +139,6 @@ static bool ShouldDisplayWebNotificationOnFullScreen(Profile* profile,
         return !found;
       });
   return found;
-#endif
 }
 
 // Records the total number of deleted notifications after all storage
@@ -570,15 +552,6 @@ PlatformNotificationServiceImpl::CreateNotificationFromData(
   std::optional<webapps::AppId> web_app_id = FindWebAppId(web_app_hint_url);
 
   std::optional<WebAppIconAndTitle> web_app_icon_and_title;
-#if BUILDFLAG(IS_CHROMEOS)
-  web_app_icon_and_title = FindWebAppIconAndTitle(web_app_hint_url);
-  if (web_app_icon_and_title && notification_resources.badge.isNull()) {
-    // ChromeOS: Enables web app theme color only if monochrome web app icon
-    // has been specified. `badge` Notifications API icons must be masked with
-    // the accent color.
-    optional_fields.ignore_accent_color_for_small_image = true;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   message_center::NotifierId notifier_id(
       origin,
@@ -610,10 +583,6 @@ PlatformNotificationServiceImpl::CreateNotificationFromData(
       !image.drawsNothing()) {
     notification.set_type(message_center::NOTIFICATION_TYPE_IMAGE);
     notification.SetImage(gfx::Image::CreateFrom1xBitmap(image));
-#if BUILDFLAG(IS_CHROMEOS)
-    base::UmaHistogramMemoryKB(kNotificationResourceImageMemorySizeHistogram,
-                               image.computeByteSize() / 1024);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   if (web_app_icon_and_title && !web_app_icon_and_title->icon.isNull())
@@ -699,14 +668,12 @@ std::u16string PlatformNotificationServiceImpl::DisplayNameForContextMessage(
 
 std::optional<webapps::AppId> PlatformNotificationServiceImpl::FindWebAppId(
     const GURL& web_app_hint_url) const {
-#if !BUILDFLAG(IS_ANDROID)
   web_app::WebAppProvider* web_app_provider =
       web_app::WebAppProvider::GetForLocalAppsUnchecked(profile_);
   if (web_app_provider) {
     return web_app_provider->registrar_unsafe().FindBestAppWithUrlInScope(
         web_app_hint_url, web_app::WebAppFilter::InstalledInChrome());
   }
-#endif
 
   return std::nullopt;
 }
@@ -714,20 +681,11 @@ std::optional<webapps::AppId> PlatformNotificationServiceImpl::FindWebAppId(
 std::optional<PlatformNotificationServiceImpl::WebAppIconAndTitle>
 PlatformNotificationServiceImpl::FindWebAppIconAndTitle(
     const GURL& web_app_hint_url) const {
-#if !BUILDFLAG(IS_ANDROID)
   web_app::WebAppProvider* web_app_provider =
       web_app::WebAppProvider::GetForLocalAppsUnchecked(profile_);
   if (web_app_provider) {
-#if BUILDFLAG(IS_CHROMEOS)
-    // The PlatformNotificationServiceTest FindWebAppIconAndTitle seems to be
-    // verifying the availability of an icon and a title for notification
-    // purposes, even though the app is not installed with OS integration, which
-    // is surprising.
-    web_app::WebAppFilter filter = web_app::WebAppFilter::InstalledInChrome();
-#else
     web_app::WebAppFilter filter =
         web_app::WebAppFilter::SupportsOsNotifications();
-#endif
     const std::optional<webapps::AppId> app_id =
         web_app_provider->registrar_unsafe().FindBestAppWithUrlInScope(
             web_app_hint_url, filter);
@@ -742,18 +700,12 @@ PlatformNotificationServiceImpl::FindWebAppIconAndTitle(
       return icon_and_title;
     }
   }
-#endif
 
   return std::nullopt;
 }
 
 bool PlatformNotificationServiceImpl::IsActivelyInstalledWebAppScope(
     const GURL& web_app_url) const {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(peter): Investigate whether it makes sense to consider installed
-  // WebAPKs and TWAs on Android here, when depending features are considered.
-  return false;
-#else
   web_app::WebAppProvider* web_app_provider =
       web_app::WebAppProvider::GetForLocalAppsUnchecked(profile_);
   if (!web_app_provider) {
@@ -763,7 +715,6 @@ bool PlatformNotificationServiceImpl::IsActivelyInstalledWebAppScope(
       web_app_provider->registrar_unsafe().FindBestAppWithUrlInScope(
           web_app_url, web_app::WebAppFilter::SupportsOsNotifications());
   return app_id.has_value();
-#endif
 }
 
 void PlatformNotificationServiceImpl::
@@ -776,11 +727,6 @@ void PlatformNotificationServiceImpl::
   if (base::FeatureList::IsEnabled(
           safe_browsing::kAutoRevokeSuspiciousNotification) &&
       should_show_warning) {
-#if BUILDFLAG(IS_ANDROID)
-    suspicious_notification_revoked = AbusiveNotificationPermissionsManager::
-        MaybeRevokeSuspiciousNotificationPermission(profile_,
-                                                    notification.origin_url());
-#endif
 
     auto* service =
         NotificationsEngagementServiceFactory::GetForProfile(profile_);
@@ -804,14 +750,6 @@ void PlatformNotificationServiceImpl::
                                         weak_ptr_factory_.GetWeakPtr(),
                                         std::move(persistent_metadata),
                                         notification, should_show_warning);
-#if BUILDFLAG(IS_ANDROID)
-    if (should_show_warning && !suspicious_notification_revoked) {
-      // Keep track of suspicious notification ids.
-      safe_browsing::UpdateSuspiciousNotificationIds(
-          HostContentSettingsMapFactory::GetForProfile(profile_),
-          notification.origin_url(), notification.id());
-    }
-#endif
     if (serialized_content_detection_metadata.has_value()) {
       scoped_refptr<content::PlatformNotificationContext> notification_context =
           profile_->GetStoragePartitionForUrl(notification.origin_url())

@@ -37,8 +37,7 @@ namespace {
 // Whether the NTP post-install UI is enabled. By default, this is limited to
 // Windows, Mac, ChromeOS, and Desktop Android but can be overridden for
 // testing.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 bool g_ntp_post_install_ui_enabled = true;
 #else
 bool g_ntp_post_install_ui_enabled = false;
@@ -181,13 +180,8 @@ void MaybeShowExtensionControlledNewTabPage(
   // navigation has committed (GetLastCommittedEntry). On Desktop, the dialog
   // is anchored to the browser window and shows during tab selection
   // (GetVisibleEntry).
-#if BUILDFLAG(IS_ANDROID)
-  content::NavigationEntry* entry =
-      web_contents->GetController().GetLastCommittedEntry();
-#else
   content::NavigationEntry* entry =
       web_contents->GetController().GetVisibleEntry();
-#endif
   if (!entry) {
     return;
   }

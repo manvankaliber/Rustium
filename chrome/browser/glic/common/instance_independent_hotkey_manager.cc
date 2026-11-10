@@ -26,18 +26,13 @@
 #include "chrome/browser/ui/browser_window/public/profile_browser_collection.h"
 #include "components/prefs/pref_service.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/glic_selection_observer.h"
 #include "chrome/browser/glic/public/glic_side_panel_coordinator.h"
 #include "chrome/browser/glic/selection/selection_overlay.mojom.h"
 #include "chrome/browser/glic/selection/selection_overlay_controller.h"
 #include "components/tabs/public/tab_interface.h"
 #include "ui/gfx/geometry/rect.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/platform_util.h"
-#endif
 
 namespace glic {
 
@@ -63,21 +58,15 @@ bool IsPanelToggleHotkeyGlobal(Profile* profile) {
   if (!base::FeatureList::IsEnabled(features::kGlicHotkeyLocalScope)) {
     return true;
   }
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
   PrefService* const local_state = g_browser_process->local_state();
   return !local_state ||
          local_state->GetBoolean(prefs::kGlicHotkeyGlobalScopeEnabled);
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 BrowserWindowInterface* GetLastActiveBrowser(Profile* profile) {
   auto* const collection = ProfileBrowserCollection::GetForProfile(profile);
   return collection ? collection->GetLastActiveBrowser() : nullptr;
 }
-#endif
 }  // namespace
 
 InstanceIndependentHotkeyManager::InstanceIndependentHotkeyManager(
@@ -136,7 +125,6 @@ void InstanceIndependentHotkeyManager::UpdateHotkeyRegistration() {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void InstanceIndependentHotkeyManager::RequestCaptureRegion() {
   if (!GetGlicProviderSpec(profile_).SupportsFeature(
           GlicFeature::kCaptureRegion)) {
@@ -147,11 +135,6 @@ void InstanceIndependentHotkeyManager::RequestCaptureRegion() {
   // CanHandleAccelerators.
   CHECK(bwi);
   CHECK_EQ(bwi->GetProfile(), profile_);
-#if BUILDFLAG(IS_CHROMEOS)
-  if (platform_util::IsBrowserLockedFullscreen(bwi)) {
-    return;
-  }
-#endif
   auto* active_tab = bwi->GetActiveTabInterface();
   if (!active_tab) {
     return;
@@ -188,7 +171,6 @@ void InstanceIndependentHotkeyManager::RequestCaptureRegion() {
   controller->Show(/*options=*/nullptr,
                    ::selection::EntryPoint::kKeyboardShortcut);
 }
-#endif
 
 bool InstanceIndependentHotkeyManager::AcceleratorPressed(
     LocalHotkeyManager::Command command) {
@@ -208,7 +190,6 @@ bool InstanceIndependentHotkeyManager::AcceleratorPressed(
                            mojom::InvocationSource::kOsHotkey);
       return true;
     }
-#if !BUILDFLAG(IS_ANDROID)
     case LocalHotkeyManager::Command::kCaptureRegion:
       if (!GetGlicProviderSpec(profile_).SupportsFeature(
               GlicFeature::kCaptureRegion)) {
@@ -216,7 +197,6 @@ bool InstanceIndependentHotkeyManager::AcceleratorPressed(
       }
       RequestCaptureRegion();
       return true;
-#endif
     default:
       return false;
   }
@@ -227,12 +207,6 @@ bool InstanceIndependentHotkeyManager::CanHandleAccelerators() const {
       !GlicEnabling::IsEnabledAndConsentForProfile(profile_)) {
     return false;
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  BrowserWindowInterface* const bwi = GetLastActiveBrowser(profile_);
-  if (bwi && platform_util::IsBrowserLockedFullscreen(bwi)) {
-    return false;
-  }
-#endif
   return true;
 }
 

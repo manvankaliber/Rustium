@@ -74,12 +74,11 @@ if (enable_extensions_core) {
       "//ui/webui",
       "//ui/webui/tracked_element",
     ]
-    if (!is_android) {
-      deps += [
-        "//chrome/browser/ui/user_education",
-        "//components/user_education/webui",
-      ]
-    }
+
+    deps += [
+      "//chrome/browser/ui/user_education",
+      "//components/user_education/webui",
+    ]
   }
 
   source_set("test_support") {

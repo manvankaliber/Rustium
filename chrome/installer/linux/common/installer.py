@@ -1209,17 +1209,15 @@ class Installer:
 
                     if "not stripped" in output:
                         unstripped.append(path)
-
-                    if self.config.target_os != "chromeos":
-                        # Check RPATH
-                        try:
-                            readelf_out = subprocess.check_output(
-                                ["readelf", "-d", str(path)], text=True
-                            )
-                            if "(RPATH)" in readelf_out:
-                                rpath_bins.append(path.name)
-                        except subprocess.CalledProcessError:
-                            pass
+                    # Check RPATH
+                    try:
+                        readelf_out = subprocess.check_output(
+                            ["readelf", "-d", str(path)], text=True
+                        )
+                        if "(RPATH)" in readelf_out:
+                            rpath_bins.append(path.name)
+                    except subprocess.CalledProcessError:
+                        pass
 
         if unstripped:
             print(

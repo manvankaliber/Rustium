@@ -86,7 +86,7 @@ using ::testing::SaveArg;
 using ::testing::TestParamInfo;
 using ::testing::WithParamInterface;
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 using autofill::autofill_metrics::MandatoryReauthAuthenticationFlowEvent;
 
 // There are 2 boolean params set in the test suites.
@@ -1258,8 +1258,7 @@ IN_PROC_BROWSER_TEST_F(AutofillPrivateApiBrowserTestWithWalletPassBranding,
   extensions::api::autofill_private::EntityType api_type_branded =
       extensions::autofill_ai_util::EntityTypeToPrivateApiEntityType(
           entity_type, /*supports_wallet_storage=*/true);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   EXPECT_EQ(
       api_type_branded.add_entity_type_string,
       l10n_util::GetStringUTF8(
@@ -1278,8 +1277,7 @@ IN_PROC_BROWSER_TEST_F(AutofillPrivateApiBrowserTestWithWalletPassBranding,
             l10n_util::GetStringUTF8(IDS_AUTOFILL_AI_ADD_VEHICLE_ENTITY));
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 class AutofillPrivateApiAuthToViewSensitiveEntityTest
     : public AutofillPrivateApiBrowserTest,
       public WithParamInterface<std::tuple<bool, bool>> {
@@ -1655,7 +1653,7 @@ IN_PROC_BROWSER_TEST_F(
       autofill_client()->GetPrefs()));
 }
 
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace

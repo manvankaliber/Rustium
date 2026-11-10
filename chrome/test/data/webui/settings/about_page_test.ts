@@ -20,15 +20,12 @@ import {TestOpenWindowProxy} from 'chrome://webui-test/test_open_window_proxy.js
 import type {PromoteUpdaterStatus} from 'chrome://settings/settings.js';
 // </if>
 
-// <if expr="not is_chromeos">
 import {UpdateStatus} from 'chrome://settings/settings.js';
 import {webUIListenerCallback} from 'chrome://resources/js/cr.js';
 import {assertNotEquals} from 'chrome://webui-test/chai_assert.js';
 import {isVisible, eventToPromise} from 'chrome://webui-test/test_util.js';
-// </if>
 // clang-format on
 
-// <if expr="not is_chromeos">
 function fireStatusChanged(
     status: UpdateStatus, options: {progress?: number, message?: string} = {}) {
   webUIListenerCallback('update-status-changed', {
@@ -37,7 +34,6 @@ function fireStatusChanged(
     status: status,
   });
 }
-// </if>
 
 suite('AllBuilds', function() {
   let page: SettingsAboutPageElement;
@@ -70,17 +66,11 @@ suite('AllBuilds', function() {
     Router.getInstance().navigateTo(routes.ABOUT);
     document.body.appendChild(page);
     await microtasksFinished();
-    // <if expr="is_chromeos">
-    return;
-    // </if>
 
-    // <if expr="not is_chromeos">
     await aboutBrowserProxy.whenCalled('refreshUpdateStatus');
     await microtasksFinished();
-    // </if>
   }
 
-  // <if expr="not is_chromeos">
   const SPINNER_ICON: string = 'chrome://resources/images/throbber_small.svg';
 
   async function assertSpinnerVisible(visible: boolean) {
@@ -321,7 +311,6 @@ suite('AllBuilds', function() {
   });
   // </if>
 
-  // </if>
   test('GetHelp', function() {
     assertTrue(!!page.shadowRoot.querySelector('#help'));
     page.shadowRoot.querySelector<HTMLElement>('#help')!.click();

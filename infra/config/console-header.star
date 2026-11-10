@@ -23,18 +23,6 @@ def get_header():
                 url = "https://chrome-ops-rotation-proxy.appspot.com/current/oncallator:chrome-branch-sheriff",
             ) if any([s.gardener_rotation == "chrome_browser_release" for s in settings.platforms.values()]) else None,
             headers.oncall(
-                name = "Android",
-                url = "https://chrome-ops-rotation-proxy.appspot.com/current/oncallator:chrome-android-sheriff",
-            ),
-            headers.oncall(
-                name = "iOS",
-                url = "https://chrome-ops-rotation-proxy.appspot.com/current/oncallator:chrome-ios",
-            ),
-            headers.oncall(
-                name = "ChromeOS",
-                url = "https://chrome-ops-rotation-proxy.appspot.com/current/oncallator:chromeos-gardeners",
-            ),
-            headers.oncall(
                 name = "GPU",
                 url = "https://chrome-ops-rotation-proxy.appspot.com/current/oncallator:chrome-gpu-pixel-wrangler-weekly",
             ),
@@ -137,18 +125,6 @@ def get_header():
                 name = "Consoles",
                 links = [
                     headers.link(
-                        text = "android",
-                        branch_selector = branches.selector.ANDROID_BRANCHES,
-                        url = "/p/{}/g/chromium.android".format(settings.project),
-                        alt = "Chromium Android console",
-                    ),
-                    headers.link(
-                        text = "android.desktop",
-                        branch_selector = branches.selector.ANDROID_BRANCHES,
-                        url = "/p/{}/g/chromium.android.desktop".format(settings.project),
-                        alt = "Chromium Android Desktop console",
-                    ),
-                    headers.link(
                         text = "angle",
                         url = "/p/{}/g/chromium.angle".format(settings.project),
                         alt = "Chromium ANGLE console",
@@ -166,18 +142,10 @@ def get_header():
                     headers.link(
                         text = "chromium",
                         branch_selector = [
-                            branches.selector.ANDROID_BRANCHES,
                             branches.selector.DESKTOP_BRANCHES,
-
                         ],
                         url = "/p/{}/g/chromium".format(settings.project),
                         alt = "Main Chromium archive console",
-                    ),
-                    headers.link(
-                        text = "chromiumos",
-                        branch_selector = branches.selector.CROS_LTS_BRANCHES,
-                        url = "/p/{}/g/chromium.chromiumos".format(settings.project),
-                        alt = "ChromiumOS console",
                     ),
                     headers.link(
                         text = "clang",
@@ -187,7 +155,6 @@ def get_header():
                     headers.link(
                         text = "dawn",
                         branch_selector = [
-                            branches.selector.ANDROID_BRANCHES,
                             branches.selector.DESKTOP_BRANCHES,
                         ],
                         url = "/p/{}/g/chromium.dawn".format(settings.project),
@@ -211,7 +178,6 @@ def get_header():
                     headers.link(
                         text = "fyi",
                         branch_selector = [
-                            branches.selector.IOS_BRANCHES,
                             branches.selector.LINUX_BRANCHES,
                         ],
                         url = "/p/{}/g/chromium.fyi".format(settings.project),
@@ -220,7 +186,6 @@ def get_header():
                     headers.link(
                         text = "gpu",
                         branch_selector = [
-                            branches.selector.ANDROID_BRANCHES,
                             branches.selector.DESKTOP_BRANCHES,
                         ],
                         url = "/p/{}/g/chromium.gpu".format(settings.project),
@@ -307,12 +272,6 @@ def get_header():
                 name = "Tryservers",
                 links = [
                     headers.link(
-                        text = "android",
-                        branch_selector = branches.selector.ANDROID_BRANCHES,
-                        url = "/p/{}/g/tryserver.chromium.android/builders".format(settings.project),
-                        alt = "Android",
-                    ),
-                    headers.link(
                         text = "angle",
                         url = "/p/{}/g/tryserver.chromium.angle/builders".format(settings.project),
                         alt = "Angle",
@@ -332,12 +291,6 @@ def get_header():
                         alt = "Chrome",
                     ),
                     headers.link(
-                        text = "chromiumos",
-                        branch_selector = branches.selector.CROS_LTS_BRANCHES,
-                        url = "/p/{}/g/tryserver.chromium.chromiumos/builders".format(settings.project),
-                        alt = "ChromiumOS",
-                    ),
-                    headers.link(
                         text = "fuzz",
                         url = "/p/{}/g/tryserver.chromium.fuzz/builders".format(settings.project),
                         alt = "Fuzz",
@@ -352,7 +305,6 @@ def get_header():
                         text = "mac",
                         branch_selector = [
                             branches.selector.MAC_BRANCHES,
-                            branches.selector.IOS_BRANCHES,
                         ],
                         url = "/p/{}/g/tryserver.chromium.mac/builders".format(settings.project),
                         alt = "Mac",
@@ -403,22 +355,17 @@ def get_header():
                     ),
                     console_ids = [
                         "chromium/chromium tree closers",
-                        "chromium/android tree closers",
-                        "chromium/chromiumos tree closers",
                         "chromium/chromium.gpu tree closers",
-                        "chromium/ios tree closers",
                     ],
                 ),
                 headers.console_group(
                     console_ids = [
                         "chromium/chromium rotation",
-                        "chromium/android rotation",
                         "chromium/cft rotation",
                         "chrome/chrome.perf",
                         "chromium/chromium.gpu rotation",
                         "chromium/angle rotation",
                         "chromium/dawn rotation",
-                        "chromium/ios rotation",
                     ],
                 ),
             ],
@@ -428,9 +375,7 @@ def get_header():
                 console_ids = ["{}/{}".format(settings.project, console) for console in [
                     branches.value(
                         branch_selector = [
-                            branches.selector.ANDROID_BRANCHES,
                             branches.selector.DESKTOP_BRANCHES,
-
                         ],
                         value = "chromium",
                     ),
@@ -440,7 +385,6 @@ def get_header():
                     ),
                     branches.value(
                         branch_selector = [
-                            branches.selector.IOS_BRANCHES,
                             branches.selector.MAC_BRANCHES,
                         ],
                         value = "chromium.mac",
@@ -450,23 +394,14 @@ def get_header():
                         value = "chromium.linux",
                     ),
                     branches.value(
-                        branch_selector = branches.selector.CROS_LTS_BRANCHES,
-                        value = "chromium.chromiumos",
-                    ),
-                    branches.value(
                         branch_selector = branches.selector.LINUX_BRANCHES,
                         value = "chromium.memory",
                     ),
                     branches.value(
                         branch_selector = [
-                            branches.selector.ANDROID_BRANCHES,
                             branches.selector.DESKTOP_BRANCHES,
                         ],
                         value = "chromium.gpu",
-                    ),
-                    branches.value(
-                        branch_selector = branches.selector.ANDROID_BRANCHES,
-                        value = "chromium.android",
                     ),
                 ] if console != None],
             ),

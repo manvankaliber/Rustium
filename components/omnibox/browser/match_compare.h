@@ -26,19 +26,6 @@ class CompareWithDemoteByType {
     // enough to be inline autocompleted (1400+), even after demotion it will
     // score above 850 ( 1400 * 0.61 > 850).  850 is the maximum score for
     // queries when the input has been detected as URL-seeking.
-#if BUILDFLAG(IS_ANDROID)
-    if (page_classification ==
-        metrics::OmniboxEventProto::
-            SEARCH_RESULT_PAGE_NO_SEARCH_TERM_REPLACEMENT) {
-      demotions_ = {
-          {omnibox::AutocompleteMatchType::kHistoryUrl, 0.61f},
-          {omnibox::AutocompleteMatchType::kHistoryTitle, 0.61f},
-          {omnibox::AutocompleteMatchType::kHistoryBody, 0.61f},
-          {omnibox::AutocompleteMatchType::kHistoryKeyword, 0.61f},
-          {omnibox::AutocompleteMatchType::kBookmarkTitle, 0.61f},
-          {omnibox::AutocompleteMatchType::kDocumentSuggestion, 0.61f}};
-    }
-#endif
     omnibox::CheckObsoletePageClass(page_classification);
 
     if (page_classification == metrics::OmniboxEventProto::NTP_REALBOX) {

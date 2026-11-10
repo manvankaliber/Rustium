@@ -76,8 +76,7 @@
 #include "components/security_interstitials/content/captive_portal_blocking_page.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "chrome/browser/supervised_user/supervised_user_verification_controller_client.h"
 #include "chrome/browser/supervised_user/supervised_user_verification_page_blocked_sites.h"
 #endif
@@ -129,10 +128,6 @@ class InterstitialHTMLSource : public content::URLDataSource {
  private:
   std::string GetSupervisedUserAskParentInterstitialHTML(
       const std::string& path);
-#if BUILDFLAG(IS_ANDROID)
-  std::string GetSupervisedUserSiteBlockedInterstitialHTML(
-      const std::string& path);
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 std::unique_ptr<SSLBlockingPage> CreateSslBlockingPage(
@@ -428,8 +423,7 @@ CreateSupervisedUserVerificationPageForYouTube(
 }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 std::unique_ptr<SupervisedUserVerificationPageForBlockedSites>
 CreateSupervisedUserVerificationPageForBlockedSites(
     content::WebContents* web_contents,
@@ -647,8 +641,7 @@ void InterstitialHTMLSource::StartDataRequest(
     interstitial_delegate = CreateSupervisedUserVerificationPageForYouTube(
         web_contents, /*is_main_frame=*/false);
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   } else if (path_without_query == "/supervised-user-verify-blocked-site") {
     interstitial_delegate = CreateSupervisedUserVerificationPageForBlockedSites(
         web_contents, /*is_main_frame=*/true);
@@ -670,10 +663,6 @@ void InterstitialHTMLSource::StartDataRequest(
   if (path_without_query == "/supervised-user-ask-parent") {
 #endif  // BUILDFLAG(SAFE_BROWSING_AVAILABLE)
     html = GetSupervisedUserAskParentInterstitialHTML(path);
-#if BUILDFLAG(IS_ANDROID)
-  } else if (path_without_query == "/supervised-user-site-blocked") {
-    html = GetSupervisedUserSiteBlockedInterstitialHTML(path);
-#endif  // BUILDFLAG(IS_ANDROID)
   } else if (interstitial_delegate.get()) {
     html = interstitial_delegate.get()->GetHTMLContents();
   } else {
@@ -733,13 +722,3 @@ std::string InterstitialHTMLSource::GetSupervisedUserAskParentInterstitialHTML(
       /*already_sent_remote_request=*/false,
       /*is_main_frame=*/true, /*ios_font_size_multiplier=*/std::nullopt);
 }
-
-#if BUILDFLAG(IS_ANDROID)
-std::string
-InterstitialHTMLSource::GetSupervisedUserSiteBlockedInterstitialHTML(
-    const std::string& path) {
-  return supervised_user::BuildErrorPageHtmlWithoutApprovals(
-      GURL("https://localhost/" + path),
-      g_browser_process->GetApplicationLocale());
-}
-#endif  // BUILDFLAG(IS_ANDROID)

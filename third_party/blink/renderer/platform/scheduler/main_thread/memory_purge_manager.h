@@ -66,13 +66,6 @@ class PLATFORM_EXPORT MemoryPurgeManager {
     purge_disabled_for_testing_ = disabled;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Sets a callback that is run when the state of all pages being frozen
-  // changes. It's called with `true` when transitioning to "all pages frozen"
-  // and `false` otherwise.
-  void SetOnAllPagesFrozenCallback(
-      base::RepeatingCallback<void(bool)> callback);
-#endif
 
   // Purge on renderer backgrounding is disabled on Android. On mobile Android,
   // it's redundant with the purge that occurs on page freezing (unlike on
@@ -83,11 +76,7 @@ class PLATFORM_EXPORT MemoryPurgeManager {
   // TODO(thiabaud): Since freezing is disabled on desktop Android, maybe the
   // purge on backgrounding should be enabled?
   static constexpr bool kPurgeOnBackgroundingEnabled =
-#if BUILDFLAG(IS_ANDROID)
-      false
-#else
       true
-#endif
       ;
 
   // Default maximum time to purge after the renderer is backgrounded. Can be
@@ -151,9 +140,6 @@ class PLATFORM_EXPORT MemoryPurgeManager {
   std::optional<base::MemoryPressureSuppressionToken>
       memory_pressure_suppression_token_;
 
-#if BUILDFLAG(IS_ANDROID)
-  base::RepeatingCallback<void(bool)> all_pages_frozen_callback_;
-#endif
 };
 
 }  // namespace blink

@@ -46,7 +46,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/strings/pattern.h"
 #include "chrome/test/base/testing_profile.h"
 #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
@@ -58,7 +57,6 @@
 #include "components/safe_browsing/core/common/proto/csd.pb.h"
 #endif  // BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 using download::DownloadItem;
 using offline_items_collection::FailState;
@@ -71,7 +69,7 @@ using ::testing::ReturnRef;
 using ::testing::ReturnRefOfCopy;
 using ::testing::SetArgPointee;
 
-#if !BUILDFLAG(IS_ANDROID) && BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 using TailoredVerdict = safe_browsing::ClientDownloadResponse::TailoredVerdict;
 #endif
 
@@ -343,9 +341,7 @@ TEST_F(DownloadItemModelTest, InterruptedStatus) {
     SetStatusTextBuilder(/*for_bubble=*/true);
     EXPECT_EQ(test_case.expected_bubble_status_msg, model().GetStatusText());
 
-#if !BUILDFLAG(IS_ANDROID)
     EXPECT_EQ(model().GetDangerUiPattern(), test_case.expected_danger_pattern);
-#endif
   }
 }
 
@@ -515,10 +511,8 @@ TEST_F(DownloadItemModelTest, InProgressStatus) {
                   ? test_case.expected_status_msg
                   : test_case.expected_bubble_status_msg,
               base::UTF16ToUTF8(model().GetStatusText()));
-#if !BUILDFLAG(IS_ANDROID)
     EXPECT_EQ(model().GetDangerUiPattern(),
               DownloadUIModel::DangerUiPattern::kNormal);
-#endif
   }
 }
 
@@ -564,20 +558,16 @@ TEST_F(DownloadItemModelTest, CompletedStatus) {
     SetStatusTextBuilder(/*for_bubble=*/true);
     EXPECT_EQ(base::UTF16ToUTF8(model().GetStatusText()),
               test_case.expected_bubble_status_msg);
-#if !BUILDFLAG(IS_ANDROID)
     EXPECT_EQ(model().GetDangerUiPattern(),
               DownloadUIModel::DangerUiPattern::kNormal);
-#endif
   }
 
   EXPECT_CALL(item(), GetDangerType())
       .WillRepeatedly(Return(download::DOWNLOAD_DANGER_TYPE_DEEP_SCANNED_SAFE));
   EXPECT_EQ("2 B \xE2\x80\xA2 Scan is done",
             base::UTF16ToUTF8(model().GetStatusText()));
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_EQ(model().GetDangerUiPattern(),
             DownloadUIModel::DangerUiPattern::kNormal);
-#endif
 
 #if BUILDFLAG(IS_MAC)
   EXPECT_EQ("Show in Finder", base::UTF16ToUTF8(model().GetShowInFolderText()));
@@ -605,10 +595,8 @@ TEST_F(DownloadItemModelTest, CompletedBubbleWarningStatusText) {
         .WillByDefault(Return(test_case.insecure_download_status));
     EXPECT_EQ(base::UTF16ToUTF8(model().GetStatusText()),
               test_case.expected_bubble_status_msg);
-#if !BUILDFLAG(IS_ANDROID)
     EXPECT_EQ(model().GetDangerUiPattern(),
               DownloadUIModel::DangerUiPattern::kSuspicious);
-#endif
   }
 
   const struct DangerTypeTestCase {
@@ -656,9 +644,7 @@ TEST_F(DownloadItemModelTest, CompletedBubbleWarningStatusText) {
         .WillByDefault(Return(test_case.danger_type));
     EXPECT_EQ(base::UTF16ToUTF8(model().GetStatusText()),
               test_case.expected_bubble_status_msg);
-#if !BUILDFLAG(IS_ANDROID)
     EXPECT_EQ(model().GetDangerUiPattern(), test_case.expected_danger_pattern);
-#endif
   }
 }
 
@@ -671,12 +657,10 @@ TEST_F(DownloadItemModelTest,
       .WillByDefault(Return(download::DOWNLOAD_DANGER_TYPE_DANGEROUS_FILE));
   EXPECT_EQ(base::UTF16ToUTF8(model().GetStatusText()),
             "Unverified download blocked");
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_EQ(model().GetDangerUiPattern(),
             DownloadUIModel::DangerUiPattern::kSuspicious);
-#endif
 
-#if !BUILDFLAG(IS_ANDROID) && BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
   // It doesn't matter what the DownloadProtectionData is; just that it is
   // present.
   std::string token = "token";
@@ -688,11 +672,10 @@ TEST_F(DownloadItemModelTest,
 
   EXPECT_EQ(base::UTF16ToUTF8(model().GetStatusText()),
             "Suspicious download blocked");
-#endif  // !BUILDFLAG(IS_ANDROID) &&
+#endif
         // BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(DownloadItemModelTest, ShouldPreferOpeningInBrowser) {
   SetupDownloadItemDefaults();
@@ -810,7 +793,6 @@ TEST_F(DownloadItemModelTest, ShouldShowInUi) {
   model().SetShouldShowInUi(false);
   EXPECT_FALSE(model().ShouldShowInUi());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(DownloadItemModelTest, DangerLevel) {
   SetupDownloadItemDefaults();
@@ -1021,7 +1003,6 @@ TEST_F(DownloadItemModelTest,
   EXPECT_EQ(u"", DownloadUIModel::GetDownloadDomainForDisplay(&item()));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 class DownloadItemModelTailoredWarningTest : public DownloadItemModelTest {
  public:
   DownloadItemModelTailoredWarningTest() {
@@ -1083,5 +1064,3 @@ TEST_F(DownloadItemModelTailoredWarningTest, GetTailoredWarningType) {
     EXPECT_EQ(model().GetDangerUiPattern(), test_case.expected_danger_pattern);
   }
 }
-
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)

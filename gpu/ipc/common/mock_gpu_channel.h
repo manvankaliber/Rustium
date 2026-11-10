@@ -75,12 +75,12 @@ class MockGpuChannel : public mojom::GpuChannel {
                     uint64_t,
                     CopyToGpuMemoryBufferAsyncCallback));
 #endif  // BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   MOCK_METHOD3(CopyNativeGmbToSharedMemoryAsync,
                void(gfx::GpuMemoryBufferHandle,
                     base::UnsafeSharedMemoryRegion,
                     CopyNativeGmbToSharedMemoryAsyncCallback));
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
   MOCK_METHOD2(SignalSyncToken,
                void(const std::vector<SyncToken>&, SignalSyncTokenCallback));
   MOCK_METHOD4(WaitForTokenInRange,

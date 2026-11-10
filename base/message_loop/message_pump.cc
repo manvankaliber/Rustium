@@ -115,8 +115,7 @@ class IOWatcherForCurrentIOThread : public IOWatcher {
     return watch;
   }
 #endif
-#if BUILDFLAG(IS_MAC) || \
-    (BUILDFLAG(IS_IOS) && !BUILDFLAG(CRONET_BUILD) && !BUILDFLAG(IS_IOS_TVOS))
+#if BUILDFLAG(IS_MAC)
   bool WatchMachReceivePortImpl(
       mach_port_t port,
       MessagePumpForIO::MachPortWatchController* controller,
@@ -163,12 +162,6 @@ std::unique_ptr<MessagePump> MessagePump::Create(MessagePumpType type) {
 #elif BUILDFLAG(IS_AIX)
       // Currently AIX doesn't have a UI MessagePump.
       NOTREACHED();
-#elif BUILDFLAG(IS_ANDROID)
-      {
-        auto message_pump = std::make_unique<MessagePumpAndroid>();
-        message_pump->set_is_type_ui(true);
-        return message_pump;
-      }
 #else
       return std::make_unique<MessagePumpForUI>();
 #endif
@@ -176,10 +169,6 @@ std::unique_ptr<MessagePump> MessagePump::Create(MessagePumpType type) {
     case MessagePumpType::IO:
       return std::make_unique<MessagePumpForIO>();
 
-#if BUILDFLAG(IS_ANDROID)
-    case MessagePumpType::JAVA:
-      return std::make_unique<MessagePumpAndroid>();
-#endif
 
 #if BUILDFLAG(IS_APPLE)
     case MessagePumpType::NS_RUNLOOP:
@@ -190,12 +179,7 @@ std::unique_ptr<MessagePump> MessagePump::Create(MessagePumpType type) {
       NOTREACHED();
 
     case MessagePumpType::DEFAULT:
-#if BUILDFLAG(IS_IOS)
-      // On iOS, a native runloop is always required to pump system work.
-      return std::make_unique<MessagePumpCFRunLoop>();
-#else
       return std::make_unique<MessagePumpDefault>();
-#endif
   }
 }
 

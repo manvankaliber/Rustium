@@ -12,8 +12,7 @@ import subprocess
 import sys
 
 # This script prints information about the build system, the operating
-# system and the iOS or Mac SDK (depending on the platform "iphonesimulator",
-# "iphoneos" or "macosx" generally).
+# system and the macOS SDK.
 
 
 def SplitVersion(version):
@@ -52,19 +51,7 @@ _HERMETIC_XCODE_DIR = os.path.abspath(
     )
 )
 
-_PLATFORM_DISPLAY_NAME = {
-    'appletvos': 'AppleTVOS',
-    'appletvsimulator': 'AppleTVSimulator',
-    'iphoneos': 'iPhoneOS',
-    'iphonesimulator': 'iPhoneSimulator',
-    'macosx': 'MacOSX',
-    'visionos': 'XROS',
-    'visionsimulator': 'XRSimulator',
-    'watchos': 'WatchOS',
-    'watchsimulator': 'WatchSimulator',
-    'xros': 'XROS',
-    'xrsimulator': 'XRSimulator',
-}
+_PLATFORM_DISPLAY_NAME = {'macosx': 'MacOSX'}
 
 
 def FillXcodeVersion(settings, developer_dir):
@@ -100,7 +87,7 @@ def FillMachineOSBuild(settings, developer_dir=None):
         # Non-Darwin hosts lack `sw_vers -buildVersion`, so use the SDK's
         # `ProductBuildVersion` as a stand-in for `BuildMachineOSBuild`.
         dev_dir = developer_dir or _HERMETIC_XCODE_DIR
-        for platform_name in ('MacOSX', 'iPhoneSimulator', 'iPhoneOS'):
+        for platform_name in ('MacOSX',):
             sys_ver_plist = os.path.join(
                 dev_dir,
                 'Contents',
@@ -137,6 +124,8 @@ def FillSDKPathAndVersion(
     settings, platform, xcode_version, developer_dir=None
 ):
     """Fills the SDK path and version for |platform| into |settings|."""
+    if platform != 'macosx':
+        raise ValueError(f'Unsupported desktop SDK platform: {platform}')
     if sys.platform != 'darwin':
         dev_dir = os.path.abspath(developer_dir or _HERMETIC_XCODE_DIR)
         platform_name = _PLATFORM_DISPLAY_NAME[platform]
@@ -272,15 +261,7 @@ def main():
     )
     parser.add_argument(
         'platform',
-        choices=[
-            'appletvos',
-            'appletvsimulator',
-            'iphoneos',
-            'iphonesimulator',
-            'macosx',
-            'watchos',
-            'watchsimulator',
-        ],
+        choices=['macosx'],
     )
     args = parser.parse_args()
     if not args.developer_dir and sys.platform != 'darwin':

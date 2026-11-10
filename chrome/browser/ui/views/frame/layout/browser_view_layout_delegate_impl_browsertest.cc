@@ -144,11 +144,7 @@ INSTANTIATE_TEST_SUITE_P(,
 #if BUILDFLAG(IS_MAC)
                          testing::Values(WindowState::kNormal,
                                          WindowState::kImmersiveMode),
-#elif BUILDFLAG(IS_CHROMEOS)
-                         testing::Values(WindowState::kNormal,
-                                         WindowState::kMaximized,
-                                         WindowState::kImmersiveMode),
-#else  // Linux or Windows
+#else
                          testing::Values(WindowState::kNormal,
                                          WindowState::kMaximized),
 #endif

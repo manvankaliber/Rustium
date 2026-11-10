@@ -133,12 +133,6 @@ KeyboardEvent::KeyboardEvent(const WebKeyboardEvent& key,
   else
     key_code_ = char_code_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // FIXME: Check to see if this applies to other OS.
-  // If the key event belongs to IME composition then propagate to JS.
-  if (key.native_key_code == 0xE5)  // VKEY_PROCESSKEY
-    key_code_ = 0xE5;
-#endif
 }
 
 KeyboardEvent::KeyboardEvent(const AtomicString& event_type,

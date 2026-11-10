@@ -140,9 +140,9 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/test/base/scoped_channel_override.h"
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "extensions/common/constants.h"
@@ -694,10 +694,10 @@ class PrefersColorSchemeEnterpriseIsolatedTest : public InProcessBrowserTest {
   }
 
  private:
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   chrome::ScopedChannelOverride channel_override_{
       chrome::ScopedChannelOverride::Channel::kDev};
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 };
 
 IN_PROC_BROWSER_TEST_F(PrefersColorSchemeEnterpriseIsolatedTest,
@@ -1011,24 +1011,6 @@ IN_PROC_BROWSER_TEST_F(ProtocolHandlerTest, HandlersIgnoredWhenDisabled) {
   EXPECT_EQ(u"about:blank", tab_title);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Tests that if a protocol handler is registered for a scheme, an external
-// program (another Chrome tab in this case) is not launched to handle the
-// navigation. This is a regression test for crbug.com/40627419.
-IN_PROC_BROWSER_TEST_F(ProtocolHandlerTest, ExternalProgramNotLaunched) {
-  ASSERT_TRUE(
-      ui_test_utils::NavigateToURL(browser(), GURL("mailto:bob@example.com")));
-
-  // If an external program (Chrome) was launched, it will result in a second
-  // tab being opened.
-  EXPECT_EQ(1, browser()->tab_strip_model()->count());
-  // Make sure the protocol handler redirected the navigation.
-  std::u16string expected_title = u"mail.google.com";
-  content::TitleWatcher title_watcher(
-      browser()->tab_strip_model()->GetActiveWebContents(), expected_title);
-  EXPECT_EQ(expected_title, title_watcher.WaitAndGetTitle());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 class FakeExternalProtocolHandlerWorker
@@ -1195,71 +1177,7 @@ IN_PROC_BROWSER_TEST_F(ProtocolHandlerLocalOnlyUnmanagedTest,
 }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// URLs which are explicitly allowlisted by policy can bypass security checks.
-// TODO: https://crbug.com/434758587 - Re-enable this test.
-IN_PROC_BROWSER_TEST_F(ProtocolHandlerTest,
-                       DISABLED_SecurityCheckExceptionForAllowlistedUrls) {
-  ProtocolHandlerRegistryFactory::GetInstance()
-      ->GetForBrowserContext(browser()->GetProfile())
-      ->OnAcceptRegisterProtocolHandler(
-          custom_handlers::ProtocolHandler::CreateProtocolHandler(
-              "map", GURL("geo://%s")));
 
-  ScopedFakeExternalProtocolHandlerDelegate delegate;
-
-  base::ListValue allowlist;
-  allowlist.Append("geo://*");
-  browser()->GetProfile()->GetPrefs()->SetList(
-      policy::policy_prefs::kUrlAllowlist, std::move(allowlist));
-  // The call to update the internal allowlist value is async.
-  base::RunLoop().RunUntilIdle();
-
-  const char kGeoUrl[] = "geo:48.2082,16.3738";
-
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), GURL(kGeoUrl)));
-  delegate.WaitExternalUrlLaunchCompleted();
-
-  EXPECT_FALSE(delegate.external_protocol_dialog_called());
-  EXPECT_EQ(delegate.launched_url_without_security_check(), kGeoUrl);
-  EXPECT_EQ(delegate.launched_url_with_security_check(), "");
-}
-
-// Regardless of the value of the UrlAllowlist policy, intent:// URLs should
-// always be deferred to the external protocol dialog (which currently defers
-// the call to ARC).
-IN_PROC_BROWSER_TEST_F(ProtocolHandlerTest,
-                       IntentSchemeBypassSecurityExceptions) {
-  ProtocolHandlerRegistryFactory::GetInstance()
-      ->GetForBrowserContext(browser()->GetProfile())
-      ->OnAcceptRegisterProtocolHandler(
-          custom_handlers::ProtocolHandler::CreateProtocolHandler(
-              "search", GURL("intent://%s")));
-
-  ScopedFakeExternalProtocolHandlerDelegate delegate;
-
-  base::ListValue allowlist;
-  allowlist.Append("intent://*");
-  browser()->GetProfile()->GetPrefs()->SetList(
-      policy::policy_prefs::kUrlAllowlist, std::move(allowlist));
-  // The call to update the internal allowlist value is async.
-  base::RunLoop().RunUntilIdle();
-
-  const char kIntentUrl[] =
-      "intent://www.google.com/"
-      "#Intent;scheme=http;package=com.android.chrome;end";
-
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), GURL(kIntentUrl)));
-  delegate.WaitExternalUrlLaunchCompleted();
-
-  EXPECT_TRUE(delegate.external_protocol_dialog_called());
-  // intent:// URLs should not skip security checks.
-  EXPECT_EQ(delegate.launched_url_without_security_check(), "");
-  EXPECT_EQ(delegate.launched_url_with_security_check(), kIntentUrl);
-}
-#endif
-
-#if !BUILDFLAG(IS_ANDROID)
 class KeepaliveDurationOnShutdownTest : public InProcessBrowserTest,
                                         public InstantTestBase {
  public:
@@ -1317,7 +1235,6 @@ IN_PROC_BROWSER_TEST_F(KeepaliveDurationOnShutdownTest,
   client()->OnKeepaliveRequestFinished();
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENTERPRISE_CONTENT_ANALYSIS)
 

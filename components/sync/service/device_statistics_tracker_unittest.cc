@@ -126,12 +126,6 @@ class DeviceStatisticsTrackerTest : public testing::Test {
     return sync_pb::SyncEnums_OsType_OS_TYPE_MAC;
 #elif BUILDFLAG(IS_LINUX)
     return sync_pb::SyncEnums_OsType_OS_TYPE_LINUX;
-#elif BUILDFLAG(IS_CHROMEOS)
-    return sync_pb::SyncEnums_OsType_OS_TYPE_CHROME_OS_ASH;
-#elif BUILDFLAG(IS_ANDROID)
-    return sync_pb::SyncEnums_OsType_OS_TYPE_ANDROID;
-#elif BUILDFLAG(IS_IOS)
-    return sync_pb::SyncEnums_OsType_OS_TYPE_IOS;
 #else
     return sync_pb::SyncEnums_OsType_OS_TYPE_UNSPECIFIED;
 #endif
@@ -284,7 +278,6 @@ TEST_F(DeviceStatisticsTrackerTest, RecordsNoOutcomeWhenAllRequestsFail) {
 }
 
 // On ChromeOS, the primary account cannot change.
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(DeviceStatisticsTrackerTest, RecordsNoOutcomeWhenPrimaryAccountChanges) {
   AccountInfo primary = identity_test_env_.MakePrimaryAccountAvailable(
       "test@example.com", signin::ConsentLevel::kSignin);
@@ -322,7 +315,6 @@ TEST_F(DeviceStatisticsTrackerTest, RecordsNoOutcomeWhenPrimaryAccountChanges) {
   histogram_tester.ExpectTotalCount("Sync.DeviceStatistics.Outcome.Overall2",
                                     0);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(DeviceStatisticsTrackerTest, RecordsOutcomeWhenPrimaryHasOtherDevices) {
   AccountInfo primary = identity_test_env_.MakePrimaryAccountAvailable(
@@ -780,7 +772,7 @@ TEST_F(DeviceStatisticsTrackerTest, RecordsOtherPlatformsMetrics) {
       /*expected_count=*/1);
 
   int non_primary_expected_platforms = 2;
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   --non_primary_expected_platforms;
 #endif
   histogram_tester.ExpectBucketCount(

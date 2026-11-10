@@ -16,10 +16,10 @@ fuzzer_test("vaapi_jpeg_decoder_fuzzertest") {
     "//base",
 
     # TODO(andrescj): we shouldn't need the next two dependencies, but
-    # //media/gpu/chromeos/BUILD.gn has some dependency issues manifested in a
+    # //media/gpu/linux/BUILD.gn has some dependency issues manifested in a
     # linker error when is_asan is true.
     "//media/gpu:video_frame_mapper",
-    "//media/gpu/chromeos",
+    "//media/gpu/linux",
     "//media/gpu/vaapi",
     "//media/gpu/vaapi:common",
     "//third_party/libprotobuf-mutator",

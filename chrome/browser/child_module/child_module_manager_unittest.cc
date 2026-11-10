@@ -350,7 +350,6 @@ TEST_F(ChildModuleManagerTest, GetModuleForUnknownProcessIdReturnsNullopt) {
 
 // Dynamic child module execution is not supported and not planned on ChromeOS,
 // as dynamic patching itself is not needed on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(ChildModuleManagerTest,
        ReselectingModuleForReusedProcessUpdatesAndClearsAssociation) {
@@ -842,7 +841,6 @@ TEST_F(ChildModuleManagerTest,
   EXPECT_THAT(SelectModuleForNewHost(), Optional(ExpectedModule(kVersion)));
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace child_module
 

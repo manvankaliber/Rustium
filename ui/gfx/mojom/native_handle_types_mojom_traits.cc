@@ -14,79 +14,26 @@
 #include "ui/gfx/mac/io_surface.h"
 #endif  // BUILDFLAG(IS_APPLE)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_OZONE)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_OZONE)
 #include "ui/gfx/native_pixmap_handle.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_OZONE)
+#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/memory/unsafe_shared_memory_region.h"
 #include "ui/gfx/gpu_memory_buffer_handle.h"
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_hardware_buffer_handle.h"
-#include "mojo/public/cpp/system/message_pipe.h"
-#include "mojo/public/cpp/system/scope_to_message_pipe.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace mojo {
 
-#if BUILDFLAG(IS_ANDROID)
-// static
-PlatformHandle StructTraits<gfx::mojom::AHardwareBufferHandleDataView,
-                            ::base::android::ScopedHardwareBufferHandle>::
-    buffer_handle(::base::android::ScopedHardwareBufferHandle& handle) {
-  return PlatformHandle(handle.SerializeAsFileDescriptor());
-}
 
-// static
-ScopedMessagePipeHandle
-StructTraits<gfx::mojom::AHardwareBufferHandleDataView,
-             ::base::android::ScopedHardwareBufferHandle>::
-    tracking_pipe(::base::android::ScopedHardwareBufferHandle& handle) {
-  // We must keep a ref to the AHardwareBuffer alive until the receiver has
-  // acquired its own reference. We do this by sending a message pipe handle
-  // along with the buffer. When the receiver deserializes (or even if they
-  // die without ever reading the message) their end of the pipe will be
-  // closed. We will eventually detect this and release the AHB reference.
-  mojo::MessagePipe tracking_pipe;
-  // Pass ownership of the input handle to our tracking pipe to keep the AHB
-  // alive until it's deserialized.
-  //
-  // SUBTLE: Both `buffer_handle` and `tracking_pipe` use `handle`, but the line
-  // below consumes `handle` by tying its lifetime to the message pipe. This is
-  // not a use-after-move, but it depends on internal details of Mojo
-  // serialization; specifically, the fact that struct fields are serialized in
-  // ordinal order. Since `buffer_handle` is declared before `tracking_pipe`,
-  // and neither has an explicit ordinal, Mojo will always serialize
-  // `buffer_handle` before `tracking_pipe`.
-  mojo::ScopeToMessagePipe(std::move(handle), std::move(tracking_pipe.handle0));
-  return std::move(tracking_pipe.handle1);
-}
-
-// static
-bool StructTraits<gfx::mojom::AHardwareBufferHandleDataView,
-                  ::base::android::ScopedHardwareBufferHandle>::
-    Read(gfx::mojom::AHardwareBufferHandleDataView data,
-         base::android::ScopedHardwareBufferHandle* handle) {
-  base::ScopedFD scoped_fd = data.TakeBufferHandle().TakeFD();
-  if (!scoped_fd.is_valid()) {
-    return false;
-  }
-  *handle =
-      base::android::ScopedHardwareBufferHandle::DeserializeFromFileDescriptor(
-          std::move(scoped_fd));
-  return handle->is_valid();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_OZONE)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_OZONE)
 mojo::PlatformHandle StructTraits<
     gfx::mojom::NativePixmapPlaneDataView,
     gfx::NativePixmapPlane>::buffer_handle(gfx::NativePixmapPlane& plane) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   return mojo::PlatformHandle(std::move(plane.fd));
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 }
 
 bool StructTraits<
@@ -98,12 +45,12 @@ bool StructTraits<
   out->size = data.size();
 
   mojo::PlatformHandle handle = data.TakeBufferHandle();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (!handle.is_fd()) {
     return false;
   }
   out->fd = handle.TakeFD();
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   return true;
 }
@@ -112,7 +59,7 @@ bool StructTraits<
     gfx::mojom::NativePixmapHandleDataView,
     gfx::NativePixmapHandle>::Read(gfx::mojom::NativePixmapHandleDataView data,
                                    gfx::NativePixmapHandle* out) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   out->modifier = data.modifier();
   out->supports_zero_copy_webgpu_import =
       data.supports_zero_copy_webgpu_import();
@@ -120,7 +67,7 @@ bool StructTraits<
 
   return data.ReadPlanes(&out->planes);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_OZONE)
+#endif
 
 #if BUILDFLAG(IS_WIN)
 bool StructTraits<gfx::mojom::DXGIHandleDataView, gfx::DXGIHandle>::Read(
@@ -165,13 +112,6 @@ bool StructTraits<gfx::mojom::IOSurfaceHandleDataView, IOSurfaceHandle>::Read(
   if (!handle->mach_send_right.is_valid()) {
     return false;
   }
-#if BUILDFLAG(IS_IOS)
-  if (!data.ReadSharedMemoryHandle(&handle->shared_memory_region) ||
-      !data.ReadPlaneStrides(&handle->plane_strides) ||
-      !data.ReadPlaneOffsets(&handle->plane_offsets)) {
-    return false;
-  }
-#endif
   return true;
 }
 #endif  // BUILDFLAG(IS_APPLE)
@@ -189,18 +129,14 @@ gfx::mojom::GpuMemoryBufferPlatformHandleDataView::Tag UnionTraits<
     case gfx::IO_SURFACE_BUFFER:
       return Tag::kIoSurfaceHandle;
 #endif  // BUILDFLAG(IS_APPLE)
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_OZONE)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_OZONE)
     case gfx::NATIVE_PIXMAP:
       return Tag::kNativePixmapHandle;
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_OZONE)
+#endif
 #if BUILDFLAG(IS_WIN)
     case gfx::DXGI_SHARED_HANDLE:
       return Tag::kDxgiHandle;
 #endif
-#if BUILDFLAG(IS_ANDROID)
-    case gfx::ANDROID_HARDWARE_BUFFER:
-      return Tag::kAndroidHardwareBufferHandle;
-#endif  // BUILDFLAG(IS_ANDROID)
   }
   NOTREACHED();
 }
@@ -223,17 +159,8 @@ IOSurfaceHandle UnionTraits<gfx::mojom::GpuMemoryBufferPlatformHandleDataView,
     io_surface_handle(gfx::GpuMemoryBufferHandle& gmb_handle) {
   IOSurfaceHandle io_surface_handle;
   gfx::ScopedRefCountedIOSurfaceMachPort io_surface_mach_port;
-#if BUILDFLAG(IS_IOS)
-  io_surface_handle.mach_send_right.reset(
-      gmb_handle.io_surface_mach_port_.release());
-  io_surface_handle.shared_memory_region =
-      std::move(gmb_handle.io_surface_shared_memory_region_);
-  io_surface_handle.plane_strides = gmb_handle.io_surface_plane_strides_;
-  io_surface_handle.plane_offsets = gmb_handle.io_surface_plane_offsets_;
-#else
   io_surface_handle.mach_send_right.reset(
       IOSurfaceCreateMachPort(gmb_handle.io_surface().get()));
-#endif
   return io_surface_handle;
 }
 #endif  // BUILDFLAG(IS_APPLE)
@@ -260,32 +187,18 @@ bool UnionTraits<gfx::mojom::GpuMemoryBufferPlatformHandleDataView,
       } else {
         gmb_handle->io_surface_.reset();
       }
-#if BUILDFLAG(IS_IOS)
-      gmb_handle->io_surface_mach_port_.reset(
-          io_surface_handle.mach_send_right.release());
-      gmb_handle->io_surface_shared_memory_region_ =
-          std::move(io_surface_handle.shared_memory_region);
-      gmb_handle->io_surface_plane_strides_ = io_surface_handle.plane_strides;
-      gmb_handle->io_surface_plane_offsets_ = io_surface_handle.plane_offsets;
-#endif
       return true;
 #endif  // BUILDFLAG(IS_APPLE)
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_OZONE)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_OZONE)
     case Tag::kNativePixmapHandle:
       gmb_handle->type = gfx::NATIVE_PIXMAP;
       return data.ReadNativePixmapHandle(&gmb_handle->native_pixmap_handle_);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_OZONE)
+#endif
 #if BUILDFLAG(IS_WIN)
     case Tag::kDxgiHandle:
       gmb_handle->type = gfx::DXGI_SHARED_HANDLE;
       return data.ReadDxgiHandle(&gmb_handle->dxgi_handle_);
 #endif  // BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_ANDROID)
-    case Tag::kAndroidHardwareBufferHandle:
-      gmb_handle->type = gfx::ANDROID_HARDWARE_BUFFER;
-      return data.ReadAndroidHardwareBufferHandle(
-          &gmb_handle->android_hardware_buffer);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
   return false;
 }

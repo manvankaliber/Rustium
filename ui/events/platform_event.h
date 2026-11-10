@@ -15,8 +15,6 @@
 #include "base/win/windows_types.h"
 #elif BUILDFLAG(IS_APPLE)
 #include "base/apple/owned_objc.h"
-#elif BUILDFLAG(IS_ANDROID)
-#include "ui/events/android/platform_event_android.h"
 #endif
 
 namespace ui {
@@ -32,10 +30,6 @@ using PlatformEvent = ui::Event*;
 using PlatformEvent = CHROME_MSG;
 #elif BUILDFLAG(IS_MAC)
 using PlatformEvent = base::apple::OwnedNSEvent;
-#elif BUILDFLAG(IS_IOS)
-using PlatformEvent = base::apple::OwnedUIEvent;
-#elif BUILDFLAG(IS_ANDROID)
-using PlatformEvent = ui::PlatformEventAndroid;
 #else
 using PlatformEvent = void*;
 #endif

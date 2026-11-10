@@ -22,7 +22,6 @@ namespace vr {
 // TODO(https://crbug.com/381000093): Test is disabled because the equivalent UI
 // does not currently exist on Android. Evaluate the usefulness of this test and
 // if other UI needs to be drawn instead.
-#if !BUILDFLAG(IS_ANDROID)
 WEBXR_VR_ALL_RUNTIMES_BROWSER_TEST_F(
     TestInSessionPermissionNotificationCloseWhileVisible) {
   MockXRDeviceHookBase mock;
@@ -47,7 +46,6 @@ WEBXR_VR_ALL_RUNTIMES_BROWSER_TEST_F(
       UserFriendlyElementName::kWebXrExternalPromptNotification,
       true /* visible */);
 }
-#endif
 // TODO(crbug.com/41434932): Add tests verifying the notification
 // disappears when the permission is accepted/denied once we can query element
 // visibility at any time using PermissionRequestManagerTestApi.

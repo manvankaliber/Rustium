@@ -56,14 +56,6 @@ BASE_FEATURE(kEnablePixAccountLinkingNative, base::FEATURE_DISABLED_BY_DEFAULT);
 const base::FeatureParam<int> kPixAccountLinkingNativeTriggerDelaySeconds{
     &kEnablePixAccountLinkingNative, "trigger_delay_seconds", 3};
 
-#if BUILDFLAG(IS_ANDROID)
-const base::FeatureParam<std::string> kPixAccountLinkingNativePromptVariant{
-    &kEnablePixAccountLinkingNative, "prompt_variant", "VariationA"};
-
-const base::FeatureParam<std::string> kVideoUrlOnPrompt{
-    &kEnablePixAccountLinkingNative, "video_url_on_prompt",
-    "https://www.youtube.com/watch?v=zXMuvna_X4c"};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // When enabled, Pix code detection will be supported in Chrome Custom Tabs.
 BASE_FEATURE(kEnablePixInCct, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -77,11 +69,6 @@ BASE_FEATURE(kEnablePixPaymentsInLandscapeMode,
 // When enabled, static qr code will be supported for pix pay flow.
 BASE_FEATURE(kEnableStaticQrCodeForPix, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// When enabled, Chrome will offer to pay with eWallet accounts if a payment
-// link is detected.
-BASE_FEATURE(kEwalletPayments, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // When enabled, Chrome will offer an app list when a supported payment link is
 // detected. Users can choose the payment app they want to

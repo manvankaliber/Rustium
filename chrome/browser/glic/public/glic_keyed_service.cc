@@ -102,17 +102,9 @@
 #include "ui/views/widget/widget.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/glic/android/glic_helper_android.h"
-#include "chrome/browser/glic/android/glic_keyed_service_android.h"
-#include "chrome/browser/glic/browser_ui/glic_nudge_controller.h"
-#include "chrome/browser/glic/browser_ui/glic_split_button_controller.h"
-#include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#else
 #include "chrome/browser/glic/glic_metrics.h"
 #include "chrome/browser/glic/media/glic_media_integration.h"
 #include "chrome/browser/glic/widget/glic_widget.h"
-#endif
 
 namespace glic {
 
@@ -249,9 +241,7 @@ GlicKeyedService::GlicKeyedService(
     TryPreload(GlicWarmingTrigger::kStartup);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   GlicMediaIntegration::EnsurePeerConnectionTrackerInitialized(profile_);
-#endif
 
   base::SequencedTaskRunner::GetCurrentDefault()->PostTask(
       FROM_HERE, base::BindOnce(&GlicKeyedService::InitializeAfterConstruction,
@@ -284,11 +274,9 @@ GlicKeyedService::GlicKeyedService(
 }
 
 void GlicKeyedService::InitializeAfterConstruction() {
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(media::kHeadlessCaptionEarlyStart)) {
     GlicMediaIntegration::GetFor(profile_);
   }
-#endif
   MaybeMigrateGlicLocalStorage(profile_, client_data_storage_.get());
 }
 
@@ -637,49 +625,6 @@ void GlicKeyedService::OnExperimentalTriggeringStateChanged() {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-MicPermissionUi& GlicKeyedService::GetMicPermissionUi() {
-  if (!mic_permission_ui_) {
-    mic_permission_ui_ = std::make_unique<MicPermissionUi>();
-  }
-  return *mic_permission_ui_;
-}
-
-void GlicKeyedService::SetMicPermissionUiForTesting(
-    std::unique_ptr<MicPermissionUi> mic_permission_ui) {
-  mic_permission_ui_ = std::move(mic_permission_ui);
-}
-
-// TODO(crbug.com/484037810): Once a window features object (similar to tab
-// features) is supported on Android, move ownership of the nudge controller to
-// it (accessed via unowned user data and ::From methods), matching Desktop,
-// rather than storing it in GlicKeyedService.
-GlicNudgeController* GlicKeyedService::GetOrCreateNudgeController(
-    BrowserWindowInterface* browser) {
-  if (!browser) {
-    return nullptr;
-  }
-  auto it = button_controllers_.find(browser);
-  if (it != button_controllers_.end()) {
-    return it->second->nudge_controller();
-  }
-
-  auto controller = std::make_unique<GlicSplitButtonController>(browser, this);
-  GlicNudgeController* nudge_controller = controller->nudge_controller();
-  button_controllers_[browser] = std::move(controller);
-
-  window_close_subscriptions_[browser] =
-      browser->RegisterBrowserDidClose(base::BindRepeating(
-          &GlicKeyedService::OnBrowserWindowClosed, base::Unretained(this)));
-
-  return nudge_controller;
-}
-
-void GlicKeyedService::OnBrowserWindowClosed(BrowserWindowInterface* browser) {
-  button_controllers_.erase(browser);
-  window_close_subscriptions_.erase(browser);
-}
-#endif
 
 void GlicKeyedService::ShowExperimentalOptInDialogForTesting(
     content::WebContents* web_contents) {

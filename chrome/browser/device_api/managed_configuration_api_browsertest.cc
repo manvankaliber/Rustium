@@ -49,15 +49,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/test/guest_session_mixin.h"
-#include "chromeos/ash/components/dbus/shill/shill_service_client.h"
-#include "chromeos/ash/components/network/network_handler.h"
-#include "chromeos/ash/components/network/network_state.h"
-#include "chromeos/ash/components/network/network_state_handler.h"
-#include "chromeos/ash/components/network/network_type_pattern.h"
-#include "third_party/cros_system_api/dbus/shill/dbus-constants.h"
-#else
 #include "base/scoped_observation.h"
 #include "content/public/browser/network_service_instance.h"
 #include "content/public/browser/network_service_util.h"
@@ -66,7 +57,6 @@
 #include "services/network/public/cpp/network_connection_tracker.h"
 #include "services/network/public/mojom/network_service.mojom.h"
 #include "services/network/public/mojom/network_service_test.mojom.h"
-#endif
 
 using testing::Eq;
 
@@ -200,58 +190,6 @@ void RunFor(base::TimeDelta delay) {
   run_loop.Run();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Disconnects all networks but the default one, so that the default network
-// stays the default while its state is manipulated. Otherwise another online
-// network (e.g. the fake Wi-Fi network) would take over.
-void DisconnectNonDefaultNetworks() {
-  ash::NetworkStateHandler* handler =
-      ash::NetworkHandler::Get()->network_state_handler();
-  const ash::NetworkState* default_network = handler->DefaultNetwork();
-  ASSERT_TRUE(default_network);
-  const std::string default_path = default_network->path();
-  auto connected_non_default_paths = [&] {
-    ash::NetworkStateHandler::NetworkStateList networks;
-    handler->GetNetworkListByType(ash::NetworkTypePattern::Default(),
-                                  /*configured_only=*/false,
-                                  /*visible_only=*/false, /*limit=*/0,
-                                  &networks);
-    std::vector<std::string> paths;
-    for (const ash::NetworkState* network : networks) {
-      if (network->path() != default_path && network->IsConnectedState()) {
-        paths.push_back(network->path());
-      }
-    }
-    return paths;
-  };
-  for (const std::string& path : connected_non_default_paths()) {
-    ash::ShillServiceClient::Get()->GetTestInterface()->SetServiceProperty(
-        path, shill::kStateProperty, base::Value(shill::kStateIdle));
-  }
-  ASSERT_TRUE(base::test::RunUntil(
-      [&] { return connected_non_default_paths().empty(); }));
-  ASSERT_TRUE(handler->DefaultNetwork());
-  ASSERT_EQ(handler->DefaultNetwork()->path(), default_path);
-}
-
-// Sets the shill connection state of the default network, e.g.
-// `shill::kStateReady` or `shill::kStateOnline`, and waits until
-// `ash::NetworkStateHandler` reflects it.
-void SetDefaultNetworkState(const std::string& state) {
-  ash::NetworkStateHandler* handler =
-      ash::NetworkHandler::Get()->network_state_handler();
-  const ash::NetworkState* default_network = handler->DefaultNetwork();
-  ASSERT_TRUE(default_network);
-  const std::string path = default_network->path();
-  ash::ShillServiceClient::Get()->GetTestInterface()->SetServiceProperty(
-      path, shill::kStateProperty, base::Value(state));
-  ASSERT_TRUE(base::test::RunUntil([&] {
-    const ash::NetworkState* network = handler->DefaultNetwork();
-    return network && network->path() == path &&
-           network->connection_state() == state;
-  }));
-}
-#else
 class ConnectionChangeWaiter
     : public network::NetworkConnectionTracker::NetworkConnectionObserver {
  public:
@@ -310,34 +248,15 @@ void SetNetworkConnectionType(net::NetworkChangeNotifier::ConnectionType type) {
   }
   waiter.Wait();
 }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Simulates network loss and reconnection through the platform's real network
 // observer wiring (`NetworkStateHandler` on ChromeOS,
 // `NetworkConnectionTracker` elsewhere).
 void SimulateNetworkReconnect() {
-#if BUILDFLAG(IS_CHROMEOS)
-  ASSERT_NO_FATAL_FAILURE(DisconnectNonDefaultNetworks());
-  ash::NetworkStateHandler* handler =
-      ash::NetworkHandler::Get()->network_state_handler();
-  ASSERT_TRUE(handler->DefaultNetwork());
-  const std::string service_path = handler->DefaultNetwork()->path();
-  ash::ShillServiceClient::Get()->GetTestInterface()->SetServiceProperty(
-      service_path, shill::kStateProperty, base::Value(shill::kStateIdle));
-  ASSERT_TRUE(base::test::RunUntil(
-      [&] { return handler->DefaultNetwork() == nullptr; }));
-  ash::ShillServiceClient::Get()->GetTestInterface()->SetServiceProperty(
-      service_path, shill::kStateProperty, base::Value(shill::kStateOnline));
-  ASSERT_TRUE(base::test::RunUntil([&] {
-    const ash::NetworkState* network = handler->DefaultNetwork();
-    return network && network->path() == service_path && network->IsOnline();
-  }));
-#else
   ASSERT_NO_FATAL_FAILURE(
       SetNetworkConnectionType(net::NetworkChangeNotifier::CONNECTION_NONE));
   ASSERT_NO_FATAL_FAILURE(
       SetNetworkConnectionType(net::NetworkChangeNotifier::CONNECTION_WIFI));
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 class ManagedConfigurationAPITestBase : public MixinBasedInProcessBrowserTest {
@@ -1612,206 +1531,3 @@ IN_PROC_BROWSER_TEST_F(ManagedConfigurationAPIRecoveryDisabledTest,
   histogram_tester.ExpectTotalCount(
       ManagedConfigurationAPI::kRetryCountUntilSuccessHistogram, 0);
 }
-
-#if BUILDFLAG(IS_CHROMEOS)
-
-// Verifies that when the default network moves from `shill::kStateReady`
-// (connected, but not yet online) to
-// `shill::kStateOnline` (`IsOnline()`), a failed sync is retried right away
-// instead of waiting for the backoff timer.
-IN_PROC_BROWSER_TEST_F(ManagedConfigurationAPITest,
-                       RecoverWhenDefaultNetworkTransitionsFromReadyToOnline) {
-  ASSERT_NO_FATAL_FAILURE(DisconnectNonDefaultNetworks());
-  ASSERT_NO_FATAL_FAILURE(SetDefaultNetworkState(shill::kStateReady));
-
-  api()->SetRetryBackoffForTesting(base::Hours(1), 2.0);
-  auto fail_requests =
-      base::MakeRefCounted<base::RefCountedData<std::atomic<bool>>>(
-          std::in_place, true);
-  embedded_test_server()->RegisterRequestHandler(base::BindRepeating(
-      [](scoped_refptr<base::RefCountedData<std::atomic<bool>>> fail_requests,
-         const net::test_server::HttpRequest& request)
-          -> std::unique_ptr<net::test_server::HttpResponse> {
-        if (request.relative_url == kConfigurationUrl1 &&
-            fail_requests->data.load()) {
-          auto response =
-              std::make_unique<net::test_server::BasicHttpResponse>();
-          response->set_code(net::HTTP_NOT_FOUND);
-          return response;
-        }
-        return nullptr;
-      },
-      fail_requests));
-  EnableTestServer({{kConfigurationUrl1, {kConfigurationData1}}});
-
-  // The initial download fails and enters a 1-hour backoff.
-  SetConfiguration(kConfigurationUrl1, kConfigurationHash1);
-  ASSERT_TRUE(base::test::RunUntil(
-      [&] { return !api()->IsFetchInProgressForTesting(origin()); }));
-  ASSERT_FALSE(GetCommittedHash());
-
-  // The same default network becoming online triggers the retry.
-  fail_requests->data.store(false);
-  ASSERT_NO_FATAL_FAILURE(SetDefaultNetworkState(shill::kStateOnline));
-  WaitForUpdate();
-
-  EXPECT_EQ(GetCommittedHash(), kConfigurationHash1);
-  EXPECT_TRUE(DictValueEquals(GetValues({kKey1, kKey2}),
-                              {{kKey1, kValue1}, {kKey2, kValue2}}));
-}
-
-// Verifies that when a download started in `shill::kStateReady` hangs (e.g.
-// before routing or captive-portal checks settle), transitioning that same
-// default network to `shill::kStateOnline` cancels the stalled download and
-// retries immediately without waiting for the 60s download timeout.
-IN_PROC_BROWSER_TEST_F(ManagedConfigurationAPITest,
-                       ReadyToOnlineCancelsStalledDownload) {
-  base::HistogramTester histogram_tester;
-  ASSERT_NO_FATAL_FAILURE(DisconnectNonDefaultNetworks());
-  ASSERT_NO_FATAL_FAILURE(SetDefaultNetworkState(shill::kStateReady));
-
-  base::RunLoop first_request_loop;
-  auto hang_requests =
-      base::MakeRefCounted<base::RefCountedData<std::atomic<bool>>>(
-          std::in_place, true);
-  embedded_test_server()->RegisterRequestHandler(base::BindRepeating(
-      [](scoped_refptr<base::RefCountedData<std::atomic<bool>>> hang_requests,
-         base::RepeatingClosure on_first_request,
-         const net::test_server::HttpRequest& request)
-          -> std::unique_ptr<net::test_server::HttpResponse> {
-        if (request.relative_url == kConfigurationUrl1 &&
-            hang_requests->data.load()) {
-          on_first_request.Run();
-          return std::make_unique<net::test_server::HungResponse>();
-        }
-        return nullptr;
-      },
-      hang_requests, first_request_loop.QuitClosure()));
-  EnableTestServer({{kConfigurationUrl1, {kConfigurationData1}}});
-
-  SetConfiguration(kConfigurationUrl1, kConfigurationHash1);
-  first_request_loop.Run();
-  ASSERT_TRUE(api()->IsFetchInProgressForTesting(origin()));
-
-  hang_requests->data.store(false);
-  ASSERT_NO_FATAL_FAILURE(SetDefaultNetworkState(shill::kStateOnline));
-  WaitForUpdate();
-
-  EXPECT_EQ(GetCommittedHash(), kConfigurationHash1);
-  EXPECT_TRUE(DictValueEquals(GetValues({kKey1, kKey2}),
-                              {{kKey1, kValue1}, {kKey2, kValue2}}));
-  EXPECT_THAT(
-      histogram_tester.GetAllSamples(
-          ManagedConfigurationAPI::kDownloadOutcomeHistogram),
-      base::BucketsAre(
-          base::Bucket(
-              ManagedConfigurationAPI::DownloadOutcome::kAbortedOnNetworkChange,
-              1),
-          base::Bucket(ManagedConfigurationAPI::DownloadOutcome::kSucceeded,
-                       1)));
-  histogram_tester.ExpectTotalCount(
-      ManagedConfigurationAPI::kRetryReasonHistogram, 0);
-  histogram_tester.ExpectUniqueSample(
-      ManagedConfigurationAPI::kRetryCountUntilSuccessHistogram, 0, 1);
-}
-
-// Verifies that when a download is hung and the default network disconnects and
-// reconnects, the stalled download is canceled and retried immediately.
-IN_PROC_BROWSER_TEST_F(ManagedConfigurationAPITest,
-                       DefaultNetworkReconnectCancelsStalledDownload) {
-  ASSERT_NO_FATAL_FAILURE(DisconnectNonDefaultNetworks());
-  ash::NetworkStateHandler* handler =
-      ash::NetworkHandler::Get()->network_state_handler();
-  ASSERT_TRUE(handler->DefaultNetwork());
-  const std::string service_path = handler->DefaultNetwork()->path();
-
-  base::RunLoop first_request_loop;
-  auto hang_requests =
-      base::MakeRefCounted<base::RefCountedData<std::atomic<bool>>>(
-          std::in_place, true);
-  embedded_test_server()->RegisterRequestHandler(base::BindRepeating(
-      [](scoped_refptr<base::RefCountedData<std::atomic<bool>>> hang_requests,
-         base::RepeatingClosure on_first_request,
-         const net::test_server::HttpRequest& request)
-          -> std::unique_ptr<net::test_server::HttpResponse> {
-        if (request.relative_url == kConfigurationUrl1 &&
-            hang_requests->data.load()) {
-          on_first_request.Run();
-          return std::make_unique<net::test_server::HungResponse>();
-        }
-        return nullptr;
-      },
-      hang_requests, first_request_loop.QuitClosure()));
-  EnableTestServer({{kConfigurationUrl1, {kConfigurationData1}}});
-
-  SetConfiguration(kConfigurationUrl1, kConfigurationHash1);
-  first_request_loop.Run();
-  ASSERT_TRUE(api()->IsFetchInProgressForTesting(origin()));
-
-  hang_requests->data.store(false);
-  ash::ShillServiceClient::Get()->GetTestInterface()->SetServiceProperty(
-      service_path, shill::kStateProperty, base::Value(shill::kStateIdle));
-  ASSERT_TRUE(base::test::RunUntil(
-      [&] { return handler->DefaultNetwork() == nullptr; }));
-  ash::ShillServiceClient::Get()->GetTestInterface()->SetServiceProperty(
-      service_path, shill::kStateProperty, base::Value(shill::kStateOnline));
-  WaitForUpdate();
-
-  EXPECT_EQ(GetCommittedHash(), kConfigurationHash1);
-  EXPECT_TRUE(DictValueEquals(GetValues({kKey1, kKey2}),
-                              {{kKey1, kValue1}, {kKey2, kValue2}}));
-}
-
-// Test the API behavior in the Guest Session.
-class ManagedConfigurationAPIGuestTest
-    : public ManagedConfigurationAPITestBase {
- public:
-  ManagedConfigurationAPIGuestTest() {
-    // Suppress the InProcessBrowserTest's default behavior of opening
-    // about://blank pages and let the standard startup code open the
-    // chrome://newtab page. The reason is that the navigator.managed API
-    // doesn't work on about://blank pages.
-    set_open_about_blank_on_browser_launch(false);
-  }
-
-  ~ManagedConfigurationAPIGuestTest() override = default;
-  ManagedConfigurationAPIGuestTest(const ManagedConfigurationAPIGuestTest&) =
-      delete;
-  ManagedConfigurationAPIGuestTest& operator=(
-      const ManagedConfigurationAPIGuestTest&) = delete;
-
- protected:
-  // Returns the result of navigator.managed.getManagedConfiguration().
-  content::EvalJsResult GetValuesFromJsApi(
-      const std::vector<std::string>& keys) {
-    content::WebContents* tab =
-        browser()->tab_strip_model()->GetActiveWebContents();
-    if (!tab) {
-      ADD_FAILURE() << "No tab active";
-      return {base::Value(), std::string()};
-    }
-    base::ListValue keys_value;
-    for (const auto& key : keys) {
-      keys_value.Append(key);
-    }
-    return content::EvalJs(
-        tab, content::JsReplace("navigator.managed.getManagedConfiguration($1)",
-                                base::Value(std::move(keys_value))));
-  }
-
- private:
-  ash::GuestSessionMixin guest_session_{&mixin_host_};
-};
-
-IN_PROC_BROWSER_TEST_F(ManagedConfigurationAPIGuestTest, Disabled) {
-  EXPECT_EQ(api(), nullptr);
-  // The JS API should return an error (but not cause a crash - it's a
-  // regression test for b/231283325).
-  EXPECT_THAT(GetValuesFromJsApi({kKey1}),
-              content::EvalJsResult::ErrorIs(
-                  Eq("a JavaScript error: \"NotAllowedError: Service "
-                     "connection error. This API is available only for "
-                     "managed apps.\"\n")));
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)

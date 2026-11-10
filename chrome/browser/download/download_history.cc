@@ -71,9 +71,7 @@
 #include "chrome/browser/extensions/api/downloads/downloads_api.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/download/download_item_web_app_data.h"
-#endif
 
 using history::DownloadState;
 
@@ -184,12 +182,10 @@ history::DownloadRow GetDownloadRow(download::DownloadItem* item) {
   download.transient = item->IsTransient();
   download.by_ext_id = by_ext_id;
   download.by_ext_name = by_ext_name;
-#if !BUILDFLAG(IS_ANDROID)
   if (DownloadItemWebAppData* web_app_data = DownloadItemWebAppData::Get(item);
       web_app_data != nullptr) {
     download.by_web_app_id = web_app_data->id();
   }
-#endif
   download.download_slice_info = history::GetHistoryDownloadSliceInfos(*item);
   download::TruncateDataUrlAtTheEndIfNeeded(&download.url_chain);
   return download;
@@ -484,50 +480,14 @@ void DownloadHistory::QueryCallback(std::vector<history::DownloadRow> rows) {
   if (!notifier_.GetManager())
     return;
 
-#if BUILDFLAG(IS_ANDROID)
-  base::OnceClosure callback =
-      base::FeatureList::IsEnabled(
-          download::features::kRetrieveDisplayNamesForHistoryDownloads)
-          ? base::BindOnce(
-                &DownloadHistory::RetrieveDisplayNamesAndLoadHistoryDownloads,
-                weak_ptr_factory_.GetWeakPtr(), std::move(rows))
-          : base::BindOnce(&DownloadHistory::LoadHistoryDownloads,
-                           weak_ptr_factory_.GetWeakPtr(), std::move(rows),
-                           nullptr);
-#else
   base::OnceClosure callback =
       base::BindOnce(&DownloadHistory::LoadHistoryDownloads,
                      weak_ptr_factory_.GetWeakPtr(), std::move(rows));
-#endif
   notifier_.GetManager()->OnHistoryQueryComplete(std::move(callback));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void DownloadHistory::RetrieveDisplayNamesAndLoadHistoryDownloads(
-    std::vector<history::DownloadRow> rows) {
-  CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
-  if (!notifier_.GetManager()) {
-    return;
-  }
-  std::vector<base::FilePath> content_uris;
-  for (const history::DownloadRow& row : rows) {
-    if (row.target_path.IsContentUri()) {
-      content_uris.push_back(row.target_path);
-    }
-  }
-  download::GetDisplayNamesForDownloads(
-      std::move(content_uris),
-      base::BindOnce(&DownloadHistory::LoadHistoryDownloads,
-                     weak_ptr_factory_.GetWeakPtr(), std::move(rows)));
-}
-
-void DownloadHistory::LoadHistoryDownloads(
-    const std::vector<history::DownloadRow>& rows,
-    download::DisplayNames display_names) {
-#else
 void DownloadHistory::LoadHistoryDownloads(
     const std::vector<history::DownloadRow>& rows) {
-#endif
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
   if (!notifier_.GetManager()) {
     return;
@@ -577,16 +537,6 @@ void DownloadHistory::LoadHistoryDownloads(
     }
 
     base::FilePath display_name;
-#if BUILDFLAG(IS_ANDROID)
-    if (base::FeatureList::IsEnabled(
-            download::features::kRetrieveDisplayNamesForHistoryDownloads) &&
-        row.target_path.IsContentUri() && display_names) {
-      auto iter = display_names->find(row.target_path.value());
-      if (iter != display_names->end()) {
-        display_name = iter->second;
-      }
-    }
-#endif
 
     loading_id_ = history::ToContentDownloadId(row.id);
     download::DownloadItem::DownloadState history_download_state =
@@ -673,12 +623,10 @@ void DownloadHistory::LoadHistoryDownloads(
       should_update_observers = true;
     }
 #endif
-#if !BUILDFLAG(IS_ANDROID)
     if (!row.by_web_app_id.empty()) {
       DownloadItemWebAppData::CreateAndAttachToItem(item, row.by_web_app_id);
       should_update_observers = true;
     }
-#endif
     if (should_update_observers) {
       item->UpdateObservers();
     }

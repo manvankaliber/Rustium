@@ -20,7 +20,7 @@
 #if BUILDFLAG(IS_WIN)
 #include "base/win/win_util.h"
 #endif  // BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <sys/resource.h>
 #endif
 
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Set core dump limit to 0 for Linux/ChromeOS.
   // Some tests intentionally cause renderer crashes, which may cause a core
   // dump on unix systems, which is slow and usually causes a test to time-out.
@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
   if (setrlimit(RLIMIT_CORE, &limit) != 0) {
     PLOG(WARNING) << "Failed to set core dump limit";
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 #if BUILDFLAG(IS_WIN)
   // Load and pin user32.dll to avoid having to load it once tests start while
   // on the main thread loop where blocking calls are disallowed.

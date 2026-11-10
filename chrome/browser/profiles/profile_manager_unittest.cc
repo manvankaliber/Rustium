@@ -72,38 +72,8 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "chrome/browser/startup_data.h"
-#else
 #include "chrome/browser/lifetime/application_lifetime_desktop.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "base/check_deref.h"
-#include "chrome/browser/ash/login/users/avatar/user_image_manager_impl.h"
-#include "chrome/browser/ash/login/users/fake_chrome_user_manager.h"
-#include "chrome/browser/ash/login/users/user_manager_delegate_impl.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chrome/browser/ash/settings/scoped_cros_settings_test_helper.h"
-#include "chrome/browser/ash/wallpaper_handlers/test_wallpaper_fetcher_delegate.h"
-#include "chrome/browser/ui/ash/wallpaper/test_wallpaper_controller.h"
-#include "chrome/browser/ui/ash/wallpaper/wallpaper_controller_client_impl.h"
-#include "chromeos/ash/components/settings/cros_settings.h"
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
-#include "chromeos/ash/experiences/arc/arc_features.h"
-#include "chromeos/ash/experiences/arc/arc_prefs.h"
-#include "chromeos/ash/experiences/arc/session/arc_management_transition.h"
-#include "components/user_manager/fake_user_manager.h"
-#include "components/user_manager/scoped_user_manager.h"
-#include "components/user_manager/test_helper.h"
-#include "components/user_manager/user_manager.h"
-#include "components/user_manager/user_manager_impl.h"
-#include "components/user_manager/user_names.h"
-#include "extensions/common/features/feature_session_type.h"
-#include "extensions/common/mojom/feature_session_type.mojom.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 using base::ASCIIToUTF16;
 
@@ -204,35 +174,11 @@ class ProfileManagerTestBase : public testing::Test {
     TestingBrowserProcess::GetGlobal()->SetProfileManager(
         CreateProfileManagerForTest());
 
-#if BUILDFLAG(IS_CHROMEOS)
-    base::CommandLine::ForCurrentProcess()->AppendSwitch(switches::kTestType);
-    ash::UserImageManagerImpl::SkipDefaultUserImageDownloadForTesting();
-    wallpaper_controller_client_ = std::make_unique<
-        WallpaperControllerClientImpl>(
-        CHECK_DEREF(TestingBrowserProcess::GetGlobal()->local_state()),
-        std::make_unique<wallpaper_handlers::TestWallpaperFetcherDelegate>());
-    wallpaper_controller_client_->InitForTesting(&test_wallpaper_controller_);
-
-    // Have to manually reset the session type in between test runs because
-    // some tests log in users.
-    ASSERT_EQ(extensions::mojom::FeatureSessionType::kInitial,
-              extensions::GetCurrentFeatureSessionType());
-    session_type_ = extensions::ScopedCurrentFeatureSessionType(
-        extensions::GetCurrentFeatureSessionType());
-
-    // Initializes ProfileHelper.
-    // TODO(crbug.com/40225390): Migrate into BrowserContextHelper.
-    ash::ProfileHelper::Get();
-#endif
   }
 
   void TearDown() override {
     TestingBrowserProcess::GetGlobal()->SetProfileManager(nullptr);
     content::RunAllTasksUntilIdle();
-#if BUILDFLAG(IS_CHROMEOS)
-    session_type_.reset();
-    wallpaper_controller_client_.reset();
-#endif
   }
 
  protected:
@@ -296,82 +242,6 @@ class ProfileManagerTestBase : public testing::Test {
     entry->SetIsEphemeral(true);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Helper function to register an user with id |user_id| and create profile
-  // with a correct path.
-  void RegisterUser(const AccountId& account_id) {
-    auto* user_manager = user_manager::UserManager::Get();
-
-    // Add user for testing.
-    {
-      user_manager::TestHelper test_helper(user_manager);
-      if (account_id == user_manager::GuestAccountId()) {
-        ASSERT_TRUE(test_helper.AddGuestUser());
-      } else {
-        ASSERT_TRUE(test_helper.AddRegularUser(account_id));
-      }
-    }
-
-    const std::string user_id_hash =
-        user_manager::TestHelper::GetFakeUsernameHash(account_id);
-    user_manager::UserManager::Get()->UserLoggedIn(account_id, user_id_hash);
-    ash::ProfileHelper* profile_helper = ash::ProfileHelper::Get();
-    g_browser_process->profile_manager()->GetProfile(
-        profile_helper->GetProfilePathByUserIdHash(user_id_hash));
-  }
-
-  std::unique_ptr<Profile> InitProfileForArcTransitionTest(
-      bool profile_is_new,
-      bool arc_signed_in,
-      bool profile_is_child,
-      bool user_is_child,
-      bool profile_is_managed,
-      std::optional<bool> arc_is_managed) {
-    ash::ProfileHelper* profile_helper = ash::ProfileHelper::Get();
-    user_manager::UserManager* user_manager = user_manager::UserManager::Get();
-
-    const std::string user_email = "user_for_transition@example.com";
-    const AccountId account_id =
-        AccountId::FromUserEmailGaiaId(user_email, GaiaId("1"));
-    const std::string user_id_hash =
-        user_manager::TestHelper::GetFakeUsernameHash(account_id);
-    const base::FilePath dest_path =
-        profile_helper->GetProfilePathByUserIdHash(user_id_hash);
-
-    {
-      user_manager::TestHelper test_helper(user_manager);
-      if (user_is_child) {
-        CHECK(test_helper.AddChildUser(account_id));
-      } else {
-        CHECK(test_helper.AddRegularUser(account_id));
-      }
-    }
-
-    TestingProfile::Builder builder;
-    builder.SetPath(dest_path);
-    builder.SetIsNewProfile(profile_is_new);
-
-    if (profile_is_child)
-      builder.SetIsSupervisedProfile();
-
-    builder.OverridePolicyConnectorIsManagedForTesting(profile_is_managed);
-    std::unique_ptr<Profile> profile = builder.Build();
-
-    profile->GetPrefs()->SetBoolean(arc::prefs::kArcSignedIn, arc_signed_in);
-
-    if (arc_is_managed.has_value()) {
-      profile->GetPrefs()->SetBoolean(arc::prefs::kArcIsManaged,
-                                      *arc_is_managed);
-    }
-
-    user_manager->UserLoggedIn(account_id, user_id_hash);
-    g_browser_process->profile_manager()->InitProfileUserPrefs(profile.get());
-
-    return profile;
-  }
-
-  ash::ScopedCrosSettingsTestHelper cros_settings_test_helper_;
-#endif
 
   // The path to temporary directory used to contain the test operations. This
   // comes before |task_environment_| to avoid issues around backend threads
@@ -380,18 +250,6 @@ class ProfileManagerTestBase : public testing::Test {
 
   content::BrowserTaskEnvironment task_environment_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  user_manager::ScopedUserManager user_manager_{
-      std::make_unique<user_manager::UserManagerImpl>(
-          std::make_unique<ash::UserManagerDelegateImpl>(),
-          TestingBrowserProcess::GetGlobal()->local_state(),
-          ash::CrosSettings::Get())};
-  std::unique_ptr<base::AutoReset<extensions::mojom::FeatureSessionType>>
-      session_type_;
-  std::unique_ptr<WallpaperControllerClientImpl> wallpaper_controller_client_;
-  TestWallpaperController test_wallpaper_controller_;
-  ash::system::ScopedFakeStatisticsProvider fake_statistics_provider_;
-#endif
 };
 
 class ProfileManagerTest : public ProfileManagerTestBase {
@@ -432,90 +290,6 @@ MATCHER(SameNotNull, "The same non-NULL value for all calls.") {
   return arg && arg == g_created_profile;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-// This functionality only exists on Chrome OS.
-TEST_F(ProfileManagerTest, LoggedInProfileDir) {
-  base::FilePath expected_default =
-      base::FilePath().AppendASCII(chrome::kInitialProfile);
-  EXPECT_EQ(expected_default.value(),
-            ProfileManager::GetInitialProfileDir().value());
-
-  constexpr char kTestUserName[] = "test-user@example.com";
-  constexpr GaiaId::Literal kTestUserGaiaId("0123456789");
-  const AccountId test_account_id(
-      AccountId::FromUserEmailGaiaId(kTestUserName, kTestUserGaiaId));
-  auto* user_manager = new ash::FakeChromeUserManager();
-  user_manager::ScopedUserManager enabler(base::WrapUnique(user_manager));
-
-  const user_manager::User* active_user =
-      user_manager->AddUser(test_account_id);
-  user_manager->LoginUser(test_account_id);
-  user_manager->SwitchActiveUser(test_account_id);
-
-  base::FilePath expected_logged_in(
-      ash::ProfileHelper::GetUserProfileDir(active_user->username_hash()));
-  EXPECT_EQ(expected_logged_in.value(),
-            ProfileManager::GetInitialProfileDir().value());
-  VLOG(1) << temp_dir_.GetPath()
-                 .Append(ProfileManager::GetInitialProfileDir())
-                 .value();
-}
-
-// Test Get[ActiveUser|PrimaryUser|LastUsed]Profile does not load user profile.
-TEST_F(ProfileManagerTest, UserProfileLoading) {
-  using ::ash::ProfileHelper;
-
-  Profile* const signin_profile = ProfileHelper::GetSigninProfile();
-
-  // Get[Active|Primary|LastUsed]Profile return the sign-in profile before login
-  // happens. IsSameOrParent() is used to properly test against TestProfile
-  // whose OTR version uses a different temp path.
-  EXPECT_TRUE(
-      ProfileManager::GetActiveUserProfile()->IsSameOrParent(signin_profile));
-  EXPECT_TRUE(
-      ProfileManager::GetPrimaryUserProfile()->IsSameOrParent(signin_profile));
-  EXPECT_TRUE(
-      ProfileManager::GetLastUsedProfile()->IsSameOrParent(signin_profile));
-
-  // User signs in but user profile loading has not started.
-  const AccountId account_id = AccountId::FromUserEmailGaiaId(
-      "test-user@example.com", GaiaId("0123456789"));
-  const std::string user_id_hash =
-      user_manager::TestHelper::GetFakeUsernameHash(account_id);
-  auto* user_manager = user_manager::UserManager::Get();
-  ASSERT_TRUE(
-      user_manager::TestHelper(user_manager).AddRegularUser(account_id));
-  user_manager->UserLoggedIn(account_id, user_id_hash);
-
-  // Sign-in profile should be returned at this stage. Otherwise, login code
-  // ends up in an invalid state. Strange things as in http://crbug.com/40523677
-  // and http://crbug.com/40519047 happens.
-  EXPECT_TRUE(
-      ProfileManager::GetActiveUserProfile()->IsSameOrParent(signin_profile));
-  EXPECT_TRUE(
-      ProfileManager::GetPrimaryUserProfile()->IsSameOrParent(signin_profile));
-
-  // GetLastUsedProfile() after login but before a user profile is loaded is
-  // fatal.
-  EXPECT_DEATH_IF_SUPPORTED(ProfileManager::GetLastUsedProfile(), ".*");
-
-  // Simulate UserSessionManager loads the profile.
-  Profile* const user_profile =
-      g_browser_process->profile_manager()->GetProfile(
-          ProfileHelper::Get()->GetProfilePathByUserIdHash(user_id_hash));
-  ASSERT_FALSE(user_profile->IsSameOrParent(signin_profile));
-
-  // User profile is returned thereafter.
-  EXPECT_TRUE(
-      ProfileManager::GetActiveUserProfile()->IsSameOrParent(user_profile));
-  EXPECT_TRUE(
-      ProfileManager::GetPrimaryUserProfile()->IsSameOrParent(user_profile));
-  EXPECT_TRUE(
-      ProfileManager::GetLastUsedProfile()->IsSameOrParent(user_profile));
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(ProfileManagerTest, CreateAndUseTwoProfiles) {
   base::FilePath dest_path1 = temp_dir_.GetPath();
@@ -819,11 +593,6 @@ TEST_F(ProfileManagerTest, ConcurrentCreationAsyncAndSync) {
 // TODO(crbug.com/546299633): Remove this fixture and move these tests back to
 // `ProfileManagerTest` after `kAndroidMultiprofile` is launched.
 class ProfileManagerMultiProfileTest : public ProfileManagerTest {
-#if BUILDFLAG(IS_ANDROID)
- private:
-  base::test::ScopedFeatureList feature_list_{
-      chrome::android::kAndroidMultiprofile};
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 TEST_F(ProfileManagerMultiProfileTest, CreateMultiProfileAsync) {
@@ -1064,14 +833,12 @@ TEST_F(ProfileManagerTest, AddProfileToStorageCheckNotOmitted) {
   EXPECT_FALSE(entry->IsOmitted());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 TEST_F(ProfileManagerTest, GetSystemProfilePath) {
   base::FilePath system_profile_path = ProfileManager::GetSystemProfilePath();
   base::FilePath expected_path = temp_dir_.GetPath();
   expected_path = expected_path.Append(chrome::kSystemProfileDir);
   EXPECT_EQ(expected_path, system_profile_path);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
 // Test profile manager that creates all profiles as guest by default.
 class UnittestGuestProfileManager : public FakeProfileManager {
@@ -1108,17 +875,9 @@ class ProfileManagerGuestTest : public ProfileManagerTest {
   ~ProfileManagerGuestTest() override = default;
 
   void SetUp() override {
-#if BUILDFLAG(IS_CHROMEOS)
-    base::CommandLine* cl = base::CommandLine::ForCurrentProcess();
-    cl->AppendSwitch(ash::switches::kGuestSession);
-    cl->AppendSwitch(::switches::kIncognito);
-#endif
 
     ProfileManagerTest::SetUp();
 
-#if BUILDFLAG(IS_CHROMEOS)
-    RegisterUser(user_manager::GuestAccountId());
-#endif
   }
 
   // Call this function if the test shouldn't create all profiles as guest by
@@ -1150,22 +909,6 @@ TEST_F(ProfileManagerGuestTest, GetLastUsedProfileAllowedByPolicy) {
   EXPECT_TRUE(profile->IsOffTheRecord());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(ProfileManagerGuestTest, GuestProfileIncognito) {
-  Profile* primary_profile = ProfileManager::GetPrimaryUserProfile();
-  EXPECT_TRUE(primary_profile->IsOffTheRecord());
-
-  Profile* active_profile = ProfileManager::GetActiveUserProfile();
-  EXPECT_TRUE(active_profile->IsOffTheRecord());
-
-  EXPECT_TRUE(active_profile->IsSameOrParent(primary_profile));
-
-  Profile* last_used_profile = ProfileManager::GetLastUsedProfile();
-  EXPECT_TRUE(last_used_profile->IsOffTheRecord());
-
-  EXPECT_TRUE(last_used_profile->IsSameOrParent(active_profile));
-}
-#endif
 
 TEST_F(ProfileManagerGuestTest, GetGuestProfilePath) {
   base::FilePath guest_path = ProfileManager::GetGuestProfilePath();
@@ -1323,118 +1066,11 @@ TEST_F(ProfileManagerTest, InitProfileAttributesStorageForAProfile) {
   EXPECT_EQ(avatar_index, entry->GetAvatarIconIndex());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(ProfileManagerTest, InitProfileForChildOnFirstSignIn) {
-  std::unique_ptr<Profile> profile = InitProfileForArcTransitionTest(
-      true /* profile_is_new */, false /* arc_signed_in */,
-      false /* profile_is_child */, true /* user_is_child */,
-      false /* profile_is_managed */, false /* arc_is_managed */);
-
-  EXPECT_EQ(
-      profile->GetPrefs()->GetInteger(arc::prefs::kArcManagementTransition),
-      static_cast<int>(arc::ArcManagementTransition::NO_TRANSITION));
-  EXPECT_EQ(profile->GetPrefs()->GetString(prefs::kSupervisedUserId),
-            supervised_user::kChildAccountSUID);
-}
-
-TEST_F(ProfileManagerTest, InitProfileForRegularToChildTransition) {
-  std::unique_ptr<Profile> profile = InitProfileForArcTransitionTest(
-      false /* profile_is_new */, true /* arc_signed_in */,
-      false /* profile_is_child */, true /* user_is_child */,
-      false /* profile_is_managed */, false /* arc_is_managed */);
-
-  EXPECT_EQ(
-      profile->GetPrefs()->GetInteger(arc::prefs::kArcManagementTransition),
-      static_cast<int>(arc::ArcManagementTransition::REGULAR_TO_CHILD));
-  EXPECT_EQ(profile->GetPrefs()->GetString(prefs::kSupervisedUserId),
-            supervised_user::kChildAccountSUID);
-}
-
-TEST_F(ProfileManagerTest, InitProfileForChildToRegularTransition) {
-  std::unique_ptr<Profile> profile = InitProfileForArcTransitionTest(
-      false /* profile_is_new */, true /* arc_signed_in */,
-      true /* profile_is_child */, false /* user_is_child */,
-      true /* profile_is_managed */, false /* arc_is_managed */);
-
-  EXPECT_EQ(
-      profile->GetPrefs()->GetInteger(arc::prefs::kArcManagementTransition),
-      static_cast<int>(arc::ArcManagementTransition::CHILD_TO_REGULAR));
-  EXPECT_TRUE(profile->GetPrefs()->GetString(prefs::kSupervisedUserId).empty());
-}
-
-TEST_F(ProfileManagerTest, InitProfileForUnmanagedToManagedTransition) {
-  std::unique_ptr<Profile> profile = InitProfileForArcTransitionTest(
-      false /* profile_is_new */, true /* arc_signed_in */,
-      false /* profile_is_child */, false /* user_is_child */,
-      true /* profile_is_managed */, false /* arc_is_managed */);
-
-  EXPECT_EQ(
-      profile->GetPrefs()->GetInteger(arc::prefs::kArcManagementTransition),
-      static_cast<int>(arc::ArcManagementTransition::UNMANAGED_TO_MANAGED));
-}
-
-TEST_F(ProfileManagerTest, InitProfileForManagedUserOnFirstSignIn) {
-  std::unique_ptr<Profile> profile = InitProfileForArcTransitionTest(
-      true /* profile_is_new */, false /* arc_signed_in */,
-      false /* profile_is_child */, false /* user_is_child */,
-      true /* profile_is_managed */, false /* arc_is_managed */);
-
-  EXPECT_EQ(
-      profile->GetPrefs()->GetInteger(arc::prefs::kArcManagementTransition),
-      static_cast<int>(arc::ArcManagementTransition::NO_TRANSITION));
-}
-
-TEST_F(ProfileManagerTest,
-       InitProfileForChildToRegularTransitionArcNotSignedIn) {
-  std::unique_ptr<Profile> profile = InitProfileForArcTransitionTest(
-      false /* profile_is_new */, false /* arc_signed_in */,
-      true /* profile_is_child */, false /* user_is_child */,
-      true /* profile_is_managed */, false /* arc_is_managed */);
-
-  EXPECT_EQ(
-      profile->GetPrefs()->GetInteger(arc::prefs::kArcManagementTransition),
-      static_cast<int>(arc::ArcManagementTransition::NO_TRANSITION));
-  EXPECT_TRUE(profile->GetPrefs()->GetString(prefs::kSupervisedUserId).empty());
-}
-
-TEST_F(ProfileManagerTest,
-       InitProfileForManagedUserForFirstSignInOnNewVersion) {
-  std::unique_ptr<Profile> profile = InitProfileForArcTransitionTest(
-      false /* profile_is_new */, true /* arc_signed_in */,
-      false /* profile_is_child */, false /* user_is_child */,
-      true /* profile_is_managed */, std::nullopt /* arc_is_managed */);
-
-  EXPECT_EQ(
-      profile->GetPrefs()->GetInteger(arc::prefs::kArcManagementTransition),
-      static_cast<int>(arc::ArcManagementTransition::NO_TRANSITION));
-}
-
-TEST_F(ProfileManagerTest, InitProfileForChildUserForFirstSignInOnNewVersion) {
-  std::unique_ptr<Profile> profile = InitProfileForArcTransitionTest(
-      false /* profile_is_new */, true /* arc_signed_in */,
-      true /* profile_is_child */, true /* user_is_child */,
-      true /* profile_is_managed */, std::nullopt /* arc_is_managed */);
-
-  EXPECT_EQ(
-      profile->GetPrefs()->GetInteger(arc::prefs::kArcManagementTransition),
-      static_cast<int>(arc::ArcManagementTransition::NO_TRANSITION));
-  EXPECT_EQ(profile->GetPrefs()->GetString(prefs::kSupervisedUserId),
-            supervised_user::kChildAccountSUID);
-}
-
-#endif
 
 TEST_F(ProfileManagerTest, GetLastUsedProfileAllowedByPolicy) {
   ProfileManager* profile_manager = g_browser_process->profile_manager();
   ASSERT_TRUE(profile_manager);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On CrOS, profile returned by GetLastUsedProfile is a sign-in profile that
-  // is forced to be off-the-record. That's why we need to create at least one
-  // user to get a regular profile.
-  RegisterUser(AccountId::FromUserEmailGaiaId("test-user@example.com",
-                                              GaiaId("1234567890")));
-#endif
 
   Profile* profile = profile_manager->GetLastUsedProfileAllowedByPolicy();
   ASSERT_TRUE(profile);
@@ -1472,82 +1108,7 @@ TEST_F(ProfileManagerTest, SetProfileAsLastUsedRecordsProfileWhenUnset) {
             local_state->GetString(prefs::kProfileLastUsed));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(ProfileManagerTest, SetProfileAsLastUsedOverwritesStaleLastUsedProfile) {
-  base::test::ScopedFeatureList feature_list(
-      features::kAndroidMultiprofileStartupData);
-  ProfileManager* profile_manager = g_browser_process->profile_manager();
-  Profile* profile = profile_manager->GetProfile(
-      temp_dir_.GetPath().AppendASCII(chrome::kInitialProfile));
-  ASSERT_TRUE(profile);
-  PrefService* local_state = g_browser_process->local_state();
-  // A last used profile that no longer exists, e.g. because it was deleted.
-  // GetLastUsedProfileBaseName() already falls back to the initial profile.
-  local_state->SetString(prefs::kProfileLastUsed, "Profile 2");
 
-  profile_manager->SetProfileAsLastUsed(profile);
-
-  EXPECT_EQ(chrome::kInitialProfile,
-            local_state->GetString(prefs::kProfileLastUsed));
-}
-
-class ProfileManagerAndroidStartupDataTest : public ProfileManagerTest {
- protected:
-  void SetUp() override {
-    ProfileManagerTest::SetUp();
-    TestingBrowserProcess::GetGlobal()->SetStartupData(&startup_data_);
-  }
-
-  void TearDown() override {
-    TestingBrowserProcess::GetGlobal()->SetStartupData(nullptr);
-    ProfileManagerTest::TearDown();
-  }
-
-  void TestCreateInitialProfileImpl(bool startup_data_enabled);
-
-  StartupData startup_data_;
-};
-
-TEST_F(ProfileManagerAndroidStartupDataTest,
-       CreateInitialProfileOpensStartupDataProfile) {
-  TestCreateInitialProfileImpl(/*startup_data_enabled=*/true);
-}
-
-TEST_F(ProfileManagerAndroidStartupDataTest,
-       CreateInitialProfileIgnoresStartupDataProfileWhenDisabled) {
-  TestCreateInitialProfileImpl(/*startup_data_enabled=*/false);
-}
-
-TEST_F(ProfileManagerAndroidStartupDataTest,
-       InitialProfileDirIsDefaultBeforeStartupDataPicksProfile) {
-  base::test::ScopedFeatureList feature_list(
-      features::kAndroidMultiprofileStartupData);
-
-  EXPECT_EQ(base::FilePath::FromASCII(chrome::kInitialProfile),
-            ProfileManager::GetInitialProfileDir());
-}
-
-void ProfileManagerAndroidStartupDataTest::TestCreateInitialProfileImpl(
-    bool startup_data_enabled) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitWithFeatureState(features::kAndroidMultiprofileStartupData,
-                                    startup_data_enabled);
-  base::FilePath startup_profile_path =
-      temp_dir_.GetPath().AppendASCII("Profile 1");
-  startup_data_.SetProfilePathForTesting(startup_profile_path);
-
-  Profile* profile = ProfileManager::CreateInitialProfile();
-
-  ASSERT_TRUE(profile);
-  EXPECT_EQ(startup_data_enabled
-                ? startup_profile_path
-                : temp_dir_.GetPath().AppendASCII(chrome::kInitialProfile),
-            profile->GetPath());
-  EXPECT_EQ(profile, ProfileManager::GetActiveUserProfile());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 // There's no Browser object on Android and there's no multi-profiles on Chrome.
 
 TEST_F(ProfileManagerTest, CleanUpEphemeralProfiles) {
@@ -1990,10 +1551,8 @@ TEST_F(ProfileManagerTest, ProfileDisplayNamePreservesSignedInName) {
   EXPECT_EQ(gaia_given_name,
             profiles::GetAvatarNameForProfile(profile1->GetPath()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
 // GetAvatarNameForProfile() is not defined on Android.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ProfileManagerTest, ProfileDisplayNameIsEmailIfDefaultName) {
   ProfileManager* profile_manager = g_browser_process->profile_manager();
   ProfileAttributesStorage& storage =
@@ -2026,13 +1585,11 @@ TEST_F(ProfileManagerTest, ProfileDisplayNameIsEmailIfDefaultName) {
 
   entry = storage.GetProfileAttributesWithPath(profile2->GetPath());
   ASSERT_NE(entry, nullptr);
-#if !BUILDFLAG(IS_CHROMEOS)
   // (Default profile, Batman,..) are legacy profile names on Desktop and are
   // not considered default profile names for newly created profiles.
   // We use "Person %n" as the default profile name. Set |SetIsUsingDefaultName|
   // manually to mimick pre-existing profiles.
   entry->SetLocalProfileName(u"Default Profile", true);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
   entry->SetAuthInfo(GaiaId("23456"), email2, true);
   entry->SetGAIAGivenName(std::u16string());
@@ -2062,7 +1619,6 @@ TEST_F(ProfileManagerTest, ProfileDisplayNameIsEmailIfDefaultName) {
   EXPECT_EQ(gaia_given_name,
             profiles::GetAvatarNameForProfile(profile1->GetPath()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_MAC)
 // These tests are for a Mac-only code path that assumes the browser
@@ -2358,10 +1914,8 @@ TEST_P(ProfileManagerTestWithParam, ScopedProfileKeepAlive) {
 
   base::RunLoop().RunUntilIdle();
   if (GetParam().should_clear_waiting_for_first_browser_window) {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
     // Profile* should've been destroyed by now.
     EXPECT_EQ(nullptr, profile_manager->GetProfileByPath(dest_path));
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   } else {
     // `profile` is still valid since `kWaitingForFirstBrowserWindow` was not
     // cleared.
@@ -2399,7 +1953,6 @@ TEST_F(ProfileManagerTest, ProfileCountRecordedAtProfileInit) {
   EXPECT_THAT(histogram_tester.GetAllSamples(kHistogramName),
               BucketsAre(Bucket(1, 1), Bucket(2, 1)));
 
-#if !BUILDFLAG(IS_ANDROID)
   // Delete one profile to decrement the count.
   profile_manager->GetDeleteProfileHelper().MaybeScheduleProfileForDeletion(
       path_1, base::DoNothing(), ProfileMetrics::DELETE_PROFILE_USER_MANAGER);
@@ -2408,10 +1961,8 @@ TEST_F(ProfileManagerTest, ProfileCountRecordedAtProfileInit) {
   profile_manager->GetProfile(dest_path.Append(FILE_PATH_LITERAL("Profile 3")));
   EXPECT_THAT(histogram_tester.GetAllSamples(kHistogramName),
               BucketsAre(Bucket(1, 1), Bucket(2, 2)));
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ProfileManagerTest, ProfileAvatarRecordedAtProfileInit) {
   using base::Bucket;
   using base::BucketsAre;
@@ -2470,7 +2021,6 @@ TEST_F(ProfileManagerTest, ProfileAvatarRecordedAtProfileInit) {
                          Bucket(ProfileMetrics::AVATAR_PLACEHOLDER, 1),
                          Bucket(ProfileMetrics::AVATAR_GAIA, 1)));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class ProfileManagerDeferredAsyncLoadingTest : public ProfileManagerTestBase {
  public:

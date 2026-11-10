@@ -192,10 +192,7 @@ TEST(SupportedTypesTest, IsDecoderSupportedVideoType_VP9Profiles) {
 
 // VP9 Profile2 are supported on x86, ChromeOS on ARM and Mac/Win/Linux
 // on ARM64. See third_party/libvpx/BUILD.gn.
-#if defined(ARCH_CPU_X86_FAMILY) ||                             \
-    (defined(ARCH_CPU_ARM_FAMILY) && BUILDFLAG(IS_CHROMEOS)) || \
-    (defined(ARCH_CPU_ARM64) &&                                 \
-     (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)))
+#if defined(ARCH_CPU_X86_FAMILY) || defined(ARCH_CPU_ARM64) && (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX))
 
   EXPECT_TRUE(IsDecoderSupportedVideoType(
       {VideoCodec::kVP9, VP9PROFILE_PROFILE2, kUnspecifiedLevel, kColorSpace}));
@@ -347,12 +344,11 @@ TEST(SupportedTypesTest, XHE_AACSupported) {
   UpdateDefaultDecoderSupportedAudioTypes({aac});
 
   EXPECT_EQ(
-#if BUILDFLAG(ENABLE_MOJO_AUDIO_DECODER) && \
-    (BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN))
+#if BUILDFLAG(ENABLE_MOJO_AUDIO_DECODER) && (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN))
       kPropCodecsEnabled,
 #else
       false,
-#endif  // BUILDFLAG(ENABLE_MOJO_AUDIO_DECODER) && (BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN))
       IsDecoderSupportedAudioType(aac));
 }
@@ -466,10 +462,7 @@ TEST(SupportedTypesTest, IsEncoderSupportedVideoType_VP9Profiles) {
 
 // VP9 Profile2 are supported on x86, ChromeOS on ARM and Mac/Win/Linux
 // on ARM64. See third_party/libvpx/BUILD.gn.
-#if defined(ARCH_CPU_X86_FAMILY) ||                             \
-    (defined(ARCH_CPU_ARM_FAMILY) && BUILDFLAG(IS_CHROMEOS)) || \
-    (defined(ARCH_CPU_ARM64) &&                                 \
-     (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)))
+#if defined(ARCH_CPU_X86_FAMILY) || defined(ARCH_CPU_ARM64) && (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX))
 
   EXPECT_TRUE(
       IsEncoderSupportedVideoType({VideoCodec::kVP9, VP9PROFILE_PROFILE2}));
@@ -567,7 +560,7 @@ TEST(SupportedTypesTest, MayHaveAndAllowSelectOSSoftwareEncoder) {
   EXPECT_EQ(MayHaveAndAllowSelectOSSoftwareEncoder(VideoCodec::kHEVC),
             BUILDFLAG(IS_MAC) && BUILDFLAG(ENABLE_HEVC_PARSER_AND_HW_DECODER));
   EXPECT_EQ(MayHaveAndAllowSelectOSSoftwareEncoder(VideoCodec::kH264),
-            (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)) &&
+            (BUILDFLAG(IS_MAC) || false) &&
                 !IsOpenH264SoftwareEncoderEnabled());
 }
 
@@ -919,9 +912,7 @@ TEST(SupportedTypesTest, ProfileColorSpace_VP9Profile0WithBT2020) {
                        gfx::ColorSpace::RangeID::LIMITED)}));
 }
 
-#if defined(ARCH_CPU_X86_FAMILY) ||                             \
-    (defined(ARCH_CPU_ARM_FAMILY) && BUILDFLAG(IS_CHROMEOS)) || \
-    (defined(ARCH_CPU_ARM64) && (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)))
+#if defined(ARCH_CPU_X86_FAMILY) || defined(ARCH_CPU_ARM64) && (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN))
 TEST(SupportedTypesTest, ProfileColorSpace_VP9Profile2WithHDR) {
   // VP9 Profile 2 support depends on high bit depth support in libvpx.
   // On architectures where Profile 2 is supported, HDR color spaces

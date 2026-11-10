@@ -69,12 +69,10 @@ class BaseBookmarkBubbleViewBrowserTest : public DialogBrowserTest {
   }
 
   void ShowUi(const std::string& name) override {
-#if !BUILDFLAG(IS_CHROMEOS)
     signin::IdentityManager* identity_manager =
         IdentityManagerFactory::GetForProfile(browser()->GetProfile());
     signin::MakePrimaryAccountAvailable(identity_manager, "testuser@gtest.com",
                                         signin::ConsentLevel::kSignin);
-#endif
 
     if (name == "bookmark_details_on_trackable_product") {
       commerce::ProductInfo info;
@@ -290,11 +288,7 @@ IN_PROC_BROWSER_TEST_F(BookmarkBubbleViewMigrationBrowserTest,
   CreateBubbleView();
   views::View* footnote =
       BookmarkBubbleView::bookmark_bubble()->GetFootnoteViewForTesting();
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_FALSE(footnote);
-#else
   EXPECT_TRUE(footnote);
-#endif
 }
 
 // Verifies that the price tracking view is displayed for trackable product.

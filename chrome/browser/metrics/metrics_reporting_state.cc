@@ -24,14 +24,7 @@
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_thread.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/policy/core/browser_policy_connector_ash.h"
-#include "chrome/browser/browser_process_platform_part.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/policy/core/common/features.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace metrics {
 namespace {
@@ -108,7 +101,6 @@ void ChangeMetricsReportingStateWithReply(
     bool enabled,
     OnMetricsReportingCallbackType callback_fn,
     ChangeMetricsReportingStateCalledFrom called_from) {
-#if !BUILDFLAG(IS_ANDROID)
   // Chrome OS manages metrics settings externally and changes to reporting
   // should be propagated to metrics service regardless if the policy is managed
   // or not.
@@ -129,7 +121,6 @@ void ChangeMetricsReportingStateWithReply(
     }
     return;
   }
-#endif
   GoogleUpdateSettings::CollectStatsConsentTaskRunner()
       ->PostTaskAndReplyWithResult(
           FROM_HERE, base::BindOnce(&SetGoogleUpdateSettings, enabled),
@@ -159,21 +150,6 @@ void UpdateMetricsPrefsOnPermissionChange(
     }
     return;
   }
-#if BUILDFLAG(IS_ANDROID)
-  // When a user disables metrics reporting on Android Chrome, the new
-  // sampling trial should be used to determine whether the client is sampled
-  // in or out (if the user ever re-enables metrics reporting).
-  //
-  // Existing metrics-reporting-enabled clients (i.e. the users without this
-  // pref set) do not use the new sampling trial; they continue to use
-  // MetricsAndCrashSampling. However, if such a user disables metrics
-  // reporting and later re-enables it, they will start using the new trial.
-  //
-  // See crbug.com/40218371 and the comment above |kUsePostFREFixSamplingTrial|
-  // in components/metrics/metrics_pref_names.cc for more details.
-  g_browser_process->local_state()->SetBoolean(
-      metrics::prefs::kUsePostFREFixSamplingTrial, true);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Clear the client id and low entropy sources pref when the user opts out
   // from a non-FRE source. In the FRE flow the entropy source is not cleared
@@ -209,22 +185,10 @@ void ApplyMetricsReportingPolicy() {
 }
 
 bool IsMetricsReportingPolicyManaged() {
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, whether metrics reporting is enterprise-managed is governed
-  // by whether the device is enrolled (BrowserPolicyConnectorAsh::
-  // IsDeviceEnterpriseManaged()), rather than whether the pref is locked in
-  // MANAGED_STORE. Device policy is decoded into CrosSettings and reflected
-  // into Local State via USER_STORE to allow per-user consent and ephemeral
-  // login support.
-  policy::BrowserPolicyConnectorAsh* policy_connector =
-      g_browser_process->platform_part()->browser_policy_connector_ash();
-  return policy_connector->IsDeviceEnterpriseManaged();
-#else
   const PrefService* pref_service = g_browser_process->local_state();
   const PrefService::Preference* pref =
       pref_service->FindPreference(metrics::prefs::kMetricsReportingEnabled);
   return pref && pref->IsManaged();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void ClearPreviouslyCollectedMetricsData() {

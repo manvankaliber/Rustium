@@ -400,45 +400,13 @@ std::unique_ptr<MemoryMap::Iterator> MemoryMap::FindFilePossibleMmapStarts(
     return std::make_unique<SparseReverseIterator>();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // The Android Chromium linker uses ashmem to share RELRO segments between
-  // processes. The original RELRO segment has been unmapped and replaced with a
-  // mapping named "/dev/ashmem/RELRO:<libname>" where <libname> is the base
-  // library name (e.g. libchrome.so) sans any preceding path that may be
-  // present in other mappings for the library.
-  // https://crashpad.chromium.org/bug/253
-  static constexpr char kRelro[] = "/dev/ashmem/RELRO:";
-  if (mapping.name.compare(0, strlen(kRelro), kRelro, 0, strlen(kRelro)) == 0) {
-    // The kernel appends "(deleted)" to ashmem mappings because there isn't
-    // any corresponding file on the filesystem.
-    static constexpr char kDeleted[] = " (deleted)";
-    size_t libname_end = mapping.name.rfind(kDeleted);
-    DCHECK_NE(libname_end, std::string::npos);
-    if (libname_end == std::string::npos) {
-      libname_end = mapping.name.size();
-    }
-
-    std::string libname =
-        mapping.name.substr(strlen(kRelro), libname_end - strlen(kRelro));
-    for (const auto& candidate : mappings_) {
-      if (candidate.name.rfind(libname) != std::string::npos) {
-        possible_starts.push_back(&candidate);
-      }
-      if (mapping.Equals(candidate)) {
-        return std::make_unique<SparseReverseIterator>(possible_starts);
-      }
-    }
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   for (const auto& candidate : mappings_) {
     if (candidate.device == mapping.device &&
         candidate.inode == mapping.inode
-#if !BUILDFLAG(IS_ANDROID)
         // Libraries on Android may be mapped from zipfiles (APKs), in which
         // case the offset is not 0.
         && candidate.offset == 0
-#endif  // !BUILDFLAG(IS_ANDROID)
     ) {
       possible_starts.push_back(&candidate);
     }

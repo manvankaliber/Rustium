@@ -7,10 +7,8 @@ import 'chrome://resources/cr_elements/cr_drawer/cr_drawer.js';
 import 'chrome://resources/cr_elements/cr_lazy_render/cr_lazy_render_lit.js';
 import 'chrome://resources/cr_elements/cr_page_selector/cr_page_selector.js';
 import 'chrome://resources/cr_elements/cr_tabs/cr_tabs.js';
-// <if expr="not is_chromeos">
 import './history_cross_device_signin_promo.js';
 import './history_sync_promo.js';
-// </if>
 import './history_list.js';
 import './history_toolbar.js';
 import './history_filter_chips.js';
@@ -125,11 +123,9 @@ export class HistoryAppElement extends HistoryAppElementBase {
 
   static override get properties() {
     return {
-      // <if expr="not is_chromeos">
       unoPhase2FollowUpEnabled_: {type: Boolean},
       shouldShowHistorySyncPromo_: {type: Boolean},
       shouldShowHistoryCrossDeviceSigninPromo_: {type: Boolean},
-      // </if>
       contentPage_: {type: String},
       tabsContentPage_: {type: String},
       // The id of the currently selected page.
@@ -174,12 +170,10 @@ export class HistoryAppElement extends HistoryAppElementBase {
     otherFormsOfHistory: false,
     geminiAppsActivity: loadTimeData.getBoolean('isGlicEnabled'),
   };
-  // <if expr="not is_chromeos">
   protected accessor unoPhase2FollowUpEnabled_: boolean =
       loadTimeData.getBoolean('unoPhase2FollowUp');
   protected accessor shouldShowHistorySyncPromo_: boolean = false;
   protected accessor shouldShowHistoryCrossDeviceSigninPromo_: boolean = false;
-  // </if>
   protected accessor hasDrawer_: boolean = false;
   protected accessor historyClustersEnabled_: boolean =
       loadTimeData.getBoolean('isHistoryClustersEnabled');
@@ -261,19 +255,13 @@ export class HistoryAppElement extends HistoryAppElementBase {
   override connectedCallback() {
     super.connectedCallback();
 
-    // <if expr="is_android">
-    this.addThemedColors_();
-    ColorChangeUpdater.forDocument().start();
-    // </if>
 
-    // <if expr="not is_android">
     const enableWebuiRefresh2026 =
         loadTimeData.getString('webuiRefresh2026') !== '';
     if (enableWebuiRefresh2026) {
       this.addThemedColors_();
       ColorChangeUpdater.forDocument().start();
     }
-    // </if>
 
     this.eventTracker_.add(document, 'click', onDocumentClick);
     this.eventTracker_.add(document, 'auxclick', onDocumentClick);
@@ -317,14 +305,12 @@ export class HistoryAppElement extends HistoryAppElementBase {
         this.callbackRouter_.onHasOtherFormsChanged.addListener(
             (hasOtherForms: boolean) =>
                 this.onHasOtherFormsChanged_(hasOtherForms));
-    // <if expr="not is_chromeos">
     BrowserProxyImpl.getInstance()
         .handler.shouldShowHistoryPageHistorySyncPromo()
         .then(
             ({shouldShow}) =>
                 this.handleShouldShowHistoryPageHistorySyncPromoChanged_(
                     shouldShow));
-    // </if>
   }
 
   override disconnectedCallback() {
@@ -772,7 +758,6 @@ export class HistoryAppElement extends HistoryAppElementBase {
     this.hasDrawer_ = enabled;
   }
 
-  // <if expr="not is_chromeos">
   // History sync promo is shown based on the following conditions:
   // 1. UNO phase 2 follow up feature flag is enabled.
   // 2. Should be shown based on user prefs (the promo was closed < 5 times)
@@ -794,7 +779,6 @@ export class HistoryAppElement extends HistoryAppElementBase {
       e: CustomEvent<{shouldShow: boolean}>) {
     this.shouldShowHistoryCrossDeviceSigninPromo_ = e.detail.shouldShow;
   }
-  // </if>
 
   protected onQueryStateChanged_(e: CustomEvent<{value: QueryState}>) {
     this.queryState_ = e.detail.value;

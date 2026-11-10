@@ -28,13 +28,6 @@
 #include "mojo/public/cpp/bindings/associated_receiver_set.h"
 #include "third_party/blink/public/common/features.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#include "chromeos/constants/pref_names.h"
-#include "components/prefs/pref_registry_simple.h"
-#include "components/prefs/pref_service.h"
-#include "components/prefs/testing_pref_service.h"
-#endif
 
 namespace extensions {
 
@@ -553,90 +546,7 @@ TEST_F(RendererStartupHelperTest, PlatformAppInIncognitoRenderer) {
   ASSERT_EQ(1u, helper_->num_loaded_extensions_in_incognito());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-// Tests the process re-registration workflow when OnRenderProcessLaunched() is
-// called after the process has exited. This simulates:
-// 1. OnRenderProcessHostCreated() initializes process
-// 2. Process exits (e.g., OOM termination), clearing process_mojo_map_
-// 3. OnRenderProcessLaunched() is called later due to delayed callbacks
-// The process should be re-registered without crashing, and extensions should
-// not be re-loaded to avoid duplicate loading.
-TEST_F(RendererStartupHelperTest, ProcessReregistrationAfterExit) {
-  // Initialize render process via OnRenderProcessHostCreated.
-  EXPECT_FALSE(IsProcessInitialized(render_process_host_.get()));
-  SimulateRenderProcessCreated(render_process_host_.get());
-  base::RunLoop().RunUntilIdle();
-  EXPECT_TRUE(IsProcessInitialized(render_process_host_.get()));
 
-  // Enable extension.
-  helper_->clear_extensions();
-  EXPECT_FALSE(IsExtensionLoaded(*extension_));
-  AddExtensionToRegistry(extension_);
-  helper_->OnExtensionLoaded(*extension_);
-  EXPECT_TRUE(
-      IsExtensionLoadedInProcess(*extension_, render_process_host_.get()));
-  base::RunLoop().RunUntilIdle();
-  ASSERT_EQ(1u, helper_->num_loaded_extensions());
-
-  // Simulate process exiting.
-  // This clears the process from process_mojo_map_ via UntrackProcess().
-  SimulateRenderProcessTerminated(render_process_host_.get());
-
-  // Process should no longer be initialized.
-  EXPECT_FALSE(IsProcessInitialized(render_process_host_.get()));
-
-  // Simulate OnRenderProcessLaunched being called after process exit
-  // due to delayed callbacks. This should re-register the process
-  // without crashing.
-  helper_->clear_extensions();
-  helper_->OnRenderProcessLaunched(render_process_host_.get());
-  base::RunLoop().RunUntilIdle();
-
-  // Process should be initialized again via RegisterProcess().
-  EXPECT_TRUE(IsProcessInitialized(render_process_host_.get()));
-
-  // Verify that RegisterProcess() only re-registers the Mojo communication
-  // and does NOT re-load extensions (to avoid duplicate loading).
-  ASSERT_EQ(0u, helper_->num_loaded_extensions());
-}
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_CHROMEOS)
-class RendererStartupHelperTestCaptivePortalPopupWindow
-    : public RendererStartupHelperTest {
- public:
-  RendererStartupHelperTestCaptivePortalPopupWindow() = default;
-  ~RendererStartupHelperTestCaptivePortalPopupWindow() override = default;
-  void SetUp() override {
-    RendererStartupHelperTest::SetUp();
-    static_cast<TestingPrefServiceSimple*>(pref_service())
-        ->registry()
-        ->RegisterBooleanPref(chromeos::prefs::kCaptivePortalSignin, false);
-  }
-};
-
-// Tests that only incognito-enabled extensions are loaded in an incognito
-// context.
-TEST_F(RendererStartupHelperTestCaptivePortalPopupWindow,
-       ExtensionInCaptivePortalSigninRenderer) {
-  // Set prefs::kCaptivePortalSignin to true in the shared PerfService instance.
-  ASSERT_TRUE(pref_service());
-  pref_service()->SetBoolean(chromeos::prefs::kCaptivePortalSignin, true);
-
-  // Initialize the incognito renderer.
-  EXPECT_FALSE(IsProcessInitialized(incognito_render_process_host_.get()));
-  SimulateRenderProcessCreated(incognito_render_process_host_.get());
-  EXPECT_TRUE(IsProcessInitialized(incognito_render_process_host_.get()));
-
-  // Enable the extension. With the pref set it *should* be loaded in the
-  // initialized incognito renderer.
-  helper_->clear_extensions();
-  AddExtensionToRegistry(extension_);
-  helper_->OnExtensionLoaded(*extension_);
-  EXPECT_TRUE(util::IsIncognitoEnabled(extension_->id(), incognito_context()));
-  EXPECT_TRUE(IsExtensionLoaded(*extension_));
-}
-#endif
 
 TEST_F(RendererStartupHelperTest, InitializeProcessIdempotency) {
   // 1. First call should initialize the process.
@@ -650,7 +560,6 @@ TEST_F(RendererStartupHelperTest, InitializeProcessIdempotency) {
   EXPECT_TRUE(IsProcessInitialized(render_process_host_.get()));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(RendererStartupHelperTest, SkipInitializationOnLaunchWithFeature) {
   base::test::ScopedFeatureList feature_list;
   feature_list.InitAndEnableFeature(
@@ -673,7 +582,6 @@ TEST_F(RendererStartupHelperTest, SkipInitializationOnLaunchWithFeature) {
   helper_->InitializeProcess(new_process.get());
   EXPECT_TRUE(IsProcessInitialized(new_process.get()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(RendererStartupHelperTest,
        ExtensionLoadedParams_ServiceWorkerMojoEnabled) {

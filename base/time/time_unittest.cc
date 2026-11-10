@@ -28,9 +28,6 @@
 #include "third_party/icu/source/common/unicode/utypes.h"
 #include "third_party/icu/source/i18n/unicode/timezone.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -43,36 +40,6 @@ namespace base {
 
 namespace {
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-const char kThaiLocale[] = "th-TH";
-const char kBangkokTimeZoneId[] = "Asia/Bangkok";
-
-// Returns the total offset (including Daylight Saving Time) of the timezone
-// with |timezone_id| at |time|, or std::nullopt in case of failure.
-std::optional<base::TimeDelta> GetTimeZoneOffsetAtTime(const char* timezone_id,
-                                                       Time time) {
-  std::unique_ptr<icu::TimeZone> tz(icu::TimeZone::createTimeZone(timezone_id));
-  if (*tz == icu::TimeZone::getUnknown()) {
-    return {};
-  }
-  int32_t raw_offset = 0;
-  int32_t dst_offset = 0;
-  UErrorCode ec = U_ZERO_ERROR;
-  tz->getOffset(time.InSecondsFSinceUnixEpoch(), false, raw_offset, dst_offset,
-                ec);
-  if (!U_SUCCESS(ec)) {
-    return {};
-  }
-  return base::Milliseconds(raw_offset + dst_offset);
-}
-
-TimeDelta TimePassedAfterMidnight(const Time::Exploded& time) {
-  return base::Hours(time.hour) + base::Minutes(time.minute) +
-         base::Seconds(time.second) + base::Milliseconds(time.millisecond);
-}
-
-#endif
 
 TEST(TimeTestOutOfBounds, FromExplodedOutOfBoundsTime) {
   // FromUTCExploded must set time to Time(0) and failure, if the day is set to
@@ -1025,29 +992,6 @@ TEST_F(TimeTest, TimeTOverflow) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(TimeTest, FromLocalExplodedCrashOnAndroid) {
-  // This crashed inside Time:: FromLocalExploded() on Android 4.1.2.
-  // See http://crbug.com/287821
-  Time::Exploded midnight = {
-      2013,  // year
-      10,    // month
-      0,     // day_of_week
-      13,    // day_of_month
-      0,     // hour
-      0,     // minute
-      0,     // second
-  };
-  // The string passed to putenv() must be a char* and the documentation states
-  // that it 'becomes part of the environment', so use a static buffer.
-  static char buffer[] = "TZ=America/Santiago";
-  putenv(buffer);
-  tzset();
-  Time t;
-  EXPECT_TRUE(Time::FromLocalExploded(midnight, &t));
-  EXPECT_EQ(1381633200, t.ToTimeT());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Regression test for https://crbug.com/1104442
 TEST_F(TimeTest, Explode_Y10KCompliance) {
@@ -1175,91 +1119,6 @@ TEST_F(TimeTest, Explode_Y10KCompliance) {
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Regression tests for https://crbug.com/1198313: base::Time::UTCExplode and
-// base::Time::LocalExplode should not be locale-dependent.
-TEST_F(TimeTest, UTCExplodedIsLocaleIndependent) {
-  // Time-to-Exploded could be using libc or ICU functions.
-  // Set the ICU locale and timezone and the libc timezone.
-  // We're not setting the libc locale because the libc time functions are
-  // locale-independent and the th_TH.utf8 locale was not available on all
-  // trybots at the time this test was added.
-  // th-TH maps to a non-gregorian calendar.
-  test::ScopedRestoreICUDefaultLocale scoped_icu_locale(kThaiLocale);
-  test::ScopedRestoreDefaultTimezone scoped_timezone(kBangkokTimeZoneId);
-  test::ScopedLibcTimezoneOverride scoped_libc_tz(kBangkokTimeZoneId);
-
-  Time::Exploded utc_exploded_orig;
-  utc_exploded_orig.year = 2020;
-  utc_exploded_orig.month = 7;
-  utc_exploded_orig.day_of_week = 5;  // Friday
-  utc_exploded_orig.day_of_month = 3;
-  utc_exploded_orig.hour = 12;
-  utc_exploded_orig.minute = 0;
-  utc_exploded_orig.second = 0;
-  utc_exploded_orig.millisecond = 0;
-
-  Time time;
-  ASSERT_TRUE(base::Time::FromUTCExploded(utc_exploded_orig, &time));
-
-  // Round trip to UTC Exploded should produce the exact same result.
-  Time::Exploded utc_exploded;
-  time.UTCExplode(&utc_exploded);
-  EXPECT_EQ(utc_exploded_orig.year, utc_exploded.year);
-  EXPECT_EQ(utc_exploded_orig.month, utc_exploded.month);
-  EXPECT_EQ(utc_exploded_orig.day_of_week, utc_exploded.day_of_week);
-  EXPECT_EQ(utc_exploded_orig.day_of_month, utc_exploded.day_of_month);
-  EXPECT_EQ(utc_exploded_orig.hour, utc_exploded.hour);
-  EXPECT_EQ(utc_exploded_orig.minute, utc_exploded.minute);
-  EXPECT_EQ(utc_exploded_orig.second, utc_exploded.second);
-  EXPECT_EQ(utc_exploded_orig.millisecond, utc_exploded.millisecond);
-}
-
-TEST_F(TimeTest, LocalExplodedIsLocaleIndependent) {
-  // Time-to-Exploded could be using libc or ICU functions.
-  // Set the ICU locale and timezone and the libc timezone.
-  // We're not setting the libc locale because the libc time functions are
-  // locale-independent and the th_TH.utf8 locale was not available on all
-  // trybots at the time this test was added.
-  // th-TH maps to a non-gregorian calendar.
-  test::ScopedRestoreICUDefaultLocale scoped_icu_locale(kThaiLocale);
-  test::ScopedRestoreDefaultTimezone scoped_timezone(kBangkokTimeZoneId);
-  test::ScopedLibcTimezoneOverride scoped_libc_tz(kBangkokTimeZoneId);
-
-  Time::Exploded utc_exploded_orig;
-  utc_exploded_orig.year = 2020;
-  utc_exploded_orig.month = 7;
-  utc_exploded_orig.day_of_week = 5;  // Friday
-  utc_exploded_orig.day_of_month = 3;
-  utc_exploded_orig.hour = 12;
-  utc_exploded_orig.minute = 0;
-  utc_exploded_orig.second = 0;
-  utc_exploded_orig.millisecond = 0;
-
-  Time time;
-  ASSERT_TRUE(base::Time::FromUTCExploded(utc_exploded_orig, &time));
-
-  std::optional<TimeDelta> expected_delta =
-      GetTimeZoneOffsetAtTime(kBangkokTimeZoneId, time);
-
-  ASSERT_TRUE(expected_delta.has_value());
-
-  // This is to be sure that the day has not changed
-  ASSERT_LT(*expected_delta, base::Hours(12));
-
-  Time::Exploded local_exploded;
-  time.LocalExplode(&local_exploded);
-
-  TimeDelta actual_delta = TimePassedAfterMidnight(local_exploded) -
-                           TimePassedAfterMidnight(utc_exploded_orig);
-
-  EXPECT_EQ(utc_exploded_orig.year, local_exploded.year);
-  EXPECT_EQ(utc_exploded_orig.month, local_exploded.month);
-  EXPECT_EQ(utc_exploded_orig.day_of_week, local_exploded.day_of_week);
-  EXPECT_EQ(utc_exploded_orig.day_of_month, local_exploded.day_of_month);
-  EXPECT_EQ(actual_delta, *expected_delta);
-}
-#endif
 
 TEST_F(TimeTest, FromExploded_MinMax) {
   Time::Exploded exploded = {0};
@@ -1276,7 +1135,7 @@ TEST_F(TimeTest, FromExploded_MinMax) {
     EXPECT_FALSE(parsed_time.is_null());
 #endif
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_APPLE)
+#if !BUILDFLAG(IS_APPLE)
     // The dates earlier than |kExplodedMinYear| that don't work are OS version
     // dependent on Android and Mac (for example, macOS 10.13 seems to support
     // dates before 1902).
@@ -1317,11 +1176,7 @@ class TimeOverride {
 Time TimeOverride::now_time_;
 
 // Disabled on Android due to flakes; see https://crbug.com/1474884.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_NowOverride DISABLED_NowOverride
-#else
 #define MAYBE_NowOverride NowOverride
-#endif
 TEST_F(TimeTest, MAYBE_NowOverride) {
   TimeOverride::now_time_ = Time::UnixEpoch();
 
@@ -1739,45 +1594,6 @@ TEST(TimeTicks, SnappedToNextTickOverflow) {
                 .ToInternalValue());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST(TimeTicks, Android_FromUptimeMillis_ClocksMatch) {
-  JNIEnv* const env = android::AttachCurrentThread();
-  android::ScopedJavaLocalRef<jclass> clazz(
-      android::GetClass(env, "android/os/SystemClock"));
-  ASSERT_TRUE(clazz.obj());
-  const jmethodID method_id =
-      android::MethodID::Get<android::MethodID::TYPE_STATIC>(
-          env, clazz.obj(), "uptimeMillis", "()J");
-  ASSERT_FALSE(!method_id);
-  // Subtract 1ms from the expected lower bound to allow millisecond-level
-  // truncation performed in uptimeMillis().
-  const TimeTicks lower_bound_ticks = TimeTicks::Now() - Milliseconds(1);
-  const TimeTicks converted_ticks = TimeTicks::FromUptimeMillis(
-      env->CallStaticLongMethod(clazz.obj(), method_id));
-  const TimeTicks upper_bound_ticks = TimeTicks::Now();
-  EXPECT_LE(lower_bound_ticks, converted_ticks);
-  EXPECT_GE(upper_bound_ticks, converted_ticks);
-}
-
-TEST(TimeTicks, Android_FromJavaNanoTime_ClocksMatch) {
-  JNIEnv* const env = android::AttachCurrentThread();
-  android::ScopedJavaLocalRef<jclass> clazz(
-      android::GetClass(env, "java/lang/System"));
-  ASSERT_TRUE(clazz.obj());
-  const jmethodID method_id =
-      android::MethodID::Get<android::MethodID::TYPE_STATIC>(env, clazz.obj(),
-                                                             "nanoTime", "()J");
-  ASSERT_FALSE(!method_id);
-  const TimeTicks lower_bound_ticks = TimeTicks::Now();
-  const TimeTicks converted_ticks = TimeTicks::FromJavaNanoTime(
-      env->CallStaticLongMethod(clazz.obj(), method_id));
-  // Add 1us to the expected upper bound to allow microsecond-level
-  // truncation performed in TimeTicks::Now().
-  const TimeTicks upper_bound_ticks = TimeTicks::Now() + Microseconds(1);
-  EXPECT_LE(lower_bound_ticks, converted_ticks);
-  EXPECT_GE(upper_bound_ticks, converted_ticks);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class LiveTicksOverride {
  public:

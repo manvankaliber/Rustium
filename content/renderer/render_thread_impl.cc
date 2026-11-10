@@ -174,12 +174,6 @@
 #include "ui/native_theme/native_theme.h"
 #include "v8/include/v8-extension.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <cpu-features.h>
-
-#include "media/base/android/media_codec_util.h"
-#include "third_party/blink/public/web/web_memory_features.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "base/mac/mac_util.h"
@@ -195,7 +189,7 @@
 #include "content/renderer/media/win/dcomp_texture_factory.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "content/child/sandboxed_process_thread_type_handler.h"
 #endif
 
@@ -594,7 +588,7 @@ void RenderThreadImpl::Init() {
   }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   SandboxedProcessThreadTypeHandler::NotifyMainChildThreadCreated();
 #endif
 
@@ -612,9 +606,7 @@ void RenderThreadImpl::Init() {
   } else if (command_line.HasSwitch(switches::kEnableLCDText)) {
     is_lcd_text_enabled_ = true;
   } else {
-#if BUILDFLAG(IS_ANDROID)
-    is_lcd_text_enabled_ = false;
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
     is_lcd_text_enabled_ = IsSubpixelAntialiasingAvailable();
 #else
     is_lcd_text_enabled_ = true;
@@ -642,7 +634,7 @@ void RenderThreadImpl::Init() {
   base::DiscardableMemoryAllocator::SetInstance(
       discardable_memory_allocator_.get());
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   ChildProcess::current()->SetIOThreadType(base::ThreadType::kPresentation);
 #endif
 
@@ -1033,11 +1025,7 @@ media::GpuVideoAcceleratorFactories* RenderThreadImpl::GetGpuFactories() {
 
   const bool enable_gpu_memory_buffers =
       !is_gpu_compositing_disabled_ &&
-#if !BUILDFLAG(IS_ANDROID)
       !cmd_line->HasSwitch(switches::kDisableGpuMemoryBufferVideoFrames);
-#else
-      cmd_line->HasSwitch(switches::kEnableGpuMemoryBufferVideoFrames);
-#endif
   const bool enable_media_stream_gpu_memory_buffers = enable_gpu_memory_buffers;
   bool enable_video_gpu_memory_buffers = enable_gpu_memory_buffers;
 #if BUILDFLAG(IS_WIN)
@@ -1482,15 +1470,6 @@ void RenderThreadImpl::OnNetworkQualityChanged(
       transport_rtt, downlink_throughput_kbps);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void RenderThreadImpl::SetWebKitSharedTimersSuspended(bool suspend) {
-  if (suspend) {
-    main_thread_scheduler_->PauseTimersForAndroidWebView();
-  } else {
-    main_thread_scheduler_->ResumeTimersForAndroidWebView();
-  }
-}
-#endif
 
 #if BUILDFLAG(IS_MAC)
 void RenderThreadImpl::UpdateScrollbarTheme(
@@ -1702,9 +1681,6 @@ void RenderThreadImpl::OnRendererHidden() {
   }
 
   blink_isolates_pressure_listener_.OnRendererHidden();
-#if BUILDFLAG(IS_ANDROID)
-  blink::WebMemoryFeatures::SetRendererVisible(false);
-#endif
 }
 
 void RenderThreadImpl::OnRendererVisible() {
@@ -1714,9 +1690,6 @@ void RenderThreadImpl::OnRendererVisible() {
         base::Process::Priority::kUserBlocking);
   }
   blink_isolates_pressure_listener_.OnRendererVisible();
-#if BUILDFLAG(IS_ANDROID)
-  blink::WebMemoryFeatures::SetRendererVisible(true);
-#endif
 }
 
 bool RenderThreadImpl::RendererIsBackgrounded() const {
@@ -1773,7 +1746,7 @@ RenderThreadImpl::CreateMediaMojoCodecFactory(
     bool enable_video_encode_accelerator) {
   mojo::PendingRemote<media::mojom::VideoEncodeAcceleratorProvider>
       vea_provider;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (base::FeatureList::IsEnabled(media::kUseOutOfProcessVideoEncoding)) {
     BindHostReceiver(vea_provider.InitWithNewPipeAndPassReceiver());
   } else {
@@ -1800,23 +1773,5 @@ RenderThreadImpl::CreateMediaMojoCodecFactory(
 #endif
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void RenderThreadImpl::SetPrivateMemoryFootprint(
-    uint64_t private_memory_footprint_bytes) {
-  GetRendererHost()->SetPrivateMemoryFootprint(private_memory_footprint_bytes);
-}
-
-void RenderThreadImpl::OnMemoryPressureFromBrowserReceived(
-    base::MemoryPressureLevel level) {
-  // To avoid that the browser process requests a signal while a renderer
-  // is creating and blink has not been initialized yet, check
-  // |blink_platform_impl_| here.
-  if (!blink_platform_impl_) {
-    return;
-  }
-  blink::RequestUserLevelMemoryPressureSignal(level);
-}
-
-#endif
 
 }  // namespace content

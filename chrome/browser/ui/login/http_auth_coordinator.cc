@@ -24,9 +24,7 @@
 #include "extensions/browser/guest_view/web_view/web_view_guest.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/web_modal/web_contents_modal_dialog_manager.h"
-#endif
 
 HttpAuthCoordinator::HttpAuthCoordinator() = default;
 HttpAuthCoordinator::~HttpAuthCoordinator() = default;
@@ -244,7 +242,6 @@ void HttpAuthCoordinator::Flow::ShowDialog() {
 
   // If there is no WebContentsModalDialogManager, then a dialog cannot be
   // shown.
-#if !BUILDFLAG(IS_ANDROID)
   web_modal::WebContentsModalDialogManager* manager =
       web_modal::WebContentsModalDialogManager::FromWebContents(
           web_contents_.get());
@@ -252,7 +249,6 @@ void HttpAuthCoordinator::Flow::ShowDialog() {
     std::move(callback_).Run(std::nullopt);
     return;
   }
-#endif
 
   // For subresources, create a LoginHandler which will show a login prompt.
   auto wrapped_callback = base::BindOnce(&Flow::OnCredentials, GetWeakPtr());

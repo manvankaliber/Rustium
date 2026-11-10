@@ -31,10 +31,8 @@
 #include "ui/accessibility/platform/ax_platform.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service_factory.h"
-#endif
 
 namespace {
 constexpr base::FeatureState DISABLED = base::FEATURE_DISABLED_BY_DEFAULT;
@@ -484,7 +482,6 @@ bool IsDeepSearchEnabled(Profile* profile) {
 }
 
 bool AreContextualTasksEligible(Profile* profile) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!profile) {
     return false;
   }
@@ -505,9 +502,6 @@ bool AreContextualTasksEligible(Profile* profile) {
   }
 
   return true;
-#else
-  return false;
-#endif
 }
 
 std::unique_ptr<

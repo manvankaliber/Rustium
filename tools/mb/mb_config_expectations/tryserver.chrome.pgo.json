@@ -1,36 +1,4 @@
 {
-  "android-arm32-pgo": {
-    "gn_args": {
-      "chrome_pgo_phase": 1,
-      "clang_use_default_sample_profile": false,
-      "debuggable_apks": false,
-      "enable_chrome_android_internal": false,
-      "ffmpeg_branding": "Chrome",
-      "is_chrome_branded": true,
-      "is_official_build": true,
-      "proprietary_codecs": true,
-      "symbol_level": 1,
-      "target_cpu": "arm",
-      "target_os": "android",
-      "use_remoteexec": true
-    }
-  },
-  "android-arm64-pgo": {
-    "gn_args": {
-      "chrome_pgo_phase": 1,
-      "clang_use_default_sample_profile": false,
-      "debuggable_apks": false,
-      "enable_chrome_android_internal": false,
-      "ffmpeg_branding": "Chrome",
-      "is_chrome_branded": true,
-      "is_official_build": true,
-      "proprietary_codecs": true,
-      "symbol_level": 1,
-      "target_cpu": "arm64",
-      "target_os": "android",
-      "use_remoteexec": true
-    }
-  },
   "linux-pgo": {
     "gn_args": {
       "chrome_pgo_phase": 1,
@@ -67,21 +35,6 @@
       "is_official_build": true,
       "symbol_level": 1,
       "target_cpu": "x64",
-      "use_remoteexec": true
-    }
-  },
-  "webview-arm64-pgo": {
-    "gn_args": {
-      "chrome_pgo_phase": 1,
-      "clang_use_default_sample_profile": false,
-      "debuggable_apks": false,
-      "ffmpeg_branding": "Chrome",
-      "is_chrome_branded": true,
-      "is_official_build": true,
-      "proprietary_codecs": true,
-      "symbol_level": 1,
-      "target_cpu": "arm64",
-      "target_os": "android",
       "use_remoteexec": true
     }
   },

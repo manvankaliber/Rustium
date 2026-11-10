@@ -71,7 +71,6 @@
 #include "chrome/browser/ui/call_to_action/call_to_action_lock.h"
 #include "chrome/browser/ui/context_highlight/context_highlight_window_feature.h"
 #include "chrome/browser/ui/contextual_search/searchbox_context_data.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promo_controller.h"
 #include "chrome/browser/ui/exclusive_access/exclusive_access_manager.h"
 #include "chrome/browser/ui/extensions/extension_installed_watcher.h"
 #include "chrome/browser/ui/extensions/extension_side_panel_manager.h"
@@ -234,16 +233,10 @@
 #include "chrome/browser/ui/views/frame/windows_taskbar_icon_updater.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/boca/on_task/on_task_locked_controller.h"
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/download/bubble/download_bubble_ui_controller.h"
 #include "chrome/browser/download/bubble/download_display_controller.h"
 #include "chrome/browser/ui/views/download/bubble/download_toolbar_ui_controller.h"
-#endif
 
 #if defined(USE_AURA)
 #include "chrome/browser/ui/overscroll_pref_manager.h"
@@ -460,17 +453,6 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
           .CreateInstance<memory_saver::MemorySaverBubbleController>(*browser,
                                                                      browser);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (features::IsUseUnifiedLockedStateControllerEnabled()) {
-    locked_state_controller_ =
-        GetUserDataFactory().CreateInstance<chromeos::LockedStateController>(
-            *browser, browser);
-  } else {
-    on_task_locked_controller_ =
-        GetUserDataFactory().CreateInstance<ash::boca::OnTaskLockedController>(
-            *browser, browser);
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if defined(USE_AURA)
   overscroll_pref_manager_ =
@@ -808,7 +790,6 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
       *desktop_browser_window_capabilities_, *browser_ui_controller_);
 
   // Must be after exclusive_access_manager_.
-#if !BUILDFLAG(IS_CHROMEOS)
   if (browser_view) {
     download_toolbar_ui_controller_ =
         GetUserDataFactory().CreateInstance<DownloadToolbarUIController>(
@@ -816,7 +797,6 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
     download_toolbar_ui_controller_->display_controller()
         ->ListenToFullScreenChanges();
   }
-#endif
 
   // Focus manager can be null in tests.
   if (focus_manager) {
@@ -1040,11 +1020,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
                                                                      browser);
     }
 
-    if (MobilePromoOnDesktopEnabled()) {
-      ios_promo_controller_ =
-          GetUserDataFactory().CreateInstance<IOSPromoController>(*browser,
-                                                                  browser);
-    }
+
 
     // TODO(crbug.com/350508658): Ideally, we don't pass in a reference to
     // browser as per the guidance in the comment above. However, currently,
@@ -1186,7 +1162,7 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
     shared_tab_group_feedback_controller_->TearDown();
   }
   memory_saver_opt_in_iph_controller_.reset();
-  ios_promo_controller_.reset();
+
   if (chrome_labs_coordinator_) {
     chrome_labs_coordinator_->TearDown();
   }
@@ -1241,11 +1217,9 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
   extension_side_panel_manager_.reset();
   extension_keybinding_registry_.reset();
   // Must be before exclusive_access_manager_.
-#if !BUILDFLAG(IS_CHROMEOS)
   if (download_toolbar_ui_controller_) {
     download_toolbar_ui_controller_->TearDownPreBrowserWindowDestruction();
   }
-#endif
   browser_web_contents_delegate_.reset();
   exclusive_access_manager_.reset();
   // Must be after exclusive_access_manager_ (which holds a reference to this

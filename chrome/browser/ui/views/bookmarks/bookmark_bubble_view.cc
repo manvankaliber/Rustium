@@ -31,9 +31,6 @@
 #include "chrome/browser/ui/browser_actions.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promo_controller.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promo_trigger_service.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promo_trigger_service_factory.h"
 #include "chrome/browser/ui/page_action/page_action_icon_type.h"
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
@@ -77,11 +74,9 @@
 #include "ui/views/bubble/bubble_dialog_model_host.h"
 #include "ui/views/controls/styled_label.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/signin/promos/bubble_signin_promo_view.h"
 #include "chrome/browser/ui/views/bookmarks/bookmark_sign_in_promo_bubble_view.h"
 #include "components/sync/base/features.h"
-#endif
 
 using base::UserMetricsAction;
 using bookmarks::BookmarkModel;
@@ -165,7 +160,6 @@ actions::ActionItem& GetBookmarkActionItem(BrowserWindowInterface* bwi) {
   return *action_item;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void MaybeShowSignInPromo(bool already_bookmarked,
                           Profile* profile,
                           views::BubbleAnchor bubble_anchor,
@@ -193,7 +187,6 @@ void MaybeShowSignInPromo(bool already_bookmarked,
   views::BubbleDialogDelegateView::CreateBubble(std::move(bubble));
   bubble_ptr->ShowForReason(LocationBarBubbleDelegateView::USER_GESTURE);
 }
-#endif
 
 }  // namespace
 
@@ -201,23 +194,7 @@ class BookmarkBubbleViewPromoHelper {
  public:
   BookmarkBubbleViewPromoHelper() = delete;
 
-  static bool ShouldShowIOSPriceTrackingPromo(
-      content::WebContents* web_contents,
-      BrowserWindowInterface* browser) {
-    auto* const interface =
-        BrowserUserEducationInterface::MaybeGetForWebContentsInTab(
-            web_contents);
-    IOSPromoController* controller = IOSPromoController::From(browser);
-    return ((interface &&
-             interface->WouldShowFeaturePromo(
-                 feature_engagement::kIPHiOSPriceTrackingDesktopFeature,
-                 base::PassKey<BookmarkBubbleViewPromoHelper>())) &&
-            (controller &&
-             controller->CanShowIOSPromo(
-                 desktop_to_mobile_promos::PromoType::kPriceTracking)) &&
-            (MobilePromoOnDesktopTypeEnabled(
-                MobilePromoOnDesktopPromoType::kPriceTracking)));
-  }
+
 
   static base::OnceCallback<void()> CreatePriceTrackingCallback(
       BrowserWindowInterface* browser,
@@ -229,18 +206,7 @@ class BookmarkBubbleViewPromoHelper {
       return base::DoNothing();
     }
 
-    // If it is eligible, the Desktop to Mobile Price Tracking promo should
-    // replace the email promo because they have the same alerting purpose.
-    if (ShouldShowIOSPriceTrackingPromo(web_contents, browser)) {
-      IOSPromoTriggerService* const trigger_service =
-          IOSPromoTriggerServiceFactory::GetForProfile(profile);
-      if (trigger_service) {
-        return base::BindOnce(
-            &IOSPromoTriggerService::NotifyPromoShouldBeShown,
-            base::Unretained(trigger_service),
-            desktop_to_mobile_promos::PromoType::kPriceTracking);
-      }
-    }
+
 
     if (commerce::IsEmailNotificationPrefSetByUser(profile->GetPrefs())) {
       return base::DoNothing();
@@ -512,11 +478,9 @@ void BookmarkBubbleView::ShowBubble(
                          base::Unretained(bubble_delegate)))
       .AddOkButton(base::BindOnce(&BookmarkBubbleDelegate::ApplyEdits,
                                   base::Unretained(bubble_delegate))
-#if !BUILDFLAG(IS_CHROMEOS)
                        .Then(base::BindOnce(
                            MaybeShowSignInPromo, already_bookmarked, profile,
                            bubble_anchor, web_contents, bookmark_node))
-#endif
                        ,
                    ui::DialogModel::Button::Params()
                        .SetLabel(l10n_util::GetStringUTF16(IDS_DONE))
@@ -581,7 +545,6 @@ void BookmarkBubbleView::ShowBubble(
     bubble->SetFootnoteView(
         std::make_unique<commerce::ShoppingCollectionIphView>());
   } else if (signin::ShouldShowBookmarkSignInPromo(*profile)) {
-#if !BUILDFLAG(IS_CHROMEOS)
     if (!base::FeatureList::IsEnabled(syncer::kUnoPhase2FollowUp)) {
       // TODO(pbos): Consider adding model support for footnotes so that this
       // does not need to be tied to views.
@@ -592,7 +555,6 @@ void BookmarkBubbleView::ShowBubble(
           syncer::LocalDataItemModel::DataId(bookmark_node->id()),
           ui::ButtonStyle::kDefault));
     }
-#endif
   }
 
   bubble_delegate->SetCloseCallback(std::move(post_save_callback));

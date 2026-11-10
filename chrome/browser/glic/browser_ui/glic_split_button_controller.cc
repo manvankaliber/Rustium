@@ -146,7 +146,6 @@ void GlicSplitButtonController::OnGlicButtonClicked() {
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Indicate that the glic button was pressed so that we can either close the
   // IPH promo (if present) or note that it has already been used to prevent
   // unnecessarily displaying the promo.
@@ -155,7 +154,6 @@ void GlicSplitButtonController::OnGlicButtonClicked() {
         feature_engagement::kIPHGlicPromoFeature,
         FeaturePromoFeatureUsedAction::kClosePromoIfPresent);
   }
-#endif
 
   const bool is_showing_nudge = delegate->GetIsShowingGlicNudge();
   std::optional<std::string> prompt_suggestion =
@@ -325,10 +323,6 @@ GlicSplitButtonDelegate* GlicSplitButtonController::GetActiveDelegate() {
 }
 
 bool GlicSplitButtonController::IsToolbarButton() const {
-#if BUILDFLAG(IS_ANDROID)
-  NOTIMPLEMENTED_LOG_ONCE();
-  return false;
-#else
   if (base::FeatureList::IsEnabled(features::kGlicHorizontalTabToolbarButton)) {
     return true;
   }
@@ -338,7 +332,6 @@ bool GlicSplitButtonController::IsToolbarButton() const {
 
   return vertical_tab_strip_state_controller &&
          vertical_tab_strip_state_controller->ShouldDisplayVerticalTabs();
-#endif
 }
 
 mojom::InvocationSource GlicSplitButtonController::GetInvocationSource(

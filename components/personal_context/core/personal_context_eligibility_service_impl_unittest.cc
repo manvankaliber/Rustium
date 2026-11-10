@@ -15,9 +15,7 @@
 #include "components/account_settings/account_settings.h"
 #include "components/account_settings/account_settings_features.h"
 #include "components/account_settings/mock_account_setting_service.h"
-#if !BUILDFLAG(IS_IOS)
 #include "components/glic/glic_pref_names.h"
-#endif
 #include "components/optimization_guide/core/feature_registry/enterprise_policy_registry.h"
 #include "components/optimization_guide/core/feature_registry/feature_registration.h"
 #include "components/personal_context/core/personal_context_debug_features.h"
@@ -93,11 +91,9 @@ class PersonalContextEligibilityServiceImplTest : public testing::Test {
 
   void SetPrefs() {
     personal_context::prefs::RegisterProfilePrefs(pref_service_.registry());
-#if !BUILDFLAG(IS_IOS)
     pref_service_.registry()->RegisterIntegerPref(
         ::glic::prefs::kGlicCompletedFre,
         std::to_underlying(::glic::prefs::FreStatus::kCompleted));
-#endif
     pref_service_.registry()->RegisterIntegerPref(
         optimization_guide::prefs::kFindAndFillWithGeminiSettings,
         std::to_underlying(optimization_guide::EnterprisePolicyValue::kAllow));
@@ -161,7 +157,6 @@ TEST_F(PersonalContextEligibilityServiceImplTest, EnabledWhenAllFeaturesAreOn) {
       PersonalContextNonEligibilityReason::kEligible, 1);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)  // Signing out does not work on ChromeOS.
 TEST_F(PersonalContextEligibilityServiceImplTest,
        ForcedEnablementState_SignOut) {
   {
@@ -190,7 +185,6 @@ TEST_F(PersonalContextEligibilityServiceImplTest, DisabledWhenSignedOut) {
       PersonalContextNonEligibilityReason::kNotSignedIn, 2);
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Verifies that the service is disabled for underaged users.
 TEST_F(PersonalContextEligibilityServiceImplTest, DisabledWhenUnderaged) {
@@ -420,7 +414,6 @@ TEST_P(PersonalContextEligibilityServiceImplLocaleTest, CheckLocaleEnablement) {
   }
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(PersonalContextEligibilityServiceImplTest,
        DisabledWhenGlicFreNotCompleted) {
   pref_service_.SetInteger(
@@ -450,7 +443,6 @@ TEST_F(PersonalContextEligibilityServiceImplTest,
 
   service().RemoveObserver(&observer);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 // Verifies that a profile whose Gemini in Chrome provider doesn't support
 // Personal Context (e.g. Gemini Enterprise) is ineligible, even though every
@@ -458,10 +450,8 @@ TEST_F(PersonalContextEligibilityServiceImplTest,
 // fixture).
 TEST_F(PersonalContextEligibilityServiceImplTest,
        DisabledForUnsupportedGlicProvider) {
-#if !BUILDFLAG(IS_IOS)
   ASSERT_EQ(pref_service_.GetInteger(::glic::prefs::kGlicCompletedFre),
             std::to_underlying(::glic::prefs::FreStatus::kCompleted));
-#endif
   CreateService("us", "en-US", /*is_supported_glic_provider=*/false);
 
   EXPECT_EQ(service().GetEligibilityState(),
@@ -506,14 +496,12 @@ TEST_F(PersonalContextEligibilityServiceImplTest,
 
   SignIn("other@gmail.com");
   service().OnAccountSettingsLoaded();
-#if !BUILDFLAG(IS_IOS)
   pref_service_.SetInteger(
       ::glic::prefs::kGlicCompletedFre,
       std::to_underlying(::glic::prefs::FreStatus::kNotStarted));
   pref_service_.SetInteger(
       ::glic::prefs::kGlicCompletedFre,
       std::to_underlying(::glic::prefs::FreStatus::kCompleted));
-#endif
 
   EXPECT_EQ(service().GetEligibilityState(),
             PersonalContextEligibilityState::kDisabledNotEligible);

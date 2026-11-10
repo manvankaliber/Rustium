@@ -34,22 +34,15 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "device/bluetooth/test/bluetooth_test_android.h"
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #include "device/bluetooth/test/bluetooth_test_mac.h"
 #elif BUILDFLAG(IS_WIN)
 #include "base/win/windows_version.h"
 #include "device/bluetooth/test/bluetooth_test_win.h"
-#elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#elif BUILDFLAG(IS_LINUX)
 #include "device/bluetooth/test/bluetooth_test_bluez.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "device/bluetooth/bluetooth_low_energy_scan_filter.h"
-#include "device/bluetooth/bluetooth_low_energy_scan_session.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 using device::BluetoothDevice;
 
@@ -96,7 +89,7 @@ class TestBluetoothAdapter final : public BluetoothAdapter {
                        base::OnceClosure callback,
                        ErrorCallback error_callback) override {}
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   base::TimeDelta GetDiscoverableTimeout() const override {
     return base::Microseconds(0);
   }
@@ -122,7 +115,7 @@ class TestBluetoothAdapter final : public BluetoothAdapter {
       CreateAdvertisementCallback callback,
       AdvertisementErrorCallback error_callback) override {}
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   void SetAdvertisingInterval(
       const base::TimeDelta& min,
       const base::TimeDelta& max,
@@ -142,32 +135,6 @@ class TestBluetoothAdapter final : public BluetoothAdapter {
     return nullptr;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void SetServiceAllowList(const UUIDList& uuids,
-                           base::OnceClosure callback,
-                           ErrorCallback error_callback) override {}
-  void SetSimpleSecurePairingEnabled(bool enabled,
-                                     base::OnceClosure callback,
-                                     ErrorCallback error_callback) override {}
-
-  LowEnergyScanSessionHardwareOffloadingStatus
-  GetLowEnergyScanSessionHardwareOffloadingStatus() override {
-    return LowEnergyScanSessionHardwareOffloadingStatus::kNotSupported;
-  }
-
-  std::unique_ptr<BluetoothLowEnergyScanSession> StartLowEnergyScanSession(
-      std::unique_ptr<BluetoothLowEnergyScanFilter> filter,
-      base::WeakPtr<BluetoothLowEnergyScanSession::Delegate> delegate)
-      override {
-    return nullptr;
-  }
-
-  std::vector<BluetoothRole> GetSupportedRoles() override {
-    return std::vector<BluetoothRole>{};
-  }
-
-  void SetStandardChromeOSAdapterName() override {}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   void OnStartDiscoverySessionQuitLoop(
       base::OnceClosure run_loop_quit,
@@ -729,11 +696,7 @@ TEST_F(BluetoothAdapterTest, StartDiscoverySessionError_Destroy) {
 
 // TODO(scheib): Enable BluetoothTest fixture tests on all platforms.
 // TODO(https://crbug.com/331653043): Re-enable when passing on macOS 14 bots.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ConstructDefaultAdapter ConstructDefaultAdapter
-#else
 #define MAYBE_ConstructDefaultAdapter DISABLED_ConstructDefaultAdapter
-#endif
 
 #if BUILDFLAG(IS_WIN)
 TEST_P(BluetoothTestWinrt, ConstructDefaultAdapter) {
@@ -753,7 +716,7 @@ TEST_F(BluetoothTest, MAYBE_ConstructDefaultAdapter) {
 }  // namespace device
 
 // TODO(scheib): Enable BluetoothTest fixture tests on all platforms.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_ConstructWithoutDefaultAdapter ConstructWithoutDefaultAdapter
 #else
 #define MAYBE_ConstructWithoutDefaultAdapter \
@@ -768,20 +731,14 @@ TEST_F(BluetoothTest, MAYBE_ConstructWithoutDefaultAdapter) {
   InitWithoutDefaultAdapter();
   EXPECT_EQ(adapter_->GetAddress(), "");
   EXPECT_EQ(adapter_->GetName(), "");
-#if !BUILDFLAG(IS_IOS)
   EXPECT_FALSE(adapter_->IsPresent());
   EXPECT_FALSE(adapter_->IsPowered());
-#endif
   EXPECT_FALSE(adapter_->IsDiscoverable());
   EXPECT_FALSE(adapter_->IsDiscovering());
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(adapter_->GetOsPermissionStatus(),
-            BluetoothAdapter::PermissionStatus::kDenied);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 // TODO(scheib): Enable BluetoothTest fixture tests on all platforms.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_ConstructFakeAdapter ConstructFakeAdapter
 #else
 #define MAYBE_ConstructFakeAdapter DISABLED_ConstructFakeAdapter
@@ -793,10 +750,8 @@ TEST_P(BluetoothTestWinrt, ConstructFakeAdapter) {
 TEST_F(BluetoothTest, MAYBE_ConstructFakeAdapter) {
 #endif  // BUILDFLAG(IS_WIN)
   InitWithFakeAdapter();
-#if !BUILDFLAG(IS_IOS)
   EXPECT_EQ(adapter_->GetAddress(), kTestAdapterAddress);
   EXPECT_EQ(adapter_->GetName(), kTestAdapterName);
-#endif
   EXPECT_TRUE(adapter_->CanPower());
   EXPECT_TRUE(adapter_->IsPresent());
   EXPECT_TRUE(adapter_->IsPowered());
@@ -834,11 +789,7 @@ TEST_P(BluetoothTestWinrt, ConstructFakeAdapterWithoutPowerControl) {
 #endif  // BUILDFLAG(IS_WIN)
 
 // TODO(scheib): Enable BluetoothTest fixture tests on all platforms.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_DiscoverySession DiscoverySession
-#else
 #define MAYBE_DiscoverySession DISABLED_DiscoverySession
-#endif
 // Starts and Stops a discovery session.
 TEST_F(BluetoothTest, MAYBE_DiscoverySession) {
   InitWithFakeAdapter();
@@ -860,34 +811,11 @@ TEST_F(BluetoothTest, MAYBE_DiscoverySession) {
 
 // Android only: this test is specific for Android and should not be
 // enabled for other platforms.
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(BluetoothTest, AdapterIllegalStateBeforeStartScan) {
-  InitWithFakeAdapter();
-  ForceIllegalStateException();
-  StartLowEnergyDiscoverySessionExpectedToFail();
-  EXPECT_EQ(0, callback_count_);
-  EXPECT_EQ(1, error_callback_count_);
-  EXPECT_FALSE(adapter_->IsDiscovering());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Android only: this test is specific for Android and should not be
 // enabled for other platforms.
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(BluetoothTest, AdapterIllegalStateBeforeStopScan) {
-  InitWithFakeAdapter();
-  StartLowEnergyDiscoverySession();
-  EXPECT_EQ(1, callback_count_);
-  EXPECT_EQ(0, error_callback_count_);
-  EXPECT_TRUE(adapter_->IsDiscovering());
-  ForceIllegalStateException();
-  discovery_sessions_[0]->Stop(GetCallback(Call::EXPECTED),
-                               GetErrorCallback(Call::NOT_EXPECTED));
-  EXPECT_FALSE(adapter_->IsDiscovering());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_NoPermissions NoPermissions
 #else
 #define MAYBE_NoPermissions DISABLED_NoPermissions
@@ -913,31 +841,8 @@ TEST_F(BluetoothTest, MAYBE_NoPermissions) {
 
 // Android-only: Only Android requires location services to be turned on to scan
 // for Bluetooth devices.
-#if BUILDFLAG(IS_ANDROID)
-// Checks that discovery fails (instead of hanging) when location services are
-// turned off.
-TEST_F(BluetoothTest, NoLocationServices) {
-  if (base::android::android_info::sdk_int() >=
-      base::android::android_info::SDK_VERSION_S) {
-    GTEST_SKIP() << "Android S+ doesn't require location services perform "
-                    "Bluetooth scanning, skipping unit test.";
-  }
-  InitWithFakeAdapter();
-  TestBluetoothAdapterObserver observer(adapter_);
 
-  SimulateLocationServicesOff();
-
-  EXPECT_EQ(BluetoothAdapter::PermissionStatus::kDenied,
-            adapter_->GetOsPermissionStatus());
-
-  StartLowEnergyDiscoverySessionExpectedToFail();
-
-  EXPECT_EQ(0, callback_count_);
-  EXPECT_EQ(1, error_callback_count_);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_DiscoverLowEnergyDevice DiscoverLowEnergyDevice
 #else
 #define MAYBE_DiscoverLowEnergyDevice DISABLED_DiscoverLowEnergyDevice
@@ -959,7 +864,7 @@ TEST_F(BluetoothTest, MAYBE_DiscoverLowEnergyDevice) {
   EXPECT_TRUE(device);
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_DiscoverLowEnergyDeviceTwice DiscoverLowEnergyDeviceTwice
 #else
 #define MAYBE_DiscoverLowEnergyDeviceTwice DISABLED_DiscoverLowEnergyDeviceTwice
@@ -988,7 +893,7 @@ TEST_F(BluetoothTest, MAYBE_DiscoverLowEnergyDeviceTwice) {
   EXPECT_EQ(1u, adapter_->GetDevices().size());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_DiscoverLowEnergyDeviceWithUpdatedUUIDs \
   DiscoverLowEnergyDeviceWithUpdatedUUIDs
 #else
@@ -1026,7 +931,7 @@ TEST_F(BluetoothTest, MAYBE_DiscoverLowEnergyDeviceWithUpdatedUUIDs) {
   EXPECT_EQ(1u, adapter_->GetDevices().size());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_DiscoverMultipleLowEnergyDevices DiscoverMultipleLowEnergyDevices
 #else
 #define MAYBE_DiscoverMultipleLowEnergyDevices \
@@ -1155,11 +1060,7 @@ TEST_P(BluetoothTestWinrt, SimulateAdapterPowerFailure) {
 #if BUILDFLAG(IS_WIN)
 TEST_P(BluetoothTestWinrt, TogglePowerFakeAdapter) {
 #else
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_TogglePowerFakeAdapter DISABLED_TogglePowerFakeAdapter
-#else
 #define MAYBE_TogglePowerFakeAdapter TogglePowerFakeAdapter
-#endif
 TEST_F(BluetoothTest, MAYBE_TogglePowerFakeAdapter) {
 #endif
   InitWithFakeAdapter();
@@ -1184,7 +1085,7 @@ TEST_F(BluetoothTest, MAYBE_TogglePowerFakeAdapter) {
   EXPECT_EQ(2, observer.powered_changed_count());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_TogglePowerFakeAdapter_Twice TogglePowerFakeAdapter_Twice
 #else
 #define MAYBE_TogglePowerFakeAdapter_Twice DISABLED_TogglePowerFakeAdapter_Twice
@@ -1226,7 +1127,7 @@ TEST_F(BluetoothTest, MAYBE_TogglePowerFakeAdapter_Twice) {
   EXPECT_EQ(2, observer.powered_changed_count());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_TogglePowerFakeAdapter_WithinCallback_On_Off \
   TogglePowerFakeAdapter_WithinCallback_On_Off
 #else
@@ -1258,7 +1159,7 @@ TEST_F(BluetoothTest, MAYBE_TogglePowerFakeAdapter_WithinCallback_On_Off) {
   EXPECT_EQ(2, observer.powered_changed_count());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_TogglePowerFakeAdapter_WithinCallback_Off_On \
   TogglePowerFakeAdapter_WithinCallback_Off_On
 #else
@@ -1297,7 +1198,7 @@ TEST_F(BluetoothTest, MAYBE_TogglePowerFakeAdapter_WithinCallback_Off_On) {
   EXPECT_EQ(3, observer.powered_changed_count());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_TogglePowerFakeAdapter_DestroyWithPending \
   TogglePowerFakeAdapter_DestroyWithPending
 #else
@@ -1344,11 +1245,7 @@ TEST_F(BluetoothTest, MAYBE_TogglePowerFakeAdapter_DestroyWithPending) {
   EXPECT_TRUE(error_callback_called);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_TogglePowerBeforeScan TogglePowerBeforeScan
-#else
 #define MAYBE_TogglePowerBeforeScan DISABLED_TogglePowerBeforeScan
-#endif
 TEST_F(BluetoothTest, MAYBE_TogglePowerBeforeScan) {
   InitWithFakeAdapter();
   TestBluetoothAdapterObserver observer(adapter_);
@@ -1702,7 +1599,7 @@ TEST_P(BluetoothTestWinrt, SimulateAdvertisementStoppedByOS) {
 
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_RegisterLocalGattServices RegisterLocalGattServices
 #else
 #define MAYBE_RegisterLocalGattServices DISABLED_RegisterLocalGattServices
@@ -1740,7 +1637,7 @@ TEST_F(BluetoothTest, MAYBE_RegisterLocalGattServices) {
                       GetGattErrorCallback(Call::EXPECTED));
 }
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_RegisterMultipleServices RegisterMultipleServices
 #else
 #define MAYBE_RegisterMultipleServices DISABLED_RegisterMultipleServices
@@ -1789,7 +1686,7 @@ TEST_F(BluetoothTest, MAYBE_RegisterMultipleServices) {
   EXPECT_TRUE(ServiceSetsEqual(RegisteredGattServices(), {}));
 }
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_DeleteServices DeleteServices
 #else
 #define MAYBE_DeleteServices DISABLED_DeleteServices
@@ -1836,7 +1733,7 @@ TEST_F(BluetoothTest, MAYBE_DeleteServices) {
 // This test should only be enabled for platforms that uses the
 // BluetoothAdapter#RemoveOutdatedDevices function to purge outdated
 // devices.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_EnsureUpdatedTimestamps EnsureUpdatedTimestamps
 #else
 #define MAYBE_EnsureUpdatedTimestamps DISABLED_EnsureUpdatedTimestamps
@@ -1871,7 +1768,7 @@ TEST_F(BluetoothTest, MAYBE_EnsureUpdatedTimestamps) {
 // This test should only be enabled for platforms that uses the
 // BluetoothAdapter#RemoveOutdatedDevices function to purge outdated
 // devices.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_RemoveOutdatedDevices RemoveOutdatedDevices
 #else
 #define MAYBE_RemoveOutdatedDevices DISABLED_RemoveOutdatedDevices
@@ -1896,7 +1793,7 @@ TEST_F(BluetoothTest, MAYBE_RemoveOutdatedDevices) {
 // This test should only be enabled for platforms that uses the
 // BluetoothAdapter#RemoveOutdatedDevices function to purge outdated
 // devices.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_RemoveOutdatedDeviceGattConnect RemoveOutdatedDeviceGattConnect
 #else
 #define MAYBE_RemoveOutdatedDeviceGattConnect \

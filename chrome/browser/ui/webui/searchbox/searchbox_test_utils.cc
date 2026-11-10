@@ -15,7 +15,6 @@
 #include "components/omnibox/browser/autocomplete_provider_client.h"
 #include "components/tabs/public/tab_interface.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/tab_list/mock_tab_list_interface.h"  // nogncheck crbug.com/40147906
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"  // nogncheck crbug.com/40147906
 #include "chrome/browser/ui/webui/webui_embedding_context.h"  // nogncheck crbug.com/40147906
@@ -66,7 +65,6 @@ void SetupMockTabInterface(tabs::MockTabInterface& mock_tab,
         .WillByDefault(testing::ReturnRef(*user_data_host));
   }
 }
-#endif
 
 MockSearchboxPage::MockSearchboxPage() = default;
 MockSearchboxPage::~MockSearchboxPage() = default;
@@ -77,7 +75,6 @@ MockSearchboxPage::BindAndGetRemote() {
   return receiver_.BindNewPipeAndPassRemote();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 MockOmniboxPopupPage::MockOmniboxPopupPage() = default;
 MockOmniboxPopupPage::~MockOmniboxPopupPage() = default;
 
@@ -86,7 +83,6 @@ MockOmniboxPopupPage::BindAndGetRemote() {
   DCHECK(!receiver_.is_bound());
   return receiver_.BindNewPipeAndPassRemote();
 }
-#endif
 
 MockAutocompleteController::MockAutocompleteController(
     std::unique_ptr<AutocompleteProviderClient> provider_client,

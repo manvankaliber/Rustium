@@ -18,7 +18,6 @@ try:
 except ImportError:
   from core.perfetto_binary_roller import cloud_storage
 
-
 # Binaries are publicly readable, data files are for internal use only.
 BINARY_BUCKET = cloud_storage.PUBLIC_BUCKET
 BINARY_CS_FOLDER = 'perfetto_binaries'
@@ -29,37 +28,22 @@ LATEST_FILENAME = 'latest'
 # This is the bucket where Perfetto LUCI prebuilts are stored
 PERFETTO_BINARY_BUCKET = 'perfetto-luci-artifacts'
 PLATFORM_TO_PERFETTO_FOLDER = {
-  'linux': 'linux-amd64',
-  'linux_arm': 'linux-arm',
-  'linux_arm64': 'linux-arm64',
-  'mac': 'mac-amd64',
-  'mac_arm': 'mac-arm',
-  'mac_arm64': 'mac-arm64',
-  'win': 'windows-amd64',
+    'linux': 'linux-amd64',
+    'linux_arm': 'linux-arm',
+    'linux_arm64': 'linux-arm64',
+    'mac': 'mac-amd64',
+    'mac_arm': 'mac-arm',
+    'mac_arm64': 'mac-arm64',
+    'win': 'windows-amd64',
 }
 
 LOCAL_STORAGE_FOLDER = os.path.abspath(
-  os.path.join(os.path.dirname(__file__), 'bin')
-)
+    os.path.join(os.path.dirname(__file__), 'bin'))
 CONFIG_PATH = os.path.abspath(
-  os.path.join(os.path.dirname(__file__), 'binary_deps.json')
-)
-
-
-def _IsRunningOnCrosDevice():
-  """Returns True if we're on a ChromeOS device."""
-  lsb_release = '/etc/lsb-release'
-  if sys.platform.startswith('linux') and os.path.exists(lsb_release):
-    with open(lsb_release, 'r') as f:
-      res = f.read()
-      if res.count('CHROMEOS_RELEASE_NAME'):
-        return True
-  return False
+    os.path.join(os.path.dirname(__file__), 'binary_deps.json'))
 
 
 def _GetHostOsName():
-  if _IsRunningOnCrosDevice():
-    return 'chromeos'
   if sys.platform.startswith('linux'):
     return 'linux'
   if sys.platform == 'darwin':
@@ -97,9 +81,7 @@ def _GetMacBinaryArch(binary_name):
 
 def _GetHostPlatform():
   os_name = _GetHostOsName()
-  # If we're running directly on a Chrome OS device, fetch the binaries for
-  # linux instead, which should be compatible with CrOS.
-  if os_name in ['chromeos', 'linux']:
+  if os_name == 'linux':
     arch = _GetHostArch()
     if arch == 'x86_64':
       return 'linux'
@@ -112,8 +94,7 @@ def _GetHostPlatform():
 def _GetBinaryPlatform(binary_name):
   host_platform = _GetHostPlatform()
 
-  # Binaries built on linux may be for linux or chromeos on different
-  # architectures.
+  # Linux binaries may use different architectures.
   if host_platform.startswith('linux'):
     arch = _GetLinuxBinaryArch(binary_name)
     if arch == 'x86_64':
@@ -143,14 +124,13 @@ def _SetLatestPathForBinaryChromium(binary_name, platform, latest_path):
   with tempfile.NamedTemporaryFile(mode='w', delete=False) as latest_file:
     latest_file.write(latest_path)
     latest_file.close()
-    remote_latest_file = posixpath.join(
-      BINARY_CS_FOLDER, binary_name, platform, LATEST_FILENAME
-    )
+    remote_latest_file = posixpath.join(BINARY_CS_FOLDER, binary_name, platform,
+                                        LATEST_FILENAME)
     cloud_storage.Insert(
-      BINARY_BUCKET,
-      remote_latest_file,
-      latest_file.name,
-      publicly_readable=True,
+        BINARY_BUCKET,
+        remote_latest_file,
+        latest_file.name,
+        publicly_readable=True,
     )
 
 
@@ -164,22 +144,21 @@ def UploadHostBinaryChromium(binary_name, binary_path, version):
   """
   filename = os.path.basename(binary_path)
   platform = _GetBinaryPlatform(binary_path)
-  remote_path = posixpath.join(
-    BINARY_CS_FOLDER, binary_name, platform, version, filename
-  )
+  remote_path = posixpath.join(BINARY_CS_FOLDER, binary_name, platform, version,
+                               filename)
   if not cloud_storage.Exists(BINARY_BUCKET, remote_path):
-    cloud_storage.Insert(
-      BINARY_BUCKET, remote_path, binary_path, publicly_readable=True
-    )
+    cloud_storage.Insert(BINARY_BUCKET,
+                         remote_path,
+                         binary_path,
+                         publicly_readable=True)
   _SetLatestPathForBinaryChromium(binary_name, platform, remote_path)
 
 
 def GetLatestFullPathChromium(binary_name, platform):
   with tempfile.NamedTemporaryFile(delete=False) as latest_file:
     latest_file.close()
-    remote_path = posixpath.join(
-      BINARY_CS_FOLDER, binary_name, platform, LATEST_FILENAME
-    )
+    remote_path = posixpath.join(BINARY_CS_FOLDER, binary_name, platform,
+                                 LATEST_FILENAME)
     cloud_storage.Get(BINARY_BUCKET, remote_path, latest_file.name)
     with open(latest_file.name) as latest:
       return posixpath.join(BINARY_BUCKET, latest.read())
@@ -187,9 +166,9 @@ def GetLatestFullPathChromium(binary_name, platform):
 
 def GetLatestFullPathPerfetto(binary_name, platform):
   path_wildcard = f'*/{PLATFORM_TO_PERFETTO_FOLDER[platform]}/{binary_name}'
-  path_list = cloud_storage.ListFiles(
-    PERFETTO_BINARY_BUCKET, path_wildcard, sort_by='time'
-  )
+  path_list = cloud_storage.ListFiles(PERFETTO_BINARY_BUCKET,
+                                      path_wildcard,
+                                      sort_by='time')
   # Only include paths with a 40-character git commit hash (excluding
   # moving refs like "latest" / "latest-tagged" and version tags like "v59.1").
   path_list = [p for p in path_list if re.match(r'^/[0-9a-f]{40}/', p)]
@@ -213,12 +192,12 @@ def SwitchBinaryToNewFullPath(binary_name, platform, new_full_path):
   """
   with open(CONFIG_PATH) as f:
     config = json.load(f)
-  config.setdefault(binary_name, {}).setdefault(platform, {})[
-    'full_remote_path'
-  ] = new_full_path
-  config.setdefault(binary_name, {}).setdefault(platform, {})['hash'] = (
-    _CalculateHash(new_full_path)
-  )
+  config.setdefault(binary_name,
+                    {}).setdefault(platform,
+                                   {})['full_remote_path'] = new_full_path
+  config.setdefault(binary_name,
+                    {}).setdefault(platform,
+                                   {})['hash'] = (_CalculateHash(new_full_path))
   with open(CONFIG_PATH, 'w') as f:
     json.dump(config, f, indent=4, separators=(',', ': '))
 
@@ -237,10 +216,8 @@ def FetchHostBinary(binary_name):
   expected_hash = config[binary_name][platform]['hash']
   filename = posixpath.basename(remote_path)
   local_path = os.path.join(LOCAL_STORAGE_FOLDER, filename)
-  if (
-    not os.path.exists(local_path)
-    or cloud_storage.CalculateHash(local_path) != expected_hash
-  ):
+  if (not os.path.exists(local_path)
+      or cloud_storage.CalculateHash(local_path) != expected_hash):
     cloud_storage.Get(bucket, remote_path, local_path)
     if cloud_storage.CalculateHash(local_path) != expected_hash:
       raise RuntimeError('The downloaded binary has wrong hash.')
@@ -268,14 +245,14 @@ def UploadAndSwitchDataFile(data_file_name, data_file_path, version):
   """Upload the script to the cloud and update config to use the new version."""
   filename = os.path.basename(data_file_path)
   bucket = DATA_BUCKET
-  remote_path = posixpath.join(
-    DATA_CS_FOLDER, data_file_name, version, filename
-  )
+  remote_path = posixpath.join(DATA_CS_FOLDER, data_file_name, version,
+                               filename)
   full_remote_path = posixpath.join(bucket, remote_path)
   if not cloud_storage.Exists(DATA_BUCKET, remote_path):
-    cloud_storage.Insert(
-      bucket, remote_path, data_file_path, publicly_readable=False
-    )
+    cloud_storage.Insert(bucket,
+                         remote_path,
+                         data_file_path,
+                         publicly_readable=False)
 
   with open(CONFIG_PATH) as f:
     config = json.load(f)

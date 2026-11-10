@@ -23,18 +23,14 @@
 #include "extensions/browser/extension_function.h"
 #include "extensions/common/error_utils.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/web_applications/app_browser_controller.h"
-#endif
 
 namespace extensions::tabs_util {
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 constexpr char kCannotMoveIwaTabError[] =
     "The tab of an Isolated Web App cannot be moved.";
-#endif
 
 // Returns the tab group ID for the tab at `index`. Returns nullopt if the index
 // is out of range, the tab is not found, or the tab is not part of a group.
@@ -84,7 +80,6 @@ base::expected<void, std::string> ValidateTabForMove(
     return base::unexpected(
         ExtensionTabUtil::kCanOnlyMoveTabsWithinNormalWindowsError);
   }
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowInterface* source_browser = source_window->GetBrowser();
   CHECK(source_browser);
   if (web_app::AppBrowserController* controller =
@@ -92,7 +87,6 @@ base::expected<void, std::string> ValidateTabForMove(
       controller && controller->IsIsolatedWebApp()) {
     return base::unexpected(kCannotMoveIwaTabError);
   }
-#endif
 
   if (!ExtensionTabUtil::IsTabStripEditable(*source_window->profile())) {
     return base::unexpected(ExtensionTabUtil::kTabStripNotEditableError);

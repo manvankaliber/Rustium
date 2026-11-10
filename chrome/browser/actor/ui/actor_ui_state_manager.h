@@ -25,11 +25,9 @@ namespace content {
 class BrowserContext;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace actor {
 class ActorTabStripTrackerDesktop;
 }
-#endif
 
 namespace actor::ui {
 
@@ -72,9 +70,7 @@ class ActorUiStateManager : public ActorUiStateManagerInterface,
   // ActorUiStateManagerInterface:
   void OnUiEvent(AsyncUiEvent event, UiCompleteCallback callback) override;
   void OnUiEvent(SyncUiEvent event) override;
-#if !BUILDFLAG(IS_ANDROID)
   void LazyInitTabTracker() override;
-#endif
   base::WeakPtr<ActorNavigationThrottle::Delegate> GetNavigationDelegate()
       override;
 
@@ -84,11 +80,9 @@ class ActorUiStateManager : public ActorUiStateManagerInterface,
                             NavigationConfirmedCallback callback) override;
   void CancelNavigationConfirmation(tabs::TabInterface* tab) override;
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
   // Shows toast that notifies user the Actor is working in the background.
   // Shows a maximum of kToastShownMax per profile.
   void MaybeShowToast(BrowserWindowInterface* bwi);
-#endif
 
   // Gets the title of a given task, this includes active tasks and tasks that
   // have stopped within an `kGlicActorUiCompletedTaskExpiryDelaySeconds` period
@@ -165,7 +159,6 @@ class ActorUiStateManager : public ActorUiStateManagerInterface,
   // Called whenever an actor task state changes.
   void OnActorTaskStateChange(TaskId task_id, ActorTask::State new_task_state);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Applies the cursor chip display rules to `event`.
   void UpdateCursorChip(const SyncUiEvent& event);
 
@@ -174,7 +167,6 @@ class ActorUiStateManager : public ActorUiStateManagerInterface,
   // Known limit: a tab change alone does not move the chip. It moves on the
   // next step text or state change.
   void SetCursorChipForTask(TaskId task_id, const std::string& text);
-#endif
 
   // Notify profile scoped ui components about actor task stop.
   void NotifyActorTaskStopped(TaskId task_id);
@@ -202,12 +194,10 @@ class ActorUiStateManager : public ActorUiStateManagerInterface,
 
   const raw_ref<ActorKeyedService> actor_service_;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<actor::ActorTabStripTrackerDesktop> tab_strip_tracker_;
 
   // Latest step progress per task. Shown in the cursor chip while acting.
   absl::flat_hash_map<TaskId, std::string> step_progress_;
-#endif
 
   base::RepeatingCallbackList<void(TaskId)>
       actor_task_state_change_callback_list_;

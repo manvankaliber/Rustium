@@ -91,8 +91,7 @@ const char kReceivingEndDoesntExistError[] =
 const char kReceivingEndIncompatibleMessageSerializationFormat[] =
     "Could not establish connection. Receiving end uses different message "
     "serialization format.";
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 const char kMissingPermissionError[] =
     "Access to native messaging requires nativeMessaging permission.";
 const char kProhibitedByPoliciesError[] =
@@ -100,26 +99,6 @@ const char kProhibitedByPoliciesError[] =
     "administrator.";
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr char kUnauthorizedExtensionError[] =
-    "Access to native messaging is unauthorized for this extension.";
-
-// TODO(crbug.com/555299632): Currently native messaging on desktop Android is
-// restricted to allowlisted extensions. This allowlist restriction will be
-// removed once a library is added that would allow external app developers to
-// securely audit the connection between Chrome/extensions and their app.
-constexpr auto kAndroidNativeMessagingAllowedExtensionIds =
-    base::MakeFixedFlatSet<std::string_view>({
-        // gnubbyd-v3 dev
-        "ckcendljdlmgnhghiaomidhiiclmapok",
-        // gnubbyd-v3 prod
-        "lfboplenmmjcmpbkeemecobbadnmpfhi",
-        // Chrome Remote Desktop dev
-        "pbnaomcgbfiofkfobmlhmdobjchjkphi",
-        // Chrome Remote Desktop prod
-        "inomeogfingihgjfjlpeplalcfajhgai",
-    });
-#endif
 
 LazyContextId LazyContextIdFor(content::BrowserContext* browser_context,
                                const Extension* extension) {
@@ -737,8 +716,7 @@ void MessageService::OpenChannelToNativeAppImpl(
   if (!opener_port->IsValidPort())
     return;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   bool has_permission = extension->permissions_data()->HasAPIPermission(
       mojom::APIPermissionID::kNativeMessaging);
 
@@ -747,15 +725,6 @@ void MessageService::OpenChannelToNativeAppImpl(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(
-          extensions_features::
-              kApiDesktopAndroidNativeMessagingBypassExtensionAllowlist) &&
-      !kAndroidNativeMessagingAllowedExtensionIds.contains(extension->id())) {
-    opener_port->DispatchOnDisconnect(kUnauthorizedExtensionError);
-    return;
-  }
-#endif
 
   // Verify that the host is not blocked by policies.
   BrowserContext* source_context = source.browser_context();
@@ -803,7 +772,7 @@ void MessageService::OpenChannelToNativeAppImpl(
   channel->opener->IncrementLazyKeepaliveCount(Activity::MESSAGE_PORT);
 
   AddChannel(std::move(channel), receiver_port_id);
-#else   // !(BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
+#else
         // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID))
   const char kNativeMessagingNotSupportedError[] =
       "Native Messaging is not supported on this platform.";

@@ -3,18 +3,6 @@
 # found in the LICENSE file.
 import("//chrome/common/features.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
-# Target to generate Java enums from C++ headers
-if (is_android) {
-  java_cpp_enum("enums_java") {
-    sources = [ "actor_task.h" ]
-    visibility = [ "//chrome/browser/actor/*" ]
-  }
-}
-
 source_set("actor") {
   public = [
     "actor_actions_runner.h",
@@ -115,19 +103,17 @@ source_set("actor") {
     "//ui/base/unowned_user_data",
   ]
 
-  if (!skip_android_unmigrated_actor_files) {
-    friend = [
-      ":unit_tests",
-      ":browser_tests",
-    ]
-    public += [ "tools/load_and_extract_content_tool_request.h" ]
-    public_deps += [
-      "//chrome/browser/actor/resources:browser_resources",
-      "//chrome/browser/actor/ui:states",
-      "//content/public/browser",
-      "//content/public/common:buildflags",
-    ]
-  }
+  friend = [
+    ":unit_tests",
+    ":browser_tests",
+  ]
+  public += [ "tools/load_and_extract_content_tool_request.h" ]
+  public_deps += [
+    "//chrome/browser/actor/resources:browser_resources",
+    "//chrome/browser/actor/ui:states",
+    "//content/public/browser",
+    "//content/public/common:buildflags",
+  ]
 }
 
 source_set("impl") {
@@ -344,34 +330,23 @@ source_set("impl") {
     "//url",
   ]
 
-  if (is_android) {
-    deps += [
-      "//chrome/browser/actor/android",
-      "//chrome/browser/android:tabs_public",
-      "//chrome/browser/ui/android/tab_model",
-    ]
-  } else {
-    deps += [ "//chrome/browser/password_manager/password_change:features" ]
-  }
+  deps += [ "//chrome/browser/password_manager/password_change:features" ]
 
-  if (!skip_android_unmigrated_actor_files) {
-    sources += [
-      "tools/load_and_extract_content_tool.cc",
-      "tools/load_and_extract_content_tool.h",
-      "tools/load_and_extract_content_tool_request.cc",
-    ]
-    deps += [
-      "//chrome/browser/ui:browser_tabstrip",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/tabs:tab_strip_model_observer",
-    ]
-  }
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_window_header",
-    ]
-  }
+  sources += [
+    "tools/load_and_extract_content_tool.cc",
+    "tools/load_and_extract_content_tool.h",
+    "tools/load_and_extract_content_tool_request.cc",
+  ]
+  deps += [
+    "//chrome/browser/ui:browser_tabstrip",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/tabs:tab_strip_model_observer",
+  ]
+
+  deps += [
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_window_header",
+  ]
 }
 
 # actor_tab_data.cc is split from :impl into an internal source_set with
@@ -553,17 +528,17 @@ source_set("unit_tests") {
     "//third_party/fuzztest",
     "//url",
   ]
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/browser_window/test:test_support",
-      "//chrome/browser/ui/tabs:tab_list_bridge",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/tabs:test_support",
-      "//components/tabs:public",
-      "//content/public/browser",
-    ]
-  }
+
+  deps += [
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/browser_window/test:test_support",
+    "//chrome/browser/ui/tabs:tab_list_bridge",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/tabs:test_support",
+    "//components/tabs:public",
+    "//content/public/browser",
+  ]
+
   data = [ "//tools/metrics/histograms/metadata/actor/histograms.xml" ]
 }
 
@@ -592,14 +567,8 @@ source_set("tools_test_support") {
     "//chrome/test/base:chrome_test_utils",
     "//testing/gtest",
   ]
-  if (is_android) {
-    deps += [
-      "//chrome/browser/actor/android",
-      "//chrome/test:test_support_ui_android",
-    ]
-  } else {
-    deps += [ "//chrome/test/base:in_process_browser_test" ]
-  }
+
+  deps += [ "//chrome/test/base:in_process_browser_test" ]
 }
 
 source_set("browser_tests") {
@@ -618,7 +587,7 @@ source_set("browser_tests") {
     "tools/window_management_tool_browsertest.cc",
   ]
 
-  if (is_win || is_mac || is_linux || is_chromeos) {
+  if (is_win || is_mac || is_linux) {
     sources += [ "page_tool_toctou_popup_browsertest.cc" ]
   }
   deps = [
@@ -670,111 +639,100 @@ source_set("browser_tests") {
     "//ui/base:ozone_buildflags",
   ]
 
-  if (is_android) {
-    deps += [ "//chrome/test:test_support_ui_android" ]
-  } else {
-    deps += [ "//chrome/browser/ui:browser_commands" ]
-    sources += [
-      "actor_keyed_service_browsertest_desktop.cc",
-      "actor_surface_tab_helper_browsertest.cc",
-    ]
-  }
+  deps += [ "//chrome/browser/ui:browser_commands" ]
+  sources += [
+    "actor_keyed_service_browsertest_desktop.cc",
+    "actor_surface_tab_helper_browsertest.cc",
+  ]
 
   if (is_linux) {
     deps += [ "//ui/ozone" ]
   }
 
-  # TODO(crbug.com/482145079): Migrate over history_tool, media_control_tool,
-  # and attempt_form_filling_tool tests once flakiness is resolved.
-  if (!skip_android_unmigrated_actor_files) {
-    sources += [
-      "execution_engine_browsertest.cc",
-      "execution_engine_origin_gating_browsertest.cc",
-      "tab_observation_controller_browsertest.cc",
-      "tools/action_tracker_for_metrics_browsertest.cc",
-      "tools/autofill/attempt_form_filling/attempt_form_filling_tool_browsertest.cc",
-      "tools/bookmark_management_tool_browsertest.cc",
-      "tools/click_tool_browsertest.cc",
-      "tools/drag_and_release_tool_browsertest.cc",
-      "tools/file_upload_tool_browsertest.cc",
-      "tools/find_and_highlight_tool_browsertest.cc",
-      "tools/gemini_panel_tool_browsertest.cc",
-      "tools/history_tool_browsertest.cc",
-      "tools/load_and_extract_content_tool_browsertest.cc",
-      "tools/media_control_tool_browsertest.cc",
-      "tools/mouse_move_tool_browsertest.cc",
-      "tools/navigate_tool_browsertest.cc",
-      "tools/observation_delay_controller_browsertest.cc",
-      "tools/observation_delay_metrics_browsertest.cc",
-      "tools/one_time_token/attempt_otp_filling_tool_browsertest.cc",
-      "tools/page_stability_browsertest.cc",
-      "tools/page_stability_metrics_browsertest.cc",
-      "tools/page_target_util_browsertest.cc",
-      "tools/page_tool_browsertest.cc",
-      "tools/password_manager/change_password/change_password_tool_browsertest.cc",
-      "tools/perform_search_tool_browsertest.cc",
-      "tools/script_tool_browsertest.cc",
-      "tools/scroll_to_tool_browsertest.cc",
-      "tools/scroll_tool_browsertest.cc",
-      "tools/select_tool_browsertest.cc",
-      "tools/site_based_search_tool_browsertest.cc",
-      "tools/tool_agnostic_browsertest.cc",
-      "tools/translate_page_tool_browsertest.cc",
-      "tools/type_tool_browsertest.cc",
-      "tools/uaf_regression_browsertest.cc",
-      "tools/wait_tool_browsertest.cc",
-    ]
-    deps += [
-      "//chrome/browser/autofill",
-      "//chrome/browser/download:test_support",
-      "//chrome/browser/glic",
-      "//chrome/browser/page_content_annotations:extraction_service",
-      "//chrome/browser/translate:test_support",
-      "//chrome/browser/ui/views:file_system_access_test_support",
-      "//components/autofill/core/browser:test_support",
-      "//components/autofill/core/browser/actor:test_support",
-      "//components/page_content_annotations/content",
-      "//components/translate/core/browser",
-      "//components/translate/core/common",
-    ]
-  }
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-    ]
-  }
+  sources += [
+    "execution_engine_browsertest.cc",
+    "execution_engine_origin_gating_browsertest.cc",
+    "tab_observation_controller_browsertest.cc",
+    "tools/action_tracker_for_metrics_browsertest.cc",
+    "tools/autofill/attempt_form_filling/attempt_form_filling_tool_browsertest.cc",
+    "tools/bookmark_management_tool_browsertest.cc",
+    "tools/click_tool_browsertest.cc",
+    "tools/drag_and_release_tool_browsertest.cc",
+    "tools/file_upload_tool_browsertest.cc",
+    "tools/find_and_highlight_tool_browsertest.cc",
+    "tools/gemini_panel_tool_browsertest.cc",
+    "tools/history_tool_browsertest.cc",
+    "tools/load_and_extract_content_tool_browsertest.cc",
+    "tools/media_control_tool_browsertest.cc",
+    "tools/mouse_move_tool_browsertest.cc",
+    "tools/navigate_tool_browsertest.cc",
+    "tools/observation_delay_controller_browsertest.cc",
+    "tools/observation_delay_metrics_browsertest.cc",
+    "tools/one_time_token/attempt_otp_filling_tool_browsertest.cc",
+    "tools/page_stability_browsertest.cc",
+    "tools/page_stability_metrics_browsertest.cc",
+    "tools/page_target_util_browsertest.cc",
+    "tools/page_tool_browsertest.cc",
+    "tools/password_manager/change_password/change_password_tool_browsertest.cc",
+    "tools/perform_search_tool_browsertest.cc",
+    "tools/script_tool_browsertest.cc",
+    "tools/scroll_to_tool_browsertest.cc",
+    "tools/scroll_tool_browsertest.cc",
+    "tools/select_tool_browsertest.cc",
+    "tools/site_based_search_tool_browsertest.cc",
+    "tools/tool_agnostic_browsertest.cc",
+    "tools/translate_page_tool_browsertest.cc",
+    "tools/type_tool_browsertest.cc",
+    "tools/uaf_regression_browsertest.cc",
+    "tools/wait_tool_browsertest.cc",
+  ]
+  deps += [
+    "//chrome/browser/autofill",
+    "//chrome/browser/download:test_support",
+    "//chrome/browser/glic",
+    "//chrome/browser/page_content_annotations:extraction_service",
+    "//chrome/browser/translate:test_support",
+    "//chrome/browser/ui/views:file_system_access_test_support",
+    "//components/autofill/core/browser:test_support",
+    "//components/autofill/core/browser/actor:test_support",
+    "//components/page_content_annotations/content",
+    "//components/translate/core/browser",
+    "//components/translate/core/common",
+  ]
+
+  deps += [
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+  ]
 }
 
-if (!skip_android_unmigrated_actor_files) {
-  source_set("interactive_ui_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [
-      "tools/click_tool_interactive_ui_test.cc",
-      "tools/password_manager/attempt_login/attempt_login_tool_interactive_ui_test.cc",
-      "tools/select_tool_interactive_ui_test.cc",
-    ]
-    deps = [
-      ":actor",
-      ":impl",
-      ":test_support",
-      ":tools_test_support",
-      "//chrome/browser/glic",
-      "//chrome/browser/glic/test_support",
-      "//chrome/browser/optimization_guide:test_support",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:ui_features",
-      "//chrome/browser/ui/views/toolbar:test_support",
-      "//components/favicon/core/test:test_support",
-      "//content/test:browsertest_support",
-      "//content/test:test_support",
-      "//pdf:features",
-      "//testing/gtest",
-      "//ui/base/interaction:test_support",
-    ]
-    if (is_linux) {
-      deps += [ "//ui/ozone" ]
-    }
+source_set("interactive_ui_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [
+    "tools/click_tool_interactive_ui_test.cc",
+    "tools/password_manager/attempt_login/attempt_login_tool_interactive_ui_test.cc",
+    "tools/select_tool_interactive_ui_test.cc",
+  ]
+  deps = [
+    ":actor",
+    ":impl",
+    ":test_support",
+    ":tools_test_support",
+    "//chrome/browser/glic",
+    "//chrome/browser/glic/test_support",
+    "//chrome/browser/optimization_guide:test_support",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:ui_features",
+    "//chrome/browser/ui/views/toolbar:test_support",
+    "//components/favicon/core/test:test_support",
+    "//content/test:browsertest_support",
+    "//content/test:test_support",
+    "//pdf:features",
+    "//testing/gtest",
+    "//ui/base/interaction:test_support",
+  ]
+  if (is_linux) {
+    deps += [ "//ui/ozone" ]
   }
 }

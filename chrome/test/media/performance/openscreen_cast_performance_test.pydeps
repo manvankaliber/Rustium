@@ -13,14 +13,14 @@
 ../../../../build/util/lib/results/__init__.py
 ../../../../build/util/lib/results/result_sink.py
 ../../../../build/util/lib/results/result_types.py
+camera.py
 common.py
 cros_setup.py
 media_metrics.py
 openscreen_cast_performance_test.py
 perf_config.py
 remote_transport.py
-senders.py
-camera.py
 repeating_log.py
+senders.py
 server.py
 video_analyzer.py

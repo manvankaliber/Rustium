@@ -2,24 +2,39 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//build/config/android/jdk.gni")
+# Java tools are also used by desktop development tools and remote actions.
+jdk_home = "//third_party/jdk/current"
+if (host_os == "mac") {
+  jdk_home += "/Contents/Home"
+}
 
 config("jdk") {
-  include_dirs = [ "$android_jdk_home/include" ]
+  include_dirs = [ "$jdk_home/include" ]
   if (host_os == "mac") {
-    include_dirs += [ "$android_jdk_home/include/darwin" ]
+    include_dirs += [ "$jdk_home/include/darwin" ]
+  } else if (host_os == "win") {
+    include_dirs += [ "$jdk_home/include/win32" ]
   } else {
-    include_dirs += [ "$android_jdk_home/include/linux" ]
+    include_dirs += [ "$jdk_home/include/linux" ]
   }
 }
 
 group("java_data") {
-  data = [
-    "$android_jdk_home/bin/java",
-    "$android_jdk_home/bin/java.chromium",
-    "$android_jdk_home/bin/jcmd",
-    "$android_jdk_home/conf/",
-    "$android_jdk_home/lib/",
-    "//build/android/java_home.py",
+  if (host_os == "win") {
+    data = [
+      "$jdk_home/bin/java.exe",
+      "$jdk_home/bin/jcmd.exe",
+    ]
+  } else {
+    data = [
+      "$jdk_home/bin/java",
+      "$jdk_home/bin/java.chromium",
+      "$jdk_home/bin/jcmd",
+    ]
+  }
+  data += [
+    "//build/java_home.py",
+    "$jdk_home/conf/",
+    "$jdk_home/lib/",
   ]
 }

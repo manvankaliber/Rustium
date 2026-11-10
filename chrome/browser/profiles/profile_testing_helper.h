@@ -33,25 +33,9 @@ class ProfileTestingHelper {
   TestingProfile* guest_profile() { return guest_profile_; }
   Profile* guest_profile_otr() { return guest_profile_otr_; }
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
   TestingProfile* system_profile() { return system_profile_; }
   Profile* system_profile_otr() { return system_profile_otr_; }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  TestingProfile* signin_profile() { return signin_profile_; }
-  Profile* signin_profile_otr() { return signin_profile_otr_; }
-
-  TestingProfile* lockscreen_profile() { return lockscreen_profile_; }
-  Profile* lockscreen_profile_otr() { return lockscreen_profile_otr_; }
-
-  TestingProfile* shimless_rma_app_profile() {
-    return shimless_rma_app_profile_;
-  }
-  Profile* shimless_rma_app_profile_otr() {
-    return shimless_rma_app_profile_otr_;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
  private:
   base::test::ScopedFeatureList scoped_feature_list_;
@@ -67,21 +51,9 @@ class ProfileTestingHelper {
   raw_ptr<TestingProfile> guest_profile_ = nullptr;
   raw_ptr<Profile> guest_profile_otr_ = nullptr;
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
   raw_ptr<TestingProfile> system_profile_ = nullptr;
   raw_ptr<Profile> system_profile_otr_ = nullptr;
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  raw_ptr<TestingProfile> signin_profile_ = nullptr;
-  raw_ptr<Profile> signin_profile_otr_ = nullptr;
-
-  raw_ptr<TestingProfile> lockscreen_profile_ = nullptr;
-  raw_ptr<Profile> lockscreen_profile_otr_ = nullptr;
-
-  raw_ptr<TestingProfile> shimless_rma_app_profile_ = nullptr;
-  raw_ptr<Profile> shimless_rma_app_profile_otr_ = nullptr;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 };
 
 #endif  // CHROME_BROWSER_PROFILES_PROFILE_TESTING_HELPER_H_

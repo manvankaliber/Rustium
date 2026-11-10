@@ -28,22 +28,9 @@ const base::FeatureParam<::features::CapturingState>
         ::features::CapturingState::kReimplDefaultOn,
         &kNavigationCapturingTestingOverrideParams};
 
-#if BUILDFLAG(IS_CHROMEOS)
-BASE_FEATURE(kRespectUserLinkCapturingChoiceOnChromeOS,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-bool ShouldRespectRecordedLinkCapturingChoice() {
-  return base::FeatureList::IsEnabled(
-      kRespectUserLinkCapturingChoiceOnChromeOS);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool ShouldShowLinkCapturingUX() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return true;
-#else
   return base::FeatureList::IsEnabled(::features::kPwaNavigationCapturing);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 ::features::CapturingState GetNavigationCapturingDefaultState() {

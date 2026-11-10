@@ -83,37 +83,6 @@ TEST(FileInputTypeTest, createFileList) {
   EXPECT_EQ(base::Time::kMillisecondsPerDay + 3, list->item(1)->lastModified());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST(FileInputTypeTest, createFileListContentUri) {
-  test::TaskEnvironment task_environment;
-
-  for (const bool virtual_document_path : {false, true}) {
-    const std::string_view base_dir = virtual_document_path
-                                          ? "/SAF/authority/tree/id-base"
-                                          : "content://authority/id-base";
-    const String path = virtual_document_path
-                            ? "/SAF/authority/tree/id-base/123"
-                            : "content://authority/id-123";
-
-    FileChooserFileInfoList files;
-
-    files.push_back(CreateFileChooserFileInfoNative(
-        path, "display-name", Vector<String>({"base", "subdir"})));
-
-    ScopedNullExecutionContext execution_context;
-    FileList* list =
-        FileInputType::CreateFileList(execution_context.GetExecutionContext(),
-                                      files, base::FilePath(base_dir));
-    ASSERT_TRUE(list);
-    ASSERT_EQ(1u, list->length());
-
-    EXPECT_EQ(path, list->item(0)->GetPath());
-    EXPECT_EQ("display-name", list->item(0)->name());
-    EXPECT_EQ("base/subdir/display-name", list->item(0)->webkitRelativePath());
-    EXPECT_TRUE(list->item(0)->FileSystemURL().IsEmpty());
-  }
-}
-#endif
 
 TEST(FileInputTypeTest, ignoreDroppedNonNativeFiles) {
   test::TaskEnvironment task_environment;

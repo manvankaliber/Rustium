@@ -35,9 +35,6 @@
 #if BUILDFLAG(IS_WIN)
 #include "media/gpu/windows/mf_video_encoder_switches.h"
 #endif  // BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_ANDROID)
-#include "media/gpu/android/ndk_media_codec_wrapper.h"
-#endif
 
 namespace media {
 namespace test {
@@ -169,13 +166,6 @@ class VideoEncoderTest : public ::testing::Test {
   }
 
   void SetUp() override {
-#if BUILDFLAG(IS_ANDROID)
-    if (__builtin_available(android NDK_MEDIA_CODEC_MIN_API, *)) {
-      // Negation results in compiler warning.
-    } else {
-      GTEST_SKIP() << "Not supported Android version";
-    }
-#endif
   }
 
  private:
@@ -460,7 +450,6 @@ TEST_F(VideoEncoderTest, KeyFrameOnFirstFrameOfGOP) {
 #endif  // BUILDFLAG(IS_WIN)
 
 // Test forcing key frame to the first and second frames.
-#if !BUILDFLAG(IS_ANDROID)
 // Forcing keyframe is best-effort on Android and having 2 keyframes in a
 // row is often not possible.
 TEST_F(VideoEncoderTest, ForceTheFirstAndSecondKeyFrames) {
@@ -493,7 +482,6 @@ TEST_F(VideoEncoderTest, ForceTheFirstAndSecondKeyFrames) {
   EXPECT_EQ(encoder->GetFrameReleasedCount(), config.num_frames_to_encode);
   EXPECT_TRUE(encoder->WaitForBitstreamProcessors());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Execute Flush() in the middle of encoding. Supporting this is required for
 // Flush() and ChabgeOptions() in media::VideoEncoder API.
@@ -595,12 +583,7 @@ TEST_F(VideoEncoderTest, BitrateCheck) {
 
   auto encoder = CreateVideoEncoder(g_env->Video(), config);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Software encoders on Android are less accurate at rate control.
-  const double kBitrateTolerance = 0.5;
-#else
   const double kBitrateTolerance = 0.15;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   const double tolerance =
       vbr_encoding ? kVariableBitrateTolerance : kBitrateTolerance;
@@ -746,7 +729,7 @@ TEST_F(VideoEncoderTest, DesktopDropFrameCheck) {
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 // TODO(https://crbugs.com/350994517): NV12 DMABuf test does not apply to
 // Windows. There should be similar test for this with NV12 DXGI buffers added.
 TEST_F(VideoEncoderTest, FlushAtEndOfStream_NV12Dmabuf) {
@@ -913,7 +896,7 @@ TEST_F(VideoEncoderTest, FlushAtEndOfStream_NV12DmabufCroppingRightAndLeft) {
   EXPECT_EQ(encoder->GetFrameReleasedCount(), nv12_expanded_video->NumFrames());
   EXPECT_TRUE(encoder->WaitForBitstreamProcessors());
 }
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#endif
 
 // This tests deactivate and activating spatial layers during encoding.
 TEST_F(VideoEncoderTest, DeactivateAndActivateSpatialLayers) {
@@ -921,12 +904,12 @@ TEST_F(VideoEncoderTest, DeactivateAndActivateSpatialLayers) {
   if (spatial_layers.size() <= 1)
     GTEST_SKIP() << "Skip (de)activate spatial layers test for simple encoding";
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   RawVideo* video = g_env->GenerateNV12Video();
 #else
   // TODO(b/211783271): Add support for I420 SHM input.
   RawVideo* video = g_env->Video();
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#endif
 
   const size_t bottom_spatial_idx = 0;
   const size_t top_spatial_idx = spatial_layers.size() - 1;
@@ -969,14 +952,14 @@ TEST_F(VideoEncoderTest, DeactivateAndActivateSpatialLayers) {
       g_env->InterLayerPredMode(), g_env->ContentType(),
       g_env->BitrateAllocation(), g_env->Reverse());
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   config.input_storage_type =
       VideoEncodeAccelerator::Config::StorageType::kGpuMemoryBuffer;
 #else
   // TODO(https://crbugs.com/350994517): Enable GMB for Windows.
   config.input_storage_type =
       VideoEncodeAccelerator::Config::StorageType::kShmem;
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#endif
 
   std::vector<size_t> num_frames_to_encode(bitrate_allocations.size());
   for (size_t i = 0; i < num_frames_to_encode.size(); ++i)
@@ -1160,9 +1143,6 @@ int main(int argc, char** argv) {
     }
   }
 
-#if defined(ARCH_CPU_X86_FAMILY) && BUILDFLAG(IS_CHROMEOS)
-  enabled_features.push_back(media::kVaapiH264SWBitrateController);
-#endif  // defined(ARCH_CPU_X86_FAMILY) && BUILDFLAG(IS_CHROMEOS)
   disabled_features.push_back(media::kGlobalVaapiLock);
 
   testing::InitGoogleTest(&argc, argv);

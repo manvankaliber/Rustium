@@ -93,14 +93,6 @@ BrowserControlsMetadata BrowserControlsOffsetManagerInterface::GetMetadata()
   metadata.top_controls_height = TopControlsHeight();
   metadata.top_controls_shown_ratio =
       std::clamp(TopControlsShownRatio(), 0.0f, 1.0f);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  metadata.bottom_controls_height = BottomControlsHeight();
-  metadata.bottom_controls_shown_ratio =
-      std::clamp(BottomControlsShownRatio(), 0.0f, 1.0f);
-  metadata.top_controls_min_height_offset = TopControlsMinHeightOffset();
-  metadata.bottom_controls_min_height_offset = BottomControlsMinHeightOffset();
-  metadata.has_offset_tag = !offset_tag_modifications_.tags.IsEmpty();
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
   return metadata;
 }
 

@@ -8,8 +8,6 @@
 #include <cstring>
 #include <optional>
 #include <string>
-
-#include "base/android/android_info.h"
 #include "base/base_paths.h"
 #include "base/command_line.h"
 #include "base/debug/dump_without_crashing.h"
@@ -84,9 +82,6 @@
 #endif
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/gfx/android/android_surface_control_compat.h"
-#endif
 
 #if BUILDFLAG(ENABLE_VULKAN)
 #include "gpu/vulkan/init/vulkan_factory.h"
@@ -109,9 +104,6 @@
 #include "third_party/dawn/include/dawn/webgpu_cpp.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(SKIA_USE_DAWN) && BUILDFLAG(IS_CHROMEOS)
-#include "gpu/command_buffer/service/drm_modifiers_filter_dawn.h"
-#endif
 
 namespace gpu {
 
@@ -162,14 +154,9 @@ void InitializePlatformOverlaySettings(GPUInfo* gpu_info,
 
   DCHECK(gpu_info);
   CollectHardwareOverlayInfo(&gpu_info->overlay_info);
-#elif BUILDFLAG(IS_ANDROID)
-  if (gpu_info->gpu.vendor_string.find("Qualcomm") != std::string::npos) {
-    gfx::SurfaceControl::EnableQualcommUBWC();
-  }
 #endif  // BUILDFLAG(IS_WIN)
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CASTOS)
 bool CanAccessDeviceFile(const GPUInfo& gpu_info) {
 #if BUILDFLAG(IS_LINUX)
   if (gpu_info.gpu.vendor_id != 0x10de ||  // NVIDIA
@@ -188,7 +175,6 @@ bool CanAccessDeviceFile(const GPUInfo& gpu_info) {
   return true;
 #endif  // BUILDFLAG(IS_LINUX)
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CASTOS)
 
 class GpuWatchdogInit {
  public:
@@ -232,21 +218,6 @@ void DisableInProcessGpuVulkan(GpuFeatureInfo* gpu_feature_info,
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(https://crbug.com/324468229): We currently do not handle Dawn device
-// lost with in-process-gpu.
-void DisableInProcessGpuGraphite(GpuFeatureInfo& gpu_feature_info,
-                                 GpuPreferences& gpu_preferences) {
-  if (gpu_feature_info.IsFeatureEnabled(GPU_FEATURE_TYPE_SKIA_GRAPHITE)) {
-    DCHECK(gpu_preferences.gr_context_type == GrContextType::kGraphiteDawn ||
-           gpu_preferences.gr_context_type == GrContextType::kGraphiteVulkan);
-    LOG(ERROR) << "Graphite not supported with in process gpu";
-    gpu_feature_info.status_values[GPU_FEATURE_TYPE_SKIA_GRAPHITE] =
-        kGpuFeatureStatusDisabled;
-    gpu_preferences.gr_context_type = GrContextType::kGL;
-  }
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_VULKAN)
 bool MatchGLInfo(const std::string& field, const std::string& patterns) {
@@ -439,9 +410,6 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
     base::CommandLine* command_line,
     const GpuPreferences& gpu_preferences) {
   TRACE_EVENT("gpu,startup", "gpu::GpuInit::InitializeAndStartSandbox");
-#if BUILDFLAG(IS_CHROMEOS)
-  LOG(WARNING) << "Starting gpu initialization.";
-#endif  //  BUILDFLAG(IS_CHROMEOS)
   gpu_preferences_ = gpu_preferences;
 
   // Record the number of recent GPU process crashes as a crash key so that it
@@ -456,7 +424,6 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
   // need more context based GPUInfo. In such situations, switching to
   // SwiftShader needs to wait until creating a context.
   bool needs_more_info = true;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CASTOS)
   needs_more_info = false;
   CollectBasicGraphicsInfo(command_line, &gpu_info_);
 
@@ -488,7 +455,6 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   SetupGLDisplayManagerEGL(gpu_info_, gpu_feature_info_);
 #endif  // IS_WIN || IS_MAC
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CASTOS)
 
   GpuDriverBugWorkarounds workarounds(
       gpu_feature_info_.enabled_gpu_driver_bug_workarounds);
@@ -508,15 +474,15 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
   enable_watchdog = false;
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   bool gpu_sandbox_start_early = gpu_preferences_.gpu_sandbox_start_early;
-#else   // !(BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS))
+#else
   // For some reasons MacOSX's VideoToolbox might crash when called after
   // initializing GL, see crbug.com/1047643 and crbug.com/871280. On other
   // operating systems like Windows and Android the pre-sandbox steps have
   // always been executed before initializing GL so keep it this way.
   bool gpu_sandbox_start_early = true;
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   // PreSandbox is mainly for resource handling and not related to the GPU
   // driver, it doesn't need the GPU watchdog. The loadLibrary may take long
@@ -534,7 +500,7 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
 
   // Don't start watchdog immediately, to allow developers to switch to VT2 on
   // startup.
-  constexpr bool delayed_watchdog_enable = BUILDFLAG(IS_CHROMEOS);
+  constexpr bool delayed_watchdog_enable = false;
 
   // Start the GPU watchdog only after anything that is expected to be time
   // consuming has completed, otherwise the process is liable to be aborted.
@@ -547,7 +513,7 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
   }
 
   bool attempted_startsandbox = false;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // On Chrome OS ARM Mali, GPU driver userspace creates threads when
   // initializing a GL context, so start the sandbox early.
   // TODO(zmo): Need to collect OS version before this.
@@ -556,7 +522,7 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
         watchdog_thread_.get(), &gpu_info_, gpu_preferences_);
     attempted_startsandbox = true;
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_OZONE)
   // Initialize Ozone GPU after the watchdog in case it hangs. The sandbox
@@ -566,9 +532,6 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
   params.enable_native_gpu_memory_buffers =
       gpu_preferences_.enable_native_gpu_memory_buffers;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  params.allow_sync_and_real_buffer_page_flip_testing = true;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   ui::OzonePlatform::InitializeForGPU(params);
 #endif  // BUILDFLAG(IS_OZONE)
 
@@ -590,7 +553,7 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
     }
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // The ContentSandboxHelper is currently the only one implementation of
   // GpuSandboxHelper and it has no dependency. Except on Linux where
   // VaapiWrapper checks the GL implementation to determine which display
@@ -602,7 +565,7 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
     sandbox_helper_->PreSandboxStartup(gpu_preferences, workarounds,
                                        &gpu_info_);
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   ResumeGpuWatchdog(watchdog_thread_.get());
 
@@ -623,17 +586,6 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
   gpu_preferences_.use_passthrough_cmd_decoder = true;
 #endif  // BUILDFLAG(ENABLE_VALIDATING_COMMAND_DECODER)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // TODO(b/233238923): While passthrough is rolling out on CrOS, it's useful
-  // to know whether a bug report is for a session with passthrough enabled.
-  // Remove this logging when passthrough is fully launched on CrOS.
-  if (gpu_preferences_.use_passthrough_cmd_decoder) {
-    LOG(WARNING)
-        << "Using passthrough command decoder. NOTE: This log is "
-        << "to help triage feedback reports and does not by itself mean there "
-        << "is an issue.";
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // We need to collect GL strings (VENDOR, RENDERER) for blocklisting purposes.
   if (!gl_disabled) {
@@ -859,7 +811,7 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
     }
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Driver may create a compatibility profile context when collect graphics
   // information on Linux platform. Try to collect graphics information
   // based on core profile context after disabling platform extensions.
@@ -879,7 +831,7 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
       return false;
     }
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_OZONE)
   // We need to get supported formats before sandboxing to avoid an known
@@ -934,8 +886,7 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
       }
     }
   }
-#if BUILDFLAG(IS_LINUX) || \
-    (BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_CHROMEOS_DEVICE))
+#if BUILDFLAG(IS_LINUX)
   if (!gl_disabled && !gl_use_swiftshader_ && std::getenv("RUNNING_UNDER_RR")) {
     // https://rr-project.org/ is a Linux-only record-and-replay debugger that
     // is unhappy when things like GPU drivers write directly into the
@@ -946,7 +897,7 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
       recreate_watchdog = true;
     }
   }
-#endif  // IS_LINUX || (IS_CHROMEOS && !IS_CHROMEOS_DEVICE)
+#endif
   gpu_info_.gl_implementation_parts = gl::GetGLImplementationParts();
   bool software_rendering = false;
   if (gl_use_swiftshader_ ||
@@ -979,19 +930,10 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
     if (!InitializeDawn()) {
       auto& graphite_feature =
           gpu_feature_info_.status_values[GPU_FEATURE_TYPE_SKIA_GRAPHITE];
-#if BUILDFLAG(IS_ANDROID)
-      // On Android it's expected most users don't support Vulkan so dawn
-      // initialization will fail. Immediately fallback to Ganesh/GL for those
-      // users to avoid regressing startup time.
-      if (graphite_feature == kGpuFeatureStatusEnabled) {
-        graphite_feature = kGpuFeatureStatusDisabled;
-      }
-#else
       if (graphite_feature == kGpuFeatureStatusEnabled) {
         return false;
       }
       // SkiaGraphite is disabled by software_rendering_list.json
-#endif  // BUILDFLAG(IS_ANDROID)
       gpu_preferences_.gr_context_type = GrContextType::kGL;
     }
   } else if (gpu_preferences_.gr_context_type ==
@@ -1055,14 +997,6 @@ bool GpuInitLegacy::InitializeAndStartSandbox(
     filter_set = true;
   }
 #endif  // BUILDFLAG(ENABLE_VULKAN)
-#if BUILDFLAG(SKIA_USE_DAWN) && BUILDFLAG(IS_CHROMEOS)
-  if (dawn_context_provider_ && factory->SupportsDrmModifiersFilter()) {
-    CHECK(!filter_set);
-    factory->SetDrmModifiersFilter(std::make_unique<DrmModifiersFilterDawn>(
-        dawn_context_provider_->GetDevice().GetAdapter()));
-    filter_set = true;
-  }
-#endif  // BUILDFLAG(SKIA_USE_DAWN) && BUILDFLAG(IS_CHROMEOS)
 #endif  // BUILDFLAG(IS_OZONE)
 
   RecordUMA();
@@ -1088,57 +1022,15 @@ void GpuInitLegacy::InitializeInProcess(base::CommandLine* command_line,
   gpu_preferences_ = gpu_preferences;
   init_successful_ = true;
 
-#if BUILDFLAG(IS_ANDROID)
-  DCHECK(!EnableSwiftShaderIfNeeded(
-      command_line, gpu_feature_info_,
-      gpu_preferences_.disable_software_rasterizer, false));
-
-  gl::GLDisplay* gl_display = InitializeGLThreadSafe(
-      command_line, gpu_preferences_, &gpu_info_, &gpu_feature_info_);
-
-  if (!gl_display) {
-    LOG(FATAL) << "gpu::InitializeGLThreadSafe() failed.";
-  }
-
-  if (command_line->HasSwitch(switches::kWebViewDrawFunctorUsesVulkan)) {
-    if (gpu_feature_info_.status_values[GPU_FEATURE_TYPE_SKIA_GRAPHITE] ==
-        kGpuFeatureStatusEnabled) {
-      gpu_feature_info_.status_values[GPU_FEATURE_TYPE_SKIA_GRAPHITE] =
-          kGpuFeatureStatusDisabled;
-    }
-    gpu_feature_info_.status_values[GPU_FEATURE_TYPE_VULKAN] =
-        kGpuFeatureStatusEnabled;
-    gpu_preferences_.gr_context_type = GrContextType::kVulkan;
-    bool result = InitializeVulkan();
-    // There is no fallback for webview.
-    CHECK(result);
-  } else {
-    // Try to fall back to a valid GrContextType after GpuFeatureInfo is
-    // computed.
-    if (!TryFallbackGrContextTypesIfNeeded(gpu_feature_info_, gpu_preferences_,
-                                           gpu_info_, command_line)) {
-      LOG(FATAL) << "All gr_context_type fallbacks exhausted";
-    }
-    DisableInProcessGpuVulkan(&gpu_feature_info_, &gpu_preferences_);
-    DisableInProcessGpuGraphite(gpu_feature_info_, gpu_preferences_);
-  }
-
-  default_offscreen_surface_ =
-      gl::init::CreateOffscreenGLSurface(gl_display, gfx::Size());
-#else  // !BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_OZONE)
   ui::OzonePlatform::InitParams params;
   params.single_process = true;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  params.allow_sync_and_real_buffer_page_flip_testing = true;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   ui::OzonePlatform::InitializeForGPU(params);
 #endif  // BUILDFLAG(IS_OZONE)
 
   bool needs_more_info = true;
 
-#if !BUILDFLAG(IS_CASTOS) && !BUILDFLAG(IS_CAST_ANDROID)
   needs_more_info = false;
   CollectBasicGraphicsInfo(command_line, &gpu_info_);
 #if defined(SUBPIXEL_FONT_RENDERING_DISABLED)
@@ -1148,7 +1040,6 @@ void GpuInitLegacy::InitializeInProcess(base::CommandLine* command_line,
 #endif  // defined(SUBPIXEL_FONT_RENDERING_DISABLED)
   gpu_feature_info_ = ComputeGpuFeatureInfo(gpu_info_, gpu_preferences_,
                                             command_line, &needs_more_info);
-#endif  // !BUILDFLAG(IS_CASTOS) && !BUILDFLAG(IS_CAST_ANDROID)
 
   gl::GLDisplay* gl_display = nullptr;
 
@@ -1164,8 +1055,7 @@ void GpuInitLegacy::InitializeInProcess(base::CommandLine* command_line,
   }
   bool gl_disabled = gl::GetGLImplementation() == gl::kGLImplementationDisabled;
 
-#if BUILDFLAG(IS_LINUX) || \
-    (BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_CHROMEOS_DEVICE))
+#if BUILDFLAG(IS_LINUX)
   if (!gl_disabled && !gl_use_swiftshader_ && std::getenv("RUNNING_UNDER_RR")) {
     // https://rr-project.org/ is a Linux-only record-and-replay debugger that
     // is unhappy when things like GPU drivers write directly into the
@@ -1173,7 +1063,7 @@ void GpuInitLegacy::InitializeInProcess(base::CommandLine* command_line,
     // happen and keeps Chrome and linux-chromeos usable with rr.
     gl_use_swiftshader_ = true;
   }
-#endif  // IS_LINUX || (IS_CHROMEOS && !IS_CHROMEOS_DEVICE)
+#endif
   gpu_info_.gl_implementation_parts = gl::GetGLImplementationParts();
 
   if (!gl_disabled && !gl_use_swiftshader_) {
@@ -1220,7 +1110,7 @@ void GpuInitLegacy::InitializeInProcess(base::CommandLine* command_line,
     }
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Driver may create a compatibility profile context when collect graphics
   // information on Linux platform. Try to collect graphics information
   // based on core profile context after disabling platform extensions.
@@ -1244,7 +1134,7 @@ void GpuInitLegacy::InitializeInProcess(base::CommandLine* command_line,
       }
     }
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   if (gl_use_swiftshader_) {
     AdjustInfoToSwiftShader();
@@ -1275,10 +1165,8 @@ void GpuInitLegacy::InitializeInProcess(base::CommandLine* command_line,
     LOG(FATAL) << "All gr_context_type fallbacks exhausted";
   }
   DisableInProcessGpuVulkan(&gpu_feature_info_, &gpu_preferences_);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   InitializeDawnProcs();
-#if !BUILDFLAG(IS_ANDROID)
   if (gpu_preferences_.gr_context_type == GrContextType::kGraphiteDawn) {
     if (!InitializeDawn()) {
       if (gpu_feature_info_.status_values[GPU_FEATURE_TYPE_SKIA_GRAPHITE] !=
@@ -1290,7 +1178,6 @@ void GpuInitLegacy::InitializeInProcess(base::CommandLine* command_line,
       }
     }
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   SetSkiaBackendType();
   RecordUMA();
@@ -1303,11 +1190,9 @@ void GpuInitLegacy::RecordUMA() {
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CASTOS)
   IntelGpuSeriesType intel_gpu_series_type = GetIntelGpuSeriesType(
       gpu_info_.active_gpu().vendor_id, gpu_info_.active_gpu().device_id);
   UMA_HISTOGRAM_ENUMERATION("GPU.IntelGpuSeriesType", intel_gpu_series_type);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CASTOS)
 
   UMA_HISTOGRAM_ENUMERATION("GPU.GLImplementation", gl::GetGLImplementation());
 
@@ -1397,40 +1282,7 @@ bool GpuInitLegacy::InitializeDawn() {
     return false;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  auto validate_adapter_fn = [this](wgpu::BackendType backend_type,
-                                    wgpu::Adapter adapter) {
-    if (backend_type == wgpu::BackendType::Vulkan) {
-      // Check if the GPU and driver version are suitable for using Vulkan
-      // based hardware acceleration.
-      wgpu::AdapterInfo adapter_info;
-      wgpu::AdapterPropertiesVk adapter_properties_vk;
-      adapter_info.nextInChain = &adapter_properties_vk;
-      adapter.GetInfo(&adapter_info);
-
-      VulkanPhysicalDeviceProperties device_properties;
-      device_properties.device_name = adapter_info.device;
-      device_properties.vendor_id = adapter_info.vendorID;
-      device_properties.device_id = adapter_info.deviceID;
-      device_properties.driver_version = adapter_properties_vk.driverVersion;
-
-      if (!CheckVulkanCompatibilities(device_properties, gpu_info_)) {
-        return false;
-      }
-
-      gpu_info_.hardware_supports_vulkan = true;
-
-      // Limit the use of Vulkan's vendorID and deviceID to Android. This is
-      // because other platforms, for example, Linux, collect such information
-      // somewhere else and we don't want to overwrite it.
-      gpu_info_.gpu.vendor_id = device_properties.vendor_id;
-      gpu_info_.gpu.device_id = device_properties.device_id;
-    }
-    return true;
-  };
-#else
   auto validate_adapter_fn = DawnContextProvider::DefaultValidateAdapterFn;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   static BASE_FEATURE(kGraphiteDawnReportWorkerTaskProgressToWatchdog,
                       base::FEATURE_ENABLED_BY_DEFAULT);
@@ -1528,10 +1380,6 @@ bool GpuInitLegacy::InitializeVulkan() {
   // Limit the use of Vulkan's vendorID and deviceID to Android.
   // This is because other platforms, for example, Linux, collect such
   // information somewhere else and we don't want to overwrite it.
-#if BUILDFLAG(IS_ANDROID)
-  gpu_info_.gpu.vendor_id = device_properties.vendor_id;
-  gpu_info_.gpu.device_id = device_properties.device_id;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   return true;
 #else   // !BUILDFLAG(ENABLE_VULKAN)

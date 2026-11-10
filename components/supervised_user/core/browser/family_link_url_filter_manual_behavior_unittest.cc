@@ -67,14 +67,12 @@ TEST_F(FamilyLinkUrlFilterManualBehaviorTest,
                   ->GetFilteringBehavior(GURL("http://example.com"))
                   .IsBlocked());
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // ChromeOS doesn't support signing out of supervised accounts.
   test_env().DisableSupervisedAccount();
   EXPECT_FALSE(IsSubjectToParentalControls(*test_env().pref_service()));
   EXPECT_FALSE(under_test()
                    ->GetFilteringBehavior(GURL("http://example.com"))
                    .IsBlocked());
-#endif
 }
 
 // Tests that allowing all site navigation is applied to supervised users.

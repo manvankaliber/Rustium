@@ -3,12 +3,12 @@
 # found in the LICENSE file.
 
 import("//build/buildflag_header.gni")
-import("//build/config/android/config.gni")
+
 import("//build/config/c++/c++.gni")
 import("//build/config/c++/modules.gni")
 import("//build/config/cast.gni")
 import("//build/config/chrome_build.gni")
-import("//build/config/chromeos/args.gni")
+
 import("//build/config/clang/clang.gni")
 import("//build/config/compiler/compiler.gni")
 import("//build/config/compiler_cpu_abi.gn")
@@ -36,9 +36,6 @@ if (current_cpu == "mipsel" || current_cpu == "mips64el" ||
 if (is_mac) {
   import("//build/config/apple/symbols.gni")
 }
-if (is_ios) {
-  import("//build/config/ios/ios_sdk.gni")
-}
 
 # Normally, clang will find the correct LLD binary to invoke without needing
 # -B to be passed. For cases where this does not give the correct result,
@@ -54,10 +51,6 @@ declare_args() {
 }
 
 declare_args() {
-  # Normally, Android builds are lightly optimized, even for debug builds, to
-  # keep binary size down. Setting this flag to true disables such optimization
-  android_full_debug = false
-
   # Compile in such a way as to make it possible for the profiler to unwind full
   # stack frames. Setting this flag has a large effect on the performance of the
   # generated code than just setting profiling, but gives the profiler more
@@ -94,19 +87,11 @@ declare_args() {
   # We currently only have default profiles for Chromium in-tree, so we disable
   # this by default for all downstream projects, since these profiles are likely
   # nonsensical for said projects.
-  clang_use_default_sample_profile =
-      chrome_pgo_phase == 0 && build_with_chromium && is_official_build &&
-      is_android && !is_high_end_android && !is_cronet_build
-
-  # This configuration is used to select a default profile in Chrome OS based on
-  # the microarchitectures we are using. This is only used if
-  # clang_use_default_sample_profile is true and clang_sample_profile_path is
-  # empty.
-  chromeos_afdo_platform = "atom"
+  clang_use_default_sample_profile = false
 
   # Emit debug information for profiling wile building with clang.
   # Only enable this for ChromeOS official builds for AFDO.
-  clang_emit_debug_info_for_profiling = is_chromeos_device && is_official_build
+  clang_emit_debug_info_for_profiling = false
 
   # Turn this on to have the compiler output extra timing information.
   compiler_timing = false
@@ -123,8 +108,7 @@ declare_args() {
   # the space overhead is too great. We should use some mixture of profiles and
   # optimization settings to better tune the size increase.
   thin_lto_enable_optimizations =
-      (is_chromeos || is_android || is_win || is_linux || is_mac ||
-       (is_ios && use_lld)) && is_official_build
+      (is_win || is_linux || is_mac) && is_official_build
 
   # Whether to enable thin lto incremental builds.
   # See: https://clang.llvm.org/docs/ThinLTO.html#incremental
@@ -141,7 +125,7 @@ declare_args() {
   #
   # TODO(crbug.com/40721698): This regresses binary size by ~1MB on Android and
   # needs to be evaluated before enabling it there as well.
-  init_stack_vars = !(is_android && is_official_build)
+  init_stack_vars = true
 
   # Specialization of `init_stack_vars` where locals are initialized with
   # zeroes instead of patterns. Zero init is generally faster and can lead to
@@ -159,11 +143,11 @@ declare_args() {
   # ('.text.hot') in the binary, which allows our data collection pipelines to
   # more easily identify code that we assume to be hot/cold that doesn't turn
   # out to be such in the field.
-  use_text_section_splitting = is_chromeos
+  use_text_section_splitting = false
 
   # Enable DWARF v5.
   # See analysis for is_android at https://crbug.com/479802735
-  use_dwarf5 = is_android
+  use_dwarf5 = false
 
   # Override this to put full paths to PDBs in Windows PE files. This helps
   # windbg and Windows Performance Analyzer with finding the PDBs in some local-
@@ -180,7 +164,7 @@ declare_args() {
   # Enable Profi algorithm. Profi can infer block and edge counts.
   # https://clang.llvm.org/docs/UsersManual.html#using-sampling-profilers
   # TODO(crbug.com/1375958i:) Possibly enable this for Android too.
-  use_profi = is_chromeos
+  use_profi = false
 
   # If true, linker crashes will be rerun with `--reproduce` which causes
   # a reproducer file to be saved.
@@ -220,58 +204,14 @@ declare_args() {
 
 declare_args() {
   # Set to true to use icf, Identical Code Folding.
-  use_icf =
-      is_posix && !is_debug && !using_sanitizer && !use_clang_coverage &&
-      !(is_android && use_order_profiling) && (use_lld || use_mold) && !is_wasm
-}
-
-if (is_android) {
-  # Set the path to use orderfile for linking Chrome
-  # Note that this is for using only one orderfile for linking
-  # the Chrome binary/library.
-  declare_args() {
-    chrome_orderfile_path = ""
-
-    # The orderfile is trained on PGO builds (for arm64) and AFDO builds (for
-    # arm32), so apply them only in these cases.
-    if (((current_cpu == "arm64" || current_cpu == "x64") &&
-         chrome_pgo_phase == 2) ||
-        ((current_cpu == "arm" || current_cpu == "x86") &&
-         clang_use_default_sample_profile)) {
-      if (defined(default_chrome_orderfile)) {
-        chrome_orderfile_path = default_chrome_orderfile
-      } else if (enable_chrome_android_internal) {
-        # We generate separate orderfiles for 32-bit and 64-bit architectures
-        # to improve performance and reduce memory usage.
-        # - WebView and Chrome ARM64, see https://crbug.com/41490637.
-        # - WebView and Chrome x86, see https://crbug.com/967343.
-        # *IMPORTANT*: The x86 and x64 architectures are used to test orderfile
-        # logic more easily on an emulator, so the decision to use the arm64
-        # orderfile for x64 (instead of arm32) is somewhat arbitrary. We just
-        # needed to use some real orderfile.
-        if (is_desktop_android && current_cpu == "x64") {
-          # For Android Desktop x64, orderfile is disabled, see
-          # https://crbug.com/422005929.
-          chrome_orderfile_path = ""
-        } else if (current_cpu == "arm64" || current_cpu == "x64") {
-          chrome_orderfile_path =
-              "//chrome/android/orderfiles/arm64/orderfile.arm64.out"
-        } else if (current_cpu == "arm" || current_cpu == "x86") {
-          chrome_orderfile_path =
-              "//chrome/android/orderfiles/arm/orderfile.arm.out"
-        }
-      }
-    }
-  }
+  use_icf = is_posix && !is_debug && !using_sanitizer && !use_clang_coverage &&
+            (use_lld || use_mold) && !is_wasm
 }
 
 declare_args() {
   # Turn off the --call-graph-profile-sort flag for lld by default. Enable
   # selectively for targets where it's beneficial.
-  enable_call_graph_profile_sort =
-      chrome_pgo_phase == 2 ||
-      (is_chromeos &&
-       (clang_use_default_sample_profile || clang_sample_profile_path != ""))
+  enable_call_graph_profile_sort = chrome_pgo_phase == 2
 }
 
 is_bot = false
@@ -314,8 +254,7 @@ config("default_include_dirs") {
 # libclang_rt.asan-*-android.so), so all sanitizer symbols are resolved at link
 # time and -Wl,-z,defs can safely remain enabled to catch missing symbols.
 config("no_unresolved_symbols") {
-  if ((!using_sanitizer || is_android) &&
-      (is_linux || is_chromeos || is_android)) {
+  if (!using_sanitizer && is_linux) {
     ldflags = [
       "-Wl,-z,defs",
       "-Wl,--as-needed",
@@ -348,19 +287,10 @@ config("compiler") {
   # smaller.
   if (is_win) {
     configs += [ "//build/config/win:compiler" ]
-  } else if (is_android) {
-    configs += [ "//build/config/android:compiler" ]
-  } else if (is_chromeos) {
-    configs += [
-      "//build/config/linux:compiler",
-      "//build/config/chromeos:compiler",
-    ]
   } else if (is_linux) {
     configs += [ "//build/config/linux:compiler" ]
   } else if (is_mac) {
     configs += [ "//build/config/mac:compiler" ]
-  } else if (is_ios) {
-    configs += [ "//build/config/ios:compiler" ]
   } else if (current_os == "aix") {
     configs += [ "//build/config/aix:compiler" ]
   } else if (current_os == "zos") {
@@ -447,7 +377,7 @@ config("compiler") {
       # hold a pointer to the shadow stack. For Android we know that Clang
       # doesn't use x18 by default. On other OSs adding "-ffixed-x18" might be
       # required.
-      assert(is_android)
+      assert(false)
 
       scs_parameters = [
         "-fsanitize=shadow-call-stack",
@@ -464,8 +394,6 @@ config("compiler") {
         } else {
           cflags += [ "-fstack-protector" ]
         }
-      } else if (is_chromeos) {
-        cflags += [ "-fstack-protector-strong" ]
       } else if (is_posix) {
         if (current_os != "aix") {
           # Not available on aix.
@@ -491,16 +419,14 @@ config("compiler") {
       }
     }
 
-    if (!is_android) {
-      defines += [
-        # _FILE_OFFSET_BITS=64 should not be set on Android in order to maintain
-        # the behavior of the Android NDK from earlier versions.
-        # See https://android-developers.googleblog.com/2017/09/introducing-android-native-development.html
-        "_FILE_OFFSET_BITS=64",
-        "_LARGEFILE_SOURCE",
-        "_LARGEFILE64_SOURCE",
-      ]
-    }
+    defines += [
+      # _FILE_OFFSET_BITS=64 should not be set on Android in order to maintain
+      # the behavior of the Android NDK from earlier versions.
+      # See https://android-developers.googleblog.com/2017/09/introducing-android-native-development.html
+      "_FILE_OFFSET_BITS=64",
+      "_LARGEFILE_SOURCE",
+      "_LARGEFILE64_SOURCE",
+    ]
 
     if (current_os == "aix") {
       defines += [ "__LIBC_NO_CPP_MATH_OVERLOADS__" ]
@@ -542,7 +468,7 @@ config("compiler") {
 
   # Linux/Android/Fuchsia common flags setup.
   # ---------------------------------
-  if (is_linux || is_chromeos || is_android) {
+  if (is_linux) {
     asmflags += [ "-fPIC" ]
     cflags += [ "-fPIC" ]
     ldflags += [ "-fPIC" ]
@@ -557,34 +483,11 @@ config("compiler") {
 
   # Linux-specific compiler flags setup.
   # ------------------------------------
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     cflags += [ "-pthread" ]
     # Do not use the -pthread ldflag here since it becomes a no-op
     # when using -nodefaultlibs, which would cause an unused argument
     # error.  "-lpthread" is added in //build/config:default_libs.
-  }
-
-  # ChromeOS-specific compiler flags setup.
-  # ---------------------------------------
-  if (is_chromeos) {
-    cflags += [ "-Werror=poison-system-directories" ]
-
-    # Enable std::vector []-operator bounds checking.
-    cflags_cc += [ "-D__google_stl_debug_vector=1" ]
-  }
-
-  if (is_chromeos) {
-    # Use -fdebug-types-section to avoid out-of-range relocations
-    # (crbug.com/1050819). When using ThinLTO, pass the equivalent
-    # to the code generator.
-    if (use_thin_lto) {
-      ldflags += [
-        "-Wl,-mllvm",
-        "-Wl,-generate-type-units",
-      ]
-    } else {
-      cflags += [ "-fdebug-types-section" ]
-    }
   }
 
   # Clang-specific compiler flags setup.
@@ -651,19 +554,15 @@ config("compiler") {
       }
     }
 
-    # TODO(crbug.com/40283598): This causes binary size growth and potentially
-    # other problems.
-    if (default_toolchain != "//build/toolchain/cros:target") {
-      cflags += [
-        "-mllvm",
-        "-split-threshold-for-reg-with-hint=0",
-      ]
-      if (use_thin_lto && is_a_target_toolchain) {
-        if (is_win) {
-          ldflags += [ "-mllvm:-split-threshold-for-reg-with-hint=0" ]
-        } else {
-          ldflags += [ "-Wl,-mllvm,-split-threshold-for-reg-with-hint=0" ]
-        }
+    cflags += [
+      "-mllvm",
+      "-split-threshold-for-reg-with-hint=0",
+    ]
+    if (use_thin_lto && is_a_target_toolchain) {
+      if (is_win) {
+        ldflags += [ "-mllvm:-split-threshold-for-reg-with-hint=0" ]
+      } else {
+        ldflags += [ "-Wl,-mllvm,-split-threshold-for-reg-with-hint=0" ]
       }
     }
 
@@ -685,7 +584,7 @@ config("compiler") {
 
   # C11/C++11 compiler flags setup.
   # ---------------------------
-  if (is_linux || is_chromeos || is_android || current_os == "aix") {
+  if (is_linux || current_os == "aix") {
     if (is_clang) {
       standard_prefix = "c"
 
@@ -844,20 +743,6 @@ config("compiler") {
       # of "all" which means number of hardware threads) is faster.
       ldflags += [ "-Wl,--thinlto-jobs=all" ]
 
-      if (is_chromeos) {
-        # ARM was originally set lower than x86 to keep the size
-        # bloat of ThinLTO to <10%, but that's potentially no longer true.
-        # FIXME(inglorion): maybe tune these?
-        # TODO(b/271459198): Revert limit on amd64 to 30 when fixed.
-        import_instr_limit = 20
-      } else if (is_android && optimize_for_size) {
-        # TODO(crbug.com/40219076): Investigate if we can get the > 6% perf win
-        # of import_instr_limit 30 with a binary size hit smaller than ~2 MiB.
-        import_instr_limit = 5
-      } else if (is_castos && optimize_for_size) {
-        import_instr_limit = 0
-      }
-
       ldflags += [ "-Wl,-mllvm,-import-instr-limit=$import_instr_limit" ]
 
       if (is_apple) {
@@ -883,27 +768,23 @@ config("compiler") {
       }
     }
 
-    # TODO(crbug.com/40182783): investigate why this isn't effective on
-    # arm32.
-    if (!is_android || current_cpu != "arm") {
-      cflags += [ "-fwhole-program-vtables" ]
+    cflags += [ "-fwhole-program-vtables" ]
 
-      if (toolchain_supports_rust_thin_lto) {
-        # whole-program-vtables implies -fsplit-lto-unit, and Rust needs to
-        # match behaviour. Rust needs to know the linker will be doing LTO in
-        # this case or it rejects the Zsplit-lto-unit flag.
-        rustflags += [
-          "-Zsplit-lto-unit",
-          "-Clinker-plugin-lto=yes",
-        ]
-      } else {
-        # Don't include bitcode if it won't be used.
-        rustflags += [ "-Cembed-bitcode=no" ]
-      }
+    if (toolchain_supports_rust_thin_lto) {
+      # whole-program-vtables implies -fsplit-lto-unit, and Rust needs to
+      # match behaviour. Rust needs to know the linker will be doing LTO in
+      # this case or it rejects the Zsplit-lto-unit flag.
+      rustflags += [
+        "-Zsplit-lto-unit",
+        "-Clinker-plugin-lto=yes",
+      ]
+    } else {
+      # Don't include bitcode if it won't be used.
+      rustflags += [ "-Cembed-bitcode=no" ]
+    }
 
-      if (!is_win) {
-        ldflags += [ "-fwhole-program-vtables" ]
-      }
+    if (!is_win) {
+      ldflags += [ "-fwhole-program-vtables" ]
     }
 
     # This flag causes LTO to create an .ARM.attributes section with the correct
@@ -950,7 +831,7 @@ config("compiler") {
   # This flag enforces that member pointer base types are complete. It helps
   # prevent us from running into problems in the Microsoft C++ ABI (see
   # https://crbug.com/847724).
-  if (is_clang && target_os != "chromeos" && (is_win || use_custom_libcxx)) {
+  if (is_clang && (is_win || use_custom_libcxx)) {
     cflags += [ "-fcomplete-member-pointers" ]
   }
 
@@ -1033,12 +914,7 @@ config("compiler") {
     # abort instead of unwinding when panic occurs. In official builds, panics
     # abort immediately (this is configured in the stdlib) to keep binary size
     # down. So we unconditionally match behaviour in unofficial too.
-    # AOSP does not allow the usage of unstable features. This means that
-    # we can't enable `immediate-abort` when building cronet in AOSP until
-    # it has been stabilized.
-    #
-    # TODO(crbug.com/447558108): Use immediate-abort in AOSP once stabilized.
-    if (is_official_build && !is_cronet_for_aosp_build) {
+    if (is_official_build) {
       rustflags += [
         "-Zunstable-options",
         "-Cpanic=immediate-abort",
@@ -1060,15 +936,6 @@ config("compiler") {
   # as NEON is a mandatory part of ARMv8 anyway.
   if (current_cpu == "arm64") {
     defines += [ "__ARM_NEON__=1" ]
-  }
-
-  # This reduces the core_runtime_starboard binary size by ~4.2MB uncompressed
-  # (~1.25MB compressed) on ARM32 embedded platforms.
-  if (enable_cast_receiver) {
-    cflags += [
-      "-mllvm",
-      "-inline-threshold=32",
-    ]
   }
 }
 
@@ -1117,7 +984,7 @@ config("linker") {
     }
   }
 
-  if (is_linux || is_chromeos || is_android) {
+  if (is_linux) {
     ldflags += [
       "-Wl,-z,noexecstack",
       "-Wl,-z,relro",
@@ -1141,20 +1008,6 @@ config("linker") {
     }
   }
 
-  if (is_chromeos_device && current_toolchain == default_toolchain) {
-    # Flags added automatically by ChromeOS's custom toolchain that are
-    # not already added elsewhere in the configuration. Add these here,
-    # so that we also get them when not building with ChromeOS's toolchain.
-    ldflags += [ "-Wl,--pack-dyn-relocs=relr" ]
-
-    if (use_lld) {
-      ldflags += [
-        "-Wl,--no-rosegment",
-        "-Wl,-z,nostart-stop-gc",
-      ]
-    }
-  }
-
   if (use_lld) {
     # TODO(thakis): Make the driver pass --color-diagnostics to the linker
     # if -fcolor-diagnostics is passed to it, and pass -fcolor-diagnostics
@@ -1170,30 +1023,13 @@ config("linker") {
 
   # Enable text section splitting only on linux when using lld for now. Other
   # platforms can be added later if needed.
-  if ((is_linux || is_chromeos) && use_lld && use_text_section_splitting) {
+  if (is_linux && use_lld && use_text_section_splitting) {
     ldflags += [ "-Wl,-z,keep-text-section-prefix" ]
-  }
-
-  # Pass flag to LLD so Android builds can allow pre-Android Q's debuggerd to
-  # properly symbolize stack crashes (http://crbug.com/919499).
-  if ((use_lld || use_mold) && is_android) {
-    ldflags += [ "-Wl,--no-rosegment" ]
-  }
-
-  if (is_android && linker_path != "") {
-    # Wild linker does not support the default of android+relr.
-    # Mold has a bug: https://github.com/rui314/mold/issues/1595
-    if (android_ndk_api_level >= 28) {
-      ldflags += [ "-Wl,--pack-dyn-relocs=relr" ]
-    } else {
-      ldflags += [ "-Wl,--pack-dyn-relocs=none" ]
-    }
   }
 
   # TODO(crbug.com/40242425): Cleanup undefined symbol errors caught by
   # --no-undefined-version.
-  if ((use_lld || linker_path != "") && !is_win && !is_mac && !is_ios &&
-      !is_wasm) {
+  if ((use_lld || linker_path != "") && !is_win && !is_mac && !is_wasm) {
     ldflags += [ "-Wl,--undefined-version" ]
   }
 
@@ -1229,23 +1065,12 @@ config("linker") {
   # MLGO is only officially supported on linux.
   if (use_ml_inliner && is_a_target_toolchain) {
     assert(
-        is_android && host_os == "linux",
+        false,
         "MLGO is currently only supported for targeting Android on a linux host")
     if (use_thin_lto) {
       ldflags += [ "-Wl,-mllvm,-enable-ml-inliner=release" ]
-      if (is_high_end_android) {
-        # Besides using the arm64 - trained model, instruct the inline advisor
-        # to not use the ML policy (which will aim to reduce size) for any
-        # callsites where the caller is not cold. This avoids performance
-        # regressions while still bringing size benefits.
-        # Profile quality is essential here.
-        ldflags += [
-          "-Wl,-mllvm,-ml-inliner-model-selector=arm64-mixed",
-          "-Wl,-mllvm,-ml-inliner-skip-policy=if-caller-not-cold",
-        ]
-      } else {
-        ldflags += [ "-Wl,-mllvm,-ml-inliner-model-selector=arm32-size" ]
-      }
+
+      ldflags += [ "-Wl,-mllvm,-ml-inliner-model-selector=arm32-size" ]
     }
   }
 
@@ -1255,35 +1080,6 @@ config("linker") {
     ldflags += [
       "-Wl,--save-temps=import",
       "-Wl,--thinlto-emit-index-files",
-    ]
-  }
-
-  if (is_chromeos_device) {
-    # On ChromeOS devices, we want to ensure we're using Chrome's allocator
-    # symbols for all C++ new/delete operator overloads. PartitionAlloc
-    # and other local allocators should always take precedence over system or
-    # preloaded allocators. These are the mangled symbol names.
-    # See b/280115910 for details.
-    ldflags += [
-      "-Wl,--export-dynamic-symbol=_ZdaPv,-u,_ZdaPv",
-      "-Wl,--export-dynamic-symbol=_ZdaPvRKSt9nothrow_t,-u,_ZdaPvRKSt9nothrow_t",
-      "-Wl,--export-dynamic-symbol=_ZdlPv,-u,_ZdlPv",
-      "-Wl,--export-dynamic-symbol=_ZdlPvm,-u,_ZdlPvm",
-      "-Wl,--export-dynamic-symbol=_ZdlPvRKSt9nothrow_t,-u,_ZdlPvRKSt9nothrow_t",
-      "-Wl,--export-dynamic-symbol=_Znam,-u,_Znam",
-      "-Wl,--export-dynamic-symbol=_ZnamRKSt9nothrow_t,-u,_ZnamRKSt9nothrow_t",
-      "-Wl,--export-dynamic-symbol=_Znwm,-u,_Znwm",
-      "-Wl,--export-dynamic-symbol=_ZnwmRKSt9nothrow_t,-u,_ZnwmRKSt9nothrow_t",
-      "-Wl,--export-dynamic-symbol=_ZdaPvmSt11align_val_t,-u,_ZdaPvmSt11align_val_t",
-      "-Wl,--export-dynamic-symbol=_ZdaPvSt11align_val_t,-u,_ZdaPvSt11align_val_t",
-      "-Wl,--export-dynamic-symbol=_ZdaPvSt11align_val_tRKSt9nothrow_t,-u,_ZdaPvSt11align_val_tRKSt9nothrow_t",
-      "-Wl,--export-dynamic-symbol=_ZdlPvmSt11align_val_t,-u,_ZdlPvmSt11align_val_t",
-      "-Wl,--export-dynamic-symbol=_ZdlPvSt11align_val_t,-u,_ZdlPvSt11align_val_t",
-      "-Wl,--export-dynamic-symbol=_ZdlPvSt11align_val_tRKSt9nothrow_t,-u,_ZdlPvSt11align_val_tRKSt9nothrow_t",
-      "-Wl,--export-dynamic-symbol=_ZnamSt11align_val_t,-u,_ZnamSt11align_val_t",
-      "-Wl,--export-dynamic-symbol=_ZnamSt11align_val_tRKSt9nothrow_t,-u,_ZnamSt11align_val_tRKSt9nothrow_t",
-      "-Wl,--export-dynamic-symbol=_ZnwmSt11align_val_t,-u,_ZnwmSt11align_val_t",
-      "-Wl,--export-dynamic-symbol=_ZnwmSt11align_val_tRKSt9nothrow_t,-u,_ZnwmSt11align_val_tRKSt9nothrow_t",
     ]
   }
 }
@@ -1330,11 +1126,7 @@ config("thinlto_optimize_default") {
 config("thinlto_optimize_max") {
   if (!is_debug && use_thin_lto && is_a_target_toolchain) {
     if (thin_lto_enable_optimizations) {
-      if (is_castos && optimize_for_size) {
-        lto_opt_level = 1
-      } else {
-        lto_opt_level = 2
-      }
+      lto_opt_level = 2
     } else {
       lto_opt_level = 0
     }
@@ -1364,9 +1156,6 @@ config("thinlto_optimize_max") {
 # tweak code generation for a particular CPU do not belong here!
 # See "compiler_codegen", below.
 config("compiler_cpu_abi") {
-  if (is_chromeos) {
-    configs = [ "//build/config/chromeos:compiler_cpu_abi" ]
-  }
   cflags = cpu_abi_cflags
   ldflags = cpu_abi_ldflags
   defines = cpu_abi_defines
@@ -1688,7 +1477,7 @@ config("rustc_revision") {
 }
 
 config("compiler_arm_fpu") {
-  if (current_cpu == "arm" && !is_ios) {
+  if (current_cpu == "arm") {
     cflags = [ "-mfpu=neon" ]
     if (!arm_use_thumb) {
       cflags += [ "-marm" ]
@@ -1704,11 +1493,6 @@ config("compiler_arm_thumb") {
 }
 
 config("compiler_arm") {
-  if (current_cpu == "arm" && is_chromeos) {
-    # arm is normally the default mode for clang, but on chromeos a wrapper
-    # is used to pass -mthumb, and therefor change the default.
-    cflags = [ "-marm" ]
-  }
 }
 
 config("libcxx_module") {
@@ -1792,17 +1576,10 @@ config("runtime_library") {
   # smaller.
   if (is_win) {
     configs += [ "//build/config/win:runtime_library" ]
-  } else if (is_linux || is_chromeos) {
+  } else if (is_linux) {
     configs += [ "//build/config/linux:runtime_library" ]
-    if (is_chromeos) {
-      configs += [ "//build/config/chromeos:runtime_library" ]
-    }
-  } else if (is_ios) {
-    configs += [ "//build/config/ios:runtime_library" ]
   } else if (is_mac) {
     configs += [ "//build/config/mac:runtime_library" ]
-  } else if (is_android) {
-    configs += [ "//build/config/android:runtime_library" ]
   }
 
   if (is_component_build) {
@@ -1819,14 +1596,6 @@ config("runtime_library") {
   # performance penalty but are considered a bare minimum for security.
   if (use_safe_libstdcxx) {
     defines += [ "_GLIBCXX_ASSERTIONS=1" ]
-  }
-
-  # Propagate all definitions for hardening to the swift compiler.
-  if (is_ios) {
-    swiftflags = []
-    foreach(_define, defines) {
-      swiftflags += [ "-Xcc=-D$_define" ]
-    }
   }
 }
 
@@ -1921,22 +1690,10 @@ config("default_warnings") {
       cflags += [ "/wd4244" ]
     }
   } else {
-    if (is_apple || is_android) {
+    if (is_apple) {
       # Warns if a method is used whose availability is newer than the
       # deployment target.
       cflags += [ "-Wunguarded-availability" ]
-    }
-
-    if (is_ios) {
-      # When compiling Objective-C, warns if a selector named via @selector has
-      # not been defined in any visible interface.
-      cflags += [ "-Wundeclared-selector" ]
-
-      # Blink builds use a higher deployment target than non-Blink builds, so
-      # suppress deprecation warnings in these builds.
-      if (use_blink) {
-        cflags += [ "-Wno-deprecated-declarations" ]
-      }
     }
 
     # Suppress warnings about ABI changes on ARM (Clang doesn't give this
@@ -2209,18 +1966,11 @@ config("chromium_code") {
       # disabled, so only do that for Release build.
       fortify_level = "2"
 
-      # ChromeOS's toolchain supports a high-quality _FORTIFY_SOURCE=3
-      # implementation with a few custom glibc patches. Use that if it's
-      # available.
-      if (is_chromeos_device) {
-        fortify_level = "3"
-      }
-
       # _FORTIFY_SOURCE=3 is available in glibc 2.34+. Enable it when building
       # with the sysroot where support is guaranteed. Clang is also required
       # since the system gcc is often patched to add _FORTIFY_SOURCE=2 which
       # would conflict with our definition.
-      if (use_sysroot && is_clang && !is_android) {
+      if (use_sysroot && is_clang) {
         fortify_level = "3"
       }
       defines += [ "_FORTIFY_SOURCE=" + fortify_level ]
@@ -2234,11 +1984,6 @@ config("chromium_code") {
     if (is_mac) {
       cflags_objc += [ "-Wobjc-missing-property-synthesis" ]
       cflags_objcc += [ "-Wobjc-missing-property-synthesis" ]
-    }
-
-    if (is_ios) {
-      cflags_objc += [ "-Widiomatic-parentheses" ]
-      cflags_objcc += [ "-Widiomatic-parentheses" ]
     }
   }
 
@@ -2275,13 +2020,6 @@ config("chromium_code") {
       # TODO(crbug.com/533026470): Should probably clean this up.
       "-Wno-unused-template",
     ]
-
-    if (is_chromeos) {
-      cflags += [ "-Wno-gnu-offsetof-extensions" ]
-    }
-    if (is_ios) {
-      cflags += [ "-Wno-gnu-case-range" ]
-    }
   }
 
   configs = [
@@ -2485,9 +2223,6 @@ config("lifetime_safety") {
 # https://github.com/google/nearby/pull/3392 is merged and rolled.
 config("unnecessary_virtual_specifier_warning") {
   cflags = []
-  if (is_chromeos) {
-    cflags += [ "-Wno-unnecessary-virtual-specifier" ]
-  }
 }
 
 # This will generate warnings when using Clang if code generates exit-time
@@ -2519,8 +2254,6 @@ config("no_incompatible_pointer_warnings") {
   if (is_clang) {
     cflags += [ "-Wno-incompatible-pointer-types" ]
   } else if (current_cpu == "mipsel" || current_cpu == "mips64el") {
-    cflags += [ "-w" ]
-  } else if (is_chromeos && current_cpu == "arm") {
     cflags += [ "-w" ]
   }
 }
@@ -2569,17 +2302,6 @@ if (is_win) {
   common_optimize_on_cflags = []
   common_optimize_on_ldflags = []
 
-  if (is_android && (use_lld || use_mold)) {
-    # TODO(jdduke) Re-enable on mips after resolving linking
-    # issues with libc++ (crbug.com/456380).
-    if (current_cpu != "mipsel" && current_cpu != "mips64el") {
-      common_optimize_on_ldflags += [
-        # Android will not load libraries that have text relocations.
-        "-Wl,--warn-shared-textrel",
-      ]
-    }
-  }
-
   if (is_apple) {
     common_optimize_on_ldflags += [ "-Wl,-dead_strip" ]
 
@@ -2615,14 +2337,6 @@ if (is_win) {
     }
 
     common_optimize_on_ldflags += [ "-Wl,--gc-sections" ]
-  }
-
-  if (chrome_pgo_phase == 1 && target_os == "android") {
-    # LLVM's SLP vectorizer is causing compiler hangs when run on PGO
-    # instrumented code. Disable it until that's fixed. This does not affect the
-    # data generated by the instrumentation, but may slow it down slightly.
-    # TODO(crbug.com/445202451): Remove this after rolling in a fixed compiler.
-    common_optimize_on_cflags += [ "-fno-slp-vectorize" ]
   }
 }
 
@@ -2685,19 +2399,14 @@ config("optimize") {
     # `-O2`. But for rust, `-Copt-level=3` is the default and is thus reliable
     # to use.
     rustflags = [ "-Copt-level=3" ]
-  } else if (optimize_for_size || is_chromeos) {
+  } else if (optimize_for_size) {
     # Favor size over speed.
     # -Os in clang is more of a size-conscious -O2 than "size at any cost"
     # (AKA -Oz).
 
-    if (enable_cast_receiver) {
-      cflags = [ "-Oz" ] + common_optimize_on_cflags
-    } else {
-      cflags = [ "-Os" ] + common_optimize_on_cflags
-    }
+    cflags = [ "-Os" ] + common_optimize_on_cflags
 
-    if (is_clang && use_ml_inliner && is_a_target_toolchain && !is_chromeos &&
-        !is_high_end_android) {
+    if (is_clang && use_ml_inliner && is_a_target_toolchain) {
       cflags += [
         "-mllvm",
         "-enable-ml-inliner=release",
@@ -2734,15 +2443,6 @@ config("no_optimize") {
       # traces on Windows ARM64 rely on it.
       cflags += [ "/Oy-" ]
     }
-  } else if (is_android && !android_full_debug) {
-    # On Android we kind of optimize some things that don't affect debugging
-    # much even when optimization is disabled to get the binary size down.
-    cflags = [ "-Os" ] + common_optimize_on_cflags
-
-    # Required to keep file sizes down. Excessive file size slows down apk
-    # installation, and for fat binaries, can lead to signing failure
-    # https://crbug.com/402645059
-    ldflags = [ "-Wl,--gc-sections" ]
   } else {
     cflags = [ "-O0" ]
     ldflags = []
@@ -2823,18 +2523,7 @@ if (is_clang && is_a_target_toolchain) {
   } else if (clang_use_default_sample_profile) {
     assert(build_with_chromium,
            "Our default profiles currently only apply to Chromium")
-    assert(is_android || is_chromeos || is_castos,
-           "The current platform has no default profile")
-    if (is_android || is_castos) {
-      _clang_sample_profile = "//chrome/android/profiles/afdo.prof"
-    } else {
-      assert(chromeos_afdo_platform == "atom" ||
-                 chromeos_afdo_platform == "bigcore" ||
-                 chromeos_afdo_platform == "arm",
-             "Only 'atom', 'bigcore', and 'arm' are valid ChromeOS profiles.")
-      _clang_sample_profile =
-          "//chromeos/profiles/${chromeos_afdo_platform}.afdo.prof"
-    }
+    assert(false, "The current platform has no default profile")
   }
 }
 
@@ -2919,12 +2608,6 @@ config("win_pdbaltpath") {
 config("split_dwarf") {
   split_dwarf_flags = [ "-gsplit-dwarf" ]
 
-  # When building for ChromeOS, turn off split DWARF inlining.
-  # Breakpad does not correctly handle files generated with
-  # that feature (https://g-issues.chromium.org/issues/41312543).
-  if (is_chromeos) {
-    split_dwarf_flags += [ "-fno-split-dwarf-inlining" ]
-  }
   cflags = split_dwarf_flags
 
   # Split debug info with all thinlto builds except apple.
@@ -3036,8 +2719,8 @@ config("symbols") {
     # Disable debugger index for Android, which uses lldb. lldb can create (and
     # cache) its own index in about 20 seconds, so there's no need to pay the
     # price of an index on every link.
-    _add_symbol_index = symbol_level == 2 && !is_apple &&
-                        (use_lld || use_mold) && !is_wasm && !is_android
+    _add_symbol_index =
+        symbol_level == 2 && !is_apple && (use_lld || use_mold) && !is_wasm
     if (_add_symbol_index) {
       if (use_dwarf5) {
         cflags += [ "-gpubnames" ]
@@ -3162,22 +2845,6 @@ config("minimal_symbols") {
     }
 
     ldflags = []
-    if (is_android && is_clang) {
-      # Android defaults to symbol_level=1 builds, but clang, unlike gcc,
-      # doesn't emit DW_AT_linkage_name in -g1 builds.
-      # -fdebug-info-for-profiling enables that (and a bunch of other things we
-      # don't need), so that we get qualified names in stacks.
-      # TODO(thakis): Consider making clang emit DW_AT_linkage_name in -g1 mode;
-      #               failing that consider doing this on non-Android too.
-      cflags += [ "-fdebug-info-for-profiling" ]
-    }
-
-    # Compressing debug info speeds up "isolate tests" step (https://crbug.com/503797275)
-    # TODO(crbug.com/510291227): Enabling for linux & chromeos breaks
-    # sandbox_linux_unittests's BaselinePolicy tests. Figure out why.
-    if (is_android && !is_official_build) {
-      configs += [ "//build/config:compress_debug_sections" ]
-    }
 
     asmflags = cflags
   }
@@ -3210,11 +2877,6 @@ config("default_symbols") {
   } else {
     assert(false)
   }
-
-  # This config is removed by base unittests apk.
-  if (is_android && is_clang && strip_debug_info) {
-    configs += [ ":strip_debug" ]
-  }
 }
 
 config("strip_debug") {
@@ -3246,35 +2908,6 @@ if (is_apple) {
     ]
     cflags_objc = common_flags
     cflags_objcc = common_flags
-  }
-}
-
-if (is_android) {
-  # Use orderfile for linking Chrome on Android.
-  # This config enables using an orderfile for linking in LLD.
-  config("chrome_orderfile_config") {
-    # Don't try to use an orderfile with call graph sorting, except on Android,
-    # where we care about memory used by code, so we still want to mandate
-    # ordering.
-    if (chrome_orderfile_path != "") {
-      assert(use_lld)
-      _rebased_orderfile = rebase_path(chrome_orderfile_path, root_build_dir)
-      ldflags = [
-        "-Wl,--symbol-ordering-file",
-        "-Wl,$_rebased_orderfile",
-        "-Wl,--no-warn-symbol-ordering",
-      ]
-      inputs = [ chrome_orderfile_path ]
-
-      # These are txt files used by gclient to decide which version to download.
-      # They have zero effect on the build. We add them here merely so that
-      # GN-analyze recognizes them as dependencies when the version gets rolled.
-      if (current_cpu == "arm64" || current_cpu == "x64") {
-        inputs += [ "//chrome/build/android-arm64.orderfile.txt" ]
-      } else if (current_cpu == "arm" || current_cpu == "x86") {
-        inputs += [ "//chrome/build/android-arm.orderfile.txt" ]
-      }
-    }
   }
 }
 

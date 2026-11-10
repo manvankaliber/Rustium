@@ -240,7 +240,6 @@ bool TranslateManager::CanManuallyTranslate(bool menu_logging) {
   // running. In this case, Android queues the translation and waits until the
   // source language has been determined. Android is the only platform that
   // supports manual translation in this case.
-#if !BUILDFLAG(IS_ANDROID)
   if (source_language.empty()) {
     if (!menu_logging) {
       return false;
@@ -250,7 +249,6 @@ bool TranslateManager::CanManuallyTranslate(bool menu_logging) {
             kSourceLangUnknown);
     can_translate = false;
   }
-#endif
 
   std::unique_ptr<TranslatePrefs> translate_prefs(
       translate_client_->GetTranslatePrefs());

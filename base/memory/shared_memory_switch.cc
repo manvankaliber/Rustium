@@ -107,13 +107,11 @@ std::string Serialize(HandleType shmem_handle,
   StrAppend(&serialized, {NumberToString(win::HandleToUint32(shmem_handle)),
                           (launch_options->elevated ? ",p," : ",i,")});
 #elif BUILDFLAG(IS_APPLE)
-#if !BUILDFLAG(IS_IOS_TVOS)
   auto& rendezvous_key = shared_memory_switch->rendezvous_key;
   // In the receiving child, the handle is looked up using the rendezvous key.
   launch_options->mach_ports_for_rendezvous.emplace(
       rendezvous_key, MachRendezvousPort(std::move(shmem_handle)));
   StrAppend(&serialized, {NumberToString(rendezvous_key), ",r,"});
-#endif
 #elif BUILDFLAG(IS_POSIX)
   // Serialize the key by which the child can lookup the shared memory handle.
   // Ownership of the handle is transferred, via |descriptor_to_share|, to the
@@ -126,11 +124,7 @@ std::string Serialize(HandleType shmem_handle,
   // TODO(crbug.com/40109064): Get rid of |descriptor_to_share| and just
   // populate |launch_options|. The caller should be responsible for translating
   // between |launch_options| and zygote parameters as necessary.
-#if BUILDFLAG(IS_ANDROID)
-  shared_memory_switch->out_descriptor_to_share = std::move(shmem_handle);
-#else
   shared_memory_switch->out_descriptor_to_share = std::move(shmem_handle.fd);
-#endif
   DVLOG(1) << "Sharing fd="
            << shared_memory_switch->out_descriptor_to_share.get()
            << " with child process as fd_key="
@@ -212,11 +206,6 @@ expected<PlatformSharedMemoryRegion, SharedMemoryError> Deserialize(
   } else {
     scoped_handle = *std::move(handle_or_error);
   }
-#elif BUILDFLAG(IS_IOS_TVOS)
-  // Create an empty handle to prevent a build failure when returning a writable
-  // shared memory region at the end of the function.
-  apple::ScopedMachSendRight scoped_handle;
-  TVOS_NOT_YET_IMPLEMENTED();
 #elif BUILDFLAG(IS_APPLE)
   DCHECK_EQ(tokens[1], "r");
   auto* rendezvous = MachPortRendezvousClient::GetInstance();

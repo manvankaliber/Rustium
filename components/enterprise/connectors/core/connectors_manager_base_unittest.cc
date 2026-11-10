@@ -33,7 +33,6 @@ constexpr char kNormalFileDownloadedSettingsPref[] = R"([
   }
 ])";
 
-#if !BUILDFLAG(IS_IOS)
 constexpr char kNormalNetworkRequestSettingsPref[] = R"([
   {
     "audit": {
@@ -87,7 +86,6 @@ constexpr char kNonAuditNetworkRequestSettingsPref[] = R"([
     "tags": ["dlp"]
   }
 ])";
-#endif  // !BUILDFLAG(IS_IOS)
 
 }  // namespace
 
@@ -209,7 +207,6 @@ TEST_F(ConnectorsManagerBaseReportingTest, DynamicPolicies) {
   ASSERT_TRUE(manager.GetReportingConnectorsSettingsForTesting().empty());
 }
 
-#if !BUILDFLAG(IS_IOS)
 class ConnectorsManagerBaseNetworkRequestFeatureDisabledTest
     : public ConnectorsManagerBaseTest {
  public:
@@ -337,6 +334,5 @@ TEST_F(ConnectorsManagerBaseNetworkRequestTest, EmptyPolicy) {
       GURL("https://foo.com"), GURL("https://bar.org"));
   EXPECT_FALSE(settings.has_value());
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 }  // namespace enterprise_connectors

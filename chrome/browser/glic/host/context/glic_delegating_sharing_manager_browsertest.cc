@@ -350,13 +350,8 @@ IN_PROC_BROWSER_TEST_F(GlicDelegatingSharingManagerBrowserTest,
 
 // TODO(crbug.com/494010921): This test is flaky on Android. It occasionally
 // fails to open Glic for a tab, but the flake hasn't reproed locally.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_DelegateSwapTriggersPinNotifications \
-  DISABLED_DelegateSwapTriggersPinNotifications
-#else
 #define MAYBE_DelegateSwapTriggersPinNotifications \
   DelegateSwapTriggersPinNotifications
-#endif
 IN_PROC_BROWSER_TEST_F(GlicDelegatingSharingManagerBrowserTest,
                        MAYBE_DelegateSwapTriggersPinNotifications) {
   // Create 5 tabs.
@@ -516,11 +511,7 @@ class GlicStablePinningDelegatingSharingManagerBrowserTest
 };
 
 // TODO(b:479854184): make this work on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_StablePinningDelegateSwap DISABLED_StablePinningDelegateSwap
-#else
 #define MAYBE_StablePinningDelegateSwap StablePinningDelegateSwap
-#endif
 IN_PROC_BROWSER_TEST_F(GlicStablePinningDelegatingSharingManagerBrowserTest,
                        MAYBE_StablePinningDelegateSwap) {
   // Subclass to access protected members for verification.

@@ -8,9 +8,6 @@
 #include "build/build_config.h"
 #include "ui/base/device_form_factor.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 namespace metrics {
 
@@ -26,15 +23,7 @@ FormFactorMetricsProvider::GetFormFactor() const {
 // solution in DeviceFormFactor::GetDeviceFormFactor() after conducting an
 // audit of form factor usage or exposing ui_mode.
 // VariationsServiceClient::GetCurrentFormFactor() also needs to be updated.
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_foldable()) {
-    return SystemProfileProto::Hardware::FORM_FACTOR_FOLDABLE;
-  }
-#endif
 
-#if BUILDFLAG(PLATFORM_CFM)
-  return SystemProfileProto::Hardware::FORM_FACTOR_MEET_DEVICE;
-#else
   switch (ui::GetDeviceFormFactor()) {
     case ui::DEVICE_FORM_FACTOR_DESKTOP:
       return SystemProfileProto::Hardware::FORM_FACTOR_DESKTOP;
@@ -51,7 +40,6 @@ FormFactorMetricsProvider::GetFormFactor() const {
     default:
       return SystemProfileProto::Hardware::FORM_FACTOR_UNKNOWN;
   }
-#endif  // BUILDFLAG(PLATFORM_CFM)
 }
 
 }  // namespace metrics

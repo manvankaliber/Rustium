@@ -42,9 +42,7 @@ class MediaStreamDeviceObserverTest : public ::testing::Test {
             .on_device_request_state_change_cb = base::DoNothing(),
             .on_device_capture_configuration_change_cb = base::DoNothing(),
             .on_device_capture_handle_change_cb = base::DoNothing(),
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
             .on_zoom_level_change_cb = base::DoNothing(),
-#endif
         });
   }
 
@@ -76,9 +74,7 @@ class MediaStreamDeviceObserverTest : public ::testing::Test {
             .on_device_request_state_change_cb = request_state_change_callback,
             .on_device_capture_configuration_change_cb = base::DoNothing(),
             .on_device_capture_handle_change_cb = base::DoNothing(),
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
             .on_zoom_level_change_cb = base::DoNothing(),
-#endif
         });
     EXPECT_EQ(observer_->label_stream_map_.size(), previous_stream_size + 1);
   }
@@ -374,7 +370,6 @@ TEST_F(MediaStreamDeviceObserverTest, MultiCaptureRemoveStreamDevice) {
   EXPECT_EQ(observer_->label_stream_map_.size(), 0u);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(MediaStreamDeviceObserverTest, OnZoomLevelChange) {
   const String kStreamLabel = "stream_label";
   blink::MediaStreamDevice device(
@@ -408,6 +403,5 @@ TEST_F(MediaStreamDeviceObserverTest, OnZoomLevelChange) {
           kStreamLabel, device,
           CaptureController::getSupportedZoomLevelsForTabs()[0]);
 }
-#endif
 
 }  // namespace blink

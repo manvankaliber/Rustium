@@ -31,26 +31,24 @@ group("all") {
     deps += [ ":remoting_host_branded" ]
   }
 
-  if (!is_chromeos && !is_android && !is_ios) {
-    deps += [
-      "//remoting/host:remoting_native_messaging_host",
-      "//remoting/host:remoting_native_messaging_manifests",
-      "//remoting/host:remoting_start_host",
-      "//remoting/host/it2me:remote_assistance_host",
-      "//remoting/host/webauthn:remote_webauthn",
-    ]
+  deps += [
+    "//remoting/host:remoting_native_messaging_host",
+    "//remoting/host:remoting_native_messaging_manifests",
+    "//remoting/host:remoting_start_host",
+    "//remoting/host/it2me:remote_assistance_host",
+    "//remoting/host/webauthn:remote_webauthn",
+  ]
 
-    if (is_linux || is_win) {
-      deps += [ "//remoting/host/crash:crash_tools" ]
-    }
+  if (is_linux || is_win) {
+    deps += [ "//remoting/host/crash:crash_tools" ]
+  }
 
-    if (enable_me2me_host && (is_linux || is_win)) {
-      deps += [ "//remoting/host/remote_open_url" ]
-    }
+  if (enable_me2me_host && (is_linux || is_win)) {
+    deps += [ "//remoting/host/remote_open_url" ]
+  }
 
-    if (enable_me2me_host && is_linux) {
-      deps += [ "//remoting/host/linux:remoting_migrate_host" ]
-    }
+  if (enable_me2me_host && is_linux) {
+    deps += [ "//remoting/host/linux:remoting_migrate_host" ]
   }
 }
 
@@ -69,8 +67,8 @@ process_version("remoting_version") {
 # Split out in its own target to prevent GN from pulling in chromeos deps.
 source_set("enterprise_params") {
   sources = [
-    "//remoting/host/chromeos/chromeos_enterprise_params.cc",
-    "//remoting/host/chromeos/chromeos_enterprise_params.h",
+    "//remoting/host/enterprise_session_params.cc",
+    "//remoting/host/enterprise_session_params.h",
   ]
   deps = [ "//base" ]
 }
@@ -145,9 +143,8 @@ source_set("common_headers") {
     ]
   }
 
-  if (!is_chromeos) {
-    sources += [ "me2me_desktop_environment.h" ]
-  }
+  sources += [ "me2me_desktop_environment.h" ]
+
   deps = [
     ":platform_interfaces",
     "//base",
@@ -325,7 +322,7 @@ source_set("resources") {
     "//ui/base",
   ]
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [ "resources_linux.cc" ]
   }
 
@@ -653,14 +650,10 @@ static_library("common") {
 
     deps += [ ":signal_handler" ]
 
-    if (!is_android) {
-      deps += [ "//components/policy/core/common:policy_path_constants" ]
-    }
+    deps += [ "//components/policy/core/common:policy_path_constants" ]
   }
 
-  if (!is_ios) {
-    deps += [ "//components/policy:generated" ]
-  }
+  deps += [ "//components/policy:generated" ]
 
   if (is_linux) {
     sources += [
@@ -732,37 +725,7 @@ static_library("common") {
     }
   }
 
-  if (is_chromeos) {
-    sources += [
-      "audio_capturer_chromeos.cc",
-      "audio_capturer_chromeos.h",
-      "continue_window_chromeos.cc",
-      "curtain_mode_chromeos.cc",
-      "curtain_mode_chromeos.h",
-      "desktop_display_info_loader_chromeos.cc",
-      "desktop_resizer_chromeos.cc",
-      "disconnect_window_chromeos.cc",
-      "input_injector_chromeos.cc",
-      "input_injector_chromeos.h",
-      "keyboard_layout_monitor_chromeos.cc",
-    ]
-    deps += [
-      "//ash",
-      "//media/mojo/common",
-      "//remoting/host/chromeos",
-      "//remoting/host/chromeos:features",
-      "//ui/base/ime/ash",
-    ]
-
-    if (use_ozone) {
-      deps += [
-        "//ui/events/ozone/layout",
-        "//ui/ozone",
-      ]
-    }
-  } else {
-    sources += [ "me2me_desktop_environment.cc" ]
-  }
+  sources += [ "me2me_desktop_environment.cc" ]
 
   if (is_mac) {
     sources += [
@@ -964,7 +927,7 @@ source_set("unit_tests") {
     ]
   }
 
-  if ((use_ozone && !remoting_use_x11) || is_chromeos) {
+  if (use_ozone && !remoting_use_x11) {
     sources -= [ "input_monitor/local_input_monitor_unittest.cc" ]
   }
 
@@ -1025,19 +988,16 @@ source_set("unit_tests") {
     "//ui/events",
   ]
 
-  # These tests do not work on ChromeOS.
-  if (!is_chromeos) {
-    sources += [
-      "chromoting_host_services_client_unittest.cc",
-      "chromoting_host_services_server_unittest.cc",
-    ]
+  sources += [
+    "chromoting_host_services_client_unittest.cc",
+    "chromoting_host_services_server_unittest.cc",
+  ]
 
-    deps += [
-      ":chromoting_host_services_client",
-      ":chromoting_host_services_server",
-      "//remoting/host:ipc_constants",
-    ]
-  }
+  deps += [
+    ":chromoting_host_services_client",
+    ":chromoting_host_services_server",
+    "//remoting/host:ipc_constants",
+  ]
 
   # start_host is only supported on Linux and Windows.
   if (is_linux || is_win) {
@@ -1093,29 +1053,6 @@ source_set("unit_tests") {
     ]
   }
 
-  if (is_chromeos) {
-    sources += [
-      "audio_capturer_chromeos_unittest.cc",
-      "desktop_display_info_loader_chromeos_unittest.cc",
-      "input_injector_chromeos_unittest.cc",
-      "input_monitor/local_hotkey_input_monitor_chromeos_unittest.cc",
-      "input_monitor/local_input_monitor_chromeos_unittest.cc",
-      "it2me/it2me_confirmation_dialog_chromeos_unittest.cc",
-    ]
-    deps += [
-      "//ash:test_support",
-      "//chromeos/ash/components:test_support",
-      "//components/user_manager:test_support",
-      "//media:test_support",
-      "//remoting/host/chromeos",
-      "//remoting/host/chromeos:features",
-      "//remoting/host/chromeos:reporter_unit_tests",
-      "//remoting/host/chromeos:unit_tests",
-      "//ui/message_center:test_support",
-      "//ui/ozone",
-    ]
-  }
-
   if (is_win) {
     # `PrivacyOverlayWin` loads localized strings, icons, and the disconnect
     # dialog template (`IDS_PRODUCT_NAME`, `IDI_CHROME_REMOTE_DESKTOP`,
@@ -1142,16 +1079,14 @@ source_set("unit_tests") {
     ]
   }
 
-  if (!is_ios) {
-    deps += [ "//components/policy/core/browser:test_support" ]
-  }
+  deps += [ "//components/policy/core/browser:test_support" ]
 
   if (enable_me2me_host) {
     sources += [ "evaluate_capability_unittest.cc" ]
     data_deps = [ "//remoting/test:capability_test_stub" ]
   }
 
-  if (is_posix && !is_chromeos && !is_msan) {
+  if (is_posix && !is_msan) {
     # PAM tests fail on MSan because libpam is uninstrumented
     # (crbug.com/504793694). They also don't work on ChromeOS as PAM is not used
     # there for remoting.
@@ -1377,14 +1312,11 @@ if (enable_me2me_host) {
 
     if (is_posix) {
       deps += [ ":signal_handler" ]
-      if (!is_chromeos) {
-        deps += [ ":pam_authorization" ]
-      }
+
+      deps += [ ":pam_authorization" ]
     }
 
-    if (!is_ios) {
-      deps += [ "//components/policy:generated" ]
-    }
+    deps += [ "//components/policy:generated" ]
 
     if (is_linux) {
       deps += [ "//build/config/linux/gtk" ]
@@ -1417,13 +1349,12 @@ if (enable_me2me_host) {
       "//remoting/host/base",
       "//remoting/host/setup:common",
     ]
-    if (!is_chromeos) {
-      deps += [
-        ":chromoting_host_services_client",
-        "//remoting/host/mojom",
-        "//remoting/proto",
-      ]
-    }
+
+    deps += [
+      ":chromoting_host_services_client",
+      "//remoting/host/mojom",
+      "//remoting/proto",
+    ]
   }
 
   # Windows defines its own entry point function.

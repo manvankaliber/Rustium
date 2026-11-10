@@ -46,9 +46,7 @@
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
-#endif
 
 namespace contextual_tasks {
 namespace {
@@ -340,7 +338,6 @@ TEST_F(ContextualTasksInternalsPageHandlerTest,
   EXPECT_TRUE(future.Get().empty());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(
     ContextualTasksInternalsPageHandlerTest,
     GetSessionAndUserDataState_IteratesWindowsFiltersProfileAndDeduplicates) {
@@ -448,7 +445,6 @@ TEST_F(
   EXPECT_EQ(states[1]->user_data_state->user_data_task_id,
             tab_task_id.AsLowercaseString());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 }  // namespace contextual_tasks

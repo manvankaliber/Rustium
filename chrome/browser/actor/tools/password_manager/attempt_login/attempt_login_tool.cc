@@ -48,16 +48,8 @@
 
 // TODO(crbug.com/482430429): Reconsider the use of BrowserWindowInterface on
 // Android.
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/password_manager/password_change/features.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/tab_list/tab_list_interface.h"
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
-#include "ui/base/base_window.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace actor {
 
@@ -82,12 +74,10 @@ GetModelQualityLogsUploader(Profile& profile) {
   // avoid uploading incorrect logs.
   // TODO(crbug.com/485620841): Remove this check once the prototyping is
   // complete for Automated Password Change.
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(
           password_change::features::kPasswordChangeWithGlic)) {
     return nullptr;
   }
-#endif
 
   OptimizationGuideKeyedService* opt_guide_service =
       OptimizationGuideKeyedServiceFactory::GetForProfile(&profile);
@@ -578,19 +568,10 @@ void AttemptLoginTool::HandleTabActivatedChange(tabs::TabInterface* tab) {
   MaybeRetryCredentialNeedingFocus();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void AttemptLoginTool::OnBrowserActivated(BrowserWindowInterface* browser) {
-  tabs::TabInterface* tab = actor_surface_handle_.GetTabHandle().Get();
-  if (tab && tab->GetBrowserWindowInterface() == browser) {
-    MaybeRetryCredentialNeedingFocus();
-  }
-}
-#else
 void AttemptLoginTool::HandleWindowActivatedChange(
     BrowserWindowInterface* browser_window) {
   MaybeRetryCredentialNeedingFocus();
 }
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void AttemptLoginTool::ObserveTabToAwaitFocus() {
   // TODO(b/567721071): This needs tab-specific activation and browser window
@@ -604,12 +585,6 @@ void AttemptLoginTool::ObserveTabToAwaitFocus() {
       &AttemptLoginTool::HandleTabActivatedChange, base::Unretained(this)));
 // TODO(crbug.com/482430429): Reconsider the use of BrowserWindowInterface on
 // Android.
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(
-          password_manager::features::kBiometricTouchToFill)) {
-    browser_observation_.Observe(GlobalBrowserCollection::GetInstance());
-  }
-#else
   BrowserWindowInterface* browser_window = tab->GetBrowserWindowInterface();
   // TODO(mcnee): Should we update the window subscription if the tab is moved?
   // The tab would probably be focused first which would cause us to stop
@@ -618,17 +593,12 @@ void AttemptLoginTool::ObserveTabToAwaitFocus() {
       browser_window->RegisterDidBecomeActive(
           base::BindRepeating(&AttemptLoginTool::HandleWindowActivatedChange,
                               base::Unretained(this)));
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void AttemptLoginTool::StopObservingTab() {
   will_detach_subscription_ = {};
   tab_did_activate_subscription_ = {};
-#if BUILDFLAG(IS_ANDROID)
-  browser_observation_.Reset();
-#else
   window_did_become_active_subscription_ = {};
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void AttemptLoginTool::MaybeRetryCredentialNeedingFocus() {
@@ -651,37 +621,10 @@ void AttemptLoginTool::MaybeRetryCredentialNeedingFocus() {
 
   // TODO(crbug.com/482430429): Reconsider the use of BrowserWindowInterface on
   // Android.
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(
-          password_manager::features::kBiometricTouchToFill)) {
-    // On Android, a single Activity window can host multiple TabModels (e.g.
-    // standard and incognito). Therefore, verifying window->IsActive() is not
-    // sufficient; we also need to ensure the TabModel containing our tab is the
-    // currently active model, and that our tab is the selected active tab
-    // within it.
-    BrowserWindowInterface* browser_window = tab->GetBrowserWindowInterface();
-    ::ui::BaseWindow* window =
-        browser_window ? browser_window->GetWindow() : nullptr;
-    if (!window || !window->IsActive()) {
-      return;
-    }
-    TabListInterface* tab_list =
-        browser_window ? TabListInterface::From(browser_window) : nullptr;
-    if (!tab_list || tab_list->GetActiveTab() != tab) {
-      return;
-    }
-    // On Android, TabListInterface is always implemented by TabModel.
-    TabModel* tab_model = static_cast<TabModel*>(tab_list);
-    if (!tab_model->IsActiveModel()) {
-      return;
-    }
-  }
-#else
   BrowserWindowInterface* browser_window = tab->GetBrowserWindowInterface();
   if (!browser_window->IsActive()) {
     return;
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   StopObservingTab();
   tool_delegate().UninterruptFromTool();

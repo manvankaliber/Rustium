@@ -139,15 +139,9 @@
 #include "ui/base/page_transition_types.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/browser_context_helper/browser_context_types.h"
-#endif
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/profiles/profile_picker.h"
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/widget/glic_widget.h"
 #include "chrome/browser/media/audio_ducker.h"
 #include "chrome/browser/resource_coordinator/lifecycle_unit_state.mojom.h"
@@ -160,31 +154,17 @@
 #include "device/fido/virtual_fido_device_factory.h"
 #include "ui/display/screen.h"
 #include "ui/views/widget/widget_delegate.h"
-#endif
 
 #if BUILDFLAG(ENABLE_PDF)
 #include "chrome/browser/pdf/pdf_extension_test_util.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "base/android/jni_android.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
-#include "chrome/browser/ui/browser_window/public/global_browser_collection_platform_delegate.h"
-#endif
 
 #if defined(ADDRESS_SANITIZER) || defined(THREAD_SANITIZER) || \
     defined(MEMORY_SANITIZER)
 #define SLOW_BINARY
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-// Used to disable tests for android which have not yet been vetted for android.
-// These should be temporary, either the test should be enabled on android or
-// explicitly disabled for android later.
-#define NOT_VETTED_ON_ANDROID
-#endif
 
 namespace glic {
 
@@ -428,7 +408,6 @@ class GlicApiTest : public GlicApiBrowserTest,
         GetTestUrl("page.html")));
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   void CloseMainBrowserWithIncognitoKeepAlive() {
     PlatformBrowserTest::CreateIncognitoBrowser();
     CloseBrowserAsynchronously(GetBrowserWindowInterface());
@@ -457,7 +436,6 @@ class GlicApiTest : public GlicApiBrowserTest,
         },
         can_resize ? std::string("CanResize") : std::string("CannotResize"));
   }
-#endif
 
   int GetPopupCount() {
     int popup_count = 0;
@@ -596,7 +574,6 @@ class GlicApiTestWithWebContentsWarming : public GlicApiTest {
   base::test::ScopedFeatureList feature_list_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 // Test fixture for WebAuthn requests triggered in a background-warmed guest
 // WebContents.
 class GlicApiTestWebAuthnInWarmedGuest
@@ -638,7 +615,6 @@ class WebAuthnDialogObserver
   base::RepeatingClosure quit_closure_;
   bool ui_shown_ = false;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class GlicApiTestWithPixelOutput : public GlicApiTest {
  public:
@@ -865,7 +841,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTestForNoWebUiLoader, testNoWebUiLoader) {
   ExecuteJsTest();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class GlicApiTestForShowLoaderUntilMainPageOnload : public GlicApiTest {
  public:
   GlicApiTestForShowLoaderUntilMainPageOnload() {
@@ -926,7 +901,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTestForShowLoaderUntilMainPageOnload,
                             "!document.getElementById('loadingPanel').hidden")
                 .ExtractBool());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class GlicOnboardingApiTest : public GlicApiTest {
  public:
@@ -1034,12 +1008,10 @@ IN_PROC_BROWSER_TEST_P(GlicOnboardingApiTest, testSetOnboardingCompleted) {
   ASSERT_FALSE(GlicEnabling::HasConsentedForProfile(GetProfile()));
 
 // Android doesn't use global hotkeys or a taskbar launcher
-#if !BUILDFLAG(IS_ANDROID)
   base::test::TestFuture<void> default_browser_check_called;
   // Ensure that CheckDefaultBrowserToEnableLauncher was called.
   GlicLauncherConfiguration::SetCheckDefaultBrowserCallbackForTesting(
       default_browser_check_called.GetRepeatingCallback());
-#endif
 
   base::UserActionTester user_action_tester;
   EXPECT_EQ(0,
@@ -1051,12 +1023,10 @@ IN_PROC_BROWSER_TEST_P(GlicOnboardingApiTest, testSetOnboardingCompleted) {
       [&] { return GlicEnabling::HasConsentedForProfile(GetProfile()); }));
 
 // Android doesn't use global hotkeys or a taskbar launcher
-#if !BUILDFLAG(IS_ANDROID)
   // Wait for the default browser check to be called.
   EXPECT_TRUE(default_browser_check_called.Wait());
   GlicLauncherConfiguration::SetCheckDefaultBrowserCallbackForTesting(
       base::RepeatingClosure());
-#endif
 
   EXPECT_EQ(1,
             user_action_tester.GetActionCount("Glic.Onboarding.OptInAccept"));
@@ -1113,7 +1083,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testGetPinCandidatesSingleTab) {
 // PageHandler::CreateGuest pipe can race ahead of the channel-associated
 // GuestViewHost::ViewCreated pipe, failing with "View was not registered".
 // Re-enable on Android once kGlicNoWebview (b/534807813) launches.
-#if BUILDFLAG(IS_ANDROID) || defined(MEMORY_SANITIZER)
+#if defined(MEMORY_SANITIZER)
 #define MAYBE_testGetPinCandidatesWithPanelClosed \
   DISABLED_testGetPinCandidatesWithPanelClosed
 #else
@@ -1145,11 +1115,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testGetPinCandidatesWithPanelClosed) {
 }
 
 // TODO(crbug.com/530946737): Failing on tablet builders.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_testGetFormFactor DISABLED_testGetFormFactor
-#else
 #define MAYBE_testGetFormFactor testGetFormFactor
-#endif
 IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testGetFormFactor) {
   ASSERT_OK(OpenGlicForActiveTab());
   ExecuteJsTest();
@@ -1175,7 +1141,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testClosePanelAndShutdown) {
   ASSERT_OK(WaitForGlicClose());
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testShowProfilePicker) {
   base::test::TestFuture<void> profile_picker_opened;
   ProfilePicker::AddOnProfilePickerOpenedCallbackForTesting(
@@ -1184,11 +1149,9 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testShowProfilePicker) {
   ExecuteJsTest();
   ASSERT_TRUE(profile_picker_opened.Wait());
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 // TODO(https://crbug.com/512641949): Fix flakes.
-#if BUILDFLAG(IS_CHROMEOS) || !defined(NDEBUG)
+#if !defined(NDEBUG)
 #define MAYBE_testPanelActive DISABLED_testPanelActive
 #else
 #define MAYBE_testPanelActive testPanelActive
@@ -1209,10 +1172,8 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testPanelActive) {
 
   ContinueJsTest();
 }
-#endif
 
 // OS-global launcher hotkeys are not supported on Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testGetOsHotkeyState) {
   ASSERT_OK(OpenGlicForActiveTab());
   ExecuteJsTest({.params = base::Value(base::DictValue().Set(
@@ -1225,7 +1186,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testGetOsHotkeyState) {
   ContinueJsTest({.params = base::Value(base::DictValue().Set(
                       "expectedHotkey", GetHotkeyString()))});
 }
-#endif
 
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testGetFocusedTabStateV2WithNavigation) {
   ASSERT_OK(OpenGlicForActiveTab());
@@ -1291,11 +1251,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest,
 // PageHandler::CreateGuest pipe can race ahead of the channel-associated
 // GuestViewHost::ViewCreated pipe, failing with "View was not registered".
 // Re-enable on Android once kGlicNoWebview (b/534807813) launches.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_testGetZoomLevel DISABLED_testGetZoomLevel
-#else
 #define MAYBE_testGetZoomLevel testGetZoomLevel
-#endif
 IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testGetZoomLevel) {
   // Confirm that the observer is notified through getZoomLevel of the initial
   // state, i.e. zoom level of 1.0.
@@ -1337,11 +1293,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testGetPanelStateAttachedHidden) {
 
   // Open the first tab again, it should send the attached state.
   ActivateTab(first_tab);
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, activating a tab puts Glic in peeked state. We need to
-  // explicitly show/expand it to make it attached.
-  ASSERT_OK(OpenGlicForActiveTab());
-#endif
   ContinueJsTest();
   ASSERT_OK(RunUntilEqual(
       [&]() { return instance->host().web_client_contents()->GetVisibility(); },
@@ -2047,7 +1998,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTestWithDefaultTabContextDisabled,
 }
 
 // Glic floaty/detached and live (Audio) modes are not supported on Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTestWithDefaultTabContextDisabled,
                        testGetContextFromFocusedTabWithoutPermission) {
   ASSERT_OK_AND_ASSIGN(auto* instance, OpenGlicForActiveTabAndDetach());
@@ -2065,7 +2015,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTestWithDefaultTabContextDisabled,
   histogram_tester.ExpectTotalCount(
       "Glic.Api.GetContextFromFocusedTab.Error.Audio", 1);
 }
-#endif
 
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testGetContextFromTabFailsIfDoesNotExist) {
   ASSERT_OK(OpenGlicForActiveTab());
@@ -2304,7 +2253,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest,
       "Glic.Api.GetContextFromFocusedTab.Error.Text", 0);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testPinTabsFailsWhenIncognitoWindow) {
   ASSERT_OK(OpenGlicForActiveTabAndDetach());
 
@@ -2322,9 +2270,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testPinTabsFailsWhenIncognitoWindow) {
       {.params = base::Value(base::DictValue().Set(
            "incognitoTabId", base::NumberToString(incognito_tab_id)))});
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 class GlicApiTestWithFileUploadPolicyEnabled : public GlicApiTest {
  public:
   GlicApiTestWithFileUploadPolicyEnabled() {
@@ -2380,7 +2326,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testPinTabsWithTwoTabs) {
   GetTabListInterface()->CloseTab(second_tab->GetHandle());
   ContinueJsTest();
 }
-#endif
 
 IN_PROC_BROWSER_TEST_P(GlicApiTestWithWebContentsWarming,
                        testWebClientReadyOnPreload) {
@@ -2450,26 +2395,20 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testCreateTabSimple) {
 // foreground requests (background request gating intercepts and returns empty
 // response). Also, tab group inheritance is not supported by default on
 // Android.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_testActivateTabWithUrl DISABLED_testActivateTabWithUrl
 #else
 #define MAYBE_testActivateTabWithUrl testActivateTabWithUrl
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_testCreateTab DISABLED_testCreateTab
-#define MAYBE_testCreateTabInBackground DISABLED_testCreateTabInBackground
-#else
 #define MAYBE_testCreateTab testCreateTab
 #define MAYBE_testCreateTabInBackground testCreateTabInBackground
-#endif
 
 IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testActivateTabWithUrl) {
   ASSERT_OK(OpenGlicForActiveTab());
   ExecuteJsTest();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testActivateTabWithUrlAcrossWindows) {
   ASSERT_OK(OpenGlicForActiveTab());
   ExecuteJsTest();
@@ -2481,7 +2420,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testActivateTabWithUrlAcrossWindows) {
 
   ContinueJsTest();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testCreateTab) {
   ASSERT_OK(OpenGlicForActiveTab());
@@ -2720,8 +2658,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testCreateTabInBackground) {
 // inheritance is supported on Android's tab creation.
 // TODO(crbug.com/515495117): Fix and re-enable this test on Mac.
 // TODO(crbug.com/517282139): Fix and re-enable this test on Linux Msan.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC) || \
-    (BUILDFLAG(IS_LINUX) && defined(MEMORY_SANITIZER))
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) && defined(MEMORY_SANITIZER)
 #define MAYBE_testCreateTabByClickingOnLink \
   DISABLED_testCreateTabByClickingOnLink
 #else
@@ -2762,7 +2699,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testCreateTabByClickingOnLink) {
 
   // This test is a regression test for b/416464184.
   // Audio ducking should still work after clicking a link.
-#if !BUILDFLAG(IS_ANDROID)
   AudioDucker* audio_ducker =
       AudioDucker::GetForPage(FindGlicGuestMainFrame()->GetPage());
   ASSERT_TRUE(audio_ducker);
@@ -2770,19 +2706,15 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testCreateTabByClickingOnLink) {
     return audio_ducker->GetAudioDuckingState() ==
            AudioDucker::AudioDuckingState::kDucking;
   }));
-#endif
 
   ContinueJsTest();
 
-#if !BUILDFLAG(IS_ANDROID)
   ASSERT_TRUE(base::test::RunUntil([&]() {
     return audio_ducker->GetAudioDuckingState() ==
            AudioDucker::AudioDuckingState::kNoDucking;
   }));
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTestWithNewTabDaisyChain,
                        testCreateTabByClickingOnLinkDaisyChains) {
   ASSERT_OK(OpenGlicForActiveTab());
@@ -2790,9 +2722,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTestWithNewTabDaisyChain,
 
   ExecuteJsTest();
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTestWithNewTabDaisyChain,
                        testCanAttachPanelToFallbackEmbedder) {
   ASSERT_OK(OpenGlicForActiveTab());
@@ -2805,7 +2735,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTestWithNewTabDaisyChain,
 
   ContinueJsTest();
 }
-#endif
 
 IN_PROC_BROWSER_TEST_P(GlicApiTestWithNewTabDaisyChain,
                        testDaisyChainRecursiveAndInput) {
@@ -2900,7 +2829,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTestWithNewTabDaisyChain, testNewTabMetrics) {
       1));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testEnableDragResize) {
   ASSERT_OK(OpenGlicForActiveTabAndDetach());
   ASSERT_OK(WaitForGlicClient());
@@ -2908,26 +2836,20 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testEnableDragResize) {
   ExecuteJsTest();
   ASSERT_OK(WaitUntilCanResize(true));
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testDisableDragResize) {
   ASSERT_OK(OpenGlicForActiveTabAndDetach());
   ASSERT_OK(WaitUntilCanResize(true));
   ExecuteJsTest();
   ASSERT_OK(WaitUntilCanResize(false));
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testInitiallyNotResizable) {
   ASSERT_OK(OpenGlicForActiveTabAndDetach());
   ExecuteJsTest();
   ASSERT_OK(WaitUntilCanResize(false));
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testSetMinimumWidgetSize) {
   ASSERT_OK(OpenGlicForActiveTabAndDetach());
   ExecuteJsTest();
@@ -2945,11 +2867,9 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testSetMinimumWidgetSize) {
 
   ContinueJsTest();
 }
-#endif
 
 // Detached floating window mode (Floaty) is not supported on Android, where
 // Glic runs exclusively attached to tabs or side panels.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testPanelActiveWithMicrophone) {
   tabs::TabInterface* background_tab = CreateBackgroundTab(
       embedded_test_server()->GetURL("/browser_tests/test.html"));
@@ -2980,9 +2900,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testPanelActiveWithMicrophone) {
 
   ContinueJsTest();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testManualResizeChanged) {
   ASSERT_OK(OpenGlicForActiveTabAndDetach());
   GlicWidget* glic_widget = GetGlicWidget();
@@ -2999,9 +2917,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testManualResizeChanged) {
   // initiated resizing event.
   ContinueJsTest();
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testResizeWindowTooSmall) {
   ASSERT_OK(OpenGlicForActiveTabAndDetach());
   // Web client requests the window to be resized to 0x0, below the minimum
@@ -3016,9 +2932,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testResizeWindowTooSmall) {
   ASSERT_EQ(expected_size,
             glic_widget->WidgetToVisibleBounds(final_widget_bounds).size());
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testResizeWindowTooLarge) {
   ASSERT_OK(OpenGlicForActiveTabAndDetach());
   // Web client requests the window to be resized to 20000x20000, above the
@@ -3034,9 +2948,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testResizeWindowTooLarge) {
 
   ASSERT_TRUE(display_bounds.Contains(final_widget_bounds));
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testResizeWindowWithinBounds) {
   ASSERT_OK(OpenGlicForActiveTabAndDetach());
   // Web client requests the window to be resized to 800x700, which are valid
@@ -3052,7 +2964,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testResizeWindowWithinBounds) {
   ASSERT_EQ(expected_size,
             glic_widget->WidgetToVisibleBounds(final_widget_bounds).size());
 }
-#endif
 
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testFailureForCapturedApiTestError) {
   ASSERT_OK(OpenGlicForActiveTab());
@@ -3293,8 +3204,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testInitializeFailsAfterReload) {
 }
 
 // TODO(https://crbug.com/516659596): Re-enable on Linux builds.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || \
-    !defined(NDEBUG)
+#if BUILDFLAG(IS_LINUX) || !defined(NDEBUG)
 #define MAYBE_testNoClientCreated DISABLED_testNoClientCreated
 #else
 #define MAYBE_testNoClientCreated testNoClientCreated
@@ -3314,8 +3224,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTestWithFastTimeout, MAYBE_testNoClientCreated) {
 }
 
 // TODO(crbug.com/565561978): Failing on ChromeOS, too.
-#if BUILDFLAG(IS_ANDROID) || defined(SLOW_BINARY) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if defined(SLOW_BINARY) || BUILDFLAG(IS_LINUX)
 #define MAYBE_testNoBootstrap DISABLED_testNoBootstrap
 #else
 #define MAYBE_testNoBootstrap testNoBootstrap
@@ -3656,11 +3565,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTestUserStatusCheckTest,
 
 // TODO(crbug.com/565863579): Flaky timeout on Android waiting for
 // GlicHostRegistry in ExecuteJsTest.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_testInitializeFails DISABLED_testInitializeFails
-#else
 #define MAYBE_testInitializeFails testInitializeFails
-#endif
 IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testInitializeFails) {
   service()->enabling().SetCompletedFre(prefs::FreStatus::kNotStarted);
   glic::GlicHistogramTester histogram_tester;
@@ -3727,7 +3632,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testReloadWebUi) {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testReloadDetachedRemainsResizable) {
   ASSERT_OK_AND_ASSIGN(auto* instance, OpenGlicForActiveTabAndDetach());
   GlicClientConnectionObserver connection_observer(instance);
@@ -3741,7 +3645,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testReloadDetachedRemainsResizable) {
   ASSERT_OK(connection_observer.WaitForConnected());
   ASSERT_OK(WaitUntilCanResize(true));
 }
-#endif
 
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testDoNothing) {
   ASSERT_EQ(GetTabListInterface()->GetTabCount(), 1);
@@ -3764,7 +3667,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testDefaultInvocationSource) {
 }
 
 // This test is only useful for platforms that support floaty.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testIsBrowserOpen) {
   ASSERT_OK(OpenGlicForActiveTabAndDetach());
   ExecuteJsTest();
@@ -3773,7 +3675,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testIsBrowserOpen) {
 
   ContinueJsTest();
 }
-#endif
 
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testNavigateToDifferentClientPage) {
   glic::GlicHistogramTester histogram_tester;
@@ -4061,7 +3962,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testWindowOpenOpensTab) {
       GURL("https://www.chromium.org"));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testCtrlClickLinkOpensTab) {
   ASSERT_OK(OpenGlicForActiveTab());
   EXPECT_EQ(GetTabListInterface()->GetTabCount(), 1);
@@ -4072,9 +3972,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testCtrlClickLinkOpensTab) {
       GetTabListInterface()->GetActiveTab()->GetContents()->GetVisibleURL(),
       GURL("https://www.chromium.org"));
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testOpenGlicSettingsPage) {
   glic::GlicHistogramTester histogram_tester;
   ASSERT_OK(OpenGlicForActiveTab());
@@ -4088,9 +3986,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testOpenGlicSettingsPage) {
   histogram_tester.ExpectTotalCount(
       "Glic.Api.RequestHostLatency.OpenGlicSettingsPage", 0);
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testOpenPasswordManagerSettingsPage) {
   glic::GlicHistogramTester histogram_tester;
   ASSERT_OK(OpenGlicForActiveTab());
@@ -4105,9 +4001,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testOpenPasswordManagerSettingsPage) {
       GetTabListInterface()->GetActiveTab()->GetContents()->GetVisibleURL(),
       settings_url);
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testOpenContactInfoSettingsPage) {
   ASSERT_OK(OpenGlicForActiveTab());
   ExecuteJsTest();
@@ -4117,7 +4011,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testOpenContactInfoSettingsPage) {
       GetTabListInterface()->GetActiveTab()->GetContents()->GetVisibleURL(),
       chrome::GetSettingsUrl(chrome::kContactInfoSubPage));
 }
-#endif
 
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testClosedCaptioning) {
   ASSERT_OK(OpenGlicForActiveTab());
@@ -4254,7 +4147,7 @@ IN_PROC_BROWSER_TEST_P(
 // TODO(harringtond): Flaky on windows.
 // TODO(b/508340871): Re-enable on Android. Failing because something pops up
 // and suppresses the bottom sheet.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 #define MAYBE_testInvocationSource DISABLED_testInvocationSource
 #else
 #define MAYBE_testInvocationSource testInvocationSource
@@ -4282,12 +4175,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testInvocationSource) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_testFaviconLoadsWithGetTabById \
-  DISABLED_testFaviconLoadsWithGetTabById
-#else
 #define MAYBE_testFaviconLoadsWithGetTabById testFaviconLoadsWithGetTabById
-#endif
 IN_PROC_BROWSER_TEST_P(GlicApiTestWithPixelOutput,
                        MAYBE_testFaviconLoadsWithGetTabById) {
   auto* tab_0_contents = GetTabListInterface()->GetTab(0)->GetContents();
@@ -4412,36 +4300,11 @@ IN_PROC_BROWSER_TEST_P(GlicApiTestWithPixelOutput,
       second_tab_handle));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_testAndroidFaviconUpdatedViaObserver \
-  testAndroidFaviconUpdatedViaObserver
-#else
 #define MAYBE_testAndroidFaviconUpdatedViaObserver \
   DISABLED_testAndroidFaviconUpdatedViaObserver
-#endif
 IN_PROC_BROWSER_TEST_P(GlicApiTestWithPixelOutput,
                        MAYBE_testAndroidFaviconUpdatedViaObserver) {
-#if BUILDFLAG(IS_ANDROID)
-  ASSERT_OK(OpenGlicForActiveTab());
-  GetOnlyGlicInstance()->GetSharingManagerInternal().PinTabs(
-      {GetTabListInterface()->GetActiveTab()->GetHandle()});
-
-  ExecuteJsTest();
-
-  auto* observer =
-      service()->tab_favicon_observer().GetTabFaviconObserverForTesting(
-          GetTabListInterface()->GetActiveTab()->GetHandle());
-  ASSERT_TRUE(observer);
-
-  SkBitmap red_bitmap;
-  red_bitmap.allocN32Pixels(16, 16);
-  red_bitmap.eraseColor(SK_ColorRED);
-  observer->OnFaviconUpdated(red_bitmap);
-
-  ContinueJsTest();
-#else
   GTEST_SKIP() << "Android-only test";
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testInvokeWaitsForNotifyPanelWillOpen) {
@@ -4678,7 +4541,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testGetPageMetadataUpdates) {
   ExecuteJsTest();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTestWebAuthnInWarmedGuest,
                        testWebAuthnInWarmedGuestCrash) {
   // 1. Set up a virtual authenticator so WebAuthn discovery finds a security
@@ -4708,7 +4570,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTestWebAuthnInWarmedGuest,
   EXPECT_FALSE(web_modal::WebContentsModalDialogManager::FromWebContents(
       container->web_client_manager().web_client_contents()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // TODO(crbug.com/449764057): Flakes/fails on all platforms except windows.
 #if BUILDFLAG(IS_WIN)
@@ -4727,7 +4588,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testGetPageMetadataOnNavigation) {
 
 // TODO(crbug.com/454086033): Re-enable this test once I figure out how to
 // discard the tab while preserving the test harness.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(GlicApiTest,
                        DISABLED_testGetPageMetadataWebContentsChanged) {
   // Navigate the first tab.
@@ -4776,15 +4636,9 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest,
   // Continue the JS test to verify the metadata update.
   ContinueJsTest();
 }
-#endif
 
 // TODO(harringtond): Times out on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_testGetPageMetadataTabDestroyed \
-  DISABLED_testGetPageMetadataTabDestroyed
-#else
 #define MAYBE_testGetPageMetadataTabDestroyed testGetPageMetadataTabDestroyed
-#endif
 IN_PROC_BROWSER_TEST_P(GlicApiTest, MAYBE_testGetPageMetadataTabDestroyed) {
   // Open a second tab and open glic.
   GetTabListInterface()->OpenTab(
@@ -5365,54 +5219,6 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testStopMicrophone) {
   ContinueJsTest();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-class GlicApiTestWithGlicVoice : public GlicApiTest {
- public:
-  GlicApiTestWithGlicVoice() {
-    scoped_feature_list_.InitAndEnableFeature(features::kGlicVoice);
-  }
-
- protected:
-  // Drives the native entry point that Java calls when the browser window
-  // stops being the top resumed activity.
-  void SetBrowserWindowActive(BrowserWindowInterface* browser, bool active) {
-    GlobalBrowserCollectionPlatformDelegate* delegate =
-        GlobalBrowserCollection::GetInstance()->GetPlatformDelegate();
-    JNIEnv* env = base::android::AttachCurrentThread();
-    int64_t browser_ptr = reinterpret_cast<int64_t>(browser);
-    if (active) {
-      delegate->OnBrowserActivated(env, browser_ptr);
-    } else {
-      delegate->OnBrowserDeactivated(env, browser_ptr);
-    }
-  }
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-// Leaving Chrome while the bottom sheet is open asks the web client to stop the
-// microphone.
-IN_PROC_BROWSER_TEST_P(GlicApiTestWithGlicVoice,
-                       testStopMicrophoneOnWindowDeactivated) {
-  ASSERT_OK(OpenGlicForActiveTab());
-  ExecuteJsTest();
-  BrowserWindowInterface* browser =
-      GetTabListInterface()->GetActiveTab()->GetBrowserWindowInterface();
-  SetBrowserWindowActive(browser, false);
-  ContinueJsTest();
-  SetBrowserWindowActive(browser, true);
-}
-
-// Closing the bottom sheet asks the web client to stop the microphone.
-IN_PROC_BROWSER_TEST_P(GlicApiTestWithGlicVoice,
-                       testStopMicrophoneOnBottomSheetClosed) {
-  ASSERT_OK(OpenGlicForActiveTab());
-  ExecuteJsTest();
-  ASSERT_OK(CloseGlicForTabAndWait(GetTabListInterface()->GetActiveTab()));
-  ContinueJsTest();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(GlicApiTest, testSetSyntheticExperimentState) {
   ASSERT_OK(OpenGlicForActiveTab());
@@ -5609,13 +5415,8 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, testTabDataUpdateOnUrlChangeForPinnedTab) {
 }
 
 // TabData.favicon is not supported on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_testTabDataUpdateOnFaviconChangeForPinnedTab \
-  DISABLED_testTabDataUpdateOnFaviconChangeForPinnedTab
-#else
 #define MAYBE_testTabDataUpdateOnFaviconChangeForPinnedTab \
   testTabDataUpdateOnFaviconChangeForPinnedTab
-#endif
 IN_PROC_BROWSER_TEST_P(GlicApiTest,
                        MAYBE_testTabDataUpdateOnFaviconChangeForPinnedTab) {
   tabs::TabInterface* tab0 = GetTabListInterface()->GetActiveTab();
@@ -5737,8 +5538,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest, DISABLED_testFetchInactiveTabScreenshot) {
 
 // TODO(crbug.com/460826488): Enable on ChromeOS.
 // Win-asan is flaky.
-#if (BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-     (BUILDFLAG(IS_WIN) && defined(ADDRESS_SANITIZER)))
+#if BUILDFLAG(IS_WIN) && defined(ADDRESS_SANITIZER)
 #define MAYBE_testFetchInactiveTabScreenshotWhileMinimized \
   DISABLED_testFetchInactiveTabScreenshotWhileMinimized
 #else
@@ -5757,9 +5557,7 @@ IN_PROC_BROWSER_TEST_P(GlicApiTest,
   ExecuteJsTest({.params = base::Value(can_fetch_screenshot)});
 
   ActivateTab(tab0);
-#if !BUILDFLAG(IS_ANDROID)
   GetBrowserWindowInterface()->GetWindow()->Minimize();
-#endif
 
   ContinueJsTest();
 }
@@ -5890,12 +5688,6 @@ INSTANTIATE_TEST_SUITE_P(,
                          DefaultTestParamSet(),
                          &WithTestParams::PrintTestVariant);
 
-#if BUILDFLAG(IS_ANDROID)
-INSTANTIATE_TEST_SUITE_P(,
-                         GlicApiTestWithGlicVoice,
-                         DefaultTestParamSet(),
-                         &WithTestParams::PrintTestVariant);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 INSTANTIATE_TEST_SUITE_P(,
                          GlicApiTestWithRequestMonitor,
@@ -5966,12 +5758,10 @@ INSTANTIATE_TEST_SUITE_P(,
                          DefaultTestParamSet(),
                          &WithTestParams::PrintTestVariant);
 
-#if !BUILDFLAG(IS_ANDROID)
 INSTANTIATE_TEST_SUITE_P(,
                          GlicApiTestWebAuthnInWarmedGuest,
                          DefaultTestParamSet(),
                          &WithTestParams::PrintTestVariant);
-#endif
 
 INSTANTIATE_TEST_SUITE_P(,
                          GlicApiTestWithPixelOutput,
@@ -6010,7 +5800,6 @@ INSTANTIATE_TEST_SUITE_P(
                     TestParams{.enable_no_web_ui_loader = true}),
     &WithTestParams::PrintTestVariant);
 
-#if !BUILDFLAG(IS_ANDROID)
 INSTANTIATE_TEST_SUITE_P(
     ,
     GlicApiTestForShowLoaderUntilMainPageOnload,
@@ -6019,7 +5808,6 @@ INSTANTIATE_TEST_SUITE_P(
         TestParams{.enable_show_loader_until_main_page_onload = true,
                    .enable_ssr = true}),
     &WithTestParams::PrintTestVariant);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 INSTANTIATE_TEST_SUITE_P(,
                          GlicApiTestWithWebActuationSettingDisabled,
@@ -6084,12 +5872,10 @@ INSTANTIATE_TEST_SUITE_P(,
                          DefaultTestParamSet(),
                          &WithTestParams::PrintTestVariant);
 
-#if !BUILDFLAG(IS_ANDROID)
 INSTANTIATE_TEST_SUITE_P(,
                          GlicApiTestWithFileUploadPolicyEnabled,
                          DefaultTestParamSet(),
                          &WithTestParams::PrintTestVariant);
-#endif
 
 #if BUILDFLAG(ENABLE_PDF)
 INSTANTIATE_TEST_SUITE_P(

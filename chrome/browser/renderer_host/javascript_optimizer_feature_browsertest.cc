@@ -21,7 +21,6 @@
 #include "components/safe_browsing/buildflags.h"
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/test/bind.h"
 #include "base/test/run_until.h"
 #include "chrome/browser/infobars/infobar_features.h"
@@ -37,7 +36,6 @@
 #include "ui/base/interaction/element_tracker.h"
 #include "ui/views/bubble/bubble_dialog_model_host.h"
 #include "ui/views/interaction/element_tracker_views.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #include "chrome/common/chrome_features.h"
 #include "chrome/test/base/chrome_test_utils.h"
@@ -1118,7 +1116,7 @@ IN_PROC_BROWSER_TEST_F(
 }
 
 // TODO(crbug.com/461777786): Flaky on Linux and CrOS.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_ExpectOptimizationsEnabledInSpareRenderer \
   DISABLED_ExpectOptimizationsEnabledInSpareRenderer
 #else
@@ -1325,7 +1323,6 @@ IN_PROC_BROWSER_TEST_F(JavascriptOptimizerBrowserTest_DoNotUseSiteFamiliarity,
 }
 #endif  // BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 
-#if !BUILDFLAG(IS_ANDROID)
 
 constexpr char kSkipPixelTestsReason[] = "Should only run in pixel_tests.";
 // Baseline Gerrit CL number of the most recent CL that modified the UI.
@@ -1822,5 +1819,3 @@ IN_PROC_BROWSER_TEST_F(JavascriptOptimizerUiTest, ReloadInfoBarPixelTest) {
                  /*screenshot_name=*/"js_no_opt_reload_infobar",
                  /*baseline_cl=*/kScreenshotBaselineCL));
 }
-
-#endif  // !BUILDFLAG(IS_ANDROID)

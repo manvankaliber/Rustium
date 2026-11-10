@@ -78,13 +78,7 @@ class FakeVideoCaptureSystem : public media::VideoCaptureSystem {
 
 std::unique_ptr<DeviceFactoryImpl> CreateTestDeviceFactory(
     std::unique_ptr<media::VideoCaptureSystem> capture_system) {
-#if BUILDFLAG(IS_CHROMEOS)
-  return std::make_unique<DeviceFactoryImpl>(
-      std::move(capture_system), base::DoNothing(),
-      base::SequencedTaskRunner::GetCurrentDefault());
-#else
   return std::make_unique<DeviceFactoryImpl>(std::move(capture_system));
-#endif
 }
 
 class DeviceFactoryImplTest : public ::testing::Test {

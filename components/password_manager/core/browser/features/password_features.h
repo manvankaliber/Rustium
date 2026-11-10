@@ -23,19 +23,10 @@ BASE_DECLARE_FEATURE(kActorLogin);
 BASE_DECLARE_FEATURE(kActorLoginConflictingPermissionCleanup);
 BASE_DECLARE_FEATURE(kActorLoginLocalClassificationModel);
 
-#if BUILDFLAG(IS_ANDROID)
-// Enables the Actor Login Permissions Settings UI on Android.
-BASE_DECLARE_FEATURE(kActorLoginPermissionsUi);
-#endif
 
 // Enables syncing password permissions.
 BASE_DECLARE_FEATURE(kActorLoginSyncsPasswordPermissions);
 
-#if BUILDFLAG(IS_ANDROID)
-// Enables the "Select password" option in the right-click context menu on
-// Android.
-BASE_DECLARE_FEATURE(kAndroidSelectPasswordContextMenu);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Enables using clientside form classifier predictions for password forms.
 BASE_DECLARE_FEATURE(kApplyClientsideModelPredictionsForPasswordTypes);
@@ -66,10 +57,8 @@ BASE_DECLARE_FEATURE(kClearUndecryptablePasswords);
 // Delete undecryptable passwords from the store when Sync is active.
 BASE_DECLARE_FEATURE(kClearUndecryptablePasswordsOnSync);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)  // Desktop
 // Enables the Unified UI for the Password Manager.
 BASE_DECLARE_FEATURE(kCredentialManagementUnifiedUi);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(IS_WIN)
 // Killswitch for invoking the pending callback and recording kCanceledByChrome
@@ -82,7 +71,6 @@ BASE_DECLARE_FEATURE(kDeviceAuthenticatorWinCancel);
 // checking from authentication into `DeviceAuthAvailabilityChecker`.
 BASE_DECLARE_FEATURE(kDeviceReauthRefactor);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)  // Desktop
 // Enables Phase 2 of the Mojo JavaScript API migration for the password
 // manager, replacing the legacy passwordsPrivate extension API.
 BASE_DECLARE_FEATURE(kEnablePasswordManagerMojoApiPhase2);
@@ -92,7 +80,6 @@ BASE_DECLARE_FEATURE(kTrustedVaultDesktopUnlock);
 
 // Enables the Desktop Passkey unlock promo card UI flow.
 BASE_DECLARE_FEATURE(kPasskeyUnlockPromo);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // Cross domain credential data is not previewed by the manual fallback
 // suggestion popup.
@@ -106,22 +93,6 @@ BASE_DECLARE_FEATURE(kFetchChangePasswordUrlForPasswordChange);
 // selection, rather than autofilling on page load, with highlighting of fields.
 BASE_DECLARE_FEATURE(kFillOnAccountSelect);
 
-#if BUILDFLAG(IS_IOS)
-// Enables the clean up of hanging form extraction requests made by the
-// password suggestion helper. This is to fix the cases where the suggestions
-// pipeline is broken because the pipeline is waiting for password suggestions
-// that are never provided.
-BASE_DECLARE_FEATURE(kIosCleanupHangingPasswordFormExtractionRequests);
-
-// The feature parameter that determines the minimal period of time in
-// milliseconds before the form extraction request times out.
-extern const base::FeatureParam<int>
-    kIosPasswordFormExtractionRequestsTimeoutMs;
-
-// Enables password generation bottom sheet to be displayed (on iOS) when a user
-// is signed-in and taps on a new password field.
-BASE_DECLARE_FEATURE(kIOSProactivePasswordGenerationBottomSheet);
-#endif  // BUILDFLAG(IS_IOS)
 
 // Marks all submitted credentials as leaked, useful for testing of a password
 // leak dialog.
@@ -134,20 +105,10 @@ BASE_DECLARE_FEATURE(kOtpPhishGuard);
 // Intended as a kill-switch.
 BASE_DECLARE_FEATURE(kPasswordBlockOpaqueOrigins);
 
-#if BUILDFLAG(IS_ANDROID)
-// When enabled, DeletionOrigin is sent to Android Backend for password
-// deletions.
-BASE_DECLARE_FEATURE(kPassDeletionOriginToAndroidBackend);
 
-// The minimum GMS version required to send deletion origin to Android Backend.
-extern const base::FeatureParam<int> kPassDeletionOriginMinGmsVersion;
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)  // Desktop
 // Enables displaying a warning banner for compromised credentials in the
 // password details card.
 BASE_DECLARE_FEATURE(kPasswordCompromiseWarningInDetailsCard);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // Enables the actor PasswordChangeTool.
 BASE_DECLARE_FEATURE(kChangePasswordTool);
@@ -182,14 +143,8 @@ BASE_DECLARE_FEATURE(kPasswordManualFallbackSkipOpaqueOrigins);
 // When enabled, the user can resolve actionable errors in context during a
 // password save flow.
 BASE_DECLARE_FEATURE(kPasswordSaveInContextErrorResolution);
-#if BUILDFLAG(IS_ANDROID)
-inline constexpr int kMinGmsVersionForInFlowZuulRecovery = 263600000;
-extern const base::FeatureParam<int>
-    kPasswordSaveInContextErrorResolutionMinGmsVersion;
-#endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Enables resolution of Trusted Vault encryption errors directly within the
 // sign-in autofill dropdown.
 BASE_DECLARE_FEATURE(kPasswordSignInInContextErrorResolution);
@@ -217,14 +172,6 @@ BASE_DECLARE_FEATURE(kRestartToGainAccessToKeychain);
 // successful password change.
 BASE_DECLARE_FEATURE(kShowTabWithPasswordChangeOnSuccess);
 
-#if BUILDFLAG(IS_ANDROID)
-// When enabled, Chrome doesn't trigger its own biometric re-auth before filling
-// credentials selected in Android Credential Manager, since CredMan already
-// authenticates the user. Disable to restore Chrome's re-auth.
-// Kill switch. TODO(crbug.com/352720504): Clean up once the CredMan re-auth is
-// stable.
-BASE_DECLARE_FEATURE(kSkipChromeReauthForCredMan);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Displays at least the decryptable and never saved logins in the password
 // manager

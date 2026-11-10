@@ -19,11 +19,6 @@ class COMPONENT_EXPORT(INPUT) InputUtils {
   // Check whether input handling on Viz is supported. Currently it's supported
   // only on Android 16+.
   static bool IsTransferInputToVizSupported();
-#if BUILDFLAG(IS_ANDROID)
-  // Whether the desktop or mobile fling curve should be used.
-  static bool ShouldUseMobileFlingCurve();
-  static void RunGarbageCollection();
-#endif
 };
 
 perfetto::protos::pbzero::ChromeLatencyInfo2::InputType InputEventTypeToProto(

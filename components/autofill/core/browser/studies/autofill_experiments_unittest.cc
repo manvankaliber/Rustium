@@ -315,17 +315,5 @@ TEST_F(AutofillExperimentsTest, ShouldShowIbanOnSettingsPage_FeatureEnabled) {
   EXPECT_TRUE(ShouldShowIbanOnSettingsPage("us", &pref_service_));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(AutofillExperimentsTest,
-       FacilitatedPaymentsPixPref_DefaultValueSetToTrue) {
-  EXPECT_TRUE(pref_service_.GetBoolean(prefs::kFacilitatedPaymentsPix));
-}
-
-TEST_F(AutofillExperimentsTest,
-       FacilitatedPaymentsPixAccountLinkingPref_DefaultValueSetToTrue) {
-  EXPECT_TRUE(
-      pref_service_.GetBoolean(prefs::kFacilitatedPaymentsPixAccountLinking));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace autofill

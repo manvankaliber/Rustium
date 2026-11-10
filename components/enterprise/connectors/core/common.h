@@ -149,10 +149,8 @@ inline constexpr auto kEventNameToUmaEnumMap =
          EnterpriseReportingEventType::kExtensionTelemetryEvent},
         {kKeySaasUsageEvent,
          EnterpriseReportingEventType::kSaasUsageReportEvent},
-#if !BUILDFLAG(IS_IOS)
         {kKeyBrowserLaunchEvent,
          EnterpriseReportingEventType::kBrowserLaunchEvent},
-#endif
     });
 
 // Struct holding the necessary data to tweak the behavior of the reporting

@@ -70,10 +70,8 @@ class FileAnalysisRequestBase : public BinaryUploadRequest {
   static void SetIsVirtualFileForTesting(bool is_virtual);
 
  protected:
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   virtual void ProcessZipFile(Data data) = 0;
   virtual void ProcessRarFile(Data data) = 0;
-#endif
 
   // Wrapped by BinaryUploadRequest::register_on_got_hash_callback_. Use
   // call_last = true if a callback may delete this object after it

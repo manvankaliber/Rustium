@@ -97,15 +97,6 @@ void SystemMetricsSampler::SystemSampler::SampleSystemMetrics() {
                   cpu_throughput->estimated_frequency);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  auto frequencies = cpu_frequency_monitor_.GetCoreFrequencies();
-  for (const auto& freq : frequencies) {
-    TRACE_COUNTER(TRACE_DISABLED_BY_DEFAULT("system_metrics"),
-                  perfetto::CounterTrack("CpuFrequency", freq.core_id.value(),
-                                         perfetto::Track::Global(0)),
-                  freq.freq);
-  }
-#endif
 
 #if BUILDFLAG(IS_WIN)
   base::CpuFrequencyInfo cpu_info = base::GetCpuFrequencyInfo();
@@ -177,7 +168,7 @@ void SystemMetricsSampler::ProcessSampler::SampleProcessMetrics() {
     TRACE_COUNTER(TRACE_DISABLED_BY_DEFAULT("system_metrics"),
                   "PhysicalMemoryFootprint",
                   memory_info->physical_footprint_bytes);
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
     TRACE_COUNTER(TRACE_DISABLED_BY_DEFAULT("system_metrics"), "VmSwapMemory",
                   memory_info->vm_swap_bytes);
     TRACE_COUNTER(TRACE_DISABLED_BY_DEFAULT("system_metrics"), "RssAnonMemory",

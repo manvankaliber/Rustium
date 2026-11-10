@@ -15,9 +15,6 @@
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/gfx/image/image.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/tab_favicon.h"
-#endif
 
 namespace content {
 class Page;
@@ -85,9 +82,6 @@ class FaviconAdapter : public content::WebContentsObserver {
   FaviconAdapter(tabs::TabInterface* tab, FaviconNotifier* notifier);
   ~FaviconAdapter() override = default;
 
-#if BUILDFLAG(IS_ANDROID)
-  virtual TabFavicon::Observer* GetTabFaviconObserverForTesting() = 0;
-#endif
 
  protected:
   raw_ptr<tabs::TabInterface> tab_;

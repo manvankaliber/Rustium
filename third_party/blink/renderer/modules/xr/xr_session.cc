@@ -493,17 +493,7 @@ const FrozenArray<IDLString>& XRSession::enabledFeatures() const {
 }
 
 bool XRSession::isSystemKeyboardSupported() const {
-#if BUILDFLAG(ENABLE_VR) && BUILDFLAG(IS_ANDROID)
-  // Cardboard and ARCore technically support the keyboard as-is, but to avoid
-  // exposing it on Quest/OpenXR before the implementation is ready, we guard
-  // it with this flag for all Android for now. This results in false-negatives
-  // for non-OpenXR runtimes, which matches the existing behavior where keyboard
-  // support was always disabled.
-  return base::FeatureList::IsEnabled(
-      device::features::kOpenXrAndroidSystemKeyboard);
-#else
   return false;
-#endif
 }
 
 XRAnchorSet* XRSession::TrackedAnchors() const {

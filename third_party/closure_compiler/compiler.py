@@ -14,11 +14,11 @@ import sys
 
 
 _CURRENT_DIR = os.path.join(os.path.dirname(__file__))
-sys.path.append(os.path.join(_CURRENT_DIR, "..", "..", "build", "android"))
+sys.path.append(os.path.join(_CURRENT_DIR, "..", "..", "build"))
 import java_home  # noqa: E402
 
 _JAVA_PATH = os.path.join(java_home.JAVA_HOME, "bin", "java")
-assert os.path.isfile(_JAVA_PATH), "java only allowed in android builds"
+assert os.path.isfile(_JAVA_PATH), "The hermetic JDK must be checked out to run Closure compiler"
 
 class Compiler(object):
   """Runs the Closure compiler on given source files to typecheck them

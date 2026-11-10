@@ -147,7 +147,7 @@ void RemotingRegisterSupportHostRequest::Initialize(
 
 void RemotingRegisterSupportHostRequest::RegisterHost(
     const internal::RemoteSupportHostStruct& host,
-    const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+    const std::optional<EnterpriseSessionParams>& enterprise_params,
     RegisterHostCallback callback) {
   auto request = std::make_unique<apis::v1::RegisterSupportHostRequest>();
   request->set_public_key(host.public_key);

@@ -85,27 +85,16 @@ export function getHtml(this: AppElement) {
   </div>
   <!-- Privacy note -->
   <div id="privacy-note" class="privacy-note">$i18nRaw{privacyNote}</div>
-<if expr="is_chromeos">
-  <div id="share-privacy-note" class="privacy-note">
-    $i18n{mayBeSharedWithPartnerNote}
-  </div>
-</if>
 </div>
 <!-- Buttons -->
 <div id="bottom-buttons-container" class="content">
   <div class="buttons-pane bottom-buttons">
     <button id="cancel-button" type="submit" class="white-button">
       $i18n{cancel}
-<if expr="is_chromeos">
-      <div id="cancel-button-hover-bg"></div>
-</if>
     </button>
     <button id="send-report-button" type="submit" class="blue-button"
         aria-describedby="questionnaire-notification">
       $i18n{sendReport}
-<if expr="is_chromeos">
-      <div id="send-button-hover-bg"></div>
-</if>
     </button>
   </div>
 </div>

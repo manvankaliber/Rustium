@@ -44,7 +44,7 @@ class TestRegisterSupportHostRequest : public RegisterSupportHostRequestBase {
   MOCK_METHOD(void,
               RegisterHost,
               (const internal::RemoteSupportHostStruct& host,
-               const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+               const std::optional<EnterpriseSessionParams>& enterprise_params,
                RegisterHostCallback callback),
               (override));
   MOCK_METHOD(void, CancelPendingRequests, (), (override));
@@ -104,7 +104,7 @@ class RegisterSupportHostRequestBaseTest : public testing::Test {
 
   static decltype(auto) DoValidateRegisterHostAndRespondOk() {
     return [](const internal::RemoteSupportHostStruct& host,
-              const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+              const std::optional<EnterpriseSessionParams>& enterprise_params,
               RegisterHostCallback callback) {
       ValidateRegisterHost(host);
       RespondOk(std::move(callback));
@@ -112,9 +112,9 @@ class RegisterSupportHostRequestBaseTest : public testing::Test {
   }
 
   static decltype(auto) DoValidateEnterpriseOptionsAndRespondOk(
-      const ChromeOsEnterpriseParams& expected_enterprise_params) {
+      const EnterpriseSessionParams& expected_enterprise_params) {
     return [=](const internal::RemoteSupportHostStruct& host,
-               const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+               const std::optional<EnterpriseSessionParams>& enterprise_params,
                RegisterHostCallback callback) {
       ASSERT_TRUE(enterprise_params.has_value());
       ASSERT_EQ(*enterprise_params, expected_enterprise_params);
@@ -125,7 +125,7 @@ class RegisterSupportHostRequestBaseTest : public testing::Test {
 
   static decltype(auto) DoValidateAuthorizedHelperAndRespondOk() {
     return [](const internal::RemoteSupportHostStruct& host,
-              const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+              const std::optional<EnterpriseSessionParams>& enterprise_params,
               RegisterHostCallback callback) {
       ASSERT_FALSE(host.authorized_helper_email.empty());
       ASSERT_EQ(host.authorized_helper_email, kTestAuthorizedHelper);
@@ -177,7 +177,7 @@ TEST_F(RegisterSupportHostRequestBaseTest, RegisterFtl) {
 
 TEST_F(RegisterSupportHostRequestBaseTest,
        RegisterWithEnterpriseOptionsDisabled) {
-  ChromeOsEnterpriseParams params;
+  EnterpriseSessionParams params;
   params.show_troubleshooting_tools = false;
   params.allow_troubleshooting_tools = false;
   params.allow_reconnections = false;
@@ -207,7 +207,7 @@ TEST_F(RegisterSupportHostRequestBaseTest,
 
 TEST_F(RegisterSupportHostRequestBaseTest,
        RegisterWithEnterpriseOptionsEnabled) {
-  ChromeOsEnterpriseParams params;
+  EnterpriseSessionParams params;
   params.show_troubleshooting_tools = true;
   params.allow_troubleshooting_tools = true;
   params.allow_reconnections = true;
@@ -260,7 +260,7 @@ TEST_F(RegisterSupportHostRequestBaseTest, FailedWithDeadlineExceeded) {
   EXPECT_CALL(*register_host_request_, RegisterHost(_, _, _))
       .WillOnce(
           [](const internal::RemoteSupportHostStruct& host,
-             const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+             const std::optional<EnterpriseSessionParams>& enterprise_params,
              RegisterHostCallback callback) {
             ValidateRegisterHost(host);
             std::move(callback).Run(
@@ -289,7 +289,7 @@ TEST_F(RegisterSupportHostRequestBaseTest,
   EXPECT_CALL(*register_host_request_, RegisterHost(_, _, _))
       .WillOnce(
           [&](const internal::RemoteSupportHostStruct& host,
-              const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+              const std::optional<EnterpriseSessionParams>& enterprise_params,
               RegisterHostCallback callback) {
             ValidateRegisterHost(host);
             register_support_host_callback = std::move(callback);

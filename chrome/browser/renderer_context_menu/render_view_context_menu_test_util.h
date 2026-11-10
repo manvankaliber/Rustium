@@ -37,11 +37,6 @@ class WebContents;
 namespace ui {
 class MenuModel;
 }
-#if BUILDFLAG(IS_CHROMEOS)
-namespace policy {
-class DlpRulesManager;
-}
-#endif
 
 class TestRenderViewContextMenu : public RenderViewContextMenu {
  public:
@@ -122,13 +117,7 @@ class TestRenderViewContextMenu : public RenderViewContextMenu {
   void Show() override;
   std::optional<IndigoReplacementInfo> GetIndigoReplacementInfo()
       const override;
-#if BUILDFLAG(IS_CHROMEOS)
-  const policy::DlpRulesManager* GetDlpRulesManager() const override;
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void set_dlp_rules_manager(policy::DlpRulesManager* dlp_rules_manager);
-#endif
 
 #if BUILDFLAG(ENABLE_COMPOSE)
   void SetChromeComposeClient(ChromeComposeClient* compose_client);
@@ -150,9 +139,6 @@ class TestRenderViewContextMenu : public RenderViewContextMenu {
  private:
   raw_ptr<BrowserWindowInterface> browser_ = nullptr;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  raw_ptr<policy::DlpRulesManager> dlp_rules_manager_ = nullptr;
-#endif
 
 #if BUILDFLAG(ENABLE_COMPOSE)
   raw_ptr<ChromeComposeClient> compose_client_ = nullptr;

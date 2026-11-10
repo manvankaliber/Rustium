@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// <if expr="is_ios">
-import 'chrome://resources/js/ios/web_ui.js';
-// </if>
 
 import 'chrome://resources/js/action_link.js';
 import '/strings.m.js';

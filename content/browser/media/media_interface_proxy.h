@@ -67,18 +67,6 @@ class CONTENT_EXPORT MediaInterfaceProxy final
   void CreateDefaultRenderer(
       const std::string& audio_device_id,
       mojo::PendingReceiver<media::mojom::Renderer> receiver) final;
-#if BUILDFLAG(ENABLE_CAST_RENDERER)
-  void CreateCastRenderer(
-      const base::UnguessableToken& overlay_plane_id,
-      mojo::PendingReceiver<media::mojom::Renderer> receiver) final;
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  void CreateFlingingRenderer(
-      const std::string& presentation_id,
-      mojo::PendingRemote<media::mojom::FlingingRendererClientExtension>
-          client_extension,
-      mojo::PendingReceiver<media::mojom::Renderer> receiver) final;
-#endif  // BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_WIN)
   void CreateMediaFoundationRenderer(
       mojo::PendingRemote<media::mojom::MediaLog> media_log_remote,
@@ -128,17 +116,6 @@ class CONTENT_EXPORT MediaInterfaceProxy final
   void OnCdmServiceConnectionError(const media::CdmType& cdm_type);
 #endif  // BUILDFLAG(ENABLE_LIBRARY_CDMS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Callback for for Chrome OS CDM creation to facilitate falling back to the
-  // library CDM if the daemon is unavailable or other settings prevent usage of
-  // it.
-  void OnChromeOsCdmCreated(
-      const media::CdmConfig& cdm_config,
-      CreateCdmCallback callback,
-      mojo::PendingRemote<media::mojom::ContentDecryptionModule> receiver,
-      media::mojom::CdmContextPtr cdm_context,
-      media::CreateCdmStatus status);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
   // Gets the InterfaceFactory from MediaFoundationService. May return null if

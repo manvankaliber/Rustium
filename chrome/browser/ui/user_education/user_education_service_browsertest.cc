@@ -40,7 +40,6 @@ IN_PROC_BROWSER_TEST_F(UserEducationServiceBrowserTest,
   EXPECT_EQ(nullptr, service->tutorial_service());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(UserEducationServiceBrowserTest,
                        TestServicePresentInGuestWithSomeServicesMissing) {
@@ -54,5 +53,3 @@ IN_PROC_BROWSER_TEST_F(UserEducationServiceBrowserTest,
   EXPECT_EQ(nullptr, service->ntp_promo_controller());
   EXPECT_EQ(nullptr, service->ntp_promo_registry());
 }
-
-#endif  // BUILDFLAG(IS_CHROMEOS)

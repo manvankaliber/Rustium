@@ -58,14 +58,9 @@
 #include "ui/base/page_transition_types.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/web_applications/app_browser_controller.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/components/kiosk/kiosk_utils.h"
-#endif
 
 namespace internal {
 const char kHistogramPrerenderPredictionStatusDefaultSearchEngine[] =
@@ -675,7 +670,6 @@ PrerenderManager::PrewarmDecision PrerenderManager::ShouldPrewarm(
     return PrewarmDecision::kInPictureInPicture;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* tab = tabs::TabInterface::MaybeGetFromContents(web_contents())) {
     if (web_app::AppBrowserController::IsIsolatedWebApp(
             tab->GetBrowserWindowInterface())) {
@@ -684,13 +678,7 @@ PrerenderManager::PrewarmDecision PrerenderManager::ShouldPrewarm(
       return PrewarmDecision::kInIsolatedWebApp;
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (chromeos::IsKioskSession()) {
-    return PrewarmDecision::kInKioskSession;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   return PrewarmDecision::kReady;
 }

@@ -6,10 +6,6 @@ import("//build/config/features.gni")
 
 static_library("core") {
   sources = [
-    "android_app_description.cc",
-    "android_app_description.h",
-    "android_app_description_tools.cc",
-    "android_app_description_tools.h",
     "browser_bound_key_metadata.cc",
     "browser_bound_key_metadata.h",
     "csp_checker.h",
@@ -73,19 +69,17 @@ static_library("core") {
     "web_payments_web_data_service.h",
   ]
 
-  if (!is_android) {
-    sources += [
-      "payment_options.cc",
-      "payment_options.h",
-      "payment_options_provider.h",
-      "payment_response.cc",
-      "payment_response.h",
-      "payments_profile_comparator.cc",
-      "payments_profile_comparator.h",
-      "strings_util.cc",
-      "strings_util.h",
-    ]
-  }
+  sources += [
+    "payment_options.cc",
+    "payment_options.h",
+    "payment_options_provider.h",
+    "payment_response.cc",
+    "payment_response.h",
+    "payments_profile_comparator.cc",
+    "payments_profile_comparator.h",
+    "strings_util.cc",
+    "strings_util.h",
+  ]
 
   deps = [
     ":currency_formatter",
@@ -136,13 +130,6 @@ static_library("error_strings") {
     "native_error_strings.cc",
     "native_error_strings.h",
   ]
-
-  if (is_chromeos) {
-    sources += [
-      "chrome_os_error_strings.cc",
-      "chrome_os_error_strings.h",
-    ]
-  }
 }
 
 static_library("method_strings") {
@@ -181,7 +168,6 @@ static_library("test_support") {
 source_set("unit_tests") {
   testonly = true
   sources = [
-    "android_app_description_tools_unittest.cc",
     "const_csp_checker_unittest.cc",
     "currency_formatter_unittest.cc",
     "error_message_util_unittest.cc",
@@ -203,15 +189,13 @@ source_set("unit_tests") {
     "web_payments_web_data_service_unittest.cc",
   ]
 
-  if (!is_android) {
-    sources += [
-      "payment_address_unittest.cc",
-      "payment_options_unittest.cc",
-      "payment_request_data_util_unittest.cc",
-      "payment_response_unittest.cc",
-      "payments_profile_comparator_unittest.cc",
-    ]
-  }
+  sources += [
+    "payment_address_unittest.cc",
+    "payment_options_unittest.cc",
+    "payment_request_data_util_unittest.cc",
+    "payment_response_unittest.cc",
+    "payments_profile_comparator_unittest.cc",
+  ]
 
   deps = [
     ":core",

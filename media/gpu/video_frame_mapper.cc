@@ -4,7 +4,7 @@
 
 #include "media/gpu/video_frame_mapper.h"
 
-#include "media/gpu/chromeos/video_frame_resource.h"
+#include "media/gpu/linux/video_frame_resource.h"
 
 namespace media {
 scoped_refptr<VideoFrame> VideoFrameMapper::Map(

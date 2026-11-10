@@ -3,9 +3,6 @@
 // found in the LICENSE file.
 
 // clang-format off
-// <if expr="is_chromeos">
-import {hasGoogleIdentifier} from './voice_language_conversions.js';
-// </if>
 // clang-format on
 
 import type {VisualBrowserProxy} from '../app/visual_browser_proxy.js';
@@ -157,9 +154,7 @@ export class VoiceLanguageController {
     // TODO: crbug.com/390435037 - Simplify logic around loading voices and
     // language availability, especially around the new TTS engine.
 
-    // <if expr="not is_chromeos">
     this.enableNowAvailableLangs_();
-    // </if>
 
     if (!hadAvailableVoices && this.hasAvailableVoices()) {
       // If we go from having no available voices to having voices available,
@@ -563,13 +558,7 @@ export class VoiceLanguageController {
     const availableVoicesForLang = this.getAvailableVoicesForLang_(lowerLang);
 
     let disableLang = false;
-    // <if expr="is_chromeos">
-    disableLang =
-        !availableVoicesForLang.some(voice => hasGoogleIdentifier(voice));
-    // </if>
-    // <if expr="not is_chromeos">
     disableLang = availableVoicesForLang.length === 0;
-    // </if>
 
     if (disableLang) {
       this.audioBrowserProxy_.onLanguagePrefChange(lowerLang, false);
@@ -610,7 +599,6 @@ export class VoiceLanguageController {
   // a language with natural voices but no system voices. This only needs to
   // happen on non-ChromeOS, since we're only installing the new engine
   // outside of ChromeOS.
-  // <if expr="not is_chromeos">
   private enableNowAvailableLangs_(): void {
     const nowAvailableLangs =
         [...this.model_.getPossiblyDisabledLangs()].filter(
@@ -626,7 +614,6 @@ export class VoiceLanguageController {
   private isLangAvailable_(lang: string) {
     return this.model_.getAvailableLangs().has(lang.toLowerCase());
   }
-  // </if>
 
   restoreFromPrefs(): void {
     // We need to make sure the languages we choose correspond to voices, so
@@ -973,9 +960,7 @@ export class VoiceLanguageController {
 
         // Keep track of these languages in case they become available
         // after the TTS engine extension is installed.
-        // <if expr="not is_chromeos">
         this.model_.addPossiblyDisabledLang(storedLanguage.toLowerCase());
-        // </if>
       }
     });
     this.model_.getEnabledLangs().forEach(

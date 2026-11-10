@@ -45,11 +45,9 @@
 #include "url/gurl.h"
 #include "url/mojom/url.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
 #include "chrome/browser/ui/webui/webui_embedding_context.h"
-#endif
 
 namespace {
 using ::action_chips::RecordActionChipsRetrievalLatencyMetrics;
@@ -68,7 +66,6 @@ using ::tabs::TabInterface;
  * - Chrome internal page
  * - Chrome untrusted internal page
  */
-#if !BUILDFLAG(IS_ANDROID)
 bool IsInvalidMostRecentTab(content::WebContents& contents) {
   const GURL& url = contents.GetLastCommittedURL();
   return google_util::IsGoogleSearchUrl(url) || !url.is_valid() ||
@@ -120,7 +117,6 @@ bool IsTabReadyForActionChipsRetrieval(content::WebContents* web_contents,
 
   return tabs::TabInterface::GetFromContents(web_contents)->IsActivated();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }  // namespace
 
 ActionChipsHandler::ActionChipsHandler(
@@ -136,7 +132,6 @@ ActionChipsHandler::ActionChipsHandler(
       web_contents_(web_contents),
       action_chips_generator_(std::move(action_chips_generator)),
       get_session_handle_callback_(std::move(get_session_handle_callback)) {
-#if !BUILDFLAG(IS_ANDROID)
   browser_window_interface_subscription_ =
       webui::RegisterBrowserWindowInterfaceChanged(
           web_contents_.get(),
@@ -144,7 +139,6 @@ ActionChipsHandler::ActionChipsHandler(
               &ActionChipsHandler::OnBrowserWindowInterfaceChanged,
               weak_factory_.GetWeakPtr()));
   UpdateTabStripModelObservation();
-#endif  // !BUILDFLAG(IS_ANDROID)
   pref_change_registrar_.Init(profile_->GetPrefs());
   pref_change_registrar_.Add(
       prefs::kNtpToolChipsVisible,
@@ -161,12 +155,10 @@ void ActionChipsHandler::StartActionChipsRetrieval() {
   }
 
   TabInterface* tab = nullptr;
-#if !BUILDFLAG(IS_ANDROID)
   if (contextual_search::ContextualSearchService::IsContextSharingEnabled(
           profile_->GetPrefs())) {
     tab = FindMostRecentTab(web_contents_);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   const GURL current_url =
       tab != nullptr ? tab->GetContents()->GetLastCommittedURL() : GURL();
@@ -221,7 +213,6 @@ void ActionChipsHandler::SendActionChipsToUi(base::TimeTicks start_time,
   page_->OnActionChipsChanged(std::move(chips));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ActionChipsHandler::OnTabStripModelChanged(
     TabStripModel*,
     const TabStripModelChange& change,
@@ -250,7 +241,6 @@ void ActionChipsHandler::OnBrowserWindowInterfaceChanged() {
   last_processed_url_.reset();
   StartActionChipsRetrieval();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 bool ActionChipsHandler::ShouldThrottleRetrieval(const GURL& current_url) {
   if (last_processed_url_ == current_url) {

@@ -74,11 +74,6 @@
 #include "mediapipe/gpu/gl_context.h"
 #endif
 
-#if MEDIAPIPE_TENSOR_USE_AHWB
-#include "mediapipe/framework/formats/shared_fd.h"
-#include "mediapipe/framework/formats/tensor_fd_finished_func.h"  // IWYU pragma: keep
-#include "mediapipe/util/sync_wait.h"
-#endif
 
 #if defined(__EMSCRIPTEN__)
 #include "mediapipe/gpu/webgpu/webgpu_service.h"
@@ -93,9 +88,6 @@ namespace {
 // which LiteRT's buffer requirements will be checked.
 constexpr litert::TensorBufferType kPreferredBufferTypes[] = {
     litert::TensorBufferType::kWebGpuTexture,
-#if MEDIAPIPE_TENSOR_USE_AHWB
-    litert::TensorBufferType::kAhwb,
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
     litert::TensorBufferType::kHostMemory,
     litert::TensorBufferType::kFastRpc,
     litert::TensorBufferType::kDmaBuf,
@@ -896,12 +888,6 @@ InferenceRunnerLiteRt::~InferenceRunnerLiteRt() {
 #if MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
   if (gl_context_) {
     gl_context_->Run([this]() {
-#if MEDIAPIPE_TENSOR_USE_AHWB
-      {
-        absl::MutexLock lock(&ahwb_buffer_cache_->mutex);
-        ahwb_buffer_cache_->entries.clear();
-      }
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
       managed_input_buffers_.clear();
       managed_output_buffers_.clear();
       feedback_manager_.reset();
@@ -910,14 +896,6 @@ InferenceRunnerLiteRt::~InferenceRunnerLiteRt() {
     });
   }
 #endif  // MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
-#if MEDIAPIPE_TENSOR_USE_AHWB
-  // Fallback for runners without a GL context (or non-GL builds); a no-op if
-  // the cache was already cleared on the GL thread above.
-  {
-    absl::MutexLock lock(&ahwb_buffer_cache_->mutex);
-    ahwb_buffer_cache_->entries.clear();
-  }
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
   managed_input_buffers_.clear();
   managed_output_buffers_.clear();
   feedback_manager_.reset();
@@ -935,9 +913,6 @@ InferenceRunnerLiteRt::~InferenceRunnerLiteRt() {
 }
 
 absl::Status InferenceRunnerLiteRt::Close() {
-#if MEDIAPIPE_TENSOR_USE_AHWB
-  ABSL_RETURN_IF_ERROR(CleanAsyncRunStates(/*wait_for_all=*/true));
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
   return absl::OkStatus();
 }
 
@@ -1224,126 +1199,6 @@ InferenceRunnerLiteRt::CreateMetalOutputTensorBufferFromMpTensor(
 }
 #endif  // MEDIAPIPE_METAL_ENABLED
 
-#if MEDIAPIPE_TENSOR_USE_AHWB
-
-absl::StatusOr<int> DupFd(int fd) {
-  RET_CHECK_GE(fd, 0) << "Invalid fd: " << fd;
-  int dup_fd = -1;
-  if (dup_fd = dup(fd); dup_fd < 0) {
-    return absl::InternalError(
-        absl::StrCat("Failed to duplicate fd: ", fd, ": ", strerror(errno)));
-  }
-  return dup_fd;
-}
-
-bool InferenceRunnerLiteRt::IsAhwbTensorBufferInUse(
-    LiteRtTensorBuffer handle, const InferenceRunContext& ctx) const {
-  auto contains_handle = [handle](const std::vector<litert::TensorBuffer>& v) {
-    return absl::c_any_of(
-        v, [handle](const auto& buf) { return buf.Get() == handle; });
-  };
-  if (contains_handle(ctx.litert_inputs) ||
-      contains_handle(ctx.litert_outputs)) {
-    return true;
-  }
-  if (run_async_) {
-    absl::MutexLock lock(&async_runs_mutex_);
-    for (const auto& state : active_async_runs_) {
-      if (contains_handle(state.context.litert_inputs) ||
-          contains_handle(state.context.litert_outputs)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-absl::StatusOr<litert::TensorBuffer>
-InferenceRunnerLiteRt::GetOrCreateAhwbTensorBuffer(
-    const Tensor::AHardwareBufferView& ahwb_view,
-    const litert::RankedTensorType& tensor_type,
-    const InferenceRunContext& ctx) {
-  AHardwareBuffer* ahwb = ahwb_view.handle();
-  absl::MutexLock lock(&ahwb_buffer_cache_->mutex);
-  auto [it, inserted] = ahwb_buffer_cache_->entries.try_emplace(ahwb);
-  if (inserted) {
-    ahwb_view.AddHardwareBufferReleaseCallback(
-        [weak_cache = std::weak_ptr<AhwbBufferCache>(ahwb_buffer_cache_),
-         ahwb]() {
-          if (auto cache = weak_cache.lock()) {
-            absl::MutexLock lock(&cache->mutex);
-            cache->entries.erase(ahwb);
-          }
-        });
-  }
-  std::vector<litert::TensorBuffer>& cached_buffers = it->second;
-  for (auto& candidate : cached_buffers) {
-    LITERT_ASSIGN_OR_RETURN(auto cached_type, candidate.TensorType());
-    // RankedTensorType::operator== compares element type and layout
-    // (dimensions and strides).
-    if (cached_type == tensor_type &&
-        !IsAhwbTensorBufferInUse(candidate.Get(), ctx)) {
-      LITERT_ASSIGN_OR_RETURN(auto duplicated_buffer, candidate.Duplicate());
-      return duplicated_buffer;
-    }
-  }
-  LITERT_ASSIGN_OR_RETURN(auto new_buffer, litert::TensorBuffer::CreateFromAhwb(
-                                               *environment_, tensor_type, ahwb,
-                                               /*ahwb_offset=*/0));
-  cached_buffers.push_back(std::move(new_buffer));
-  LITERT_ASSIGN_OR_RETURN(auto duplicated_buffer,
-                          cached_buffers.back().Duplicate());
-  return duplicated_buffer;
-}
-
-absl::StatusOr<litert::TensorBuffer>
-InferenceRunnerLiteRt::CreateAhwbInputTensorBufferFromMpTensor(
-    const Tensor& mp_input_tensor, const litert::RankedTensorType& tensor_type,
-    InferenceRunContext& ctx) {
-  auto input_tensor_view = mp_input_tensor.GetAHardwareBufferReadView();
-  ABSL_ASSIGN_OR_RETURN(
-      auto litert_buffer,
-      GetOrCreateAhwbTensorBuffer(input_tensor_view, tensor_type, ctx));
-
-  const int write_complete_fence_fd =
-      input_tensor_view.GetWriteCompleteFenceFd();
-  if (write_complete_fence_fd != -1) {
-    // If the write complete fence fd is valid, then we need to set it on the
-    // LiteRt buffer.
-    ABSL_ASSIGN_OR_RETURN(int dup_fd, DupFd(write_complete_fence_fd));
-    LITERT_ASSIGN_OR_RETURN(
-        auto event, litert::Event::CreateFromSyncFenceFd(*environment_, dup_fd,
-                                                         /*owns_fd=*/true));
-    LITERT_RETURN_IF_ERROR(litert_buffer.SetEvent(std::move(event)));
-  } else if (litert_buffer.HasEvent()) {
-    // TensorBuffer::Duplicate() shares the underlying LiteRtTensorBufferT (and
-    // its event_ field) with the cached entry, so clear any stale sync event
-    // left over from a previous run when no input fence FD is present.
-    LITERT_RETURN_IF_ERROR(litert_buffer.ClearEvent());
-  }
-  ctx.active_input_views.push_back(std::move(input_tensor_view));
-  return litert_buffer;
-}
-
-absl::StatusOr<litert::TensorBuffer>
-InferenceRunnerLiteRt::CreateAhwbOutputTensorBufferFromMpTensor(
-    const Tensor& mp_output_tensor, const litert::RankedTensorType& tensor_type,
-    InferenceRunContext& ctx) {
-  auto output_tensor_view = mp_output_tensor.GetAHardwareBufferWriteView();
-  ABSL_ASSIGN_OR_RETURN(
-      auto output_buffer,
-      GetOrCreateAhwbTensorBuffer(output_tensor_view, tensor_type, ctx));
-  if (output_buffer.HasEvent()) {
-    // TensorBuffer::Duplicate() shares the underlying LiteRtTensorBufferT (and
-    // its event_ field) with the cached entry, so clear any stale event left on
-    // a pooled AHardwareBuffer from a prior async output or fenced input run.
-    LITERT_RETURN_IF_ERROR(output_buffer.ClearEvent());
-  }
-  ctx.active_output_views.push_back(std::move(output_tensor_view));
-  return output_buffer;
-}
-
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 
 absl::StatusOr<litert::TensorBuffer>
 InferenceRunnerLiteRt::CreateCpuInputTensorBufferFromMpTensor(
@@ -1420,10 +1275,6 @@ InferenceRunnerLiteRt::CreateInputTensorBufferFromMpTensor(
     case litert::TensorBufferType::kHostMemory:
       return CreateCpuInputTensorBufferFromMpTensor(
           tensor, tensor_type, ctx.active_input_views, ctx.temporary_tensors);
-#if MEDIAPIPE_TENSOR_USE_AHWB
-    case litert::TensorBufferType::kAhwb:
-      return CreateAhwbInputTensorBufferFromMpTensor(tensor, tensor_type, ctx);
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 #if MEDIAPIPE_METAL_ENABLED
     case litert::TensorBufferType::kMetalBufferPacked:
       return CreateMetalInputTensorBufferFromMpTensor(tensor, tensor_type, ctx);
@@ -1668,10 +1519,6 @@ InferenceRunnerLiteRt::CreateOutputTensorBufferFromMpTensor(
       return CreateMetalOutputTensorBufferFromMpTensor(tensor, tensor_type,
                                                        ctx.active_output_views);
 #endif  // MEDIAPIPE_METAL_ENABLED
-#if MEDIAPIPE_TENSOR_USE_AHWB
-    case litert::TensorBufferType::kAhwb:
-      return CreateAhwbOutputTensorBufferFromMpTensor(tensor, tensor_type, ctx);
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 #if MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_31
     case litert::TensorBufferType::kGlBuffer:
       return CreateGlOutputTensorBufferFromMpTensor(tensor, tensor_type,
@@ -1771,47 +1618,11 @@ absl::Status InferenceRunnerLiteRt::PrepareOutputBuffers(
   return absl::OkStatus();
 }
 
-#if MEDIAPIPE_TENSOR_USE_AHWB
-absl::Status InferenceRunnerLiteRt::CleanAsyncRunStates(bool wait_for_all) {
-  absl::MutexLock lock(&async_runs_mutex_);
-  int count = 0;
-  auto it = active_async_runs_.begin();
-  while (it != active_async_runs_.end()) {
-    bool is_signaled = true;
-    for (const auto& fence : it->async_run_fences) {
-      if (fence.Get() >= 0) {
-        if (wait_for_all) {
-          ABSL_RETURN_IF_ERROR(SyncWait(fence, absl::InfiniteDuration()));
-        } else {
-          ABSL_ASSIGN_OR_RETURN(bool fence_signaled, IsSignaled(fence));
-          if (!fence_signaled) {
-            is_signaled = false;
-            break;
-          }
-        }
-      }
-    }
-
-    if (is_signaled) {
-      it = active_async_runs_.erase(it);
-    } else {
-      ++it;
-    }
-    count++;
-  }
-  return absl::OkStatus();
-}
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 
 absl::StatusOr<std::vector<Tensor>> InferenceRunnerLiteRt::Run(
     CalculatorContext* cc, const TensorSpan& tensor_span) {
   InferenceRunContext ctx;
 
-#if MEDIAPIPE_TENSOR_USE_AHWB
-  if (run_async_) {
-    ABSL_RETURN_IF_ERROR(CleanAsyncRunStates(/*wait_for_all=*/false));
-  }
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
 
 #if MEDIAPIPE_METAL_ENABLED
   auto cleanup_command_buffer = absl::MakeCleanup([this]() {
@@ -1870,75 +1681,7 @@ absl::StatusOr<std::vector<Tensor>> InferenceRunnerLiteRt::Run(
 
   // Execute model.
   if (run_async_) {
-#if MEDIAPIPE_TENSOR_USE_AHWB
-    // First, free any previously registered buffer handles from finished runs.
-    ABSL_RETURN_IF_ERROR(CleanAsyncRunStates(/*wait_for_all=*/false));
-
-    if (GetNumberOfFeedbackTensors() > 0) {
-      return absl::InternalError(
-          "Async execution with feedback tensors is not supported yet.");
-    }
-    bool async = true;
-    LITERT_RETURN_IF_ERROR(compiled_model_->RunAsync(
-        signature_index_, ctx.litert_inputs, ctx.litert_outputs, async));
-    if (async) {
-      // Create vector of SharedFds from LiteRT output buffer events.
-      std::vector<SharedFd> litert_output_buffer_fds;
-      litert_output_buffer_fds.reserve(ctx.litert_outputs.size());
-      for (auto& output_buffer : ctx.litert_outputs) {
-        LITERT_ASSIGN_OR_RETURN(auto output_event, output_buffer.GetEvent());
-        LITERT_ASSIGN_OR_RETURN(int fd, output_event.DupFd());
-        litert_output_buffer_fds.push_back(SharedFd(UniqueFd(fd)));
-      }
-
-      // Synchronize when reading is finished for each MP input buffer.
-      // This is done by checking that all LiteRT output buffer events (vector
-      // of SharedFds) are signaled.
-      for (auto& view : ctx.active_input_views) {
-        auto& ahwb_view = std::get<Tensor::AHardwareBufferView>(view);
-        ahwb_view.SetReadingFinishedFunc(
-            MultipleFdsFinishedFunc(litert_output_buffer_fds));
-      }
-      // Synchronize when writing is finished for each MP output buffer.
-      // This is done by checking each respective LiteRT output buffer's event.
-      RET_CHECK_EQ(ctx.litert_outputs.size(), ctx.active_output_views.size());
-      for (int i = 0; i < ctx.litert_outputs.size(); ++i) {
-        LITERT_ASSIGN_OR_RETURN(auto output_event,
-                                ctx.litert_outputs[i].GetEvent());
-        auto& ahwb_view =
-            std::get<Tensor::AHardwareBufferView>(ctx.active_output_views[i]);
-        LITERT_ASSIGN_OR_RETURN(int write_finished_fd, output_event.DupFd());
-        LITERT_ASSIGN_OR_RETURN(int write_finished_fd_for_func,
-                                output_event.DupFd());
-        ahwb_view.SetWritingFinishedFD(
-            write_finished_fd,
-            FdFinishedFunc(SharedFd(UniqueFd(write_finished_fd_for_func))));
-      }
-      ctx.active_output_views.clear();
-      ctx.active_input_views.clear();
-
-      // Move the context and fences to the async run state and add to the
-      // queue.
-      AsyncRunState async_state;
-      async_state.context = std::move(ctx);
-      async_state.async_run_fences = std::move(litert_output_buffer_fds);
-      {
-        absl::MutexLock lock(&async_runs_mutex_);
-        active_async_runs_.push_back(std::move(async_state));
-      }
-    } else {
-      ABSL_LOG_FIRST_N(WARNING, 1)
-          << "LiteRT async execution requested, but backend fell back to "
-             "synchronous execution.";
-      ctx.active_output_views.clear();
-      ctx.active_input_views.clear();
-
-      ABSL_RETURN_IF_ERROR(CopyLiteRtManagedOutputBuffersToMpTensors(
-          ctx.litert_outputs, mp_output_tensors));
-    }
-#else
     return absl::InternalError("LiteRT requires AHWB support to run async");
-#endif  // MEDIAPIPE_TENSOR_USE_AHWB
   } else {
     LITERT_RETURN_IF_ERROR(compiled_model_->Run(
         signature_index_, ctx.litert_inputs, ctx.litert_outputs));

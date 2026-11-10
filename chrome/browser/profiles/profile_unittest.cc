@@ -21,19 +21,7 @@ TEST_F(ProfileTest, AllowsBrowserWindows) {
   EXPECT_FALSE(helper.guest_profile()->AllowsBrowserWindows());
   EXPECT_TRUE(helper.guest_profile_otr()->AllowsBrowserWindows());
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
   EXPECT_FALSE(helper.system_profile()->AllowsBrowserWindows());
   EXPECT_FALSE(helper.system_profile_otr()->AllowsBrowserWindows());
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_FALSE(helper.signin_profile()->AllowsBrowserWindows());
-  EXPECT_FALSE(helper.signin_profile_otr()->AllowsBrowserWindows());
-
-  EXPECT_FALSE(helper.lockscreen_profile()->AllowsBrowserWindows());
-  EXPECT_FALSE(helper.lockscreen_profile_otr()->AllowsBrowserWindows());
-
-  EXPECT_FALSE(helper.shimless_rma_app_profile()->AllowsBrowserWindows());
-  EXPECT_FALSE(helper.shimless_rma_app_profile_otr()->AllowsBrowserWindows());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }

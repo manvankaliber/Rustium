@@ -41,7 +41,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorMetricsBrowserTest,
 }
 
 // Detach is not supported on Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorMetricsBrowserTest,
                        ConcurrentVisibility) {
   GlicHistogramTester histogram_tester;
@@ -64,7 +63,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorMetricsBrowserTest,
                                       1);
   histogram_tester.ExpectTotalCount("Glic.ConcurrentVisibility.Duration", 1);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorMetricsBrowserTest,
                        ConcurrentVisibilityMultiWindow) {

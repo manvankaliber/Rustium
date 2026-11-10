@@ -227,9 +227,8 @@ source_set("win") {
     "//ui/events/platform",
   ]
 
-  if (!is_ios) {
-    deps += [ "//components/policy:generated" ]
-  }
+  deps += [ "//components/policy:generated" ]
+
   libs = [
     "shcore.lib",
     "userenv.lib",

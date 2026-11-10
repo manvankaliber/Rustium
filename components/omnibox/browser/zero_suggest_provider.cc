@@ -35,9 +35,7 @@
 #include "components/omnibox/browser/page_classification_functions.h"
 #include "components/omnibox/browser/remote_suggestions_service.h"
 #include "components/omnibox/browser/search_suggestion_parser.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/omnibox/browser/suggest_inventory_fallback_utils.h"
-#endif
 #include "components/omnibox/browser/suggestion_group_util.h"
 #include "components/omnibox/browser/zero_suggest_cache_service.h"
 #include "components/omnibox/common/omnibox_feature_configs.h"
@@ -75,7 +73,7 @@ namespace {
 const size_t kMaxPageTitleLength = 128;
 
 using ResultType = ZeroSuggestProvider::ResultType;
-constexpr bool is_ios = !!BUILDFLAG(IS_IOS);
+constexpr bool is_ios = !!false;
 
 // Represents whether ZeroSuggestProvider is allowed to display zero-prefix
 // suggestions, and if not, why not.
@@ -913,14 +911,12 @@ void ZeroSuggestProvider::OnPrefetchURLLoadComplete(
 void ZeroSuggestProvider::MaybePopulateFallbackMatches(
     const AutocompleteInput& input) {
   matches_.clear();
-#if !BUILDFLAG(IS_ANDROID)
   matches_ = omnibox::MaybeCreateFallbackMatchesForSuggestInventory(
       this, client(), input,
       /*num_suggestions=*/omnibox::kDefaultFallbackNumSuggestions);
   if (!matches_.empty()) {
     NotifyListeners(/*updated_matches=*/true);
   }
-#endif
 }
 
 void ZeroSuggestProvider::ConvertSuggestResultsToAutocompleteMatches(

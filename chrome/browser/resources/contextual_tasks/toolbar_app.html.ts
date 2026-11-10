@@ -8,9 +8,7 @@ import type {ContextualTasksToolbarAppElement} from './toolbar_app.js';
 
 export function getHtml(this: ContextualTasksToolbarAppElement) {
   return html`<!--_html_template_start_-->
-    <if expr="not is_android">
       <link rel="stylesheet" href="layout_constants.css">
-    </if>
     <top-toolbar id="toolbar"
         .title="${this.threadTitle_}"
         .isAiPage="${this.isAiPage_}"

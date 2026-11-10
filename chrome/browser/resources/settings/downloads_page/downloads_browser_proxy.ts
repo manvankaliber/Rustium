@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// <if expr="is_chromeos">
-import {sendWithPromise} from 'chrome://resources/js/cr.js';
-// </if>
 
 export interface DownloadsBrowserProxy {
   initializeDownloads(): void;
@@ -14,13 +11,6 @@ export interface DownloadsBrowserProxy {
 
   resetAutoOpenFileTypes(): void;
 
-  // <if expr="is_chromeos">
-  /**
-   * @param path Path to sanitze.
-   * @return string to display in UI.
-   */
-  getDownloadLocationText(path: string): Promise<string>;
-  // </if>
 }
 
 export class DownloadsBrowserProxyImpl implements DownloadsBrowserProxy {
@@ -36,11 +26,6 @@ export class DownloadsBrowserProxyImpl implements DownloadsBrowserProxy {
     chrome.send('resetAutoOpenFileTypes');
   }
 
-  // <if expr="is_chromeos">
-  getDownloadLocationText(path: string) {
-    return sendWithPromise<string>('getDownloadLocationText', path);
-  }
-  // </if>
 
   static getInstance(): DownloadsBrowserProxy {
     return instance || (instance = new DownloadsBrowserProxyImpl());

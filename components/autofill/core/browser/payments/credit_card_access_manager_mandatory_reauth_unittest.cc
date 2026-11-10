@@ -22,9 +22,6 @@
 #include "components/autofill/core/common/autofill_payments_features.h"
 #include "components/autofill/core/common/autofill_prefs.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 namespace autofill {
 namespace {
@@ -46,14 +43,6 @@ class CreditCardAccessManagerMandatoryReauthTestBase
     CreditCardAccessManagerTestBase::SetUp();
     feature_list_.InitAndEnableFeature(
         features::kAutofillEnableFpanRiskBasedAuthentication);
-#if BUILDFLAG(IS_ANDROID)
-    if (base::android::device_info::is_automotive()) {
-      autofill_client().GetPrefs()->SetBoolean(
-          prefs::kAutofillPaymentMethodsMandatoryReauth,
-          /*value=*/true);
-      return;
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
     autofill_client().GetPrefs()->SetBoolean(
         prefs::kAutofillPaymentMethodsMandatoryReauth,
         /*value=*/PrefIsEnabled());
@@ -67,20 +56,15 @@ class CreditCardAccessManagerMandatoryReauthTestBase
     // flag is on and the pref is enabled, or if the device is automotive.
     if (IsMandatoryReauthEnabled()) {
       ON_CALL(mandatory_reauth_manager(),
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
               AuthenticateWithMessage)
           .WillByDefault(RunOnceCallbackRepeatedly<1>(
-#elif BUILDFLAG(IS_ANDROID)
-              Authenticate)
-          .WillByDefault(RunOnceCallbackRepeatedly<0>(
 #endif
               MandatoryReauthResponseIsSuccess()));
     } else {
       EXPECT_CALL(mandatory_reauth_manager(),
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
                   AuthenticateWithMessage)
-#elif BUILDFLAG(IS_ANDROID)
-                  Authenticate)
 #endif
           .Times(0);
     }
@@ -103,11 +87,6 @@ class CreditCardAccessManagerMandatoryReauthTestBase
   GetAuthenticationMethod() const = 0;
 
   bool IsMandatoryReauthEnabled() {
-#if BUILDFLAG(IS_ANDROID)
-    if (base::android::device_info::is_automotive()) {
-      return true;
-    }
-#endif
     return PrefIsEnabled();
   }
 

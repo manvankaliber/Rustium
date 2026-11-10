@@ -54,14 +54,8 @@
 #include "content/public/browser/browser_thread.h"
 #include "ui/base/base_window.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/boot_times_recorder/boot_times_recorder.h"
-#include "chrome/browser/lifetime/application_lifetime_chromeos.h"
-#include "chromeos/ash/components/login/session/session_termination_manager.h"
-#else  // !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/sessions/profile_diff_after_restart_recorder.h"
 #include "chrome/browser/ui/profiles/profile_picker.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
 #include "base/win/win_util.h"
@@ -96,7 +90,6 @@ void SavePreRestartTabWindowCounts() {
     return;
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Number of profiles with at least one normal (`TYPE_NORMAL`) or app
   // (`TYPE_APP`) window open before restart, saved to
   // `kPreSmartRestartProfileCounts` and read by
@@ -107,7 +100,6 @@ void SavePreRestartTabWindowCounts() {
   // `WasRestarted()` after the next login, so the recorder is never enabled.
   size_t normal_profiles = 0;
   size_t app_profiles = 0;
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   for (Profile* profile :
        g_browser_process->profile_manager()->GetLoadedProfiles()) {
@@ -162,20 +154,16 @@ void SavePreRestartTabWindowCounts() {
                                    std::move(dict));
     }
 
-#if !BUILDFLAG(IS_CHROMEOS)
     if (counts.normal_windows > 0) {
       normal_profiles++;
     }
     if (counts.app_windows > 0) {
       app_profiles++;
     }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   ProfileDiffAfterRestartRecorder::GetInstance().SavePreRestartCounts(
       g_browser_process->local_state(), normal_profiles, app_profiles);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 // Forward declaration.
@@ -302,28 +290,6 @@ void AttemptRestartInternal(IgnoreUnloadHandlers ignore_unload_handlers,
   }
   KeepAliveRegistry::GetInstance()->SetRestarting();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  CHECK(!ash::SessionTerminationManager::IsSendingStopRequestToSessionManager(),
-        base::NotFatalUntil::M161);
-
-  browser_shutdown::SetShutdownTrigger(
-      browser_shutdown::ShutdownTrigger::kRestartFlags);
-  ash::BootTimesRecorder::Get()->set_restart_requested();
-  ash::SessionTerminationManager::SetSendStopRequestToSessionManager(false);
-
-  // If an update is pending StopSession() will trigger a system reboot,
-  // which in turn will send SIGTERM to Chrome, and that ends up processing
-  // unload handlers.
-  if (UpdatePending()) {
-    browser_shutdown::NotifyAppTerminating();
-    StopSession();
-    return;
-  }
-
-  // Run exit process in clean stack.
-  content::GetUIThreadTaskRunner({})->PostTask(
-      FROM_HERE, base::BindOnce(&ExitIgnoreUnloadHandlers));
-#else   // !BUILDFLAG(IS_CHROMEOS).
   // Set the flag to restore state after the restart.
   pref_service->SetBoolean(prefs::kRestartLastSessionOnShutdown, true);
   if (ignore_unload_handlers) {
@@ -331,7 +297,6 @@ void AttemptRestartInternal(IgnoreUnloadHandlers ignore_unload_handlers,
   } else {
     AttemptExit();
   }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void ShutdownIfNoBrowsers() {
@@ -362,9 +327,6 @@ void ShutdownIfNoBrowsers() {
   ProfileManager::ShutdownSessionServices();
 #endif  // BUILDFLAG(ENABLE_SESSION_SERVICE)
   browser_shutdown::NotifyAppTerminating();
-#if BUILDFLAG(IS_CHROMEOS)
-  StopSession();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   OnAppExiting();
 }
 
@@ -387,10 +349,6 @@ void CloseAllBrowsers() {
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::BootTimesRecorder::Get()->AddLogoutTimeMarker("StartedClosingWindows",
-                                                     false);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   scoped_refptr<BrowserCloseManager> browser_close_manager =
       new BrowserCloseManager;
   browser_close_manager->StartClosingBrowsers();
@@ -404,11 +362,9 @@ void AttemptRestartWithMode(RelaunchMode mode) {
   AttemptRestartInternal(IgnoreUnloadHandlers(false), mode);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void RelaunchIgnoreUnloadHandlers() {
   AttemptRestartInternal(IgnoreUnloadHandlers(true), RelaunchMode::kNormal);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 void SessionEnding() {
   // This is a time-limited shutdown where we need to write as much to
@@ -515,11 +471,6 @@ base::CallbackListSubscription AddClosingAllBrowsersCallback(
 }
 
 void MarkAsCleanShutdown() {
-#if BUILDFLAG(IS_CHROMEOS)
-  LogMarkAsCleanShutdown();
-  // Tracks profiles that have pending write of the exit type.
-  std::set<Profile*> pending_profiles;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
       [&](BrowserWindowInterface* browser) {
@@ -528,15 +479,6 @@ void MarkAsCleanShutdown() {
                 ExitTypeService::GetInstanceForProfile(profile)) {
           exit_type_service->SetCurrentSessionExitType(ExitType::kClean);
 
-#if BUILDFLAG(IS_CHROMEOS)
-          // Explicitly schedule pending writes on ChromeOS so that even if the
-          // UI thread is hosed (e.g. taking a long time to close all tabs
-          // because of page faults/swap-in), the clean shutdown flag still gets
-          // a chance to be persisted. See https://crbug.com/1294764
-          if (pending_profiles.insert(profile).second) {
-            profile->GetPrefs()->CommitPendingWrite();
-          }
-#endif  // BUILDFLAG(IS_CHROMEOS)
         }
         return true;
       });

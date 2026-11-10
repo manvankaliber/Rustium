@@ -62,10 +62,6 @@ std::unique_ptr<KeyedService> DesktopProfileSessionDurationsServiceFactory::
 // On ChromeOS, IsGuestSession and IsRegularProfile() are not mutually
 // exclusive, which breaks `ProfileKeyedServiceFactory` logic. Therefore the
 // below check is still needed despite the proper filter already set.
-#if BUILDFLAG(IS_CHROMEOS)
-  if (profile->IsGuestSession())
-    return nullptr;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   CHECK(!profile->IsSystemProfile(), base::NotFatalUntil::M161);
   CHECK(!profile->IsGuestSession(), base::NotFatalUntil::M161);

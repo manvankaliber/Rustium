@@ -41,10 +41,7 @@
 #define ABSL_INTERNAL_USE_X86_CPUID
 #elif defined(ABSL_ARCH_PPC) || defined(ABSL_ARCH_ARM) || \
     defined(ABSL_ARCH_AARCH64)
-#if defined(__ANDROID__)
-#define ABSL_INTERNAL_USE_ANDROID_GETAUXVAL
-#define ABSL_INTERNAL_USE_GETAUXVAL
-#elif defined(__linux__) && defined(ABSL_HAVE_GETAUXVAL)
+#if defined(__linux__) && defined(ABSL_HAVE_GETAUXVAL)
 #define ABSL_INTERNAL_USE_LINUX_GETAUXVAL
 #define ABSL_INTERNAL_USE_GETAUXVAL
 #endif

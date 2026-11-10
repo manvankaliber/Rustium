@@ -112,11 +112,7 @@ TEST_F(ExternalPopupMenuHrElementItemsTest, PopupMenuInfoSizeTest) {
   ExternalPopupMenu::GetPopupMenuInfo(
       *owner_element_, &font_size, &selected_item, &menu_items, &right_aligned,
       &allow_multiple_selection);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(3U, menu_items.size());
-#else
   EXPECT_EQ(4U, menu_items.size());
-#endif
 }
 
 TEST_F(ExternalPopupMenuHrElementItemsTest, IndexMappingTest) {
@@ -124,27 +120,15 @@ TEST_F(ExternalPopupMenuHrElementItemsTest, IndexMappingTest) {
       0, ExternalPopupMenu::ToExternalPopupMenuItemIndex(0, *owner_element_));
   EXPECT_EQ(
       1, ExternalPopupMenu::ToExternalPopupMenuItemIndex(1, *owner_element_));
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(
-      -1, ExternalPopupMenu::ToExternalPopupMenuItemIndex(2, *owner_element_));
-  EXPECT_EQ(
-      2, ExternalPopupMenu::ToExternalPopupMenuItemIndex(3, *owner_element_));
-#else
   EXPECT_EQ(
       2, ExternalPopupMenu::ToExternalPopupMenuItemIndex(2, *owner_element_));
   EXPECT_EQ(
       3, ExternalPopupMenu::ToExternalPopupMenuItemIndex(3, *owner_element_));
-#endif
 
   EXPECT_EQ(0, ExternalPopupMenu::ToPopupMenuItemIndex(0, *owner_element_));
   EXPECT_EQ(1, ExternalPopupMenu::ToPopupMenuItemIndex(1, *owner_element_));
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(3, ExternalPopupMenu::ToPopupMenuItemIndex(2, *owner_element_));
-  EXPECT_EQ(-1, ExternalPopupMenu::ToPopupMenuItemIndex(3, *owner_element_));
-#else
   EXPECT_EQ(2, ExternalPopupMenu::ToPopupMenuItemIndex(2, *owner_element_));
   EXPECT_EQ(3, ExternalPopupMenu::ToPopupMenuItemIndex(3, *owner_element_));
-#endif
 }
 
 class FramelessExternalPopupMenuTest : public PageTestBase {};

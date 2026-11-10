@@ -228,7 +228,6 @@ WebFontRenderStyle FontPlatformData::QuerySystemRenderStyle(
     TextRenderingMode text_rendering) {
   WebFontRenderStyle result;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // If the font name is missing (i.e. probably a web font) or the sandbox is
   // disabled, use the system defaults.
   if (family.length() && Platform::Current()->GetSandboxSupport()) {
@@ -252,14 +251,13 @@ WebFontRenderStyle FontPlatformData::QuerySystemRenderStyle(
     // 0 means HINTING_NONE, see |ConvertHinting| in font_service_app.cc.
     result.hint_style = 0;
   }
-#endif
   // !BUILDFLAG(IS_IOS)
 
   return result;
 }
 #endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN)
 
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN)
 SkFont FontPlatformData::CreateSkFont(const FontDescription*) const {
   SkFont font(typeface_);
   style_.ApplyToSkFont(&font);
@@ -278,7 +276,7 @@ SkFont FontPlatformData::CreateSkFont(const FontDescription*) const {
 
   return font;
 }
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
+#endif
 
 String FontPlatformData::GetPostScriptName() const {
   if (!typeface_) {

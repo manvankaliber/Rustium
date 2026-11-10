@@ -24,11 +24,9 @@ namespace gfx {
 class Point;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace views {
 class View;
 }
-#endif
 
 class BrowserWindowInterface;
 
@@ -78,11 +76,9 @@ class LocalHotkeyManager : public ui::AcceleratorTarget {
     virtual void ShowTitleBarContextMenuAt(gfx::Point event_loc) {}
     virtual bool Print();
     virtual BrowserWindowInterface* GetBrowserWindowInterface();
-#if !BUILDFLAG(IS_ANDROID)
     virtual bool HasSelectionOverlay() = 0;
     virtual void CloseSelectionOverlay() = 0;
     virtual base::WeakPtr<views::View> GetView() = 0;
-#endif
   };
 
   constexpr static const char* CommandToString(Command command) {

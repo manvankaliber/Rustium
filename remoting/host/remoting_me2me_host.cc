@@ -150,9 +150,9 @@
 #include "remoting/host/security_key/security_key_auth_handler_posix.h"
 #endif  // BUILDFLAG(IS_POSIX)
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_POSIX)
 #include "remoting/host/pam_authorization_factory_posix.h"
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_APPLE)
 #include "remoting/host/audio_capturer_mac.h"
@@ -160,7 +160,7 @@
 #include "remoting/host/mac/permission_utils.h"
 #endif  // BUILDFLAG(IS_APPLE)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #if defined(REMOTING_USE_X11)
 #include <gtk/gtk.h>
 
@@ -169,13 +169,13 @@
 #include "remoting/host/linux/thread_bound_x11_event_source.h"
 #include "ui/gfx/x/xlib_support.h"
 #endif  // defined(REMOTING_USE_X11)
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "base/linux_util.h"
 #include "remoting/host/linux/certificate_watcher.h"
 #include "remoting/host/linux/pulse_audio_capturer.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <commctrl.h>
@@ -523,10 +523,10 @@ class HostProcess : public ConfigWatcher::Delegate,
   std::unique_ptr<AgentProcessBrokerClient> agent_process_broker_client_;
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Watch for certificate changes and kill the host when changes occur
   std::unique_ptr<CertificateWatcher> cert_watcher_;
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   // Created on the UI thread but used from the network thread.
   base::FilePath host_config_path_;
@@ -954,9 +954,9 @@ void HostProcess::ShutdownOnNetworkThread() {
   DCHECK(context_->network_task_runner()->BelongsToCurrentThread());
   ProtobufHttpClient::SetCreateClientCertStoreCallback({});
   config_watcher_.reset();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   cert_watcher_.reset();
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 }
 
 #if BUILDFLAG(IS_POSIX)
@@ -1060,7 +1060,7 @@ void HostProcess::CreateAuthenticatorFactory() {
             context_->url_loader_factory(), service_account_email_,
             oauth_refresh_token_));
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     if (!cert_watcher_) {
       cert_watcher_ = std::make_unique<CertificateWatcher>(
           base::BindRepeating(&HostProcess::ShutdownHost,
@@ -1069,7 +1069,7 @@ void HostProcess::CreateAuthenticatorFactory() {
       cert_watcher_->Start();
     }
     cert_watcher_->SetMonitor(host_->status_monitor());
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
   } else {
     scoped_refptr<PairingRegistry> pairing_registry;
     if (allow_pairing_) {
@@ -1106,14 +1106,14 @@ void HostProcess::CreateAuthenticatorFactory() {
           base::BindRepeating(&HostProcess::CheckAccessPermission, this),
           std::move(auth_config));
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_POSIX)
   // For Linux and Mac single-process hosts, perform a PAM authorization step
   // after authentication. For multi-process hosts, the check will be done by
   // the daemon process.
   if (!multi_process_) {
     factory = std::make_unique<PamAuthorizationFactory>(std::move(factory));
   }
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_CHROMEOS)
+#endif
   host_->SetAuthenticatorFactory(std::move(factory));
 }
 
@@ -1226,7 +1226,7 @@ void HostProcess::StartOnUiThread() {
       base::BindRepeating(&HostProcess::OnPolicyUpdate, base::Unretained(this)),
       base::BindRepeating(&HostProcess::OnPolicyError, base::Unretained(this)));
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // For multi-process hosts, `PulseAudioCapturer` will be initialized by the
   // desktop process.
   if (!multi_process_) {
@@ -1235,7 +1235,7 @@ void HostProcess::StartOnUiThread() {
     remoting::PulseAudioCapturer::InitializePipeReader(
         context_->file_task_runner());
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_POSIX)
   base::FilePath security_key_socket_name =
@@ -1294,13 +1294,13 @@ void HostProcess::ShutdownOnUiThread() {
   // It is now safe for the HostProcess to be deleted.
   self_ = nullptr;
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Cause the global AudioPipeReader to be freed, otherwise the audio
   // thread will remain in-use and prevent the process from exiting.
   // TODO(wez): DesktopEnvironmentFactory should own the pipe reader.
   // See crbug.com/161373 and crbug.com/104544.
   PulseAudioCapturer::InitializePipeReader(nullptr);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 }
 
 void HostProcess::OnHostNotFound() {
@@ -2438,7 +2438,7 @@ int HostProcessMain(bool multi_process) {
                                                    : " (single-process)");
   const base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // For the multi-process host, screen capturing and UI rendering should be
   // done by the desktop process.
   if (!multi_process) {
@@ -2465,7 +2465,7 @@ int HostProcessMain(bool multi_process) {
   // Need to prime the host OS version value for linux to prevent IO on the
   // network thread. base::GetLinuxDistro() caches the result.
   base::GetLinuxDistro();
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   if (cmd_line->HasSwitch(kWebRtcTraceEventFile)) {
     webrtc::tracing::SetupInternalTracer();

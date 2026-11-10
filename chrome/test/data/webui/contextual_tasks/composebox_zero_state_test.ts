@@ -574,7 +574,6 @@ suite('ContextualTasksComposeboxZeroStateTest', () => {
         'Suggestions should be hidden via CSS when dropdown is hidden');
   });
 
-  // <if expr="not is_android">
   test('TooltipImpressionTimerResetsOnHide', async () => {
     loadTimeData.overrideValues({
       showOnboardingTooltip: true,
@@ -630,7 +629,6 @@ suite('ContextualTasksComposeboxZeroStateTest', () => {
     // Should NOT have incremented because timer was cleared.
     assertEquals(0, contextualTasksApp.numberOfTimesTooltipShownForTesting);
   });
-  // </if>
 
   test(
       'on focus out does not set animation state as none \

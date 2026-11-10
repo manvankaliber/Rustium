@@ -159,15 +159,6 @@ class MediaStreamAudioProcessorTest : public ::testing::Test {
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
     EXPECT_FALSE(config.gain_controller1.enabled);
     EXPECT_TRUE(config.gain_controller2.enabled);
-#elif BUILDFLAG(IS_CHROMEOS)
-    EXPECT_FALSE(config.gain_controller1.enabled);
-    EXPECT_TRUE(config.gain_controller2.enabled);
-#elif BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
-    EXPECT_TRUE(config.gain_controller1.enabled);
-    EXPECT_FALSE(config.gain_controller2.enabled);
-#elif BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    EXPECT_FALSE(config.gain_controller1.enabled);
-    EXPECT_TRUE(config.gain_controller2.enabled);
 #else
     GTEST_FAIL() << "Undefined expectation.";
 #endif
@@ -188,11 +179,7 @@ class MediaStreamAudioProcessorTestMultichannel
       public ::testing::WithParamInterface<bool> {};
 
 // Test crashing with ASAN on Android. crbug.com/468762
-#if BUILDFLAG(IS_ANDROID) && defined(ADDRESS_SANITIZER)
-#define MAYBE_WithAudioProcessing DISABLED_WithAudioProcessing
-#else
 #define MAYBE_WithAudioProcessing WithAudioProcessing
-#endif
 TEST_P(MediaStreamAudioProcessorTestMultichannel, MAYBE_WithAudioProcessing) {
   const bool use_multichannel_processing = GetParam();
   scoped_refptr<WebRtcAudioDeviceImpl> webrtc_audio_device(
@@ -246,11 +233,7 @@ TEST_F(MediaStreamAudioProcessorTest, TurnOffDefaultConstraints) {
 }
 
 // Test crashing with ASAN on Android. crbug.com/468762
-#if BUILDFLAG(IS_ANDROID) && defined(ADDRESS_SANITIZER)
-#define MAYBE_TestAllSampleRates DISABLED_TestAllSampleRates
-#else
 #define MAYBE_TestAllSampleRates TestAllSampleRates
-#endif
 TEST_P(MediaStreamAudioProcessorTestMultichannel, MAYBE_TestAllSampleRates) {
   const bool use_multichannel_processing = GetParam();
   scoped_refptr<WebRtcAudioDeviceImpl> webrtc_audio_device(
@@ -265,10 +248,6 @@ TEST_P(MediaStreamAudioProcessorTestMultichannel, MAYBE_TestAllSampleRates) {
                                               32000,
                                               44100,
                                               48000
-#if BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
-                                              ,
-                                              96000
-#endif  // BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
   };
   for (int sample_rate : kSupportedSampleRates) {
     SCOPED_TRACE(testing::Message() << "sample_rate=" << sample_rate);
@@ -291,11 +270,7 @@ TEST_P(MediaStreamAudioProcessorTestMultichannel, MAYBE_TestAllSampleRates) {
     // TODO(crbug.com/1336055): Investigate why chromecast devices need special
     // logic here.
     int expected_sample_rate =
-#if BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
-        std::min(sample_rate, media::WebRtcAudioProcessingSampleRateHz());
-#else
         media::WebRtcAudioProcessingSampleRateHz();
-#endif  // BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
     const int expected_output_channels =
         use_multichannel_processing ? params_.channels() : 1;
     ProcessDataAndVerifyFormat(*audio_processor, mock_capture_callback_,
@@ -373,13 +348,7 @@ TEST_P(MediaStreamAudioProcessorTestMultichannel, TestStereoAudio) {
 
   // Test without and with audio processing enabled.
   constexpr bool kUseApmValues[] =
-#if BUILDFLAG(IS_IOS)
-      // TODO(https://crbug.com/1417474): `false` fails on ios-blink platform
-      // due to a special case for iOS in settings.NeedWebrtcAudioProcessing()
-      {true};
-#else
       {false, true};
-#endif
   for (bool use_apm : kUseApmValues) {
     // No need to test stereo with APM if disabled.
     if (use_apm && !use_multichannel_processing) {
@@ -774,15 +743,8 @@ TEST(MediaStreamAudioProcessorWouldModifyAudioTest,
   EXPECT_FALSE(audio_processor->has_webrtc_audio_processing());
 }
 
-#if BUILDFLAG(IS_IOS)
-// TODO(https://crbug.com/1417474): Remove legacy iOS case in
-// AudioProcessingSettings::NeedWebrtcAudioProcessing().
-#define MAYBE_TrueWhenSoftwareEchoCancellationIsEnabled \
-  DISABLED_TrueWhenSoftwareEchoCancellationIsEnabled
-#else
 #define MAYBE_TrueWhenSoftwareEchoCancellationIsEnabled \
   TrueWhenSoftwareEchoCancellationIsEnabled
-#endif  // BUILDFLAG(IS_IOS)
 TEST(MediaStreamAudioProcessorWouldModifyAudioTest,
      MAYBE_TrueWhenSoftwareEchoCancellationIsEnabled) {
   test::TaskEnvironment task_environment_;
@@ -794,24 +756,14 @@ TEST(MediaStreamAudioProcessorWouldModifyAudioTest,
       /*multichannel_processing=*/false);
   // WouldModifyAudio overrides this effect on iOS, but not the audio processor.
   // TODO(https://crbug.com/1269364): Make these functions behave consistently.
-#if !BUILDFLAG(IS_IOS)
   EXPECT_TRUE(processing_layout.NeedWebrtcAudioProcessing());
-#else
-  EXPECT_FALSE(processing_layout.NeedWebrtcAudioProcessing());
-#endif
 
   scoped_refptr<MediaStreamAudioProcessor> audio_processor =
       CreateAudioProcessorWithProperties(properties);
   EXPECT_TRUE(audio_processor->has_webrtc_audio_processing());
 }
 
-#if BUILDFLAG(IS_IOS)
-// TODO(https://crbug.com/1417474): Remove legacy iOS case in
-// AudioProcessingSettings::NeedWebrtcAudioProcessing().
-#define MAYBE_TrueWhenGainControlIsEnabled DISABLED_TrueWhenGainControlIsEnabled
-#else
 #define MAYBE_TrueWhenGainControlIsEnabled TrueWhenGainControlIsEnabled
-#endif  // BUILDFLAG(IS_IOS)
 TEST(MediaStreamAudioProcessorWouldModifyAudioTest,
      MAYBE_TrueWhenGainControlIsEnabled) {
   test::TaskEnvironment task_environment_;
@@ -822,11 +774,7 @@ TEST(MediaStreamAudioProcessorWouldModifyAudioTest,
       /*available_platform_effects=*/0, /*multichannel_processing=*/false);
   // WouldModifyAudio overrides this effect on iOS, but not the audio processor.
   // TODO(https://crbug.com/1269364): Make these functions behave consistently.
-#if !BUILDFLAG(IS_IOS)
   EXPECT_TRUE(processing_layout.NeedWebrtcAudioProcessing());
-#else
-  EXPECT_FALSE(processing_layout.NeedWebrtcAudioProcessing());
-#endif
 
   scoped_refptr<MediaStreamAudioProcessor> audio_processor =
       CreateAudioProcessorWithProperties(properties);

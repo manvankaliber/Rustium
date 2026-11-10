@@ -24,7 +24,7 @@ source_set("api") {
   # skia_config.
 }
 
-if (use_blink || (is_ios && build_with_internal_optimization_guide)) {
+if (use_blink) {
   source_set("ml_holder_no_internal") {
     public = [ "chrome_ml_holder.h" ]
     sources = [ "chrome_ml_holder.cc" ]
@@ -59,8 +59,8 @@ if (use_blink || (is_ios && build_with_internal_optimization_guide)) {
     if (use_blink) {
       sources += [ "gpu_blocklist.cc" ]
     } else {
-      assert(is_ios)
-      sources += [ "gpu_blocklist_ios.cc" ]
+      assert(false)
+      sources += []
     }
 
     deps = [
@@ -107,9 +107,6 @@ if (use_blink || (is_ios && build_with_internal_optimization_guide)) {
       data_deps = [
         "//components/optimization_guide/internal:optimization_guide_internal",
       ]
-      if (is_ios) {
-        deps = [ "//components/optimization_guide/internal:optimization_guide_internal+bundle" ]
-      }
     }
   }
 }

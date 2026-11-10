@@ -32,10 +32,6 @@ source_set("impl") {
     "//device/fido/public",
     "//google_apis",
   ]
-
-  if (is_android) {
-    deps += [ "//components/trusted_vault/android" ]
-  }
 }
 
 source_set("unit_tests") {
@@ -53,45 +49,27 @@ source_set("unit_tests") {
   ]
 }
 
-if (is_android) {
-  source_set("android_browsertests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "trusted_vault_encryption_keys_tab_helper_browsertest.cc" ]
-    deps = [
-      ":trusted_vault",
-      "//base",
-      "//base/test:test_support",
-      "//chrome/browser/preloading:test_support",
-      "//chrome/common:constants",
-      "//chrome/test:test_support",
-      "//chrome/test/base:chrome_test_utils",
-      "//components/site_isolation",
-    ]
-  }
-} else {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "trusted_vault_encryption_keys_tab_helper_browsertest.cc" ]
-    deps = [
-      ":trusted_vault",
-      "//base",
-      "//base/test:test_support",
-      "//chrome/browser/preloading:test_support",
-      "//chrome/browser/signin",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/webauthn",
-      "//chrome/browser/webauthn:test_support",
-      "//chrome/common:constants",
-      "//chrome/test:test_support",
-      "//components/metrics:content",
-      "//components/signin/public/identity_manager",
-      "//components/signin/public/identity_manager:test_support",
-      "//components/site_isolation",
-      "//content/test:test_support",
-      "//device/fido/public",
-      "//google_apis",
-    ]
-  }
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [ "trusted_vault_encryption_keys_tab_helper_browsertest.cc" ]
+  deps = [
+    ":trusted_vault",
+    "//base",
+    "//base/test:test_support",
+    "//chrome/browser/preloading:test_support",
+    "//chrome/browser/signin",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/webauthn",
+    "//chrome/browser/webauthn:test_support",
+    "//chrome/common:constants",
+    "//chrome/test:test_support",
+    "//components/metrics:content",
+    "//components/signin/public/identity_manager",
+    "//components/signin/public/identity_manager:test_support",
+    "//components/site_isolation",
+    "//content/test:test_support",
+    "//device/fido/public",
+    "//google_apis",
+  ]
 }

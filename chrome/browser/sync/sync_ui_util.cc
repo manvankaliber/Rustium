@@ -31,11 +31,7 @@
 #include "ui/base/mojom/window_open_disposition.mojom-shared.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/search_engines/ui_thread_search_terms_data.h"
 #include "chrome/browser/trusted_vault/trusted_vault_encryption_keys_tab_helper.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
@@ -43,11 +39,9 @@
 #include "chrome/browser/ui/singleton_tabs.h"
 #include "components/trusted_vault/trusted_vault_histograms.h"
 #include "content/public/browser/navigation_handle.h"
-#endif
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 
 void OpenTabForSyncTrustedVaultUserAction(
     BrowserWindowInterface* browser,
@@ -87,14 +81,12 @@ size_t GetAccountIndexForPrimaryAccount(BrowserWindowInterface* browser) {
   return identity_manager->GetSessionIndexForPrimaryAccount().value_or(0u);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
 const char kBookmarksLimitExceededHelpCenter[] =
     "https://support.google.com/chrome?p=manage_bookmarks_desktop";
 
-#if !BUILDFLAG(IS_ANDROID)
 SyncStatusLabels GetSyncStatusLabelsForSettings(
     const syncer::SyncService* service) {
   // Check to see if sync has been disabled via the dashboard and needs to be
@@ -106,16 +98,6 @@ SyncStatusLabels GetSyncStatusLabelsForSettings(
             SyncStatusActionType::kNoAction};
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (service->GetUserSettings()->IsSyncFeatureDisabledViaDashboard() &&
-      (service->HasSyncConsent() ||
-       !syncer::IsReplaceSyncPromosWithSignInPromosEnabled())) {
-    return {SyncStatusMessageType::kSyncError,
-            IDS_SIGNED_IN_WITH_SYNC_STOPPED_VIA_DASHBOARD,
-            IDS_SYNC_EMPTY_STRING, IDS_SYNC_EMPTY_STRING,
-            SyncStatusActionType::kNoAction};
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // If first setup is in progress, show an "in progress" message.
   if (service->IsSetupInProgress()) {
@@ -210,19 +192,9 @@ SyncStatusLabels GetAvatarSyncErrorLabelsForSettings(
           SyncStatusActionType::kRetrieveTrustedVaultKeys};
 
     case syncer::SyncService::UserActionableError::kNeedsPassphrase: {
-#if BUILDFLAG(IS_CHROMEOS)
-      syncer::SyncService* service = SyncServiceFactory::GetForProfile(profile);
-#endif
       return {
           SyncStatusMessageType::kSyncError,
-#if BUILDFLAG(IS_CHROMEOS)
-          (syncer::IsReplaceSyncPromosWithSignInPromosEnabled() && service &&
-           !service->HasSyncConsent())
-              ? IDS_SETTINGS_ERROR_PASSPHRASE_USER_ERROR_DESCRIPTION_WITH_EMAIL
-              : IDS_SETTINGS_ERROR_PASSPHRASE_USER_ERROR_DESCRIPTION,
-#else
           IDS_SETTINGS_ERROR_PASSPHRASE_USER_ERROR_DESCRIPTION_WITH_EMAIL,
-#endif
           button_string_id,
           syncer::IsReplaceSyncPromosWithSignInPromosEnabled()
               ? IDS_SETTINGS_PEOPLE_SIGN_OUT
@@ -325,7 +297,6 @@ std::u16string GetAvatarSyncErrorDescription(
       return std::u16string();
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 bool ShouldRequestSyncConfirmation(const syncer::SyncService* service) {
   // This method mainly handles the situation where the initial Sync setup was
@@ -346,7 +317,6 @@ bool ShouldShowSyncPassphraseError(const syncer::SyncService* service) {
   return settings->IsPassphraseRequiredForPreferredDataTypes();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ShowSyncPassphraseDialogAndDecryptData(BrowserWindowInterface& browser) {
   syncer::SyncService* sync_service =
       SyncServiceFactory::GetForProfile(browser.GetProfile());
@@ -366,9 +336,7 @@ void ShowSyncPassphraseDialogAndDecryptData(BrowserWindowInterface& browser) {
           },
           browser.GetProfile()->GetWeakPtr()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 void OpenTabForSyncKeyRetrieval(
     BrowserWindowInterface* browser,
     trusted_vault::TrustedVaultUserActionTriggerForUMA trigger) {
@@ -423,4 +391,3 @@ void ShowBookmarksLimitExceededHelp(
   params.disposition = ui::mojom::WindowOpenDisposition::kNewForegroundTab;
   Navigate(&params);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

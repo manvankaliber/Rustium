@@ -66,10 +66,8 @@ std::ostream& operator<<(std::ostream& os, const TabDataChange& change);
 
 // TODO: Detect changes to windowID.
 class TabDataObserver : public content::WebContentsObserver
-#if !BUILDFLAG(IS_ANDROID)
     ,
                         public favicon::FaviconDriverObserver
-#endif
 {
  public:
   // Observes `web_contents` for changes that would modify the result of
@@ -105,14 +103,12 @@ class TabDataObserver : public content::WebContentsObserver
   void TitleWasSetForMainFrame(
       content::RenderFrameHost* render_frame_host) override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // favicon::FaviconDriverObserver.
   void OnFaviconUpdated(favicon::FaviconDriver* favicon_driver,
                         NotificationIconType notification_icon_type,
                         const GURL& icon_url,
                         bool icon_url_changed,
                         const gfx::Image& image) override;
-#endif
 
   void SetTaskRunnerForTesting(
       scoped_refptr<base::SequencedTaskRunner> task_runner);

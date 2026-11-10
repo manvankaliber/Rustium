@@ -8,7 +8,6 @@
 #include "base/memory/raw_ptr.h"
 #include "base/time/time.h"
 #include "components/feed/core/proto/v2/wire/reliability_logging_enums.pb.h"
-#include "components/feed/core/v2/ios_shared_experiments_translator.h"
 #include "components/feed/core/v2/public/reliability_logging_bridge.h"
 #include "components/feed/core/v2/public/surface_renderer.h"
 #include "components/feed/core/v2/public/types.h"

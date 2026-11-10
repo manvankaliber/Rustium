@@ -16,9 +16,6 @@
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/permissions/features.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "components/permissions/android/permissions_android_feature_map.h"
-#endif
 #include "components/permissions/permission_util.h"
 #include "third_party/blink/public/public_buildflags.h"
 #include "url/gurl.h"
@@ -36,11 +33,6 @@ constexpr int kDefaultDismissalsBeforeBlock = 3;
 // before it is automatically blocked.
 constexpr int kDefaultIgnoresBeforeBlock = 4;
 
-#if BUILDFLAG(IS_ANDROID)
-// The number of times that users may ignore a permission prompt from an origin.
-// before it is automatically blocked. This is used for the Clapper UI.
-constexpr int kClapperIgnoresBeforeBlock = 2;
-#endif
 
 // The number of times that users may dismiss a permission prompt that uses the
 // quiet UI from an origin before it is automatically blocked.
@@ -94,10 +86,6 @@ std::string GetStringForContentType(ContentSettingsType content_type) {
       return "FileSystemWriteGuard";
     case ContentSettingsType::SUB_APP_INSTALLATION_PROMPTS:
       return "SubAppInstallationPrompts";
-#if BUILDFLAG(ENABLE_SMART_CARD)
-    case ContentSettingsType::SMART_CARD_GUARD:
-      return "SmartCard";
-#endif  // BUILDFLAG(ENABLE_SMART_CARD)
     // If you add a new Content Setting here, also add it to
     // IsEnabledForContentSetting.
     default:
@@ -253,9 +241,6 @@ bool PermissionDecisionAutoBlocker::IsEnabledForContentSetting(
              ContentSettingsType::FILE_SYSTEM_ACCESS_RESTORE_PERMISSION ||
          content_setting == ContentSettingsType::FILE_SYSTEM_WRITE_GUARD ||
          content_setting == ContentSettingsType::SUB_APP_INSTALLATION_PROMPTS
-#if BUILDFLAG(ENABLE_SMART_CARD)
-         || content_setting == ContentSettingsType::SMART_CARD_GUARD
-#endif  // BUILDFLAG(ENABLE_SMART_CARD)
       ;
   // If you add a new content setting here, also add it to
   // GetStringForContentType.
@@ -438,20 +423,6 @@ bool PermissionDecisionAutoBlocker::RecordIgnoreAndEmbargo(
                                           settings_map_)
           : -1;
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(
-          permissions::kPermissionsAndroidClapperLoud) &&
-      permission == ContentSettingsType::NOTIFICATIONS &&
-      !ignored_prompt_was_quiet) {
-    int quiet_ignore_count = GetActionCount(
-        url, permission, kPromptIgnoreCountWithQuietUiKey, settings_map_);
-    int current_loud_ignore_count = current_ignore_count - quiet_ignore_count;
-    if (current_loud_ignore_count >= kClapperIgnoresBeforeBlock) {
-      PlaceUnderEmbargo(url, permission, kPermissionIgnoreEmbargoKey);
-      return true;
-    }
-  }
-#endif
 
   if (current_ignore_count >= kDefaultIgnoresBeforeBlock) {
     PlaceUnderEmbargo(url, permission, kPermissionIgnoreEmbargoKey);

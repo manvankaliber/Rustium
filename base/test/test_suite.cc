@@ -66,23 +66,15 @@
 #include "base/apple/scoped_nsautorelease_pool.h"
 #endif  // BUILDFLAG(IS_APPLE)
 
-#if BUILDFLAG(IS_IOS)
-#include "base/test/test_listener_ios.h"
-#include "base/test/test_support_ios.h"
-#else
 #include "base/strings/string_util.h"
 #include "third_party/icu/source/common/unicode/uloc.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/test/test_support_android.h"
-#endif
 
 #if BUILDFLAG(IS_LINUX)
 #include "partition_alloc/tagging.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "third_party/test_fonts/fontconfig/fontconfig_util_linux.h"
 #endif
 
@@ -284,13 +276,8 @@ void InitializeLogging() {
   CHECK(logging::InitLogging({.logging_dest = kLoggingDest}));
 
   // We want process and thread IDs because we may have multiple processes.
-#if BUILDFLAG(IS_ANDROID)
-  // To view log output with IDs and timestamps use "adb logcat -v threadtime".
-  logging::SetLogItems(false, false, false, false);
-#else
   // We want process and thread IDs because we may have multiple processes.
   logging::SetLogItems(true, true, false, false);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 #if BUILDFLAG(IS_WIN)
@@ -401,9 +388,6 @@ int TestSuite::Run() {
     return multi_process_function_list::InvokeChildProcessTest(client_func);
   }
 
-#if BUILDFLAG(IS_IOS)
-  test_listener_ios::RegisterTestEndListener();
-#endif
 
 #if BUILDFLAG(IS_LINUX)
   // There's no standard way to opt processes into MTE on Linux just yet,
@@ -411,11 +395,6 @@ int TestSuite::Run() {
   // pointer mismatches are detected immediately.
   ::partition_alloc::ChangeMemoryTaggingModeForCurrentThread(
       ::partition_alloc::TagViolationReportingMode::kSynchronous);
-#elif BUILDFLAG(IS_ANDROID)
-  // On Android, the tests are opted into synchronous MTE mode by the
-  // memtagMode attribute in an AndroidManifest.xml file or via an `am compat`
-  // command, so and explicit call to ChangeMemoryTaggingModeForCurrentThread
-  // is not needed.
 #endif
 
   int result = RunAllTests();
@@ -449,19 +428,6 @@ void TestSuite::UnitTestAssertHandler(const char* file,
                                       int line,
                                       std::string_view summary,
                                       std::string_view stack_trace) {
-#if BUILDFLAG(IS_ANDROID)
-  // Correlating test stdio with logcat can be difficult, so we emit this
-  // helpful little hint about what was running.  Only do this for Android
-  // because other platforms don't separate out the relevant logs in the same
-  // way.
-  const ::testing::TestInfo* const test_info =
-      ::testing::UnitTest::GetInstance()->current_test_info();
-  if (test_info) {
-    LOG(ERROR) << "Currently running: " << test_info->test_suite_name() << "."
-               << test_info->name();
-    fflush(stderr);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // XmlUnitTestResultPrinter inherits gtest format, where assert has summary
   // and message. In GTest, summary is just a logged text, and message is a
@@ -561,11 +527,9 @@ void TestSuite::Initialize() {
   test::ScopedRunLoopTimeout::SetAddGTestFailureOnTimeout();
 
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
-#if !BUILDFLAG(IS_IOS)
   if (command_line->HasSwitch(switches::kWaitForDebugger)) {
     debug::WaitForDebugger(60, true);
   }
-#endif
 
 #if BUILDFLAG(DCHECK_IS_CONFIGURABLE)
   // Default the configurable DCHECK level to FATAL when running death tests'
@@ -578,13 +542,7 @@ void TestSuite::Initialize() {
   }
 #endif  // BUILDFLAG(DCHECK_IS_CONFIGURABLE)
 
-#if BUILDFLAG(IS_IOS)
-  InitIOSTestMessageLoop();
-#endif  // BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_ANDROID)
-  InitAndroidTestMessageLoop();
-#endif  // else BUILDFLAG(IS_ANDROID)
 
   CHECK(debug::EnableInProcessStackDumping());
 #if BUILDFLAG(IS_WIN)
@@ -614,7 +572,7 @@ void TestSuite::Initialize() {
     icu_locale_.emplace(i18n::GetKnownLanguageTag("en-US"));
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   test_fonts::SetUpFontconfig();
 #endif
 
@@ -652,9 +610,6 @@ void TestSuite::InitializeFromCommandLine(int* argc, char** argv) {
   testing::InitGoogleMock(argc, argv);
   MaybeInitFuzztest(*argc, argv);
 
-#if BUILDFLAG(IS_IOS)
-  InitIOSArgs(*argc, argv);
-#endif
 }
 
 int TestSuite::RunAllTests() {
@@ -689,28 +644,24 @@ void TestSuite::PreInitialize() {
   // https://crbug.com/41372437#comment12.
   // TODO(https://crbug.com/41372437): Use "threadsafe" on Android once it is
   // supported.
-#if !BUILDFLAG(IS_ANDROID)
   GTEST_FLAG_SET(death_test_style, "threadsafe");
-#endif
 
 #if BUILDFLAG(IS_WIN)
   GTEST_FLAG_SET(catch_exceptions, false);
 #endif
   EnableTerminationOnHeapCorruption();
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(USE_AURA)
+#if BUILDFLAG(IS_LINUX) && defined(USE_AURA)
   // When calling native char conversion functions (e.g wrctomb) we need to
   // have the locale set. In the absence of such a call the "C" locale is the
   // default. In the gtk code (below) gtk_init() implicitly sets a locale.
   setlocale(LC_ALL, "");
   // We still need number to string conversions to be locale insensitive.
   setlocale(LC_NUMERIC, "C");
-#endif  // (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(USE_AURA)
+#endif
 
   // On Android, AtExitManager is created in
   // testing/android/native_test_wrapper.cc before main() is called.
-#if !BUILDFLAG(IS_ANDROID)
   at_exit_manager_ = std::make_unique<AtExitManager>();
-#endif
 
   // This needs to be done during construction as some users of this class rely
   // on the constructor to initialise the CommandLine.

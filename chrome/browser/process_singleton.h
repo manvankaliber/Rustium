@@ -21,7 +21,7 @@
 #include "base/memory/scoped_refptr.h"
 #include "base/process/process.h"
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 #include "base/files/scoped_temp_dir.h"
 #endif
 
@@ -135,7 +135,7 @@ class ProcessSingleton {
   // Clear any lock state during shutdown.
   void Cleanup();
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   static void DisablePromptForTesting();
   static void SkipIsChromeProcessCheckForTesting(bool skip);
   static void SetUserOptedUnlockInUseProfileForTesting(bool set_unlock);
@@ -166,7 +166,7 @@ class ProcessSingleton {
   // On Windows, Create() has to be called before this.
   NotifyResult NotifyOtherProcess();
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   // Exposed for testing.  We use a timeout on Linux, and in tests we want
   // this timeout to be short.
   NotifyResult NotifyOtherProcessWithTimeout(
@@ -204,7 +204,7 @@ class ProcessSingleton {
 
   base::FilePath user_data_dir_;
   ShouldKillRemoteProcessCallback should_kill_remote_process_callback_;
-#elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_POSIX)
   // Return true if the given pid is one of our child processes.
   // Assumes that the current pid is the root of all pids of the current
   // instance.

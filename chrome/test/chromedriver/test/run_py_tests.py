@@ -5,11 +5,6 @@
 
 """End to end tests for ChromeDriver."""
 
-# Note that to run Android tests you must have the following line in
-# .gclient (in the parent directory of src):  target_os = [ 'android' ]
-# to get the appropriate adb version for ChromeDriver.
-# TODO (crbug.com/41397243): Remove above comment when adb version
-# is updated in Devil.
 
 import argparse
 import base64
@@ -85,16 +80,6 @@ from monotonic import monotonic  # noqa: E402
 
 _TEST_DATA_DIR = os.path.join(chrome_paths.GetTestData(), 'chromedriver')
 
-if util.IsLinux():
-  sys.path.insert(
-    0, os.path.join(chrome_paths.GetSrc(), 'third_party', 'catapult', 'devil')
-  )
-  from devil.android import device_utils
-  from devil.android import forwarder
-
-  sys.path.insert(0, os.path.join(chrome_paths.GetSrc(), 'build', 'android'))
-  import devil_chromium
-  from pylib import constants
 
 _ELEMENT_REF_REGEX = r'f\.[a-zA-Z0-9]+\.d\.[a-zA-Z0-9]+\.e\.\d+'
 
@@ -270,137 +255,6 @@ def _GetDesktopNegativeFilter(browser_name='chrome'):
   return filter
 
 
-_ANDROID_NEGATIVE_FILTER = {}
-_ANDROID_NEGATIVE_FILTER['chrome'] = _NEGATIVE_FILTER + [
-  # Android doesn't support switches and extensions.
-  'ChromeSwitchesCapabilityTest.*',
-  'ChromeExtensionsCapabilityTest.*',
-  'MobileEmulationCapabilityTest.*',
-  'ChromeDownloadDirTest.*',
-  # https://crbug.com/41037474
-  'ChromeDriverTest.testCloseWindow',
-  # The Android test configuration does not provide a resizable
-  # desktop-windowing environment.
-  'ChromeDriverTest.testWindowFullScreen',
-  'ChromeDriverTest.testWindowPosition',
-  'ChromeDriverTest.testWindowSize',
-  'ChromeDriverTest.testWindowRect',
-  'ChromeDriverTest.testWindowMaximize',
-  'ChromeDriverTest.testWindowMaximizeFromFrame',
-  'ChromeDriverTest.testWindowMinimize',
-  'ChromeLogPathCapabilityTest.testChromeLogPath',
-  # Connecting to running browser is not supported on Android.
-  'RemoteBrowserTest.*',
-  # Don't enable perf testing on Android yet.
-  'PerfTest.*',
-  # Android doesn't support multiple sessions on one device.
-  'SessionHandlingTest.testGetSessions',
-  # Android doesn't use the chrome://print dialog.
-  'ChromeDriverTest.testCanSwitchToPrintPreviewDialog',
-  # Chrome 44+ for Android doesn't dispatch the dblclick event
-  'ChromeDriverTest.testMouseDoubleClick',
-  # Page cannot be loaded from file:// URI in Android unless it
-  # is stored in device.
-  'ChromeDriverTest.testCanClickAlertInIframes',
-  # Tests of the desktop Chrome launch process.
-  'LaunchDesktopTest.*',
-  # The Android test configuration cannot resize the browser window.
-  'ChromeDriverTest.testTakeLargeElementScreenshot',
-  # Android has no concept of tab or window, and will always lose focus
-  # on tab creation. https://crbug.com/chromedriver/3018
-  'ChromeDriverTest.testNewWindowDoesNotFocus',
-  'ChromeDriverTest.testNewTabDoesNotFocus',
-  # Android does not support the virtual authenticator environment.
-  'ChromeDriverSecureContextTest.*',
-  # Covered by Desktop tests; can't create 2 browsers in Android
-  'SupportIPv4AndIPv6.testSupportIPv4AndIPv6',
-  # Browser context management is not supported by Android
-  'ChromeDriverTest.testClipboardPermissions',
-  'ChromeDriverTest.testMidiPermissions',
-  'ChromeDriverTest.testMultiplePermissions',
-  'ChromeDriverTest.testNewWindowSameDomainHasSamePermissions',
-  'ChromeDriverTest.testPermissionStates',
-  'ChromeDriverTest.testPermissionsOpaqueOriginsThrowError',
-  'ChromeDriverTest.testPermissionsSameOrigin',
-  'ChromeDriverTest.testPermissionsSameOriginDoesNotAffectOthers',
-  'ChromeDriverTest.testPersistentStoragePermissions',
-  'ChromeDriverTest.testPushAndNotificationsPermissions',
-  'ChromeDriverTest.testSensorPermissions',
-  'ChromeDriverTest.testSettingPermissionDoesNotAffectOthers',
-  # Android does not allow changing window size
-  'JavaScriptTests.*',
-  # These tests are failing on Android
-  # https://bugs.chromium.org/p/chromedriver/issues/detail?id=3560
-  'ChromeDriverTest.testTakeLargeElementViewportScreenshot',
-  'ChromeDriverTest.testTakeLargeElementFullPageScreenshot',
-  # Android does not support command line switches, which are
-  # currently needed for these tests.
-  'NavTrackingMitigationSpecificTest.testRunBounceTrackingMitigations',
-]
-_ANDROID_NEGATIVE_FILTER['chrome_stable'] = _ANDROID_NEGATIVE_FILTER[
-  'chrome'
-] + [
-  # https://bugs.chromium.org/p/chromedriver/issues/detail?id=2350
-  'ChromeDriverTest.testSlowIFrame',
-  # https://bugs.chromium.org/p/chromedriver/issues/detail?id=2503
-  'ChromeDriverTest.testGetLogOnClosedWindow',
-  'ChromeDriverTest.testGetWindowHandles',
-  'ChromeDriverTest.testShouldHandleNewWindowLoadingProperly',
-  'ChromeDriverTest.testSwitchToWindow',
-  # Feature not yet supported in this version
-  'ChromeDriverTest.testGenerateTestReport',
-  # Pipe are supported only on Posix and Windows platforms
-  'ChromeSwitchesCapabilityTest.testRemoteDebuggingPipe',
-]
-_ANDROID_NEGATIVE_FILTER['chrome_beta'] = _ANDROID_NEGATIVE_FILTER['chrome'] + [
-  # https://bugs.chromium.org/p/chromedriver/issues/detail?id=2503
-  'ChromeDriverTest.testGetLogOnClosedWindow',
-  'ChromeDriverTest.testGetWindowHandles',
-  'ChromeDriverTest.testShouldHandleNewWindowLoadingProperly',
-  'ChromeDriverTest.testSwitchToWindow',
-  # Feature not yet supported in this version
-  'ChromeDriverTest.testGenerateTestReport',
-  # Pipe are supported only on Posix and Windows platforms
-  'ChromeSwitchesCapabilityTest.testRemoteDebuggingPipe',
-]
-_ANDROID_NEGATIVE_FILTER['chromium'] = _ANDROID_NEGATIVE_FILTER['chrome'] + []
-_ANDROID_NEGATIVE_FILTER['chromedriver_webview_shell'] = (
-  _ANDROID_NEGATIVE_FILTER['chrome_stable']
-  + [
-    # WebView doesn't support emulating network conditions.
-    'ChromeDriverTest.testEmulateNetworkConditions',
-    'ChromeDriverTest.testEmulateNetworkConditionsNameSpeed',
-    'ChromeDriverTest.testEmulateNetworkConditionsOffline',
-    'ChromeDriverTest.testEmulateNetworkConditionsSpeed',
-    'ChromeDriverTest.testEmulateNetworkConditionsName',
-    # WebView shell doesn't support popups or popup blocking.
-    'ChromeDriverTest.testPopups',
-    'ChromeDriverTest.testDontGoBackOrGoForward',
-    # ChromeDriver WebView shell doesn't support multiple tabs.
-    'ChromeDriverTest.testGetWindowHandles',
-    'ChromeDriverTest.testSwitchToWindow',
-    'ChromeDriverTest.testShouldHandleNewWindowLoadingProperly',
-    'ChromeDriverTest.testGetLogOnClosedWindow',
-    # The WebView shell that we test against (on KitKat) does not perform
-    # cross-process navigations.
-    # TODO(samuong): reenable when it does.
-    'ChromeDriverPageLoadTimeoutTest.testPageLoadTimeoutCrossDomain',
-    'ChromeDriverPageLoadTimeoutTest.testHistoryNavigationWithPageLoadTimeout',
-    # Webview shell doesn't support Alerts.
-    'ChromeDriverTest.testAlert',
-    'ChromeDriverTest.testAlertOnNewWindow',
-    'ChromeDesiredCapabilityTest.testUnexpectedAlertBehaviour',
-    'ChromeDriverTest.testAlertHandlingOnPageUnload',
-    'ChromeDriverTest.testClickElementAfterNavigation',
-    'ChromeDriverTest.testGetLogOnWindowWithAlert',
-    'ChromeDriverTest.testSendTextToAlert',
-    'ChromeDriverTest.testUnexpectedAlertOpenExceptionMessage',
-    # https://bugs.chromium.org/p/chromedriver/issues/detail?id=2332
-    'ChromeDriverTestLegacy.testTouchScrollElement',
-    # Pipe are supported only on Posix and Windows platforms
-    'ChromeSwitchesCapabilityTest.testRemoteDebuggingPipe',
-  ]
-)
 
 
 def _GetChromePathList(driver_path, platform):
@@ -579,8 +433,7 @@ class ChromeDriverBaseTest(unittest.TestCase):
       server_pid = _CHROMEDRIVER_SERVER_PID
 
     if (
-      not _ANDROID_PACKAGE_KEY
-      and 'debugger_address' not in kwargs
+      'debugger_address' not in kwargs
       and '_MINIDUMP_PATH' in globals()
       and _MINIDUMP_PATH
     ):
@@ -592,14 +445,8 @@ class ChromeDriverBaseTest(unittest.TestCase):
       else:
         kwargs['experimental_options'] = {'minidumpPath': _MINIDUMP_PATH}
 
-    android_package = None
-    android_activity = None
-    android_process = None
-    if _ANDROID_PACKAGE_KEY:
-      android_package = constants.PACKAGE_INFO[_ANDROID_PACKAGE_KEY].package
-      if _ANDROID_PACKAGE_KEY == 'chromedriver_webview_shell':
-        android_activity = constants.PACKAGE_INFO[_ANDROID_PACKAGE_KEY].activity
-        android_process = '%s:main' % android_package
+
+
 
     if browser_name is None:
       browser_name = _BROWSER_NAME
@@ -612,9 +459,9 @@ class ChromeDriverBaseTest(unittest.TestCase):
       server_pid,
       chrome_binary=_CHROME_BINARY,
       browser_name=browser_name,
-      android_package=android_package,
-      android_activity=android_activity,
-      android_process=android_process,
+
+
+
       download_dir=download_dir,
       test_name=self.id(),
       **kwargs,
@@ -702,32 +549,8 @@ class ChromeDriverBaseTestWithWebServer(ChromeDriverBaseTest):
       '/userAgentUseDeviceWidth', respondWithUserAgentStringUseDeviceWidth
     )
 
-    if _ANDROID_PACKAGE_KEY:
-      ChromeDriverBaseTestWithWebServer._device = (
-        device_utils.DeviceUtils.HealthyDevices()[0]
-      )
-      http_host_port = (
-        ChromeDriverBaseTestWithWebServer._http_server._server.server_port
-      )
-      sync_host_port = (
-        ChromeDriverBaseTestWithWebServer._sync_server._server.server_port
-      )
-      https_host_port = (
-        ChromeDriverBaseTestWithWebServer._https_server._server.server_port
-      )
-      forwarder.Forwarder.Map(
-        [
-          (http_host_port, http_host_port),
-          (sync_host_port, sync_host_port),
-          (https_host_port, https_host_port),
-        ],
-        ChromeDriverBaseTestWithWebServer._device,
-      )
-
   @staticmethod
   def GlobalTearDown():
-    if _ANDROID_PACKAGE_KEY:
-      forwarder.Forwarder.UnmapAllDevicePorts(ChromeDriverTest._device)
     ChromeDriverBaseTestWithWebServer._http_server.Shutdown()
     ChromeDriverBaseTestWithWebServer._https_server.Shutdown()
 
@@ -2932,17 +2755,6 @@ class ChromeDriverTest(ChromeDriverBaseTestWithWebServer):
   def testSendKeysToInputFileElement(self):
     host_file_name = os.path.join(_TEST_DATA_DIR, 'anchor_download_test.png')
     file_name = host_file_name
-    if _ANDROID_PACKAGE_KEY:
-      device_dir = '/data/local/tmp/chromedriver_file_input_%d' % os.getpid()
-      self._device.RemovePath(device_dir, force=True, recursive=True)
-      self._device.RunShellCommand(
-        ['mkdir', '-p', device_dir], check_return=True
-      )
-      self.addCleanup(
-        self._device.RemovePath, device_dir, force=True, recursive=True
-      )
-      file_name = device_dir + '/anchor_download_test.png'
-      self._device.PushChangedFiles([(host_file_name, file_name)])
 
     self._driver.Load(
       ChromeDriverTest.GetHttpUrlForFile('/chromedriver/file_input.html')
@@ -2953,11 +2765,9 @@ class ChromeDriverTest(ChromeDriverBaseTestWithWebServer):
       'var input = document.getElementById("id_file").value;return input;'
     )
     self.assertEqual('C:\\fakepath\\anchor_download_test.png', text)
-
-    if not _ANDROID_PACKAGE_KEY:
-      self.assertRaises(
-        chromedriver.InvalidArgument, elem.SendKeys, "/blah/blah/blah"
-      )
+    self.assertRaises(
+      chromedriver.InvalidArgument, elem.SendKeys, "/blah/blah/blah"
+    )
 
   def testSendKeysToNonTypeableInputElement(self):
     self._driver.Load("about:blank")
@@ -4724,7 +4534,7 @@ class ChromeDriverTest(ChromeDriverBaseTestWithWebServer):
   # Tests that the webauthn capabilities are true on desktop and false on
   # android.
   def testWebauthnVirtualAuthenticatorsCapability(self):
-    is_desktop = _ANDROID_PACKAGE_KEY is None
+    is_desktop = True
     self.assertEqual(
       is_desktop, self._driver.capabilities['webauthn:virtualAuthenticators']
     )
@@ -7798,284 +7608,6 @@ class ChromeDriverPageLoadTimeoutTest(ChromeDriverBaseTestWithWebServer):
     self._CheckPageLoadTimeout(self._driver.Refresh)
 
 
-class ChromeDriverAndroidTest(ChromeDriverBaseTestWithWebServer):
-  """End to end tests for Android-specific tests."""
-
-  def testSendKeysToInputFileElementRejectsMalformedPaths(self):
-    self._driver = self.CreateDriver()
-    self._driver.Load(self.GetHttpUrlForFile('/chromedriver/file_input.html'))
-    elem = self._driver.FindElement('css selector', '#id_file')
-    self._driver.ExecuteScript(
-      'document.getElementById("id_file").multiple = true;'
-    )
-
-    for malformed_path in (
-      'data/local/tmp/file.txt',
-      '/data/local/tmp/../file.txt',
-    ):
-      with self.subTest(path=malformed_path):
-        self.assertRaises(
-          chromedriver.InvalidArgument, elem.SendKeys, malformed_path
-        )
-        self.assertEqual('', elem.GetProperty('value'))
-        self.assertEqual(
-          0,
-          self._driver.ExecuteScript(
-            'return document.getElementById("id_file").files.length;'
-          ),
-        )
-
-    # Reject the whole request without assigning the valid first path.
-    valid_absolute_path = '/data/local/tmp/file.txt'
-    malformed_path = '/data/local/tmp/../file.txt'
-    self.assertRaises(
-      chromedriver.InvalidArgument,
-      elem.SendKeys,
-      valid_absolute_path + '\n' + malformed_path,
-    )
-    self.assertEqual('', elem.GetProperty('value'))
-    self.assertEqual(
-      0,
-      self._driver.ExecuteScript(
-        'return document.getElementById("id_file").files.length;'
-      ),
-    )
-
-  def testSendKeysToInputFileElementMultipleDeviceLocalFiles(self):
-    self._driver = self.CreateDriver()
-    host_file = os.path.join(_TEST_DATA_DIR, 'anchor_download_test.png')
-    with open(host_file, 'rb') as file:
-      expected_bytes = list(file.read())
-    device_dir = (
-      '/data/local/tmp/chromedriver_file_input_multiple_%d' % os.getpid()
-    )
-    self._device.RemovePath(device_dir, force=True, recursive=True)
-    self._device.RunShellCommand(['mkdir', '-p', device_dir], check_return=True)
-    self.addCleanup(
-      self._device.RemovePath, device_dir, force=True, recursive=True
-    )
-    first_file = device_dir + '/first.png'
-    second_file = device_dir + '/second.png'
-    self._device.PushChangedFiles(
-      [
-        (host_file, first_file),
-        (host_file, second_file),
-      ]
-    )
-
-    self._driver.Load(self.GetHttpUrlForFile('/chromedriver/file_input.html'))
-    elem = self._driver.FindElement('css selector', '#id_file')
-    self._driver.ExecuteScript(
-      'document.getElementById("id_file").multiple = true;'
-    )
-
-    elem.SendKeys(first_file + '\n' + second_file)
-    files = self._driver.ExecuteAsyncScript('''
-        const resolve = arguments[0];
-        const files = Array.from(
-            document.getElementById('id_file').files);
-        Promise.all(files.map(async file => ({
-          name: file.name,
-          size: file.size,
-          bytes: Array.from(new Uint8Array(await file.arrayBuffer())),
-        }))).then(resolve);
-    ''')
-    expected_file = {
-      'size': len(expected_bytes),
-      'bytes': expected_bytes,
-    }
-    self.assertEqual(
-      [
-        dict(expected_file, name='first.png'),
-        dict(expected_file, name='second.png'),
-      ],
-      files,
-    )
-
-  def testLatestAndroidAppInstalled(self):
-    if (
-      'stable' not in _ANDROID_PACKAGE_KEY
-      and 'beta' not in _ANDROID_PACKAGE_KEY
-    ):
-      return
-
-    self._driver = self.CreateDriver()
-
-    try:
-      omaha_list = json.loads(
-        urllib.request.urlopen('http://omahaproxy.appspot.com/all.json').read()
-      )
-      for l in omaha_list:  # noqa: E741
-        if l['os'] != 'android':
-          continue
-        for v in l['versions']:
-          if (
-            'stable' in v['channel'] and 'stable' in _ANDROID_PACKAGE_KEY
-          ) or ('beta' in v['channel'] and 'beta' in _ANDROID_PACKAGE_KEY):
-            omaha = list(map(int, v['version'].split('.')))
-            device = list(
-              map(int, self._driver.capabilities['browserVersion'].split('.'))
-            )
-            self.assertTrue(omaha <= device)
-            return
-      raise RuntimeError('Malformed omaha JSON')
-    except urllib.error.URLError as e:
-      print('Unable to fetch current version info from omahaproxy (%s)' % e)
-
-  def testDeviceManagement(self):
-    self._drivers = [
-      self.CreateDriver() for _ in device_utils.DeviceUtils.HealthyDevices()
-    ]
-    self.assertRaises(chromedriver.UnknownError, self.CreateDriver)
-    self._drivers[0].Quit()
-    self._drivers[0] = self.CreateDriver()
-
-  def testAndroidGetWindowSize(self):
-    self._driver = self.CreateDriver()
-    size = self._driver.GetWindowRect()
-
-    script_size = self._driver.ExecuteScript(
-      'return [window.outerWidth, window.outerHeight, 0, 0]'
-    )
-    self.assertEqual(size, script_size)
-
-    script_inner = self._driver.ExecuteScript(
-      'return [window.innerWidth * visualViewport.scale, '
-      'window.innerHeight * visualViewport.scale]'
-    )
-    # Subtract inner size by 1 to compensate for rounding errors.
-    self.assertLessEqual(script_inner[0] - 1, size[0])
-    self.assertLessEqual(script_inner[1] - 1, size[1])
-    # Sanity check: screen dimensions in the range 20-20000px
-    self.assertLessEqual(size[0], 20000)
-    self.assertLessEqual(size[1], 20000)
-    self.assertGreaterEqual(size[0], 20)
-    self.assertGreaterEqual(size[1], 20)
-
-  def testAndroidOpenNewWindow(self):
-    self._driver = self.CreateDriver()
-    size = self._driver.GetWindowRect()  # noqa: F841
-
-    old_target_id = self._driver.GetCurrentWindowHandle()
-    window1 = self._driver.SendCommandAndGetResult(
-      'Browser.getWindowForTarget', {'targetId': old_target_id}
-    )
-    new_window = self._driver.NewWindow(window_type='window')
-    self._driver.SwitchToWindow(new_window['handle'])
-    self.assertTrue(
-      self.WaitForCondition(
-        lambda: self._driver.GetCurrentWindowHandle() != old_target_id
-      )
-    )
-    new_target_id = self._driver.GetCurrentWindowHandle()
-    self.assertNotEqual(None, new_target_id)
-    self.assertNotEqual(old_target_id, new_target_id)
-    window2 = self._driver.SendCommandAndGetResult(
-      'Browser.getWindowForTarget', {'targetId': new_target_id}
-    )
-
-    # Verify that the second tab target is indeed in a different window.
-    self.assertNotEqual(window1['windowId'], window2['windowId'])
-
-  def testAndroidScrollsMultipleWindows(self):
-    """Regression test for crbug.com/413382905"""
-    self._driver = self.CreateDriver()
-    size = self._driver.GetWindowRect()  # noqa: F841
-
-    old_target_id = self._driver.GetCurrentWindowHandle()
-    window1 = self._driver.SendCommandAndGetResult(  # noqa: F841
-      'Browser.getWindowForTarget', {'targetId': old_target_id}
-    )
-    new_window1 = self._driver.NewWindow(window_type='window')
-    new_window2 = self._driver.NewWindow(window_type='window')
-    new_window3 = self._driver.NewWindow(window_type='window')  # noqa: F841
-
-    # Switch to first window
-    self._driver.SwitchToWindow(new_window1['handle'])
-    self.assertTrue(
-      self.WaitForCondition(
-        lambda: self._driver.GetCurrentWindowHandle() != old_target_id
-      )
-    )
-    window1_target_id = self._driver.GetCurrentWindowHandle()
-    self.assertNotEqual(None, window1_target_id)
-    self.assertNotEqual(old_target_id, window1_target_id)
-
-    scroll_top = 'return document.documentElement.scrollTop;'
-
-    # Scroll first window.
-    self._driver.Load(
-      self.GetHttpUrlForFile('/chromedriver/touch_action_tests.html')
-    )
-    self.assertEqual(0, self._driver.ExecuteScript(scroll_top))
-    self._driver.ExecuteScript('window.scrollTo(0, %d);' % 53)
-    self.assertAlmostEqual(53, self._driver.ExecuteScript(scroll_top), delta=1)
-
-    # Switch to second window
-    self._driver.SwitchToWindow(new_window2['handle'])
-    self.assertTrue(
-      self.WaitForCondition(
-        lambda: self._driver.GetCurrentWindowHandle() != window1_target_id
-      )
-    )
-    window2_target_id = self._driver.GetCurrentWindowHandle()
-    self.assertNotEqual(None, window2_target_id)
-    self.assertNotEqual(window1_target_id, window2_target_id)
-
-    # Scroll second window.
-    self._driver.Load(
-      self.GetHttpUrlForFile('/chromedriver/touch_action_tests.html')
-    )
-    self.assertEqual(0, self._driver.ExecuteScript(scroll_top))
-    self._driver.ExecuteScript('window.scrollTo(0, %d);' % 25)
-
-    # Assert both windows were independently scrolled and positions
-    # maintained.
-    self._driver.SwitchToWindow(new_window1['handle'])
-    self.assertAlmostEqual(53, self._driver.ExecuteScript(scroll_top), delta=1)
-    self._driver.SwitchToWindow(new_window2['handle'])
-    self.assertAlmostEqual(25, self._driver.ExecuteScript(scroll_top), delta=1)
-
-  def testAndroidPrefs(self):
-    package_name = constants.PACKAGE_INFO[_ANDROID_PACKAGE_KEY].package
-    user_data_dir = f"/data/data/{package_name}/profile_test"
-
-    driver = self.CreateDriver(
-      chrome_switches=['user-data-dir=' + user_data_dir],
-      experimental_options={
-        'prefs': {
-          'download.extensions_to_open': 'this_is_a_test',
-        }
-      },
-    )
-
-    driver.Load("chrome://prefs-internals")
-    prefs = json.loads(driver.ExecuteScript("return document.body.innerText;"))
-    self.assertIn('download', prefs)
-    self.assertIn('extensions_to_open', prefs['download'])
-    self.assertIn('value', prefs['download']['extensions_to_open'])
-    self.assertEqual(
-      'this_is_a_test', prefs['download']['extensions_to_open']['value']
-    )
-
-  def testAndroidLocalState(self):
-    package_name = constants.PACKAGE_INFO[_ANDROID_PACKAGE_KEY].package
-    user_data_dir = f"/data/data/{package_name}/profile_test"
-
-    driver = self.CreateDriver(
-      chrome_switches=['user-data-dir=' + user_data_dir],
-      experimental_options={
-        'localState': {
-          'variations_country': 'ABCD',
-        }
-      },
-    )
-
-    driver.Load("chrome://local-state/")
-    prefs = json.loads(driver.ExecuteScript("return document.body.innerText;"))
-    self.assertIn('variations_country', prefs)
-    self.assertIn('value', prefs['variations_country'])
-    self.assertEqual('ABCD', prefs['variations_country']['value'])
 
 
 class ChromeDownloadDirTest(ChromeDriverBaseTest):
@@ -8802,14 +8334,7 @@ class MobileEmulationCapabilityTest(ChromeDriverBaseTestWithWebServer):
     driver = self.CreateDriver(
       mobile_emulation={
         'deviceMetrics': {'width': 360, 'height': 640, 'pixelRatio': 3},
-        'clientHints': {
-          'platform': 'Android',
-          'platformVersion': '17',
-          'architecture': 'arm',
-          'bitness': '32',
-          'mobile': True,
-          'model': 'Special',
-        },
+
       }
     )
     major_version = driver.capabilities['browserVersion'].split('.')[0]
@@ -9463,13 +8988,11 @@ class PureBidiTest(ChromeDriverBaseTestWithWebServer):
     if chrome_binary is None:
       chrome_binary = _CHROME_BINARY
     options = {'w3c': True}
-    android_package = None
-    if _ANDROID_PACKAGE_KEY:
-      android_package = constants.PACKAGE_INFO[_ANDROID_PACKAGE_KEY].package
+
     # The code concerning chrome switches was carried over from
     # client/chromedriver.py
     chrome_switches = []
-    if sys.platform.startswith('linux') and android_package is None:
+    if sys.platform.startswith('linux'):
       # Workaround for crbug.com/40469290.
       chrome_switches.append('no-sandbox')
       # https://bugs.chromium.org/p/chromedriver/issues/detail?id=1695
@@ -11498,13 +11021,6 @@ if __name__ == '__main__':
     help='Filter for specifying what tests to run, "*" will run all,'
     'including tests excluded by default. E.g., *testRunMethod',
   )
-  parser.add_argument(
-    '--android-package',
-    help=(
-      'Android package key. Possible values: '
-      + str(list(_ANDROID_NEGATIVE_FILTER.keys()))
-    ),
-  )
 
   parser.add_argument(
     '--isolated-script-test-output', help='JSON output file used by swarming'
@@ -11602,11 +11118,6 @@ if __name__ == '__main__':
   if options.remote_chromedriver_port is not None:
     _HTTP_TIMEOUT = 10 * 3600  # 10 hours
 
-  if (
-    options.android_package
-    and options.android_package not in _ANDROID_NEGATIVE_FILTER
-  ):
-    parser.error('Invalid --android-package')
 
   additional_args = []
   if options.disable_build_check:
@@ -11665,12 +11176,6 @@ Delegating this task to ChromeDriver'''
   global _BROWSER_NAME
   _BROWSER_NAME = browser_name
 
-  global _ANDROID_PACKAGE_KEY
-  _ANDROID_PACKAGE_KEY = options.android_package
-
-  if _ANDROID_PACKAGE_KEY:
-    devil_chromium.Initialize()
-
   global _VENDOR_ID
   if options.vendor:
     _VENDOR_ID = options.vendor
@@ -11678,10 +11183,7 @@ Delegating this task to ChromeDriver'''
     _VENDOR_ID = 'goog'
 
   if options.filter == '':
-    if _ANDROID_PACKAGE_KEY:
-      negative_filter = _ANDROID_NEGATIVE_FILTER[_ANDROID_PACKAGE_KEY]
-    else:
-      negative_filter = _GetDesktopNegativeFilter(_BROWSER_NAME)
+    negative_filter = _GetDesktopNegativeFilter(_BROWSER_NAME)
 
     if options.test_type is not None:
       if options.test_type == 'integration':

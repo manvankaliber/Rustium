@@ -1085,10 +1085,6 @@ class MediaDialogViewWithBackForwardCacheBrowserTest
   MediaDialogViewWithBackForwardCacheBrowserTest() {
     feature_list_.InitWithFeaturesAndParameters(
         content::GetBasicBackForwardCacheFeatureForTesting({
-#if BUILDFLAG(IS_ANDROID)
-            {features::kBackForwardCache,
-             { {"process_binding_strength", "NORMAL"} }},
-#endif
         }),
         content::GetDefaultDisabledBackForwardCacheFeaturesForTesting());
   }

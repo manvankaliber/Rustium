@@ -18,9 +18,7 @@
 #include "mojo/public/cpp/bindings/receiver_set.h"
 #include "mojo/public/cpp/bindings/remote_set.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/speech/speech_recognition_small_expert_model_installer.h"
-#endif
 
 class PrefChangeRegistrar;
 class PrefService;
@@ -35,10 +33,8 @@ class SpeechRecognitionClientBrowserInterface
     : public KeyedService,
       public media::mojom::SpeechRecognitionClientBrowserInterface,
       public speech::SodaInstaller::Observer
-#if !BUILDFLAG(IS_CHROMEOS)
     ,
       public speech::SpeechRecognitionSmallExpertModelInstaller::Observer
-#endif
 {
  public:
   explicit SpeechRecognitionClientBrowserInterface(
@@ -69,11 +65,6 @@ class SpeechRecognitionClientBrowserInterface
       mojo::PendingRemote<media::mojom::SpeechRecognitionBrowserObserver>
           pending_remote) override;
   void REMOVED_1() override;
-#if BUILDFLAG(IS_CHROMEOS)
-  void REMOVED_2(
-      mojo::PendingRemote<media::mojom::SpeechRecognitionBrowserObserver>
-          pending_remote) override;
-#endif
 
   // SodaInstaller::Observer:
   void OnSodaInstalled(speech::LanguageCode language_code) override;
@@ -82,11 +73,9 @@ class SpeechRecognitionClientBrowserInterface
   void OnSodaInstallError(
       speech::LanguageCode language_code,
       speech::SodaInstaller::ErrorCode error_code) override {}
-#if !BUILDFLAG(IS_CHROMEOS)
   void OnSpeechRecognitionSmallExpertModelStateChanged(
       speech::SpeechRecognitionSmallExpertModelInstaller::
           SpeechRecognitionSmallExpertModelState state) override;
-#endif
 
   // Live Caption Event handling
   void OnLiveCaptionAvailabilityChanged();
@@ -118,12 +107,10 @@ class SpeechRecognitionClientBrowserInterface
   base::ScopedObservation<speech::SodaInstaller,
                           speech::SodaInstaller::Observer>
       soda_installer_observation_{this};
-#if !BUILDFLAG(IS_CHROMEOS)
   base::ScopedObservation<
       speech::SpeechRecognitionSmallExpertModelInstaller,
       speech::SpeechRecognitionSmallExpertModelInstaller::Observer>
       speech_recognition_small_expert_model_installer_observation_{this};
-#endif
 };
 
 }  // namespace speech

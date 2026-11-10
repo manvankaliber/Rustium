@@ -77,22 +77,8 @@
 #include "third_party/blink/public/web/web_view.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/renderer/media/android/flinging_renderer_client_factory.h"
-#include "media/base/android/media_codec_util.h"
-#include "media/base/media.h"
-#include "url/gurl.h"
-#endif
 
-#if BUILDFLAG(ENABLE_CAST_RECEIVER)
-#include "components/cast_streaming/common/public/cast_streaming_url.h"  // nogncheck
-#include "components/cast_streaming/renderer/public/resource_provider.h"  // nogncheck
-#include "components/cast_streaming/renderer/public/wrapping_renderer_factory_selector.h"  // nogncheck
-#endif
 
-#if BUILDFLAG(ENABLE_CAST_RENDERER)
-#include "content/renderer/media/cast_renderer_client_factory.h"
-#endif
 
 #if BUILDFLAG(ENABLE_MOJO_CDM)
 #include "media/mojo/clients/mojo_cdm_factory.h"  // nogncheck
@@ -110,12 +96,6 @@
 #include "media/remoting/renderer_controller.h"       // nogncheck
 #endif
 
-#if BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
-// Enable remoting receiver
-#include "media/base/remoting_constants.h"             // nogncheck
-#include "media/remoting/receiver_controller.h"        // nogncheck
-#include "media/remoting/remoting_renderer_factory.h"  // nogncheck
-#endif  // BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 #include "content/renderer/media/win/dcomp_texture_wrapper_impl.h"
@@ -234,19 +214,11 @@ std::unique_ptr<media::RendererImplFactory> CreateRendererImplFactory(
     media::DecoderFactory* decoder_factory,
     content::RenderThreadImpl* render_thread,
     content::RenderFrameImpl* render_frame) {
-#if BUILDFLAG(IS_ANDROID)
-  auto factory = std::make_unique<media::RendererImplFactory>(
-      media_log, decoder_factory,
-      base::BindRepeating(&content::RenderThreadImpl::GetGpuFactories,
-                          base::Unretained(render_thread)),
-      player_id);
-#else
   auto factory = std::make_unique<media::RendererImplFactory>(
       media_log, decoder_factory,
       base::BindRepeating(&content::RenderThreadImpl::GetGpuFactories,
                           base::Unretained(render_thread)),
       player_id, render_frame->CreateSpeechRecognitionClient());
-#endif
   return factory;
 }
 
@@ -326,20 +298,6 @@ MediaFactory::~MediaFactory() {
 }
 
 void MediaFactory::SetupMojo() {
-#if BUILDFLAG(ENABLE_CAST_RECEIVER)
-  // Add callbacks for cast_streaming to the AssociatedInterfaceRegistry to be
-  // populated upon browser-process binding.
-  cast_streaming_resource_provider_ =
-      GetContentClient()->renderer()->CreateCastStreamingResourceProvider();
-  if (cast_streaming_resource_provider_) {
-    render_frame_->GetAssociatedInterfaceRegistry()
-        ->AddInterface<cast_streaming::mojom::RendererController>(
-            cast_streaming_resource_provider_->GetRendererControllerBinder());
-    render_frame_->GetAssociatedInterfaceRegistry()
-        ->AddInterface<cast_streaming::mojom::DemuxerConnector>(
-            cast_streaming_resource_provider_->GetDemuxerConnectorBinder());
-  }
-#endif
 }
 
 std::unique_ptr<blink::WebMediaPlayer> MediaFactory::CreateMediaPlayer(
@@ -401,10 +359,6 @@ std::unique_ptr<blink::WebMediaPlayer> MediaFactory::CreateMediaPlayer(
   const blink::web_pref::WebPreferences webkit_preferences =
       render_frame_->GetBlinkPreferences();
   bool embedded_media_experience_enabled = false;
-#if BUILDFLAG(IS_ANDROID)
-  embedded_media_experience_enabled =
-      webkit_preferences.embedded_media_experience_enabled;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   media::MediaPlayerLoggingID player_id = media::GetNextMediaPlayerLoggingID();
   std::vector<std::unique_ptr<BatchingMediaLog::EventHandler>> handlers;
@@ -452,13 +406,6 @@ std::unique_ptr<blink::WebMediaPlayer> MediaFactory::CreateMediaPlayer(
       GetContentClient()->renderer()->OverrideDemuxerForUrl(render_frame_, url,
                                                             media_task_runner);
 
-#if BUILDFLAG(ENABLE_CAST_RECEIVER)
-  if (!demuxer_override && cast_streaming_resource_provider_) {
-    demuxer_override =
-        cast_streaming_resource_provider_->MaybeGetDemuxerOverride(
-            url, media_task_runner);
-  }
-#endif
 
   if (!media_player_builder_) {
     media_player_builder_ = std::make_unique<blink::WebMediaPlayerBuilder>(
@@ -532,14 +479,6 @@ MediaFactory::CreateRendererFactorySelector(
   auto factory_selector = std::make_unique<media::RendererFactorySelector>();
   bool is_base_renderer_factory_set = false;
 
-#if BUILDFLAG(ENABLE_CAST_RECEIVER)
-  if (cast_streaming::IsCastStreamingMediaSourceUrl(url) &&
-      cast_streaming_resource_provider_) {
-    factory_selector =
-        std::make_unique<cast_streaming::WrappingRendererFactorySelector>(
-            cast_streaming_resource_provider_.get());
-  }
-#endif
 
   auto factory = GetContentClient()->renderer()->GetBaseRendererFactory(
       render_frame_, media_log, decoder_factory,
@@ -552,37 +491,12 @@ MediaFactory::CreateRendererFactorySelector(
                                      std::move(factory));
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // FlingingRendererClientFactory (FRCF) setup.
-  auto flinging_factory = std::make_unique<FlingingRendererClientFactory>(
-      CreateMojoRendererFactory(), std::move(client_wrapper));
-
-  // base::Unretained() is safe here because |factory_selector| owns and
-  // outlives |flinging_factory|.
-  factory_selector->StartRequestRemotePlayStateCB(
-      base::BindOnce(&FlingingRendererClientFactory::SetRemotePlayStateChangeCB,
-                     base::Unretained(flinging_factory.get())));
-
-  // Must bind the callback first since |flinging_factory| will be moved.
-  // base::Unretained() is also safe here, for the same reasons.
-  auto is_flinging_cb =
-      base::BindRepeating(&FlingingRendererClientFactory::IsFlingingActive,
-                          base::Unretained(flinging_factory.get()));
-  factory_selector->AddConditionalFactory(
-      RendererType::kFlinging, std::move(flinging_factory), is_flinging_cb);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_MOJO_RENDERER)
   if (!is_base_renderer_factory_set &&
       renderer_media_playback_options.is_mojo_renderer_enabled()) {
     is_base_renderer_factory_set = true;
-#if BUILDFLAG(ENABLE_CAST_RENDERER)
-    factory_selector->AddBaseFactory(
-        RendererType::kCast, std::make_unique<CastRendererClientFactory>(
-                                 media_log, CreateMojoRendererFactory()));
-#else
     NOTREACHED();
-#endif  // BUILDFLAG(ENABLE_CAST_RENDERER)
   }
 #endif  // BUILDFLAG(ENABLE_MOJO_RENDERER)
 
@@ -661,31 +575,6 @@ MediaFactory::CreateRendererFactorySelector(
   }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
-  if (renderer_media_playback_options.is_remoting_renderer_enabled()) {
-#if BUILDFLAG(ENABLE_CAST_RENDERER)
-    auto factory_remoting = std::make_unique<CastRendererClientFactory>(
-        media_log, CreateMojoRendererFactory());
-#else   // BUILDFLAG(ENABLE_CAST_RENDERER)
-    auto factory_remoting = CreateRendererImplFactory(
-        player_id, media_log, decoder_factory, render_thread, render_frame_);
-#endif  // BUILDFLAG(ENABLE_CAST_RENDERER)
-    mojo::PendingRemote<media::mojom::Remotee> remotee;
-    GetInterfaceBroker().GetInterface(remotee.InitWithNewPipeAndPassReceiver());
-    auto remoting_renderer_factory =
-        std::make_unique<media::remoting::RemotingRendererFactory>(
-            std::move(remotee), std::move(factory_remoting),
-            render_thread->GetMediaSequencedTaskRunner());
-    auto is_remoting_media = base::BindRepeating(
-        [](const GURL& url) -> bool {
-          return url.SchemeIs(media::remoting::kRemotingScheme);
-        },
-        url);
-    factory_selector->AddConditionalFactory(
-        RendererType::kRemoting, std::move(remoting_renderer_factory),
-        is_remoting_media);
-  }
-#endif  // BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
 
   if (!is_base_renderer_factory_set) {
     // TODO(crbug.com/1265448): These sorts of checks shouldn't be necessary if

@@ -5,7 +5,7 @@
 import("//components/safe_browsing/buildflags.gni")
 import("//extensions/buildflags/buildflags.gni")
 
-assert(is_win || is_mac || is_linux || is_chromeos || is_android)
+assert(is_win || is_mac || is_linux)
 
 source_set("no_state_prefetch") {
   sources = [
@@ -61,36 +61,34 @@ source_set("impl") {
   }
 }
 
-if (!is_android) {
-  source_set("test_support") {
-    testonly = true
-    sources = [
-      "no_state_prefetch_test_utils.cc",
-      "no_state_prefetch_test_utils.h",
-    ]
-    public_deps = [
-      ":no_state_prefetch",
-      "//chrome/test/base:in_process_browser_test",
-      "//components/no_state_prefetch/browser",
-      "//components/safe_browsing:buildflags",
-    ]
-    if (safe_browsing_mode != 0) {
-      public_deps += [
-        "//chrome/browser/safe_browsing:test_support",
-        "//components/safe_browsing/core/browser/db:test_database_manager",
-      ]
-    }
-    deps = [
-      "//base",
-      "//chrome/browser/external_protocol",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/common",
-      "//chrome/test/base:ui_test_utils",
-      "//net:test_support",
-      "//testing/gtest",
+source_set("test_support") {
+  testonly = true
+  sources = [
+    "no_state_prefetch_test_utils.cc",
+    "no_state_prefetch_test_utils.h",
+  ]
+  public_deps = [
+    ":no_state_prefetch",
+    "//chrome/test/base:in_process_browser_test",
+    "//components/no_state_prefetch/browser",
+    "//components/safe_browsing:buildflags",
+  ]
+  if (safe_browsing_mode != 0) {
+    public_deps += [
+      "//chrome/browser/safe_browsing:test_support",
+      "//components/safe_browsing/core/browser/db:test_database_manager",
     ]
   }
+  deps = [
+    "//base",
+    "//chrome/browser/external_protocol",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/common",
+    "//chrome/test/base:ui_test_utils",
+    "//net:test_support",
+    "//testing/gtest",
+  ]
 }
 
 source_set("unit_tests") {
@@ -121,34 +119,32 @@ source_set("unit_tests") {
   ]
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "prerender_nostate_prefetch_browsertest.cc" ]
-    deps = [
-      ":test_support",
-      "//base/test:test_support",
-      "//chrome/browser:browser_features",
-      "//chrome/browser/browsing_data:constants",
-      "//chrome/browser/content_settings:content_settings_factory",
-      "//chrome/browser/devtools",
-      "//chrome/browser/devtools:test_support",
-      "//chrome/browser/history",
-      "//chrome/browser/preloading",
-      "//chrome/browser/preloading:prefs",
-      "//chrome/browser/preloading:test_support",
-      "//chrome/browser/preloading/prefetch/no_state_prefetch",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/test:test_support",
-      "//components/embedder_support",
-      "//components/no_state_prefetch/browser",
-      "//components/privacy_sandbox:features",
-      "//components/security_state/content",
-      "//components/ukm:test_support",
-      "//services/network/public/cpp:ip_address_space_overrides_test_utils",
-    ]
-  }
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [ "prerender_nostate_prefetch_browsertest.cc" ]
+  deps = [
+    ":test_support",
+    "//base/test:test_support",
+    "//chrome/browser:browser_features",
+    "//chrome/browser/browsing_data:constants",
+    "//chrome/browser/content_settings:content_settings_factory",
+    "//chrome/browser/devtools",
+    "//chrome/browser/devtools:test_support",
+    "//chrome/browser/history",
+    "//chrome/browser/preloading",
+    "//chrome/browser/preloading:prefs",
+    "//chrome/browser/preloading:test_support",
+    "//chrome/browser/preloading/prefetch/no_state_prefetch",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/test:test_support",
+    "//components/embedder_support",
+    "//components/no_state_prefetch/browser",
+    "//components/privacy_sandbox:features",
+    "//components/security_state/content",
+    "//components/ukm:test_support",
+    "//services/network/public/cpp:ip_address_space_overrides_test_utils",
+  ]
 }

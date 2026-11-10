@@ -54,9 +54,6 @@
 #include "third_party/blink/public/mojom/websockets/websocket_connector.mojom-forward.h"
 #include "third_party/perfetto/include/perfetto/tracing/traced_value_forward.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/public/browser/android/child_process_importance.h"
-#endif
 
 #if BUILDFLAG(ENABLE_OOP_VIDEO_DECODER)
 #include "media/mojo/mojom/video_decoder.mojom-forward.h"
@@ -68,11 +65,6 @@ namespace base {
 class PersistentMemoryAllocator;
 class TimeDelta;
 class Token;
-#if BUILDFLAG(IS_ANDROID)
-namespace android {
-enum class ChildBindingState;
-}
-#endif
 }  // namespace base
 
 namespace blink {
@@ -114,9 +106,6 @@ class RenderProcessHostPriorityClient;
 class SiteInfo;
 class StoragePartition;
 struct GlobalRenderFrameHostId;
-#if BUILDFLAG(IS_ANDROID)
-enum class ChildProcessImportance;
-#endif
 
 namespace mojom {
 class Renderer;
@@ -437,32 +426,6 @@ class CONTENT_EXPORT RenderProcessHost : public IPC::Listener,
   virtual bool HasPriorityOverride() = 0;
   virtual void ClearPriorityOverride() = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Sets whether to consider the process as a spare renderer when
-  // calculating the priority. Note that this is not exactly the same
-  // as IsSpare(). The value will be kept true after the spare renderer
-  // is taken in navigation. It will not be reset until the navigation
-  // correctly sets the priority.
-  // The function is exported only for supporting MockRenderProcessHost
-  // and should not be called outside of content/.
-  virtual void GraduateSpareToNormalRendererPriority() = 0;
-
-  // Returns if the renderer is still of the lowest priority on Android.
-  // Since the spare renderer priority update is asynchronous on Android,
-  // the function will return true until it gets the update complete
-  // callback for GraduateSpareToNormalRendererPriority.
-  virtual bool ShouldThrottleNavigationForSpareRendererGraduation() = 0;
-
-  // Return the highest importance of all widgets in this process.
-  // It might be boosted by the priority override.
-  virtual ChildProcessImportance GetEffectiveImportance() = 0;
-
-  // Return the highest binding this process has.
-  virtual base::android::ChildBindingState GetEffectiveChildBindingState() = 0;
-
-  // Dumps the stack of this render process without crashing it.
-  virtual void DumpProcessStack() = 0;
-#endif
 
   virtual void PauseSocketManagerForRenderFrameHost(
       const GlobalRenderFrameHostId& render_frame_host_id) = 0;
@@ -826,13 +789,6 @@ class CONTENT_EXPORT RenderProcessHost : public IPC::Listener,
   virtual void DumpProfilingData(base::OnceClosure callback) {}
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Reinitializes the child process's logging with the given settings. This
-  // is needed on Chrome OS, which switches to a log file in the user's home
-  // directory once they log in.
-  virtual void ReinitializeLogging(uint32_t logging_dest,
-                                   base::ScopedFD log_file_descriptor) = 0;
-#endif
 
   // Asks the renderer process to prioritize energy efficiency because the
   // embedder is in battery saver mode. This signal is propagated to blink and

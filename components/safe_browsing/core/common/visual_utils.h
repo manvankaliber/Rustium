@@ -58,16 +58,10 @@ std::unique_ptr<SkBitmap> BlockMeanAverage(const SkBitmap& image,
 // level. For password protection, the safe browsing preference that allows the
 // extraction are extended reporting and enhanced safe browsing, whereas for
 // client side detection, it's just enhanced safe browsing.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-CanExtractVisualFeaturesResult CanExtractVisualFeatures(bool is_user_opted_in,
-                                                        bool is_off_the_record,
-                                                        gfx::Size size);
-#else
 CanExtractVisualFeaturesResult CanExtractVisualFeatures(bool is_user_opted_in,
                                                         bool is_off_the_record,
                                                         gfx::Size size,
                                                         double zoom_level);
-#endif
 
 // Converts and prepares a `gfx::Image` into an `SkBitmap` for visual feature
 // extraction. Must be called on the sequence that owns `image`.
@@ -81,14 +75,6 @@ SkBitmap GetBitmapForVisualFeatures(const gfx::Image& image);
 // protection and client-side phishing detection).
 std::unique_ptr<VisualFeatures> ExtractVisualFeatures(const SkBitmap& bitmap);
 
-#if BUILDFLAG(IS_IOS)
-// Resizes `image` to `size` (in pixels) using CoreGraphics and returns the
-// result directly as an `SkBitmap` without routing through `Image::AsBitmap()`
-// (which upsamples by the maximum supported resource scale factor).
-// Must be called on the main UI thread.
-SkBitmap GetResizedImageAsSkBitmap(const gfx::Image& image,
-                                   const gfx::Size& size);
-#endif  // BUILDFLAG(IS_IOS)
 
 }  // namespace safe_browsing::visual_utils
 

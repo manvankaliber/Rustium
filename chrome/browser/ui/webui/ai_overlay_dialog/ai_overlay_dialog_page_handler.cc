@@ -54,13 +54,7 @@
 #include "third_party/blink/public/mojom/frame/user_activation_notification_type.mojom-shared.h"
 #include "ui/gfx/codec/jpeg_codec.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/tab_list/tab_list_interface.h"
-#endif
 
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-#include "chrome/browser/ui/android/ai_overlay_dialog/ai_overlay_dialog_bridge.h"
-#else
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_actions.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
@@ -74,27 +68,15 @@
 #include "ui/gfx/paint_vector_icon.h"
 #include "ui/gfx/vector_icon_types.h"
 #include "ui/menus/simple_menu_model.h"
-#endif
 
 namespace {
 
 content::WebContents* GetActiveWebContentsFromBrowser(
     BrowserWindowInterface* browser) {
-#if !BUILDFLAG(IS_ANDROID)
   return browser ? browser->GetTabStripModel()->GetActiveWebContents()
                  : nullptr;
-#else
-  if (!browser) {
-    return nullptr;
-  }
-
-  TabListInterface* tab_list = TabListInterface::From(browser);
-  tabs::TabInterface* tab = tab_list ? tab_list->GetActiveTab() : nullptr;
-  return tab ? tab->GetContents() : nullptr;
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class AnimatedIconSource : public gfx::CanvasImageSource {
  public:
   static constexpr int kIconSize = ui::SimpleMenuModel::kDefaultIconSize;  // 16
@@ -138,7 +120,6 @@ class AnimatedIconSource : public gfx::CanvasImageSource {
   float energy_;
   SkColor color_;
 };
-#endif
 
 // Builds a failed ToolResponse from an AiOverlayTools error string.
 ttc::ToolResponse ToolFailure(std::string message) {
@@ -204,9 +185,6 @@ void AiOverlayDialogPageHandler::GetMockAudioData(
 }
 
 void AiOverlayDialogPageHandler::UpdateAudioEnergy(float energy) {
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-  ttc::UpdateAudioEnergyJni(browser_, energy);
-#else
   if (!overlay_action_item_) {
     overlay_action_item_ = actions::ActionManager::Get().FindAction(
         kActionShowAiOverlayDialog,
@@ -235,7 +213,6 @@ void AiOverlayDialogPageHandler::UpdateAudioEnergy(float energy) {
         gfx::Size(AnimatedIconSource::kCanvasSize,
                   AnimatedIconSource::kCanvasSize)));
   }
-#endif
 }
 
 void AiOverlayDialogPageHandler::Close() {

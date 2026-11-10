@@ -31,9 +31,6 @@ namespace autofill::payments {
 
 using autofill_metrics::LogMandatoryReauthOfferOptInDecision;
 using autofill_metrics::MandatoryReauthOfferOptInDecision;
-#if BUILDFLAG(IS_ANDROID)
-using device_reauth::BiometricStatus;
-#endif
 
 MandatoryReauthManager::MandatoryReauthManager(AutofillClient* client)
     : client_(client) {}
@@ -114,15 +111,10 @@ void MandatoryReauthManager::StartDeviceAuthentication(
       non_interactive_payment_method_type, authentication_method,
       autofill_metrics::MandatoryReauthAuthenticationFlowEvent::kFlowStarted);
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   AuthenticateWithMessage(
       l10n_util::GetStringUTF16(IDS_PAYMENTS_AUTOFILL_FILLING_MANDATORY_REAUTH),
       std::move(authentication_complete_callback));
-#elif BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/40261690): Convert this to
-  // DeviceAuthenticator::AuthenticateWithMessage() with the correct message
-  // once it is supported. Currently, the message is "Verify it's you".
-  Authenticate(std::move(authentication_complete_callback));
 #else
   NOTREACHED();
 #endif
@@ -238,19 +230,12 @@ void MandatoryReauthManager::OnUserAcceptedOptInPrompt() {
       opt_in_source_,
       /*opt_in=*/true,
       autofill_metrics::MandatoryReauthAuthenticationFlowEvent::kFlowStarted);
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   AuthenticateWithMessage(
       l10n_util::GetStringUTF16(IDS_PAYMENTS_AUTOFILL_MANDATORY_REAUTH_PROMPT),
       base::BindOnce(
           &MandatoryReauthManager::OnOptInAuthenticationStepCompleted,
           weak_ptr_factory_.GetWeakPtr()));
-#elif BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/40261690): Convert this to
-  // DeviceAuthenticator::AuthenticateWithMessage() with the correct message
-  // once it is supported. Currently, the message is "Verify it's you".
-  Authenticate(base::BindOnce(
-      &MandatoryReauthManager::OnOptInAuthenticationStepCompleted,
-      weak_ptr_factory_.GetWeakPtr()));
 #else
   NOTREACHED();
 #endif
@@ -291,16 +276,6 @@ MandatoryReauthManager::GetAuthenticationMethod() {
     if (!checker) {
       return MandatoryReauthAuthenticationMethod::kUnknown;
     }
-#if BUILDFLAG(IS_ANDROID)
-    switch (checker->GetBiometricAvailabilityStatus()) {
-      case BiometricStatus::kBiometricsAvailable:
-        return MandatoryReauthAuthenticationMethod::kBiometric;
-      case BiometricStatus::kOnlyLskfAvailable:
-        return MandatoryReauthAuthenticationMethod::kScreenLock;
-      case BiometricStatus::kUnavailable:
-        return MandatoryReauthAuthenticationMethod::kUnsupportedMethod;
-    }
-#else
     // Order matters here.
     if (checker->CanAuthenticateWithBiometrics()) {
       return MandatoryReauthAuthenticationMethod::kBiometric;
@@ -309,7 +284,6 @@ MandatoryReauthManager::GetAuthenticationMethod() {
       return MandatoryReauthAuthenticationMethod::kScreenLock;
     }
     return MandatoryReauthAuthenticationMethod::kUnsupportedMethod;
-#endif  // BUILDFLAG(IS_ANDROID)
   };
   return base::FeatureList::IsEnabled(
              password_manager::features::kDeviceReauthRefactor)

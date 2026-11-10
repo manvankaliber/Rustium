@@ -145,7 +145,7 @@ fn test_mkfifo_directory() {
 }
 
 #[test]
-#[cfg(not(any(apple_targets, target_os = "android", target_os = "redox", target_os = "haiku")))]
+#[cfg(not(any(apple_targets, target_os = "redox", target_os = "haiku")))]
 fn test_mkfifoat_none() {
     use nix::fcntl::AT_FDCWD;
 
@@ -162,7 +162,7 @@ fn test_mkfifoat_none() {
 }
 
 #[test]
-#[cfg(not(any(apple_targets, target_os = "android", target_os = "redox", target_os = "haiku")))]
+#[cfg(not(any(apple_targets, target_os = "redox", target_os = "haiku")))]
 fn test_mkfifoat() {
     use nix::fcntl;
 
@@ -178,7 +178,7 @@ fn test_mkfifoat() {
 }
 
 #[test]
-#[cfg(not(any(apple_targets, target_os = "android", target_os = "redox", target_os = "haiku")))]
+#[cfg(not(any(apple_targets, target_os = "redox", target_os = "haiku")))]
 fn test_mkfifoat_directory_none() {
     use nix::fcntl::AT_FDCWD;
 
@@ -189,7 +189,7 @@ fn test_mkfifoat_directory_none() {
 }
 
 #[test]
-#[cfg(not(any(apple_targets, target_os = "android", target_os = "redox", target_os = "haiku")))]
+#[cfg(not(any(apple_targets, target_os = "redox", target_os = "haiku")))]
 fn test_mkfifoat_directory() {
     // mkfifoat should fail if a directory is given
     let tempdir = tempdir().unwrap();
@@ -401,10 +401,7 @@ macro_rules! execve_test_factory (
 );
 
 cfg_if! {
-    if #[cfg(target_os = "android")] {
-        execve_test_factory!(test_execve, execve, CString::new("/system/bin/sh").unwrap().as_c_str());
-        execve_test_factory!(test_fexecve, fexecve, &File::open("/system/bin/sh").unwrap());
-    } else if #[cfg(any(freebsdlike, target_os = "linux", target_os = "hurd"))] {
+    if #[cfg(any())] {} else if #[cfg(any(freebsdlike, target_os = "linux", target_os = "hurd"))] {
         // These tests frequently fail on musl, probably due to
         // https://github.com/nix-rust/nix/issues/555
         execve_test_factory!(test_execve, execve, CString::new("/bin/sh").unwrap().as_c_str());
@@ -419,18 +416,7 @@ cfg_if! {
 execve_test_factory!(test_execvpe, execvpe, &CString::new("sh").unwrap());
 
 cfg_if! {
-    if #[cfg(target_os = "android")] {
-        use nix::fcntl::AtFlags;
-        execve_test_factory!(test_execveat_empty, execveat,
-                             &File::open("/system/bin/sh").unwrap(),
-                             "", AtFlags::AT_EMPTY_PATH);
-        execve_test_factory!(test_execveat_relative, execveat,
-                             &File::open("/system/bin/").unwrap(),
-                             "./sh", AtFlags::empty());
-        execve_test_factory!(test_execveat_absolute, execveat,
-                             &File::open("/").unwrap(),
-                             "/system/bin/sh", AtFlags::empty());
-    } else if #[cfg(all(target_os = "linux", any(target_arch ="x86_64", target_arch ="x86")))] {
+    if #[cfg(any())] {} else if #[cfg(all(target_os = "linux", any(target_arch ="x86_64", target_arch ="x86")))] {
         use nix::fcntl::AtFlags;
         execve_test_factory!(test_execveat_empty, execveat, &File::open("/bin/sh").unwrap(),
                              "", AtFlags::AT_EMPTY_PATH);

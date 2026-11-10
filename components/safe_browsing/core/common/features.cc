@@ -74,11 +74,7 @@ constexpr base::FeatureParam<std::string> kClientSideDetectionBypassTiersList{
     /*default_value=*/""};
 
 BASE_FEATURE(kClientSideDetectionClipboardCopyApi,
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 constexpr base::FeatureParam<double> kCsdClipboardCopyApiHCAcceptanceRate{
     &kClientSideDetectionClipboardCopyApi, "HCAcceptanceRate",
     /*default_value=*/1.0};
@@ -169,11 +165,7 @@ constexpr base::FeatureParam<base::TimeDelta>
         /*default_value=*/base::Milliseconds(100)};
 
 BASE_FEATURE(kClientSideDetectionImageEmbeddingMatch,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#else
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 const base::FeatureParam<bool> kCsdImageEmbeddingMatchWithIntelligentScan{
     &kClientSideDetectionImageEmbeddingMatch,
     "CsdImageEmbeddingMatchWithIntelligentScan", /*default_value=*/true};
@@ -224,7 +216,6 @@ BASE_FEATURE(kClientSideDetectionSecondForceRequestWithDelay,
 constexpr base::FeatureParam<int> kCsdForceRequestDelayMs{
     &kClientSideDetectionSecondForceRequestWithDelay, "RequestDelayMs", 2000};
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 BASE_FEATURE(kClientSideDetectionServerModelForScamDetectionDesktop,
              base::FEATURE_DISABLED_BY_DEFAULT);
 constexpr base::FeatureParam<int>
@@ -232,17 +223,7 @@ constexpr base::FeatureParam<int>
         &kClientSideDetectionServerModelForScamDetectionDesktop,
         "MaxIntelligentScansPerDayDesktop",
         /*default_value=*/5};
-#endif
 
-#if BUILDFLAG(IS_IOS)
-BASE_FEATURE(kClientSideDetectionServerModelForScamDetectionIos,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-constexpr base::FeatureParam<int>
-    kClientSideDetectionServerModelMaxScansPerDayIos{
-        &kClientSideDetectionServerModelForScamDetectionIos,
-        "MaxIntelligentScansPerDayIos",
-        /*default_value=*/5};
-#endif
 
 BASE_FEATURE(kClientSideDetectionServerModelMultimodal,
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -251,32 +232,14 @@ constexpr base::FeatureParam<bool>
         &kClientSideDetectionServerModelMultimodal, "ExcludeLowEndDevices",
         /*default_value=*/true};
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kClientSideDetectionServerModelRolloutAndroid,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-constexpr base::FeatureParam<int>
-    kClientSideDetectionServerModelRolloutVersionAndroid{
-        &kClientSideDetectionServerModelRolloutAndroid, "ModelVersion",
-        /*default_value=*/1000};
-#endif
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 BASE_FEATURE(kClientSideDetectionServerModelRolloutDesktop,
              base::FEATURE_DISABLED_BY_DEFAULT);
 constexpr base::FeatureParam<int>
     kClientSideDetectionServerModelRolloutVersionDesktop{
         &kClientSideDetectionServerModelRolloutDesktop, "ModelVersion",
         /*default_value=*/1000};
-#endif
 
-#if BUILDFLAG(IS_IOS)
-BASE_FEATURE(kClientSideDetectionServerModelRolloutIos,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-constexpr base::FeatureParam<int>
-    kClientSideDetectionServerModelRolloutVersionIos{
-        &kClientSideDetectionServerModelRolloutIos, "ModelVersion",
-        /*default_value=*/1000};
-#endif
 
 BASE_FEATURE(kClientSideDetectionSkipErrorPage,
              base::FEATURE_ENABLED_BY_DEFAULT);
@@ -329,18 +292,10 @@ BASE_FEATURE_PARAM(base::TimeDelta,
                    base::Hours(24));
 
 BASE_FEATURE(kEnhancedFieldsForSecOps,
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 BASE_FEATURE(kEnhancedSafeBrowsingPromo,
-#if BUILDFLAG(IS_IOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kEnterpriseFileSystemAccessDeepScan,
@@ -439,23 +394,6 @@ BASE_FEATURE(kLocalListsUseSBv5,
              "SafeBrowsingLocalListsUseSBv5",
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kMaliciousApkDownloadCheck, base::FEATURE_DISABLED_BY_DEFAULT);
-BASE_FEATURE_PARAM(bool,
-                   kMaliciousApkDownloadCheckTelemetryOnly,
-                   &kMaliciousApkDownloadCheck,
-                   "telemetry_only",
-                   /*default_value=*/false);
-BASE_FEATURE_PARAM(int,
-                   kMaliciousApkDownloadCheckSamplePercentage,
-                   &kMaliciousApkDownloadCheck,
-                   "sample_percentage",
-                   /*default_value=*/100);
-constexpr base::FeatureParam<std::string>
-    kMaliciousApkDownloadCheckServiceUrlOverride{&kMaliciousApkDownloadCheck,
-                                                 "service_url_override",
-                                                 /*default_value=*/""};
-#endif
 
 BASE_FEATURE(kMigrateToBlockV8OptimizerOnUnfamiliarSites,
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -558,11 +496,7 @@ BASE_FEATURE(kShowUrlsInV5GetHashLookupsWebUI,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kShowWarningsForSuspiciousNotifications,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 constexpr base::FeatureParam<int>
     kShowWarningsForSuspiciousNotificationsScoreThreshold{
@@ -590,21 +524,13 @@ constexpr base::FeatureParam<std::string>
     kSuspiciousSiteWarningSurveyProceedTriggerId{
         &kSuspiciousSiteWarningSurvey,
         "SuspiciousSiteWarningSurveyProceedTriggerId",
-#if BUILDFLAG(IS_ANDROID)
-        /*default_value=*/"HguD8vrc50tK1KeaPYj0R37AzmWa"
-#else
         /*default_value=*/"qKoRRzn180ugnJ3q1cK0WX7PXscX"
-#endif
     };
 constexpr base::FeatureParam<std::string>
     kSuspiciousSiteWarningSurveyHeedTriggerId{
         &kSuspiciousSiteWarningSurvey,
         "SuspiciousSiteWarningSurveyHeedTriggerId",
-#if BUILDFLAG(IS_ANDROID)
-        /*default_value=*/"LZD24fmuf0tK1KeaPYj0Z79hw2qC"
-#else
         /*default_value=*/"BjcqKTVFY0ugnJ3q1cK0VD1dNzUU"
-#endif
     };
 
 BASE_FEATURE(kSuspiciousSiteWarnings, base::FEATURE_DISABLED_BY_DEFAULT);

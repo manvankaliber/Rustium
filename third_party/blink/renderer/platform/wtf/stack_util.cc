@@ -76,8 +76,7 @@ size_t GetUnderestimatedStackSize() {
   // FIXME: On Mac OSX and Linux, this method cannot estimate stack size
   // correctly for the main thread.
 
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FREEBSD)
+#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FREEBSD)
   // pthread_getattr_np() can fail if the thread is not invoked by
   // pthread_create() (e.g., the main thread of blink_unittests).
   // If so, a conservative size estimate is returned.
@@ -120,19 +119,9 @@ size_t GetUnderestimatedStackSize() {
   // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/Multithreading/CreatingThreads/CreatingThreads.html
   // on why hardcoding sizes is reasonable.)
   if (pthread_main_np()) {
-#if BUILDFLAG(IS_IOS)
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
-    size_t guard_size = 0;
-    pthread_attr_getguardsize(&attr, &guard_size);
-    // Stack size for the main thread is 1MB on iOS including the guard page
-    // size.
-    return (1 * 1024 * 1024 - guard_size);
-#else
     // Stack size for the main thread is 8MB on OSX excluding the guard page
     // size.
     return (8 * 1024 * 1024);
-#endif
   }
   return pthread_get_stacksize_np(pthread_self());
 #elif BUILDFLAG(IS_WIN) && defined(COMPILER_MSVC)
@@ -153,8 +142,7 @@ namespace {
 thread_local void* thread_stack_start = nullptr;
 
 void* GetStackStartImpl() {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_FREEBSD)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FREEBSD)
   pthread_attr_t attr;
   int error;
 #if BUILDFLAG(IS_FREEBSD)

@@ -429,11 +429,7 @@ IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserTest,
 }
 
 // TODO(crbug.com/460836171): Enable on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_MediaRequestAllowOnGlic DISABLED_MediaRequestAllowOnGlic
-#else
 #define MAYBE_MediaRequestAllowOnGlic MediaRequestAllowOnGlic
-#endif
 IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserTest, MAYBE_MediaRequestAllowOnGlic) {
   set_test_loader_host("glic");
   RunBasicTestCase("MediaRequestAllowOnGlic",
@@ -441,11 +437,7 @@ IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserTest, MAYBE_MediaRequestAllowOnGlic) {
 }
 
 // TODO(crbug.com/460836171): Enable on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_MediaRequestDenyOnGlic DISABLED_MediaRequestDenyOnGlic
-#else
 #define MAYBE_MediaRequestDenyOnGlic MediaRequestDenyOnGlic
-#endif
 IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserTest, MAYBE_MediaRequestDenyOnGlic) {
   set_test_loader_host("glic");
   RunBasicTestCase("MediaRequestDenyOnGlic",
@@ -468,7 +460,7 @@ IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserPEPCTest,
 
 // TODO(crbug.com/444024595): Flaky on Linux and Windows
 // TODO(crbug.com/460836171): Enable on ChromeOS.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 #define MAYBE_MediaRequestAllowOnSignIn DISABLED_MediaRequestAllowOnSignIn
 #else
 #define MAYBE_MediaRequestAllowOnSignIn MediaRequestAllowOnSignIn
@@ -480,11 +472,7 @@ IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserTest,
 }
 
 // TODO(crbug.com/41400417) Flaky on CrOS trybots.
-#if BUILDFLAG(IS_CHROMEOS) && !defined(NDEBUG)
-#define MAYBE_ExecuteScriptCode DISABLED_ExecuteScriptCode
-#else
 #define MAYBE_ExecuteScriptCode ExecuteScriptCode
-#endif
 IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserTest, MAYBE_ExecuteScriptCode) {
   ASSERT_TRUE(RunContentScriptTestCase("ExecuteScriptCode",
                                        GetTestUrl("empty.html").spec()));
@@ -513,14 +501,8 @@ IN_PROC_BROWSER_TEST_F(
       GetTestUrl("empty.html").spec()));
 }
 
-#if BUILDFLAG(IS_CHROMEOS) && !defined(NDEBUG)
-// TODO(crbug.com/40583245) Fails on CrOS dbg with --enable-features=Mash.
-#define MAYBE_AddContentScriptToOneWebViewShouldNotInjectToTheOtherWebView \
-  DISABLED_AddContentScriptToOneWebViewShouldNotInjectToTheOtherWebView
-#else
 #define MAYBE_AddContentScriptToOneWebViewShouldNotInjectToTheOtherWebView \
   AddContentScriptToOneWebViewShouldNotInjectToTheOtherWebView
-#endif
 IN_PROC_BROWSER_TEST_F(
     WebUIWebViewBrowserTest,
     MAYBE_AddContentScriptToOneWebViewShouldNotInjectToTheOtherWebView) {
@@ -534,9 +516,7 @@ IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserTest, AddAndRemoveContentScripts) {
                                        GetTestUrl("empty.html").spec()));
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || \
-    (BUILDFLAG(IS_CHROMEOS) &&                  \
-     (!defined(NDEBUG) || defined(ADDRESS_SANITIZER)))
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 // TODO(crbug.com/40583245) Fails on CrOS dbg with --enable-features=Mash.
 // TODO(crbug.com/41419648) Flaky on CrOS ASan LSan
 // TODO(crbug.com/454729976): Fails on chromium/ci/win11-arm64-rel-tests.
@@ -570,13 +550,8 @@ IN_PROC_BROWSER_TEST_F(
 }
 
 // TODO(crbug.com/41284814) Flaky on CrOS trybots.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ContentScriptExistsAsLongAsWebViewTagExists \
-  DISABLED_ContentScriptExistsAsLongAsWebViewTagExists
-#else
 #define MAYBE_ContentScriptExistsAsLongAsWebViewTagExists \
   ContentScriptExistsAsLongAsWebViewTagExists
-#endif
 IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserTest,
                        MAYBE_ContentScriptExistsAsLongAsWebViewTagExists) {
   ASSERT_TRUE(

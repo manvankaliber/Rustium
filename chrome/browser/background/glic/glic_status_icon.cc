@@ -54,9 +54,6 @@
 #include "chrome/browser/background/glic/glic_status_icon_win.h"
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/background/glic/glic_status_icon_chromeos.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -100,8 +97,6 @@ std::unique_ptr<GlicStatusIcon> GlicStatusIcon::Create(
     StatusTray* status_tray) {
 #if BUILDFLAG(IS_WIN)
   return std::make_unique<GlicStatusIconWin>(delegate, status_tray);
-#elif BUILDFLAG(IS_CHROMEOS)
-  return std::make_unique<GlicStatusIconChromeOS>(delegate, status_tray);
 #else
   return std::make_unique<GlicStatusIcon>(delegate, status_tray);
 #endif
@@ -236,13 +231,6 @@ void GlicStatusIcon::OnBrowserDeactivated(BrowserWindowInterface* browser) {
 }
 
 void GlicStatusIcon::UpdateHotkey(const ui::Accelerator& hotkey) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!context_menu_) {
-    // TODO(crbug.com/454734385): Implement StatusTray functionality on
-    // ChromeOS.
-    return;
-  }
-#endif
 
   CHECK(context_menu_);
   std::optional<size_t> toggle_menu_item_index =

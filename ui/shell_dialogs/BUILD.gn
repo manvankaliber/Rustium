@@ -6,14 +6,8 @@ import("//build/config/features.gni")
 import("//build/config/ui.gni")
 import("//testing/test.gni")
 
-if (is_android) {
-  import("//build/config/android/config.gni")
-}
 if (is_mac) {
   import("//build/config/mac/rules.gni")
-}
-if (is_ios) {
-  import("//build/config/apple/mobile_config.gni")  # For `target_platform`
 }
 
 component("shell_dialogs") {
@@ -45,11 +39,7 @@ component("shell_dialogs") {
     "//url",
   ]
 
-  if (is_chromeos || is_castos) {
-    sources += [ "shell_dialog_stub.cc" ]
-  }
-
-  if (is_linux && !is_castos) {
+  if (is_linux) {
     sources += [
       "select_file_dialog_linux.cc",
       "select_file_dialog_linux.h",
@@ -76,17 +66,6 @@ component("shell_dialogs") {
     ]
   }
 
-  if (is_ios) {
-    if (target_platform == "tvos") {
-      sources += [ "select_file_dialog_tvos.mm" ]
-    } else {
-      sources += [
-        "select_file_dialog_ios.h",
-        "select_file_dialog_ios.mm",
-      ]
-    }
-  }
-
   if (is_win) {
     sources += [
       "auto_close_dialog_event_handler_win.cc",
@@ -109,19 +88,6 @@ component("shell_dialogs") {
       sources -= [ "select_file_dialog_mac.mm" ]
     }
     deps += [ "//ui/aura" ]
-  }
-
-  if (is_android) {
-    sources += [
-      "select_file_dialog_android.cc",
-      "select_file_dialog_android.h",
-    ]
-    deps += [
-      "//ui/android",
-      "//ui/base:select_file_dialog_jni_headers",
-    ]
-    include_dirs = [ "$root_gen_dir/ui" ]
-    libs = [ "jnigraphics" ]
   }
 
   if (is_mac) {
@@ -168,7 +134,7 @@ test("shell_dialogs_unittests") {
     "//ui/strings",
   ]
 
-  if (is_linux && !is_castos && use_dbus) {
+  if (is_linux && use_dbus) {
     sources += [ "select_file_dialog_linux_portal_unittest.cc" ]
     deps += [
       "//components/dbus",
@@ -186,15 +152,6 @@ test("shell_dialogs_unittests") {
       "//components/remote_cocoa/app_shim",
       "//components/remote_cocoa/app_shim:features",
     ]
-  }
-
-  # TODO: Remove once http://crbug.com/951419 is fixed.
-  if (is_android) {
-    deps += [ "//ui/android:ui_java" ]
-  }
-
-  if (is_ios) {
-    bundle_deps = [ "//ui/resources:ui_test_pak_bundle_data" ]
   }
 }
 

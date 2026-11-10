@@ -107,14 +107,3 @@ TEST_F(ManagedUIHandlerTest, ManagedUIBecomesEnabledByProfile) {
   // Source should auto-update.
   EXPECT_TRUE(IsSourceManaged());
 }
-
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(ManagedUIHandlerTest, ManagedUIDisabledForChildAccount) {
-  profile_policy_connector()->OverrideIsManagedForTesting(true);
-  profile()->SetIsSupervisedProfile();
-
-  InitializeHandler();
-
-  EXPECT_FALSE(IsSourceManaged());
-}
-#endif

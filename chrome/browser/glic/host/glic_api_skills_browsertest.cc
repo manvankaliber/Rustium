@@ -38,10 +38,8 @@
 #include "content/public/test/browser_test_utils.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/skills/skills_ui_tab_controller.h"
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 namespace glic {
 
@@ -149,7 +147,6 @@ IN_PROC_BROWSER_TEST_F(GlicApiTestWithSkillsDisabled, testGetSkillDisabled) {
 }
 
 // TODO(b/546606964): enable these tests on android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicApiTestWithSkillsDisabled,
                        testSkillsEnabledToggledAtRuntime) {
   ExecuteJsTest();
@@ -259,7 +256,6 @@ IN_PROC_BROWSER_TEST_F(GlicApiTestWithSkills, testShowBrowseSkillsUi) {
   ExecuteJsTest();
   WaitForSkillsTab(chrome::kChromeUISkillsBrowsePath);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(GlicApiTestWithSkills,
                        testSendingContextualSkillsToGlic) {
@@ -358,7 +354,6 @@ IN_PROC_BROWSER_TEST_F(GlicApiTestWithSkills,
 }
 
 // TODO(b/546606964): enable these tests on android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicApiTestWithSkills, testShowManageSkillsUiNoWindow) {
   ASSERT_OK_AND_ASSIGN(auto* instance, OpenGlicForActiveTabAndDetach());
   BrowserWindowInterface* browser_to_close = GetBrowserWindowInterface();
@@ -408,6 +403,5 @@ IN_PROC_BROWSER_TEST_F(GlicApiTestWithSkills, testCreateSkillNoWindow) {
     return false;
   }));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace glic

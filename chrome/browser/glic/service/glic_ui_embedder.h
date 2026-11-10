@@ -14,11 +14,9 @@
 #include "chrome/browser/glic/public/glic_close_options.h"
 #include "chrome/browser/glic/service/glic_ui_types.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace views {
 class View;
 }
-#endif
 
 namespace tabs {
 class TabInterface;
@@ -81,10 +79,8 @@ class GlicUiEmbedder {
   virtual void Focus() = 0;
   virtual bool HasFocus() = 0;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Returns the view, if there is one.
   virtual base::WeakPtr<views::View> GetView() = 0;
-#endif
 
   // Creates the inactive version of this embedder.
   virtual std::unique_ptr<GlicUiEmbedder> CreateInactiveEmbedder() const = 0;

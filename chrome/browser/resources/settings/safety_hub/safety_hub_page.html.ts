@@ -59,13 +59,11 @@ export function getHtml(this: SettingsSafetyHubPageElement) {
         .sites="${this.userEducationItemList_}">
     </settings-safety-hub-module>
   ` : ''}
-<if expr="not is_chromeos">
   ${this.shouldShowRelaunchDialog ? html`
     <relaunch-confirmation-dialog .restartType="${RestartType.RELAUNCH}"
         @close="${this.onRelaunchDialogClose}" is-version-update>
     </relaunch-confirmation-dialog>
   ` : ''}
-</if>
 </settings-subpage>
 <!--_html_template_end_-->`;
 }

@@ -89,13 +89,7 @@ ftl::RequestHeader FtlServicesContext::CreateRequestHeader(
   client_info->set_version_minor(VERSION_BUILD);
   client_info->set_version_point(VERSION_PATCH);
   ftl::Platform_Type platform_type;
-#if BUILDFLAG(IS_ANDROID)
-  platform_type = ftl::Platform_Type_FTL_ANDROID;
-#elif BUILDFLAG(IS_IOS)
-  platform_type = ftl::Platform_Type_FTL_IOS;
-#else
   platform_type = ftl::Platform_Type_FTL_DESKTOP;
-#endif
   client_info->set_platform_type(platform_type);
   return header;
 }

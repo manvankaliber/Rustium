@@ -144,11 +144,6 @@ class VideoFrameSubmitter::FrameSinkBundleProxy
       viz::mojom::blink::PendingLayerContextPtr context,
       viz::mojom::blink::LayerContextSettingsPtr settings) override {}
 
-#if BUILDFLAG(IS_ANDROID)
-  void SetThreads(const Vector<viz::Thread>& threads) override {
-    bundle_->SetThreads(frame_sink_id_.sink_id(), threads);
-  }
-#endif
 
  private:
   const base::WeakPtr<VideoFrameSinkBundle> bundle_;
@@ -689,14 +684,6 @@ void VideoFrameSubmitter::StartSubmitting() {
   remote_frame_sink_.set_disconnect_handler(base::BindOnce(
       &VideoFrameSubmitter::OnContextLost, base::Unretained(this)));
 
-#if BUILDFLAG(IS_ANDROID)
-  Vector<viz::Thread> threads;
-  threads.push_back(viz::Thread{base::PlatformThread::CurrentId(),
-                                viz::Thread::Type::kVideo});
-  threads.push_back(viz::Thread{Platform::Current()->GetIOThreadId(),
-                                viz::Thread::Type::kIO});
-  compositor_frame_sink_->SetThreads(threads);
-#endif
 
   UpdateSubmissionState();
 }

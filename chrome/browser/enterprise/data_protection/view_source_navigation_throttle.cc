@@ -6,9 +6,7 @@
 
 #include "base/memory/ptr_util.h"
 #include "chrome/browser/devtools/devtools_availability_checker.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/devtools/devtools_policy_dialog.h"
-#endif
 #include "chrome/browser/enterprise/connectors/connectors_service.h"
 #include "chrome/browser/policy/developer_tools_policy_checker.h"
 #include "chrome/browser/policy/developer_tools_policy_checker_factory.h"
@@ -192,9 +190,7 @@ ViewSourceNavigationThrottle::WillProcessResponse() {
         CANCEL, net::ERR_BLOCKED_BY_CLIENT, error_page_content);
   }
   if (!IsViewSourceAllowedByPolicy(profile_, navigation_handle())) {
-#if !BUILDFLAG(IS_ANDROID)
     DevToolsPolicyDialog::Show(navigation_handle()->GetWebContents());
-#endif
     return content::NavigationThrottle::ThrottleCheckResult(CANCEL);
   }
 

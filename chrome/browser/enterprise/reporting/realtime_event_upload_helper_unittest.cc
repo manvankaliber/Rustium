@@ -75,7 +75,6 @@ INSTANTIATE_TEST_SUITE_P(All,
                          RealtimeEventUploadHelperParamTest,
                          testing::Bool());
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(RealtimeEventUploadHelperTest, BrowserUploaderSuccess) {
   SetBrowserManaged(true);
 
@@ -100,7 +99,6 @@ TEST_F(RealtimeEventUploadHelperTest, BrowserUploaderSuccess) {
       enterprise_connectors::RealtimeReportingClientFactory::GetForProfile(
           profile_with_client));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(RealtimeEventUploadHelperTest, NoClientFailure) {
   SetBrowserManaged(true);

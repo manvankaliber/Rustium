@@ -11,9 +11,7 @@
 #include "build/build_config.h"
 #include "content/public/browser/page_navigator.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "ui/base/mojom/window_open_disposition.mojom-forward.h"
-#endif
 
 // This is the public interface for a browser window. Most features in
 // //chrome/browser depend on this interface, and thus to prevent circular
@@ -27,7 +25,6 @@
 // the UnownedUserData via BrowserWindowInterface::GetUnownedUserDataHost().
 // Desktop-only functions should live in DesktopBrowserWindowCapabilities.
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace tabs {
 class TabInterface;
 }  // namespace tabs
@@ -40,7 +37,6 @@ class BrowserWindowFeatures;
 class DesktopBrowserWindowCapabilities;
 class GURL;
 class TabStripModel;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace base {
 class CallbackListSubscription;
@@ -137,27 +133,18 @@ class BrowserWindowInterface : public content::PageNavigator {
     // * Legacy packaged app ("v1 packaged app")
     // * Hosted app (e.g. the Web Store "app" preinstalled on Chromebooks)
     TYPE_APP,
-#if !BUILDFLAG(IS_ANDROID)
     // Devtools browser.
     TYPE_DEVTOOLS,
-#endif
     // App popup browser. It behaves like an app browser (e.g. it should have an
     // AppBrowserController) but looks like a popup (e.g. it never has a tab
     // strip).
     TYPE_APP_POPUP,
-#if !BUILDFLAG(IS_ANDROID)
     // Floating browser (e.g. Document Picture-in-Picture or always-on-top
     // popup). It's mostly the same as a TYPE_POPUP, except that it floats
     // above other windows and uses a minimal frame. Document Picture-in-Picture
     // windows also have additional restrictions (see
     // DesktopBrowserWindowCapabilities::IsDocumentPictureInPicture()).
     TYPE_FLOATING,
-#endif
-#if BUILDFLAG(IS_ANDROID)
-    // TODO(https://crbug.com/493668475): Revisit if this type is needed.
-    // Android Custom Tab browser.
-    TYPE_CUSTOM_TAB,
-#endif
     // If you add a new type, consider updating the test
     // BrowserTest.StartMaximized.
   };
@@ -181,11 +168,6 @@ class BrowserWindowInterface : public content::PageNavigator {
     // down.
     kErrorProfileUnsuitable,
 
-#if BUILDFLAG(IS_CHROMEOS)
-    // Indicates the profile is currently loading kiosk mode, so no new windows
-    // should be allowed.
-    kErrorLoadingKiosk,
-#endif
   };
 
   // WARNING: Many uses of base::WeakPtr are inappropriate and lead to bugs.
@@ -221,7 +203,6 @@ class BrowserWindowInterface : public content::PageNavigator {
   //
   // The following methods will be removed in the future.
 
-#if !BUILDFLAG(IS_ANDROID)
   // Returns nullptr if no browser window with the given session ID exists.
   static BrowserWindowInterface* FromSessionID(const SessionID& session_id);
 
@@ -332,7 +313,6 @@ class BrowserWindowInterface : public content::PageNavigator {
 
   virtual DesktopBrowserWindowCapabilities* capabilities() = 0;
   virtual const DesktopBrowserWindowCapabilities* capabilities() const = 0;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // S T O P
   // Please do not add new features here without consulting desktop leads

@@ -23,9 +23,7 @@
 #include "net/traffic_annotation/network_traffic_annotation.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "components/safe_browsing/content/browser/web_ui/web_ui_content_info_singleton.h"
-#endif
 
 namespace enterprise_connectors {
 
@@ -308,9 +306,6 @@ void CloudBinaryUploadServiceBase::SetAuthForTesting(
            AnalysisConnector::FILE_ATTACHED,
            AnalysisConnector::BULK_DATA_ENTRY,
            AnalysisConnector::PRINT,
-#if BUILDFLAG(IS_CHROMEOS)
-           AnalysisConnector::FILE_TRANSFER,
-#endif
            AnalysisConnector::DATA_COPIED,
            AnalysisConnector::NETWORK_REQUEST,
        }) {
@@ -384,7 +379,6 @@ void CloudBinaryUploadServiceBase::LogResponseDebugInfo(
     const ContentAnalysisResponse& response,
     int http_status,
     const std::string& response_data) {
-#if !BUILDFLAG(IS_IOS)
   safe_browsing::WebUIContentInfoSingleton::GetInstance()
       ->AddToDeepScanRequests(request->per_profile_request(),
                               request->access_token(), upload_info,
@@ -410,7 +404,6 @@ void CloudBinaryUploadServiceBase::LogResponseDebugInfo(
   safe_browsing::WebUIContentInfoSingleton::GetInstance()
       ->AddToDeepScanResponses(active_requests_[request_id].token, status,
                                response);
-#endif
 }
 
 void CloudBinaryUploadServiceBase::IsAuthorized(const GURL& url,
@@ -453,15 +446,6 @@ void CloudBinaryUploadServiceBase::IsAuthorized(const GURL& url,
       request->set_analysis_connector(connector);
       request->set_per_profile_request(per_profile_request);
 
-#if BUILDFLAG(IS_CHROMEOS)
-      // WebProtect handles requests from ChromeOS Managed Guest Sessions
-      // differently, as it cannot rely on the GAIA ID to determine whether or
-      // not the user has the BCE license.
-      ClientMetadata client_metadata;
-      client_metadata.set_is_chrome_os_managed_guest_session(
-          delegate_->IsManagedGuestSession());
-      request->set_client_metadata(std::move(client_metadata));
-#endif
 
       QueueForDeepScanning(std::move(request));
     }

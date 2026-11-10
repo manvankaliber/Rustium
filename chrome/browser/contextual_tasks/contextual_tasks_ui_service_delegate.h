@@ -28,8 +28,6 @@ class ContextualTasksUiServiceDelegate {
       BrowserWindowInterface* browser_window_interface) = 0;
 
   // Called to invoke the platform's native voice recognition system.
-  virtual void StartPlatformVoiceRecognition(
-      BrowserWindowInterface* browser_window_interface) = 0;
 };
 
 }  // namespace contextual_tasks

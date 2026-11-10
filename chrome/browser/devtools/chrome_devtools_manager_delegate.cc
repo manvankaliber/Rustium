@@ -84,16 +84,12 @@
 #include "ui/gfx/switches.h"
 #include "ui/views/controls/webview/webview.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chromeos/constants/chromeos_features.h"
-#endif
 
 #if BUILDFLAG(ENTERPRISE_CDP_ATTRIBUTION)
 #include "chrome/browser/enterprise/connectors/reporting/cdp_actor_session_tracker.h"
 #endif
 
-static_assert(!BUILDFLAG(IS_ANDROID),
+static_assert(!false,
               "This file should not be included in Android build");
 
 using content::DevToolsAgentHost;
@@ -212,7 +208,6 @@ ChromeDevToolsManagerDelegate::ChromeDevToolsManagerDelegate() {
       enterprise_connectors::CdpActorSessionTracker::CreateIfEnabled();
 #endif  // BUILDFLAG(ENTERPRISE_CDP_ATTRIBUTION)
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Only create and hold keep alive for automation test for non ChromeOS.
   // ChromeOS automation test (aka tast) manages chrome instance via session
   // manager daemon. The extra keep alive is not needed and makes ChromeOS
@@ -241,7 +236,6 @@ ChromeDevToolsManagerDelegate::ChromeDevToolsManagerDelegate() {
           profile, ProfileKeepAliveOrigin::kRemoteDebugging);
     }
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 ChromeDevToolsManagerDelegate::~ChromeDevToolsManagerDelegate() {

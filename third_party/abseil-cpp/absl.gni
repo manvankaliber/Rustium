@@ -69,11 +69,7 @@ template("absl_source_set") {
           ]
 
           if (!is_component_build) {
-            visibility += [
-              # Not used by Chromium directly.
-              "//chromecast/internal/*",
-              "//libassistant/*",
-            ]
+            visibility += [ "//libassistant/*" ]
           }
         } else {
           visibility = [ "*" ]

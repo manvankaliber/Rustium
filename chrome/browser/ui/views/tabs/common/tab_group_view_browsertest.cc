@@ -757,7 +757,7 @@ IN_PROC_BROWSER_TEST_F(VerticalTabGroupViewBrowserTest,
   }));
 }
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_EditorBubbleOpensOnEditorBubbleButtonPress \
   EditorBubbleOpensOnEditorBubbleButtonPress
 #else

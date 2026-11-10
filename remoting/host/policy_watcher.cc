@@ -41,7 +41,7 @@
 #include "base/strings/sys_string_conversions.h"
 #include "components/policy/core/common/policy_loader_mac.h"
 #include "components/policy/core/common/preferences_mac.h"
-#elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_POSIX)
 #include "components/policy/core/common/config_dir_policy_loader.h"
 #include "components/policy/core/common/policy_paths.h"  // nogncheck
 #endif
@@ -176,16 +176,9 @@ base::DictValue PolicyWatcher::GetDefaultPolicies() {
   result.Set(key::kRemoteAccessHostUdpPortRange, "");
   result.Set(key::kRemoteAccessHostClipboardSizeBytes, -1);
   result.Set(key::kRemoteAccessHostAllowRemoteSupportConnections, true);
-#if BUILDFLAG(IS_CHROMEOS)
-  result.Set(key::kRemoteAccessHostAllowEnterpriseRemoteSupportConnections,
-             true);
-  result.Set(key::kRemoteAccessHostAllowEnterpriseFileTransfer, false);
-  result.Set(key::kClassManagementEnabled, "disabled");
-#endif
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   result.Set(key::kRemoteAccessHostMatchUsername, false);
 #endif
-#if !BUILDFLAG(IS_CHROMEOS)
   result.Set(key::kRemoteAccessHostRequireCurtain, false);
   result.Set(key::kRemoteAccessHostAllowClientPairing, true);
   result.Set(key::kRemoteAccessHostAllowGnubbyAuth, true);
@@ -195,7 +188,6 @@ base::DictValue PolicyWatcher::GetDefaultPolicies() {
   result.Set(key::kRemoteAccessHostAllowRemoteAccessConnections, true);
   result.Set(key::kRemoteAccessHostMaximumSessionDurationMinutes, 0);
   result.Set(key::kRemoteAccessHostAllowPinAuthentication, base::Value());
-#endif
 #if BUILDFLAG(IS_WIN)
   result.Set(key::kRemoteAccessHostAllowUiAccessForRemoteAssistance, false);
 #endif
@@ -439,20 +431,10 @@ std::unique_ptr<PolicyWatcher> PolicyWatcher::CreateWithTaskRunner(
       file_task_runner, management_service,
       policy::PolicyLoaderMac::GetManagedPolicyPath(bundle_id),
       std::make_unique<MacPreferences>(), bundle_id);
-#elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_POSIX)
   policy_loader = std::make_unique<policy::ConfigDirPolicyLoader>(
       file_task_runner, base::FilePath(policy::kPolicyPath),
       policy::POLICY_SCOPE_MACHINE);
-#elif BUILDFLAG(IS_ANDROID)
-  NOTIMPLEMENTED();
-  policy::PolicyServiceImpl::Providers providers;
-  std::unique_ptr<policy::PolicyService> owned_policy_service(
-      new policy::PolicyServiceImpl(providers));
-  return base::WrapUnique(new PolicyWatcher(owned_policy_service.get(),
-                                            std::move(owned_policy_service),
-                                            nullptr, CreateSchemaRegistry()));
-#elif BUILDFLAG(IS_CHROMEOS)
-  NOTREACHED() << "CreateWithPolicyService() should be used on ChromeOS.";
 #else
 #error OS that is not yet supported by PolicyWatcher code.
 #endif

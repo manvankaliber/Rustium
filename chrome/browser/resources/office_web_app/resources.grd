@@ -12,9 +12,7 @@
   </outputs>
   <release seq="1">
     <includes>
-      <if expr="is_chromeos">
-        <include name="IDR_OFFICE_WEB_APP_ICONS_OFFICE_192_PNG" file="icons/office_192.png" type="BINDATA" />
-      </if>
+
     </includes>
   </release>
 </grit>

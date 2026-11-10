@@ -68,7 +68,7 @@ BASE_FEATURE(kGlicCreateTabAdjacent, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // When off, disables both live mode and the glic floating panel.
 BASE_FEATURE(kGlicLiveMode,
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
              base::FEATURE_DISABLED_BY_DEFAULT
 #else
              base::FEATURE_ENABLED_BY_DEFAULT
@@ -217,7 +217,7 @@ BASE_FEATURE(kGlicOptInImpressionMetrics, base::FEATURE_ENABLED_BY_DEFAULT);
 // TODO(crbug.com/513620671) Investigate enabling on Windows.
 // TODO(crbug.com/516381993) Investigate enabling on ChromeOS.
 BASE_FEATURE(kGlicContentsInitiallyHidden,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
              base::FEATURE_DISABLED_BY_DEFAULT
 #else
              base::FEATURE_ENABLED_BY_DEFAULT
@@ -230,11 +230,7 @@ BASE_FEATURE(kGlicAnchorEntryPointForOnboardedUsers,
 // If kGlicShowForSignedOut is enabled, the GiC panel can be shown to signed out
 // users to show the sign-in promotion.
 BASE_FEATURE(kGlicShowForSignedOut,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kGlicProcessCounterAbuseVerdict,
@@ -263,11 +259,7 @@ const base::FeatureParam<std::string> kGeicGuestURL{&kGeic, "geic-guest-url",
 BASE_FEATURE(kGeicFre, FEATURE_ENABLED_BY_DEFAULT_ALL_PLATFORMS);
 
 BASE_FEATURE(kGlicHotkeyLocalScope,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kGlicPasteEligibilityCheck,
@@ -305,9 +297,6 @@ BASE_FEATURE(kGlicVoice, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kGlicExperimentalOptInDialogNonScrollable,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kGlicNativeFreAndroid, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 BASE_FEATURE(kGlicActionFirstFRE, base::FEATURE_DISABLED_BY_DEFAULT);
 

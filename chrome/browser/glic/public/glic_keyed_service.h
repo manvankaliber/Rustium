@@ -66,9 +66,6 @@ class GlicTabFaviconObserver;
 class GlicInstanceCoordinator;
 class GlicExperimentalOptInController;
 class GlicExperimentalTriggeringTransportHandlerFactory;
-#if BUILDFLAG(IS_ANDROID)
-class MicPermissionUi;
-#endif
 
 enum class GlicPrewarmingChecksResult;
 
@@ -95,22 +92,6 @@ class GlicKeyedService : public KeyedService, public base::SupportsUserData {
   // lifetime of the profile.
   const GlicProviderSpec& provider_spec() const;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Returns a Java object of the type GlicKeyedService for the given
-  // GlicKeyedService.
-  static base::android::ScopedJavaLocalRef<jobject> GetJavaObject(
-      GlicKeyedService* glic_keyed_service);
-  bool IsGlicShortcutActive();
-  bool IsBottomBarEnabled();
-
-  class GlicNudgeController* GetOrCreateNudgeController(
-      BrowserWindowInterface* browser);
-
-  // Returns the microphone permission UI used by Glic panels.
-  MicPermissionUi& GetMicPermissionUi();
-  void SetMicPermissionUiForTesting(
-      std::unique_ptr<MicPermissionUi> mic_permission_ui);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Convenience method, may return nullptr.
   static GlicKeyedService* Get(content::BrowserContext* context);
@@ -303,9 +284,6 @@ class GlicKeyedService : public KeyedService, public base::SupportsUserData {
 
   void OnExperimentalTriggeringStateChanged();
 
-#if BUILDFLAG(IS_ANDROID)
-  void OnBrowserWindowClosed(BrowserWindowInterface* browser);
-#endif
 
   // List of callbacks to be notified when the client requests a change to the
   // context access indicator status.
@@ -348,14 +326,6 @@ class GlicKeyedService : public KeyedService, public base::SupportsUserData {
 
   base::CallbackListSubscription experimental_triggering_state_subscription_;
 
-#if BUILDFLAG(IS_ANDROID)
-  base::flat_map<BrowserWindowInterface*,
-                 std::unique_ptr<class GlicSplitButtonController>>
-      button_controllers_;
-  base::flat_map<BrowserWindowInterface*, base::CallbackListSubscription>
-      window_close_subscriptions_;
-  std::unique_ptr<MicPermissionUi> mic_permission_ui_;
-#endif
 
   base::WeakPtrFactory<GlicKeyedService> weak_ptr_factory_{this};
 };

@@ -1089,7 +1089,7 @@ libcxx_headers = [
   "//third_party/libc++/src/include/future",
   "//third_party/libc++/src/include/initializer_list",
   "//third_party/libc++/src/include/iomanip",
-  "//third_party/libc++/src/include/ios",
+
   "//third_party/libc++/src/include/iosfwd",
   "//third_party/libc++/src/include/iostream",
   "//third_party/libc++/src/include/istream",

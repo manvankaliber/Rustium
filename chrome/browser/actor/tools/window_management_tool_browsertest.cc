@@ -27,12 +27,7 @@
 #include "ui/base/base_window.h"
 #include "ui/base/ozone_buildflags.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/command_line.h"
-#include "ui/display/display_switches.h"
-#else
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 #if BUILDFLAG(IS_OZONE)
 #include "ui/ozone/public/ozone_platform.h"
@@ -51,18 +46,6 @@ class ActorWindowManagementToolBrowserTest : public ActorToolsTest {
 
   void SetUpCommandLine(base::CommandLine* command_line) override {
     ActorToolsTest::SetUpCommandLine(command_line);
-#if BUILDFLAG(IS_ANDROID)
-    // Opening a second window launches ChromeTabbedActivity, which would show
-    // the first-run experience instead of a browser window.
-    command_line->AppendSwitch("disable-fre");
-    // ActorToolsTest forces a device scale factor of 1 for coordinate-based
-    // tools. On Android that makes Chrome measure the smallest screen width in
-    // raw pixels, so a phone looks like a tablet, and the configuration change
-    // from entering or leaving split-screen (which a second window causes)
-    // flips tablet mode and recreates the test Activity, which the browser
-    // test harness forbids. Window tests don't need the forced scale.
-    command_line->RemoveSwitch(switches::kForceDeviceScaleFactor);
-#endif
   }
 
   void SetUpOnMainThread() override {
@@ -100,11 +83,7 @@ class ActorWindowManagementToolBrowserTest : public ActorToolsTest {
   // fullscreen; on Android it is the active tab's immersive fullscreen, which
   // is what the tool drives there.
   bool IsFullscreen(BrowserWindowInterface* browser_window) {
-#if BUILDFLAG(IS_ANDROID)
-    return web_contents()->IsFullscreen();
-#else
     return browser_window->GetWindow()->IsFullscreen();
-#endif
   }
 
   // Fullscreen transitions can complete asynchronously, so poll.
@@ -116,16 +95,7 @@ class ActorWindowManagementToolBrowserTest : public ActorToolsTest {
 
   // Waits until `browser_window` is the most recently activated window.
   void WaitForWindowActive(BrowserWindowInterface* browser_window) {
-#if BUILDFLAG(IS_ANDROID)
-    // Bringing a task to the front is asynchronous in the OS; the window's
-    // activation time is recorded when its Activity becomes top-resumed.
-    ASSERT_TRUE(base::test::RunUntil([&]() {
-      return GetLastActiveBrowserWindowInterfaceWithAnyProfile() ==
-             browser_window;
-    }));
-#else
     ui_test_utils::WaitForBrowserSetLastActive(browser_window);
-#endif
   }
 
   // Opens a second window with one tab and waits for it to become active.
@@ -238,7 +208,6 @@ IN_PROC_BROWSER_TEST_F(ActorWindowManagementToolBrowserTest,
   EXPECT_EQ(*actor_task().GetTabs().begin(), first_new_window_tab->GetHandle());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Ensure a created window's tab is not added to the acting set if the task is
 // already acting on a headless surface.
 // TODO(crbug.com/420669167): This can be updated to add the tab once acting on
@@ -270,7 +239,6 @@ IN_PROC_BROWSER_TEST_F(ActorWindowManagementToolBrowserTest,
               testing::ElementsAre(headless_handle));
   EXPECT_TRUE(actor_task().GetTabs().empty());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Ensure CloseWindow closes the window with the given ID.
 IN_PROC_BROWSER_TEST_F(ActorWindowManagementToolBrowserTest, CloseWindow) {

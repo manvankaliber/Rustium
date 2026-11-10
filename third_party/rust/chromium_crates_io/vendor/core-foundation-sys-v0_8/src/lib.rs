@@ -21,19 +21,7 @@
 //
 // We don't use `target_vendor` since that is going to be deprecated:
 // https://github.com/rust-lang/lang-team/issues/102
-#[cfg_attr(
-    all(
-        any(
-            target_os = "macos",
-            target_os = "ios",
-            target_os = "tvos",
-            target_os = "watchos",
-            target_os = "visionos"
-        ),
-        feature = "link"
-    ),
-    link(name = "CoreFoundation", kind = "framework")
-)]
+#[cfg_attr(all(any(target_os = "macos", target_os = "tvos", target_os = "watchos", target_os = "visionos"), feature = "link"), link(name = "CoreFoundation", kind = "framework"))]
 extern "C" {}
 
 pub mod array;

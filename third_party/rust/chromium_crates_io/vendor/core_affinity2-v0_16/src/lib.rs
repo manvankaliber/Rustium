@@ -258,51 +258,26 @@ impl TryFrom<&str> for Cores {
 
 // Linux Section
 
-#[cfg(any(
-    target_os = "android",
-    target_os = "linux",
-    target_os = "dragonfly",
-    target_os = "freebsd"
-))]
+#[cfg(any(target_os = "linux", target_os = "dragonfly", target_os = "freebsd"))]
 #[inline]
 fn get_core_ids_helper() -> Result<Vec<CoreId>, Error> {
     unix::get_core_ids()
 }
 
-#[cfg(any(
-    target_os = "android",
-    target_os = "linux",
-    target_os = "dragonfly",
-    target_os = "freebsd"
-))]
+#[cfg(any(target_os = "linux", target_os = "dragonfly", target_os = "freebsd"))]
 #[inline]
 fn set_for_current_helper(core_id: CoreId) -> Result<(), Error> {
     unix::set_for_current(core_id)
 }
 
-#[cfg(any(
-    target_os = "android",
-    target_os = "linux",
-    target_os = "dragonfly",
-    target_os = "freebsd"
-))]
-#[cfg(any(
-    target_os = "android",
-    target_os = "linux",
-    target_os = "dragonfly",
-    target_os = "freebsd"
-))]
+#[cfg(any(target_os = "linux", target_os = "dragonfly", target_os = "freebsd"))]
+#[cfg(any(target_os = "linux", target_os = "dragonfly", target_os = "freebsd"))]
 #[inline]
 fn get_affinity_helper() -> Result<Option<CoreId>, Error> {
     unix::get_affinity()
 }
 
-#[cfg(any(
-    target_os = "android",
-    target_os = "linux",
-    target_os = "dragonfly",
-    target_os = "freebsd"
-))]
+#[cfg(any(target_os = "linux", target_os = "dragonfly", target_os = "freebsd"))]
 mod unix {
     use alloc::{string::ToString, vec::Vec};
     use core::mem::{size_of, zeroed};
@@ -386,7 +361,7 @@ mod unix {
         unsafe { zeroed::<cpu_set_t>() }
     }
 
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[cfg(target_os = "linux")]
     pub fn get_affinity() -> Result<Option<CoreId>, Error> {
         let status = std::fs::read_to_string("/proc/self/status").unwrap();
         let mut affinity = None;

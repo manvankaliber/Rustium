@@ -42,9 +42,6 @@
 #include "ui/color/color_id.h"
 #include "ui/gfx/vector_icon_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/tab_android.h"
-#endif
 
 namespace glic {
 
@@ -163,20 +160,6 @@ GlicActivityRowViewModel CreateActorTaskActivityRow(
   model.has_been_seen = item.has_been_seen;
   model.is_enabled = item.is_enabled;
   model.icon = item.icon;
-#if BUILDFLAG(IS_ANDROID)
-  if (item.task_id.has_value()) {
-    if (auto* actor_ui_state_manager =
-            actor::ui::ActorUiStateManager::Get(profile)) {
-      if (auto task_tab =
-              actor_ui_state_manager->GetLastActedOnTab(*item.task_id);
-          task_tab && *task_tab) {
-        if (TabAndroid* tab_android = TabAndroid::FromTabInterface(*task_tab)) {
-          model.tab_id = tab_android->GetAndroidId();
-        }
-      }
-    }
-  }
-#endif
   model.icon_and_subtitle_color =
       GetRowColor(item.is_enabled, !item.has_been_seen, model.needs_review);
   model.title = item.title;
@@ -272,14 +255,6 @@ GlicActivityListBubbleController::GetActorTaskRowViewModels(
     bool has_tab = task_tab.value() != nullptr;
     int tab_id = -1;
 
-#if BUILDFLAG(IS_ANDROID)
-    if (has_tab) {
-      if (TabAndroid* tab_android =
-              TabAndroid::FromTabInterface(task_tab.value())) {
-        tab_id = tab_android->GetAndroidId();
-      }
-    }
-#endif
 
     if (!has_tab && LegacyGlicActivityManager::IsActiveExperimentalTask(
                         task_state.value(), feature_mode)) {
@@ -484,12 +459,7 @@ void GlicActivityListBubbleController::ShowBubbleImpl(
   // start notification for an experimentalTriggering task triggered while
   // the Glic panel is visible on this window. We avoid popping up the bubble
   // for subsequent background task status updates to avoid disturbing the user.
-#if BUILDFLAG(IS_ANDROID)
-  const bool is_active =
-      browser_->GetWindow() && browser_->GetWindow()->IsActive();
-#else
   const bool is_active = browser_->IsActive();
-#endif
   if (!is_active) {
     // When kGlicExperimentalTriggeringOsNotification is enabled, we avoid
     // popping up the bubble on inactive windows entirely.

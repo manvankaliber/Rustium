@@ -84,11 +84,9 @@
 #include "ui/gfx/image/image.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/tab_list/tab_removed_reason.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/tabs/tab_strip_model_observer.h"
-#endif
 
 namespace context_hub {
 
@@ -1632,7 +1630,6 @@ TEST_F(ContextHubServiceTest, GetAllMemoryBankCollections) {
   EXPECT_THAT(coll_future.Get(), testing::ElementsAre("Recipes", "Research"));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 optimization_guide::proto::AnnotatedPageContent FakeApc(
     const std::string& title,
     const std::string& text) {
@@ -2111,7 +2108,6 @@ TEST_F(ContextHubServiceEmbeddingsTest,
 
   EXPECT_FALSE(store_embeddings_future_.IsReady());
 }
-#endif
 
 TEST_F(ContextHubServiceTest,
        SaveMemoryBankEntry_TabNotFoundFallbackWhenSyncFlagEnabled) {
@@ -3624,7 +3620,6 @@ TEST_F(ContextHubServiceTest, ClearThirdPartyAutoTodos) {
   EXPECT_EQ(items[0].id, "fp_todo_1");
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextHubServiceTest, OnTabStripModelChanged_DeletesTabTodoOnTabClose) {
   MockServiceObserver observer;
   base::ScopedObservation<ContextHubService, ContextHubService::Observer>
@@ -3749,7 +3744,6 @@ TEST_F(ContextHubServiceTest,
   service_.GetAutoTodos(get_future.GetCallback());
   EXPECT_EQ(1u, get_future.Get().size());
 }
-#endif
 
 TEST_F(ContextHubServiceTest, GetAutoTodos) {
   base::test::TestFuture<std::vector<AutoTodoEntry>> get_empty_future;

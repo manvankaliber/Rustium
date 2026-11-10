@@ -42,7 +42,7 @@
 #include "media/base/media_switches.h"
 #include "media/base/platform_features.h"
 #include "media/base/video_bitrate_allocation.h"
-#include "media/gpu/chromeos/platform_video_frame_utils.h"
+#include "media/gpu/linux/platform_video_frame_utils.h"
 #include "media/gpu/gpu_video_encode_accelerator_helpers.h"
 #include "media/gpu/h264_dpb.h"
 #include "media/gpu/macros.h"
@@ -220,15 +220,6 @@ EncoderStatus VaapiVideoEncodeAccelerator::Initialize(
       return {EncoderStatus::Codes::kEncoderInitializationError};
     }
 
-#if BUILDFLAG(IS_CHROMEOS)
-    if (!IsConfiguredForTesting()) {
-      if (config.inter_layer_pred == SVCInterLayerPredMode::kOff &&
-          !base::FeatureList::IsEnabled(kVaapiVp9SModeHWEncoding)) {
-        MEDIA_LOG(ERROR, media_log.get()) << "Vp9 S-mode encoding is disabled";
-        return {EncoderStatus::Codes::kEncoderInitializationError};
-      }
-    }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     // TODO(crbug.com/40172317): Remove this restriction.
     if (!std::ranges::is_sorted(

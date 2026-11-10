@@ -62,10 +62,6 @@ class PasswordAutofillManager : public autofill::AutofillSuggestionDelegate,
   ~PasswordAutofillManager() override;
 
   // PasswordManagerDelegate:
-#if BUILDFLAG(IS_ANDROID)
-  void ShowKeyboardReplacingSurface(
-      const autofill::PasswordSuggestionRequest& request) override;
-#endif  // BUILDFLAG(IS_ANDROID)
   void ShowSuggestions(
       const autofill::TriggeringField& triggering_field) override;
   void SelectSuggestion(const autofill::Suggestion& suggestion) override;
@@ -136,7 +132,6 @@ class PasswordAutofillManager : public autofill::AutofillSuggestionDelegate,
   // in-page navigations.
   void DidNavigateFrame();
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   PasswordManualFallbackMetricsRecorder&
   GetPasswordManualFallbackMetricsRecorder() {
     return CHECK_DEREF(manual_fallback_metrics_recorder_.get());
@@ -148,7 +143,6 @@ class PasswordAutofillManager : public autofill::AutofillSuggestionDelegate,
   inline PasswordSuggestionFlow* manual_fallback_flow() {
     return manual_fallback_flow_.get();
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   // If there is a popup waiting to be displayed with a delay, this cancels it.
   void FocusedInputChanged();
@@ -264,10 +258,8 @@ class PasswordAutofillManager : public autofill::AutofillSuggestionDelegate,
       ShowWebAuthnCredentials show_webauthn_credentials,
       ShowIdentityCredentials show_identity_credentials);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   bool MaybeTriggerPasswordManualFallback(
       const autofill::TriggeringField& field);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   std::unique_ptr<autofill::PasswordFormFillData> fill_data_;
 
@@ -301,7 +293,6 @@ class PasswordAutofillManager : public autofill::AutofillSuggestionDelegate,
   // on Android, Mac and Windows.
   std::unique_ptr<device_reauth::DeviceAuthenticator> authenticator_;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // Initialized when the user triggers the password manual fallback. This flow
   // reads all user passwords upon initialization. Hence it's reset upon main
   // frame navigation or if this `PasswordAutofillManager` is destroyed.
@@ -317,15 +308,13 @@ class PasswordAutofillManager : public autofill::AutofillSuggestionDelegate,
   // `manual_fallback_flow_` and dies when `manual_fallback_flow_` dies.
   std::unique_ptr<PasswordManualFallbackMetricsRecorder>
       manual_fallback_metrics_recorder_;
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   // This timer is used to delay showing the suggestions popup if passkey
   // suggestions are allowed but the passkey list has not yet arrived.
   base::OneShotTimer wait_for_passkeys_timer_;
 
   // Stores the controller of warning popup UI on cross domain filling.
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   std::unique_ptr<PasswordCrossDomainConfirmationPopupController>
       cross_domain_confirmation_controller_;
 #endif

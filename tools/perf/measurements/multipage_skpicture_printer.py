@@ -21,7 +21,7 @@ class MultipageSkpicturePrinter(legacy_page_test.LegacyPageTest):
     )
 
   def ValidateAndMeasurePage(self, page, tab, results):
-    if tab.browser.platform.GetOSName() in ['android', 'chromeos']:
+    if tab.browser.platform.GetOSName() in []:
       raise legacy_page_test.MeasurementFailure(
         'Multipage SkPicture printing not supported on this platform'
       )

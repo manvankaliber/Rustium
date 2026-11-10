@@ -15,12 +15,12 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/blink/public/common/page/page_zoom.h"
 
-#if BUILDFLAG(ENABLE_PRINT_PREVIEW) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_PRINT_PREVIEW)
 #include "base/functional/bind.h"
 #include "chrome/browser/printing/test_print_view_manager_for_request_preview.h"
 #include "ui/views/view.h"
 #include "ui/views/widget/widget.h"
-#endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 namespace glic {
 
@@ -94,7 +94,7 @@ IN_PROC_BROWSER_TEST_F(PanelFocusDependentHotkeyManagerBrowserTest,
                                   "Zoom level did not reset to initial"));
 }
 
-#if BUILDFLAG(ENABLE_PRINT_PREVIEW) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_PRINT_PREVIEW)
 IN_PROC_BROWSER_TEST_F(PanelFocusDependentHotkeyManagerBrowserTest,
                        PrintHotkeyFloaty) {
   ASSERT_OK_AND_ASSIGN(GlicInstanceImpl * instance,
@@ -138,7 +138,7 @@ IN_PROC_BROWSER_TEST_F(PanelFocusDependentHotkeyManagerBrowserTest,
   EXPECT_FALSE(tab_printed);
   EXPECT_EQ(nullptr, tab_print_manager->print_preview_rfh());
 }
-#endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 }  // namespace
 }  // namespace glic

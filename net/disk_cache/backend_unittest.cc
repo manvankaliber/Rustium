@@ -518,12 +518,6 @@ TEST_P(DiskCacheGenericBackendTest, Basics) {
 }
 
 TEST_P(DiskCacheGenericBackendTest, CreateBackendDoubleHttpCache) {
-#if BUILDFLAG(IS_ANDROID)
-  // Android does not support creating blockfile caches via CacheCreator.
-  if (backend_to_test_ == BackendToTest::kBlockfile) {
-    return;
-  }
-#endif
 
   ASSERT_TRUE(CleanupCacheDir());
 
@@ -1016,13 +1010,11 @@ void DiskCacheBackendTest::BackendShutdownWithPendingFileIO(bool fast) {
 
   base::RunLoop().RunUntilIdle();
 
-#if !BUILDFLAG(IS_IOS)
   // Wait for the actual operation to complete, or we'll keep a file handle that
   // may cause issues later. Note that on iOS systems even though this test
   // uses a single thread, the actual IO is posted to a worker thread and the
   // cache destructor breaks the link to reach cb when the operation completes.
   rv = cb.GetResult(rv);
-#endif
 }
 
 TEST_F(DiskCacheBackendTest, ShutdownWithPendingFileIO) {
@@ -1042,7 +1034,6 @@ TEST_F(DiskCacheBackendTest, ShutdownWithPendingFileIO_Fast) {
 #endif
 
 // See crbug.com/330074
-#if !BUILDFLAG(IS_IOS)
 // Tests that one cache instance is not affected by another one going away.
 TEST_F(DiskCacheBackendTest, MultipleInstancesWithPendingFileIO) {
   base::ScopedTempDir store;
@@ -1080,7 +1071,6 @@ TEST_F(DiskCacheBackendTest, MultipleInstancesWithPendingFileIO) {
   // may cause issues later.
   rv = cb.GetResult(rv);
 }
-#endif
 
 // Tests that we deal with background-thread pending operations.
 void DiskCacheBackendTest::BackendShutdownWithPendingIO(bool fast) {
@@ -1226,7 +1216,6 @@ TEST_P(DiskCacheGenericBackendTest, ShutdownWithPendingDoom) {
 
 // Disabled on android since this test requires cache creator to create
 // blockfile caches.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(DiskCacheTest, TruncatedIndex) {
   ASSERT_TRUE(CleanupCacheDir());
   base::FilePath index = cache_path_.AppendASCII("index");
@@ -1243,7 +1232,6 @@ TEST_F(DiskCacheTest, TruncatedIndex) {
   ASSERT_NE(net::OK, rv.net_error);
   ASSERT_FALSE(rv.backend);
 }
-#endif
 
 void DiskCacheBackendTest::BackendSetSize() {
   if (backend_to_test() == BackendToTest::kSimple
@@ -2612,7 +2600,6 @@ TEST_F(DiskCacheTest, WrongVersion) {
 // Tests that the cache is properly restarted on recovery error.
 // Disabled on android since this test requires cache creator to create
 // blockfile caches.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(DiskCacheBackendTest, DeleteOld) {
   ASSERT_TRUE(CopyTestCache("wrong_version"));
   SetNewEviction();
@@ -2633,7 +2620,6 @@ TEST_F(DiskCacheBackendTest, DeleteOld) {
   EXPECT_TRUE(CheckCacheIntegrity(cache_path_, new_eviction_, /*max_size = */ 0,
                                   mask_));
 }
-#endif
 
 // We want to be able to deal with messed up entries on disk.
 void DiskCacheBackendTest::BackendInvalidEntry2() {
@@ -4424,7 +4410,7 @@ TEST_F(DiskCacheBackendTest, SimpleCacheLateDoom) {
 }
 
 // TODO(crbug.com/475586889): Test has flaked regularly.
-#if BUILDFLAG(IS_ANDROID) || !TARGET_IPHONE_SIMULATOR
+#if !TARGET_IPHONE_SIMULATOR
 #define MAYBE_SimpleCacheNegMaxSize DISABLED_SimpleCacheNegMaxSize
 #else
 #define MAYBE_SimpleCacheNegMaxSize SimpleCacheNegMaxSize
@@ -4704,13 +4690,11 @@ void DiskCacheBackendTest::Test2GiBLimit(net::CacheType type,
 
 // Disabled on android since this test requires cache creator to create
 // blockfile caches.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(DiskCacheBackendTest, BlockFileMaxSizeLimit) {
   // Note: blockfile actually has trouble before 2GiB as well.
   Test2GiBLimit(net::DISK_CACHE, net::CACHE_BACKEND_BLOCKFILE,
                 /*expect_limit=*/true);
 }
-#endif
 
 TEST_F(DiskCacheBackendTest, InMemoryMaxSizeLimit) {
   Test2GiBLimit(net::MEMORY_CACHE, net::CACHE_BACKEND_DEFAULT,
@@ -5442,7 +5426,6 @@ TEST_F(DiskCacheBackendTest, BlockfileMigrateNewEviction21) {
 
 // Disabled on android since this test requires cache creator to create
 // blockfile caches, and we don't use them on Android anyway.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(DiskCacheBackendTest, BlockfileEmptyIndex) {
   // Regression case for https://crbug.com/1441330 --- blockfile DCHECKing
   // on mmap error for files it uses.
@@ -5488,7 +5471,6 @@ TEST_F(DiskCacheBackendTest, BlockfileEmptyIndex) {
   ASSERT_THAT(rv.net_error, IsOk());
   ASSERT_TRUE(rv.backend);
 }
-#endif
 
 // See https://crbug.com/1486958
 // Disabled on Mac due to flakiness: crbug.com/438569911.

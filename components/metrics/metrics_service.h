@@ -192,29 +192,6 @@ class MetricsService {
   // to be interacting with the application.
   void OnApplicationNotIdle();
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Increments the global `fg_bg_id` for when OnAppEnterBackground() or
-  // OnAppEnterForeground() below has closed the current log. In some cases,
-  // this may be no-op; see implementation for details.
-  void IncrementFgBgIdIfNeeded(
-      std::optional<bool> previous_is_in_foreground) const;
-
-  // Clears `fg_bg_id` from the current log for when OnAppEnterBackground() or
-  // OnAppEnterForeground() below cannot close it. In some cases, this may be
-  // no-op; see implementation for details.
-  void ClearFgBgIdIfNeeded(std::optional<bool> previous_is_in_foreground) const;
-
-  // Called when the application is going into background mode.
-  // If |keep_recording_in_background| is true, UMA is still recorded and
-  // reported while in the background.
-  void OnAppEnterBackground(bool keep_recording_in_background = false,
-                            bool emit_uma_action = true);
-
-  // Called when the application is coming out of background mode.
-  void OnAppEnterForeground(bool force_open_new_log = false,
-                            bool emit_uma_action = true);
-
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
   // Called when a document first starts loading.
   void OnPageLoadStarted();
@@ -250,64 +227,6 @@ class MetricsService {
   // be included in the next log.
   void MarkCurrentHistogramsAsReported();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Binds a user log store to store unsent logs. This log store will be
-  // fully managed by MetricsLogStore. This will no-op if another log store has
-  // already been set.
-  //
-  // If this is called before initial logs are recorded, then histograms
-  // recorded before user log store is set will be included with user histograms
-  // when initial logs are recorded.
-  //
-  // If this is called after initial logs are recorded, then this will flush all
-  // logs recorded before swapping to |user_log_store|.
-  void SetUserLogStore(std::unique_ptr<UnsentLogStore> user_log_store);
-
-  // Unbinds the user log store. If there was no user log store, then this does
-  // nothing.
-  //
-  // If this is called before initial logs are recorded, then histograms and the
-  // current log will be discarded.
-  //
-  // If called after initial logs are recorded, then this will flush all logs
-  // before the user log store is unset.
-  void UnsetUserLogStore();
-
-  // Returns true if a user log store has been bound.
-  bool HasUserLogStore();
-
-  // Initializes per-user metrics collection. Logs recorded during a user
-  // session will be stored within each user's directory and consent to send
-  // these logs will be controlled by each user. Logs recorded before any user
-  // logs in or during guest sessions (given device owner has consented) will be
-  // stored in local_state.
-  //
-  // This is in its own function because the MetricsService is created very
-  // early on and a user metrics service may have dependencies on services that
-  // are created happen after MetricsService is initialized.
-  void InitPerUserMetrics();
-
-  // Returns the current user metrics consent if it should be applied to
-  // determine metrics reporting state.
-  //
-  // See comments at MetricsServiceClient::GetCurrentUserMetricsChoice() for
-  // more details.
-  std::optional<bool> GetCurrentUserMetricsChoice() const;
-
-  // Returns the current logged in user id. See comments at
-  // MetricsServiceClient::GetCurrentUserId() for more details.
-  std::optional<std::string> GetCurrentUserId() const;
-
-  // Updates the current user metrics consent. No-ops if no user has logged in.
-  void UpdateCurrentUserMetricsChoice(bool user_choice);
-
-  // Forces the client ID to be reset and generates a new client ID. This will
-  // be called when a user re-consents to metrics collection and the user had
-  // consented in the past.
-  //
-  // This is to preserve the pseudo-anonymous identifier <client_id, user_id>.
-  void ResetClientId();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   variations::SyntheticTrialRegistry* GetSyntheticTrialRegistry();
 
@@ -704,11 +623,6 @@ class MetricsService {
   // cloned.
   base::CallbackListSubscription cloned_install_subscription_;
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Indicates whether OnAppEnterForeground() (true) or OnAppEnterBackground
-  // (false) was called.
-  std::optional<bool> is_in_foreground_ = std::nullopt;
-#endif
 
   FRIEND_TEST_ALL_PREFIXES(MetricsServiceTest, ActiveFieldTrialsReported);
   FRIEND_TEST_ALL_PREFIXES(MetricsServiceTest, IsPluginProcess);

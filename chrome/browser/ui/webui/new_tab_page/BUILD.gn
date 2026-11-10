@@ -4,7 +4,7 @@
 
 import("//build/config/compiler/compiler.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
-import("//third_party/jni_zero/jni_zero.gni")
+
 import("//ui/webui/webui_features.gni")
 
 assert(enable_webui_ntp)
@@ -23,10 +23,9 @@ mojom("mojo_bindings") {
     "//ui/webui/resources/cr_components/most_visited:mojom",
     "//url/mojom:url_mojom_gurl",
   ]
-  if (!is_android) {
-    public_deps +=
-        [ "//chrome/browser/ui/webui/new_tab_page/ntp_promo:mojo_bindings" ]
-  }
+
+  public_deps +=
+      [ "//chrome/browser/ui/webui/new_tab_page/ntp_promo:mojo_bindings" ]
 }
 
 # Thin public target providing new_tab_page_ui.h and untrusted_source.h without
@@ -58,9 +57,9 @@ source_set("new_tab_page") {
     "//ui/webui/resources/cr_components/search:mojo_bindings",
     "//ui/webui/resources/js/browser_command:mojo_bindings",
   ]
-  if (!is_android) {
-    public_deps += [ "//components/user_education/webui" ]
-  }
+
+  public_deps += [ "//components/user_education/webui" ]
+
   if (!is_official_build) {
     public_deps +=
         [ "//chrome/browser/ui/webui/new_tab_page/foo:mojo_bindings" ]
@@ -187,25 +186,23 @@ source_set("impl") {
     "//url",
   ]
 
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/user_education",
-      "//chrome/browser/ui/views/new_tab_footer",
-      "//chrome/browser/ui/views/side_panel",
-      "//chrome/browser/ui/views/side_panel/customize_chrome",
-      "//chrome/browser/ui/webui/browser_command",
-      "//chrome/browser/ui/webui/new_tab_page/ntp_promo",
-      "//chrome/browser/ui/webui/new_tab_page/ntp_promo:mojo_bindings",
-      "//chrome/browser/ui/webui/util",
-      "//chrome/browser/ui/webui_browser",
-      "//chrome/browser/user_education",
-      "//components/user_education/webui",
-      "//ui/webui/tracked_element",
-    ]
-    if (is_win || is_mac || is_linux) {
-      deps += [ "//chrome/browser/ui/views/scheduled_restart" ]
-    }
+  deps += [
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/user_education",
+    "//chrome/browser/ui/views/new_tab_footer",
+    "//chrome/browser/ui/views/side_panel",
+    "//chrome/browser/ui/views/side_panel/customize_chrome",
+    "//chrome/browser/ui/webui/browser_command",
+    "//chrome/browser/ui/webui/new_tab_page/ntp_promo",
+    "//chrome/browser/ui/webui/new_tab_page/ntp_promo:mojo_bindings",
+    "//chrome/browser/ui/webui/util",
+    "//chrome/browser/ui/webui_browser",
+    "//chrome/browser/user_education",
+    "//components/user_education/webui",
+    "//ui/webui/tracked_element",
+  ]
+  if (is_win || is_mac || is_linux) {
+    deps += [ "//chrome/browser/ui/views/scheduled_restart" ]
   }
 
   if (!is_official_build) {
@@ -260,14 +257,13 @@ source_set("unit_tests") {
     "//ui/native_theme",
     "//ui/native_theme:test_support",
   ]
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/desktop_to_mobile_promos:utils",
-      "//chrome/browser/ui/hats:test_support",
-      "//chrome/browser/ui/views/side_panel/customize_chrome",
-      "//chrome/browser/ui/webui/util",
-    ]
-  }
+
+  deps += [
+    "//chrome/browser/desktop_to_mobile_promos:utils",
+    "//chrome/browser/ui/hats:test_support",
+    "//chrome/browser/ui/views/side_panel/customize_chrome",
+    "//chrome/browser/ui/webui/util",
+  ]
 }
 
 source_set("browser_tests") {
@@ -294,32 +290,27 @@ source_set("browser_tests") {
     "//testing/gtest",
   ]
 
-  # TODO(b:565412419): Enable new_tab_page_handler_browsertest on Android once
-  # the NTP footer and the automatic Customize Chrome promo are implemented
-  # there.
-  if (!is_android) {
-    sources += [ "new_tab_page_handler_browsertest.cc" ]
-    deps += [
-      ":impl",
-      ":new_tab_page",
-      "//chrome/browser/new_tab_page",
-      "//chrome/browser/new_tab_page/prefs",
-      "//chrome/browser/search_provider_logos",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_tabstrip",
-      "//chrome/browser/ui:ui_features",
-      "//chrome/browser/ui/customize_chrome",
-      "//chrome/browser/ui/side_panel",
-      "//chrome/browser/ui/side_panel:side_panel_views_dependent",
-      "//chrome/browser/ui/views/side_panel/customize_chrome",
-      "//chrome/browser/ui/webui:webui_util",
-      "//chrome/browser/ui/webui/cr_components/most_visited",
-      "//chrome/browser/ui/webui/customize_buttons",
-      "//chrome/test/base:testing_browser_process",
-      "//chrome/test/user_education:impl",
-      "//components/prefs",
-      "//components/search",
-      "//components/user_education/views",
-    ]
-  }
+  sources += [ "new_tab_page_handler_browsertest.cc" ]
+  deps += [
+    ":impl",
+    ":new_tab_page",
+    "//chrome/browser/new_tab_page",
+    "//chrome/browser/new_tab_page/prefs",
+    "//chrome/browser/search_provider_logos",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_tabstrip",
+    "//chrome/browser/ui:ui_features",
+    "//chrome/browser/ui/customize_chrome",
+    "//chrome/browser/ui/side_panel",
+    "//chrome/browser/ui/side_panel:side_panel_views_dependent",
+    "//chrome/browser/ui/views/side_panel/customize_chrome",
+    "//chrome/browser/ui/webui:webui_util",
+    "//chrome/browser/ui/webui/cr_components/most_visited",
+    "//chrome/browser/ui/webui/customize_buttons",
+    "//chrome/test/base:testing_browser_process",
+    "//chrome/test/user_education:impl",
+    "//components/prefs",
+    "//components/search",
+    "//components/user_education/views",
+  ]
 }

@@ -11,12 +11,6 @@
 
 namespace blink {
 
-#if BUILDFLAG(IS_ANDROID)
-// Request |blink::UserLevelMemoryPressureSignalGenerator| to generate a memory
-// pressure siganl.
-BLINK_EXPORT void RequestUserLevelMemoryPressureSignal(
-    base::MemoryPressureLevel level);
-#endif
 
 }  // namespace blink
 

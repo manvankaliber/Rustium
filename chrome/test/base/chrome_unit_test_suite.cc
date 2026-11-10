@@ -41,22 +41,12 @@
 #include "ui/gfx/font_util.h"
 #include "ui/gl/test/gl_surface_test_support.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_paths.h"
-#include "chrome/browser/ash/arc/arc_util.h"
-#include "chromeos/dbus/constants/dbus_paths.h"
-#include "crypto/nss_util_internal.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/base/resource/resource_bundle_android.h"
-#else
 #include "base/auto_reset.h"
 #include "chrome/browser/apps/app_service/app_service_proxy_factory.h"
 #include "chrome/browser/apps/app_service/publishers/publisher_host_factory_impl.h"
 #include "chrome/browser/web_applications/isolated_web_apps/isolated_web_app_trust_checker.h"
 #include "components/web_package/signed_web_bundles/signed_web_bundle_id.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/common/scoped_chrome_extensions_client.h"
@@ -90,13 +80,11 @@ class ChromeUnitTestSuiteInitializer : public testing::EmptyTestEventListener {
     // specific state can nest their own ui::ScopedSetIdleState.
     idle_state_override_.emplace(ui::IDLE_STATE_ACTIVE);
     TestingBrowserProcess::CreateInstance();
-#if !BUILDFLAG(IS_ANDROID)
     // Injects global publisher factory for unit_tests.
     // TODO(crbug.com/441649482): Consider better testing approach.
     publisher_host_factory_resetter_ =
         apps::AppServiceProxyFactory::GetInstance()->SetPublisherHostFactory(
             std::make_unique<apps::PublisherHostFactoryImpl>());
-#endif
     // Make sure the loaded locale is "en-US".
     if (ui::ResourceBundle::GetSharedInstance().GetLoadedLocale() !=
         kDefaultLocale) {
@@ -128,25 +116,15 @@ class ChromeUnitTestSuiteInitializer : public testing::EmptyTestEventListener {
           << "Use content::ScopedAccessibilityModeOverride or otherwise ensure "
              "that accessibility is disabled at the end of your test.";
     }
-#if BUILDFLAG(IS_CHROMEOS)
-    arc::ClearArcAllowedCheckForTesting();
-    crypto::ResetTokenManagerForTesting();
-#endif  // BUILDFLAG(IS_CHROMEOS)
-#if !BUILDFLAG(IS_ANDROID)
     web_app::SetTrustedWebBundleIdsForTesting({});
-#endif  // !BUILDFLAG(IS_ANDROID)
     browser_shutdown::ResetShutdownGlobalsForTesting();
     chrome::ClearUserDataDirSetByPolicyForTesting();
-#if !BUILDFLAG(IS_ANDROID)
     publisher_host_factory_resetter_.reset();
-#endif
     idle_state_override_.reset();
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   std::optional<base::AutoReset<std::unique_ptr<apps::PublisherHostFactory>>>
       publisher_host_factory_resetter_;
-#endif  // !BUILDFLAG(IS_ANDROID)
   std::optional<ui::ScopedSetIdleState> idle_state_override_;
 };
 
@@ -211,13 +189,6 @@ void ChromeUnitTestSuite::InitializeProviders() {
   component_updater::RegisterPathProvider(chrome::DIR_COMPONENTS,
                                           chrome::DIR_USER_DATA);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::RegisterPathProvider();
-  CHECK(base::PathService::OverrideWithoutCheckForTesting(
-      ash::DIR_USER_DATA,
-      base::PathService::CheckedGet(chrome::DIR_USER_DATA)));
-  chromeos::dbus_paths::RegisterPathProvider();
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
   extensions::RegisterPathProvider();
@@ -239,12 +210,8 @@ void ChromeUnitTestSuite::InitializeResourceBundle() {
   // output, it'll pass regardless of the system language.
   ui::ResourceBundle::InitSharedInstanceWithLocale(
       kDefaultLocale, nullptr, ui::ResourceBundle::LOAD_COMMON_RESOURCES);
-#if BUILDFLAG(IS_ANDROID)
-  ui::LoadMainAndroidPackFile("assets/resources.pak", base::FilePath());
-#else
   base::FilePath resources_pack_path;
   base::PathService::Get(chrome::FILE_RESOURCES_PACK, &resources_pack_path);
   ui::ResourceBundle::GetSharedInstance().AddDataPackFromPath(
       resources_pack_path, ui::kScaleFactorNone);
-#endif  // BUILDFLAG(IS_ANDROID)
 }

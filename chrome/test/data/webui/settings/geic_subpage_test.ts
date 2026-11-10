@@ -177,9 +177,7 @@ suite('GeicSubpage', function() {
       button.click();
       await microtasksFinished();
       assertTrue(button.disabled);
-      // <if expr="not is_chromeos">
       await lifetimeBrowserProxy.whenCalled('shouldShowRelaunchDialog');
-      // </if>
       await lifetimeBrowserProxy.whenCalled('relaunch');
       assertEquals(
           GlicAssistantSelection.CONSUMER,

@@ -5,11 +5,6 @@
 import("//build/config/linux/gtk/gtk.gni")
 import("//build/config/ui.gni")
 
-if (is_ios) {
-  import("//build/config/ios/ios_sdk.gni")
-}
-
 declare_args() {
-  enable_remoting =
-      !is_castos && !is_android && !is_ios && (!is_linux || use_gtk)
+  enable_remoting = !is_linux || use_gtk
 }

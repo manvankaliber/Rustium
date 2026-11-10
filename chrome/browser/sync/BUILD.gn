@@ -7,7 +7,7 @@ import("//components/spellcheck/spellcheck_build_features.gni")
 import("//components/supervised_user/buildflags.gni")
 import("//extensions/buildflags/buildflags.gni")
 
-assert(is_win || is_mac || is_linux || is_chromeos || is_android)
+assert(is_win || is_mac || is_linux)
 
 source_set("sync") {
   sources = [
@@ -169,7 +169,6 @@ source_set("sync") {
     "//components/sync_preferences/cross_device_pref_tracker",
     "//components/sync_user_events",
     "//components/themes/cross_device",
-    "//components/user_manager",
     "//components/variations/service",
     "//components/webapps/browser",
     "//components/webauthn/core/browser:passkey_model",
@@ -192,47 +191,22 @@ source_set("sync") {
     ]
   }
 
-  if (is_android) {
-    public_deps += [ "//chrome/browser/ui/android/tab_model" ]
-    sources += [
-      "cross_device_theme_tracker_android.cc",
-      "cross_device_theme_tracker_android.h",
-      "glue/synced_tab_delegate_android.cc",
-      "glue/synced_tab_delegate_android.h",
-      "glue/synced_window_delegate_android.cc",
-      "glue/synced_window_delegate_android.h",
-      "glue/synced_window_delegates_getter_android.cc",
-      "glue/synced_window_delegates_getter_android.h",
-      "glue/web_contents_state_synced_tab_delegate.cc",
-      "glue/web_contents_state_synced_tab_delegate.h",
-    ]
-    deps += [
-      "//chrome/android:chrome_jni_headers",
-      "//chrome/browser/android:tabs_public",
-      "//chrome/browser/ntp_customization",
-      "//chrome/browser/ntp_customization:jni_headers",
-      "//chrome/browser/sync/android:jni_headers",
-      "//chrome/browser/tab",
-      "//ui/color:color_provider_key",
-      "//ui/color/dynamic_color",
-    ]
-  } else {
-    sources += [
-      "sessions/browser_list_router_helper.cc",
-      "sessions/browser_list_router_helper.h",
-    ]
-    public_deps += [
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/tabs:tab_strip_model_observer",
-    ]
-    deps += [
-      "//chrome/browser/accessibility/tree_fixing:prefs",
-      "//chrome/browser/ui:singleton_tabs",
-      "//chrome/browser/ui/read_anything:prefs",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/tabs/saved_tab_groups",
-    ]
-  }
+  sources += [
+    "sessions/browser_list_router_helper.cc",
+    "sessions/browser_list_router_helper.h",
+  ]
+  public_deps += [
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/tabs:tab_strip_model_observer",
+  ]
+  deps += [
+    "//chrome/browser/accessibility/tree_fixing:prefs",
+    "//chrome/browser/ui:singleton_tabs",
+    "//chrome/browser/ui/read_anything:prefs",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/tabs/saved_tab_groups",
+  ]
+
   if (enable_extensions_core) {
     sources += [
       "glue/extension_data_type_controller.cc",
@@ -249,43 +223,6 @@ source_set("sync") {
   }
   if (enable_extensions) {
     deps += [ "//chrome/browser/web_applications" ]
-  }
-  if (is_chromeos) {
-    sources += [
-      "desk_sync_service_factory.cc",
-      "desk_sync_service_factory.h",
-      "wifi_configuration_sync_service_factory.cc",
-      "wifi_configuration_sync_service_factory.h",
-    ]
-    deps += [
-      "//ash/constants",
-      "//ash/public/cpp",
-      "//chrome/browser/ash/app_list",
-      "//chrome/browser/ash/app_list/arc",
-      "//chrome/browser/ash/arc",
-      "//chrome/browser/ash/arc:arc_util",
-      "//chrome/browser/ash/arc/tracing",
-      "//chrome/browser/ash/floating_sso",
-      "//chrome/browser/ash/floating_workspace:utils",
-      "//chrome/browser/ash/guest_os",
-      "//chrome/browser/ash/login/session",
-      "//chrome/browser/ash/login/users/avatar",
-      "//chrome/browser/ash/printing",
-      "//chrome/browser/ash/printing/oauth2",
-      "//chrome/browser/ash/profiles",
-      "//chrome/browser/ui/ash/multi_user",
-      "//chromeos/ash/components/network",
-      "//chromeos/ash/components/sync_wifi",
-      "//chromeos/ash/components/tether",
-      "//chromeos/ash/experiences/arc:arc_base_utils",
-      "//components/desks_storage",
-      "//ui/events/ash",
-    ]
-    allow_circular_includes_from += [
-      "//chrome/browser/ash/app_list",
-      "//chrome/browser/ash/app_list/arc",
-      "//chrome/browser/ash/login/session",
-    ]
   }
 }
 
@@ -356,35 +293,11 @@ source_set("unit_tests") {
     "//url",
   ]
 
-  if (is_chromeos) {
-    deps += [
-      "//ash/constants",
-      "//chrome/browser/ash/app_list",
-      "//chrome/browser/ash/arc:arc_util",
-      "//chrome/browser/ash/floating_sso",
-      "//chromeos/ash/components/dbus/shill",
-      "//chromeos/ash/components/network:test_support",
-      "//chromeos/ash/components/sync_wifi",
-      "//chromeos/ash/services/network_config/public/cpp:test_support",
-    ]
-  }
-
-  if (is_android) {
-    sources += [ "glue/synced_tab_delegate_android_unittest.cc" ]
-    deps += [
-      "//chrome/browser/android:tabs_public",
-      "//chrome/browser/flags:flags_android",
-      "//chrome/browser/ui/android/tab_model",
-      "//chrome/browser/ui/android/tab_model:test_support",
-      "//components/sync_sessions:test_support",
-    ]
-  } else {
-    sources += [
-      "prefs/chrome_syncable_prefs_database_unittest.cc",
-      "sessions/sync_sessions_router_tab_helper_unittest.cc",
-      "sync_ui_util_unittest.cc",
-    ]
-  }
+  sources += [
+    "prefs/chrome_syncable_prefs_database_unittest.cc",
+    "sessions/sync_sessions_router_tab_helper_unittest.cc",
+    "sync_ui_util_unittest.cc",
+  ]
 
   if (enable_extensions_core) {
     sources += [ "glue/extensions_activity_monitor_unittest.cc" ]
@@ -395,38 +308,36 @@ source_set("unit_tests") {
   }
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
+source_set("browser_tests") {
+  testonly = true
 
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [
-      "sessions/browser_list_router_helper_browsertest.cc",
-      "sessions/sync_sessions_router_tab_helper_browsertest.cc",
-      "sync_ui_util_browsertest.cc",
-    ]
+  sources = [
+    "sessions/browser_list_router_helper_browsertest.cc",
+    "sessions/sync_sessions_router_tab_helper_browsertest.cc",
+    "sync_ui_util_browsertest.cc",
+  ]
 
-    deps = [
-      ":sync",
-      "//base",
-      "//chrome/browser:browser_process",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/resource_coordinator",
-      "//chrome/browser/translate",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/sync",
-      "//chrome/test:test_support",
-      "//components/language/core/common",
-      "//components/sessions:session_id",
-      "//components/sync:test_support",
-      "//components/sync_sessions",
-      "//components/translate/core/browser",
-      "//content/public/common",
-      "//content/test:test_support",
-      "//testing/gtest",
-    ]
-  }
+  deps = [
+    ":sync",
+    "//base",
+    "//chrome/browser:browser_process",
+    "//chrome/browser/profiles:profile",
+    "//chrome/browser/resource_coordinator",
+    "//chrome/browser/translate",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/sync",
+    "//chrome/test:test_support",
+    "//components/language/core/common",
+    "//components/sessions:session_id",
+    "//components/sync:test_support",
+    "//components/sync_sessions",
+    "//components/translate/core/browser",
+    "//content/public/common",
+    "//content/test:test_support",
+    "//testing/gtest",
+  ]
 }
 
 source_set("data_type_store_service_factory") {

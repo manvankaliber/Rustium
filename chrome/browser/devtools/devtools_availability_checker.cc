@@ -41,7 +41,6 @@
 #include "extensions/common/manifest.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/web_applications/isolated_web_apps/isolated_web_app_url_info.h"
 #include "chrome/browser/web_applications/web_app.h"
 #include "chrome/browser/web_applications/web_app_provider.h"
@@ -49,11 +48,7 @@
 #include "chrome/browser/web_applications/web_app_tab_helper.h"
 #include "chrome/browser/web_applications/web_app_utils.h"
 #include "components/webapps/isolated_web_apps/scheme.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/pref_names.h"
-#endif
 
 namespace {
 
@@ -72,16 +67,6 @@ DevToolsBlockReason GetGeneralPolicyBlockReason(Profile* profile) {
     case Availability::kDisallowedForForceInstalledExtensions:
       break;
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS disable dev tools for captive portal signin windows to prevent
-  // them from being used for general navigation.
-  const PrefService::Preference* const captive_portal_pref =
-      profile->GetPrefs()->FindPreference(
-          chromeos::prefs::kCaptivePortalSignin);
-  if (captive_portal_pref && captive_portal_pref->GetValue()->GetBool()) {
-    return DevToolsBlockReason::kCaptivePortalSignin;
-  }
-#endif
   return DevToolsBlockReason::kNotBlocked;
 }
 
@@ -254,7 +239,6 @@ DevToolsBlockReason GetDevToolsBlockReason(Profile* profile,
   }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   if (web_app::AreWebAppsEnabled(profile)) {
     if (const webapps::AppId* app_id =
             web_app::WebAppTabHelper::GetAppId(web_contents)) {
@@ -267,7 +251,6 @@ DevToolsBlockReason GetDevToolsBlockReason(Profile* profile,
       }
     }
   }
-#endif
 
   // Evaluate both the visible URL and the last committed URL and enforce
   // whichever is more restrictive. Checking only the visible URL would allow
@@ -338,7 +321,6 @@ DevToolsBlockReason GetDevToolsBlockReason(
   NOTREACHED();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 DevToolsBlockReason GetDevToolsBlockReason(Profile* profile,
                                            const web_app::WebApp* web_app) {
   if (web_app) {
@@ -367,7 +349,6 @@ DevToolsBlockReason GetDevToolsBlockReason(Profile* profile,
   }
   NOTREACHED();
 }
-#endif
 
 DevToolsBlockReason GetDevToolsBlockReason(Profile* profile, const GURL& url) {
   if (url.is_empty() || url.SchemeIs(url::kAboutScheme)) {
@@ -384,7 +365,6 @@ DevToolsBlockReason GetDevToolsBlockReason(Profile* profile, const GURL& url) {
   }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   if (url.SchemeIs(webapps::kIsolatedAppScheme) &&
       web_app::AreWebAppsEnabled(profile)) {
     base::expected<web_app::IsolatedWebAppUrlInfo, std::string> url_info =
@@ -400,7 +380,6 @@ DevToolsBlockReason GetDevToolsBlockReason(Profile* profile, const GURL& url) {
       }
     }
   }
-#endif
 
   if (std::optional<DevToolsBlockReason> reason =
           GetUrlPoliciesBlockReason(profile, url)) {
@@ -435,12 +414,10 @@ bool IsInspectionAllowed(Profile* profile,
          DevToolsBlockReason::kNotBlocked;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 bool IsInspectionAllowed(Profile* profile, const web_app::WebApp* web_app) {
   return GetDevToolsBlockReason(profile, web_app) ==
          DevToolsBlockReason::kNotBlocked;
 }
-#endif
 
 bool IsInspectionAllowed(Profile* profile, const GURL& url) {
   return GetDevToolsBlockReason(profile, url) ==
@@ -507,7 +484,6 @@ bool HasDevToolsPolicyCheck(Profile* profile) {
   }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* web_app_provider =
           web_app::AreWebAppsEnabled(profile)
               ? web_app::WebAppProvider::GetForWebApps(profile)
@@ -521,7 +497,6 @@ bool HasDevToolsPolicyCheck(Profile* profile) {
       }
     }
   }
-#endif
 
   return false;
 }

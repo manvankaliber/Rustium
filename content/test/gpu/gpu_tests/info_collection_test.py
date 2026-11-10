@@ -243,7 +243,7 @@ class InfoCollectionTest(gpu_integration_test.GpuIntegrationTest):
     # This is used to verify that the functions in host_information align with
     # the information we pull from the browser.
     tags = self.GetPlatformTags(self.browser)
-    if any(os_tag in tags for os_tag in ('android', 'chromeos', )):
+    if any(os_tag in tags for os_tag in ( )):
       self.skipTest('Test does not support remote platforms')
 
     if 'win' in tags:
@@ -283,7 +283,7 @@ class InfoCollectionTest(gpu_integration_test.GpuIntegrationTest):
 
   def _RunWebGPUAapmInfoTest(self, _: InfoCollectionTestArgs) -> None:
     os_name = self.browser.platform.GetOSName()
-    if os_name and os_name.lower() != 'android':
+    if os_name:
       self.skipTest('Test only applicable on Android')
     if self._finder_options.browser_type != 'android-chrome':
       self.skipTest(

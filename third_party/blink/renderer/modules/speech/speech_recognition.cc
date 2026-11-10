@@ -674,10 +674,6 @@ bool SpeechRecognition::HasPendingActivity() const {
 }
 
 void SpeechRecognition::PageVisibilityChanged() {
-#if BUILDFLAG(IS_ANDROID)
-  if (!GetPage()->IsPageVisible())
-    abort();
-#endif
 }
 
 void SpeechRecognition::OnPhrasesChanged() {

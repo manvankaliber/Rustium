@@ -12,7 +12,6 @@ export function getHtml(this: SettingsSyncPageElement) {
 <settings-subpage page-title="$i18n{syncPageTitle}"
     learn-more-url="$i18n{syncAndGoogleServicesLearnMoreURL}"
     route-path="${this.routePath}">
-<if expr="not is_chromeos">
   ${this.shouldShowSyncAccountControl_() ? html`
     <settings-sync-account-control embedded-in-subpage
         .syncStatus="${this.syncStatus_}"
@@ -22,7 +21,6 @@ export function getHtml(this: SettingsSyncPageElement) {
         .accessPoint="${ChromeSigninAccessPoint.SETTINGS}">
     </settings-sync-account-control>
   ` : ''}
-</if>
   <div class="cr-row first" ?hidden="${!this.syncDisabledByAdmin_}">
     <cr-icon id="disabled-by-admin-icon" icon="cr20:domain"></cr-icon>
     <div class="flex cr-padded-text">
@@ -151,7 +149,6 @@ export function getHtml(this: SettingsSyncPageElement) {
       .syncStatus="${this.syncStatus_}">
   </settings-personalization-options>
 
-<if expr="not is_chromeos">
   ${this.showSetupCancelDialog_ ? html`
     <cr-dialog id="setupCancelDialog" @close="${this.onSetupCancelDialogClose_}"
         ignore-popstate show-on-attach>
@@ -169,7 +166,6 @@ export function getHtml(this: SettingsSyncPageElement) {
       </div>
     </cr-dialog>
   ` : ''}
-</if>
 </settings-subpage>
 <!--_html_template_end_-->`;
 }

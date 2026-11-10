@@ -28,16 +28,12 @@
 #include "components/tabs/public/tab_interface.h"
 #include "third_party/abseil-cpp/absl/functional/overload.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/actor/actor_tab_strip_tracker_desktop.h"
-#endif
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 #include "chrome/browser/actor/ui/actor_ui_state_manager_prefs.h"
 #include "chrome/browser/actor/ui/actor_ui_tab_controller_interface.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"  // nogncheck
-#endif
 
 // TODO(crbug.com/519294360): Implement ActorAndroidUITracker. Since
 // TabStripModelObserver is desktop-only, the mobile equivalent on Android will
@@ -46,10 +42,8 @@
 
 namespace actor::ui {
 namespace {
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 // The maximum number of times the closing toast should be shown for a profile.
 constexpr int kToastShownMax = 2;
-#endif
 
 using tabs::TabInterface;
 using enum HandoffButtonState::ControlOwnership;
@@ -118,7 +112,6 @@ void LogUiChangeError(bool result) {
   }
 }
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 bool MaybeShowToastViaController(BrowserWindowInterface* bwi) {
   if (auto* controller = ToastController::From(bwi)) {
     return controller->MaybeShowToast(
@@ -126,7 +119,6 @@ bool MaybeShowToastViaController(BrowserWindowInterface* bwi) {
   }
   return false;
 }
-#endif
 
 }  // namespace
 
@@ -397,12 +389,9 @@ void ActorUiStateManager::OnUiEvent(SyncUiEvent event) {
             // Handled by UpdateCursorChip() on desktop.
           }},
       event);
-#if !BUILDFLAG(IS_ANDROID)
   UpdateCursorChip(event);
-#endif
 }
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 void ActorUiStateManager::MaybeShowToast(BrowserWindowInterface* bwi) {
   if (!base::FeatureList::IsEnabled(features::kGlicActorUi) ||
       !features::kGlicActorUiToast.Get()) {
@@ -433,7 +422,6 @@ void ActorUiStateManager::MaybeShowToast(BrowserWindowInterface* bwi) {
     pref_service->SetInteger(kToastShown, toast_shown_count + 1);
   }
 }
-#endif
 
 void ActorUiStateManager::NotifyActorTaskStateChange(TaskId task_id) {
   actor_task_state_change_callback_list_.Notify(task_id);
@@ -515,14 +503,12 @@ size_t ActorUiStateManager::GetInactiveTaskCount() {
   return stopped_task_info_.size();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ActorUiStateManager::LazyInitTabTracker() {
   if (!tab_strip_tracker_) {
     tab_strip_tracker_ = std::make_unique<actor::ActorTabStripTrackerDesktop>(
         actor_service_.get());
   }
 }
-#endif
 
 base::WeakPtr<ActorNavigationThrottle::Delegate>
 ActorUiStateManager::GetNavigationDelegate() {
@@ -593,7 +579,6 @@ void ActorUiStateManager::OnPendingTabDetached(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ActorUiStateManager::UpdateCursorChip(const SyncUiEvent& event) {
   if (!base::FeatureList::IsEnabled(features::kGlicActorUiMagicCursorChip)) {
     return;
@@ -654,6 +639,5 @@ void ActorUiStateManager::SetCursorChipForTask(TaskId task_id,
     }
   }
 }
-#endif
 
 }  // namespace actor::ui

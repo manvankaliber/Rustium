@@ -749,7 +749,6 @@ void GetSuggestionsSummaryList(int error_code,
         "summary", IDS_ERRORPAGES_SUGGESTION_CHECK_CONNECTION_SUMMARY));
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (IsSuggested(suggestions, SUGGEST_DNS_CONFIG) &&
       IsSuggested(suggestions, SUGGEST_FIREWALL_CONFIG) &&
       IsSuggested(suggestions, SUGGEST_PROXY_CONFIG)) {
@@ -778,32 +777,17 @@ void GetSuggestionsSummaryList(int error_code,
     DCHECK(!(suggestions & SUGGEST_DNS_CONFIG));
     DCHECK(!(suggestions & SUGGEST_SECURE_DNS_CONFIG));
   }
-#elif BUILDFLAG(IS_ANDROID)
-  if (IsSuggested(suggestions, SUGGEST_SECURE_DNS_CONFIG)) {
-    suggestions_summary_list.Append(SingleEntryDictionary(
-        "summary", IDS_ERRORPAGES_SUGGESTION_CHECK_SECURE_DNS_SUMMARY));
-  }
-#endif
 
   if (IsSuggested(suggestions, SUGGEST_OFFLINE_CHECKS)) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    suggestions_summary_list.Append(SingleEntryDictionary(
-        "summary", IDS_ERRORPAGES_SUGGESTION_TURN_OFF_AIRPLANE_SUMMARY));
-    suggestions_summary_list.Append(SingleEntryDictionary(
-        "summary", IDS_ERRORPAGES_SUGGESTION_TURN_ON_DATA_SUMMARY));
-    suggestions_summary_list.Append(SingleEntryDictionary(
-        "summary", IDS_ERRORPAGES_SUGGESTION_CHECKING_SIGNAL_SUMMARY));
-#else
     suggestions_summary_list.Append(SingleEntryDictionary(
         "summary", IDS_ERRORPAGES_SUGGESTION_CHECK_HARDWARE_SUMMARY));
     suggestions_summary_list.Append(SingleEntryDictionary(
         "summary", IDS_ERRORPAGES_SUGGESTION_CHECK_WIFI_SUMMARY));
-#endif
   }
 
 // If the current platform has a directly accesible network diagnostics tool and
 // the URL is valid add a suggestion.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   if (IsOnlySuggestion(suggestions, SUGGEST_DIAGNOSE_TOOL)) {
     int diagose_message_id =
         error_code == error_page::DNS_PROBE_FINISHED_NXDOMAIN
@@ -820,7 +804,7 @@ void GetSuggestionsSummaryList(int error_code,
   }
 #else
   DCHECK(!IsSuggested(suggestions, SUGGEST_DIAGNOSE_TOOL));
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
+#endif
 
   // Add list prefix header.
   error_strings.Set(
@@ -844,7 +828,6 @@ void AddSuggestionDetailDictionaryToList(base::ListValue& list,
   list.Append(std::move(suggestion_list_item));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Creates a dictionary with "header" and "body" entries and adds it to `list`.
 void AddSuggestionDetailDictionaryToList(base::ListValue& list,
                                          std::u16string header_message,
@@ -853,7 +836,6 @@ void AddSuggestionDetailDictionaryToList(base::ListValue& list,
                   .Set("header", header_message)
                   .Set("body", body_message));
 }
-#endif
 
 // Certain suggestions have supporting details which get displayed under
 // the "Details" button.
@@ -866,15 +848,12 @@ void AddSuggestionsDetails(int error_code,
         IDS_ERRORPAGES_SUGGESTION_CHECK_CONNECTION_BODY);
   }
 
-#if !BUILDFLAG(IS_IOS)
   if (suggestions & SUGGEST_SECURE_DNS_CONFIG) {
     AddSuggestionDetailDictionaryToList(
         suggestions_details, IDS_ERRORPAGES_SUGGESTION_SECURE_DNS_CONFIG_HEADER,
         IDS_ERRORPAGES_SUGGESTION_SECURE_DNS_CONFIG_BODY);
   }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (suggestions & SUGGEST_DNS_CONFIG) {
     AddSuggestionDetailDictionaryToList(
         suggestions_details, IDS_ERRORPAGES_SUGGESTION_DNS_CONFIG_HEADER,
@@ -919,7 +898,6 @@ void AddSuggestionsDetails(int error_code,
             IDS_ERRORPAGES_SUGGESTION_PROXY_CONFIG_HEADER),
         inner);
   }
-#endif
 
   if (suggestions & SUGGEST_CONTACT_ADMINISTRATOR &&
       LocalizedError::IsBlockedByAdministratorError(error_code)) {
@@ -1166,11 +1144,6 @@ LocalizedError::PageState LocalizedError::GetPageState(
     result.strings.Set("reloadButton", std::move(reload_button));
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS has its own diagnostics extension, which doesn't rely on a
-  // browser-initiated dialog.
-  can_show_network_diagnostics_dialog = true;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Add default suggestions and any relevant supporting details.
   GetSuggestionsSummaryList(error_code, result.strings, options.suggestions,
@@ -1179,29 +1152,6 @@ LocalizedError::PageState LocalizedError::GetPageState(
                             error_page_params);
   AddSuggestionsDetails(error_code, options.suggestions, suggestions_details);
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!is_post && !result.reload_button_shown && !is_incognito &&
-      failed_url.is_valid() && failed_url.SchemeIsHTTPOrHTTPS() &&
-      LocalizedError::IsOfflineError(error_domain, error_code)) {
-    if (!auto_fetch_feature_enabled) {
-      result.download_button_shown = true;
-      result.strings.SetByDottedPath(
-          "downloadButton.msg",
-          l10n_util::GetStringUTF16(IDS_ERRORPAGES_BUTTON_DOWNLOAD));
-      result.strings.SetByDottedPath(
-          "downloadButton.disabledMsg",
-          l10n_util::GetStringUTF16(IDS_ERRORPAGES_BUTTON_DOWNLOADING));
-    } else {
-      result.auto_fetch_allowed = true;
-      result.strings.SetByDottedPath(
-          "savePageLater.savePageMsg",
-          l10n_util::GetStringUTF16(IDS_ERRORPAGES_SAVE_PAGE_BUTTON));
-      result.strings.SetByDottedPath(
-          "savePageLater.cancelMsg",
-          l10n_util::GetStringUTF16(IDS_ERRORPAGES_CANCEL_SAVE_PAGE_BUTTON));
-    }
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   result.strings.Set("suggestionsSummaryList",
                      base::Value(std::move(suggestions_summary_list)));

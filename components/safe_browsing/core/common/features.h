@@ -197,20 +197,12 @@ BASE_DECLARE_FEATURE(kClientSideDetectionScamScore);
 BASE_DECLARE_FEATURE(kClientSideDetectionSecondForceRequestWithDelay);
 extern const base::FeatureParam<int> kCsdForceRequestDelayMs;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Inquire the server-side model instead of the on-device model for scam
 // detection on Desktop.
 BASE_DECLARE_FEATURE(kClientSideDetectionServerModelForScamDetectionDesktop);
 extern const base::FeatureParam<int>
     kClientSideDetectionServerModelMaxScansPerDayDesktop;
-#endif
 
-#if BUILDFLAG(IS_IOS)
-// Controls whether scam detection via the server-side model is enabled on iOS.
-BASE_DECLARE_FEATURE(kClientSideDetectionServerModelForScamDetectionIos);
-extern const base::FeatureParam<int>
-    kClientSideDetectionServerModelMaxScansPerDayIos;
-#endif
 
 // Controls whether screenshots are captured and sent to the server-side model
 // for scam detection.
@@ -220,19 +212,7 @@ BASE_DECLARE_FEATURE(kClientSideDetectionServerModelMultimodal);
 extern const base::FeatureParam<bool>
     kClientSideDetectionServerModelMultimodalExcludeLowEndDevices;
 
-#if BUILDFLAG(IS_ANDROID)
-// Dedicated long-lived feature flag to control future server model rollout and
-// set the model version. This flag should not be cleaned up after the server
-// model is launched. See go/mes-config-rollouts#roll-out-via-finch on the
-// recommended way to control rollouts.
-BASE_DECLARE_FEATURE(kClientSideDetectionServerModelRolloutAndroid);
-// Note for future finch config: Set an arbitrary integer value associated with
-// the model version (e.g. 1001). Update go/slams-mapping accordingly.
-extern const base::FeatureParam<int>
-    kClientSideDetectionServerModelRolloutVersionAndroid;
-#endif
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Dedicated long-lived feature flag to control future server model rollout and
 // set the model version for Desktop. This flag should not be cleaned up after
 // the server model is launched. See go/mes-config-rollouts#roll-out-via-finch
@@ -242,19 +222,7 @@ BASE_DECLARE_FEATURE(kClientSideDetectionServerModelRolloutDesktop);
 // the model version (e.g. 1001). Update go/slams-mapping accordingly.
 extern const base::FeatureParam<int>
     kClientSideDetectionServerModelRolloutVersionDesktop;
-#endif
 
-#if BUILDFLAG(IS_IOS)
-// Dedicated long-lived feature flag to control future server model rollout and
-// set the model version for iOS. This flag should not be cleaned up after
-// the server model is launched. See go/mes-config-rollouts#roll-out-via-finch
-// on the recommended way to control rollouts.
-BASE_DECLARE_FEATURE(kClientSideDetectionServerModelRolloutIos);
-// Note for future finch config: Set an arbitrary integer value associated with
-// the model version (e.g. 1001). Update go/slams-mapping accordingly.
-extern const base::FeatureParam<int>
-    kClientSideDetectionServerModelRolloutVersionIos;
-#endif
 
 BASE_DECLARE_FEATURE(kClientSideDetectionSkipErrorPage);
 
@@ -421,24 +389,6 @@ extern const base::FeatureParam<int> kHashPrefixRealTimeLookupsSampleRate;
 // how often the checks are triggered (they are still not in real time).
 BASE_DECLARE_FEATURE(kLocalListsUseSBv5);
 
-#if BUILDFLAG(IS_ANDROID)
-// Enables ClientDownloadRequests for APK downloads on Android.
-BASE_DECLARE_FEATURE(kMaliciousApkDownloadCheck);
-// Sampling percentage for ClientDownloadRequests for APK downloads on Android.
-// If this parameter is N, then a given (supported) download has a N% chance of
-// sending a ClientDownloadRequest. The value should be between 0 and 100, and
-// defaults to 100 (i.e. no downsampling).
-BASE_DECLARE_FEATURE_PARAM(int, kMaliciousApkDownloadCheckSamplePercentage);
-// Allows a fieldtrial config to override the APK download check service URL. If
-// empty (default), the default hardcoded URL will be used.
-extern const base::FeatureParam<std::string>
-    kMaliciousApkDownloadCheckServiceUrlOverride;
-// If true, then ClientDownloadRequests for APK downloads on Android are
-// telemetry-only, and only for Enhanced Protection users. If false (default),
-// then ClientDownloadRequests for APK downloads on Android are active for all
-// Safe Browsing-enabled users, and may show warnings.
-BASE_DECLARE_FEATURE_PARAM(bool, kMaliciousApkDownloadCheckTelemetryOnly);
-#endif
 
 // When enabled, performs a one-time migration that selects the JavaScript
 // optimizer content setting that automatically blocks the browser from using

@@ -59,11 +59,7 @@
 #include "mojo/public/cpp/bindings/receiver.h"
 #include "third_party/abseil-cpp/absl/functional/overload.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_commands.h"  // nogncheck
-#else
-#include "base/android/application_status_listener.h"
-#endif
 
 namespace glic {
 
@@ -636,19 +632,7 @@ class ExperimentalTriggeringUpdatesHandler
   bool CanContinueWithoutBrowserWindow(
       const ExperimentalTriggeringRequest& request,
       const GlicKeyedService& glic_service) const {
-#if BUILDFLAG(IS_ANDROID)
-    if (!std::holds_alternative<ContinueActuationRequest>(request.payload) ||
-        !request.task_metadata.has_value() ||
-        request.task_metadata->conversation_id.empty()) {
-      return false;
-    }
-    const GlicInstance* instance =
-        glic_service.instance_coordinator().GetInstanceForConversationId(
-            request.task_metadata->conversation_id);
-    return instance && instance->HasLiveSurface();
-#else
     return false;
-#endif
   }
 
  private:
@@ -871,17 +855,6 @@ class ExperimentalTriggeringUpdatesHandler
                        weak_ptr_factory_.GetWeakPtr(), invoke_id);
 
     GlicInvokeWithAutoSubmitOptions auto_submit_options;
-#if BUILDFLAG(IS_ANDROID)
-    // TODO(b/568925496): Follow up to remove platform ifdefs across
-    // experimental triggering.
-    // The background check runs only once when Glic is invoked. Handling Chrome
-    // moving from foreground to background mid-task would require observing
-    // ApplicationStatusListener and dynamically updating offscreen rendering.
-    const bool is_chrome_in_background = coordinator_->IsChromeInBackground();
-    if ((prepared_tab || is_continuation) && is_chrome_in_background) {
-      auto_submit_options.show_panel = false;
-    }
-#endif
 
     auto weak_this = weak_ptr_factory_.GetWeakPtr();
     auto instance = glic_service->InvokeWithAutoSubmit(
@@ -1079,14 +1052,12 @@ class ExperimentalTriggeringUpdatesHandler
           !CanContinueWithoutBrowserWindow(request, *glic_service)) {
         if (base::FeatureList::IsEnabled(
                 features::kGlicExperimentalTriggeringOpenWindowIfNone)) {
-#if !BUILDFLAG(IS_ANDROID)
           // TODO(ritikagup): Align window/tab creation lifecycle across
           // platforms. Desktop initializes the target surface synchronously
           // during request processing, whereas Android triggers an async
           // foreground service that sets up the background tab later in
           // different methods.
           browser_window = chrome::OpenEmptyWindow(coordinator_->profile_);
-#endif
         }
         if (!browser_window) {
           result_logger.set_result(
@@ -1579,17 +1550,6 @@ class ExperimentalTriggeringUpdatesHandler
                                        sequence_generator_.GetNext());
     }
 
-#if BUILDFLAG(IS_ANDROID)
-    if (coordinator_->IsChromeInBackground()) {
-      result_logger.set_result(GlicExperimentalTriggeringIncomingMessageResult::
-                                   kAndroidOptInUnsupported);
-      // Chrome isn't in the foreground, so the opt-in UI can't be shown.
-      // Reply with a device opt-in result so the server stops waiting.
-      return CreateDeviceOptInResponse(context_id_, DeviceOptInResult::kFailed,
-                                       task_metadata,
-                                       sequence_generator_.GetNext());
-    }
-#endif
 
     GlicKeyedService* glic_service =
         GlicKeyedServiceFactory::GetGlicKeyedService(coordinator_->profile_,
@@ -1848,11 +1808,7 @@ tabs::TabInterface* GlicExperimentalTriggeringCoordinator::GetActiveTab()
 }
 
 bool GlicExperimentalTriggeringCoordinator::IsChromeInBackground() const {
-#if BUILDFLAG(IS_ANDROID)
-  return !base::android::ApplicationStatusListener::HasVisibleActivities();
-#else
   return false;
-#endif
 }
 
 std::optional<ExperimentalTriggeringResponse>

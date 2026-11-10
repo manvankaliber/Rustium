@@ -160,31 +160,7 @@ inline constexpr char kEnableCrashReporterForTesting[] =
     "enable-crash-reporter-for-testing";
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-// For testing, do not initialize child service process but also do not exit
-// (until requested by browser).
-inline constexpr char kAndroidSkipChildServiceInitForTesting[] =
-    "android-skip-child-service-init-for-testing";
 
-// Default country code to be used for search engine localization.
-inline constexpr char kDefaultCountryCodeAtInstall[] = "default-country-code";
-
-// Adds additional thread idle time information into the trace event output.
-inline constexpr char kEnableIdleTracing[] = "enable-idle-tracing";
-
-// Forces the DeviceInfo.isDesktop() check to return true. Can be used to enable
-// desktop-only features on other form factors.
-inline constexpr char kForceDesktopAndroid[] = "force-desktop-android";
-#endif
-
-#if BUILDFLAG(IS_CHROMEOS)
-// Override the default scheduling boosting value for urgent tasks.
-// This can be adjusted if a specific chromeos device shows better perf/power
-// ratio (e.g. by running video conference tests).
-// Currently, this values directs to linux scheduler's utilization min clamp.
-// Range is 0(no biased load) ~ 100(mamximum load value).
-inline constexpr char kSchedulerBoostUrgent[] = "scheduler-boost-urgent";
-#endif
 
 }  // namespace switches
 

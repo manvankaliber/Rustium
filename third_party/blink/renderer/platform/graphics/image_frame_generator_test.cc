@@ -206,13 +206,6 @@ TEST_F(ImageFrameGeneratorTest, GetSupportedSizes) {
 }
 
 TEST_F(ImageFrameGeneratorTest, incompleteDecode) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  base::test::ScopedFeatureList feature_list;
-  // Since PartialLowEndModeOnMidRangeDevices is enabled, image decoders
-  // are destroyed because of the incomplete decode for saving memory.
-  feature_list.InitAndDisableFeature(
-      base::features::kPartialLowEndModeOnMidRangeDevices);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   SetFrameStatus(ImageFrame::kFramePartial);
 
@@ -276,13 +269,6 @@ TEST_F(ImageFrameGeneratorTest,
 }
 
 TEST_F(ImageFrameGeneratorTest, incompleteDecodeBecomesComplete) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  base::test::ScopedFeatureList feature_list;
-  // Since PartialLowEndModeOnMidRangeDevices is enabled, image decoders
-  // are destroyed because of the incomplete decode for saving memory.
-  feature_list.InitAndDisableFeature(
-      base::features::kPartialLowEndModeOnMidRangeDevices);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   SetFrameStatus(ImageFrame::kFramePartial);
 
@@ -316,14 +302,14 @@ static void DecodeThreadMain(ImageFrameGenerator* generator,
                             cc::PaintImage::kDefaultGeneratorClientId);
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // TODO(crbug.com/948641)
 #define MAYBE_incompleteDecodeBecomesCompleteMultiThreaded \
   DISABLED_incompleteDecodeBecomesCompleteMultiThreaded
 #else
 #define MAYBE_incompleteDecodeBecomesCompleteMultiThreaded \
   incompleteDecodeBecomesCompleteMultiThreaded
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 TEST_F(ImageFrameGeneratorTest,
        MAYBE_incompleteDecodeBecomesCompleteMultiThreaded) {
@@ -362,15 +348,6 @@ TEST_F(ImageFrameGeneratorTest,
 }
 
 TEST_F(ImageFrameGeneratorTest, frameHasAlpha) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  base::test::ScopedFeatureList feature_list;
-  // Since PartialLowEndModeOnMidRangeDevices is enabled, image decoders
-  // are not cached because it makes ShouldDecodeToExternalMemory()
-  // return true. The value will be provided for ImageDecoderWrapper::
-  // ShouldRemoveDecoder() and ShouldRemoveDecoder() will return true.
-  feature_list.InitAndDisableFeature(
-      base::features::kPartialLowEndModeOnMidRangeDevices);
-#endif
 
   SetFrameStatus(ImageFrame::kFramePartial);
 

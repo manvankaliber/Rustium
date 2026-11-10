@@ -35,7 +35,7 @@
 #include "components/feed/core/v2/feed_stream_surface.h"
 #include "components/feed/core/v2/feedstore_util.h"
 #include "components/feed/core/v2/image_fetcher.h"
-#include "components/feed/core/v2/ios_shared_prefs.h"
+#include "components/feed/core/v2/shared_prefs.h"
 #include "components/feed/core/v2/metrics_reporter.h"
 #include "components/feed/core/v2/prefs.h"
 #include "components/feed/core/v2/protocol_translator.h"
@@ -161,19 +161,6 @@ FeedStream::FeedStream(RefreshTaskScheduler* refresh_task_scheduler,
       ::prefs::kSigninAllowed, profile_prefs,
       base::BindRepeating(&FeedStream::ClearAll, GetWeakPtr()));
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!chrome_info_.user_feedback_allowed_pref_key.empty()) {
-    pref_change_registrar_.Init(profile_prefs);
-    pref_change_registrar_.Add(
-        chrome_info_.user_feedback_allowed_pref_key,
-        base::BindRepeating(&FeedStream::OnUserFeedbackPolicyChanged,
-                            GetWeakPtr()));
-    is_user_feedback_disabled_ =
-        !profile_prefs->GetBoolean(chrome_info_.user_feedback_allowed_pref_key);
-  } else {
-    is_user_feedback_disabled_ = false;
-  }
-#endif
 
   // Inserting this task first ensures that |store_| is initialized before
   // it is used.
@@ -551,11 +538,7 @@ bool FeedStream::IsEnabledAndVisible() {
 }
 
 bool FeedStream::IsFeedEnabledByDse() {
-#if BUILDFLAG(IS_ANDROID)
-  return snippets_enabled_by_dse_.GetValue();
-#else
   return true;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void FeedStream::EnabledPreferencesChanged() {

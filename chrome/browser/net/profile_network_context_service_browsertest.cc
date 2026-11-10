@@ -107,9 +107,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif
 
 constexpr char kHttpCacheFinchExperimentGroups[] =
     "profile_network_context_service.http_cache_finch_experiment_groups";
@@ -682,11 +679,7 @@ IN_PROC_BROWSER_TEST_F(
   // PRE_ run and will NOT reset its cache (logging `false`).
   // This results in an additional `false` sample on ChromeOS.
   const int count_for_chrome_os_signin_profile =
-#if BUILDFLAG(IS_CHROMEOS)
-      1;
-#else
       0;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Default partition should have initialized on browser startup.
   // Wait for it to record its cache initialization status.
@@ -767,12 +760,10 @@ class AmbientAuthenticationTestWithPolicy : public policy::PolicyTest {
                   policy_value));
 // ChromeOS guest sessions don't have the capability to
 // do ambient authentications.
-#if !BUILDFLAG(IS_CHROMEOS)
     EXPECT_EQ(
         AmbientAuthenticationTestHelper::IsAmbientAuthAllowedForProfile(
             CreateGuestBrowser()->GetProfile()),
         AmbientAuthenticationTestHelper::IsGuestAllowedInPolicy(policy_value));
-#endif
   }
 
   void EnablePolicyWithValue(net::AmbientAuthAllowedProfileTypes value) {
@@ -1145,7 +1136,6 @@ IN_PROC_BROWSER_TEST_F(CacheEncryptionEnabledByPolicyTest,
       enterprise_connectors::kCacheEncryptionEnabledPref));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(CacheEncryptionEnabledByPolicyTest,
                        InitializesAndSetsKeyOnFirstUse) {
   // This test creates a new profile to ensure that the cache initialization
@@ -1187,7 +1177,6 @@ IN_PROC_BROWSER_TEST_F(CacheEncryptionEnabledByPolicyTest,
                 GetCacheEncryptionPolicyValue()),
             1);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(CacheEncryptionDisabledByPolicyTest,
                        BackendInitializesWithPolicyDisabled) {

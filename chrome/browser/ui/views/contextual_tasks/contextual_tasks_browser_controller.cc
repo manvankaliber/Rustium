@@ -15,7 +15,6 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_utils.h"
 #include "chrome/browser/contextual_tasks/entry_point_eligibility_manager.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
 #include "chrome/browser/ui/views/contextual_tasks/contextual_tasks_close_button_controller.h"
@@ -26,7 +25,6 @@
 #include "components/feature_engagement/public/feature_constants.h"
 #include "components/user_education/common/user_education_data.h"
 #include "components/user_education/common/user_education_storage_service.h"
-#endif
 
 namespace contextual_tasks {
 
@@ -53,7 +51,6 @@ ContextualTasksBrowserController::ContextualTasksBrowserController(
           ContextualTasksPanelHost::Create(browser_window_interface_),
           active_task_context_provider_.get(), eligibility_manager_.get());
 
-#if !BUILDFLAG(IS_ANDROID)
   if (kShowEntryPoint.Get() == EntryPointOption::kToolbarEphemeralBranded ||
       IsContextualTasksPinningV2Enabled() ||
       IsContextualTasksPinnedButtonActiveIndicatorEnabled() ||
@@ -84,17 +81,14 @@ ContextualTasksBrowserController::ContextualTasksBrowserController(
           base::BindRepeating(
               &ContextualTasksBrowserController::OnEntryPointEligibilityChanged,
               base::Unretained(this)));
-#endif
 }
 
 void ContextualTasksBrowserController::Shutdown() {
-#if !BUILDFLAG(IS_ANDROID)
   actions_visibility_subscription_ = base::CallbackListSubscription();
   pinned_toolbar_observation_.Reset();
 
   close_button_controller_.reset();
   ephemeral_button_controller_.reset();
-#endif
   if (side_panel_coordinator_) {
     // Tell the side panel coordinator to disconnect its observers safely.
     side_panel_coordinator_.reset();
@@ -109,7 +103,6 @@ ContextualTasksBrowserController* ContextualTasksBrowserController::From(
   return Get(browser_window_interface->GetUnownedUserDataHost());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextualTasksBrowserController::OnActionsChanged() {
   if (!browser_window_interface_) {
     return;
@@ -196,6 +189,5 @@ void ContextualTasksBrowserController::MaybeShowPinnedIconChangedPromo() {
     }
   }
 }
-#endif
 
 }  // namespace contextual_tasks

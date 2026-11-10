@@ -30,27 +30,18 @@
 #include "build/build_config.h"
 #include "components/tracing/common/tracing_switches.h"
 #include "services/tracing/public/cpp/perfetto/perfetto_config.h"
-#if !BUILDFLAG(IS_IOS)
 #include "services/tracing/public/cpp/perfetto/trace_packet_tokenizer.h"
-#endif
 #include "services/tracing/public/cpp/trace_startup_config.h"
 #include "third_party/perfetto/include/perfetto/ext/tracing/core/trace_packet.h"
 #include "third_party/perfetto/include/perfetto/tracing/core/trace_config.h"
 #include "third_party/perfetto/include/perfetto/tracing/tracing.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "base/apple/foundation_util.h"
-#endif
 
 namespace tracing {
 namespace {
 
 StartupTracingController::TempFilePolicy g_temp_file_policy =
-#if BUILDFLAG(IS_IOS)
-    StartupTracingController::TempFilePolicy::kWriteDirectly;
-#else
     StartupTracingController::TempFilePolicy::kUseTemporaryFile;
-#endif
 
 std::string& GetGlobalDefaultBasename() {
   static base::NoDestructor<std::string> basename;
@@ -183,7 +174,6 @@ class StartupTracingController::BackgroundTracer {
       return;
     }
 
-#if !BUILDFLAG(IS_IOS)
     // For JSON, we need to extract raw data from the packet.
     if (!trace_packet_tokenizer_) {
       trace_packet_tokenizer_ =
@@ -198,9 +188,6 @@ class StartupTracingController::BackgroundTracer {
             reinterpret_cast<const uint8_t*>(slice.start), slice.size)));
       }
     }
-#else
-    NOTREACHED() << "JSON output is not supported on iOS";
-#endif
   }
 
   // Open |file_| for writing and set |written_to_file_| accordingly.
@@ -280,9 +267,7 @@ class StartupTracingController::BackgroundTracer {
 
   // Tokenizer to extract the json data from the data received from the tracing
   // service.
-#if !BUILDFLAG(IS_IOS)
   std::unique_ptr<tracing::TracePacketTokenizer> trace_packet_tokenizer_;
-#endif
 
   base::OnceClosure on_tracing_finished_;
 
@@ -387,42 +372,19 @@ class TracingSessionCoordinator {
 
 base::FilePath StartupTracingController::BasenameToPath(
     std::string_view basename) const {
-#if BUILDFLAG(IS_ANDROID)
-  if (android_path_generator_callback_) {
-    return android_path_generator_callback_.Run(basename);
-  }
-#endif
-#if BUILDFLAG(IS_IOS)
-  return base::apple::GetUserDocumentPath().AppendASCII(basename);
-#else
   // Default to saving the startup trace into the current dir.
   return base::FilePath().AppendASCII(basename);
-#endif
 }
 
 base::FilePath StartupTracingController::RebasePathIfNeeded(
     const base::FilePath& path) const {
-#if BUILDFLAG(IS_IOS)
-  // Relative paths specified at the command line are rebased to the app's user
-  // documents directory on iOS to avoid issues with file system permissions.
-  if (!path.empty() && !path.IsAbsolute()) {
-    return BasenameToPath(path.AsUTF8Unsafe());
-  }
-#endif
   // Should we do something similar on Android?
   return path;
 }
 
 StartupTracingController::StartupTracingController(
-#if BUILDFLAG(IS_ANDROID)
-    AndroidPathGeneratorCallback android_path_generator_callback,
-#endif
     scoped_refptr<base::SingleThreadTaskRunner> io_task_runner)
     :
-#if BUILDFLAG(IS_ANDROID)
-      android_path_generator_callback_(
-          std::move(android_path_generator_callback)),
-#endif
       io_task_runner_(std::move(io_task_runner)) {
 }
 

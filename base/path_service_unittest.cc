@@ -31,27 +31,11 @@
 #include "base/apple/bundle_locations.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/path_utils.h"
-#endif
 
 namespace base {
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-// Defined in
-// //base/test/android/javatests/src/org/chromium/base/test/util/UrlUtils.java.
-// The external storage directory depends on the Android user that the test
-// runs as, e.g. /storage/emulated/0 for user 0, or /storage/emulated/10 for a
-// secondary user on devices with headless system user mode.
-std::string GetExpectedChromiumTestsRoot() {
-  FilePath external_storage_dir;
-  CHECK(android::GetExternalStorageDirectory(&external_storage_dir));
-  return external_storage_dir.Append(FILE_PATH_LITERAL("chromium_tests_root"))
-      .value();
-}
-#endif
 
 // Returns true if PathService::Get returns true and sets the path parameter
 // to non-empty for the given PathService key enumeration value.
@@ -63,12 +47,6 @@ bool ReturnsValidPath(int key) {
   // |result| is true and !path.empty() is the best we can do.
   bool check_path_exists = true;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Returns path within the .apk. e.g.: .../base.apk!/lib/x86_64
-  if (key == DIR_MODULE) {
-    check_path_exists = false;
-  }
-#endif
 #if BUILDFLAG(IS_POSIX)
   // If chromium has never been started on this account, the cache path may not
   // exist.
@@ -76,7 +54,7 @@ bool ReturnsValidPath(int key) {
     check_path_exists = false;
   }
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // On the linux try-bots: a path is returned (e.g. /home/chrome-bot/Desktop),
   // but it doesn't exist.
   if (key == DIR_USER_DESKTOP) {
@@ -141,22 +119,7 @@ typedef PlatformTest PathServiceTest;
 // failure for the value(s) on that platform in this test.
 TEST_F(PathServiceTest, Get) {
   // Contains keys that are defined but not supported on the platform.
-#if BUILDFLAG(IS_ANDROID)
-  // The following keys are not intended to be implemented on Android (see
-  // crbug.com/1257402). Current implementation is described before each key.
-  // TODO(crbug.com/40796336): Remove the definition of these keys on Android
-  // or at least fix the behavior of DIR_HOME.
-  constexpr std::array kUnsupportedKeys = {
-      // Though DIR_HOME is not intended to be supported, PathProviderPosix
-      // handles it and returns true. Thus, it is NOT included in the array.
-      /* DIR_HOME, */
-      // PathProviderAndroid and PathProviderPosix both return false.
-      FILE_MODULE,
-      // PathProviderPosix handles it but fails at some point.
-      DIR_USER_DESKTOP};
-#else
   constexpr std::array<BasePathKey, 0> kUnsupportedKeys = {};
-#endif  // BUILDFLAG(IS_ANDROID)
   for (int key = PATH_START + 1; key < PATH_END; ++key) {
     EXPECT_PRED1(std::ranges::contains(kUnsupportedKeys, key)
                      ? &ReturnsInvalidPath
@@ -174,14 +137,6 @@ TEST_F(PathServiceTest, Get) {
   }
 #elif BUILDFLAG(IS_MAC)
   for (int key = PATH_MAC_START + 1; key < PATH_MAC_END; ++key) {
-    EXPECT_PRED1(ReturnsValidPath, key);
-  }
-#elif BUILDFLAG(IS_IOS)
-  for (int key = PATH_IOS_START + 1; key < PATH_IOS_END; ++key) {
-    EXPECT_PRED1(ReturnsValidPath, key);
-  }
-#elif BUILDFLAG(IS_ANDROID)
-  for (int key = PATH_ANDROID_START + 1; key < PATH_ANDROID_END; ++key) {
     EXPECT_PRED1(ReturnsValidPath, key);
   }
 #elif BUILDFLAG(IS_POSIX)
@@ -237,13 +192,11 @@ TEST_F(PathServiceTest, Override) {
       MakeAbsoluteFilePath(temp_dir.GetPath()).AppendASCII("non_existent"));
   EXPECT_TRUE(non_existent.IsAbsolute());
   EXPECT_FALSE(PathExists(non_existent));
-#if !BUILDFLAG(IS_ANDROID)
   // This fails because MakeAbsoluteFilePath fails for non-existent files.
   // Earlier versions of Bionic libc don't fail for non-existent files, so
   // skip this check on Android.
   EXPECT_FALSE(PathService::OverrideAndCreateIfNeeded(
       my_special_key, non_existent, false, false));
-#endif  // !BUILDFLAG(IS_ANDROID)
   // This works because indicating that |non_existent| is absolute skips the
   // internal MakeAbsoluteFilePath call.
   EXPECT_TRUE(PathService::OverrideAndCreateIfNeeded(
@@ -363,16 +316,7 @@ TEST_F(PathServiceTest, GetSystemTemp) {
 TEST_F(PathServiceTest, DIR_ASSETS) {
   FilePath path;
   ASSERT_TRUE(PathService::Get(DIR_ASSETS, &path));
-#if BUILDFLAG(IS_ANDROID)
-  // This key is overridden in //base/test/test_support_android.cc.
-  EXPECT_EQ(path.value(), GetExpectedChromiumTestsRoot());
-#elif BUILDFLAG(IS_IOS_MACCATALYST)
-  EXPECT_TRUE(base::apple::FrameworkBundlePath().IsParent(path));
-#elif BUILDFLAG(IS_IOS)
-  EXPECT_EQ(path, base::apple::FrameworkBundlePath());
-#else
   EXPECT_EQ(path, PathService::CheckedGet(DIR_MODULE));
-#endif
 }
 
 // DIR_OUT_TEST_DATA_ROOT is DIR_MODULE except on Fuchsia where it is the
@@ -381,17 +325,9 @@ TEST_F(PathServiceTest, DIR_ASSETS) {
 TEST_F(PathServiceTest, DIR_OUT_TEST_DATA_ROOT) {
   FilePath path;
   ASSERT_TRUE(PathService::Get(DIR_OUT_TEST_DATA_ROOT, &path));
-#if BUILDFLAG(IS_ANDROID)
-  // This key is overridden in //base/test/test_support_android.cc.
-  EXPECT_EQ(path.value(), GetExpectedChromiumTestsRoot());
-#elif BUILDFLAG(IS_IOS)
-  // On iOS, build output files are moved to the resources directory.
-  EXPECT_EQ(path, base::apple::FrameworkBundlePath());
-#else
   // On other platforms all build output is in the same directory,
   // so DIR_OUT_TEST_DATA_ROOT should match DIR_MODULE.
   EXPECT_EQ(path, PathService::CheckedGet(DIR_MODULE));
-#endif
 }
 
 // Test that DIR_GEN_TEST_DATA_ROOT contains dummy_generated.txt which is
@@ -403,9 +339,7 @@ TEST_F(PathServiceTest, DIR_GEN_TEST_DATA_ROOT) {
       path.Append(FILE_PATH_LITERAL("base/generated_file_for_test.txt"))));
 }
 
-#if ((BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && \
-      !BUILDFLAG(IS_ANDROID)) ||                     \
-     BUILDFLAG(IS_WIN))
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN)
 
 // Test that CR_SOURCE_ROOT is being used when set.
 // By default on those platforms, this directory is set to two directories up
@@ -455,20 +389,5 @@ TEST_F(PathServiceTest, SetTestDataRootAsRelativePath) {
 
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-
-// These keys are overridden in //base/test/test_support_android.cc.
-TEST_F(PathServiceTest, AndroidTestOverrides) {
-  EXPECT_EQ(PathService::CheckedGet(DIR_ANDROID_APP_DATA).value(),
-            GetExpectedChromiumTestsRoot());
-  EXPECT_EQ(PathService::CheckedGet(DIR_ASSETS).value(),
-            GetExpectedChromiumTestsRoot());
-  EXPECT_EQ(PathService::CheckedGet(DIR_SRC_TEST_DATA_ROOT).value(),
-            GetExpectedChromiumTestsRoot());
-  EXPECT_EQ(PathService::CheckedGet(DIR_OUT_TEST_DATA_ROOT).value(),
-            GetExpectedChromiumTestsRoot());
-}
-
-#endif
 
 }  // namespace base

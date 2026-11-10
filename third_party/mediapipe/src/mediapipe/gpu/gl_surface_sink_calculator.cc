@@ -33,9 +33,6 @@
 
 #if HAS_EGL
 
-#ifdef __ANDROID__
-#include "EGL/eglext.h"
-#endif  // __ANDROID__
 
 namespace mediapipe {
 namespace api2 {

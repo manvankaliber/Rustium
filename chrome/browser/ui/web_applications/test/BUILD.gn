@@ -79,39 +79,3 @@ source_set("test_support_ui") {
     "//url",
   ]
 }
-
-if (is_chromeos) {
-  source_set("interactive_ui_tests") {
-    testonly = true
-
-    sources = [ "system_web_app_interactive_uitest.cc" ]
-
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-
-    deps = [
-      ":test_support_ui",
-      "//ash",
-      "//base",
-      "//chrome/browser/ash/app_list/app_service",
-      "//chrome/browser/ash/login:test_support",
-      "//chrome/browser/ash/login/test:test_support",
-      "//chrome/browser/ash/profiles",
-      "//chrome/browser/ash/system_web_apps",
-      "//chrome/browser/ash/system_web_apps/test_support",
-      "//chrome/browser/ash/system_web_apps/test_support:test_support_ui",
-      "//chrome/browser/renderer_context_menu:test_support",
-      "//chrome/browser/ui:browser_tabstrip",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:settings_window_manager_chromeos",
-      "//chrome/browser/ui/ash/login",
-      "//chrome/browser/ui/ash/multi_user",
-      "//chrome/browser/ui/ash/system_web_apps",
-      "//chrome/browser/ui/location_bar",
-      "//chrome/browser/ui/web_applications:test_support",
-      "//chrome/browser/ui/webui:chrome_web_ui_controller_factory",
-      "//chrome/test/base:interactive_test_utils",
-      "//chrome/test/base:ui_test_utils",
-      "//testing/gtest",
-    ]
-  }
-}

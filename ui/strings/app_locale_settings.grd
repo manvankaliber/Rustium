@@ -22,13 +22,10 @@
     <output filename="app_locale_settings_en-GB.pak" type="data_package" lang="en-GB" />
     <output filename="app_locale_settings_en-US.pak" type="data_package" lang="en" />
     <output filename="app_locale_settings_es.pak" type="data_package" lang="es" />
-    <if expr="is_ios">
-      <!-- iOS uses es-MX for es-419 -->
-      <output filename="app_locale_settings_es-MX.pak" type="data_package" lang="es-419" />
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="app_locale_settings_es-419.pak" type="data_package" lang="es-419" />
-    </if>
+
     <output filename="app_locale_settings_et.pak" type="data_package" lang="et" />
     <output filename="app_locale_settings_eu.pak" type="data_package" lang="eu" />
     <output filename="app_locale_settings_fa.pak" type="data_package" lang="fa" />
@@ -69,13 +66,10 @@
     <output filename="app_locale_settings_nb.pak" type="data_package" lang="no" />
     <output filename="app_locale_settings_pa.pak" type="data_package" lang="pa" />
     <output filename="app_locale_settings_pl.pak" type="data_package" lang="pl" />
-    <if expr="is_ios">
-      <!-- iOS uses pt for pt-BR -->
-      <output filename="app_locale_settings_pt.pak" type="data_package" lang="pt-BR" />
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="app_locale_settings_pt-BR.pak" type="data_package" lang="pt-BR" />
-    </if>
+
     <output filename="app_locale_settings_pt-PT.pak" type="data_package" lang="pt-PT" />
     <output filename="app_locale_settings_or.pak" type="data_package" lang="or" />
     <output filename="app_locale_settings_ro.pak" type="data_package" lang="ro" />
@@ -207,18 +201,8 @@
           75%
         </message>
       </if>
-      <if expr="is_ios">
-        <!-- The font used in Web UI (e.g. History). -->
-        <message name="IDS_WEB_FONT_FAMILY" use_name_for_id="true">
-          'Roboto-Regular', sans-serif
-        </message>
 
-        <!-- The relative font size in % used in Web UI (e.g. History).  -->
-        <message name="IDS_WEB_FONT_SIZE" use_name_for_id="true">
-          75%
-        </message>
-      </if>
-      <if expr="is_linux or is_android or is_bsd">
+      <if expr="is_linux or is_bsd">
         <!-- The font used in Web UI (e.g. History). Note that these are only
              backups. We try to use the system font if possible. -->
         <message name="IDS_WEB_FONT_FAMILY" use_name_for_id="true">
@@ -231,22 +215,7 @@
         </message>
       </if>
       <!-- For ChromeOS -->
-      <if expr="is_chromeos">
-        <!-- The font name like: 'Font Name, 12px' -->
-        <message name="IDS_UI_FONT_FAMILY_CROS" use_name_for_id="true">
-          Roboto, 12px
-        </message>
 
-        <!-- The font used in Web UI (e.g. History). -->
-        <message name="IDS_WEB_FONT_FAMILY" use_name_for_id="true">
-          Roboto, sans-serif
-        </message>
-
-        <!-- The relative font size in % used in Web UI (e.g. History).  -->
-        <message name="IDS_WEB_FONT_SIZE" use_name_for_id="true">
-          75%
-        </message>
-      </if>
     </messages>
   </release>
 </grit>

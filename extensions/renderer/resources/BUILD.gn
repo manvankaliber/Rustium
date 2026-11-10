@@ -16,13 +16,13 @@ grit("extensions_renderer_resources") {
     "//ui/webui/resources/images/select.png",
     "extension.css",
   ]
-  if (!is_android) {
-    inputs += [
-      "//ui/webui/resources/images/2x/check.png",
-      "//ui/webui/resources/images/2x/disabled_select.png",
-      "//ui/webui/resources/images/2x/select.png",
-    ]
-  }
+
+  inputs += [
+    "//ui/webui/resources/images/2x/check.png",
+    "//ui/webui/resources/images/2x/disabled_select.png",
+    "//ui/webui/resources/images/2x/select.png",
+  ]
+
   outputs = [
     "grit/extensions_renderer_resources.h",
     "extensions_renderer_resources.pak",
@@ -89,14 +89,6 @@ generate_grd("build_grdp") {
     "utils.js",
     "web_request_event.js",
   ]
-
-  if (is_chromeos) {
-    input_files += [
-      "guest_view/app_view/app_view_deny.js",
-      "guest_view/app_view/app_view_element.js",
-      "guest_view/app_view/app_view.js",
-    ]
-  }
 }
 
 generate_grd("build_mojo_grdp") {

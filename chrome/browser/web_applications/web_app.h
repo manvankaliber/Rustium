@@ -33,7 +33,7 @@
 #include "chrome/browser/web_applications/proto/web_app_os_integration_state.pb.h"
 #include "chrome/browser/web_applications/scope_extension_info.h"
 #include "chrome/browser/web_applications/user_display_mode.h"
-#include "chrome/browser/web_applications/web_app_chromeos_data.h"
+#include "chrome/browser/web_applications/legacy_platform_app_data.h"
 #include "chrome/browser/web_applications/web_app_constants.h"
 #include "chrome/browser/web_applications/web_app_install_info.h"
 #include "chrome/browser/web_applications/web_app_management_type.h"
@@ -48,9 +48,6 @@
 #include "third_party/skia/include/core/SkColor.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/experiences/system_web_apps/types/system_web_app_data.h"
-#endif
 
 namespace webapps {
 enum class WebappInstallSource;
@@ -151,7 +148,7 @@ class WebApp {
     return syncer::StringOrdinal(sync_proto().user_launch_ordinal());
   }
 
-  const std::optional<WebAppChromeOsData>& chromeos_data() const {
+  const std::optional<LegacyPlatformAppData>& chromeos_data() const {
     return chromeos_data_;
   }
 
@@ -161,9 +158,6 @@ class WebApp {
     ClientData(const ClientData& client_data);
     base::Value AsDebugValue() const;
 
-#if BUILDFLAG(IS_CHROMEOS)
-    std::optional<ash::SystemWebAppData> system_web_app_data;
-#endif
   };
 
   const ClientData& client_data() const { return client_data_; }
@@ -492,7 +486,7 @@ class WebApp {
   void SetUserDisplayMode(mojom::UserDisplayMode user_display_mode);
   void SetDisplayModeOverride(
       std::vector<DisplayOverride> display_mode_override);
-  void SetWebAppChromeOsData(std::optional<WebAppChromeOsData> chromeos_data);
+  void SetLegacyPlatformAppData(std::optional<LegacyPlatformAppData> chromeos_data);
   void SetInstallState(proto::InstallState install_state);
   void SetIsFromSyncAndPendingInstallation(
       bool is_from_sync_and_pending_installation);
@@ -668,7 +662,7 @@ class WebApp {
   std::optional<SkColor> dark_mode_background_color_;
   DisplayMode display_mode_ = DisplayMode::kUndefined;
   std::vector<DisplayOverride> display_mode_override_;
-  std::optional<WebAppChromeOsData> chromeos_data_;
+  std::optional<LegacyPlatformAppData> chromeos_data_;
   proto::InstallState install_state_ =
       proto::InstallState::INSTALLED_WITHOUT_OS_INTEGRATION;
   bool is_from_sync_and_pending_installation_ = false;

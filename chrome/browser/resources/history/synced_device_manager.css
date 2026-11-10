@@ -20,9 +20,6 @@
   height: 222px;
   margin-top: 100px;
   width: 594.5px;
-<if expr="is_android">
-  max-width: 100%;
-</if>
 }
 
 .sync-history-illustration {
@@ -51,13 +48,7 @@
 }
 
 #noSyncedTabs {
-<if expr="not is_android">
   height: 100%;
-</if>
-<if expr="is_android">
-  height: auto;
-  padding-block: 80px;
-</if>
 }
 
 #signInGuide {
@@ -92,7 +83,6 @@ history-synced-device-card {
   margin-block-end: var(--card-padding-between);
 }
 
-<if expr="not is_chromeos">
 .history-sync-optin {
   align-items: center;
   display: flex;
@@ -171,4 +161,3 @@ history-synced-device-card {
 .action-button {
   margin: 16px 0;
 }
-</if>

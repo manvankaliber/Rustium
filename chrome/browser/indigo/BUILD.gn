@@ -2,8 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-assert(!is_android)
-
 import("//third_party/protobuf/proto_library.gni")
 
 proto_library("indigo_prompts_proto") {
@@ -125,9 +123,6 @@ source_set("impl") {
   if (is_chrome_branded) {
     deps += [ "//chrome/browser/indigo/resources:vector_icons" ]
   }
-  if (is_chromeos) {
-    deps += [ "//chromeos/ash/components/install_attributes" ]
-  }
 }
 
 source_set("test_support") {
@@ -192,13 +187,6 @@ source_set("unit_tests") {
     "//testing/gtest",
     "//url",
   ]
-
-  if (is_chromeos) {
-    deps += [
-      "//chromeos/ash/components/install_attributes:test_support",
-      "//chromeos/ash/components/network:test_support",
-    ]
-  }
 }
 
 source_set("browser_tests") {

@@ -237,23 +237,23 @@ class NodeUnittest(unittest.TestCase):
     AssertExpr(False, "is_linux", {}, 'foollinux', {})
     AssertExpr(False, "is_linux", {'chromeos_ash': True}, 'chromeos', {})
     # `is_chromeos` is not used with GRIT and is thus ignored.
-    AssertExpr(True, "is_linux", {'is_chromeos': True}, 'linux', {})
-    AssertExpr(True, "is_chromeos", {'chromeos_ash': True}, 'chromeos', {})
+    AssertExpr(True, "is_linux", {'is_chromeos': False}, 'linux', {})
+    AssertExpr(False, "is_chromeos", {'chromeos_ash': True}, 'chromeos', {})
     AssertExpr(False, "is_chromeos", {}, 'linux', {})
     AssertExpr(False, "is_linux", {}, 'win32', {})
     AssertExpr(True, "is_macosx", {}, 'darwin', {})
     AssertExpr(False, "is_macosx", {}, 'ios', {})
     AssertExpr(True, "is_win", {}, 'win32', {})
     AssertExpr(False, "is_win", {}, 'darwin', {})
-    AssertExpr(True, "is_android", {}, 'android', {})
+    AssertExpr(False, "is_android", {}, 'android', {})
     AssertExpr(False, "is_android", {}, 'linux3', {})
-    AssertExpr(True, "is_ios", {}, 'ios', {})
+    AssertExpr(False, "is_ios", {}, 'ios', {})
     AssertExpr(False, "is_ios", {}, 'darwin', {})
     AssertExpr(True, "is_posix", {}, 'linux', {})
-    AssertExpr(True, "is_posix", {'chromeos_ash': True}, 'chromeos', {})
+    AssertExpr(False, "is_posix", {'chromeos_ash': True}, 'chromeos', {})
     AssertExpr(True, "is_posix", {}, 'darwin', {})
-    AssertExpr(True, "is_posix", {}, 'android', {})
-    AssertExpr(True, "is_posix", {}, 'ios', {})
+    AssertExpr(False, "is_posix", {}, 'android', {})
+    AssertExpr(False, "is_posix", {}, 'ios', {})
     AssertExpr(True, "is_posix", {}, 'freebsd7', {})
     AssertExpr(False, "is_posix", {}, 'win32', {})
     AssertExpr(True, "pp_ifdef('foo')", {'foo': True}, 'win32', {})
@@ -274,37 +274,37 @@ class NodeUnittest(unittest.TestCase):
     # Test a couple more complex expressions for good measure.
     AssertExpr(
       True,
-      "is_ios and (lang in ['de', 'fr'] or foo)",
+      "is_macosx and (lang in ['de', 'fr'] or foo)",
       {'foo': 'bar'},
-      'ios',
+      'darwin',
       {'lang': 'fr', 'context': 'today'},
     )
     AssertExpr(
       False,
-      "is_ios and (lang in ['de', 'fr'] or foo)",
+      "is_macosx and (lang in ['de', 'fr'] or foo)",
       {'foo': False},
       'linux',
       {'lang': 'fr', 'context': 'today'},
     )
     AssertExpr(
       False,
-      "is_ios and (lang in ['de', 'fr'] or foo)",
-      {'baz': 'bar', 'is_ios': True, 'foo': False},
-      'ios',
+      "is_macosx and (lang in ['de', 'fr'] or foo)",
+      {'baz': 'bar', 'is_macosx': False, 'foo': False},
+      'darwin',
       {'lang': 'he', 'context': 'today'},
     )
     AssertExpr(
       True,
       "foo == 'bar' or not baz",
       {'foo': 'bar', 'baz': True},
-      'ios',
+      'darwin',
       {'lang': 'en', 'context': 'java'},
     )
     AssertExpr(
       False,
       "foo == 'bar' or not baz",
       {'foo': 'ruz', 'baz': True},
-      'ios',
+      'darwin',
       {'lang': 'en'},
     )
 

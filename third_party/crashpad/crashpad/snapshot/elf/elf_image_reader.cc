@@ -735,14 +735,14 @@ bool ElfImageReader::GetAddressFromDynamicArray(uint64_t tag,
     return false;
   }
 
-#if BUILDFLAG(IS_ANDROID) || defined(__GLIBC__) && defined(ARCH_CPU_RISCV64)
+#if defined(__GLIBC__) && defined(ARCH_CPU_RISCV64)
   // The GNU loader updates the dynamic array according to the load bias (except
   // for RISC-V: https://sourceware.org/bugzilla/show_bug.cgi?id=24484).
   // The Android and Fuchsia loaders only update the debug address.
   if (tag != DT_DEBUG) {
     *address += GetLoadBias();
   }
-#endif  // BUILDFLAG(IS_ANDROID)
+#endif
   return true;
 }
 

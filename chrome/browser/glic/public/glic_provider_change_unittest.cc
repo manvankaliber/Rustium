@@ -68,8 +68,7 @@ class GlicProviderChangeTest : public testing::Test {
   }
 
   void SetPolicyUrl(const std::string& url) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
     policy::PolicyMap policies;
     policies.Set(policy::key::kGeminiEnterpriseUrl,
                  policy::POLICY_LEVEL_MANDATORY, policy::POLICY_SCOPE_MACHINE,
@@ -80,8 +79,7 @@ class GlicProviderChangeTest : public testing::Test {
   }
 
   void ClearPolicyUrl() {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
     policy_provider_.UpdateChromePolicy(policy::PolicyMap());
 #endif
     profile()->GetPrefs()->ClearPref(prefs::kGlicGeminiEnterpriseUrl);
@@ -149,8 +147,7 @@ TEST_F(GlicProviderChangeGeminiLatchedTest, InvalidPolicyIsNone) {
   EXPECT_EQ(GetPendingProviderChange(), GlicProviderChange::kNone);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // A profile that selected consumer Gemini stays on Gemini after a relaunch, so
 // a GEiC policy isn't a pending change.
 TEST_F(GlicProviderChangeGeminiLatchedTest,
@@ -169,8 +166,7 @@ TEST_F(GlicProviderChangeGeminiLatchedTest,
   EXPECT_EQ(GetPendingProviderChange(), GlicProviderChange::kGeminiToGeic);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Selecting consumer Gemini later reports the change, until it's reverted.
 TEST_F(GlicProviderChangeGeminiLatchedTest,
        ConsumerSelectionTogglesPendingGeminiToGeic) {
@@ -249,8 +245,7 @@ TEST_F(GlicProviderChangeGeicLatchedTest, InvalidPolicyIsGeicToGemini) {
   EXPECT_EQ(GetPendingProviderChange(), GlicProviderChange::kGeicToGemini);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Selecting consumer Gemini reports the change, until it's reverted.
 TEST_F(GlicProviderChangeGeicLatchedTest,
        ConsumerSelectionTogglesPendingGeicToGemini) {

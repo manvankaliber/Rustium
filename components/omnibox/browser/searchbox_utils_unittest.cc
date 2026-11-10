@@ -22,9 +22,7 @@
 #include "components/omnibox/browser/mock_autocomplete_provider_client.h"
 #include "components/omnibox/browser/omnibox_popup_selection.h"
 #include "components/omnibox/browser/test_omnibox_client.h"
-#if !BUILDFLAG(IS_IOS)
 #include "components/omnibox/browser/vector_icons.h"
-#endif  // !BUILDFLAG(IS_IOS)
 #include "components/omnibox/common/omnibox_features.h"
 #include "components/search_engines/template_url.h"
 #include "components/search_engines/template_url_data.h"
@@ -271,7 +269,6 @@ TEST_F(SearchboxUtilsTest, GetKeywordLabelNames) {
   EXPECT_TRUE(empty_names.full_name.empty());
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(SearchboxUtilsTest, GetKeywordVectorIcon) {
   TemplateURLData gemini_data;
   gemini_data.starter_pack_id =
@@ -336,7 +333,6 @@ TEST_F(SearchboxUtilsTest, GetKeywordVectorIcon) {
               GetKeywordVectorIcon(regular_turl).name);
   }
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(SearchboxUtilsTest,
        GetAccessibilityLabelForSelection_SidePanelDescription) {

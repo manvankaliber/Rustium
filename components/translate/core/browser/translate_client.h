@@ -52,11 +52,6 @@ class TranslateClient {
   // Returns the associated AcceptLanguagesService.
   virtual language::AcceptLanguagesService* GetAcceptLanguagesService() = 0;
 
-#if BUILDFLAG(IS_IOS)
-  // Returns a translate infobar that owns |delegate|.
-  virtual std::unique_ptr<infobars::InfoBar> CreateInfoBar(
-      std::unique_ptr<TranslateInfoBarDelegate> delegate) const = 0;
-#endif
 
   // Called when the embedder should present UI to the user corresponding to the
   // user's current |step|. Returns false if the method decided not to show the

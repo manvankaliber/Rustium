@@ -9,7 +9,6 @@ from unexpected_passes_common import builders
 from unexpected_passes_common import constants
 from unexpected_passes_common import data_types
 
-from chrome_telemetry_build import android_browser_types as abt
 
 
 class GpuBuilders(builders.Builders):
@@ -28,14 +27,6 @@ class GpuBuilders(builders.Builders):
       if self._suite in t.get('args', []):
         return True
 
-    # Builders running tests in Skylab.
-    tests = test_map.get('skylab_tests', [])
-    for t in tests:
-      if t.get('test') not in self.GetIsolateNames():
-        continue
-      if self._suite in t.get('args', []):
-        return True
-
     return False
 
   def GetIsolateNames(self) -> Set[str]:
@@ -44,10 +35,6 @@ class GpuBuilders(builders.Builders):
         'telemetry_gpu_integration_test',
 
       }
-      # Android targets are split based on binary type, so add those using the
-      # maintained list of suffixes.
-      for suffix in abt.TELEMETRY_ANDROID_BROWSER_TARGET_SUFFIXES:
-        self._isolate_names.add('telemetry_gpu_integration_test' + suffix)
     return self._isolate_names
 
   def GetFakeCiBuilders(self) -> builders.FakeBuildersDict:
@@ -79,7 +66,6 @@ class GpuBuilders(builders.Builders):
         'Mac V8 FYI Release (Intel)',
         'Linux V8 FYI Release - pointer compression (NVIDIA)',
         'Linux V8 FYI Release (NVIDIA)',
-        'Android V8 FYI Release',
       }
       self._non_chromium_builders = {
         data_types.BuilderEntry(b, constants.BuilderTypes.CI, False)

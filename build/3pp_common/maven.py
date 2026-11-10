@@ -106,7 +106,7 @@ def build_jar_with_dependencies(maven_url, package, version, work_dir='.'):
 
     # Set up JAVA_HOME for the mvn command to find the JDK.
     env = os.environ.copy()
-    sys.path.append(common.path_within_checkout('build/android'))
+    sys.path.append(common.path_within_checkout('build'))
     import java_home
 
     env['JAVA_HOME'] = java_home.JAVA_HOME
@@ -195,7 +195,7 @@ def main(
         do_install=do_install,
         runtime_deps=[
             '//third_party/jdk/current',
-            '//build/android/java_home.py',
+            '//build/java_home.py',
         ]
         + list(runtime_deps),
         # common.main() requires version_deps whenever runtime_deps is set

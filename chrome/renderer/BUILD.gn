@@ -243,7 +243,7 @@ static_library("renderer") {
     "//v8",
   ]
 
-  if (is_mac || is_win || is_linux || is_chromeos) {
+  if (is_mac || is_win || is_linux) {
     deps += [ "//components/webapps/isolated_web_apps:scheme" ]
   }
 
@@ -281,7 +281,7 @@ static_library("renderer") {
     deps += [ "//third_party/widevine/cdm:headers" ]
   }
 
-  if (enable_library_cdms || is_win || is_android) {
+  if (enable_library_cdms || is_win) {
     sources += [
       "media/chrome_key_systems.cc",
       "media/chrome_key_systems.h",
@@ -336,100 +336,72 @@ static_library("renderer") {
     ]
   }
 
-  if (is_android) {
-    sources += [
-      "net/page_auto_fetcher_helper_android.cc",
-      "net/page_auto_fetcher_helper_android.h",
-      "sandbox_status_extension_android.cc",
-      "sandbox_status_extension_android.h",
-      "wallet/boarding_pass_extractor.cc",
-      "wallet/boarding_pass_extractor.h",
-    ]
-    deps += [ "//chrome/common/wallet:mojo_bindings" ]
-  } else {
-    sources += [
-      "accessibility/ax_tree_distiller.cc",
-      "accessibility/ax_tree_distiller.h",
-      "accessibility/phrase_segmentation/base_phrase_segmenter.cc",
-      "accessibility/phrase_segmentation/base_phrase_segmenter.h",
-      "accessibility/phrase_segmentation/dependency_parser_model.cc",
-      "accessibility/phrase_segmentation/dependency_parser_model.h",
-      "accessibility/phrase_segmentation/dependency_parser_op_resolver.cc",
-      "accessibility/phrase_segmentation/dependency_parser_op_resolver.h",
-      "accessibility/phrase_segmentation/dependency_tree.cc",
-      "accessibility/phrase_segmentation/dependency_tree.h",
-      "accessibility/phrase_segmentation/phrase_segmenter.cc",
-      "accessibility/phrase_segmentation/phrase_segmenter.h",
-      "accessibility/phrase_segmentation/token_boundaries.cc",
-      "accessibility/phrase_segmentation/token_boundaries.h",
-      "accessibility/phrase_segmentation/tokenized_sentence.cc",
-      "accessibility/phrase_segmentation/tokenized_sentence.h",
-      "accessibility/phrase_segmentation/tokenizer.cc",
-      "accessibility/phrase_segmentation/tokenizer.h",
-      "accessibility/read_anything/read_aloud_app_model.cc",
-      "accessibility/read_anything/read_aloud_app_model.h",
-      "accessibility/read_anything/read_anything_app_controller.cc",
-      "accessibility/read_anything/read_anything_app_controller.h",
-      "accessibility/read_anything/read_anything_app_model.cc",
-      "accessibility/read_anything/read_anything_app_model.h",
-      "accessibility/read_anything/read_anything_distiller.h",
-      "accessibility/read_anything/read_anything_distiller_factory.cc",
-      "accessibility/read_anything/read_anything_distiller_factory.h",
-      "accessibility/read_anything/read_anything_node_utils.cc",
-      "accessibility/read_anything/read_anything_node_utils.h",
-      "accessibility/read_anything/read_anything_readability_distiller.cc",
-      "accessibility/read_anything/read_anything_readability_distiller.h",
-      "accessibility/read_anything/read_anything_screen2x_distiller.cc",
-      "accessibility/read_anything/read_anything_screen2x_distiller.h",
-      "accessibility/read_anything/read_anything_text_aligner.h",
-      "media/chrome_speech_recognition_client.cc",
-      "media/chrome_speech_recognition_client.h",
-      "password_manager/remote_actor_credential_sharing_extension.cc",
-      "password_manager/remote_actor_credential_sharing_extension.h",
-    ]
+  sources += [
+    "accessibility/ax_tree_distiller.cc",
+    "accessibility/ax_tree_distiller.h",
+    "accessibility/phrase_segmentation/base_phrase_segmenter.cc",
+    "accessibility/phrase_segmentation/base_phrase_segmenter.h",
+    "accessibility/phrase_segmentation/dependency_parser_model.cc",
+    "accessibility/phrase_segmentation/dependency_parser_model.h",
+    "accessibility/phrase_segmentation/dependency_parser_op_resolver.cc",
+    "accessibility/phrase_segmentation/dependency_parser_op_resolver.h",
+    "accessibility/phrase_segmentation/dependency_tree.cc",
+    "accessibility/phrase_segmentation/dependency_tree.h",
+    "accessibility/phrase_segmentation/phrase_segmenter.cc",
+    "accessibility/phrase_segmentation/phrase_segmenter.h",
+    "accessibility/phrase_segmentation/token_boundaries.cc",
+    "accessibility/phrase_segmentation/token_boundaries.h",
+    "accessibility/phrase_segmentation/tokenized_sentence.cc",
+    "accessibility/phrase_segmentation/tokenized_sentence.h",
+    "accessibility/phrase_segmentation/tokenizer.cc",
+    "accessibility/phrase_segmentation/tokenizer.h",
+    "accessibility/read_anything/read_aloud_app_model.cc",
+    "accessibility/read_anything/read_aloud_app_model.h",
+    "accessibility/read_anything/read_anything_app_controller.cc",
+    "accessibility/read_anything/read_anything_app_controller.h",
+    "accessibility/read_anything/read_anything_app_model.cc",
+    "accessibility/read_anything/read_anything_app_model.h",
+    "accessibility/read_anything/read_anything_distiller.h",
+    "accessibility/read_anything/read_anything_distiller_factory.cc",
+    "accessibility/read_anything/read_anything_distiller_factory.h",
+    "accessibility/read_anything/read_anything_node_utils.cc",
+    "accessibility/read_anything/read_anything_node_utils.h",
+    "accessibility/read_anything/read_anything_readability_distiller.cc",
+    "accessibility/read_anything/read_anything_readability_distiller.h",
+    "accessibility/read_anything/read_anything_screen2x_distiller.cc",
+    "accessibility/read_anything/read_anything_screen2x_distiller.h",
+    "accessibility/read_anything/read_anything_text_aligner.h",
+    "media/chrome_speech_recognition_client.cc",
+    "media/chrome_speech_recognition_client.h",
+    "password_manager/remote_actor_credential_sharing_extension.cc",
+    "password_manager/remote_actor_credential_sharing_extension.h",
+  ]
 
-    deps += [
-      "//chrome/common/read_anything:mojo_bindings",
-      "//chrome/renderer/webui_browser",
-      "//components/password_manager/core/common/remote_actor",
-      "//components/record_replay/content/renderer",
-      "//components/trusted_vault",
-      "//services/screen_ai/buildflags",
-      "//services/screen_ai/public/mojom",
-      "//services/strings",
-      "//third_party/re2",
-      "//third_party/tensorflow-text",
-      "//third_party/tensorflow_models:tflite_custom_ops",
-      "//third_party/tflite",
-      "//third_party/tflite:buildflags",
-      "//third_party/tflite:tflite_public_headers",
-      "//third_party/tflite_support",
-      "//third_party/tflite_support:tflite_support_proto",
-    ]
-  }
+  deps += [
+    "//chrome/common/read_anything:mojo_bindings",
+    "//chrome/renderer/webui_browser",
+    "//components/password_manager/core/common/remote_actor",
+    "//components/record_replay/content/renderer",
+    "//components/trusted_vault",
+    "//services/screen_ai/buildflags",
+    "//services/screen_ai/public/mojom",
+    "//services/strings",
+    "//third_party/re2",
+    "//third_party/tensorflow-text",
+    "//third_party/tensorflow_models:tflite_custom_ops",
+    "//third_party/tflite",
+    "//third_party/tflite:buildflags",
+    "//third_party/tflite:tflite_public_headers",
+    "//third_party/tflite_support",
+    "//third_party/tflite_support:tflite_support_proto",
+  ]
 
-  if (is_chromeos) {
-    sources += [
-      "ash_merge_session_loader_throttle.cc",
-      "ash_merge_session_loader_throttle.h",
-      "chromeos_delayed_callback_group.cc",
-      "chromeos_delayed_callback_group.h",
-    ]
-
-    deps += [
-      "//ash/constants",
-      "//ash/webui/file_manager:constants",
-    ]
-  }
-
-  if (!is_android) {
-    sources += [
-      "indigo/indigo_agent.cc",
-      "indigo/indigo_agent.h",
-      "indigo/onboarding_agent.cc",
-      "indigo/onboarding_agent.h",
-    ]
-  }
+  sources += [
+    "indigo/indigo_agent.cc",
+    "indigo/indigo_agent.h",
+    "indigo/onboarding_agent.cc",
+    "indigo/onboarding_agent.h",
+  ]
 
   if (enable_webui_ntp) {
     sources += [
@@ -441,90 +413,88 @@ static_library("renderer") {
   }
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [
-      "accessibility/ax_tree_distiller_browsertest.cc",
-      "accessibility/read_anything/read_anything_app_controller_browsertest.cc",
-      "accessibility/read_anything/read_anything_distiller_factory_browsertest.cc",
-      "accessibility/read_anything/read_anything_readability_distiller_browsertest.cc",
-      "accessibility/read_anything/read_anything_screen2x_distiller_browsertest.cc",
-      "accessibility/read_anything/read_anything_test_utils.cc",
-      "accessibility/read_anything/read_anything_test_utils.h",
-      "autofill/autofill_renderer_browsertest.cc",
-      "autofill/fake_mojo_password_manager_driver.cc",
-      "autofill/fake_mojo_password_manager_driver.h",
-      "autofill/fake_password_generation_driver.cc",
-      "autofill/fake_password_generation_driver.h",
-      "autofill/page_passwords_analyser_browsertest.cc",
-      "autofill/password_autofill_agent_browsertest.cc",
-      "autofill/password_generation_agent_browsertest.cc",
-      "autofill/password_generation_test_utils.cc",
-      "autofill/password_generation_test_utils.h",
-      "chrome_content_settings_agent_delegate_browsertest.cc",
-      "chrome_render_frame_observer_browsertest.cc",
-      "commerce/commerce_web_extractor_browsertest.cc",
-      "indigo/indigo_agent_browsertest.cc",
-      "translate/translate_agent_browsertest.cc",
-      "translate/translate_script_browsertest.cc",
-    ]
-    deps = [
-      ":renderer",
-      "//base/test:test_support",
-      "//chrome/common",
-      "//chrome/common:non_code_constants",
-      "//chrome/common/read_anything:mojo_bindings",
-      "//chrome/test/base:chrome_render_view_test",
-      "//components/autofill/content/renderer",
-      "//components/autofill/content/renderer:test_support",
-      "//components/autofill/core/common:test_support",
-      "//components/commerce/content/renderer",
-      "//components/commerce/core:commerce_constants",
-      "//components/no_state_prefetch/renderer",
-      "//components/optimization_guide/content/renderer",
-      "//components/resources:components_resources",
-      "//components/safe_browsing/core/common/phishing_classifier",
-      "//components/safe_browsing/core/common/proto:client_model_proto",
-      "//components/translate/content/common",
-      "//components/translate/content/renderer",
-      "//components/translate/core/common",
-      "//components/variations",
-      "//content/test:test_support",
-      "//gin",
-      "//services/strings",
-      "//testing/gtest",
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [
+    "accessibility/ax_tree_distiller_browsertest.cc",
+    "accessibility/read_anything/read_anything_app_controller_browsertest.cc",
+    "accessibility/read_anything/read_anything_distiller_factory_browsertest.cc",
+    "accessibility/read_anything/read_anything_readability_distiller_browsertest.cc",
+    "accessibility/read_anything/read_anything_screen2x_distiller_browsertest.cc",
+    "accessibility/read_anything/read_anything_test_utils.cc",
+    "accessibility/read_anything/read_anything_test_utils.h",
+    "autofill/autofill_renderer_browsertest.cc",
+    "autofill/fake_mojo_password_manager_driver.cc",
+    "autofill/fake_mojo_password_manager_driver.h",
+    "autofill/fake_password_generation_driver.cc",
+    "autofill/fake_password_generation_driver.h",
+    "autofill/page_passwords_analyser_browsertest.cc",
+    "autofill/password_autofill_agent_browsertest.cc",
+    "autofill/password_generation_agent_browsertest.cc",
+    "autofill/password_generation_test_utils.cc",
+    "autofill/password_generation_test_utils.h",
+    "chrome_content_settings_agent_delegate_browsertest.cc",
+    "chrome_render_frame_observer_browsertest.cc",
+    "commerce/commerce_web_extractor_browsertest.cc",
+    "indigo/indigo_agent_browsertest.cc",
+    "translate/translate_agent_browsertest.cc",
+    "translate/translate_script_browsertest.cc",
+  ]
+  deps = [
+    ":renderer",
+    "//base/test:test_support",
+    "//chrome/common",
+    "//chrome/common:non_code_constants",
+    "//chrome/common/read_anything:mojo_bindings",
+    "//chrome/test/base:chrome_render_view_test",
+    "//components/autofill/content/renderer",
+    "//components/autofill/content/renderer:test_support",
+    "//components/autofill/core/common:test_support",
+    "//components/commerce/content/renderer",
+    "//components/commerce/core:commerce_constants",
+    "//components/no_state_prefetch/renderer",
+    "//components/optimization_guide/content/renderer",
+    "//components/resources:components_resources",
+    "//components/safe_browsing/core/common/phishing_classifier",
+    "//components/safe_browsing/core/common/proto:client_model_proto",
+    "//components/translate/content/common",
+    "//components/translate/content/renderer",
+    "//components/translate/core/common",
+    "//components/variations",
+    "//content/test:test_support",
+    "//gin",
+    "//services/strings",
+    "//testing/gtest",
 
-      # tflite_config provides third_party/tflite/src/ include path, needed
-      # because :renderer headers transitively include tflite internal headers.
-      "//third_party/tflite",
+    # tflite_config provides third_party/tflite/src/ include path, needed
+    # because :renderer headers transitively include tflite internal headers.
+    "//third_party/tflite",
+  ]
+
+  if (safe_browsing_mode == 1) {
+    sources +=
+        [ "safe_browsing/threat_details/threat_dom_details_browsertest.cc" ]
+    deps += [
+      "//components/safe_browsing/content/common:interfaces",
+      "//components/safe_browsing/content/renderer",
+      "//components/safe_browsing/core/common:features",
     ]
 
-    if (safe_browsing_mode == 1) {
-      sources +=
-          [ "safe_browsing/threat_details/threat_dom_details_browsertest.cc" ]
-      deps += [
-        "//components/safe_browsing/content/common:interfaces",
-        "//components/safe_browsing/content/renderer",
-        "//components/safe_browsing/core/common:features",
+    if (!is_mac) {
+      sources += [
+        # single-process mode hangs on Mac sometimes because of multiple UI
+        # message loops. See 306348
+        "safe_browsing/content_phishing_classifier_delegate_browsertest.cc",
+        "safe_browsing/phishing_classifier_browsertest.cc",
+        "safe_browsing/phishing_dom_utils_browsertest.cc",
       ]
-
-      if (!is_mac) {
-        sources += [
-          # single-process mode hangs on Mac sometimes because of multiple UI
-          # message loops. See 306348
-          "safe_browsing/content_phishing_classifier_delegate_browsertest.cc",
-          "safe_browsing/phishing_classifier_browsertest.cc",
-          "safe_browsing/phishing_dom_utils_browsertest.cc",
-        ]
-        deps += [
-          "//chrome/test/base:chrome_unit_test_suite",
-          "//components/safe_browsing/content/renderer/phishing_classifier",
-          "//components/safe_browsing/core/common/fbs:client_model",
-          "//net:test_support",
-        ]
-      }
+      deps += [
+        "//chrome/test/base:chrome_unit_test_suite",
+        "//components/safe_browsing/content/renderer/phishing_classifier",
+        "//components/safe_browsing/core/common/fbs:client_model",
+        "//net:test_support",
+      ]
     }
   }
 }
@@ -552,70 +522,6 @@ source_set("platform_browser_tests") {
   ]
   if (enable_extensions_core) {
     deps += [ "//extensions/common" ]
-  }
-}
-
-if (is_android) {
-  source_set("android_browsertests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [
-      "accessibility/read_anything/read_anything_test_utils.cc",
-      "accessibility/read_anything/read_anything_test_utils.h",
-      "autofill/fake_mojo_password_manager_driver.cc",
-      "autofill/fake_mojo_password_manager_driver.h",
-      "autofill/fake_password_generation_driver.cc",
-      "autofill/fake_password_generation_driver.h",
-      "autofill/password_autofill_agent_browsertest.cc",
-      "autofill/password_generation_agent_browsertest.cc",
-      "autofill/password_generation_test_utils.cc",
-      "autofill/password_generation_test_utils.h",
-      "commerce/commerce_web_extractor_browsertest.cc",
-      "wallet/boarding_pass_extractor_browsertest.cc",
-    ]
-    deps = [
-      ":renderer",
-      "//base",
-      "//base/test:test_support",
-      "//chrome/common",
-      "//chrome/test:test_support",
-      "//chrome/test/base:chrome_render_view_test",
-      "//components/autofill/content/common/mojom",
-      "//components/autofill/content/renderer",
-      "//components/autofill/content/renderer:test_support",
-      "//components/autofill/core/common",
-      "//components/autofill/core/common:test_support",
-      "//components/commerce/content/renderer",
-      "//components/commerce/core:commerce_constants",
-      "//components/password_manager/core/common",
-      "//components/password_manager/core/common:features",
-      "//content/public/renderer",
-      "//content/test:test_support",
-      "//services/service_manager/public/cpp",
-      "//testing/gmock",
-      "//testing/gtest",
-      "//third_party/blink/public:blink",
-      "//ui/accessibility",
-      "//ui/events:events_base",
-    ]
-
-    if (safe_browsing_mode != 0) {
-      sources += [
-        "safe_browsing/phishing_classifier_browsertest.cc",
-        "safe_browsing/phishing_dom_utils_browsertest.cc",
-      ]
-      deps += [
-        "//components/safe_browsing:buildflags",
-        "//components/safe_browsing/content/common:interfaces",
-        "//components/safe_browsing/content/renderer/phishing_classifier",
-        "//components/safe_browsing/core/common",
-        "//components/safe_browsing/core/common/fbs:client_model",
-        "//components/safe_browsing/core/common/phishing_classifier",
-        "//components/safe_browsing/core/common/proto:client_model_proto",
-        "//components/safe_browsing/core/common/proto:csd_proto",
-        "//crypto",
-      ]
-    }
   }
 }
 
@@ -652,33 +558,24 @@ source_set("unit_tests") {
     ]
   }
 
-  if (!is_android) {
-    sources += [
-      "accessibility/phrase_segmentation/dependency_parser_model_unittest.cc",
-      "accessibility/phrase_segmentation/dependency_tree_unittest.cc",
-      "accessibility/phrase_segmentation/phrase_segmenter_unittest.cc",
-      "accessibility/phrase_segmentation/token_boundaries_unittest.cc",
-      "accessibility/phrase_segmentation/tokenized_sentence_unittest.cc",
-      "accessibility/phrase_segmentation/tokenizer_unittest.cc",
-      "accessibility/read_anything/read_aloud_app_model_unittest.cc",
-      "accessibility/read_anything/read_anything_app_controller_unittest.cc",
-      "accessibility/read_anything/read_anything_app_model_unittest.cc",
-      "accessibility/read_anything/read_anything_node_utils_unittest.cc",
-      "media/webrtc_logging_agent_impl_unittest.cc",
-      "searchbox/searchbox_unittest.cc",
-    ]
-    deps += [
-      "//components/ukm:test_support",
-      "//services/metrics/public/cpp:ukm_builders",
-      "//services/strings",
-      "//third_party/fuzztest",
-    ]
-  }
-
-  if (is_chromeos) {
-    sources += [
-      "ash_merge_session_loader_throttle_unittest.cc",
-      "chromeos_delayed_callback_group_unittest.cc",
-    ]
-  }
+  sources += [
+    "accessibility/phrase_segmentation/dependency_parser_model_unittest.cc",
+    "accessibility/phrase_segmentation/dependency_tree_unittest.cc",
+    "accessibility/phrase_segmentation/phrase_segmenter_unittest.cc",
+    "accessibility/phrase_segmentation/token_boundaries_unittest.cc",
+    "accessibility/phrase_segmentation/tokenized_sentence_unittest.cc",
+    "accessibility/phrase_segmentation/tokenizer_unittest.cc",
+    "accessibility/read_anything/read_aloud_app_model_unittest.cc",
+    "accessibility/read_anything/read_anything_app_controller_unittest.cc",
+    "accessibility/read_anything/read_anything_app_model_unittest.cc",
+    "accessibility/read_anything/read_anything_node_utils_unittest.cc",
+    "media/webrtc_logging_agent_impl_unittest.cc",
+    "searchbox/searchbox_unittest.cc",
+  ]
+  deps += [
+    "//components/ukm:test_support",
+    "//services/metrics/public/cpp:ukm_builders",
+    "//services/strings",
+    "//third_party/fuzztest",
+  ]
 }

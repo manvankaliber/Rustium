@@ -271,31 +271,6 @@ void WebRtcVideoTrackSource::OnFrameCaptured(
       media::ConvertToMemoryMappedFrameAsync(current_frame,
                                              std::move(cb_on_correct_thread));
       return;
-#if BUILDFLAG(IS_ANDROID)
-    } else if (current_frame->HasMappableSharedImage() ||
-               current_frame->HasSharedImage()) {
-      int64_t track_id = current_frame->timestamp().InMicroseconds();
-      TRACE_EVENT_BEGIN(
-          "webrtc", "ConvertToMemoryMappedFrameAsync",
-          perfetto::NamedTrack("ConvertToMemoryMappedFrameAsync", track_id),
-          "format", current_frame->format(), "storage_type",
-          current_frame->storage_type(), "natural_size",
-          current_frame->natural_size().ToString());
-      scoped_refptr<media::VideoFrame> mapped_frame;
-      if (current_frame->HasMappableSharedImage()) {
-        mapped_frame =
-            adapter_resources_
-                ? adapter_resources_->ConstructVideoFrameFromGpu(current_frame)
-                : nullptr;
-      } else {
-        mapped_frame = adapter_resources_
-                           ? adapter_resources_->ConstructVideoFrameFromTexture(
-                                 current_frame)
-                           : nullptr;
-      }
-      ProcessMappedFrame(pending_frames_.back().id, std::move(mapped_frame));
-      return;
-#endif
     }
   }
   pending_frames_.back().can_be_delivered = true;

@@ -90,67 +90,65 @@ static_library("utility") {
     ]
   }
 
-  if (!is_android) {
+  sources += [
+    "importer/bookmarks_file_importer.cc",
+    "importer/bookmarks_file_importer.h",
+    "importer/external_process_importer_bridge.cc",
+    "importer/external_process_importer_bridge.h",
+    "importer/importer.cc",
+    "importer/importer.h",
+    "importer/importer_creator.cc",
+    "importer/importer_creator.h",
+    "importer/profile_import_impl.cc",
+    "importer/profile_import_impl.h",
+  ]
+
+  sources += [
+    "importer/firefox_importer.cc",
+    "importer/firefox_importer.h",
+  ]
+
+  if (is_mac) {
     sources += [
-      "importer/bookmarks_file_importer.cc",
-      "importer/bookmarks_file_importer.h",
-      "importer/external_process_importer_bridge.cc",
-      "importer/external_process_importer_bridge.h",
-      "importer/importer.cc",
-      "importer/importer.h",
-      "importer/importer_creator.cc",
-      "importer/importer_creator.h",
-      "importer/profile_import_impl.cc",
-      "importer/profile_import_impl.h",
-    ]
-    if (!is_chromeos) {
-      sources += [
-        "importer/firefox_importer.cc",
-        "importer/firefox_importer.h",
-      ]
-    }
-    if (is_mac) {
-      sources += [
-        "importer/safari_importer.h",
-        "importer/safari_importer.mm",
-      ]
-    }
-    if (!is_mac && !is_chromeos) {
-      # NSS decryptor is not needed on ChromeOS. Additionally, it depends on
-      # system NSS that is unavailable on MacOS/Fuchsia.
-      sources += [
-        "importer/nss_decryptor.cc",
-        "importer/nss_decryptor.h",
-      ]
-
-      deps += [ "//crypto:buildflags" ]
-    }
-    if (is_win) {
-      sources += [
-        "importer/edge_database_reader_win.cc",
-        "importer/edge_database_reader_win.h",
-        "importer/edge_importer_win.cc",
-        "importer/edge_importer_win.h",
-        "importer/ie_importer_win.cc",
-        "importer/ie_importer_win.h",
-        "importer/nss_decryptor_win.cc",
-        "importer/nss_decryptor_win.h",
-      ]
-
-      deps += [ "//services/proxy_resolver_win" ]
-    }
-    deps += [
-      "//chrome/common:mojo_bindings",
-      "//chrome/common/importer:interfaces",
-      "//chrome/services/reading_mode_metrics:lib",
-      "//components/autofill/core/common",
-      "//components/user_data_importer/common",
-      "//components/user_data_importer/content",
-      "//components/user_data_importer/utility:bookmarks",
-      "//services/proxy_resolver:lib",
-      "//services/screen_ai",
+      "importer/safari_importer.h",
+      "importer/safari_importer.mm",
     ]
   }
+  if (!is_mac) {
+    # NSS decryptor is not needed on ChromeOS. Additionally, it depends on
+    # system NSS that is unavailable on MacOS/Fuchsia.
+    sources += [
+      "importer/nss_decryptor.cc",
+      "importer/nss_decryptor.h",
+    ]
+
+    deps += [ "//crypto:buildflags" ]
+  }
+  if (is_win) {
+    sources += [
+      "importer/edge_database_reader_win.cc",
+      "importer/edge_database_reader_win.h",
+      "importer/edge_importer_win.cc",
+      "importer/edge_importer_win.h",
+      "importer/ie_importer_win.cc",
+      "importer/ie_importer_win.h",
+      "importer/nss_decryptor_win.cc",
+      "importer/nss_decryptor_win.h",
+    ]
+
+    deps += [ "//services/proxy_resolver_win" ]
+  }
+  deps += [
+    "//chrome/common:mojo_bindings",
+    "//chrome/common/importer:interfaces",
+    "//chrome/services/reading_mode_metrics:lib",
+    "//components/autofill/core/common",
+    "//components/user_data_importer/common",
+    "//components/user_data_importer/content",
+    "//components/user_data_importer/utility:bookmarks",
+    "//services/proxy_resolver:lib",
+    "//services/screen_ai",
+  ]
 
   if (enable_extensions) {
     deps += [
@@ -184,40 +182,8 @@ static_library("utility") {
     }
   }
 
-  if (is_chromeos) {
-    deps += [
-      "//chrome/services/file_util",
-      "//chrome/services/sharing",
-      "//chromeos/ash/components/assistant:buildflags",
-      "//chromeos/ash/components/local_search_service",
-      "//chromeos/ash/components/local_search_service/public/mojom",
-      "//chromeos/ash/components/mojo_service_manager",
-      "//chromeos/ash/components/trash_service",
-      "//chromeos/ash/components/trash_service/public/mojom",
-      "//chromeos/ash/services/boca/babelorca/cpp",
-      "//chromeos/ash/services/boca/babelorca/mojom",
-      "//chromeos/ash/services/ime:lib",
-      "//chromeos/ash/services/ime/public/mojom",
-      "//chromeos/ash/services/nearby/public/mojom",
-      "//chromeos/ash/services/orca",
-      "//chromeos/ash/services/orca/public/mojom",
-      "//chromeos/ash/services/quick_pair",
-      "//chromeos/ash/services/recording",
-      "//chromeos/components/mahi:content_extraction",
-      "//chromeos/components/mahi/public/mojom",
-      "//chromeos/components/quick_answers/public/cpp",
-      "//chromeos/components/quick_answers/public/mojom",
-      "//chromeos/constants",
-      "//chromeos/services/tts",
-      "//chromeos/services/tts/public/mojom",
-    ]
-
-    assert(enable_pdf)
-    deps += [ "//chrome/services/pdf:lib" ]
-  }
-
   # NSS decryptor is not needed on ChromeOS.
-  if (!is_chromeos && use_nss_certs) {
+  if (use_nss_certs) {
     sources += [
       "importer/nss_decryptor_system_nss.cc",
       "importer/nss_decryptor_system_nss.h",
@@ -232,19 +198,17 @@ static_library("utility") {
       "//components/services/print_compositor/public/mojom",
     ]
 
-    if (!is_android) {
-      deps += [
-        "//chrome/services/printing:lib",
-        "//chrome/services/printing/public/mojom",
-      ]
-    }
+    deps += [
+      "//chrome/services/printing:lib",
+      "//chrome/services/printing/public/mojom",
+    ]
   }
 
   if (safe_browsing_mode == 1 || enable_extractors) {
     deps += [ "//chrome/services/file_util" ]
   }
 
-  if (enable_request_header_integrity && !is_android) {
+  if (enable_request_header_integrity) {
     deps += [ "//chrome/services/platform_runtime" ]
   }
 
@@ -256,7 +220,7 @@ static_library("utility") {
     deps += [ "//chrome/services/redirection:redirection_service" ]
   }
 
-  if (is_android || enable_extensions) {
+  if (enable_extensions) {
     deps += [ "//chrome/services/media_gallery_util:lib" ]
   }
 
@@ -267,44 +231,38 @@ static_library("utility") {
   if (enable_on_device_translation) {
     deps += [ "//components/on_device_translation/service:on_device_translation_service" ]
   }
-
-  if (is_android) {
-    deps += [ "//chrome/services/readaloud" ]
-  }
 }
 
-if (!is_android) {
-  source_set("unit_tests") {
-    testonly = true
+source_set("unit_tests") {
+  testonly = true
 
-    sources = [ "importer/bookmarks_file_importer_unittest.cc" ]
-    if (!is_chromeos) {
-      sources += [ "importer/firefox_importer_unittest.cc" ]
-    }
-    if (is_mac) {
-      sources += [ "importer/safari_importer_unittest.mm" ]
-    }
-    if (is_win) {
-      sources += [ "importer/edge_database_reader_unittest_win.cc" ]
-    }
+  sources = [ "importer/bookmarks_file_importer_unittest.cc" ]
 
-    deps = [
-      ":utility",
-      "//base",
-      "//chrome/common:constants",
-      "//chrome/common/importer",
-      "//chrome/common/importer:test_support",
-      "//components/favicon_base",
-      "//components/user_data_importer/common",
-      "//components/user_data_importer/content:test_support",
-      "//components/user_data_importer/utility:safari_data_importer",
-      "//content/test:test_support",
-      "//sql",
-      "//sql:test_support",
-      "//testing/gmock",
-      "//testing/gtest",
-      "//third_party/zlib/google:compression_utils",
-      "//url",
-    ]
+  sources += [ "importer/firefox_importer_unittest.cc" ]
+
+  if (is_mac) {
+    sources += [ "importer/safari_importer_unittest.mm" ]
   }
+  if (is_win) {
+    sources += [ "importer/edge_database_reader_unittest_win.cc" ]
+  }
+
+  deps = [
+    ":utility",
+    "//base",
+    "//chrome/common:constants",
+    "//chrome/common/importer",
+    "//chrome/common/importer:test_support",
+    "//components/favicon_base",
+    "//components/user_data_importer/common",
+    "//components/user_data_importer/content:test_support",
+    "//components/user_data_importer/utility:safari_data_importer",
+    "//content/test:test_support",
+    "//sql",
+    "//sql:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//third_party/zlib/google:compression_utils",
+    "//url",
+  ]
 }

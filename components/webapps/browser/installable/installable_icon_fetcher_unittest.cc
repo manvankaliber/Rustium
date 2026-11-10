@@ -196,19 +196,11 @@ class InstallableIconFetcherTest : public content::RenderViewHostTestHarness {
       base::test::TestFuture<InstallableStatusCode>& future,
       const InstallablePageData& page_data,
       const GURL& page_url) {
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-    EXPECT_EQ(future.Get(), InstallableStatusCode::NO_ERROR_DETECTED);
-    EXPECT_TRUE(page_data.primary_icon_fetched());
-    EXPECT_EQ(page_data.primary_icon_url(), page_url);
-    ASSERT_TRUE(page_data.primary_icon());
-    EXPECT_FALSE(page_data.primary_icon()->drawsNothing());
-#else
     EXPECT_EQ(future.Get(), InstallableStatusCode::NO_ACCEPTABLE_ICON);
     EXPECT_TRUE(page_data.primary_icon_fetched());
     EXPECT_EQ(page_data.icon_error(),
               InstallableStatusCode::NO_ACCEPTABLE_ICON);
     EXPECT_FALSE(page_data.primary_icon());
-#endif
   }
 
  protected:
@@ -1472,38 +1464,5 @@ TEST_F(InstallableIconFetcherTest, RootFaviconFallbackSkippedWhenFlagOff) {
   ExpectEndedWithoutDownloadedIcon(future, page_data, GURL(kPageUrl));
 }
 
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-TEST_F(InstallableIconFetcherTest, RootFaviconFallbackPrecedesGeneratedIcon) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(
-      features::kInstallableRootFaviconFallback);
-  base::AutoReset<int> scoped_min_favicon_size(
-      &test::g_minimum_favicon_size_for_testing, 48);
-
-  const GURL kFaviconUrl("https://www.example.com/favicon.ico");
-
-  base::test::TestFuture<InstallableStatusCode> future;
-  InstallablePageData page_data;
-  std::vector<blink::Manifest::ImageResource> manifest_icons;
-  InstallableIconFetcher fetcher(web_contents(), page_data, manifest_icons,
-                                 /*prefer_maskable=*/false,
-                                 /*fetch_favicon=*/true, future.GetCallback());
-
-  // Probe is pending before any generated icon is reported.
-  EXPECT_TRUE(web_contents_tester()->HasPendingDownloadImage(kFaviconUrl));
-  EXPECT_FALSE(page_data.primary_icon_fetched());
-
-  // Fail the probe.
-  EXPECT_TRUE(
-      web_contents_tester()->TestDidDownloadImage(kFaviconUrl, 404, {}, {}));
-
-  // On probe failure, the generated icon with the page URL still arrives.
-  EXPECT_EQ(future.Get(), InstallableStatusCode::NO_ERROR_DETECTED);
-  EXPECT_TRUE(page_data.primary_icon_fetched());
-  EXPECT_EQ(page_data.primary_icon_url(), GURL(kPageUrl));
-  ASSERT_TRUE(page_data.primary_icon());
-  EXPECT_FALSE(page_data.primary_icon()->drawsNothing());
-}
-#endif
 
 }  // namespace webapps

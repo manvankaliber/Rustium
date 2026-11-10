@@ -35,11 +35,6 @@
 #include "ui/base/cursor/cursor.h"
 #include "ui/compositor/compositor.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/android/view_android.h"
-#include "ui/android/window_android.h"
-#include "ui/android/window_android_compositor.h"
-#endif
 
 namespace content {
 
@@ -751,23 +746,11 @@ void SurfaceEmbedConnectorImpl::UpdateKeepSurfaceAlive() {
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  ui::WindowAndroidCompositor* compositor = nullptr;
-  if (view_->GetNativeView() && view_->GetNativeView()->GetWindowAndroid()) {
-    compositor = view_->GetNativeView()->GetWindowAndroid()->GetCompositor();
-  }
-  if (compositor) {
-    keep_surface_alive_ = base::ScopedClosureRunner(
-        compositor->TakeScopedKeepSurfaceAliveCallback(surface_id));
-    return;
-  }
-#else
   if (ui::Compositor* compositor = view_->GetCompositor()) {
     keep_surface_alive_ =
         compositor->TakeScopedKeepSurfaceAliveCallback(surface_id);
     return;
   }
-#endif
   keep_surface_alive_.RunAndReset();
 }
 

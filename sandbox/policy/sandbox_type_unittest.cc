@@ -105,8 +105,7 @@ TEST(SandboxTypeTest, Utility) {
             SandboxTypeFromCommandLine(command_line_xr));
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   base::CommandLine command_line13(command_line);
   SetCommandLineFlagsForSandboxType(&command_line13, Sandbox::kPrintBackend);
   EXPECT_EQ(Sandbox::kPrintBackend, SandboxTypeFromCommandLine(command_line13));

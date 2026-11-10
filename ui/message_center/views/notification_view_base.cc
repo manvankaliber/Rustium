@@ -10,7 +10,6 @@
 #include <memory>
 #include <utility>
 
-#include "ash/constants/ash_features.h"
 #include "base/check.h"
 #include "base/functional/bind.h"
 #include "base/i18n/case_conversion.h"
@@ -109,11 +108,7 @@ std::unique_ptr<views::View> CreateItemView(const NotificationItem& item) {
 }
 
 bool IsForAshNotification() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return true;
-#else
   return false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 }  // anonymous namespace
@@ -592,9 +587,6 @@ void NotificationViewBase::CreateOrUpdateIconView(
   }
 
   bool apply_rounded_corners = false;
-#if BUILDFLAG(IS_CHROMEOS)
-  apply_rounded_corners = for_ash_notification_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   icon_view_->SetImage(icon, icon.Size(), apply_rounded_corners);
 
   // Hide the icon on the right side when the notification is expanded.

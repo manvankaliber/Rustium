@@ -3,9 +3,7 @@
 // found in the LICENSE file.
 
 import {dedupingMixin as dedupingMixinLit} from 'chrome://resources/lit/v3_0/lit.rollup.js';
-// <if expr="not is_android">
 import {dedupingMixin as dedupingMixinPolymer} from 'chrome://resources/polymer/v3_0/polymer/polymer_bundled.min.js';
-// </if>
 import {assertEquals, assertTrue} from 'chrome://webui-test/chai_assert.js';
 
 type Constructor<T> = new (...args: any[]) => T;
@@ -16,9 +14,7 @@ class BaseElement extends HTMLElement {
 
 const versions = [
   {name: 'Lit', mixin: dedupingMixinLit},
-  // <if expr="not is_android">
   {name: 'Polymer', mixin: dedupingMixinPolymer},
-  // </if>
 ];
 
 versions.forEach(({name, mixin}) => {

@@ -9,7 +9,6 @@
 #include <string>
 #include <utility>
 
-#include "ash/constants/ash_switches.h"
 #include "base/command_line.h"
 #include "base/functional/bind.h"
 #include "base/strings/strcat.h"
@@ -60,7 +59,6 @@
 #include "components/signin/public/base/consent_level.h"
 #include "components/strings/grit/components_strings.h"
 #include "components/sync/test/test_sync_service.h"
-#include "components/user_manager/user_names.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/test/back_forward_cache_util.h"
@@ -878,15 +876,6 @@ INSTANTIATE_TEST_SUITE_P(
 
 class PasswordsFallbackWithGuestProfileTest : public PasswordsFallbackTestBase {
  public:
-#if BUILDFLAG(IS_CHROMEOS)
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    command_line->AppendSwitch(ash::switches::kGuestSession);
-    command_line->AppendSwitchASCII(ash::switches::kLoginUser,
-                                    user_manager::kGuestUserName);
-    command_line->AppendSwitchASCII(ash::switches::kLoginProfile,
-                                    TestingProfile::kTestUserProfileDir);
-  }
-#else
   void SetUpOnMainThread() override {
     host_resolver()->AddRule("*", "127.0.0.1");
     guest_browser_ = CreateGuestBrowser();
@@ -910,7 +899,6 @@ class PasswordsFallbackWithGuestProfileTest : public PasswordsFallbackTestBase {
     guest_browser_ = nullptr;
     PasswordsFallbackTestBase::TearDownOnMainThread();
   }
-#endif
 
  private:
   raw_ptr<BrowserWindowInterface> guest_browser_ = nullptr;

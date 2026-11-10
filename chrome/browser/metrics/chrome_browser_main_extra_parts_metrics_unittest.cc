@@ -18,9 +18,6 @@
 #include "ui/display/test/test_screen.h"
 #include "ui/gfx/geometry/size.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/dbus/u2f/u2f_client.h"
-#endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 #include "components/version_info/channel.h"
@@ -66,18 +63,9 @@ class ChromeBrowserMainExtraPartsMetricsTest : public testing::Test {
 
  protected:
   void SetUp() override {
-#if BUILDFLAG(IS_CHROMEOS)
-    // ChromeBrowserMainExtraPartsMetrics::RecordMetrics() requires a U2FClient,
-    // which would ordinarily have been set up by browser DBus initialization.
-    chromeos::U2FClient::InitializeFake();
-#endif
   }
 
   void TearDown() override {
-#if BUILDFLAG(IS_CHROMEOS)
-    task_environment_.RunUntilIdle();
-    chromeos::U2FClient::Shutdown();
-#endif
   }
 
  private:
@@ -198,31 +186,6 @@ TEST_F(ChromeBrowserMainExtraPartsMetricsTest,
   EXPECT_EQ(0u, storage.GetFlags().size());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(ChromeBrowserMainExtraPartsMetricsTest,
-       IsBundleForMixedDeviceAccordingToVersionCode) {
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("584505130"));
-  EXPECT_TRUE(IsBundleForMixedDeviceAccordingToVersionCode("584505131"));
-  EXPECT_TRUE(IsBundleForMixedDeviceAccordingToVersionCode("584505132"));
-  EXPECT_TRUE(IsBundleForMixedDeviceAccordingToVersionCode("584505133"));
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("584505134"));
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("584505135"));
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("584505136"));
-  EXPECT_TRUE(IsBundleForMixedDeviceAccordingToVersionCode("584505137"));
-  EXPECT_TRUE(IsBundleForMixedDeviceAccordingToVersionCode("584505138"));
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("584505139"));
-
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("584505121"));
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("584505122"));
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("584505123"));
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("584505101"));
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("584505141"));
-
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode(""));
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("0"));
-  EXPECT_FALSE(IsBundleForMixedDeviceAccordingToVersionCode("5845-051-3-1"));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 TEST_F(ChromeBrowserMainExtraPartsMetricsTest,

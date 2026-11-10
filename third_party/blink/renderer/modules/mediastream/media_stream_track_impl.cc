@@ -999,7 +999,6 @@ void MediaStreamTrackImpl::SourceChangedCaptureHandle() {
   DispatchEvent(*Event::Create(event_type_names::kCapturehandlechange));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void MediaStreamTrackImpl::SourceChangedZoomLevel(int zoom_level) {
   DCHECK(IsMainThread());
   if (Ended()) {
@@ -1012,7 +1011,6 @@ void MediaStreamTrackImpl::SourceChangedZoomLevel(int zoom_level) {
     MaybeDispatchConfigurationChange(true);
   }
 }
-#endif
 
 void MediaStreamTrackImpl::PropagateTrackEnded() {
   CHECK(!is_iterating_registered_media_streams_);
@@ -1248,7 +1246,7 @@ void MediaStreamTrackImpl::SendLogMessage(const String& message) {
 
 bool MediaStreamTrackImpl::IsCapturedSurfaceResolutionActive(
     const MediaStreamTrackPlatform::Settings& platform_settings) const {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   if (platform_settings.physical_frame_size) {
     return true;
   }

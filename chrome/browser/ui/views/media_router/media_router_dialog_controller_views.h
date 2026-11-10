@@ -80,11 +80,6 @@ class MediaRouterDialogControllerViews
   void InitializeMediaRouterUI();
   void DestroyMediaRouterUI();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Show the GMC dialog in the Ash UI.
-  void ShowGlobalMediaControlsDialog(
-      std::unique_ptr<StartPresentationContext> context);
-#else
   // If there exists a media button, show the GMC dialog anchored to the media
   // button. Otherwise, show the dialog anchored to the top center of the web
   // contents.
@@ -92,7 +87,6 @@ class MediaRouterDialogControllerViews
       std::unique_ptr<StartPresentationContext> context);
   void ShowGlobalMediaControlsDialog();
   void OnMediaButtonShown(ui::TrackedElement* element);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Returns the media button from the browser that initiates the request to
   // open the dialog. Returns nullptr if:

@@ -9,7 +9,7 @@
 
 namespace history {
 namespace {
-constexpr auto is_android = !!BUILDFLAG(IS_ANDROID);
+constexpr auto is_android = !!false;
 constexpr auto kOrganicRepeatableQueriesDefaultValue =
     base::FEATURE_DISABLED_BY_DEFAULT;
 
@@ -21,7 +21,7 @@ constexpr bool kScaleRepeatableQueriesScoresDefaultValue = is_android;
 // Defines the maximum number of repeatable queries that can be shown.
 // The default behavior is having no limit, i.e., the number of the tiles.
 constexpr int kMaxNumRepeatableQueriesDefaultValue =
-    BUILDFLAG(IS_ANDROID) ? 4 : kTopSitesNumber;
+    false ? 4 : kTopSitesNumber;
 }  // namespace
 
 // If enabled, the most repeated queries from the user browsing history are
@@ -86,11 +86,7 @@ constexpr char kMvtScoringParamRecencyFactor_DecayStaircase[] =
 // The name of the recency factor strategy to use for MVT computation.
 constexpr base::FeatureParam<std::string> kMvtScoringParamRecencyFactor{
     &kMostVisitedTilesNewScoring, "recency_factor",
-#if BUILDFLAG(IS_ANDROID)
-    kMvtScoringParamRecencyFactor_DecayStaircase};
-#else
     kMvtScoringParamRecencyFactor_Classic};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // The per-day decay factor for each visit, used by "decay" only.
 constexpr base::FeatureParam<double> kMvtScoringParamDecayPerDay{
@@ -100,11 +96,7 @@ constexpr base::FeatureParam<double> kMvtScoringParamDecayPerDay{
 // "decay_staircase"}.
 constexpr base::FeatureParam<int> kMvtScoringParamDailyVisitCountCap{
     &kMostVisitedTilesNewScoring, "daily_visit_count_cap",
-#if BUILDFLAG(IS_ANDROID)
-    10};
-#else
     INT_MAX};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // If enabled, very old history databases that cannot be migrated are deleted.
 BASE_FEATURE(kRazeOldHistoryDatabase,
@@ -117,11 +109,7 @@ BASE_FEATURE(kBrowsingHistoryCollapsibleDayCards,
 // Enables improved chrome://history de-duplication logic, this includes
 // grouping entries by hostname and title per day.
 BASE_FEATURE(kBrowsingHistorySimilarVisitsGrouping,
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-             base::FEATURE_DISABLED_BY_DEFAULT
-#else
              base::FEATURE_ENABLED_BY_DEFAULT
-#endif
 );
 
 // If enabled, improves hostname suffix matching for browsing history, so that
@@ -143,11 +131,9 @@ BASE_FEATURE(kBrowsingHistoryFilterByDomainV2,
 // Enables browser history filtering by time.
 BASE_FEATURE(kBrowsingHistoryFilterByTime, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if !BUILDFLAG(IS_IOS)
 // Enables browser history filtering by actor on Android. On desktop this
 // changes the existing actor filter UI to dropdown menu.
 BASE_FEATURE(kBrowsingHistoryFilterByActor, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_IOS)
 
 // If enabled, the WebHistoryService will use a new API for querying browsing
 // history (https://footprints-pa.googleapis.com/...) instead of the old and

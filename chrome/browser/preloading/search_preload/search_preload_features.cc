@@ -58,11 +58,7 @@ const base::FeatureParam<bool> kDsePreload2OnPressTouchDown{
     &kDsePreload2OnPress, "kDsePreload2OnPressTouchDown", true};
 const base::FeatureParam<bool> kDsePreload2OnPressIgnoreSaverModes{
     &kDsePreload2OnPress, "kDsePreload2OnPressIgnoreSaverModes",
-#if BUILDFLAG(IS_ANDROID)
-    true
-#else
     false
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 BASE_FEATURE(kDsePreload2OnPressIncognito, base::FEATURE_DISABLED_BY_DEFAULT);

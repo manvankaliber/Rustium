@@ -22,12 +22,7 @@
 namespace blink {
 
 bool ShouldUseAndroidSpellcheckFullApiBlink() {
-#if BUILDFLAG(IS_ANDROID)
-  return base::FeatureList::IsEnabled(
-      blink::features::kAndroidSpellcheckFullApiBlink);
-#else
   return false;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool ShouldSendSpellingMarkersInfo() {

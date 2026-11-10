@@ -8,7 +8,7 @@
 
 #include "base/logging.h"
 #include "media/base/video_frame.h"
-#include "media/gpu/chromeos/native_pixmap_frame_resource.h"
+#include "media/gpu/linux/native_pixmap_frame_resource.h"
 #include "media/gpu/macros.h"
 
 namespace media {

@@ -95,13 +95,11 @@ mojom::ActionResultPtr GeminiPanelTool::TimeOfUseValidation(
     return MakeResult(mojom::ActionResultCode::kTabWentAway);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowInterface* browser = tab->GetBrowserWindowInterface();
   if (mojom::ActionResultPtr window_validation = ValidateBrowserWindow(browser);
       !IsOk(*window_validation)) {
     return window_validation;
   }
-#endif
 
   // TODO(b/573621953): Consider whether we need to vet the current URL.
 

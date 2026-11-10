@@ -86,18 +86,6 @@ AslrMask(uintptr_t bits) {
       // TODO(crbug.com/40528509): Remove this limitation if/when the macOS
       // behavior changes.
       return AslrMask(38);
-#elif PA_BUILDFLAG(IS_IOS)
-      // As of iOS/Xcode 26.4, Apple unified the Swift runtime's SWIFT_ISA_MASK
-      // across physical devices and the macOS-backed Simulator, strictly
-      // limiting class metadata pointers (like class_ro_t) to 36 bits (64 GiB).
-      // Physical iOS devices inherently restrict mmap allocations to this range
-      // anyway. However, the underlying macOS kernel on the Simulator will
-      // happily map pools above this boundary. If that happens, the Swift
-      // runtime silently truncates the upper bits, causing an EXC_BAD_ACCESS.
-      // We clamp the ASLR mask to 35 bits (32 GiB) to guarantee all hints
-      // remain safely below the 36-bit hardware ceiling on both device and
-      // simulator.
-      return AslrMask(35);
 #endif
     }
     PA_ALWAYS_INLINE PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR uintptr_t
@@ -111,8 +99,6 @@ AslrMask(uintptr_t bits) {
       // which is reserved on ARM64. See these constants in XNU's source code
       // for details (xnu-8019.80.24/osfmk/mach/arm/vm_param.h).
       return AslrAddress(0x10000000000ULL);
-#elif PA_BUILDFLAG(IS_IOS)
-      return AslrAddress(0x300000000ULL);
 #endif
     }
 
@@ -131,23 +117,6 @@ AslrMask(uintptr_t bits) {
         return AslrAddress(0);
       }
 
-    #elif (PA_BUILDFLAG(IS_ANDROID) || PA_BUILDFLAG(IS_CHROMEOS)) && \
-          (PA_BUILDFLAG(PA_ARCH_CPU_ARM64) || PA_BUILDFLAG(PA_ARCH_CPU_RISCV64))
-      // Restrict the address range on Android and ChromeOS (ARM64/RISCV64):
-      // - On Android: Avoids a large performance regression in single-process
-      //   WebViews (https://crbug.com/837640).
-      // - On ChromeOS: ARM64 kernels use 39-bit virtual addressing (512 GiB).
-      //   Restricting the ASLR hint to low memory avoids fragmenting the
-      //   address space and preserves a contiguous 256 GiB block required for
-      //   V8 sandbox full reservation (https://b/537767842).
-      PA_ALWAYS_INLINE PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR uintptr_t
-      ASLRMask() {
-        return AslrMask(30);
-      }
-      PA_ALWAYS_INLINE PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR uintptr_t
-      ASLROffset() {
-        return AslrAddress(0x20000000ULL);
-      }
     #elif PA_BUILDFLAG(PA_ARCH_CPU_ARM64)
       #if PA_BUILDFLAG(IS_LINUX)
 
@@ -248,7 +217,7 @@ AslrMask(uintptr_t bits) {
         return AslrAddress(0);
       }
 
-    #else  // !PA_BUILDFLAG(PA_ARCH_CPU_X86_64) && !PA_BUILDFLAG(PA_ARCH_CPU_PPC64) &&
+#else
            // !PA_BUILDFLAG(PA_ARCH_CPU_S390X) && !PA_BUILDFLAG(PA_ARCH_CPU_S390)
 
       // For all other POSIX variants, use 30 bits.

@@ -51,7 +51,6 @@ ${!this.enableLiveCaptionMultiLanguage_ ? html`
     </settings-toggle-button>
   </cr-collapse>
 ` : ''}
-<if expr="not is_chromeos">
 ${this.enableLiveCaptionMultiLanguage_ ? html`
   <div class="cr-row cr-row-with-template first">
     <settings-toggle-button id="liveCaptionToggleButton"
@@ -156,6 +155,5 @@ ${this.showAddLanguagesDialog_ ? html`
       </cr-action-menu>
     `}">
 </cr-lazy-render-lit>
-</if>
 <!--_html_template_end_-->`;
 }

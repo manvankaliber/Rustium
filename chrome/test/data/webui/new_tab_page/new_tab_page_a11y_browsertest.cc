@@ -17,11 +17,6 @@ class NewTabPageA11yBrowserTest : public WebUIMochaBrowserTest {
  protected:
   NewTabPageA11yBrowserTest() {
     set_test_loader_host(chrome::kChromeUINewTabPageHost);
-#if BUILDFLAG(IS_ANDROID)
-    // WebUI NTP customization buttons are feature-flagged on Android.
-    // Explicitly enable the feature to render customizeButtons for mocha tests.
-    feature_list_.InitAndEnableFeature(ntp_features::kNtpCustomizeWebUiAndroid);
-#endif
   }
 
   void SetUpCommandLine(base::CommandLine* command_line) override {
@@ -31,9 +26,6 @@ class NewTabPageA11yBrowserTest : public WebUIMochaBrowserTest {
   }
 
  private:
-#if BUILDFLAG(IS_ANDROID)
-  base::test::ScopedFeatureList feature_list_;
-#endif
 };
 
 using NewTabPageAppA11yTest = NewTabPageA11yBrowserTest;

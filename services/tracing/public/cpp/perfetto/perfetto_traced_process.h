@@ -209,9 +209,9 @@ class COMPONENT_EXPORT(TRACING_CPP) PerfettoTracedProcess
   // Overrides SetAllowSystemTracingConsumerCallback() for testing.
   static void SetAllowSystemTracingConsumerForTesting(bool allow);
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   void DeferOrConnectProducerSocket(perfetto::CreateSocketCallback cb);
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#endif
 
  protected:
   explicit PerfettoTracedProcess(
@@ -245,9 +245,9 @@ class COMPONENT_EXPORT(TRACING_CPP) PerfettoTracedProcess
   std::unique_ptr<base::Thread> trace_process_thread_;
 
   bool will_trace_thread_restart_ = false;
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   base::OnceClosure system_tracing_producer_socket_cb_;
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#endif
 
   SEQUENCE_CHECKER(sequence_checker_);
 };

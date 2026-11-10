@@ -184,12 +184,7 @@ IN_PROC_BROWSER_TEST_P(WebRtcMediaRecorderDefaultMimeTypeTest,
                   kMediaRecorderHtmlFile);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// These tests are flakily timing out on emulators (https://crbug.com/716691)
-// and/or under Android ASAN (https://crbug.com/693565);
-#define MAYBE_PeerConnection DISABLED_PeerConnection
-#elif (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && \
-    defined(THREAD_SANITIZER)
+#if BUILDFLAG(IS_LINUX) && defined(THREAD_SANITIZER)
 // Flaky on Linux TSan, https://crbug.com/694373.
 #define MAYBE_PeerConnection DISABLED_PeerConnection
 #elif BUILDFLAG(IS_WIN) && !defined(NDEBUG)
@@ -209,11 +204,7 @@ IN_PROC_BROWSER_TEST_P(WebRtcMediaRecorderTest, MAYBE_PeerConnection) {
 }
 
 // Flaky on Linux Tsan (crbug.com/736268)
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_AddingTrackToMediaStreamFiresErrorEvent \
-  DISABLED_AddingTrackToMediaStreamFiresErrorEvent
-#elif BUILDFLAG(IS_ANDROID)
-// Flaky on Android (crbug.com/1174634).
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_AddingTrackToMediaStreamFiresErrorEvent \
   DISABLED_AddingTrackToMediaStreamFiresErrorEvent
 #else

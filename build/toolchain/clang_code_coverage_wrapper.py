@@ -244,11 +244,6 @@ _DEFAULT_COVERAGE_EXCLUSION_LIST = [
 # If no target OS is defined, or one is defined that doesn't have a specific
 # entry, use _DEFAULT_COVERAGE_EXCLUSION_LIST.
 _COVERAGE_EXCLUSION_LIST_MAP = {
-    'android': [
-        # This file caused webview native library failed on arm64.
-        '../../device/gamepad/dualshock4_controller.cc',
-    ]
-    + _DEFAULT_COVERAGE_EXCLUSION_LIST,
     'linux': [
         # These files caused a static initializer to be generated, which
         # shouldn't.
@@ -260,15 +255,7 @@ _COVERAGE_EXCLUSION_LIST_MAP = {
         '../../ui/events/keycodes/dom/keycode_converter.cc',
     ]
     + _DEFAULT_COVERAGE_EXCLUSION_LIST,
-    'chromeos': [
-        # These files caused clang to crash while compiling them. They are
-        # excluded pending an investigation into the underlying compiler bug.
-        '../../third_party/webrtc/p2p/base/p2p_transport_channel.cc',
-        '../../third_party/icu/source/common/uts46.cpp',
-        '../../third_party/icu/source/common/ucnvmbcs.cpp',
-        '../../base/android/android_image_reader_compat.cc',
-    ]
-    + _DEFAULT_COVERAGE_EXCLUSION_LIST,
+
 }
 
 # Map of force lists indexed by target OS.

@@ -942,13 +942,9 @@ bool AutofillCrowdsourcingManager::StartRequest(FormRequestData request_data) {
   // NavigationRequest. Not setting an IsolationInfo is safe because no
   // information about the response is passed to the renderer, or is otherwise
   // visible to a page. See crbug/1176635#c22.
-#if BUILDFLAG(IS_IOS)
-  DCHECK(!request_data.isolation_info);
-#else
   DCHECK(
       (request_data.request_type == CrowdsourcingRequestType::kRequestUpload) ==
       !request_data.isolation_info);
-#endif
   // Get the URL and method to use for this request.
   auto [request_url, method] = GetRequestURLAndMethod(request_data);
 
@@ -1108,7 +1104,6 @@ void AutofillCrowdsourcingManager::OnSimpleLoaderComplete(
         GetMetricName(request_data.request_type, "FailingPayloadSize"),
         request_data.payload.length());
 
-#if !BUILDFLAG(IS_ANDROID)
     if (base::FeatureList::IsEnabled(
             features::debug::kAutofillOverridePredictions) &&
         request_data.callback) {
@@ -1121,7 +1116,6 @@ void AutofillCrowdsourcingManager::OnSimpleLoaderComplete(
                              std::move(request_data.form_signatures)));
       return;
     }
-#endif
 
     // If the failure was a client error don't retry.
     if (response_code >= 400 && response_code <= 499) {

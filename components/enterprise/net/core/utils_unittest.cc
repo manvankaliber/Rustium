@@ -85,22 +85,14 @@ ProvisioningDomainProxyConfig::RoutingRule MakeRoutingRule(
 // Platforms that do not support port matchers strip the port at parse time and
 // match the whole host instead.
 std::string ExpectedPortMatcher(std::string_view host, uint16_t port) {
-#if BUILDFLAG(IS_IOS)
-  return std::string(host);
-#else
   return base::StrCat({host, ":", base::NumberToString(port)});
-#endif
 }
 
 // Returns the destination matchers expected for a plain `host` entry in
 // `domains`. iOS widens plain hosts to `*.<host>` to mirror WebKit's suffix
 // matching, and the wildcard entry keeps matching `host` itself.
 std::vector<std::string> ExpectedDomainMatchers(std::string_view host) {
-#if BUILDFLAG(IS_IOS)
-  return {base::StrCat({"*.", host}), std::string(host)};
-#else
   return {std::string(host)};
-#endif
 }
 
 // Returns the string form of every rule in `matchers`, in evaluation order.
@@ -768,17 +760,9 @@ TEST(ProvisioningDomainProxyConfigToDictTest, ParseAndSerializeRoundtrip) {
   for (const auto& matcher : *rule0_matchers) {
     rule0_matcher_strings.push_back(matcher.GetString());
   }
-#if BUILDFLAG(IS_IOS)
-  // Stripping the port also preserves the subnet matcher: `10.0.0.0/8:443` is
-  // not a pattern `net::ProxyHostMatchingRules` accepts, while `10.0.0.0/8` is.
-  EXPECT_THAT(
-      rule0_matcher_strings,
-      ElementsAre(base::StrCat({"*.", kTestDomain}), kTestDomain, kTestSubnet));
-#else
   EXPECT_THAT(rule0_matcher_strings,
               ElementsAre(base::StrCat(
                   {kTestDomain, ":", base::NumberToString(kTestPort)})));
-#endif  // BUILDFLAG(IS_IOS)
 
   // Verify 2-way roundtrip: parse serialized dict back into
   // ProvisioningDomainProxyConfig.
@@ -840,192 +824,6 @@ TEST(ParseRoutingRuleTest, WildcardApexDomainExpansion) {
       rule->destination_matchers.Matches(GURL("https://otherdomain.co/")));
 }
 
-#if BUILDFLAG(IS_IOS)
-
-// Test that port matchers are dropped from a rule scoped to domains, widening
-// it to every port of those domains.
-TEST(ParseRoutingRuleTest, StripsPortMatchersFromDomainRule) {
-  base::DictValue match_dict;
-  base::ListValue domains;
-  domains.Append("example.com");
-  match_dict.Set("domains", std::move(domains));
-
-  base::ListValue ports;
-  ports.Append("80");
-  ports.Append(8080);
-  match_dict.Set("ports", std::move(ports));
-
-  base::ListValue proxies;
-  proxies.Append("proxy1");
-  match_dict.Set("proxies", std::move(proxies));
-
-  std::optional<ProvisioningDomainProxyConfig::RoutingRule> rule =
-      ParseRoutingRule(match_dict);
-  ASSERT_TRUE(rule.has_value());
-
-  // The declared ports still match, and so does every other port.
-  EXPECT_TRUE(
-      rule->destination_matchers.Matches(GURL("http://example.com:80/")));
-  EXPECT_TRUE(
-      rule->destination_matchers.Matches(GURL("http://example.com:8080/")));
-  EXPECT_TRUE(
-      rule->destination_matchers.Matches(GURL("https://example.com:443/")));
-  EXPECT_TRUE(
-      rule->destination_matchers.Matches(GURL("http://example.com:9999/")));
-
-  // Stripping ports must not widen the rule beyond the declared domain.
-  EXPECT_FALSE(rule->destination_matchers.Matches(GURL("https://other.com/")));
-}
-
-// Test that a rule declaring only ports matches every destination once its
-// ports are stripped.
-TEST(ParseRoutingRuleTest, StripsPortMatchersFromWildcardRule) {
-  base::DictValue match_dict;
-  base::ListValue ports;
-  ports.Append(kTestPort);
-  match_dict.Set("ports", std::move(ports));
-
-  base::ListValue proxies;
-  proxies.Append("proxy1");
-  match_dict.Set("proxies", std::move(proxies));
-
-  std::optional<ProvisioningDomainProxyConfig::RoutingRule> rule =
-      ParseRoutingRule(match_dict);
-  ASSERT_TRUE(rule.has_value());
-
-  EXPECT_TRUE(
-      rule->destination_matchers.Matches(GURL("https://example.com:443/")));
-  EXPECT_TRUE(
-      rule->destination_matchers.Matches(GURL("http://other.com:8080/")));
-}
-
-// Test that port matchers are also dropped from subnet rules.
-TEST(ParseRoutingRuleTest, StripsPortMatchersFromSubnetRule) {
-  base::DictValue match_dict;
-  base::ListValue subnets;
-  subnets.Append(kTestSubnet);
-  match_dict.Set("subnets", std::move(subnets));
-
-  base::ListValue ports;
-  ports.Append(kTestPort);
-  match_dict.Set("ports", std::move(ports));
-
-  base::ListValue proxies;
-  proxies.Append("proxy1");
-  match_dict.Set("proxies", std::move(proxies));
-
-  std::optional<ProvisioningDomainProxyConfig::RoutingRule> rule =
-      ParseRoutingRule(match_dict);
-  ASSERT_TRUE(rule.has_value());
-
-  EXPECT_TRUE(rule->destination_matchers.Matches(GURL("https://10.1.2.3/")));
-  EXPECT_TRUE(
-      rule->destination_matchers.Matches(GURL("http://10.1.2.3:8080/")));
-  EXPECT_FALSE(
-      rule->destination_matchers.Matches(GURL("http://192.168.1.1:443/")));
-}
-
-// Test that a plain domain is widened to match the domain and all of its
-// subdomains, mirroring WebKit's suffix-based matching.
-TEST(ParseRoutingRuleTest, WidensPlainDomainToSubdomains) {
-  std::optional<ProvisioningDomainProxyConfig::RoutingRule> rule =
-      ParseRoutingRule(MakeDomainMatchDict({"example.com"}));
-  ASSERT_TRUE(rule.has_value());
-
-  EXPECT_THAT(MatcherStrings(rule->destination_matchers),
-              ElementsAre("*.example.com", "example.com"));
-  EXPECT_TRUE(rule->destination_matchers.Matches(GURL("https://example.com/")));
-  EXPECT_TRUE(
-      rule->destination_matchers.Matches(GURL("https://sub.example.com/")));
-  EXPECT_TRUE(rule->destination_matchers.Matches(
-      GURL("https://admin.test.example.com/")));
-  EXPECT_FALSE(
-      rule->destination_matchers.Matches(GURL("https://notexample.com/")));
-  EXPECT_FALSE(rule->destination_matchers.Matches(GURL("https://other.com/")));
-}
-
-// Test that entries already carrying a wildcard are not widened further.
-TEST(ParseRoutingRuleTest, KeepsWildcardDomainsUnchanged) {
-  std::optional<ProvisioningDomainProxyConfig::RoutingRule> wildcard_rule =
-      ParseRoutingRule(MakeDomainMatchDict({"*.example.com"}));
-  ASSERT_TRUE(wildcard_rule.has_value());
-  EXPECT_THAT(MatcherStrings(wildcard_rule->destination_matchers),
-              ElementsAre("*.example.com", "example.com"));
-
-  std::optional<ProvisioningDomainProxyConfig::RoutingRule> match_all_rule =
-      ParseRoutingRule(MakeDomainMatchDict({"*"}));
-  ASSERT_TRUE(match_all_rule.has_value());
-  EXPECT_THAT(MatcherStrings(match_all_rule->destination_matchers),
-              ElementsAre("*"));
-}
-
-// Test that subnets and IP literals, which reach `domains` when a cached
-// config is parsed, are not widened.
-TEST(ParseRoutingRuleTest, DoesNotWidenSubnetsOrIpLiterals) {
-  std::optional<ProvisioningDomainProxyConfig::RoutingRule> rule =
-      ParseRoutingRule(MakeDomainMatchDict(
-          {"10.0.0.0/8", "2001:db8::/32", "10.1.2.3", "[2001:db8::1]"}));
-  ASSERT_TRUE(rule.has_value());
-
-  EXPECT_THAT(
-      MatcherStrings(rule->destination_matchers),
-      ElementsAre("10.0.0.0/8", "2001:db8::/32", "10.1.2.3", "[2001:db8::1]"));
-  EXPECT_TRUE(rule->destination_matchers.Matches(GURL("https://10.4.5.6/")));
-  EXPECT_TRUE(rule->destination_matchers.Matches(GURL("https://10.1.2.3/")));
-}
-
-// Test that listing both the plain and the wildcard form of a domain does not
-// produce duplicate matchers once the plain form is widened.
-TEST(ParseRoutingRuleTest, CollapsesPlainAndWildcardDomainPair) {
-  std::optional<ProvisioningDomainProxyConfig::RoutingRule> rule =
-      ParseRoutingRule(MakeDomainMatchDict({"example.com", "*.example.com"}));
-  ASSERT_TRUE(rule.has_value());
-
-  EXPECT_THAT(MatcherStrings(rule->destination_matchers),
-              ElementsAre("*.example.com", "example.com"));
-}
-
-// Test that a plain and a wildcard form of a domain that differ only in case
-// collapse into a single pair of matchers, since `net` lowercases patterns.
-TEST(ParseRoutingRuleTest, CollapsesDomainPairCaseInsensitively) {
-  std::optional<ProvisioningDomainProxyConfig::RoutingRule> rule =
-      ParseRoutingRule(MakeDomainMatchDict({"Example.com", "*.example.com"}));
-  ASSERT_TRUE(rule.has_value());
-
-  EXPECT_THAT(MatcherStrings(rule->destination_matchers),
-              ElementsAre("*.example.com", "example.com"));
-}
-
-// Test that empty and leading-dot entries are not widened into malformed
-// `*.` or `*..` patterns.
-TEST(ParseRoutingRuleTest, DoesNotWidenEmptyOrLeadingDotDomains) {
-  std::optional<ProvisioningDomainProxyConfig::RoutingRule> rule =
-      ParseRoutingRule(MakeDomainMatchDict({"", ".example.com"}));
-  ASSERT_TRUE(rule.has_value());
-
-  EXPECT_THAT(MatcherStrings(rule->destination_matchers),
-              ElementsAre("*.example.com"));
-}
-
-// Test that an auth challenge for a subdomain of a plain PvD domain resolves to
-// the endpoint of that domain's rule, since WebKit routes subdomains through
-// the same proxy.
-TEST(FindMatchingProxyEndpointTest, MatchesSubdomainOfPlainDomain) {
-  std::optional<ProvisioningDomainProxyConfig> config =
-      ParseProvisioningDomainConfig(GetValidPvdJsonResponse());
-  ASSERT_TRUE(config.has_value());
-
-  const ProvisioningDomainProxyConfig::ProxyEndpoint* endpoint =
-      FindMatchingProxyEndpoint(*config,
-                                GURL("https://admin.sub.test.domain.com/path"),
-                                MakeHttpsProxyChain(kTestProxyHost1));
-  ASSERT_NE(nullptr, endpoint);
-  EXPECT_EQ(MakeHttpsProxyChain(kTestProxyHost1), endpoint->proxy_chain);
-  ASSERT_TRUE(endpoint->auth.has_value());
-  EXPECT_EQ(AuthType::kProfileBearerToken, endpoint->auth->type);
-}
-
-#else
 
 TEST(ParseRoutingRuleTest, SinglePortParsingAndIgnoredPortRanges) {
   base::DictValue match_dict;
@@ -1077,50 +875,7 @@ TEST(ParseRoutingRuleTest, PlainDomainDoesNotMatchSubdomains) {
       rule->destination_matchers.Matches(GURL("https://sub.example.com/")));
 }
 
-#endif  // BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-// Tests that `IsSecureGatewayEnabled` returns true only when both the
-// `kProxyProvisioningDomains` preference is non-empty and the dynamic route
-// fetching feature is enabled.
-TEST(UtilsTest, IsSecureGatewayEnabled) {
-  TestingPrefServiceSimple prefs;
-  RegisterProfilePrefs(prefs.registry());
-
-  // Empty preference list should return false regardless of feature state.
-  EXPECT_FALSE(IsSecureGatewayEnabled(&prefs));
-  {
-    base::test::ScopedFeatureList scoped_feature_list;
-    scoped_feature_list.InitAndEnableFeature(kEnableDynamicRouteFetching);
-    EXPECT_FALSE(IsSecureGatewayEnabled(&prefs));
-  }
-  {
-    base::test::ScopedFeatureList scoped_feature_list;
-    scoped_feature_list.InitAndDisableFeature(kEnableDynamicRouteFetching);
-    EXPECT_FALSE(IsSecureGatewayEnabled(&prefs));
-  }
-
-  base::ListValue domains;
-  domains.Append("example.com");
-  prefs.SetList(kProxyProvisioningDomains, std::move(domains));
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  EXPECT_TRUE(IsSecureGatewayEnabled(&prefs));
-#else
-  EXPECT_FALSE(IsSecureGatewayEnabled(&prefs));
-#endif
-
-  {
-    base::test::ScopedFeatureList scoped_feature_list;
-    scoped_feature_list.InitAndEnableFeature(kEnableDynamicRouteFetching);
-    EXPECT_TRUE(IsSecureGatewayEnabled(&prefs));
-  }
-  {
-    base::test::ScopedFeatureList scoped_feature_list;
-    scoped_feature_list.InitAndDisableFeature(kEnableDynamicRouteFetching);
-    EXPECT_FALSE(IsSecureGatewayEnabled(&prefs));
-  }
-}
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 }  // namespace
 }  // namespace enterprise_net

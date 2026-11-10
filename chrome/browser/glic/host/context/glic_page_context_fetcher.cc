@@ -35,15 +35,10 @@
 #include "mojo/public/cpp/base/proto_wrapper_passkeys.h"
 #include "url/origin.h"
 
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
 #include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/glic/media/glic_media_integration.h"
 #include "chrome/browser/glic/selection/selection_overlay_controller.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/tab_android.h"
-#endif
 
 namespace glic {
 
@@ -278,7 +273,6 @@ void FetchPageContext(
   auto* web_contents = tab->GetContents();
 
   std::unique_ptr<actor::AggregatedJournal::PendingAsyncEntry> journal_entry;
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
   if (auto* actor_keyed_service =
           actor::ActorKeyedService::Get(web_contents->GetBrowserContext())) {
     const GURL& url = web_contents->GetLastCommittedURL();
@@ -298,7 +292,6 @@ void FetchPageContext(
       progress_listener = std::move(journal_listener);
     }
   }
-#endif
 
   page_content_annotations::FetchPageContextOptions options;
   if (tab_context_options.inner_text) {
@@ -334,28 +327,14 @@ void FetchPageContext(
   }
 
   std::unique_ptr<optimization_guide::proto::ContentNode> media_root_node;
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
   if (auto* media_integration = GlicMediaIntegration::GetFor(web_contents)) {
     media_root_node =
         std::make_unique<optimization_guide::proto::ContentNode>();
     media_integration->AppendContext(web_contents, media_root_node.get());
   }
-#endif
 
   url::Origin main_document_origin =
       web_contents->GetPrimaryMainFrame()->GetLastCommittedOrigin();
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, a PDF tab's page is an empty chrome-native://pdf placeholder
-  // with no website, so its origin is empty (""). Use the origin of the URL
-  // shown in the omnibox (`GetLastCommittedURL()`) instead: for web PDFs this
-  // is the site, same as the PDF document data and desktop. Local PDFs have no
-  // website and stay empty.
-  if (auto* tab_android = TabAndroid::FromWebContents(web_contents);
-      tab_android && tab_android->IsPdf()) {
-    main_document_origin =
-        url::Origin::Create(web_contents->GetLastCommittedURL());
-  }
-#endif
 
   page_content_annotations::FetchPageContext(
       *web_contents, options, std::move(progress_listener),

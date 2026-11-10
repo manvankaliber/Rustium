@@ -1034,10 +1034,6 @@ class BrowserAutofillManagerTest : public testing::Test,
 
     // Mandatory re-auth is required for credit card autofill on automotive, so
     // the authenticator response needs to be properly mocked.
-#if BUILDFLAG(IS_ANDROID)
-    payments_autofill_client()
-        .SetUpDeviceBiometricAuthenticatorSuccessOnAutomotive();
-#endif
     ON_CALL(autofill_driver(), CanShowAutofillUi).WillByDefault(Return(true));
   }
 
@@ -1445,11 +1441,7 @@ TEST_F(BrowserAutofillManagerAtMemoryTest, AtMemoryTriggersEmptySuggestions) {
   FormData form = CreateTestAddressFormData();
   FormsSeen({form});
 
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_CALL(password_delegate(), ShowSuggestions).Times(0);
-#else   // BUILDFLAG(IS_ANDROID)
-  EXPECT_CALL(password_delegate(), ShowKeyboardReplacingSurface).Times(0);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // For AtMemory, the manager immediately returns empty suggestions so the UI
   // can show the search bar.
@@ -1685,7 +1677,6 @@ TEST_F(BrowserAutofillManagerTest, OnFormsSeen_SendTypePredictionsToRenderer) {
   FormsSeen({form1, form2});
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Tests that the `kWebauthnSignInWithAnotherDevice` suggestion is present if
 // the `PasswordManagerDelegate` returns it.
 TEST_F(BrowserAutofillManagerTest, WebauthnSignInWithAnotherDeviceSuggestion) {
@@ -1913,7 +1904,6 @@ TEST_F(BrowserAutofillManagerTest,
 
   external_delegate()->DidAcceptSuggestion(suggestion, {.multi_index = {0}});
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // Test that we return no suggestions when autofill is disabled.
 TEST_F(BrowserAutofillManagerTest,
@@ -2359,8 +2349,7 @@ TEST_F(BrowserAutofillManagerTest,
   // Verify that the amount extraction is not triggered.
   EXPECT_CALL(amount_extraction_manager(), TriggerCheckoutAmountExtraction)
       .Times(0);
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   EXPECT_CALL(*autofill_manager().GetPaymentsBnplManager(),
               NotifyOfSuggestionGeneration)
       .Times(0);
@@ -2398,8 +2387,7 @@ TEST_F(BrowserAutofillManagerTest,
   // Verify that the amount extraction is not triggered.
   EXPECT_CALL(amount_extraction_manager(), TriggerCheckoutAmountExtraction)
       .Times(0);
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   EXPECT_CALL(*autofill_manager().GetPaymentsBnplManager(),
               NotifyOfSuggestionGeneration)
       .Times(0);
@@ -2440,8 +2428,7 @@ TEST_F(BrowserAutofillManagerTest,
   // Verify that the amount extraction is not triggered.
   EXPECT_CALL(amount_extraction_manager(), TriggerCheckoutAmountExtraction)
       .Times(0);
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   EXPECT_CALL(*autofill_manager().GetPaymentsBnplManager(),
               NotifyOfSuggestionGeneration)
       .Times(0);
@@ -2769,8 +2756,7 @@ TEST_F(BrowserAutofillManagerTest,
       /*require_user_confirmation=*/false, /*blocked_fields=*/{});
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 TEST_F(BrowserAutofillManagerTest, FillOrPreviewForm_CreditCard_Bnpl) {
   base::test::ScopedFeatureList scoped_feature_list(
       features::kAutofillEnableBuyNowPayLaterSyncing);
@@ -2847,8 +2833,7 @@ TEST_F(BrowserAutofillManagerTest,
 // Therefore, the system will only check for supported BNPL issuers on these
 // platforms.
 // TODO(crbug.com/401370610): Update when BNPL is launched to other platform.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Tests that, in the BNPL flow, a VCN is not fetched again due to prior
 // authorization.
 TEST_F(BrowserAutofillManagerTest,
@@ -6013,49 +5998,6 @@ TEST_F(BrowserAutofillManagerTest, NoComposeSuggestionsByDefault) {
        CreateManageAddressesSuggestion()});
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Parametrized over `kAutofillNewSuggestionGeneration`: the textarea
-// suppression must apply on both the legacy and the new generation path.
-class BrowserAutofillManagerTextAreaTest
-    : public BrowserAutofillManagerTest,
-      public testing::WithParamInterface<bool> {
- public:
-  BrowserAutofillManagerTextAreaTest() {
-    feature_list_.InitWithFeatureState(
-        features::kAutofillNewSuggestionGeneration, GetParam());
-  }
-
- private:
-  base::test::ScopedFeatureList feature_list_;
-};
-
-INSTANTIATE_TEST_SUITE_P(All,
-                         BrowserAutofillManagerTextAreaTest,
-                         testing::Bool());
-
-// Tests that with `kAutofillAtMemorySupportTextAreaOnAndroid`, no Autofill
-// suggestions are generated for a <textarea> on Android, even if the field is
-// classified: textareas only offer the AtMemory entry point in the keyboard
-// accessory.
-TEST_P(BrowserAutofillManagerTextAreaTest, NoSuggestionsForTextAreaOnAndroid) {
-  FormData form = CreateTestAddressFormData();
-  test_api(form).field(3).set_form_control_type(FormControlType::kTextArea);
-  FormsSeen({form});
-
-  // Without the feature, the classified textarea yields address suggestions
-  // (two entries, a separator and "Manage addresses").
-  OnAskForValuesToFill(form, form.fields()[3]);
-  external_delegate()->CheckSuggestionCount(form.fields()[3].global_id(), 4);
-
-  // With the feature, it yields none.
-  base::test::ScopedFeatureList feature_list{
-      features::kAutofillAtMemorySupportTextAreaOnAndroid};
-  EXPECT_CALL(autocomplete_history_manager(), OnGetSingleFieldSuggestions)
-      .Times(0);
-  OnAskForValuesToFill(form, form.fields()[3]);
-  external_delegate()->CheckNoSuggestions(form.fields()[3].global_id());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Tests that Compose suggestions are queried if the trigger source indicates
 // that the focus change happened without click/tap interaction. It also
@@ -6332,7 +6274,6 @@ TEST_F(BrowserAutofillManagerTest_MockAutofillAi, ShowAutofillAiSuggestions) {
               ElementsAre(EqualsSuggestion(SuggestionType::kFillAutofillAi)));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Tests that no Autofill AI suggestions are shown if the autocomplete attribute
 // is unrecognized.
 TEST_F(BrowserAutofillManagerTest_MockAutofillAi,
@@ -6345,7 +6286,6 @@ TEST_F(BrowserAutofillManagerTest_MockAutofillAi,
       passport_form(), passport_form().fields().front(),
       AutofillSuggestionTriggerSource::kFormControlElementClicked);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // Tests that if a name field is dynamically assigned to an Autofill AI entity
 // but the EntityDataManager cannot fill that specific field, there are no
@@ -6438,13 +6378,6 @@ TEST_F(BrowserAutofillManagerTest_MockAutofillAi,
 // eligible.
 TEST_F(BrowserAutofillManagerTest_MockAutofillAi,
        PrivateInferenceNotice_DoesNotShowIfAutofillUiCantBeShown) {
-#if BUILDFLAG(IS_ANDROID)
-  // Disable the bottom sheet, so that the message is suppressed by
-  // `CanShowAutofillUi()` and not by the bottom sheet feature.
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(
-      features::kAutofillAiPrivateInferenceNoticeBottomSheet);
-#endif  // BUILDFLAG(IS_ANDROID)
   EXPECT_CALL(autofill_driver(), CanShowAutofillUi)
       .WillRepeatedly(Return(false));
   SeeForm(/*may_run_model=*/false);
@@ -6470,12 +6403,6 @@ TEST_F(BrowserAutofillManagerTest_MockAutofillAi,
 // eligible.
 TEST_F(BrowserAutofillManagerTest_MockAutofillAi,
        TouchToFillAutofillSuggestion_DoesNotShowIfNotEligible) {
-#if BUILDFLAG(IS_ANDROID)
-  // The Android message is only shown if the bottom sheet is disabled.
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(
-      features::kAutofillAiPrivateInferenceNoticeBottomSheet);
-#endif  // BUILDFLAG(IS_ANDROID)
   SeeForm(/*may_run_model=*/false);
 
   std::vector<Suggestion> suggestions = {
@@ -6495,33 +6422,8 @@ TEST_F(BrowserAutofillManagerTest_MockAutofillAi,
   EXPECT_TRUE(external_delegate()->on_suggestions_returned_seen());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Tests that the private inference notice is never shown as an Android message
-// if the bottom sheet feature is enabled, even if Touch To Fill isn't shown.
-TEST_F(BrowserAutofillManagerTest_MockAutofillAi,
-       PrivateInferenceNotice_DoesNotShowMessageIfBottomSheetFeatureEnabled) {
-  base::test::ScopedFeatureList feature_list(
-      features::kAutofillAiPrivateInferenceNoticeBottomSheet);
-  SeeForm(/*may_run_model=*/false);
 
-  std::vector<Suggestion> suggestions = {
-      Suggestion(SuggestionType::kAutofillAiPrivateInferenceNotice)};
-  EXPECT_CALL(mock_ai_manager(), GetSuggestions).WillOnce(Return(suggestions));
-
-  EXPECT_CALL(touch_to_fill_autofill_delegate(), TryToShowTouchToFill)
-      .WillOnce(testing::Return(false));
-  EXPECT_CALL(autofill_client(), ShowAutofillAiPrivateInferenceNotice).Times(0);
-  TryToShowTouchToFill(passport_form(), passport_form().fields().front(),
-                       /*form_element_was_clicked=*/true);
-  EXPECT_THAT(external_delegate()->suggestions(),
-              ElementsAre(EqualsSuggestion(
-                  SuggestionType::kAutofillAiPrivateInferenceNotice)));
-  EXPECT_TRUE(external_delegate()->on_suggestions_returned_seen());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 class BrowserAutofillManagerTest_MockAutofillAi_WithModel
     : public BrowserAutofillManagerTest_MockAutofillAi {
  public:
@@ -7299,11 +7201,7 @@ TEST_F(BrowserAutofillManagerTest, QueriesDelegateWhenGeneratingSuggestions) {
   FormData form = CreateTestAddressFormData();
   FormsSeen({form});
 
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_CALL(password_delegate(), ShowSuggestions);
-#else   // BUILDFLAG(IS_ANDROID)
-  EXPECT_CALL(password_delegate(), ShowKeyboardReplacingSurface);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   OnAskForValuesToFill(form, form.fields()[0],
                        AutofillSuggestionTriggerSource::kTextFieldValueChanged,

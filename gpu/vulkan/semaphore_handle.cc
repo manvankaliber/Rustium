@@ -30,7 +30,7 @@ SemaphoreHandle::~SemaphoreHandle() = default;
 SemaphoreHandle& SemaphoreHandle::operator=(SemaphoreHandle&&) = default;
 
 SemaphoreHandle::SemaphoreHandle(gfx::GpuFenceHandle fence_handle) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   Init(VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT_KHR,
        fence_handle.Release());
 #elif BUILDFLAG(IS_POSIX)
@@ -50,7 +50,7 @@ void SemaphoreHandle::Init(VkExternalSemaphoreHandleTypeFlagBits type,
 
 gfx::GpuFenceHandle SemaphoreHandle::ToGpuFenceHandle() && {
   gfx::GpuFenceHandle fence_handle;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   if (type_ == VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT_KHR) {
     fence_handle.Adopt(TakeHandle());
   } else {

@@ -37,9 +37,6 @@
 #if BUILDFLAG(ENABLE_PRINTING)
 #include "chrome/browser/printing/print_view_manager_common.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "mojo/public/cpp/bindings/associated_remote.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 #endif  // BUILDFLAG(ENABLE_PRINTING)
 
 #if BUILDFLAG(IS_WIN)
@@ -47,9 +44,7 @@
 #include "ui/views/win/hwnd_util.h"
 #endif  // BUILDFLAG(IS_WIN)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/selection/selection_overlay_controller.h"
-#endif
 
 namespace glic {
 
@@ -251,9 +246,6 @@ bool GlicFloatingUi::Print() {
   }
   printing::StartPrint(
       web_contents,
-#if BUILDFLAG(IS_CHROMEOS)
-      /*print_renderer=*/mojo::NullAssociatedRemote(),
-#endif
       profile_->GetPrefs()->GetBoolean(::prefs::kPrintPreviewDisabled),
       /*has_selection=*/false);
   return true;
@@ -262,7 +254,6 @@ bool GlicFloatingUi::Print() {
 #endif  // BUILDFLAG(ENABLE_PRINTING)
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 bool GlicFloatingUi::HasSelectionOverlay() {
   tabs::TabInterface* focused_tab =
       delegate_->host().GetSharingManagerInternal().GetFocusedTabData().focus();
@@ -290,7 +281,6 @@ void GlicFloatingUi::CloseSelectionOverlay() {
   }
   selection_overlay_controller->Close();
 }
-#endif
 
 void GlicFloatingUi::ActiveWebContentsChanged(
     content::WebContents* new_contents) {
@@ -551,14 +541,12 @@ std::unique_ptr<GlicUiEmbedder> GlicFloatingUi::CreateInactiveEmbedder() const {
   return nullptr;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 base::WeakPtr<views::View> GlicFloatingUi::GetView() {
   if (auto* glic_view = GetGlicView()) {
     return glic_view->GetWeakPtr();
   }
   return nullptr;
 }
-#endif
 
 void GlicFloatingUi::SwitchConversation(
     glic::mojom::ConversationInfoPtr info,

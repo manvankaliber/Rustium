@@ -73,9 +73,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
-#endif
 
 #if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
 #include "chrome/browser/enterprise/connectors/analysis/content_analysis_dialog_controller.h"
@@ -138,11 +135,7 @@ constexpr char kNoScan[] = R"({"service_provider": "google"})";
 constexpr char kScanId[] = "scan_id";
 
 std::string GetFileName(const std::string& full_path) {
-#if BUILDFLAG(IS_CHROMEOS)
-  return base::FilePath(full_path).BaseName().AsUTF8Unsafe();
-#else
   return full_path;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 #if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
@@ -1310,10 +1303,6 @@ class DeepScanningReportingTest : public DeepScanningRequestTest {
     enterprise_connectors::test::SetOnSecurityEventReporting(
         profile_->GetPrefs(), true);
 
-#if BUILDFLAG(IS_CHROMEOS)
-    fake_statistics_provider_.SetMachineStatistic(ash::system::kSerialNumberKey,
-                                                  "fake_serial_number");
-#endif
 
     enterprise_connectors::test::SetAnalysisConnector(
         profile_->GetPrefs(), enterprise_connectors::FILE_DOWNLOADED,
@@ -1328,9 +1317,6 @@ class DeepScanningReportingTest : public DeepScanningRequestTest {
   }
 
  protected:
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::system::ScopedFakeStatisticsProvider fake_statistics_provider_;
-#endif
   std::unique_ptr<policy::MockCloudPolicyClient> client_;
   signin::IdentityTestEnvironment identity_test_environment_;
 };

@@ -52,8 +52,7 @@ class PaymentAppFactory {
  public:
   class Delegate {
    public:
-    using GetTwaPackageNameCallback =
-        base::OnceCallback<void(const std::string& twa_package_name)>;
+
 
     virtual ~Delegate() = default;
 
@@ -87,9 +86,7 @@ class PaymentAppFactory {
     // being aborted.
     virtual base::WeakPtr<PaymentRequestSpec> GetSpec() const = 0;
 
-    // Obtains the Android package name of the Trusted Web Activity that invoked
-    // this browser, if any. Otherwise, calls `callback` with an empty string.
-    virtual void GetTwaPackageName(GetTwaPackageNameCallback callback) = 0;
+
 
     // Tells the UI to show the processing spinner. Only desktop UI needs this
     // notification.

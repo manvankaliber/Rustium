@@ -45,28 +45,6 @@ VkDeviceSize GetPreferredVMALargeHeapBlockSize() {
   return kVulkanVMALargeHeapBlockSize;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-class VulkanMetric final
-    : public base::android::PreFreezeBackgroundMemoryTrimmer::PreFreezeMetric {
- public:
-  explicit VulkanMetric(VmaAllocator vma_allocator)
-      : PreFreezeMetric("Vulkan"), vma_allocator_(vma_allocator) {
-    base::android::PreFreezeBackgroundMemoryTrimmer::RegisterMemoryMetric(this);
-  }
-
-  ~VulkanMetric() override {
-    base::android::PreFreezeBackgroundMemoryTrimmer::UnregisterMemoryMetric(
-        this);
-  }
-
- private:
-  std::optional<base::ByteSize> Measure() const override {
-    auto allocated_used = vma::GetTotalAllocatedAndUsedMemory(vma_allocator_);
-    return base::ByteSize(allocated_used.first);
-  }
-  VmaAllocator vma_allocator_;
-};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // anonymous namespace
 
@@ -291,7 +269,7 @@ bool VulkanDeviceQueue::Initialize(
 
   // Android, Fuchsia, Linux, and CrOS (VaapiVideoDecoder) need YCbCr sampler
   // support.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (!physical_device_info.feature_sampler_ycbcr_conversion) {
     LOG(ERROR) << "samplerYcbcrConversion is not supported.";
     return false;
@@ -395,11 +373,6 @@ bool VulkanDeviceQueue::Initialize(
 
   allow_protected_memory_ = allow_protected_memory;
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!metric_) {
-    metric_ = std::make_unique<VulkanMetric>(vma_allocator());
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   if (base::SingleThreadTaskRunner::HasCurrentDefault()) {
     base::trace_event::MemoryDumpManager::GetInstance()->RegisterDumpProvider(
@@ -434,11 +407,6 @@ bool VulkanDeviceQueue::InitCommon(VkPhysicalDevice vk_physical_device,
         /*heap_size_limit=*/nullptr,
         /*is_thread_safe =*/is_thread_safe, &owned_vma_allocator_);
     vma_allocator_ = owned_vma_allocator_;
-#if BUILDFLAG(IS_ANDROID)
-    if (!metric_) {
-      metric_ = std::make_unique<VulkanMetric>(vma_allocator());
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   skia_vk_memory_allocator_ =
@@ -500,11 +468,6 @@ bool VulkanDeviceQueue::InitializeFromANGLE(bool is_thread_safe) {
   // because angle uses single vkQueue regardless of virtualization group, we
   // have to make vma/queue access thread-safe to synchronize skia's access on
   // the main thread with off-thread access in angle.
-#if BUILDFLAG(IS_CHROMEOS)
-  GetVulkanFunctionPointers()->per_queue_lock_map[vk_queue] =
-      std::make_unique<gpu::VulkanQueueLock>(angle_display_);
-  is_thread_safe = true;
-#endif
 
   return InitCommon(vk_physical_device, vk_device, vk_queue, vk_queue_index,
                     enabled_extensions, is_thread_safe);
@@ -602,9 +565,6 @@ bool VulkanDeviceQueue::InitializeForCompositorGpuThread(
 void VulkanDeviceQueue::Destroy() {
   base::trace_event::MemoryDumpManager::GetInstance()->UnregisterDumpProvider(
       this);
-#if BUILDFLAG(IS_ANDROID)
-  metric_ = nullptr;
-#endif
 
   if (cleanup_helper_) {
     cleanup_helper_->Destroy();

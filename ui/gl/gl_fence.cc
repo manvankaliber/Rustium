@@ -18,9 +18,9 @@
 #include "ui/gl/gl_surface_egl.h"
 #include "ui/gl/gl_version_info.h"
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
-#define USE_GL_FENCE_ANDROID_NATIVE_FENCE_SYNC
-#include "ui/gl/gl_fence_android_native_fence_sync.h"
+#if BUILDFLAG(IS_LINUX)
+#define USE_GL_FENCE_NATIVE_FENCE_SYNC
+#include "ui/gl/gl_fence_native_fence_sync.h"
 #endif
 
 #if BUILDFLAG(IS_WIN)
@@ -92,7 +92,7 @@ void GLFence::Invalidate() {
 }
 
 bool GLFence::IsGpuFenceSupported() {
-#if defined(USE_GL_FENCE_ANDROID_NATIVE_FENCE_SYNC)
+#if defined(USE_GL_FENCE_NATIVE_FENCE_SYNC)
   return gl::GLSurfaceEGL::GetGLDisplayEGL()
       ->IsAndroidNativeFenceSyncSupported();
 #elif BUILDFLAG(IS_WIN)
@@ -113,8 +113,8 @@ std::unique_ptr<GLFence> GLFence::CreateFromGpuFence(
 std::unique_ptr<GLFence> GLFence::CreateFromGpuFenceHandle(
     gfx::GpuFenceHandle gpu_fence_handle) {
   DCHECK(IsGpuFenceSupported());
-#if defined(USE_GL_FENCE_ANDROID_NATIVE_FENCE_SYNC)
-  return GLFenceAndroidNativeFenceSync::CreateFromGpuFenceHandle(
+#if defined(USE_GL_FENCE_NATIVE_FENCE_SYNC)
+  return GLFenceNativeFenceSync::CreateFromGpuFenceHandle(
       std::move(gpu_fence_handle));
 #elif BUILDFLAG(IS_WIN)
   return GLFenceWin::CreateFromGpuFenceHandle(std::move(gpu_fence_handle));
@@ -126,8 +126,8 @@ std::unique_ptr<GLFence> GLFence::CreateFromGpuFenceHandle(
 // static
 std::unique_ptr<GLFence> GLFence::CreateForGpuFence() {
   DCHECK(IsGpuFenceSupported());
-#if defined(USE_GL_FENCE_ANDROID_NATIVE_FENCE_SYNC)
-  return GLFenceAndroidNativeFenceSync::CreateForGpuFence();
+#if defined(USE_GL_FENCE_NATIVE_FENCE_SYNC)
+  return GLFenceNativeFenceSync::CreateForGpuFence();
 #elif BUILDFLAG(IS_WIN)
   return GLFenceWin::CreateForGpuFence();
 #else

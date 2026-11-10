@@ -100,23 +100,10 @@
 #include "ui/base/webui/web_ui_util.h"
 #include "ui/webui/webui_util.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/policy/core/browser_policy_connector_ash.h"
-#include "chrome/browser/ash/policy/core/device_cloud_policy_store_ash.h"
-#include "chrome/browser/ash/policy/core/device_local_account_policy_service.h"
-#include "chrome/browser/ash/policy/core/user_cloud_policy_manager_ash.h"
-#include "chrome/browser/ash/policy/off_hours/device_off_hours_controller.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chrome/browser/browser_process_platform_part.h"
-#include "components/user_manager/user_manager.h"
-#else
 #include "components/policy/core/common/cloud/user_cloud_policy_manager.h"
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/enterprise/identifiers/profile_id_service_factory.h"
 #include "components/enterprise/browser/identifiers/profile_id_service.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // LINT.IfChange
 
@@ -197,10 +184,8 @@ void PolicyUIHandler::AddCommonLocalizedStringsToSource(
       {"sort", IDS_POLICY_TABLE_COLUMN_SORT},
       {"sortAscending", IDS_POLICY_TABLE_COLUMN_SORT_ASCENDING},
       {"sortDescending", IDS_POLICY_TABLE_COLUMN_SORT_DESCENDING},
-#if !BUILDFLAG(IS_CHROMEOS)
       {"reportUploading", IDS_REPORT_UPLOADING},
       {"reportUploaded", IDS_REPORT_UPLOADED},
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   };
   source->AddLocalizedStrings(kStrings);
 
@@ -254,7 +239,6 @@ void PolicyUIHandler::RegisterMessages() {
       base::BindRepeating(&PolicyUIHandler::HandleGetAppliedTestPolicies,
                           base::Unretained(this)));
 
-#if !BUILDFLAG(IS_ANDROID)
   web_ui()->RegisterMessageCallback(
       "shouldShowPromotion",
       base::BindRepeating(&PolicyUIHandler::HandleShouldShowPromotion,
@@ -267,17 +251,14 @@ void PolicyUIHandler::RegisterMessages() {
       "recordBannerRedirected",
       base::BindRepeating(&PolicyUIHandler::HandleRecordBannerRedirected,
                           base::Unretained(this)));
-#endif
 
   web_ui()->RegisterMessageCallback(
       "getPoliciesJson",
       base::BindRepeating(&PolicyUIHandler::HandleGetPoliciesJson,
                           base::Unretained(this)));
-#if !BUILDFLAG(IS_CHROMEOS)
   web_ui()->RegisterMessageCallback(
       "uploadReport", base::BindRepeating(&PolicyUIHandler::HandleUploadReport,
                                           base::Unretained(this)));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 void PolicyUIHandler::OnPolicyValueAndStatusChanged() {
@@ -315,29 +296,6 @@ void PolicyUIHandler::HandleReloadPolicies(const base::ListValue&) {
 
 void PolicyUIHandler::ReloadPolicies() {
   reload_policies_count_ += 1;
-#if BUILDFLAG(IS_CHROMEOS)
-  // Allow user to manually fetch remote commands. Useful for testing or when
-  // the invalidation service is not working properly.
-  policy::CloudPolicyManager* const device_manager =
-      g_browser_process->platform_part()
-          ->browser_policy_connector_ash()
-          ->GetDeviceCloudPolicyManager();
-  policy::CloudPolicyManager* const user_manager =
-      profile_->GetUserCloudPolicyManagerAsh();
-
-  // Fetch both device and user remote commands.
-  for (policy::CloudPolicyManager* manager : {device_manager, user_manager}) {
-    // Active Directory management has no CloudPolicyManager.
-    if (manager) {
-      policy::RemoteCommandsService* const remote_commands_service =
-          manager->core()->remote_commands_service();
-      if (remote_commands_service) {
-        remote_commands_service->FetchRemoteCommands(
-            policy::RemoteCommandsFetchReason::kUserRequest);
-      }
-    }
-  }
-#endif
   policy_value_and_status_aggregator_->Refresh();
 }
 
@@ -371,13 +329,11 @@ void PolicyUIHandler::SetLocalTestPoliciesImpl(
               ->local_test_policy_provider());
   CHECK(local_test_provider);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   profile_->GetPrefs()->ClearPref(
       prefs::kUserCloudSigninPolicyResponseFromPolicyTestPage);
   profile_->GetPrefs()->SetDefaultPrefValue(
       prefs::kUserCloudSigninPolicyResponseFromPolicyTestPage,
       base::Value(profile_separation_policy_response));
-#endif
 
   profile_->GetProfilePolicyConnector()->UseLocalTestPolicyProvider();
 
@@ -393,13 +349,11 @@ void PolicyUIHandler::RevertLocalTestPolicies() {
   if (!PolicyUI::ShouldLoadTestPage(&profile_.get())) {
     return;
   }
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   profile_->GetPrefs()->ClearPref(
       prefs::kUserCloudSigninPolicyResponseFromPolicyTestPage);
   profile_->GetPrefs()->SetDefaultPrefValue(
       prefs::kUserCloudSigninPolicyResponseFromPolicyTestPage,
       base::Value(std::string()));
-#endif
   profile_->GetProfilePolicyConnector()->RevertUseLocalTestPolicyProvider();
 }
 
@@ -480,7 +434,6 @@ void PolicyUIHandler::GetPolicyLogs(GetPolicyLogsCallback callback) {
   policy::PolicyLogger::GetInstance()->GetAsMojoList(std::move(callback));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void PolicyUIHandler::HandleUploadReport(const base::ListValue& args) {
   CHECK_EQ(1u, args.size(), base::NotFatalUntil::M162);
   UploadReportImpl(
@@ -552,7 +505,6 @@ void PolicyUIHandler::UploadReportImpl(base::OnceClosure on_report_uploaded) {
   // to try again.
   std::move(on_done).Run();
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 void PolicyUIHandler::SendPolicies() {
   if (IsMojoMigrationEnabled()) {
@@ -587,7 +539,6 @@ void PolicyUIHandler::SendStatus() {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void PolicyUIHandler::OnPromotionEligibilityFetchedWebUiWrapper(
     base::Value callback_id,
     bool response) {
@@ -642,9 +593,7 @@ void PolicyUIHandler::RecordBannerRedirected() {
       "Enterprise.PolicyPromotionBannerAction",
       policy::PolicyPromotionBannerAction::kBannerRedirected);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void PolicyUIHandler::OnReportUploaded(base::OnceClosure on_report_uploaded) {
   SendStatus();
   std::move(on_report_uploaded).Run();
@@ -656,9 +605,7 @@ void PolicyUIHandler::OnReportUploadedWebUiWrapper(base::Value callback_id) {
   }
   ResolveJavascriptCallback(callback_id, /*response=*/base::Value());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID)
 void PolicyUIHandler::OnPromotionEligibilityFetched(
     CheckPromotionEligibilityCallback callback,
     enterprise_management::GetUserEligiblePromotionsResponse response) {
@@ -669,7 +616,6 @@ void PolicyUIHandler::OnPromotionEligibilityFetched(
                             should_show_promotion);
   std::move(callback).Run(should_show_promotion);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 std::string PolicyUIHandler::GetPoliciesJsonImpl(
     policy::mojom::GetPoliciesReason reason) {

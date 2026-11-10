@@ -20,9 +20,6 @@ _PLATFORM_TO_RELEASE_OS = {
   'linux': 'linux',
   'mac': 'mac_arm64',
   'win': 'win64',
-  'android': 'android',
-  'webview': 'webview',
-  'android_webview': 'webview',
 }
 
 
@@ -33,30 +30,6 @@ def pytest_addoption(parser):
     'This will ignore --channel and skip downloading.',
   )
 
-  # Options for android emulators
-  parser.addoption(
-    '--avd-config',
-    type=os.path.realpath,
-    help=(
-      'Path to the avd config. Required for Android products. '
-      '(See //tools/android/avd/proto for message definition '
-      'and existing *.textpb files.)'
-    ),
-  )
-
-  parser.addoption(
-    '--emulator-window',
-    action='store_true',
-    default=False,
-    help='Enable graphical window display on the emulator.',
-  )
-
-  # Options for CrOS VMs.
-  # You can browse available boards here:
-  # https://cros-goldeneye.corp.google.com/chromeos/console/boards
-  parser.addoption(
-    '--board', default='betty', help='The board name of the CrOS VM.'
-  )
 
 
 def _version_to_download(
@@ -117,7 +90,7 @@ def chromedriver_path(pytestconfig, test_options: TestOptions) -> Optional[str]:
     chrome_dir = test_utils.download_chrome_mac(version=version)
   elif platform == "win":
     chrome_dir = test_utils.download_chrome_win(version=version)
-  elif platform in ('android', 'webview', 'android_webview'):
+  elif platform in ('webview', 'android_webview'):
     # For Android/Webview, we will use install_webview or install_chrome to
     # download and install APKs, however, we will still need the chromedriver
     # binaries for the hosts. Currently we will only run on Linux, so fetching
@@ -186,37 +159,6 @@ def driver_factory(
       crash_dump_dir=str(tmp_path_factory.mktemp('crash')),
       artifacts_path=str(artifacts_path),
       chromedriver_path=chromedriver_path,
-    )
-  elif target_platform in ('android', 'webview', 'android_webview'):
-    assert test_utils.get_hosted_platform() == 'linux', (
-      f'Only support to run android tests on Linux, but running on '
-      f'{test_utils.get_hosted_platform()}'
-    )
-    from chrome.test.variations.drivers import android
-
-    factories = {
-      'android': android.AndroidDriverFactory,
-      'webview': android.WebviewDriverFactory,
-      'android_webview': android.WebviewDriverFactory,
-    }
-
-    factory = factories[target_platform](
-      channel=pytestconfig.getoption('channel'),
-      avd_config=pytestconfig.getoption('avd_config'),
-      enabled_emulator_window=pytestconfig.getoption('emulator_window'),
-      artifacts_path=str(artifacts_path),
-      chromedriver_path=chromedriver_path,
-      ports=[local_http_server.server_port],
-    )
-  elif target_platform in ('cros'):
-    from chrome.test.variations.drivers import chromeos
-
-    factory = chromeos.CrOSDriverFactory(
-      channel=pytestconfig.getoption('channel'),
-      board=pytestconfig.getoption('board'),
-      artifacts_path=str(artifacts_path),
-      chromedriver_path=chromedriver_path,
-      server_port=local_http_server.server_port,
     )
 
   if not factory:

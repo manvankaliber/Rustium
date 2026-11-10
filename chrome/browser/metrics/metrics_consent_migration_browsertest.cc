@@ -117,19 +117,11 @@ IN_PROC_BROWSER_TEST_F(MetricsConsentMigrationBrowserTest,
   ASSERT_TRUE(harness->SetupSync());
 
   // Disable Apps sync.
-#if BUILDFLAG(IS_CHROMEOS)
-  syncer::UserSelectableOsTypeSet os_types =
-      harness->service()->GetUserSettings()->GetSelectedOsTypes();
-  os_types.Remove(syncer::UserSelectableOsType::kOsApps);
-  harness->service()->GetUserSettings()->SetSelectedOsTypes(
-      /*sync_all_os_types=*/false, os_types);
-#else
   syncer::UserSelectableTypeSet types =
       harness->service()->GetUserSettings()->GetSelectedTypes();
   types.Remove(syncer::UserSelectableType::kApps);
   harness->service()->GetUserSettings()->SetSelectedTypes(
       /*sync_everything=*/false, types);
-#endif
 
   // Set MSBB to true.
   profile->GetPrefs()->SetBoolean(
@@ -274,19 +266,11 @@ IN_PROC_BROWSER_TEST_F(MetricsConsentMigrationRollbackBrowserTest,
   ASSERT_TRUE(harness->SetupSync());
 
   // Disable Apps sync.
-#if BUILDFLAG(IS_CHROMEOS)
-  syncer::UserSelectableOsTypeSet os_types =
-      harness->service()->GetUserSettings()->GetSelectedOsTypes();
-  os_types.Remove(syncer::UserSelectableOsType::kOsApps);
-  harness->service()->GetUserSettings()->SetSelectedOsTypes(
-      /*sync_all_os_types=*/false, os_types);
-#else
   syncer::UserSelectableTypeSet types =
       harness->service()->GetUserSettings()->GetSelectedTypes();
   types.Remove(syncer::UserSelectableType::kApps);
   harness->service()->GetUserSettings()->SetSelectedTypes(
       /*sync_everything=*/false, types);
-#endif
 
   // Set MSBB to true.
   profile->GetPrefs()->SetBoolean(
@@ -613,16 +597,6 @@ IN_PROC_BROWSER_TEST_F(MetricsConsentMigrationRollbackMultiProfileBrowserTest,
       SyncServiceImplHarness::Create(
           profile_1, SyncServiceImplHarness::SigninType::FAKE_SIGNIN);
   ASSERT_TRUE(harness_1->SetupSync());
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, UKM is allowed under the old (pre-restructure) consent logic
-  // if either MSBB or Apps sync is enabled. Disable Apps sync so Profile 1 has
-  // UKM disallowed.
-  syncer::UserSelectableOsTypeSet os_types =
-      harness_1->service()->GetUserSettings()->GetSelectedOsTypes();
-  os_types.Remove(syncer::UserSelectableOsType::kOsApps);
-  harness_1->service()->GetUserSettings()->SetSelectedOsTypes(
-      /*sync_all_os_types=*/false, os_types);
-#endif
   profile_1->GetPrefs()->SetBoolean(
       unified_consent::prefs::kUrlKeyedAnonymizedDataCollectionEnabled, false);
 }

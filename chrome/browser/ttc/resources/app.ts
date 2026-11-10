@@ -35,10 +35,12 @@ export type ConversationMessage =|{
   text: string,
 }|{type: 'clearTranscription'};
 // </if>
-// TODO(crbug.com/532098288): Replace `any` types with proper interfaces when sharing types between branded and unbranded builds.
+// TODO(crbug.com/532098288): Replace `any` types with proper interfaces when
+// sharing types between branded and unbranded builds.
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// Empty stub implementation of Conversation and State for non-branded (Unbranded Chromium) builds
-// where internal resources are omitted.
+// Empty stub implementation of Conversation and State for non-branded
+// (Unbranded Chromium) builds where internal resources are omitted.
+
 // <if expr="not _google_chrome">
 enum State {
   STOPPED = 'stopped',
@@ -73,8 +75,7 @@ type ApiConfig = any;
 type ConversationConfig = {
   persona?: any,
   system_instruction?: string,
-  api_config?: any,
-  [key: string]: any,
+  api_config?: any, [key: string]: any,
 };
 type ConversationMessage = any;
 type Persona = any;
@@ -106,7 +107,6 @@ enum InitializationState {
   ERROR = 'error',
   INITIALIZED = 'initialized',
 }
-
 
 interface MockAudioButton {
   name: string;
@@ -247,8 +247,6 @@ export class AppElement extends CrLitElement {
     return formatCaptions(text, this.usePersona ? 50 : 60);
   }
 
-
-
   private pageHandler: PageHandlerRemote;
   private toolsRemote: AiOverlayToolsRemote;
   private pageCallbackRouter: PageCallbackRouter;
@@ -316,7 +314,8 @@ export class AppElement extends CrLitElement {
       }
       this.usePersona = usePersona;
       this.requestUpdate();
-      if (this.conversation?.connected || this.initializationState === InitializationState.ERROR) {
+      if (this.conversation?.connected ||
+          this.initializationState === InitializationState.ERROR) {
         log(FILE, 'Restarting conversation for persona change');
         // TODO(gklassen): Make it so that conversation can trigger and block on
         // an initial page context, instead of pulling it out of the old
@@ -337,7 +336,9 @@ export class AppElement extends CrLitElement {
 
     this.pageCallbackRouter.onStreamingSessionStateChanged.addListener(
         (connected: boolean, sessionId: string, errorMessage: string) => {
-          log(FILE, `onStreamingSessionStateChanged: connected=${connected}, session=${sessionId}, err=${errorMessage}`);
+          log(FILE,
+              `onStreamingSessionStateChanged: connected=${
+                  connected}, session=${sessionId}, err=${errorMessage}`);
           if (connected) {
             this.initializationState = InitializationState.INITIALIZED;
             this.state = State.LISTENING;
@@ -371,13 +372,13 @@ export class AppElement extends CrLitElement {
           if (!this.audioPlayer) {
             this.audioPlayer = this.createAudioPlayer();
           }
-          let uint8: Uint8Array | null = null;
+          let uint8: Uint8Array|null = null;
           if (audioData.bytes !== undefined) {
             uint8 = new Uint8Array(audioData.bytes);
           } else if (audioData.sharedMemory?.bufferHandle) {
             const buffer = audioData.sharedMemory.bufferHandle
-                .mapBuffer(0, audioData.sharedMemory.size)
-                .buffer;
+                               .mapBuffer(0, audioData.sharedMemory.size)
+                               .buffer;
             uint8 = new Uint8Array(buffer, 0, audioData.sharedMemory.size);
           }
           if (uint8 && uint8.length > 0) {
@@ -400,11 +401,6 @@ export class AppElement extends CrLitElement {
         });
   }
 
-  private isAndroidBackend(): boolean {
-    return loadTimeData.valueExists('isAndroidBackend') &&
-        loadTimeData.getBoolean('isAndroidBackend');
-  }
-
   private isMesEnabled(): boolean {
     return loadTimeData.valueExists('useMes') &&
         loadTimeData.getBoolean('useMes');
@@ -414,7 +410,7 @@ export class AppElement extends CrLitElement {
     super.connectedCallback();
     document.addEventListener('visibilitychange', this.onVisibilityChange);
     window.addEventListener('focus', this.onWindowFocus);
-    if (document.visibilityState === 'visible' || this.isAndroidBackend()) {
+    if (document.visibilityState === 'visible') {
       this.startConversation();
     }
   }
@@ -449,9 +445,6 @@ export class AppElement extends CrLitElement {
   }
 
   private onVisibilityChange = () => {
-    if (this.isAndroidBackend()) {
-      return;
-    }
     if (document.visibilityState === 'visible') {
       this.startConversation();
     } else {
@@ -543,29 +536,18 @@ export class AppElement extends CrLitElement {
 
     this.pageHandler.updateAudioEnergy(energy);
 
-    if (!this.isAndroidBackend()) {
-      this.energyAnimationId = requestAnimationFrame(this.energyAnimationLoop);
-    }
+    this.energyAnimationId = requestAnimationFrame(this.energyAnimationLoop);
   };
 
   private startEnergyAnimation() {
     if (this.energyAnimationId === null) {
-      // On Android, this runs in a background/offscreen WebContents without
-      // active rendering, so requestAnimationFrame does not tick. Fallback to
-      // setInterval to pump audio energy updates to the native toolbar.
-      this.energyAnimationId = this.isAndroidBackend() ?
-          window.setInterval(this.energyAnimationLoop, 50) :
-          requestAnimationFrame(this.energyAnimationLoop);
+      this.energyAnimationId = requestAnimationFrame(this.energyAnimationLoop);
     }
   }
 
   private stopEnergyAnimation() {
     if (this.energyAnimationId !== null) {
-      if (this.isAndroidBackend()) {
-        window.clearInterval(this.energyAnimationId);
-      } else {
-        cancelAnimationFrame(this.energyAnimationId);
-      }
+      cancelAnimationFrame(this.energyAnimationId);
       this.energyAnimationId = null;
       this.pageHandler.updateAudioEnergy(0.0);
     }
@@ -580,7 +562,8 @@ export class AppElement extends CrLitElement {
           bytes[i] = binaryString.charCodeAt(i);
         }
         this.pageHandler.sendAudioChunk({bytes: Array.from(bytes)});
-      } catch (_e) {}
+      } catch (_e) {
+      }
     } else {
       this.conversation?.sendAudio(sampleRate, data);
     }
@@ -761,20 +744,8 @@ export class AppElement extends CrLitElement {
     }
 
     try {
-      // On Android, enabling echoCancellation activates the platform
-      // ECHO_CANCELLER effect, which puts Android into VoIP communication mode
-      // (MODE_IN_COMMUNICATION / AAUDIO_INPUT_PRESET_VOICE_COMMUNICATION) and
-      // causes Android AudioPolicy to silence concurrent microphone streams
-      // (such as Screen Recorder). Disabling echoCancellation keeps Android in
-      // MODE_NORMAL while still allowing WebRTC software noiseSuppression and
-      // autoGainControl.
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: this.isAndroidBackend() ? {
-          echoCancellation: false,
-          noiseSuppression: true,
-          autoGainControl: true,
-        } :
-                                         true,
+        audio: true,
       });
       return new MicrophoneAudioCapturer(stream);
     } catch (e) {

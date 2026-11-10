@@ -2198,7 +2198,6 @@ TEST(V8ScriptValueSerializerForModulesTest, TransferRTCDataChannel) {
   EXPECT_FALSE(native_channel->close_was_called());
 }
 
-#if !BUILDFLAG(IS_ANDROID)  // SubCaptureTargets are not exposed on Android.
 TEST(V8ScriptValueSerializerForModulesTest, RoundTripCropTarget) {
   test::TaskEnvironment task_environment;
   V8TestingScope scope;
@@ -2236,7 +2235,6 @@ TEST(V8ScriptValueSerializerForModulesTest, RoundTripRestrictionTarget) {
   ASSERT_NE(new_restriction_target, nullptr);
   EXPECT_EQ(new_restriction_target->GetId(), restriction_id);
 }
-#endif
 
 TEST(V8ScriptValueSerializerForModulesTest,
      ArrayBufferDetachKeyPreventsTransfer) {

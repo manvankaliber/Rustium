@@ -30,38 +30,10 @@ class BuilderRunsTestOfInterestUnittest(unittest.TestCase):
     }
     self.assertTrue(self.instance._BuilderRunsTestOfInterest(test_map))
 
-  def testMatchSkylab(self) -> None:
-    """Tests that a match can be successfully found for Skylab builders."""
-    test_map = {
-      'skylab_tests': [
-        {
-          'args': [
-            'webgl_conformance',
-          ],
-          'test': 'telemetry_gpu_integration_test',
-        },
-      ],
-    }
-    self.assertTrue(self.instance._BuilderRunsTestOfInterest(test_map))
-
   def testNoMatchIsolate(self) -> None:
     """Tests that a match is not found if the isolate name is not valid."""
     test_map = {
       'isolated_scripts': [
-        {
-          'args': [
-            'webgl_conformance',
-          ],
-          'test': 'not_telemetry',
-        },
-      ],
-    }
-    self.assertFalse(self.instance._BuilderRunsTestOfInterest(test_map))
-
-  def testNoMatchSkylabTest(self) -> None:
-    """Tests that a match is not found for Skylab if test name is not valid."""
-    test_map = {
-      'skylab_tests': [
         {
           'args': [
             'webgl_conformance',
@@ -86,27 +58,11 @@ class BuilderRunsTestOfInterestUnittest(unittest.TestCase):
     }
     self.assertFalse(self.instance._BuilderRunsTestOfInterest(test_map))
 
-  def testNoMatchSuiteSkylab(self) -> None:
-    """Tests that a match is not found if Skylab suite name is not valid."""
-    test_map = {
-      'skylab_tests': [
-        {
-          'args': [
-            'not_a_suite',
-          ],
-          'test': 'telemetry_gpu_integration_test',
-        },
-      ],
-    }
-    self.assertFalse(self.instance._BuilderRunsTestOfInterest(test_map))
-
-  def testAndroidSuffixes(self) -> None:
-    """Tests that Android-specific isolates are added."""
-    isolate_names = self.instance.GetIsolateNames()
-    for isolate in isolate_names:
-      if 'telemetry_gpu_integration_test' in isolate and 'android' in isolate:
-        return
-    self.fail('Did not find any Android-specific isolate names')
+  def testRetainedDesktopIsolateNames(self) -> None:
+    """Tests that only the retained desktop GPU isolate is queried."""
+    self.assertEqual(
+      {'telemetry_gpu_integration_test'}, self.instance.GetIsolateNames()
+    )
 
 
 class GetNonChromiumBuildersUnittest(unittest.TestCase):
@@ -117,6 +73,17 @@ class GetNonChromiumBuildersUnittest(unittest.TestCase):
       'Win V8 FYI Release (NVIDIA)', constants.BuilderTypes.CI, False
     )
     self.assertIn(builder, instance.GetNonChromiumBuilders())
+    expected_builders = {
+      data_types.BuilderEntry(name, constants.BuilderTypes.CI, False)
+      for name in {
+        'Win V8 FYI Release (NVIDIA)',
+        'Mac V8 FYI Release (Apple M2)',
+        'Mac V8 FYI Release (Intel)',
+        'Linux V8 FYI Release - pointer compression (NVIDIA)',
+        'Linux V8 FYI Release (NVIDIA)',
+      }
+    }
+    self.assertEqual(expected_builders, instance.GetNonChromiumBuilders())
 
 
 if __name__ == '__main__':

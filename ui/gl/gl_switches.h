@@ -100,9 +100,6 @@ GL_EXPORT extern const char kOverrideUseSoftwareGLForTests[];
 GL_EXPORT extern const base::span<const char* const>
     kGLSwitchesCopiedFromGpuProcessHost;
 
-#if BUILDFLAG(IS_ANDROID)
-GL_EXPORT extern const char kDisableAndroidNativeFenceSyncForTesting[];
-#endif
 
 #if BUILDFLAG(IS_WIN)
 // Report a fake vsync rate (in Hz) instead of the real display refresh rate,

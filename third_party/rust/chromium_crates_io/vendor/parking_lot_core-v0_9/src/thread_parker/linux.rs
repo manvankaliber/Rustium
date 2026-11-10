@@ -27,10 +27,7 @@ fn errno() -> libc::c_int {
     unsafe {
         *libc::__errno_location()
     }
-    #[cfg(target_os = "android")]
-    unsafe {
-        *libc::__errno()
-    }
+
 }
 
 // Helper type for putting a thread to sleep until some other thread wakes it up

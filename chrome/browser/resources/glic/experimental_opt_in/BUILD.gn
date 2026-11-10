@@ -27,10 +27,10 @@ build_webui("build") {
       [ "/shared/*|" +
         rebase_path("$root_gen_dir/chrome/browser/resources/glic/tsc/shared/*",
                     target_gen_dir) ]
-  if (!is_android) {
-    ts_deps +=
-        [ "//ui/webui/resources/cr_components/color_change_listener:build_ts" ]
-  }
+
+  ts_deps +=
+      [ "//ui/webui/resources/cr_components/color_change_listener:build_ts" ]
+
   if (!enable_extensions_core) {
     ts_deps += [ "//chrome/browser/resources/guest_view_shared:build_ts" ]
 

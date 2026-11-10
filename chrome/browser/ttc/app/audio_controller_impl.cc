@@ -53,7 +53,7 @@ constexpr int kAPMSamplesPerBuffer =
 // and Android (AAudio/OpenSLES), while ConversationImpl downsamples 48kHz to
 // 16kHz for model input. On other platforms, 16kHz capture is requested
 // directly.
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
 constexpr int kDefaultPlaybackFramesPerBuffer = 480;  // 20ms at 24kHz
 #else
 constexpr int kDefaultPlaybackFramesPerBuffer = 2400;  // 100ms chunks
@@ -338,19 +338,6 @@ void AudioControllerImpl::OnInputDeviceParametersReceived(
           .automatic_gain_control = processing_settings->automatic_gain_control,
       };
     } else {
-#if BUILDFLAG(IS_CHROMEOS)
-      // CRAS applies the per-board effects that AudioManagerCras sets in
-      // `device_params`.
-      const int effects = device_params->effects();
-      format.processing = DebugSink::CaptureFormat::Processing{
-          .echo_cancellation =
-              (effects & media::AudioParameters::ECHO_CANCELLER) != 0,
-          .noise_suppression =
-              (effects & media::AudioParameters::NOISE_SUPPRESSION) != 0,
-          .automatic_gain_control =
-              (effects & media::AudioParameters::AUTOMATIC_GAIN_CONTROL) != 0,
-      };
-#endif  // BUILDFLAG(IS_CHROMEOS)
     }
     debug_sink_->OnCaptureFormat(format);
   }

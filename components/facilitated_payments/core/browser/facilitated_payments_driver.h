@@ -42,37 +42,6 @@ class FacilitatedPaymentsDriver {
       delete;
   virtual ~FacilitatedPaymentsDriver();
 
-#if BUILDFLAG(IS_ANDROID)
-  // The Pix and payment link flows are only available on Android.
-
-  // Informs `PixManager` that a navigation related event has
-  // taken place. The navigation could be to the currently displayed page, or
-  // away from the currently displayed page. It is invoked only for the primary
-  // main frame by the platform-specific implementation.
-  void DidNavigateToOrAwayFromPage() const;
-
-  // Inform the `PixManager` about `copied_text` being copied to
-  // the clipboard.
-  // `is_same_origin` indicates whether the iframe from which the Pix code is
-  // copied has the same origin as the main frame.
-  virtual void OnTextCopiedToClipboard(const GURL& main_frame_url,
-                                       const std::optional<GURL>& iframe_url,
-                                       const url::Origin& main_frame_origin,
-                                       const std::u16string& copied_text,
-                                       ukm::SourceId ukm_source_id,
-                                       bool is_same_origin = false);
-
-  // Inform the `PaymentLinkManager` to trigger the payment link push payment
-  // flow. The payment information is included in the `payment_link_url`
-  // contained by the page with URL as `page_url`.
-  virtual void TriggerPaymentLinkPushPayment(const GURL& payment_link_url,
-                                             const GURL& page_url,
-                                             ukm::SourceId ukm_source_id);
-
-  virtual void SetPixManagerForTesting(std::unique_ptr<PixManager> pix_manager);
-  virtual void SetPaymentLinkManagerForTesting(
-      std::unique_ptr<PaymentLinkManager> payment_link_manager);
-#endif  // BUILDFLAG(IS_ANDROID)
 
  protected:
   // Returns true if the current page context is secure for payments.
@@ -81,10 +50,6 @@ class FacilitatedPaymentsDriver {
  private:
   const raw_ref<FacilitatedPaymentsClient> facilitated_payments_client_;
   FacilitatedPaymentsApiClientCreator api_client_creator_;
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<PixManager> pix_manager_;
-  std::unique_ptr<PaymentLinkManager> payment_link_manager_;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace payments::facilitated

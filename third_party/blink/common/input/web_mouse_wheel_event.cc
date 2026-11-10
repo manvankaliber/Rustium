@@ -116,7 +116,7 @@ WebMouseWheelEvent WebMouseWheelEvent::FlattenTransform() const {
 WebMouseWheelEvent::EventAction
 WebMouseWheelEvent::GetPlatformSpecificDefaultEventAction(
     const WebMouseWheelEvent& event) {
-#if defined(USE_AURA) || BUILDFLAG(IS_ANDROID)
+#if defined(USE_AURA)
   // Scroll events generated from the mouse wheel when the control key is held
   // don't trigger scrolling. Instead, they may cause zooming.
   if (event.delta_units != ui::ScrollGranularity::kScrollByPrecisePixel &&

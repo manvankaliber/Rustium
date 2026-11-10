@@ -21,18 +21,4 @@ source_set("unit_tests") {
   testonly = true
   sources = []
   deps = []
-
-  if (is_android) {
-    sources += [ "optimization_guide_message_handler_unittest.cc" ]
-    deps = [
-      ":optimization_guide",
-      "//base",
-      "//base/test:test_support",
-      "//components/optimization_guide/core",
-      "//components/optimization_guide/core:hints_test_support",
-      "//components/optimization_guide/proto:optimization_guide_proto",
-      "//components/sharing_message/proto",
-      "//testing/gmock",
-    ]
-  }
 }

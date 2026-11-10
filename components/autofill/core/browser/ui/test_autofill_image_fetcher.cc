@@ -33,12 +33,6 @@ const gfx::Image* TestAutofillImageFetcher::GetCachedImageForUrl(
   return !image->IsEmpty() ? image : nullptr;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-base::android::ScopedJavaLocalRef<jobject>
-TestAutofillImageFetcher::GetOrCreateJavaImageFetcher() {
-  return {};
-}
-#endif
 
 void TestAutofillImageFetcher::CacheImage(const GURL& url,
                                           const gfx::Image& image) {

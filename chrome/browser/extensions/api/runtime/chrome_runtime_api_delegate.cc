@@ -50,11 +50,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/components/kiosk/kiosk_utils.h"
-#include "chromeos/dbus/power/power_manager_client.h"
-#include "third_party/cros_system_api/dbus/service_constants.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/win/windows_version.h"
@@ -64,10 +59,8 @@
 #include "chrome/browser/devtools/devtools_window.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/waap/initial_webui_window_metrics_manager.h"
 #include "chrome/browser/ui/waap/waap_utils.h"
-#endif
 
 namespace {
 
@@ -296,13 +289,6 @@ void ChromeRuntimeAPIDelegate::OpenURL(const GURL& uninstall_url) {
 
   // TODO(crbug.com/552223108): Remove this when the below bug is fixed on
   // Android.
-#if BUILDFLAG(IS_ANDROID)
-  // This is necessary for Android since the new tab does not automatically
-  // gain focus with Navigate().
-  if (params.navigated_or_inserted_contents) {
-    params.navigated_or_inserted_contents->SetInitialFocus();
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 // Helper function for GetPlatformInfo(). nacl_arch is deprecated, so
@@ -310,9 +296,6 @@ void ChromeRuntimeAPIDelegate::OpenURL(const GURL& uninstall_url) {
 extensions::api::runtime::PlatformNaclArch GetPlatformInfoNaClArch() {
 // Return no value on Android, since it never supported extensions
 // while NaCl was relevant.
-#if BUILDFLAG(IS_ANDROID)
-  return extensions::api::runtime::PlatformNaclArch::kNone;
-#else
 #if defined(ARCH_CPU_X86_FAMILY)
 #if defined(ARCH_CPU_X86_64)
   return extensions::api::runtime::PlatformNaclArch::kX86_64;
@@ -333,7 +316,6 @@ extensions::api::runtime::PlatformNaclArch GetPlatformInfoNaClArch() {
   // NOTE: Other architectures did not support extensions at the time
   // of NaCl removal.
   return extensions::api::runtime::PlatformNaclArch::kNone;
-#endif
 #endif
 }
 
@@ -385,13 +367,6 @@ bool ChromeRuntimeAPIDelegate::GetPlatformInfo(PlatformInfo* info) {
 }
 
 bool ChromeRuntimeAPIDelegate::RestartDevice(std::string* error_message) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (chromeos::IsKioskSession()) {
-    chromeos::PowerManagerClient::Get()->RequestRestart(
-        power_manager::REQUEST_RESTART_API, "chrome.runtime API");
-    return true;
-  }
-#endif
 
   *error_message = "Function available only for ChromeOS kiosk mode.";
   return false;
@@ -433,26 +408,6 @@ void ChromeRuntimeAPIDelegate::OpenOptionsPage(
     BrowserWindowCreateParams params(BrowserWindowInterface::TYPE_NORMAL,
                                      *profile, user_gesture);
 
-#if BUILDFLAG(IS_ANDROID)
-    // Asynchronously create the window on Android, then open the options page.
-    auto creation_callback = base::BindOnce(
-        [](scoped_refptr<const Extension> extension,
-           base::OnceCallback<void(bool)> complete_callback,
-           BrowserWindowInterface* new_browser) {
-          if (!new_browser) {
-            std::move(complete_callback).Run(false);
-            return;
-          }
-          std::move(complete_callback)
-              .Run(extensions::ExtensionTabUtil::OpenOptionsPage(
-                  extension.get(), new_browser));
-        },
-        base::WrapRefCounted(extension), std::move(callback));
-    CreateBrowserWindow(std::move(params), std::move(creation_callback));
-
-    // Nothing to do here, the callback will open the options page eventually.
-    return;
-#else
     // Other platforms create windows synchronously. Fallthrough and open
     // the options page afterwards.
     const base::TimeTicks now = base::TimeTicks::Now();
@@ -462,7 +417,6 @@ void ChromeRuntimeAPIDelegate::OpenOptionsPage(
       manager->SetWindowCreationInfo(waap::NewWindowCreationSource::kExtension,
                                      now);
     }
-#endif
   }
   std::move(callback).Run(
       extensions::ExtensionTabUtil::OpenOptionsPage(extension, browser));

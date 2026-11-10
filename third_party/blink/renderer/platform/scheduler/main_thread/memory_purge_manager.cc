@@ -6,9 +6,6 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/self_compaction_manager.h"
-#endif
 #include "base/feature_list.h"
 #include "base/memory/memory_pressure_listener.h"
 #include "base/memory/memory_pressure_listener_registry.h"
@@ -106,13 +103,6 @@ void MemoryPurgeManager::OnPageResumed() {
   }
 
   memory_pressure_suppression_token_.reset();
-#if BUILDFLAG(IS_ANDROID)
-  // Cancel a pending compaction, since the page is now active and its memory
-  // will likely be accessed soon.
-  base::android::SelfCompactionManager::MaybeCancelCompaction(
-      base::android::SelfCompactionManager::CompactCancellationReason::
-          kPageResumed);
-#endif
 }
 
 void MemoryPurgeManager::SetRendererBackgrounded(bool backgrounded) {
@@ -130,14 +120,6 @@ void MemoryPurgeManager::OnRendererBackgrounded() {
   }
 
   if (!features::IsMemoryPurgeOnBackgroundingEnabled()) {
-#if BUILDFLAG(IS_ANDROID)
-    // If we do not freeze renderers, we want to trigger compaction directly
-    // when we are backgrounded here.
-    if (!base::FeatureList::IsEnabled(features::kStopInBackground)) {
-      base::android::SelfCompactionManager::RequestRunningCompactWithDelay(
-          GetTimeToPurgeAfterBackgrounded());
-    }
-#endif
     return;
   }
 
@@ -196,9 +178,6 @@ void MemoryPurgeManager::PerformMemoryPurge() {
 
   if (AreAllPagesFrozen()) {
     memory_pressure_suppression_token_.emplace();
-#if BUILDFLAG(IS_ANDROID)
-    base::android::SelfCompactionManager::OnRunningCompact();
-#endif
   }
 
   if (frozen_page_count_ > 0) {
@@ -208,12 +187,6 @@ void MemoryPurgeManager::PerformMemoryPurge() {
   backgrounded_purge_pending_ = false;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void MemoryPurgeManager::SetOnAllPagesFrozenCallback(
-    base::RepeatingCallback<void(bool)> callback) {
-  all_pages_frozen_callback_ = std::move(callback);
-}
-#endif
 
 bool MemoryPurgeManager::CanPurge() const {
   if (total_page_count_ == 0) {
@@ -232,13 +205,6 @@ bool MemoryPurgeManager::CanPurge() const {
 }
 
 void MemoryPurgeManager::MaybeRunAllPagesFrozenCallback(bool were_all_frozen) {
-#if BUILDFLAG(IS_ANDROID)
-  const bool are_all_frozen = AreAllPagesFrozen();
-  // Run the callback if the "all pages frozen" state changed.
-  if (were_all_frozen != are_all_frozen && all_pages_frozen_callback_) {
-    all_pages_frozen_callback_.Run(are_all_frozen);
-  }
-#endif
 }
 
 bool MemoryPurgeManager::AreAllPagesFrozen() const {

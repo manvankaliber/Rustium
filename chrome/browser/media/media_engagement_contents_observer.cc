@@ -24,12 +24,10 @@
 #include "third_party/blink/public/mojom/autoplay/autoplay.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/time/time.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -525,7 +523,6 @@ void MediaEngagementContentsObserver::ReadyToCommitNavigation(
 
 content::WebContents* MediaEngagementContentsObserver::GetOpener() const {
   content::WebContents* result = nullptr;
-#if !BUILDFLAG(IS_ANDROID)
   ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
       [this, &result](BrowserWindowInterface* browser) {
         if (browser->GetProfile() != service_->profile()) {
@@ -544,7 +541,6 @@ content::WebContents* MediaEngagementContentsObserver::GetOpener() const {
         result = tab ? tab->GetContents() : nullptr;
         return false;  // Stop iteration, we found what we need
       });
-#endif  // !BUILDFLAG(IS_ANDROID)
   return result;
 }
 

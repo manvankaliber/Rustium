@@ -48,9 +48,7 @@
 #include "ui/gfx/geometry/point.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
 #include "chrome/browser/actor/tools/tab_management_tool_request.h"
-#endif
 
 namespace actor {
 namespace {
@@ -174,10 +172,8 @@ TEST_F(ToolRequestTest, SubclassSurfaceConstructorsStoreTarget) {
       SelectToolRequest(actor_surface_handle_, target, "value"));
   expect_targets_surface(SiteBasedSearchToolRequest(actor_surface_handle_,
                                                     "query", "document_id"));
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
   expect_targets_surface(ActivateTabToolRequest(actor_surface_handle_));
   expect_targets_surface(CloseTabToolRequest(actor_surface_handle_));
-#endif
   expect_targets_surface(TranslatePageToolRequest(actor_surface_handle_));
   expect_targets_surface(TypeToolRequest(actor_surface_handle_, target, "text",
                                          /*follow_by_enter=*/false,

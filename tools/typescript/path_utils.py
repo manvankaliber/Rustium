@@ -5,22 +5,6 @@
 import os
 
 
-def isInAshFolder(path):
-  # TODO (https://crbug.com/1506296): Organize Ash WebUI code under fewer
-  # directories.
-  ash_folders = [
-    # Source code folders
-    'ash/webui',
-    'chrome/browser/resources/ash',
-    'chrome/browser/resources/chromeos',
-    'chrome/browser/resources/dlp_internals',
-    'chromeos/ash',
-    'ui/file_manager',
-    # Test folders
-    'chrome/test/data/webui/chromeos',
-    'chrome/test/data/webui/cr_components/chromeos',
-  ]
-  return any(path.startswith(folder) for folder in ash_folders)
 
 
 def getTargetPath(gen_dir, root_gen_dir):

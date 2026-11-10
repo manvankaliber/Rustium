@@ -18,9 +18,6 @@
 #include "services/proxy_resolver/public/mojom/system_proxy_resolver.mojom.h"
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "services/network/public/mojom/dhcp_wpad_url_client.mojom.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace net {
 class DhcpPacFileFetcher;
@@ -65,11 +62,6 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) URLRequestContextBuilderMojo
           mojo_system_proxy_resolver);
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void SetDhcpWpadUrlClient(
-      mojo::PendingRemote<network::mojom::DhcpWpadUrlClient>
-          dhcp_wpad_url_client);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
  private:
   std::unique_ptr<net::ProxyResolutionService> CreateProxyResolutionService(
@@ -92,11 +84,6 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) URLRequestContextBuilderMojo
   CreateSystemProxyResolutionService(net::NetLog* net_log);
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // If set, handles calls to get the PAC script URL from the browser process.
-  // Only used if |mojo_proxy_resolver_factory_| is set.
-  mojo::PendingRemote<network::mojom::DhcpWpadUrlClient> dhcp_wpad_url_client_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   mojo::PendingRemote<proxy_resolver::mojom::ProxyResolverFactory>
       mojo_proxy_resolver_factory_;

@@ -29,8 +29,8 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 #if BUILDFLAG(USE_LINUX_VIDEO_ACCELERATION)
-#include "media/gpu/chromeos/platform_video_frame_pool.h"
-#include "media/gpu/chromeos/video_decoder_pipeline.h"
+#include "media/gpu/linux/platform_video_frame_pool.h"
+#include "media/gpu/linux/video_decoder_pipeline.h"
 #endif  // BUILDFLAG(USE_LINUX_VIDEO_ACCELERATION)
 
 namespace media {

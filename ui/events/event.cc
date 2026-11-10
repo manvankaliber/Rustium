@@ -409,7 +409,7 @@ std::string LocatedEvent::ToString() const {
 MouseEvent::MouseEvent(const PlatformEvent& native_event)
     : LocatedEvent(native_event),
       changed_button_flags_(GetChangedMouseButtonFlagsFromNative(native_event)),
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
       movement_(GetMouseMovementFromNative(native_event)),
 #endif
       pointer_details_(GetMousePointerDetailsFromNative(native_event)) {
@@ -1077,9 +1077,6 @@ DomKey KeyEvent::GetDomKey() const {
 
 void KeyEvent::OnFlagsUpdated() {
   // TODO(https://crbug.com/324462727): this is problematic on windows.
-#if BUILDFLAG(IS_CHROMEOS)
-  key_ = DomKey::NONE;
-#endif
 }
 
 char16_t KeyEvent::GetCharacter() const {

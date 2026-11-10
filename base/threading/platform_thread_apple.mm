@@ -86,11 +86,7 @@ void PlatformThreadBase::SetName(const std::string& name) {
 namespace {
 
 constexpr bool kOptimizedRealtimeThreadingMacDefaultEnabled =
-#if BUILDFLAG(IS_MAC)
     true;
-#else
-    false;
-#endif
 constexpr bool kOptimizedRealtimeThreadingMacDefaultPreemptible = true;
 constexpr double kOptimizedRealtimeThreadingMacDefaultBusy = 0.5;
 constexpr double kOptimizedRealtimeThreadingMacDefaultBusyLimit = 1.0;
@@ -99,11 +95,7 @@ constexpr double kOptimizedRealtimeThreadingMacDefaultBusyLimit = 1.0;
 
 // Whether optimized real-time thread config should be used for audio.
 BASE_FEATURE(kOptimizedRealtimeThreadingMac,
-#if BUILDFLAG(IS_MAC)
              FEATURE_ENABLED_BY_DEFAULT
-#else
-             FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 namespace {
@@ -392,12 +384,6 @@ ThreadType PlatformThreadBase::GetCurrentEffectiveThreadTypeForTest() {
 }
 
 size_t GetDefaultThreadStackSize(const pthread_attr_t& attributes) {
-#if BUILDFLAG(IS_IOS)
-  // For iOS 512kB (the default) isn't sufficient, but using the code
-  // for macOS below will return 8MB. So just be a little more conservative
-  // and return 1MB for now.
-  return 1024 * 1024;
-#else
   // The macOS default for a pthread stack size is 512kB.
   // Libc-594.1.4/pthreads/pthread.c's pthread_attr_init uses
   // DEFAULT_STACK_SIZE for this purpose.
@@ -425,7 +411,6 @@ size_t GetDefaultThreadStackSize(const pthread_attr_t& attributes) {
         static_cast<size_t>(stack_rlimit.rlim_cur));
   }
   return default_stack_size;
-#endif
 }
 
 void TerminateOnThread() {}

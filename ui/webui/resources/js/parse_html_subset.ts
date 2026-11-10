@@ -24,7 +24,6 @@ function sanitizeInnerHtmlInternal(
   return html.innerHTML;
 }
 
-// <if expr="not is_ios">
 let sanitizedPolicy: TrustedTypePolicy|null = null;
 
 /**
@@ -44,19 +43,7 @@ export function sanitizeInnerHtml(
   }
   return sanitizedPolicy.createHTML(rawString, opts);
 }
-// </if>
 
-// <if expr="is_ios">
-/**
- * Delegates to sanitizeInnerHtmlInternal() since on iOS there is no
- * window.trustedTypes support yet.
- */
-export function sanitizeInnerHtml(
-    rawString: string, opts?: SanitizeInnerHtmlOpts): string {
-  assert(!window.trustedTypes);
-  return sanitizeInnerHtmlInternal(rawString, opts);
-}
-// </if>
 
 type AllowFunction = (node: Node, value: string) => boolean;
 

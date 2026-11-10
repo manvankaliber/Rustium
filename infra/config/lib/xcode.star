@@ -4,11 +4,11 @@
 
 load("@chromium-luci//xcode.star", _xcode = "xcode")
 
-# Keep this in-sync with the versions of bots in //ios/build/bots/.
+# Xcode versions used by desktop macOS builders.
 xcode = struct(
     # Default Xcode Version (Xcode 27.0 RC)
-    xcode_default = _xcode.for_ios("27a266a"),
+    xcode_default = _xcode.for_mac("27a266a"),
 
     # Xcode beta version used on beta bots.
-    xcode_beta = _xcode.for_ios("27c5020n"),
+    xcode_beta = _xcode.for_mac("27c5020n"),
 )

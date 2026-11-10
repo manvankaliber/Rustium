@@ -137,17 +137,9 @@ using OverrideSizeMap = HashMap<const LayoutBox*, LayoutUnit>;
 
 // Size of border belt for autoscroll. When mouse pointer in border belt,
 // autoscroll is started.
-#if BUILDFLAG(IS_IOS)
-static constexpr int kAutoscrollBeltSizeInDIPs = 20;
-// Size of border bottom belt for autoscroll on iOS. When users drag the right
-// handle of selection on iOS, the Y value of point that passed from
-// BETextInput's autoscrollToPoint is smaller that the Y value that users touch.
-static constexpr int kAutoscrollBeltSizeInDIPsBottom = 60;
-#else
 // TODO(crbug.com/398066579): Figure out if these can be in DIPs.
 static constexpr int kAutoscrollBeltSize = 20;
 static constexpr int kAutoscrollBeltSizeBottom = 20;
-#endif  // BUILDFLAG(IS_IOS)
 
 static const unsigned kBackgroundObscurationTestMaxDepth = 4;
 
@@ -1588,17 +1580,8 @@ PhysicalOffset LayoutBox::CalculateAutoscrollDirection(
   if (!frame_view)
     return PhysicalOffset();
 
-#if BUILDFLAG(IS_IOS)
-  float autoscroll_belt_size_in_viewport =
-      frame_view->GetChromeClient()->WindowToViewportScalar(
-          GetFrame(), kAutoscrollBeltSizeInDIPs);
-  float autoscroll_belt_size_for_bottom_in_viewport =
-      frame_view->GetChromeClient()->WindowToViewportScalar(
-          GetFrame(), kAutoscrollBeltSizeInDIPsBottom);
-#else
   float autoscroll_belt_size_in_viewport = kAutoscrollBeltSize;
   float autoscroll_belt_size_for_bottom_in_viewport = kAutoscrollBeltSizeBottom;
-#endif  // BUILDFLAG(IS_IOS)
 
   PhysicalRect absolute_scrolling_box(AbsoluteBoundingBoxRect());
 
@@ -4057,17 +4040,11 @@ BackgroundPaintLocation LayoutBox::ComputeBackgroundPaintLocation(
   bool elastic_overscroll_may_shift_content =
       RuntimeEnabledFeatures::
           ElasticOverscrollBackgroundPaintLocationFixEnabled() &&
-#if BUILDFLAG(IS_ANDROID)
-      // On android, elastic overscroll stretches the content but does not
-      // shift it beyond its scrolling extents.
-      false;
-#else
       (IsA<LayoutView>(this)
            ? Platform::Current()->IsElasticOverscrollEnabledOnRoot()
            : Platform::Current()->IsElasticOverscrollEnabledForSubscroll()) &&
       (Style().OverscrollBehaviorX() != EOverscrollBehavior::kNone ||
        Style().OverscrollBehaviorY() != EOverscrollBehavior::kNone);
-#endif
 
   Color background_color = ResolveColor(GetCSSPropertyBackgroundColor());
 

@@ -571,9 +571,7 @@ void GlicInstanceCoordinatorImpl::Show(BrowserWindowInterface* browser,
 
   if (!browser) {
     if (!GlicEnabling::IsLiveAndFloatyEnabledByFlags()) {
-#if !BUILDFLAG(IS_ANDROID)
       browser = chrome::OpenEmptyWindow(profile_);
-#endif
       if (!browser) {
         LOG(ERROR)
             << "Could not find or create a browser window for Glic side panel.";

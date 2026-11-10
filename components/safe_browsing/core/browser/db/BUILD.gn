@@ -246,16 +246,8 @@ source_set("prefix_iterator") {
   ]
 }
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-
-  java_cpp_enum("sb_threat_values") {
-    sources = [ "sb_protocol_manager_util.h" ]
-  }
-}
-
 source_set("v4_rice") {
-  if (safe_browsing_mode != 0 || is_ios) {
+  if (safe_browsing_mode != 0) {
     sources = [
       "v4_rice.cc",
       "v4_rice.h",
@@ -269,7 +261,7 @@ source_set("v4_rice") {
 }
 
 source_set("v5_rice") {
-  if (safe_browsing_mode != 0 || is_ios) {
+  if (safe_browsing_mode != 0) {
     sources = [
       "v5_hash_list_rice_decoder.cc",
       "v5_hash_list_rice_decoder.h",
@@ -293,7 +285,7 @@ source_set("sb_store") {
     "hash_prefix_map.h",
     "sb_store_file_format.h",
   ]
-  if (safe_browsing_mode != 0 || is_ios) {
+  if (safe_browsing_mode != 0) {
     sources += [
       "sb_store.cc",
       "sb_store.h",
@@ -478,7 +470,7 @@ source_set("unit_tests_local_db") {
     "//url",
   ]
 
-  if (safe_browsing_mode != 0 || is_ios) {
+  if (safe_browsing_mode != 0) {
     sources += [
       "v4_rice_unittest.cc",
       "v4_store_unittest.cc",

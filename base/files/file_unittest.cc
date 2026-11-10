@@ -26,9 +26,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/perfetto/include/perfetto/test/traced_value_test_support.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/test/android/content_uri_test_utils.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_POSIX)
 #include <errno.h>
@@ -131,84 +128,6 @@ TEST(FileTest, Create) {
   EXPECT_FALSE(PathExists(file_path));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Same as Create, but exercising FilePaths that are virtual document paths.
-TEST(FileTest, CreateAndroid) {
-  ScopedTempDir scoped_temp_dir;
-  ASSERT_TRUE(scoped_temp_dir.CreateUniqueTempDir());
-
-  FilePath temp_dir =
-      *test::android::GetVirtualDocumentPathFromCacheDirDirectory(
-          scoped_temp_dir.GetPath());
-
-  FilePath file_path = temp_dir.AppendASCII("create_file_1");
-
-  {
-    // Default-constructed file should be invalid with a default error.
-    File file;
-    EXPECT_FALSE(file.IsValid());
-    EXPECT_EQ(File::FILE_ERROR_FAILED, file.error_details());
-  }
-
-  {
-    // Open a file that doesn't exist.
-    File file(file_path, File::FLAG_OPEN | File::FLAG_READ);
-    EXPECT_FALSE(file.IsValid());
-    EXPECT_EQ(File::FILE_ERROR_NOT_FOUND, file.error_details());
-  }
-
-  {
-    // Open or create a file.
-    File file(file_path, File::FLAG_OPEN_ALWAYS | File::FLAG_READ);
-    EXPECT_TRUE(file.IsValid());
-    EXPECT_TRUE(file.created());
-    EXPECT_EQ(File::FILE_OK, file.error_details());
-  }
-
-  {
-    // Open an existing file.
-    File file(file_path, File::FLAG_OPEN | File::FLAG_READ);
-    EXPECT_TRUE(file.IsValid());
-    EXPECT_FALSE(file.created());
-    EXPECT_EQ(File::FILE_OK, file.error_details());
-
-    // This time verify closing the file.
-    file.Close();
-    EXPECT_FALSE(file.IsValid());
-  }
-
-  {
-    // Open an existing file through Initialize
-    File file;
-    file.Initialize(file_path, File::FLAG_OPEN | File::FLAG_READ);
-    EXPECT_TRUE(file.IsValid());
-    EXPECT_FALSE(file.created());
-    EXPECT_EQ(File::FILE_OK, file.error_details());
-
-    // This time verify closing the file.
-    file.Close();
-    EXPECT_FALSE(file.IsValid());
-  }
-
-  {
-    // Create a file that exists.
-    File file(file_path, File::FLAG_CREATE | File::FLAG_READ);
-    EXPECT_FALSE(file.IsValid());
-    EXPECT_FALSE(file.created());
-    EXPECT_EQ(File::FILE_ERROR_EXISTS, file.error_details());
-  }
-
-  {
-    // Create or overwrite a file.
-    File file(file_path, File::FLAG_CREATE_ALWAYS | File::FLAG_WRITE);
-    EXPECT_TRUE(file.IsValid());
-    EXPECT_TRUE(file.created());
-    EXPECT_EQ(File::FILE_OK, file.error_details());
-  }
-
-  EXPECT_TRUE(PathExists(file_path));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST(FileTest, SelfSwap) {
   ScopedTempDir temp_dir;
@@ -372,22 +291,6 @@ TEST(FileTest, ReadWriteSpans) {
   CheckReadWriteSpansForFile(file, file_path);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST(FileTest, ReadWriteSpans_AndroidVp) {
-  ScopedTempDir temp_dir;
-  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
-
-  FilePath dir_vp = *test::android::GetVirtualDocumentPathFromCacheDirDirectory(
-      temp_dir.GetPath());
-  FilePath file_path = dir_vp.Append("read_write_file_vp");
-  ASSERT_TRUE(file_path.IsVirtualDocumentPath());
-  File file(file_path,
-            File::FLAG_CREATE_ALWAYS | File::FLAG_READ | File::FLAG_WRITE);
-  ASSERT_TRUE(file.IsValid());
-
-  CheckReadWriteSpansForFile(file, file_path);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST(FileTest, GetLastFileError) {
 #if BUILDFLAG(IS_WIN)
@@ -571,11 +474,7 @@ TEST(FileTest, Length) {
 }
 
 // Flakily fails: http://crbug.com/86494
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-TEST(FileTest, TouchGetInfo) {
-#else
 TEST(FileTest, DISABLED_TouchGetInfo) {
-#endif
   ScopedTempDir temp_dir;
   ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
   File file(temp_dir.GetPath().AppendASCII("touch_get_info_file"),
@@ -648,7 +547,7 @@ TEST(FileTest, FromStatWithUnixEpochTimestamps) {
 }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_APPLE)
 TEST(FileTest, FromStatWithTimestampsInFirstUnixSecond) {
   stat_wrapper_t stat_info = {};
 #if BUILDFLAG(IS_APPLE)
@@ -667,7 +566,7 @@ TEST(FileTest, FromStatWithTimestampsInFirstUnixSecond) {
   EXPECT_EQ(Time::UnixEpoch() + Microseconds(234567), info.last_accessed);
   EXPECT_EQ(Time::UnixEpoch() + Microseconds(345678), info.creation_time);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_APPLE)
 
 // Test we can retrieve the file's creation time through File::GetInfo().

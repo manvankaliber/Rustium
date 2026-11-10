@@ -13,9 +13,7 @@
 #include "components/signin/public/base/signin_buildflags.h"
 #include "components/signin/public/identity_manager/identity_manager.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/memory/scoped_refptr.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/functional/callback.h"
@@ -32,9 +30,6 @@ class UnexportableKeyService;
 }  // namespace unexportable_keys
 #endif
 
-#if BUILDFLAG(IS_IOS)
-class DeviceAccountsProvider;
-#endif
 
 namespace image_fetcher {
 class ImageDecoder;
@@ -48,11 +43,6 @@ namespace network {
 class NetworkConnectionTracker;
 }  // namespace network
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace account_manager {
-class AccountManagerFacade;
-}
-#endif
 
 namespace signin {
 
@@ -81,15 +71,7 @@ struct IdentityManagerBuildParams {
       nullptr;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  raw_ptr<account_manager::AccountManagerFacade, DanglingUntriaged>
-      account_manager_facade = nullptr;
-  bool is_regular_profile = false;
-#endif
 
-#if BUILDFLAG(IS_IOS)
-  std::unique_ptr<DeviceAccountsProvider> device_accounts_provider;
-#endif
 
 #if BUILDFLAG(IS_WIN)
   base::RepeatingCallback<bool()> reauth_callback;

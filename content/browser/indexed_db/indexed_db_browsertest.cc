@@ -830,7 +830,6 @@ static void CopyLevelDBToProfile(
   ASSERT_TRUE(base::CopyDirectory(test_blob_data_dir, data_path, kRecursive));
   // For some reason touching files on Android fails with EPERM.
   // https://crbug.com/1045488
-#if !BUILDFLAG(IS_ANDROID)
   // The modification time of the saved blobs is used for File objects, so these
   // need to manually be set (they are clobbered both by the above copy
   // operation and by git).
@@ -838,7 +837,6 @@ static void CopyLevelDBToProfile(
     base::FilePath total_path = blob_dest.Append(time.relative_blob_path);
     ASSERT_TRUE(base::TouchFile(total_path, time.time, time.time));
   }
-#endif
 }
 
 class IndexedDBBrowserTestWithPreexistingLevelDB
@@ -894,11 +892,7 @@ IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithVersion3Schema, MigrationTest) {
   const GURL kTestUrl = GetTestUrl("indexeddb", "v3_migration_test.html");
   // For some reason setting empty file modification time on Android fails with
   // EPERM. https://crbug.com/1045488
-#if BUILDFLAG(IS_ANDROID)
-  SimpleTest(GURL(kTestUrl.spec() + "#ignoreTimes"));
-#else
   SimpleTest(kTestUrl);
-#endif
 }
 
 class IndexedDBBrowserTestWithVersion123456Schema
@@ -1044,11 +1038,7 @@ IN_PROC_BROWSER_TEST_P(IndexedDBBrowserTest, EmptyBlob) {
   // For some reason Android's futimes fails (EPERM) in this test. Do not assert
   // file times on Android, but do so on other platforms. crbug.com/467247
   // TODO(cmumford): Figure out why this is the case and fix if possible.
-#if BUILDFLAG(IS_ANDROID)
-  SimpleTest(GURL(kTestUrl.spec() + "#ignoreTimes"));
-#else
   SimpleTest(kTestUrl);
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(IndexedDBBrowserTest, BlobsCountAgainstQuota) {
@@ -1186,7 +1176,7 @@ std::unique_ptr<net::test_server::HttpResponse> ServePath(
   return std::move(http_response);
 }
 
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_WIN)
 void CorruptDatabase(const base::FilePath& idb_data_path) {
   int num_files = 0;
   int num_errors = 0;
@@ -1380,7 +1370,7 @@ std::unique_ptr<net::test_server::HttpResponse> StaticFileRequestHandler(
 // See TODO in CorruptDBRequestHandler.  Windows does not support nested
 // message loops on the IO thread, so run this test on other platforms.
 // iOS runs into difficulty with the nested IO message loop as well.
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_WIN)
 class IndexedDBBrowserTestWithCorruption
     : public IndexedDBLevelDBOnlyTest,
       public ::testing::WithParamInterface<const char*> {};
@@ -1430,7 +1420,7 @@ IN_PROC_BROWSER_TEST_P(IndexedDBBrowserTestWithCorruption,
       std::string(s_corrupt_db_test_prefix) + "corrupted_open_db_recovery.html";
   SimpleTest(embedded_test_server()->GetURL(test_file));
 }
-#endif  // !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
+#endif
 
 // TODO: http://crbug.com/510520, flaky on all platforms
 IN_PROC_BROWSER_TEST_F(IndexedDBLevelDBOnlyTest,
@@ -1516,11 +1506,7 @@ IN_PROC_BROWSER_TEST_P(IndexedDBBrowserTest, NullKeyPathPersistence) {
 
 // Disable this test on Android due to failures. See crbug.com/427529 and
 // crbug.com/1116464 for details.
-#if defined(ANDROID)
-#define MAYBE_ConnectionsClosedOnTabClose DISABLED_ConnectionsClosedOnTabClose
-#else
 #define MAYBE_ConnectionsClosedOnTabClose ConnectionsClosedOnTabClose
-#endif
 // Verify that open DB connections are closed when a tab is destroyed.
 IN_PROC_BROWSER_TEST_P(IndexedDBBrowserTest,
                        MAYBE_ConnectionsClosedOnTabClose) {

@@ -5,7 +5,7 @@
 import("//extensions/buildflags/buildflags.gni")
 import("//rlz/buildflags/buildflags.gni")
 
-assert(is_win || is_mac || is_linux || is_chromeos || is_android)
+assert(is_win || is_mac || is_linux)
 
 source_set("search_engines") {
   public = [
@@ -53,28 +53,6 @@ source_set("search_engines") {
     "//ui/base",
     "//url",
   ]
-
-  if (is_chromeos) {
-    deps += [ "//chrome/browser/ash/profiles" ]
-  }
-
-  if (is_android) {
-    public += [ "ui_thread_search_terms_data_android.h" ]
-    sources += [
-      "template_url_service_factory_android.cc",
-      "ui_thread_search_terms_data_android.cc",
-    ]
-    deps += [
-      "//chrome/browser/android/locale:locale_manager",
-      "//chrome/browser/search_engines/android:jni_headers",
-    ]
-
-    if (enable_extensions_core) {
-      public += [ "extension_control_handler_android.h" ]
-      sources += [ "extension_control_handler_android.cc" ]
-      deps += [ "//extensions/browser" ]
-    }
-  }
 
   if (enable_rlz) {
     deps += [ "//components/rlz" ]
@@ -144,39 +122,26 @@ source_set("unit_tests") {
     "//testing/gmock",
     "//testing/gtest",
   ]
-
-  if (enable_extensions_core && is_android) {
-    sources += [ "extension_control_handler_android_unittest.cc" ]
-    deps += [
-      "//chrome/browser/extensions",
-      "//chrome/browser/extensions:test_support",
-      "//components/sync_preferences:test_support",
-      "//extensions:test_support",
-      "//extensions/browser",
-    ]
-  }
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
+source_set("browser_tests") {
+  testonly = true
 
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [
-      "template_url_scraper_browsertest.cc",
-      "template_url_service_browsertest.cc",
-    ]
+  sources = [
+    "template_url_scraper_browsertest.cc",
+    "template_url_service_browsertest.cc",
+  ]
 
-    deps = [
-      ":search_engines",
-      "//base",
-      "//chrome/test:test_support",
-      "//content/test:test_support",
-      "//net:test_support",
-      "//testing/gtest",
-    ]
-  }
+  deps = [
+    ":search_engines",
+    "//base",
+    "//chrome/test:test_support",
+    "//content/test:test_support",
+    "//net:test_support",
+    "//testing/gtest",
+  ]
 }
 
 source_set("platform_browser_tests") {

@@ -22,9 +22,7 @@
 #include "content/public/browser/download_item_utils.h"
 #include "content/public/browser/navigation_entry.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/safe_browsing/download_protection/download_feedback_service.h"
-#endif
 
 namespace safe_browsing {
 
@@ -116,7 +114,6 @@ void CheckFileSystemAccessWriteRequest::SetDownloadProtectionData(
   // IncidentReportingService usage.
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void CheckFileSystemAccessWriteRequest::MaybeBeginFeedbackForDownload(
     DownloadCheckResult result,
     bool upload_requested,
@@ -124,12 +121,10 @@ void CheckFileSystemAccessWriteRequest::MaybeBeginFeedbackForDownload(
     const std::string& response_body) {
   // TODO(crbug.com/41477698): Integrate with DownloadFeedbackService.
 }
-#endif
 
 std::optional<enterprise_connectors::AnalysisSettings>
 CheckFileSystemAccessWriteRequest::ShouldUploadBinary(
     DownloadCheckResultReason reason) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!base::FeatureList::IsEnabled(kEnterpriseFileSystemAccessDeepScan)) {
     return std::nullopt;
   }
@@ -156,16 +151,12 @@ CheckFileSystemAccessWriteRequest::ShouldUploadBinary(
     }
   }
   return settings;
-#else
-  return std::nullopt;
-#endif
 }
 
 void CheckFileSystemAccessWriteRequest::UploadBinary(
     DownloadCheckResult result,
     DownloadCheckResultReason reason,
     enterprise_connectors::AnalysisSettings settings) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!base::FeatureList::IsEnabled(kEnterpriseFileSystemAccessDeepScan)) {
     return;
   }
@@ -183,7 +174,6 @@ void CheckFileSystemAccessWriteRequest::UploadBinary(
       DownloadItemWarningData::DeepScanTrigger::TRIGGER_POLICY, result,
       std::move(settings),
       /*password=*/std::nullopt);
-#endif
 }
 
 bool CheckFileSystemAccessWriteRequest::ShouldImmediatelyDeepScan(

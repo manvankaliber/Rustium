@@ -416,9 +416,6 @@ bool PasswordProtectionServiceBase::IsSupportedPasswordTypeForModalWarning(
 
 // Currently password reuse warnings are only supported for saved passwords
 // and GAIA passwords on Android.
-#if BUILDFLAG(IS_ANDROID)
-  return password_type.account_type() == ReusedPasswordAccountType::GMAIL;
-#else
   if (password_type.account_type() ==
       ReusedPasswordAccountType::NON_GAIA_ENTERPRISE)
     return true;
@@ -428,7 +425,6 @@ bool PasswordProtectionServiceBase::IsSupportedPasswordTypeForModalWarning(
     return false;
 
   return true;
-#endif
 }
 
 bool PasswordProtectionServiceBase::CanGetAccessToken() {

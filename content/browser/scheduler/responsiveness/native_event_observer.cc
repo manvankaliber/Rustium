@@ -14,7 +14,7 @@
 #include "content/browser/scheduler/responsiveness/native_event_observer.h"
 #include "ui/events/platform/platform_event_source.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "ui/events/platform/platform_event_source.h"
 #endif
 
@@ -37,7 +37,7 @@ BrowserUINativeEventObserver::~BrowserUINativeEventObserver() {
   UnregisterObserver();
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 void BrowserUINativeEventObserver::RegisterObserver() {
   CHECK(ui::PlatformEventSource::GetInstance());
   ui::PlatformEventSource::GetInstance()->AddPlatformEventObserver(this);
@@ -69,7 +69,7 @@ void BrowserUINativeEventObserver::PlatformEventSourceDestroying() {
   UnregisterObserver();
 }
 
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_WIN)
 void BrowserUINativeEventObserver::RegisterObserver() {
@@ -89,10 +89,6 @@ void BrowserUINativeEventObserver::DidRunNativeEvent(uintptr_t identifier) {
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-void BrowserUINativeEventObserver::RegisterObserver() {}
-void BrowserUINativeEventObserver::UnregisterObserver() {}
-#endif
 
 }  // namespace responsiveness
 }  // namespace content

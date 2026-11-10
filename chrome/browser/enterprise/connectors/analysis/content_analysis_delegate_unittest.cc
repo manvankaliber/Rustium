@@ -133,9 +133,7 @@ constexpr char kNothingEnabled[] = R"({ "service_provider": "google" })";
 constexpr AnalysisConnector kAuditOnlyTestConnectors[] = {
     FILE_ATTACHED,
     BULK_DATA_ENTRY,
-#if !BUILDFLAG(IS_ANDROID)
     PRINT,
-#endif  // !BUILDFLAG(IS_ANDROID)
 };
 
 // Helpers to get text with sizes relative to the minimum required size of 100
@@ -148,7 +146,6 @@ std::string small_text() {
   return "random small text";
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 base::ReadOnlySharedMemoryRegion create_page(size_t size) {
   base::MappedReadOnlyRegion page =
       base::ReadOnlySharedMemoryRegion::Create(size);
@@ -159,7 +156,6 @@ base::ReadOnlySharedMemoryRegion create_page(size_t size) {
 base::ReadOnlySharedMemoryRegion normal_page() {
   return create_page(1024);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class ScopedSetDMToken {
  public:
@@ -811,7 +807,6 @@ TEST_F(ContentAnalysisDelegateAuditOnlyTest, StringData3) {
 }
 
 // Print scanning isn't supported on Android.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContentAnalysisDelegateAuditOnlyTest, PagePrintAllowed) {
   GURL url(kTestUrl);
   ContentAnalysisDelegate::Data data;
@@ -877,7 +872,6 @@ TEST_F(ContentAnalysisDelegateAuditOnlyTest, PagePrintBlocked) {
             test::FakeContentAnalysisDelegate::GetTotalAnalysisRequestsCount());
   EXPECT_TRUE(called);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ContentAnalysisDelegateAuditOnlyTest,
        FileDataPositiveMalwareAndDlpVerdicts) {
@@ -969,7 +963,6 @@ TEST_F(ContentAnalysisDelegateAuditOnlyTest, FileDataPositiveMalwareVerdict) {
 
 // Android doesn't detect encrypted archives (`FileAnalysisRequest` only runs
 // the sandboxed archive analyzers on desktop), so they're scanned as encrypted blobs
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContentAnalysisDelegateAuditOnlyTest, FileIsEncrypted) {
   content::InProcessUtilityThreadHelper in_process_utility_thread_helper;
 
@@ -1017,7 +1010,6 @@ TEST_F(ContentAnalysisDelegateAuditOnlyTest, FileIsEncrypted) {
             test::FakeContentAnalysisDelegate::GetTotalAnalysisRequestsCount());
   EXPECT_TRUE(called);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ContentAnalysisDelegateAuditOnlyTest, FileIsEncrypted_PolicyAllows) {
   content::InProcessUtilityThreadHelper in_process_utility_thread_helper;

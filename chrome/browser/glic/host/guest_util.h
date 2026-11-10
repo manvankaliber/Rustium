@@ -238,11 +238,6 @@ WrapClipboardPasteAllowedCallback(
 void LogPasteAttempt(const content::ClipboardEndpoint& source,
                      const ui::ClipboardMetadata& metadata);
 
-#if BUILDFLAG(IS_ANDROID)
-// Configures the WebContents's EventForwarder to deliver intra-app web image
-// drags into Glic as `DropData::file_contents`.
-void ConfigureGlicDragAndDropForWebContents(content::WebContents* web_contents);
-#endif
 }  // namespace glic
 
 #endif  // CHROME_BROWSER_GLIC_HOST_GUEST_UTIL_H_

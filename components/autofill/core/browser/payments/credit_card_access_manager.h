@@ -35,9 +35,7 @@
 #include "components/autofill/core/browser/payments/unmask_auth_flow_type.h"
 #include "components/autofill/core/browser/payments/wait_for_signal_or_timeout.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "components/autofill/core/browser/payments/credit_card_fido_authenticator.h"
-#endif
 
 namespace autofill {
 
@@ -64,9 +62,7 @@ struct CachedServerCardInfo {
 // with Google Payments. Owned by BrowserAutofillManager.
 class CreditCardAccessManager
     : public CreditCardCvcAuthenticator::Requester,
-#if !BUILDFLAG(IS_IOS)
       public CreditCardFidoAuthenticator::Requester,
-#endif
       public CreditCardOtpAuthenticator::Requester,
       public CreditCardRiskBasedAuthenticator::Requester {
  public:
@@ -181,9 +177,7 @@ class CreditCardAccessManager
   // Returns true if a |unmasked_cards_cache| contains an entry for the card.
   bool IsCardPresentInUnmaskedCache(const CreditCard& card) const;
 
-#if !BUILDFLAG(IS_IOS)
   CreditCardFidoAuthenticator* GetOrCreateFidoAuthenticator();
-#endif
 
   // CreditCardCvcAuthenticator::Requester:
   void OnCvcAuthenticationComplete(
@@ -260,18 +254,12 @@ class CreditCardAccessManager
   // FIDO auth was suggested.
   void Authenticate(UnmaskAuthFlowType unmask_auth_flow_type);
 
-#if BUILDFLAG(IS_ANDROID)
-  bool ShouldOfferFidoAuth() const override;
-  bool UserOptedInToFidoFromSettingsPageOnMobile() const override;
-#endif
 
-#if !BUILDFLAG(IS_IOS)
   // CreditCardFidoAuthenticator::Requester:
   void OnFIDOAuthenticationComplete(
       const CreditCardFidoAuthenticator::FidoAuthenticationResponse& response)
       override;
   void OnFidoAuthorizationComplete(bool did_succeed) override;
-#endif
 
   bool is_authentication_in_progress() {
     return is_authentication_in_progress_;
@@ -315,7 +303,6 @@ class CreditCardAccessManager
   // authenticating future card unmasking.
   void ShowWebauthnOfferDialog(std::string card_authorization_token);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // After card verification starts, shows the verify pending dialog if WebAuthn
   // is enabled, indicating some verification steps are in progress.
   void ShowVerifyPendingDialog();
@@ -323,7 +310,6 @@ class CreditCardAccessManager
   // Invokes the corresponding callback on different user's responses on either
   // the Webauthn offer dialog or verify pending dialog.
   void HandleDialogUserResponse(WebauthnDialogCallbackType type);
-#endif
 
   // Returns the key for the given card to be used for inserting or querying the
   // `unmasked_card_cache_`.
@@ -478,12 +464,10 @@ class CreditCardAccessManager
   // Timestamp for when fido_authenticator_->IsUserVerifiable() is called.
   std::optional<base::TimeTicks> is_user_verifiable_called_timestamp_;
 
-#if !BUILDFLAG(IS_IOS)
   std::unique_ptr<CreditCardFidoAuthenticator> fido_authenticator_;
 
   // User opt in/out intention when local pref and payments mismatch.
   UserOptInIntention opt_in_intention_ = UserOptInIntention::kUnspecified;
-#endif
 
   // Struct to store necessary information to start an authentication. It is
   // populated before an authentication is offered. It includes suggested

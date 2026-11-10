@@ -251,7 +251,6 @@ INSTANTIATE_TEST_SUITE_P(
                       std::make_pair("secondary.site1.com", ""),
                       std::make_pair("google.com", "")));
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(SiteTokenProviderServiceTest, SignOutClearsCacheAndStopsRefresh) {
   auto ctx = CreateServiceWithAccount();
   ctx.update_callback.Run(TokenMap{{"example.com", "token1"}});
@@ -301,7 +300,6 @@ TEST_F(SiteTokenProviderServiceTest, CachesTokensAfterSignOutAndSignIn) {
 
   ctx.service->Shutdown();
 }
-#endif
 
 class SiteTokenProviderTest : public ::testing::Test {
  protected:

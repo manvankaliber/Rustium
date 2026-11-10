@@ -301,11 +301,7 @@ class StreamWrapper {
   explicit StreamWrapper(AudioManager* audio_manager)
       : audio_manager_(audio_manager),
         format_(AudioParameters::AUDIO_PCM_LOW_LATENCY),
-#if BUILDFLAG(IS_ANDROID)
-        channel_layout_(CHANNEL_LAYOUT_MONO)
-#else
         channel_layout_(CHANNEL_LAYOUT_STEREO)
-#endif
   {
     // Use the preferred sample rate.
     const AudioParameters& params =

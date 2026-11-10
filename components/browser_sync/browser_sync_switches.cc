@@ -10,11 +10,7 @@
 namespace switches {
 
 BASE_FEATURE(kMigrateSyncingUserToSignedIn,
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#else
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 BASE_FEATURE_PARAM(base::TimeDelta,
                    kMinDelayToMigrateSyncPaused,
@@ -26,19 +22,13 @@ BASE_FEATURE(kUndoMigrationOfSyncingUserToSignedIn,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kForceMigrateSyncingUserToSignedIn,
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#else
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 BASE_FEATURE(kForceMigrateNoopForDebugging,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if !BUILDFLAG(IS_CHROMEOS)
 BASE_FEATURE(kMigrateOutOfSyncSetupIncompleteState,
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 BASE_FEATURE(kEnableReadingListForMigratedUsers,

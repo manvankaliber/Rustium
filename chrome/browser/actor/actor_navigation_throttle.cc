@@ -23,20 +23,12 @@
 #include "content/public/browser/web_contents.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 namespace actor {
 
 // static
 void ActorNavigationThrottle::MaybeCreateAndAdd(
     content::NavigationThrottleRegistry& registry) {
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(features::kGlicActor)) {
-    return;
-  }
-#endif
 
   content::NavigationHandle& navigation_handle = registry.GetNavigationHandle();
 
@@ -267,16 +259,9 @@ ActorNavigationThrottle::WillStartOrRedirectRequest(bool is_redirection) {
       return content::NavigationThrottle::PROCEED;
     }
 
-#if !BUILDFLAG(IS_ANDROID)
     if (!base::FeatureList::IsEnabled(features::kGlicConfirmTabClose)) {
       return content::NavigationThrottle::PROCEED;
     }
-#else
-    // On Android, only desktop form factors confirm user UI navigations.
-    if (!base::android::device_info::is_desktop()) {
-      return content::NavigationThrottle::PROCEED;
-    }
-#endif
 
     // Typing in the omnibox starts a speculative prerender that carries the
     // same transition as the navigation the user may eventually commit.

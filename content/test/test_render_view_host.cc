@@ -56,11 +56,6 @@ TestRenderWidgetHostView::TestRenderWidgetHostView(RenderWidgetHost* rwh)
       is_showing_(!host()->IsHidden()),
       is_occluded_(false),
       cursor_manager_(this) {
-#if BUILDFLAG(IS_ANDROID)
-  frame_sink_id_ = AllocateFrameSinkId();
-  GetHostFrameSinkManager()->RegisterFrameSinkId(
-      frame_sink_id_, this, viz::ReportFirstSurfaceActivation::kYes);
-#else
   default_background_color_ = SK_ColorWHITE;
   // Not all tests initialize or need an image transport factory.
   if (ImageTransportFactory::GetInstance()) {
@@ -72,7 +67,6 @@ TestRenderWidgetHostView::TestRenderWidgetHostView(RenderWidgetHost* rwh)
         frame_sink_id_, "TestRenderWidgetHostView");
 #endif
   }
-#endif
 
   host()->SetView(this);
 
@@ -107,11 +101,7 @@ gfx::NativeViewAccessible TestRenderWidgetHostView::GetNativeViewAccessible() {
 }
 
 ui::TextInputClient* TestRenderWidgetHostView::GetTextInputClient() {
-#if !BUILDFLAG(IS_IOS)
   return &text_input_client_;
-#else
-  NOTREACHED();
-#endif
 }
 
 bool TestRenderWidgetHostView::HasFocus() {
@@ -190,11 +180,6 @@ uint64_t TestRenderWidgetHostView::GetNSViewId() const {
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-bool TestRenderWidgetHostView::IsTouchSequencePotentiallyActiveOnViz() {
-  return false;
-}
-#endif
 
 gfx::Rect TestRenderWidgetHostView::GetBoundsInScreen() {
   return gfx::Rect();

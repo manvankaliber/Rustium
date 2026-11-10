@@ -9,7 +9,7 @@
 #include "base/time/time.h"
 #include "components/feed/core/common/pref_names.h"
 #include "components/feed/core/proto/v2/wire/content_id.pb.h"
-#include "components/feed/core/v2/ios_shared_prefs.h"
+#include "components/feed/core/v2/shared_prefs.h"
 #include "components/feed/core/v2/proto_util.h"
 #include "components/feed/feed_feature_list.h"
 #include "components/prefs/pref_service.h"

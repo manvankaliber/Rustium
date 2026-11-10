@@ -40,9 +40,6 @@
 #include "util/process/process_memory_linux.h"
 #include "util/process/process_memory_range.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <android/api-level.h>
-#endif
 
 namespace crashpad {
 namespace test {
@@ -102,21 +99,6 @@ void TestAgainstTarget(PtraceConnection* connection) {
   DebugRendezvous debug;
   ASSERT_TRUE(debug.Initialize(range, debug_address));
 
-#if BUILDFLAG(IS_ANDROID)
-  const int android_runtime_api = android_get_device_api_level();
-  ASSERT_GE(android_runtime_api, 1);
-
-  base::FilePath exe_name(base::FilePath(GetMainArguments()[0]).BaseName());
-  EXPECT_NE(debug.Executable()->name.find(exe_name.value()), std::string::npos);
-
-  // Android's loader doesn't set the dynamic array for the executable in the
-  // link map until Android 10.0 (API 29).
-  if (android_runtime_api >= 29) {
-    EXPECT_EQ(debug.Executable()->dynamic_array, exe_dynamic_address);
-  } else {
-    EXPECT_EQ(debug.Executable()->dynamic_array, 0u);
-  }
-#else
   // glibc's loader implements most of the tested features that Android's was
   // missing but has since gained.
   const int android_runtime_api = std::numeric_limits<int>::max();
@@ -124,7 +106,6 @@ void TestAgainstTarget(PtraceConnection* connection) {
   // glibc's loader does not set the name for the executable.
   EXPECT_TRUE(debug.Executable()->name.empty());
   EXPECT_EQ(debug.Executable()->dynamic_array, exe_dynamic_address);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Android's loader doesn't set the load bias until Android 4.3 (API 18).
   if (android_runtime_api >= 18) {
@@ -161,9 +142,7 @@ void TestAgainstTarget(PtraceConnection* connection) {
     ASSERT_GE(possible_mappings->Count(), 1u);
 
     std::unique_ptr<ElfImageReader> module_reader;
-#if !BUILDFLAG(IS_ANDROID)
     const MemoryMap::Mapping* module_mapping = nullptr;
-#endif
     const MemoryMap::Mapping* mapping = nullptr;
     while ((mapping = possible_mappings->Next())) {
       auto parsed_module = std::make_unique<ElfImageReader>();
@@ -173,17 +152,12 @@ void TestAgainstTarget(PtraceConnection* connection) {
           parsed_module->GetDynamicArrayAddress(&dynamic_address) &&
           dynamic_address == module.dynamic_array) {
         module_reader = std::move(parsed_module);
-#if !BUILDFLAG(IS_ANDROID)
         module_mapping = mapping;
-#endif
         break;
       }
     }
     ASSERT_TRUE(module_reader.get());
 
-#if BUILDFLAG(IS_ANDROID)
-    EXPECT_FALSE(module.name.empty());
-#else
     // glibc's loader doesn't always set the name in the link map for the vdso.
     EXPECT_PRED4(
         [](const std::string mapping_name,
@@ -205,7 +179,6 @@ void TestAgainstTarget(PtraceConnection* connection) {
         module_mapping->device,
         module_mapping->inode,
         module.name);
-#endif  // BUILDFLAG(IS_ANDROID)
 
     // Android's loader stops setting its own load bias after Android 4.4.4
     // (API 20) until Android 6.0 (API 23).

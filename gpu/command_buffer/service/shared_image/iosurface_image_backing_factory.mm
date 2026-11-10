@@ -29,10 +29,8 @@
 #include "ui/gl/gl_context.h"
 #include "ui/gl/gl_implementation.h"
 
-#if BUILDFLAG(IS_MAC)
 #include "base/mac/mac_util.h"
 #include "ui/gfx/mac/display_icc_profiles.h"
-#endif
 
 #import <Metal/Metal.h>
 
@@ -100,7 +98,6 @@ void SetIOSurfaceColorSpace(IOSurfaceRef io_surface,
     return;
   }
 
-#if BUILDFLAG(IS_MAC)
   base::apple::ScopedCFTypeRef<CFDataRef> cf_data =
       gfx::DisplayICCProfiles::GetInstance()->GetDataForColorSpace(color_space);
   if (cf_data) {
@@ -108,9 +105,6 @@ void SetIOSurfaceColorSpace(IOSurfaceRef io_surface,
   } else {
     IOSurfaceSetColorSpace(io_surface, color_space);
   }
-#else
-  IOSurfaceSetColorSpace(io_surface, color_space);
-#endif
 }
 
 bool IsValidSize(const gfx::Size& size, int32_t max_texture_size) {
@@ -248,11 +242,7 @@ IOSurfaceImageBackingFactory::CreateSharedImage(const Mailbox& mailbox,
     gl::ScopedProgressReporter scoped_progress_reporter(progress_reporter_);
     const bool should_clear = true;
     const bool override_rgba_to_bgra =
-#if BUILDFLAG(IS_IOS)
-        false;
-#else
         gr_context_type_ == GrContextType::kGL;
-#endif
     io_surface = gfx::CreateIOSurface(si_info.size, si_info.format,
                                       should_clear, override_rgba_to_bgra);
     if (!io_surface) {
@@ -372,11 +362,7 @@ IOSurfaceImageBackingFactory::CreateSharedImageInternal(
     gl::ScopedProgressReporter scoped_progress_reporter(progress_reporter_);
 
     const bool override_rgba_to_bgra =
-#if BUILDFLAG(IS_IOS)
-        false;
-#else
         gr_context_type_ == GrContextType::kGL;
-#endif
     io_surface =
         gfx::CreateIOSurface(size, format, should_clear, override_rgba_to_bgra);
     if (!io_surface) {

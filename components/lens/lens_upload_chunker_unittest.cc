@@ -22,7 +22,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/lens_server_proto/lens_overlay_server.pb.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 
 namespace lens {
 
@@ -287,5 +286,3 @@ TEST_F(LensUploadChunkerTest, InterceptsMissingChunksErrorAndRetries) {
 }  // namespace
 
 }  // namespace lens
-
-#endif  // !BUILDFLAG(IS_ANDROID)

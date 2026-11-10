@@ -121,12 +121,7 @@ bool HasSoftwareFallback(media::VideoCodec video_codec) {
   }
 // Software fallback for the H.264 codec is disabled on Android ARM 32‑bit
 // devices for both encoding and decoding.
-#if BUILDFLAG(IS_ANDROID)
-  return video_codec != media::VideoCodec::kH264 ||
-         ::features::IsOpenH264SoftwareEncoderEnabledForWebRTC();
-#else
   return true;
-#endif
 }
 
 struct EncodedImageExternalMemory

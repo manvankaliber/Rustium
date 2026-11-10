@@ -86,15 +86,6 @@ VideoFrameResourceType ExternalResourceTypeForHardware(
     return VideoFrameResourceType::RGB;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Hardware video decode on Android requires using external formats which are
-  // currently not expressible by SharedImageFormat, so images are created as
-  // RGBA+GL_TEXTURE_EXTERNAL_OES.
-  if (frame.shared_image()->GetTextureTarget() == GL_TEXTURE_EXTERNAL_OES &&
-      frame.shared_image()->format() == viz::SinglePlaneFormat::kRGBA_8888) {
-    return VideoFrameResourceType::RGB;
-  }
-#endif
 
   const VideoPixelFormat format = frame.format();
   switch (format) {
@@ -854,13 +845,8 @@ VideoFrameExternalResource VideoResourceUpdater::CreateForHardwareFrame(
         viz::TransferableResource::SynchronizationType::kGpuCommandsCompleted;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  transfer_resource.ycbcr_info = video_frame->metadata().ycbcr_info;
-  transfer_resource.is_backed_by_surface_view =
-      video_frame->metadata().in_surface_view;
-#endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   transfer_resource.wants_promotion_hint =
       video_frame->metadata().wants_promotion_hint;
 #endif

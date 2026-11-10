@@ -33,9 +33,7 @@
 #include "chrome/browser/contextual_tasks/contextual_search_session_finder.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_cookie_synchronizer.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_eligibility_manager.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_tasks/contextual_tasks_extension_handler.h"
-#endif
 #include "chrome/browser/contextual_tasks/contextual_tasks_panel_controller.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_service_factory.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui.h"
@@ -54,9 +52,11 @@
 #include "chrome/browser/tab_list/tab_list_interface.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
+#include "chrome/browser/ui/lens/lens_media_link_handler.h"
 #include "chrome/browser/ui/navigator/browser_navigator.h"
 #include "chrome/browser/ui/navigator/browser_navigator_params.h"
 #include "chrome/browser/ui/tabs/tab_enums.h"
+#include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/webui/webui_embedding_context.h"
 #include "chrome/common/webui_url_constants.h"
 #include "components/contextual_search/contextual_search_metrics_recorder.h"
@@ -105,11 +105,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 #include "url/origin.h"
-
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/lens/lens_media_link_handler.h"
-#include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif
 
 #if BUILDFLAG(ENABLE_PDF)
 #include "chrome/browser/pdf/pdf_extension_util.h"
@@ -252,7 +247,6 @@ EntrypointSource ConvertContextualSearchSourceToEntrypointSource(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 bool ShouldResetZeroStateForAskGoogleEntryPoint(
     const GURL& url,
     ContextualTasksUiService* service,
@@ -275,14 +269,6 @@ bool ShouldResetZeroStateForAskGoogleEntryPoint(
   return (is_omnibox_action || is_updated_entry_point) &&
          ContextualTasksUI::IsZeroState(url, service);
 }
-#else
-bool ShouldResetZeroStateForAskGoogleEntryPoint(
-    const GURL& url,
-    ContextualTasksUiService* service,
-    omnibox::ChromeAimEntryPoint entry_point) {
-  return false;
-}
-#endif
 
 void LoadUrlInSidePanel(content::WebContents* web_contents, const GURL& url) {
   GURL new_url = ContextualTasksUiService::AddRequiredSidePanelUrlChanges(
@@ -702,15 +688,11 @@ bool ContextualTasksUiService::ShouldShowOauthErrorDialog(
   if (IsSignedInForWebContentsOnInit(web_contents) != is_signed_in) {
     return true;
   }
-  // Bypass the OAuth error dialog for users who are consistently signed out on
-  // a surface that admits them: the unified Lens side panel when it is
-  // configured to allow signed-out users, or side panel cobrowse on Desktop
-  // Android. Browsing signed out is expected there, so an error dialog would
-  // be noise.
+  // Bypass the OAuth error dialog for users who remain signed out in the
+  // unified Lens side panel when it permits signed-out browsing.
   const bool is_tab = tabs::TabInterface::MaybeGetFromContents(web_contents);
   const bool allows_signed_out_browsing =
-      lens::features::IsLensSidePanelUnificationAllowSignedOut() ||
-      IsAllowSignedOutUserInDesktopAndroidEnabled();
+      lens::features::IsLensSidePanelUnificationAllowSignedOut();
   if (!is_signed_in && !is_tab && allows_signed_out_browsing) {
     return false;
   }
@@ -799,7 +781,6 @@ static bool IsPdfCitation(const GURL& url,
 }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 // Checks if the current URL is a video citation on the active tab. Returns
 // true if this is a video citation and should be handled by scrolling the
 // video to the timestamp in the URL.
@@ -819,7 +800,6 @@ static bool IsVideoCitation(const GURL& url,
   }
   return false;
 }
-#endif
 
 namespace {
 
@@ -894,7 +874,6 @@ bool ContextualTasksUiService::MaybeHandleVideoCitation(
     const GURL& url,
     tabs::TabInterface* tab,
     const base::Uuid& task_id) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!IsVideoCitation(url, tab, task_id, contextual_tasks_service_)) {
     return false;
   }
@@ -904,7 +883,6 @@ bool ContextualTasksUiService::MaybeHandleVideoCitation(
   if (handler && handler->MaybeReplaceNavigation(url)) {
     return true;
   }
-#endif
   return false;
 }
 
@@ -1256,11 +1234,9 @@ bool ContextualTasksUiService::ShouldAllowNewTabOpen(
   }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   if (IsVideoCitation(url, active_tab, task_id, contextual_tasks_service_)) {
     return false;
   }
-#endif
 
   if (contextual_tasks::ShouldOpenNewTabOnSidePanelLinkClick()) {
     if (IsTextFragmentCitation(url, active_tab, task_id,
@@ -1378,7 +1354,7 @@ bool ContextualTasksUiService::ShouldRedirectIneligibleRequest(
   }
 
   // If the user is signed in and eligible without identity, but identity token
-  // loading is still pending (e.g. during cold start on Android), do not
+  // loading is still pending during cold start, do not
   // redirect yet.
   if (eligibility_manager_ &&
       eligibility_manager_->IsEligibleWithoutIdentity() && identity_manager_ &&
@@ -1391,15 +1367,6 @@ bool ContextualTasksUiService::ShouldRedirectIneligibleRequest(
   std::string task_id_str;
   if (net::GetValueForKeyInQuery(url, kTaskQueryParam, &task_id_str)) {
     task_id = base::Uuid::ParseLowercase(task_id_str);
-  }
-
-  // Desktop Android has no Lens entry point, so signed-out users there cannot
-  // reach the Lens session override below the way they do on Desktop. Let them
-  // through when the *only* reason they are ineligible is the missing identity;
-  // users who are ineligible for policy or DSE reasons still get redirected.
-  if (IsAllowSignedOutUserInDesktopAndroidEnabled() && eligibility_manager_ &&
-      eligibility_manager_->IsEligibleWithoutIdentity()) {
-    return false;
   }
 
   // Bypasses the redirect check if the session was started from Lens and the
@@ -1592,9 +1559,7 @@ bool ContextualTasksUiService::ShouldAddRequiredSidePanelUrlChanges(
   auto expected_params =
       GetCommonSearchParamsMapForContextualTasks(source_contents);
 
-  // TODO(crbug.com/536100150): Sync `cs` on Android once
-  // `GetCommonSearchParamsMapForContextualTasks()` supports dark mode there.
-  constexpr bool kSyncDarkModeParam = !BUILDFLAG(IS_ANDROID);
+  constexpr bool kSyncDarkModeParam = true;
 
   // Check if any expected parameter is missing, or if `cs` (dark mode) or
   // `gsc` (side panel) is out of sync.
@@ -1667,9 +1632,7 @@ GURL ContextualTasksUiService::AddRequiredSidePanelUrlChanges(
   auto common_params =
       GetCommonSearchParamsMapForContextualTasks(source_contents);
 
-  // TODO(crbug.com/536100150): Sync `cs` on Android once
-  // `GetCommonSearchParamsMapForContextualTasks()` supports dark mode there.
-  constexpr bool kSyncDarkModeParam = !BUILDFLAG(IS_ANDROID);
+  constexpr bool kSyncDarkModeParam = true;
 
   GURL new_url = url;
   for (const auto& [key, value] : common_params) {
@@ -1753,12 +1716,10 @@ bool ContextualTasksUiService::ShouldHandleCitationClick(
     if (tab_list) {
       tabs::TabInterface* active_tab = tab_list->GetActiveTab();
       if (active_tab) {
-#if !BUILDFLAG(IS_ANDROID)
         if (IsVideoCitation(url, active_tab, task_id,
                             contextual_tasks_service_)) {
           return true;
         }
-#endif
 #if BUILDFLAG(ENABLE_PDF)
         if (IsPdfCitation(url, active_tab, task_id,
                           contextual_tasks_service_)) {
@@ -2069,8 +2030,6 @@ ContextualTasksUiService::GetCommonSearchParamsMapForContextualTasks(
     return {};
   }
 
-  // TODO(crbug.com/536100150): On Desktop Android, this is only true for
-  // incognito; regular profiles don't follow the app's light/dark setting yet.
   Profile* profile =
       Profile::FromBrowserContext(source_contents->GetBrowserContext());
   bool is_dark_mode = ShouldUseDarkModeForProfile(profile);
@@ -2417,10 +2376,8 @@ bool ContextualTasksUiService::HandleNavigationImpl(
     return false;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (is_mobile_ua) {
-    // Exit cobrowsing if emulating a mobile device. Cobrowse on mobile is
-    // dependent on Android to function correctly.
+    // Exit cobrowsing if emulating a mobile device.
     if (IsContextualTasksUrl(url_params.url)) {
       // Redirect contextual tasks URL to aim page URL.
       GURL url = GetAiUrlFromWebUIUrl(GetDefaultAiPageUrl(), url_params.url);
@@ -2434,7 +2391,6 @@ bool ContextualTasksUiService::HandleNavigationImpl(
     }
     return false;
   }
-#endif
 
   // If the target URL is a contextual tasks "display URL", then replace it with
   // the proper AIM URL.
@@ -2462,7 +2418,6 @@ bool ContextualTasksUiService::HandleNavigationImpl(
       return true;
     }
 
-#if !BUILDFLAG(IS_ANDROID)
     // If the navigation is a back/forward navigation, the resulting URL is a
     // contextual tasks URL, and the panel is open, this indicates that the user
     // is navigating back to the full tab contextual tasks page. Instead of
@@ -2488,7 +2443,6 @@ bool ContextualTasksUiService::HandleNavigationImpl(
         return true;
       }
     }
-#endif
 
     // Else, allow any navigation to the contextual tasks host.
     OMNIBOX_LOG("nav_trace")
@@ -2534,15 +2488,8 @@ bool ContextualTasksUiService::HandleNavigationImpl(
     }
   }
 
-  // Whether signed-out users are allowed to proceed without browser sign-in or
-  // account matching checks.
-  const bool allow_signed_out_for_desktop_android =
-      IsAllowSignedOutUserInDesktopAndroidEnabled() &&
-      IsActiveTabInContext(source_contents);
-
   // If the user is not signed in to Chrome, do not intercept.
-  if (!allow_signed_out_for_desktop_android &&
-      !is_nav_within_existing_session &&
+  if (!is_nav_within_existing_session &&
       !IsSignedInToBrowserWithValidCredentials()) {
     OMNIBOX_LOG("nav_trace")
         << "ContextualTasks navigation trace: HandleNavigationImpl "
@@ -2552,8 +2499,7 @@ bool ContextualTasksUiService::HandleNavigationImpl(
 
   // If the user is not signed in to the account that is using the URL, do not
   // intercept.
-  if (!allow_signed_out_for_desktop_android &&
-      !is_nav_within_existing_session && is_nav_to_ai &&
+  if (!is_nav_within_existing_session && is_nav_to_ai &&
       !IsUrlForPrimaryAccount(url_params.url)) {
     OMNIBOX_LOG("nav_trace")
         << "ContextualTasks navigation trace: HandleNavigationImpl "
@@ -2785,20 +2731,6 @@ bool ContextualTasksUiService::HandleNavigationImpl(
     // and route to `OnThreadLinkClicked` for bottom-sheet handling, whereas
     // Desktop/AL allows natural window creation and handles AIM links at line
     // 1846.
-    if (IsAndroidMobileFormFactor() && from_can_create_window &&
-        ShouldAllowNewTabOpen(url_params.url, browser, task_id)) {
-      base::SequencedTaskRunner::GetCurrentDefault()->PostTask(
-          FROM_HERE,
-          base::BindOnce(
-              &ContextualTasksUiService::OnThreadLinkClicked,
-              weak_ptr_factory_.GetWeakPtr(), url_params.url, task_id,
-              tab ? tab->GetWeakPtr() : nullptr,
-              browser ? browser->GetWeakPtr() : nullptr,
-              initiator_origin.value_or(source_contents->GetPrimaryMainFrame()
-                                            ->GetLastCommittedOrigin())));
-      return true;  // Return true to cancel natural (unsupported) window
-                    // creation on mobile.
-    }
 
     // If this is a navigation CanCreateWindow, check to see if this
     // navigation should open in a new tab, or needs to be cancelled. If the
@@ -3004,7 +2936,6 @@ bool ContextualTasksUiService::HandleNavigationImpl(
   return false;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // TODO(crbug.com/533072235): Deprecated. This method is being deprecated and
 // should not be used. It is only used by the legacy HandleNavigationImpl which
 // will be cleaned up (see comment there).
@@ -3078,7 +3009,6 @@ void ContextualTasksUiService::OnBackButtonExpandsSidePanel(
     }
   }
 }
-#endif
 
 // TODO(crbug.com/533072235): Deprecated. This method is being deprecated and
 // should not be used. It is only used by the legacy HandleNavigationImpl which
@@ -3129,13 +3059,11 @@ void ContextualTasksUiService::ScheduleRedirectWebUIUrlToAim(
                      destination_contents, std::move(url_params)));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 std::unique_ptr<lens::LensMediaLinkHandler>
 ContextualTasksUiService::CreateMediaLinkHandler(
     content::WebContents* web_contents) {
   return std::make_unique<lens::LensMediaLinkHandler>(web_contents);
 }
-#endif
 
 bool ContextualTasksUiService::IsUrlForPrimaryAccount(const GURL& url) {
   return contextual_tasks::IsUrlForPrimaryAccount(identity_manager_, url);
@@ -3172,35 +3100,6 @@ void ContextualTasksUiService::OpenFeedbackUi(BrowserWindowInterface* browser,
 void ContextualTasksUiService::ShowUndoSnackbar(
     BrowserWindowInterface* browser_window_interface) {
   delegate_->ShowUndoSnackbar(browser_window_interface);
-}
-
-void ContextualTasksUiService::StartPlatformVoiceRecognition(
-    BrowserWindowInterface* browser,
-    content::WebContents* requesting_contents) {
-  web_contents_for_outstanding_voice_request_ =
-      requesting_contents->GetWeakPtr();
-
-  if (delegate_) {
-    delegate_->StartPlatformVoiceRecognition(browser);
-  }
-}
-
-void ContextualTasksUiService::OnVoiceTranscribed(const std::string& query) {
-  // Take ownership and reset the pending tab tracker
-  base::WeakPtr<content::WebContents> web_contents =
-      std::move(web_contents_for_outstanding_voice_request_);
-  if (!web_contents) {
-    LOG(WARNING) << "WebContents was destroyed before voice results returned.";
-    return;
-  }
-
-  ContextualTasksUIInterface* contextual_tasks_ui =
-      GetWebUiInterface(web_contents.get());
-  if (!contextual_tasks_ui) {
-    LOG(WARNING) << "ContextualTasksUi is null.";
-    return;
-  }
-  contextual_tasks_ui->OnVoiceTranscribed(query);
 }
 
 GURL ContextualTasksUiService::GetContextualTaskUrlForTask(
@@ -3405,8 +3304,7 @@ std::optional<GURL> ContextualTasksUiService::GetInitialUrlForTask(
     // as opposed to threads created by Chrome.
     url = net::AppendOrReplaceQueryParameter(url, "sourceid", "chrome");
     url = net::AppendOrReplaceQueryParameter(url, "ccb", "1");
-    omnibox::ChromeAimEntryPoint entry_point =
-        it->second.entry_point_override;
+    omnibox::ChromeAimEntryPoint entry_point = it->second.entry_point_override;
     OMNIBOX_LOG("nav_trace")
         << "ContextualTasks navigation trace: GetInitialUrlForTask "
            "returning URL with entry point";
@@ -4106,7 +4004,6 @@ void ContextualTasksUiService::OnLensOverlayStateChanged(
     web_ui_interface->OnLensOverlayStateChanged(is_showing, invocation_source);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Only notify the extension handler if the overlay is showing for the
   // composebox.
   const bool is_showing_for_composebox =
@@ -4119,7 +4016,6 @@ void ContextualTasksUiService::OnLensOverlayStateChanged(
       handler->OnLensOverlayStateChanged(is_showing_for_composebox);
     }
   });
-#endif
 }
 
 void ContextualTasksUiService::AssociateWebContentsToTask(

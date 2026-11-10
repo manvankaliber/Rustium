@@ -40,9 +40,6 @@ ToastIdEnumSet GetActiveToastIds() {
   for (auto toast_id : kDeprecatedToastIds) {
     result.Remove(static_cast<ToastId>(toast_id));
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  result.Remove(ToastId::kDefaultBrowserUpdateSuccess);
-#endif
 #if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_LINUX)
   result.Remove(ToastId::kScheduledRestartOnIdle);
 #endif

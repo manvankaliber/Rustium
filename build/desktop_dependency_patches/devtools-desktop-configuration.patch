@@ -1,0 +1,60 @@
+--- a/test/e2e/BUILD.gn
++++ b/test/e2e/BUILD.gn
+@@ -9,7 +9,6 @@
+ 
+ if (build_with_chromium) {
+   import("//build/config/cast.gni")
+-  import("//build/config/chromeos/args.gni")
+ }
+ 
+ group("e2e") {
+@@ -93,8 +92,7 @@
+   ]
+ 
+   if (build_with_chromium) {
+-    if (!is_ios && !is_android && !is_castos && !is_fuchsia &&
+-        !is_chromeos_device) {
++    if (!is_fuchsia) {
+       data_deps += [ "//chrome" ]
+     }
+   } else {
+--- a/test/api/BUILD.gn
++++ b/test/api/BUILD.gn
+@@ -8,7 +8,6 @@
+ 
+ if (build_with_chromium) {
+   import("//build/config/cast.gni")
+-  import("//build/config/chromeos/args.gni")
+ }
+ 
+ # API tests import `describe`, `it` and `setup` from mocha-interface.ts and
+@@ -51,8 +50,7 @@
+   ]
+ 
+   if (build_with_chromium) {
+-    if (!is_ios && !is_android && !is_castos && !is_fuchsia &&
+-        !is_chromeos_device) {
++    if (!is_fuchsia) {
+       data_deps += [ "//chrome" ]
+     }
+   } else {
+--- a/test/unit/BUILD.gn
++++ b/test/unit/BUILD.gn
+@@ -9,7 +9,6 @@
+ 
+ if (build_with_chromium) {
+   import("//build/config/cast.gni")
+-  import("//build/config/chromeos/args.gni")
+ }
+ 
+ ts_library("browser-globals") {
+@@ -94,8 +93,7 @@
+   ]
+ 
+   if (build_with_chromium) {
+-    if (!is_ios && !is_android && !is_castos && !is_fuchsia &&
+-        !is_chromeos_device) {
++    if (!is_fuchsia) {
+       data_deps += [ "//chrome" ]
+     }
+   } else {

@@ -60,41 +60,6 @@ export interface ThreatProtectionInfo {
   showSecureGatewayDisclosure?: boolean;
 }
 
-// <if expr="is_chromeos">
-/**
- * @enum {string} Look at ToJSDeviceReportingType usage in
- *    management_ui_handler.cc for more details.
- */
-export enum DeviceReportingType {
-  SUPERVISED_USER = 'supervised user',
-  DEVICE_ACTIVITY = 'device activity',
-  STATISTIC = 'device statistics',
-  DEVICE = 'device',
-  CRASH_REPORT = 'crash report',
-  APP_INFO_AND_ACTIVITY = 'app info and activity',
-  LOGS = 'logs',
-  PRINT = 'print',
-  PRINT_JOBS = 'print jobs',
-  DLP_EVENTS = 'dlp events',
-  CROSTINI = 'crostini',
-  USERNAME = 'username',
-  EXTENSION = 'extension',
-  ANDROID_APPLICATION = 'android application',
-  LOGIN_LOGOUT = 'login-logout',
-  CRD_SESSIONS = 'crd sessions',
-  PERIPHERALS = 'peripherals',
-  LEGACY_TECH = 'legacy-tech',
-  WEBSITE_INFO_AND_ACTIVITY = 'website info and activity',
-  FILE_EVENTS = 'file events',
-}
-
-
-export interface DeviceReportingResponse {
-  messageId: string;
-  reportingType: DeviceReportingType;
-  messageParams?: string[];
-}
-// </if>
 
 /** @interface */
 export interface ManagementBrowserProxy {
@@ -104,24 +69,6 @@ export interface ManagementBrowserProxy {
 
   getApplications(): Promise<Application[]>;
 
-  // <if expr="is_chromeos">
-  /**
-   * @return Whether trust root configured or not.
-   */
-  getLocalTrustRootsInfo(): Promise<boolean>;
-
-  /**
-   * @return Whether uploading of downloads or screenshots to cloud storages is
-   *     configured.
-   */
-  getFilesUploadToCloudInfo(): Promise<string>;
-
-  /**
-   * @return List of items to display in device reporting section.
-   */
-  getDeviceReportingInfo(): Promise<DeviceReportingResponse[]>;
-
-  // </if>
 
   getContextualManagedData(): Promise<ManagedDataResponse>;
 
@@ -160,20 +107,6 @@ export class ManagementBrowserProxyImpl implements ManagementBrowserProxy {
     return sendWithPromise<Application[]>('getApplications');
   }
 
-  // <if expr="is_chromeos">
-  getLocalTrustRootsInfo() {
-    return sendWithPromise<boolean>('getLocalTrustRootsInfo');
-  }
-
-  getFilesUploadToCloudInfo() {
-    return sendWithPromise<string>('getFilesUploadToCloudInfo');
-  }
-
-  getDeviceReportingInfo() {
-    return sendWithPromise<DeviceReportingResponse[]>('getDeviceReportingInfo');
-  }
-
-  // </if>
 
   getContextualManagedData() {
     return sendWithPromise<ManagedDataResponse>('getContextualManagedData');

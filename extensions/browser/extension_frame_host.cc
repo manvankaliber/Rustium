@@ -257,9 +257,6 @@ void ExtensionFrameHost::OpenChannelToExtension(
 
 void ExtensionFrameHost::OpenChannelToNativeApp(
     const std::string& native_app_name,
-#if BUILDFLAG(IS_ANDROID)
-    const MojomSigningCertificates& android_certificates,
-#endif
     const PortId& port_id,
     mojo::PendingAssociatedRemote<extensions::mojom::MessagePort> port,
     mojo::PendingAssociatedReceiver<extensions::mojom::MessagePortHost>
@@ -269,12 +266,7 @@ void ExtensionFrameHost::OpenChannelToNativeApp(
   TRACE_EVENT("extensions", "ExtensionFrameHost::OnOpenChannelToNativeApp",
               ChromeTrackEvent::kRenderProcessHost, *process);
 
-#if BUILDFLAG(IS_ANDROID)
-  SigningCertificates parsed_certificates =
-      ParseCertificatesFromMojom(android_certificates);
-#else
   SigningCertificates parsed_certificates = {};
-#endif
 
   MessageServiceApi::GetMessageService()->OpenChannelToNativeApp(
       render_frame_host.GetBrowserContext(), &render_frame_host, port_id,

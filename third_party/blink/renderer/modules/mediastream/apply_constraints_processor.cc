@@ -148,13 +148,7 @@ void ApplyConstraintsProcessor::ProcessVideoRequest() {
                   mojom::blink::MediaStreamType::DISPLAY_VIDEO_CAPTURE ||
               device_info.type == mojom::blink::MediaStreamType::
                                       DISPLAY_VIDEO_CAPTURE_THIS_TAB)) {
-#if BUILDFLAG(IS_ANDROID)
-    // On Android, we cannot restart the capture due to OS constraints.
-    // TODO(crbug.com/436623747): Support reconfiguring the capture stream.
-    FinalizeVideoRequest();
-#else
     ProcessVideoContentRequest();
-#endif  // BUILDFLAG(IS_ANDROID)
   } else {
     FinalizeVideoRequest();
   }

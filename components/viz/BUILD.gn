@@ -6,15 +6,6 @@ import("//build/config/ui.gni")
 import("//components/viz/viz.gni")
 import("//testing/test.gni")
 
-if (is_ios && skia_use_dawn) {
-  bundle_data("unit_tests_filter_bundle_data") {
-    testonly = true
-    sources = [ "//testing/buildbot/filters/ios.viz_unittests.filter" ]
-    outputs = [ "{{bundle_resources_dir}}/" +
-                "{{source_root_relative_dir}}/{{source_file_part}}" ]
-  }
-}
-
 viz_test("viz_unittests") {
   configs = []
 
@@ -40,18 +31,6 @@ viz_test("viz_unittests") {
     "//testing/buildbot/filters:viz_unittests_filters",
     "//third_party/angle:includes",
   ]
-
-  if (is_android) {
-    # The top level test target must depend on the java library directly.
-    deps += [ "//components/viz/service:service_java" ]
-  }
-
-  if (is_ios) {
-    public_deps = [
-      ":unit_tests_filter_bundle_data",
-      "//components/test:viz_test_bundle_data",
-    ]
-  }
 }
 
 viz_test("viz_perftests") {
@@ -77,19 +56,4 @@ viz_test("viz_perftests") {
     # Needed for isolate script to execute.
     "//testing:run_perf_test",
   ]
-}
-
-if (is_android) {
-  java_cpp_features("java_features_srcjar") {
-    # External code should depend on ":viz_java" instead.
-    visibility = [ ":*" ]
-    sources = [ "common/features.cc" ]
-    class_name = "org.chromium.components.viz.common.VizFeatures"
-  }
-
-  android_library("viz_java") {
-    # Right now, this only includes the Java features. But if we need more Java
-    # files, they should be added here as necessary.
-    srcjar_deps = [ ":java_features_srcjar" ]
-  }
 }

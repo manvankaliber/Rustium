@@ -64,7 +64,6 @@ class ContextHubPageHandler : public browser::context_hub::mojom::PageHandler,
     virtual void OpenTopic(
         browser::context_hub::mojom::TopicIdOrUrlPtr topic_id_or_url);
 
-#if !BUILDFLAG(IS_ANDROID)
     // Resolves `topic_id_or_url` into the Context Hub topic URL it refers to,
     // either directly, or by building a topic details URL from the topic id.
     // Returns an empty GURL if the argument is missing, or does not resolve to
@@ -72,7 +71,6 @@ class ContextHubPageHandler : public browser::context_hub::mojom::PageHandler,
     // handling an incoming mojo message.
     static GURL ResolveTopicUrl(
         const browser::context_hub::mojom::TopicIdOrUrlPtr& topic_id_or_url);
-#endif
   };
 
   ContextHubPageHandler(
@@ -229,11 +227,9 @@ class ContextHubPageHandler : public browser::context_hub::mojom::PageHandler,
       GetTopicPageFaviconColorCallback callback,
       const favicon_base::FaviconRawBitmapResult& result);
 
-#if !BUILDFLAG(IS_ANDROID)
   void OnCopyAttachmentsToClipboardWritten(
       CopyAttachmentsToClipboardCallback callback,
       std::vector<std::pair<std::string, base::FilePath>> written_files);
-#endif
 
   mojo::Remote<browser::context_hub::mojom::Page> page_;
   mojo::Receiver<browser::context_hub::mojom::PageHandler> receiver_;

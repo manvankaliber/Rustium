@@ -2,7 +2,7 @@
 pub use crate::util::{inner_u32, inner_u64};
 use crate::{Error, MaybeUninit};
 
-#[cfg(not(any(target_os = "android", target_os = "linux")))]
+#[cfg(not(target_os = "linux"))]
 compile_error!("`linux_raw` backend can be enabled only for Linux/Android targets!");
 
 #[path = "../utils/sanitizer.rs"]

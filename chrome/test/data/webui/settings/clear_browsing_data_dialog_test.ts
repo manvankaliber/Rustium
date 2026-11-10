@@ -1036,7 +1036,6 @@ suite('DeleteBrowsingDataDialog', function() {
         loadTimeData.getString('deletionConfirmationAllTimeToast'));
   });
 
-  // <if expr="not is_chromeos">
   test('SignOutLink', async function() {
     // Pass a dummy string with an anchor element and id=signOutLink since the
     // actual signOut string is passed from the C++ side.
@@ -1056,5 +1055,4 @@ suite('DeleteBrowsingDataDialog', function() {
         'Settings.DeleteBrowsingData.CookiesSignOutLinkClick',
         await testMetricsBrowserProxy.whenCalled('recordAction'));
   });
-  // </if>
 });

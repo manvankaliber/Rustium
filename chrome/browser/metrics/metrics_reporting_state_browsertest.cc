@@ -37,12 +37,6 @@
 #include "testing/gmock/include/gmock/gmock-matchers.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/install_attributes/stub_install_attributes.h"
-#include "chromeos/ash/components/settings/device_settings_cache.h"
-#include "components/policy/proto/chrome_device_policy.pb.h"
-#include "components/policy/proto/device_management_backend.pb.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/test/test_reg_util_win.h"
@@ -204,11 +198,7 @@ base::HistogramBase::Count32 GetHistogramDeltaTotalCount(
 
 // Verifies that metrics reporting state is correctly written to disk when set.
 // TODO(crbug.com/360562596): Flaky on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ChangeMetricsReportingState DISABLED_ChangeMetricsReportingState
-#else
 #define MAYBE_ChangeMetricsReportingState ChangeMetricsReportingState
-#endif
 IN_PROC_BROWSER_TEST_P(MetricsReportingStateTestParameterized,
                        MAYBE_ChangeMetricsReportingState) {
   ASSERT_EQ(IsMetricsReportingEnabledInitialValue(),
@@ -324,71 +314,3 @@ INSTANTIATE_TEST_SUITE_P(
          metrics::ChangeMetricsReportingStateCalledFrom::kSessionCrashedDialog,
          metrics::ChangeMetricsReportingStateCalledFrom::
              kCrosMetricsSettingsChange}));
-
-
-#if BUILDFLAG(IS_CHROMEOS)
-// Used to verify that managed/unmanged devices returns correct values based on
-// management state.
-class MetricsReportingStateManagedTest
-    : public MetricsReportingStateTest,
-      public testing::WithParamInterface<bool> {
- public:
-  MetricsReportingStateManagedTest() = default;
-  MetricsReportingStateManagedTest(const MetricsReportingStateManagedTest&) =
-      delete;
-  MetricsReportingStateManagedTest& operator=(
-      const MetricsReportingStateManagedTest&) = delete;
-  ~MetricsReportingStateManagedTest() = default;
-
-  void SetUp() override {
-    is_managed_ = GetParam();
-    if (is_managed()) {
-      install_attributes_ = std::make_unique<ash::ScopedStubInstallAttributes>(
-          ash::StubInstallAttributes::CreateCloudManaged("domain",
-                                                         "device_id"));
-    } else {
-      install_attributes_ = std::make_unique<ash::ScopedStubInstallAttributes>(
-          ash::StubInstallAttributes::CreateConsumerOwned());
-    }
-
-    MetricsReportingStateTest::SetUp();
-  }
-
-  // Set metrics reporting initial value to false.
-  bool IsMetricsReportingEnabledInitialValue() const override { return false; }
-
- protected:
-  bool is_managed() const { return is_managed_; }
-
- private:
-  bool is_managed_;
-  std::unique_ptr<ash::ScopedStubInstallAttributes> install_attributes_;
-};
-
-IN_PROC_BROWSER_TEST_P(MetricsReportingStateManagedTest,
-                       IsMetricsReportingPolicyManagedReturnsCorrectValue) {
-  EXPECT_EQ(metrics::IsMetricsReportingPolicyManaged(), is_managed());
-}
-
-IN_PROC_BROWSER_TEST_P(MetricsReportingStateManagedTest,
-                       MetricsReportingStateUpdatesOnCrosMetricsChange) {
-  // Simulate enabling metrics reporting through OnCrosMetricsChange().
-  base::RunLoop run_loop;
-  bool value_after_change = false;
-  metrics::ChangeMetricsReportingStateWithReply(
-      true,
-      base::BindOnce(&OnMetricsReportingStateChanged, &value_after_change,
-                     run_loop.QuitClosure()),
-      metrics::ChangeMetricsReportingStateCalledFrom::
-          kCrosMetricsSettingsChange);
-  run_loop.Run();
-
-  // Value should have changed regardless whether the device is managed or not.
-  ASSERT_TRUE(value_after_change);
-}
-
-INSTANTIATE_TEST_SUITE_P(MetricsReportingStateTests,
-                         MetricsReportingStateManagedTest,
-                         testing::Bool());
-
-#endif

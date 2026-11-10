@@ -39,9 +39,7 @@ using ::base::test::TestFuture;
 using ::testing::SizeIs;
 
 constexpr char kTestEmail[] = "test@example.com";
-#if !BUILDFLAG(IS_CHROMEOS)
 constexpr char kOtherEmail[] = "other@example.com";
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 constexpr char kKeyBytes[] = "fake_device_auth_key";
 constexpr int32_t kKeyProtoVersion = 1;
 constexpr int32_t kNewerKeyProtoVersion = 2;
@@ -605,7 +603,6 @@ TEST_F(DeviceAuthorizationServiceImplTest,
 }
 
 // The primary account cannot be changed or cleared on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 
 // Test that changing the primary account while a fetch is in flight fails the
 // pending request, cancels the network request and stores nothing.
@@ -713,6 +710,5 @@ TEST_F(DeviceAuthorizationServiceImplTest,
   EXPECT_FALSE(HasCachedKeys(gaia_id));
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace webauthn

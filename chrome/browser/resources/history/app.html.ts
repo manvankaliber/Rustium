@@ -68,7 +68,6 @@ export function getHtml(this: HistoryAppElement) {
       ` : ''}
       <div id="tabsScrollContainer" class="cr-scrollable">
         <div class="cr-scrollable-top-shadow" ?hidden="${this.showTabs_}"></div>
-<if expr="not is_chromeos">
         ${this.shouldShowHistoryPageHistorySyncPromo_() ? html`
           <div class="history-cards">
             <history-sync-promo></history-sync-promo>
@@ -81,7 +80,6 @@ export function getHtml(this: HistoryAppElement) {
                   this.onShouldShowHistoryCrossDeviceSigninPromo_}">
           </history-cross-device-signin-promo>
         </div>
-</if>
         <cr-page-selector id="tabsContent" attr-for-selected="path"
             selected="${this.tabsContentPage_}"
             @iron-select="${this.onTabsContentIronSelect_}">

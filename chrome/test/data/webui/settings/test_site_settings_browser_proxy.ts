@@ -138,17 +138,7 @@ export class TestSiteSettingsBrowserProxy extends TestBrowserProxy implements
       this.categoryList_.push(ContentSettingsTypes.KEYBOARD_LOCK);
     }
 
-    // <if expr="enable_smart_card">
-    if (loadTimeData.getBoolean('enableSmartCardReadersContentSetting')) {
-      this.categoryList_.push(ContentSettingsTypes.SMART_CARD_READERS);
-    }
-    // </if>
 
-    // <if expr="is_chromeos">
-    if (loadTimeData.getBoolean('enableWebPrintingContentSetting')) {
-      this.categoryList_.push(ContentSettingsTypes.WEB_PRINTING);
-    }
-    // </if>
 
     // If LNA is enabled, we show the combo of LOCAL_NETWORK and
     // LOOPBACK_NETWORK settings.

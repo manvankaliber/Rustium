@@ -41,13 +41,7 @@ BASE_FEATURE(kContextualTasksPrivateApiNoAnimation,
 
 // Enables the contextual tasks side panel infrastructure without full product
 // capabilities.
-BASE_FEATURE(kContextualTasksSidePanel,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT
-#else
-             base::FEATURE_ENABLED_BY_DEFAULT
-#endif
-);
+BASE_FEATURE(kContextualTasksSidePanel, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // Aligns the contextual tasks side panel to the right hand side by default.
 BASE_FEATURE(kContextualTasksSidePanelDefaultRight,
@@ -372,9 +366,6 @@ BASE_FEATURE(kContextualTasksWindowTracking, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kContextualTasksUploadChunking, base::FEATURE_DISABLED_BY_DEFAULT);
 
-BASE_FEATURE(kContextualTasksWebUiVoiceSearchDesktopAndroid,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
 BASE_FEATURE(kABASearchJourneys, base::FEATURE_DISABLED_BY_DEFAULT);
 
 const base::FeatureParam<base::TimeDelta> kABASearchJourneysTtl(
@@ -505,20 +496,6 @@ bool GetIsContextualTasksNonBlockingUrlNavigationEnabled() {
   return base::FeatureList::IsEnabled(kContextualTasksNonBlockingUrlNavigation);
 }
 
-BASE_FEATURE(kAllowSignedOutUserInDesktopAndroid,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-bool IsAllowSignedOutUserInDesktopAndroidEnabled() {
-#if BUILDFLAG(IS_ANDROID)
-  return base::FeatureList::IsEnabled(kAllowSignedOutUserInDesktopAndroid) &&
-         ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_DESKTOP;
-#else
-  // Desktop platforms admit signed-out users through Lens side panel
-  // unification instead; this feature must not widen that behaviour.
-  return false;
-#endif
-}
-
 bool GetIsContextualTasksPdfCitationsEnabled() {
   return base::FeatureList::IsEnabled(kContextualTasksPdfCitations);
 }
@@ -541,11 +518,6 @@ bool GetIsContextualTasksWindowTrackingEnabled() {
 
 bool GetIsContextualTasksUploadChunkingEnabled() {
   return base::FeatureList::IsEnabled(kContextualTasksUploadChunking);
-}
-
-bool GetIsContextualTasksWebUiVoiceSearchDesktopAndroidEnabled() {
-  return base::FeatureList::IsEnabled(
-      kContextualTasksWebUiVoiceSearchDesktopAndroid);
 }
 
 bool GetContextualTasksSpatialModelToolbarLayoutEnabled() {
@@ -1476,11 +1448,6 @@ const char kABASearchJourneysName[] = "ABA Search Journeys";
 const char kABASearchJourneysDescription[] =
     "Enables offering to reopen a search answer in the Contextual Tasks side "
     "panel.";
-
-const char kAllowSignedOutUserInDesktopAndroidName[] =
-    "Contextual Tasks Allow Signed-Out User In Desktop Android";
-const char kAllowSignedOutUserInDesktopAndroidDescription[] =
-    "Allows signed-out users to use side panel cobrowse on Desktop Android.";
 
 }  // namespace flag_descriptions
 

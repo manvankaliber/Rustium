@@ -39,9 +39,7 @@ namespace safe_browsing {
 
 class DownloadProtectionService;
 
-#if !BUILDFLAG(IS_ANDROID)
 class SafeBrowsingTokenFetcher;
-#endif
 
 class CheckClientDownloadRequestBase {
  public:
@@ -146,14 +144,12 @@ class CheckClientDownloadRequestBase {
 
   // TODO(crbug.com/397407934): Download feedback is not supported on Android
   // yet, but it will be.
-#if !BUILDFLAG(IS_ANDROID)
   // Called when a valid response has been received from the server.
   virtual void MaybeBeginFeedbackForDownload(
       DownloadCheckResult result,
       bool upload_requested,
       const std::string& request_data,
       const std::string& response_body) = 0;
-#endif
 
   // Returns whether or not the file should be uploaded to Safe Browsing for
   // deep scanning. Returns the settings to apply for analysis if the file
@@ -186,10 +182,8 @@ class CheckClientDownloadRequestBase {
   virtual bool ShouldPromptForLocalDecryption(
       bool server_requests_prompt) const = 0;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Called when |token_fetcher_| has finished fetching the access token.
   void OnGotAccessToken(const std::string& access_token);
-#endif
 
   // Called at the request start to determine if we should bailout due to the
   // file being allowlisted by policy
@@ -241,14 +235,12 @@ class CheckClientDownloadRequestBase {
   bool is_incognito_ = false;
   bool is_enhanced_protection_ = false;
 
-#if !BUILDFLAG(IS_ANDROID)
   // The token fetcher used to attach OAuth access tokens to requests for
   // appropriately consented users.
   std::unique_ptr<SafeBrowsingTokenFetcher> token_fetcher_;
 
   // The OAuth access token for the user profile, if needed in the request.
   std::string access_token_;
-#endif
 
   // Used to create the download request proto.
   std::unique_ptr<DownloadRequestMaker> download_request_maker_;

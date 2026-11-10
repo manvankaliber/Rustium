@@ -33,13 +33,11 @@
 #include "net/dns/mock_host_resolver.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/actor/ui/actor_task_unload_handler.h"
 #include "chrome/browser/actor/ui/actor_ui_tab_controller_interface.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/window/dialog_delegate.h"
-#endif
 
 using base::test::TestFuture;
 using content::ChildFrameAt;
@@ -116,7 +114,6 @@ IN_PROC_BROWSER_TEST_F(ActorHistoryToolBrowserTest, HistoryTool_Forward) {
   EXPECT_EQ(web_contents()->GetURL(), url_second);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // The leave confirmation must not block the tool's own Forward. BFCache is off,
 // so ActorNavigationThrottle sees the navigation.
 IN_PROC_BROWSER_TEST_F(ActorHistoryToolBrowserTest,
@@ -145,7 +142,6 @@ IN_PROC_BROWSER_TEST_F(ActorHistoryToolBrowserTest,
 
   EXPECT_EQ(web_contents()->GetURL(), url_second);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Basic test will, under normal circumstances use BFCache. Ensure coverage
 // without BFCache as well.
@@ -169,7 +165,6 @@ IN_PROC_BROWSER_TEST_F(ActorHistoryToolBrowserTest, HistoryTool_BackNoBFCache) {
   EXPECT_EQ(web_contents()->GetURL(), url_first);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // The leave confirmation must not block the tool's own Back. BFCache is off,
 // so ActorNavigationThrottle sees the navigation.
 IN_PROC_BROWSER_TEST_F(ActorHistoryToolBrowserTest,
@@ -195,7 +190,6 @@ IN_PROC_BROWSER_TEST_F(ActorHistoryToolBrowserTest,
 
   EXPECT_EQ(web_contents()->GetURL(), url_first);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Test that tool fails validation if there's no further session history in the
 // direction of travel.
@@ -384,7 +378,6 @@ IN_PROC_BROWSER_TEST_F(ActorHistoryToolBrowserTest,
   EXPECT_EQ(web_contents()->GetURL(), main_frame_url);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // A user Back that starts while the tool waits for its own iframe Back is not
 // the tool's navigation. It stays untagged, so the leave confirmation shows,
 // and Stay does not fail the tool.
@@ -460,7 +453,6 @@ IN_PROC_BROWSER_TEST_F(
                 ->GetLastCommittedURL(),
             child_frame_url_1);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Ensure the history tool works correctly when a before unload handler is
 // present (but doesn't cause a prompt to show).
@@ -488,7 +480,6 @@ IN_PROC_BROWSER_TEST_F(ActorHistoryToolBrowserTest,
   EXPECT_EQ(web_contents()->GetURL(), url_first);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // With a beforeunload handler, the tool's Back starts only after the handler
 // runs, so after GoBack() returns. HistoryTool claims it by navigation ID and
 // must tag it before ActorNavigationThrottle runs. BFCache is off, so the
@@ -534,7 +525,6 @@ IN_PROC_BROWSER_TEST_F(ActorHistoryToolBrowserTest,
   EXPECT_EQ(before_unload_mode,
             content::NavigationHandle::BeforeUnloadExecutionMode::kSync);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Test that back navigation from a POST request works as expected.
 IN_PROC_BROWSER_TEST_F(ActorHistoryToolBrowserTest, HistoryTool_BackFromPOST) {

@@ -291,18 +291,10 @@ endif()
 list(APPEND SPM_INSTALLTARGETS
   spm_encode spm_decode spm_normalize spm_train spm_export_vocab)
 
-if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
-  install(TARGETS ${SPM_INSTALLTARGETS}
-    BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-else()
 install(TARGETS ${SPM_INSTALLTARGETS}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif()
 
 # Generate modified headers for installation
 set(GENERATED_HEADERS_DIR "${CMAKE_CURRENT_BINARY_DIR}/installed_headers")
@@ -357,12 +349,4 @@ if (SPM_ENABLE_BENCHMARK)
         sentencepiece_processor_benchmarks_test.cc testharness.cc)
   target_link_libraries(sentencepiece_processor_benchmarks_test
         sentencepiece sentencepiece_train benchmark::benchmark)
-endif()
-
-if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
-  set_xcode_property(spm_encode PRODUCT_BUNDLE_IDENTIFIER "SentencePiece" All)
-  set_xcode_property(spm_decode PRODUCT_BUNDLE_IDENTIFIER "SentencePiece" All)
-  set_xcode_property(spm_normalize PRODUCT_BUNDLE_IDENTIFIER "SentencePiece" All)
-  set_xcode_property(spm_train PRODUCT_BUNDLE_IDENTIFIER "SentencePiece" All)
-  set_xcode_property(spm_export_vocab PRODUCT_BUNDLE_IDENTIFIER "SentencePiece" All)
 endif()

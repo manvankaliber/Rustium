@@ -26,8 +26,7 @@
 
 namespace blink {
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 // Enables H.264 CBP encode acceleration.
 BASE_FEATURE(kPlatformH264CbpEncoding,
 #if BUILDFLAG(IS_WIN)
@@ -35,7 +34,7 @@ BASE_FEATURE(kPlatformH264CbpEncoding,
 #else
              base::FEATURE_ENABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(IS_WIN)
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 StringView WebrtcCodecNameFromMimeType(const StringView& mime_type,
@@ -126,8 +125,7 @@ ConvertToOptionalTimeDelta(std::optional<webrtc::TimeDelta> time_delta) {
 
 bool PLATFORM_EXPORT
 IsH264ConstrainedBaselineProfileAvailableForAcceleratedEncoder() {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   return base::FeatureList::IsEnabled(kPlatformH264CbpEncoding);
 #else
   return false;
@@ -135,16 +133,10 @@ IsH264ConstrainedBaselineProfileAvailableForAcceleratedEncoder() {
 }
 
 bool PLATFORM_EXPORT UseH264AcceleratedEncoderForWebRTC() {
-#if !BUILDFLAG(IS_ANDROID)
   // On non-Android, H264 HW encoder cannot be used unless SW encoder is also
   // available because of assumptions that SW fallback is always possible. This
   // check should be removed when SW implementation is always available.
   return ::features::IsOpenH264SoftwareEncoderEnabledForWebRTC();
-#else
-  // On Android, H264 HW encoder can be used without SW encoder because the SW
-  // fallback logic can be explicitly disabled.
-  return true;
-#endif
 }
 
 base::TimeDelta RtpTimestampToTimeDelta::Convert(uint32_t rtp_timestamp) {

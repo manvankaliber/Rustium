@@ -38,12 +38,7 @@
 #include "ui/display/display_switches.h"
 #include "ui/gfx/geometry/rect_f.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/actor/ui/actor_task_unload_handler.h"
-#else
-#include "chrome/browser/actor/android/ui/actor_ui_tab_controller_android.h"
-#include "content/public/common/content_switches.h"
-#endif
 
 namespace actor {
 
@@ -234,7 +229,6 @@ void ActorToolsTest::SetUpOnMainThread() {
   embedded_https_test_server().ServeFilesFromSourceDirectory(
       "components/test/data");
 
-#if !BUILDFLAG(IS_ANDROID)
   // These tests drive browser initiated navigations as scaffolding, which the
   // leave site confirmation would treat as the user navigating away. Note this
   // switch also suppresses the shared tab close dialog, so a suppressed fixture
@@ -243,11 +237,6 @@ void ActorToolsTest::SetUpOnMainThread() {
   previous_suppress_confirm_dialog_ =
       ActorTaskTabCloseConfirmDialog::ShouldSuppressForTesting();
   ActorTaskTabCloseConfirmDialog::SetSuppressForTesting(true);
-#else
-  previous_suppress_confirm_dialog_ = ui::ActorUiTabControllerAndroid::
-      ShouldSuppressNavigationDialogsForTesting();
-  ui::ActorUiTabControllerAndroid::SetSuppressNavigationDialogsForTesting(true);
-#endif
 
   task_id_ =
       ActorKeyedService::Get(GetProfile())
@@ -277,25 +266,11 @@ void ActorToolsTest::SetUpCommandLine(base::CommandLine* command_line) {
   PlatformBrowserTest::SetUpCommandLine(command_line);
   SetUpBlocklist(command_line, "blocked.example.com");
   command_line->AppendSwitchASCII(switches::kForceDeviceScaleFactor, "1");
-#if BUILDFLAG(IS_ANDROID)
-  // Test devices are often offline. The offline status indicator that appears
-  // a few seconds after startup resizes the top controls, which asserts if the
-  // controls are not fully shown at that moment (e.g. during tab fullscreen or
-  // a tab switch). Java instrumentation tests pass this switch globally too.
-  // TODO(crbug.com/574927722): Remove once BrowserControlsManager handles
-  // height changes while the controls are hidden.
-  command_line->AppendSwitch(switches::kForceOnlineConnectionStateForIndicator);
-#endif
 }
 
 void ActorToolsTest::TearDownOnMainThread() {
-#if !BUILDFLAG(IS_ANDROID)
   ActorTaskTabCloseConfirmDialog::SetSuppressForTesting(
       previous_suppress_confirm_dialog_);
-#else
-  ui::ActorUiTabControllerAndroid::SetSuppressNavigationDialogsForTesting(
-      previous_suppress_confirm_dialog_);
-#endif
 
   // The ActorTask owned ExecutionEngine has a pointer to the profile, which
   // must be released before the browser is torn down to avoid a dangling

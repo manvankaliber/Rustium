@@ -72,14 +72,12 @@ class CORE_EXPORT ChromeClientImpl final : public ChromeClient {
   void SetWindowRect(const gfx::Rect&, LocalFrame&) override;
   void MoveWindowTo(const gfx::Point&, LocalFrame&) override;
   void ResizeWindowTo(const gfx::Size&, LocalFrame&) override;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   void Minimize(LocalFrame&, WindowingControlsChangeCallback) override;
   void Maximize(LocalFrame&, WindowingControlsChangeCallback) override;
   void Restore(LocalFrame&, WindowingControlsChangeCallback) override;
   void SetResizable(bool resizable,
                     LocalFrame& frame,
                     WindowingControlsChangeCallback) override;
-#endif
   gfx::Rect RootWindowRect(LocalFrame&) override;
   void DidAccessInitialMainDocument() override;
   void DidChangeThemeColor(std::optional<SkColor> theme_color) override;

@@ -24,7 +24,7 @@
 #include "ui/gfx/gpu_fence.h"
 #include "ui/gfx/gpu_memory_buffer_handle.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <linux/memfd.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -37,8 +37,6 @@ namespace {
 gfx::GpuMemoryBufferType GetNativeBufferType() {
 #if BUILDFLAG(IS_APPLE)
   return gfx::IO_SURFACE_BUFFER;
-#elif BUILDFLAG(IS_ANDROID)
-  return gfx::ANDROID_HARDWARE_BUFFER;
 #elif BUILDFLAG(IS_WIN)
   return gfx::DXGI_SHARED_HANDLE;
 #else
@@ -317,7 +315,7 @@ TestSharedImageInterface::CreateSharedImageWithAsyncMapControl(
   return image;
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 scoped_refptr<ClientSharedImage>
 TestSharedImageInterface::CreateNativePixmapBackedSharedImage(
     const SharedImageInfo& si_info,
@@ -349,7 +347,7 @@ TestSharedImageInterface::CreateNativePixmapBackedSharedImage(
       si_info, surface_handle, buffer_usage,
       gfx::GpuMemoryBufferHandle(std::move(native_pixmap_handle)));
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 bool TestSharedImageInterface::CheckSharedImageExists(
     const Mailbox& mailbox) const {

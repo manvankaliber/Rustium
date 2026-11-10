@@ -34,49 +34,9 @@ if (crashpad_is_in_chromium) {
       "util:util_test",
     ]
 
-    data_deps = []
+    data_deps = [ "//testing/buildbot/filters:crashpad_tests_filters" ]
 
-    if (crashpad_is_in_chromium) {
-      data_deps += [ "//testing/buildbot/filters:crashpad_tests_filters" ]
-    }
-
-    if (!crashpad_is_ios) {
-      deps += [ "handler:handler_test" ]
-    }
-
-    if (crashpad_is_android) {
-      use_raw_android_executable = true
-      deps += [ "handler:crashpad_handler" ]
-
-      # crbug.com/418874703 - This is a workaround to propagate the data deps to
-      # //:crashpad_tests__dist for Android build.
-      data_deps += [
-        "snapshot:crashpad_snapshot_test_both_dt_hash_styles",
-        "snapshot:crashpad_snapshot_test_module",
-        "snapshot:crashpad_snapshot_test_module_large",
-        "snapshot:crashpad_snapshot_test_module_small",
-        "test:crashpad_test_test_multiprocess_exec_test_child",
-      ]
-
-      copy("crashpad_test_data") {
-        testonly = true
-        sources = [
-          "test/test_paths_test_data_root.txt",
-          "util/net/testdata/ascii_http_body.txt",
-          "util/net/testdata/binary_http_body.dat",
-        ]
-
-        outputs = [ "$root_out_dir/crashpad_test_data/{{source}}" ]
-      }
-
-      deps += [ ":crashpad_test_data" ]
-
-      extra_dist_files = [
-        "$root_out_dir/crashpad_handler",
-        "$root_out_dir/crashpad_test_test_multiprocess_exec_test_child",
-        "$root_out_dir/crashpad_test_data",
-      ]
-    }
+    deps += [ "handler:handler_test" ]
   }
 } else if (crashpad_is_standalone || crashpad_is_external) {
   test("crashpad_client_test") {
@@ -91,9 +51,6 @@ if (crashpad_is_in_chromium) {
       "handler:handler_test",
       "test:googletest_main",
     ]
-    if (crashpad_is_ios) {
-      deps -= [ "handler:handler_test" ]
-    }
   }
 
   test("crashpad_minidump_test") {
@@ -122,12 +79,5 @@ if (crashpad_is_in_chromium) {
       "test:googlemock_main",
       "util:util_test",
     ]
-  }
-}
-
-if (crashpad_is_ios) {
-  group("ios_xcuitests") {
-    testonly = true
-    deps = [ "test/ios:all_tests" ]
   }
 }

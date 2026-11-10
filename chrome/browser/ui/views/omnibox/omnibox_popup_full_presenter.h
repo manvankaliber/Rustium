@@ -167,13 +167,6 @@ class OmniboxPopupFullPresenter : public OmniboxPopupPresenterBase,
   // `refocus_on_activation_` is set.
   void RefocusAfterActivation();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Returns whether the system emoji picker is shown, e.g. after picking Emoji
-  // in the omnibox's context menu.
-  static bool IsEmojiPickerShown();
-  // Checks again whether to blur the omnibox once the emoji picker closes.
-  void OnEmojiPickerHidden(ui::TrackedElement* element);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Returns whether the popup shows only its input row, with nothing painted
   // below the location bar.
@@ -226,12 +219,6 @@ class OmniboxPopupFullPresenter : public OmniboxPopupPresenterBase,
   // shown. See `UpdatePopupOcclusion()`.
   base::ScopedMultiSourceObservation<views::View, views::ViewObserver>
       occluding_view_observations_{this};
-#if BUILDFLAG(IS_CHROMEOS)
-  // Observed while shown: the immersive reveal moves the top container
-  // without resizing the location bar.
-  base::ScopedObservation<views::View, views::ViewObserver>
-      top_container_observation_{this};
-#endif
 
   // Used to determine where a click event happened to decide if the popup
   // should be deactivated.
@@ -250,11 +237,6 @@ class OmniboxPopupFullPresenter : public OmniboxPopupPresenterBase,
   // hidden.
   bool refocus_on_activation_ = false;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Set while the omnibox is kept focused for the emoji picker. See
-  // `BlurIfBrowserOrPopupInactive()`.
-  base::CallbackListSubscription emoji_picker_hidden_subscription_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Keeps the browser window painting as active while the popup is active, and
   // until a posted task after the browser window or popup deactivates.

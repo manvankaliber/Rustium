@@ -46,13 +46,8 @@ namespace {
 
 // Keep test expectations aligned with each platform's production default. The
 // tests verify behavior relative to this limit, not its specific numeric value.
-#if BUILDFLAG(IS_ANDROID)
-constexpr uint32_t kDefaultInputContextLimit =
-    optimization_guide::kAndroidMaxExecuteTokens;
-#else
 constexpr uint32_t kDefaultInputContextLimit =
     blink::mojom::kWritingAssistanceMaxInputTokenSize;
-#endif
 
 namespace proto = ::optimization_guide::proto;
 
@@ -331,11 +326,6 @@ TEST_F(AISummarizerTest, SummarizeTelemetry) {
 }
 
 TEST_F(AISummarizerTest, CreateSummarizerModelNotEligible) {
-#if BUILDFLAG(IS_ANDROID)
-  UnInstallBaseModel();
-  fake_broker_->java_helper().settings().SetDefaultStatusCheckResult(
-      on_device_model::ModelDownloaderAndroid::ModelStatus::kUnavailable);
-#else
   base::test::ScopedFeatureList feature_list;
   feature_list.InitWithFeatures(
       {optimization_guide::features::kOnDeviceModelPerformanceParams},
@@ -343,7 +333,6 @@ TEST_F(AISummarizerTest, CreateSummarizerModelNotEligible) {
 
   fake_broker_->settings().performance_class =
       on_device_model::mojom::PerformanceClass::kVeryLow;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   TestCreateSummarizerClient create_summarizer_client;
   GetAIManagerRemote()->CreateSummarizer(
@@ -567,11 +556,6 @@ TEST_F(AISummarizerTest, MultipleSummarize) {
 }
 
 TEST_F(AISummarizerTest, MeasureUsage) {
-#if BUILDFLAG(IS_ANDROID)
-  // Use the simple test template so the token count covers just the supplied
-  // strings, without the built-in production prompt's instructions.
-  SetSolutionConfig(CreateSolution());
-#endif
   auto options = GetDefaultOptions();
   options->shared_context = kSharedContextString;
   auto summarizer_remote = GetAISummarizerRemote(std::move(options));
@@ -622,7 +606,6 @@ TEST_F(AISummarizerTest, InputContextSubstitutionsCountTowardUsageAndQuota) {
   EXPECT_EQ(responder.quota_error_info().quota, quota);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(AISummarizerTest, Priority) {
   SetExecuteResult({"hi"});
   auto summarizer_remote = GetAISummarizerRemote();
@@ -676,7 +659,6 @@ TEST_F(AISummarizerTest, CrashRecoveryMeasureInputUsage) {
                                       std::string(kContextString).size() +
                                       std::string(kSharedContextString).size());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(AISummarizerTest, CanCreatePermissionsPolicyDisabled) {
   DisablePolicy(network::mojom::PermissionsPolicyFeature::kSummarizer);
@@ -747,7 +729,6 @@ TEST_F(AISummarizerTest, CreateOnDeviceAiUserSettingDisabled) {
   SetOnDeviceAiUserSetting(true);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Android doesn't support constraints yet. crbug.com/515155969
 TEST_F(AISummarizerTest, DynamicConstraints) {
   SetSolutionConfig([&]() {
@@ -858,7 +839,6 @@ TEST_F(AISummarizerTest, SpeculativeDecodingDisabledUsesDefaultSampling) {
   // chunk.
   EXPECT_THAT(responses, testing::Contains(testing::HasSubstr("TopK:")));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(AISummarizerTest, VerifyPromptComposition) {
   auto options = GetDefaultOptions();
@@ -895,7 +875,6 @@ TEST_F(AISummarizerTest, VerifyPromptComposition) {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class AISummarizerWithFeatureConfigTest : public AISummarizerTest {
  public:
   void SetupBroker() override {
@@ -1305,6 +1284,5 @@ TEST_F(AISummarizerWithFeatureConfigTest,
   EXPECT_EQ(future.Get(),
             blink::mojom::ModelAvailabilityCheckResult::kDownloadable);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace

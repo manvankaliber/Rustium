@@ -270,7 +270,7 @@ TEST_F(PlatformSharedMemoryRegionTest, TakeOrFailWritable) {
     auto result = PlatformSharedMemoryRegion::TakeOrFail(
         region.PassPlatformHandle(), PlatformSharedMemoryRegion::Mode::kUnsafe,
         region.GetSize(), region.GetGUID());
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
     EXPECT_THAT(
         result,
         ErrorIs(PlatformSharedMemoryRegion::TakeError::kUnexpectedReadOnlyFd));
@@ -321,7 +321,7 @@ TEST_F(PlatformSharedMemoryRegionTest, TakeOrFailUnsafe) {
         region.PassPlatformHandle(),
         PlatformSharedMemoryRegion::Mode::kWritable, region.GetSize(),
         region.GetGUID());
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
     EXPECT_THAT(result,
                 ErrorIs(PlatformSharedMemoryRegion::TakeError::kFcntlFailed));
 #else
@@ -367,7 +367,7 @@ TEST_F(PlatformSharedMemoryRegionTest, MapAtWithOverflowTest) {
   EXPECT_FALSE(mapping.IsValid());
 }
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
 // Tests that the second handle is closed after a conversion to read-only on
 // POSIX.
 TEST_F(PlatformSharedMemoryRegionTest,
@@ -392,7 +392,7 @@ TEST_F(PlatformSharedMemoryRegionTest, ConvertToUnsafeInvalidatesSecondHandle) {
 }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 namespace {
 
 // Returns true if |fd| refers to a memfd. Regions are backed by memfd unless
@@ -495,7 +495,7 @@ TEST_F(PlatformSharedMemoryRegionTest, CreateUnsafeAnonymous) {
   std::ranges::fill(mapping.GetMemoryAsSpan<uint8_t>(), 1);
   EXPECT_FALSE(PlatformSharedMemoryRegion::CreateUnsafeAnonymous(0).IsValid());
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 void CheckReadOnlyMapProtection(void* addr) {
 #if BUILDFLAG(IS_APPLE)
@@ -539,7 +539,7 @@ void CheckReadOnlyMapProtection(void* addr) {
 }
 
 bool TryToRestoreWritablePermissions(void* addr, size_t len) {
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
   int result = mprotect(addr, len, PROT_READ | PROT_WRITE);
   return result != -1;
 #elif BUILDFLAG(IS_WIN)

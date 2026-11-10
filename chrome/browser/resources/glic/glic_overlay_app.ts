@@ -11,9 +11,7 @@ import 'chrome://resources/cr_elements/cr_icon/cr_icon.js';
 import 'chrome://resources/cr_elements/cr_icon_button/cr_icon_button.js';
 import 'chrome://resources/cr_elements/cr_progress/cr_progress.js';
 
-// <if expr="not is_android">
 import {ColorChangeUpdater} from '//resources/cr_components/color_change_listener/colors_css_updater.js';
-// </if>
 import {loadTimeData} from '//resources/js/load_time_data.js';
 import {getRequiredElement} from 'chrome://resources/js/util.js';
 
@@ -245,10 +243,4 @@ declare global {
 
 customElements.define(GlicOverlayElement.is, GlicOverlayElement);
 
-if (loadTimeData.valueExists('isAndroidMobile') &&
-    loadTimeData.getBoolean('isAndroidMobile')) {
-  document.body.classList.add('androidMobile');
-}
-// <if expr="not is_android">
 ColorChangeUpdater.forDocument().start();
-// </if>

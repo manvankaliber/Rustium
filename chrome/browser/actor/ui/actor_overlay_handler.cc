@@ -42,12 +42,10 @@ void ActorOverlayHandler::OnHoverStatusChanged(bool is_hovering) {
     return;
   }
   is_hovering_ = is_hovering;
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* tab_controller = ActorUiTabControllerInterface::From(
           webui::GetTabInterface(web_contents_))) {
     tab_controller->OnOverlayHoverStatusChanged(is_hovering);
   }
-#endif
 }
 
 void ActorOverlayHandler::GetCurrentBorderGlowVisibility(

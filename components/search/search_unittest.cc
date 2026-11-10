@@ -180,12 +180,10 @@ TEST(SearchTest, TemplateURLIsGoogle) {
       TemplateURLIsGoogle(&prepopulated_non_google_turl, search_terms_data));
 }
 
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
 
 TEST(SearchTest, InstantExtendedAPIEnabled) {
   EXPECT_TRUE(IsInstantExtendedAPIEnabled());
 }
 
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
 
 }  // namespace search

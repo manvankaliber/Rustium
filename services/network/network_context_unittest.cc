@@ -228,18 +228,12 @@
 #include "net/reporting/reporting_test_util.h"
 #endif  // BUILDFLAG(ENABLE_REPORTING)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "services/network/mock_mojo_dhcp_wpad_url_client.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_P2P_ENABLED)
 #include "services/network/public/mojom/p2p.mojom.h"
 #include "services/network/public/mojom/p2p_trusted.mojom.h"
 #endif  // BUILDFLAG(IS_P2P_ENABLED)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace network {
 
@@ -1925,91 +1919,13 @@ TEST_F(NetworkContextTest, EnableBrotli) {
 // Confirms that when NetworkContextParams.bound_network is set, the
 // NetworkContext properly targets that network.
 TEST_F(NetworkContextTest, NetworkBoundNetworkContext) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_MARSHMALLOW) {
-    GTEST_SKIP()
-        << "bound_network is supported starting from Android Marshmallow";
-  }
-
-  // The actual network handle doesn't really matter, this test just wants to
-  // confirm that it is correctly passed down to the owned URLRequestContext.
-  constexpr net::handles::NetworkHandle network = 2;
-  auto scoped_mock_network_change_notifier =
-      std::make_unique<net::test::ScopedMockNetworkChangeNotifier>();
-  auto* mock_ncn =
-      scoped_mock_network_change_notifier->mock_network_change_notifier();
-  mock_ncn->ForceNetworkHandlesSupported();
-
-  mojom::NetworkContextParamsPtr context_params =
-      CreateNetworkContextParamsForTesting();
-  context_params->bound_network = network;
-  std::unique_ptr<NetworkContext> network_context =
-      CreateContextWithParams(std::move(context_params));
-
-  EXPECT_EQ(network_context->url_request_context()->bound_network(), network);
-  EXPECT_EQ(network_context->url_request_context()
-                ->host_resolver()
-                ->GetTargetNetworkForTesting(),
-            network);
-  EXPECT_EQ(network_context->url_request_context()
-                ->host_resolver()
-                ->GetManagerForTesting()
-                ->target_network_for_testing(),
-            network);
-#else   // !BUILDFLAG(IS_ANDROID)
   GTEST_SKIP() << "bound_network is supported only on Android";
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 // Confirms that URLLoaderFactories created with target_network set in
 // URLLoaderFactoryParams correctly target that network.
 TEST_F(NetworkContextTest, URLLoaderFactoryWithTargetNetwork) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_MARSHMALLOW) {
-    GTEST_SKIP()
-        << "bound_network is supported starting from Android Marshmallow";
-  }
-
-  // Use a normal unbound NetworkContext.
-  mojom::NetworkContextParamsPtr context_params =
-      CreateNetworkContextParamsForTesting();
-  std::unique_ptr<NetworkContext> network_context =
-      CreateContextWithParams(std::move(context_params));
-
-  EXPECT_EQ(network_context->url_request_context()->bound_network(),
-            net::handles::kInvalidNetworkHandle);
-
-  constexpr net::handles::NetworkHandle network = 2;
-  auto scoped_mock_network_change_notifier =
-      std::make_unique<net::test::ScopedMockNetworkChangeNotifier>();
-  auto* mock_ncn =
-      scoped_mock_network_change_notifier->mock_network_change_notifier();
-  mock_ncn->ForceNetworkHandlesSupported();
-  const size_t start_num_url_loader_factories =
-      network_context->num_url_loader_factories_for_testing();
-
-  mojo::Remote<mojom::URLLoaderFactory> loader_factory;
-  mojom::URLLoaderFactoryParamsPtr params =
-      mojom::URLLoaderFactoryParams::New();
-  params->process_id = OriginatingProcessId::browser();
-  params->target_network = network;
-  network_context->CreateURLLoaderFactory(
-      loader_factory.BindNewPipeAndPassReceiver(), std::move(params));
-  EXPECT_TRUE(loader_factory.is_bound());
-  EXPECT_TRUE(loader_factory.is_connected());
-  // To be on the safe side, confirm that the NetworkContext is aware of the
-  // new URLLoaderFactory that has just been created.
-  EXPECT_EQ(network_context->num_url_loader_factories_for_testing() -
-                start_num_url_loader_factories,
-            1u);
-  EXPECT_EQ(
-      network_context->CountURLLoaderFactoriesBoundToNetworkForTesting(network),
-      1u);
-#else   // !BUILDFLAG(IS_ANDROID)
   GTEST_SKIP() << "bound_network is supported only on Android";
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 TEST_F(NetworkContextTest, UnhandedProtocols) {
@@ -2855,131 +2771,6 @@ TEST_F(NetworkContextTest, DiskCacheSize) {
                                       max_file_size / 1024, 1);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(NetworkContextTest, SetHttpCacheMaxSizeAfterBackendInit) {
-  mojom::NetworkContextParamsPtr context_params =
-      CreateNetworkContextParamsForTesting();
-  // Explicitly clear file_paths to force in-memory cache.
-  context_params->file_paths.reset();
-  context_params->http_cache_enabled = true;
-
-  const base::ByteSize kInitialSize = base::MiB(20);
-  const base::ByteSize kNewSize = base::MiB(10);
-  context_params->http_cache_max_size =
-      base::checked_cast<int32_t>(kInitialSize.InBytes());
-
-  std::unique_ptr<NetworkContext> network_context =
-      CreateContextWithParams(std::move(context_params));
-
-  disk_cache::Backend* backend = WaitForCacheBackend(*network_context);
-  ASSERT_TRUE(backend);
-
-  // Verify initial size.
-  EXPECT_EQ(kInitialSize, backend->GetMaxBytesForTesting());
-
-  // Call the Mojo endpoint.
-  network_context->SetHttpCacheMaxSize(kNewSize, false);
-
-  EXPECT_TRUE(base::test::RunUntil(
-      [&]() { return backend->GetMaxBytesForTesting() == kNewSize; }));
-
-  // Verify that setting size to 0 doesn't crash.
-  // (It could result in any size.)
-  network_context->SetHttpCacheMaxSize(base::ByteSize(0), true);
-  task_environment_.RunUntilIdle();
-}
-
-TEST_F(NetworkContextTest, SetHttpCacheMaxSizeBeforeUnforcedBackendInit) {
-  mojom::NetworkContextParamsPtr context_params =
-      CreateNetworkContextParamsForTesting();
-  // Explicitly clear file_paths to force in-memory cache.
-  context_params->file_paths.reset();
-  context_params->http_cache_enabled = true;
-
-  const base::ByteSize kInitialSize = base::MiB(20);
-  const base::ByteSize kNewSize = base::MiB(10);
-  context_params->http_cache_max_size =
-      base::checked_cast<int32_t>(kInitialSize.InBytes());
-
-  std::unique_ptr<NetworkContext> network_context =
-      CreateContextWithParams(std::move(context_params));
-
-  // There should not be a backend yet.
-  ASSERT_EQ(nullptr, network_context->url_request_context()
-                         ->http_transaction_factory()
-                         ->GetCache()
-                         ->GetCurrentBackend());
-
-  // Invoke the resize before calling `WaitForCacheBackend()` to ensure
-  // the operation is queued or correctly forces initialization.
-  network_context->SetHttpCacheMaxSize(kNewSize, false);
-  task_environment_.RunUntilIdle();
-
-  // There should still not be a backend yet.
-  ASSERT_EQ(nullptr, network_context->url_request_context()
-                         ->http_transaction_factory()
-                         ->GetCache()
-                         ->GetCurrentBackend());
-
-  // Now trigger the initialization and wait.
-  disk_cache::Backend* backend = WaitForCacheBackend(*network_context);
-  ASSERT_TRUE(backend);
-
-  // Verify the new limit is successfully applied to the underlying backend.
-  EXPECT_EQ(kNewSize, backend->GetMaxBytesForTesting());
-}
-
-TEST_F(NetworkContextTest, SetHttpCacheMaxSizeBeforeForcedBackendInit) {
-  mojom::NetworkContextParamsPtr context_params =
-      CreateNetworkContextParamsForTesting();
-  // Explicitly clear file_paths to force in-memory cache.
-  context_params->file_paths.reset();
-  context_params->http_cache_enabled = true;
-
-  const base::ByteSize kInitialSize = base::MiB(20);
-  const base::ByteSize kNewSize = base::MiB(10);
-  context_params->http_cache_max_size =
-      base::checked_cast<int32_t>(kInitialSize.InBytes());
-
-  std::unique_ptr<NetworkContext> network_context =
-      CreateContextWithParams(std::move(context_params));
-
-  // There should not be a backend yet.
-  ASSERT_EQ(nullptr, network_context->url_request_context()
-                         ->http_transaction_factory()
-                         ->GetCache()
-                         ->GetCurrentBackend());
-
-  // Invoke the resize before calling `WaitForCacheBackend()` to ensure
-  // the operation is queued or correctly forces initialization.
-  network_context->SetHttpCacheMaxSize(kNewSize, true);
-
-  // Now trigger the initialization and wait.
-  disk_cache::Backend* backend = WaitForCacheBackend(*network_context);
-  ASSERT_TRUE(backend);
-
-  // Verify the new limit is successfully applied to the underlying backend.
-  EXPECT_EQ(kNewSize, backend->GetMaxBytesForTesting());
-}
-
-TEST_F(NetworkContextTest, SetHttpCacheMaxSizeNoCache) {
-  mojom::NetworkContextParamsPtr context_params =
-      CreateNetworkContextParamsForTesting();
-  context_params->http_cache_enabled = false;
-
-  std::unique_ptr<NetworkContext> network_context =
-      CreateContextWithParams(std::move(context_params));
-
-  // There should not be an HTTP Cache at all.
-  ASSERT_EQ(nullptr, network_context->url_request_context()
-                         ->http_transaction_factory()
-                         ->GetCache());
-
-  // Ensure this doesn't crash when the internal `GetCache()` returns nullptr.
-  network_context->SetHttpCacheMaxSize(base::MiB(10), true);
-  task_environment_.RunUntilIdle();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // This makes sure that network_session_configurator::ChooseCacheType is
 // connected to NetworkContext.
@@ -4792,109 +4583,6 @@ TEST_F(NetworkContextTest, ClearEmptyHttpAuthCache) {
   EXPECT_EQ(0u, cache->GetEntriesSizeForTesting());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-std::optional<net::AuthCredentials> GetProxyAuthCredentials(
-    NetworkContext* network_context,
-    const net::ProxyServer& proxy_server,
-    const std::string& scheme,
-    const std::string& realm) {
-  base::RunLoop run_loop;
-  std::optional<net::AuthCredentials> result;
-  network_context->LookupProxyAuthCredentials(
-      proxy_server, scheme, realm,
-      base::BindLambdaForTesting(
-          [&](const std::optional<net::AuthCredentials>& credentials) {
-            result = credentials;
-            run_loop.Quit();
-          }));
-  run_loop.Run();
-  return result;
-}
-
-TEST_F(NetworkContextTest, LookupProxyAuthCredentials) {
-  GURL http_proxy("http://bar.test:1080");
-  GURL https_proxy("https://bar.test:443");
-  GURL http_proxy2("http://bar.test:443");
-  GURL server_origin("http://foo.test:3128");
-
-  std::unique_ptr<NetworkContext> network_context =
-      CreateContextWithParams(CreateNetworkContextParamsForTesting());
-  network_context->SetSplitAuthCacheByNetworkAnonymizationKey(true);
-  net::HttpAuthCache* cache = network_context->url_request_context()
-                                  ->http_transaction_factory()
-                                  ->GetSession()
-                                  ->http_auth_cache();
-
-  std::u16string user = u"user";
-  std::u16string password = u"pass";
-  cache->Add(url::SchemeHostPort(http_proxy), net::HttpAuth::AUTH_PROXY,
-             "Realm", net::HttpAuth::AUTH_SCHEME_BASIC,
-             net::NetworkAnonymizationKey(), "basic realm=Realm",
-             net::AuthCredentials(user, password),
-             /* path = */ "");
-  cache->Add(url::SchemeHostPort(https_proxy), net::HttpAuth::AUTH_PROXY,
-             "Realm", net::HttpAuth::AUTH_SCHEME_BASIC,
-             net::NetworkAnonymizationKey(), "basic realm=Realm",
-             net::AuthCredentials(user, password),
-             /* path = */ "");
-  cache->Add(url::SchemeHostPort(server_origin), net::HttpAuth::AUTH_SERVER,
-             "Realm", net::HttpAuth::AUTH_SCHEME_BASIC,
-             net::NetworkAnonymizationKey(), "basic realm=Realm",
-             net::AuthCredentials(user, password),
-             /* path = */ "/");
-  std::optional<net::AuthCredentials> result = GetProxyAuthCredentials(
-      network_context.get(),
-      net::ProxyServer(net::ProxyServer::Scheme::SCHEME_HTTP,
-                       net::HostPortPair::FromURL(http_proxy)),
-      "bAsIc", "Realm");
-  ASSERT_TRUE(result.has_value());
-  EXPECT_EQ(user, result->username());
-  EXPECT_EQ(password, result->password());
-
-  result = GetProxyAuthCredentials(
-      network_context.get(),
-      net::ProxyServer(net::ProxyServer::Scheme::SCHEME_HTTPS,
-                       net::HostPortPair::FromURL(https_proxy)),
-      "bAsIc", "Realm");
-  ASSERT_TRUE(result.has_value());
-  EXPECT_EQ(user, result->username());
-  EXPECT_EQ(password, result->password());
-
-  // Check that the proxy scheme is taken into account when looking for
-  // credentials
-  result = GetProxyAuthCredentials(
-      network_context.get(),
-      net::ProxyServer(net::ProxyServer::Scheme::SCHEME_HTTP,
-                       net::HostPortPair::FromURL(http_proxy2)),
-      "basic", "Realm");
-  EXPECT_FALSE(result.has_value());
-
-  // Check that the proxy authentication method is taken into account when
-  // looking for credentials
-  result = GetProxyAuthCredentials(
-      network_context.get(),
-      net::ProxyServer(net::ProxyServer::Scheme::SCHEME_HTTP,
-                       net::HostPortPair::FromURL(http_proxy)),
-      "digest", "Realm");
-  EXPECT_FALSE(result.has_value());
-
-  // Check that the realm is taken into account when looking for credentials
-  result = GetProxyAuthCredentials(
-      network_context.get(),
-      net::ProxyServer(net::ProxyServer::Scheme::SCHEME_HTTP,
-                       net::HostPortPair::FromURL(http_proxy)),
-      "basic", "Realm 2");
-  EXPECT_FALSE(result.has_value());
-
-  // Server credentials should not be returned
-  result = GetProxyAuthCredentials(
-      network_context.get(),
-      net::ProxyServer(net::ProxyServer::Scheme::SCHEME_HTTP,
-                       net::HostPortPair::FromURL(server_origin)),
-      "basic", "Realm");
-  EXPECT_FALSE(result.has_value());
-}
-#endif
 
 #if BUILDFLAG(ENABLE_REPORTING)
 TEST_F(NetworkContextTest, ClearReportingCacheReports) {
@@ -5659,11 +5347,6 @@ TEST_F(NetworkContextTest, ProxyLookupWithMojoProxyResolver) {
   context_params->proxy_config_client_receiver =
       config_client.BindNewPipeAndPassReceiver();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  context_params->dhcp_wpad_url_client =
-      network::MockMojoDhcpWpadUrlClient::CreateWithSelfOwnedReceiver(
-          std::string());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   std::unique_ptr<NetworkContext> network_context =
       CreateContextWithParams(std::move(context_params));
@@ -5757,11 +5440,6 @@ TEST_F(NetworkContextTest, PacQuickCheck) {
   // default to false.
   mojom::NetworkContextParamsPtr context_params =
       CreateNetworkContextParamsForTesting();
-#if BUILDFLAG(IS_CHROMEOS)
-  context_params->dhcp_wpad_url_client =
-      network::MockMojoDhcpWpadUrlClient::CreateWithSelfOwnedReceiver(
-          std::string());
-#endif  // BUILDFLAG(IS_CHROMEOS)
   context_params->proxy_resolver_factory =
       MockMojoProxyResolverFactory::Create();
   std::unique_ptr<NetworkContext> network_context =
@@ -5775,11 +5453,6 @@ TEST_F(NetworkContextTest, PacQuickCheck) {
 
   // Explicitly enable.
   context_params = CreateNetworkContextParamsForTesting();
-#if BUILDFLAG(IS_CHROMEOS)
-  context_params->dhcp_wpad_url_client =
-      network::MockMojoDhcpWpadUrlClient::CreateWithSelfOwnedReceiver(
-          std::string());
-#endif  // BUILDFLAG(IS_CHROMEOS)
   context_params->proxy_resolver_factory =
       MockMojoProxyResolverFactory::Create();
   context_params->pac_quick_check_enabled = true;
@@ -5793,11 +5466,6 @@ TEST_F(NetworkContextTest, PacQuickCheck) {
 
   // Explicitly disable.
   context_params = CreateNetworkContextParamsForTesting();
-#if BUILDFLAG(IS_CHROMEOS)
-  context_params->dhcp_wpad_url_client =
-      network::MockMojoDhcpWpadUrlClient::CreateWithSelfOwnedReceiver(
-          std::string());
-#endif  // BUILDFLAG(IS_CHROMEOS)
   context_params->proxy_resolver_factory =
       MockMojoProxyResolverFactory::Create();
   context_params->pac_quick_check_enabled = false;
@@ -7632,7 +7300,6 @@ TEST_F(NetworkContextCreateHostResolverTest, CloseContext) {
 }
 
 // Config overrides are not supported on iOS.
-#if !BUILDFLAG(IS_IOS)
 TEST_F(NetworkContextCreateHostResolverTest, WithConfigOverrides) {
   // Inject a factory to control and capture created net::HostResolvers.
   TestResolverFactory* factory =
@@ -7709,7 +7376,6 @@ TEST_F(NetworkContextCreateHostResolverTest, WithConfigOverrides) {
   EXPECT_THAT(response_client.result_addresses().endpoints(),
               ElementsAre(CreateExpectedEndPoint(kResult, 80)));
 }
-#endif  // BUILDFLAG(IS_IOS)
 
 using NetworkContextActivateDohProbesTest = NetworkContextTest;
 
@@ -9135,11 +8801,6 @@ TEST_F(NetworkContextTest, ProxyErrorClientNotifiedOfPacError) {
       CreateNetworkContextParamsForTesting();
   context_params->proxy_error_client = proxy_error_client.CreateRemote();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  context_params->dhcp_wpad_url_client =
-      network::MockMojoDhcpWpadUrlClient::CreateWithSelfOwnedReceiver(
-          std::string());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // The PAC URL doesn't matter, since the test is configured to use a
   // mock ProxyResolverFactory which doesn't actually evaluate it. It just
@@ -10396,7 +10057,7 @@ class NetworkContextMockHostTest : public NetworkContextTest {
   }
 };
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // Flaky crashes on Linux: https://crbug.com/1115201
 #define MAYBE_CustomProxyUsesSpecifiedProxyList \
   DISABLED_CustomProxyUsesSpecifiedProxyList
@@ -12141,7 +11802,7 @@ TEST_F(NetworkContextTest,
             mojom::TrustTokenOperationStatus::kUnauthorized);
 }
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 TEST_F(NetworkContextTest, HttpAuthAllowGssApiLibraryLoad) {
   std::unique_ptr<NetworkContext> network_context =
       CreateContextWithParams(CreateNetworkContextParamsForTesting());
@@ -12156,7 +11817,7 @@ TEST_F(NetworkContextTest, HttpAuthAllowGssApiLibraryLoad) {
   EXPECT_FALSE(
       network_context->GetHttpAuthPreferences()->AllowGssapiLibraryLoad());
 }
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#endif
 
 TEST_F(NetworkContextTest, HttpAuthUrlFilter) {
   std::unique_ptr<NetworkContext> network_context =

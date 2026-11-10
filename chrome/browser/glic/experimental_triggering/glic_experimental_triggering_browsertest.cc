@@ -16,17 +16,14 @@
 #include "content/public/test/browser_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/functional/callback_helpers.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/create_browser_window.h"
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
 #include "ui/gfx/geometry/rect.h"
-#endif
 
 namespace glic {
 
-#if !BUILDFLAG(IS_ANDROID)
 using GlicExperimentalTriggeringBrowserTest = GlicBrowserTest;
 
 IN_PROC_BROWSER_TEST_F(
@@ -76,6 +73,5 @@ IN_PROC_BROWSER_TEST_F(
 
   CloseBrowserSynchronously(app_browser);
 }
-#endif
 
 }  // namespace glic

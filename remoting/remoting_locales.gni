@@ -68,35 +68,14 @@ remoting_locales_without_pseudolocales = [
 ]
 
 # An additional locale "en-US" is generated for Linux and ChromeOS.
-if (is_linux || is_chromeos) {
+if (is_linux) {
   remoting_locales_without_pseudolocales += [ "en-US" ]
 }
 
-if (is_chromeos) {
-  # Support Icelandic in ChromeOS
-  remoting_locales_without_pseudolocales += [
-    "af",
-    "cy",
-    "eu",
-    "gl",
-    "is",
-    "mn",
-    "zu",
-  ]
-}
-
-# Locales "pt-BR" and "es-419" are named "pt" and "es-MX" respectively on iOS.
-if (!is_ios) {
-  remoting_locales_without_pseudolocales += [
-    "pt-BR",
-    "es-419",
-  ]
-} else {
-  remoting_locales_without_pseudolocales += [
-    "pt",
-    "es-MX",
-  ]
-}
+remoting_locales_without_pseudolocales += [
+  "pt-BR",
+  "es-419",
+]
 
 remoting_locales_with_underscores_without_pseudolocales = []
 foreach(locale, remoting_locales_without_pseudolocales) {

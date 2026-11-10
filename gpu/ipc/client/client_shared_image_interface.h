@@ -84,12 +84,12 @@ class GPU_IPC_CLIENT_EXPORT ClientSharedImageInterface
                          const Mailbox& mailbox) override;
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   void CopyNativeGmbToSharedMemoryAsync(
       gfx::GpuMemoryBufferHandle buffer_handle,
       base::UnsafeSharedMemoryRegion memory_region,
       base::OnceCallback<void(bool)> callback) override;
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 
   void DestroySharedImage(std::vector<SyncToken> sync_tokens,
                           const Mailbox& mailbox) override;

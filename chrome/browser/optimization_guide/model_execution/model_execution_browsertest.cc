@@ -682,9 +682,7 @@ IN_PROC_BROWSER_TEST_F(
 IN_PROC_BROWSER_TEST_F(
     ModelExecutionEnabledBrowserTestWithExplicitBrowserSignin,
     EnableFeatureViaPref) {
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_TRUE(IsSignedIn());
-#endif
   histogram_tester_.ExpectUniqueSample(
       "OptimizationGuide.ModelExecution.FeatureEnabledAtStartup.Compose", false,
       1);
@@ -765,7 +763,6 @@ class ModelExecutionNewFeaturesEnabledAutomaticallyTest
   }
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 
 class ModelExecutionEnterprisePolicyBrowserTest
     : public ModelExecutionEnabledBrowserTest {
@@ -905,6 +902,5 @@ IN_PROC_BROWSER_TEST_F(ModelExecutionEnterprisePolicyBrowserTest,
       UserVisibleFeatureKey::kWallpaperSearch));
 }
 
-#endif  //  !BUILDFLAG(IS_ANDROID)
 
 }  // namespace optimization_guide

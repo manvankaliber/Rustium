@@ -15,9 +15,7 @@ suite('GeneralPageIndex', function() {
   const defaultViews = [
     'onStartup',
     'downloads',
-    // <if expr="not is_chromeos">
     'system',
-    // </if>
     'reset',
   ];
 
@@ -89,14 +87,12 @@ suite('GeneralPageIndex', function() {
     assertVisibleViews(
         ['downloads'], defaultViews.filter(id => id !== 'downloads'));
 
-    // <if expr="not is_chromeos">
     // Case 3: Results only in settings-system-page.
     result = await index.searchContents('Open your computer\'s proxy settings');
     assertFalse(result.canceled);
     assertEquals(1, result.matchCount);
     assertFalse(result.wasClearSearch);
     assertVisibleViews(['system'], defaultViews.filter(id => id !== 'system'));
-    // </if>
 
     // Case 4: Results only in settings-reset-page.
     result = await index.searchContents('Reset all settings');

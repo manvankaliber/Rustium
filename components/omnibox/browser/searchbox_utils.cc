@@ -24,9 +24,7 @@
 #include "components/omnibox/browser/autocomplete_match_type.h"
 #include "components/omnibox/browser/autocomplete_provider.h"
 #include "components/omnibox/browser/contextual_search_provider.h"
-#if !BUILDFLAG(IS_IOS)
 #include "components/omnibox/browser/geolocation_header_service.h"
-#endif  // !BUILDFLAG(IS_IOS)
 #include "components/omnibox/browser/history_url_provider.h"
 #include "components/omnibox/browser/omnibox_client.h"
 #include "components/omnibox/browser/omnibox_event_global_tracker.h"
@@ -34,9 +32,7 @@
 #include "components/omnibox/browser/omnibox_logging_utils.h"
 #include "components/omnibox/browser/omnibox_metrics_constants.h"
 #include "components/omnibox/browser/page_classification_functions.h"
-#if !BUILDFLAG(IS_IOS)
 #include "components/omnibox/browser/vector_icons.h"  // nogncheck
-#endif                                                // !BUILDFLAG(IS_IOS)
 #include "components/omnibox/browser/verbatim_match.h"
 #include "components/omnibox/common/omnibox_features.h"
 #include "components/search_engines/search_engine_type.h"
@@ -283,14 +279,12 @@ void OpenMatch(
   client->OnURLOpenedFromOmnibox(&log);
   OmniboxEventGlobalTracker::GetInstance()->OnURLOpened(&log);
 
-#if !BUILDFLAG(IS_IOS)
   if (auto* geolocation_header_service =
           autocomplete_controller->autocomplete_provider_client()
               ->GetGeolocationHeaderService()) {
     geolocation_header_service->MaybeRecordInlineLocationSuggestionClicked(
         match);
   }
-#endif  // !BUILDFLAG(IS_IOS)
 
   TemplateURLService* template_url_service = client->GetTemplateURLService();
   TemplateURL* template_url = match.GetTemplateURL(template_url_service);
@@ -575,9 +569,6 @@ KeywordLabelNames GetKeywordLabelNames(const std::u16string& keyword,
 }
 
 const gfx::VectorIcon& GetKeywordVectorIcon(const TemplateURL& turl) {
-#if BUILDFLAG(IS_IOS)
-  return gfx::VectorIcon::EmptyIcon();
-#else
   using StarterPackId = template_url_starter_pack_data::StarterPackId;
 
   // 1. Handle starter pack `@` keywords
@@ -620,7 +611,6 @@ const gfx::VectorIcon& GetKeywordVectorIcon(const TemplateURL& turl) {
   return features::IsRoundedIconsEnabled()
              ? vector_icons::kSearchIcon
              : vector_icons::kSearchChromeRefreshOldIcon;
-#endif  // BUILDFLAG(IS_IOS)
 }
 
 std::u16string GetAccessibilityLabelForSelection(

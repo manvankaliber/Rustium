@@ -209,8 +209,7 @@ TEST_P(AutofillAiAccessManagerReauthTest, NoReauthRequired_LocalEntity) {
       on_auth_complete.Get(), on_fetched_callback.Get()));
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Tests that when re-authentication is required and succeeds,
 // FetchEntityInstance triggers re-auth, returns true (async), and fills the
 // entity.
@@ -457,8 +456,7 @@ TEST_P(AutofillAiAccessManagerReauthTest, ServerFetch_Failure) {
       on_auth_complete.Get(), on_fetched_callback.Get()));
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Tests that when both re-authentication and unmasking are required and
 // succeed, FetchEntityInstance runs both flows and invokes the callback with
 // the final unmasked entity.
@@ -599,8 +597,7 @@ TEST_P(AutofillAiAccessManagerReauthTest, ResetCancelsPendingOperations) {
 }
 #endif
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Tests that when unmasking a personal context entity successfully, the
 // unmasked entity is passed to the callback.
 TEST_P(AutofillAiAccessManagerReauthTest, PersonalContextFetch_Success) {

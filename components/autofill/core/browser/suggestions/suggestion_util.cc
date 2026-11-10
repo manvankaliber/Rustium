@@ -55,11 +55,7 @@ AutocompleteUnrecognizedBehavior GetAcUnrecognizedBehavior(
 bool SuppressSuggestionsForAutocompleteUnrecognizedField(
     const AutofillField& field,
     AutocompleteUnrecognizedBehavior behavior) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return false;
-#else
   return field.ShouldSuppressSuggestionsAndFillingByDefault(behavior);
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 }
 
 FillingProduct GetFillingProductFromSuggestionTypes(

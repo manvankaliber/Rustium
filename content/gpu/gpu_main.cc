@@ -91,25 +91,6 @@
 #include <dwmapi.h>
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include <android/hardware_buffer.h>
-#include <dlfcn.h>
-
-#include "base/android/android_info.h"
-#include "base/android/meminfo_dump_provider.h"
-#include "base/posix/eintr_wrapper.h"
-#include "base/trace_event/memory_dump_manager.h"
-#include "components/tracing/common/graphics_memory_dump_provider_android.h"
-#include "media/base/android/media_codec_bridge_impl.h"
-#include "sandbox/linux/seccomp-bpf-helpers/seccomp_starter_android.h"
-#include "sandbox/linux/services/thread_helpers.h"  // nogncheck
-#include "sandbox/policy/features.h"
-#include "sandbox/policy/linux/bpf_gpu_policy_android.h"
-#include "sandbox/policy/linux/landlock_gpu_policy_android.h"
-#include "sandbox/policy/sandbox_type.h"
-#include "sandbox/policy/switches.h"
-#include "sandbox/sandbox_buildflags.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/win/scoped_com_initializer.h"
@@ -124,7 +105,7 @@
 #include "services/webnn/public/cpp/webnn_sandbox_init.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "content/child/sandboxed_process_thread_type_handler.h"
 #include "content/common/gpu_pre_sandbox_hook_linux.h"
 #include "sandbox/policy/linux/sandbox_linux.h"
@@ -145,15 +126,10 @@ namespace content {
 
 namespace {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 bool StartSandboxLinux(gpu::GpuWatchdogThread*,
                        const gpu::GPUInfo*,
                        const gpu::GpuPreferences&);
-#elif BUILDFLAG(IS_ANDROID)
-bool StartSandboxAndroid(gpu::GpuWatchdogThread*);
-#if BUILDFLAG(USE_SECCOMP_BPF)
-bool StartSeccompSandboxAndroid();
-#endif
 #elif BUILDFLAG(IS_WIN)
 bool StartSandboxWindows(const sandbox::SandboxInterfaceInfo*);
 #endif
@@ -192,15 +168,10 @@ class ContentSandboxHelper : public gpu::GpuSandboxHelper {
     }
 
 #if BUILDFLAG(USE_VAAPI)
-#if BUILDFLAG(IS_CHROMEOS)
-    media::VaapiWrapper::PreSandboxInitialization(
-        /*allow_disabling_global_lock=*/false, &workarounds, gpu_info);
-#else  // For Linux with VA-API support.
     if (!gpu_prefs.disable_accelerated_video_decode) {
       media::VaapiWrapper::PreSandboxInitialization(
           /*allow_disabling_global_lock=*/false, &workarounds, gpu_info);
     }
-#endif
 #endif  // BUILDFLAG(USE_VAAPI)
 #if BUILDFLAG(IS_WIN)
     media::PreSandboxMediaFoundationInitialization();
@@ -218,31 +189,12 @@ class ContentSandboxHelper : public gpu::GpuSandboxHelper {
                                 const gpu::GPUInfo* gpu_info,
                                 const gpu::GpuPreferences& gpu_prefs) override {
     TRACE_EVENT("gpu,startup", "gpu_main::EnsureSandboxInitialized");
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     return StartSandboxLinux(watchdog_thread, gpu_info, gpu_prefs);
 #elif BUILDFLAG(IS_WIN)
     return StartSandboxWindows(sandbox_info_);
 #elif BUILDFLAG(IS_MAC)
     return sandbox::Seatbelt::IsSandboxed();
-#elif BUILDFLAG(IS_ANDROID)
-    bool landlock_res = true;
-    if (base::FeatureList::IsEnabled(
-            sandbox::policy::features::kAndroidGpuSandbox)) {
-      landlock_res = StartSandboxAndroid(watchdog_thread);
-    }
-    bool seccomp_res = true;
-#if BUILDFLAG(USE_SECCOMP_BPF)
-    const base::CommandLine& command_line =
-        *base::CommandLine::ForCurrentProcess();
-    if (!command_line.HasSwitch(sandbox::policy::switches::kNoSandbox) &&
-        !command_line.HasSwitch(
-            sandbox::policy::switches::kDisableSeccompFilterSandbox) &&
-        base::FeatureList::IsEnabled(
-            sandbox::policy::features::kSeccompFilterGpuSandbox)) {
-      seccomp_res = StartSeccompSandboxAndroid();
-    }
-#endif
-    return landlock_res && seccomp_res;
 #else
     return false;
 #endif
@@ -347,7 +299,7 @@ int GpuMain(MainFunctionParams parameters) {
           std::make_unique<base::SingleThreadTaskExecutor>(
               gpu_preferences.message_pump_type, /*is_main_thread=*/true);
     }
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
 #error "Unsupported Linux platform."
 #elif BUILDFLAG(IS_MAC)
     // Cross-process CoreAnimation requires a CFRunLoop to function at all, and
@@ -374,7 +326,7 @@ int GpuMain(MainFunctionParams parameters) {
   base::MessagePumpWakeupCounter::InitializeForCurrentThread("GpuMain");
   base::LockMetricsRecorder::EnableRecordingOnCurrentThread("CrGpuMain");
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Thread type delegate of the process should be registered before
   // thread type change below for the main thread and for thread pool in
   // ChildProcess constructor.
@@ -382,7 +334,7 @@ int GpuMain(MainFunctionParams parameters) {
   // which may race with application of the sandbox. InitializeAndStartSandbox()
   // sandboxes the process and starts threads so this has to happen first.
   SandboxedProcessThreadTypeHandler::Create();
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   base::PlatformThread::SetDefaultThreadType(base::ThreadType::kPresentation);
 
@@ -419,9 +371,6 @@ int GpuMain(MainFunctionParams parameters) {
   // message from the browser (through mojom::VizMain::CreateGpuService()).
   const bool init_success = gpu_init->InitializeAndStartSandbox(
       const_cast<base::CommandLine*>(&command_line), gpu_preferences);
-#if BUILDFLAG(IS_CHROMEOS)
-  LOG(WARNING) << "gpu initialization completed init_success:" << init_success;
-#endif
   const bool dead_on_arrival = !init_success;
 
   auto* client = GetContentClient()->gpu();
@@ -442,10 +391,6 @@ int GpuMain(MainFunctionParams parameters) {
     base::HangWatcher::GetInstance()->Start();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  base::PlatformThreadPriorityMonitor::Get().RegisterCurrentThread("GpuMain");
-  base::PlatformThreadPriorityMonitor::Get().Start();
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Startup tracing creates a tracing thread, which is incompatible on
   // platforms that require single-threaded sandbox initialization. In these
@@ -494,13 +439,6 @@ int GpuMain(MainFunctionParams parameters) {
   metal::RegisterGracefulExitOnDeviceRemoval();
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  base::trace_event::MemoryDumpManager::GetInstance()->RegisterDumpProvider(
-      tracing::GraphicsMemoryDumpProvider::GetInstance(), "AndroidGraphics",
-      nullptr);
-
-  base::android::MeminfoDumpProvider::Initialize();
-#endif
 
   base::allocator::PartitionAllocSupport::Get()->ReconfigureAfterTaskRunnerInit(
       switches::kGpuProcess);
@@ -528,7 +466,7 @@ int GpuMain(MainFunctionParams parameters) {
 
 namespace {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 bool StartSandboxLinux(gpu::GpuWatchdogThread* watchdog_thread,
                        const gpu::GPUInfo* gpu_info,
                        const gpu::GpuPreferences& gpu_prefs) {
@@ -576,7 +514,7 @@ bool StartSandboxLinux(gpu::GpuWatchdogThread* watchdog_thread,
   sandbox_options.accelerated_video_encode_enabled =
       !gpu_prefs.disable_accelerated_video_encode;
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   // Video decoding of many video streams can use thousands of FDs as well as
   // Exo clients.
   // See https://crbug.com/1417237
@@ -605,75 +543,8 @@ bool StartSandboxLinux(gpu::GpuWatchdogThread* watchdog_thread,
 
   return res;
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_ANDROID)
-bool StartSandboxAndroid(gpu::GpuWatchdogThread* watchdog_thread) {
-  if (watchdog_thread) {
-    // Stop the watchdog thread temporarily.
-    base::ScopedFD proc_fd(
-        HANDLE_EINTR(open("/proc", O_DIRECTORY | O_RDONLY | O_CLOEXEC)));
-
-    sandbox::ThreadHelpers::StopThreadAndWatchProcFS(proc_fd.get(),
-                                                     watchdog_thread);
-  }
-
-  bool res = sandbox::landlock::ApplyLandlock(
-      sandbox::policy::SandboxTypeFromCommandLine(
-          *base::CommandLine::ForCurrentProcess()));
-
-  if (watchdog_thread) {
-    watchdog_thread->Start();
-  }
-
-  return res;
-}
-
-#if BUILDFLAG(USE_SECCOMP_BPF)
-// Once the Seccomp-BPF sandbox is installed, mprotect() and mmap() with
-// PROT_EXEC are disallowed, so dynamic libraries can no longer be loaded.
-// Warm up any Android libraries that are lazily loaded via dlopen() at
-// runtime.
-void WarmUpSeccompSandbox() {
-  // 1. Allocate and release a 1x1 AHardwareBuffer to ensure the Gralloc
-  //    passthrough HAL library is loaded by libui.so / libvndksupport.so.
-  AHardwareBuffer_Desc ahb_desc = {};
-  ahb_desc.width = 1;
-  ahb_desc.height = 1;
-  ahb_desc.layers = 1;
-  ahb_desc.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
-  ahb_desc.usage = AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE;
-  AHardwareBuffer* ahb = nullptr;
-  if (AHardwareBuffer_allocate(&ahb_desc, &ahb) == 0 && ahb) {
-    AHardwareBuffer_release(ahb);
-  }
-
-  // 2. Load the ApexCodecs library and create/release a dummy MediaCodec video
-  //    decoder to ensure libcodec2_client.so and Codec2 client stores are
-  //    initialized.
-  dlopen("libcom.android.media.swcodec.apexcodecs.so", RTLD_NOW);
-  media::VideoCodecConfig codec_config;
-  codec_config.codec = media::VideoCodec::kVP8;
-  codec_config.profile = media::VP8PROFILE_ANY;
-  codec_config.initial_expected_coded_size = gfx::Size(64, 64);
-  std::ignore = media::MediaCodecBridgeImpl::CreateVideoDecoder(codec_config);
-}
-
-bool StartSeccompSandboxAndroid() {
-  WarmUpSeccompSandbox();
-
-  sandbox::SeccompStarterAndroid starter(
-      base::android::android_info::sdk_int());
-  starter.set_policy(
-      std::make_unique<sandbox::policy::GpuProcessPolicyAndroid>());
-  if (starter.StartSandbox()) {
-    LOG(WARNING) << "Seccomp-BPF sandbox enabled for Android GPU process.";
-    return true;
-  }
-  return false;
-}
-#endif  // BUILDFLAG(USE_SECCOMP_BPF)
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 bool StartSandboxWindows(const sandbox::SandboxInterfaceInfo* sandbox_info) {

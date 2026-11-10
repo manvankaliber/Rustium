@@ -183,7 +183,6 @@ bool ElementExistsByIdInSigninFrame(content::WebContents* web_contents,
 
 enum class HistorySyncOptinDialogAction { kConfirm, kReject };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 std::string GetRadioButtonIdForSigninEmailConfirmationDialogAction(
     SigninEmailConfirmationDialog::Action action) {
   switch (action) {
@@ -229,7 +228,6 @@ bool IsElementReady(content::WebContents* web_contents,
       element_selector.c_str(), element_selector.c_str());
   return content::EvalJs(web_contents, find_element_js).ExtractString() == "Ok";
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -239,9 +237,6 @@ class SigninViewControllerTestUtil {
   static bool TryDismissHistorySyncOptinDialog(
       BrowserWindowInterface* browser,
       HistorySyncOptinDialogAction action) {
-#if BUILDFLAG(IS_CHROMEOS)
-    NOTREACHED();
-#else
     std::string button_id;
     switch (action) {
       case HistorySyncOptinDialogAction::kConfirm:
@@ -258,15 +253,11 @@ class SigninViewControllerTestUtil {
             ? "history-sync-optin-app-refresh"
             : "history-sync-optin-app",
         button_id);
-#endif
   }
 
   static bool TryCompleteSigninEmailConfirmationDialog(
       BrowserWindowInterface* browser,
       SigninEmailConfirmationDialog::Action action) {
-#if BUILDFLAG(IS_CHROMEOS)
-    NOTREACHED();
-#else
     SigninViewController* signin_view_controller =
         SigninViewController::From(browser);
     DCHECK(signin_view_controller);
@@ -293,14 +284,10 @@ class SigninViewControllerTestUtil {
                                                 radio_button_selector.c_str(),
                                                 button_selector.c_str()));
     return true;
-#endif
   }
 
   static bool TryCompleteProfileCustomizationDialog(
       BrowserWindowInterface* browser) {
-#if BUILDFLAG(IS_CHROMEOS)
-    NOTREACHED();
-#else
     SigninViewController* signin_view_controller =
         SigninViewController::From(browser);
     DCHECK(signin_view_controller);
@@ -321,19 +308,13 @@ class SigninViewControllerTestUtil {
     std::ignore =
         content::ExecJs(dialog_web_contents, button_selector + ".click();");
     return true;
-#endif
   }
 
   static bool ShowsModalDialog(BrowserWindowInterface* browser) {
-#if BUILDFLAG(IS_CHROMEOS)
-    NOTREACHED();
-#else
     return SigninViewController::From(browser)->ShowsModalDialog();
-#endif
   }
 
  private:
-#if !BUILDFLAG(IS_CHROMEOS)
   static bool TryDismissModalDialog(BrowserWindowInterface* browser,
                                     const std::string& app,
                                     const std::string& button_id) {
@@ -356,7 +337,6 @@ class SigninViewControllerTestUtil {
                                 button_selector + ".click();");
     return true;
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 };
 
 void WaitUntilUIReady(BrowserWindowInterface* browser) {
@@ -425,9 +405,6 @@ void ExecuteJsToSigninInSigninFrame(content::WebContents* web_contents,
 bool SignInWithUI(BrowserWindowInterface* browser,
                   const std::string& username,
                   const std::string& password) {
-#if BUILDFLAG(IS_CHROMEOS)
-  NOTREACHED();
-#else
   SignInObserver signin_observer;
   base::ScopedObservation<signin::IdentityManager,
                           signin::IdentityManager::Observer>
@@ -450,7 +427,6 @@ bool SignInWithUI(BrowserWindowInterface* browser,
   ExecuteJsToSigninInSigninFrame(active_contents, username, password);
   signin_observer.Wait();
   return signin_observer.DidSignIn();
-#endif
 }
 
 bool TryUntilSuccessWithTimeout(base::RepeatingCallback<bool()> try_callback,
@@ -496,7 +472,6 @@ class SiginInModalDialogObserver : public SigninViewController::Observer {
       signin_view_controller_observation_{this};
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class HistorySyncServiceObserverImpl
     : public HistorySyncOptinService::Observer {
  public:
@@ -521,17 +496,14 @@ class HistorySyncServiceObserverImpl
                           HistorySyncOptinService::Observer>
       history_sync_observation_{this};
 };
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 bool DismissHistorySyncOptinDialog(BrowserWindowInterface* browser,
                                    base::TimeDelta timeout,
                                    HistorySyncOptinDialogAction action,
                                    bool wait_for_dismiss = true) {
   SiginInModalDialogObserver modal_dialog_observer(browser);
-#if !BUILDFLAG(IS_CHROMEOS)
   HistorySyncServiceObserverImpl history_sync_service_observation_(
       browser->GetProfile());
-#endif  //! BUILDFLAG(IS_CHROMEOS)
 
   const base::Time expire_time = base::Time::Now() + timeout;
   while (base::Time::Now() <= expire_time) {
@@ -542,15 +514,11 @@ bool DismissHistorySyncOptinDialog(BrowserWindowInterface* browser,
         EXPECT_FALSE(SigninViewControllerTestUtil::ShowsModalDialog(browser));
         return true;
       } else {
-#if !BUILDFLAG(IS_CHROMEOS)
         history_sync_service_observation_.WaitForReset();
         EXPECT_FALSE(
             HistorySyncOptinServiceFactory::GetForProfile(browser->GetProfile())
                 ->GetHistorySyncOptinHelperForTesting());
         return true;
-#else
-        NOTREACHED();
-#endif  // !BUILDFLAG(IS_CHROMEOS)
       }
     }
     RunLoopFor(base::Milliseconds(1000));

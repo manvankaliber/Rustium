@@ -42,9 +42,6 @@
 #include "third_party/metrics_proto/chrome_user_metrics_extension.pb.h"
 #include "third_party/metrics_proto/system_profile.pb.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 using base::test::FeatureRef;
 
@@ -62,9 +59,6 @@ class GlicEnablingTest : public InProcessBrowserTest {
   virtual void InitializeFeatureList() {
     scoped_feature_list_.InitWithFeatures(
         {
-#if BUILDFLAG(IS_CHROMEOS)
-            chromeos::features::kFeatureManagementGlic,
-#endif  // BUILDFLAG(IS_CHROMEOS)
         },
         {});
   }
@@ -113,9 +107,6 @@ class GlicEnablingTieredRolloutTest : public GlicEnablingTest {
         {
             features::kGlic,
             features::kGlicTieredRollout,
-#if BUILDFLAG(IS_CHROMEOS)
-            chromeos::features::kFeatureManagementGlic,
-#endif  // BUILDFLAG(IS_CHROMEOS)
         },
         {features::kGlicRollout});
   }
@@ -182,9 +173,6 @@ class GlicEnablingSimultaneousRolloutTest
             features::kGlic,
             features::kGlicTieredRollout,
             features::kGlicRollout,
-#if BUILDFLAG(IS_CHROMEOS)
-            chromeos::features::kFeatureManagementGlic,
-#endif  // BUILDFLAG(IS_CHROMEOS)
         },
         {});
   }
@@ -205,7 +193,6 @@ IN_PROC_BROWSER_TEST_F(GlicEnablingSimultaneousRolloutTest,
   }
 
   // ChromeOS does not support multiple profiles.
-#if !BUILDFLAG(IS_CHROMEOS)
   // Add another profile and have it signed in. The default value for
   // tiered rollout is false but this profile is enabled via the general
   // GlicRollout flag and canUseModelExecutionFeatures check.
@@ -221,7 +208,6 @@ IN_PROC_BROWSER_TEST_F(GlicEnablingSimultaneousRolloutTest,
     histogram_tester.ExpectUniqueSample("Glic.TieredRolloutEnablementStatus",
                                         GlicProfilesAllSomeNone::kSome, 1);
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // Primary profile no longer eligible for tiered rollout. Should not have
   // effect on overall enablement, but will have an effect on the histogram
@@ -245,9 +231,6 @@ class GlicEnablingTieredRolloutV2Test : public GlicEnablingTest {
             {features::kGlic, {}},
             {features::kGlicTieredRolloutV2,
              {{"glic-tiered-rollout-v2-eligible-tiers", "1,2"}}},
-#if BUILDFLAG(IS_CHROMEOS)
-            {chromeos::features::kFeatureManagementGlic, {}},
-#endif  // BUILDFLAG(IS_CHROMEOS)
         },
         {features::kGlicRollout});
   }
@@ -302,10 +285,6 @@ class GlicEnablingSystemRequirementsTest
       public testing::WithParamInterface<SystemRequirementsTestParams> {
  public:
   GlicEnablingSystemRequirementsTest() {
-#if BUILDFLAG(IS_CHROMEOS)
-    scoped_feature_list_.InitAndDisableFeature(
-        chromeos::features::kFeatureManagementGlic);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
   void SetUp() override {
     memory_override_.emplace(GetParam().memory_size);
@@ -332,28 +311,9 @@ IN_PROC_BROWSER_TEST_P(GlicEnablingSystemRequirementsTest,
 INSTANTIATE_TEST_SUITE_P(
     All,
     GlicEnablingSystemRequirementsTest,
-#if BUILDFLAG(IS_CHROMEOS)
-    testing::Values(SystemRequirementsTestParams{.memory_size = base::GiB(6),
-                                                 .is_dogfood = true,
-                                                 .expected_result = false},
-                    SystemRequirementsTestParams{.memory_size = base::GiB(7),
-                                                 .is_dogfood = true,
-                                                 .expected_result = true},
-                    SystemRequirementsTestParams{.memory_size = base::GiB(8),
-                                                 .is_dogfood = true,
-                                                 .expected_result = true},
-                    // On ChromeOS, we expect that a non-dogfood client with
-                    // >= 8GB RAM doesn't met system requirements since we
-                    // explicitly gate Gemini-in-Chrome to Chromebook Plus
-                    // devices via FeatureManagementGlic.
-                    SystemRequirementsTestParams{.memory_size = base::GiB(8),
-                                                 .is_dogfood = false,
-                                                 .expected_result = false})
-#else
     testing::Values(SystemRequirementsTestParams{.memory_size = base::MiB(256),
                                                  .is_dogfood = false,
                                                  .expected_result = true})
-#endif
 );
 
 }  // namespace

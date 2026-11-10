@@ -712,13 +712,6 @@ if (is_mac) {
   ]
 }
 
-if (is_ios) {
-  blink_core_sources_layout += [
-    "layout_theme_ios.h",
-    "layout_theme_ios.mm",
-  ]
-}
-
 if (is_win) {
   blink_core_sources_layout += [
     "layout_theme_font_provider_win.cc",
@@ -732,17 +725,10 @@ if (is_win) {
   blink_core_sources_layout += [ "layout_theme_font_provider_default.cc" ]
 }
 
-if (is_linux || is_chromeos) {
+if (is_linux) {
   blink_core_sources_layout += [
     "layout_theme_linux.cc",
     "layout_theme_linux.h",
-  ]
-}
-
-if (is_android) {
-  blink_core_sources_layout += [
-    "layout_theme_android.cc",
-    "layout_theme_android.h",
   ]
 }
 

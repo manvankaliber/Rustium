@@ -36,7 +36,7 @@ using base::test::TestFuture;
 namespace actor {
 namespace {
 
-#if BUILDFLAG(ENABLE_PDF) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(ENABLE_PDF)
 class ActorClickToolPDFBrowserTest
     : public ActorToolsTest,
       public ::testing::WithParamInterface<bool> {
@@ -135,7 +135,7 @@ INSTANTIATE_TEST_SUITE_P(,
                          ::testing::Bool(),
                          &ActorClickToolPDFBrowserTest::DescribeParams);
 
-#endif  // BUILDFLAG(ENABLE_PDF) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 class ActorClickToolInteractiveUiTest : public ActorToolsTest {
  public:

@@ -8,7 +8,7 @@
 #include "base/memory/scoped_refptr.h"
 #include "media/base/video_frame.h"
 #include "media/base/video_types.h"
-#include "media/gpu/chromeos/frame_resource.h"
+#include "media/gpu/linux/frame_resource.h"
 #include "media/gpu/media_gpu_export.h"
 
 namespace media {

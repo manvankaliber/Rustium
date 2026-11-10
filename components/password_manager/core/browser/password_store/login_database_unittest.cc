@@ -58,9 +58,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_IOS)
-#import <Security/Security.h>
-#endif  // BUILDFLAG(IS_IOS)
 
 using base::ASCIIToUTF16;
 using base::UTF16ToASCII;
@@ -208,24 +205,6 @@ std::vector<T> GetColumnValuesFromDatabase(const base::FilePath& database_path,
   return results;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Set the new password value for all the rows with the specified username.
-void UpdatePasswordValueForUsername(const base::FilePath& database_path,
-                                    const std::u16string& username,
-                                    const std::u16string& password) {
-  sql::Database db(sql::test::kTestTag);
-  CHECK(db.Open(database_path));
-
-  sql::Statement s(db.GetCachedStatement(
-      SQL_FROM_HERE,
-      "UPDATE logins SET password_value = ? WHERE username_value = ?"));
-  EXPECT_TRUE(s.is_valid());
-  s.BindString16(0, password);
-  s.BindString16(1, username);
-
-  CHECK(s.Run());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool AddZeroClickableLogin(LoginDatabase* db,
                            const std::string& unique_string,
@@ -1393,70 +1372,6 @@ TEST_F(LoginDatabaseTest, AddWrongForm) {
             db().AddLogin(CloneStoredCredential(cred)));
 }
 
-#if BUILDFLAG(IS_IOS)
-// Test that when adding a login with no password_value but with
-// keychain_identifier, the keychain_identifier is kept and the password_value
-// is filled in with the decrypted password.
-TEST_F(LoginDatabaseTest, AddLoginWithEncryptedPassword) {
-  StoredCredential cred;
-  cred.url = GURL("http://accounts.google.com/LoginAuth");
-  cred.signon_realm = "http://accounts.google.com/";
-  cred.username_value = u"my_username";
-  std::string keychain_identifier;
-  EXPECT_TRUE(
-      CreateKeychainIdentifier(u"my_encrypted_password", &keychain_identifier));
-  cred.keychain_identifier = keychain_identifier;
-  cred.blocked_by_user = false;
-  cred.scheme = PasswordForm::Scheme::kHtml;
-
-  // |AddLogin| will decrypt the encrypted password, so compare with that.
-  StoredCredential cred_with_password = CloneStoredCredential(cred);
-  cred_with_password.password_value =
-      password_manager::PasswordString(u"my_encrypted_password");
-  EXPECT_EQ(AddChangeForForm(ToPasswordForm(cred_with_password)),
-            db().AddLogin(CloneStoredCredential(cred)));
-
-  std::vector<StoredCredential> result;
-  ASSERT_TRUE(db().GetLogins(PasswordFormDigest(ToPasswordForm(cred)),
-                             /*should_PSL_matching_apply=*/true, &result));
-  ASSERT_EQ(1U, result.size());
-  EXPECT_EQ(cred.keychain_identifier, result[0].keychain_identifier);
-  EXPECT_EQ(u"my_encrypted_password", result[0].password_value.value());
-
-  std::u16string decrypted;
-  EXPECT_EQ(errSecSuccess, GetTextFromKeychainIdentifier(
-                               result[0].keychain_identifier, &decrypted));
-  EXPECT_EQ(u"my_encrypted_password", decrypted);
-}
-
-// Test that when adding a login with password_value but with
-// keychain_identifier, the keychain_identifier is discarded.
-TEST_F(LoginDatabaseTest, AddLoginWithEncryptedPasswordAndValue) {
-  StoredCredential cred;
-  cred.url = GURL("http://accounts.google.com/LoginAuth");
-  cred.signon_realm = "http://accounts.google.com/";
-  cred.username_value = u"my_username";
-  cred.password_value = password_manager::PasswordString(u"my_password_value");
-  std::string keychain_identifier;
-  EXPECT_TRUE(
-      CreateKeychainIdentifier(u"my_encrypted_password", &keychain_identifier));
-  cred.keychain_identifier = keychain_identifier;
-  cred.blocked_by_user = false;
-  cred.scheme = PasswordForm::Scheme::kHtml;
-  EXPECT_EQ(AddChangeForForm(cred), db().AddLogin(CloneStoredCredential(cred)));
-
-  std::vector<StoredCredential> result;
-  ASSERT_TRUE(db().GetLogins(PasswordFormDigest(ToPasswordForm(cred)),
-                             /*should_PSL_matching_apply=*/true, &result));
-  ASSERT_EQ(1U, result.size());
-  EXPECT_NE(cred.keychain_identifier, result[0].keychain_identifier);
-
-  std::u16string decrypted;
-  EXPECT_EQ(errSecSuccess, GetTextFromKeychainIdentifier(
-                               result[0].keychain_identifier, &decrypted));
-  EXPECT_EQ(u"my_password_value", decrypted);
-}
-#endif
 
 TEST_F(LoginDatabaseTest, UpdateLogin) {
   StoredCredential cred;
@@ -1732,10 +1647,8 @@ TEST_F(LoginDatabaseTest, ReportMetricsTest) {
 
   histogram_tester.ExpectUniqueSample(
       "PasswordManager.ProfileStore.InaccessiblePasswords3", 0, 1);
-#if !BUILDFLAG(IS_IOS)
   histogram_tester.ExpectUniqueSample(
       "PasswordManager.BubbleSuppression.AccountsInStatisticsTable2", 4, 1);
-#endif  // !BUILDFLAG(IS_IOS)
 }
 
 // This test is mostly a copy of ReportMetricsTest, but covering the account
@@ -1950,7 +1863,6 @@ TEST_F(LoginDatabaseTest, FilePermissions) {
 }
 #endif  // BUILDFLAG(IS_POSIX)
 
-#if !BUILDFLAG(IS_IOS)
 // Test that LoginDatabase encrypts the password values that it stores.
 TEST_F(LoginDatabaseTest, EncryptionEnabled) {
   StoredCredential cred = GenerateExampleStoredCredential();
@@ -1970,61 +1882,7 @@ TEST_F(LoginDatabaseTest, EncryptionEnabled) {
 
   EXPECT_EQ(decrypted_pw, cred.password_value);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// On ChromeOS there is a mix of plain-text and obfuscated
-// passwords. Verify that they can both be accessed. Obfuscated passwords start
-// with "v10". Some password values also start with "v10". Test that both are
-// accessible (this doesn't work for any plain-text value).
-TEST_F(LoginDatabaseTest, HandleObfuscationMix) {
-  const char k_obfuscated_pw[] = "v10pass1";
-  const char16_t k_obfuscated_pw16[] = u"v10pass1";
-  const char k_plain_text_pw1[] = "v10pass2";
-  const char16_t k_plain_text_pw116[] = u"v10pass2";
-  const char k_plain_text_pw2[] = "v11pass3";
-  const char16_t k_plain_text_pw216[] = u"v11pass3";
-
-  base::FilePath file = temp_dir_.GetPath().AppendASCII("TestUnencryptedDB");
-  {
-    LoginDatabase db(file, IsAccountStore(false));
-    ASSERT_TRUE(
-        db.Init(/*on_undecryptable_passwords_removed=*/base::NullCallback(),
-                /*encryptor=*/CreateEncryptor()));
-    // Add obfuscated (new) entries.
-    StoredCredential cred = GenerateExampleStoredCredential();
-    cred.password_value = password_manager::PasswordString(k_obfuscated_pw16);
-    EXPECT_EQ(AddChangeForForm(cred), db.AddLogin(CloneStoredCredential(cred)));
-    // Add plain-text (old) entries and rewrite the password on the disk.
-    cred.username_value = u"other_username";
-    EXPECT_EQ(AddChangeForForm(cred), db.AddLogin(CloneStoredCredential(cred)));
-    cred.username_value = u"other_username2";
-    EXPECT_EQ(AddChangeForForm(cred), db.AddLogin(CloneStoredCredential(cred)));
-  }
-  UpdatePasswordValueForUsername(file, u"other_username", k_plain_text_pw116);
-  UpdatePasswordValueForUsername(file, u"other_username2", k_plain_text_pw216);
-
-  std::vector<StoredCredential> credentials;
-  {
-    LoginDatabase db(file, IsAccountStore(false));
-    ASSERT_TRUE(
-        db.Init(/*on_undecryptable_passwords_removed=*/base::NullCallback(),
-                /*encryptor=*/CreateEncryptor()));
-    EXPECT_TRUE(db.GetAutofillableLogins(&credentials));
-  }
-
-  // On disk, unobfuscated passwords are as-is, while obfuscated passwords have
-  // been changed (obfuscated).
-  EXPECT_THAT(GetColumnValuesFromDatabase<std::string>(file, "password_value"),
-              UnorderedElementsAre(Ne(k_obfuscated_pw), k_plain_text_pw1,
-                                   k_plain_text_pw2));
-  // LoginDatabase serves the original values.
-  EXPECT_THAT(credentials, UnorderedElementsAre(
-                               StoredCredentialPasswordIs(k_obfuscated_pw16),
-                               StoredCredentialPasswordIs(k_plain_text_pw116),
-                               StoredCredentialPasswordIs(k_plain_text_pw216)));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // If the database initialisation fails, the initialisation transaction should
 // roll back without crashing.
@@ -2252,8 +2110,7 @@ INSTANTIATE_TEST_SUITE_P(MigrationToVCurrent,
                          LoginDatabaseMigrationTestBroken,
                          testing::Values(1, 2, 3, 24));
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_IOS) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 class LoginDatabaseUndecryptableLoginsTest : public testing::Test {
  protected:
   LoginDatabaseUndecryptableLoginsTest() = default;
@@ -2379,11 +2236,6 @@ TEST_F(LoginDatabaseUndecryptableLoginsTest, DeleteUndecryptableLoginsTest) {
       db.Init(/*on_undecryptable_passwords_removed=*/base::NullCallback(),
               /*encryptor=*/CreateEncryptor()));
 
-#if BUILDFLAG(IS_CASTOS)
-  // Disabling the checks in chromecast because encryption is unavailable.
-  EXPECT_EQ(DatabaseCleanupResult::kEncryptionUnavailable,
-            db.DeleteUndecryptableLogins());
-#else
   std::vector<StoredCredential> result;
   EXPECT_FALSE(db.GetAutofillableLogins(&result));
   EXPECT_TRUE(result.empty());
@@ -2406,7 +2258,6 @@ TEST_F(LoginDatabaseUndecryptableLoginsTest, DeleteUndecryptableLoginsTest) {
       "PasswordManager.DeleteUndecryptableLoginsReturnValue",
       metrics_util::DeleteCorruptedPasswordsResult::kSuccessPasswordsDeleted,
       1);
-#endif
 }
 
 #if BUILDFLAG(IS_LINUX)
@@ -2845,7 +2696,7 @@ TEST_P(LoginDatabaseGetUndecryptableLoginsTest, GetAutofillableLogins) {
   }
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_WIN)
 // Regression test for b/354847250.
 // Checks that if kSkipUndecryptablePasswords is enabled, getting login succeeds
 // even if there are undecryptable passwords present.
@@ -2933,7 +2784,7 @@ INSTANTIATE_TEST_SUITE_P(All,
                          LoginDatabaseGetUndecryptableLoginsTest,
                          testing::Combine(testing::Bool(), testing::Bool()));
 
-#endif  // #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_IOS) ||
+#endif
         // BUILDFLAG(IS_WIN)
 
 // Test encrypted passwords are present in add change lists.
@@ -2947,11 +2798,7 @@ TEST_F(LoginDatabaseTest, EncryptedPasswordAdd) {
   password_manager::PasswordStoreChangeList changes =
       db().AddLogin(std::move(cred));
   ASSERT_EQ(1u, changes.size());
-#if BUILDFLAG(IS_IOS)
-  ASSERT_FALSE(changes[0].credential().keychain_identifier.empty());
-#else
   ASSERT_TRUE(changes[0].credential().keychain_identifier.empty());
-#endif
 }
 
 // Test encrypted passwords are present in add change lists, when the password
@@ -2973,11 +2820,7 @@ TEST_F(LoginDatabaseTest, EncryptedPasswordAddWithReplaceSemantics) {
   ASSERT_EQ(2u, changes.size());
   ASSERT_EQ(password_manager::PasswordStoreChange::Type::ADD,
             changes[1].type());
-#if BUILDFLAG(IS_IOS)
-  ASSERT_FALSE(changes[1].credential().keychain_identifier.empty());
-#else
   ASSERT_TRUE(changes[1].credential().keychain_identifier.empty());
-#endif
 }
 
 // Test encrypted passwords are present in update change lists.
@@ -2995,11 +2838,7 @@ TEST_F(LoginDatabaseTest, EncryptedPasswordUpdate) {
 
   password_manager::PasswordStoreChangeList changes = db().UpdateLogin(cred);
   ASSERT_EQ(1u, changes.size());
-#if BUILDFLAG(IS_IOS)
-  ASSERT_FALSE(changes[0].credential().keychain_identifier.empty());
-#else
   ASSERT_TRUE(changes[0].credential().keychain_identifier.empty());
-#endif
 }
 
 // Test encrypted passwords are present when retrieving from DB.
@@ -3013,22 +2852,14 @@ TEST_F(LoginDatabaseTest, GetLoginsEncryptedPassword) {
   password_manager::PasswordStoreChangeList changes =
       db().AddLogin(CloneStoredCredential(cred));
   ASSERT_EQ(1u, changes.size());
-#if BUILDFLAG(IS_IOS)
-  ASSERT_FALSE(changes[0].credential().keychain_identifier.empty());
-#else
   ASSERT_TRUE(changes[0].credential().keychain_identifier.empty());
-#endif
 
   std::vector<StoredCredential> forms;
   EXPECT_TRUE(db().GetLogins(PasswordFormDigest(ToPasswordForm(cred)),
                              /*should_PSL_matching_apply=*/false, &forms));
 
   ASSERT_EQ(1U, forms.size());
-#if BUILDFLAG(IS_IOS)
-  ASSERT_FALSE(forms[0].keychain_identifier.empty());
-#else
   ASSERT_TRUE(forms[0].keychain_identifier.empty());
-#endif
 }
 
 TEST_F(LoginDatabaseTest, RetrievesInsecureDataWithLogins) {

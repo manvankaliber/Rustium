@@ -11,7 +11,7 @@
          Copyright (C) 2009-2010 Mathias Svensson ( https://result42.com )
 */
 
-#if (!defined(_WIN32)) && (!defined(WIN32)) && (!defined(__APPLE__)) && (!defined(__ANDROID_API__))
+#if !defined(_WIN32) && !defined(WIN32) && !defined(__APPLE__)
         #ifndef __USE_FILE_OFFSET64
                 #define __USE_FILE_OFFSET64
         #endif
@@ -26,7 +26,7 @@
         #endif
 #endif
 
-#if defined(__APPLE__) || defined(__HAIKU__) || defined(MINIZIP_FOPEN_NO_64) || defined(__ANDROID_API__)
+#if defined(__APPLE__) || defined(__HAIKU__) || defined(MINIZIP_FOPEN_NO_64)
 // In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions
 #define FOPEN_FUNC(filename, mode) fopen(filename, mode)
 #define FTELLO_FUNC(stream) ftello(stream)
@@ -96,7 +96,7 @@ static void change_file_date(const char *filename, uLong dosdate, tm_unz tmu_dat
   LocalFileTimeToFileTime(&ftLocal,&ftm);
   SetFileTime(hFile,&ftm,&ftLastAcc,&ftm);
   CloseHandle(hFile);
-#elif defined(__unix__) || defined(__unix) || defined(__APPLE__) || defined(__ANDROID_API__)
+#elif defined(__unix__) || defined(__unix) || defined(__APPLE__)
   (void)dosdate;
   struct utimbuf ut;
   struct tm newdate;
@@ -128,7 +128,7 @@ static int mymkdir(const char* dirname) {
     int ret=0;
 #ifdef _WIN32
     ret = _mkdir(dirname);
-#elif defined(__unix__) || defined(__unix) || defined(__APPLE__) || defined(__ANDROID_API__)
+#elif defined(__unix__) || defined(__unix) || defined(__APPLE__)
     ret = mkdir (dirname,0775);
 #else
     (void)dirname;

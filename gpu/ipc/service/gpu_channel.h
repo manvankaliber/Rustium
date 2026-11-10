@@ -168,9 +168,6 @@ class GPU_IPC_SERVICE_EXPORT GpuChannel : public IPC::Listener,
 
   mojom::GpuChannel& GetGpuChannelForTesting();
 
-#if BUILDFLAG(IS_ANDROID)
-  const CommandBufferStub* GetOneStub() const;
-#endif
 
 #if BUILDFLAG(IS_WIN)
   bool CreateDCOMPTexture(

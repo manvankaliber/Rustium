@@ -248,11 +248,9 @@ class ContentMainRunnerImplBrowserTest : public ContentBrowserTest {
         .WillOnce(DoAll(Invoke(this, &Self::TestPostEarlyInitialization),
                         Return(std::nullopt)));
     EXPECT_CALL(mock_delegate_, MockRunProcess(kBrowserProcessType, _));
-#if !BUILDFLAG(IS_ANDROID)
     // Android never calls ProcessExiting, since it leaks its ContentMainRunner
     // and ProcessExiting is called from the destructor.
     EXPECT_CALL(mock_delegate_, MockProcessExiting(kBrowserProcessType));
-#endif
 
     // This will call ContentMain(), which should satisfy the expectations
     // above.
@@ -319,9 +317,7 @@ class ContentMainRunnerImplSwitchesBrowserTest
     // This can't be guaranteed for other tasks because browser threads don't
     // allow the BLOCK_SHUTDOWN trait. It also can't be guaranteed on Android,
     // which doesn't shut down the thread pool between tests.
-#if !BUILDFLAG(IS_ANDROID)
     EXPECT_TRUE(flags_->thread_pool_best_effort_ran.IsSet());
-#endif
 
     ContentBrowserTest::TearDownInProcessBrowserTestFixture();
   }

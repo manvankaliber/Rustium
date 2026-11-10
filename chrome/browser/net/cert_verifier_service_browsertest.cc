@@ -55,23 +55,6 @@
 #include "third_party/boringssl/src/pki/trust_store.h"
 #endif  // BUILDFLAG(CHROME_ROOT_STORE_CERT_MANAGEMENT_UI)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "base/path_service.h"
-#include "base/test/metrics/histogram_tester.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chrome/browser/net/nss_service.h"
-#include "chrome/browser/net/nss_service_factory.h"
-#include "chrome/browser/policy/profile_policy_connector_builder.h"
-#include "chrome/common/chrome_paths.h"
-#include "components/account_id/account_id.h"
-#include "components/prefs/pref_service.h"
-#include "components/session_manager/core/session_manager.h"
-#include "components/user_manager/test_helper.h"
-#include "net/cert/cert_type.h"
-#include "net/cert/nss_cert_database.h"
-#include "net/cert/x509_util_nss.h"
-#endif
 
 #if BUILDFLAG(CHROME_ROOT_STORE_OPTIONAL)
 class CertVerifierServiceChromeRootStoreOptionalTest
@@ -566,39 +549,6 @@ IN_PROC_BROWSER_TEST_F(CertVerifierUserSettingsTest,
 class CertVerifierMultiProfileUserSettingsTest
     : public CertVerifierUserSettingsTest {
  public:
-#if BUILDFLAG(IS_CHROMEOS)
-  static inline constexpr char kPrimaryUserAccount[] = "test1@test.com";
-  static inline constexpr GaiaId::Literal kPrimaryUserGaiaId{"1234567890"};
-  static inline constexpr char kPrimaryUserHash[] = "test1-hash";
-  static inline constexpr char kSecondaryUserAccount[] = "test2@test.com";
-  static inline constexpr GaiaId::Literal kSecondaryUserGaiaId{"9876543210"};
-  static inline constexpr char kSecondaryUserHash[] = "test2-hash";
-
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    CertVerifierUserSettingsTest::SetUpCommandLine(command_line);
-    // Don't require policy for our sessions - this is required so the policy
-    // code knows not to expect cached policy for the secondary profile.
-    command_line->AppendSwitchASCII(ash::switches::kProfileRequiresPolicy,
-                                    "false");
-
-    command_line->AppendSwitchASCII(ash::switches::kLoginUser,
-                                    kPrimaryUserAccount);
-    command_line->AppendSwitchASCII(ash::switches::kLoginProfile,
-                                    kPrimaryUserHash);
-  }
-
-  void SetUpLocalStatePrefService(PrefService* local_state) override {
-    CertVerifierUserSettingsTest::SetUpLocalStatePrefService(local_state);
-
-    // Register a persisted user.
-    user_manager::TestHelper::RegisterPersistedUser(
-        *local_state, AccountId::FromUserEmailGaiaId(kPrimaryUserAccount,
-                                                     kPrimaryUserGaiaId));
-    user_manager::TestHelper::RegisterPersistedUser(
-        *local_state, AccountId::FromUserEmailGaiaId(kSecondaryUserAccount,
-                                                     kSecondaryUserGaiaId));
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   void SetUpOnMainThread() override {
     CertVerifierUserSettingsTest::SetUpOnMainThread();
@@ -620,34 +570,11 @@ class CertVerifierMultiProfileUserSettingsTest
 
     // Create a second profile.
     {
-#if BUILDFLAG(IS_CHROMEOS)
-      ON_CALL(policy_for_profile_2_, IsInitializationComplete(testing::_))
-          .WillByDefault(testing::Return(true));
-      ON_CALL(policy_for_profile_2_, IsFirstPolicyLoadComplete(testing::_))
-          .WillByDefault(testing::Return(true));
-      policy::PushProfilePolicyConnectorProviderForTesting(
-          &policy_for_profile_2_);
-
-      base::FilePath user_data_directory;
-      base::PathService::Get(chrome::DIR_USER_DATA, &user_data_directory);
-      session_manager::SessionManager::Get()->CreateSession(
-          AccountId::FromUserEmailGaiaId(kSecondaryUserAccount,
-                                         kSecondaryUserGaiaId),
-          kSecondaryUserHash,
-          /*new_user=*/false,
-          /*has_active_session=*/false);
-      // Set up the secondary profile.
-      base::FilePath profile_dir = user_data_directory.Append(
-          ash::ProfileHelper::GetUserProfileDir(kSecondaryUserHash).BaseName());
-      profile_2_ =
-          g_browser_process->profile_manager()->GetProfile(profile_dir);
-#else
       ProfileManager* profile_manager = g_browser_process->profile_manager();
       base::FilePath new_path =
           profile_manager->GenerateNextProfileDirectoryPath();
       profile_2_ =
           &profiles::testing::CreateProfileSync(profile_manager, new_path);
-#endif
     }
   }
 
@@ -670,11 +597,6 @@ class CertVerifierMultiProfileUserSettingsTest
   raw_ptr<Profile> profile_1_;
   raw_ptr<Profile> profile_2_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Policy provider for |profile_2_|. Overrides any other policy providers.
-  testing::NiceMock<policy::MockConfigurationPolicyProvider>
-      policy_for_profile_2_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 };
 
 IN_PROC_BROWSER_TEST_F(CertVerifierMultiProfileUserSettingsTest,

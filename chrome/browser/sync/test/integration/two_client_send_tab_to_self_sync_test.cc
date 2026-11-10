@@ -308,7 +308,6 @@ IN_PROC_BROWSER_TEST_P(TwoClientSendTabToSelfSyncTest,
 }
 
 // Transport mode isn't really supported on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 
 class TwoClientSendTabToSelfTransportModeSyncTest : public SyncTest {
  public:
@@ -366,5 +365,3 @@ IN_PROC_BROWSER_TEST_F(TwoClientSendTabToSelfTransportModeSyncTest,
                   ->GetSendTabToSelfModel()
                   ->HasValidTargetDevice());
 }
-
-#endif  // !BUILDFLAG(IS_CHROMEOS)

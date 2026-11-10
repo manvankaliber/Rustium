@@ -7,54 +7,41 @@
       <emit emit_type="prepend"/>
     </output>
 
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/af.pak" lang="af" type="data_package"/>
-    </if>
+
     <output filename="remoting/resources/am.pak" lang="am" type="data_package"/>
     <output filename="remoting/resources/ar.pak" lang="ar" type="data_package"/>
     <output filename="remoting/resources/bg.pak" lang="bg" type="data_package"/>
     <output filename="remoting/resources/bn.pak" lang="bn" type="data_package"/>
     <output filename="remoting/resources/ca.pak" lang="ca" type="data_package"/>
     <output filename="remoting/resources/cs.pak" lang="cs" type="data_package"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/cy.pak" lang="cy" type="data_package"/>
-    </if>
+
     <output filename="remoting/resources/da.pak" lang="da" type="data_package"/>
     <output filename="remoting/resources/de.pak" lang="de" type="data_package"/>
     <output filename="remoting/resources/el.pak" lang="el" type="data_package"/>
     <output filename="remoting/resources/en-GB.pak" lang="en-GB" type="data_package"/>
-    <if expr="is_linux or is_chromeos">
+    <if expr="is_linux">
       <output filename="remoting/resources/en-US.pak" lang="en" type="data_package"/>
     </if>
     <output filename="remoting/resources/en.pak" lang="en" type="data_package"/>
-    <if expr="is_ios">
-      <!-- iOS uses es-MX for es-419 -->
-      <output filename="remoting/resources/es-MX.pak" lang="es-419" type="data_package"/>
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="remoting/resources/es-419.pak" lang="es-419" type="data_package"/>
-    </if>
+
     <output filename="remoting/resources/es.pak" lang="es" type="data_package"/>
     <output filename="remoting/resources/et.pak" lang="et" type="data_package"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/eu.pak" lang="eu" type="data_package"/>
-    </if>
+
     <output filename="remoting/resources/fa.pak" lang="fa" type="data_package"/>
     <output filename="remoting/resources/fi.pak" lang="fi" type="data_package"/>
     <output filename="remoting/resources/fil.pak" lang="fil" type="data_package"/>
     <output filename="remoting/resources/fr.pak" lang="fr" type="data_package"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/gl.pak" lang="gl" type="data_package"/>
-    </if>
+
     <output filename="remoting/resources/gu.pak" lang="gu" type="data_package"/>
     <output filename="remoting/resources/he.pak" lang="he" type="data_package"/>
     <output filename="remoting/resources/hi.pak" lang="hi" type="data_package"/>
     <output filename="remoting/resources/hr.pak" lang="hr" type="data_package"/>
     <output filename="remoting/resources/hu.pak" lang="hu" type="data_package"/>
     <output filename="remoting/resources/id.pak" lang="id" type="data_package"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/is.pak" lang="is" type="data_package"/>
-    </if>
+
     <output filename="remoting/resources/it.pak" lang="it" type="data_package"/>
     <output filename="remoting/resources/ja.pak" lang="ja" type="data_package"/>
     <output filename="remoting/resources/kn.pak" lang="kn" type="data_package"/>
@@ -62,22 +49,17 @@
     <output filename="remoting/resources/lt.pak" lang="lt" type="data_package"/>
     <output filename="remoting/resources/lv.pak" lang="lv" type="data_package"/>
     <output filename="remoting/resources/ml.pak" lang="ml" type="data_package"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/mn.pak" lang="mn" type="data_package"/>
-    </if>
+
     <output filename="remoting/resources/mr.pak" lang="mr" type="data_package"/>
     <output filename="remoting/resources/ms.pak" lang="ms" type="data_package"/>
     <!-- The translation console uses 'no' for Norwegian (Bokmål), but we use 'nb'. -->
     <output filename="remoting/resources/nb.pak" lang="no" type="data_package"/>
     <output filename="remoting/resources/nl.pak" lang="nl" type="data_package"/>
     <output filename="remoting/resources/pl.pak" lang="pl" type="data_package"/>
-    <if expr="is_ios">
-      <!-- iOS uses pt for pt-BR -->
-      <output filename="remoting/resources/pt.pak" lang="pt-BR" type="data_package"/>
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="remoting/resources/pt-BR.pak" lang="pt-BR" type="data_package"/>
-    </if>
+
     <output filename="remoting/resources/pt-PT.pak" lang="pt-PT" type="data_package"/>
     <output filename="remoting/resources/ro.pak" lang="ro" type="data_package"/>
     <output filename="remoting/resources/ru.pak" lang="ru" type="data_package"/>
@@ -94,63 +76,48 @@
     <output filename="remoting/resources/vi.pak" lang="vi" type="data_package"/>
     <output filename="remoting/resources/zh-CN.pak" lang="zh-CN" type="data_package"/>
     <output filename="remoting/resources/zh-TW.pak" lang="zh-TW" type="data_package"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/zu.pak" lang="zu" type="data_package"/>
-    </if>
+
 
     <!-- Pseudolocales -->
     <output filename="remoting/resources/ar-XB.pak" lang="ar-XB" type="data_package"/>
     <output filename="remoting/resources/en-XA.pak" lang="en-XA" type="data_package"/>
 
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/_locales/af/messages.json" lang="af" type="chrome_messages_json"/>
-    </if>
+
     <output filename="remoting/resources/_locales/am/messages.json" lang="am" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/ar/messages.json" lang="ar" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/bg/messages.json" lang="bg" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/bn/messages.json" lang="bn" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/ca/messages.json" lang="ca" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/cs/messages.json" lang="cs" type="chrome_messages_json"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/_locales/cy/messages.json" lang="cy" type="chrome_messages_json"/>
-    </if>
+
     <output filename="remoting/resources/_locales/da/messages.json" lang="da" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/de/messages.json" lang="de" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/fa/messages.json" lang="fa" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/el/messages.json" lang="el" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/en/messages.json" lang="en" type="chrome_messages_json"/>
-    <if expr="is_linux or is_chromeos">
+    <if expr="is_linux">
       <!-- lang="en-US" will create an empty json file. -->
       <output filename="remoting/resources/_locales/en_US/messages.json" lang="en" type="chrome_messages_json"/>
     </if>
     <output filename="remoting/resources/_locales/en_GB/messages.json" lang="en-GB" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/es/messages.json" lang="es" type="chrome_messages_json"/>
-    <if expr="is_ios">
-      <!-- iOS uses es-MX for es-419 -->
-      <output filename="remoting/resources/_locales/es_MX/messages.json" lang="es-419" type="chrome_messages_json"/>
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="remoting/resources/_locales/es_419/messages.json" lang="es-419" type="chrome_messages_json"/>
-    </if>
+
     <output filename="remoting/resources/_locales/et/messages.json" lang="et" type="chrome_messages_json"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/_locales/eu/messages.json" lang="eu" type="chrome_messages_json"/>
-    </if>
+
     <output filename="remoting/resources/_locales/fi/messages.json" lang="fi" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/fil/messages.json" lang="fil" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/fr/messages.json" lang="fr" type="chrome_messages_json"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/_locales/gl/messages.json" lang="gl" type="chrome_messages_json"/>
-    </if>
+
     <output filename="remoting/resources/_locales/gu/messages.json" lang="gu" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/he/messages.json" lang="he" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/hi/messages.json" lang="hi" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/hr/messages.json" lang="hr" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/hu/messages.json" lang="hu" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/id/messages.json" lang="id" type="chrome_messages_json"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/_locales/is/messages.json" lang="is" type="chrome_messages_json"/>
-    </if>
+
     <output filename="remoting/resources/_locales/it/messages.json" lang="it" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/ja/messages.json" lang="ja" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/kn/messages.json" lang="kn" type="chrome_messages_json"/>
@@ -158,22 +125,17 @@
     <output filename="remoting/resources/_locales/lt/messages.json" lang="lt" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/lv/messages.json" lang="lv" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/ml/messages.json" lang="ml" type="chrome_messages_json"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/_locales/mn/messages.json" lang="mn" type="chrome_messages_json"/>
-    </if>
+
     <output filename="remoting/resources/_locales/mr/messages.json" lang="mr" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/ms/messages.json" lang="ms" type="chrome_messages_json"/>
     <!-- The translation console uses 'no' for Norwegian (Bokmål), but Chrome uses 'nb'. -->
     <output filename="remoting/resources/_locales/nb/messages.json" lang="no" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/nl/messages.json" lang="nl" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/pl/messages.json" lang="pl" type="chrome_messages_json"/>
-    <if expr="is_ios">
-      <!-- iOS uses pt for pt-BR -->
-      <output filename="remoting/resources/_locales/pt/messages.json" lang="pt-BR" type="chrome_messages_json"/>
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="remoting/resources/_locales/pt_BR/messages.json" lang="pt-BR" type="chrome_messages_json"/>
-    </if>
+
     <output filename="remoting/resources/_locales/pt_PT/messages.json" lang="pt-PT" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/ro/messages.json" lang="ro" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/ru/messages.json" lang="ru" type="chrome_messages_json"/>
@@ -190,9 +152,7 @@
     <output filename="remoting/resources/_locales/vi/messages.json" lang="vi" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/zh_CN/messages.json" lang="zh-CN" type="chrome_messages_json"/>
     <output filename="remoting/resources/_locales/zh_TW/messages.json" lang="zh-TW" type="chrome_messages_json"/>
-    <if expr="is_chromeos">
-      <output filename="remoting/resources/_locales/zu/messages.json" lang="zu" type="chrome_messages_json"/>
-    </if>
+
 
     <!-- Pseudolocales -->
     <output filename="remoting/resources/_locales/ar_XB/messages.json" lang="ar-XB" type="chrome_messages_json"/>
@@ -286,17 +246,7 @@
     <messages fallback_to_english="true">
 
       <if expr="_google_chrome">
-        <if expr="is_android or is_ios">
-          <message desc="Message shown in popup dialog on Android when there are no Google accounts on the device" name="IDS_NOACCOUNTS_MESSAGE" formatter_data="android_java">
-          To use Chrome Remote Desktop, you'll need to add a Google Account to your device.
-          </message>
-          <message desc="The product name, as displayed on Android devices. Ideally this would be 'Chrome Remote Desktop', but that name is too long to be displayed in the Android Launcher. Try to keep the translation below 16 characters if possible." name="IDS_PRODUCT_NAME_ANDROID" formatter_data="android_java">
-            Remote Desktop
-          </message>
-          <message desc="The product name, as displayed on iOS devices. Ideally this would be 'Chrome Remote Desktop', but the iOS launcher can only show about 10 characters without being clipped. Event 'Remote Desktop' will be shown as 'Remote De...'. Try to keep the translation as short as possible." name="IDS_IOS_DISPLAY_NAME">
-            Remote Desktop
-          </message>
-        </if>  <!-- is_android or is_ios -->
+          <!-- is_android or is_ios -->
 
         <message desc="Error displayed if authentication fails. This can be caused by stale credentials, in which logging out of the web-app and retrying can fix the problem." name="IDS_ERROR_AUTHENTICATION_FAILED" formatter_data="android_java">
           Authentication failed. Please sign in to Chrome again.
@@ -328,17 +278,7 @@
       </if>  <!-- _google_chrome -->
 
       <if expr="not _google_chrome">
-        <if expr="is_android or is_ios">
-          <message desc="Message shown in popup dialog on Android when there are no Google accounts on the device" name="IDS_NOACCOUNTS_MESSAGE" formatter_data="android_java">
-            To use Chromoting, you'll need to add a Google Account to your device.
-          </message>
-          <message desc="The product name, as displayed on Android devices. Try to keep the translation below 16 characters if possible." name="IDS_PRODUCT_NAME_ANDROID" formatter_data="android_java">
-            Chromoting
-          </message>
-          <message desc="The product name, as displayed on iOS devices. Try to keep the translation below 10 characters if possible." name="IDS_IOS_DISPLAY_NAME">
-            Chromoting
-          </message>
-        </if>  <!-- is_android or is_ios -->
+          <!-- is_android or is_ios -->
 
         <message desc="Error displayed if authentication fails. This can be caused by stale credentials, in which logging out of the web-app and retrying can fix the problem." name="IDS_ERROR_AUTHENTICATION_FAILED" formatter_data="android_java">
           Authentication failed. Please sign in to Chromium again.
@@ -385,86 +325,9 @@
         Connection failed
       </message>
 
-      <if expr="is_android or is_ios">
-        <message desc="Button to show or hide the on-screen keyboard." name="IDS_SHOW_HIDE_KEYBOARD" formatter_data="android_java">
-          Show/hide keyboard.
-        </message>
-        <message desc="Button to show the on-screen keyboard." name="IDS_SHOW_KEYBOARD">
-          Show keyboard
-        </message>
-        <message desc="Button to show the on-screen keyboard." name="IDS_HIDE_KEYBOARD">
-          Hide keyboard
-        </message>
-        <message desc="Menu item to select the Touch input mode. In this mode, there is no visible mouse pointer and the user must tap on the screen to simulate a left-click." name="IDS_SELECT_TOUCH_MODE" formatter_data="android_java">
-          Touch mode
-        </message>
-        <message desc="Menu item to select the Trackpad input mode. In this mode, the mouse cursor is visible and the screen acts as a laptop's trackpad." name="IDS_SELECT_TRACKPAD_MODE" formatter_data="android_java">
-          Trackpad mode
-        </message>
-        <message desc="Message displayed in the Android application if the user has not set up any computers for remote access." name="IDS_HOST_LIST_EMPTY_ANDROID" formatter_data="android_java">
-          There's nothing to connect to
-        </message>
-        <message desc="Instruction displayed in the Android application if the user has not set up any computers for remote access. It appears after some larger text which states that the user has no computers to connect to." name="IDS_HOST_LIST_EMPTY_INSTRUCTIONS_ANDROID" formatter_data="android_java">
-          You need to first set up your computer for remote access
-        </message>
-        <message desc="This button appears below some text which explains that the user needs to set up a computer for remote access. When a user activates the button, they are taken to a web page that explains how to set up a Chromoting host." name="IDS_HOST_SETUP_LINK_ANDROID" formatter_data="android_java">
-          Learn how
-        </message>
-        <message desc="Title of the authentication dialog" name="IDS_TITLE_AUTHENTICATE" formatter_data="android_java">
-          Authenticate to host
-        </message>
-        <message desc="Android application menu item for sending product feedback to the developers" name="IDS_ACTIONBAR_SEND_FEEDBACK" formatter_data="android_java">
-          Send Feedback
-        </message>
-        <message desc="Title displayed in the action-bar for the Android Help screen" name="IDS_ACTIONBAR_HELP_TITLE" formatter_data="android_java">
-          Help
-        </message>
-        <message desc="Android application menu item for showing the Help screen" name="IDS_ACTIONBAR_HELP" formatter_data="android_java">
-          Help
-        </message>
-        <message desc="Android action-bar menu item for viewing the Play Store page for the application" name="IDS_ACTIONBAR_PLAY_STORE" formatter_data="android_java">
-          View in Google Play Store
-        </message>
-        <message desc="Label for the button on the Android popup dialog that is shown when there are no Google accounts on the device. Pressing this button launches the Android system screen for adding a new Google account to the device." name="IDS_NOACCOUNTS_ADD_ACCOUNT" formatter_data="android_java">
-          Add account
-        </message>
-        <message desc="Button which appears below the user's current account name. Pressing it brings up an account-chooser dialog." name="IDS_CHANGE_ACCOUNT" formatter_data="android_java">
-          Change account
-        </message>
-        <message desc="Error that is shown if a network error occurs, including the case where the device is off-line." name="IDS_ERROR_NETWORK_ERROR" formatter_data="android_java">
-          A network error occurred. Please check that your device is on-line and try again.
-        </message>
-        <message desc="Text shown in tooltip when user touches an offline host on the device." name="IDS_HOST_OFFLINE_TOOLTIP" formatter_data="android_java">
-          Host is offline.
-        </message>
-        <message name="IDS_THIRD_PARTY_AUTH_NOT_SUPPORTED" desc="Error message shown when the user attempts to connect to a remote device under third party authentication, which is currently unsupported by the client.">
-          This device is not supported by this client because it requires third party authentication.
-        </message>
-        <message name="IDS_REPORT_THIS" desc="Label text for a button to report a connection failure to the developers.">
-          Report this
-        </message>
-        <message name="IDS_TERMS_OF_SERVICE" desc="The label to access the terms of service, displayed in navigation menu." formatter_data="android_java">
-          Terms of Service
-        </message>
-        <message name="IDS_PRIVACY_POLICY" desc="The label to access the privacy policy, displayed in navigation menu." formatter_data="android_java">
-          Privacy Policy
-        </message>
-        <message name="IDS_DISMISS" desc="Label for button to dismiss a dialog" formatter_data="android_java">
-          Dismiss
-        </message>
-        <message name="IDS_DONT_SHOW_AGAIN" desc="Label for checkbox to make a dialog not showing again." formatter_data="android_java">
-          Don't show again
-        </message>
-      </if>  <!-- is_android or is_ios -->
+        <!-- is_android or is_ios -->
 
-      <if expr="is_ios">
-        <message desc="Initial screen's title, welcoming the user." name="IDS_WELCOME">
-          Welcome
-        </message>
-        <message desc="Initial screen's subtitle, with a short description of the app" name="IDS_SHORT_DESCRIPTION">
-          Access your computer securely over the Internet
-        </message>
-      </if> <!-- is_ios -->
+       <!-- is_ios -->
 
       <message desc="Title for a list of devices that an be accessed remotely." name="IDS_REMOTE_DEVICES_TITLE">
         Remote devices
@@ -634,7 +497,7 @@
       <message desc="Label for general-purpose OK buttons." name="IDS_OK">
         OK
       </message>
-      <if expr="not is_android">
+
         <message desc="Short message being popped up whenever the user selects an account from a list displayed in the application." name="IDS_LOG_IN_ACCOUNT_DESCRIPTION" meaning="UI element">
           Signed in as <ph name="EMAIL_ADDRESS">$1<ex>test@gmail.com</ex></ph>.
         </message>
@@ -644,7 +507,7 @@
         <message desc="Modified version of the host name shown for hosts that are not currently accessible." name="IDS_LAST_ONLINE">
           <ph name="HOSTNAME">$1<ex>My Linux desktop</ex></ph> (last online <ph name="DATE_OR_TIME">$2<ex>1/6/2013 or 11:23:32 AM</ex></ph>)
         </message>
-      </if>
+
       <message desc="Error message indicating that the host is offline, because the host failed to initialize (i.e. failed to generate a host certificate, run out of memory early during startup, failed to set up inter-process communication, etc.)."
                name="IDS_OFFLINE_REASON_INITIALIZATION_FAILED" formatter_data="android_java">
         Host initialization failed.
@@ -697,12 +560,12 @@
                name="IDS_OFFLINE_REASON_HOST_RETRIES_EXCEEDED" formatter_data="android_java">
         Host crashed or failed to start.
       </message>
-      <if expr="not is_android">
+
         <message desc="Description of why host is offline, when client gets a host-offline-reason it doesn't recognize."
                  name="IDS_OFFLINE_REASON_UNKNOWN">
           Unrecognized host error: <ph name="HOST_OFFLINE_REASON">$1<ex>EXIT_CODE_FROM_HOST_NEWER_THAN_CLIENT</ex></ph>.
         </message>
-      </if>
+
       <message desc="Label for the PIN entry box." name="IDS_PIN">
         PIN
       </message>

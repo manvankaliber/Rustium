@@ -474,20 +474,18 @@ class DesktopCaptureDeviceTest : public testing::TestWithParam<bool> {
 // Capturer implementation for Fuchsia is not fully functional.
 // TODO(crbug.com/445218901): Capturer implementation for Android needs user
 // input to work.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_P(DesktopCaptureDeviceTest, Capture) {
   std::unique_ptr<webrtc::DesktopCapturer> capturer(
       desktop_capture::CreateScreenCapturer(
           webrtc::DesktopCaptureOptions::CreateDefault(),
           /*for_snapshot=*/false));
 
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && \
-    !BUILDFLAG(SUPPORTS_OZONE_X11)
+#if BUILDFLAG(IS_LINUX) && !BUILDFLAG(SUPPORTS_OZONE_X11)
   // webrtc::DesktopCapturer is only supported on Ozone X11 by default.
   // TODO(webrtc/13429): Enable for Wayland.
   EXPECT_FALSE(capturer);
   GTEST_SKIP();
-#endif  // (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) &&
+#endif
         // !BUILDFLAG(SUPPORTS_OZONE_X11)
 
   EXPECT_TRUE(capturer);
@@ -517,7 +515,6 @@ TEST_P(DesktopCaptureDeviceTest, Capture) {
   EXPECT_GT(format.frame_size.height(), 0);
   EXPECT_EQ(kFrameRate, format.frame_rate);
 }
-#endif
 
 // Test that screen capturer behaves correctly if the source frame size changes
 // but the caller cannot cope with variable resolution output.

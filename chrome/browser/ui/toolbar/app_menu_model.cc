@@ -177,18 +177,12 @@
 #include "ui/gfx/text_elider.h"
 #include "ui/menus/simple_menu_model.h"
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "base/feature_list.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/policy/system_features_disable_list_policy_handler.h"
-#include "components/policy/core/common/policy_pref_names.h"
-#include "ui/display/screen.h"
-#else
 #include "chrome/browser/ui/webui/signin/signin_ui_error.h"
 #include "chrome/browser/ui/webui/signin/signin_utils_desktop.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/time/time.h"
@@ -278,7 +272,6 @@ const gfx::VectorIcon& GetSendTabToSelfIcon() {
                                            : kDevicesChromeRefreshOldIcon;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 std::u16string GetSyncSectionTitle(Profile* profile,
                                    signin::IdentityManager* identity_manager) {
   const AccountInfo account = GetAccountInfoFromProfile(profile);
@@ -732,7 +725,6 @@ void ProfileSubMenuModel::BuildManageGoogleAccountRow(Profile* profile) {
                                      manage_account_icon);
   }
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 class PasswordsAndAutofillSubMenuModel : public ui::SimpleMenuModel {
  public:
@@ -955,11 +947,7 @@ HelpMenuModel::HelpMenuModel(ui::SimpleMenuModel::Delegate* delegate,
 HelpMenuModel::~HelpMenuModel() = default;
 
 void HelpMenuModel::Build(BrowserWindowInterface* browser) {
-#if BUILDFLAG(IS_CHROMEOS) && defined(OFFICIAL_BUILD)
-  int help_string_id = IDS_GET_HELP;
-#else
   int help_string_id = IDS_HELP_PAGE;
-#endif
   AddItemWithStringIdAndVectorIcon(this, IDC_ABOUT, IDS_ABOUT,
                                    features::IsRoundedIconsEnabled()
                                        ? vector_icons::kInfoIcon
@@ -1064,9 +1052,6 @@ void ToolsMenuModel::Build(BrowserWindowInterface* browser) {
   // Tablet mode does not have a Tab Search button. We should not show tablet
   // mode users these menu items.
   bool is_tablet_mode = false;
-#if BUILDFLAG(IS_CHROMEOS)
-  is_tablet_mode = display::Screen::Get()->InTabletMode();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   if (!is_tablet_mode) {
     AddItemWithStringIdAndVectorIcon(this, IDC_TAB_SEARCH, IDS_TAB_SEARCH_MENU,
                                      features::IsRoundedIconsEnabled()
@@ -1132,9 +1117,6 @@ void ToolsMenuModel::Build(BrowserWindowInterface* browser) {
                                      IDS_TASK_MANAGER,
                                      vector_icons::kTableChartIcon);
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  AddItemWithStringId(IDC_TAKE_SCREENSHOT, IDS_TAKE_SCREENSHOT);
-#endif
   AddSeparator(ui::NORMAL_SEPARATOR);
   AddItemWithStringIdAndVectorIcon(
       this, IDC_DEV_TOOLS, IDS_DEV_TOOLS,
@@ -1266,17 +1248,6 @@ AppMenuModel::~AppMenuModel() = default;
 void AppMenuModel::Init() {
   Build();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  PrefService* const local_state = g_browser_process->local_state();
-  if (local_state) {
-    local_state_pref_change_registrar_.Init(local_state);
-    local_state_pref_change_registrar_.Add(
-        policy::policy_prefs::kSystemFeaturesDisableList,
-        base::BindRepeating(&AppMenuModel::UpdateSettingsItemState,
-                            base::Unretained(this)));
-    UpdateSettingsItemState();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 bool AppMenuModel::DoesCommandIdDismissMenu(int command_id) const {
@@ -1838,7 +1809,6 @@ void AppMenuModel::LogMenuMetrics(int command_id) {
       break;
 
       // Profile submenu.
-#if !BUILDFLAG(IS_CHROMEOS)
     case IDC_CUSTOMIZE_CHROME:
       if (!uma_action_recorded_) {
         base::UmaHistogramMediumTimes("WrenchMenu.TimeToAction.CustomizeChrome",
@@ -1909,7 +1879,6 @@ void AppMenuModel::LogMenuMetrics(int command_id) {
       }
       LogMenuAction(MENU_ACTION_MANAGE_CHROME_PROFILES);
       break;
-#endif
 
     // Reading list submenu.
     case IDC_READING_LIST_MENU_ADD_TAB:
@@ -2201,7 +2170,6 @@ void AppMenuModel::Build() {
 
   AddSeparator(ui::NORMAL_SEPARATOR);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   sub_menus_.push_back(std::make_unique<ProfileSubMenuModel>(
       this, browser()->GetProfile(),
       BrowserWindow::FromBrowser(browser())->GetColorProvider()));
@@ -2216,7 +2184,6 @@ void AppMenuModel::Build() {
   SetAccessibleNameAt(GetIndexOfCommandId(kProfileMenuPlaceholder).value(),
                       profile_submenu_model->accessible_name());
   AddSeparator(ui::SPACING_SEPARATOR);
-#endif
 
   if (!browser_->GetProfile()->IsGuestSession()) {
     sub_menus_.push_back(
@@ -2458,20 +2425,6 @@ void AppMenuModel::Build() {
       GetIndexOfCommandId(kSaveAndShareMenuPlaceholder).value(),
       kSaveAndShareMenuItem);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Always show this option if we're in tablet mode on Chrome OS.
-  if (display::Screen::Get()->InTabletMode()) {
-    AddItemWithStringIdAndVectorIcon(
-        this, IDC_TOGGLE_REQUEST_TABLET_SITE, IDS_TOGGLE_REQUEST_TABLET_SITE,
-        chrome::IsRequestingTabletSite(browser_)
-            ? features::IsRoundedIconsEnabled()
-                  ? kMobileCheckIcon
-                  : kRequestMobileSiteCheckedOldIcon
-        : features::IsRoundedIconsEnabled()
-            ? kMobileIcon
-            : kRequestMobileSiteUncheckedOldIcon);
-  }
-#endif
 
   sub_menus_.push_back(std::make_unique<ToolsMenuModel>(this, browser_));
   AddSubMenuWithStringIdAndVectorIcon(
@@ -2494,14 +2447,10 @@ void AppMenuModel::Build() {
   SetElementIdentifierAt(GetIndexOfCommandId(kHelpMenuPlaceholder).value(),
                          kHelpMenuItem);
 #else
-#if BUILDFLAG(IS_CHROMEOS)
-  AddItem(IDC_ABOUT, l10n_util::GetStringUTF16(IDS_ABOUT));
-#else
   AddItemWithStringIdAndVectorIcon(this, IDC_ABOUT, IDS_ABOUT,
                                    features::IsRoundedIconsEnabled()
                                        ? vector_icons::kInfoIcon
                                        : vector_icons::kInfoRefreshOldIcon);
-#endif
 #endif
 
   AddItemWithStringIdAndVectorIcon(
@@ -2516,7 +2465,6 @@ void AppMenuModel::Build() {
 
   // On Chrome OS, similar UI is displayed in the system tray menu, instead of
   // this menu.
-#if !BUILDFLAG(IS_CHROMEOS)
   if (ShouldDisplayManagedUi(browser_->GetProfile())) {
     AddSeparator(ui::NORMAL_SEPARATOR);
     AddItemWithIcon(
@@ -2535,7 +2483,6 @@ void AppMenuModel::Build() {
     }
 #endif  // BUILDFLAG(IS_LINUX)
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   uma_action_recorded_ = false;
 }
@@ -2613,7 +2560,6 @@ bool AppMenuModel::AddGlobalErrorMenuItems() {
   return menu_items_added;
 }
 bool AppMenuModel::AddDefaultBrowserMenuItems() {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   if (DefaultBrowserPromptManager::GetInstance()->ShouldShowAppMenuItem(
           browser_->GetProfile())) {
     AddItemWithIcon(
@@ -2628,7 +2574,6 @@ bool AppMenuModel::AddDefaultBrowserMenuItems() {
                            AppMenuModel::kSetBrowserAsDefaultMenuItem);
     return true;
   }
-#endif
   return false;
 }
 
@@ -2656,34 +2601,3 @@ bool AppMenuModel::AddSafetyHubMenuItem() {
                           base::Unretained(this), notification->module));
   return true;
 }
-
-#if BUILDFLAG(IS_CHROMEOS)
-void AppMenuModel::UpdateSettingsItemState() {
-  bool is_disabled =
-      policy::SystemFeaturesDisableListPolicyHandler::IsSystemFeatureDisabled(
-          policy::SystemFeature::kBrowserSettings,
-          g_browser_process->local_state());
-
-  std::optional<size_t> index = GetIndexOfCommandId(IDC_OPTIONS);
-  if (index.has_value()) {
-    SetEnabledAt(index.value(), !is_disabled);
-  }
-
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-  index = GetIndexOfCommandId(kHelpMenuPlaceholder);
-  if (index.has_value()) {
-    ui::SimpleMenuModel* help_menu =
-        static_cast<ui::SimpleMenuModel*>(GetSubmenuModelAt(index.value()));
-    index = help_menu->GetIndexOfCommandId(IDC_ABOUT);
-    if (index.has_value()) {
-      help_menu->SetEnabledAt(index.value(), !is_disabled);
-    }
-  }
-#else   // BUILDFLAG(GOOGLE_CHROME_BRANDING)
-  index = GetIndexOfCommandId(IDC_ABOUT);
-  if (index.has_value()) {
-    SetEnabledAt(index.value(), !is_disabled);
-  }
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)

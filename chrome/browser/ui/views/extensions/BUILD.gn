@@ -21,9 +21,8 @@ source_set("extension_post_install_dialog_view_utils") {
     "//ui/color",
     "//ui/views",
   ]
-  if (!is_android && !is_chromeos) {
-    deps += [ "//chrome/browser/signin" ]
-  }
+
+  deps += [ "//chrome/browser/signin" ]
 }
 
 source_set("settings_overridden_dialog_view_utils") {
@@ -272,15 +271,6 @@ source_set("unit_tests") {
     "//ui/views",
     "//ui/views:test_support",
   ]
-
-  if (is_chromeos) {
-    sources += [ "media_galleries_dialog_views_unittest.cc" ]
-    deps += [
-      ":media_galleries_dialog_views",
-      ":media_gallery_checkbox_view",
-      "//chrome/browser/media_galleries:test_support",
-    ]
-  }
 }
 
 source_set("browser_tests") {
@@ -292,113 +282,88 @@ source_set("browser_tests") {
     "//chrome/browser/ui/views/frame:browser_view_header",
   ]
 
-  if (!is_android) {
-    sources += [
-      "device_chooser_extension_browsertest.cc",
-      "extension_install_dialog_view_browsertest.cc",
-      "extension_install_dialog_view_supervised_browsertest.cc",
-      "extension_post_install_dialog_view_utils_browsertest.cc",
-      "extensions_menu_entry_browsertest.cc",
-      "extensions_menu_item_browsertest.cc",
-      "extensions_menu_main_page_view_browsertest.cc",
-      "extensions_menu_site_permissions_page_view_browsertest.cc",
-      "extensions_menu_view_browsertest.cc",
-      "extensions_request_access_hover_card_coordinator_browsertest.cc",
-      "extensions_toolbar_browsertest.cc",
-      "extensions_toolbar_browsertest.h",
-      "extensions_toolbar_button_browsertest.cc",
-      "extensions_toolbar_desktop_browsertest.cc",
-      "generic_mime_handler_chip_browsertest.cc",
-      "security_dialog_tracker_browsertest.cc",
-    ]
-    deps += [
-      ":extension_install_dialog_view",
-      ":extension_popup",
-      ":extension_post_install_dialog_view_utils",
-      ":extension_view_utils",
-      ":extensions_menu_button",
-      ":extensions_menu_coordinator",
-      ":extensions_menu_delegate_desktop",
-      ":extensions_menu_entry_view",
-      ":extensions_menu_item_view",
-      ":extensions_menu_main_page_view",
-      ":extensions_menu_site_permissions_page_view",
-      ":extensions_menu_view",
-      ":extensions_request_access_button",
-      ":extensions_request_access_hover_card_coordinator",
-      ":extensions_toolbar_button",
-      ":extensions_views_utils",
-      ":security_dialog_tracker",
-      ":test_support",
-      "//base",
-      "//base/test:test_support",
-      "//build:buildflag_header_h",
-      "//chrome/browser/extensions:test_support",
-      "//chrome/browser/picture_in_picture:test_support_ui",
-      "//chrome/browser/ui:browser_tabstrip",
-      "//chrome/browser/ui:ui_features",
-      "//chrome/browser/ui/extensions:extension_post_install_dialog",
-      "//chrome/browser/ui/test:dialog",
-      "//chrome/browser/ui/toolbar:test_support",
-      "//chrome/browser/ui/views/page_info",
-      "//chrome/test:test_support",
-      "//content/test:test_support",
-      "//extensions:test_support",
-      "//extensions/browser",
-      "//extensions/browser:webstore_installer",
-      "//extensions/common",
-      "//extensions/common:extension_features",
-      "//net:test_support",
-      "//testing/gmock",
-      "//testing/gtest",
-      "//ui/events:test_support",
-      "//ui/views",
-      "//ui/views:test_support",
-      "//url",
-    ]
-    if (use_aura && !is_chromeos) {
-      deps += [ "//chrome/browser/ui/views:native_widget_factory" ]
-    }
-    if (use_ozone) {
-      deps += [ "//ui/ozone" ]
-    }
+  sources += [
+    "device_chooser_extension_browsertest.cc",
+    "extension_install_dialog_view_browsertest.cc",
+    "extension_install_dialog_view_supervised_browsertest.cc",
+    "extension_post_install_dialog_view_utils_browsertest.cc",
+    "extensions_menu_entry_browsertest.cc",
+    "extensions_menu_item_browsertest.cc",
+    "extensions_menu_main_page_view_browsertest.cc",
+    "extensions_menu_site_permissions_page_view_browsertest.cc",
+    "extensions_menu_view_browsertest.cc",
+    "extensions_request_access_hover_card_coordinator_browsertest.cc",
+    "extensions_toolbar_browsertest.cc",
+    "extensions_toolbar_browsertest.h",
+    "extensions_toolbar_button_browsertest.cc",
+    "extensions_toolbar_desktop_browsertest.cc",
+    "generic_mime_handler_chip_browsertest.cc",
+    "security_dialog_tracker_browsertest.cc",
+  ]
+  deps += [
+    ":extension_install_dialog_view",
+    ":extension_popup",
+    ":extension_post_install_dialog_view_utils",
+    ":extension_view_utils",
+    ":extensions_menu_button",
+    ":extensions_menu_coordinator",
+    ":extensions_menu_delegate_desktop",
+    ":extensions_menu_entry_view",
+    ":extensions_menu_item_view",
+    ":extensions_menu_main_page_view",
+    ":extensions_menu_site_permissions_page_view",
+    ":extensions_menu_view",
+    ":extensions_request_access_button",
+    ":extensions_request_access_hover_card_coordinator",
+    ":extensions_toolbar_button",
+    ":extensions_views_utils",
+    ":security_dialog_tracker",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//build:buildflag_header_h",
+    "//chrome/browser/extensions:test_support",
+    "//chrome/browser/picture_in_picture:test_support_ui",
+    "//chrome/browser/ui:browser_tabstrip",
+    "//chrome/browser/ui:ui_features",
+    "//chrome/browser/ui/extensions:extension_post_install_dialog",
+    "//chrome/browser/ui/test:dialog",
+    "//chrome/browser/ui/toolbar:test_support",
+    "//chrome/browser/ui/views/page_info",
+    "//chrome/test:test_support",
+    "//content/test:test_support",
+    "//extensions:test_support",
+    "//extensions/browser",
+    "//extensions/browser:webstore_installer",
+    "//extensions/common",
+    "//extensions/common:extension_features",
+    "//net:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//ui/events:test_support",
+    "//ui/views",
+    "//ui/views:test_support",
+    "//url",
+  ]
+  if (use_aura) {
+    deps += [ "//chrome/browser/ui/views:native_widget_factory" ]
+  }
+  if (use_ozone) {
+    deps += [ "//ui/ozone" ]
   }
 
-  if (!is_android && !is_chromeos) {
-    sources +=
-        [ "extension_post_install_dialog_view_utils_signin_browsertest.cc" ]
-    deps += [
-      "//chrome/browser/ui/signin",
-      "//components/signin/public/identity_manager:test_support",
-    ]
-  }
-
-  if (is_chromeos) {
-    sources += [
-      "dialogs/document_scanner_discovery_confirmation_dialog_browsertest.cc",
-      "dialogs/document_scanner_start_scan_confirmation_dialog_browsertest.cc",
-      "dialogs/request_file_system_dialog_browsertest.cc",
-      "extension_dialog_bounds_browsertest.cc",
-      "media_galleries_dialog_views_browsertest.cc",
-    ]
-    deps += [
-      ":media_galleries_dialog_views",
-      ":media_gallery_checkbox_view",
-      "//chrome/browser/media_galleries:test_support",
-      "//chrome/browser/ui:browser_select_file_dialog_controller",
-      "//chrome/browser/ui/views/extensions/dialogs:document_scanner_discovery_confirmation_dialog",
-      "//chrome/browser/ui/views/extensions/dialogs:document_scanner_start_scan_confirmation_dialog",
-      "//chrome/browser/ui/views/extensions/dialogs:request_file_system_dialog",
-    ]
-  }
+  sources +=
+      [ "extension_post_install_dialog_view_utils_signin_browsertest.cc" ]
+  deps += [
+    "//chrome/browser/ui/signin",
+    "//components/signin/public/identity_manager:test_support",
+  ]
 }
 
 source_set("interactive_ui_tests") {
   testonly = true
   defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
   sources = [
-    "dialogs/confirm_protocol_handler_dialog_interactive_uitest.cc",
-    "dialogs/extension_install_friction_dialog_interactive_uitest.cc",
     "extension_popup_interactive_uitest.cc",
     "extensions_menu_main_page_view_interactive_uitest.cc",
     "extensions_menu_site_permissions_page_view_interactive_uitest.cc",
@@ -500,49 +465,6 @@ source_set("extensions_views_utils") {
     "//ui/color",
     "//ui/events",
   ]
-}
-
-if (is_chromeos) {
-  source_set("media_gallery_checkbox_view") {
-    public = [ "media_gallery_checkbox_view.h" ]
-    sources = [ "media_gallery_checkbox_view.cc" ]
-    public_deps = [
-      "//base",
-      "//ui/base/metadata",
-      "//ui/views",
-    ]
-    deps = [
-      "//chrome/browser/media_galleries",
-      "//chrome/browser/ui/views:layout_provider",
-      "//skia",
-      "//ui/gfx/geometry",
-    ]
-  }
-
-  source_set("media_galleries_dialog_views") {
-    public = [ "media_galleries_dialog_views.h" ]
-    sources = [ "media_galleries_dialog_views.cc" ]
-    public_deps = [
-      "//base",
-      "//chrome/browser/media_galleries",
-      "//ui/base/metadata",
-      "//ui/base/mojom:ui_base_types",
-      "//ui/views",
-    ]
-    deps = [
-      ":media_gallery_checkbox_view",
-      "//chrome/app:generated_resources",
-      "//chrome/app/resources:locale_settings",
-      "//chrome/browser/ui/views:layout_provider",
-      "//components/constrained_window",
-      "//components/web_modal",
-      "//content/public/browser",
-      "//ui/base",
-      "//ui/gfx",
-      "//ui/gfx/geometry",
-      "//ui/native_theme",
-    ]
-  }
 }
 
 source_set("extension_view_utils") {

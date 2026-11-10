@@ -46,11 +46,8 @@
 #include "components/visited_url_ranking/public/url_visit_util.h"
 #include "components/visited_url_ranking/public/visited_url_ranking_service.h"
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/visited_url_ranking/desktop_tab_model_url_visit_data_fetcher.h"
-#elif BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/visited_url_ranking/android_tab_model_url_visit_data_fetcher.h"
 #endif
 
 namespace visited_url_ranking {
@@ -120,16 +117,10 @@ VisitedURLRankingServiceFactory::BuildServiceInstanceForBrowserContext(
   }
 
   std::map<Fetcher, std::unique_ptr<URLVisitDataFetcher>> data_fetchers;
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   data_fetchers.emplace(
       Fetcher::kTabModel,
       std::make_unique<visited_url_ranking::DesktopTabModelURLVisitDataFetcher>(
-          profile));
-#elif BUILDFLAG(IS_ANDROID)
-  data_fetchers.emplace(
-      Fetcher::kTabModel,
-      std::make_unique<visited_url_ranking::AndroidTabModelURLVisitDataFetcher>(
           profile));
 #endif
 
@@ -179,19 +170,6 @@ VisitedURLRankingServiceFactory::BuildServiceInstanceForBrowserContext(
   transformers.emplace(URLVisitAggregatesTransformType::kRecencyFilter,
                        std::make_unique<RecencyFilterTransformer>());
 
-#if BUILDFLAG(IS_ANDROID)
-  base::flat_set<std::string_view> default_app_blocklist(
-      kDefaultAppBlocklist.begin(), kDefaultAppBlocklist.end());
-  auto default_app_transformer =
-      std::make_unique<DefaultAppURLVisitAggregatesTransformer>(
-          std::move(default_app_blocklist));
-  transformers.emplace(URLVisitAggregatesTransformType::kDefaultAppUrlFilter,
-                       std::move(default_app_transformer));
-  transformers.emplace(
-      URLVisitAggregatesTransformType::kHistoryBrowserTypeFilter,
-      std::make_unique<HistoryURLVisitAggregatesBrowserTypeTransformer>());
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
   return std::make_unique<VisitedURLRankingServiceImpl>(
       sps, std::move(data_fetchers), std::move(transformers),

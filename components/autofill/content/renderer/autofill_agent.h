@@ -135,7 +135,7 @@ class AutofillAgent : public content::RenderFrameObserver,
     // Is true iff the platform doesn't show any popups but renders the same
     // information in or near the keyboard instead.
     UsesKeyboardAccessoryForSuggestions uses_keyboard_accessory_for_suggestions{
-        BUILDFLAG(IS_ANDROID)};
+        false};
 
     // Controls whether the keyboard accessory is dynamically positioned near
     // the focused field rather than docked at the bottom of the screen.

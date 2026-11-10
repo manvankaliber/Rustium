@@ -10,7 +10,7 @@ mojom_component("mojom") {
   output_prefix = "ui_base_mojom"
   macro_prefix = "UI_BASE_MOJOM"
   generate_blink = true
-  generate_java = true
+
   sources = [
     "themes.mojom",
     "ui_base_types.mojom",
@@ -57,7 +57,7 @@ mojom_component("mojom") {
 # ui_base_types.mojom.
 mojom("ui_base_types") {
   generate_blink = true
-  generate_java = true
+
   sources = [
     "dialog_button.mojom",
     "menu_source_type.mojom",

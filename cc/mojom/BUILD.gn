@@ -30,8 +30,8 @@ mojom("mojom") {
   ]
 
   public_deps = [
-    ":android_mojo_bindings",
     ":mojom_browser_controls",
+    ":shared_mojo_bindings",
     "//mojo/public/mojom/base",
     "//services/viz/public/mojom",
     "//skia/public/mojom",
@@ -147,9 +147,9 @@ mojom("mojom_browser_controls") {
   deps = [ "//services/viz/public/mojom:surfaces" ]
 }
 
-mojom("android_mojo_bindings") {
+mojom("shared_mojo_bindings") {
   generate_blink = true
-  generate_java = true
+
   sources = [ "root_scroll_offset_update_frequency.mojom" ]
 
   export_class_attribute_blink = "BLINK_PLATFORM_EXPORT"

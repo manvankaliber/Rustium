@@ -38,13 +38,7 @@
 #include "ui/base/ime/init/input_method_initializer.h"
 #endif
 
-#if BUILDFLAG(IS_IOS)
-#include "content/shell/browser/shell_devtools_manager_delegate.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "content/public/test/network_connection_change_simulator.h"
-#endif
 
 #if defined(USE_AURA) && defined(TOOLKIT_VIEWS)
 #include "ui/views/test/widget_test_api.h"  // nogncheck
@@ -115,7 +109,7 @@ void ContentBrowserTest::SetUp() {
   fake_window_focus_ = std::make_unique<ui::test::ScopedFakeNSWindowFocus>();
 #endif
 
-#if defined(USE_AURA) && defined(TOOLKIT_VIEWS) && !BUILDFLAG(IS_CASTOS)
+#if defined(USE_AURA) && defined(TOOLKIT_VIEWS)
   // https://crbug.com/695054: Ignore window activation/deactivation to make
   // the Chrome-internal focus unaffected by OS events caused by running tests
   // in parallel.
@@ -131,9 +125,6 @@ void ContentBrowserTest::SetUp() {
 
 // Enable this switch to prevent undesired viewport resizing for the scaling
 // issue addressed in https://crrev.com/c/4615623.
-#if BUILDFLAG(IS_IOS)
-  command_line->AppendSwitch(switches::kPreventResizingContentsForTesting);
-#endif
 
   BrowserTestBase::SetUp();
 }
@@ -156,10 +147,6 @@ void ContentBrowserTest::TearDown() {
 }
 
 void ContentBrowserTest::PreRunTestOnMainThread() {
-#if BUILDFLAG(IS_CHROMEOS)
-  NetworkConnectionChangeSimulator network_change_simulator;
-  network_change_simulator.InitializeChromeosConnectionType();
-#endif
 
   CHECK_EQ(Shell::windows().size(), 1u);
   shell_ = Shell::windows()[0];
@@ -204,13 +191,6 @@ void ContentBrowserTest::PostRunTestOnMainThread() {
 
   Shell::Shutdown();
 
-#if BUILDFLAG(IS_IOS)
-  // ShellMainDelegate deliberately leaks BrowserMainRunner on iOS,
-  // so ShellBrowserMainParts::PostMainMessageLoopRun() does not stop the HTTP
-  // handler. Release its reference to the DevToolsManagerDelegate before the
-  // delegate is destroyed by the test suite's AtExitManager.
-  ShellDevToolsManagerDelegate::StopHttpHandler();
-#endif
 }
 
 Shell* ContentBrowserTest::CreateBrowser() {

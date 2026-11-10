@@ -142,29 +142,15 @@ source_set("dns") {
     ]
   }
 
-  if (is_android) {
-    sources += [
-      "dns_platform_android_attempt.cc",
-      "dns_platform_android_attempt.h",
-      "dns_platform_attempt_factory_android.cc",
-      "dns_platform_attempt_factory_android.h",
-    ]
-  } else {
-    sources += [
-      # These are specific here, instead of the main sources, to make sure they
-      # cannot be references while compiling for Android. Doing so is always a
-      # mistake.
-      "dns_platform_attempt_factory_not_implemented.cc",
-      "dns_platform_attempt_factory_not_implemented.h",
-    ]
-  }
+  sources += [
+    # These are specific here, instead of the main sources, to make sure they
+    # cannot be references while compiling for Android. Doing so is always a
+    # mistake.
+    "dns_platform_attempt_factory_not_implemented.cc",
+    "dns_platform_attempt_factory_not_implemented.h",
+  ]
 
-  if (is_android) {
-    sources += [
-      "dns_config_service_android.cc",
-      "dns_config_service_android.h",
-    ]
-  } else if (is_linux) {
+  if (is_linux) {
     sources += [
       "dns_config_service_linux.cc",
       "dns_config_service_linux.h",
@@ -241,15 +227,6 @@ source_set("host_resolver") {
   # Restricted access so we can keep track of all usage external to the
   # network stack and network service.
   friend = [
-    # chromecast/browser/url_request_context_factory.cc
-    # URLRequestContext creation for chromecast.
-    "//chromecast/browser",
-
-    # URLRequestContext and HttpNetworkSession::Context creation for iOS.
-    "//ios/components/io_thread",
-    "//ios/web/shell",
-    "//ios/web_view:*",
-
     # Tests and test support.
     "//chrome/test/*",
     "//content/shell:content_shell_lib",
@@ -301,10 +278,6 @@ source_set("host_resolver_manager") {
   # Restricted access so we can keep track of all usage external to the
   # network stack and network service.
   friend = [
-    # chromecast/browser/url_request_context_factory.cc
-    # URLRequestContext creation for chromecast.
-    "//chromecast/browser",
-
     # Tests and test support.
     "//components/cronet:cronet_common_unittests",
 
@@ -344,11 +317,6 @@ source_set("dns_client") {
     # Result parsing utilities for parsing results read through MdnsClient.
     # TODO(crbug.com/41408297): Remove once migrated to network service.
     "//chrome/browser/local_discovery:impl",
-
-    # chrome/browser/ash/smb_client/discovery/mdns_host_locator.cc
-    # Result parsing for results read through MdnsClient.
-    # TODO(crbug.com/41424787): Remove once migrated to network service.
-    "//chrome/browser/ash/smb_client/discovery",
 
     # Network stack/service
     "//components/certificate_transparency/*",
@@ -401,12 +369,6 @@ source_set("mdns_client") {
     # Creates MDnsClient instance and passes to ServiceDiscoveryClientImpl.
     # TODO(crbug.com/41408297): Remove once discovery client migrated.
     "//chrome/tools/service_discovery_sniffer",
-
-    # chrome/browser/ash/smb_client/discovery/mdns_host_locator.h
-    # chrome/browser/ash/smb_client/discovery/mdns_host_locator.cc
-    # Makes MDNS queries using MDnsClient.
-    # TODO(crbug.com/41424787): Remove once migrated to network service.
-    "//chrome/browser/ash/smb_client/discovery",
 
     # Network stack/service
     "//net/*",
@@ -472,14 +434,7 @@ source_set("tests") {
     sources += [ "dns_config_service_win_unittest.cc" ]
   }
 
-  if (is_android) {
-    sources += [
-      "dns_config_service_android_unittest.cc",
-      "dns_platform_android_attempt_unittest.cc",
-      "mock_dns_platform_android_attempt_delegate.cc",
-      "mock_dns_platform_android_attempt_delegate.h",
-    ]
-  } else if (is_linux) {
+  if (is_linux) {
     sources += [ "dns_config_service_linux_unittest.cc" ]
   } else if (is_posix) {
     sources += [ "dns_config_service_posix_unittest.cc" ]

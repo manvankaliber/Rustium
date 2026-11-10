@@ -41,9 +41,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/views/controls/menu/menu_controller.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif
 
 class WebUIGlicControlInteractiveTest : public WebUIToolbarWebViewTestBase {
  public:
@@ -53,9 +50,6 @@ class WebUIGlicControlInteractiveTest : public WebUIToolbarWebViewTestBase {
              ::features::kWebUIGlicButton, features::kGlic,
              features::kGlicHorizontalTabToolbarButton,
              features::kToolbarGlicButtonResizing,
-#if BUILDFLAG(IS_CHROMEOS)
-             chromeos::features::kFeatureManagementGlic,
-#endif
              features::kSkipIPCChannelPausingForNonGuests,
              features::kWebUIInProcessResourceLoadingV2},
             {}) {
@@ -407,9 +401,6 @@ class WebUIGlicControlActorUiDisabledInteractiveTest
             {features::kInitialWebUI, features::kWebUIToolbar,
              ::features::kWebUIGlicButton, features::kGlic,
              features::kGlicHorizontalTabToolbarButton,
-#if BUILDFLAG(IS_CHROMEOS)
-             chromeos::features::kFeatureManagementGlic,
-#endif
              features::kSkipIPCChannelPausingForNonGuests,
              features::kWebUIInProcessResourceLoadingV2},
             {features::kGlicActorUi}) {

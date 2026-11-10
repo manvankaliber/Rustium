@@ -442,7 +442,6 @@ IN_PROC_BROWSER_TEST_F(SmartRestartManagerPolicyBrowserTest,
 }
 #endif  // BUILDFLAG(IS_MAC)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(SmartRestartManagerBrowserTest,
                        TriggersRestartOnLockScreen) {
   base::HistogramTester histogram_tester;
@@ -910,6 +909,5 @@ IN_PROC_BROWSER_TEST_P(SmartRestartManagerBypassBeforeUnloadParameterizedTest,
   }
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace smart_restart

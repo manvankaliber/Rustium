@@ -26,10 +26,6 @@ suite('AccountPage', function() {
 
     loadTimeData.overrideValues({
       mayShowLinkedGoogleServicesSetting: false,
-      // <if expr="is_chromeos">
-      replaceSyncPromosWithSignInPromos: true,
-      osSettingsAccountsPageUrl: 'chrome://os-settings/osPeople',
-      // </if>
     });
     resetRouterForTesting();
 
@@ -83,12 +79,7 @@ suite('AccountPage', function() {
     assertTrue(isChildVisible(accountSettingsPage, 'settings-sync-controls'));
     assertTrue(isChildVisible(accountSettingsPage, '#syncDashboardLink'));
     assertTrue(isChildVisible(accountSettingsPage, '#manage-google-account'));
-    // <if expr="is_chromeos">
-    assertTrue(isChildVisible(accountSettingsPage, '#manage-device-accounts'));
-    // </if>
-    // <if expr="not is_chromeos">
     assertFalse(isChildVisible(accountSettingsPage, '#manage-device-accounts'));
-    // </if>
     assertTrue(
         isChildVisible(accountSettingsPage, '#activityControlsLinkRowV2'));
     assertTrue(isChildVisible(accountSettingsPage, '#encryptionDescription'));
@@ -110,10 +101,6 @@ suite('AccountPage', function() {
   test('RowsLinkToCorrectUrls', async function() {
     await assertElementLinksToUrl('#syncDashboardLink', 'syncDashboardUrl');
     await assertElementLinksToUrl('#manage-google-account', 'googleAccountUrl');
-    // <if expr="is_chromeos">
-    await assertElementLinksToUrl(
-        '#manage-device-accounts', 'osSettingsAccountsPageUrl');
-    // </if>
     await assertElementLinksToUrl(
         '#activityControlsLinkRowV2', 'activityControlsUrl');
   });

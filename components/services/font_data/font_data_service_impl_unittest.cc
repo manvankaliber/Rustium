@@ -230,7 +230,7 @@ TEST_F(FontDataServiceImplUnitTest, MatchFamilyName) {
   font_service_->MatchFamilyName(
       family_name, CreateTypefaceStyle(400, 5, mojom::TypefaceSlant::kRoman),
       &response);
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   EXPECT_EQ(impl_.GetCacheSizeForTesting(), 0u);
   EXPECT_TRUE(response->get_result()->typeface_data->is_font_file());
   EXPECT_TRUE(response->get_result()
@@ -439,7 +439,7 @@ TEST_F(FontDataServiceImplUnitTest, LegacyMakeTypefaceNullFamilyName) {
   font_service_->LegacyMakeTypeface(
       std::nullopt, CreateTypefaceStyle(400, 5, mojom::TypefaceSlant::kRoman),
       &out_result);
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   EXPECT_TRUE(out_result->typeface_data->is_font_file());
   EXPECT_TRUE(
       out_result->typeface_data->get_font_file()->file_handle.IsValid());

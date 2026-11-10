@@ -234,9 +234,8 @@ HatsService::LaunchError HatsServiceDesktop::LaunchSurvey(
     const SurveyStringData& product_specific_string_data,
     const std::optional<std::string>& supplied_trigger_id,
     const SurveyOptions& survey_options) {
-  CHECK(!survey_options.custom_invitation.has_value() &&
-        !survey_options.message_identifier.has_value())
-      << "Custom invitation strings and message types are not supported on "
+  CHECK(!survey_options.custom_invitation.has_value())
+      << "Custom invitation strings are not supported on "
          "desktop.";
 
   BrowserWindowInterface* const browser =
@@ -257,9 +256,8 @@ HatsService::LaunchError HatsServiceDesktop::LaunchSurveyForWebContents(
     base::OnceClosure failure_callback,
     const std::optional<std::string>& supplied_trigger_id,
     const SurveyOptions& survey_options) {
-  CHECK(!survey_options.custom_invitation.has_value() &&
-        !survey_options.message_identifier.has_value())
-      << "Custom invitation strings and message types are not supported on "
+  CHECK(!survey_options.custom_invitation.has_value())
+      << "Custom invitation strings are not supported on "
          "desktop.";
 
   if (!web_contents ||
@@ -319,9 +317,8 @@ HatsService::LaunchError HatsServiceDesktop::LaunchDelayedSurveyForWebContents(
     base::OnceClosure failure_callback,
     const std::optional<std::string>& supplied_trigger_id,
     const SurveyOptions& survey_options) {
-  CHECK(!survey_options.custom_invitation.has_value() &&
-        !survey_options.message_identifier.has_value())
-      << "Custom invitation strings and message types are not supported on "
+  CHECK(!survey_options.custom_invitation.has_value())
+      << "Custom invitation strings are not supported on "
          "desktop.";
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M162);
   if (survey_configs_by_triggers_.find(trigger) ==

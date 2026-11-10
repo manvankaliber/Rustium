@@ -12,20 +12,11 @@ import("//build/toolchain/siso.gni")
 import("//build/toolchain/toolchain.gni")
 import("//build_overrides/build.gni")
 
-# ChromeOS is the only OS for which we support clang modules with a custom
-# sysroot. See http://crbug.com/443587270.
-# Android is here because on android, sysroot.gni would introduce a circular
-# dependency. We just assume that android is always safe to use clang modules
-# for, but we can change this later down the line if that turns out to be false.
-if (is_chromeos || is_android) {
-  using_tested_sysroot = true
-} else {
-  import("//build/config/sysroot.gni")
+import("//build/config/sysroot.gni")
 
-  using_tested_sysroot =
-      use_sysroot && (current_os != target_os || current_cpu != target_cpu ||
-                      target_sysroot == "")
-}
+using_tested_sysroot =
+    use_sysroot && (current_os != target_os || current_cpu != target_cpu ||
+                    target_sysroot == "")
 
 default_clang_base_path = "//third_party/llvm-build/Release+Asserts"
 
@@ -43,10 +34,7 @@ android_supported_cpus = [
 ]
 clang_modules_platform_supported =
     # s390x should work, but IBM doesn't want it enabled for that cpu arch.
-    (is_linux && current_cpu != "s390x") ||
-    (is_android &&
-     filter_include(android_supported_cpus, [ current_cpu ]) != []) ||
-    is_apple || is_chromeos ||
+    (is_linux && current_cpu != "s390x") || is_apple ||
     # Use current_os instead of is_win due to winuwp not being supported.
     current_os == "win"
 
@@ -55,7 +43,7 @@ _raw_ptr_plugin_default =
     # Disabled on official builds because RAW_PTR_EXCLUSION
     # are stripped by the preprocessor on official build configurations:
     # See https://crbug.com/40836910.
-    !is_official_build && (!is_castos && !is_cast_android)
+    !is_official_build
 
 declare_args() {
   # Indicates if the build should use the Chrome-specific plugins for enforcing

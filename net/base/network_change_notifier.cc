@@ -38,8 +38,6 @@
 #include "third_party/abseil-cpp/absl/container/flat_hash_set.h"
 #elif BUILDFLAG(IS_APPLE)
 #include "net/base/network_change_notifier_apple.h"
-#elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-#include "net/base/network_change_notifier_passive.h"
 #endif
 
 namespace net {
@@ -296,15 +294,6 @@ std::unique_ptr<NetworkChangeNotifier> NetworkChangeNotifier::CreateIfNeeded(
       std::make_unique<NetworkChangeNotifierWin>();
   network_change_notifier->WatchForAddressChange();
   return network_change_notifier;
-#elif BUILDFLAG(IS_ANDROID)
-  // Fallback to use NetworkChangeNotifierPassive if
-  // NetworkChangeNotifierFactory is not set. Currently used for tests and when
-  // running network service in a separate process.
-  return std::make_unique<NetworkChangeNotifierPassive>(initial_type,
-                                                        initial_subtype);
-#elif BUILDFLAG(IS_CHROMEOS)
-  return std::make_unique<NetworkChangeNotifierPassive>(initial_type,
-                                                        initial_subtype);
 #elif BUILDFLAG(IS_LINUX)
   return std::make_unique<NetworkChangeNotifierLinux>(
       absl::flat_hash_set<std::string>());
@@ -524,14 +513,14 @@ base::cstring_view NetworkChangeNotifier::IPAddressChangeTypeToString(
   return kChangeTypeNames[type];
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // static
 AddressMapOwnerLinux* NetworkChangeNotifier::GetAddressMapOwner() {
   return g_network_change_notifier
              ? g_network_change_notifier->GetAddressMapOwnerInternal()
              : nullptr;
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 // static
 bool NetworkChangeNotifier::IsOffline() {
@@ -559,7 +548,6 @@ bool NetworkChangeNotifier::IsConnectionCellular(ConnectionType type) {
   return is_cellular;
 }
 
-#if !BUILDFLAG(IS_IOS)
 // static
 NetworkChangeNotifier::ConnectionType
 NetworkChangeNotifier::ConnectionTypeFromInterfaces() {
@@ -569,9 +557,7 @@ NetworkChangeNotifier::ConnectionTypeFromInterfaces() {
   }
   return ConnectionTypeFromInterfaceList(interfaces);
 }
-#endif
 
-#if !BUILDFLAG(IS_IOS)
 // static
 NetworkChangeNotifier::ConnectionType
 NetworkChangeNotifier::ConnectionTypeFromInterfaceList(
@@ -609,7 +595,6 @@ NetworkChangeNotifier::ConnectionTypeFromInterfaceList(
   }
   return result;
 }
-#endif
 
 // static
 std::unique_ptr<NetworkChangeNotifier>
@@ -906,7 +891,7 @@ NetworkChangeNotifier::NetworkChangeNotifier(
   }
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 AddressMapOwnerLinux* NetworkChangeNotifier::GetAddressMapOwnerInternal() {
   return nullptr;
 }

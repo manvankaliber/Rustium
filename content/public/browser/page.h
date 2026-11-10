@@ -17,9 +17,6 @@
 #include "third_party/perfetto/include/perfetto/tracing/traced_value_forward.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif
 
 namespace blink {
 class Manifest;
@@ -128,10 +125,6 @@ class CONTENT_EXPORT Page : public base::SupportsUserData {
   virtual void SetCaptureHandleConfig(
       blink::mojom::CaptureHandleConfigPtr config) = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Returns a reference to Page Java counterpart.
-  virtual base::android::ScopedJavaLocalRef<jobject> GetJavaPage() = 0;
-#endif
 
  private:
   // This method is needed to ensure that PageImpl can both implement a Page's

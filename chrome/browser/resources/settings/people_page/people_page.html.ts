@@ -12,7 +12,6 @@ export function getHtml(this: SettingsPeoplePageElement) {
 <settings-section page-title="$i18n{peoplePageTitle}">
   <div>
 
-<if expr="not is_chromeos">
     ${this.shouldShowSyncAccountControl_() ? html`
       <settings-sync-account-control .syncStatus="${this.syncStatus!}"
           promo-label-with-account="$i18n{peopleSignInPrompt}"
@@ -42,33 +41,7 @@ export function getHtml(this: SettingsPeoplePageElement) {
         ` : ''}
       </div>
     ` : ''}
-</if>
 
-<if expr="is_chromeos">
-    ${!this.shouldLinkToAccountSettingsPage_() ? html`
-      <div id="profile-row" class="cr-row first two-line"
-          ?actionable="${this.isProfileActionable_}"
-          @click="${this.onProfileClick_}">
-        ${this.syncStatus ? html`
-          <div id="profile-icon"
-              style="background-image: ${
-                  this.getIconImageSet_(this.profileIconUrl_)}">
-          </div>
-          <div class="flex cr-row-gap cr-padded-text text-elide">
-            <span id="profile-name">${this.profileName_}</span>
-            <div class="secondary" ?hidden="${!this.isSyncing_()}">
-              ${this.syncStatus.signedInUsername}
-            </div>
-          </div>
-          <cr-icon-button class="icon-external" id="profile-subpage-arrow"
-              ?hidden="${!this.isProfileActionable_}"
-              aria-label="$i18n{accountManagerSubMenuLabel}"
-              aria-describedby="profile-name">
-          </cr-icon-button>
-        ` : ''}
-      </div>
-    ` : ''}
-</if>
 
     <!-- Shared Elements -->
     <cr-link-row id="account-subpage-row" class="cr-row first"
@@ -96,7 +69,6 @@ export function getHtml(this: SettingsPeoplePageElement) {
         ?hidden="${!this.shouldHideSyncSetupLinkRow_()}">
     </cr-link-row>
 
-<if expr="not is_chromeos">
     ${this.signinAllowed_ ? html`
       <cr-link-row id="manage-google-account" label="$i18n{manageGoogleAccount}"
           ?hidden="${!this.shouldShowGoogleAccount_}"
@@ -120,12 +92,10 @@ export function getHtml(this: SettingsPeoplePageElement) {
         </div>
       </div>
     ` : ''}
-</if>
 
   </div>
 </settings-section>
 
-<if expr="not is_chromeos">
 ${this.showSignoutDialog_ ? html`
   <settings-signout-dialog .syncStatus="${this.syncStatus}"
       @close="${this.onDisconnectDialogClose_}">
@@ -136,7 +106,6 @@ ${this.showImportDataDialog_ ? html`
   <settings-import-data-dialog @close="${this.onImportDataDialogClose_}">
   </settings-import-data-dialog>
 ` : ''}
-</if>
 <cr-toast duration="3000" id="toast">
   <span>$i18n{syncSettingsSavedToast}</span>
 </cr-toast>

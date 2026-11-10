@@ -71,8 +71,7 @@ class GeicEnablingTest : public testing::Test {
                                      url);
   }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   void SetPolicyWithScope(const std::string& url, policy::PolicyScope scope) {
     policy::PolicyMap policies;
     policies.Set(policy::key::kGeminiEnterpriseUrl,
@@ -106,19 +105,12 @@ class GeicEnablingTest : public testing::Test {
 };
 
 TEST_F(GeicEnablingTest, DefaultState) {
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_FALSE(IsGeicEnabledByFeature());
-  EXPECT_TRUE(ResolveGeicGuestUrl(profile()).is_empty());
-  EXPECT_TRUE(
-      ResolvePolicyUrl("https://business.gemini.google/side-panel").is_empty());
-#else
   EXPECT_TRUE(IsGeicEnabledByFeature());
   // Without a configured guest URL, a profile is not in GEiC mode even though
   // `features::kGeic` is enabled by default.
   EXPECT_TRUE(ResolveGeicGuestUrl(profile()).is_empty());
   EXPECT_EQ(ResolvePolicyUrl("https://business.gemini.google/side-panel"),
             GURL("https://business.gemini.google/side-panel"));
-#endif
 }
 
 TEST_F(GeicEnablingTest, FinchEnabledWithDefaults) {
@@ -529,11 +521,7 @@ TEST_F(GeicEnablingTest, GoogleGroupsFilterEnablesOnlyMatchingProfile) {
           pref_groups_list.Append(std::move(group_dict));
         }
         profile->GetPrefs()->SetList(
-#if BUILDFLAG(IS_CHROMEOS)
-            variations::kOsDogfoodGroupsSyncPrefName,
-#else
             variations::kDogfoodGroupsSyncPrefName,
-#endif
             std::move(pref_groups_list));
         // Ensure GoogleGroupsManager is instantiated so it observes the pref.
         GoogleGroupsManagerFactory::GetForBrowserContext(profile.get());
@@ -568,8 +556,7 @@ TEST_F(GeicEnablingTest, GoogleGroupsFilterEnablesOnlyMatchingProfile) {
             GURL("https://enterprise.gemini.cloud.google/side-panel"));
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 TEST_F(GeicEnablingTest, ShouldLatchToGeminiEnterprise) {
   base::test::ScopedFeatureList feature_list;
   feature_list.InitWithFeaturesAndParameters(

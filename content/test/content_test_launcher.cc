@@ -46,9 +46,6 @@ class ContentBrowserTestSuite : public ContentTestSuiteBase {
 
     ContentTestSuiteBase::Initialize();
 
-#if BUILDFLAG(IS_ANDROID)
-    RegisterInProcessThreads();
-#endif
   }
 };
 
@@ -71,11 +68,9 @@ class ContentTestLauncherDelegate : public TestLauncherDelegate {
   }
 
  protected:
-#if !BUILDFLAG(IS_ANDROID)
   ContentMainDelegate* CreateContentMainDelegate() override {
     return new ContentBrowserTestShellMainDelegate();
   }
-#endif
 };
 
 }  // namespace content
@@ -105,9 +100,3 @@ extern "C" int ContentTestMain(int argc, const char** argv) {
   return LaunchTests(&launcher_delegate, parallel_jobs, argc,
                      const_cast<char**>(argv));
 }
-
-#if BUILDFLAG(IS_IOS)
-extern "C" int ChildProcessMain(int argc, const char** argv) {
-  return ContentTestMain(argc, argv);
-}
-#endif

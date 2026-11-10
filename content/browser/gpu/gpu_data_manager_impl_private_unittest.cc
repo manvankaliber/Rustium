@@ -512,14 +512,9 @@ TEST_F(GpuDataManagerImplPrivateTest,
   manager->UpdateGpuPreferences(&prefs, GPU_PROCESS_KIND_SANDBOXED);
 
   EXPECT_EQ(gpu::GrContextType::kGraphiteDawn, prefs.gr_context_type);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  ASSERT_EQ(prefs.fallback_gr_context_types.size(), 1u);
-  EXPECT_EQ(prefs.fallback_gr_context_types[0], gpu::GrContextType::kGL);
-#else
   ASSERT_EQ(prefs.fallback_gr_context_types.size(), 2u);
   EXPECT_EQ(prefs.fallback_gr_context_types[0], gpu::GrContextType::kGL);
   EXPECT_EQ(prefs.fallback_gr_context_types[1], gpu::GrContextType::kNone);
-#endif
 }
 
 // GL mode: gr_context_type is kGL and there are no hardware fallbacks left.
@@ -544,12 +539,8 @@ TEST_F(GpuDataManagerImplPrivateTest,
   manager->UpdateGpuPreferences(&prefs, GPU_PROCESS_KIND_SANDBOXED);
 
   EXPECT_EQ(gpu::GrContextType::kGL, prefs.gr_context_type);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  EXPECT_TRUE(prefs.fallback_gr_context_types.empty());
-#else
   ASSERT_EQ(prefs.fallback_gr_context_types.size(), 1u);
   EXPECT_EQ(prefs.fallback_gr_context_types[0], gpu::GrContextType::kNone);
-#endif
 }
 
 // After falling back from Graphite to GL, fallback_gr_context_types has no
@@ -578,12 +569,8 @@ TEST_F(GpuDataManagerImplPrivateTest,
   manager->UpdateGpuPreferences(&prefs, GPU_PROCESS_KIND_SANDBOXED);
 
   EXPECT_EQ(gpu::GrContextType::kGL, prefs.gr_context_type);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  EXPECT_TRUE(prefs.fallback_gr_context_types.empty());
-#else
   ASSERT_EQ(prefs.fallback_gr_context_types.size(), 1u);
   EXPECT_EQ(prefs.fallback_gr_context_types[0], gpu::GrContextType::kNone);
-#endif
 }
 
 // Graphite mode with Vulkan also enabled: fallback list contains both kVulkan
@@ -612,16 +599,10 @@ TEST_F(GpuDataManagerImplPrivateTest,
 
   EXPECT_EQ(gpu::GrContextType::kGraphiteDawn, prefs.gr_context_type);
   // kVulkan is at front (tried first); kGL is at back.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  ASSERT_EQ(prefs.fallback_gr_context_types.size(), 2u);
-  EXPECT_EQ(prefs.fallback_gr_context_types[0], gpu::GrContextType::kVulkan);
-  EXPECT_EQ(prefs.fallback_gr_context_types[1], gpu::GrContextType::kGL);
-#else
   ASSERT_EQ(prefs.fallback_gr_context_types.size(), 3u);
   EXPECT_EQ(prefs.fallback_gr_context_types[0], gpu::GrContextType::kVulkan);
   EXPECT_EQ(prefs.fallback_gr_context_types[1], gpu::GrContextType::kGL);
   EXPECT_EQ(prefs.fallback_gr_context_types[2], gpu::GrContextType::kNone);
-#endif
 }
 
 // All GPU features are enabled: gpu_mode_ stays HARDWARE_GRAPHITE.
@@ -678,7 +659,6 @@ TEST_F(GpuDataManagerImplPrivateTest,
 // No hardware mode is available: the UpdateGpuFeatureInfo loop walks past
 // every hardware mode in fallback_modes_ and lands on a non-hardware mode
 // (SOFTWARE_GL or DISPLAY_COMPOSITOR depending on which one is present).
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
 TEST_F(GpuDataManagerImplPrivateTest,
        UpdateGpuFeatureInfo_NoHardwareModeAvailable) {
   base::test::ScopedCommandLine command_line;
@@ -710,14 +690,12 @@ TEST_F(GpuDataManagerImplPrivateTest,
               mode == gpu::GpuMode::DISPLAY_COMPOSITOR)
       << "gpu_mode_ = " << static_cast<int>(mode);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS) &&
         // !BUILDFLAG(IS_IOS)
 
 // Android and Chrome OS do not support software compositing, while Fuchsia does
 // not support falling back to software from Vulkan.
 // Explicitly disable SkiaGraphite for tests that run with Ganesh as some
 // platforms have started shipping Graphite.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
 TEST_F(GpuDataManagerImplPrivateTest, NoDefaultFallbackToSwiftShaderForGanesh) {
   base::test::ScopedCommandLine command_line;
   command_line.GetProcessCommandLine()->AppendSwitch(
@@ -864,7 +842,6 @@ TEST_F(GpuDataManagerImplPrivateTest, GpuStartsWithGpuDisabled) {
   ScopedGpuDataManagerImplPrivate manager;
   EXPECT_EQ(gpu::GpuMode::DISPLAY_COMPOSITOR, manager->GetGpuMode());
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS) &&
         // !BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(ENABLE_VULKAN)
@@ -923,14 +900,11 @@ TEST_F(GpuDataManagerImplPrivateTest, VulkanInitializationFails) {
 
   // The first fallback should go to the display compositor on platforms where
   // fallback to software is allowed.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
   manager->FallBackToNextGpuMode();
   EXPECT_EQ(gpu::GpuMode::DISPLAY_COMPOSITOR, manager->GetGpuMode());
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS) &&
         // !BUILDFLAG(IS_IOS)
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
 TEST_F(GpuDataManagerImplPrivateTest, FallbackFromVulkanWithGLDisabled) {
   // Ensure --enable-unsafe-swiftshader is not in the command line. It is used
   // by some other tests in this suite.
@@ -958,7 +932,6 @@ TEST_F(GpuDataManagerImplPrivateTest, FallbackFromVulkanWithGLDisabled) {
   manager->FallBackToNextGpuMode();
   EXPECT_EQ(gpu::GpuMode::DISPLAY_COMPOSITOR, manager->GetGpuMode());
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS) &&
         // !BUILDFLAG(IS_IOS)
 #endif  // BUILDFLAG(ENABLE_VULKAN)
 

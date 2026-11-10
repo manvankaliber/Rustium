@@ -1,6 +1,6 @@
 //! Cross platform FFI helpers.
 
-#[cfg(any(test, target_os = "android"))]
+#[cfg(test)]
 use std::ffi::CStr;
 
 /// A buffer to store the timezone name when calling the C API.
@@ -28,12 +28,12 @@ pub(crate) mod buffer {
 //
 // TODO: Use a `c"..."` literal when MSRV is upgraded beyond 1.77.0.
 // https://doc.rust-lang.org/edition-guide/rust-2021/c-string-literals.html
-#[cfg(any(test, target_os = "android"))]
+#[cfg(test)]
 const ANDROID_TIMEZONE_PROPERTY_NAME: &[u8] = b"persist.sys.timezone\0";
 
 /// Return a [`CStr`] to access the timezone from an Android system properties
 /// environment.
-#[cfg(any(test, target_os = "android"))]
+#[cfg(test)]
 pub(crate) fn android_timezone_property_name() -> &'static CStr {
     // In tests or debug mode, opt into extra runtime checks.
     if cfg!(any(test, debug_assertions)) {

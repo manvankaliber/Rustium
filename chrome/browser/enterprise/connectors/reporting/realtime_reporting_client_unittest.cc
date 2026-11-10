@@ -37,13 +37,11 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "components/enterprise/browser/enterprise_switches.h"
 #endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "components/enterprise/browser/controller/fake_browser_dm_token_storage.h"
-#endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "base/notreached.h"
@@ -857,7 +855,6 @@ TEST_F(RealtimeReportingClientTestBase,
   reporting_client_->SetProfileCloudPolicyClientForTesting(nullptr);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 using RealtimeReportingClientBrowserLaunchTest =
     RealtimeReportingClientStandaloneTest;
 
@@ -905,7 +902,6 @@ INSTANTIATE_TEST_SUITE_P(
     testing::Combine(testing::Bool(),  // is_profile_reporting
                      testing::Values(policy::DM_STATUS_SUCCESS,
                                      policy::DM_STATUS_REQUEST_FAILED)));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(RealtimeReportingClientTestBase, GetProfileUserNameInIsolatedMode) {
   base::test::ScopedFeatureList scoped_feature_list;

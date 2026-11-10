@@ -66,7 +66,6 @@ class GlicTabDataObserver::TabObserver : public content::WebContentsObserver {
   }
 
   void UpdateWindowObservations() {
-#if !BUILDFLAG(IS_ANDROID)
     BrowserWindowInterface* browser_window = tab_->GetBrowserWindowInterface();
     if (!browser_window) {
       return;
@@ -77,7 +76,6 @@ class GlicTabDataObserver::TabObserver : public content::WebContentsObserver {
     window_did_become_inactive_subscription_ =
         browser_window->RegisterDidBecomeInactive(base::BindRepeating(
             &TabObserver::HandleWindowActivatedChange, base::Unretained(this)));
-#endif
   }
 
   // Callback for TabInterface activated changes.
@@ -97,13 +95,11 @@ class GlicTabDataObserver::TabObserver : public content::WebContentsObserver {
         TabDataChange{{TabDataChangeCause::kVisibility}, CreateTabData(tab_)});
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Callback for BrowserWindowInterface activated changes.
   void HandleWindowActivatedChange(BrowserWindowInterface* browser_window) {
     SendTabData(
         TabDataChange{{TabDataChangeCause::kVisibility}, CreateTabData(tab_)});
   }
-#endif
 
   void OnDidInsert(tabs::TabInterface* tab) { UpdateWindowObservations(); }
 
@@ -145,11 +141,9 @@ class GlicTabDataObserver::TabObserver : public content::WebContentsObserver {
   base::CallbackListSubscription tab_did_activate_subscription_;
   base::CallbackListSubscription tab_will_deactivate_subscription_;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Subscriptions for changes to BrowserWindowInterface::IsActive.
   base::CallbackListSubscription window_did_become_active_subscription_;
   base::CallbackListSubscription window_did_become_inactive_subscription_;
-#endif
 
   std::unique_ptr<TabDataObserver> tab_data_observer_;
 

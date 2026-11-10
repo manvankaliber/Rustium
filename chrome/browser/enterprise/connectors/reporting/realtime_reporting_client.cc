@@ -37,17 +37,9 @@
 #include "components/signin/public/identity_manager/identity_manager.h"
 #include "content/public/browser/browser_context.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/policy/core/user_cloud_policy_manager_ash.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chromeos/components/mgs/managed_guest_session_utils.h"
-#include "components/user_manager/user.h"
-#include "components/user_manager/user_manager.h"
-#else
 #include "components/enterprise/browser/controller/browser_dm_token_storage.h"
 #include "components/enterprise/browser/controller/chrome_browser_cloud_management_controller.h"
 #include "components/policy/core/common/cloud/reporting_job_configuration_base.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/strings/utf_string_conversions.h"
@@ -127,15 +119,7 @@ RealtimeReportingClient::InitProfileReportingClient(
   policy::CloudPolicyClient* client =
       GetOwnedReportingClient(/*per_profile=*/true);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, the browser client id is already the user (or managed guest
-  // session) client id, see GetBrowserClientId(). Use it here so that the
-  // client id sent to DMServer is identical to when all ChromeOS reporting went
-  // through the browser client.
-  std::string client_id = GetBrowserClientId();
-#else
   std::string client_id = policy_manager->core()->client()->client_id();
-#endif
   client->SetupRegistration(dm_token, client_id,
                             /*user_affiliation_ids*/ {});
 
@@ -285,29 +269,7 @@ std::string RealtimeReportingClient::GetContentAreaAccountEmail(
 
 std::string RealtimeReportingClient::GetBrowserClientId() {
   std::string client_id;
-#if BUILDFLAG(IS_CHROMEOS)
-  Profile* profile = nullptr;
-  const user_manager::User* user = GetChromeOSUser();
-  if (user) {
-    profile = ash::ProfileHelper::Get()->GetProfileByUser(user);
-    // If primary user profile is not finalized, use the current profile.
-    if (!profile) {
-      profile = Profile::FromBrowserContext(context_);
-    }
-  } else {
-    LOG(ERROR) << "Could not determine who the user is.";
-    profile = Profile::FromBrowserContext(context_);
-  }
-  CHECK(profile, base::NotFatalUntil::M161);
-
-  if (chromeos::IsManagedGuestSession()) {
-    client_id = reporting::GetMGSUserClientId().value_or("");
-  } else {
-    client_id = reporting::GetUserClientId(profile).value_or("");
-  }
-#else
   client_id = policy::BrowserDMTokenStorage::Get()->RetrieveClientId();
-#endif
   return client_id;
 }
 
@@ -399,15 +361,6 @@ RealtimeReportingClient::CreateUploadEventsRequest() {
       Profile::FromBrowserContext(context_));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// static
-const user_manager::User* RealtimeReportingClient::GetChromeOSUser() {
-  return user_manager::UserManager::IsInitialized()
-             ? user_manager::UserManager::Get()->GetPrimaryUser()
-             : nullptr;
-}
-
-#endif
 
 void RealtimeReportingClient::RemoveDmTokenFromRejectedSet(
     const std::string& dm_token) {

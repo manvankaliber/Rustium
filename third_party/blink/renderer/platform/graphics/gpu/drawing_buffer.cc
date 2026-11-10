@@ -656,7 +656,7 @@ DrawingBuffer::ExportSharedImageFromBackBuffer(
     color_buffer_for_mailbox->produce_sync_token =
         color_buffer_for_mailbox->EndAccess();
     sync_token = color_buffer_for_mailbox->produce_sync_token;
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
     // Needed for GPU back-pressure on macOS and Android. Used to be in the
     // middle of the commands above; try to move it to the bottom to allow them
     // to be treated atomically.
@@ -744,10 +744,6 @@ scoped_refptr<StaticBitmapImage> DrawingBuffer::TransferToStaticBitmapImage() {
   if (CheckForDestructionAndChangeAndResolveIfNeeded(kDiscardAllowed) ==
       kContentsResolvedIfNeeded) {
     // NOTE: GPU compositing is always used on Android and ChromeOS.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-    shared_image =
-        ExportSharedImageFromBackBuffer(sync_token, &release_callback);
-#else
     if (IsUsingGpuCompositing()) {
       shared_image =
           ExportSharedImageFromBackBuffer(sync_token, &release_callback);
@@ -772,7 +768,6 @@ scoped_refptr<StaticBitmapImage> DrawingBuffer::TransferToStaticBitmapImage() {
       }
       return image;
     }
-#endif
   }
 
   if (!shared_image) {
@@ -1033,7 +1028,7 @@ bool DrawingBuffer::Initialize(const gfx::Size& size, bool use_multisampling) {
       gpu_feature_info.status_values[gpu::GPU_FEATURE_TYPE_SKIA_GRAPHITE] !=
           gpu::kGpuFeatureStatusEnabled;
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC)
   // crbug.com/376174085: On Mac using implicit resolve causes flickering due to
   // losses of precision when render passes are interleaved. So disabling it.
   supports_implicit_resolve = false;
@@ -2205,7 +2200,7 @@ gpu::ImageInfo DrawingBuffer::CreateImageInfo(const gfx::Size& size) {
   if (SharedGpuContext::IsGpuCompositingEnabled()) {
     bool use_as_overlay = UseOverlaysForWebGL() || can_use_low_latency_;
     if (use_as_overlay) {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN)
+#if !BUILDFLAG(IS_WIN)
       // Android's SharedImage backing for ChromiumImage does not support BGRX,
       // and the adjustments below were historically not made on Windows.
 
@@ -2227,7 +2222,7 @@ gpu::ImageInfo DrawingBuffer::CreateImageInfo(const gfx::Size& size) {
               viz::SinglePlaneFormat::kBGRX_8888, caps)) {
         color_buffer_format_ = viz::SinglePlaneFormat::kBGRX_8888;
       }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN)
+#endif
 
 #if !BUILDFLAG(IS_WIN)
       // This check was historically not made on Windows.

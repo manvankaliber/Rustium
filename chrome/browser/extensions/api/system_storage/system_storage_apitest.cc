@@ -19,7 +19,7 @@
 #include "extensions/test/result_catcher.h"
 
 // This API is not supported on Android.
-static_assert(!BUILDFLAG(IS_ANDROID));
+static_assert(!false);
 
 namespace {
 

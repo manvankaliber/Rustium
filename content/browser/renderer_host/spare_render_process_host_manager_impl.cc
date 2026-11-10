@@ -55,35 +55,6 @@ using SpareProcessMaybeTakeAction =
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-// Enables the available memory threshold for creating a spare renderer.
-BASE_FEATURE_PARAM(bool,
-                   kSpareRendererAvailableMemoryThresholdEnabled,
-                   &features::kAndroidWarmUpSpareRendererWithTimeout,
-                   "spare_renderer_available_memory_threshold_enabled",
-                   false);
-
-// Memory threshold for considering a device as "large memory".
-BASE_FEATURE_PARAM(int,
-                   kLargeMemoryDeviceThresholdMb,
-                   &features::kAndroidWarmUpSpareRendererWithTimeout,
-                   "large_memory_device_threshold_mb",
-                   4200);
-
-// Available memory threshold for "limited memory devices".
-BASE_FEATURE_PARAM(int,
-                   kLimitedMemoryDeviceAvailableMemoryThresholdMb,
-                   &features::kAndroidWarmUpSpareRendererWithTimeout,
-                   "limited_memory_device_available_memory_threshold_mb",
-                   100);
-
-// Available memory threshold for "large memory devices".
-BASE_FEATURE_PARAM(int,
-                   kLargeMemoryDeviceAvailableMemoryThresholdMb,
-                   &features::kAndroidWarmUpSpareRendererWithTimeout,
-                   "large_memory_device_available_memory_threshold_mb",
-                   150);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 constexpr char kSpareProcessMaybeTakeActionUmaName[] =
     "BrowserRenderProcessHost.SpareProcessMaybeTakeAction";
@@ -354,13 +325,6 @@ SpareRenderProcessHostManagerImpl::SpareRenderProcessHostManagerImpl()
           base::BindRepeating(
               &SpareRenderProcessHostManagerImpl::OnMetricsHeartbeatTimerFired,
               base::Unretained(this)))
-#if BUILDFLAG(IS_ANDROID)
-      ,
-      app_status_listener_(
-          base::android::ApplicationStatusListener::New(base::BindRepeating(
-              &SpareRenderProcessHostManagerImpl::OnApplicationStateChange,
-              base::Unretained(this))))
-#endif
 {
   metrics_heartbeat_timer_.Reset();
 
@@ -378,10 +342,6 @@ SpareRenderProcessHostManagerImpl::SpareRenderProcessHostManagerImpl()
             ->load(std::memory_order_relaxed) ==
         LoadingScenario::kNoPageLoading;
   }
-#if BUILDFLAG(IS_ANDROID)
-  OnApplicationStateChange(
-      base::android::ApplicationStatusListener::GetState());
-#endif
 }
 
 SpareRenderProcessHostManagerImpl::~SpareRenderProcessHostManagerImpl() =
@@ -541,28 +501,6 @@ RenderProcessHost* SpareRenderProcessHostManagerImpl::WarmupSpare(
     }
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (features::kAndroidSpareRendererKillWhenBackgrounded.Get() &&
-      is_app_backgroud_) {
-    no_spare_renderer_reason_ = NoSpareRendererReason::kOnceBackgrounded;
-    return nullptr;
-  }
-
-  base::SystemMemoryInfo meminfo;
-  base::GetSystemMemoryInfo(&meminfo);
-  if (!ShouldCreateSpareRendererWithAvailableMemory(
-          static_cast<int>(meminfo.available.InMiB()))) {
-    no_spare_renderer_reason_ = NoSpareRendererReason::kMemoryPressure;
-    return nullptr;
-  }
-
-  base::UmaHistogramMemoryLargeMB(
-      "BrowserRenderProcessHost.AvailableMemoryBeforeCreation.SpareRenderer",
-      meminfo.available);
-  last_spare_renderer_creation_info_ = LastSpareRendererCreationInfo{
-      .creation_time = base::TimeTicks::Now(),
-      .available_memory_mb = static_cast<int>(meminfo.available.InMiB())};
-#endif
 
   process_startup_timer_ = std::make_unique<base::ElapsedTimer>();
 
@@ -666,10 +604,8 @@ RenderProcessHost* SpareRenderProcessHostManagerImpl::MaybeTakeSpare(
       !site_instance->CanAssociateWithSpareProcess() ||
       site_instance->GetSecurityPrincipal().IsGuest() ||
       site_instance->GetSiteInfo().embedder_isolation_info().is_privileged()
-#if !BUILDFLAG(IS_ANDROID)
       || GetContentClient()->browser()->IsTopChromeWebUIURL(
              site_instance->GetSecurityPrincipal().GetDeprecatedSiteURL())
-#endif
   ) {
     action = SpareProcessMaybeTakeAction::kRefusedBySiteInstance;
   } else if (site_instance->GetSiteInfo().is_pdf()) {
@@ -681,28 +617,6 @@ RenderProcessHost* SpareRenderProcessHostManagerImpl::MaybeTakeSpare(
              site_instance->GetSiteInfo().are_v8_optimizations_disabled()) {
     action = SpareProcessMaybeTakeAction::kRefusedForV8OptimizationMismatch;
   }
-#if BUILDFLAG(IS_ANDROID)
-  // Always allow test to allocate a spare renderer so as
-  // not to break existing tests.
-  else if (allocation_context.source == ProcessAllocationSource::kTest) {
-    action = SpareProcessMaybeTakeAction::kSpareTaken;
-  } else if (features::kAndroidSpareRendererOnlyForNavigation.Get() &&
-             !allocation_context.IsForNavigation()) {
-    action = SpareProcessMaybeTakeAction::kRefusedNonNavigation;
-  } else if (base::FeatureList::IsEnabled(
-                 features::kAndroidWarmUpSpareRendererWithTimeout) &&
-             features::kAndroidSpareRendererAddNavigationThrottle.Get() &&
-             (!allocation_context.navigation_context.has_value() ||
-              allocation_context.navigation_context->stage !=
-                  ProcessAllocationNavigationStage::kBeforeNetworkRequest)) {
-    // All the renderers returned by MaybeTakeSpare is of lowest priority on
-    // Android. To ensure the liveness of the renderer process, we need to
-    // add a throttle to ensure the priority update before deciding the final
-    // renderer process for the navigation. Thus we can only use the spare
-    // renderer for navigation before sending the network request.
-    action = SpareProcessMaybeTakeAction::kCannotAddThrottle;
-  }
-#endif
   else {
     action = SpareProcessMaybeTakeAction::kSpareTaken;
   }
@@ -743,14 +657,6 @@ RenderProcessHost* SpareRenderProcessHostManagerImpl::MaybeTakeSpare(
     CHECK(no_spare_renderer_reason_ == NoSpareRendererReason::kProcessLimit);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // SetHasSpareRendererPriority(false) will cause the priority to drop until
-  // further updates are made. For navigation requests we will keep the priority
-  // until the RenderFrameHostImpl constructor sets the priority.
-  if (returned_process && !allocation_context.IsForNavigation()) {
-    returned_process->GraduateSpareToNormalRendererPriority();
-  }
-#endif
 
   return returned_process;
 }
@@ -1153,46 +1059,5 @@ void SpareRenderProcessHostManagerImpl::OnMetricsHeartbeatTimerFired() {
                               spare_rphs_.size());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool SpareRenderProcessHostManagerImpl::
-    ShouldCreateSpareRendererWithAvailableMemory(
-        int available_memory_mb) const {
-  if (!kSpareRendererAvailableMemoryThresholdEnabled.Get()) {
-    return true;
-  }
-
-  const int total_memory_mb =
-      base::SysInfo::AmountOfTotalPhysicalMemory().InMiB();
-  const int available_memory_threshold_mb =
-      total_memory_mb >= kLargeMemoryDeviceThresholdMb.Get()
-          ? kLargeMemoryDeviceAvailableMemoryThresholdMb.Get()
-          : kLimitedMemoryDeviceAvailableMemoryThresholdMb.Get();
-
-  return available_memory_mb >= available_memory_threshold_mb;
-}
-
-void SpareRenderProcessHostManagerImpl::OnApplicationStateChange(
-    base::android::ApplicationState state) {
-  if (!features::kAndroidSpareRendererKillWhenBackgrounded.Get()) {
-    return;
-  }
-  using ApplicationState = base::android::ApplicationState;
-  switch (state) {
-    case ApplicationState::APPLICATION_STATE_UNKNOWN:
-      return;
-    case ApplicationState::APPLICATION_STATE_HAS_RUNNING_ACTIVITIES:
-    case ApplicationState::APPLICATION_STATE_HAS_PAUSED_ACTIVITIES:
-      is_app_backgroud_ = false;
-      return;
-    case ApplicationState::APPLICATION_STATE_HAS_STOPPED_ACTIVITIES:
-    case ApplicationState::APPLICATION_STATE_HAS_DESTROYED_ACTIVITIES:
-      if (!is_app_backgroud_) {
-        CleanupSpares(SpareRendererDispatchResult::kKillAfterBackgrounded);
-      }
-      is_app_backgroud_ = true;
-      return;
-  }
-}
-#endif
 
 }  // namespace content

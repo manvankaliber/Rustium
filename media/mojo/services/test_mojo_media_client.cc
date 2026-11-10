@@ -63,15 +63,9 @@ std::unique_ptr<Renderer> TestMojoMediaClient::CreateRenderer(
   media::MediaPlayerLoggingID player_id = media::GetNextMediaPlayerLoggingID();
 
   if (!renderer_factory_) {
-#if BUILDFLAG(IS_ANDROID)
-    renderer_factory_ = std::make_unique<RendererImplFactory>(
-        media_log, decoder_factory_.get(),
-        RendererImplFactory::GetGpuFactoriesCB(), player_id);
-#else
     renderer_factory_ = std::make_unique<RendererImplFactory>(
         media_log, decoder_factory_.get(),
         RendererImplFactory::GetGpuFactoriesCB(), player_id, nullptr);
-#endif
   }
 
   // We cannot share the NullAudioSink or NullVideoSink among different
@@ -92,16 +86,6 @@ std::unique_ptr<Renderer> TestMojoMediaClient::CreateRenderer(
       base::NullCallback(), gfx::ColorSpace());
 }
 
-#if BUILDFLAG(ENABLE_CAST_RENDERER)
-std::unique_ptr<Renderer> TestMojoMediaClient::CreateCastRenderer(
-    mojom::FrameInterfaceFactory* frame_interfaces,
-    scoped_refptr<base::SingleThreadTaskRunner> task_runner,
-    MediaLog* media_log,
-    const base::UnguessableToken& /* overlay_plane_id */) {
-  return CreateRenderer(frame_interfaces, task_runner, media_log,
-                        std::string());
-}
-#endif  // BUILDFLAG(ENABLE_CAST_RENDERER)
 
 std::unique_ptr<CdmFactory> TestMojoMediaClient::CreateCdmFactory(
     mojom::FrameInterfaceFactory* /* frame_interfaces */) {

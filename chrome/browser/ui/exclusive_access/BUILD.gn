@@ -2,11 +2,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//build/config/chromeos/args.gni")
 import("//build/config/ozone.gni")
 import("//extensions/buildflags/buildflags.gni")
 
-assert(is_win || is_mac || is_linux || is_chromeos || is_android)
+assert(is_win || is_mac || is_linux)
 
 source_set("exclusive_access") {
   sources = [
@@ -69,126 +68,120 @@ source_set("exclusive_access") {
       "//extensions/common",
     ]
   }
-  if (!is_android) {
-    deps += [
-      "//chrome/browser:browser_process",
-      "//chrome/browser/ui:browser_command_controller",
-      "//chrome/browser/ui/blocked_content",
-      "//chrome/browser/ui/bookmarks",
-    ]
+
+  deps += [
+    "//chrome/browser:browser_process",
+    "//chrome/browser/ui:browser_command_controller",
+    "//chrome/browser/ui/blocked_content",
+    "//chrome/browser/ui/bookmarks",
+  ]
+}
+
+source_set("test_support") {
+  testonly = true
+  sources = [
+    "exclusive_access_test.cc",
+    "exclusive_access_test.h",
+    "fullscreen_controller_state_test.cc",
+    "fullscreen_controller_state_test.h",
+    "fullscreen_controller_state_tests.h",
+  ]
+  public_deps = [
+    ":exclusive_access",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/test/base:in_process_browser_test",
+    "//chrome/test/base:ui_test_utils",
+    "//content/test:test_support",
+  ]
+  deps = [
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/browser_web_contents_delegate",
+    "//chrome/browser/ui/views/exclusive_access",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+  ]
+
+  public_deps += [ "//chrome/browser:fullscreen" ]
+}
+
+source_set("unit_tests") {
+  testonly = true
+  sources = [
+    "exclusive_access_bubble_type_unittest.cc",
+    "exclusive_access_bubble_unittest.cc",
+    "exclusive_access_permission_manager_unittest.cc",
+    "fullscreen_controller_state_unittest.cc",
+  ]
+  deps = [
+    ":test_support",
+    "//chrome/test/base:chrome_render_view_host_test_harness",
+    "//chrome/test/base:testing_browser_process",
+    "//components/fullscreen_control",
+  ]
+}
+
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [
+    "exclusive_access_manager_browsertest.cc",
+    "fullscreen_controller_browsertest.cc",
+    "pointer_lock_controller_browsertest.cc",
+  ]
+
+  deps = [
+    ":test_support",
+    "//chrome/browser/content_settings:content_settings_factory",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_tabstrip",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui:ui_features",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/test/base:chrome_test_path_utils",
+    "//components/content_settings/core/browser",
+    "//net:test_support",
+    "//ui/base:ozone_buildflags",
+  ]
+  if (use_ozone) {
+    deps += [ "//ui/ozone" ]
   }
 }
 
-if (!is_android) {
-  source_set("test_support") {
-    testonly = true
-    sources = [
-      "exclusive_access_test.cc",
-      "exclusive_access_test.h",
-      "fullscreen_controller_state_test.cc",
-      "fullscreen_controller_state_test.h",
-      "fullscreen_controller_state_tests.h",
-    ]
-    public_deps = [
-      ":exclusive_access",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/test/base:in_process_browser_test",
-      "//chrome/test/base:ui_test_utils",
-      "//content/test:test_support",
-    ]
-    deps = [
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/browser_web_contents_delegate",
-      "//chrome/browser/ui/views/exclusive_access",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-    ]
-    if (!is_chromeos) {
-      public_deps += [ "//chrome/browser:fullscreen" ]
-    }
-  }
-
-  source_set("unit_tests") {
-    testonly = true
-    sources = [
-      "exclusive_access_bubble_type_unittest.cc",
-      "exclusive_access_bubble_unittest.cc",
-      "exclusive_access_permission_manager_unittest.cc",
-      "fullscreen_controller_state_unittest.cc",
-    ]
-    deps = [
-      ":test_support",
-      "//chrome/test/base:chrome_render_view_host_test_harness",
-      "//chrome/test/base:testing_browser_process",
-      "//components/fullscreen_control",
-    ]
-  }
-
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [
-      "exclusive_access_manager_browsertest.cc",
-      "fullscreen_controller_browsertest.cc",
-      "pointer_lock_controller_browsertest.cc",
-    ]
-
-    deps = [
-      ":test_support",
-      "//chrome/browser/content_settings:content_settings_factory",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_tabstrip",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:ui_features",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/test/base:chrome_test_path_utils",
-      "//components/content_settings/core/browser",
-      "//net:test_support",
-      "//ui/base:ozone_buildflags",
-    ]
-    if (use_ozone) {
-      deps += [ "//ui/ozone" ]
-    }
-  }
-
-  if (!is_chromeos_device) {
-    source_set("interactive_ui_tests") {
-      testonly = true
-      defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-      sources = [
-        "fullscreen_controller_interactive_browsertest.cc",
-        "fullscreen_controller_state_interactive_browsertest.cc",
-        "fullscreen_interactive_browsertest.cc",
-      ]
-      deps = [
-        ":test_support",
-        "//chrome/browser/content_settings:content_settings_factory",
-        "//chrome/browser/preloading:test_support",
-        "//chrome/browser/ui:browser_commands",
-        "//chrome/browser/ui:browser_tabstrip",
-        "//chrome/browser/ui:browser_window_header",
-        "//chrome/browser/ui:test_support",
-        "//chrome/browser/ui/browser_web_contents_delegate",
-        "//chrome/browser/ui/browser_window",
-        "//chrome/browser/ui/browser_window:create_browser_window",
-        "//chrome/browser/ui/dialogs:browser_dialogs",
-        "//chrome/browser/ui/fullscreen",
-        "//chrome/browser/ui/test:test_support",
-        "//chrome/browser/ui/web_applications/test:test_support_ui",
-        "//chrome/browser/ui/web_modal:browser_window_modal_dialog_delegate",
-        "//chrome/browser/web_applications:web_applications_test_support",
-        "//chrome/test/base:chrome_test_path_utils",
-        "//chrome/test/base:interactive_test_utils",
-        "//components/blocked_content",
-        "//components/metrics:content",
-        "//components/permissions:permissions_common",
-        "//components/permissions:test_support",
-        "//net:test_support",
-        "//ui/display:test_support",
-      ]
-      if (use_ozone) {
-        deps += [ "//ui/ozone" ]
-      }
-    }
+source_set("interactive_ui_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [
+    "fullscreen_controller_interactive_browsertest.cc",
+    "fullscreen_controller_state_interactive_browsertest.cc",
+    "fullscreen_interactive_browsertest.cc",
+  ]
+  deps = [
+    ":test_support",
+    "//chrome/browser/content_settings:content_settings_factory",
+    "//chrome/browser/preloading:test_support",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_tabstrip",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui:test_support",
+    "//chrome/browser/ui/browser_web_contents_delegate",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/browser_window:create_browser_window",
+    "//chrome/browser/ui/dialogs:browser_dialogs",
+    "//chrome/browser/ui/fullscreen",
+    "//chrome/browser/ui/test:test_support",
+    "//chrome/browser/ui/web_applications/test:test_support_ui",
+    "//chrome/browser/ui/web_modal:browser_window_modal_dialog_delegate",
+    "//chrome/browser/web_applications:web_applications_test_support",
+    "//chrome/test/base:chrome_test_path_utils",
+    "//chrome/test/base:interactive_test_utils",
+    "//components/blocked_content",
+    "//components/metrics:content",
+    "//components/permissions:permissions_common",
+    "//components/permissions:test_support",
+    "//net:test_support",
+    "//ui/display:test_support",
+  ]
+  if (use_ozone) {
+    deps += [ "//ui/ozone" ]
   }
 }

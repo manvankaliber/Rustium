@@ -49,11 +49,7 @@ constexpr float kIntersectionRatioThreshold = 0.5f;
 wtf_size_t GetMaxNumberOfObservations() {
   const base::FeatureParam<int> max_number_of_observations{
       &features::kNavigationPredictor, "max_intersection_observations",
-#if BUILDFLAG(IS_ANDROID)
-      60
-#else
       -1
-#endif
   };
   int value = max_number_of_observations.Get();
   return value >= 0 ? value : std::numeric_limits<wtf_size_t>::max();
@@ -62,11 +58,7 @@ wtf_size_t GetMaxNumberOfObservations() {
 base::TimeDelta GetIntersectionObserverDelay() {
   const base::FeatureParam<base::TimeDelta> param{
       &features::kNavigationPredictor, "intersection_observer_delay",
-#if BUILDFLAG(IS_ANDROID)
-      base::Milliseconds(1000)
-#else
       base::Milliseconds(100)
-#endif
   };
   return param.Get();
 }
@@ -74,7 +66,7 @@ base::TimeDelta GetIntersectionObserverDelay() {
 bool ShouldOnlyObserveAfterFCP() {
   const base::FeatureParam<bool> param{
       &features::kNavigationPredictor,
-      "intersection_observation_after_fcp_only", BUILDFLAG(IS_ANDROID)};
+      "intersection_observation_after_fcp_only", false};
   return param.Get();
 }
 
@@ -90,12 +82,8 @@ bool ShouldTrackViewportPositions(const Document& document) {
           features::kNavigationPredictorNewViewportFeatures)) {
     return true;
   }
-#if !BUILDFLAG(IS_ANDROID)
   return ShouldRunModerateMobileViewportHeuristic(document) ||
          ShouldRunEagerMobileViewportHeuristic(document);
-#else
-  return false;
-#endif
 }
 
 float GetBrowserControlsHeight(Document& document) {

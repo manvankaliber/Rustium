@@ -107,15 +107,7 @@
 #include "content/public/browser/web_contents.h"
 #include "third_party/blink/public/common/manifest/manifest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/web_applications/isolated_web_apps/commands/cleanup_bundle_cache_command.h"
-#include "chrome/browser/web_applications/isolated_web_apps/commands/copy_bundle_to_cache_command.h"
-#include "chrome/browser/web_applications/isolated_web_apps/commands/get_bundle_cache_path_command.h"
-#include "chrome/browser/web_applications/isolated_web_apps/commands/remove_obsolete_bundle_versions_cache_command.h"
-#include "chrome/browser/web_applications/isolated_web_apps/policy/isolated_web_app_cache_client.h"
-#else  // !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/web_applications/jobs/link_capturing.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "chrome/browser/web_applications/commands/rewrite_diy_icons_command.h"
@@ -369,54 +361,6 @@ void WebAppCommandScheduler::CheckIsolatedWebAppBundleUserInstallability(
       call_location);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void WebAppCommandScheduler::GetIsolatedWebAppBundleCachePath(
-    const IsolatedWebAppUrlInfo& url_info,
-    const std::optional<IwaVersion>& version,
-    IwaCacheClient::SessionType session_type,
-    base::OnceCallback<void(base::expected<GetBundleCachePathSuccess,
-                                           GetBundleCachePathError>)> callback,
-    const base::Location& call_location) {
-  provider_->command_manager().ScheduleCommand(
-      std::make_unique<GetBundleCachePathCommand>(
-          url_info, version, session_type, std::move(callback)),
-      call_location);
-}
-
-void WebAppCommandScheduler::CopyIsolatedWebAppBundleToCache(
-    const IsolatedWebAppUrlInfo& url_info,
-    IwaCacheClient::SessionType session_type,
-    base::OnceCallback<void(CopyBundleToCacheResult)> callback,
-    const base::Location& call_location) {
-  provider_->command_manager().ScheduleCommand(
-      std::make_unique<CopyBundleToCacheCommand>(
-          url_info, session_type, *profile_, std::move(callback)),
-      call_location);
-}
-
-void WebAppCommandScheduler::CleanupIsolatedWebAppBundleCache(
-    const std::vector<web_package::SignedWebBundleId>& iwas_to_keep_in_cache,
-    IwaCacheClient::SessionType session_type,
-    base::OnceCallback<void(CleanupBundleCacheResult)> callback,
-    const base::Location& call_location) {
-  provider_->command_manager().ScheduleCommand(
-      std::make_unique<CleanupBundleCacheCommand>(
-          iwas_to_keep_in_cache, session_type, std::move(callback)),
-      call_location);
-}
-
-void WebAppCommandScheduler::RemoveObsoleteIsolatedWebAppVersionsCache(
-    const IsolatedWebAppUrlInfo& url_info,
-    IwaCacheClient::SessionType session_type,
-    base::OnceCallback<void(RemoveObsoleteBundleVersionsResult)> callback,
-    const base::Location& call_location) {
-  provider_->command_manager().ScheduleCommand(
-      std::make_unique<RemoveObsoleteBundleVersionsCacheCommand>(
-          url_info, session_type, std::move(callback)),
-      call_location);
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void WebAppCommandScheduler::GetControlledFramePartition(
     const IsolatedWebAppUrlInfo& url_info,
@@ -707,55 +651,13 @@ void WebAppCommandScheduler::SetAppCapturesSupportedLinksDisableOverlapping(
     bool set_to_preferred,
     base::OnceClosure done,
     const base::Location& location) {
-#if BUILDFLAG(IS_CHROMEOS)
-  NOTREACHED() << "Preferred apps in ChromeOS are implemented in AppService";
-#else
   ScheduleCallback(
       "SetAppCapturesSupporedLinks", AllAppsLockDescription(),
       base::BindOnce(::web_app::SetAppCapturesSupportedLinksDisableOverlapping,
                      app_id, set_to_preferred),
       std::move(done), location);
-#endif
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void WebAppCommandScheduler::SetUserLinkCapturingChoiceOnChromeOs(
-    const webapps::AppId& app_id,
-    bool open_in_app,
-    base::OnceClosure done,
-    const base::Location& location) {
-  CHECK(!app_id.empty());
-  ScheduleCallback(
-      "SetUserLinkCapturingChoiceOnChromeOs", AppLockDescription(app_id),
-      base::BindOnce(
-          [](const webapps::AppId& app_id, bool open_in_app, AppLock& lock,
-             base::DictValue& debug_value) {
-            debug_value.Set("app_id", app_id);
-            debug_value.Set("open_in_app", open_in_app);
-            // App Service publishes apps in both installed states as ready,
-            // so the user can make a choice for both.
-            if (!lock.registrar().IsInstallState(
-                    app_id,
-                    {proto::InstallState::INSTALLED_WITH_OS_INTEGRATION,
-                     proto::InstallState::INSTALLED_WITHOUT_OS_INTEGRATION})) {
-              debug_value.Set("result", "App not installed.");
-              return;
-            }
-            if (lock.registrar().IsSystemApp(app_id)) {
-              debug_value.Set("result", "System web app.");
-              return;
-            }
-            ScopedRegistryUpdate update = lock.sync_bridge().BeginUpdate();
-            update->UpdateApp(app_id)->SetLinkCapturingUserPreference(
-                open_in_app
-                    ? proto::NAVIGATION_CAPTURING_PREFERENCE_CAPTURE
-                    : proto::NAVIGATION_CAPTURING_PREFERENCE_DO_NOT_CAPTURE);
-            debug_value.Set("result", "Recorded.");
-          },
-          app_id, open_in_app),
-      std::move(done), location);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void WebAppCommandScheduler::RunIconDiagnosticsForApp(
     const webapps::AppId& app_id,

@@ -22,10 +22,6 @@
 #include "components/unified_consent/url_keyed_data_collection_consent_helper.h"
 #include "google_apis/gaia/google_service_auth_error.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/components/kiosk/kiosk_utils.h"  // nogncheck
-#include "chromeos/components/mgs/managed_guest_session_utils.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 using unified_consent::UrlKeyedDataCollectionConsentHelper;
 
@@ -33,23 +29,12 @@ namespace ukm {
 namespace {
 
 bool IsMsbbConsentStateAllowed() {
-#if BUILDFLAG(IS_CHROMEOS)
-  // MGS should report only AppKM metrics.
-  return !chromeos::IsManagedGuestSession();
-#else  // !BUILDFLAG(IS_CHROMEOS)
   return true;
-#endif
 }
 
 bool CanUploadUkmForType(syncer::SyncService* sync_service,
                          syncer::DataType data_type,
                          bool msbb_consent) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // Enable uploading of UKM for Kiosk and MGS only if MSBB consent is set.
-  if (chromeos::IsKioskSession() || chromeos::IsManagedGuestSession()) {
-    return msbb_consent;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   switch (GetUploadToGoogleState(sync_service, data_type)) {
     case syncer::UploadState::NOT_ACTIVE:
@@ -77,11 +62,7 @@ UkmConsentStateObserver::~UkmConsentStateObserver() {
 }
 
 bool UkmConsentStateObserver::ProfileState::IsUkmConsented() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  return consent_state.Has(MSBB) || consent_state.Has(APPS);
-#else
   return consent_state.Has(MSBB);
-#endif
 }
 
 void UkmConsentStateObserver::ProfileState::SetConsentType(
@@ -109,17 +90,6 @@ UkmConsentStateObserver::ProfileState UkmConsentStateObserver::GetProfileState(
     state.SetConsentType(EXTENSIONS);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  const bool app_sync_consent =
-      CanUploadUkmForType(sync_service, syncer::DataType::APPS, msbb_consent) ||
-      // Demo mode is a special managed guest session that doesn't support
-      // AppKM. To support AppKM an exception needs to be made within UKM.
-      IsDeviceInDemoMode();
-
-  if (app_sync_consent) {
-    state.SetConsentType(APPS);
-  }
-#else
   // On non-ChromeOS platforms, `syncer::DataType::APPS` is deprecated, so
   // `APPS` consent checks `syncer::DataType::WEB_APPS`, which is in the same
   // sync toggle (`syncer::UserSelectableType::kApps`).
@@ -128,7 +98,6 @@ UkmConsentStateObserver::ProfileState UkmConsentStateObserver::GetProfileState(
                           msbb_consent)) {
     state.SetConsentType(APPS);
   }
-#endif
 
   return state;
 }
@@ -162,15 +131,6 @@ void UkmConsentStateObserver::StartObserving(syncer::SyncService* sync_service,
         sync_service->GetUserSettings()->GetSelectedTypes().Has(
             syncer::UserSelectableType::kExtensions);
 
-#if BUILDFLAG(IS_CHROMEOS)
-    bool apps_supported =
-        sync_service->GetUserSettings()->GetRegisteredSelectableOsTypes().Has(
-            syncer::UserSelectableOsType::kOsApps);
-    bool apps_sync_enabled =
-        !apps_supported ||
-        sync_service->GetUserSettings()->GetSelectedOsTypes().Has(
-            syncer::UserSelectableOsType::kOsApps);
-#else
     bool apps_supported =
         sync_service->GetUserSettings()->GetRegisteredSelectableTypes().Has(
             syncer::UserSelectableType::kApps);
@@ -178,7 +138,6 @@ void UkmConsentStateObserver::StartObserving(syncer::SyncService* sync_service,
         !apps_supported ||
         sync_service->GetUserSettings()->GetSelectedTypes().Has(
             syncer::UserSelectableType::kApps);
-#endif
 
     advanced_reporting_enabled =
         msbb_enabled && apps_sync_enabled && extensions_sync_enabled;
@@ -330,22 +289,14 @@ void UkmConsentStateObserver::OnSyncShutdown(syncer::SyncService* sync) {
 
 bool UkmConsentStateObserver::IsUkmAllowedForAllProfiles() {
   const UkmConsentState ukm_consent_state = GetUkmConsentState();
-#if BUILDFLAG(IS_CHROMEOS)
-  return ukm_consent_state.Has(MSBB) || ukm_consent_state.Has(APPS);
-#else
   return ukm_consent_state.Has(MSBB);
-#endif
 }
 
 // TODO(crbug.com/394931297): Add a comment in UkmConsentStateObserver header to
 // explain why it has IsDwaAllowedForAllProfiles.
 bool UkmConsentStateObserver::IsDwaAllowedForAllProfiles() {
   const UkmConsentState ukm_consent_state = GetUkmConsentState();
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return ukm_consent_state.Has(ukm::MSBB);
-#else
   return ukm_consent_state.HasAll({ukm::MSBB, ukm::APPS, ukm::EXTENSIONS});
-#endif
 }
 
 UkmConsentState UkmConsentStateObserver::GetUkmConsentState() {
@@ -354,14 +305,5 @@ UkmConsentState UkmConsentStateObserver::GetUkmConsentState() {
   return ukm_consent_state_.value_or(UkmConsentState());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void UkmConsentStateObserver::SetIsDemoMode(bool is_device_in_demo_mode) {
-  is_device_in_demo_mode_ = is_device_in_demo_mode;
-}
-
-bool UkmConsentStateObserver::IsDeviceInDemoMode() {
-  return is_device_in_demo_mode_;
-}
-#endif
 
 }  // namespace ukm

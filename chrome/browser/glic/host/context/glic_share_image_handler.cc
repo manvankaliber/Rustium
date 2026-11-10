@@ -19,11 +19,9 @@
 #include "ui/base/clipboard/clipboard_metadata.h"
 #include "ui/base/data_transfer_policy/data_transfer_endpoint.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/toasts/api/toast_id.h"
 #include "chrome/browser/ui/toasts/toast_controller.h"
-#endif
 
 namespace glic {
 
@@ -330,13 +328,11 @@ void GlicShareImageHandler::MaybeShowErrorToast(tabs::TabInterface* tab) {
   if (!tab) {
     return;
   }
-#if !BUILDFLAG(IS_ANDROID)  // TODO(b/478008740): Implement for android.
   if (BrowserWindowInterface* browser = tab->GetBrowserWindowInterface()) {
     if (auto* controller = ToastController::From(browser)) {
       controller->MaybeShowToast(ToastParams(ToastId::kGlicShareImageFailed));
     }
   }
-#endif
 }
 
 void GlicShareImageHandler::StopObservingNavigation() {

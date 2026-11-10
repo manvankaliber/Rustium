@@ -80,11 +80,6 @@ PeerConnectionTrackerHost::PeerConnectionTrackerHost(RenderFrameHost* frame)
       peer_pid_(frame->GetProcess()->GetProcess().Pid()) {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M158);
   RegisterHost(this);
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(media::kAndroidSuspendWebRtcOnScreenOff)) {
-    base::android::ScreenStateReceiver::AddObserver(this);
-  }
-#endif
   auto* power_monitor = base::PowerMonitor::GetInstance();
   power_monitor->AddPowerSuspendObserver(this);
   // Ensure that the initial thermal state is known by the |tracker_|.
@@ -106,11 +101,6 @@ PeerConnectionTrackerHost::~PeerConnectionTrackerHost() {
       observer.OnPeerConnectionRemoved(frame_id_, lid);
     }
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(media::kAndroidSuspendWebRtcOnScreenOff)) {
-    base::android::ScreenStateReceiver::RemoveObserver(this);
-  }
-#endif
   RemoveHost(this);
   auto* power_monitor = base::PowerMonitor::GetInstance();
   power_monitor->RemovePowerSuspendObserver(this);
@@ -331,14 +321,4 @@ void PeerConnectionTrackerHost::BindReceiver(
 
 DOCUMENT_USER_DATA_KEY_IMPL(PeerConnectionTrackerHost);
 
-#if BUILDFLAG(IS_ANDROID)
-// Android does not provide an API for apps to be notified of system suspend.
-// Therefore, base::PowerSuspendObserver::OnSuspend is never triggered on
-// Android. As a workaround, we use the SCREEN_OFF event as a proxy to trigger
-// WebRTC suspend, ensuring hardware resources are released.
-void PeerConnectionTrackerHost::OnScreenOff() {
-  CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M158);
-  OnSuspend();
-}
-#endif
 }  // namespace content

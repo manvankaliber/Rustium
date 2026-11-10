@@ -2334,17 +2334,7 @@ pub fn accept(sockfd: RawFd) -> Result<RawFd> {
 /// Accept a connection on a socket
 ///
 /// [Further reading](https://man7.org/linux/man-pages/man2/accept.2.html)
-#[cfg(any(
-    all(
-        target_os = "android",
-        any(target_arch = "aarch64", target_arch = "x86", target_arch = "x86_64")
-    ),
-    freebsdlike,
-    netbsdlike,
-    target_os = "emscripten",
-    solarish,
-    target_os = "linux"
-))]
+#[cfg(any(freebsdlike, netbsdlike, target_os = "emscripten", solarish, target_os = "linux"))]
 pub fn accept4(sockfd: RawFd, flags: SockFlag) -> Result<RawFd> {
     let res = unsafe { libc::accept4(sockfd, ptr::null_mut(), ptr::null_mut(), flags.bits()) };
 

@@ -12,39 +12,11 @@
 
 namespace webauthn::features {
 
-#if BUILDFLAG(IS_ANDROID)
-// A development feature flag to control the CredMan mode.
-COMPONENT_EXPORT(WEBAUTHN)
-BASE_DECLARE_FEATURE(kWebAuthnAndroidCredManForDev);
-// Parameter for `kWebAuthnAndroidCredManForDev` to specify the mode.
-// Can be "disabled", "full" or "parallel".
-COMPONENT_EXPORT(WEBAUTHN)
-extern const base::FeatureParam<std::string> kWebAuthnAndroidCredManForDevMode;
 
-// Disables sending the smart-card transport in FIDO2 API calls. This is a
-// temporary workaround for crbug.com/555599813.
-COMPONENT_EXPORT(WEBAUTHN)
-BASE_DECLARE_FEATURE(kWebAuthnFilterSmartCardTransport);
-
-// Controls whether conditional create (automatic passkey upgrades) is
-// disallowed in Incognito mode on Android.
-// Enabled by default in M156. Can be cleaned up in or after M159.
-COMPONENT_EXPORT(WEBAUTHN)
-BASE_DECLARE_FEATURE(kWebAuthnAndroidDisallowIncognitoConditionalCreate);
-
-// Deprecation killswitch for legacy caBLEv2 FCM registration and hardware
-// checks.
-COMPONENT_EXPORT(WEBAUTHN)
-BASE_DECLARE_FEATURE(kWebAuthnRegisterForCloudMessages);
-
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if !BUILDFLAG(IS_ANDROID)
 
 // Controls deletion of passkeys that have been hidden for a while.
 BASE_DECLARE_FEATURE(kDeleteOldHiddenPasskeys);
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Reject RP IDs inside the caller's public suffix.
 BASE_DECLARE_FEATURE(kRejectRpIdsInsideCallersPublicSuffix);

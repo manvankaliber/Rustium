@@ -25,9 +25,6 @@
 #include "google_apis/gaia/gaia_auth_util.h"
 #include "mojo/public/cpp/bindings/callback_helpers.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/glic/android/settings/glic_navigation_utils_android.h"
-#endif
 
 namespace glic {
 
@@ -274,13 +271,9 @@ void AuthController::CookieSyncDone(GlicCookieSyncTrigger trigger,
 void AuthController::ShowReauthForAccount(content::WebContents* web_contents) {
   CoreAccountInfo primary_account_info =
       identity_manager_->GetPrimaryAccountInfo(signin::ConsentLevel::kSignin);
-#if !BUILDFLAG(IS_ANDROID)
   signin_ui_util::ShowReauthForAccount(
       profile_, primary_account_info.email,
       signin_metrics::AccessPoint::kGlicLaunchButton);
-#else
-  glic::ShowSignIn(profile_, web_contents);
-#endif
 }
 
 void AuthController::CookieSyncBeforeLoadDone(

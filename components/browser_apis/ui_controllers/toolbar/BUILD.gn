@@ -58,10 +58,6 @@ mojom("mojom_data_model") {
 
   # Generate TypeScript bindings for WebUI.
   webui_module_path = "/"
-
-  if (enable_smart_card) {
-    enabled_features = [ "enable_smart_card" ]
-  }
 }
 
 # Generate Mojo bindings from mojom API files.

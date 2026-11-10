@@ -23,7 +23,7 @@ component("backend_interfaces") {
   defines = [ "IS_ON_DEVICE_MODEL_IMPL" ]
 }
 
-if (use_blink || (is_ios && build_with_internal_optimization_guide)) {
+if (use_blink) {
   component("on_device_model_service") {
     sources = [
       "on_device_model_mojom_impl.cc",
@@ -67,19 +67,15 @@ if (use_blink || (is_ios && build_with_internal_optimization_guide)) {
       deps += [ "//services/on_device_model/ml" ]
     }
 
-    if (is_linux || is_chromeos) {
+    if (is_linux) {
       deps += [ "//gpu/config" ]
     }
-    if (is_android) {
-      deps += [ "//services/on_device_model/android" ]
-    }
-    if (!(is_linux && enable_cast_receiver)) {
-      deps += [
-        "//third_party/dawn/include/dawn:cpp_headers",
-        "//third_party/dawn/src/dawn:proc",
-        "//third_party/dawn/src/dawn/native",
-      ]
-    }
+
+    deps += [
+      "//third_party/dawn/include/dawn:cpp_headers",
+      "//third_party/dawn/src/dawn:proc",
+      "//third_party/dawn/src/dawn/native",
+    ]
   }
 
   source_set("tests") {

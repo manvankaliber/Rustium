@@ -97,9 +97,6 @@ class TabObservationController {
   // Internal phases of the observation flow.
   void PerformObservation();
   void PopulateWindowObservations(ActorTask* task);
-#if BUILDFLAG(IS_ANDROID)
-  void PopulateAndroidOffscreenWindowObservations(ActorTask* task);
-#endif
   std::vector<ActorSurfaceHandle> PopulateTabObservations(ActorTask* task);
   void StartFetchingObservations(
       const std::vector<ActorSurfaceHandle>& tabs_to_fetch);

@@ -21,19 +21,13 @@
 #include "device/fido/public/fido_types.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/webauthn/authenticator_request_dialog_controller.h"
 #include "chrome/browser/webauthn/authenticator_request_scheduler.h"
 #include "chrome/browser/webauthn/chrome_authenticator_request_delegate.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/webauthn/android/webauthn_request_delegate_android.h"
-#endif
 
 namespace {
 using device::AuthenticatorType;
-#if !BUILDFLAG(IS_ANDROID)
 // `AuthenticatorRequestDialogModel` observed from `authenticator_observation_`
 // may notify this class too soon, causing a flicker. Delay calling
 // `passkey_selected_callback_` at least 300ms to avoid the flicker.
@@ -43,7 +37,6 @@ constexpr base::TimeDelta kFlickerDuration = base::Milliseconds(300);
 bool IsGpmPasskeyAuthenticatorType(AuthenticatorType type) {
   return type == AuthenticatorType::kEnclave;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -60,7 +53,6 @@ ChromeWebAuthnCredentialsDelegate::~ChromeWebAuthnCredentialsDelegate() =
     default;
 
 void ChromeWebAuthnCredentialsDelegate::LaunchSecurityKeyOrHybridFlow() {
-#if !BUILDFLAG(IS_ANDROID)
   ChromeAuthenticatorRequestDelegate* authenticator_delegate =
       AuthenticatorRequestScheduler::GetRequestDelegate(web_contents_);
   if (!authenticator_delegate) {
@@ -68,12 +60,6 @@ void ChromeWebAuthnCredentialsDelegate::LaunchSecurityKeyOrHybridFlow() {
   }
   authenticator_delegate->dialog_controller()
       ->TransitionToModalWebAuthnRequest();
-#else
-  if (WebAuthnRequestDelegateAndroid* delegate =
-          WebAuthnRequestDelegateAndroid::GetRequestDelegate(frame_host_)) {
-    delegate->OnHybridSignInSelected();
-  }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ChromeWebAuthnCredentialsDelegate::SelectPasskey(
@@ -85,15 +71,6 @@ void ChromeWebAuthnCredentialsDelegate::SelectPasskey(
       base::Base64Decode(backend_id);
   CHECK(selected_credential_id, base::NotFatalUntil::M163);
 
-#if BUILDFLAG(IS_ANDROID)
-  std::move(callback).Run();
-  auto* request_delegate =
-      WebAuthnRequestDelegateAndroid::GetRequestDelegate(frame_host_);
-  if (!request_delegate) {
-    return;
-  }
-  request_delegate->OnWebAuthnAccountSelected(*selected_credential_id);
-#else
   ChromeAuthenticatorRequestDelegate* authenticator_delegate =
       AuthenticatorRequestScheduler::GetRequestDelegate(web_contents_);
   if (!authenticator_delegate) {
@@ -116,12 +93,10 @@ void ChromeWebAuthnCredentialsDelegate::SelectPasskey(
     authenticator_observation_.Reset();
     std::move(passkey_selected_callback_).Run();
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 std::optional<std::string> ChromeWebAuthnCredentialsDelegate::GetCableQrString()
     const {
-#if !BUILDFLAG(IS_ANDROID)
   ChromeAuthenticatorRequestDelegate* authenticator_delegate =
       AuthenticatorRequestScheduler::GetRequestDelegate(web_contents_);
   if (!authenticator_delegate || !authenticator_delegate->dialog_model()) {
@@ -131,9 +106,6 @@ std::optional<std::string> ChromeWebAuthnCredentialsDelegate::GetCableQrString()
     return std::nullopt;
   }
   return authenticator_delegate->dialog_model()->cable_qr_string;
-#else
-  return std::nullopt;
-#endif
 }
 
 void ChromeWebAuthnCredentialsDelegate::OnPasskeyQrCodeSuggestionShown() {
@@ -172,14 +144,9 @@ ChromeWebAuthnCredentialsDelegate::AsWeakPtr() {
 }
 
 bool ChromeWebAuthnCredentialsDelegate::HasPendingPasskeySelection() {
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
   return !passkey_selected_callback_.is_null();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ChromeWebAuthnCredentialsDelegate::OnStepTransition() {
   AuthenticatorRequestDialogModel* model =
       authenticator_observation_.GetSource();
@@ -197,7 +164,6 @@ void ChromeWebAuthnCredentialsDelegate::OnStepTransition() {
                             std::move(passkey_selected_callback_));
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 bool ChromeWebAuthnCredentialsDelegate::IsSecurityKeyOrHybridFlowAvailable()
     const {
@@ -242,7 +208,6 @@ void ChromeWebAuthnCredentialsDelegate::NotifyWebAuthnRequestAborted() {
   passkeys_ = std::nullopt;
   last_request_was_aborted_ = true;
   NotifyClientsOfPasskeyAvailability();
-#if !BUILDFLAG(IS_ANDROID)
   // Also dismiss the autofill popup if it is being displayed and a webauthn
   // request is loading.
   if (passkey_selected_callback_) {
@@ -250,7 +215,6 @@ void ChromeWebAuthnCredentialsDelegate::NotifyWebAuthnRequestAborted() {
                             std::move(passkey_selected_callback_));
   }
   authenticator_observation_.Reset();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void ChromeWebAuthnCredentialsDelegate::RecordPasskeyRetrievalDelay() {

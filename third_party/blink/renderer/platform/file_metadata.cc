@@ -96,12 +96,7 @@ std::optional<FileMetadata> GetFileMetadata(const String& path,
 
 KURL FilePathToURL(const String& path) {
   base::FilePath file_path = StringToFilePath(path);
-#if BUILDFLAG(IS_ANDROID)
-  GURL gurl = file_path.IsContentUri() ? GURL(file_path.value())
-                                       : net::FilePathToFileURL(file_path);
-#else
   GURL gurl = net::FilePathToFileURL(file_path);
-#endif
   const std::string& url_spec = gurl.possibly_invalid_spec();
   return KURL(AtomicString::FromUtf8(url_spec),
               gurl.parsed_for_possibly_invalid_spec(), gurl.is_valid());

@@ -43,10 +43,6 @@ BLINK_COMMON_EXPORT extern const char kCommonScript[];
 // browser/profiles/profile.cc, and
 // content/public/common/common_param_traits_macros.h
 struct BLINK_COMMON_EXPORT WebPreferences {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  static constexpr float kDefaultMinimumPageScaleFactor = 0.25f;
-  static constexpr bool kShrinksViewportContentsToFit = true;
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
   ScriptFontFamilyMap standard_font_family_map;
   // The value for Osaka font should be "Osaka", not "Osaka-Mono".
@@ -153,10 +149,6 @@ struct BLINK_COMMON_EXPORT WebPreferences {
       mojom::EditingBehavior::kEditingMacBehavior;
 #elif BUILDFLAG(IS_WIN)
       mojom::EditingBehavior::kEditingWindowsBehavior;
-#elif BUILDFLAG(IS_ANDROID)
-      mojom::EditingBehavior::kEditingAndroidBehavior;
-#elif BUILDFLAG(IS_CHROMEOS)
-      mojom::EditingBehavior::kEditingChromeOSBehavior;
 #elif BUILDFLAG(IS_POSIX)
       mojom::EditingBehavior::kEditingUnixBehavior;
 #else
@@ -165,30 +157,22 @@ struct BLINK_COMMON_EXPORT WebPreferences {
 
   bool supports_multiple_windows = true;
   bool viewport_enabled = false;
-  bool viewport_meta_enabled = BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS);
+  bool viewport_meta_enabled = false || false;
   bool auto_zoom_focused_editable_to_legible_scale =
-      BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS);
+      false || false;
 
   // If true - Blink will clamp the minimum scale factor to the content width,
   // preventing zoom beyond the visible content. This is really only needed if
   // `viewport_enabled` is on.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  bool shrinks_viewport_contents_to_fit = kShrinksViewportContentsToFit;
-#else
   bool shrinks_viewport_contents_to_fit = false;
-#endif
 
   blink::mojom::ViewportStyle viewport_style =
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-      mojom::ViewportStyle::kMobile;
-#else
       mojom::ViewportStyle::kDefault;
-#endif
-  bool always_show_context_menu_on_touch = !BUILDFLAG(IS_IOS);
+  bool always_show_context_menu_on_touch = !false;
   bool smooth_scroll_for_find_enabled =
-      BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS);
+      false || false;
   bool main_frame_resizes_are_orientation_changes =
-      BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS);
+      false || false;
   bool initialize_at_minimum_page_scale = true;
   bool smart_insert_delete_enabled = BUILDFLAG(IS_MAC);
   bool spatial_navigation_enabled = false;
@@ -249,14 +233,14 @@ struct BLINK_COMMON_EXPORT WebPreferences {
   bool immersive_video_playback_enabled = false;
 
   bool double_tap_to_zoom_enabled =
-      BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE);
+      false || BUILDFLAG(IS_APPLE);
 
   bool fullscreen_supported = true;
 
   // NOTE: When modifying behavior related to this flag, please e-mail
   // webview-font-settings@google.com as an FYI. Googlers, more info is
   // available at go/webview-font-settings.
-  bool text_size_adjust_enabled = BUILDFLAG(IS_ANDROID);
+  bool text_size_adjust_enabled = false;
 
   // Representation of the Web App Manifest scope if any.
   GURL web_app_scope;
@@ -267,62 +251,10 @@ struct BLINK_COMMON_EXPORT WebPreferences {
   // profile.
   bool is_initial_profile = false;
 
-#if BUILDFLAG(IS_ANDROID)
-  float font_scale_factor = 1.0f;
-  int font_weight_adjustment = 0;
-  int text_size_contrast_factor = 0;
-  bool force_enable_zoom = false;
-  bool enable_touchpad_overscroll_history_navigation = true;
-  GURL default_video_poster_url;
-  bool support_deprecated_target_density_dpi = false;
-  bool wide_viewport_quirk = false;
-  bool use_wide_viewport = true;
-  bool force_zero_layout_height = false;
-  bool viewport_meta_merge_content_quirk = false;
-  bool viewport_meta_non_user_scalable_quirk = false;
-  bool viewport_meta_zero_values_quirk = false;
-  bool clobber_user_agent_initial_scale_quirk = false;
-  bool ignore_main_frame_overflow_hidden_quirk = false;
-  bool report_screen_size_in_physical_pixels_quirk = false;
-  // Used by Android_WebView only to support legacy apps that inject script into
-  // a top-level initial empty document and expect it to persist on navigation.
-  bool reuse_global_for_unowned_main_frame = false;
-  // Specifies default setting for spellcheck when the spellcheck attribute is
-  // not explicitly specified.
-  bool spellcheck_enabled_by_default = true;
-  // If enabled, when a video goes fullscreen, the orientation should be locked.
-  bool video_fullscreen_orientation_lock_enabled = false;
-  // If enabled, fullscreen should be entered/exited when the device is rotated
-  // to/from the orientation of the video.
-  bool video_rotate_to_fullscreen_enabled = false;
-  bool embedded_media_experience_enabled = false;
-  // Enable 8 (#RRGGBBAA) and 4 (#RGBA) value hex colors in CSS Android
-  // WebView quirk (http://crbug.com/618472).
-  bool css_hex_alpha_color_enabled = true;
-  // Enable support for document.scrollingElement
-  // WebView sets this to false to retain old documentElement behaviour
-  // (http://crbug.com/761016).
-  bool scroll_top_left_interop_enabled = true;
-
-  // Don't accelerate small canvases to avoid crashes TODO(crbug.com/1004304)
-  bool disable_accelerated_small_canvases = false;
-
-  // Long press on links selects text instead of triggering context menu.
-  bool long_press_link_select_text = false;
-  // Support WebView font scaling behavior that differs from Chrome.
-  // NOTE: When modifying behavior related to this flag, please e-mail
-  // webview-font-settings@google.com as an FYI. Googlers, more info is
-  // available at go/webview-font-settings.
-  bool scale_all_fonts_if_no_meta_text_scale_tag = false;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // TODO(crbug.com/1284805): Remove IS_ANDROID once WebView supports WebAuthn.
 // TODO(crbug.com/1382970): Remove IS_FUCHSIA and merge with the block above
 // once all Content embedders on Fuchsia support WebAuthn.
-#if BUILDFLAG(IS_ANDROID)
-  // Disable the Web Authentication API.
-  bool disable_webauthn = false;
-#endif
 
   // Enable forcibly modifying content rendering to result in a light on dark
   // color scheme.
@@ -331,10 +263,7 @@ struct BLINK_COMMON_EXPORT WebPreferences {
   // Default (used if the page or UA doesn't override these) values for page
   // scale limits. These are set directly on the WebView so there's no analogue
   // in WebSettings.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  float default_minimum_page_scale_factor = kDefaultMinimumPageScaleFactor;
-  float default_maximum_page_scale_factor = 5.f;
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
   float default_minimum_page_scale_factor = 1.f;
   float default_maximum_page_scale_factor = 3.f;
 #else
@@ -481,12 +410,6 @@ struct BLINK_COMMON_EXPORT WebPreferences {
   bool should_disable_external_popups = false;
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_ANDROID)
-  // Whether a screenshot will be take for every traversable mainframe same-doc
-  // navigation. This will increment the `viz::LocalSurfaceId` from the impl
-  // thread as a side-effect.
-  bool should_screenshot_on_mainframe_same_doc_navigation = true;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Set if this is in a WebView for chrome/browser/indigo/onboarding/.
   // Consumed only in chrome/renderer/ (not by Blink).

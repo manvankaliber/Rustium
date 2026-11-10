@@ -105,33 +105,7 @@ All of the local tracking of data will happen per Chrome user profile.
 
 ## Developing a new In-Product Help Feature
 
-### The Easy Way (Recommended)
-
-We have a helper script that automates almost all of the boilerplate setup. It
-will register your feature, add it to the required lists, and set up the basic
-UMA configurations.
-
-Just run:
-```sh
-python3 tools/feature_engagement/generate_iph_entry.py
-```
-
-It will prompt you for a feature name (e.g., `GoatTeleportation`), a
-description, and whether you want to export to Java (choose yes if your IPH
-is used on Android).
-
-After it runs, you will still need to:
-1.  Address the `TODO`s it left in `feature_configurations.cc` (and
-`EventConstants.java` if you opted for Java export) to define your feature's
-specific rules.
-2.  Start using the tracker in your code to trigger the IPH (see [Using the
- tracker](#Using-the-feature_engagement_Tracker) below).
-3.  Set up your field trial config.
-
-### The Manual Way
-
-If you prefer to do it by hand (or want to know what the script just did),
-you need to:
+To add an In-Product Help feature:
 
 *   [Declare your feature](#Declaring-your-feature) and make it available to the
     `feature_engagement::Tracker`.
@@ -162,9 +136,6 @@ and be on the form:
 2.  Your unique CamelCased name, for example `GoatTeleportation`.
 
 #### Required Code Changes
-
-> **NOTE:**
-> The `generate_iph_entry.py` script handles all of these code changes for you.
 
 There are also a few more places where the feature should be added, so overall
 you would have to add it to the following places (all entries should be added
@@ -219,58 +190,7 @@ alphabetically within the appropriate `BUILDFLAG` block):
     &kIPHGoatTeleportationFeature,
     ```
 
-#### (Java-Only) Additional code changes
-
-If the feature will also be used from Java, also add it (alphabetically) to:
-[FeatureConstants.java](https://source.chromium.org/chromium/chromium/src/+/main:components/feature_engagement/public/android/java/src/org/chromium/components/feature_engagement/FeatureConstants.java)
-as a `String` constant:
-
-1. `//components/feature_engagement/public/android/java/src/org/chromium/components/feature_engagement/FeatureConstants.java`:
-
-    Add a `StringDef` entry:
-
-    ```Java
-    @StringDef({
-        // ...
-        FeatureConstants.IPH_GOAT_TELEPORTATION_FEATURE
-        // ...
-    })
-    ```
-
-    Add the definition within the interface:
-    ```Java
-
-    public @interface FeatureConstants {
-        // ...
-        String IPH_GOAT_TELEPORTATION_FEATURE = "IPH_GoatTeleportation";
-        // ...
-    }
-    ```
-
-In most cases, your feature will also have a concept of `used`, which signals
-that the user has used the feature you are trying to educate them on and
-therefore no longer needs to see the IPH (see
-[Using the tracker](#Using-the-feature_engagement_Tracker) below). If that
-action is triggered within the Java code, the `Event` also needs to be exported
-to Java.
-
-2. `//components/feature_engagement/public/android/java/src/org/chromium/components/feature_engagement/EventConstants.java`:
-
-    Add an entry (alphabetically) to the `EventConstants` class:
-    ```Java
-    public final class EventConstants {
-        // ...
-        /** The user interacted with the Goat Teleportation feature. */
-        public static final String GOAT_TELEPORTATION_USED = "goat_teleportation_used";
-        // ...
-    }
-    ```
-
-
 #### Required UMA Changes
-
-> **NOTE:**
-> The `generate_iph_entry.py` script handles these UMA changes for you.
 
 To enable UMA tracking, you need to make the following changes to the metrics
 configuration (entries should be added alphabetically):
@@ -321,9 +241,8 @@ For a full description of these actions and the histograms recorded by the track
 
 ### Using the feature_engagement::Tracker
 
-To retrieve the `feature_engagement::Tracker` you need to use your platform
-specific way for how to retrieve a `KeyedService`. For example for Android, you
-can use the `feature_engagement::TrackerFactory` in
+To retrieve the desktop `feature_engagement::Tracker`, use the
+`feature_engagement::TrackerFactory` in
 `//chrome/browser/feature_engagement/tracker_factory.h` to retrieve it from the
 `Profile` or `BrowserContext`:
 
@@ -464,7 +383,7 @@ something like this:
 {
   "GoatTeleportationFeatureStudy": [
     {
-      "platforms": ["android"],
+      "platforms": ["linux", "mac", "windows"],
       "experiments": [
         {
           "name": "GoatTeleportationFeatureLaunchConfig",
@@ -552,18 +471,10 @@ will apply.
 ## Enterprise Policy (PromotionsEnabled)
 
 The `PromotionsEnabled` enterprise policy maps to the local-state boolean pref
-`prefs::kPromotionsEnabled` (`Pref.PROMOTIONS_ENABLED` in Java, defaulting to
-`true`). When the policy is disabled, `TrackerImpl` refuses to trigger
-In-Product Help promotions (`shouldTriggerHelpUi`,
-`shouldTriggerHelpUiWithSnooze`, and `wouldTriggerHelpUi` return `false`) and
-records `TriggerHelpUIResult.FAILURE_BLOCKED_BY_ENTERPRISE_POLICY` to
-`InProductHelp.ShouldTriggerHelpUI` and
-`InProductHelp.ShouldTriggerHelpUI.<IPH_Feature>`. On Desktop,
-`BrowserFeaturePromoController` similarly checks `prefs::kPromotionsEnabled`
-via `DoesEnterprisePolicyBlockPromotions()` for low-priority non-toast
-promotions while exempting medium- and high-priority legal notices, keyed
-notices, and actionable alerts. On Android, exemptions are defined centrally
-in `EnterprisePolicyBypassAllowlist.java` (`ALLOWLISTED_FEATURES`).
+`prefs::kPromotionsEnabled`, which defaults to `true`. Desktop feature promos
+check this preference via `DoesEnterprisePolicyBlockPromotions()` for
+low-priority non-toast promotions while exempting medium- and high-priority
+legal notices, keyed notices, and actionable alerts.
 
 ### New Policy Exemptions
 
@@ -741,21 +652,21 @@ similarly named parameters for each feature.
 
 **Examples**
 
-Trigger the IPH once every 4 months if the `download_completed` event has
-triggered at least one time and the `download_home_iph_trigger` (download home
+Trigger the IPH once every 4 months if the `related_fun_thing_happened` event has
+triggered at least one time and the `goat_teleportation_iph_triggered` (download home
 IPH) hasn't triggered in the last 90 days. The feature needs to have been
 available for more than a month and no other IPH has been shown for the current
 session.
 
-The event we are trying to increase the usage of is `download_home_opened` and
+The event we are trying to increase the usage of is `goat_teleportation_used` and
 is allowed to have previously happened for the IPH to trigger.
 ```
 {
   "availability": ">=30",
   "session_rate": "<1",
-  "event_trigger": "name:download_home_iph_trigger;comparator:==0;window:90;storage:360",
-  "event_used": "name:download_home_opened;comparator:any;window:0;storage:360",
-  "event_1": "name:download_completed;comparator:>=1;window:120;storage:180"
+  "event_trigger": "name:goat_teleportation_iph_triggered;comparator:==0;window:90;storage:360",
+  "event_used": "name:goat_teleportation_used;comparator:any;window:0;storage:360",
+  "event_1": "name:related_fun_thing_happened;comparator:>=1;window:120;storage:180"
 }
 ```
 
@@ -907,8 +818,8 @@ Format: `[all|none|comma-separated list]`
 ```
 all
 none
-IPH_DownloadHome
-IPH_DownloadPage,IPH_DownloadHome
+IPH_GoatTeleportation
+IPH_DownloadPage,IPH_GoatTeleportation
 ```
 
 ### BlockedBy
@@ -939,8 +850,8 @@ when other features are currently showing.
 ```
 all
 none
-IPH_DownloadHome
-IPH_DownloadPage,IPH_DownloadHome
+IPH_GoatTeleportation
+IPH_DownloadPage,IPH_GoatTeleportation
 ```
 
 ### Blocking
@@ -1050,8 +961,8 @@ only one of the 2 to trigger every week.
 DownloadHomeIPH: {
   "availability": ">=30",
   "session_rate": "<1",
-  "event_trigger": "name:download_home_iph_trigger;comparator:==0;window:30;storage:30",
-  "event_used": "name:download_home_opened;comparator:any;window:0;storage:360",
+  "event_trigger": "name:goat_teleportation_iph_triggered;comparator:==0;window:30;storage:30",
+  "event_used": "name:goat_teleportation_used;comparator:any;window:0;storage:360",
   "groups": "DownloadGroup",
 }
 DownloadCustomIPH: {
@@ -1083,24 +994,24 @@ correctly.
 
 1.  Create a file which describes the configuration you are planning on testing
     with, and store it. In the following example, store the file
-    `DownloadStudy.json`:
+    `GoatTeleportationStudy.json`:
 
     ```javascript
     {
-      "DownloadStudy": [
+      "GoatTeleportationStudy": [
         {
-          "platforms": ["android"],
+          "platforms": ["linux"],
           "experiments": [
             {
-              "name": "DownloadExperiment",
+              "name": "GoatTeleportationExperiment",
               "params": {
                 "availability": ">=30",
                 "session_rate": "<1",
-                "event_trigger": "name:download_home_iph_trigger;comparator:any;window:0;storage:360",
-                "event_used": "name:download_home_opened;comparator:any;window:0;storage:360",
-                "event_1": "name:download_completed;comparator:>=1;window:120;storage:180"
+                "event_trigger": "name:goat_teleportation_iph_triggered;comparator:any;window:0;storage:360",
+                "event_used": "name:goat_teleportation_used;comparator:any;window:0;storage:360",
+                "event_1": "name:related_fun_thing_happened;comparator:>=1;window:120;storage:180"
               },
-              "enable_features": ["IPH_DownloadHome"],
+              "enable_features": ["IPH_GoatTeleportation"],
               "disable_features": []
             }
           ]
@@ -1113,18 +1024,13 @@ correctly.
     line arguments:
 
     ```bash
-    python ./tools/variations/fieldtrial_util.py DownloadStudy.json android shell_cmd
+    python ./tools/variations/fieldtrial_util.py GoatTeleportationStudy.json linux shell_cmd
     ```
 
 3.  Pass the command line along to the binary you are planning on running.
 
-    Note: For Android you need to ensure that all arguments are within one
-    set of double quotes. In particular, for the Android target
-    `chrome_public_apk` it would be:
-
-    ```bash
-    ./out/Debug/bin/chrome_public_apk run --args "--force-fieldtrials=DownloadStudy/DownloadExperiment --force-fieldtrial-params=DownloadStudy.DownloadExperiment:availability/>=30/event_1/name%3Adownload_completed;comparator%3A>=1;window%3A120;storage%3A180/event_trigger/name%3Adownload_home_iph_trigger;comparator%3Aany;window%3A90;storage%3A360/event_used/name%3Adownload_home_opened;comparator%3Aany;window%3A90;storage%3A360/session_rate/<1 --enable-features=IPH_DownloadHome<DownloadStudy"
-    ```
+    For a Linux desktop build, append the generated arguments to
+    `./out/Debug/chrome`.
 
 ### Printf debugging
 
@@ -1135,18 +1041,6 @@ a debug build of chrome with the following command line arguments:
 ```bash
 --vmodule=tracker_impl*=2,event_model_impl*=2,persistent_availability_store*=2,chrome_variations_configuration*=3
 ```
-
-## Automated External Testing (Tast)
-
-If you want to restrict the IPH that can show when launching Chrome as an
-external process as part of a test, use the `--propagate-iph-for-testing`
-switch:
-
- * `chrome --propagate-iph-for-testing`
-   - disables all IPH
- * `chrome --propagate-iph-for-testing=IPH_GoatTeleportation,IPH_FlyingCow`
-   - disables all IPH except for "IPH_GoatTeleportation" and
-   "IPH_FlyingCow".
 
 ## Development of `//components/feature_engagement`
 

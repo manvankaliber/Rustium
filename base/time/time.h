@@ -85,9 +85,6 @@
 #undef TYPE_BOOL
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include <jni.h>
-#endif
 
 #if BUILDFLAG(IS_POSIX)
 #include <sys/time.h>
@@ -469,9 +466,6 @@ class TimeBase {
   }
 
   // Compute the difference between two times.
-#if !defined(__aarch64__) && BUILDFLAG(IS_ANDROID)
-  NOINLINE  // https://crbug.com/1369775
-#endif
       constexpr TimeDelta operator-(const TimeBase<TimeClass>& other) const;
 
   // Return a new time modified by some delta.
@@ -553,16 +547,7 @@ class BASE_EXPORT Time : public time_internal::TimeBase<Time> {
 #if BUILDFLAG(IS_WIN)
   static constexpr int kExplodedMinYear = 1601;
   static constexpr int kExplodedMaxYear = 30827;
-#elif BUILDFLAG(IS_IOS) && !__LP64__
-  static constexpr int kExplodedMinYear = std::numeric_limits<int>::min();
-  static constexpr int kExplodedMaxYear = std::numeric_limits<int>::max();
 #elif BUILDFLAG(IS_APPLE)
-  static constexpr int kExplodedMinYear = 1902;
-  static constexpr int kExplodedMaxYear = std::numeric_limits<int>::max();
-#elif BUILDFLAG(IS_ANDROID)
-  // Though we use 64-bit time APIs on both 32 and 64 bit Android, some OS
-  // versions like KitKat (ARM but not x86 emulator) can't handle some early
-  // dates (e.g. before 1170). So we set min conservatively here.
   static constexpr int kExplodedMinYear = 1902;
   static constexpr int kExplodedMaxYear = std::numeric_limits<int>::max();
 #else
@@ -1249,36 +1234,7 @@ class BASE_EXPORT TimeTicks : public time_internal::TimeBase<TimeTicks> {
 
 #endif  // BUILDFLAG(IS_APPLE)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  // Converts to TimeTicks the value obtained from SystemClock.uptimeMillis().
-  // Note: this conversion may be non-monotonic in relation to previously
-  // obtained TimeTicks::Now() values because of the truncation (to
-  // milliseconds) performed by uptimeMillis().
-  static TimeTicks FromUptimeMillis(int64_t uptime_millis_value);
 
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_ANDROID)
-  // Converts to TimeTicks the value obtained from System.nanoTime(). This
-  // conversion will be monotonic in relation to previously obtained
-  // TimeTicks::Now() values as the clocks are based on the same posix monotonic
-  // clock, with nanoTime() potentially providing higher resolution.
-  static TimeTicks FromJavaNanoTime(int64_t nano_time_value);
-
-  // Truncates the TimeTicks value to the precision of SystemClock#uptimeMillis.
-  // Note that the clocks already share the same monotonic clock source.
-  int64_t ToUptimeMillis() const;
-
-  // Returns the TimeTicks value as microseconds in the timebase of
-  // SystemClock#uptimeMillis.
-  // Note that the clocks already share the same monotonic clock source.
-  //
-  // System.nanoTime() may be used to get sub-millisecond precision in Java code
-  // and may be compared against this value as the two share the same clock
-  // source (though be sure to convert nanos to micros).
-  int64_t ToUptimeMicros() const;
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Returns an enum indicating the underlying clock being used to generate
   // TimeTicks timestamps. This function should only be used for debugging and
@@ -1408,8 +1364,7 @@ class BASE_EXPORT ThreadTicks : public time_internal::TimeBase<ThreadTicks> {
 
   // Returns true if ThreadTicks::Now() is supported on this system.
   [[nodiscard]] static bool IsSupported() {
-#if defined(_POSIX_THREAD_CPUTIME) && _POSIX_THREAD_CPUTIME >= 0 || \
-    BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_ANDROID)
+#if defined(_POSIX_THREAD_CPUTIME) && _POSIX_THREAD_CPUTIME >= 0 || BUILDFLAG(IS_APPLE)
     return true;
 #elif BUILDFLAG(IS_WIN)
     return IsSupportedWin();

@@ -28,19 +28,17 @@ static_library("custom_handlers") {
     "//third_party/blink/public/common:headers",
   ]
 
-  if (!is_android && !is_ios) {
-    sources += [
-      "protocol_handler_navigation_throttle.cc",
-      "protocol_handler_navigation_throttle.h",
-      "register_protocol_handler_permission_request.cc",
-      "register_protocol_handler_permission_request.h",
-    ]
+  sources += [
+    "protocol_handler_navigation_throttle.cc",
+    "protocol_handler_navigation_throttle.h",
+    "register_protocol_handler_permission_request.cc",
+    "register_protocol_handler_permission_request.h",
+  ]
 
-    deps += [
-      "//components/permissions",
-      "//ui/base",
-    ]
-  }
+  deps += [
+    "//components/permissions",
+    "//ui/base",
+  ]
 }
 
 source_set("test_support") {
@@ -80,22 +78,20 @@ source_set("unit_tests") {
     "//third_party/blink/public/common:headers",
   ]
 
-  if (!is_android && !is_ios) {
-    sources += [ "register_protocol_handler_permission_request_unittest.cc" ]
-    deps += [
-      "//components/permissions",
-      "//url",
-    ]
-  }
+  sources += [ "register_protocol_handler_permission_request_unittest.cc" ]
+  deps += [
+    "//components/permissions",
+    "//url",
+  ]
 }
 
 source_set("browser_tests") {
   testonly = true
   defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
   sources = [ "protocol_handler_registry_browsertest.cc" ]
-  if (!is_android && !is_ios) {
-    sources += [ "protocol_handler_navigation_throttle_browsertest.cc" ]
-  }
+
+  sources += [ "protocol_handler_navigation_throttle_browsertest.cc" ]
+
   deps = [
     ":custom_handlers",
     ":test_support",
@@ -108,10 +104,4 @@ source_set("browser_tests") {
     "//testing/gmock",
     "//testing/gtest",
   ]
-  if (is_ios) {
-    deps += [
-      "//components/test:custom_handlers_test_bundle_data",
-      "//components/test:fenced_frames_test_bundle_data",
-    ]
-  }
 }

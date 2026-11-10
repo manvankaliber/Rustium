@@ -29,13 +29,6 @@
 #include "ui/base/ui_base_features.h"
 #include "ui/gfx/vector_icon_types.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/users/fake_chrome_user_manager.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "components/account_id/account_id.h"
-#include "components/user_manager/scoped_user_manager.h"
-#include "ui/chromeos/devicetype_utils.h"
-#endif
 
 namespace {
 
@@ -80,11 +73,7 @@ class ManagedUiSupervisedUserTest : public testing::Test {
   // On ChromeOS, management UI is displayed at the OS level, so Family Link
   // supervision does not display browser-level managed UI.
   bool ExpectManagedUiForSupervisedUsers() const {
-#if BUILDFLAG(IS_CHROMEOS)
-    return false;
-#else
     return true;
-#endif
   }
 
   Profile* profile() { return profile_.get(); }
@@ -111,29 +100,16 @@ TEST_F(ManagedUiSupervisedUserTest, GetDeviceManagedUiHelpLabelEnterprise) {
 
   // Enterprise management takes precedence over supervision in the management
   // UI.
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(l10n_util::GetStringFUTF16(IDS_MANAGEMENT_NOT_MANAGED_SUBTITLE,
-                                       ui::GetChromeOSDeviceName()),
-            GetDeviceManagedUiHelpLabel(profile()));
-#else
   EXPECT_EQ(l10n_util::GetStringUTF16(IDS_MANAGEMENT_SUBTITLE),
             GetDeviceManagedUiHelpLabel(profile()));
-#endif
 }
 
 TEST_F(ManagedUiSupervisedUserTest, GetDeviceManagedUiHelpLabelSupervised) {
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(l10n_util::GetStringFUTF16(IDS_MANAGEMENT_NOT_MANAGED_SUBTITLE,
-                                       ui::GetChromeOSDeviceName()),
-            GetDeviceManagedUiHelpLabel(profile()));
-#else
   EXPECT_EQ(l10n_util::GetStringUTF16(IDS_HELP_MANAGED_BY_YOUR_PARENT),
             GetDeviceManagedUiHelpLabel(profile()));
-#endif
 }
 
 // On ChromeOS we don't display the management UI for supervised users.
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ManagedUiSupervisedUserTest, GetManagedUiIconEnterprise) {
   // Simulate a managed device.
   AddEnterpriseManagedPolicies();
@@ -218,19 +194,14 @@ TEST_F(ManagedUiSupervisedUserTest, GetManagedUiMenuItemTooltipEnterprise) {
   }
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(ManagedUiSupervisedUserTest, GetManagedUiWebUIIconEnterprise) {
   // Simulate a managed profile.
   AddEnterpriseManagedPolicies();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_TRUE(GetManagedUiWebUIIcon(profile()).empty());
-#else
   // Enterprise management takes precedence over supervision in the management
   // UI.
   EXPECT_EQ("cr:domain", GetManagedUiWebUIIcon(profile()));
-#endif
 }
 
 TEST_F(ManagedUiSupervisedUserTest, GetManagedUiWebUIIconSupervised) {
@@ -279,7 +250,6 @@ TEST_F(ManagedUiSupervisedUserTest, GetManagedUiWebUILabelEnterprise) {
   }
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ManagedUiSupervisedUserTest, GetManagementPageSubtitle) {
   ScopedDeviceManagerForTesting unknown_device_manager("");
 
@@ -344,7 +314,6 @@ TEST_F(ManagedUiSupervisedUserTest, GetManagementBubbleTitle) {
               GetManagementBubbleTitle(profile()));
   }
 }
-#endif  //  !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(ManagedUiSupervisedUserTest, GetManagedUiWebUILabelSupervised) {
   if (ExpectManagedUiForSupervisedUsers()) {

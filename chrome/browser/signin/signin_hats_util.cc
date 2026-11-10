@@ -38,10 +38,8 @@
 #include "components/signin/public/base/signin_switches.h"
 #include "components/signin/public/identity_manager/identity_manager.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/profiles/profile_window.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 

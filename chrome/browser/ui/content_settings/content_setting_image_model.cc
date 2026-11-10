@@ -106,10 +106,6 @@ DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ContentSettingImageModel,
                                       kClipboardRWElementId);
 DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ContentSettingImageModel,
                                       kStorageAccessElementId);
-#if BUILDFLAG(ENABLE_SMART_CARD)
-DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ContentSettingImageModel,
-                                      kSmartCardIconElementId);
-#endif
 #if BUILDFLAG(IS_WIN)
 DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ContentSettingImageModel,
                                       kProtectedMediaElementId);
@@ -139,9 +135,6 @@ constexpr auto kContentSettingImageOrder = std::to_array<ImageType>({
     ImageType::kClipboardReadWrite,
     ImageType::kNotifications,
     ImageType::kStorageAccess,
-#if BUILDFLAG(ENABLE_SMART_CARD)
-    ImageType::kSmartCard,
-#endif
 #if BUILDFLAG(IS_WIN)
     ImageType::kProtectedMediaIdentifier,
 #endif
@@ -184,10 +177,6 @@ constexpr ui::ElementIdentifier GetElementIdentifierForType(
       return ContentSettingImageModel::kStorageAccessElementId;
     case ImageType::kNotifications:
       return kNotificationContentSettingImageView;
-#if BUILDFLAG(ENABLE_SMART_CARD)
-    case ImageType::kSmartCard:
-      return ContentSettingImageModel::kSmartCardIconElementId;
-#endif
 #if BUILDFLAG(IS_WIN)
     case ImageType::kProtectedMediaIdentifier:
       return ContentSettingImageModel::kProtectedMediaElementId;
@@ -327,42 +316,6 @@ class ContentSettingMediaImageModel : public ContentSettingImageModel {
   PageSpecificContentSettings::MicrophoneCameraState state_;
 };
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-// Image model for displaying media icons in the location bar.
-class ContentSettingSmartCardImageModel
-    : public ContentSettingSimpleImageModel {
- public:
-  ContentSettingSmartCardImageModel()
-      : ContentSettingSimpleImageModel(ImageType::kSmartCard,
-                                       ContentSettingsType::SMART_CARD_GUARD) {}
-
-  ContentSettingSmartCardImageModel(const ContentSettingSmartCardImageModel&) =
-      delete;
-  ContentSettingSmartCardImageModel& operator=(
-      const ContentSettingSmartCardImageModel&) = delete;
-
-  bool UpdateAndGetVisibility(WebContents* web_contents) override {
-    PageSpecificContentSettings* content_settings =
-        PageSpecificContentSettings::GetForFrame(
-            web_contents->GetPrimaryMainFrame());
-    if (!content_settings) {
-      return false;
-    }
-    // This should never appear when the permission is blocked.
-    SetIcon(ContentSettingsType::SMART_CARD_GUARD, /*blocked=*/false);
-    set_tooltip(l10n_util::GetStringUTF16(IDS_ACCESSED_SMART_CARD_READER_BODY));
-    return content_settings->ShouldShowDeviceInUseIndicator(
-        ContentSettingsType::SMART_CARD_GUARD);
-  }
-
-  std::unique_ptr<ContentSettingBubbleModel> CreateBubbleModelImpl(
-      ContentSettingBubbleModel::Delegate* delegate,
-      content::Page& page) override {
-    return std::make_unique<ContentSettingSimpleBubbleModel>(
-        delegate, page, ContentSettingsType::SMART_CARD_GUARD);
-  }
-};
-#endif  // BUILDFLAG(ENABLE_SMART_CARD)
 
 class ContentSettingSensorsImageModel : public ContentSettingSimpleImageModel {
  public:
@@ -613,15 +566,6 @@ void GetIconChromeRefresh(ContentSettingsType type,
                               ? vector_icons::kIframeIcon
                               : vector_icons::kIframeOldIcon);
       return;
-#if BUILDFLAG(ENABLE_SMART_CARD)
-    case ContentSettingsType::SMART_CARD_GUARD:
-      // Indicator shows only when at least one connection is active, hence no
-      // need for the off icon.
-      *icon = &(features::IsRoundedIconsEnabled()
-                    ? vector_icons::kSmartCardReaderIcon
-                    : vector_icons::kSmartCardReaderOldIcon);
-      return;
-#endif
 #if BUILDFLAG(IS_WIN)
     case ContentSettingsType::PROTECTED_MEDIA_IDENTIFIER:
       *icon = blocked ? &(features::IsRoundedIconsEnabled()
@@ -714,10 +658,6 @@ ContentSettingImageModel::CreateForContentType(ImageType image_type) {
       return std::make_unique<ContentSettingStorageAccessImageModel>();
     case ImageType::kNotifications:
       return std::make_unique<ContentSettingNotificationsImageModel>();
-#if BUILDFLAG(ENABLE_SMART_CARD)
-    case ImageType::kSmartCard:
-      return std::make_unique<ContentSettingSmartCardImageModel>();
-#endif
 #if BUILDFLAG(IS_WIN)
     case ImageType::kProtectedMediaIdentifier:
       return std::make_unique<

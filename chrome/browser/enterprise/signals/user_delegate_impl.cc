@@ -15,14 +15,7 @@
 #include "components/signin/public/base/consent_level.h"
 #include "components/signin/public/identity_manager/identity_manager.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/enterprise/connectors/device_trust/device_trust_features.h"
-#include "google_apis/gaia/gaia_id.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace enterprise_signals {
 
@@ -53,11 +46,6 @@ UserDelegateImpl::UserDelegateImpl(
 
 UserDelegateImpl::~UserDelegateImpl() = default;
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool UserDelegateImpl::IsSigninContext() const {
-  return ash::ProfileHelper::IsSigninProfile(profile_);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool UserDelegateImpl::IsAffiliated() const {
   return enterprise_util::IsProfileAffiliated(profile_);
@@ -81,15 +69,6 @@ bool UserDelegateImpl::IsSameUser(const GaiaId& gaia_id) const {
                  .GetAccountId();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-GaiaId UserDelegateImpl::GetPrimaryAccountGaiaId() const {
-  if (!identity_manager_) {
-    return GaiaId();
-  }
-  return identity_manager_->GetPrimaryAccountInfo(signin::ConsentLevel::kSignin)
-      .gaia;
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 std::set<policy::PolicyScope> UserDelegateImpl::GetPolicyScopesNeedingSignals()
     const {
@@ -104,16 +83,6 @@ std::set<policy::PolicyScope> UserDelegateImpl::GetPolicyScopesNeedingSignals()
 }
 
 bool UserDelegateImpl::IsCollectSignalsConsentRequired() const {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/463390232): Remove this workaround once the
-  // DeviceSignalsConsentDialog and explicit consent preferences are fully wired
-  // for Android managed profiles. Consent is implicitly granted during managed
-  // profile creation on Android.
-  if (enterprise_connectors::IsDeviceTrustConnectorAndroidEnabled() &&
-      IsManagedUser()) {
-    return false;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   return true;
 }
 

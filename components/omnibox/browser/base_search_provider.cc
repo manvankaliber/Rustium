@@ -48,8 +48,8 @@
 #include "url/url_constants.h"
 
 namespace {
-constexpr bool is_android = !!BUILDFLAG(IS_ANDROID);
-constexpr bool is_ios = !!BUILDFLAG(IS_IOS);
+constexpr bool is_android = !!false;
+constexpr bool is_ios = !!false;
 
 bool MatchTypeAndContentsAreEqual(const AutocompleteMatch& lhs,
                                   const AutocompleteMatch& rhs) {

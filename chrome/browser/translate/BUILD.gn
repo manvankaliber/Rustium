@@ -64,33 +64,16 @@ source_set("impl") {
     "//url",
   ]
 
-  if (is_android) {
-    deps += [
-      "//chrome/browser/android:resource_mapper",
-      "//chrome/browser/translate/android",
-      "//components/translate/content/android",
-    ]
-  }
-
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui:browser_tabstrip",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/read_anything",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/toasts",
-      "//chrome/browser/ui/toasts/api:toasts",
-      "//chrome/browser/ui/views/translate",
-    ]
-  }
-
-  if (is_chromeos) {
-    deps += [
-      "//chromeos/ash/components/file_manager:constants",
-      "//extensions/common:common_constants",
-    ]
-  }
+  deps += [
+    "//chrome/browser/ui:browser_tabstrip",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/read_anything",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/toasts",
+    "//chrome/browser/ui/toasts/api:toasts",
+    "//chrome/browser/ui/views/translate",
+  ]
 
   if (enable_pdf) {
     deps += [ "//components/pdf/browser" ]
@@ -115,59 +98,57 @@ source_set("test_support") {
   ]
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [
-      "translate_frame_binder_browsertest.cc",
-      "translate_manager_browsertest.cc",
-      "translate_manager_render_view_host_browsertest.cc",
+  sources = [
+    "translate_frame_binder_browsertest.cc",
+    "translate_manager_browsertest.cc",
+    "translate_manager_render_view_host_browsertest.cc",
+  ]
+
+  deps = [
+    ":test_support",
+    ":translate",
+    "//base",
+    "//base/test:test_support",
+    "//chrome/app:command_ids",
+    "//chrome/browser",
+    "//chrome/browser:chrome_content_browser_client",
+    "//chrome/browser/language",
+    "//chrome/browser/prefs:util",
+    "//chrome/browser/search_engines",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/read_anything",
+    "//chrome/browser/ui/toasts",
+    "//chrome/browser/ui/toasts/api:toasts",
+    "//chrome/browser/ui/translate",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+    "//chrome/browser/ui/views/side_panel",
+    "//chrome/browser/ui/views/translate",
+    "//chrome/common",
+    "//chrome/test:test_support",
+    "//chrome/test/base:browser_test_waiters",
+    "//components/language/core/browser",
+    "//components/translate/content/browser",
+    "//components/translate/core/browser",
+    "//components/translate/core/common",
+    "//content/public/browser",
+    "//content/test:test_support",
+    "//net:test_support",
+    "//pdf:buildflags",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+  ]
+
+  if (enable_pdf) {
+    deps += [
+      "//components/pdf/browser",
+      "//pdf/mojom",
     ]
-
-    deps = [
-      ":test_support",
-      ":translate",
-      "//base",
-      "//base/test:test_support",
-      "//chrome/app:command_ids",
-      "//chrome/browser",
-      "//chrome/browser:chrome_content_browser_client",
-      "//chrome/browser/language",
-      "//chrome/browser/prefs:util",
-      "//chrome/browser/search_engines",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/read_anything",
-      "//chrome/browser/ui/toasts",
-      "//chrome/browser/ui/toasts/api:toasts",
-      "//chrome/browser/ui/translate",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/browser/ui/views/side_panel",
-      "//chrome/browser/ui/views/translate",
-      "//chrome/common",
-      "//chrome/test:test_support",
-      "//chrome/test/base:browser_test_waiters",
-      "//components/language/core/browser",
-      "//components/translate/content/browser",
-      "//components/translate/core/browser",
-      "//components/translate/core/common",
-      "//content/public/browser",
-      "//content/test:test_support",
-      "//net:test_support",
-      "//pdf:buildflags",
-      "//testing/gmock",
-      "//testing/gtest",
-      "//url",
-    ]
-
-    if (enable_pdf) {
-      deps += [
-        "//components/pdf/browser",
-        "//pdf/mojom",
-      ]
-    }
   }
 }
 
@@ -197,13 +178,4 @@ source_set("unit_tests") {
     "//testing/gtest",
     "//url",
   ]
-
-  if (is_android) {
-    sources += [ "translate_manager_render_view_host_android_unittest.cc" ]
-    deps += [ "//components/translate/content/android" ]
-  }
-
-  if (is_chromeos) {
-    deps += [ "//chromeos/ash/components/file_manager:constants" ]
-  }
 }

@@ -25,8 +25,8 @@ _WHITESPACE = re.compile(
 
 # <ph> placeholder elements should contain the special character formatters
 # used to format <ph> element content.
-# Android format.
-_ANDROID_FORMAT = (
+# Indexed printf format.
+_PRINTF_FORMAT = (
   r'%[1-9]+\$'
   r'([-#+ 0,(]*)([0-9]+)?(\.[0-9]+)?'
   r'([bBhHsScCdoxXeEfgGaAtT%n])'
@@ -38,7 +38,7 @@ _OTHER_FORMAT = r'%[0-9sd]'
 
 # Finds formatters that must be in a placeholder (<ph>) element.
 _FORMATTERS = re.compile(
-  '(%s)|(%s)|(%s)' % (_ANDROID_FORMAT, _CHROME_FORMAT, _OTHER_FORMAT)
+  '(%s)|(%s)|(%s)' % (_PRINTF_FORMAT, _CHROME_FORMAT, _OTHER_FORMAT)
 )
 _BAD_PLACEHOLDER_MSG = (
   'ERROR: Placeholder formatter found outside of <ph> '

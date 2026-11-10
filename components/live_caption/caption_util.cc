@@ -23,9 +23,7 @@
 #include "base/win/windows_version.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/soda/soda_util.h"
-#endif
 
 namespace {
 
@@ -125,11 +123,7 @@ std::optional<ui::CaptionStyle> GetCaptionStyleFromUserSettings(
 }
 
 bool IsLiveCaptionFeatureSupported() {
-#if !BUILDFLAG(IS_ANDROID)
   return speech::IsOnDeviceSpeechRecognitionSupported();
-#else
-  return false;
-#endif
 }
 
 bool IsHeadlessCaptionFeatureSupported() {
@@ -140,9 +134,7 @@ bool IsHeadlessCaptionFeatureSupported() {
 }
 
 std::string GetCaptionSettingsUrl() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return "chrome://os-settings/audioAndCaptions";
-#elif BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   return "chrome://settings/captions";
 #elif BUILDFLAG(IS_WIN)
   return base::win::GetVersion() >= base::win::Version::WIN10

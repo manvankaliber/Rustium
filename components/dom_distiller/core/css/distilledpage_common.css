@@ -77,12 +77,6 @@ sub {
 /* Base styling. */
 
 body {
-<if expr="is_ios">
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-</if>
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
@@ -195,7 +189,6 @@ body {
 
 /* Font settings */
 
-<if expr="not(is_ios)">
 .serif {
   font-family: serif;
 }
@@ -212,36 +205,10 @@ body {
   font-family: 'Lexend', sans-serif;
   font-optical-sizing: auto;
 }
-</if>
 
-<if expr="is_ios">
-.serif {
-  font-family: -apple-system-ui-serif, ui-serif, 'Georgia', serif;
-}
-
-.sans-serif {
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-.monospace {
-  font-family: ui-monospace, SFMono-Regular, ui-monospace, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-}
-
-.Lexend {
-  font-family: "Lexend", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 100;
-  font-style: normal;
-}
-</if>
 
 /* Content. */
 
-<if expr="is_ios or is_android">
-.desktop-only {
-  display: none;
-}
-</if>
 
 body .hidden {
   display: none;
@@ -266,11 +233,6 @@ video::-webkit-media-controls-fullscreen-button {
   display: none;
 }
 
-<if expr="is_ios or is_android">
-.desktop-only {
-  display: none;
-}
-</if>
 
 
 /* Video styling. */

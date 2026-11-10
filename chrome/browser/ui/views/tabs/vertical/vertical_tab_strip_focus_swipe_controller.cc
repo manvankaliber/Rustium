@@ -26,7 +26,7 @@ VerticalTabStripFocusSwipeController::~VerticalTabStripFocusSwipeController() {
   region_view_->RemovePreTargetHandler(this);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 void VerticalTabStripFocusSwipeController::OnMouseEvent(ui::MouseEvent* event) {
   if (!base::FeatureList::IsEnabled(features::kTabGroupsFocusing) ||
       region_view_->IsDragging() ||

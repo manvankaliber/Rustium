@@ -13,9 +13,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/snappy/src/snappy.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "third_party/zstd/src/lib/zstd.h"
-#endif
 
 namespace storage {
 namespace {
@@ -70,7 +68,6 @@ TEST(CompressionTest, DecompressUncompressedData) {
   EXPECT_EQ(result, original);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 // Verifies that ZSTD-compressed data can be decompressed correctly.
 TEST(CompressionTest, DecompressZstdData) {
@@ -90,7 +87,6 @@ TEST(CompressionTest, DecompressZstdData) {
   EXPECT_EQ(result, original);
 }
 
-#endif
 
 // Verifies that Snappy-compressed data can be decompressed correctly.
 TEST(CompressionTest, DecompressSnappyData) {

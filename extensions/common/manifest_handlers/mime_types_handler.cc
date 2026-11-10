@@ -49,9 +49,6 @@ namespace {
 // LINT.IfChange(MimeTypeHandlersAllowlist)
 constexpr const char* kMIMETypeHandlersAllowlist[] = {
     extension_misc::kPdfExtensionId,
-#if BUILDFLAG(IS_CHROMEOS)
-    extension_misc::kQuickOfficeComponentExtensionId,
-#endif
     extension_misc::kQuickOfficeInternalExtensionId,
     extension_misc::kQuickOfficeExtensionId,
     extension_misc::kMimeHandlerPrivateTestExtensionId};

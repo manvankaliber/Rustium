@@ -66,10 +66,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/audio/cras_audio_handler.h"
-#include "chromeos/ash/components/dbus/audio/cras_audio_client.h"
-#endif
 
 using ::blink::mojom::CapturedSurfaceControlResult;
 using ::blink::mojom::MediaStreamRequestResult;
@@ -338,7 +334,7 @@ class MediaStreamDispatcherHostTest : public RenderViewHostTestHarness {
  public:
   MediaStreamDispatcherHostTest()
       : RenderViewHostTestHarness(
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
             base::test::TaskEnvironment::MainThreadType::UI),
 #else
             base::test::TaskEnvironment::MainThreadType::IO),
@@ -387,10 +383,6 @@ class MediaStreamDispatcherHostTest : public RenderViewHostTestHarness {
         base::BindRepeating(&MediaStreamDispatcherHostTest::MockOnBadMessage,
                             base::Unretained(this)));
 
-#if BUILDFLAG(IS_CHROMEOS)
-    ash::CrasAudioClient::InitializeFake();
-    ash::CrasAudioHandler::InitializeForTesting();
-#endif
 
 
     stub_video_device_ids_.emplace_back(kRegularVideoDeviceId1);
@@ -434,10 +426,6 @@ class MediaStreamDispatcherHostTest : public RenderViewHostTestHarness {
     host_.reset();
 
     audio_manager_->Shutdown();
-#if BUILDFLAG(IS_CHROMEOS)
-    ash::CrasAudioHandler::Shutdown();
-    ash::CrasAudioClient::Shutdown();
-#endif
 
     RenderViewHostTestHarness::TearDown();
   }
@@ -1639,7 +1627,6 @@ TEST_F(MediaStreamDispatcherHostMultiCaptureTest,
   EXPECT_FALSE(future.Get<GenerateStreamsUIThreadCheckResult>().has_value());
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 class MediaStreamDispatcherHostCapturedSurfaceControlTest
     : public MediaStreamDispatcherHostTest {
  public:
@@ -1704,6 +1691,5 @@ TEST_F(MediaStreamDispatcherHostCapturedSurfaceControlTest,
                                                 future.GetCallback());
   EXPECT_EQ(future.Get(), CapturedSurfaceControlResult::kSuccess);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 }  // namespace content

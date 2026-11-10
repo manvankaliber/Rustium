@@ -33,10 +33,6 @@
 #include "ui/base/test/mock_base_window.h"
 #include "ui/base/unowned_user_data/scoped_unowned_user_data.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_test_helper.h"
-#endif
 
 namespace actor_login {
 namespace {
@@ -45,25 +41,6 @@ using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::ReturnRef;
 
-#if BUILDFLAG(IS_ANDROID)
-class FakeBaseWindow : public ui::MockBaseWindow {
- public:
-  using ui::MockBaseWindow::gmock_IsActive;
-  bool CanResize(ui::WindowResizePrecheckResult&) const override {
-    return true;
-  }
-};
-
-class FakeTabModel : public TestTabModel {
- public:
-  explicit FakeTabModel(Profile* profile) : TestTabModel(profile) {}
-  void SetActiveTab(tabs::TabInterface* tab) { active_tab_ = tab; }
-  tabs::TabInterface* GetActiveTab() override { return active_tab_; }
-
- private:
-  raw_ptr<tabs::TabInterface> active_tab_ = nullptr;
-};
-#endif
 
 class ChromeActorLoginDelegateClientTest
     : public ChromeRenderViewHostTestHarness {
@@ -96,10 +73,6 @@ class ChromeActorLoginDelegateClientTest
     ON_CALL(mock_browser_window_, GetUnownedUserDataHost())
         .WillByDefault(ReturnRef(unowned_user_data_host_));
 
-#if BUILDFLAG(IS_ANDROID)
-    ON_CALL(mock_browser_window_, GetWindow())
-        .WillByDefault(Return(&mock_base_window_));
-#endif
 
     ChromeActorLoginDelegateClient::CreateForWebContents(web_contents());
   }
@@ -137,134 +110,8 @@ class ChromeActorLoginDelegateClientTest
   NiceMock<MockBrowserWindowInterface> mock_browser_window_;
   ui::UnownedUserDataHost unowned_user_data_host_;
   raw_ptr<glic::MockGlicKeyedService> mock_glic_service_ = nullptr;
-#if BUILDFLAG(IS_ANDROID)
-  NiceMock<FakeBaseWindow> mock_base_window_;
-#endif
 };
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(ChromeActorLoginDelegateClientTest,
-       Android_FeatureDisabled_TabActivated) {
-  feature_list_.InitAndDisableFeature(
-      password_manager::features::kBiometricTouchToFill);
-  EXPECT_CALL(mock_tab_, IsActivated()).WillOnce(Return(true));
-
-  EXPECT_TRUE(client()->IsTaskInFocus());
-}
-
-TEST_F(ChromeActorLoginDelegateClientTest,
-       Android_FeatureDisabled_TabNotActivated) {
-  feature_list_.InitAndDisableFeature(
-      password_manager::features::kBiometricTouchToFill);
-  EXPECT_CALL(mock_tab_, IsActivated()).WillOnce(Return(false));
-
-  tabs::MockTabInterface other_tab;
-  FakeTabModel tab_model(profile());
-  tab_model.SetIsActiveModel(true);
-  tab_model.SetActiveTab(&other_tab);
-  ui::ScopedUnownedUserData<TabListInterface> scoped_tab_list(
-      mock_browser_window_.GetUnownedUserDataHost(), tab_model);
-
-  EXPECT_CALL(*mock_glic_service_, GetInstanceForTab(&mock_tab_))
-      .WillOnce(Return(nullptr));
-  NiceMock<glic::MockGlicInstance> mock_active_instance;
-  EXPECT_CALL(mock_glic_service_->mock_coordinator(),
-              GetInstanceForTab(&other_tab))
-      .WillOnce(Return(&mock_active_instance));
-
-  EXPECT_FALSE(client()->IsTaskInFocus());
-}
-
-TEST_F(ChromeActorLoginDelegateClientTest, Android_WindowNotActive) {
-  feature_list_.InitAndEnableFeature(
-      password_manager::features::kBiometricTouchToFill);
-  EXPECT_CALL(mock_base_window_, IsActive()).WillOnce(Return(false));
-
-  EXPECT_FALSE(client()->IsTaskInFocus());
-}
-
-TEST_F(ChromeActorLoginDelegateClientTest, Android_NoTabList) {
-  feature_list_.InitAndEnableFeature(
-      password_manager::features::kBiometricTouchToFill);
-  EXPECT_CALL(mock_base_window_, IsActive()).WillOnce(Return(true));
-
-  EXPECT_FALSE(client()->IsTaskInFocus());
-}
-
-TEST_F(ChromeActorLoginDelegateClientTest, Android_TabModelNotActiveModel) {
-  feature_list_.InitAndEnableFeature(
-      password_manager::features::kBiometricTouchToFill);
-  EXPECT_CALL(mock_base_window_, IsActive()).WillOnce(Return(true));
-
-  FakeTabModel tab_model(profile());
-  tab_model.SetIsActiveModel(false);
-  ui::ScopedUnownedUserData<TabListInterface> scoped_tab_list(
-      mock_browser_window_.GetUnownedUserDataHost(), tab_model);
-
-  EXPECT_FALSE(client()->IsTaskInFocus());
-}
-
-TEST_F(ChromeActorLoginDelegateClientTest, Android_ActiveTabMatches) {
-  feature_list_.InitAndEnableFeature(
-      password_manager::features::kBiometricTouchToFill);
-  EXPECT_CALL(mock_base_window_, IsActive()).WillOnce(Return(true));
-
-  FakeTabModel tab_model(profile());
-  tab_model.SetIsActiveModel(true);
-  tab_model.SetActiveTab(&mock_tab_);
-  ui::ScopedUnownedUserData<TabListInterface> scoped_tab_list(
-      mock_browser_window_.GetUnownedUserDataHost(), tab_model);
-
-  EXPECT_TRUE(client()->IsTaskInFocus());
-}
-
-TEST_F(ChromeActorLoginDelegateClientTest,
-       Android_ActiveTabDoesNotMatch_NoGlic) {
-  feature_list_.InitAndEnableFeature(
-      password_manager::features::kBiometricTouchToFill);
-  EXPECT_CALL(mock_base_window_, IsActive()).WillOnce(Return(true));
-
-  tabs::MockTabInterface other_tab;
-  FakeTabModel tab_model(profile());
-  tab_model.SetIsActiveModel(true);
-  tab_model.SetActiveTab(&other_tab);
-  ui::ScopedUnownedUserData<TabListInterface> scoped_tab_list(
-      mock_browser_window_.GetUnownedUserDataHost(), tab_model);
-
-  EXPECT_CALL(*mock_glic_service_, GetInstanceForTab(&mock_tab_))
-      .WillOnce(Return(nullptr));
-  NiceMock<glic::MockGlicInstance> mock_active_instance;
-  EXPECT_CALL(mock_glic_service_->mock_coordinator(),
-              GetInstanceForTab(&other_tab))
-      .WillOnce(Return(&mock_active_instance));
-
-  EXPECT_FALSE(client()->IsTaskInFocus());
-}
-
-TEST_F(ChromeActorLoginDelegateClientTest,
-       Android_ActiveTabDoesNotMatch_ShowingInGlic) {
-  feature_list_.InitAndEnableFeature(
-      password_manager::features::kBiometricTouchToFill);
-  EXPECT_CALL(mock_base_window_, IsActive()).WillOnce(Return(true));
-
-  tabs::MockTabInterface other_tab;
-  FakeTabModel tab_model(profile());
-  tab_model.SetIsActiveModel(true);
-  tab_model.SetActiveTab(&other_tab);
-  ui::ScopedUnownedUserData<TabListInterface> scoped_tab_list(
-      mock_browser_window_.GetUnownedUserDataHost(), tab_model);
-
-  NiceMock<glic::MockGlicInstance> mock_glic_instance;
-  EXPECT_CALL(*mock_glic_service_, GetInstanceForTab(&mock_tab_))
-      .WillOnce(Return(&mock_glic_instance));
-  EXPECT_CALL(mock_glic_service_->mock_coordinator(),
-              GetInstanceForTab(&other_tab))
-      .WillOnce(Return(&mock_glic_instance));
-  EXPECT_CALL(mock_glic_instance, IsShowing()).WillOnce(Return(true));
-
-  EXPECT_TRUE(client()->IsTaskInFocus());
-}
-#endif
 
 }  // namespace
 }  // namespace actor_login

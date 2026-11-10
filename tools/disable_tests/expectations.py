@@ -118,7 +118,7 @@ def disabler(
 ExpectationsInfo = collections.namedtuple('ExpectationsInfo', 'tag')
 
 for t_name, t_tag in [
-  ('android', 'Android'),
+  (),
   ('linux', 'Linux'),
   ('mac', 'Mac'),
   ('win', 'Win'),

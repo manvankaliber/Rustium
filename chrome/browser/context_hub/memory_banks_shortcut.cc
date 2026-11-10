@@ -114,12 +114,6 @@ ui::Accelerator GetSuggestedBrowseMemoryBanksShortcut() {
       ui::Accelerator(ui::VKEY_M, ui::EF_CONTROL_DOWN | ui::EF_COMMAND_DOWN),
       // Fallback: Command+Shift+K.
       ui::Accelerator(ui::VKEY_K, ui::EF_COMMAND_DOWN | ui::EF_SHIFT_DOWN),
-#elif BUILDFLAG(IS_CHROMEOS)
-      // Alt+M.
-      // (Alt+Shift+M is avoided because it opens the Files app.)
-      ui::Accelerator(ui::VKEY_M, ui::EF_ALT_DOWN),
-      // Fallback: Ctrl+Shift+K.
-      ui::Accelerator(ui::VKEY_K, ui::EF_CONTROL_DOWN | ui::EF_SHIFT_DOWN),
 #else
       // Alt+Shift+M.
       ui::Accelerator(ui::VKEY_M, ui::EF_ALT_DOWN | ui::EF_SHIFT_DOWN),

@@ -553,7 +553,6 @@ TEST_F(ContextualTasksUtilsTest, CreateImageEncodingOptions) {
   EXPECT_GT(options.max_width, 0);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualTasksUtilsTest, RemoveTabUnderline_ClosedTabDoesNotCrash) {
   base::test::ScopedFeatureList feature_list;
   feature_list.InitAndEnableFeature(omnibox::kContextManagementInComposebox);
@@ -562,7 +561,6 @@ TEST_F(ContextualTasksUtilsTest, RemoveTabUnderline_ClosedTabDoesNotCrash) {
   RemoveTabUnderline(999999, browser_window_.get());
   RemoveTabUnderline(999999, nullptr);
 }
-#endif
 
 TEST_F(ContextualTasksUtilsTest, ShouldUseDarkModeForProfile_NullProfile) {
   EXPECT_FALSE(ShouldUseDarkModeForProfile(nullptr));

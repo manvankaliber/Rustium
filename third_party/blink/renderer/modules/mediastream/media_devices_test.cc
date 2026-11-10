@@ -96,7 +96,6 @@ namespace {
 constexpr char kInvalidSinkId[] = "invalid_sink_id";
 constexpr char kValidSinkId[] = "valid_sink_id";
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 class FocusTestUserMediaClient : public UserMediaClient {
  public:
   FocusTestUserMediaClient(LocalFrame* frame, UserMediaProcessor* processor)
@@ -141,7 +140,6 @@ MediaStreamTrack* MakeFocusTrack(V8TestingScope& scope) {
   return MakeGarbageCollected<MediaStreamTrackImpl>(
       scope.GetExecutionContext(), component, base::DoNothing());
 }
-#endif
 
 String MaxLengthCaptureHandle() {
   String maxHandle = "0123456789abcdef";  // 16 characters.
@@ -621,10 +619,8 @@ void VerifyAudioInputCapabilities(
                                       EchoCancellationMode::kBrowserDecides));
     EXPECT_TRUE(std::ranges::contains(echo_cancellation,
                                       EchoCancellationMode::kDisabled));
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     EXPECT_TRUE(std::ranges::contains(echo_cancellation,
                                       EchoCancellationMode::kRemoteOnly));
-#endif
     int effects = expected_capabilities->parameters.effects();
     // On some platforms, capabilities are not queried because it is costly.
     // In this case, device parameters are unknown. See crbug.com/40945999
@@ -1361,7 +1357,6 @@ TEST_F(MediaDevicesTest,
   media_devices->MaybeFireDeviceChangeEvent(true);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // This test logically belongs to the ProduceSubCaptureTargetTest suite,
 // but does not require parameterization.
 TEST_F(MediaDevicesTest, DistinctIdsForDistinctTypes) {
@@ -1407,7 +1402,6 @@ TEST_F(MediaDevicesTest, DistinctIdsForDistinctTypes) {
 
   EXPECT_NE(first_result, second_result);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 TEST_F(MediaDevicesTest, MetricsFailedEnumerateDevicesThenGetUserMedia) {
   {
@@ -1540,7 +1534,6 @@ TEST_F(MediaDevicesTest, MetricsGetUserMediaOnly) {
       "Media.MediaDevices.EnumerateDevices.FirstStateOnContextDestroyed", 0);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(MediaDevicesTest, CloseFocusWindowWithoutExplicitBehavior) {
   V8TestingScope scope;
   auto* media_devices = GetMediaDevices(scope.GetWindow());
@@ -1639,7 +1632,6 @@ TEST_P(MediaDevicesFocusTest, CloseFocusWindowWithFinalizedExplicitBehavior) {
   media_devices->dispatcher_host_.FlushForTesting();
   EXPECT_TRUE(dispatcher_host().ClosedFocusWindows().empty());
 }
-#endif
 
 class ProduceSubCaptureTargetTest
     : public MediaDevicesTest,

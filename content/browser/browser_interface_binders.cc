@@ -217,20 +217,11 @@
 #include "third_party/blink/public/public_buildflags.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/android/text_suggestion_host_android.h"
-#include "content/browser/renderer_host/render_widget_host_view_android.h"
-#include "content/common/gin_java_bridge.mojom.h"
-#include "services/device/public/mojom/nfc.mojom.h"
-#include "third_party/blink/public/mojom/hid/hid.mojom.h"
-#include "third_party/blink/public/mojom/unhandled_tap_notifier/unhandled_tap_notifier.mojom.h"
-#else  // BUILDFLAG(IS_ANDROID)
 #include "content/browser/direct_sockets/direct_sockets_service_impl.h"
 #include "media/mojo/mojom/renderer_extensions.mojom.h"
 #include "media/mojo/mojom/speech_recognition.mojom.h"  // nogncheck
 #include "third_party/blink/public/mojom/hid/hid.mojom.h"
 #include "third_party/blink/public/mojom/installedapp/installed_app_provider.mojom.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_P2P_ENABLED)
 #include "content/browser/renderer_host/p2p/no_op_p2p_socket_manager.h"
@@ -242,9 +233,6 @@
 #include "third_party/blink/public/mojom/compute_pressure/web_pressure_manager.mojom.h"
 #endif  // BUILDFLAG(ENABLE_COMPUTE_PRESSURE)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-#include "content/browser/date_time_chooser/date_time_chooser.h"
-#endif
 
 #if BUILDFLAG(ENABLE_MEDIA_REMOTING)
 #include "media/mojo/mojom/remoting.mojom.h"
@@ -264,14 +252,7 @@
 #include "third_party/blink/public/mojom/input/text_input_host.mojom.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "content/browser/lock_screen/lock_screen_service_impl.h"
-#include "third_party/blink/public/mojom/lock_screen/lock_screen.mojom.h"
-#endif
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-#include "third_party/blink/public/mojom/smart_card/smart_card.mojom.h"
-#endif
 
 #if BUILDFLAG(ENABLE_VRP_FLAGS)
 #include "components/vrp_flags/vrp_flags.h"                    // nogncheck
@@ -535,24 +516,7 @@ void BindSharedWorkerConnector(
   SharedWorkerConnectorImpl::Create(host->GetGlobalId(), std::move(receiver));
 }
 
-#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_IOS_TVOS))
-void BindDateTimeChooserForFrame(
-    RenderFrameHost* host,
-    mojo::PendingReceiver<blink::mojom::DateTimeChooser> receiver) {
-  auto* date_time_chooser = DateTimeChooser::GetDateTimeChooser(
-      WebContents::FromRenderFrameHost(host));
-  date_time_chooser->OnDateTimeChooserReceiver(std::move(receiver));
-}
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-void BindTextSuggestionHostForFrame(
-    RenderFrameHost* host,
-    mojo::PendingReceiver<blink::mojom::TextSuggestionHost> receiver) {
-  TextSuggestionHostAndroid::GetOrCreateForCurrentDocument(host)
-      ->BindTextSuggestionHost(std::move(receiver));
-}
-#endif
 
 // Get the service worker's worker process ID and post a task to bind the
 // receiver on a USER_VISIBLE task runner.
@@ -1057,7 +1021,6 @@ void PopulateBinderMapWithContext(
 
   map->Add<blink::mojom::DeclarativePerformanceObserverHost>(
       base::BindRepeating(&DeclarativePerformanceObserver::Bind));
-#if !BUILDFLAG(IS_ANDROID)
   map->Add<blink::mojom::DirectSocketsService>(
       &DirectSocketsServiceImpl::CreateForFrame);
   map->Add<media::mojom::SpeechRecognitionContext>(
@@ -1069,11 +1032,6 @@ void PopulateBinderMapWithContext(
       &EmptyBinderForFrame<media::mojom::MediaFoundationRendererNotifier>);
   map->Add<media::mojom::MediaPlayerObserverClient>(
       &EmptyBinderForFrame<media::mojom::MediaPlayerObserverClient>);
-#endif
-#if BUILDFLAG(ENABLE_UNHANDLED_TAP)
-  map->Add<blink::mojom::UnhandledTapNotifier>(
-      &EmptyBinderForFrame<blink::mojom::UnhandledTapNotifier>);
-#endif
 
   map->Add<blink::mojom::AudioContextManager>(
       &BindRenderFrameHostImpl<&RenderFrameHostImpl::GetAudioContextManager>);
@@ -1204,13 +1162,11 @@ void PopulateBinderMapWithContext(
   map->Add<blink::mojom::SpeechSynthesis>(
       &BindRenderFrameHostImpl<&RenderFrameHostImpl::GetSpeechSynthesis>);
 
-#if !BUILDFLAG(IS_ANDROID)
   map->Add<blink::mojom::DeviceAPIService>(
       &BindRenderFrameHostImpl<&RenderFrameHostImpl::GetDeviceInfoService>);
   map->Add<blink::mojom::ManagedConfigurationService>(
       &BindRenderFrameHostImpl<
           &RenderFrameHostImpl::GetManagedConfigurationService>);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   map->Add<blink::mojom::WebUsbService>(
       &BindRenderFrameHostImpl<&RenderFrameHostImpl::CreateWebUsbService>);
@@ -1326,7 +1282,7 @@ void PopulateBinderMapWithContext(
       &BindRenderFrameHostImpl<
           &RenderFrameHostImpl::BindMediaInterfaceFactoryReceiver>);
 
-#if BUILDFLAG(ENABLE_LIBRARY_CDMS) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_LIBRARY_CDMS) || BUILDFLAG(IS_WIN)
   map->Add<media::mojom::KeySystemSupport>(
       &BindRenderFrameHostImpl<
           &RenderFrameHostImpl::BindKeySystemSupportReceiver>);
@@ -1427,28 +1383,17 @@ void PopulateBinderMapWithContext(
             &RenderFrameHostImpl::BindInputInjectorReceiver>);
   }
 
-#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_IOS_TVOS))
-  map->Add<device::mojom::NFC>(
-      &BindRenderFrameHostImpl<&RenderFrameHostImpl::BindNFCReceiver>);
-#else
   map->Add<blink::mojom::InstalledAppProvider>(
       &BindRenderFrameHostImpl<
           &RenderFrameHostImpl::CreateInstalledAppProvider>);
-#endif  // BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_IOS) &&
         // !BUILDFLAG(IS_IOS_TVOS))
 
-#if !BUILDFLAG(IS_IOS)
   map->Add<blink::mojom::HidService>(
       &BindRenderFrameHostImpl<&RenderFrameHostImpl::GetHidService>);
-#endif  // !BUILDFLAG(IS_IOS)
 
   map->Add<blink::mojom::SerialService>(
       &BindRenderFrameHostImpl<&RenderFrameHostImpl::BindSerialService>);
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-  map->Add<blink::mojom::SmartCardService>(
-      &BindRenderFrameHostImpl<&RenderFrameHostImpl::GetSmartCardService>);
-#endif
 
 #if BUILDFLAG(IS_MAC)
   map->Add<blink::mojom::TextInputHost>(base::BindRepeating(
@@ -1507,24 +1452,15 @@ void PopulateBinderMapWithContext(
                                          ProcessInternalsUI>(map);
   RegisterWebUIControllerInterfaceBinder<storage::mojom::QuotaInternalsHandler,
                                          QuotaInternalsUI>(map);
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   RegisterWebUIControllerInterfaceBinder<
       traces_internals::mojom::TracesInternalsHandlerFactory,
       TracesInternalsUI>(map);
-#endif
 #if BUILDFLAG(ENABLE_VR)
   RegisterWebUIControllerInterfaceBinder<webxr::mojom::WebXrInternalsHandler,
                                          WebXrInternalsUI>(map);
 #endif
-#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_IOS_TVOS))
-  map->Add<blink::mojom::DateTimeChooser>(&BindDateTimeChooserForFrame);
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  map->Add<blink::mojom::TextSuggestionHost>(&BindTextSuggestionHostForFrame);
-#else
   map->Add<blink::mojom::TextSuggestionHost>(
       &EmptyBinderForFrame<blink::mojom::TextSuggestionHost>);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   map->Add<blink::mojom::Authenticator>(
       &BindRenderFrameHostImpl<
@@ -1551,11 +1487,6 @@ void PopulateBinderMapWithContext(
 
   map->Add<device::mojom::VibrationManager>(&BindVibrationManager);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (base::FeatureList::IsEnabled(features::kWebLockScreenApi)) {
-    map->Add<blink::mojom::LockScreenService>(&LockScreenServiceImpl::Create);
-  }
-#endif
 
 #if BUILDFLAG(ENABLE_VRP_FLAGS)
   if (vrp_flags::IsEnabled()) {
@@ -1642,11 +1573,9 @@ void PopulateDedicatedWorkerBinders(DedicatedWorkerHost* host,
         base::Unretained(host)));
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   map->Add<blink::mojom::DirectSocketsService>(
       base::BindRepeating(&DedicatedWorkerHost::CreateDirectSocketsService,
                           base::Unretained(host)));
-#endif
   map->Add<blink::mojom::WebUsbService>(base::BindRepeating(
       &DedicatedWorkerHost::CreateWebUsbService, base::Unretained(host)));
   map->Add<blink::mojom::WebSocketConnector>(base::BindRepeating(
@@ -1834,7 +1763,6 @@ void PopulateSharedWorkerBinders(SharedWorkerHost* host, mojo::BinderMap* map) {
           &BindLanguageDetectionDriverForWorker<SharedWorkerHost>,
           base::Unretained(host)));
 
-#if !BUILDFLAG(IS_ANDROID)
   map->Add<blink::mojom::DirectSocketsService>(base::BindRepeating(
       [](SharedWorkerHost* host,
          mojo::PendingReceiver<blink::mojom::DirectSocketsService> receiver) {
@@ -1842,7 +1770,6 @@ void PopulateSharedWorkerBinders(SharedWorkerHost* host, mojo::BinderMap* map) {
                                                         std::move(receiver));
       },
       base::Unretained(host)));
-#endif
 
   // RenderProcessHost binders
   map->Add<media::mojom::VideoDecodePerfHistory>(BindWorkerReceiver(
@@ -1925,7 +1852,6 @@ void PopulateServiceWorkerBinders(ServiceWorkerHost* host,
       &ServiceWorkerHost::CreateBlobUrlStoreProvider, base::Unretained(host)));
   map->Add<blink::mojom::ReportingServiceProxy>(base::BindRepeating(
       &CreateReportingServiceProxyForServiceWorker, base::Unretained(host)));
-#if !BUILDFLAG(IS_ANDROID)
   map->Add<blink::mojom::DirectSocketsService>(base::BindRepeating(
       [](ServiceWorkerHost* host,
          mojo::PendingReceiver<blink::mojom::DirectSocketsService> receiver) {
@@ -1933,12 +1859,6 @@ void PopulateServiceWorkerBinders(ServiceWorkerHost* host,
                                                          std::move(receiver));
       },
       base::Unretained(host)));
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(blink::features::kWebHID) &&
-      base::FeatureList::IsEnabled(
-          features::kWebHidOnDesktopAndroidServiceWorkers))
-#endif  // BUILDFLAG(IS_ANDROID)
   {
     map->Add<blink::mojom::HidService>(base::BindRepeating(
         &ServiceWorkerHost::BindHidService, base::Unretained(host)));

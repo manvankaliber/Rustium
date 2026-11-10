@@ -74,13 +74,6 @@
 #include "third_party/boringssl/src/pki/signature_algorithm.h"
 #include "third_party/boringssl/src/pki/trust_store.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "net/cert/cert_verify_proc_android.h"
-#elif BUILDFLAG(IS_IOS)
-#include "base/ios/ios_util.h"
-#include "net/cert/cert_verify_proc_ios.h"
-#endif
 
 #if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
 #include "net/cert/internal/trust_store_chrome.h"
@@ -214,14 +207,6 @@ scoped_refptr<CertVerifyProc> CreateCertVerifyProc(
   instance_params.additional_untrusted_authorities =
       net::x509_util::ParseAllValidCerts(additional_untrusted_authorities);
   switch (type) {
-#if BUILDFLAG(IS_ANDROID)
-    case CERT_VERIFY_PROC_ANDROID:
-      return base::MakeRefCounted<CertVerifyProcAndroid>(
-          std::move(cert_net_fetcher), std::move(crl_set));
-#elif BUILDFLAG(IS_IOS)
-    case CERT_VERIFY_PROC_IOS:
-      return base::MakeRefCounted<CertVerifyProcIOS>(std::move(crl_set));
-#endif
 #if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
     case CERT_VERIFY_PROC_BUILTIN_CHROME_ROOTS:
       return CreateCertVerifyProcBuiltin(
@@ -241,11 +226,6 @@ scoped_refptr<CertVerifyProc> CreateCertVerifyProc(
 // This needs to be kept in sync with CertVerifyProc::CreateSystemVerifyProc()
 // and the platforms where CreateSslSystemTrustStore() is not a dummy store.
 constexpr CertVerifyProcType kAllCertVerifiers[] = {
-#if BUILDFLAG(IS_ANDROID)
-    CERT_VERIFY_PROC_ANDROID,
-#elif BUILDFLAG(IS_IOS)
-    CERT_VERIFY_PROC_IOS,
-#endif
 #if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
     CERT_VERIFY_PROC_BUILTIN_CHROME_ROOTS,
 #endif
@@ -346,13 +326,6 @@ class CertVerifyProcInternalTest
   // platform. IsInvalidRsaDsaKeySize should be checked prior, since some very
   // weak keys may be considered invalid.
   bool IsWeakRsaDsaKeySize(int size) const {
-#if BUILDFLAG(IS_IOS)
-    // Beginning with iOS 13, the minimum key size for RSA/DSA algorithms is
-    // 2048 bits. See https://support.apple.com/en-us/HT210176
-    if (verify_proc_type() == CERT_VERIFY_PROC_IOS) {
-      return size < 2048;
-    }
-#endif
 
     return size < 1024;
   }
@@ -360,14 +333,8 @@ class CertVerifyProcInternalTest
   // Returns true if the RSA/DSA keysize will be considered invalid on the
   // current platform.
   bool IsInvalidRsaDsaKeySize(int size) const {
-#if BUILDFLAG(IS_IOS)
-    // On iOS using SecTrustEvaluateWithError it is not possible to
-    // distinguish between weak and invalid key sizes.
-    return IsWeakRsaDsaKeySize(size);
-#else
     // This platform does not mark certificates with weak keys as invalid.
     return false;
-#endif
   }
 
   static bool ParseKeyType(const std::string& key_type,
@@ -445,23 +412,10 @@ class CertVerifyProcInternalTest
   bool VerifyProcTypeIsIOSAtMostOS14() const { return false; }
 
   bool VerifyProcTypeIsIOSAtMostOS15() const {
-#if BUILDFLAG(IS_IOS)
-    if (verify_proc_type() == CERT_VERIFY_PROC_IOS &&
-        !base::ios::IsRunningOnIOS16OrLater()) {
-      return true;
-    }
-#endif
     return false;
   }
 
   bool VerifyProcTypeIsAndroidQOrLater() const {
-#if BUILDFLAG(IS_ANDROID)
-    if (verify_proc_type() == CERT_VERIFY_PROC_ANDROID &&
-        (base::android::android_info::sdk_int() >=
-         base::android::android_info::SDK_VERSION_Q)) {
-      return true;
-    }
-#endif
     return false;
   }
 

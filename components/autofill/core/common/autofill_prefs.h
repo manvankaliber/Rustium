@@ -56,14 +56,13 @@ inline constexpr char kAutofillAiPrivateInferenceNoticeShownTimestamp[] =
 // AI.
 inline constexpr char kAutofillAiPrivateInferenceOptInStatus[] =
     "autofill.autofill_ai.private_inference_opt_in_status";
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Boolean that is true if re-authentication is required before viewing Autofill
 // AI values. This could happen during the filling moment or when visiting the
 // management page.
 inline constexpr char kAutofillAiReauthBeforeViewingSensitiveData[] =
     "autofill.autofill_ai.reauth_before_viewing_sensitive_data";
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS)
 // Integer that is set to the last version where the Autofill AI deduping
 // routine was run. This routine will be run once per version.
@@ -100,11 +99,6 @@ inline constexpr char kAutofillCreditCardEnabled[] =
 // Boolean that is true if FIDO Authentication is enabled for card unmasking.
 inline constexpr char kAutofillCreditCardFidoAuthEnabled[] =
     "autofill.credit_card_fido_auth_enabled";
-#if BUILDFLAG(IS_ANDROID)
-// Boolean that is true if Autofill is enabled and allowed to save data.
-inline constexpr char kAutofillCreditCardFidoAuthOfferCheckboxState[] =
-    "autofill.credit_card_fido_auth_offer_checkbox_state";
-#endif  // BUILDFLAG(IS_ANDROID)
 // Boolean that is true if email verification is enabled.
 inline constexpr char kAutofillEmailVerificationEnabled[] =
     "autofill.email_verification_enabled";
@@ -211,16 +205,14 @@ inline constexpr char kAutofillWasNameAndEmailProfileUsed[] =
 // retention policy was run.
 inline constexpr char kAutocompleteLastVersionRetentionPolicy[] =
     "autocomplete.retention_policy_last_version";
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_IOS) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Boolean that is set when payment methods mandatory re-auth is enabled by the
 // user.
 inline constexpr char kAutofillPaymentMethodsMandatoryReauth[] =
     "autofill.payment_methods_mandatory_reauth";
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_CHROMEOS)
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Integer that is incremented when the mandatory re-auth promo is shown. If
 // this is less than `kMaxValueForMandatoryReauthPromoShownCounter`, that
 // implies that the user has not yet decided whether or not to turn on the
@@ -228,41 +220,8 @@ inline constexpr char kAutofillPaymentMethodsMandatoryReauth[] =
 inline constexpr char
     kAutofillPaymentMethodsMandatoryReauthPromoShownCounter[] =
         "autofill.payment_methods_mandatory_reauth_promo_counter";
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
-#if BUILDFLAG(IS_ANDROID)
-// Boolean that is true iff Chrome only provdides a virtual view structure that
-// Android Autofill providers can use for filling. This pref is profile bound
-// since each profile may have a preference for filling. It is not syncable as
-// the setup on each device requires steps outside the browser. Enabling this
-// pref on a device without a proper provider may yield a surprising absence of
-// filling.
-inline constexpr char kAutofillUsingPlatformAutofill[] =
-    "autofill.using_virtual_view_structure";
-// Boolean set by the `ThirdPartyPasswordManagersAllowed` policy. Defaults to
-// true which allows users to set the `kAutofillUsingPlatformAutofill` pref.
-// If set to false, user can only use the built-in password manager.
-inline constexpr char kAutofillThirdPartyPasswordManagersAllowed[] =
-    "autofill.third_party_password_managers_allowed";
-// String storing the active autofill service when the user last decided to use
-// the virtual view structure for autofilling. Defaults to an empty string. The
-// empty string means no autofill service was selected and default built-in
-// Autofill should be used.
-inline constexpr char kAutofillThirdPartyPackageUsedForPlatformAutofill[] =
-    "autofill.third_party_package_used_for_platform_autofill";
-inline constexpr char kFacilitatedPaymentsEwallet[] =
-    "facilitated_payments.ewallet";
-inline constexpr char kFacilitatedPaymentsEwalletAccountLinking[] =
-    "facilitated_payments.ewallet_account_linking_enabled";
-inline constexpr char kFacilitatedPaymentsPix[] = "facilitated_payments.pix";
-inline constexpr char kFacilitatedPaymentsPixAccountLinking[] =
-    "facilitated_payments.pix_account_linking_enabled";
-inline constexpr char kFacilitatedPaymentsA2AEnabled[] =
-    "facilitated_payments.a2a_enabled";
-// Whether the user has seen the A2A flow at least once.
-inline constexpr char kFacilitatedPaymentsA2ATriggeredOnce[] =
-    "facilitated_payments.a2a_triggered_once";
-#endif  // BUILDFLAG(IS_ANDROID)
 // Dictionaries containing metadata for Home and Work addresses. See
 // HomeAndWorkMetadataStore.
 inline constexpr char kAutofillHomeMetadata[] = "autofill.home_metadata";

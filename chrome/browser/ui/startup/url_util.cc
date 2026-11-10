@@ -17,9 +17,7 @@
 #include "chrome/browser/headless/headless_mode_util.h"
 #endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "base/no_destructor.h"
-#endif
 
 namespace startup {
 
@@ -52,22 +50,12 @@ bool ValidateLaunchUrlWebUnsafe(const GURL& url) {
   }
 
   bool url_points_to_an_approved_settings_page = false;
-#if BUILDFLAG(IS_CHROMEOS)
-  // In ChromeOS, allow any settings page to be specified on the command line.
-  const GURL& origin_url =
-      url.SchemeIsFileSystem() && url.inner_url() ? *url.inner_url() : url;
-  url_points_to_an_approved_settings_page =
-      origin_url.SchemeIs(content::kChromeUIScheme) &&
-      origin_url.host() == chrome::kChromeUISettingsHost &&
-      !origin_url.has_port();
-#else
   // Exposed for external cleaners to offer a settings reset to the
   // user. The allowed URLs must match exactly.
   static const base::NoDestructor<GURL> kResetSettingsUrl(
       GURL(chrome::kChromeUISettingsURL)
           .Resolve(chrome::kResetProfileSettingsSubPage));
   url_points_to_an_approved_settings_page = url == *kResetSettingsUrl;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   bool url_scheme_is_chrome = false;
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
@@ -85,10 +73,6 @@ bool ValidateLaunchUrlWebUnsafe(const GURL& url) {
 #endif
 
   bool url_scheme_is_content = false;
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, content:// URLs are used to open files.
-  url_scheme_is_content = url.SchemeIs(url::kContentScheme);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   if (url.SchemeIsHTTPOrHTTPS() || url.SchemeIs(url::kFileScheme) ||
       url_scheme_is_chrome || url_scheme_is_content ||

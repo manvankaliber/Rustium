@@ -35,7 +35,4 @@ void ContextualTasksUiServiceDelegateDesktop::OpenFeedbackUi(
 void ContextualTasksUiServiceDelegateDesktop::ShowUndoSnackbar(
     BrowserWindowInterface* browser_window_interface) {}
 
-void ContextualTasksUiServiceDelegateDesktop::StartPlatformVoiceRecognition(
-    BrowserWindowInterface* browser_window_interface) {}
-
 }  // namespace contextual_tasks

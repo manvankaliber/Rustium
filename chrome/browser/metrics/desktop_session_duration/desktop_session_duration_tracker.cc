@@ -15,10 +15,8 @@
 #include "chrome/common/chrome_switches.h"
 #include "ui/events/types/event_type.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/browser_process.h"
 #include "components/activity_reporter/activity_reporter.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 namespace metrics {
 
@@ -246,9 +244,7 @@ void DesktopSessionDurationTracker::EndSession(
   UMA_HISTOGRAM_CUSTOM_TIMES("Session.TotalDurationMax1Day", delta,
                              base::Milliseconds(1), base::Hours(24), 50);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   g_browser_process->activity_reporter()->ReportActive();
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 void DesktopSessionDurationTracker::InitInactivityTimeout() {

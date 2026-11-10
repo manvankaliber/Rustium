@@ -27,9 +27,7 @@
 #include "base/time/time.h"
 #include "crypto/apple/keychain_v2.h"
 
-#if !BUILDFLAG(IS_IOS_TVOS)
 #import <LocalAuthentication/LocalAuthentication.h>
-#endif
 
 #if defined(LEAK_SANITIZER)
 #include <sanitizer/lsan_interface.h>
@@ -465,7 +463,6 @@ std::string FakeKeychainV2::GetEncryptionPassword() const {
   return kPassword;
 }
 
-#if !BUILDFLAG(IS_IOS)
 base::apple::ScopedCFTypeRef<CFTypeRef>
 FakeKeychainV2::TaskCopyValueForEntitlement(SecTaskRef task,
                                             CFStringRef entitlement,
@@ -480,9 +477,7 @@ FakeKeychainV2::TaskCopyValueForEntitlement(SecTaskRef task,
                      keychain_access_group_.get());
   return keychain_access_groups;
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
-#if !BUILDFLAG(IS_IOS_TVOS)
 BOOL FakeKeychainV2::LAContextCanEvaluatePolicy(
     LAPolicy policy,
     NSError* __autoreleasing* error) {
@@ -493,16 +488,13 @@ BOOL FakeKeychainV2::LAContextCanEvaluatePolicy(
              uv_method_ == UVMethod::kPasswordOnly;
     case LAPolicyDeviceOwnerAuthenticationWithBiometrics:
       return uv_method_ == UVMethod::kBiometrics;
-#if !BUILDFLAG(IS_IOS)
     case LAPolicyDeviceOwnerAuthenticationWithBiometricsOrCompanion:
       return uv_method_ == UVMethod::kBiometrics;
-#endif        // !BUILDFLAG(IS_IOS)
     default:  // Avoid needing to refer to values not available in the minimum
               // supported macOS version.
       NOTIMPLEMENTED();
       return false;
   }
 }
-#endif  // !BUILDFLAG(IS_IOS_TVOS)
 
 }  // namespace crypto::apple

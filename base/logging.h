@@ -21,9 +21,6 @@
 #include "base/strings/utf_ostream_operators.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include <cstdio>
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/win/windows_types.h"
@@ -247,11 +244,7 @@ int GetVlogLevel(const char (&file)[N]) {
   // the android-binary-size bot in crrev.com/c/6344673. Parts of the code can,
   // and do, override ENABLED_VLOG_LEVEL to collect logs in the wild. The rest
   // is dead-code stripped.
-#if defined(OFFICIAL_BUILD) && !DCHECK_IS_ON() && BUILDFLAG(IS_ANDROID)
-  return -1;
-#else
   return GetVlogLevelHelper(file, N);
-#endif  // defined(OFFICIAL_BUILD) && !DCHECK_IS_ON() && BUILDFLAG(IS_ANDROID)
 }
 
 // Sets the common items you want to be prepended to each log message.
@@ -563,17 +556,6 @@ class BASE_EXPORT LogMessage {
   const char* const file_;
   const int line_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void InitWithSyslogPrefix(std::string_view filename,
-                            int line,
-                            uint64_t tick_count,
-                            const char* log_severity_name_c_str,
-                            const char* log_prefix,
-                            bool enable_process_id,
-                            bool enable_thread_id,
-                            bool enable_timestamp,
-                            bool enable_tickcount);
-#endif
 };
 
 class BASE_EXPORT LogMessageFatal final : public LogMessage {
@@ -665,13 +647,6 @@ class BASE_EXPORT ErrnoLogMessageFatal final : public ErrnoLogMessage {
 //       after this call.
 BASE_EXPORT void CloseLogFile();
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Returns a new file handle that will write to the same destination as the
-// currently open log file. Returns nullptr if logging to a file is disabled,
-// or if opening the file failed. This is intended to be used to initialize
-// logging in child processes that are unable to open files.
-BASE_EXPORT FILE* DuplicateLogFILE();
-#endif
 
 // Async signal safe logging mechanism.
 BASE_EXPORT void RawLog(int level, const char* message);
@@ -692,8 +667,6 @@ BASE_EXPORT HANDLE DuplicateLogFileHandle();
 // including base/files/file_path.h from this widely included header.
 #if BUILDFLAG(IS_WIN)
 BASE_EXPORT std::wstring GetLogFileFullPath();
-#elif BUILDFLAG(IS_CHROMEOS)
-BASE_EXPORT std::string GetLogFileFullPath();
 #endif
 
 }  // namespace logging

@@ -139,7 +139,6 @@ void ScrollbarTheme::PaintTickmarks(const PaintInfo& paint_info,
                                     const Scrollbar& scrollbar,
                                     const gfx::Rect& rect) {
 // Android paints tickmarks in the browser at FindResultBar.java.
-#if !BUILDFLAG(IS_ANDROID)
   if (scrollbar.Orientation() != kVerticalScrollbar)
     return;
 
@@ -177,7 +176,6 @@ void ScrollbarTheme::PaintTickmarks(const PaintInfo& paint_info,
     context.FillRect(tick_stroke, Color(0xFF, 0xDD, 0x00, 0xFF),
                      AutoDarkMode::Disabled());
   }
-#endif
 }
 
 base::TimeDelta ScrollbarTheme::OverlayScrollbarFadeOutDelay() const {

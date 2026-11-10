@@ -601,15 +601,8 @@ TEST_F(ElasticOverscrollControllerExponentialTest,
 
   SendGestureScrollBegin(NonMomentumPhase);
   SendGestureScrollUpdate(NonMomentumPhase, Vector2dF(25, 0), Vector2dF(25, 0));
-#if BUILDFLAG(IS_ANDROID)
-  // Scrolling in x axis which has no scroll range should produce no stretch
-  // on android.
-  EXPECT_EQ(expected_stretch_count, helper_.set_stretch_amount_count());
-  EXPECT_EQ(0.f, helper_.StretchAmount(cc::ElementId()).x());
-#else
   EXPECT_EQ(++expected_stretch_count, helper_.set_stretch_amount_count());
   EXPECT_LT(0.f, helper_.StretchAmount(cc::ElementId()).x());
-#endif
   EXPECT_EQ(0.f, helper_.StretchAmount(cc::ElementId()).y());
   helper_.SetStretchAmount(cc::ElementId(), Vector2dF());
   SendGestureScrollEnd();

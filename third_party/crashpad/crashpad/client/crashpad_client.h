@@ -34,15 +34,11 @@
 #elif BUILDFLAG(IS_WIN)
 #include <windows.h>
 #include "util/win/scoped_handle.h"
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
 #include <signal.h>
 #include <ucontext.h>
 #endif
 
-#if BUILDFLAG(IS_IOS)
-#include "client/upload_behavior_ios.h"
-#include "handler/user_stream_data_source.h"  // nogncheck
-#endif
 
 namespace crashpad {
 
@@ -150,8 +146,7 @@ class CrashpadClient {
 #endif
   );
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    DOXYGEN
+#if BUILDFLAG(IS_LINUX) || DOXYGEN
   //! \brief Retrieve the socket and process ID for the handler.
   //!
   //! `StartHandler()` must have successfully been called before calling this
@@ -196,10 +191,10 @@ class CrashpadClient {
   //!
   //! \return `true` on success. Otherwise `false` with a message logged.
   static bool InitializeSignalStackForThread();
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS) || DOXYGEN
 
-#if BUILDFLAG(IS_ANDROID) || DOXYGEN
+#if DOXYGEN
   //! \brief Installs a signal handler to execute `/system/bin/app_process` and
   //!     load a Java class in response to a crash.
   //!
@@ -376,10 +371,9 @@ class CrashpadClient {
       const std::vector<std::string>& arguments,
       int socket,
       const std::set<int>& preserve_fds = {});
-#endif  // BUILDFLAG(IS_ANDROID) || DOXYGEN
+#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || \
-    DOXYGEN
+#if BUILDFLAG(IS_LINUX) || DOXYGEN
   //! \brief Installs a signal handler to launch a handler process in reponse to
   //!     a crash.
   //!
@@ -513,10 +507,10 @@ class CrashpadClient {
   //!
   //! \param[in] unhandled_signals The set of unhandled signals
   void SetUnhandledSignals(const std::set<int>& unhandled_signals);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS) || DOXYGEN
 
-#if BUILDFLAG(IS_IOS) || DOXYGEN
+#if DOXYGEN
   //! \brief Observation callback invoked each time this object finishes
   //!     processing and attempting to upload on-disk crash reports (whether or
   //!     not the uploads succeeded).
@@ -832,15 +826,6 @@ class CrashpadClient {
   static void UseSystemDefaultHandler();
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  //! \brief Sets a timestamp on the signal handler to be passed on to
-  //!     crashpad_handler and then eventually Chrome OS's crash_reporter.
-  //!
-  //! \note This method is used by clients that use `StartHandler()` to start
-  //!     a handler and not by clients that use any other handler starting
-  //!     methods.
-  static void SetCrashLoopBefore(uint64_t crash_loop_before_time);
-#endif
 
  private:
 #if BUILDFLAG(IS_WIN) || DOXYGEN
@@ -854,7 +839,7 @@ class CrashpadClient {
   std::wstring ipc_pipe_;
   ScopedKernelHANDLE handler_start_thread_;
   ScopedVectoredExceptionRegistration vectored_handler_;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
   std::set<int> unhandled_signals_;
 #endif  // BUILDFLAG(IS_APPLE)
 };

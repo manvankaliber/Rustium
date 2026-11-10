@@ -183,7 +183,6 @@ IN_PROC_BROWSER_TEST_F(BatchUploadBrowserTest, OpenedDialogThenSigninPending) {
   EXPECT_TRUE(OpenBatchUpload(browser()));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(BatchUploadBrowserTest, OpenedDialogThenSignout) {
   SigninWithFullInfo();
   test_helper().SetReturnDescriptions(syncer::DataType::PASSWORDS, 1);
@@ -210,9 +209,7 @@ IN_PROC_BROWSER_TEST_F(BatchUploadBrowserTest, OpenedDialogThenSignout) {
   // Opening the dialog should now be possible again.
   EXPECT_TRUE(OpenBatchUpload(browser()));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Used to control the creation of the dialog (not actually creating it), and
 // the expected output without having to deal with the real dialog.
 class BatchUploadDelegateFake : public BatchUploadDelegate {
@@ -337,7 +334,6 @@ IN_PROC_BROWSER_TEST_F(BatchUploadWithFakeDelegateBrowserTest,
   EXPECT_EQ(avatar_accessor.GetText(), expected_avatar_text);
   EXPECT_EQ(announce_future.Get(), expected_avatar_text);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Test suite that makes the sync service unavailable to test the factory.
 class BatchUploadServiceFactorySyncServiceUnavailableTest

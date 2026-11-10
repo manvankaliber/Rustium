@@ -36,9 +36,6 @@
 #endif
 
 namespace {
-#if BUILDFLAG(IS_ANDROID)
-const char kCCTClientDataHeader[] = "X-CCT-Client-Data";
-#endif
 
 #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
 using RequestBoundSessionStatus =
@@ -125,24 +122,15 @@ void GoogleURLLoaderThrottle::UpdateCorsExemptHeader(
       safe_search_api::kGoogleAppsAllowedDomains);
   params->cors_exempt_header_list.push_back(
       safe_search_api::kYouTubeRestrictHeaderName);
-#if BUILDFLAG(IS_ANDROID)
-  params->cors_exempt_header_list.push_back(kCCTClientDataHeader);
-#endif
 }
 
 GoogleURLLoaderThrottle::GoogleURLLoaderThrottle(
-#if BUILDFLAG(IS_ANDROID)
-    const std::string& client_data_header,
-#endif
 #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
     std::unique_ptr<BoundSessionRequestThrottledHandler>
         bound_session_request_throttled_handler,
 #endif
     chrome::mojom::DynamicParamsPtr dynamic_params)
     :
-#if BUILDFLAG(IS_ANDROID)
-      client_data_header_(client_data_header),
-#endif
 #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
       bound_session_request_throttled_handler_(
           std::move(bound_session_request_throttled_handler)),
@@ -201,13 +189,6 @@ void GoogleURLLoaderThrottle::WillStartRequest(
         dynamic_params_->allowed_domains_for_apps);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!client_data_header_.empty() &&
-      google_util::IsGoogleAssociatedDomainUrl(request->url)) {
-    request->cors_exempt_headers.SetHeader(kCCTClientDataHeader,
-                                           client_data_header_);
-  }
-#endif
 #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
   // `network::mojom::RequestDestination::kDocument` means that this is a
   // navigation request.
@@ -276,12 +257,6 @@ void GoogleURLLoaderThrottle::WillRedirectRequest(
     }
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!client_data_header_.empty() &&
-      !google_util::IsGoogleAssociatedDomainUrl(redirect_info->new_url)) {
-    headers_update_params->removed_headers.push_back(kCCTClientDataHeader);
-  }
-#endif
 #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
   if (sends_cookies_) {
     RequestBoundSessionStatus status = GetRequestBoundSessionStatus(

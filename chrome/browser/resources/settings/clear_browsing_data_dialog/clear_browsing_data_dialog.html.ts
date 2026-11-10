@@ -56,10 +56,8 @@ export function getHtml(this: SettingsClearBrowsingDataDialogElement) {
     </cr-link-row>
   </div>
   <div slot="button-container" class="row-aligned">
-<if expr="not is_chromeos">
     <settings-clear-browsing-data-account-indicator>
     </settings-clear-browsing-data-account-indicator>
-</if>
     <div id="spinner" class="spinner" ?hidden="${!this.isDeletionInProgress_}">
     </div>
     <cr-button id="cancelButton" class="cancel-button"

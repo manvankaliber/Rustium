@@ -33,9 +33,6 @@
 #include "net/http/http_status_code.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/safe_browsing/core/browser/referring_app_info/referring_app_info.h"  // nogncheck
-#endif
 
 class PrefService;
 class SkBitmap;
@@ -148,10 +145,6 @@ class ClientSideDetectionHost
         ClientSideDetectionType request_type,
         std::optional<bool> did_match_high_confidence_allowlist) = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-    virtual internal::ReferringAppInfo GetReferringAppInfo(
-        content::WebContents* web_contents) = 0;
-#endif
   };
 
   static const int kMaxHighResScreenshotWidth;

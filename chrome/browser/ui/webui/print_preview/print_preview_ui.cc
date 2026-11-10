@@ -54,7 +54,6 @@
 #include "components/printing/browser/print_composite_client.h"
 #include "components/printing/browser/print_manager_utils.h"
 #include "components/strings/grit/components_strings.h"
-#include "components/user_manager/user_manager.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/url_data_source.h"
@@ -79,9 +78,6 @@
 #include "ui/web_dialogs/web_dialog_ui.h"
 #include "ui/webui/webui_util.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/webui/print_preview/print_preview_handler_chromeos.h"
-#endif
 
 #if !BUILDFLAG(OPTIMIZE_WEBUI)
 #include "chrome/browser/ui/webui/managed_ui_handler.h"
@@ -102,16 +98,10 @@ namespace {
 // Enables sending non-modifiable (PDF) documents to the print compositor.
 BASE_FEATURE(kPdfWatermarkPrintCompositor, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_CHROMEOS)
-// If enabled, update the layout setting values in print preview based on the
-// destination's page orientation capabilities.
-BASE_FEATURE(kUsePageOrientationCapabilityInPrintPreview,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 #if BUILDFLAG(IS_MAC)
 const char16_t kBasicPrintShortcut[] = u"(⌥⌘P)";
-#elif !BUILDFLAG(IS_CHROMEOS)
+#else
 const char16_t kBasicPrintShortcut[] = u"(Ctrl+Shift+P)";
 #endif
 
@@ -169,9 +159,6 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
        IDS_PRINT_PREVIEW_ADVANCED_SETTINGS_DIALOG_TITLE},
       {"advancedSettingsSearchBoxPlaceholder",
        IDS_PRINT_PREVIEW_ADVANCED_SETTINGS_SEARCH_BOX_PLACEHOLDER},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"borderlessLabel", IDS_PRINT_PREVIEW_BORDERLESS_LABEL},
-#endif
       {"bottom", IDS_PRINT_PREVIEW_BOTTOM_MARGIN_LABEL},
       {"cancel", IDS_CANCEL},
       {"clearSearch", IDS_CLEAR_SEARCH},
@@ -193,15 +180,9 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
       {"left", IDS_PRINT_PREVIEW_LEFT_MARGIN_LABEL},
       {"loading", IDS_PRINT_PREVIEW_LOADING},
       {"manage", IDS_PRINT_PREVIEW_MANAGE},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"managePrintersLabel", IDS_PRINT_PREVIEW_MANAGE_PRINTERS_LABEL},
-#endif
       {"managedSettings", IDS_PRINT_PREVIEW_MANAGED_SETTINGS_TEXT},
       {"marginsLabel", IDS_PRINT_PREVIEW_MARGINS_LABEL},
       {"mediaSizeLabel", IDS_PRINT_PREVIEW_MEDIA_SIZE_LABEL},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"mediaTypeLabel", IDS_PRINT_PREVIEW_MEDIA_TYPE_LABEL},
-#endif
       {"minimumMargins", IDS_PRINT_PREVIEW_MINIMUM_MARGINS},
       {"moreOptionsLabel", IDS_MORE_OPTIONS_LABEL},
       {"newShowAdvancedOptions", IDS_PRINT_PREVIEW_NEW_SHOW_ADVANCED_OPTIONS},
@@ -245,27 +226,8 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
       {"printOnBothSidesLabel", IDS_PRINT_PREVIEW_PRINT_ON_BOTH_SIDES_LABEL},
       {"printButton", IDS_PRINT_PREVIEW_PRINT_BUTTON},
       {"printDestinationsTitle", IDS_PRINT_PREVIEW_PRINT_DESTINATIONS_TITLE},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"printerSetupInfoMessageDetailNoPrintersText",
-       IDS_PRINT_PREVIEW_PRINTER_SETUP_INFO_MESSAGE_DETAIL_NO_PRINTERS_TEXT},
-      {"printerSetupInfoMessageDetailPrinterOfflineText",
-       IDS_PRINT_PREVIEW_PRINTER_SETUP_INFO_MESSAGE_DETAIL_PRINTER_OFFLINE_TEXT},
-      {"printerSetupInfoMessageHeadingNoPrintersText",
-       IDS_PRINT_PREVIEW_PRINTER_SETUP_INFO_MESSAGE_HEADING_NO_PRINTERS_TEXT},
-      {"printerSetupInfoMessageHeadingPrinterOfflineText",
-       IDS_PRINT_PREVIEW_PRINTER_SETUP_INFO_MESSAGE_HEADING_PRINTER_OFFLINE_TEXT},
-      {"printToGoogleDrive", IDS_PRINT_PREVIEW_PRINT_TO_GOOGLE_DRIVE},
-#endif
       {"printToPDF", IDS_PRINT_PREVIEW_PRINT_TO_PDF},
       {"printing", IDS_PRINT_PREVIEW_PRINTING},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"resolveExtensionUSBDialogTitle",
-       IDS_PRINT_PREVIEW_RESOLVE_EXTENSION_USB_DIALOG_TITLE},
-      {"resolveExtensionUSBErrorMessage",
-       IDS_PRINT_PREVIEW_RESOLVE_EXTENSION_USB_ERROR_MESSAGE},
-      {"resolveExtensionUSBPermissionMessage",
-       IDS_PRINT_PREVIEW_RESOLVE_EXTENSION_USB_PERMISSION_MESSAGE},
-#endif
       {"right", IDS_PRINT_PREVIEW_RIGHT_MARGIN_LABEL},
       {"saveButton", IDS_PRINT_PREVIEW_SAVE_BUTTON},
       {"saving", IDS_PRINT_PREVIEW_SAVING},
@@ -278,41 +240,8 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
       {"seeMoreButton", IDS_PRINT_PREVIEW_SEE_MORE_BUTTON},
       {"seeMoreDestinationsLabel",
        IDS_PRINT_PREVIEW_SEE_MORE_DESTINATIONS_LABEL},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"serverSearchBoxPlaceholder",
-       IDS_PRINT_PREVIEW_SERVER_SEARCH_BOX_PLACEHOLDER},
-#endif
       {"title", IDS_PRINT_PREVIEW_TITLE},
       {"top", IDS_PRINT_PREVIEW_TOP_MARGIN_LABEL},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"configuringFailedText", IDS_PRINT_CONFIGURING_FAILED_TEXT},
-      {"configuringInProgressText", IDS_PRINT_CONFIGURING_IN_PROGRESS_TEXT},
-      {"optionPin", IDS_PRINT_PREVIEW_OPTION_PIN},
-      {"pinErrorMessage", IDS_PRINT_PREVIEW_PIN_ERROR_MESSAGE},
-      {"pinPlaceholder", IDS_PRINT_PREVIEW_PIN_PLACEHOLDER},
-      {"printerEulaURL", IDS_PRINT_PREVIEW_EULA_URL},
-      {"printerStatusDeviceError",
-       IDS_PRINT_PREVIEW_PRINTER_STATUS_DEVICE_ERROR},
-      {"printerStatusDoorOpen", IDS_PRINT_PREVIEW_PRINTER_STATUS_DOOR_OPEN},
-      {"printerStatusLowOnInk", IDS_PRINT_PREVIEW_PRINTER_STATUS_LOW_ON_INK},
-      {"printerStatusLowOnPaper",
-       IDS_PRINT_PREVIEW_PRINTER_STATUS_LOW_ON_PAPER},
-      {"printerStatusOutOfInk", IDS_PRINT_PREVIEW_PRINTER_STATUS_OUT_OF_INK},
-      {"printerStatusOutOfPaper",
-       IDS_PRINT_PREVIEW_PRINTER_STATUS_OUT_OF_PAPER},
-      {"printerStatusOutputAlmostFull",
-       IDS_PRINT_PREVIEW_PRINTER_STATUS_OUPUT_ALMOST_FULL},
-      {"printerStatusOutputFull", IDS_PRINT_PREVIEW_PRINTER_STATUS_OUPUT_FULL},
-      {"printerStatusPaperJam", IDS_PRINT_PREVIEW_PRINTER_STATUS_PAPER_JAM},
-      {"printerStatusPaused", IDS_PRINT_PREVIEW_PRINTER_STATUS_PAUSED},
-      {"printerStatusPrinterQueueFull",
-       IDS_PRINT_PREVIEW_PRINTER_STATUS_PRINTER_QUEUE_FULL},
-      {"printerStatusPrinterUnreachable",
-       IDS_PRINT_PREVIEW_PRINTER_STATUS_PRINTER_UNREACHABLE},
-      {"printerStatusStopped", IDS_PRINT_PREVIEW_PRINTER_STATUS_STOPPED},
-      {"printerStatusTrayMissing",
-       IDS_PRINT_PREVIEW_PRINTER_STATUS_TRAY_MISSING},
-#endif
 #if BUILDFLAG(IS_MAC)
       {"openPdfInPreviewOption", IDS_PRINT_PREVIEW_OPEN_PDF_IN_PREVIEW_APP},
       {"openingPDFInPreview", IDS_PRINT_PREVIEW_OPENING_PDF_IN_PREVIEW_APP},
@@ -320,12 +249,10 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
   };
   source->AddLocalizedStrings(kLocalizedStrings);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   const std::u16string shortcut_text(kBasicPrintShortcut);
   source->AddString("systemDialogOption",
                     l10n_util::GetStringFUTF16(
                         IDS_PRINT_PREVIEW_SYSTEM_DIALOG_OPTION, shortcut_text));
-#endif
 
   // Register strings for the PDF viewer, so that $i18n{} replacements work.
   base::DictValue pdf_strings = pdf_extension_util::GetStrings(
@@ -334,13 +261,9 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
 }
 
 void AddPrintPreviewFlags(content::WebUIDataSource* source, Profile* profile) {
-#if BUILDFLAG(IS_CHROMEOS)
-  source->AddBoolean("useSystemDefaultPrinter", false);
-#else
   bool system_default_printer = profile->GetPrefs()->GetBoolean(
       prefs::kPrintPreviewUseSystemDefaultPrinter);
   source->AddBoolean("useSystemDefaultPrinter", system_default_printer);
-#endif
 
   source->AddBoolean("alignPdfDefaultPrintSettingsWithHTML",
                      base::FeatureList::IsEnabled(
@@ -350,12 +273,6 @@ void AddPrintPreviewFlags(content::WebUIDataSource* source, Profile* profile) {
       "isEnterpriseManaged",
       policy::ManagementServiceFactory::GetForPlatform()->IsManaged());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  source->AddBoolean("isBorderlessPrintingEnabled", true);
-  source->AddBoolean("isUsePageOrientationCapabilityInPrintPreviewEnabled",
-                     base::FeatureList::IsEnabled(
-                         kUsePageOrientationCapabilityInPrintPreview));
-#endif
 }
 
 void SetupPrintPreviewPlugin(content::WebUIDataSource* source) {
@@ -388,9 +305,6 @@ void CreateAndAddPrintPreviewUISource(Profile* profile) {
 PrintPreviewHandler* CreatePrintPreviewHandlers(content::WebUI* web_ui) {
   auto handler = std::make_unique<PrintPreviewHandler>();
   PrintPreviewHandler* handler_ptr = handler.get();
-#if BUILDFLAG(IS_CHROMEOS)
-  web_ui->AddMessageHandler(std::make_unique<PrintPreviewHandlerChromeOS>());
-#endif
   web_ui->AddMessageHandler(std::move(handler));
   web_ui->AddMessageHandler(std::make_unique<MetricsHandler>());
 
@@ -400,10 +314,6 @@ PrintPreviewHandler* CreatePrintPreviewHandlers(content::WebUI* web_ui) {
       "printPreviewPageSummaryLabel", IDS_PRINT_PREVIEW_PAGE_SUMMARY_LABEL);
   plural_string_handler->AddLocalizedString(
       "printPreviewSheetSummaryLabel", IDS_PRINT_PREVIEW_SHEET_SUMMARY_LABEL);
-#if BUILDFLAG(IS_CHROMEOS)
-  plural_string_handler->AddLocalizedString(
-      "sheetsLimitErrorMessage", IDS_PRINT_PREVIEW_SHEETS_LIMIT_ERROR_MESSAGE);
-#endif
   web_ui->AddMessageHandler(std::move(plural_string_handler));
 
   return handler_ptr;

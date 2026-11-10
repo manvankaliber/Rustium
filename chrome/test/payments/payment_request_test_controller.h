@@ -14,11 +14,9 @@
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace sync_preferences {
 class TestingPrefServiceSyncable;
 }
-#endif
 
 namespace content {
 class WebContents;
@@ -72,10 +70,9 @@ class PaymentRequestTestController {
   void SetOffTheRecord(bool is_off_the_record);
   void SetValidSsl(bool valid_ssl);
   void SetCanMakePaymentEnabledPref(bool can_make_payment_enabled);
-  void SetTwaPackageName(const std::string& twa_package_name);
+
   void SetHasAuthenticator(bool has_authenticator);
-  void SetTwaPaymentApp(const std::string& method_name,
-                        const std::string& response);
+
 
   void SetBypassUserInteractionForTesting() {
     bypass_user_interaction_for_testing_ = true;
@@ -89,11 +86,6 @@ class PaymentRequestTestController {
   // only if: 1) PaymentRequest UI is opening. 2) PaymentHandler is opening.
   content::WebContents* GetPaymentHandlerWebContents();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Clicks the security icon on the Expandable Payment Handler toolbar for
-  // testing purpose. Return whether it's succeeded.
-  bool ClickPaymentHandlerSecurityIcon();
-#endif
 
   // Clicks the close button on the Payment Handler toolbar for testing purpose.
   // Return whether it's succeeded.
@@ -160,16 +152,15 @@ class PaymentRequestTestController {
   bool is_off_the_record_ = false;
   bool valid_ssl_ = true;
   bool can_make_payment_pref_ = true;
-  std::string twa_package_name_;
+
   bool has_authenticator_ = false;
-  std::string twa_payment_app_method_name_;
-  std::string twa_payment_app_response_;
+
+
   std::vector<AppDescription> app_descriptions_;
   std::optional<bool> is_shipping_section_visible_;
   std::optional<bool> is_contact_section_visible_;
   bool bypass_user_interaction_for_testing_ = false;
 
-#if !BUILDFLAG(IS_ANDROID)
   void UpdateDelegateFactory();
 
   std::unique_ptr<sync_preferences::TestingPrefServiceSyncable> prefs_;
@@ -178,7 +169,6 @@ class PaymentRequestTestController {
   std::unique_ptr<ObserverConverter> observer_converter_;
 
   base::WeakPtr<ContentPaymentRequestDelegate> delegate_;
-#endif
 
   base::WeakPtrFactory<PaymentRequestTestController> weak_ptr_factory_{this};
 };

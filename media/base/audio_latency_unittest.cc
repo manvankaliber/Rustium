@@ -127,8 +127,6 @@ TEST(AudioLatency, HighLatencyBufferSizes) {
 #if BUILDFLAG(IS_WIN)
     EXPECT_EQ(2 * (i / 100),
               AudioLatency::GetHighLatencyBufferSize(i, i / 100));
-#elif BUILDFLAG(USE_CRAS)
-    EXPECT_EQ(8 * (i / 100), AudioLatency::GetHighLatencyBufferSize(i, 32));
 #else
     EXPECT_EQ(2 * (i / 100), AudioLatency::GetHighLatencyBufferSize(i, 32));
 #endif  // BUILDFLAG(USE_CRAS)
@@ -138,17 +136,7 @@ TEST(AudioLatency, InteractiveBufferSizes) {
   // The |first| is a requested buffer size and and the |second| is a computed
   // "interactive" buffer size from the method.
   std::vector<std::pair<int, int>> buffer_size_pairs = {
-#if BUILDFLAG(IS_ANDROID)
-      {64, 128},
-      {96, 384},   // Pixel 3, 4, 5. (See crbug.com/1090441)
-      {240, 240},  // Nexus 7
-      {144, 144},  // Galaxy Nexus
-      // Irregular device buffer size
-      {100, 512},
-      {127, 512},
-#else
       {64, 64},
-#endif  // BUILDFLAG(IS_ANDROID)
       {128, 128},
       {256, 256},
       {512, 512},
@@ -166,9 +154,6 @@ TEST(AudioLatency, RtcBufferSizes) {
     EXPECT_EQ(i / 100, AudioLatency::GetRtcBufferSize(i, 0));
 #if BUILDFLAG(IS_WIN)
     EXPECT_EQ(500, AudioLatency::GetRtcBufferSize(i, 500));
-#elif BUILDFLAG(IS_ANDROID)
-    EXPECT_EQ(i / 50, AudioLatency::GetRtcBufferSize(i, i / 50 - 1));
-    EXPECT_EQ(i / 50 + 1, AudioLatency::GetRtcBufferSize(i, i / 50 + 1));
 #else
     EXPECT_EQ(i / 100, AudioLatency::GetRtcBufferSize(i, 500));
 #endif  // BUILDFLAG(IS_WIN)
@@ -195,7 +180,7 @@ INSTANTIATE_TEST_SUITE_P(
                     std::make_tuple(44100, 440, 0, 0),
                     std::make_tuple(44100, 256, 128, 512),
                     std::make_tuple(44100, 256, 0, 0))
-#elif BUILDFLAG(IS_MAC) || BUILDFLAG(USE_CRAS)
+#elif BUILDFLAG(IS_MAC)
     // These values are constant on Mac and ChromeOS, regardless of device.
     testing::Values(std::make_tuple(44100,
                                     256,

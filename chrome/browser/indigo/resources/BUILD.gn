@@ -7,8 +7,6 @@ import("//build/config/locales.gni")
 import("//components/vector_icons/vector_icons.gni")
 import("//tools/grit/grit_rule.gni")
 
-assert(!is_android)
-
 declare_args() {
   # Set to true to use internal branded strings for Indigo.
   use_indigo_internal_strings = is_internal_chrome_branded

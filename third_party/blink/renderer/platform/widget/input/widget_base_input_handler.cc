@@ -35,9 +35,6 @@
 #include "third_party/blink/renderer/platform/wtf/vector.h"
 #include "ui/latency/latency_info.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <android/keycodes.h>
-#endif
 
 using perfetto::protos::pbzero::TrackEvent;
 
@@ -244,9 +241,6 @@ void WidgetBaseInputHandler::HandleInputEvent(
       weak_ptr_factory_.GetWeakPtr();
   HandlingState handling_state(weak_self, IsTouchStartOrMove(input_event));
 
-#if BUILDFLAG(IS_ANDROID)
-  ImeEventGuard guard(widget_->GetWeakPtr());
-#endif
 
   TRACE_EVENT1("renderer,benchmark,rail,input.scrolling",
                "WidgetBaseInputHandler::OnHandleInputEvent", "event",
@@ -328,34 +322,6 @@ void WidgetBaseInputHandler::HandleInputEvent(
     }
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (WebInputEvent::IsKeyboardEventType(input_event.GetType())) {
-    // The DPAD_CENTER key on Android has a dual semantic: (1) in the general
-    // case it should behave like a select key (i.e. causing a click if a button
-    // is focused). However, if a text field is focused (2), its intended
-    // behavior is to just show the IME and don't propagate the key.
-    // A typical use case is a web form: the DPAD_CENTER should bring up the IME
-    // when clicked on an input text field and cause the form submit if clicked
-    // when the submit button is focused, but not vice-versa.
-    // The UI layer takes care of translating DPAD_CENTER into a RETURN key,
-    // but at this point we have to swallow the event for the scenario (2).
-    const WebKeyboardEvent& key_event =
-        static_cast<const WebKeyboardEvent&>(input_event);
-    if (key_event.native_key_code == AKEYCODE_DPAD_CENTER &&
-        widget_->client()->GetTextInputType() !=
-            WebTextInputType::kWebTextInputTypeNone) {
-      // Show the keyboard on keyup (not keydown) to match the behavior of
-      // Android's TextView.
-      if (key_event.GetType() == WebInputEvent::Type::kKeyUp)
-        widget_->ShowVirtualKeyboardOnElementFocus();
-      // Prevent default for both keydown and keyup (letting the keydown go
-      // through to the web app would cause compatibility problems since
-      // DPAD_CENTER is also used as a "confirm" button).
-      prevent_default = true;
-      processed = WebInputEventResult::kHandledSuppressed;
-    }
-  }
-#endif
   if (check_was_destroyed()) {
     return;
   }
@@ -487,14 +453,12 @@ void WidgetBaseInputHandler::HandleInputEvent(
 
 // TODO(rouslan): Fix ChromeOS and Windows 8 behavior of autofill popup with
 // virtual keyboard.
-#if !BUILDFLAG(IS_ANDROID)
   // Virtual keyboard is not supported, so react to focus change immediately.
   if ((processed != WebInputEventResult::kNotHandled &&
        input_event.GetType() == WebInputEvent::Type::kMouseDown) ||
       input_event.GetType() == WebInputEvent::Type::kGestureTap) {
     widget_->client()->FocusChangeComplete();
   }
-#endif
 
   // Ensure all injected scrolls were handled or queue up - any remaining
   // injected scrolls at this point would not be processed.

@@ -37,7 +37,7 @@
 #include <windows.h>
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include <features.h>
 #endif
 
@@ -313,9 +313,7 @@ void ReportAppleAllocStats(size_t* total_virtual_size,
 }
 #endif
 
-#if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && BUILDFLAG(IS_ANDROID) || \
-    !PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && !BUILDFLAG(IS_WIN) &&   \
-        !BUILDFLAG(IS_APPLE)
+#if !PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_APPLE)
 void ReportMallinfoStats(ProcessMemoryDump* pmd,
                          MemoryDumpLevelOfDetail level_of_detail,
                          size_t* total_virtual_size,
@@ -608,15 +606,11 @@ bool MallocDumpProvider::OnMemoryDump(const MemoryDumpArgs& args,
 
   // Even when PartitionAlloc is used, WinHeap / System malloc is still used as
   // well, report its statistics.
-#if BUILDFLAG(IS_ANDROID)
-  ReportMallinfoStats(pmd, args.level_of_detail, &total_virtual_size,
-                      &resident_size, &allocated_objects_size,
-                      &allocated_objects_count);
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   ReportWinHeap(pmd, args.level_of_detail, &total_virtual_size, &resident_size,
                 &allocated_objects_size, &allocated_objects_count,
                 &excluded_waste);
-#endif  // BUILDFLAG(IS_ANDROID), BUILDFLAG(IS_WIN)
+#endif
 
 #elif BUILDFLAG(IS_APPLE)
   ReportAppleAllocStats(&total_virtual_size, &resident_size,

@@ -42,9 +42,6 @@
 #include "extensions/common/switches.h"
 #include "net/base/backoff_entry.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/extensions/extension_assets_manager_chromeos.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -96,11 +93,6 @@ ChromeContentVerifierDelegate::GetDefaultMode() {
     return *GetModeForTesting();
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
 
-#if BUILDFLAG(PLATFORM_CFM)
-  if (command_line->HasSwitch(switches::kDisableAppContentVerification)) {
-    return VerifyInfo::Mode::NONE;
-  }
-#endif  // BUILDFLAG(PLATFORM_CFM)
 
   VerifyInfo::Mode experiment_value;
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
@@ -346,12 +338,6 @@ ChromeContentVerifierDelegate::GetVerifyInfo(const Extension& extension) const {
           ::switches::kRepairAllValidExtensions);
   bool is_from_webstore = IsFromWebstore(extension);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (ExtensionAssetsManagerChromeOS::IsSharedInstall(&extension)) {
-    return VerifyInfo(VerifyInfo::Mode::ENFORCE_STRICT, is_from_webstore,
-                      should_repair);
-  }
-#endif
 
   if (should_repair)
     return VerifyInfo(default_mode_, is_from_webstore, should_repair);

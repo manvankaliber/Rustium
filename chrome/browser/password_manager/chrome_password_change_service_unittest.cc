@@ -37,9 +37,7 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/password_manager/password_change/features.h"
-#endif
 
 namespace {
 
@@ -52,11 +50,7 @@ struct TestCase {
         is_disabled_by_policy(std::get<2>(configuration)) {}
 
   bool expected_outcome() const {
-#if BUILDFLAG(IS_ANDROID)
-    return false;
-#else
     return is_generation_available & is_saving_allowed & !is_disabled_by_policy;
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   const bool is_generation_available;
@@ -64,7 +58,6 @@ struct TestCase {
   const bool is_disabled_by_policy;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 password_manager::PasswordForm CreateTestForm(const GURL& url,
                                               bool is_signup_form) {
   password_manager::PasswordForm form;
@@ -91,7 +84,6 @@ password_manager::PasswordForm CreateTestForm(const GURL& url,
   form.form_data.set_fields({username_field, password_field});
   return form;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -204,7 +196,6 @@ class ChromePasswordChangeServiceTest : public testing::Test,
   std::unique_ptr<variations::TestVariationsService> variations_service_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ChromePasswordChangeServiceTest, PasswordChangeSupportedForURL) {
   base::CommandLine::ForCurrentProcess()->AppendSwitchASCII(
       variations::switches::kVariationsOverrideCountry, "us");
@@ -528,7 +519,6 @@ TEST_F(ChromePasswordChangeServiceTest,
       PasswordChangeAvailability::kAvailable, 1);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class ChromePasswordChangeServiceAvailabilityTest
     : public testing::TestWithParam<TestCase>,
@@ -546,7 +536,6 @@ class ChromePasswordChangeServiceAvailabilityTest
 };
 
 TEST_P(ChromePasswordChangeServiceAvailabilityTest, TestWithNoArgs) {
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_CALL(*feature_manager(), IsGenerationEnabled)
       .WillOnce(testing::Return(GetParam().is_generation_available));
   if (GetParam().is_generation_available) {
@@ -556,7 +545,6 @@ TEST_P(ChromePasswordChangeServiceAvailabilityTest, TestWithNoArgs) {
             password_manager::PasswordManagerSetting::kOfferToSavePasswords))
         .WillOnce(testing::Return(GetParam().is_saving_allowed));
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   EXPECT_EQ(change_service()->IsPasswordChangeAvailable(),
             GetParam().expected_outcome());
@@ -568,11 +556,7 @@ TEST_P(ChromePasswordChangeServiceAvailabilityTest, TestWithChangePwdUrlArg) {
   RecreateService();
 
   EXPECT_CALL(*feature_manager(), IsGenerationEnabled).Times(0);
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_TRUE(change_service()->IsPasswordChangeAvailable());
-#else
-  EXPECT_FALSE(change_service()->IsPasswordChangeAvailable());
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 TEST_P(ChromePasswordChangeServiceAvailabilityTest,
@@ -590,7 +574,6 @@ TEST_P(ChromePasswordChangeServiceAvailabilityTest,
       optimization_guide::prefs::GetSettingEnabledPrefName(
           optimization_guide::UserVisibleFeatureKey::kPasswordChangeSubmission),
       1);
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_CALL(*feature_manager(), IsGenerationEnabled)
       .WillOnce(testing::Return(GetParam().is_generation_available));
   if (GetParam().is_generation_available) {
@@ -600,7 +583,6 @@ TEST_P(ChromePasswordChangeServiceAvailabilityTest,
             password_manager::PasswordManagerSetting::kOfferToSavePasswords))
         .WillOnce(testing::Return(GetParam().is_saving_allowed));
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   EXPECT_EQ(static_cast<ChromePasswordChangeService*>(change_service())
                 ->UserIsActivePasswordChangeUser(),
             GetParam().expected_outcome());
@@ -620,7 +602,6 @@ INSTANTIATE_TEST_SUITE_P(
       return test_name;
     });
 
-#if !BUILDFLAG(IS_ANDROID)
 class ChromePasswordChangeServiceGlicEnabledTest
     : public testing::Test,
       public ChromePasswordChangeServiceBase {
@@ -657,5 +638,3 @@ TEST_F(ChromePasswordChangeServiceGlicEnabledTest,
   histogram_tester.ExpectUniqueSample(
       ChromePasswordChangeService::kHasPasswordChangeUrlHistogram, false, 1);
 }
-
-#endif  // !BUILDFLAG(IS_ANDROID)

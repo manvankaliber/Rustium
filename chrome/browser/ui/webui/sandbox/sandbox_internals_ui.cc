@@ -21,19 +21,15 @@
 #include "chrome/browser/ui/webui/sandbox/sandbox_handler.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/common/sandbox_status_extension_android.mojom.h"
-#include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
-#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "content/public/browser/zygote_host/zygote_host_linux.h"
 #include "sandbox/policy/sandbox.h"
 #endif
 
 namespace {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 static void SetSandboxStatusData(content::WebUIDataSource* source) {
   // Get expected sandboxing status of renderers.
   const int status =
@@ -77,7 +73,7 @@ void CreateAndAddDataSource(Profile* profile) {
       network::mojom::CSPDirectiveName::ScriptSrc,
       "script-src chrome://resources chrome://webui-test 'self';");
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   SetSandboxStatusData(source);
   source->UseStringsJs();
 #endif
@@ -96,12 +92,6 @@ SandboxInternalsUI::SandboxInternalsUI(content::WebUI* web_ui)
 
 void SandboxInternalsUI::WebUIRenderFrameCreated(
     content::RenderFrameHost* render_frame_host) {
-#if BUILDFLAG(IS_ANDROID)
-  mojo::AssociatedRemote<chrome::mojom::SandboxStatusExtension> sandbox_status;
-  render_frame_host->GetRemoteAssociatedInterfaces()->GetInterface(
-      &sandbox_status);
-  sandbox_status->AddSandboxStatusExtension();
-#endif
 }
 
 SandboxInternalsUI::~SandboxInternalsUI() = default;

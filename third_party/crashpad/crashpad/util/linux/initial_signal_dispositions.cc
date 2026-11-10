@@ -14,7 +14,6 @@
 
 #include "util/linux/initial_signal_dispositions.h"
 
-#include <android/api-level.h>
 #include <signal.h>
 
 #include "base/logging.h"

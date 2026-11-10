@@ -10,12 +10,12 @@
 
 namespace blink {
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN)
+#if !BUILDFLAG(IS_WIN)
 base::PlatformThreadId CurrentThread() {
   thread_local base::PlatformThreadId g_id = base::PlatformThread::CurrentId();
   return g_id;
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN)
+#endif
 
 // For debugging only -- whether a non-main thread has been created.
 

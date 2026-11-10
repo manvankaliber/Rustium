@@ -12,25 +12,8 @@ source_set("device_reauth") {
     "//ui/gfx",
   ]
 
-  if (is_android || is_mac || is_win || is_chromeos) {
+  if (is_mac || is_win) {
     public += [ "chrome_device_authenticator_factory.h" ]
-  }
-
-  if (is_android) {
-    public += [
-      "android/device_auth_availability_checker_android.h",
-      "android/device_authenticator_android.h",
-      "android/device_authenticator_bridge.h",
-      "android/reauthenticator_bridge.h",
-    ]
-  }
-
-  if (is_chromeos) {
-    public += [
-      "chromeos/authenticator_chromeos.h",
-      "chromeos/device_auth_availability_checker_chromeos.h",
-      "chromeos/device_authenticator_chromeos.h",
-    ]
   }
 
   if (is_mac) {
@@ -64,40 +47,8 @@ source_set("impl") {
     "//content/public/browser",
   ]
 
-  if (is_android || is_mac || is_win || is_chromeos) {
+  if (is_mac || is_win) {
     sources += [ "chrome_device_authenticator_factory.cc" ]
-  }
-
-  if (is_android) {
-    sources += [
-      "android/device_auth_availability_checker_android.cc",
-      "android/device_authenticator_android.cc",
-      "android/device_authenticator_bridge_impl.cc",
-      "android/device_authenticator_bridge_impl.h",
-      "android/reauthenticator_bridge.cc",
-    ]
-    deps += [
-      "//chrome/browser/device_reauth/android:jni_headers",
-      "//components/password_manager/core/browser",
-      "//ui/android",
-    ]
-  }
-
-  if (is_chromeos) {
-    sources += [
-      "chromeos/authenticator_chromeos.cc",
-      "chromeos/device_auth_availability_checker_chromeos.cc",
-      "chromeos/device_authenticator_chromeos.cc",
-    ]
-    deps += [
-      "//ash/public/cpp",
-      "//chrome/browser/ash/auth",
-      "//chromeos/ash/components/cryptohome",
-      "//chromeos/ash/components/dbus/userdataauth",
-      "//chromeos/ash/components/dbus/userdataauth:userdataauth_proto",
-      "//chromeos/ash/components/osauth/public",
-      "//components/session_manager/core",
-    ]
   }
 
   if (is_mac) {
@@ -143,27 +94,8 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  if (is_win || is_mac || is_android || is_chromeos) {
+  if (is_win || is_mac) {
     sources += [ "chrome_device_authenticator_factory_unittest.cc" ]
-  }
-
-  if (is_android) {
-    sources += [
-      "android/device_auth_availability_checker_android_unittest.cc",
-      "android/device_authenticator_android_unittest.cc",
-    ]
-    deps += [ "//ui/android" ]
-  }
-
-  if (is_chromeos) {
-    sources += [
-      "chromeos/device_auth_availability_checker_chromeos_unittest.cc",
-      "chromeos/device_authenticator_chromeos_unittest.cc",
-    ]
-    deps += [
-      "//ash/constants",
-      "//chromeos/ash/components/cryptohome",
-    ]
   }
 
   if (is_mac) {

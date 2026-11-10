@@ -44,9 +44,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
-#endif
 
 namespace glic {
 namespace {
@@ -98,12 +96,10 @@ class GlicCueTargetTest : public ChromeRenderViewHostTestHarness {
     mock_tab_ = std::make_unique<tabs::MockTabInterface>();
     EXPECT_CALL(*mock_tab_, GetProfile())
         .WillRepeatedly(testing::Return(profile()));
-#if !BUILDFLAG(IS_ANDROID)
     mock_browser_window_interface_ =
         std::make_unique<testing::NiceMock<MockBrowserWindowInterface>>();
     EXPECT_CALL(*mock_tab_, GetBrowserWindowInterface())
         .WillRepeatedly(testing::Return(mock_browser_window_interface_.get()));
-#endif
 
     target_ = std::make_unique<GlicCueTarget>(
         *mock_glic_keyed_service_,
@@ -112,9 +108,7 @@ class GlicCueTargetTest : public ChromeRenderViewHostTestHarness {
 
   void TearDown() override {
     target_.reset();
-#if !BUILDFLAG(IS_ANDROID)
     mock_browser_window_interface_.reset();
-#endif
     mock_tab_.reset();
     mock_glic_keyed_service_.reset();
     identity_test_env_adaptor_.reset();
@@ -146,16 +140,13 @@ class GlicCueTargetTest : public ChromeRenderViewHostTestHarness {
   GlicProfileManager glic_profile_manager_;
 
   std::unique_ptr<tabs::MockTabInterface> mock_tab_;
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<testing::NiceMock<MockBrowserWindowInterface>>
       mock_browser_window_interface_;
-#endif
   std::unique_ptr<MockGlicKeyedService> mock_glic_keyed_service_;
 
   std::unique_ptr<GlicCueTarget> target_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(GlicCueTargetTest, IsEligible_HistorySync) {
   profile()->GetPrefs()->SetBoolean(prefs::kGlicPinnedToTabstrip, true);
   EXPECT_CALL(*mock_glic_keyed_service_, IsPanelShowingForBrowser(testing::_))
@@ -317,7 +308,6 @@ TEST_F(GlicCueTargetTest, IsEligible_VerticalFeaturesDisabled) {
     EXPECT_FALSE(target_->IsEligible());
   }
 }
-#endif
 
 TEST_F(GlicCueTargetTest, IsPageEligible_LowScoreEdu) {
   auto result = CreateAnnotationResult(CategoryType::kEducation, 60);

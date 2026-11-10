@@ -347,11 +347,6 @@ void ContentPasswordManagerDriver::FillIntoFocusedField(
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void ContentPasswordManagerDriver::TriggerFormSubmission() {
-  GetPasswordAutofillAgent()->TriggerFormSubmission();
-}
-#endif
 
 void ContentPasswordManagerDriver::PreviewField(
     autofill::FieldRendererId field_id,

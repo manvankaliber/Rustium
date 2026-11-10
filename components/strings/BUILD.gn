@@ -7,10 +7,6 @@ import("//build/config/locales.gni")
 import("//components/strings/grit_defines.gni")
 import("//tools/grit/grit_rule.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
 group("strings") {
   public_deps = [
     ":components_branded_strings",
@@ -100,16 +96,8 @@ grit_strings("components_strings") {
   defines = components_strings_grit_defines
 
   outputs = [ "grit/components_strings.h" ]
-  if (is_android) {
-    create_android_resources = true
-  }
-  gritdeps = "../components_strings.grd.gritdeps"
-}
 
-if (is_android) {
-  java_strings_grd_prebuilt("components_strings_grd") {
-    generating_target = ":components_strings"
-  }
+  gritdeps = "../components_strings.grd.gritdeps"
 }
 
 grit_strings("components_branded_strings") {
@@ -129,19 +117,7 @@ grit_strings("components_locale_settings") {
                    "en-XA",
                    "ur",
                  ]
-  if (is_android) {
-    _xtb_locales -= [ "cy" ]
-  }
-  if (is_ios) {
-    _xtb_locales -= [
-      "es-MX",
-      "pt",
-    ]
-    _xtb_locales += [
-      "es-419",
-      "pt-BR",
-    ]
-  }
+
   inputs = process_file_template(
           _xtb_locales,
           [ "components_locale_settings_{{source_name_part}}.xtb" ])
@@ -149,14 +125,13 @@ grit_strings("components_locale_settings") {
                      "ar-XB",
                      "ms",
                    ]
-  if (!is_android && !is_ios) {
-    if (is_chrome_branded) {
-      inputs += process_file_template(
-              _terms_locales,
-              [ "../resources/terms/terms_{{source_name_part}}.html" ])
-    } else {
-      inputs += [ "../resources/terms/terms_chromium.html" ]
-    }
+
+  if (is_chrome_branded) {
+    inputs += process_file_template(
+            _terms_locales,
+            [ "../resources/terms/terms_{{source_name_part}}.html" ])
+  } else {
+    inputs += [ "../resources/terms/terms_chromium.html" ]
   }
 
   if (is_linux) {
@@ -170,16 +145,6 @@ grit_strings("components_locale_settings") {
   }
 
   outputs = [ "grit/components_locale_settings.h" ]
-
-  if (is_android) {
-    create_android_resources = true
-  }
-}
-
-if (is_android) {
-  java_strings_grd_prebuilt("components_locale_settings_grd") {
-    generating_target = ":components_locale_settings"
-  }
 }
 
 grit_strings("components_variant_strings") {
@@ -189,16 +154,6 @@ grit_strings("components_variant_strings") {
     source = "../components_variant_public_strings.grd"
   }
   outputs = [ "grit/components_variant_strings.h" ]
-
-  if (is_android) {
-    create_android_resources = true
-  }
-}
-
-if (is_android) {
-  java_strings_grd_prebuilt("components_variant_strings_grd") {
-    generating_target = ":components_variant_strings"
-  }
 }
 
 grit_strings("privacy_sandbox_strings") {
@@ -207,14 +162,4 @@ grit_strings("privacy_sandbox_strings") {
           xtb_locales,
           [ "privacy_sandbox_strings_{{source_name_part}}.xtb" ])
   outputs = [ "grit/privacy_sandbox_strings.h" ]
-
-  if (is_android) {
-    create_android_resources = true
-  }
-}
-
-if (is_android) {
-  java_strings_grd_prebuilt("privacy_sandbox_strings_grd") {
-    generating_target = ":privacy_sandbox_strings"
-  }
 }

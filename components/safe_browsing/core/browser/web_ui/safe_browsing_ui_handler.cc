@@ -15,7 +15,7 @@
 #include "components/safe_browsing/core/common/proto/csd.to_value.h"
 #include "components/user_prefs/user_prefs.h"
 
-#if BUILDFLAG(SAFE_BROWSING_DB_LOCAL) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(SAFE_BROWSING_DB_LOCAL)
 #include "components/safe_browsing/core/browser/db/sb_local_database_manager.h"
 #include "components/safe_browsing/core/common/features.h"
 #endif
@@ -137,7 +137,7 @@ void SafeBrowsingUIHandler::GetDatabaseManagerInfo(
     const base::ListValue& args) {
   base::ListValue database_manager_info;
 
-#if BUILDFLAG(SAFE_BROWSING_DB_LOCAL) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(SAFE_BROWSING_DB_LOCAL)
   const SBLocalDatabaseManager* local_database_manager_instance =
       SBLocalDatabaseManager::current_local_database_manager();
   if (local_database_manager_instance) {
@@ -466,7 +466,7 @@ void SafeBrowsingUIHandler::GetDeepScans(const base::ListValue& args) {
 
 base::DictValue SafeBrowsingUIHandler::GetFormattedTailoredVerdictOverride() {
   base::DictValue override_dict;
-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
   const char kStatusKey[] = "status";
   const char kOverrideValueKey[] = "override_value";
   const web_ui::TailoredVerdictOverrideData& override_data =
@@ -491,7 +491,7 @@ base::DictValue SafeBrowsingUIHandler::GetFormattedTailoredVerdictOverride() {
 void SafeBrowsingUIHandler::SetTailoredVerdictOverride(
     const base::ListValue& args) {
   DCHECK_GE(args.size(), 2U);
-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
   ClientDownloadResponse::TailoredVerdict tv;
   const base::DictValue& input = args[1].GetDict();
 
@@ -524,7 +524,7 @@ void SafeBrowsingUIHandler::GetTailoredVerdictOverride(
 
 void SafeBrowsingUIHandler::ClearTailoredVerdictOverride(
     const base::ListValue& args) {
-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
   web_ui_info_singleton()->ClearTailoredVerdictOverride();
 #endif
 

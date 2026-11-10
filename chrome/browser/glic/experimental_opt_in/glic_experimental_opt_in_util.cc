@@ -17,10 +17,8 @@
 #include "net/base/url_util.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
-#endif
 
 namespace glic {
 
@@ -41,7 +39,6 @@ GURL DecorateGlicOptInUrl(Profile* profile, GURL url) {
     url = net::AppendOrReplaceQueryParameter(url, "device_name", device_name);
   }
 
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
   // Add the hotkey configuration to the URL as a query parameter.
   std::string hotkey_param_value;
 #if !BUILDFLAG(IS_MAC)
@@ -53,15 +50,12 @@ GURL DecorateGlicOptInUrl(Profile* profile, GURL url) {
   if (!hotkey_param_value.empty()) {
     url = net::AppendOrReplaceQueryParameter(url, "hotkey", hotkey_param_value);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Add the current Chrome theme to the URL as a query parameter.
-#if !BUILDFLAG(IS_ANDROID)
   const bool use_dark_mode =
       ThemeServiceFactory::GetForProfile(profile)->BrowserUsesDarkColors();
   std::string theme_value = use_dark_mode ? "dark" : "light";
   url = net::AppendOrReplaceQueryParameter(url, "theme", theme_value);
-#endif
 
   // Localize to Chrome UI language.
   return GetLocalizedGuestURL(url);

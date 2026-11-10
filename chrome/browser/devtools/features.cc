@@ -200,14 +200,8 @@ const base::FeatureParam<bool> kDevToolsGdpProfilesStarterBadgeEnabled{
 BASE_FEATURE(kDevToolsEnableDurableMessages, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // If enabled, allows starting remote debugging in a running Chrome instance.
-#if BUILDFLAG(IS_CHROMEOS)
-// Disabled on ChromeOS due to crbug.com/552883317.
-BASE_FEATURE(kDevToolsAcceptDebuggingConnections,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
 BASE_FEATURE(kDevToolsAcceptDebuggingConnections,
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 BASE_FEATURE(kDevToolsAiAssistanceContextSelectionAgent,
              base::FEATURE_ENABLED_BY_DEFAULT);

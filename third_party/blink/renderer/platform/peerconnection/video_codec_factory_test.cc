@@ -128,11 +128,9 @@ INSTANTIATE_TEST_SUITE_P(
     ,
     VideoCodecFactoryTestWithSdpFormat,
     ValuesIn({
-#if !BUILDFLAG(IS_ANDROID)
         webrtc::CreateH264Format(webrtc::H264Profile::kProfileBaseline,
                                  webrtc::H264Level::kLevel1,
                                  /*packetization_mode=*/"1"),
-#endif
         webrtc::SdpVideoFormat::VP8(),
         webrtc::SdpVideoFormat::VP9Profile0(),
         webrtc::SdpVideoFormat::AV1Profile0(),

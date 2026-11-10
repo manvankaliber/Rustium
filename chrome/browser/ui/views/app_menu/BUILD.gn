@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-assert(is_win || is_mac || is_linux || is_chromeos)
+assert(is_win || is_mac || is_linux)
 
 import("//build/config/ui.gni")
 import("//extensions/buildflags/buildflags.gni")
@@ -189,12 +189,10 @@ source_set("impl") {
     deps += [ "//chrome/browser/extensions" ]
   }
 
-  if (!is_chromeos) {
-    deps += [
-      "//chrome/browser/ui/webui/signin:signin_ui_error",
-      "//chrome/browser/ui/webui/signin:signin_utils",
-    ]
-  }
+  deps += [
+    "//chrome/browser/ui/webui/signin:signin_ui_error",
+    "//chrome/browser/ui/webui/signin:signin_utils",
+  ]
 
   if (is_win || is_mac || is_linux) {
     deps += [ "//chrome/browser/lifetime" ]

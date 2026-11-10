@@ -41,9 +41,7 @@
 #include "third_party/perfetto/protos/perfetto/config/data_source_config.gen.h"
 #include "third_party/perfetto/protos/perfetto/trace/trace_packet.pb.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/profiler/core_unwinders.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "base/mac/mac_util.h"
@@ -192,11 +190,7 @@ class MockUnwinder : public base::Unwinder {
 base::StackSamplingProfiler::UnwindersFactory
 MakeMockUnwinderFactoryWithExpectations() {
   if (!TracingSamplerProfiler::IsStackUnwindingSupportedForTesting()) {
-#if !BUILDFLAG(IS_ANDROID)
     return base::CreateCoreUnwindersFactory();
-#else
-    return base::StackSamplingProfiler::UnwindersFactory();
-#endif
   }
   return base::BindOnce([] {
     auto mock_unwinder = std::make_unique<MockUnwinder>();

@@ -29,10 +29,8 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"
 #include "components/tabs/public/tab_interface.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/tabs/tab_strip_model_observer.h"
-#endif
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_menu_params.h"
 #include "content/public/browser/navigation_handle.h"
@@ -76,14 +74,6 @@
 #include "third_party/blink/public/mojom/context_menu/context_menu.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/scoped_multi_source_observation.h"
-#include "chrome/browser/android/tab_android.h"
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list_observer.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_observer.h"
-#else
 #include "chrome/browser/download/download_browsertest_utils.h"
 #include "chrome/browser/download/download_prefs.h"
 #include "chrome/browser/renderer_context_menu/render_view_context_menu_test_util.h"
@@ -91,7 +81,6 @@
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
 #include "chrome/browser/ui/navigator/browser_navigator_params.h"
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -108,56 +97,6 @@ namespace {
 // of an URL ending in |until_url_suffix|.
 class DelayLoadStartAndExecuteJavascript : public content::WebContentsObserver {
  public:
-#if BUILDFLAG(IS_ANDROID)
-  // Notifies DelayLoadStartAndExecuteJavascript when a tab is added. Observes
-  // every TabModel, including ones registered after construction, because
-  // additional models (e.g. headless models for other persisted windows) can be
-  // registered asynchronously during startup on desktop Android.
-  class TabHelper : public TabModelListObserver, public TabModelObserver {
-   public:
-    explicit TabHelper(DelayLoadStartAndExecuteJavascript* owner)
-        : owner_(owner) {
-      TabModelList::AddGlobalObserver(this);
-      TabModelList::ForEachAll([this](TabModel* model) {
-        OnTabModelAdded(model);
-        return true;
-      });
-    }
-
-    ~TabHelper() override { StopObserving(); }
-
-    // TabModelListObserver:
-    void OnTabModelAdded(TabModel* tab_model) override {
-      tab_model_observations_.AddObservation(tab_model);
-    }
-
-    void OnTabModelRemoved(TabModel* tab_model) override {
-      if (tab_model_observations_.IsObservingSource(tab_model)) {
-        tab_model_observations_.RemoveObservation(tab_model);
-      }
-    }
-
-    // TabModelObserver:
-    void DidAddTab(TabAndroid* tab, TabModel::TabLaunchType type) override {
-      if (!tab->GetContents()) {
-        return;
-      }
-
-      StopObserving();
-      owner_->OnTabAdded(tab->GetContents());
-    }
-
-   private:
-    void StopObserving() {
-      tab_model_observations_.RemoveAllObservations();
-      TabModelList::RemoveGlobalObserver(this);
-    }
-
-    raw_ptr<DelayLoadStartAndExecuteJavascript> owner_;
-    base::ScopedMultiSourceObservation<TabModel, TabModelObserver>
-        tab_model_observations_{this};
-  };
-#else
   // Notifies DelayLoadStartAndExecuteJavascript when a tab is added.
   class TabHelper : public TabStripModelObserver {
    public:
@@ -186,7 +125,6 @@ class DelayLoadStartAndExecuteJavascript : public content::WebContentsObserver {
 
     raw_ptr<DelayLoadStartAndExecuteJavascript> owner_;
   };
-#endif  // BUILDFLAG(IS_ANDROID)
 
   DelayLoadStartAndExecuteJavascript(const GURL& delay_url,
                                      const std::string& script,
@@ -647,7 +585,6 @@ IN_PROC_BROWSER_TEST_F(WebNavigationApiTest, FilteredTest) {
   ASSERT_TRUE(RunExtensionTest("webnavigation/filtered")) << message_;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Skipped on Android because RenderViewContextMenu only exists on
 // Win/Mac/Linux.
 IN_PROC_BROWSER_TEST_F(WebNavigationApiTest, UserAction) {
@@ -690,7 +627,6 @@ IN_PROC_BROWSER_TEST_F(WebNavigationApiTest, UserAction) {
 
   ASSERT_TRUE(catcher.GetNextResult()) << catcher.message();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 // TODO(crbug.com/371432404): Port to desktop Android. Fails due to differences

@@ -27,8 +27,8 @@
 #include "ui/base/device_form_factor.h"
 
 namespace {
-constexpr bool is_android = !!BUILDFLAG(IS_ANDROID);
-constexpr bool is_desktop_android = !!BUILDFLAG(IS_DESKTOP_ANDROID);
+constexpr bool is_android = !!false;
+constexpr bool is_desktop_android = !!false;
 
 // Returns whether specific context is eligible for a verbatim match.
 // Offers verbatim match for:

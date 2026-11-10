@@ -85,10 +85,8 @@ constexpr char kPendingListUpdateMetricsName[] =
 class ExtensionRequestObserverTest : public InProcessBrowserTest {
  public:
   void SetUpInProcessBrowserTestFixture() override {
-#if !BUILDFLAG(IS_CHROMEOS)
     base::CommandLine::ForCurrentProcess()->AppendSwitch(
         switches::kEnableChromeBrowserCloudManagement);
-#endif
     provider_.SetDefaultReturns(
         /*is_initialization_complete_return=*/true,
         /*is_first_policy_load_complete_return=*/true);

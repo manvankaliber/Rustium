@@ -18,11 +18,6 @@
 #include "content/public/test/browser_task_environment.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/users/fake_chrome_user_manager.h"
-#include "components/account_id/account_id.h"
-#include "components/user_manager/scoped_user_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace metrics {
 
@@ -38,15 +33,6 @@ class CpuPerformanceMetricsProviderTest : public testing::Test {
     profile_ = profile_manager_.CreateTestingProfile(kTestUserEmail);
     profiles::SetLastUsedProfile(profile_->GetBaseName());
 
-#if BUILDFLAG(IS_CHROMEOS)
-    auto* fake_user_manager = new ash::FakeChromeUserManager();
-    scoped_user_manager_enabler_ =
-        std::make_unique<user_manager::ScopedUserManager>(
-            base::WrapUnique(fake_user_manager));
-    const AccountId account_id(AccountId::FromUserEmail(kTestUserEmail));
-    fake_user_manager->AddUser(account_id);
-    fake_user_manager->LoginUser(account_id);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
  protected:
@@ -56,9 +42,6 @@ class CpuPerformanceMetricsProviderTest : public testing::Test {
   TestingProfileManager profile_manager_;
   raw_ptr<TestingProfile> profile_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<user_manager::ScopedUserManager> scoped_user_manager_enabler_;
-#endif
 };
 
 TEST_F(CpuPerformanceMetricsProviderTest, ProvideCurrentSessionData) {

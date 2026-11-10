@@ -7,13 +7,11 @@ writers/__init__.py
 writers/adm_writer.py
 writers/adml_writer.py
 writers/admx_writer.py
-writers/android_policy_writer.py
 writers/doc_atomic_groups_writer.py
 writers/doc_writer.py
 writers/google_adml_writer.py
 writers/google_admx_writer.py
 writers/gpo_editor_writer.py
-writers/ios_app_config_writer.py
 writers/jamf_writer.py
 writers/json_writer.py
 writers/plist_helper.py

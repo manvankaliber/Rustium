@@ -48,7 +48,6 @@
 #include "third_party/omnibox_proto/input_type.pb.h"
 #include "third_party/omnibox_proto/searchbox_config.pb.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_tasks/contextual_tasks_utils.h"
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
 #include "chrome/browser/ui/contextual_search/tab_contextualization_controller.h"
@@ -56,11 +55,9 @@
 #include "components/contextual_search/mock_contextual_search_context_controller.h"
 #include "ui/base/unowned_user_data/scoped_unowned_user_data.h"
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
-#endif
 
 namespace contextual_tasks {
 
-#if !BUILDFLAG(IS_ANDROID)
 class MockActiveTaskContextProvider : public ActiveTaskContextProvider {
  public:
   MOCK_METHOD(void, AddObserver, (Observer * observer), (override));
@@ -74,7 +71,6 @@ class MockActiveTaskContextProvider : public ActiveTaskContextProvider {
   MOCK_METHOD(void, RemoveLocalTabUnderline, (tabs::TabHandle), (override));
   MOCK_METHOD(void, ClearAllLocalTabUnderlines, (), (override));
 };
-#endif
 
 std::unique_ptr<KeyedService> BuildTestSigninClient(
     content::BrowserContext* context) {
@@ -1396,7 +1392,6 @@ TEST_F(ContextualTasksWebContentsUserDataTest,
           web_contents_);
   ASSERT_NE(user_data, nullptr);
 
-#if !BUILDFLAG(IS_ANDROID)
   ui::UnownedUserDataHost unowned_user_data_host;
   testing::NiceMock<MockBrowserWindowInterface> mock_browser_window;
   ON_CALL(mock_browser_window, GetUnownedUserDataHost())
@@ -1407,7 +1402,6 @@ TEST_F(ContextualTasksWebContentsUserDataTest,
       active_task_context_provider_registration(
           unowned_user_data_host, mock_active_task_context_provider);
   webui::SetBrowserWindowInterface(web_contents_, &mock_browser_window);
-#endif
 
   // Before `HandshakeResponse` disables `TABS`, Smart Tab Sharing is active by
   // default when `CanShareTabContext(profile_)` is true.
@@ -1434,17 +1428,13 @@ TEST_F(ContextualTasksWebContentsUserDataTest,
   // Receive a `HandshakeResponse` that advertises `LENS` only (omitting
   // `TABS`).
   dispatched_messages.clear();
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_CALL(mock_active_task_context_provider, RefreshContext()).Times(1);
-#endif
   resp->add_capabilities(lens::SearchToClientMessage::HandshakeResponse::LENS);
   handshake_bytes.resize(handshake_msg.ByteSizeLong());
   handshake_msg.SerializeToArray(handshake_bytes.data(),
                                  handshake_bytes.size());
   EXPECT_TRUE(user_data->OnSearchMessageReceived(handshake_bytes));
-#if !BUILDFLAG(IS_ANDROID)
   testing::Mock::VerifyAndClearExpectations(&mock_active_task_context_provider);
-#endif
 
   // Smart Tab Sharing should now be inactive and `CONTEXT_LIBRARY` must be
   // unmounted.
@@ -1509,9 +1499,7 @@ TEST_F(ContextualTasksWebContentsUserDataTest,
   }
   EXPECT_TRUE(saw_context_library_mount);
 
-#if !BUILDFLAG(IS_ANDROID)
   webui::SetBrowserWindowInterface(web_contents_, nullptr);
-#endif
 }
 
 TEST_F(ContextualTasksWebContentsUserDataTest,
@@ -1652,7 +1640,6 @@ TEST_F(ContextualTasksWebContentsUserDataTest,
       "ContextualTasks.ThreadContextLibrary.TimeFromHandshakeToFirstUpdate", 2);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(
     ContextualTasksWebContentsUserDataTest,
     HandleThreadContextLibraryUpdateFromAim_SuccessWithTaskIdAndRestoredTabs) {
@@ -1749,7 +1736,6 @@ TEST_F(
   web_contents_ = nullptr;
   web_contents_factory_.reset();
 }
-#endif
 
 TEST_F(ContextualTasksWebContentsUserDataTest,
        SmartTabSharing_DisabledWhenRearchitectureParamFalse) {
@@ -2101,7 +2087,6 @@ TEST_F(ContextualTasksWebContentsUserDataTest,
   EXPECT_EQ(response.added_contexts(0).request_id().context_id(), 105);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualTasksWebContentsUserDataTest,
        UpdateTabPickerVisibility_InjectsAndHidesTabPicker) {
   ui::UnownedUserDataHost unowned_user_data_host;
@@ -2434,7 +2419,6 @@ TEST_F(
 
   webui::SetBrowserWindowInterface(web_contents_, nullptr);
 }
-#endif
 
 TEST_F(ContextualTasksWebContentsUserDataTest,
        UpdateContextState_PopulatesInputTypesAndDeduplicatesBySerializedBytes) {
@@ -3020,7 +3004,6 @@ TEST_F(ContextualTasksWebContentsUserDataTest,
   user_data->SetSearchMessageDispatcherForTesting(base::NullCallback());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace {
 
 class StubTabContextualizationController
@@ -3394,6 +3377,5 @@ TEST_F(ContextualTasksWebContentsUserDataTest,
   user_data->SetSearchMessageDispatcherForTesting(base::NullCallback());
   webui::SetBrowserWindowInterface(web_contents_, nullptr);
 }
-#endif
 
 }  // namespace contextual_tasks

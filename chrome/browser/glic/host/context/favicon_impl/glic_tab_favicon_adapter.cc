@@ -11,18 +11,11 @@
 #include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/image/image_skia_rep.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/tab_android.h"
-#endif
 
 namespace glic {
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr float kFaviconScale = 1.0f;
-#else
 constexpr float kFaviconScale = 2.0f;
-#endif
 
 }  // namespace
 
@@ -45,21 +38,12 @@ FaviconData FaviconData::FromBitmap(SkBitmap bitmap) {
 
 // static
 FaviconData FaviconData::FromWebContents(content::WebContents& web_contents) {
-#if BUILDFLAG(IS_ANDROID)
-  // ContentFaviconDriver::GetFavicon() doesn't work on Android.
-  TabAndroid* tab_android = TabAndroid::FromWebContents(&web_contents);
-  if (!tab_android) {
-    return FaviconData();
-  }
-  return FaviconData(TabFavicon::GetBitmapForTab(tab_android));
-#else
   favicon::ContentFaviconDriver* favicon_driver =
       favicon::ContentFaviconDriver::FromWebContents(&web_contents);
   if (!favicon_driver || !favicon_driver->FaviconIsValid()) {
     return FaviconData();
   }
   return FaviconData(favicon_driver->GetFavicon());
-#endif
 }
 
 const SkBitmap& FaviconData::GetBitmap() const {

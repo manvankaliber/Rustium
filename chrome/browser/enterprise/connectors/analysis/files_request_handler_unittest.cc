@@ -545,7 +545,6 @@ TEST_F(FilesRequestHandlerTest, FileDataPositiveMalwareVerdict) {
 
 // Android doesn't detect encrypted archives (`FileAnalysisRequest` only runs
 // the sandboxed archive analyzers on desktop), so they're uploaded as encrypted blobs
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(FilesRequestHandlerTest, FileIsEncrypted) {
   content::InProcessUtilityThreadHelper in_process_utility_thread_helper;
 
@@ -581,7 +580,6 @@ TEST_F(FilesRequestHandlerTest, FileIsEncrypted) {
                   false, FinalContentAnalysisResult::ENCRYPTED_FILES, ""));
   EXPECT_FALSE(was_upload_performed());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // With a local service provider, a scan should not terminate early due to
 // encryption.

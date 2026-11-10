@@ -38,7 +38,6 @@ bool LegacyTechReportPolicyHandler::CheckPolicySettings(
     return false;
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   const policy::PolicyMap::Entry* policy = policies.Get(policy_name());
   // If policy is set with the signed in account, it must be affiliated.
   if (policy->scope == policy::POLICY_SCOPE_USER &&
@@ -46,7 +45,6 @@ bool LegacyTechReportPolicyHandler::CheckPolicySettings(
     errors->AddError(policy_name(), IDS_POLICY_USER_IS_NOT_AFFILIATED_ERROR);
     return false;
   }
-#endif
 
   return true;
 }

@@ -47,11 +47,8 @@ _TYPE_ORDERING = [
 
 _OS_ORDERING = [
     "linux",
-    "chromeos",
     "win",
     "mac",
-    "android",
-    "ios",
 ]
 
 _SANITIZER_ORDERING = [
@@ -146,12 +143,9 @@ consoles.console_view(
 )
 
 _PLATFORM_SHORT_NAMES = {
-    builder_config.target_platform.CHROMEOS: "chromeos",
     builder_config.target_platform.LINUX: "linux",
     builder_config.target_platform.MAC: "mac",
     builder_config.target_platform.WIN: "win",
-    builder_config.target_platform.ANDROID: "android",
-    builder_config.target_platform.IOS: "ios",
 }
 
 _BUILD_CONFIG_SHORT_NAMES = {
@@ -174,7 +168,6 @@ def _arch_short_name(target_arch, target_bits):
 def ci_builder(
         max_concurrent_invocations = None,
         chromium_config_name = None,
-        android_config_name = None,
         build_config = None,
         target_bits = None,
         target_arch = None,
@@ -210,19 +203,6 @@ def ci_builder(
     if platform_short_name:
         gn_configs.append(platform_short_name)
 
-    # android:debuggable="true" is needed when using ASan or HWASan.
-    # See https://developer.android.com/ndk/guides/wrap-script#packaging_wrapsh
-    if target_platform == builder_config.target_platform.ANDROID and (
-        "asan" in gn_configs or "hwasan" in gn_configs
-    ):
-        gn_configs.append("debuggable_apks")
-
-    android_config = None
-    if android_config_name:
-        android_config = builder_config.android_config(
-            config = android_config_name,
-        )
-
     return ci.builder(
         triggering_policy = scheduler.greedy_batching(
             max_concurrent_invocations = max_concurrent_invocations,
@@ -242,7 +222,6 @@ def ci_builder(
                 target_bits = target_bits,
                 target_platform = target_platform,
             ),
-            android_config = android_config,
             clusterfuzz_archive = clusterfuzz_archive,
         ),
         gn_args = gn_args.config(configs = gn_configs),
@@ -333,7 +312,6 @@ def fuzz_target_builder(
         use_component_build = True,
         chromium_extra_apply_configs = [],
         clusterfuzz_archive_schema_version = None,
-        clusterfuzz_ios_targets_only = None,
         clusterfuzz_v8_targets_only = None,
         clusterfuzz_archive_path = None,
         contact_team_email = "chrome-fuzzing-core@google.com",
@@ -362,9 +340,6 @@ def fuzz_target_builder(
     properties = {
         "upload_bucket": "chromium-browser-" + fuzzing_engine,
     }
-
-    if clusterfuzz_ios_targets_only != None:
-        properties["ios_targets_only"] = clusterfuzz_ios_targets_only
 
     if clusterfuzz_v8_targets_only != None:
         properties["v8_targets_only"] = clusterfuzz_v8_targets_only
@@ -469,13 +444,11 @@ def libfuzzer_builder(**kwargs):
     return fuzz_target_builder(fuzzing_engine = "libfuzzer", **kwargs)
 
 def libfuzzer_linux_builder(
-        # Allow overriding despite the name for ChromeOS and Android builder.
         target_platform = builder_config.target_platform.LINUX,
         gn_extra_configs = [],
         swarming_mixins = [],
         **kwargs):
     gn_configs = [
-        "chromeos_codecs",
         "optimize_for_fuzzing",
         "pdf_xfa",
     ] + gn_extra_configs
@@ -550,7 +523,7 @@ browser_asan_builder(
 
 browser_asan_builder(
     name = "ASAN Release Media",
-    description_html = "Produces a Linux x64 release Chromium build with ChromeOS media codecs and AddressSanitizer for ClusterFuzz.",
+    description_html = "Produces a Linux x64 release Chromium build with media codecs and AddressSanitizer for ClusterFuzz.",
     ssd = None,
     build_config = builder_config.build_config.RELEASE,
     target_bits = 64,
@@ -560,7 +533,6 @@ browser_asan_builder(
     gn_extra_configs = [
         "lsan",
         "v8_heap",
-        "chromeos_codecs",
     ],
     siso_remote_jobs = 250,
 )
@@ -635,55 +607,6 @@ ci.builder(
     contact_team_email = "v8-infra@google.com",
 )
 
-ci_builder(
-    name = "android-desktop-x64-asan-rel",
-    description_html = "Android desktop x64 ASan release compile builder.",
-
-    # Build ChromePublic.apk
-    targets = targets.bundle(
-        additional_compile_targets = [
-            "chrome_public_apk",
-        ],
-    ),
-    ssd = None,
-
-    # TODO(b/519161719): Enable gardening once green enough.
-    gardener_rotations = args.ignore_default(None),
-
-    # Android x64 release build.
-    build_config = builder_config.build_config.RELEASE,
-    target_arch = builder_config.target_arch.INTEL,
-    target_bits = 64,
-    target_platform = builder_config.target_platform.ANDROID,
-
-    # Same as android-desktop-x64-compile-rel builder.
-    android_config_name = "base_config",
-    chromium_config_name = "main_builder",
-    clusterfuzz_archive = builder_config.clusterfuzz_archive(
-        archive_path = "android-release-desktop-x64/asan-android-release",
-        gs_acl = "public-read",
-        gs_bucket = "chromium-browser-asan",
-    ),
-    console_category = "blackbox|android|asan",
-    console_short_name = "desktop-x64",
-    contact_team_email = "chrome-fuzzing-core@google.com",
-
-    # Same as chromium.android.desktop builders.
-    gclient_apply_configs = ["android"],
-
-    # Largely cribbed from android-desktop-x64-compile-rel.
-    gn_extra_configs = [
-        "android_desktop",
-        "android_builder",
-        "android_fastbuild",
-        "asan",
-        "minimal_symbols",
-        "v8_heap",
-        "webview_debug_package_name",
-        "webview_shell",
-    ],
-)
-
 def centipede_linux_asan_builder(
         gn_extra_configs = [],
         **kwargs):
@@ -712,7 +635,6 @@ centipede_linux_asan_builder(
     execution_timeout = 6 * time.hour,
     free_space_for_test_builder = builders.free_space.standard,
     gn_extra_configs = [
-        "chromeos_codecs",
         "pdf_xfa",
         "mojo_fuzzer",
     ],
@@ -763,7 +685,7 @@ centipede_mac_asan_builder(
 
 browser_asan_builder(
     name = "ASan Release Media (32-bit x86 with V8-ARM)",
-    description_html = "Produces a Linux x86 32-bit release Chromium build with V8 ARM simulator, ChromeOS media codecs, and AddressSanitizer for ClusterFuzz.",
+    description_html = "Produces a Linux x86 32-bit release Chromium build with V8 ARM simulator, media codecs, and AddressSanitizer for ClusterFuzz.",
     ssd = None,
     build_config = builder_config.build_config.RELEASE,
     target_bits = 32,
@@ -774,28 +696,8 @@ browser_asan_builder(
     gn_extra_configs = [
         "fuzzer",
         "v8_heap",
-        "chromeos_codecs",
         "v8_hybrid",
     ],
-)
-
-browser_asan_builder(
-    name = "ChromiumOS ASAN Release",
-    description_html = "Produces a ChromeOS x64 release Chromium build with AddressSanitizer for ClusterFuzz.",
-    ssd = None,
-    build_config = builder_config.build_config.RELEASE,
-    target_bits = 64,
-    target_platform = builder_config.target_platform.CHROMEOS,
-    clusterfuzz_archive_path = "linux-release-chromeos/asan-linux-release",
-    contact_team_email = "chrome-sanitizer-builder-owners@google.com",
-    gclient_apply_configs = ["chromeos"],
-    gn_extra_configs = [
-        "lsan",
-        "fuzzer",
-        "v8_heap",
-    ],
-    max_concurrent_invocations = 6,
-    siso_remote_jobs = siso.remote_jobs.HIGH_JOBS_FOR_CI,
 )
 
 def browser_msan_builder(**kwargs):
@@ -1022,58 +924,6 @@ browser_asan_win_builder(
     max_concurrent_invocations = 5,
 )
 
-libfuzzer_linux_builder(
-    name = "Libfuzzer Upload Chrome OS ASan",
-    description_html = "Builds libFuzzer targets with AddressSanitizer on ChromeOS x64 and uploads them to ClusterFuzz.",
-    ssd = None,
-    build_config = builder_config.build_config.RELEASE,
-    target_bits = 64,
-    target_platform = builder_config.target_platform.CHROMEOS,
-    clusterfuzz_archive_path = "linux-release-chromeos-asan/libfuzzer-chromeos-linux-release",
-    execution_timeout = 6 * time.hour,
-    gclient_apply_configs = [
-        "chromeos",
-    ],
-    gn_extra_configs = [
-        "asan",
-        "disable_seed_corpus",
-    ],
-    max_concurrent_invocations = 3,
-    sanitizer = "asan",
-    siso_remote_jobs = siso.remote_jobs.HIGH_JOBS_FOR_CI,
-    swarming_mixins = ["x86-64"],  # Avoid running on ARM bots.
-    test_builder_name = "chromeos-x64-libfuzzer-asan-rel-tests",
-    use_ssd_for_test_builder = None,
-)
-
-libfuzzer_builder(
-    name = "Libfuzzer Upload iOS Catalyst Debug",
-    description_html = "Builds libFuzzer targets in debug mode for iOS Catalyst x64 and uploads them to ClusterFuzz.",
-    builderless = True,
-    cores = None,
-    os = os.MAC_DEFAULT,
-    cpu = cpu.ARM64,
-    build_config = builder_config.build_config.DEBUG,
-    target_arch = builder_config.target_arch.INTEL,
-    target_bits = 64,
-    target_platform = builder_config.target_platform.IOS,
-    chromium_extra_apply_configs = ["mac_toolchain"],
-    clusterfuzz_archive_path = "mac-debug-ios-catalyst-debug/libfuzzer-ios-mac-debug",
-    clusterfuzz_ios_targets_only = True,
-    execution_timeout = 4 * time.hour,
-    gclient_apply_configs = ["ios"],
-    gn_extra_configs = [
-        "compile_only",
-        "ios_catalyst",
-        "asan",
-        "no_dsyms",
-        "no_remoting",
-    ],
-    sanitizer = "asan",
-    use_component_build = False,
-    xcode = xcode.xcode_default,
-)
-
 libfuzzer_linux_asan_builder(
     name = "Libfuzzer Upload Linux ASan",
     branch_selector = branches.selector.LINUX_BRANCHES,
@@ -1278,63 +1128,6 @@ libfuzzer_linux32_v8_arm_builder(
     build_config = builder_config.build_config.DEBUG,
     clusterfuzz_archive_path = "linux32-debug-asan-arm-sim/libfuzzer-v8-arm-linux32-debug",
     console_short_name = "x86-v8-arm-dbg",
-)
-
-libfuzzer_linux_asan_builder(
-    name = "android-desktop-x64-libfuzzer-asan",
-    description_html = "This builder uploads android desktop libfuzzer fuzzers, for x64 using ASan.",
-    ssd = None,
-    free_space = builders.free_space.high,
-    # TODO(crbug.com/328559555): add this to the gardener_rotations
-    gardener_rotations = args.ignore_default(None),
-    build_config = builder_config.build_config.RELEASE,
-    target_bits = 64,
-    target_platform = builder_config.target_platform.ANDROID,
-    clusterfuzz_archive_path = "linux-release-android-desktop-x64-asan/libfuzzer-linux-release",
-    console_short_name = "desktop-x64",
-    execution_timeout = 6 * time.hour,
-    gclient_apply_configs = ["android"],
-    gn_extra_configs = [
-        "android",
-        "asan",
-        "android_fastbuild",
-        "android_desktop",
-        "disable_jni_multiplexing",
-    ],
-    max_concurrent_invocations = 2,
-    # TODO(b/570770824): Remove once the APK compilation fix lands.
-    notifies = args.ignore_default(None),
-    siso_remote_jobs = siso.remote_jobs.HIGH_JOBS_FOR_CI,
-    use_component_build = False,
-)
-
-libfuzzer_linux_builder(
-    name = "android-arm64-libfuzzer-hwasan",
-    description_html = "This builder uploads android libfuzzer fuzzers, for arm64 using HWASan.",
-    ssd = None,
-    free_space = builders.free_space.high,
-    # TODO(crbug.com/328559555): add this to the gardener_rotations
-    gardener_rotations = args.ignore_default(None),
-    build_config = builder_config.build_config.RELEASE,
-    target_arch = builder_config.target_arch.ARM,
-    target_bits = 64,
-    target_platform = builder_config.target_platform.ANDROID,
-    clusterfuzz_archive_path = "linux-release-android-arm64-hwasan/libfuzzer-linux-release",
-    console_short_name = "arm64",
-    contact_team_email = "chrome-fuzzing-core@google.com",
-    gclient_apply_configs = ["android"],
-    gn_extra_configs = [
-        "android",
-        "android_fastbuild",
-        "hwasan",
-        "disable_jni_multiplexing",
-    ],
-    max_concurrent_invocations = 2,
-    # TODO(b/570770824): Remove once the APK compilation fix lands.
-    notifies = args.ignore_default(None),
-    sanitizer = "hwasan",
-    siso_remote_jobs = siso.remote_jobs.HIGH_JOBS_FOR_CI,
-    use_component_build = False,
 )
 
 def libfuzzer_mac_asan_builder(**kwargs):

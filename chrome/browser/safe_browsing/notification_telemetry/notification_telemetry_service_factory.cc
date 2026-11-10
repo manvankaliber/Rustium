@@ -46,7 +46,6 @@ NotificationTelemetryServiceFactory::BuildServiceInstanceForBrowserContext(
 // Exclude Android arm32 devices for performance and memory reasons.
 // The ClientIncidentReport proto used to send these reports increases the
 // Android binary size by more than the arm32 threshold.
-#if !BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_ARM64))
   if (!g_browser_process || !g_browser_process->safe_browsing_service()) {
     return nullptr;
   }
@@ -72,9 +71,6 @@ NotificationTelemetryServiceFactory::BuildServiceInstanceForBrowserContext(
       profile, g_browser_process->safe_browsing_service()->database_manager(),
       isEsb ? g_browser_process->safe_browsing_service()->ui_manager()
             : nullptr);
-#else
-  return nullptr;
-#endif  // !(!BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_ANDROID) &&
         // defined(ARCH_CPU_ARM64)))
 }
 

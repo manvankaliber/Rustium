@@ -255,9 +255,7 @@
 #include "components/rlz/rlz_tracker.h"  // nogncheck
 #endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/apps/link_capturing/enable_link_capturing_infobar_delegate.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "chrome/browser/web_applications/extensions/launch.h"
@@ -276,12 +274,10 @@
 #include "components/lens/lens_features.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/toasts/api/toast_id.h"
 #include "chrome/browser/ui/toasts/toast_controller.h"
 #include "chrome/browser/ui/toasts/toast_features.h"
 #include "chrome/browser/ui/views/contextual_tasks/contextual_tasks_close_button_controller.h"
-#endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/ui/views/scheduled_restart/scheduled_restart_bubble_controller.h"
@@ -1486,7 +1482,6 @@ void CloseTab(BrowserWindowInterface* browser) {
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(
           contextual_tasks::kContextualTasksCloseTabExpandsSidePanel)) {
     ContextualTasksCloseButtonController* const close_button_controller =
@@ -1497,7 +1492,6 @@ void CloseTab(BrowserWindowInterface* browser) {
       return;
     }
   }
-#endif
 
   ToastController* toast_controller = ToastController::From(browser);
   if (!toast_controller) {
@@ -2180,7 +2174,6 @@ void MoveTabsToReadLater(BrowserWindowInterface* browser,
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (toast_features::IsEnabled(toast_features::kReadingListToast)) {
     // Don't show the reading list toast if the side panel is visible.
     if (SidePanelUI::From(browser)->IsSidePanelEntryShowing(
@@ -2195,7 +2188,6 @@ void MoveTabsToReadLater(BrowserWindowInterface* browser,
       toast_controller->MaybeShowToast(std::move(params));
     }
   }
-#endif
 }
 
 bool MarkCurrentTabAsReadInReadLater(BrowserWindowInterface* browser) {
@@ -2455,9 +2447,6 @@ void Print(BrowserWindowInterface* browser) {
       browser->GetTabStripModel()->GetActiveTab());
 
   printing::StartPrint(web_contents,
-#if BUILDFLAG(IS_CHROMEOS)
-                       /*print_renderer=*/mojo::NullAssociatedRemote(),
-#endif
                        browser->GetProfile()->GetPrefs()->GetBoolean(
                            prefs::kPrintPreviewDisabled),
                        /*has_selection=*/false);
@@ -2766,21 +2755,13 @@ void ToggleDevToolsWindow(BrowserWindowInterface* browser,
 }
 
 bool CanOpenTaskManager() {
-#if !BUILDFLAG(IS_ANDROID)
   return true;
-#else
-  return false;
-#endif
 }
 
 void OpenTaskManager(BrowserWindowInterface* browser,
                      task_manager::StartAction start_action) {
-#if !BUILDFLAG(IS_ANDROID)
   base::RecordAction(UserMetricsAction("TaskManager"));
   chrome::ShowTaskManager(browser, start_action);
-#else
-  NOTREACHED();
-#endif
 }
 
 void OpenFeedbackDialog(BrowserWindowInterface* browser,
@@ -2964,14 +2945,12 @@ void CopyURL(BrowserWindowInterface* browser,
   ui::ScopedClipboardWriter scw(ui::ClipboardBuffer::kCopyPaste);
   scw.WriteText(base::UTF8ToUTF16(web_contents->GetVisibleURL().spec()));
 
-#if !BUILDFLAG(IS_ANDROID)
   if (toast_features::IsEnabled(toast_features::kLinkCopiedToast)) {
     ToastController* const toast_controller = ToastController::From(browser);
     if (toast_controller) {
       toast_controller->MaybeShowToast(ToastParams(ToastId::kLinkCopied));
     }
   }
-#endif
 }
 
 bool CanCopyUrl(BrowserWindowInterface* browser) {
@@ -3065,11 +3044,6 @@ void PromptToNameWindow(BrowserWindowInterface* browser) {
   chrome::ShowWindowNamePrompt(browser);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void ToggleMultitaskMenu(BrowserWindowInterface* browser) {
-  BrowserWindow::FromBrowser(browser)->ToggleMultitaskMenu();
-}
-#endif
 
 #if !defined(TOOLKIT_VIEWS)
 std::optional<int> GetKeyboardFocusedTabIndex(
@@ -3160,7 +3134,6 @@ void ExecAskGoogleAboutThisPage(
     BrowserWindowInterface* browser,
     lens::LensOverlayInvocationSource invocation_source,
     omnibox::ChromeAimEntryPoint entry_point) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!browser) {
     return;
   }
@@ -3196,7 +3169,6 @@ void ExecAskGoogleAboutThisPage(
     controller->StartZeroStateSessionInSidePanel(entry_point, invocation_source,
                                                  /*open_lens_overlay=*/false);
   }
-#endif
 }
 
 }  // namespace chrome

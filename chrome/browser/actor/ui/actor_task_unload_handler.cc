@@ -123,7 +123,6 @@ bool ActorTaskTabCloseConfirmDialog::ShouldShow(
   if (!base::FeatureList::IsEnabled(features::kGlicConfirmTabClose)) {
     return false;
   }
-#if !BUILDFLAG(IS_ANDROID)
   tabs::TabInterface* tab =
       tabs::TabInterface::MaybeGetFromContents(web_contents);
   if (!tab || !tab->GetBrowserWindowInterface() ||
@@ -142,7 +141,6 @@ bool ActorTaskTabCloseConfirmDialog::ShouldShow(
   if (has_task) {
     return true;
   }
-#endif
   return false;
 }
 
@@ -179,7 +177,6 @@ ActorTaskTabCloseConfirmDialog::CreateDelegateIfActuating(
     return nullptr;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   tabs::TabInterface* tab =
       tabs::TabInterface::MaybeGetFromContents(web_contents);
   if (!tab || !tab->GetBrowserWindowInterface() ||
@@ -221,9 +218,6 @@ ActorTaskTabCloseConfirmDialog::CreateDelegateIfActuating(
       std::move(callback));
 
   return CreateDelegate(web_contents, std::move(stop_task_and_run_callback));
-#else
-  return nullptr;
-#endif
 }
 
 // static

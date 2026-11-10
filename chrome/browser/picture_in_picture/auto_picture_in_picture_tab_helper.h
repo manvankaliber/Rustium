@@ -19,10 +19,8 @@
 #include "services/metrics/public/cpp/ukm_source_id.h"
 #include "ui/base/unowned_user_data/scoped_unowned_user_data.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "services/media_session/public/mojom/audio_focus.mojom.h"
 #include "ui/views/bubble/bubble_border.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace base {
 class TickClock;
@@ -55,9 +53,7 @@ class MediaEngagementService;
 class AutoPictureInPictureTabHelper
     : public content::WebContentsObserver,
 // On Android, audio focus is observed via MediaSessionInfoChanged.
-#if !BUILDFLAG(IS_ANDROID)
       public media_session::mojom::AudioFocusObserver,
-#endif  // !BUILDFLAG(IS_ANDROID)
       public media_session::mojom::MediaSessionObserver {
  public:
   DECLARE_USER_DATA(AutoPictureInPictureTabHelper);
@@ -103,14 +99,12 @@ class AutoPictureInPictureTabHelper
       AutoPictureInPictureWindowOcclusionHelperBase::OcclusionState
           occlusion_state);
 
-#if !BUILDFLAG(IS_ANDROID)
   // media_session::mojom::AudioFocusObserver:
   void OnFocusGained(
       media_session::mojom::AudioFocusRequestStatePtr session) override;
   void OnFocusLost(
       media_session::mojom::AudioFocusRequestStatePtr session) override;
   void OnRequestIdReleased(const base::UnguessableToken& request_id) override {}
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // media_session::mojom::MediaSessionObserver:
   void MediaSessionInfoChanged(
@@ -161,12 +155,10 @@ class AutoPictureInPictureTabHelper
   // `close_pip_cb` should be a callback to close the pip window, in case it
   // should be blocked.  This may be called before this returned, or later, or
   // never.  The other parameters are described in AutoPipSettingHelper.
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<AutoPipSettingOverlayView>
   CreateOverlayPermissionViewIfNeeded(base::OnceClosure close_pip_cb,
                                       views::View* anchor_view,
                                       views::BubbleBorder::Arrow arrow);
-#endif  //! BUILDFLAG(IS_ANDROID)
 
   // Should be called when the user closes the pip window manually, so that we
   // can keep the auto-pip setting embargo up to date.
@@ -186,31 +178,6 @@ class AutoPictureInPictureTabHelper
     auto_pip_trigger_reason_ = auto_pip_trigger_reason;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Called from Java when the user dismissed the PiP window either soon after
-  // it opened or using the hide button.
-  void OnPictureInPictureDismissed();
-
-  // Called from native OverlayWindowAndroid when the user clicks the "hide"
-  // button (headphone icon).
-  void OnPictureInPictureWindowWillHide();
-
-  int GetDismissCountForTesting(const GURL& url);
-
-  // Overrides the media engagement check for testing. This is necessary for
-  // Android JNI tests where mocking MediaEngagementService is difficult due
-  // to framework initialization order complexities.
-  void set_has_high_engagement_for_testing(bool value) {
-    has_high_engagement_for_testing_ = value;
-  }
-
-  // TODO(crbug.com/421608904): investigate why IsCapturingUserMedia is still
-  // false after getUserMedia JS call in Android Java tests.
-  // Overrides the camera or mic usage status for testing.
-  void set_is_using_camera_or_microphone_for_testing(bool value) {
-    is_using_camera_or_microphone_for_testing_ = value;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   media::PictureInPictureEventsInfo::AutoPipReason GetAutoPipTriggerReason()
       const;
@@ -357,10 +324,8 @@ class AutoPictureInPictureTabHelper
   // helper destruction.
   void MaybeRecordTotalPipTimeForSession();
 
-#if !BUILDFLAG(IS_ANDROID)
   // Returns the auto picture in picture HaTS service.
   AutoPictureInPictureHatsService* GetHatsService() const;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // HostContentSettingsMap is tied to the Profile which outlives the
   // WebContents (which we're tied to), so this is safe.
@@ -419,12 +384,10 @@ class AutoPictureInPictureTabHelper
   // `AutoPictureInPictureSafeBrowsingCheckerClient`.
   bool has_safe_url_ = false;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Connections with the media session service to listen for audio focus
   // updates and control media sessions.
   mojo::Receiver<media_session::mojom::AudioFocusObserver>
       audio_focus_observer_receiver_{this};
-#endif  // !BUILDFLAG(IS_ANDROID)
   mojo::Receiver<media_session::mojom::MediaSessionObserver>
       media_session_observer_receiver_{this};
 
@@ -472,11 +435,6 @@ class AutoPictureInPictureTabHelper
   // `this`.
   std::optional<base::TimeDelta> total_browser_initiated_pip_time_for_session_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Set to the current time when the hide button in Android PiP window was
-  // clicked.
-  std::optional<base::TimeTicks> hide_button_clicked_time_;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Clock used for metric related to the total time spent with a
   // picture-in-picture window open.
@@ -492,15 +450,6 @@ class AutoPictureInPictureTabHelper
   // recording duplicate entries for blocking metrics.
   bool blocked_due_to_content_setting_ = false;
 
-#if BUILDFLAG(IS_ANDROID)
-  // If set, this value overrides the result of the real MediaEngagementService
-  // check. Intended for Android JNI tests only.
-  std::optional<bool> has_high_engagement_for_testing_;
-
-  // If set, this value overrides the result of the real IsCapturingUserMedia
-  // check. Intended for Android JNI tests only.
-  std::optional<bool> is_using_camera_or_microphone_for_testing_;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   ui::ScopedUnownedUserData<AutoPictureInPictureTabHelper>
       scoped_unowned_user_data_;

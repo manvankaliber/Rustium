@@ -48,13 +48,11 @@
 #include "ui/base/webui/web_ui_util.h"
 #include "ui/base/window_open_disposition_utils.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/browser/ui/views/side_panel/tabs_from_other_devices/tabs_from_other_devices_side_panel_metrics.h"
 #include "chrome/browser/ui/webui/side_panel/tabs_from_other_devices/tabs_from_other_devices_side_panel_ui.h"
-#endif
 
 namespace browser_sync {
 
@@ -151,7 +149,6 @@ history::mojom::ForeignSessionWindowPtr SessionWindowToMojom(
   return window_mojom;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 std::string GetDeviceNameSuffixFromSyncUserAgent(
     const std::string& user_agent) {
   if (user_agent.find("channel(canary)") != std::string::npos) {
@@ -168,7 +165,6 @@ std::string GetDeviceNameSuffixFromSyncUserAgent(
   }
   return "";
 }
-#endif
 
 }  // namespace
 
@@ -306,7 +302,6 @@ void ForeignSessionHandler::OpenForeignSessionTab(
       modifiers->middle_button, modifiers->alt_key, modifiers->ctrl_key,
       modifiers->meta_key, modifiers->shift_key);
 
-#if !BUILDFLAG(IS_ANDROID)
   if (side_panel_ui_ &&
       disposition == ui::mojom::WindowOpenDisposition::kCurrentTab) {
     // In the side panel, never replace the current tab but open a new tab
@@ -352,9 +347,6 @@ void ForeignSessionHandler::OpenForeignSessionTab(
                            ->GetTabStripModel()
                            ->GetActiveWebContents()
                      : web_contents_.get();
-#else
-  content::WebContents* web_contents = web_contents_.get();
-#endif
   restore_tab_callback_.Run(web_contents, *tab, disposition);
   // Note: As a consequence of running the callback, `this` may have been
   // destroyed!
@@ -384,7 +376,6 @@ void ForeignSessionHandler::SetForeignSessionCollapsed(
 }
 
 void ForeignSessionHandler::ShowUi() {
-#if !BUILDFLAG(IS_ANDROID)
   if (side_panel_ui_) {
     base::WeakPtr<TopChromeWebUIController::Embedder> embedder =
         side_panel_ui_->embedder();
@@ -392,7 +383,6 @@ void ForeignSessionHandler::ShowUi() {
       embedder->ShowUI();
     }
   }
-#endif
 }
 
 void ForeignSessionHandler::OnForeignSessionUpdated() {
@@ -430,7 +420,6 @@ ForeignSessionHandler::GetForeignSessionsInternal() {
     base::DictValue collapsed_sessions = current_collapsed_sessions.Clone();
     current_collapsed_sessions.clear();
 
-#if !BUILDFLAG(IS_ANDROID)
     std::map<std::string, int> name_counts;
     const syncer::DeviceInfoTracker* device_info_tracker = nullptr;
     if (side_panel_ui_) {
@@ -447,7 +436,6 @@ ForeignSessionHandler::GetForeignSessionsInternal() {
 
     size_t total_tab_count = 0;
     size_t active_device_tab_count = 0;
-#endif
 
     // Note: we don't own the SyncedSessions themselves.
     for (size_t i = 0; i < sessions.size() && i < kMaxSessionsToShow; ++i) {
@@ -456,7 +444,6 @@ ForeignSessionHandler::GetForeignSessionsInternal() {
       auto session_mojom = history::mojom::ForeignSession::New();
       session_mojom->tag = session_tag;
       session_mojom->name = session->GetSessionName();
-#if !BUILDFLAG(IS_ANDROID)
       if (side_panel_ui_ && name_counts[session_mojom->name] > 1 &&
           device_info_tracker) {
         const syncer::DeviceInfo* device_info =
@@ -466,7 +453,6 @@ ForeignSessionHandler::GetForeignSessionsInternal() {
               device_info->sync_user_agent());
         }
       }
-#endif
       session_mojom->modified_time =
           base::UTF16ToUTF8(FormatSessionTime(session->GetModifiedTime()));
       session_mojom->timestamp =
@@ -480,9 +466,7 @@ ForeignSessionHandler::GetForeignSessionsInternal() {
 
       std::vector<history::mojom::ForeignSessionWindowPtr> windows;
 
-#if !BUILDFLAG(IS_ANDROID)
       size_t session_tab_count = 0;
-#endif
 
       // Order tabs by visual order within window.
       for (const auto& window_pair : session->windows) {
@@ -492,29 +476,23 @@ ForeignSessionHandler::GetForeignSessionsInternal() {
           windows.push_back(std::move(window_mojom));
         }
 
-#if !BUILDFLAG(IS_ANDROID)
         session_tab_count += window_pair.second->wrapped_window.tabs.size();
-#endif
       }
 
-#if !BUILDFLAG(IS_ANDROID)
       if (i == 0) {
         active_device_tab_count = session_tab_count;
       }
       total_tab_count += session_tab_count;
-#endif
 
       session_mojom->windows = std::move(windows);
       session_list.push_back(std::move(session_mojom));
     }
 
-#if !BUILDFLAG(IS_ANDROID)
     if (side_panel_ui_ && side_panel_ui_->metrics_recorder() &&
         !side_panel_ui_->metrics_recorder()->HasRecordedTabCount()) {
       side_panel_ui_->metrics_recorder()->RecordTabCountOnOpen(
           session_list.size(), total_tab_count, active_device_tab_count);
     }
-#endif
   }
   return session_list;
 }

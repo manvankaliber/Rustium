@@ -9,9 +9,6 @@
 #include "components/sync/base/data_type.h"
 #include "content/public/test/browser_test.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 namespace {
 
@@ -24,12 +21,6 @@ class SingleClientCollaborationGroupSyncTest
   ~SingleClientCollaborationGroupSyncTest() override = default;
 
   void SetUp() override {
-#if BUILDFLAG(IS_ANDROID)
-    if (base::android::device_info::is_automotive()) {
-      // TODO(crbug.com/399444939): Re-enable once automotive is supported.
-      GTEST_SKIP() << "Test shouldn't run on automotive builders.";
-    }
-#endif
   SyncTest::SetUp();
   }
 

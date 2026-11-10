@@ -55,7 +55,6 @@ namespace tensorflow_federated {
 // enough for them to be included in the actual logs, so be careful when using
 // it with expensive-to-evaluate log statements.
 
-#if !defined(__ANDROID__)
 // On regular (non-Android) builds we forward all logs to Absl as-is.
 #define _TFF_LOG_INFO ABSL_LOG(INFO)
 #define _TFF_LOG_WARNING ABSL_LOG(WARNING)
@@ -67,38 +66,7 @@ namespace tensorflow_federated {
 #define _TFF_LOG_IF_FATAL(condition) ABSL_LOG_IF(FATAL, condition)
 #define TFF_VLOG(verbosity) ABSL_VLOG(verbosity)
 
-#endif  // !defined(__ANDROID__)
 
-#if defined(__ANDROID__)
-// On Android we prepend "tff: " to all logs, since Absl will set the log tag
-// for all process-wide logs to a generic "native". Prefixing by "tff" helps us
-// find TFF-related logs in the logcat more easily.
-
-#define _TFF_LOG_WARNING ABSL_LOG(WARNING) << "tff: "
-#define _TFF_LOG_ERROR ABSL_LOG(ERROR) << "tff: "
-#define _TFF_LOG_FATAL ABSL_LOG(FATAL) << "tff: "
-#define _TFF_LOG_IF_WARNING(condition) \
-  ABSL_LOG_IF(WARNING, condition) << "tff: "
-#define _TFF_LOG_IF_ERROR(condition) ABSL_LOG_IF(ERROR, condition) << "tff: "
-#define _TFF_LOG_IF_FATAL(condition) ABSL_LOG_IF(FATAL, condition) << "tff: "
-
-// On Android we also, by default, do not log INFO level logs (or more verbose
-// VLOGs) to Absl (which in turn would log them to logcat). Only if
-// TFF_VERBOSE_ANDROID_LOGCAT is defined do we log those logs. If that is not
-// defined, then the logs will be stripped out by the linker due to our use of
-// ABSL_LOG_IF(..., false).
-
-#ifdef TFF_VERBOSE_ANDROID_LOGCAT
-#define _TFF_LOG_INFO ABSL_LOG(INFO) << "tff: "
-#define _TFF_LOG_IF_INFO(condition) ABSL_LOG_IF(INFO, condition) << "tff: "
-#define TFF_VLOG(verbosity) ABSL_LOG(INFO).WithVerbosity(verbosity) << "tff: "
-#else
-#define _TFF_LOG_INFO ABSL_LOG_IF(INFO, false)
-#define _TFF_LOG_IF_INFO(condition) ABSL_LOG_IF(INFO, false)
-#define TFF_VLOG(verbosity) ABSL_LOG_IF(INFO, false)
-#endif  // TFF_VERBOSE_ANDROID_LOGCAT
-
-#endif  // defined(__ANDROID__)
 
 #define TFF_PREDICT_FALSE(x) ABSL_PREDICT_FALSE(x)
 #define TFF_PREDICT_TRUE(x) ABSL_PREDICT_TRUE(x)

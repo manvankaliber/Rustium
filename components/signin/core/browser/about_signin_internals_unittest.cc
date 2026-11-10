@@ -267,9 +267,7 @@ TEST_F(AboutSigninInternalsTest, GetSigninStatus_IsPii) {
       "Username",
       "Auth Error Account Id",
       "Auth Error Username",
-#if !BUILDFLAG(IS_CHROMEOS)
       "RefreshToken Account Id",
-#endif
   };
   EXPECT_EQ(pii_labels, expected_pii_labels);
   EXPECT_FALSE(non_pii_labels.empty());

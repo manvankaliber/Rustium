@@ -69,9 +69,6 @@ class GPU_GLES2_EXPORT TexturePassthrough final
   // native GL texture in the destructor
   void MarkContextLost();
 
-#if BUILDFLAG(IS_ANDROID)
-  void BindToServiceId(GLuint service_id);
-#endif
 
   void SetEstimatedSize(size_t size);
   size_t estimated_size() const { return estimated_size_; }
@@ -236,12 +233,6 @@ class GPU_GLES2_EXPORT Texture final : public TextureBase {
   bool GetLevelType(
       GLint target, GLint level, GLenum* type, GLenum* internal_format) const;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Overrides |service_id_| with a texture bound to
-  // the stream texture. See SetStreamTextureServiceId() for the details of
-  // how |service_id| is used.
-  void BindToServiceId(GLuint service_id);
-#endif
 
   bool CompatibleWithSamplerUniformType(
       GLenum type,

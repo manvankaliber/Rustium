@@ -71,11 +71,7 @@ FinalizeJobOptions GetFinalizerOptionForSyncInstall() {
 // other platforms, always install from fallback based on whether trusted icons
 // are enabled.
 bool ShouldInstallFallbackNoManifestFetching() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return false;
-#else
   return true;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 }  // namespace
@@ -130,9 +126,6 @@ InstallFromSyncCommand::InstallFromSyncCommand(
                               kCancelledOnWebAppProviderShuttingDown)),
       profile_(profile),
       params_(params) {
-#if BUILDFLAG(IS_CHROMEOS)
-  CHECK(AreAppsLocallyInstalledBySync(), base::NotFatalUntil::M162);
-#endif
   CHECK(params_.start_url.is_valid(), base::NotFatalUntil::M162);
   if (params_.migrated_from_manifest_id) {
     source_app_id_ =

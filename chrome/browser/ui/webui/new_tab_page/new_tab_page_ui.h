@@ -48,12 +48,10 @@
 #include "ui/webui/resources/cr_components/search/plural_string_provider.mojom.h"
 #include "ui/webui/resources/js/browser_command/browser_command.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/webui/new_tab_page/ntp_promo/ntp_promo.mojom.h"  // nogncheck
 #include "chrome/browser/ui/webui/new_tab_page/ntp_promo/ntp_promo_handler.h"  // nogncheck
 #include "components/user_education/common/ntp_promo/ntp_promo_controller.h"
 #include "components/user_education/webui/help_bubble_handler.h"  // nogncheck
-#endif
 
 #if !defined(OFFICIAL_BUILD)
 #include "chrome/browser/ui/webui/new_tab_page/foo/foo.mojom.h"  // nogncheck crbug.com/40147906
@@ -110,9 +108,7 @@ class NewTabPageUI
       public browser_command::mojom::CommandHandlerFactory,
       public help_bubble::mojom::HelpBubbleHandlerFactory,
       public action_chips::mojom::ActionChipsHandlerFactory,
-#if !BUILDFLAG(IS_ANDROID)
       public ntp_promo::mojom::NtpPromoHandlerFactory,
-#endif
       public NtpCustomBackgroundServiceObserver,
       public searchbox::mojom::PageHandlerFactory,
       content::WebContentsObserver {
@@ -215,7 +211,6 @@ class NewTabPageUI
       mojo::PendingReceiver<help_bubble::mojom::HelpBubbleHandlerFactory>
           pending_receiver);
 
-#if !BUILDFLAG(IS_ANDROID)
   void BindInterface(mojo::PendingReceiver<ntp::tab_groups::mojom::PageHandler>
                          pending_page_handler);
 
@@ -236,7 +231,6 @@ class NewTabPageUI
   void BindInterface(
       mojo::PendingReceiver<ntp_promo::mojom::NtpPromoHandlerFactory>
           pending_receiver);
-#endif  // !BUILDFLAG(IS_ANDROID)
   void BindInterface(
       mojo::PendingReceiver<action_chips::mojom::ActionChipsHandlerFactory>
           pending_receiver);
@@ -300,13 +294,11 @@ class NewTabPageUI
       mojo::PendingReceiver<help_bubble::mojom::HelpBubbleHandler> handler)
       override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // ntp_promo::mojom::NtpPromoHandlerFactory:
   void CreateNtpPromoHandler(
       mojo::PendingRemote<ntp_promo::mojom::NtpPromoClient> client,
       mojo::PendingReceiver<ntp_promo::mojom::NtpPromoHandler> handler)
       override;
-#endif  // !BUILDFLAG(IS_ANDROID)
   // action_chips::mojom::ActionChipsHandlerFactory:
   void CreateActionChipsHandler(
       mojo::PendingReceiver<action_chips::mojom::ActionChipsHandler> handler,
@@ -347,15 +339,6 @@ class NewTabPageUI
   mojo::Receiver<composebox::mojom::PageHandlerFactory>
       composebox_page_factory_receiver_;
   std::unique_ptr<ComposeboxHandler> composebox_handler_;
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<composebox::mojom::PageHandler>
-      android_stub_composebox_handler_;
-  mojo::PendingRemote<searchbox::mojom::Page> android_stub_searchbox_page_;
-  std::unique_ptr<searchbox::mojom::PageHandler>
-      android_stub_searchbox_handler_;
-  mojo::PendingRemote<searchbox::mojom::Page> android_stub_realbox_page_;
-  std::unique_ptr<searchbox::mojom::PageHandler> android_stub_realbox_handler_;
-#else
   std::unique_ptr<user_education::HelpBubbleHandler> help_bubble_handler_;
   std::unique_ptr<NtpPromoHandler> ntp_promo_handler_;
   mojo::Receiver<ntp_promo::mojom::NtpPromoHandlerFactory>
@@ -363,7 +346,6 @@ class NewTabPageUI
   std::unique_ptr<MicrosoftFilesPageHandler> microsoft_files_handler_;
   std::unique_ptr<OutlookCalendarPageHandler> outlook_calendar_handler_;
   std::unique_ptr<TabGroupsPageHandler> tab_groups_handler_;
-#endif  // BUILDFLAG(IS_ANDROID)
   std::unique_ptr<ActionChipsHandler> action_chips_handler_;
   mojo::Receiver<action_chips::mojom::ActionChipsHandlerFactory>
       action_chips_handler_factory_receiver_;

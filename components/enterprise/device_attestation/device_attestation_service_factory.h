@@ -14,9 +14,6 @@ namespace enterprise {
 
 class DeviceAttestationService;
 
-#if BUILDFLAG(IS_IOS)
-class AttestationServiceIOS;
-#endif
 
 class DeviceAttestationServiceFactory {
  public:
@@ -29,14 +26,6 @@ class DeviceAttestationServiceFactory {
   virtual std::unique_ptr<DeviceAttestationService>
   CreateDeviceAttestationService();
 
-#if BUILDFLAG(IS_IOS)
-  using AttestationServiceIOSProvider =
-      base::RepeatingCallback<std::unique_ptr<AttestationServiceIOS>()>;
-  // Sets the provider used to create `AttestationServiceIOS` instances.
-  static void SetAttestationServiceIOSProvider(
-      AttestationServiceIOSProvider provider);
-  static void ClearAttestationServiceIOSProvider();
-#endif
 
  protected:
   static void SetInstanceForTesting(DeviceAttestationServiceFactory* factory);

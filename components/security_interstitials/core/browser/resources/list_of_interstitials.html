@@ -40,21 +40,18 @@
         example.com (HSTS, non-overridable)
       </a>
     </li>
-    <if expr="not is_ios">
       <li>
         <a href="clock?clock_manipulation=2">Clock is ahead</a>
       </li>
       <li>
         <a href="clock?clock_manipulation=-2">Clock is behind</a>
       </li>
-    </if>
     <li>
       <a href="ssl?type=hpkp_failure">Pinned certificate error</a>
     </li>
     <li>
       <a href="ssl?type=ct_failure&overridable=1">Certificate Transparency error</a>
     </li>
-    <if expr="not is_ios">
       <li>
         <a href="mitm-software-ssl?enterprise=0">MITM software</a>
       </li>
@@ -64,7 +61,6 @@
       <li>
         <a href="blocked-interception">Blocked interception</a>
       </li>
-    </if>
   </ul>
   <h3>Enterprise</h3>
   <ul>
@@ -74,11 +70,9 @@
     <li>
       <a href="enterprise-block">Block</a>
     </li>
-    <if expr="not is_ios">
       <li>
         <a href="managed-profile-required">Managed profile required</a>
       </li>
-    </if>
   </ul>
   <h3>SafeBrowsing</h3>
   <h4>Loud</h4>
@@ -102,7 +96,6 @@
       <a href="safebrowsing?type=billing">Billing</a>
     </li>
   </ul>
-  <if expr="not is_ios">
     <h4>Quiet (WebView)</h4>
     <ul>
       <li>
@@ -121,7 +114,6 @@
         <a href="quietsafebrowsing?type=giant">Giant</a>
       </li>
     </ul>
-  </if>
   <h3>Captive Portal</h3>
   <ul>
     <li>
@@ -138,7 +130,6 @@
       </a>
     </li>
   </ul>
-  <if expr="not is_ios">
     <h3>Lookalike URL Warnings</h3>
     <ul>
       <li>
@@ -196,6 +187,5 @@
         <a href="supervised-user-site-blocked">Site blocked (Android only)</a>
       </li>
     </ul>
-  </if>
 </body>
 </html>

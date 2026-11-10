@@ -184,14 +184,7 @@ WEBXR_VR_ALL_RUNTIMES_BROWSER_TEST_F(DISABLED_TestCameraInUseIndicator) {
 // creates its graphics asynchronously, and an overlay pose or frame submission
 // from before the restart may still be in flight; it must not draw until the
 // graphics are ready.
-#if BUILDFLAG(IS_ANDROID)
-// TODO(crbug.com/579206153): Flaky on Android with "RenderFrame deleted" on
-// EndSessionOrFail.
-#define MAYBE_TestPromptWhileIndicatorsVisible \
-  DISABLED_TestPromptWhileIndicatorsVisible
-#else
 #define MAYBE_TestPromptWhileIndicatorsVisible TestPromptWhileIndicatorsVisible
-#endif
 WEBXR_VR_ALL_RUNTIMES_BROWSER_TEST_F(MAYBE_TestPromptWhileIndicatorsVisible) {
   MockXRDeviceHookBase mock_device;
   LoadGenericPageChangeDefaultPermissionAndEnterVr(
@@ -216,11 +209,9 @@ WEBXR_VR_ALL_RUNTIMES_BROWSER_TEST_F(MAYBE_TestPromptWhileIndicatorsVisible) {
   // Wait for the restarted overlay's graphics, then let it draw.
   utils = UiUtils::Create();
   mock_device.WaitNumFrames(5);
-#if !BUILDFLAG(IS_ANDROID)
   // UiSceneCreator only creates the prompt notification on desktop.
   utils->WaitForVisibilityStatus(
       UserFriendlyElementName::kWebXrExternalPromptNotification, true);
-#endif
 
   t->EndSessionOrFail();
 }

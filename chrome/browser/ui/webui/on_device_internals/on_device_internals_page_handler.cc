@@ -16,10 +16,6 @@
 #include "services/on_device_model/public/cpp/features.h"
 #include "services/on_device_model/public/cpp/model_assets.h"
 
-#if BUILDFLAG(USE_CHROMEOS_MODEL_SERVICE)
-#include "chromeos/ash/components/mojo_service_manager/connection.h"
-#include "third_party/cros_system_api/mojo/service_constants.h"
-#endif
 
 namespace on_device_internals {
 
@@ -89,21 +85,9 @@ void PageHandler::LoadPlatformModel(
     const base::FilePath& model_path,
     mojo::PendingReceiver<on_device_model::mojom::OnDeviceModel> model,
     LoadPlatformModelCallback callback) {
-#if BUILDFLAG(USE_CHROMEOS_MODEL_SERVICE)
-  // We treat the file path as a UUID on ChromeOS.
-  base::Uuid uuid = base::Uuid::ParseLowercase(model_path.value());
-  if (!uuid.is_valid()) {
-    std::move(callback).Run(
-        on_device_model::mojom::LoadModelResult::kFailedToLoadLibrary);
-    return;
-  }
-  GetPlatformService().LoadPlatformModel(
-      uuid, std::move(model), mojo::NullRemote(), std::move(callback));
-#else
   // Shouldn't be called.
   std::move(callback).Run(
       on_device_model::mojom::LoadModelResult::kFailedToLoadLibrary);
-#endif
 }
 
 PageHandler::Service& PageHandler::GetService() {
@@ -119,17 +103,6 @@ PageHandler::Service& PageHandler::GetService() {
   return *service_.get();
 }
 
-#if BUILDFLAG(USE_CHROMEOS_MODEL_SERVICE)
-PageHandler::PlatformService& PageHandler::GetPlatformService() {
-  if (!platform_service_) {
-    ash::mojo_service_manager::GetServiceManagerProxy()->Request(
-        chromeos::mojo_services::kCrosOdmlService, std::nullopt,
-        platform_service_.BindNewPipeAndPassReceiver().PassPipe());
-    platform_service_.reset_on_disconnect();
-  }
-  return *platform_service_.get();
-}
-#endif
 
 void PageHandler::OnModelAssetsLoaded(
     mojo::PendingReceiver<on_device_model::mojom::OnDeviceModel> model,

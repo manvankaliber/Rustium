@@ -54,9 +54,6 @@
 #include "ui/base/page_transition_types.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif
 
 namespace {
 
@@ -238,79 +235,6 @@ IN_PROC_BROWSER_TEST_F(BrowserNavigatorIwaTest,
       *profile(), url_info1_->app_id()));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_F(BrowserNavigatorIwaTest, WindowOpenProtocol) {
-  ASSERT_NO_FATAL_FAILURE(InstallBundles());
-
-  {
-    // Eliminate all prompts/guards along the way.
-    ExternalProtocolHandler::PermitLaunchUrl();
-    apps::AppServiceProxyFactory::GetForProfile(profile())
-        ->SetProtocolLinkPreference(url_info1_->app_id(), "meow");
-    base::test::TestFuture<void> future;
-    web_app::WebAppProvider::GetForWebApps(profile())
-        ->scheduler()
-        .UpdateProtocolHandlerUserApproval(url_info1_->app_id(), "meow",
-                                           web_app::ApiApprovalState::kAllowed,
-                                           future.GetCallback());
-    ASSERT_TRUE(future.Wait());
-  }
-
-  // Open a protocol url from an app frame of IWA2.
-  auto* rfh = web_app::OpenIsolatedWebApp(profile(), url_info2_->app_id());
-
-  GURL remapped_url =
-      custom_handlers::ProtocolHandler::CreateProtocolHandler(
-          "meow",
-          url_info1_->origin().GetURL().Resolve("/index.html?params=%s"))
-          .TranslateUrl(GURL("meow://hru"));
-
-  ui_test_utils::UrlLoadObserver observer(remapped_url);
-  ASSERT_TRUE(content::ExecJs(rfh, "window.open('meow://hru')"));
-  observer.Wait();
-
-  ASSERT_TRUE(web_app::AppBrowserController::IsForWebApp(
-      tabs::TabInterface::GetFromContents(observer.web_contents())
-          ->GetBrowserWindowInterface(),
-      url_info1_->app_id()));
-}
-
-IN_PROC_BROWSER_TEST_F(BrowserNavigatorIwaTest, WindowOpenProtocolSelf) {
-  ASSERT_NO_FATAL_FAILURE(InstallBundles());
-
-  {
-    // Eliminate all prompts/guards along the way.
-    ExternalProtocolHandler::PermitLaunchUrl();
-    apps::AppServiceProxyFactory::GetForProfile(profile())
-        ->SetProtocolLinkPreference(url_info1_->app_id(), "meow");
-    base::test::TestFuture<void> future;
-    web_app::WebAppProvider::GetForWebApps(profile())
-        ->scheduler()
-        .UpdateProtocolHandlerUserApproval(url_info1_->app_id(), "meow",
-                                           web_app::ApiApprovalState::kAllowed,
-                                           future.GetCallback());
-    ASSERT_TRUE(future.Wait());
-  }
-
-  // Open a protocol url from an app frame.
-  auto* rfh = web_app::OpenIsolatedWebApp(profile(), url_info1_->app_id());
-
-  GURL remapped_url =
-      custom_handlers::ProtocolHandler::CreateProtocolHandler(
-          "meow",
-          url_info1_->origin().GetURL().Resolve("/index.html?params=%s"))
-          .TranslateUrl(GURL("meow://hru"));
-
-  ui_test_utils::UrlLoadObserver observer(remapped_url);
-  ASSERT_TRUE(content::ExecJs(rfh, "window.open('meow://hru', '_self')"));
-  observer.Wait();
-
-  ASSERT_TRUE(web_app::AppBrowserController::IsForWebApp(
-      tabs::TabInterface::GetFromContents(observer.web_contents())
-          ->GetBrowserWindowInterface(),
-      url_info1_->app_id()));
-}
-#endif
 
 class BrowserNavigatorIwaNewTabTest
     : public BrowserNavigatorIwaTest,

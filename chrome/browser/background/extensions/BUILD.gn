@@ -27,9 +27,7 @@ source_set("extensions") {
     "//extensions/browser",
   ]
 
-  if (!is_android) {
-    deps += [ "//components/keep_alive_registry" ]
-  }
+  deps += [ "//components/keep_alive_registry" ]
 
   if (is_win) {
     deps += [ "//chrome/browser/startup" ]
@@ -47,10 +45,8 @@ source_set("impl") {
   if (is_mac) {
     sources += [ "background_mode_manager_mac.cc" ]
   }
-  if (is_chromeos) {
-    sources += [ "background_mode_manager_chromeos.cc" ]
-  }
-  if (use_aura && !is_win && !is_chromeos) {
+
+  if (use_aura && !is_win) {
     sources += [ "background_mode_manager_aura.cc" ]
   }
 
@@ -82,16 +78,12 @@ source_set("impl") {
     "//extensions/common",
   ]
 
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui:chrome_pages",
-      "//components/keep_alive_registry",
-    ]
-  }
+  deps += [
+    "//chrome/browser/ui:chrome_pages",
+    "//components/keep_alive_registry",
+  ]
 
-  if (!is_chromeos) {
-    deps += [ "//chrome/browser/web_applications/extensions" ]
-  }
+  deps += [ "//chrome/browser/web_applications/extensions" ]
 
   if (is_win) {
     deps += [

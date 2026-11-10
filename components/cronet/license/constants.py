@@ -180,11 +180,7 @@ POST_PROCESS_OPERATION = {
 # This is relative to the repo_directory passed in |update_license|
 IGNORED_README = {
     # Not a third-party.
-    "testing/android/native_test/README.chromium",
-    # Not a third-party.
     "build/internal/README.chromium",
-    # The real README.chromium lives nested inside each dependency.
-    "third_party/android_deps/README.chromium",
     # This is not used in AOSP and not imported.
     "third_party/junit/README.chromium",
     # The real README.chromium lives nested inside each dependency.

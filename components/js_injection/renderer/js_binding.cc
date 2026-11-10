@@ -187,56 +187,6 @@ void JsBinding::OnPostMessage(blink::WebMessagePayload message) {
                            backing_store->ByteLength())));
             return v8::ArrayBuffer::New(isolate, std::move(backing_store));
           },
-#if BUILDFLAG(IS_ANDROID)
-          [isolate](base::UnsafeSharedMemoryRegion& shared_memory)
-              -> v8::Local<v8::Value> {
-            if (!shared_memory.IsValid()) {
-              return gin::DataObjectBuilder(isolate)
-                  .Set("error",
-                       gin::ConvertToV8(
-                           isolate,
-                           std::string_view(
-                               "Error: Invalid SharedArrayBuffer received")))
-                  .Build();
-            }
-            if (shared_memory.GetSize() > v8::ArrayBuffer::kMaxByteLength) {
-              return gin::DataObjectBuilder(isolate)
-                  .Set("error",
-                       gin::ConvertToV8(
-                           isolate,
-                           std::string_view("Error: Invalid SharedArrayBuffer "
-                                            "received. Buffer too large.")))
-                  .Build();
-            }
-            base::WritableSharedMemoryMapping mapping =
-                shared_memory.Map(gin::GetSharedMemoryMapperForArrayBuffers());
-            if (!mapping.IsValid()) {
-              return gin::DataObjectBuilder(isolate)
-                  .Set("error",
-                       gin::ConvertToV8(
-                           isolate,
-                           std::string_view("Error: Invalid SharedArrayBuffer "
-                                            "received. Unable to memory map.")))
-                  .Build();
-            }
-            void* data = mapping.data();
-            size_t size = mapping.size();
-
-            // Move the mapping information to the heap and make sure it will be
-            // cleaned up by the backing store deleter.
-            std::unique_ptr<v8::BackingStore> backing_store =
-                v8::SharedArrayBuffer::NewBackingStore(
-                    data, size,
-                    [](void* data, size_t length, void* deleter_data) {
-                      delete static_cast<base::WritableSharedMemoryMapping*>(
-                          deleter_data);
-                    },
-                    /*deleter_data=*/
-                    new base::WritableSharedMemoryMapping(std::move(mapping)));
-            return v8::SharedArrayBuffer::New(isolate,
-                                              std::move(backing_store));
-          },
-#endif
       },
       message);
 

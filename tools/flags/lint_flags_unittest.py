@@ -23,17 +23,12 @@ class FindUnusedFlagsTest(fake_filesystem_unittest.TestCase):
       {'name': 'used-flag'},
       {'name': 'unused-flag'},
       {'name': 'enable-benchmarking'},
-      {'name': 'used-in-ios'},
       {'name': 'used-in-site-isolation'},
     ]
     self.fs.create_file(metadata_path, contents=json.dumps(metadata))
 
     path = self.root_path / 'chrome' / 'browser' / 'about_flags.cc'
     self.fs.create_file(path, contents='{"used-flag", "ignore-this"},\n')
-    path = (
-      self.root_path / 'ios' / 'chrome' / 'browser' / 'flags' / 'about_flags.mm'
-    )
-    self.fs.create_file(path, contents='\n\n{"used-in-ios", ...},\n')
     path = (
       self.root_path / 'chrome' / 'browser' / 'site_isolation' / 'about_flags.h'
     )

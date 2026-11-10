@@ -29,11 +29,6 @@
 #include <sys/mman.h>
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include <linux/ashmem.h>
-
-#include "base/android/linker/ashmem.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -126,19 +121,7 @@ size_t AlignToPageSize(size_t size) {
 }
 
 size_t SharedMemoryHeaderSize() {
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, this shared memory may be mapped by two processes using
-  // different page sizes, one with 4k pages and the other with 16k pages. To
-  // ensure the offset calculations are consistent between them, always align
-  // to at least Android's max supported page size (16k).
-  //
-  // Still check `base::GetPageSize()` in case someone is experimenting with an
-  // even larger (unsupported) page size.
-  return bits::AlignUp(sizeof(SharedState),
-                       std::max<size_t>(16 * 1024, base::GetPageSize()));
-#else
   return AlignToPageSize(sizeof(SharedState));
-#endif
 }
 
 }  // namespace
@@ -288,11 +271,7 @@ DiscardableSharedMemory::LockResult DiscardableSharedMemory::Lock(
     return PURGED;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Ensure that the platform won't discard the required pages.
-  return LockPages(shared_memory_region_, SharedMemoryHeaderSize() + offset,
-                   length);
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
   // On macOS, there is no mechanism to lock pages. However, we do need to call
   // madvise(MADV_FREE_REUSE) in order to correctly update accounting for memory
   // footprint via task_info().
@@ -429,7 +408,7 @@ bool DiscardableSharedMemory::Purge(Time current_time) {
 // Linux and Android provide MADV_REMOVE which is preferred as it has a
 // behavior that can be verified in tests. Other POSIX flavors (MacOSX, BSDs),
 // provide MADV_FREE which has the same result but memory is purged lazily.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #define MADV_PURGE_ARGUMENT MADV_REMOVE
 #elif BUILDFLAG(IS_APPLE)
   // MADV_FREE_REUSABLE is similar to MADV_FREE, but also marks the pages with
@@ -530,20 +509,6 @@ DiscardableSharedMemory::LockResult DiscardableSharedMemory::LockPages(
     const UnsafeSharedMemoryRegion& region,
     size_t offset,
     size_t length) {
-#if BUILDFLAG(IS_ANDROID)
-  if (region.IsValid()) {
-    if (AshmemDeviceIsSupported()) {
-      int pin_result =
-          AshmemPinRegion(region.GetPlatformHandle(), offset, length);
-      if (pin_result == ASHMEM_WAS_PURGED) {
-        return PURGED;
-      }
-      if (pin_result < 0) {
-        return FAILED;
-      }
-    }
-  }
-#endif
   return SUCCESS;
 }
 
@@ -552,22 +517,7 @@ void DiscardableSharedMemory::UnlockPages(
     const UnsafeSharedMemoryRegion& region,
     size_t offset,
     size_t length) {
-#if BUILDFLAG(IS_ANDROID)
-  if (region.IsValid()) {
-    if (AshmemDeviceIsSupported()) {
-      int unpin_result =
-          AshmemUnpinRegion(region.GetPlatformHandle(), offset, length);
-      DCHECK_EQ(0, unpin_result);
-    }
-  }
-#endif
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// static
-bool DiscardableSharedMemory::IsAshmemDeviceSupportedForTesting() {
-  return AshmemDeviceIsSupported();
-}
-#endif
 
 }  // namespace base

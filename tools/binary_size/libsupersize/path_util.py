@@ -1,13 +1,11 @@
 # Copyright 2017 The Chromium Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
 """Functions for getting paths to things."""
 
 import abc
 import logging
 import os
-import sys
 
 _STATUS_DETECTED = 1
 _STATUS_VERIFIED = 2
@@ -15,17 +13,15 @@ _STATUS_VERIFIED = 2
 # Src root of SuperSize being run. Not to be confused with src root of the input
 # binary being archived.
 _TOOLS_SRC_ROOT = os.environ.get(
-  'CHECKOUT_SOURCE_ROOT',
-  os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)
-  ),
+    'CHECKOUT_SOURCE_ROOT',
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
+                     os.pardir)),
 )
-
-sys.path.append(os.path.join(_TOOLS_SRC_ROOT, 'build', 'android'))
-import java_home  # pylint: disable=wrong-import-position
 
 
 class _PathFinder:
+
   def __init__(self, name, value):
     self._status = _STATUS_DETECTED if value is not None else 0
     self._name = name
@@ -56,6 +52,7 @@ class _PathFinder:
 
 
 class OutputDirectoryFinder(_PathFinder):
+
   def __init__(self, value=None, any_path_within_output_directory=None):
     super().__init__(name='output-directory', value=value)
     self._any_path_within_output_directory = any_path_within_output_directory
@@ -79,11 +76,9 @@ class OutputDirectoryFinder(_PathFinder):
   def Verify(self):
     if not self._value or not os.path.isdir(self._value):
       raise Exception(
-        'Invalid --output-directory. Path not found: {}\n'
-        'Use --no-output-directory to disable features that rely on it.'.format(
-          self._value
-        )
-      )
+          'Invalid --output-directory. Path not found: {}\n'
+          'Use --no-output-directory to disable features that rely on it.'.
+          format(self._value))
 
 
 def GetSrcRootFromOutputDirectory(output_directory):
@@ -107,10 +102,8 @@ def GetSrcRootFromOutputDirectory(output_directory):
       cur_dir, prev_dir = os.path.dirname(cur_dir), cur_dir
       if cur_dir == prev_dir:  # Reached root.
         break
-  logging.warning(
-    'Cannot deduce src root from output directory. Falling back '
-    'to tools src root.'
-  )
+  logging.warning('Cannot deduce src root from output directory. Falling back '
+                  'to tools src root.')
   return _TOOLS_SRC_ROOT
 
 
@@ -123,9 +116,8 @@ def FromToolsSrcRoot(*args):
 
 
 def _LlvmTool(name):
-  default = FromToolsSrcRoot(
-    'third_party', 'llvm-build', 'Release+Asserts', 'bin', 'llvm-'
-  )
+  default = FromToolsSrcRoot('third_party', 'llvm-build', 'Release+Asserts',
+                             'bin', 'llvm-')
   actual = os.environ.get('SUPERSIZE_TOOL_PREFIX', default)
   # abspath since some executions use cwd= argument.
   return os.path.abspath(actual + name)
@@ -135,11 +127,8 @@ def CheckLlvmToolsAvailable():
   test_path = _LlvmTool('objdump')
   if not os.path.isfile(test_path):
     raise Exception(
-      (
-        'File not found: {}\nProbably need to run: '
-        'tools/clang/scripts/update.py --package=objdump'
-      ).format(test_path)
-    )
+        ('File not found: {}\nProbably need to run: '
+         'tools/clang/scripts/update.py --package=objdump').format(test_path))
 
 
 def GetCppFiltPath():
@@ -166,36 +155,8 @@ def GetObjDumpPath():
   return _LlvmTool('objdump')
 
 
-def GetDisassembleObjDumpPath(arch):
-  path = None
-  if arch == 'arm':
-    path = FromToolsSrcRoot(
-      'third_party',
-      'android_toolchain',
-      'ndk',
-      'toolchains',
-      'arm-linux-androideabi-4.9',
-      'prebuilt',
-      'linux-x86_64',
-      'bin',
-      'arm-linux-androideabi-objdump',
-    )
-  elif arch == 'arm64':
-    path = FromToolsSrcRoot(
-      'third_party',
-      'android_toolchain',
-      'ndk',
-      'toolchains',
-      'aarch64-linux-android-4.9',
-      'prebuilt',
-      'linux-x86_64',
-      'bin',
-      'aarch64-linux-android-objdump',
-    )
-  if path and os.path.exists(path):
-    return path
-
-  logging.warning('Falling back to llvm-objdump for arch %s', arch)
+def GetDisassembleObjDumpPath(_arch):
+  # LLVM detects the ELF architecture, including ARM and ARM64.
   return GetObjDumpPath()
 
 
@@ -207,30 +168,5 @@ def GetStripPath():
   return _LlvmTool('strip')
 
 
-def GetAapt2Path():
-  default_path = FromToolsSrcRoot(
-    'third_party', 'android_build_tools', 'aapt2', 'cipd', 'aapt2'
-  )
-  return os.environ.get('SUPERSIZE_AAPT2', default_path)
-
-
-def GetJavaHome():
-  return java_home.JAVA_HOME
-
-
-def GetJavaExec():
-  return os.path.join(GetJavaHome(), 'bin', 'java')
-
-
 def GetDefaultJsonConfigPath():
   return FromToolsSrcRoot('tools', 'binary_size', 'supersize.json')
-
-
-def GetR8Path():
-  return FromToolsSrcRoot('third_party', 'r8', 'cipd', 'lib', 'r8.jar')
-
-
-def GetChromeR8Path():
-  return os.path.abspath(
-    FromToolsSrcRoot('third_party', 'r8', 'cipd', 'bin', 'chrome_r8')
-  )

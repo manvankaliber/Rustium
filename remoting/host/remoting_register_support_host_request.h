@@ -9,7 +9,7 @@
 
 #include "base/functional/callback.h"
 #include "base/memory/scoped_refptr.h"
-#include "remoting/host/chromeos/chromeos_enterprise_params.h"
+#include "remoting/host/enterprise_session_params.h"
 #include "remoting/host/register_support_host_request_base.h"
 
 namespace network {
@@ -68,7 +68,7 @@ class RemotingRegisterSupportHostRequest final
       std::unique_ptr<net::ClientCertStore> client_cert_store) override;
   void RegisterHost(
       const internal::RemoteSupportHostStruct& host,
-      const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+      const std::optional<EnterpriseSessionParams>& enterprise_params,
       RegisterHostCallback callback) override;
   void CancelPendingRequests() override;
 

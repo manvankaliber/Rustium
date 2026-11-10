@@ -19,7 +19,7 @@ namespace sandbox::policy::features {
 // (Only causes an effect when feature kNetworkServiceInProcess is disabled.)
 BASE_FEATURE(kNetworkServiceSandbox, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // Enables a fine-grained seccomp-BPF syscall filter for the network service.
 // Only has an effect if IsNetworkSandboxEnabled() returns true.
 // If the network service sandbox is enabled and |kNetworkServiceSyscallFilter|
@@ -34,7 +34,7 @@ BASE_FEATURE(kNetworkServiceSyscallFilter, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kNetworkServiceFileAllowlist, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kOnDeviceModelExecutionMultiThreadedSandbox,
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 #endif
 
 #if BUILDFLAG(IS_MAC)
@@ -111,14 +111,8 @@ BASE_FEATURE(kWinSboxModuleTamperingProtection,
 
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Controls whether the Spectre variant 2 mitigation is enabled. We use a USE
-// flag on some Chrome OS boards to disable the mitigation by disabling this
-// feature in exchange for system performance.
-BASE_FEATURE(kSpectreVariant2Mitigation, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // Increase the renderer sandbox memory limit. As of 2023, there are no limits
 // on macOS, and a 1TiB limit on Windows. There are reports of users bumping
 // into the limit. This increases the limit by 2x compared to the default
@@ -127,23 +121,8 @@ BASE_FEATURE(kSpectreVariant2Mitigation, base::FEATURE_ENABLED_BY_DEFAULT);
 // from egregious cases as on Windows.
 BASE_FEATURE(kHigherRendererMemoryLimit, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_ANDROID)
-// Enables the experimental Android GPU sandbox using Landlock.
-BASE_FEATURE(kAndroidGpuSandbox, base::FEATURE_DISABLED_BY_DEFAULT);
-// Enables the seccomp-bpf filter sandbox for the GPU process on Android.
-BASE_FEATURE(kSeccompFilterGpuSandbox, base::FEATURE_DISABLED_BY_DEFAULT);
-// Enables the renderer on Android to use a separate seccomp policy.
-BASE_FEATURE(kUseRendererProcessPolicy, base::FEATURE_ENABLED_BY_DEFAULT);
-// When enabled, this features restricts a set of syscalls in
-// BaselinePolicyAndroid that are used by RendererProcessPolicy.
-BASE_FEATURE(kRestrictRendererPoliciesInBaseline,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-// When enabled, restrict clone to just flags used by fork and pthread_create on
-// android.
-BASE_FEATURE(kRestrictCloneParameters, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 bool IsNetworkSandboxSupported() {

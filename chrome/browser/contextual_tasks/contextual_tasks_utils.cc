@@ -17,47 +17,33 @@
 #include "base/uuid.h"
 #include "build/build_config.h"
 #include "chrome/browser/autocomplete/aim_eligibility_service_factory.h"
+#include "chrome/browser/contextual_tasks/active_task_context_provider.h"
 #include "chrome/browser/contextual_tasks/aim_message_poster.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks.mojom.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_eligibility_manager.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_panel_host.h"
+#include "chrome/browser/contextual_tasks/contextual_tasks_panel_host_desktop.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_interface.h"
+#include "chrome/browser/contextual_tasks/contextual_tasks_web_contents_user_data.h"
 #include "chrome/browser/contextual_tasks/entry_point_eligibility_manager.h"
 #include "chrome/browser/contextual_tasks/site_exclusion_detail.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/search/search.h"
 #include "chrome/browser/tab_list/constants.h"
 #include "chrome/browser/tab_list/tab_list_interface.h"
-#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
-#include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/webui/new_tab_page/composebox/variations/composebox_fieldtrial.h"
-#include "components/tabs/public/tab_interface.h"
-#include "content/public/browser/navigation_controller.h"
-#include "content/public/browser/navigation_handle.h"
-#include "net/http/http_response_headers.h"
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/contextual_tasks/active_task_context_provider.h"
-#include "chrome/browser/contextual_tasks/contextual_tasks_web_contents_user_data.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_actions.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/contextual_search/tab_contextualization_controller.h"
 #include "chrome/browser/ui/toolbar/pinned_toolbar/pinned_toolbar_actions_model.h"
 #include "chrome/browser/ui/views/contextual_tasks/contextual_tasks_ephemeral_button_controller.h"
-#include "chrome/grit/branded_strings.h"
-#include "components/contextual_tasks/public/features.h"
-#include "components/lens/contextual_input.h"
-#include "components/lens/lens_overlay_mime_type.h"
-#include "components/omnibox/common/composebox_features.h"
-#include "components/omnibox/common/omnibox_features.h"
-#include "components/sessions/content/session_tab_helper.h"
-#include "components/sessions/core/session_id.h"
-#include "components/strings/grit/components_strings.h"
-#include "ui/actions/actions.h"
-#endif
+#include "chrome/browser/ui/webui/new_tab_page/composebox/variations/composebox_fieldtrial.h"
 #include "chrome/common/webui_url_constants.h"
+#include "chrome/grit/branded_strings.h"
 #include "components/contextual_search/contextual_search_metrics_recorder.h"
 #include "components/contextual_search/contextual_search_service.h"
 #include "components/contextual_search/contextual_search_session_handle.h"
@@ -67,31 +53,30 @@
 #include "components/contextual_tasks/public/features.h"
 #include "components/contextual_tasks/public/prefs.h"
 #include "components/contextual_tasks/public/utils.h"
+#include "components/lens/contextual_input.h"
+#include "components/lens/lens_overlay_mime_type.h"
 #include "components/omnibox/browser/aim_eligibility_service.h"
+#include "components/omnibox/common/composebox_features.h"
+#include "components/omnibox/common/omnibox_features.h"
+#include "components/sessions/content/session_tab_helper.h"
+#include "components/sessions/core/session_id.h"
+#include "components/strings/grit/components_strings.h"
+#include "components/tabs/public/tab_interface.h"
+#include "content/public/browser/navigation_controller.h"
+#include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_ui.h"
 #include "content/public/browser/web_ui_controller.h"
 #include "content/public/common/url_constants.h"
 #include "net/base/url_util.h"
+#include "net/http/http_response_headers.h"
 #include "third_party/lens_server_proto/aim_communication.pb.h"
 #include "third_party/lens_server_proto/search_communication.pb.h"
+#include "ui/actions/actions.h"
 #include "ui/base/device_form_factor.h"
 #include "ui/base/mojom/window_open_disposition.mojom-shared.h"
 #include "ui/color/color_provider_key.h"
 #include "url/gurl.h"
-
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/contextual_tasks/android/contextual_tasks_panel_host_android.h"
-#include "chrome/browser/contextual_tasks/android/contextual_tasks_panel_host_desktop_android.h"
-#else
-#include "chrome/browser/contextual_tasks/contextual_tasks_panel_host_desktop.h"
-#include "chrome/browser/themes/theme_service.h"
-#include "chrome/browser/themes/theme_service_factory.h"
-#include "chrome/browser/ui/actions/chrome_action_id.h"
-#include "chrome/browser/ui/browser_actions.h"
-#include "chrome/browser/ui/toolbar/pinned_toolbar/pinned_toolbar_actions_model.h"
-#include "components/omnibox/common/omnibox_features.h"
-#endif
 
 namespace contextual_tasks {
 
@@ -163,7 +148,6 @@ CreateQueryControllerConfigParams() {
   config_params->send_lns_surface = true;
   config_params->enable_viewport_images = true;
   config_params->attach_page_title_and_url_to_suggest_requests = false;
-#if !BUILDFLAG(IS_ANDROID)
   // For desktop, prioritize suggestions for the first attached document when
   // the feature to open the cobrowse side panel with visual selection is
   // enabled. This is needed to be able to see zero state suggestions in the
@@ -172,7 +156,6 @@ CreateQueryControllerConfigParams() {
     config_params->prioritize_suggestions_for_the_first_attached_document =
         true;
   }
-#endif
   return config_params;
 }
 
@@ -404,7 +387,6 @@ void RecordTabAddedMetric(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void RemoveTabUnderline(int32_t tab_id,
                         BrowserWindowInterface* browser_window_interface) {
   if (base::FeatureList::IsEnabled(omnibox::kContextManagementInComposebox) ||
@@ -520,7 +502,6 @@ CaptureAndUploadTabContext(
 
   return base::ok(context_token);
 }
-#endif
 
 bool IsValidUrlForSuggestedTab(const GURL& url,
                                Profile* profile,
@@ -658,29 +639,7 @@ void SendInjectedInputRemovedUpdate(AimMessagePoster* message_poster,
 }
 
 bool ShouldShowSidePanel() {
-#if BUILDFLAG(IS_ANDROID)
-  return IsAndroidDesktopFormFactor() &&
-         !base::FeatureList::IsEnabled(
-             kContextualTasksOverrideShowBottomSheetOnLargeScreen);
-#else
   return true;
-#endif
-}
-
-bool IsAndroidMobileFormFactor() {
-#if BUILDFLAG(IS_ANDROID)
-  return ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_PHONE;
-#else
-  return false;
-#endif
-}
-
-bool IsAndroidDesktopFormFactor() {
-#if BUILDFLAG(IS_ANDROID)
-  return ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_DESKTOP;
-#else
-  return false;
-#endif
 }
 
 bool IsUrlValidForContextSharing(const GURL& url) {
@@ -695,31 +654,19 @@ bool IsUrlValidForContextSharing(const GURL& url) {
 // static
 std::unique_ptr<ContextualTasksPanelHost> ContextualTasksPanelHost::Create(
     BrowserWindowInterface* browser_window) {
-#if BUILDFLAG(IS_ANDROID)
-  if (ShouldShowSidePanel()) {
-    return std::make_unique<ContextualTasksPanelHostDesktopAndroid>(
-        browser_window);
-  } else {
-    return std::make_unique<ContextualTasksPanelHostAndroid>(browser_window);
-  }
-#else
   return std::make_unique<ContextualTasksPanelHostDesktop>(browser_window);
-#endif
 }
 
 bool GetEffectivePinState(Profile* profile) {
   if (!profile) {
     return false;
   }
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* model = PinnedToolbarActionsModel::Get(profile)) {
     return model->Contains(kActionSidePanelShowContextualTasks);
   }
-#endif
   return false;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void UpdatePinButtonVisibilityState(BrowserWindowInterface* browser_window) {
   if (!browser_window || !BrowserActions::From(browser_window)) {
     return;
@@ -795,34 +742,33 @@ int GetContextualTasksPinningStringId(int default_resource_id) {
     int in_chrome;
     int panel;
   };
-#define CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(base_id)        \
-  {                                                              \
-    base_id, {                                                   \
-      base_id##_SIDE_PANEL, base_id##_IN_SIDE_PANEL,             \
-          base_id##_IN_CHROME, base_id##_PANEL                   \
-    }                                                            \
+#define CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(base_id)                 \
+  {                                                                       \
+    base_id, {                                                            \
+      base_id##_SIDE_PANEL, base_id##_IN_SIDE_PANEL, base_id##_IN_CHROME, \
+          base_id##_PANEL                                                 \
+    }                                                                     \
   }
-  static constexpr auto kVariants =
-      base::MakeFixedFlatMap<int, VariantIds>({
-          CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
-              IDS_CONTEXTUAL_TASKS_CUSTOMIZE_CHROME_LABEL),
-          CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
-              IDS_CONTEXTUAL_TASKS_EPHEMERAL_BUTTON_CLOSE_TOOL_TIP),
-          CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
-              IDS_CONTEXTUAL_TASKS_SIDE_PANEL_REOPEN_TOOL_TIP),
-          CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
-              IDS_SIDE_PANEL_CONTEXTUAL_TASKS_PINNABLE_IPH),
-          CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
-              IDS_CONTEXTUAL_TASKS_EPHEMERAL_TOOLBAR_BUTTON_IPH),
-          CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
-              IDS_CONTEXTUAL_TASKS_EPHEMERAL_TOOLBAR_BUTTON_IPH_SCREENREADER),
-          CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
-              IDS_CONTEXTUAL_TASKS_PINNED_ICON_CHANGED_IPH),
-          CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
-              IDS_CONTEXTUAL_TASKS_PINNED_ICON_CHANGED_IPH_SCREENREADER),
-          CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
-              IDS_TUTORIAL_CONTEXTUAL_TASKS_STEP3),
-      });
+  static constexpr auto kVariants = base::MakeFixedFlatMap<int, VariantIds>({
+      CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
+          IDS_CONTEXTUAL_TASKS_CUSTOMIZE_CHROME_LABEL),
+      CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
+          IDS_CONTEXTUAL_TASKS_EPHEMERAL_BUTTON_CLOSE_TOOL_TIP),
+      CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
+          IDS_CONTEXTUAL_TASKS_SIDE_PANEL_REOPEN_TOOL_TIP),
+      CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
+          IDS_SIDE_PANEL_CONTEXTUAL_TASKS_PINNABLE_IPH),
+      CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
+          IDS_CONTEXTUAL_TASKS_EPHEMERAL_TOOLBAR_BUTTON_IPH),
+      CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
+          IDS_CONTEXTUAL_TASKS_EPHEMERAL_TOOLBAR_BUTTON_IPH_SCREENREADER),
+      CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
+          IDS_CONTEXTUAL_TASKS_PINNED_ICON_CHANGED_IPH),
+      CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
+          IDS_CONTEXTUAL_TASKS_PINNED_ICON_CHANGED_IPH_SCREENREADER),
+      CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS(
+          IDS_TUTORIAL_CONTEXTUAL_TASKS_STEP3),
+  });
 #undef CONTEXTUAL_TASKS_PINNING_STRING_VARIANTS
 
   const auto it = kVariants.find(default_resource_id);
@@ -856,7 +802,6 @@ int GetContextualTasksEphemeralButtonContextMenuCloseTextId() {
       return IDS_CONTEXTUAL_TASKS_EPHEMERAL_BUTTON_CONTEXT_MENU_DISMISS_ACTIVE_SEARCH_IN_TAB;
   }
 }
-#endif
 
 lens::ClientToAimMessage GetHandshakeMessageProto() {
   lens::ClientToAimMessage message;
@@ -961,13 +906,7 @@ bool ShouldUseDarkMode(content::WebContents* web_contents, const GURL& url) {
           Profile::FromBrowserContext(web_contents->GetBrowserContext()))) {
     return true;
   }
-#if BUILDFLAG(IS_ANDROID)
-  // 3. TODO(crbug.com/536100150): Android has no ThemeService, so fall back to
-  // the WebContents color mode, which follows the app's light/dark setting.
-  return web_contents->GetColorMode() == ui::ColorProviderKey::ColorMode::kDark;
-#else
   return false;
-#endif
 }
 
 bool ShouldUseDarkModeForProfile(Profile* profile) {
@@ -981,13 +920,9 @@ bool ShouldUseDarkModeForProfile(Profile* profile) {
     return true;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // In all other cases, respect the theme service dark mode preferences.
   ThemeService* theme_service = ThemeServiceFactory::GetForProfile(profile);
   return theme_service && theme_service->BrowserUsesDarkColors();
-#else
-  return false;
-#endif
 }
 
 }  // namespace contextual_tasks

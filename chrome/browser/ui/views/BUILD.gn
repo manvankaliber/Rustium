@@ -328,9 +328,6 @@ source_set("status_bubble") {
     "//ui/native_theme",
     "//ui/views",
   ]
-  if (is_chromeos) {
-    deps += [ "//ash/public/cpp" ]
-  }
 }
 
 if (is_win) {
@@ -469,7 +466,7 @@ source_set("device_chooser_content_view") {
   ]
 }
 
-if (is_win || is_linux || is_chromeos) {
+if (is_win || is_linux) {
   source_set("bluetooth_dialogs") {
     public = [
       "bluetooth_device_credentials_view.h",
@@ -497,7 +494,7 @@ if (is_win || is_linux || is_chromeos) {
   }
 }
 
-if (is_win || is_mac || is_linux || is_chromeos) {
+if (is_win || is_mac || is_linux) {
   source_set("close_bubble_on_tab_activation_helper") {
     public = [ "close_bubble_on_tab_activation_helper.h" ]
     sources = [ "close_bubble_on_tab_activation_helper.cc" ]
@@ -534,9 +531,6 @@ if (use_aura) {
       "//chrome/browser/ui/views/frame:browser_view_header",
       "//ui/base",
     ]
-    if (is_chromeos) {
-      deps += [ "//ash/public/cpp" ]
-    }
   }
 
   source_set("theme_profile_key") {
@@ -624,9 +618,7 @@ source_set("message_box_dialog") {
     "//ui/base/mojom",
     "//ui/display",
   ]
-  if (is_chromeos) {
-    deps += [ "//chromeos/ui/base" ]
-  }
+
   if (is_mac) {
     deps += [ "//chrome/browser/ui/cocoa" ]
   }
@@ -856,9 +848,8 @@ source_set("external_protocol_dialog") {
     "//ui/base/mojom:ui_base_types",
     "//ui/gfx",
   ]
-  if (!is_android) {
-    deps += [ "//chrome/browser:shell_integration" ]
-  }
+
+  deps += [ "//chrome/browser:shell_integration" ]
 }
 
 source_set("first_run_dialog") {
@@ -985,9 +976,7 @@ source_set("screen_capture_notification_ui_views") {
     "//chrome/browser/ui/browser_window",
     "//ui/views",
   ]
-  if (is_chromeos) {
-    deps += [ "//ash" ]
-  }
+
   if (is_win) {
     sources += [
       "screen_capture_notification_virtual_desktop_helper_win.cc",
@@ -996,7 +985,7 @@ source_set("screen_capture_notification_ui_views") {
   }
 }
 
-if (use_aura && !is_chromeos) {
+if (use_aura) {
   source_set("native_widget_factory") {
     public = [ "native_widget_factory.h" ]
     sources = [ "native_widget_factory.cc" ]
@@ -1134,9 +1123,6 @@ source_set("certificate_selector") {
     "//ui/base",
     "//ui/base/metadata",
   ]
-  if (is_chromeos) {
-    deps += [ "//chrome/browser/ash/certificate_provider" ]
-  }
 }
 
 source_set("ssl_client_certificate_selector") {
@@ -1157,45 +1143,6 @@ source_set("ssl_client_certificate_selector") {
   ]
 }
 
-if (is_chromeos) {
-  source_set("platform_keys_certificate_selector_chromeos") {
-    public = [ "platform_keys_certificate_selector_chromeos.h" ]
-    sources = [ "platform_keys_certificate_selector_chromeos.cc" ]
-    public_deps = [
-      ":certificate_selector",
-      "//chrome/browser/ui:platform_keys_certificate_selector_chromeos",
-      "//net",
-      "//ui/views",
-    ]
-    deps = [
-      "//base",
-      "//chrome/app:generated_resources",
-      "//ui/base",
-      "//ui/gfx",
-    ]
-  }
-
-  source_set("external_protocol_handler_ash") {
-    sources = [ "external_protocol_handler_ash.cc" ]
-    deps = [
-      ":external_protocol_dialog",
-      "//base",
-      "//chrome/browser/ash/arc/intent_helper",
-      "//chrome/browser/ash/guest_os",
-      "//chrome/browser/chromeos/arc",
-      "//chrome/browser/external_protocol",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/ui/views/web_apps:protocol_handler_picker_coordinator",
-      "//chrome/browser/web_applications",
-      "//chrome/browser/web_applications/app_service",
-      "//chromeos/ash/components/browser_context_helper",
-      "//content/public/browser",
-      "//ui/aura",
-      "//url",
-    ]
-  }
-}
-
 source_set("chrome_web_dialog_view") {
   public = [ "chrome_web_dialog_view.h" ]
   public_deps = [
@@ -1214,16 +1161,6 @@ source_set("chrome_web_dialog_view_impl") {
     "//chrome/browser/ui/webui:chrome_web_contents_handler",
     "//ui/views",
   ]
-  if (is_chromeos) {
-    deps += [
-      "//ash",
-      "//ash/public/cpp",
-      "//chrome/browser/ash/profiles",
-      "//chrome/browser/ui/webui/ash/system_web_dialog",
-      "//components/session_manager/core",
-      "//components/user_manager",
-    ]
-  }
 }
 
 source_set("chrome_views_delegate") {
@@ -1271,17 +1208,7 @@ source_set("chrome_views_delegate") {
       "//chrome/browser/win",
     ]
   }
-  if (is_chromeos) {
-    sources += [ "chrome_views_delegate_ash.cc" ]
-    deps += [
-      "//ash",
-      "//ash/public/cpp",
-      "//chrome/browser/ui/ash/capture_mode",
-      "//chromeos/ash/experiences/arc/touch_selection_menu",
-      "//chromeos/ui/base",
-      "//chromeos/ui/frame",
-    ]
-  }
+
   if (use_aura) {
     deps += [ "//ui/aura" ]
   }
@@ -1325,9 +1252,7 @@ source_set("chrome_browser_main_extra_parts_views") {
     "//ui/base:features",
     "//ui/display",
   ]
-  if (is_chromeos) {
-    deps += [ "//ui/wm" ]
-  }
+
   if (use_aura) {
     deps += [
       "//ui/aura",
@@ -1491,13 +1416,7 @@ source_set("task_manager_view") {
     "//ui/compositor",
     "//ui/gfx",
   ]
-  if (is_chromeos) {
-    deps += [
-      "//ash/public/cpp",
-      "//chrome/app/theme:theme_resources",
-      "//ui/aura",
-    ]
-  }
+
   if (is_win) {
     deps += [
       "//chrome/browser:shell_integration",
@@ -1653,9 +1572,6 @@ source_set("intent_picker_bubble_view") {
     "//ui/gfx/geometry",
     "//ui/strings:ui_strings",
   ]
-  if (is_chromeos) {
-    deps += [ "//ui/chromeos" ]
-  }
 }
 
 source_set("sad_tab_view") {
@@ -1678,9 +1594,6 @@ source_set("sad_tab_view") {
     "//ui/gfx",
     "//ui/views/controls/webview",
   ]
-  if (is_chromeos) {
-    deps += [ "//chromeos/components/kiosk" ]
-  }
 }
 
 source_set("tab_search_bubble_host") {
@@ -1792,7 +1705,7 @@ source_set("browser_tests") {
     "//ui/views:test_support",
   ]
 
-  if (is_win || is_linux || is_chromeos) {
+  if (is_win || is_linux) {
     deps += [ ":bluetooth_dialogs" ]
   }
 
@@ -1861,34 +1774,22 @@ source_set("browser_tests") {
     deps += [ ":crypto_module_password_dialog_view" ]
   }
 
-  if (is_chromeos) {
-    sources += [ "intent_picker_bubble_view_browsertest_chromeos.cc" ]
-    deps += [
-      "//chrome/browser/ash/app_list/arc",
-      "//chrome/browser/ash/arc:arc_util",
-      "//chrome/browser/ui:browser_window_header",
-      "//chromeos/ash/experiences/arc:arc_test_support",
-      "//chromeos/ash/experiences/arc:notification_test_support",
-      "//chromeos/ui/frame",
-    ]
-  } else {
-    sources += [
-      # ChromeOS does not support machine level user cloud policies.
-      "enable_link_capturing_infobar_browsertest.cc",
+  sources += [
+    # ChromeOS does not support machine level user cloud policies.
+    "enable_link_capturing_infobar_browsertest.cc",
 
-      # ChromeOS does not support the profile list avatar menu.
-      "external_protocol_dialog_browsertest.cc",
-    ]
-    deps += [
-      ":external_protocol_dialog",
-      ":external_protocol_dialog_test_support",
-      "//chrome/browser/apps/app_service:app_registry_cache_waiter",
-      "//chrome/browser/external_protocol",
-      "//chrome/browser/infobars",
-      "//chrome/browser/ui/web_applications/test:test_support_ui",
-      "//components/infobars/content",
-    ]
-  }
+    # ChromeOS does not support the profile list avatar menu.
+    "external_protocol_dialog_browsertest.cc",
+  ]
+  deps += [
+    ":external_protocol_dialog",
+    ":external_protocol_dialog_test_support",
+    "//chrome/browser/apps/app_service:app_registry_cache_waiter",
+    "//chrome/browser/external_protocol",
+    "//chrome/browser/infobars",
+    "//chrome/browser/ui/web_applications/test:test_support_ui",
+    "//components/infobars/content",
+  ]
 }
 
 source_set("tab_modal_confirm_dialog_views") {
@@ -1933,113 +1834,111 @@ if (use_nss_certs && use_aura) {
   }
 }
 
-if (!is_chromeos_device) {
-  source_set("interactive_ui_tests") {
-    testonly = true
+source_set("interactive_ui_tests") {
+  testonly = true
 
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [
-      "browser_accelerator_interactive_uitest.cc",
-      "certificate_selector_interactive_uitest.cc",
-      "constrained_window_views_interactive_uitest.cc",
-      "content_setting_bubble_contents_interactive_uitest.cc",
-      "content_test_utils.cc",
-      "content_test_utils.h",
-      "external_protocol_dialog_interactive_uitest.cc",
-      "find_bar_views_interactive_uitest.cc",
-      "menu_controller_interactive_uitest.cc",
-      "menu_interactive_uitest.cc",
-      "menu_item_view_interactive_uitest.cc",
-      "menu_model_adapter_interactive_uitest.cc",
-      "menu_test_base.cc",
-      "menu_test_base.h",
-      "menu_view_drag_and_drop_interactive_uitest.cc",
-      "occlusion_visibility_interactive_uitest.cc",
-      "session_crashed_bubble_view_interactive_uitest.cc",
-      "ssl_client_certificate_selector_interactive_uitest.cc",
-      "web_dialog_view_interactive_uitest.cc",
-      "webview_interactive_uitest.cc",
+  sources = [
+    "browser_accelerator_interactive_uitest.cc",
+    "certificate_selector_interactive_uitest.cc",
+    "constrained_window_views_interactive_uitest.cc",
+    "content_setting_bubble_contents_interactive_uitest.cc",
+    "content_test_utils.cc",
+    "content_test_utils.h",
+    "external_protocol_dialog_interactive_uitest.cc",
+    "find_bar_views_interactive_uitest.cc",
+    "menu_controller_interactive_uitest.cc",
+    "menu_interactive_uitest.cc",
+    "menu_item_view_interactive_uitest.cc",
+    "menu_model_adapter_interactive_uitest.cc",
+    "menu_test_base.cc",
+    "menu_test_base.h",
+    "menu_view_drag_and_drop_interactive_uitest.cc",
+    "occlusion_visibility_interactive_uitest.cc",
+    "session_crashed_bubble_view_interactive_uitest.cc",
+    "ssl_client_certificate_selector_interactive_uitest.cc",
+    "web_dialog_view_interactive_uitest.cc",
+    "webview_interactive_uitest.cc",
+  ]
+  deps = [ "//chrome/browser/ui:accelerator_utils_headers" ]
+
+  if (!is_linux) {
+    # TODO(port): This times out on desktop Linux.
+    sources += [ "keyboard_access_interactive_uitest.cc" ]
+  }
+
+  if (is_mac || is_linux || is_win) {
+    sources += [ "default_link_capturing_interactive_uitest.cc" ]
+  }
+
+  if (use_aura) {
+    sources += [
+      "drag_and_drop_interactive_uitest.cc",
+      "tooltip/tooltip_interactive_uitest.cc",
     ]
-    deps = [ "//chrome/browser/ui:accelerator_utils_headers" ]
+    deps += [ "//chrome/test/base:drag_and_drop_test_utils" ]
+  }
 
-    if (!is_linux) {
-      # TODO(port): This times out on desktop Linux.
-      sources += [ "keyboard_access_interactive_uitest.cc" ]
-    }
+  if (is_win) {
+    sources += [
+      "tooltip/tooltip_aura_interactive_uitest_win.cc",
+      "touch_events_interactive_uitest_win.cc",
+    ]
+  }
 
-    if (is_mac || is_linux || is_win) {
-      sources += [ "default_link_capturing_interactive_uitest.cc" ]
-    }
+  deps += [
+    ":content_setting_bubble_contents",
+    ":external_protocol_dialog",
+    ":external_protocol_dialog_test_support",
+    ":find_bar_views",
+    ":session_crashed_bubble_view",
+    ":ssl_client_certificate_selector",
+    ":tab_modal_confirm_dialog_views",
+    "//chrome/browser/prefs:util",
+    "//chrome/browser/ui:browser_tabstrip",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui:ui_features",
+    "//chrome/browser/ui/find_bar",
+    "//chrome/browser/ui/focus",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+    "//chrome/browser/ui/views/test:view_event_test_base",
+    "//chrome/browser/ui/views/toolbar:interactive_ui_tests",
+    "//chrome/browser/ui/webui:chrome_web_contents_handler",
+    "//chrome/test:test_support",
+    "//components/enterprise/data_controls/content/browser",
+    "//components/enterprise/data_controls/core/browser:test_support",
+    "//content/test:browsertest_support",
+    "//ui/base:ozone_buildflags",
+    "//ui/base/clipboard:clipboard_test_support",
+    "//ui/events:test_support",
+    "//ui/web_dialogs:test_support",
+  ]
 
-    if (use_aura) {
-      sources += [
-        "drag_and_drop_interactive_uitest.cc",
-        "tooltip/tooltip_interactive_uitest.cc",
-      ]
-      deps += [ "//chrome/test/base:drag_and_drop_test_utils" ]
-    }
-
-    if (is_win) {
-      sources += [
-        "tooltip/tooltip_aura_interactive_uitest_win.cc",
-        "touch_events_interactive_uitest_win.cc",
-      ]
-    }
-
+  if (is_mac || is_linux || is_win) {
     deps += [
-      ":content_setting_bubble_contents",
-      ":external_protocol_dialog",
-      ":external_protocol_dialog_test_support",
-      ":find_bar_views",
-      ":session_crashed_bubble_view",
-      ":ssl_client_certificate_selector",
-      ":tab_modal_confirm_dialog_views",
-      "//chrome/browser/prefs:util",
-      "//chrome/browser/ui:browser_tabstrip",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:ui_features",
-      "//chrome/browser/ui/find_bar",
-      "//chrome/browser/ui/focus",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/browser/ui/views/test:view_event_test_base",
-      "//chrome/browser/ui/views/toolbar:interactive_ui_tests",
-      "//chrome/browser/ui/webui:chrome_web_contents_handler",
-      "//chrome/test:test_support",
-      "//components/enterprise/data_controls/content/browser",
-      "//components/enterprise/data_controls/core/browser:test_support",
-      "//content/test:browsertest_support",
-      "//ui/base:ozone_buildflags",
-      "//ui/base/clipboard:clipboard_test_support",
-      "//ui/events:test_support",
-      "//ui/web_dialogs:test_support",
+      ":intent_picker_bubble_view",
+      "//chrome/browser/apps/link_capturing",
+      "//chrome/browser/apps/link_capturing:test_support",
+      "//chrome/browser/ui:intent_picker_tab_helper",
+      "//chrome/test/user_education",
+      "//components/user_education/views",
     ]
+  }
 
-    if (is_mac || is_linux || is_win) {
-      deps += [
-        ":intent_picker_bubble_view",
-        "//chrome/browser/apps/link_capturing",
-        "//chrome/browser/apps/link_capturing:test_support",
-        "//chrome/browser/ui:intent_picker_tab_helper",
-        "//chrome/test/user_education",
-        "//components/user_education/views",
-      ]
-    }
+  if (use_aura) {
+    deps += [ ":native_widget_factory" ]
+  }
 
-    if (use_aura && !is_chromeos) {
-      deps += [ ":native_widget_factory" ]
-    }
+  if (use_ozone) {
+    deps += [ "//ui/ozone" ]
+  }
 
-    if (use_ozone) {
-      deps += [ "//ui/ozone" ]
-    }
-
-    if (is_win) {
-      deps += [
-        "//chrome/browser/ui/views/accessibility:uia_test_support",
-        "//ui/aura:test_support",
-      ]
-    }
+  if (is_win) {
+    deps += [
+      "//chrome/browser/ui/views/accessibility:uia_test_support",
+      "//ui/aura:test_support",
+    ]
   }
 }
 
@@ -2088,13 +1987,7 @@ source_set("unit_tests") {
     "//ui/events:test_support",
     "//ui/views:test_support",
   ]
-  if (is_chromeos) {
-    deps += [
-      "//chromeos/ash/experiences/arc/intent_helper:arc_intent_helper_constants",
-      "//ui/strings:app_locale_settings",
-      "//ui/strings:ui_strings",
-    ]
-  }
+
   if (is_linux) {
     sources += [ "eula_dialog_linux_unittest.cc" ]
     deps += [

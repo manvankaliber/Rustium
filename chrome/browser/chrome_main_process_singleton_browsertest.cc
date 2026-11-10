@@ -153,7 +153,6 @@ IN_PROC_BROWSER_TEST_F(ChromeMainTest, SecondLaunchFromIncognitoWithNormalUrl) {
 }
 
 // Multi-profile is not supported on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(ChromeMainTest, SecondLaunchWithProfileDir) {
   const base::FilePath kProfileDir(FILE_PATH_LITERAL("Other"));
   Profile* other_profile = CreateProfile(kProfileDir);
@@ -213,4 +212,3 @@ IN_PROC_BROWSER_TEST_F(ChromeMainTest, SecondLaunchWithProfileEmail) {
   EXPECT_EQ(original_browser_count + 2,
             GlobalBrowserCollection::GetInstance()->GetSize());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)

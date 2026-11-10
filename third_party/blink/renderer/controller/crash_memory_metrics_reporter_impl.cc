@@ -40,14 +40,6 @@ CrashMemoryMetricsReporterImpl& CrashMemoryMetricsReporterImpl::Instance() {
 }
 
 CrashMemoryMetricsReporterImpl::CrashMemoryMetricsReporterImpl()
-#if BUILDFLAG(IS_ANDROID)
-    : timer_(Thread::MainThread()
-                 ->Scheduler()
-                 ->ToMainThreadScheduler()
-                 ->NonWakingTaskRunner(),
-             this,
-             &CrashMemoryMetricsReporterImpl::SampleMemoryState)
-#endif
 {
   ::partition_alloc::SetPartitionAllocOomCallback(
       CrashMemoryMetricsReporterImpl::OnOOMCallback);
@@ -64,25 +56,9 @@ void CrashMemoryMetricsReporterImpl::SetSharedMemory(
     DCHECK(!shared_metrics_mapping_.IsValid());
     shared_metrics_mapping_ = std::move(mapping);
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(features::kGateMemoryMetricsOnVisibility)) {
-    timer_.StartRepeating(base::Seconds(1), FROM_HERE);
-    return;
-  }
-  UpdateTimer();
-#endif
 }
 
 void CrashMemoryMetricsReporterImpl::ResetForTesting() {
-#if BUILDFLAG(IS_ANDROID)
-  timer_.Stop();
-  is_visible_ = false;
-  timer_.SetTaskRunnerForTesting(Thread::MainThread()
-                                     ->Scheduler()
-                                     ->ToMainThreadScheduler()
-                                     ->NonWakingTaskRunner(),
-                                 nullptr);
-#endif
   base::AutoLock auto_lock(lock_);
   shared_metrics_mapping_ = base::WritableSharedMemoryMapping();
   last_reported_metrics_ = OomInterventionMetrics();
@@ -97,45 +73,6 @@ void CrashMemoryMetricsReporterImpl::WriteIntoSharedMemory() {
       base::byte_span_from_ref(last_reported_metrics_));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void CrashMemoryMetricsReporterImpl::SetRendererVisible(bool visible) {
-  DCHECK(IsMainThread());
-  if (is_visible_ == visible) {
-    return;
-  }
-  is_visible_ = visible;
-  if (!base::FeatureList::IsEnabled(features::kGateMemoryMetricsOnVisibility)) {
-    return;
-  }
-  UpdateTimer();
-}
-
-void CrashMemoryMetricsReporterImpl::UpdateTimer() {
-  DCHECK(IsMainThread());
-  bool has_shared_memory;
-  {
-    base::AutoLock auto_lock(lock_);
-    has_shared_memory = shared_metrics_mapping_.IsValid();
-  }
-  if (is_visible_ && has_shared_memory) {
-    if (!timer_.IsActive()) {
-      SampleMemoryState(nullptr);
-      timer_.StartRepeating(base::Seconds(1), FROM_HERE);
-    }
-  } else {
-    timer_.Stop();
-  }
-}
-
-void CrashMemoryMetricsReporterImpl::SampleMemoryState(TimerBase*) {
-  base::SystemMemoryInfo meminfo;
-  base::GetSystemMemoryInfo(&meminfo);
-  base::AutoLock auto_lock(lock_);
-  last_reported_metrics_.current_available_memory = meminfo.available;
-  last_reported_metrics_.current_swap_free = meminfo.swap_free;
-  WriteIntoSharedMemory();
-}
-#endif
 
 void CrashMemoryMetricsReporterImpl::OnOOMCallback() {
   CrashMemoryMetricsReporterImpl& instance =

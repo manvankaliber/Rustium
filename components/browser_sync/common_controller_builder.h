@@ -188,9 +188,7 @@ class CommonControllerBuilder {
   void SetSkillsService(skills::SkillsService* skills_service);
   void SetNotebooksService(notebooks::NotebooksService* notebooks_service);
 
-#if !BUILDFLAG(IS_ANDROID)
   void SetPasskeyModel(webauthn::PasskeyModel* passkey_model);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   void SetPasswordReceiverService(
       password_manager::PasswordReceiverService* password_receiver_service);
@@ -245,11 +243,9 @@ class CommonControllerBuilder {
   std::unique_ptr<syncer::DataTypeController>
   CreateAutofillWalletMetadataDataTypeController(
       syncer::SyncService* sync_service);
-#if !BUILDFLAG(IS_IOS)
   std::unique_ptr<syncer::DataTypeController>
   CreateAutofillWalletUsageDataTypeController(
       syncer::SyncService* sync_service);
-#endif
   std::unique_ptr<syncer::DataTypeController>
   CreateAutofillWalletCredentialDataTypeController(
       syncer::SyncService* sync_service);
@@ -318,14 +314,10 @@ class CommonControllerBuilder {
       syncer::SyncService* sync_service);
   std::unique_ptr<syncer::DataTypeController>
   CreateAutofillEntitySuppressionDataTypeController();
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   std::unique_ptr<syncer::DataTypeController> CreateSkillDataTypeController(
       syncer::SyncService* sync_service);
-#endif
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<syncer::DataTypeController>
   CreateWebauthnCredentialDataTypeController(syncer::SyncService* sync_service);
-#endif
 #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
   std::unique_ptr<syncer::DataTypeController>
   CreateFamilyLinkSettingsDataTypeController(syncer::SyncService* sync_service,

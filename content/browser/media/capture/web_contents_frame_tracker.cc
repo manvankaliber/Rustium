@@ -40,9 +40,7 @@
 #include "ui/gfx/geometry/vector2d_f.h"
 #include "ui/gfx/native_ui_types.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "content/browser/media/capture/mouse_cursor_overlay_controller.h"
-#endif
 
 namespace content {
 
@@ -198,10 +196,8 @@ WebContentsFrameTracker::WebContentsFrameTracker(
     MouseCursorOverlayController* cursor_controller)
     : device_(std::move(device)),
       device_task_runner_(std::move(device_task_runner))
-#if !BUILDFLAG(IS_IOS)
       ,
       cursor_controller_(cursor_controller->GetWeakPtr())
-#endif
 {
   // Verify on construction that this object is created on the UI thread.  After
   // this, depend on the sequence checker to ensure consistent execution.
@@ -209,9 +205,7 @@ WebContentsFrameTracker::WebContentsFrameTracker(
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   CHECK(device_task_runner_);
 
-#if !BUILDFLAG(IS_IOS)
   CHECK(cursor_controller_);
-#endif
 }
 
 WebContentsFrameTracker::~WebContentsFrameTracker() {
@@ -522,11 +516,9 @@ void WebContentsFrameTracker::SetTargetView(gfx::NativeView view) {
     return;
   }
   target_native_view_ = view;
-#if !BUILDFLAG(IS_IOS)
   if (cursor_controller_) {
     cursor_controller_->SetTargetView(view, web_contents());
   }
-#endif
 }
 
 viz::VideoCaptureSubTarget WebContentsFrameTracker::DeriveSubTarget() const {

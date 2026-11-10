@@ -90,9 +90,7 @@ struct SupportsUnretainedImpl {
 //
 // TODO(crbug.com/40247956): Enable this on all platforms, then in
 // official builds, and then in non-test code as well.
-#if defined(FORCE_UNRETAINED_COMPLETENESS_CHECKS_FOR_TESTS) || \
-    (!defined(UNIT_TEST) && !defined(OFFICIAL_BUILD) &&        \
-     (BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)))
+#if defined(FORCE_UNRETAINED_COMPLETENESS_CHECKS_FOR_TESTS) || !defined(UNIT_TEST) && !defined(OFFICIAL_BUILD) && (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN))
       static_assert(v,
                     "Argument requires unretained storage, but type is not "
                     "fully defined. This prevents determining whether "

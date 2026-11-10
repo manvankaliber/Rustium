@@ -41,8 +41,7 @@ constexpr char kParentAccessResultQueryParameter[] = "result";
 // Url that contains the approval result in PACP parent approval requests.
 constexpr char kPacpOriginUrlHost[] = "families.google.com";
 
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Returns the text that will be shown as the PACP widget subtitle, containing
 // information about the blocked hostname and the blocking reason.
 std::string GetBlockingReasonSubtitle(
@@ -90,7 +89,7 @@ std::string GetBase64EncodedInTransactionalDataForPayload(
   CHECK_GT(base_64_url_encoded_data.length(), 0UL);
   return base_64_url_encoded_data;
 }
-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) ||
+#endif
         // BUILDFLAG(IS_WIN)
 }  // namespace
 
@@ -185,8 +184,7 @@ GURL NormalizeUrl(const GURL& url) {
   return url_matcher::util::Normalize(effective_url);
 }
 
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 GURL GetParentAccessURL(
     const std::string& locale,
     const GURL& blocked_url,
@@ -199,9 +197,7 @@ GURL GetParentAccessURL(
   static constexpr char kContinueUrl[] = "https://families.google.com";
 
   // Caller Ids for Desktop and iOS platforms.
-#if BUILDFLAG(IS_IOS)
-  static constexpr char kCallerId[] = "qSTnVRdQ";
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   static constexpr char kCallerId[] = "clwAA5XJ";
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 
@@ -224,6 +220,6 @@ GURL GetParentAccessURL(
   replacements.SetQueryStr(query);
   return url.ReplaceComponents(replacements);
 }
-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) ||
+#endif
         // BUILDFLAG(IS_WIN)
 }  // namespace supervised_user

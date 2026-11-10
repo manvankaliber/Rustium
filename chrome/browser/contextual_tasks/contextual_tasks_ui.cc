@@ -42,12 +42,20 @@
 #include "chrome/browser/signin/identity_manager_factory.h"
 #include "chrome/browser/tab_list/tab_list_interface.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
+#include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
+#include "chrome/browser/ui/lens/lens_overlay_controller.h"
+#include "chrome/browser/ui/lens/lens_query_flow_router.h"
+#include "chrome/browser/ui/lens/lens_search_controller.h"
+#include "chrome/browser/ui/user_education/browser_user_education_interface.h"
+#include "chrome/browser/ui/views/permissions/chip/permission_chip_view.h"
+#include "chrome/browser/ui/views/user_education/browser_help_bubble.h"
 #include "chrome/browser/ui/webui/cr_components/searchbox/plural_string_provider.h"
 #include "chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.h"
 #include "chrome/browser/ui/webui/new_tab_page/composebox/variations/composebox_fieldtrial.h"
 #include "chrome/browser/ui/webui/webui_embedding_context.h"
+#include "chrome/browser/ui/webui/webui_toolbar/webui_toolbar_layout_css_helper.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/branded_strings.h"
@@ -55,6 +63,8 @@
 #include "chrome/grit/contextual_tasks_resources_map.h"
 #include "chrome/grit/generated_resources.h"
 #include "chrome/grit/theme_resources.h"
+#include "chrome/grit/webui_toolbar_shared_resources.h"
+#include "chrome/grit/webui_toolbar_shared_resources_map.h"
 #include "components/contextual_search/contextual_search_metrics_recorder.h"
 #include "components/contextual_search/contextual_search_service.h"
 #include "components/contextual_tasks/public/context_decoration_params.h"
@@ -63,9 +73,11 @@
 #include "components/contextual_tasks/public/prefs.h"
 #include "components/contextual_tasks/public/utils.h"
 #include "components/favicon_base/favicon_url_parser.h"
+#include "components/feature_engagement/public/feature_constants.h"
 #include "components/lens/lens_features.h"
 #include "components/lens/lens_overlay_invocation_source.h"
 #include "components/omnibox/browser/aim_eligibility_service.h"
+#include "components/omnibox/browser/searchbox.mojom-forward.h"
 #include "components/omnibox/common/composebox_features.h"
 #include "components/omnibox/common/logger.h"
 #include "components/omnibox/common/omnibox_features.h"
@@ -97,29 +109,12 @@
 #include "third_party/lens_server_proto/aim_communication.pb.h"
 #include "ui/base/device_form_factor.h"
 #include "ui/base/l10n/l10n_util.h"
+#include "ui/base/resource/resource_bundle.h"
+#include "ui/base/resource/resource_scale_factor.h"
 #include "ui/base/ui_base_features.h"
 #include "ui/webui/buildflags.h"
 #include "ui/webui/tracked_element/tracked_element_handler_document_singleton.h"
 #include "ui/webui/webui_util.h"
-
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#else
-#include "chrome/browser/ui/browser_window.h"
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
-#include "chrome/browser/ui/lens/lens_query_flow_router.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
-#include "chrome/browser/ui/user_education/browser_user_education_interface.h"
-#include "chrome/browser/ui/views/permissions/chip/permission_chip_view.h"
-#include "chrome/browser/ui/views/user_education/browser_help_bubble.h"
-#include "chrome/browser/ui/webui/webui_toolbar/webui_toolbar_layout_css_helper.h"
-#include "chrome/grit/webui_toolbar_shared_resources.h"
-#include "chrome/grit/webui_toolbar_shared_resources_map.h"
-#include "components/feature_engagement/public/feature_constants.h"
-#include "components/omnibox/browser/searchbox.mojom-forward.h"
-#include "ui/base/resource/resource_bundle.h"
-#include "ui/base/resource/resource_scale_factor.h"
-#endif
 
 #if !BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/grit/guest_view_shared_resources_map.h"  // nogncheck
@@ -142,11 +137,7 @@ void UpdateDarkModePreferenceForWebContents(content::WebContents* wc,
 }
 
 bool IsUserFeedbackAllowed(Profile* profile) {
-#if BUILDFLAG(IS_ANDROID)
-  return profile->GetPrefs()->GetBoolean(prefs::kUserFeedbackAllowed);
-#else
   return true;
-#endif
 }
 
 std::string GetEncodedHandshakeMessage() {
@@ -305,7 +296,6 @@ ContextualTasksUI::ContextualTasksUI(content::WebUI* web_ui)
                   web_ui->GetWebContents()->GetBrowserContext()))) {
   Profile* profile = Profile::FromWebUI(web_ui);
 
-#if !BUILDFLAG(IS_ANDROID)
   // This hints the IPH system to use the webui help bubble factory. It is
   // necessary to avoid floating a Views bubble when side paneled (cobrowse)
   // because the webui modal dialog can only work well with a help bubble
@@ -315,7 +305,6 @@ ContextualTasksUI::ContextualTasksUI(content::WebUI* web_ui)
           ForceWebUIHelpBubbles::FromWebContents(web_ui->GetWebContents())) {
     forced->SetForceWebUIForAnchors({kSmartTabSharingMenuItemElementId});
   }
-#endif
 
   // In MPArch, a single webcontents is used to host multiple frame trees rather
   // than having a separate webcontents for each. In that case there's no need
@@ -382,7 +371,6 @@ ContextualTasksUI::ContextualTasksUI(content::WebUI* web_ui)
   source->AddLocalizedStrings(SearchboxHandler::GetWebUIDataSourceDict(
       profile, {.enable_voice_search = true,
                 .session_allows_drag_and_drop = session_allows_drag_and_drop}));
-#if !BUILDFLAG(IS_ANDROID)
   std::optional<lens::LensOverlayInvocationSource> invocation_source;
   if (auto* browser = GetBrowser()) {
     if (auto* active_tab = browser->GetActiveTabInterface()) {
@@ -393,7 +381,6 @@ ContextualTasksUI::ContextualTasksUI(content::WebUI* web_ui)
   }
   source->AddBoolean("clearAllInputsWhenSubmittingQuery",
                      ShouldClearAllInputsOnSubmit(invocation_source));
-#endif
 #endif  // BUILDFLAG(ENABLE_WEBUI_CONTEXTUAL_TASKS_COMPOSEBOX)
 
   // Determine and cache tab input support on initialization.
@@ -425,11 +412,9 @@ content::WebUIDataSource* ContextualTasksUI::RegisterWebUIDataSource(
       contextual_tasks::ContextualTasksUIBase::RegisterWebUIDataSource(profile);
   source->AddLocalizedStrings(GetContextualTasksLoadTimeData(profile));
 
-#if !BUILDFLAG(IS_ANDROID)
   // Exposes shared components under "shared/*" (e.g.,
   // shared/permission_chip.js)
   source->AddResourcePaths(kWebuiToolbarSharedResources);
-#endif
 
   return source;
 }
@@ -476,10 +461,8 @@ base::DictValue ContextualTasksUI::GetContextualTasksLoadTimeData(
       {"stsDefaultOnBodyEnd", IDS_STS_IPH_DEFAULT_ON_BODY_END},
       {"stsDefaultOnTurnOn", IDS_STS_IPH_DEFAULT_ON_TURN_ON},
       {"stsDefaultOnNotNow", IDS_STS_IPH_DEFAULT_ON_NOT_NOW},
-#if !BUILDFLAG(IS_ANDROID)
       {"composeboxHintTextLensOverlay",
        IDS_LENS_COMPOSEBOX_HINT_TEXT_SELECT_PAGE},
-#endif
       {"lensRegionChipLabel", IDS_CONTEXTUAL_TASKS_LENS_REGION_CHIP_LABEL},
       {"lensRegionChipDismissLabel",
        IDS_CONTEXTUAL_TASKS_LENS_REGION_CHIP_DISMISS_LABEL},
@@ -497,7 +480,7 @@ base::DictValue ContextualTasksUI::GetContextualTasksLoadTimeData(
   dict.Merge(SearchboxHandler::GetWebUIDataSourceDict(
       profile, {.enable_voice_search = true,
                 .session_allows_drag_and_drop = session_allows_drag_and_drop}));
-  dict.Set("composeboxSmartTabSharingSupported", !BUILDFLAG(IS_ANDROID));
+  dict.Set("composeboxSmartTabSharingSupported", !false);
 #endif  // BUILDFLAG(ENABLE_WEBUI_CONTEXTUAL_TASKS_COMPOSEBOX)
 
   int stsDefaultOnHeaderId = IDS_STS_IPH_DEFAULT_ON_HEADER;
@@ -537,8 +520,7 @@ base::DictValue ContextualTasksUI::GetContextualTasksLoadTimeData(
 
   dict.Set("onboardingLinkUrl",
            contextual_tasks::GetContextualTasksOnboardingTooltipHelpUrl());
-  dict.Set("askGHelpUrl",
-           contextual_tasks::GetContextualTasksTabHelpUrl());
+  dict.Set("askGHelpUrl", contextual_tasks::GetContextualTasksTabHelpUrl());
   dict.Set("composeboxImageFileTypes",
            contextual_tasks::kContextualTasksNextboxImageFileTypes.Get());
   dict.Set("composeboxAttachmentFileTypes",
@@ -552,17 +534,12 @@ base::DictValue ContextualTasksUI::GetContextualTasksLoadTimeData(
 
   dict.Set("nlmUrlParam", contextual_tasks::GetContextualTasksNlmUrlParam());
   dict.Set("enableCustomNlmUi", contextual_tasks::IsCustomNlmUiEnabled());
-#if !BUILDFLAG(IS_ANDROID)
   dict.Set(
       "webUIOmniboxAskGAboutThisPageEnabled",
       base::FeatureList::IsEnabled(omnibox::kWebUIOmniboxAskGAboutThisPage));
   dict.Set(
       "contextualTasksUpdatedEntryPointsEnabled",
       contextual_tasks::AreContextualTasksUpdatedEntryPointsEnabled(profile));
-#else
-  dict.Set("webUIOmniboxAskGAboutThisPageEnabled", false);
-  dict.Set("contextualTasksUpdatedEntryPointsEnabled", false);
-#endif
 
   dict.Set("composeboxFileMaxSize",
            contextual_tasks::kContextualTasksNextboxMaxFileSize.Get());
@@ -605,14 +582,13 @@ base::DictValue ContextualTasksUI::GetContextualTasksLoadTimeData(
       profile->GetPrefs()->GetInteger(
           contextual_tasks::kContextualTasksOnboardingTooltipDismissedCount) <
           contextual_tasks::GetContextualTasksOnboardingTooltipDismissedCap());
+  dict.Set("isAskGTooltipDismissCountBelowCap",
+           profile->GetPrefs()->GetInteger(
+               contextual_tasks::kContextualTasksAskGTooltipDismissedCount) <
+               contextual_tasks::GetContextualTasksAskGTooltipDismissedCap());
   dict.Set(
-      "isAskGTooltipDismissCountBelowCap",
-      profile->GetPrefs()->GetInteger(
-          contextual_tasks::kContextualTasksAskGTooltipDismissedCount) <
-          contextual_tasks::GetContextualTasksAskGTooltipDismissedCap());
-  dict.Set("askGTooltipSessionImpressionCap",
-           contextual_tasks::
-               GetContextualTasksAskGTooltipSessionImpressionCap());
+      "askGTooltipSessionImpressionCap",
+      contextual_tasks::GetContextualTasksAskGTooltipSessionImpressionCap());
   dict.Set("askGCoBrowseEnabled", omnibox::kAskGCoBrowse.Get());
   dict.Set("clearAllInputsWhenSubmittingQuery",
            ShouldClearAllInputsOnSubmit(std::nullopt));
@@ -655,18 +631,7 @@ base::DictValue ContextualTasksUI::GetContextualTasksLoadTimeData(
   dict.Set("enableFileHint", contextual_tasks::GetEnableFileHint());
   dict.Set("windowTrackingEnabled",
            contextual_tasks::GetIsContextualTasksWindowTrackingEnabled());
-  dict.Set("supportsLensButtonInComposebox", !BUILDFLAG(IS_ANDROID));
-  // Android delegates voice search to the platform recognition activity.
-  // Desktop Android can opt into the in-panel WebUI voice search UI instead;
-  // phone and tablet Clank always stay on the platform path.
-  const bool use_webui_voice_search =
-      contextual_tasks::IsAndroidDesktopFormFactor() &&
-      contextual_tasks::
-          GetIsContextualTasksWebUiVoiceSearchDesktopAndroidEnabled();
-  dict.Set("isSystemVoiceSearchEnabled",
-           !!BUILDFLAG(IS_ANDROID) && !use_webui_voice_search);
-  // Drives audio wave simulation in the WebUI voice search UI in side panel.
-  dict.Set("androidSpeechRecognition", use_webui_voice_search);
+  dict.Set("supportsLensButtonInComposebox", !false);
   dict.Set("isUserFeedbackAllowed", IsUserFeedbackAllowed(profile));
   dict.Set("enableComposeboxJumpFix",
            contextual_tasks::GetEnableComposeboxJumpFix());
@@ -731,7 +696,6 @@ base::DictValue ContextualTasksUI::GetContextualTasksLoadTimeData(
       "energyEffectEnabled",
       base::FeatureList::IsEnabled(contextual_tasks::kEnergyEffectInNextbox));
 
-
   dict.Set("smartTabSharingEnabled",
            contextual_tasks::ContextualTasksContextService::
                GetIsSmartTabSharingEnabled(profile));
@@ -751,13 +715,11 @@ base::DictValue ContextualTasksUI::GetContextualTasksLoadTimeData(
 // static
 bool ContextualTasksUI::ShouldClearAllInputsOnSubmit(
     std::optional<lens::LensOverlayInvocationSource> invocation_source) {
-#if !BUILDFLAG(IS_ANDROID)
   if (invocation_source.has_value() &&
       invocation_source.value() ==
           lens::LensOverlayInvocationSource::kOmniboxPageAction) {
     return false;
   }
-#endif
   // If context management in composebox is enabled, do not wipe restored tabs
   // on submit.
   if (base::FeatureList::IsEnabled(omnibox::kContextManagementInComposebox)) {
@@ -779,7 +741,6 @@ void ContextualTasksUI::CreatePageHandler(
       std::move(page_handler), this, ui_service_, contextual_tasks_service_,
       GetPanelController());
 
-#if !BUILDFLAG(IS_ANDROID)
   // Determine if the Lens overlay is showing when the page is created.
   if (auto* browser = GetBrowser()) {
     if (auto* tab = browser->GetActiveTabInterface()) {
@@ -790,7 +751,6 @@ void ContextualTasksUI::CreatePageHandler(
       }
     }
   }
-#endif
   // If a task is already active when the page handler is created (e.g., on
   // page reload), restore the WebUI state by pushing the task details. If the
   // inner frame URL is not yet available, fallback to the task's creation URL.
@@ -913,7 +873,6 @@ void ContextualTasksUI::SetIsAiPage(bool is_ai_page) {
   if (is_ai_page && !was_ai_page_ && !IsCoBrowseOmniboxAction()) {
     auto* browser = GetBrowser();
     if (browser) {
-#if !BUILDFLAG(IS_ANDROID)
       if (auto* tab = browser->GetActiveTabInterface()) {
         if (auto* controller =
                 LensSearchController::FromTabWebContents(tab->GetContents())) {
@@ -921,7 +880,6 @@ void ContextualTasksUI::SetIsAiPage(bool is_ai_page) {
               lens::LensOverlayDismissalSource::kContextualTasksQuerySubmitted);
         }
       }
-#endif
     }
   }
   was_ai_page_ = is_ai_page;
@@ -973,10 +931,6 @@ bool ContextualTasksUI::IsShownInTab() {
   tabs::TabInterface* tab =
       tabs::TabInterface::MaybeGetFromContents(web_ui()->GetWebContents());
   bool is_in_tab = (tab != nullptr);
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, verify this WebUI is the primary contents of the tab.
-  is_in_tab = tab && web_ui()->GetWebContents() == tab->GetContents();
-#endif
 
   return is_in_tab;
 }
@@ -1010,15 +964,12 @@ void ContextualTasksUI::BindInterface(
       std::move(pending_receiver));
 }
 
-
 bool ContextualTasksUIConfig::IsWebUIEnabled(
     content::BrowserContext* browser_context) {
   // Keep Contextual Tasks disabled for incognito profiles unless Lens Side
-  // Panel Unification is enabled or signed-out users are allowed on Desktop
-  // Android.
+  // Panel Unification is enabled.
   if (browser_context->IsOffTheRecord() &&
-      !lens::features::IsLensSidePanelUnificationEnabled() &&
-      !contextual_tasks::IsAllowSignedOutUserInDesktopAndroidEnabled()) {
+      !lens::features::IsLensSidePanelUnificationEnabled()) {
     return false;
   }
   return contextual_tasks::IsContextualTasksUIEnabled();
@@ -1217,9 +1168,6 @@ void ContextualTasksUI::ShowThreadHistory() {
 }
 
 void ContextualTasksUI::MaybeTriggerPinningPromo() {
-#if BUILDFLAG(IS_ANDROID)
-  return;
-#else
   // Side panel is open & pinning/ephemeral button eligibility is active.
   auto* panel_controller = GetPanelController();
   if (!panel_controller || !panel_controller->IsPanelOpenForContextualTask() ||
@@ -1274,7 +1222,6 @@ void ContextualTasksUI::MaybeTriggerPinningPromo() {
   BrowserUserEducationInterface::From(browser_window)
       ->MaybeShowFeaturePromo(
           feature_engagement::kIPHSidePanelContextualTasksPinnableFeature);
-#endif
 }
 
 void ContextualTasksUI::PostAimMessage(
@@ -1357,7 +1304,6 @@ void ContextualTasksUI::OnContextRetrievedForActiveTab(
   bool is_tab_already_in_context =
       context &&
       context->ContainsURL(last_committed_url, url_duplication_helper.get());
-#if !BUILDFLAG(IS_ANDROID)
   if (is_tab_already_in_context) {
     if (auto* controller =
             LensSearchController::FromTabWebContents(tab->GetContents())) {
@@ -1371,7 +1317,6 @@ void ContextualTasksUI::OnContextRetrievedForActiveTab(
       }
     }
   }
-#endif
   if (!is_tab_already_in_context && composebox_handler_) {
     const auto* current_suggestion =
         auto_suggestion_manager_->GetCurrentSuggestion();
@@ -1517,22 +1462,6 @@ void ContextualTasksUI::OnLensOverlayStateChanged(
 
 bool ContextualTasksUI::IsLensOverlayShowing() const {
   return is_lens_overlay_showing_;
-}
-
-void ContextualTasksUI::StartPlatformVoiceRecognition() {
-  ui_service_->StartPlatformVoiceRecognition(GetBrowser(),
-                                             GetWebUIWebContents());
-}
-
-void ContextualTasksUI::OnVoiceTranscribed(const std::string& query) {
-  auto& page = GetPageRemote();
-  if (!page.is_bound()) {
-    return;
-  }
-  auto input = contextual_tasks::mojom::InjectedInput::New();
-  input->query_text = query;
-  input->submit_after_injection = true;
-  page->InjectInput(std::move(input));
 }
 
 bool ContextualTasksUI::CanUpdateSuggestedTabContext(
@@ -1795,14 +1724,6 @@ void ContextualTasksUI::FrameNavObserver::DidFinishNavigation(
   bool is_ai_page = ui_service_->IsAiUrl(url);
   task_info_delegate_->SetIsAiPage(is_ai_page);
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, the toolbar needs to be explicitly notified to refresh its
-  // display URL when the inner frame navigates, as the main tab's URL
-  // (chrome://contextual-tasks) hasn't changed.
-  CHECK(web_contents());
-  web_contents()->NotifyNavigationStateChanged(content::INVALIDATE_TYPE_URL);
-#endif
-
   bool in_nlm = false;
   std::string value;
   if (net::GetValueForKeyInQuery(
@@ -1818,11 +1739,6 @@ void ContextualTasksUI::FrameNavObserver::DidFinishNavigation(
   // Set whether this navigation is to a zero state so the UI can adjust
   // accordingly.
   bool is_zero_state = ContextualTasksUI::IsZeroState(url, ui_service_);
-  if (contextual_tasks::IsAndroidMobileFormFactor() && is_zero_state &&
-      task_info_delegate_->GetThreadTitle().has_value() &&
-      !task_info_delegate_->GetThreadTitle()->empty()) {
-    is_zero_state = false;
-  }
 
   // Record the HTTP response code of the inner frame contents if response
   // headers are available.
@@ -2165,12 +2081,10 @@ void ContextualTasksUI::OnTaskChanged() {
 }
 
 void ContextualTasksUI::UpdateExpandButtonEnabled(bool enabled) {
-#if !BUILDFLAG(IS_ANDROID)
   if (contextual_tasks_toolbar::mojom::Page* toolbar_page =
           GetToolbarPageRemote()) {
     toolbar_page->SetExpandButtonEnabled(enabled);
   }
-#endif
 }
 
 void ContextualTasksUI::OnRestoredTabsFetched(
@@ -2181,7 +2095,6 @@ void ContextualTasksUI::OnRestoredTabsFetched(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // static
 // Favicons for WebUI pages are only used on desktop builds.
 scoped_refptr<base::RefCountedMemory>
@@ -2197,7 +2110,6 @@ ContextualTasksUI::GetFaviconResourceBytes(
   return ui::ResourceBundle::GetSharedInstance().LoadDataResourceBytesForScale(
       kId, scale_factor);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void ContextualTasksUI::SyncZoom(bool site_to_webui) {
   if (tracked_zoom_host_.empty()) {

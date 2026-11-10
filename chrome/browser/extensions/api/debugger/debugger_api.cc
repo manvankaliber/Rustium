@@ -69,9 +69,6 @@
 #include "url/origin.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/extensions/api/debugger/extension_dev_tools_message_delegate.h"
-#else
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/api/debugger/extension_dev_tools_infobar_delegate.h"
 #include "chrome/browser/infobars/browser_infobar_manager.h"
@@ -80,7 +77,6 @@
 #include "chrome/grit/generated_resources.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/strings/grit/ui_strings.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "chrome/browser/devtools/chrome_devtools_manager_delegate.h"
@@ -107,11 +103,6 @@ namespace OnDetach = extensions::api::debugger::OnDetach;
 namespace OnEvent = extensions::api::debugger::OnEvent;
 namespace SendCommand = extensions::api::debugger::SendCommand;
 
-#if BUILDFLAG(IS_ANDROID)
-namespace ui {
-class WindowAndroid;
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace extensions {
 class ExtensionRegistry;
@@ -599,15 +590,9 @@ class ExtensionDevToolsClientHost : public content::DevToolsAgentHostClient,
   std::string GetTypeForMetrics() override { return "Extension"; }
 
   bool Attach();
-#if BUILDFLAG(IS_ANDROID)
-  // Creates the "Foo started debugging this browser" warning. Android uses
-  // the messages API for this.
-  void CreateWarningMessage();
-#else
   // Creates the "Foo started debugging this browser" warning.
   // Win/Mac/Linux/Chrome OS use the infobar API for this.
   void CreateWarningInfobar();
-#endif
   const ExtensionId& extension_id() { return extension_->id(); }
   DevToolsAgentHost* agent_host() { return agent_host_.get(); }
   void RespondDetachedToPendingRequests();
@@ -658,13 +643,8 @@ class ExtensionDevToolsClientHost : public content::DevToolsAgentHostClient,
   base::CallbackListSubscription on_app_terminating_subscription_;
   int last_request_id_ = 0;
   PendingRequests pending_requests_;
-#if BUILDFLAG(IS_ANDROID)
-  // Android uses the messages API for warnings.
-  std::unique_ptr<ExtensionDevToolsMessageDelegate> warning_message_;
-#else
   // Win/Mac/Linux/Chrome OS use the infobar API for warnings.
   base::CallbackListSubscription warning_infobar_subscription_;
-#endif
   api::debugger::DetachReason detach_reason_ =
       api::debugger::DetachReason::kTargetClosed;
 
@@ -726,11 +706,7 @@ bool ExtensionDevToolsClientHost::Attach() {
       Manifest::IsPolicyLocation(extension_->location());
 
   if (!suppress_warning) {
-#if BUILDFLAG(IS_ANDROID)
-    CreateWarningMessage();
-#else
     CreateWarningInfobar();
-#endif
   }
 
   if (extension_service_worker_id_) {
@@ -748,28 +724,6 @@ bool ExtensionDevToolsClientHost::Attach() {
   return true;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Android uses the messages API for the warning message.
-void ExtensionDevToolsClientHost::CreateWarningMessage() {
-  if (warning_message_) {
-    // Already open.
-    return;
-  }
-  WebContents* web_contents = agent_host_->GetWebContents();
-  if (!web_contents) {
-    return;
-  }
-  ui::WindowAndroid* window = web_contents->GetTopLevelNativeWindow();
-  if (!window) {
-    return;
-  }
-  warning_message_ = std::make_unique<ExtensionDevToolsMessageDelegate>(
-      extension_->name(),
-      base::BindOnce(&ExtensionDevToolsClientHost::WarningUiDestroyed,
-                     base::Unretained(this)));
-  warning_message_->Show(window);
-}
-#else
 // Win/Mac/Linux/Chrome OS use the infobar API for the warning message.
 void ExtensionDevToolsClientHost::CreateWarningInfobar() {
   if (infobars::IsInfoBarMigrated(
@@ -783,18 +737,15 @@ void ExtensionDevToolsClientHost::CreateWarningInfobar() {
                        base::Unretained(this)));
   }
 }
-#endif  // BUILDFLAG(IS_ANDROID)
 
 ExtensionDevToolsClientHost::~ExtensionDevToolsClientHost() {
   GetAttachedClientHosts().erase(this);
 
-#if !BUILDFLAG(IS_ANDROID)
   if (infobars::IsInfoBarMigrated(
           infobars::InfoBarDelegate::EXTENSION_DEV_TOOLS_INFOBAR_DELEGATE)) {
     ExtensionDevToolsInfoBarController::GetInstance()->OnClientHostDetached(
         this);
   }
-#endif
 
   // Decrement the associated worker keepalive, if any.
   if (service_worker_keepalive_) {
@@ -1171,7 +1122,6 @@ std::u16string GetExtensionNameForDevToolsWarning(
   return name;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // static
 ExtensionDevToolsInfoBarController*
 ExtensionDevToolsInfoBarController::GetInstance() {
@@ -1238,7 +1188,6 @@ void ExtensionDevToolsInfoBarController::OnClientHostDetached(
         }));
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // DebuggerFunction -----------------------------------------------------------
 

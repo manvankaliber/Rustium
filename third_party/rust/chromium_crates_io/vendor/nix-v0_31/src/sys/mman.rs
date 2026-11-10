@@ -1,10 +1,10 @@
 //! Memory management declarations.
 
 use crate::errno::Errno;
-#[cfg(not(target_os = "android"))]
+
 use crate::NixPath;
 use crate::Result;
-#[cfg(not(target_os = "android"))]
+
 #[cfg(feature = "fs")]
 use crate::{fcntl::OFlag, sys::stat::Mode};
 use libc::{self, c_int, c_void, off_t, size_t};
@@ -603,7 +603,7 @@ pub unsafe fn msync(addr: NonNull<c_void>, length: size_t, flags: MsFlags) -> Re
     unsafe { Errno::result(libc::msync(addr.as_ptr(), length, flags.bits())).map(drop) }
 }
 
-#[cfg(not(target_os = "android"))]
+
 feature! {
 #![feature = "fs"]
 /// Creates and opens a new, or opens an existing, POSIX shared memory object.
@@ -644,7 +644,7 @@ pub fn shm_open<P>(
 /// For more information, see [`shm_unlink(3)`].
 ///
 /// [`shm_unlink(3)`]: https://man7.org/linux/man-pages/man3/shm_unlink.3.html
-#[cfg(not(target_os = "android"))]
+
 pub fn shm_unlink<P: ?Sized + NixPath>(name: &P) -> Result<()> {
     let ret = name.with_nix_path(|cstr| unsafe { libc::shm_unlink(cstr.as_ptr()) })?;
 

@@ -185,7 +185,7 @@ TEST(Suite, MAYBE_Test) {}
     self.disabler_test(
       'TEST(Suite, Test) {}',
       'Suite.Test',
-      ['chromeos'],
+      [],
       '''
 #include "build/build_config.h"
 #if BUILDFLAG(IS_CHROMEOS)

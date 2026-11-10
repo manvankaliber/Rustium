@@ -9,9 +9,7 @@ import 'chrome://resources/cr_elements/cr_icon/cr_icon.js';
 import 'chrome://resources/cr_elements/cr_icon_button/cr_icon_button.js';
 import 'chrome://resources/cr_elements/cr_button/cr_button.js';
 
-// <if expr="not is_android">
 import {ColorChangeUpdater} from '//resources/cr_components/color_change_listener/colors_css_updater.js';
-// </if>
 import {loadTimeData} from '//resources/js/load_time_data.js';
 import {getRequiredElement} from '//resources/js/util.js';
 // <if expr="not enable_extensions_core">
@@ -37,7 +35,6 @@ enum FailureType {
 const TRANSITION_DURATION_MS = 250;
 // Setup target height and width custom properties immediately at load to
 // prevent layout shifts.
-// <if expr="not is_android">
 const defaultHeight =
     loadTimeData.getInteger('glicExperimentalOptInDefaultHeight');
 const defaultWidth =
@@ -50,14 +47,6 @@ document.documentElement.style.setProperty(
 document.documentElement.style.setProperty(
     '--glic-experimental-opt-in-width', `${targetWidth}px`);
 document.body.style.minHeight = `${defaultHeight}px`;
-// </if>
-// <if expr="is_android">
-document.documentElement.classList.add('android');
-document.documentElement.style.setProperty(
-    '--glic-experimental-opt-in-height', '100%');
-document.documentElement.style.setProperty(
-    '--glic-experimental-opt-in-width', '100%');
-// </if>
 document.documentElement.style.setProperty(
     '--glic-transition-duration', `${TRANSITION_DURATION_MS}ms`);
 
@@ -79,16 +68,11 @@ export class ExperimentalOptInApp {
 
   constructor() {
     this.webview_ = getRequiredElement<WebViewType>('webview');
-    // <if expr="not is_android">
     // Allow a small margin of error (±2px) around the target width to prevent
     // subpixel rounding or zoom differences from failing the webview's internal
     // size-changed checks and collapsing the layout.
     this.webview_.setAttribute('minwidth', String(targetWidth - 2));
     this.webview_.setAttribute('maxwidth', String(targetWidth + 2));
-    // </if>
-    // <if expr="is_android">
-    this.webview_.removeAttribute('autosize');
-    // </if>
 
     this.dialogRoot_ = getRequiredElement('dialogRoot');
     this.errorPanel_ = getRequiredElement('errorPanel');
@@ -418,9 +402,7 @@ function getAllowedOriginsParams(optInOrigin: string): OriginCheckParams|null {
 // </if>
 
 function init() {
-  // <if expr="not is_android">
   ColorChangeUpdater.forDocument().start();
-  // </if>
   new ExperimentalOptInApp();
 }
 

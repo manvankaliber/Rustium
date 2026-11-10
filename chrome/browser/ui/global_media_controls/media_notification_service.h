@@ -31,10 +31,6 @@
 #include "mojo/public/cpp/bindings/self_owned_receiver.h"
 #include "services/metrics/public/cpp/ukm_source_id.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/system/media/media_notification_provider.h"
-#include "ash/system/media/media_notification_provider_observer.h"
-#endif
 
 namespace ash {
 class GlobalMediaControlsCastStartTest;
@@ -59,10 +55,6 @@ class MediaNotificationService
       public MediaItemUIDeviceSelectorDelegate,
       public global_media_controls::MediaSessionItemProducerObserver,
       public global_media_controls::mojom::DeviceService
-#if BUILDFLAG(IS_CHROMEOS)
-    ,
-      public ash::MediaNotificationProviderObserver
-#endif
 {
  public:
   MediaNotificationService(Profile* profile, bool show_from_all_profiles);
@@ -137,11 +129,6 @@ class MediaNotificationService
       mojo::PendingRemote<global_media_controls::mojom::DevicePickerProvider>
           provider_remote) override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Show the Global Media Controls dialog in Ash.
-  void ShowDialogAsh(
-      std::unique_ptr<media_router::StartPresentationContext> context);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   bool should_show_cast_local_media_iph() const {
     return iph_state_.should_show_cast_local_media;
@@ -149,12 +136,6 @@ class MediaNotificationService
   void set_device_provider_for_testing(
       std::unique_ptr<MediaNotificationDeviceProvider> device_provider);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // ash::MediaNotificationProviderObserver:
-  void OnMediaNotificationProviderWillBeDestroyed() override;
-  void OnNotificationListChanged() override {}
-  void OnNotificationListViewSizeChanged() override {}
-#endif
 
  private:
   friend class MediaNotificationProviderImplTest;
@@ -266,11 +247,6 @@ class MediaNotificationService
   IphState iph_state_;
   base::OneShotTimer save_video_frame_iph_timer_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  base::ScopedObservation<ash::MediaNotificationProvider,
-                          ash::MediaNotificationProviderObserver>
-      provider_observation_{this};
-#endif
 
   base::WeakPtrFactory<MediaNotificationService> weak_ptr_factory_{this};
 };

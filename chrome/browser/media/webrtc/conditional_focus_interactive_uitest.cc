@@ -93,7 +93,7 @@ class ConditionalFocusInteractiveUiTest : public WebRtcTestBase {
     // MSan and GL do not get along so avoid using the GPU with MSan.
     // TODO(crbug.com/40260482): Remove this after fixing feature
     // detection in 0c tab capture path as it'll no longer be needed.
-#if !BUILDFLAG(IS_CHROMEOS) && !defined(MEMORY_SANITIZER)
+#if !defined(MEMORY_SANITIZER)
     command_line->AppendSwitch(switches::kUseGpuInTests);
 #endif
   }
@@ -360,9 +360,7 @@ IN_PROC_BROWSER_TEST_F(ConditionalFocusInteractiveUiTest,
 
 // TODO(crbug.com/40913269): Flaky on TSan, MSan, and mac bots.
 // TODO(crbug.com/570576679): Flaky on Linux ChromiumOS MSan bots.
-#if (BUILDFLAG(IS_LINUX) &&                                       \
-     (defined(THREAD_SANITIZER) || defined(MEMORY_SANITIZER))) || \
-    (BUILDFLAG(IS_CHROMEOS) && defined(MEMORY_SANITIZER)) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) && (defined(THREAD_SANITIZER) || defined(MEMORY_SANITIZER)) || BUILDFLAG(IS_MAC)
 #define MAYBE_NoFocusBeforeCapture DISABLED_NoFocusBeforeCapture
 #else
 #define MAYBE_NoFocusBeforeCapture NoFocusBeforeCapture
@@ -395,8 +393,7 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // TODO(crbug.com/40913269): Flaky on a TSan and MSan bot.
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && \
-    (defined(THREAD_SANITIZER) || defined(MEMORY_SANITIZER))
+#if BUILDFLAG(IS_LINUX) && (defined(THREAD_SANITIZER) || defined(MEMORY_SANITIZER))
 #define MAYBE_FocusAfterCaptureOverrideNoFocusBeforeCapture \
   DISABLED_FocusAfterCaptureOverrideNoFocusBeforeCapture
 #else

@@ -566,9 +566,6 @@ class WPTAdapter:
             return exit_codes.UNEXPECTED_ERROR_EXIT_STATUS
 
     def _run_tests(self) -> int:
-        if self.product.name == 'chrome_ios':
-            # Xcode needs to be installed early so that `git clone` works.
-            _maybe_install_xcode(self.options.xcode_build_version)
         if self.options.use_upstream_wpt:
             self.checkout_upstream_wpt()
         self.set_up_derived_options()
@@ -774,8 +771,6 @@ def parse_arguments(argv):
     command_line.add_logging_options_group(parser)
     command_line.add_results_options_group(parser, rwt=False)
     command_line.add_testing_options_group(parser, rwt=False)
-    command_line.add_android_options_group(parser)
-    command_line.add_ios_options_group(parser)
 
     parser.add_argument(
         'tests', nargs='*', help='Paths to test files or directories to run'
@@ -786,23 +781,6 @@ def parse_arguments(argv):
     return options, args
 
 
-def _maybe_install_xcode(build_version: str | None):
-    if not build_version:
-        logger.warning('Skipping Xcode installation (no build version given)')
-        return
-
-    path_finder.add_build_ios_to_sys_path()
-    import xcode_util
-
-    xcode_util.install_xcode(
-        '../../mac_toolchain',
-        build_version,
-        '../../Xcode.app',
-        '../../Runtime-ios-',
-        product.IOS_DEVICE,
-        product.IOS_VERSION,
-    )
-    logger.info('Xcode build version %s successfully installed.', build_version)
 
 
 def main(argv) -> int:

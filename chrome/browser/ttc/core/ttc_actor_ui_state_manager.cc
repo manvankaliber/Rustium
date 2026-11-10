@@ -22,9 +22,7 @@ void TtcActorUiStateManager::OnUiEvent(actor::ui::AsyncUiEvent event,
 
 void TtcActorUiStateManager::OnUiEvent(actor::ui::SyncUiEvent event) {}
 
-#if !BUILDFLAG(IS_ANDROID)
 void TtcActorUiStateManager::LazyInitTabTracker() {}
-#endif
 
 base::WeakPtr<actor::ActorNavigationThrottle::Delegate>
 TtcActorUiStateManager::GetNavigationDelegate() {

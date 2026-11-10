@@ -24,7 +24,7 @@ cfg_if! {
         unsafe fn errno_location() -> *mut c_int {
             unsafe { libc::__error() }
         }
-    } else if #[cfg(any(target_os = "android", netbsdlike, target_os = "cygwin"))] {
+    } else if #[cfg(any(netbsdlike, target_os = "cygwin"))] {
         unsafe fn errno_location() -> *mut c_int {
             unsafe { libc::__errno() }
         }
@@ -922,9 +922,9 @@ mod consts {
         EKEYREJECTED = libc::EKEYREJECTED,
         EOWNERDEAD = libc::EOWNERDEAD,
         ENOTRECOVERABLE = libc::ENOTRECOVERABLE,
-        #[cfg(not(any(target_os = "android", target_arch = "mips")))]
+        #[cfg(not(target_arch = "mips"))]
         ERFKILL = libc::ERFKILL,
-        #[cfg(not(any(target_os = "android", target_arch = "mips")))]
+        #[cfg(not(target_arch = "mips"))]
         EHWPOISON = libc::EHWPOISON,
     }
 
@@ -1068,9 +1068,9 @@ mod consts {
             libc::EKEYREJECTED => EKEYREJECTED,
             libc::EOWNERDEAD => EOWNERDEAD,
             libc::ENOTRECOVERABLE => ENOTRECOVERABLE,
-            #[cfg(not(any(target_os = "android", target_arch = "mips")))]
+            #[cfg(not(target_arch = "mips"))]
             libc::ERFKILL => ERFKILL,
-            #[cfg(not(any(target_os = "android", target_arch = "mips")))]
+            #[cfg(not(target_arch = "mips"))]
             libc::EHWPOISON => EHWPOISON,
             _ => UnknownErrno,
         }

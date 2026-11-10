@@ -27,9 +27,6 @@
 #include "third_party/blink/renderer/platform/wtf/functional.h"
 #include "ui/display/screen_info.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "third_party/blink/public/platform/platform.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #undef atan2  // to use std::atan2 instead of wtf_atan2
 #undef fmod   // to use std::fmod instead of wtf_fmod
@@ -165,17 +162,7 @@ void MediaControlsOrientationLockDelegate::MaybeListenToDeviceOrientation() {
   }
 
 // Check whether the user locked screen orientation at the OS level.
-#if BUILDFLAG(IS_ANDROID)
-  DCHECK(!monitor_.is_bound());
-  Platform::Current()->GetBrowserInterfaceBroker()->GetInterface(
-      monitor_.BindNewPipeAndPassReceiver(
-          GetDocument().GetTaskRunner(TaskType::kMediaElementEvent)));
-  monitor_->IsAutoRotateEnabledByUser(BindOnce(
-      &MediaControlsOrientationLockDelegate::GotIsAutoRotateEnabledByUser,
-      WrapPersistent(this)));
-#else
   GotIsAutoRotateEnabledByUser(true);  // Assume always enabled on other OSes.
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void MediaControlsOrientationLockDelegate::GotIsAutoRotateEnabledByUser(

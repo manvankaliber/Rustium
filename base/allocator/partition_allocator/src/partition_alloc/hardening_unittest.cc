@@ -111,7 +111,6 @@ TEST(HardeningTest, MetadataPointerCrashing) {
 // Below test also misbehaves on Android; as above, death tests don't
 // quite work (crbug.com/1240184), and having free slot bitmaps enabled
 // force the expectations below to crash.
-#if !PA_BUILDFLAG(IS_ANDROID)
 
 TEST(HardeningTest, SuccessfulCorruption) {
   PartitionOptions opts;
@@ -150,7 +149,6 @@ TEST(HardeningTest, SuccessfulCorruption) {
   EXPECT_DEATH_IF_SUPPORTED(root.Alloc(kAllocSize), "");
 #endif  // !PA_BUILDFLAG(DCHECKS_ARE_ON)
 }
-#endif  // !PA_BUILDFLAG(IS_ANDROID)
 
 #if PA_BUILDFLAG(HAS_64_BIT_POINTERS)
 #if PA_USE_DEATH_TESTS() && PA_CONFIG(HAS_FREELIST_SHADOW_ENTRY)
@@ -203,7 +201,6 @@ TEST(HardeningTest, PoolOffsetMetadataPointerCrashing) {
 }
 #endif  // PA_USE_DEATH_TESTS() && PA_CONFIG(HAS_FREELIST_SHADOW_ENTRY)
 
-#if !PA_BUILDFLAG(IS_ANDROID)
 
 TEST(HardeningTest, PoolOffsetSuccessfulCorruption) {
   PartitionRoot root(PartitionOptions{});
@@ -245,7 +242,6 @@ TEST(HardeningTest, PoolOffsetSuccessfulCorruption) {
 
 #endif  // !PA_BUILDFLAG(DCHECKS_ARE_ON)
 }
-#endif  // !PA_BUILDFLAG(IS_ANDROID)
 #endif  // PA_BUILDFLAG(HAS_64_BIT_POINTERS)
 }  // namespace
 }  // namespace partition_alloc::internal

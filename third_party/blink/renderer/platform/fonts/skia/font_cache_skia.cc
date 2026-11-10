@@ -97,7 +97,7 @@ const FontPlatformData* CreateFontPlatformDataForTypeface(
 }
 }  // namespace
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 // static
 const FontPlatformData* FontCache::CreateFontPlatformDataForCharacter(
     SkFontMgr* fm,
@@ -228,7 +228,7 @@ const SimpleFontData* FontCache::GetLastResortFallbackFont(
   }
 #endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   if (!font_platform_data) {
     // At least try to match locale.
     font_platform_data = FontCache::CreateFontPlatformDataForCharacter(
@@ -277,7 +277,7 @@ sk_sp<SkTypeface> FontCache::CreateTypeface(
     const FontDescription& font_description,
     const FontFaceCreationParams& creation_params,
     std::string& name) {
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_WIN)
   // TODO(fuchsia): Revisit this and other font code for Fuchsia.
 
   if (creation_params.CreationType() ==
@@ -296,16 +296,6 @@ sk_sp<SkTypeface> FontCache::CreateTypeface(
   // convert the name to utf8
   name = family.Utf8();
 
-#if BUILDFLAG(IS_ANDROID)
-  // If this is a locale-specific family, try looking up locale-specific
-  // typeface first.
-  if (const char* locale_family = GetLocaleSpecificFamilyName(family)) {
-    if (sk_sp<SkTypeface> typeface =
-            CreateLocaleSpecificTypeface(font_description, locale_family)) {
-      return typeface;
-    }
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   sk_sp<SkTypeface> typeface = MatchFamilyStyle(
       name.empty() ? nullptr : name.c_str(), font_description.SkiaFontStyle());
   return typeface;
@@ -320,18 +310,8 @@ const FontPlatformData* FontCache::CreateFontPlatformData(
   std::string name;
 
   sk_sp<SkTypeface> typeface;
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   bool noto_color_emoji_from_gmscore = false;
-#if BUILDFLAG(IS_ANDROID)
-  // Use the unique local matching pathway for fetching Noto Color Emoji Compat
-  // from GMS core if this family is requested, see font_cache_android.cc. Noto
-  // Color Emoji Compat is an up-to-date emoji font shipped with GMSCore which
-  // provides better emoji coverage and emoji sequence support than the firmware
-  // Noto Color Emoji font.
-  noto_color_emoji_from_gmscore =
-      (creation_params.CreationType() == FontFaceCreationType::kFamily &&
-       creation_params.Family() == kNotoColorEmojiCompat);
-#endif
   if (alternate_name == AlternateFontName::kLocalUniqueFace ||
       noto_color_emoji_from_gmscore) {
     typeface = CreateTypefaceFromUniqueName(creation_params);

@@ -109,7 +109,6 @@ Matcher<Suggestion> HasAcceptability(Suggestion::Acceptability acceptability) {
                acceptability);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Matches the screen reader text of a desktop source attribution suggestion:
 // the accessible attribution text followed by the arrow key instructions.
 Matcher<Suggestion> HasSourceAttributionVoiceOver(
@@ -120,7 +119,6 @@ Matcher<Suggestion> HasSourceAttributionVoiceOver(
                    l10n_util::GetStringUTF16(
                        IDS_AUTOFILL_AI_SOURCE_ATTRIBUTION_A11Y_INSTRUCTIONS)));
 }
-#endif
 
 Matcher<Suggestion> SuggestionTypeHasTextAndAcceptability(
     SuggestionType type,
@@ -130,7 +128,6 @@ Matcher<Suggestion> SuggestionTypeHasTextAndAcceptability(
                HasAcceptability(acceptability));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 std::vector<testing::Matcher<Suggestion>> MaybeSuggestedByGeminiTitle() {
   return {AllOf(EqualsSuggestion(SuggestionType::kTitle,
                                  l10n_util::GetStringUTF16(
@@ -140,11 +137,6 @@ std::vector<testing::Matcher<Suggestion>> MaybeSuggestedByGeminiTitle() {
                 Field(&Suggestion::filtration_policy,
                       Suggestion::FiltrationPolicy::kStatic))};
 }
-#else
-std::vector<testing::Matcher<Suggestion>> MaybeSuggestedByGeminiTitle() {
-  return {};
-}
-#endif
 
 // Flattens a mix of individual `testing::Matcher<Suggestion>` (or convertible
 // matchers) and `std::vector<testing::Matcher<Suggestion>>` into a single list
@@ -222,7 +214,6 @@ std::u16string GetDriversLicenseName(const EntityInstance& entity) {
       ->GetCompleteInfo(kAppLocaleUS);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 Source GmailSource(std::string_view url, base::Time timestamp) {
   return Source{.url = GURL(url),
                 .metadata = GmailSourceMetadata{.timestamp = timestamp}};
@@ -232,7 +223,6 @@ Source PhotosSource(std::string_view url, base::Time timestamp) {
   return Source{.url = GURL(url),
                 .metadata = PhotosSourceMetadata{.timestamp = timestamp}};
 }
-#endif
 
 class AutofillAiSuggestionGeneratorTest : public testing::Test {
  public:
@@ -570,22 +560,6 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
   EXPECT_THAT(suggestions[0], HasIcon(Suggestion::Icon::kFlight));
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-// Tests that no icon is set when `kAutofillAiNoFillingIconsExperiment` is
-// enabled.
-TEST_F(AutofillAiSuggestionGeneratorTest,
-       GetFillingSuggestion_FlightReservationEntity_NoIconIfFeatureIsEnabled) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillAiNoFillingIconsExperiment);
-  SetEntities({GetFlightReservationEntityInstanceWithRandomGuid()});
-  SetForm({FLIGHT_RESERVATION_FLIGHT_NUMBER, FLIGHT_RESERVATION_TICKET_NUMBER,
-           FLIGHT_RESERVATION_CONFIRMATION_CODE});
-
-  std::vector<Suggestion> suggestions =
-      CreateAutofillAiFillingSuggestions(field(0));
-  EXPECT_THAT(suggestions[0], HasIcon(Suggestion::Icon::kNoIcon));
-}
-#endif
 
 TEST_F(AutofillAiSuggestionGeneratorTest,
        GetFillingSuggestion_PersonalContextEntity_UseSparkIcon) {
@@ -596,12 +570,8 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
 
   std::vector<Suggestion> suggestions =
       CreateAutofillAiFillingSuggestions(field(0));
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   EXPECT_EQ(suggestions[0].type, SuggestionType::kTitle);
   EXPECT_THAT(suggestions[1], HasIcon(Suggestion::Icon::kFlightSpark));
-#else
-  EXPECT_THAT(suggestions[0], HasIcon(Suggestion::Icon::kFlightSpark));
-#endif
 }
 
 TEST_F(
@@ -613,12 +583,8 @@ TEST_F(
 
   std::vector<Suggestion> suggestions =
       CreateAutofillAiFillingSuggestions(field(0));
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   EXPECT_EQ(suggestions[0].type, SuggestionType::kTitle);
   EXPECT_THAT(suggestions[1], HasIcon(Suggestion::Icon::kPassportSpark));
-#else
-  EXPECT_THAT(suggestions[0], HasIcon(Suggestion::Icon::kPassportSpark));
-#endif
 }
 
 TEST_F(
@@ -654,7 +620,6 @@ TEST_F(
                         HasLabels(u"Passport · Harry Potter"))));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(AutofillAiSuggestionGeneratorTest,
        GetFillingSuggestion_PersonalContext_HideSuggestion) {
   base::test::ScopedFeatureList scoped_feature_list(
@@ -1206,7 +1171,6 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
                                              passport_personal_context.guid())),
                         ChildrenAre())));
 }
-#endif
 
 TEST_F(AutofillAiSuggestionGeneratorTest, GetFillingSuggestion_PrefixMatching) {
   EntityInstance passport_prefix_matches =
@@ -1878,15 +1842,9 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
   client()
       .GetPersonalContextFirstRunService()
       ->set_should_show_ambient_autofill_notice(true);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  EXPECT_THAT(
-      CreateAutofillAiFillingSuggestions(field(0)),
-      Not(Contains(EqualsSuggestion(SuggestionType::kPersonalContextNotice))));
-#else
   EXPECT_THAT(
       CreateAutofillAiFillingSuggestions(field(0)),
       Contains(EqualsSuggestion(SuggestionType::kPersonalContextNotice)));
-#endif
 }
 
 // Tests that a kPersonalContextNotice suggestion is not appended if the
@@ -3103,7 +3061,6 @@ TEST_F(AutofillAiPrivateInferenceNoticeSuggestionGeneratorTest,
                   SuggestionType::kAutofillAiPrivateInferenceNotice)));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(AutofillAiPrivateInferenceNoticeSuggestionGeneratorTest,
        PrivateInferenceNoticeNotShownWhenPersonalContextNoticeIsAdded) {
   base::test::ScopedFeatureList scoped_feature_list(
@@ -3126,7 +3083,6 @@ TEST_F(AutofillAiPrivateInferenceNoticeSuggestionGeneratorTest,
               Not(Contains(EqualsSuggestion(
                   SuggestionType::kAutofillAiPrivateInferenceNotice))));
 }
-#endif
 
 TEST_F(AutofillAiPrivateInferenceNoticeSuggestionGeneratorTest,
        PrivateInferenceNoticeNotShownWhenAmbientAutofillShownButNotAcked) {

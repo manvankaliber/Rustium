@@ -34,11 +34,7 @@ BASE_FEATURE_PARAM(bool,
 // the minimum memory setting of 2GB, we should set it to a value greater than
 // 2GB, since DSEPrewarm uses Prerender2 feature as well.
 static constexpr int kDSEPrearmDefaultMemoryThresholdMb =
-#if BUILDFLAG(IS_ANDROID)
-    1700;
-#else
     0;
-#endif
 BASE_FEATURE_PARAM(int,
                    kMinMemoryThresholdMb,
                    &kPrewarm,

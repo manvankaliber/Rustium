@@ -723,7 +723,6 @@ TEST_F(StyleEnvironmentVariablesTest, TwoDimensionalVariables_Removal) {
                                GetCSSPropertyBackgroundColor()));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(StyleEnvironmentVariablesTest, TitlebarArea_AfterLoad) {
   // This test asserts that the titlebar area environment variables should be
   // loaded when UpdateWindowControlsOverlay is invoked in LocalFrame for PWAs
@@ -807,7 +806,6 @@ TEST_F(StyleEnvironmentVariablesTest, TitlebarArea_AfterNavigation) {
   EXPECT_TRUE(data);
   EXPECT_EQ(data->Serialize(), "10px");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(StyleEnvironmentVariablesTest, TargetedInvalidation) {
   GetDocument().body()->SetInnerHTMLWithoutTrustedTypes(R"HTML(

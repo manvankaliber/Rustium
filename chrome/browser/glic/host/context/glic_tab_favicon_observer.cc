@@ -14,11 +14,7 @@
 #include "chrome/browser/profiles/profile.h"
 #include "components/tabs/public/tab_interface.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/glic/host/context/favicon_impl/glic_tab_favicon_adapter_android.h"
-#else
 #include "chrome/browser/glic/host/context/favicon_impl/glic_tab_favicon_adapter_desktop.h"
-#endif
 
 namespace glic {
 
@@ -31,11 +27,7 @@ class GlicTabFaviconObserver::TabObserver {
     will_detach_subscription_ = tab_->RegisterWillDetach(base::BindRepeating(
         &TabObserver::OnWillDetach, base::Unretained(this)));
 
-#if BUILDFLAG(IS_ANDROID)
-    adapter_ = std::make_unique<FaviconAdapterAndroid>(tab_, &notifier_);
-#else
     adapter_ = std::make_unique<FaviconAdapterDesktop>(tab_, &notifier_);
-#endif
   }
 
   ~TabObserver() = default;
@@ -46,11 +38,6 @@ class GlicTabFaviconObserver::TabObserver {
 
   bool HasReceivers() const { return !notifier_.receivers().empty(); }
 
-#if BUILDFLAG(IS_ANDROID)
-  TabFavicon::Observer* GetTabFaviconObserverForTesting() {
-    return adapter_->GetTabFaviconObserverForTesting();
-  }
-#endif
 
  private:
   void OnDisconnected(mojo::RemoteSetElementId element_id) {
@@ -131,16 +118,6 @@ void GlicTabFaviconObserver::DoCleanup() {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TabFavicon::Observer* GlicTabFaviconObserver::GetTabFaviconObserverForTesting(
-    tabs::TabInterface::Handle handle) {
-  auto iter = observers_.find(handle);
-  if (iter == observers_.end()) {
-    return nullptr;
-  }
-  return iter->second->GetTabFaviconObserverForTesting();
-}
-#endif
 
 bool GlicTabFaviconObserver::HasTabObserverForTesting(
     tabs::TabInterface::Handle handle) {

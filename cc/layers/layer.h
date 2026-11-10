@@ -558,15 +558,6 @@ class CC_EXPORT Layer : public base::RefCounted<Layer>,
     return Region::Empty();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  void SetXrHitTestOrder(std::vector<ElementId> xr_hit_test_order);
-  const std::vector<ElementId>* xr_hit_test_order() const {
-    if (const auto& rare_inputs = inputs_.Read(*this).rare_inputs) {
-      return &rare_inputs->xr_hit_test_order;
-    }
-    return nullptr;
-  }
-#endif
 
   // Set or get the ElementId used to identify this layer as a drawable
   // descendant of a canvas with content=drawable, which can be used for
@@ -1052,10 +1043,6 @@ class CC_EXPORT Layer : public base::RefCounted<Layer>,
     Region main_thread_scroll_hit_test_region;
     std::vector<ScrollHitTestRect> non_composited_scroll_hit_test_rects;
     Region wheel_event_region;
-#if BUILDFLAG(IS_ANDROID)
-    // Rare because only used on Android XR platform
-    std::vector<ElementId> xr_hit_test_order;
-#endif
     ElementId canvas_drawable_id;
     PaintFlags::FilterQuality filter_quality = PaintFlags::FilterQuality::kLow;
     PaintFlags::DynamicRangeLimitMixture dynamic_range_limit{

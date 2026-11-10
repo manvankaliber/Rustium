@@ -34,10 +34,6 @@
 #include "mojo/public/cpp/bindings/remote.h"
 #include "mojo/public/cpp/system/message_pipe.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif
 
 namespace actor {
 
@@ -71,13 +67,6 @@ class ActorUtilBrowserTest : public PlatformBrowserTest {
   }
 
   void SetUpOnMainThread() override {
-#if BUILDFLAG(IS_ANDROID)
-    // TODO(crbug.com/517620369): Decouple test from Glic eligibility criteria.
-    if (base::android::android_info::sdk_int() <
-        base::android::android_info::SDK_VERSION_S) {
-      GTEST_SKIP() << "Actor requires Android S+ to run";
-    }
-#endif
     PlatformBrowserTest::SetUpOnMainThread();
     ASSERT_TRUE(embedded_test_server()->Start());
   }

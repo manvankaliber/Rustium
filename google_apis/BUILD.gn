@@ -55,12 +55,12 @@ if (use_official_google_api_keys == "") {
 # Note, fuchsia builds with both current_os == "fuchsia" and
 # target_os == "fuchsia". current_os can be "linux" when building
 # //chrome/test/chromedriver
-assert(use_official_google_api_keys || !is_internal_chrome_branded || is_ios)
+assert(use_official_google_api_keys || !is_internal_chrome_branded)
 
 declare_args() {
   # Whether the SetAPIKey() method is defined.
   # iOS and Fuchsia builds that do not use the built-in key use this.
-  support_external_google_api_key = is_ios
+  support_external_google_api_key = false
 
   # Whether to support the CDM Server Certificate.
   support_cdm_server_certificate = is_mac || is_linux || is_win
@@ -72,7 +72,7 @@ declare_args() {
 # TODO(crbug.com/40864074): Fix this logic on iOS. Can this variable be replaced
 # with just use_official_google_api_keys?
 _use_official_google_keys_and_generate_metrics_key_header =
-    use_official_google_api_keys || (is_ios && is_chrome_branded)
+    use_official_google_api_keys
 
 buildflag_header("buildflags") {
   header = "buildflags.h"
@@ -190,19 +190,7 @@ component("google_apis") {
       "google_api_keys_mac.mm",
     ]
 
-    if (is_ios) {
-      sources += [ "gaia/gaia_id_ios.mm" ]
-    }
-
     frameworks = [ "Foundation.framework" ]
-  }
-
-  if (is_android) {
-    sources += [
-      "gaia/android_device_management_error_details.cc",
-      "gaia/android_device_management_error_details.h",
-    ]
-    deps += [ "gaia/android:jni_headers" ]
   }
 
   defines = [ "IS_GOOGLE_APIS_IMPL" ]
@@ -244,10 +232,6 @@ static_library("test_support") {
     "//services/network:test_support",
     "//services/network/public/cpp",
   ]
-
-  if (is_android) {
-    deps = [ "gaia/android:jni_headers" ]
-  }
 }
 
 source_set("run_all_unittests") {
@@ -298,18 +282,7 @@ test("google_apis_unittests") {
     "//third_party/protobuf:protobuf_lite",
   ]
 
-  if (is_ios) {
-    deps += [ ":google_apis_unittest_bundle_data" ]
-  } else {
-    data = [ "test/" ]
-  }
-
-  if (is_android) {
-    deps += [
-      "//google_apis/gaia/android:java",
-      "//net/android:net_java",
-    ]
-  }
+  data = [ "test/" ]
 
   if (enable_extensions) {
     deps += [ "//google_apis/drive:drive_unittests" ]
@@ -319,15 +292,6 @@ test("google_apis_unittests") {
     sources += [ "google_api_keys_mac_unittest.mm" ]
 
     deps += [ "//third_party/ocmock" ]
-  }
-
-  if (is_chromeos) {
-    deps += [
-      "//google_apis/classroom:classroom_unittests",
-      "//google_apis/people:people_unittest_sources",
-      "//google_apis/tasks:tasks_unittests",
-      "//google_apis/youtube_music:youtube_music_unittests",
-    ]
   }
 
   # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and

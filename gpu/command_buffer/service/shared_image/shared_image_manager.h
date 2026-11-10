@@ -131,11 +131,6 @@ class GPU_GLES2_EXPORT SharedImageManager
       bool needs_detiling);
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<LegacyOverlayImageRepresentation> ProduceLegacyOverlay(
-      const Mailbox& mailbox,
-      MemoryTypeTracker* ref);
-#endif
 
   bool UpdateSharedImage(const Mailbox& mailbox, gfx::GpuFenceHandle in_fence);
 
@@ -210,11 +205,6 @@ class GPU_GLES2_EXPORT SharedImageManager
   scoped_refptr<base::SingleThreadTaskRunner> io_runner_;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  bool supports_ycbcr_nv12_sampling_ = false;
-  bool supports_ycbcr_p010_sampling_ = false;
-  bool is_texture_sampling_queried_ GUARDED_BY(lock_) = false;
-#endif
 
 #if BUILDFLAG(IS_OZONE)
   bool supports_overlays_on_ozone_ = false;

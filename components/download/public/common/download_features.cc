@@ -10,11 +10,7 @@ namespace download {
 namespace features {
 
 BASE_FEATURE(kParallelDownloading,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
@@ -29,36 +25,16 @@ bool IsBackoffInDownloadingEnabled() {
 #endif
 }
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kSmartSuggestionForLargeDownloads,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-BASE_FEATURE(kShowBlockedSensitiveDownload, base::FEATURE_ENABLED_BY_DEFAULT);
-
-BASE_FEATURE(kShowDownloadScanningState, base::FEATURE_ENABLED_BY_DEFAULT);
-
-BASE_FEATURE(kDownloadsCompactListView, base::FEATURE_DISABLED_BY_DEFAULT);
-
-BASE_FEATURE(kRemapGenericMimeType, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 BASE_FEATURE(kDownloadNotificationServiceUnifiedAPI,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kUseInProgressDownloadManagerForDownloadService,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kAllowDownloadResumptionWithoutStrongValidators,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kUseParallelRequestsForHTTP2, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -80,31 +56,6 @@ BASE_FEATURE(kAllowedMixedContentInlinePdf, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kEnableAsyncNotificationManagerForDownload,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kEnableSavePackageForOffTheRecord,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-// TODO(crbug.com/521890621): Enable on all form factors once the non-desktop
-// rollout is complete.
-BASE_FEATURE(kOpenDownloadInFilesAppIfNoHandlerFound,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-// TODO(crbug.com/521890621): Enable on LFF once the non-desktop rollout is
-// complete.
-BASE_FEATURE(kOpenDownloadInNewTab, base::FEATURE_DISABLED_BY_DEFAULT);
-
-// TODO(crbug.com/521890621): Part of this feature is desktop-only (b/555382195)
-// and part is LFF. Enable the LFF part on LFF once the rollout is complete.
-BASE_FEATURE(kEnableDownloadSaveAsContextMenu,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-// Desktop-only feature (see b/555382195).
-BASE_FEATURE(kEnableDownloadSaveAsSystemFileDialog,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-BASE_FEATURE(kRetrieveDisplayNamesForHistoryDownloads,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 BASE_FEATURE(kDeferredDownloadHistoryLoading,
              base::FEATURE_DISABLED_BY_DEFAULT);

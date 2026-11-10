@@ -25,13 +25,7 @@ namespace {
 
 // Maximum number of tokens a shortcut can have if it allows the
 // Ctrl+Alt shortcut combination.
-#if BUILDFLAG(IS_CHROMEOS)
-// ChromeOS supports an additional modifier 'Search', which can result in longer
-// sequences.
-static const int kMaxTokenSize = 5;
-#else
 static const int kMaxTokenSize = 4;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool DoesRequireModifier(ui::Accelerator accelerator) {
   const KeyboardCode key_code = accelerator.key_code();
@@ -79,13 +73,7 @@ std::string Command::CommandPlatform() {
   return ui::kKeybindingPlatformWin;
 #elif BUILDFLAG(IS_MAC)
   return ui::kKeybindingPlatformMac;
-#elif BUILDFLAG(IS_CHROMEOS)
-  return ui::kKeybindingPlatformChromeOs;
 #elif BUILDFLAG(IS_LINUX)
-  return ui::kKeybindingPlatformLinux;
-#elif BUILDFLAG(IS_ANDROID)
-  // For now, we use linux keybindings on android.
-  // TODO(https://crbug.com/356905053): Should this be ChromeOS keybindings?
   return ui::kKeybindingPlatformLinux;
 #else
   return "";
@@ -119,12 +107,7 @@ std::string Command::AcceleratorToString(const ui::Accelerator& accelerator) {
   }
 
   if (accelerator.IsCmdDown()) {
-#if BUILDFLAG(IS_CHROMEOS)
-    // Chrome OS treats the Search key like the Command key.
-    shortcut += ui::kKeySearch;
-#else
     shortcut += ui::kKeyCommand;
-#endif
     shortcut += ui::kKeySeparator;
   }
 

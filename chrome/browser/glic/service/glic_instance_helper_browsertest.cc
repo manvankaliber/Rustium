@@ -18,30 +18,16 @@
 #include "content/public/test/browser_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "content/public/browser/android/child_process_importance.h"
-#endif
 
 namespace glic {
 
 class GlicInstanceHelperBrowserTest : public GlicBrowserTest {
  protected:
   void SetUp() override {
-#if BUILDFLAG(IS_ANDROID)
-    // Disable protection for recently visible tabs so that we can test the
-    // protection when the Glic instance is open.
-    feature_list_.InitAndEnableFeatureWithParameters(
-        chrome::android::kProtectRecentlyVisibleTab,
-        {{"duration_in_seconds", "0"}});
-#endif  // BUILDFLAG(IS_ANDROID)
     GlicBrowserTest::SetUp();
   }
 
  private:
-#if BUILDFLAG(IS_ANDROID)
-  base::test::ScopedFeatureList feature_list_;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 // Test that pinned tab protection depends on Glic instance visibility.
@@ -124,73 +110,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceHelperBrowserTest, PinnedTabProtection) {
                          /*ignore_recent_visibility=*/true));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Android-specific test for process importance.
-IN_PROC_BROWSER_TEST_F(GlicInstanceHelperBrowserTest,
-                       PinnedTabAndroidImportance) {
-  // Android Q+ required for NOT_PERCEPTIBLE importance.
-  if (!content::IsNotPerceptibleImportanceSupported()) {
-    GTEST_SKIP() << "NOT_PERCEPTIBLE importance not supported";
-  }
-
-  tabs::TabInterface* tab = CreateAndActivateTab(GetSimpleTestUrl());
-  ASSERT_TRUE(tab);
-
-  content::RenderProcessHost* rph =
-      tab->GetContents()->GetPrimaryMainFrame()->GetProcess();
-  ASSERT_TRUE(rph);
-
-  GlicInstanceHelper* helper = GlicInstanceHelper::From(tab);
-  ASSERT_TRUE(helper);
-
-  auto run_until_importance_is =
-      [&](content::ChildProcessImportance expected_importance) {
-        return RunUntilEqual([&]() { return rph->GetEffectiveImportance(); },
-                             expected_importance,
-                             "Timeout waiting for importance");
-      };
-
-  // Active tab is IMPORTANT.
-  EXPECT_OK(
-      run_until_importance_is(content::ChildProcessImportance::IMPORTANT));
-
-  // Background the tab by creating and activating another one.
-  tabs::TabInterface* tab2 = CreateAndActivateTab(GetSimpleTestUrl());
-  ASSERT_TRUE(tab2);
-
-  EXPECT_OK(run_until_importance_is(content::ChildProcessImportance::NORMAL));
-
-  // Open a Glic instance on the active tab (tab2).
-  ASSERT_OK_AND_ASSIGN(GlicInstanceImpl * instance, OpenGlicForActiveTab());
-  ASSERT_TRUE(instance->IsShowing());
-
-  // Pin background tab to the visible Glic instance. It should be protected.
-  EXPECT_TRUE(instance->GetSharingManagerInternal().PinTabs(
-      {tab->GetHandle()}, GlicPinTrigger::kUnknown));
-  EXPECT_OK(run_until_importance_is(
-      content::ChildProcessImportance::NOT_PERCEPTIBLE));
-
-  // Hide Glic without destroying the instance.
-  EXPECT_OK(CloseGlicForTabAndWait(tab2));
-
-  // Eligible again while Glic is hidden.
-  EXPECT_OK(run_until_importance_is(content::ChildProcessImportance::NORMAL));
-
-  // Show Glic again.
-  ASSERT_OK(OpenGlicForActiveTab());
-
-  // Protected, so boosted again.
-  EXPECT_OK(run_until_importance_is(
-      content::ChildProcessImportance::NOT_PERCEPTIBLE));
-
-  // Unpin the tab.
-  EXPECT_TRUE(
-      instance->GetSharingManagerInternal().UnpinTabs({tab->GetHandle()}));
-
-  // Eligible again.
-  EXPECT_OK(run_until_importance_is(content::ChildProcessImportance::NORMAL));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class GlicInstanceHelperGeicBrowserTest : public GlicBrowserTest {
  private:

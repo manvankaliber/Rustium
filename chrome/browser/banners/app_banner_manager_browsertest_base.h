@@ -11,9 +11,7 @@
 #include "chrome/test/base/platform_browser_test.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/web_applications/test/os_integration_test_override_impl.h"
-#endif
 
 // Common base class for browser tests exercising AppBannerManager. Contains
 // methods for generating test URLs that trigger app banners.
@@ -55,9 +53,7 @@ class AppBannerManagerBrowserTestBase : public PlatformBrowserTest {
                                         const std::string& key,
                                         const std::string& value);
 
-#if !BUILDFLAG(IS_ANDROID)
   web_app::OsIntegrationTestOverrideBlockingRegistration faked_os_integration_;
-#endif
 };
 
 #endif  // CHROME_BROWSER_BANNERS_APP_BANNER_MANAGER_BROWSERTEST_BASE_H_

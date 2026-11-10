@@ -9,7 +9,7 @@
 namespace omnibox {
 
 namespace {
-constexpr bool IS_IOS = !!BUILDFLAG(IS_IOS);
+constexpr bool IS_IOS = !!false;
 }  // namespace
 
 BASE_FEATURE(kContextManagementInComposebox, base::FEATURE_DISABLED_BY_DEFAULT);

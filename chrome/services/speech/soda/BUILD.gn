@@ -5,8 +5,6 @@
 import("//components/soda/buildflags.gni")
 import("//third_party/protobuf/proto_library.gni")
 
-assert(!is_android)
-
 proto_library("soda_api_proto") {
   sources = [ "proto/soda_api.proto" ]
 }
@@ -25,17 +23,6 @@ source_set("soda") {
     "//base",
     "//media/mojo/mojom",
   ]
-
-  if (is_chromeos) {
-    sources += [
-      "cros_soda_client.cc",
-      "cros_soda_client.h",
-    ]
-    deps += [
-      "//chromeos/services/machine_learning/public/cpp",
-      "//chromeos/services/machine_learning/public/mojom",
-    ]
-  }
 }
 
 shared_library("fake_soda_library_for_testing") {

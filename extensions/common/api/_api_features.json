@@ -20,7 +20,7 @@
     "extension_types": ["platform_app"],
     "noparent": true,
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   }, {
     "channel": "stable",
     "component_extensions_auto_granted": false,
@@ -28,7 +28,7 @@
     "extension_types": ["extension"],
     "noparent": true,
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "allowlist": [
       // Quickoffice
       "2FC374607C2DF285634B67C64A2E356C607091C3",
@@ -50,7 +50,7 @@
     "extension_types": ["platform_app"],
     "noparent": true,
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   }, {
     "channel": "stable",
     "contexts": ["privileged_extension"],
@@ -58,7 +58,7 @@
     "noparent": true,
     "component_extensions_auto_granted": false,
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "allowlist": [
       "B9EF10DDFEA11EF77873CC5009809E5037FC4C7A",  // Google input tools
       "06BE211D5F014BAB34BC22D9DDA09C63A81D828E",  // Official xkb extension
@@ -71,64 +71,24 @@
     "channel": "stable",
     "contexts": ["privileged_extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "app.currentWindowInternal.setShape": {
     "dependencies": ["permission:app.window.shape"],
     "contexts": ["privileged_extension"]
-  },
-  // The API for the *embedder* of appview. Appview has both an embedder and
-  // guest API, which are different.
-  "appViewEmbedderInternal": {
-    "internal": true,
-    "contexts": ["privileged_extension"],
-    "dependencies": ["permission:appview"],
-    "platforms": ["chromeos"]
-  },
-  // Note that exposing this doesn't necessarily expose AppView,
-  // appViewEmbedderInternal is required for that.
-  // See http://crbug.com/437891.
-  "appViewGuestInternal": {
-    "internal": true,
-    "channel": "stable",
-    "contexts": ["privileged_extension"],
-    "platforms": ["chromeos"]
-  },
-  "audio": {
-    "dependencies": ["permission:audio"],
-    "contexts": ["privileged_extension"],
-    "platforms": ["chromeos"]
   },
   "automationInternal": {
     "internal": true,
     "dependencies": ["manifest:automation"],
     "contexts": ["privileged_extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "automation": {
     "dependencies": ["manifest:automation"],
     "contexts": ["privileged_extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
-  },
-  "bluetooth": [{
-    "dependencies": ["manifest:bluetooth"],
-    "contexts": ["privileged_extension"],
-    "platforms": ["chromeos"]
-  }, {
-    "channel": "stable",
-    "contexts": ["webui"],
-    "matches": [
-      "chrome://bluetooth-pairing/*",
-      "chrome://os-settings/*"
-    ],
-    "platforms": ["chromeos"]
-  }],
-  "bluetoothLowEnergy": {
-    "dependencies": ["manifest:bluetooth"],
-    "contexts": ["privileged_extension"],
-    "platforms": ["chromeos"]
+    "platforms": ["linux", "mac", "win"]
   },
   "bluetoothPrivate": [{
     "dependencies": ["permission:bluetoothPrivate"],
@@ -141,25 +101,6 @@
       "chrome://os-settings/*"
     ]
   }],
-  "bluetoothSocket": {
-    "dependencies": ["manifest:bluetooth"],
-    "contexts": ["privileged_extension"],
-    "platforms": ["chromeos"]
-  },
-  "cecPrivate": {
-    "dependencies": ["permission:cecPrivate"],
-    "contexts": ["privileged_extension"]
-  },
-  "clipboard": {
-    "dependencies": ["permission:clipboard"],
-    "contexts": ["privileged_extension"]
-  },
-  "clipboard.onClipboardDataChanged": {
-    "dependencies": ["permission:clipboardRead"]
-  },
-  "clipboard.setImageData": {
-    "dependencies": ["permission:clipboardWrite"]
-  },
   "cookies": {
     "dependencies": ["permission:cookies"],
     "contexts": ["privileged_extension"]
@@ -233,7 +174,7 @@
         "chrome://os-feedback/*"
       ],
       // "desktop_android" is not supported.
-      "platforms": ["chromeos", "linux", "mac", "win"]
+      "platforms": ["linux", "mac", "win"]
     }
   ],
   "feedbackPrivate.openFeedback": {
@@ -257,19 +198,13 @@
       "0EEEFAA87E292CD986DD0528E90F9128A936B1C4E1C53E7FAA0244594C69DF94"
     ]
   },
-  "feedbackPrivate.readLogSource": [
-    {
-      "platforms": ["chromeos"],
-      "session_types": ["kiosk"]
-    },
-    {
+  "feedbackPrivate.readLogSource": {
       "channel": "stable",
       "contexts": ["webui"],
       "matches": [
         "chrome://feedback/*"
       ]
-    }
-  ],
+    },
   "fileSystem": {
     "dependencies": ["permission:fileSystem"],
     "contexts": ["privileged_extension"],
@@ -281,7 +216,7 @@
       "channel": "stable",
       "contexts": ["privileged_extension"],
       // "desktop_android" is not supported.
-      "platforms": ["chromeos", "linux", "mac", "win"]
+      "platforms": ["linux", "mac", "win"]
     }, {
       "internal": true,
       "channel": "stable",
@@ -317,7 +252,7 @@
       // true.
       "requires_delegated_availability_check": true,
       // "desktop_android" is not supported.
-      "platforms": ["chromeos", "linux", "mac", "win"]
+      "platforms": ["linux", "mac", "win"]
     }
   ],
   "hid": {
@@ -326,8 +261,7 @@
   },
   "i18n": {
     "channel": "stable",
-    "extension_types": ["extension", "legacy_packaged_app", "platform_app",
-                        "login_screen_extension"],
+    "extension_types": ["extension", "legacy_packaged_app", "platform_app"],
     "contexts": [
       "privileged_extension",
       "unprivileged_extension",
@@ -337,9 +271,6 @@
   "idle": {
     "dependencies": ["permission:idle"],
     "contexts": ["privileged_extension"]
-  },
-  "idle.getAutoLockDelay": {
-    "platforms": ["chromeos"]
   },
   "management": [{
     "dependencies": ["permission:management"],
@@ -378,16 +309,12 @@
     "dependencies": ["manifest:replacement_web_app"],
     "extension_types": ["extension", "platform_app"],
     // "desktop_android" is not supported. http://crbug.com/371332103
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },
   "management.uninstallSelf": {
     "dependencies": [],
     "channel": "stable",
     "extension_types": ["extension", "legacy_packaged_app", "platform_app"]
-  },
-  "mediaPerceptionPrivate": {
-    "dependencies": ["permission:mediaPerceptionPrivate"],
-    "contexts": ["privileged_extension"]
   },
   "metricsPrivate": [{
     "dependencies": ["permission:metricsPrivate"],
@@ -522,14 +449,14 @@
     "dependencies": ["manifest:mime_types_handler"],
     "contexts": ["privileged_extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "channel": "dev",
     "requires_delegated_availability_check": true
   }, {
     "dependencies": ["manifest:mime_types_handler"],
     "contexts": ["privileged_extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     "channel": "stable",
     "feature_flag": "ApiMimeHandler"
   }],
@@ -537,7 +464,7 @@
     "dependencies": ["manifest:mime_types_handler"],
     "contexts": ["privileged_extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"],
+    "platforms": ["linux", "mac", "win"],
     // The public `mimeHandler` API made `mime_types_handler` available to
     // any extension, so this API needs its own allowlist. It holds the
     // hashed IDs of the extensions in `kMIMETypeHandlersAllowlist`.
@@ -565,13 +492,6 @@
       "CDF9DD8503F39D9609C6C191E04450FCCEB41BCF9712F361A9013DEF8B9C7552"
     ]
     // LINT.ThenChange(//extensions/common/manifest_handlers/mime_types_handler.cc:MimeTypeHandlersAllowlist)
-  },
-  "mojoPrivate": {
-    "contexts": ["privileged_extension"],
-    "dependencies": ["behavior:imprivata_in_session_extension"],
-    "extension_types": ["extension"],
-    "location": "policy",
-    "platforms": ["chromeos"]
   },
   "networking.onc": {
     "dependencies": ["permission:networking.onc"],
@@ -604,12 +524,7 @@
   },
   "permissions": {
     "channel": "stable",
-    "extension_types": [
-      "extension",
-      "legacy_packaged_app",
-      "platform_app",
-      "chromeos_system_extension"
-    ],
+    "extension_types": ["extension", "legacy_packaged_app", "platform_app"],
     "contexts": ["privileged_extension"]
   },
   "permissions.addHostAccessRequest": {
@@ -621,9 +536,6 @@
   "power": {
     "dependencies": ["permission:power"],
     "contexts": ["privileged_extension"]
-  },
-  "power.reportActivity": {
-    "platforms": ["chromeos"]
   },
   "printerProvider": {
     "dependencies": ["permission:printerProvider"],
@@ -644,13 +556,7 @@
   },
   "runtime": {
     "channel": "stable",
-    "extension_types": [
-      "extension",
-      "legacy_packaged_app",
-      "platform_app",
-      "login_screen_extension",
-      "chromeos_system_extension"
-    ],
+    "extension_types": ["extension", "legacy_packaged_app", "platform_app"],
     "contexts": [
       "privileged_extension"
     ]
@@ -823,10 +729,6 @@
     "dependencies": ["permission:scripting"],
     "contexts": ["content_script"]
   },
-  "serial": {
-    "dependencies": ["permission:serial"],
-    "contexts": ["privileged_extension"]
-  },
   "socket": {
     "dependencies": ["permission:socket"],
     "contexts": ["privileged_extension"]
@@ -835,7 +737,7 @@
     "dependencies": ["manifest:sockets"],
     "contexts": ["privileged_extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },{
     "channel": "stable",
     "contexts": ["webui_untrusted"],
@@ -843,13 +745,13 @@
       "chrome-untrusted://terminal/*"
     ],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   }],
   "sockets.tcpServer": [{
     "dependencies": ["manifest:sockets"],
     "contexts": ["privileged_extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },{
     "channel": "stable",
     "contexts": ["webui_untrusted"],
@@ -857,13 +759,13 @@
       "chrome-untrusted://terminal/*"
     ],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   }],
   "sockets.udp": [{
     "dependencies": ["manifest:sockets"],
     "contexts": ["privileged_extension"],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   },{
     "channel": "stable",
     "contexts": ["webui_untrusted"],
@@ -871,7 +773,7 @@
       "chrome-untrusted://terminal/*"
     ],
     // "desktop_android" is not supported.
-    "platforms": ["chromeos", "linux", "mac", "win"]
+    "platforms": ["linux", "mac", "win"]
   }],
   "storage": {
     "dependencies": ["permission:storage"],
@@ -958,19 +860,10 @@
     "extension_types": ["extension", "legacy_packaged_app", "platform_app"],
     "contexts": ["privileged_extension"]
   },
-  "usb": {
-    "dependencies": ["permission:usb"],
-    "contexts": ["privileged_extension"],
-    "platforms": ["chromeos"]
-  },
   "userScripts": {
     "dependencies": [ "permission:userScripts" ],
     "contexts": [ "privileged_extension" ],
     "requires_delegated_availability_check": true
-  },
-  "virtualKeyboard": {
-    "dependencies": ["permission:virtualKeyboard"],
-    "contexts": ["privileged_extension"]
   },
   "webRequest": {
     "dependencies": ["permission:webRequest"],
@@ -1027,11 +920,7 @@
     "requires_delegated_availability_check": true,
     "matches": ["<all_urls>"]
   }],
-  "webViewInternal": [{
-    "internal": true,
-    "dependencies": ["permission:webview"],
-    "contexts": ["privileged_extension"]
-  }, {
+  "webViewInternal": [ {
     "internal": true,
     "channel": "stable",
     "contexts": ["webui"],
@@ -1065,10 +954,7 @@
     // true.
     "requires_delegated_availability_check": true
   }],
-  "webViewRequest": [{
-    "dependencies": ["permission:webview"],
-    "contexts": ["privileged_extension"]
-  }, {
+  "webViewRequest": {
     "channel": "stable",
     "contexts": ["webui"],
     "matches": [
@@ -1084,5 +970,5 @@
       "chrome://parent-access/*",
       "chrome://skills/*"
     ]
-  }]
+  }
 }

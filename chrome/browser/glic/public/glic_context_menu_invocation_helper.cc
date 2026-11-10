@@ -21,13 +21,11 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/gfx/geometry/rect.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/glic_selection_observer.h"
 #include "chrome/browser/glic/selection/selection_overlay_controller.h"
 #include "chrome/browser/ui/tabs/page_context_eligibility_helper.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "third_party/blink/public/mojom/context_menu/context_menu.mojom-shared.h"
-#endif
 
 namespace glic {
 
@@ -54,14 +52,12 @@ void GlicContextMenuInvocationHelper::HandleContextualMenuClick(
     bool is_page_eligible = false;
     if (base::FeatureList::IsEnabled(features::kGlicTextSelectionContextMenu) &&
         !trimmed_selection.empty()) {
-#if !BUILDFLAG(IS_ANDROID)
       tabs::PageContextEligibilityHelper* helper =
           tab ? tabs::PageContextEligibilityHelper::From(tab) : nullptr;
       is_page_eligible =
           helper &&
           helper->IsPageContextEligible() ==
               optimization_guide::PageContextEligibilityStatus::kEligible;
-#endif
     }
 
     // Desktop has no link-specific item, so clicks without a selection report
@@ -83,12 +79,10 @@ void GlicContextMenuInvocationHelper::HandleContextualMenuClick(
               ? glic::mojom::FreOverride::kTrustFirstInline
               : glic::mojom::FreOverride::kTrustFirstClick;
 
-#if !BUILDFLAG(IS_ANDROID)
       if (auto* observer = GlicSelectionObserver::From(tab)) {
         observer->UpdateSelectionStateFromContextMenu(
             std::u16string(trimmed_selection));
       }
-#endif
 
       if (features::kGlicTextSelectionContextMenuAutoSubmit.Get()) {
         // The selection itself is sent as additional context, so the prompt
@@ -126,7 +120,6 @@ void GlicContextMenuInvocationHelper::HandleContextualMenuClick(
 void GlicContextMenuInvocationHelper::HandleSmartSuggestionClick(
     content::RenderFrameHost& frame,
     const content::ContextMenuParams& params) {
-#if !BUILDFLAG(IS_ANDROID)
   content::WebContents* web_contents =
       content::WebContents::FromRenderFrameHost(&frame);
   if (!web_contents ||
@@ -176,7 +169,6 @@ void GlicContextMenuInvocationHelper::HandleSmartSuggestionClick(
   }
   controller->ShowWithSelection(&frame, selection_bounds,
                                 std::move(interaction_options), entry_point);
-#endif
 }
 
 }  // namespace glic

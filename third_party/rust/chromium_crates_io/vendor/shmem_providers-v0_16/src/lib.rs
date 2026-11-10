@@ -77,11 +77,7 @@ use std::io::Read;
 use std::io::Write;
 
 use serde::{Deserialize, Serialize};
-#[cfg(all(
-    feature = "std",
-    unix,
-    not(any(target_os = "android", target_os = "haiku"))
-))]
+#[cfg(all(feature = "std", unix, not(target_os = "haiku")))]
 pub use unix_shmem::{MmapShMem, MmapShMemProvider};
 #[cfg(all(feature = "std", unix, not(target_os = "haiku")))]
 pub use unix_shmem::{UnixShMem, UnixShMemProvider};
@@ -101,20 +97,13 @@ pub type StdShMemProvider = Win32ShMemProvider;
 pub type StdShMem = Win32ShMem;
 
 /// The standard sharedmem
-#[cfg(all(target_os = "android", feature = "std"))]
-pub type StdShMem = RcShMem<
-    ServedShMem<unix_shmem::ashmem::AshmemShMem>,
-    ServedShMemProvider<unix_shmem::ashmem::AshmemShMemProvider>,
->;
+
 
 /// The standard sharedmem provider
-#[cfg(all(target_os = "android", feature = "std"))]
-pub type StdShMemProvider =
-    RcShMemProvider<ServedShMemProvider<unix_shmem::ashmem::AshmemShMemProvider>>;
+
 
 /// The standard sharedmem service
-#[cfg(all(target_os = "android", feature = "std"))]
-pub type StdShMemService = ShMemService<unix_shmem::ashmem::AshmemShMemProvider>;
+
 
 /// The standard sharedmem
 #[cfg(all(feature = "std", target_vendor = "apple"))]
@@ -128,40 +117,23 @@ pub type StdShMemProvider = RcShMemProvider<ServedShMemProvider<MmapShMemProvide
 pub type StdShMemService = ShMemService<MmapShMemProvider>;
 
 /// The default [`ShMem`].
-#[cfg(all(
-    feature = "std",
-    unix,
-    not(any(target_os = "android", target_vendor = "apple", target_os = "haiku"))
-))]
+#[cfg(all(feature = "std", unix, not(any(target_vendor = "apple", target_os = "haiku"))))]
 pub type StdShMem = UnixShMem;
 /// The default [`ShMemProvider`] for this os.
-#[cfg(all(
-    feature = "std",
-    unix,
-    not(any(target_os = "android", target_vendor = "apple", target_os = "haiku"))
-))]
+#[cfg(all(feature = "std", unix, not(any(target_vendor = "apple", target_os = "haiku"))))]
 pub type StdShMemProvider = UnixShMemProvider;
 /// The standard sharedmem service
-#[cfg(any(
-    not(any(target_os = "android", target_vendor = "apple", target_os = "haiku")),
-    not(feature = "std")
-))]
+#[cfg(any(not(any(target_vendor = "apple", target_os = "haiku")), not(feature = "std")))]
 pub type StdShMemService = DummyShMemService;
 
 // for unix only
 /// The standard served shmem provider
-#[cfg(all(target_os = "android", feature = "std"))]
-pub type StdServedShMemProvider =
-    RcShMemProvider<ServedShMemProvider<unix_shmem::ashmem::AshmemShMemProvider>>;
+
 /// The standard served shmem provider
 #[cfg(all(feature = "std", target_vendor = "apple"))]
 pub type StdServedShMemProvider = RcShMemProvider<ServedShMemProvider<MmapShMemProvider>>;
 /// The standard served shmem provider
-#[cfg(all(
-    feature = "std",
-    unix,
-    not(any(target_os = "android", target_vendor = "apple", target_os = "haiku"))
-))]
+#[cfg(all(feature = "std", unix, not(any(target_vendor = "apple", target_os = "haiku"))))]
 pub type StdServedShMemProvider = RcShMemProvider<ServedShMemProvider<MmapShMemProvider>>;
 
 /// Description of a shared map.
@@ -732,26 +704,24 @@ impl<SP> RcShMemProvider<ServedShMemProvider<SP>> {
 #[cfg(all(unix, feature = "std", not(target_os = "haiku")))]
 pub mod unix_shmem {
     /// Mmap [`ShMem`] for Unix
-    #[cfg(not(target_os = "android"))]
+
     pub use default::{MAX_MMAP_FILENAME_LEN, MmapShMem, MmapShMemProvider};
 
     #[cfg(doc)]
     use crate::ShMem;
 
     /// Shared memory provider for Android, allocating and forwarding maps over unix domain sockets.
-    #[cfg(target_os = "android")]
-    pub type UnixShMemProvider = ashmem::AshmemShMemProvider;
+
     /// Shared memory for Android
-    #[cfg(target_os = "android")]
-    pub type UnixShMem = ashmem::AshmemShMem;
+
     /// Shared memory Provider for Unix
-    #[cfg(not(target_os = "android"))]
+
     pub type UnixShMemProvider = default::CommonUnixShMemProvider;
     /// Shared memory for Unix
-    #[cfg(not(target_os = "android"))]
+
     pub type UnixShMem = default::CommonUnixShMem;
 
-    #[cfg(all(unix, feature = "std", not(target_os = "android")))]
+    #[cfg(all(unix, feature = "std"))]
     mod default {
         use alloc::string::ToString;
         use core::{
@@ -1289,7 +1259,7 @@ pub mod unix_shmem {
     }
 
     /// Module containing `ashmem` shared memory support, commonly used on Android.
-    #[cfg(all(any(target_os = "linux", target_os = "android"), feature = "std"))]
+    #[cfg(all(target_os = "linux", feature = "std"))]
     pub mod ashmem {
         use alloc::{ffi::CString, string::ToString};
         use core::{
@@ -1506,11 +1476,7 @@ pub mod unix_shmem {
     }
 
     /// Module containing `memfd` shared memory support, usable on Linux and Android.
-    #[cfg(all(
-        unix,
-        feature = "std",
-        any(target_os = "linux", target_os = "android", target_os = "freebsd")
-    ))]
+    #[cfg(all(unix, feature = "std", any(target_os = "linux", target_os = "freebsd")))]
     pub mod memfd {
         use alloc::{ffi::CString, string::ToString};
         use core::{
@@ -2105,11 +2071,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(
-        unix,
-        feature = "std",
-        not(any(target_os = "android", target_os = "haiku"))
-    ))]
+    #[cfg(all(unix, feature = "std", not(target_os = "haiku")))]
     #[cfg_attr(miri, ignore)]
     fn test_common_unix_shmem_owner() -> Result<(), Error> {
         use crate::{ShMem, ShMemProvider, UnixShMemProvider};

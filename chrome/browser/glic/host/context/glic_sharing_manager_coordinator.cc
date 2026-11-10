@@ -10,12 +10,8 @@
 #include "chrome/browser/glic/host/context/glic_pinned_tab_manager_impl.h"
 #include "chrome/browser/glic/host/context/glic_sharing_manager_impl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/host/context/glic_focused_browser_manager_impl.h"
 #include "chrome/browser/glic/host/context/glic_focused_tab_manager.h"
-#else
-#include "chrome/browser/glic/host/context/glic_empty_pinned_tab_manager.h"
-#endif
 
 namespace glic {
 
@@ -27,12 +23,8 @@ GlicSharingManagerCoordinator::GlicSharingManagerCoordinator(
           profile,
           glic_instance,
           metrics,
-#if !BUILDFLAG(IS_ANDROID)
           new GlicFocusedBrowserManagerImpl(glic_instance, profile),
           new GlicFocusedBrowserManagerImpl(glic_instance, profile)
-#else
-          false
-#endif
       ) {
 }
 
@@ -40,18 +32,13 @@ GlicSharingManagerCoordinator::GlicSharingManagerCoordinator(
     Profile* profile,
     GlicInstance* glic_instance,
     GlicMetrics* metrics,
-#if !BUILDFLAG(IS_ANDROID)
     GlicFocusedBrowserManager* detached_mode_focused_browser_manager,
     GlicFocusedBrowserManager* live_mode_focused_browser_manager
-#else
-    bool ignored
-#endif
     )
     : pinned_tab_manager_(
           std::make_unique<GlicPinnedTabManagerImpl>(profile,
                                                      glic_instance,
                                                      metrics)),
-#if !BUILDFLAG(IS_ANDROID)
       detached_mode_sharing_manager_(
           std::make_unique<GlicPinAwareDetachedFocusedTabManager>(
               &sharing_manager_,
@@ -68,7 +55,6 @@ GlicSharingManagerCoordinator::GlicSharingManagerCoordinator(
                                  pinned_tab_manager_.get(),
                                  profile,
                                  metrics),
-#endif
       attached_mode_sharing_manager_(
           std::make_unique<GlicActivePinnedFocusedTabManager>(
               profile,
@@ -110,16 +96,12 @@ void GlicSharingManagerCoordinator::UpdateSharingManagerDelegate() {
     sharing_manager_.SetDelegate(&attached_mode_sharing_manager_);
     return;
   }
-#if !BUILDFLAG(IS_ANDROID)
   if (interaction_mode_ == mojom::WebClientMode::kAudio) {
     sharing_manager_.SetDelegate(&live_mode_sharing_manager_);
     return;
   }
 
   sharing_manager_.SetDelegate(&detached_mode_sharing_manager_);
-#else
-  NOTREACHED() << "Android only has attached mode";
-#endif
 }
 
 }  // namespace glic

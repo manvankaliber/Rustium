@@ -54,13 +54,11 @@ class ConnectorsManagerBase {
       const GURL& url,
       AnalysisConnector connector);
 
-#if !BUILDFLAG(IS_IOS)
   // Validates which settings should be applied to the network request analysis
   // connector against its cached policy.
   std::optional<AnalysisSettings> GetNetworkRequestAnalysisSettings(
       const GURL& tab_url,
       const GURL& request_url);
-#endif  // !BUILDFLAG(IS_IOS)
 
   // Validates which settings should be applied to a reporting event
   // against cached policies. Cache the policy value the first time this is

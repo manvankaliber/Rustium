@@ -10,11 +10,7 @@ assert(enable_library_cdms)
 # Naming and folder structure below are following the recommendation for Chrome
 # components. Component-updated CDMs must follow the same recommendation.
 
-# OS name for components is close to "target_os" but has some differences.
-# Explicitly define what we use to avoid confusion.
-if (is_chromeos) {
-  component_os = "cros"
-} else if (is_linux) {
+if (is_linux) {
   component_os = "linux"
 } else if (is_win) {
   component_os = "win"

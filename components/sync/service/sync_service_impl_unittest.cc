@@ -253,11 +253,7 @@ class SyncServiceImplTest : public ::testing::Test {
         /*keep_everything_synced=*/true,
         /*registered_types=*/UserSelectableTypeSet::All(),
         /*selected_types=*/UserSelectableTypeSet::All());
-#if BUILDFLAG(IS_CHROMEOS)
-    ASSERT_TRUE(sync_prefs.IsInitialSyncFeatureSetupComplete());
-#else   // BUILDFLAG(IS_CHROMEOS)
     sync_prefs.SetInitialSyncFeatureSetupComplete();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   void SetInvalidationsEnabled() {
@@ -379,7 +375,6 @@ TEST_F(SyncServiceImplTest, SuccessfulLocalBackendInitialization) {
 }
 
 // ChromeOS Ash sets FirstSetupComplete automatically.
-#if !BUILDFLAG(IS_CHROMEOS)
 // Verify that an initialization where first setup is not complete does not
 // start up Sync-the-feature.
 TEST_F(SyncServiceImplTest, NeedsConfirmation) {
@@ -404,20 +399,12 @@ TEST_F(SyncServiceImplTest, NeedsConfirmation) {
   EXPECT_FALSE(service()->IsSyncFeatureActive());
   EXPECT_FALSE(service()->IsSyncFeatureEnabled());
 }
-#endif
 
 TEST_F(SyncServiceImplTest, DataTypesForTransportMode) {
   SignInWithoutSyncConsent();
   InitializeService();
   base::RunLoop().RunUntilIdle();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Sync-the-feature is normally enabled in Ash. Triggering a dashboard reset
-  // is one way to achieve otherwise.
-  SyncProtocolError client_cmd;
-  client_cmd.action = DISABLE_SYNC_ON_CLIENT;
-  service()->OnActionableProtocolError(client_cmd);
-#endif
 
   ASSERT_FALSE(service()->IsSyncFeatureActive());
   ASSERT_FALSE(service()->IsSyncFeatureEnabled());
@@ -495,27 +482,12 @@ TEST_F(SyncServiceImplTest, DisabledByPolicyBeforeInitThenPolicyRemoved) {
   EXPECT_FALSE(service()->IsSyncFeatureActive());
   EXPECT_TRUE(service()->GetDisableReasons().empty());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS Ash, the first setup is marked as complete automatically.
-  ASSERT_TRUE(
-      service()->GetUserSettings()->IsInitialSyncFeatureSetupComplete());
-
-  // On ChromeOS Ash, sync-the-feature stays disabled even after the policy is
-  // removed, for historic reasons. It is unclear if this behavior is optional,
-  // because it is indistinguishable from the sync-reset-via-dashboard case.
-  // It can be resolved by invoking ClearSyncFeatureDisabledViaDashboard().
-  EXPECT_TRUE(
-      service()->GetUserSettings()->IsSyncFeatureDisabledViaDashboard());
-  service()->GetUserSettings()->ClearSyncFeatureDisabledViaDashboard();
-
-#else
   // For any platform except ChromeOS Ash, the user needs to turn sync on
   // manually.
   ASSERT_FALSE(
       service()->GetUserSettings()->IsInitialSyncFeatureSetupComplete());
   service()->GetUserSettings()->SetInitialSyncFeatureSetupComplete();
   base::RunLoop().RunUntilIdle();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Sync-the-feature is considered on.
   EXPECT_EQ(SyncService::TransportState::ACTIVE,
@@ -525,50 +497,6 @@ TEST_F(SyncServiceImplTest, DisabledByPolicyBeforeInitThenPolicyRemoved) {
   EXPECT_TRUE(service()->IsSyncFeatureActive());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(SyncServiceImplTest,
-       DisabledByPolicyBeforeInit_DisablesOsTypesWithoutSyncConsent) {
-  prefs()->SetManagedPref(prefs::internal::kSyncManaged, base::Value(true));
-  SignInWithoutSyncConsent();
-
-  InitializeService();
-  base::RunLoop().RunUntilIdle();
-
-  // Sync was disabled due to the policy.
-  ASSERT_EQ(SyncService::DisableReasonSet(
-                {SyncService::DISABLE_REASON_ENTERPRISE_POLICY}),
-            service()->GetDisableReasons());
-
-  // It should NOT set SyncFeatureDisabledViaDashboard.
-  EXPECT_FALSE(
-      service()->GetUserSettings()->IsSyncFeatureDisabledViaDashboard());
-
-  // But it should disable OS types.
-  EXPECT_FALSE(service()->GetUserSettings()->IsSyncAllOsTypesEnabled());
-  EXPECT_TRUE(service()->GetUserSettings()->GetSelectedOsTypes().empty());
-}
-
-TEST_F(SyncServiceImplTest,
-       DisabledByPolicyBeforeInit_DoesNotDisableOsTypesWithSyncConsent) {
-  prefs()->SetManagedPref(prefs::internal::kSyncManaged, base::Value(true));
-  SignInWithSyncConsent();
-
-  InitializeService();
-  base::RunLoop().RunUntilIdle();
-
-  // Sync was disabled due to the policy.
-  ASSERT_EQ(SyncService::DisableReasonSet(
-                {SyncService::DISABLE_REASON_ENTERPRISE_POLICY}),
-            service()->GetDisableReasons());
-
-  // It should set SyncFeatureDisabledViaDashboard.
-  EXPECT_TRUE(
-      service()->GetUserSettings()->IsSyncFeatureDisabledViaDashboard());
-
-  // But it should NOT disable OS types.
-  EXPECT_TRUE(service()->GetUserSettings()->IsSyncAllOsTypesEnabled());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Verify that disable by enterprise policy works even after the backend has
 // been initialized.
@@ -612,7 +540,6 @@ TEST_F(SyncServiceImplTest, AbortedByShutdown) {
 // (transport mode technically does exits on ChromeOS if Sync is disabled via
 // dashboard, but the behavior is not the same as on other platforms, e.g. the
 // user cannot enable individual types).
-#if !BUILDFLAG(IS_CHROMEOS)
 // Test the user signing out before the backend's initialization completes.
 TEST_F(SyncServiceImplTest, EarlySignOut) {
   // Set up a fake sync engine that will not immediately finish initialization.
@@ -791,15 +718,10 @@ TEST_F(SyncServiceImplTest,
   EXPECT_FALSE(
       engine_factory()->HasTransportDataIncludingFirstSync(gaia_id_hash()));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(
     SyncServiceImplTest,
     AddressesSyncShouldBeDisabledForNewlySigninUsersWithAlreadyCustomPassphraseSet) {
-#if BUILDFLAG(IS_CHROMEOS)
-  base::test::ScopedFeatureList scoped_feature_list{
-      syncer::kSyncEnableContactInfoDataTypeForCustomPassphraseUsers};
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Sign-in.
   SignInWithoutSyncConsent();
@@ -808,13 +730,6 @@ TEST_F(
   params.emplace_back(CONTACT_INFO, /*enable_transport_mode=*/true);
   InitializeService(std::move(params));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Sync-the-feature is normally enabled in Ash. Triggering a dashboard reset
-  // is one way to achieve otherwise.
-  SyncProtocolError client_cmd;
-  client_cmd.action = DISABLE_SYNC_ON_CLIENT;
-  service()->OnActionableProtocolError(client_cmd);
-#endif
 
   base::RunLoop().RunUntilIdle();
 
@@ -826,15 +741,6 @@ TEST_F(
   // This call represents the initial passphrase type coming in from the server.
   service()->PassphraseTypeChanged(PassphraseType::kCustomPassphrase);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // UserSelectableType::kAutofill should have been disabled.
-  EXPECT_FALSE(service()->GetUserSettings()->GetSelectedTypes().Has(
-      UserSelectableType::kAutofill));
-
-  // The user enables addresses sync.
-  service()->GetUserSettings()->SetSelectedType(
-      syncer::UserSelectableType::kAutofill, true);
-#endif
 
   // UserSelectableType::kAutofill should have been enabled.
   EXPECT_TRUE(service()->GetUserSettings()->GetSelectedTypes().Has(
@@ -849,7 +755,6 @@ TEST_F(
       UserSelectableType::kAutofill));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(
     SyncServiceImplTest,
     AddressesSyncValueShouldRemainUnchangedForCustomPassphraseUsersAfterTheirInitialSignin) {
@@ -870,15 +775,6 @@ TEST_F(
   // This call represents the initial passphrase type coming in from the server.
   service()->PassphraseTypeChanged(PassphraseType::kCustomPassphrase);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // UserSelectableType::kAutofill should have been disabled.
-  EXPECT_FALSE(service()->GetUserSettings()->GetSelectedTypes().Has(
-      UserSelectableType::kAutofill));
-
-  // The user enables addresses sync.
-  service()->GetUserSettings()->SetSelectedType(
-      syncer::UserSelectableType::kAutofill, true);
-#endif
 
   // UserSelectableType::kAutofill should have been enabled.
   EXPECT_TRUE(service()->GetUserSettings()->GetSelectedTypes().Has(
@@ -943,7 +839,6 @@ TEST_F(
   EXPECT_TRUE(service()->GetUserSettings()->GetSelectedTypes().Has(
       UserSelectableType::kAutofill));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 class SyncServiceImplBookmarksLimitExceededErrorTest
     : public SyncServiceImplTest {
@@ -1166,7 +1061,6 @@ TEST_F(SyncServiceImplTest, CredentialsRejectedByClient_StopSync) {
 }
 
 // CrOS Ash does not support signout.
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(SyncServiceImplTest, SignOutRevokeAccessToken) {
   PopulatePrefsForInitialSyncFeatureSetupComplete();
   SignInWithSyncConsent();
@@ -1203,12 +1097,10 @@ TEST_F(SyncServiceImplTest, SignOutRevokeAccessToken) {
   account_mutator->ClearPrimaryAccount(signin_metrics::ProfileSignout::kTest);
   EXPECT_TRUE(service()->GetAccessTokenForTest().empty());
 }
-#endif
 
 // Verify that sync transport data is cleared when the service is initializing
 // and account is signed out.
 // This code path doesn't exist on ChromeOS-Ash, since signout is not possible.
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(SyncServiceImplTest, ClearTransportDataOnInitializeWhenSignedOut) {
   PopulatePrefsForInitialSyncFeatureSetupComplete();
 
@@ -1225,7 +1117,6 @@ TEST_F(SyncServiceImplTest, ClearTransportDataOnInitializeWhenSignedOut) {
   EXPECT_FALSE(
       engine_factory()->HasTransportDataIncludingFirstSync(gaia_id_hash()));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(SyncServiceImplTest, DashboardResetTwiceDoesNotCrash) {
   PopulatePrefsForInitialSyncFeatureSetupComplete();
@@ -1460,10 +1351,6 @@ TEST_F(SyncServiceImplTest, DisableSyncOnClient) {
       engine_factory()->HasTransportDataIncludingFirstSync(gaia_id_hash()));
   ASSERT_EQ(0, get_controller(BOOKMARKS)->model()->clear_metadata_count());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ASSERT_FALSE(
-      service()->GetUserSettings()->IsSyncFeatureDisabledViaDashboard());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // TODO(crbug.com/40066949): Update once kSync becomes unreachable or is
   // deleted from the codebase. See ConsentLevel::kSync documentation for
@@ -1486,32 +1373,6 @@ TEST_F(SyncServiceImplTest, DisableSyncOnClient) {
 
   EXPECT_FALSE(
       engine_factory()->HasTransportDataIncludingFirstSync(gaia_id_hash()));
-#if BUILDFLAG(IS_CHROMEOS)
-  // Ash does not support signout.
-  // TODO(crbug.com/40066949): Remove once kSync becomes unreachable or is
-  // deleted from the codebase. See ConsentLevel::kSync documentation for
-  // details.
-  EXPECT_TRUE(
-      identity_manager()->HasPrimaryAccount(signin::ConsentLevel::kSync));
-  EXPECT_TRUE(service()->GetDisableReasons().empty());
-  // Since ChromeOS doesn't support signout and so the account is still there
-  // and available, Sync will restart in standalone transport mode.
-  base::RunLoop().RunUntilIdle();
-  EXPECT_EQ(SyncService::TransportState::ACTIVE,
-            service()->GetTransportState());
-  EXPECT_TRUE(
-      service()->GetUserSettings()->IsSyncFeatureDisabledViaDashboard());
-#elif BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // On iOS and Android, the primary account is cleared.
-  EXPECT_FALSE(
-      identity_manager()->HasPrimaryAccount(signin::ConsentLevel::kSignin));
-  EXPECT_EQ(SyncService::DisableReasonSet(
-                {SyncService::DISABLE_REASON_NOT_SIGNED_IN}),
-            service()->GetDisableReasons());
-  EXPECT_EQ(SyncService::TransportState::DISABLED,
-            service()->GetTransportState());
-  EXPECT_TRUE(service()->GetLastSyncedTimeForDebugging().is_null());
-#else
   // On Desktop and Lacros, the sync consent is revoked, but the primary account
   // is left at ConsentLevel::kSignin. Sync will restart in standalone transport
   // mode.
@@ -1526,7 +1387,6 @@ TEST_F(SyncServiceImplTest, DisableSyncOnClient) {
   base::RunLoop().RunUntilIdle();
   EXPECT_EQ(SyncService::TransportState::ACTIVE,
             service()->GetTransportState());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // TrustedVault data should have been cleared.
   EXPECT_THAT(trusted_vault_client()->GetStoredKeys(primary_account_gaia_id),
@@ -1856,7 +1716,6 @@ TEST_F(SyncServiceImplTest, ShouldSendDataTypesToSyncInvalidationsService) {
   EXPECT_TRUE(engine()->started_handling_invalidations());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(SyncServiceImplTest,
        ShouldSendDataTypesToSyncInvalidationsServiceInTransportMode) {
   SignInWithoutSyncConsent();
@@ -1878,99 +1737,7 @@ TEST_F(SyncServiceImplTest,
   ASSERT_FALSE(service()->IsSyncFeatureActive());
   EXPECT_TRUE(engine()->started_handling_invalidations());
 }
-#else
-TEST_F(SyncServiceImplTest,
-       ShouldSendDataTypesToSyncInvalidationsServiceInTransportModeAsh) {
-  SignInWithSyncConsent();
-  std::vector<FakeControllerInitParams> params;
-  params.emplace_back(BOOKMARKS, /*enable_transport_mode=*/false);
-  params.emplace_back(DEVICE_INFO, /*enable_transport_mode=*/true);
-  InitializeService(std::move(params));
-  base::RunLoop().RunUntilIdle();
 
-  // In this test, BOOKMARKS doesn't support transport mode, so it should *not*
-  // be included.
-  // Note: Even though NIGORI technically isn't registered, it should always be
-  // considered part of the interested data types.
-  // Note2: InitializeForFirstSync() issued a first SetInterestedDataTypes()
-  // with sync-the-feature enabled, which we don't care about. That's why this
-  // expectation is set afterwards.
-  EXPECT_CALL(*sync_invalidations_service(),
-              SetInterestedDataTypes(AllOf(ContainsDataType(NIGORI),
-                                           Not(ContainsDataType(BOOKMARKS)),
-                                           ContainsDataType(DEVICE_INFO))));
-
-  // Sync-the-feature is normally enabled in Ash. Triggering a dashboard reset
-  // is one way to achieve otherwise.
-  SyncProtocolError client_cmd;
-  client_cmd.action = DISABLE_SYNC_ON_CLIENT;
-  service()->OnActionableProtocolError(client_cmd);
-  base::RunLoop().RunUntilIdle();
-
-  ASSERT_FALSE(service()->IsSyncFeatureActive());
-  EXPECT_TRUE(engine()->started_handling_invalidations());
-}
-#endif
-
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(SyncServiceImplTest, ShouldEnableAndDisableInvalidationsForSessions) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndDisableFeature(
-      kAlwaysRegisterSessionsInvalidationsAndroid);
-
-  PopulatePrefsForInitialSyncFeatureSetupComplete();
-  SignInWithSyncConsent();
-  std::vector<FakeControllerInitParams> params;
-  params.emplace_back(SESSIONS, /*enable_transport_mode=*/false);
-  params.emplace_back(BOOKMARKS, /*enable_transport_mode=*/false);
-  InitializeService(std::move(params));
-  base::RunLoop().RunUntilIdle();
-
-  EXPECT_CALL(*sync_invalidations_service(),
-              SetInterestedDataTypes(ContainsDataType(SESSIONS)));
-  service()->SetInvalidationsForSessionsEnabled(true);
-  EXPECT_CALL(*sync_invalidations_service(),
-              SetInterestedDataTypes(Not(ContainsDataType(SESSIONS))));
-  service()->SetInvalidationsForSessionsEnabled(false);
-}
-
-TEST_F(SyncServiceImplTest,
-       ShouldAlwaysSubscribeToSessionsListingsIfFeatureEnabled) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(
-      kAlwaysRegisterSessionsInvalidationsAndroid);
-
-  AccountInfo account_info = identity_test_env()->MakePrimaryAccountAvailable(
-      kTestUser, signin::ConsentLevel::kSignin);
-  SyncPrefs(prefs()).SetSelectedTypeForAccount(UserSelectableType::kTabs, true,
-                                               account_info.GetGaiaId());
-
-  std::vector<FakeControllerInitParams> params;
-  params.emplace_back(DEVICE_INFO, /*enable_transport_mode=*/true);
-  params.emplace_back(SESSIONS, /*enable_transport_mode=*/true);
-  InitializeService(std::move(params));
-
-  // SESSIONS should be included regardless of
-  // SetInvalidationsForSessionsEnabled.
-  EXPECT_CALL(*sync_invalidations_service(),
-              SetInterestedDataTypes(ContainsDataType(SESSIONS)));
-  EXPECT_TRUE(base::test::RunUntil([&]() {
-    return service()->GetTransportState() ==
-           SyncService::TransportState::ACTIVE;
-  }));
-
-  // Calling with false should not trigger an update or remove SESSIONS.
-  EXPECT_CALL(*sync_invalidations_service(),
-              SetInterestedDataTypes(Not(ContainsDataType(SESSIONS))))
-      .Times(0);
-
-  service()->SetInvalidationsForSessionsEnabled(false);
-  EXPECT_TRUE(base::test::RunUntil([&]() {
-    return service()->GetTransportState() ==
-           SyncService::TransportState::ACTIVE;
-  }));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST_F(SyncServiceImplTest, ShouldNotSubscribeToProxyTypes) {
   PopulatePrefsForInitialSyncFeatureSetupComplete();
@@ -2358,7 +2125,6 @@ TEST_F(SyncServiceImplTest, ShouldReturnErrorOnSyncPaused) {
             SyncService::DataTypeDownloadStatus::kError);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(SyncServiceImplTest, ShouldRecordUserActionableErrorOnSyncPaused) {
   base::HistogramTester histogram_tester;
   PopulatePrefsForInitialSyncFeatureSetupComplete();
@@ -2384,11 +2150,9 @@ TEST_F(SyncServiceImplTest, ShouldRecordUserActionableErrorOnSyncPaused) {
       SyncService::UserActionableError::kSignInNeedsUpdate,
       /*expected_bucket_count=*/1);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // These tests cover signing in after browser startup, which isn't supported on
 // ChromeOS-Ash (where there's always a signed-in user).
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(
     SyncServiceImplTest,
     GetTypesWithPendingDownloadForInitialSyncDuringFirstSyncInTransportMode) {
@@ -2445,7 +2209,6 @@ TEST_F(SyncServiceImplTest,
   EXPECT_EQ(DataTypeSet(),
             service()->GetTypesWithPendingDownloadForInitialSync());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(SyncServiceImplTest,
        GetTypesWithPendingDownloadForInitialSyncDuringNthSync) {
@@ -2730,7 +2493,6 @@ TEST_F(SyncServiceImplTest,
   service()->TriggerLocalDataMigrationForItems(items);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(SyncServiceImplTest,
        ShouldForwardUponSelectTypeAndMigrateLocalDataItemsWhenActive) {
   SignInWithoutSyncConsent();
@@ -2780,7 +2542,6 @@ TEST_F(
   service()->SelectTypeAndMigrateLocalDataItemsWhenActive(PASSWORDS, items);
   EXPECT_TRUE(service()->GetActiveDataTypes().Has(PASSWORDS));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(
     SyncServiceImplTest,
@@ -2935,12 +2696,7 @@ TEST_F(SyncServiceImplTest, ShouldCacheTrustedVaultAutoUpgradeDebugInfo) {
   base::RunLoop().RunUntilIdle();
   SignInWithSyncConsent();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ASSERT_TRUE(
-      service()->GetUserSettings()->IsInitialSyncFeatureSetupComplete());
-#else   // BUILDFLAG(IS_CHROMEOS)
   service()->GetUserSettings()->SetInitialSyncFeatureSetupComplete();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   base::RunLoop().RunUntilIdle();
 
@@ -3013,7 +2769,6 @@ TEST_F(SyncServiceImplTest, ShouldCacheTrustedVaultAutoUpgradeDebugInfo) {
                 .cohort());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(SyncServiceImplTest, ShouldRecordHistoryOptInStateOnSignin) {
   {
     base::HistogramTester histogram_tester;
@@ -3141,7 +2896,6 @@ TEST_F(SyncServiceImplTest, ShouldRecordHistoryOptInStateOnSync) {
           "Signin.HistoryAlreadyOptedInAccessPoint."),
       Contains(Pair("Signin.HistoryAlreadyOptedInAccessPoint.OnSync", 1)));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(SyncServiceImplTest, ShouldQueueTaskUntilEngineInitialized) {
   engine_factory()->AllowFakeEngineInitCompletion(false);
@@ -3182,7 +2936,6 @@ TEST_F(SyncServiceImplTest, AvoidCachingCredentialsInEngineWhenFeatureEnabled) {
   EXPECT_FALSE(engine()->last_credentials().has_value());
 }
 
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
 TEST_F(SyncServiceImplTest, ShouldReturnPasskeysLockedErrorAndRecordHistogram) {
   base::HistogramTester histogram_tester;
   PopulatePrefsForInitialSyncFeatureSetupComplete();
@@ -3267,7 +3020,6 @@ TEST_F(SyncServiceImplTest, PasskeysLockedErrorPriority) {
   EXPECT_EQ(SyncService::UserActionableError::kNeedsTrustedVaultKeyForPasswords,
             service()->GetUserActionableError());
 }
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 }  // namespace syncer

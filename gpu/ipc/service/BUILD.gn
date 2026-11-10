@@ -137,24 +137,12 @@ component("service") {
       ]
       defines += [ "GL_SILENCE_DEPRECATION" ]
     }
-    if (is_ios) {
-      sources += [ "image_transport_surface_ios.mm" ]
-    }
   }
-  if (is_android) {
-    sources += [ "image_transport_surface_android.cc" ]
-    libs += [ "android" ]
-  }
-  if (is_linux || is_chromeos) {
+
+  if (is_linux) {
     sources += [ "image_transport_surface_linux.cc" ]
   }
-  if (is_chromeos) {
-    sources += [
-      "arc_shared_image_interface.cc",
-      "arc_shared_image_interface.h",
-    ]
-    deps += [ "//chromeos/ash/experiences/arc:arc_features" ]
-  }
+
   if (use_ozone) {
     deps += [ "//ui/ozone" ]
     sources += [

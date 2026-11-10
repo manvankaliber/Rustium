@@ -226,7 +226,7 @@ bool IsInAutofillSuggestionsDisabledExperiment() {
 }
 
 bool IsCreditCardFidoAuthenticationEnabled() {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   // Better Auth project is fully launched on Windows/Mac for Desktop, and
   // Android for mobile.
   return true;
@@ -243,12 +243,7 @@ bool ShouldShowIbanOnSettingsPage(const std::string& user_country_code,
 }
 
 bool IsTouchToFillPaymentMethodSupported() {
-#if BUILDFLAG(IS_ANDROID)
-  // Touch To Fill is only supported on Android.
-  return true;
-#else
   return false;
-#endif
 }
 
 void SetUserOptedInWalletSyncTransport(PrefService* prefs,

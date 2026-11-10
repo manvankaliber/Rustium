@@ -232,18 +232,7 @@ TEST_F(PageLoadTrackerTest, EventForwarding) {
 
   EXPECT_EQ(2u, GetEvents().sub_frame_navigation_count);
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(features::kDefaultSiteInstanceGroups)) {
-    EXPECT_EQ(1u, GetEvents().render_frame_deleted_count);
-  } else if (content::WillSameSiteNavigationChangeRenderFrameHosts(
-                 /*is_main_frame=*/true)) {
-    EXPECT_EQ(0u, GetEvents().render_frame_deleted_count);
-  } else {
-    EXPECT_EQ(0u, GetEvents().render_frame_deleted_count);
-  }
-#else
   EXPECT_EQ(1u, GetEvents().render_frame_deleted_count);
-#endif
 
   EXPECT_EQ(0u, GetEvents().sub_frame_deleted_count);
 
@@ -254,18 +243,7 @@ TEST_F(PageLoadTrackerTest, EventForwarding) {
     delete_observer.WaitUntilDeleted();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(features::kDefaultSiteInstanceGroups)) {
-    EXPECT_EQ(2u, GetEvents().render_frame_deleted_count);
-  } else if (content::WillSameSiteNavigationChangeRenderFrameHosts(
-                 /*is_main_frame=*/true)) {
-    EXPECT_EQ(1u, GetEvents().render_frame_deleted_count);
-  } else {
-    EXPECT_EQ(1u, GetEvents().render_frame_deleted_count);
-  }
-#else
   EXPECT_EQ(2u, GetEvents().render_frame_deleted_count);
-#endif
 
   EXPECT_EQ(1u, GetEvents().sub_frame_deleted_count);
 }

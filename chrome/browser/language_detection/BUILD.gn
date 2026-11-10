@@ -52,9 +52,6 @@ source_set("browser_tests") {
     "//testing/gtest",
     "//third_party/blink/public/common:headers",
   ]
-  if (!is_android) {
-    deps += [ "//chrome/browser/ui/browser_window" ]
-  } else {
-    deps += [ "//chrome/test:test_support_ui_android" ]
-  }
+
+  deps += [ "//chrome/browser/ui/browser_window" ]
 }

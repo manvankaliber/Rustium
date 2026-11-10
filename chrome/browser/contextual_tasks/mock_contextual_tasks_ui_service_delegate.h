@@ -26,10 +26,6 @@ class MockContextualTasksUiServiceDelegate
               ShowUndoSnackbar,
               (BrowserWindowInterface * browser_window_interface),
               (override));
-  MOCK_METHOD(void,
-              StartPlatformVoiceRecognition,
-              (BrowserWindowInterface * browser),
-              (override));
 };
 
 }  // namespace contextual_tasks

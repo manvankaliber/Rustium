@@ -57,9 +57,6 @@ class MockPolicyService : public PolicyService {
   MOCK_METHOD2(RefreshPolicies, void(base::OnceClosure, PolicyFetchReason));
   MOCK_METHOD1(UseLocalTestPolicyProvider, void(ConfigurationPolicyProvider*));
 
-#if BUILDFLAG(IS_ANDROID)
-  MOCK_METHOD0(GetPolicyServiceAndroid, android::PolicyServiceAndroid*());
-#endif
 };
 
 }  // namespace policy

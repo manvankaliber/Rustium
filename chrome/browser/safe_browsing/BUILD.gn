@@ -109,56 +109,24 @@ static_library("safe_browsing") {
 
   if (enable_extensions) {
     deps += [ "//chrome/browser/ui/web_applications" ]
-
-    if (is_chromeos) {
-      deps += [ "//chromeos/ash/components/system" ]
-    }
   }
 
-  # Note: is_android is not equivalent to safe_browsing_mode == 2.
-  # Sources and dependencies added to this block must not depend on anything
-  # requiring safe_browsing_mode != 0.
-  if (is_android) {
-    deps += [
-      "//chrome/browser/password_manager/android:utils",
-      "//chrome/browser/ui/android/safe_browsing",
-      "//chrome/browser/ui/android/tab_model",
-      "//components/safe_browsing/android:safe_browsing_api_handler",
-      "//components/safe_browsing/android:safe_browsing_api_handler_util",
-    ]
+  deps += [
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui:scoped_tabbed_browser_displayer",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+  ]
+  public += [
+    "generated_security_settings_bundle_pref.h",
+    "settings/generated_safe_browsing_pref.h",
+  ]
+  sources += [
+    "generated_security_settings_bundle_pref.cc",
+    "settings/generated_safe_browsing_pref.cc",
+  ]
 
-    # android/safe_browsing:safe_browsing includes
-    # chrome/browser/safe_browsing/android/password_protection/password_reuse_controller_android.h
-    # (password_protection/password_reuse_dialog_view_android.cc) which is
-    # owned by this target.
-    allow_circular_includes_from +=
-        [ "//chrome/browser/ui/android/safe_browsing:safe_browsing" ]
-  }
-
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:scoped_tabbed_browser_displayer",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-    ]
-    public += [
-      "generated_security_settings_bundle_pref.h",
-      "settings/generated_safe_browsing_pref.h",
-    ]
-    sources += [
-      "generated_security_settings_bundle_pref.cc",
-      "settings/generated_safe_browsing_pref.cc",
-    ]
-  }
-
-  if (is_chromeos) {
-    deps += [ "//chrome/browser/ash/file_manager" ]
-
-    allow_circular_includes_from += [ "//chrome/browser/ash/file_manager" ]
-  }
-
-  if (is_win || is_mac || is_linux || is_chromeos) {
+  if (is_win || is_mac || is_linux) {
     public += [ "security_settings_bundle_toast_helper.h" ]
     sources += [ "security_settings_bundle_toast_helper.cc" ]
     deps += [
@@ -318,25 +286,16 @@ static_library("safe_browsing") {
       "telemetry/telemetry_service.cc",
       "triggers/trigger_creator.cc",
     ]
-    if (is_android) {
-      public += [
-        "android/chrome_safe_browsing_hats_delegate_android.h",
-        "android/client_side_detection_intelligent_scan_delegate_android.h",
-      ]
-      sources += [
-        "android/chrome_safe_browsing_hats_delegate_android.cc",
-        "android/client_side_detection_intelligent_scan_delegate_android.cc",
-      ]
-    } else {
-      public += [
-        "chrome_safe_browsing_hats_delegate_desktop.h",
-        "client_side_detection_intelligent_scan_delegate_desktop.h",
-      ]
-      sources += [
-        "chrome_safe_browsing_hats_delegate_desktop.cc",
-        "client_side_detection_intelligent_scan_delegate_desktop.cc",
-      ]
-    }
+
+    public += [
+      "chrome_safe_browsing_hats_delegate_desktop.h",
+      "client_side_detection_intelligent_scan_delegate_desktop.h",
+    ]
+    sources += [
+      "chrome_safe_browsing_hats_delegate_desktop.cc",
+      "client_side_detection_intelligent_scan_delegate_desktop.cc",
+    ]
+
     deps += [
       ":advanced_protection",
       ":metrics_collector",
@@ -608,66 +567,22 @@ static_library("safe_browsing") {
       } else if (is_win) {
         deps += [ "//chrome/common:version_header" ]
       }
-      if (is_chromeos) {
-        deps += [
-          "//ash/constants",
-          "//chromeos/ash/components/browser_context_helper",
-          "//chromeos/components/mgs",
-        ]
-      }
-      if (!is_android) {
-        deps += [
-          "//chrome/browser/ui:chrome_pages",
-          "//chrome/browser/user_education",
-        ]
-      }
-      if (!is_android && !is_chromeos) {
-        deps += [ "//chrome/browser/download/bubble" ]
-      }
-    } else if (safe_browsing_mode == 2) {
-      public += [
-        "android/download_protection_metrics_data.h",
-        "android/notification_content_detection_manager_android.h",
-        "android/password_protection/password_reuse_controller_android.h",
-        "android/safe_browsing_referring_app_bridge_android.h",
-        "android/safe_browsing_settings_navigation_android.h",
-        "android/services_delegate_android.h",
-        "android/suspicious_site_controller_android.h",
-        "download_protection/download_protection_delegate_android.h",
-        "download_protection/rate_limiting_key_manager.h",
-        "tailored_security/consented_message_android.h",
-        "tailored_security/unconsented_message_android.h",
-        "telemetry/android/android_telemetry_service.h",
-      ]
-      sources += [
-        "android/download_protection_metrics_data.cc",
-        "android/notification_content_detection_manager_android.cc",
-        "android/password_protection/password_reuse_controller_android.cc",
-        "android/safe_browsing_referring_app_bridge_android.cc",
-        "android/safe_browsing_settings_navigation_android.cc",
-        "android/services_delegate_android.cc",
-        "android/suspicious_site_controller_android.cc",
-        "download_protection/download_protection_delegate_android.cc",
-        "download_protection/rate_limiting_key_manager.cc",
-        "tailored_security/consented_message_android.cc",
-        "tailored_security/unconsented_message_android.cc",
-        "telemetry/android/android_telemetry_service.cc",
-      ]
+
       deps += [
-        "//chrome/android:chrome_jni_headers",
+        "//chrome/browser/ui:chrome_pages",
+        "//chrome/browser/user_education",
+      ]
+
+      deps += [ "//chrome/browser/download/bubble" ]
+    } else if (safe_browsing_mode == 2) {
+      public += [ "download_protection/rate_limiting_key_manager.h" ]
+      sources += [ "download_protection/rate_limiting_key_manager.cc" ]
+      deps += [
         "//chrome/app/vector_icons",
-        "//chrome/browser/android:resource_mapper",
-        "//chrome/browser/safe_browsing/android",
-        "//chrome/browser/ui/android/hats",
-        "//chrome/browser/ui/android/tab_model",
-        "//components/messages/android",
         "//components/safe_browsing:buildflags",
-        "//components/safe_browsing/android:remote_database_manager",
-        "//components/safe_browsing/android:safe_browsing_mobile",
         "//components/safe_browsing/core/browser:suspicious_site_warning_allowlist",
         "//content/public/browser",
         "//google_apis/common:request_util",
-        "//ui/android",
 
         # TODO(crbug.com/41437292): Use //chrome/browser after fixing cyclic
         # dependency.
@@ -725,18 +640,10 @@ static_library("advanced_protection") {
     "//content/public/browser",
   ]
 
-  if (is_android) {
-    sources += [
-      "advanced_protection/advanced_protection_status_manager_android.cc",
-      "advanced_protection/advanced_protection_status_manager_android.h",
-    ]
-    deps += [ "android:jni_headers" ]
-  } else {
-    sources += [
-      "advanced_protection/advanced_protection_status_manager_desktop.cc",
-      "advanced_protection/advanced_protection_status_manager_desktop.h",
-    ]
-  }
+  sources += [
+    "advanced_protection/advanced_protection_status_manager_desktop.cc",
+    "advanced_protection/advanced_protection_status_manager_desktop.h",
+  ]
 }
 
 source_set("metrics_collector") {
@@ -861,10 +768,6 @@ source_set("unit_tests") {
       "//components/ukm:test_support",
       "//third_party/zlib/google:zip",
     ]
-
-    if (is_android) {
-      deps += [ "//chrome/browser/password_manager/android:unit_tests" ]
-    }
 
     if (enterprise_cloud_content_analysis) {
       sources += [
@@ -1001,10 +904,6 @@ source_set("unit_tests") {
       "//extensions/common",
     ]
 
-    if (is_chromeos) {
-      deps += [ "//chrome/browser/ash/login/users" ]
-    }
-
     if (is_mac) {
       sources += [
         "incident_reporting/binary_integrity_analyzer_mac_unittest.cc",
@@ -1029,33 +928,7 @@ source_set("unit_tests") {
     }
   }
 
-  if (is_android) {
-    deps += [ "android:test_support" ]
-  }
-
-  if (safe_browsing_mode == 2 && is_android) {
-    sources += [
-      "android/chrome_safe_browsing_hats_delegate_android_unittest.cc",
-      "android/client_side_detection_intelligent_scan_delegate_android_unittest.cc",
-      "android/password_protection/password_reuse_controller_android_unittest.cc",
-      "android/suspicious_site_controller_android_unittest.cc",
-      "download_protection/rate_limiting_key_manager_unittest.cc",
-      "settings/safe_browsing_pref_change_handler_android_unittest.cc",
-      "tailored_security/chrome_tailored_security_service_android_unittest.cc",
-      "tailored_security/consented_message_android_unittest.cc",
-      "telemetry/android/android_telemetry_service_unittest.cc",
-    ]
-    deps += [
-      "//chrome/browser/ui/android/hats",
-      "//chrome/browser/ui/android/tab_model:test_support",
-      "//components/history/core/test",
-      "//components/messages/android:test_support",
-      "//components/safe_browsing/android:real_time_url_checks_allowlist",
-      "//components/safe_browsing/android:safe_browsing_api_handler",
-      "//components/safe_browsing/android:safe_browsing_api_handler_util",
-    ]
-  }
-  if (enterprise_cloud_content_analysis || is_android) {
+  if (enterprise_cloud_content_analysis) {
     sources += [ "download_protection/deep_scanning_request_unittest.cc" ]
     deps += [
       "//chrome/browser/enterprise/connectors/reporting:unit_tests",
@@ -1068,15 +941,12 @@ source_set("unit_tests") {
       "//components/enterprise/connectors/core:test_support",
       "//components/enterprise/obfuscation/core:enterprise_obfuscation",
     ]
-    if (is_chromeos) {
-      deps += [ "//chromeos/ash/components/system" ]
-    }
   }
   if (enable_extensions_core) {
     # For extensions::DownloadedByExtension in the download_protection tests.
     deps += [ "//chrome/browser/extensions" ]
   }
-  if (is_win || is_mac || is_linux || is_chromeos) {
+  if (is_win || is_mac || is_linux) {
     sources += [
       "generated_security_settings_bundle_pref_unittest.cc",
       "security_settings_bundle_toast_helper_unittest.cc",
@@ -1098,9 +968,7 @@ source_set("unit_tests") {
     ]
   }
 
-  if (!is_android) {
-    deps += [ "//chrome/browser/ui:browser_manager_service" ]
-  }
+  deps += [ "//chrome/browser/ui:browser_manager_service" ]
 }
 
 source_set("test_support") {
@@ -1136,12 +1004,10 @@ source_set("test_support") {
       "test_safe_browsing_service.h",
     ]
 
-    if (!is_android) {
-      sources += [
-        "navigation_observer/test_safe_browsing_navigation_observer_manager.cc",
-        "navigation_observer/test_safe_browsing_navigation_observer_manager.h",
-      ]
-    }
+    sources += [
+      "navigation_observer/test_safe_browsing_navigation_observer_manager.cc",
+      "navigation_observer/test_safe_browsing_navigation_observer_manager.h",
+    ]
 
     deps += [
       ":safe_browsing",
@@ -1161,13 +1027,6 @@ source_set("test_support") {
       "//content/test:test_support",
       "//services/network:test_support",
       "//testing/gtest",
-    ]
-  }
-
-  if (is_android) {
-    deps += [
-      "android:test_support",
-      "android:test_support_java",
     ]
   }
 
@@ -1234,11 +1093,7 @@ if (safe_browsing_mode != 0) {
       "//components/safe_browsing/content/browser",
     ]
 
-    if (is_android) {
-      public_deps += [ "//chrome/test:test_support_ui_android" ]
-    } else {
-      public_deps += [ "//chrome/test/base:in_process_browser_test" ]
-    }
+    public_deps += [ "//chrome/test/base:in_process_browser_test" ]
 
     deps = [
       "//base",
@@ -1312,47 +1167,45 @@ source_set("browser_tests") {
   sources = []
   deps = [ "//chrome/browser/net" ]
 
-  if (!is_android) {
-    deps += [
-      ":safe_browsing",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui/omnibox",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/test:test_support",
-      "//components/safe_browsing/content/browser/web_ui",
+  deps += [
+    ":safe_browsing",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui/omnibox",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+    "//chrome/test:test_support",
+    "//components/safe_browsing/content/browser/web_ui",
+  ]
+
+  if (enterprise_cloud_content_analysis) {
+    sources += [
+      "cloud_content_scanning/cloud_binary_upload_service_browsertest.cc",
+      "download_protection/deep_scanning_browsertest.cc",
     ]
 
-    if (enterprise_cloud_content_analysis) {
-      sources += [
-        "cloud_content_scanning/cloud_binary_upload_service_browsertest.cc",
-        "download_protection/deep_scanning_browsertest.cc",
-      ]
+    deps += [
+      "//chrome/browser/enterprise/connectors/analysis:browser_tests",
+      "//chrome/browser/enterprise/test:test_support",
+      "//chrome/browser/ui/views:file_system_access_test_support",
+      "//components/enterprise/connectors/core:content_analysis_browser_test_base",
+      "//components/enterprise/obfuscation/core:enterprise_obfuscation",
+    ]
+  }
 
-      deps += [
-        "//chrome/browser/enterprise/connectors/analysis:browser_tests",
-        "//chrome/browser/enterprise/test:test_support",
-        "//chrome/browser/ui/views:file_system_access_test_support",
-        "//components/enterprise/connectors/core:content_analysis_browser_test_base",
-        "//components/enterprise/obfuscation/core:enterprise_obfuscation",
-      ]
-    }
-
-    if (safe_browsing_mode != 0) {
-      sources += [
-        "download_protection/download_protection_service_browsertest.cc",
-        "gemini_antiscam_protection/gemini_antiscam_protection_service_browsertest.cc",
-      ]
-      deps += [
-        "//components/optimization_guide/core:model_execution_test_support",
-        "//components/safe_browsing/content/browser:client_side_detection",
-        "//components/safe_browsing/content/browser:client_side_detection_service",
-        "//components/safe_browsing/content/common/file_type_policies:file_type_policies_test_support",
-        "//components/safe_browsing/content/common/file_type_policies/proto:download_file_types_proto",
-        "//components/safe_browsing/content/renderer/phishing_classifier",
-        "//components/safe_browsing/core/common:features",
-        "//components/safe_browsing/core/common/phishing_classifier",
-      ]
-    }
+  if (safe_browsing_mode != 0) {
+    sources += [
+      "download_protection/download_protection_service_browsertest.cc",
+      "gemini_antiscam_protection/gemini_antiscam_protection_service_browsertest.cc",
+    ]
+    deps += [
+      "//components/optimization_guide/core:model_execution_test_support",
+      "//components/safe_browsing/content/browser:client_side_detection",
+      "//components/safe_browsing/content/browser:client_side_detection_service",
+      "//components/safe_browsing/content/common/file_type_policies:file_type_policies_test_support",
+      "//components/safe_browsing/content/common/file_type_policies/proto:download_file_types_proto",
+      "//components/safe_browsing/content/renderer/phishing_classifier",
+      "//components/safe_browsing/core/common:features",
+      "//components/safe_browsing/core/common/phishing_classifier",
+    ]
   }
 
   if (enable_extensions) {
@@ -1468,41 +1321,12 @@ source_set("browser_tests") {
       "//components/safe_browsing/core/common/proto:client_model_proto",
       "//components/safe_browsing/core/common/proto:csd_proto",
       "//components/search_engines",
-      "//components/user_manager",
       "//content/public/browser",
       "//content/test:browsertest_support",
       "//net",
       "//net:test_support",
       "//testing/gtest",
       "//ui/events:test_support",
-    ]
-  }
-}
-
-if (safe_browsing_mode != 0 && is_android) {
-  source_set("android_browsertests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-
-    sources = [ "interstitials/safe_browsing_blocking_page_android_test.cc" ]
-    deps = [
-      ":blocking_page_platform_test_support",
-      ":safe_browsing",
-      "//base",
-      "//base/test:test_support",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/ui/android/hats",
-      "//chrome/browser/ui/android/tab_model",
-      "//chrome/browser/ui/hats",
-      "//chrome/test/base:android_browser_test",
-      "//chrome/test/base:android_ui_test_utils",
-      "//chrome/test/base:chrome_test_utils",
-      "//components/prefs",
-      "//components/safe_browsing/core/common:safe_browsing_prefs",
-      "//content/test:test_support",
-      "//net:test_support",
-      "//testing/gmock",
-      "//testing/gtest",
     ]
   }
 }

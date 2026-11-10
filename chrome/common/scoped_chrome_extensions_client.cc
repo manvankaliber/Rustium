@@ -26,10 +26,6 @@
 #include "chrome/common/apps/platform_apps/chrome_apps_api_provider.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/common/chromeos/extensions/chromeos_system_extensions_api_provider.h"
-#include "chromeos/ash/experiences/extensions/common/chromeos_extensions_api_provider.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -71,12 +67,6 @@ ScopedChromeExtensionsClient::ScopedChromeExtensionsClient()
 #if BUILDFLAG(ENABLE_EXTENSIONS)
   client_->AddAPIProvider(
       std::make_unique<controlled_frame::ControlledFrameAPIProvider>());
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-  client_->AddAPIProvider(
-      std::make_unique<ash::ChromeOSExtensionsAPIProvider>());
-  client_->AddAPIProvider(
-      std::make_unique<chromeos::ChromeOSSystemExtensionsAPIProvider>());
 #endif
   ExtensionsClient::Set(client_.get());
 }

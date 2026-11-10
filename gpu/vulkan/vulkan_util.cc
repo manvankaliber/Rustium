@@ -19,9 +19,6 @@
 #include "third_party/abseil-cpp/absl/cleanup/cleanup.h"
 #include "ui/gl/gl_switches.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ui/gfx/linux/drm_util_linux.h"  //nogncheck
-#endif
 
 #define GL_NONE 0x00
 #define GL_LAYOUT_GENERAL_EXT 0x958D
@@ -168,7 +165,6 @@ bool CheckVulkanCompatibilities(
     const GPUInfo& gpu_info) {
 // Android uses AHB and SyncFD for interop. They are imported into GL with other
 // API.
-#if !BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_WIN)
   constexpr char kMemoryObjectExtension[] = "GL_EXT_memory_object_win32";
   constexpr char kSemaphoreExtension[] = "GL_EXT_semaphore_win32";
@@ -190,7 +186,6 @@ bool CheckVulkanCompatibilities(
       return false;
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   return features::CheckVulkanCompatibilities(device_properties);
 }

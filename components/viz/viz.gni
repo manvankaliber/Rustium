@@ -13,14 +13,12 @@ enable_gl_backend_tests = true
 # TODO(samans): Support more configurations.
 # CFI: TODO(crbug.com/40629477): Fix Control Flow Integrity check failure.
 # Fuchsia: TODO(crbug.com/42050537): Enable on ARM64 when bots support Vulkan.
-enable_vulkan_backend_tests =
-    enable_vulkan && (is_linux && !is_castos && !is_cfi)
+enable_vulkan_backend_tests = enable_vulkan && (is_linux && !is_cfi)
 
-enable_skia_graphite_tests =
-    skia_use_dawn && (is_mac || is_win || is_linux || (is_ios && use_blink))
+enable_skia_graphite_tests = skia_use_dawn && (is_mac || is_win || is_linux)
 
 # TODO(crbug.com/1336055): Determine whether is_cast_android needs this.
-enable_cast_overlay_strategy = is_castos || is_cast_android
+enable_cast_overlay_strategy = false
 
 viz_remove_configs = []
 viz_add_configs = [ "//build/config:precompiled_headers" ]

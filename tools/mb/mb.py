@@ -487,7 +487,7 @@ class MetaBuildWrapper:
       metavar='{NAME}={VALUE}',
       help=(
         'Additional named cache for test, example: '
-        '"runtime_ios_16_4=Runtime-ios-16.4"'
+        '"test_data=TestData"'
       ),
     )
     subp.add_argument(
@@ -1081,7 +1081,7 @@ class MetaBuildWrapper:
     if self.Exists(gn_args_path):
       args_contents = self.ReadFile(gn_args_path)
 
-    # Handle any .gni file imports, e.g. the ones used by CrOS. This should
+    # Handle any .gni file imports. This should
     # be automatically handled by gn_helpers.FromGNArgs (via its call to
     # gn_helpers.GNValueParser.ReplaceImports), but that currently breaks
     # mb_unittest since it mocks out file reads itself instead of using
@@ -1533,8 +1533,6 @@ class MetaBuildWrapper:
     The paths that are returned are relative to the build directory.
     """
 
-    android = 'target_os="android"' in vals['gn_args']
-    ios = 'target_os="ios"' in vals['gn_args']
     win = self.platform == 'win32' or 'target_os="win"' in vals['gn_args']
     possible_runtime_deps_rpaths = {}
     for target in ninja_targets:
@@ -1555,20 +1553,9 @@ class MetaBuildWrapper:
           'Cannot generate isolate for %s since it is an '
           'additional_compile_target.' % target
         )
-      if ios or target_type == 'generated_script':
-        # iOS and Fuchsia targets end up as groups.
+      if target_type == 'generated_script':
         # generated_script targets are always actions.
         rpaths = [stamp_runtime_deps, target_runtime_deps]
-      elif android:
-        # Android targets may be either android_apk or executable. The former
-        # will result in runtime_deps associated with the stamp file, while the
-        # latter will result in runtime_deps associated with the executable.
-        label = isolate_map[target]['label']
-        rpaths = [
-          target + '.runtime_deps',
-          stamp_runtime_deps,
-          target_runtime_deps,
-        ]
       elif (
         target_type == 'script'
         or isolate_map[target].get('label_type') == 'group'
@@ -1649,29 +1636,11 @@ class MetaBuildWrapper:
     # Complain if any file is a directory that's inside the build directory,
     # since that makes incremental builds incorrect. See
     # https://crbug.com/912946
-    is_android = 'target_os="android"' in vals['gn_args']
-    is_cros = (
-      'target_os="chromeos"' in vals['gn_args']
-      or 'is_chromeos_device=true' in vals['gn_args']
-    )
     is_msan = 'is_msan=true' in vals['gn_args']
-    is_ios = 'target_os="ios"' in vals['gn_args']
-    is_mac = (
-      self.platform == 'darwin' and not is_ios
-    ) or 'target_os="mac"' in vals['gn_args']
+    is_mac = self.platform == 'darwin' or 'target_os="mac"' in vals['gn_args']
 
     err = ''
     for f in files:
-      # Skip a few configs that need extra cleanup for now.
-      # TODO(crbug.com/40605564): Fix everything on all platforms and
-      # enable check everywhere.
-      if is_android:
-        break
-
-      # iOS has generated directories in gn data items.
-      # Skipping for iOS instead of listing all apps.
-      if is_ios:
-        break
 
       # Skip a few existing violations that need to be cleaned up. Each of
       # these will lead to incorrect incremental builds if their directory
@@ -1683,26 +1652,6 @@ class MetaBuildWrapper:
         or f == 'mr_extension/'  # https://crbug.com/997947
         or f.startswith('nacl_test_data/')
         or f.startswith('ppapi_nacl_tests_libs/')
-        or (
-          is_cros
-          and f
-          in (  # https://crbug.com/1002509
-            'chromevox_test_data/',
-            'gen/ui/file_manager/file_manager/',
-            'lacros_clang_x64/resources/accessibility/',
-            'resources/accessibility/',
-            'resources/chromeos/',
-            'resources/chromeos/accessibility/accessibility_common/',
-            'resources/chromeos/accessibility/chromevox/',
-            'resources/chromeos/accessibility/select_to_speak/',
-            'test_data/chrome/browser/resources/chromeos/accessibility/'
-            'accessibility_common/',
-            'test_data/chrome/browser/resources/chromeos/accessibility/'
-            'chromevox/',
-            'test_data/chrome/browser/resources/chromeos/accessibility/'
-            'select_to_speak/',
-          )
-        )
         or (
           is_mac
           and f
@@ -1860,29 +1809,19 @@ class MetaBuildWrapper:
   def GetSwarmingCommand(self, target, vals):
     isolate_map = self.ReadIsolateMap()
 
-    is_android = 'target_os="android"' in vals['gn_args']
-    is_cros = (
-      'target_os="chromeos"' in vals['gn_args']
-      or 'is_chromeos_device=true' in vals['gn_args']
-    )
-    is_cros_device = 'is_chromeos_device=true' in vals['gn_args']
-    is_ios = 'target_os="ios"' in vals['gn_args']
     is_linux = 'target_os="linux"' in vals['gn_args']
-    is_mac = (
-      self.platform == 'darwin' and not is_ios
-    ) or 'target_os="mac"' in vals['gn_args']
+    is_mac = self.platform == 'darwin' or 'target_os="mac"' in vals['gn_args']
     is_win = self.platform == 'win32' or 'target_os="win"' in vals['gn_args']
 
     # This should be true if tests with type='windowed_test_launcher' are
-    # expected to run using xvfb. For example, Linux Desktop, X11 CrOS and
-    # Ozone CrOS builds on Linux (xvfb is not used on CrOS HW or VMs). Note
-    # that one Ozone build can be used to run different backends. Currently,
+    # expected to run using xvfb on Linux. One Ozone build can be used to run
+    # different backends. Currently,
     # tests are executed for the headless and X11 backends and both can run
     # under Xvfb on Linux.
     if 'target_os' not in vals['gn_args']:
       use_xvfb = self.platform.startswith('linux')
     else:
-      use_xvfb = is_linux or (is_cros and not is_cros_device)
+      use_xvfb = is_linux
 
     asan = 'is_asan=true' in vals['gn_args']
     lsan = 'is_lsan=true' in vals['gn_args']
@@ -1908,9 +1847,7 @@ class MetaBuildWrapper:
     else:
       bot_mode = ()
 
-    if test_type == 'generated_script' or (
-      is_ios and test_type not in ('script', 'raw')
-    ):
+    if test_type == 'generated_script':
       assert 'script' not in isolate_map[target], (
         'generated_scripts can no longer customize the script path'
       )
@@ -1923,11 +1860,6 @@ class MetaBuildWrapper:
       # TODO(crbug.com/40564748): remove any use of 'args' from
       # generated_scripts.
       cmdline += [script] + isolate_map[target].get('args', [])
-
-      if is_cros_device:
-        # CrOS tests can capture DUT logs to a dir. But the dir can't be known
-        # at GN-gen time. So pass in a swarming-specific location here.
-        cmdline += ['--logs-dir=${ISOLATED_OUTDIR}']
 
       return cmdline, []
 
@@ -1944,30 +1876,7 @@ class MetaBuildWrapper:
       '../../vpython.toml',
       '../../vpython.toml.uv.lock',
     ]
-
-    if is_android and test_type != 'script':
-      if asan:
-        cmdline += [os.path.join('bin', 'run_with_asan'), '--']
-      if full_mte:
-        cmdline += [os.path.join('bin', 'run_with_mte'), '--']
-      cmdline += [
-        vpython_exe,
-        '../../build/android/test_wrapper/logdog_wrapper.py',
-        '--target',
-        target,
-        '--logdog-bin-cmd',
-        '../../.task_template_packages/logdog_butler',
-      ]
-      if test_type != 'junit_test':
-        cmdline += ['--store-tombstones']
-      if clang_coverage or java_coverage:
-        cmdline += ['--coverage-dir', '${ISOLATED_OUTDIR}']
-    elif is_cros_device and test_type != 'script':
-      cmdline += [
-        os.path.join('bin', 'run_%s' % target),
-        '--logs-dir=${ISOLATED_OUTDIR}',
-      ]
-    elif use_xvfb and test_type == 'windowed_test_launcher':
+    if use_xvfb and test_type == 'windowed_test_launcher':
       extra_files.append('../../testing/xvfb.py')
       cmdline += [
         vpython_exe,
@@ -1997,9 +1906,8 @@ class MetaBuildWrapper:
         # supported.
         # TODO(crbug.com/40223516): Enable on Mac inside asan once
         # things pass.
-        # TODO(crbug.com/40632267): Enable on ChromeOS once things pass.
         '--lsan=%d' % lsan
-        or (asan and not is_mac and not is_win and not is_cros),
+        or (asan and not is_mac and not is_win),
         '--msan=%d' % msan,
         '--tsan=%d' % tsan,
         '--cfi-diag=%d' % cfi_diag,
@@ -2008,30 +1916,11 @@ class MetaBuildWrapper:
       if fail_on_san_warnings:
         cmdline += ['--fail-san=1']
     elif test_type == 'script':
-      # If we're testing a CrOS simplechrome build, assume we need to prepare a
-      # DUT for testing. So prepend the command to run with the test wrapper.
-      if is_cros_device:
-        cmdline += [
-          os.path.join('bin', 'cros_test_wrapper'),
-          '--logs-dir=${ISOLATED_OUTDIR}',
-        ]
-      if is_android:
-        extra_files.append('../../build/android/test_wrapper/logdog_wrapper.py')
-        cmdline += [
-          vpython_exe,
-          '../../testing/test_env.py',
-          '../../build/android/test_wrapper/logdog_wrapper.py',
-          '--script',
-          '../../' + self.ToSrcRelPath(isolate_map[target]['script']),
-          '--logdog-bin-cmd',
-          '../../.task_template_packages/logdog_butler',
-        ]
-      else:
-        cmdline += [
-          vpython_exe,
-          '../../testing/test_env.py',
-          '../../' + self.ToSrcRelPath(isolate_map[target]['script']),
-        ]
+      cmdline += [
+        vpython_exe,
+        '../../testing/test_env.py',
+        '../../' + self.ToSrcRelPath(isolate_map[target]['script']),
+      ]
     elif test_type == 'additional_compile_target':
       cmdline = [
         './' + str(target) + executable_suffix,
@@ -2187,7 +2076,7 @@ class MetaBuildWrapper:
         # Probably the right thing here is for ninja to support response
         # files as input on the command line
         # (see https://github.com/ninja-build/ninja/issues/1355).
-        # Android targets use a lot of templates and often exceed 7kb.
+        # Template-heavy targets can exceed 7kb.
         # https://crbug.com/946266
         max_cmd_length_kb = 64 if platform.system() == 'Linux' else 7
 

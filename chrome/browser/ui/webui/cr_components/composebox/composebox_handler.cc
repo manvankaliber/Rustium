@@ -15,6 +15,7 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/omnibox/omnibox_controller.h"
+#include "chrome/browser/ui/user_education/browser_user_education_interface.h"
 #include "chrome/browser/ui/webui/cr_components/searchbox/contextual_searchbox_handler.h"
 #include "chrome/browser/ui/webui/cr_components/searchbox/searchbox_utils.h"
 #include "chrome/browser/ui/webui/webui_embedding_context.h"
@@ -37,11 +38,6 @@
 #include "ui/base/models/menu_model.h"
 #include "ui/base/mojom/window_open_disposition.mojom-shared.h"
 #include "ui/base/page_transition_types.h"
-
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/user_education/browser_user_education_interface.h"
-#endif
-
 
 ComposeboxOmniboxClient::ComposeboxOmniboxClient(
     Profile* profile,
@@ -164,10 +160,6 @@ void ComposeboxHandler::HandleFileUpload(bool is_image) {
   // Ignore, intentionally unimplemented for NTP.
 }
 
-void ComposeboxHandler::StartPlatformVoiceRecognition() {
-  // Ignore, intentionally unimplemented for NTP.
-}
-
 void ComposeboxHandler::OnContextMenuOpened() {
   if (contextual_tasks::GetIsContextualTasksLazyFetchClusterInfoEnabled()) {
     auto* session_handle = GetContextualSessionHandle();
@@ -178,7 +170,6 @@ void ComposeboxHandler::OnContextMenuOpened() {
 }
 
 void ComposeboxHandler::NotifyComposeboxQuerySubmittedWithContext() {
-#if !BUILDFLAG(IS_ANDROID)
   if (!web_contents_) {
     return;
   }
@@ -195,7 +186,6 @@ void ComposeboxHandler::NotifyComposeboxQuerySubmittedWithContext() {
   user_education_interface->NotifyFeaturePromoFeatureUsed(
       feature_engagement::kIPHDesktopRealboxContextualSearchFeature,
       FeaturePromoFeatureUsedAction::kClosePromoIfPresent);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ComposeboxHandler::NavigateUrl(const GURL& url) {
@@ -227,20 +217,14 @@ void ComposeboxHandler::CloseLensOverlayFromWebUI(
 // Required by composebox::mojom::PageHandler. Delegates to the base class
 // ContextualSearchboxHandler which does not implement that interface.
 void ComposeboxHandler::SetSmartTabSharingActive(bool active) {
-#if !BUILDFLAG(IS_ANDROID)
   ContextualSearchboxHandler::SetSmartTabSharingActive(active);
-#endif
 }
 
 // Required by composebox::mojom::PageHandler. Delegates to the base class
 // ContextualSearchboxHandler which does not implement that interface.
 void ComposeboxHandler::GetSmartTabSharingActive(
     GetSmartTabSharingActiveCallback callback) {
-#if !BUILDFLAG(IS_ANDROID)
   ContextualSearchboxHandler::GetSmartTabSharingActive(std::move(callback));
-#else
-  std::move(callback).Run(false);
-#endif
 }
 
 void ComposeboxHandler::ExecuteAction(uint8_t line,
@@ -352,8 +336,7 @@ void ComposeboxHandler::CanShowNextboxAnimation(
       prefs->GetDict(prefs::kContextMenuAnimationState);
 
   int lifetime_count = state_dict.FindInt("nextbox_lifetime_count").value_or(0);
-  if (lifetime_count >=
-      omnibox::kContextMenuAnimationLifetimeLimit.Get()) {
+  if (lifetime_count >= omnibox::kContextMenuAnimationLifetimeLimit.Get()) {
     std::move(callback).Run(false);
     return;
   }
@@ -369,8 +352,7 @@ void ComposeboxHandler::CanShowNextboxAnimation(
     daily_count = 0;
   }
 
-  bool can_show =
-      daily_count < omnibox::kContextMenuAnimationDailyLimit.Get();
+  bool can_show = daily_count < omnibox::kContextMenuAnimationDailyLimit.Get();
   std::move(callback).Run(can_show);
 }
 
@@ -398,8 +380,7 @@ void ComposeboxHandler::RecordNextboxAnimationImpression(bool shown) {
     daily_count = 0;
   }
 
-  if (lifetime_count <
-          omnibox::kContextMenuAnimationLifetimeLimit.Get() &&
+  if (lifetime_count < omnibox::kContextMenuAnimationLifetimeLimit.Get() &&
       daily_count < omnibox::kContextMenuAnimationDailyLimit.Get()) {
     daily_count++;
     lifetime_count++;

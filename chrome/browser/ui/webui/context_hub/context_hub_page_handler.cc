@@ -71,7 +71,6 @@
 #include "ui/base/clipboard/scoped_clipboard_writer.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/base_paths.h"
 #include "base/i18n/case_conversion.h"
 #include "base/i18n/file_util_icu.h"
@@ -100,11 +99,9 @@
 #include "net/base/url_util.h"  // nogncheck
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/base/accelerators/command.h"
-#endif
 #include "components/sessions/content/session_tab_helper.h"  // nogncheck
 #include "ui/base/mojom/window_open_disposition.mojom-shared.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace {
 
 // Subdirectory in the system temp directory used to stage clipboard file
@@ -350,7 +347,6 @@ std::string ToDisplayText(const ui::Accelerator& accelerator) {
 }
 
 }  // namespace
-#endif
 
 using history::journeys::Journey;
 using history::journeys::JourneyContinuationQuery;
@@ -370,10 +366,8 @@ ContextHubPageHandler::ContextHubPageHandler(
       web_contents_(web_contents) {
   CHECK(page_.is_bound());
   if (!tab_provider_) {
-#if !BUILDFLAG(IS_ANDROID)
     tab_provider_ =
         std::make_unique<context_hub::ContextHubTabProviderDesktop>(profile_);
-#endif
   }
   context_hub::ContextHubService* service =
       ContextHubServiceFactory::GetForProfile(profile_);
@@ -383,13 +377,11 @@ ContextHubPageHandler::ContextHubPageHandler(
       page_->OnFirstPartyAutoTodosGenerationStateChanged(true);
     }
   }
-#if !BUILDFLAG(IS_ANDROID)
   // Proactively prune stale clipboard staging directories (>1 hour old)
   // created during prior sessions so temporary user notes do not linger in
   // the system temp directory until OS-level cleanup.
   GetClipboardFileTaskRunner()->PostTask(
       FROM_HERE, base::BindOnce(&PruneStaleClipboardBatchDirectories));
-#endif
 }
 
 ContextHubPageHandler::~ContextHubPageHandler() = default;
@@ -403,7 +395,6 @@ bool ContextHubPageHandler::TabProvider::OpenUrlsInTabGroup(
 void ContextHubPageHandler::TabProvider::OpenTopic(
     browser::context_hub::mojom::TopicIdOrUrlPtr topic_id_or_url) {}
 
-#if !BUILDFLAG(IS_ANDROID)
 GURL ContextHubPageHandler::TabProvider::ResolveTopicUrl(
     const browser::context_hub::mojom::TopicIdOrUrlPtr& topic_id_or_url) {
   if (!topic_id_or_url) {
@@ -431,7 +422,6 @@ GURL ContextHubPageHandler::TabProvider::ResolveTopicUrl(
 
   return url;
 }
-#endif
 
 void ContextHubPageHandler::OnAutoTodosChanged(
     base::span<const context_hub::AutoTodoEntry> entries) {
@@ -760,7 +750,6 @@ namespace {
 std::vector<context_hub::TabData> GetOpenUngroupedTabs(
     ContextHubPageHandler::TabProvider* tab_provider) {
   std::vector<context_hub::TabData> tabs;
-#if !BUILDFLAG(IS_ANDROID)
   if (tab_provider) {
     for (content::WebContents* tab_contents :
          tab_provider->GetUngroupedTabs()) {
@@ -772,7 +761,6 @@ std::vector<context_hub::TabData> GetOpenUngroupedTabs(
       }
     }
   }
-#endif
   return tabs;
 }
 
@@ -806,7 +794,6 @@ std::vector<browser::context_hub::mojom::ChatMessagePtr> ToMojoChatHistory(
   return mojo_history;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Returns the Glic service for `profile`, or null if Glic is not available for
 // it. Keeps the definition of "Glic is available" in one place.
 glic::GlicKeyedService* GetGlicServiceIfEnabled(Profile* profile) {
@@ -815,7 +802,6 @@ glic::GlicKeyedService* GetGlicServiceIfEnabled(Profile* profile) {
   }
   return glic::GlicKeyedService::Get(profile);
 }
-#endif
 
 }  // namespace
 
@@ -1422,7 +1408,6 @@ void ContextHubPageHandler::OpenTopic(
     tab_provider_->OpenTopic(std::move(topic_id_or_url));
     return;
   }
-#if !BUILDFLAG(IS_ANDROID)
   // Fallback for when there is no tab provider: open the topic from the
   // hosting WebContents instead.
   GURL url = TabProvider::ResolveTopicUrl(topic_id_or_url);
@@ -1438,12 +1423,10 @@ void ContextHubPageHandler::OpenTopic(
         /*is_renderer_initiated=*/false);
     web_contents_->OpenURL(params, /*navigation_handle_callback=*/{});
   }
-#endif
 }
 
 void ContextHubPageHandler::OpenGlicPanel(
     const std::vector<std::string>& prompts) {
-#if !BUILDFLAG(IS_ANDROID)
   glic::GlicKeyedService* glic_service = GetGlicServiceIfEnabled(profile_);
   if (!glic_service || !web_contents_) {
     return;
@@ -1514,7 +1497,6 @@ void ContextHubPageHandler::OpenGlicPanel(
   }
 
   glic_service->Invoke(std::move(options));
-#endif
 }
 
 void ContextHubPageHandler::SetTopicFeedback(
@@ -1722,7 +1704,6 @@ void ContextHubPageHandler::FetchTopicsFeedbackExportData(
 
 void ContextHubPageHandler::RunTodoTask(const std::string& prompt,
                                         RunTodoTaskCallback callback) {
-#if !BUILDFLAG(IS_ANDROID)
   if (prompt.empty()) {
     std::move(callback).Run(false);
     return;
@@ -1757,16 +1738,10 @@ void ContextHubPageHandler::RunTodoTask(const std::string& prompt,
       glic::InvokeWithAutoSubmitPasskeyProvider::GetPassKey(),
       std::move(options), std::move(auto_submit_options));
   std::move(callback).Run(true);
-#else
-  std::move(callback).Run(false);
-#endif
 }
 
 void ContextHubPageHandler::OpenWebUrl(const GURL& url,
                                        OpenWebUrlCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTREACHED();
-#else
   if (!url.is_valid() || !url.SchemeIsHTTPOrHTTPS()) {
     receiver_.ReportBadMessage(
         "Invalid or disallowed URL scheme in OpenWebUrl");
@@ -1778,64 +1753,44 @@ void ContextHubPageHandler::OpenWebUrl(const GURL& url,
     chrome::AddSelectedTabWithURL(browser, url, ui::PAGE_TRANSITION_LINK);
   }
   std::move(callback).Run();
-#endif
 }
 
 void ContextHubPageHandler::OpenContextHubPage(
     OpenContextHubPageCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTREACHED();
-#else
   if (BrowserWindowInterface* browser =
           GetBrowserWindowInterface(web_contents_, profile_)) {
     ShowSingletonTab(browser, GURL(chrome::kChromeUIContextHubURL));
   }
   std::move(callback).Run();
-#endif
 }
 
 void ContextHubPageHandler::GetBrowseMemoryBanksShortcut(
     GetBrowseMemoryBanksShortcutCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTREACHED();
-#else
   std::move(callback).Run(
       ToDisplayText(context_hub::GetBrowseMemoryBanksShortcutFromPrefs(
           *profile_->GetPrefs())));
-#endif
 }
 
 void ContextHubPageHandler::GetSuggestedBrowseMemoryBanksShortcut(
     GetSuggestedBrowseMemoryBanksShortcutCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTREACHED();
-#else
   const ui::Accelerator accelerator =
       context_hub::GetSuggestedBrowseMemoryBanksShortcut();
   std::move(callback).Run(accelerator.IsEmpty()
                               ? std::string()
                               : ui::Command::AcceleratorToString(accelerator),
                           ToDisplayText(accelerator));
-#endif
 }
 
 void ContextHubPageHandler::SetBrowseMemoryBanksShortcut(
     const std::string& shortcut,
     SetBrowseMemoryBanksShortcutCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTREACHED();
-#else
   std::move(callback).Run(context_hub::SetBrowseMemoryBanksShortcutInPrefs(
       *profile_->GetPrefs(), shortcut));
-#endif
 }
 
 void ContextHubPageHandler::CopyAttachmentsToClipboard(
     std::vector<browser::context_hub::mojom::MemoryBankFileAttachmentPtr> files,
     CopyAttachmentsToClipboardCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTREACHED();
-#else
   if (files.empty() || files.size() > kMaxFilesToCopy) {
     receiver_.ReportBadMessage(
         "Invalid files count in CopyAttachmentsToClipboard");
@@ -1866,10 +1821,8 @@ void ContextHubPageHandler::CopyAttachmentsToClipboard(
       base::BindOnce(
           &ContextHubPageHandler::OnCopyAttachmentsToClipboardWritten,
           weak_factory_.GetWeakPtr(), std::move(callback)));
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextHubPageHandler::OnCopyAttachmentsToClipboardWritten(
     CopyAttachmentsToClipboardCallback callback,
     std::vector<std::pair<std::string, base::FilePath>> written_files) {
@@ -1892,24 +1845,16 @@ void ContextHubPageHandler::OnCopyAttachmentsToClipboardWritten(
   std::move(callback).Run(
       browser::context_hub::mojom::CopyAttachmentsToClipboardStatus::kSuccess);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void ContextHubPageHandler::StartSkillRecording() {
-#if BUILDFLAG(IS_ANDROID)
-  NOTREACHED();
-#else
   if (context_hub::SkillRecordingService* service =
           SkillRecordingServiceFactory::GetForProfile(profile_)) {
     service->StartRecording();
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ContextHubPageHandler::StopSkillRecording(
     StopSkillRecordingCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTREACHED();
-#else
   if (context_hub::SkillRecordingService* service =
           SkillRecordingServiceFactory::GetForProfile(profile_)) {
     std::move(callback).Run(service->StopRecording());
@@ -1917,5 +1862,4 @@ void ContextHubPageHandler::StopSkillRecording(
   }
   std::move(callback).Run(
       browser::context_hub::mojom::SkillRecordingSessionData::New());
-#endif  // !BUILDFLAG(IS_ANDROID)
 }

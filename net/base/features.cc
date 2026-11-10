@@ -23,9 +23,6 @@
 #include "base/win/windows_version.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace net::features {
 
@@ -39,8 +36,7 @@ BASE_FEATURE(kDeriveConnectionTypeFromCapabilities,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kAsyncDns,
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT
 #else
              base::FEATURE_DISABLED_BY_DEFAULT
@@ -54,11 +50,7 @@ const base::FeatureParam<bool> kUseStaleConnectorsForOptimisticDns{
 BASE_FEATURE(kOptimisticDnsForQuic, base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kAddressSorterConnectCache,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE_PARAM(size_t,
@@ -409,7 +401,7 @@ BASE_FEATURE_PARAM(base::TimeDelta,
 
 // A flag to make multiport context creation asynchronous.
 BASE_FEATURE(kAsyncMultiPortPath,
-#if !BUILDFLAG(CRONET_BUILD) && (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID))
+#if !BUILDFLAG(CRONET_BUILD) && BUILDFLAG(IS_WIN)
              base::FEATURE_ENABLED_BY_DEFAULT);
 #else
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -430,13 +422,8 @@ BASE_FEATURE(kRelatedWebsitePartitionAPI, base::FEATURE_DISABLED_BY_DEFAULT);
 // Network-change migration requires NetworkHandle support, which are currently
 // only supported on Android (see
 // NetworkChangeNotifier::AreNetworkHandlesSupported).
-#if BUILDFLAG(IS_ANDROID)
-inline constexpr auto kMigrateSessionsOnNetworkChangeV2Default =
-    base::FEATURE_ENABLED_BY_DEFAULT;
-#else   // !BUILDFLAG(IS_ANDROID)
 inline constexpr auto kMigrateSessionsOnNetworkChangeV2Default =
     base::FEATURE_DISABLED_BY_DEFAULT;
-#endif  // BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kMigrateSessionsOnNetworkChangeV2,
              kMigrateSessionsOnNetworkChangeV2Default);
 
@@ -759,10 +746,6 @@ BASE_FEATURE(kHttpCacheSkipUnusableEntry, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kReportingApiCorsOriginHeader, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kUseCertTransparencyAwareApiForOsCertVerify,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 BASE_FEATURE(kSelfSignedLocalNetworkInterstitial,
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -861,13 +844,8 @@ BASE_FEATURE_PARAM(bool,
 // Since we are seeing consistent wins on Android, enable by default. We are
 // reiterating the experiment on other platforms to gather more data so that we
 // can make a launch decision.
-#if BUILDFLAG(IS_ANDROID)
-inline constexpr auto kDelayMainJob = base::FEATURE_ENABLED_BY_DEFAULT;
-inline constexpr auto kDefaultAdditionalDelay = base::Milliseconds(100);
-#else   // !BUILDFLAG(IS_ANDROID)
 inline constexpr auto kDelayMainJob = base::FEATURE_DISABLED_BY_DEFAULT;
 inline constexpr auto kDefaultAdditionalDelay = base::Milliseconds(0);
-#endif  // BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kAdditionalDelayMainJob, kDelayMainJob);
 BASE_FEATURE_PARAM(base::TimeDelta,
                    kAdditionalDelay,
@@ -918,9 +896,7 @@ BASE_FEATURE_PARAM(size_t,
                    quic::kDefaultMaxPacketSize);
 
 BASE_FEATURE(kQuicUseReadMultiple,
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-     BUILDFLAG(IS_ANDROID)) &&                        \
-    !BUILDFLAG(CRONET_BUILD)
+#if BUILDFLAG(IS_LINUX) && !BUILDFLAG(CRONET_BUILD)
              // Only Linux, ChromeOS, and Android implement batched recvmmsg()
              // in UDPSocketPosix::ReadMultiple(). Cronet is still running its
              // own experiment and will launch it separately.
@@ -1055,14 +1031,7 @@ BASE_FEATURE_PARAM(int,
                    0);
 
 bool IsDnsPlatformSupported() {
-#if BUILDFLAG(IS_ANDROID)
-  // android_res_n{query, result} are available starting from API level 29 (Q).
-  // https://developer.android.com/ndk/reference/group/networking#android_res_nquery
-  return base::android::android_info::sdk_int() >=
-         base::android::android_info::SDK_VERSION_Q;
-#else
   return false;
-#endif
 }
 
 BASE_FEATURE(kNoVarySearchCacheLoadOnSeparateTaskRunner,

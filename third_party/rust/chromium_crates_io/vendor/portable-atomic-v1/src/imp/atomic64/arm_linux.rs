@@ -30,20 +30,7 @@ mod fallback;
 
 #[cfg(test)] // test-only (unused)
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(
-    all(
-        target_os = "linux",
-        any(
-            target_env = "gnu",
-            target_env = "musl",
-            target_env = "ohos",
-            all(target_env = "uclibc", not(target_feature = "crt-static")),
-        ),
-    ),
-    target_os = "android",
-    target_os = "freebsd",
-    target_os = "openbsd",
-))]
+#[cfg(any(all(target_os = "linux", any(target_env = "gnu", target_env = "musl", target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")))), target_os = "freebsd", target_os = "openbsd"))]
 #[path = "../detect/auxv.rs"]
 mod test_detect_auxv;
 

@@ -25,11 +25,6 @@
 #include "components/autofill/core/browser/ui/payments/save_and_fill_dialog_controller_impl.h"
 #include "content/public/browser/web_contents_observer.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/touch_to_fill/autofill/android/touch_to_fill_payment_method_controller.h"
-#include "components/autofill/core/browser/ui/payments/card_expiration_date_fix_flow_controller_impl.h"
-#include "components/autofill/core/browser/ui/payments/card_name_fix_flow_controller_impl.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace webauthn {
 class InternalAuthenticator;
@@ -37,14 +32,8 @@ class InternalAuthenticator;
 
 namespace autofill {
 
-#if BUILDFLAG(IS_ANDROID)
-class AutofillCvcSaveMessageDelegate;
-#endif  // BUILDFLAG(IS_ANDROID)
 class AutofillDriver;
 class AutofillErrorDialogControllerImpl;
-#if BUILDFLAG(IS_ANDROID)
-class AutofillMessageController;
-#endif
 class AutofillOfferData;
 class AutofillOfferManager;
 enum class AutofillProgressUiType;
@@ -113,12 +102,6 @@ class ChromePaymentsAutofillClient : public PaymentsAutofillClient,
       base::OnceCallback<void(const std::string&)> callback) override;
 
   // PaymentsAutofillClient:
-#if BUILDFLAG(IS_ANDROID)
-  AutofillSaveCardBottomSheetBridge*
-  GetOrCreateAutofillSaveCardBottomSheetBridge() override;
-  AutofillSaveIbanBottomSheetBridge*
-  GetOrCreateAutofillSaveIbanBottomSheetBridge() override;
-#else   // !BUILDFLAG(IS_ANDROID)
   void ShowWebauthnOfferDialog(
       WebauthnDialogCallback offer_dialog_callback) override;
   void ShowWebauthnVerifyPendingDialog(
@@ -126,15 +109,6 @@ class ChromePaymentsAutofillClient : public PaymentsAutofillClient,
   void UpdateWebauthnOfferDialogWithError() override;
   bool CloseWebauthnDialog() override;
   void HideVirtualCardEnrollBubbleAndIconIfVisible() override;
-#endif  // BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_ANDROID)
-  void ConfirmAccountNameFixFlow(
-      base::OnceCallback<void(const std::u16string&)> callback) override;
-  void ConfirmExpirationDateFixFlow(
-      const CreditCard& card,
-      base::OnceCallback<void(const std::u16string&, const std::u16string&)>
-          callback) override;
-#endif
   bool HasCreditCardScanFeature() const override;
   void ScanCreditCard(CreditCardScanCallback callback) override;
   bool LocalCardSaveIsSupported() override;
@@ -264,7 +238,6 @@ class ChromePaymentsAutofillClient : public PaymentsAutofillClient,
   WalletReminderNoticeUiDelegate* GetWalletReminderNoticeUiDelegate() override;
   WalletReminderNoticeManager* GetWalletReminderNoticeManager() override;
   PaymentsChurnedUsersUiDelegate* GetPaymentsChurnedUsersUiDelegate() override;
-#if !BUILDFLAG(IS_ANDROID)
   OmniboxAutofillDelegate* GetOmniboxAutofillDelegate() override;
   void ShowExpandedOmniboxAutofillChip(
       std::vector<Suggestion> suggestions,
@@ -280,17 +253,9 @@ class ChromePaymentsAutofillClient : public PaymentsAutofillClient,
                const AutofillSuggestionDelegate::SuggestionMetadata&)>
           did_accept_suggestion) override;
   void HideOmniboxAutofillChip() override;
-#endif
 
   // Begin ChromePaymentsAutofillClient-specific section.
 
-#if BUILDFLAG(IS_ANDROID)
-  // The AutofillMessageController is used to show a message notification
-  // on Android.
-  AutofillMessageController& GetAutofillMessageController();
-
-  TouchToFillPaymentMethodController* GetTouchToFillPaymentMethodController();
-#endif
 
   AutofillProgressDialogControllerImpl*
   AutofillProgressDialogControllerForTesting();
@@ -301,22 +266,6 @@ class ChromePaymentsAutofillClient : public PaymentsAutofillClient,
   void SetCardUnmaskControllerForTesting(
       std::unique_ptr<CardUnmaskPromptControllerImpl> test_controller);
 
-#if BUILDFLAG(IS_ANDROID)
-  void SetAutofillSaveCardBottomSheetBridgeForTesting(
-      std::unique_ptr<AutofillSaveCardBottomSheetBridge>
-          autofill_save_card_bottom_sheet_bridge);
-
-  void SetAutofillSaveIbanBottomSheetBridgeForTesting(
-      std::unique_ptr<AutofillSaveIbanBottomSheetBridge>
-          autofill_save_iban_bottom_sheet_bridge);
-
-  void SetAutofillMessageControllerForTesting(
-      std::unique_ptr<AutofillMessageController> autofill_message_controller);
-
-  void SetTouchToFillPaymentMethodControllerForTesting(
-      std::unique_ptr<TouchToFillPaymentMethodController>
-          touch_to_fill_payment_method_controller);
-#endif
 
  protected:
   explicit ChromePaymentsAutofillClient(ContentAutofillClient* client);
@@ -336,26 +285,6 @@ class ChromePaymentsAutofillClient : public PaymentsAutofillClient,
 
   const raw_ref<ContentAutofillClient> client_;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<AutofillCvcSaveMessageDelegate>
-      autofill_cvc_save_message_delegate_;
-
-  std::unique_ptr<AutofillSaveCardBottomSheetBridge>
-      autofill_save_card_bottom_sheet_bridge_;
-
-  std::unique_ptr<AutofillSaveIbanBottomSheetBridge>
-      autofill_save_iban_bottom_sheet_bridge_;
-
-  std::unique_ptr<AutofillMessageController> autofill_message_controller_;
-
-  CardNameFixFlowControllerImpl card_name_fix_flow_controller_;
-
-  CardExpirationDateFixFlowControllerImpl
-      card_expiration_date_fix_flow_controller_;
-
-  std::unique_ptr<TouchToFillPaymentMethodController>
-      touch_to_fill_payment_method_controller_;
-#endif
 
   std::unique_ptr<PaymentsNetworkInterface> payments_network_interface_;
 
@@ -436,11 +365,9 @@ class ChromePaymentsAutofillClient : public PaymentsAutofillClient,
   // `GetWalletReminderNoticeManager()`.
   std::unique_ptr<WalletReminderNoticeManager> wallet_reminder_notice_manager_;
 
-#if !BUILDFLAG(IS_ANDROID)
   // The OmniboxAutofillDelegate used to handle the logic flow and user
   // interactions when the user triggers Autofill from the Omnibox.
   std::unique_ptr<OmniboxAutofillDelegate> omnibox_autofill_delegate_;
-#endif
 
   // Shows the offer notification on this tab. Nullptr if there is no
   // `AutofillOfferManager`, e.g. in off-the-record profiles.

@@ -127,7 +127,6 @@ TEST_F(AIEmbeddingsComponentInstallerTest, ComponentReady) {
 }
 
 // TestingBrowserProcess has no component updater on Android.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(AIEmbeddingsComponentInstallerTest,
        ComponentReadyWhenDisallowedUnregisters) {
   auto cus = std::make_unique<testing::NiceMock<MockComponentUpdateService>>();
@@ -158,7 +157,6 @@ TEST_F(AIEmbeddingsComponentInstallerTest,
   EXPECT_FALSE(controller->IsModelAvailable());
   TestingBrowserProcess::GetGlobal()->SetComponentUpdater(nullptr);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(AIEmbeddingsComponentInstallerTest,
        ComponentReadyWithoutLocalStateDoesNotLoadModel) {

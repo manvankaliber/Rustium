@@ -10,7 +10,6 @@
 #include "chrome/browser/payments/payment_request_factory.h"
 #include "chrome/browser/ui/views/payments/test_chrome_payment_request_delegate.h"
 #include "chrome/test/payments/payment_request_test_controller.h"
-#include "components/payments/content/android_app_communication.h"
 #include "components/payments/content/payment_request.h"
 #include "components/payments/content/payment_request_web_contents_manager.h"
 #include "components/payments/content/payment_ui_observer.h"
@@ -182,32 +181,20 @@ void PaymentRequestTestController::SetCanMakePaymentEnabledPref(
   UpdateDelegateFactory();
 }
 
-void PaymentRequestTestController::SetTwaPackageName(
-    const std::string& twa_package_name) {
-  twa_package_name_ = twa_package_name;
-  UpdateDelegateFactory();
-}
+
 
 void PaymentRequestTestController::SetHasAuthenticator(bool has_authenticator) {
   has_authenticator_ = has_authenticator;
   UpdateDelegateFactory();
 }
 
-void PaymentRequestTestController::SetTwaPaymentApp(
-    const std::string& method_name,
-    const std::string& response) {
-  twa_payment_app_method_name_ = method_name;
-  twa_payment_app_response_ = response;
-  UpdateDelegateFactory();
-}
+
 
 void PaymentRequestTestController::UpdateDelegateFactory() {
   SetPaymentRequestFactoryForTesting(base::BindRepeating(
       [](base::WeakPtr<ObserverConverter> observer_for_test,
          bool is_off_the_record, bool valid_ssl, PrefService* prefs,
-         const std::string& twa_package_name, bool has_authenticator,
-         const std::string& twa_payment_app_method_name,
-         const std::string& twa_payment_app_response,
+         bool has_authenticator,
          base::WeakPtr<ContentPaymentRequestDelegate>* delegate_weakptr,
          mojo::PendingReceiver<payments::mojom::PaymentRequest> receiver,
          content::RenderFrameHost* render_frame_host) {
@@ -220,17 +207,11 @@ void PaymentRequestTestController::UpdateDelegateFactory() {
         delegate->OverrideOffTheRecord(is_off_the_record);
         delegate->OverrideValidSSL(valid_ssl);
         delegate->OverridePrefService(prefs);
-        delegate->set_twa_package_name(twa_package_name);
         delegate->set_has_authenticator(has_authenticator);
         delegate->set_payment_ui_observer(observer_for_test);
         *delegate_weakptr = delegate->GetContentWeakPtr();
 
-        if (!twa_payment_app_method_name.empty()) {
-          AndroidAppCommunication::GetForBrowserContext(
-              render_frame_host->GetBrowserContext())
-              ->SetAppForTesting(twa_package_name, twa_payment_app_method_name,
-                                 twa_payment_app_response);
-        }
+
 
         // PaymentRequest is a DocumentService, whose lifetime is managed by the
         // RenderFrameHost passed into the delegate.
@@ -240,8 +221,7 @@ void PaymentRequestTestController::UpdateDelegateFactory() {
         request->set_window_size_check_enabled_for_test(false);
       },
       observer_converter_->GetWeakPtr(), is_off_the_record_, valid_ssl_,
-      prefs_.get(), twa_package_name_, has_authenticator_,
-      twa_payment_app_method_name_, twa_payment_app_response_, &delegate_));
+      prefs_.get(), has_authenticator_, &delegate_));
 }
 
 void PaymentRequestTestController::OnCanMakePaymentCalled() {

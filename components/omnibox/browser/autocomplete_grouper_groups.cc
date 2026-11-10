@@ -12,7 +12,7 @@
 #include "third_party/omnibox_proto/groups.pb.h"
 
 namespace {
-constexpr bool is_android = !!BUILDFLAG(IS_ANDROID);
+constexpr bool is_android = !!false;
 }  // namespace
 
 Group::Group(size_t limit,

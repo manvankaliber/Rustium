@@ -55,9 +55,6 @@ PasswordReceiverServiceFactory::BuildServiceInstanceForBrowserContext(
     content::BrowserContext* context) const {
 // Password receiving on Android is handled in GMSCore, and hence no service
 // should be instantiated.
-#if BUILDFLAG(IS_ANDROID)
-  return nullptr;
-#else
 
   Profile* profile = Profile::FromBrowserContext(context);
 
@@ -84,5 +81,4 @@ PasswordReceiverServiceFactory::BuildServiceInstanceForBrowserContext(
       AccountPasswordStoreFactory::GetForProfile(
           profile, ServiceAccessType::EXPLICIT_ACCESS)
           .get());
-#endif  // BUILDFLAG(IS_ANDROID)
 }

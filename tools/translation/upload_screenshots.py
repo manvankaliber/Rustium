@@ -43,11 +43,6 @@ if here.startswith('/google/cog/cloud') and not os.environ.get(
   os.environ.setdefault('PYTHONDONTWRITEBYTECODE', '1')
 
 
-# Translation expectations file for the clank repo.
-INTERNAL_TRANSLATION_EXPECTATIONS_PATH = os.path.join(
-  'clank', 'tools', 'translation_expectations.pyl'
-)
-
 # Translation expectations file for the Chromium repo.
 TRANSLATION_EXPECTATIONS_PATH = os.path.join(
   'tools', 'gritsettings', 'translation_expectations.pyl'
@@ -185,12 +180,6 @@ def main():
     help='Don\'t actually upload the images',
   )
   parser.add_argument(
-    '-c',
-    '--clank_internal',
-    action='store_true',
-    help='Upload screenshots for strings in the downstream clank directory',
-  )
-  parser.add_argument(
     '--depot_tools_path',
     default=default_depot_tools_path,
     help='Path to the depot_tools directory.',
@@ -216,17 +205,9 @@ def main():
     ):
       sys.exit(1)
 
-  if args.clank_internal:
-    screenshots = find_screenshots(
-      os.path.join(src_path, "clank"),
-      os.path.join(src_path, INTERNAL_TRANSLATION_EXPECTATIONS_PATH),
-      is_cog,
-    )
-
-  else:
-    screenshots = find_screenshots(
-      src_path, os.path.join(src_path, TRANSLATION_EXPECTATIONS_PATH), is_cog
-    )
+  screenshots = find_screenshots(
+    src_path, os.path.join(src_path, TRANSLATION_EXPECTATIONS_PATH), is_cog
+  )
   if not screenshots:
     print(
       "No screenshots found.\n\n"

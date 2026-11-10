@@ -146,9 +146,6 @@ component("message_center") {
         frameworks = [ "Foundation.framework" ]
       }
     }
-    if (is_chromeos) {
-      deps += [ "//ash/constants" ]
-    }
   } else {
     # Notification service disabled.
     sources = [ "dummy_message_center.cc" ]
@@ -224,10 +221,6 @@ if (enable_message_center) {
       "//ui/resources:ui_test_pak_data",
     ]
 
-    if (is_chromeos) {
-      deps += [ "//ash/constants" ]
-    }
-
     if (toolkit_views) {
       sources += [
         "views/large_image_view_unittest.cc",
@@ -240,10 +233,7 @@ if (enable_message_center) {
         "views/relative_time_formatter_unittest.cc",
       ]
 
-      # ChromeOS/Ash uses AshNotificationView, not NotificationView.
-      if (!is_chromeos) {
-        sources += [ "views/notification_view_unittest.cc" ]
-      }
+      sources += [ "views/notification_view_unittest.cc" ]
 
       deps += [
         "//ui/color",

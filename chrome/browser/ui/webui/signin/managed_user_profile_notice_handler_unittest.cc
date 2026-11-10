@@ -32,7 +32,6 @@
 #include "components/policy/core/common/management/scoped_management_service_override_for_testing.h"
 #include "components/prefs/pref_service.h"
 #include "components/signin/public/base/signin_pref_names.h"
-#include "components/user_manager/user_names.h"
 #include "content/public/test/browser_task_environment.h"
 #include "content/public/test/test_web_contents_factory.h"
 #include "content/public/test/test_web_ui.h"
@@ -41,22 +40,21 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/l10n/l10n_util.h"
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "base/test/scoped_feature_list.h"
 #include "chrome/browser/enterprise/profile_management/profile_management_features.h"
-#endif  //  !BUILDFLAG(IS_CHROMEOS)
 
 using testing::_;
 
 namespace {
 
-#if !BUILDFLAG(IS_CHROMEOS)
+constexpr char kTestUserEmail[] = "stub-user@example.com";
+constexpr char kTestUserId[] = "1234567890123456789012";
+
 ProfileAttributesEntry* GetProfileEntry(Profile* profile) {
   return g_browser_process->profile_manager()
       ->GetProfileAttributesStorage()
       .GetProfileAttributesWithPath(profile->GetPath());
 }
-#endif
 
 }  // namespace
 
@@ -79,10 +77,10 @@ class ManagedUserProfileNoticeHandlerTestBase : public testing::Test {
     web_ui_->set_web_contents(
         web_contents_factory_.CreateWebContents(profile_));
 
-    account_info_ = AccountInfo::Builder(GaiaId(user_manager::kStubUserId),
-                                         user_manager::kStubUserEmail)
+    account_info_ = AccountInfo::Builder(GaiaId(kTestUserId),
+                                         kTestUserEmail)
                         .SetAccountId(CoreAccountId::FromGaiaId(
-                            GaiaId(user_manager::kStubUserId)))
+                            GaiaId(kTestUserId)))
                         .Build();
   }
 
@@ -245,7 +243,6 @@ TEST_P(ManagedUserProfileNoticeHandleProceedTest,
   }
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Tests how `HandleProceed` processes the arguments and the handler's state to
 // notify the registered callback.
 TEST_P(ManagedUserProfileNoticeHandleProceedTest,
@@ -376,13 +373,11 @@ TEST_P(ManagedUserProfileNoticeHandleProceedTest,
   web_ui()->HandleReceivedMessage("proceed", args);
 }
 
-#endif  //  !BUILDFLAG(IS_CHROMEOS)
 
 INSTANTIATE_TEST_SUITE_P(All,
                          ManagedUserProfileNoticeHandleProceedTest,
                          testing::ValuesIn(kHandleProceedParams));
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class ManagedUserProfileNoticeHandlerTest
     : public ManagedUserProfileNoticeHandlerTestBase {
  protected:
@@ -618,7 +613,6 @@ TEST_F(ManagedUserProfileNoticeHandleCancelTest, HandleCancelNoUseAfterFree) {
   web_ui()->HandleReceivedMessage("cancel", base::ListValue());
   EXPECT_EQ(handler(), nullptr);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(CHROME_FOR_TESTING)
 class ManagedUserProfileNoticeHandlerAutoApproveTest

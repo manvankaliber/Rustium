@@ -160,9 +160,6 @@ base::trace_event::MemoryAllocatorDump* SharedImageBacking::OnMemoryDump(
   dump->AddString("usage", "", CreateLabelForSharedImageUsage(usage()));
   dump->AddString("debug label", "", debug_label_);
   dump->AddScalar("purgeable", "bool", IsPurgeable());
-#if BUILDFLAG(IS_CHROMEOS)
-  dump->AddScalar("non_exo_size", "bool", IsImportedFromExo() ? 0 : byte_size);
-#endif
 
   // Add ownership edge to `client_guid` which expresses shared ownership with
   // the client process.
@@ -287,13 +284,6 @@ std::unique_ptr<VulkanImageRepresentation> SharedImageBacking::ProduceVulkan(
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-std::unique_ptr<LegacyOverlayImageRepresentation>
-SharedImageBacking::ProduceLegacyOverlay(SharedImageManager* manager,
-                                         MemoryTypeTracker* tracker) {
-  return nullptr;
-}
-#endif
 
 #if BUILDFLAG(IS_WIN)
 void SharedImageBacking::UpdateExternalFence(
@@ -463,12 +453,6 @@ gfx::GpuMemoryBufferHandle SharedImageBacking::GetGpuMemoryBufferHandle() {
   NOTREACHED();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-std::optional<VulkanYCbCrInfo> SharedImageBacking::GetVkCbCrInfo(
-    SharedContextState* context_state) {
-  return std::nullopt;
-}
-#endif
 
 bool SharedImageBacking::IsPurgeable() const {
   return false;

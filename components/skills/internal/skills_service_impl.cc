@@ -348,7 +348,6 @@ void SkillsServiceImpl::FetchDiscoverySkills() {
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(features::kSkillsServiceApi) &&
       identity_manager_ &&
       identity_manager_->HasPrimaryAccount(signin::ConsentLevel::kSignin)) {
@@ -361,13 +360,11 @@ void SkillsServiceImpl::FetchDiscoverySkills() {
                        weak_ptr_factory_.GetWeakPtr()));
     return;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   skills_downloader_->FetchDiscoverySkills(base::BindOnce(
       &SkillsServiceImpl::Handle1pSkills, weak_ptr_factory_.GetWeakPtr()));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void SkillsServiceImpl::OnDiscoverySkillsFetchedFromService(
     std::unique_ptr<FirstPartySkillData> first_party_skill_data) {
   if (first_party_skill_data) {
@@ -378,7 +375,6 @@ void SkillsServiceImpl::OnDiscoverySkillsFetchedFromService(
   skills_downloader_->FetchDiscoverySkills(base::BindOnce(
       &SkillsServiceImpl::Handle1pSkills, weak_ptr_factory_.GetWeakPtr()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void SkillsServiceImpl::Handle1pSkills(
     std::unique_ptr<FirstPartySkillData> first_party_skill_data) {

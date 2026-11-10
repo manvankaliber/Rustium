@@ -44,10 +44,7 @@ class DocWriterUnittest(writer_unittest_common.WriterUnittestCommon):
             'reg_mandatory_key_name': 'MockKey',
             'reg_recommended_key_name': 'MockKeyRec',
           },
-          'chrome_os': {
-            'reg_mandatory_key_name': 'MockKeyCrOS',
-            'reg_recommended_key_name': 'MockKeyCrOSRec',
-          },
+
         },
         'build': 'test_product',
       }
@@ -291,7 +288,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
         {'platform': 'win'},
         {'platform': 'mac'},
         {'platform': 'linux'},
-        {'platform': 'chrome_os'},
+
       ],
     }
     self.writer._AddListExample(self.doc_root, policy)
@@ -304,7 +301,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       'MockKey\\PolicyName\\1 = &quot;Foo&quot;\n'
       'MockKey\\PolicyName\\2 = &quot;Bar&quot;'
       '</dd>'
-      '<dt>Android/Linux:</dt>'
+      '<dt>Linux:</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">'
       '[\n'
       '  &quot;Foo&quot;,\n'
@@ -332,7 +329,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
         {'platform': 'win'},
         {'platform': 'mac'},
         {'platform': 'linux'},
-        {'platform': 'android'},
+
       ],
     }
     e1 = self.writer.AddElement(self.doc_root, 'e1')
@@ -340,7 +337,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
     self.assertEquals(
       e1.toxml(),
       '<e1>0x00000001 (Windows),'
-      ' true (Linux), true (Android),'
+      ' true (Linux),'
       ' &lt;true /&gt; (Mac)'
       '<dl><dt>Windows (Intune):</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">&lt;enabled/&gt;</dd></dl>'
@@ -355,7 +352,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
         {'platform': 'win'},
         {'platform': 'mac'},
         {'platform': 'linux'},
-        {'platform': 'android'},
+
       ],
     }
     e2 = self.writer.AddElement(self.doc_root, 'e2')
@@ -363,7 +360,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
     self.assertEquals(
       e2.toxml(),
       '<e2>0x00000000 (Windows),'
-      ' false (Linux), false (Android),'
+      ' false (Linux),'
       ' &lt;false /&gt; (Mac)'
       '<dl><dt>Windows (Intune):</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">&lt;disabled/&gt;</dd></dl>'
@@ -380,13 +377,13 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
         {'platform': 'win'},
         {'platform': 'mac'},
         {'platform': 'linux'},
-        {'platform': 'android'},
+
       ],
     }
     self.writer._AddExample(self.doc_root, policy)
     self.assertEquals(
       self.doc_root.toxml(),
-      '<root>0x00000010 (Windows), 16 (Linux), 16 (Android), 16 (Mac)'
+      '<root>0x00000010 (Windows), 16 (Linux), 16 (Mac)'
       '<dl><dt>Windows (Intune):</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">&lt;enabled/&gt;</dd>'
       '<dd style="style_.monospace;style_.pre-wrap;">&lt;data id=&quot;PolicyName&quot; value=&quot;16&quot;/&gt;</dd></dl>'
@@ -416,7 +413,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
     self.assertEquals(
       self.doc_root.toxml(),
       '<root><dl style="style_dd dl;">'
-      '<dt>Android/Linux:</dt>'
+      '<dt>Linux:</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">'
       '[\n'
       '  &quot;one&quot;,\n'
@@ -437,7 +434,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
     self.assertEquals(
       self.doc_root.toxml(),
       '<root><dl style="style_dd dl;">'
-      '<dt>Android/Linux:</dt>'
+      '<dt>Linux:</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">'
       '[\n'
       '  &quot;one&quot;,\n'
@@ -469,13 +466,13 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
         {'platform': 'win'},
         {'platform': 'mac'},
         {'platform': 'linux'},
-        {'platform': 'android'},
+
       ],
     }
     self.writer._AddExample(self.doc_root, policy)
     self.assertEquals(
       self.doc_root.toxml(),
-      '<root>0x0000001a (Windows), 26 (Linux), 26 (Android), 26 (Mac)'
+      '<root>0x0000001a (Windows), 26 (Linux), 26 (Mac)'
       '<dl><dt>Windows (Intune):</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">&lt;enabled/&gt;</dd>'
       '<dd style="style_.monospace;style_.pre-wrap;">&lt;data id=&quot;PolicyName&quot; value=&quot;26&quot;/&gt;</dd></dl>'
@@ -521,24 +518,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
           'since_version': '8',
           'until_version': '',
         },
-        {
-          'product': 'chrome',
-          'platform': 'android',
-          'since_version': '30',
-          'until_version': '',
-        },
-        {
-          'product': 'webview',
-          'platform': 'android',
-          'since_version': '47',
-          'until_version': '',
-        },
-        {
-          'product': 'chrome',
-          'platform': 'chrome_os',
-          'since_version': '55',
-          'until_version': '',
-        },
+
       ],
       'features': {'dynamic_refresh': False},
       'example_value': False,
@@ -556,29 +536,20 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       '<dd style="style_.monospace;">.\\Device\\Vendor\\MSFT\\Policy\\Config\\Chrome~Policy~chromium\\TestPolicyName</dd>'
       '<dt style="style_dt;">_test_mac_linux_pref_name</dt>'
       '<dd style="style_.monospace;">TestPolicyName</dd>'
-      '<dt style="style_dt;">_test_android_restriction_name</dt>'
-      '<dd style="style_.monospace;">TestPolicyName</dd>'
-      '<dt style="style_dt;">_test_android_webview_restriction_name</dt>'
-      '<dd style="style_.monospace;">mock.prefix:TestPolicyName</dd>'
       '<dt style="style_dt;">_test_supported_on</dt>'
       '<dd>'
       '<ul style="style_ul;">'
       '<li>Chrome (Windows) ..8..</li>'
       '<li>Chrome (Mac) ..8..</li>'
       '<li>Chrome (Linux) ..8..</li>'
-      '<li>Chrome (Android) ..30..</li>'
-      '<li>WebView (Android) ..47..</li>'
-      '<li>Chrome (ChromeOS) ..55..</li>'
       '</ul>'
       '</dd>'
       '<dt style="style_dt;">_test_supported_features</dt>'
       '<dd>_test_feature_dynamic_refresh: _test_not_supported</dd>'
       '<dt style="style_dt;">_test_description</dt><dd><p>TestPolicyDesc</p></dd>'
-      '<dt style="style_dt;">_test_arc_support</dt>'
-      '<dd><p>TestArcSupportNote</p></dd>'
       '<dt style="style_dt;">_test_example_value</dt>'
       '<dd>0x00000000 (Windows), false (Linux),'
-      ' false (Android), &lt;false /&gt; (Mac)'
+      ' &lt;false /&gt; (Mac)'
       '<dl><dt>Windows (Intune):</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">&lt;disabled/&gt;</dd></dl>'
       '</dd>'
@@ -656,12 +627,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
           'since_version': '8',
           'until_version': '',
         },
-        {
-          'product': 'chrome_os',
-          'platform': 'chrome_os',
-          'since_version': '8',
-          'until_version': '',
-        },
+
       ],
       'features': {'dynamic_refresh': False},
       'example_value': {'foo': 123},
@@ -684,7 +650,6 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       '<li>Chrome (Windows) ..8..</li>'
       '<li>Chrome (Mac) ..8..</li>'
       '<li>Chrome (Linux) ..8..</li>'
-      '<li>ChromeOS (ChromeOS) ..8..</li>'
       '</ul>'
       '</dd>'
       '<dt style="style_dt;">_test_supported_features</dt>'
@@ -710,7 +675,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       '  &quot;foo&quot;: 123\n'
       '}'
       '</dd>'
-      '<dt>Android/Linux:</dt>'
+      '<dt>Linux:</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">'
       'TestPolicyName: {\n'
       '  &quot;foo&quot;: 123\n'
@@ -819,7 +784,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       '  &quot;url&quot;: &quot;https://example.com/avatar.jpg&quot;\n'
       '}'
       '</dd>'
-      '<dt>Android/Linux:</dt>'
+      '<dt>Linux:</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">'
       'TestPolicyName: {\n'
       '  &quot;hash&quot;: &quot;deadbeef&quot;, \n'
@@ -869,18 +834,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
           'since_version': '8',
           'until_version': '',
         },
-        {
-          'product': 'chrome',
-          'platform': 'android',
-          'since_version': '30',
-          'until_version': '',
-        },
-        {
-          'product': 'chrome',
-          'platform': 'chrome_os',
-          'since_version': '53',
-          'until_version': '',
-        },
+
       ],
       'features': {
         'dynamic_refresh': False,
@@ -901,16 +855,12 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       '<dd style="style_.monospace;">.\\Device\\Vendor\\MSFT\\Policy\\Config\\Chrome~Policy~chromium\\TestPolicyName</dd>'
       '<dt style="style_dt;">_test_mac_linux_pref_name</dt>'
       '<dd style="style_.monospace;">TestPolicyName</dd>'
-      '<dt style="style_dt;">_test_android_restriction_name</dt>'
-      '<dd style="style_.monospace;">TestPolicyName</dd>'
       '<dt style="style_dt;">_test_supported_on</dt>'
       '<dd>'
       '<ul style="style_ul;">'
       '<li>Chrome (Windows) ..8..</li>'
       '<li>Chrome (Mac) ..8..</li>'
       '<li>Chrome (Linux) ..8..</li>'
-      '<li>Chrome (Android) ..30..</li>'
-      '<li>Chrome (ChromeOS) ..53..</li>'
       '</ul>'
       '</dd>'
       '<dt style="style_dt;">_test_supported_features</dt>'
@@ -920,7 +870,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       '<dt style="style_dt;">_test_description</dt><dd><p>TestPolicyDesc</p></dd>'
       '<dt style="style_dt;">_test_example_value</dt>'
       '<dd>0x00000000 (Windows), false (Linux),'
-      ' false (Android), &lt;false /&gt; (Mac)'
+      ' &lt;false /&gt; (Mac)'
       '<dl><dt>Windows (Intune):</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">&lt;disabled/&gt;</dd></dl>'
       '</dd>'
@@ -982,12 +932,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
           'since_version': '7',
           'until_version': '',
         },
-        {
-          'product': 'chrome_os',
-          'platform': 'chrome_os',
-          'since_version': '7',
-          'until_version': '',
-        },
+
       ],
       'features': {'dynamic_refresh': False},
       'example_value': 'False',
@@ -1013,7 +958,6 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       '<ul style="style_ul;">'
       '<li>Chrome (Windows) ..7..</li>'
       '<li>Chrome (Mac) ..7..</li>'
-      '<li>ChromeOS (ChromeOS) ..7..</li>'
       '</ul>'
       '</dd>'
       '<dt style="style_dt;">_test_supported_features</dt>'
@@ -1066,12 +1010,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
           'since_version': '7',
           'until_version': '',
         },
-        {
-          'product': 'chrome_os',
-          'platform': 'chrome_os',
-          'since_version': '7',
-          'until_version': '',
-        },
+
       ],
       'features': {'dynamic_refresh': False},
       'example_value': 'False',
@@ -1098,7 +1037,6 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       '<ul style="style_ul;">'
       '<li>Chrome (Windows) ..7..</li>'
       '<li>Chrome (Mac) ..7..</li>'
-      '<li>ChromeOS (ChromeOS) ..7..</li>'
       '</ul>'
       '</dd>'
       '<dt style="style_dt;">_test_supported_features</dt>'
@@ -1319,55 +1257,6 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       '</root>',
     )
 
-  def testAddPolicySectionForAndroidOnly(self):
-    policy = {
-      'name': 'PolicyName',
-      'caption': 'PolicyCaption',
-      'desc': 'PolicyDesc',
-      'type': 'int',
-      'supported_on': [
-        {
-          'product': 'chrome',
-          'platform': 'android',
-          'since_version': '33',
-          'until_version': '',
-        }
-      ],
-      'features': {'dynamic_refresh': False},
-      'example_value': 123,
-    }
-    self.writer._AddPolicySection(self.doc_root, policy)
-    self.assertTrue(
-      self.writer.IsPolicyOrItemSupportedOnPlatform(policy, 'android')
-    )
-    self.assertEquals(
-      self.doc_root.toxml(),
-      '<root>'
-      '<div style="margin-left: 0px">'
-      '<h3><a name="PolicyName"/>PolicyName</h3>'
-      '<span>PolicyCaption</span>'
-      '<dl>'
-      '<dt style="style_dt;">_test_data_type</dt>'
-      '<dd>Integer</dd>'
-      '<dt style="style_dt;">_test_android_restriction_name</dt>'
-      '<dd style="style_.monospace;">PolicyName</dd>'
-      '<dt style="style_dt;">_test_supported_on</dt>'
-      '<dd>'
-      '<ul style="style_ul;">'
-      '<li>Chrome (Android) ..33..</li>'
-      '</ul>'
-      '</dd>'
-      '<dt style="style_dt;">_test_supported_features</dt>'
-      '<dd>_test_feature_dynamic_refresh: _test_not_supported</dd>'
-      '<dt style="style_dt;">_test_description</dt>'
-      '<dd><p>PolicyDesc</p></dd>'
-      '<dt style="style_dt;">_test_example_value</dt>'
-      '<dd>123 (Android)</dd>'
-      '</dl>'
-      '<a href="#top">_test_back_to_top</a>'
-      '</div>'
-      '</root>',
-    )
 
   def testAddDictionaryExample(self):
     policy = {
@@ -1442,7 +1331,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       '  &quot;True&quot;: true\n'
       '}'
       '</dd>'
-      '<dt>Android/Linux:</dt>'
+      '<dt>Linux:</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">PolicyName: {\n'
       '  &quot;DictList&quot;: [\n'
       '    {\n'
@@ -1547,7 +1436,7 @@ See <a href="http://policy-explanation.example.com">http://policy-explanation.ex
       '  &quot;url&quot;: &quot;https://example.com/avatar.jpg&quot;\n'
       '}'
       '</dd>'
-      '<dt>Android/Linux:</dt>'
+      '<dt>Linux:</dt>'
       '<dd style="style_.monospace;style_.pre-wrap;">PolicyName: {\n'
       '  &quot;hash&quot;: &quot;deadbeef&quot;, \n'
       '  &quot;url&quot;: &quot;https://example.com/avatar.jpg&quot;\n'

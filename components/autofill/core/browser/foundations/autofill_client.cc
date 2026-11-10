@@ -43,9 +43,6 @@
 #include "ui/gfx/geometry/rect_f.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/autofill/core/browser/ui/autofill_tapjacking_protector.h"
-#endif
 
 namespace autofill {
 
@@ -293,38 +290,6 @@ const AutofillAblationStudy& AutofillClient::GetAblationStudy() const {
   return AutofillAblationStudy::disabled_study();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool AutofillClient::ShowAmbientAutofillNotice(
-    base::WeakPtr<TouchToFillAutofillDelegate> delegate) {
-  return false;
-}
-
-bool AutofillClient::ShowPrivateInferenceNoticeBottomSheet(
-    base::WeakPtr<TouchToFillAutofillDelegate> delegate) {
-  return false;
-}
-
-void AutofillClient::HideTouchToFillAutofillNotice() {}
-
-AutofillSnackbarControllerImpl*
-AutofillClient::GetAutofillSnackbarController() {
-  return nullptr;
-}
-
-void AutofillClient::ShowAutofillAiLoadingDialog() {
-  NOTIMPLEMENTED();
-}
-
-void AutofillClient::DismissAutofillAiLoadingDialog() {
-  NOTIMPLEMENTED();
-}
-
-void AutofillClient::ShowTapjackingProtector(
-    AutofillTapjackingProtector::AuthorizationType authorization_type,
-    AutofillTapjackingProtector::AuthorizationCallback callback) {
-  NOTIMPLEMENTED();
-}
-#endif
 
 void AutofillClient::TriggerDeclinedSaveAddressReasonSurvey() {
   NOTIMPLEMENTED();
@@ -469,13 +434,11 @@ void AutofillClient::ShowAutofillAiPrivateInferenceNotice() {
   NOTIMPLEMENTED();
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void AutofillClient::ShowAutofillAiSuppressionConfirmationDialog(
     const EntityInstance& entity,
     base::OnceCallback<void(bool)> callback) {
   NOTIMPLEMENTED();
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 void AutofillClient::ShowAutofillAiSuggestionRemovedNotification(
     const EntityInstance& entity,

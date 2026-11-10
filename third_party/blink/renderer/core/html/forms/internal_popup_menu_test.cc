@@ -49,7 +49,6 @@ namespace blink {
 // InternalPopupMenuTest is not used on Android, and its Platform implementation
 // does not provide the resources (as in GetDataResource) needed by
 // InternalPopupMenu::WriteDocument.
-#if !BUILDFLAG(IS_ANDROID)
 
 class InternalPopupMenuTest : public PageTestBase {};
 
@@ -613,6 +612,5 @@ TEST_F(InternalPopupMenuTest, NarrowedPopupIsNotScrolled) {
   EXPECT_EQ(0.f, viewport->GetScrollOffset().x());
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace blink

@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "base/functional/bind.h"
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/browser/web_applications/mojom/user_display_mode.mojom-shared.h"
@@ -136,7 +136,7 @@ ExternalInstallOptions GetConfigForGoogleSheets(bool is_standalone_tabbed) {
         return info;
       },
       is_standalone_tabbed);
-  options.expected_app_id = ash::kGoogleSheetsAppId;
+  options.expected_app_id = webapps::kGoogleSheetsAppId;
 
   return options;
 }

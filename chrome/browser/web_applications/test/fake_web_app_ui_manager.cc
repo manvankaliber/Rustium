@@ -170,23 +170,6 @@ void FakeWebAppUiManager::LaunchWebApp(apps::AppLaunchParams params,
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void FakeWebAppUiManager::MigrateLauncherState(
-    const webapps::AppId& from_app_id,
-    const webapps::AppId& to_app_id,
-    base::OnceClosure callback) {
-  std::move(callback).Run();
-}
-
-void FakeWebAppUiManager::DisplayRunOnOsLoginNotification(
-    const base::flat_map<webapps::AppId,
-                         WebAppUiManager::RoolNotificationBehavior>& apps,
-    base::WeakPtr<Profile> profile) {
-  // Still show the notification so that tests can find it in MessageCenter.
-  web_app::DisplayRunOnOsLoginNotification(apps, std::move(profile));
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void FakeWebAppUiManager::NotifyAppRelaunchState(
     const webapps::AppId& placeholder_app_id,

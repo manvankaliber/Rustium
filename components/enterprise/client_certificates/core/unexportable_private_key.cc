@@ -71,10 +71,5 @@ base::DictValue UnexportablePrivateKey::ToDict() const {
   return BuildSerializedPrivateKey(wrapped);
 }
 
-#if BUILDFLAG(IS_IOS)
-SecKeyRef UnexportablePrivateKey::GetSecKeyRef() const {
-  return key_->GetSecKeyRef();
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 }  // namespace client_certificates

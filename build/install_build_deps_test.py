@@ -24,10 +24,6 @@ def _load_module(name, rel_path):
 
 
 install_build_deps = _load_module('install_build_deps', 'install-build-deps.py')
-install_chromeos_fonts = _load_module(
-    'install_chromeos_fonts',
-    os.path.join('linux', 'install-chromeos-fonts.py'),
-)
 
 
 @unittest.skipUnless(sys.platform.startswith('linux'), 'Linux-only scripts')
@@ -124,49 +120,6 @@ class InstallBuildDepsTest(unittest.TestCase):
                 mock_check_call.call_args_list[1][0][0],
                 ['sudo', 'locale-gen'],
             )
-
-    @mock.patch('subprocess.check_call')
-    @mock.patch('os.getuid', return_value=0)
-    def test_install_chromeos_fonts(self, mock_getuid, mock_check_call):
-        del mock_getuid  # Unused.
-        with tempfile.TemporaryDirectory() as tmpdir:
-
-            def fake_check_call(cmd):
-                if cmd[0] == 'curl':
-                    with open(cmd[-1], 'wb') as f:
-                        f.write(b'fake-tarball')
-
-            mock_check_call.side_effect = fake_check_call
-            with mock.patch.object(install_chromeos_fonts, 'FONTS_DIR', tmpdir):
-                rc = install_chromeos_fonts.main([])
-                self.assertEqual(rc, 0)
-                self.assertEqual(
-                    mock_check_call.call_count,
-                    len(install_chromeos_fonts.URLS) * 2,
-                )
-                first_curl = mock_check_call.call_args_list[0][0][0]
-                self.assertEqual(first_curl[:2], ['curl', '-fL'])
-
-                mock_check_call.reset_mock()
-                rc_cached = install_chromeos_fonts.main([])
-                self.assertEqual(rc_cached, 0)
-                mock_check_call.assert_not_called()
-
-    @mock.patch('subprocess.check_call')
-    @mock.patch('os.getuid', return_value=0)
-    def test_install_chromeos_fonts_curl_failure(
-        self, mock_getuid, mock_check_call
-    ):
-        del mock_getuid  # Unused.
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_check_call.side_effect = subprocess.CalledProcessError(
-                22, ['curl', '-fL']
-            )
-            with mock.patch.object(install_chromeos_fonts, 'FONTS_DIR', tmpdir):
-                with self.assertRaises(subprocess.CalledProcessError):
-                    install_chromeos_fonts.main([])
-                stamp = os.path.join(tmpdir, 'chromeos', '.stamp02')
-                self.assertFalse(os.path.exists(stamp))
 
 
 if __name__ == '__main__':

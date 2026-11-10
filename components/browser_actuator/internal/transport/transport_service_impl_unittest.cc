@@ -156,7 +156,6 @@ TEST_F(
   EXPECT_EQ(s1_dict->FindInt("total_upstream_messages"), 1);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(TransportServiceImplTest,
        ClearsSessionsAndRecordedHistoryOnPrimaryAccountCleared) {
   base::test::ScopedFeatureList feature_list;
@@ -191,7 +190,6 @@ TEST_F(TransportServiceImplTest,
   ASSERT_NE(sessions, nullptr);
   EXPECT_TRUE(sessions->empty());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(TransportServiceImplTest,
        ClearsSessionsAndRecordedHistoryOnPrimaryAccountSwitched) {

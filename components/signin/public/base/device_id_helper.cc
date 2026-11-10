@@ -15,7 +15,6 @@
 
 namespace signin {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 std::string GetSigninScopedDeviceId(PrefService* prefs) {
   std::string signin_scoped_device_id =
@@ -39,29 +38,5 @@ std::string GenerateSigninScopedDeviceId() {
   return base::Uuid::GenerateRandomV4().AsLowercaseString();
 }
 
-#else
-
-std::string GenerateSigninScopedDeviceId(bool for_ephemeral) {
-  static constexpr char kEphemeralUserDeviceIDPrefix[] = "t_";
-
-  if (for_ephemeral) {
-    // Always generate a new identifier for ephemeral users.
-    return kEphemeralUserDeviceIDPrefix +
-           base::Uuid::GenerateRandomV4().AsLowercaseString();
-  }
-
-  if (!base::FeatureList::IsEnabled(switches::kStableDeviceId)) {
-    // Do not cache identifiers if the feature is not enabled yet.
-    return base::Uuid::GenerateRandomV4().AsLowercaseString();
-  }
-
-  // Cached for the rest of the process, so every caller in a session observes
-  // the same value.
-  static base::NoDestructor<std::string> cached_device_id(
-      base::Uuid::GenerateRandomV4().AsLowercaseString());
-  return *cached_device_id;
-}
-
-#endif
 
 }  // namespace signin

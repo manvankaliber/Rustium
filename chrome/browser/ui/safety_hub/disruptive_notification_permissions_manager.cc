@@ -35,9 +35,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/safety_hub/notification_wrapper_android.h"
-#endif
 
 namespace {
 

@@ -153,13 +153,9 @@ void ExtensionRequestObserver::ShowNotification(
   // exists.
   notifications_[type] = std::make_unique<ExtensionRequestNotification>(
       profile_, type, filtered_extension_ids);
-#if BUILDFLAG(IS_ANDROID)
-  notifications_[type]->Show(base::DoNothing());
-#else
   notifications_[type]->Show(base::BindOnce(
       &ExtensionRequestObserver::OnNotificationClosed,
       weak_factory_.GetWeakPtr(), std::move(filtered_extension_ids)));
-#endif
 }
 
 void ExtensionRequestObserver::CloseAllNotifications() {
@@ -171,7 +167,6 @@ void ExtensionRequestObserver::CloseAllNotifications() {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ExtensionRequestObserver::OnNotificationClosed(
     std::vector<std::string>&& extension_ids,
     bool by_user) {
@@ -180,7 +175,6 @@ void ExtensionRequestObserver::OnNotificationClosed(
 
   RemoveExtensionsFromPendingList(profile_, extension_ids);
 }
-#endif
 
 // static
 void ExtensionRequestObserver::RemoveExtensionsFromPendingList(

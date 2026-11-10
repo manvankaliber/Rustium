@@ -6,7 +6,6 @@ import("//mojo/public/tools/bindings/mojom.gni")
 
 mojom("usb") {
   generate_blink = true
-  generate_java = true
 
   # Ideally, this mojom file should be compiled directly in "mojom_platform"
   # target in the parent directory. But as we need |scramble_message_ids| to

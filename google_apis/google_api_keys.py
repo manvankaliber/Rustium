@@ -75,11 +75,6 @@ def GetAPIKey():
   return _GetToken('GOOGLE_API_KEY')
 
 
-def GetAPIKeyAndroidNonStable():
-  """Returns the API key for android non-stable channel."""
-  return _GetToken('GOOGLE_API_KEY_ANDROID_NON_STABLE')
-
-
 def GetClientID(client_name):
   """Returns the OAuth 2.0 client ID for the client of the given name."""
   return _GetToken('GOOGLE_CLIENT_ID_%s' % client_name)

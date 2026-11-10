@@ -38,11 +38,9 @@ namespace enterprise_management {
 class GetUserEligiblePromotionsResponse;
 }  // namespace enterprise_management
 
-#if !BUILDFLAG(IS_CHROMEOS)
 namespace device_signals {
 class UserPermissionService;
 }  // namespace device_signals
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Interface for observing promotion eligibility fetching events.
 class ManagementPromotionObserver : public base::CheckedObserver {
@@ -74,9 +72,7 @@ class ManagementUIHandler : public content::WebUIMessageHandler,
   void RegisterMessages() override;
 
   void SetAccountManagedForTesting(bool managed) { account_managed_ = managed; }
-#if !BUILDFLAG(IS_CHROMEOS)
   void SetBrowserManagedForTesting(bool managed) { browser_managed_ = managed; }
-#endif
 
   void OnJavascriptAllowed() override;
   void OnJavascriptDisallowed() override;
@@ -98,10 +94,8 @@ class ManagementUIHandler : public content::WebUIMessageHandler,
   base::ListValue GetManagedWebsitesInfo(Profile* profile) const;
   base::ListValue GetApplicationsInfo(Profile* profile) const;
   virtual policy::PolicyService* GetPolicyService();
-#if !BUILDFLAG(IS_CHROMEOS)
   virtual device_signals::UserPermissionService* GetUserPermissionService();
   base::DictValue GetDeviceSignalGrantedMessage();
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   bool account_managed() const { return account_managed_; }
   virtual bool managed() const;
@@ -110,9 +104,7 @@ class ManagementUIHandler : public content::WebUIMessageHandler,
   virtual void UpdateManagedState();
 
   bool UpdateAccountManagedState(Profile* profile);
-#if !BUILDFLAG(IS_CHROMEOS)
   bool UpdateBrowserManagedState();
-#endif
 
   std::string GetAccountManager(Profile* profile) const;
 

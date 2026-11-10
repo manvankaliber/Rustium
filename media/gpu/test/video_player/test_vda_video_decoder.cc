@@ -30,9 +30,9 @@
 #if BUILDFLAG(USE_LINUX_VIDEO_ACCELERATION)
 // These includes are used for non-ChromeOS platforms as well.
 // TODO(crbug.com/414455717): Consider renaming them.
-#include "media/gpu/chromeos/platform_video_frame_utils.h"
-#include "media/gpu/chromeos/vd_video_decode_accelerator.h"
-#include "media/gpu/chromeos/video_decoder_pipeline.h"
+#include "media/gpu/linux/platform_video_frame_utils.h"
+#include "media/gpu/linux/vd_video_decode_accelerator.h"
+#include "media/gpu/linux/video_decoder_pipeline.h"
 #endif
 
 namespace media {

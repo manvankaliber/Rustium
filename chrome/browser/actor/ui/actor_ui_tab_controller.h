@@ -46,7 +46,6 @@ class ActorUiTabController : public ActorUiTabControllerInterface {
       ActorNavigationThrottle::Delegate::NavigationConfirmedCallback callback)
       override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Closes this tab's navigation confirmation dialog, if one is showing.
   void CancelNavigationConfirmation(tabs::TabInterface* tab) override;
 
@@ -71,7 +70,6 @@ class ActorUiTabController : public ActorUiTabControllerInterface {
   std::string GetCursorChipText() const override;
   [[nodiscard]] base::ScopedClosureRunner RegisterCursorChipTextChange(
       CursorChipTextChangeCallback callback) override;
-#endif
 
  private:
   // Called only once on startup to initialize tab subscriptions.
@@ -92,12 +90,10 @@ class ActorUiTabController : public ActorUiTabControllerInterface {
   // Run the test callback after updates have been made.
   void OnUpdateFinished();
 
-#if !BUILDFLAG(IS_ANDROID)
   // Called when the omnibox's popup visibility changes.
   void OnWindowOmniboxPopupVisibilityChanged() override;
   // Called when tab modal UI showing state changes.
   void OnModalUIChanged(tabs::TabInterface* tab);
-#endif
 
   // Sets the Tab Indicator visibility.
   void SetActorTabIndicatorVisibility(TabIndicatorStatus tab_indicator_status,
@@ -138,7 +134,6 @@ class ActorUiTabController : public ActorUiTabControllerInterface {
   // Holds subscriptions for TabInterface callbacks.
   std::vector<base::CallbackListSubscription> tab_subscriptions_;
 
-#if !BUILDFLAG(IS_ANDROID)
   ActorOverlayStateChangeCallback on_actor_overlay_state_changed_callback_;
   ActorOverlayBackgroundChangeCallback
       actor_overlay_background_changed_callback_;
@@ -146,7 +141,6 @@ class ActorUiTabController : public ActorUiTabControllerInterface {
   // Kept outside UiTabState so a text change never replays mouse commands.
   std::string cursor_chip_text_;
   base::WeakPtr<views::Widget> active_navigation_confirm_widget_;
-#endif
 
   // The Actor Keyed Service for the associated profile.
   raw_ptr<ActorKeyedService> actor_keyed_service_ = nullptr;

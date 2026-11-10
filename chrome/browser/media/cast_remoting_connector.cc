@@ -325,10 +325,8 @@ void CastRemotingConnector::OnSinkAvailable(
     return;
   }
   sink_metadata_ = *metadata;
-#if !BUILDFLAG(IS_ANDROID)
   sink_metadata_.features.push_back(
       media::mojom::RemotingSinkFeature::RENDERING);
-#endif
 
   if (remoting_allowed_) {
     for (RemotingBridge* notifyee : bridges_) {
@@ -374,17 +372,14 @@ void CastRemotingConnector::OnDataSendFailed() {
 
 void CastRemotingConnector::StartObservingPref() {
   pref_change_registrar_.Init(pref_service_);
-#if !BUILDFLAG(IS_ANDROID)
   pref_change_registrar_.Add(
       media_router::prefs::kMediaRouterMediaRemotingEnabled,
       base::BindRepeating(&CastRemotingConnector::OnPrefChanged,
                           base::Unretained(this)));
   remoting_allowed_ = GetRemotingAllowedUserPref();
-#endif
 }
 
 void CastRemotingConnector::OnPrefChanged() {
-#if !BUILDFLAG(IS_ANDROID)
   remoting_allowed_ = GetRemotingAllowedUserPref();
   if (remoting_allowed_) {
     if (HasSinkMetadata() && !active_bridge_) {
@@ -395,15 +390,10 @@ void CastRemotingConnector::OnPrefChanged() {
   } else {
     OnStopped(media::mojom::RemotingStopReason::USER_DISABLED);
   }
-#endif
 }
 
 bool CastRemotingConnector::GetRemotingAllowedUserPref() const {
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
   const PrefService::Preference* pref = pref_service_->FindPreference(
       media_router::prefs::kMediaRouterMediaRemotingEnabled);
   return pref && pref->GetValue()->GetBool();
-#endif
 }

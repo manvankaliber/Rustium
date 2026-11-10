@@ -48,7 +48,6 @@
 #include "ui/display/screen.h"
 #include "ui/gfx/geometry/rect.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/strings/stringprintf.h"
 #include "chrome/browser/platform_util.h"
 #include "chrome/browser/ui/browser_commands.h"
@@ -61,14 +60,7 @@
 #include "chrome/browser/web_applications/web_app_provider.h"
 #include "chrome/browser/web_applications/web_app_registrar.h"
 #include "components/webapps/isolated_web_apps/scheme.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#include "chrome/common/chrome_features.h"
-#include "chromeos/ash/components/browser_delegate/browser_controller.h"
-#include "chromeos/ash/components/browser_delegate/browser_delegate.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -163,7 +155,6 @@ bool WindowBoundsIntersectDisplays(const gfx::Rect& bounds) {
 
 constexpr char kInvalidWindowTypeError[] = "Invalid value for type";
 
-#if !BUILDFLAG(IS_ANDROID)
 constexpr char kWindowCreateSupportsOnlySingleIwaUrlError[] =
     "When creating a window for a URL with the 'isolated-app:' scheme, only "
     "one tab can be added to the window.";
@@ -172,29 +163,7 @@ constexpr char kWindowCreateCannotParseIwaUrlError[] =
 constexpr char kWindowCreateCannotUseTabIdWithIwaError[] =
     "Creating a new window for an Isolated Web App does not support adding a "
     "tab by its ID.";
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-std::string WindowResizePrecheckResultToErrorMessage(
-    ui::WindowResizePrecheckResult result) {
-  switch (result) {
-    case ui::WindowResizePrecheckResult::kOk:
-      NOTREACHED();
-    case ui::WindowResizePrecheckResult::kAndroidBrowserRoleNotHeld:
-      return tabs_constants::kUnableToResizeErrorAndroidBrowserRoleNotHeld;
-    case ui::WindowResizePrecheckResult::kAndroidSdkTooLow:
-      return tabs_constants::kUnableToResizeErrorAndroidSdkTooLow;
-    case ui::WindowResizePrecheckResult::kAndroidNotAFreeformWindow:
-      return tabs_constants::kUnableToResizeErrorAndroidNotAFreeformWindow;
-    case ui::WindowResizePrecheckResult::kAndroidNullAppTask:
-      return tabs_constants::kUnableToResizeErrorAndroidNullAppTask;
-    case ui::WindowResizePrecheckResult::kAndroidNoActivity:
-      [[fallthrough]];
-    case ui::WindowResizePrecheckResult::kAndroidNullAconfigFlaggedApiDelegate:
-      return tabs_constants::kUnableToResizeErrorAndroidUnsupportedOperation;
-  }
-}
-#endif
 
 bool IsValidStateForWindowsCreateFunction(
     const windows::Create::Params::CreateData* create_data) {
@@ -221,7 +190,6 @@ bool IsValidStateForWindowsCreateFunction(
   NOTREACHED();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 // Returns the IsolatedWebAppUrlInfo for the given call to windows.create() if
 // the call is to create a new IWA window.
@@ -307,77 +275,7 @@ class ScopedPinBrowserAtFront {
   ui::ZOrderLevel old_z_order_level_;
 };
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Returns true if the given browser window is in locked fullscreen mode
-// (a special type of fullscreen where the user is locked into one browser
-// window).
-// TODO(https://crbug.com/432056907): Determine if we need locked-fullscreen
-// support on desktop android.
-bool IsLockedFullscreen(BrowserWindowInterface* browser) {
-  if (features::IsUseUnifiedLockedStateControllerEnabled()) {
-    return chromeos::LockedStateController::From(browser)->IsLockedFullscreen();
-  }
-  return platform_util::IsBrowserLockedFullscreen(browser);
-}
-
-// Places the window in a special type of fullscreen where the user is locked
-// into one browser window if requested. Returns base::ok() on success, or an
-// error message on failure.
-base::expected<void, std::string> MaybeSetLockedFullscreenState(
-    const api::windows::Update::Params& params,
-    const Extension* extension,
-    BrowserWindowInterface* browser) {
-  // Don't allow locked fullscreen operations on a window without the proper
-  // permission (also don't allow any operations on a locked window if the
-  // extension doesn't have the permission).
-  const bool is_locked_fullscreen = IsLockedFullscreen(browser);
-  if ((params.update_info.state == windows::WindowState::kLockedFullscreen ||
-       is_locked_fullscreen) &&
-      !ExtensionHasLockedFullscreenPermission(extension)) {
-    return base::unexpected(kMissingLockWindowFullscreenPrivatePermission);
-  }
-
-  // State will be WINDOW_STATE_NONE if the state parameter wasn't passed from
-  // the JS side, and in that case we don't want to change the locked state.
-  if (features::IsUseUnifiedLockedStateControllerEnabled()) {
-    auto* locked_state_controller =
-        chromeos::LockedStateController::From(browser);
-    if (is_locked_fullscreen &&
-        params.update_info.state != windows::WindowState::kLockedFullscreen &&
-        params.update_info.state != windows::WindowState::kNone) {
-      locked_state_controller->Unlock(chromeos::LockedState::kExtensionLocked);
-    } else if (!is_locked_fullscreen &&
-               params.update_info.state ==
-                   windows::WindowState::kLockedFullscreen) {
-      locked_state_controller->Lock(chromeos::LockedState::kExtensionLocked);
-    }
-    return base::ok();
-  }
-
-  if (browser) {
-    if (is_locked_fullscreen &&
-        params.update_info.state != windows::WindowState::kLockedFullscreen &&
-        params.update_info.state != windows::WindowState::kNone) {
-      auto* delegate =
-          ash::BrowserController::GetInstance()->GetDelegate(browser);
-      if (delegate && delegate->IsLockedFullscreen()) {
-        delegate->LeaveLockedFullscreen();
-      }
-    } else if (!is_locked_fullscreen &&
-               params.update_info.state ==
-                   windows::WindowState::kLockedFullscreen) {
-      auto* delegate =
-          ash::BrowserController::GetInstance()->GetDelegate(browser);
-      if (delegate && !delegate->IsLockedFullscreen()) {
-        delegate->EnterLockedFullscreen();
-      }
-    }
-  }
-  return base::ok();
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Updates `window_bounds` from `params`. Returns true if bounds were set.
 bool UpdateWindowBoundsFromParams(const api::windows::Update::Params& params,
@@ -539,13 +437,11 @@ ExtensionFunction::ResponseAction WindowsCreateFunction::Run() {
 
   std::string error;
 
-#if !BUILDFLAG(IS_ANDROID)
   isolated_web_app_url_info_ =
       GetIsolatedWebAppInfo(create_data_, urls_, &error);
   if (!error.empty()) {
     return RespondNow(Error(std::move(error)));
   }
-#endif
 
   // Decide whether we are opening a normal window or an incognito window.
   Profile* calling_profile = Profile::FromBrowserContext(browser_context());
@@ -626,12 +522,10 @@ ExtensionFunction::ResponseAction WindowsCreateFunction::Run() {
 
       // Initialize default window bounds according to window type.
       // TODO(https://crbug.com/545671279): Properly initialize window bounds.
-#if !BUILDFLAG(IS_ANDROID)
     ui::mojom::WindowShowState ignored_show_state =
         ui::mojom::WindowShowState::kDefault;
     WindowSizer::GetBrowserWindowBoundsAndShowState(
         gfx::Rect(), nullptr, &window_bounds, &ignored_show_state);
-#endif
 
     // Update the window bounds based on the create parameters.
     std::string bounds_error = SetWindowBounds(*create_data_, window_bounds);
@@ -657,7 +551,6 @@ ExtensionFunction::ResponseAction WindowsCreateFunction::Run() {
                                           user_gesture());
 
   bool initialized_type = false;
-#if !BUILDFLAG(IS_ANDROID)
   if (isolated_web_app_url_info_.has_value()) {
     create_params.type = BrowserWindowInterface::TYPE_APP;
     create_params.app_name = web_app::GenerateApplicationNameFromAppId(
@@ -669,7 +562,6 @@ ExtensionFunction::ResponseAction WindowsCreateFunction::Run() {
     create_params.is_trusted_source = true;
     initialized_type = true;
   }
-#endif
 
   if (!initialized_type && !extension_id.empty()) {
     // extension_id is only set for CREATE_TYPE_POPUP.
@@ -679,18 +571,12 @@ ExtensionFunction::ResponseAction WindowsCreateFunction::Run() {
     // TODO(https://crbug.com/469000733): Investigate if we can just use
     // TYPE_POPUP everywhere.
     create_params.type =
-#if BUILDFLAG(IS_ANDROID)
-        BrowserWindowInterface::TYPE_POPUP;
-#else
         BrowserWindowInterface::TYPE_APP_POPUP;
-#endif
 
     // TODO(https://crbug.com/545671279): Initialize app name on android, or
     // verify this is unnecessary.
-#if !BUILDFLAG(IS_ANDROID)
     create_params.app_name =
         web_app::GenerateApplicationNameFromAppId(extension_id);
-#endif
     create_params.is_trusted_source = false;
     initialized_type = true;
   }
@@ -702,7 +588,6 @@ ExtensionFunction::ResponseAction WindowsCreateFunction::Run() {
         ConvertToWindowShowState(create_data_->state);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   const base::TimeTicks now = base::TimeTicks::Now();
   BrowserWindowInterface* new_window =
       CreateBrowserWindow(std::move(create_params));
@@ -713,28 +598,8 @@ ExtensionFunction::ResponseAction WindowsCreateFunction::Run() {
   ExtensionFunction::ResponseValue response =
       OnBrowserWindowCreated(new_window);
   return RespondNow(std::move(response));
-#else
-
-  CHECK(create_params.type == BrowserWindowInterface::TYPE_NORMAL ||
-        create_params.type == BrowserWindowInterface::TYPE_POPUP)
-      << "Unexpected window type: " << static_cast<int>(create_params.type);
-
-  CreateBrowserWindow(
-      std::move(create_params),
-      base::BindOnce(
-          &WindowsCreateFunction::OnBrowserWindowCreatedAsynchronously, this));
-  return RespondLater();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void WindowsCreateFunction::OnBrowserWindowCreatedAsynchronously(
-    BrowserWindowInterface* new_window) {
-  ExtensionFunction::ResponseValue response =
-      OnBrowserWindowCreated(new_window);
-  Respond(std::move(response));
-}
-#endif
 
 ExtensionFunction::ResponseValue WindowsCreateFunction::OnBrowserWindowCreated(
     BrowserWindowInterface* new_window) {
@@ -751,15 +616,6 @@ ExtensionFunction::ResponseValue WindowsCreateFunction::OnBrowserWindowCreated(
     navigate_params.disposition =
         ui::mojom::WindowOpenDisposition::kNewForegroundTab;
 
-#if BUILDFLAG(IS_ANDROID)
-    // On Android, new windows are created with a single empty tab. As such,
-    // when navigating, we need to navigate that first tab, instead of adding
-    // new ones. Otherwise, we'd end up with one extra tab in the new window.
-    if (is_first_nav) {
-      navigate_params.disposition =
-          ui::mojom::WindowOpenDisposition::kCurrentTab;
-    }
-#endif
     // Ensure that these navigations will not get 'captured' into PWA windows,
     // as this means that `new_window` could be ignored. It may be
     // useful/desired in the future to allow this behavior, but this may require
@@ -793,7 +649,6 @@ ExtensionFunction::ResponseValue WindowsCreateFunction::OnBrowserWindowCreated(
   };
 
   bool navigated = false;
-#if !BUILDFLAG(IS_ANDROID)
   if (isolated_web_app_url_info_) {
     CHECK_EQ(urls_.size(), 1U);
     const GURL& original_url = urls_[0];
@@ -825,7 +680,6 @@ ExtensionFunction::ResponseValue WindowsCreateFunction::OnBrowserWindowCreated(
     }
     navigated = true;
   }
-#endif
 
   if (!navigated) {
     bool is_first_nav = true;
@@ -839,9 +693,7 @@ ExtensionFunction::ResponseValue WindowsCreateFunction::OnBrowserWindowCreated(
   TabListInterface* tab_list = TabListInterface::From(new_window);
   CHECK(tab_list);
 
-#if !BUILDFLAG(IS_ANDROID)
   bool moved_tab = false;
-#endif
   // Move the tab into the created window only if it's an empty popup or it's
   // a tabbed window.
   if (new_window->GetType() == BrowserWindowInterface::TYPE_NORMAL ||
@@ -856,44 +708,19 @@ ExtensionFunction::ResponseValue WindowsCreateFunction::OnBrowserWindowCreated(
         return Error(std::move(error));
       }
 
-#if BUILDFLAG(IS_ANDROID)
-      // On Android, a new window is created with a single default tab. If urls_
-      // is empty, it means:
-      //
-      // (1) We haven't navigated, which would have navigated the default tab to
-      // a URL;
-      //
-      // (2) There should be only 2 tabs: the default tab and the tab with
-      // "create_data_->tab_id".
-      //
-      // As the tab with "create_data_->tab_id" is added to the end of the tab
-      // list, we close the first (default) tab to match the behavior on other
-      // platforms: the new window should only have the tab with
-      // "create_data_->tab_id".
-      //
-      // TODO(crbug.com/477611601): Remove this logic when a new Android window
-      // has no tabs, like Windows/Mac/Linux.
-      if (urls_.empty()) {
-        CHECK(tab_list->GetTabCount() == 2);
-        tab_list->CloseTab(tab_list->GetTab(0)->GetHandle());
-      }
-#else
       moved_tab = true;
-#endif
     }
   }
 
   // Create a new tab if the created window is still empty. Don't create a new
   // tab when it is intended to create an empty popup.
   // TODO(https://crbug.com/545671279): Port to desktop android.
-#if !BUILDFLAG(IS_ANDROID)
   if (!moved_tab && urls_.empty() &&
       new_window->GetType() == BrowserWindowInterface::TYPE_NORMAL) {
     // TODO(crbug.com/452431839) Make a new NewTabTypes value for
     // when new tabs are made because of an empty window.
     chrome::NewTab(new_window, NewTabTypes::kNoUserAction);
   }
-#endif
 
   // Select the first tab in the window, if there's at least one tab. There may
   // be no tabs, since we allow the creation of an empty popup above.
@@ -915,7 +742,6 @@ ExtensionFunction::ResponseValue WindowsCreateFunction::OnBrowserWindowCreated(
     new_window->GetWindow()->Show();
   } else {
     // TODO(https://crbug.com/545671279): Port to desktop android.
-#if !BUILDFLAG(IS_ANDROID)
     // Show an unfocused new window.
     BrowserWindowInterface* const last_active_bwi =
         GetLastActiveBrowserWindowInterfaceWithAnyProfile();
@@ -929,9 +755,6 @@ ExtensionFunction::ResponseValue WindowsCreateFunction::OnBrowserWindowCreated(
     } else {
       new_window->GetWindow()->ShowInactive();
     }
-#else
-    new_window->GetWindow()->ShowInactive();
-#endif  // BUILDFLAG(IS_ANDROID)
   }
   if (!weak_window) {
     return Error(ExtensionTabUtil::kNoCurrentWindowError);
@@ -958,23 +781,6 @@ ExtensionFunction::ResponseValue WindowsCreateFunction::OnBrowserWindowCreated(
   // TODO(crbug.com/438540029) - Remove once the migration is complete.
   if (create_data_ &&
       create_data_->state == windows::WindowState::kLockedFullscreen) {
-#if BUILDFLAG(IS_CHROMEOS)
-    if (features::IsUseUnifiedLockedStateControllerEnabled()) {
-      chromeos::LockedStateController::From(new_window)
-          ->Lock(chromeos::LockedState::kExtensionLocked);
-    } else {
-      if (new_window) {
-        auto* delegate =
-            ash::BrowserController::GetInstance()->GetDelegate(new_window);
-        if (delegate) {
-          delegate->EnterLockedFullscreen();
-        }
-      }
-    }
-    if (!weak_window) {
-      return Error(ExtensionTabUtil::kNoCurrentWindowError);
-    }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   if (new_window->GetProfile()->IsOffTheRecord() &&
@@ -1034,20 +840,6 @@ std::string WindowsCreateFunction::SetWindowBounds(
   return std::string();  // No error.
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void WindowsCreateFunction::OnBocaWindowCreatedAsynchronously(
-    const SessionID& session_id) {
-  BrowserWindowInterface* const browser =
-      BrowserWindowInterface::FromSessionID(session_id);
-  if (!browser) {
-    RespondWithError(ExtensionTabUtil::kBrowserWindowNotAllowed);
-    return;
-  }
-  Respond(WithArguments(ExtensionTabUtil::CreateWindowValueForExtension(
-      *browser, extension(), WindowController::kPopulateTabs,
-      source_context_type())));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 ExtensionFunction::ResponseAction WindowsUpdateFunction::Run() {
   std::optional<windows::Update::Params> params =
@@ -1119,39 +911,11 @@ ExtensionFunction::ResponseAction WindowsUpdateFunction::Run() {
     }
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (set_window_bounds ||
-      show_state == ui::mojom::WindowShowState::kMaximized ||
-      show_state == ui::mojom::WindowShowState::kNormal) {
-    ui::WindowResizePrecheckResult resize_precheck_result;
-    if (!browser_window->CanResize(resize_precheck_result)) {
-      return RespondNow(Error(
-          WindowResizePrecheckResultToErrorMessage(resize_precheck_result)));
-    }
-  }
-
-  if (show_state == ui::mojom::WindowShowState::kFullscreen) {
-    return RespondNow(Error(tabs_constants::kUnableToEnterFullScreenAndroid));
-  }
-#endif
 
   // Parameters are valid. Now to perform the actual updates. Platform window
   // operations (such as entering or exiting fullscreen) may spin a nested event
   // loop on some platforms (e.g. macOS) and synchronously close the window,
   // destroying `browser` and `window_controller`.
-#if BUILDFLAG(IS_CHROMEOS)
-  base::WeakPtr<BrowserWindowInterface> weak_browser = browser->GetWeakPtr();
-  base::WeakPtr<WindowController> weak_window_controller =
-      window_controller->GetWeakPtr();
-  if (base::expected<void, std::string> result =
-          MaybeSetLockedFullscreenState(*params, extension(), browser);
-      !result.has_value()) {
-    return RespondNow(Error(std::move(result.error())));
-  }
-  if (!weak_browser || !weak_window_controller) {
-    return RespondNow(Error(ExtensionTabUtil::kNoCurrentWindowError));
-  }
-#endif
 
   if (!UpdateWindowState(*params, browser, window_controller, show_state,
                          set_window_bounds, window_bounds)) {
@@ -1252,13 +1016,6 @@ ExtensionFunction::ResponseAction WindowsRemoveFunction::Run() {
 
   // TODO(https://crbug.com/432056907): Determine if we need locked-fullscreen
   // support on desktop android.
-#if BUILDFLAG(IS_CHROMEOS)
-  if (window_controller->GetBrowserWindowInterface() &&
-      IsLockedFullscreen(window_controller->GetBrowserWindowInterface()) &&
-      !ExtensionHasLockedFullscreenPermission(extension())) {
-    return RespondNow(Error(kMissingLockWindowFullscreenPrivatePermission));
-  }
-#endif
 
   TabListInterface* tab_list =
       TabListInterface::From(window_controller->GetBrowserWindowInterface());

@@ -82,10 +82,8 @@ class DataTypeStoreServiceImplTest : public testing::Test {
   DataTypeStoreServiceImplTest() {
     pref_service_.registry()->RegisterBooleanPref(
         prefs::internal::kMigrateReadingListFromLocalToAccount, false);
-#if !BUILDFLAG(IS_CHROMEOS)
     pref_service_.registry()->RegisterBooleanPref(
         prefs::internal::kWipedAppsAndAppSettingsData, false);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   }
 
  protected:
@@ -203,7 +201,6 @@ TEST_F(DataTypeStoreServiceImplTest,
   }
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(DataTypeStoreServiceImplTest,
        ShouldWipeAppsAndAppSettingsDataIfFeatureEnabled) {
   base::FilePath temp_path = base::CreateUniqueTempDirectoryScopedToTest();
@@ -278,7 +275,6 @@ TEST_F(DataTypeStoreServiceImplTest,
         prefs::internal::kWipedAppsAndAppSettingsData));
   }
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 }  // namespace syncer

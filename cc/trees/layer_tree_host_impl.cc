@@ -610,11 +610,6 @@ void LayerTreeHostImpl::DidEndScroll() {
     delegate_->SetWaitingForScrollEvent(false);
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  if (render_frame_metadata_observer_) {
-    render_frame_metadata_observer_->DidEndScroll();
-  }
-#endif
 }
 
 void LayerTreeHostImpl::DidMouseEnterNonViewportScroller(ElementId element_id) {
@@ -746,12 +741,6 @@ LayerTreeHostImpl::LayerTreeHostImpl(
             /*layer_tree_host_id=*/id,
             /*is_trees_in_viz_client=*/
             settings_.TreesInVizInClientProcess());
-#if BUILDFLAG(IS_ANDROID)
-    if (features::ShouldScrollJankV4MetricReportAndroidAppJankStats()) {
-      compositor_frame_reporting_controller_->SetScrollJankOsReporter(
-          weak_factory_.GetWeakPtr());
-    }
-#endif
   }
   compositor_frame_reporting_controller_->SetVisible(visible_);
 
@@ -807,12 +796,6 @@ LayerTreeHostImpl::LayerTreeHostImpl(
   compositor_frame_reporting_controller_->SetFrameSequenceTrackerCollection(
       &frame_trackers_);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (settings.is_layer_tree_for_ui) {
-    frame_trackers_.UpdateSmoothThreadHistory(
-        FrameInfo::SmoothEffectDrivingThread::kMain, /*modifier-*/ 1);
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   frame_trackers_.set_custom_tracker_results_added_callback(base::BindRepeating(
       &LayerTreeHostImpl::NotifyCompositorMetricsTrackerResults,
@@ -2500,12 +2483,6 @@ void LayerTreeHostImpl::OnSurfaceEvicted(
 void LayerTreeHostImpl::ReportScrollJankStats(uint32_t total_frames,
                                               uint32_t janky_frames) {
   CHECK_LE(janky_frames, total_frames);
-#if BUILDFLAG(IS_ANDROID)
-  if (render_frame_metadata_observer_) {
-    render_frame_metadata_observer_->ReportScrollJankStats(total_frames,
-                                                           janky_frames);
-  }
-#endif
 }
 
 void LayerTreeHostImpl::OnCanDrawStateChangedForTree() {
@@ -2670,10 +2647,6 @@ viz::CompositorFrameMetadata LayerTreeHostImpl::MakeCompositorFrameMetadata(
     metadata.top_controls_visible_height.emplace(visible_height);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  metadata.offset_tag_values =
-      browser_controls_offset_manager_->GetOffsetTagValues();
-#endif
 
   if (InnerViewportScrollNode()) {
     metadata.root_scroll_offset = active_tree_->TotalScrollOffset();
@@ -2739,20 +2712,6 @@ RenderFrameMetadata LayerTreeHostImpl::MakeRenderFrameMetadata(
 
   metadata.browser_controls_metadata =
       browser_controls_offset_manager_->GetMetadata();
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  metadata.scrollable_viewport_size = active_tree_->ScrollableViewportSize();
-  metadata.min_page_scale_factor = active_tree_->min_page_scale_factor();
-  metadata.max_page_scale_factor = active_tree_->max_page_scale_factor();
-  metadata.root_layer_size = active_tree_->ScrollableSize();
-  if (InnerViewportScrollNode()) {
-    DCHECK(OuterViewportScrollNode());
-    metadata.root_overflow_y_hidden =
-        !OuterViewportScrollNode()->user_scrollable_vertical ||
-        !InnerViewportScrollNode()->user_scrollable_vertical;
-  }
-  metadata.has_transparent_background =
-      frame.render_passes.back()->has_transparent_background;
-#endif
 
   bool allocate_new_local_surface_id = false;
 
@@ -2793,14 +2752,8 @@ RenderFrameMetadata LayerTreeHostImpl::MakeRenderFrameMetadata(
     allocate_new_local_surface_id =
         metadata.browser_controls_metadata.RequiresNewLocalSurfaceId(
             last_draw_render_frame_metadata_->browser_controls_metadata) ||
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
         last_draw_render_frame_metadata_->tracked_element_rects !=
             metadata.tracked_element_rects;
-#else
-        last_draw_render_frame_metadata_->selection != metadata.selection ||
-        last_draw_render_frame_metadata_->has_transparent_background !=
-            metadata.has_transparent_background;
-#endif
   }
 
   if (GetCurrentLocalSurfaceId().is_valid()) {

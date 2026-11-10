@@ -19,14 +19,9 @@
 #include "chrome/browser/ui/browser_window/public/profile_browser_collection.h"
 #include "ui/base/base_window.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/platform_util.h"
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/views/frame/browser_view.h"
 #include "ui/views/widget/widget_observer.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "ui/aura/window.h"
@@ -95,11 +90,6 @@ bool IsBrowserGlicCompatible(Profile* profile,
 
 bool IsBrowserGlicAttachable(Profile* profile,
                              BrowserWindowInterface* browser) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (platform_util::IsBrowserLockedFullscreen(browser)) {
-    return false;
-  }
-#endif
   return IsBrowserGlicCompatible(profile, browser) &&
          browser->GetWindow()->IsVisible() &&
          !browser->GetWindow()->IsMinimized();
@@ -138,9 +128,7 @@ bool IsBrowserInForeground(BrowserWindowInterface* bwi) {
 bool IsBrowserVisible(BrowserWindowInterface* bwi) {
   return bwi && bwi->GetWindow() && bwi->GetWindow()->IsVisible() &&
          !bwi->GetWindow()->IsMinimized()
-#if !BUILDFLAG(IS_ANDROID)
          && bwi->capabilities()->IsVisibleOnScreen()
-#endif
       ;
 }
 
@@ -154,7 +142,6 @@ BrowserWindowInterface* GetActiveGlicEligibleBrowser(Profile* profile) {
   return nullptr;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class BrowserAttachObservationImpl : public BrowserAttachObservation,
                                      public BrowserCollectionObserver,
                                      public views::WidgetObserver {
@@ -254,6 +241,5 @@ std::unique_ptr<BrowserAttachObservation> ObserveBrowserForAttachment(
     BrowserAttachObserver* observer) {
   return std::make_unique<BrowserAttachObservationImpl>(profile, observer);
 }
-#endif
 
 }  // namespace glic

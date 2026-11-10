@@ -41,8 +41,7 @@ use std::{
     os::raw::{c_char, c_int, c_void},
 };
 
-#[cfg(target_os = "android")]
-use std::mem;
+
 
 /// Invoked by `__system_property_read_callback` with the `payload` pointer that
 /// was handed to it as the opaque cookie.
@@ -90,7 +89,7 @@ unsafe impl Send for AndroidSystemProperties {}
 unsafe impl Sync for AndroidSystemProperties {}
 
 impl AndroidSystemProperties {
-    #[cfg(not(target_os = "android"))]
+
     /// Create an entry point for accessing Android properties.
     pub fn new() -> Self {
         AndroidSystemProperties {
@@ -101,49 +100,7 @@ impl AndroidSystemProperties {
         }
     }
 
-    #[cfg(target_os = "android")]
-    /// Create an entry point for accessing Android properties.
-    pub fn new() -> Self {
-        let libc_so = unsafe { libc::dlopen(b"libc.so\0".as_ptr().cast(), libc::RTLD_NOLOAD) };
 
-        let mut properties = AndroidSystemProperties {
-            libc_so,
-            find_fn: None,
-            read_callback_fn: None,
-            get_fn: None,
-        };
-
-        if libc_so.is_null() {
-            return properties;
-        }
-
-
-        unsafe fn load_fn(libc_so: *mut c_void, name: &[u8]) -> Option<*const c_void> {
-            let fn_ptr = libc::dlsym(libc_so, name.as_ptr().cast());
-
-            if fn_ptr.is_null() {
-                return None;
-            }
-
-            Some(fn_ptr)
-        }
-
-        unsafe {
-            properties.read_callback_fn = load_fn(libc_so, b"__system_property_read_callback\0")
-                .map(|raw| mem::transmute::<*const c_void, SystemPropertyReadCallbackFn>(raw));
-
-            properties.find_fn = load_fn(libc_so, b"__system_property_find\0")
-                .map(|raw| mem::transmute::<*const c_void, SystemPropertyFindFn>(raw));
-
-            // Fallback for old versions of Android.
-            if properties.read_callback_fn.is_none() || properties.find_fn.is_none() {
-                properties.get_fn = load_fn(libc_so, b"__system_property_get\0")
-                    .map(|raw| mem::transmute::<*const c_void, SystemPropertyGetFn>(raw));
-            }
-        }
-
-        properties
-    }
 
     /// Retrieve a system property.
     ///

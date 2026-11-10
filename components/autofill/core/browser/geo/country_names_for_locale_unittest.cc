@@ -29,14 +29,12 @@ TEST(CountryNamesForLocaleTest, GetCountryCode) {
 
 // The behavior depends on the platform. On Android the locale reverts back to
 // the standard locale.
-#if !BUILDFLAG(IS_ANDROID)
 // Test that an empty string is returned for an undetermined locale.
 TEST(CountryNamesForLocaleTest, EmptyCountryCodeForEmptyLocale) {
   CountryNamesForLocale empty_locale_names(
       base::i18n::GetKnownLanguageTag("und"));
   EXPECT_EQ("", empty_locale_names.GetCountryCode(u"United States"));
 }
-#endif
 
 // Test that an empty string is returned for an empty country name.
 TEST(CountryNamesForLocaleTest, EmptyCountryCodeForEmptyCountryName) {

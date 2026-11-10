@@ -485,7 +485,7 @@ class GpuIntegrationTest(
       # Some platforms require GPU process, so browser fails to launch with
       # --disable-gpu mode, therefore, even test expectations fail to evaluate.
       os_name = cls.platform.GetOSName()
-      if os_name in ('android', 'chromeos'):
+      if os_name in ():
         browser_args.remove(cba.DISABLE_GPU)
 
     if cls._finder_options.browser_type in [
@@ -1071,8 +1071,6 @@ class GpuIntegrationTest(
   def _EnsureScreenOn(cls) -> None:
     """Ensures the screen is on for applicable platforms."""
     os_name = cls.browser.platform.GetOSName()
-    if os_name == 'android':
-      cls.browser.platform.android_action_runner.TurnScreenOn()
 
   def _ShouldForceRetryOnFailureFirstTest(self) -> bool:
     return False

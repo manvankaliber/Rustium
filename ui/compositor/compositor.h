@@ -361,13 +361,9 @@ class COMPOSITOR_EXPORT Compositor
   void RequestSuccessfulPresentationTimeForNextFrame(
       SuccessfulPresentationTimeCallback callback);
 
-#if BUILDFLAG(IS_IOS)
-  void IssueExternalBeginFrameNoAck(const viz::BeginFrameArgs& args);
-#else
   void IssueExternalBeginFrame(
       const viz::BeginFrameArgs& args,
       base::OnceCallback<void(const viz::BeginFrameAck&)> callback);
-#endif
 
   // Creates a CompositorMetricsTracker for tracking this Compositor.
   CompositorMetricsTracker RequestNewCompositorMetricsTracker();
@@ -510,14 +506,6 @@ class COMPOSITOR_EXPORT Compositor
     return vrr_state_;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Sets the list of refresh rates that the compositor may request to use.
-  void SetSeamlessRefreshRates(
-      const std::vector<float>& seamless_refresh_rates);
-
-  // Notifies observers of a new refresh rate preference.
-  void OnSetPreferredRefreshRate(float refresh_rate);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // While there are outstanding `ScopedKeepSurfaceAlive`, Compositor will
   // attempt to ensure any pending `viz::CopyOutputRequest` in any part of the
@@ -601,9 +589,6 @@ class COMPOSITOR_EXPORT Compositor
 
   // Used to hold on to IssueExternalBeginFrame(NoAck) arguments if
   // |external_begin_frame_controller_| isn't ready yet.
-#if BUILDFLAG(IS_IOS)
-  using PendingBeginFrameArgs = viz::BeginFrameArgs;
-#else
   struct PendingBeginFrameArgs {
     PendingBeginFrameArgs(
         const viz::BeginFrameArgs& args,
@@ -613,7 +598,6 @@ class COMPOSITOR_EXPORT Compositor
     const viz::BeginFrameArgs args;
     base::OnceCallback<void(const viz::BeginFrameAck&)> callback;
   };
-#endif
   std::optional<PendingBeginFrameArgs> pending_begin_frame_args_;
 
   ui::HostBeginFrameObserver::SimpleBeginFrameObserverList
@@ -662,9 +646,6 @@ class COMPOSITOR_EXPORT Compositor
   std::optional<base::TimeDelta> max_vsync_interval_ = std::nullopt;
   display::VariableRefreshRateState vrr_state_ =
       display::VariableRefreshRateState::kVrrNotCapable;
-#if BUILDFLAG(IS_CHROMEOS)
-  std::vector<float> seamless_refresh_rates_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   const bool use_external_begin_frame_control_;
 

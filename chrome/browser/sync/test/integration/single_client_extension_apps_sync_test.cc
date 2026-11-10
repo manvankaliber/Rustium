@@ -56,9 +56,6 @@ class FakeServerAppChecker : public fake_server::FakeServerMatchStatusChecker {
     if (base::FeatureList::IsEnabled(extensions_features::kWebstoreHostedApp)) {
       expected_app_ids.push_back(extensions::kWebStoreAppId);
     }
-#if BUILDFLAG(IS_CHROMEOS)
-    expected_app_ids.push_back(app_constants::kChromeAppId);
-#endif
     expected_app_ids_ = base::MakeFlatSet<std::string>(expected_app_ids);
   }
 
@@ -87,12 +84,10 @@ class FakeServerAppChecker : public fake_server::FakeServerMatchStatusChecker {
 class SingleClientExtensionAppsSyncTest : public SyncTest {
  public:
   SingleClientExtensionAppsSyncTest() : SyncTest(SINGLE_CLIENT) {
-#if !BUILDFLAG(IS_CHROMEOS)
     // TODO(crbug.com/40066949): clean up once syncer::APPS deprecation is
     // complete.
     feature_list_.InitAndDisableFeature(
         syncer::kSyncDoNotSyncAppsAndAppSettings);
-#endif
   }
   ~SingleClientExtensionAppsSyncTest() override = default;
 
@@ -111,9 +106,7 @@ class SingleClientExtensionAppsSyncTest : public SyncTest {
   }
 
  private:
-#if !BUILDFLAG(IS_CHROMEOS)
   base::test::ScopedFeatureList feature_list_;
-#endif
 #if BUILDFLAG(IS_WIN)
   // This stops extension installation from creating a shortcut in the real
   // desktop startup dir. This prevents Chrome launching with the extension

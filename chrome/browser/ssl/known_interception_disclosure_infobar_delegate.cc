@@ -27,9 +27,6 @@
 #include "content/public/common/url_constants.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ssl/known_interception_disclosure_message_delegate.h"
-#endif
 
 KnownInterceptionDisclosureCooldown*
 KnownInterceptionDisclosureCooldown::GetInstance() {
@@ -39,24 +36,14 @@ KnownInterceptionDisclosureCooldown::GetInstance() {
 bool KnownInterceptionDisclosureCooldown::IsActive(Profile* profile) {
   base::Time last_dismissal;
 
-#if BUILDFLAG(IS_ANDROID)
-  last_dismissal = profile->GetPrefs()->GetTime(
-      prefs::kKnownInterceptionDisclosureInfobarLastShown);
-#else
   last_dismissal = last_dismissal_time_;
-#endif
 
   // Suppress the disclosure UI for 7 days after showing it to the user.
   return (clock_->Now() - last_dismissal) <= base::Days(7);
 }
 
 void KnownInterceptionDisclosureCooldown::Activate(Profile* profile) {
-#if BUILDFLAG(IS_ANDROID)
-  profile->GetPrefs()->SetTime(
-      prefs::kKnownInterceptionDisclosureInfobarLastShown, clock_->Now());
-#else
   last_dismissal_time_ = clock_->Now();
-#endif
 }
 
 void KnownInterceptionDisclosureCooldown::SetClockForTesting(
@@ -67,14 +54,7 @@ void KnownInterceptionDisclosureCooldown::SetClockForTesting(
 void KnownInterceptionDisclosureCooldown::ResetForTesting(Profile* profile) {
   clock_ = std::make_unique<base::DefaultClock>();
   has_seen_known_interception_ = false;
-#if BUILDFLAG(IS_ANDROID)
-  if (profile) {
-    profile->GetPrefs()->ClearPref(
-        prefs::kKnownInterceptionDisclosureInfobarLastShown);
-  }
-#else
   last_dismissal_time_ = base::Time();
-#endif
 }
 
 KnownInterceptionDisclosureCooldown::KnownInterceptionDisclosureCooldown() =
@@ -105,12 +85,6 @@ void MaybeShowKnownInterceptionDisclosureDialog(
       Profile::FromBrowserContext(web_contents->GetBrowserContext());
 
   if (!KnownInterceptionDisclosureCooldown::GetInstance()->IsActive(profile)) {
-#if BUILDFLAG(IS_ANDROID)
-    KnownInterceptionDisclosureMessageDelegate::CreateForWebContents(
-        web_contents);
-    KnownInterceptionDisclosureMessageDelegate::FromWebContents(web_contents)
-        ->MaybeShow();
-#else
     if (infobars::IsInfoBarMigrated(
             infobars::InfoBarDelegate::
                 KNOWN_INTERCEPTION_DISCLOSURE_INFOBAR_DELEGATE)) {
@@ -132,7 +106,6 @@ void MaybeShowKnownInterceptionDisclosureDialog(
           ConfirmInfoBarCreationAllowlist::GetPassKeyForMigration(),
           std::move(delegate)));
     }
-#endif
   }
 }
 
@@ -174,11 +147,7 @@ std::u16string KnownInterceptionDisclosureInfoBarDelegate::GetMessageText()
 }
 
 int KnownInterceptionDisclosureInfoBarDelegate::GetButtons() const {
-#if BUILDFLAG(IS_ANDROID)
-  return BUTTON_OK;
-#else
   return BUTTON_NONE;
-#endif
 }
 
 bool KnownInterceptionDisclosureInfoBarDelegate::Accept() {
@@ -187,11 +156,3 @@ bool KnownInterceptionDisclosureInfoBarDelegate::Accept() {
 }
 
 // Platform specific implementations.
-#if BUILDFLAG(IS_ANDROID)
-// static
-void KnownInterceptionDisclosureInfoBarDelegate::RegisterProfilePrefs(
-    user_prefs::PrefRegistrySyncable* registry) {
-  registry->RegisterTimePref(
-      prefs::kKnownInterceptionDisclosureInfobarLastShown, base::Time());
-}
-#endif

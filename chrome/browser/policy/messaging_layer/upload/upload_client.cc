@@ -16,7 +16,6 @@
 #include "components/reporting/util/status.h"
 #include "components/reporting/util/status_macros.h"
 #include "components/reporting/util/statusor.h"
-#include "components/user_manager/user_manager.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
@@ -26,16 +25,10 @@ namespace reporting {
 namespace {
 
 FileUploadJob::Delegate::SmartPtr CreateFileUploadDelegate() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return FileUploadJob::Delegate::SmartPtr(
-      new FileUploadDelegate(),
-      base::OnTaskRunnerDeleter(::content::GetUIThreadTaskRunner({})));
-#else   // !BUILDFLAG(IS_CHROMEOS)
   // No file uploads for all other configurations.
   return FileUploadJob::Delegate::SmartPtr(
       nullptr, base::OnTaskRunnerDeleter(
                    base::SequencedTaskRunner::GetCurrentDefault()));
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 }  // namespace
 

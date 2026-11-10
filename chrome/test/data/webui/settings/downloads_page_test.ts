@@ -10,10 +10,6 @@ import {assertFalse, assertTrue} from 'chrome://webui-test/chai_assert.js';
 import {webUIListenerCallback} from 'chrome://resources/js/cr.js';
 import {TestBrowserProxy} from 'chrome://webui-test/test_browser_proxy.js';
 import {microtasksFinished} from 'chrome://webui-test/test_util.js';
-// <if expr="is_chromeos">
-import {assertEquals} from 'chrome://webui-test/chai_assert.js';
-
-// </if>
 
 import {TestPrefsBrowserProxy} from './test_prefs_browser_proxy.js';
 // clang-format on
@@ -46,12 +42,6 @@ class TestDownloadsBrowserProxy extends TestBrowserProxy implements
     this.methodCalled('resetAutoOpenFileTypes');
   }
 
-  // <if expr="is_chromeos">
-  getDownloadLocationText(path: string) {
-    this.methodCalled('getDownloadLocationText', path);
-    return Promise.resolve('downloads-text');
-  }
-  // </if>
 }
 
 function getInitialPrefs(): chrome.settingsPrivate.PrefObject[] {
@@ -153,28 +143,6 @@ suite('DownloadsHandler', function() {
     assertFalse(!!button);
   });
 
-  // <if expr="is_chromeos">
-  function setDefaultDownloadPathPref(downloadPath: string) {
-    prefService.setPrefValue('download.default_directory', downloadPath);
-  }
-
-  function getDefaultDownloadPathString() {
-    const pathElement =
-        downloadsPage.shadowRoot.querySelector('#defaultDownloadPath');
-    assertTrue(!!pathElement);
-    return pathElement.textContent.trim();
-  }
-
-  test('rewrite default download paths', async function() {
-    downloadsBrowserProxy.resetResolver('getDownloadLocationText');
-    setDefaultDownloadPathPref('downloads-path');
-    const path =
-        await downloadsBrowserProxy.whenCalled('getDownloadLocationText');
-    assertEquals('downloads-path', path);
-    await microtasksFinished();
-    assertEquals('downloads-text', getDefaultDownloadPathString());
-  });
-  // </if>
 
   test('showDownloadsToggleHidden', async function() {
     await microtasksFinished();

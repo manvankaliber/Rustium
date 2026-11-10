@@ -55,10 +55,7 @@ component("capture_base") {
 source_set("capture_device_specific") {
   visibility = [
     ":capture_lib",
-    "//media/capture/video/android",
     "//media/capture/video/apple",
-    "//media/capture/video/chromeos",
-    "//media/capture/video/ios",
     "//media/capture/video/linux",
     "//media/capture/video/mac",
     "//media/capture/video/win",
@@ -96,14 +93,12 @@ source_set("capture_device_specific") {
     "video/video_frame_receiver_types.h",
   ]
 
-  if (!is_android) {
-    sources += [
-      "video/file_video_capture_device.cc",
-      "video/file_video_capture_device.h",
-      "video/file_video_capture_device_factory.cc",
-      "video/file_video_capture_device_factory.h",
-    ]
-  }
+  sources += [
+    "video/file_video_capture_device.cc",
+    "video/file_video_capture_device.h",
+    "video/file_video_capture_device_factory.cc",
+    "video/file_video_capture_device_factory.h",
+  ]
 
   public_deps = [ ":capture_base" ]
   deps = [
@@ -180,11 +175,6 @@ component("capture_lib") {
     "//ui/gfx/geometry",
   ]
 
-  if (is_android) {
-    public_deps += [ "video/android" ]
-    deps += [ "video/android:capture_jni_headers" ]
-  }
-
   if (is_apple) {
     public_deps += [ "video/apple" ]
   }
@@ -193,13 +183,8 @@ component("capture_lib") {
     public_deps += [ "video/win" ]
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     deps += [ "video/linux" ]
-  }
-
-  if (is_chromeos) {
-    public_deps += [ "video/chromeos" ]
-    data_deps = [ "video/chromeos:mojo_policies" ]
   }
 }
 
@@ -249,9 +234,7 @@ source_set("test_support") {
     "//ui/gfx:test_support",
   ]
 
-  if (is_chromeos) {
-    public_deps = [ "video/chromeos:test_support" ]
-  } else if (is_linux) {
+  if (is_linux) {
     public_deps = [ "video/linux:test_support" ]
   } else if (is_mac) {
     public_deps = [ "video/mac/test:test_support" ]
@@ -277,9 +260,7 @@ test("capture_unittests") {
     "video_capture_types_unittest.cc",
   ]
 
-  if (!is_android) {
-    sources += [ "video/file_video_capture_device_unittest.cc" ]
-  }
+  sources += [ "video/file_video_capture_device_unittest.cc" ]
 
   data = [ "//media/test/data/bear.mjpeg" ]
 
@@ -307,13 +288,6 @@ test("capture_unittests") {
     data += [ "//media/test/data/one_frame_1280x720.mjpeg" ]
   }
 
-  if (is_android) {
-    deps += [
-      "//media/capture/video/android",
-      "//media/capture/video/android:capture_java",
-    ]
-  }
-
   if (is_apple) {
     deps += [ "video/apple:unit_tests" ]
   }
@@ -322,18 +296,7 @@ test("capture_unittests") {
     deps += [ "video/mac:unit_tests" ]
   }
 
-  if (is_ios) {
-    deps += [ "//media:unit_tests_bundle_data" ]
-  }
-
   if (is_win) {
     deps += [ "video/win:win_unittests" ]
-  }
-
-  if (is_chromeos) {
-    deps += [
-      "video/chromeos:unit_tests",
-      "//chromeos/ash/components/mojo_service_manager",
-    ]
   }
 }

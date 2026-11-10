@@ -48,14 +48,7 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/i18n/android_locale.h"
-#include "ui/base/l10n/l10n_util_android.h"
-#endif
 
-#if BUILDFLAG(IS_IOS)
-#include "ui/base/l10n/l10n_util_ios.h"
-#endif
 
 #if defined(USE_GLIB)
 #include <glib.h>
@@ -88,7 +81,7 @@ bool IsResourceBundleLocale(const LanguageTag& locale) {
 // if "foo bar" is RTL. So this function prepends the necessary RLM in such
 // cases.
 void AdjustParagraphDirectionality(std::u16string* paragraph) {
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
   if (base::i18n::IsRTL() &&
       base::i18n::StringContainsStrongRTLChars(*paragraph)) {
     paragraph->insert(0, 1, char16_t{base::i18n::kRightToLeftMark});
@@ -116,19 +109,11 @@ std::u16string GetDisplayNameForLocaleInternal(
   }
 #endif  // BUILDFLAG(ENABLE_PSEUDOLOCALES)
 
-#if BUILDFLAG(IS_IOS)
-  // Use the Foundation API to get the localized display name, removing the need
-  // for the ICU data file to include this data.
-  return GetDisplayNameForLocale(locale, display_locale);
-#elif BUILDFLAG(IS_ANDROID)
-  return GetDisplayNameForLocale(locale, display_locale);
-#else   // BUILDFLAG(IS_ANDROID)
   icu::UnicodeString display_name_unicode;
   IcuLocaleConverter::GetInstance().FromLanguageTag(locale).getDisplayName(
       IcuLocaleConverter::GetInstance().FromLanguageTag(display_locale),
       display_name_unicode);
   return base::i18n::UnicodeStringToString16(display_name_unicode);
-#endif  // BUILDFLAG(IS_IOS)
 }
 
 // Use --lang and the app pref on Windows.  On Linux, only look at the LC_*/LANG
@@ -143,10 +128,7 @@ std::vector<LanguageTag> GetCandidates() {
     return {base::i18n::IcuLocaleConverter::GetInstance().ToLanguageTag(
         icu::Locale::getDefault())};
   }
-#elif BUILDFLAG(IS_ANDROID)
-  // On Android, query java.util.Locale for the default locale.
-  candidates.push_back(base::i18n::GetAndroidDefaultLocale());
-#elif defined(USE_GLIB) && !BUILDFLAG(IS_CHROMEOS)
+#elif defined(USE_GLIB)
   for (const char* var_name : {"LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"}) {
     const char* val = std::getenv(var_name);
     if (!val || *val == '\0') {
@@ -171,7 +153,7 @@ std::optional<LanguageTag> GetPreferredTag(std::string_view preferred_locale) {
   std::string_view locale_override = l10n_util::GetLocaleOverride();
   return GetLanguageTagFromString(locale_override.empty() ? preferred_locale
                                                           : locale_override);
-#elif defined(USE_GLIB) && !BUILDFLAG(IS_CHROMEOS)
+#elif defined(USE_GLIB)
   return std::nullopt;
 #else
   return GetLanguageTagFromString(preferred_locale);
@@ -299,7 +281,6 @@ std::u16string GetDisplayNameForLocale(std::string_view locale,
                                  disallow_default);
 }
 
-#if !BUILDFLAG(IS_IOS)
 std::u16string GetDisplayNameForCountry(std::string_view country_code,
                                         std::string_view display_locale) {
   if (display_locale.empty()) {
@@ -321,7 +302,6 @@ std::u16string GetDisplayNameForCountry(std::string_view country_code,
       .getDisplayCountry(icu_display_locale, display_country);
   return base::i18n::UnicodeStringToString16(display_country);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 std::string GetStringUTF8(int message_id) {
   return base::UTF16ToUTF8(GetStringUTF16(message_id));

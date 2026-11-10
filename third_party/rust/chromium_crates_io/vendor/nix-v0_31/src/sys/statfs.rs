@@ -16,10 +16,9 @@ use crate::sys::statvfs::FsFlags;
 use crate::{errno::Errno, NixPath, Result};
 
 /// Identifies a mounted file system
-#[cfg(target_os = "android")]
-pub type fsid_t = libc::__fsid_t;
+
 /// Identifies a mounted file system
-#[cfg(not(any(target_os = "android", target_os = "cygwin")))]
+#[cfg(not(target_os = "cygwin"))]
 pub type fsid_t = libc::fsid_t;
 /// Identifies a mounted file system
 #[cfg(target_os = "cygwin")]
@@ -52,8 +51,7 @@ pub struct Statfs(type_of_statfs);
 
 #[cfg(target_os = "freebsd")]
 type fs_type_t = u32;
-#[cfg(target_os = "android")]
-type fs_type_t = libc::c_ulong;
+
 #[cfg(all(target_os = "linux", target_arch = "s390x"))]
 type fs_type_t = libc::c_uint;
 #[cfg(all(
@@ -78,15 +76,7 @@ type fs_type_t = libc::__fsword_t;
 type fs_type_t = libc::c_long;
 
 /// Describes the file system type as known by the operating system.
-#[cfg(any(
-    target_os = "freebsd",
-    target_os = "android",
-    all(target_os = "linux", target_arch = "s390x"),
-    all(target_os = "linux", target_env = "musl"),
-    all(target_os = "linux", target_env = "ohos"),
-    all(target_os = "linux", not(any(target_arch = "s390x", target_env = "musl"))),
-    target_os = "cygwin",
-))]
+#[cfg(any(target_os = "freebsd", all(target_os = "linux", target_arch = "s390x"), all(target_os = "linux", target_env = "musl"), all(target_os = "linux", target_env = "ohos"), all(target_os = "linux", not(any(target_arch = "s390x", target_env = "musl"))), target_os = "cygwin"))]
 #[derive(Eq, Copy, Clone, PartialEq, Debug)]
 pub struct FsType(pub fs_type_t);
 
@@ -288,11 +278,7 @@ impl Statfs {
     }
 
     /// Optimal transfer block size
-    #[cfg(any(
-        target_os = "android",
-        all(target_os = "linux", target_env = "musl", not(target_arch = "s390x")),
-        all(target_os = "linux", target_env = "ohos")
-    ))]
+    #[cfg(any(all(target_os = "linux", target_env = "musl", not(target_arch = "s390x")), all(target_os = "linux", target_env = "ohos")))]
     pub fn optimal_transfer_size(&self) -> libc::c_ulong {
         self.0.f_bsize
     }
@@ -385,10 +371,7 @@ impl Statfs {
     }
 
     /// Size of a block
-    #[cfg(target_os = "android")]
-    pub fn block_size(&self) -> libc::c_ulong {
-        self.0.f_bsize
-    }
+
 
     /// Size of a block
     #[cfg(any(target_os = "dragonfly", target_os = "cygwin"))]
@@ -450,10 +433,7 @@ impl Statfs {
     }
 
     /// Maximum length of filenames
-    #[cfg(target_os = "android")]
-    pub fn maximum_name_length(&self) -> libc::c_ulong {
-        self.0.f_namelen
-    }
+
 
     /// Total data blocks in filesystem
     #[cfg(any(apple_targets, linux_android, target_os = "freebsd", target_os = "openbsd"))]

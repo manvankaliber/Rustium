@@ -43,12 +43,10 @@
 #include "ui/webui/tracked_element/tracked_element_handler_document_singleton.h"
 #include "ui/webui/tracked_element/tracked_element_web_ui.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "ui/gfx/native_ui_util.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/test/widget_test.h"
 #include "ui/views/widget/widget.h"
-#endif
 
 namespace ui {
 
@@ -764,7 +762,6 @@ TEST_F(TrackedElementHandlerSecondaryIdentifierTest,
                        });
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class TrackedElementHandlerWidgetTest : public views::test::WidgetTest {
  public:
   TrackedElementHandlerWidgetTest()
@@ -891,7 +888,6 @@ TEST_F(TrackedElementHandlerWidgetTest, GetWebView) {
   webview->SetWebContents(nullptr);
   widget->CloseNow();
 }
-#endif
 
 TEST_F(TrackedElementHandlerTest, GetBoundsInWebContents) {
   handler_remote()->TrackedElementVisibilityChanged(

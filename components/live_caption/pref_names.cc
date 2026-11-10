@@ -10,14 +10,11 @@
 #include "build/build_config.h"
 #include "components/prefs/pref_service.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/soda/constants.h"
 #include "media/base/media_switches.h"
-#endif
 
 namespace prefs {
 
-#if !defined(ANDROID)
 
 const std::string GetLiveCaptionLanguageCode(PrefService* profile_prefs) {
   return profile_prefs->GetString(prefs::kLiveCaptionLanguageCode);
@@ -29,6 +26,5 @@ bool IsLanguageCodeForLiveCaption(speech::LanguageCode language_code,
          speech::GetLanguageCode(GetLiveCaptionLanguageCode(profile_prefs));
 }
 
-#endif  // !defined(ANDROID)
 
 }  // namespace prefs

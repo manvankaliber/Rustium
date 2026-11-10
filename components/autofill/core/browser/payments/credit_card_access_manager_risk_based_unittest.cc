@@ -20,11 +20,8 @@
 #include "components/autofill/core/browser/payments/mandatory_reauth_manager.h"
 #include "components/autofill/core/browser/payments/payments_autofill_client.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 #include "components/autofill/core/browser/metrics/payments/better_auth_metrics.h"
 #include "components/autofill/core/browser/payments/credit_card_access_manager_test_api.h"
 #include "components/autofill/core/browser/payments/test_credit_card_fido_authenticator.h"
@@ -81,11 +78,6 @@ class CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest
 // the server during a risk-based retrieval.
 TEST_F(CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
        RiskBasedMaskedServerCardUnmasking_Success) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   base::HistogramTester histogram_tester;
   std::string test_number = "4444333322221111";
@@ -283,7 +275,7 @@ TEST_F(CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
           .has_value());
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 // Ensures the masked server card risk-based unmasking response is handled
 // correctly and authentication is delegated to the FIDO authenticator, when
 // `fido_request_options` is returned.
@@ -434,7 +426,7 @@ TEST_F(
           .has_value());
 }
 
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#endif
 
 // Ensures that CVC filling gets logged after masked server card risk-based
 // unmasking success if the card has CVC.
@@ -519,11 +511,6 @@ TEST_F(
 // retrieval.
 TEST_F(CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
        CardInfoRetrievalUnmasking_Success) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   std::string test_number = "4444333322221111";
   const CreditCard* enrolled_card =
@@ -571,11 +558,6 @@ TEST_F(CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
 // Testing metrics for cards enroilled in runtime retrieval.
 TEST_F(CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
        CardInfoRetrievalUnmasking_Success_Metrics) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   base::HistogramTester histogram_tester;
   const CreditCard* enrolled_card =
@@ -616,11 +598,6 @@ TEST_F(CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
 // retrieval is retrieved from the server with Sms Otp authentication.
 TEST_F(CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
        CardInfoRetrievalUnmasking_AuthenticationRequired_OtpOnly) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   std::vector<CardUnmaskChallengeOption> challenge_options =
       test::GetCardUnmaskChallengeOptions(
@@ -660,11 +637,6 @@ TEST_F(CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
 TEST_F(
     CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
     CardInfoRetrievalUnmasking_AuthenticationRequired_OtpOnly_MultiplePhoneNumbers) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   std::vector<CardUnmaskChallengeOption> challenge_options =
       test::GetCardUnmaskChallengeOptions(
@@ -727,11 +699,6 @@ INSTANTIATE_TEST_SUITE_P(
 // flow.
 TEST_P(CardInfoRetrievalUnmaskingYellowPathMetricsTest,
        CardInfoRetrievalUnmasking_AuthenticationRequired_Metrics) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   base::HistogramTester histogram_tester;
 
@@ -794,11 +761,6 @@ TEST_P(CardInfoRetrievalUnmaskingYellowPathMetricsTest,
 // yet supported. Then the card info retrieval authentication is skipped.
 TEST_F(CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
        CardInfoRetrievalUnmasking_NonSmsOtpChallenge_SelectionDialogSkipped) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // 3DS is the unsupported challenge option here.
   std::vector<CardUnmaskChallengeOption> challenge_options =
@@ -832,7 +794,7 @@ TEST_F(CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
       payments_autofill_client().unmask_authenticator_selection_dialog_shown());
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 // Params of the
 // CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingPreflightCallReturnedTest:
 // -- bool fido_opted_in;
@@ -1341,7 +1303,7 @@ TEST_F(CreditCardAccessManagerRiskBasedMaskedServerCardUnmaskingTest,
   histogram_tester.ExpectTotalCount(kRiskBasedTimedOutHistogram, 0);
 }
 
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#endif
 
 }  // namespace
 }  // namespace autofill

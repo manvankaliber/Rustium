@@ -34,7 +34,6 @@ WebDocument WebDisallowTransitionScopeTest::TopWebDocument() const {
   return web_view_helper_.LocalMainFrame()->GetDocument();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // TODO(crbug.com/1067036): the death test fails on Android.
 TEST_F(WebDisallowTransitionScopeTest, TestDisallowTransition) {
   // Make the death test thread-safe. For more info, see:
@@ -61,7 +60,6 @@ TEST_F(WebDisallowTransitionScopeTest, TestDisallowTransition) {
   core_doc->Lifecycle().EnsureStateAtMost(
       DocumentLifecycle::kVisualUpdatePending);
 }
-#endif
 
 }  // namespace blink
 

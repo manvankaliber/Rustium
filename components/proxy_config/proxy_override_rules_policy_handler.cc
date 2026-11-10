@@ -44,8 +44,7 @@ ProxyOverrideRulesPolicyHandler::~ProxyOverrideRulesPolicyHandler() = default;
 bool ProxyOverrideRulesPolicyHandler::CheckPolicySettings(
     const policy::PolicyMap& policies,
     policy::PolicyErrorMap* errors) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   if (!enterprise_net::CheckUserAffiliatedProxyPolicy(policies, policy_name(),
                                                       errors)) {
     return false;
@@ -96,8 +95,7 @@ void ProxyOverrideRulesPolicyHandler::ApplyPolicySettings(
   prefs->SetValue(proxy_config::prefs::kProxyOverrideRules,
                   policy_value->Clone());
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   prefs->SetInteger(proxy_config::prefs::kProxyOverrideRulesScope,
                     policy->scope);
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) ||

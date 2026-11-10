@@ -74,24 +74,14 @@
 #include "ui/base/page_transition_types.h"
 #include "url/url_util.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/webui_url_constants.h"
-#include "ash/webui/settings/public/constants/routes_util.h"
-#include "chrome/browser/ui/ash/system_web_apps/system_web_app_ui_utils.h"
-#include "chrome/browser/ui/settings_window_manager_chromeos.h"
-#include "chromeos/ash/experiences/settings_ui/settings_app_manager.h"
-#else
 #include "chrome/browser/ui/signin/signin_view_controller.h"
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/metrics/histogram_functions.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
 #include "chrome/browser/web_applications/web_app_utils.h"
 #include "components/signin/public/base/signin_pref_names.h"
 #include "components/signin/public/identity_manager/identity_manager.h"
 #include "components/webapps/isolated_web_apps/scheme.h"
-#endif  //! BUILDFLAG(IS_ANDROID)
 
 using base::UserMetricsAction;
 
@@ -124,18 +114,6 @@ void OpenBookmarkManagerForNode(BrowserWindowInterface* browser,
   ShowSingletonTabIgnorePathOverwriteNTP(browser, url);
 }
 
-#if BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(GOOGLE_CHROME_BRANDING)
-void LaunchReleaseNotesImpl(Profile* profile, apps::LaunchSource source) {
-  base::RecordAction(UserMetricsAction("ReleaseNotes.ShowReleaseNotes"));
-  ash::SystemAppLaunchParams params;
-  params.url =
-      source == apps::LaunchSource::kFromReleaseNotesNotification
-          ? GURL("chrome://help-app/updates?launchSource=version-update")
-          : GURL("chrome://help-app/updates");
-  params.launch_source = source;
-  LaunchSystemWebAppAsync(profile, ash::SystemWebAppType::HELP, params);
-}
-#endif
 
 // Shows either the help app or the appropriate help page for |source|. If
 // |browser| is NULL and the help page is used (vs the app), the help page is
@@ -145,29 +123,6 @@ void ShowHelpImpl(BrowserWindowInterface* browser,
                   Profile* profile,
                   HelpSource source) {
   base::RecordAction(UserMetricsAction("ShowHelpTab"));
-#if BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(GOOGLE_CHROME_BRANDING)
-  auto app_launch_source = apps::LaunchSource::kUnknown;
-  switch (source) {
-    case HelpSource::kKeyboard:
-      app_launch_source = apps::LaunchSource::kFromKeyboard;
-      break;
-    case HelpSource::kMenu:
-      app_launch_source = apps::LaunchSource::kFromMenu;
-      break;
-    case HelpSource::kWebUI:
-    case HelpSource::kWebUIChromeOS:
-      app_launch_source = apps::LaunchSource::kFromOtherApp;
-      break;
-    default:
-      NOTREACHED() << "Unhandled help source "
-                   << static_cast<std::underlying_type<HelpSource>::type>(
-                          source);
-  }
-
-  ash::SystemAppLaunchParams params;
-  params.launch_source = app_launch_source;
-  LaunchSystemWebAppAsync(profile, ash::SystemWebAppType::HELP, params);
-#else
   GURL url;
   switch (source) {
     case HelpSource::kKeyboard:
@@ -179,18 +134,9 @@ void ShowHelpImpl(BrowserWindowInterface* browser,
     case HelpSource::kWebHID:
       url = GURL(kChooserHidOverviewUrl);
       break;
-#if BUILDFLAG(IS_CHROMEOS)
     case HelpSource::kWebUI:
       url = GURL(kChromeHelpViaWebUIURL);
       break;
-    case HelpSource::kWebUIChromeOS:
-      url = GURL(kChromeOsHelpViaWebUIURL);
-      break;
-#else
-    case HelpSource::kWebUI:
-      url = GURL(kChromeHelpViaWebUIURL);
-      break;
-#endif  // BUILDFLAG(IS_CHROMEOS)
     case HelpSource::kWebUSD:
       url = GURL(kChooserUsbOverviewURL);
       break;
@@ -204,7 +150,6 @@ void ShowHelpImpl(BrowserWindowInterface* browser,
   } else {
     ShowSingletonTab(profile, url);
   }
-#endif  // BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(GOOGLE_CHROME_BRANDING)
 }
 
 std::string GenerateContentSettingsExceptionsSubPage(ContentSettingsType type) {
@@ -227,9 +172,6 @@ std::string GenerateContentSettingsExceptionsSubPage(ContentSettingsType type) {
           {ContentSettingsType::ADS, "ads"},
           {ContentSettingsType::HID_CHOOSER_DATA, "hidDevices"},
           {ContentSettingsType::PROTECTED_MEDIA_IDENTIFIER, "protectedContent"},
-#if BUILDFLAG(ENABLE_SMART_CARD)
-          {ContentSettingsType::SMART_CARD_GUARD, "smartCardReaders"},
-#endif
           {ContentSettingsType::STORAGE_ACCESS, "storageAccess"},
           {ContentSettingsType::USB_CHOOSER_DATA, "usbDevices"},
           {ContentSettingsType::WEB_PRINTING, "webPrinting"},
@@ -256,8 +198,7 @@ bool SiteGURLIsValid(const GURL& url) {
   // when this bug is fixed, so add it to the allowlist when that happens.
   return !site_origin.opaque() && (url.SchemeIsHTTPOrHTTPS() ||
                                    url.SchemeIs(extensions::kExtensionScheme)
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
                                    || url.SchemeIs(webapps::kIsolatedAppScheme)
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
@@ -366,7 +307,6 @@ void ShowHistorySubPage(BrowserWindowInterface* browser,
 
 void ShowDownloads(BrowserWindowInterface* browser) {
   base::RecordAction(UserMetricsAction("ShowDownloads"));
-#if !BUILDFLAG(IS_CHROMEOS)
   // Hide the download bubble if it is showing, to avoid redundancy with the
   // chrome://downloads page we are about to open.
   auto* browser_window = BrowserWindow::FromBrowser(browser);
@@ -377,7 +317,6 @@ void ShowDownloads(BrowserWindowInterface* browser) {
         ->GetDownloadDisplayController()
         ->HideBubble();
   }
-#endif
   ShowSingletonTabOverwritingNTP(browser, GURL(kChromeUIDownloadsURL));
 }
 
@@ -410,9 +349,6 @@ void ShowChromeWhatsNew(BrowserWindowInterface* browser) {
 #endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
 
 void LaunchReleaseNotes(Profile* profile, apps::LaunchSource source) {
-#if BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(GOOGLE_CHROME_BRANDING)
-  LaunchReleaseNotesImpl(profile, source);
-#endif
 }
 
 void ShowChromeEnterpriseReleaseNotes(BrowserWindowInterface* browser) {
@@ -430,9 +366,6 @@ void ShowBetaForum(BrowserWindowInterface* browser) {
 }
 
 void ShowSlow(BrowserWindowInterface* browser) {
-#if BUILDFLAG(IS_CHROMEOS)
-  ShowSingletonTab(browser, GURL(ash::kChromeUISlowURL));
-#endif
 }
 
 GURL GetSettingsUrl(std::string_view sub_page) {
@@ -467,20 +400,11 @@ void ShowSettings(BrowserWindowInterface* browser) {
 
 void ShowSettingsSubPage(BrowserWindowInterface* browser,
                          std::string_view sub_page) {
-#if BUILDFLAG(IS_CHROMEOS)
-  ShowSettingsSubPageForProfile(browser->GetProfile(), sub_page);
-#else
   ShowSettingsSubPageInTabbedBrowser(browser, sub_page);
-#endif
 }
 
 void ShowSettingsSubPageForProfile(Profile* profile,
                                    std::string_view sub_page) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // OS settings sub-pages are handled else where and should never be
-  // encountered here.
-  DCHECK(!chromeos::settings::IsOSSettingsSubPage(sub_page)) << sub_page;
-#endif
   BrowserWindowInterface* browser = GetOrCreateBrowserForProfile(profile);
   ShowSettingsSubPageInTabbedBrowser(browser, sub_page);
 }
@@ -701,23 +625,17 @@ void ShowSharedTabGroupActivity(Profile* profile) {
                    GURL(data_sharing::features::kActivityLogsURL.Get()));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ShowWebAppSettingsImpl(BrowserWindowInterface* browser,
                             Profile* profile,
                             const std::string& app_id,
                             web_app::AppSettingsPageEntryPoint entry_point) {
   base::UmaHistogramEnumeration(
       web_app::kAppSettingsPageEntryPointsHistogramName, entry_point);
-#if BUILDFLAG(IS_CHROMEOS)
-  chrome::SettingsWindowManager::GetInstance()->ShowOSSettings(
-      profile, ash::SettingsAppManager::CreateAppManagementPagePath(app_id));
-#else
   const GURL link_destination(chrome::kChromeUIWebAppSettingsURL + app_id);
   NavigateParams params(profile, link_destination, ui::PAGE_TRANSITION_TYPED);
   params.disposition = ui::mojom::WindowOpenDisposition::kNewForegroundTab;
   params.browser = browser;
   Navigate(&params);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void ShowWebAppSettings(BrowserWindowInterface* browser,
@@ -741,6 +659,5 @@ void ShowSkillsBrowse(BrowserWindowInterface* browser) {
   ShowSingletonTabIgnorePathOverwriteNTP(
       browser, GURL(kChromeUISkillsURL).Resolve(kChromeUISkillsBrowsePath));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace chrome

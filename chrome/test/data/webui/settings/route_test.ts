@@ -266,22 +266,14 @@ suite('Basic', function() {
     assertTrue(routes.TRIGGERED_RESET_DIALOG.isNavigableDialog);
     assertTrue(routes.TRIGGERED_RESET_DIALOG.parent === routes.RESET);
 
-    // <if expr="is_chromeos">
-    // Regression test for b/265453606.
-    assertFalse('SIGN_OUT' in routes);
-    // </if>
 
-    // <if expr="not is_chromeos">
     assertTrue(routes.SIGN_OUT.isNavigableDialog);
     assertTrue(routes.SIGN_OUT.parent === routes.PEOPLE);
     assertTrue(routes.IMPORT_DATA.isNavigableDialog);
     assertTrue(routes.IMPORT_DATA.parent === routes.PEOPLE);
-    // </if>
 
     assertFalse(routes.PRIVACY.isNavigableDialog);
-    // <if expr="not is_chromeos">
     assertFalse(routes.DEFAULT_BROWSER.isNavigableDialog);
-    // </if>
   });
 
   test('pageVisibility affects route availability', function() {
@@ -345,7 +337,6 @@ suite('Basic', function() {
         routes.SITE_SETTINGS_WEB_APP_INSTALLATION.getAbsolutePath());
   });
 
-  // <if expr="not is_chromeos">
   test('account route existence', function() {
     resetPageVisibilityForTesting({people: true});
 
@@ -369,7 +360,6 @@ suite('Basic', function() {
     resetRouterForTesting();
     assertTrue(!!routes.GOOGLE_SERVICES);
   });
-  // </if>
 
   test('search engines route existence', function() {
     loadTimeData.overrideValues({searchSettingsUpdate: false});
@@ -419,10 +409,8 @@ suite('Basic', function() {
     assertTrue(routes.TRIGGERED_RESET_DIALOG.isNavigableDialog);
     assertEquals(routes.GENERAL, routes.TRIGGERED_RESET_DIALOG.parent);
 
-    // <if expr="not is_chromeos">
     assertFalse(!!routes.DEFAULT_BROWSER);
     assertFalse(!!routes.SYSTEM);
-    // </if>
     assertFalse(!!routes.ON_STARTUP);
     assertFalse(!!routes.DOWNLOADS);
     assertFalse(!!routes.RESET);

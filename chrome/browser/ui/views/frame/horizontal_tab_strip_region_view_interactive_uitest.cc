@@ -44,9 +44,6 @@
 #include "ui/views/test/views_test_utils.h"
 #include "ui/views/view_utils.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class HorizontalTabStripRegionViewBrowserBaseTest
     : public InteractiveBrowserTest {
@@ -88,9 +85,6 @@ class HorizontalTabStripRegionViewBrowserTest : public HorizontalTabStripRegionV
   HorizontalTabStripRegionViewBrowserTest() {
     scoped_feature_list_.InitWithFeatures(
         /*enabled_features=*/{features::kGlic, features::kGlicRollout,
-#if BUILDFLAG(IS_CHROMEOS)
-                              chromeos::features::kFeatureManagementGlic
-#endif  // BUILDFLAG(IS_CHROMEOS)
         },
         /*disabled_features=*/{features::kGlicLocaleFiltering,
                                features::kGlicCountryFiltering,

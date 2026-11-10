@@ -83,32 +83,6 @@ class FindInPageCallbackReceiver {
   bool is_called;
 };
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(FindInPageTest, FindMatchRectsReturnsCorrectRects) {
-  GetDocument().body()->SetInnerHTMLWithoutTrustedTypes("aAaAbBaBbAaAaA");
-  GetDocument().UpdateStyleAndLayout(DocumentUpdateReason::kTest);
-
-  int identifier = 0;
-  WebString search_text(String("aA"));
-  auto find_options =
-      mojom::blink::FindOptions::New();  // Default + add testing flag.
-  find_options->run_synchronously_for_testing = true;
-
-  GetTextFinder().ResetMatchCount();
-  GetTextFinder().StartScopingStringMatches(identifier, search_text,
-                                            *find_options);
-
-  int rects_version = GetTextFinder().FindMatchMarkersVersion();
-  FindInPageCallbackReceiver callback_receiver;
-  GetFindInPage().FindMatchRects(
-      rects_version - 1,
-      BindOnce(&FindInPageCallbackReceiver::AssertFindMatchRects,
-               Unretained(&callback_receiver), rects_version,
-               GetTextFinder().FindMatchRects(),
-               GetTextFinder().ActiveFindMatchRect()));
-  EXPECT_TRUE(callback_receiver.IsCalled());
-}
-#endif
 
 TEST_F(FindInPageTest, FindAllAs) {
   std::ostringstream str;

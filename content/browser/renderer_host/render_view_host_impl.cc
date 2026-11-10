@@ -113,9 +113,7 @@
 #include "ui/gfx/system_fonts_win.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "content/browser/host_zoom_map_impl.h"
-#endif
 
 using blink::WebInputEvent;
 
@@ -268,7 +266,7 @@ void RenderViewHostImpl::GetPlatformSpecificPrefs(
   GetFontInfo(gfx::win::SystemFont::kStatus, &prefs->status_font_family_name,
               &prefs->status_font_height);
 
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kSystemFontFamily)) {
     prefs->system_font_family_name =

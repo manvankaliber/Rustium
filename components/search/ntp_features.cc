@@ -23,12 +23,7 @@ BASE_FEATURE(kCustomizeChromeSidePanelExtensionsCard,
 
 // If enabled, shows wallpaper search within the Customize Chrome Side Panel.
 // This is a kill switch. Keep indefinitely.
-BASE_FEATURE(kCustomizeChromeWallpaperSearch,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
+BASE_FEATURE(kCustomizeChromeWallpaperSearch, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // If enabled, shows entry point on Customize Chrome Side Panel's Appearance
 // page for Wallpaper Search.";
@@ -81,20 +76,10 @@ BASE_FEATURE(kNtpBackgroundImageErrorDetection,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
 // If enabled, calendar module will be shown.
-BASE_FEATURE(kNtpCalendarModule,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
+BASE_FEATURE(kNtpCalendarModule, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // If enabled, chrome cart module will be shown.
-BASE_FEATURE(kNtpChromeCartModule,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
+BASE_FEATURE(kNtpChromeCartModule, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // If enabled, loads the experimental NTP component extension, which overrides
 // chrome://newtab.
@@ -104,9 +89,6 @@ const base::FeatureParam<bool> kNtpComponentExtensionUseComponentUpdater{
 
 // If enabled, customization of Chrome will be promoted on the NTP.
 BASE_FEATURE(kNtpCustomizeChromeAutoOpen, base::FEATURE_ENABLED_BY_DEFAULT);
-
-// If enabled, shows Customize Chrome button on Android.
-BASE_FEATURE(kNtpCustomizeWebUiAndroid, base::FEATURE_DISABLED_BY_DEFAULT);
 
 // When enabled, ChromeContentBrowserClient::OverrideNavigationParams no
 // longer treats NTP-sourced renderer-initiated link clicks as browser-
@@ -122,12 +104,7 @@ BASE_FEATURE(kNtpDummyModules, base::FEATURE_DISABLED_BY_DEFAULT);
 
 // If enabled, Google Drive module will be shown.
 // This is a kill switch. Keep indefinitely.
-BASE_FEATURE(kNtpDriveModule,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
+BASE_FEATURE(kNtpDriveModule, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // If enabled, the NTP Drive module does not require sync.
 BASE_FEATURE(kNtpDriveModuleHistorySyncRequirement,
@@ -175,20 +152,10 @@ BASE_FEATURE(kNtpModuleSignInRequirement, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // If enabled, OneGoogleBar will be shown. Disabled on Android to save memory.
 // This is a kill switch. Keep indefinitely.
-BASE_FEATURE(kNtpOneGoogleBar,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
+BASE_FEATURE(kNtpOneGoogleBar, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // If enabled, outlook calendar module will be shown.
-BASE_FEATURE(kNtpOutlookCalendarModule,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
+BASE_FEATURE(kNtpOutlookCalendarModule, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // If enabled, scaled merchandising action chips (e.g., dynamic tool
 // suggestions and resource pickers) will be shown on the NTP.
@@ -202,12 +169,7 @@ BASE_FEATURE(kNtpScaledActionChipsSmall, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kNtpActionChipsSuggestTimeout, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // If enabled, sharepoint module will be shown.
-BASE_FEATURE(kNtpSharepointModule,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
+BASE_FEATURE(kNtpSharepointModule, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // If enabled, shortcuts will be shown.
 // This is a kill switch. Keep indefinitely.
@@ -218,11 +180,7 @@ BASE_FEATURE(kNtpMostVisitedHighDpiFavicons, base::FEATURE_DISABLED_BY_DEFAULT);
 
 // If enabled, the Tab Resumption module will be shown.
 BASE_FEATURE(kNtpMostRelevantTabResumptionModule,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // If enabled, the Tab Resumption module will be allowed to fallback to the
 // favicon server when fetching favicons for displayed continuation suggestions.
@@ -261,11 +219,7 @@ BASE_FEATURE(kNtpWallpaperSearchButtonAnimationShownThreshold,
 
 // If enabled, the Microsoft Authentication module will be shown.
 BASE_FEATURE(kNtpMicrosoftAuthenticationModule,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // If enabled, the features of NTP Next (AI action chips etc.) will be shown.
 BASE_FEATURE(kNtpNextFeatures, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -295,23 +249,13 @@ BASE_FEATURE(kNtpTabGroupsModuleZeroState,
 
 // If enabled, stale modules will be auto-removed from the NTP.
 // TODO(b/525245973): Enable on Android once customize chrome is implemented.
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kNtpFeatureOptimizationModuleRemoval,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
 BASE_FEATURE(kNtpFeatureOptimizationModuleRemoval,
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // If enabled, stale shortcuts will be auto-removed from the NTP.
 // TODO(b/525245973): Enable on Android once customize chrome is implemented.
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kNtpFeatureOptimizationShortcutsRemoval,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
 BASE_FEATURE(kNtpFeatureOptimizationShortcutsRemoval,
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // If enabled, will support animated Doodles on the NTP.
 BASE_FEATURE(kNtpAnimatedDoodles, base::FEATURE_ENABLED_BY_DEFAULT);

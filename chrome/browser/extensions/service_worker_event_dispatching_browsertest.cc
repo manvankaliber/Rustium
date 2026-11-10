@@ -525,7 +525,6 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerEventDispatchingBrowserTest,
 // worker renderer with a test that mimics receiving a stale ack to the browser.
 
 // TODO(crbug.com/509627729): Flaky on desktop Android.
-#if !BUILDFLAG(IS_ANDROID)
 // Manifest for an extension using `background.async_listener_registration`.
 constexpr char kAsyncListenerRegistrationManifest[] =
     R"({
@@ -884,7 +883,6 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerAsyncListenerRegistrationBrowserTest,
   EXPECT_EQ(ListenerRegistrationPhaseMap::State::kCommitted,
             GetListenerRegistrationPhaseState(*profile(), extension->id()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 

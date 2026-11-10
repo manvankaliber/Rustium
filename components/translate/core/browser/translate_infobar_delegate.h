@@ -151,10 +151,6 @@ class TranslateInfoBarDelegate : public infobars::InfoBarDelegate {
   // If true, this method has the side effect of mutating some prefs.
   bool ShouldAutoNeverTranslate();
 
-#if BUILDFLAG(IS_IOS)
-  // Shows the Infobar offering to never translate the language or the site.
-  void ShowNeverTranslateInfobar();
-#endif
   // Gets the TranslateDriver associated with this object.
   // May return NULL if the driver has been destroyed.
   TranslateDriver* GetTranslateDriver();
@@ -177,9 +173,6 @@ class TranslateInfoBarDelegate : public infobars::InfoBarDelegate {
   infobars::InfoBarDelegate::InfoBarIdentifier GetIdentifier() const override;
   int GetIconId() const override;
   void InfoBarDismissed() override;
-#if BUILDFLAG(IS_IOS)
-  TranslateInfoBarDelegate* AsTranslateInfoBarDelegate() override;
-#endif
 
  protected:
   TranslateInfoBarDelegate(

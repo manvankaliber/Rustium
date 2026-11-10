@@ -42,7 +42,7 @@ export function getHtml(this: SettingsPaymentsPageElement) {
 
     <!-- Toggle to enable/disable mandatory re-authentication when user attempts
      to view or autofill payment methods. -->
-<if expr="is_win or is_macosx or is_chromeos">
+<if expr="is_win or is_macosx">
     ${this.mandatoryReauthFeatureFlagEnabled_ ? html`
       <settings-toggle-button id="mandatoryAuthToggle" no-extension-indicator
           label="$i18n{enableMandatoryAuthToggleLabel}"

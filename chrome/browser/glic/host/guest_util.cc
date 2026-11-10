@@ -108,11 +108,6 @@
 #include "chrome/browser/printing/printing_init.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "ui/android/event_forwarder.h"
-#include "ui/android/view_android.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "extensions/browser/guest_view/web_view/web_view_guest.h"
@@ -128,11 +123,7 @@
 #include "chrome/browser/enterprise/data_controls/data_controls_dialog_factory.h"
 #include "components/enterprise/data_controls/content/browser/last_replaced_clipboard_data.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/enterprise/data_controls/android_data_controls_dialog_factory.h"
-#else
 #include "chrome/browser/enterprise/data_controls/desktop_data_controls_dialog_factory.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 #endif  // BUILDFLAG(ENTERPRISE_DATA_CONTROLS)
 
 namespace glic {
@@ -269,30 +260,6 @@ class CachedOriginMatcher {
 };
 
 void ConfigureGuestZoom(content::WebContents& guest_contents) {
-#if BUILDFLAG(IS_ANDROID)
-  // Apply the persisted zoom level to the guest WebContents.
-  if (Profile* profile =
-          Profile::FromBrowserContext(guest_contents.GetBrowserContext())) {
-    double zoom_factor = GetZoomFactor(profile->GetPrefs());
-    double zoom_level = blink::ZoomFactorToZoomLevel(zoom_factor);
-    content::HostZoomMap::SetZoomLevel(&guest_contents, zoom_level);
-    // Glic's zoom is its own (see prefs::kGlicZoomLevel), not the embedder's.
-    // Setting it on the <webview> guest marks it as explicit, so the guest
-    // doesn't take the embedder's zoom instead (e.g. after it navigates; see
-    // guest_view::kGuestViewMatchEmbedderZoomAfterNavigation).
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
-    if (auto* guest =
-            extensions::WebViewGuest::FromWebContents(&guest_contents)) {
-      guest->SetZoom(zoom_factor);
-    }
-#else
-    if (auto* guest =
-            guest_view::SlimWebViewGuest::FromWebContents(&guest_contents)) {
-      guest->SetZoom(zoom_factor);
-    }
-#endif
-  }
-#endif
 }
 
 }  // namespace
@@ -308,9 +275,6 @@ void PrepareGlicGuestWebContents(content::WebContents& guest_contents,
 
   PrefsTabHelper::CreateForWebContents(&guest_contents);
   ConfigureGuestZoom(guest_contents);
-#if BUILDFLAG(IS_ANDROID)
-  ConfigureGlicDragAndDropForWebContents(&guest_contents);
-#endif
 
 #if BUILDFLAG(ENABLE_PRINTING)
   // In <webview> mode, WebViewGuest attaches printing helpers via
@@ -322,9 +286,7 @@ void PrepareGlicGuestWebContents(content::WebContents& guest_contents,
   }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   guest_contents.SetSupportsDraggableRegions(true);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void SetHostForGuest(content::WebContents& guest_contents, Host* host) {
@@ -770,29 +732,6 @@ bool OnGuestAdded(content::WebContents* guest_contents) {
   return true;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void ConfigureGlicDragAndDropForWebContents(
-    content::WebContents* web_contents) {
-  if (!web_contents ||
-      !base::FeatureList::IsEnabled(features::kGlicDragAndDropFileUpload) ||
-      !base::FeatureList::IsEnabled(
-          features::kGlicDragAndDropFileUploadAndroid)) {
-    return;
-  }
-  if (IsGlicWebUI(web_contents) || IsGlicGuest(web_contents)) {
-    if (auto* view = web_contents->GetNativeView()) {
-      // Enable regardless of `kGlicWebDragAndDropFileUpload` (checked in
-      // `CanDragEnter` and `StartDragAndDropInvoke`) so `DropDataProvider` URIs
-      // never fall back to `DropData::filenames` as unvalidated OS file drops.
-      // `ViewAndroid` creates its `EventForwarder` lazily;
-      // `GetEventForwarder()` creates it if needed so there is a forwarder to
-      // configure.
-      view->GetEventForwarder();
-      view->event_forwarder()->SetAllowIntraAppImageDrops(true);
-    }
-  }
-}
-#endif
 
 bool IsMediaRequestFromGlic(content::BrowserContext* browser_context,
                             const std::string& request_id) {
@@ -803,13 +742,6 @@ bool IsMediaRequestFromGlic(content::BrowserContext* browser_context,
 }
 
 mojom::FormFactor GetGlicFormFactor(ui::DeviceFormFactor form_factor) {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(b/512144892): Foldable is currently grouped with phone. We need
-  // transition between bottom sheet and side panel, to match tablet UI.
-  if (base::android::device_info::is_foldable()) {
-    return mojom::FormFactor::kPhone;
-  }
-#endif
   switch (form_factor) {
     case ui::DEVICE_FORM_FACTOR_DESKTOP:
       return mojom::FormFactor::kDesktop;
@@ -832,10 +764,6 @@ mojom::Platform GetGlicPlatform() {
   return mojom::Platform::kWindows;
 #elif BUILDFLAG(IS_LINUX)
   return mojom::Platform::kLinux;
-#elif BUILDFLAG(IS_CHROMEOS)
-  return mojom::Platform::kChromeOS;
-#elif BUILDFLAG(IS_ANDROID)
-  return mojom::Platform::kAndroid;
 #else
   return mojom::Platform::kUnknown;
 #endif
@@ -866,9 +794,7 @@ void PopulateGlobalClientInitialState(mojom::WebClientInitialState* state,
 
   state->zoom_factor = GetZoomFactor(pref_service);
 
-#if !BUILDFLAG(IS_ANDROID)
   state->hotkey = GetHotkeyString();
-#endif
 
   // LINT.IfChange(GlicZeroStateSuggestionsEnabled)
   state->enable_zero_state_suggestions = IsZeroStateSuggestionsEnabled(profile);
@@ -1302,11 +1228,7 @@ class PendingClipboardCopyCleanup {
 #if BUILDFLAG(ENTERPRISE_DATA_CONTROLS)
 void ShowPasteBlockDialogIfNeeded(content::WebContents* web_contents) {
   data_controls::DataControlsDialogFactory* factory =
-#if BUILDFLAG(IS_ANDROID)
-      data_controls::AndroidDataControlsDialogFactory::GetInstance();
-#else
       data_controls::DesktopDataControlsDialogFactory::GetInstance();
-#endif
   if (factory) {
     factory->ShowDialogIfNeeded(
         web_contents,

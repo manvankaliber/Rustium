@@ -772,18 +772,7 @@ void SetAutofillWalletUsageSpecificsFromAutofillWalletUsageData(
 sync_pb::AutofillWalletCredentialSpecifics
 AutofillWalletCredentialSpecificsFromStructData(const ServerCvc& server_cvc) {
   sync_pb::AutofillWalletCredentialSpecifics wallet_credential_specifics;
-#if BUILDFLAG(IS_IOS)
-  // TODO(crbug.com/542769367): Downgraded to NotFatalUntil as a short-term
-  // fix for production crashes until root-cause investigation completes.
-  if (base::FeatureList::IsEnabled(
-          features::kAutofillIgnoreEmptyCvcsInSyncBridge)) {
-    CHECK(!server_cvc.cvc.empty(), base::NotFatalUntil::M156);
-  } else {
-    CHECK(!server_cvc.cvc.empty());
-  }
-#else
   CHECK(!server_cvc.cvc.empty());
-#endif
   wallet_credential_specifics.set_instrument_id(
       base::NumberToString(server_cvc.instrument_id));
   wallet_credential_specifics.set_cvc(base::UTF16ToUTF8(server_cvc.cvc));
@@ -1033,16 +1022,11 @@ bool IsAutofillWalletCredentialDataSpecificsValid(
 }
 
 bool AreMaskedBankAccountSupported() {
-#if BUILDFLAG(IS_ANDROID)
-  return true;
-#else
   return false;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool IsBnplIssuerSupported() {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   return base::FeatureList::IsEnabled(
       features::kAutofillEnableBuyNowPayLaterSyncing);
 #else
@@ -1052,11 +1036,7 @@ bool IsBnplIssuerSupported() {
 }
 
 bool IsEwalletAccountSupported() {
-#if BUILDFLAG(IS_ANDROID)
-  return base::FeatureList::IsEnabled(features::kAutofillSyncEwalletAccounts);
-#else
   return false;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool IsGenericPaymentInstrumentSupported() {
@@ -1066,12 +1046,7 @@ bool IsGenericPaymentInstrumentSupported() {
 }
 
 bool IsEwalletCreationOptionSupported() {
-#if BUILDFLAG(IS_ANDROID)
-  return base::FeatureList::IsEnabled(
-      ::payments::facilitated::kEnableEwalletNewAccountLinking);
-#else
   return false;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool IsPaymentInstrumentCreationOptionSupported() {

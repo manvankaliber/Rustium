@@ -117,18 +117,10 @@ config("skia_config") {
 
   # `SK_GAMMA_EXPONENT` and `SK_GAMMA_CONTRAST` are settings for text
   # blitting, chosen to approximate the system browser.
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     defines += [
       "SK_GAMMA_EXPONENT=1.2",
       "SK_GAMMA_CONTRAST=0.2",
-    ]
-  } else if (is_android) {
-    defines += [
-      "SK_BUILD_FOR_ANDROID",
-      "USE_CHROMIUM_SKIA",
-      "SK_GAMMA_APPLY_TO_A8",
-      "SK_GAMMA_EXPONENT=1.4",
-      "SK_GAMMA_CONTRAST=0.0",
     ]
   } else if (is_mac) {
     defines += [
@@ -136,11 +128,6 @@ config("skia_config") {
       "SK_GAMMA_SRGB",
       "SK_GAMMA_CONTRAST=0.0",
     ]
-  } else if (is_ios) {
-    defines += [ "SK_BUILD_FOR_IOS" ]
-    if (ios_is_app_extension) {
-      defines += [ "SK_BUILD_FOR_IOS_APP_EXTENSION" ]
-    }
   } else if (is_win) {
     defines += [
       "GR_GL_FUNCTION_TYPE=__stdcall",
@@ -215,16 +202,7 @@ config("skia_library_config") {
     defines += [ "SK_ARM_HAS_NEON" ]
   }
 
-  if (is_android) {
-    defines += [
-      # Android devices are typically more memory constrained, so default to a
-      # smaller glyph cache (it may be overriden at runtime when the renderer
-      # starts up, depending on the actual device memory).
-      "SK_DEFAULT_FONT_CACHE_LIMIT=1048576",  # 1024 * 1024
-    ]
-  } else {
-    defines += [ "SK_DEFAULT_FONT_CACHE_LIMIT=20971520" ]  # 20 * 1024 * 1024
-  }
+  defines += [ "SK_DEFAULT_FONT_CACHE_LIMIT=20971520" ]  # 20 * 1024 * 1024
 
   if (is_win) {
     defines += [
@@ -309,10 +287,7 @@ component("skia") {
     "ext/skia_utils_base.cc",
     "rusty_jpeg_feature.cc",
   ]
-  if (is_ios) {
-    public += [ "ext/skia_utils_ios.h" ]
-    sources += [ "ext/skia_utils_ios.mm" ]
-  }
+
   if (is_mac) {
     public += [ "ext/skia_utils_mac.h" ]
     sources += [ "ext/skia_utils_mac.mm" ]
@@ -326,7 +301,7 @@ component("skia") {
     public += [ "ext/platform_canvas.h" ]
     sources += [ "ext/platform_canvas.cc" ]
   }
-  if (!is_ios && (current_cpu == "x86" || current_cpu == "x64")) {
+  if (current_cpu == "x86" || current_cpu == "x64") {
     sources += [
       "ext/convolver_SSE2.cc",
       "ext/convolver_SSE2.h",
@@ -462,23 +437,17 @@ component("skia") {
     sources += skia_ports_fontmgr_coretext_sources
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     public += skia_ports_fci_public
     sources += skia_ports_fci_sources
   }
 
-  if (is_linux || is_chromeos || is_android) {
+  if (is_linux) {
     # Retain the files for the SkFontMgr_Android on linux to emulate android
     # fonts. See content/zygote/zygote_main_linux.cc
     # Note that this requires expat.
     sources += skia_ports_fontmgr_android_sources
     sources += skia_ports_fontmgr_android_parser_sources
-  }
-
-  if (is_android) {
-    # Note that this requires expat.
-    # Note that this requires skia_ports_fontmgr_android_parser_sources.
-    sources += skia_ports_fontmgr_android_ndk_sources
   }
 
   configs -= [ "//build/config/compiler:chromium_code" ]
@@ -531,18 +500,11 @@ component("skia") {
     }
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     deps += [
       "//third_party/expat",
       "//third_party/fontconfig",
       "//third_party/icu:icuuc",
-    ]
-  }
-
-  if (is_android) {
-    deps += [
-      "//third_party/cpu_features:ndk_compat",
-      "//third_party/expat",
     ]
   }
 
@@ -552,9 +514,7 @@ component("skia") {
   }
 
   frameworks = []
-  if (is_ios) {
-    frameworks += [ "ImageIO.framework" ]
-  }
+
   if (is_apple && skia_support_gpu) {
     frameworks += [
       "CoreFoundation.framework",
@@ -564,9 +524,6 @@ component("skia") {
     ]
     if (is_mac) {
       frameworks += [ "AppKit.framework" ]
-    }
-    if (is_ios) {
-      frameworks += [ "IOSurface.framework" ]
     }
   }
 
@@ -1099,11 +1056,7 @@ skia_source_set("skia_opts") {
       deps += [ ":skia_opts_ml4" ]
     }
   } else if (current_cpu == "arm") {
-    # The assembly uses the frame pointer register (r7 in Thumb/r11 in
-    # ARM), the compiler doesn't like that.
-    if (!is_ios) {
-      cflags += [ "-fomit-frame-pointer" ]
-    }
+    cflags += [ "-fomit-frame-pointer" ]
   } else if (current_cpu == "arm64") {
     # Conditional and empty body needed to avoid assert() below.
   } else if (current_cpu == "arm64e") {
@@ -1153,7 +1106,7 @@ config("skcms_library_config") {
   # LLVM automatically sets the equivalent of GCC's -mfp16-format=ieee on ARM
   # builds by default, while GCC itself does not. We need it to enable support
   # for half-precision floating point data types used by SKCMS on ARM.
-  if ((is_linux || is_chromeos) && !is_clang && current_cpu == "arm") {
+  if (is_linux && !is_clang && current_cpu == "arm") {
     cflags += [ "-mfp16-format=ieee" ]
   }
   if (current_cpu == "loong64") {
@@ -1325,9 +1278,7 @@ test("skia_unittests") {
     "ext/skia_memory_dump_provider_unittest.cc",
     "ext/skia_utils_base_unittest.cc",
   ]
-  if (is_ios) {
-    sources += [ "ext/skia_utils_ios_unittest.mm" ]
-  }
+
   if (is_mac) {
     sources += [
       "ext/font_utils_mac_unittest.mm",
@@ -1357,42 +1308,38 @@ test("skia_unittests") {
   data = [ "//third_party/test_fonts/test_fonts/Ahem.ttf" ]
   data_deps = [ "//testing/buildbot/filters:skia_unittests_filters" ]
 
-  if (!is_ios) {
-    sources += [ "public/mojom/test/mojom_traits_unittest.cc" ]
-    deps += [
-      "//mojo/public/cpp/bindings",
-      "//mojo/public/cpp/test_support:test_utils",
-      "//skia/public/mojom",
-    ]
-  }
+  sources += [ "public/mojom/test/mojom_traits_unittest.cc" ]
+  deps += [
+    "//mojo/public/cpp/bindings",
+    "//mojo/public/cpp/test_support:test_utils",
+    "//skia/public/mojom",
+  ]
 
   if (skia_support_skottie) {
     sources += [ "ext/skottie_unittest.cc" ]
   }
 }
 
-if (!is_ios) {
-  executable("image_operations_bench") {
-    sources = [ "ext/image_operations_bench.cc" ]
+executable("image_operations_bench") {
+  sources = [ "ext/image_operations_bench.cc" ]
 
-    deps = [
-      ":skia",
-      "//base",
-      "//build/win:default_exe_manifest",
-    ]
-  }
+  deps = [
+    ":skia",
+    "//base",
+    "//build/win:default_exe_manifest",
+  ]
+}
 
-  executable("filter_fuzz_stub") {
-    testonly = true
-    sources = [ "tools/filter_fuzz_stub/filter_fuzz_stub.cc" ]
+executable("filter_fuzz_stub") {
+  testonly = true
+  sources = [ "tools/filter_fuzz_stub/filter_fuzz_stub.cc" ]
 
-    deps = [
-      ":skia",
-      "//base",
-      "//base/test:test_support",
-      "//build/win:default_exe_manifest",
-    ]
-  }
+  deps = [
+    ":skia",
+    "//base",
+    "//base/test:test_support",
+    "//build/win:default_exe_manifest",
+  ]
 }
 
 group("fuzzers") {

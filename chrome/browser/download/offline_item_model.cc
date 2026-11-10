@@ -139,11 +139,7 @@ void OfflineItemModel::OpenDownload() {
     return;
 
   offline_items_collection::LaunchLocation launch_location =
-#if BUILDFLAG(IS_CHROMEOS)
-      offline_items_collection::LaunchLocation::NOTIFICATION;
-#else
       offline_items_collection::LaunchLocation::DOWNLOAD_BUBBLE;
-#endif
 
   offline_items_collection::OpenParams open_params(launch_location);
   // TODO(crbug.com/40121163): Determine if we ever need to open in incognito.
@@ -324,7 +320,6 @@ std::u16string OfflineItemModel::GetDownloadDomainForDisplay() const {
       display_origin.GetURL());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 bool OfflineItemModel::IsCommandEnabled(
     const DownloadCommands* download_commands,
     DownloadCommands::Command command) const {
@@ -429,7 +424,6 @@ void OfflineItemModel::ExecuteCommand(DownloadCommands* download_commands,
       break;
   }
 }
-#endif
 
 std::string OfflineItemModel::GetMimeType() const {
   return offline_item_ ? offline_item_->mime_type : "";

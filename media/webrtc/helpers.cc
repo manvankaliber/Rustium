@@ -65,12 +65,9 @@ void ConfigAutomaticGainControl(const AudioProcessingSettings& settings,
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   const bool kInputVolumeAdjustmentOverrideAllowed = true;
-#elif BUILDFLAG(IS_CHROMEOS)
-  const bool kInputVolumeAdjustmentOverrideAllowed = false;
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   // Use AGC2 digital and input volume controller.
   // TODO(crbug.com/40872787): Remove `kWebRtcAllowInputVolumeAdjustment` safely
   // and set `input_volume_controller.enabled` true.
@@ -86,15 +83,6 @@ void ConfigAutomaticGainControl(const AudioProcessingSettings& settings,
   apm_config.gain_controller1.analog_gain_controller.enabled = false;
   apm_config.gain_controller1.analog_gain_controller.enable_digital_adaptive =
       false;
-  return;
-#elif BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS) || BUILDFLAG(IS_CASTOS) || \
-    BUILDFLAG(IS_CAST_ANDROID)
-  // Configure AGC for mobile.
-  apm_config.gain_controller1.enabled = false;
-  apm_config.gain_controller2.enabled = true;
-  apm_config.gain_controller2.fixed_digital.gain_db = 6.0f;
-  apm_config.gain_controller2.adaptive_digital.enabled = false;
-  apm_config.gain_controller2.input_volume_controller.enabled = false;
   return;
 #else
 #error Undefined AGC configuration. Add a case above for the current platform.

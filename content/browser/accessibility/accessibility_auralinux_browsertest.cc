@@ -1239,7 +1239,7 @@ IN_PROC_BROWSER_TEST_F(AccessibilityAuraLinuxBrowserTest,
   g_object_unref(atk_text);
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // Flaky on crbug.com/1026149
 #define MAYBE_TestSetSelection DISABLED_TestSetSelection
 #else

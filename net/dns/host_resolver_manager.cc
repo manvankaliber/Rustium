@@ -135,14 +135,9 @@
 #include <net/if.h>
 
 #include "net/base/sys_addrinfo.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include <ifaddrs.h>
-#endif  // !BUILDFLAG(IS_ANDROID)
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace net {
 
@@ -474,7 +469,7 @@ HostResolverManager::HostResolverManager(
 #if BUILDFLAG(IS_WIN)
   EnsureWinsockInit();
 #endif
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
   RunLoopbackProbeJob();
 #endif
   // Network-bound HostResolverManagers don't need to act on network changes.
@@ -534,15 +529,8 @@ HostResolverManager::CreateNetworkBoundHostResolverManager(
     const HostResolver::ManagerOptions& options,
     handles::NetworkHandle target_network,
     NetLog* net_log) {
-#if BUILDFLAG(IS_ANDROID)
-  DCHECK(NetworkChangeNotifier::AreNetworkHandlesSupported());
-  return std::make_unique<HostResolverManager>(
-      PassKey(), options, nullptr /* system_dns_config_notifier */,
-      target_network, net_log);
-#else   // !BUILDFLAG(IS_ANDROID)
   NOTIMPLEMENTED();
   return nullptr;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 std::unique_ptr<HostResolver::ResolveHostRequest>
@@ -1841,7 +1829,7 @@ void HostResolverManager::OnIPAddressChanged(
   // Abandon all ProbeJobs.
   probe_weak_ptr_factory_.InvalidateWeakPtrs();
   InvalidateCaches();
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
   RunLoopbackProbeJob();
 #endif
   AbortJobsWithoutTargetNetwork(true /* in_progress_only */);

@@ -48,13 +48,6 @@ source_set("util") {
     "//base",
     "//net",
   ]
-
-  if (is_chromeos) {
-    deps += [
-      "//chromeos/ash/components/system",
-      "//components/session_manager/core",
-    ]
-  }
 }
 
 source_set("internal") {
@@ -252,7 +245,6 @@ source_set("internal") {
     "//components/prefs",
     "//components/signin/public/identity_manager",
     "//components/strings",
-    "//components/user_manager",
     "//components/version_info",
     "//google_apis",
     "//net",
@@ -307,75 +299,13 @@ source_set("internal") {
   }
 
   # Compile on Linux for fuzzer and since code is reused on Chrome OS.
-  if (is_win || is_linux || is_chromeos) {
+  if (is_win || is_linux) {
     sources += [
       "registry_dict.cc",
       "registry_dict.h",
     ]
   }
-  if ((is_android && !enable_extensions_core) || is_ios) {
-    sources += [ "cloud/component_cloud_policy_service_stub.cc" ]
-    sources -= [
-      "cloud/cloud_external_data_store.cc",
-      "cloud/cloud_external_data_store.h",
-      "cloud/component_cloud_policy_service.cc",
-      "cloud/component_cloud_policy_store.cc",
-      "cloud/component_cloud_policy_store.h",
-      "cloud/component_cloud_policy_updater.cc",
-      "cloud/component_cloud_policy_updater.h",
-      "cloud/external_policy_data_fetcher.cc",
-      "cloud/external_policy_data_fetcher.h",
-      "cloud/external_policy_data_updater.cc",
-      "cloud/external_policy_data_updater.h",
-      "cloud/resource_cache.cc",
-      "cloud/resource_cache.h",
-      "config_dir_policy_loader.cc",
-      "config_dir_policy_loader.h",
-    ]
-  }
-  if (is_android) {
-    sources += [
-      "android/android_combined_policy_provider.cc",
-      "android/android_combined_policy_provider.h",
-      "android/policy_converter.cc",
-      "android/policy_converter.h",
-      "android/policy_map_android.cc",
-      "android/policy_map_android.h",
-      "android/policy_service_android.cc",
-      "android/policy_service_android.h",
-      "management/android_enterprise_info.cc",
-      "management/android_enterprise_info.h",
-      "management/platform_management_status_provider_android.cc",
-      "management/platform_management_status_provider_android.h",
-    ]
-    deps += [ "//components/policy/android:jni_headers" ]
-  }
-  if (is_chromeos) {
-    deps += [
-      "//chromeos/ash/components/channel",
-      "//chromeos/ash/components/policy/device_local_account",
-      "//chromeos/ash/components/system",
-    ]
-    sources += [
-      "default_chrome_apps_migrator.cc",
-      "default_chrome_apps_migrator.h",
-      "policy_scheduler.cc",
-      "policy_scheduler.h",
-    ]
-    sources -= [
-      "cloud/chrome_browser_cloud_management_metrics.h",
-      "cloud/cloud_policy_client_registration_helper.cc",
-      "cloud/cloud_policy_client_registration_helper.h",
-      "cloud/machine_level_user_cloud_policy_manager.cc",
-      "cloud/machine_level_user_cloud_policy_manager.h",
-      "cloud/machine_level_user_cloud_policy_store.cc",
-      "cloud/machine_level_user_cloud_policy_store.h",
-      "cloud/user_cloud_policy_manager.cc",
-      "cloud/user_cloud_policy_manager.h",
-      "cloud/user_cloud_policy_store.cc",
-      "cloud/user_cloud_policy_store.h",
-    ]
-  }
+
   if (is_apple) {
     sources += [
       "mac_util.cc",
@@ -391,15 +321,6 @@ source_set("internal") {
         "preferences_mac.mm",
       ]
       frameworks += [ "SystemConfiguration.framework" ]
-    }
-
-    if (is_ios) {
-      sources += [
-        "management/platform_management_status_provider_ios.h",
-        "management/platform_management_status_provider_ios.mm",
-        "policy_loader_ios.h",
-        "policy_loader_ios.mm",
-      ]
     }
   }
 }
@@ -447,13 +368,6 @@ static_library("test_support") {
     "remote_commands/test_support/testing_remote_commands_server.h",
   ]
 
-  if (is_chromeos) {
-    sources -= [
-      "cloud/mock_user_cloud_policy_store.cc",
-      "cloud/mock_user_cloud_policy_store.h",
-    ]
-  }
-
   if (is_mac) {
     sources += [
       "preferences_mock_mac.cc",
@@ -468,7 +382,7 @@ static_library("test_support") {
     ]
   }
 
-  if (is_linux || is_win || is_mac || is_chromeos) {
+  if (is_linux || is_win || is_mac) {
     sources += [
       "field_validation_test_utils.cc",
       "field_validation_test_utils.h",
@@ -517,14 +431,6 @@ source_set("common_constants") {
     "proxy_settings_constants.h",
     "system_features_disable_list_constants.h",
   ]
-
-  if (is_ios) {
-    sources += [
-      "policy_loader_ios_constants.h",
-      "policy_loader_ios_constants.mm",
-    ]
-    frameworks = [ "Foundation.framework" ]
-  }
 }
 
 source_set("policy_path_constants") {
@@ -580,25 +486,19 @@ source_set("unit_tests") {
     "cloud/cloud_policy_validator_unittest.cc",
   ]
 
-  if (is_win || is_linux || is_chromeos) {
+  if (is_win || is_linux) {
     sources += [ "registry_dict_unittest.cc" ]
   }
-  if (is_chromeos) {
-    sources += [
-      "default_chrome_apps_migrator_unittest.cc",
-      "policy_scheduler_unittest.cc",
-    ]
-  } else {
-    sources += [
-      "cloud/machine_level_user_cloud_policy_manager_unittest.cc",
-      "cloud/user_cloud_policy_manager_unittest.cc",
-    ]
 
-    sources += [
-      "cloud/machine_level_user_cloud_policy_store_unittest.cc",
-      "cloud/user_cloud_policy_store_unittest.cc",
-    ]
-  }
+  sources += [
+    "cloud/machine_level_user_cloud_policy_manager_unittest.cc",
+    "cloud/user_cloud_policy_manager_unittest.cc",
+  ]
+
+  sources += [
+    "cloud/machine_level_user_cloud_policy_store_unittest.cc",
+    "cloud/user_cloud_policy_store_unittest.cc",
+  ]
 
   if (is_win || is_mac) {
     sources += [ "policy_loader_common_unittest.cc" ]
@@ -611,44 +511,29 @@ source_set("unit_tests") {
     ]
   }
 
-  if (is_android) {
-    sources += [
-      "android/android_combined_policy_provider_unittest.cc",
-      "android/policy_converter_unittest.cc",
-      "android/policy_map_android_unittest.cc",
-      "android/policy_service_android_unittest.cc",
-      "management/android_enterprise_info_unittest.cc",
-      "management/platform_management_status_provider_android_unittest.cc",
-    ]
-  } else {
-    sources += [ "async_policy_provider_unittest.cc" ]
-  }
-  if ((!is_android || enable_extensions_core) && !is_ios) {
-    sources += [
-      "cloud/cloud_external_data_store_unittest.cc",
-      "cloud/component_cloud_policy_service_unittest.cc",
-      "cloud/component_cloud_policy_store_unittest.cc",
-      "cloud/component_cloud_policy_updater_unittest.cc",
-      "cloud/encrypted_reporting_job_configuration_unittest.cc",
-      "cloud/external_policy_data_fetcher_unittest.cc",
-      "cloud/external_policy_data_updater_unittest.cc",
-      "cloud/realtime_reporting_job_configuration_unittest.cc",
-      "cloud/resource_cache_unittest.cc",
-      "config_dir_policy_loader_unittest.cc",
-    ]
-  }
+  sources += [ "async_policy_provider_unittest.cc" ]
+
+  sources += [
+    "cloud/cloud_external_data_store_unittest.cc",
+    "cloud/component_cloud_policy_service_unittest.cc",
+    "cloud/component_cloud_policy_store_unittest.cc",
+    "cloud/component_cloud_policy_updater_unittest.cc",
+    "cloud/encrypted_reporting_job_configuration_unittest.cc",
+    "cloud/external_policy_data_fetcher_unittest.cc",
+    "cloud/external_policy_data_updater_unittest.cc",
+    "cloud/realtime_reporting_job_configuration_unittest.cc",
+    "cloud/resource_cache_unittest.cc",
+    "config_dir_policy_loader_unittest.cc",
+  ]
+
   if (is_apple) {
     sources += [ "mac_util_unittest.cc" ]
 
     if (is_mac) {
       sources += [ "policy_loader_mac_unittest.cc" ]
     }
-
-    if (is_ios) {
-      sources += [ "policy_loader_ios_unittest.mm" ]
-    }
   }
-  if (is_win || is_linux || is_chromeos) {
+  if (is_win || is_linux) {
     # Needed by policy_loader_win_unittest.cc
     data = [ "//chrome/test/data/policy/" ]
   }
@@ -683,12 +568,6 @@ source_set("unit_tests") {
     "//third_party/metrics_proto",
     "//ui/base",
   ]
-  if (is_chromeos) {
-    deps += [ "//chromeos/ash/components/system" ]
-  }
-  if (is_android) {
-    deps += [ "//components/policy/android:test_jni_headers" ]
-  }
 
   if (use_blink) {
     deps += [
@@ -696,10 +575,7 @@ source_set("unit_tests") {
       "//content/test:test_support",
     ]
   } else {
-    deps += [
-      "//ios/web/public/test",
-      "//ios/web/public/thread",
-    ]
+    deps += []
   }
 
   # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and

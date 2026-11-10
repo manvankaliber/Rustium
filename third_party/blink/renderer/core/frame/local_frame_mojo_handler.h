@@ -208,10 +208,6 @@ class LocalFrameMojoHandler
       mojo::PendingAssociatedRemote<mojom::blink::DevToolsAgentHost> host,
       mojo::PendingAssociatedReceiver<mojom::blink::DevToolsAgent> receiver)
       final;
-#if BUILDFLAG(IS_ANDROID)
-  void ExtractSmartClipData(const gfx::Rect& rect,
-                            ExtractSmartClipDataCallback callback) final;
-#endif
   void HandleRendererDebugURL(const KURL& url) final;
   void GetCanonicalUrlForSharing(
       GetCanonicalUrlForSharingCallback callback) final;
@@ -301,9 +297,6 @@ class LocalFrameMojoHandler
   blink::LocalFrame* GetContextFrameForCSPViolationReporting(
       network::mojom::blink::CSPDirectiveName effective_type) final;
 
-#if BUILDFLAG(IS_ANDROID)
-  void PerformFullContentSpellCheck() final;
-#endif
 
   Member<blink::LocalFrame> frame_;
 

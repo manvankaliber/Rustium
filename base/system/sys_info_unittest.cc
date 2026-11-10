@@ -28,8 +28,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/test/gmock_expected_support.h"
 #include "base/test/scoped_amount_of_physical_memory_override.h"
-#include "base/test/scoped_chromeos_version_info.h"
-#include "base/test/scoped_running_on_chromeos.h"
 #include "base/test/task_environment.h"
 #include "base/threading/platform_thread.h"
 #include "base/threading/scoped_blocking_call.h"
@@ -54,12 +52,6 @@
 
 namespace base {
 
-#if BUILDFLAG(IS_ANDROID)
-// Some Android (Cast) test devices have a large portion of physical memory
-// reserved. During investigation, around 115-150 MB were seen reserved, so we
-// track this here with a factory of safety of 2.
-static constexpr ByteSize kReservedPhysicalMemory = MiB(300);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 using SysInfoTest = PlatformTest;
 
@@ -99,13 +91,13 @@ TEST_F(SysInfoTest, AmountOfMem) {
   EXPECT_GE(SysInfo::AmountOfVirtualMemory(), ByteSize(0));
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_AmountOfAvailablePhysicalMemory \
   DISABLED_AmountOfAvailablePhysicalMemory
 #else
 #define MAYBE_AmountOfAvailablePhysicalMemory AmountOfAvailablePhysicalMemory
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 TEST_F(SysInfoTest, MAYBE_AmountOfAvailablePhysicalMemory) {
   SystemMemoryInfo info;
   ASSERT_TRUE(GetSystemMemoryInfo(&info));
@@ -118,12 +110,7 @@ TEST_F(SysInfoTest, MAYBE_AmountOfAvailablePhysicalMemory) {
     // Available memory is |free - reserved + reclaimable (inactive, non-free)|.
     // On some android platforms, reserved is a substantial portion.
     const ByteSize available =
-#if BUILDFLAG(IS_ANDROID)
-        std::max(info.free - kReservedPhysicalMemory, ByteSizeDelta(0))
-            .AsByteSize();
-#else
         info.free;
-#endif  // BUILDFLAG(IS_ANDROID)
     EXPECT_GT(amount, available);
     EXPECT_LT(amount, info.available);
     // Simulate as if there is no MemAvailable.
@@ -136,7 +123,7 @@ TEST_F(SysInfoTest, MAYBE_AmountOfAvailablePhysicalMemory) {
   EXPECT_GT(amount, info.free);
   EXPECT_LT(amount, info.total);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 TEST_F(SysInfoTest, AmountOfFreeDiskSpace) {
@@ -164,8 +151,7 @@ TEST_F(SysInfoTest, AmountOfDiskSpace) {
   EXPECT_GE(disk_space.total, disk_space.available) << tmp_path;
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX)
 
 TEST_F(SysInfoTest, OperatingSystemVersion) {
   std::string version = SysInfo::OperatingSystemVersion();
@@ -208,27 +194,6 @@ TEST_F(SysInfoTest, HardwareModelNameFormatMacAndiOS) {
 
   // Check that the model is of the expected format, which is different on iOS
   // simulators and real iOS / MacOS devices.
-#if BUILDFLAG(IS_IOS) && TARGET_OS_SIMULATOR
-  // On iOS simulators, the device model looks like "iOS Simulator (Foo[,Bar])"
-  // where Foo is either "Unknown", "iPhone" or "iPad", and Bar, if present, is
-  // a number.
-  EXPECT_TRUE(base::MatchPattern(hardware_model, "iOS Simulator (*)"))
-      << hardware_model;
-  std::vector<std::string_view> mainPieces =
-      SplitStringPiece(hardware_model, "()", KEEP_WHITESPACE, SPLIT_WANT_ALL);
-  ASSERT_EQ(3u, mainPieces.size()) << hardware_model;
-  std::vector<std::string_view> modelPieces =
-      SplitStringPiece(mainPieces[1], ",", KEEP_WHITESPACE, SPLIT_WANT_ALL);
-  ASSERT_GE(modelPieces.size(), 1u) << hardware_model;
-  if (modelPieces.size() == 1u) {
-    EXPECT_TRUE(modelPieces[0] == "Unknown" || modelPieces[0] == "iPhone" ||
-                modelPieces[0] == "iPad")
-        << hardware_model;
-  } else {
-    int value;
-    EXPECT_TRUE(StringToInt(modelPieces[1], &value)) << hardware_model;
-  }
-#else
   // The expected format is "Foo,Bar" where Foo is "iPhone" or "iPad" and Bar is
   // a number.
   std::vector<std::string_view> pieces =
@@ -236,7 +201,6 @@ TEST_F(SysInfoTest, HardwareModelNameFormatMacAndiOS) {
   ASSERT_EQ(2u, pieces.size()) << hardware_model;
   int value;
   EXPECT_TRUE(StringToInt(pieces[1], &value)) << hardware_model;
-#endif  // BUILDFLAG(IS_IOS) && TARGET_OS_SIMULATOR
 }
 #endif  // BUILDFLAG(IS_APPLE)
 
@@ -255,8 +219,7 @@ TEST_F(SysInfoTest, GetHardwareInfo) {
   EXPECT_TRUE(IsStringUTF8(hardware_info->manufacturer));
   EXPECT_TRUE(IsStringUTF8(hardware_info->model));
   bool empty_result_expected =
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
       false;
 #else
       true;
@@ -265,21 +228,6 @@ TEST_F(SysInfoTest, GetHardwareInfo) {
   EXPECT_EQ(hardware_info->model.empty(), empty_result_expected);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(SysInfoTest, HardwareManufacturer) {
-  std::string manufacturer = SysInfo::HardwareManufacturer();
-  EXPECT_TRUE(IsStringUTF8(manufacturer));
-  EXPECT_FALSE(manufacturer.empty());
-}
-
-TEST_F(SysInfoTest, GetAndroidBuildFingerprint) {
-  std::string fingerprint = SysInfo::GetAndroidBuildFingerprint();
-  EXPECT_TRUE(IsStringUTF8(fingerprint));
-  EXPECT_FALSE(fingerprint.empty());
-  // Speculative regression test for https://crbug.com/532132431.
-  EXPECT_EQ(fingerprint.find("Must use"), std::string::npos);
-}
-#endif
 
 #if BUILDFLAG(IS_WIN)
 TEST_F(SysInfoTest, GetHardwareInfoWMIMatchRegistry) {
@@ -337,137 +285,6 @@ TEST_F(SysInfoTest, GetHardwareInfoWMIMatchRegistry) {
 }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-TEST_F(SysInfoTest, GoogleChromeOSVersionNumbers) {
-  int32_t os_major_version = -1;
-  int32_t os_minor_version = -1;
-  int32_t os_bugfix_version = -1;
-  const char kLsbRelease[] =
-      "FOO=1234123.34.5\n"
-      "CHROMEOS_RELEASE_VERSION=1.2.3.4\n";
-  test::ScopedChromeOSVersionInfo version(kLsbRelease, Time());
-  SysInfo::OperatingSystemVersionNumbers(&os_major_version, &os_minor_version,
-                                         &os_bugfix_version);
-  EXPECT_EQ(1, os_major_version);
-  EXPECT_EQ(2, os_minor_version);
-  EXPECT_EQ(3, os_bugfix_version);
-}
-
-TEST_F(SysInfoTest, GoogleChromeOSVersionNumbersFirst) {
-  int32_t os_major_version = -1;
-  int32_t os_minor_version = -1;
-  int32_t os_bugfix_version = -1;
-  const char kLsbRelease[] =
-      "CHROMEOS_RELEASE_VERSION=1.2.3.4\n"
-      "FOO=1234123.34.5\n";
-  test::ScopedChromeOSVersionInfo version(kLsbRelease, Time());
-  SysInfo::OperatingSystemVersionNumbers(&os_major_version, &os_minor_version,
-                                         &os_bugfix_version);
-  EXPECT_EQ(1, os_major_version);
-  EXPECT_EQ(2, os_minor_version);
-  EXPECT_EQ(3, os_bugfix_version);
-}
-
-TEST_F(SysInfoTest, GoogleChromeOSNoVersionNumbers) {
-  int32_t os_major_version = -1;
-  int32_t os_minor_version = -1;
-  int32_t os_bugfix_version = -1;
-  const char kLsbRelease[] = "FOO=1234123.34.5\n";
-  test::ScopedChromeOSVersionInfo version(kLsbRelease, Time());
-  SysInfo::OperatingSystemVersionNumbers(&os_major_version, &os_minor_version,
-                                         &os_bugfix_version);
-  EXPECT_EQ(0, os_major_version);
-  EXPECT_EQ(0, os_minor_version);
-  EXPECT_EQ(0, os_bugfix_version);
-}
-
-TEST_F(SysInfoTest, GoogleChromeOSLsbReleaseTime) {
-  const char kLsbRelease[] = "CHROMEOS_RELEASE_VERSION=1.2.3.4";
-  // Use a fake time that can be safely displayed as a string.
-  const Time lsb_release_time(Time::FromSecondsSinceUnixEpoch(12345.6));
-  test::ScopedChromeOSVersionInfo version(kLsbRelease, lsb_release_time);
-  Time parsed_lsb_release_time = SysInfo::GetLsbReleaseTime();
-  EXPECT_DOUBLE_EQ(lsb_release_time.InSecondsFSinceUnixEpoch(),
-                   parsed_lsb_release_time.InSecondsFSinceUnixEpoch());
-}
-
-TEST_F(SysInfoTest, IsRunningOnChromeOS) {
-  {
-    const char kLsbRelease1[] =
-        "CHROMEOS_RELEASE_NAME=Non Chrome OS\n"
-        "CHROMEOS_RELEASE_VERSION=1.2.3.4\n";
-    test::ScopedChromeOSVersionInfo version(kLsbRelease1, Time());
-    EXPECT_FALSE(SysInfo::IsRunningOnChromeOS());
-  }
-  {
-    const char kLsbRelease2[] =
-        "CHROMEOS_RELEASE_NAME=Chrome OS\n"
-        "CHROMEOS_RELEASE_VERSION=1.2.3.4\n";
-    test::ScopedChromeOSVersionInfo version(kLsbRelease2, Time());
-    EXPECT_TRUE(SysInfo::IsRunningOnChromeOS());
-  }
-  {
-    const char kLsbRelease3[] = "CHROMEOS_RELEASE_NAME=Chromium OS\n";
-    test::ScopedChromeOSVersionInfo version(kLsbRelease3, Time());
-    EXPECT_TRUE(SysInfo::IsRunningOnChromeOS());
-  }
-}
-
-// Regression test for https://crbug.com/1148904.
-TEST_F(SysInfoTest, ScopedChromeOSVersionInfoDoesNotChangeEnvironment) {
-  std::unique_ptr<Environment> environment = Environment::Create();
-  ASSERT_FALSE(environment->HasVar("LSB_RELEASE"));
-  {
-    const char kLsbRelease[] =
-        "CHROMEOS_RELEASE_NAME=Chrome OS\n"
-        "CHROMEOS_RELEASE_VERSION=1.2.3.4\n";
-    test::ScopedChromeOSVersionInfo version(kLsbRelease, Time());
-  }
-  EXPECT_FALSE(environment->HasVar("LSB_RELEASE"));
-}
-
-TEST_F(SysInfoTest, CrashOnBaseImage) {
-  const char kLsbRelease[] =
-      "CHROMEOS_RELEASE_NAME=Chrome OS\n"
-      "CHROMEOS_RELEASE_VERSION=1.2.3.4\n"
-      "CHROMEOS_RELEASE_TRACK=stable-channel\n";
-  test::ScopedChromeOSVersionInfo version(kLsbRelease, Time());
-  EXPECT_TRUE(SysInfo::IsRunningOnChromeOS());
-  EXPECT_DEATH_IF_SUPPORTED({ SysInfo::CrashIfChromeOSNonTestImage(); }, "");
-}
-
-TEST_F(SysInfoTest, NoCrashOnTestImage) {
-  const char kLsbRelease[] =
-      "CHROMEOS_RELEASE_NAME=Chrome OS\n"
-      "CHROMEOS_RELEASE_VERSION=1.2.3.4\n"
-      "CHROMEOS_RELEASE_TRACK=testimage-channel\n";
-  test::ScopedChromeOSVersionInfo version(kLsbRelease, Time());
-  EXPECT_TRUE(SysInfo::IsRunningOnChromeOS());
-  // Should not crash.
-  SysInfo::CrashIfChromeOSNonTestImage();
-}
-
-TEST_F(SysInfoTest, NoCrashOnLinuxBuild) {
-  test::ScopedChromeOSVersionInfo version("", Time());
-  EXPECT_FALSE(SysInfo::IsRunningOnChromeOS());
-  // Should not crash.
-  SysInfo::CrashIfChromeOSNonTestImage();
-}
-
-TEST_F(SysInfoTest, ScopedRunningOnChromeOS) {
-  // base_unittests run both on linux-chromeos and actual devices, so the
-  // initial state of IsRunningOnChromeOS may vary.
-  bool was_running = SysInfo::IsRunningOnChromeOS();
-  {
-    test::ScopedRunningOnChromeOS running_on_chromeos;
-    EXPECT_TRUE(SysInfo::IsRunningOnChromeOS());
-  }
-  // Previous value restored.
-  EXPECT_EQ(was_running, SysInfo::IsRunningOnChromeOS());
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_POSIX)
 TEST_F(SysInfoTest, KernelVersionNumber) {
@@ -492,7 +309,7 @@ TEST_F(SysInfoTest, KernelVersionNumber) {
 }
 #endif  // BUILDFLAG(IS_POSIX)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 TEST_F(SysInfoTest, NumberOfEfficientProcessors) {
   std::vector<uint64_t> frequencies = SysInfo::MaxFrequencyPerProcessor();
   if (frequencies.empty()) {
@@ -530,7 +347,7 @@ TEST_F(SysInfoTest, MaxFrequencyPerProcessor) {
   EXPECT_TRUE(
       std::ranges::all_of(frequencies, [](uint64_t freq) { return freq > 0; }));
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 TEST_F(SysInfoTest, MemoryOverride_LowEndDevice) {
@@ -544,27 +361,5 @@ TEST_F(SysInfoTest, MemoryOverride_LowEndDevice) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-TEST_F(SysInfoTest, MemoryOverride_IsNGbDevice) {
-  {
-    test::ScopedAmountOfPhysicalMemoryOverride memory_override(GiB(3));
-    EXPECT_TRUE(SysInfo::Is3GbDevice());
-    EXPECT_FALSE(SysInfo::Is4GbDevice());
-    EXPECT_FALSE(SysInfo::Is6GbDevice());
-  }
-  {
-    test::ScopedAmountOfPhysicalMemoryOverride memory_override(GiB(4));
-    EXPECT_FALSE(SysInfo::Is3GbDevice());
-    EXPECT_TRUE(SysInfo::Is4GbDevice());
-    EXPECT_FALSE(SysInfo::Is6GbDevice());
-  }
-  {
-    test::ScopedAmountOfPhysicalMemoryOverride memory_override(GiB(6));
-    EXPECT_FALSE(SysInfo::Is3GbDevice());
-    EXPECT_FALSE(SysInfo::Is4GbDevice());
-    EXPECT_TRUE(SysInfo::Is6GbDevice());
-  }
-}
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace base

@@ -36,9 +36,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/native_theme/caption_style.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif
 
 namespace captions {
 namespace {
@@ -169,10 +166,6 @@ class LiveCaptionSpeechRecognitionHostTest
   virtual void InitFeatures() {
     scoped_feature_list_.InitWithFeatures(
         {live_caption::kLiveTranslateTimeGating,
-#if BUILDFLAG(IS_CHROMEOS)
-         media::kFeatureManagementLiveTranslateCrOS,
-         ash::features::kOnDeviceSpeechRecognition
-#endif
         },
         {});
   }
@@ -220,10 +213,6 @@ class LiveCaptionSpeechRecognitionHostFeatureDisabledTest
   void InitFeatures() override {
     scoped_feature_list_.InitWithFeatures(
         {
-#if BUILDFLAG(IS_CHROMEOS)
-            media::kFeatureManagementLiveTranslateCrOS,
-            ash::features::kOnDeviceSpeechRecognition
-#endif
         },
         {live_caption::kLiveTranslateTimeGating});
   }

@@ -68,7 +68,6 @@
 
 namespace signin {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST(SigninPromoTest, TestPromoURL) {
   GURL::Replacements replace_query;
   replace_query.SetQueryStr("access_point=0&reason=0&auto_close=1");
@@ -95,7 +94,6 @@ TEST(SigninPromoTest, TestReauthURL) {
                                     signin_metrics::Reason::kFetchLstOnly,
                                     "example@domain.com"));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Test that `GetChromeReauthURL()` targets `/AccountChooser` and appends
 // `ptc=1` after `Email` when `proceed_to_challenge` is set.
@@ -466,26 +464,12 @@ TEST(SigninPromoTest, IsSignInPromo_SendTabToSelf) {
 }
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// The extension install bubble access point counts as a sign in promo on
-// ChromeOS.
-TEST(SigninPromoTest, IsSignInPromo) {
-  EXPECT_FALSE(IsSignInPromo(signin_metrics::AccessPoint::kPasswordBubble));
-  EXPECT_FALSE(IsSignInPromo(signin_metrics::AccessPoint::kAddressBubble));
-  EXPECT_FALSE(IsSignInPromo(signin_metrics::AccessPoint::kBookmarkBubble));
-  EXPECT_TRUE(
-      IsSignInPromo(signin_metrics::AccessPoint::kExtensionInstallBubble));
-  EXPECT_FALSE(IsSignInPromo(signin_metrics::AccessPoint::kSendTabToSelfPromo));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Extensions explicit signin is not enabled in ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST(SigninPromoTest, IsSignInPromo_ExtensionsWithExplicitSignin) {
   EXPECT_TRUE(
       IsSignInPromo(signin_metrics::AccessPoint::kExtensionInstallBubble));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST(SigninPromoTest, GetSignInPromoTypeFromAccessPoint) {
   EXPECT_EQ(SignInPromoType::kPassword,
@@ -580,7 +564,6 @@ class ShowPromoTest : public testing::Test {
   scoped_refptr<const extensions::Extension> extension_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ShowPromoTest, ShouldShowSigninPromoSyncDisabled) {
   DisableSync();
   EXPECT_FALSE(ShouldShowPasswordSignInPromo(*profile()));
@@ -590,20 +573,11 @@ TEST_F(ShowPromoTest, ShouldShowSigninPromoSyncDisabled) {
 }
 
 TEST_F(ShowPromoTest, ShouldShowSigninPromoSyncEnabled) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // No signin promos on Ash.
-  EXPECT_FALSE(ShouldShowPasswordSignInPromo(*profile()));
-  EXPECT_FALSE(ShouldShowAddressSignInPromo(*profile(), CreateAddress()));
-  EXPECT_FALSE(ShouldShowBookmarkSignInPromo(*profile()));
-  EXPECT_FALSE(ShouldShowExtensionSignInPromo(*profile(), *CreateExtension()));
-#else
   EXPECT_TRUE(ShouldShowPasswordSignInPromo(*profile()));
   EXPECT_TRUE(ShouldShowAddressSignInPromo(*profile(), CreateAddress()));
   EXPECT_TRUE(ShouldShowBookmarkSignInPromo(*profile()));
   EXPECT_TRUE(ShouldShowExtensionSignInPromo(*profile(), *CreateExtension()));
-#endif
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 class ShowSigninPromoTestWithFeatureFlags : public ShowPromoTest {

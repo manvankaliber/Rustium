@@ -25,9 +25,7 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "ui/base/unowned_user_data/scoped_unowned_user_data.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/omnibox/omnibox_tab_helper.h"
-#endif
 
 namespace content {
 class WebContents;
@@ -56,10 +54,8 @@ class SearchTabHelper : public content::WebContentsObserver,
 // TODO(b/565031232): Support OmniboxTabHelper for SearchTabHelper on Android.
 // Right now, Android does not require it to get embeddedSearch API running
 // yet, but will be required to support certain APIs.
-#if !BUILDFLAG(IS_ANDROID)
     ,
                         public OmniboxTabHelper::Observer
-#endif
 {
  public:
   DECLARE_USER_DATA(SearchTabHelper);
@@ -100,12 +96,6 @@ class SearchTabHelper : public content::WebContentsObserver,
   // here. On desktop those call OnTabActivated() / OnTabDeactivated() on tab
   // selection and push the NTP theme and Most Visited info to the Instant NTP
   // when it commits.
-#if BUILDFLAG(IS_ANDROID)
-  // Equivalent to Browser::OnTabActivated() / OnTabDeactivated().
-  void OnVisibilityChanged(content::Visibility visibility) override;
-  // Equivalent to InstantController::TabObserver::NavigationEntryCommitted.
-  void UpdateInfoForInstantNtp();
-#endif
 
   // Overridden from SearchIPCRouter::Delegate:
   void FocusOmnibox(bool focus) override;
@@ -118,14 +108,12 @@ class SearchTabHelper : public content::WebContentsObserver,
   void MostVisitedInfoChanged(
       const InstantMostVisitedInfo& most_visited_info) override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Overridden from OmniboxTabHelper::Observer:
   void OnOmniboxInputStateChanged() override;
   void OnOmniboxInputInProgress(bool in_progress) override {}
   void OnOmniboxFocusChanged(OmniboxFocusState state,
                              OmniboxFocusChangeReason reason) override;
   void OnOmniboxPopupVisibilityChanged(bool popup_is_open) override {}
-#endif
 
   void OnBitmapFetched(int match_index,
                        const std::string& image_url,
@@ -152,9 +140,6 @@ class SearchTabHelper : public content::WebContentsObserver,
 
   bool is_setting_title_ = false;
 
-#if BUILDFLAG(IS_ANDROID)
-  content::Visibility last_visibility_ = content::Visibility::HIDDEN;
-#endif
 
   std::vector<base::CallbackListSubscription> tab_subscriptions_;
   ui::ScopedUnownedUserData<SearchTabHelper> scoped_unowned_user_data_;

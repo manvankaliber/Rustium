@@ -34,7 +34,7 @@
 #include "base/posix/can_lower_nice_to.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <sys/syscall.h>
 
 #include <atomic>
@@ -99,9 +99,6 @@ void* ThreadFunc(void* params) {
   ThreadIdNameManager::GetInstance()->RemoveName(
       PlatformThread::CurrentHandle().platform_handle(),
       PlatformThread::CurrentId());
-#if BUILDFLAG(IS_ANDROID)
-  PlatformThreadPriorityMonitor::Get().UnregisterCurrentThread();
-#endif
 
 #if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
   partition_alloc::internal::StackTopRegistry::Get().NotifyThreadDestroyed();
@@ -163,7 +160,7 @@ bool CreateThread(size_t stack_size,
   return success;
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 
 // Store the thread ids in local storage since calling the SWI can be
 // expensive and PlatformThread::CurrentId is used liberally.
@@ -194,11 +191,11 @@ class InitAtFork {
   }
 };
 
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 }  // namespace
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 
 namespace internal {
 
@@ -208,7 +205,7 @@ void InvalidateTidCache() {
 
 }  // namespace internal
 
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 // static
 PlatformThreadId PlatformThreadBase::CurrentId() {
@@ -218,7 +215,7 @@ PlatformThreadId PlatformThreadBase::CurrentId() {
   uint64_t tid;
   CHECK_EQ(pthread_threadid_np(nullptr, &tid), 0);
   return PlatformThreadId(tid);
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   // Workaround false-positive MSAN use-of-uninitialized-value on
   // thread_local storage for loaded libraries:
   // https://github.com/google/sanitizers/issues/1265
@@ -249,13 +246,6 @@ PlatformThreadId PlatformThreadBase::CurrentId() {
 #endif
   }
   return PlatformThreadId(g_thread_id);
-#elif BUILDFLAG(IS_ANDROID)
-  // Note: do not cache the return value inside a thread_local variable on
-  // Android (as above). The reasons are:
-  // - thread_local is slow on Android (goes through emutls)
-  // - gettid() is fast, since its return value is cached in pthread (in the
-  //   thread control block of pthread). See gettid.c in bionic.
-  return PlatformThreadId(gettid());
 #elif BUILDFLAG(IS_SOLARIS) || BUILDFLAG(IS_QNX)
   return PlatformThreadId(pthread_self());
 

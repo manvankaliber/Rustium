@@ -40,9 +40,6 @@
 #include "services/network/public/cpp/network_switches.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif
 
 namespace extensions {
 
@@ -57,10 +54,6 @@ class GlicPrivateApiTest : public GlicPrivateApiTestBase {
          {features::kGlicAnchorEntryPointForOnboardedUsers, {}},
          {features::kGlicActor, {}},
          {features::kGlicActorPolicyControlExemption, {}}
-#if BUILDFLAG(IS_CHROMEOS)
-         ,
-         {chromeos::features::kFeatureManagementGlic, {}}
-#endif
         },
         /*disabled_features=*/{features::kGlicShowForSignedOut,
                                features::kGlicCountryFiltering,
@@ -195,7 +188,6 @@ IN_PROC_BROWSER_TEST_F(GlicPrivateApiFeatureDisabledTest, GetState) {
 }
 
 // Invoke is not supported in Android yet.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicPrivateApiFullyEnabledTest, Invoke) {
   SimpleFeature::ScopedThreadUnsafeAllowlistForTest allowlist(
       kGlicPrivateTestExtensionId);
@@ -531,7 +523,6 @@ IN_PROC_BROWSER_TEST_F(GlicPrivateApiFullyEnabledTest, InvokeServerErrors) {
       << message_;
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(GlicPrivateApiFullyEnabledTest, HasConversation) {
   SimpleFeature::ScopedThreadUnsafeAllowlistForTest allowlist(
@@ -589,7 +580,6 @@ IN_PROC_BROWSER_TEST_F(GlicPrivateApiFullyEnabledTest,
       << message_;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class GlicPrivateApiActuationDisabledTest
     : public glic::GlicBrowserTestMixin<GlicPrivateApiTestBase> {
  public:
@@ -622,6 +612,5 @@ IN_PROC_BROWSER_TEST_F(GlicPrivateApiActuationDisabledTest, Invoke) {
       {.load_as_component = true}))
       << message_;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace extensions

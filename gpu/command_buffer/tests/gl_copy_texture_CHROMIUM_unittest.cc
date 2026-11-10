@@ -259,7 +259,7 @@ void getExpectedColorAndMask(GLenum src_internal_format,
 
       setColor(adjusted_color[0], adjusted_color[1], adjusted_color[2],
                alpha_value, expected_color);
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
       // The alpha channel values for LUMINANCE_ALPHA source don't work OK
       // on Mac or Linux, so skip comparison of those, see crbug.com/926579
       setColor(1, 1, 1, src_internal_format != GL_LUMINANCE_ALPHA,
@@ -624,9 +624,7 @@ class GLCopyTextureCHROMIUMES3Test : public GLCopyTextureCHROMIUMTest {
 
   bool ShouldSkipNorm16() const {
     DCHECK(!ShouldSkipTest());
-#if (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || \
-     BUILDFLAG(IS_CHROMEOS)) &&                                       \
-    (defined(ARCH_CPU_X86) || defined(ARCH_CPU_X86_64))
+#if (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)) && (defined(ARCH_CPU_X86) || defined(ARCH_CPU_X86_64))
     // Make sure it's tested; it is safe to assume that the flag is always true
     // on desktop.
     EXPECT_TRUE(
@@ -637,8 +635,7 @@ class GLCopyTextureCHROMIUMES3Test : public GLCopyTextureCHROMIUMTest {
 
   bool ShouldSkipRGBA16ToRGB10A2() const {
     DCHECK(!ShouldSkipTest());
-#if (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && \
-    (defined(ARCH_CPU_X86) || defined(ARCH_CPU_X86_64))
+#if (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)) && (defined(ARCH_CPU_X86) || defined(ARCH_CPU_X86_64))
     // // TODO(crbug.com/40671060): Fails on mac and linux intel.
     return true;
 #else
@@ -1174,7 +1171,7 @@ TEST_P(GLCopyTextureCHROMIUMES3Test, CopyTextureLevel) {
   for (GLint source_level = 0; source_level < 3; source_level++) {
     for (GLint dest_level = 0; dest_level < 3; dest_level++) {
       for (auto dest_format_type : dest_format_types) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
         // TODO(qiankun.miao@intel.com): source_level > 0 or dest_level > 0
         // isn't available due to renderinig bug for non-zero base level in
         // NVIDIA Windows: crbug.com/679639 and Android: crbug.com/680460.
@@ -1963,9 +1960,6 @@ TEST_P(GLCopyTextureCHROMIUMES3Test, PixelUnpackBufferDoesNotInterfere) {
     GTEST_SKIP() << "ES3 context unavailable";
   }
 
-#if BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_X86_FAMILY)
-  GTEST_SKIP() << "Skipping test on Android x86/x64";
-#else
 
   constexpr GLsizei kW = 8, kH = 8;
   const uint8_t kGreen[4] = {0u, 255u, 0u, 255u};
@@ -2044,7 +2038,6 @@ TEST_P(GLCopyTextureCHROMIUMES3Test, PixelUnpackBufferDoesNotInterfere) {
   glDeleteBuffers(1, &pbo);
   glDeleteTextures(1, &src);
   glDeleteTextures(1, &dest);
-#endif  // BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_X86_FAMILY)
 #endif  // !BUILDFLAG(ENABLE_VALIDATING_COMMAND_DECODER)
 }
 

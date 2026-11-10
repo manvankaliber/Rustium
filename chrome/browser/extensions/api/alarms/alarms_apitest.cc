@@ -71,11 +71,7 @@ class AlarmsClearAllApiTest : public AlarmsApiTest,
 // Tests that an alarm created by an extension with incognito split mode is
 // only triggered in the browser context it was created in.
 // TODO(crbug.com/568041938): Flaky on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_IncognitoSplit DISABLED_IncognitoSplit
-#else
 #define MAYBE_IncognitoSplit IncognitoSplit
-#endif
 IN_PROC_BROWSER_TEST_P(AlarmsClearAllApiTest, MAYBE_IncognitoSplit) {
   if (!IsParamFeatureEnabled()) {
     SetCustomArg("legacy");
@@ -134,11 +130,7 @@ IN_PROC_BROWSER_TEST_P(AlarmsClearAllApiTest, IncognitoSpanning) {
 INSTANTIATE_TEST_SUITE_P(All, AlarmsClearAllApiTest, testing::Bool());
 
 // TODO(crbug.com/451193827): Flaky on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_Count DISABLED_Count
-#else
 #define MAYBE_Count Count
-#endif
 IN_PROC_BROWSER_TEST_F(AlarmsApiTest, MAYBE_Count) {
   EXPECT_TRUE(RunExtensionTest("alarms/count")) << message_;
 }

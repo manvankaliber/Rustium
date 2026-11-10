@@ -38,8 +38,7 @@ class PaymentUIObserver;
 // The delegate for PaymentRequest that can use content.
 class ContentPaymentRequestDelegate : public PaymentRequestDelegate {
  public:
-  using GetTwaPackageNameCallback =
-      base::OnceCallback<void(const std::string& twa_package_name)>;
+
 
   ~ContentPaymentRequestDelegate() override;
 
@@ -82,9 +81,7 @@ class ContentPaymentRequestDelegate : public PaymentRequestDelegate {
   // parameter will return an "Invalid certificate" error message.
   virtual std::string GetInvalidSslCertificateErrorMessage() = 0;
 
-  // Obtains the Android package name of the Trusted Web Activity that invoked
-  // this browser, if any. Otherwise, calls `callback` with an empty string.
-  virtual void GetTwaPackageName(GetTwaPackageNameCallback callback) const = 0;
+
 
   virtual PaymentRequestDialog* GetDialogForTesting() = 0;
   virtual const base::WeakPtr<PaymentUIObserver> GetPaymentUIObserver()

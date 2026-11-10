@@ -47,7 +47,7 @@
 #include "snapshot/win/process_snapshot_win.h"
 #include "util/win/scoped_process_suspend.h"
 #include "util/win/xp_compat.h"
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
 #include "snapshot/linux/process_snapshot_linux.h"
 #include "util/linux/direct_ptrace_connection.h"
 #endif  // BUILDFLAG(IS_APPLE)
@@ -199,7 +199,7 @@ int GenerateDumpMain(int argc, char* argv[]) {
                                      0)) {
       return EXIT_FAILURE;
     }
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
     // TODO(jperaza): https://crashpad.chromium.org/bug/30.
     DirectPtraceConnection task;
     if (!task.Initialize(options.pid)) {

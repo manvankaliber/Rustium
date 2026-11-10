@@ -51,10 +51,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "base/strings/string_number_conversions.h"
-#endif
 
 namespace password_manager_util {
 namespace {
@@ -152,13 +148,7 @@ class PasswordManagerUtilTest : public testing::Test {
         password_manager::prefs::kCredentialsEnableService, true);
     pref_service_.registry()->RegisterBooleanPref(
         password_manager::prefs::kCredentialsEnableAutosignin, true);
-#if BUILDFLAG(IS_ANDROID)
-    pref_service_.registry()->RegisterBooleanPref(
-        password_manager::prefs::kOfferToSavePasswordsEnabledGMS, true);
-    pref_service_.registry()->RegisterBooleanPref(
-        password_manager::prefs::kAutoSignInEnabledGMS, true);
-#endif
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     pref_service_.registry()->RegisterBooleanPref(
         password_manager::prefs::kHadBiometricsAvailable, false);
     pref_service_.registry()->RegisterBooleanPref(
@@ -172,7 +162,7 @@ class PasswordManagerUtilTest : public testing::Test {
     ON_CALL(mock_client_, GetSyncService).WillByDefault(Return(&sync_service_));
   }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   void SetBiometricAuthenticationBeforeFilling(bool available) {
     pref_service_.SetBoolean(
         password_manager::prefs::kBiometricAuthenticationBeforeFilling,
@@ -811,12 +801,6 @@ TEST_F(PasswordManagerUtilTest, IsAbleToSavePasswords_Syncing) {
       profile_store.get();
   password_manager::MockPasswordStoreInterface* unused_store =
       account_store.get();
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, users with ConsentLevel::kSync save to the account store
-  // instead of the profile store. See go/upm-local-passwords for context
-  // (sorry, Googlers only).
-  std::swap(used_store, unused_store);
-#endif
   EXPECT_CALL(*used_store, GetError)
       .WillOnce(Return(password_manager::ActionableError::kNoError));
   EXPECT_CALL(*unused_store, GetError).Times(0);
@@ -853,7 +837,6 @@ TEST_F(PasswordManagerUtilTest, IsAbleToSavePasswords_NotSyncing) {
   EXPECT_FALSE(IsAbleToSavePasswords(&mock_client_));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 struct TrustedVaultErrorPreventsFromSavingTestCase {
   std::string name;
   // It might be that the credential is updated in both stores. In this case
@@ -993,152 +976,10 @@ TEST_F(PasswordManagerUtilTrustedVaultErrorPreventsFromSavingTest,
 
   EXPECT_FALSE(IsSavingBlockedByTrustedVaultError(&client_, &form_manager));
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-class PasswordManagerUtilTrustedVaultErrorTest
-    : public PasswordManagerUtilTest {
- protected:
-  PasswordManagerUtilTrustedVaultErrorTest() {
-    feature_list_.InitAndEnableFeature(
-        password_manager::features::kPasswordSaveInContextErrorResolution);
-#if BUILDFLAG(IS_ANDROID)
-    base::android::device_info::set_gms_version_code_for_test(
-        base::NumberToString(
-            password_manager::features::
-                kPasswordSaveInContextErrorResolutionMinGmsVersion.Get()));
-#endif
-  }
 
-  ~PasswordManagerUtilTrustedVaultErrorTest() override {
-#if BUILDFLAG(IS_ANDROID)
-    base::android::device_info::set_gms_version_code_for_test(
-        base::NumberToString(
-            password_manager::features::kMinGmsVersionForInFlowZuulRecovery));
-#endif
-  }
 
-  base::test::ScopedFeatureList feature_list_;
-};
-
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(PasswordManagerUtilTrustedVaultErrorTest,
-       IsSavingBlockedByTrustedVaultError_GmsCoreVersionCheck) {
-  EnableSyncForTestAccount();
-
-  auto account_store =
-      base::MakeRefCounted<password_manager::MockPasswordStoreInterface>();
-  EXPECT_CALL(mock_client_, GetAccountPasswordStore)
-      .WillRepeatedly(Return(account_store.get()));
-  EXPECT_CALL(*account_store, GetError)
-      .WillRepeatedly(Return(ActionableError::kTrustedVaultKeyNeeded));
-
-  // Minimum supported version should succeed.
-  base::android::device_info::set_gms_version_code_for_test(
-      base::NumberToString(
-          password_manager::features::
-              kPasswordSaveInContextErrorResolutionMinGmsVersion.Get()));
-  EXPECT_TRUE(IsSavingBlockedByTrustedVaultError(&mock_client_, nullptr));
-
-  // Higher version should succeed.
-  base::android::device_info::set_gms_version_code_for_test(
-      base::NumberToString(
-          password_manager::features::
-              kPasswordSaveInContextErrorResolutionMinGmsVersion.Get() +
-          1000));
-  EXPECT_TRUE(IsSavingBlockedByTrustedVaultError(&mock_client_, nullptr));
-
-  // Lower version should fail.
-  base::android::device_info::set_gms_version_code_for_test(
-      base::NumberToString(
-          password_manager::features::
-              kPasswordSaveInContextErrorResolutionMinGmsVersion.Get() -
-          1));
-  EXPECT_FALSE(IsSavingBlockedByTrustedVaultError(&mock_client_, nullptr));
-
-  // Invalid / non-integer version should fail.
-  base::android::device_info::set_gms_version_code_for_test("invalid");
-  EXPECT_FALSE(IsSavingBlockedByTrustedVaultError(&mock_client_, nullptr));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-TEST_F(PasswordManagerUtilTrustedVaultErrorTest,
-       IsSavingBlockedByTrustedVaultError) {
-  EnableSyncForTestAccount();
-
-  auto account_store =
-      base::MakeRefCounted<password_manager::MockPasswordStoreInterface>();
-  EXPECT_CALL(mock_client_, GetAccountPasswordStore)
-      .WillRepeatedly(Return(account_store.get()));
-
-  EXPECT_CALL(*account_store, GetError)
-      .WillOnce(Return(ActionableError::kTrustedVaultKeyNeeded));
-  EXPECT_TRUE(IsSavingBlockedByTrustedVaultError(&mock_client_, nullptr));
-
-  EXPECT_CALL(*account_store, GetError)
-      .WillOnce(Return(ActionableError::kSignInNeeded));
-  EXPECT_FALSE(IsSavingBlockedByTrustedVaultError(&mock_client_, nullptr));
-}
-
-TEST_F(PasswordManagerUtilTrustedVaultErrorTest,
-       IsSavingBlockedByTrustedVaultErrorForLocalPasswordUpdate) {
-  password_manager::MockPasswordFormManagerForUI form_manager;
-  EXPECT_CALL(form_manager, IsPasswordUpdate()).WillOnce(Return(true));
-  EXPECT_CALL(form_manager,
-              IsUpdateAffectingPasswordsStoredInTheGoogleAccount())
-      .WillOnce(Return(false));
-
-  EXPECT_FALSE(
-      IsSavingBlockedByTrustedVaultError(&mock_client_, &form_manager));
-}
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-
-#if BUILDFLAG(IS_IOS)
-class PasswordManagerUtilRecoverableErrorTest : public PasswordManagerUtilTest {
- private:
-  base::test::ScopedFeatureList feature_list_{
-      password_manager::features::kPasswordSaveInContextErrorResolution};
-};
-
-TEST_F(PasswordManagerUtilRecoverableErrorTest,
-       IsSavingBlockedByRecoverableError) {
-  EnableSyncForTestAccount();
-
-  auto account_store =
-      base::MakeRefCounted<password_manager::MockPasswordStoreInterface>();
-  EXPECT_CALL(mock_client_, GetAccountPasswordStore)
-      .WillRepeatedly(Return(account_store.get()));
-
-  EXPECT_CALL(*account_store, GetError)
-      .WillOnce(Return(ActionableError::kTrustedVaultKeyNeeded));
-  EXPECT_TRUE(IsSavingBlockedByRecoverableError(&mock_client_, nullptr));
-
-  EXPECT_CALL(*account_store, GetError)
-      .WillOnce(Return(ActionableError::kSignInNeeded));
-  EXPECT_TRUE(IsSavingBlockedByRecoverableError(&mock_client_, nullptr));
-
-  EXPECT_CALL(*account_store, GetError)
-      .WillOnce(Return(ActionableError::kNeedsPassphrase));
-  EXPECT_TRUE(IsSavingBlockedByRecoverableError(&mock_client_, nullptr));
-
-  EXPECT_CALL(*account_store, GetError)
-      .WillOnce(Return(ActionableError::kKeychainError));
-  EXPECT_FALSE(IsSavingBlockedByRecoverableError(&mock_client_, nullptr));
-}
-
-TEST_F(PasswordManagerUtilRecoverableErrorTest,
-       IsSavingBlockedByRecoverableErrorForLocalPasswordUpdate) {
-  password_manager::MockPasswordFormManagerForUI form_manager;
-  EXPECT_CALL(form_manager, IsPasswordUpdate()).WillOnce(Return(true));
-  EXPECT_CALL(form_manager,
-              IsUpdateAffectingPasswordsStoredInTheGoogleAccount())
-      .WillOnce(Return(false));
-
-  EXPECT_FALSE(IsSavingBlockedByRecoverableError(&mock_client_, &form_manager));
-}
-#endif  // BUILDFLAG(IS_IOS)
-
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST(PasswordManagerUtilBiometricPromoTest,
      ShouldShowPromoWithKillswitchEnabled) {
   base::test::ScopedFeatureList feature_list;
@@ -1183,6 +1024,6 @@ TEST(PasswordManagerUtilBiometricPromoTest,
 
   EXPECT_TRUE(ShouldShowBiometricAuthenticationBeforeFillingPromo(&client));
 }
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 }  // namespace password_manager_util

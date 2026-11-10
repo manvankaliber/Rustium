@@ -25,13 +25,11 @@
 #include "device/bluetooth/test/test_bluetooth_adapter_observer.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "device/bluetooth/test/bluetooth_test_android.h"
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #include "device/bluetooth/test/bluetooth_test_mac.h"
 #elif BUILDFLAG(IS_WIN)
 #include "device/bluetooth/test/bluetooth_test_win.h"
-#elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#elif BUILDFLAG(IS_LINUX)
 #include "device/bluetooth/test/bluetooth_test_bluez.h"
 #endif
 
@@ -580,8 +578,7 @@ TEST_F(BluetoothTest, LowEnergyDeviceNoUUIDs) {
   EXPECT_EQ(0u, uuids.size());
 }
 
-#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX)
 #define MAYBE_GetServiceDataUUIDs_GetServiceDataForUUID \
   GetServiceDataUUIDs_GetServiceDataForUUID
 #else
@@ -595,11 +592,11 @@ TEST_F(BluetoothTest, MAYBE_GetServiceDataUUIDs_GetServiceDataForUUID) {
 #endif
   InitWithFakeAdapter();
 
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_LINUX)
   // TODO(crbug.com/41309944): Remove #if once StartLowEnergyDiscoverySession is
   // implemented for bluez.
   StartLowEnergyDiscoverySession();
-#endif  // !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
   // Receive Advertisement with empty service data.
   BluetoothDevice* device1 = SimulateLowEnergyDevice(4);
@@ -611,7 +608,7 @@ TEST_F(BluetoothTest, MAYBE_GetServiceDataUUIDs_GetServiceDataForUUID) {
   // Receive Advertisement with service data.
   BluetoothDevice* device2 = SimulateLowEnergyDevice(1);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(device2->GetAdvertisingDataFlags().has_value());
   EXPECT_EQ(0x04, device2->GetAdvertisingDataFlags().value());
 #endif
@@ -628,7 +625,7 @@ TEST_F(BluetoothTest, MAYBE_GetServiceDataUUIDs_GetServiceDataForUUID) {
 
 // TODO(crbug.com/41310506): Remove #if once the BlueZ caching behavior is
 // changed.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   // On ChromeOS and Linux, BlueZ persists all service data meaning if
   // a device stops advertising service data for a UUID, BlueZ will
   // still return the cached value for that UUID.
@@ -650,7 +647,7 @@ TEST_F(BluetoothTest, MAYBE_GetServiceDataUUIDs_GetServiceDataForUUID) {
   // Receive Advertisement with new service data and empty manufacturer data.
   SimulateLowEnergyDevice(2);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(device2->GetAdvertisingDataFlags().has_value());
   EXPECT_EQ(0x05, device2->GetAdvertisingDataFlags().value());
 #endif
@@ -669,7 +666,7 @@ TEST_F(BluetoothTest, MAYBE_GetServiceDataUUIDs_GetServiceDataForUUID) {
       std::vector<uint8_t>({0, 2}),
       *device2->GetServiceDataForUUID(BluetoothUUID(kTestUUIDImmediateAlert)));
 
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_LINUX)
   // TODO(crbug.com/41309944): Remove #if once StartLowEnergyDiscoverySession is
   // implemented for bluez.
   // Stop discovery.
@@ -686,10 +683,10 @@ TEST_F(BluetoothTest, MAYBE_GetServiceDataUUIDs_GetServiceDataForUUID) {
             device2->GetServiceDataForUUID(BluetoothUUID(kTestUUIDHeartRate)));
   EXPECT_EQ(nullptr, device2->GetServiceDataForUUID(
                          BluetoothUUID(kTestUUIDImmediateAlert)));
-#endif  // !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_AdvertisementData_Discovery AdvertisementData_Discovery
 #else
 #define MAYBE_AdvertisementData_Discovery DISABLED_AdvertisementData_Discovery
@@ -717,7 +714,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_Discovery) {
   EXPECT_EQ(0, observer.device_changed_count());
 
   EXPECT_EQ(ToInt8(TestRSSI::LOWEST), device->GetInquiryRSSI().value());
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(device->GetAdvertisingDataFlags().has_value());
   EXPECT_EQ(0x04, device->GetAdvertisingDataFlags().value());
 #endif
@@ -758,7 +755,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_Discovery) {
   EXPECT_EQ(2, observer.device_changed_count());
 
   EXPECT_EQ(ToInt8(TestRSSI::LOWER), device->GetInquiryRSSI().value());
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(device->GetAdvertisingDataFlags().has_value());
   EXPECT_EQ(0x05, device->GetAdvertisingDataFlags().value());
 #endif
@@ -811,7 +808,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_Discovery) {
   EXPECT_EQ(4, observer.device_changed_count());
 
   EXPECT_EQ(ToInt8(TestRSSI::LOWEST), device->GetInquiryRSSI().value());
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(device->GetAdvertisingDataFlags().has_value());
   EXPECT_EQ(0x04, device->GetAdvertisingDataFlags().value());
 #endif
@@ -827,7 +824,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_Discovery) {
 
 // TODO(dougt) As I turn on new platforms for WebBluetooth Scanning,
 // I will relax this #ifdef
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN)
 #define MAYBE_DeviceAdvertisementReceived DeviceAdvertisementReceived
 #else
 #define MAYBE_DeviceAdvertisementReceived DISABLED_DeviceAdvertisementReceived
@@ -875,7 +872,7 @@ TEST_F(BluetoothTest, MAYBE_DeviceAdvertisementReceived) {
   EXPECT_EQ(2, observer.device_advertisement_raw_received_count());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GetUUIDs_Connection GetUUIDs_Connection
 #else
 #define MAYBE_GetUUIDs_Connection DISABLED_GetUUIDs_Connection
@@ -1047,7 +1044,7 @@ TEST_F(BluetoothTest, ExtraDidDiscoverServicesCall) {
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_AdvertisementData_DiscoveryDuringConnection \
   AdvertisementData_DiscoveryDuringConnection
 #else
@@ -1103,7 +1100,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_DiscoveryDuringConnection) {
   EXPECT_EQ(UUIDSet({BluetoothUUID(kTestUUIDGenericAccess),
                      BluetoothUUID(kTestUUIDGenericAttribute)}),
             device->GetUUIDs());
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(device->GetAdvertisingDataFlags().has_value());
   EXPECT_EQ(0x04, device->GetAdvertisingDataFlags().value());
 #endif
@@ -1135,7 +1132,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_DiscoveryDuringConnection) {
 
   EXPECT_EQ(3, observer.device_changed_count());
   EXPECT_EQ(ToInt8(TestRSSI::LOWER), device->GetInquiryRSSI().value());
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(device->GetAdvertisingDataFlags().has_value());
   EXPECT_EQ(0x05, device->GetAdvertisingDataFlags().value());
 #endif
@@ -1184,7 +1181,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_DiscoveryDuringConnection) {
   EXPECT_TRUE(device->GetUUIDs().empty());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_AdvertisementData_ConnectionDuringDiscovery \
   AdvertisementData_ConnectionDuringDiscovery
 #else
@@ -1215,7 +1212,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_ConnectionDuringDiscovery) {
 
   EXPECT_EQ(0, observer.device_changed_count());
   EXPECT_EQ(ToInt8(TestRSSI::LOWEST), device->GetInquiryRSSI().value());
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(device->GetAdvertisingDataFlags().has_value());
   EXPECT_EQ(0x04, device->GetAdvertisingDataFlags().value());
 #endif
@@ -1246,7 +1243,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_ConnectionDuringDiscovery) {
 
   EXPECT_EQ(1, observer.device_changed_count());
   EXPECT_EQ(ToInt8(TestRSSI::LOWER), device->GetInquiryRSSI().value());
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(device->GetAdvertisingDataFlags().has_value());
   EXPECT_EQ(0x05, device->GetAdvertisingDataFlags().value());
 #endif
@@ -1286,7 +1283,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_ConnectionDuringDiscovery) {
 
   EXPECT_EQ(3, observer.device_changed_count());
   EXPECT_EQ(ToInt8(TestRSSI::LOWER), device->GetInquiryRSSI().value());
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(device->GetAdvertisingDataFlags().has_value());
   EXPECT_EQ(0x05, device->GetAdvertisingDataFlags().value());
 #endif
@@ -1310,7 +1307,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_ConnectionDuringDiscovery) {
 
   EXPECT_EQ(4, observer.device_changed_count());
   EXPECT_EQ(ToInt8(TestRSSI::LOWEST), device->GetInquiryRSSI().value());
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(device->GetAdvertisingDataFlags().has_value());
   EXPECT_EQ(0x04, device->GetAdvertisingDataFlags().value());
 #endif
@@ -1343,8 +1340,7 @@ TEST_F(BluetoothTest, MAYBE_AdvertisementData_ConnectionDuringDiscovery) {
   EXPECT_FALSE(device->GetInquiryTxPower());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE) || \
-    BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX)
 #define MAYBE_GetName_NullName GetName_NullName
 #else
 #define MAYBE_GetName_NullName DISABLED_GetName_NullName
@@ -1357,9 +1353,7 @@ TEST_F(BluetoothTest, MAYBE_GetName_NullName) {
 // and is non trivial to implement. On ChromeOS, it is not essential for
 // this test to operate, and so it is simply skipped. Android at least
 // does require this step.
-#if !BUILDFLAG(IS_CHROMEOS)
   StartLowEnergyDiscoverySession();
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   BluetoothDevice* device = SimulateLowEnergyDevice(5);
   EXPECT_FALSE(device->GetName());
@@ -1368,13 +1362,13 @@ TEST_F(BluetoothTest, MAYBE_GetName_NullName) {
   // GetAppearance() method is not implemented on those platforms.
   // TODO(crbug.com/41240161): Enable the check below when GetAppearance()
   // is implemented for Android and Mac.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_APPLE)
+#if !BUILDFLAG(IS_APPLE)
   EXPECT_EQ(device->GetNameForDisplay(),
             u"Unknown or Unsupported Device (01:00:00:90:1E:BE)");
 #endif
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_CreateGattConnection CreateGattConnection
 #else
 #define MAYBE_CreateGattConnection DISABLED_CreateGattConnection
@@ -1406,7 +1400,7 @@ TEST_F(BluetoothTest, MAYBE_CreateGattConnection) {
 #endif
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_DisconnectionNotifiesDeviceChanged \
   DisconnectionNotifiesDeviceChanged
 #else
@@ -1435,7 +1429,7 @@ TEST_F(BluetoothTest, MAYBE_DisconnectionNotifiesDeviceChanged) {
   EXPECT_FALSE(device->IsGattConnected());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_BluetoothGattConnection BluetoothGattConnection
 #else
 #define MAYBE_BluetoothGattConnection DISABLED_BluetoothGattConnection
@@ -1494,7 +1488,7 @@ TEST_F(BluetoothTest, MAYBE_BluetoothGattConnection) {
   EXPECT_EQ(device_address, gatt_connections_[1]->GetDeviceAddress());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_BluetoothGattConnection_ConnectWithMultipleOSConnections \
   BluetoothGattConnection_ConnectWithMultipleOSConnections
 #else
@@ -1531,7 +1525,7 @@ TEST_F(BluetoothTest,
   EXPECT_FALSE(gatt_connections_[0]->IsConnected());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_BluetoothGattConnection_AlreadyConnected \
   BluetoothGattConnection_AlreadyConnected
 #else
@@ -1559,7 +1553,7 @@ TEST_F(BluetoothTest, MAYBE_BluetoothGattConnection_AlreadyConnected) {
   EXPECT_TRUE(gatt_connections_[1]->IsConnected());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_BluetoothGattConnection_NewConnectionLeavesPreviousDisconnected \
   BluetoothGattConnection_NewConnectionLeavesPreviousDisconnected
 #else
@@ -1595,7 +1589,7 @@ TEST_F(BluetoothTest,
   EXPECT_TRUE(gatt_connections_[1]->IsConnected());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_BluetoothGattConnection_DisconnectWhenObjectsDestroyed \
   BluetoothGattConnection_DisconnectWhenObjectsDestroyed
 #else
@@ -1629,7 +1623,7 @@ TEST_F(BluetoothTest,
   EXPECT_EQ(1, gatt_disconnection_attempts_);
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_BluetoothGattConnection_DisconnectInProgress \
   BluetoothGattConnection_DisconnectInProgress
 #else
@@ -1677,7 +1671,7 @@ TEST_F(BluetoothTest, MAYBE_BluetoothGattConnection_DisconnectInProgress) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_BluetoothGattConnection_SimulateDisconnect \
   BluetoothGattConnection_SimulateDisconnect
 #else
@@ -1709,58 +1703,8 @@ TEST_F(BluetoothTest, MAYBE_BluetoothGattConnection_SimulateDisconnect) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(BluetoothTest, BluetoothGattConnection_NullAndroidGattAfterDisconnect) {
-  InitWithFakeAdapter();
-  StartLowEnergyDiscoverySession();
-  BluetoothDevice* device = SimulateLowEnergyDevice(3);
 
-  base::test::TestFuture<std::unique_ptr<BluetoothGattConnection>,
-                         std::optional<BluetoothDevice::ConnectErrorCode>>
-      connected;
-  device->CreateGattConnection(connected.GetCallback(), std::nullopt);
-  SimulateGattConnection(device);
-  ASSERT_TRUE(connected.Get<0>());
-  SimulateGattDisconnection(device);
-  ASSERT_TRUE(
-      base::test::RunUntil([device] { return !device->IsGattConnected(); }));
-
-  FailNextGattConnection(device);
-  base::test::TestFuture<std::unique_ptr<BluetoothGattConnection>,
-                         std::optional<BluetoothDevice::ConnectErrorCode>>
-      failed;
-  device->CreateGattConnection(failed.GetCallback(), std::nullopt);
-  EXPECT_FALSE(failed.Get<0>());
-  EXPECT_EQ(BluetoothDevice::ERROR_FAILED, failed.Get<1>());
-  device->DisconnectGatt();
-
-  base::test::TestFuture<std::unique_ptr<BluetoothGattConnection>,
-                         std::optional<BluetoothDevice::ConnectErrorCode>>
-      retried;
-  device->CreateGattConnection(retried.GetCallback(), std::nullopt);
-  SimulateGattConnection(device);
-  EXPECT_TRUE(retried.Get<0>());
-}
-
-TEST_F(BluetoothTest, BluetoothGattConnection_DisconnectGattWithoutCallback) {
-  InitWithFakeAdapter();
-  StartLowEnergyDiscoverySession();
-  BluetoothDevice* device = SimulateLowEnergyDevice(3);
-
-  base::test::TestFuture<std::unique_ptr<BluetoothGattConnection>,
-                         std::optional<BluetoothDevice::ConnectErrorCode>>
-      future;
-  device->CreateGattConnection(future.GetCallback(),
-                               /*service_uuid=*/std::nullopt);
-
-  device->DisconnectGatt();
-
-  EXPECT_FALSE(future.Get<0>());
-  EXPECT_EQ(BluetoothDevice::ERROR_FAILED, future.Get<1>());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_BluetoothGattConnection_DisconnectGatt_SimulateConnect \
   BluetoothGattConnection_DisconnectGatt_SimulateConnect
 #else
@@ -1797,11 +1741,6 @@ TEST_F(BluetoothTest,
   // pending cancels the in-flight attempt, so the connection never completes.
   // Other platforms let the pending connection finish before applying the
   // disconnect, so the connection succeeds and is then torn down below.
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_FALSE(connected);
-  EXPECT_EQ(2, gatt_disconnection_attempts_);
-  EXPECT_TRUE(gatt_connections_.empty());
-#else
   EXPECT_TRUE(connected);
 #if !BUILDFLAG(IS_WIN)
   EXPECT_EQ(1, gatt_disconnection_attempts_);
@@ -1811,10 +1750,9 @@ TEST_F(BluetoothTest,
   ResetEventCounts();
   SimulateGattDisconnection(device);
   base::RunLoop().RunUntilIdle();
-#endif
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_BluetoothGattConnection_DisconnectGatt_SimulateDisconnect \
   BluetoothGattConnection_DisconnectGatt_SimulateDisconnect
 #else
@@ -1843,14 +1781,7 @@ TEST_F(BluetoothTest,
                   })));
   EXPECT_EQ(1, gatt_connection_attempts_);
   EXPECT_EQ(
-#if BUILDFLAG(IS_ANDROID)
-      // Closing a GATT connection also disconnects on Android.
-      // TODO(crbug.com/40670359): this value probably shouldn't be different on
-      // Android.
-      2,
-#else
       1,
-#endif
       gatt_disconnection_attempts_);
   EXPECT_EQ(BluetoothDevice::ERROR_FAILED, last_connect_error_code_);
   for (const auto& connection : gatt_connections_) {
@@ -1858,7 +1789,7 @@ TEST_F(BluetoothTest,
   }
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_BluetoothGattConnection_DisconnectGatt_Cleanup \
   BluetoothGattConnection_DisconnectGatt_Cleanup
 #else
@@ -1913,7 +1844,7 @@ TEST_F(BluetoothTest, MAYBE_BluetoothGattConnection_DisconnectGatt_Cleanup) {
   EXPECT_EQ(2, observer.gatt_services_discovered_count());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_BluetoothGattConnection_ErrorAfterConnection \
   BluetoothGattConnection_ErrorAfterConnection
 #else
@@ -1941,7 +1872,7 @@ TEST_F(BluetoothTest, MAYBE_BluetoothGattConnection_ErrorAfterConnection) {
       })));
 
   EXPECT_EQ(1, gatt_connection_attempts_);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   // TODO(crbug.com/40452547): Change to ERROR_AUTH_FAILED. We should be getting
   // a callback only with the first error, but our android framework doesn't yet
   // support sending different errors.
@@ -1955,7 +1886,7 @@ TEST_F(BluetoothTest, MAYBE_BluetoothGattConnection_ErrorAfterConnection) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
 #define MAYBE_GattServices_ObserversCalls GattServices_ObserversCalls
 #else
 #define MAYBE_GattServices_ObserversCalls DISABLED_GattServices_ObserversCalls
@@ -1981,7 +1912,7 @@ TEST_F(BluetoothTest, MAYBE_GattServices_ObserversCalls) {
   EXPECT_EQ(1, observer.gatt_services_discovered_count());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
 #define MAYBE_GattServicesDiscovered_Success GattServicesDiscovered_Success
 #else
 #define MAYBE_GattServicesDiscovered_Success \
@@ -2011,7 +1942,7 @@ TEST_F(BluetoothTest, MAYBE_GattServicesDiscovered_Success) {
   EXPECT_EQ(2u, device->GetGattServices().size());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 #define MAYBE_GattServicesDiscovered_AfterDeleted \
   GattServicesDiscovered_AfterDeleted
 #else
@@ -2043,7 +1974,7 @@ TEST_F(BluetoothTest, MAYBE_GattServicesDiscovered_AfterDeleted) {
       std::vector<std::string>({kTestUUIDGenericAccess, kTestUUIDHeartRate}));
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 #define MAYBE_GattServicesDiscoveredError_AfterDeleted \
   GattServicesDiscoveredError_AfterDeleted
 #else
@@ -2074,7 +2005,7 @@ TEST_F(BluetoothTest, MAYBE_GattServicesDiscoveredError_AfterDeleted) {
   base::RunLoop().RunUntilIdle();
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GattServicesDiscovered_AfterDisconnection \
   GattServicesDiscovered_AfterDisconnection
 #else
@@ -2108,7 +2039,7 @@ TEST_F(BluetoothTest, MAYBE_GattServicesDiscovered_AfterDisconnection) {
   EXPECT_EQ(0u, device->GetGattServices().size());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GattServicesDiscoveredError_AfterDisconnection \
   GattServicesDiscoveredError_AfterDisconnection
 #else
@@ -2139,7 +2070,7 @@ TEST_F(BluetoothTest, MAYBE_GattServicesDiscoveredError_AfterDisconnection) {
   EXPECT_EQ(0u, device->GetGattServices().size());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GetGattServices_and_GetGattService \
   GetGattServices_and_GetGattService
 #else
@@ -2175,7 +2106,7 @@ TEST_F(BluetoothTest, MAYBE_GetGattServices_and_GetGattService) {
   EXPECT_TRUE(device->GetGattService(service_id3));
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GetGattServices_FindNone GetGattServices_FindNone
 #else
 #define MAYBE_GetGattServices_FindNone DISABLED_GetGattServices_FindNone
@@ -2198,7 +2129,7 @@ TEST_F(BluetoothTest, MAYBE_GetGattServices_FindNone) {
   EXPECT_EQ(0u, device->GetGattServices().size());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GetGattServices_DiscoveryError GetGattServices_DiscoveryError
 #else
 #define MAYBE_GetGattServices_DiscoveryError \
@@ -2247,7 +2178,7 @@ TEST_F(BluetoothTest, DISABLED_GattServicesDiscovered_SomeServicesBlocked) {
   EXPECT_EQ(3u, device->GetGattServices().size());
 }
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 TEST_F(BluetoothTest, GetDeviceTransportType) {
   InitWithFakeAdapter();
   StartLowEnergyDiscoverySession();
@@ -2260,10 +2191,10 @@ TEST_F(BluetoothTest, GetDeviceTransportType) {
   BluetoothDevice* device3 = SimulateClassicDevice();
   EXPECT_EQ(BLUETOOTH_TRANSPORT_CLASSIC, device3->GetType());
 }
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GetPrimaryServices GetPrimaryServices
 #else
 #define MAYBE_GetPrimaryServices DISABLED_GetPrimaryServices
@@ -2292,7 +2223,7 @@ TEST_F(BluetoothTest, MAYBE_GetPrimaryServices) {
   EXPECT_EQ(3u, device->GetPrimaryServices().size());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GetPrimaryServicesByUUID GetPrimaryServicesByUUID
 #else
 #define MAYBE_GetPrimaryServicesByUUID DISABLED_GetPrimaryServicesByUUID
@@ -2382,7 +2313,7 @@ TEST_P(BluetoothTestWinrt, FalseStatusChangedTest) {
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_ServiceSpecificDiscovery ServiceSpecificDiscovery
 #else
 #define MAYBE_ServiceSpecificDiscovery DISABLED_ServiceSpecificDiscovery

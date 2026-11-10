@@ -44,11 +44,6 @@ namespace base {
 class FilePath;
 }  // namespace base
 
-#if BUILDFLAG(IS_ANDROID)
-namespace discardable_memory {
-class DiscardableSharedMemoryManager;
-}
-#endif
 
 namespace gfx {
 class ScopedAnimationDurationScaleMode;
@@ -344,7 +339,6 @@ class BrowserTestBase : public ::testing::Test {
   // TODO(pkasting): Consider an alternate solution, e.g. changing tests to use
   // a `ui::MockOsSettingsProvider` instead of the
   // `ash::DarkLightModeController` and removing the `#if` guards here.
-#if !BUILDFLAG(IS_CHROMEOS)
   // Browser tests should not use the current machine settings for theming, but
   // should default to a consistent baseline. Instantiating
   // `ui::OsSettingsProvider` will both provide sane default behavior and
@@ -352,7 +346,6 @@ class BrowserTestBase : public ::testing::Test {
   // platform-specific subclass.
   ui::OsSettingsProvider os_settings_provider_{
       ui::OsSettingsProvider::PriorityLevel::kTesting};
-#endif
 
   // When true, the compositor will produce pixel output that can be read back
   // for pixel tests.
@@ -401,15 +394,6 @@ class BrowserTestBase : public ::testing::Test {
   bool handle_sigterm_;
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  // Mimic the destruction order of ContentMain:
-  // - ContentMainRunnerImpl::Shutdown() resets ipc support and shuts down the
-  //   BrowserTaskExecutor.
-  // - ContentMainRunnerImpl::~ContentMainRunnerImpl().
-  // - DiscardableSharedMemoryManager, owned by ContentMainRunnerImpl, is reset.
-  std::unique_ptr<discardable_memory::DiscardableSharedMemoryManager>
-      discardable_shared_memory_manager_;
-#endif
 
   // Whether allow tests to provide --enable-features and --disable-features
   // switches. Tests such as `GuestLoginTest` passes feature switches from PRE_

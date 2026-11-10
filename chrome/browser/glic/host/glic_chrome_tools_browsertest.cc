@@ -56,7 +56,6 @@ IN_PROC_BROWSER_TEST_F(GlicChromeToolsBrowserTest,
 }
 
 // Tool execution via AiOverlayTools is currently only implemented on desktop.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicChromeToolsBrowserTest, testExecuteToolSuccess) {
   int initial_tab_count = GetTabListInterface()->GetTabCount();
   ASSERT_OK(OpenGlicForActiveTab());
@@ -66,7 +65,6 @@ IN_PROC_BROWSER_TEST_F(GlicChromeToolsBrowserTest, testExecuteToolSuccess) {
       GetTabListInterface()->GetActiveTab()->GetContents()->GetVisibleURL(),
       GURL("https://example.com"));
 }
-#endif
 
 }  // namespace
 }  // namespace glic

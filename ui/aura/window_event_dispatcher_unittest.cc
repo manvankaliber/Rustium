@@ -3957,12 +3957,10 @@ TEST_F(WindowEventDispatcherTest, ReleaseWithoutTargetEndsPress) {
   EXPECT_FALSE(env->ConsumeTouchForDrag(window.get()));
   EXPECT_EQ(outside, env->ConsumeTouchForDrag(other_window.get()));
   dispatch_touch(ui::EventType::kTouchReleased, outside, /*id=*/1);
-#if !BUILDFLAG(IS_CHROMEOS)
   // On ChromeOS, a synthetic kTouchCancelled without a native event preserves
   // global touch-down state for exo drag handoff while still ending the
   // per-window active touch.
   EXPECT_FALSE(env->is_touch_down());
-#endif
 
   window_handler.Reset();
   other_handler.Reset();

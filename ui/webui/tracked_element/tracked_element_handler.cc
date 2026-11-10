@@ -21,15 +21,12 @@
 #include "ui/webui/tracked_element/element_highlighter_webui.h"
 #include "ui/webui/tracked_element/tracked_element_web_ui.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/view_utils.h"
 #include "ui/views/widget/widget.h"
-#endif
 
 namespace ui {
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace {
 
 views::WebView* FindWebViewWithContentsRecursive(
@@ -54,7 +51,6 @@ views::WebView* FindWebViewWithContentsRecursive(
 }
 
 }  // namespace
-#endif
 
 TrackedElementHandler::TrackedElementHandler(
     content::WebUIController* controller)
@@ -475,7 +471,6 @@ void TrackedElementHandler::ReportBadMessage(
       description, id->native_identifier, id->secondary_identifier));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void TrackedElementHandler::SetWebViewForTesting(views::WebView* web_view) {
   web_view_tracker_.SetView(web_view);
 }
@@ -503,6 +498,5 @@ views::WebView* TrackedElementHandler::GetWebView() const {
   }
   return web_view;
 }
-#endif
 
 }  // namespace ui

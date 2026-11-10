@@ -3,9 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="color-scheme" content="light dark">
-<if expr="is_android">
-<meta name="viewport" content="width=device-width">
-</if>
 <script type="module" src="net_export.js"></script>
 <link rel="stylesheet" href="chrome://resources/css/text_defaults.css">
 <link rel="stylesheet" href="net_export.css">
@@ -38,16 +35,9 @@
       <div class="section-container">
         Click the button to start logging future network activity to a file on
         disk.
-        <if expr="not(is_ios)">
         The log includes details of network activity from all of Chrome,
         including incognito and non-incognito tabs, visited URLs, and
         information about the network configuration.
-        </if>
-        <if expr="is_ios">
-        The log includes details of network activity handled by Chrome's
-        internal network stack. Note, this does not include network requests
-        for ordinary web content, which are instead handled by WKWebView.
-        </if>
         <a href="https://dev.chromium.org/for-testers/providing-network-details"
            target="_blank">
         See the Chromium website for more detailed instructions</a>.
@@ -146,24 +136,15 @@
     <div id="state-stopped" hidden>
       <h2>Log file written</h2>
 
-      <if expr="is_ios or is_android">
-      <button id="mobile-email">Email Log</button>
-      </if>
 
-      <if expr="not(is_ios or is_android)">
       <button id="show-file">Show File</button>
-      </if>
 
       <button id="startover">
         Start Over
       </button>
 
       <div class="section-container">
-        <if expr="is_ios or is_android">
-        Share the log by emailing it, and you are done!
-        </if>
 
-        <if expr="not(is_ios or is_android)">
         <p>Attach the log file to your bug report, and you are done!</p>
 
         <p>
@@ -186,7 +167,6 @@
                 net/tools/truncate_net_log.py</a>.</li>
           </ul>
         </div>
-        </if>
       </div>
 
       <!-- TODO(eroman): This is duplicated with the logging state -->

@@ -45,24 +45,7 @@
 #include "content/public/browser/save_page_type.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "base/check_deref.h"
-#include "base/json/values_util.h"
-#include "base/scoped_observation.h"
-#include "chrome/browser/ash/drive/drive_integration_service.h"
-#include "chrome/browser/ash/drive/drive_integration_service_factory.h"
-#include "chrome/browser/ash/drive/file_system_util.h"
-#include "chrome/browser/ash/file_manager/path_util.h"
-#include "chrome/browser/ui/webui/ash/cloud_upload/cloud_upload_util.h"
-#include "chromeos/ash/components/browser_context_helper/annotated_account_id.h"
-#include "chromeos/ash/components/dbus/cros_disks/cros_disks_client.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 #include "components/safe_browsing/content/common/file_type_policies/file_type_policies.h"
@@ -81,23 +64,18 @@ namespace {
 // Consider downloads 'dangerous' if they go to the home directory on Linux and
 // to the desktop on any platform.
 bool DownloadPathIsDangerous(const base::FilePath& download_path) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   base::FilePath home_dir = base::GetHomeDir();
   if (download_path == home_dir) {
     return true;
   }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  // Android does not have a desktop dir.
-  return false;
-#else
   base::FilePath desktop_dir;
   if (!base::PathService::Get(base::DIR_USER_DESKTOP, &desktop_dir)) {
     return false;
   }
   return (download_path == desktop_dir);
-#endif
 }
 
 base::FilePath::StringType StringToFilePathString(const std::string& src) {
@@ -141,117 +119,13 @@ DefaultDownloadDirectory& GetDefaultDownloadDirectorySingleton() {
 
 }  // namespace
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-// Handles DriveFS disabling event.
-class DownloadPrefs::DriveHandler
-    : public drive::DriveIntegrationService::Observer {
- public:
-  DriveHandler(Profile* profile, drive::DriveIntegrationService* service)
-      : profile_(CHECK_DEREF(profile)), service_(service) {
-    CHECK(service);
-    // Initialize to the first state.
-    if (!drive::util::IsDriveEnabledForProfile(profile)) {
-      OnDriveWillBeDisabled();
-    }
-
-    observation_.Observe(service);
-  }
-
-  DriveHandler(const DriveHandler&) = delete;
-  const DriveHandler& operator=(const DriveHandler&) = delete;
-
-  ~DriveHandler() override = default;
-
-  void OnDriveIntegrationServiceDestroyed() override {
-    observation_.Reset();
-    service_ = nullptr;
-  }
-
-  void OnDriveWillBeDisabled() override {
-    auto* account_id = ash::AnnotatedAccountId::Get(&profile_.get());
-    if (!account_id || !account_id->HasAccountIdKey()) {
-      return;
-    }
-
-    auto* prefs = profile_->GetPrefs();
-    const auto download_path =
-        prefs->GetFilePath(prefs::kDownloadDefaultDirectory);
-    if (!service_->GetMountPointPath().IsParent(download_path)) {
-      // The download path is not under Drive.
-      return;
-    }
-
-    // Here, the download default path was somewhere in drivefs. As
-    // it is disabled, update it to avoid writing to disabled drivefs.
-    prefs->SetFilePath(
-        prefs::kDownloadDefaultDirectory,
-        file_manager::util::GetDownloadsFolderForProfile(&profile_.get()));
-  }
-
- private:
-  const raw_ref<Profile> profile_;
-  raw_ptr<drive::DriveIntegrationService> service_;
-
-  base::ScopedObservation<drive::DriveIntegrationService,
-                          drive::DriveIntegrationService::Observer>
-      observation_{this};
-};
-
-#endif
 
 DownloadPrefs::DownloadPrefs(Profile* profile) : profile_(profile) {
   PrefService* prefs = profile->GetPrefs();
   pref_change_registrar_.Init(prefs);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On Chrome OS, the default download directory is different for each profile.
-  // If the profile-unaware default path (from GetDefaultDownloadDirectory())
-  // is set (this happens during the initial preference registration in static
-  // RegisterProfilePrefs()), alter by GetDefaultDownloadDirectoryForProfile().
-  // file_manager::util::MigratePathFromOldFormat will do this.
-  const char* const kPathPrefs[] = {prefs::kSaveFileDefaultDirectory,
-                                    prefs::kDownloadDefaultDirectory};
-  for (const char* path_pref : kPathPrefs) {
-    const PrefService::Preference* pref = prefs->FindPreference(path_pref);
-    // Update the download directory if the pref is from user pref store or
-    // default pref.
-    if (pref->IsUserControlled()) {
-      const base::FilePath current = prefs->GetFilePath(path_pref);
-      base::FilePath migrated;
-      if (!current.empty() &&
-          file_manager::util::MigratePathFromOldFormat(
-              profile_, GetDefaultDownloadDirectory(), current, &migrated)) {
-        prefs->SetFilePath(path_pref, migrated);
-      } else if (file_manager::util::MigrateToDriveFs(profile_, current,
-                                                      &migrated)) {
-        prefs->SetFilePath(path_pref, migrated);
-      } else if (download_dir_util::ExpandDrivePolicyVariable(profile_, current,
-                                                              &migrated)) {
-        prefs->SetFilePath(path_pref, migrated);
-      }
-    } else if (pref->IsDefaultValue()) {
-      // For default pref, the default download dir is set when profile is not
-      // initialized. As a result, reset the default pref value now.
-      prefs->SetDefaultPrefValue(
-          path_pref,
-          base::FilePathToValue(GetDefaultDownloadDirectoryForProfile()));
-    }
-  }
 
-  if (auto* drive_service =
-          drive::DriveIntegrationServiceFactory::FindForProfile(profile_)) {
-    drive_handler_ = std::make_unique<DriveHandler>(profile_, drive_service);
-  }
-
-  // Ensure that the default download directory exists.
-  content::DownloadManager::GetTaskRunner()->PostTask(
-      FROM_HERE, base::BindOnce(base::IgnoreResult(&base::CreateDirectory),
-                                GetDefaultDownloadDirectoryForProfile()));
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   should_open_pdf_in_system_reader_ =
       prefs->GetBoolean(prefs::kOpenPdfDownloadInSystemReader);
 #endif
@@ -278,12 +152,6 @@ DownloadPrefs::DownloadPrefs(Profile* profile) : profile_(profile) {
   }
 
   prompt_for_download_.Init(prefs::kPromptForDownload, prefs);
-#if BUILDFLAG(IS_ANDROID)
-  prompt_for_download_android_.Init(prefs::kPromptForDownloadAndroid, prefs);
-  RecordDownloadPromptStatus(
-      static_cast<DownloadPromptStatus>(*prompt_for_download_android_));
-  auto_open_pdf_enabled_.Init(prefs::kAutoOpenPdfEnabled, prefs);
-#endif
   download_path_.Init(prefs::kDownloadDefaultDirectory, prefs);
   save_file_path_.Init(prefs::kSaveFileDefaultDirectory, prefs);
   save_file_type_.Init(prefs::kSaveFileType, prefs);
@@ -377,32 +245,13 @@ void DownloadPrefs::RegisterProfilePrefs(
                                  default_download_path);
   registry->RegisterFilePathPref(prefs::kSaveFileDefaultDirectory,
                                  default_download_path);
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   registry->RegisterBooleanPref(prefs::kOpenPdfDownloadInSystemReader, false);
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  DownloadPromptStatus download_prompt_status =
-      DownloadPromptStatus::SHOW_INITIAL;
-
-  registry->RegisterIntegerPref(
-      prefs::kPromptForDownloadAndroid,
-      static_cast<int>(download_prompt_status),
-      user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
-
-  registry->RegisterBooleanPref(prefs::kShowMissingSdCardErrorAndroid, true);
-  registry->RegisterBooleanPref(prefs::kAutoOpenPdfEnabled, false);
-  registry->RegisterListPref(prefs::kDownloadAppVerificationPromptTimestamps,
-                             {});
 #endif
 }
 
 base::FilePath DownloadPrefs::GetDefaultDownloadDirectoryForProfile() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  return file_manager::util::GetDownloadsFolderForProfile(profile_);
-#else
   return GetDefaultDownloadDirectory();
-#endif
 }
 
 // static
@@ -468,25 +317,7 @@ bool DownloadPrefs::PromptForDownload() const {
   CHECK(!download_path_.IsManaged() || !prompt_for_download_.GetValue(),
         base::NotFatalUntil::M161);
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_desktop() &&
-      base::FeatureList::IsEnabled(
-          download::features::kEnableDownloadSaveAsSystemFileDialog)) {
-    return *prompt_for_download_;
-  }
-
-  // Use |prompt_for_download_| preference for enterprise policy.
-  if (prompt_for_download_.IsManaged())
-    return prompt_for_download_.GetValue();
-
-  // Return the Android prompt for download status when not using the OS file
-  // picker. As long as they haven't indicated in preferences they do not want
-  // the dialog shown, show the dialog.
-  return *prompt_for_download_android_ !=
-         static_cast<int>(DownloadPromptStatus::DONT_SHOW);
-#else
   return *prompt_for_download_;
-#endif
 }
 
 bool DownloadPrefs::IsDownloadPathManaged() const {
@@ -566,8 +397,7 @@ void DownloadPrefs::DisableAutoOpenByUserBasedOnExtension(
   SaveAutoOpenState();
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 void DownloadPrefs::SetShouldOpenPdfInSystemReader(bool should_open) {
   if (should_open_pdf_in_system_reader_ == should_open)
     return;
@@ -577,23 +407,12 @@ void DownloadPrefs::SetShouldOpenPdfInSystemReader(bool should_open) {
 }
 
 bool DownloadPrefs::ShouldOpenPdfInSystemReader() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, there is always an "app" to handle PDF files. E.g., a "View"
-  // app which configures a file handler to open in a browser tab. However,
-  // there is no browser UI to manipulate the kOpenPdfDownloadInSystemReader
-  // download pref. Instead, user preference is managed via the Files app "Open
-  // with..." UI. Return true here to respect the user's "Open with" preference,
-  // and retain consistency with other shelf UI for recent downloads (Tote).
-  return true;
-#else
   return should_open_pdf_in_system_reader_;
-#endif
 }
 #endif
 
 void DownloadPrefs::ResetAutoOpenByUser() {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   SetShouldOpenPdfInSystemReader(false);
 #endif
   auto_open_by_user_.clear();
@@ -604,11 +423,6 @@ void DownloadPrefs::SkipSanitizeDownloadTargetPathForTesting() {
   skip_sanitize_download_target_path_for_testing_ = true;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool DownloadPrefs::IsAutoOpenPdfEnabled() {
-  return *auto_open_pdf_enabled_;
-}
-#endif
 
 void DownloadPrefs::SaveAutoOpenState() {
   std::string extensions;
@@ -628,9 +442,7 @@ void DownloadPrefs::SaveAutoOpenState() {
 }
 
 bool DownloadPrefs::CanPlatformEnableAutoOpenForPdf() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  return false;  // There is no UI for auto-open on ChromeOS.
-#elif BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   return ShouldOpenPdfInSystemReader();
 #else
   return false;
@@ -642,74 +454,6 @@ base::FilePath DownloadPrefs::SanitizeDownloadTargetPath(
   if (skip_sanitize_download_target_path_for_testing_)
     return path;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  base::FilePath migrated_drive_path;
-  // Managed prefs may force a legacy Drive path as the download path. Ensure
-  // the path is valid when DriveFS is enabled.
-  if (!path.empty() && file_manager::util::MigratePathFromOldFormat(
-                           profile_, GetDefaultDownloadDirectory(), path,
-                           &migrated_drive_path)) {
-    return SanitizeDownloadTargetPath(migrated_drive_path);
-  }
-  if (file_manager::util::MigrateToDriveFs(profile_, path,
-                                           &migrated_drive_path)) {
-    return SanitizeDownloadTargetPath(migrated_drive_path);
-  }
-  if (download_dir_util::ExpandDrivePolicyVariable(profile_, path,
-                                                   &migrated_drive_path)) {
-    return SanitizeDownloadTargetPath(migrated_drive_path);
-  }
-
-  base::FilePath onedrive_path;
-  if (download_dir_util::ExpandOneDrivePolicyVariable(profile_, path,
-                                                      &onedrive_path)) {
-    return SanitizeDownloadTargetPath(onedrive_path);
-  }
-
-  // If |path| isn't absolute, fall back to the default directory.
-  base::FilePath profile_myfiles_path =
-      file_manager::util::GetMyFilesFolderForProfile(profile_);
-
-  if (!path.IsAbsolute() || path.ReferencesParent())
-    return profile_myfiles_path;
-
-  // Allow myfiles directory and subdirs.
-  if (profile_myfiles_path == path || profile_myfiles_path.IsParent(path))
-    return path;
-
-  // Allow paths under the drive mount point.
-  drive::DriveIntegrationService* integration_service =
-      drive::DriveIntegrationServiceFactory::FindForProfile(profile_);
-  if (integration_service && integration_service->is_enabled() &&
-      integration_service->GetMountPointPath().IsParent(path)) {
-    return path;
-  }
-
-  // Allow paths under /tmp if the feature flag is enabled.
-  base::FilePath temp_path;
-  if (base::FeatureList::IsEnabled(ash::features::kSkyVault) &&
-      base::GetTempDir(&temp_path) &&
-      ((temp_path == path) || temp_path.IsParent(path))) {
-    return path;
-  }
-
-  // Allow removable media.
-  if (ash::CrosDisksClient::GetRemovableDiskMountPoint().IsParent(path))
-    return path;
-
-  // Allow paths under the Android files mount point.
-  if (base::FilePath(file_manager::util::GetAndroidFilesPath()).IsParent(path))
-    return path;
-
-  // Allow Linux files mount point and subdirs.
-  base::FilePath linux_files =
-      file_manager::util::GetCrostiniMountDirectory(profile_);
-  if (linux_files == path || linux_files.IsParent(path))
-    return path;
-
-  // Fall back to the default download directory for all other paths.
-  return GetDefaultDownloadDirectoryForProfile();
-#else
   // If the stored download directory is an absolute path, we presume it's
   // correct; there's not really much more validation we can do here.
   if (path.IsAbsolute())
@@ -718,7 +462,6 @@ base::FilePath DownloadPrefs::SanitizeDownloadTargetPath(
   // When the default download directory is *not* an absolute path, we use the
   // profile directory as a safe default.
   return GetDefaultDownloadDirectoryForProfile();
-#endif
 }
 
 void DownloadPrefs::UpdateAutoOpenByPolicy() {

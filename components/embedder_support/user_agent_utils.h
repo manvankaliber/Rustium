@@ -121,24 +121,6 @@ std::string BuildUnifiedPlatformUserAgentFromProduct(
 // if on a codenamed (i.e. not a release) build of an Android.
 std::string BuildModelInfo();
 
-#if BUILDFLAG(IS_ANDROID)
-// Helper function to generate a full user agent string given a short
-// product name and some extra text to be added to the OS info.
-// This is currently only used for Android Web View.
-std::string BuildUserAgentFromProductAndExtraOSInfo(
-    const std::string& product,
-    const std::string& extra_os_info,
-    IncludeAndroidBuildNumber include_android_build_number);
-
-// Helper function to generate just the OS info.
-std::string GetAndroidOSInfo(
-    IncludeAndroidBuildNumber include_android_build_number,
-    IncludeAndroidModel include_android_model);
-
-// Returns the CPU architecture for Android desktop or desktop mode ("arm" or
-// "x86").
-std::string GetAndroidDesktopCpuArchitecture();
-#endif
 
 // Builds a full user agent string given a string describing the OS and a
 // product name.

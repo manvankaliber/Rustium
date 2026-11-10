@@ -112,9 +112,8 @@ source_set("unit_tests") {
       "//ui/base",
       "//url",
     ]
-    if (!is_ios) {
-      deps += [ "//content/test:test_support" ]
-    }
+
+    deps += [ "//content/test:test_support" ]
   }
 }
 

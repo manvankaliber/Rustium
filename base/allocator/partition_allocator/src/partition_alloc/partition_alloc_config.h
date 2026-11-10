@@ -35,18 +35,7 @@ static_assert(sizeof(void*) == 8, "");
 static_assert(sizeof(void*) != 8, "");
 #endif  // PA_CONFIG(HAS_64_BITS_POINTERS)
 
-#if PA_BUILDFLAG(HAS_64_BIT_POINTERS) && PA_BUILDFLAG(IS_IOS)
-// Allow PA to select an alternate pool size at run-time before initialization,
-// rather than using a single constexpr value.
-//
-// This is needed on iOS because iOS test processes can't handle large pools
-// (see crbug.com/1250788).
-//
-// This setting is specific to 64-bit, as 32-bit has a different implementation.
-#define PA_CONFIG_DYNAMICALLY_SELECT_POOL_SIZE() 1
-#else
 #define PA_CONFIG_DYNAMICALLY_SELECT_POOL_SIZE() 0
-#endif  // PA_BUILDFLAG(HAS_64_BIT_POINTERS) && PA_BUILDFLAG(IS_IOS)
 
 // POSIX is not only UNIX, e.g. macOS and other OSes. We do use Linux-specific
 // features such as futex(2).
@@ -120,9 +109,7 @@ static_assert(sizeof(void*) == 8);
 //
 // Regardless, the "normal" TLS access is fast on x86_64 (see partition_tls.h),
 // so don't bother with thread_local anywhere.
-#if !(PA_BUILDFLAG(IS_WIN) && PA_BUILDFLAG(IS_COMPONENT_BUILD)) && \
-    !PA_BUILDFLAG(IS_APPLE) && !PA_BUILDFLAG(IS_LINUX) &&          \
-    !PA_BUILDFLAG(IS_CHROMEOS)
+#if !(PA_BUILDFLAG(IS_WIN) && PA_BUILDFLAG(IS_COMPONENT_BUILD)) && !PA_BUILDFLAG(IS_APPLE) && !PA_BUILDFLAG(IS_LINUX)
 #define PA_CONFIG_THREAD_LOCAL_TLS() 1
 #else
 #define PA_CONFIG_THREAD_LOCAL_TLS() 0
@@ -135,9 +122,7 @@ static_assert(sizeof(void*) == 8);
 // - PA_BUILDFLAG(DCHECKS_ARE_ON) due to runtime cost
 // - thread_local TLS to simplify the implementation
 // - Not on Android due to bot failures
-#if PA_BUILDFLAG(DCHECKS_ARE_ON) &&                \
-    PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && \
-    PA_CONFIG(THREAD_LOCAL_TLS) && !PA_BUILDFLAG(IS_ANDROID)
+#if PA_BUILDFLAG(DCHECKS_ARE_ON) && PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC) && PA_CONFIG(THREAD_LOCAL_TLS)
 #define PA_CONFIG_HAS_ALLOCATION_GUARD() 1
 #else
 #define PA_CONFIG_HAS_ALLOCATION_GUARD() 0
@@ -145,7 +130,7 @@ static_assert(sizeof(void*) == 8);
 
 // On Android, we have to go through emutls, since this is always a shared
 // library, so don't bother.
-#if PA_CONFIG(THREAD_LOCAL_TLS) && !PA_BUILDFLAG(IS_ANDROID)
+#if PA_CONFIG(THREAD_LOCAL_TLS)
 #define PA_CONFIG_THREAD_CACHE_FAST_TLS() 1
 #else
 #define PA_CONFIG_THREAD_CACHE_FAST_TLS() 0
@@ -165,8 +150,7 @@ constexpr bool kUseLazyCommit = false;
 // limited system-wide resource on this platform). It has been evaluated on
 // macOS, where it yielded no beenefit (nor any real downside).
 constexpr bool kUseFewerMemoryRegions =
-#if PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_ANDROID) || \
-    PA_BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(IS_LINUX)
     true;
 #else
     false;

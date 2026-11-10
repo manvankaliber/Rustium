@@ -31,9 +31,6 @@
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "services/network/public/mojom/tcp_socket.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif
 
 namespace content {
 namespace {
@@ -43,14 +40,6 @@ const char kTestResponse[] = "hello socket broker";
 class SandboxedSocketBrokerBrowserTest : public ContentBrowserTest {
  public:
   SandboxedSocketBrokerBrowserTest() {
-#if BUILDFLAG(IS_ANDROID)
-    // On older Android the Connect callback is not called with the featurelist
-    // enabled. Since it is not strictly necessary to test socket brokering core
-    // functionality with the featurelist we won't enable it on Android versions
-    // prior to R.
-    const int sdk_version = base::android::android_info::sdk_int();
-    check_sandbox_ = sdk_version >= base::android::SdkVersion::SDK_VERSION_R;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
     if (!sandbox::policy::features::IsNetworkSandboxSupported()) {

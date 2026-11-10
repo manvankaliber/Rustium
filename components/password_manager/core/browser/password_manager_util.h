@@ -167,7 +167,7 @@ const password_manager::StoredCredential* GetMatchForUpdating(
 password_manager::PasswordForm MakeNormalizedBlocklistedForm(
     password_manager::PasswordFormDigest digest);
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 bool ShouldBiometricAuthenticationForFillingToggleBeVisible(
     const PrefService* local_state);
 
@@ -187,16 +187,6 @@ GURL ConstructGURLWithScheme(const std::string& url);
 // origin |url|.
 std::string GetSignonRealm(const GURL& url);
 
-#if BUILDFLAG(IS_IOS)
-// Returns a boolean indicating whether the user had enabled the credential
-// provider in their iOS settings at startup.
-bool IsCredentialProviderEnabledOnStartup(const PrefService* local_state);
-
-// Sets the boolean indicating whether the user had enabled the credential
-// provider in their iOS settings at startup.
-void SetCredentialProviderEnabledOnStartup(PrefService* local_state,
-                                           bool enabled);
-#endif
 
 // Helper functions for character type classification. The built-in functions
 // depend on locale, platform and other stuff. To make the output more

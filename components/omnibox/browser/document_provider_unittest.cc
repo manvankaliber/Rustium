@@ -434,13 +434,8 @@ TEST_F(DocumentProviderTest,
   EXPECT_EQ(matches[2].contents, u"Another Valid HTTPS Document");
 }
 
-#if BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK)
-#define MAYBE_ProductDescriptionStringsAndAccessibleLabels \
-  DISABLED_ProductDescriptionStringsAndAccessibleLabels
-#else
 #define MAYBE_ProductDescriptionStringsAndAccessibleLabels \
   ProductDescriptionStringsAndAccessibleLabels
-#endif
 TEST_F(DocumentProviderTest,
        MAYBE_ProductDescriptionStringsAndAccessibleLabels) {
   // Dates are kept > 1 year in the past since
@@ -770,7 +765,6 @@ TEST_F(DocumentProviderTest, ParseDocumentSearchResultsBreakTiesZeroLimit) {
 }
 
 // This test is affected by an iOS 10 simulator bug: https://crbug.com/782033.
-#if !BUILDFLAG(IS_IOS)
 TEST_F(DocumentProviderTest, GenerateLastModifiedString) {
   static constexpr base::Time::Exploded kLocalExploded = {.year = 2018,
                                                           .month = 8,
@@ -797,7 +791,6 @@ TEST_F(DocumentProviderTest, GenerateLastModifiedString) {
                 base::TimeFormatAsIso8601(modified_last_year), local_now),
             u"8/27/17");
 }
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_WIN)
 
 TEST_F(DocumentProviderTest, GetURLForDeduping) {
   // Checks that |url_string| is a URL for opening |expected_id|. An empty ID

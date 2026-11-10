@@ -9,20 +9,12 @@ static_library("rlz") {
     "rlz_tracker_delegate.h",
   ]
 
-  if (is_ios) {
-    sources += [ "rlz_tracker_ios.cc" ]
-  }
-
   if (is_mac) {
     sources += [ "rlz_tracker_mac.cc" ]
   }
 
   if (is_win) {
     sources += [ "rlz_tracker_win.cc" ]
-  }
-
-  if (is_chromeos) {
-    sources += [ "rlz_tracker_chromeos.cc" ]
   }
 
   deps = [
@@ -32,10 +24,6 @@ static_library("rlz") {
     "//rlz:rlz_lib",
     "//services/network/public/cpp",
   ]
-
-  if (is_ios) {
-    deps += [ "//ui/base" ]
-  }
 }
 
 source_set("test_support") {
@@ -62,8 +50,4 @@ source_set("unit_tests") {
     "//services/network/public/cpp",
     "//ui/base",
   ]
-
-  if (is_chromeos) {
-    deps += [ "//chromeos/ash/components/system" ]
-  }
 }

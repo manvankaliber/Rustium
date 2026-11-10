@@ -13,26 +13,7 @@ Note that we cannot use a lock per atomic type, since the in-memory representati
 type and the value type must be the same.
 */
 
-#![cfg_attr(
-    any(
-        all(
-            target_arch = "riscv32",
-            not(any(miri, portable_atomic_sanitize_thread)),
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            not(portable_atomic_no_outline_atomics),
-            any(target_os = "linux", target_os = "android"),
-        ),
-        all(
-            target_arch = "arm",
-            not(any(miri, portable_atomic_sanitize_thread)),
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            any(target_os = "linux", target_os = "android"),
-            any(test, not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))),
-            not(portable_atomic_no_outline_atomics),
-        ),
-    ),
-    allow(dead_code)
-)]
+#![cfg_attr(any(all(target_arch = "riscv32", not(any(miri, portable_atomic_sanitize_thread)), any(not(portable_atomic_no_asm), portable_atomic_unstable_asm), not(portable_atomic_no_outline_atomics), target_os = "linux"), all(target_arch = "arm", not(any(miri, portable_atomic_sanitize_thread)), any(not(portable_atomic_no_asm), portable_atomic_unstable_asm), target_os = "linux", any(test, not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))), not(portable_atomic_no_outline_atomics))), allow(dead_code))]
 
 // This module requires CAS and this crate only provides atomics up to 128-bit.
 // I don't believe there are any 16-bit multi-core systems with CAS, and

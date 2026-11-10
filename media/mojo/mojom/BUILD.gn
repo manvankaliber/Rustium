@@ -7,7 +7,6 @@ import("//mojo/public/tools/bindings/mojom.gni")
 
 mojom("mojom") {
   generate_blink = true
-  generate_java = true
 
   # TODO(crbug.com/40499115): Conditionally add source files in this list when
   # we support EnabledIf attribute in mojom files.
@@ -47,24 +46,7 @@ mojom("mojom") {
     "webrtc_video_perf.mojom",
   ]
 
-  if (enable_media_drm_storage) {
-    sources += [ "media_drm_storage.mojom" ]
-  }
-
-  if (is_android) {
-    sources += [
-      "android_overlay.mojom",
-      "mediadrm_support.mojom",
-    ]
-  } else {
-    sources += [ "speech_recognition_service.mojom" ]
-  }
-
-  # TODO(crbug.com/1293520): Revisit this after the cast renderer has been
-  # deprecated and removed.
-  if (is_castos || is_cast_android) {
-    sources += [ "cast_application_media_info_manager.mojom" ]
-  }
+  sources += [ "speech_recognition_service.mojom" ]
 
   if (is_win) {
     sources += [
@@ -136,14 +118,6 @@ mojom("mojom") {
     enabled_features += [ "mojo_media_service_unused" ]
   } else {
     assert(false, "Invalid mojo media host: $mojo_media_host")
-  }
-
-  if (enable_cast_renderer) {
-    enabled_features += [ "enable_cast_renderer" ]
-  }
-
-  if (enable_cdm_provision_fetcher) {
-    enabled_features += [ "enable_cdm_provision_fetcher" ]
   }
 
   if (enable_cdm_storage_id) {
@@ -344,24 +318,6 @@ mojom("mojom") {
     },
   ]
 
-  if (enable_media_drm_storage) {
-    cpp_typemaps += [
-      {
-        types = [
-          {
-            mojom = "media.mojom.SessionData.KeyType"
-            cpp = "::media::MediaDrmKeyType"
-          },
-        ]
-        traits_headers = [ "//media/base/ipc/media_param_traits_macros.h" ]
-        traits_public_deps = [
-          "//media",
-          "//media/base/ipc",
-        ]
-      },
-    ]
-  }
-
   if (enable_oop_video_decoder) {
     shared_typemaps += [
       {
@@ -407,7 +363,7 @@ mojom("mojom") {
 
 mojom("media_types") {
   generate_blink = true
-  generate_java = true
+
   sources = [
     "channel_layout.mojom",
     "media_types.mojom",
@@ -585,11 +541,8 @@ mojom("media_types") {
   # different platforms. This sets a variable for the dependencies since
   # |cpp_typemaps| is statically declared.
   video_frame_mojom_traits_public_deps = [ "//ui/gfx/geometry/mojom" ]
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     video_frame_mojom_traits_public_deps += [ "//media/gpu:buffer_validation" ]
-  }
-  if (is_chromeos) {
-    video_frame_mojom_traits_public_deps += [ "//ui/ozone" ]
   }
 
   cpp_typemaps = [
@@ -824,13 +777,13 @@ mojom("media_types") {
 
 mojom("audio_data") {
   generate_blink = true
-  generate_java = true
+
   sources = [ "audio_data.mojom" ]
 }
 
 mojom("encryption_pattern") {
   generate_blink = true
-  generate_java = true
+
   sources = [ "encryption_pattern.mojom" ]
   cpp_typemaps = [
     {
@@ -852,7 +805,7 @@ mojom("encryption_pattern") {
 
 mojom("speech_recognition_audio_forwarder") {
   generate_blink = true
-  generate_java = true
+
   sources = [ "speech_recognition_audio_forwarder.mojom" ]
   public_deps = [ ":audio_data" ]
 }
@@ -861,7 +814,7 @@ mojom("speech_recognition_audio_forwarder") {
 # LaCrOS/Ash.
 mojom("speech_recognition") {
   generate_blink = true
-  generate_java = true
+
   sources = [ "speech_recognition.mojom" ]
   cpp_typemaps = [
     {
@@ -907,7 +860,7 @@ mojom("speech_recognition") {
 
 mojom("speech_recognition_recognition_context") {
   generate_blink = true
-  generate_java = true
+
   sources = [ "speech_recognition_recognition_context.mojom" ]
   cpp_typemaps = [
     {
@@ -940,14 +893,14 @@ mojom("speech_recognition_recognition_context") {
 
 mojom("media_log") {
   generate_blink = true
-  generate_java = true
+
   sources = [ "media_log.mojom" ]
   public_deps = [ ":media_types" ]
 }
 
 mojom("video_encode") {
   generate_blink = true
-  generate_java = true
+
   sources = [
     "video_encode_accelerator.mojom",
     "video_encoder_info.mojom",
@@ -1101,7 +1054,7 @@ source_set("test_support") {
   sources = []
   deps = []
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [
       "buffer_handle_test_util.cc",
       "buffer_handle_test_util.h",
@@ -1130,9 +1083,7 @@ source_set("unit_tests") {
     "video_frame_mojom_traits_unittest.cc",
   ]
 
-  if (!is_android) {
-    sources += [ "speech_recognition_result_mojom_traits_unittest.cc" ]
-  }
+  sources += [ "speech_recognition_result_mojom_traits_unittest.cc" ]
 
   deps = [
     ":speech_recognition",
@@ -1151,7 +1102,6 @@ source_set("unit_tests") {
 
 mojom("web_speech_recognition") {
   generate_blink = true
-  generate_java = true
 
   sources = [
     "speech_recognition_error.mojom",

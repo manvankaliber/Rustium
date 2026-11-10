@@ -8,9 +8,6 @@ import '//resources/cr_elements/cr_radio_button/cr_radio_button.js';
 import '//resources/cr_elements/cr_radio_group/cr_radio_group.js';
 
 import type {CrInputElement} from '//resources/cr_elements/cr_input/cr_input.js';
-// <if expr="is_chromeos">
-import type {CrRadioGroupElement} from '//resources/cr_elements/cr_radio_group/cr_radio_group.js';
-// </if>
 
 import {assert} from '//resources/js/assert.js';
 import {CrLitElement} from '//resources/lit/v3_0/lit.rollup.js';
@@ -95,14 +92,6 @@ export class SettingsSyncEncryptionOptionsElement extends CrLitElement {
     }
   }
 
-  // <if expr="is_chromeos">
-  /**
-   * Returns the encryption options CrRadioGroupElement.
-   */
-  getEncryptionsRadioButtons(): CrRadioGroupElement|null {
-    return this.shadowRoot.querySelector('cr-radio-group');
-  }
-  // </if>
 
   /**
    * Whether we should disable the radio buttons that allow choosing the

@@ -37,12 +37,10 @@
 #include "chrome/browser/ui/side_panel/side_panel_ui.h"
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/toolbar/pinned_toolbar/pinned_toolbar_actions_model.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
-#endif
 #include "chrome/common/pref_names.h"
 #include "components/application_locale_storage/application_locale_storage.h"
 #include "components/contextual_search/contextual_search_metrics_recorder.h"
@@ -74,13 +72,11 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/feature_engagement/tracker_factory.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
 #include "chrome/browser/ui/webui/webui_embedding_context.h"
 #include "components/feature_engagement/public/feature_constants.h"
 #include "components/feature_engagement/public/tracker.h"
-#endif
 
 namespace {
 
@@ -199,7 +195,6 @@ std::optional<base::UnguessableToken> FindActiveInjectedInputToken(
   return std::nullopt;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 int GetSmartTabSharingFeatureActivationCount(
     feature_engagement::Tracker* tracker) {
   if (!tracker) {
@@ -213,7 +208,6 @@ int GetSmartTabSharingFeatureActivationCount(
   }
   return 0;
 }
-#endif
 
 }  // namespace
 
@@ -543,7 +537,6 @@ void ContextualTasksPageHandler::OnboardingTooltipDismissed() {
       contextual_tasks::kContextualTasksOnboardingTooltipDismissedCount,
       count + 1);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Notify feature engagement that onboarding was dismissed.
   feature_engagement::Tracker* tracker =
       feature_engagement::TrackerFactory::GetForBrowserContext(profile);
@@ -553,7 +546,6 @@ void ContextualTasksPageHandler::OnboardingTooltipDismissed() {
 
   prefs->SetInteger(
       contextual_tasks::kContextualTasksSessionCountPostOnboarding, 0);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ContextualTasksPageHandler::AskGTooltipDismissed() {
@@ -822,7 +814,6 @@ void ContextualTasksPageHandler::OnReceivedRemoveInjectedInput(
 }
 
 void ContextualTasksPageHandler::OnContextMenuOpened() {
-#if !BUILDFLAG(IS_ANDROID)
   if (!contextual_tasks::ContextualTasksContextService::
           GetIsSmartTabSharingEnabled(web_ui_controller_
                                           ? web_ui_controller_->GetProfile()
@@ -840,12 +831,10 @@ void ContextualTasksPageHandler::OnContextMenuOpened() {
     interface->MaybeShowFeaturePromo(
         feature_engagement::kIPHSmartTabSharingFeature);
   }
-#endif
 }
 
 void ContextualTasksPageHandler::NotifySmartTabSharingTryItIphResult(
     bool accepted) {
-#if !BUILDFLAG(IS_ANDROID)
   contextual_tasks::LogPromoInteraction(
       accepted ? contextual_tasks::SmartTabSharingPromoAction::kPromoAccepted
                : contextual_tasks::SmartTabSharingPromoAction::kPromoDismissed);
@@ -862,12 +851,10 @@ void ContextualTasksPageHandler::NotifySmartTabSharingTryItIphResult(
           feature_engagement::kIPHSmartTabSharingTryItFeature);
     }
   }
-#endif
 }
 
 void ContextualTasksPageHandler::NotifySmartTabSharingDefaultOnIphResult(
     bool accepted) {
-#if !BUILDFLAG(IS_ANDROID)
   auto* tracker = feature_engagement::TrackerFactory::GetForBrowserContext(
       web_ui_controller_->GetProfile());
   if (tracker) {
@@ -879,7 +866,6 @@ void ContextualTasksPageHandler::NotifySmartTabSharingDefaultOnIphResult(
           feature_engagement::kIPHSmartTabSharingDefaultOnFeature);
     }
   }
-#endif
 }
 
 void ContextualTasksPageHandler::RegisterWindow(

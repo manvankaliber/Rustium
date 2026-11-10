@@ -102,12 +102,6 @@ const KeyboardCodeKeyDownEntry kKeyboardCodeKeyDownEntries[] = {
     {VKEY_RIGHT, OPTION_OR_CTRL_KEY, "MoveWordRight"},
     {VKEY_RIGHT, OPTION_OR_CTRL_KEY | kShiftKey,
      "MoveWordRightAndModifySelection"},
-#if BUILDFLAG(IS_ANDROID)
-    {VKEY_LEFT, kAltKey, "MoveToBeginningOfLine"},
-    {VKEY_RIGHT, kAltKey, "MoveToEndOfLine"},
-    {VKEY_LEFT, kAltKey | kShiftKey, "MoveToBeginningOfLineAndModifySelection"},
-    {VKEY_RIGHT, kAltKey | kShiftKey, "MoveToEndOfLineAndModifySelection"},
-#endif
     {VKEY_UP, 0, "MoveUp"},
     {VKEY_UP, kShiftKey, "MoveUpAndModifySelection"},
     {VKEY_PRIOR, kShiftKey, "MovePageUpAndModifySelection"},
@@ -144,7 +138,7 @@ const KeyboardCodeKeyDownEntry kKeyboardCodeKeyDownEntries[] = {
     {VKEY_DELETE, 0, "DeleteForward"},
     {VKEY_BACK, OPTION_OR_CTRL_KEY, "DeleteWordBackward"},
     {VKEY_DELETE, OPTION_OR_CTRL_KEY, "DeleteWordForward"},
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     {VKEY_BACK, kCtrlKey | kShiftKey, "DeleteToBeginningOfLine"},
 #endif
 #if BUILDFLAG(IS_MAC)
@@ -185,9 +179,6 @@ const KeyboardCodeKeyDownEntry kKeyboardCodeKeyDownEntries[] = {
     {VKEY_BACK, kAltKey | kShiftKey, "Redo"},
 #endif
     {VKEY_INSERT, 0, "OverWrite"},
-#if BUILDFLAG(IS_ANDROID)
-    {VKEY_BACK, kAltKey, "DeleteToBeginningOfLine"},
-#endif
 };
 
 const KeyboardCodeKeyPressEntry kKeyboardCodeKeyPressEntries[] = {
@@ -313,7 +304,7 @@ bool EditingBehavior::ShouldInsertCharacter(const KeyboardEvent& event) const {
   // unexpected behaviour
   if (ch < ' ')
     return false;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // According to XKB map no keyboard combinations with ctrl key are mapped to
   // printable characters, however we need the filter as the DomKey/text could
   // contain printable characters.

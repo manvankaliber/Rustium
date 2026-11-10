@@ -31,13 +31,6 @@ namespace signin {
 class IdentityManager;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-namespace user_manager {
-class User;
-}
-
-#endif
 
 namespace enterprise_connectors {
 
@@ -110,11 +103,6 @@ class RealtimeReportingClient : public RealtimeReportingClientBase {
   void OnCloudPolicyClientAvailable(const std::string& policy_client_desc,
                                     policy::CloudPolicyClient* client);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Return the Chrome OS user who is subject to reporting, or nullptr if
-  // the user cannot be determined.
-  static const user_manager::User* GetChromeOSUser();
-#endif
 
   void RemoveDmTokenFromRejectedSet(const std::string& dm_token);
 

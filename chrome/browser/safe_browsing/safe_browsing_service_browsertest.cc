@@ -113,10 +113,6 @@
 #include "url/gurl.h"
 #include "url/url_canon.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#endif
 
 #if !BUILDFLAG(SAFE_BROWSING_DB_LOCAL)
 #error This test requires SAFE_BROWSING_DB_LOCAL.
@@ -547,10 +543,6 @@ class SBSafeBrowsingServiceTestBase : public InProcessBrowserTest {
   }
 
   void SetUpCommandLine(base::CommandLine* command_line) override {
-#if BUILDFLAG(IS_CHROMEOS)
-    command_line->AppendSwitch(
-        ash::switches::kIgnoreUserProfileMappingForTests);
-#endif
   }
 
   void SetUpInProcessBrowserTestFixture() override {

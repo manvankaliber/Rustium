@@ -82,10 +82,6 @@ class AudioInputTest : public testing::TestWithParam<bool> {
         audio_manager_(AudioManager::CreateForTesting(
             std::make_unique<TestAudioThread>())),
         audio_input_stream_(nullptr) {
-#if BUILDFLAG(IS_ANDROID)
-    // The only parameter is used to enable/disable AAudio.
-    features_.InitWithFeatureState(features::kUseAAudioInput, GetParam());
-#endif
     base::RunLoop().RunUntilIdle();
   }
 
@@ -237,9 +233,6 @@ class AudioInputTest : public testing::TestWithParam<bool> {
   base::TestMessageLoop message_loop_;
   std::unique_ptr<AudioManager> audio_manager_;
   raw_ptr<AudioInputStream> audio_input_stream_;
-#if BUILDFLAG(IS_ANDROID)
-  base::test::ScopedFeatureList features_;
-#endif
 };
 
 // Test create and close of an AudioInputStream without recording audio.
@@ -251,11 +244,7 @@ TEST_P(AudioInputTest, CreateAndClose) {
 
 // Test create, open and close of an AudioInputStream without recording audio.
 // TODO(crbug.com/40262701): This test is failing on ios-blink-rel-fyi bot.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_OpenAndClose DISABLED_OpenAndClose
-#else
 #define MAYBE_OpenAndClose OpenAndClose
-#endif
 TEST_P(AudioInputTest, MAYBE_OpenAndClose) {
   ABORT_AUDIO_TEST_IF_NOT(InputDevicesAvailable());
   MakeAudioInputStreamOnAudioThread();
@@ -264,11 +253,7 @@ TEST_P(AudioInputTest, MAYBE_OpenAndClose) {
 
 // Test create, open, stop and close of an AudioInputStream without recording.
 // TODO(crbug.com/40262701): This test is failing on ios-blink-rel-fyi bot.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_OpenStopAndClose DISABLED_OpenStopAndClose
-#else
 #define MAYBE_OpenStopAndClose OpenStopAndClose
-#endif
 TEST_P(AudioInputTest, MAYBE_OpenStopAndClose) {
   ABORT_AUDIO_TEST_IF_NOT(InputDevicesAvailable());
   MakeAudioInputStreamOnAudioThread();
@@ -278,11 +263,7 @@ TEST_P(AudioInputTest, MAYBE_OpenStopAndClose) {
 // Test a normal recording sequence using an AudioInputStream.
 // Very simple test which starts capturing and verifies that recording starts.
 // TODO(crbug.com/40262701): This test is failing on ios-blink-rel-fyi bot.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_Record DISABLED_Record
-#else
 #define MAYBE_Record Record
-#endif
 TEST_P(AudioInputTest, MAYBE_Record) {
   ABORT_AUDIO_TEST_IF_NOT(InputDevicesAvailable());
   RunRecordingTest(/*echo_cancellation=*/std::nullopt);
@@ -291,12 +272,7 @@ TEST_P(AudioInputTest, MAYBE_Record) {
 // Test a normal recording sequence using an AudioInputStream.
 // Very simple test which starts capturing and verifies that recording starts.
 // TODO(crbug.com/40262701): This test is failing on ios-blink-rel-fyi bot.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_Record_EchoCancellationDisabled \
-  DISABLED_Record_EchoCancellationDisabled
-#else
 #define MAYBE_Record_EchoCancellationDisabled Record_EchoCancellationDisabled
-#endif
 TEST_P(AudioInputTest, MAYBE_Record_EchoCancellationDisabled) {
   ABORT_AUDIO_TEST_IF_NOT(InputDevicesAvailable());
   RunRecordingTest(/*echo_cancellation=*/false);
@@ -305,12 +281,7 @@ TEST_P(AudioInputTest, MAYBE_Record_EchoCancellationDisabled) {
 // Test a normal recording sequence using an AudioInputStream.
 // Very simple test which starts capturing and verifies that recording starts.
 // TODO(crbug.com/40262701): This test is failing on ios-blink-rel-fyi bot.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_Record_EchoCancellationEnabled \
-  DISABLED_Record_EchoCancellationEnabled
-#else
 #define MAYBE_Record_EchoCancellationEnabled Record_EchoCancellationEnabled
-#endif
 TEST_P(AudioInputTest, MAYBE_Record_EchoCancellationEnabled) {
   ABORT_AUDIO_TEST_IF_NOT(InputDevicesAvailable());
   RunRecordingTest(/*echo_cancellation=*/true);
@@ -320,9 +291,5 @@ TEST_P(AudioInputTest, MAYBE_Record_EchoCancellationEnabled) {
 // allow the use of AAudio.
 INSTANTIATE_TEST_SUITE_P(Base, AudioInputTest, testing::Values(false));
 
-#if BUILDFLAG(IS_ANDROID)
-// Run tests with AAudio enabled.
-INSTANTIATE_TEST_SUITE_P(AAudio, AudioInputTest, testing::Values(true));
-#endif
 
 }  // namespace media

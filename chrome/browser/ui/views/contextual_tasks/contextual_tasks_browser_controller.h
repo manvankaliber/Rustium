@@ -16,13 +16,11 @@
 #include "ui/base/unowned_user_data/scoped_unowned_user_data.h"
 #include "ui/base/unowned_user_data/user_data_factory.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/scoped_observation.h"
 #include "chrome/browser/ui/toolbar/pinned_toolbar/pinned_toolbar_actions_model.h"
 
 class ContextualTasksEphemeralButtonController;
 class ContextualTasksCloseButtonController;
-#endif
 
 namespace contextual_tasks {
 
@@ -30,9 +28,7 @@ namespace contextual_tasks {
 // callbacks for all Contextual Tasks entry point and side panel controllers.
 // Accessible from BrowserWindowInterface via the UnownedUserData pattern.
 class ContextualTasksBrowserController
-#if !BUILDFLAG(IS_ANDROID)
     : public PinnedToolbarActionsModel::Observer
-#endif
 {
  public:
   DECLARE_USER_DATA(ContextualTasksBrowserController);
@@ -54,7 +50,6 @@ class ContextualTasksBrowserController
     return side_panel_coordinator_.get();
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // PinnedToolbarActionsModel::Observer:
   void OnActionsChanged() override;
 
@@ -65,7 +60,6 @@ class ContextualTasksBrowserController
   ContextualTasksCloseButtonController* close_button_controller() {
     return close_button_controller_.get();
   }
-#endif
 
  private:
   raw_ptr<BrowserWindowInterface> browser_window_interface_;
@@ -76,7 +70,6 @@ class ContextualTasksBrowserController
   std::unique_ptr<EntryPointEligibilityManager> eligibility_manager_;
   std::unique_ptr<ContextualTasksSidePanelCoordinator> side_panel_coordinator_;
 
-#if !BUILDFLAG(IS_ANDROID)
   void OnEntryPointEligibilityChanged(bool is_eligible);
   void MaybeShowPinnedIconChangedPromo();
 
@@ -90,7 +83,6 @@ class ContextualTasksBrowserController
       pinned_toolbar_observation_{this};
   bool was_pinned_ = false;
   bool has_requested_pinned_icon_changed_promo_ = false;
-#endif
 };
 
 }  // namespace contextual_tasks

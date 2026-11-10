@@ -41,11 +41,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/java_handler_thread.h"
-#include "base/android/jni_android.h"
-#include "base/test/android/java_handler_thread_helpers.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -510,10 +505,6 @@ class SingleThreadTaskExecutorTypedTest
         return "UI_pump";
       case MessagePumpType::CUSTOM:
         break;
-#if BUILDFLAG(IS_ANDROID)
-      case MessagePumpType::JAVA:
-        break;
-#endif  // BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_APPLE)
       case MessagePumpType::NS_RUNLOOP:
         break;
@@ -1293,14 +1284,7 @@ TEST_P(SingleThreadTaskExecutorTypedTest, RunLoopQuitOrderAfter) {
 // On Linux, the pipe buffer size is 64KiB by default. The bug caused one byte
 // accumulated in the pipe per two posts, so we should repeat 128K times to
 // reproduce the bug.
-#if BUILDFLAG(IS_CHROMEOS)
-// TODO(crbug.com/40754898): This test is unreasonably slow on CrOS and flakily
-// times out (100x slower than other platforms which take < 1s to complete
-// it).
-#define MAYBE_RecursivePostsDoNotFloodPipe DISABLED_RecursivePostsDoNotFloodPipe
-#else
 #define MAYBE_RecursivePostsDoNotFloodPipe RecursivePostsDoNotFloodPipe
-#endif
 TEST_P(SingleThreadTaskExecutorTypedTest, MAYBE_RecursivePostsDoNotFloodPipe) {
   SingleThreadTaskExecutor executor(GetParam());
   const auto begin_ticks = TimeTicks::Now();

@@ -15,9 +15,6 @@
 #include "base/strings/cstring_view.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <jni.h>
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -111,11 +108,6 @@ class FilePermissionRestorer {
   std::unique_ptr<SavedFilePermissions> permissions_;
 };
 
-#if BUILDFLAG(IS_ANDROID)
-// Insert an image file into the MediaStore, and retrieve the content URI for
-// testing purpose.
-FilePath InsertImageIntoMediaStore(const FilePath& path);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace base
 

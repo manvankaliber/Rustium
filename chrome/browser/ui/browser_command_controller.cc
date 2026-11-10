@@ -158,13 +158,11 @@
 #include "ui/base/ui_base_features.h"
 #include "ui/events/keycodes/keyboard_codes.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/devtools/devtools_policy_dialog.h"
 #include "chrome/browser/lifetime/application_lifetime_desktop.h"
 #include "chrome/browser/ui/interaction/browser_elements.h"
 #include "ui/base/interaction/element_identifier.h"
 #include "ui/base/interaction/element_tracker.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "chrome/browser/ui/browser_commands_mac.h"
@@ -179,15 +177,6 @@
 #include "ui/aura/window_tree_host.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/boca/on_task/on_task_locked_controller.h"
-#include "chrome/browser/platform_util.h"
-#include "chrome/browser/ui/ash/multi_user/multi_user_context_menu.h"
-#include "chrome/browser/ui/browser_commands_chromeos.h"
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#include "components/session_manager/core/session_manager.h"
-#include "components/user_manager/user_manager.h"
-#endif
 
 #if BUILDFLAG(IS_LINUX)
 #include "ui/base/ime/text_edit_commands.h"
@@ -286,16 +275,6 @@ actions::ActionItem* FindAction(actions::ActionId action_id,
   return actions::ActionManager::Get().FindAction(action_id, root_action_item);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool IsLockedForOnTask(BrowserWindowInterface* browser) {
-  if (features::IsUseUnifiedLockedStateControllerEnabled()) {
-    auto* controller = chromeos::LockedStateController::From(browser);
-    return controller && controller->IsLockedForOnTask();
-  }
-  return ash::boca::OnTaskLockedController::From(browser)
-      ->is_locked_for_on_task();
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -369,13 +348,11 @@ BrowserCommandController::BrowserCommandController(BrowserWindowInterface* bwi)
   }
 
   profile_pref_registrar_.Init(profile()->GetPrefs());
-#if !BUILDFLAG(IS_CHROMEOS)
   profile_pref_registrar_.Add(
       prefs::kDesktopSharingHubEnabled,
       base::BindRepeating(
           &BrowserCommandController::UpdateActionsForSharingHubPolicy,
           base::Unretained(this)));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   profile_pref_registrar_.Add(
       bookmarks::prefs::kEditBookmarksEnabled,
       base::BindRepeating(
@@ -508,19 +485,6 @@ bool BrowserCommandController::IsReservedCommandOrKey(
     return false;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On Chrome OS, the top row of keys are mapped to browser actions like
-  // back/forward or refresh. We don't want web pages to be able to change the
-  // behavior of these keys.  Ash handles F4 and up; this leaves us needing to
-  // reserve browser back/forward and refresh here.
-  ui::KeyboardCode key_code =
-      static_cast<ui::KeyboardCode>(event.windows_key_code);
-  if ((key_code == ui::VKEY_BROWSER_BACK && command_id == IDC_BACK) ||
-      (key_code == ui::VKEY_BROWSER_FORWARD && command_id == IDC_FORWARD) ||
-      (key_code == ui::VKEY_BROWSER_REFRESH && command_id == IDC_RELOAD)) {
-    return true;
-  }
-#endif
 
   if (window()->IsFullscreen()) {
     // In fullscreen, all commands except for IDC_FULLSCREEN and IDC_EXIT should
@@ -577,11 +541,6 @@ void BrowserCommandController::FullscreenStateChanged() {
   UpdateCommandsForFullscreenMode();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void BrowserCommandController::LockedFullscreenStateChanged() {
-  UpdateCommandsForLockedFullscreenMode();
-}
-#endif
 
 void BrowserCommandController::PrintingStateChanged() {
   UpdatePrintingState();
@@ -896,20 +855,6 @@ void BrowserCommandController::HandleCommandWithDisposition(
       PromptToNameWindow(browser_);
       break;
 
-#if BUILDFLAG(IS_CHROMEOS)
-    case IDC_TAKE_SCREENSHOT:
-      TakeScreenshot();
-      break;
-    case IDC_TOGGLE_MULTITASK_MENU:
-      ToggleMultitaskMenu(browser_);
-      break;
-    case IDC_VISIT_DESKTOP_OF_LRU_USER_2:
-    case IDC_VISIT_DESKTOP_OF_LRU_USER_3:
-    case IDC_VISIT_DESKTOP_OF_LRU_USER_4:
-    case IDC_VISIT_DESKTOP_OF_LRU_USER_5:
-      ExecuteVisitDesktopCommand(id, window()->GetNativeWindow());
-      break;
-#endif
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
     case IDC_MINIMIZE_WINDOW:
@@ -975,9 +920,7 @@ void BrowserCommandController::HandleCommandWithDisposition(
       content::WebContents* web_contents =
           browser_->tab_strip_model()->GetActiveWebContents();
       if (!DevToolsWindow::AllowDevToolsFor(profile(), web_contents)) {
-#if !BUILDFLAG(IS_ANDROID)
         DevToolsPolicyDialog::Show(web_contents);
-#endif
       } else {
         web_contents->GetPrimaryMainFrame()->ViewSource();
       }
@@ -1011,11 +954,9 @@ void BrowserCommandController::HandleCommandWithDisposition(
     case IDC_SHOW_SYNC_SETTINGS:
       chrome::ShowSettingsSubPage(browser_, chrome::kSyncSetupSubPage);
       break;
-#if !BUILDFLAG(IS_CHROMEOS)
     case IDC_SHOW_SYNC_PASSPHRASE_DIALOG:
       ShowSyncPassphraseDialogAndDecryptData(*browser_);
       break;
-#endif  // !BUILDFLAG(IS_CHROMEOS)
     case IDC_TURN_ON_SYNC:
       signin_ui_util::EnableHistorySyncFromSingleAccountPromo(
           browser_->GetProfile(),
@@ -1366,7 +1307,6 @@ void BrowserCommandController::HandleCommandWithDisposition(
       } else {
         ShowClearBrowsingDataDialog(webui::GetBrowserForOpeningWebUi(browser_));
       }
-#if !BUILDFLAG(IS_ANDROID)
       ui::ElementContext context =
           BrowserElements::From(browser_)->GetContext();
       ui::TrackedElement* const tracked_element =
@@ -1377,7 +1317,6 @@ void BrowserCommandController::HandleCommandWithDisposition(
             tracked_element, browsing_data_important_sites_util::
                                  kShowClearBrowsingDataDialogEventId);
       }
-#endif  // !BUILDFLAG(IS_ANDROID)
       break;
     }
     case IDC_IMPORT_SETTINGS:
@@ -1514,12 +1453,10 @@ void BrowserCommandController::HandleCommandWithDisposition(
       OpenInChrome(browser_);
       break;
     case IDC_WEB_APP_SETTINGS:
-#if !BUILDFLAG(IS_CHROMEOS)
       CHECK(web_app::AppBrowserController::From(browser_));
       ShowWebAppSettings(
           browser_, web_app::AppBrowserController::From(browser_)->app_id(),
           web_app::AppSettingsPageEntryPoint::kBrowserCommand);
-#endif
       break;
     case IDC_WEB_APP_MENU_APP_INFO: {
       content::WebContents* const web_contents =
@@ -1535,11 +1472,9 @@ void BrowserCommandController::HandleCommandWithDisposition(
       break;
     }
     case IDC_UNINSTALL_WEB_APP:
-#if !BUILDFLAG(IS_CHROMEOS)
       CHECK(web_app::AppBrowserController::From(browser_));
       web_app::AppBrowserController::From(browser_)->Uninstall(
           webapps::WebappUninstallSource::kAppMenu);
-#endif
       break;
 
     // UI debug commands
@@ -1601,7 +1536,6 @@ void BrowserCommandController::HandleCommandWithDisposition(
       break;
     }
 
-#if !BUILDFLAG(IS_CHROMEOS)
     // Profile submenu commands
     // This menu item is not enabled on ChromeOS and certain capabilities such
     // as the profile picker are not available.
@@ -1639,8 +1573,6 @@ void BrowserCommandController::HandleCommandWithDisposition(
       ProfilePicker::Show(ProfilePicker::Params::FromEntryPoint(
           ProfilePicker::EntryPoint::kAppMenuProfileSubMenuManageProfiles));
       break;
-#endif  // BUILDFLAG(IS_CHROMEOS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
     case IDC_SET_BROWSER_AS_DEFAULT:
       base::MakeRefCounted<shell_integration::DefaultBrowserWorker>()
           ->StartSetAsDefault(base::DoNothing());
@@ -1651,7 +1583,6 @@ void BrowserCommandController::HandleCommandWithDisposition(
       DefaultBrowserPromptManager::GetInstance()->CloseAllPrompts(
           DefaultBrowserPromptManager::CloseReason::kAccept);
       break;
-#endif
     case IDC_GLIC_TOGGLE_PIN: {
       PrefService* profile_prefs = profile()->GetPrefs();
       profile_prefs->SetBoolean(
@@ -1853,23 +1784,6 @@ void BrowserCommandController::InitCommandState() {
       IDC_TOGGLE_VERTICAL_TABS_EXPAND_ON_HOVER, true);
   command_updater_->UpdateCommandEnabled(IDC_TOGGLE_VERTICAL_TABS_COLLAPSE,
                                          true);
-#if BUILDFLAG(IS_CHROMEOS)
-  command_updater_->UpdateCommandEnabled(IDC_TOGGLE_MULTITASK_MENU, true);
-  command_updater_->UpdateCommandEnabled(IDC_MINIMIZE_WINDOW, true);
-  // The VisitDesktop command is only supported for up to 5 logged in users
-  // because that's the max number of user sessions. If that number is increased
-  // the IDC_VISIT_DESKTOP_OF_LRU_USER_ command ids should be updated as well.
-  // crbug.com/41446075
-  static_assert(
-      session_manager::kMaximumNumberOfUserSessions <=
-          IDC_VISIT_DESKTOP_OF_LRU_USER_LAST -
-              IDC_VISIT_DESKTOP_OF_LRU_USER_NEXT + 2,
-      "The max number of user sessions exceeds the number of users supported.");
-  command_updater_->UpdateCommandEnabled(IDC_VISIT_DESKTOP_OF_LRU_USER_2, true);
-  command_updater_->UpdateCommandEnabled(IDC_VISIT_DESKTOP_OF_LRU_USER_3, true);
-  command_updater_->UpdateCommandEnabled(IDC_VISIT_DESKTOP_OF_LRU_USER_4, true);
-  command_updater_->UpdateCommandEnabled(IDC_VISIT_DESKTOP_OF_LRU_USER_5, true);
-#endif
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
   command_updater_->UpdateCommandEnabled(IDC_MINIMIZE_WINDOW, true);
   command_updater_->UpdateCommandEnabled(IDC_MAXIMIZE_WINDOW, true);
@@ -1992,14 +1906,12 @@ void BrowserCommandController::InitCommandState() {
       IDC_RECENT_TABS_SEE_DEVICE_TABS,
       (!guest_session && !profile()->IsSystemProfile() &&
        !profile()->IsPrimaryOTRProfileWithRegularParent()));
-#if !BUILDFLAG(IS_CHROMEOS)
   command_updater_->UpdateCommandEnabled(IDC_CUSTOMIZE_CHROME, true);
   command_updater_->UpdateCommandEnabled(IDC_CLOSE_PROFILE, true);
   command_updater_->UpdateCommandEnabled(IDC_MANAGE_GOOGLE_ACCOUNT, true);
   command_updater_->UpdateCommandEnabled(IDC_OPEN_GUEST_PROFILE, true);
   command_updater_->UpdateCommandEnabled(IDC_ADD_NEW_PROFILE, true);
   command_updater_->UpdateCommandEnabled(IDC_MANAGE_CHROME_PROFILES, true);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   if (profile()->IsIncognitoProfile()) {
     command_updater_->UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA, true);
@@ -2009,16 +1921,8 @@ void BrowserCommandController::InitCommandState() {
         (!guest_session && !profile()->IsSystemProfile()));
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  command_updater_->UpdateCommandEnabled(IDC_TAKE_SCREENSHOT, true);
-  // Chrome OS uses the system tray menu to handle multi-profiles. Avatar menu
-  // is only required in incognito mode.
-  command_updater_->UpdateCommandEnabled(
-      IDC_SHOW_AVATAR_MENU, /*state=*/profile()->IsIncognitoProfile());
-#else
   command_updater_->UpdateCommandEnabled(IDC_SHOW_AVATAR_MENU,
                                          /*state=*/normal_window);
-#endif
   command_updater_->UpdateCommandEnabled(IDC_CARET_BROWSING_TOGGLE, true);
   // Navigation commands
   command_updater_->UpdateCommandEnabled(
@@ -2589,142 +2493,6 @@ void BrowserCommandController::UpdateCommandsForHostedAppAvailability() {
   command_updater_->UpdateCommandEnabled(IDC_SHOW_APP_MENU, has_toolbar);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace {
-
-#if DCHECK_IS_ON()
-// Makes sure that all commands that are not allowlisted are disabled. DCHECKs
-// otherwise. Compiled only in debug mode.
-void NonAllowlistedCommandsAreDisabled(const CommandUpdater* command_updater) {
-  constexpr int kAllowlistedIds[] = {IDC_CUT, IDC_COPY, IDC_PASTE};
-
-  // Go through all the command ids, skip the allowlisted ones.
-  for (int id : command_updater->GetAllIds()) {
-    if (std::ranges::contains(kAllowlistedIds, id)) {
-      continue;
-    }
-    CHECK(!command_updater->IsCommandEnabled(id), base::NotFatalUntil::M162);
-  }
-}
-#endif
-
-}  // namespace
-
-// TODO(crbug.com/438540029): Move most of logic for
-// UpdateCommandsForLockedFullscreenMode to LockedStateController when
-// migration is completed.
-void BrowserCommandController::UpdateCommandsForLockedFullscreenMode() {
-  bool is_locked_fullscreen =
-      platform_util::IsBrowserLockedFullscreen(browser_);
-  // Sanity check to make sure this function is called only on state change.
-  CHECK_NE(is_locked_fullscreen, is_locked_fullscreen_,
-           base::NotFatalUntil::M162);
-  if (is_locked_fullscreen == is_locked_fullscreen_) {
-    return;
-  }
-  is_locked_fullscreen_ = is_locked_fullscreen;
-
-  if (is_locked_fullscreen_) {
-    command_updater_->DisableAllCommands();
-    // Update the state of allowlisted commands:
-    // IDC_CUT/IDC_COPY/IDC_PASTE,
-    UpdateCommandsForContentRestrictionState();
-    // TODO(crbug.com/41426009): Re-enable Find and Zoom in locked fullscreen.
-    // All other commands will be disabled (there is an early return in their
-    // corresponding UpdateCommandsFor* functions).
-#if DCHECK_IS_ON()
-    NonAllowlistedCommandsAreDisabled(command_updater_.get());
-#endif
-    // Enable commands that allow users to switch between tabs and find content
-    // within a webpage if the webapp is locked for OnTask
-    // (only relevant for non-web browser scenarios).
-    if (IsLockedForOnTask(browser_)) {
-      UpdateTabSwitchingCommandState();
-      UpdateCommandsForFind();
-    }
-    if (auto* side_panel_ui = SidePanelUI::From(browser_)) {
-      if (side_panel_ui->GetCurrentEntryId() == SidePanelEntryId::kGlic) {
-        side_panel_ui->Close();
-      }
-    }
-    if (auto* const action = FindAction(kActionSidePanelShowGlic, browser_)) {
-      action->SetVisible(false);
-    }
-    if (auto* service =
-            glic::GlicKeyedServiceFactory::GetGlicKeyedService(profile())) {
-      service->CloseFloatingPanel();
-    }
-    if (auto* const action = FindAction(kActionTtcToolbar, browser_)) {
-      action->SetVisible(false);
-      action->SetEnabled(false);
-    }
-    // TTC sessions are per profile, so this also ends TTC in the profile's
-    // other windows.
-    if (auto* ttc_service = ttc::TtcKeyedService::Get(profile())) {
-      ttc_service->EndSession();
-    }
-  } else {
-    // Do an init call to re-initialize command state after the
-    // DisableAllCommands.
-    InitCommandState();
-  }
-}
-
-void BrowserCommandController::UpdateTabSwitchingCommandState() {
-  if (IsInLockedFullscreenMode(/*allow_ontask=*/true)) {
-    return;
-  }
-
-  command_updater_->UpdateCommandEnabled(IDC_SELECT_NEXT_TAB,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_SELECT_PREVIOUS_TAB,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_CYCLE_TO_NEXT_TAB,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_CYCLE_TO_PREV_TAB,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_SELECT_TAB_0,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_SELECT_TAB_1,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_SELECT_TAB_2,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_SELECT_TAB_3,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_SELECT_TAB_4,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_SELECT_TAB_5,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_SELECT_TAB_6,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_SELECT_TAB_7,
-                                         is_tab_switching_enabled_);
-  command_updater_->UpdateCommandEnabled(IDC_SELECT_LAST_TAB,
-                                         is_tab_switching_enabled_);
-}
-
-void BrowserCommandController::SetTabSwitchCommandsEnabled(bool enabled) {
-  is_tab_switching_enabled_ = enabled;
-  UpdateTabSwitchingCommandState();
-}
-
-void BrowserCommandController::OnTaskStateChanged() {
-  CHECK(features::IsUseUnifiedLockedStateControllerEnabled());
-  // While pinned (including extension locked fullscreen), all commands are
-  // disabled by UpdateCommandsForLockedFullscreenMode() and must stay that way.
-  if (IsInLockedFullscreenMode(/*allow_ontask=*/false)) {
-    return;
-  }
-  // DevTools are unavailable throughout the OnTask lifecycle; this re-derives
-  // the state for the unpinned (prepared / unlocked) transitions.
-  const bool enabled = !IsLockedForOnTask(browser_);
-  command_updater_->UpdateCommandEnabled(IDC_DEV_TOOLS, enabled);
-  command_updater_->UpdateCommandEnabled(IDC_DEV_TOOLS_CONSOLE, enabled);
-  command_updater_->UpdateCommandEnabled(IDC_DEV_TOOLS_DEVICES, enabled);
-  command_updater_->UpdateCommandEnabled(IDC_DEV_TOOLS_INSPECT, enabled);
-  command_updater_->UpdateCommandEnabled(IDC_DEV_TOOLS_TOGGLE, enabled);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void BrowserCommandController::UpdatePrintingState() {
   if (IsInLockedFullscreenMode(/*allow_ontask=*/false)) {
@@ -3009,7 +2777,6 @@ void BrowserCommandController::UpdateCommandsForProfile() {
 }
 
 void BrowserCommandController::UpdateActionsForSharingHubPolicy() {
-#if !BUILDFLAG(IS_CHROMEOS)
   // Update the visibility of the QR code generator, send tab to self, and copy
   // link actions based on the sharing hub policy. This matches the fact that
   // these actions' visibility in the app menu.
@@ -3025,7 +2792,6 @@ void BrowserCommandController::UpdateActionsForSharingHubPolicy() {
   update_action_visibility(kActionQrCodeGenerator);
   update_action_visibility(kActionSendTabToSelf);
   update_action_visibility(kActionCopyUrl);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 void BrowserCommandController::UpdateQRCodeGeneratorActionEnabledState() {
@@ -3051,14 +2817,6 @@ void BrowserCommandController::UpdateCommandAndActionEnabled(
 
 bool BrowserCommandController::IsInLockedFullscreenMode(
     bool allow_ontask) const {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (is_locked_fullscreen_) {
-    if (allow_ontask && IsLockedForOnTask(browser_)) {
-      return false;
-    }
-    return true;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   return false;
 }
 

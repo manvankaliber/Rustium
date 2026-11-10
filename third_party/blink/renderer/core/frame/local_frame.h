@@ -1023,9 +1023,6 @@ class CORE_EXPORT LocalFrame final
     is_caret_browsing_overridden_ = overridden;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  void PerformFullContentSpellCheck();
-#endif  // BUILDFLAG(IS_ANDROID)
  private:
   friend class FrameNavigationDisabler;
   // LocalFrameMojoHandler is a part of LocalFrame.

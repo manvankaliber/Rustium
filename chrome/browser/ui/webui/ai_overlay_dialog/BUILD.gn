@@ -5,7 +5,7 @@
 import("//build/config/chrome_build.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
 
-assert(is_win || is_mac || is_linux || is_chromeos || is_desktop_android)
+assert(is_win || is_mac || is_linux)
 
 mojom("mojo_bindings") {
   sources = [ "ai_overlay_dialog.mojom" ]
@@ -99,44 +99,26 @@ source_set("impl") {
     "//ui/webui",
     "//url",
   ]
-  if (!is_android) {
-    sources += [
-      "page_context_monitor_views.cc",
-      "page_context_monitor_views.h",
-      "tools/tools_views.cc",
-      "tools/tools_views.h",
-    ]
-    deps += [
-      # This target includes //chrome/browser/ui:ui's headers, but :ui depends
-      # back on this target (it owns the desktop interface-binders parts file
-      # that registers this dialog), so :ui allows the circular include instead
-      # of this target depending on the :ui monolith directly.
-      "//chrome/browser/ui:browser_actions",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/performance_controls",
-      "//chrome/browser/ui/tabs:tab_group",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/tabs/saved_tab_groups",
-    ]
-  } else {
-    sources += [
-      "page_context_monitor_android.cc",
-      "page_context_monitor_android.h",
-      "tools/tools_android.cc",
-      "tools/tools_android.h",
-    ]
-    deps += [
-      "//chrome/browser/ui/android/tab_model",
-      "//ui/events",
-    ]
-  }
-  if (is_desktop_android) {
-    deps += [
-      "//chrome/browser/ui/android/ai_overlay_dialog",
-      "//chrome/browser/ui/android/ai_overlay_dialog:jni_headers",
-    ]
-  }
+
+  sources += [
+    "page_context_monitor_views.cc",
+    "page_context_monitor_views.h",
+    "tools/tools_views.cc",
+    "tools/tools_views.h",
+  ]
+  deps += [
+    # This target includes //chrome/browser/ui:ui's headers, but :ui depends
+    # back on this target (it owns the desktop interface-binders parts file
+    # that registers this dialog), so :ui allows the circular include instead
+    # of this target depending on the :ui monolith directly.
+    "//chrome/browser/ui:browser_actions",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/performance_controls",
+    "//chrome/browser/ui/tabs:tab_group",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/tabs/saved_tab_groups",
+  ]
 }
 
 source_set("unit_tests") {
@@ -155,19 +137,18 @@ source_set("unit_tests") {
     "//testing/gtest",
     "//url",
   ]
-  if (!is_android) {
-    sources += [ "ai_overlay_dialog_page_handler_unittest.cc" ]
-    deps += [
-      "//chrome/browser/glic/test_support",
-      "//chrome/browser/metrics",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/tabs:test_support",
-      "//components/prefs",
-      "//components/prefs:test_support",
-      "//components/variations",
-      "//components/variations/service",
-    ]
-  }
+
+  sources += [ "ai_overlay_dialog_page_handler_unittest.cc" ]
+  deps += [
+    "//chrome/browser/glic/test_support",
+    "//chrome/browser/metrics",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/tabs:test_support",
+    "//components/prefs",
+    "//components/prefs:test_support",
+    "//components/variations",
+    "//components/variations/service",
+  ]
 }
 
 # Included in browser_tests on desktop and android_browsertests on Desktop
@@ -192,18 +173,17 @@ source_set("browser_tests") {
     "//testing/gtest",
     "//url",
   ]
-  if (!is_android) {
-    sources += [
-      "ai_overlay_notes_browsertest.cc",
-      "markdown_builder_browsertest.cc",
-      "tools/tools_browsertest.cc",
-    ]
-    deps += [
-      "//chrome/browser/translate",
-      "//components/optimization_guide/content/browser",
-      "//components/optimization_guide/proto:optimization_guide_proto",
-      "//components/sessions",
-      "//content/test:browsertest_support",
-    ]
-  }
+
+  sources += [
+    "ai_overlay_notes_browsertest.cc",
+    "markdown_builder_browsertest.cc",
+    "tools/tools_browsertest.cc",
+  ]
+  deps += [
+    "//chrome/browser/translate",
+    "//components/optimization_guide/content/browser",
+    "//components/optimization_guide/proto:optimization_guide_proto",
+    "//components/sessions",
+    "//content/test:browsertest_support",
+  ]
 }

@@ -1037,14 +1037,7 @@ IN_PROC_BROWSER_TEST_P(CrashReportingBrowserTest,
   ASSERT_NE(url, nullptr);
   EXPECT_EQ(*url, main_url.spec());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, an external SIGKILL on a responsive renderer is mapped to
-  // TERMINATION_STATUS_PROCESS_WAS_KILLED_BY_OOM and reported as "oom".
-  ASSERT_NE(reason, nullptr);
-  EXPECT_EQ(*reason, "oom");
-#else
   EXPECT_EQ(reason, nullptr);
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(

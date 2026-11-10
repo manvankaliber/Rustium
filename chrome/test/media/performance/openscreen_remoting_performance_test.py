@@ -490,7 +490,7 @@ def main():
     parser.add_argument('--receiver', help='Receiver device sink name.')
     parser.add_argument(
         '--receiver-type',
-        choices=['android', ],
+        choices=['android'],
         default='android',
         help='Type of receiver device.',
     )

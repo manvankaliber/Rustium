@@ -130,27 +130,7 @@ bool ConfigurationPolicyHandlerList::IsBlockedDesktopAndroidPolicy(
 // TODO(b/478012386): We shouldn't use IS_DESKTOP_ANDROID long-term. The feature
 // flag needs to be removed as soon as we feel comfortable about all exist
 // Android
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-  if (!base::FeatureList::GetInstance()) {
-    return false;
-  }
-
-  if (!base::FeatureList::IsEnabled(features::kDesktopAndroidPolicy)) {
-    return false;
-  }
-
-  auto blocklist_str = features::kDesktopAndroidPolicyBlocklist.Get();
-  for (const auto& blocked_policy :
-       base::SplitStringPiece(blocklist_str, ",", base::TRIM_WHITESPACE,
-                              base::SPLIT_WANT_NONEMPTY)) {
-    if (blocked_policy == policy_name) {
-      return true;
-    }
-  }
   return false;
-#else
-  return false;
-#endif  // BUILDFLAG(IS_DESKTOP_ANDROID)
 }
 
 bool ConfigurationPolicyHandlerList::IsPolicySupported(
@@ -185,7 +165,6 @@ bool ConfigurationPolicyHandlerList::IsPolicySupported(
   }
 
 // All policies on ChromeOS are from a cloud source so we can skip this check.
-#if !BUILDFLAG(IS_CHROMEOS)
   if (policy_details->source_restriction == kSourceRestrictionCloudOnly &&
       !IsCloudOnlyPolicy(entry)) {
     if (errors) {
@@ -199,7 +178,6 @@ bool ConfigurationPolicyHandlerList::IsPolicySupported(
     }
     return false;
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   return !IsBlockedPlatformDevicePolicy(*policy_details, entry);
 }
@@ -219,12 +197,6 @@ bool ConfigurationPolicyHandlerList::IsBlockedPlatformDevicePolicy(
 
 bool ConfigurationPolicyHandlerList::IsCloudOnlyPolicy(
     PolicyMap::const_reference entry) const {
-#if BUILDFLAG(IS_ANDROID)
-  // For development and testing without a policy server.
-  if (entry.second.source == POLICY_SOURCE_COMMAND_LINE) {
-    return true;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   if (!are_cloud_only_policies_allowed_) {
     return false;

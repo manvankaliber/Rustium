@@ -15,7 +15,6 @@
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/test/base/web_ui_mocha_browser_test.h"
 #include "components/content_settings/core/common/content_settings_utils.h"
-#include "components/permissions/contexts/geolocation_permission_context_android.h"
 #include "components/permissions/permission_manager.h"
 #include "components/zoom/zoom_controller.h"
 #include "content/public/browser/navigation_handle.h"

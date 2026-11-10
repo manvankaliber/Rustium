@@ -25,9 +25,7 @@ namespace gpu {
 namespace {
 
 GPUTestConfig::OS GetCurrentOS() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return GPUTestConfig::kOsChromeOS;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_OPENBSD)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_OPENBSD)
   return GPUTestConfig::kOsLinux;
 #elif BUILDFLAG(IS_WIN)
   int32_t major_version = 0;
@@ -82,10 +80,6 @@ GPUTestConfig::OS GetCurrentOS() {
       return GPUTestConfig::kOsMacTahoe;
   }
   return GPUTestConfig::kOsUnknown;
-#elif BUILDFLAG(IS_ANDROID)
-  return GPUTestConfig::kOsAndroid;
-#elif BUILDFLAG(IS_IOS)
-  return GPUTestConfig::kOsIOS;
 #else
 #error "unknown os"
 #endif

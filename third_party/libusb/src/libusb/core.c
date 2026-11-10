@@ -37,14 +37,11 @@
 #include <syslog.h>
 #endif
 
-#ifdef __ANDROID__
-#include <android/log.h>
-#endif
 
 #include "libusbi.h"
 #include "hotplug.h"
 
-#if defined(OS_LINUX) || defined(OS_CHROMEOS)
+#if defined(OS_LINUX)
 const struct usbi_os_backend * const usbi_backend = &linux_usbfs_backend;
 #elif defined(OS_DARWIN)
 const struct usbi_os_backend * const usbi_backend = &darwin_backend;
@@ -2117,15 +2114,6 @@ static void usbi_log_str(struct libusb_context *ctx,
 	WCHAR wbuf[USBI_MAX_LOG_LEN];
 	MultiByteToWideChar(CP_UTF8, 0, str, -1, wbuf, sizeof(wbuf));
 	OutputDebugStringW(wbuf);
-#elif defined(__ANDROID__)
-	int priority = ANDROID_LOG_UNKNOWN;
-	switch (level) {
-	case LIBUSB_LOG_LEVEL_INFO: priority = ANDROID_LOG_INFO; break;
-	case LIBUSB_LOG_LEVEL_WARNING: priority = ANDROID_LOG_WARN; break;
-	case LIBUSB_LOG_LEVEL_ERROR: priority = ANDROID_LOG_ERROR; break;
-	case LIBUSB_LOG_LEVEL_DEBUG: priority = ANDROID_LOG_DEBUG; break;
-	}
-	__android_log_write(priority, "libusb", str);
 #elif defined(HAVE_SYSLOG_FUNC)
 	int syslog_level = LOG_INFO;
 	switch (level) {
@@ -2135,7 +2123,7 @@ static void usbi_log_str(struct libusb_context *ctx,
 	case LIBUSB_LOG_LEVEL_DEBUG: syslog_level = LOG_DEBUG; break;
 	}
 	syslog(syslog_level, "%s", str);
-#else /* All of gcc, Clang, XCode seem to use #warning */
+#else
 #warning System logging is not supported on this platform. Logging to stderr will be used instead.
 	fputs(str, stderr);
 #endif

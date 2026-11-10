@@ -18,9 +18,9 @@
       <part file="flags_ui_scaled_resources.grdp" />
       <part file="neterror_scaled_resources.grdp" />
       <part file="version_ui_scaled_resources.grdp" />
-      <if expr="not is_android">
+
         <part file="search_engine_choice_scaled_resources.grdp" />
-      </if>
+
 
       <!-- Generic resources -->
       <structure type="chrome_scaled_image" name="IDR_HISTORY_FAVICON" file="favicon_history.png" />

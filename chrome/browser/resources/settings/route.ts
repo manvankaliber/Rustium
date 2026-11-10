@@ -62,17 +62,6 @@ function addPrivacyChildRoutes(r: Partial<SettingsRoutes>) {
     r.SITE_SETTINGS_CAPTURED_SURFACE_CONTROL =
         r.SITE_SETTINGS.createChild('capturedSurfaceControl');
   }
-  // <if expr="enable_smart_card">
-  if (loadTimeData.getBoolean('enableSmartCardReadersContentSetting')) {
-    r.SITE_SETTINGS_SMART_CARD_READERS =
-        r.SITE_SETTINGS.createChild('smartCardReaders');
-  }
-  // </if>
-  // <if expr="is_chromeos">
-  if (loadTimeData.getBoolean('enableWebPrintingContentSetting')) {
-    r.SITE_SETTINGS_WEB_PRINTING = r.SITE_SETTINGS.createChild('webPrinting');
-  }
-  // </if>
   r.SITE_SETTINGS_AUTO_VERIFY = r.SITE_SETTINGS.createChild('autoVerify');
   r.SITE_SETTINGS_BACKGROUND_SYNC =
       r.SITE_SETTINGS.createChild('backgroundSync');
@@ -152,13 +141,11 @@ function addSharedPeopleRoutes(r: Partial<SettingsRoutes>, parent: Route) {
     r.ACCOUNT = parent.createChild('/account');
     r.GOOGLE_SERVICES = parent.createChild('/googleServices');
   }
-  // <if expr="not is_chromeos">
   r.SIGN_OUT = parent.createChild('/signOut');
   r.SIGN_OUT.isNavigableDialog = true;
   r.IMPORT_DATA = parent.createChild('/importData');
   r.IMPORT_DATA.isNavigableDialog = true;
   r.MANAGE_PROFILE = parent.createChild('/manageProfile');
-  // </if>
 
   r.SYNC = parent.createChild('/syncSetup');
   r.SYNC_ADVANCED = r.SYNC.createChild('/syncSetup/advanced');
@@ -282,13 +269,11 @@ function createRoutes(): SettingsRoutes {
     addPrivacyChildRoutes(r);
   }
 
-  // <if expr="not is_chromeos">
   if (!isSettingsRefresh2026Enabled && visibility.defaultBrowser !== false) {
     r.DEFAULT_BROWSER = r.BASIC.createSection(
         '/defaultBrowser', 'defaultBrowser',
         loadTimeData.getString('defaultBrowser'));
   }
-  // </if>
 
   if (!isSettingsRefresh2026Enabled && visibility.onStartup !== false) {
     r.ON_STARTUP = r.BASIC.createSection(
@@ -302,7 +287,7 @@ function createRoutes(): SettingsRoutes {
     r.LANGUAGES = r.ADVANCED.createSection(
         '/languages', 'languages',
         loadTimeData.getString('languagesPageTitle'));
-    // <if expr="not is_chromeos and not is_macosx">
+    // <if expr="not is_macosx">
     r.EDIT_DICTIONARY = r.LANGUAGES.createChild('/editDictionary');
     // </if>
   }
@@ -332,12 +317,10 @@ function createRoutes(): SettingsRoutes {
     r.TRIGGERED_RESET_DIALOG.isNavigableDialog = true;
   }
 
-  // <if expr="not is_chromeos">
   if (!isSettingsRefresh2026Enabled && visibility.system !== false) {
     r.SYSTEM = r.ADVANCED.createSection(
         '/system', 'system', loadTimeData.getString('systemPageTitle'));
   }
-  // </if>
 
   if (!isSettingsRefresh2026Enabled && visibility.reset !== false) {
     r.RESET = r.ADVANCED.createSection(
@@ -393,9 +376,6 @@ export function getTopLevelRoute(): Route {
   }
 
   let guestTopLevelRoute = routes.SEARCH;
-  // <if expr="is_chromeos">
-  guestTopLevelRoute = routes.PRIVACY;
-  // </if>
 
   return guestTopLevelRoute;
 }

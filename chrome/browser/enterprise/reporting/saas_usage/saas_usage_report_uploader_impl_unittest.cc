@@ -77,56 +77,6 @@ TEST_P(SaasUsageReportUploaderImplParamTest, UploadReport) {
   uploader->UploadReport(BuildReportEvent(), base::DoNothing());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-INSTANTIATE_TEST_SUITE_P(
-    All,
-    SaasUsageReportUploaderImplParamTest,
-    testing::Values(
-        SaasUsageReportUploaderImplTestParam{
-            .test_name = "UploadProfileReport_Unaffiliated",
-            .is_browser_managed = true,
-            .is_profile_managed = true,
-            .is_affiliated = false,
-            .is_profile_report_uploader = true,
-            .create_reporting_client = true,
-            .expected_dm_token = "user_dm_token_test_profile",
-            .expected_per_profile = true,
-            .expect_report_upload = true},
-        SaasUsageReportUploaderImplTestParam{
-            .test_name = "UploadProfileReport_Affiliated",
-            .is_browser_managed = true,
-            .is_profile_managed = true,
-            .is_affiliated = true,
-            .is_profile_report_uploader = true,
-            .create_reporting_client = true,
-            .expected_dm_token = "user_dm_token_test_profile",
-            .expected_per_profile = true,
-            .expect_report_upload = true},
-        SaasUsageReportUploaderImplTestParam{
-            .test_name = "UploadProfileReport_Unmanaged",
-            .is_browser_managed = true,
-            .is_profile_managed = false,
-            .is_affiliated = false,
-            .is_profile_report_uploader = true,
-            .create_reporting_client = true,
-            .expected_dm_token = "",
-            .expected_per_profile = false,
-            .expect_report_upload = false},
-        SaasUsageReportUploaderImplTestParam{
-            .test_name = "UploadProfileReport_NoReportingClient",
-            .is_browser_managed = true,
-            .is_profile_managed = true,
-            .is_affiliated = false,
-            .is_profile_report_uploader = true,
-            .create_reporting_client = false,
-            .expected_dm_token = "",
-            .expected_per_profile = false,
-            .expect_report_upload = false}),
-    [](const testing::TestParamInfo<
-        SaasUsageReportUploaderImplParamTest::ParamType>& info) {
-      return info.param.test_name;
-    });
-#else
 INSTANTIATE_TEST_SUITE_P(
     All,
     SaasUsageReportUploaderImplParamTest,
@@ -195,11 +145,9 @@ INSTANTIATE_TEST_SUITE_P(
         SaasUsageReportUploaderImplParamTest::ParamType>& info) {
       return info.param.test_name;
     });
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class SaasUsageReportUploaderImplTest : public RealtimeEventUploaderTestBase {};
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(SaasUsageReportUploaderImplTest, UploadBrowserReport_MultiProfile) {
   SetBrowserManaged(true);
 
@@ -232,7 +180,6 @@ TEST_F(SaasUsageReportUploaderImplTest, UploadBrowserReport_MultiProfile) {
   auto uploader = std::make_unique<SaasUsageReportUploaderImpl>();
   uploader->UploadReport(BuildReportEvent(), base::DoNothing());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(SaasUsageReportUploaderImplTest, UploadProfileReport_MultiProfile) {
   TestingProfile* profile1 = CreateProfile("profile1", /*is_managed=*/true,

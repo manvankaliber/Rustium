@@ -236,16 +236,12 @@ void FakeVideoCaptureDeviceFactory::GetDevicesInfo(
   int entry_index = 0;
   for (const auto& entry : devices_config_) {
     VideoCaptureApi api =
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
         VideoCaptureApi::LINUX_V4L2_SINGLE_PLANE;
-#elif BUILDFLAG(IS_IOS)
-        VideoCaptureApi::UNKNOWN;
 #elif BUILDFLAG(IS_MAC)
         VideoCaptureApi::MACOSX_AVFOUNDATION;
 #elif BUILDFLAG(IS_WIN)
         VideoCaptureApi::WIN_DIRECT_SHOW;
-#elif BUILDFLAG(IS_ANDROID)
-        VideoCaptureApi::ANDROID_API2_LEGACY;
 #else
 #error Unsupported platform
 #endif

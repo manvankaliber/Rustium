@@ -15,9 +15,6 @@
 #include "components/keyed_service/core/keyed_service.h"
 #include "components/regional_capabilities/program_settings.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif
 
 class PrefService;
 
@@ -78,11 +75,6 @@ class RegionalCapabilitiesService : public KeyedService {
     virtual void FetchCountryId(
         CountryIdCallback country_id_fetched_callback) = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-    // Synchronously reads the device's regional capabilities program
-    // configuration.
-    virtual Program GetDeviceProgram() = 0;
-#endif
   };
 
   // Contains the string IDs for the UI elements on the search engine choice
@@ -168,18 +160,11 @@ class RegionalCapabilitiesService : public KeyedService {
   // being signed in and other platform-specific conditions.
   bool MayShowLinkedGoogleServicesSetting();
 
-#if !BUILDFLAG(IS_ANDROID)
   // Returns the appropriate choice screen design strings for the active
   // program, if one is required. Returns `std::nullopt` if the region does not
   // require a search engine choice screen.
   std::optional<ChoiceScreenDesign> GetChoiceScreenDesign();
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_IOS)
-  // Returns `true` if a snackbar should be shown after presenting the search
-  // engine choice screen for existing users.
-  bool ShouldShowChoiceConfirmationSnackbar();
-#endif  // BUILDFLAG(IS_IOS)
 
   const std::optional<ChoiceScreenEligibilityConfig>&
   GetChoiceScreenEligibilityConfig();
@@ -249,22 +234,6 @@ class RegionalCapabilitiesService : public KeyedService {
   Client& GetClientForTesting();
 
   // -- JNI Interface ---------------------------------------------------------
-#if BUILDFLAG(IS_ANDROID)
-  // Returns a reference to the Java-side `RegionalCapabilitiesService`, lazily
-  // creating it if needed.
-  base::android::ScopedJavaLocalRef<jobject> GetJavaObject();
-
-  // If the Java-side service has been created, commands it to destroy itself.
-  void DestroyJavaObject();
-
-  // See `MayShowLinkedGoogleServicesSetting()`.
-  bool MayShowLinkedGoogleServicesSetting(JNIEnv* env);
-
-  // See `IsInSearchEngineChoiceScreenRegion()`.
-  bool IsInSearchEngineChoiceScreenRegion(JNIEnv* env);
-  // See `IsInEeaCountry()`.
-  bool IsInEeaCountry(JNIEnv* env);
-#endif
   // -- JNI Interface End ----------------------------------------------------
 
  private:
@@ -294,10 +263,6 @@ class RegionalCapabilitiesService : public KeyedService {
   std::optional<Program> dynamic_country_program_cache_;
   // -- cache end --
 
-#if BUILDFLAG(IS_ANDROID)
-  // Corresponding Java object.
-  base::android::ScopedJavaGlobalRef<jobject> java_ref_;
-#endif
 
   base::WeakPtrFactory<RegionalCapabilitiesService> weak_ptr_factory_{this};
 };

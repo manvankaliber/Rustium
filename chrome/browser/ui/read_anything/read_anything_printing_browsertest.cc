@@ -124,7 +124,6 @@ std::optional<float> GetLineTop(content::WebContents* preview_dialog,
 }
 
 // Used by IrmClosedDuringHiddenPendingPrintCancelsPrint below.
-#if !BUILDFLAG(IS_CHROMEOS)
 // Selectors for ClickPrintPreviewButton().
 constexpr char kPrintButton[] = ".action-button";
 
@@ -200,7 +199,6 @@ class JobWatcher : public printing::PrintJob::Observer {
   int destroyed_count_ = 0;
   base::OnceClosure quit_;
 };
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -663,7 +661,6 @@ IN_PROC_BROWSER_TEST_F(ReadAnythingPrintingBrowserTest,
 // whereas on ChromeOS LocalPrinterHandlerChromeos queries
 // ash::CupsPrintersManager and has no default printer. Print Preview then
 // selects Save as PDF, which does not hide the dialog while a print is pending.
-#if !BUILDFLAG(IS_CHROMEOS)
 // Closing IRM while a print is pending in the background cancels the print.
 IN_PROC_BROWSER_TEST_F(ReadAnythingPrintingBrowserTest,
                        IrmClosedDuringHiddenPendingPrintCancelsPrint) {
@@ -699,7 +696,6 @@ IN_PROC_BROWSER_TEST_F(ReadAnythingPrintingBrowserTest,
 
   EXPECT_EQ(0, job_watcher.created_count());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // On Mac, Cmd+P goes through the main menu, not the browser's shortcuts.
 #if !BUILDFLAG(IS_MAC)

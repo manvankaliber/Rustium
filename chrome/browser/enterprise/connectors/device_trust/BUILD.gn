@@ -43,11 +43,7 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  if (!is_chromeos) {
-    sources += [ "browser/signing_key_policy_observer_unittest.cc" ]
-  }
+  sources += [ "browser/signing_key_policy_observer_unittest.cc" ]
 
-  if (!is_android) {
-    deps += [ "//chrome/browser/ui/views/device_signals_consent" ]
-  }
+  deps += [ "//chrome/browser/ui/views/device_signals_consent" ]
 }

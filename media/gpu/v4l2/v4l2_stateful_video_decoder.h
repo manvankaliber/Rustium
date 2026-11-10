@@ -15,7 +15,7 @@
 #include "base/task/cancelable_task_tracker.h"
 #include "media/base/supported_video_decoder_config.h"
 #include "media/base/video_types.h"
-#include "media/gpu/chromeos/video_decoder_pipeline.h"
+#include "media/gpu/linux/video_decoder_pipeline.h"
 #include "media/gpu/media_gpu_export.h"
 
 namespace base {

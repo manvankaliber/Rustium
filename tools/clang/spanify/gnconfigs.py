@@ -23,9 +23,8 @@ class GnConfigsImpl:
             'use_remoteexec=false',
             'use_siso=true',
         ]
-        current_exec = (
-            self.remoteexec_args if use_remoteexec else self.localexec_args
-        )
+        current_exec = (self.remoteexec_args
+                        if use_remoteexec else self.localexec_args)
 
         # TODO: Consider switching to straight defining a YAML file or json
         # struct to separate code from data more completely.
@@ -156,121 +155,12 @@ class GnConfigsImpl:
             'target_os="win"',
         ] + current_exec
 
-        self.android_configs = {}
-        # CQ bots
-        # https://ci.chromium.org/ui/p/chromium/builders/try/android-arm64-rel
-        # Note: For other CQ bots simply replace "android-arm64-rel" with the
-        # name.
-        # Note: again you can also use
-        # infra/config/generated/builders/try/android-arm64-rel/gn-args.json
-        self.android_configs["android-arm64-rel"] = [
-            #'android_static_analysis="off"', gn warns this has no effect.
-            # Coverage file is removed
-            'dcheck_always_on=true',
-            'debuggable_apks=false',
-            'enable_android_secondary_abi=true',
-            'fail_on_android_expectations=true',
-            'ffmpeg_branding="Chrome"',
-            'is_component_build=false',
-            'is_debug=false',
-            'proprietary_codecs=true',
-            'strip_debug_info=true',
-            'symbol_level=0',
-            'system_webview_package_name="com.google.android.chrome"',
-            'target_cpu="arm64"',
-            'use_clang_coverage=false',
-        ] + current_exec
-        self.android_configs['android-binary-size'] = [
-            'android_channel="stable"',
-            'debuggable_apks=false',
-            'ffmpeg_branding="Chrome"',
-            'is_high_end_android_secondary_toolchain=false',
-            'proprietary_codecs=true',
-            'symbol_level=1',
-            'target_cpu="arm64"',
-            'target_os="android"',
-        ] + current_exec
-        self.android_configs["android_compile_dbg"] = [
-            'android_static_analysis="on"',
-            'debuggable_apks=false',
-            'enable_android_secondary_abi=true',
-            'ffmpeg_branding="Chrome"',
-            'is_component_build=true',
-            'is_debug=true',
-            'proprietary_codecs=true',
-            'symbol_level=0',
-            'target_cpu="arm64"',
-            'target_os="android"',
-        ] + current_exec
-        self.android_configs["android-x86-rel"] = [
-            'android_static_analysis="off"',
-            # coverage file is removed
-            'dcheck_always_on=true',
-            'debuggable_apks=false',
-            'ffmpeg_branding="Chrome"',
-            'is_component_build=false',
-            'is_debug=false',
-            'proprietary_codecs=true',
-            'strip_debug_info=true',
-            'symbol_level=0',
-            'system_webview_package_name="com.google.android.apps.chrome"',
-            'system_webview_shell_package_name="org.chromium.my_webview_shell"',
-            'target_cpu="x86"',
-            'target_os="android"',
-            'use_clang_coverage=false',
-            'use_jacoco_coverage=true',
-        ] + current_exec
-        # Finally official build (arm64 in this case)
-        # See https://ci.chromium.org/ui/p/chrome/g/official.android/builders
-        self.android_configs["android-arm64-official"] = [
-            'dcheck_always_on=false',
-            'enable_remoting=true',
-            'ffmpeg_branding="Chrome"',
-            'is_chrome_branded=true',
-            'is_component_build=false',
-            'is_debug=false',
-            'is_high_end_android=false',
-            'is_official_build=true',
-            'proprietary_codecs=true',
-            # locally 2 generates to many debug symbols.
-            'symbol_level=0',
-            # We don't have the official signing keys which causes unresolved
-            # dependencies.
-            #'system_webview_apk_target=
-            #    "//clank/android_webview:system_webview_google_apk"',
-            'target_cpu="arm64"',
-            'target_os="android"',
-            'thin_lto_enable_cache=false',
-            'use_signing_keys=true',
-        ] + current_exec
-
-        self.chromeos_configs = {}
-        # Finally official build
-        # See https://ci.chromium.org/ui/p/chrome/g/official.desktop/builders
-        # Note that a lot of the args are removed but they are operating system
-        # related args.
-        self.chromeos_configs['chromeos-official'] = [
-            'target_os="chromeos"',
-            'dcheck_always_on=true',
-            'is_chrome_branded=true',
-            #'is_chromeos_device=true', Not building on a chromeos device.
-            'is_debug=false',
-            'is_official_build=true',
-            'use_cfi_cast=true',
-            'enable_pseudolocales=true',
-            'enable_remoting=true',
-            # Encountered to many open fds without while compiling.
-            'symbol_level=1',
-        ] + current_exec
-
         # Project specific configs for standalone builds.
         # TODO(crbug.com/497912213): Add more platforms and configs for these.
         root_dir = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '../../..')
-        )
-        clang_path = os.path.join(
-            root_dir, 'third_party/llvm-build/Release+Asserts/bin'
-        )
+            os.path.join(os.path.dirname(__file__), '../../..'))
+        clang_path = os.path.join(root_dir,
+                                  'third_party/llvm-build/Release+Asserts/bin')
         self.skia_configs = {
             'linux': [
                 'is_debug=false',
@@ -283,8 +173,7 @@ class GnConfigsImpl:
         }
 
         clang_base_path = os.path.join(
-            root_dir, 'third_party/llvm-build/Release+Asserts'
-        )
+            root_dir, 'third_party/llvm-build/Release+Asserts')
         self.dawn_configs = {
             'linux': [
                 'is_debug=false',
@@ -292,8 +181,7 @@ class GnConfigsImpl:
                 'symbol_level=0',
                 'target_cpu="x64"',
                 'target_os="linux"',
-            ]
-            + current_exec
+            ] + current_exec
         }
         self.angle_configs = {
             'linux': [
@@ -303,8 +191,7 @@ class GnConfigsImpl:
                 'target_cpu="x64"',
                 'target_os="linux"',
                 'build_with_chromium=false',
-            ]
-            + current_exec
+            ] + current_exec
         }
         self.webrtc_configs = {
             'linux': [
@@ -314,30 +201,19 @@ class GnConfigsImpl:
                 'target_cpu="x64"',
                 'target_os="linux"',
                 'build_with_chromium=false',
-            ]
-            + current_exec
+            ] + current_exec
         }
 
         # A set of platforms that gives you minimum coverage.
         self.min_all_platforms = {}
         self.min_all_platforms['linux'] = self.linux_configs['linux-rel']
-        self.min_all_platforms['android'] = self.android_configs[
-            'android-arm64-rel'
-        ]
         self.min_all_platforms['mac'] = self.mac_configs['mac-rel']
         self.min_all_platforms['win'] = self.win_configs['win-rel']
-        self.min_all_platforms['chromeos'] = self.chromeos_configs[
-            'chromeos-official'
-        ]
 
         # A set of platforms that should give you reasonable CQ coverage.
-        self.all_platforms_and_configs = (
-            self.linux_configs
-            | self.android_configs
-            | self.mac_configs
-            | self.win_configs
-            | self.chromeos_configs
-        )
+        self.all_platforms_and_configs = (self.linux_configs
+                                          | self.mac_configs
+                                          | self.win_configs)
 
     def get_config(self, platform, project='chrome'):
         """
@@ -386,11 +262,8 @@ _local_exec_config = None
 #
 # It declares the following member variable dicts:
 #  * linux_configs (accessible through ['linux']
-#  * android_configs (accessible through ['android']
 #  * mac_configs (again accessible)
 #  * win_configs (again accessible)
-#  * fuchsia_configs (again)
-#  * chromeos_configs (again).
 #  * all_platforms_and_configs -> This is all of the configs defined above.
 #  * min_all_platforms -> This is a single representative config from each
 #    platform listed above.

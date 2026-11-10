@@ -56,11 +56,6 @@ class PreventCloseTestBase : public policy::PolicyTest {
 
   testing::NiceMock<policy::MockConfigurationPolicyProvider> provider_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Prevent automatic OS-login app launches from racing with explicit test
-  // launches when `kWebAppSettings` configures `run_on_os_login`.
-  base::AutoReset<bool> skip_run_on_os_login_startup_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 };
 
 #endif  // CHROME_BROWSER_WEB_APPLICATIONS_TEST_PREVENT_CLOSE_TEST_BASE_H_

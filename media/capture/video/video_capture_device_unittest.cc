@@ -46,20 +46,7 @@
 #include "media/capture/video/apple/video_capture_device_factory_apple.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "media/capture/video/android/video_capture_device_android.h"
-#include "media/capture/video/android/video_capture_device_factory_android.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/mojo_service_manager/connection.h"
-#include "media/capture/video/chromeos/camera_buffer_factory.h"
-#include "media/capture/video/chromeos/public/cros_features.h"
-#include "media/capture/video/chromeos/video_capture_device_chromeos_halv3.h"
-#include "media/capture/video/chromeos/video_capture_device_factory_chromeos.h"
-#include "mojo/public/cpp/bindings/pending_receiver.h"
-#endif
 
 #if BUILDFLAG(IS_APPLE)
 // Mac will always give you the size you ask for and this case will fail.
@@ -96,27 +83,6 @@
   DISABLED_UsingRealWebcam_CaptureWithSize
 #define MAYBE_UsingRealWebcam_CheckPhotoCallbackRelease \
   DISABLED_UsingRealWebcam_CheckPhotoCallbackRelease
-#elif BUILDFLAG(IS_ANDROID)
-#define MAYBE_UsingRealWebcam_AllocateBadSize UsingRealWebcam_AllocateBadSize
-// This format is not returned by VideoCaptureDeviceFactoryAndroid's
-// GetSupportedFormats
-#define MAYBE_UsingRealWebcam_CaptureMjpeg DISABLED_UsingRealWebcam_CaptureMjpeg
-#define MAYBE_UsingRealWebcam_TakePhoto UsingRealWebcam_TakePhoto
-#define MAYBE_UsingRealWebcam_GetPhotoState UsingRealWebcam_GetPhotoState
-#define MAYBE_UsingRealWebcam_CaptureWithSize UsingRealWebcam_CaptureWithSize
-#define MAYBE_UsingRealWebcam_CheckPhotoCallbackRelease \
-  UsingRealWebcam_CheckPhotoCallbackRelease
-#elif BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_UsingRealWebcam_AllocateBadSize \
-  DISABLED_UsingRealWebcam_AllocateBadSize
-#define MAYBE_UsingRealWebcam_CaptureMjpeg UsingRealWebcam_CaptureMjpeg
-#define MAYBE_UsingRealWebcam_TakePhoto DISABLED_UsingRealWebcam_TakePhoto
-#define MAYBE_UsingRealWebcam_GetPhotoState \
-  DISABLED_UsingRealWebcam_GetPhotoState
-#define MAYBE_UsingRealWebcam_CaptureWithSize \
-  DISABLED_UsingRealWebcam_CaptureWithSize
-#define MAYBE_UsingRealWebcam_CheckPhotoCallbackRelease \
-  UsingRealWebcam_CheckPhotoCallbackRelease
 #else
 #define MAYBE_UsingRealWebcam_AllocateBadSize UsingRealWebcam_AllocateBadSize
 #define MAYBE_UsingRealWebcam_CaptureMjpeg UsingRealWebcam_CaptureMjpeg
@@ -285,15 +251,6 @@ class VideoCaptureDeviceTest
   bool UseWinMediaFoundation() {
     return std::get<1>(GetParam()) == WIN_MEDIA_FOUNDATION &&
            VideoCaptureDeviceFactoryWin::PlatformSupportsMediaFoundation();
-  }
-#elif BUILDFLAG(IS_CHROMEOS)
-  void WaitForCameraServiceReady() {
-    if (media::ShouldUseCrosCameraService()) {
-      VideoCaptureDeviceFactoryChromeOS* vcd_factory_chromeos =
-          static_cast<VideoCaptureDeviceFactoryChromeOS*>(
-              video_capture_device_factory_.get());
-      ASSERT_TRUE(vcd_factory_chromeos->WaitForCameraServiceReadyForTesting());
-    }
   }
 #endif
 
@@ -486,9 +443,6 @@ WRAPPED_TEST_P(VideoCaptureDeviceTest, MAYBE_UsingRealWebcam_CaptureWithSize) {
                      base::Unretained(this)));
 }
 void VideoCaptureDeviceTest::RunCaptureWithSizeTestCase() {
-#if BUILDFLAG(IS_CHROMEOS)
-  WaitForCameraServiceReady();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   const auto device_info = FindUsableDevice();
   ASSERT_TRUE(device_info);
 
@@ -630,13 +584,6 @@ WRAPPED_TEST_P(VideoCaptureDeviceTest, MAYBE_UsingRealWebcam_CaptureMjpeg) {
                              base::Unretained(this)));
 }
 void VideoCaptureDeviceTest::RunCaptureMjpegTestCase() {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (media::ShouldUseCrosCameraService()) {
-    VLOG(1)
-        << "Skipped on Chrome OS device where HAL v3 camera service is used";
-    return;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   auto device_info = GetFirstDeviceSupportingPixelFormat(PIXEL_FORMAT_MJPEG);
   ASSERT_TRUE(device_info);
 
@@ -693,9 +640,6 @@ WRAPPED_TEST_P(VideoCaptureDeviceTest, MAYBE_UsingRealWebcam_TakePhoto) {
                              base::Unretained(this)));
 }
 void VideoCaptureDeviceTest::RunTakePhotoTestCase() {
-#if BUILDFLAG(IS_CHROMEOS)
-  WaitForCameraServiceReady();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   const auto device_info = FindUsableDevice();
   ASSERT_TRUE(device_info);
 
@@ -741,9 +685,6 @@ WRAPPED_TEST_P(VideoCaptureDeviceTest, MAYBE_UsingRealWebcam_GetPhotoState) {
                              base::Unretained(this)));
 }
 void VideoCaptureDeviceTest::RunGetPhotoStateTestCase() {
-#if BUILDFLAG(IS_CHROMEOS)
-  WaitForCameraServiceReady();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   const auto device_info = FindUsableDevice();
   ASSERT_TRUE(device_info);
 

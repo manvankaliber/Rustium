@@ -298,10 +298,6 @@
 #include "third_party/blink/renderer/platform/wtf/text/line_ending.h"
 #endif
 
-#if BUILDFLAG(IS_IOS)
-#include "third_party/blink/renderer/core/editing/dom_selection.h"
-#include "third_party/blink/renderer/core/page/autoscroll_controller.h"
-#endif  // BUILDFLAG(IS_IOS)
 
 namespace blink {
 
@@ -881,66 +877,6 @@ bool WebLocalFrameImpl::DispatchedPagehideAndStillHidden() const {
   return ViewImpl()->GetPage()->DispatchedPagehideAndStillHidden();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-namespace {
-
-// The wire payload for a message whose value is a single SharedArrayBuffer
-// reference.
-//
-// This is the same trade-off, and the same format, as the encoder in
-// blink::EncodeWebMessagePayload(): the format is an implementation detail of
-// V8, but a stable one, since V8 must keep reading old payloads back out of
-// IndexedDB. A version bump would therefore not invalidate these bytes, and if
-// it ever did, WebFrameTest.PostEmbedderMessageEventDeliversSharedArrayBuffer
-// fails.
-constexpr uint8_t kSharedArrayBufferPayload[] = {
-    0xFF,  // Version tag.
-    10,    // Wire format version.
-    'u',   // kSharedArrayBuffer in v8/src/objects/value-serializer.cc.
-    0,     // Index into the message's shared array buffer array.
-};
-
-}  // namespace
-
-void WebLocalFrameImpl::PostEmbedderMessageEvent(
-    const WebSecurityOrigin& target_origin,
-    std::vector<MessagePortDescriptor> ports,
-    base::UnsafeSharedMemoryRegion region) {
-  CHECK(region.IsValid());
-
-  // Read the size before the region is moved from below.
-  size_t size = region.GetSize();
-  ArrayBufferContents contents(
-      base::UnsafeSharedMemoryRegion::TakeHandleForSerialization(
-          std::move(region)),
-      /*offset=*/0, size, ArrayBufferContents::kShared);
-  if (!contents.IsValid()) {
-    return;
-  }
-
-  scoped_refptr<SerializedScriptValue> serialized_value =
-      SerializedScriptValue::Create(base::span(kSharedArrayBufferPayload));
-  // Index 0 of this array is what the payload above refers to.
-  serialized_value->SharedArrayBuffersContents().push_back(std::move(contents));
-
-  BlinkTransferableMessage blink_message;
-  blink_message.message = std::move(serialized_value);
-  blink_message.ports.ReserveInitialCapacity(
-      base::checked_cast<wtf_size_t>(ports.size()));
-  for (auto& port : ports) {
-    blink_message.ports.emplace_back(std::move(port));
-  }
-  // There is no sending document, so attribute the message to the target
-  // window's own agent cluster. The embedder's agent cluster ID would fail the
-  // agent cluster check that SharedArrayBuffers are subject to.
-  blink_message.sender_agent_cluster_id =
-      GetFrame()->DomWindow()->GetAgentClusterID();
-
-  GetFrame()->PostMessageEvent(/*source_frame_token=*/std::nullopt,
-                               /*source_origin=*/nullptr, target_origin,
-                               std::move(blink_message));
-}
-#endif
 
 void WebLocalFrameImpl::CopyToFindPboard() {
 #if BUILDFLAG(IS_MAC)
@@ -1747,33 +1683,6 @@ void WebLocalFrameImpl::MoveCaretSelection(
   GetFrame()->Selection().MoveCaretSelection(point_in_contents);
 }
 
-#if BUILDFLAG(IS_IOS)
-void WebLocalFrameImpl::StartAutoscrollForSelectionToPoint(
-    const gfx::PointF& point_in_viewport) {
-  TRACE_EVENT0("blink",
-               "WebLocalFrameImpl::StartAutoscrollForSelectionToPoint");
-  if (!ViewImpl() || !ViewImpl()->GetPage()) {
-    return;
-  }
-  auto* element = GetFrame()->GetDocument()->GetSelection()->baseNode();
-  if (!element) {
-    return;
-  }
-  ViewImpl()
-      ->GetPage()
-      ->GetAutoscrollController()
-      .StartAutoscrollForSelectionToPoint(element->GetLayoutObject(),
-                                          point_in_viewport);
-}
-
-void WebLocalFrameImpl::StopAutoscroll() {
-  TRACE_EVENT0("blink", "WebLocalFrameImpl::StopAutoscroll");
-  if (!ViewImpl() || !ViewImpl()->GetPage()) {
-    return;
-  }
-  ViewImpl()->GetPage()->GetAutoscrollController().StopAutoscroll();
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 bool WebLocalFrameImpl::SetEditableSelectionOffsets(int start, int end) {
   TRACE_EVENT0("blink", "WebLocalFrameImpl::setEditableSelectionOffsets");

@@ -23,7 +23,7 @@
 #include <mach/mach.h>
 #elif BUILDFLAG(IS_WIN)
 #include "util/win/address_types.h"
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
 #include "util/linux/address_types.h"
 #endif  // BUILDFLAG(IS_APPLE)
 
@@ -129,7 +129,7 @@ std::string CheckedAddressRangeGeneric<ValueType, SizeType>::AsString() const {
 template class CheckedAddressRangeGeneric<mach_vm_address_t, mach_vm_size_t>;
 #elif BUILDFLAG(IS_WIN)
 template class CheckedAddressRangeGeneric<WinVMAddress, WinVMSize>;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
 template class CheckedAddressRangeGeneric<LinuxVMAddress, LinuxVMSize>;
 #endif  // BUILDFLAG(IS_APPLE)
 

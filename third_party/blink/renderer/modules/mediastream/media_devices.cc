@@ -361,7 +361,6 @@ bool TransientActivationRequirementSatisfied(LocalDOMWindow* window) {
   return false;
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 bool IsExtensionScreenSharingFunctionCall(const MediaStreamConstraints* options,
                                           ExceptionState& exception_state) {
   DCHECK(!exception_state.HadException());
@@ -389,7 +388,6 @@ bool IsExtensionScreenSharingFunctionCall(const MediaStreamConstraints* options,
 
   return !exception_state.HadException() && map.Contains("chromeMediaSourceId");
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 MediaStreamConstraints* ToMediaStreamConstraints(
     const UserMediaStreamConstraints* source) {
@@ -630,7 +628,6 @@ ScriptPromise<IDLResolvedType> MediaDevices::SendUserMediaRequest(
 
   base::OnceCallback<void(const String&, CaptureController*)>
       on_success_follow_up;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (media_type == UserMediaRequestType::kDisplayMedia ||
       IsExtensionScreenSharingFunctionCall(options, exception_state)) {
     if (options->hasController()) {
@@ -650,7 +647,6 @@ ScriptPromise<IDLResolvedType> MediaDevices::SendUserMediaRequest(
     resolver->RecordAndDetach(UserMediaRequestResult::kInvalidConstraints);
     return promise;
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   auto* callbacks =
       MakeGarbageCollected<PromiseResolverCallbacks<IDLResolvedType>>(
@@ -677,11 +673,9 @@ ScriptPromise<IDLResolvedType> MediaDevices::SendUserMediaRequest(
     return promise;
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (media_type == UserMediaRequestType::kDisplayMedia) {
     window->ConsumeDisplayCaptureRequestToken();
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   request->Start();
   return promise;
@@ -1587,7 +1581,6 @@ void MediaDevices::Trace(Visitor* visitor) const {
   ExecutionContextLifecycleObserver::Trace(visitor);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void MediaDevices::EnqueueMicrotaskToCloseFocusWindowOfOpportunity(
     const String& id,
     CaptureController* capture_controller) {
@@ -1624,7 +1617,6 @@ void MediaDevices::CloseFocusWindowOfOpportunity(
 
   GetDispatcherHost(window->GetFrame()).CloseFocusWindowOfOpportunity(id);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 void MediaDevices::ResolveRestrictionTargetPromise(Element* element,
                                                    const String& id) {

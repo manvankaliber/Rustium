@@ -15,14 +15,10 @@
 
 #if BUILDFLAG(IS_WIN)
 #include "net/proxy_resolution/win/proxy_config_service_win.h"
-#elif BUILDFLAG(IS_IOS)
-#include "net/proxy_resolution/proxy_config_service_ios.h"
 #elif BUILDFLAG(IS_MAC)
 #include "net/proxy_resolution/proxy_config_service_mac.h"
 #elif BUILDFLAG(IS_LINUX)
 #include "net/proxy_resolution/proxy_config_service_linux.h"
-#elif BUILDFLAG(IS_ANDROID)
-#include "net/proxy_resolution/proxy_config_service_android.h"
 #endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX)
@@ -60,20 +56,6 @@ constexpr net::NetworkTrafficAnnotationTag kSystemProxyConfigTrafficAnnotation =
       })");
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-class UnsetProxyConfigService : public ProxyConfigService {
- public:
-  UnsetProxyConfigService() = default;
-  ~UnsetProxyConfigService() override = default;
-
-  void AddObserver(Observer* observer) override {}
-  void RemoveObserver(Observer* observer) override {}
-  ConfigAvailability GetLatestProxyConfig(
-      ProxyConfigWithAnnotation* config) override {
-    return CONFIG_UNSET;
-  }
-};
-#endif
 
 // Config getter that always returns direct settings.
 class ProxyConfigServiceDirect : public ProxyConfigService {
@@ -97,17 +79,9 @@ ProxyConfigService::CreateSystemProxyConfigService(
 #if BUILDFLAG(IS_WIN)
   return std::make_unique<ProxyConfigServiceWin>(
       kSystemProxyConfigTrafficAnnotation);
-#elif BUILDFLAG(IS_IOS)
-  return std::make_unique<ProxyConfigServiceIOS>(
-      kSystemProxyConfigTrafficAnnotation);
 #elif BUILDFLAG(IS_MAC)
   return std::make_unique<ProxyConfigServiceMac>(
       std::move(main_task_runner), kSystemProxyConfigTrafficAnnotation);
-#elif BUILDFLAG(IS_CHROMEOS)
-  LOG(ERROR) << "ProxyConfigService for ChromeOS should be created in "
-             << "profile_io_data.cc::CreateProxyConfigService and this should "
-             << "be used only for examples.";
-  return std::make_unique<UnsetProxyConfigService>();
 #elif BUILDFLAG(IS_LINUX)
   std::unique_ptr<ProxyConfigServiceLinux> linux_config_service(
       std::make_unique<ProxyConfigServiceLinux>());
@@ -127,10 +101,6 @@ ProxyConfigService::CreateSystemProxyConfigService(
       kSystemProxyConfigTrafficAnnotation);
 
   return std::move(linux_config_service);
-#elif BUILDFLAG(IS_ANDROID)
-  return std::make_unique<ProxyConfigServiceAndroid>(
-      std::move(main_task_runner),
-      base::SingleThreadTaskRunner::GetCurrentDefault());
 #else
   LOG(WARNING) << "Failed to choose a system proxy settings fetcher "
                   "for this platform.";

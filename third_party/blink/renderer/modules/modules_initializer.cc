@@ -111,59 +111,10 @@
 #include "third_party/webrtc_overrides/init_webrtc.h"
 #include "ui/accessibility/accessibility_features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "third_party/blink/public/platform/modules/video_capture/web_video_capture_impl_manager.h"
-#include "third_party/blink/public/platform/platform.h"
-#include "third_party/blink/public/web/modules/mediastream/web_media_stream_device_observer.h"
-#include "third_party/blink/renderer/core/page/page_visibility_observer.h"
-#include "third_party/blink/renderer/modules/remote_objects/remote_object_gateway_impl.h"
-#endif
 
 namespace blink {
 namespace {
 
-#if BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_DESKTOP_ANDROID)
-
-class SuspendCaptureObserver : public GarbageCollected<SuspendCaptureObserver>,
-                               public Supplement<Page>,
-                               public PageVisibilityObserver {
- public:
-  static const char kSupplementName[];
-
-  explicit SuspendCaptureObserver(Page& page)
-      : Supplement<Page>(page), PageVisibilityObserver(&page) {}
-
-  // PageVisibilityObserver overrides:
-  void PageVisibilityChanged() override {
-    // TODO(crbug.com/487935): We don't yet suspend video capture devices for
-    // OOPIFs.
-    WebLocalFrameImpl* frame = WebLocalFrameImpl::FromFrame(
-        DynamicTo<LocalFrame>(GetPage()->MainFrame()));
-    if (!frame)
-      return;
-    WebMediaStreamDeviceObserver* media_stream_device_observer =
-        frame->Client()->MediaStreamDeviceObserver();
-    if (!media_stream_device_observer)
-      return;
-    // Don't suspend media capture devices if page visibility is
-    // PageVisibilityState::kHiddenButPainting (e.g. Picture-in-Picture).
-    // TODO(crbug.com/1339252): Add tests.
-    bool suspend = (GetPage()->GetVisibilityState() ==
-                    mojom::blink::PageVisibilityState::kHidden);
-    MediaStreamDevices video_devices =
-        media_stream_device_observer->GetNonScreenCaptureDevices();
-    Platform::Current()->GetVideoCaptureImplManager()->SuspendDevices(
-        video_devices, suspend);
-  }
-
-  void Trace(Visitor* visitor) const override {
-    Supplement<Page>::Trace(visitor);
-    PageVisibilityObserver::Trace(visitor);
-  }
-};
-
-const char SuspendCaptureObserver::kSupplementName[] = "SuspendCaptureObserver";
-#endif  // BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_DESKTOP_ANDROID)
 
 }  // namespace
 
@@ -242,10 +193,6 @@ void ModulesInitializer::InitLocalFrame(LocalFrame& frame) const {
       &AppBannerController::BindReceiver, WrapWeakPersistent(&frame)));
   frame.GetInterfaceRegistry()->AddInterface(BindRepeating(
       &TextSuggestionBackendImpl::Bind, WrapWeakPersistent(&frame)));
-#if BUILDFLAG(IS_ANDROID)
-  frame.GetInterfaceRegistry()->AddInterface(BindRepeating(
-      &RemoteObjectGatewayFactoryImpl::Bind, WrapWeakPersistent(&frame)));
-#endif  // BUILDFLAG(IS_ANDROID)
 
   frame.GetInterfaceRegistry()->AddInterface(
       BindRepeating(&PeerConnectionTracker::BindToFrame,
@@ -340,12 +287,6 @@ void ModulesInitializer::OnClearWindowObjectInMainWorld(
   }
   ManifestManager::From(window);
 
-#if BUILDFLAG(IS_ANDROID)
-  LocalFrame* frame = window.GetFrame();
-  DCHECK(frame);
-  if (auto* gateway = RemoteObjectGatewayImpl::From(*frame))
-    gateway->OnClearWindowObjectInMainWorld();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 std::unique_ptr<WebMediaPlayer> ModulesInitializer::CreateWebMediaPlayer(
@@ -380,9 +321,6 @@ void ModulesInitializer::ProvideModulesToPage(
     const SessionStorageNamespaceId& namespace_id) const {
   StorageNamespace::ProvideSessionStorageNamespaceTo(page, namespace_id);
   AudioGraphTracer::ProvideAudioGraphTracerTo(page);
-#if BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_DESKTOP_ANDROID)
-  page.ProvideSupplement(MakeGarbageCollected<SuspendCaptureObserver>(page));
-#endif  // BUILDFLAG(IS_ANDROID)  && !BUILDFLAG(IS_DESKTOP_ANDROID)
 }
 
 void ModulesInitializer::ForceNextWebGLContextCreationToFail() const {

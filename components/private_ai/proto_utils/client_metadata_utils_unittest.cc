@@ -34,14 +34,6 @@ TEST(ClientMetadataUtilsTest, GetPlatformForProto) {
             proto::ChromeClientMetadata::PLATFORM_WINDOWS);
 #elif BUILDFLAG(IS_MAC)
   EXPECT_EQ(GetPlatformForProto(), proto::ChromeClientMetadata::PLATFORM_MAC);
-#elif BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(GetPlatformForProto(),
-            proto::ChromeClientMetadata::PLATFORM_CHROMEOS);
-#elif BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(GetPlatformForProto(),
-            proto::ChromeClientMetadata::PLATFORM_ANDROID);
-#elif BUILDFLAG(IS_IOS)
-  EXPECT_EQ(GetPlatformForProto(), proto::ChromeClientMetadata::PLATFORM_IOS);
 #elif BUILDFLAG(IS_LINUX)
   EXPECT_EQ(GetPlatformForProto(), proto::ChromeClientMetadata::PLATFORM_LINUX);
 #else

@@ -262,7 +262,7 @@ Mailbox SharedImageInterfaceProxy::CreateSharedImage(
   // TODO(kylechar): Verify buffer_handle works for size+format.
   auto mailbox = Mailbox::Generate();
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   if (host_->client_type() == viz::mojom::GpuClientType::kRenderer) {
     // Only valid client from renderer on ChromeOS and Linux is VideoCapture,
     // that supposed to produce linear buffers.
@@ -359,7 +359,7 @@ void SharedImageInterfaceProxy::UpdateSharedImage(
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 void SharedImageInterfaceProxy::CopyNativeGmbToSharedMemoryAsync(
     gfx::GpuMemoryBufferHandle buffer_handle,
     base::UnsafeSharedMemoryRegion memory_region,
@@ -367,7 +367,7 @@ void SharedImageInterfaceProxy::CopyNativeGmbToSharedMemoryAsync(
   host_->CopyNativeGmbToSharedMemoryAsync(
       std::move(buffer_handle), std::move(memory_region), std::move(callback));
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 
 void SharedImageInterfaceProxy::UpdateSharedImage(const SyncToken& sync_token,
                                                   const Mailbox& mailbox) {

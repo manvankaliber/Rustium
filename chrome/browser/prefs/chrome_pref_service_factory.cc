@@ -78,9 +78,6 @@
 #include "sql/error_delegate_util.h"
 #include "ui/base/resource/resource_bundle.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "base/files/file_util.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "extensions/browser/pref_names.h"
@@ -135,10 +132,8 @@ const auto kTrackedPrefs = std::to_array<prefs::TrackedPreferenceMetadata>({
      ValueType::PERSONAL},
     {7, prefs::kSearchProviderOverrides, EnforcementLevel::ENFORCE_ON_LOAD,
      PrefTrackingStrategy::ATOMIC, ValueType::IMPERSONAL},
-#if !BUILDFLAG(IS_ANDROID)
     {11, prefs::kPinnedTabs, EnforcementLevel::ENFORCE_ON_LOAD,
      PrefTrackingStrategy::ATOMIC, ValueType::IMPERSONAL},
-#endif
     {14, DefaultSearchManager::kDefaultSearchProviderDataPrefName,
      EnforcementLevel::NO_ENFORCEMENT, PrefTrackingStrategy::ATOMIC,
      ValueType::IMPERSONAL},
@@ -290,25 +285,6 @@ std::unique_ptr<ProfilePrefStoreManager> CreateProfilePrefStoreManager(
   return std::make_unique<ProfilePrefStoreManager>(profile_path, seed);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// The standalone browser prefs store does not exist anymore but there may still
-// be files left on disk. Delete them.
-// TODO(crbug.com/380780352): Remove this code after the stepping stone.
-void CleanupObsoleteStandaloneBrowserPrefsFile(
-    const base::FilePath& profile_path) {
-  base::FilePath file(FILE_PATH_LITERAL("standalone_browser_preferences.json"));
-  base::FilePath user_data_dir;
-  CHECK(base::PathService::Get(chrome::DIR_USER_DATA, &user_data_dir));
-  base::FilePath obsolete_paths[] = {user_data_dir.Append(file),
-                                     profile_path.Append(file)};
-  for (const auto& path : obsolete_paths) {
-    if (base::PathExists(path)) {
-      bool success = base::DeleteFile(path);
-      LOG(WARNING) << "Removing obsolete " << path << " file: " << success;
-    }
-  }
-}
-#endif
 
 void PrepareFactory(sync_preferences::PrefServiceSyncableFactory* factory,
                     const base::FilePath& pref_filename,
@@ -423,11 +399,6 @@ std::unique_ptr<sync_preferences::PrefServiceSyncable> CreateProfilePrefs(
               io_task_runner, std::move(reset_on_load_observer),
               std::move(validation_delegate), os_crypt_async);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  io_task_runner->PostTask(
-      FROM_HERE,
-      base::BindOnce(&CleanupObsoleteStandaloneBrowserPrefsFile, profile_path));
-#endif
 
   if (family_link_settings_service) {
     PrepareFactory(&factory, profile_path, policy_service,
@@ -439,7 +410,6 @@ std::unique_ptr<sync_preferences::PrefServiceSyncable> CreateProfilePrefs(
                    std::move(extension_prefs), async, connector);
   }
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
   // Get raw pointers to the filters before moving user_pref_store.
   PrefFilter* default_filter = nullptr;
   PrefFilter* selected_filter = nullptr;
@@ -456,19 +426,9 @@ std::unique_ptr<sync_preferences::PrefServiceSyncable> CreateProfilePrefs(
       default_filter = user_pref_store->GetFilter();
     }
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
   if (base::FeatureList::IsEnabled(
           switches::kEnablePreferencesAccountStorage)) {
-#if BUILDFLAG(IS_ANDROID)
-    // Delete account preference file on Mobile platforms.
-    // TODO(crbug.com/346508597): Remove this after a year, consistent with
-    // the pref migration process.
-    io_task_runner->PostTask(
-        FROM_HERE, base::BindOnce(IgnoreResult(&base::DeleteFile),
-                                  profile_path.Append(
-                                      chrome::kAccountPreferencesFilename)));
-#endif  // BUILDFLAG(IS_ANDROID)
     /**
      * Account values will live under `kAccountPreferencesPrefix` as a
      * dictionary in the main preference file and will be operated upon by a
@@ -525,14 +485,12 @@ std::unique_ptr<sync_preferences::PrefServiceSyncable> CreateProfilePrefs(
       factory.CreateSyncable(std::move(pref_registry));
 
 // The PrefService is created, set the weakptr for the filters.
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
   if (default_filter) {
     default_filter->SetPrefService(pref_service.get());
   }
   if (selected_filter) {
     selected_filter->SetPrefService(pref_service.get());
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
   return pref_service;
 }
@@ -584,7 +542,6 @@ void HandlePersistentPrefStoreReadError(
         base::NotFatalUntil::M163);
 
   if (error != PersistentPrefStore::PREF_READ_ERROR_NONE) {
-#if !BUILDFLAG(IS_CHROMEOS)
     // Failing to load prefs on startup is a bad thing(TM). See bug 38352 for
     // an example problem that this can cause.
     // Do some diagnosis and try to avoid losing data.
@@ -606,17 +563,6 @@ void HandlePersistentPrefStoreReadError(
                          message_id,
                          sql::GetCorruptFileDiagnosticsInfo(pref_filename)));
     }
-#else
-    // On ChromeOS error screen with message about broken local state
-    // will be displayed.
-
-    // A supplementary error message about broken local state - is included
-    // in logs and user feedbacks.
-    if (error != PersistentPrefStore::PREF_READ_ERROR_NONE &&
-        error != PersistentPrefStore::PREF_READ_ERROR_NO_FILE) {
-      LOG(ERROR) << "An error happened during prefs loading: " << error;
-    }
-#endif
   }
 }
 

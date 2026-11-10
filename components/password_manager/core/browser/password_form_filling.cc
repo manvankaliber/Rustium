@@ -59,12 +59,10 @@ bool ContainsAndroidCredentials(const PasswordFormFillData& fill_data) {
   return PreferredRealmIsFromAndroid(fill_data);
 }
 
-#if !BUILDFLAG(IS_IOS) && !defined(ANDROID)
 bool IsFillOnAccountSelectFeatureEnabled() {
   return base::FeatureList::IsEnabled(
       password_manager::features::kFillOnAccountSelect);
 }
-#endif
 
 void Autofill(PasswordManagerClient* client,
               PasswordManagerDriver* driver,
@@ -123,7 +121,6 @@ bool IsSameOrigin(const Origin& frame_origin, const GURL& credential_url) {
   return frame_origin.IsSameOriginWith(Origin::Create(credential_url));
 }
 
-#if !BUILDFLAG(IS_IOS) && !defined(ANDROID)
 bool IsEligibleForPasswordChange(PasswordManagerClient* client,
                                  const StoredCredential* preferred_match) {
   if (!preferred_match) {
@@ -139,7 +136,6 @@ bool IsEligibleForPasswordChange(PasswordManagerClient* client,
          (preferred_match->password_issues.contains(InsecureType::kLeaked) ||
           base::FeatureList::IsEnabled(features::kMarkAllCredentialsAsLeaked));
 }
-#endif
 
 }  // namespace
 
@@ -179,8 +175,7 @@ LikelyFormFilling SendFillInformationToRenderer(
 
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
     if (!should_show_popup_without_passwords) {
       url::Origin origin =
           base::FeatureList::IsEnabled(
@@ -214,7 +209,6 @@ LikelyFormFilling SendFillInformationToRenderer(
 
 // This metric will always record kReauthRequired on iOS and Android. So we can
 // drop it there.
-#if !BUILDFLAG(IS_IOS) && !defined(ANDROID)
   // Proceed to autofill.
   // Note that we provide the choices but don't actually prefill a value if:
   // (1) we are in Incognito mode, or
@@ -228,7 +222,7 @@ LikelyFormFilling SendFillInformationToRenderer(
       WaitForUsernameReason::kDontWait;
   if (client->IsOffTheRecord()) {
     wait_for_username_reason = WaitForUsernameReason::kIncognitoMode;
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   } else if (client->GetPasswordFeatureManager()
                  ->IsBiometricAuthenticationBeforeFillingEnabled()) {
     wait_for_username_reason = WaitForUsernameReason::kBiometricAuthentication;
@@ -279,9 +273,6 @@ LikelyFormFilling SendFillInformationToRenderer(
 
   bool wait_for_username =
       wait_for_username_reason != WaitForUsernameReason::kDontWait;
-#else
-  bool wait_for_username = true;
-#endif  // !BUILDFLAG(IS_IOS) && !defined(ANDROID)
 
   if (wait_for_username) {
     metrics_recorder->RecordFillEvent(

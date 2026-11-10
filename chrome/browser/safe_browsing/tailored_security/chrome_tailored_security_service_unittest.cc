@@ -86,11 +86,6 @@ class DummyBaseWindow : public ui::BaseWindow {
     return ui::ZOrderLevel::kNormal;
   }
   void SetZOrderLevel(ui::ZOrderLevel order) override {}
-#if BUILDFLAG(IS_ANDROID)
-  bool CanResize(ui::WindowResizePrecheckResult& result) const override {
-    return false;
-  }
-#endif
 };
 
 class FakeBrowserManagerService : public BrowserManagerService {

@@ -106,19 +106,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/autofill/autofill_cvc_save_message_delegate.h"
-#include "chrome/browser/ui/android/autofill/autofill_save_card_bottom_sheet_bridge.h"
-#include "chrome/browser/ui/android/autofill/autofill_save_card_delegate_android.h"
-#include "chrome/browser/ui/android/autofill/autofill_snackbar_controller_impl.h"
-#include "chrome/browser/ui/android/autofill/autofill_snackbar_type.h"
-#include "chrome/browser/ui/android/autofill/email_verification_bottom_sheet_bridge.h"
-#include "chrome/browser/ui/autofill/email_verifier/email_verification_controller_test_api.h"
-#include "components/autofill/core/browser/payments/autofill_save_card_ui_info.h"
-#include "components/autofill/core/browser/ui/autofill_tapjacking_protector.h"
-#include "components/autofill/core/browser/ui/mock_autofill_tapjacking_protector.h"
-#include "ui/android/window_android.h"
-#else  // BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/account_settings/account_setting_service_factory.h"
 #include "chrome/browser/actor/actor_keyed_service_factory.h"
 #include "chrome/browser/actor/actor_keyed_service_fake.h"
@@ -146,7 +133,6 @@
 #include "chrome/test/base/testing_profile_manager.h"
 #include "components/tabs/public/mock_tab_interface.h"
 #include "components/tabs/public/tab_interface.h"
-#endif  //   BUILDFLAG(IS_ANDROID)
 
 namespace autofill {
 namespace {
@@ -191,7 +177,6 @@ class MockPersonalContextEligibilityService
       (const, override));
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 class MockSaveCardBubbleController : public SaveCardBubbleControllerImpl {
  public:
   explicit MockSaveCardBubbleController(content::WebContents* web_contents)
@@ -208,9 +193,7 @@ class MockSaveCardBubbleController : public SaveCardBubbleControllerImpl {
       (override));
   MOCK_METHOD(void, HideSaveCardBubble, (), (override));
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 class MockAutofillFieldPromoController : public AutofillFieldPromoController {
  public:
   ~MockAutofillFieldPromoController() override = default;
@@ -219,7 +202,6 @@ class MockAutofillFieldPromoController : public AutofillFieldPromoController {
   MOCK_METHOD(bool, IsMaybeShowing, (), (const, override));
   MOCK_METHOD(const base::Feature&, GetFeaturePromo, (), (const, override));
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // This test class is needed to make the constructor public.
 class TestChromeAutofillClient : public ChromeAutofillClient {
@@ -229,8 +211,7 @@ class TestChromeAutofillClient : public ChromeAutofillClient {
   ~TestChromeAutofillClient() override = default;
 
   using ChromeAutofillClient::GetEmailVerificationController;
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   using ChromeAutofillClient::at_memory_copy_paste_observer;
 #endif
 };
@@ -246,14 +227,12 @@ class ChromeAutofillClientTest : public ChromeRenderViewHostTestHarness {
     // Creates the AutofillDriver and AutofillManager.
     NavigateAndCommit(GURL("about:blank"));
 
-#if !BUILDFLAG(IS_ANDROID)
 
     auto save_card_bubble_controller =
         std::make_unique<MockSaveCardBubbleController>(web_contents());
     const auto* user_data_key = save_card_bubble_controller->UserDataKey();
     web_contents()->SetUserData(user_data_key,
                                 std::move(save_card_bubble_controller));
-#endif  // !BUILDFLAG(IS_ANDROID)
   }
 
   void InitializePersonalContextEligibilityService() {
@@ -269,7 +248,6 @@ class ChromeAutofillClientTest : public ChromeRenderViewHostTestHarness {
                     })));
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   void SetUpIphForTesting(const base::Feature& feature_promo) {
     auto autofill_field_promo_controller =
         std::make_unique<MockAutofillFieldPromoController>();
@@ -281,13 +259,10 @@ class ChromeAutofillClientTest : public ChromeRenderViewHostTestHarness {
     client()->SetAutofillFieldPromoTesting(
         std::move(autofill_field_promo_controller));
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   void TearDown() override {
     // Avoid that the raw pointer becomes dangling.
-#if !BUILDFLAG(IS_ANDROID)
     autofill_field_promo_controller_ = nullptr;
-#endif  // !BUILDFLAG(IS_ANDROID)
     personal_context_eligibility_service_ = nullptr;
     ChromeRenderViewHostTestHarness::TearDown();
   }
@@ -310,18 +285,14 @@ class ChromeAutofillClientTest : public ChromeRenderViewHostTestHarness {
     return personal_context_eligibility_service_;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   MockAutofillFieldPromoController* autofill_field_promo_controller() {
     return autofill_field_promo_controller_;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
   MockSaveCardBubbleController& save_card_bubble_controller() {
     return static_cast<MockSaveCardBubbleController&>(
         *SaveCardBubbleControllerImpl::FromWebContents(web_contents()));
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
  protected:
   TestingProfile::TestingFactories GetTestingFactories() const override {
@@ -342,9 +313,7 @@ class ChromeAutofillClientTest : public ChromeRenderViewHostTestHarness {
 
   test::AutofillUnitTestEnvironment autofill_environment_{
       {.disable_server_communication = true}};
-#if !BUILDFLAG(IS_ANDROID)
   raw_ptr<MockAutofillFieldPromoController> autofill_field_promo_controller_;
-#endif  // !BUILDFLAG(IS_ANDROID)
   raw_ptr<MockPersonalContextEligibilityService>
       personal_context_eligibility_service_;
   TestAutofillClientInjector<TestChromeAutofillClient>
@@ -447,7 +416,6 @@ TEST_F(ChromeAutofillClientTest, ClassifiesLoginFormOnChildFrame) {
             expected);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ChromeAutofillClientTest,
        CreditCardUploadCompleted_ShowConfirmationBubbleView_CardSaved) {
@@ -879,10 +847,8 @@ TEST_F(ChromeAutofillClientTestWithMockWindow,
   actor_service->NotifyTaskStateChanged(*task);
 }
 
-#endif  //  !BUILDFLAG(IS_ANDROID)
 
-#if (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-     BUILDFLAG(IS_CHROMEOS))
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
 // Tests that `ShowAutofillAtMemoryPromo` is propagated to the browser user
 // education service when AtMemory is enabled.
@@ -1231,7 +1197,6 @@ TEST_F(ChromeAutofillClientTest, GetPersonalContextEligibilityState_HappyPath) {
             personal_context::PersonalContextEligibilityState::kEligible);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ChromeAutofillClientTest, HideSuggestions_ProductFilter) {
   testing::NiceMock<MockAutofillPopupController> mock_controller;
   ON_CALL(mock_controller, GetMainFillingProduct)
@@ -1273,7 +1238,6 @@ TEST_F(ChromeAutofillClientTest,
       UpdateDataListValues(ElementsAre(Field(&SelectOption::value, u"val"))));
   client()->UpdateAutofillDataListValues(token1, options);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ChromeAutofillClientTest, IsAutofillProfileEnabled_BlockedByPolicy) {
   base::test::ScopedFeatureList feature_list(
@@ -1364,81 +1328,6 @@ TEST_F(ChromeAutofillClientTest, GetAffiliationService) {
             client()->GetAffiliationService());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(ChromeAutofillClientTest,
-       ShowAutofillAiSuggestionRemovedNotification_ActionCallbackTriggered) {
-  base::test::ScopedFeatureList feature_list(
-      features::kAutofillAmbientAutofillSuppression);
-
-  base::MockCallback<base::OnceClosure> on_undo_clicked;
-  EXPECT_CALL(on_undo_clicked, Run);
-
-  client()->ShowAutofillAiSuggestionRemovedNotification(
-      test::GetPassportEntityInstance(
-          {.record_type = EntityInstance::RecordType::kPersonalContext}),
-      on_undo_clicked.Get());
-
-  AutofillSnackbarControllerImpl* snackbar_controller =
-      client()->GetAutofillSnackbarController();
-  ASSERT_TRUE(snackbar_controller);
-  EXPECT_EQ(snackbar_controller->GetSnackbarType(),
-            AutofillSnackbarType::kAutofillAiSuppressionUndo);
-
-  // Triggering the action callback should invoke on_undo_clicked.
-  snackbar_controller->OnActionClicked();
-}
-
-TEST_F(ChromeAutofillClientTest, ShowTapjackingProtector) {
-  auto mock_protector = std::make_unique<MockAutofillTapjackingProtector>();
-  EXPECT_CALL(
-      *mock_protector,
-      Show(AutofillTapjackingProtector::AuthorizationType::kPayments, _));
-
-  client()->SetAutofillTapjackingProtectorImplForTesting(
-      std::move(mock_protector));
-
-  base::MockCallback<AutofillTapjackingProtector::AuthorizationCallback>
-      callback;
-  client()->ShowTapjackingProtector(
-      AutofillTapjackingProtector::AuthorizationType::kPayments,
-      callback.Get());
-}
-
-class MockEmailVerificationBottomSheetBridge
-    : public EmailVerificationBottomSheetBridge {
- public:
-  explicit MockEmailVerificationBottomSheetBridge(
-      content::WebContents* web_contents)
-      : EmailVerificationBottomSheetBridge(web_contents) {}
-  ~MockEmailVerificationBottomSheetBridge() override = default;
-
-  MOCK_METHOD(void,
-              ShowJavaBottomSheet,
-              (const std::u16string& title, const std::u16string& description),
-              (override));
-  MOCK_METHOD(void, HideJavaBottomSheet, (), (override));
-};
-
-TEST_F(ChromeAutofillClientTest,
-       EmailVerification_DelegatesShowAndHidePopupToController) {
-  auto window = ui::WindowAndroid::CreateForTesting();
-  window->get()->AddChild(web_contents()->GetNativeView());
-
-  auto mock_bridge =
-      std::make_unique<MockEmailVerificationBottomSheetBridge>(web_contents());
-  MockEmailVerificationBottomSheetBridge* bridge_ptr = mock_bridge.get();
-  test_api(*client()->GetEmailVerificationController())
-      .set_bottom_sheet_bridge(std::move(mock_bridge));
-
-  EXPECT_CALL(*bridge_ptr, ShowJavaBottomSheet);
-  client()->ShowEmailVerificationPopup(
-      gfx::RectF(0, 0, 10, 10), url::Origin::Create(GURL("https://google.com")),
-      u"user@example.com", base::DoNothing());
-
-  EXPECT_CALL(*bridge_ptr, HideJavaBottomSheet);
-  client()->HideEmailVerificationPopup();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class OpenUrlTestWebContentsDelegate : public content::WebContentsDelegate {
  public:

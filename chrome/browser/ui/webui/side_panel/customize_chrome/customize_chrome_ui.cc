@@ -47,13 +47,11 @@
 #include "ui/webui/color_change_listener/color_change_handler.h"
 #include "ui/webui/tracked_element/tracked_element_handler_document_singleton.h"
 #include "ui/webui/webui_util.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/views/side_panel/customize_chrome/customize_chrome_utils.h"
 #include "chrome/browser/ui/webui/side_panel/customize_chrome/customize_toolbar/customize_toolbar_handler.h"
 #include "chrome/browser/ui/webui/side_panel/customize_chrome/wallpaper_search/wallpaper_search_handler.h"
 #include "chrome/browser/ui/webui/side_panel/customize_chrome/wallpaper_search/wallpaper_search_string_map.h"
 #include "chrome/browser/ui/webui/theme_handler.h"
-#endif
 
 namespace {
 
@@ -86,9 +84,6 @@ CustomizeChromeUI::CustomizeChromeUI(content::WebUI* web_ui)
                                    profile_)),
       page_factory_receiver_(this),
       id_(RandInt64()) {
-#if BUILDFLAG(IS_ANDROID)
-  const bool wallpaper_search_enabled = false;
-#else
   const bool wallpaper_search_enabled =
       customize_chrome::IsWallpaperSearchEnabledForProfile(profile_);
   if (wallpaper_search_enabled) {
@@ -96,16 +91,13 @@ CustomizeChromeUI::CustomizeChromeUI(content::WebUI* web_ui)
         std::make_unique<WallpaperSearchBackgroundManager>(profile_);
     wallpaper_search_string_map_ = WallpaperSearchStringMap::Create();
   }
-#endif
   content::WebUIDataSource* source = content::WebUIDataSource::CreateAndAdd(
       profile_, chrome::kChromeUICustomizeChromeSidePanelHost);
 
 // ThemeHandler used only by "Customize Toolbar".
-#if !BUILDFLAG(IS_ANDROID)
   if (!profile_->IsGuestSession()) {
     web_ui->AddMessageHandler(std::make_unique<ThemeHandler>());
   }
-#endif
 
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
       // Side panel strings.
@@ -285,7 +277,7 @@ CustomizeChromeUI::CustomizeChromeUI(content::WebUI* web_ui)
                              IdentityManagerFactory::GetForProfile(profile_)));
 
   source->AddBoolean("showDeviceThemeToggle",
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
                      true);
 #else
                      false);
@@ -303,10 +295,10 @@ CustomizeChromeUI::CustomizeChromeUI(content::WebUI* web_ui)
   source->AddBoolean("ntpNextDisablementEnabled",
                      ntp_features::kNtpNextDisablementParam.Get());
   source->AddBoolean("wallpaperSearchEnabled", wallpaper_search_enabled);
-  source->AddBoolean("toolbarCustomizationEnabled", !BUILDFLAG(IS_ANDROID));
+  source->AddBoolean("toolbarCustomizationEnabled", !false);
   // Chrome Web Store themes are extension themes, which aren't supported on
   // Android.
-  source->AddBoolean("chromeWebStoreThemesEnabled", !BUILDFLAG(IS_ANDROID));
+  source->AddBoolean("chromeWebStoreThemesEnabled", !false);
   source->AddBoolean(
       "wallpaperSearchInspirationCardEnabled",
       wallpaper_search_enabled &&
@@ -411,7 +403,6 @@ void CustomizeChromeUI::BindInterface(
   page_factory_receiver_.Bind(std::move(receiver));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void CustomizeChromeUI::BindInterface(
     mojo::PendingReceiver<
         side_panel::customize_chrome::mojom::CustomizeToolbarHandlerFactory>
@@ -421,7 +412,6 @@ void CustomizeChromeUI::BindInterface(
   }
   customize_toolbar_handler_factory_receiver_.Bind(std::move(receiver));
 }
-#endif
 
 void CustomizeChromeUI::BindInterface(
     mojo::PendingReceiver<help_bubble::mojom::HelpBubbleHandlerFactory>
@@ -454,7 +444,6 @@ void CustomizeChromeUI::BindInterface(
       std::move(pending_receiver));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void CustomizeChromeUI::BindInterface(
     mojo::PendingReceiver<
         side_panel::customize_chrome::mojom::WallpaperSearchHandlerFactory>
@@ -464,7 +453,6 @@ void CustomizeChromeUI::BindInterface(
   }
   wallpaper_search_handler_factory_receiver_.Bind(std::move(pending_receiver));
 }
-#endif
 
 void CustomizeChromeUI::CreatePageHandler(
     mojo::PendingRemote<side_panel::mojom::CustomizeChromePage> pending_page,
@@ -521,7 +509,6 @@ void CustomizeChromeUI::CreateThemeColorPickerHandler(
       web_contents_);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void CustomizeChromeUI::CreateWallpaperSearchHandler(
     mojo::PendingRemote<
         side_panel::customize_chrome::mojom::WallpaperSearchClient> client,
@@ -552,4 +539,3 @@ void CustomizeChromeUI::CreateCustomizeToolbarHandler(
   customize_toolbar_handler_ = std::make_unique<CustomizeToolbarHandler>(
       std::move(handler), std::move(client), web_contents_);
 }
-#endif

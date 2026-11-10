@@ -30,9 +30,9 @@
 #include "base/system/sys_info.h"
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "third_party/lss/linux_syscall_support.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 namespace base {
 
@@ -67,7 +67,7 @@ class URandomFd {
 
 #endif  // !BUILDFLAG(IS_APPLE)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 
 bool KernelSupportsGetRandom() {
   return base::SysInfo::KernelVersionNumber::Current() >=
@@ -89,7 +89,7 @@ bool GetRandomSyscall(void* output, size_t output_length) {
   }
   return false;
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 void RandBytesInternal(span<uint8_t> output, bool avoid_allocation) {
@@ -103,7 +103,7 @@ void RandBytesInternal(span<uint8_t> output, bool avoid_allocation) {
 #elif BUILDFLAG(IS_APPLE)
   CHECK(CCRandomGenerateBytes(output.data(), output.size()) == kCCSuccess);
 #else
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   // On Android it is mandatory to check that the kernel _version_ has the
   // support for a syscall before calling. The same check is made on Linux and
   // ChromeOS to avoid making a syscall that predictably returns ENOSYS.
@@ -111,7 +111,7 @@ void RandBytesInternal(span<uint8_t> output, bool avoid_allocation) {
   if (kernel_has_support && GetRandomSyscall(output.data(), output.size())) {
     return;
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
   // If the OS-specific mechanisms didn't work, fall through to reading from
   // urandom.

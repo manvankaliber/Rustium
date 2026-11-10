@@ -157,12 +157,6 @@ class AccountReconcilor : public KeyedService,
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
 
-#if BUILDFLAG(ENABLE_MIRROR)
-  // Returns a callback that, when run, will call `ForceReconcile()`.
-  // This is useful for registering with external triggers (currently only used
-  // on ChromeOS for dialog closures) to trigger a forced reconciliation.
-  base::RepeatingClosure CreateForceReconcileCallback();
-#endif  // BUILDFLAG(ENABLE_MIRROR)
 
   // Returns true if reconcilor is blocked.
   bool IsReconcileBlocked() const;
@@ -217,21 +211,6 @@ class AccountReconcilor : public KeyedService,
   FRIEND_TEST_ALL_PREFIXES(AccountReconcilorTest,
                            GetGaiaApiSourceCookieUpgradeParameter);
 
-#if BUILDFLAG(ENABLE_MIRROR)
-  FRIEND_TEST_ALL_PREFIXES(AccountReconcilorTest,
-                           ForceReconcileEarlyExitsForInactiveReconcilor);
-  FRIEND_TEST_ALL_PREFIXES(AccountReconcilorMirrorTest,
-                           ForceReconcileImmediatelyStartsForIdleReconcilor);
-  FRIEND_TEST_ALL_PREFIXES(
-      AccountReconcilorMirrorTest,
-      ForceReconcileImmediatelyStartsForErroredOutReconcilor);
-  FRIEND_TEST_ALL_PREFIXES(
-      AccountReconcilorMirrorTest,
-      ForceReconcileSchedulesReconciliationIfReconcilorIsAlreadyRunning);
-  FRIEND_TEST_ALL_PREFIXES(
-      AccountReconcilorMirrorTest,
-      CreateForceReconcileCallbackTriggersForcedReconciliation);
-#endif  // BUILDFLAG(ENABLE_MIRROR)
 
   FRIEND_TEST_ALL_PREFIXES(AccountReconcilorTestForceDiceMigration,
                            TableRowTestCheckNoOp);
@@ -404,12 +383,6 @@ class AccountReconcilor : public KeyedService,
   void AbortReconcile();
   void ScheduleStartReconcileIfChromeAccountsChanged();
 
-#if BUILDFLAG(ENABLE_MIRROR)
-  // Forces reconciliation. A reconciliation cycle is started immediately if it
-  // is not already running, otherwise another forced reconciliation is
-  // attempted after some time.
-  void ForceReconcile();
-#endif  // BUILDFLAG(ENABLE_MIRROR)
 
   // Returns the list of valid accounts from the TokenService.
   std::vector<CoreAccountId> LoadValidAccountsFromTokenService() const;
@@ -546,16 +519,7 @@ class AccountReconcilor : public KeyedService,
   // StartReconcile() should be started when the reconcilor is unblocked.
   bool reconcile_on_unblock_ = false;
 
-#if BUILDFLAG(IS_IOS)
-  // TODO(crbug.com/484371187): Investigate if reentrancy can be removed.
-  base::ObserverList<
-      Observer,
-      true,
-      base::ObserverListReentrancyPolicy::kAllowReentrancyUntriaged>::Unchecked
-      observer_list_;
-#else
   base::ObserverList<Observer, true>::Unchecked observer_list_;
-#endif
 
   // A timer to set off reconciliation timeout handlers, if account
   // reconciliation does not happen in a given |timeout_| duration.

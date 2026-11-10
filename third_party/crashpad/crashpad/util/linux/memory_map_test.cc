@@ -122,10 +122,8 @@ TEST(MemoryMap, MAYBE_SelfBasic) {
   ASSERT_TRUE(mapping);
   EXPECT_GE(code_address, mapping->range.Base());
   EXPECT_LT(code_address, mapping->range.End());
-#if !BUILDFLAG(IS_ANDROID)
   // Android Q+ supports execute only memory.
   EXPECT_TRUE(mapping->readable);
-#endif
   EXPECT_FALSE(mapping->writable);
   EXPECT_TRUE(mapping->executable);
 
@@ -195,10 +193,8 @@ class MapChildTest : public Multiprocess {
     ASSERT_TRUE(mapping);
     EXPECT_GE(code_address, mapping->range.Base());
     EXPECT_LT(code_address, mapping->range.End());
-#if !BUILDFLAG(IS_ANDROID)
     // Android Q+ supports execute only memory.
     EXPECT_TRUE(mapping->readable);
-#endif
     EXPECT_TRUE(mapping->executable);
     EXPECT_FALSE(mapping->writable);
 
@@ -454,12 +450,8 @@ void ExpectFindFilePossibleMmapStarts(LinuxVMAddress mapping_start,
   EXPECT_EQ(mappings->Next(), mapping2);
 
   mappings = map.FindFilePossibleMmapStarts(*mapping3);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(mappings->Count(), 2u);
-#else
   ASSERT_EQ(mappings->Count(), 1u);
   EXPECT_EQ(mappings->Next(), mapping1);
-#endif
 }
 
 TEST(MemoryMap, FindFilePossibleMmapStarts) {
@@ -502,18 +494,6 @@ TEST(MemoryMap, FindFilePossibleMmapStarts) {
     ASSERT_NE(mapping1, mapping2);
     ASSERT_NE(mapping2, mapping3);
 
-#if BUILDFLAG(IS_ANDROID)
-    auto mappings = map.FindFilePossibleMmapStarts(*mapping1);
-    EXPECT_EQ(mappings->Count(), 1u);
-    EXPECT_EQ(mappings->Next(), mapping1);
-    EXPECT_EQ(mappings->Next(), nullptr);
-
-    mappings = map.FindFilePossibleMmapStarts(*mapping2);
-    EXPECT_EQ(mappings->Count(), 2u);
-
-    mappings = map.FindFilePossibleMmapStarts(*mapping3);
-    EXPECT_EQ(mappings->Count(), 3u);
-#else
     auto mappings = map.FindFilePossibleMmapStarts(*mapping1);
     ASSERT_EQ(mappings->Count(), 1u);
     EXPECT_EQ(mappings->Next(), mapping1);
@@ -526,7 +506,6 @@ TEST(MemoryMap, FindFilePossibleMmapStarts) {
     mappings = map.FindFilePossibleMmapStarts(*mapping3);
     ASSERT_EQ(mappings->Count(), 1u);
     EXPECT_EQ(mappings->Next(), mapping1);
-#endif
 
 #if defined(ARCH_CPU_64_BITS)
     constexpr bool is_64_bit = true;
@@ -650,47 +629,27 @@ TEST(MemoryMap, FindFilePossibleMmapStarts_MultipleStarts) {
   auto mapping = map.FindMapping(file_mapping0.addr_as<VMAddress>());
   ASSERT_TRUE(mapping);
   auto possible_starts = map.FindFilePossibleMmapStarts(*mapping);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(possible_starts->Count(), 1u);
-#else
   EXPECT_EQ(possible_starts->Count(), 0u);
-#endif
 
   mapping = map.FindMapping(file_mapping1.addr_as<VMAddress>());
   ASSERT_TRUE(mapping);
   possible_starts = map.FindFilePossibleMmapStarts(*mapping);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(possible_starts->Count(), 2u);
-#else
   EXPECT_EQ(possible_starts->Count(), 1u);
-#endif
 
   mapping = map.FindMapping(file_mapping2.addr_as<VMAddress>());
   ASSERT_TRUE(mapping);
   possible_starts = map.FindFilePossibleMmapStarts(*mapping);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(possible_starts->Count(), 3u);
-#else
   EXPECT_EQ(possible_starts->Count(), 2u);
-#endif
 
   mapping = map.FindMapping(file_mapping3.addr_as<VMAddress>());
   ASSERT_TRUE(mapping);
   possible_starts = map.FindFilePossibleMmapStarts(*mapping);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(possible_starts->Count(), 4u);
-#else
   EXPECT_EQ(possible_starts->Count(), 3u);
-#endif
 
   mapping = map.FindMapping(file_mapping4.addr_as<VMAddress>());
   ASSERT_TRUE(mapping);
   possible_starts = map.FindFilePossibleMmapStarts(*mapping);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(possible_starts->Count(), 5u);
-#else
   EXPECT_EQ(possible_starts->Count(), 4u);
-#endif
 }
 
 }  // namespace

@@ -277,7 +277,6 @@ def run_presubmit(
     input_api,
     output_api,
     all_pydeps_files,
-    android_specific_pydeps_files,
     generic_pydeps_files,
     checker_for_tests=None,
 ):
@@ -318,7 +317,7 @@ def run_presubmit(
         return results
 
     try:
-        parsed_args = _ParseGclientArgs()
+        _ParseGclientArgs()
     except FileNotFoundError:
         message = (
             'build/config/gclient_args.gni not found. Please make sure your '
@@ -330,28 +329,9 @@ def run_presubmit(
         # good presubmit UX for cog.
         return [output_api.PresubmitPromptWarning(message)]
 
-    is_android = parsed_args.get('checkout_android', 'false') == 'true'
     checker = checker_for_tests or PydepsChecker(input_api, all_pydeps_files)
     affected_pydeps = set(checker.ComputeAffectedPydeps())
-    affected_android_pydeps = affected_pydeps.intersection(
-        set(android_specific_pydeps_files)
-    )
-    if affected_android_pydeps and not is_android:
-        results.append(
-            output_api.PresubmitPromptOrNotify(
-                """\
-You have changed python files that may affect pydeps for android specific
-scripts. However, the relevant presubmit check cannot be run because you are
-not using an Android checkout. To validate that the .pydeps are correct, re-run
-presubmit in an Android checkout, or use the android-internal-presubmit
-optional trybot.
-
-Possibly stale pydeps files:\n{}
-""".format('\n'.join(affected_android_pydeps))
-            )
-        )
-
-    all_pydeps = all_pydeps_files if is_android else generic_pydeps_files
+    all_pydeps = generic_pydeps_files
     pydeps_to_check = affected_pydeps.intersection(all_pydeps)
     # Process these concurrently, as each one takes 1-2 seconds.
     for pydeps_path in sorted(pydeps_to_check):

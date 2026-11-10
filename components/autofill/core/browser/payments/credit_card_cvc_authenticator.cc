@@ -151,15 +151,5 @@ void CreditCardCvcAuthenticator::OnUnmaskVerificationResult(
   client_->GetPaymentsAutofillClient()->OnUnmaskVerificationResult(result);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool CreditCardCvcAuthenticator::ShouldOfferFidoAuth() const {
-  return requester_ && requester_->ShouldOfferFidoAuth();
-}
-
-bool CreditCardCvcAuthenticator::UserOptedInToFidoFromSettingsPageOnMobile()
-    const {
-  return requester_ && requester_->UserOptedInToFidoFromSettingsPageOnMobile();
-}
-#endif
 
 }  // namespace autofill

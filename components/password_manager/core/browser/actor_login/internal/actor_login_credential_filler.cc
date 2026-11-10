@@ -443,13 +443,12 @@ void ActorLoginCredentialFiller::ReauthenticateAndFill(
   CHECK(device_authenticator_);
 
   std::u16string message;
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   const std::u16string origin =
       base::UTF8ToUTF16(password_manager::GetShownOrigin(origin_));
   message =
       l10n_util::GetStringFUTF16(IDS_PASSWORD_MANAGER_FILLING_REAUTH, origin);
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_IOS)
   auto on_reauth_completed =
       base::BindOnce(&ActorLoginCredentialFiller::OnDeviceReauthCompleted,

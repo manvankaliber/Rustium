@@ -75,13 +75,9 @@
 #include "extensions/browser/pref_names.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/policy/cloud/chrome_browser_cloud_management_browsertest_delegate_android.h"
-#else
 #include "chrome/browser/device_identity/device_oauth2_token_service.h"
 #include "chrome/browser/device_identity/device_oauth2_token_service_factory.h"
 #include "chrome/browser/policy/cloud/chrome_browser_cloud_management_browsertest_delegate_desktop.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_MAC)
 #include "chrome/browser/policy/cloud/chrome_browser_cloud_management_browsertest_mac_util.h"
@@ -115,13 +111,8 @@ constexpr char kExtensionId1[] = "extension1";
 constexpr char kExtensionVersion1[] = "1.0.0.0";
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 typedef ChromeBrowserCloudManagementBrowserTestDelegateDesktop
     ChromeBrowserCloudManagementBrowserTestDelegateType;
-#else
-typedef ChromeBrowserCloudManagementBrowserTestDelegateAndroid
-    ChromeBrowserCloudManagementBrowserTestDelegateType;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void UpdatePolicyStorage(PolicyStorage* policy_storage) {
   em::CloudPolicySettings settings;
@@ -417,13 +408,7 @@ IN_PROC_BROWSER_TEST_P(ChromeBrowserCloudManagementServiceIntegrationTest,
   EXPECT_NE(token_.empty(), expect_success);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(http://crbug.com/40134194): Enable this test on Android once reporting
-// is implemented.
-#define MAYBE_ChromeDesktopReport DISABLED_ChromeDesktopReport
-#else
 #define MAYBE_ChromeDesktopReport ChromeDesktopReport
-#endif  // BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(ChromeBrowserCloudManagementServiceIntegrationTest,
                        MAYBE_ChromeDesktopReport) {
   em::ChromeDesktopReportRequest chrome_desktop_report;
@@ -431,7 +416,6 @@ IN_PROC_BROWSER_TEST_P(ChromeBrowserCloudManagementServiceIntegrationTest,
 }
 
 // Desktop only.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(ChromeBrowserCloudManagementServiceIntegrationTest,
                        ChromeProfileReport) {
   CloudPolicyClient client("fake_profile_id", service_.get(),
@@ -449,7 +433,6 @@ IN_PROC_BROWSER_TEST_P(ChromeBrowserCloudManagementServiceIntegrationTest,
                                    future.GetCallback());
   EXPECT_TRUE(future.Get().IsSuccess());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 INSTANTIATE_TEST_SUITE_P(
     ChromeBrowserCloudManagementServiceIntegrationTestInstance,
@@ -659,23 +642,11 @@ IN_PROC_BROWSER_TEST_P(ChromeBrowserCloudManagementEnrollmentTest, MAYBE_Test) {
   VerifyEnrollmentResult();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// No need to run this test with |should_display_error_message| equals true on
-// Android.
-INSTANTIATE_TEST_SUITE_P(
-    ChromeBrowserCloudManagementEnrollmentTest,
-    ChromeBrowserCloudManagementEnrollmentTest,
-    ::testing::Combine(
-        ::testing::Bool(),
-        ::testing::Bool(),
-        /*should_display_error_message=*/::testing::Values(false)));
-#else
 INSTANTIATE_TEST_SUITE_P(ChromeBrowserCloudManagementEnrollmentTest,
                          ChromeBrowserCloudManagementEnrollmentTest,
                          ::testing::Combine(::testing::Bool(),
                                             ::testing::Bool(),
                                             ::testing::Bool()));
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class MachineLevelUserCloudPolicyPolicyFetchObserver
     : public ChromeBrowserCloudManagementController::Observer {
@@ -898,7 +869,6 @@ INSTANTIATE_TEST_SUITE_P(
         /*storage_enabled=*/::testing::Bool(),
         /*is_policy_fetch_with_sha256_enabled=*/::testing::Bool()));
 
-#if !BUILDFLAG(IS_ANDROID)
 class MachineLevelUserCloudPolicyPolicyFetchKeyRotationTest
     : public MachineLevelUserCloudPolicyPolicyFetchTest {
  public:
@@ -988,7 +958,6 @@ INSTANTIATE_TEST_SUITE_P(
         /*dm_token=*/::testing::Values(kDMToken),
         /*storage_enabled=*/::testing::Values(true),
         /*is_policy_fetch_with_sha256_enabled=*/::testing::Bool()));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 class MachineLevelUserCloudPolicyExtensionInstallPolicyTest
@@ -1244,7 +1213,6 @@ INSTANTIATE_TEST_SUITE_P(
         /*is_policy_fetch_with_sha256_enabled=*/::testing::Bool()));
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
-#if !BUILDFLAG(IS_ANDROID)
 class MachineLevelUserCloudPolicyRobotAuthTest : public PlatformBrowserTest {
  public:
   MachineLevelUserCloudPolicyRobotAuthTest() : observer_(&delegate_) {
@@ -1313,8 +1281,7 @@ class MachineLevelUserCloudPolicyRobotAuthTest : public PlatformBrowserTest {
 };  // namespace policy
 
 // Flaky on linux & win: https://crbug.com/40705662
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 #define MAYBE_Test DISABLED_Test
 #else
 #define MAYBE_Test Test
@@ -1362,6 +1329,5 @@ IN_PROC_BROWSER_TEST_F(MachineLevelUserCloudPolicyRobotAuthTest, MAYBE_Test) {
   EXPECT_TRUE(
       DeviceOAuth2TokenServiceFactory::Get()->RefreshTokenIsAvailable());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace policy

@@ -42,25 +42,15 @@ TEST(HttpAuthPreferencesTest, DisableNtlmV2) {
 }
 #endif  // BUILDFLAG(IS_POSIX)
 
-#if BUILDFLAG(IS_ANDROID)
-TEST(HttpAuthPreferencesTest, AuthAndroidNegotiateAccountType) {
-  HttpAuthPreferences http_auth_preferences;
-  EXPECT_EQ(std::string(),
-            http_auth_preferences.AuthAndroidNegotiateAccountType());
-  http_auth_preferences.set_auth_android_negotiate_account_type("foo");
-  EXPECT_EQ(std::string("foo"),
-            http_auth_preferences.AuthAndroidNegotiateAccountType());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 TEST(HttpAuthPreferencesTest, AllowGssapiLibraryLoad) {
   HttpAuthPreferences http_auth_preferences;
   EXPECT_TRUE(http_auth_preferences.AllowGssapiLibraryLoad());
   http_auth_preferences.set_allow_gssapi_library_load(false);
   EXPECT_FALSE(http_auth_preferences.AllowGssapiLibraryLoad());
 }
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#endif
 
 TEST(HttpAuthPreferencesTest, AuthServerAllowlist) {
   HttpAuthPreferences http_auth_preferences;

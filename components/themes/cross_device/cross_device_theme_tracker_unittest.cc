@@ -239,17 +239,6 @@ class ThemeTranslationTest : public testing::Test {
       "https://lh3.googleusercontent.com/proxy/image123";
   static constexpr char kMobileImageOptions[] = "=s2556-k-no-nd";
 
-#if BUILDFLAG(IS_ANDROID)
-  static constexpr char kDesktopImageOptions[] = "=w3840-h2160-p-k-no-nd-mv";
-
-  using SourceSpecifics = sync_pb::ThemeSpecifics;
-  using LocalSpecifics = sync_pb::ThemeAndroidSpecifics;
-
-  DeviceThemeInfo<LocalSpecifics> TranslateSource(
-      const SourceSpecifics& specifics) {
-    return TranslateDesktop(specifics);
-  }
-#else
   using SourceSpecifics = sync_pb::ThemeAndroidSpecifics;
   using LocalSpecifics = sync_pb::ThemeSpecifics;
 
@@ -257,7 +246,6 @@ class ThemeTranslationTest : public testing::Test {
       const SourceSpecifics& specifics) {
     return TranslateAndroid(specifics);
   }
-#endif
 
   template <typename Specifics = SourceSpecifics>
   Specifics CreateSpecificsWithNtpBackground(
@@ -293,27 +281,6 @@ class ThemeTranslationTest : public testing::Test {
   }
 };
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(ThemeTranslationTest, TranslateDesktopAndIosNormalizeNtpBackgroundUrl) {
-  const std::string expected_url =
-      std::string(kBaseImageUrl) + GetImageOptions();
-
-  DeviceThemeInfo<sync_pb::ThemeAndroidSpecifics> translated_desktop =
-      TranslateDesktop(
-          CreateSpecificsWithNtpBackground<sync_pb::ThemeSpecifics>(
-              std::string(kBaseImageUrl) + kDesktopImageOptions));
-  EXPECT_TRUE(translated_desktop.theme.use_custom_theme());
-  VerifyTranslatedNtpBackground(translated_desktop, expected_url);
-
-  DeviceThemeInfo<sync_pb::ThemeAndroidSpecifics> translated_ios =
-      TranslateIos(CreateSpecificsWithNtpBackground<sync_pb::ThemeIosSpecifics>(
-          std::string(kBaseImageUrl) + kMobileImageOptions));
-  EXPECT_TRUE(translated_ios.theme.use_custom_theme());
-  VerifyTranslatedNtpBackground(translated_ios, expected_url);
-  EXPECT_TRUE(ThemeComparer<sync_pb::ThemeAndroidSpecifics>::Equals(
-      translated_desktop.theme, translated_ios.theme));
-}
-#else
 TEST_F(ThemeTranslationTest, TranslateAndroidAndIosNormalizeNtpBackgroundUrl) {
   const std::string mobile_image_url =
       std::string(kBaseImageUrl) + kMobileImageOptions;
@@ -333,7 +300,6 @@ TEST_F(ThemeTranslationTest, TranslateAndroidAndIosNormalizeNtpBackgroundUrl) {
   EXPECT_TRUE(ThemeComparer<sync_pb::ThemeSpecifics>::Equals(
       translated_android.theme, translated_ios.theme));
 }
-#endif
 
 TEST_F(ThemeTranslationTest, TranslateHandlesEmptyOrUnsetNtpBackgroundUrl) {
   VerifyTranslatedNtpBackground(

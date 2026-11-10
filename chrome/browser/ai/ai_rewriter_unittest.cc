@@ -733,7 +733,6 @@ TEST_F(AIRewriterTest, VerifyPromptComposition) {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class AIRewriterWithFeatureConfigTest : public AIRewriterTest {
  public:
   void SetupBroker() override {
@@ -816,6 +815,5 @@ TEST_F(AIRewriterWithFeatureConfigTest, CanCreateBeforeDownloadGemma4) {
   EXPECT_EQ(future.Get(),
             blink::mojom::ModelAvailabilityCheckResult::kDownloadable);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace

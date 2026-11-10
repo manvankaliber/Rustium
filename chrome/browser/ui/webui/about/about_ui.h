@@ -35,15 +35,13 @@ class CreditsUIConfig : public AboutUIConfigBase {
   CreditsUIConfig();
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 // chrome://terms
 class TermsUIConfig : public AboutUIConfigBase {
  public:
   TermsUIConfig();
 };
-#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_OPENBSD)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_OPENBSD)
 // chrome://linux-proxy-config
 class LinuxProxyConfigUI : public AboutUIConfigBase {
  public:
@@ -51,19 +49,6 @@ class LinuxProxyConfigUI : public AboutUIConfigBase {
 };
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-// chrome://os-credits
-class OSCreditsUI : public AboutUIConfigBase {
- public:
-  OSCreditsUI();
-};
-
-// chrome://crostini-credits
-class CrostiniCreditsUI : public AboutUIConfigBase {
- public:
-  CrostiniCreditsUI();
-};
-#endif
 
 // We expose this class because the OOBE flow may need to explicitly add the
 // chrome://terms source outside of the normal flow.
@@ -91,20 +76,12 @@ class AboutUIHTMLSource : public content::URLDataSource {
   void FinishDataRequest(const std::string& html,
                          content::URLDataSource::GotDataCallback callback);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void SetOSCreditsPrefixForTesting(const base::FilePath& prefix) {
-    os_credits_prefix_ = prefix;
-  }
-#endif
 
   Profile* profile() { return profile_; }
 
  private:
   std::string source_name_;
   raw_ptr<Profile> profile_;
-#if BUILDFLAG(IS_CHROMEOS)
-  base::FilePath os_credits_prefix_;
-#endif
 };
 
 class AboutUI : public content::WebUIController {

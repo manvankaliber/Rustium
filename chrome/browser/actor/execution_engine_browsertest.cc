@@ -103,9 +103,6 @@
 #include "components/safe_browsing/core/common/features.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#endif
 
 using ::base::test::TestFuture;
 using ::optimization_guide::proto::ClickAction;
@@ -269,10 +266,6 @@ class ExecutionEngineCrossProfileBrowserTest
  public:
   void SetUpCommandLine(base::CommandLine* command_line) override {
     ExecutionEngineBrowserTest::SetUpCommandLine(command_line);
-#if BUILDFLAG(IS_CHROMEOS)
-    command_line->AppendSwitch(
-        ash::switches::kIgnoreUserProfileMappingForTests);
-#endif
   }
 };
 
@@ -578,7 +571,6 @@ IN_PROC_BROWSER_TEST_F(ExecutionEngineBrowserTest, HistoryBackIsChecked) {
 // foreground/background visibility metric.
 
 // Android uses a different dropdown UI that doesn't respect styling.
-#if !BUILDFLAG(IS_ANDROID)
 class ExecutionEnginePixelBrowserTest : public ExecutionEngineBrowserTest {
  public:
   ExecutionEnginePixelBrowserTest() {
@@ -867,7 +859,6 @@ INSTANTIATE_TEST_SUITE_P(
 
 #endif  // BUILDFLAG(IS_MAC)
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class ExecutionEngineFileSystemAccessApiBrowserTest
     : public ExecutionEngineBrowserTest,

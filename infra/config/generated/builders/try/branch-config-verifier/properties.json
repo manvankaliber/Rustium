@@ -22,38 +22,6 @@
       }
     },
     {
-      "name": "android",
-      "platform_set": {
-        "platforms": [
-          "android"
-        ]
-      }
-    },
-    {
-      "name": "cros",
-      "platform_set": {
-        "platforms": [
-          "cros"
-        ]
-      }
-    },
-    {
-      "name": "cros-lts",
-      "platform_set": {
-        "platforms": [
-          "cros-lts"
-        ]
-      }
-    },
-    {
-      "name": "ios",
-      "platform_set": {
-        "platforms": [
-          "ios"
-        ]
-      }
-    },
-    {
       "name": "linux",
       "platform_set": {
         "platforms": [

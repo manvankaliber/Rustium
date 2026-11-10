@@ -23,20 +23,15 @@ BASE_FEATURE(kLocalWebApprovals, base::FEATURE_ENABLED_BY_DEFAULT);
 // TODO(crbug.com/391799078): Support local web approval for subframes on
 // Desktop.
 BASE_FEATURE(kAllowSubframeLocalWebApprovals,
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#else
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 const int kLocalWebApprovalBottomSheetLoadTimeoutDefaultValueMs = 5000;
 
 const base::FeatureParam<int> kLocalWebApprovalBottomSheetLoadTimeoutMs{
     &kLocalWebApprovals, /*name=*/"LocalWebApprovalBottomSheetLoadTimeoutMs",
     kLocalWebApprovalBottomSheetLoadTimeoutDefaultValueMs};
-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
+#endif
         // BUILDFLAG(IS_WIN)
 
 BASE_FEATURE(kFilterDownloadUrls, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -54,22 +49,13 @@ bool IsLocalWebApprovalsEnabled() {
   // Move this logic to SupervisedUserService, once it's migrated to
   // components, and de-release the intended usage of
   // WebsiteParentApproval::IsLocalApprovalSupported for Android.
-#if BUILDFLAG(IS_ANDROID)
-  return base::FeatureList::IsEnabled(kLocalWebApprovals) &&
-         IsGoogleBrandedBuild();
-#else
   return base::FeatureList::IsEnabled(kLocalWebApprovals);
-#endif
 }
 
 bool IsLocalWebApprovalsEnabledForSubframes() {
   return base::FeatureList::IsEnabled(kAllowSubframeLocalWebApprovals);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kSupervisedUserVerificationPageOnAndroid,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 BASE_FEATURE(kEnableSupervisedUserVersionSignOutDialog,

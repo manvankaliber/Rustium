@@ -29,14 +29,8 @@
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/extensions/api/image_writer_private/image_writer_utility_client.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/public/browser/device_service.h"
-#include "services/device/public/mojom/usb_manager.mojom.h"
-#endif
 
 namespace extensions::image_writer {
 
@@ -70,13 +64,6 @@ void ExtractArchive(ExtractionProperties properties) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void BindDefaultUsbDeviceManager(
-    mojo::PendingReceiver<device::mojom::UsbDeviceManager> receiver) {
-  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
-  content::GetDeviceService().BindUsbDeviceManager(std::move(receiver));
-}
-#endif
 
 }  // namespace
 
@@ -95,10 +82,6 @@ Operation::Operation(base::WeakPtr<OperationManager> manager,
       download_folder_(download_folder),
       task_runner_(
           base::ThreadPool::CreateSequencedTaskRunner(blocking_task_traits()))
-#if BUILDFLAG(IS_ANDROID)
-      ,
-      usb_binder_(base::BindRepeating(&BindDefaultUsbDeviceManager))
-#endif
 {
 }
 
@@ -111,10 +94,6 @@ Operation::~Operation() {
   // these members on `task_runner_`. `DeleteSoon` handles unit tests that drop
   // an unstarted or uncancelled `Operation` on the UI thread.
   task_runner_->DeleteSoon(FROM_HERE, std::move(zstd_extractor_));
-#if BUILDFLAG(IS_ANDROID)
-  task_runner_->DeleteSoon(FROM_HERE, std::move(usb_manager_));
-  task_runner_->DeleteSoon(FROM_HERE, std::move(usb_session_));
-#endif
   // base::ScopedTempDir must be destroyed on a thread that allows blocking IO
   // because it will try delete the directory if a call to Delete() hasn't been
   // made or was unsuccessful.
@@ -152,12 +131,7 @@ bool Operation::ShouldWipeBackupGpt() const {
 
 void Operation::Start() {
   CHECK(IsRunningInCorrectSequence(), base::NotFatalUntil::M161);
-#if BUILDFLAG(IS_CHROMEOS)
-  if (download_folder_.empty() ||
-      !temp_dir_->CreateUniqueTempDirUnderPath(download_folder_)) {
-#else
   if (!temp_dir_->CreateUniqueTempDir()) {
-#endif
     Error(error::kTempDirError);
     return;
   }
@@ -290,7 +264,6 @@ void Operation::CompleteAndContinue(base::OnceClosure continuation) {
   PostTask(std::move(continuation));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 void Operation::StartUtilityClient() {
   CHECK(IsRunningInCorrectSequence(), base::NotFatalUntil::M161);
   if (!image_writer_client_.get()) {
@@ -316,7 +289,6 @@ void Operation::WriteImageProgress(int64_t total_bytes, int64_t curr_bytes) {
     SetProgress(progress);
   }
 }
-#endif
 
 void Operation::GetMD5SumOfFile(
     const base::FilePath& file_path,
@@ -414,10 +386,6 @@ void Operation::OnExtractProgress(int64_t total_bytes, int64_t progress_bytes) {
 void Operation::CleanUp() {
   CHECK(IsRunningInCorrectSequence(), base::NotFatalUntil::M161);
   zstd_extractor_.reset();
-#if BUILDFLAG(IS_ANDROID)
-  usb_manager_.reset();
-  usb_session_.reset();
-#endif
   for (base::OnceClosure& cleanup_function : cleanup_functions_) {
     std::move(cleanup_function).Run();
   }

@@ -36,7 +36,7 @@ struct GPU_IPC_COMMON_EXPORT StructTraits<gpu::mojom::GpuDeviceDataView,
     return input.device_id;
   }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
   static uint32_t revision(const gpu::GPUInfo::GPUDevice& input) {
     return input.revision;
   }

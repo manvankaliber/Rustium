@@ -66,7 +66,6 @@ void GlicExperimentalOptInController::OpenLinkInNewTab(const GURL& url) {
   host_->OpenLinkInNewTab(url);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 views::Widget* GlicExperimentalOptInController::GetDialogWidgetForTesting() {
   return host_->GetWidgetForTesting();  // IN-TEST
 }
@@ -75,7 +74,6 @@ GlicExperimentalOptInDialogView*
 GlicExperimentalOptInController::GetDialogViewForTesting() {
   return host_->GetDialogViewForTesting();  // IN-TEST
 }
-#endif
 
 void GlicExperimentalOptInController::SetTickClockForTesting(
     const base::TickClock* clock) {

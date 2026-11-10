@@ -108,9 +108,6 @@
 #include "ui/gfx/swap_result.h"
 #include "ui/gfx/tone_map_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/viz/service/display/overlay_processor_surface_control.h"
-#endif
 
 namespace viz {
 
@@ -457,11 +454,6 @@ bool RenderPassRemainsTransparent(SkBlendMode blendMode) {
          src == SkBlendModeCoeff::kDC;
 }
 
-#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_CHROMEOS) && \
-    BUILDFLAG(USE_V4L2_CODEC)
-constexpr size_t kMaxProtectedContentWidth = 3840;
-constexpr size_t kMaxProtectedContentHeight = 2160;
-#endif
 
 }  // namespace
 
@@ -1134,16 +1126,8 @@ SkiaRenderer::SkiaRenderer(const RendererSettings* settings,
         base::FeatureList::IsEnabled(features::kBufferQueuePerRenderPass);
     root_buffer_queue_ = CreateBufferQueue();
   }
-#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_CHROMEOS) && \
-    BUILDFLAG(USE_V4L2_CODEC)
-  protected_buffer_queue_ = std::make_unique<BufferQueue>(
-      skia_output_surface_, skia_output_surface_->GetSurfaceHandle(), 3,
-      /*is_protected=*/true);
-  const bool has_buffer_queue = true;
-#else
   // Non-root render pass BufferQueues are only used when there is a root one.
   const bool has_buffer_queue = !!root_buffer_queue_;
-#endif
 
   if (has_buffer_queue && base::SingleThreadTaskRunner::HasCurrentDefault()) {
     base::trace_event::MemoryDumpManager::GetInstance()->RegisterDumpProvider(
@@ -1173,12 +1157,6 @@ bool SkiaRenderer::OnMemoryDump(const base::trace_event::MemoryDumpArgs& args,
   if (scanout_backing_for_reuse_ && scanout_backing_for_reuse_->buffer_queue) {
     scanout_backing_for_reuse_->buffer_queue->OnMemoryDump(args, pmd);
   }
-#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_CHROMEOS) && \
-    BUILDFLAG(USE_V4L2_CODEC)
-  if (protected_buffer_queue_) {
-    protected_buffer_queue_->OnMemoryDump(args, pmd);
-  }
-#endif
   return true;
 }
 
@@ -1209,34 +1187,6 @@ void SkiaRenderer::FinishDrawingFrame() {
   debug_tint_modulate_count_++;
 }
 
-#if BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(ENABLE_VULKAN) && \
-    BUILDFLAG(USE_V4L2_CODEC)
-// Simple scheme for de-allocating protected buffers: if we go one SwapBuffer
-// cycle without needing a protected shared image, we can delete the protected
-// buffer queue.
-gpu::Mailbox SkiaRenderer::GetProtectedSharedImage(bool is_10bit) {
-  is_protected_pool_idle_ = false;
-
-  protected_buffer_queue_->Reshape(
-      gfx::Size(kMaxProtectedContentWidth, kMaxProtectedContentHeight),
-      gfx::ColorSpace::CreateSRGB(), RenderPassAlphaType::kPremul,
-      (is_10bit &&
-       base::FeatureList::IsEnabled(media::kEnableArmHwdrm10bitOverlays))
-          ? SinglePlaneFormat::kBGRA_1010102
-          : SinglePlaneFormat::kBGRA_8888);
-
-  return protected_buffer_queue_->GetCurrentBuffer();
-}
-
-void SkiaRenderer::MaybeFreeProtectedPool() {
-  if (is_protected_pool_idle_ && protected_buffer_queue_) {
-    protected_buffer_queue_->DestroyBuffers();
-    skia_output_surface_->CleanupImageProcessor();
-  } else {
-    is_protected_pool_idle_ = true;
-  }
-}
-#endif
 
 void SkiaRenderer::SwapBuffers(SwapFrameData swap_frame_data) {
   DCHECK(has_back_buffers_);
@@ -1288,19 +1238,6 @@ void SkiaRenderer::SwapBuffers(SwapFrameData swap_frame_data) {
   available_render_pass_overlay_backings_.clear();
 #endif  // BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_OZONE) || BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_CHROMEOS) && \
-    BUILDFLAG(USE_V4L2_CODEC)
-  if (protected_buffer_queue_) {
-    // Note that we still call BufferQueue::SwapBuffers() even when we suspect
-    // our buffer queue is idle because there might still be in-flight frames
-    // that need to be managed.
-    protected_buffer_queue_->UpdateBufferDamage(
-        gfx::Rect(kMaxProtectedContentWidth, kMaxProtectedContentHeight));
-    protected_buffer_queue_->SwapBuffers();
-  }
-
-  MaybeFreeProtectedPool();
-#endif
 }
 
 void SkiaRenderer::SwapBuffersSkipped() {
@@ -1359,12 +1296,6 @@ void SkiaRenderer::SwapBuffersComplete(
     }
   }
 
-#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_CHROMEOS) && \
-    BUILDFLAG(USE_V4L2_CODEC)
-  if (protected_buffer_queue_) {
-    protected_buffer_queue_->SwapBuffersComplete(did_present);
-  }
-#endif
 
   if (!did_present) {
     CHECK(release_fence.is_null());
@@ -2755,12 +2686,6 @@ void SkiaRenderer::DrawTextureQuad(const TextureDrawQuad* quad,
   // avoid color changes during promotion we use the same color space for
   // compositing.
   std::optional<gfx::ColorSpace> overlay_color_space;
-#if BUILDFLAG(IS_ANDROID)
-  if (resource_provider()->IsOverlayCandidate(quad->resource_id)) {
-    overlay_color_space =
-        OverlayProcessorSurfaceControl::GetOverrideColorSpace();
-  }
-#endif
 
   // We need only RGB portion of the color space, YUV conversion handled in
   // skia.
@@ -2969,39 +2894,6 @@ void SkiaRenderer::ScheduleOverlays() {
       continue;
     }
 
-#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_CHROMEOS) && \
-    BUILDFLAG(USE_V4L2_CODEC)
-    if (overlay.needs_detiling) {
-      if (!std::holds_alternative<gfx::OverlayTransform>(overlay.transform)) {
-        LOG(ERROR) << "Unsupported transform on tiled protected content.";
-        continue;
-      }
-
-      locks.emplace_back(resource_provider(), overlay.resource_id);
-      auto& lock = locks.back();
-
-      bool is_10bit = overlay.format == MultiPlaneFormat::kP010;
-      gpu::Mailbox detiled_image = GetProtectedSharedImage(is_10bit);
-      skia_output_surface_->DetileOverlay(
-          overlay.mailbox, overlay.resource_size_in_pixels,
-          lock.GetSyncTokens(), detiled_image, overlay.display_rect,
-          overlay.uv_rect, std::get<gfx::OverlayTransform>(overlay.transform),
-          is_10bit);
-      overlay.uv_rect = gfx::RectF(
-          static_cast<float>(overlay.display_rect.width()) /
-              static_cast<float>(kMaxProtectedContentWidth),
-          static_cast<float>(overlay.display_rect.height() /
-                             static_cast<float>(kMaxProtectedContentHeight)));
-      overlay.mailbox = detiled_image;
-      overlay.format = (is_10bit && base::FeatureList::IsEnabled(
-                                        media::kEnableArmHwdrm10bitOverlays))
-                           ? SinglePlaneFormat::kBGRA_1010102
-                           : SinglePlaneFormat::kBGRA_8888;
-      overlay.transform = gfx::OVERLAY_TRANSFORM_NONE;
-
-      continue;
-    }
-#endif
 
 #if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_OZONE) || BUILDFLAG(IS_WIN)
     if (overlay.rpdq) {
@@ -4455,13 +4347,7 @@ gfx::Rect SkiaRenderer::GetCurrentFramebufferDamage(
 
 void SkiaRenderer::Reshape(const OutputSurface::ReshapeParams& reshape_params) {
   if (root_buffer_queue_) {
-#if BUILDFLAG(IS_CHROMEOS)
-    // CrOS assumes that we (almost) never reallocate buffers, so we force
-    // |kPremul| to never trigger a reallocation due to root opacity changes.
-    const RenderPassAlphaType alpha_type = RenderPassAlphaType::kPremul;
-#else
     const RenderPassAlphaType alpha_type = reshape_params.alpha_type;
-#endif
     root_buffer_queue_->Reshape(reshape_params.size, reshape_params.color_space,
                                 alpha_type, reshape_params.format);
   }

@@ -36,9 +36,6 @@
 #include "components/subscription_eligibility/subscription_eligibility_service.h"
 #include "components/sync_device_info/device_info.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/base/device_form_factor.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class AccountCapabilities;
 class Profile;
@@ -46,9 +43,6 @@ class ProfileAttributesStorage;
 
 namespace glic {
 
-#if BUILDFLAG(IS_ANDROID)
-class BackgroundActuationCapability;
-#endif  // BUILDFLAG(IS_ANDROID)
 class GlicActorPolicyChecker;
 class GlicKeyedService;
 namespace prefs {
@@ -94,9 +88,6 @@ inline constexpr char kGlicHotkeyDefaultGlobalScopeGroupName[] =
 // When changing this list, consider whether kDefaultEnabledCountriesMinor
 // should also be updated. This is enforced by the GlicEnablingCountryListTest
 // change-detector test in glic_enabling_unittest.cc.
-#if BUILDFLAG(IS_ANDROID)
-inline constexpr char kDefaultEnabledCountries[] = "us,in";
-#else
 inline constexpr char kDefaultEnabledCountries[] =
     // Phase 1
     "us,ca,nz,in,"
@@ -114,13 +105,12 @@ inline constexpr char kDefaultEnabledCountries[] =
     "tj,tm,tn,tz,ua,ug,um,uz,vi,xk,ye,za,zm,zw,"
     // Phase 4
     "ai,bm,fk,gb,gg,gi,gs,im,io,je,ky,ms,sh,tc,vg";
-#endif
 
 // Comma separated list of countries to enable Glic for users who cannot use
 // adult features (e.g. minors), by default, if minor country filtering
 // (kGlicMinorCountryFiltering) is enabled. Must be a subset of
 // kDefaultEnabledCountries.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 inline constexpr char kDefaultEnabledCountriesMinor[] =
     "as,au,bd,bn,bt,ca,cc,ck,cx,fj,fm,gu,hk,hm,in,jp,kh,ki,la,lk,mh,mm,mn,mo,"
     "mp,mv,my,nf,np,nr,nu,nz,pg,pk,pw,sb,tk,tl,to,tv,us,vu,ws";
@@ -172,13 +162,6 @@ class GlicGlobalEnabling {
   bool IsEnabledByGlobalCriteria() const;
   bool IsSystemRequirementMet() const;
   static bool IsOsVersionSupported();
-#if BUILDFLAG(IS_ANDROID)
-  // Returns whether Glic supports the given Android form factor. Foldables
-  // (`is_foldable`) are allowed in either posture without kGlicAndroidTablet,
-  // since ui::GetDeviceFormFactor() reports an unfolded foldable as a tablet.
-  static bool IsAndroidFormFactorAllowed(ui::DeviceFormFactor form_factor,
-                                         bool is_foldable);
-#endif  // BUILDFLAG(IS_ANDROID)
   bool IsLocaleEnabled() const { return locale_enablement_.value_or(true); }
   // Note that country checks are executed along profile-level checks because
   // country information may not be ready at startup and can change.
@@ -299,12 +282,6 @@ class GlicEnabling final : public signin::IdentityManager::Observer,
   // feature into account.
   static bool IsLikelyDogfoodClient();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Returns whether `profile` belongs to a ChromeOS regular or child user
-  // session. Returns false if `profile` is null, belongs to a guest, managed
-  // guest or kiosk session, or has no signed-in user.
-  static bool IsChromeOSProfileEligible(Profile* profile);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Returns true if a profile is eligible for Glic. Some profiles - such as
   // incognito, guest, system profile, etc. - are never eligible. An eligible
@@ -853,13 +830,6 @@ class GlicEnabling final : public signin::IdentityManager::Observer,
   // notified when either the state or the capabilities change.
   base::flat_set<std::string> last_experimental_triggering_capabilities_;
   mojom::ProfileReadyState last_profile_ready_state_;
-#if BUILDFLAG(IS_ANDROID)
-  // Tracks the "background_actuation" capability. Only created while
-  // `GlicFeature::kExperimentalTriggering` is supported and
-  // `kGlicBackgroundActuation` is enabled.
-  std::unique_ptr<BackgroundActuationCapability>
-      background_actuation_capability_;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace glic

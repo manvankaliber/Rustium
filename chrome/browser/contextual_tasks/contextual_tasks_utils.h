@@ -134,7 +134,6 @@ void RecordTabAddedMetric(
     bool is_tab_suggestion_chip,
     BrowserWindowInterface* browser_window_interface = nullptr);
 
-#if !BUILDFLAG(IS_ANDROID)
 // Captures page context for the given `tab_id` and uploads it to
 // `session_handle`. Creates a context token on `session_handle`, initiates
 // async page context extraction via TabContextualizationController, underlines
@@ -162,7 +161,6 @@ CaptureAndUploadTabContext(
 void RemoveTabUnderline(
     int32_t tab_id,
     BrowserWindowInterface* browser_window_interface = nullptr);
-#endif
 
 // Returns true if the given URL is valid to show as a suggested tab.
 // `profile` and `site_exclusion_detail` must be non-null.
@@ -203,12 +201,6 @@ void SendInjectedInputRemovedUpdate(AimMessagePoster* message_poster,
 // Returns true if the side panel should be used instead of the bottom sheet.
 bool ShouldShowSidePanel();
 
-// Returns true if running on Android mobile (phone form factor).
-bool IsAndroidMobileFormFactor();
-
-// Returns true if running on an Android desktop form factor device.
-bool IsAndroidDesktopFormFactor();
-
 // Returns whether the provided URL is to a contextual tasks WebUI page.
 bool IsContextualTasksUrl(const GURL& url);
 
@@ -230,7 +222,6 @@ bool IsUrlValidForContextSharing(const GURL& url);
 // Returns the effective pin state for the contextual tasks button.
 bool GetEffectivePinState(Profile* profile);
 
-#if !BUILDFLAG(IS_ANDROID)
 // Updates the visibility of the contextual tasks pinned toolbar ActionItem.
 void UpdatePinButtonVisibilityState(BrowserWindowInterface* browser_window);
 
@@ -241,7 +232,6 @@ int GetContextualTasksPinningStringId(int default_resource_id);
 // Returns the localized string resource ID for the ephemeral button context
 // menu close/dismiss option.
 int GetContextualTasksEphemeralButtonContextMenuCloseTextId();
-#endif
 
 // Returns whether dark mode should be used for `web_contents` showing `url`,
 // checking in order of priority:

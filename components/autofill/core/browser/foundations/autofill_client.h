@@ -37,9 +37,6 @@
 #include "ui/gfx/geometry/rect_f.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/autofill/core/browser/ui/autofill_tapjacking_protector.h"
-#endif
 
 class GoogleGroupsManager;
 class GURL;
@@ -137,9 +134,6 @@ class AutofillCrowdsourcingManager;
 class AutofillDriverFactory;
 class AutofillOptimizationGuideDecider;
 class AutofillProfile;
-#if BUILDFLAG(IS_ANDROID)
-class AutofillSnackbarControllerImpl;
-#endif  // BUILDFLAG(IS_ANDROID)
 class AutofillSuggestionDelegate;
 enum class AutofillTriggerSource;
 class IdentityCredentialDelegate;
@@ -791,44 +785,7 @@ class AutofillClient {
 
   virtual const AutofillAblationStudy& GetAblationStudy() const;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Shows the Personal Context ambient autofill notice. Returns whether the
-  // notice was successfully shown.
-  virtual bool ShowAmbientAutofillNotice(
-      base::WeakPtr<TouchToFillAutofillDelegate> delegate);
 
-  // Shows the Autofill AI private inference notice in the Touch To Fill bottom
-  // sheet. Returns whether the notice was successfully shown.
-  virtual bool ShowPrivateInferenceNoticeBottomSheet(
-      base::WeakPtr<TouchToFillAutofillDelegate> delegate);
-
-  // Hides the currently shown Touch To Fill autofill notice (either the
-  // Personal Context ambient autofill notice or the private inference notice).
-  virtual void HideTouchToFillAutofillNotice();
-
-  // The AutofillSnackbarController is used to show a snackbar notification
-  // on Android.
-  virtual AutofillSnackbarControllerImpl* GetAutofillSnackbarController();
-
-  // Notifies the user that their data is being fetched from the server to fill
-  // the form.
-  virtual void ShowAutofillAiLoadingDialog();
-
-  // Closes the dialog that informs the user that their data is being fetched
-  // from the server to fill the form.
-  virtual void DismissAutofillAiLoadingDialog();
-
-  // Shows tapjacking protection for sensitive autofill actions.
-  virtual void ShowTapjackingProtector(
-      AutofillTapjackingProtector::AuthorizationType authorization_type,
-      AutofillTapjackingProtector::AuthorizationCallback callback);
-#endif
-
-#if BUILDFLAG(IS_IOS)
-  // Checks whether `field_id` is the last field that for which
-  // AutofillAgent::queryAutofillForForm() was called. See crbug.com/1097015.
-  virtual bool IsLastQueriedField(FieldGlobalId field_id) = 0;
-#endif
 
   // Whether we can add more information to the contents of suggestions text due
   // to the use of a large keyboard accessory view. See b/40942168.
@@ -956,7 +913,6 @@ class AutofillClient {
   // default.
   virtual void ShowAutofillAiPrivateInferenceNotice();
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // Shows a dialog that asks the user to confirm that the Autofill AI
   // personal-context entity `entity` will no longer be suggested. `callback` is
   // run with true if the user confirms, and with false if they cancel or close
@@ -964,7 +920,6 @@ class AutofillClient {
   virtual void ShowAutofillAiSuppressionConfirmationDialog(
       const EntityInstance& entity,
       base::OnceCallback<void(bool)> callback);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   // Displays a notification informing the user that the Autofill AI suggestion
   // for the personal-context `entity` was removed, offering an undo action.

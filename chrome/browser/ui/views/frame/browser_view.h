@@ -67,9 +67,6 @@
 #include "ui/views/widget/widget_observer.h"
 #include "ui/views/window/client_view.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ui/compositor/compositor_metrics_tracker.h"
-#endif
 
 // NOTE: For more information about the objects and files in this directory,
 // view: http://dev.chromium.org/developers/design-documents/browser-window
@@ -593,9 +590,6 @@ class BrowserView : public BrowserWindow,
       const std::optional<url::Origin>& initiating_origin,
       IntentPickerResponse callback) override;
   void ShowBookmarkBubble(const GURL& url, bool already_bookmarked) override;
-#if BUILDFLAG(IS_CHROMEOS)
-  void ToggleMultitaskMenu() override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   ShowTranslateBubbleResult ShowTranslateBubble(
       content::WebContents* contents,
       translate::TranslateStep step,
@@ -786,11 +780,9 @@ class BrowserView : public BrowserWindow,
   bool IsBookmarkBarVisible() const;
   bool IsBookmarkBarAnimating() const;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   AccessibilityFocusHighlight* GetAccessibilityFocusHighlightForTesting() {
     return accessibility_focus_highlight_.get();
   }
-#endif
 
   views::WebView* GetActiveContentsWebView();
 
@@ -827,15 +819,6 @@ class BrowserView : public BrowserWindow,
   // Returns a `TabDragHandler`, if any available, to handle a tab drag.
   TabDragTarget* GetTabDragTarget(const gfx::Point& point_in_screen);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // This is used only for SWA/PWA scenario. Not used when
-  // features::kUseUnifiedLockedStateController is enabled.
-  // TODO(crbug.com/438540029): Remove this when the migration to
-  // LockedStateController is completed.
-  void OnLockedForOnTaskUpdated(bool locked_for_on_task);
-
-  bool IsLockedFullscreen() const;
-#endif
 
  protected:
   // BrowserWindow:
@@ -1369,17 +1352,10 @@ class BrowserView : public BrowserWindow,
   // The last bounds we notified about in TryNotifyWindowBoundsChanged().
   gfx::Rect last_widget_bounds_;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   std::unique_ptr<AccessibilityFocusHighlight> accessibility_focus_highlight_;
-#endif
 
   OnLinkOpeningFromGestureCallbackList link_opened_from_gesture_callbacks_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // |loading_animation_tracker_| is used to measure animation smoothness for
-  // tab loading animation.
-  std::optional<ui::ThroughputTracker> loading_animation_tracker_;
-#endif
 
   bool window_controls_overlay_enabled_ = false;
   bool is_window_controls_overlay_available_ = false;
@@ -1407,9 +1383,6 @@ class BrowserView : public BrowserWindow,
   std::unique_ptr<tabs::VerticalTabStripStateController::ScopedEnableStateLock>
       vertical_tabs_enable_state_lock_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  base::CallbackListSubscription on_locked_task_subscription_;
-#endif
 
   base::CallbackListSubscription theme_changed_subscription_;
 

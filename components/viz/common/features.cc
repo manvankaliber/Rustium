@@ -29,27 +29,6 @@
 
 namespace features {
 
-#if BUILDFLAG(IS_ANDROID)
-// If this flag is enabled, a DumpWithoutCrashing() is captured when a bad
-// state is detected when moving the composited UI. For example, this could
-// mean scrolling without a resource, or OffsetTagValues trying to position
-// the UI outside of their valid constraints.
-BASE_FEATURE(kAndroidDumpForBadCompositedUiState,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-// Enables the use of SurfaceControl underlays/overlays for HDR content on
-// Android. When disabled (default), HDR video is composited directly by
-// SkiaRenderer to prevent tone-mapping mismatches between
-// SurfaceFlinger/RenderEngine and Skia when UI controls are shown/hidden.
-BASE_FEATURE(kAndroidSurfaceControlHdrOverlays,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-// When a window is occluded, whether it should become invisible, and the
-// visibility update should be propagated to viz. This is required to reclaim
-// buffers service-side.
-BASE_FEATURE(kPropagateOcclusionToVizAndroid,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // If enabled, each render pass eligible for scanout gets its own BufferQueue.
 // This allows for BufferQueue to be used in scenarios like partial delegated
@@ -63,57 +42,12 @@ BASE_FEATURE(kVizBufferQueueDiscardOnVisibilityChange,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kUseDrmBlackFullscreenOptimization,
-#if BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kUseFrameIntervalDeciderAdaptiveFrameRate,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-// If enabled, FrameIntervalDecider uses ContinuousRangeSettings bounded by the
-// display's max supported refresh rate, instead of passing matched frame
-// intervals through unbounded.
-BASE_FEATURE(kAndroidFrameIntervalContinuousRange,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-// If enabled, `ExternalBeginFrameSourceAndroid::AChoreographerImpl` derives a
-// VSync interval from the frame timelines that the OS provided via the callback
-// registered through `AChoreographer_postVsyncCallback` (as long as the OS
-// provided at least two timelines) and populates
-// `BeginFrameArgs::deadline_derived_interval`. `AChoreographerImpl` might snap
-// this timeline-derived interval to the closest display-supported interval in
-// `Display.getSupportedRefreshRates()` depending on
-// `kCalculateDeadlineDerivedIntervalSnapToleranceParam`.
-BASE_FEATURE(kCalculateDeadlineDerivedInterval,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-// Specifies how far `ExternalBeginFrameSourceAndroid::AChoreographerImpl` can
-// snap from the timeline-derived VSync interval to a display-supported VSync
-// interval, as a fraction of the timeline-derived VSync interval (e.g. 0.1
-// means 10%). Given a timeline-derived interval TDI, display-supported interval
-// DSI and snap tolerance ST, `AChoreographerImpl` will snap TDI to DSI if:
-//
-// `|TDI - DSI| <= ST * TDI`
-//
-// If this parameter is zero (`ST = 0`), `AChoreographerImpl` won't snap at all.
-const base::FeatureParam<double>
-    kCalculateDeadlineDerivedIntervalSnapToleranceParam = {
-        &kCalculateDeadlineDerivedInterval,
-        "snap_tolerance",
-        0.0,
-};
-#endif
 
 BASE_FEATURE(kUseMultipleOverlays,
-#if BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 const char kMaxOverlaysParam[] = "max_overlays";
 
@@ -178,18 +112,6 @@ BASE_FEATURE(kWebRtcLogCapturePipeline, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kWebViewVulkanIntermediateBuffer,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// If enabled and the device's SOC manufacturer is in the allowlist, WebView
-// reports the set of threads involved in frame production to HWUI, and they're
-// included in the HWUI ADPF session.
-// If disabled, WebView never uses ADPF.
-BASE_FEATURE(kWebViewEnableADPF, base::FEATURE_ENABLED_BY_DEFAULT);
-
-// The allowlist format is a "|" separated string, e.g. "A|B|XY" for allowing
-// SoC manufacturers A, B, and XY.
-const base::FeatureParam<std::string> kWebViewADPFSocManufacturerAllowlist{
-    &kWebViewEnableADPF, "webview_soc_manufacturer_allowlist", "Google"};
-#endif
 
 #if BUILDFLAG(IS_APPLE)
 // Increase the max CALayer number allowed for CoreAnimation.
@@ -288,36 +210,6 @@ const base::FeatureParam<int>
 BASE_FEATURE(kSelectFutureFrameDeadline, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kAllowMultipleSwapsPerVsync, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// If enabled, DisplayScheduler will use a custom FrameDeadlineDecider to
-// dynamically select VSync deadlines based on input timestamps.
-BASE_FEATURE(kUseAndroidCustomFrameDeadlines,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-constexpr base::FeatureParam<FrameDeadlineDeciderSequenceStrategy>::Option
-    kFrameDeadlineDeciderSequenceStrategyOptions[] = {
-        {FrameDeadlineDeciderSequenceStrategy::kPresentationDeltaLocking,
-         "presentation_delta_locking"},
-        {FrameDeadlineDeciderSequenceStrategy::kOsPreferredDeltaLocking,
-         "os_preferred_delta_locking"},
-};
-const base::FeatureParam<FrameDeadlineDeciderSequenceStrategy>
-    kAndroidCustomFrameDeadlineSequenceStrategy{
-        &kUseAndroidCustomFrameDeadlines, "sequence_strategy",
-        FrameDeadlineDeciderSequenceStrategy::kOsPreferredDeltaLocking,
-        &kFrameDeadlineDeciderSequenceStrategyOptions};
-
-const base::FeatureParam<int> kAndroidCustomFrameDeadlinePresentationOffset{
-    &kUseAndroidCustomFrameDeadlines, "presentation_offset", 0};
-const base::FeatureParam<base::TimeDelta>
-    kAndroidCustomFrameDeadlineMaxNonInteractiveIdleDuration{
-        &kUseAndroidCustomFrameDeadlines, "max_non_interactive_idle_duration",
-        base::Milliseconds(50)};
-const base::FeatureParam<base::TimeDelta>
-    kAndroidCustomFrameDeadlineMaxInteractionIdleDuration{
-        &kUseAndroidCustomFrameDeadlines, "max_interaction_idle_duration",
-        base::Seconds(3)};
-#endif
 
 // When enabled, SDR maximum luminance nits of then current display will be used
 // as the HDR metadata NDWL nits for PQ content (if none was specified). This
@@ -387,11 +279,7 @@ BASE_FEATURE(kVizDirectCompositorThreadIpcNonRoot,
 // messages and, in turn, all interfaces associated with it e.g. root compositor
 // frame sink, display private - skipping the IO thread hop.
 BASE_FEATURE(kVizDirectCompositorThreadIpcFrameSinkManager,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 // Switches the message pump to base::MessagePumpType::IO on the Viz thread.
@@ -401,12 +289,6 @@ BASE_FEATURE(kVizWithIoMessagePump, base::FEATURE_DISABLED_BY_DEFAULT);
 // judge finch variation.
 BASE_FEATURE(kVizNullHypothesis, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Allows the display to seamlessly adjust the refresh rate in order to match
-// content preferences. ChromeOS only.
-BASE_FEATURE(kCrosContentAdjustedRefreshRate,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Do not create GLContext on DrDC thread (and Android WebView render thread) if
 // GL is not used by viz (eg when vulkan is used).
@@ -533,11 +415,6 @@ bool IsVSyncAligned() {
 }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool IsCrosContentAdjustedRefreshRateEnabled() {
-  return base::FeatureList::IsEnabled(kCrosContentAdjustedRefreshRate);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
 bool ShouldRemoveRedirectionBitmap() {
@@ -573,13 +450,6 @@ bool ShouldRemoveRedirectionBitmap() {
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-bool ShouldUseAdpfForSoc(std::string_view soc_allowlist, std::string_view soc) {
-  std::vector<std::string_view> allowlist = base::SplitStringPiece(
-      soc_allowlist, "|", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
-  return std::ranges::contains(allowlist, soc);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 bool ShouldDiscardVizBufferQueueOnVisibilityChange() {
   return kAllowVizBufferQueueDiscardOnVisibilityChange &&

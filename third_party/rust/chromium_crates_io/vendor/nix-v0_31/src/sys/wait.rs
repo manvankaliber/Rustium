@@ -6,10 +6,7 @@ use crate::Result;
 use cfg_if::cfg_if;
 use libc::{self, c_int};
 use std::convert::TryFrom;
-#[cfg(any(
-    target_os = "android",
-    all(target_os = "linux", not(target_env = "uclibc")),
-))]
+#[cfg(all(target_os = "linux", not(target_env = "uclibc")))]
 use std::os::unix::io::{AsRawFd, BorrowedFd};
 
 libc_bitflags!(
@@ -238,12 +235,7 @@ impl WaitStatus {
     /// siginfo_t is actually a union, not all fields may be initialized.
     /// The functions si_pid() and si_status() must be valid to call on
     /// the passed siginfo_t.
-    #[cfg(any(
-        target_os = "android",
-        target_os = "freebsd",
-        target_os = "haiku",
-        all(target_os = "linux", not(target_env = "uclibc")),
-    ))]
+    #[cfg(any(target_os = "freebsd", target_os = "haiku", all(target_os = "linux", not(target_env = "uclibc"))))]
     unsafe fn from_siginfo(siginfo: &libc::siginfo_t) -> Result<WaitStatus> {
         let si_pid = unsafe { siginfo.si_pid() };
         if si_pid == 0 {
@@ -323,12 +315,7 @@ pub fn wait() -> Result<WaitStatus> {
 }
 
 /// The ID argument for `waitid`
-#[cfg(any(
-    target_os = "android",
-    target_os = "freebsd",
-    target_os = "haiku",
-    all(target_os = "linux", not(target_env = "uclibc")),
-))]
+#[cfg(any(target_os = "freebsd", target_os = "haiku", all(target_os = "linux", not(target_env = "uclibc"))))]
 #[derive(Debug)]
 pub enum Id<'fd> {
     /// Wait for any child
@@ -351,12 +338,7 @@ pub enum Id<'fd> {
 /// Wait for a process to change status
 ///
 /// See also [waitid(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/waitid.html)
-#[cfg(any(
-    target_os = "android",
-    target_os = "freebsd",
-    target_os = "haiku",
-    all(target_os = "linux", not(target_env = "uclibc")),
-))]
+#[cfg(any(target_os = "freebsd", target_os = "haiku", all(target_os = "linux", not(target_env = "uclibc"))))]
 pub fn waitid(id: Id, flags: WaitPidFlag) -> Result<WaitStatus> {
     let (idtype, idval) = match id {
         Id::All => (libc::P_ALL, 0),

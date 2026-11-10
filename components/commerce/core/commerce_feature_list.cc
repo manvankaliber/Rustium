@@ -12,9 +12,7 @@
 #include "base/strings/string_util.h"
 #include "base/values.h"
 #include "build/buildflag.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/commerce/core/commerce_heuristics_data.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 #include "components/commerce/core/pref_names.h"
 #include "third_party/abseil-cpp/absl/container/flat_hash_map.h"
 #include "third_party/abseil-cpp/absl/container/flat_hash_set.h"
@@ -40,18 +38,9 @@ const CountryLocaleMap& GetAllowedCountryToLocaleMap() {
   static const base::NoDestructor<CountryLocaleMap> allowed_map([] {
     CountryLocaleMap map;
 
-#if BUILDFLAG(IS_ANDROID)
-    map[&kCommerceMerchantViewer] = {{"us", {"en-us"}}};
-    map[&kPriceAnnotations] = {{"us", {"en-us"}}};
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_IOS)
-    map[&kTabResumptionShopCard] = {{"us", {"en-us"}}};
-#endif  // BUILDFLAG(IS_IOS)
 
-#if !BUILDFLAG(IS_IOS)
     map[&kEnableDiscountInfoApi] = {{"us", {"en-us"}}};
-#endif  // !BUILDFLAG(IS_IOS)
 
     map[&ntp_features::kNtpChromeCartModule] = {{"us", {"en-us"}}};
     map[&kPriceInsights] = {{"us", {"en-us"}}};
@@ -81,7 +70,6 @@ constexpr base::FeatureParam<std::string> kCouponPartnerMerchantPattern{
     "\\b\\B"};
 
 const re2::RE2& GetRulePartnerMerchantPattern() {
-#if !BUILDFLAG(IS_ANDROID)
   auto* pattern_from_component =
       commerce_heuristics::CommerceHeuristicsData::GetInstance()
           .GetRuleDiscountPartnerMerchantPattern();
@@ -89,7 +77,6 @@ const re2::RE2& GetRulePartnerMerchantPattern() {
                                     kRulePartnerMerchantPattern.default_value) {
     return *pattern_from_component;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   re2::RE2::Options options;
   options.set_case_sensitive(false);
   static base::NoDestructor<re2::RE2> instance(
@@ -98,7 +85,6 @@ const re2::RE2& GetRulePartnerMerchantPattern() {
 }
 
 const re2::RE2& GetCouponPartnerMerchantPattern() {
-#if !BUILDFLAG(IS_ANDROID)
   auto* pattern_from_component =
       commerce_heuristics::CommerceHeuristicsData::GetInstance()
           .GetCouponDiscountPartnerMerchantPattern();
@@ -107,7 +93,6 @@ const re2::RE2& GetCouponPartnerMerchantPattern() {
           kCouponPartnerMerchantPattern.default_value) {
     return *pattern_from_component;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   re2::RE2::Options options;
   options.set_case_sensitive(false);
   static base::NoDestructor<re2::RE2> instance(
@@ -157,8 +142,7 @@ BASE_FEATURE(kEnableDiscountInfoApi, base::FEATURE_DISABLED_BY_DEFAULT);
 // TODO(crbug.com/406555154): Clean up this flag when discount on clank launched.
 const char kDiscountOnShoppyPageParam[] = "discount-on-shoppy-page";
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 const base::FeatureParam<bool> kDiscountOnShoppyPage{
     &kEnableDiscountInfoApi, kDiscountOnShoppyPageParam, true};
 #else
@@ -170,8 +154,7 @@ const char kHistoryClustersBehaviorParam[] = "history-cluster-behavior";
 const char kMerchantWideBehaviorParam[] = "merchant-wide-behavior";
 const char kNonMerchantWideBehaviorParam[] = "non-merchant-wide-behavior";
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 BASE_FEATURE(kDiscountDialogAutoPopupBehaviorSetting,
              base::FEATURE_ENABLED_BY_DEFAULT);
 const base::FeatureParam<int> kHistoryClustersBehavior{
@@ -307,7 +290,6 @@ bool IsRegionLockedFeatureEnabled(const base::Feature& feature,
   return flag_enabled || region_launched;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 base::TimeDelta GetDiscountFetchDelay() {
   auto delay_from_component =
       commerce_heuristics::CommerceHeuristicsData::GetInstance()
@@ -331,5 +313,4 @@ bool IsNoDiscountMerchant(const GURL& url) {
   }
   return RE2::PartialMatch(url.host(), *pattern_from_component);
 }
-#endif
 }  // namespace commerce

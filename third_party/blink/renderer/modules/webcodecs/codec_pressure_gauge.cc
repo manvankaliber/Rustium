@@ -21,12 +21,8 @@
 #if BUILDFLAG(IS_WIN)
 constexpr int kDecoderPressureThreshold = 6;
 constexpr int kEncoderPressureThreshold = 0;
-#elif BUILDFLAG(IS_CHROMEOS)
-constexpr int kSharedPressureThreshold = 3;
 #elif BUILDFLAG(IS_MAC)
 constexpr int kSharedPressureThreshold = 24;
-#elif BUILDFLAG(IS_ANDROID)
-constexpr int kSharedPressureThreshold = 4;
 #else
 // By default (e.g. for Linux, Fuschia, Chromecast...), any codec with pressure
 // should be reclaimable, regardless of global presure.

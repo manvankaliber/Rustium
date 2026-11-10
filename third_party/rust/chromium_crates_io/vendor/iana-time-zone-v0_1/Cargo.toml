@@ -80,9 +80,6 @@ features = ["js"]
 [target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dev-dependencies.wasm-bindgen-test]
 version = "0.3.46"
 
-[target.'cfg(target_os = "android")'.dependencies.android_system_properties]
-version = "0.1.5"
-
 [target.'cfg(target_os = "haiku")'.dependencies.iana-time-zone-haiku]
 version = "0.1.1"
 

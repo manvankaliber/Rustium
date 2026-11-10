@@ -374,7 +374,6 @@ bool ActorUiTabController::MaybeDeferNavigation(
   return true;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ActorUiTabController::CancelNavigationConfirmation(
     tabs::TabInterface* tab) {
   CHECK(!tab || tab == &*tab_);
@@ -390,6 +389,5 @@ views::Widget*
 ActorUiTabController::GetActiveNavigationConfirmDialogWidgetForTesting() const {
   return active_navigation_confirm_widget_.get();
 }
-#endif
 
 }  // namespace actor::ui

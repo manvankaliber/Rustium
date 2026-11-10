@@ -55,12 +55,6 @@ source_set("libfuzzer") {
     "//build/config/compiler:no_exit_time_destructors",
   ]
 
-  if (is_android) {
-    # Bypasses the "initial-exec" TLS model in libFuzzer's FuzzerPlatform.h
-    # which causes dlopen() crashes when fuzzers are packaged as Android APKs.
-    defines = [ "tls_model(x)=" ]
-  }
-
   deps = []
 }
 
@@ -71,7 +65,6 @@ source_set("libfuzzer_main") {
   configs -= fuzzing_engine_remove_configs
   configs += fuzzing_engine_add_configs
   sources = []
-  if (!is_ios) {
-    sources += [ "src/FuzzerMain.cpp" ]
-  }
+
+  sources += [ "src/FuzzerMain.cpp" ]
 }

@@ -72,9 +72,6 @@
 #include "ui/views/interaction/element_tracker_views.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace glic::test {
 
@@ -142,10 +139,6 @@ class InteractiveGlicTestMixin : public T {
          // Live mode is disabled by default on Linux, but we still want to test
          // it.
          {features::kGlicLiveMode, {}},
-#if BUILDFLAG(IS_CHROMEOS)
-         { chromeos::features::kFeatureManagementGlic,
-           {} }
-#endif  // BUILDFLAG(IS_CHROMEOS)
         },
         {});
   }

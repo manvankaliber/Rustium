@@ -913,7 +913,7 @@ TEST_F(RTCVideoDecoderAdapterTest, UseD3D11ToDecodeVP9kSVCStream) {
   FinishDecode(0);
   media_thread_.FlushForTesting();
 }
-#elif !(defined(ARCH_CPU_X86_FAMILY) && BUILDFLAG(IS_CHROMEOS))
+#else
 // ChromeOS has the ability to decode VP9 kSVC Stream. Other cases should
 // fallback to sw decoder.
 TEST_F(RTCVideoDecoderAdapterTest,

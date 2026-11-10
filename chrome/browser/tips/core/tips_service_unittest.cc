@@ -27,9 +27,6 @@
 #include "chrome/browser/tips/core/tips_prefs.h"
 #include "chrome/browser/tips/core/tips_service_test_base.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -297,32 +294,6 @@ TEST_F(TipsServiceTest, DetermineBestTip_GlobalCooldown_SuppressesTips) {
       /*mock_global_cooldown_shown_count=*/1.0f);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(TipsServiceTest,
-       DetermineBestTip_GlobalCooldown_BypassedByDedicatedParam) {
-  // Dedicated Finch param on kTipsSelfService bypasses the 7-day cooldown.
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeatureWithParameters(
-      chrome::android::kTipsSelfService, {{"instant_scheduling", "true"}});
-
-  auto feature = std::make_unique<MockTipsFeature>(
-      TipFeatureRank::kQuickDelete, TipsNotificationsFeatureType::kQuickDelete,
-      std::vector<SignalDefinition>{UserAction("SomeAction", 7)},
-      /*is_eligible=*/true);
-
-  std::vector<FeatureTestConfig> configs;
-  configs.push_back(FeatureTestConfig{
-      .feature = std::move(feature),
-      .mock_signal_values = std::map<std::string, float>{{"SomeAction", 1.0f}},
-  });
-
-  // A tip was shown within the last 7 days (count = 1.0f), but the dedicated
-  // param bypasses the cooldown so the eligible feature is chosen.
-  RunDetermineBestTipTestWithOverrides(
-      std::move(configs), TipsNotificationsFeatureType::kQuickDelete,
-      /*mock_global_cooldown_shown_count=*/1.0f);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST_F(TipsServiceTest, DetermineBestTip_CustomSignalsForwardedToFeature) {
   auto feature = std::make_unique<MockTipsFeature>(

@@ -945,11 +945,6 @@ TEST_P(V5SearchHashesCacheTest, CacheArtificialVerdictWithThreatType) {
 }
 
 TEST_P(V5SearchHashesCacheTest, CacheArtificialVerdictWithWarnOnly) {
-#if BUILDFLAG(IS_IOS)
-  if (!GetParam()) {
-    GTEST_SKIP() << "iOS HPRT does not support CANARY attribute";
-  }
-#endif
   auto cache =
       std::make_unique<V5SearchHashesCache>(/*history_service=*/nullptr);
   GURL test_url("https://example.com/phishing.html");

@@ -239,11 +239,9 @@ class ContextualCueingController
       const CueTarget& target,
       const optimization_guide::proto::ContextualCue& cue,
       const std::vector<optimization_guide::proto::Tab>& background_tabs);
-#if !BUILDFLAG(IS_ANDROID)
   void MaybeShowTabList(
       page_actions::PageActionController* page_action_controller,
       const std::vector<tabs::TabHandle>& tabs_to_show);
-#endif
   struct ActiveCueData {
     ActiveCueData(CueTargetType cue_type,
                   optimization_guide::proto::ContextualCue cue,
@@ -337,11 +335,9 @@ class ContextualCueingController
   absl::flat_hash_map<tabs::TabHandle, ui::ImageModel> tab_favicons_;
   base::CancelableTaskTracker cancelable_task_tracker_;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<page_actions::PageActionObserver> page_action_observer_;
   std::optional<page_actions::PageActionPriorityCategory>
       current_anchored_message_priority_;
-#endif
 
   GURL last_logged_active_url_;
 

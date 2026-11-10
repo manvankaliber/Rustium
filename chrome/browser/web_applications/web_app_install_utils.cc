@@ -36,7 +36,6 @@
 #include "chrome/browser/web_applications/os_integration/os_integration_manager.h"
 #include "chrome/browser/web_applications/policy/pre_redirection_url_observer.h"
 #include "chrome/browser/web_applications/web_app.h"
-#include "chrome/browser/web_applications/web_app_chromeos_data.h"
 #include "chrome/browser/web_applications/web_app_constants.h"
 #include "chrome/browser/web_applications/web_app_helpers.h"
 #include "chrome/browser/web_applications/web_app_icon_generator.h"
@@ -69,9 +68,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/experiences/system_web_apps/types/system_web_app_data.h"
-#endif
 
 namespace web_app {
 
@@ -809,13 +805,6 @@ void ApplyParamsToFinalizeOptions(const WebAppInstallParams& install_params,
   options.add_to_quick_launch_bar = install_params.add_to_quick_launch_bar;
   options.skip_origin_association_validation =
       install_params.skip_origin_association_validation;
-#if BUILDFLAG(IS_CHROMEOS)
-  if (install_params.system_app_type.has_value()) {
-    options.system_web_app_data.emplace();
-    options.system_web_app_data->system_app_type =
-        install_params.system_app_type.value();
-  }
-#endif
 }
 
 bool HomeTabIconsExistInTabStrip(const WebAppInstallInfo& web_app_info) {
@@ -844,13 +833,8 @@ bool IsSyncEnabledForApps(Profile* profile) {
   }
   syncer::SyncService* sync_service =
       SyncServiceFactory::GetForProfile(profile);
-#if BUILDFLAG(IS_CHROMEOS)
-  return sync_service->GetUserSettings()->GetSelectedOsTypes().Has(
-      syncer::UserSelectableOsType::kOsApps);
-#else
   return sync_service->GetUserSettings()->GetSelectedTypes().Has(
       syncer::UserSelectableType::kApps);
-#endif
 }
 
 }  // namespace web_app

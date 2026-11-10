@@ -222,16 +222,11 @@ std::set<SharingFeature> SharingDeviceRegistrationImpl::GetEnabledFeatures()
 }
 
 bool SharingDeviceRegistrationImpl::IsSmsFetcherSupported() const {
-#if BUILDFLAG(IS_ANDROID)
-  return true;
-#else
   return false;
-#endif
 }
 
 bool SharingDeviceRegistrationImpl::IsRemoteCopySupported() const {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   return true;
 #else
   return false;

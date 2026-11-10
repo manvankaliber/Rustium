@@ -696,17 +696,6 @@ TEST(PermissionsTest, IsPrivilegeIncrease) {
       // All of the below are platform app permissions.
       {"platformapp1", false},  // host permissions for platform apps
       {"platformapp2", true},   // API permissions for platform apps
-#if BUILDFLAG(IS_CHROMEOS)
-      // TODO(crbug.com/445350577): Remove the IS_CHROMEOS check when
-      // IS_CHROMEOS and ENABLE_PLATFORM_APPS are equivalent.
-      {"media_galleries1", true},   // all -> read|all
-      {"media_galleries2", true},   // read|all -> read|delete|copyTo|all
-      {"media_galleries3", true},   // all -> read|delete|all
-      {"media_galleries4", false},  // read|all -> all
-      {"media_galleries5", false},  // read|copyTo|delete|all -> read|all
-      {"media_galleries6", false},  // read|all -> read|all
-      {"media_galleries7", true},   // read|delete|all -> read|copyTo|delete|all
-#endif
       {"sockets1", true},   // none -> tcp:*:*
       {"sockets2", false},  // tcp:*:* -> tcp:*:*
       {"sockets3", true},   // tcp:a.com:80 -> tcp:*:*
@@ -782,9 +771,6 @@ TEST(PermissionsTest, PermissionMessages) {
   skip.insert(APIPermissionID::kGcm);
   skip.insert(APIPermissionID::kIdle);
   skip.insert(APIPermissionID::kImeWindowEnabled);
-#if BUILDFLAG(IS_CHROMEOS)
-  skip.insert(APIPermissionID::kLoginState);
-#endif
   skip.insert(APIPermissionID::kOffscreen);
   skip.insert(APIPermissionID::kOverrideEscFullscreen);
 #if BUILDFLAG(ENABLE_PLATFORM_APPS)
@@ -828,15 +814,6 @@ TEST(PermissionsTest, PermissionMessages) {
   skip.insert(APIPermissionID::kWebRequestAuthProvider);
   skip.insert(APIPermissionID::kDeclarativeNetRequestWithHostAccess);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // This permission requires explicit user action (context menu handler)
-  // so we won't prompt for it for now.
-  skip.insert(APIPermissionID::kFileBrowserHandler);
-
-  // These permissions require explicit user action (configuration dialog)
-  // so we don't prompt for them at install time.
-  skip.insert(APIPermissionID::kMediaGalleries);
-#endif
 
   // If you've turned on the experimental command-line flag, we don't need
   // to warn you further.
@@ -856,15 +833,9 @@ TEST(PermissionsTest, PermissionMessages) {
   skip.insert(APIPermissionID::kIdentity);
 
   // These are private.
-#if BUILDFLAG(IS_CHROMEOS)
-  skip.insert(APIPermissionID::kAccessibilityPrivate);
-#endif
   skip.insert(APIPermissionID::kAccessibilityServicePrivate);
 #if BUILDFLAG(ENABLE_PLATFORM_APPS)
   skip.insert(APIPermissionID::kArcAppsPrivate);
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-  skip.insert(APIPermissionID::kAutoTestPrivate);
 #endif
   skip.insert(APIPermissionID::kBrailleDisplayPrivate);
   skip.insert(APIPermissionID::kCecPrivate);
@@ -873,23 +844,13 @@ TEST(PermissionsTest, PermissionMessages) {
   skip.insert(APIPermissionID::kContextualTasksPrivate);
   skip.insert(APIPermissionID::kCrashReportPrivate);
   skip.insert(APIPermissionID::kDeveloperPrivate);
-#if BUILDFLAG(IS_CHROMEOS)
-  skip.insert(APIPermissionID::kEchoPrivate);
-#endif
   skip.insert(APIPermissionID::kEnterprisePlatformKeysPrivate);
   skip.insert(APIPermissionID::kFeedbackPrivate);
-#if BUILDFLAG(IS_CHROMEOS)
-  skip.insert(APIPermissionID::kFileManagerPrivate);
-#endif
 #if BUILDFLAG(ENABLE_PLATFORM_APPS)
   skip.insert(APIPermissionID::kFirstRunPrivate);
 #endif
   skip.insert(APIPermissionID::kGlicPrivate);
   skip.insert(APIPermissionID::kGlicPrivateInvoke);
-#if BUILDFLAG(IS_CHROMEOS)
-  skip.insert(APIPermissionID::kImageLoaderPrivate);
-  skip.insert(APIPermissionID::kInputMethodPrivate);
-#endif
   skip.insert(APIPermissionID::kLanguageSettingsPrivate);
   skip.insert(APIPermissionID::kLockWindowFullscreenPrivate);
   skip.insert(APIPermissionID::kMediaPlayerPrivate);
@@ -900,9 +861,6 @@ TEST(PermissionsTest, PermissionMessages) {
   skip.insert(APIPermissionID::kImageWriterPrivate);
   skip.insert(APIPermissionID::kResourcesPrivate);
   skip.insert(APIPermissionID::kSafeBrowsingPrivate);
-#if BUILDFLAG(IS_CHROMEOS)
-  skip.insert(APIPermissionID::kSmartCardProviderPrivate);
-#endif
   skip.insert(APIPermissionID::kSystemPrivate);
   skip.insert(APIPermissionID::kTabCaptureForTab);
   skip.insert(APIPermissionID::kTerminalPrivate);
@@ -910,11 +868,6 @@ TEST(PermissionsTest, PermissionMessages) {
   skip.insert(APIPermissionID::kWebrtcDesktopCapturePrivate);
   skip.insert(APIPermissionID::kWebrtcLoggingPrivate);
   skip.insert(APIPermissionID::kWebrtcLoggingPrivateAudioDebug);
-#if BUILDFLAG(IS_CHROMEOS)
-  skip.insert(APIPermissionID::kWmDesksPrivate);
-  skip.insert(APIPermissionID::kSystemLog);
-  skip.insert(APIPermissionID::kOdfsConfigPrivate);
-#endif
   skip.insert(APIPermissionID::kIndigoPrivate);
   skip.insert(APIPermissionID::kDictationPrivate);
 
@@ -928,9 +881,6 @@ TEST(PermissionsTest, PermissionMessages) {
 #endif
   skip.insert(APIPermissionID::kHid);
   skip.insert(APIPermissionID::kFileSystem);
-#if BUILDFLAG(IS_CHROMEOS)
-  skip.insert(APIPermissionID::kFileSystemProvider);
-#endif
   skip.insert(APIPermissionID::kFileSystemRequestFileSystem);
   skip.insert(APIPermissionID::kFileSystemRetainEntries);
   skip.insert(APIPermissionID::kFileSystemWrite);
@@ -1078,49 +1028,6 @@ TEST(PermissionsTest, SuppressedPermissionMessages) {
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// "serial" is a platform app permission only supported on ChromeOS.
-TEST(PermissionsTest, AccessToDevicesMessages) {
-  {
-    APIPermissionSet api_permissions;
-    api_permissions.insert(APIPermissionID::kSerial);
-    PermissionSet permissions(std::move(api_permissions),
-                              ManifestPermissionSet(), URLPatternSet(),
-                              URLPatternSet());
-    EXPECT_TRUE(VerifyOnePermissionMessage(
-        permissions, Manifest::Type::kExtension,
-        l10n_util::GetStringUTF16(IDS_EXTENSION_PROMPT_WARNING_SERIAL)));
-  }
-  {
-    // Testing that multiple permissions will show the one message.
-    APIPermissionSet api_permissions;
-    api_permissions.insert(APIPermissionID::kSerial);
-    api_permissions.insert(APIPermissionID::kSerial);
-    PermissionSet permissions(std::move(api_permissions),
-                              ManifestPermissionSet(), URLPatternSet(),
-                              URLPatternSet());
-    EXPECT_TRUE(VerifyOnePermissionMessage(
-        permissions, Manifest::Type::kExtension,
-        l10n_util::GetStringUTF16(IDS_EXTENSION_PROMPT_WARNING_SERIAL)));
-  }
-  {
-    scoped_refptr<Extension> extension =
-        LoadManifest("permissions", "access_to_devices_bluetooth.json");
-    PermissionSet& set = const_cast<PermissionSet&>(
-        extension->permissions_data()->active_permissions());
-    EXPECT_TRUE(VerifyOnePermissionMessage(
-        set, extension->GetType(),
-        l10n_util::GetStringUTF16(IDS_EXTENSION_PROMPT_WARNING_BLUETOOTH)));
-
-    // Test Bluetooth and Serial
-    set.apis_.insert(APIPermissionID::kSerial);
-    EXPECT_TRUE(VerifyOnePermissionMessage(
-        set, extension->GetType(),
-        l10n_util::GetStringUTF16(
-            IDS_EXTENSION_PROMPT_WARNING_BLUETOOTH_SERIAL)));
-  }
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST(PermissionsTest, MergedFileSystemPermissionComparison) {
   APIPermissionSet write_api_permissions;
@@ -1295,19 +1202,6 @@ TEST(PermissionsTest, GetWarningMessages_DeclarativeWebRequest) {
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
 #if BUILDFLAG(ENABLE_PLATFORM_APPS)
-#if BUILDFLAG(IS_CHROMEOS)
-// "serial" is a platform app API only available on ChromeOS.
-TEST(PermissionsTest, GetWarningMessages_Serial) {
-  scoped_refptr<Extension> extension =
-      LoadManifest("permissions", "serial.json");
-
-  EXPECT_TRUE(extension->is_platform_app());
-  EXPECT_TRUE(extension->permissions_data()->HasAPIPermission(
-      APIPermissionID::kSerial));
-  EXPECT_TRUE(VerifyOnePermissionMessage(extension->permissions_data(),
-                                         "Access your serial devices"));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // "socket" is a platform app API.
 TEST(PermissionsTest, GetWarningMessages_Socket_AnyHost) {
@@ -1958,16 +1852,6 @@ TEST(PermissionsTest, SettingMembers) {
     EXPECT_TRUE(set.ShouldWarnAllHosts());
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  {
-    // Setting API permissions adds implicit permissions.
-    PermissionSet set;
-    APIPermissionSet new_apis;
-    new_apis.insert(APIPermissionID::kFileBrowserHandler);
-    set.SetAPIPermissions(std::move(new_apis));
-    EXPECT_TRUE(set.HasAPIPermission(APIPermissionID::kFileBrowserHandler));
-  }
-#endif
 }
 
 }  // namespace extensions

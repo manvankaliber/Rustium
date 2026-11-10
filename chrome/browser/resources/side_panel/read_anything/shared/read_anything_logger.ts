@@ -164,10 +164,6 @@ export class ReadAnythingLogger {
     } else if (hasEspeakIdentifier(voice)) {
       voiceType = ReadAnythingVoiceType.ESPEAK;
     } else {
-      // <if expr="is_chromeos">
-      voiceType = ReadAnythingVoiceType.CHROMEOS;
-      // </if>
-      // <if expr="not is_chromeos">
       voiceType = ReadAnythingVoiceType.SYSTEM;
 
       // When a system voice is used, log additional information to better
@@ -175,7 +171,6 @@ export class ReadAnythingLogger {
       // Extension state information cannot easily be passed to the renderer,
       // so this logging needs to be handled within the page handler.
       this.metrics.recordExtensionState();
-      // </if>
     }
 
     this.metrics.recordVoiceType(voiceType);

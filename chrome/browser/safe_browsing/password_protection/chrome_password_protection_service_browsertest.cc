@@ -55,7 +55,6 @@
 #include "components/signin/public/identity_manager/account_info.h"
 #include "components/signin/public/identity_manager/identity_test_environment.h"
 #include "components/signin/public/identity_manager/signin_constants.h"
-#include "components/user_manager/user_names.h"
 #include "components/variations/pref_names.h"
 #include "components/variations/seed_reader_writer.h"
 #include "content/public/browser/browser_context.h"
@@ -79,6 +78,8 @@ using ::testing::_;
 using ::testing::ElementsAre;
 
 namespace {
+
+constexpr char kTestUserEmail[] = "stub-user@example.com";
 
 const char kLoginPageUrl[] = "/safe_browsing/login_page.html";
 const char kChangePasswordUrl[] = "/safe_browsing/change_password_page.html";
@@ -161,7 +162,7 @@ class ChromePasswordProtectionServiceBrowserTest : public InProcessBrowserTest {
     password_manager::PasswordReuseManager* reuse_manager =
         PasswordReuseManagerFactory::GetForProfile(browser()->GetProfile());
     reuse_manager->SaveGaiaPasswordHash(
-        user_manager::kStubUserEmail, base::UTF8ToUTF16(new_password),
+        kTestUserEmail, base::UTF8ToUTF16(new_password),
         /*is_primary_account=*/true,
         password_manager::metrics_util::GaiaPasswordHashChange::
             CHANGED_IN_CONTENT_AREA);
@@ -203,11 +204,11 @@ class ChromePasswordProtectionServiceBrowserTest : public InProcessBrowserTest {
 
     CoreAccountInfo account_info =
         identity_test_env()
-            ->MakePrimaryAccountAvailable(user_manager::kStubUserEmail,
+            ->MakePrimaryAccountAvailable(kTestUserEmail,
                                           signin::ConsentLevel::kSignin)
             .GetCoreAccountInfo();
 
-    ASSERT_EQ(account_info.email, user_manager::kStubUserEmail);
+    ASSERT_EQ(account_info.email, kTestUserEmail);
 
     identity_test_env()->SimulateSuccessfulFetchOfAccountInfo(
         account_info.account_id, account_info.email, account_info.gaia,
@@ -312,7 +313,7 @@ IN_PROC_BROWSER_TEST_F(ChromePasswordProtectionServiceBrowserTest,
                   .DomainIs("google.com"));
 
   // Simulates user finished changing password.
-  SimulateGaiaPasswordChanged(service, user_manager::kStubUserEmail,
+  SimulateGaiaPasswordChanged(service, kTestUserEmail,
                               /*is_other_gaia_password=*/true);
   base::RunLoop().RunUntilIdle();
   EXPECT_EQ(security_state::DANGEROUS, GetSecurityLevel(web_contents));
@@ -626,7 +627,7 @@ IN_PROC_BROWSER_TEST_F(ChromePasswordProtectionServiceBrowserTest,
                     .size());
 
   // Simulates a Gaia password change.
-  SimulateGaiaPasswordChanged(service, user_manager::kStubUserEmail,
+  SimulateGaiaPasswordChanged(service, kTestUserEmail,
                               /*is_other_password=*/true);
   base::RunLoop().RunUntilIdle();
   EXPECT_EQ(0u, profile->GetPrefs()
@@ -643,7 +644,7 @@ IN_PROC_BROWSER_TEST_F(ChromePasswordProtectionServiceBrowserTest,
   password_manager::PasswordReuseManager* reuse_manager =
       PasswordReuseManagerFactory::GetForProfile(browser()->GetProfile());
   reuse_manager->SaveGaiaPasswordHash(
-      user_manager::kStubUserEmail, u"password_1",
+      kTestUserEmail, u"password_1",
       /*is_primary_account=*/true,
       password_manager::metrics_util::GaiaPasswordHashChange::
           CHANGED_IN_CONTENT_AREA);
@@ -862,7 +863,7 @@ IN_PROC_BROWSER_TEST_F(ChromePasswordProtectionServiceBrowserTest,
       std::move(encryptor));
   hash_password_manager.set_prefs(profile->GetPrefs());
   EXPECT_FALSE(hash_password_manager.HasPasswordHash(
-      user_manager::kStubUserEmail, /*is_gaia_password=*/true));
+      kTestUserEmail, /*is_gaia_password=*/true));
   EXPECT_EQ(0u, profile->GetPrefs()
                     ->GetList(password_manager::prefs::kPasswordHashDataList)
                     .size());
@@ -884,7 +885,7 @@ IN_PROC_BROWSER_TEST_F(ChromePasswordProtectionServiceBrowserTest,
   reuse_manager->SaveEnterprisePasswordHash("username@domain.com",
                                             u"password_1");
   reuse_manager->SaveGaiaPasswordHash(
-      user_manager::kStubUserEmail, u"password_2",
+      kTestUserEmail, u"password_2",
       /*is_primary_account=*/false,
       password_manager::metrics_util::GaiaPasswordHashChange::
           CHANGED_IN_CONTENT_AREA);
@@ -911,7 +912,7 @@ IN_PROC_BROWSER_TEST_F(ChromePasswordProtectionServiceBrowserTest,
   EXPECT_FALSE(hash_password_manager.HasPasswordHash(
       "username@domain.com", /*is_gaia_password=*/false));
   EXPECT_FALSE(
-      hash_password_manager.HasPasswordHash(user_manager::kStubUserEmail,
+      hash_password_manager.HasPasswordHash(kTestUserEmail,
                                             /*is_gaia_password=*/true));
   EXPECT_EQ(0u, profile->GetPrefs()
                     ->GetList(password_manager::prefs::kPasswordHashDataList)
@@ -1576,7 +1577,6 @@ IN_PROC_BROWSER_TEST_F(
   ASSERT_TRUE(prerender_manager.was_activated());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class ChromePasswordProtectionServiceTrustSafetySentimentServiceBrowserTest
     : public ChromePasswordProtectionServiceBrowserTest {
  public:
@@ -1664,6 +1664,5 @@ IN_PROC_BROWSER_TEST_F(
       WarningUIType::MODAL_DIALOG, WarningAction::CHANGE_PASSWORD);
   base::RunLoop().RunUntilIdle();
 }
-#endif
 
 }  // namespace safe_browsing

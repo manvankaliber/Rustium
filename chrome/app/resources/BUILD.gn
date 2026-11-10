@@ -7,8 +7,6 @@ import("//build/config/locales.gni")
 import("//chrome/common/features.gni")
 import("//tools/grit/grit_rule.gni")
 
-assert(!is_ios, "Chromium/iOS shouldn't use anything in //chrome")
-
 grit_strings("locale_settings") {
   source = "locale_settings.grd"
   defines = chrome_grit_defines
@@ -21,12 +19,6 @@ grit_strings("platform_locale_settings") {
     source = "locale_settings_win.grd"
   } else if (is_mac) {
     source = "locale_settings_mac.grd"
-  } else if (is_chromeos) {
-    if (is_chrome_branded) {
-      source = "locale_settings_google_chromeos.grd"
-    } else {
-      source = "locale_settings_chromiumos.grd"
-    }
   } else if (is_posix) {
     # All other POSIX systems use the Linux one.
     source = "locale_settings_linux.grd"

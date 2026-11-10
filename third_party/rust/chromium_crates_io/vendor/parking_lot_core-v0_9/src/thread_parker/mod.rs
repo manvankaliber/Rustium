@@ -51,7 +51,7 @@ pub trait UnparkHandleT {
 }
 
 cfg_if! {
-    if #[cfg(any(target_os = "linux", target_os = "android"))] {
+    if #[cfg(target_os = "linux")] {
         #[path = "linux.rs"]
         mod imp;
     } else if #[cfg(unix)] {

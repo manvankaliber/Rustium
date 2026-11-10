@@ -397,14 +397,14 @@ BASE_EXPORT bool SetPosixFilePermissions(const FilePath& path, int mode);
 BASE_EXPORT bool ExecutableExistsInPath(Environment* env,
                                         const FilePath::StringType& executable);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_AIX)
 // Determine if files under a given |path| can be mapped and then mprotect'd
 // PROT_EXEC. This depends on the mount options used for |path|, which vary
 // among different Linux distributions and possibly local configuration. It also
 // depends on details of kernel--ChromeOS uses the noexec option for /dev/shm
 // but its kernel allows mprotect with PROT_EXEC anyway.
 BASE_EXPORT bool IsPathExecutable(const FilePath& path);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#endif
 
 #endif  // BUILDFLAG(IS_POSIX)
 
@@ -816,24 +816,6 @@ BASE_EXPORT int GetMaximumPathComponentLength(const base::FilePath& path);
 BASE_EXPORT bool GetShmemTempDir(bool executable, FilePath* path);
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-// Resolves this FilePath to a content URI if it represents a virtual
-// document path or is already a content URI. Returns std::nullopt otherwise.
-BASE_EXPORT std::optional<FilePath> ResolveToContentUri(const FilePath& path);
-
-// Resolves this FilePath to a virtual document path if it's a content URI
-// representing a document tree or is already a virtual document path. Returns
-// std::nullopt otherwise.
-BASE_EXPORT std::optional<FilePath> ResolveToVirtualDocumentPath(
-    const FilePath& path);
-
-// Copies a file from app-private storage into the public Downloads collection.
-// Returns the public content URI string on success, or std::nullopt on failure.
-BASE_EXPORT std::optional<std::string> CopyFileToDownloadsCollection(
-    const FilePath& file_path,
-    const std::string& mime_type);
-
-#endif
 
 // Returns whether the specified file name is a reserved name on Windows.
 // This includes names like "com2.zip" (which correspond to devices) and
@@ -865,7 +847,7 @@ BASE_EXPORT bool CopyAndDeleteDirectory(const FilePath& from_path,
 BASE_EXPORT bool IsUserDefaultAdmin();
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 // CopyFileContentsWithSendfile will use the sendfile(2) syscall to perform a
 // file copy without moving the data between kernel and userspace. This is much
 // more efficient than sequences of read(2)/write(2) calls. The |retry_slow|
@@ -877,7 +859,7 @@ BASE_EXPORT bool IsUserDefaultAdmin();
 BASE_EXPORT bool CopyFileContentsWithSendfile(File& infile,
                                               File& outfile,
                                               bool& retry_slow);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 }  // namespace internal

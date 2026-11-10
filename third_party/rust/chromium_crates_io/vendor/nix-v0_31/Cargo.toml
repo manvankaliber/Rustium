@@ -149,7 +149,7 @@ version = "3.7.1"
 [build-dependencies.cfg_aliases]
 version = "0.2.1"
 
-[target.'cfg(any(target_os = "android", target_os = "linux"))'.dev-dependencies.caps]
+[target.'cfg(target_os = "linux")'.dev-dependencies.caps]
 version = "0.5.3"
 
 [target.'cfg(target_os = "freebsd")'.dev-dependencies.sysctl]

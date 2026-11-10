@@ -74,17 +74,7 @@ void UpdateJobFileInfo(std::unique_ptr<extensions::PrinterProviderPrintJob> job,
 
 bool HasUsbPrinterProviderPermissions(const Extension* extension,
                                       Profile* profile) {
-#if BUILDFLAG(IS_CHROMEOS)
-  return extension->permissions_data() &&
-         extension->permissions_data()->HasAPIPermission(
-             extensions::mojom::APIPermissionID::kPrinterProvider) &&
-         extension->permissions_data()->HasAPIPermission(
-             extensions::mojom::APIPermissionID::kUsb) &&
-         (!profile->IsOffTheRecord() ||
-          extensions::util::IsIncognitoEnabled(extension, profile));
-#else
   return false;
-#endif
 }
 
 std::string GenerateProvisionalUsbPrinterId(

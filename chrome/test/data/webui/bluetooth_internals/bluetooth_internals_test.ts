@@ -18,10 +18,6 @@ import {assert, assertNotReached} from 'chrome://resources/js/assert.js';
 import {PromiseResolver} from 'chrome://resources/js/promise_resolver.js';
 import {getRequiredElement} from 'chrome://resources/js/util.js';
 import {assertDeepEquals, assertEquals, assertFalse, assertThrows, assertTrue} from 'chrome://webui-test/chai_assert.js';
-// <if expr="is_chromeos">
-import {flushTasks} from 'chrome://webui-test/polymer_test_util.js';
-
-// </if>
 
 import {fakeAdapterInfo, fakeCharacteristicInfo1, fakeDeviceInfo1, fakeDeviceInfo2, fakeDeviceInfo3, fakeServiceInfo1, fakeServiceInfo2, TestAdapter, TestBluetoothInternalsHandler} from './test_utils.js';
 
@@ -489,10 +485,10 @@ suite('bluetooth_internals', function() {
   test('AdapterPage_AddressLabel', function() {
     const addressCell = adapterFieldSet.shadowRoot!.querySelector(
         'fieldset [data-field="address"]')!;
-    // <if expr="is_android or is_macosx">
+    // <if expr="is_macosx">
     const expectedLabel = 'Address (obfuscated by the OS):';
     // </if>
-    // <if expr="not is_android and not is_macosx">
+    // <if expr="not is_macosx">
     const expectedLabel = 'Address:';
     // </if>
     assertEquals(
@@ -763,30 +759,6 @@ suite('bluetooth_internals', function() {
             .open);
   });
 
-  // <if expr="is_chromeos">
-  test('Restart system Bluetooth', async function() {
-    function getRestartBluetoothBtn() {
-      return getRequiredElement('restart-bluetooth-btn');
-    }
-
-    assert(getRestartBluetoothBtn());
-    assertEquals(
-        getRestartBluetoothBtn().textContent, 'Restart system Bluetooth');
-
-    getRestartBluetoothBtn().click();
-    await flushTasks();
-    await internalsHandler.whenCalled('restartSystemBluetooth');
-
-    assertEquals(
-        getRestartBluetoothBtn().textContent, 'Restarting system Bluetooth..');
-
-    internalsHandler.completeRestartSystemBluetooth();
-    await flushTasks();
-    await internalsHandler.whenCalled('completeRestartSystemBluetooth');
-    assertEquals(
-        getRestartBluetoothBtn().textContent, 'Restart system Bluetooth');
-  });
-  // </if>
 });
 
 suite('BluetoothInternalsUnitTests', function() {

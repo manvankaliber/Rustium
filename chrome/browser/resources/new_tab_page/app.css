@@ -34,12 +34,6 @@
   --ntp-protected-icon-background-color-hovered: rgba(255, 255, 255, 0.1);
   --ntp-scrim-opacity_: 1;
 
-<if expr="is_android">
-  /* Use Google Sans Text for the NTP realbox on Android. The @font-face
-   * rules in text_defaults_md.css register the font names, and
-   * AndroidFontLookupImpl downloads them from GMSCore. */
-  font-family: 'Google Sans Text', 'Google Sans', Arial, sans-serif;
-</if>
 }
 
 /**

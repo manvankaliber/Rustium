@@ -86,52 +86,5 @@ IN_PROC_BROWSER_TEST_F(ZeroSuggestPrefetchBrowserTest,
       base::test::RunUntil([&]() { return observer.request_created(); }));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-class ZeroSuggestPrefetchOnPageLoadAndTabSwitchDisabledBrowserTest
-    : public PlatformBrowserTest {
- public:
-  ZeroSuggestPrefetchOnPageLoadAndTabSwitchDisabledBrowserTest() {
-    feature_list_.InitAndDisableFeature(
-        omnibox::kZeroSuggestPrefetchOnPageLoadAndTabSwitch);
-  }
-
- private:
-  base::test::ScopedFeatureList feature_list_;
-};
-
-// Verifies that when `kZeroSuggestPrefetchOnPageLoadAndTabSwitch` is disabled
-// on Android, zero-suggest prefetch is not triggered on NTP page load
-// completion (the original behavior).
-IN_PROC_BROWSER_TEST_F(
-    ZeroSuggestPrefetchOnPageLoadAndTabSwitchDisabledBrowserTest,
-    PrefetchNotTriggeredOnNtpLoad) {
-  Profile* profile = chrome_test_utils::GetProfile(this);
-  TemplateURLService* template_url_service =
-      TemplateURLServiceFactory::GetForProfile(profile);
-  search_test_utils::WaitForTemplateURLServiceToLoad(template_url_service);
-
-  RemoteSuggestionsService* remote_suggestions_service =
-      RemoteSuggestionsServiceFactory::GetForProfile(
-          profile, /*create_if_necessary=*/true);
-  ASSERT_TRUE(remote_suggestions_service);
-
-  TestRemoteSuggestionsObserver observer(remote_suggestions_service);
-
-  ASSERT_TRUE(chrome_test_utils::NavigateToURL(
-      chrome_test_utils::GetActiveWebContents(this),
-      chrome::ChromeUINewTabURLAsGURL()));
-
-  // On Android, `AutocompleteMediator.startPrefetch()` posts the native
-  // prefetch call via `PostTask.postTask(TaskTraits.UI_BEST_EFFORT, ...)`
-  // during `onLoadStopped()`. Wait for the `BEST_EFFORT` UI task queue to
-  // process any task posted during navigation before asserting that no
-  // prefetch request was created.
-  base::RunLoop run_loop;
-  content::GetUIThreadTaskRunner({base::TaskPriority::BEST_EFFORT})
-      ->PostTask(FROM_HERE, run_loop.QuitClosure());
-  run_loop.Run();
-  EXPECT_FALSE(observer.request_created());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace

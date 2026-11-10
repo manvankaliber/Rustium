@@ -65,35 +65,16 @@
 // IWYU pragma: always_keep
 
 // A set of macros to use for platform detection.
-#if defined(ANDROID)
-#define OS_ANDROID 1
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
 // Only include TargetConditionals after testing ANDROID as some Android builds
 // on the Mac have this header available and it's not needed unless the target
 // is really an Apple platform.
 #include <TargetConditionals.h>
-#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
-#define OS_IOS 1
-// Catalyst is the technology that allows running iOS apps on macOS. These
-// builds are both OS_IOS and OS_IOS_MACCATALYST.
-#if defined(TARGET_OS_MACCATALYST) && TARGET_OS_MACCATALYST
-#define OS_IOS_MACCATALYST
-#endif  // defined(TARGET_OS_MACCATALYST) && TARGET_OS_MACCATALYST
-#if defined(TARGET_OS_TV) && TARGET_OS_TV
-#define OS_IOS_TVOS 1
-#endif  // defined(TARGET_OS_TV) && TARGET_OS_TV
-#if defined(TARGET_OS_WATCH) && TARGET_OS_WATCH
-#define OS_WATCHOS 1
-#endif  // defined(TARGET_OS_WATCH) && TARGET_OS_WATCH
-#else
 #define OS_MAC 1
-#endif  // defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
 #elif defined(__linux__)
-#if !defined(OS_CHROMEOS)
 // Do not define OS_LINUX on Chrome OS build.
 // The OS_CHROMEOS macro is defined in GN.
 #define OS_LINUX 1
-#endif  // !defined(OS_CHROMEOS)
 // Include features.h for glibc/uclibc macros.
 #include <features.h>
 #if defined(__GLIBC__) && !defined(__UCLIBC__)
@@ -124,7 +105,7 @@
 // NOTE: Adding a new port? Please follow
 // https://chromium.googlesource.com/chromium/src/+/main/docs/new_port_policy.md
 
-#if defined(OS_MAC) || defined(OS_IOS)
+#if defined(OS_MAC)
 #define OS_APPLE 1
 #endif
 
@@ -136,11 +117,7 @@
 
 // For access to standard POSIXish features, use OS_POSIX instead of a
 // more specific macro.
-#if defined(OS_AIX) || defined(OS_ANDROID) || defined(OS_ASMJS) ||   \
-    defined(OS_FREEBSD) || defined(OS_IOS) || defined(OS_LINUX) ||   \
-    defined(OS_CHROMEOS) || defined(OS_MAC) || defined(OS_NETBSD) || \
-    defined(OS_OPENBSD) || defined(OS_QNX) || defined(OS_SOLARIS) || \
-    defined(OS_ZOS)
+#if defined(OS_AIX) || defined(OS_ASMJS) || defined(OS_FREEBSD) || defined(OS_LINUX) || defined(OS_MAC) || defined(OS_NETBSD) || defined(OS_OPENBSD) || defined(OS_QNX) || defined(OS_SOLARIS) || defined(OS_ZOS)
 #define OS_POSIX 1
 #endif
 
@@ -151,11 +128,7 @@
 #define BUILDFLAG_INTERNAL_IS_AIX() (0)
 #endif
 
-#if defined(OS_ANDROID)
-#define BUILDFLAG_INTERNAL_IS_ANDROID() (1)
-#else
 #define BUILDFLAG_INTERNAL_IS_ANDROID() (0)
-#endif
 
 #if defined(OS_APPLE)
 #define BUILDFLAG_INTERNAL_IS_APPLE() (1)
@@ -175,11 +148,7 @@
 #define BUILDFLAG_INTERNAL_IS_BSD() (0)
 #endif
 
-#if defined(OS_CHROMEOS)
-#define BUILDFLAG_INTERNAL_IS_CHROMEOS() (1)
-#else
 #define BUILDFLAG_INTERNAL_IS_CHROMEOS() (0)
-#endif
 
 #if defined(OS_FREEBSD)
 #define BUILDFLAG_INTERNAL_IS_FREEBSD() (1)
@@ -189,23 +158,11 @@
 
 #define BUILDFLAG_INTERNAL_IS_FUCHSIA() (0)
 
-#if defined(OS_IOS)
-#define BUILDFLAG_INTERNAL_IS_IOS() (1)
-#else
 #define BUILDFLAG_INTERNAL_IS_IOS() (0)
-#endif
 
-#if defined(OS_IOS_MACCATALYST)
-#define BUILDFLAG_INTERNAL_IS_IOS_MACCATALYST() (1)
-#else
 #define BUILDFLAG_INTERNAL_IS_IOS_MACCATALYST() (0)
-#endif
 
-#if defined(OS_IOS_TVOS)
-#define BUILDFLAG_INTERNAL_IS_IOS_TVOS() (1)
-#else
 #define BUILDFLAG_INTERNAL_IS_IOS_TVOS() (0)
-#endif
 
 #if defined(OS_LINUX)
 #define BUILDFLAG_INTERNAL_IS_LINUX() (1)
@@ -390,14 +347,6 @@
 #error Please add support for your compiler in build/build_config.h
 #endif
 
-#if defined(OS_ANDROID)
-// The compiler thinks std::string::const_iterator and "const char*" are
-// equivalent types.
-#define STD_STRING_ITERATOR_IS_CHAR_POINTER
-// The compiler thinks std::u16string::const_iterator and "char16*" are
-// equivalent types.
-#define BASE_STRING16_ITERATOR_IS_CHAR16_POINTER
-#endif
 
 // Architecture-specific feature detection.
 

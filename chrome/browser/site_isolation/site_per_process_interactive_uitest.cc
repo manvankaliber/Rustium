@@ -1933,9 +1933,7 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessInteractiveBrowserTest,
 // Flaky on ChromeOS debug and ASAN builds. https://crbug.com/40840456
 // Flaky on Linux https://crbug.com/40847510.
 // Flaky on Win https://crbug.com/40848559.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || \
-    (BUILDFLAG(IS_CHROMEOS) &&                  \
-     (!defined(NDEBUG) || defined(ADDRESS_SANITIZER)))
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 #define MAYBE_PopupWindowFocus DISABLED_PopupWindowFocus
 #else
 #define MAYBE_PopupWindowFocus PopupWindowFocus

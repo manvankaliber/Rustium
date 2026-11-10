@@ -101,15 +101,6 @@ class ConnectorDataPipeGetter : public network::mojom::DataPipeGetter {
   ConnectorDataPipeGetter(const std::string& boundary,
                           const std::string& metadata,
                           base::ReadOnlySharedMemoryMapping page);
-#if BUILDFLAG(IS_CHROMEOS)
-  explicit ConnectorDataPipeGetter(
-      std::unique_ptr<ChunkedFileDataPipeProducer> chunked_file_producer);
-
-  ConnectorDataPipeGetter(
-      const std::string& boundary,
-      const std::string& metadata,
-      std::unique_ptr<ChunkedFileDataPipeProducer> chunked_file_producer);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   ~ConnectorDataPipeGetter() override;
 
   // network::mojom::DataPipeGetter:
@@ -145,19 +136,6 @@ class ConnectorDataPipeGetter : public network::mojom::DataPipeGetter {
       base::File file,
       bool is_obfuscated);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Fusebox files don't support `mmap()`, so for such files a different
-  // `ConnectorDataPipeGetter` is instantiated that uses small chunks of file
-  // reads to access the file contents.
-  static std::unique_ptr<ConnectorDataPipeGetter>
-  CreateFuseboxResumablePipeGetter(base::File file, bool is_obfuscated);
-
-  static std::unique_ptr<ConnectorDataPipeGetter>
-  CreateFuseboxMultipartPipeGetter(const std::string& boundary,
-                                   const std::string& metadata,
-                                   base::File file,
-                                   bool is_obfuscated);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Returns nullptr if `page` is invalid or if a memory region can't be created
   // from it.
@@ -188,9 +166,6 @@ class ConnectorDataPipeGetter : public network::mojom::DataPipeGetter {
   // Helpers to check the kind of data being managed by this class. Only one of
   // the following functions will return true.
   bool is_mmap_file_data_pipe() const;
-#if BUILDFLAG(IS_CHROMEOS)
-  bool is_chunked_file_data_pipe() const;
-#endif
   bool is_page_data_pipe() const;
 
  private:
@@ -218,10 +193,6 @@ class ConnectorDataPipeGetter : public network::mojom::DataPipeGetter {
   bool WriteMmapFileData();
   bool WritePageData();
   bool Write(base::span<const uint8_t> data);
-#if BUILDFLAG(IS_CHROMEOS)
-  bool WriteChunkedFileData();
-  void OnChunkRead(std::vector<uint8_t> chunk, MojoResult result);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Checks if `write_position_` is within the expected range.
   bool IsWritePositionInRange(int64_t range_start, int64_t range_end);
@@ -246,15 +217,6 @@ class ConnectorDataPipeGetter : public network::mojom::DataPipeGetter {
   // Printed page data. Only populated for printed page data pipe getters.
   base::ReadOnlySharedMemoryMapping page_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Mojo writer helper when in chunked file mode. Only populated for chunked
-  // file data pipe getters.
-  std::unique_ptr<ChunkedFileDataPipeProducer> chunked_file_producer_;
-
-  // Buffer to cache the current file chunk being read asynchronously. Only
-  // populated for chunked file data pipe getters.
-  std::vector<uint8_t> chunked_buffer_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // The current write position used by `Read()`.
   int64_t write_position_ = 0;

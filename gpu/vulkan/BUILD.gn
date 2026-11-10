@@ -135,13 +135,9 @@ if (enable_vulkan) {
     if (is_posix) {
       sources += [ "vulkan_util_posix.cc" ]
 
-      if (is_linux || is_chromeos) {
+      if (is_linux) {
         sources += [ "vulkan_image_linux.cc" ]
       }
-    }
-
-    if (is_android) {
-      sources += [ "vulkan_image_android.cc" ]
     }
 
     if (is_win) {
@@ -149,10 +145,6 @@ if (enable_vulkan) {
         "vulkan_image_win.cc",
         "vulkan_util_win32.cc",
       ]
-    }
-
-    if (is_chromeos) {
-      deps += [ "//ui/gfx/linux:drm" ]
     }
 
     if (is_apple) {
@@ -181,16 +173,11 @@ if (enable_vulkan) {
     if (is_win) {
       sources += [ "tests/native_window_win.cc" ]
     }
-
-    if (is_android) {
-      sources += [ "tests/native_window_android.cc" ]
-      deps += [ "//ui/gl" ]
-    }
   }
 
   # TODO(penghuang): support more platforms
   # https://crbug.com/1065499
-  if (is_android || is_win || use_ozone) {
+  if (is_win || use_ozone) {
     test("vulkan_tests") {
       use_xvfb = use_xvfb_in_this_config
 
@@ -222,10 +209,6 @@ if (enable_vulkan) {
         "//ui/gfx:test_support",
         "//ui/gfx/geometry",
       ]
-
-      if (is_android) {
-        deps += [ "//ui/android:ui_java_test_support" ]
-      }
 
       if (use_ozone) {
         deps += [ "//ui/ozone" ]

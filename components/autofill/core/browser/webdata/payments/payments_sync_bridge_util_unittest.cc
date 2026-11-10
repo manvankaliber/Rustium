@@ -948,144 +948,8 @@ TEST_F(PaymentsSyncBridgeUtilTest,
       UnorderedElementsAre(EqualsProto(payment_instrument_creation_option)));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Tests that PopulateWalletTypesFromSyncData populates BankAccounts.
-TEST_F(PaymentsSyncBridgeUtilTest, PopulateBankAccountFromSyncData) {
-  syncer::EntityChangeList entity_data;
-  std::string bank_account_id = "payment_instrument:123545";
-  sync_pb::AutofillWalletSpecifics payment_instrument_bank_account_specifics =
-      CreateAutofillWalletSpecificsForBankAccount(
-          /*client_tag=*/bank_account_id, /*nickname=*/"Pix bank account",
-          /*display_icon_url=*/GURL("http://www.google.com"),
-          /*bank_name=*/"ABC Bank",
-          /*account_number_suffix=*/"1234",
-          sync_pb::BankAccountDetails_AccountType_CHECKING);
-  entity_data.push_back(EntityChange::CreateAdd(
-      bank_account_id,
-      SpecificsToEntity(payment_instrument_bank_account_specifics,
-                        /*client_tag=*/"bank_account")));
-  BankAccount expected_bank_account(
-      /*instrument_id=*/123545, /*nickname=*/u"Pix bank account",
-      /*display_icon_url=*/GURL("http://www.google.com"),
-      /*bank_name=*/u"ABC Bank",
-      /*account_number_suffix=*/u"1234", BankAccount::AccountType::kChecking);
 
-  WalletTypes wallet_types = PopulateWalletTypesFromSyncData(entity_data);
-
-  EXPECT_THAT(wallet_types.bank_accounts, ElementsAre(expected_bank_account));
-}
-
-TEST_F(PaymentsSyncBridgeUtilTest, BankAccountFromWalletSpecifics) {
-  sync_pb::AutofillWalletSpecifics payment_instrument_bank_account_specifics =
-      CreateAutofillWalletSpecificsForBankAccount(
-          /*client_tag=*/"payment_instrument:123545",
-          /*nickname=*/"Pix bank account",
-          /*display_icon_url=*/GURL("http://www.google.com"),
-          /*bank_name=*/"ABC Bank",
-          /*account_number_suffix=*/"1234",
-          sync_pb::BankAccountDetails_AccountType_CHECKING);
-  BankAccount expected_bank_account(
-      /*instrument_id=*/123545, /*nickname=*/u"Pix bank account",
-      /*display_icon_url=*/GURL("http://www.google.com"),
-      /*bank_name=*/u"ABC Bank",
-      /*account_number_suffix=*/u"1234", BankAccount::AccountType::kChecking);
-
-  EXPECT_EQ(
-      expected_bank_account,
-      BankAccountFromWalletSpecifics(
-          payment_instrument_bank_account_specifics.payment_instrument()));
-}
-
-// Tests that PopulateWalletTypesFromSyncData populates PaymentInstruments for
-// eWallet accounts.
-TEST_F(PaymentsSyncBridgeUtilTest,
-       PopulatePaymentInstrumentsFromSyncData_EwalletAccounts) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  syncer::EntityChangeList entity_data;
-  std::string ewallet_account_id = "payment_instrument:123545";
-  sync_pb::AutofillWalletSpecifics
-      payment_instrument_ewallet_account_specifics =
-          CreateAutofillWalletSpecificsForEwalletAccount(
-              /*client_tag=*/ewallet_account_id, /*nickname=*/"eWallet account",
-              /*display_icon_url=*/GURL("http://www.google.com"),
-              /*ewallet_name=*/"ABC Pay",
-              /*account_display_name=*/"1234",
-              /*is_fido_enrolled=*/false);
-  entity_data.push_back(EntityChange::CreateAdd(
-      ewallet_account_id,
-      SpecificsToEntity(payment_instrument_ewallet_account_specifics,
-                        /*client_tag=*/"ewallet_account")));
-
-  WalletTypes wallet_types = PopulateWalletTypesFromSyncData(entity_data);
-
-  ASSERT_EQ(wallet_types.payment_instruments.size(), 1u);
-  sync_pb::PaymentInstrument payment_instrument =
-      wallet_types.payment_instruments.at(0);
-  EXPECT_EQ(payment_instrument_ewallet_account_specifics.payment_instrument()
-                .instrument_id(),
-            payment_instrument.instrument_id());
-  EXPECT_EQ(payment_instrument_ewallet_account_specifics.payment_instrument()
-                .nickname(),
-            payment_instrument.nickname());
-  EXPECT_EQ(payment_instrument_ewallet_account_specifics.payment_instrument()
-                .display_icon_url(),
-            payment_instrument.display_icon_url());
-  EXPECT_EQ(payment_instrument_ewallet_account_specifics.payment_instrument()
-                .supported_rails()
-                .at(0),
-            payment_instrument.supported_rails().at(0));
-  EXPECT_EQ(payment_instrument_ewallet_account_specifics.payment_instrument()
-                .ewallet_details()
-                .ewallet_name(),
-            payment_instrument.ewallet_details().ewallet_name());
-  EXPECT_EQ(payment_instrument_ewallet_account_specifics.payment_instrument()
-                .ewallet_details()
-                .account_display_name(),
-            payment_instrument.ewallet_details().account_display_name());
-  EXPECT_EQ(
-      payment_instrument_ewallet_account_specifics.payment_instrument()
-          .ewallet_details()
-          .supported_payment_link_uris()
-          .at(0),
-      payment_instrument.ewallet_details().supported_payment_link_uris().at(0));
-  EXPECT_EQ(payment_instrument_ewallet_account_specifics.payment_instrument()
-                .device_details()
-                .is_fido_enrolled(),
-            payment_instrument.device_details().is_fido_enrolled());
-}
-
-// Tests that PopulateWalletTypesFromSyncData does not populate
-// PaymentInstruments for eWallet accounts if eWallet sync experiment flag is
-// disabled.
-TEST_F(PaymentsSyncBridgeUtilTest,
-       PopulatePaymentInstrumentsFromSyncDataExperimentOff_EwalletAccounts) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndDisableFeature(
-      features::kAutofillSyncEwalletAccounts);
-  syncer::EntityChangeList entity_data;
-  std::string ewallet_account_id = "payment_instrument:123545";
-  sync_pb::AutofillWalletSpecifics
-      payment_instrument_ewallet_account_specifics =
-          CreateAutofillWalletSpecificsForEwalletAccount(
-              /*client_tag=*/ewallet_account_id, /*nickname=*/"eWallet account",
-              /*display_icon_url=*/GURL("http://www.google.com"),
-              /*ewallet_name=*/"ABC Pay",
-              /*account_display_name=*/"1234",
-              /*is_fido_enrolled=*/false);
-  entity_data.push_back(EntityChange::CreateAdd(
-      ewallet_account_id,
-      SpecificsToEntity(payment_instrument_ewallet_account_specifics,
-                        /*client_tag=*/"ewallet_account")));
-
-  WalletTypes wallet_types = PopulateWalletTypesFromSyncData(entity_data);
-
-  EXPECT_THAT(wallet_types.payment_instruments, IsEmpty());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Tests that PopulateWalletTypesFromSyncData populates PaymentInstruments for
 // linked BNPL issuers.
 TEST_F(PaymentsSyncBridgeUtilTest,
@@ -1237,8 +1101,7 @@ INSTANTIATE_TEST_SUITE_P(
         WalletCardTypeMapping{sync_pb::WalletMaskedCreditCard::VISA,
                               kVisaCard}));
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Tests that `IsPaymentInstrumentCreationOptionSupported()` returns true if
 // the BNPL syncing experiment flag is enabled.
 TEST_F(PaymentsSyncBridgeUtilTest,
@@ -1263,76 +1126,6 @@ TEST_F(PaymentsSyncBridgeUtilTest,
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-struct PaymentInstrumentCreationOptionSupportTestCase {
-  bool ewallet_feature_enabled;
-  bool bnpl_feature_enabled;
-  bool expected_result;
-};
-
-class PaymentsSyncBridgeUtilTest_PaymentInstrumentCreationOptionSupport
-    : public PaymentsSyncBridgeUtilTest,
-      public ::testing::WithParamInterface<
-          PaymentInstrumentCreationOptionSupportTestCase> {
- public:
-  PaymentsSyncBridgeUtilTest_PaymentInstrumentCreationOptionSupport() {
-    auto test_case = GetParam();
-    std::vector<base::test::FeatureRef> enabled_features;
-    std::vector<base::test::FeatureRef> disabled_features;
-
-    if (test_case.ewallet_feature_enabled) {
-      enabled_features.push_back(
-          ::payments::facilitated::kEnableEwalletNewAccountLinking);
-    } else {
-      disabled_features.push_back(
-          ::payments::facilitated::kEnableEwalletNewAccountLinking);
-    }
-
-    if (test_case.bnpl_feature_enabled) {
-      enabled_features.push_back(
-          features::kAutofillEnableBuyNowPayLaterSyncing);
-    } else {
-      disabled_features.push_back(
-          features::kAutofillEnableBuyNowPayLaterSyncing);
-    }
-
-    feature_list_.InitWithFeatures(enabled_features, disabled_features);
-  }
-
-  ~PaymentsSyncBridgeUtilTest_PaymentInstrumentCreationOptionSupport()
-      override = default;
-
- private:
-  base::test::ScopedFeatureList feature_list_;
-};
-
-TEST_P(PaymentsSyncBridgeUtilTest_PaymentInstrumentCreationOptionSupport,
-       IsPaymentInstrumentCreationOptionSupported) {
-  EXPECT_EQ(IsPaymentInstrumentCreationOptionSupported(),
-            GetParam().expected_result);
-}
-
-INSTANTIATE_TEST_SUITE_P(
-    PaymentsSyncBridgeUtil,
-    PaymentsSyncBridgeUtilTest_PaymentInstrumentCreationOptionSupport,
-    ::testing::Values(
-        PaymentInstrumentCreationOptionSupportTestCase{
-            .ewallet_feature_enabled = true,
-            .bnpl_feature_enabled = true,
-            .expected_result = true},
-        PaymentInstrumentCreationOptionSupportTestCase{
-            .ewallet_feature_enabled = true,
-            .bnpl_feature_enabled = false,
-            .expected_result = true},
-        PaymentInstrumentCreationOptionSupportTestCase{
-            .ewallet_feature_enabled = false,
-            .bnpl_feature_enabled = true,
-            .expected_result = true},
-        PaymentInstrumentCreationOptionSupportTestCase{
-            .ewallet_feature_enabled = false,
-            .bnpl_feature_enabled = false,
-            .expected_result = false}));
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 }  // namespace autofill

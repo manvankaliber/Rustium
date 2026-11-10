@@ -611,10 +611,8 @@ void RemotePlayback::OnConnectionSuccess(
   if (!presentation_controller)
     return;
 
-#if !BUILDFLAG(IS_ANDROID)
   media_element_->Play();
   media_element_->GetWebMediaPlayer()->RequestMediaRemoting();
-#endif
 
   // Note: Messages on |connection_receiver| are ignored.
   target_presentation_connection_.Bind(

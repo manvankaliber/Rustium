@@ -1,7 +1,3 @@
-ci/android-angle-chromium-arm64-builder
-ci/android-angle-chromium-arm64-pixel2
-ci/ios-angle-arm64-builder
-ci/ios-angle-m2
 ci/linux-angle-chromium-amd
 ci/linux-angle-chromium-builder
 ci/linux-angle-chromium-intel

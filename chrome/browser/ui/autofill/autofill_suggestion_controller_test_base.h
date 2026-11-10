@@ -33,17 +33,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/autofill/mock_manual_filling_view.h"
-#include "chrome/browser/keyboard_accessory/android/manual_filling_controller_impl.h"
-#include "chrome/browser/keyboard_accessory/test_utils/android/mock_address_accessory_controller.h"
-#include "chrome/browser/keyboard_accessory/test_utils/android/mock_at_memory_accessory_controller.h"
-#include "chrome/browser/keyboard_accessory/test_utils/android/mock_password_accessory_controller.h"
-#include "chrome/browser/keyboard_accessory/test_utils/android/mock_payment_method_accessory_controller.h"
-#include "chrome/browser/ui/android/autofill/autofill_keyboard_accessory_controller_impl.h"
-#else
 #include "chrome/browser/ui/autofill/autofill_popup_controller_impl.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace autofill {
 
@@ -120,16 +110,6 @@ class AutofillSuggestionControllerTestBase
     FocusWebContentsOnMainFrame();
     ASSERT_TRUE(web_contents()->GetFocusedFrame());
 
-#if BUILDFLAG(IS_ANDROID)
-    auto mock_view =
-        std::make_unique<::testing::NiceMock<MockManualFillingView>>();
-    raw_mock_manual_filling_view_ = mock_view.get();
-    ManualFillingControllerImpl::CreateForWebContentsForTesting(
-        web_contents(), mock_pwd_controller_.AsWeakPtr(),
-        mock_address_controller_.AsWeakPtr(),
-        mock_payment_method_controller_.AsWeakPtr(),
-        mock_at_memory_controller_.AsWeakPtr(), std::move(mock_view));
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   void TearDown() override {
@@ -241,11 +221,6 @@ class AutofillSuggestionControllerTestBase
     return simulator->GetFinalRenderFrameHost();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  MockManualFillingView* manual_filling_view() {
-    return raw_mock_manual_filling_view_;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
  private:
   test::AutofillUnitTestEnvironment autofill_test_environment_;
@@ -254,15 +229,6 @@ class AutofillSuggestionControllerTestBase
   TestAutofillDriverInjector<Driver> autofill_driver_injector_;
   TestAutofillManagerInjector<Manager> autofill_manager_injector_;
 
-#if BUILDFLAG(IS_ANDROID)
-  ::testing::NiceMock<MockPasswordAccessoryController> mock_pwd_controller_;
-  ::testing::NiceMock<MockAddressAccessoryController> mock_address_controller_;
-  ::testing::NiceMock<MockPaymentMethodAccessoryController>
-      mock_payment_method_controller_;
-  ::testing::NiceMock<MockAtMemoryAccessoryController>
-      mock_at_memory_controller_;
-  raw_ptr<MockManualFillingView> raw_mock_manual_filling_view_ = nullptr;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 // Below are test versions of `AutofillClient`, `BrowserAutofillManager`,
@@ -298,11 +264,7 @@ class AutofillExternalDelegateForPopupTest : public AutofillExternalDelegate {
 };
 
 using AutofillSuggestionControllerForTestBase =
-#if BUILDFLAG(IS_ANDROID)
-    AutofillKeyboardAccessoryControllerImpl;
-#else
     AutofillPopupControllerImpl;
-#endif
 
 class AutofillSuggestionControllerForTest
     : public AutofillSuggestionControllerForTestBase {

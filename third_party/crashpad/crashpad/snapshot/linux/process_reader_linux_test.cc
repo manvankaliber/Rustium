@@ -55,10 +55,6 @@
 #include "util/posix/scoped_mmap.h"
 #include "util/synchronization/semaphore.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <android/api-level.h>
-#include <android/set_abort_message.h>
-#endif
 
 namespace crashpad {
 namespace test {
@@ -550,15 +546,6 @@ int ExpectFindModule(dl_phdr_info* info, size_t size, void* data) {
   auto modules =
       reinterpret_cast<const std::vector<ProcessReaderLinux::Module>*>(data);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Prior to API 27, Bionic includes a null entry for /system/bin/linker.
-  if (!info->dlpi_name) {
-    EXPECT_EQ(info->dlpi_addr, 0u);
-    EXPECT_EQ(info->dlpi_phnum, 0u);
-    EXPECT_EQ(info->dlpi_phdr, nullptr);
-    return 0;
-  }
-#endif
 
   // Bionic doesn't always set both of these addresses for the vdso and
   // /system/bin/linker, but it does always set one of them.
@@ -684,25 +671,6 @@ TEST(ProcessReaderLinux, ChildModules) {
   test.Run();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-const char kTestAbortMessage[] = "test abort message";
-
-TEST(ProcessReaderLinux, AbortMessage) {
-  if (android_get_device_api_level() < 29) {
-    GTEST_SKIP();
-  }
-
-  android_set_abort_message(kTestAbortMessage);
-
-  FakePtraceConnection connection;
-  connection.Initialize(getpid());
-
-  ProcessReaderLinux process_reader;
-  ASSERT_TRUE(process_reader.Initialize(&connection));
-
-  EXPECT_EQ(kTestAbortMessage, process_reader.AbortMessage());
-}
-#endif
 
 }  // namespace
 }  // namespace test

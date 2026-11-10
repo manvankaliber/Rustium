@@ -16,7 +16,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
-#elif BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
 #include <sys/ucontext.h>
 #elif BUILDFLAG(IS_APPLE)
 #include <mach/machine/thread_status.h>
@@ -113,7 +113,7 @@ inline void SetRegisterContextInstructionPointer(::CONTEXT* context,
 #endif
 }
 
-#elif BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
 
 inline uintptr_t RegisterContextStackPointer(mcontext_t* context) {
 #if defined(ARCH_CPU_ARMEL)
@@ -296,7 +296,7 @@ inline void SetRegisterContextInstructionPointer(arm_thread_state64_t* context,
   AsUintPtr(&Arm64Pc(context)) = val;
 }
 
-#else  // BUILDFLAG(IS_APPLE) && defined(ARCH_CPU_ARM64)
+#else
 
 // Placeholders for other cases.
 inline uintptr_t RegisterContextStackPointer(RegisterContext* context) {

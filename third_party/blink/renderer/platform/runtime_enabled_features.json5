@@ -982,14 +982,6 @@
       name: "BidiVisualOrderCaretMovement",
       depends_on: ["BidiCaretAffinity"],
     },
-    {
-      name: "BlinkExtensionWebView",
-      public: true,
-    },
-    {
-      name: "BlinkExtensionWebViewMediaIntegrity",
-      public: true,
-    },
     // Whether MapToVisualRectInAncestorSpace() with a null ancestor can
     // use the geometry mapper fast path.
     {

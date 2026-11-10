@@ -21,13 +21,11 @@
 #include "components/history/core/browser/history_service.h"
 #include "components/history/core/browser/history_types.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/tab_list/tab_list_interface.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"
 #include "components/tabs/public/tab_interface.h"
 #include "content/public/browser/web_contents.h"
-#endif
 
 namespace glic {
 
@@ -51,7 +49,6 @@ bool IsUrlEligibleForRecentPages(const GURL& url, Profile* profile) {
   return true;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Appends `web_contents` to `candidates` if it was active within the lookback
 // window and has an eligible URL. Filtering here keeps the walk over the tab
 // strips cheap for users with many tabs: ineligible tabs cost a comparison and
@@ -69,11 +66,9 @@ void AddOpenTabIfEligible(content::WebContents* web_contents,
                         .title = web_contents->GetTitle(),
                         .last_active_time = web_contents->GetLastActiveTime()});
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 std::vector<Candidate> GetOpenTabCandidates(Profile* profile) {
   std::vector<Candidate> candidates;
-#if !BUILDFLAG(IS_ANDROID)
   const base::Time min_active_time =
       base::Time::Now() - kMaxRecentDuration.Get();
   ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
@@ -92,7 +87,6 @@ std::vector<Candidate> GetOpenTabCandidates(Profile* profile) {
         }
         return true;
       });
-#endif
   return candidates;
 }
 

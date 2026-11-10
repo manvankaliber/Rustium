@@ -186,13 +186,11 @@ class MultistepFilterBrowserTest : public InProcessBrowserTest,
     InProcessBrowserTest::TearDownOnMainThread();
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   void ClearPrimaryAccount() {
     auto* identity_manager =
         IdentityManagerFactory::GetForProfile(browser()->GetProfile());
     signin::ClearPrimaryAccount(identity_manager);
   }
-#endif
 
   // FilterTabController::ObserverForTest:
   void OnExtractionFinishedForTest(
@@ -351,7 +349,6 @@ IN_PROC_BROWSER_TEST_F(MultistepFilterBrowserTest,
   EXPECT_THAT(get_future2.Get(), testing::SizeIs(0));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(MultistepFilterBrowserTest,
                        NoExtractionOrSuggestionWhenNotSignedIn) {
   GURL extraction_url =
@@ -409,7 +406,6 @@ IN_PROC_BROWSER_TEST_F(MultistepFilterBrowserTest,
   ToastController* toast_controller = ToastController::From(browser());
   EXPECT_FALSE(toast_controller->IsShowingToast());
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(MultistepFilterBrowserTest,
                        ExecuteSettingsCommandOpensAiPage) {

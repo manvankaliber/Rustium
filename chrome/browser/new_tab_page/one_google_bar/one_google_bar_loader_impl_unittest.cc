@@ -389,9 +389,6 @@ TEST_F(OneGoogleBarLoaderImplTest, MirrorAccountConsistencyNotRequired) {
 
   // On not Chrome OS, the X-Chrome-Connected header must not be present.
   bool check_x_chrome_connected_header = false;
-#if BUILDFLAG(IS_CHROMEOS)
-  check_x_chrome_connected_header = true;
-#endif
 
   if (check_x_chrome_connected_header) {
     // On Chrome OS, X-Chrome-Connected header is present, but
@@ -429,9 +426,6 @@ TEST_F(OneGoogleBarLoaderImplWithMirrorAccountConsistencyTest,
 
   // On not Chrome OS, the X-Chrome-Connected header must not be present.
   bool check_x_chrome_connected_header = false;
-#if BUILDFLAG(IS_CHROMEOS)
-  check_x_chrome_connected_header = true;
-#endif
 
   // Make sure mirror account consistency is requested.
   if (check_x_chrome_connected_header) {

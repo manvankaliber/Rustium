@@ -403,11 +403,7 @@ INSTANTIATE_TEST_SUITE_P(All,
 
 // TODO(crbug.com/383374205): This test flakily crashes on iOS without leaving
 // any logs.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_BalanceSampledAddressesSet DISABLED_BalanceSampledAddressesSet
-#else
 #define MAYBE_BalanceSampledAddressesSet BalanceSampledAddressesSet
-#endif
 
 TEST_P(PoissonAllocationSamplerLoadFactorTest,
        MAYBE_BalanceSampledAddressesSet) {

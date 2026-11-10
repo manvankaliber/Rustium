@@ -48,11 +48,6 @@ SyncSessionsRouterTabHelper::~SyncSessionsRouterTabHelper() {
   // Desktop the TabFeatures are destroyed first. Thus NotifyTabClosed() must be
   // called by another class (see BrowserListRouterHelper). On Android the list
   // is updated first, thus it's safe to call NotifyTabClosed() here.
-#if BUILDFLAG(IS_ANDROID)
-  if (router_) {
-    router_->NotifyTabClosed();
-  }
-#endif
   if (chrome_translate_client_) {
     chrome_translate_client_->GetTranslateDriver()
         ->RemoveLanguageDetectionObserver(this);

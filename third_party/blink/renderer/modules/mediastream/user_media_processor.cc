@@ -361,7 +361,6 @@ String ErrorCodeToString(MediaStreamRequestResult result) {
   NOTREACHED();
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 // This only applies to user media requests.
 bool ShouldDeferDeviceSettingsSelection(
     UserMediaRequestType request_type,
@@ -388,13 +387,6 @@ bool ShouldDeferDeviceSettingsSelection(
   // Enables camera preview in permission bubble and site settings.
   return true;
 }
-#else
-bool ShouldDeferDeviceSettingsSelection(
-    UserMediaRequestType request_type,
-    mojom::blink::MediaStreamType media_stream_type) {
-  return false;
-}
-#endif
 
 bool IsDeviceAudioCapture(const MediaStreamComponent* audio_component) {
   if (!audio_component || !audio_component->Source() ||
@@ -2051,10 +2043,8 @@ void UserMediaProcessor::StartTracks(const String& label) {
          .on_device_capture_handle_change_cb =
              BindRepeating(&UserMediaProcessor::OnDeviceCaptureHandleChange,
                            WrapWeakPersistent(this)),
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
          .on_zoom_level_change_cb = BindRepeating(
              &UserMediaProcessor::OnZoomLevelChange, WrapWeakPersistent(this))
-#endif
         });
   }
 
@@ -2569,12 +2559,10 @@ bool UserMediaProcessor::HasActiveSources() const {
   return !local_sources_.empty();
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void UserMediaProcessor::FocusCapturedSurface(const String& label, bool focus) {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   GetMediaStreamDispatcherHost()->FocusCapturedSurface(label, focus);
 }
-#endif
 
 mojom::blink::MediaStreamDispatcherHost*
 UserMediaProcessor::GetMediaStreamDispatcherHost() {

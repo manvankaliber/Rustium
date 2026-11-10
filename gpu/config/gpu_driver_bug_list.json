@@ -12,123 +12,6 @@
       ]
     },
     {
-      "id": 21,
-      "description": "Vivante GPUs are buggy with context switching",
-      "cr_bugs": [
-        179250,
-        235935
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_extensions": ".*GL_VIV_shader_binary.*",
-      "features": [
-        "unbind_fbo_on_context_switch"
-      ]
-    },
-    {
-      "id": 22,
-      "description": "Imagination drivers are buggy with context switching",
-      "cr_bugs": [
-        230896
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "unbind_fbo_on_context_switch"
-      ]
-    },
-    {
-      "id": 23,
-      "cr_bugs": [
-        243038
-      ],
-      "description": "Disable OES_standard_derivative on Intel Pineview M Gallium drivers",
-      "os": {
-        "type": "chromeos"
-      },
-      "vendor_id": "0x8086",
-      "device_id": [
-        "0xa011",
-        "0xa012"
-      ],
-      "disabled_extensions": [
-        "GL_OES_standard_derivatives"
-      ]
-    },
-    {
-      "id": 31,
-      "cr_bugs": [
-        154715,
-        10068,
-        269829,
-        294779,
-        285292,
-        1018528,
-        179815,
-        179250,
-        229643,
-        230896,
-        163464,
-        233612,
-        289461,
-        369316,
-        678508
-      ],
-      "description": "Always use virtualized contexts on Android",
-      "os": {
-        "type": "android"
-      },
-      "features": [
-        "use_virtualized_gl_contexts"
-      ]
-    },
-    {
-      "id": 43,
-      "cr_bugs": [
-        299494
-      ],
-      "description": "Framebuffer discarding doesn't accept trivial attachments on Vivante",
-      "os": {
-        "type": "android"
-      },
-      "gl_extensions": ".*GL_VIV_shader_binary.*",
-      "features": [
-        "disable_discard_framebuffer"
-      ]
-    },
-    {
-      "id": 44,
-      "cr_bugs": [
-        301988
-      ],
-      "description": "Framebuffer discarding causes jumpy scrolling on Mali drivers",
-      "os": {
-        "type": "chromeos"
-      },
-      "gl_vendor": "ARM.*",
-      "gl_renderer": "Mali.*",
-      "features": [
-        "disable_discard_framebuffer"
-      ]
-    },
-    {
-      "id": 49,
-      "cr_bugs": [
-        309734
-      ],
-      "description": "The first draw operation from an idle state is slow",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Qualcomm.*",
-      "features": [
-        "wake_up_gpu_before_drawing"
-      ]
-    },
-    {
       "id": 68,
       "description": "Disable partial swaps on Mesa drivers (detected with GL_RENDERER)",
       "cr_bugs": [
@@ -163,20 +46,6 @@
       },
       "features": [
         "disable_d3d11"
-      ]
-    },
-    {
-      "id": 71,
-      "description": "Vivante's support of OES_standard_derivatives is buggy",
-      "cr_bugs": [
-        368005
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_extensions": ".*GL_VIV_shader_binary.*",
-      "disabled_extensions": [
-        "GL_OES_standard_derivatives"
       ]
     },
     {
@@ -242,201 +111,6 @@
       ]
     },
     {
-      "id": 93,
-      "description": "The GL implementation on the Android emulator has problems with PBOs.",
-      "cr_bugs": [
-        340882
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "VMware.*",
-      "gl_renderer": "Gallium.*",
-      "gl_type": "gles",
-      "gl_version": {
-        "op": "=",
-        "value": "3.0"
-      },
-      "features": [
-        "disable_async_readpixels"
-      ]
-    },
-    {
-      "id": 95,
-      "cr_bugs": [
-        421271,
-        471017396
-      ],
-      "description": "glClear does not always work on these drivers",
-      "os": {
-        "type": "android"
-      },
-      "gl_version": {
-        "op": "<=",
-        "value": "3.0"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "gl_clear_broken"
-      ]
-    },
-    {
-      "id": 102,
-      "description": "Adreno 420 driver loses FBO attachment contents on bound FBO deletion",
-      "cr_bugs": [
-        457027
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "Adreno \\(TM\\) 4.*",
-      "features": [
-        "unbind_attachments_on_bound_render_fbo_delete"
-      ]
-    },
-    {
-      "id": 103,
-      "description": "Adreno 420 driver drops draw calls after FBO invalidation",
-      "cr_bugs": [
-        443060
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "Adreno \\(TM\\) 4.*",
-      "features": [
-        "disable_discard_framebuffer"
-      ]
-    },
-    {
-      "id": 110,
-      "description": "EGL Sync server causes crashes on Adreno 2xx and 3xx drivers",
-      "cr_bugs": [
-        482298
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Qualcomm.*",
-      "gl_renderer": "Adreno \\(TM\\) [23].*",
-      "driver_version": {
-        "op": "<",
-        "value": "95"
-      },
-      "disabled_extensions": [
-        "EGL_KHR_wait_sync"
-      ]
-    },
-    {
-      "id": 112,
-      "cr_bugs": [
-        477514
-      ],
-      "description": "EXT_disjoint_timer_query fails after 2 queries on adreno 3xx in lollypop",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Qualcomm.*",
-      "gl_renderer": "Adreno \\(TM\\) 3.*",
-      "features": [
-        "disable_timestamp_queries"
-      ],
-      "disabled_extensions": [
-        "GL_EXT_disjoint_timer_query",
-        "GL_EXT_disjoint_timer_query_webgl2"
-      ]
-    },
-    {
-      "id": 113,
-      "cr_bugs": [
-        477514
-      ],
-      "description": "EXT_disjoint_timer_query fails after 256 queries on adreno 4xx",
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "Adreno \\(TM\\) 4.*",
-      "disabled_extensions": [
-        "GL_EXT_disjoint_timer_query",
-        "GL_EXT_disjoint_timer_query_webgl2"
-      ]
-    },
-    {
-      "id": 115,
-      "cr_bugs": [
-        462553
-      ],
-      "description": "glGetIntegerv with GL_GPU_DISJOINT_EXT causes GL_INVALID_ENUM error",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "NVIDIA.*",
-      "gl_version": {
-        "op": ">=",
-        "value": "3.0"
-      },
-      "disabled_extensions": [
-        "GL_EXT_disjoint_timer_query"
-      ]
-    },
-    {
-      "id": 117,
-      "description": "GL_KHR_blend_equation_advanced breaks blending on Adreno 4xx",
-      "cr_bugs": [
-        488485
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Qualcomm.*",
-      "gl_renderer": ".*4\\d\\d",
-      "features": [
-        "disable_blend_equation_advanced"
-      ]
-    },
-    {
-      "id": 125,
-      "description": "glFinish doesn't clear caches on Android",
-      "cr_bugs": [
-        509727
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "Adreno.*",
-      "features": [
-        "unbind_egl_context_to_flush_driver_caches"
-      ]
-    },
-    {
-      "id": 126,
-      "description": "Program binaries contain incorrect bound attribute locations on Adreno 3xx GPUs",
-      "cr_bugs": [
-        510637
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": ".*Adreno \\(TM\\) 3.*",
-      "features": [
-        "disable_program_cache"
-      ]
-    },
-    {
-      "id": 127,
-      "description": "Android Adreno crashes on binding incomplete cube map texture to FBO",
-      "cr_bugs": [
-        518889
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "Adreno.*",
-      "features": [
-        "force_cube_map_positive_x_allocation"
-      ]
-    },
-    {
       "id": 131,
       "description": "Linux Mesa drivers crash on glTexSubImage2D() to texture storage bound to FBO",
       "cr_bugs": [
@@ -489,70 +163,6 @@
       ]
     },
     {
-      "id": 137,
-      "description": "NVIDIA fails glReadPixels from incomplete cube map texture",
-      "cr_bugs": [
-        518889
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "NVIDIA.*",
-      "features": [
-        "force_cube_complete"
-      ]
-    },
-    {
-      "id": 138,
-      "description": "NVIDIA drivers before 346 lack features in NV_path_rendering and related extensions to implement driver level path rendering.",
-      "cr_bugs": [
-        344330
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "NVIDIA.*",
-      "driver_version": {
-        "op": "<",
-        "value": "346"
-      },
-      "disabled_extensions": [
-        "GL_NV_path_rendering"
-      ]
-    },
-    {
-      "id": 140,
-      "description": "glReadPixels fails on FBOs with SRGB_ALPHA textures, Nexus 5X",
-      "cr_bugs": [
-        550292,
-        565179
-      ],
-      "os": {
-        "type": "android",
-        "comment": "Originally on Android 6.0. Expect it to fail in later versions."
-      },
-      "gl_vendor": "Qualcomm",
-      "gl_renderer": "Adreno \\(TM\\) 4.*",
-      "comment": "Originally on 418.",
-      "disabled_extensions": [
-        "GL_EXT_sRGB"
-      ]
-    },
-    {
-      "id": 147,
-      "description": "Limit max texure size to 4096 on older Android devices.",
-      "os": {
-        "type": "android",
-        "version": {
-          "op": "<",
-          "value": "14.0"
-        }
-      },
-      "features": [
-        "webgl_or_caps_max_texture_size_limit_4096"
-      ]
-    },
-    {
       "id": 153,
       "cr_bugs": [
         594016
@@ -565,29 +175,6 @@
       "gl_renderer": "Vivante GC1000",
       "disabled_extensions": [
         "GL_EXT_multisampled_render_to_texture"
-      ]
-    },
-    {
-      "id": 157,
-      "description": "Testing fences was broken on Mali ES2 drivers for specific phone models",
-      "cr_bugs": [
-        589814
-      ],
-      "os": {
-        "type": "android"
-      },
-      "machine_model_name": [
-        "SM-G361H",
-        "SM-G531H"
-      ],
-      "gl_vendor": "ARM.*",
-      "gl_renderer": "Mali.*",
-      "gl_version": {
-        "op": "<",
-        "value": "3.0"
-      },
-      "disabled_extensions": [
-        "EGL_KHR_fence_sync"
       ]
     },
     {
@@ -618,44 +205,6 @@
       "vendor_id": "0x10de",
       "gl_vendor": "NVIDIA.*",
       "gl_type": "angle_gles",
-      "gl_version": {
-        "op": ">=",
-        "value": "3.0"
-      },
-      "features": [
-        "disable_discard_framebuffer"
-      ]
-    },
-    {
-      "id": 161,
-      "cr_bugs": [
-        601753
-      ],
-      "description": "Framebuffer discarding not useful on NVIDIA Kepler architecture and later",
-      "os": {
-        "type": "chromeos"
-      },
-      "vendor_id": "0x10de",
-      "gl_vendor": "NVIDIA.*",
-      "gl_type": "angle_gles",
-      "gl_version": {
-        "op": ">=",
-        "value": "3.0"
-      },
-      "features": [
-        "disable_discard_framebuffer"
-      ]
-    },
-    {
-      "id": 162,
-      "cr_bugs": [
-        601753
-      ],
-      "description": "Framebuffer discarding not useful on NVIDIA Kepler architecture and later",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "NVIDIA.*",
       "gl_version": {
         "op": ">=",
         "value": "3.0"
@@ -699,20 +248,6 @@
       ]
     },
     {
-      "id": 165,
-      "cr_bugs": [
-        596774
-      ],
-      "description": "Unpacking overlapping rows from unpack buffers is unstable on NVIDIA GL driver",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "NVIDIA.*",
-      "features": [
-        "unpack_overlapping_rows_separately_unpack_buffer"
-      ]
-    },
-    {
       "id": 168,
       "description": "VirtualBox driver doesn't correctly support partial swaps.",
       "cr_bugs": [
@@ -724,37 +259,6 @@
       "vendor_id": "0x80ee",
       "features": [
         "disable_post_sub_buffers_for_onscreen_surfaces"
-      ]
-    },
-    {
-      "id": 176,
-      "description": "glClear does not work on Acer Predator GT-810",
-      "cr_bugs": [
-        633634
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Intel.*",
-      "gl_renderer": ".*Atom.*x5/x7.*",
-      "features": [
-        "gl_clear_broken"
-      ]
-    },
-    {
-      "id": 180,
-      "cr_bugs": [
-        579060,
-        632461
-      ],
-      "description": "eglCreateImageKHR fails for one component textures on PowerVR",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "gl_renderer": "PowerVR .*",
-      "features": [
-        "avoid_one_component_egl_images"
       ]
     },
     {
@@ -802,20 +306,6 @@
       ]
     },
     {
-      "id": 212,
-      "description": "Program binaries don't contain transform feedback varyings on Qualcomm GPUs",
-      "cr_bugs": [
-        658074
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "Adreno.*",
-      "features": [
-        "disable_program_caching_for_transform_feedback"
-      ]
-    },
-    {
       "id": 215,
       "description": "Fake no-op GPU driver bug workaround for testing",
       "cr_bugs": [
@@ -824,52 +314,6 @@
       "test_group": 1,
       "features": [
         "use_gpu_driver_workaround_for_testing"
-      ]
-    },
-    {
-      "id": 216,
-      "cr_bugs": [
-        698926
-      ],
-      "description": "Pack parameters work incorrectly with pack buffer bound",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "NVIDIA.*",
-      "features": [
-        "pack_parameters_workaround_with_pack_buffer"
-      ]
-    },
-    {
-      "id": 217,
-      "cr_bugs": [
-        698926
-      ],
-      "description": "Alignment works incorrectly with unpack buffer bound",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "NVIDIA.*",
-      "features": [
-        "unpack_alignment_workaround_with_unpack_buffer"
-      ]
-    },
-    {
-      "id": 218,
-      "description": "Certain Adreno 4xx and 5xx drivers often crash in glProgramBinary.",
-      "cr_bugs": [
-        699122
-      ],
-      "os": {
-        "type": "android"
-      },
-      "driver_version": {
-        "op": ">=",
-        "value": "103.0"
-      },
-      "gl_renderer": "Adreno \\(TM\\) [45].*",
-      "features": [
-        "disable_program_disk_cache"
       ]
     },
     {
@@ -889,20 +333,6 @@
       },
       "features": [
         "disable_dxgi_zero_copy_video"
-      ]
-    },
-    {
-      "id": 221,
-      "description": "Very large instanced draw calls crash on some Adreno 3xx drivers",
-      "cr_bugs": [
-        701682
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "Adreno \\(TM\\) 3.*",
-      "features": [
-        "disallow_large_instanced_draw"
       ]
     },
     {
@@ -1001,81 +431,6 @@
       ]
     },
     {
-      "id": 231,
-      "description": "Multisampled color renderbuffers can't be resized on Qualcomm 4xx/5xx",
-      "cr_bugs": [
-        696126
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "Adreno \\(TM\\) [45].*",
-      "features": [
-        "multisample_renderbuffer_resize_emulation"
-      ]
-    },
-    {
-      "id": 241,
-      "description": "On Intel GPUs MSAA performance is not acceptable for GPU rasterization. Duplicate of 132 for Android",
-      "cr_bugs": [
-        759471
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": ".*Intel.*",
-      "features": [
-        "msaa_is_slow"
-      ]
-    },
-    {
-      "id": 243,
-      "description": "Program binaries don't contain transform feedback varyings on Mali GPUs",
-      "cr_bugs": [
-        778871
-      ],
-      "os": {
-        "type": "chromeos"
-      },
-      "gl_vendor": "ARM.*",
-      "gl_renderer": "Mali.*",
-      "features": [
-        "disable_program_caching_for_transform_feedback"
-      ]
-    },
-    {
-      "id": 246,
-      "description": "Code produced by initializing variables using loops can trigger crashes on some Adreno drivers.",
-      "cr_bugs": [
-        784817
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "Adreno \\(TM\\) *",
-      "features": [
-        "dont_use_loops_to_initialize_variables"
-      ]
-    },
-    {
-      "id": 247,
-      "description": "EXT_disjoint_timer_query is broken on Samsung Galaxy S6",
-      "cr_bugs": [
-        702980
-      ],
-      "os": {
-        "type": "android"
-      },
-      "machine_model_name": [
-        "SM-G930F"
-      ],
-      "gl_vendor": "ARM.*",
-      "gl_renderer": "Mali-T880",
-      "disabled_extensions": [
-        "GL_EXT_disjoint_timer_query"
-      ]
-    },
-    {
       "id": 249,
       "description": "Full screen video overlays causes slow presents on old Nvidia GPUs",
       "cr_bugs": [
@@ -1093,38 +448,6 @@
       ]
     },
     {
-      "id": 251,
-      "description": "Vivante GPUs shader cache breaks rendering",
-      "cr_bugs": [
-        780498
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_extensions": ".*GL_VIV_shader_binary.*",
-      "features": [
-        "disable_program_cache"
-      ]
-    },
-    {
-      "id": 254,
-      "description": "Limit MSAA quality samples to 4 and storage samples 2 on AMD Stoney",
-      "cr_bugs": [
-        875471
-      ],
-      "os": {
-        "type": "chromeos"
-      },
-      "vendor_id": "0x1002",
-      "device_id": [
-        "0x98e4"
-      ],
-      "features": [
-        "max_msaa_sample_count_4",
-        "use_eqaa_storage_samples_2"
-      ]
-    },
-    {
       "id": 256,
       "description": "Expose WebGL's disjoint_timer_query extensions on platforms with site isolation",
       "cr_bugs": [
@@ -1133,13 +456,6 @@
       ],
       "features": [
         "enable_webgl_timer_query_extensions"
-      ],
-      "exceptions": [
-        {
-          "os": {
-            "type": "android"
-          }
-        }
       ]
     },
     {
@@ -1169,38 +485,6 @@
       ]
     },
     {
-      "id": 262,
-      "description": "Program fails in PowerVR*GX6250 drivers if gl_Position is not set",
-      "cr_bugs": [
-        286468,
-        416670
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "gl_renderer": "PowerVR.*GX6250",
-      "features": [
-        "init_gl_position_in_vertex_shader"
-      ]
-    },
-    {
-      "id": 264,
-      "description": "Program fails in PowerVR G6200 drivers if gl_Position is not set",
-      "cr_bugs": [
-        286468,
-        416670
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "gl_renderer": "PowerVR.*G6200.*",
-      "features": [
-        "init_gl_position_in_vertex_shader"
-      ]
-    },
-    {
       "id": 265,
       "cr_bugs": [
         811661
@@ -1218,33 +502,6 @@
         "GL_EXT_timer_query",
         "GL_EXT_disjoint_timer_query",
         "GL_EXT_disjoint_timer_query_webgl2"
-      ]
-    },
-    {
-      "id": 268,
-      "cr_bugs": [
-        797243
-      ],
-      "description": "Limit MSAA to 4x on Android devices",
-      "os": {
-        "type": "android"
-      },
-      "features": [
-        "max_msaa_sample_count_4"
-      ]
-    },
-    {
-      "id": 272,
-      "cr_bugs": [
-        858879
-      ],
-      "description": "A deleted query id for GL_TIMESTAMP cannot be reused for other query targets",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Qualcomm.*",
-      "features": [
-        "disable_timestamp_queries"
       ]
     },
     {
@@ -1283,24 +540,6 @@
       ]
     },
     {
-      "id": 280,
-      "description": "ReadPixels is broken with EXT_multisampled_render_to_texture on recent Adreno drivers.",
-      "cr_bugs": [
-        890002
-      ],
-      "os": {
-        "type": "android"
-      },
-      "driver_version": {
-        "op": ">",
-        "value": "237.0"
-      },
-      "gl_renderer": "Adreno \\(TM\\) .*",
-      "features": [
-        "use_copyteximage2d_instead_of_readpixels_on_multisampled_textures"
-      ]
-    },
-    {
       "id": 283,
       "cr_bugs": [
         893177
@@ -1333,49 +572,6 @@
       },
       "features": [
         "disable_direct_composition_video_overlays"
-      ]
-    },
-    {
-      "id": 290,
-      "description": "Round down glBindBufferRange size to a multiple of 4 on Qualcomm Adreno GPUs for uniform buffers",
-      "cr_bugs": [
-        906743
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "Adreno \\(TM\\) .*",
-      "features": [
-        "round_down_uniform_bind_buffer_range_size"
-      ]
-    },
-    {
-      "id": 292,
-      "description": "adjust src/dst region if blitting pixels outside framebuffer on Android NVIDIA",
-      "cr_bugs": [
-        830046
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "NVIDIA.*",
-      "features": [
-        "adjust_src_dst_region_for_blitframebuffer"
-      ]
-    },
-    {
-      "id": 299,
-      "description": "Context lost recovery often fails on PowerVR Rogue GE8* GPUs on Android.",
-      "cr_bugs": [
-        942106
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "gl_renderer": "PowerVR Rogue GE8.*",
-      "features": [
-        "exit_on_context_lost"
       ]
     },
     {
@@ -1459,21 +655,6 @@
       ]
     },
     {
-      "id": 306,
-      "description": "Program binaries don't contain transform feedback varyings on Mali GPUs",
-      "cr_bugs": [
-        961950
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "ARM.*",
-      "gl_renderer": "Mali.*",
-      "features": [
-        "disable_program_caching_for_transform_feedback"
-      ]
-    },
-    {
       "id": 309,
       "cr_bugs": [
         993233
@@ -1502,49 +683,6 @@
       ]
     },
     {
-      "id": 312,
-      "cr_bugs": [
-        991869
-      ],
-      "description": "Crash on Mali-T8x when using glTexImage2D",
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": ".*Mali-T8.*",
-      "features": [
-        "prefer_draw_to_copy"
-      ]
-    },
-    {
-      "id": 313,
-      "description": "Context lost recovery often fails on PowerVR on CrOS.",
-      "cr_bugs": [
-        1010121
-      ],
-      "os": {
-        "type": "chromeos"
-      },
-      "gl_vendor": "Imagination.*",
-      "gl_renderer": "PowerVR.*",
-      "features": [
-        "exit_on_context_lost"
-      ]
-    },
-    {
-      "id": 314,
-      "cr_bugs": [
-        1010338
-      ],
-      "description": "Crash on Adreno when using GL_EXT_shader_framebuffer_fetch",
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": ".*Adreno.*",
-      "disabled_extensions": [
-        "GL_EXT_shader_framebuffer_fetch"
-      ]
-    },
-    {
       "id": 315,
       "cr_bugs": [
         964010
@@ -1556,44 +694,6 @@
       "gl_type": "angle_gl",
       "disabled_extensions": [
         "GL_MESA_framebuffer_flip_y"
-      ]
-    },
-    {
-      "id": 316,
-      "cr_bugs": [
-        1003860
-      ],
-      "description": "Limit MSAA to 4x on ChromeOS for Intel",
-      "os": {
-        "type": "chromeos"
-      },
-      "intel_gpu_generation": {
-        "op": ">=",
-        "value": "9"
-      },
-      "driver_vendor": "Mesa",
-      "gl_vendor": "Intel.*",
-      "features": [
-        "max_msaa_sample_count_4"
-      ]
-    },
-    {
-      "id": 317,
-      "cr_bugs": [
-        1003860
-      ],
-      "description": "Limit MSAA to 2x on older Intel GPU generations on ChromeOS",
-      "os": {
-        "type": "chromeos"
-      },
-      "intel_gpu_generation": {
-        "op": "<",
-        "value": "9"
-      },
-      "driver_vendor": "Mesa",
-      "gl_vendor": "Intel.*",
-      "features": [
-        "max_msaa_sample_count_2"
       ]
     },
     {
@@ -1611,19 +711,6 @@
       ],
       "features": [
         "disable_direct_composition_video_overlays"
-      ]
-    },
-    {
-      "id": 320,
-      "cr_bugs": [
-        709351
-      ],
-      "description": "Remove dynamic indexing for swizzled vectors on Android",
-      "os": {
-        "type": "android"
-      },
-      "features": [
-        "remove_dynamic_indexing_of_swizzled_vector"
       ]
     },
     {
@@ -1745,20 +832,6 @@
       "disabled_extensions": [
         "GL_EXT_memory_object_fd",
         "GL_EXT_semaphore_fd"
-      ]
-    },
-    {
-      "id": 334,
-      "description": "Some drivers seem to require as to use original texture whenever possible",
-      "cr_bugs": [
-        1052114,
-        1117370
-      ],
-      "os": {
-        "type": "android"
-      },
-      "features": [
-        "dont_delete_source_texture_for_egl_image"
       ]
     },
     {
@@ -2044,19 +1117,6 @@
       ]
     },
     {
-      "id": 358,
-      "cr_bugs": [
-        1127387
-      ],
-      "description": "Always assume float formats are renderable on Android except RGB32F",
-      "os": {
-        "type": "android"
-      },
-      "features": [
-        "force_enable_color_buffer_float_except_rgb32f"
-      ]
-    },
-    {
       "id": 360,
       "description": "8x MSAA for WebGL contexts is slow on Win Intel",
       "cr_bugs": [
@@ -2136,70 +1196,6 @@
       ]
     },
     {
-      "id": 365,
-      "description": "Context lost recovery often fails on Adreno with SkiaRenderer GL.",
-      "cr_bugs": [
-        1079161
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "Adreno.*",
-      "features": [
-        "exit_on_context_lost"
-      ]
-    },
-    {
-      "id": 367,
-      "cr_bugs": [
-        1180962
-      ],
-      "description": "ANGLE cannot recover from context lost",
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": "ANGLE.*",
-      "features": [
-        "exit_on_context_lost"
-      ]
-    },
-    {
-      "id": 369,
-      "cr_bugs": [
-        1184340
-      ],
-      "description": "Limit MSAA quality samples to 4 and storage samples 2 on Pollock",
-      "os": {
-        "type": "chromeos"
-      },
-      "vendor_id": "0x1002",
-      "device_id": [
-        "0x15d8"
-      ],
-      "device_revision": [
-        "0xe9",
-        "0xea"
-      ],
-      "features": [
-        "max_msaa_sample_count_4",
-        "use_eqaa_storage_samples_2"
-      ]
-    },
-    {
-      "id": 370,
-      "description": "Context loss recovery often fails on Chrome OS",
-      "cr_bugs": [
-        992286,
-        1177986
-      ],
-      "os": {
-        "type": "chromeos"
-      },
-      "features": [
-        "exit_on_context_lost"
-      ]
-    },
-    {
       "id": 371,
       "cr_bugs": [
         1192748
@@ -2230,20 +1226,6 @@
       },
       "features": [
         "check_ycbcr_studio_g22_left_p709_for_nv12_support"
-      ]
-    },
-    {
-      "id": 373,
-      "cr_bugs": [
-        1198714
-      ],
-      "description": "VP9 Profile 2 HW decoding on Qualcomm SC7180 is broken",
-      "os": {
-        "type": "chromeos"
-      },
-      "gl_vendor": "freedreno",
-      "features": [
-        "disable_accelerated_vp9_profile2_decode"
       ]
     },
     {
@@ -2351,24 +1333,6 @@
       ]
     },
     {
-      "id": 379,
-      "cr_bugs": [
-        1217298
-      ],
-      "description": "Disable VP9 HW encode on Intel Gen 9.5 SoCs using the i965 VA driver backend",
-      "os": {
-        "type": "chromeos"
-      },
-      "vendor_id": "0x8086",
-      "intel_gpu_series": [
-        "kabylake",
-        "geminilake"
-      ],
-      "features": [
-        "disable_accelerated_vp9_encode"
-      ]
-    },
-    {
       "id": 380,
       "cr_bugs": [
         1245835
@@ -2388,25 +1352,6 @@
       },
       "features": [
         "no_downscaled_overlay_promotion"
-      ]
-    },
-    {
-      "id": 381,
-      "cr_bugs": [
-        1246254
-      ],
-      "description": "Check if egl fences are already signalled before waiting them on the i965 driver",
-      "os": {
-        "type": "chromeos"
-      },
-      "intel_gpu_generation": {
-        "op": ">=",
-        "value": "4"
-      },
-      "driver_vendor": "Mesa",
-      "gl_vendor": "Intel.*",
-      "features": [
-        "check_egl_fence_before_wait"
       ]
     },
     {
@@ -2879,35 +1824,6 @@
       ]
     },
     {
-      "id": 399,
-      "description": "On pre-Ice Lake Intel GPUs MSAA performance is not acceptable for GPU rasterization. Duplicate of 398 for Android",
-      "cr_bugs": [
-        759471
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": ".*Intel.*",
-      "intel_gpu_generation": {
-        "op": "<",
-        "value": "11"
-      },
-      "features": [
-        "msaa_is_slow_2"
-      ]
-    },
-    {
-      "id": 404,
-      "description": "Disable EGL_EXT_image_dma_buf_import_modifiers for Exo KMS modifier discovery on kms_swrast/llvmpipe",
-      "os": {
-        "type": "chromeos"
-      },
-      "gl_renderer": "llvmpipe.*",
-      "features": [
-        "disable_egl_ext_image_dma_buf_import_modifiers"
-      ]
-    },
-    {
       "id": 406,
       "description": "VP9 decoder rejects submitted bitstream buffer on some old Intel drivers.",
       "cr_bugs": [
@@ -2944,28 +1860,6 @@
       },
       "features": [
         "disable_media_foundation_clear_playback"
-      ]
-    },
-    {
-      "id": 409,
-      "cr_bugs": [
-        1393646
-      ],
-      "description": "QC7c requires a flush prior to the creation of a fence.",
-      "comment": [
-        "The hypothesis behind why need a flush on the QC7c is as follows.",
-        "The driver has associated queues per buffer. These buffers are in ",
-        "order say A, B and C. We append our fence to queue C. On submission ",
-        "to the gpu these are reordered to say C, B, and then A. By flushing ",
-        "prior to fence insertion we insure that A, B, and C are submitted to ",
-        "the GPU prior to the fence."
-      ],
-      "os": {
-        "type": "chromeos"
-      },
-      "gl_vendor": "freedreno",
-      "features": [
-        "flush_before_create_fence"
       ]
     },
     {
@@ -3052,26 +1946,6 @@
       ]
     },
     {
-      "id": 415,
-      "cr_bugs": [
-        1464136
-      ],
-      "description": "Disable VP9 and H.264 video acceleration on Elkhart Lake Intel devices",
-      "os": {
-        "type": "chromeos"
-      },
-      "intel_gpu_series": [
-        "elkhartlake"
-      ],
-      "features": [
-        "disable_accelerated_h264_decode",
-        "disable_accelerated_h264_encode",
-        "disable_accelerated_vp9_decode",
-        "disable_accelerated_vp9_encode",
-        "disable_accelerated_vp9_profile2_decode"
-      ]
-    },
-    {
       "id": 420,
       "cr_bugs": [
         1475546
@@ -3091,68 +1965,6 @@
       ]
     },
     {
-      "id": 421,
-      "cr_bugs": [
-        1494147
-      ],
-      "description": "Accelerated video decoding leads to lock up in ChromeOS Zork (AMD Radeon Vega 3 GPUs).",
-      "os": {
-        "type": "chromeos"
-      },
-      "vendor_id": "0x1002",
-      "device_id": [
-        "0x15d8",
-        "0x15dd"
-      ],
-      "features": [
-        "disable_accelerated_h264_decode",
-        "disable_accelerated_h264_encode",
-        "disable_accelerated_vp9_decode",
-        "disable_accelerated_vp9_profile2_decode",
-        "disable_accelerated_hevc_decode"
-      ]
-    },
-    {
-      "id": 422,
-      "description": "Disable video acceleration on some Intel 8LP GPUs on ChromeOS [b/293173688]",
-      "os": {
-        "type": "chromeos"
-      },
-      "vendor_id": "0x8086",
-      "device_id": [
-        "0x22b1"
-      ],
-      "features": [
-        "disable_accelerated_vp8_encode",
-        "disable_accelerated_h264_encode"
-      ]
-    },
-    {
-      "id": 423,
-      "description": "Legacy AMD GPUs can't synchronize multiple write streams on SharedImages [b/293613437, b/300686930, b/330342819]",
-      "os": {
-        "type": "chromeos"
-      },
-      "vendor_id": "0x1002",
-      "device_id": [
-        "0x9802",
-        "0x9834",
-        "0x9806",
-        "0x9874",
-        "0x1636",
-        "0x9996",
-        "0x9715",
-        "0x9809",
-        "0x98e4",
-        "0x68c0",
-        "0x9807",
-        "0x9808"
-      ],
-      "features": [
-        "disable_webgpu_shared_images"
-      ]
-    },
-    {
       "id": 424,
       "cr_bugs": [
         1439689
@@ -3168,20 +1980,6 @@
       },
       "features": [
         "disable_svc_encoding"
-      ]
-    },
-    {
-      "id": 425,
-      "cr_bugs": [
-        1512211
-      ],
-      "description": "Single component images fail on some embedded Intel GPUs",
-      "os": {
-        "type": "android"
-      },
-      "gl_renderer": ".*HD Graphics 500.*",
-      "features": [
-        "avoid_one_component_egl_images"
       ]
     },
     {
@@ -3372,26 +2170,6 @@
       ]
     },
     {
-      "id": 435,
-      "cr_bugs": [
-        356448335
-      ],
-      "description": "Disable video accelerated encoding on certain AMD GPUs using r600",
-      "os": {
-        "type": "chromeos"
-      },
-      "vendor_id": "0x1002",
-      "device_id": [
-        "0x6821",
-        "0x9900",
-        "0x9992",
-        "0x9997"
-      ],
-      "features": [
-        "disable_accelerated_h264_encode"
-      ]
-    },
-    {
       "id": 436,
       "cr_bugs": [
         40677119
@@ -3440,39 +2218,6 @@
         "op": "<",
         "value": "32.0.101.6557"
       }
-    },
-    {
-      "id": 440,
-      "cr_bugs": [
-        376094900,
-        369737075
-      ],
-      "description": "Disable mssa because OOP-C dmsaa (implicit) resolve produces rendering artifacts",
-      "os": {
-        "type": "chromeos"
-      },
-      "gl_vendor": "ARM.*",
-      "gl_renderer": "Mali.*",
-      "features": [
-        "msaa_is_slow"
-      ]
-    },
-    {
-      "id": 441,
-      "description": "Limits the number of system-wide accelerated video decoders to 10 due to a driver crash.",
-      "cr_bugs": [
-        333711204
-      ],
-      "os": {
-        "type": "chromeos"
-      },
-      "vendor_id": "0x1002",
-      "device_id": [
-        "0x98e4"
-      ],
-      "features": [
-        "max_num_hw_video_decoders_10"
-      ]
     },
     {
       "id": 442,
@@ -3685,16 +2430,6 @@
       ]
     },
     {
-      "id": 456,
-      "description": "Limit max texure size to 8192 on Android.",
-      "os": {
-        "type": "android"
-      },
-      "features": [
-        "webgl_or_caps_max_texture_size_limit_8192"
-      ]
-    },
-    {
       "id": 457,
       "cr_bugs": [
         40275246
@@ -3835,21 +2570,6 @@
       ]
     },
     {
-      "id": 466,
-      "description": "Program binaries don't contain transform feedback varyings on Imagination GPUs",
-      "cr_bugs": [
-        442879525
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "gl_renderer": "PowerVR.*",
-      "features": [
-        "disable_program_caching_for_transform_feedback"
-      ]
-    },
-    {
       "id": 467,
       "cr_bugs": [
         417604761
@@ -3918,28 +2638,6 @@
       ]
     },
     {
-      "id": 471,
-      "description": "IMG drivers can sometimes reference previously bound complete framebuffers.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "ensure_previous_framebuffer_not_deleted"
-      ]
-    },
-    {
-      "id": 472,
-      "description": "Validate GL_MAX_*_UNIFORM_BLOCKS at compile time instead of link time to work around compiler bugs.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "validate_max_per_stage_uniform_blocks_at_compile_time"
-      ]
-    },
-    {
       "id": 473,
       "cr_bugs": [
         330694403
@@ -3988,24 +2686,6 @@
       ]
     },
     {
-      "id": 476,
-      "description": "Qualcomm GPUs crash when invalidating incomplete framebuffers",
-      "cr_bugs": [
-        507508103
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Qualcomm.*",
-      "driver_version": {
-        "op": "<",
-        "value": "881"
-      },
-      "features": [
-        "dont_invalidate_incomplete_fbos"
-      ]
-    },
-    {
       "id": 478,
       "description": "Program binaries don't contain transform feedback varyings on Mali GPUs",
       "cr_bugs": [
@@ -4036,24 +2716,6 @@
       ]
     },
     {
-      "id": 480,
-      "cr_bugs": [
-        520656244
-      ],
-      "description": "Reattach FBO depth/stencil attachments when they are reallocated on Qualcomm GPUs",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Qualcomm.*",
-      "driver_version": {
-        "op": "<",
-        "value": "878"
-      },
-      "features": [
-        "reattach_fbo_depth_stencil_on_reallocation"
-      ]
-    },
-    {
       "id": 481,
       "cr_bugs": [
         443107135
@@ -4065,189 +2727,6 @@
       "vendor_id": "0x4d4f4351",
       "features": [
         "disable_media_foundation_d3d_video_processing"
-      ]
-    },
-    {
-      "id": 482,
-      "cr_bugs": [
-        496807874
-      ],
-      "description": "Split full-image level 0 PBO uploads via TexSubImage2D into two calls to work around driver bugs.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "split_level_0_pbo_full_sub_image_2d"
-      ]
-    },
-    {
-      "id": 483,
-      "cr_bugs": [
-        551708184
-      ],
-      "description": "Reset texture base level before calling glCompressedTexImage2D or glCompressedTexSubImage2D for ASTC textures to work around PowerVR driver bug.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "reset_base_level_for_astc_image"
-      ]
-    },
-    {
-      "id": 484,
-      "cr_bugs": [
-        529867799
-      ],
-      "description": "Pack large row length separately when packing into a pixel pack buffer to work around Mali driver bug.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "ARM.*",
-      "features": [
-        "pack_large_row_length_separately_pack_buffer"
-      ]
-    },
-    {
-      "id": 485,
-      "cr_bugs": [
-        529991907
-      ],
-      "description": "Limit the number of declared varying output components at compile time to work around a PowerVR driver bug.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "limit_output_varyings_at_compile_time"
-      ]
-    },
-    {
-      "id": 486,
-      "cr_bugs": [
-        534903095
-      ],
-      "description": "Changing BASE_LEVEL of NPOT immutable texture triggers driver bug on PowerVR GPUs.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "dont_change_base_level_for_npot_immutable_textures"
-      ]
-    },
-    {
-      "id": 487,
-      "cr_bugs": [
-        499602793
-      ],
-      "description": "Reattach texture to FBO after layer count increase on PowerVR GPUs.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "reattach_texture_to_fbo_after_layer_increase"
-      ]
-    },
-    {
-      "id": 488,
-      "cr_bugs": [
-        534468209
-      ],
-      "description": "Flush pending GPU jobs/queries before unbinding or deleting a user framebuffer object on ARM Mali Valhall/Avalon GPUs to avoid driver crash.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "ARM.*",
-      "features": [
-        "flush_queries_before_deleting_or_unbinding_fbo"
-      ]
-    },
-    {
-      "id": 489,
-      "cr_bugs": [
-        530045332
-      ],
-      "description": "Lose context when 3D texture depth increases on Qualcomm GPUs",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Qualcomm.*",
-      "features": [
-        "lose_gl_context_when_increase_texture_3d_depth"
-      ]
-    },
-    {
-      "id": 490,
-      "cr_bugs": [
-        551573368
-      ],
-      "description": "Reset texture base level before calling glTexStorage2D to work around PowerVR driver bug.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "reset_tex_storage_base_level"
-      ]
-    },
-    {
-      "id": 491,
-      "cr_bugs": [
-        548085797
-      ],
-      "description": "Limit max texture image units to 13 on PowerVR GPUs.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "max_texture_image_units_13"
-      ]
-    },
-    {
-      "id": 492,
-      "cr_bugs": [
-        548127218
-      ],
-      "description": "Upload oversized nonzero mip levels via unpack buffer on PowerVR GPUs",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "upload_oversized_mip_levels_via_unpack_buffer"
-      ]
-    },
-    {
-      "id": 493,
-      "cr_bugs": [
-        546252753
-      ],
-      "description": "Issue a glFinish before calling glBlitFramebuffer if the draw framebuffer has multiple color attachments or any color attachment's texture has base_level > 0.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "ARM.*",
-      "gl_renderer": "Mali-G.*",
-      "features": [
-        "finish_before_blit_framebuffer_multi_attachment"
-      ]
-    },
-    {
-      "id": 494,
-      "cr_bugs": [
-        553172761
-      ],
-      "description": "Upload non-power-of-two textures via TexSubImage2D instead of TexImage2D when uploading client-side data.",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "features": [
-        "use_tex_sub_image_for_client_data_npot_uploads"
       ]
     },
     {
@@ -4270,22 +2749,6 @@
       ]
     },
     {
-      "id": 496,
-      "cr_bugs": [
-        555781989,
-        556870863
-      ],
-      "description": "Program binary cache entries can collide in Imagination's GLES driver",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "gl_type": "angle_gles",
-      "features": [
-        "disable_program_cache"
-      ]
-    },
-    {
       "id": 497,
       "cr_bugs": [
         556956704
@@ -4302,34 +2765,6 @@
       },
       "features": [
         "use_g22_topleft_color_space_for_yuv_vp"
-      ]
-    },
-    {
-      "id": 498,
-      "cr_bugs": [
-        551065272
-      ],
-      "description": "Recreate mipmap levels before calling glGenerateMipmap on Mali GPUs",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "ARM.*",
-      "features": [
-        "recreate_mipmap_levels_before_generate"
-      ]
-    },
-    {
-      "id": 499,
-      "description": "adjust src/dst region if blitting pixels outside framebuffer on Android Mali",
-      "cr_bugs": [
-        546630009
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "ARM.*",
-      "features": [
-        "adjust_src_dst_region_for_blitframebuffer"
       ]
     },
     {
@@ -4351,21 +2786,6 @@
       ]
     },
     {
-      "id": 501,
-      "description": "Older PowerVR drivers mishandle large 3D NPOT sizes in texStorage3D",
-      "cr_bugs": [
-        551673541
-      ],
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "gl_renderer": "PowerVR.*",
-      "features": [
-        "round_up_3d_texture_size_to_pot_for_limit"
-      ]
-    },
-    {
       "id": 502,
       "cr_bugs": [
         40275246
@@ -4381,26 +2801,6 @@
       ]
     },
     {
-      "id": 503,
-      "cr_bugs": [
-        550525698,
-        550996500,
-        552550589,
-        555394151,
-        558109451,
-        558111285
-      ],
-      "description": "Readbacks interrupted by a GPU reset can complete without error on Mali and deliver unwritten memory; check the reset status before delivering readback results and PBO/buffer-map readback delivery",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "ARM.*",
-      "gl_renderer": "Mali.*",
-      "features": [
-        "check_graphics_reset_status_after_readback"
-      ]
-    },
-    {
       "id": 504,
       "description": "Mesa drivers on Intel GPUs on Linux require prior GL work to be finished before Dawn accesses a Vulkan-backed shared image that was last written by GL",
       "os": {
@@ -4410,21 +2810,6 @@
       "driver_vendor": "Mesa",
       "features": [
         "finish_gl_before_dawn_vulkan_image_access"
-      ]
-    },
-    {
-      "id": 505,
-      "cr_bugs": [
-        40259276
-      ],
-      "description": "Disable GL_ANGLE_shader_pixel_local_storage on Imagination's GLES driver",
-      "os": {
-        "type": "android"
-      },
-      "gl_vendor": "Imagination.*",
-      "gl_type": "angle_gles",
-      "disabled_extensions": [
-        "GL_ANGLE_shader_pixel_local_storage"
       ]
     },
     {
@@ -4454,36 +2839,6 @@
       "vendor_id": "0x1002",
       "features": [
         "disable_d3d11_video_decoder_shared_handle"
-      ]
-    },
-    {
-      "id": 508,
-      "description": "Limits the number of simultaneous accelerated video decoders to 10 on MTK8173.",
-      "os": {
-        "type": "chromeos"
-      },
-      "cr_bugs": [
-        1109312
-      ],
-      "gl_vendor": "Imagination.*",
-      "gl_renderer": "PowerVR.*",
-      "features": [
-        "max_num_hw_video_decoders_10"
-      ]
-    },
-    {
-      "id": 509,
-      "description": "Limits the number of simultaneous accelerated video decoders to 15 on Qualcomm.",
-      "cr_bugs": [
-        318426433,
-        326295895
-      ],
-      "os": {
-        "type": "chromeos"
-      },
-      "gl_vendor": "freedreno",
-      "features": [
-        "max_num_hw_video_decoders_15"
       ]
     }
   ]

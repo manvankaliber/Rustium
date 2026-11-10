@@ -85,25 +85,16 @@
 #include "third_party/abseil-cpp/absl/functional/overload.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/enterprise/reporting/saas_usage/saas_usage_reporting_controller_factory.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/glic/host/context/glic_empty_pinned_tab_manager.h"
-#include "chrome/browser/glic/widget/conversions.h"
-#include "chrome/browser/glic/widget/glic_floating_ui_android.h"
-#include "chrome/browser/glic/widget/glic_inactive_side_panel_ui_android.h"
-#include "chrome/browser/glic/widget/glic_side_panel_ui_android.h"
-#else
 #include "chrome/browser/glic/host/context/glic_focused_tab_manager.h"
 #include "chrome/browser/glic/public/service/legacy_glic_activity_manager.h"
 #include "chrome/browser/glic/widget/glic_floating_ui.h"
 #include "chrome/browser/glic/widget/glic_inactive_side_panel_ui.h"
 #include "chrome/browser/glic/widget/glic_side_panel_ui.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif
 
 namespace glic {
 
@@ -151,8 +142,7 @@ constexpr auto kImplicitInvocationSources =
 
 enterprise_reporting::SaasUsageReportingController*
 GetSaasUsageReportingController(Profile* profile) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   return enterprise_reporting::SaasUsageReportingControllerFactory::
       GetForProfile(profile);
 #else
@@ -246,17 +236,6 @@ void GlicInstanceImpl::NotifyVisibilityChange() {
 }
 
 void GlicInstanceImpl::NotifyInstanceChanged() {
-#if BUILDFLAG(IS_ANDROID)
-  // Notify bound helpers that the instance info changed.
-  for (const auto& [key, entry] : embedders_) {
-    tabs::TabInterface* tab = GetTabFromEmbedderKey(key);
-    if (tab) {
-      if (auto* helper = GlicInstanceHelper::From(tab)) {
-        helper->OnInstanceChanged();
-      }
-    }
-  }
-#endif
 }
 
 GlicInstanceImpl::EmbedderEntry::EmbedderEntry()
@@ -1255,13 +1234,11 @@ void GlicInstanceImpl::ClearActiveEmbedderAndNotifyVisibilityChange() {
     UpdatePanelState();
     NotifyVisibilityChange();
     host().PanelWasClosed();
-#if !BUILDFLAG(IS_ANDROID)
     // KeyedService lookups are illegal once profile destruction has started.
     if (!profile_->ShutdownStarted()) {
       MaybeShowCriticalActionFeaturePromo();
       MaybeShowShortcutSnoozePromo();
     }
-#endif  // !BUILDFLAG(IS_ANDROID)
   }
   return;
 }
@@ -1274,7 +1251,6 @@ void GlicInstanceImpl::MaybeShowShortcutSnoozePromo() {
   }
 
   // TODO(b/483455896): implement hotkey promo for android.
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowInterface* browser =
       ProfileBrowserCollection::GetForProfile(profile_)->FindTabbedBrowser();
   if (!browser) {
@@ -1291,11 +1267,9 @@ void GlicInstanceImpl::MaybeShowShortcutSnoozePromo() {
 
   BrowserUserEducationInterface::From(browser)->MaybeShowFeaturePromo(
       std::move(params));
-#endif
 }
 
 void GlicInstanceImpl::MaybeShowCriticalActionFeaturePromo() {
-#if !BUILDFLAG(IS_ANDROID)
   if (!base::FeatureList::IsEnabled(
           critical_actions::features::kCriticalActionHistory)) {
     return;
@@ -1309,7 +1283,6 @@ void GlicInstanceImpl::MaybeShowCriticalActionFeaturePromo() {
     user_education->MaybeShowFeaturePromo(
         feature_engagement::kIPHCriticalActionAppMenuFeature);
   }
-#endif
 }
 
 void GlicInstanceImpl::UpdateFloatingPanelCanAttach() {
@@ -1933,7 +1906,6 @@ void GlicInstanceImpl::CloseAllEmbedders() {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 views::View* GlicInstanceImpl::GetActiveEmbedderGlicViewForTesting() {
   auto* embedder = GetActiveEmbedder();
   if (!embedder) {
@@ -1952,7 +1924,6 @@ GlicFloatingUi* GlicInstanceImpl::GetFloatingUiForTesting() {
   }
   return static_cast<GlicFloatingUi*>(embedder);
 }
-#endif
 
 void GlicInstanceImpl::OnTabAddedToTask(
     actor::TaskId task_id,
@@ -1964,11 +1935,9 @@ void GlicInstanceImpl::OnTabAddedToTask(
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* activity_manager = LegacyGlicActivityManager::Get(profile_)) {
     activity_manager->OnTabAddedToTask(task_id);
   }
-#endif
 
   if (IsActiveEmbedder(SidePanelEmbedderKey(tab))) {
     return;

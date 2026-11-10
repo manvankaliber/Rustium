@@ -85,11 +85,7 @@ TEST_F(TextSuggestionControllerTest, ApplySpellCheckSuggestion) {
 }
 
 // Flaky on Android: http://crbug.com/1104700
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ApplyTextSuggestion DISABLED_ApplyTextSuggestion
-#else
 #define MAYBE_ApplyTextSuggestion ApplyTextSuggestion
-#endif
 TEST_F(TextSuggestionControllerTest, MAYBE_ApplyTextSuggestion) {
   SetBodyContent(
       "<div contenteditable>"

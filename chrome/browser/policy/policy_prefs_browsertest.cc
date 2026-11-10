@@ -39,13 +39,7 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "ash/constants/ash_switches.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#else
 #include "components/enterprise/browser/controller/fake_browser_dm_token_storage.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
 #include "base/test/test_reg_util_win.h"
@@ -53,14 +47,7 @@
 
 namespace policy {
 
-#if BUILDFLAG(IS_ANDROID)
-// Android browser tests spawn a full Activity and browser process per test
-// case; 8 chunks eliminate extra browser startups while keeping each chunk
-// fast.
-const size_t kNumChunks = 8;
-#else
 const size_t kNumChunks = 32;
-#endif
 
 namespace {
 
@@ -129,11 +116,6 @@ class PolicyPrefsTest : public PlatformBrowserTest {
     BrowserPolicyConnector::SetPolicyProviderForTesting(
         GetMockPolicyProvider());
 
-#if BUILDFLAG(IS_ANDROID)
-    // Intentionally leak the mock provider on Android. See comment in
-    // GetMockPolicyProvider() for details.
-    ::testing::Mock::AllowLeak(GetMockPolicyProvider());
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   void TearDownOnMainThread() override { ClearProviderPolicy(); }
@@ -144,29 +126,13 @@ class PolicyPrefsTest : public PlatformBrowserTest {
   }
 
   MockConfigurationPolicyProvider* GetMockPolicyProvider() {
-#if BUILDFLAG(IS_ANDROID)
-    // Trying to delete the mock provider on Android leads to a cascade of
-    // crashes due to ChromeBrowserPolicyConnector and ProfileImpl not being
-    // deleted. Those crashes are caused by checks that ensure that observer
-    // lists of ConfigurationPolicyProvider are always empty on destruction.
-    // On Desktop, removal of observers from those lists is triggered by the
-    // destructors of the classes above, but those same destructors are never
-    // invoked on Android.
-    static base::NoDestructor<
-        testing::NiceMock<MockConfigurationPolicyProvider>>
-        provider;
-    return provider.get();
-#else
     // On non-Android platforms, the mock provider cleanup will be triggered
     // by ChromeBrowserPolicyConnector and ProfileImpl destructors. Thus it's
     // safe to define a provider object that is deleted on scope destruction.
     return &provider_;
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   testing::NiceMock<MockConfigurationPolicyProvider> provider_;
-#endif  // !BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_WIN)
   registry_util::RegistryOverrideManager registry_override_manager_;
 #endif  // BUILDFLAG(IS_WIN)
@@ -179,9 +145,6 @@ class ChunkedPolicyPrefsTest : public PolicyPrefsTest,
                                public ::testing::WithParamInterface<size_t> {
  public:
   ChunkedPolicyPrefsTest() {
-#if BUILDFLAG(IS_CHROMEOS)
-    feature_list_.InitAndEnableFeature(ash::features::kCameraCloudStorage);
-#endif
   }
   ChunkedPolicyPrefsTest(const ChunkedPolicyPrefsTest&) = delete;
   ChunkedPolicyPrefsTest& operator=(const ChunkedPolicyPrefsTest&) = delete;
@@ -189,11 +152,7 @@ class ChunkedPolicyPrefsTest : public PolicyPrefsTest,
 
  protected:
   PrefMappingChunkInfo chunk_info_{GetParam(), GetNumChunks()};
-#if BUILDFLAG(IS_CHROMEOS)
-  base::test::ScopedFeatureList feature_list_;
-#else
   policy::FakeBrowserDMTokenStorage storage_;
-#endif
 };
 
 // Verifies that policies make their corresponding preferences become managed,
@@ -206,9 +165,7 @@ class ChunkedPolicyPrefsTest : public PolicyPrefsTest,
 IN_PROC_BROWSER_TEST_P(ChunkedPolicyPrefsTest, PolicyToPrefsMapping) {
   base::ScopedAllowBlockingForTesting allow_blocking;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   policy::BrowserDMTokenStorage::SetForTesting(&storage_);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   PrefService* local_state = g_browser_process->local_state();
   PrefService* user_prefs = ProfileManager::GetLastUsedProfileIfLoaded()
@@ -226,39 +183,6 @@ INSTANTIATE_TEST_SUITE_P(Chunked,
                          ::testing::Range(/* start= */ static_cast<size_t>(0),
                                           /* end= */ GetNumChunks()));
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-// Class used to check policy to pref mappings for policies that are mapped into
-// the sign-in profile (usually via LoginProfilePolicyProvider).
-class SigninPolicyPrefsTest : public PolicyPrefsTest {
- public:
-  SigninPolicyPrefsTest() = default;
-  SigninPolicyPrefsTest(const SigninPolicyPrefsTest&) = delete;
-  SigninPolicyPrefsTest& operator=(const SigninPolicyPrefsTest&) = delete;
-  ~SigninPolicyPrefsTest() override = default;
-
- protected:
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    PolicyPrefsTest::SetUpCommandLine(command_line);
-
-    command_line->AppendSwitch(ash::switches::kLoginManager);
-    command_line->AppendSwitch(ash::switches::kForceLoginManagerInTests);
-  }
-};
-
-IN_PROC_BROWSER_TEST_F(SigninPolicyPrefsTest, PolicyToPrefsMapping) {
-  PrefService* signin_profile_prefs =
-      ash::ProfileHelper::GetSigninProfile()->GetPrefs();
-
-  // Only checking signin_profile_prefs here since |local_state| is already
-  // checked by PolicyPrefsTest.PolicyToPrefsMapping test.
-  VerifyPolicyToPrefMappings(GetTestCaseDir(), /* local_state= */ nullptr,
-                             /* user_prefs= */ nullptr, signin_profile_prefs,
-                             GetMockPolicyProvider(), /*chunk_info=*/nullptr,
-                             kPolicyPrefMappingBuildFlags);
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // For WebUI integration tests, see cr_policy_indicator_tests.js and
 // cr_policy_pref_indicator_tests.js.

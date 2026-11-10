@@ -91,16 +91,7 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/test/glic_user_session_test_helper.h"
-#include "chromeos/constants/chromeos_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/android/application_status_listener.h"
-#include "chrome/browser/glic/android/background_actuation_capability.h"
-#else
 #include "chrome/browser/sync/device_info_sync_service_factory.h"
 #include "chrome/test/base/scoped_metrics_service_for_synthetic_trials.h"  // nogncheck
 #include "components/sync_device_info/device_info_sync_service.h"
@@ -108,7 +99,6 @@
 #include "components/variations/active_field_trials.h"
 #include "components/variations/synthetic_trial_registry.h"
 #include "components/variations/variations_test_utils.h"
-#endif
 
 using base::test::FeatureRef;
 
@@ -168,12 +158,6 @@ class GlicEnablingTest : public testing::Test {
  public:
   void SetUp() override {
     base::CommandLine::ForCurrentProcess()->AppendSwitch(switches::kTestType);
-#if BUILDFLAG(IS_ANDROID)
-    if (base::android::android_info::sdk_int() <
-        base::android::android_info::SDK_VERSION_S) {
-      GTEST_SKIP() << "Glic requires Android S+";
-    }
-#endif
     // IsSystemRequirementMet() caches its answer in a function-local static,
     // so it is settled by whichever test in the process asks first and does
     // not see the feature state set up below. Pin it rather than depending on
@@ -191,17 +175,10 @@ class GlicEnablingTest : public testing::Test {
     scoped_feature_list_.InitWithFeatures(
         {
             features::kGlic,
-#if BUILDFLAG(IS_CHROMEOS)
-            chromeos::features::kFeatureManagementGlic,
-#endif  // BUILDFLAG(IS_CHROMEOS)
         },
-#if BUILDFLAG(IS_ANDROID)
-        {}
-#else
         // Disable smart restart metrics to prevent background D-Bus queries to
         // screensaver status, which causes asynchronous test flakiness.
         {features::kSmartRestart, features::kSmartRestartMetrics}
-#endif
     );
     histogram_tester_ = std::make_unique<base::HistogramTester>();
   }
@@ -514,7 +491,7 @@ TEST(GlicEnablingCountryListTest, MinorCountriesAreSubsetOfAllCountries) {
 // (e.g. whether a newly launched country should also be launched to minor
 // users), then update `kExpectedAdultOnlyCountries` below to match.
 TEST(GlicEnablingCountryListTest, AdultOnlyCountriesChangeDetector) {
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   // Minor access is enabled by default on ChromeOS, Mac, and Windows.
   constexpr std::string_view kExpectedAdultOnlyCountries =
       // Phase 2
@@ -645,19 +622,14 @@ class GlicEnablingProfileEligibilityTest : public testing::Test {
         /*enabled_features=*/
         {
             features::kGlic,
-#if BUILDFLAG(IS_CHROMEOS)
-            chromeos::features::kFeatureManagementGlic,
-#endif  // BUILDFLAG(IS_CHROMEOS)
         },
         /*disabled_features=*/{
             features::kGlicCountryFiltering,
             features::kGlicLocaleFiltering,
-#if !BUILDFLAG(IS_ANDROID)
             // Disable smart restart metrics to prevent background D-Bus queries
             // to screensaver status, which causes asynchronous test flakiness.
             features::kSmartRestart,
             features::kSmartRestartMetrics,
-#endif
         });
     // By default, assume the user is in a country with minor access.
     minor_feature_list_.InitAndEnableFeatureWithParameters(
@@ -667,12 +639,6 @@ class GlicEnablingProfileEligibilityTest : public testing::Test {
 
   void SetUp() override {
     base::CommandLine::ForCurrentProcess()->AppendSwitch(switches::kTestType);
-#if BUILDFLAG(IS_ANDROID)
-    if (base::android::android_info::sdk_int() <
-        base::android::android_info::SDK_VERSION_S) {
-      GTEST_SKIP() << "Glic requires Android S+";
-    }
-#endif
     // IsSystemRequirementMet() caches its answer in a function-local static,
     // so it is settled by whichever test in the process asks first and does
     // not see the feature state set up above. Pin it rather than depending on
@@ -683,10 +649,6 @@ class GlicEnablingProfileEligibilityTest : public testing::Test {
         TestingBrowserProcess::GetGlobal()->SetUpGlobalFeaturesForTesting(
             /*profile_manager=*/true);
 
-#if BUILDFLAG(IS_CHROMEOS)
-    glic_user_session_test_helper_.PreProfileSetUp(
-        testing_profile_manager->profile_manager());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     profile_ = testing_profile_manager->CreateTestingProfile(
         TestingProfile::kDefaultProfileUserName, CreatePrefService(),
@@ -717,9 +679,6 @@ class GlicEnablingProfileEligibilityTest : public testing::Test {
 
     TestingBrowserProcess::GetGlobal()->TearDownGlobalFeaturesForTesting();
 
-#if BUILDFLAG(IS_CHROMEOS)
-    glic_user_session_test_helper_.PostProfileTearDown();
-#endif  // BUILDFLAG(IS_CHROMEOS)
     FlushMessageLoop();
     task_environment_.RunUntilIdle();
   }
@@ -741,9 +700,6 @@ class GlicEnablingProfileEligibilityTest : public testing::Test {
   content::BrowserTaskEnvironment task_environment_;
   base::test::ScopedFeatureList scoped_feature_list_;
   base::test::ScopedFeatureList minor_feature_list_;
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::GlicUserSessionTestHelper glic_user_session_test_helper_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   raw_ptr<TestingProfile> profile_ = nullptr;
 };
 
@@ -810,12 +766,10 @@ TEST_F(GlicEnablingProfileEligibilityTest, WasPreviouslyNotAllowedTest) {
   EXPECT_FALSE(GlicEnabling::WasPreviouslyNotAllowed(profile()));
 
   // 7. Sign out.
-#if !BUILDFLAG(IS_CHROMEOS)
   signin::ClearPrimaryAccount(identity_test_env->identity_manager());
 
   // 8. Even after signing out, WasPreviouslyNotAllowed should remain false.
   EXPECT_FALSE(GlicEnabling::WasPreviouslyNotAllowed(profile()));
-#endif
 }
 
 TEST_F(GlicEnablingProfileEligibilityTest,
@@ -982,9 +936,6 @@ class GlicEnablingAnchorEntryPointTestBase : public testing::Test {
         /*enabled_features=*/
         {
             features::kGlicRollout,
-#if BUILDFLAG(IS_CHROMEOS)
-            chromeos::features::kFeatureManagementGlic,
-#endif  // BUILDFLAG(IS_CHROMEOS)
         },
         /*disabled_features=*/{
             features::kGlic,  // Explicitly disable kGlic to fail global
@@ -997,31 +948,19 @@ class GlicEnablingAnchorEntryPointTestBase : public testing::Test {
             // GlicEnablingAnchorEntryPointCountryTest.
             features::kGlicCountryFiltering,
             features::kGlicLocaleFiltering,
-#if !BUILDFLAG(IS_ANDROID)
             // Disable smart restart metrics to prevent background D-Bus queries
             // to screensaver status, which causes asynchronous test flakiness.
             features::kSmartRestart,
             features::kSmartRestartMetrics,
-#endif
         });
   }
 
   void SetUp() override {
     base::CommandLine::ForCurrentProcess()->AppendSwitch(switches::kTestType);
-#if BUILDFLAG(IS_ANDROID)
-    if (base::android::android_info::sdk_int() <
-        base::android::android_info::SDK_VERSION_S) {
-      GTEST_SKIP() << "Glic requires Android S+";
-    }
-#endif
     raw_ptr<TestingProfileManager> testing_profile_manager =
         TestingBrowserProcess::GetGlobal()->SetUpGlobalFeaturesForTesting(
             /*profile_manager=*/true);
 
-#if BUILDFLAG(IS_CHROMEOS)
-    glic_user_session_test_helper_.PreProfileSetUp(
-        testing_profile_manager->profile_manager());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     profile_ = testing_profile_manager->CreateTestingProfile(
         TestingProfile::kDefaultProfileUserName,
@@ -1050,9 +989,6 @@ class GlicEnablingAnchorEntryPointTestBase : public testing::Test {
     profile_ = nullptr;
     FlushMessageLoop();
     TestingBrowserProcess::GetGlobal()->TearDownGlobalFeaturesForTesting();
-#if BUILDFLAG(IS_CHROMEOS)
-    glic_user_session_test_helper_.PostProfileTearDown();
-#endif  // BUILDFLAG(IS_CHROMEOS)
     FlushMessageLoop();
   }
 
@@ -1065,9 +1001,6 @@ class GlicEnablingAnchorEntryPointTestBase : public testing::Test {
  private:
   content::BrowserTaskEnvironment task_environment_;
   base::test::ScopedFeatureList scoped_feature_list_;
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::GlicUserSessionTestHelper glic_user_session_test_helper_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   raw_ptr<TestingProfile> profile_ = nullptr;
 };
 
@@ -1321,7 +1254,6 @@ TEST_F(GlicEnablingAnchorEntryPointTestBase,
       GlicEnabling::EnablementForProfile(profile()).ShouldShowGlicButton());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(GlicEnablingTrustFirstOnboardingTest,
        NotSignedIn_ReturnsSignInRequired) {
   base::test::ScopedFeatureList scoped_feature_list;
@@ -1357,7 +1289,6 @@ TEST_F(GlicEnablingTrustFirstOnboardingTest,
             mojom::ProfileReadyState::kIneligible);
   EXPECT_FALSE(GlicEnabling::IsEnabledForProfile(profile()));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(GlicEnablingTrustFirstOnboardingTest,
        IsEnabledAndConsentForProfile_NotConsented_ReturnsFalse) {
@@ -1375,7 +1306,6 @@ TEST_F(GlicEnablingTrustFirstOnboardingTest,
   EXPECT_TRUE(GlicEnabling::IsEnabledAndConsentForProfile(profile()));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(GlicEnablingTrustFirstOnboardingTest, ResetFreOnSignOut) {
   auto& enabling = glic::GlicKeyedService::Get(profile())->enabling();
   enabling.SetCompletedFre(prefs::FreStatus::kCompleted);
@@ -1384,13 +1314,8 @@ TEST_F(GlicEnablingTrustFirstOnboardingTest, ResetFreOnSignOut) {
       IdentityManagerFactory::GetForProfile(profile());
   signin::ClearPrimaryAccount(identity_manager);
 
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(enabling.GetCompletedFre(), prefs::FreStatus::kNotStarted);
-#else
   EXPECT_EQ(enabling.GetCompletedFre(), prefs::FreStatus::kCompleted);
-#endif
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 struct GatedFeatureParams {
   std::string name;
@@ -1635,7 +1560,6 @@ TEST_F(GlicEnablingProfileEligibilityTest,
   EXPECT_FALSE(enabling.IsExperimentalTriggeringUserControlled());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(GlicEnablingProfileEligibilityTest,
        ExperimentalTriggering_ProfileTeardownNoCrash) {
   // The actor policy control exemption makes the experimental triggering state
@@ -1674,7 +1598,6 @@ TEST_F(GlicEnablingProfileEligibilityTest,
   // 2. Trigger GlicEnabling state change post-shutdown.
   glic_service->enabling().SetExperimentalTriggeringEnabled(false);
 }
-#endif
 
 TEST_F(GlicEnablingProfileEligibilityTest, ConsentChangedCallback) {
   bool callback_called = false;
@@ -1693,7 +1616,6 @@ TEST_F(GlicEnablingProfileEligibilityTest, ConsentChangedCallback) {
   EXPECT_TRUE(callback_called);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(GlicEnablingProfileEligibilityTest,
        DefaultHotkeyScopeSyntheticTrial_Unconsented) {
   base::test::ScopedFeatureList feature_list;
@@ -1831,7 +1753,6 @@ TEST_F(GlicEnablingProfileEligibilityTest,
           ->GetCurrentSyntheticFieldTrialsForTest(),
       kGlicHotkeyDefaultScopeTrialName));
 }
-#endif
 
 // Enables GEiC in the constructor, i.e. before `SetUp()` creates the profile:
 // creating the profile latches its Glic provider (`GlicProviderLatch`), so
@@ -2457,81 +2378,6 @@ TEST_F(GlicEnablingProfileReadyStateTestBase,
   EXPECT_TRUE(enabling.GetExperimentalTriggeringEnabled());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-class ScopedCanActuateInBackgroundForTesting {
- public:
-  explicit ScopedCanActuateInBackgroundForTesting(bool can) { Set(can); }
-  ~ScopedCanActuateInBackgroundForTesting() {
-    BackgroundActuationCapability::SetCanActuateInBackgroundForTesting(
-        std::nullopt);
-  }
-  void Set(bool can) {
-    BackgroundActuationCapability::SetCanActuateInBackgroundForTesting(can);
-  }
-};
-
-// Sets up `enabling` so that `GetExperimentalTriggeringState()` returns
-// `kReady`.
-void SetUpExperimentalTriggeringReady(Profile* profile,
-                                      GlicEnabling& enabling) {
-  enabling.SetCompletedFre(prefs::FreStatus::kCompleted);
-  profile->GetPrefs()->SetBoolean(prefs::kGlicUserEnabledActuationOnWeb, true);
-  profile->GetPrefs()->SetBoolean(prefs::kGlicExperimentalTriggeringEnabled,
-                                  true);
-}
-
-// `kGlicExperimentalTriggering` and `kGlicBackgroundActuation` are enabled
-// before `GlicEnabling` is created, so it creates a working
-// `BackgroundActuationCapability`.
-class GlicEnablingBackgroundActuationTest
-    : public GlicEnablingProfileReadyStateTestBase {
- public:
-  GlicEnablingBackgroundActuationTest()
-      : GlicEnablingProfileReadyStateTestBase(
-            {features::kGlicExperimentalTriggering,
-             features::kGlicBackgroundActuation}) {}
-
- protected:
-  // Set before GlicEnabling is created.
-  ScopedCanActuateInBackgroundForTesting can_actuate_in_background_{true};
-};
-
-TEST_F(GlicEnablingBackgroundActuationTest,
-       CapabilityChangeNotifiesStateObservers) {
-  auto& enabling = glic::GlicKeyedService::Get(profile())->enabling();
-  SetUpExperimentalTriggeringReady(profile(), enabling);
-  // Waits for the read posted at construction.
-  ASSERT_TRUE(base::test::RunUntil([&]() {
-    return enabling.GetExperimentalTriggeringCapabilities().contains(
-        kGlicCapabilityBackgroundActuation);
-  }));
-
-  int state_changed_count = 0;
-  auto subscription = enabling.RegisterOnExperimentalTriggeringStateChanged(
-      base::BindLambdaForTesting(
-          [&state_changed_count]() { ++state_changed_count; }));
-
-  // Notifications turned off: the cached value isn't re-read until a refresh.
-  can_actuate_in_background_.Set(false);
-  EXPECT_TRUE(enabling.GetExperimentalTriggeringCapabilities().contains(
-      kGlicCapabilityBackgroundActuation));
-  // Returning to the foreground re-reads the value.
-  base::android::ApplicationStatusListener::NotifyApplicationStateChange(
-      base::android::APPLICATION_STATE_HAS_RUNNING_ACTIVITIES);
-  EXPECT_TRUE(base::test::RunUntil([&]() {
-    return !enabling.GetExperimentalTriggeringCapabilities().contains(
-        kGlicCapabilityBackgroundActuation);
-  }));
-  // The state stays kReady, but the capabilities changed, so observers (which
-  // re-upload DeviceInfo) are notified.
-  EXPECT_EQ(state_changed_count, 1);
-  EXPECT_EQ(enabling.GetExperimentalTriggeringState(),
-            syncer::DeviceInfo::GlicExperimentalTriggeringState::kReady);
-  EXPECT_FALSE(enabling.GetExperimentalTriggeringCapabilities().contains(
-      kGlicCapabilityBackgroundActuation));
-}
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Checks the experimental triggering capabilities for every combination of
 // experimental triggering state, kGlicExperimentalTriggeringScreenshot, and (on
@@ -2599,11 +2445,6 @@ class GlicEnablingExperimentalTriggeringCapabilitiesTest
     return disabled;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Set before GlicEnabling is created, because GlicEnabling caches it.
-  ScopedCanActuateInBackgroundForTesting can_actuate_in_background_override_{
-      CanActuateInBackground()};
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 TEST_P(GlicEnablingExperimentalTriggeringCapabilitiesTest,
@@ -2630,16 +2471,6 @@ TEST_P(GlicEnablingExperimentalTriggeringCapabilitiesTest,
     if (IsScreenshotEnabled()) {
       expected.insert(kGlicCapabilityScreenshot);
     }
-#if BUILDFLAG(IS_ANDROID)
-    if (CanActuateInBackground()) {
-      expected.insert(kGlicCapabilityBackgroundActuation);
-      // The value is read by a deferred task posted at construction.
-      ASSERT_TRUE(base::test::RunUntil([&]() {
-        return enabling.GetExperimentalTriggeringCapabilities().contains(
-            kGlicCapabilityBackgroundActuation);
-      }));
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
   }
   EXPECT_EQ(enabling.GetExperimentalTriggeringCapabilities(), expected);
 }
@@ -2653,12 +2484,8 @@ INSTANTIATE_TEST_SUITE_P(
             syncer::DeviceInfo::GlicExperimentalTriggeringState::kNeedsOptIn,
             syncer::DeviceInfo::GlicExperimentalTriggeringState::kReady),
         /*screenshot_enabled=*/testing::Bool(),
-#if BUILDFLAG(IS_ANDROID)
-        /*can_actuate_in_background=*/testing::Bool()),
-#else
         // Background actuation is only reported on Android.
         /*can_actuate_in_background=*/testing::Values(false)),
-#endif  // BUILDFLAG(IS_ANDROID)
     &GlicEnablingExperimentalTriggeringCapabilitiesTest::ParamName);
 
 // Fixture without the actor policy control exemption, so that the experimental
@@ -3850,10 +3677,6 @@ TEST_F(GlicEnablingRecoveryMetricsTest, RecoveryFromSignInRequired) {
   base::HistogramTester histogram_tester;
 
   // 2. Transition to kSignInRequired by clearing the primary account
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS we cannot clear primary account easily, so we skip
-  // kSignInRequired tests on ChromeOS.
-#else
   auto* identity_test_env = identity_test_env_adaptor_->identity_test_env();
   identity_test_env->ClearPrimaryAccount();
 
@@ -3892,7 +3715,6 @@ TEST_F(GlicEnablingRecoveryMetricsTest, RecoveryFromSignInRequired) {
       .MaybeRecordRecoveryOnInteraction();
   histogram_tester.ExpectTotalCount("Glic.ProfileEnablement.RecoveredFromState",
                                     1);
-#endif
 }
 
 TEST_F(GlicEnablingRecoveryMetricsTest, RecoveryFromIneligibleAccount) {
@@ -4508,10 +4330,8 @@ TEST_F(GlicEnablingGeicPolicyTest,
   identity_test_env->SetInvalidRefreshTokenForPrimaryAccount();
   EXPECT_EQ(callback_count, 0);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   identity_test_env->ClearPrimaryAccount();
   EXPECT_EQ(callback_count, 0);
-#endif
 }
 
 // Gemini Enterprise is not anchored: without the Glic feature the profile is
@@ -4662,71 +4482,6 @@ TEST_F(GlicEnablingGeicPolicyFeatureDisabledTest,
   EXPECT_GT(callback_count, 0);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST(GlicAndroidFormFactorTest, PhoneAndDesktopAllowedWithoutTabletFlag) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(features::kGlicAndroidTablet);
-
-  EXPECT_TRUE(GlicGlobalEnabling::IsAndroidFormFactorAllowed(
-      ui::DEVICE_FORM_FACTOR_PHONE, /*is_foldable=*/false));
-  EXPECT_TRUE(GlicGlobalEnabling::IsAndroidFormFactorAllowed(
-      ui::DEVICE_FORM_FACTOR_DESKTOP, /*is_foldable=*/false));
-}
-
-TEST(GlicAndroidFormFactorTest, TabletRequiresTabletFlag) {
-  {
-    base::test::ScopedFeatureList feature_list;
-    feature_list.InitAndDisableFeature(features::kGlicAndroidTablet);
-    EXPECT_FALSE(GlicGlobalEnabling::IsAndroidFormFactorAllowed(
-        ui::DEVICE_FORM_FACTOR_TABLET, /*is_foldable=*/false));
-  }
-  {
-    base::test::ScopedFeatureList feature_list;
-    feature_list.InitAndEnableFeature(features::kGlicAndroidTablet);
-    EXPECT_TRUE(GlicGlobalEnabling::IsAndroidFormFactorAllowed(
-        ui::DEVICE_FORM_FACTOR_TABLET, /*is_foldable=*/false));
-  }
-}
-
-// An unfolded foldable reports DEVICE_FORM_FACTOR_TABLET, but should be allowed
-// without the tablet flag.
-TEST(GlicAndroidFormFactorTest, UnfoldedFoldableAllowedWithoutTabletFlag) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(features::kGlicAndroidTablet);
-
-  EXPECT_TRUE(GlicGlobalEnabling::IsAndroidFormFactorAllowed(
-      ui::DEVICE_FORM_FACTOR_TABLET, /*is_foldable=*/true));
-}
-
-TEST(GlicAndroidFormFactorTest, FoldedFoldableAllowedWithoutTabletFlag) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(features::kGlicAndroidTablet);
-
-  EXPECT_TRUE(GlicGlobalEnabling::IsAndroidFormFactorAllowed(
-      ui::DEVICE_FORM_FACTOR_PHONE, /*is_foldable=*/true));
-}
-
-TEST(GlicAndroidFormFactorTest, FoldableFormFactorAllowedWithoutTabletFlag) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(features::kGlicAndroidTablet);
-
-  EXPECT_TRUE(GlicGlobalEnabling::IsAndroidFormFactorAllowed(
-      ui::DEVICE_FORM_FACTOR_FOLDABLE, /*is_foldable=*/false));
-}
-
-// TV, automotive, and XR are not supported, even with the tablet flag enabled.
-TEST(GlicAndroidFormFactorTest, UnsupportedFormFactorsNotAllowed) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(features::kGlicAndroidTablet);
-
-  EXPECT_FALSE(GlicGlobalEnabling::IsAndroidFormFactorAllowed(
-      ui::DEVICE_FORM_FACTOR_TV, /*is_foldable=*/false));
-  EXPECT_FALSE(GlicGlobalEnabling::IsAndroidFormFactorAllowed(
-      ui::DEVICE_FORM_FACTOR_AUTOMOTIVE, /*is_foldable=*/false));
-  EXPECT_FALSE(GlicGlobalEnabling::IsAndroidFormFactorAllowed(
-      ui::DEVICE_FORM_FACTOR_XR, /*is_foldable=*/false));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST_F(GlicEnablingProfileEligibilityTest, StartupMetricsProviderSplit) {
   base::HistogramTester histogram_tester;

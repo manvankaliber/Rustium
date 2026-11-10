@@ -17,10 +17,6 @@ class COMPONENT_EXPORT(UI_BASE_CLIPBOARD) ClipboardObserver {
   // other buffers such as `ClipboardBuffer::kSelection`).
   virtual void OnClipboardDataChanged();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Override notified when clipboard data is read.
-  virtual void OnClipboardDataRead();
-#endif
 
  protected:
   virtual ~ClipboardObserver();

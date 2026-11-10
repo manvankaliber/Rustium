@@ -15,9 +15,6 @@
 #include "media/audio/alsa/audio_manager_alsa.h"
 #endif
 
-#if BUILDFLAG(USE_CRAS)
-#include "media/audio/cras/audio_manager_cras.h"
-#endif
 
 #if defined(USE_PULSEAUDIO)
 #include "media/audio/pulse/audio_manager_pulse.h"
@@ -36,12 +33,6 @@ std::unique_ptr<media::AudioManager> CreateAudioManager(
                                               audio_log_factory);
   }
 
-#if BUILDFLAG(USE_CRAS)
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kUseCras)) {
-    return std::make_unique<AudioManagerCras>(std::move(audio_thread),
-                                              audio_log_factory);
-  }
-#endif  // BUILDFLAG(USE_CRAS)
 
 #if defined(USE_PULSEAUDIO)
   pa_threaded_mainloop* pa_mainloop = nullptr;

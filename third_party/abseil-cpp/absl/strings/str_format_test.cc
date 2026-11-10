@@ -67,7 +67,7 @@ TEST_F(FormatEntryPointTest, UntypedFormat) {
     "",
     "a",
     "%80d",
-#if !defined(_MSC_VER) && !defined(__ANDROID__)
+#if !defined(_MSC_VER)
     // MSVC and Android don't support positional syntax.
     "complicated multipart %% %1$d format %1$0999d",
 #endif  // _MSC_VER
@@ -268,7 +268,7 @@ TEST_F(FormatEntryPointTest, Stream) {
     "a",
     "%80d",
     "%d %u %c %s %f %g",
-#if !defined(_MSC_VER) && !defined(__ANDROID__)
+#if !defined(_MSC_VER)
     // MSVC and Android don't support positional syntax.
     "complicated multipart %% %1$d format %1$080d",
 #endif  // _MSC_VER
@@ -644,10 +644,8 @@ TEST(StrFormat, BehavesAsDocumented) {
   //     a/A - lower,upper case hex    Eg: -3.0 -> "-0x1.8p+1"/"-0X1.8P+1"
 
 // On Android platform <=21, there is a regression in hexfloat formatting.
-#if !defined(__ANDROID_API__) || __ANDROID_API__ > 21
   EXPECT_EQ(StrFormat("%.1a", -3.0), "-0x1.8p+1");  // .1 to fix MSVC output
   EXPECT_EQ(StrFormat("%.1A", -3.0), "-0X1.8P+1");  // .1 to fix MSVC output
-#endif
 
   // Other conversion
   int64_t value = 0x7ffdeb4;

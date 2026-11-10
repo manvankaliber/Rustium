@@ -49,13 +49,7 @@
           <include name="IDR_DEFAULT_BROWSER_SHOWCASE_CHROME" file="${branding_path_component}/default_browser_showcase_chrome.png" type="BINDATA" />
           <include name="IDR_PRODUCT_LOGO_128PX_SVG" file="${branding_path_component}/chrome_128px.svg" type="BINDATA" />
           <include name="IDR_GSHIELD_ICON_SVG" file="${branding_path_component}/gshield.svg" type="BINDATA" />
-          <if expr="is_chromeos">
-            <include name="IDR_PRODUCT_LOGO_24PX_1X" file="${branding_path_component}/chromeos/chrome_24px_1x.svg" type="BINDATA" />
-            <include name="IDR_PRODUCT_LOGO_24PX_2X" file="${branding_path_component}/chromeos/chrome_24px_2x.svg" type="BINDATA" />
-            <!-- Used by ChromeOS OOBE -->
-            <include name="IDR_CROS_OOBE_PRODUCT_NAME" file="${branding_path_component}/chromeos/oobe/project_simon/product_name.txt" type="BINDATA" />
-            <include name="IDR_CROS_OOBE_WELCOME_BACKDROP" file="${branding_path_component}/chromeos/oobe/project_simon/welcome_backdrop.svg" type="BINDATA" />
-          </if>
+
             <include name="IDR_PRODUCT_LOGO_16_STABLE_SHORTCUTS" file="google_chrome/product_logo_16.png" type="BINDATA" />
             <include name="IDR_PRODUCT_LOGO_CANARY_16_SHORTCUTS" file="google_chrome/product_logo_16_canary.png" type="BINDATA" />
             <include name="IDR_PRODUCT_LOGO_DEV_16_SHORTCUTS" file="google_chrome/product_logo_16_dev.png" type="BINDATA" />
@@ -97,12 +91,7 @@
       <!-- NOTE: product_logo_*.* files beyond what's listed above are
           referenced by installer code; don't remove them unless you know
           what you're doing! -->
-      <if expr="is_chromeos">
-        <include name="IDR_CHROME_APP_ICON_32" file="${branding_path_component}/chromeos/chrome_app_icon_32.png" type="BINDATA" />
-        <include name="IDR_CHROME_APP_ICON_192" file="${branding_path_component}/chromeos/chrome_app_icon_192.png" type="BINDATA" />
-        <include name="IDR_WEBSTORE_APP_ICON_16" file="${branding_path_component}/chromeos/webstore_app_icon_16.png" type="BINDATA" />
-        <include name="IDR_WEBSTORE_APP_ICON_128" file="${branding_path_component}/chromeos/webstore_app_icon_128.png" type="BINDATA" />
-      </if>
+
       <if expr="is_win">
         <!-- Double-size profile avatar images used for generating .ico
              files for Windows profile shortcuts. Included here because
@@ -142,21 +131,7 @@
         <include name="IDR_APPS_FOLDER_OVERLAY_128" file="mac/apps_folder_overlay_128.png" type="BINDATA" />
         <include name="IDR_APPS_FOLDER_OVERLAY_512" file="mac/apps_folder_overlay_512.png" type="BINDATA" />
       </if>
-      <if expr="is_chromeos">
-        <include name="IDR_LOGO_CROSH" file="chromium/chromeos/crosh_app_icon_256.png" type="BINDATA" />
-        <!-- Borealis icons -->
-        <include name="IDR_LOGO_BOREALIS_DEFAULT_192" file="borealis/logo_borealis_default_192.png" type="BINDATA" />
-        <include name="IDR_LOGO_BOREALIS_STEAM_192" file="borealis/logo_borealis_steam_192.png" type="BINDATA" />
-        <include name="IDR_LOGO_BOREALIS_STEAM_PENDING_192" file="borealis/logo_borealis_steam_pending_192.png" type="BINDATA" />
-        <!-- Bruschetta icons -->
-        <include name="IDR_LOGO_BRUSCHETTA_DEFAULT" file="bruschetta/logo_bruschetta_default.png" type="BINDATA" />
-        <!-- Crostini icons -->
-        <include name="IDR_LOGO_CROSTINI_TERMINAL" file="crostini/ic_terminal_256.png" type="BINDATA" />
-        <include name="IDR_LOGO_CROSTINI_DEFAULT" file="crostini/ic_linux_256.png" type="BINDATA" />
-        <include name="IDR_CROSTINI_ICON" file="crostini/ic_linux.svg" type="BINDATA" />
-        <include name="IDR_LINUX_ILLUSTRATION" file="crostini/linux_illustration_2x.png" type="BINDATA" />
-        <include name="IDR_LINUX_SUCCESS_ILLUSTRATION" file="crostini/linux_success_illustration.svg" type="BINDATA" />
-      </if>
+
     </includes>
   </release>
 </grit>

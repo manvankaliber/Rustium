@@ -33,11 +33,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_EXTENSIONS_CORE)
-#include "base/feature_list.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "chrome/browser/search/search.h"
-#endif
 
 namespace {
 
@@ -57,7 +52,6 @@ struct RawPrepopulatedPage {
 
 // Prepopulated pages are a Desktop concept. On Android they are only available
 // where the extensions platform is built in, i.e. on Desktop Android.
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 constexpr auto kRawPrepopulatedPages = std::to_array<RawPrepopulatedPage>({
     {
         IDS_WEBSTORE_URL,
@@ -68,33 +62,12 @@ constexpr auto kRawPrepopulatedPages = std::to_array<RawPrepopulatedPage>({
 });
 
 bool ShouldUsePrepopulatedPages(Profile* profile) {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/573330311): Add prepopulated pages for 1P WebUI NTPs.
-  // On Desktop Android, prepopulated pages are only used by the WebUI NTP for
-  // 3P DSEs, which mirrors the Desktop WebUI NTP behavior. The 1P WebUI NTP
-  // will need to eventually show prepopulated pages to achieve feature parity
-  // with Desktop.
-  if (search::IsWebUiNtpEnabledForDesktopAndroid() &&
-      base::FeatureList::IsEnabled(chrome::android::kUseWebUiNtp3PDSE)) {
-    // NOTE: TopSites is created once per profile, so this decision reflects
-    // the DSE at startup. If the user switches between a 1P and a 3P DSE at
-    // runtime, the prepopulated pages stay stale until the next restart: 1P
-    // DSE users keep seeing them and 3P DSE users do not get them yet. DSE
-    // changes are rare, and once crbug.com/573330311 is fixed the decision no
-    // longer depends on the DSE, so this goes away.
-    return !search::DefaultSearchProviderIsGoogle(profile);
-  }
-  return false;
-#else
   return true;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
-#endif  // !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
 void InitializePrepopulatedPageList(
     Profile* profile,
     history::PrepopulatedPageList* prepopulated_pages) {
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   if (!ShouldUsePrepopulatedPages(profile)) {
     return;
   }
@@ -114,7 +87,6 @@ void InitializePrepopulatedPageList(
         GURL(l10n_util::GetStringUTF8(page.url_id)),
         l10n_util::GetStringUTF16(page.title_id), page.favicon_id, page.color));
   }
-#endif  // !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 }
 
 }  // namespace

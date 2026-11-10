@@ -36,10 +36,8 @@ TEST(ActorMetricsTest, CheckToolRequestVariantNames) {
   ASSERT_TRUE(tool_requests.has_value());
 // Skip this check in Android, as unmigrated tools appear in the XML file but
 // not in actor::ToolRequestVariant.
-#if !BUILDFLAG(SKIP_ANDROID_UNMIGRATED_ACTOR_FILES)
   EXPECT_EQ(std::variant_size_v<actor::ToolRequestVariant>,
             tool_requests->size());
-#endif
 
   CheckToolRequestVariantNamesImpl(
       *tool_requests, std::make_index_sequence<

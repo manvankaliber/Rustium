@@ -121,11 +121,6 @@
 #include "ui/views/widget/widget.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/ash_element_identifiers.h"
-#include "ui/base/interaction/element_tracker.h"
-#include "ui/strings/grit/ui_strings.h"
-#endif
 
 namespace {
 // The amount of vertical padding in dips the separator should have to
@@ -1251,40 +1246,6 @@ void TabGroupEditorBubbleView::OnBrowserDidClose(
   browser_ = nullptr;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void TabGroupEditorBubbleView::PreventCloseOnDeactivateForEmoji() {
-  if (!close_on_deactivate_pin_) {
-    close_on_deactivate_pin_ = PreventCloseOnDeactivate();
-  }
-
-  if (!emoji_picker_hidden_subscription_) {
-    emoji_picker_hidden_subscription_ =
-        ui::ElementTracker::GetElementTracker()
-            ->AddElementHiddenInAnyContextCallback(
-                ash::kEmojiPickerElementId,
-                base::BindRepeating(
-                    &TabGroupEditorBubbleView::OnEmojiPickerClosed,
-                    base::Unretained(this)));
-  }
-}
-
-void TabGroupEditorBubbleView::ClearCloseOnDeactivatePin() {
-  close_on_deactivate_pin_.reset();
-}
-
-void TabGroupEditorBubbleView::OnEmojiPickerClosed(
-    ui::TrackedElement* element) {
-  emoji_picker_hidden_subscription_ = {};
-
-  ClearCloseOnDeactivatePin();
-
-  // Close the editor bubble if it is no longer active, i.e. when the user
-  // clicks elsewhere, off of both the bubble and emoji picker.
-  if (GetWidget() && !(GetWidget()->IsActive())) {
-    GetWidget()->Close();
-  }
-}
-#endif
 
 tab_groups::TabGroupColorId TabGroupEditorBubbleView::InitColorSet() {
   colors_.clear();
@@ -1374,15 +1335,6 @@ void TabGroupEditorBubbleView::TitleField::ShowContextMenu(
   views::Textfield::ShowContextMenu(p, source_type);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void TabGroupEditorBubbleView::TitleField::ExecuteCommand(int command_id,
-                                                          int event_flags) {
-  if (command_id == IDS_CONTENT_CONTEXT_EMOJI) {
-    parent_->PreventCloseOnDeactivateForEmoji();
-  }
-  views::Textfield::ExecuteCommand(command_id, event_flags);
-}
-#endif
 
 std::unique_ptr<TabGroupEditorBubbleView::TitleField>
 TabGroupEditorBubbleView::BuildTitleField(const std::u16string& title) {

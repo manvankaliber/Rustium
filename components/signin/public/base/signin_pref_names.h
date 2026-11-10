@@ -11,10 +11,6 @@
 
 namespace prefs {
 
-#if BUILDFLAG(IS_CHROMEOS)
-COMPONENT_EXPORT(SIGNIN_SWITCHES)
-extern const char kAccountIdMigrationState[];
-#endif
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kAccountInfo[];
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
@@ -33,10 +29,6 @@ COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kAccountPreviewSelectionHeuristicScoresLastRecordedPref[];
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kAccountPreviewSwitchingHeuristicLastRecordedPref[];
-#if BUILDFLAG(IS_ANDROID)
-COMPONENT_EXPORT(SIGNIN_SWITCHES)
-extern const char kAccountPreviewExternalAppAccount[];
-#endif
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kGaiaCookieHash[];
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
@@ -47,12 +39,10 @@ COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kGoogleServicesAccountId[];
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kGoogleServicesConsentedToSync[];
-#if !BUILDFLAG(IS_IOS)
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kGoogleServicesLastSyncingGaiaId[];
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kGoogleServicesLastSyncingUsername[];
-#endif  // !BUILDFLAG(IS_IOS)
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kGoogleServicesLastSignedInUsername[];
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
@@ -69,14 +59,6 @@ COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kHistorySyncLastDeclinedTimestamp[];
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kHistorySyncSuccessiveDeclineCount[];
-#if BUILDFLAG(IS_IOS)
-COMPONENT_EXPORT(SIGNIN_SWITCHES)
-extern const char kRestrictAccountsToPatterns[];
-COMPONENT_EXPORT(SIGNIN_SWITCHES)
-extern const char kSigninAllowedOnDevice[];
-COMPONENT_EXPORT(SIGNIN_SWITCHES)
-extern const char kBrowserSigninPolicy[];
-#endif  // BUILDFLAG(IS_IOS)
 COMPONENT_EXPORT(SIGNIN_SWITCHES)
 extern const char kSignedInWithCredentialProvider[];
 COMPONENT_EXPORT(SIGNIN_SWITCHES)

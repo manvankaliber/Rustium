@@ -17,8 +17,4 @@ source_set("unit_tests") {
     "//components/enterprise/isolated_mode",
     "//testing/gtest",
   ]
-
-  if (is_chromeos) {
-    deps += [ "//chromeos/ash/components/system" ]
-  }
 }

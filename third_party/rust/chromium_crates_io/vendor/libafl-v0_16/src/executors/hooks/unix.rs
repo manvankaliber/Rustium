@@ -220,11 +220,7 @@ pub mod unix_signal_handler {
         unsafe {
             let msg = "DEBUG: inproc_crash_handler enter\n";
             libc::write(2, msg.as_ptr() as *const _, msg.len());
-            #[cfg(all(target_os = "android", target_arch = "aarch64"))]
-            let _context = _context.map(|p| {
-                &mut *(((core::ptr::from_mut(p) as *mut libc::c_void as usize) + 128)
-                    as *mut libc::c_void as *mut ucontext_t)
-            });
+
 
             log::error!("Crashed with {signal}");
             if data.is_valid() {
@@ -269,9 +265,8 @@ pub mod unix_signal_handler {
             } else {
                 {
                     log::error!("Double crash\n");
-                    #[cfg(target_os = "android")]
-                    let si_addr = (_info._pad[0] as i64) | ((_info._pad[1] as i64) << 32);
-                    #[cfg(not(target_os = "android"))]
+
+
                     let si_addr = { _info.si_addr() as usize };
 
                     log::error!(

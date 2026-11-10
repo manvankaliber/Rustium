@@ -36,8 +36,8 @@
 #include "base/trace_event/memory_dump_provider.h"
 #include "media/base/limits.h"
 #include "media/base/video_decoder_config.h"
-#include "media/gpu/chromeos/fourcc.h"
-#include "media/gpu/chromeos/image_processor.h"
+#include "media/gpu/linux/fourcc.h"
+#include "media/gpu/linux/image_processor.h"
 #include "media/gpu/gpu_video_decode_accelerator_helpers.h"
 #include "media/gpu/media_gpu_export.h"
 #ifdef SUPPORT_MT21_PIXEL_FORMAT_SOFTWARE_DECOMPRESSION

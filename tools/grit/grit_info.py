@@ -29,7 +29,6 @@ def Outputs(
   ids_file,
   target_platform=None,
   translate_genders=False,
-  android_output_zip_path=None,
 ):
   grd = grd_reader.Parse(
     filename,
@@ -40,14 +39,7 @@ def Outputs(
     translate_genders=translate_genders,
   )
 
-  target = [
-    i.GetFilename()
-    for i in grd.GetOutputFiles()
-    if i.GetType() != 'android' or android_output_zip_path is None
-  ]
-
-  if android_output_zip_path is not None:
-    target.append(android_output_zip_path)
+  target = [i.GetFilename() for i in grd.GetOutputFiles()]
 
   return [t.replace('\\', '/') for t in target]
 
@@ -239,9 +231,6 @@ def DoMain(argv):
   parser.add_option(
     "--translate-genders", action="store_true", dest="translate_genders"
   )
-  parser.add_option(
-    "--android-output-zip-path", dest="android_output_zip_path", default=None
-  )
 
   options, args = parser.parse_args(argv)
 
@@ -337,7 +326,6 @@ def DoMain(argv):
         options.ids_file,
         options.target_platform,
         options.translate_genders,
-        options.android_output_zip_path,
       )
     ]
     return '\n'.join(outputs)

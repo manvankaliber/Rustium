@@ -124,23 +124,6 @@ bool ValidateGeoposition(const device::mojom::blink::Geoposition& position) {
          position.accuracy >= 0. && !position.timestamp.is_null();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// On Android, `enableHighAccuracy` previously always returned a precise
-// location. With the `ApproximateGeolocationPermissionEnabled` feature, the
-// location provider reuses the same accuracy setting but can return precise or
-// approximate locations. To ensure consistent accuracy for sites before and
-// after this feature, we override the accuracy setting here.
-PositionOptions* OverrideAccuracyHint(const PositionOptions* options) {
-  PositionOptions* copied_options = PositionOptions::Create();
-  copied_options->setTimeout(options->timeout());
-  copied_options->setMaximumAge(options->maximumAge());
-  copied_options->setEnableHighAccuracy(true);
-  if (RuntimeEnabledFeatures::ApproximateGeolocationWebVisibleAPIEnabled()) {
-    copied_options->setAccuracyMode(options->accuracyMode());
-  }
-  return copied_options;
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -242,13 +225,7 @@ void Geolocation::getCurrentPositionForBindings(
     V8PositionErrorCallback* error_callback,
     const PositionOptions* v8_options) {
   const PositionOptions* options =
-#if BUILDFLAG(IS_ANDROID)
-      RuntimeEnabledFeatures::ApproximateGeolocationPermissionEnabled()
-          ? OverrideAccuracyHint(v8_options)
-          : v8_options;
-#else
       v8_options;
-#endif
   if (options->enableHighAccuracy()) {
     UseCounter::Count(GetExecutionContext(),
                       WebFeature::kGeolocationGetCurrentPositionHighAccuracy);
@@ -293,13 +270,7 @@ int Geolocation::watchPositionForBindings(
     V8PositionErrorCallback* error_callback,
     const PositionOptions* v8_options) {
   const PositionOptions* options =
-#if BUILDFLAG(IS_ANDROID)
-      RuntimeEnabledFeatures::ApproximateGeolocationPermissionEnabled()
-          ? OverrideAccuracyHint(v8_options)
-          : v8_options;
-#else
       v8_options;
-#endif
   if (options->enableHighAccuracy()) {
     UseCounter::Count(GetExecutionContext(),
                       WebFeature::kGeolocationWatchPositionHighAccuracy);

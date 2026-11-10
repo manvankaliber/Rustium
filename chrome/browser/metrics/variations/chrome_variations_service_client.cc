@@ -28,14 +28,8 @@
 #include "components/version_info/version_info.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/upgrade_detector/build_state.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/install_attributes/install_attributes.h"
-#include "chromeos/ash/components/settings/cros_settings.h"
-#endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 #include "base/enterprise_util.h"
@@ -46,11 +40,9 @@ ChromeVariationsServiceClient::ChromeVariationsServiceClient() = default;
 ChromeVariationsServiceClient::~ChromeVariationsServiceClient() = default;
 
 base::Version ChromeVariationsServiceClient::GetVersionForSimulation() {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   const auto* build_state = g_browser_process->GetBuildState();
   if (build_state->installed_version().has_value())
     return *build_state->installed_version();
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
   // TODO(asvitkine): Get the version that will be used on restart instead of
   // the current version on Android, iOS and ChromeOS.
@@ -70,13 +62,7 @@ ChromeVariationsServiceClient::GetNetworkTimeTracker() {
 
 bool ChromeVariationsServiceClient::OverridesRestrictParameter(
     std::string* parameter) {
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::CrosSettings::Get()->GetString(ash::kVariationsRestrictParameter,
-                                      parameter);
-  return true;
-#else
   return false;
-#endif
 }
 
 base::FilePath ChromeVariationsServiceClient::GetVariationsSeedFileDir() {
@@ -93,8 +79,6 @@ ChromeVariationsServiceClient::TakeSeedFromNativeVariationsSeedStore() {
 bool ChromeVariationsServiceClient::IsEnterprise() {
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   return base::IsEnterpriseDevice();
-#elif BUILDFLAG(IS_CHROMEOS)
-  return ash::InstallAttributes::Get()->IsEnterpriseManaged();
 #else
   return false;
 #endif
@@ -106,11 +90,7 @@ ChromeVariationsServiceClient::GetAllProfilesKeys(PrefService* local_state) {
 }
 
 bool ChromeVariationsServiceClient::IsChromeEnterpriseCoreSupported() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return false;
-#else
   return true;
-#endif
 }
 
 metrics::MetricsService::RotateUmaLogResult

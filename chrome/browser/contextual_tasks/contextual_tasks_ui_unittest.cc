@@ -26,6 +26,7 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service_factory.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_utils.h"
+#include "chrome/browser/contextual_tasks/contextual_tasks_web_contents_user_data.h"
 #include "chrome/browser/contextual_tasks/list_accounts_response.pb.h"
 #include "chrome/browser/contextual_tasks/mock_contextual_tasks_page.h"
 #include "chrome/browser/contextual_tasks/mock_contextual_tasks_panel_controller.h"
@@ -35,19 +36,10 @@
 #include "chrome/browser/signin/chrome_signin_client_factory.h"
 #include "chrome/browser/signin/chrome_signin_client_test_util.h"
 #include "chrome/browser/signin/identity_test_environment_profile_adaptor.h"
-#include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
-#include "mojo/public/cpp/bindings/receiver.h"
-#include "mojo/public/cpp/bindings/remote.h"
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/contextual_tasks/contextual_tasks_web_contents_user_data.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"  // nogncheck
 #include "chrome/browser/ui/actions/chrome_actions.h"    // nogncheck
+#include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
 #include "chrome/browser/ui/toolbar/pinned_toolbar/pinned_toolbar_actions_model.h"  // nogncheck
-#include "chrome/test/user_education/mock_browser_user_education_interface.h"
-#include "components/feature_engagement/public/feature_constants.h"
-#include "third_party/lens_server_proto/search_communication.pb.h"
-#include "ui/actions/actions.h"  // nogncheck
-#endif
 #include "chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.h"
 #include "chrome/browser/ui/webui/webui_embedding_context.h"
 #include "chrome/common/webui_url_constants.h"
@@ -55,6 +47,7 @@
 #include "chrome/test/base/testing_browser_process.h"
 #include "chrome/test/base/testing_profile.h"
 #include "chrome/test/base/testing_profile_manager.h"
+#include "chrome/test/user_education/mock_browser_user_education_interface.h"
 #include "components/contextual_search/contextual_search_types.h"
 #include "components/contextual_search/mock_contextual_search_session_handle.h"
 #include "components/contextual_tasks/public/contextual_task.h"
@@ -62,6 +55,7 @@
 #include "components/contextual_tasks/public/features.h"
 #include "components/contextual_tasks/public/mock_contextual_tasks_service.h"
 #include "components/contextual_tasks/public/prefs.h"
+#include "components/feature_engagement/public/feature_constants.h"
 #include "components/lens/lens_overlay_mime_type.h"
 #include "components/omnibox/browser/mock_aim_eligibility_service.h"
 #include "components/omnibox/common/composebox_features.h"
@@ -82,6 +76,8 @@
 #include "content/public/test/web_contents_tester.h"
 #include "google_apis/gaia/gaia_constants.h"
 #include "google_apis/gaia/gaia_urls.h"
+#include "mojo/public/cpp/bindings/receiver.h"
+#include "mojo/public/cpp/bindings/remote.h"
 #include "net/base/url_util.h"
 #include "net/cookies/canonical_cookie.h"
 #include "net/cookies/cookie_options.h"
@@ -92,7 +88,9 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "third_party/blink/public/mojom/css/preferred_color_scheme.mojom.h"
+#include "third_party/lens_server_proto/search_communication.pb.h"
 #include "third_party/skia/include/core/SkBitmap.h"
+#include "ui/actions/actions.h"  // nogncheck
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
@@ -101,10 +99,6 @@
 #include "ui/webui/tracked_element/tracked_element_handler.h"
 #include "ui/webui/tracked_element/tracked_element_handler_document_singleton.h"
 #include "url/gurl.h"
-
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 using testing::_;
 using testing::Optional;
@@ -140,10 +134,7 @@ class MockContextualTasksComposeboxHandler
               SetAimThreadRestoredTabs,
               (std::vector<searchbox::mojom::TabInfoPtr>),
               (override));
-  MOCK_METHOD(std::vector<int32_t>,
-              GetSelectedTabIds,
-              (),
-              (const, override));
+  MOCK_METHOD(std::vector<int32_t>, GetSelectedTabIds, (), (const, override));
 };
 
 class MockTaskInfoDelegate : public TaskInfoDelegate {
@@ -279,12 +270,12 @@ class FakeContextualTasksPermissionController
   bool last_clicked_is_mouse_interaction = false;
   uint32_t last_clicked_state_token = 0;
 
-  std::optional<toolbar_ui_api::mojom::LhsChipIdentifier>
-  last_pointer_entered() const {
+  std::optional<toolbar_ui_api::mojom::LhsChipIdentifier> last_pointer_entered()
+      const {
     return last_pointer_entered_;
   }
-  std::optional<toolbar_ui_api::mojom::LhsChipIdentifier>
-  last_pointer_exited() const {
+  std::optional<toolbar_ui_api::mojom::LhsChipIdentifier> last_pointer_exited()
+      const {
     return last_pointer_exited_;
   }
 
@@ -1090,61 +1081,6 @@ TEST_F(ContextualTasksUiTest, AreUrlsEqual) {
       GURL("https://google.com/search?udm=50&q=test&extra=1")));
 }
 
-TEST_F(ContextualTasksUiTest, GetContextualTasksLoadTimeData) {
-  base::DictValue load_time_data =
-      ContextualTasksUI::GetContextualTasksLoadTimeData(profile_);
-
-  // The in-panel WebUI voice search UI is only used on Android devices with the
-  // desktop form factor; it is always false elsewhere.
-  const bool expect_webui_voice_search =
-      contextual_tasks::IsAndroidDesktopFormFactor();
-
-  // Only set when the in-panel WebUI voice search UI in desktop Android is
-  // active. It drives audio wave simulation, since that UI cannot open its own
-  // microphone stream.
-  std::optional<bool> android_speech_recognition =
-      load_time_data.FindBool("androidSpeechRecognition");
-  ASSERT_TRUE(android_speech_recognition.has_value());
-  EXPECT_EQ(android_speech_recognition.value(), expect_webui_voice_search);
-
-  // Android phones delegate to the platform voice recognition activity.
-  std::optional<bool> is_system_voice_search_enabled =
-      load_time_data.FindBool("isSystemVoiceSearchEnabled");
-  ASSERT_TRUE(is_system_voice_search_enabled.has_value());
-  EXPECT_EQ(is_system_voice_search_enabled.value(),
-            !!BUILDFLAG(IS_ANDROID) && !expect_webui_voice_search);
-}
-
-#if BUILDFLAG(IS_ANDROID)
-// Covers the path the feature actually ships: a desktop Android device with
-// the flag on, which swaps the platform voice recognition activity for the
-// in-panel WebUI voice search UI.
-TEST_F(ContextualTasksUiTest,
-       GetContextualTasksLoadTimeData_WebUiVoiceSearchOnDesktopAndroid) {
-  // `IsAndroidDesktopFormFactor()` reads `ui::GetDeviceFormFactor()`, which
-  // reports the desktop form factor when `device_info::is_desktop()` is set.
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::ScopedClosureRunner reset_form_factor(base::BindOnce(
-      &base::android::device_info::reset_is_desktop_for_testing));
-
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(
-      contextual_tasks::kContextualTasksWebUiVoiceSearchDesktopAndroid);
-
-  base::DictValue load_time_data =
-      ContextualTasksUI::GetContextualTasksLoadTimeData(profile_);
-
-  // The WebUI voice search UI is active, so it must simulate the audio wave
-  // rather than open a second microphone stream.
-  EXPECT_THAT(load_time_data.FindBool("androidSpeechRecognition"),
-              Optional(true));
-  // If androidSpeechRecognition is true, the platform recognition activity must
-  // not also be used.
-  EXPECT_THAT(load_time_data.FindBool("isSystemVoiceSearchEnabled"),
-              Optional(false));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
 #if BUILDFLAG(ENABLE_WEBUI_CONTEXTUAL_TASKS_COMPOSEBOX)
 TEST_F(ContextualTasksUiTest,
        GetContextualTasksLoadTimeData_CobrowsingOnlyCoherence) {
@@ -1186,7 +1122,6 @@ TEST_F(ContextualTasksUiTest, ShouldClearAllInputsOnSubmit) {
     EXPECT_EQ(load_time_data.FindBool("clearAllInputsWhenSubmittingQuery"),
               true);
 
-#if !BUILDFLAG(IS_ANDROID)
     // Omnibox page action entrypoint should retain inputs.
     EXPECT_FALSE(ContextualTasksUI::ShouldClearAllInputsOnSubmit(
         lens::LensOverlayInvocationSource::kOmniboxPageAction));
@@ -1196,7 +1131,6 @@ TEST_F(ContextualTasksUiTest, ShouldClearAllInputsOnSubmit) {
         lens::LensOverlayInvocationSource::kAppMenu));
     EXPECT_TRUE(ContextualTasksUI::ShouldClearAllInputsOnSubmit(
         lens::LensOverlayInvocationSource::kToolbar));
-#endif
   }
 
   {
@@ -3096,7 +3030,6 @@ TEST_F(ContextualTasksUiTest,
   embedded_web_contents_->SetDelegate(nullptr);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualTasksUiTest, PinSidePanel) {
   InitializeActionIdStringMapping();
   base::test::ScopedFeatureList scoped_feature_list;
@@ -3628,7 +3561,6 @@ TEST_F(ContextualTasksUiTest, OnSidePanelPinStateChanged_FeatureDisabled) {
 
   actions::ActionIdMap::ResetMapsForTesting();
 }
-#endif
 
 TEST_F(ContextualTasksUiTest, OpenMyActivityUi_NoBrowser_SafeNoOp) {
   content::TestWebUI web_ui;
@@ -3696,7 +3628,6 @@ TEST_F(ContextualTasksUiTest, MoveTaskUiToNewTab_CallsUiService) {
 
 // MockToolbarPage and the toolbar page remote are desktop-only, so these tests
 // cannot be compiled on Android.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualTasksUiTest, OnAiPageStatusChanged) {
   content::TestWebUI web_ui;
   web_ui.set_web_contents(embedded_web_contents_.get());
@@ -3723,7 +3654,6 @@ TEST_F(ContextualTasksUiTest, NotifyAiPageStatusChanged_Unbound_SafeNoOp) {
   auto contextual_tasks_ui = std::make_unique<ContextualTasksUI>(&web_ui);
   contextual_tasks_ui->NotifyAiPageStatusChanged(true);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ContextualTasksUiTest, ShowThreadHistory_SafeNoOp) {
   content::TestWebUI web_ui;
@@ -3969,7 +3899,6 @@ TEST_F(ContextualTasksUiTest, OnLogoPointerDown_Legacy) {
 
 // ContextualTasksUI::UpdateExpandButtonEnabled() only forwards to the toolbar
 // page on desktop, so this test would hang waiting on the mock on Android.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualTasksUiTest, UpdateExpandButtonEnabled) {
   content::TestWebUI web_ui;
   web_ui.set_web_contents(embedded_web_contents_.get());
@@ -4000,7 +3929,6 @@ TEST_F(ContextualTasksUiTest, UpdateExpandButtonEnabled) {
   ui_interface->UpdateExpandButtonEnabled(false);
   run_loop_false.Run();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ContextualTasksUiTest, CreateNewThread_NoPanelController_SafeNoOp) {
   content::TestWebUI web_ui;
@@ -4252,7 +4180,6 @@ TEST_F(ContextualTasksUiTest,
   base_ui->MaybeTriggerPinningPromo();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualTasksUiTest, MaybeTriggerPinningPromo_PanelClosed) {
   testing::NiceMock<MockContextualTasksPanelController> mock_panel_controller;
   content::TestWebUI web_ui;
@@ -4513,8 +4440,8 @@ TEST_F(ContextualTasksUiTest, MaybeTriggerPinningPromo_PinningV2Disabled) {
   EXPECT_CALL(mock_panel_controller, IsPanelOpenForContextualTask())
       .WillOnce(Return(true));
 
-  // The pinning promo is NOT expected to be tried when kContextualTasksPinningV2
-  // is disabled.
+  // The pinning promo is NOT expected to be tried when
+  // kContextualTasksPinningV2 is disabled.
   EXPECT_CALL(
       mock_user_education,
       MaybeShowFeaturePromo(
@@ -4793,11 +4720,12 @@ TEST_F(ContextualTasksUiTest,
   TriggerOnInnerWebContentsCreated(&controller, embedded_web_contents_.get());
 
   auto expect_promo = [&](int times) {
-    auto& expectation = EXPECT_CALL(
-        mock_user_education,
-        MaybeShowFeaturePromo(
-            testing::Matcher<user_education::FeaturePromoParams>(testing::_)))
-        .Times(times);
+    auto& expectation =
+        EXPECT_CALL(mock_user_education,
+                    MaybeShowFeaturePromo(
+                        testing::Matcher<user_education::FeaturePromoParams>(
+                            testing::_)))
+            .Times(times);
     if (times > 0) {
       expectation.WillRepeatedly(Return(true));
     }
@@ -4906,7 +4834,6 @@ TEST_F(ContextualTasksUiTest,
 
   actions::ActionIdMap::ResetMapsForTesting();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ContextualTasksUiTest, ProfileIndicator_SignedOutInitially) {
   content::TestWebUI web_ui;
@@ -5525,7 +5452,6 @@ TEST_F(ContextualTasksUiTest,
   EXPECT_EQ(test_url_loader_factory_.NumPending(), 0);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualTasksUiTest, ShowThreadHistory_NoPanelController_SafeNoOp) {
   content::TestWebUI web_ui;
   web_ui.set_web_contents(embedded_web_contents_.get());
@@ -5757,7 +5683,6 @@ TEST_F(ContextualTasksUiTest, TrackedElementsRegistered_PostRearchitecture) {
   ASSERT_TRUE(handler);
   EXPECT_NE(handler->context(), ui::ElementContext());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace {
 

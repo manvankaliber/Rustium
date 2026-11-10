@@ -16,9 +16,6 @@
 #include "chrome/browser/notifications/scheduler/public/notification_data.h"
 #include "chrome/browser/notifications/scheduler/public/notification_scheduler_constant.h"
 #include "chrome/browser/segmentation_platform/segmentation_platform_service_factory.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/tips/core/tips_prefs.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 #include "components/segmentation_platform/internal/database/ukm_database.h"
 #include "components/segmentation_platform/public/features.h"
 #include "components/segmentation_platform/public/service_proxy.h"
@@ -172,9 +169,6 @@ void TipsServiceTestBase::SetUp() {
           real_segmentation_service_);
   service_ = std::make_unique<TipsService>(&pref_service_,
                                            test_segmentation_service_.get());
-#if BUILDFLAG(IS_ANDROID)
-  tips::prefs::RegisterProfilePrefs(pref_service_.registry());
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void TipsServiceTestBase::TearDown() {

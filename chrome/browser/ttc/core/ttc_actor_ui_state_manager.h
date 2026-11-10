@@ -24,9 +24,7 @@ class TtcActorUiStateManager : public actor::ui::ActorUiStateManagerInterface {
   void OnUiEvent(actor::ui::AsyncUiEvent event,
                  actor::ui::UiCompleteCallback callback) override;
   void OnUiEvent(actor::ui::SyncUiEvent event) override;
-#if !BUILDFLAG(IS_ANDROID)
   void LazyInitTabTracker() override;
-#endif
   base::WeakPtr<actor::ActorNavigationThrottle::Delegate>
   GetNavigationDelegate() override;
 };

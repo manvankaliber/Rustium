@@ -118,11 +118,7 @@ RenderWidgetHostDelegate::GetDevicePostureProvider() {
 }
 
 bool RenderWidgetHostDelegate::GetResizable() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return false;
-#else
   return true;
-#endif
 }
 
 bool RenderWidgetHostDelegate::GetIsAlwaysOnTopPopup() {
@@ -206,10 +202,5 @@ bool RenderWidgetHostDelegate::ShouldDoLearning() {
   return true;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-gfx::PointF RenderWidgetHostDelegate::GetCurrentTouchSequenceOffset() {
-  return gfx::PointF();
-}
-#endif
 
 }  // namespace content

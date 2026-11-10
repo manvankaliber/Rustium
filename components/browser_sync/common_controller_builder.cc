@@ -86,10 +86,8 @@
 #include "components/sync_user_events/user_event_service.h"
 #include "components/variations/service/google_groups_manager.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/webauthn/core/browser/passkey_data_type_controller.h"
 #include "components/webauthn/core/browser/passkey_model.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
 #include "components/supervised_user/core/browser/family_link_settings_data_type_controller.h"
@@ -163,7 +161,6 @@ AutofillWalletMetadataDelegateFromDataService(
       ->GetControllerDelegate();
 }
 
-#if !BUILDFLAG(IS_IOS)
 base::WeakPtr<syncer::DataTypeControllerDelegate>
 AutofillWalletUsageDataDelegateFromDataService(
     autofill::AutofillWebDataService* service) {
@@ -172,7 +169,6 @@ AutofillWalletUsageDataDelegateFromDataService(
       ->change_processor()
       ->GetControllerDelegate();
 }
-#endif
 
 base::WeakPtr<syncer::DataTypeControllerDelegate>
 ContactInfoDelegateFromDataService(autofill::AutofillWebDataService* service) {
@@ -211,11 +207,7 @@ bool ArePreferencesAllowedInTransportMode() {
           switches::kEnablePreferencesAccountStorage)) {
     return false;
   }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return syncer::IsReplaceSyncPromosWithSignInPromosEnabled();
-#else
   return true;
-#endif
 }
 
 }  // namespace
@@ -337,12 +329,10 @@ void CommonControllerBuilder::SetNotebooksService(
   notebooks_service_.Set(notebooks_service);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void CommonControllerBuilder::SetPasskeyModel(
     webauthn::PasskeyModel* passkey_model) {
   passkey_model_.Set(passkey_model);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void CommonControllerBuilder::SetPasswordReceiverService(
     password_manager::PasswordReceiverService* password_receiver_service) {
@@ -456,12 +446,10 @@ CommonControllerBuilder::Build(syncer::DataTypeSet disabled_types,
         CreateAutofillWalletMetadataDataTypeController(sync_service));
   }
 
-#if !BUILDFLAG(IS_IOS)
   if (!disabled_types.Has(syncer::AUTOFILL_WALLET_USAGE) &&
       !disabled_types.Has(syncer::AUTOFILL_WALLET_DATA)) {
     add_controller(CreateAutofillWalletUsageDataTypeController(sync_service));
   }
-#endif
 
   if (!disabled_types.Has(syncer::AUTOFILL_WALLET_CREDENTIAL) &&
       !disabled_types.Has(syncer::AUTOFILL_WALLET_DATA)) {
@@ -594,17 +582,13 @@ CommonControllerBuilder::Build(syncer::DataTypeSet disabled_types,
     add_controller(CreateContextualTaskDataTypeController());
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (!disabled_types.Has(syncer::SKILL)) {
     add_controller(CreateSkillDataTypeController(sync_service));
   }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
   if (!disabled_types.Has(syncer::WEBAUTHN_CREDENTIAL)) {
     add_controller(CreateWebauthnCredentialDataTypeController(sync_service));
   }
-#endif
 
 #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
   add_controller(
@@ -711,7 +695,6 @@ CommonControllerBuilder::CreateAutofillWalletMetadataDataTypeController(
       syncer::IsReplaceSyncPromosWithSignInPromosEnabled());
 }
 
-#if !BUILDFLAG(IS_IOS)
 std::unique_ptr<syncer::DataTypeController>
 CommonControllerBuilder::CreateAutofillWalletUsageDataTypeController(
     syncer::SyncService* sync_service) {
@@ -723,7 +706,6 @@ CommonControllerBuilder::CreateAutofillWalletUsageDataTypeController(
       base::BindRepeating(&AutofillWalletUsageDataDelegateFromDataService),
       sync_service, /*with_transport_mode_support=*/true);
 }
-#endif
 
 std::unique_ptr<syncer::DataTypeController>
 CommonControllerBuilder::CreateAutofillWalletCredentialDataTypeController(
@@ -1028,11 +1010,6 @@ CommonControllerBuilder::CreateUserConsentsDataTypeController() {
 
 std::unique_ptr<syncer::DataTypeController>
 CommonControllerBuilder::CreateAutofillValuableDataTypeController() {
-#if BUILDFLAG(IS_IOS)
-  if (!base::FeatureList::IsEnabled(syncer::kSyncAutofillValuable)) {
-    return nullptr;
-  }
-#endif
   if (!profile_autofill_web_data_service_.value()) {
     return nullptr;
   }
@@ -1243,7 +1220,6 @@ CommonControllerBuilder::CreateAutofillEntitySuppressionDataTypeController() {
       std::make_unique<syncer::ForwardingDataTypeControllerDelegate>(delegate));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 std::unique_ptr<syncer::DataTypeController>
 CommonControllerBuilder::CreateSkillDataTypeController(
     syncer::SyncService* sync_service) {
@@ -1263,9 +1239,7 @@ CommonControllerBuilder::CreateSkillDataTypeController(
       /*delegate_for_transport_mode=*/
       std::make_unique<syncer::ForwardingDataTypeControllerDelegate>(delegate));
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 std::unique_ptr<syncer::DataTypeController>
 CommonControllerBuilder::CreateWebauthnCredentialDataTypeController(
     syncer::SyncService* sync_service) {
@@ -1281,7 +1255,6 @@ CommonControllerBuilder::CreateWebauthnCredentialDataTypeController(
       /*delegate_for_transport_mode=*/
       std::make_unique<syncer::ForwardingDataTypeControllerDelegate>(delegate));
 }
-#endif
 
 #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
 std::unique_ptr<syncer::DataTypeController>

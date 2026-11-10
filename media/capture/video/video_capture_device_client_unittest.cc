@@ -35,9 +35,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "media/capture/video/chromeos/video_capture_jpeg_decoder.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 using ::testing::_;
 using ::testing::AtLeast;
@@ -58,11 +55,6 @@ namespace {
 constexpr auto si_usage = gpu::SHARED_IMAGE_USAGE_CPU_WRITE_ONLY |
                           gpu::SHARED_IMAGE_USAGE_DISPLAY_READ;
 
-#if BUILDFLAG(IS_CHROMEOS)
-std::unique_ptr<VideoCaptureJpegDecoder> ReturnNullPtrAsJpecDecoder() {
-  return nullptr;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class FakeVideoCaptureBufferHandle : public VideoCaptureBufferHandle {
  public:
@@ -162,14 +154,8 @@ class VideoCaptureDeviceClientTest : public ::testing::Test {
     auto controller = std::make_unique<NiceMock<MockVideoFrameReceiver>>();
     receiver_ = controller.get();
     test_sii_ = base::MakeRefCounted<gpu::TestSharedImageInterface>();
-#if BUILDFLAG(IS_CHROMEOS)
-    device_client_ = std::make_unique<VideoCaptureDeviceClient>(
-        std::move(controller), buffer_pool,
-        base::BindRepeating(&ReturnNullPtrAsJpecDecoder));
-#else
     device_client_ = std::make_unique<VideoCaptureDeviceClient>(
         std::move(controller), buffer_pool);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 };
 
@@ -439,7 +425,7 @@ TEST_F(VideoCaptureDeviceClientTest, DataCaptureGoodPixelFormats) {
     PIXEL_FORMAT_NV21,
     PIXEL_FORMAT_YUY2,
     PIXEL_FORMAT_UYVY,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
     PIXEL_FORMAT_RGB24,
 #endif
     PIXEL_FORMAT_ARGB,

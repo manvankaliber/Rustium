@@ -16,18 +16,6 @@
 # $ for i in $(ls -1 testing/buildbot/filters/*.browser_tests.*filter ); \
 #   do echo "    \"//$i\","; done | sort
 
-source_set("android_browsertests_filters") {
-  testonly = true
-
-  data = [
-    "//testing/buildbot/filters/android.desktop.android_browsertests.filter",
-    "//testing/buildbot/filters/android.desktop.emulator_15.android_browsertests.filter",
-    "//testing/buildbot/filters/android.desktop.emulator_17.android_browsertests.filter",
-    "//testing/buildbot/filters/android.emulator_10.android_browsertests.filter",
-    "//testing/buildbot/filters/android.phone.android_browsertests.filter",
-  ]
-}
-
 source_set("cc_unittests_filters") {
   testonly = true
 

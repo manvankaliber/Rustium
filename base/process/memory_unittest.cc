@@ -36,13 +36,10 @@
 #include "partition_alloc/shim/allocator_interception_apple.h"
 #include "partition_alloc/shim/allocator_shim.h"
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <malloc.h>
 
 #include "base/test/malloc_wrapper.h"
-#endif
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
 #endif
 
 #if BUILDFLAG(IS_WIN)
@@ -182,12 +179,7 @@ class OutOfMemoryDeathTest : public OutOfMemoryTest {
 
   // These tests don't work properly on old x86 Android; crbug.com/1181112
   bool ShouldSkipTest() {
-#if BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_X86)
-    return base::android::android_info::sdk_int() <
-           base::android::android_info::SDK_VERSION_NOUGAT;
-#else
     return false;
-#endif
   }
 };
 
@@ -393,7 +385,7 @@ TEST_F(OutOfMemoryDeathTest, SecurityAlignedRealloc) {
 #endif  // BUILDFLAG(IS_WIN)
 #endif  // !BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 
 TEST_F(OutOfMemoryDeathTest, Valloc) {
   ASSERT_OOM_DEATH({
@@ -439,10 +431,10 @@ TEST_F(OutOfMemoryDeathTest, ViaSharedLibraries) {
     [[maybe_unused]] void* volatile ptr = MallocWrapper(test_size_);
   });
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 // Android doesn't implement posix_memalign().
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 TEST_F(OutOfMemoryDeathTest, Posix_memalign) {
   // Grab the return value of posix_memalign to silence a compiler warning
   // about unused return values. We don't actually care about the return
@@ -453,7 +445,7 @@ TEST_F(OutOfMemoryDeathTest, Posix_memalign) {
     EXPECT_EQ(ENOMEM, posix_memalign(&ptr, 8, test_size_));
   });
 }
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 #if BUILDFLAG(IS_MAC)
 
@@ -609,8 +601,7 @@ TEST_F(OutOfMemoryTest, TerminateBecauseOutOfMemoryReportsAllocSize) {
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if defined(ARCH_CPU_32_BITS) && \
-    (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS))
+#if defined(ARCH_CPU_32_BITS) && (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX))
 
 void TestAllocationsReleaseReservation(void* (*alloc_fn)(size_t),
                                        void (*free_fn)(void*)) {
@@ -673,32 +664,6 @@ TEST_F(OutOfMemoryHandledTest, NewReleasesReservation) {
 #endif  // defined(ARCH_CPU_32_BITS) && (BUILDFLAG(IS_WIN) ||
         // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS))
 
-#if BUILDFLAG(IS_ANDROID)
-
-// Android's allocator does not allow overcommits, so very large
-// UncheckedMallocs will yield OOM errors.
-// TODO(crbug.com/40143202): Fails on some Android bots.
-#define MAYBE_UncheckedMallocDies DISABLED_UncheckedMallocDies
-#define MAYBE_UncheckedCallocDies DISABLED_UncheckedCallocDies
-TEST_F(OutOfMemoryDeathTest, MAYBE_UncheckedMallocDies) {
-  ASSERT_OOM_DEATH({
-    SetUpInDeathAssert();
-    void* data;
-    std::ignore = base::UncheckedMalloc(test_size_, &data);
-    // Death expected here.
-  });
-}
-
-TEST_F(OutOfMemoryDeathTest, MAYBE_UncheckedCallocDies) {
-  ASSERT_OOM_DEATH({
-    SetUpInDeathAssert();
-    void* data;
-    std::ignore = base::UncheckedCalloc(1, test_size_, &data);
-    // Death expected here.
-  });
-}
-
-#else
 
 TEST_F(OutOfMemoryHandledTest, UncheckedMalloc) {
   void* ptr;
@@ -749,7 +714,6 @@ TEST_F(OutOfMemoryHandledTest, UncheckedAlignedAlloc) {
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#endif  // BUILDFLAG(IS_ANDROID)
 #endif  // !BUILDFLAG(IS_OPENBSD) && PA_BUILDFLAG(USE_ALLOCATOR_SHIM) &&
         // !PA_BUILDFLAG(MEMORY_TOOL_REPLACES_ALLOCATOR)
 

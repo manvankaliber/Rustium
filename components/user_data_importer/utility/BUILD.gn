@@ -145,25 +145,6 @@ zip("empty_test_archive") {
   output = "$root_out_dir/empty_test_archive.zip"
 }
 
-if (is_ios) {
-  bundle_data("test_archive_bundle_data") {
-    testonly = true
-    public_deps = [
-      ":empty_test_archive",
-      ":garbage_test_archive",
-      ":non_ascii_valid_test_archive",
-      ":valid_test_archive",
-    ]
-    sources = [
-      "$root_out_dir/empty_test_archive.zip",
-      "$root_out_dir/garbage_test_archive.zip",
-      "$root_out_dir/non_ascii测试文件.zip",
-      "$root_out_dir/valid_test_archive.zip",
-    ]
-    outputs = [ "{{bundle_resources_dir}}/{{source_file_part}}" ]
-  }
-}
-
 source_set("unit_tests") {
   testonly = true
   sources = [
@@ -203,24 +184,15 @@ source_set("unit_tests") {
     "//url",
   ]
 
-  if (is_ios) {
-    public_deps = [ "//components/user_data_importer/ios" ]
-    deps += [
-      ":test_archive_bundle_data",
-      "//components/password_manager/services/csv_password/ios:fake_password_parser_service",
-      "//ios/web/public/test",
-    ]
-  } else {
-    data_deps = [
-      ":garbage_test_archive",
-      ":valid_test_archive",
-    ]
-    deps += [
-      "//components/password_manager/services/csv_password:fake_password_parser_service",
-      "//components/user_data_importer/content",
-      "//components/user_data_importer/content:test_support",
-    ]
-  }
+  data_deps = [
+    ":garbage_test_archive",
+    ":valid_test_archive",
+  ]
+  deps += [
+    "//components/password_manager/services/csv_password:fake_password_parser_service",
+    "//components/user_data_importer/content",
+    "//components/user_data_importer/content:test_support",
+  ]
 
   if (use_blink) {
     deps += [ "//content/test:test_support" ]

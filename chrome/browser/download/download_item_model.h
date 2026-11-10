@@ -27,12 +27,10 @@ class WebContents;
 class DownloadItemModel : public DownloadUIModel,
                           public download::DownloadItem::Observer {
  public:
-#if !BUILDFLAG(IS_ANDROID)
   // How long an ephemeral warning is displayed on the download bubble on
   // Desktop.
   static constexpr base::TimeDelta kEphemeralWarningLifetimeOnBubble =
       base::Minutes(5);
-#endif
 
   static DownloadUIModelPtr Wrap(download::DownloadItem* download);
   static DownloadUIModelPtr Wrap(
@@ -85,11 +83,6 @@ class DownloadItemModel : public DownloadUIModel,
   download::DownloadItem::InsecureDownloadStatus GetInsecureDownloadStatus()
       const override;
   void OpenUsingPlatformHandler() override;
-#if BUILDFLAG(IS_CHROMEOS)
-  std::optional<DownloadCommands::Command> MaybeGetMediaAppAction()
-      const override;
-  void OpenUsingMediaApp() override;
-#endif
   bool IsBeingRevived() const override;
   void SetIsBeingRevived(bool is_being_revived) override;
   const download::DownloadItem* GetDownloadItem() const override;
@@ -121,7 +114,6 @@ class DownloadItemModel : public DownloadUIModel,
   offline_items_collection::FailState GetLastFailState() const override;
   std::u16string GetDownloadDomainForDisplay() const override;
 
-#if !BUILDFLAG(IS_ANDROID)
   bool IsCommandEnabled(const DownloadCommands* download_commands,
                         DownloadCommands::Command command) const override;
   bool IsCommandChecked(const DownloadCommands* download_commands,
@@ -133,7 +125,6 @@ class DownloadItemModel : public DownloadUIModel,
   bool ShouldShowInUi() const override;
   void SetShouldShowInUi(bool should_show) override;
   bool ShouldShowInBubble() const override;
-#endif
 
   bool IsEphemeralWarning() const override;
 

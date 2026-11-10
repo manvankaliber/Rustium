@@ -28,7 +28,6 @@
 #include "chrome/browser/policy/messaging_layer/util/test_request_payload.h"
 #include "chrome/browser/policy/messaging_layer/util/test_response_payload.h"
 #include "chrome/test/base/testing_browser_process.h"
-#include "chromeos/ash/components/system/statistics_provider.h"
 #include "components/policy/core/common/cloud/device_management_service.h"
 #include "components/policy/core/common/cloud/mock_cloud_policy_client.h"
 #include "components/policy/core/common/management/scoped_management_service_override_for_testing.h"
@@ -45,10 +44,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
-#include "chromeos/ash/components/system/statistics_provider.h"
-#endif
 
 using testing::ContainerEq;
 using testing::ElementsAre;
@@ -104,10 +99,6 @@ class FakeDelegate : public EncryptedReportingClient::Delegate {
 class EncryptedReportingClientTest : public ::testing::Test {
  protected:
   void SetUp() override {
-#if BUILDFLAG(IS_CHROMEOS)
-    fake_statistics_provider_.SetMachineStatistic(ash::system::kSerialNumberKey,
-                                                  "fake-serial-number");
-#endif
 
     memory_resource_ =
         base::MakeRefCounted<ResourceManager>(4uL * 1024uL * 1024uL);
@@ -225,9 +216,6 @@ class EncryptedReportingClientTest : public ::testing::Test {
   std::unique_ptr<policy::DeviceManagementService> device_management_service_;
   network::TestURLLoaderFactory url_loader_factory_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::system::ScopedFakeStatisticsProvider fake_statistics_provider_;
-#endif
 };
 
 TEST_F(EncryptedReportingClientTest, RegularUploads) {

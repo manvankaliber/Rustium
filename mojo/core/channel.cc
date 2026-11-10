@@ -262,8 +262,7 @@ bool ShouldRecordSubsampledHistograms() {
 
 }  // namespace
 
-#if BUILDFLAG(IS_ANDROID) || \
-    (BUILDFLAG(IS_LINUX) && defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION))
+#if BUILDFLAG(IS_LINUX) && defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION)
 
 namespace {
 
@@ -331,9 +330,7 @@ void Channel::Message::SetType(IpczHeader& header, MessageType message_type) {
   header.experimental_v3.message_type = message_type;
 }
 
-#else   // BUILDFLAG(IS_ANDROID) || \
-        //    (BUILDFLAG(IS_LINUX) && \
-        //     defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION))
+#else
 
 // static
 bool Channel::SupportsMultipleNotifiers() {
@@ -367,9 +364,7 @@ Channel::Message::MessageType Channel::Message::ExtractType(
 void Channel::Message::SetType(IpczHeader& header, MessageType message_type) {
   // No-op.
 }
-#endif  // BUILDFLAG(IS_ANDROID) || \
-        //    (BUILDFLAG(IS_LINUX) && \
-        //     defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION))
+#endif
 
 // static
 bool Channel::Message::IsExperimentalControlMessage(const IpczHeader& header) {
@@ -1300,7 +1295,7 @@ bool Channel::OnControlMessage(Message::MessageType message_type,
 }
 
 // Currently only CrOs, Linux, and Android support upgrades.
-#if !(BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID))
+#if !BUILDFLAG(IS_LINUX)
 // static
 MOJO_SYSTEM_IMPL_EXPORT bool Channel::SupportsChannelUpgrade() {
   return false;

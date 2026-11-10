@@ -4,8 +4,6 @@
 
 import("//build/config/chrome_build.gni")
 
-assert(!is_android || is_desktop_android, "Not supported on mobile")
-
 static_library("discovery") {
   inputs = [ "$root_gen_dir/chrome/grit/generated_resources.h" ]
   sources = [
@@ -80,12 +78,8 @@ static_library("discovery") {
     "//third_party/openscreen/src/cast/common/channel/proto:channel_proto",
   ]
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [ "discovery_network_list_wifi_linux.cc" ]
-  }
-
-  if (is_chromeos) {
-    deps += [ "//chromeos/ash/components/network" ]
   }
 
   if (is_posix) {

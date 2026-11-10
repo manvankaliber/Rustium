@@ -71,7 +71,6 @@ TEST(NetworkChangeNotifierTest, NetMaxBandwidthRange) {
   }
 }
 
-#if !BUILDFLAG(IS_IOS)
 // Tests that ConnectionTypeFromInterfaceList() works as expected.
 //
 // As the method is not available on iOS (as the connection type cannot be
@@ -105,9 +104,7 @@ TEST(NetworkChangeNotifierTest, ConnectionTypeFromInterfaceList) {
     }
   }
 }
-#endif
 
-#if !BUILDFLAG(IS_IOS)
 // Tests that ConnectionTypeFromInterfaceList() works as expected and that
 // the Teredo pseudo interface is ignored on Windows.
 //
@@ -129,9 +126,7 @@ TEST(NetworkChangeNotifierTest, IgnoreTeredoOnWindows) {
             NetworkChangeNotifier::ConnectionTypeFromInterfaceList(list));
 #endif
 }
-#endif
 
-#if !BUILDFLAG(IS_IOS)
 // Tests that ConnectionTypeFromInterfaceList() works as expected and that
 // Air Drop interfaces are ignored on macOS.
 //
@@ -157,9 +152,7 @@ TEST(NetworkChangeNotifierTest, IgnoreAirdropOnMac) {
             NetworkChangeNotifier::ConnectionTypeFromInterfaceList(list));
 #endif
 }
-#endif
 
-#if !BUILDFLAG(IS_IOS)
 // Tests that ConnectionTypeFromInterfaceList() works as expected and that
 // tunnel interfaces are ignored on macOS.
 //
@@ -185,9 +178,7 @@ TEST(NetworkChangeNotifierTest, IgnoreTunnelsOnMac) {
             NetworkChangeNotifier::ConnectionTypeFromInterfaceList(list));
 #endif
 }
-#endif
 
-#if !BUILDFLAG(IS_IOS)
 // Tests that ConnectionTypeFromInterfaceList() works as expected and that
 // disconnected ethernet interfaces are ignored on macOS.
 //
@@ -213,9 +204,7 @@ TEST(NetworkChangeNotifierTest, IgnoreDisconnectedEthernetOnMac) {
             NetworkChangeNotifier::ConnectionTypeFromInterfaceList(list));
 #endif
 }
-#endif
 
-#if !BUILDFLAG(IS_IOS)
 // Tests that ConnectionTypeFromInterfaceList() works as expected and that
 // VMWare virtual interfaces are ignored.
 //
@@ -239,7 +228,6 @@ TEST(NetworkChangeNotifierTest, IgnoreVMInterfaces) {
   EXPECT_EQ(NetworkChangeNotifier::CONNECTION_NONE,
             NetworkChangeNotifier::ConnectionTypeFromInterfaceList(list));
 }
-#endif
 
 TEST(NetworkChangeNotifierTest, GetConnectionSubtype) {
   // Call GetConnectionSubtype() and ensure that there is no crash.

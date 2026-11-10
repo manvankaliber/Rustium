@@ -4,67 +4,6 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_IOS_TVOS)
-#include <TargetConditionals.h>
-
-#if TARGET_OS_SIMULATOR
-// On tvOS, all posix_spawn*() functions except for posix_spawnp() are marked
-// unavailable, but the symbols and the implementation are present (but
-// unusable on tvOS device builds targeted for distribution due to App Store
-// restrictions on the use of multiple processes). posix_spawnp() is required
-// for the test launcher code to be able to launch multiple processes in the
-// simulator, but it is not fully usable without the functions marked
-// unavailable.
-//
-// Work around it by changing the availability annotation of the functions used
-// in this file before including <spawn.h>. This is done as early as possible
-// (i.e. before even including base/process/launch.h) to prevent <spawn.h> from
-// being indirectly included before we are able to declare a different
-// availability.
-//
-// Note: <spawn.h> is included as a system header together with the other
-// regular headers outside this block. The inclusion as a system header turns
-// off the availability warning that would normally be thrown by LLVM when the
-// header's function declarations with different availability annotations were
-// added. See the discussion in
-// https://chromium-review.googlesource.com/c/chromium/src/+/6687371/comment/6baf4b4c_8a60d02a/
-#include <Availability.h>
-#include <inttypes.h>
-#include <sys/types.h>
-
-extern "C" {
-
-using posix_spawnattr_t = void*;
-using posix_spawn_file_actions_t = void*;
-
-int posix_spawnattr_init(posix_spawnattr_t*) __API_AVAILABLE(tvos(1.0));
-int posix_spawnattr_destroy(posix_spawnattr_t*) __API_AVAILABLE(tvos(1.0));
-int posix_spawn_file_actions_destroy(posix_spawn_file_actions_t*)
-    __API_AVAILABLE(tvos(1.0));
-int posix_spawn_file_actions_init(posix_spawn_file_actions_t*)
-    __API_AVAILABLE(tvos(1.0));
-int posix_spawn_file_actions_adddup2(posix_spawn_file_actions_t*, int, int)
-    __API_AVAILABLE(tvos(1.0));
-int posix_spawn_file_actions_addopen(posix_spawn_file_actions_t*,
-                                     int,
-                                     const char*,
-                                     int,
-                                     mode_t) __API_AVAILABLE(tvos(1.0));
-int posix_spawn_file_actions_addinherit_np(posix_spawn_file_actions_t*, int)
-    __API_AVAILABLE(tvos(1.0));
-int posix_spawnattr_setpgroup(posix_spawnattr_t*, pid_t)
-    __API_AVAILABLE(tvos(1.0));
-int posix_spawnattr_setflags(posix_spawnattr_t*, short)
-    __API_AVAILABLE(tvos(1.0));
-int posix_spawnattr_set_csm_np(const posix_spawnattr_t*, uint32_t)
-    __API_AVAILABLE(tvos(1.0));
-
-}  // extern "C"
-
-#else
-#error This file is not supported on tvOS device builds.
-#endif  // TARGET_OS_SIMULATOR
-#endif  // BUILDFLAG(IS_IOS_TVOS)
 
 #include <crt_externs.h>
 #include <mach/mach.h>
@@ -370,20 +309,9 @@ Process LaunchProcess(const std::vector<std::string>& argv,
   pid_t pid;
   {
     const bool has_mach_ports_for_rendezvous =
-#if BUILDFLAG(IS_IOS_TVOS)
-        false
-#else
         !options.mach_ports_for_rendezvous.empty()
-#endif  // BUILDFLAG(IS_IOS_TVOS)
         ;
 
-#if BUILDFLAG(IS_IOS)
-    // This code is only used for the iOS simulator to launch tests. We do not
-    // support setting MachPorts on launch. You should look at
-    // content::ChildProcessLauncherHelper (for iOS) if you are trying to spawn
-    // a non-test and need ports.
-    CHECK(!has_mach_ports_for_rendezvous);
-#else
     // If `options.mach_ports_for_rendezvous` or `options.process_requirement`
     // is specified : the server's lock must be held for the duration of
     // posix_spawnp() so that new child's PID can be recorded with the set of
@@ -395,7 +323,6 @@ Process LaunchProcess(const std::vector<std::string>& argv,
         needs_rendezvous_lock
             ? &MachPortRendezvousServerMac::GetInstance()->GetLock()
             : nullptr);
-#endif
     // Use posix_spawnp as some callers expect to have PATH consulted.
     //
     // SAFETY: `new_environ.data()` points to the system's `environ` array,
@@ -407,7 +334,6 @@ Process LaunchProcess(const std::vector<std::string>& argv,
         owned_environ.empty() ? const_cast<char**>(new_environ.data())
                               : owned_environ.data());
 
-#if !BUILDFLAG(IS_IOS)
     if (needs_rendezvous_lock) {
       if (rv == 0) {
         MachPortRendezvousServerMac::GetInstance()->GetLock().AssertAcquired();
@@ -430,7 +356,6 @@ Process LaunchProcess(const std::vector<std::string>& argv,
         }
       }
     }
-#endif
   }
 
 #if !BUILDFLAG(IS_MAC)

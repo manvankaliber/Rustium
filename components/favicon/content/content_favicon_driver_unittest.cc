@@ -273,7 +273,6 @@ class ScopedNavigationStateChangeRecorder
 // Android and iOS don't use the NON_TOUCH_16_DIP handler, which is the only one
 // that notifies NavigationStateChanged(); their tab UIs observe the driver
 // directly.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(ContentFaviconDriverTest, FaviconInvalidationFlags) {
   constexpr unsigned kTab = content::INVALIDATE_TYPE_TAB;
   // INVALIDATE_TYPE_ICON should accompany the arrival of the first valid
@@ -317,7 +316,6 @@ TEST_F(ContentFaviconDriverTest, FaviconInvalidationFlags) {
     EXPECT_THAT(recorder.flags(), testing::ElementsAre(kTabAndIcon));
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 using ContentFaviconDriverTestNoFaviconService =
     content::RenderViewHostTestHarness;

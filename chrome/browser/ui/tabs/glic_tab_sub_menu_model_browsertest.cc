@@ -35,9 +35,6 @@
 #include "content/public/test/browser_test.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif
 
 namespace glic {
 
@@ -95,9 +92,6 @@ class GlicTabSubMenuModelTest : public InProcessBrowserTest {
   GlicTabSubMenuModelTest() {
     feature_list_.InitWithFeatures(
         /*enabled_features=*/{features::kGlic,
-#if BUILDFLAG(IS_CHROMEOS)
-                              chromeos::features::kFeatureManagementGlic
-#endif
         },
         /*disabled_features=*/{});
   }

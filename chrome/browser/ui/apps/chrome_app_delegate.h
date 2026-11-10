@@ -20,11 +20,6 @@ class Profile;
 class ScopedKeepAlive;
 class ScopedProfileKeepAlive;
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace policy {
-class DlpContentTabHelper;
-}  // namespace policy
-#endif
 
 class ChromeAppDelegate : public extensions::AppDelegate {
  public:
@@ -94,9 +89,6 @@ class ChromeAppDelegate : public extensions::AppDelegate {
   std::unique_ptr<ScopedKeepAlive> keep_alive_;
   std::unique_ptr<ScopedProfileKeepAlive> profile_keep_alive_;
   std::unique_ptr<NewWindowContentsDelegate> new_window_contents_delegate_;
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<policy::DlpContentTabHelper> dlp_content_tab_helper_;
-#endif
   base::OnceClosure terminating_callback_;
   base::CallbackListSubscription subscription_;
   base::WeakPtrFactory<ChromeAppDelegate> weak_factory_{this};

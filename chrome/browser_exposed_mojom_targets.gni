@@ -288,7 +288,7 @@ browser_exposed_mojom_targets = [
   "//services/webnn/public/mojom:mojom",
   "//skia/public/mojom:mojom",
   "//storage/browser/quota:mojo_bindings",
-  "//third_party/blink/public/mojom:android_mojo_bindings",
+  "//third_party/blink/public/mojom:shared_mojo_bindings",
   "//third_party/blink/public/mojom:authenticator_mojo_bindings",
   "//third_party/blink/public/mojom:color_scheme_mojo_bindings",
   "//third_party/blink/public/mojom:credentialmanagement_mojo_bindings",
@@ -352,19 +352,15 @@ browser_exposed_mojom_targets = [
   "//url/mojom:url_mojom_scheme_host_port",
 ]
 
-if (!is_android) {
-  browser_exposed_mojom_targets += [
-    "//chrome/browser/ui/webui/feedback/report_unsafe_site:mojo_bindings",
-    "//chrome/browser/ui/webui/iwa_dev:mojo_bindings",
-    "//chrome/browser/ui/webui/omnibox_everywhere/debug:mojo_bindings",
-    "//chrome/browser/ui/webui/omnibox_everywhere/mojom:mojo_bindings",
-  ]
-}
+browser_exposed_mojom_targets += [
+  "//chrome/browser/ui/webui/feedback/report_unsafe_site:mojo_bindings",
+  "//chrome/browser/ui/webui/iwa_dev:mojo_bindings",
+  "//chrome/browser/ui/webui/omnibox_everywhere/debug:mojo_bindings",
+  "//chrome/browser/ui/webui/omnibox_everywhere/mojom:mojo_bindings",
+]
 
-if (!is_chromeos) {
-  browser_exposed_mojom_targets +=
-      [ "//ui/webui/resources/cr_components/signin:mojo_bindings" ]
-}
+browser_exposed_mojom_targets +=
+    [ "//ui/webui/resources/cr_components/signin:mojo_bindings" ]
 
 if (enable_webui_ntp) {
   browser_exposed_mojom_targets += [

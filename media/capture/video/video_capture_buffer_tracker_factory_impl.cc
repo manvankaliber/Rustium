@@ -11,9 +11,7 @@
 #include "media/capture/video/shared_image_buffer_tracker.h"
 #include "media/capture/video/shared_memory_buffer_tracker.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "media/capture/video/chromeos/gpu_memory_buffer_tracker_cros.h"
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #include "media/capture/video/apple/gpu_memory_buffer_tracker_apple.h"
 #elif BUILDFLAG(IS_LINUX)
 #include "media/capture/video/linux/v4l2_gpu_memory_buffer_tracker.h"
@@ -40,9 +38,7 @@ VideoCaptureBufferTrackerFactoryImpl::CreateTracker(
     VideoCaptureBufferType buffer_type) {
   switch (buffer_type) {
     case VideoCaptureBufferType::kGpuMemoryBuffer:
-#if BUILDFLAG(IS_CHROMEOS)
-      return std::make_unique<GpuMemoryBufferTrackerCros>();
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
       return std::make_unique<GpuMemoryBufferTrackerApple>();
 #elif BUILDFLAG(IS_LINUX)
       return std::make_unique<V4L2GpuMemoryBufferTracker>();

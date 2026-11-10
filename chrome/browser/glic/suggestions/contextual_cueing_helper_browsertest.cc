@@ -42,13 +42,11 @@
 #include "services/metrics/public/cpp/ukm_builders.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/app/chrome_command_ids.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_side_panel_coordinator.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/views/tabs/glic/tab_strip_glic_button.h"
-#endif
 
 class FakeGlicNudgeDelegate : public glic::GlicSplitButtonDelegate {
  public:
@@ -125,13 +123,11 @@ class ContextualCueingHelperBaseBrowserTest : public glic::GlicBrowserTest {
     glic_nudge_controller()->SetHorizontalTabsDelegate(&nudge_delegate);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   glic::TabStripGlicButton* GetGlicButtonForBrowser(
       BrowserWindowInterface* browser) {
     return static_cast<glic::TabStripGlicButton*>(
         glic::TabStripGlicButton::FromBrowser(browser));
   }
-#endif
 
  protected:
   base::test::ScopedFeatureList scoped_feature_list_;
@@ -587,7 +583,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingHelperBrowserTest,
 // TriggerNudgeWhileUnpinned) to work with either a C++ Views button (on
 // Desktop) or a Java-based button (on Android) once the Android entrypoint
 // button is supported.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ContextualCueingHelperBrowserTest, NudgeHideAfterUnpin) {
   SetUpEnabledHints();
 
@@ -670,7 +665,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingHelperBrowserTest,
     EXPECT_FALSE(nudge_delegate.GetIsShowingGlicNudge());
   }
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingHelperBrowserTest,
                        TestCueNotShownForMismatchedMimeType) {

@@ -87,7 +87,6 @@
 #include "chrome/browser/extensions/tab_helper.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_tasks/mock_contextual_tasks_page.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
@@ -111,7 +110,6 @@
 #include "third_party/blink/public/mojom/css/preferred_color_scheme.mojom.h"
 #include "ui/actions/actions.h"
 #include "ui/native_theme/native_theme.h"
-#endif
 
 using testing::_;
 using testing::Const;
@@ -206,7 +204,6 @@ class MockActiveTaskContextProvider : public ActiveTaskContextProvider {
   MOCK_METHOD(void, ClearAllLocalTabUnderlines, (), (override));
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 class CountingTabContextualizationController
     : public lens::TabContextualizationController {
  public:
@@ -235,7 +232,6 @@ class CountingTabContextualizationController
   int get_page_context_calls_ = 0;
   bool return_ineligible_data_ = false;
 };
-#endif
 
 }  // namespace
 
@@ -248,9 +244,7 @@ class ContextualTasksSidePanelCoordinatorTest : public testing::Test {
         base::BindRepeating(&BuildChromeSigninClientWithURLLoader,
                             &test_url_loader_factory_));
     profile_ = builder.Build();
-#if !BUILDFLAG(IS_ANDROID)
     InitializeActionIdStringMapping();
-#endif
 
     ContextualTasksServiceFactory::GetInstance()->SetTestingFactory(
         profile_.get(),
@@ -309,7 +303,6 @@ class ContextualTasksSidePanelCoordinatorTest : public testing::Test {
     ON_CALL(*browser_window_, GetProfile())
         .WillByDefault(Return(profile_.get()));
 
-#if !BUILDFLAG(IS_ANDROID)
     ON_CALL(*browser_window_, GetFeatures())
         .WillByDefault(ReturnRef(browser_window_features_));
     ON_CALL(Const(*browser_window_), GetFeatures())
@@ -322,7 +315,6 @@ class ContextualTasksSidePanelCoordinatorTest : public testing::Test {
         .WillByDefault(Return(tab_strip_model_.get()));
     ON_CALL(Const(*browser_window_), GetTabStripModel())
         .WillByDefault(Return(tab_strip_model_.get()));
-#endif
 
     ON_CALL(*browser_window_, GetUnownedUserDataHost())
         .WillByDefault(ReturnRef(unowned_user_data_host_));
@@ -358,10 +350,8 @@ class ContextualTasksSidePanelCoordinatorTest : public testing::Test {
     ON_CALL(*mock_controller_, CreateTask())
         .WillByDefault(Return(expected_task));
 
-#if !BUILDFLAG(IS_ANDROID)
     HatsServiceFactory::GetInstance()->SetTestingFactory(
         profile_.get(), base::BindRepeating(&BuildMockHatsService));
-#endif
   }
 
   void TearDown() override {
@@ -369,7 +359,6 @@ class ContextualTasksSidePanelCoordinatorTest : public testing::Test {
     mock_panel_host_ = nullptr;
 
     coordinator_.reset();
-#if !BUILDFLAG(IS_ANDROID)
     if (tab_strip_model_) {
       tab_strip_model_->CloseAllTabs();
     }
@@ -378,7 +367,6 @@ class ContextualTasksSidePanelCoordinatorTest : public testing::Test {
     }
     tab_strip_model_.reset();
     tab_strip_model_delegate_.reset();
-#endif
     tab_list_registration_.reset();
     tab_list_.reset();
     browser_window_.reset();
@@ -390,9 +378,7 @@ class ContextualTasksSidePanelCoordinatorTest : public testing::Test {
 
     profile_.reset();
     aim_eligibility_service_.reset();
-#if !BUILDFLAG(IS_ANDROID)
     actions::ActionIdMap::ResetMapsForTesting();
-#endif
   }
 
   tabs::TabInterface* CreateMockTab() {
@@ -508,7 +494,7 @@ class ContextualTasksSidePanelCoordinatorTest : public testing::Test {
     return mock;
   }
 
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   void TriggerOnSeeExtensionsClicked() {
     coordinator_->OnSeeExtensionsClicked();
   }
@@ -574,12 +560,10 @@ class ContextualTasksSidePanelCoordinatorTest : public testing::Test {
   content::BrowserTaskEnvironment task_environment_{
       base::test::TaskEnvironment::TimeSource::MOCK_TIME};
   content::RenderViewHostTestEnabler rvh_test_enabler_;
-#if !BUILDFLAG(IS_ANDROID)
   tabs::TabModel::PreventFeatureInitializationForTesting prevent_;
   BrowserWindowFeatures browser_window_features_;
   std::unique_ptr<TestTabStripModelDelegate> tab_strip_model_delegate_;
   std::unique_ptr<TabStripModel> tab_strip_model_;
-#endif
   omnibox::AimEligibilityResponse aim_eligibility_response_;
   std::unique_ptr<NiceMock<MockAimEligibilityService>> aim_eligibility_service_;
   network::TestURLLoaderFactory test_url_loader_factory_;
@@ -808,7 +792,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   EXPECT_EQ(1u, GetNumberOfActiveTasksForTesting(active_task_id));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualTasksSidePanelCoordinatorTest,
        ShowSidePanelLaunchesSurveyArm1) {
   feature_list_.InitAndEnableFeatureWithParameters(
@@ -856,7 +839,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   coordinator_->Show(false,
                      omnibox::ChromeAimEntryPoint::UNKNOWN_AIM_ENTRY_POINT);
 }
-#endif
 
 TEST_F(ContextualTasksSidePanelCoordinatorTest, CleanUpUnusedWebContents) {
   // Clear any tasks from SetUp.
@@ -1747,7 +1729,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
       restored_tab->GetContents()));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualTasksSidePanelCoordinatorTest,
        CloseTaskPreservesTabWhenToolbarButtonPinned) {
   base::test::ScopedFeatureList feature_list;
@@ -1854,7 +1835,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
       /*use_no_animation=*/false, /*open_time_ticks=*/std::nullopt,
       ContextualTasksPanelController::EntrySource::kEphemeralToolbarButton);
 }
-#endif
 
 TEST_F(ContextualTasksSidePanelCoordinatorTest,
        CloseSidePanelLogsMetrics_LensOverlay) {
@@ -2814,7 +2794,7 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
 }
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 TEST_F(ContextualTasksSidePanelCoordinatorTest,
        OnSeeExtensionsClicked_NoActiveContents) {
   TriggerOnSeeExtensionsClicked();
@@ -2963,7 +2943,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   run_loop.Run();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualTasksSidePanelCoordinatorTest,
        ShareTabsWithNewThread_CreatesTaskAndAttachesActiveAndValidTabs) {
   base::test::ScopedFeatureList scoped_feature_list;
@@ -3495,7 +3474,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   EXPECT_EQ(active_wc->GetOrCreateWebPreferences().preferred_color_scheme,
             blink::mojom::PreferredColorScheme::kDark);
 }
-#endif
 
 TEST_F(
     ContextualTasksSidePanelCoordinatorTest,
@@ -3994,7 +3972,7 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   user_data->RecordTabIdMapping(tab3->GetHandle().raw_value(),
                                 session_id3.id());
 
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   std::vector<int32_t> updated_tab_ids;
   NiceMock<MockContextualTasksExtensionPage> mock_ext_page;
   mojo::Remote<mojom::ExtensionPageHandler> ext_handler_remote;
@@ -4035,7 +4013,7 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
 
   coordinator_->UnshareTabs(
       {tabs::TabHandle::Null(), tab1->GetHandle(), tab2->GetHandle()});
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   mock_ext_page.FlushForTesting();
   EXPECT_THAT(updated_tab_ids,
               testing::ElementsAre(tab3->GetHandle().raw_value()));
@@ -4054,7 +4032,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   EXPECT_FALSE(session_handle_ptr->IsTabDeselected(
       session_id3, GURL("https://example.com/3"), "Tab 3"));
 
-#if !BUILDFLAG(IS_ANDROID)
   // Submitting a follow-up query while `tab1` is the active tab must not
   // recontextualize/re-upload the unshared tab and must report `202` in
   // `removed_contexts`.
@@ -4116,9 +4093,8 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   EXPECT_EQ(on_submit_responses, 2);
   EXPECT_EQ(tab1_contextualization_controller.get_page_context_calls(),
             calls_before_followup + 1);
-#endif
 
-#if !(BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID))
+#if !BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   user_data->UnregisterExtensionFrame(&dummy_handler_id);
 #endif
   user_data->SetSearchMessageDispatcherForTesting(base::NullCallback());
@@ -4343,7 +4319,7 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
       ->SetTaskSession(full_tab_task_id, std::move(full_tab_session),
                        /*input_state_model=*/nullptr);
 
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   std::vector<int32_t> full_tab_ext_ids;
   NiceMock<MockContextualTasksExtensionPage> full_tab_ext_page;
   mojo::Remote<mojom::ExtensionPageHandler> full_tab_ext_remote;
@@ -4369,7 +4345,7 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
 
   SetActiveTab(ai_tab);
   coordinator_->UnshareTabs({tab1->GetHandle()});
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   full_tab_ext_page.FlushForTesting();
   EXPECT_THAT(full_tab_ext_ids,
               testing::ElementsAre(tab2->GetHandle().raw_value()));
@@ -4380,7 +4356,7 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
 
   SetActiveTab(tab2);
   coordinator_->UnshareTabs({tab2->GetHandle()});
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   full_tab_ext_page.FlushForTesting();
   EXPECT_TRUE(full_tab_ext_ids.empty());
 #endif
@@ -4453,7 +4429,7 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
       ->SetTaskSession(/*task_id=*/std::nullopt, std::move(zero_state_session),
                        /*input_state_model=*/nullptr);
 
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   std::vector<int32_t> full_tab_ext_ids;
   NiceMock<MockContextualTasksExtensionPage> full_tab_ext_page;
   mojo::Remote<mojom::ExtensionPageHandler> full_tab_ext_remote;
@@ -4481,7 +4457,7 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
 
   SetActiveTab(ai_tab);
   coordinator_->UnshareTabs({tab1->GetHandle()});
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   full_tab_ext_page.FlushForTesting();
   EXPECT_TRUE(full_tab_ext_ids.empty());
 #endif
@@ -5130,7 +5106,6 @@ TEST_F(
   EXPECT_FALSE(coordinator_->IsErrorPageVisible());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualTasksSidePanelCoordinatorTest,
        ProtectedPageErrorScrim_ShownWhenSubmittedTabContextIsIneligible) {
   base::test::ScopedFeatureList scoped_feature_list;
@@ -5207,6 +5182,5 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   user_data->SetSearchMessageDispatcherForTesting(base::NullCallback());
   webui::SetBrowserWindowInterface(panel_wc, nullptr);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace contextual_tasks

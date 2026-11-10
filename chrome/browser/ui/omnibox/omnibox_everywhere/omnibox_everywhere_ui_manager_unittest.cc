@@ -306,12 +306,7 @@ TEST_F(OmniboxEverywhereUIManagerTest, ShowWhileWidgetIsHidden) {
 // initial bounds are centered and initialized with the default resting height
 // (kDefaultRestingHeight) and fixed width (kPopupFixedWidth) to prevent visual
 // resize flashing before WebUI auto-resize occurs.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_InitialBoundsMatchRestingHeight \
-  DISABLED_InitialBoundsMatchRestingHeight
-#else
 #define MAYBE_InitialBoundsMatchRestingHeight InitialBoundsMatchRestingHeight
-#endif
 TEST_F(OmniboxEverywhereUIManagerTest, MAYBE_InitialBoundsMatchRestingHeight) {
   profile_.GetPrefs()->SetBoolean(omnibox_everywhere::prefs::kFreDismissed,
                                   true);
@@ -339,13 +334,8 @@ TEST_F(OmniboxEverywhereUIManagerTest, MAYBE_InitialBoundsMatchRestingHeight) {
   ui_manager->Shutdown();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_InitialBoundsMatchFreModalRestingHeight \
-  DISABLED_InitialBoundsMatchFreModalRestingHeight
-#else
 #define MAYBE_InitialBoundsMatchFreModalRestingHeight \
   InitialBoundsMatchFreModalRestingHeight
-#endif
 TEST_F(OmniboxEverywhereUIManagerTest,
        MAYBE_InitialBoundsMatchFreModalRestingHeight) {
   display::test::TestScreen test_screen(/*create_display=*/false,
@@ -630,13 +620,8 @@ TEST_F(OmniboxEverywhereUIManagerTest,
 // Verifies that on displays with dimensions smaller than the fixed popup width,
 // widget bounds calculation clamps width and coordinates to remain fully within
 // the visible work area without overflowing or negative positioning.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_CalculateBoundsClampsToSmallDisplays \
-  DISABLED_CalculateBoundsClampsToSmallDisplays
-#else
 #define MAYBE_CalculateBoundsClampsToSmallDisplays \
   CalculateBoundsClampsToSmallDisplays
-#endif
 TEST_F(OmniboxEverywhereUIManagerTest,
        MAYBE_CalculateBoundsClampsToSmallDisplays) {
   profile_.GetPrefs()->SetBoolean(omnibox_everywhere::prefs::kFreDismissed,
@@ -1435,11 +1420,7 @@ TEST_F(OmniboxEverywhereUIManagerTest, ShutdownSynchronouslyDestroysResources) {
   EXPECT_FALSE(ui_manager->IsModalOpenForTesting(Modal::kPermissionPrompt));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ShowPositionsOnTargetDisplay DISABLED_ShowPositionsOnTargetDisplay
-#else
 #define MAYBE_ShowPositionsOnTargetDisplay ShowPositionsOnTargetDisplay
-#endif
 TEST_F(OmniboxEverywhereUIManagerTest, MAYBE_ShowPositionsOnTargetDisplay) {
   // Create and set up a TestScreen with two displays.
   // Display 1: 0, 0, 800, 600 (Primary)
@@ -1476,13 +1457,8 @@ TEST_F(OmniboxEverywhereUIManagerTest, MAYBE_ShowPositionsOnTargetDisplay) {
   ui_manager->Close();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_PreservePositionAcrossDisplaysOnReinvoke \
-  DISABLED_PreservePositionAcrossDisplaysOnReinvoke
-#else
 #define MAYBE_PreservePositionAcrossDisplaysOnReinvoke \
   PreservePositionAcrossDisplaysOnReinvoke
-#endif
 TEST_F(OmniboxEverywhereUIManagerTest,
        MAYBE_PreservePositionAcrossDisplaysOnReinvoke) {
   display::test::TestScreen test_screen(/*create_display=*/false,
@@ -2125,7 +2101,7 @@ TEST_F(OmniboxEverywhereUIManagerTest, DemotePreservesAndCloseEndsFreSession) {
 }
 
 // TODO(crbug.com/546710681): Re-enable test on linux
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_ResizeDueToAutoResizeUpdatesWidgetBounds \
   DISABLED_ResizeDueToAutoResizeUpdatesWidgetBounds
 #else
@@ -2202,13 +2178,8 @@ TEST_F(OmniboxEverywhereUIManagerTest,
   ui_manager->Close();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_OnWidgetUserDragEndedAdjustsToFitWorkArea \
-  DISABLED_OnWidgetUserDragEndedAdjustsToFitWorkArea
-#else
 #define MAYBE_OnWidgetUserDragEndedAdjustsToFitWorkArea \
   OnWidgetUserDragEndedAdjustsToFitWorkArea
-#endif
 TEST_F(OmniboxEverywhereUIManagerTest,
        MAYBE_OnWidgetUserDragEndedAdjustsToFitWorkArea) {
   display::test::TestScreen test_screen(/*create_display=*/false,
@@ -2262,13 +2233,8 @@ TEST_F(OmniboxEverywhereUIManagerTest,
   ui_manager->Shutdown();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ResizeDueToAutoResizeAdjustsToFitWorkArea \
-  DISABLED_ResizeDueToAutoResizeAdjustsToFitWorkArea
-#else
 #define MAYBE_ResizeDueToAutoResizeAdjustsToFitWorkArea \
   ResizeDueToAutoResizeAdjustsToFitWorkArea
-#endif
 TEST_F(OmniboxEverywhereUIManagerTest,
        MAYBE_ResizeDueToAutoResizeAdjustsToFitWorkArea) {
   display::test::TestScreen test_screen(/*create_display=*/false,
@@ -2317,13 +2283,8 @@ TEST_F(OmniboxEverywhereUIManagerTest,
   ui_manager->Shutdown();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_OnWidgetBoundsChangedAdjustsToFitWorkArea \
-  DISABLED_OnWidgetBoundsChangedAdjustsToFitWorkArea
-#else
 #define MAYBE_OnWidgetBoundsChangedAdjustsToFitWorkArea \
   OnWidgetBoundsChangedAdjustsToFitWorkArea
-#endif
 TEST_F(OmniboxEverywhereUIManagerTest,
        MAYBE_OnWidgetBoundsChangedAdjustsToFitWorkArea) {
   display::test::TestScreen test_screen(/*create_display=*/false,

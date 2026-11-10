@@ -2014,12 +2014,7 @@ TEST_P(ScrollbarsTest, CustomScrollbarWhenStyleOwnerChange) {
 // a huge fadeout delay.
 // Disable on Android since VirtualTime not work for Android.
 // http://crbug.com/633321
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-TEST_P(ScrollbarsTestWithVirtualTimer,
-       DISABLED_TestNonCompositedOverlayScrollbarsFade) {
-#else
 TEST_P(ScrollbarsTestWithVirtualTimer, TestNonCompositedOverlayScrollbarsFade) {
-#endif
   // Scrollbars are always composited in RasterInducingScroll.
   if (RuntimeEnabledFeatures::RasterInducingScrollEnabled()) {
     return;
@@ -2129,12 +2124,7 @@ INSTANTIATE_TEST_SUITE_P(All,
 
 // Make sure native scrollbar can change by Emulator.
 // Disable on Android since Android always enable OverlayScrollbar.
-#if BUILDFLAG(IS_ANDROID)
-TEST_P(ScrollbarAppearanceTest,
-       DISABLED_NativeScrollbarChangeToMobileByEmulator) {
-#else
 TEST_P(ScrollbarAppearanceTest, NativeScrollbarChangeToMobileByEmulator) {
-#endif
   ENABLE_OVERLAY_SCROLLBARS(UsesOverlayScrollbars());
 
   WebView().MainFrameViewWidget()->Resize(gfx::Size(200, 200));
@@ -3546,13 +3536,8 @@ TEST_P(ScrollbarsTest, CustomScrollbarHypotheticalThickness) {
 // press on scrollbar button should keep scrolling after content loaded.
 // Disable on Android since VirtualTime not work for Android.
 // http://crbug.com/633321
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-TEST_P(ScrollbarsTestWithVirtualTimer,
-       DISABLED_PressScrollbarButtonOnInfiniteScrolling) {
-#else
 TEST_P(ScrollbarsTestWithVirtualTimer,
        PressScrollbarButtonOnInfiniteScrolling) {
-#endif
   TimeAdvance();
   GetDocument().GetFrame()->GetSettings()->SetScrollAnimatorEnabled(false);
   WebView().MainFrameViewWidget()->Resize(gfx::Size(200, 200));

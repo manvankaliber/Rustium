@@ -572,7 +572,7 @@ class TraceIntegrationTest(gpu_integration_test.GpuIntegrationTest):
       return None
 
     binary = 'trace_processor_shell'
-    if os_name and os_name.lower() in ('android', 'chromeos', ):
+    if os_name and os_name.lower() in ( ):
       # trace_processor_shell is compiled and available locally in the output
       # directory, but does not get included in the CAS inputs due to remote
       # platform build weirdness. So, use the symlinked versions instead. See
@@ -623,9 +623,6 @@ class TraceIntegrationTest(gpu_integration_test.GpuIntegrationTest):
         load_timeout = slow_load_timeout
     elif os_name == 'linux':
       load_timeout = slow_load_timeout
-    elif os_name == 'chromeos':
-      if 'chromeos-board-amd64-generic' in cls.GetPlatformTags(cls.browser):
-        load_timeout = slow_load_timeout
     elif os_name == 'win':
       if 'arch-arm64' in cls.GetPlatformTags(cls.browser):
         load_timeout = slow_load_timeout

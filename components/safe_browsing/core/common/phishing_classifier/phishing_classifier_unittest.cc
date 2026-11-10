@@ -73,7 +73,6 @@ class PhishingClassifierTest : public testing::Test {
   std::unique_ptr<Scorer> scorer_;
 };
 
-#if !BUILDFLAG(IS_IOS)
 // In renderer processes, `PhishingClassifier` typically relies on the
 // process-wide `ScorerStorage` to obtain the model. In the browser process (or
 // on iOS), the scorer is injected explicitly for profile isolation. This test
@@ -100,7 +99,6 @@ TEST_F(PhishingClassifierTest, UsesScorerStorageUntilScorerIsInjected) {
   ScorerStorage::GetInstance()->SetScorer(nullptr);
   EXPECT_TRUE(classifier.is_ready());
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(PhishingClassifierTest, Classification) {
   SkBitmap bitmap;

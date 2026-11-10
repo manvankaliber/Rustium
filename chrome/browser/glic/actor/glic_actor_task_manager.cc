@@ -444,12 +444,10 @@ void GlicActorTaskManager::MaybeShowDeactivationToastUi() {
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowInterface* const last_active_bwi =
       GetLastActiveBrowserWindowInterfaceWithAnyProfile();
   actor::ui::ActorUiStateManager::Get(profile())->MaybeShowToast(
       last_active_bwi);
-#endif
 }
 
 void GlicActorClientSession::PauseActorTask(

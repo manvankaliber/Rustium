@@ -16,11 +16,6 @@
 #include "ui/gl/gl_switches.h"
 #include "ui/gl/gl_surface_egl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <sync/sync.h>  // nogncheck
-
-#include "base/posix/eintr_wrapper.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <d3d11_1.h>
@@ -71,24 +66,6 @@ void Hang() {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-base::ScopedFD MergeFDs(base::ScopedFD a, base::ScopedFD b) {
-  if (!a.is_valid())
-    return b;
-  if (!b.is_valid())
-    return a;
-
-  base::ScopedFD merged(HANDLE_EINTR(sync_merge("", a.get(), b.get())));
-  if (!merged.is_valid())
-    LOG(ERROR) << "Failed to merge fences.";
-  return merged;
-}
-
-void DisableANGLE() {
-  DCHECK_NE(GetGLImplementation(), kGLImplementationEGLANGLE);
-  g_is_angle_enabled = false;
-}
-#endif
 
 bool UsePassthroughCommandDecoder(const base::CommandLine* command_line) {
   if (!g_is_angle_enabled) {

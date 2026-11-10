@@ -69,11 +69,9 @@ suite('CertificateManagerV2Test', () => {
 
   test('show admin certs', async () => {
     const metadata: CertManagementMetadata = {
-      // <if expr="not is_chromeos">
       includeSystemTrustStore: true,
       numUserAddedSystemCerts: 0,
       isIncludeSystemTrustStoreManaged: true,
-      // </if>
       numPolicyCerts: 5,
       numUserCerts: 0,
       showUserCertsUi: false,
@@ -94,11 +92,9 @@ suite('CertificateManagerV2Test', () => {
 
   test('navigate back from admin certs', async () => {
     const metadata: CertManagementMetadata = {
-      // <if expr="not is_chromeos">
       includeSystemTrustStore: true,
       numUserAddedSystemCerts: 0,
       isIncludeSystemTrustStoreManaged: true,
-      // </if>
       numPolicyCerts: 5,
       numUserCerts: 0,
       showUserCertsUi: false,
@@ -122,7 +118,6 @@ suite('CertificateManagerV2Test', () => {
     assertTrue(certManager.$.localCertSection.classList.contains('selected'));
   });
 
-  // <if expr="not is_chromeos">
   test('show platform certs', async () => {
     initializeElement();
     await microtasksFinished();
@@ -147,7 +142,6 @@ suite('CertificateManagerV2Test', () => {
         certManager.$.platformCertsSection.classList.contains('selected'));
     assertTrue(certManager.$.localCertSection.classList.contains('selected'));
   });
-  // </if>
 
   test('show platform client certs then navigate back', async () => {
     initializeElement();
@@ -199,11 +193,9 @@ suite('CertificateManagerV2Test', () => {
 
   test('show user certs', async () => {
     const metadata: CertManagementMetadata = {
-      // <if expr="not is_chromeos">
       includeSystemTrustStore: true,
       numUserAddedSystemCerts: 0,
       isIncludeSystemTrustStoreManaged: true,
-      // </if>
       numPolicyCerts: 5,
       numUserCerts: 1,
       showUserCertsUi: true,
@@ -222,11 +214,9 @@ suite('CertificateManagerV2Test', () => {
 
   test('navigate back from user certs', async () => {
     const metadata: CertManagementMetadata = {
-      // <if expr="not is_chromeos">
       includeSystemTrustStore: true,
       numUserAddedSystemCerts: 0,
       isIncludeSystemTrustStoreManaged: true,
-      // </if>
       numPolicyCerts: 5,
       numUserCerts: 1,
       showUserCertsUi: true,

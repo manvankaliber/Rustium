@@ -41,9 +41,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/test/glic_user_session_test_helper.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace glic {
 namespace {
@@ -126,11 +123,6 @@ class MockGlicButtonControllerDelegate : public glic::GlicSplitButtonDelegate {
 class GlicButtonControllerTest : public testing::Test {
  public:
   void SetUp() override {
-#if BUILDFLAG(IS_ANDROID)
-    if (!glic::GlicEnabling::IsOsVersionSupported()) {
-      GTEST_SKIP() << "OS version not supported by Glic";
-    }
-#endif
     GlicEnabling::SetSystemRequirementMetForTesting(true);
 
     // Enable kGlic by default for testing. kGlicShowForSignedOut is explicitly
@@ -150,10 +142,6 @@ class GlicButtonControllerTest : public testing::Test {
         TestingBrowserProcess::GetGlobal()->SetUpGlobalFeaturesForTesting(
             /*profile_manager=*/true);
 
-#if BUILDFLAG(IS_CHROMEOS)
-    glic_user_session_test_helper_.PreProfileSetUp(
-        testing_profile_manager->profile_manager());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     profile_ = testing_profile_manager->CreateTestingProfile(
         "profile", IdentityTestEnvironmentProfileAdaptor::
@@ -210,9 +198,6 @@ class GlicButtonControllerTest : public testing::Test {
 
     TestingBrowserProcess::GetGlobal()->TearDownGlobalFeaturesForTesting();
 
-#if BUILDFLAG(IS_CHROMEOS)
-    glic_user_session_test_helper_.PostProfileTearDown();
-#endif  // BUILDFLAG(IS_CHROMEOS)
     GlicEnabling::SetSystemRequirementMetForTesting(std::nullopt);
     scoped_feature_list_.Reset();
   }
@@ -245,11 +230,6 @@ class GlicButtonControllerTest : public testing::Test {
   GlicUnitTestEnvironment glic_test_env_;
   content::BrowserTaskEnvironment task_environment;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // glic can run only in User session, so it needs to set up user session
-  // manually on ChromeOS.
-  ash::GlicUserSessionTestHelper glic_user_session_test_helper_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   raw_ptr<Profile> profile_ = nullptr;
   std::unique_ptr<IdentityTestEnvironmentProfileAdaptor>
       identity_test_env_adaptor_;

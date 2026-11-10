@@ -23,7 +23,6 @@
 #include "components/viz/test/buildflags.h"
 #include "third_party/skia/include/core/SkImage.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 
 namespace cc {
 namespace {
@@ -742,14 +741,7 @@ class LayerTreeHostMaskAsBlendingPixelTest
     int small_error_allowed = 0;
     if (!use_software_renderer()) {
       percentage_pixels_large_error = 4.0f;
-#if BUILDFLAG(IS_IOS)
-      // iOS has some pixels difference. Affected tests:
-      // RotatedClippedCircle, RotatedClippedCircleUnderflow
-      // crbug.com/1422694
-      percentage_pixels_small_error = 2.7f;
-#else
       percentage_pixels_small_error = 2.0f;
-#endif  // BUILDFLAG(IS_IOS)
       average_error_allowed_in_bad_pixels = 2.1f;
       large_error_allowed = 11;
       small_error_allowed = 1;
@@ -1150,5 +1142,3 @@ TEST_P(LayerTreeHostMasksForBackdropFiltersAndBlendPixelTest, Test) {
 
 }  // namespace
 }  // namespace cc
-
-#endif  // !BUILDFLAG(IS_ANDROID)

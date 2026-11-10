@@ -399,7 +399,6 @@ TEST_F(HtmlMediaElementForWebRtcAudioTest,
   track->setEnabled(false);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(MediaStreamTrackImplTest,
        ZoomStateUpdatesAndTriggersConfigurationChangeEvent) {
   V8TestingScope v8_scope;
@@ -432,7 +431,6 @@ TEST_F(MediaStreamTrackImplTest,
   source->OnZoomLevelChange(*track->device(), 150);
   EXPECT_EQ(track->GetZoomLevelForTesting(), 125);
 }
-#endif
 
 TEST_F(MediaStreamTrackImplTest, MutedDoesntUpdateAfterEnding) {
   V8TestingScope v8_scope;
@@ -531,13 +529,8 @@ TEST_F(MediaStreamTrackImplTest, CloningPreservesConstraints) {
 // currently not possible on Android.
 // TODO(crbug.com/436623747): We may be able to re-enable these once we have
 // an API to reconfigure the capture instead of restarting it.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ApplyConstraintsUpdatesSourceFormat \
-  DISABLED_ApplyConstraintsUpdatesSourceFormat
-#else
 #define MAYBE_ApplyConstraintsUpdatesSourceFormat \
   ApplyConstraintsUpdatesSourceFormat
-#endif
 TEST_F(MediaStreamTrackImplTest, MAYBE_ApplyConstraintsUpdatesSourceFormat) {
   V8TestingScope v8_scope;
   MediaStreamComponent* component;
@@ -575,13 +568,8 @@ TEST_F(MediaStreamTrackImplTest, MAYBE_ApplyConstraintsUpdatesSourceFormat) {
 }
 
 // TODO(crbug.com/436623747): Re-enable.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ApplyConstraintsFramerateDoesNotAffectResolution \
-  DISABLED_ApplyConstraintsFramerateDoesNotAffectResolution
-#else
 #define MAYBE_ApplyConstraintsFramerateDoesNotAffectResolution \
   ApplyConstraintsFramerateDoesNotAffectResolution
-#endif
 TEST_F(MediaStreamTrackImplTest,
        MAYBE_ApplyConstraintsFramerateDoesNotAffectResolution) {
   V8TestingScope v8_scope;
@@ -618,13 +606,8 @@ TEST_F(MediaStreamTrackImplTest,
 }
 
 // TODO(crbug.com/436623747): Re-enable.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ApplyConstraintsResolutionDoesNotAffectFramerate \
-  DISABLED_ApplyConstraintsResolutionDoesNotAffectFramerate
-#else
 #define MAYBE_ApplyConstraintsResolutionDoesNotAffectFramerate \
   ApplyConstraintsResolutionDoesNotAffectFramerate
-#endif
 TEST_F(MediaStreamTrackImplTest,
        MAYBE_ApplyConstraintsResolutionDoesNotAffectFramerate) {
   V8TestingScope v8_scope;
@@ -662,13 +645,8 @@ TEST_F(MediaStreamTrackImplTest,
 }
 
 // TODO(crbug.com/436623747): Re-enable.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ApplyConstraintsWidthDoesNotAffectAspectRatio \
-  DISABLED_ApplyConstraintsWidthDoesNotAffectAspectRatio
-#else
 #define MAYBE_ApplyConstraintsWidthDoesNotAffectAspectRatio \
   ApplyConstraintsWidthDoesNotAffectAspectRatio
-#endif
 TEST_F(MediaStreamTrackImplTest,
        MAYBE_ApplyConstraintsWidthDoesNotAffectAspectRatio) {
   V8TestingScope v8_scope;
@@ -709,13 +687,8 @@ TEST_F(MediaStreamTrackImplTest,
 }
 
 // TODO(crbug.com/436623747): Re-enable.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ApplyConstraintsWidthAndAspectRatio \
-  DISABLED_ApplyConstraintsWidthAndAspectRatio
-#else
 #define MAYBE_ApplyConstraintsWidthAndAspectRatio \
   ApplyConstraintsWidthAndAspectRatio
-#endif
 TEST_F(MediaStreamTrackImplTest, MAYBE_ApplyConstraintsWidthAndAspectRatio) {
   V8TestingScope v8_scope;
   MediaStreamComponent* component;
@@ -753,13 +726,8 @@ TEST_F(MediaStreamTrackImplTest, MAYBE_ApplyConstraintsWidthAndAspectRatio) {
 }
 
 // cropTo() is not supported on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ApplyConstraintsDoesNotUpdateFormatForCroppedSources \
-  DISABLED_ApplyConstraintsDoesNotUpdateFormatForCroppedSources
-#else
 #define MAYBE_ApplyConstraintsDoesNotUpdateFormatForCroppedSources \
   ApplyConstraintsDoesNotUpdateFormatForCroppedSources
-#endif
 
 TEST_F(MediaStreamTrackImplTest,
        MAYBE_ApplyConstraintsDoesNotUpdateFormatForCroppedSources) {

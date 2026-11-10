@@ -995,10 +995,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest, Ineligible) {
 }
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest, ShowCueAndClick) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#endif
 
   ASSERT_FALSE(cue_target()->HasClickData());
 
@@ -1089,10 +1085,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest, ShowCueAndClick) {
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        ShowCueAndClick_ContextualSearchSurface) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#endif
 
   ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
       browser(), GURL("https://www.activetab.com/abc"),
@@ -1156,10 +1148,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        ShowCueAndClick_DoesNotHideIfIsPersistent) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#endif
 
   ASSERT_FALSE(cue_target()->HasClickData());
 
@@ -1248,10 +1236,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        ShowCueAndClickAsIcon) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#endif
 
   ASSERT_FALSE(cue_target()->HasClickData());
 
@@ -1310,10 +1294,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        AccessibleNameUpdatesWithAnchoredMessageState) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#endif
 
   ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
       browser(), GURL("https://www.activetab.com/abc"),
@@ -1371,10 +1351,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        TooltipUpdatesWithAnchoredMessageState) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#endif
 
   ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
       browser(), GURL("https://www.activetab.com/abc"),
@@ -1526,10 +1502,6 @@ class ContextualCueingControllerMockOptGuideBrowserTest
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerMockOptGuideBrowserTest,
                        InactiveTabShowsQuietCueAfterModelExecution) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#else
   ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
       browser(), GURL("https://www.activetab.com/abc"),
       ui::mojom::WindowOpenDisposition::kNewForegroundTab,
@@ -1619,7 +1591,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerMockOptGuideBrowserTest,
 
   EXPECT_TRUE(observer.visible_);
   EXPECT_TRUE(observer.anchored_message_showing_);
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerMockOptGuideBrowserTest,
@@ -1703,10 +1674,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        CueNotShowingBecauseAnotherAnchoredMessageOpen) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#else
   ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
       browser(), GURL("https://www.activetab.com/abc"),
       ui::mojom::WindowOpenDisposition::kNewForegroundTab,
@@ -1735,14 +1702,10 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
       ContextualCueingDecision::kAnchoredMessageAlreadyShowing, 1);
   VerifyProactiveCueDecision(
       ukm_recorder, ContextualCueingDecision::kAnchoredMessageAlreadyShowing);
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        CueNotShowingBecauseTabInSplitView) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP() << "Contextual cueing split view not supported on Android";
-#else
   // Add a second tab so we can check split view.
   ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
       browser(), GURL("https://www.google.com/"),
@@ -1774,7 +1737,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                                       1);
   VerifyProactiveCueDecision(ukm_recorder,
                              ContextualCueingDecision::kTabInSplitView);
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest, HistorySyncOff) {
@@ -2022,10 +1984,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        CueHidesWhenSidePanelOpened) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#endif
 
   ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
       browser(), GURL("https://www.activetab.com/abc"),
@@ -2068,10 +2026,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        CueDoesNotHideWhenSidePanelOpenedIfIsPersistent) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#endif
 
   ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
       browser(), GURL("https://www.activetab.com/abc"),
@@ -2207,10 +2161,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        HidesOnCrossOriginNavigation) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#endif
 
   // Navigate to an eligible URL.
   ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
@@ -2246,10 +2196,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        HidesOnBackForwardNavigation) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#endif
 
   // Navigate to page 1.
   ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
@@ -2542,9 +2488,6 @@ class ContextualCueingControllerShowInSplitViewBrowserTest
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerShowInSplitViewBrowserTest,
                        ShowCueInSplitView) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP() << "Contextual cueing split view not supported on Android";
-#else
   // Add a second tab so we can check split view.
   ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
       browser(), GURL("https://www.google.com/"),
@@ -2574,7 +2517,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerShowInSplitViewBrowserTest,
   histogram_tester.ExpectUniqueSample("ContextualCueing.V2.Decision",
                                       ContextualCueingDecision::kSuccess, 1);
   VerifyProactiveCueDecision(ukm_recorder, ContextualCueingDecision::kSuccess);
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
@@ -2678,10 +2620,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        TabMovedToNewWindowMaintainsContextualCue) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP()
-      << "Contextual cueing anchored message not implemented for Android";
-#endif
 
   ASSERT_FALSE(cue_target()->HasClickData());
 

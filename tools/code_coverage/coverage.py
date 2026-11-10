@@ -91,10 +91,8 @@ import subprocess
 from urllib.request import urlopen
 
 sys.path.append(
-  os.path.join(
-    os.path.dirname(__file__), os.path.pardir, os.path.pardir, 'third_party'
-  )
-)
+    os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir,
+                 'third_party'))
 from collections import defaultdict
 
 import coverage_utils
@@ -103,16 +101,14 @@ import telemetry_utils
 # Absolute path to the code coverage tools binary. These paths can be
 # overwritten by user specified coverage tool paths.
 # Absolute path to the root of the checkout.
-SRC_ROOT_PATH = os.path.join(
-  os.path.abspath(os.path.dirname(__file__)), os.path.pardir, os.path.pardir
-)
+SRC_ROOT_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                             os.path.pardir, os.path.pardir)
 LLVM_BIN_DIR = os.path.join(
-  os.path.join(SRC_ROOT_PATH, 'third_party', 'llvm-build', 'Release+Asserts'),
-  'bin',
+    os.path.join(SRC_ROOT_PATH, 'third_party', 'llvm-build', 'Release+Asserts'),
+    'bin',
 )
 LLVM_COV_PATH = os.path.join(LLVM_BIN_DIR, 'llvm-cov')
 LLVM_PROFDATA_PATH = os.path.join(LLVM_BIN_DIR, 'llvm-profdata')
-
 
 # Build directory, the value is parsed from command line arguments.
 BUILD_DIR = None
@@ -142,8 +138,7 @@ LOGS_DIR_NAME = 'logs'
 
 # Used to extract a mapping between directories and components.
 COMPONENT_MAPPING_URL = (
-  'https://storage.googleapis.com/chromium-owners/component_map.json'
-)
+    'https://storage.googleapis.com/chromium-owners/component_map.json')
 
 # Caches the results returned by _GetBuildArgs, don't use this variable
 # directly, call _GetBuildArgs instead.
@@ -154,11 +149,10 @@ MERGE_RETRIES = 3
 
 # Message to guide user to file a bug when everything else fails.
 FILE_BUG_MESSAGE = (
-  'If it persists, please file a bug with the command you used, git revision '
-  'and args.gn config here: '
-  'https://bugs.chromium.org/p/chromium/issues/entry?'
-  'components=Infra%3ETest%3ECodeCoverage'
-)
+    'If it persists, please file a bug with the command you used, git revision '
+    'and args.gn config here: '
+    'https://bugs.chromium.org/p/chromium/issues/entry?'
+    'components=Infra%3ETest%3ECodeCoverage')
 
 # String to replace with actual llvm profile path.
 LLVM_PROFILE_FILE_PATH_SUBSTITUTION = '<llvm_profile_file_path>'
@@ -173,24 +167,21 @@ def _ConfigureLLVMCoverageTools(args):
     LLVM_COV_PATH = os.path.join(llvm_bin_dir, 'llvm-cov')
     LLVM_PROFDATA_PATH = os.path.join(llvm_bin_dir, 'llvm-profdata')
   else:
-    subprocess.check_call(
-      [
+    subprocess.check_call([
         sys.executable,
         'tools/clang/scripts/update.py',
         '--package',
         'coverage_tools',
-      ]
-    )
+    ])
 
   if coverage_utils.GetHostPlatform() == 'win':
     LLVM_COV_PATH += '.exe'
     LLVM_PROFDATA_PATH += '.exe'
 
   coverage_tools_exist = os.path.exists(LLVM_COV_PATH) and os.path.exists(
-    LLVM_PROFDATA_PATH
-  )
+      LLVM_PROFDATA_PATH)
   assert coverage_tools_exist, (
-    'Cannot find coverage tools, please make sure both \'%s\' and \'%s\' exist.'
+      'Cannot find coverage tools, please make sure both \'%s\' and \'%s\' exist.'
   ) % (LLVM_COV_PATH, LLVM_PROFDATA_PATH)
 
 
@@ -213,23 +204,13 @@ def _GetTargetOS():
   return build_args['target_os'] if 'target_os' in build_args else ''
 
 
-def _IsAndroid():
-  """Returns true if the target_os specified in args.gn file is android"""
-  return _GetTargetOS() == 'android'
-
-
-def _IsIOS():
-  """Returns true if the target_os specified in args.gn file is ios"""
-  return _GetTargetOS() == 'ios'
-
-
 def _GeneratePerFileLineByLineCoverageInFormat(
-  binary_paths,
-  profdata_file_path,
-  filters,
-  ignore_filename_regex,
-  output_format,
-  path_equivalence,
+    binary_paths,
+    profdata_file_path,
+    filters,
+    ignore_filename_regex,
+    output_format,
+    path_equivalence,
 ):
   """Generates per file line-by-line coverage in html or text using
   'llvm-cov show'.
@@ -251,30 +232,25 @@ def _GeneratePerFileLineByLineCoverageInFormat(
   # [[-object BIN]] [SOURCES]
   # NOTE: For object files, the first one is specified as a positional argument,
   # and the rest are specified as keyword argument.
-  logging.debug(
-    'Generating per file line by line coverage reports using '
-    '"llvm-cov show" command.'
-  )
+  logging.debug('Generating per file line by line coverage reports using '
+                '"llvm-cov show" command.')
 
   subprocess_cmd = [
-    LLVM_COV_PATH,
-    'show',
-    '-format={}'.format(output_format),
-    '-compilation-dir={}'.format(BUILD_DIR),
-    '-output-dir={}'.format(OUTPUT_DIR),
-    '-instr-profile={}'.format(profdata_file_path),
-    binary_paths[0],
+      LLVM_COV_PATH,
+      'show',
+      '-format={}'.format(output_format),
+      '-compilation-dir={}'.format(BUILD_DIR),
+      '-output-dir={}'.format(OUTPUT_DIR),
+      '-instr-profile={}'.format(profdata_file_path),
+      binary_paths[0],
   ]
   subprocess_cmd.extend(
-    ['-object=' + binary_path for binary_path in binary_paths[1:]]
-  )
-  _AddArchArgumentForIOSIfNeeded(subprocess_cmd, len(binary_paths))
+      ['-object=' + binary_path for binary_path in binary_paths[1:]])
   if coverage_utils.GetHostPlatform() in ['linux', 'mac']:
     subprocess_cmd.extend(['-Xdemangler', 'c++filt', '-Xdemangler', '-n'])
   if path_equivalence:
     subprocess_cmd.extend(
-      ['-path-equivalence=' + mapping for mapping in path_equivalence]
-    )
+        ['-path-equivalence=' + mapping for mapping in path_equivalence])
   subprocess_cmd.extend(filters)
   if ignore_filename_regex:
     subprocess_cmd.append('-ignore-filename-regex=%s' % ignore_filename_regex)
@@ -285,11 +261,11 @@ def _GeneratePerFileLineByLineCoverageInFormat(
 
 
 def _GeneratePerFileLineByLineCoverageInLcov(
-  binary_paths,
-  profdata_file_path,
-  filters,
-  ignore_filename_regex,
-  path_equivalence,
+    binary_paths,
+    profdata_file_path,
+    filters,
+    ignore_filename_regex,
+    path_equivalence,
 ):
   """Generates per file line-by-line coverage using "llvm-cov export".
 
@@ -301,28 +277,23 @@ def _GeneratePerFileLineByLineCoverageInLcov(
                            with certain file paths.
     path_equivalence: A list of <from>,<to> path mappings.
   """
-  logging.debug(
-    'Generating per file line by line coverage reports using '
-    '"llvm-cov export" command.'
-  )
+  logging.debug('Generating per file line by line coverage reports using '
+                '"llvm-cov export" command.')
   for path in binary_paths:
     if not os.path.exists(path):
       logging.error("Binary %s does not exist", path)
   subprocess_cmd = [
-    LLVM_COV_PATH,
-    'export',
-    '-format=lcov',
-    '-instr-profile=' + profdata_file_path,
-    binary_paths[0],
+      LLVM_COV_PATH,
+      'export',
+      '-format=lcov',
+      '-instr-profile=' + profdata_file_path,
+      binary_paths[0],
   ]
   subprocess_cmd.extend(
-    ['-object=' + binary_path for binary_path in binary_paths[1:]]
-  )
-  _AddArchArgumentForIOSIfNeeded(subprocess_cmd, len(binary_paths))
+      ['-object=' + binary_path for binary_path in binary_paths[1:]])
   if path_equivalence:
     subprocess_cmd.extend(
-      ['-path-equivalence=' + mapping for mapping in path_equivalence]
-    )
+        ['-path-equivalence=' + mapping for mapping in path_equivalence])
   subprocess_cmd.extend(filters)
   if ignore_filename_regex:
     subprocess_cmd.append('-ignore-filename-regex=%s' % ignore_filename_regex)
@@ -336,38 +307,34 @@ def _GeneratePerFileLineByLineCoverageInLcov(
 
 def _GetLogsDirectoryPath():
   """Path to the logs directory."""
-  return os.path.join(
-    coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR), LOGS_DIR_NAME
-  )
+  return os.path.join(coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR),
+                      LOGS_DIR_NAME)
 
 
 def _GetProfdataFilePath():
   """Path to the resulting .profdata file."""
-  return os.path.join(
-    coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR), PROFDATA_FILE_NAME
-  )
+  return os.path.join(coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR),
+                      PROFDATA_FILE_NAME)
 
 
 def _GetSummaryFilePath():
   """The JSON file that contains coverage summary written by llvm-cov export."""
-  return os.path.join(
-    coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR), SUMMARY_FILE_NAME
-  )
+  return os.path.join(coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR),
+                      SUMMARY_FILE_NAME)
 
 
 def _GetLcovFilePath():
   """The LCOV file that contains coverage data written by llvm-cov export."""
-  return os.path.join(
-    coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR), LCOV_FILE_NAME
-  )
+  return os.path.join(coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR),
+                      LCOV_FILE_NAME)
 
 
 @telemetry_utils.tracer.start_as_current_span(
-  'coverage.py._CreateCoverageProfileDataForTargets'
-)
-def _CreateCoverageProfileDataForTargets(
-  targets, commands, jobs_count=None, no_compile=False
-):
+    'coverage.py._CreateCoverageProfileDataForTargets')
+def _CreateCoverageProfileDataForTargets(targets,
+                                         commands,
+                                         jobs_count=None,
+                                         no_compile=False):
   """Builds and runs target to generate the coverage profile data.
 
   Args:
@@ -384,13 +351,10 @@ def _CreateCoverageProfileDataForTargets(
   if not no_compile:
     _BuildTargets(targets, jobs_count)
   target_profdata_file_paths = _GetTargetProfDataPathsByExecutingCommands(
-    targets, commands
-  )
+      targets, commands)
   coverage_profdata_file_path = (
-    _CreateCoverageProfileDataFromTargetProfDataFiles(
-      target_profdata_file_paths
-    )
-  )
+      _CreateCoverageProfileDataFromTargetProfDataFiles(
+          target_profdata_file_paths))
 
   for target_profdata_file_path in target_profdata_file_paths:
     os.remove(target_profdata_file_path)
@@ -456,51 +420,30 @@ def _GetTargetProfDataPathsByExecutingCommands(targets, commands):
     profdata_file_path = None
     for _ in range(MERGE_RETRIES):
       logging.info(
-        'Running command: "%s", the output is redirected to "%s".',
-        command,
-        output_file_path,
+          'Running command: "%s", the output is redirected to "%s".',
+          command,
+          output_file_path,
       )
 
-      if _IsIOSCommand(command):
-        # On iOS platform, due to lack of write permissions, profraw files are
-        # generated outside of the OUTPUT_DIR, and the exact paths are contained
-        # in the output of the command execution.
-        output = _ExecuteIOSCommand(command, output_file_path)
-      else:
-        # On other platforms, profraw files are generated inside the OUTPUT_DIR.
-        output = _ExecuteCommand(target, command, output_file_path)
+      output = _ExecuteCommand(target, command, output_file_path)
 
       profraw_file_paths = []
-      if _IsIOS():
-        profraw_file_paths = [_GetProfrawDataFileByParsingOutput(output)]
-      elif _IsAndroid():
-        android_coverage_dir = os.path.join(BUILD_DIR, 'coverage')
-        for r, _, files in os.walk(android_coverage_dir):
-          for f in files:
-            if f.endswith(PROFRAW_FILE_EXTENSION):
-              profraw_file_paths.append(os.path.join(r, f))
-      else:
-        for file_or_dir in os.listdir(report_root_dir):
-          if file_or_dir.endswith(PROFRAW_FILE_EXTENSION):
-            profraw_file_paths.append(
-              os.path.join(report_root_dir, file_or_dir)
-            )
+      for file_or_dir in os.listdir(report_root_dir):
+        if file_or_dir.endswith(PROFRAW_FILE_EXTENSION):
+          profraw_file_paths.append(os.path.join(report_root_dir, file_or_dir))
 
       assert profraw_file_paths, (
-        'Running target "%s" failed to generate any profraw data file, '
-        'please make sure the binary exists, is properly instrumented and '
-        'does not crash. %s' % (target, FILE_BUG_MESSAGE)
-      )
+          'Running target "%s" failed to generate any profraw data file, '
+          'please make sure the binary exists, is properly instrumented and '
+          'does not crash. %s' % (target, FILE_BUG_MESSAGE))
 
       assert isinstance(profraw_file_paths, list), (
-        'Variable \'profraw_file_paths\' is expected to be of type \'list\', '
-        'but it is a %s. %s' % (type(profraw_file_paths), FILE_BUG_MESSAGE)
-      )
+          'Variable \'profraw_file_paths\' is expected to be of type \'list\', '
+          'but it is a %s. %s' % (type(profraw_file_paths), FILE_BUG_MESSAGE))
 
       try:
         profdata_file_path = _CreateTargetProfDataFileFromProfRawFiles(
-          target, profraw_file_paths
-        )
+            target, profraw_file_paths)
         break
       except Exception:
         logging.info('Retrying...')
@@ -510,9 +453,8 @@ def _GetTargetProfDataPathsByExecutingCommands(targets, commands):
           os.remove(profraw_file_path)
 
     assert profdata_file_path, (
-      'Failed to merge target "%s" profraw files after %d retries. %s'
-      % (target, MERGE_RETRIES, FILE_BUG_MESSAGE)
-    )
+        'Failed to merge target "%s" profraw files after %d retries. %s' %
+        (target, MERGE_RETRIES, FILE_BUG_MESSAGE))
     profdata_file_paths.append(profdata_file_path)
 
   logging.debug('Finished executing the test commands.')
@@ -523,12 +465,10 @@ def _GetTargetProfDataPathsByExecutingCommands(targets, commands):
 def _GetEnvironmentVars(profraw_file_path):
   """Return environment vars for subprocess, given a profraw file path."""
   env = os.environ.copy()
-  env.update(
-    {
+  env.update({
       'LLVM_PROFILE_FILE': profraw_file_path,
       'PATH': _GetPathWithLLVMSymbolizerDir(),
-    }
-  )
+  })
   return env
 
 
@@ -573,24 +513,22 @@ def _ExecuteCommand(target, command, output_file_path):
   # but it's not too big to consume too much computing resource or disk space.
   profile_pattern_string = '%1m' if _IsFuzzerTarget(target) else '%4m'
   expected_profraw_file_name = os.extsep.join(
-    [target, profile_pattern_string, PROFRAW_FILE_EXTENSION]
-  )
+      [target, profile_pattern_string, PROFRAW_FILE_EXTENSION])
   expected_profraw_file_path = os.path.join(
-    coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR),
-    expected_profraw_file_name,
+      coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR),
+      expected_profraw_file_name,
   )
-  command = command.replace(
-    LLVM_PROFILE_FILE_PATH_SUBSTITUTION, expected_profraw_file_path
-  )
+  command = command.replace(LLVM_PROFILE_FILE_PATH_SUBSTITUTION,
+                            expected_profraw_file_path)
 
   try:
     # Some fuzz targets or tests may write into stderr, redirect it as well.
     with open(output_file_path, 'wb') as output_file_handle:
       subprocess.check_call(
-        _SplitCommand(command),
-        stdout=output_file_handle,
-        stderr=subprocess.STDOUT,
-        env=_GetEnvironmentVars(expected_profraw_file_path),
+          _SplitCommand(command),
+          stdout=output_file_handle,
+          stderr=subprocess.STDOUT,
+          env=_GetEnvironmentVars(expected_profraw_file_path),
       )
   except subprocess.CalledProcessError as e:
     logging.warning('Command: "%s" exited with non-zero return code.', command)
@@ -601,74 +539,11 @@ def _ExecuteCommand(target, command, output_file_path):
 def _IsFuzzerTarget(target):
   """Returns true if the target is a fuzzer target."""
   build_args = _GetBuildArgs()
-  use_libfuzzer = (
-    'use_libfuzzer' in build_args and build_args['use_libfuzzer'] == 'true'
-  )
-  use_centipede = (
-    'use_centipede' in build_args and build_args['use_centipede'] == 'true'
-  )
+  use_libfuzzer = ('use_libfuzzer' in build_args
+                   and build_args['use_libfuzzer'] == 'true')
+  use_centipede = ('use_centipede' in build_args
+                   and build_args['use_centipede'] == 'true')
   return (use_libfuzzer or use_centipede) and target.endswith('_fuzzer')
-
-
-def _ExecuteIOSCommand(command, output_file_path):
-  """Runs a single iOS command and generates a profraw data file.
-
-  iOS application doesn't have write access to folders outside of the app, so
-  it's impossible to instruct the app to flush the profraw data file to the
-  desired location. The profraw data file will be generated somewhere within the
-  application's Documents folder, and the full path can be obtained by parsing
-  the output.
-  """
-  assert _IsIOSCommand(command)
-
-  # After running tests, iossim generates a profraw data file, it won't be
-  # needed anyway, so dump it into the OUTPUT_DIR to avoid polluting the
-  # checkout.
-  iossim_profraw_file_path = os.path.join(
-    OUTPUT_DIR, os.extsep.join(['iossim', PROFRAW_FILE_EXTENSION])
-  )
-  command = command.replace(
-    LLVM_PROFILE_FILE_PATH_SUBSTITUTION, iossim_profraw_file_path
-  )
-
-  try:
-    with open(output_file_path, 'wb') as output_file_handle:
-      subprocess.check_call(
-        _SplitCommand(command),
-        stdout=output_file_handle,
-        stderr=subprocess.STDOUT,
-        env=_GetEnvironmentVars(iossim_profraw_file_path),
-      )
-  except subprocess.CalledProcessError as e:
-    # iossim emits non-zero return code even if tests run successfully, so
-    # ignore the return code.
-    pass
-
-  return open(output_file_path, 'rb').read()
-
-
-def _GetProfrawDataFileByParsingOutput(output):
-  """Returns the path to the profraw data file obtained by parsing the output.
-
-  The output of running the test target has no format, but it is guaranteed to
-  have a single line containing the path to the generated profraw data file.
-  NOTE: This should only be called when target os is iOS.
-  """
-  assert _IsIOS()
-
-  output_by_lines = ''.join(output).splitlines()
-  profraw_file_pattern = re.compile('.*Coverage data at (.*coverage\.profraw).')
-
-  for line in output_by_lines:
-    result = profraw_file_pattern.match(line)
-    if result:
-      return result.group(1)
-
-  assert False, (
-    'No profraw data file was generated, did you call '
-    'coverage_util::ConfigureCoverageReportPath() in test setup? '
-    'Please refer to base/test/test_support_ios.mm for example.'
-  )
 
 
 def _CreateCoverageProfileDataFromTargetProfDataFiles(profdata_file_paths):
@@ -690,11 +565,11 @@ def _CreateCoverageProfileDataFromTargetProfDataFiles(profdata_file_paths):
   profdata_file_path = _GetProfdataFilePath()
   try:
     subprocess_cmd = [
-      LLVM_PROFDATA_PATH,
-      'merge',
-      '-o',
-      profdata_file_path,
-      '-sparse=true',
+        LLVM_PROFDATA_PATH,
+        'merge',
+        '-o',
+        profdata_file_path,
+        '-sparse=true',
     ]
     subprocess_cmd.extend(profdata_file_paths)
 
@@ -702,15 +577,14 @@ def _CreateCoverageProfileDataFromTargetProfDataFiles(profdata_file_paths):
     logging.debug('Merge output: %s', output)
   except subprocess.CalledProcessError as error:
     logging.error(
-      'Failed to merge target profdata files to create coverage profdata. %s',
-      FILE_BUG_MESSAGE,
+        'Failed to merge target profdata files to create coverage profdata. %s',
+        FILE_BUG_MESSAGE,
     )
     raise error
 
   logging.debug('Finished merging target profdata files.')
-  logging.info(
-    'Code coverage profile data is created as: "%s".', profdata_file_path
-  )
+  logging.info('Code coverage profile data is created as: "%s".',
+               profdata_file_path)
   return profdata_file_path
 
 
@@ -734,63 +608,56 @@ def _CreateTargetProfDataFileFromProfRawFiles(target, profraw_file_paths):
 
   try:
     subprocess_cmd = [
-      LLVM_PROFDATA_PATH,
-      'merge',
-      '-o',
-      profdata_file_path,
-      '-sparse=true',
+        LLVM_PROFDATA_PATH,
+        'merge',
+        '-o',
+        profdata_file_path,
+        '-sparse=true',
     ]
     subprocess_cmd.extend(profraw_file_paths)
     output = subprocess.check_output(subprocess_cmd)
     logging.debug('Merge output: %s', output)
   except subprocess.CalledProcessError as error:
     logging.error(
-      'Failed to merge target profraw files to create target profdata.'
-    )
+        'Failed to merge target profraw files to create target profdata.')
     raise error
 
   logging.debug('Finished merging target profraw files.')
-  logging.info(
-    'Target "%s" profile data is created as: "%s".', target, profdata_file_path
-  )
+  logging.info('Target "%s" profile data is created as: "%s".', target,
+               profdata_file_path)
   return profdata_file_path
 
 
 def _GeneratePerFileCoverageSummary(
-  binary_paths,
-  profdata_file_path,
-  filters,
-  ignore_filename_regex,
-  path_equivalence,
+    binary_paths,
+    profdata_file_path,
+    filters,
+    ignore_filename_regex,
+    path_equivalence,
 ):
   """Generates per file coverage summary using "llvm-cov export" command."""
   # llvm-cov export [options] -instr-profile PROFILE BIN [-object BIN,...]
   # [[-object BIN]] [SOURCES].
   # NOTE: For object files, the first one is specified as a positional argument,
   # and the rest are specified as keyword argument.
-  logging.debug(
-    'Generating per-file code coverage summary using "llvm-cov '
-    'export -summary-only" command.'
-  )
+  logging.debug('Generating per-file code coverage summary using "llvm-cov '
+                'export -summary-only" command.')
   for path in binary_paths:
     if not os.path.exists(path):
       logging.error("Binary %s does not exist", path)
   subprocess_cmd = [
-    LLVM_COV_PATH,
-    'export',
-    '-summary-only',
-    '-compilation-dir={}'.format(BUILD_DIR),
-    '-instr-profile=' + profdata_file_path,
-    binary_paths[0],
+      LLVM_COV_PATH,
+      'export',
+      '-summary-only',
+      '-compilation-dir={}'.format(BUILD_DIR),
+      '-instr-profile=' + profdata_file_path,
+      binary_paths[0],
   ]
   subprocess_cmd.extend(
-    ['-object=' + binary_path for binary_path in binary_paths[1:]]
-  )
-  _AddArchArgumentForIOSIfNeeded(subprocess_cmd, len(binary_paths))
+      ['-object=' + binary_path for binary_path in binary_paths[1:]])
   if path_equivalence:
     subprocess_cmd.extend(
-      ['-path-equivalence=' + mapping for mapping in path_equivalence]
-    )
+        ['-path-equivalence=' + mapping for mapping in path_equivalence])
   subprocess_cmd.extend(filters)
   if ignore_filename_regex:
     subprocess_cmd.append('-ignore-filename-regex=%s' % ignore_filename_regex)
@@ -804,16 +671,6 @@ def _GeneratePerFileCoverageSummary(
   return export_output
 
 
-def _AddArchArgumentForIOSIfNeeded(cmd_list, num_archs):
-  """Appends -arch arguments to the command list if it's ios platform.
-
-  iOS binaries are universal binaries, and require specifying the architecture
-  to use, and one architecture needs to be specified for each binary.
-  """
-  if _IsIOS():
-    cmd_list.extend(['-arch=x86_64'] * num_archs)
-
-
 def _GetBinaryPath(command):
   """Returns a relative path to the binary to be run by the command.
 
@@ -822,11 +679,6 @@ def _GetBinaryPath(command):
   2. Use xvfb.
     2.1. "python testing/xvfb.py out/coverage/url_unittests <arguments>"
     2.2. "testing/xvfb.py out/coverage/url_unittests <arguments>"
-  3. Use iossim to run tests on iOS platform, please refer to testing/iossim.mm
-    for its usage.
-    3.1. "out/Coverage-iphonesimulator/iossim
-          <iossim_arguments> -c <app_arguments>
-          out/Coverage-iphonesimulator/url_unittests.app"
 
   Args:
     command: A command used to run a target.
@@ -839,31 +691,17 @@ def _GetBinaryPath(command):
   command_parts = _SplitCommand(command)
   if os.path.basename(command_parts[0]) == 'python':
     assert os.path.basename(command_parts[1]) == xvfb_script_name, (
-      'This tool doesn\'t understand the command: "%s".' % command
-    )
+        'This tool doesn\'t understand the command: "%s".' % command)
     return command_parts[2]
 
   if os.path.basename(command_parts[0]) == xvfb_script_name:
     return command_parts[1]
 
-  if _IsIOSCommand(command):
-    # For a given application bundle, the binary resides in the bundle and has
-    # the same name with the application without the .app extension.
-    app_path = command_parts[1].rstrip(os.path.sep)
-    app_name = os.path.splitext(os.path.basename(app_path))[0]
-    return os.path.join(app_path, app_name)
-
-  if coverage_utils.GetHostPlatform() == 'win' and not command_parts[
-    0
-  ].endswith('.exe'):
+  if coverage_utils.GetHostPlatform(
+  ) == 'win' and not command_parts[0].endswith('.exe'):
     return command_parts[0] + '.exe'
 
   return command_parts[0]
-
-
-def _IsIOSCommand(command):
-  """Returns true if command is used to run tests on iOS platform."""
-  return os.path.basename(_SplitCommand(command)[0]) == 'iossim'
 
 
 def _VerifyTargetExecutablesAreInBuildDirectory(commands):
@@ -873,28 +711,23 @@ def _VerifyTargetExecutablesAreInBuildDirectory(commands):
     binary_path = _GetBinaryPath(command)
     binary_absolute_path = coverage_utils.GetFullPath(binary_path)
     assert binary_absolute_path.startswith(BUILD_DIR + os.sep), (
-      'Target executable "%s" in command: "%s" is outside of '
-      'the given build directory: "%s".' % (binary_path, command, BUILD_DIR)
-    )
+        'Target executable "%s" in command: "%s" is outside of '
+        'the given build directory: "%s".' % (binary_path, command, BUILD_DIR))
 
 
 def _ValidateBuildingWithClangCoverage():
   """Asserts that targets are built with Clang coverage enabled."""
   if not _GetBuildArgsPath():
     logging.warning(
-      'Assuming targets are built with coverage instrumentation enabled.'
-    )
+        'Assuming targets are built with coverage instrumentation enabled.')
     return
 
   build_args = _GetBuildArgs()
 
-  if (
-    CLANG_COVERAGE_BUILD_ARG not in build_args
-    or build_args[CLANG_COVERAGE_BUILD_ARG] != 'true'
-  ):
-    assert False, ('\'{} = true\' is required in args.gn.').format(
-      CLANG_COVERAGE_BUILD_ARG
-    )
+  if (CLANG_COVERAGE_BUILD_ARG not in build_args
+      or build_args[CLANG_COVERAGE_BUILD_ARG] != 'true'):
+    assert False, ('\'{} = true\' is required in args.gn.'
+                   ).format(CLANG_COVERAGE_BUILD_ARG)
 
 
 def _ValidateCurrentPlatformIsSupported():
@@ -905,10 +738,9 @@ def _ValidateCurrentPlatformIsSupported():
   else:
     current_platform = coverage_utils.GetHostPlatform()
 
-  supported_platforms = ['android', 'chromeos', 'ios', 'linux', 'mac', 'win']
+  supported_platforms = ['linux', 'mac', 'win']
   assert current_platform in supported_platforms, (
-    'Coverage is onlysupported on %s' % supported_platforms
-  )
+      'Coverage is onlysupported on %s' % supported_platforms)
 
 
 def _GetBuildArgsPath():
@@ -919,9 +751,8 @@ def _GetBuildArgsPath():
   """
   build_args_path = os.path.join(BUILD_DIR, 'args.gn')
   if not os.path.exists(build_args_path):
-    logging.warning(
-      '"%s" is missing args.gn file. Assuming non-GN build.', BUILD_DIR
-    )
+    logging.warning('"%s" is missing args.gn file. Assuming non-GN build.',
+                    BUILD_DIR)
     return None
   return build_args_path
 
@@ -991,8 +822,8 @@ def _GetBinaryPathsFromTargets(targets, build_dir):
       binary_paths.append(binary_path)
     else:
       logging.warning(
-        'Target binary "%s" not found in build directory, skipping.',
-        os.path.basename(binary_path),
+          'Target binary "%s" not found in build directory, skipping.',
+          os.path.basename(binary_path),
       )
 
   return binary_paths
@@ -1003,11 +834,10 @@ def _GetCommandForWebTests(targets, arguments):
   assert len(targets) == 1, "Only one wpt target can be run"
   target = targets[0]
   expected_profraw_file_name = os.extsep.join(
-    [target, '%2m', PROFRAW_FILE_EXTENSION]
-  )
+      [target, '%2m', PROFRAW_FILE_EXTENSION])
   expected_profraw_file_path = os.path.join(
-    coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR),
-    expected_profraw_file_name,
+      coverage_utils.GetCoverageReportRootDirPath(OUTPUT_DIR),
+      expected_profraw_file_name,
   )
 
   cpu_count = multiprocessing.cpu_count()
@@ -1018,34 +848,19 @@ def _GetCommandForWebTests(targets, arguments):
   cpu_count = max(1, cpu_count // 2)
 
   command_list = [
-    'third_party/blink/tools/run_web_tests.py',
-    '--additional-driver-flag=--no-sandbox',
-    '--additional-env-var=LLVM_PROFILE_FILE=%s' % expected_profraw_file_path,
-    '--child-processes=%d' % cpu_count,
-    '--disable-breakpad',
-    '--no-show-results',
-    '--skip-failing-tests',
-    '--target=%s' % os.path.basename(BUILD_DIR),
-    '--timeout-ms=30000',
+      'third_party/blink/tools/run_web_tests.py',
+      '--additional-driver-flag=--no-sandbox',
+      '--additional-env-var=LLVM_PROFILE_FILE=%s' % expected_profraw_file_path,
+      '--child-processes=%d' % cpu_count,
+      '--disable-breakpad',
+      '--no-show-results',
+      '--skip-failing-tests',
+      '--target=%s' % os.path.basename(BUILD_DIR),
+      '--timeout-ms=30000',
   ]
   if arguments.strip():
     command_list.append(arguments)
   return ' '.join(command_list)
-
-
-def _GetBinaryPathsForAndroid(targets):
-  """Return binary paths used when running android tests."""
-  # TODO(crbug.com/41423295): Implement approach that doesn't assume .so file is
-  # based on the target's name.
-  android_binaries = set()
-  for target in targets:
-    so_library_path = os.path.join(
-      BUILD_DIR, 'lib.unstripped', 'lib%s__library.so' % target
-    )
-    if os.path.exists(so_library_path):
-      android_binaries.add(so_library_path)
-
-  return list(android_binaries)
 
 
 def _GetBinaryPathForWebTests():
@@ -1056,53 +871,48 @@ def _GetBinaryPathForWebTests():
   elif host_platform == 'linux':
     return os.path.join(BUILD_DIR, 'content_shell')
   elif host_platform == 'mac':
-    return os.path.join(
-      BUILD_DIR, 'Content Shell.app', 'Contents', 'MacOS', 'Content Shell'
-    )
+    return os.path.join(BUILD_DIR, 'Content Shell.app', 'Contents', 'MacOS',
+                        'Content Shell')
   else:
     assert False, 'This platform is not supported for web tests.'
 
 
 @telemetry_utils.tracer.start_as_current_span(
-  'coverage.py._GenerateCoverageReport'
-)
-def _GenerateCoverageReport(
-  args, binary_paths, profdata_file_path, absolute_filter_paths
-):
+    'coverage.py._GenerateCoverageReport')
+def _GenerateCoverageReport(args, binary_paths, profdata_file_path,
+                            absolute_filter_paths):
   """Generate the coverage report in the supported format."""
-  assert args.format in ['html', 'lcov', 'text'], (
-    '%s is not a valid output format for "llvm-cov show/export". Only '
-    '"text", "html" and "lcov" formats are supported.' % (args.format)
-  )
-  logging.info(
-    'Generating code coverage report in %s (this can take a while '
-    'depending on size of target!).' % (args.format)
-  )
+  assert args.format in [
+      'html', 'lcov', 'text'
+  ], ('%s is not a valid output format for "llvm-cov show/export". Only '
+      '"text", "html" and "lcov" formats are supported.' % (args.format))
+  logging.info('Generating code coverage report in %s (this can take a while '
+               'depending on size of target!).' % (args.format))
   per_file_summary_data = _GeneratePerFileCoverageSummary(
-    binary_paths,
-    profdata_file_path,
-    absolute_filter_paths,
-    args.ignore_filename_regex,
-    args.path_equivalence,
-  )
-
-  if args.format == 'lcov':
-    _GeneratePerFileLineByLineCoverageInLcov(
       binary_paths,
       profdata_file_path,
       absolute_filter_paths,
       args.ignore_filename_regex,
       args.path_equivalence,
+  )
+
+  if args.format == 'lcov':
+    _GeneratePerFileLineByLineCoverageInLcov(
+        binary_paths,
+        profdata_file_path,
+        absolute_filter_paths,
+        args.ignore_filename_regex,
+        args.path_equivalence,
     )
     return
 
   _GeneratePerFileLineByLineCoverageInFormat(
-    binary_paths,
-    profdata_file_path,
-    absolute_filter_paths,
-    args.ignore_filename_regex,
-    args.format,
-    args.path_equivalence,
+      binary_paths,
+      profdata_file_path,
+      absolute_filter_paths,
+      args.ignore_filename_regex,
+      args.format,
+      args.path_equivalence,
   )
   component_mappings = None
   if not args.no_component_view:
@@ -1110,13 +920,13 @@ def _GenerateCoverageReport(
 
   # Call prepare here.
   processor = coverage_utils.CoverageReportPostProcessor(
-    OUTPUT_DIR,
-    SRC_ROOT_PATH,
-    per_file_summary_data,
-    no_component_view=args.no_component_view,
-    no_file_view=args.no_file_view,
-    component_mappings=component_mappings,
-    path_equivalence=args.path_equivalence,
+      OUTPUT_DIR,
+      SRC_ROOT_PATH,
+      per_file_summary_data,
+      no_component_view=args.no_component_view,
+      no_file_view=args.no_file_view,
+      component_mappings=component_mappings,
+      path_equivalence=args.path_equivalence,
   )
 
   if args.format == 'html':
@@ -1152,163 +962,165 @@ def _ParseCommandArguments():
   arg_parser.usage = __doc__
 
   arg_parser.add_argument(
-    '-b',
-    '--build-dir',
-    type=str,
-    required=True,
-    help='The build directory, the path needs to be relative to the root of '
-    'the checkout.',
+      '-b',
+      '--build-dir',
+      type=str,
+      required=True,
+      help='The build directory, the path needs to be relative to the root of '
+      'the checkout.',
   )
 
   arg_parser.add_argument(
-    '-o',
-    '--output-dir',
-    type=str,
-    required=True,
-    help='Output directory for generated artifacts.',
+      '-o',
+      '--output-dir',
+      type=str,
+      required=True,
+      help='Output directory for generated artifacts.',
   )
 
   arg_parser.add_argument(
-    '-c',
-    '--command',
-    action='append',
-    required=False,
-    help='Commands used to run test targets, one test target needs one and '
-    'only one command, when specifying commands, one should assume the '
-    'current working directory is the root of the checkout. This option is '
-    'incompatible with -p/--profdata-file option.',
+      '-c',
+      '--command',
+      action='append',
+      required=False,
+      help='Commands used to run test targets, one test target needs one and '
+      'only one command, when specifying commands, one should assume the '
+      'current working directory is the root of the checkout. This option is '
+      'incompatible with -p/--profdata-file option.',
   )
 
   arg_parser.add_argument(
-    '-wt',
-    '--web-tests',
-    nargs='?',
-    type=str,
-    const=' ',
-    required=False,
-    help='Run blink web tests. Support passing arguments to run_web_tests.py',
+      '-wt',
+      '--web-tests',
+      nargs='?',
+      type=str,
+      const=' ',
+      required=False,
+      help='Run blink web tests. Support passing arguments to run_web_tests.py',
   )
 
   arg_parser.add_argument(
-    '-p',
-    '--profdata-file',
-    type=str,
-    action='append',
-    required=False,
-    help='Path(s) to profdata file(s) to use for generating code coverage reports.'
-    'This can be useful if you generated the profdata file seperately in '
-    'your own test harness. This option is ignored if run command(s) are '
-    'already provided above using -c/--command option.',
+      '-p',
+      '--profdata-file',
+      type=str,
+      action='append',
+      required=False,
+      help=
+      'Path(s) to profdata file(s) to use for generating code coverage reports.'
+      'This can be useful if you generated the profdata file seperately in '
+      'your own test harness. This option is ignored if run command(s) are '
+      'already provided above using -c/--command option.',
   )
 
   arg_parser.add_argument(
-    '-f',
-    '--filters',
-    action='append',
-    required=False,
-    help='Directories or files to get code coverage for, and all files under '
-    'the directories are included recursively.',
+      '-f',
+      '--filters',
+      action='append',
+      required=False,
+      help='Directories or files to get code coverage for, and all files under '
+      'the directories are included recursively.',
   )
 
   arg_parser.add_argument(
-    '-a',
-    '--additional-objects',
-    action='append',
-    required=False,
-    help='Additional object files to include in the coverage report. '
-    'These are passed to llvm-cov as -object flags.',
+      '-a',
+      '--additional-objects',
+      action='append',
+      required=False,
+      help='Additional object files to include in the coverage report. '
+      'These are passed to llvm-cov as -object flags.',
   )
 
   arg_parser.add_argument(
-    '--path-equivalence',
-    type=str,
-    action='append',
-    help='Map coverage data paths to local source file paths. '
-    'Passed to llvm-cov as -path-equivalence flags.',
+      '--path-equivalence',
+      type=str,
+      action='append',
+      help='Map coverage data paths to local source file paths. '
+      'Passed to llvm-cov as -path-equivalence flags.',
   )
 
   arg_parser.add_argument(
-    '-i',
-    '--ignore-filename-regex',
-    type=str,
-    help='Skip source code files with file paths that match the given '
-    'regular expression. For example, use -i=\'.*/out/.*|.*/third_party/.*\' '
-    'to exclude files in third_party/ and out/ folders from the report.',
+      '-i',
+      '--ignore-filename-regex',
+      type=str,
+      help='Skip source code files with file paths that match the given '
+      'regular expression. For example, use -i=\'.*/out/.*|.*/third_party/.*\' '
+      'to exclude files in third_party/ and out/ folders from the report.',
   )
 
   arg_parser.add_argument(
-    '--no-file-view',
-    action='store_true',
-    help='Don\'t generate the file view in the coverage report. When there '
-    'are large number of html files, the file view becomes heavy and may '
-    'cause the browser to freeze, and this argument comes handy.',
+      '--no-file-view',
+      action='store_true',
+      help='Don\'t generate the file view in the coverage report. When there '
+      'are large number of html files, the file view becomes heavy and may '
+      'cause the browser to freeze, and this argument comes handy.',
   )
 
   arg_parser.add_argument(
-    '--no-component-view',
-    action='store_true',
-    help='Don\'t generate the component view in the coverage report.',
+      '--no-component-view',
+      action='store_true',
+      help='Don\'t generate the component view in the coverage report.',
   )
 
   arg_parser.add_argument(
-    '--no-report',
-    action='store_true',
-    help='Don\'t generate the final coverage report. This option is '
-    'incompatible with -p/--profdata-file, --format, --no-file-view, and'
-    '--no-component-view option flags.',
+      '--no-report',
+      action='store_true',
+      help='Don\'t generate the final coverage report. This option is '
+      'incompatible with -p/--profdata-file, --format, --no-file-view, and'
+      '--no-component-view option flags.',
   )
 
   arg_parser.add_argument(
-    '--coverage-tools-dir',
-    type=str,
-    help='Path of the directory where LLVM coverage tools (llvm-cov, '
-    'llvm-profdata) exist. This should be only needed if you are testing '
-    'against a custom built clang revision. Otherwise, we pick coverage '
-    'tools automatically from your current source checkout.',
+      '--coverage-tools-dir',
+      type=str,
+      help='Path of the directory where LLVM coverage tools (llvm-cov, '
+      'llvm-profdata) exist. This should be only needed if you are testing '
+      'against a custom built clang revision. Otherwise, we pick coverage '
+      'tools automatically from your current source checkout.',
   )
 
   arg_parser.add_argument(
-    '-j',
-    '--jobs',
-    type=int,
-    default=None,
-    help='Run N jobs to build in parallel. If not specified, a default value '
-    'will be derived based on CPUs and reclient/siso availability. Please '
-    'refer to \'autoninja -h\' for more details.',
+      '-j',
+      '--jobs',
+      type=int,
+      default=None,
+      help='Run N jobs to build in parallel. If not specified, a default value '
+      'will be derived based on CPUs and reclient/siso availability. Please '
+      'refer to \'autoninja -h\' for more details.',
   )
 
   arg_parser.add_argument(
-    '--format',
-    type=str,
-    default='html',
-    help='Output format of the "llvm-cov show/export" command. The '
-    'supported formats are "text", "html" and "lcov".',
+      '--format',
+      type=str,
+      default='html',
+      help='Output format of the "llvm-cov show/export" command. The '
+      'supported formats are "text", "html" and "lcov".',
   )
 
   arg_parser.add_argument(
-    '-v',
-    '--verbose',
-    action='store_true',
-    help='Prints additional output for diagnostics.',
+      '-v',
+      '--verbose',
+      action='store_true',
+      help='Prints additional output for diagnostics.',
+  )
+
+  arg_parser.add_argument('-l',
+                          '--log_file',
+                          type=str,
+                          help='Redirects logs to a file.')
+
+  arg_parser.add_argument(
+      'targets',
+      nargs='+',
+      help='The names of the test targets to run. If multiple run commands are '
+      'specified using the -c/--command option, then the order of targets and '
+      'commands must match, otherwise coverage generation will fail.',
   )
 
   arg_parser.add_argument(
-    '-l', '--log_file', type=str, help='Redirects logs to a file.'
-  )
-
-  arg_parser.add_argument(
-    'targets',
-    nargs='+',
-    help='The names of the test targets to run. If multiple run commands are '
-    'specified using the -c/--command option, then the order of targets and '
-    'commands must match, otherwise coverage generation will fail.',
-  )
-
-  arg_parser.add_argument(
-    '--no-compile',
-    action='store_true',
-    help='Skip compile targets step. Script expects targets to have been'
-    'built beforehand',
+      '--no-compile',
+      action='store_true',
+      help='Skip compile targets step. Script expects targets to have been'
+      'built beforehand',
   )
   args = arg_parser.parse_args()
   return args
@@ -1325,14 +1137,12 @@ def Main():
   # Setup coverage binaries even when script is called with empty params. This
   # is used by coverage bot for initial setup.
   if len(sys.argv) == 1:
-    subprocess.check_call(
-      [
+    subprocess.check_call([
         sys.executable,
         'tools/clang/scripts/update.py',
         '--package',
         'coverage_tools',
-      ]
-    )
+    ])
     print(__doc__)
     return
 
@@ -1348,19 +1158,16 @@ def Main():
   OUTPUT_DIR = coverage_utils.GetFullPath(args.output_dir)
 
   assert args.web_tests or args.command or args.profdata_file, (
-    'Need to either provide commands to run using -c/--command option OR '
-    'provide prof-data file as input using -p/--profdata-file option OR '
-    'run web tests using -wt/--run-web-tests.'
-  )
+      'Need to either provide commands to run using -c/--command option OR '
+      'provide prof-data file as input using -p/--profdata-file option OR '
+      'run web tests using -wt/--run-web-tests.')
 
   assert not args.command or (len(args.targets) == len(args.command)), (
-    'Number of targets must be equal to the number of test commands.'
-  )
+      'Number of targets must be equal to the number of test commands.')
 
-  assert os.path.exists(BUILD_DIR), (
-    'Build directory: "%s" doesn\'t exist. '
-    'Please run "gn gen" to generate.' % BUILD_DIR
-  )
+  assert os.path.exists(BUILD_DIR), ('Build directory: "%s" doesn\'t exist. '
+                                     'Please run "gn gen" to generate.' %
+                                     BUILD_DIR)
 
   _ValidateCurrentPlatformIsSupported()
   _ValidateBuildingWithClangCoverage()
@@ -1375,22 +1182,19 @@ def Main():
   if args.web_tests:
     commands = [_GetCommandForWebTests(args.targets, args.web_tests)]
     profdata_file_path = _CreateCoverageProfileDataForTargets(
-      args.targets, commands, args.jobs, args.no_compile
-    )
+        args.targets, commands, args.jobs, args.no_compile)
     binary_paths = [_GetBinaryPathForWebTests()]
   elif args.command:
     for i in range(len(args.command)):
       assert 'run_web_tests.py' not in args.command[i], (
-        'run_web_tests.py is not supported via --command argument. '
-        'Please use --run-web-tests argument instead.'
-      )
+          'run_web_tests.py is not supported via --command argument. '
+          'Please use --run-web-tests argument instead.')
 
     # A list of commands are provided. Run them to generate profdata file, and
     # create a list of binary paths from parsing commands.
     _VerifyTargetExecutablesAreInBuildDirectory(args.command)
     profdata_file_path = _CreateCoverageProfileDataForTargets(
-      args.targets, args.command, args.jobs, args.no_compile
-    )
+        args.targets, args.command, args.jobs, args.no_compile)
     binary_paths = [_GetBinaryPath(command) for command in args.command]
   else:
     # An input prof-data file(s) is already provided.
@@ -1400,8 +1204,7 @@ def Main():
     else:
       # Otherwise, there are multiple profdata files and we need to merge them.
       profdata_file_path = _CreateCoverageProfileDataFromTargetProfDataFiles(
-        args.profdata_file
-      )
+          args.profdata_file)
     # Since input prof-data files were provided, we only need to calculate the
     # binary paths from here.
     binary_paths = _GetBinaryPathsFromTargets(args.targets, args.build_dir)
@@ -1412,27 +1215,24 @@ def Main():
   otool_path = None
   if sys.platform == 'darwin':
     hermetic_otool_path = os.path.join(
-      SRC_ROOT_PATH,
-      'build',
-      'mac_files',
-      'xcode_binaries',
-      'Contents',
-      'Developer',
-      'Toolchains',
-      'XcodeDefault.xctoolchain',
-      'usr',
-      'bin',
-      'otool',
+        SRC_ROOT_PATH,
+        'build',
+        'mac_files',
+        'xcode_binaries',
+        'Contents',
+        'Developer',
+        'Toolchains',
+        'XcodeDefault.xctoolchain',
+        'usr',
+        'bin',
+        'otool',
     )
     if os.path.exists(hermetic_otool_path):
       otool_path = hermetic_otool_path
 
-  if _IsAndroid():
-    binary_paths = _GetBinaryPathsForAndroid(args.targets)
-  elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+  if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
     binary_paths.extend(
-      coverage_utils.GetSharedLibraries(binary_paths, BUILD_DIR, otool_path)
-    )
+        coverage_utils.GetSharedLibraries(binary_paths, BUILD_DIR, otool_path))
 
   if args.additional_objects:
     for obj_path in args.additional_objects:
@@ -1447,9 +1247,8 @@ def Main():
     logging.info('Skip generating coverage report due to --no-report flag.')
     return
 
-  _GenerateCoverageReport(
-    args, binary_paths, profdata_file_path, absolute_filter_paths
-  )
+  _GenerateCoverageReport(args, binary_paths, profdata_file_path,
+                          absolute_filter_paths)
 
 
 if __name__ == '__main__':

@@ -5,8 +5,6 @@
 import("//chrome/common/features.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
 
-assert(!is_android)
-
 mojom("mojo_bindings") {
   sources = [ "whats_new.mojom" ]
   webui_module_path = "/"
@@ -137,55 +135,52 @@ if (is_linux || is_mac || is_win) {
   }
 }
 
-if (!is_android && !is_chromeos) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "whats_new_fetcher_browsertest.cc" ]
-    deps = [
-      ":whats_new",
-      "//base",
-      "//base/test:test_support",
-      "//chrome/browser:browser_process",
-      "//chrome/browser:global_features",
-      "//chrome/browser/ui:ui_features",
-      "//chrome/common:version_header",
-      "//chrome/test/interaction",
-      "//components/user_education/common",
-      "//components/user_education/webui",
-      "//content/test:test_support",
-      "//testing/gtest",
-    ]
-  }
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [ "whats_new_fetcher_browsertest.cc" ]
+  deps = [
+    ":whats_new",
+    "//base",
+    "//base/test:test_support",
+    "//chrome/browser:browser_process",
+    "//chrome/browser:global_features",
+    "//chrome/browser/ui:ui_features",
+    "//chrome/common:version_header",
+    "//chrome/test/interaction",
+    "//components/user_education/common",
+    "//components/user_education/webui",
+    "//content/test:test_support",
+    "//testing/gtest",
+  ]
 }
 
 source_set("interactive_ui_tests") {
   testonly = true
   defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-  if (!is_android && !is_chromeos) {
-    sources = [ "whats_new_fetcher_interactive_uitest.cc" ]
-    deps = [
-      ":whats_new",
-      "//base",
-      "//base/test:test_support",
-      "//chrome/browser:browser_process",
-      "//chrome/browser:global_features",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:ui_features",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/common:version_header",
-      "//chrome/test/base:in_process_browser_test",
-      "//chrome/test/base:interactive_test_utils",
-      "//components/user_education/common",
-      "//components/user_education/webui",
-      "//content/test:test_support",
-      "//testing/gtest",
-    ]
-    if (use_ozone) {
-      deps += [ "//ui//ozone" ]
-    }
-    if (is_linux) {
-      deps += [ "//ui/views:test_support" ]
-    }
+
+  sources = [ "whats_new_fetcher_interactive_uitest.cc" ]
+  deps = [
+    ":whats_new",
+    "//base",
+    "//base/test:test_support",
+    "//chrome/browser:browser_process",
+    "//chrome/browser:global_features",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui:ui_features",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/common:version_header",
+    "//chrome/test/base:in_process_browser_test",
+    "//chrome/test/base:interactive_test_utils",
+    "//components/user_education/common",
+    "//components/user_education/webui",
+    "//content/test:test_support",
+    "//testing/gtest",
+  ]
+  if (use_ozone) {
+    deps += [ "//ui//ozone" ]
+  }
+  if (is_linux) {
+    deps += [ "//ui/views:test_support" ]
   }
 }

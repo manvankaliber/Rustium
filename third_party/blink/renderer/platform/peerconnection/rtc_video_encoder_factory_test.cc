@@ -82,14 +82,14 @@ const webrtc::SdpVideoFormat kH264BaselinePacketizatonMode1Sdp(
      {"packetization-mode", "1"},
      {"profile-level-id", "42001f"}},
     kScalabilityModes);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 const webrtc::SdpVideoFormat kH264ConstrainedBaselinePacketizatonMode1Sdp(
     "H264",
     {{"level-asymmetry-allowed", "1"},
      {"packetization-mode", "1"},
      {"profile-level-id", "42e01f"}},
     kScalabilityModes);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#endif
 #if BUILDFLAG(RTC_USE_H265)
 const webrtc::SdpVideoFormat kH265MainProfileLevel31Sdp("H265",
                                                         {{"profile-id", "1"},
@@ -255,7 +255,7 @@ TEST_F(RTCVideoEncoderFactoryTest, QueryCodecSupportNoSvc) {
   // On Android, H.264 HW encoder is always available via MediaCodec regardless
   // of the OpenH264 SW encoder build flag. On other platforms, H.264 HW encoder
   // requires the OpenH264 SW encoder to be available as a fallback.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_OPENH264)
+#if BUILDFLAG(ENABLE_OPENH264)
   EXPECT_TRUE(Equals(
       encoder_factory_.QueryCodecSupport(
           webrtc::SdpVideoFormat("H264", {{"level-asymmetry-allowed", "1"},
@@ -265,7 +265,7 @@ TEST_F(RTCVideoEncoderFactoryTest, QueryCodecSupportNoSvc) {
       kSupportedPowerEfficient));
   // CBP (Constrained Baseline Profile) is supported on platforms where
   // kPlatformH264CbpEncoding is enabled by default: Linux, ChromeOS, Android.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   EXPECT_TRUE(Equals(
       encoder_factory_.QueryCodecSupport(
           webrtc::SdpVideoFormat("H264", {{"level-asymmetry-allowed", "1"},
@@ -411,9 +411,9 @@ TEST_F(RTCVideoEncoderFactoryTest, GetSupportedFormatsReturnsAllExpectedModes) {
   EXPECT_THAT(encoder_factory_.GetSupportedFormats(),
               UnorderedElementsAre(
                   kH264BaselinePacketizatonMode1Sdp,
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
                   kH264ConstrainedBaselinePacketizatonMode1Sdp,
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#endif
                   kVp8Sdp, kVp9Profile0Sdp, kH265MainProfileLevel52Sdp,
                   kH265Main10ProfileLevel31Sdp, kAv1Profile0Sdp));
 }
@@ -435,9 +435,9 @@ TEST_F(RTCVideoEncoderFactoryTest,
   EXPECT_THAT(encoder_factory_.GetSupportedFormats(),
               UnorderedElementsAre(
                   kH264BaselinePacketizatonMode1Sdp,
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
                   kH264ConstrainedBaselinePacketizatonMode1Sdp,
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#endif
                   kVp8Sdp, kVp9Profile0Sdp, kH265MainProfileLevel52SdpL1T2,
                   kH265Main10ProfileLevel31SdpL1T2, kAv1Profile0Sdp));
 }
@@ -461,9 +461,9 @@ TEST_F(RTCVideoEncoderFactoryTest,
   EXPECT_THAT(encoder_factory_.GetSupportedFormats(),
               UnorderedElementsAre(
                   kH264BaselinePacketizatonMode1Sdp,
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
                   kH264ConstrainedBaselinePacketizatonMode1Sdp,
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#endif
                   kVp8Sdp, kVp9Profile0Sdp, kH265MainProfileLevel52SdpL1T1,
                   kH265Main10ProfileLevel31SdpL1T1, kAv1Profile0Sdp));
 }
@@ -487,7 +487,7 @@ TEST_F(RTCVideoEncoderFactoryTest, SupportedFormatsHaveScalabilityModes) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_OPENH264)
+#if BUILDFLAG(ENABLE_OPENH264)
 TEST_F(RTCVideoEncoderFactoryTest, H264LevelDeduplicationKeepsHighestLevel) {
   ClearDisabledProfilesForTesting();
   EXPECT_CALL(mock_gpu_factories_, IsEncoderSupportKnown())
@@ -519,10 +519,10 @@ TEST_F(RTCVideoEncoderFactoryTest, H264LevelDeduplicationKeepsHighestLevel) {
   auto supported_formats = encoder_factory_.GetSupportedFormats();
   webrtc::SdpVideoFormat h264_baseline_format("unknown");
   int h264_baseline_count = 0;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   webrtc::SdpVideoFormat h264_cbp_format("unknown");
   int h264_cbp_count = 0;
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#endif
 
   for (const auto& format : supported_formats) {
     if (format.name == "H264") {
@@ -534,13 +534,13 @@ TEST_F(RTCVideoEncoderFactoryTest, H264LevelDeduplicationKeepsHighestLevel) {
           h264_baseline_format = format;
           h264_baseline_count++;
         }
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
         else if (profile_level_id->profile ==
                  webrtc::H264Profile::kProfileConstrainedBaseline) {
           h264_cbp_format = format;
           h264_cbp_count++;
         }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#endif
       }
     }
   }
@@ -577,7 +577,7 @@ TEST_F(RTCVideoEncoderFactoryTest, H264LevelDeduplicationKeepsHighestLevel) {
                                          webrtc::Resolution{2049, 1080}),
       kUnsupported));
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   EXPECT_EQ(h264_cbp_count, 1);
 
   auto cbp_profile_level_id =
@@ -605,11 +605,11 @@ TEST_F(RTCVideoEncoderFactoryTest, H264LevelDeduplicationKeepsHighestLevel) {
                                          /*scalability_mode=*/std::nullopt,
                                          webrtc::Resolution{2049, 1080}),
       kUnsupported));
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#endif
 }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_OPENH264)
+#endif
 
-#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_OPENH264))
+#if BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_OPENH264)
 TEST_F(RTCVideoEncoderFactoryTest, H264MultipleProfilesParallelArraysSync) {
   ClearDisabledProfilesForTesting();
   EXPECT_CALL(mock_gpu_factories_, IsEncoderSupportKnown())
@@ -650,7 +650,7 @@ TEST_F(RTCVideoEncoderFactoryTest, H264MultipleProfilesParallelArraysSync) {
                                      /*scalability_mode=*/std::nullopt,
                                      webrtc::Resolution{1920, 1080});
 }
-#endif  // BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_LINUX) &&
+#endif
         // BUILDFLAG(ENABLE_OPENH264))
 
 }  // namespace blink

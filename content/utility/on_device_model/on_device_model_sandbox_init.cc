@@ -18,7 +18,7 @@
 #include "services/on_device_model/ml/gpu_blocklist.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <dlfcn.h>
 #include <errno.h>
 #include <sys/stat.h>
@@ -32,18 +32,16 @@
 #include "sandbox/policy/linux/sandbox_linux.h"
 #endif
 
-#if !(BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER))
 #include "base/feature_list.h"
 #include "third_party/dawn/include/dawn/dawn_proc.h"          // nogncheck
 #include "third_party/dawn/include/dawn/native/DawnNative.h"  // nogncheck
 #include "third_party/dawn/include/dawn/webgpu_cpp.h"         // nogncheck
-#endif
 
 namespace on_device_model {
 
 namespace {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 constexpr uint32_t kVendorIdAMD = 0x1002;
 constexpr uint32_t kVendorIdIntel = 0x8086;
 constexpr uint32_t kVendorIdNVIDIA = 0x10DE;
@@ -105,23 +103,18 @@ void AddVulkanDriverPermissions(
 }
 #endif
 
-#if !(BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER))
 // If this feature is enabled, a WebGPU device is created for each valid
 // adapter. This makes sure any relevant drivers or other libs are loaded before
 // enabling the sandbox.
 BASE_FEATURE(kOnDeviceModelWarmDrivers,
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
              base::FEATURE_ENABLED_BY_DEFAULT
 #else
              base::FEATURE_DISABLED_BY_DEFAULT
 #endif
 );
-#endif
 
 bool ShouldWarmDrivers() {
-#if BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER)
-  return false;
-#else
   bool is_gpu_not_blocklisted = true;
 #if BUILDFLAG(ENABLE_ML_INTERNAL)
   ml::DeviceInfo device_info =
@@ -131,7 +124,6 @@ bool ShouldWarmDrivers() {
 #endif
   return base::FeatureList::IsEnabled(kOnDeviceModelWarmDrivers) &&
          is_gpu_not_blocklisted;
-#endif
 }
 
 bool g_pre_sandbox_init_called = false;
@@ -162,7 +154,6 @@ bool PreSandboxInit() {
     // Warm any relevant drivers before attempting to bring up the sandbox. For
     // good measure we initialize a device instance for any adapter with an
     // appropriate backend on top of any integrated or discrete GPU.
-#if !(BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_CAST_RECEIVER))
     dawnProcSetProcs(&dawn::native::GetProcs());
     auto instance = std::make_unique<dawn::native::Instance>();
     const wgpu::RequestAdapterOptions adapter_options{
@@ -189,7 +180,7 @@ bool PreSandboxInit() {
         }
       }
     }
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     // Pin the Vulkan loader selected by Dawn. Must run while `instance` is in
     // scope: it holds the loader via VulkanInstance::mVulkanLib, dlopen()ed
     // with RTLD_NOW and dlclose()d on destruction
@@ -199,7 +190,6 @@ bool PreSandboxInit() {
     // content::LoadLibrariesForGpu()) reuse it instead of loading another copy.
     dlopen("libvulkan.so.1", RTLD_NOW | RTLD_NOLOAD | RTLD_NODELETE);
 #endif
-#endif
   }
   return true;
 }
@@ -208,7 +198,7 @@ bool WasPreSandboxInitCalled() {
   return g_pre_sandbox_init_called;
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 void AddSandboxLinuxOptions(sandbox::policy::SandboxLinux::Options& options) {
   // Make sure any necessary vendor-specific options are set.
   gpu::GPUInfo info;

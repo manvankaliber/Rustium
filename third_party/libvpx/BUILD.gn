@@ -23,25 +23,11 @@ if (current_cpu == "x86") {
   }
   libvpx_high_bit_depth = true
 } else if (current_cpu == "arm") {
-  if (is_chromeos) {
-    # ChromeOS gets highbd vp9 but other arm targets do not.
-    # TODO(thakis): ChromeOS no longer ships a 32-bit arm build, remove this.
-    cpu_arch_full = "arm-neon-highbd"
-    libvpx_high_bit_depth = true
-  } else {
-    cpu_arch_full = "arm-neon"
-    libvpx_high_bit_depth = false
-  }
+  cpu_arch_full = "arm-neon"
+  libvpx_high_bit_depth = false
 } else if (current_cpu == "arm64" || current_cpu == "arm64e") {
-  # We support vp9 profile 2 for SW decoding on all platforms except mobile
-  # Android or Fuchsia.
-  if (is_android && !is_desktop_android) {
-    cpu_arch_full = "arm64"
-    libvpx_high_bit_depth = false
-  } else {
-    cpu_arch_full = "arm64-highbd"
-    libvpx_high_bit_depth = true
-  }
+  cpu_arch_full = "arm64-highbd"
+  libvpx_high_bit_depth = true
 } else if (current_cpu == "riscv64") {
   cpu_arch_full = "generic"
   libvpx_high_bit_depth = true
@@ -58,13 +44,7 @@ buildflag_header("libvpx_buildflags") {
   flags = [ "LIBVPX_HIGH_BIT_DEPTH=$libvpx_high_bit_depth" ]
 }
 
-# The mac configurations are currently a relic. They were useful when
-# x86inc.asm did not work for MACH_O but now the build is identical to the
-# linux config. iOS for arm on the other hand needs an apple-specific twist in
-# vpx_config.asm
-if (is_ios && current_cpu == "arm") {
-  os_category = current_os
-} else if (is_posix) {
+if (is_posix) {
   # Should cover linux, fuchsia, mac, and the ios simulator.
   os_category = "linux"
 } else {  # This should only match windows.
@@ -167,11 +147,7 @@ if (current_cpu == "x86" || (current_cpu == "x64" && !is_msan)) {
       "source/libvpx/vpx_ports/x86_abi_support.asm",
     ]
     defines = [ "CHROMIUM" ]
-    if (is_android) {
-      # On Android, define __ANDROID__ to use alternative standard library
-      # functions.
-      defines += [ "__ANDROID__" ]
-    }
+
     include_dirs = libvpx_include_dirs
   }
 }
@@ -422,13 +398,9 @@ if (current_cpu == "arm" && arm_assembly_sources != []) {
         get_label_info("//third_party/libvpx/source/libvpx", "root_gen_dir") +
         "/{{source_root_relative_dir}}/{{source_file_part}}.S"
     outputs = [ gen_file ]
-    if (is_ios) {
-      ads2gas_script =
-          "//third_party/libvpx/source/libvpx/build/make/ads2gas_apple.pl"
-    } else {
-      ads2gas_script =
-          "//third_party/libvpx/source/libvpx/build/make/ads2gas.pl"
-    }
+
+    ads2gas_script = "//third_party/libvpx/source/libvpx/build/make/ads2gas.pl"
+
     args = [
       "-s",
       rebase_path(ads2gas_script, root_build_dir),
@@ -468,14 +440,9 @@ source_set("libvpx_headers") {
   } else if (current_cpu == "mipsel" || current_cpu == "mips64el") {
     sources = libvpx_srcs_mips_headers
   } else if (current_cpu == "arm") {
-    if (is_chromeos) {
-      # TODO(thakis): ChromeOS no longer ships a 32-bit arm build, remove this.
-      sources = libvpx_srcs_arm_neon_highbd_headers
-    } else {
-      sources = libvpx_srcs_arm_neon_headers
-    }
+    sources = libvpx_srcs_arm_neon_headers
   } else if (current_cpu == "arm64" || current_cpu == "arm64e") {
-    if (is_chromeos || is_win || is_mac || is_ios) {
+    if (is_win || is_mac) {
       sources = libvpx_srcs_arm64_highbd_headers
     } else {
       sources = libvpx_srcs_arm64_headers
@@ -490,7 +457,7 @@ source_set("libvpx_headers") {
 }
 
 static_library("libvpx") {
-  if (!is_debug && (is_win || is_chromeos)) {
+  if (!is_debug && is_win) {
     configs -= [ "//build/config/compiler:default_optimization" ]
     configs += [ "//build/config/compiler:optimize_max" ]
   }
@@ -508,14 +475,9 @@ static_library("libvpx") {
   } else if (current_cpu == "mipsel" || current_cpu == "mips64el") {
     sources = libvpx_srcs_mips
   } else if (current_cpu == "arm") {
-    if (is_chromeos) {
-      # TODO(thakis): ChromeOS no longer ships a 32-bit arm build, remove this.
-      sources = libvpx_srcs_arm_neon_highbd
-    } else {
-      sources = libvpx_srcs_arm_neon
-    }
+    sources = libvpx_srcs_arm_neon
   } else if (current_cpu == "arm64" || current_cpu == "arm64e") {
-    if (is_chromeos || is_win || is_mac || is_ios) {
+    if (is_win || is_mac) {
       sources = libvpx_srcs_arm64_highbd
     } else {
       sources = libvpx_srcs_arm64
@@ -558,9 +520,7 @@ static_library("libvpx") {
       ]
     }
   }
-  if (is_android) {
-    deps += [ "//third_party/cpu_features:ndk_compat" ]
-  }
+
   if (current_cpu == "arm" && arm_assembly_sources != []) {
     deps += [ ":libvpx_assembly_arm" ]
   }
@@ -642,17 +602,11 @@ test("test_libvpx") {
     "//testing/gtest",
   ]
 
-  if (is_android) {
-    use_raw_android_executable = true
-    defines = [ "LIBVPX_TEST_DATA_PATH=/data/local/tmp/chromium_tests_root/third_party/libvpx/testdata" ]
-    data = [ "testdata/" ]
-  } else {
-    defines = [ string_join("",
-                            [
-                              "LIBVPX_TEST_DATA_PATH=",
-                              rebase_path("testdata", root_build_dir),
-                            ]) ]
-  }
+  defines = [ string_join("",
+                          [
+                            "LIBVPX_TEST_DATA_PATH=",
+                            rebase_path("testdata", root_build_dir),
+                          ]) ]
 
   configs -= [ "//build/config/compiler:chromium_code" ]
   configs += [ "//build/config/compiler:no_chromium_code" ]

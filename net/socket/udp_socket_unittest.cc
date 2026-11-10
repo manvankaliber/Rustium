@@ -62,14 +62,7 @@
 #include <iphlpapi.h>
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "net/android/network_change_notifier_factory_android.h"
-#include "net/base/network_change_notifier.h"
-#endif
 
-#if BUILDFLAG(IS_IOS)
-#include <TargetConditionals.h>
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "base/mac/mac_util.h"
@@ -85,8 +78,7 @@ namespace net {
 namespace {
 
 // Whether Source-Specific Multicast (SSM) is expected to work on this platform.
-#if defined(MCAST_JOIN_SOURCE_GROUP) && !BUILDFLAG(IS_ANDROID) && \
-    !BUILDFLAG(IS_IOS)
+#if defined(MCAST_JOIN_SOURCE_GROUP)
 constexpr bool kExpectSSMToWork = true;
 #else
 constexpr bool kExpectSSMToWork = false;
@@ -748,12 +740,10 @@ TEST_F(UDPSocketTest, ClientGetLocalPeerAddresses) {
   } tests[] = {
       {"127.0.00.1", "127.0.0.1", false},
       {"::1", "::1", true},
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
       // Addresses below are disabled on Android. See crbug.com/161248
       // They are also disabled on iOS. See https://crbug.com/523225
       {"192.168.1.1", "127.0.0.1", false},
       {"2001:db8:0::42", "::1", true},
-#endif
   };
   for (const auto& test : tests) {
     SCOPED_TRACE(std::string("Connecting from ") + test.local_address +
@@ -835,12 +825,7 @@ TEST_F(UDPSocketTest, ClientSetDoNotFragment) {
     EXPECT_THAT(rv, IsOk());
 
     rv = client.SetDoNotFragment();
-#if BUILDFLAG(IS_IOS)
-    // TODO(crbug.com/42050633): IP_MTU_DISCOVER is not implemented on Fuchsia.
-    EXPECT_THAT(rv, IsError(ERR_NOT_IMPLEMENTED));
-#else
     EXPECT_THAT(rv, IsOk());
-#endif
   }
 }
 
@@ -858,12 +843,7 @@ TEST_F(UDPSocketTest, ServerSetDoNotFragment) {
     EXPECT_THAT(rv, IsOk());
 
     rv = server.SetDoNotFragment();
-#if BUILDFLAG(IS_IOS)
-    // TODO(crbug.com/42050633): IP_MTU_DISCOVER is not implemented on Fuchsia.
-    EXPECT_THAT(rv, IsError(ERR_NOT_IMPLEMENTED));
-#else
     EXPECT_THAT(rv, IsOk());
-#endif
   }
 }
 
@@ -887,7 +867,6 @@ TEST_F(UDPSocketTest, CloseWithPendingRead) {
 // Some Android devices do not support multicast.
 // The ones supporting multicast need WifiManager.MulitcastLock to enable it.
 // http://goo.gl/jjAk9
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(UDPSocketTest, JoinMulticastGroup) {
 #if BUILDFLAG(IS_MAC)
   // See https://crbug.com/354933441
@@ -924,7 +903,7 @@ TEST_F(UDPSocketTest, JoinMulticastGroup) {
 
 // TODO(crbug.com/40620614): failing on device on iOS 12.2.
 // TODO(crbug.com/40189274): flaky on Mac 11.
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_SharedMulticastAddress DISABLED_SharedMulticastAddress
 #else
 #define MAYBE_SharedMulticastAddress SharedMulticastAddress
@@ -975,7 +954,6 @@ TEST_F(UDPSocketTest, MAYBE_SharedMulticastAddress) {
                                 NetLogSource(), handles::kInvalidNetworkHandle);
   ASSERT_THAT(client_socket.Connect(send_address), IsOk());
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Send a message via the multicast group. That message is expected be be
   // received by both receving sockets.
   //
@@ -985,9 +963,7 @@ TEST_F(UDPSocketTest, MAYBE_SharedMulticastAddress) {
   ASSERT_GE(WriteSocket(&client_socket, kMessage), 0);
   EXPECT_EQ(kMessage, RecvFromSocket(&socket1));
   EXPECT_EQ(kMessage, RecvFromSocket(&socket2));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(UDPSocketTest, MulticastOptions) {
   IPEndPoint bind_address;
@@ -1386,46 +1362,11 @@ TEST_F(UDPSocketTest, ConnectUsingNetwork) {
   // ConnectUsingNetwork() and won't send any datagrams.
   const IPEndPoint fake_server_address(IPAddress::IPv4Localhost(), 8080);
   const handles::NetworkHandle wrong_network_handle = 65536;
-#if BUILDFLAG(IS_ANDROID)
-  NetworkChangeNotifierFactoryAndroid ncn_factory;
-  NetworkChangeNotifier::DisableForTest ncn_disable_for_test;
-  std::unique_ptr<NetworkChangeNotifier> ncn(ncn_factory.CreateInstance());
-  if (!NetworkChangeNotifier::AreNetworkHandlesSupported()) {
-    GTEST_SKIP() << "Network handles are required to test BindToNetwork.";
-  }
-
-  {
-    // Connecting using a not existing network should fail but not report
-    // ERR_NOT_IMPLEMENTED when network handles are supported.
-    UDPClientSocket socket(DatagramSocket::RANDOM_BIND, nullptr, NetLogSource(),
-                           handles::kInvalidNetworkHandle);
-    int rv =
-        socket.ConnectUsingNetwork(wrong_network_handle, fake_server_address);
-    EXPECT_NE(ERR_NOT_IMPLEMENTED, rv);
-    EXPECT_NE(OK, rv);
-    EXPECT_NE(wrong_network_handle, socket.GetBoundNetwork());
-  }
-
-  {
-    // Connecting using an existing network should succeed when
-    // NetworkChangeNotifier returns a valid default network.
-    UDPClientSocket socket(DatagramSocket::RANDOM_BIND, nullptr, NetLogSource(),
-                           handles::kInvalidNetworkHandle);
-    const handles::NetworkHandle network_handle =
-        NetworkChangeNotifier::GetDefaultNetwork();
-    if (network_handle != handles::kInvalidNetworkHandle) {
-      EXPECT_EQ(
-          OK, socket.ConnectUsingNetwork(network_handle, fake_server_address));
-      EXPECT_EQ(network_handle, socket.GetBoundNetwork());
-    }
-  }
-#else
   UDPClientSocket socket(DatagramSocket::RANDOM_BIND, nullptr, NetLogSource(),
                          handles::kInvalidNetworkHandle);
   EXPECT_EQ(
       ERR_NOT_IMPLEMENTED,
       socket.ConnectUsingNetwork(wrong_network_handle, fake_server_address));
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 TEST_F(UDPSocketTest, ConnectUsingNetworkAsync) {
@@ -1434,56 +1375,12 @@ TEST_F(UDPSocketTest, ConnectUsingNetworkAsync) {
   // ConnectUsingNetwork() and won't send any datagrams.
   const IPEndPoint fake_server_address(IPAddress::IPv4Localhost(), 8080);
   const handles::NetworkHandle wrong_network_handle = 65536;
-#if BUILDFLAG(IS_ANDROID)
-  NetworkChangeNotifierFactoryAndroid ncn_factory;
-  NetworkChangeNotifier::DisableForTest ncn_disable_for_test;
-  std::unique_ptr<NetworkChangeNotifier> ncn(ncn_factory.CreateInstance());
-  if (!NetworkChangeNotifier::AreNetworkHandlesSupported()) {
-    GTEST_SKIP() << "Network handles are required to test BindToNetwork.";
-  }
-
-  {
-    // Connecting using a not existing network should fail but not report
-    // ERR_NOT_IMPLEMENTED when network handles are supported.
-    UDPClientSocket socket(DatagramSocket::RANDOM_BIND, nullptr, NetLogSource(),
-                           handles::kInvalidNetworkHandle);
-    TestCompletionCallback callback;
-    int rv = socket.ConnectUsingNetworkAsync(
-        wrong_network_handle, fake_server_address, callback.callback());
-
-    if (rv == ERR_IO_PENDING) {
-      rv = callback.WaitForResult();
-    }
-    EXPECT_NE(ERR_NOT_IMPLEMENTED, rv);
-    EXPECT_NE(OK, rv);
-  }
-
-  {
-    // Connecting using an existing network should succeed when
-    // NetworkChangeNotifier returns a valid default network.
-    UDPClientSocket socket(DatagramSocket::RANDOM_BIND, nullptr, NetLogSource(),
-                           handles::kInvalidNetworkHandle);
-    TestCompletionCallback callback;
-    const handles::NetworkHandle network_handle =
-        NetworkChangeNotifier::GetDefaultNetwork();
-    if (network_handle != handles::kInvalidNetworkHandle) {
-      int rv = socket.ConnectUsingNetworkAsync(
-          network_handle, fake_server_address, callback.callback());
-      if (rv == ERR_IO_PENDING) {
-        rv = callback.WaitForResult();
-      }
-      EXPECT_EQ(OK, rv);
-      EXPECT_EQ(network_handle, socket.GetBoundNetwork());
-    }
-  }
-#else
   UDPClientSocket socket(DatagramSocket::RANDOM_BIND, nullptr, NetLogSource(),
                          handles::kInvalidNetworkHandle);
   TestCompletionCallback callback;
   EXPECT_EQ(ERR_NOT_IMPLEMENTED, socket.ConnectUsingNetworkAsync(
                                      wrong_network_handle, fake_server_address,
                                      callback.callback()));
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 }  // namespace
@@ -1979,116 +1876,6 @@ TEST_F(UDPSocketTest, ReadWithSocketOptimizationTruncation) {
 
 // On Android, where socket tagging is supported, verify that UDPSocket::Tag
 // works as expected.
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(UDPSocketTest, Tag) {
-  if (!CanGetTaggedBytes()) {
-    DVLOG(0) << "Skipping test - GetTaggedBytes unsupported.";
-    return;
-  }
-
-  UDPServerSocket server(nullptr, NetLogSource());
-  ASSERT_THAT(server.Listen(IPEndPoint(IPAddress::IPv4Localhost(), 0)), IsOk());
-  IPEndPoint server_address;
-  ASSERT_THAT(server.GetLocalAddress(&server_address), IsOk());
-
-  UDPClientSocket client(DatagramSocket::DEFAULT_BIND, nullptr, NetLogSource(),
-                         handles::kInvalidNetworkHandle);
-  ASSERT_THAT(client.Connect(server_address), IsOk());
-
-  // Verify UDP packets are tagged and counted properly.
-  int32_t tag_val1 = 0x12345678;
-  uint64_t old_traffic = GetTaggedBytes(tag_val1);
-  SocketTag tag1(SocketTag::UNSET_UID, tag_val1);
-  client.ApplySocketTag(tag1);
-  // Client sends to the server.
-  std::string simple_message("hello world!");
-  int rv = WriteSocket(&client, simple_message);
-  EXPECT_EQ(simple_message.length(), static_cast<size_t>(rv));
-  // Server waits for message.
-  std::string str = RecvFromSocket(&server);
-  EXPECT_EQ(simple_message, str);
-  // Server echoes reply.
-  rv = SendToSocket(&server, simple_message);
-  EXPECT_EQ(simple_message.length(), static_cast<size_t>(rv));
-  // Client waits for response.
-  str = ReadSocket(&client);
-  EXPECT_EQ(simple_message, str);
-  EXPECT_GT(GetTaggedBytes(tag_val1), old_traffic);
-
-  // Verify socket can be retagged with a new value and the current process's
-  // UID.
-  int32_t tag_val2 = 0x87654321;
-  old_traffic = GetTaggedBytes(tag_val2);
-  SocketTag tag2(getuid(), tag_val2);
-  client.ApplySocketTag(tag2);
-  // Client sends to the server.
-  rv = WriteSocket(&client, simple_message);
-  EXPECT_EQ(simple_message.length(), static_cast<size_t>(rv));
-  // Server waits for message.
-  str = RecvFromSocket(&server);
-  EXPECT_EQ(simple_message, str);
-  // Server echoes reply.
-  rv = SendToSocket(&server, simple_message);
-  EXPECT_EQ(simple_message.length(), static_cast<size_t>(rv));
-  // Client waits for response.
-  str = ReadSocket(&client);
-  EXPECT_EQ(simple_message, str);
-  EXPECT_GT(GetTaggedBytes(tag_val2), old_traffic);
-
-  // Verify socket can be retagged with a new value and the current process's
-  // UID.
-  old_traffic = GetTaggedBytes(tag_val1);
-  client.ApplySocketTag(tag1);
-  // Client sends to the server.
-  rv = WriteSocket(&client, simple_message);
-  EXPECT_EQ(simple_message.length(), static_cast<size_t>(rv));
-  // Server waits for message.
-  str = RecvFromSocket(&server);
-  EXPECT_EQ(simple_message, str);
-  // Server echoes reply.
-  rv = SendToSocket(&server, simple_message);
-  EXPECT_EQ(simple_message.length(), static_cast<size_t>(rv));
-  // Client waits for response.
-  str = ReadSocket(&client);
-  EXPECT_EQ(simple_message, str);
-  EXPECT_GT(GetTaggedBytes(tag_val1), old_traffic);
-}
-
-TEST_F(UDPSocketTest, BindToNetwork) {
-  // The specific value of this address doesn't really matter, and no
-  // server needs to be running here. The test only needs to call
-  // Connect() and won't send any datagrams.
-  const IPEndPoint fake_server_address(IPAddress::IPv4Localhost(), 8080);
-  NetworkChangeNotifierFactoryAndroid ncn_factory;
-  NetworkChangeNotifier::DisableForTest ncn_disable_for_test;
-  std::unique_ptr<NetworkChangeNotifier> ncn(ncn_factory.CreateInstance());
-  if (!NetworkChangeNotifier::AreNetworkHandlesSupported()) {
-    GTEST_SKIP() << "Network handles are required to test BindToNetwork.";
-  }
-
-  // Binding the socket to a not existing network should fail at connect time.
-  const handles::NetworkHandle wrong_network_handle = 65536;
-  UDPClientSocket wrong_socket(DatagramSocket::RANDOM_BIND, nullptr,
-                               NetLogSource(), wrong_network_handle);
-  // Different Android versions might report different errors. Hence, just check
-  // what shouldn't happen.
-  int rv = wrong_socket.Connect(fake_server_address);
-  EXPECT_NE(OK, rv);
-  EXPECT_NE(ERR_NOT_IMPLEMENTED, rv);
-  EXPECT_NE(wrong_network_handle, wrong_socket.GetBoundNetwork());
-
-  // Binding the socket to an existing network should succeed.
-  const handles::NetworkHandle network_handle =
-      NetworkChangeNotifier::GetDefaultNetwork();
-  if (network_handle != handles::kInvalidNetworkHandle) {
-    UDPClientSocket correct_socket(DatagramSocket::RANDOM_BIND, nullptr,
-                                   NetLogSource(), network_handle);
-    EXPECT_EQ(OK, correct_socket.Connect(fake_server_address));
-    EXPECT_EQ(network_handle, correct_socket.GetBoundNetwork());
-  }
-}
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Test the behavior of OwnedUDPSocketCount directly. Could be in its own file,
 // but seems best to keep it with the more integration-y tests that cover
@@ -2629,7 +2416,7 @@ TEST_F(UDPSocketTest, SSMSourceFilteringMultiNICIPv6) {
 // InternalRecvFrom).
 #if BUILDFLAG(IS_POSIX)
 TEST_F(UDPSocketTest, ReadMultiple) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   base::MetricsSubSampler::ScopedAlwaysSampleForTesting scoped_always_sample;
   base::HistogramTester histogram_tester;
 #endif
@@ -2720,7 +2507,7 @@ TEST_F(UDPSocketTest, ReadMultiple) {
     auto packet_span = read_buf->span().subspan(actual.offset, actual.length);
     EXPECT_EQ(base::as_string_view(packet_span), expected.data);
   }
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   histogram_tester.ExpectUniqueSample("Net.UDPSocketPosix.RecvMmsgPacketsRead",
                                       packets.size(), 1);
 #endif
@@ -2735,7 +2522,7 @@ TEST_F(UDPSocketTest, ReadMultiple) {
 // platforms. Consequently, the read operation succeeds instead of failing, and
 // we cannot test the control message truncation behavior on fallback platforms
 // without modifying the general-purpose RecvFrom implementation.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 TEST_F(UDPSocketTest, ReadMultipleControlTruncated) {
   base::MetricsSubSampler::ScopedAlwaysSampleForTesting scoped_always_sample;
   base::HistogramTester histogram_tester;
@@ -2798,11 +2585,11 @@ TEST_F(UDPSocketTest, ReadMultipleControlTruncated) {
   histogram_tester.ExpectTotalCount("Net.UDPSocketPosix.RecvMmsgPacketsRead",
                                     0);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 TEST_F(UDPSocketTest, ReadMultiple_TooBig) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   base::MetricsSubSampler::ScopedAlwaysSampleForTesting scoped_always_sample;
   base::HistogramTester histogram_tester;
 #endif
@@ -2846,14 +2633,14 @@ TEST_F(UDPSocketTest, ReadMultiple_TooBig) {
 
   ASSERT_FALSE(read_result.has_value());
   EXPECT_EQ(read_result.error(), ERR_MSG_TOO_BIG);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   histogram_tester.ExpectTotalCount("Net.UDPSocketPosix.RecvMmsgPacketsRead",
                                     0);
 #endif
 }
 
 TEST_F(UDPSocketTest, ReadMultiple_Async) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   base::MetricsSubSampler::ScopedAlwaysSampleForTesting scoped_always_sample;
   base::HistogramTester histogram_tester;
 #endif
@@ -2911,7 +2698,7 @@ TEST_F(UDPSocketTest, ReadMultiple_Async) {
   auto packet_span = read_buf->span().subspan(read_result.value()[0].offset,
                                               read_result.value()[0].length);
   EXPECT_EQ(base::as_string_view(packet_span), packet);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   histogram_tester.ExpectUniqueSample("Net.UDPSocketPosix.RecvMmsgPacketsRead",
                                       1, 1);
 #endif
@@ -2948,7 +2735,7 @@ TEST_F(UDPSocketTest, ReadFailsWhenGroEnabled) {
       receiver.Read(read_buf.get(), read_buf->size(), callback.callback()));
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 class UDPSocketGroTest : public UDPSocketTest {
  protected:
   UDPSocketGroTest()
@@ -3238,7 +3025,7 @@ TEST_F(UDPSocketGroTest, ReadMultipleGroUnequalSegments) {
   histogram_tester_.ExpectUniqueSample("Net.UDPSocketPosix.GroPacketsRead", 3,
                                        1);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 #endif
 

@@ -10,13 +10,6 @@
 namespace permissions {
 namespace features {
 
-#if BUILDFLAG(IS_ANDROID)
-// Enables or disables usage of Window Management Web API.
-BASE_FEATURE(kAndroidWindowManagementWebApi, base::FEATURE_DISABLED_BY_DEFAULT);
-
-// Shows or hides the cancel button in the ItemChooserDialog.
-BASE_FEATURE(kAndroidItemChooserCancelButton, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Enables or disables whether pages with pending permission requests will
 // go into back/forward cache.
@@ -72,12 +65,6 @@ BASE_FEATURE(kPermissionsPromptSurvey, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kAllowMultipleOriginsForWebKioskPermissions,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-
-BASE_FEATURE(kPermissionDedicatedCpssSettingAndroid,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-#else
 
 // When enabled, chooser permissions grants will have a last visited timestamp
 // date set. The timestamp will be later used to auto-revoke the permission,
@@ -85,7 +72,6 @@ BASE_FEATURE(kPermissionDedicatedCpssSettingAndroid,
 BASE_FEATURE(kRecordChooserPermissionLastVisitedTimestamps,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#endif  // BUILDFLAG(IS_ANDROID)
 
 BASE_FEATURE(kCpssUseTfliteSignatureRunner, base::FEATURE_ENABLED_BY_DEFAULT);
 
@@ -94,13 +80,6 @@ BASE_FEATURE(kGlicActorPermissionsAutoReject, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kSafetyHubUnusedPermissionRevocationForAllSurfaces,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// When enabled, Chrome returns "DENIED" (instead of "ASK") as permission state
-// for notifications if Chrome does not have and cannot acquire app-level
-// permissions on Android.
-BASE_FEATURE(kReturnDeniedForNotificationsWhenNoAppLevelSettings,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // Only applicable if kApproximateGeolocationPermission is enabled. When
 // enabled, will use the returned accuracy from CPSS to select the initial value
@@ -114,13 +93,6 @@ BASE_FEATURE(kPermissionPredictionsGeolocationAccuracy,
 BASE_FEATURE(kPermissionsGestureGatedPrompts,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// When enabled, a notification entry in page info will be displayed
-// persistently (until the tab is navigated away) if a document requests
-// notification permission.
-BASE_FEATURE(kPermanentNotificationSubscribeInPageInfo,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace features
 
@@ -316,10 +288,8 @@ const base::FeatureParam<bool>
         &permissions::features::kPermissionsGestureGatedPrompts,
         "exclude_same_origin_navigations", false};
 
-#if !BUILDFLAG(IS_ANDROID)
 const base::FeatureParam<bool> kKeyboardLockPromptUIStyle{
     &permissions::features::kKeyboardLockPrompt, "use_pepc_ui", true};
-#endif
 
 }  // namespace feature_params
 }  // namespace permissions

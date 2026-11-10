@@ -42,13 +42,7 @@
 #include "chrome/browser/extensions/api/downloads/downloads_api.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/files/file_util.h"
-#include "base/files/scoped_temp_dir.h"
-#include "base/test/android/content_uri_test_utils.h"
-#else
 #include "chrome/browser/download/download_item_web_app_data.h"
-#endif
 
 using testing::_;
 using testing::DoAll;
@@ -490,12 +484,10 @@ class DownloadHistoryTest : public testing::Test {
     new extensions::DownloadedByExtension(&item(index), row->by_ext_id,
                                           row->by_ext_name);
 #endif
-#if !BUILDFLAG(IS_ANDROID)
     if (!row->by_web_app_id.empty()) {
       DownloadItemWebAppData::CreateAndAttachToItem(&item(index),
                                                     row->by_web_app_id);
     }
-#endif
 
     std::vector<raw_ptr<download::DownloadItem, VectorExperimental>> items;
     for (size_t i = 0; i < items_.size(); ++i) {
@@ -1366,78 +1358,6 @@ TEST_P(DownloadHistoryRemoveOldDownloadsTest, LoadHistory) {
       "Download.History.DownloadCount.PostRemoval", enabled ? 3 : 4, 1);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Test loading history download rows with content URIs retrieves display names.
-TEST_F(DownloadHistoryTest, LoadContentUriDownloads) {
-  base::ScopedTempDir temp_dir;
-  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
-
-  // 1. Test a content document URI (handled by DownloadDocumentUriBridge).
-  base::FilePath doc_file = temp_dir.GetPath().AppendASCII("test_doc_file.txt");
-  ASSERT_TRUE(base::WriteFile(doc_file, "test content"));
-  std::optional<base::FilePath> doc_uri =
-      base::test::android::GetInMemoryContentDocumentUriFromCacheDirFilePath(
-          doc_file);
-  ASSERT_TRUE(doc_uri.has_value());
-  ASSERT_TRUE(doc_uri->IsContentUri());
-
-  history::DownloadRow row0;
-  InitBasicItem(doc_uri->value().c_str(), "http://example.com/doc.txt",
-                "http://example.com/referrer.html",
-                download::DownloadItem::COMPLETE, &row0);
-
-  // 2. Test a FileProvider content URI (handled by DownloadCollectionBridge).
-  base::FilePath collection_file =
-      temp_dir.GetPath().AppendASCII("test_collection_file.txt");
-  ASSERT_TRUE(base::WriteFile(collection_file, "test content"));
-  std::optional<base::FilePath> collection_uri =
-      base::test::android::GetContentUriFromCacheDirFilePath(collection_file);
-  ASSERT_TRUE(collection_uri.has_value());
-  ASSERT_TRUE(collection_uri->IsContentUri());
-
-  history::DownloadRow row1;
-  InitBasicItem(collection_uri->value().c_str(),
-                "http://example.com/collection.txt",
-                "http://example.com/referrer.html",
-                download::DownloadItem::COMPLETE, &row1);
-
-  std::vector<CreateDownloadHistoryEntry> rows = {
-      CreateDownloadHistoryEntry(row0, LoadDownloadRowResult::kCreateDownload,
-                                 base::FilePath("test_doc_file.txt")),
-      CreateDownloadHistoryEntry(row1, LoadDownloadRowResult::kCreateDownload,
-                                 base::FilePath("test_collection_file.txt"))};
-  CreateDownloadHistory(std::move(rows));
-  ExpectNoDownloadCreated();
-}
-
-// Test loading history download rows with content URIs when
-// kRetrieveDisplayNamesForHistoryDownloads is disabled.
-TEST_F(DownloadHistoryTest, LoadContentUriDownloadsFeatureDisabled) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(
-      download::features::kRetrieveDisplayNamesForHistoryDownloads);
-
-  base::ScopedTempDir temp_dir;
-  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
-  base::FilePath doc_file = temp_dir.GetPath().AppendASCII("test_doc_file.txt");
-  ASSERT_TRUE(base::WriteFile(doc_file, "test content"));
-  std::optional<base::FilePath> doc_uri =
-      base::test::android::GetInMemoryContentDocumentUriFromCacheDirFilePath(
-          doc_file);
-  ASSERT_TRUE(doc_uri.has_value());
-  ASSERT_TRUE(doc_uri->IsContentUri());
-
-  history::DownloadRow row0;
-  InitBasicItem(doc_uri->value().c_str(), "http://example.com/doc.txt",
-                "http://example.com/referrer.html",
-                download::DownloadItem::COMPLETE, &row0);
-
-  std::vector<CreateDownloadHistoryEntry> rows = {CreateDownloadHistoryEntry(
-      row0, LoadDownloadRowResult::kCreateDownload, base::FilePath())};
-  CreateDownloadHistory(std::move(rows));
-  ExpectNoDownloadCreated();
-}
-#else
 // Test that web app id is inserted into history.
 TEST_F(DownloadHistoryTest, ByWebAppId) {
   // Create a fresh item not from download DB
@@ -1456,6 +1376,5 @@ TEST_F(DownloadHistoryTest, ByWebAppId) {
   EXPECT_TRUE(DownloadHistory::IsPersisted(&item(0)));
   EXPECT_NE(DownloadItemWebAppData::Get(&item(0)), nullptr);
 }
-#endif
 
 }  // anonymous namespace

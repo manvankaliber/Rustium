@@ -18,12 +18,7 @@
 ))]
 pub(crate) mod bsd;
 
-#[cfg(any(
-    target_os = "android",
-    target_os = "emscripten",
-    target_os = "l4re",
-    target_os = "linux",
-))]
+#[cfg(any(target_os = "emscripten", target_os = "l4re", target_os = "linux"))]
 pub(crate) mod linux_like;
 
 #[cfg(any(target_os = "dragonfly", target_os = "freebsd"))]

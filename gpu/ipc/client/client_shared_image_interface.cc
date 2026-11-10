@@ -26,7 +26,7 @@ ClientSharedImageInterface::ClientSharedImageInterface(
     : gpu_channel_(std::move(channel)),
       proxy_(proxy),
       shared_memory_pool_(
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
           base::MakeRefCounted<base::UnsafeSharedMemoryPool>()
 #else
           nullptr
@@ -155,7 +155,7 @@ scoped_refptr<ClientSharedImage> ClientSharedImageInterface::CreateSharedImage(
   CHECK(!si_info.format.PrefersExternalSampler()) << si_info.format.ToString();
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   // Only valid client from renderer on ChromeOS and Linux is VideoCapture, that
   // uses SCANOUT_VEA_CPU_READ.
   if (gpu_channel_->client_type() == viz::mojom::GpuClientType::kRenderer) {
@@ -257,22 +257,19 @@ void ClientSharedImageInterface::UpdateSharedImage(
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 void ClientSharedImageInterface::CopyNativeGmbToSharedMemoryAsync(
     gfx::GpuMemoryBufferHandle buffer_handle,
     base::UnsafeSharedMemoryRegion memory_region,
     base::OnceCallback<void(bool)> callback) {
 #if BUILDFLAG(IS_WIN)
   CHECK_EQ(buffer_handle.type, gfx::GpuMemoryBufferType::DXGI_SHARED_HANDLE);
-#elif BUILDFLAG(IS_ANDROID)
-  CHECK_EQ(buffer_handle.type,
-           gfx::GpuMemoryBufferType::ANDROID_HARDWARE_BUFFER);
 #endif
   CHECK(memory_region.IsValid());
   proxy_->CopyNativeGmbToSharedMemoryAsync(
       std::move(buffer_handle), std::move(memory_region), std::move(callback));
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 
 void ClientSharedImageInterface::DestroySharedImage(
     std::vector<SyncToken> sync_tokens,

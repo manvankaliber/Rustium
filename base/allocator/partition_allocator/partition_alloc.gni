@@ -95,7 +95,7 @@ is_clang_or_gcc = is_clang || !is_win
 if (current_cpu == "x64" || current_cpu == "arm64" || current_cpu == "arm64e" ||
     current_cpu == "loong64" || current_cpu == "riscv64" ||
     current_cpu == "ppc64" || current_cpu == "s390x") {
-  assert(current_cpu != "arm64e" || (is_ios && target_environment == "device"))
+  assert(current_cpu != "arm64e")
   has_64_bit_pointers = true
 } else if (current_cpu == "x86" || current_cpu == "arm" ||
            current_cpu == "wasm") {
@@ -115,8 +115,8 @@ if (current_cpu == "x64" || current_cpu == "arm64" || current_cpu == "arm64e" ||
 # TODO(crbug.com/329199197): Clean this up when experiments are complete.
 use_large_empty_slot_span_ring = true
 
-has_memory_tagging = current_cpu == "arm64" && is_clang && !is_asan &&
-                     !is_hwasan && (is_linux || is_android)
+has_memory_tagging =
+    current_cpu == "arm64" && is_clang && !is_asan && !is_hwasan && is_linux
 
 declare_args() {
   # Whether PartitionAlloc is built in official mode.
@@ -311,8 +311,7 @@ declare_args() {
   # internals and is entangled with `//base` s.t. it cannot be used
   # outside of Chromium.
   use_asan_backup_ref_ptr =
-      build_with_chromium && is_asan &&
-      (is_win || is_android || is_linux || is_apple || is_chromeos)
+      build_with_chromium && is_asan && (is_win || is_linux || is_apple)
 
   # Use probe-on-destruct unowned ptr detection with ASAN.
   use_raw_ptr_asan_unowned_impl = false
@@ -324,7 +323,7 @@ declare_args() {
   # ASan BRPv2 depends on sanitizer malloc/free hooks. The hooks depend on
   # weak symbols. So ASan BRPv2 requires posix. Firstly we will implement
   # it for linux.
-  use_asan_backup_ref_ptr_v2 = false && use_asan_backup_ref_ptr && is_linux
+  use_asan_backup_ref_ptr_v2 = false
 }
 
 # Use the version of raw_ptr<T> that allows the embedder to implement custom
@@ -359,7 +358,7 @@ declare_args() {
   # While keeping BRP support, override a feature flag to make it disabled
   # state. This will overwrite `enable_backup_ref_ptr_feature_flag`.
   # TODO(https://crbug.com/372183586): Fix the bug and remove this arg.
-  force_disable_backup_ref_ptr_feature = enable_backup_ref_ptr_support && false
+  force_disable_backup_ref_ptr_feature = false
 
   # Build support for Dangling Ptr Detection (DPD) via BackupRefPtr (BRP),
   # making the raw_ptr<T> implementation to RawPtrBackupRefImpl if active.
@@ -386,14 +385,13 @@ declare_args() {
 }
 
 declare_args() {
-  backup_ref_ptr_poison_oob_ptr =
-      false && backup_ref_ptr_extra_oob_checks && has_64_bit_pointers
+  backup_ref_ptr_poison_oob_ptr = false
 }
 
 declare_args() {
   # Because of address space issue, this feature cannot be enabled on
   # 32bit OS and iOS, i.e. has_64_bit_pointers && !is_ios
-  move_metadata_outside_gigacage = has_64_bit_pointers && !is_ios
+  move_metadata_outside_gigacage = has_64_bit_pointers
 }
 
 declare_args() {
@@ -466,7 +464,7 @@ if (!has_memory_tagging) {
 assert(enable_backup_ref_ptr_support || !use_raw_ptr_backup_ref_impl,
        "Can't use RawPtrBackupRefImpl if BRP isn't enabled at all")
 
-assert(!partition_alloc_enable_system_free_fallback || is_android,
+assert(!partition_alloc_enable_system_free_fallback,
        "System free fallback is only supported on Android")
 
 # enable_backup_ref_ptr_slow_checks can only be used if
@@ -552,8 +550,7 @@ assert(!use_asan_backup_ref_ptr || use_raw_ptr_hookable_impl,
 # pkeys support is explicitly disabled in all Cronet builds, as some test
 # dependencies that use partition_allocator are compiled in AOSP against a
 # version of glibc that does not include pkeys syscall numbers.
-is_pkeys_available =
-    (is_linux || is_chromeos) && current_cpu == "x64" && !is_cronet_build
+is_pkeys_available = is_linux && current_cpu == "x64" && !is_cronet_build
 
 declare_args() {
   enable_pkeys = is_pkeys_available
@@ -598,8 +595,7 @@ declare_args() {
   # Enabled only on 64-bit Android. On 32 bit Android, PI futexes require an
   # extra level of indirection, so we don't bother enabling it. See:
   # https://cs.android.com/android/platform/superproject/+/android14-qpr3-release:bionic/libc/bionic/pthread_mutex.cpp;drc=9108f258adad329a537e10461fbd526d5b9ad8bf;l=242
-  enable_partition_lock_priority_inheritance =
-      is_android && (current_cpu == "x64" || current_cpu == "arm64")
+  enable_partition_lock_priority_inheritance = false
 }
 
 declare_args() {
@@ -617,7 +613,7 @@ declare_args() {
   # occupied by ART and reservation fails gracefully.
   enable_user_space_zero_segment =
       has_64_bit_pointers && use_partition_alloc_as_malloc &&
-      (is_mac || is_win || is_chromeos || is_linux || is_android)
+      (is_mac || is_win || is_linux)
 
   # Size of the zero segment in MB. The total size will be at least this value.
   # This is 4GB + 1MB. The 1MB protects from using certain kinds of objects

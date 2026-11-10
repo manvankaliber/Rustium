@@ -178,10 +178,6 @@ void GlicActorJournalHandler::SendResponseFeedback(const std::string& reason) {
   }
 
 // NEEDS_ANDROID_IMPL: ChromeSystemLogsFetcher
-#if BUILDFLAG(IS_ANDROID)
-  feedback_data->CompressSystemInfo();
-  feedback_data->OnFeedbackPageDataComplete();
-#else
   system_logs::BuildChromeSystemLogsFetcher(actor_keyed_service_->GetProfile(),
                                             /*scrub_data=*/false)
       ->Fetch(base::BindOnce(
@@ -195,7 +191,6 @@ void GlicActorJournalHandler::SendResponseFeedback(const std::string& reason) {
             feedback_data->OnFeedbackPageDataComplete();
           },
           std::move(feedback_data)));
-#endif
 }
 
 void GlicActorJournalHandler::GetUniquePath(

@@ -24,11 +24,6 @@ namespace network {
 class TestURLLoaderFactory;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace account_manager {
-class AccountManagerFacade;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class GoogleServiceAuthError;
 
@@ -110,7 +105,6 @@ AccountInfo MakePrimaryAccountAvailable(IdentityManager* identity_manager,
                                         std::string_view email,
                                         ConsentLevel consent_level);
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Revokes sync consent from the primary account: the primary account is left
 // at ConsentLevel::kSignin.
 // NOTE:`ConsentLevel::kSync` is deprecated, see the `ConsentLevel`
@@ -118,7 +112,6 @@ AccountInfo MakePrimaryAccountAvailable(IdentityManager* identity_manager,
 // TODO(crbug.com/40067058): remove this function once `ConsentLevel::kSync` is
 // removed.
 void RevokeSyncConsent(IdentityManager* identity_manager);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Clears the primary account, removes all accounts and revokes the sync
 // consent (if applicable). Blocks until the primary account is cleared.
@@ -355,11 +348,6 @@ void WaitForErrorStateOfRefreshTokenUpdatedForAccount(
 // Disables internal retries of failed access token fetches.
 void DisableAccessTokenFetchRetries(IdentityManager* identity_manager);
 
-#if BUILDFLAG(IS_ANDROID)
-// Stubs AccountManagerFacade, which requires special initialization of the java
-// subsystems. Uses FakeAccountManagerFacade.
-void SetUpFakeAccountManagerFacade();
-#endif
 
 // Cancels all ongoing operations related to the accounts in the Gaia cookie.
 void CancelAllOngoingGaiaCookieOperations(IdentityManager* identity_manager);
@@ -376,10 +364,6 @@ void SimulateSuccessfulFetchOfAccountInfo(IdentityManager* identity_manager,
                                           std::string_view locale,
                                           std::string_view picture_url);
 
-#if BUILDFLAG(IS_CHROMEOS)
-account_manager::AccountManagerFacade* GetAccountManagerFacade(
-    IdentityManager* identity_manager);
-#endif
 
 // Allows testing some features gated by the official Chrome API keys and OAuth
 // client IDs in builds lacking those keys.

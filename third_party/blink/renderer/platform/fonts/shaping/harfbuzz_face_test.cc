@@ -187,7 +187,7 @@ TEST(HarfBuzzFaceTest, HarfBuzzGetNominalGlyph_TestVsOverrideVariantEmoji) {
 
 // Test emoji variation selectors support in system fallback. We are only
 // enabling this feature on Windows, Android and Mac platforms.
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST(HarfBuzzFaceTest, HarfBuzzGetNominalGlyph_TestSystemFallbackEmojiVs) {
   UChar32 character = uchar::kShakingFaceEmoji;
 

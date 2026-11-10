@@ -66,9 +66,6 @@ class CustomPassphraseBootstrapToken;
 class SyncFeatureStatusForMigrationsRecorder;
 class SyncPrefsPolicyHandler;
 
-#if BUILDFLAG(IS_ANDROID)
-class SyncServiceAndroidBridge;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Look at the SyncService interface for information on how to use this class.
 // You should not need to know about SyncServiceImpl directly.
@@ -119,9 +116,6 @@ class SyncServiceImpl : public SyncService,
   void Initialize(DataTypeController::TypeVector controllers);
 
   // SyncService implementation
-#if BUILDFLAG(IS_ANDROID)
-  base::android::ScopedJavaLocalRef<jobject> GetJavaObject() override;
-#endif  // BUILDFLAG(IS_ANDROID)
   SyncUserSettings* GetUserSettings() override;
   const SyncUserSettings* GetUserSettings() const override;
   DisableReasonSet GetDisableReasons() const override;
@@ -144,9 +138,6 @@ class SyncServiceImpl : public SyncService,
   void TriggerRefresh(TriggerRefreshSource source,
                       const DataTypeSet& types) override;
   void DataTypePreconditionChanged(DataType type) override;
-#if BUILDFLAG(IS_ANDROID)
-  void SetInvalidationsForSessionsEnabled(bool enabled) override;
-#endif  // BUILDFLAG(IS_ANDROID)
   void SetPasskeysLocked(bool passkeys_locked) override;
   void SendExplicitPassphraseToPlatformClient() override;
   void AddObserver(SyncServiceObserver* observer) override;
@@ -229,11 +220,7 @@ class SyncServiceImpl : public SyncService,
   CoreAccountInfo GetSyncAccountInfoForPrefs() const override;
   void OnSyncClientDisabledByPolicyChanged() override;
   void OnSelectedTypesChanged() override;
-#if BUILDFLAG(IS_CHROMEOS)
-  void OnSyncFeatureDisabledViaDashboardCleared() override;
-#else   // BUILDFLAG(IS_CHROMEOS)
   void OnInitialSyncFeatureSetupCompleted() override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // IdentityManager::Observer implementation.
   void OnAccountsCookieDeletedByUserAction() override;
@@ -284,10 +271,6 @@ class SyncServiceImpl : public SyncService,
   // TODO(crbug.com/41451146): Inject this in the ctor instead. As it is, it's
   // possible that the real callback was already used before the test had a
   // chance to call this.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void OverrideNetworkForTest(const CreateHttpPostProviderFactory&
-                                  create_http_post_provider_factory_cb);
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
   DataTypeSet GetRegisteredDataTypesForTest() const;
   bool HasAnyModelErrorForTest(DataTypeSet types) const;
@@ -550,12 +533,6 @@ class SyncServiceImpl : public SyncService,
   // related to trusted vault passphrase.
   bool trusted_vault_auto_upgrade_synthetic_field_trial_registered_ = false;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Whether we want to receive invalidations for the SESSIONS data type. This
-  // is false by default on Android (to save network traffic) when
-  // kAlwaysRegisterSessionsInvalidationsAndroid is disabled.
-  bool sessions_invalidations_enabled_ = false;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   bool passkeys_locked_ = false;
 
@@ -573,11 +550,6 @@ class SyncServiceImpl : public SyncService,
 
   std::unique_ptr<DeviceStatisticsScheduler> device_statistics_scheduler_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Manage and fetch the java object that wraps this SyncService on
-  // android.
-  std::unique_ptr<SyncServiceAndroidBridge> sync_service_android_;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   base::WeakPtrFactory<SyncServiceImpl> weak_factory_{this};
 };

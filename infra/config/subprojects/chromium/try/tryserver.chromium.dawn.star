@@ -38,7 +38,6 @@ try_.defaults.set(
 consoles.list_view(
     name = "tryserver.chromium.dawn",
     branch_selector = [
-        branches.selector.ANDROID_BRANCHES,
         branches.selector.DESKTOP_BRANCHES,
     ],
 )
@@ -61,7 +60,6 @@ _dawn_location_filters = [
 shared_gpu.try_.linux_rate_limited_builder(
     name = "dawn-chromium-presubmit",
     branch_selector = [
-        branches.selector.ANDROID_BRANCHES,
         branches.selector.DESKTOP_BRANCHES,
     ],
     mirrors = [
@@ -78,41 +76,6 @@ shared_gpu.try_.linux_rate_limited_builder(
     execution_timeout = 30 * time.minute,
     main_list_view = "try",
     max_concurrent_builds = 3,
-)
-
-shared_gpu.try_.linux_optional_builder(
-    name = "dawn-android-arm-deps-rel",
-    mirrors = [
-        "ci/Dawn Android arm DEPS Builder",
-        "ci/Dawn Android arm DEPS Release (Pixel 4)",
-    ],
-    gn_args = "ci/Dawn Android arm DEPS Builder",
-    cq_settings = try_.cq_settings(
-        location_filters = _dawn_location_filters,
-    ),
-    main_list_view = "try",
-    max_concurrent_builds = 5,
-    test_presentation = resultdb.test_presentation(
-        grouping_keys = ["status", "v.test_suite", "v.gpu"],
-    ),
-)
-
-shared_gpu.try_.linux_optional_builder(
-    name = "dawn-android-arm64-deps-rel",
-    mirrors = [
-        "ci/Dawn Android arm64 DEPS Builder",
-        "ci/Dawn Android arm64 DEPS Release (Pixel 6)",
-        "ci/Dawn Android arm64 DEPS Release (Pixel 10)",
-    ],
-    gn_args = "ci/Dawn Android arm64 DEPS Builder",
-    cq_settings = try_.cq_settings(
-        location_filters = _dawn_location_filters,
-    ),
-    main_list_view = "try",
-    max_concurrent_builds = 5,
-    test_presentation = resultdb.test_presentation(
-        grouping_keys = ["status", "v.test_suite", "v.gpu"],
-    ),
 )
 
 shared_gpu.try_.linux_optional_builder(
@@ -223,76 +186,6 @@ shared_gpu.try_.win_optional_builder(
     ),
     main_list_view = "try",
     max_concurrent_builds = 5,
-    test_presentation = resultdb.test_presentation(
-        grouping_keys = ["status", "v.test_suite", "v.gpu"],
-    ),
-)
-
-shared_gpu.try_.linux_rate_limited_builder(
-    name = "android-dawn-arm-rel",
-    mirrors = [
-        "ci/Dawn Android arm Builder",
-        "ci/Dawn Android arm Release (Pixel 4)",
-    ],
-    gn_args = "ci/Dawn Android arm Builder",
-    # Occasionally receives bursty CQ traffic from the Dawn repo, so increase
-    # the expiration/pending timeout to more gracefully handle that.
-    expiration_timeout = 4 * time.hour,
-    max_concurrent_builds = 3,
-    test_presentation = resultdb.test_presentation(
-        grouping_keys = ["status", "v.test_suite", "v.gpu"],
-    ),
-)
-
-shared_gpu.try_.linux_rate_limited_builder(
-    name = "android-dawn-arm64-rel",
-    mirrors = [
-        "ci/Dawn Android arm64 Builder",
-        "ci/Dawn Android arm64 Release (Pixel 6)",
-        "ci/Dawn Android arm64 Release (Pixel 10)",
-    ],
-    gn_args = "ci/Dawn Android arm64 Builder",
-    # Occasionally receives bursty CQ traffic from the Dawn repo, so increase
-    # the expiration/pending timeout to more gracefully handle that.
-    expiration_timeout = 4 * time.hour,
-    max_concurrent_builds = 3,
-    test_presentation = resultdb.test_presentation(
-        grouping_keys = ["status", "v.test_suite", "v.gpu"],
-    ),
-)
-
-shared_gpu.try_.linux_manual_builder(
-    name = "android-dawn-arm64-exp-rel",
-    mirrors = [
-        "ci/Dawn Android arm64 Builder",
-        "ci/Dawn Android arm64 Experimental Release (Pixel 6)",
-    ],
-    gn_args = "ci/Dawn Android arm64 Builder",
-    test_presentation = resultdb.test_presentation(
-        grouping_keys = ["status", "v.test_suite", "v.gpu"],
-    ),
-)
-
-shared_gpu.try_.linux_manual_builder(
-    name = "android-dawn-arm64-p10-rel",
-    mirrors = [
-        "ci/Dawn Android arm64 Builder",
-        "ci/Dawn Android arm64 Release (Pixel 10)",
-    ],
-    gn_args = "ci/Dawn Android arm64 Builder",
-    test_presentation = resultdb.test_presentation(
-        grouping_keys = ["status", "v.test_suite", "v.gpu"],
-    ),
-)
-
-shared_gpu.try_.linux_manual_builder(
-    name = "android-dawn-arm64-s24-rel",
-    mirrors = [
-        "ci/Dawn Android arm64 Builder",
-        "ci/Dawn Android arm64 Release (Samsung S24)",
-    ],
-    gn_args = "ci/Dawn Android arm64 Builder",
-    execution_timeout = 6 * time.hour,
     test_presentation = resultdb.test_presentation(
         grouping_keys = ["status", "v.test_suite", "v.gpu"],
     ),

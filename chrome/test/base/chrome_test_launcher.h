@@ -14,11 +14,7 @@
 #include "chrome/app/startup_timestamps.h"
 #include "content/public/test/test_launcher.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/app/android/chrome_main_delegate_android.h"
-#else
 #include "chrome/app/chrome_main_delegate.h"
-#endif
 
 class ChromeTestSuite;
 
@@ -39,11 +35,7 @@ class ChromeTestSuiteRunner {
 
 // Acts like normal ChromeMainDelegate but injects behaviour for browser tests.
 class ChromeTestChromeMainDelegate
-#if BUILDFLAG(IS_ANDROID)
-    : public ChromeMainDelegateAndroid {
-#else
     : public ChromeMainDelegate {
-#endif
  public:
   ChromeTestChromeMainDelegate();
   ~ChromeTestChromeMainDelegate() override;
@@ -77,9 +69,7 @@ class ChromeTestLauncherDelegate : public content::TestLauncherDelegate {
   // content::TestLauncherDelegate:
   int RunTestSuite(int argc, char** argv) override;
   std::string GetUserDataDirectoryCommandLineSwitch() override;
-#if !BUILDFLAG(IS_ANDROID)
   content::ContentMainDelegate* CreateContentMainDelegate() override;
-#endif
   void PreSharding() override;
   void OnDoneRunningTests() override;
 

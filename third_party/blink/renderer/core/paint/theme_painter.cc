@@ -77,15 +77,11 @@ gfx::Rect ThemePainter::SnapRectForPaint(const PhysicalRect& paint_rect,
 namespace {
 
 bool IsMultipleFieldsTemporalInput(FormControlType type) {
-#if !BUILDFLAG(IS_ANDROID)
   return type == FormControlType::kInputDate ||
          type == FormControlType::kInputDatetimeLocal ||
          type == FormControlType::kInputMonth ||
          type == FormControlType::kInputTime ||
          type == FormControlType::kInputWeek;
-#else
-  return false;
-#endif
 }
 
 }  // anonymous namespace

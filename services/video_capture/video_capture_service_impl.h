@@ -19,9 +19,6 @@
 #include "mojo/public/cpp/bindings/receiver.h"
 #include "services/video_capture/public/mojom/video_capture_service.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "media/capture/video/chromeos/mojom/camera_app.mojom.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_GPU_CHANNEL_MEDIA_CAPTURE)
 #include "gpu/ipc/client/gpu_channel_host.h"
@@ -54,13 +51,6 @@ class VideoCaptureServiceImpl : public mojom::VideoCaptureService {
   ~VideoCaptureServiceImpl() override;
 
   // mojom::VideoCaptureService implementation.
-#if BUILDFLAG(IS_CHROMEOS)
-  void InjectGpuDependencies(mojo::PendingRemote<mojom::AcceleratorFactory>
-                                 accelerator_factory) override;
-  void ConnectToCameraAppDeviceBridge(
-      mojo::PendingReceiver<cros::mojom::CameraAppDeviceBridge> receiver)
-      override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   void ConnectToVideoSourceProvider(
       mojo::PendingReceiver<mojom::VideoSourceProvider> receiver) override;
   void BindControlsForTesting(

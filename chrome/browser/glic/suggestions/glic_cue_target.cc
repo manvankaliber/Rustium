@@ -43,9 +43,7 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/image/image_skia.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/browser_ui/glic_vector_icon_manager.h"
-#endif
 
 namespace glic {
 namespace {
@@ -66,9 +64,6 @@ base::TimeDelta GetTimeSinceLastInvocation(Profile* profile) {
 
 // static
 void GlicCueTarget::Register(tabs::TabInterface& tab) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTIMPLEMENTED() << "Glic contextual cue not yet implemented for Android.";
-#else
   auto* glic_keyed_service = GlicKeyedService::Get(tab.GetProfile());
   if (!glic_keyed_service) {
     return;
@@ -83,7 +78,6 @@ void GlicCueTarget::Register(tabs::TabInterface& tab) {
           *glic_keyed_service,
           OptimizationGuideKeyedServiceFactory::GetForProfile(tab.GetProfile()),
           tab));
-#endif
 }
 
 GlicCueTarget::GlicCueTarget(
@@ -232,9 +226,6 @@ void GlicCueTarget::OnEditPrompt(contextual_cueing::CueActionData data) {
 
 void GlicCueTarget::InvokeGlic(contextual_cueing::CueActionData data,
                                bool should_autosubmit) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTIMPLEMENTED() << "Glic contextual cue not yet implemented for Android.";
-#else
   if (!std::holds_alternative<contextual_cueing::GlicCueActionData>(data)) {
     return;
   }
@@ -263,7 +254,6 @@ void GlicCueTarget::InvokeGlic(contextual_cueing::CueActionData data,
     // submit.
     glic_keyed_service_->Invoke(std::move(options));
   }
-#endif
 }
 
 ui::ImageModel GlicCueTarget::GetAnchoredMessageIcon() const {
@@ -274,14 +264,9 @@ ui::ImageModel GlicCueTarget::GetAnchoredMessageIcon() const {
 }
 
 ui::ImageModel GlicCueTarget::GetOmniboxChipIcon() const {
-#if BUILDFLAG(IS_ANDROID)
-  NOTIMPLEMENTED() << "Glic contextual cue not yet implemented for Android.";
-  return ui::ImageModel();
-#else
   return ui::ImageModel::FromVectorIcon(
       glic::GlicVectorIconManager::GetVectorIcon(IDR_GLIC_BUTTON_VECTOR_ICON),
       ui::kColorSysOnSurface, 16);
-#endif
 }
 
 contextual_cueing::CueActionData GlicCueTarget::CueActionDataFromResponse(

@@ -175,8 +175,7 @@ TEST_F(RequestHeaderIntegrityURLLoaderThrottleTest, RedirectToGoogle) {
 }
 #endif  // !BUILDFLAG(GOOGLE_CHROME_BRANDING)
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS) && \
-    !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 TEST_F(RequestHeaderIntegrityURLLoaderThrottleTest, GoogleSiteWithBranding) {
   ASSERT_NE(CHANNEL_NAME_HEADER_NAME, "X-Placeholder-1");
   ASSERT_NE(LASTCHANGE_YEAR_HEADER_NAME, "X-Placeholder-2");
@@ -273,8 +272,7 @@ TEST_F(RequestHeaderIntegrityURLLoaderThrottleTest,
       COPYRIGHT_HEADER_NAME));
 }
 
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS) && \
-        // !BUILDFLAG(IS_ANDROID)
+#endif
 
 constexpr char kTestHeaderName[] = "X-Integrity-Header";
 constexpr char kTestHeaderValue[] = "mocked_token_value_12345678";
@@ -392,7 +390,6 @@ TEST_F(RequestHeaderIntegrityURLLoaderThrottleWithCompaneroTest,
 }
 
 // Platform Runtime headers are not applied on Android.
-#if !BUILDFLAG(IS_ANDROID)
 constexpr char kPlatformRuntimeValue[] = "platform_runtime_value";
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 constexpr char kApplyResultHistogram[] =
@@ -496,7 +493,6 @@ TEST_F(RequestHeaderIntegrityURLLoaderThrottlePlatformRuntimeTest,
                                 PlatformRuntimeApplyResult::kApplied, 1);
 #endif
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 }  // namespace request_header_integrity

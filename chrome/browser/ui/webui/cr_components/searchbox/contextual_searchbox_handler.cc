@@ -100,7 +100,6 @@
 #include "ui/base/window_open_disposition_utils.h"
 #include "ui/gfx/geometry/size.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/browser_window/public/profile_browser_collection.h"
 #include "chrome/browser/ui/lens/lens_search_controller.h"
@@ -126,7 +125,6 @@
 #include "mojo/public/cpp/bindings/callback_helpers.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/views/widget/widget.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 #include "chrome/browser/ui/views/search_ai_mode/signin_promo_controller.h"
@@ -136,9 +134,7 @@ namespace {
 
 constexpr int kThumbnailWidth = 125;
 constexpr int kThumbnailHeight = 200;
-#if !BUILDFLAG(IS_ANDROID)
 constexpr size_t kMaxSize = 100 * 1000 * 1000;
-#endif
 
 bool IsMimeTypeAllowed(const std::string& mime_type,
                        const std::string& allowed_types_str) {
@@ -691,9 +687,9 @@ void ContextualSearchboxHandler::OnTabAdded(TabListInterface& tab_list,
 void ContextualSearchboxHandler::OnActiveTabChanged(TabListInterface& tab_list,
                                                     tabs::TabInterface* tab) {
   active_tab_nav_observer_->ObserveTab(tab);
-#if !BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_DICE_SUPPORT)
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
   composebox_drive_signin_promo_controller_.reset();
-#endif  // !BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_DICE_SUPPORT)
+#endif
   contextual_tasks::ContextualTasksWebContentsUserData::
       UpdateInputStateModelIdentity(GetActiveTabWebContents(web_contents_),
                                     input_state_model_.get());
@@ -701,9 +697,9 @@ void ContextualSearchboxHandler::OnActiveTabChanged(TabListInterface& tab_list,
 }
 
 void ContextualSearchboxHandler::OnActiveTabNavigated() {
-#if !BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_DICE_SUPPORT)
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
   composebox_drive_signin_promo_controller_.reset();
-#endif  // !BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_DICE_SUPPORT)
+#endif
   contextual_tasks::ContextualTasksWebContentsUserData::
       UpdateInputStateModelIdentity(GetActiveTabWebContents(web_contents_),
                                     input_state_model_.get());
@@ -886,10 +882,8 @@ void ContextualSearchboxHandler::DetachFromBrowserWindow() {
   active_tab_nav_observer_->ObserveTab(nullptr);
   all_tab_nav_observers_.clear();
   tab_load_stop_observers_.clear();
-#if !BUILDFLAG(IS_ANDROID)
   // The Drive picker and sign-in promo are tied to the old window.
   OnCancel();
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // The model belongs to the active tab of the window being left.
   ResetInputStateModel();
@@ -1008,7 +1002,6 @@ bool ContextualSearchboxHandler::IsSmartTabSharingActive() const {
   return false;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextualSearchboxHandler::SetSmartTabSharingActive(bool active) {
   if (!contextual_tasks::ContextualTasksContextService::
           GetIsSmartTabSharingEnabled(profile_)) {
@@ -1115,7 +1108,6 @@ void ContextualSearchboxHandler::ResetSmartTabSharing(
   }
   std::move(callback).Run(default_active);
 }
-#endif
 
 std::vector<int32_t> ContextualSearchboxHandler::GetSelectedTabIds() const {
   std::vector<int32_t> ids;
@@ -1411,7 +1403,6 @@ void ContextualSearchboxHandler::AddTabContext(
                         std::move(callback));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextualSearchboxHandler::OnDrivePickerDisconnected() {
   if (!drive_upload_click_callback_.is_null()) {
     std::move(drive_upload_click_callback_)
@@ -1526,10 +1517,8 @@ void ContextualSearchboxHandler::OnError(
   }
   CleanupDrivePicker();
 }
-#endif
 
 void ContextualSearchboxHandler::CleanupDrivePicker() {
-#if !BUILDFLAG(IS_ANDROID)
   drive_picker_result_handler_receiver_.reset();
   drive_picker_controller_.reset();
   drive_disclaimer_controller_.reset();
@@ -1537,14 +1526,10 @@ void ContextualSearchboxHandler::CleanupDrivePicker() {
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
   composebox_drive_signin_promo_controller_.reset();
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void ContextualSearchboxHandler::OnDriveUploadClicked(
     OnDriveUploadClickedCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  std::move(callback).Run(searchbox::mojom::DriveUploadResponse::New());
-#else
   CHECK(
       base::FeatureList::IsEnabled(omnibox::kComposeboxDriveContextMenuOption));
   CHECK(contextual_search::ContextualSearchService::IsContextSharingEnabled(
@@ -1666,7 +1651,6 @@ void ContextualSearchboxHandler::OnDriveUploadClicked(
   disclaimer_controller->CheckDisclaimerStatusAsync(
       base::BindOnce(&ContextualSearchboxHandler::ShowDrivePicker,
                      weak_ptr_factory_.GetWeakPtr()));
-#endif
 }
 
 std::vector<base::UnguessableToken>
@@ -1755,14 +1739,12 @@ void ContextualSearchboxHandler::GetInputState(GetInputStateCallback callback) {
 void ContextualSearchboxHandler::OnInputStateChanged(
     const contextual_search::InputState& state) {
   page_->OnInputStateChanged(state);
-#if !BUILDFLAG(IS_ANDROID)
   bool active = IsSmartTabSharingActive();
   if (!last_sent_smart_tab_sharing_active_.has_value() ||
       *last_sent_smart_tab_sharing_active_ != active) {
     last_sent_smart_tab_sharing_active_ = active;
     page_->UpdateSmartTabSharingActive(active);
   }
-#endif
 }
 
 base::WeakPtr<contextual_search::InputStateModel>
@@ -2081,9 +2063,6 @@ void ContextualSearchboxHandler::GetDriveDisclaimerStatus(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  std::move(callback).Run(searchbox::mojom::DriveDisclaimerStatus::kRestricted);
-#else
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
   // Bypass backend disclaimer check when not signed in with valid credentials
@@ -2138,7 +2117,6 @@ void ContextualSearchboxHandler::GetDriveDisclaimerStatus(
         }
       },
       weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
-#endif
 }
 
 void ContextualSearchboxHandler::OnDriveDisclaimerAccepted() {
@@ -2257,10 +2235,8 @@ void ContextualSearchboxHandler::ContextualizeQueryAndOpenUrl(
         weak_ptr_factory_.GetWeakPtr(), query_text, disposition,
         aim_entry_point, std::move(additional_params), is_voice_search);
     bool is_omnibox = false;
-#if !BUILDFLAG(IS_ANDROID)
     is_omnibox = OmniboxPopupWebContentsHelper::FromWebContents(
                      web_contents_.get()) != nullptr;
-#endif
     if (contextual_tasks::
             GetIsContextualTasksNonBlockingUrlNavigationEnabled() &&
         is_omnibox) {
@@ -2520,7 +2496,6 @@ void ContextualSearchboxHandler::ProcessContextAndOpenUrl(
   new_contextual_session_handle->CheckSearchContentSharingSettings(
       profile_->GetPrefs());
 
-#if !BUILDFLAG(IS_ANDROID)
   if (OmniboxPopupWebContentsHelper::FromWebContents(web_contents_.get()) &&
       disposition == ui::mojom::WindowOpenDisposition::kCurrentTab) {
     auto* browser_window_interface =
@@ -2562,7 +2537,6 @@ void ContextualSearchboxHandler::ProcessContextAndOpenUrl(
       return;
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   std::unique_ptr<contextual_search::InputStateModel> new_input_state_model;
   if (input_state_model_) {
@@ -2576,7 +2550,6 @@ void ContextualSearchboxHandler::ProcessContextAndOpenUrl(
     selected_tab_ids = GetSelectedTabIds();
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (disposition == ui::mojom::WindowOpenDisposition::kCurrentTab) {
     content::WebContents* target_web_contents = web_contents_.get();
     if (OmniboxPopupWebContentsHelper::FromWebContents(web_contents_.get())) {
@@ -2597,7 +2570,6 @@ void ContextualSearchboxHandler::ProcessContextAndOpenUrl(
               std::move(new_input_state_model), std::move(selected_tab_ids));
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   auto navigation_handle_callback = base::BindOnce(
       [](std::unique_ptr<contextual_search::ContextualSearchSessionHandle>
@@ -2635,7 +2607,6 @@ void ContextualSearchboxHandler::OpenUrl(
   // TODO(crbug.com/469137247): Consider moving this logic to the specific
   // subclasses that have aim navigation.
   bool should_open_url = true;
-#if !BUILDFLAG(IS_ANDROID)
   if (OmniboxPopupWebContentsHelper::FromWebContents(web_contents_.get())) {
     should_open_url = false;
     // For the omnibox navigation case, the active tab's web contents differs
@@ -2679,7 +2650,6 @@ void ContextualSearchboxHandler::OpenUrl(
       target_web_contents->Focus();
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   if (should_open_url) {
     content::OpenURLParams params =
@@ -2713,7 +2683,6 @@ ContextualSearchboxHandler::GetContextualTasksUiInterface() {
   return contextual_tasks::GetWebUiInterface(web_contents_);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextualSearchboxHandler::ShowDrivePicker(
     drive_picker::DriveDisclaimerController::DisclaimerStatus status) {
   // Sync the authoritative backend Consent state into the profile's
@@ -2789,7 +2758,6 @@ ContextualSearchboxHandler::GetDriveDisclaimerController() {
   }
   return drive_disclaimer_controller_.get();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void ContextualSearchboxHandler::ShowScreenshotMenu(
     const gfx::Rect& anchor_rect) {

@@ -11,9 +11,7 @@
 #include "build/buildflag.h"
 #include "components/signin/public/base/signin_buildflags.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/memory/scoped_refptr.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.h"
@@ -24,9 +22,6 @@ class PrefService;
 class ProfileOAuth2TokenService;
 class SigninClient;
 
-#if BUILDFLAG(IS_IOS)
-class DeviceAccountsProvider;
-#endif
 
 namespace network {
 class NetworkConnectionTracker;
@@ -39,20 +34,11 @@ class UnexportableKeyService;
 }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace account_manager {
-class AccountManagerFacade;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 std::unique_ptr<ProfileOAuth2TokenService> BuildProfileOAuth2TokenService(
     PrefService* pref_service,
     AccountTrackerService* account_tracker_service,
     network::NetworkConnectionTracker* network_connection_tracker,
-#if BUILDFLAG(IS_CHROMEOS)
-    account_manager::AccountManagerFacade* account_manager_facade,
-    bool is_regular_profile,
-#endif  // BUILDFLAG(IS_CHROMEOS)
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
     bool delete_signin_cookies_on_exit,
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
@@ -60,9 +46,6 @@ std::unique_ptr<ProfileOAuth2TokenService> BuildProfileOAuth2TokenService(
     scoped_refptr<TokenWebData> token_web_data,
     unexportable_keys::UnexportableKeyService* unexportable_key_service,
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
-#if BUILDFLAG(IS_IOS)
-    std::unique_ptr<DeviceAccountsProvider> device_accounts_provider,
-#endif
 #if BUILDFLAG(IS_WIN)
     MutableProfileOAuth2TokenServiceDelegate::FixRequestErrorCallback
         reauth_callback,

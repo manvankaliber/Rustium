@@ -552,14 +552,6 @@ class DisruptiveNotificationPermissionsRevocationBrowserTest
     : public RevokedPermissionsServiceBrowserTest {
  public:
   DisruptiveNotificationPermissionsRevocationBrowserTest() {
-#if BUILDFLAG(IS_ANDROID)
-    feature_list_.InitAndEnableFeatureWithParameters(
-        features::kSafetyHubDisruptiveNotificationRevocation,
-        {{features::
-              kSafetyHubDisruptiveNotificationRevocationWaitingForMetricsDays
-                  .name,
-          "7"}});
-#else
     feature_list_.InitWithFeaturesAndParameters(
         /*enabled_features=*/
         {{features::kSafetyHubDisruptiveNotificationRevocation,
@@ -569,7 +561,6 @@ class DisruptiveNotificationPermissionsRevocationBrowserTest
             "7"}}}},
         /*disabled_features=*/{
             safe_browsing::kShowWarningsForSuspiciousNotifications});
-#endif
   }
 
   void SetUpOnMainThread() override {

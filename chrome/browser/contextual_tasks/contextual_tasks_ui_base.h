@@ -21,11 +21,9 @@
 #include "ui/webui/mojo_web_ui_controller.h"
 #include "ui/webui/resources/cr_components/help_bubble/help_bubble.mojom.h"  // nogncheck
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/callback_list.h"
 #include "base/scoped_observation.h"
 #include "chrome/browser/ui/toolbar/pinned_toolbar/pinned_toolbar_actions_model.h"
-#endif
 
 class BrowserWindowInterface;
 class ContextualTasksInternalsPageHandler;
@@ -71,10 +69,8 @@ class ContextualTasksUIBase
       public contextual_tasks_internals::mojom::
           ContextualTasksInternalsPageHandlerFactory,
       public help_bubble::mojom::HelpBubbleHandlerFactory
-#if !BUILDFLAG(IS_ANDROID)
     ,
       public PinnedToolbarActionsModel::Observer
-#endif
 {
  public:
   explicit ContextualTasksUIBase(content::WebUI* web_ui);
@@ -117,10 +113,8 @@ class ContextualTasksUIBase
   void CreateNewThread() override;
   void MaybeTriggerPinningPromo() override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // PinnedToolbarActionsModel::Observer:
   void OnActionsChanged() override;
-#endif
 
   void BindInterface(
       mojo::PendingReceiver<contextual_tasks_toolbar::mojom::PageHandlerFactory>
@@ -268,13 +262,11 @@ class ContextualTasksUIBase
   // already inherits `signin::IdentityManager::Observer`.
   class CookieJarObserver;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Re-evaluates whether the user may pin or unpin the side panel (e.g. after
   // the Contextual Tasks or AIM eligibility changes while the side panel is
   // open) and pushes the result to the toolbar WebUI so the pin/unpin menu item
   // can be shown or hidden.
   void OnCanPinOrUnpinMaybeChanged();
-#endif
 
   mojo::Receiver<contextual_tasks_toolbar::mojom::PageHandlerFactory>
       toolbar_page_factory_receiver_{this};
@@ -293,7 +285,6 @@ class ContextualTasksUIBase
   bool is_contextual_tasks_eligible_on_init_ = false;
   std::optional<std::string> thread_title_;
 
-#if !BUILDFLAG(IS_ANDROID)
   base::ScopedObservation<PinnedToolbarActionsModel,
                           PinnedToolbarActionsModel::Observer>
       pinned_toolbar_actions_model_observation_{this};
@@ -305,7 +296,6 @@ class ContextualTasksUIBase
   // `EntryPointEligibilityManager::CanPinOrUnpin()`.
   base::CallbackListSubscription eligibility_subscription_;
   base::CallbackListSubscription aim_eligibility_subscription_;
-#endif
 
   std::unique_ptr<CookieJarObserver> cookie_jar_observer_;
 

@@ -12,9 +12,6 @@
 #include "components/sync/base/features.h"
 #include "content/public/test/browser_test.h"
 
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif  // BUILDFLAG(IS_DESKTOP_ANDROID)
 
 class HistoryUIBrowserTest : public WebUIMochaBrowserTest {
  protected:
@@ -23,12 +20,6 @@ class HistoryUIBrowserTest : public WebUIMochaBrowserTest {
   }
 
  private:
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-  // On Desktop Android the History WebUI is still behind a flag, so the
-  // tests have to turn it on themselves.
-  base::test::ScopedFeatureList scoped_feature_list_{
-      chrome::android::kAndroidDesktopWebUiHistory};
-#endif  // BUILDFLAG(IS_DESKTOP_ANDROID)
 };
 
 using HistoryTest = HistoryUIBrowserTest;
@@ -54,13 +45,7 @@ IN_PROC_BROWSER_TEST_F(HistoryTest, OverflowMenu) {
 }
 
 IN_PROC_BROWSER_TEST_F(HistoryTest, Routing) {
-#if BUILDFLAG(IS_ANDROID)
-  // History Clusters are disabled on Android.
-  RunTest("history/history_routing_test.js",
-          "runMochaSuite('routing-test-with-history-clusters-disabled')");
-#else
   RunTest("history/history_routing_test.js", "mocha.run()");
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(HistoryTest, RoutingWithQueryParam) {
@@ -68,13 +53,7 @@ IN_PROC_BROWSER_TEST_F(HistoryTest, RoutingWithQueryParam) {
 }
 
 IN_PROC_BROWSER_TEST_F(HistoryTest, SyncedTabs) {
-#if BUILDFLAG(IS_ANDROID)
-  // <history-sync-optin> tests Desktop DICE web-only sign-in promo flows.
-  RunTest("history/history_synced_tabs_test.js",
-          "runMochaSuite('<history-synced-device-manager>')");
-#else
   RunTest("history/history_synced_tabs_test.js", "mocha.run()");
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(HistoryTest, Toolbar) {
@@ -108,12 +87,6 @@ IN_PROC_BROWSER_TEST_F(HistoryTest, WebuiRefresh2026) {
   RunTest("history/history_app_test.js", "runMochaSuite('WebuiRefresh2026')");
 }
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(HistoryTest, HistoryAppTestAndroid) {
-  RunTest("history/history_app_test.js",
-          "runMochaSuite('HistoryAppTestAndroid')");
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class HistoryListTest : public HistoryUIBrowserTest {
  protected:
@@ -264,15 +237,9 @@ IN_PROC_BROWSER_TEST_F(HistoryListTest, RowsKnowWhenSearching) {
   RunTestCase("RowsKnowWhenSearching");
 }
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(HistoryListTest, EmptyStateIllustrationAndroid) {
-  RunTestCase("EmptyStateIllustrationAndroid");
-}
-#else
 IN_PROC_BROWSER_TEST_F(HistoryListTest, EmptyStateNonAndroid) {
   RunTestCase("EmptyStateNonAndroid");
 }
-#endif  // BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(HistoryListTest, GoToGeminiChatViaMenuButton) {
   RunTestCase("GoToGeminiChatViaMenuButton");
@@ -307,9 +274,7 @@ IN_PROC_BROWSER_TEST_F(HistoryTest, HistoryAppTest) {
 // HistoryAppUnoPhase2FollowUpTest is only available outside CrOS and Android.
 // Android does not participate in the Desktop Uno identity and sync promo flows
 // (kUnoPhase2FollowUp is desktop-only DICE), matching CrOS.
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(HistoryTest, HistoryAppUnoPhase2FollowUpTest) {
   RunTest("history/history_app_test.js",
           "runMochaSuite('HistoryAppUnoPhase2FollowUpTest')");
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)

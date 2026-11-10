@@ -14,9 +14,6 @@
 #include "build/build_config.h"
 #include "third_party/libaddressinput/chromium/chrome_address_validator.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace autofill {
 
@@ -69,20 +66,6 @@ class SubKeyRequester : public LoadRulesListener {
   // Cancels the pending subkey request task.
   void CancelPendingGetSubKeys();
 
-#if BUILDFLAG(IS_ANDROID)
-  jni_zero::ScopedJavaLocalRef<jobject> GetJavaObject();
-
-  // Starts loading the rules for the specified |region_code| for the further
-  // subkey request.
-  void LoadRulesForSubKeys(const std::string& region_code);
-
-  // Gets the subkeys for the region with |region_code| code, if the
-  // |region_code| rules have finished loading. Otherwise, sets up a task to
-  // get the subkeys, when the rules are loaded.
-  void StartRegionSubKeysRequest(const std::string& region_code,
-                                 int32_t jtimeout_seconds,
-                                 const jni_zero::JavaRef<jobject>& jdelegate);
-#endif  // BUILDFLAG(IS_ANDROID)
 
  private:
   // Called when the address rules for the |region_code| have finished
@@ -99,10 +82,6 @@ class SubKeyRequester : public LoadRulesListener {
 
   const std::string language_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Java-side version of the SubKeyRequester.
-  jni_zero::ScopedJavaGlobalRef<jobject> java_ref_;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace autofill

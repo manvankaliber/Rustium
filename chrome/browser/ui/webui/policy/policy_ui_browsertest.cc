@@ -80,14 +80,7 @@
 #include "chrome/browser/google/google_update_policy_fetcher.h"
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/test/device_state_mixin.h"
-#include "chrome/browser/ash/login/test/logged_in_user_mixin.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chrome/test/base/mixin_based_in_process_browser_test.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/device_api/managed_configuration_api.h"
 #include "chrome/browser/download/download_prefs.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
@@ -108,11 +101,8 @@
 #include "net/test/embedded_test_server/http_request.h"
 #include "net/test/embedded_test_server/http_response.h"
 #include "url/origin.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/enterprise/reporting/browser_launch/scoped_initial_command_line.h"
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
 using testing::_;
 using testing::Return;
@@ -233,10 +223,8 @@ class PolicyUITestBase : public PlatformBrowserTest {
  protected:
   // PlatformBrowserTest implementation.
   void SetUpInProcessBrowserTestFixture() override {
-#if !BUILDFLAG(IS_CHROMEOS)
     base::CommandLine::ForCurrentProcess()->AppendSwitch(
         switches::kEnableChromeBrowserCloudManagement);
-#endif
     provider_.SetDefaultReturns(/*is_initialization_complete_return=*/true,
                                 /*is_first_policy_load_complete_return=*/true);
     policy::BrowserPolicyConnector::SetPolicyProviderForTesting(&provider_);
@@ -336,12 +324,6 @@ void PolicyUITestBase::VerifyPolicies(
 
 void PolicyUITestBase::VerifyReportButton(bool visible) {
   bool expect_visible = visible;
-#if BUILDFLAG(IS_CHROMEOS)
-  // The report button is never visible on ChromeOS. We force `expect_visible`
-  // to false here to prevent the JS promise from polling indefinitely and
-  // timing out.
-  expect_visible = false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Poll until the report button's visibility matches our expectation.
   // This cleanly handles asynchronous WebUI updates (on Windows and macOS)
@@ -363,11 +345,7 @@ void PolicyUITestBase::VerifyReportButton(bool visible) {
   std::string ret =
       content::EvalJs(web_contents(), kJavaScript).ExtractString();
 
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(visible, ret != "none");
-#else
-  EXPECT_FALSE(ret != "none");
-#endif
 }
 
 class PolicyUITest : public base::test::WithFeatureOverride,
@@ -393,221 +371,6 @@ class PolicyUITest : public base::test::WithFeatureOverride,
 
 INSTANTIATE_FEATURE_OVERRIDE_TEST_SUITE(PolicyUITest);
 
-#if BUILDFLAG(IS_CHROMEOS)
-class PolicyUIStatusTest : public MixinBasedInProcessBrowserTest {
- public:
-  void SetUpOnMainThread() override {
-    MixinBasedInProcessBrowserTest::SetUpOnMainThread();
-    logged_in_user_mixin_.LogInUser();
-    // By default DeviceStateMixin sets public key version to 17 whereas policy
-    // test server inside LoggedInUserMixin has only one version. By setting
-    // public_key_version to 1, we make device policy requests succeed and thus
-    // device policy timestamp set.
-    device_state_.RequestDevicePolicyUpdate()
-        ->policy_data()
-        ->set_public_key_version(1);
-  }
-
-  bool ReadStatusFor(const std::string& policy_legend,
-                     base::flat_map<std::string, std::string>* policy_status);
-  bool ReloadPolicies();
-  bool ReloadPolicies(content::WebContents* contents);
-
- protected:
-  ash::DeviceStateMixin device_state_{
-      &mixin_host_,
-      ash::DeviceStateMixin::State::OOBE_COMPLETED_CLOUD_ENROLLED};
-  ash::LoggedInUserMixin logged_in_user_mixin_{
-      &mixin_host_, /*test_base=*/this, embedded_test_server(),
-      ash::LoggedInUserMixin::LogInType::kManaged};
-};
-
-bool PolicyUIStatusTest::ReadStatusFor(
-    const std::string& policy_legend,
-    base::flat_map<std::string, std::string>* policy_status) {
-  // Retrieve the text contents of the status table with specified heading.
-  const std::string javascript = R"JS(
-    (function() {
-      function readStatus() {
-        // Wait for the status box to appear in case page just loaded.
-        const app = document.querySelector('policy-app');
-        const statusSection = app && app.shadowRoot ?
-            app.shadowRoot.querySelector('#status-section') : null;
-        if (!statusSection || statusSection.hidden) {
-          return new Promise(resolve => {
-            window.requestIdleCallback(resolve);
-          }).then(readStatus);
-        }
-
-        const policies = getPolicyFieldsets();
-        const statuses = {};
-        for (let i = 0; i < policies.length; ++i) {
-          const statusHeading = policies[i]
-            .querySelector('.status-box-heading').textContent;
-          const entries = {};
-          const rows = policies[i]
-            .querySelectorAll('.status-entry div:nth-child(2)');
-          for (let j = 0; j < rows.length; ++j) {
-            entries[rows[j].className.split(' ')[0]] = rows[j].textContent
-              .trim();
-          }
-          statuses[statusHeading.trim()] = entries;
-        }
-        return JSON.stringify(statuses);
-      };
-      return new Promise(resolve => {
-        window.requestIdleCallback(resolve);
-      }).then(readStatus);
-    })();
-  )JS";
-  content::WebContents* contents =
-      chrome_test_utils::GetActiveWebContents(this);
-  std::string json = content::EvalJs(contents, javascript).ExtractString();
-  std::optional<base::Value> statuses =
-      base::JSONReader::Read(json, base::JSON_PARSE_CHROMIUM_EXTENSIONS);
-  if (!statuses.has_value() || !statuses->is_dict()) {
-    return false;
-  }
-  const base::DictValue& status_dict = statuses->GetDict();
-  const base::DictValue* actual_entries = status_dict.FindDict(policy_legend);
-  if (!actual_entries) {
-    return false;
-  }
-  for (const auto entry : *actual_entries) {
-    policy_status->insert_or_assign(entry.first, entry.second.GetString());
-  }
-  return true;
-}
-
-bool PolicyUIStatusTest::ReloadPolicies() {
-  content::WebContents* contents =
-      chrome_test_utils::GetActiveWebContents(this);
-  return ReloadPolicies(contents);
-}
-
-bool PolicyUIStatusTest::ReloadPolicies(content::WebContents* contents) {
-  return content::ExecJs(contents, "reloadPolicies()");
-}
-
-#if !BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(PolicyUIStatusTest, CheckPolicyUiInGuestProfile) {
-  // Verifies that the page opens in guest session.
-  const BrowserWindowInterface* policy_browser = OpenURLOffTheRecord(
-      browser()->GetProfile(), GURL(chrome::kChromeUIPolicyURL));
-  ASSERT_TRUE(policy_browser);
-  content::WebContents* contents =
-      policy_browser->GetTabStripModel()->GetActiveWebContents();
-  ASSERT_TRUE(ReloadPolicies(contents));
-}
-#endif  // !BUILDFLAG(IS_ANDROID)
-
-IN_PROC_BROWSER_TEST_F(PolicyUIStatusTest,
-                       ShowsZeroSecondsSinceRefreshAfterReloadingPolicies) {
-  // Verifies that the time since refresh of a policy set is set to 0 seconds
-  // after "Reload policies" button is pressed and policies are reloaded.
-
-  // Mock time in policy server and classes used by refresh logic.
-  base::Time now = base::Time::Now();
-  logged_in_user_mixin_.GetEmbeddedPolicyTestServerMixin()
-      ->UpdatePolicyTimestamp(now);
-  base::SimpleTestClock status_provider_clock_mock;
-  status_provider_clock_mock.SetNow(now);
-  auto status_provider_clock_mock_closure =
-      policy::PolicyStatusProvider::OverrideClockForTesting(
-          &status_provider_clock_mock);
-  base::SimpleTestClock policy_refresher_clock_mock;
-  policy_refresher_clock_mock.SetNow(now);
-  auto policy_refresher_clock_mock_closure =
-      policy::CloudPolicyRefreshScheduler::OverrideClockForTesting(
-          &policy_refresher_clock_mock);
-
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(),
-                                           GURL(chrome::kChromeUIPolicyURL)));
-  ASSERT_TRUE(ReloadPolicies());
-
-  base::flat_map<std::string, std::string> status;
-  ASSERT_TRUE(ReadStatusFor("User policies", &status));
-  EXPECT_EQ(status["time-since-last-refresh"], "0 secs ago");
-  EXPECT_EQ(status["time-since-last-fetch-attempt"], "0 secs ago");
-  ASSERT_TRUE(ReadStatusFor("Device policies", &status));
-  EXPECT_EQ(status["time-since-last-refresh"], "0 secs ago");
-  EXPECT_EQ(status["time-since-last-fetch-attempt"], "0 secs ago");
-}
-
-IN_PROC_BROWSER_TEST_F(PolicyUIStatusTest, ShowsCorrectTimesSinceRefresh) {
-  // Verifies that the time since refresh of a policy set is correctly computed.
-
-  // Mock time in policy server and classes used by refresh logic.
-  base::Time now = base::Time::Now();
-  logged_in_user_mixin_.GetEmbeddedPolicyTestServerMixin()
-      ->UpdatePolicyTimestamp(now);
-  base::SimpleTestClock status_provider_clock_mock;
-  status_provider_clock_mock.SetNow(now);
-  auto status_provider_clock_mock_closure =
-      policy::PolicyStatusProvider::OverrideClockForTesting(
-          &status_provider_clock_mock);
-  base::SimpleTestClock policy_refresher_clock_mock;
-  policy_refresher_clock_mock.SetNow(now);
-  auto policy_refresher_clock_mock_closure =
-      policy::CloudPolicyRefreshScheduler::OverrideClockForTesting(
-          &policy_refresher_clock_mock);
-
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(),
-                                           GURL(chrome::kChromeUIPolicyURL)));
-  ASSERT_TRUE(ReloadPolicies());
-  status_provider_clock_mock.Advance(base::Hours(1));
-  policy_refresher_clock_mock.Advance(base::Hours(1));
-  // Refresh the page without reloading policies.
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(),
-                                           GURL(chrome::kChromeUIPolicyURL)));
-
-  base::flat_map<std::string, std::string> status;
-  ASSERT_TRUE(ReadStatusFor("User policies", &status));
-  EXPECT_EQ(status["time-since-last-refresh"], "1 hour ago");
-  EXPECT_EQ(status["time-since-last-fetch-attempt"], "1 hour ago");
-  ASSERT_TRUE(ReadStatusFor("Device policies", &status));
-  EXPECT_EQ(status["time-since-last-refresh"], "1 hour ago");
-  EXPECT_EQ(status["time-since-last-fetch-attempt"], "1 hour ago");
-}
-
-IN_PROC_BROWSER_TEST_F(PolicyUIStatusTest,
-                       ShowsCorrectRefreshTimesAfterFailedReload) {
-  // Verifies that the time since refresh of a policy set is correctly updated
-  // after a failed attempt to update policies.
-
-  // Mock time in policy server and classes used by refresh logic.
-  base::Time now = base::Time::Now();
-  logged_in_user_mixin_.GetEmbeddedPolicyTestServerMixin()
-      ->UpdatePolicyTimestamp(now);
-  base::SimpleTestClock status_provider_clock_mock;
-  status_provider_clock_mock.SetNow(now);
-  auto status_provider_clock_mock_closure =
-      policy::PolicyStatusProvider::OverrideClockForTesting(
-          &status_provider_clock_mock);
-  base::SimpleTestClock policy_refresher_clock_mock;
-  policy_refresher_clock_mock.SetNow(now);
-  auto policy_refresher_clock_mock_closure =
-      policy::CloudPolicyRefreshScheduler::OverrideClockForTesting(
-          &policy_refresher_clock_mock);
-
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(),
-                                           GURL(chrome::kChromeUIPolicyURL)));
-  ASSERT_TRUE(ReloadPolicies());
-  logged_in_user_mixin_.GetEmbeddedPolicyTestServerMixin()->SetPolicyFetchError(
-      500);
-  status_provider_clock_mock.Advance(base::Hours(1));
-  policy_refresher_clock_mock.Advance(base::Hours(1));
-  ASSERT_TRUE(ReloadPolicies());
-
-  base::flat_map<std::string, std::string> status;
-  ASSERT_TRUE(ReadStatusFor("User policies", &status));
-  EXPECT_EQ(status["time-since-last-refresh"], "1 hour ago");
-  EXPECT_EQ(status["time-since-last-fetch-attempt"], "0 secs ago");
-  ASSERT_TRUE(ReadStatusFor("Device policies", &status));
-  EXPECT_EQ(status["time-since-last-refresh"], "1 hour ago");
-  EXPECT_EQ(status["time-since-last-fetch-attempt"], "0 secs ago");
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(PolicyUITest, LogsPageRedirectsOnChromeOS) {
   // Verifies that navigating to chrome://policy/logs redirects to
@@ -622,15 +385,7 @@ IN_PROC_BROWSER_TEST_P(PolicyUITest, LogsPageRedirectsOnChromeOS) {
                                     ui::PAGE_TRANSITION_TYPED, std::string());
   EXPECT_TRUE(content::WaitForLoadStop(contents));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (policy::PolicyLogger::GetInstance()->IsPolicyLoggingEnabled()) {
-    EXPECT_EQ(contents->GetLastCommittedURL(), logs_url);
-  } else {
-    EXPECT_EQ(contents->GetLastCommittedURL(), policy_url);
-  }
-#else
   EXPECT_EQ(contents->GetLastCommittedURL(), logs_url);
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(PolicyUITest, SendPolicyNames) {
@@ -654,13 +409,11 @@ IN_PROC_BROWSER_TEST_P(PolicyUITest, SendPolicyNames) {
         it.key(), std::string(), std::string(), nullptr, false));
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Add policies found in the Policy Precedence table.
   for (auto* policy : policy::metapolicy::kPrecedence) {
     expected_policies.push_back(PopulateExpectedPolicy(
         policy, std::string(), std::string(), nullptr, false, "precedence"));
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // Retrieve the contents of the policy table from the UI and verify that it
   // matches the expectation.
@@ -748,14 +501,12 @@ IN_PROC_BROWSER_TEST_P(PolicyUITest, SendPolicyValues) {
           kUnknownPolicyWithDots, expected_values[kUnknownPolicyWithDots],
           "Platform", values.Get(kUnknownPolicyWithDots), true));
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Add policies found in the Policy Precedence table.
   for (auto* policy : policy::metapolicy::kPrecedence) {
     expected_policies.push_back(
         PopulateExpectedPolicy(policy, std::string(), std::string(),
                                values.Get(policy), false, "precedence"));
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // Retrieve the contents of the policy table from the UI and verify that it
   // matches the expectation.
@@ -819,7 +570,6 @@ IN_PROC_BROWSER_TEST_P(PolicyUITest, ReportButtonWithSaasUsageReporting) {
   domains.Append("example.com");
   policy::PolicyMap policy_map;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Turn on with browser SaaS usage policy.
   policy_map.Set(policy::key::kSaasUsageReportingDomainUrlsForBrowsers,
                  policy::POLICY_LEVEL_MANDATORY, policy::POLICY_SCOPE_MACHINE,
@@ -835,7 +585,6 @@ IN_PROC_BROWSER_TEST_P(PolicyUITest, ReportButtonWithSaasUsageReporting) {
                  nullptr);
   provider_.UpdateChromePolicy(policy_map);
   VerifyReportButton(/*visible=*/false);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // Turn on with profile SaaS usage policy.
   policy_map.Set(policy::key::kSaasUsageReportingDomainUrlsForProfiles,
@@ -846,7 +595,6 @@ IN_PROC_BROWSER_TEST_P(PolicyUITest, ReportButtonWithSaasUsageReporting) {
   VerifyReportButton(/*visible=*/true);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(PolicyUITest, ReportButtonOTRProfile) {
   BrowserWindowInterface* otr_browser = OpenURLOffTheRecord(
       browser()->GetProfile(), GURL(chrome::kChromeUIPolicyURL));
@@ -902,7 +650,6 @@ IN_PROC_BROWSER_TEST_P(PolicyUITest, ReportButtonOTRProfile) {
   )JS";
   EXPECT_TRUE(content::ExecJs(otr_contents, kUploadReport));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(PolicyUITest, ReloadPolicies) {
   ASSERT_TRUE(
@@ -994,7 +741,6 @@ IN_PROC_BROWSER_TEST_P(PolicyUITest, StatusUpdated) {
 }
 
 // TODO(crbug.com/442259475): Crashes on Android WebUI.
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 class PolicyPrecedenceUITest
     : public PolicyUITestBase,
       public ::testing::WithParamInterface<std::tuple<
@@ -1096,9 +842,7 @@ INSTANTIATE_TEST_SUITE_P(PolicyPrecedenceUITestInstance,
                                           testing::Bool(),
                                           testing::Bool(),
                                           testing::Bool()));
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 // TODO(https://crbug.com/1027135) Add tests to verify extension policies are
 // exported correctly.
 class ExtensionPolicyUITest
@@ -1113,11 +857,6 @@ class ExtensionPolicyUITest
   bool UseSigninProfile() const { return std::get<0>(GetParam()); }
 
   Profile* extension_profile() {
-#if BUILDFLAG(IS_CHROMEOS)
-    if (UseSigninProfile()) {
-      return ash::ProfileHelper::GetSigninProfile();
-    }
-#endif  // BUILDFLAG(IS_CHROMEOS)
     return chrome_test_utils::GetProfile(this);
   }
 
@@ -1244,13 +983,11 @@ IN_PROC_BROWSER_TEST_P(ExtensionPolicyUITest,
         it.key(), std::string(), std::string(), nullptr, false));
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Add policies found in the precedence policy table.
   for (auto* policy : policy::metapolicy::kPrecedence) {
     expected_chrome_policies.push_back(PopulateExpectedPolicy(
         policy, std::string(), std::string(), nullptr, false, "precedence"));
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // Add extension policy to expected policy list.
   std::vector<std::vector<std::string>> expected_policies =
@@ -1340,11 +1077,7 @@ IN_PROC_BROWSER_TEST_P(ExtensionPolicyUITest,
 INSTANTIATE_TEST_SUITE_P(All,
                          ExtensionPolicyUITest,
                          testing::Combine(
-#if BUILDFLAG(IS_CHROMEOS)
-                             testing::Values(false, true),
-#else
                              testing::Values(false),
-#endif
                              testing::Bool()));
 
 namespace {
@@ -1378,9 +1111,7 @@ class WebAppManagedConfigurationPolicyUITest : public PolicyUITestBase {
   WebAppManagedConfigurationPolicyUITest() {
     scoped_feature_list_.InitWithFeatures(
         {
-#if !BUILDFLAG(IS_CHROMEOS)
             features::kIsolatedWebApps,
-#endif  // !BUILDFLAG(IS_CHROMEOS)
             features::kIsolatedWebAppDevMode},
         {});
   }
@@ -1730,7 +1461,6 @@ IN_PROC_BROWSER_TEST_F(
   EXPECT_EQ(after_uninstall->FindBool("idHidden"), true);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 constexpr char kCheckBannerJs[] =
     "(() => {"
     "  const app = document.querySelector('policy-app');"
@@ -1811,6 +1541,3 @@ IN_PROC_BROWSER_TEST_F(PolicyUITestBase,
       content::EvalJs(web_contents(), kGetCommandLineArgsJs).ExtractString(),
       testing::HasSubstr("test-custom-argument"));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
-
-#endif  // !BUILDFLAG(IS_ANDROID)

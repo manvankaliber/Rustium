@@ -16,11 +16,6 @@ export interface KeyValuePairEntry {
   value: string;
 }
 
-// <if expr="is_chromeos">
-// Link to markdown doc with documentation for Chrome OS.
-const CROS_MD_DOC_URL =
-    'https://chromium.googlesource.com/chromiumos/platform2/+/HEAD/debugd/docs/log_entries.md';
-// </if>
 
 export class KeyValuePairEntryElement extends CrLitElement {
   static get is() {
@@ -67,11 +62,6 @@ export class KeyValuePairEntryElement extends CrLitElement {
     // Let URL be anchor to the section of this page by default.
     let urlPrefix = '';
 
-    // <if expr="is_chromeos">
-    // Link to the markdown doc with documentation for the entry for Chrome OS
-    // instead.
-    urlPrefix = CROS_MD_DOC_URL;
-    // </if>
 
     return `${urlPrefix}#${this.entry.key}`;
   }

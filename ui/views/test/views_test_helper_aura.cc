@@ -30,7 +30,7 @@ ViewsTestHelperAura::ViewsTestHelperAura() {
 }
 
 ViewsTestHelperAura::~ViewsTestHelperAura() {
-#if DCHECK_IS_ON() && !BUILDFLAG(IS_CHROMEOS)
+#if DCHECK_IS_ON()
   // Ensure all Widgets (and Windows) are closed in unit tests.
   //
   // Most tests do not try to create desktop Aura Widgets, and on most platforms

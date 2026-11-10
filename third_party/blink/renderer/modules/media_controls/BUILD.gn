@@ -5,10 +5,6 @@
 import("//third_party/blink/renderer/modules/modules.gni")
 import("//tools/grit/grit_rule.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
 blink_modules_sources("media_controls") {
   sources = [
     "elements/media_control_animated_arrow_container_element.cc",
@@ -184,9 +180,9 @@ grit("media_controls_resources") {
     "resources/mediaControls_scrubbing_message.css",
     "resources/mediaInterstitials.css",
   ]
-  if (!is_android) {
-    inputs += [ "resources/default_200_percent/mediaremoting_cast.png" ]
-  }
+
+  inputs += [ "resources/default_200_percent/mediaremoting_cast.png" ]
+
   outputs = [
     "grit/media_controls_resources.h",
     "media_controls_resources_100_percent.pak",

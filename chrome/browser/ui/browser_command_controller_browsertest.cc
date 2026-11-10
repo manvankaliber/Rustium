@@ -99,36 +99,14 @@
 #include "ui/events/keycodes/dom/dom_code.h"
 #include "ui/events/keycodes/keyboard_codes.h"
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/test/base/scoped_channel_override.h"
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 #include "chrome/browser/signin/dice_tab_helper.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-#include <memory>
-
-#include "ash/constants/ash_switches.h"
-#include "ash/wm/window_pin_util.h"
-#include "base/check_deref.h"
-#include "base/functional/bind.h"
-#include "chrome/browser/ash/boca/on_task/on_task_locked_controller.h"
-#include "chrome/browser/ash/login/test/guest_session_mixin.h"
-#include "chrome/browser/ttc/app/public/audio_controller.h"
-#include "chrome/browser/ttc/core/features.h"
-#include "chrome/browser/ttc/core/test_utils.h"
-#include "chrome/browser/ttc/core/ttc_keyed_service.h"
-#include "chrome/browser/ttc/core/ttc_keyed_service_factory.h"
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#include "chrome/test/base/mixin_based_in_process_browser_test.h"
-#include "components/keyed_service/core/keyed_service.h"
-#include "content/public/browser/browser_context.h"
-#include "testing/gmock/include/gmock/gmock.h"
-#include "ui/aura/window.h"
-#endif
 
 #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 #include "extensions/buildflags/buildflags.h"
@@ -264,10 +242,6 @@ class BrowserCommandControllerBrowserTest : public InProcessBrowserTest {
   ~BrowserCommandControllerBrowserTest() override = default;
 
   void SetUpCommandLine(base::CommandLine* command_line) override {
-#if BUILDFLAG(IS_CHROMEOS)
-    command_line->AppendSwitch(
-        ash::switches::kIgnoreUserProfileMappingForTests);
-#endif
   }
 };
 
@@ -373,7 +347,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
   EXPECT_FALSE(chrome::IsCommandEnabled(browser(), IDC_MOVE_TAB_TO_NEW_WINDOW));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
                        NewAvatarMenuEnabledInGuestMode) {
   EXPECT_EQ(1U, GlobalBrowserCollection::GetInstance()->GetSize());
@@ -385,91 +358,9 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
       chrome::BrowserCommandController::From(browser);
   EXPECT_TRUE(command_updater->IsCommandEnabled(IDC_SHOW_AVATAR_MENU));
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
                        IsReservedCommandOrKey) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // F1-3 keys are reserved Chrome accelerators on Chrome OS.
-  EXPECT_TRUE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          IDC_BACK, input::NativeWebKeyboardEvent(ui::KeyEvent(
-                        ui::EventType::kKeyPressed, ui::VKEY_BROWSER_BACK,
-                        ui::DomCode::BROWSER_BACK, 0))));
-  EXPECT_TRUE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          IDC_FORWARD, input::NativeWebKeyboardEvent(ui::KeyEvent(
-                           ui::EventType::kKeyPressed, ui::VKEY_BROWSER_FORWARD,
-                           ui::DomCode::BROWSER_FORWARD, 0))));
-  EXPECT_TRUE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          IDC_RELOAD, input::NativeWebKeyboardEvent(ui::KeyEvent(
-                          ui::EventType::kKeyPressed, ui::VKEY_BROWSER_REFRESH,
-                          ui::DomCode::BROWSER_REFRESH, 0))));
-
-  // When there are modifier keys pressed, don't reserve.
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          IDC_RELOAD_BYPASSING_CACHE,
-          input::NativeWebKeyboardEvent(
-              ui::KeyEvent(ui::EventType::kKeyPressed, ui::VKEY_F3,
-                           ui::DomCode::F3, ui::EF_SHIFT_DOWN))));
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          IDC_RELOAD_BYPASSING_CACHE,
-          input::NativeWebKeyboardEvent(
-              ui::KeyEvent(ui::EventType::kKeyPressed, ui::VKEY_F3,
-                           ui::DomCode::F3, ui::EF_CONTROL_DOWN))));
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          IDC_FULLSCREEN, input::NativeWebKeyboardEvent(ui::KeyEvent(
-                              ui::EventType::kKeyPressed, ui::VKEY_F4,
-                              ui::DomCode::F4, ui::EF_SHIFT_DOWN))));
-
-  // F4-10 keys are not reserved since they are Ash accelerators.
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          -1,
-          input::NativeWebKeyboardEvent(ui::KeyEvent(
-              ui::EventType::kKeyPressed, ui::VKEY_F4, ui::DomCode::F4, 0))));
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          -1,
-          input::NativeWebKeyboardEvent(ui::KeyEvent(
-              ui::EventType::kKeyPressed, ui::VKEY_F5, ui::DomCode::F5, 0))));
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          -1,
-          input::NativeWebKeyboardEvent(ui::KeyEvent(
-              ui::EventType::kKeyPressed, ui::VKEY_F6, ui::DomCode::F6, 0))));
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          -1,
-          input::NativeWebKeyboardEvent(ui::KeyEvent(
-              ui::EventType::kKeyPressed, ui::VKEY_F7, ui::DomCode::F7, 0))));
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          -1,
-          input::NativeWebKeyboardEvent(ui::KeyEvent(
-              ui::EventType::kKeyPressed, ui::VKEY_F8, ui::DomCode::F8, 0))));
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          -1,
-          input::NativeWebKeyboardEvent(ui::KeyEvent(
-              ui::EventType::kKeyPressed, ui::VKEY_F9, ui::DomCode::F9, 0))));
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          -1,
-          input::NativeWebKeyboardEvent(ui::KeyEvent(
-              ui::EventType::kKeyPressed, ui::VKEY_F10, ui::DomCode::F10, 0))));
-
-  // Shift+Control+Alt+F3 is also an Ash accelerator. Don't reserve it.
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsReservedCommandOrKey(
-          -1, input::NativeWebKeyboardEvent(ui::KeyEvent(
-                  ui::EventType::kKeyPressed, ui::VKEY_F3, ui::DomCode::F3,
-                  ui::EF_SHIFT_DOWN | ui::EF_CONTROL_DOWN | ui::EF_ALT_DOWN))));
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if defined(USE_AURA)
   // Ctrl+n, Ctrl+w are reserved while Ctrl+f is not.
@@ -505,28 +396,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
 
   // When GetType() == BrowserWindowInterface::Type::TYPE_APP, no keys are
   // reserved.
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_FALSE(chrome::BrowserCommandController::From(app_browser)
-                   ->IsReservedCommandOrKey(
-                       IDC_BACK, input::NativeWebKeyboardEvent(ui::KeyEvent(
-                                     ui::EventType::kKeyPressed, ui::VKEY_F1,
-                                     ui::DomCode::F1, 0))));
-  EXPECT_FALSE(chrome::BrowserCommandController::From(app_browser)
-                   ->IsReservedCommandOrKey(
-                       IDC_FORWARD, input::NativeWebKeyboardEvent(ui::KeyEvent(
-                                        ui::EventType::kKeyPressed, ui::VKEY_F2,
-                                        ui::DomCode::F2, 0))));
-  EXPECT_FALSE(chrome::BrowserCommandController::From(app_browser)
-                   ->IsReservedCommandOrKey(
-                       IDC_RELOAD, input::NativeWebKeyboardEvent(ui::KeyEvent(
-                                       ui::EventType::kKeyPressed, ui::VKEY_F3,
-                                       ui::DomCode::F3, 0))));
-  EXPECT_FALSE(chrome::BrowserCommandController::From(app_browser)
-                   ->IsReservedCommandOrKey(
-                       -1, input::NativeWebKeyboardEvent(
-                               ui::KeyEvent(ui::EventType::kKeyPressed,
-                                            ui::VKEY_F4, ui::DomCode::F4, 0))));
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if defined(USE_AURA)
   // The input::NativeWebKeyboardEvent constructor is available only when
@@ -556,14 +425,12 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest, IncognitoCommands) {
   EXPECT_TRUE(chrome::IsCommandEnabled(browser(), IDC_IMPORT_SETTINGS));
   EXPECT_TRUE(chrome::IsCommandEnabled(browser(), IDC_PERFORMANCE));
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // On ChromeOS, guest mode is tested in
   // BrowserCommandControllerBrowserTestChromeOSGuest.IncognitoCommands.
   BrowserWindowInterface* guest_browser = CreateGuestBrowser();
   EXPECT_TRUE(chrome::IsCommandEnabled(guest_browser, IDC_OPTIONS));
   EXPECT_FALSE(chrome::IsCommandEnabled(guest_browser, IDC_IMPORT_SETTINGS));
   EXPECT_FALSE(chrome::IsCommandEnabled(guest_browser, IDC_PERFORMANCE));
-#endif
 
   IncognitoModePrefs::SetAvailability(
       browser()->GetProfile()->GetPrefs(),
@@ -599,7 +466,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest, AppFullScreen) {
 // See http://crbug.com/40507396.
 // On ChromeOS, guest mode is tested in
 // BrowserCommandControllerBrowserTestChromeOSGuest.OptionsConsistency.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
                        OptionsConsistency) {
   BrowserWindowInterface* guest_browser = CreateGuestBrowser();
@@ -627,18 +493,12 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
       policy::IncognitoModeAvailability::kForced);
   EXPECT_TRUE(chrome::IsCommandEnabled(guest_browser, IDC_OPTIONS));
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
                        AvatarAcceleratorEnabledOnDesktop) {
   const CommandUpdater* command_updater =
       chrome::BrowserCommandController::From(browser());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Chrome OS uses system tray menu to handle multi-profiles. Avatar menu
-  // accelerator is disabled for non-incognito windows.
-  EXPECT_FALSE(command_updater->IsCommandEnabled(IDC_SHOW_AVATAR_MENU));
-#else
   if (!profiles::IsMultipleProfilesEnabled()) {
     return;
   }
@@ -657,7 +517,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
   profiles::testing::CreateProfileSync(profile_manager, path);
   ASSERT_EQ(2u, profile_manager->GetNumberOfProfiles());
   EXPECT_TRUE(command_updater->IsCommandEnabled(IDC_SHOW_AVATAR_MENU));
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
@@ -668,7 +527,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
   EXPECT_TRUE(command_updater->IsCommandEnabled(IDC_SHOW_AVATAR_MENU));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // TODO(crbug.com/549506876): Fix test on MacOS.
 #if BUILDFLAG(IS_MAC)
 #define MAYBE_UpdateCommandsForFullscreenMode \
@@ -687,7 +545,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
   EXPECT_TRUE(chrome::IsCommandEnabled(guest_browser, IDC_OPTIONS));
   EXPECT_FALSE(chrome::IsCommandEnabled(guest_browser, IDC_IMPORT_SETTINGS));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
                        SavePageDisabledByDownloadRestrictionsPolicy) {
@@ -719,469 +576,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
   EXPECT_FALSE(command_updater->IsCommandEnabled(IDC_SAVE_PAGE));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// TODO(crbug.com/438540029): Rename this test suite to "TrustedPinned" to
-// disambiguate between LockedFullscreen (which is for extension API) and OnTask
-// locked (which is for class tools).
-class BrowserCommandControllerBrowserTestLockedFullscreen
-    : public BrowserCommandControllerBrowserTest,
-      public testing::WithParamInterface<bool> {
- public:
-  BrowserCommandControllerBrowserTestLockedFullscreen() {
-    scoped_feature_list_.InitWithFeatureState(
-        features::kUseUnifiedLockedStateController,
-        is_unified_locked_state_controller_enabled_);
-  }
-
- protected:
-  const bool is_unified_locked_state_controller_enabled_ = GetParam();
-  bool is_locked_for_on_task_ = false;
-
-  void SetLockedForOnTask(bool locked) {
-    if (is_unified_locked_state_controller_enabled_) {
-      is_locked_for_on_task_ = locked;
-    } else {
-      ash::boca::OnTaskLockedController::From(browser())
-          ->set_locked_for_on_task(locked);
-    }
-  }
-
-  void SetUpOnMainThread() override {
-    BrowserCommandControllerBrowserTest::SetUpOnMainThread();
-
-    // Set up browser for testing / validating page navigation and tab
-    // management command states. This mostly involves opening a new tab and
-    // ensuring that we are able to navigate back and forward for the test.
-    OpenUrlWithDisposition(GURL("chrome://new-tab-page/"),
-                           ui::mojom::WindowOpenDisposition::kNewForegroundTab);
-    OpenUrlWithDisposition(GURL("chrome://version/"),
-                           ui::mojom::WindowOpenDisposition::kCurrentTab);
-    OpenUrlWithDisposition(GURL("about:blank"),
-                           ui::mojom::WindowOpenDisposition::kCurrentTab);
-
-    // Go back by one page to ensure the forward command is also available for
-    // testing purposes.
-    content::TestNavigationObserver navigation_observer(
-        browser()->tab_strip_model()->GetActiveWebContents());
-    chrome::GoBack(browser(), ui::mojom::WindowOpenDisposition::kCurrentTab);
-    navigation_observer.Wait();
-    ASSERT_TRUE(chrome::CanGoBack(browser()));
-    ASSERT_TRUE(chrome::CanGoForward(browser()));
-  }
-
-  void EnterLockedFullscreen(
-      std::optional<chromeos::LockedState> target_state = std::nullopt) {
-    auto* command_controller =
-        chrome::BrowserCommandController::From(browser());
-    if (is_unified_locked_state_controller_enabled_) {
-      auto* controller = chromeos::LockedStateController::From(browser());
-      ASSERT_TRUE(controller);
-      chromeos::LockedState state = target_state.value_or(
-          is_locked_for_on_task_ ? chromeos::LockedState::kOnTaskLocked
-                                 : chromeos::LockedState::kExtensionLocked);
-      controller->Lock(state);
-    } else {
-      // Legacy has no explicit paused state; paused is OnTask locked with tab
-      // switching disabled (see BrowserDelegateImpl::SetOnTaskState()).
-      const bool paused =
-          target_state == chromeos::LockedState::kOnTaskLockedPaused;
-      if (paused) {
-        SetLockedForOnTask(true);
-      }
-      ash::PinWindow(browser()->GetWindow()->GetNativeWindow(),
-                     /*trusted=*/true);
-      command_controller->LockedFullscreenStateChanged();
-      if (paused) {
-        command_controller->SetTabSwitchCommandsEnabled(false);
-      }
-    }
-
-    // Update the corresponding command controller state as well as other
-    // states so we can verify what commands are enabled.
-    command_controller->TabStateChanged();
-    command_controller->FullscreenStateChanged();
-    command_controller->PrintingStateChanged();
-    command_controller->ExtensionStateChanged();
-    command_controller->FindBarVisibilityChanged();
-    command_controller->ZoomStateChanged();
-    command_controller->UpdateReloadStopState(
-        /*is_loading=*/true,
-        /*force=*/false);
-  }
-
-  // Prepares the browser for OnTask without pinning it.
-  void EnterOnTaskPrepared() {
-    if (is_unified_locked_state_controller_enabled_) {
-      auto* controller = chromeos::LockedStateController::From(browser());
-      ASSERT_TRUE(controller);
-      controller->Lock(chromeos::LockedState::kOnTaskPrepared);
-    } else {
-      SetLockedForOnTask(true);
-    }
-  }
-
-  void ExitOnTaskPrepared() {
-    if (is_unified_locked_state_controller_enabled_) {
-      auto* controller = chromeos::LockedStateController::From(browser());
-      ASSERT_TRUE(controller);
-      controller->Unlock(chromeos::LockedState::kOnTaskLocked);
-    } else {
-      SetLockedForOnTask(false);
-    }
-  }
-
-  void ExitLockedFullscreen() {
-    if (is_unified_locked_state_controller_enabled_) {
-      auto* controller = chromeos::LockedStateController::From(browser());
-      if (controller) {
-        controller->Unlock(controller->GetState());
-      }
-    } else {
-      ash::UnpinWindow(browser()->GetWindow()->GetNativeWindow());
-      chrome::BrowserCommandController::From(browser())
-          ->LockedFullscreenStateChanged();
-    }
-  }
-
-  CommandUpdater* GetCommandUpdater() {
-    return chrome::BrowserCommandController::From(browser())
-        ->command_updater_.get();
-  }
-
- private:
-  void OpenUrlWithDisposition(GURL url,
-                              ui::mojom::WindowOpenDisposition disposition) {
-    ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
-        browser(), url, disposition,
-        ui_test_utils::BROWSER_TEST_WAIT_FOR_LOAD_STOP));
-  }
-
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_P(BrowserCommandControllerBrowserTestLockedFullscreen,
-                       WhenNotLockedForOnTask) {
-  SetLockedForOnTask(false);
-  CommandUpdater* const command_updater = GetCommandUpdater();
-  auto* const command_controller =
-      chrome::BrowserCommandController::From(browser());
-
-  // IDC_EXIT is always enabled in regular mode so it's a perfect candidate for
-  // testing.
-  EXPECT_TRUE(command_controller->IsCommandEnabled(IDC_EXIT));
-  EnterLockedFullscreen();
-
-  // IDC_EXIT is not enabled in locked fullscreen.
-  EXPECT_FALSE(command_controller->IsCommandEnabled(IDC_EXIT));
-  constexpr int kAllowlistedIds[] = {IDC_CUT, IDC_COPY, IDC_PASTE};
-
-  // Go through all the command ids and ensure only allowlisted commands are
-  // enabled.
-  for (int id : command_updater->GetAllIds()) {
-    bool is_command_allowlisted = std::ranges::contains(kAllowlistedIds, id);
-    EXPECT_EQ(command_controller->IsCommandEnabled(id), is_command_allowlisted)
-        << "Command " << id << " failed to meet enabled state expectation";
-  }
-
-  // Exit locked fullscreen and verify IDC_EXIT is enabled again.
-  ExitLockedFullscreen();
-  EXPECT_TRUE(command_controller->IsCommandEnabled(IDC_EXIT));
-}
-
-// Internal helper methods that update command state must not re-enable
-// restricted commands while in locked fullscreen mode.
-IN_PROC_BROWSER_TEST_P(BrowserCommandControllerBrowserTestLockedFullscreen,
-                       CommandsRemainDisabledWhenNotLockedForOnTask) {
-  SetLockedForOnTask(false);
-  CommandUpdater* const command_updater = GetCommandUpdater();
-  chrome::BrowserCommandController* const controller =
-      chrome::BrowserCommandController::From(browser());
-
-  EnterLockedFullscreen();
-
-  constexpr int kRestrictedCommands[] = {
-      IDC_FIND,
-      IDC_FIND_NEXT,
-      IDC_FIND_PREVIOUS,
-      IDC_CLOSE_FIND_OR_STOP,
-      IDC_ZOOM_PLUS,
-      IDC_ZOOM_NORMAL,
-      IDC_ZOOM_MINUS,
-      IDC_DUPLICATE_TARGET_TAB,
-      IDC_PIN_TARGET_TAB,
-      IDC_GROUP_TARGET_TAB,
-      IDC_MUTE_TARGET_SITE,
-      IDC_OPEN_GLIC,
-  };
-
-  // Commands must be disabled initially upon entering locked fullscreen.
-  for (int id : kRestrictedCommands) {
-    EXPECT_FALSE(command_updater->IsCommandEnabled(id))
-        << "Command " << id
-        << " should be disabled initially in locked fullscreen";
-  }
-
-  // Simulate a tab blocked state transition.
-  const int active = browser()->tab_strip_model()->active_index();
-  browser()->tab_strip_model()->SetTabBlocked(active, true);
-  browser()->tab_strip_model()->SetTabBlocked(active, false);
-
-  // Simulate zoom, tab focus, and active Glic instance changes.
-  controller->ZoomStateChanged();
-  controller->TabKeyboardFocusChangedTo(active);
-  controller->GlicActiveInstanceChanged(nullptr);
-
-  // Commands must remain disabled in locked fullscreen mode.
-  for (int id : kRestrictedCommands) {
-    EXPECT_FALSE(command_updater->IsCommandEnabled(id))
-        << "Command " << id << " should remain disabled in locked fullscreen";
-  }
-}
-
-// When locked for OnTask, restricted commands (such as `IDC_ZOOM_*` and
-// `IDC_OPEN_GLIC`) must remain disabled after state updates, while
-// OnTask allowlisted commands (such as `IDC_FIND`) remain enabled.
-IN_PROC_BROWSER_TEST_P(BrowserCommandControllerBrowserTestLockedFullscreen,
-                       CommandsRemainRestrictedWhenLockedForOnTask) {
-  SetLockedForOnTask(true);
-  CommandUpdater* const command_updater = GetCommandUpdater();
-  chrome::BrowserCommandController* const controller =
-      chrome::BrowserCommandController::From(browser());
-
-  EnterLockedFullscreen();
-
-  // When locked for OnTask, Find commands are allowlisted and enabled, while
-  // `IDC_ZOOM_*` and `IDC_OPEN_GLIC` are restricted.
-  constexpr int kFindCommands[] = {
-      IDC_FIND,
-      IDC_FIND_NEXT,
-      IDC_FIND_PREVIOUS,
-      IDC_CLOSE_FIND_OR_STOP,
-  };
-  for (int id : kFindCommands) {
-    EXPECT_TRUE(command_updater->IsCommandEnabled(id))
-        << "Command " << id
-        << " should be enabled initially when locked for OnTask";
-  }
-
-  constexpr int kRestrictedCommands[] = {
-      IDC_ZOOM_PLUS,        IDC_ZOOM_NORMAL,
-      IDC_ZOOM_MINUS,       IDC_DUPLICATE_TARGET_TAB,
-      IDC_PIN_TARGET_TAB,   IDC_GROUP_TARGET_TAB,
-      IDC_MUTE_TARGET_SITE, IDC_OPEN_GLIC,
-  };
-  for (int id : kRestrictedCommands) {
-    EXPECT_FALSE(command_updater->IsCommandEnabled(id))
-        << "Command " << id
-        << " should be disabled initially when locked for OnTask";
-  }
-
-  // Simulate a tab blocked state transition.
-  const int active = browser()->tab_strip_model()->active_index();
-  browser()->tab_strip_model()->SetTabBlocked(active, true);
-  browser()->tab_strip_model()->SetTabBlocked(active, false);
-
-  // Simulate zoom, tab focus, and active Glic instance changes.
-  controller->ZoomStateChanged();
-  controller->TabKeyboardFocusChangedTo(active);
-  controller->GlicActiveInstanceChanged(nullptr);
-
-  // Find commands must remain enabled when locked for OnTask, while restricted
-  // commands remain disabled.
-  for (int id : kFindCommands) {
-    EXPECT_TRUE(command_updater->IsCommandEnabled(id))
-        << "Command " << id << " should remain enabled when locked for OnTask";
-  }
-  for (int id : kRestrictedCommands) {
-    EXPECT_FALSE(command_updater->IsCommandEnabled(id))
-        << "Command " << id << " should remain disabled when locked for OnTask";
-  }
-}
-
-IN_PROC_BROWSER_TEST_P(BrowserCommandControllerBrowserTestLockedFullscreen,
-                       WhenLockedForOnTask) {
-  SetLockedForOnTask(true);
-  CommandUpdater* const command_updater = GetCommandUpdater();
-  auto* const command_controller =
-      chrome::BrowserCommandController::From(browser());
-
-  // IDC_EXIT is always enabled in regular mode so it's a perfect candidate for
-  // testing.
-  EXPECT_TRUE(command_controller->IsCommandEnabled(IDC_EXIT));
-  EnterLockedFullscreen();
-
-  // IDC_EXIT is not enabled in locked fullscreen.
-  EXPECT_FALSE(command_controller->IsCommandEnabled(IDC_EXIT));
-
-  // NOTE: If new commands are being added, please disable them by default and
-  // notify the ChromeOS team by filing a bug under this component --
-  // b/?q=componentid:1389107.
-  constexpr int kAllowlistedIds[] = {
-      IDC_CUT, IDC_COPY, IDC_PASTE,
-      // Page navigation commands.
-      IDC_BACK, IDC_FORWARD, IDC_RELOAD, IDC_RELOAD_BYPASSING_CACHE,
-      IDC_RELOAD_CLEARING_CACHE, IDC_STOP,
-      // Tab navigation commands.
-      IDC_SELECT_NEXT_TAB, IDC_SELECT_PREVIOUS_TAB, IDC_CYCLE_TO_NEXT_TAB,
-      IDC_CYCLE_TO_PREV_TAB, IDC_SELECT_TAB_0, IDC_SELECT_TAB_1,
-      IDC_SELECT_TAB_2, IDC_SELECT_TAB_3, IDC_SELECT_TAB_4, IDC_SELECT_TAB_5,
-      IDC_SELECT_TAB_6, IDC_SELECT_TAB_7, IDC_SELECT_LAST_TAB,
-      // Find content commands.
-      IDC_FIND, IDC_FIND_NEXT, IDC_FIND_PREVIOUS, IDC_CLOSE_FIND_OR_STOP};
-
-  // Go through all the command ids and ensure only allowlisted commands are
-  // enabled.
-  for (int id : command_updater->GetAllIds()) {
-    bool is_command_allowlisted = std::ranges::contains(kAllowlistedIds, id);
-    EXPECT_EQ(command_controller->IsCommandEnabled(id), is_command_allowlisted)
-        << "Command " << id << " failed to meet enabled state expectation";
-  }
-
-  // Exit locked fullscreen and verify IDC_EXIT is enabled again.
-  ExitLockedFullscreen();
-  EXPECT_TRUE(command_controller->IsCommandEnabled(IDC_EXIT));
-}
-
-IN_PROC_BROWSER_TEST_P(BrowserCommandControllerBrowserTestLockedFullscreen,
-                       WhenLockedForOnTaskPaused) {
-  CommandUpdater* const command_updater = GetCommandUpdater();
-  auto* const command_controller =
-      chrome::BrowserCommandController::From(browser());
-
-  // IDC_EXIT is always enabled in regular mode so it's a perfect candidate for
-  // testing.
-  EXPECT_TRUE(command_controller->IsCommandEnabled(IDC_EXIT));
-  EnterLockedFullscreen(chromeos::LockedState::kOnTaskLockedPaused);
-
-  // IDC_EXIT is not enabled in locked fullscreen.
-  EXPECT_FALSE(command_controller->IsCommandEnabled(IDC_EXIT));
-
-  // Tab navigation commands are disabled while paused, matching the legacy
-  // implementation.
-  constexpr int kAllowlistedIds[] = {
-      IDC_CUT, IDC_COPY, IDC_PASTE,
-      // Page navigation commands.
-      IDC_BACK, IDC_FORWARD, IDC_RELOAD, IDC_RELOAD_BYPASSING_CACHE,
-      IDC_RELOAD_CLEARING_CACHE, IDC_STOP,
-      // Find content commands.
-      IDC_FIND, IDC_FIND_NEXT, IDC_FIND_PREVIOUS, IDC_CLOSE_FIND_OR_STOP};
-
-  // Go through all the command ids and ensure only allowlisted commands are
-  // enabled.
-  for (int id : command_updater->GetAllIds()) {
-    bool is_command_allowlisted = std::ranges::contains(kAllowlistedIds, id);
-    EXPECT_EQ(command_controller->IsCommandEnabled(id), is_command_allowlisted)
-        << "Command " << id << " failed to meet enabled state expectation";
-  }
-
-  // Exit locked fullscreen and verify IDC_EXIT is enabled again.
-  ExitLockedFullscreen();
-  EXPECT_TRUE(command_controller->IsCommandEnabled(IDC_EXIT));
-}
-
-IN_PROC_BROWSER_TEST_P(BrowserCommandControllerBrowserTestLockedFullscreen,
-                       WhenLockedForOnTaskPrepared) {
-  EnterOnTaskPrepared();
-  EXPECT_FALSE(platform_util::IsBrowserLockedFullscreen(browser()));
-
-  auto* const command_controller =
-      chrome::BrowserCommandController::From(browser());
-  EXPECT_TRUE(command_controller->IsCommandEnabled(IDC_EXIT));
-
-  ExitOnTaskPrepared();
-  EXPECT_FALSE(platform_util::IsBrowserLockedFullscreen(browser()));
-  EXPECT_TRUE(command_controller->IsCommandEnabled(IDC_EXIT));
-}
-
-INSTANTIATE_TEST_SUITE_P(All,
-                         BrowserCommandControllerBrowserTestLockedFullscreen,
-                         testing::Bool());
-
-class BrowserCommandControllerBrowserTestLockedFullscreenTtc
-    : public BrowserCommandControllerBrowserTestLockedFullscreen {
- public:
-  BrowserCommandControllerBrowserTestLockedFullscreenTtc() {
-    ttc_feature_list_.InitAndEnableFeature(ttc::kTtc);
-  }
-
-  void SetUpBrowserContextKeyedServices(
-      content::BrowserContext* context) override {
-    BrowserCommandControllerBrowserTestLockedFullscreen::
-        SetUpBrowserContextKeyedServices(context);
-    // A mock conversation keeps sessions from capturing audio or connecting to
-    // the backend.
-    ttc::TtcKeyedServiceFactory::GetInstance()->SetTestingFactory(
-        context, base::BindRepeating([](content::BrowserContext* context)
-                                         -> std::unique_ptr<KeyedService> {
-          return std::make_unique<ttc::TtcKeyedService>(
-              Profile::FromBrowserContext(context),
-              base::BindRepeating([](ttc::SessionController&,
-                                     std::unique_ptr<ttc::AudioController>)
-                                      -> std::unique_ptr<ttc::Conversation> {
-                return std::make_unique<
-                    testing::NiceMock<ttc::MockConversation>>();
-              }));
-        }));
-  }
-
- protected:
-  ttc::TtcKeyedService& ttc_service() {
-    return CHECK_DEREF(ttc::TtcKeyedService::Get(browser()->GetProfile()));
-  }
-
-  actions::ActionItem& ttc_toolbar_action() {
-    return CHECK_DEREF(actions::ActionManager::Get().FindAction(
-        kActionTtcToolbar,
-        BrowserActions::From(browser())->root_action_item()));
-  }
-
- private:
-  base::test::ScopedFeatureList ttc_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_P(BrowserCommandControllerBrowserTestLockedFullscreenTtc,
-                       HidesToolbarAndEndsSessionWhileLocked) {
-  auto* const command_controller =
-      chrome::BrowserCommandController::From(browser());
-  EXPECT_TRUE(command_controller->IsCommandEnabled(IDC_SHOW_TTC_MENU));
-  ttc_service().StartSession();
-  ASSERT_TRUE(ttc_service().is_session_active());
-  EXPECT_TRUE(ttc_toolbar_action().GetVisible());
-  EXPECT_TRUE(ttc_toolbar_action().GetEnabled());
-
-  EnterLockedFullscreen();
-  EXPECT_FALSE(ttc_service().is_session_active());
-  EXPECT_FALSE(ttc_toolbar_action().GetVisible());
-  EXPECT_FALSE(ttc_toolbar_action().GetEnabled());
-  EXPECT_FALSE(command_controller->IsCommandEnabled(IDC_SHOW_TTC_MENU));
-
-  ExitLockedFullscreen();
-  EXPECT_TRUE(ttc_toolbar_action().GetVisible());
-  EXPECT_TRUE(ttc_toolbar_action().GetEnabled());
-  EXPECT_TRUE(command_controller->IsCommandEnabled(IDC_SHOW_TTC_MENU));
-}
-
-IN_PROC_BROWSER_TEST_P(BrowserCommandControllerBrowserTestLockedFullscreenTtc,
-                       ToolbarStaysHiddenOnStateChangeWhileLocked) {
-  EnterLockedFullscreen();
-  ASSERT_FALSE(ttc_toolbar_action().GetVisible());
-
-  // Each session state change runs UpdateTtcState().
-  ttc_service().StartSession();
-  EXPECT_FALSE(ttc_toolbar_action().GetVisible());
-  EXPECT_FALSE(ttc_toolbar_action().GetEnabled());
-  ttc_service().EndSession();
-  EXPECT_FALSE(ttc_toolbar_action().GetVisible());
-  EXPECT_FALSE(ttc_toolbar_action().GetEnabled());
-  EXPECT_FALSE(
-      chrome::BrowserCommandController::From(browser())->IsCommandEnabled(
-          IDC_SHOW_TTC_MENU));
-}
-
-INSTANTIATE_TEST_SUITE_P(All,
-                         BrowserCommandControllerBrowserTestLockedFullscreenTtc,
-                         testing::Bool());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
                        TestTabRestoreServiceInitialized) {
@@ -1286,7 +680,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
   ASSERT_EQ(false, commandController->IsCommandEnabled(IDC_OPEN_FILE));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestRefreshOnly,
                        ExecuteProfileMenuCustomizeChrome) {
   EXPECT_TRUE(chrome::ExecuteCommand(browser(), IDC_CUSTOMIZE_CHROME));
@@ -1423,7 +816,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestRefreshOnly,
   EXPECT_TRUE(ProfilePicker::IsOpen());
 }
 
-#endif
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestRefreshOnly,
                        ShowTranslateStatusChromePage) {
   ASSERT_TRUE(embedded_test_server()->Start());
@@ -1815,14 +1207,12 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestGlic,
       chrome::IsCommandEnabled(incognito_browser, IDC_GLIC_TOGGLE_PIN));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestGlic,
                        DisabledInGuestProfile) {
   BrowserWindowInterface* guest_browser = CreateGuestBrowser();
   EXPECT_TRUE(guest_browser->GetProfile()->IsGuestSession());
   EXPECT_FALSE(chrome::IsCommandEnabled(guest_browser, IDC_GLIC_TOGGLE_PIN));
 }
-#endif  // !BUILDFLAG(IS_CHROME)
 
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestGlic,
                        ThreeDotMenuItemEnabledInRegularProfile) {
@@ -1853,122 +1243,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestGlic,
       [&]() { return !chrome::IsCommandEnabled(browser(), IDC_OPEN_GLIC); }));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-class BrowserCommandControllerBrowserTestGlicChromeOSGuest
-    : public MixinBasedInProcessBrowserTest {
- public:
-  BrowserCommandControllerBrowserTestGlicChromeOSGuest() {
-    scoped_feature_list_.InitWithFeatures({features::kGlic}, {});
-  }
-
-  BrowserCommandControllerBrowserTestGlicChromeOSGuest(
-      const BrowserCommandControllerBrowserTestGlicChromeOSGuest&) = delete;
-  BrowserCommandControllerBrowserTestGlicChromeOSGuest& operator=(
-      const BrowserCommandControllerBrowserTestGlicChromeOSGuest&) = delete;
-
-  ~BrowserCommandControllerBrowserTestGlicChromeOSGuest() override = default;
-
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    MixinBasedInProcessBrowserTest::SetUpCommandLine(command_line);
-    // Bypass glic eligibility check.
-    command_line->AppendSwitch(::switches::kGlicDev);
-  }
-
- protected:
-  // Use a ChromeOS guest session mixin instead of a guest browser.
-  ash::GuestSessionMixin guest_session_mixin_{&mixin_host_};
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestGlicChromeOSGuest,
-                       DisabledInGuestProfile) {
-  EXPECT_TRUE(browser()->GetProfile()->IsGuestSession());
-  EXPECT_FALSE(chrome::IsCommandEnabled(browser(), IDC_GLIC_TOGGLE_PIN));
-}
-
-class BrowserCommandControllerBrowserTestChromeOSGuest
-    : public MixinBasedInProcessBrowserTest {
- public:
-  BrowserCommandControllerBrowserTestChromeOSGuest() = default;
-  BrowserCommandControllerBrowserTestChromeOSGuest(
-      const BrowserCommandControllerBrowserTestChromeOSGuest&) = delete;
-  BrowserCommandControllerBrowserTestChromeOSGuest& operator=(
-      const BrowserCommandControllerBrowserTestChromeOSGuest&) = delete;
-  ~BrowserCommandControllerBrowserTestChromeOSGuest() override = default;
-
- private:
-  // Use a ChromeOS guest session mixin instead of a guest browser.
-  ash::GuestSessionMixin guest_session_mixin_{&mixin_host_};
-};
-
-IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestChromeOSGuest,
-                       UpdateCommandsForFullscreenMode) {
-  EXPECT_TRUE(browser()->GetProfile()->IsGuestSession());
-  VerifyFullscreenCommandStates(browser());
-}
-
-// Guest Profiles disallow some options and respond to forced/disabled incognito
-// availability.
-IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestChromeOSGuest,
-                       IncognitoCommands) {
-  EXPECT_TRUE(browser()->GetProfile()->IsGuestSession());
-
-  // 1. Guest Profiles disallow some options by default.
-  EXPECT_TRUE(chrome::IsCommandEnabled(browser(), IDC_OPTIONS));
-  EXPECT_FALSE(chrome::IsCommandEnabled(browser(), IDC_IMPORT_SETTINGS));
-  EXPECT_FALSE(chrome::IsCommandEnabled(browser(), IDC_PERFORMANCE));
-
-  // 2. Forced incognito mode in guest profile still allows options but
-  // disallows others.
-  IncognitoModePrefs::SetAvailability(
-      browser()->GetProfile()->GetPrefs(),
-      policy::IncognitoModeAvailability::kForced);
-  EXPECT_TRUE(chrome::IsCommandEnabled(browser(), IDC_OPTIONS));
-  EXPECT_FALSE(chrome::IsCommandEnabled(browser(), IDC_IMPORT_SETTINGS));
-  EXPECT_FALSE(chrome::IsCommandEnabled(browser(), IDC_PERFORMANCE));
-
-  // 3. Disabled incognito mode in guest profile.
-  IncognitoModePrefs::SetAvailability(
-      browser()->GetProfile()->GetPrefs(),
-      policy::IncognitoModeAvailability::kDisabled);
-  EXPECT_TRUE(chrome::IsCommandEnabled(browser(), IDC_OPTIONS));
-  EXPECT_FALSE(chrome::IsCommandEnabled(browser(), IDC_IMPORT_SETTINGS));
-  EXPECT_FALSE(chrome::IsCommandEnabled(browser(), IDC_PERFORMANCE));
-}
-
-// Ensure that the logic for enabling IDC_OPTIONS is consistent in guest mode,
-// regardless of the order of entering fullscreen and forced incognito modes.
-// See http://crbug.com/40507396.
-IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestChromeOSGuest,
-                       OptionsConsistency) {
-  EXPECT_TRUE(browser()->GetProfile()->IsGuestSession());
-  // Setup forced incognito mode.
-  IncognitoModePrefs::SetAvailability(
-      browser()->GetProfile()->GetPrefs(),
-      policy::IncognitoModeAvailability::kForced);
-  EXPECT_TRUE(chrome::IsCommandEnabled(browser(), IDC_OPTIONS));
-
-  // Enter fullscreen.
-  chrome::BrowserCommandController::From(browser())->FullscreenStateChanged();
-  EXPECT_TRUE(chrome::IsCommandEnabled(browser(), IDC_OPTIONS));
-
-  // Exit fullscreen.
-  chrome::BrowserCommandController::From(browser())->FullscreenStateChanged();
-  EXPECT_TRUE(chrome::IsCommandEnabled(browser(), IDC_OPTIONS));
-
-  // Reenter incognito mode, this should trigger
-  // UpdateSharedCommandsForIncognitoAvailability() again.
-  IncognitoModePrefs::SetAvailability(
-      browser()->GetProfile()->GetPrefs(),
-      policy::IncognitoModeAvailability::kDisabled);
-  IncognitoModePrefs::SetAvailability(
-      browser()->GetProfile()->GetPrefs(),
-      policy::IncognitoModeAvailability::kForced);
-  EXPECT_TRUE(chrome::IsCommandEnabled(browser(), IDC_OPTIONS));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
                        RecentTabsDisabledInIncognito) {
@@ -1992,10 +1266,10 @@ class BrowserCommandControllerBrowserTestIsolatedTest
   }
 
  private:
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   chrome::ScopedChannelOverride channel_override_{
       chrome::ScopedChannelOverride::Channel::kDev};
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 };
 
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestIsolatedTest,

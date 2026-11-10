@@ -21,12 +21,6 @@ ChromePlatform GetPlatform() {
 #elif BUILDFLAG(IS_APPLE)
   // TODO(b/570485572): Distinguish between iOS and macOS.
   return ChromePlatform::kMac;
-#elif BUILDFLAG(IS_IOS)
-  return ChromePlatform::kIos;
-#elif BUILDFLAG(IS_ANDROID)
-  return ChromePlatform::kAndroid;
-#elif BUILDFLAG(IS_CHROMEOS)
-  return ChromePlatform::kCros;
 #elif BUILDFLAG(IS_LINUX)
   return ChromePlatform::kLinux;
 #else

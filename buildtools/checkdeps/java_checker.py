@@ -283,10 +283,6 @@ class JavaChecker(object):
           print('    ' + self._classmap[full_class_name])
           print()
       # Prefer the public repo when multiple matches are found.
-      if self._classmap[full_class_name].startswith(
-        os.path.join(self._base_directory, 'clank')
-      ):
-        self._classmap[full_class_name] = filepath
     else:
       self._classmap[full_class_name] = filepath
 

@@ -30,9 +30,6 @@ import {MAX_PRIVACY_GUIDE_PROMO_IMPRESSION, PrivacyGuideBrowserProxyImpl} from '
 import {getTemplate} from './privacy_page_index.html.js';
 
 // clang-format off
-// <if expr="is_chromeos">
-import {getTopLevelRoute} from '../route.js';
-// </if>
 // clang-format on
 
 
@@ -124,22 +121,7 @@ export class SettingsPrivacyPageIndexElement extends
         value: () => loadTimeData.getBoolean('enableSecurityKeysSubpage'),
       },
 
-      // <if expr="enable_smart_card">
-      enableSmartCardReadersContentSetting_: {
-        type: Boolean,
-        value: () => {
-          return loadTimeData.getBoolean(
-              'enableSmartCardReadersContentSetting');
-        },
-      },
-      // </if>
 
-      // <if expr="is_chromeos">
-      enableWebPrintingContentSetting_: {
-        type: Boolean,
-        value: () => loadTimeData.getBoolean('enableWebPrintingContentSetting'),
-      },
-      // </if>
 
       enableSafeBrowsingSubresourceFilter_: {
         type: Boolean,
@@ -186,12 +168,6 @@ export class SettingsPrivacyPageIndexElement extends
   declare private enableFederatedIdentityApiContentSetting_: boolean;
   declare private enableExperimentalWebPlatformFeatures_: boolean;
   declare private enableHandTrackingContentSetting_: boolean;
-  // <if expr="enable_smart_card">
-  declare private enableSmartCardReadersContentSetting_: boolean;
-  // </if>
-  // <if expr="is_chromeos">
-  declare private enableWebPrintingContentSetting_: boolean;
-  // </if>
   declare private enableSafeBrowsingSubresourceFilter_: boolean;
   declare private enableKeyboardLockPrompt_: boolean;
   declare private enableLocalNetworkAccessSetting_: boolean;
@@ -248,13 +224,6 @@ export class SettingsPrivacyPageIndexElement extends
       case routes.PRIVACY:
         return this.getDefaultViews_();
       case routes.BASIC:
-        // <if expr="is_chromeos">
-        if (getTopLevelRoute() === routes.PRIVACY) {
-          // On CrOS guest mode the "Privacy" section should be displayed when
-          // on chrome://settings/.
-          return this.getDefaultViews_();
-        }
-        // </if>
 
         // Display the default views if in search mode, since they could be part
         // of search results.
@@ -343,14 +312,6 @@ export class SettingsPrivacyPageIndexElement extends
   }
 
   private renderPrivacyView_(): boolean {
-    // <if expr="is_chromeos">
-    if (getTopLevelRoute() === routes.PRIVACY &&
-        this.currentRoute === routes.BASIC) {
-      // On CrOS guest mode the "Privacy" section should be displayed when
-      // on chrome://settings/.
-      return true;
-    }
-    // </if>
 
     return this.inSearchMode ||
         (!!this.currentRoute &&

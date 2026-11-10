@@ -26,9 +26,6 @@
 #include "components/version_info/version_info.h"
 #include "device_management_backend.pb.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/dbus/constants/dbus_switches.h"
-#endif
 
 #if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
 #include "chrome/browser/enterprise/connectors/connectors_service.h"
@@ -49,17 +46,6 @@ std::optional<std::string> GetEnterpriseProfileId(Profile* profile) {
   return std::nullopt;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-SettingValue GetChromeosFirewall() {
-  // The firewall is always enabled and can only be disabled in dev mode on
-  // ChromeOS. If the device isn't in dev mode, the firewall is guaranteed to be
-  // enabled whereas if it's in dev mode, the firewall could be enabled or not.
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  return command_line->HasSwitch(chromeos::switches::kSystemDevMode)
-             ? SettingValue::UNKNOWN
-             : SettingValue::ENABLED;
-}
-#endif
 
 bool GetBuiltInDnsClientEnabled(PrefService* local_state) {
   CHECK(local_state, base::NotFatalUntil::M161);
@@ -184,8 +170,6 @@ std::vector<std::string> ContextInfoFetcher::GetOnSecurityEventProviders() {
 SettingValue ContextInfoFetcher::GetOSFirewall() {
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   return device_signals::GetOSFirewall();
-#elif BUILDFLAG(IS_CHROMEOS)
-  return GetChromeosFirewall();
 #else
   return SettingValue::UNKNOWN;
 #endif

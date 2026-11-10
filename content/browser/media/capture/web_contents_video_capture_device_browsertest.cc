@@ -757,20 +757,7 @@ class WebContentsVideoCaptureDeviceBrowserTestP
   }
 };
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-INSTANTIATE_TEST_SUITE_P(
-    All,
-    WebContentsVideoCaptureDeviceBrowserTestP,
-    testing::Combine(
-        // Note: On ChromeOS and Android, software compositing is not an option.
-        testing::Values(false /* GPU-accelerated compositing */),
-        testing::Values(false /* variable aspect ratio */,
-                        true /* fixed aspect ratio */),
-        testing::Values(false /* page has only a main frame */,
-                        true /* page contains a cross-site iframe */),
-        testing::Values(media::VideoPixelFormat::PIXEL_FORMAT_I420)),
-    &WebContentsVideoCaptureDeviceBrowserTestP::GetDescription);
-#elif BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // On MacOS, there is a newly added support for NV12-in-GMB. It relies on GPU
 // acceleration, but has a feature detection built-in if the format is
 // specified as media::VideoPixelFormat::PIXEL_FORMAT_UNKNOWN.

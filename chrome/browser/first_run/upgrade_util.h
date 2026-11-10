@@ -8,7 +8,7 @@
 #include "base/functional/callback_forward.h"
 #include "build/build_config.h"
 
-static_assert(!BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS),
+static_assert(!false && !false,
               "Not used on Android or ChromeOS");
 
 namespace base {

@@ -728,7 +728,7 @@ IN_PROC_BROWSER_TEST_P(CaptionBubbleControllerViewsTest,
   // The widget must be active for the key presses to be handled.
   GetCaptionWidget()->Activate();
 
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   // Check the native widget has focus.
   aura::client::FocusClient* focus_client =
       aura::client::GetFocusClient(GetCaptionWidget()->GetNativeView());
@@ -902,11 +902,7 @@ IN_PROC_BROWSER_TEST_P(CaptionBubbleControllerViewsTest,
 
 IN_PROC_BROWSER_TEST_P(CaptionBubbleControllerViewsTest,
                        FontFamilyArabicFallback) {
-#if BUILDFLAG(IS_CHROMEOS)
-  constexpr size_t kExpectedSize = 4;
-#else
   constexpr size_t kExpectedSize = 3;
-#endif
   std::vector<std::string> fonts;
   SetNewFontListGetter(base::BindLambdaForTesting(
       [&fonts](const std::vector<std::string>& font_names, int font_style,
@@ -918,9 +914,6 @@ IN_PROC_BROWSER_TEST_P(CaptionBubbleControllerViewsTest,
   caption_style.font_family = "";
   GetController()->UpdateCaptionStyle(caption_style);
   ASSERT_EQ(kExpectedSize, fonts.size());
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ("Noto Sans Arabic UI", fonts[3]);
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(CaptionBubbleControllerViewsTest,
@@ -1819,7 +1812,6 @@ IN_PROC_BROWSER_TEST_P(CaptionBubbleControllerViewsTest, TranslateSynonyms) {
                        prefs::kLiveTranslateTargetLanguageCode));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(CaptionBubbleControllerViewsTest,
                        DownloadProgressLabel) {
   speech::SodaInstaller::GetInstance()->NeverDownloadSodaForTesting();
@@ -1903,7 +1895,6 @@ IN_PROC_BROWSER_TEST_P(CaptionBubbleControllerViewsTest,
   ASSERT_EQ(u"Downloading French language pack\x2026 12%",
             GetDownloadProgressLabel()->GetText());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(CaptionBubbleControllerViewsTest,
                        SpaceBetweenFinalAndPartial) {
@@ -2321,7 +2312,6 @@ IN_PROC_BROWSER_TEST_P(CaptionBubbleControllerViewsTest, ScrollableBubble) {
 
   // 9. Language pack download progress, error state, and model switch while
   // paused all reset is_scroll_paused_ and hide Jump to bottom.
-#if !BUILDFLAG(IS_CHROMEOS)
   speech::SodaInstaller::GetInstance()->NeverDownloadSodaForTesting();
   GetScrollView()->ScrollToOffset(gfx::PointF(0, 0));
   views::test::RunScheduledLayout(GetBubble());
@@ -2332,7 +2322,6 @@ IN_PROC_BROWSER_TEST_P(CaptionBubbleControllerViewsTest, ScrollableBubble) {
   views::test::RunScheduledLayout(GetBubble());
   EXPECT_FALSE(GetJumpToBottomButton()->GetVisible());
   EXPECT_TRUE(GetCollapseButton()->GetVisible());
-#endif
 
   GetScrollView()->ScrollToOffset(gfx::PointF(0, 0));
   views::test::RunScheduledLayout(GetBubble());

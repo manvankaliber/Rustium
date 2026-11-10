@@ -14,16 +14,10 @@
 #include "build/build_config.h"
 #include "content/public/browser/tracing_delegate.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/tab_model/tab_model_list_observer.h"
-#else
 #include "chrome/browser/ui/browser_window/public/browser_collection_observer.h"  // nogncheck crbug.com/40147906
-#endif
 
 class BrowserWindowInterface;
-#if !BUILDFLAG(IS_ANDROID)
 class GlobalBrowserCollection;
-#endif
 class PrefService;
 
 namespace tracing {
@@ -46,11 +40,7 @@ enum class TracingFinalizationDisallowedReason {
 };
 
 class ChromeTracingDelegate : public content::TracingDelegate,
-#if BUILDFLAG(IS_ANDROID)
-                              public TabModelListObserver
-#else
                               public BrowserCollectionObserver
-#endif
 {
  public:
   // Whether system-wide performance trace collection using the external system
@@ -83,17 +73,11 @@ class ChromeTracingDelegate : public content::TracingDelegate,
 #endif  // BUILDFLAG(IS_WIN)
 
  private:
-#if BUILDFLAG(IS_ANDROID)
-  // TabModelListObserver implementation.
-  void OnTabModelAdded(TabModel* tab_model) override;
-  void OnTabModelRemoved(TabModel* tab_model) override;
-#else
   // BrowserCollectionObserver:
   void OnBrowserCreated(BrowserWindowInterface* browser) override;
   void OnBrowserClosed(BrowserWindowInterface* browser) override;
 
   void EnsureObservingBrowserCollection() const;
-#endif
 
   const raw_ref<PrefService> local_state_;
 
@@ -102,11 +86,9 @@ class ChromeTracingDelegate : public content::TracingDelegate,
   // the newer timestamp is stricter.
   base::TimeTicks latest_incognito_launched_;
 
-#if !BUILDFLAG(IS_ANDROID)
   mutable base::ScopedObservation<GlobalBrowserCollection,
                                   BrowserCollectionObserver>
       browser_collection_observation_{this};
-#endif
 };
 
 #endif  // CHROME_BROWSER_TRACING_CHROME_TRACING_DELEGATE_H_

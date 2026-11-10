@@ -20,7 +20,7 @@
 #include "build/build_config.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include "base/debug/proc_maps_linux.h"
 #endif
 
@@ -104,8 +104,7 @@ const ModuleCache::Module* AddNonNativeModule(
   return module_ptr;
 }
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS) && !defined(ARCH_CPU_ARM64) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_POSIX) && !defined(ARCH_CPU_ARM64) || BUILDFLAG(IS_WIN)
 #define MAYBE_TEST(TestSuite, TestName) TEST(TestSuite, TestName)
 #else
 #define MAYBE_TEST(TestSuite, TestName) TEST(TestSuite, DISABLED_##TestName)
@@ -116,10 +115,7 @@ MAYBE_TEST(ModuleCacheTest, GetDebugBasename) {
   const ModuleCache::Module* module =
       cache.GetModuleForAddress(reinterpret_cast<uintptr_t>(&AFunctionForTest));
   ASSERT_NE(nullptr, module);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ("libbase_unittests__library",
-            module->GetDebugBasename().RemoveFinalExtension().value());
-#elif BUILDFLAG(IS_POSIX)
+#if BUILDFLAG(IS_POSIX)
   EXPECT_EQ("base_unittests", module->GetDebugBasename().value());
 #elif BUILDFLAG(IS_WIN)
   EXPECT_EQ(L"base_unittests.exe.pdb", module->GetDebugBasename().value());
@@ -338,8 +334,7 @@ MAYBE_TEST(ModuleCacheTest, InvalidModule) {
 }
 
 // arm64 module support is not implemented.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    (BUILDFLAG(IS_ANDROID) && !defined(ARCH_CPU_ARM64))
+#if BUILDFLAG(IS_LINUX)
 // Validates that, for the memory regions listed in /proc/self/maps, the modules
 // found via ModuleCache are consistent with those regions' extents.
 TEST(ModuleCacheTest, CheckAgainstProcMaps) {
@@ -484,7 +479,7 @@ TEST(ModuleCacheTest, UnregisterAuxiliaryModuleProvider) {
   EXPECT_EQ(nullptr, cache.GetModuleForAddress(1));
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 TEST(ModuleCacheTest, TransformELFToSymbolServerFormat) {
   // See explanation for the module_id mangling in
   // base::TransformModuleIDToSymbolServerFormat implementation.

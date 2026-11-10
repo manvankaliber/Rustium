@@ -39,9 +39,6 @@
 #include <pthread.h>
 #endif
 
-#ifdef __ANDROID__
-#include <android/log.h>
-#endif
 
 #ifdef _WIN32
 #include <windows.h>
@@ -116,37 +113,6 @@ class StderrLogSink final : public LogSink {
   }
 };
 
-#if defined(__ANDROID__)
-class AndroidLogSink final : public LogSink {
- public:
-  ~AndroidLogSink() override = default;
-
-  void Send(const absl::LogEntry& entry) override {
-    const int level = AndroidLogLevel(entry);
-    const char* const tag = GetAndroidNativeTag();
-    __android_log_write(level, tag,
-                        entry.text_message_with_prefix_and_newline_c_str());
-    if (entry.log_severity() == absl::LogSeverity::kFatal)
-      __android_log_write(ANDROID_LOG_FATAL, tag, "terminating.\n");
-  }
-
- private:
-  static int AndroidLogLevel(const absl::LogEntry& entry) {
-    switch (entry.log_severity()) {
-      case absl::LogSeverity::kFatal:
-        return ANDROID_LOG_FATAL;
-      case absl::LogSeverity::kError:
-        return ANDROID_LOG_ERROR;
-      case absl::LogSeverity::kWarning:
-        return ANDROID_LOG_WARN;
-      default:
-        if (entry.verbosity() >= 2) return ANDROID_LOG_VERBOSE;
-        if (entry.verbosity() == 1) return ANDROID_LOG_DEBUG;
-        return ANDROID_LOG_INFO;
-    }
-  }
-};
-#endif  // !defined(__ANDROID__)
 
 #if defined(_WIN32)
 class WindowsDebuggerLogSink final : public LogSink {
@@ -171,10 +137,6 @@ class GlobalLogSinkSet final {
 #else
     static absl::NoDestructor<StderrLogSink> stderr_log_sink;
     AddLogSink(stderr_log_sink.get());
-#endif
-#ifdef __ANDROID__
-    static absl::NoDestructor<AndroidLogSink> android_log_sink;
-    AddLogSink(android_log_sink.get());
 #endif
 #if defined(_WIN32)
     static absl::NoDestructor<WindowsDebuggerLogSink> debugger_log_sink;

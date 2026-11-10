@@ -60,24 +60,13 @@
 #include "chrome/browser/component_updater/dynamic_patch_component_installer.h"
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/component_updater/real_time_url_checks_allowlist_component_installer.h"
-#else
 #include "chrome/browser/component_updater/screen_ai_component_installer.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/component_updater/dictation_connector_component_installer.h"
 #include "chrome/browser/component_updater/iwa_key_distribution_component_installer.h"
 #include "chrome/browser/component_updater/zxcvbn_data_component_installer.h"
 #include "media/base/media_switches.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "base/system/sys_info.h"
-#include "chrome/browser/apps/app_service/chrome_app_deprecation/chrome_app_deprecation.h"
-#include "chrome/browser/component_updater/smart_dim_component_installer.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_ON_DEVICE_TRANSLATION)
 #include "chrome/browser/component_updater/translate_kit_component_installer.h"
@@ -88,8 +77,7 @@
 #include "chrome/browser/component_updater/widevine_cdm_component_installer.h"
 #endif  // BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "components/component_updater/installer_policies/amount_extraction_heuristic_regexes_component_installer.h"
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
@@ -126,14 +114,6 @@ void DeleteOldComponents(const base::FilePath& user_data_dir) {
            FILE_PATH_LITERAL("HistorySearch"),         // Remove in M160+
            FILE_PATH_LITERAL(
                "PrivacySandboxAttestationsPreloaded"),  // Remove in M159+
-#if BUILDFLAG(IS_CHROMEOS)
-           FILE_PATH_LITERAL("AppProvisioning"),
-           // TODO(crbug.com/380780352): Remove these after the stepping stone.
-           FILE_PATH_LITERAL("lacros-dogfood-canary"),
-           FILE_PATH_LITERAL("lacros-dogfood-dev"),
-           FILE_PATH_LITERAL("lacros-dogfood-beta"),
-           FILE_PATH_LITERAL("lacros-dogfood-stable"),
-#endif  // BUILDFLAG(IS_CHROMEOS)
        }) {
     base::DeletePathRecursively(user_data_dir.Append(dir));
   }
@@ -177,28 +157,17 @@ void RegisterComponentsForUpdate() {
   RegisterSafetyTipsComponent(cus);
   RegisterCrowdDenyComponent(cus);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RegisterSmartDimComponent(cus);
-  apps::chrome_app_deprecation::RegisterAllowlistComponentUpdater(cus);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(USE_MINIKIN_HYPHENATION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(USE_MINIKIN_HYPHENATION)
   RegisterHyphenationComponent(cus);
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   RegisterDictationConnectorComponent(cus);
   RegisterIwaKeyDistributionComponent(cus);
   RegisterZxcvbnDataComponent(cus);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID)
-  RegisterRealTimeUrlChecksAllowlistComponent(cus);
-#endif  // BUIDLFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   ManageScreenAIComponentRegistration(cus, g_browser_process->local_state());
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
   RegisterCommerceHeuristicsComponent(cus);
 
@@ -214,8 +183,7 @@ void RegisterComponentsForUpdate() {
       cus, g_browser_process->local_state());
 #endif  // BUILDFLAG(ENABLE_ON_DEVICE_TRANSLATION)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   RegisterAmountExtractionHeuristicRegexesComponent(cus);
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)

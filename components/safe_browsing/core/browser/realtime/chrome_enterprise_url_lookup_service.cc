@@ -279,13 +279,6 @@ bool ChromeEnterpriseRealTimeUrlLookupService::CanCheckUrl(const GURL& url) {
     return ShouldOverrideKnownSafeUrlDecision(url);
   }
   if (base::FeatureList::IsEnabled(kEnterpriseRealTimeUrlCheckUrlSkiplist)) {
-#if BUILDFLAG(IS_ANDROID)
-    // TODO(b/568906444): validate kEnterpriseRealTimeUrlCheckUrlSkiplist and
-    // clean up this check
-    if (url.IsAboutBlank()) {
-      return false;
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
 
     static constexpr auto kSkippedUrls =
         base::MakeFixedFlatSet<std::string_view>({
@@ -328,12 +321,10 @@ std::string ChromeEnterpriseRealTimeUrlLookupService::GetBrowserDMTokenString()
 
 std::string ChromeEnterpriseRealTimeUrlLookupService::GetProfileDMTokenString()
     const {
-#if !BUILDFLAG(IS_CHROMEOS)
   if (!connectors_service_->GetBrowserDmToken().has_value() ||
       is_profile_affiliated_callback_.Run()) {
     return connectors_service_->GetProfileDmToken().value_or("");
   }
-#endif
   return "";
 }
 

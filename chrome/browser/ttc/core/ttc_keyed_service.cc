@@ -20,11 +20,7 @@
 #include "chrome/browser/ttc/core/ttc_keyed_service_factory.h"
 #include "components/ttc/app/public/conversation.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ttc/android/session_view_android.h"
-#else
 #include "chrome/browser/ttc/core/session_view_impl.h"
-#endif
 
 namespace ttc {
 
@@ -115,11 +111,7 @@ base::CallbackListSubscription TtcKeyedService::RegisterStateChangedCallback(
 std::unique_ptr<SessionView> TtcKeyedService::MakeSessionView(
     base::PassKey<SessionControllerImpl>,
     SessionViewDelegate& delegate) {
-#if BUILDFLAG(IS_ANDROID)
-  return std::make_unique<SessionViewAndroid>(delegate);
-#else
   return std::make_unique<SessionViewImpl>(delegate);
-#endif
 }
 
 std::unique_ptr<Conversation> TtcKeyedService::MakeConversation(

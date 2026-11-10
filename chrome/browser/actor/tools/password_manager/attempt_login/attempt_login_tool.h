@@ -23,11 +23,6 @@
 #include "components/password_manager/core/browser/actor_login/actor_login_service.h"
 #include "components/tabs/public/tab_interface.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/scoped_observation.h"
-#include "chrome/browser/ui/browser_window/public/browser_collection_observer.h"
-#include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
-#endif
 
 class GURL;
 namespace favicon_base {
@@ -43,10 +38,6 @@ namespace actor {
 class ActorSurface;
 
 class AttemptLoginTool : public Tool
-#if BUILDFLAG(IS_ANDROID)
-    ,
-                         public BrowserCollectionObserver
-#endif
 {
  public:
   AttemptLoginTool(TaskId task_id,
@@ -67,10 +58,6 @@ class AttemptLoginTool : public Tool
       override;
   ActorSurfaceHandle GetTargetActorSurface() const override;
 
-#if BUILDFLAG(IS_ANDROID)
-  // BrowserCollectionObserver:
-  void OnBrowserActivated(BrowserWindowInterface* browser) override;
-#endif
 
  private:
   void OnGetCredentials(actor_login::CredentialsOrError credentials);
@@ -96,9 +83,7 @@ class AttemptLoginTool : public Tool
   void OnWillDetach(tabs::TabInterface* tab,
                     tabs::TabInterface::DetachReason reason);
   void HandleTabActivatedChange(tabs::TabInterface* tab);
-#if !BUILDFLAG(IS_ANDROID)
   void HandleWindowActivatedChange(BrowserWindowInterface* browser_window);
-#endif
 
   void ObserveTabToAwaitFocus();
   void StopObservingTab();
@@ -122,12 +107,7 @@ class AttemptLoginTool : public Tool
   // `credential_awaiting_task_focus_`.
   base::CallbackListSubscription will_detach_subscription_;
   base::CallbackListSubscription tab_did_activate_subscription_;
-#if BUILDFLAG(IS_ANDROID)
-  base::ScopedObservation<GlobalBrowserCollection, BrowserCollectionObserver>
-      browser_observation_{this};
-#else
   base::CallbackListSubscription window_did_become_active_subscription_;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Stores the icons for each unique `source_site_or_app` in `credentials_`.
   // Populated by `OnIconFetched()`.
@@ -162,7 +142,7 @@ class AttemptLoginTool : public Tool
 
   // Track if the affiliations update has finished. This is only relevant on
   // Android. On other platforms, the update happens on startup.
-  bool affiliations_updated_ = !BUILDFLAG(IS_ANDROID);
+  bool affiliations_updated_ = !false;
   base::OnceClosure on_affiliations_updated_callback_;
 
   base::WeakPtrFactory<AttemptLoginTool> weak_ptr_factory_{this};

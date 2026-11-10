@@ -266,13 +266,12 @@ TEST_F(SharedMemoryMappingTest, TooBigAtomic) {
 // TODO(dcheng): This test is temporarily disabled on iOS. iOS devices allow
 // the creation of a 1GB shared memory region, but don't allow the region to be
 // mapped.
-#if !BUILDFLAG(IS_IOS)
 // TODO(crbug.com/40846204) Fix flakiness and re-enable on Linux and ChromeOS.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_TotalMappedSizeLimit DISABLED_TotalMappedSizeLimit
 #else
 #define MAYBE_TotalMappedSizeLimit TotalMappedSizeLimit
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 TEST_F(SharedMemoryMappingTest, MAYBE_TotalMappedSizeLimit) {
   // Nothing interesting to test if the address space isn't 64 bits, since
   // there's no real limit enforced on 32 bits other than complete address
@@ -291,6 +290,5 @@ TEST_F(SharedMemoryMappingTest, MAYBE_TotalMappedSizeLimit) {
   }
 #endif  // defined(ARCH_CPU_64_BITS)
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 }  // namespace base

@@ -25,13 +25,6 @@
 
 class PrefService;
 
-#if BUILDFLAG(IS_IOS)
-class ApplicationLocaleStorage;
-
-namespace permissions {
-class BluetoothDelegateImpl;
-}
-#endif
 
 namespace content {
 class NavigationThrottleRegistry;
@@ -66,9 +59,6 @@ class ShellContentBrowserClient : public ContentBrowserClient {
   bool AreIsolatedWebAppsEnabled(BrowserContext* browser_context) override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
-#if BUILDFLAG(IS_IOS)
-  base::i18n::LanguageTag GetApplicationLocale() override;
-#endif
   std::string GetAcceptLangs(BrowserContext* context) override;
   std::string GetDefaultDownloadName() override;
   std::unique_ptr<WebContentsViewDelegate> GetWebContentsViewDelegate(
@@ -138,12 +128,12 @@ class ShellContentBrowserClient : public ContentBrowserClient {
       bool is_for_isolated_world,
       bool is_for_service_worker,
       network::mojom::URLLoaderFactoryParams* factory_params) override;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   void GetAdditionalMappedFilesForChildProcess(
       const base::CommandLine& command_line,
       int child_process_id,
       content::PosixFileDescriptorInfo* mappings) override;
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
   device::GeolocationSystemPermissionManager*
   GetGeolocationSystemPermissionManager() override;
@@ -157,9 +147,6 @@ class ShellContentBrowserClient : public ContentBrowserClient {
       cert_verifier::mojom::CertVerifierCreationParams*
           cert_verifier_creation_params) override;
   std::vector<base::FilePath> GetNetworkContextsParentDirectory() override;
-#if BUILDFLAG(IS_IOS)
-  BluetoothDelegate* GetBluetoothDelegate() override;
-#endif
   void BindBrowserControlInterface(mojo::ScopedMessagePipeHandle pipe) override;
   void GetHyphenationDictionary(
       base::OnceCallback<void(const base::FilePath&)>) override;
@@ -205,10 +192,6 @@ class ShellContentBrowserClient : public ContentBrowserClient {
         create_throttles_for_navigation_callback;
   }
 
-#if BUILDFLAG(IS_IOS)
-  bool IsJITEnabled();
-  void SetJITEnabled(bool value);
-#endif
 
  protected:
   // Call this if CreateBrowserMainParts() is overridden in a subclass.
@@ -247,10 +230,6 @@ class ShellContentBrowserClient : public ContentBrowserClient {
       create_throttles_for_navigation_callback_;
   // Parsed from switches::kIsolatedContextOrigins on first use.
   std::optional<base::flat_set<url::Origin>> isolated_context_origins_;
-#if BUILDFLAG(IS_IOS)
-  std::unique_ptr<ApplicationLocaleStorage> application_locale_storage_;
-  std::unique_ptr<permissions::BluetoothDelegateImpl> bluetooth_delegate_;
-#endif
 
   // NOTE: Tests may install a second ShellContentBrowserClient that becomes
   // the ContentBrowserClient used by content. This has subtle implications

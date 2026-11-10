@@ -30,7 +30,7 @@
 #include "util/misc/from_pointer_cast.h"
 #include "util/process/process_memory_native.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 
 #include "test/linux/fake_ptrace_connection.h"
 #include "util/linux/auxiliary_vector.h"
@@ -51,7 +51,7 @@ namespace crashpad {
 namespace test {
 namespace {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 
 void LocateExecutable(PtraceConnection* connection,
                       ProcessMemory* memory,
@@ -95,7 +95,7 @@ void ReadThisExecutableInTarget(ProcessType process,
 #endif  // ARCH_CPU_64_BITS
 
   VMAddress elf_address;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   FakePtraceConnection connection;
   ASSERT_TRUE(connection.Initialize(process));
   ProcessMemoryLinux memory(&connection);
@@ -155,7 +155,7 @@ void ReadLibcInTarget(ProcessType process,
   constexpr bool am_64_bit = false;
 #endif  // ARCH_CPU_64_BITS
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   FakePtraceConnection connection;
   ASSERT_TRUE(connection.Initialize(process));
   ProcessMemoryLinux memory(&connection);

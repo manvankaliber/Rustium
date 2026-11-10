@@ -88,11 +88,7 @@ base::TimeDelta GetIntensiveWakeUpThrottlingGracePeriod(bool loading) {
 // is scheduled before waiting in the kernel.
 BASE_FEATURE(kBusyLoopOnRendererMain,
              "BusyLoopOnMainThread",
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else   // BUILDFLAG(IS_ANDROID)
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif  // BUILDFLAG(IS_ANDROID)
 );
 
 // The maximum amount of time to busy loop when BusyLoopOnMainThread is enabled.
@@ -105,11 +101,7 @@ BASE_FEATURE_PARAM(base::TimeDelta,
 // Prevent scaling BusyLoopOnMainThread to its maximum value during compositor
 // driven gestures.
 BASE_FEATURE(kBusyLoopLessWhenCompositorGesture,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 }  // namespace scheduler

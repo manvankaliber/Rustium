@@ -230,7 +230,6 @@ void MediaStreamDeviceObserver::OnZoomLevelChange(
     const MediaStreamDevice& device,
     int zoom_level) {
   DVLOG(1) << __func__ << " label=" << label << " device_id=" << device.id;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   CHECK_GT(zoom_level, 0);
 
@@ -252,7 +251,6 @@ void MediaStreamDeviceObserver::OnZoomLevelChange(
   if (stream->on_zoom_level_change_cb) {
     stream->on_zoom_level_change_cb.Run(device, zoom_level);
   }
-#endif
 }
 
 void MediaStreamDeviceObserver::BindMediaStreamDeviceObserverReceiver(
@@ -280,9 +278,7 @@ void MediaStreamDeviceObserver::AddStreams(
         stream_callbacks.on_device_capture_configuration_change_cb;
     stream.on_device_capture_handle_change_cb =
         stream_callbacks.on_device_capture_handle_change_cb;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     stream.on_zoom_level_change_cb = stream_callbacks.on_zoom_level_change_cb;
-#endif
     if (stream_devices.audio_device.has_value()) {
       stream.audio_devices.push_back(stream_devices.audio_device.value());
     }

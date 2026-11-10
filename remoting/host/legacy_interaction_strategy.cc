@@ -41,10 +41,6 @@
 #include "third_party/webrtc/modules/desktop_capture/desktop_capturer.h"
 #include "third_party/webrtc/modules/desktop_capture/mouse_cursor_monitor.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "remoting/host/chromeos/frame_sink_desktop_capturer.h"
-#include "remoting/host/chromeos/mouse_cursor_monitor_aura.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "remoting/host/win/evaluate_d3d.h"
@@ -116,26 +112,18 @@ std::unique_ptr<DesktopCapturer> LegacyInteractionStrategy::CreateVideoCapturer(
   DCHECK(caller_task_runner_->BelongsToCurrentThread());
 
   scoped_refptr<base::SingleThreadTaskRunner> capture_task_runner;
-#if BUILDFLAG(IS_CHROMEOS)
-  capture_task_runner = ui_task_runner_;
-#else   // !BUILDFLAG(IS_CHROMEOS)
   // The mouse cursor monitor runs on the |video_capture_task_runner_| so the
   // desktop capturer also needs to run on that task_runner for certain
   // platforms.
   // TODO: yuweih - The comment above is not valid for Windows. Validate it for
   // other platforms.
   capture_task_runner = video_capture_task_runner_;
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   auto creator = base::BindOnce(
       [](webrtc::DesktopCaptureOptions options,
          webrtc::ScreenId id) -> std::unique_ptr<remoting::DesktopCapturer> {
         std::unique_ptr<webrtc::DesktopCapturer> capturer;
-#if BUILDFLAG(IS_CHROMEOS)
-        capturer = std::make_unique<FrameSinkDesktopCapturer>();
-#else   // !BUILDFLAG(IS_CHROMEOS)
         capturer = webrtc::DesktopCapturer::CreateScreenCapturer(options);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
         if (capturer) {
           capturer->SelectSource(id);
           return std::make_unique<DesktopCapturerWrapper>(std::move(capturer));
@@ -174,11 +162,7 @@ LegacyInteractionStrategy::CreateMouseCursorMonitor() {
   auto creator = base::BindOnce(
       [](webrtc::DesktopCaptureOptions options)
           -> std::unique_ptr<webrtc::MouseCursorMonitor> {
-#if BUILDFLAG(IS_CHROMEOS)
-        return std::make_unique<MouseCursorMonitorAura>();
-#else   // BUILDFLAG(IS_CHROMEOS)
         return webrtc::MouseCursorMonitor::Create(options);
-#endif  // BUILDFLAG(IS_CHROMEOS)
       },
       CopyWithNewXDisplay(*options_.desktop_capture_options()));
   return std::make_unique<WebrtcMouseCursorMonitorAdaptor>(

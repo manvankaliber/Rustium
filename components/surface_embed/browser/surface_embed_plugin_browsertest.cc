@@ -378,9 +378,7 @@ class SurfaceEmbedBrowserTest : public content::ContentBrowserTest {
     // therefore query the actual scale factor from the view. On other
     // platforms, verify it matches the forced value.
     const float device_scale_factor = view->GetDeviceScaleFactor();
-#if !BUILDFLAG(IS_ANDROID)
     ASSERT_FLOAT_EQ(kTestDeviceScaleFactor, device_scale_factor);
-#endif
 
     const double page_scale_factor =
         content::EvalJs(web_contents(), "window.visualViewport.scale")
@@ -1700,9 +1698,7 @@ IN_PROC_BROWSER_TEST_F(SurfaceEmbedBrowserTest,
   EXPECT_TRUE(content::ExecJs(child_contents.get(),
                               "document.querySelector('select').showPicker()"));
   // Android sometimes times out when waiting for the popup.
-#if !BUILDFLAG(IS_ANDROID)
   waiter.Wait();
-#endif
 }
 
 // Runs the browser with renderer accessibility forced on so the plugin sends
@@ -1738,12 +1734,7 @@ IN_PROC_BROWSER_TEST_F(SurfaceEmbedAccessibilityBrowserTest,
 }
 
 // TODO(crbug.com/555865331): Flaky on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_FocusPreservedAfterNavigation \
-  DISABLED_FocusPreservedAfterNavigation
-#else
 #define MAYBE_FocusPreservedAfterNavigation FocusPreservedAfterNavigation
-#endif
 IN_PROC_BROWSER_TEST_F(SurfaceEmbedBrowserTest,
                        MAYBE_FocusPreservedAfterNavigation) {
   NavigateToTestUrl(kFocusHarnessUrl);

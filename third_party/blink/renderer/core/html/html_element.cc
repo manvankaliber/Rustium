@@ -1700,23 +1700,6 @@ ScriptPromise<IDLUndefined> HTMLElement::showUnboundedElement(
   bounds.set_height(std::max(1, bounds.height()));
   SetLastSentUnboundedBounds(bounds);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Unbounded elements rely on
-  // AttachedSurfaceControl.buildReparentTransaction(), which requires Android U
-  // (API level 34 / Android 14) or higher. See
-  // UnboundedSurfacePopupWindow::create() in
-  // content/public/android/java/src/org/chromium/content/browser/UnboundedSurfacePopupWindow.java
-  int32_t major_version = 0, minor_version = 0, bugfix_version = 0;
-  base::SysInfo::OperatingSystemVersionNumbers(&major_version, &minor_version,
-                                               &bugfix_version);
-  if (major_version < 14) {
-    resolver->Reject(MakeGarbageCollected<DOMException>(
-        DOMExceptionCode::kNotSupportedError,
-        "Unbounded elements are only supported on Android 14 (API level 34) or "
-        "higher."));
-    return promise;
-  }
-#endif
 
   // Dismiss any currently active unbounded element on the widget before
   // activating this element, so that multiple elements are never active at

@@ -24,7 +24,6 @@
 #include "chrome/browser/web_applications/web_app_registry_update.h"
 #include "chrome/browser/web_applications/web_app_sync_bridge.h"
 #include "chrome/test/base/testing_profile.h"
-#include "chromeos/ash/experiences/arc/arc_features.h"
 #include "content/public/test/browser_task_environment.h"
 #include "services/data_decoder/public/cpp/test_support/in_process_data_decoder.h"
 #include "testing/gmock/include/gmock/gmock.h"
@@ -33,29 +32,8 @@
 #include "ui/gfx/native_ui_types.h"
 #include "ui/webui/resources/cr_components/app_management/app_management.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "base/test/task_environment.h"
-#include "chrome/browser/apps/app_service/app_service_proxy.h"  // nogncheck
-#include "chrome/browser/apps/app_service/app_service_proxy_factory.h"  // nogncheck
-#include "chrome/browser/apps/app_service/app_service_test.h"  // nogncheck
-#include "chrome/browser/ash/app_list/arc/arc_app_list_prefs.h"
-#include "chrome/browser/ash/app_list/arc/arc_app_test.h"
-#include "chrome/browser/ash/app_list/arc/arc_app_utils.h"
-#include "chrome/browser/ash/apps/apk_web_app_service.h"
-#include "chrome/browser/ui/webui/app_management/app_management_page_handler_chromeos.h"
-#include "chrome/browser/web_applications/isolated_web_apps/test/isolated_web_app_builder.h"
-#include "chrome/browser/web_applications/isolated_web_apps/update/isolated_web_app_update_manager.h"
-#include "chromeos/ash/experiences/arc/app/arc_app_constants.h"
-#include "chromeos/ash/experiences/arc/test/fake_app_instance.h"
-#include "chromeos/ash/experiences/arc/test/fake_intent_helper_instance.h"
-#include "components/services/app_service/public/cpp/intent_filter_util.h"
-#include "components/webapps/isolated_web_apps/test_support/signing_keys.h"
-#include "net/http/http_status_code.h"
-#else
 #include "chrome/browser/ui/webui/app_management/web_app_settings_page_handler.h"
 #include "chrome/common/chrome_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 using ::testing::Contains;
 using ::testing::ElementsAre;
@@ -132,19 +110,10 @@ class AppManagementPageHandlerTestBase
     mojo::Remote<app_management::mojom::PageHandler> handler;
     auto features_and_params =
         apps::test::GetFeaturesToEnableLinkCapturingUX(GetParam());
-#if BUILDFLAG(IS_CHROMEOS)
-    features_and_params.push_back(base::test::FeatureRefAndParams(
-        ash::features::kIsolatedWebAppInlineUpdate, {}));
-    scoped_feature_list_.InitWithFeaturesAndParameters(features_and_params, {});
-    handler_ = std::make_unique<AppManagementPageHandlerChromeOs>(
-        handler.BindNewPipeAndPassReceiver(),
-        page.InitWithNewPipeAndPassRemote(), profile(), *delegate_);
-#else
     scoped_feature_list_.InitWithFeaturesAndParameters(features_and_params, {});
     handler_ = std::make_unique<WebAppSettingsPageHandler>(
         handler.BindNewPipeAndPassReceiver(),
         page.InitWithNewPipeAndPassRemote(), profile(), *delegate_);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   }
 
   void TearDown() override {
@@ -245,114 +214,7 @@ TEST_P(AppManagementPageHandlerTestBase, DisablePreferredApp) {
   EXPECT_FALSE(updated_result.Get()->is_preferred_app);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_P(AppManagementPageHandlerTestBase,
-       SetPreferredAppFalseRecordsExplicitOptOut) {
-  auto web_app_info = web_app::WebAppInstallInfo::CreateWithStartUrlForTesting(
-      GURL("https://example.com/abc/index.html"));
-  web_app_info->title = u"app_name";
-  std::string app_id =
-      web_app::test::InstallWebApp(profile(), std::move(web_app_info));
-  // The install makes the app preferred only if link capturing is on by
-  // default. So kV2DefaultOff tests "false -> false" and kV2DefaultOn tests
-  // "true -> false".
-  ASSERT_EQ(IsAppPreferred(app_id), LinkCapturingEnabledByDefault());
-  web_app::WebAppProvider* provider =
-      web_app::WebAppProvider::GetForTest(profile());
-  ASSERT_EQ(provider->registrar_unsafe()
-                .GetAppById(app_id)
-                ->user_link_capturing_preference(),
-            web_app::proto::NAVIGATION_CAPTURING_PREFERENCE_DEFAULT);
 
-  handler()->SetPreferredApp(app_id, /*is_preferred_app=*/false);
-  AwaitWebAppCommandsComplete();
-
-  EXPECT_FALSE(IsAppPreferred(app_id));
-  EXPECT_EQ(provider->registrar_unsafe()
-                .GetAppById(app_id)
-                ->user_link_capturing_preference(),
-            web_app::proto::NAVIGATION_CAPTURING_PREFERENCE_DO_NOT_CAPTURE);
-}
-
-TEST_P(AppManagementPageHandlerTestBase, SetPreferredAppTrueRecordsOptIn) {
-  auto web_app_info = web_app::WebAppInstallInfo::CreateWithStartUrlForTesting(
-      GURL("https://example.com/abc/index.html"));
-  web_app_info->title = u"app_name";
-  std::string app_id =
-      web_app::test::InstallWebApp(profile(), std::move(web_app_info));
-
-  handler()->SetPreferredApp(app_id, /*is_preferred_app=*/true);
-  AwaitWebAppCommandsComplete();
-
-  EXPECT_TRUE(IsAppPreferred(app_id));
-  EXPECT_EQ(web_app::WebAppProvider::GetForTest(profile())
-                ->registrar_unsafe()
-                .GetAppById(app_id)
-                ->user_link_capturing_preference(),
-            web_app::proto::NAVIGATION_CAPTURING_PREFERENCE_CAPTURE);
-}
-
-TEST_P(AppManagementPageHandlerTestBase,
-       SetPreferredAppTrueRecordsOptOutForDisplacedApp) {
-  // Both apps have the scope "https://example.com/abc/", so they conflict in
-  // all link capturing modes.
-  auto web_app_info1 = web_app::WebAppInstallInfo::CreateWithStartUrlForTesting(
-      GURL("https://example.com/abc/index.html"));
-  web_app_info1->title = u"app_name1";
-  std::string app_id1 =
-      web_app::test::InstallWebApp(profile(), std::move(web_app_info1));
-  auto web_app_info2 = web_app::WebAppInstallInfo::CreateWithStartUrlForTesting(
-      GURL("https://example.com/abc/other.html"));
-  web_app_info2->title = u"app_name2";
-  std::string app_id2 =
-      web_app::test::InstallWebApp(profile(), std::move(web_app_info2));
-  const web_app::WebAppRegistrar& registrar =
-      web_app::WebAppProvider::GetForTest(profile())->registrar_unsafe();
-
-  handler()->SetPreferredApp(app_id1, /*is_preferred_app=*/true);
-  AwaitWebAppCommandsComplete();
-  ASSERT_TRUE(IsAppPreferred(app_id1));
-  ASSERT_FALSE(IsAppPreferred(app_id2));
-  ASSERT_EQ(registrar.GetAppById(app_id1)->user_link_capturing_preference(),
-            web_app::proto::NAVIGATION_CAPTURING_PREFERENCE_CAPTURE);
-
-  // App Service removes `app_id1`, so its record must not stay "CAPTURE".
-  handler()->SetPreferredApp(app_id2, /*is_preferred_app=*/true);
-  AwaitWebAppCommandsComplete();
-
-  EXPECT_FALSE(IsAppPreferred(app_id1));
-  EXPECT_TRUE(IsAppPreferred(app_id2));
-  EXPECT_EQ(registrar.GetAppById(app_id1)->user_link_capturing_preference(),
-            web_app::proto::NAVIGATION_CAPTURING_PREFERENCE_DO_NOT_CAPTURE);
-  EXPECT_EQ(registrar.GetAppById(app_id2)->user_link_capturing_preference(),
-            web_app::proto::NAVIGATION_CAPTURING_PREFERENCE_CAPTURE);
-}
-
-TEST_P(AppManagementPageHandlerTestBase, SetPreferredAppEmptyAppIdDoesNothing) {
-  auto web_app_info = web_app::WebAppInstallInfo::CreateWithStartUrlForTesting(
-      GURL("https://example.com/abc/index.html"));
-  web_app_info->title = u"app_name";
-  std::string app_id =
-      web_app::test::InstallWebApp(profile(), std::move(web_app_info));
-  const web_app::WebAppRegistrar& registrar =
-      web_app::WebAppProvider::GetForTest(profile())->registrar_unsafe();
-  const bool preferred_before = IsAppPreferred(app_id);
-  const web_app::proto::LinkCapturingUserPreference preference_before =
-      registrar.GetAppById(app_id)->user_link_capturing_preference();
-
-  // `SetPreferredApp()` is a Mojo endpoint, so `app_id` can be empty. This
-  // must not crash and must not change the installed app.
-  handler()->SetPreferredApp("", /*is_preferred_app=*/false);
-  handler()->SetPreferredApp("", /*is_preferred_app=*/true);
-  AwaitWebAppCommandsComplete();
-
-  EXPECT_EQ(IsAppPreferred(app_id), preferred_before);
-  EXPECT_EQ(registrar.GetAppById(app_id)->user_link_capturing_preference(),
-            preference_before);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_P(AppManagementPageHandlerTestBase, SupportedLinksWithPort) {
   auto web_app_info = web_app::WebAppInstallInfo::CreateWithStartUrlForTesting(
       GURL("https://example.com:8080/abc/index.html"));
@@ -396,7 +258,6 @@ TEST_P(AppManagementPageHandlerTestBase, PreferredAppNonOverlappingScopePort) {
   EXPECT_TRUE(IsAppPreferred(app_id1));
   EXPECT_TRUE(IsAppPreferred(app_id2));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_P(AppManagementPageHandlerTestBase, PreferredAppOverlappingScopePort) {
   auto web_app_info1 = web_app::WebAppInstallInfo::CreateWithStartUrlForTesting(
@@ -424,11 +285,7 @@ TEST_P(AppManagementPageHandlerTestBase, PreferredAppOverlappingScopePort) {
   handler()->SetPreferredApp(app_id2, /*is_preferred_app=*/true);
   AwaitWebAppCommandsComplete();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(IsAppPreferred(app_id1), LinkCapturingEnabledByDefault());
-#else
   EXPECT_TRUE(IsAppPreferred(app_id1));
-#endif  // BUILDFLAG(IS_CHROMEOS)
   EXPECT_TRUE(IsAppPreferred(app_id2));
 }
 
@@ -502,31 +359,18 @@ TEST_P(AppManagementPageHandlerTestBase,
   std::string app_id =
       web_app::test::InstallWebApp(profile(), std::move(web_app_info));
 
-#if !BUILDFLAG(IS_CHROMEOS)
   if (LinkCapturingEnabledByDefault()) {
     EXPECT_TRUE(IsAppPreferred(app_id));
     ASSERT_EQ(test::DisableLinkCapturingByUser(profile(), app_id), base::ok());
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   EXPECT_FALSE(IsAppPreferred(app_id));
 
   handler()->SetPreferredApp(app_id, /*is_preferred_app=*/true);
-#if BUILDFLAG(IS_CHROMEOS)
-  AwaitWebAppCommandsComplete();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   base::test::TestFuture<app_management::mojom::AppPtr> updated_result;
   handler()->GetApp(app_id, updated_result.GetCallback());
   EXPECT_FALSE(updated_result.Get()->is_preferred_app);
   EXPECT_TRUE(updated_result.Get()->supported_links.empty());
-#if BUILDFLAG(IS_CHROMEOS)
-  // The app has no supported links, so no choice is recorded.
-  EXPECT_EQ(web_app::WebAppProvider::GetForTest(profile())
-                ->registrar_unsafe()
-                .GetAppById(app_id)
-                ->user_link_capturing_preference(),
-            web_app::proto::NAVIGATION_CAPTURING_PREFERENCE_DEFAULT);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 TEST_P(AppManagementPageHandlerTestBase,
@@ -590,15 +434,7 @@ TEST_P(AppManagementPageHandlerTestBase,
   std::vector<std::string> overlapping_apps =
       GetOverlappingPreferredApps(app_id2);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (LinkCapturingEnabledByDefault()) {
-    EXPECT_TRUE(overlapping_apps.empty());
-  } else {
-    EXPECT_THAT(overlapping_apps, testing::ElementsAre(app_id1));
-  }
-#else
   EXPECT_TRUE(overlapping_apps.empty());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 TEST_P(AppManagementPageHandlerTestBase, GetOverlappingPreferredAppsTwice) {
@@ -702,30 +538,6 @@ TEST_P(AppManagementPageHandlerTestBase,
   EXPECT_TRUE(overlapping_apps.empty());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// On ChromeOS, it's possible for the supported links preference file to contain
-// references to apps that don't exist. These should be filtered out from the
-// GetOverlappingPreferredApps call.
-TEST_P(AppManagementPageHandlerTestBase,
-       GetOverlappingPreferredAppsInvalidApp) {
-  auto web_app_info = web_app::WebAppInstallInfo::CreateWithStartUrlForTesting(
-      GURL("https://example.com/index.html"));
-  web_app_info->title = u"app_name";
-
-  std::string app_id =
-      web_app::test::InstallWebApp(profile(), std::move(web_app_info));
-
-  IntentFilters filters;
-  filters.push_back(
-      apps_util::MakeIntentFilterForUrlScope(GURL("https://example.com/")));
-  auto* proxy = AppServiceProxyFactory::GetForProfile(profile());
-  proxy->SetSupportedLinksPreference("foobar", std::move(filters));
-
-  std::vector<std::string> overlapping_apps =
-      GetOverlappingPreferredApps(app_id);
-  EXPECT_TRUE(overlapping_apps.empty());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_P(AppManagementPageHandlerTestBase, DifferentScopeNoOverlap) {
   auto web_app_info1 = web_app::WebAppInstallInfo::CreateWithStartUrlForTesting(
@@ -797,7 +609,6 @@ TEST_P(AppManagementPageHandlerTestBase, GetSupportedLinksWithScopeExtensions) {
                                             "xn--n3h.net/*"));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_P(AppManagementPageHandlerTestBase, GetScopeExtensions) {
   auto web_app_info = web_app::WebAppInstallInfo::CreateWithStartUrlForTesting(
       GURL("https://example.com/"));
@@ -850,225 +661,7 @@ TEST_P(AppManagementPageHandlerTestBase, GetScopeExtensions) {
       "localhost:9999"};
   EXPECT_EQ(result.Get()->scope_extensions, expected_scope_extensions);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_P(AppManagementPageHandlerTestBase,
-       CheckForIsolatedWebAppUpdate_NotFound) {
-  const std::unique_ptr<web_app::ScopedBundledIsolatedWebApp> bundle =
-      web_app::IsolatedWebAppBuilder(
-          web_app::ManifestBuilder()
-              .SetName("IWA")
-              .SetVersion("1.0.0")
-              .SetUpdateManifestUrl(
-                  GURL("https://example.com/update_manifest.json")))
-          .BuildBundle();
-  bundle->FakeInstallPageState(profile());
-  bundle->TrustSigningKey();
-  std::string app_id = bundle->InstallChecked(profile()).app_id();
-
-  profile_url_loader_factory().AddResponse(
-      "https://example.com/update_manifest.json", "",
-      net::HttpStatusCode::HTTP_NOT_FOUND);
-
-  base::test::TestFuture<const std::optional<base::Version>&> check_future;
-  handler()->CheckForIsolatedWebAppUpdate(app_id, check_future.GetCallback());
-  EXPECT_TRUE(check_future.Wait());
-  EXPECT_EQ(check_future.Get(), std::nullopt);
-
-  web_app::WebAppProvider* provider =
-      web_app::WebAppProvider::GetForTest(profile());
-  const web_app::WebApp* web_app =
-      provider->registrar_unsafe().GetAppById(app_id);
-  ASSERT_TRUE(web_app);
-  EXPECT_EQ(web_app->isolation_data()->version().version(),
-            base::Version("1.0.0"));
-  EXPECT_FALSE(web_app->isolation_data()->pending_update_info().has_value());
-}
-
-TEST_P(AppManagementPageHandlerTestBase, CheckForIsolatedWebAppUpdate_Success) {
-  const web_package::test::KeyPair& key_pair =
-      web_app::test::GetDefaultEd25519KeyPair();
-
-  const std::unique_ptr<web_app::ScopedBundledIsolatedWebApp> bundle =
-      web_app::IsolatedWebAppBuilder(
-          web_app::ManifestBuilder()
-              .SetName("IWA")
-              .SetVersion("1.0.0")
-              .SetUpdateManifestUrl(
-                  GURL("https://example.com/update_manifest.json")))
-          .BuildBundle(key_pair);
-  bundle->FakeInstallPageState(profile());
-  bundle->TrustSigningKey();
-  std::string app_id = bundle->InstallChecked(profile()).app_id();
-
-  const std::unique_ptr<web_app::ScopedBundledIsolatedWebApp> update_bundle =
-      web_app::IsolatedWebAppBuilder(
-          web_app::ManifestBuilder().SetName("IWA").SetVersion("2.0.0"))
-          .BuildBundle(key_pair);
-  update_bundle->FakeInstallPageState(profile());
-
-  profile_url_loader_factory().AddResponse("https://example.com/bundle.swbn",
-                                           update_bundle->GetBundleData());
-  profile_url_loader_factory().AddResponse(
-      "https://example.com/update_manifest.json",
-      R"({"versions": [{"src": "https://example.com/bundle.swbn", "version": "2.0.0"}]})");
-
-  base::test::TestFuture<const std::optional<base::Version>&> check_future;
-  handler()->CheckForIsolatedWebAppUpdate(app_id, check_future.GetCallback());
-  EXPECT_TRUE(check_future.Wait());
-  EXPECT_EQ(check_future.Get(), base::Version("2.0.0"));
-
-  web_app::WebAppProvider* provider =
-      web_app::WebAppProvider::GetForTest(profile());
-  const web_app::WebApp* web_app =
-      provider->registrar_unsafe().GetAppById(app_id);
-  ASSERT_TRUE(web_app);
-  EXPECT_EQ(web_app->isolation_data()->version().version(),
-            base::Version("1.0.0"));
-  EXPECT_FALSE(web_app->isolation_data()->pending_update_info().has_value());
-}
-
-TEST_P(AppManagementPageHandlerTestBase,
-       CheckForIsolatedWebAppUpdate_SameVersionNoUpdateFound) {
-  const web_package::test::KeyPair& key_pair =
-      web_app::test::GetDefaultEd25519KeyPair();
-
-  const std::unique_ptr<web_app::ScopedBundledIsolatedWebApp> bundle =
-      web_app::IsolatedWebAppBuilder(
-          web_app::ManifestBuilder()
-              .SetName("IWA")
-              .SetVersion("1.0.0")
-              .SetUpdateManifestUrl(
-                  GURL("https://example.com/update_manifest.json")))
-          .BuildBundle(key_pair);
-  bundle->FakeInstallPageState(profile());
-  bundle->TrustSigningKey();
-  std::string app_id = bundle->InstallChecked(profile()).app_id();
-
-  profile_url_loader_factory().AddResponse("https://example.com/bundle.swbn",
-                                           bundle->GetBundleData());
-  profile_url_loader_factory().AddResponse(
-      "https://example.com/update_manifest.json",
-      R"({"versions": [{"src": "https://example.com/bundle.swbn", "version": "1.0.0"}]})");
-
-  base::test::TestFuture<const std::optional<base::Version>&> check_future;
-  handler()->CheckForIsolatedWebAppUpdate(app_id, check_future.GetCallback());
-  EXPECT_TRUE(check_future.Wait());
-  EXPECT_EQ(check_future.Get(), std::nullopt);
-}
-
-TEST_P(AppManagementPageHandlerTestBase,
-       CheckForIsolatedWebAppUpdate_UpdateAlreadyPending) {
-  const web_package::test::KeyPair& key_pair =
-      web_app::test::GetDefaultEd25519KeyPair();
-
-  const std::unique_ptr<web_app::ScopedBundledIsolatedWebApp> bundle =
-      web_app::IsolatedWebAppBuilder(
-          web_app::ManifestBuilder()
-              .SetName("IWA")
-              .SetVersion("1.0.0")
-              .SetUpdateManifestUrl(
-                  GURL("https://example.com/update_manifest.json")))
-          .BuildBundle(key_pair);
-  bundle->FakeInstallPageState(profile());
-  bundle->TrustSigningKey();
-  std::string app_id = bundle->InstallChecked(profile()).app_id();
-
-  profile_url_loader_factory().AddResponse(
-      "https://example.com/update_manifest.json",
-      R"({"versions": [{"src": "https://example.com/bundle.swbn", "version": "2.0.0"}]})");
-
-  web_app::WebAppProvider* provider =
-      web_app::WebAppProvider::GetForTest(profile());
-  const web_app::WebApp* web_app =
-      provider->registrar_unsafe().GetAppById(app_id);
-  ASSERT_TRUE(web_app);
-
-  web_app::IsolationData isolation_data = *web_app->isolation_data();
-  web_app::IsolationData::Builder builder(isolation_data);
-  builder.SetPendingUpdateInfo(web_app::IsolationData::PendingUpdateInfo(
-      web_app::IwaStorageOwnedBundle("update_dir", /*dev_mode=*/false),
-      *web_app::IwaVersion::Create("2.0.0")));
-
-  {
-    web_app::ScopedRegistryUpdate update =
-        provider->sync_bridge_unsafe().BeginUpdate();
-    web_app::WebApp* mutable_app = update->UpdateApp(app_id);
-    mutable_app->SetIsolationData(std::move(builder).Build());
-  }
-
-  base::test::TestFuture<const std::optional<base::Version>&> check_future;
-  handler()->CheckForIsolatedWebAppUpdate(app_id, check_future.GetCallback());
-  EXPECT_TRUE(check_future.Wait());
-  EXPECT_EQ(check_future.Get(), base::Version("2.0.0"));
-}
-
-TEST_P(AppManagementPageHandlerTestBase, ApplyIsolatedWebAppUpdate) {
-  const web_package::test::KeyPair& key_pair =
-      web_app::test::GetDefaultEd25519KeyPair();
-
-  const std::unique_ptr<web_app::ScopedBundledIsolatedWebApp> bundle =
-      web_app::IsolatedWebAppBuilder(
-          web_app::ManifestBuilder()
-              .SetName("IWA")
-              .SetVersion("1.0.0")
-              .SetUpdateManifestUrl(
-                  GURL("https://example.com/update_manifest.json")))
-          .BuildBundle(key_pair);
-  bundle->FakeInstallPageState(profile());
-  bundle->TrustSigningKey();
-  std::string app_id = bundle->InstallChecked(profile()).app_id();
-
-  const std::unique_ptr<web_app::ScopedBundledIsolatedWebApp> update_bundle =
-      web_app::IsolatedWebAppBuilder(
-          web_app::ManifestBuilder().SetName("IWA").SetVersion("2.0.0"))
-          .BuildBundle(key_pair);
-  update_bundle->FakeInstallPageState(profile());
-
-  profile_url_loader_factory().AddResponse("https://example.com/bundle.swbn",
-                                           update_bundle->GetBundleData());
-  profile_url_loader_factory().AddResponse(
-      "https://example.com/update_manifest.json",
-      R"({"versions": [{"src": "https://example.com/bundle.swbn", "version": "2.0.0"}]})");
-
-  base::test::TestFuture<const std::optional<base::Version>&> check_future;
-  handler()->CheckForIsolatedWebAppUpdate(app_id, check_future.GetCallback());
-  EXPECT_TRUE(check_future.Wait());
-  EXPECT_EQ(check_future.Get(), base::Version("2.0.0"));
-
-  base::test::TestFuture<bool> apply_future;
-  handler()->ApplyIsolatedWebAppUpdate(app_id, apply_future.GetCallback());
-  EXPECT_TRUE(apply_future.Get());
-
-  web_app::WebAppProvider* provider =
-      web_app::WebAppProvider::GetForTest(profile());
-
-  ASSERT_TRUE(base::test::RunUntil([&]() {
-    const web_app::WebApp* web_app =
-        provider->registrar_unsafe().GetAppById(app_id);
-    return web_app && web_app->isolation_data().has_value() &&
-           web_app->isolation_data()->version().version() ==
-               base::Version("2.0.0");
-  }));
-}
-
-TEST_P(AppManagementPageHandlerTestBase, GetNumWindowsForApp) {
-  const std::unique_ptr<web_app::ScopedBundledIsolatedWebApp> bundle =
-      web_app::IsolatedWebAppBuilder(
-          web_app::ManifestBuilder().SetName("IWA").SetVersion("1.0.0"))
-          .BuildBundle();
-  bundle->FakeInstallPageState(profile());
-  bundle->TrustSigningKey();
-  std::string app_id = bundle->InstallChecked(profile()).app_id();
-
-  fake_ui_manager().SetNumWindowsForApp(app_id, 3);
-
-  base::test::TestFuture<uint32_t> num_windows_future;
-  handler()->GetNumWindowsForApp(app_id, num_windows_future.GetCallback());
-  EXPECT_EQ(3u, num_windows_future.Get());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_P(AppManagementPageHandlerTestBase, NavigationCapturingUserChoice) {
   auto web_app_info = web_app::WebAppInstallInfo::CreateWithStartUrlForTesting(
@@ -1090,151 +683,6 @@ TEST_P(AppManagementPageHandlerTestBase, NavigationCapturingUserChoice) {
             expected_value);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-class AppManagementPageHandlerArcTest
-    : public AppManagementPageHandlerTestBase,
-      // TODO(crbug.com/461689107): Figure out a better way and remove this.
-      public base::test::TaskEnvironment::DestructionObserver {
- public:
-  void SetUp() override {
-    // We want to set up the real ArcIntentHelper KeyedService with a fake
-    // ArcIntentHelperBridge, so that it's the same object that ArcApps
-    // uses to launch apps.
-    arc_app_test_.set_initialize_real_intent_helper_bridge(true);
-    arc_app_test_.PreProfileSetUp();
-    AppManagementPageHandlerTestBase::SetUp();
-    arc_app_test_.PostProfileSetUp(profile());
-  }
-
-  void TearDown() override {
-    arc_app_test_.StopArcInstance();
-    arc_app_test_.PreProfileTearDown();
-
-    // `ArcAppTest::PostProfileTearDown` should be called after profile is
-    // deleted, but before TaskEnvironment is deleted. In this test, both
-    // profile and TaskEnvironment are destroyed in the parent's TearDown. So,
-    // this test uses `TaskEnvironment::DestructionObserver` to get the chance.
-    // TODO(crbug.com/461689107): Figure out a better way and remove this.
-    base::test::TaskEnvironment::AddDestructionObserver(this);
-
-    AppManagementPageHandlerTestBase::TearDown();
-  }
-
-  // base::test::TaskEnvironment::DestructionObserver:
-  // TODO(crbug.com/461689107): Figure out a better way and remove this.
-  void WillDestroyCurrentTaskEnvironment() override {
-    base::test::TaskEnvironment::RemoveDestructionObserver(this);
-
-    arc_app_test_.PostProfileTearDown();
-  }
-
- protected:
-  ArcAppTest* arc_app_test() { return &arc_app_test_; }
-
- private:
-  ArcAppTest arc_app_test_;
-};
-
-TEST_P(AppManagementPageHandlerArcTest, OpenStorePageArcAppPlayStore) {
-  const auto& fake_apps = arc_app_test()->fake_apps();
-  std::string package_name = fake_apps[1]->package_name;
-  std::string app_id = ArcAppListPrefs::GetAppId(fake_apps[1]->package_name,
-                                                 fake_apps[1]->activity);
-
-  std::vector<arc::mojom::AppInfoPtr> apps;
-  apps.push_back(arc::mojom::AppInfo::New("Play Store", arc::kPlayStorePackage,
-                                          arc::kPlayStoreActivity));
-  apps.push_back(fake_apps[1]->Clone());
-  arc_app_test()->app_instance()->SendRefreshAppList(apps);
-
-  handler()->OpenStorePage(app_id);
-
-  auto* intent_helper = arc_app_test()->intent_helper_instance();
-  const std::vector<arc::FakeIntentHelperInstance::HandledIntent>& intents =
-      intent_helper->handled_intents();
-  EXPECT_EQ(intents.size(), 1U);
-  EXPECT_EQ(intents[0].activity->package_name, arc::kPlayStorePackage);
-  EXPECT_EQ(intents[0].intent->data.value(),
-            "https://play.google.com/store/apps/details?id=" +
-                fake_apps[1]->package_name);
-}
-
-TEST_P(AppManagementPageHandlerArcTest, OpenStorePageWebAppPlayStore) {
-  std::vector<arc::mojom::ArcPackageInfoPtr> packages;
-  auto package = arc::mojom::ArcPackageInfo::New();
-  package->package_name = "package_name";
-  package->package_version = 1;
-  package->last_backup_android_id = 1;
-  package->last_backup_time = 1;
-  package->sync = true;
-  package->web_app_info = arc::mojom::WebAppInfo::New(
-      "Fake App Title", "https://www.google.com/index.html",
-      "https://www.google.com/", 0xFFAABBCC);
-  packages.push_back(std::move(package));
-
-  std::vector<arc::mojom::AppInfoPtr> apps;
-  apps.push_back(arc::mojom::AppInfo::New("Play Store", arc::kPlayStorePackage,
-                                          arc::kPlayStoreActivity));
-
-  arc_app_test()->app_instance()->SendRefreshAppList(apps);
-  ash::ApkWebAppService* service = ash::ApkWebAppService::Get(profile());
-
-  base::test::TestFuture<const std::string&, const webapps::AppId&>
-      installed_result;
-
-  service->SetWebAppInstalledCallbackForTesting(installed_result.GetCallback());
-  arc_app_test()->app_instance()->SendRefreshPackageList(std::move(packages));
-
-  webapps::AppId app_id = installed_result.Get<1>();
-  handler()->OpenStorePage(app_id);
-
-  auto* intent_helper = arc_app_test()->intent_helper_instance();
-  const std::vector<arc::FakeIntentHelperInstance::HandledIntent>& intents =
-      intent_helper->handled_intents();
-  EXPECT_EQ(intents.size(), 1U);
-  EXPECT_EQ(intents[0].activity->package_name, arc::kPlayStorePackage);
-  EXPECT_EQ(intents[0].intent->data.value(),
-            "https://play.google.com/store/apps/details?id=package_name");
-}
-
-TEST_P(AppManagementPageHandlerArcTest, SetAppLocale) {
-  // Setup.
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(arc::kPerAppLanguage);
-  ArcAppListPrefs* prefs = ArcAppListPrefs::Get(profile());
-  ASSERT_NE(nullptr, prefs);
-  // fake_packages[4] is the test package with localeInfo.
-  const std::string& test_package_name =
-      arc_app_test()->fake_apps()[4]->package_name;
-  const std::string& app_id = prefs->GetAppId(
-      test_package_name, arc_app_test()->fake_apps()[4]->activity);
-
-  // Setup app.
-  std::vector<arc::mojom::AppInfoPtr> test_app_info_list;
-  test_app_info_list.push_back(arc_app_test()->fake_apps()[4]->Clone());
-  arc_app_test()->app_instance()->SendRefreshAppList(test_app_info_list);
-  // Setup package.
-  // Initially pref will be set with "en" as selectedLocale.
-  std::vector<arc::mojom::ArcPackageInfoPtr> test_packages;
-  test_packages.push_back(arc_app_test()->fake_packages()[4]->Clone());
-  arc_app_test()->app_instance()->SendRefreshPackageList(
-      ArcAppTest::ClonePackages(test_packages));
-
-  // Run.
-  handler()->SetAppLocale(app_id, "ja");
-
-  // Assert.
-  ASSERT_EQ("ja",
-            arc_app_test()->app_instance()->selected_locale(test_package_name));
-}
-
-INSTANTIATE_TEST_SUITE_P(
-    ,
-    AppManagementPageHandlerArcTest,
-    testing::Values(apps::test::LinkCapturingFeatureVersion::kV2DefaultOff,
-                    apps::test::LinkCapturingFeatureVersion::kV2DefaultOn),
-    apps::test::LinkCapturingVersionToString);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 INSTANTIATE_TEST_SUITE_P(
     ,
@@ -1263,23 +711,15 @@ class AppManagementPageHandlerWithUpdateStringsTest
     mojo::PendingReceiver<app_management::mojom::Page> page;
     mojo::Remote<app_management::mojom::PageHandler> handler;
     std::vector<base::test::FeatureRefAndParams> features_and_params;
-#if !BUILDFLAG(IS_CHROMEOS)
     features_and_params =
         apps::test::GetFeaturesToEnableLinkCapturingUX(std::get<0>(GetParam()));
-#endif
     features_and_params.push_back(base::test::FeatureRefAndParams(
         apps::features::kUpdateAppStringsOnSettings, {}));
     scoped_feature_list_.InitWithFeaturesAndParameters(features_and_params, {});
 
-#if BUILDFLAG(IS_CHROMEOS)
-    handler_ = std::make_unique<AppManagementPageHandlerChromeOs>(
-        handler.BindNewPipeAndPassReceiver(),
-        page.InitWithNewPipeAndPassRemote(), profile(), *delegate_);
-#else
     handler_ = std::make_unique<WebAppSettingsPageHandler>(
         handler.BindNewPipeAndPassReceiver(),
         page.InitWithNewPipeAndPassRemote(), profile(), *delegate_);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   void TearDown() override {

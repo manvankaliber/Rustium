@@ -127,7 +127,7 @@ def acquire_run_lock(port, use_namespace=False):
     if use_namespace:
         if platform.is_linux():
             if (
-                port.port_name in ('android', 'webview')
+                port.port_name in ('webview',)
                 or port.operating_system() == 'android'
             ):
                 raise RunLockError(

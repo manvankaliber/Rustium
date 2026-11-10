@@ -67,21 +67,15 @@ class ImageTransportSurfaceOverlayMacTest : public testing::Test {
 
   // testing::Test:default
   void SetUp() override {
-#if BUILDFLAG(IS_MAC)
     std::unique_ptr<ui::VSyncCallbackMac> vsync_callback_mac = base::WrapUnique(
         new ui::VSyncCallbackMac(base::DoNothing(), base::DoNothing(), false));
-#endif
 
     auto* mock = new MockCALayerTreeCoordinator();
     mock_ca_layer_tree_coordinator_ = mock;
 
     surface_overlay_mac_ =
         base::MakeRefCounted<ImageTransportSurfaceOverlayMacEGL>(
-#if BUILDFLAG(IS_MAC)
             base::WrapUnique(mock), std::move(vsync_callback_mac));
-#else
-            base::WrapUnique(mock));
-#endif
 
     surface_overlay_mac_->SetMaxPendingSwaps(kMaxPendingSwaps);
   }
@@ -96,9 +90,7 @@ class ImageTransportSurfaceOverlayMacTest : public testing::Test {
 
   void PresentFrame(bool is_handling_interaction) {
     gfx::FrameData data;
-#if BUILDFLAG(IS_MAC)
     data.is_handling_interaction = is_handling_interaction;
-#endif
     surface_overlay_mac_->Present(base::DoNothing(), base::DoNothing(),
                                   std::move(data));
   }
@@ -129,7 +121,6 @@ TEST_F(ImageTransportSurfaceOverlayMacTest,
   testing::Mock::VerifyAndClearExpectations(mock_ca_layer_tree_coordinator_);
 }
 
-#if BUILDFLAG(IS_MAC)
 TEST_F(ImageTransportSurfaceOverlayMacTest,
        PresentDelaysCommitWhenHandlingInteraction) {
   // The first two frames will be pending.
@@ -190,6 +181,5 @@ TEST_F(ImageTransportSurfaceOverlayMacTest,
   PresentFrame(/*is_handling_interaction=*/true);
   testing::Mock::VerifyAndClearExpectations(mock_ca_layer_tree_coordinator_);
 }
-#endif
 
 }  // namespace gpu

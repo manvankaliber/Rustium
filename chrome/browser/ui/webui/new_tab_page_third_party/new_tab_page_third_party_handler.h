@@ -17,10 +17,6 @@
 #include "ui/native_theme/native_theme.h"
 #include "ui/native_theme/native_theme_observer.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/scoped_observation.h"
-#include "content/public/browser/web_contents_observer.h"
-#endif
 
 class Profile;
 
@@ -31,9 +27,6 @@ class WebContents;
 class NewTabPageThirdPartyHandler
     : public new_tab_page_third_party::mojom::PageHandler,
       public ThemeServiceObserver,
-#if BUILDFLAG(IS_ANDROID)
-      public content::WebContentsObserver,
-#endif
       public ui::NativeThemeObserver {
  public:
   NewTabPageThirdPartyHandler(
@@ -59,27 +52,11 @@ class NewTabPageThirdPartyHandler
   // ui::NativeThemeObserver:
   void OnNativeThemeUpdated(ui::NativeTheme* observed_theme) override;
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/571788628): Unlike Desktop, Android's ColorProvider is not
-  // owned by the WebContents. It is instead owned by the Activity, which gets
-  // recreated during a theme switch. By observing the ColorProvider, we can
-  // ensure the theme is updated when the Activity is recreated.
-  void OnColorProviderChanged() override;
-#endif
   void NotifyAboutTheme();
 
   raw_ptr<Profile> profile_;
   raw_ptr<content::WebContents> web_contents_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/571788628): On Android a light/dark switch is an Activity
-  // theme change. ThemeService only notifies when the color scheme is changed
-  // through it, not when it is changed in Settings or follows the system,
-  // whereas the NativeTheme is updated for every switch, so observe it like the
-  // first-party NewTabPageHandler does.
-  base::ScopedObservation<ui::NativeTheme, ui::NativeThemeObserver>
-      native_theme_observation_{this};
-#endif
 
   // These are located at the end of the list of member variables to ensure the
   // WebUI page is disconnected before other members are destroyed.

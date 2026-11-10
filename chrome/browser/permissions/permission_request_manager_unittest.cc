@@ -52,17 +52,7 @@
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_pref_names.h"
-#include "chrome/browser/ash/app_mode/kiosk_cryptohome_remover.h"
-#include "chrome/browser/ash/app_mode/web_app/kiosk_web_app_manager.h"
-#include "chrome/browser/ash/policy/core/device_local_account.h"
-#include "components/user_manager/user_type.h"  // nogncheck
-#endif                                          // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/permissions/android/android_permission_util.h"
-#endif
 
 class PermissionRequestManagerTest
     : public ChromeRenderViewHostTestHarness,
@@ -72,12 +62,6 @@ class PermissionRequestManagerTest
       : ChromeRenderViewHostTestHarness(
             base::test::TaskEnvironment::TimeSource::MOCK_TIME) {}
 
-#if BUILDFLAG(IS_CHROMEOS)
-  explicit PermissionRequestManagerTest(LogInParams log_in_params)
-      : ChromeRenderViewHostTestHarness(
-            std::move(log_in_params),
-            base::test::TaskEnvironment::TimeSource::MOCK_TIME) {}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   void SetUp() override {
     ChromeRenderViewHostTestHarness::SetUp();
@@ -283,10 +267,6 @@ TEST_F(PermissionRequestManagerTest, UMAForMergedDeniedBubble) {
 }
 
 TEST_F(PermissionRequestManagerTest, TestEmbargoForEmbeddedPermissionRequest) {
-#if BUILDFLAG(IS_ANDROID)
-  base::AutoReset<bool> enable_android_permissions =
-      permissions::EnableAllAndroidPermissionsForTesting();
-#endif
   system_permission_settings::ScopedSettingsForTesting scoped_system_permission(
       ContentSettingsType::MEDIASTREAM_CAMERA, /*blocked=*/false);
 
@@ -349,155 +329,6 @@ TEST_F(PermissionRequestManagerTest, TestEmbargoForEmbeddedPermissionRequest) {
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-class PermissionRequestManagerWebKioskTest
-    : public PermissionRequestManagerTest {
- public:
-  PermissionRequestManagerWebKioskTest()
-      : PermissionRequestManagerTest(
-            {.account_id = WebKioskAccountId(),
-             .user_type = user_manager::UserType::kKioskWebApp}) {}
-
-  void SetUp() override {
-    PermissionRequestManagerTest::SetUp();
-
-    auto* browser_process = TestingBrowserProcess::GetGlobal();
-    PrefService* local_state = browser_process->local_state();
-    cryptohome_remover_ =
-        std::make_unique<ash::KioskCryptohomeRemover>(local_state);
-    kiosk_app_manager_ = std::make_unique<ash::KioskWebAppManager>(
-        local_state, browser_process->shared_url_loader_factory(),
-        cryptohome_remover_.get());
-    kiosk_app_manager_->AddAppForTesting(WebKioskAccountId(),
-                                         GURL("https://google.com/launch"));
-  }
-
-  void TearDown() override {
-    kiosk_app_manager_.reset();
-    cryptohome_remover_.reset();
-    PermissionRequestManagerTest::TearDown();
-  }
-
-  void SetKioskBrowserPermissionsAllowedForOrigins(const std::string& origin) {
-    profile()->GetPrefs()->SetList(
-        ash::prefs::kKioskBrowserPermissionsAllowedForOrigins,
-        base::ListValue().Append(origin));
-  }
-
-  std::unique_ptr<
-      permissions::MockPermissionRequest::MockPermissionRequestState>
-  MakeRequestInWebKioskMode(const GURL& url) {
-    NavigateAndCommit(url);
-    auto request_state = std::make_unique<
-        permissions::MockPermissionRequest::MockPermissionRequestState>();
-    auto request = std::make_unique<permissions::MockPermissionRequest>(
-        url, permissions::RequestType::kGeolocation,
-        request_state->GetWeakPtr());
-    manager_->AddRequest(web_contents()->GetPrimaryMainFrame(),
-                         std::move(request));
-    return request_state;
-  }
-
- private:
-  static AccountId WebKioskAccountId() {
-    return AccountId::FromUserEmail(policy::GenerateDeviceLocalAccountUserId(
-        "lala", policy::DeviceLocalAccountType::kWebKioskApp));
-  }
-
-  std::unique_ptr<ash::KioskCryptohomeRemover> cryptohome_remover_;
-  std::unique_ptr<ash::KioskWebAppManager> kiosk_app_manager_;
-};
-
-TEST_F(PermissionRequestManagerWebKioskTest, TestWebKioskModeSameOrigin) {
-  auto request_state =
-      MakeRequestInWebKioskMode(GURL("https://google.com/page"));
-
-  WaitForBubbleToBeShown();
-  // It should be granted by default.
-  EXPECT_TRUE(request_state->granted);
-}
-
-TEST_F(PermissionRequestManagerWebKioskTest, TestWebKioskModeDifferentOrigin) {
-  auto request_state =
-      MakeRequestInWebKioskMode(GURL("https://example.com/page"));
-
-  WaitForBubbleToBeShown();
-  // It should not be granted by default.
-  EXPECT_FALSE(request_state->granted);
-  EXPECT_TRUE(request_state->finished);
-}
-
-TEST_F(PermissionRequestManagerWebKioskTest,
-       TestWebKioskModeDifferentOriginWhenFeatureIsDisabled) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(
-      permissions::features::kAllowMultipleOriginsForWebKioskPermissions);
-  SetKioskBrowserPermissionsAllowedForOrigins("https://example.com/page");
-
-  auto request_state =
-      MakeRequestInWebKioskMode(GURL("https://example.com/page"));
-
-  WaitForBubbleToBeShown();
-
-  // It should not be granted as the origin is allowlisted.
-  EXPECT_EQ(request_state->granted, false);
-  EXPECT_TRUE(request_state->finished);
-}
-
-TEST_P(PermissionRequestManagerWebKioskTest,
-       TestWebKioskModeDifferentOriginWhenAllowedByFeature) {
-  base::test::ScopedFeatureList feature_list;
-  base::FieldTrialParams feature_params;
-  feature_params
-      [permissions::feature_params::kWebKioskBrowserPermissionsAllowlist.name] =
-          GetParam().first;
-  feature_list.InitAndEnableFeatureWithParameters(
-      permissions::features::kAllowMultipleOriginsForWebKioskPermissions,
-      feature_params);
-
-  auto request_state =
-      MakeRequestInWebKioskMode(GURL("https://example.com/page"));
-
-  WaitForBubbleToBeShown();
-
-  // It should be granted as the origin is allowlisted.
-  EXPECT_EQ(request_state->granted, GetParam().second);
-  EXPECT_TRUE(request_state->finished);
-}
-
-TEST_P(PermissionRequestManagerWebKioskTest,
-       TestWebKioskModeDifferentOriginAllowedByKioskBrowserPref) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(
-      permissions::features::kAllowMultipleOriginsForWebKioskPermissions);
-  SetKioskBrowserPermissionsAllowedForOrigins(GetParam().first);
-
-  auto request_state =
-      MakeRequestInWebKioskMode(GURL("https://example.com/page"));
-
-  WaitForBubbleToBeShown();
-
-  // It should be granted as the origin is allowlisted.
-  EXPECT_EQ(request_state->granted, GetParam().second);
-  EXPECT_TRUE(request_state->finished);
-}
-
-INSTANTIATE_TEST_SUITE_P(
-    TestWebKioskModeDifferentOriginWhenAllowedByFeature,
-    PermissionRequestManagerWebKioskTest,
-    testing::ValuesIn(
-        {std::pair<std::string, bool>("*", false),
-         std::pair<std::string, bool>(".example.com", false),
-         std::pair<std::string, bool>("example.", false),
-         std::pair<std::string, bool>("file://example*", false),
-         std::pair<std::string, bool>("invalid-example.com", false),
-         std::pair<std::string, bool>("https://example.com", true),
-         std::pair<std::string, bool>("https://example.com/sample", true),
-         std::pair<std::string, bool>("example.com", true),
-         std::pair<std::string, bool>("*://example.com:*/", true),
-         std::pair<std::string, bool>("[*.]example.com", true)}));
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class ChromePermissionRequestManagerAdaptiveQuietUiActivationTest
     : public PermissionRequestManagerTest {

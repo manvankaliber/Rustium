@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 // clang-format off
-// <if expr="not is_android">
 import './banner_promo.js';
 import './info_tooltip.js';
 
@@ -14,9 +13,7 @@ import type {ContextualEntrypointAndMenuElement} from '//resources/cr_components
 
 import type {ContextualTasksInfoTooltipElement} from './info_tooltip.js';
 
-// </if>
 
-// <if expr="not is_android or enable_webui_contextual_tasks_composebox">
 import './composebox.js';
 import './onboarding_tooltip.js';
 import '//resources/cr_components/composebox/contextual_entrypoint_and_menu.js';
@@ -25,7 +22,6 @@ import {HelpBubbleMixinLit} from 'chrome://resources/cr_components/help_bubble/h
 
 import type {ContextualTasksComposeboxElement} from './composebox.js';
 import type {ContextualTasksOnboardingTooltipElement} from './onboarding_tooltip.js';
-// </if>
 // clang-format on
 
 
@@ -62,12 +58,6 @@ import type {WebViewType} from './web_view_type.js';
 import {WindowManager} from './window_manager.js';
 
 
-// <if expr="is_android and not enable_webui_contextual_tasks_composebox">
-// ContextualTasksComposeboxElement and ContextualTasksOnboardingTooltipElement
-// are not compiled on standard Android without composebox.
-type ContextualTasksComposeboxElement = any;
-type ContextualTasksOnboardingTooltipElement = any;
-// </if>
 
 declare global {
   interface HTMLElementEventMap {
@@ -113,9 +103,7 @@ export interface ContextualTasksAppElement {
     composeboxHeaderWrapper: HTMLElement,
     composeboxHeader: HTMLElement,
     flexCenterContainer: HTMLElement,
-    // <if expr="not is_android or enable_webui_contextual_tasks_composebox">
     composebox: ContextualTasksComposeboxElement,
-    // </if>
   };
 }
 
@@ -174,12 +162,7 @@ function hasExitCobrowseParam(url: URL): boolean {
   return debParam.indexOf('nocobrowse1') > -1;
 }
 
-// <if expr="is_android and not enable_webui_contextual_tasks_composebox">
-const ContextualTasksAppElementBase = CrLitElement;
-// </if>
-// <if expr="not is_android or enable_webui_contextual_tasks_composebox">
 const ContextualTasksAppElementBase = HelpBubbleMixinLit(CrLitElement);
-// </if>
 
 export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
   static get is() {
@@ -310,7 +293,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
       ToolbarBrowserProxyImpl.getInstance();
   private toolbarListenerIds_: number[] = [];
 
-  // <if expr="not is_android">
   private askGTooltipState_ = new TooltipState(
       loadTimeData.getBoolean('isAskGTooltipDismissCountBelowCap'),
       loadTimeData.getInteger('askGTooltipSessionImpressionCap'),
@@ -318,7 +300,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
         this.browserProxy_.handler.askGTooltipDismissed();
         this.updateTooltipVisibility_();
       });
-  // </if>
   // Whether basic mode is enabled. If disabled, isInBasicMode_,
   // isNavigatingFromAiPage_, and pendingBasicMode_ will not be updated.
   protected accessor enableBasicMode_: boolean =
@@ -397,10 +378,8 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
   // Whether the composebox jump fix is enabled. This fix hides the composebox
   // until the server gives the embedded page gives the initial bounds for the
   // composebox.
-  // <if expr="not is_android or is_desktop_android">
   private enableComposeboxJumpFix_: boolean =
       loadTimeData.getBoolean('enableComposeboxJumpFix');
-  // </if>
   private enableGhostLoader_: boolean =
       loadTimeData.getBoolean('enableGhostLoader');
   // A callback to allow tests to wait until the popstate handler in this class
@@ -450,24 +429,17 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
     this.updateCommonSearchParams();
   }
   protected get composebox_(): ContextualTasksComposeboxElement|null {
-    // <if expr="not is_android or enable_webui_contextual_tasks_composebox">
     return this.$.composebox || null;
-    // </if>
-    // <if expr="is_android and not enable_webui_contextual_tasks_composebox">
-    return null;
-    // </if>
   }
 
   override async connectedCallback() {
     super.connectedCallback();
     this.updateBackgroundColor_();
 
-    // <if expr="not is_android">
     this.shadowRoot.addEventListener('context-menu-closed', () => {
       this.hideHelpBubble(
           'ContextualTasksUI::kSmartTabSharingMenuItemElementId');
     });
-    // </if>
 
     // Record the WebUI URL in case one of the events below fires and changes
     // it.
@@ -489,12 +461,10 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
         });
       }),
       callbackRouter.turnOnSmartTabSharing.addListener(() => {
-        // <if expr="not is_android">
         const menu = this.getContextualActionMenu();
         if (menu) {
           menu.setSmartTabSharingToggle(true);
         }
-        // </if>
       }),
       callbackRouter.setThreadTitle.addListener(title => {
         this.threadTitle_ = title;
@@ -841,14 +811,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
           }
         });
 
-    // <if expr="is_android and not is_desktop_android">
-    this.isDomContentLoaded_ = true;
-    if (this.isInitialFrameLoad_ && this.isZeroState_) {
-      this.playZeroStateAnimations_();
-      // Omit calling this.forceComposeboxFocus() on mobile Android startup to
-      // avoid automatically popping up the software keyboard on page load.
-    }
-    // </if>
   }
 
   override updated(changedProperties: PropertyValues<this>) {
@@ -870,7 +832,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
     this.updateTooltipVisibility_();
   }
 
-  // <if expr="not is_android">
   private getContextualActionMenu(): ContextualActionMenuElement|null {
     const wrapper =
         this.shadowRoot.querySelector<ContextualTasksComposeboxElement>(
@@ -887,7 +848,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
     }
     return entrypoint.$.menu || null;
   }
-  // </if>
 
   // LINT.IfChange(ContextualTasksTooltipLogic)
   private get isAskGEntryPointEligible_(): boolean {
@@ -943,7 +903,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
         crComposebox.getContextEntrypointElement() :
         crComposebox.getAutomaticActiveTabChipElement();
 
-    // <if expr="not is_android">
     const askGTooltip =
         this.shadowRoot.querySelector<ContextualTasksInfoTooltipElement>(
             '#askGTooltip') ||
@@ -953,7 +912,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
     this.askGTooltipTarget_ = this.updateInfoTooltip_(
         this.askGTooltipState_, this.isAskGEntryPointEligible_,
         activeTabChipTarget, askGTooltip);
-    // </if>
 
     // 3. Calculate Onboarding tooltip (Suppressed if AskG is eligible)
     if (onboardingTooltip) {
@@ -972,7 +930,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
     this.updateTooltipVisibility_();
   }
 
-  // <if expr="not is_android">
   private updateInfoTooltip_(
       state: TooltipState, dependency: boolean, target: Element|null,
       tooltipElement: ContextualTasksInfoTooltipElement|null): Element|null {
@@ -989,7 +946,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
   protected onAskGTooltipDismissed_() {
     this.askGTooltipState_.dismiss();
   }
-  // </if>
 
 
   private playZeroStateAnimations_() {
@@ -1005,7 +961,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
   }
 
   protected onComposeboxContextMenuOpened_() {
-    // <if expr="not is_android">
     setTimeout(() => {
       const menu = this.getContextualActionMenu();
       // Since a separate IPH "Try It" promo may turn the STS feature on, make
@@ -1038,7 +993,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
         }
       }
     }, 200);
-    // </if>
   }
 
   private setStyleVariable(variable: string, value: string) {
@@ -1092,15 +1046,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
     this.updateBasicModeAfterNavigation();
     this.maybeOnThreadFrameTopLevelNavigation(ev.url);
 
-    // <if expr="is_android and not is_desktop_android">
-    // On standard mobile Android phones, since guest-to-host script
-    // communication is not supported, must set isDomContentLoaded_ on
-    // loadcommit rather than waiting for a domContentLoaded message.
-    this.isDomContentLoaded_ = true;
-    if (this.isZeroState_) {
-      this.playZeroStateAnimations_();
-    }
-    // </if>
   }
 
   private onThreadFrameContentLoad() {
@@ -1262,20 +1207,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
   private onInputPlateBoundsUpdate_(
       inputRect?: Rect, occluders?: Rect[], _viewportWidth?: number,
       _viewportHeight?: number) {
-    // <if expr="is_android">
-    if (_viewportWidth !== undefined && _viewportWidth > 0) {
-      this.guestWidth_ = _viewportWidth;
-    } else if (this.isZeroState_ && occluders && occluders.length > 0) {
-      // In zero state, the server does not send _viewportWidth.
-      // Infer guest width from an occluder covering from (0, 0).
-      for (const occ of occluders) {
-        if (occ.top === 0 && occ.left === 0 && occ.width > 0) {
-          this.guestWidth_ = occ.width;
-          break;
-        }
-      }
-    }
-    // </if>
 
     if (inputRect !== undefined) {
       const composebox = this.composebox_!;
@@ -1371,12 +1302,10 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
     // forcedcomposeboxBounds are set. No-op if the feature flag is not enabled.
     // On standard mobile Android, since we have no guest-to-host script
     // communication the bounds will never be set, so we must not hide the composebox.
-    // <if expr="not is_android or is_desktop_android">
     if (this.enableComposeboxJumpFix_ && this.isAiPage_ && !this.isZeroState_ &&
         !this.forcedComposeboxBounds_) {
       return true;
     }
-    // </if>
 
     // In all other cases, show the composebox.
     return false;
@@ -1420,11 +1349,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
     // relative to the viewport.
     const frameRect = this.$.threadFrame.getBoundingClientRect();
     let scale = 1.0;
-    // <if expr="is_android">
-    scale = (this.guestWidth_ && this.guestWidth_ > 0) ?
-        (frameRect.width / this.guestWidth_) :
-        1.0;
-    // </if>
     const relativeRect = {
       top: frameRect.top + (this.forcedComposeboxBounds_.top * scale),
       left: frameRect.left + (this.forcedComposeboxBounds_.left * scale),
@@ -1440,10 +1364,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
     const style: string[] = [
       `--composebox-margin-bottom: 0;`,  // Need to remove margin on the child
                                          // container.
-      // <if expr="is_android">
-      `--composebox-max-width: ${relativeRect.width}px;`,
-      `--composebox-width: ${relativeRect.width}px;`,
-      // </if>
       `position: ${this.inNlm_ ? 'fixed' : 'absolute'};`,
       `bottom: ${this.offsetHeight - relativeRect.bottom}px;`,
       `left: ${relativeRect.left}px;`,
@@ -1494,12 +1414,6 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
     const frameRect = this.$.threadFrame.getBoundingClientRect();
     let scale = 1.0;
     let boundsScale = 1.0;
-    // <if expr="is_android">
-    scale = (this.guestWidth_ && this.guestWidth_ > 0) ?
-        (frameRect.width / this.guestWidth_) :
-        1.0;
-    boundsScale = (this.forcedComposeboxBounds_ != null) ? scale : 1.0;
-    // </if>
     const scaledBounds = composeboxBounds ? {
       top: composeboxBounds.top * boundsScale,
       left: composeboxBounds.left * boundsScale,
@@ -1985,12 +1899,10 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
   protected onStsTryItAccept_() {
     this.hideStsTryItPromo_();
     this.browserProxy_.handler.notifySmartTabSharingTryItIphResult(true);
-    // <if expr="not is_android">
     const menu = this.getContextualActionMenu();
     if (menu) {
       menu.setSmartTabSharingToggle(true);
     }
-    // </if>
   }
 
   private hideStsTryItPromo_() {
@@ -2005,12 +1917,10 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
   protected onStsDefaultOnAccept_() {
     this.hideStsDefaultOnPromo_();
     this.browserProxy_.handler.notifySmartTabSharingDefaultOnIphResult(true);
-    // <if expr="not is_android">
     const menu = this.getContextualActionMenu();
     if (menu) {
       menu.setSmartTabSharingToggle(true);
     }
-    // </if>
   }
 
   private hideStsDefaultOnPromo_() {

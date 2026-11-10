@@ -9,9 +9,7 @@ import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
 import {assertEquals, assertFalse, assertNotEquals, assertTrue} from 'chrome://webui-test/chai_assert.js';
 import {microtasksFinished} from 'chrome://webui-test/test_util.js';
 
-// <if expr="not is_chromeos">
 import {isChildVisible} from 'chrome://webui-test/test_util.js';
-// </if>
 
 import {FakeForeignSessionPageHandler} from './fake_foreign_session_page_handler.js';
 import {TestHistoryBrowserProxy} from './test_browser_proxy.js';
@@ -359,29 +357,6 @@ suite('<history-synced-device-manager>', function() {
     assertTrue(element.$.menu.getIfExists()!.open);
   });
 
-  // <if expr="is_chromeos">
-  // On ChromeOS, this promo may be shown depending on the
-  // replaceSyncPromosWithSignInPromos loadTimeData value. For other platforms,
-  // the flag is true so this promo is not shown (checked in other tests below).
-  test('show sign in promo', async () => {
-    webUIListenerCallback('history-identity-state-changed', {
-      signIn: HistorySignInState.SIGNED_OUT,
-      tabsSync: SyncState.TURNED_OFF,
-      historySync: SyncState.TURNED_OFF,
-    });
-    await microtasksFinished();
-    assertEquals(
-        loadTimeData.getBoolean('replaceSyncPromosWithSignInPromos'),
-        element.$.signInGuide.hidden);
-    webUIListenerCallback('history-identity-state-changed', {
-      signIn: HistorySignInState.SIGNED_IN,
-      tabsSync: SyncState.TURNED_ON,
-      historySync: SyncState.TURNED_OFF,
-    });
-    await microtasksFinished();
-    assertTrue(element.$.signInGuide.hidden);
-  });
-  // </if>
 
   test('no synced tabs message', async () => {
     await microtasksFinished();
@@ -494,20 +469,7 @@ suite('<history-synced-device-manager>', function() {
         icon.getBoundingClientRect().left, title.getBoundingClientRect().left);
   });
 
-  // <if expr="is_android">
-  test('EmptyStateIllustrationAndroid', async () => {
-    assertNoSyncedTabsMessageShown(element, 'loading');
-    assertEquals(null, element.$.noSyncedTabs.querySelector('svg'));
 
-    setForeignSessions([]);
-    element.clearSyncedDevicesForTest();
-    await microtasksFinished();
-    assertNoSyncedTabsMessageShown(element, 'noSyncedResults');
-    assertTrue(!!element.$.noSyncedTabs.querySelector('svg'));
-  });
-  // </if>
-
-  // <if expr="not is_android">
   test('EmptyStateNonAndroid', async () => {
     setForeignSessions([]);
     element.clearSyncedDevicesForTest();
@@ -515,10 +477,8 @@ suite('<history-synced-device-manager>', function() {
     assertNoSyncedTabsMessageShown(element, 'noSyncedResults');
     assertEquals(null, element.$.noSyncedTabs.querySelector('svg'));
   });
-  // </if>
 });
 
-// <if expr="not is_chromeos">
 import {AccessPoint} from 'chrome://resources/cr_components/history/history.mojom-webui.js';
 
 // history-sync-optin elements is not shown for ChromeOS.
@@ -771,4 +731,3 @@ suite('<history-sync-optin>', function() {
     assertEquals(2, testProxy.getCallCount('recordSigninPendingOffered'));
   });
 });
-// </if>

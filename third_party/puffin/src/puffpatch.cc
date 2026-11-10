@@ -111,7 +111,6 @@ Status DecodePatch(const uint8_t* patch,
   return Status::P_OK;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Creates a memory-mapped temporary file of the specified size. Returns a
 // unique pointer to the memory-mapped file on success, or nullptr if temporary
 // file creation or memory mapping fails.
@@ -144,7 +143,6 @@ std::unique_ptr<base::MemoryMappedFile> CreateMemoryMappedTemporaryFile(
 
   return mapped_file;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 using PatchBufferBacking =
     std::variant<std::unique_ptr<base::MemoryMappedFile>, Buffer>;
@@ -154,7 +152,6 @@ PatchBufferBacking AllocatePatchBuffer(size_t size) {
   // Consider enabling this code path in the future, though patching only runs
   // in sandboxed processes on Android and is expected to fall back to in-memory
   // buffers. See: crbug.com/513197224
-#if !BUILDFLAG(IS_ANDROID)
   // The minimum size in bytes at which memory-mapped file backing is attempted.
   constexpr size_t kMemoryMappedFileCutoff = 1024 * 1024;
   if (size < kMemoryMappedFileCutoff) {
@@ -165,7 +162,6 @@ PatchBufferBacking AllocatePatchBuffer(size_t size) {
           CreateMemoryMappedTemporaryFile(size)) {
     return std::move(mapped_file);
   }
-#endif
   return Buffer(size);
 }
 

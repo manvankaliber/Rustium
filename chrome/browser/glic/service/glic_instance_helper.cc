@@ -24,9 +24,6 @@ GlicInstanceHelper::GlicInstanceHelper(tabs::TabInterface* tab)
     : tab_(tab),
       metrics_(std::make_unique<GlicInstanceHelperMetrics>(tab->GetProfile())),
       scoped_unowned_user_data_(tab->GetUnownedUserDataHost(), *this) {
-#if BUILDFLAG(IS_ANDROID)
-  InitJavaObject();
-#endif
 }
 
 GlicInstanceHelper::~GlicInstanceHelper() {
@@ -46,16 +43,8 @@ void GlicInstanceHelper::SetBoundInstance(Instance* instance) {
   if (bound_instance_) {
     metrics_->OnBoundToInstance(bound_instance_->id());
   }
-#if BUILDFLAG(IS_ANDROID)
-  NotifyJavaInstanceChanged();
-#endif
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void GlicInstanceHelper::OnInstanceChanged() {
-  NotifyJavaInstanceChanged();
-}
-#endif
 
 std::optional<std::string> GlicInstanceHelper::GetConversationId() const {
   if (bound_instance_) {

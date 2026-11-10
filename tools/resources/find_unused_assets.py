@@ -146,111 +146,6 @@ def grep_pattern(
       raise
 
 
-def find_usage_of_java_res(
-  fpath: Text, pathspecs: Optional[Iterable[Text]] = None
-) -> List[Text]:
-  """Finds usage of a Java image resource.
-
-  Args:
-    fpath: The filepath to find.
-    pathspecs: Optional pathspecs to look for usages.
-
-  Returns:
-    A list of filepaths that use |fpath|.
-  """
-  pathspecs = pathspecs or []
-  common_pathspecs = (
-    list(pathspecs) + [':!**/*.gni', ':!**/*.gn'] + IGNORED_PATHSPECS
-  )
-  basename = os.path.basename(fpath).rsplit('.')[0]
-  dirname = os.path.dirname(fpath)
-  if 'drawable' in dirname:
-    res_type = 'drawable'
-  elif 'mipmap' in dirname:
-    res_type = 'mipmap'
-  else:
-    raise ValueError(f'Could not parse resource type from filepath: {fpath}')
-
-  pathspec_prefixes = [
-    'android_webview',
-    'chrome/android',
-    'chrome/browser',
-    'components',
-    'content/public/android',
-    'content/shell/android',
-    'remoting/android',
-    'tools/android',
-    'ui/android',
-  ]
-
-  xml_pattern = f'@{res_type}/{basename}'
-  found = grep_pattern(
-    xml_pattern,
-    pathspecs=tuple(
-      [p + '/**/*.xml' for p in pathspec_prefixes] + common_pathspecs
-    ),
-    fixed=True,
-  )
-
-  java_pattern = f'R.{res_type}.{basename}'
-  found = found or grep_pattern(
-    java_pattern,
-    pathspecs=tuple(
-      [p + '/**/*.java' for p in pathspec_prefixes]
-      + [
-        'chrome/browser/android/resource_id.h',
-        'components/resources/android/*.h',
-      ]
-      + common_pathspecs
-    ),
-    fixed=True,
-  )
-
-  if not found:
-    logger.info('Found unused file: %s', fpath)
-  return found
-
-
-def filter_usages_of_java_res(
-  png_files: Iterable[Text], path_pattern: Text
-) -> Tuple[Set[Text], Set[Text]]:
-  """Filters and finds used and unused Java image resources.
-
-  Args:
-    png_files: The paths of image files to filter through and find usages of.
-    path_pattern: The regex pattern to filter filepaths.
-
-  Returns:
-    A tuple of (used, unused) filepaths.
-  """
-  used_png_files = set()
-  unused_png_files = set()
-  containing_files = set()
-  matcher = re.compile(path_pattern)
-  for png_file in sorted(png_files):
-    matches = matcher.search(png_file)
-    if not matches:
-      continue
-    found = find_usage_of_java_res(png_file)
-    if found:
-      used_png_files.add(png_file)
-      containing_files |= set(found)
-    else:
-      unused_png_files.add(png_file)
-  logger.info(
-    'Found %d PNG files used under %s dirs.', len(used_png_files), path_pattern
-  )
-  logger.info(
-    'Found %d unused PNG files under %s dirs.',
-    len(unused_png_files),
-    path_pattern,
-  )
-  logger.debug(
-    'Containing files:\n%s', pprint.pformat(sorted(containing_files))
-  )
-  return used_png_files, unused_png_files
-
-
 def find_images_by_filepath_string(
   filepaths: Iterable[Text], all_png_files: Set[Text]
 ) -> Tuple[Set[Text], Set[Text]]:
@@ -490,16 +385,16 @@ def find_images_used_by_markdown(all_png_files: Set[Text]) -> Set[Text]:
   return used_files
 
 
-def find_images_used_by_ios_imageset(
+def find_images_used_by_asset_catalog(
   all_png_files: Set[Text],
 ) -> Tuple[Set[Text], Set[Text]]:
-  """Finds images used and unused by ios imagesets and friends.
+  """Finds images used and unused by Apple asset catalogs and friends.
 
   Args:
     all_png_files: The set of all PNG files, used to filter results.
 
   Returns:
-    A tuple of (used, unused) image filepaths from ios imagesets.
+    A tuple of (used, unused) image filepaths from Apple asset catalogs.
   """
   used_files = set()
   unused_files = set()
@@ -592,9 +487,9 @@ def main() -> None:
   used_png_files |= used_by_markdown
   png_files -= used_png_files
 
-  # Find images used by ios imagesets.
-  logger.info('Looking for usages by ios imagesets...')
-  used_by_imageset, unused_by_imageset = find_images_used_by_ios_imageset(
+  # Find images used by Apple asset catalogs.
+  logger.info('Looking for usages by Apple asset catalogs...')
+  used_by_imageset, unused_by_imageset = find_images_used_by_asset_catalog(
     all_png_files
   )
   logger.info('Found %d PNG files used in json.', len(used_by_imageset))
@@ -627,18 +522,6 @@ def main() -> None:
       len(unused_by_pathspec),
       pathspec,
     )
-
-  # Check java resources image files.
-  logger.info('Looking for usages by java or android resources...')
-  path_patterns = [r'/res\w*/(drawable|mipmap)']
-  for path_pattern in path_patterns:
-    used_java_res_png_files, unused_java_res_png_files = (
-      filter_usages_of_java_res(all_png_files, path_pattern=path_pattern)
-    )
-    used_png_files |= used_java_res_png_files
-    png_files -= used_png_files
-    likely_unused_png_files |= unused_java_res_png_files
-    png_files -= likely_unused_png_files
 
   logger.info('Still have %d remaining files:', len(png_files))
   pprint.pprint(sorted(png_files))

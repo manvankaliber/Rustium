@@ -5,11 +5,6 @@
 import("//build/config/features.gni")
 import("//testing/libfuzzer/fuzzer_test.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-  import("//third_party/jni_zero/jni_zero.gni")
-}
-
 source_set("hid") {
   sources = [
     "hid_collection.cc",
@@ -45,7 +40,7 @@ source_set("hid") {
     "//third_party/protobuf:protobuf_lite",
   ]
 
-  if ((is_linux || is_chromeos) && use_udev) {
+  if (is_linux && use_udev) {
     sources += [
       "hid_connection_linux.cc",
       "hid_connection_linux.h",
@@ -55,10 +50,6 @@ source_set("hid") {
       "input_service_linux.h",
     ]
     deps += [ "//device/udev_linux" ]
-  }
-
-  if (is_chromeos) {
-    deps += [ "//chromeos/dbus/permission_broker" ]
   }
 
   if (is_win) {
@@ -82,38 +73,6 @@ source_set("hid") {
       "hid_connection_mac.h",
       "hid_service_mac.cc",
       "hid_service_mac.h",
-    ]
-  }
-
-  if (is_android) {
-    sources += [
-      "hid_connection_android.cc",
-      "hid_connection_android.h",
-      "hid_service_android.cc",
-      "hid_service_android.h",
-    ]
-    deps += [ ":jni_headers" ]
-  }
-}
-
-if (is_android) {
-  java_sources_needing_jni = [
-    "android/java/src/org/chromium/device/hid/ChromeHidConnection.java",
-    "android/java/src/org/chromium/device/hid/ChromeHidManager.java",
-  ]
-
-  generate_jni("jni_headers") {
-    sources = java_sources_needing_jni
-  }
-
-  android_library("java") {
-    srcjar_deps = [ ":jni_headers" ]
-    sources = java_sources_needing_jni
-    deps = [
-      "//base:base_java",
-      "//base:flagged_apis_java",
-      "//third_party/androidx:androidx_annotation_annotation_java",
-      "//third_party/jni_zero:jni_zero_java",
     ]
   }
 }

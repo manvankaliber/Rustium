@@ -53,10 +53,6 @@
 #include "third_party/blink/renderer/platform/widget/widget_base_client.h"
 #include "ui/latency/latency_info.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "third_party/blink/renderer/platform/widget/compositing/android_webview/synchronous_compositor_registry.h"
-#include "third_party/blink/renderer/platform/widget/input/synchronous_compositor_proxy.h"
-#endif
 
 namespace blink {
 
@@ -174,79 +170,6 @@ void SuppressEvent(
 
 }  // namespace
 
-#if BUILDFLAG(IS_ANDROID)
-class SynchronousCompositorProxyRegistry
-    : public SynchronousCompositorRegistry {
- public:
-  explicit SynchronousCompositorProxyRegistry(
-      scoped_refptr<base::SingleThreadTaskRunner> compositor_task_runner,
-      base::PlatformThreadId io_thread_id,
-      base::PlatformThreadId main_thread_id)
-      : compositor_thread_default_task_runner_(
-            std::move(compositor_task_runner)),
-        io_thread_id_(io_thread_id),
-        main_thread_id_(main_thread_id) {}
-
-  ~SynchronousCompositorProxyRegistry() override {
-    // Ensure the proxy has already been release on the compositor thread
-    // before destroying this object.
-    DCHECK(!proxy_);
-  }
-
-  void CreateProxy(InputHandlerProxy* handler) {
-    DCHECK(compositor_thread_default_task_runner_->BelongsToCurrentThread());
-    proxy_ = std::make_unique<SynchronousCompositorProxy>(handler);
-
-    proxy_->Init();
-
-    if (base::FeatureList::IsEnabled(::features::kWebViewEnableADPF)) {
-      Vector<viz::Thread> renderer_threads;
-      renderer_threads.push_back(viz::Thread{base::PlatformThread::CurrentId(),
-                                             viz::Thread::Type::kCompositor});
-      if (io_thread_id_ != base::kInvalidThreadId) {
-        renderer_threads.push_back(
-            viz::Thread{io_thread_id_, viz::Thread::Type::kIO});
-      }
-      proxy_->SetThreads(renderer_threads);
-    }
-
-    if (sink_)
-      proxy_->SetLayerTreeFrameSink(sink_);
-  }
-
-  SynchronousCompositorProxy* Proxy() { return proxy_.get(); }
-
-  void RegisterLayerTreeFrameSink(
-      SynchronousLayerTreeFrameSink* layer_tree_frame_sink) override {
-    DCHECK(compositor_thread_default_task_runner_->BelongsToCurrentThread());
-    DCHECK_EQ(nullptr, sink_);
-    sink_ = layer_tree_frame_sink;
-    if (proxy_)
-      proxy_->SetLayerTreeFrameSink(layer_tree_frame_sink);
-  }
-
-  void UnregisterLayerTreeFrameSink(
-      SynchronousLayerTreeFrameSink* layer_tree_frame_sink) override {
-    DCHECK(compositor_thread_default_task_runner_->BelongsToCurrentThread());
-    DCHECK_EQ(layer_tree_frame_sink, sink_);
-    sink_ = nullptr;
-  }
-
-  void DestroyProxy() {
-    DCHECK(compositor_thread_default_task_runner_->BelongsToCurrentThread());
-    proxy_.reset();
-  }
-
- private:
-  scoped_refptr<base::SingleThreadTaskRunner>
-      compositor_thread_default_task_runner_;
-  std::unique_ptr<SynchronousCompositorProxy> proxy_;
-  raw_ptr<SynchronousLayerTreeFrameSink> sink_ = nullptr;
-  base::PlatformThreadId io_thread_id_;
-  base::PlatformThreadId main_thread_id_;
-};
-
-#endif
 
 scoped_refptr<WidgetInputHandlerManager> WidgetInputHandlerManager::Create(
     base::WeakPtr<WidgetBase> widget,
@@ -311,14 +234,6 @@ WidgetInputHandlerManager::WidgetInputHandlerManager(
           widget_scheduler_,
           /*allow_raf_aligned_input=*/!never_composited)),
       allow_scroll_resampling_(allow_scroll_resampling) {
-#if BUILDFLAG(IS_ANDROID)
-  if (compositor_thread_default_task_runner_) {
-    synchronous_compositor_registry_ =
-        std::make_unique<SynchronousCompositorProxyRegistry>(
-            compositor_thread_default_task_runner_, io_thread_id,
-            main_thread_id);
-  }
-#endif
 }
 
 void WidgetInputHandlerManager::OnFirstContentfulPaint() {
@@ -378,10 +293,6 @@ void WidgetInputHandlerManager::OnDevToolsSessionConnectionChanged(
 void WidgetInputHandlerManager::InitInputHandler() {
   DCHECK(main_thread_task_runner_->BelongsToCurrentThread());
   bool sync_compositing = false;
-#if BUILDFLAG(IS_ANDROID)
-  sync_compositing =
-      Platform::Current()->IsSynchronousCompositingEnabledForAndroidWebView();
-#endif
   uses_input_handler_ = true;
   base::OnceClosure init_closure = base::BindOnce(
       &WidgetInputHandlerManager::InitOnInputHandlingThread,
@@ -493,10 +404,6 @@ bool WidgetInputHandlerManager::RequestedMainFramePending() {
 
 void WidgetInputHandlerManager::WillShutdown() {
   DCHECK(InputThreadTaskRunner()->BelongsToCurrentThread());
-#if BUILDFLAG(IS_ANDROID)
-  if (synchronous_compositor_registry_)
-    synchronous_compositor_registry_->DestroyProxy();
-#endif
   input_handler_proxy_.reset();
   dropped_event_counts_timer_.reset();
 }
@@ -568,21 +475,6 @@ WidgetInputHandlerManager::GetVizWidgetInputHandlerHost() {
   return viz_host_;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void WidgetInputHandlerManager::AttachSynchronousCompositor(
-    mojo::PendingRemote<mojom::blink::SynchronousCompositorControlHost>
-        control_host,
-    mojo::PendingAssociatedRemote<mojom::blink::SynchronousCompositorHost> host,
-    mojo::PendingAssociatedReceiver<mojom::blink::SynchronousCompositor>
-        compositor_request) {
-  DCHECK(synchronous_compositor_registry_);
-  if (synchronous_compositor_registry_->Proxy()) {
-    synchronous_compositor_registry_->Proxy()->BindChannel(
-        std::move(control_host), std::move(host),
-        std::move(compositor_request));
-  }
-}
-#endif
 
 void WidgetInputHandlerManager::ObserveGestureEventOnMainThread(
     const WebGestureEvent& gesture_event,
@@ -929,12 +821,6 @@ void WidgetInputHandlerManager::InitOnInputHandlingThread(
   input_handler_proxy_ =
       std::make_unique<InputHandlerProxy>(*input_handler.get(), this);
 
-#if BUILDFLAG(IS_ANDROID)
-  if (sync_compositing) {
-    DCHECK(synchronous_compositor_registry_);
-    synchronous_compositor_registry_->CreateProxy(input_handler_proxy_.get());
-  }
-#endif
 }
 
 void WidgetInputHandlerManager::BindChannel(
@@ -1258,13 +1144,6 @@ WidgetInputHandlerManager::InputThreadTaskRunner(TaskRunnerType type) const {
   return main_thread_task_runner_;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-SynchronousCompositorRegistry*
-WidgetInputHandlerManager::GetSynchronousCompositorRegistry() {
-  DCHECK(synchronous_compositor_registry_);
-  return synchronous_compositor_registry_.get();
-}
-#endif
 
 void WidgetInputHandlerManager::ClearClient() {
   DCHECK(main_thread_task_runner_->BelongsToCurrentThread());

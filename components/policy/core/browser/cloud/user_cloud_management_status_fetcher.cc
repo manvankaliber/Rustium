@@ -104,31 +104,25 @@ ExtractProfileSeparationPolicies(
                     PolicyPerProfileFilter::kAny);
 
   std::optional<int> profile_separation_settings;
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
   if (const base::Value* v =
           GetMandatoryPolicyValue(policy_map, key::kProfileSeparationSettings,
                                   base::Value::Type::INTEGER)) {
     profile_separation_settings = v->GetInt();
   }
-#endif
 
   std::optional<int> profile_separation_data_migration_settings;
-#if !BUILDFLAG(IS_CHROMEOS)
   if (const base::Value* v = GetMandatoryPolicyValue(
           policy_map, key::kProfileSeparationDataMigrationSettings,
           base::Value::Type::INTEGER)) {
     profile_separation_data_migration_settings = v->GetInt();
   }
-#endif
 
   std::optional<std::string> managed_accounts_signin_restrictions;
-#if !BUILDFLAG(IS_IOS)
   if (const base::Value* v = GetMandatoryPolicyValue(
           policy_map, key::kManagedAccountsSigninRestriction,
           base::Value::Type::STRING)) {
     managed_accounts_signin_restrictions = v->GetString();
   }
-#endif
 
   return ProfileSeparationPolicies(
       profile_separation_settings, profile_separation_data_migration_settings,

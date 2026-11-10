@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//build/config/chromeos/args.gni")
 import("//build/toolchain/toolchain.gni")
 
 if (current_cpu == "arm" || current_cpu == "arm64") {
@@ -13,42 +12,14 @@ if (current_cpu == "mipsel" || current_cpu == "mips64el" ||
   import("//build/config/mips.gni")
 }
 
-if (target_os == "chromeos") {
-  declare_args() {
-    # Setting this value selects a specific CPU type among the broader
-    # class selected by target_cpu. For example, a build with
-    # target_cpu="arm64" may set cros_target_cpu_arch="armv8-a+crc+crypto").
-    cros_target_cpu_arch = ""
-  }
-}
-
 cpu_abi_cflags = []
 cpu_abi_ldflags = []
 cpu_abi_defines = []
 
-if (is_chromeos_device && is_chromeos) {
-  if (current_cpu == "x64") {
-    cros_target = "--target=x86_64-cros-linux-gnu"
-  } else if (current_cpu == "arm") {
-    cros_target = "--target=armv7a-cros-linux-gnueabihf"
-  } else if (current_cpu == "arm64") {
-    cros_target = "--target=aarch64-cros-linux-gnu"
-  } else {
-    assert(false, "add support for $current_cpu here")
-  }
-  cros_cpu_abi_asmflags = [ cros_target ]
-  cros_cpu_abi_cflags = [ cros_target ]
-  cros_cpu_abi_ldflags = [ cros_target ]
-  if (current_cpu == "x64") {
-    cros_cpu_abi_cflags += [ "-mno-movbe" ]
-    cros_cpu_abi_ldflags += [ "-mno-movbe" ]
-  }
-}
-
 if (is_posix && !is_apple) {
   # simplicity we always explicitly set the architecture.
   if (current_cpu == "x64") {
-    if (is_clang && !is_android && !is_chromeos_device) {
+    if (is_clang) {
       cpu_abi_cflags += [ "--target=x86_64-unknown-linux-gnu" ]
       cpu_abi_ldflags += [ "--target=x86_64-unknown-linux-gnu" ]
     } else {
@@ -56,13 +27,8 @@ if (is_posix && !is_apple) {
       cpu_abi_ldflags += [ "-m64" ]
     }
     cpu_abi_cflags += [ "-msse3" ]
-    if (target_os == "chromeos" && cros_target_cpu_arch != "" &&
-        is_a_target_toolchain) {
-      cpu_abi_cflags += [ "-march=$cros_target_cpu_arch" ]
-      cpu_abi_ldflags += [ "-march=$cros_target_cpu_arch" ]
-    }
   } else if (current_cpu == "x86") {
-    if (is_clang && !is_android && !is_chromeos_device) {
+    if (is_clang) {
       cpu_abi_cflags += [ "--target=i386-unknown-linux-gnu" ]
       cpu_abi_ldflags += [ "--target=i386-unknown-linux-gnu" ]
     } else {
@@ -74,7 +40,7 @@ if (is_posix && !is_apple) {
       "-msse3",
     ]
   } else if (current_cpu == "arm") {
-    if (is_clang && !is_android && !is_chromeos_device) {
+    if (is_clang) {
       cpu_abi_cflags += [ "--target=arm-linux-gnueabihf" ]
       cpu_abi_ldflags += [ "--target=arm-linux-gnueabihf" ]
     }
@@ -83,26 +49,16 @@ if (is_posix && !is_apple) {
       "-mfloat-abi=$arm_float_abi",
     ]
   } else if (current_cpu == "arm64") {
-    if (is_clang && !is_android && !is_chromeos_device) {
+    if (is_clang) {
       cpu_abi_cflags += [ "--target=aarch64-linux-gnu" ]
       cpu_abi_ldflags += [ "--target=aarch64-linux-gnu" ]
-    }
-    if (target_os == "chromeos" && cros_target_cpu_arch != "" &&
-        is_a_target_toolchain) {
-      cpu_abi_cflags += [ "-march=$cros_target_cpu_arch" ]
-      cpu_abi_ldflags += [ "-march=$cros_target_cpu_arch" ]
     }
   } else if (current_cpu == "mipsel") {
     cpu_abi_ldflags += [ "-Wl,--hash-style=sysv" ]
     if (custom_toolchain == "") {
       if (is_clang) {
-        if (is_android) {
-          cpu_abi_cflags += [ "--target=mipsel-linux-android" ]
-          cpu_abi_ldflags += [ "--target=mipsel-linux-android" ]
-        } else {
-          cpu_abi_cflags += [ "--target=mipsel-linux-gnu" ]
-          cpu_abi_ldflags += [ "--target=mipsel-linux-gnu" ]
-        }
+        cpu_abi_cflags += [ "--target=mipsel-linux-gnu" ]
+        cpu_abi_ldflags += [ "--target=mipsel-linux-gnu" ]
       } else {
         cpu_abi_cflags += [ "-EL" ]
         cpu_abi_ldflags += [ "-EL" ]
@@ -122,9 +78,6 @@ if (is_posix && !is_apple) {
           "-mips32r6",
           "-Wa,-mips32r6",
         ]
-        if (is_android) {
-          cpu_abi_ldflags += [ "-Wl,-melf32ltsmip" ]
-        }
       }
       if (mips_use_msa == true) {
         cpu_abi_cflags += [
@@ -227,13 +180,8 @@ if (is_posix && !is_apple) {
     cpu_abi_ldflags += [ "-Wl,--hash-style=sysv" ]
     if (custom_toolchain == "") {
       if (is_clang) {
-        if (is_android) {
-          cpu_abi_cflags += [ "--target=mips64el-linux-android" ]
-          cpu_abi_ldflags += [ "--target=mips64el-linux-android" ]
-        } else {
-          cpu_abi_cflags += [ "--target=mips64el-linux-gnuabi64" ]
-          cpu_abi_ldflags += [ "--target=mips64el-linux-gnuabi64" ]
-        }
+        cpu_abi_cflags += [ "--target=mips64el-linux-gnuabi64" ]
+        cpu_abi_ldflags += [ "--target=mips64el-linux-gnuabi64" ]
       } else {
         cpu_abi_cflags += [
           "-EL",
@@ -341,7 +289,7 @@ if (is_posix && !is_apple) {
       cpu_abi_ldflags += [ "-m64" ]
     }
   } else if (current_cpu == "riscv64") {
-    if (is_clang && !is_android) {
+    if (is_clang) {
       cpu_abi_cflags += [ "--target=riscv64-linux-gnu" ]
       cpu_abi_ldflags += [ "--target=riscv64-linux-gnu" ]
     }

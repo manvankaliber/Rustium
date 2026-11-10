@@ -45,9 +45,7 @@ class ReferenceSignalProvider;
 class VoiceIsolationHandler;
 
 // Only do power monitoring for non-mobile platforms to save resources.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 #define AUDIO_POWER_MONITORING
-#endif
 
 // All public methods of InputController must be called from the audio thread.
 //

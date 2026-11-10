@@ -174,10 +174,6 @@ class MockSpellCheckHost : spellcheck::mojom::SpellCheckHost {
 #endif  // BUILDFLAG(IS_WIN)
 #endif  // BUILDFLAG(USE_BROWSER_SPELLCHECKER)
 
-#if BUILDFLAG(IS_ANDROID)
-  // spellcheck::mojom::SpellCheckHost:
-  void DisconnectSessionBridge() override {}
-#endif
 
   raw_ptr<content::RenderProcessHost> process_host_;
   bool text_received_ = false;

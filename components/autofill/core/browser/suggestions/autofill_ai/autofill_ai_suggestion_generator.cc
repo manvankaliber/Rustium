@@ -417,12 +417,6 @@ std::vector<const EntityInstance*> DedupedEntitiesForSuggestions(
 Suggestion::Icon GetSuggestionIcon(
     EntityType trigger_entity_type,
     EntityInstance::RecordType trigger_entity_record_type) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  if (base::FeatureList::IsEnabled(
-          features::kAutofillAiNoFillingIconsExperiment)) {
-    return Suggestion::Icon::kNoIcon;
-  }
-#endif
   const bool is_personal_context = trigger_entity_record_type ==
                                    EntityInstance::RecordType::kPersonalContext;
   switch (trigger_entity_type.name()) {
@@ -527,7 +521,6 @@ bool CanFillSomeField(const EntityInstance& entity,
       });
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 using EntityPayload = EntityInstance::PersonalContextRecordTypePayload;
 using SourceType = EntityPayload::Source::Type;
 
@@ -744,7 +737,6 @@ std::vector<Suggestion> CreateAmbientAutofillSubMenu(
   }
   return submenu;
 }
-#endif
 
 Suggestion GetSuggestionForEntity(
     const FormStructure& form,
@@ -767,11 +759,9 @@ Suggestion GetSuggestionForEntity(
   Suggestion suggestion =
       Suggestion(main_text, SuggestionType::kFillAutofillAi);
   suggestion.labels = {{Suggestion::Text(std::move(label))}};
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (entity.record_type() == EntityInstance::RecordType::kPersonalContext) {
     suggestion.children = CreateAmbientAutofillSubMenu(entity);
   }
-#endif
 
   const bool requires_server_fetch = WillRequireServerFetch(
       entity, form, trigger_field.field->section(), app_locale);
@@ -962,14 +952,9 @@ std::vector<Suggestion> CreateFetchingAmbientSuggestions() {
 
 // The Personal Context Notice suggestion is only supported on Desktop.
 constexpr bool IsPersonalContextNoticeSuggestionSupported() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return false;
-#else
   return true;
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Creates an unselectable section title suggestion for Personal Context
 // suggestions.
 Suggestion CreatePersonalContextSectionTitle() {
@@ -981,7 +966,6 @@ Suggestion CreatePersonalContextSectionTitle() {
       Suggestion::Acceptability::kUnselectableAndUnacceptable;
   return suggestion;
 }
-#endif
 
 // Returns a list of `Suggestion` generated for the given
 // `entities_to_suggest`.
@@ -1036,7 +1020,6 @@ std::vector<Suggestion> CreateSuggestionsForEntities(
         std::move(label), client.GetAppLocale()));
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   auto it = std::ranges::find_if(
       entities_to_suggest, [](const EntityInstance& entity) {
         return entity.record_type() ==
@@ -1047,7 +1030,6 @@ std::vector<Suggestion> CreateSuggestionsForEntities(
         suggestions.begin() + std::distance(entities_to_suggest.begin(), it),
         CreatePersonalContextSectionTitle());
   }
-#endif
 
   return suggestions;
 }

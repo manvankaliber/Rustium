@@ -88,15 +88,6 @@ void WebThreadScheduler::SetRendererBackgrounded(bool backgrounded) {
   NOTREACHED();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void WebThreadScheduler::PauseTimersForAndroidWebView() {
-  NOTREACHED();
-}
-
-void WebThreadScheduler::ResumeTimersForAndroidWebView() {
-  NOTREACHED();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void WebThreadScheduler::OnUrgentMessageReceived() {
   NOTREACHED();

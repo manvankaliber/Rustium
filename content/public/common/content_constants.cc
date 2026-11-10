@@ -42,7 +42,7 @@ std::string GetCorsExemptRequestedWithHeaderName() {
   return base::JoinString(pieces, "-");
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 const int kLowestRendererOomScore = 300;
 const int kHighestRendererOomScore = 1000;
 
@@ -62,9 +62,6 @@ static_assert(kMiscOomScore > 0, "kMiscOomScore should be greater than 0");
 static_assert(kPluginOomScore > 0, "kPluginOomScore should be greater than 0");
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-const int kAndroidMinimumTabletWidthDp = 600;
-#endif
 
 const base::FilePath::CharType kDevToolsActivePortFileName[] =
     FILE_PATH_LITERAL("DevToolsActivePort");

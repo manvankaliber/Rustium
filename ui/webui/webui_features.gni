@@ -8,6 +8,9 @@ import("//build/config/coverage/coverage.gni")
 import("//build/config/sanitizers/sanitizers.gni")
 import("//extensions/buildflags/buildflags.gni")
 
+# Kept false for shared build manifests after platform retirement.
+enable_webui_tabstrip_ntb = false
+
 declare_args() {
   # Optimize parts of Chrome's UI written with web technologies (HTML/CSS/JS)
   # for runtime performance purposes. This does more work at compile time for
@@ -34,45 +37,31 @@ declare_args() {
   # Enable the native TypeScript compiler (tsgo) instead of the JS-based one.
   # TODO(crbug.com/423789047): Remove this flag once fully committed to v7.
   use_typescript_go = true
-
-  # Enable the WebUI tab strip new tab button
-  # (chrome://tabstrip-ntb.top-chrome).
-  enable_webui_tabstrip_ntb = is_android
 }
 
-if (enable_cast_receiver || is_cast_android || is_castos) {
-  enable_webui_bookmarks = false
-  enable_webui_history = false
-  enable_webui_ntp = false
-  enable_webui_contextual_tasks_composebox = false
-} else {
-  declare_args() {
-    # Enable the WebUI version of the Bookmarks page.
-    enable_webui_bookmarks =
-        target_os == "win" || target_os == "mac" || target_os == "linux" ||
-        target_os == "chromeos" || is_desktop_android
+declare_args() {
+  # Enable the WebUI version of the Bookmarks page.
+  enable_webui_bookmarks =
+      target_os == "win" || target_os == "mac" || target_os == "linux"
 
-    # Enable the WebUI version of the History page.
-    enable_webui_history =
-        target_os == "win" || target_os == "mac" || target_os == "linux" ||
-        target_os == "chromeos" || is_desktop_android
+  # Enable the WebUI version of the History page.
+  enable_webui_history =
+      target_os == "win" || target_os == "mac" || target_os == "linux"
 
-    # Enable the WebUI version of the New Tab Page.
-    enable_webui_ntp =
-        target_os == "win" || target_os == "mac" || target_os == "linux" ||
-        target_os == "chromeos" || is_desktop_android
-  }
+  # Enable the WebUI version of the New Tab Page.
+  enable_webui_ntp =
+      target_os == "win" || target_os == "mac" || target_os == "linux"
+}
 
-  declare_args() {
-    # Enable WebUI Contextual Tasks Composebox.
-    # TODO(crbug.com/527601593): Revert to only enable for desktop_android if we
-    # want to disable composebox on Android phones.
-    enable_webui_contextual_tasks_composebox = enable_webui_ntp || is_android
-  }
-  if (enable_webui_ntp) {
-    # NTP relies on chrome.metricsPrivate, which is an extensions API.
-    assert(enable_extensions_core)
-  }
+declare_args() {
+  # Enable WebUI Contextual Tasks Composebox.
+  # TODO(crbug.com/527601593): Revert to only enable for desktop_android if we
+  # want to disable composebox on Android phones.
+  enable_webui_contextual_tasks_composebox = enable_webui_ntp
+}
+if (enable_webui_ntp) {
+  # NTP relies on chrome.metricsPrivate, which is an extensions API.
+  assert(enable_extensions_core)
 }
 
 # Build-time WebUI code caching is only used in optimize_webui builds. When the
@@ -110,6 +99,5 @@ if (is_mac && enable_webui_generate_code_cache) {
 }
 
 if (load_webui_from_disk) {
-  assert(is_linux || is_mac || is_win || is_chromeos,
-         "load_webui_from_disk not available")
+  assert(is_linux || is_mac || is_win, "load_webui_from_disk not available")
 }

@@ -53,10 +53,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "ui/base/device_form_factor.h"
-#endif
 
 namespace {
 
@@ -199,7 +195,7 @@ void PrerenderBrowserTest::TestPrerenderAndActivateInNewTab(
 // An end-to-end test of prerendering in a new tab and activating.
 // Disabled on Android due to failures: https://crbug.com/355255740.
 // TODO(crbug.com/556255865): Flaky on Mac.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_PrerenderAndActivate_InNewTab \
   DISABLED_PrerenderAndActivate_InNewTab
 #else
@@ -212,7 +208,7 @@ IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest,
 
 // Disabled on Android due to failures: https://crbug.com/355255740.
 // TODO(crbug.com/556255865): Flaky on Mac.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_PrerenderAndActivate_InNewTab_Noopener \
   DISABLED_PrerenderAndActivate_InNewTab_Noopener
 #else
@@ -228,13 +224,8 @@ IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest,
 // Prerendering in a new tab should not be activate for a new window with an
 // opener.
 // The test is flaky on android-12l-x64-dbg-tests: https://crbug.com/40935364.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PrerenderAndActivate_InNewTab_Opener \
-  DISABLED_PrerenderAndActivate_InNewTab_Opener
-#else
 #define MAYBE_PrerenderAndActivate_InNewTab_Opener \
   PrerenderAndActivate_InNewTab_Opener
-#endif  // #if BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_X86)
 IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest,
                        MAYBE_PrerenderAndActivate_InNewTab_Opener) {
   TestPrerenderAndActivateInNewTab("clickSameSiteNewWindowWithOpenerLink();",
@@ -249,11 +240,7 @@ IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest,
 
 // Tests main frame navigation on a prerendered page in a new tab.
 // Disabled on Android due to failures: https://crbug.com/355255740.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_MainFrameNavigation_InNewTab DISABLED_MainFrameNavigation_InNewTab
-#else
 #define MAYBE_MainFrameNavigation_InNewTab MainFrameNavigation_InNewTab
-#endif
 IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest,
                        MAYBE_MainFrameNavigation_InNewTab) {
   base::HistogramTester histogram_tester;
@@ -323,13 +310,6 @@ IN_PROC_BROWSER_TEST_F(PrerenderUntilScriptBrowserTest, UseCounter) {
 
 IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest,
                        PrerenderTriggeredByEmbedderAndActivate) {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/576393693): Prerender activation fails with
-  // kActivationNavigationParameterMismatch on Android tablets.
-  if (ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_TABLET) {
-    GTEST_SKIP() << "Prerender activation fails on Android tablets.";
-  }
-#endif
   base::HistogramTester histogram_tester;
 
   // Navigate to an initial page.
@@ -491,21 +471,10 @@ IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest, DisableNetworkPrediction) {
 }
 
 // TODO(https://crbug.com/455854991): Failing on Android tablets.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PreloadingHoldbackOverridden DISABLED_PreloadingHoldbackOverridden
-#else
 #define MAYBE_PreloadingHoldbackOverridden PreloadingHoldbackOverridden
-#endif
 // Tests that DevTools open overrides PreloadingConfig's holdback.
 IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest,
                        MAYBE_PreloadingHoldbackOverridden) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::android_info::sdk_int() >=
-          base::android::android_info::SDK_VERSION_U &&
-      ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_DESKTOP) {
-    GTEST_SKIP() << "Disabled on Android U+ tablets due to crbug.com/393195683";
-  }
-#endif
   prerender_helper().SetHoldback("Prerender", "SpeculationRules", true);
   base::HistogramTester histogram_tester;
 
@@ -1090,13 +1059,8 @@ IN_PROC_BROWSER_TEST_F(PrerenderPrewarmDefaultSearchEngineTest,
 }
 
 // TODO(https://crbug.com/455856004): Failing on Android tablets.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PrewarmPrerenderReuseThenActivate \
-  DISABLED_PrewarmPrerenderReuseThenActivate
-#else
 #define MAYBE_PrewarmPrerenderReuseThenActivate \
   PrewarmPrerenderReuseThenActivate
-#endif
 IN_PROC_BROWSER_TEST_F(PrerenderPrewarmDefaultSearchEngineTest,
                        MAYBE_PrewarmPrerenderReuseThenActivate) {
   // Navigate to an initial page.
@@ -1518,7 +1482,6 @@ IN_PROC_BROWSER_TEST_F(PrerenderPrewarmDefaultSearchEngineTest,
 // (Android uses a separate `TabFeatures` implementation in
 // `chrome/browser/android/tab_features.cc` and a native Java view for NTP,
 // which are wired up in a follow-up CL).
-#if !BUILDFLAG(IS_ANDROID)
 class FirstVisuallyNonEmptyPaintObserver : public content::WebContentsObserver {
  public:
   explicit FirstVisuallyNonEmptyPaintObserver(
@@ -1639,7 +1602,6 @@ IN_PROC_BROWSER_TEST_F(
   registry_observer3.WaitForTrigger(prewarm_url_);
   EXPECT_TRUE(prerender_manager->HasSearchPrewarmTaskForTesting());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest,
                        PrerenderFormSubmissionUseCounter) {
@@ -1708,14 +1670,6 @@ IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest, HTTPFormActivation) {
 
 // Verifies that a search form will not be blocked.
 IN_PROC_BROWSER_TEST_F(PrerenderBrowserTest, SearchableFormActivation) {
-#if BUILDFLAG(IS_ANDROID)
-  // Prerender activation times out on Android tablets / large screens.
-  if (ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_TABLET ||
-      ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_DESKTOP) {
-    GTEST_SKIP() << "Prerender activation times out on Android tablets and "
-                    "large screens.";
-  }
-#endif
   base::HistogramTester histogram_tester;
 
   // Navigate to an initial page.

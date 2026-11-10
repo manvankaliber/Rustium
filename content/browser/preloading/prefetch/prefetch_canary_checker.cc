@@ -26,10 +26,6 @@
 #include "services/network/public/cpp/network_connection_tracker.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "net/android/network_library.h"
-#include "net/base/network_interfaces.h"
-#endif
 
 namespace content {
 namespace {
@@ -85,16 +81,6 @@ std::string GenerateNetworkID(
 
 // Further identify WiFi and cell connections. These calls are only supported
 // for Android devices.
-#if BUILDFLAG(IS_ANDROID)
-  if (connection_type ==
-      net::NetworkChangeNotifier::ConnectionType::CONNECTION_WIFI) {
-    return base::StrCat({id, ",", net::GetWifiSSID()});
-  }
-
-  if (is_cellular) {
-    return base::StrCat({id, ",", net::android::GetTelephonyNetworkOperator()});
-  }
-#endif
 
   return id;
 }

@@ -9,7 +9,7 @@
 #include <string>
 #include <utility>
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "base/feature_list.h"
 #include "base/functional/bind.h"
 #include "base/functional/callback.h"
@@ -456,12 +456,12 @@ void ProfileMenuView::OnOtherProfileSelected(
     const webapps::AppId& app_id =
         web_app::AppBrowserController::From(&browser())->app_id();
 #if BUILDFLAG(IS_MAC)
-    if (app_id != ash::kPasswordManagerAppId) {
+    if (app_id != webapps::kPasswordManagerAppId) {
       apps::AppShimManager::Get()->LaunchAppInProfile(app_id, profile_path);
       return;
     }
 #endif
-    CHECK_EQ(app_id, ash::kPasswordManagerAppId);
+    CHECK_EQ(app_id, webapps::kPasswordManagerAppId);
 
     app_profile_switcher_.emplace(
         app_id, profile(),
@@ -1244,7 +1244,7 @@ void ProfileMenuView::GetProfilesForOtherProfilesSection(
   const bool is_regular_web_app =
       web_app::AppBrowserController::IsWebApp(&browser()) &&
       web_app::AppBrowserController::From(&browser())->app_id() !=
-          ash::kPasswordManagerAppId;
+          webapps::kPasswordManagerAppId;
   std::set<base::FilePath> available_profile_paths;
   if (is_regular_web_app) {
     available_profile_paths =

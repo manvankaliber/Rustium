@@ -331,8 +331,6 @@ def main(argv):
     assert substitutions
 
     template = _TEMPLATE_MAP[metadata['type']]
-    if args.is_ios and metadata['type'] == 'vars-lit':
-      template = _LIT_VARS_IOS_TEMPLATE
 
     wrapper = template % substitutions
 

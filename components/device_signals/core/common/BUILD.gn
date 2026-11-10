@@ -5,15 +5,6 @@
 import("//build/config/features.gni")
 import("//build/config/ui.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-
-  # Exposes device_signals::SettingValue to Java.
-  java_cpp_enum("java_enums") {
-    sources = [ "common_types.h" ]
-  }
-}
-
 static_library("common") {
   public = [
     "cached_signal.h",
@@ -50,7 +41,7 @@ static_library("common") {
     ]
   }
 
-  if (is_mac || is_linux || is_chromeos) {
+  if (is_mac || is_linux) {
     sources += [ "posix/platform_utils_posix.cc" ]
   }
 
@@ -59,13 +50,11 @@ static_library("common") {
     deps += [ ":features" ]
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     if (use_glib) {
       deps += [ "//ui/base/glib" ]
     }
-    if (is_chromeos) {
-      deps += [ "//chromeos/dbus/power" ]
-    }
+
     sources += [ "linux/platform_utils_linux.cc" ]
   }
 
@@ -90,7 +79,7 @@ source_set("unit_tests") {
   sources = []
   deps = []
 
-  if (is_win || is_mac || is_linux || is_chromeos) {
+  if (is_win || is_mac || is_linux) {
     sources += [ "platform_utils_unittest.cc" ]
 
     deps += [

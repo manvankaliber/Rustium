@@ -286,12 +286,10 @@ void GlicSkillsManagerImpl::OnActiveTabChanged(tabs::TabInterface* tab) {
 void GlicSkillsManagerImpl::NotifyPanelOpenedOrActivated() {
   // NEEDS_ANDROID_IMPL: (crbug.com/477622144) Remove desktop-only
   // restrictions from Skills backend.
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
   if (skills::SkillsServiceFactory::IsSkillsEnabledForProfile(&*profile_)) {
     skills::SkillsServiceFactory::GetForProfile(&*profile_)
         ->RefreshDiscoverySkills();
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void GlicSkillsManagerImpl::NotifyContextualSkillsChanged(

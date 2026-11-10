@@ -261,7 +261,7 @@ void CheckStableMemoryMetrics(const base::HistogramTester& histogram_tester,
       count;
 #endif
   const int count_for_private_swap_footprint =
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
       count;
 #else
       0;
@@ -600,9 +600,7 @@ IN_PROC_BROWSER_TEST_F(ProcessMemoryMetricsEmitterTest,
 // TODO(crbug.com/41474189): Re-enable on Win, Linux, and Mac once not
 // flaky.
 #if BUILDFLAG(ENABLE_EXTENSIONS)
-#if defined(ADDRESS_SANITIZER) || defined(MEMORY_SANITIZER) ||            \
-    BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if defined(ADDRESS_SANITIZER) || defined(MEMORY_SANITIZER) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 #define MAYBE_FetchAndEmitMetricsWithExtensions \
   DISABLED_FetchAndEmitMetricsWithExtensions
 #else
@@ -792,9 +790,7 @@ IN_PROC_BROWSER_TEST_F(ProcessMemoryMetricsEmitterTest,
 
 // Test is flaky on chromeos and linux. https://crbug.com/41444813.
 // Test is flaky on mac and win: https://crbug.com/40621250.
-#if defined(ADDRESS_SANITIZER) || defined(MEMORY_SANITIZER) ||            \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if defined(ADDRESS_SANITIZER) || defined(MEMORY_SANITIZER) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #define MAYBE_ForegroundAndBackgroundPages DISABLED_ForegroundAndBackgroundPages
 #else
 #define MAYBE_ForegroundAndBackgroundPages ForegroundAndBackgroundPages

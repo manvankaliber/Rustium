@@ -83,7 +83,6 @@
 #include "ui/gfx/image/image_unittest_util.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/context_hub/memory_banks_shortcut.h"
 #include "chrome/browser/context_hub/record_replay/skill_recording_service.h"  // nogncheck
 #include "chrome/browser/context_hub/record_replay/skill_recording_service_factory.h"  // nogncheck
@@ -108,7 +107,6 @@
 #include "ui/base/clipboard/test/test_clipboard.h"      // nogncheck
 #include "ui/events/event_constants.h"
 #include "ui/events/keycodes/keyboard_codes.h"
-#endif
 
 namespace context_hub {
 namespace {
@@ -122,7 +120,6 @@ using ::testing::FieldsAre;
 using ::testing::IsEmpty;
 using ::testing::Not;
 
-#if !BUILDFLAG(IS_ANDROID)
 class MockTabProvider : public ContextHubPageHandler::TabProvider {
  public:
   MOCK_METHOD(std::vector<content::WebContents*>, GetTabs, (), (override));
@@ -153,7 +150,6 @@ class MockTabProvider : public ContextHubPageHandler::TabProvider {
               (browser::context_hub::mojom::TopicIdOrUrlPtr),
               (override));
 };
-#endif
 
 class MockHistoryService : public history::HistoryService {
  public:
@@ -283,7 +279,6 @@ class ContextHubPageHandlerTest : public testing::Test {
     profile_.GetPrefs()->SetTime(prefs::kContextHubLastAutoTodosGenerationTime,
                                  base::Time::Now());
 
-#if !BUILDFLAG(IS_ANDROID)
     ui::TestClipboard::CreateForCurrentThread();
 
     // Override DIR_TEMP before constructing the handler so
@@ -299,20 +294,12 @@ class ContextHubPageHandlerTest : public testing::Test {
         mock_page_.BindAndGetRemote(),
         mojo::PendingReceiver<browser::context_hub::mojom::PageHandler>(),
         &profile_, nullptr, std::move(mock_tab_provider));
-#else
-    handler_ = std::make_unique<ContextHubPageHandler>(
-        mock_page_.BindAndGetRemote(),
-        mojo::PendingReceiver<browser::context_hub::mojom::PageHandler>(),
-        &profile_, nullptr, nullptr);
-#endif
     mock_page_.Flush();
   }
 
   void TearDown() override {
-#if !BUILDFLAG(IS_ANDROID)
     ui::Clipboard::DestroyClipboardForCurrentThread();
     mock_tab_provider_ = nullptr;
-#endif
     handler_.reset();
     testing::Test::TearDown();
   }
@@ -326,10 +313,8 @@ class ContextHubPageHandlerTest : public testing::Test {
          browser::context_hub::mojom::kAutoTodos,
          browser::context_hub::mojom::kSmartSearch,
          browser::context_hub::mojom::kTopics,
-#if !BUILDFLAG(IS_ANDROID)
          browser::context_hub::mojom::kMemoryBanksSearchPalette,
          browser::context_hub::mojom::kRecordReplay,
-#endif
          optimization_guide::features::kOptimizationHints},
         {});
     return feature_list;
@@ -361,11 +346,9 @@ class ContextHubPageHandlerTest : public testing::Test {
     EnsureFactories() { ContextHubServiceFactory::GetInstance(); }
   } ensure_factories_;
   TestingProfile profile_;
-#if !BUILDFLAG(IS_ANDROID)
   raw_ptr<MockTabProvider> mock_tab_provider_ = nullptr;
   base::ScopedTempDir scoped_temp_dir_;
   std::unique_ptr<base::ScopedPathOverride> temp_dir_override_;
-#endif
   MockPage mock_page_;
   std::unique_ptr<ContextHubPageHandler> handler_;
 };
@@ -1170,7 +1153,6 @@ TEST_F(ContextHubPageHandlerTest, GetAutoTodos_ReturnsLastGenerationTimes) {
   ASSERT_EQ(after_fp.size(), 1u);
   EXPECT_EQ(after_fp[0].title, "Generated Todo");
 
-#if !BUILDFLAG(IS_ANDROID)
   // 2. Generate Third-Party Auto Todos via ContextHubService.
   EXPECT_CALL(*mock_tab_provider_, GetTabs())
       .WillOnce(testing::Return(std::vector<content::WebContents*>{}));
@@ -1196,7 +1178,6 @@ TEST_F(ContextHubPageHandlerTest, GetAutoTodos_ReturnsLastGenerationTimes) {
   EXPECT_FALSE(final_fp_metadata.has_error);
   EXPECT_EQ(final_tp_metadata.last_generation_time, tp_generation_time);
   EXPECT_FALSE(final_tp_metadata.has_error);
-#endif
 }
 
 TEST_F(ContextHubPageHandlerTest, GetAutoTodos_ReturnsGenerationErrors) {
@@ -1931,7 +1912,6 @@ TEST_F(ContextHubPageHandlerTest, GetAllMemoryBankCollections_Success) {
   EXPECT_THAT(coll_future.Get(), testing::ElementsAre("Recipes", "Research"));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextHubPageHandlerTest, SwitchToTab) {
   EXPECT_CALL(*mock_tab_provider_, SwitchToTab(42)).Times(1);
 
@@ -2343,7 +2323,6 @@ TEST_F(ContextHubPageHandlerTest, GenerateTabBasedTodos) {
   handler_->GenerateTabBasedTodos(future.GetCallback());
   EXPECT_TRUE(future.Get());
 }
-#endif
 
 TEST_F(ContextHubPageHandlerTest, ClearTabGroupChatHistory) {
   ContextHubService* service =
@@ -2826,7 +2805,6 @@ TEST_F(ContextHubPageHandlerTest, CloseConfirmedTabGroup_InvalidGuid) {
   EXPECT_TRUE(future.Wait());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextHubPageHandlerTest, ConfirmAllTabGroups) {
   EXPECT_CALL(*mock_tab_provider_, ConfirmTabGroups(_))
       .WillOnce(testing::Return(true));
@@ -2887,7 +2865,6 @@ TEST_F(ContextHubPageHandlerTest, RemoveAllConfirmedTabGroups) {
   handler_->RemoveAllConfirmedTabGroups(future.GetCallback());
   EXPECT_TRUE(future.Wait());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ContextHubPageHandlerTest, GetSaveToMemoryBankContext_NotFound) {
   base::test::TestFuture<
@@ -3650,7 +3627,6 @@ TEST_F(ContextHubPageHandlerFaviconColorTest, ClampsLightness) {
   EXPECT_LT(hsl.l, 0.7);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextHubPageHandlerTest, OpenUrlsInTabGroup_OnlyOpensWebUrls) {
   std::vector<GURL> opened_urls;
   EXPECT_CALL(*mock_tab_provider_, OpenUrlsInTabGroup("Topic", _))
@@ -4915,7 +4891,6 @@ TEST_F(ContextHubPageHandlerTest, StartAndStopSkillRecording_ServiceDisabled) {
   ASSERT_TRUE(session_data);
   EXPECT_TRUE(session_data->actions.empty());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST(ContextHubUIConfigTest, IsWebUIEnabled) {
   content::BrowserTaskEnvironment task_environment;

@@ -49,12 +49,10 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/blink/public/common/features.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/test/base/ui_test_utils.h"
 #include "ui/base/mojom/window_open_disposition.mojom.h"
-#endif
 
 namespace language_detection {
 namespace {
@@ -389,7 +387,6 @@ IN_PROC_BROWSER_TEST_F(LanguageDetectionModelServiceBrowserTest,
 // `ui_test_utils::NavigateToURLWithDisposition`) that do not exist on Android.
 // TODO(crbug.com/40836720, crbug.com/40904444): Port to PlatformBrowserTest
 // when re-enabling these tests.
-#if !BUILDFLAG(IS_ANDROID)
 // TODO(crbug.com/40836720): Re-enable this test
 IN_PROC_BROWSER_TEST_F(LanguageDetectionModelServiceBrowserTest,
                        DISABLED_LanguageDetectionModelAvailableForDetection) {
@@ -459,7 +456,6 @@ IN_PROC_BROWSER_TEST_F(LanguageDetectionModelServiceBrowserTest,
   histogram_tester.ExpectBucketCount(
       "LanguageDetection.TFLiteModel.WasModelAvailableForDetection", true, 1);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(LanguageDetectionModelServiceBrowserTest,
                        ModelUpdateFromOptimizationGuide) {

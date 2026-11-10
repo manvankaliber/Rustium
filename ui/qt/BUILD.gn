@@ -12,7 +12,6 @@ import("//ui/qt/qt.gni")
 
 assert(use_qt)
 assert(is_linux)
-assert(!is_castos)
 
 config("qt_internal_config") {
   if (is_clang) {

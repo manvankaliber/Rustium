@@ -101,12 +101,6 @@ class MockXRDeviceHookBase : public device_test::mojom::XRTestHook {
   uint32_t GetFrameCount() { return frame_count_; }
   void WaitNumFrames(uint32_t num_frames);
   void WaitForTotalFrameCount(uint32_t total_count);
-#if BUILDFLAG(IS_ANDROID)
-  // Keeps the runtime from finishing its next session shutdown until
-  // ReleaseSessionShutdown(), so a test can act while a session shuts down.
-  void HoldSessionShutdown();
-  void ReleaseSessionShutdown();
-#endif
 
  protected:
   // This allows subclasses to update frame data (e.g. SetHeadPose) before
@@ -133,9 +127,6 @@ class MockXRDeviceHookBase : public device_test::mojom::XRTestHook {
       .interpupillary_distance = 0.1f};
 
  private:
-#if BUILDFLAG(IS_ANDROID)
-  base::OnceClosure held_session_shutdown_;
-#endif
   mojo::Receiver<device_test::mojom::XRTestHook> receiver_{this};
   std::atomic_bool can_create_session_ = true;
   std::atomic_uint32_t frame_count_ = 0;

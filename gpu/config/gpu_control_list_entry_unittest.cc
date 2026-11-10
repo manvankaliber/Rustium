@@ -21,12 +21,9 @@ namespace {
 constexpr auto kOsLinux = GpuControlList::kOsLinux;
 constexpr auto kOsMacosx = GpuControlList::kOsMacosx;
 constexpr auto kOsWin = GpuControlList::kOsWin;
-constexpr auto kOsChromeOS = GpuControlList::kOsChromeOS;
-constexpr auto kOsAndroid = GpuControlList::kOsAndroid;
 constexpr auto kOsAny = GpuControlList::kOsAny;
 
-constexpr GpuControlList::OsType kAllOsType[] = {kOsMacosx, kOsWin, kOsLinux,
-                                                 kOsChromeOS, kOsAndroid};
+constexpr GpuControlList::OsType kAllOsType[] = {kOsMacosx, kOsWin, kOsLinux};
 
 }  // namespace
 
@@ -93,8 +90,7 @@ TEST_F(GpuControlListEntryTest, VendorOnAllOsEntry) {
 TEST_F(GpuControlListEntryTest, VendorOnLinuxEntry) {
   const Entry& entry = GetEntry(kGpuControlListEntryTest_VendorOnLinuxEntry);
   EXPECT_EQ(kOsLinux, entry.conditions.os_type);
-  const GpuControlList::OsType os_types[] = {kOsMacosx, kOsWin, kOsChromeOS,
-                                             kOsAndroid};
+  const GpuControlList::OsType os_types[] = {kOsMacosx, kOsWin};
   for (auto os_type : os_types) {
     EXPECT_FALSE(entry.Contains(os_type, "10.6", gpu_info()));
   }
@@ -105,8 +101,7 @@ TEST_F(GpuControlListEntryTest, AllExceptNVidiaOnLinuxEntry) {
   const Entry& entry =
       GetEntry(kGpuControlListEntryTest_AllExceptNVidiaOnLinuxEntry);
   EXPECT_EQ(kOsLinux, entry.conditions.os_type);
-  const GpuControlList::OsType os_types[] = {kOsMacosx, kOsWin, kOsLinux,
-                                             kOsChromeOS, kOsAndroid};
+  const GpuControlList::OsType os_types[] = {kOsMacosx, kOsWin, kOsLinux};
   for (auto os_type : os_types) {
     EXPECT_FALSE(entry.Contains(os_type, "10.6", gpu_info()));
   }
@@ -116,8 +111,7 @@ TEST_F(GpuControlListEntryTest, AllExceptIntelOnLinuxEntry) {
   const Entry& entry =
       GetEntry(kGpuControlListEntryTest_AllExceptIntelOnLinuxEntry);
   EXPECT_EQ(kOsLinux, entry.conditions.os_type);
-  const GpuControlList::OsType os_types[] = {kOsMacosx, kOsWin, kOsChromeOS,
-                                             kOsAndroid};
+  const GpuControlList::OsType os_types[] = {kOsMacosx, kOsWin};
   for (auto os_type : os_types) {
     EXPECT_FALSE(entry.Contains(os_type, "10.6", gpu_info()));
   }
@@ -132,27 +126,24 @@ TEST_F(GpuControlListEntryTest, MultipleDevicesEntry) {
   }
 }
 
-TEST_F(GpuControlListEntryTest, ChromeOSEntry) {
-  const Entry& entry = GetEntry(kGpuControlListEntryTest_ChromeOSEntry);
-  EXPECT_EQ(kOsChromeOS, entry.conditions.os_type);
-  const GpuControlList::OsType os_types[] = {kOsMacosx, kOsWin, kOsLinux,
-                                             kOsAndroid};
-  for (auto os_type : os_types) {
-    EXPECT_FALSE(entry.Contains(os_type, "10.6", gpu_info()));
+TEST_F(GpuControlListEntryTest, GenericAnyOsEntry) {
+  const Entry& entry = GetEntry(kGpuControlListEntryTest_GenericAnyOsEntry);
+  EXPECT_EQ(kOsAny, entry.conditions.os_type);
+  for (auto os_type : kAllOsType) {
+    EXPECT_TRUE(entry.Contains(os_type, "10.6", gpu_info()));
   }
-  EXPECT_TRUE(entry.Contains(kOsChromeOS, "10.6", gpu_info()));
 }
 
 TEST_F(GpuControlListEntryTest, GlTypeEntry) {
   const Entry& entry = GetEntry(kGpuControlListEntryTest_GlTypeEntry);
   GPUInfo gpu_info;
   gpu_info.gl_renderer = "Mali-G52";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "4.4.2", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "4.4.2", gpu_info));
   gpu_info.gl_renderer = "ANGLE (ARM, Mali-G78, OpenGL ES 3.0)";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "10.9", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "10.9", gpu_info));
   gpu_info.gl_renderer =
       "ANGLE (ARM, Vulkan 1.3.247 (Mali-G52 (0x74021000)), Mali G52-44.1.0)";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "10.9", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "10.9", gpu_info));
 }
 
 TEST_F(GpuControlListEntryTest, GlVersionGLESEntry) {
@@ -160,27 +151,27 @@ TEST_F(GpuControlListEntryTest, GlVersionGLESEntry) {
   GPUInfo gpu_info;
   gpu_info.gl_renderer = "Mali-G78";
   gpu_info.gl_version = "OpenGL ES 3.0 V@66.0 AU@ (CL@)";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "4.4.2", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "4.4.2", gpu_info));
   gpu_info.gl_version = "OpenGL ES 3.0V@66.0 AU@ (CL@)";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "4.4.2", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "4.4.2", gpu_info));
   gpu_info.gl_version = "OpenGL ES 3.1 V@66.0 AU@ (CL@)";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "4.4.2", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "4.4.2", gpu_info));
   gpu_info.gl_renderer = "ANGLE (ARM, Mali-G78, OpenGL ES 3.0)";
   gpu_info.gl_version = "OpenGL ES 3.0 (ANGLE 1.2.0.2450)";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "6.1", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "6.1", gpu_info));
 }
 
 TEST_F(GpuControlListEntryTest, GlVersionANGLEEntry) {
   const Entry& entry = GetEntry(kGpuControlListEntryTest_GlVersionANGLEEntry);
   GPUInfo gpu_info;
   gpu_info.gl_renderer = "Mali-G78";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "4.4.2", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "4.4.2", gpu_info));
   gpu_info.gl_renderer = "ANGLE (ARM, Mali-G78, OpenGL ES 3.0)";
   gpu_info.gl_version =
       "OpenGL ES 2.0.0 (ANGLE 2.1.24078 git hash: ac6cda4cbd71)";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "6.1", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "6.1", gpu_info));
   gpu_info.gl_renderer = "ANGLE (ARM, Mali-G78, OpenGL ES 2.0)";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "6.1", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "6.1", gpu_info));
 }
 
 TEST_F(GpuControlListEntryTest, GlVendorEqual) {
@@ -335,26 +326,26 @@ TEST_F(GpuControlListEntryTest, SingleActiveGPU) {
 
 TEST_F(GpuControlListEntryTest, MachineModelName) {
   const Entry& entry = GetEntry(kGpuControlListEntryTest_MachineModelName);
-  EXPECT_EQ(kOsAndroid, entry.conditions.os_type);
+  EXPECT_EQ(kOsAny, entry.conditions.os_type);
   GPUInfo gpu_info;
   gpu_info.machine_model_name = "Nexus 4";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "4.1", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "4.1", gpu_info));
   gpu_info.machine_model_name = "XT1032";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "4.1", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "4.1", gpu_info));
   gpu_info.machine_model_name = "XT1032i";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "4.1", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "4.1", gpu_info));
   gpu_info.machine_model_name = "Nexus 5";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "4.1", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "4.1", gpu_info));
   gpu_info.machine_model_name = "Nexus";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "4.1", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "4.1", gpu_info));
   gpu_info.machine_model_name = "";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "4.1", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "4.1", gpu_info));
   gpu_info.machine_model_name = "GT-N7100";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "4.1", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "4.1", gpu_info));
   gpu_info.machine_model_name = "GT-I9300";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "4.1", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "4.1", gpu_info));
   gpu_info.machine_model_name = "SCH-I545";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "4.1", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "4.1", gpu_info));
 }
 
 TEST_F(GpuControlListEntryTest, MachineModelNameException) {
@@ -363,14 +354,14 @@ TEST_F(GpuControlListEntryTest, MachineModelNameException) {
   EXPECT_EQ(kOsAny, entry.conditions.os_type);
   GPUInfo gpu_info;
   gpu_info.machine_model_name = "Nexus 4";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "4.1", gpu_info));
-  EXPECT_TRUE(entry.Contains(kOsLinux, "4.1", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "4.1", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsMacosx, "4.1", gpu_info));
   gpu_info.machine_model_name = "Nexus 7";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "4.1", gpu_info));
-  EXPECT_TRUE(entry.Contains(kOsLinux, "4.1", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "4.1", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsMacosx, "4.1", gpu_info));
   gpu_info.machine_model_name = "";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "4.1", gpu_info));
   EXPECT_TRUE(entry.Contains(kOsLinux, "4.1", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsMacosx, "4.1", gpu_info));
 }
 
 TEST_F(GpuControlListEntryTest, MachineModelVersion) {
@@ -522,15 +513,15 @@ TEST_F(GpuControlListEntryTest, OsVersionZero) {
   {
     const Entry& entry = GetEntry(kGpuControlListEntryTest_OsVersionZeroLT);
     // All forms of version 0 is considered invalid.
-    EXPECT_FALSE(entry.Contains(kOsAndroid, "0", gpu_info()));
-    EXPECT_FALSE(entry.Contains(kOsAndroid, "0.0", gpu_info()));
-    EXPECT_FALSE(entry.Contains(kOsAndroid, "0.00.0", gpu_info()));
+    EXPECT_FALSE(entry.Contains(kOsWin, "0", gpu_info()));
+    EXPECT_FALSE(entry.Contains(kOsWin, "0.0", gpu_info()));
+    EXPECT_FALSE(entry.Contains(kOsWin, "0.00.0", gpu_info()));
   }
   {
     const Entry& entry = GetEntry(kGpuControlListEntryTest_OsVersionZeroAny);
-    EXPECT_TRUE(entry.Contains(kOsAndroid, "0", gpu_info()));
-    EXPECT_TRUE(entry.Contains(kOsAndroid, "0.0", gpu_info()));
-    EXPECT_TRUE(entry.Contains(kOsAndroid, "0.00.0", gpu_info()));
+    EXPECT_TRUE(entry.Contains(kOsWin, "0", gpu_info()));
+    EXPECT_TRUE(entry.Contains(kOsWin, "0.0", gpu_info()));
+    EXPECT_TRUE(entry.Contains(kOsWin, "0.00.0", gpu_info()));
   }
 }
 
@@ -546,8 +537,6 @@ TEST_F(GpuControlListEntryTest, OsComparison) {
     const Entry& entry = GetEntry(kGpuControlListEntryTest_OsComparisonGE);
     EXPECT_FALSE(entry.Contains(kOsMacosx, "10.8.3", gpu_info()));
     EXPECT_FALSE(entry.Contains(kOsLinux, "10", gpu_info()));
-    EXPECT_FALSE(entry.Contains(kOsChromeOS, "13", gpu_info()));
-    EXPECT_FALSE(entry.Contains(kOsAndroid, "7", gpu_info()));
     EXPECT_FALSE(entry.Contains(kOsWin, std::string(), gpu_info()));
     EXPECT_TRUE(entry.Contains(kOsWin, "6", gpu_info()));
     EXPECT_TRUE(entry.Contains(kOsWin, "6.1", gpu_info()));
@@ -1054,34 +1043,31 @@ TEST_F(GpuControlListEntryTest, TestSubpixelFontRendering) {
   gpu_info.subpixel_font_rendering = true;
   gpu_info.gl_renderer = "Mali0xx";
 
-  EXPECT_TRUE(entry.Contains(kOsChromeOS, "10.0", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "10.0", gpu_info));
 
   gpu_info.subpixel_font_rendering = false;
   gpu_info.gl_renderer = "Mali1xx";
-  EXPECT_FALSE(entry.Contains(kOsChromeOS, "10.0", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "10.0", gpu_info));
 
   gpu_info.subpixel_font_rendering = false;
   gpu_info.gl_renderer = "DontCare";
-  EXPECT_FALSE(entry.Contains(kOsChromeOS, "10.0", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "10.0", gpu_info));
 
   gpu_info.subpixel_font_rendering = true;
   gpu_info.gl_renderer = "DontCare";
-  EXPECT_FALSE(entry.Contains(kOsChromeOS, "10.0", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "10.0", gpu_info));
 
   gpu_info.subpixel_font_rendering = false;
   gpu_info.gl_renderer = "Supported";
-  EXPECT_TRUE(entry.Contains(kOsChromeOS, "10.0", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "10.0", gpu_info));
 
   gpu_info.subpixel_font_rendering = true;
   gpu_info.gl_renderer = "Supported";
-  EXPECT_FALSE(entry.Contains(kOsChromeOS, "10.0", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "10.0", gpu_info));
 
   gpu_info.subpixel_font_rendering = true;
   gpu_info.gl_renderer = "Others";
-  EXPECT_TRUE(entry.Contains(kOsChromeOS, "10.0", gpu_info));
-
-  // Not ChromeOS
-  EXPECT_FALSE(entry.Contains(kOsLinux, "10.0", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "10.0", gpu_info));
 }
 
 TEST_F(GpuControlListEntryTest, TestSubpixelFontRenderingDontCare) {
@@ -1092,10 +1078,10 @@ TEST_F(GpuControlListEntryTest, TestSubpixelFontRenderingDontCare) {
   gpu_info.subpixel_font_rendering = true;
   gpu_info.gl_renderer = "Mali0xx";
 
-  EXPECT_TRUE(entry.Contains(kOsChromeOS, "10.0", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "10.0", gpu_info));
 
   gpu_info.subpixel_font_rendering = false;
-  EXPECT_TRUE(entry.Contains(kOsChromeOS, "10.0", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "10.0", gpu_info));
 }
 
 TEST_F(GpuControlListEntryTest, IntelDriverVendorEntry) {
@@ -1134,10 +1120,10 @@ TEST_F(GpuControlListEntryTest, NativeAngleRenderer) {
       "ANGLE (Samsung Electronics Co. Ltd., "
       "ANGLE (Samsung Xclipse 920) on Vulkan 1.1.179, "
       "OpenGL ES 3.2 ANGLE git hash: 41a335098084)";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "4.4.2", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "4.4.2", gpu_info));
 
   gpu_info.gl_renderer = "ANGLE (Samsung Xclipse 920) on Vulkan 1.1.179";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "4.4.2", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "4.4.2", gpu_info));
 }
 
 #if BUILDFLAG(IS_WIN)
@@ -1179,13 +1165,13 @@ TEST_F(GpuControlListEntryTest, GLES30Exception) {
   GPUInfo gpu_info;
   gpu_info.gl_renderer = "Mali-G52";
   gpu_info.gl_version = "OpenGL ES 3.1";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_version = "OpenGL ES 2.1";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_renderer = "ANGLE (ARM, Mali-G52, OpenGL ES 3.0)";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_renderer = "ANGLE (ARM, Mali-G52, OpenGL ES 2.1)";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "", gpu_info));
 }
 
 TEST_F(GpuControlListEntryTest, WrongANGLEException) {
@@ -1193,15 +1179,15 @@ TEST_F(GpuControlListEntryTest, WrongANGLEException) {
   GPUInfo gpu_info;
   gpu_info.gl_renderer = "Mali-G52";
   gpu_info.gl_version = "OpenGL ES 3.1";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_version = "OpenGL ES 2.1";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_renderer = "ANGLE (ARM, Mali-G52, OpenGL ES 3.0)";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_renderer =
       "ANGLE (Intel, Vulkan 1.3.289 (Intel(R) Graphics (ADL GT2) "
       "(0x00004626)), Intel open-source Mesa driver-24.2.0)";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "", gpu_info));
 }
 
 TEST_F(GpuControlListEntryTest, ANGLEException) {
@@ -1209,15 +1195,15 @@ TEST_F(GpuControlListEntryTest, ANGLEException) {
   GPUInfo gpu_info;
   gpu_info.gl_renderer = "Mali-G52";
   gpu_info.gl_version = "OpenGL ES 3.1";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_version = "OpenGL ES 2.1";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_renderer = "ANGLE (ARM, Mali-G52, OpenGL ES 3.0)";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_renderer =
       "ANGLE (Intel, Vulkan 1.3.289 (Intel(R) Graphics (ADL GT2) "
       "(0x00004626)), Intel open-source Mesa driver-24.2.0)";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "", gpu_info));
 }
 
 TEST_F(GpuControlListEntryTest, GlTypeAngleGl) {
@@ -1241,14 +1227,14 @@ TEST_F(GpuControlListEntryTest, GLVersionOnly) {
   GPUInfo gpu_info;
   gpu_info.gl_renderer = "ANGLE (Intel, Mesa, OpenGL ES 3.2)";
   gpu_info.gl_version = "OpenGL ES 2.0.0 (ANGLE)";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_renderer = "ANGLE (Intel, Mesa, OpenGL ES 3.0)";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_renderer = "ARM";
   gpu_info.gl_version = "OpenGL ES 3.2";
-  EXPECT_FALSE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_FALSE(entry.Contains(kOsLinux, "", gpu_info));
   gpu_info.gl_version = "OpenGL ES 3.0";
-  EXPECT_TRUE(entry.Contains(kOsAndroid, "", gpu_info));
+  EXPECT_TRUE(entry.Contains(kOsLinux, "", gpu_info));
 }
 
 }  // namespace gpu

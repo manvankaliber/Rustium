@@ -557,11 +557,9 @@ static base::TimeDelta CurrentAge(const ResourceResponse& response,
 
 static base::TimeDelta FreshnessLifetime(const ResourceResponse& response,
                                          base::Time response_timestamp) {
-#if !BUILDFLAG(IS_ANDROID)
   // On desktop, local files should be reloaded in case they change.
   if (response.CurrentRequestUrl().IsLocalFile())
     return base::TimeDelta();
-#endif
 
   // Cache other non-http / non-filesystem resources liberally.
   if (!response.CurrentRequestUrl().ProtocolIsInHttpFamily() &&

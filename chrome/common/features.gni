@@ -26,6 +26,9 @@ import("//ui/webui/webui_features.gni")
 
 assert(use_blink, "Chromium without blink shouldn't use anything in //chrome")
 
+# Kept false for shared build manifests after platform retirement.
+skip_android_unmigrated_actor_files = false
+
 # IMPORTANT
 # We are not accepting any new build flags in //chrome. See
 # docs/chrome_browser_design_principles.md.
@@ -40,22 +43,14 @@ declare_args() {
   # shows the Chrome Root Store. This is specific to the v2 UI that is
   # supported on all desktop platforms, as opposed to the v1 UI which is only
   # supported on platforms using NSS (Linux and CrOS).
-  chrome_root_store_cert_management_ui =
-      is_win || is_mac || is_linux || is_chromeos
+  chrome_root_store_cert_management_ui = is_win || is_mac || is_linux
 
   # Enables support for background apps.
-  enable_background_contents = !is_android
-  enable_background_mode = !is_android && !is_chromeos
+  enable_background_contents = true
+  enable_background_mode = true
 
   # Enables usage of notifications via Chrome's MessageCenter.
   enable_chrome_notifications = is_mac || is_win || is_linux
-
-  # Skips unmigrated actor files in the build on Android. This is temporary, and
-  # will eventually be removed once migration is done. Adding this flag likely
-  # means the code needs to be adapted for Android. Once adapted, the final code
-  # should use BUILDFLAG(IS_ANDROID) for Android specific implementation.
-  # TODO(debug.com/470475787): Remove this after migration.
-  skip_android_unmigrated_actor_files = is_android
 
   # Hangout services is an extension that adds extra features to Hangouts.
   # It is enableable separately to facilitate testing.
@@ -67,7 +62,7 @@ declare_args() {
 
   # Enables use of the session service, which is enabled by default.
   # Android stores them separately on the Java side.
-  enable_session_service = !is_android
+  enable_session_service = true
 
   # Enables the webui certificate viewer dialog.
   enable_webui_certificate_viewer = toolkit_views
@@ -82,7 +77,7 @@ assert(!chrome_enable_logging_by_default || !is_official_build,
        "Logging must be disabled by default in Official builds")
 
 # Use brlapi from brltty for braille display support.
-use_brlapi = is_chromeos
+use_brlapi = false
 
 # Every grit target in //chrome should apply these defines so that the
 # proper build flags can be set.

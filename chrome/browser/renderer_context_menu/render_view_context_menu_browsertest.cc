@@ -204,21 +204,13 @@
 #include "ui/gfx/codec/png_codec.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/views/context_hub/memory_banks_palette_bubble_controller.h"
 #include "chrome/browser/ui/views/context_hub/save_to_memory_bank_bubble_controller.h"
-#endif
 
 #if BUILDFLAG(ENABLE_COMPOSE)
 #include "chrome/browser/compose/mock_chrome_compose_client.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/wm/window_pin_util.h"
-#include "chrome/browser/ash/boca/on_task/on_task_locked_controller.h"
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#include "ui/aura/window.h"
-#endif
 
 #if defined(USE_AURA)
 #include "ui/aura/window.h"
@@ -959,13 +951,8 @@ IN_PROC_BROWSER_TEST_F(GlicContextMenuStaleDocumentBrowserTest,
 }
 
 // TODO(crbug.com/455524503): De-flake and re-enable on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_SaveLinkAsEntryIsDisabledForBlockedUrls \
-  DISABLED_SaveLinkAsEntryIsDisabledForBlockedUrls
-#else
 #define MAYBE_SaveLinkAsEntryIsDisabledForBlockedUrls \
   SaveLinkAsEntryIsDisabledForBlockedUrls
-#endif
 // Verifies "Save link as" is not enabled for links blocked via policy.
 IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest,
                        MAYBE_SaveLinkAsEntryIsDisabledForBlockedUrls) {
@@ -1034,13 +1021,8 @@ IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest,
 }
 
 // TODO(crbug.com/455524503): De-flake and re-enable on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_SaveImageAsEntryIsDisabledForBlockedUrls \
-  DISABLED_SaveImageAsEntryIsDisabledForBlockedUrls
-#else
 #define MAYBE_SaveImageAsEntryIsDisabledForBlockedUrls \
   SaveImageAsEntryIsDisabledForBlockedUrls
-#endif
 // Verifies "Save image as" is not enabled for links blocked via policy.
 IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest,
                        MAYBE_SaveImageAsEntryIsDisabledForBlockedUrls) {
@@ -1268,286 +1250,6 @@ IN_PROC_BROWSER_TEST_F(ContextMenuForSupervisedUsersBrowserTest,
       "Download.CancelReason", DownloadCancelReason::kSupervisedUserBlocked, 0);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// TODO(crbug.com/438540029): Rename this test suite to "TrustedPinned" to
-// disambiguate between LockedFullscreen (which is for extension API) and OnTask
-// locked (which is for class tools).
-class ContextMenuForLockedFullscreenBrowserTest
-    : public ContextMenuBrowserTest,
-      public testing::WithParamInterface<bool> {
- public:
-  ContextMenuForLockedFullscreenBrowserTest() {
-    scoped_feature_list_.InitWithFeatureState(
-        features::kUseUnifiedLockedStateController,
-        is_unified_locked_state_controller_enabled_);
-  }
-
- protected:
-  const bool is_unified_locked_state_controller_enabled_ = GetParam();
-
-  void LockForExtension() {
-    if (is_unified_locked_state_controller_enabled_) {
-      auto* controller = chromeos::LockedStateController::From(browser());
-      ASSERT_TRUE(controller);
-      controller->Lock(chromeos::LockedState::kExtensionLocked);
-    } else {
-      ash::boca::OnTaskLockedController::From(browser())
-          ->set_locked_for_on_task(false);
-      ash::PinWindow(browser()->GetWindow()->GetNativeWindow(),
-                     /*trusted=*/true);
-    }
-  }
-
-  void LockForOnTask() {
-    if (is_unified_locked_state_controller_enabled_) {
-      auto* controller = chromeos::LockedStateController::From(browser());
-      ASSERT_TRUE(controller);
-      controller->Lock(chromeos::LockedState::kOnTaskLocked);
-    } else {
-      ash::boca::OnTaskLockedController::From(browser())
-          ->set_locked_for_on_task(true);
-      ash::PinWindow(browser()->GetWindow()->GetNativeWindow(),
-                     /*trusted=*/true);
-    }
-  }
-
-  void SetLockedForOnTaskWithoutPin() {
-    if (is_unified_locked_state_controller_enabled_) {
-      auto* controller = chromeos::LockedStateController::From(browser());
-      ASSERT_TRUE(controller);
-      controller->Lock(chromeos::LockedState::kOnTaskPrepared);
-    } else {
-      ash::boca::OnTaskLockedController::From(browser())
-          ->set_locked_for_on_task(true);
-    }
-  }
-
-  void LockForOnTaskPaused() {
-    if (is_unified_locked_state_controller_enabled_) {
-      auto* controller = chromeos::LockedStateController::From(browser());
-      ASSERT_TRUE(controller);
-      controller->Lock(chromeos::LockedState::kOnTaskLockedPaused);
-    } else {
-      // Legacy has no explicit paused state; paused is OnTask locked with tab
-      // switching disabled.
-      LockForOnTask();
-      chrome::BrowserCommandController::From(browser())
-          ->SetTabSwitchCommandsEnabled(false);
-    }
-  }
-
-  void SetUpOnMainThread() override {
-    ContextMenuBrowserTest::SetUpOnMainThread();
-
-    // Set up browser for testing / validating page navigation command states.
-    OpenUrlWithDisposition(GURL("chrome://new-tab-page/"),
-                           ui::mojom::WindowOpenDisposition::kCurrentTab);
-    OpenUrlWithDisposition(GURL("chrome://version/"),
-                           ui::mojom::WindowOpenDisposition::kCurrentTab);
-    OpenUrlWithDisposition(GURL("about:blank"),
-                           ui::mojom::WindowOpenDisposition::kCurrentTab);
-
-    // Go back by one page to ensure the forward command is also available for
-    // testing purposes.
-    content::TestNavigationObserver navigation_observer(
-        browser()->GetTabStripModel()->GetActiveWebContents());
-    chrome::GoBack(browser(), ui::mojom::WindowOpenDisposition::kCurrentTab);
-    navigation_observer.Wait();
-    ASSERT_TRUE(chrome::CanGoBack(browser()));
-    ASSERT_TRUE(chrome::CanGoForward(browser()));
-  }
-
- private:
-  void OpenUrlWithDisposition(GURL url,
-                              ui::mojom::WindowOpenDisposition disposition) {
-    ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
-        browser(), url, disposition,
-        ui_test_utils::BROWSER_TEST_WAIT_FOR_LOAD_STOP));
-  }
-
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_P(ContextMenuForLockedFullscreenBrowserTest,
-                       ItemsAreDisabledWhenPinnedAndNotLockedForOnTask) {
-  const GURL kTestUrl("http://www.google.com/");
-  const std::unique_ptr<TestRenderViewContextMenu> menu =
-      CreateContextMenuMediaTypeImage(/*url=*/kTestUrl);
-
-  // Verify commands are enabled initially.
-  static constexpr int kCommandsToTest[] = {
-      // Navigation commands.
-      IDC_BACK, IDC_FORWARD, IDC_RELOAD,
-      // Content contextual commands.
-      IDC_CONTENT_CONTEXT_OPENLINKNEWTAB, IDC_CONTENT_CONTEXT_COPYIMAGE,
-      IDC_CONTENT_CONTEXT_COPYIMAGELOCATION, IDC_CONTENT_CONTEXT_INSPECTELEMENT,
-      IDC_CONTENT_CONTEXT_OPENLINKSPLITVIEW,
-      // Other commands (we only test a subset).
-      IDC_VIEW_SOURCE};
-  for (int command_id : kCommandsToTest) {
-    EXPECT_TRUE(menu->IsCommandIdEnabled(command_id))
-        << "Command " << command_id
-        << " failed to meet enabled state expectation";
-  }
-
-  // Set locked fullscreen state.
-  LockForExtension();
-
-  // Verify aforementioned commands are disabled in locked fullscreen.
-  for (int command_id : kCommandsToTest) {
-    EXPECT_FALSE(menu->IsCommandIdEnabled(command_id))
-        << "Command " << command_id
-        << " failed to meet disabled state expectation in locked fullscreen";
-  }
-}
-
-IN_PROC_BROWSER_TEST_P(ContextMenuForLockedFullscreenBrowserTest,
-                       CriticalItemsAreEnabledWhenPinnedAndLockedForOnTask) {
-  const GURL kTestUrl("http://www.google.com/");
-  const std::unique_ptr<TestRenderViewContextMenu> menu =
-      CreateContextMenuMediaTypeImage(/*url=*/kTestUrl);
-
-  // Verify commands are enabled initially.
-  static constexpr int kCommandsToTest[] = {
-      // Navigation commands.
-      IDC_BACK, IDC_FORWARD, IDC_RELOAD,
-      // Content contextual commands.
-      IDC_CONTENT_CONTEXT_OPENLINKNEWTAB, IDC_CONTENT_CONTEXT_COPYIMAGE,
-      IDC_CONTENT_CONTEXT_COPYIMAGELOCATION, IDC_CONTENT_CONTEXT_INSPECTELEMENT,
-      IDC_CONTENT_CONTEXT_OPENLINKSPLITVIEW,
-      // Other commands (we only test a subset).
-      IDC_VIEW_SOURCE};
-  for (int command_id : kCommandsToTest) {
-    EXPECT_TRUE(menu->IsCommandIdEnabled(command_id))
-        << "Command " << command_id
-        << " failed to meet enabled state expectation";
-  }
-
-  // Lock instance for OnTask.
-  LockForOnTask();
-
-  // Verify page navigation commands and some contextual content commands remain
-  // enabled.
-  static constexpr int kCommandsEnabledInLockedFullscreen[] = {
-      IDC_BACK, IDC_FORWARD, IDC_RELOAD, IDC_CONTENT_CONTEXT_COPYIMAGE,
-      IDC_CONTENT_CONTEXT_COPYIMAGELOCATION};
-  for (int command_id : kCommandsEnabledInLockedFullscreen) {
-    EXPECT_TRUE(menu->IsCommandIdEnabled(command_id))
-        << "Command " << command_id
-        << " failed to meet enabled state expectation in locked fullscreen";
-  }
-
-  // Verify other commands are disabled.
-  static constexpr int kCommandsDisabledInLockedFullscreen[] = {
-      IDC_VIEW_SOURCE, IDC_CONTENT_CONTEXT_OPENLINKNEWTAB,
-      IDC_CONTENT_CONTEXT_OPENLINKSPLITVIEW,
-      IDC_CONTENT_CONTEXT_INSPECTELEMENT};
-  for (int command_id : kCommandsDisabledInLockedFullscreen) {
-    EXPECT_FALSE(menu->IsCommandIdEnabled(command_id))
-        << "Command " << command_id
-        << " failed to meet disabled state expectation in locked fullscreen";
-  }
-}
-
-IN_PROC_BROWSER_TEST_P(ContextMenuForLockedFullscreenBrowserTest,
-                       CriticalItemsAreEnabledWhenLockedForOnTask) {
-  const GURL kTestUrl("http://www.google.com/");
-  const std::unique_ptr<TestRenderViewContextMenu> menu =
-      CreateContextMenuMediaTypeImage(/*url=*/kTestUrl);
-
-  // Verify commands are enabled initially.
-  static constexpr int kCommandsToTest[] = {
-      // Navigation commands.
-      IDC_BACK, IDC_FORWARD, IDC_RELOAD,
-      // Content contextual commands.
-      IDC_CONTENT_CONTEXT_OPENLINKNEWTAB, IDC_CONTENT_CONTEXT_COPYIMAGE,
-      IDC_CONTENT_CONTEXT_COPYIMAGELOCATION, IDC_CONTENT_CONTEXT_INSPECTELEMENT,
-      IDC_CONTENT_CONTEXT_OPENLINKSPLITVIEW,
-      // Other commands (we only test a subset).
-      IDC_VIEW_SOURCE};
-  for (int command_id : kCommandsToTest) {
-    EXPECT_TRUE(menu->IsCommandIdEnabled(command_id))
-        << "Command " << command_id
-        << " failed to meet enabled state expectation";
-  }
-
-  // Lock instance for OnTask.
-  SetLockedForOnTaskWithoutPin();
-
-  // Verify page navigation commands and some contextual content commands remain
-  // enabled.
-  static constexpr int kCommandsEnabledForOnTask[] = {
-      IDC_BACK, IDC_FORWARD, IDC_RELOAD, IDC_CONTENT_CONTEXT_COPYIMAGE,
-      IDC_CONTENT_CONTEXT_COPYIMAGELOCATION};
-  for (int command_id : kCommandsEnabledForOnTask) {
-    EXPECT_TRUE(menu->IsCommandIdEnabled(command_id))
-        << "Command " << command_id
-        << " failed to meet enabled state expectation when locked for OnTask";
-  }
-
-  // Verify other commands are disabled.
-  static constexpr int kCommandsDisabledForOnTask[] = {
-      IDC_VIEW_SOURCE, IDC_CONTENT_CONTEXT_OPENLINKNEWTAB,
-      IDC_CONTENT_CONTEXT_OPENLINKSPLITVIEW,
-      IDC_CONTENT_CONTEXT_INSPECTELEMENT};
-  for (int command_id : kCommandsDisabledForOnTask) {
-    EXPECT_FALSE(menu->IsCommandIdEnabled(command_id))
-        << "Command " << command_id
-        << " failed to meet disabled state expectation when locked for OnTask";
-  }
-}
-
-IN_PROC_BROWSER_TEST_P(ContextMenuForLockedFullscreenBrowserTest,
-                       CriticalItemsAreEnabledWhenLockedForOnTaskPaused) {
-  const GURL kTestUrl("http://www.google.com/");
-  const std::unique_ptr<TestRenderViewContextMenu> menu =
-      CreateContextMenuMediaTypeImage(/*url=*/kTestUrl);
-
-  // Verify commands are enabled initially.
-  static constexpr int kCommandsToTest[] = {
-      // Navigation commands.
-      IDC_BACK, IDC_FORWARD, IDC_RELOAD,
-      // Content contextual commands.
-      IDC_CONTENT_CONTEXT_OPENLINKNEWTAB, IDC_CONTENT_CONTEXT_COPYIMAGE,
-      IDC_CONTENT_CONTEXT_COPYIMAGELOCATION, IDC_CONTENT_CONTEXT_INSPECTELEMENT,
-      IDC_CONTENT_CONTEXT_OPENLINKSPLITVIEW,
-      // Other commands (we only test a subset).
-      IDC_VIEW_SOURCE};
-  for (int command_id : kCommandsToTest) {
-    EXPECT_TRUE(menu->IsCommandIdEnabled(command_id))
-        << "Command " << command_id
-        << " failed to meet enabled state expectation";
-  }
-
-  LockForOnTaskPaused();
-
-  static constexpr int kCommandsEnabledForOnTask[] = {
-      IDC_BACK, IDC_FORWARD, IDC_RELOAD, IDC_CONTENT_CONTEXT_COPYIMAGE,
-      IDC_CONTENT_CONTEXT_COPYIMAGELOCATION};
-  for (int command_id : kCommandsEnabledForOnTask) {
-    EXPECT_TRUE(menu->IsCommandIdEnabled(command_id))
-        << "Command " << command_id
-        << " failed to meet enabled state expectation when locked for OnTask "
-           "Paused";
-  }
-
-  static constexpr int kCommandsDisabledForOnTask[] = {
-      IDC_VIEW_SOURCE, IDC_CONTENT_CONTEXT_OPENLINKNEWTAB,
-      IDC_CONTENT_CONTEXT_OPENLINKSPLITVIEW,
-      IDC_CONTENT_CONTEXT_INSPECTELEMENT};
-  for (int command_id : kCommandsDisabledForOnTask) {
-    EXPECT_FALSE(menu->IsCommandIdEnabled(command_id))
-        << "Command " << command_id
-        << " failed to meet disabled state expectation when locked for OnTask "
-           "Paused";
-  }
-}
-
-INSTANTIATE_TEST_SUITE_P(All,
-                         ContextMenuForLockedFullscreenBrowserTest,
-                         testing::Bool());
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest, OpenEntryPresentForNormalURLs) {
   std::unique_ptr<TestRenderViewContextMenu> menu =
@@ -2114,22 +1816,6 @@ IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest,
   EXPECT_TRUE(ToastController::From(browser())->IsShowingToast());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Executing the emoji panel item with no associated browser should not crash.
-IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest,
-                       ContextMenuForEmojiPanel_NullBrowserCrash) {
-  ui::SetShowEmojiKeyboardCallback(base::BindLambdaForTesting(
-      [](ui::EmojiPickerCategory unused, ui::EmojiPickerFocusBehavior,
-         const std::string&) { ui::ShowTabletModeEmojiPanel(); }));
-  std::unique_ptr<content::WebContents> detached_web_contents =
-      content::WebContents::Create(
-          content::WebContents::CreateParams(browser()->GetProfile()));
-  TestRenderViewContextMenu menu(*detached_web_contents->GetPrimaryMainFrame(),
-                                 {});
-  menu.Init();
-  menu.ExecuteCommand(IDC_CONTENT_CONTEXT_EMOJI, 0);
-}
-#else
 // Executing the emoji panel item with no associated browser should not crash.
 IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest,
                        ContextMenuForEmojiPanel_NullBrowserCrash) {
@@ -2141,27 +1827,8 @@ IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest,
   menu.Init();
   menu.ExecuteCommand(IDC_CONTENT_CONTEXT_EMOJI, 0);
 }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Only Chrome OS supports emoji panel callbacks.
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest,
-                       ContextMenuForEmojiPanel_NoCallback) {
-  // Reset the emoji callback.
-  ui::SetShowEmojiKeyboardCallback(
-      base::RepeatingCallback<void(ui::EmojiPickerCategory,
-                                   ui::EmojiPickerFocusBehavior,
-                                   const std::string&)>());
-
-  content::ContextMenuParams params;
-  params.is_editable = true;
-
-  auto menu = CreateContextMenuFromParams(params);
-
-  // If there's no callback, the emoji context menu should not be present.
-  EXPECT_FALSE(menu->IsItemPresent(IDC_CONTENT_CONTEXT_EMOJI));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_COMPOSE)
 struct ContextMenuForComposeTestCase {
@@ -2798,7 +2465,6 @@ IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest, OpenImageInNewTab) {
 }
 
 // Functionality is not present on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest, OpenLinkInProfileEntryPresent) {
   {
     std::unique_ptr<TestRenderViewContextMenu> menu(
@@ -3065,7 +2731,6 @@ IN_PROC_BROWSER_TEST_F(ContextMenuBrowserTest, OpenProfileNoneReferrer) {
   // Verify that the javascript referrer is empty.
   ASSERT_EQ("", content::EvalJs(tab, "window.document.referrer;"));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_LENS_DESKTOP_GOOGLE_BRANDED_FEATURES)
 // The Lens Overlay is a new Lens feature that replaces those used in
@@ -3515,7 +3180,7 @@ IN_PROC_BROWSER_TEST_F(LensOverlayBrowserTest,
 }
 
 // https://crbug.com/40064516
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 #define MAYBE_ImageSearchContextMenuOpensImageSearchForKeyboard \
   DISABLED_ImageSearchContextMenuOpensImageSearchForKeyboard
 #else
@@ -4779,12 +4444,10 @@ IN_PROC_BROWSER_TEST_P(MemoryBanksContextMenuBrowserTest,
       }));
   run_loop.Run();
 
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* controller = SaveToMemoryBankBubbleController::FromWebContents(
           browser()->tab_strip_model()->GetActiveWebContents())) {
     controller->CloseBubble();
   }
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(MemoryBanksContextMenuBrowserTest,
@@ -4831,12 +4494,10 @@ IN_PROC_BROWSER_TEST_P(MemoryBanksContextMenuBrowserTest,
   service->GetAllEntries(entries_future.GetCallback());
   EXPECT_EQ(1u, entries_future.Get().size());
 
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* controller = SaveToMemoryBankBubbleController::FromWebContents(
           browser()->tab_strip_model()->GetActiveWebContents())) {
     controller->CloseBubble();
   }
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(MemoryBanksContextMenuBrowserTest,
@@ -4879,12 +4540,10 @@ IN_PROC_BROWSER_TEST_P(MemoryBanksContextMenuBrowserTest,
   EXPECT_EQ(image_url, entries[0].image_url);
   EXPECT_THAT(entries[0].tags, testing::ElementsAre("image_tag"));
 
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* controller = SaveToMemoryBankBubbleController::FromWebContents(
           browser()->tab_strip_model()->GetActiveWebContents())) {
     controller->CloseBubble();
   }
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(
@@ -4951,12 +4610,10 @@ IN_PROC_BROWSER_TEST_P(
   EXPECT_EQ("Selected text on broken image", pending->selected_text);
   EXPECT_FALSE(pending->image_url.has_value());
 
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* controller = SaveToMemoryBankBubbleController::FromWebContents(
           browser()->tab_strip_model()->GetActiveWebContents())) {
     controller->CloseBubble();
   }
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(MemoryBanksContextMenuBrowserTest,
@@ -4997,15 +4654,12 @@ IN_PROC_BROWSER_TEST_P(MemoryBanksContextMenuBrowserTest,
   EXPECT_FALSE(pending->selected_text.has_value());
   EXPECT_EQ(image_url, pending->image_url);
 
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* controller = SaveToMemoryBankBubbleController::FromWebContents(
           browser()->tab_strip_model()->GetActiveWebContents())) {
     controller->CloseBubble();
   }
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(MemoryBanksContextMenuBrowserTest,
                        BrowseMemoryBanksShownAndExecutesWhenEnabled) {
   GURL page_url("data:text/html,Hello%20World");
@@ -5057,7 +4711,6 @@ IN_PROC_BROWSER_TEST_P(MemoryBanksSearchPaletteDisabledContextMenuBrowserTest,
 INSTANTIATE_TEST_SUITE_P(All,
                          MemoryBanksSearchPaletteDisabledContextMenuBrowserTest,
                          testing::Bool());
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 INSTANTIATE_TEST_SUITE_P(All,
                          MemoryBanksContextMenuBrowserTest,

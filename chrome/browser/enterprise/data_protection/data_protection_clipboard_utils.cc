@@ -72,12 +72,7 @@
 #include "components/enterprise/connectors/core/analysis_settings.h"
 #endif  // BUILDFLAG(ENTERPRISE_CONTENT_ANALYSIS)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/enterprise/data_controls/android_data_controls_dialog.h"
-#include "chrome/browser/enterprise/data_controls/android_data_controls_dialog_factory.h"
-#else
 #include "chrome/browser/enterprise/data_controls/desktop_data_controls_dialog_factory.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 #include "chrome/browser/enterprise/connectors/reporting/reporting_event_router_factory.h"
@@ -468,11 +463,7 @@ void CopyIfAllowedByContentAnalysis(
 #endif  // BUILDFLAG(ENTERPRISE_CONTENT_ANALYSIS)
 
 data_controls::DataControlsDialogFactory* GetDialogFactory() {
-#if BUILDFLAG(IS_ANDROID)
-  return data_controls::AndroidDataControlsDialogFactory::GetInstance();
-#else
   return data_controls::DesktopDataControlsDialogFactory::GetInstance();
-#endif
 }
 
 void MaybeReportDataControlsPasteFromGemini(
@@ -699,13 +690,13 @@ void OnDataControlsPasteWarning(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID) || !BUILDFLAG(ENTERPRISE_CONTENT_ANALYSIS)
+#if !BUILDFLAG(ENTERPRISE_CONTENT_ANALYSIS)
   std::move(callback).Run(std::move(clipboard_paste_data));
 #else
   PasteIfAllowedByContentAnalysis(
       destination.web_contents(), source, destination, metadata,
       std::move(clipboard_paste_data), std::move(callback));
-#endif  // BUILDFLAG(IS_ANDROID) || !BUILDFLAG(ENTERPRISE_CONTENT_ANALYSIS)
+#endif
 }
 
 data_controls::Verdict GetPasteVerdict(
@@ -779,16 +770,15 @@ void PasteIfAllowedByDataControls(
     std::move(callback).Run(std::move(clipboard_paste_data));
     return;
   }
-#if BUILDFLAG(IS_ANDROID) || !BUILDFLAG(ENTERPRISE_CONTENT_ANALYSIS)
+#if !BUILDFLAG(ENTERPRISE_CONTENT_ANALYSIS)
   std::move(callback).Run(std::move(clipboard_paste_data));
 #else
   PasteIfAllowedByContentAnalysis(
       destination.web_contents(), source, destination, metadata,
       std::move(clipboard_paste_data), std::move(callback));
-#endif  // BUILDFLAG(IS_ANDROID) || !BUILDFLAG(ENTERPRISE_CONTENT_ANALYSIS)
+#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void OnDlpRulesCheckDone(
     const FullPasteSource& source,
     const content::ClipboardEndpoint& destination,
@@ -808,7 +798,6 @@ void OnDlpRulesCheckDone(
                                std::move(clipboard_paste_data),
                                std::move(callback));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void GetCopyToOSClipboardReplacement(const content::ClipboardEndpoint& source,
                                      const ui::ClipboardMetadata& metadata,
@@ -1090,19 +1079,6 @@ void PasteIfAllowedByPolicy(
     const ui::ClipboardMetadata& metadata,
     content::ClipboardPasteData clipboard_paste_data,
     content::ContentBrowserClient::IsClipboardPasteAllowedCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  if (SkipDataControlOrContentAnalysisChecks(destination)) {
-    std::move(callback).Run(std::nullopt);
-    return;
-  }
-
-  // Call PasteIfAllowedByDataControls directly as
-  // DataTransferPolicyController::PasteIfAllowed contains logic that isn't
-  // relevant to Android.
-  PasteIfAllowedByDataControls(source, destination, metadata,
-                               std::move(clipboard_paste_data),
-                               std::move(callback));
-#else
   if (ui::DataTransferPolicyController::HasInstance()) {
     std::variant<size_t, std::vector<base::FilePath>> pasted_content;
     if (clipboard_paste_data.file_paths.empty()) {
@@ -1132,7 +1108,6 @@ void PasteIfAllowedByPolicy(
   OnDlpRulesCheckDone(source, destination, metadata,
                       std::move(clipboard_paste_data), std::move(callback),
                       /*allowed=*/true);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool IsPastePolicyCheckRequired(const content::ClipboardEndpoint& source,
@@ -1145,11 +1120,9 @@ bool IsPastePolicyCheckRequired(const content::ClipboardEndpoint& source,
 bool IsPastePolicyCheckRequired(const BasicPasteSource& source,
                                 const content::ClipboardEndpoint& destination,
                                 const ui::ClipboardMetadata& metadata) {
-#if !BUILDFLAG(IS_ANDROID)
   if (ui::DataTransferPolicyController::HasInstance()) {
     return true;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   if (GetPasteVerdict(source, destination, metadata).level() !=
       data_controls::Rule::Level::kNotSet) {
@@ -1195,7 +1168,6 @@ void IsClipboardCopyAllowedByPolicy(
         base::NotFatalUntil::M161);
   CHECK(source.browser_context(), base::NotFatalUntil::M161);
 
-#if !BUILDFLAG(IS_ANDROID)
   // IsUrlAllowedToCopy checks a deprecated CopyPreventionSettings that isn't
   // applicable on Android.
   std::u16string replacement_data;
@@ -1209,7 +1181,6 @@ void IsClipboardCopyAllowedByPolicy(
                             std::move(replacement_data));
     return;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   IsCopyRestrictedByDialog(
       source, metadata, data, std::move(callback),
@@ -1222,7 +1193,6 @@ bool IsCopyPolicyCheckRequired(const content::ClipboardEndpoint& source,
   if (SkipDataControlOrContentAnalysisChecks(source)) {
     return false;
   }
-#if !BUILDFLAG(IS_ANDROID)
   // IsUrlAllowedToCopy checks a deprecated CopyPreventionSettings that isn't
   // applicable on Android.
   std::u16string replacement_data;
@@ -1234,7 +1204,6 @@ bool IsCopyPolicyCheckRequired(const content::ClipboardEndpoint& source,
                                    &replacement_data)) {
     return true;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   return data_controls::ChromeRulesServiceFactory::GetInstance()
                  ->GetForBrowserContext(source.browser_context())
                  ->GetCopyRestrictedBySourceVerdict(GetUrlFromEndpoint(source))
@@ -1246,47 +1215,6 @@ bool IsCopyPolicyCheckRequired(const content::ClipboardEndpoint& source,
                  .level() != data_controls::Rule::Level::kNotSet;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void IsClipboardShareAllowedByPolicy(
-    const content::ClipboardEndpoint& source,
-    const ui::ClipboardMetadata& metadata,
-    const content::ClipboardPasteData& data,
-    content::ContentBrowserClient::IsClipboardCopyAllowedCallback callback) {
-  if (SkipDataControlOrContentAnalysisChecks(source)) {
-    std::move(callback).Run(metadata.format_type, data, std::nullopt);
-    return;
-  }
-
-  CHECK(source.web_contents() || source.is_service_worker(),
-        base::NotFatalUntil::M161);
-  CHECK(source.browser_context(), base::NotFatalUntil::M161);
-
-  IsCopyRestrictedByDialog(
-      source, metadata, data, std::move(callback),
-      data_controls::DataControlsDialog::Type::kClipboardShareBlock,
-      data_controls::DataControlsDialog::Type::kClipboardShareWarn);
-}
-
-void IsClipboardGenericCopyActionAllowedByPolicy(
-    const content::ClipboardEndpoint& source,
-    const ui::ClipboardMetadata& metadata,
-    const content::ClipboardPasteData& data,
-    content::ContentBrowserClient::IsClipboardCopyAllowedCallback callback) {
-  if (SkipDataControlOrContentAnalysisChecks(source)) {
-    std::move(callback).Run(metadata.format_type, data, std::nullopt);
-    return;
-  }
-
-  CHECK(source.web_contents() || source.is_service_worker(),
-        base::NotFatalUntil::M161);
-  CHECK(source.browser_context(), base::NotFatalUntil::M161);
-
-  IsCopyRestrictedByDialog(
-      source, metadata, data, std::move(callback),
-      data_controls::DataControlsDialog::Type::kClipboardActionBlock,
-      data_controls::DataControlsDialog::Type::kClipboardActionWarn);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void ReplaceSameTabClipboardDataIfRequiredByPolicy(
     ui::ClipboardSequenceNumberToken seqno,
@@ -1541,7 +1469,6 @@ bool IsClipboardCopyAllowedByPolicyForUI(content::WebContents* web_contents) {
 
   auto url = GetUrlFromEndpoint(*source);
 
-#if !BUILDFLAG(IS_ANDROID)
   // IsUrlAllowedToCopy checks a deprecated CopyPreventionSettings that isn't
   // applicable on Android.
   ClipboardRestrictionService* restriction_service =
@@ -1552,7 +1479,6 @@ bool IsClipboardCopyAllowedByPolicyForUI(content::WebContents* web_contents) {
                                                nullptr)) {
     return false;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   auto* service = data_controls::ChromeRulesServiceFactory::GetInstance()
                       ->GetForBrowserContext(source->browser_context());

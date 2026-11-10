@@ -135,7 +135,6 @@ void DesktopQueryContextualizerDelegate::GetRelevantTabsForQuery(
                 }
               }
             }
-#if !BUILDFLAG(IS_ANDROID)
             if (browser_window_interface) {
               auto* controller = ContextualTasksPanelController::From(
                   browser_window_interface.get());
@@ -151,7 +150,6 @@ void DesktopQueryContextualizerDelegate::GetRelevantTabsForQuery(
                 }
               }
             }
-#endif  // !BUILDFLAG(IS_ANDROID)
             std::move(cb).Run(std::move(tab_ids));
           },
           browser_window_interface->GetWeakPtr(), std::move(callback)));

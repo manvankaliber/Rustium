@@ -42,17 +42,6 @@
 namespace blink {
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-size_t GetMemoryUsage(v8::Isolate* isolate) {
-  size_t usage =
-      base::ProcessMetrics::CreateCurrentProcessMetrics()->GetMallocUsage() +
-      Partitions::TotalActiveBytes() + ProcessHeap::TotalAllocatedObjectSize();
-  v8::HeapStatistics v8_heap_statistics;
-  isolate->GetHeapStatistics(&v8_heap_statistics);
-  usage += v8_heap_statistics.total_heap_size();
-  return usage;
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -66,25 +55,6 @@ void V8GCForContextDispose::NotifyContextDisposed(
     v8::Isolate* isolate,
     bool is_main_frame,
     WindowProxy::FrameReuseStatus frame_reuse_status) {
-#if BUILDFLAG(IS_ANDROID)
-  // When a low end device is in a low memory situation we should prioritize
-  // memory use and trigger a V8+Blink GC. However, on Android, if the frame
-  // will not be reused, the process will likely to be killed soon so skip this.
-  if (is_main_frame && frame_reuse_status == WindowProxy::kFrameWillBeReused &&
-      force_page_navigation_gc_) {
-    const size_t pre_gc_memory_usage = GetMemoryUsage(isolate);
-    isolate->MemoryPressureNotification(v8::MemoryPressureLevel::kCritical);
-    const size_t post_gc_memory_usage = GetMemoryUsage(isolate);
-    const int reduction = static_cast<int>(pre_gc_memory_usage) -
-                          static_cast<int>(post_gc_memory_usage);
-    DEFINE_STATIC_LOCAL(
-        CustomCountHistogram, reduction_histogram,
-        ("BlinkGC.LowMemoryPageNavigationGC.Reduction", 1, 512, 50));
-    reduction_histogram.Count(reduction / 1024 / 1024);
-
-    force_page_navigation_gc_ = false;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   isolate->ContextDisposedNotification(
       is_main_frame ? v8::ContextDependants::kNoDependants
                     : v8::ContextDependants::kSomeDependants);

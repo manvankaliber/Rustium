@@ -45,7 +45,7 @@
 #include "testing/multiprocess_func_list.h"
 #include "third_party/abseil-cpp/absl/cleanup/cleanup.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <malloc.h>
 #include <sched.h>
 #include <sys/syscall.h>
@@ -74,9 +74,6 @@
 #if BUILDFLAG(IS_APPLE)
 #include <mach/vm_param.h>
 #include <malloc/malloc.h>
-#endif
-#if BUILDFLAG(IS_ANDROID)
-#include "third_party/lss/linux_syscall_support.h"
 #endif
 
 #if BUILDFLAG(IS_MAC)
@@ -167,16 +164,7 @@ class ProcessUtilTest : public MultiProcessTest {
 };
 
 std::string ProcessUtilTest::GetSignalFilePath(const char* filename) {
-#if BUILDFLAG(IS_ANDROID)
-  FilePath tmp_dir;
-  PathService::Get(DIR_TEMP, &tmp_dir);
-  // Ensure the directory exists to avoid harder to debug issues later.
-  CHECK(PathExists(tmp_dir));
-  tmp_dir = tmp_dir.Append(filename);
-  return tmp_dir.value();
-#else
   return filename;
-#endif
 }
 
 MULTIPROCESS_TEST_MAIN(SimpleChildProcess) {
@@ -233,7 +221,6 @@ TEST_F(ProcessUtilTest, MAYBE_GetTerminationStatusExit) {
 
 // On Android SpawnProcess() doesn't use LaunchProcess() and doesn't support
 // LaunchOptions::current_directory.
-#if !BUILDFLAG(IS_ANDROID)
 static void CheckCwdIsExpected(FilePath expected) {
   FilePath actual;
   CHECK(GetCurrentDirectory(&actual));
@@ -328,7 +315,6 @@ TEST_F(ProcessUtilTest, CurrentDirectory) {
   EXPECT_EQ(kSuccess, exit_code);
 }
 #endif  // !defined(MEMORY_SANITIZER)
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 // TODO(cpu): figure out how to test this in other platforms.
@@ -343,7 +329,7 @@ TEST_F(ProcessUtilTest, GetProcId) {
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_APPLE)
 // This test is disabled on Mac, since it's flaky due to ReportCrash
 // taking a variable amount of time to parse and load the debug and
 // symbol data for this unit test's executable before firing the
@@ -407,7 +393,7 @@ TEST_F(ProcessUtilTest, MAYBE_GetTerminationStatusCrash) {
   debug::EnableInProcessStackDumping();
   remove(signal_file.c_str());
 }
-#endif  // !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 MULTIPROCESS_TEST_MAIN(KilledChildProcess) {
   WaitToDie(ProcessUtilTest::GetSignalFilePath(kSignalFileKill).c_str());
@@ -446,11 +432,7 @@ TEST_F(ProcessUtilTest, GetTerminationStatusSigKill) {
   exit_code = 42;
   TerminationStatus status =
       WaitForChildTermination(process.Handle(), &exit_code);
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(TERMINATION_STATUS_PROCESS_WAS_KILLED_BY_OOM, status);
-#else
   EXPECT_EQ(TERMINATION_STATUS_PROCESS_WAS_KILLED, status);
-#endif
 
 #if BUILDFLAG(IS_WIN)
   EXPECT_EQ(kExpectedKilledExitCode, exit_code);
@@ -895,7 +877,7 @@ TEST_F(ProcessUtilTest, GetParentProcessId) {
   EXPECT_EQ(ppid, static_cast<ProcessId>(getppid()));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_APPLE)
+#if !BUILDFLAG(IS_APPLE)
 class WriteToPipeDelegate : public LaunchOptions::PreExecDelegate {
  public:
   explicit WriteToPipeDelegate(int fd) : fd_(fd) {}
@@ -975,11 +957,11 @@ std::string TestLaunchProcess(const CommandLine& cmdline,
   options.fds_to_remap.emplace_back(fds[1], STDOUT_FILENO);
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   options.clone_flags = clone_flags;
 #else
   CHECK_EQ(0, clone_flags);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   EXPECT_TRUE(LaunchProcess(cmdline, options).IsValid());
   write_pipe.Close();
@@ -1044,11 +1026,11 @@ TEST_F(ProcessUtilTest, LaunchProcess) {
   EXPECT_EQ("wibble", TestLaunchProcess(kPrintEnvCommand, env_changes,
                                         no_clear_environ, no_clone_flags));
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Test a non-trival value for clone_flags.
   EXPECT_EQ("wibble", TestLaunchProcess(kPrintEnvCommand, env_changes,
                                         no_clear_environ, CLONE_FS));
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   EXPECT_EQ("wibble",
             TestLaunchProcess(kPrintEnvCommand, env_changes,
@@ -1134,7 +1116,7 @@ TEST_F(ProcessUtilTest, LaunchProcessUsingToken) {
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 MULTIPROCESS_TEST_MAIN(CheckPidProcess) {
   const pid_t kInitPid = 1;
   const pid_t pid = syscall(__NR_getpid);
@@ -1195,7 +1177,7 @@ TEST_F(ProcessUtilTest, InvalidCurrentDirectory) {
   EXPECT_TRUE(process.WaitForExit(&exit_code));
   EXPECT_NE(kSuccess, exit_code);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_MAC)
 

@@ -37,10 +37,6 @@ source_set("client") {
     "//third_party/re2",
     "//ui/base",
   ]
-
-  if (is_android) {
-    deps += [ "//chrome/browser/ui/android/tab_model" ]
-  }
 }
 
 source_set("factories") {
@@ -91,8 +87,4 @@ source_set("unit_tests") {
     "//ui/base:test_support",
     "//ui/base/unowned_user_data",
   ]
-
-  if (is_android) {
-    deps += [ "//chrome/browser/ui/android/tab_model:test_support" ]
-  }
 }

@@ -72,15 +72,6 @@
 #include "services/network/test/test_network_connection_tracker.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/users/user_manager_delegate_impl.h"
-#include "chrome/browser/ash/settings/scoped_cros_settings_test_helper.h"
-#include "chrome/browser/browser_process.h"
-#include "chromeos/ash/components/dbus/concierge/concierge_client.h"
-#include "chromeos/ash/components/settings/cros_settings.h"
-#include "components/user_manager/scoped_user_manager.h"
-#include "components/user_manager/user_manager_impl.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -90,7 +81,6 @@ namespace {
 
 const char kTestExtensionName[] = "FooBar";
 
-#if !BUILDFLAG(IS_ANDROID)
 void RequestProxyResolvingSocketFactoryOnUIThread(
     Profile* profile,
     base::WeakPtr<gcm::GCMProfileService> service,
@@ -113,7 +103,6 @@ void RequestProxyResolvingSocketFactory(
       FROM_HERE, base::BindOnce(&RequestProxyResolvingSocketFactoryOnUIThread,
                                 profile, service, std::move(receiver)));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -241,9 +230,6 @@ class ExtensionGCMAppHandlerTest : public testing::Test {
   static std::unique_ptr<KeyedService> BuildGCMProfileService(
       os_crypt_async::OSCryptAsync* os_crypt,
       content::BrowserContext* context) {
-#if BUILDFLAG(IS_ANDROID)
-    return gcm::FakeGCMProfileService::Build(context);
-#else
     Profile* profile = Profile::FromBrowserContext(context);
     scoped_refptr<base::SequencedTaskRunner> ui_thread =
         content::GetUIThreadTaskRunner({});
@@ -262,7 +248,6 @@ class ExtensionGCMAppHandlerTest : public testing::Test {
         gcm::GetProductCategoryForSubtypes(profile->GetPrefs()),
         base::WrapUnique(new gcm::FakeGCMClientFactory(ui_thread, io_thread)),
         ui_thread, io_thread, blocking_task_runner, os_crypt);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   ExtensionGCMAppHandlerTest()
@@ -285,12 +270,6 @@ class ExtensionGCMAppHandlerTest : public testing::Test {
         std::make_unique<content::InProcessUtilityThreadHelper>();
 
     // This is needed to create extension service under CrOS.
-#if BUILDFLAG(IS_CHROMEOS)
-    user_manager_.Reset(std::make_unique<user_manager::UserManagerImpl>(
-        std::make_unique<ash::UserManagerDelegateImpl>(),
-        g_browser_process->local_state(), ash::CrosSettings::Get()));
-    ash::ConciergeClient::InitializeFake(/*fake_cicerone_client=*/nullptr);
-#endif
 
     // Create a new profile.
     TestingProfile::Builder builder;
@@ -318,9 +297,6 @@ class ExtensionGCMAppHandlerTest : public testing::Test {
   }
 
   void TearDown() override {
-#if BUILDFLAG(IS_CHROMEOS)
-    user_manager_.Reset();
-#endif
 
     waiter_.PumpUILoop();
     gcm_app_handler_->Shutdown();
@@ -329,11 +305,6 @@ class ExtensionGCMAppHandlerTest : public testing::Test {
       partition->WaitForDeletionTasksForTesting();
     }
 
-#if BUILDFLAG(IS_CHROMEOS)
-    gcm_app_handler_.reset();
-    profile_.reset();
-    ash::ConciergeClient::Shutdown();
-#endif
   }
 
   // Returns a barebones test extension.
@@ -449,10 +420,6 @@ class ExtensionGCMAppHandlerTest : public testing::Test {
   base::ScopedTempDir temp_dir_;
 
   // This is needed to create extension service under CrOS.
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::ScopedCrosSettingsTestHelper cros_settings_test_helper_;
-  user_manager::ScopedUserManager user_manager_;
-#endif
 
   Waiter waiter_;
   std::unique_ptr<FakeExtensionGCMAppHandler> gcm_app_handler_;
@@ -506,15 +473,8 @@ TEST_F(ExtensionGCMAppHandlerTest, UnregisterOnExtensionUninstall) {
   waiter()->WaitUntilCompleted();
   EXPECT_EQ(instance_id::InstanceID::SUCCESS,
             gcm_app_handler()->delete_id_result());
-#if BUILDFLAG(IS_ANDROID)
-  // Unregistration is not supported on Android.
-  // TODO(crbug.com/421235963): Consider dropping support on other platforms.
-  EXPECT_EQ(gcm::GCMClient::UNKNOWN_ERROR,
-            gcm_app_handler()->unregistration_result());
-#else
   EXPECT_EQ(gcm::GCMClient::SUCCESS,
             gcm_app_handler()->unregistration_result());
-#endif
 }
 
 TEST_F(ExtensionGCMAppHandlerTest, UpdateExtensionWithGcmPermissionKept) {

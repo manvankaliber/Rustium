@@ -63,13 +63,9 @@ bool AiOverlayDialogUntrustedUIConfig::IsWebUIEnabled(
 }
 
 AiOverlayDialogUntrustedUI::AiOverlayDialogUntrustedUI(content::WebUI* web_ui)
-    : AiOverlayDialogUntrustedUIBase(web_ui
-#if !BUILDFLAG(IS_ANDROID)
-                                     ,
+    : AiOverlayDialogUntrustedUIBase(web_ui,
                                      /*enable_chrome_send=*/false,
-                                     /*enable_chrome_histograms=*/false
-#endif
-      ) {
+                                     /*enable_chrome_histograms=*/false) {
   content::WebUIDataSource* html_source =
       content::WebUIDataSource::CreateAndAdd(
           web_ui->GetWebContents()->GetBrowserContext(),
@@ -78,13 +74,7 @@ AiOverlayDialogUntrustedUI::AiOverlayDialogUntrustedUI(content::WebUI* web_ui)
   // TODO(crbug.com/543871096): Localize remaining Notes subpage strings.
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
       {"add", IDS_ADD},
-#if !BUILDFLAG(IS_ANDROID)
       {"delete", IDS_DELETE},
-#else
-      // TODO(crbug.com/543871096): Localize IDS_DELETE for Android, as
-      // IDS_REMOVE is a generic placeholder.
-      {"delete", IDS_REMOVE},
-#endif  // !BUILDFLAG(IS_ANDROID)
   };
   html_source->AddLocalizedStrings(kLocalizedStrings);
 
@@ -106,7 +96,6 @@ AiOverlayDialogUntrustedUI::AiOverlayDialogUntrustedUI(content::WebUI* web_ui)
         "eval.html", IDR_AI_OVERLAY_DIALOG_UNTRUSTED_EVAL_EVAL_HTML);
   }
 #endif
-  html_source->AddBoolean("isAndroidBackend", BUILDFLAG(IS_ANDROID));
   html_source->AddBoolean("enableTtcTestApi", enable_test_api);
 
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)

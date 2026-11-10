@@ -44,7 +44,7 @@
 //
 // malloc_usable_size() is not exported by the Android NDK. It is not
 // implemented by uclibc.
-#if !defined(__UCLIBC__) && !defined(__ANDROID__)
+#if !defined(__UCLIBC__)
 #define HAVE_MALLOC_H 1
 #define HAVE_MALLOC_USABLE_SIZE 1
 #endif

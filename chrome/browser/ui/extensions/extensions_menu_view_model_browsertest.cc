@@ -1620,9 +1620,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionsMenuViewModelBrowserTest,
 // Tests that GetSiteSettingsState strips '#' fragment from file:// URLs.
 IN_PROC_BROWSER_TEST_F(ExtensionsMenuViewModelBrowserTest,
                        GetSiteSettingsState_FileUrl_StripFragment) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP() << "file:// navigation unsupported on Android browsertests";
-#else
   AddExtensionWithHostPermission("Extension", "<all_urls>");
 
   const GURL url = CreateTempFileUrl("#section");
@@ -1633,15 +1630,11 @@ IN_PROC_BROWSER_TEST_F(ExtensionsMenuViewModelBrowserTest,
   // Label should contain full file path including .html, without '#section'.
   EXPECT_TRUE(state.label.find(u"page.html") != std::u16string::npos);
   EXPECT_EQ(state.label.find(u'#'), std::u16string::npos);
-#endif
 }
 
 // Tests that GetSiteSettingsState strips '?' query from file:// URLs.
 IN_PROC_BROWSER_TEST_F(ExtensionsMenuViewModelBrowserTest,
                        GetSiteSettingsState_FileUrl_StripQuery) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP() << "file:// navigation unsupported on Android browsertests";
-#else
   AddExtensionWithHostPermission("Extension", "<all_urls>");
 
   const GURL url = CreateTempFileUrl("?foo=bar");
@@ -1652,15 +1645,11 @@ IN_PROC_BROWSER_TEST_F(ExtensionsMenuViewModelBrowserTest,
   // Label should contain full file path including .html, without '?foo=bar'.
   EXPECT_TRUE(state.label.find(u"page.html") != std::u16string::npos);
   EXPECT_EQ(state.label.find(u'?'), std::u16string::npos);
-#endif
 }
 
 // Tests that GetSiteSettingsState does not modify a clean file:// URL.
 IN_PROC_BROWSER_TEST_F(ExtensionsMenuViewModelBrowserTest,
                        GetSiteSettingsState_FileUrl_Clean) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP() << "file:// navigation unsupported on Android browsertests";
-#else
   AddExtensionWithHostPermission("Extension", "<all_urls>");
 
   const GURL url = CreateTempFileUrl(/*suffix=*/"");
@@ -1672,7 +1661,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionsMenuViewModelBrowserTest,
   EXPECT_TRUE(state.label.find(u"page.html") != std::u16string::npos);
   EXPECT_EQ(state.label.find(u'?'), std::u16string::npos);
   EXPECT_EQ(state.label.find(u'#'), std::u16string::npos);
-#endif
 }
 
 // Tests that executing an extension action when host permissions are withheld

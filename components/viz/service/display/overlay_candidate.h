@@ -197,23 +197,6 @@ class VIZ_SERVICE_EXPORT OverlayCandidate {
   bool possible_video_fullscreen_letterboxing = false;
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  // Is video using SurfaceView-like architecture. It's currently actually uses
-  // `DialogOverlay` in browser instead of actual SurfaceView. But "SurfaceView"
-  // is used throughout the code so is used here as well for consistency.
-  bool is_video_in_surface_view = false;
-  // Crop within the buffer to be placed inside |display_rect| before
-  // |clip_rect| was applied. Valid only for surface control.
-  gfx::RectF unclipped_uv_rect = gfx::RectF(0.f, 0.f, 1.f, 1.f);
-  // |display_rect| before |clip_rect| was applied. Valid only for surface
-  // control.
-  gfx::RectF unclipped_display_rect = gfx::RectF(0.f, 0.f, 1.f, 1.f);
-  // The `desiredRatio` to pass to
-  // ASurfaceTransaction_setExtendedRangeBrightness for this candidate, which is
-  // the HDR headroom that the system compositor should provide. A value of 1
-  // indicates that no HDR headroom is requested.
-  float desired_brightness_ratio = 1.f;
-#endif
 
   // Stacking order of the overlay plane relative to the main surface,
   // which is 0. Signed to allow for "underlays".

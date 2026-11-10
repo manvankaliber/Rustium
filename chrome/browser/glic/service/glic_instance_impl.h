@@ -43,9 +43,7 @@
 #include "components/tabs/public/tab_interface.h"
 #include "mojo/public/cpp/bindings/pending_remote.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/host/context/glic_sharing_manager_impl.h"
-#endif
 
 class GlobalBrowserCollection;
 class Profile;
@@ -331,10 +329,8 @@ class GlicInstanceImpl : public GlicInstance,
   void ContextAccessIndicatorChanged(bool enabled) override;
 
   // Test support.
-#if !BUILDFLAG(IS_ANDROID)
   views::View* GetActiveEmbedderGlicViewForTesting();
   class GlicFloatingUi* GetFloatingUiForTesting();
-#endif
   tabs::TabInterface* GetActiveEmbedderTabForTesting();
   std::string DescribeForTesting();
   bool is_offscreen_rendering_active_for_testing() const {

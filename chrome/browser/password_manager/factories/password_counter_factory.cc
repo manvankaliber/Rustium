@@ -52,12 +52,6 @@ PasswordCounterFactory::BuildServiceInstanceForBrowserContext(
       ui::GetDeviceFormFactor() != ui::DEVICE_FORM_FACTOR_TABLET) {
     return nullptr;
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(
-          password_manager::features::kAndroidSelectPasswordContextMenu)) {
-    return nullptr;
-  }
-#endif
   Profile* profile = Profile::FromBrowserContext(context);
   return std::make_unique<password_manager::PasswordCounter>(
       ProfilePasswordStoreFactory::GetForProfile(

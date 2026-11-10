@@ -9,12 +9,10 @@
 
 // Ability to name anonymous VMAs is available on some, but not all Linux-based
 // systems.
-#if PA_BUILDFLAG(IS_ANDROID) || PA_BUILDFLAG(IS_LINUX) || \
-    PA_BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(IS_LINUX)
 #include <sys/prctl.h>
 
-#if (PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)) && \
-    !(defined(PR_SET_VMA) && defined(PR_SET_VMA_ANON_NAME))
+#if PA_BUILDFLAG(IS_LINUX) && !(defined(PR_SET_VMA) && defined(PR_SET_VMA_ANON_NAME))
 
 // The PR_SET_VMA* symbols are originally from
 // https://android.googlesource.com/platform/bionic/+/lollipop-release/libc/private/bionic_prctl.h
@@ -30,14 +28,14 @@
 #define PR_SET_VMA_ANON_NAME 0
 #endif
 
-#endif  // (PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)) &&
+#endif
         // !(defined(PR_SET_VMA) && defined(PR_SET_VMA_ANON_NAME))
 
 #if defined(PR_SET_VMA) && defined(PR_SET_VMA_ANON_NAME)
 #define LINUX_NAME_REGION 1
 #endif
 
-#endif  // PA_BUILDFLAG(IS_ANDROID) || PA_BUILDFLAG(IS_LINUX) ||
+#endif
         // PA_BUILDFLAG(IS_CHROMEOS)
 
 #endif  // PARTITION_ALLOC_LINUX_NAME_REGION_H_

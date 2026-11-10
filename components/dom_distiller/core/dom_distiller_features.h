@@ -20,26 +20,12 @@ COMPONENT_EXPORT(DOM_DISTILLER_FEATURES) bool IsDomDistillerEnabled();
 COMPONENT_EXPORT(DOM_DISTILLER_FEATURES)
 bool ShouldStartDistillabilityService();
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-inline constexpr int kHeuristicMinScore = 50;
-inline constexpr int kHeuristicMinContentLength = 160;
-#else
 inline constexpr int kHeuristicMinScore = 100;
 inline constexpr int kHeuristicMinContentLength = 200;
-#endif
 
 COMPONENT_EXPORT(DOM_DISTILLER_FEATURES)
 BASE_DECLARE_FEATURE(kSyncReaderForAccessibility);
 
-#if BUILDFLAG(IS_ANDROID)
-// Feature declarations below -- alphabetical order.
-COMPONENT_EXPORT(DOM_DISTILLER_FEATURES)
-BASE_DECLARE_FEATURE(kReaderModeBlurTransitionAnimation);
-COMPONENT_EXPORT(DOM_DISTILLER_FEATURES)
-BASE_DECLARE_FEATURE(kReaderModeDelayBottomSheetPeek);
-COMPONENT_EXPORT(DOM_DISTILLER_FEATURES)
-BASE_DECLARE_FEATURE(kReaderModeToggleLinks);
-#endif
 
 }  // namespace dom_distiller
 

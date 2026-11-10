@@ -38,9 +38,7 @@ CustomizeButtonsHandler::CustomizeButtonsHandler(
       feature_promo_helper_(std::move(customize_chrome_feature_promo_helper)),
       page_{std::move(pending_page)},
       receiver_{this, std::move(pending_handler)} {
-#if !BUILDFLAG(IS_ANDROID)
   CHECK(feature_promo_helper_);
-#endif
 
   if (tab_interface_) {
     tab_subscriptions_.push_back(tab_interface_->RegisterWillDetach(
@@ -135,7 +133,6 @@ void CustomizeButtonsHandler::SetCustomizeChromeSidePanelVisible(
   customize_chrome_side_panel_controller->OpenSidePanel(trigger_enum, section);
 
   // Record usage for customize chrome promo.
-#if !BUILDFLAG(IS_ANDROID)
   if (feature_promo_helper_) {
     auto* tab = GetActiveTab();
     CHECK(tab);
@@ -147,7 +144,6 @@ void CustomizeButtonsHandler::SetCustomizeChromeSidePanelVisible(
         feature_engagement::kIPHDesktopCustomizeChromeAutoOpenFeature,
         contents);
   }
-#endif
 }
 
 void CustomizeButtonsHandler::IncrementCustomizeChromeButtonOpenCount() {

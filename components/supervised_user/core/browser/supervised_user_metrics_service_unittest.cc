@@ -30,10 +30,6 @@ constexpr char kWebFilterTypeHistogramName[] = "FamilyUser.WebFilterType";
 constexpr char kWebFilterTypeForFamilyUserHistogramName[] =
     "SupervisedUsers.WebFilterType.FamilyLink";
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr char kWebFilterTypeForLocallySupervisedHistogramName[] =
-    "SupervisedUsers.WebFilterType.LocallySupervised";
-#endif  // BUILDFLAG(IS_ANDROID)
 constexpr char kManagedSiteListHistogramName[] = "FamilyUser.ManagedSiteList";
 constexpr char kApprovedSitesCountHistogramName[] =
     "FamilyUser.ManagedSiteListCount.Approved";
@@ -78,13 +74,6 @@ TEST_F(SupervisedUserMetricsServiceTest,
   EXPECT_NE(0, GetDayIdPref());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(SupervisedUserMetricsServiceTest,
-       NewDayAfterServiceCreationForLocallySupervised) {
-  Initialize(InitialSupervisionState::kSupervisedWithAllContentFilters);
-  EXPECT_NE(0, GetDayIdPref());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Unsupervised user doesn't emit metrics and will not have a day id pref.
 TEST_F(SupervisedUserMetricsServiceTest, NewDayAfterSupervisedUserDetected) {
@@ -142,23 +131,6 @@ TEST_F(SupervisedUserMetricsServiceTest,
                                        /*expected_bucket_count=*/1);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(SupervisedUserMetricsServiceTest,
-       MetricsRecordedForLocallySupervisedUser) {
-  Initialize(InitialSupervisionState::kSupervisedWithAllContentFilters);
-  histogram_tester_.ExpectTotalCount(
-      kWebFilterTypeForLocallySupervisedHistogramName,
-      /*expected_count=*/1);
-  // For this type of supervised user, the managed site list is not reported.
-  histogram_tester_.ExpectTotalCount(kManagedSiteListHistogramName,
-                                     /*expected_count=*/0);
-  histogram_tester_.ExpectTotalCount(kApprovedSitesCountHistogramName,
-                                     /*expected_count=*/0);
-  histogram_tester_.ExpectTotalCount(kBlockedSitesCountHistogramName,
-                                     /*expected_count=*/0);
-}
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
 struct PeriodicalWebFilterTypeTestParams {
   std::string test_name;
@@ -218,21 +190,12 @@ GetPeriodicalWebFilterTypeTestParams() {
       {"Unsupervised",
        InitialSupervisionState::kUnsupervised,
        {kWebFilterTypeHistogramName,
-#if BUILDFLAG(IS_ANDROID)
-        kWebFilterTypeForLocallySupervisedHistogramName,
-#endif  // BUILDFLAG(IS_ANDROID)
         kWebFilterTypeForFamilyUserHistogramName},
        /*expect_emissions=*/false},
       {"SupervisedWithParentalControls",
        InitialSupervisionState::kFamilyLinkDefault,
        {kWebFilterTypeHistogramName, kWebFilterTypeForFamilyUserHistogramName},
        /*expect_emissions=*/true},
-#if BUILDFLAG(IS_ANDROID)
-      {"SupervisedLocally",
-       InitialSupervisionState::kSupervisedWithAllContentFilters,
-       {kWebFilterTypeForLocallySupervisedHistogramName},
-       /*expect_emissions=*/true},
-#endif  // BUILDFLAG(IS_ANDROID)
   };
 }
 

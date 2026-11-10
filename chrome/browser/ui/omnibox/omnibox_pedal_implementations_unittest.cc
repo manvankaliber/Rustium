@@ -27,9 +27,7 @@ class OmniboxPedalImplementationsTest : public testing::Test {
   void SetUp() override {
     feature_list_.InitWithFeatures(
         {
-#if !BUILDFLAG(IS_CHROMEOS)
             syncer::kUnoPhase2FollowUp
-#endif  // !BUILDFLAG(IS_CHROMEOS)
         },
         {});
     InitPedals();
@@ -11041,7 +11039,6 @@ class OmniboxPedalImplementationsTest : public testing::Test {
             "sync settings google",
             "sync settings google chrome",
             "sync settings manage",
-#if !BUILDFLAG(IS_CHROMEOS)
             "manage my stuff",
             "manage my chrome stuff",
             "manage my chrome data",
@@ -11049,7 +11046,6 @@ class OmniboxPedalImplementationsTest : public testing::Test {
             "manage bookmarks and stuff",
             "edit what I save",
             "edit what's in my account",
-#endif  // !BUILDFLAG(IS_CHROMEOS)
         },
 
         // ID#12
@@ -18019,7 +18015,6 @@ TEST_F(OmniboxPedalImplementationsTest,
 }
 
 TEST_F(OmniboxPedalImplementationsTest, PedalCloseIncognitoWindowsStrings) {
-#if !BUILDFLAG(IS_ANDROID)
   auto pedals_incognito = GetPedalImplementations(
       OmniboxPedalProfileType::kOtrWithRegularParent,
       OmniboxPedalOtrType::kIncognito, /*testing=*/true);
@@ -18045,11 +18040,9 @@ TEST_F(OmniboxPedalImplementationsTest, PedalCloseIncognitoWindowsStrings) {
   EXPECT_EQ(it_isolated->second->GetLabelStrings().suggestion_contents,
             l10n_util::GetStringUTF16(
                 IDS_OMNIBOX_PEDAL_CLOSE_ISOLATED_WINDOWS_SUGGESTION_CONTENTS));
-#endif
 }
 
 TEST_F(OmniboxPedalImplementationsTest, PedalLaunchIncognitoStrings) {
-#if !BUILDFLAG(IS_ANDROID)
   auto pedals_regular = GetPedalImplementations(
       OmniboxPedalProfileType::kRegular, OmniboxPedalOtrType::kIncognito,
       /*testing=*/true);
@@ -18083,7 +18076,6 @@ TEST_F(OmniboxPedalImplementationsTest, PedalLaunchIncognitoStrings) {
   EXPECT_EQ(it_otr_isolated->second->GetLabelStrings().suggestion_contents,
             l10n_util::GetStringUTF16(
                 IDS_OMNIBOX_PEDAL_LAUNCH_ISOLATED_SUGGESTION_CONTENTS));
-#endif
 }
 
 TEST_F(OmniboxPedalImplementationsTest, MemoryUsageIsModerate) {

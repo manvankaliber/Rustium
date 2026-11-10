@@ -262,7 +262,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(any(target_env = "gnu", target_os = "android"))] {
+    if #[cfg(target_env = "gnu")] {
         s! {
             pub struct statx {
                 pub stx_mask: crate::__u32,
@@ -502,9 +502,7 @@ pub const XATTR_CREATE: c_int = 0x1;
 pub const XATTR_REPLACE: c_int = 0x2;
 
 cfg_if! {
-    if #[cfg(target_os = "android")] {
-        pub const RLIM64_INFINITY: c_ulonglong = !0;
-    } else if #[cfg(all(target_os = "l4re", target_pointer_width = "64"))] {
+    if #[cfg(any())] {} else if #[cfg(all(target_os = "l4re", target_pointer_width = "64"))] {
         pub const RLIM64_INFINITY: crate::rlim_t = !0;
     } else {
         pub const RLIM64_INFINITY: crate::rlim64_t = !0;
@@ -1635,12 +1633,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(any(
-        target_env = "gnu",
-        target_env = "musl",
-        target_os = "android",
-        target_os = "l4re"
-    ))] {
+    if #[cfg(any(target_env = "gnu", target_env = "musl", target_os = "l4re"))] {
         pub const AT_STATX_SYNC_TYPE: c_int = 0x6000;
         pub const AT_STATX_SYNC_AS_STAT: c_int = 0x0000;
         pub const AT_STATX_FORCE_SYNC: c_int = 0x2000;
@@ -2259,11 +2252,7 @@ cfg_if! {
 
 // The statx syscall, available on some libcs.
 cfg_if! {
-    if #[cfg(any(
-        target_env = "gnu",
-        target_env = "musl",
-        target_os = "android",
-    ))] {
+    if #[cfg(any(target_env = "gnu", target_env = "musl"))] {
         extern "C" {
             pub fn statx(
                 dirfd: c_int,
@@ -2290,10 +2279,7 @@ cfg_if! {
         pub use self::l4re::*;
         mod linux_l4re_shared;
         pub use self::linux_l4re_shared::*;
-    } else if #[cfg(target_os = "android")] {
-        mod android;
-        pub use self::android::*;
-    } else {
+    }  else {
         // Unknown target_os
     }
 }

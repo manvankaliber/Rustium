@@ -4,8 +4,6 @@
 
 import("//extensions/buildflags/buildflags.gni")
 
-assert(!is_android)
-
 source_set("contextual_tasks_private") {
   sources = [
     "contextual_tasks_private_api.cc",

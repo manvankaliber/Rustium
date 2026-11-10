@@ -12,7 +12,6 @@ from core import benchmark_finders
 from core import path_util
 
 path_util.AddTelemetryToPath()
-path_util.AddAndroidPylibToPath()
 
 from telemetry.story.typ_expectations import SYSTEM_CONDITION_TAGS
 
@@ -28,9 +27,8 @@ CLUSTER_TELEMETRY_BENCHMARKS = [
     CLUSTER_TELEMETRY_DIR
   )
 ]
-MOBILE_PREFIXES = {'android', 'mobile'}
+MOBILE_PREFIXES = {'mobile'}
 DESKTOP_PREFIXES = {
-  'chromeos',
   'desktop',
   'linux',
   'mac',

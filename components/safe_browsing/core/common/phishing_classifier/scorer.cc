@@ -157,24 +157,6 @@ SkBitmap ResizeImageForModel(const gfx::Image& image,
   if (image.IsEmpty() || width <= 0 || height <= 0) {
     return SkBitmap();
   }
-#if BUILDFLAG(IS_IOS)
-  // On iOS, we must resize via CoreGraphics to avoid contiguous memory OOMs
-  // that occur when extracting full-resolution SkBitmaps.
-  //
-  // `gfx::ResizedImage(...).AsBitmap()` is deliberately not used here:
-  // `AsBitmap()` upsamples by the maximum supported resource scale factor
-  // (e.g. 3x), which would allocate a 9x-area intermediate and then require a
-  // second `skia::ImageOperations::Resize()` pass back down to
-  // (`width`, `height`) on the calling (UI) thread. Neither pass adds detail,
-  // since the CoreGraphics resize already produced the exact target
-  // dimensions.
-  //
-  // As a result `kConditionalImageResize` has no effect on iOS: the skia
-  // interpolation-quality choice below only ever applied to that redundant
-  // second pass.
-  return visual_utils::GetResizedImageAsSkBitmap(image,
-                                                 gfx::Size(width, height));
-#else
   // On other platforms, we can safely extract the SkBitmap and resize it using
   // Skia, which allows us to respect the `kConditionalImageResize`
   // interpolation quality feature flag.
@@ -188,7 +170,6 @@ SkBitmap ResizeImageForModel(const gfx::Image& image,
           ? skia::ImageOperations::RESIZE_BEST
           : skia::ImageOperations::RESIZE_GOOD,
       width, height);
-#endif
 }
 
 std::string GetModelInput(const SkBitmap& bitmap, int width, int height) {
@@ -397,7 +378,6 @@ Scorer::Scorer() {
 }
 Scorer::~Scorer() = default;
 
-#if !BUILDFLAG(IS_IOS)
 // static
 ScorerStorage* ScorerStorage::GetInstance() {
   static base::NoDestructor<ScorerStorage> instance;
@@ -406,7 +386,6 @@ ScorerStorage* ScorerStorage::GetInstance() {
 
 ScorerStorage::ScorerStorage() = default;
 ScorerStorage::~ScorerStorage() = default;
-#endif
 
 /* static */
 std::unique_ptr<Scorer> Scorer::Create(base::ReadOnlySharedMemoryRegion region,
@@ -674,7 +653,6 @@ int Scorer::image_embedding_tflite_model_version() const {
              : 0;
 }
 
-#if !BUILDFLAG(IS_IOS)
 void ScorerStorage::SetScorer(std::unique_ptr<Scorer> scorer) {
   if (scorer_) {
     // The Scorer contains a TensorFlow Lite model. Destroying it can take a
@@ -709,6 +687,5 @@ void ScorerStorage::AddObserver(ScorerStorage::Observer* observer) {
 void ScorerStorage::RemoveObserver(ScorerStorage::Observer* observer) {
   observers_.RemoveObserver(observer);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 }  // namespace safe_browsing

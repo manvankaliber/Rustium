@@ -195,9 +195,7 @@ export class SettingsMenuElement extends SettingsMenuElementBase {
       this.pageVisibility_.languages,
       this.pageVisibility_.downloads,
       this.pageVisibility_.a11y,
-      // <if expr="not is_chromeos">
       this.pageVisibility_.system,
-      // </if>
       this.pageVisibility_.reset,
     ];
     return visibilities.every(visibility => visibility === false);

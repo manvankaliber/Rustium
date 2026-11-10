@@ -17,9 +17,7 @@
 #include "components/prefs/pref_change_registrar.h"
 #include "components/skills/internal/skills_downloader.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/skills/internal/skills_fetcher.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 #include "components/skills/public/skill.h"
 #include "components/skills/public/skills_provider.h"
 #include "components/skills/public/skills_service.h"
@@ -100,10 +98,8 @@ class SkillsServiceImpl : public SkillsService {
   void FetchDiscoverySkills() override;
   void Handle1pSkills(
       std::unique_ptr<FirstPartySkillData> first_party_skill_data) override;
-#if !BUILDFLAG(IS_ANDROID)
   void OnDiscoverySkillsFetchedFromService(
       std::unique_ptr<FirstPartySkillData> first_party_skill_data);
-#endif  // !BUILDFLAG(IS_ANDROID)
   const SkillProtoList& Get1PSkills() const override;
   const std::vector<skills::proto::TopicInfo>& Get1PTopicsInfo() const override;
   const std::vector<std::unique_ptr<Skill>>& GetSkills() const override;
@@ -193,9 +189,7 @@ class SkillsServiceImpl : public SkillsService {
   std::unique_ptr<SkillsDownloader> skills_downloader_;
 
   // Fetcher for 1P skills from Boq API.
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<SkillsFetcher> skills_fetcher_;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   raw_ptr<PrefService> pref_service_;
   raw_ptr<optimization_guide::OptimizationGuideDecider> optimization_guide_;

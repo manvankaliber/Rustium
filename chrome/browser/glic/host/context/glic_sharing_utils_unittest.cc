@@ -52,13 +52,6 @@ TEST_F(GlicSharingUtilsTest, IsTabValidForSharing_ChromeUINewTab) {
   EXPECT_TRUE(IsTabValidForSharing(web_contents));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(GlicSharingUtilsTest, IsTabValidForSharing_ChromeUINativeNewTab) {
-  content::WebContents* web_contents =
-      CreateWebContents(GURL(chrome::kChromeUINativeNewTabURL));
-  EXPECT_TRUE(IsTabValidForSharing(web_contents));
-}
-#endif
 
 TEST_F(GlicSharingUtilsTest, IsTabValidForSharing_InvalidSharingPage) {
   content::WebContents* web_contents =

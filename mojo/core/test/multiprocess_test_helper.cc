@@ -140,7 +140,6 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
     case LaunchType::ASYNC:
       channel.PrepareToPassRemoteEndpoint(&options, &command_line);
       break;
-#if !BUILDFLAG(IS_IOS)
     case LaunchType::NAMED_CHILD:
     case LaunchType::NAMED_PEER: {
 #if BUILDFLAG(IS_MAC)
@@ -160,7 +159,6 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
       command_line.AppendSwitchNative(kNamedPipeName, server_name);
       break;
     }
-#endif
   }
 
   if (!switch_string.empty()) {
@@ -187,7 +185,6 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
     case LaunchType::ASYNC:
       local_channel_endpoint = channel.TakeLocalEndpoint();
       break;
-#if !BUILDFLAG(IS_IOS)
     case LaunchType::NAMED_CHILD:
     case LaunchType::NAMED_PEER: {
       NamedPlatformChannel::Options channel_options;
@@ -196,7 +193,6 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
       server_endpoint = named_channel.TakeServerEndpoint();
       break;
     }
-#endif
   };
 
   OutgoingInvitation child_invitation;
@@ -206,16 +202,12 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
       command_line.AppendSwitch(kAcceptInvitationAsync);
       [[fallthrough]];
     case LaunchType::CHILD:
-#if !BUILDFLAG(IS_IOS)
     case LaunchType::NAMED_CHILD:
-#endif
       pipe = child_invitation.AttachMessagePipe(kTestChildMessagePipeName);
       command_line.AppendSwitch(kRunAsBrokerClient);
       break;
     case LaunchType::PEER:
-#if !BUILDFLAG(IS_IOS)
     case LaunchType::NAMED_PEER:
-#endif
       isolated_connection_ = std::make_unique<IsolatedConnection>();
       if (local_channel_endpoint.is_valid()) {
         pipe = isolated_connection_->Connect(std::move(local_channel_endpoint));
@@ -249,14 +241,12 @@ ScopedMessagePipeHandle MultiprocessTestHelper::StartChildWithExtraSwitch(
         std::move(child_invitation), test_child_.Handle(),
         std::move(local_channel_endpoint), ProcessErrorCallback());
   }
-#if !BUILDFLAG(IS_IOS)
   else if (launch_type == LaunchType::NAMED_CHILD) {
     DCHECK(server_endpoint.is_valid());
     OutgoingInvitation::Send(std::move(child_invitation), test_child_.Handle(),
                              std::move(server_endpoint),
                              ProcessErrorCallback());
   }
-#endif
 
   CHECK(test_child_.IsValid());
   return pipe;

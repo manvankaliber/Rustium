@@ -4,7 +4,7 @@
   <message name="IDS_SETTINGS_OPENS_IN_NEW_TAB" desc="ARIA (accessibility) label describing a link which opens in a new tab.">
     Opens in new tab
   </message>
-  <if expr="not is_android">
+
     <!-- Shared across multiple pages -->
     <message name="IDS_SETTINGS_CONTINUE" desc="Label for 'Continue' buttons.">
       Continue
@@ -31,7 +31,7 @@
       When used
     </message>
 
-    <if expr="not is_chromeos">
+
       <message name="IDS_RELAUNCH_CONFIRMATION_DIALOG_BODY" desc="The body of the modal dialog that we show when users click on relaunch and they have open Incognito windows. The dialog serves to warn the users about losing their Incognito windows if they proceed with the relaunch.">
         {COUNT, plural,
         =1 {Your Incognito window won't open after you relaunch}
@@ -47,7 +47,7 @@
         =1 {There is {COUNT} Incognito or Isolated window open. It won't reopen after you relaunch}
         other {There are {COUNT} Incognito and Isolated windows open across profiles. They won't reopen after you relaunch}}
       </message>
-    </if>
+
 
     <!-- About Page -->
     <message name="IDS_SETTINGS_ABOUT_PAGE_BROWSER_VERSION" desc="The text label describing the version of the browser, example: Version 57.0.2937.0-r123456 (Developer Build) unknown (64-bit). The suffix of the version (eg. '-r123456') exists only in limited cases.)">
@@ -59,11 +59,11 @@
     <message name="IDS_SETTINGS_ABOUT_PAGE_LEARN_MORE_SYSTEM_REQUIREMENTS" desc="The accessibility label for a 'Learn more' link next to an error message about how the user's operating system is not supported.">
       Learn more about system requirements
     </message>
-    <if expr="not is_chromeos">
+
       <message name="IDS_SETTINGS_ABOUT_PAGE_RELAUNCH" desc="The label for the relaunch button that relaunches the browser once update is complete">
         Relaunch
       </message>
-    </if>
+
     <if expr="_google_chrome">
       <message name="IDS_SETTINGS_ABOUT_PAGE_REPORT_AN_ISSUE" desc="Text of the button which allows the user to report an issue with Chrome.">
         Report an issue
@@ -170,21 +170,17 @@
     <message name="IDS_SETTINGS_ENABLE_CARET_BROWSING_TITLE" desc="Name of the setting to enable Caret Browsing, which allows you to move around any web page using a text caret.">
       Navigate pages with a text cursor
     </message>
-    <if expr="not is_chromeos">
+
       <message name="IDS_SETTINGS_ENABLE_CARET_BROWSING_SUBTITLE" desc="Subtitle of the setting to enable Caret Browsing, which allows you to move around any web page using a text caret.">
         To turn caret browsing on or off, use the shortcut F7
       </message>
-    </if>
-    <if expr="is_chromeos">
-      <message name="IDS_SETTINGS_ENABLE_CARET_BROWSING_SUBTITLE" desc="Subtitle of the setting to enable Caret Browsing, which allows you to move around any web page using a text caret.">
-        To turn caret browsing on or off, use the shortcut Ctrl+Search+7
-      </message>
-    </if>
-    <if expr="not is_chromeos">
+
+
+
       <message name="IDS_SETTINGS_ACCESSIBILITY_FOCUS_HIGHLIGHT_DESCRIPTION" desc="In the settings tab, the text next to the checkbox to highlight the focused object to make it easier to see.">
         Show a quick highlight on the focused object
       </message>
-    </if>
+
     <if expr="is_win or is_linux or is_macosx">
       <message name="IDS_SETTINGS_OVERSCROLL_HISTORY_NAVIGATION_TITLE" desc="Title for the overscroll history navigation setting, which allows you to navigate back and forward by swiping left or right with a touch device.">
         Swipe between pages
@@ -200,7 +196,7 @@
         Select the More Gestures tab, then turn on Swipe between pages to navigate back and forward
       </message>
     </if>
-    <if expr="not is_chromeos">
+
       <message name="IDS_SETTINGS_ACCESSIBILITY_TOAST_FREQUENCY_TITLE" desc="Title for a setting that allows you to change what type of feedback messages you receive.">
         Copied to clipboard confirmations
       </message>
@@ -244,7 +240,7 @@
       <message name="IDS_SETTINGS_APPLY_PAGE_COLORS_ONLY_ON_INCREASED_CONTRAST_SUBTITLE" desc="Subtitle for the toggle that restricts the selected page color theme to the times when the operating system reports high contrast.">
         Your selected page color theme is used only while system high contrast is on
       </message>
-    </if>
+
 
     <!-- Appearance Page -->
     <message name="IDS_SETTINGS_APPEARANCE" desc="Name of the settings page which displays appearance preferences.">
@@ -259,16 +255,12 @@
     <message name="IDS_SETTINGS_HOME_BUTTON_DISABLED" desc="Sub label for the Show home button setting when disabled.">
       Disabled
     </message>
-    <if expr="is_chromeos">
-      <message name="IDS_SETTINGS_THEMES" desc="Name of the control which allows the user to get a theme for the browser.">
-        Browser themes
-      </message>
-    </if>
-    <if expr="not is_chromeos">
+
+
       <message name="IDS_SETTINGS_THEMES" desc="Name of the control which allows the user to get a theme for the browser.">
         Theme
       </message>
-    </if>
+
     <if expr="is_linux">
       <message name="IDS_SETTINGS_GTK_THEME" desc="Text of the label describing the system (GTK) browser theme on Linux">
         GTK
@@ -457,16 +449,12 @@
     <message name="IDS_SETTINGS_SUBPAGE_BUTTON" desc="Accessibility description for a button navigating the user from a settings page to one of the settings subpages.">
       Subpage button
     </message>
-    <if expr="not is_chromeos">
+
       <message name="IDS_SETTINGS_RESTART" desc="Text for a button that will restart Chrome.">
         Relaunch
       </message>
-    </if>
-    <if expr="is_chromeos">
-      <message name="IDS_SETTINGS_RESTART" desc="Text for a button that will restart ChromeOS.">
-        Restart
-      </message>
-    </if>
+
+
     <message name="IDS_SETTINGS_CONTROLLED_BY_EXTENSION" desc="Label text of an indicator that a setting's value is being controlled by an extension.">
       <ph name="NAME">$1<ex>Adblocker plusplus</ex></ph> is controlling this setting
     </message>
@@ -960,14 +948,14 @@
     </message>
 
     <!-- Default Browser Page -->
-    <if expr="not is_chromeos">
+
       <message name="IDS_SETTINGS_DEFAULT_BROWSER" desc="Name of the Default Browser page, which allows users to set which browser will open .html files within the OS.">
         Default browser
       </message>
       <message name="IDS_SETTINGS_DEFAULT_BROWSER_MAKE_DEFAULT_BUTTON" desc="Text of the button used to make Chrome the default browser on the user's system.">
         Make default
       </message>
-    </if>
+
 
     <!-- Delete Browsing Data -->
     <message name="IDS_SETTINGS_CLEAR_PERIOD_TITLE" desc="Label of the dropdown that selects the time range for which browsing data will be deleted.">
@@ -1256,11 +1244,11 @@
     <message name="IDS_SETTINGS_LANGUAGES_PAGE_TITLE" desc="Name of the settings page which displays language preferences.">
       Languages
     </message>
-    <if expr="not is_chromeos">
+
       <message name="IDS_SETTINGS_LANGUAGES_CARD_TITLE" desc="Name of the card which manages language preferences.">
         Preferred languages
       </message>
-    </if>
+
     <message name="IDS_SETTINGS_LANGUAGE_SEARCH" desc="Placeholder/label for the text input field that allows a user to filter languages.">
       Search languages
     </message>
@@ -1285,7 +1273,7 @@
     <message name="IDS_SETTINGS_LANGUAGES_NO_LANGUAGES_ADDED" desc="Placeholder for language list settings when no languages have been added, on the Manage Languages page.">
       No languages added
     </message>
-    <if expr="not is_chromeos">
+
       <message name="IDS_SETTINGS_LANGUAGES_EXPAND_ACCESSIBILITY_LABEL" desc="Label for the button that toggles showing the language options. Only visible by screen reader software.">
         Show language options
       </message>
@@ -1396,22 +1384,8 @@
           Please check with your network administrator to make sure that the firewall is not blocking downloads from Google servers.
         </message>
       </if>
-    </if>
-    <if expr="is_chromeos">
-      <if expr="reven">
-        <message name="IDS_SETTINGS_LANGUAGES_OPEN_CHROME_OS_SETTINGS_LABEL" desc="Label for the section that allow users to open languages settings in ChromeOS Flex.">
-          Manage languages in ChromeOS Flex settings
-        </message>
-      </if>
-      <if expr="not reven">
-        <message name="IDS_SETTINGS_LANGUAGES_OPEN_CHROME_OS_SETTINGS_LABEL" desc="Label for the section that allow users to open languages settings in ChromeOS.">
-          Manage languages in ChromeOS settings
-        </message>
-      </if>
-      <message name="IDS_SETTINGS_LANGUAGES_KEYBOARD_APPS" desc="Title for the list of keyboard apps installed via Play Store by the user.">
-        Keyboard apps
-      </message>
-    </if>
+
+
 
     <!-- Preloading Page-->
     <message name="IDS_SETTINGS_PRELOAD_PAGES_TITLE" desc="Title for a section in Settings that controls pages preloading and informs the user about the data shared by this feature.">
@@ -1449,18 +1423,7 @@
     <message name="IDS_SETTINGS_PRIVACY_MORE" desc="Label on the expansion button to show more privacy settings.">
       More
     </message>
-    <if expr="is_chromeos">
-      <if expr="reven">
-        <message name="IDS_SETTINGS_SECURE_DNS_OPEN_CHROME_OS_SETTINGS_LABEL" desc="Label for the section that allow users to open Secure DNS settings in ChromeOS Flex.">
-          Manage secure DNS in ChromeOS Flex settings
-        </message>
-      </if>
-      <if expr="not reven">
-        <message name="IDS_SETTINGS_SECURE_DNS_OPEN_CHROME_OS_SETTINGS_LABEL" desc="Label for the section that allow users to open Secure DNS settings in ChromeOS.">
-          Manage secure DNS in ChromeOS settings
-        </message>
-      </if>
-    </if>
+
 
     <!-- Offer Writing Help Page -->
     <message name="IDS_SETTINGS_AI_COMPOSE_SUBLABEL_V2" desc="This string is the subheading of a setting for ‘Help me write’. This subheading summarizes the user benefit of the Help Me Write feature. This is an AI (artificial intelligence) feature that suggests writing help when users are writing short-form text on the web. The tone should be motivating.">
@@ -1888,11 +1851,7 @@
     <message name="IDS_SETTINGS_SECURE_DNS" desc="Text for secure DNS toggle in Privacy options">
       Use secure DNS
     </message>
-    <if expr="is_chromeos">
-      <message name="IDS_SETTINGS_SECURE_DNS_WITH_IDENTIFIERS_DESCRIPTION" desc="Secondary, continued explanation of secure DNS in Privacy options">
-        Use a secure connection to look up a site’s IP address in the DNS (Domain Name System). This uses a managed service provider at <ph name="DNS_SERVER_TEMPLATE_WITH_IDENTIFIER">$1<ex>https://dns.example.net/dns-query{?dns}</ex></ph>
-      </message>
-    </if>
+
     <message name="IDS_SETTINGS_AUTOMATIC_MODE_DESCRIPTION" desc="Text of the select option that puts secure DNS in auto-upgrade mode">
       OS default (when available)
     </message>
@@ -2540,29 +2499,7 @@
     <message name="IDS_SETTINGS_SITE_SETTINGS_HID_DEVICES_BLOCKED" desc="Label for the disabled option of the hid devices site setting.">
       Don't allow sites to connect to HID devices
     </message>
-    <if expr="enable_smart_card">
-      <message name="IDS_SITE_SETTINGS_SMART_CARD_READERS" desc="Main heading for the Smart Card Readers section in settings.">
-        Smart card readers
-      </message>
-      <message name="IDS_SITE_SETTINGS_SMART_CARD_READERS_DESCRIPTION" desc="Description of how isolated web apps interact with smart card readers.">
-        Isolated web apps control authentication devices and smart cards accessible to them. Smart cards usually contain identifiers used to authenticate you.
-      </message>
-      <message name="IDS_SITE_SETTINGS_SMART_CARDS_DEFAULT_DESCRIPTION" desc="Label indicating the default behavior for smart card access.">
-        Isolated web apps automatically follow this setting
-      </message>
-      <message name="IDS_SITE_SETTINGS_SMART_CARDS_ASK" desc="Option to allow isolated web apps to control smart card readers.">
-        Isolated web apps can ask to control smart card readers
-      </message>
-      <message name="IDS_SITE_SETTINGS_SMART_CARDS_BLOCKED" desc="Option to block isolated web apps from controlling smart card readers.">
-        Isolated web apps can’t control smart card readers
-      </message>
-      <message name="IDS_SITE_SETTINGS_NO_SMART_CARD_READERS_FOUND" desc="No smart card readers were found.">
-        No smart card readers found
-      </message>
-      <message name="IDS_SITE_SETTINGS_RESET_SMART_CARD_CONFIRMATION" desc="Confirmation for resetting smart card reader permissions.">
-        Reset all smart card reader permissions?
-      </message>
-    </if>
+
     <message name="IDS_SETTINGS_SITE_SETTINGS_IMAGES_DESCRIPTION" desc="Description of the images content setting.">
       Sites usually show images to provide illustration, like photos for online stores or news articles
     </message>
@@ -2841,7 +2778,7 @@
         These sites may see which browser you're using
       </message>
     </if>
-    <if expr="is_chromeos or is_win">
+    <if expr="is_win">
       <message name="IDS_SETTINGS_SITE_SETTINGS_PROTECTED_CONTENT_IDENTIFIERS_EXPLANATION" desc="Text that is displayed on the Protected Content section of Content Settings. This text explains that enabling protected content may require using a uniquely identifiable machine identifier.">
         Sites may also need to recognize your device using an identifier
       </message>
@@ -3568,7 +3505,7 @@
       Choice saved. Your choice will apply when you sign in to other Google services.
     </message>
 
-    <if expr="not is_chromeos">
+
       <message name="IDS_SETTINGS_PROFILE_NAME_INPUT_LABEL" desc="Aria label of the input field where the user can edit the name associated with the profile." meaning="Name of a person">
         Name
       </message>
@@ -3590,7 +3527,7 @@
       <message name="IDS_SETTINGS_CREATE_SHORTCUT_SUBTITLE" desc="Subtitle of create shortcut section on the manage profile page.">
         Create a desktop shortcut on your device to access directly to this profile
       </message>
-    </if>
+
 
     <message name="IDS_SETTINGS_ACCOUNT_PAGE_TITLE" desc="Name of the settings page which manages the signed in account.">
       Your account
@@ -3598,16 +3535,12 @@
     <message name="IDS_SETTINGS_ACCOUNT_DATATYPES_HEADING" desc="Heading of the section in the account settings page for managing data types.">
       In your Google Account
     </message>
-    <if expr="not is_chromeos">
+
       <message name="IDS_SETTINGS_ACCOUNT_BODY" desc="Description of the section in the account settings page for managing data types.">
         When on, data is saved in your Google Account and can be used on all your devices. When off, data is saved only to this device.
       </message>
-    </if>
-    <if expr="is_chromeos">
-      <message name="IDS_SETTINGS_ACCOUNT_BODY_CHROMEOS" desc="Description of the section in the account settings page for managing data types on ChromeOS.">
-        When on, data is saved in your Google Account and can be used on all your devices. When off, data is saved only to this device. For ChromeOS sync options, go to <ph name="LINK_BEGIN">&lt;a&gt;</ph>ChromeOS settings<ph name="LINK_END">&lt;/a&gt;</ph>.
-      </message>
-    </if>
+
+
     <message name="IDS_SETTINGS_ACCOUNT_SYNC_DISABLED"  desc="Section in the account settings page informing the user when the toggles to save a specific data type to the user's Google Account are disabled as per an Enterprise policy.">
       Managed by your organization
     </message>
@@ -3683,13 +3616,9 @@
       </message>
     </if>
 
-    <if expr="is_chromeos">
-      <message name="IDS_ACCOUNT_CHROMEOS_DEVICE_ACCOUNTS" desc="Title shown on the manage accounts on this device button item.">
-        Manage accounts on this device
-      </message>
-    </if>
 
-    <if expr="not is_chromeos">
+
+
       <!-- Import Settings Dialog -->
       <message name="IDS_SETTINGS_IMPORT_SETTINGS_TITLE" desc="Dialog title for import dialog.">
         Import bookmarks and settings
@@ -3732,7 +3661,7 @@
       <message name="IDS_SETTINGS_IMPORT_NO_PROFILE_FOUND" desc="Message displayed when we do not find any supported browser to import from.">
         No supported browser found
       </message>
-    </if>
+
 
     <!-- Google Search AI Mode and connected apps (AIM Workspace) -->
     <message name="IDS_SETTINGS_GOOGLE_SEARCH_AI_MODE_WORKSPACE_LABEL" desc="Label of the setting row that opens connection settings for Google Search AI Mode and Workspace connected apps.">
@@ -3799,12 +3728,12 @@
     </message>
 
     <!-- System Page -->
-    <if expr="not is_chromeos">
+
       <message name="IDS_SETTINGS_SYSTEM" desc="Title of the system settings.">
         System
       </message>
-    </if>
-    <if expr="not is_chromeos">
+
+
       <message name="IDS_SETTINGS_SYSTEM_HARDWARE_ACCELERATION_LABEL" desc="Label for the checkbox that forces Chrome to render via graphics acceleration (GPU) when available.">
         Use graphics acceleration when available
       </message>
@@ -3829,7 +3758,7 @@
       <message name="IDS_SETTINGS_SYSTEM_PROXY_SETTINGS_MULTIPLE_SOURCES_LABEL" desc="Non-interactive label that describes when Chrome's proxy settings are overwritten by multiple sources. This is used in place of the above IDS_SETTINGS_SYSTEM_PROXY_SETTINGS_LABEL or IDS_SETTINGS_SYSTEM_PROXY_SETTINGS_LABEL labels in cases where both an enterprise policy or extension are applying settings at the same time.">
         Browser proxy settings are controlled by multiple sources
       </message>
-    </if>
+
 
     <!-- On-device AI Settings Page -->
     <message name="IDS_SETTINGS_SYSTEM_FEATURE_ON_DEVICE_AI_ENABLED_LABEL" desc="Label for the toggle that allows or prevents chrome to download on device GenAI models to local disk.">
@@ -4154,16 +4083,12 @@
     <message name="IDS_SETTINGS_SAFETY_HUB_USER_EDU_SAFE_BROWSING_HEADER" desc="The header of the second item in the 'User Education Module' in the Safety Hub page. This item explains Safe Browsing.">
       Safe Browsing
     </message>
-    <if expr="not is_chromeos">
+
       <message name="IDS_SETTINGS_SAFETY_HUB_VERSION_CARD_SUBHEADER_RESTART" desc="Safety Hub settings page (chrome://settings/safetyHub) gives users an overview over their safety status. The version card, which this text is a part of, informs the user whether their Chrome is up to date. This text is shown when Chrome is not up to date but there is an update available and the user needs to restart their browser to finish the update. Shown below the title 'Chrome is out of date'.">
         Relaunch to finish update. Your tabs will reopen.
       </message>
-    </if>
-    <if expr="is_chromeos">
-      <message name="IDS_SETTINGS_SAFETY_HUB_VERSION_CARD_SUBHEADER_RESTART" desc="Safety Hub settings page (chrome://settings/safetyHub) gives users an overview over their safety status. The version card, which this text is a part of, informs the user whether their Chrome is up to date. This text is shown when Chrome is not up to date but there is an update available and the user needs to restart their browser to finish the update. Shown below the title 'Chrome is out of date'.">
-        Restart your device to finish updating
-      </message>
-    </if>
+
+
     <message name="IDS_SETTINGS_SAFETY_HUB_REVOKED_PERMISSIONS_MENU_NOTIFICATION" desc="The revoked permissions module of Safety Hub revokes permissions of sites that the user hasn't visited in a while or that send abusive notifications. This label is for the notification in Chrome's three-dot menu indicating for how many sites the permission was revoked.">
       {NUM_SITES, plural,
         =1 {Removed permissions for 1 site}
@@ -4277,7 +4202,7 @@
         To save bookmarks in your account, delete your unused bookmarks
       </message>
 
-  </if>
+
 
   <!-- Experimental settings strings -->
   <message name="IDS_SETTINGS_AI_PAGE_MAIN_TITLE" desc="This string is the title of a card that sets the context for the ‘AI innovations’ section of Chrome’s settings. Here, the user can see settings related to AI (artificial intelligence) in this section; these settings include Help me write and more. This title is before the ‘Things to consider’ subheading and bullet points. We want users to read this card and understand the considerations that apply to all Chrome’s AI features. The tone should be motivating." formatter_data="android_java">
@@ -4289,18 +4214,11 @@
   <message name="IDS_SETTINGS_AI_PAGE_MAIN_SUBLABEL_2" desc="This is a bullet point on a card that sets the context for the ‘AI innovations’ section of Chrome’s settings. Here, the user can see settings related to AI (artificial intelligence) in this section; these settings include Help me write and more. This bullet point is after the ‘Reimagine Chrome, supercharged with AI’ title and ‘Things to consider’ subheading. We want users to read this card and understand the considerations that apply to all Chrome’s AI features. This bullet point specifically notes that AI features will send data to Google servers in order to provide the feature’s respective benefit. The tone should be informative." formatter_data="android_java">
     When you use these features, relevant data is sent to Google in order to create AI experiences
   </message>
-  <if expr="is_android">
-    <then>
-      <message name="IDS_SETTINGS_AI_PAGE_MAIN_MANAGED_SUBLABEL_3" desc="This is a bullet point on a card that sets the context for the ‘AI innovations’ section of Chrome’s settings. Here, the user can see settings related to AI (artificial intelligence) in this section; these settings include Help me write and more. This bullet point is after the ‘Reimagine Chrome, supercharged with AI’ title and ‘Things to consider’ subheading. We want users to read this card and understand the considerations that apply to all Chrome’s AI features. This bullet point specifically notes that AI features are actively developing, and that humans may review feature usage and corresponding data in order to further improve the feature. The tone should be informative." formatter_data="android_java">
-        Your organization manages how data collected by these features may be used. <ph name="BEGIN_LINK">&lt;link&gt;</ph>Learn more<ph name="END_LINK">&lt;/link&gt;</ph>
-      </message>
-    </then>
-    <else>
+
       <message name="IDS_SETTINGS_AI_PAGE_MAIN_MANAGED_SUBLABEL_3" desc="This is a bullet point on a card that sets the context for the ‘AI innovations’ section of Chrome’s settings. Here, the user can see settings related to AI (artificial intelligence) in this section; these settings include Help me write and more. This bullet point is after the ‘Reimagine Chrome, supercharged with AI’ title and ‘Things to consider’ subheading. We want users to read this card and understand the considerations that apply to all Chrome’s AI features. This bullet point specifically notes that AI features are actively developing, and that humans may review feature usage and corresponding data in order to further improve the feature. The tone should be informative.">
         Your organization manages how data collected by these features may be used.
       </message>
-    </else>
-  </if>
+
 
   <!-- Experimental settings - CPU Performance Override -->
   <message name="IDS_SETTINGS_CPU_PERFORMANCE_OVERRIDE_TITLE" desc="Title for the CPU performance override setting.">

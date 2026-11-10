@@ -16,9 +16,6 @@
 #include "chrome/browser/browser_switcher/browser_switcher_service_win.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#error BrowserSwitcher is not supported on ChromeOS. Neither Ash nor LaCrOS.
-#endif
 
 namespace browser_switcher {
 

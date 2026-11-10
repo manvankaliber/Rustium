@@ -236,8 +236,4 @@ source_set("interactive_ui_tests") {
     "//third_party/blink/public:buildflags",
     "//ui/events:test_support",
   ]
-
-  if (enable_smart_card) {
-    deps += [ "//chrome/browser/smart_card" ]
-  }
 }

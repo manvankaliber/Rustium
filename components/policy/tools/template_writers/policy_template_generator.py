@@ -96,9 +96,8 @@ class PolicyTemplateGenerator:
     else:
       # e.g.: 'chrome_frame:7-'
       product, platform = {
-        'android': ('chrome', 'android'),
+        # Legacy tags are data: desktop writers still parse and filter them.
         'webview_android': ('webview', 'android'),
-        'ios': ('chrome', 'ios'),
         'chrome_os': ('chrome_os', 'chrome_os'),
         'chrome_frame': ('chrome_frame', 'win'),
 

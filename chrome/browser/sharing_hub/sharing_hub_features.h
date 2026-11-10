@@ -41,9 +41,7 @@ bool SharingIsDisabledByPolicy(content::BrowserContext* context);
 // through the sharing hub.
 BASE_DECLARE_FEATURE(kDesktopScreenshots);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 void RegisterProfilePrefs(PrefRegistrySimple* registry);
-#endif
 
 }  // namespace sharing_hub
 

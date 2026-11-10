@@ -187,10 +187,6 @@ class WebMediaPlayerMS::FrameDeliverer {
     DCHECK_CALLED_ON_VALID_SEQUENCE(video_sequence_checker_);
 
 // On Android, stop passing frames.
-#if BUILDFLAG(IS_ANDROID)
-    if (render_frame_suspended_)
-      return;
-#endif  // BUILDFLAG(IS_ANDROID)
 
     if (!mappable_shared_image_pool_) {
       const media::VideoFrame::ID original_frame_id = frame->unique_id();
@@ -1242,24 +1238,12 @@ void WebMediaPlayerMS::OnPageHidden() {
 
 // On Android, substitute the displayed VideoFrame with a copy to avoid holding
 // onto it unnecessarily.
-#if BUILDFLAG(IS_ANDROID)
-  if (!paused_)
-    compositor_->ReplaceCurrentFrameWithACopy();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void WebMediaPlayerMS::SuspendForFrameClosed() {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 
 // On Android, pause the video completely for this time period.
-#if BUILDFLAG(IS_ANDROID)
-  if (!paused_) {
-    should_play_upon_shown_ = true;
-    Pause(PauseReason::kPageHidden);
-  }
-
-  delegate_->PlayerGone(delegate_id_);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   if (frame_deliverer_) {
     PostCrossThreadTask(
@@ -1291,10 +1275,6 @@ void WebMediaPlayerMS::OnPageShown() {
 
 // On Android, resume playback on visibility. play() clears
 // |should_play_upon_shown_|.
-#if BUILDFLAG(IS_ANDROID)
-  if (should_play_upon_shown_)
-    Play();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void WebMediaPlayerMS::OnIdleTimeout() {}

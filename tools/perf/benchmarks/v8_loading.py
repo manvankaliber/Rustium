@@ -20,13 +20,13 @@ class _V8LoadingBenchmark(v8_helper.V8PerfMixin, perf_benchmark.PerfBenchmark):
 
 
 @benchmark.Info(
-  emails=[
-    'cbruni@chromium.org',
-    'vahl@chromium.org',
-    'almuthanna@chromium.org',
-  ],
-  component='Blink>JavaScript',
-  documentation_url='https://bit.ly/system-health-v8-benchmarks',
+    emails=[
+        'cbruni@chromium.org',
+        'vahl@chromium.org',
+        'almuthanna@chromium.org',
+    ],
+    component='Blink>JavaScript',
+    documentation_url='https://bit.ly/system-health-v8-benchmarks',
 )
 class V8DesktopLoadingBenchmark(_V8LoadingBenchmark):
   """See _V8BrowsingBenchmark."""
@@ -43,22 +43,3 @@ class V8DesktopLoadingBenchmark(_V8LoadingBenchmark):
   @classmethod
   def Name(cls):
     return 'UNSCHEDULED_v8.loading_desktop'
-
-
-@benchmark.Info(
-  emails=['cbruni@chromium.org', 'leszeks@chromium.org'],
-  component='Blink>JavaScript',
-  documentation_url='https://bit.ly/system-health-v8-benchmarks',
-)
-class V8MobileLoadingBenchmark(_V8LoadingBenchmark):
-  """See _V8BrowsingBenchmark."""
-
-  PLATFORM = 'mobile'
-  # TODO(johnchen): Remove either the SUPPORTED_PLATFORMS or
-  # SUPPORTED_PLATFORMS_TAGS lists. Only one is necessary.
-  SUPPORTED_PLATFORMS = [story.expectations.ALL_MOBILE]
-  SUPPORTED_PLATFORM_TAGS = [platforms.MOBILE]
-
-  @classmethod
-  def Name(cls):
-    return 'UNSCHEDULED_v8.loading_mobile'

@@ -55,9 +55,6 @@
 #include "ui/base/ui_base_switches.h"
 #include "ui/gl/gl_switches.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "services/network/public/mojom/network_service.mojom.h"
-#endif
 
 #if BUILDFLAG(IS_OZONE)
 #include "ui/ozone/public/ozone_switches.h"
@@ -67,7 +64,7 @@
 #include "content/browser/v8_snapshot_files.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "base/files/file_util.h"
 #include "base/files/scoped_file.h"
 #include "base/pickle.h"
@@ -100,7 +97,7 @@ namespace content {
 
 namespace {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 base::ScopedFD PassNetworkContextParentDirs(
     std::vector<base::FilePath> network_context_parent_dirs) {
   base::Pickle pickle;
@@ -123,7 +120,7 @@ base::ScopedFD PassNetworkContextParentDirs(
 
   return read_fd;
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_WIN)
 base::CommandLine::StringViewType UtilityToAppLaunchPrefetchArg(
@@ -154,7 +151,7 @@ void UtilityProcessHost::RegisterUtilityMainThreadFactory(
 
 UtilityProcessHost::Options::Options()
     : sandbox_type_(sandbox::mojom::Sandbox::kUtility),
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
       child_flags_(ChildProcessHost::CHILD_ALLOW_SELF),
 #else
       child_flags_(ChildProcessHost::CHILD_NORMAL),
@@ -349,17 +346,6 @@ bool UtilityProcessHost::StartProcess() {
   bool has_cmd_prefix =
       browser_command_line.HasSwitch(switches::kUtilityCmdPrefix);
 
-#if BUILDFLAG(IS_ANDROID)
-  // readlink("/prof/self/exe") sometimes fails on Android at startup.
-  // As a workaround skip calling it here, since the executable name is
-  // not needed on Android anyway. See crbug.com/500854.
-  std::unique_ptr<base::CommandLine> cmd_line =
-      std::make_unique<base::CommandLine>(base::CommandLine::NO_PROGRAM);
-  if (options_.metrics_name_ == network::mojom::NetworkService::Name_ &&
-      base::FeatureList::IsEnabled(features::kWarmUpNetworkProcess)) {
-    process_->EnableWarmUpConnection();
-  }
-#else  // BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_MAC)
   if (options_.sandbox_type_ == sandbox::mojom::Sandbox::kServiceWithJit) {
     CHECK_EQ(options_.child_flags_, ChildProcessHost::CHILD_RENDERER,
@@ -384,7 +370,6 @@ bool UtilityProcessHost::StartProcess() {
 
   std::unique_ptr<base::CommandLine> cmd_line =
       std::make_unique<base::CommandLine>(exe_path);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   cmd_line->AppendSwitchASCII(switches::kProcessType,
                               switches::kUtilityProcess);
@@ -416,7 +401,7 @@ bool UtilityProcessHost::StartProcess() {
       sandbox::policy::switches::kNoSandbox,
       sandbox::policy::switches::kDisableLandlockSandbox,
       sandbox::policy::switches::kDisableSeccompFilterSandbox,
-#if BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
       switches::kDisableDevShmUsage,
 #endif
 #if BUILDFLAG(ENABLE_VRP_FLAGS)
@@ -451,13 +436,9 @@ bool UtilityProcessHost::StartProcess() {
       switches::kFailAudioStreamCreation,
       switches::kMuteAudio,
       switches::kUseFileForFakeAudioCapture,
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FREEBSD) || \
-    BUILDFLAG(IS_SOLARIS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FREEBSD) || BUILDFLAG(IS_SOLARIS)
       switches::kAlsaInputDevice,
       switches::kAlsaOutputDevice,
-#endif
-#if BUILDFLAG(USE_CRAS)
-      switches::kUseCras,
 #endif
 #if BUILDFLAG(IS_WIN)
       switches::kDisableHighResTimer,
@@ -472,9 +453,6 @@ bool UtilityProcessHost::StartProcess() {
 #if BUILDFLAG(ENABLE_VR)
       device::switches::kWebXrHandAnonymizationStrategy,
       device::switches::kWebXrMaxFramebufferScale,
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-      switches::kSchedulerBoostUrgent,
 #endif
       switches::kFakeBackgroundBlurTogglePeriod,
 #if BUILDFLAG(USE_V4L2_CODEC)
@@ -546,7 +524,7 @@ bool UtilityProcessHost::StartProcess() {
       GetV8SnapshotFilesToPreload(*cmd_line));
 #endif  // BUILDFLAG(IS_POSIX)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // The network service should have access to the parent directories
   // necessary for its usage.
   if (options_.sandbox_type_ == sandbox::mojom::Sandbox::kNetwork) {
@@ -555,7 +533,7 @@ bool UtilityProcessHost::StartProcess() {
     options_.file_data_->files_to_preload[kNetworkContextParentDirsDescriptor] =
         PassNetworkContextParentDirs(std::move(network_context_parent_dirs));
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(ENABLE_GPU_CHANNEL_MEDIA_CAPTURE) && !BUILDFLAG(IS_WIN)
   // Pass `kVideoCaptureUseGpuMemoryBuffer` flag to video capture service only
@@ -606,11 +584,9 @@ bool UtilityProcessHost::StartProcess() {
 
 void UtilityProcessHost::OnProcessLaunched() {
   launch_state_ = LaunchState::kLaunchComplete;
-#if !BUILDFLAG(IS_ANDROID)
   if (options_.priority_.has_value()) {
     process_->SetProcessPriority(options_.priority_.value());
   }
-#endif
   if (client_) {
     client_->OnProcessLaunched(process_->GetProcess());
   }

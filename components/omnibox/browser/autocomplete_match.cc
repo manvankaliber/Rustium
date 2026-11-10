@@ -60,15 +60,13 @@
 #include "url/third_party/mozilla/url_parse.h"
 #include "url/url_util.h"
 
-#if (!BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_VR)) && !BUILDFLAG(IS_IOS)
 #include "components/omnibox/browser/vector_icons.h"  // nogncheck
 #include "components/vector_icons/vector_icons.h"     // nogncheck
-#endif
 
-constexpr bool kIsAndroid = BUILDFLAG(IS_ANDROID);
-constexpr bool kIsDesktopAndroid = BUILDFLAG(IS_DESKTOP_ANDROID);
+constexpr bool kIsAndroid = false;
+constexpr bool kIsDesktopAndroid = false;
 constexpr bool kIsDesktop =
-    (!BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)) || kIsDesktopAndroid;
+    (!false && !false) || kIsDesktopAndroid;
 
 namespace {
 
@@ -331,9 +329,6 @@ AutocompleteMatch::AutocompleteMatch(const AutocompleteMatch& match)
       suggest_type(match.suggest_type),
       subtypes(match.subtypes),
       has_tab_match(match.has_tab_match),
-#if BUILDFLAG(IS_ANDROID)
-      android_tab_id(match.android_tab_id),
-#endif
       associated_keyword(match.associated_keyword),
       keyword(match.keyword),
       from_keyword(match.from_keyword),
@@ -431,19 +426,10 @@ AutocompleteMatch& AutocompleteMatch::operator=(
       std::move(match.history_embeddings_answer_header_loading);
   feedback_type = std::move(match.feedback_type);
   matching_tab_group_uuid = std::move(match.matching_tab_group_uuid);
-#if BUILDFLAG(IS_ANDROID)
-  android_tab_id = std::move(match.android_tab_id);
-  DestroyJavaObject();
-  std::swap(java_match_, match.java_match_);
-  UpdateJavaObjectNativeRef();
-#endif
   return *this;
 }
 
 AutocompleteMatch::~AutocompleteMatch() {
-#if BUILDFLAG(IS_ANDROID)
-  DestroyJavaObject();
-#endif
 }
 
 AutocompleteMatch& AutocompleteMatch::operator=(
@@ -513,22 +499,9 @@ AutocompleteMatch& AutocompleteMatch::operator=(
   feedback_type = match.feedback_type;
   matching_tab_group_uuid = match.matching_tab_group_uuid;
 
-#if BUILDFLAG(IS_ANDROID)
-  android_tab_id = match.android_tab_id;
-  // In case the target element previously held a java object, release it.
-  // This happens, when in an expression "match1 = match2;" match1 already
-  // is initialized and linked to a Java object: we rewrite the contents of the
-  // match1 object and it would be desired to either update its corresponding
-  // Java element, or drop it and construct it lazily the next time it is
-  // needed.
-  // Note that because Java<>C++ AutocompleteMatch relation is 1:1, we do not
-  // want to copy the object here.
-  DestroyJavaObject();
-#endif
   return *this;
 }
 
-#if (!BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_VR)) && !BUILDFLAG(IS_IOS)
 // static
 
 const gfx::VectorIcon& AutocompleteMatch::GetVectorIcon(
@@ -751,7 +724,6 @@ const gfx::VectorIcon& AutocompleteMatch::GetVectorIcon(
                  : omnibox::kPageChromeRefreshOldIcon;
   }
 }
-#endif
 
 // static
 bool AutocompleteMatch::MoreRelevant(const AutocompleteMatch& match1,
@@ -1407,9 +1379,6 @@ bool AutocompleteMatch::IsExplicitlyInvokedKeyword(
 // static
 std::u16string AutocompleteMatch::GetKeywordPlaceholder(
     const TemplateURL* template_url) {
-#if BUILDFLAG(IS_IOS)
-  return std::u16string();
-#else
   if (!template_url) {
     return std::u16string();
   }
@@ -1440,7 +1409,6 @@ std::u16string AutocompleteMatch::GetKeywordPlaceholder(
       return std::u16string();
   }
   return l10n_util::GetStringUTF16(message_id);
-#endif
 }
 
 TemplateURL* AutocompleteMatch::GetTemplateURL(
@@ -1692,12 +1660,10 @@ int AutocompleteMatch::GetSortingOrder() const {
     }
   }
 
-#if !BUILDFLAG(IS_IOS)
   // Group history cluster suggestions with searches.
   if (type == omnibox::AutocompleteMatchType::kHistoryCluster) {
     return 3;
   }
-#endif  // !BUILDFLAG(IS_IOS)
 
   switch (enterprise_search_aggregator_type) {
     case EnterpriseSearchAggregatorType::NONE:

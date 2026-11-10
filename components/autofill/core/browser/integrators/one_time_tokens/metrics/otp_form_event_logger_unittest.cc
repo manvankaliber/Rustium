@@ -369,40 +369,6 @@ TEST_F(OtpFormEventLoggerIntegrationTest, OtpAccepted) {
   // Verify that the FORM_EVENT_LOCAL_SUGGESTION_FILLED and
   // FORM_EVENT_LOCAL_SUGGESTION_FILLED_ONCE events are logged by the logger
   // other events are logged by the base logger.
-#if BUILDFLAG(IS_ANDROID)
-  {
-    using Ukm = UkmFormEventType;
-    auto event_metrics = [](autofill_metrics::FormEvent e) {
-      return std::vector<autofill_metrics::UkmMetricNameAndValue>{
-          {Ukm::kAutofillFormEventName, e},
-          {Ukm::kFormTypesName,
-           AutofillMetrics::FormTypesToBitVector(
-               {FormTypeNameForLogging::kOneTimePasswordForm})},
-          {Ukm::kMillisecondsSinceFormParsedName, 0}};
-    };
-    EXPECT_THAT(
-        autofill_metrics::GetUkmEvents(test_ukm_recorder(), Ukm::kEntryName),
-        autofill_metrics::UkmEventsAre(
-            {event_metrics(autofill_metrics::FORM_EVENT_DID_PARSE_FORM),
-             event_metrics(autofill_metrics::FORM_EVENT_DID_PARSE_FORM),
-             event_metrics(autofill_metrics::FORM_EVENT_DID_PARSE_FORM),
-             event_metrics(autofill_metrics::FORM_EVENT_INTERACTED_ONCE),
-             event_metrics(autofill_metrics::FORM_EVENT_SUGGESTIONS_SHOWN),
-             event_metrics(autofill_metrics::FORM_EVENT_SUGGESTIONS_SHOWN_ONCE),
-             event_metrics(
-                 autofill_metrics::FORM_EVENT_LOCAL_SUGGESTION_FILLED),
-             event_metrics(
-                 autofill_metrics::FORM_EVENT_LOCAL_SUGGESTION_FILLED_ONCE),
-             event_metrics(autofill_metrics::
-                               FORM_EVENT_LOCAL_SUGGESTION_WILL_SUBMIT_ONCE),
-             event_metrics(autofill_metrics::
-                               FORM_EVENT_SUGGESTION_SHOWN_WILL_SUBMIT_ONCE),
-             event_metrics(
-                 autofill_metrics::FORM_EVENT_LOCAL_SUGGESTION_SUBMITTED_ONCE),
-             event_metrics(autofill_metrics::
-                               FORM_EVENT_SUGGESTION_SHOWN_SUBMITTED_ONCE)}));
-  }
-#endif
 }
 
 TEST_F(OtpFormEventLoggerIntegrationTest, OtpNotAccepted) {
@@ -541,40 +507,6 @@ TEST_F(OtpFormEventLoggerIntegrationTest, OtpAcceptedAndCorrected) {
   // Verify that the FORM_EVENT_LOCAL_SUGGESTION_FILLED and
   // FORM_EVENT_LOCAL_SUGGESTION_FILLED_ONCE events are logged by the logger
   // other events are logged by the base logger.
-#if BUILDFLAG(IS_ANDROID)
-  {
-    using Ukm = UkmFormEventType;
-    auto event_metrics = [](autofill_metrics::FormEvent e) {
-      return std::vector<autofill_metrics::UkmMetricNameAndValue>{
-          {Ukm::kAutofillFormEventName, e},
-          {Ukm::kFormTypesName,
-           AutofillMetrics::FormTypesToBitVector(
-               {FormTypeNameForLogging::kOneTimePasswordForm})},
-          {Ukm::kMillisecondsSinceFormParsedName, 0}};
-    };
-    EXPECT_THAT(
-        autofill_metrics::GetUkmEvents(test_ukm_recorder(), Ukm::kEntryName),
-        autofill_metrics::UkmEventsAre(
-            {event_metrics(autofill_metrics::FORM_EVENT_DID_PARSE_FORM),
-             event_metrics(autofill_metrics::FORM_EVENT_DID_PARSE_FORM),
-             event_metrics(autofill_metrics::FORM_EVENT_DID_PARSE_FORM),
-             event_metrics(autofill_metrics::FORM_EVENT_INTERACTED_ONCE),
-             event_metrics(autofill_metrics::FORM_EVENT_SUGGESTIONS_SHOWN),
-             event_metrics(autofill_metrics::FORM_EVENT_SUGGESTIONS_SHOWN_ONCE),
-             event_metrics(
-                 autofill_metrics::FORM_EVENT_LOCAL_SUGGESTION_FILLED),
-             event_metrics(
-                 autofill_metrics::FORM_EVENT_LOCAL_SUGGESTION_FILLED_ONCE),
-             event_metrics(autofill_metrics::
-                               FORM_EVENT_LOCAL_SUGGESTION_WILL_SUBMIT_ONCE),
-             event_metrics(autofill_metrics::
-                               FORM_EVENT_SUGGESTION_SHOWN_WILL_SUBMIT_ONCE),
-             event_metrics(
-                 autofill_metrics::FORM_EVENT_LOCAL_SUGGESTION_SUBMITTED_ONCE),
-             event_metrics(autofill_metrics::
-                               FORM_EVENT_SUGGESTION_SHOWN_SUBMITTED_ONCE)}));
-  }
-#endif
 }
 
 }  // namespace

@@ -49,15 +49,14 @@ source_set("public") {
     "//components/tabs:public",
     "//ui/base/unowned_user_data",
   ]
-  if (!is_android) {
-    sources += [ "skills_ui_window_controller.h" ]
-    public_deps = [ "//components/signin/public/identity_manager" ]
-    deps += [
-      "//chrome/browser/ui/toasts",
-      "//chrome/browser/ui/toasts/api:toasts",
-      "//components/prefs",
-    ]
-  }
+
+  sources += [ "skills_ui_window_controller.h" ]
+  public_deps = [ "//components/signin/public/identity_manager" ]
+  deps += [
+    "//chrome/browser/ui/toasts",
+    "//chrome/browser/ui/toasts/api:toasts",
+    "//components/prefs",
+  ]
 }
 
 source_set("ui") {
@@ -66,13 +65,12 @@ source_set("ui") {
     "skills_update_observer.cc",
     "skills_update_observer.h",
   ]
-  if (!is_android) {
-    sources += [
-      "skills_ui_tab_controller.cc",
-      "skills_ui_tab_controller.h",
-      "skills_ui_window_controller.cc",
-    ]
-  }
+
+  sources += [
+    "skills_ui_tab_controller.cc",
+    "skills_ui_tab_controller.h",
+    "skills_ui_window_controller.cc",
+  ]
 
   public_deps = [
     ":public",
@@ -95,38 +93,37 @@ source_set("ui") {
     "//services/service_manager/public/cpp",
     "//ui/base/unowned_user_data",
   ]
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/signin",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/toasts",
-      "//chrome/browser/ui/toasts/api:toasts",
-      "//chrome/browser/ui/webui",
-      "//chrome/browser/ui/webui/skills",
-      "//components/constrained_window",
-      "//components/prefs",
-      "//components/web_modal",
-    ]
-  }
+
+  deps += [
+    "//chrome/browser/signin",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/toasts",
+    "//chrome/browser/ui/toasts/api:toasts",
+    "//chrome/browser/ui/webui",
+    "//chrome/browser/ui/webui/skills",
+    "//components/constrained_window",
+    "//components/prefs",
+    "//components/web_modal",
+  ]
 }
 
 source_set("browser_tests") {
   testonly = true
   defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
   sources = []
-  if (!is_android) {
-    sources += [
-      "enterprise_skills_provider_browsertest.cc",
-      "skills_api_functional_browsertest.cc",
-      "skills_dialog_launcher_browsertest.cc",
-      "skills_functional_browsertest.cc",
-      "skills_functional_browsertest.h",
-      "skills_geic_browsertest.cc",
-      "skills_ui_tab_controller_browsertest.cc",
-      "skills_ui_window_controller_browsertest.cc",
-    ]
-  }
+
+  sources += [
+    "enterprise_skills_provider_browsertest.cc",
+    "skills_api_functional_browsertest.cc",
+    "skills_dialog_launcher_browsertest.cc",
+    "skills_functional_browsertest.cc",
+    "skills_functional_browsertest.h",
+    "skills_geic_browsertest.cc",
+    "skills_ui_tab_controller_browsertest.cc",
+    "skills_ui_window_controller_browsertest.cc",
+  ]
+
   deps = [
     ":public",
     ":skills",
@@ -143,42 +140,35 @@ source_set("browser_tests") {
     "//components/skills/public:mojo_bindings",
     "//ui/base",
   ]
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/signin",
-      "//chrome/browser/ui:browser_actions",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/toasts",
-      "//chrome/browser/ui/toasts/api:toasts",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/browser/ui/webui",
-      "//chrome/browser/ui/webui/skills",
-      "//components/policy/core/browser",
-      "//components/policy/core/common:test_support",
-      "//components/signin/public/identity_manager:test_support",
-    ]
-  }
-  if (is_chromeos) {
-    deps += [
-      "//chrome/browser/chromeos/policy/dlp",
-      "//chrome/browser/chromeos/policy/dlp/test:test_support",
-    ]
-  }
+
+  deps += [
+    "//chrome/browser/signin",
+    "//chrome/browser/ui:browser_actions",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/toasts",
+    "//chrome/browser/ui/toasts/api:toasts",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+    "//chrome/browser/ui/webui",
+    "//chrome/browser/ui/webui/skills",
+    "//components/policy/core/browser",
+    "//components/policy/core/common:test_support",
+    "//components/signin/public/identity_manager:test_support",
+  ]
 }
 
 source_set("interactive_ui_tests") {
   testonly = true
   defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
   sources = []
-  if (!is_android) {
-    sources += [
-      "skills_creation_interactive_uitest.cc",
-      "skills_interactive_uitest_base.cc",
-      "skills_interactive_uitest_base.h",
-      "skills_invocation_interactive_uitest.cc",
-      "skills_update_interactive_uitest.cc",
-    ]
-  }
+
+  sources += [
+    "skills_creation_interactive_uitest.cc",
+    "skills_interactive_uitest_base.cc",
+    "skills_interactive_uitest_base.h",
+    "skills_invocation_interactive_uitest.cc",
+    "skills_update_interactive_uitest.cc",
+  ]
+
   deps = [
     ":browser_tests",
     ":public",
@@ -197,13 +187,12 @@ source_set("interactive_ui_tests") {
     "//testing/gmock",
     "//testing/gtest",
   ]
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui/toasts",
-      "//chrome/browser/ui/toasts/api:toasts",
-      "//chrome/browser/ui/webui/skills",
-    ]
-  }
+
+  deps += [
+    "//chrome/browser/ui/toasts",
+    "//chrome/browser/ui/toasts/api:toasts",
+    "//chrome/browser/ui/webui/skills",
+  ]
 }
 
 source_set("unit_tests") {
@@ -212,9 +201,8 @@ source_set("unit_tests") {
     "skills_metrics_provider_unittest.cc",
     "skills_update_observer_unittest.cc",
   ]
-  if (!is_android) {
-    sources += [ "skills_ui_tab_controller_unittest.cc" ]
-  }
+
+  sources += [ "skills_ui_tab_controller_unittest.cc" ]
 
   deps = [
     ":skills",

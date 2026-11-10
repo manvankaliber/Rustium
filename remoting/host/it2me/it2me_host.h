@@ -18,7 +18,7 @@
 #include "remoting/base/errors.h"
 #include "remoting/base/local_session_policies_provider.h"
 #include "remoting/base/session_policies.h"
-#include "remoting/host/chromeos/chromeos_enterprise_params.h"
+#include "remoting/host/enterprise_session_params.h"
 #include "remoting/host/host_status_observer.h"
 #include "remoting/host/it2me/it2me_confirmation_dialog.h"
 #include "remoting/host/it2me/it2me_confirmation_dialog_proxy.h"
@@ -100,10 +100,10 @@ class It2MeHost : public base::RefCountedThreadSafe<It2MeHost>,
   // Session parameters provided by the remote command infrastructure when the
   // session is started from the admin console or Class Tools (boca) for a
   // managed Chrome OS device.
-  void set_chrome_os_enterprise_params(ChromeOsEnterpriseParams params);
+  void set_chrome_os_enterprise_params(EnterpriseSessionParams params);
   // Callers should call is_enterprise_session() first to ensure the params are
   // present and retrievable.
-  const ChromeOsEnterpriseParams& chrome_os_enterprise_params() const {
+  const EnterpriseSessionParams& chrome_os_enterprise_params() const {
     return *chrome_os_enterprise_params_;
   }
   // Indicates whether this support session was initiated by the admin console
@@ -116,7 +116,7 @@ class It2MeHost : public base::RefCountedThreadSafe<It2MeHost>,
   bool is_class_management_session() const {
     return chrome_os_enterprise_params_.has_value() &&
            chrome_os_enterprise_params_->request_origin ==
-               remoting::ChromeOsEnterpriseRequestOrigin::kClassManagement;
+               remoting::EnterpriseSessionRequestOrigin::kClassManagement;
   }
 
   // If set, only |authorized_helper| will be allowed to connect to this host.
@@ -158,9 +158,6 @@ class It2MeHost : public base::RefCountedThreadSafe<It2MeHost>,
   protocol::ValidatingAuthenticator::ValidationCallback
   GetValidationCallbackForTesting();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void SetHostEventReporterFactoryForTesting(HostEventReporterFactory factory);
-#endif
 
   // Called when initial policies are read and when they change.
   void OnPolicyUpdate(base::DictValue policies);
@@ -253,10 +250,6 @@ class It2MeHost : public base::RefCountedThreadSafe<It2MeHost>,
   std::unique_ptr<HostEventLogger> host_event_logger_;
   std::unique_ptr<LocalSessionPoliciesProvider>
       local_session_policies_provider_;
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<HostEventReporter> host_event_reporter_;
-  HostEventReporterFactory host_event_reporter_factory_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   bool use_corp_session_authz_ = false;
 
@@ -284,7 +277,7 @@ class It2MeHost : public base::RefCountedThreadSafe<It2MeHost>,
 
   // Set when the session was initiated for a managed Chrome OS device by an
   // admin using the admin console or Class Tools (boca).
-  std::optional<ChromeOsEnterpriseParams> chrome_os_enterprise_params_;
+  std::optional<EnterpriseSessionParams> chrome_os_enterprise_params_;
 
   // Only the username stored in |authorized_helper_| will be allowed to connect
   // to this host instance, if set. Note: setting this value does not override

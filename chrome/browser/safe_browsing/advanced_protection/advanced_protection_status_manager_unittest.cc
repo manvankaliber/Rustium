@@ -15,22 +15,12 @@
 #include "components/sync_preferences/testing_pref_service_syncable.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/safe_browsing/advanced_protection/advanced_protection_status_manager_android.h"
-#include "chrome/browser/safe_browsing/android/advanced_protection_status_manager_test_util.h"
-#else
 #include "chrome/browser/safe_browsing/advanced_protection/advanced_protection_status_manager_desktop.h"
-#endif
 
 namespace safe_browsing {
 
-#if BUILDFLAG(IS_ANDROID)
-typedef AdvancedProtectionStatusManagerAndroid
-    AdvancedProtectionStatusManagerPlatform;
-#else
 typedef AdvancedProtectionStatusManagerDesktop
     AdvancedProtectionStatusManagerPlatform;
-#endif
 
 class AdvancedProtectionStatusManagerTest : public testing::Test {
  public:
@@ -39,23 +29,15 @@ class AdvancedProtectionStatusManagerTest : public testing::Test {
   }
 
   void SetUp() override {
-#if BUILDFLAG(IS_ANDROID)
-    SetAdvancedProtectionStateForTesting(
-        /*is_advanced_protection_requested_by_os=*/false);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   std::unique_ptr<AdvancedProtectionStatusManagerPlatform> BuildManager(
       PrefService* pref_service,
       signin::IdentityManager* identity_manager) {
-#if BUILDFLAG(IS_ANDROID)
-    return std::make_unique<AdvancedProtectionStatusManagerAndroid>();
-#else
     return std::unique_ptr<AdvancedProtectionStatusManagerDesktop>(
         new AdvancedProtectionStatusManagerDesktop(
             pref_service, identity_manager,
             base::TimeDelta() /*no min delay*/));
-#endif
   }
 
  protected:
@@ -64,7 +46,6 @@ class AdvancedProtectionStatusManagerTest : public testing::Test {
 
 // On ChromeOS, there is no unconsented primary account. We can only track the
 // primary account.
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(AdvancedProtectionStatusManagerTest, TracksUnconsentedPrimaryAccount) {
   base::test::TaskEnvironment task_environment;
   signin::IdentityTestEnvironment identity_test_env(
@@ -80,14 +61,9 @@ TEST_F(AdvancedProtectionStatusManagerTest, TracksUnconsentedPrimaryAccount) {
   auto manager =
       BuildManager(&pref_service_, identity_test_env.identity_manager());
 
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_FALSE(manager->IsUnderAdvancedProtection());
-#else
   EXPECT_TRUE(manager->IsUnderAdvancedProtection());
-#endif
 
   manager->Shutdown();
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace safe_browsing

@@ -24,10 +24,8 @@ export {HistoryAppElement} from './app.js';
 export type {BrowserProxy, HistoryIdentityState, RemoveVisitsRequest} from './browser_proxy.js';
 export {BrowserProxyImpl} from './browser_proxy.js';
 export {HistoryPageViewHistogram, HistorySignInState, SYNCED_TABS_HISTOGRAM_NAME, SyncedTabsHistogram, SyncState, VisitContextMenuAction} from './constants.js';
-// <if expr="not is_chromeos">
 export {HistoryCrossDeviceSigninPromoElement} from './history_cross_device_signin_promo.js';
 export {HistoryCrossDeviceSigninPromoBrowserProxy} from './history_cross_device_signin_promo_browser_proxy.js';
-// </if>
 export {HistoryFilterChipsElement} from './history_filter_chips.js';
 export {HistoryItemElement} from './history_item.js';
 export type {ActionMenuModel} from './history_list.js';

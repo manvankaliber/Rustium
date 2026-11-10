@@ -64,9 +64,7 @@
 #include "chrome/grit/guest_view_shared_resources_map.h"  // nogncheck
 #endif  // !BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/browser/ui/webui/theme_source.h"  // nogncheck
-#endif
 
 namespace glic {
 
@@ -239,9 +237,7 @@ GlicUI::GlicUI(content::WebUI* web_ui)
   content::WebUIDataSource* source = content::WebUIDataSource::CreateAndAdd(
       browser_context, chrome::kChromeUIGlicHost);
 
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   content::URLDataSource::Add(profile, std::make_unique<ThemeSource>(profile));
-#endif
 
   // Add required resources.
   webui::SetupWebUIDataSource(source, kGlicResources, IDR_GLIC_GLIC_HTML);
@@ -317,13 +313,6 @@ GlicUI::GlicUI(content::WebUI* web_ui)
           profile->GetPrefs()->GetBoolean(prefs::kGlicShowErrorAllowed));
   const bool completed_fre = GlicEnabling::HasConsentedForProfile(profile);
   source->AddBoolean("completedFre", completed_fre);
-#if BUILDFLAG(IS_ANDROID)
-  const bool is_android_mobile =
-      GetGlicFormFactor(ui::GetDeviceFormFactor()) == mojom::FormFactor::kPhone;
-  source->AddBoolean("isAndroidMobile", is_android_mobile);
-#else
-  source->AddBoolean("isAndroidMobile", false);
-#endif
   source->AddInteger("maxInFlightRequests",
                      base::FeatureList::IsEnabled(kGlicMaxInFlightRequests)
                          ? kGlicMaxInFlightRequestLimit.Get()

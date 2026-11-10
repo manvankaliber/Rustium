@@ -27,9 +27,7 @@ BASE_DECLARE_FEATURE(kAllowEyeDropperWGCScreenCapture);
 BASE_DECLARE_FEATURE(kBrowserWindowListenerObservation);
 bool IsBrowserWindowListenerObservationEnabled();
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_DECLARE_FEATURE(kBookmarkBarAreaKeyboardNavigation);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 BASE_DECLARE_FEATURE(kCtrlTabMru);
 
@@ -238,9 +236,7 @@ BASE_DECLARE_FEATURE(kTabDuplicateMetrics);
 
 BASE_DECLARE_FEATURE(kCollapseTabGroupDuringDrag);
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_DECLARE_FEATURE(kNewTabButtonContextMenu);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 BASE_DECLARE_FEATURE(kTabHoverCardImages);
 
@@ -278,14 +274,12 @@ BASE_DECLARE_FEATURE(kTabModalUsesDesktopWidget);
 
 BASE_DECLARE_FEATURE(kTearOffWebAppTabOpensWebAppWindow);
 
-#if !BUILDFLAG(IS_ANDROID)
 // Enables a three-button password save dialog variant (essentially adding a
 // "not now" button alongside "never").
 BASE_DECLARE_FEATURE(kThreeButtonPasswordSaveDialog);
 
 // Enables a split button for the "Cancel" action in the Password Save bubble.
 BASE_DECLARE_FEATURE(kPasswordSaveUpdateDropdownMenuExperiment);
-#endif
 
 // TODO(crbug.com/460764864): Cleanup all the enterprise badging feature flags.
 BASE_DECLARE_FEATURE(kNTPFooterBadgingPolicies);
@@ -347,7 +341,6 @@ BASE_DECLARE_FEATURE(kByDateHistoryInSidePanel);
 // If enabled, the "Tabs from other devices" side panel will be available.
 BASE_DECLARE_FEATURE(kTabsFromOtherDevicesSidePanel);
 
-#if !BUILDFLAG(IS_ANDROID)
 
 bool IsWebUIReloadButtonEnabled();
 
@@ -386,16 +379,10 @@ bool IsWebUIToolbarEnabled();
 
 // Returns true if all toolbar controls are being handled by WebUI.
 bool IsWebUIToolbarFullyEnabled();
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Controls whether to show a toast for Chrome non milestone update.
 BASE_DECLARE_FEATURE(kNonMilestoneUpdateToast);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_DECLARE_FEATURE(kAndroidAnimatedProgressBarInBrowser);
-
-bool IsAndroidAnimatedProgressBarInBrowserEnabled();
-#endif  // BUILDFLAG(IS_ANDROID)
 
 BASE_DECLARE_FEATURE(kAiOverlayDialog);
 BASE_DECLARE_FEATURE(kAiOverlayDialogDev);

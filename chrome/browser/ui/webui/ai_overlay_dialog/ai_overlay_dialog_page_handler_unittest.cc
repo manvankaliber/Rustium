@@ -430,11 +430,7 @@ TEST_F(AiOverlayDialogPageHandlerTest, IsEnabledForProfileWithGoogleGroups) {
 
   {
     ScopedListPrefUpdate update(profile()->GetPrefs(),
-#if BUILDFLAG(IS_CHROMEOS)
-                                variations::kOsDogfoodGroupsSyncPrefName
-#else
                                 variations::kDogfoodGroupsSyncPrefName
-#endif
     );
     update->Append(base::DictValue().Set(
         variations::kDogfoodGroupsSyncPrefGaiaIdKey, kTargetGroupId));
@@ -465,11 +461,7 @@ TEST_F(AiOverlayDialogPageHandlerGeminiEnterpriseTest,
       {});
   {
     ScopedListPrefUpdate update(profile()->GetPrefs(),
-#if BUILDFLAG(IS_CHROMEOS)
-                                variations::kOsDogfoodGroupsSyncPrefName
-#else
                                 variations::kDogfoodGroupsSyncPrefName
-#endif
     );
     update->Append(base::DictValue().Set(
         variations::kDogfoodGroupsSyncPrefGaiaIdKey, kTargetGroupId));

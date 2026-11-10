@@ -64,7 +64,7 @@ std::optional<FDAccessModeError> CheckFDAccessMode(int fd, int expected_mode) {
   return std::nullopt;
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 
 // Added in Linux 6.3; not in all sysroot headers yet.
 #ifndef MFD_NOEXEC_SEAL
@@ -147,7 +147,7 @@ ScopedFDPair CreateAnonymousRegion(PlatformSharedMemoryRegion::Mode mode,
   return ScopedFDPair(std::move(fd), std::move(readonly_fd));
 }
 
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 }  // namespace
 
@@ -261,7 +261,7 @@ bool PlatformSharedMemoryRegion::ConvertToUnsafe() {
   return true;
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // static
 PlatformSharedMemoryRegion PlatformSharedMemoryRegion::CreateUnsafeAnonymous(
     size_t size) {
@@ -276,12 +276,12 @@ PlatformSharedMemoryRegion PlatformSharedMemoryRegion::CreateUnsafeAnonymous(
   return PlatformSharedMemoryRegion(std::move(anonymous_region), Mode::kUnsafe,
                                     size, UnguessableToken::Create());
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 // static
 PlatformSharedMemoryRegion PlatformSharedMemoryRegion::Create(Mode mode,
                                                               size_t size
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
                                                               ,
                                                               bool executable
 #endif
@@ -297,7 +297,7 @@ PlatformSharedMemoryRegion PlatformSharedMemoryRegion::Create(Mode mode,
   CHECK_NE(mode, Mode::kReadOnly) << "Creating a region in read-only mode will "
                                      "lead to this region being non-modifiable";
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (!executable) {
     ScopedFDPair anonymous_region = CreateAnonymousRegion(mode, size);
     if (anonymous_region.fd.is_valid()) {
@@ -306,7 +306,7 @@ PlatformSharedMemoryRegion PlatformSharedMemoryRegion::Create(Mode mode,
     }
     // memfd_create() is not available; fall back to a file in /dev/shm.
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   // This function theoretically can block on the disk, but realistically
   // the temporary files we create will just go into the buffer cache
@@ -317,7 +317,7 @@ PlatformSharedMemoryRegion PlatformSharedMemoryRegion::Create(Mode mode,
   // flag.
   FilePath directory;
   if (!GetShmemTempDir(
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
           executable,
 #else
           false /* executable */,

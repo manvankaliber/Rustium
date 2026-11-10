@@ -184,12 +184,6 @@ std::vector<GpuFeatureData> GetGpuFeatureData(
   features.emplace_back(
       "multiple_raster_threads",
       GetFakeFeatureStatus(NumberOfRendererRasterThreads() > 1));
-#if BUILDFLAG(IS_ANDROID)
-  features.emplace_back("surface_control",
-                        features::IsAndroidSurfaceControlEnabled()
-                            ? gpu::kGpuFeatureStatusEnabled
-                            : gpu::kGpuFeatureStatusDisabled);
-#endif
   features.emplace_back(
       "direct_rendering_display_compositor",
       SafeGetFeatureStatus(
@@ -402,22 +396,9 @@ std::vector<std::string> GetDriverBugWorkaroundsImpl(GpuFeatureInfoType type) {
 int NumberOfRendererRasterThreads() {
   int num_processors = base::SysInfo::NumberOfProcessors();
 
-#if BUILDFLAG(IS_ANDROID) || \
-    (BUILDFLAG(IS_CHROMEOS) && defined(ARCH_CPU_ARM_FAMILY))
-  // Android and ChromeOS ARM devices may report 6 to 8 CPUs for big.LITTLE
-  // configurations. Limit the number of raster threads based on maximum of
-  // 4 big cores.
-  num_processors = std::min(num_processors, 4);
-#endif
 
   int num_raster_threads = num_processors / 2;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Limit the number of raster threads to 1 on Android.
-  // TODO(reveman): Remove this when we have a better mechanims to prevent
-  // pre-paint raster work from slowing down non-raster work. crbug.com/504515
-  num_raster_threads = 1;
-#endif
 
   const base::CommandLine& command_line =
       *base::CommandLine::ForCurrentProcess();
@@ -478,12 +459,8 @@ int GpuRasterizationMSAASampleCount() {
 
   if (!command_line.HasSwitch(
           blink::switches::kGpuRasterizationMSAASampleCount))
-#if BUILDFLAG(IS_ANDROID)
-    return 4;
-#else
     // Desktop platforms will compute this automatically based on DPI.
     return -1;
-#endif
   std::string string_value = command_line.GetSwitchValueASCII(
       blink::switches::kGpuRasterizationMSAASampleCount);
   int msaa_sample_count = 0;

@@ -14,7 +14,6 @@
 #include <string_view>
 #include <utility>
 
-#include "base/android/android_info.h"
 #include "base/base64.h"
 #include "base/base64url.h"
 #include "base/byte_size.h"
@@ -633,7 +632,6 @@ class OCSPErrorTestDelegate : public TestDelegate {
   SSLInfo ssl_info_;
 };
 
-#if !BUILDFLAG(IS_IOS)
 // Compute the root cert's SPKI hash on the fly, to avoid hardcoding it within
 // tests.
 std::array<uint8_t, crypto::hash::kSha256Size> GetTestRootCertSPKIHash() {
@@ -646,7 +644,6 @@ std::array<uint8_t, crypto::hash::kSha256Size> GetTestRootCertSPKIHash() {
       &root_spki));
   return crypto::hash::Sha256(root_spki);
 }
-#endif
 
 }  // namespace
 
@@ -6117,7 +6114,6 @@ TEST_F(URLRequestTestHTTP, ResponseHeadersTest) {
 
 // TODO(svaldez): iOS tests are flaky with EmbeddedTestServer and transport
 // security state. (see http://crbug.com/550977).
-#if !BUILDFLAG(IS_IOS)
 TEST_F(URLRequestTestHTTP, ProcessSTS) {
   EmbeddedTestServer https_test_server(net::EmbeddedTestServer::TYPE_HTTPS);
   std::string test_server_hostname = "a.test";
@@ -6315,7 +6311,6 @@ TEST_F(URLRequestTestHTTP, ProcessSTSOnce) {
   EXPECT_FALSE(sts_state.include_subdomains);
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(ENABLE_REPORTING)
 
@@ -9563,7 +9558,6 @@ TEST_F(HTTPSRequestTest, SSLNetErrorReportedToDelegate) {
 
 // TODO(svaldez): iOS tests are flaky with EmbeddedTestServer and transport
 // security state. (see http://crbug.com/550977).
-#if !BUILDFLAG(IS_IOS)
 // This tests that a load of a domain with preloaded HSTS and HPKP with a
 // certificate error sets the |certificate_errors_are_fatal| flag correctly.
 // This flag will cause the interstitial to be fatal.
@@ -10468,7 +10462,6 @@ TEST_F(HTTPSSessionTest, DontResumeSessionsForInvalidCertificates) {
   }
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 // Interceptor to check that secure DNS has been disabled. Secure DNS should be
 // disabled for any network fetch triggered during certificate verification as
@@ -10588,7 +10581,6 @@ class HTTPSCertNetFetchingTest : public HTTPSRequestTest {
   raw_ptr<CertVerifierWithUpdatableProc> updatable_cert_verifier_;
 };
 
-#if !BUILDFLAG(IS_IOS)
 
 // The test EV policy OID used for generated certs.
 static const char kEVTestCertPolicy[] = "1.3.6.1.4.1.11129.2.4.1";
@@ -10655,34 +10647,21 @@ static bool SystemUsesChromiumEVMetadata() {
 }
 
 static bool SystemSupportsOCSP() {
-#if BUILDFLAG(IS_ANDROID)
-  // Unsupported, see http://crbug.com/117478.
-  return false;
-#else
   return true;
-#endif
 }
 
 static bool SystemSupportsOCSPStapling() {
   if (UsingBuiltinCertVerifier()) {
     return true;
   }
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
   return true;
-#endif
 }
 
 static bool SystemSupportsCRLSets() {
   if (UsingBuiltinCertVerifier()) {
     return true;
   }
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
   return true;
-#endif
 }
 
 TEST_F(HTTPSEVTest, EVCheckNoOCSP) {
@@ -10991,7 +10970,6 @@ TEST_F(HTTPSOCSPTest, OldStapledButValidAIA) {
   EXPECT_TRUE(cert_status & CERT_STATUS_REV_CHECKING_ENABLED);
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 class HTTPSAIATest : public HTTPSCertNetFetchingTest {};
 
@@ -11025,7 +11003,6 @@ TEST_F(HTTPSAIATest, AIAFetching) {
   EXPECT_EQ(0u, r->ssl_info().unverified_cert->intermediate_buffers().size());
 }
 
-#if !BUILDFLAG(IS_IOS)
 
 class HTTPSHardFailTest : public HTTPSOCSPTest {
  protected:
@@ -11645,7 +11622,6 @@ TEST_F(HTTPSLocalCRLSetTest, InterceptionBlockedAllowOverrideOnHSTS) {
                 CERT_STATUS_KNOWN_INTERCEPTION_BLOCKED);
   }
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(URLRequestTest, NetworkAccessedSetOnHostResolutionFailure) {
   auto context_builder = CreateTestURLRequestContextBuilder();
@@ -11996,47 +11972,6 @@ TEST_F(URLRequestTest, UpgradeIfInsecureFlagNotSet) {
 }
 
 // Test that URLRequests get properly tagged.
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(URLRequestTestHTTP, TestTagging) {
-  if (!CanGetTaggedBytes()) {
-    DVLOG(0) << "Skipping test - GetTaggedBytes unsupported.";
-    return;
-  }
-
-  ASSERT_TRUE(http_test_server()->Start());
-
-  // The tag under which the system reports untagged traffic.
-  static const int32_t UNTAGGED_TAG = 0;
-
-  uint64_t old_traffic = GetTaggedBytes(UNTAGGED_TAG);
-
-  // Untagged traffic should be tagged with tag UNTAGGED_TAG.
-  TestDelegate delegate;
-  std::unique_ptr<URLRequest> req(default_context().CreateRequest(
-      http_test_server()->GetURL("/"), DEFAULT_PRIORITY, &delegate,
-      TRAFFIC_ANNOTATION_FOR_TESTS, net::handles::kInvalidNetworkHandle));
-  EXPECT_EQ(SocketTag(), req->socket_tag());
-  req->Start();
-  delegate.RunUntilComplete();
-
-  EXPECT_GT(GetTaggedBytes(UNTAGGED_TAG), old_traffic);
-
-  int32_t tag_val1 = 0x12345678;
-  SocketTag tag1(SocketTag::UNSET_UID, tag_val1);
-  old_traffic = GetTaggedBytes(tag_val1);
-
-  // Test specific tag value.
-  req = default_context().CreateRequest(
-      http_test_server()->GetURL("/"), DEFAULT_PRIORITY, &delegate,
-      TRAFFIC_ANNOTATION_FOR_TESTS, net::handles::kInvalidNetworkHandle);
-  req->set_socket_tag(tag1);
-  EXPECT_EQ(tag1, req->socket_tag());
-  req->Start();
-  delegate.RunUntilComplete();
-
-  EXPECT_GT(GetTaggedBytes(tag_val1), old_traffic);
-}
-#endif
 
 namespace {
 

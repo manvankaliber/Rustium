@@ -10,9 +10,7 @@
 #include "components/lens/lens_overlay_mime_type.h"
 #include "third_party/lens_server_proto/lens_overlay_service_deps.pb.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "third_party/zstd/src/lib/zstd.h"  // nogncheck
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace lens {
 
@@ -62,10 +60,6 @@ lens::ContentData::ContentType MimeTypeToContentType(
 // Returns true if the compression is successful.
 bool ZstdCompressBytes(base::span<const uint8_t> src_bytes,
                        std::string* dst_bytes) {
-#if BUILDFLAG(IS_ANDROID)
-  // Disable compression on Android due to binary size increase.
-  return false;
-#else
   CHECK(dst_bytes);
   size_t uncompressed_size = src_bytes.size();
   size_t buffer_bounds = ZSTD_compressBound(uncompressed_size);
@@ -85,7 +79,6 @@ bool ZstdCompressBytes(base::span<const uint8_t> src_bytes,
   // Resize the output vector to the actual compressed size.
   dst_bytes->resize(compressed_size);
   return true;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 }  // namespace lens

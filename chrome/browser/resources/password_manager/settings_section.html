@@ -75,7 +75,7 @@
       sub-label="$i18n{autosigninDescription}"
       pref-key="credentials_enable_autosignin">
   </pref-toggle-button>
-  <if expr="is_win or is_macosx or is_chromeos">
+  <if expr="is_win or is_macosx">
     <template is="dom-if"
         if="[[isBiometricAuthenticationForFillingToggleVisible_]]">
       <pref-toggle-button id="biometricAuthenticationToggle" class="hr"

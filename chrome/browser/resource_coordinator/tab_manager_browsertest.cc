@@ -62,8 +62,7 @@
 
 using content::OpenURLParams;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
 namespace resource_coordinator {
 
@@ -649,13 +648,9 @@ IN_PROC_BROWSER_TEST_P(TabManagerTest, UrgentFastShutdownWithUnloadHandler) {
 
   base::HistogramTester histogram_tester;
   std::optional<WindowedRenderProcessHostExitObserver> observer;
-#if BUILDFLAG(IS_CHROMEOS)
-  observer.emplace();
-#else
   if (IsRetainedWebContents()) {
     observer.emplace();
   }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   EXPECT_TRUE(UrgentDiscardTabImmediately());
   if (observer.has_value()) {
     observer->Wait();
@@ -1101,8 +1096,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 // Data race on Linux. http://crbug.com/41357022
 // Flaky on Mac and Windows: https://crbug.com/41477172
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #define MAYBE_DiscardTabWithNonVisibleTabs DISABLED_DiscardTabWithNonVisibleTabs
 #else
 #define MAYBE_DiscardTabWithNonVisibleTabs DiscardTabWithNonVisibleTabs
@@ -1149,15 +1143,9 @@ IN_PROC_BROWSER_TEST_P(TabManagerTest, MAYBE_DiscardTabWithNonVisibleTabs) {
   EXPECT_TRUE(IsTabDiscarded(tab_strip1->GetWebContentsAt(1)));
   EXPECT_TRUE(IsTabDiscarded(tab_strip2->GetWebContentsAt(1)));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, a non-visible tab should be discarded even if it's active in
-  // its tab strip.
-  EXPECT_TRUE(IsTabDiscarded(tab_strip2->GetWebContentsAt(0)));
-#else
   // On other platforms, an active tab is never discarded, even if it's not
   // visible.
   EXPECT_FALSE(IsTabDiscarded(tab_strip2->GetWebContentsAt(0)));
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 }  // namespace resource_coordinator

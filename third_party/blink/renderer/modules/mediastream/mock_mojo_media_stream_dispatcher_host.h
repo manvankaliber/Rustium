@@ -56,7 +56,6 @@ class MockMojoMediaStreamDispatcherHost
                void(const base::UnguessableToken&,
                     const base::UnguessableToken&,
                     KeepDeviceAliveForTransferCallback));
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   MOCK_METHOD2(SendWheel,
                void(const base::UnguessableToken&,
                     mojom::blink::CapturedWheelActionPtr));
@@ -68,7 +67,6 @@ class MockMojoMediaStreamDispatcherHost
                void(const base::UnguessableToken&,
                     RequestCapturedSurfaceControlPermissionCallback));
   MOCK_METHOD2(FocusCapturedSurface, void(const String&, bool));
-#endif
 
   MOCK_METHOD5(ApplySubCaptureTarget,
                void(const base::UnguessableToken&,

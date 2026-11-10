@@ -37,22 +37,15 @@
 #include "mojo/public/cpp/bindings/receiver.h"
 #include "net/cert/x509_certificate.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/enterprise/connectors/device_trust/device_trust_features.h"
-#include "chrome/browser/enterprise/reporting/reporting_delegate_factory_android.h"
-#else
 #include "chrome/browser/enterprise/reporting/reporting_delegate_factory_desktop.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "chrome/browser/enterprise/connectors/device_trust/key_management/core/mac/secure_enclave_client.h"
 #endif  // BUILDFLAG(IS_MAC)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
 #include "components/enterprise/browser/controller/chrome_browser_cloud_management_controller.h"
-#endif
 
 #if BUILDFLAG(ENTERPRISE_PROXY)
 #include "chrome/browser/enterprise/net/enterprise_proxy_service_factory.h"
@@ -72,12 +65,6 @@ ConnectorsInternalsPageHandler::~ConnectorsInternalsPageHandler() = default;
 
 void ConnectorsInternalsPageHandler::GetDeviceTrustState(
     GetDeviceTrustStateCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  if (!IsDeviceTrustConnectorAndroidEnabled()) {
-    std::move(callback).Run(utils::CreateUnsupportedDeviceTrustState());
-    return;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   auto* device_trust_service =
       DeviceTrustServiceFactory::GetForProfile(profile_);
@@ -118,14 +105,12 @@ void ConnectorsInternalsPageHandler::GetClientCertificateState(
           profile_);
   client_certificates::CertificateProvisioningService*
       browser_certificate_provisioning_service = nullptr;
-#if !BUILDFLAG(IS_CHROMEOS)
   // Browser-level (machine) certificate provisioning is driven by the Chrome
   // Browser Cloud Management controller, which does not exist on ChromeOS.
   browser_certificate_provisioning_service =
       g_browser_process->browser_policy_connector()
           ->chrome_browser_cloud_management_controller()
           ->GetCertificateProvisioningService();
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   std::move(callback).Run(utils::CreateClientCertificateState(
       browser_certificate_provisioning_service,
       profile_certificate_provisioning_service));
@@ -189,13 +174,8 @@ void ConnectorsInternalsPageHandler::GetSignalsReportingState(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  auto delegate_factory =
-      std::make_unique<enterprise_reporting::ReportingDelegateFactoryAndroid>();
-#else
   auto delegate_factory =
       std::make_unique<enterprise_reporting::ReportingDelegateFactoryDesktop>();
-#endif
 
   request_generator_ =
       std::make_unique<enterprise_reporting::ChromeProfileRequestGenerator>(

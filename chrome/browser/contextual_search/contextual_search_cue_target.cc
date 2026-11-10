@@ -52,9 +52,7 @@
 #include "ui/color/color_id.h"
 #include "ui/gfx/image/image_skia.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/lens/lens_search_controller.h"
-#endif
 
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/grit/theme_resources.h"
@@ -65,10 +63,6 @@ namespace contextual_search {
 
 // static
 void ContextualSearchCueTarget::Register(tabs::TabInterface& tab) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTIMPLEMENTED()
-      << "Contextual search contextual cue not yet implemented for Android.";
-#else
   auto* contextual_cueing_controller =
       contextual_cueing::ContextualCueingController::From(&tab);
   CHECK(contextual_cueing_controller);
@@ -77,7 +71,6 @@ void ContextualSearchCueTarget::Register(tabs::TabInterface& tab) {
       std::make_unique<ContextualSearchCueTarget>(
           OptimizationGuideKeyedServiceFactory::GetForProfile(tab.GetProfile()),
           tab));
-#endif
 }
 
 ContextualSearchCueTarget::ContextualSearchCueTarget(
@@ -179,9 +172,6 @@ bool ContextualSearchCueTarget::IsPageEligible(
 }
 
 bool ContextualSearchCueTarget::IsEligible() const {
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
   auto* window = tab_->GetBrowserWindowInterface();
   if (!window) {
     CUEING_LOG("ContextualSearchCueTarget::IsEligible failed: No window.");
@@ -226,15 +216,10 @@ bool ContextualSearchCueTarget::IsEligible() const {
     return false;
   }
   return true;
-#endif
 }
 
 void ContextualSearchCueTarget::OnAnchoredMessageClicked(
     contextual_cueing::CueActionData data) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTIMPLEMENTED()
-      << "Contextual search contextual cue not yet implemented for Android.";
-#else
   if (!std::holds_alternative<contextual_cueing::ContextualSearchCueActionData>(
           data)) {
     return;
@@ -318,7 +303,6 @@ void ContextualSearchCueTarget::OnAnchoredMessageClicked(
   }
   params.enable_smart_tab_selection = false;
   query_contextualizer_->Contextualize(std::move(params));
-#endif
 }
 
 ContextualSearchSessionHandle* ContextualSearchCueTarget::GetSessionHandle() {
@@ -354,7 +338,6 @@ void ContextualSearchCueTarget::OnContextualizationComplete(
 }
 
 void ContextualSearchCueTarget::OpenContextualTasksSidePanel(GURL url) {
-#if !BUILDFLAG(IS_ANDROID)
   Profile* profile = tab_->GetProfile();
   BrowserWindowInterface* window = tab_->GetBrowserWindowInterface();
   if (!profile || !window) {
@@ -377,7 +360,6 @@ void ContextualSearchCueTarget::OpenContextualTasksSidePanel(GURL url) {
           omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_CONTEXTUAL_CUE)) {
     session_handle_.reset();
   }
-#endif
 }
 
 bool ContextualSearchCueTarget::SupportsEditPrompt() const {
@@ -402,11 +384,6 @@ ui::ImageModel ContextualSearchCueTarget::GetAnchoredMessageIcon() const {
 }
 
 ui::ImageModel ContextualSearchCueTarget::GetOmniboxChipIcon() const {
-#if BUILDFLAG(IS_ANDROID)
-  NOTIMPLEMENTED()
-      << "Contextual search contextual cue not yet implemented for Android.";
-  return ui::ImageModel();
-#else
 
   const gfx::VectorIcon& icon =
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
@@ -416,7 +393,6 @@ ui::ImageModel ContextualSearchCueTarget::GetOmniboxChipIcon() const {
 #endif
 
   return ui::ImageModel::FromVectorIcon(icon, ui::kColorSysOnSurface, 16);
-#endif
 }
 
 contextual_cueing::CueActionData

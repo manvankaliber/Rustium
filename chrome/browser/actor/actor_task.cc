@@ -243,12 +243,6 @@ Profile* ActorTask::GetProfile() const {
   return service_->GetProfile();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void ActorTask::SetIsInPip(bool is_in_pip) {
-  CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
-  is_in_pip_ = is_in_pip;
-}
-#endif
 
 ActorUiMode ActorTask::GetUiMode() const {
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);

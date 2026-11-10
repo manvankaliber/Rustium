@@ -19,7 +19,6 @@
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 bool HasFontWithName(const base::ListValue& list,
                      std::string_view expected_font_id,
                      std::string_view expected_display_name) {
@@ -34,11 +33,9 @@ bool HasFontWithName(const base::ListValue& list,
 
   return false;
 }
-#endif
 
 }  // namespace
 
-#if !BUILDFLAG(IS_ANDROID)
 // GetFontList is not implemented on Android and Fuchsia.
 TEST(FontList, GetFontList) {
   base::test::TaskEnvironment task_environment;
@@ -51,7 +48,7 @@ TEST(FontList, GetFontList) {
         EXPECT_TRUE(HasFontWithName(fonts, "MS Gothic", "MS Gothic"));
         EXPECT_TRUE(HasFontWithName(fonts, "Segoe UI", "Segoe UI"));
         EXPECT_TRUE(HasFontWithName(fonts, "Verdana", "Verdana"));
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
         EXPECT_TRUE(HasFontWithName(fonts, "Arimo", "Arimo"));
 #else
         EXPECT_TRUE(HasFontWithName(fonts, "Arial", "Arial"));
@@ -59,7 +56,6 @@ TEST(FontList, GetFontList) {
       }));
   task_environment.RunUntilIdle();
 }
-#endif
 
 #if BUILDFLAG(IS_WIN)
 TEST(FontList, GetFontListLocalized) {

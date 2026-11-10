@@ -37,7 +37,7 @@
 #include "third_party/boringssl/src/pki/trust_store.h"
 #include "third_party/boringssl/src/pki/trust_store_collection.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "net/proxy_resolution/proxy_config.h"
 #include "net/proxy_resolution/proxy_config_service_fixed.h"
 #endif
@@ -69,7 +69,7 @@ void SetUpOnNetworkThread(
     base::WaitableEvent* initialization_complete_event) {
   net::URLRequestContextBuilder url_request_context_builder;
   url_request_context_builder.set_user_agent(GetUserAgent());
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // On Linux, use a fixed ProxyConfigService, since the default one
   // depends on glib.
   //
@@ -271,13 +271,8 @@ std::unique_ptr<net::SystemTrustStore> CreateSystemTrustStore(
 #if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
       std::cerr << impl_name
                 << ": using Chrome Root Store (--roots are in addition).\n";
-#if BUILDFLAG(IS_CHROMEOS)
-      return net::CreateChromeOnlySystemTrustStore(
-          std::make_unique<net::TrustStoreChrome>());
-#else
       return net::CreateSslSystemTrustStoreChromeRoot(
           std::make_unique<net::TrustStoreChrome>());
-#endif
 #else
       std::cerr << impl_name << ": not supported.\n";
       [[fallthrough]];

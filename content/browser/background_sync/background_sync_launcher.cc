@@ -17,9 +17,6 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/callback_android.h"
-#endif
 
 namespace content {
 
@@ -47,39 +44,6 @@ base::TimeDelta BackgroundSyncLauncher::GetSoonestWakeupDelta(
 }
 
 // static
-#if BUILDFLAG(IS_ANDROID)
-void BackgroundSyncLauncher::FireBackgroundSyncEvents(
-    BrowserContext* browser_context,
-    blink::mojom::BackgroundSyncType sync_type,
-    const base::android::JavaRef<jobject>& j_runnable) {
-  CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M159);
-  CHECK(browser_context, base::NotFatalUntil::M159);
-
-  Get()->FireBackgroundSyncEventsImpl(browser_context, sync_type, j_runnable);
-}
-
-void BackgroundSyncLauncher::FireBackgroundSyncEventsImpl(
-    BrowserContext* browser_context,
-    blink::mojom::BackgroundSyncType sync_type,
-    const base::android::JavaRef<jobject>& j_runnable) {
-  CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M159);
-  CHECK(browser_context, base::NotFatalUntil::M159);
-  if (sync_type == blink::mojom::BackgroundSyncType::PERIODIC)
-    last_browser_wakeup_for_periodic_sync_ = base::Time::Now();
-  base::RepeatingClosure done_closure = base::BarrierClosure(
-      browser_context->GetLoadedStoragePartitionCount(),
-      base::BindOnce(jni_zero::RunRunnable,
-                     base::android::ScopedJavaGlobalRef<jobject>(j_runnable)));
-
-  browser_context->ForEachLoadedStoragePartition(
-      [&](StoragePartition* storage_partition) {
-        BackgroundSyncContext* sync_context =
-            storage_partition->GetBackgroundSyncContext();
-        CHECK(sync_context, base::NotFatalUntil::M159);
-        sync_context->FireBackgroundSyncEvents(sync_type, done_closure);
-      });
-}
-#endif
 
 BackgroundSyncLauncher::BackgroundSyncLauncher() {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M159);

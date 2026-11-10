@@ -8,9 +8,6 @@
 #include "chrome/browser/profiles/profile.h"
 #include "components/profile_metrics/browser_profile_type.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/browser_context_helper/browser_context_types.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool AreKeyedServicesDisabledForProfileByDefault(const Profile* profile) {
   // By default disable all services for System Profile and Top Chrome WebUI
@@ -63,9 +60,6 @@ ProfileSelections::Builder& ProfileSelections::Builder::WithIsolatedMode(
 
 ProfileSelections::Builder& ProfileSelections::Builder::WithAshInternals(
     ProfileSelection selection) {
-#if BUILDFLAG(IS_CHROMEOS)
-  selections_->SetProfileSelectionForAshInternals(selection);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   return *this;
 }
 
@@ -145,14 +139,6 @@ ProfileSelection ProfileSelections::GetProfileSelection(
     return ProfileSelection::kNone;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // This check has to be performed before the check on
-  // `profile->IsRegularProfile()` because profiles that are internal ASH
-  // (non-user) profiles will also satisfy the later condition.
-  if (!ash::IsUserBrowserContext(profile)) {
-    return ash_internals_profile_selection_;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Isolated Mode uses the same ProfileSelection as Incognito,
   // unless explicitly configured to behave differently.

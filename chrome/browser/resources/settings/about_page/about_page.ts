@@ -7,9 +7,7 @@
  * information.
  */
 
-// <if expr="not is_chromeos">
 import '../relaunch_confirmation_dialog.js';
-// </if>
 import '../settings_page/settings_section.js';
 import 'chrome://resources/cr_elements/cr_button/cr_button.js';
 import 'chrome://resources/cr_elements/cr_icon_button/cr_icon_button.js';
@@ -50,10 +48,8 @@ export const ABOUT_PAGE_PRIVACY_POLICY_URL: string =
 export interface SettingsAboutPageElement {
   $: {
     productLogo: HTMLImageElement,
-    // <if expr="not is_chromeos">
     deprecationWarning: HTMLElement,
     updateStatusMessage: HTMLElement,
-    // </if>
   };
 }
 
@@ -85,12 +81,10 @@ export class SettingsAboutPageElement extends SettingsAboutPageElementBase
       promoteUpdaterStatus_: {type: Object},
       // </if>
 
-      // <if expr="not is_chromeos">
       obsoleteSystemInfo_: {type: Object},
       showUpdateStatus_: {type: Boolean},
       showButtonContainer_: {type: Boolean},
       showRelaunch_: {type: Boolean},
-      // </if>
 
       // <if expr="_google_chrome">
       feedbackAllowedPref_: {type: Object},
@@ -116,7 +110,6 @@ export class SettingsAboutPageElement extends SettingsAboutPageElementBase
   };
   // </if>
 
-  // <if expr="not is_chromeos">
   protected accessor obsoleteSystemInfo_:
       {obsolete: boolean, endOfLine: boolean} = {
         obsolete: loadTimeData.getBoolean('aboutObsoleteNowOrSoon'),
@@ -125,7 +118,6 @@ export class SettingsAboutPageElement extends SettingsAboutPageElementBase
   protected accessor showUpdateStatus_: boolean = false;
   protected accessor showButtonContainer_: boolean = false;
   protected accessor showRelaunch_: boolean = false;
-  // </if>
 
   // <if expr="_google_chrome">
   protected accessor feedbackAllowedPref_:
@@ -140,16 +132,13 @@ export class SettingsAboutPageElement extends SettingsAboutPageElementBase
 
     this.aboutBrowserProxy_.pageReady();
 
-    // <if expr="not is_chromeos">
     this.startListening_();
-    // </if>
 
     // <if expr="_google_chrome">
     this.mirrorPref('feedback_allowed', 'feedbackAllowedPref_');
     // </if>
   }
 
-  // <if expr="not is_chromeos">
   override willUpdate(changedProperties: PropertyValues<this>) {
     super.willUpdate(changedProperties);
 
@@ -171,7 +160,6 @@ export class SettingsAboutPageElement extends SettingsAboutPageElementBase
       this.showButtonContainer_ = this.showRelaunch_;
     }
   }
-  // </if>
 
   protected getPromoteUpdaterClass_(): string {
     // <if expr="_google_chrome and is_macosx">
@@ -183,7 +171,6 @@ export class SettingsAboutPageElement extends SettingsAboutPageElementBase
     return '';
   }
 
-  // <if expr="not is_chromeos">
   private startListening_() {
     this.addWebUiListener(
         'update-status-changed', this.onUpdateStatusChanged_.bind(this));
@@ -198,7 +185,6 @@ export class SettingsAboutPageElement extends SettingsAboutPageElementBase
   private onUpdateStatusChanged_(event: UpdateStatusChangedEvent) {
     this.currentUpdateStatusEvent_ = event;
   }
-  // </if>
 
   // <if expr="_google_chrome and is_macosx">
   private onPromoteUpdaterStatusChanged_(status: PromoteUpdaterStatus) {
@@ -232,7 +218,6 @@ export class SettingsAboutPageElement extends SettingsAboutPageElementBase
     this.performRestart(RestartType.RELAUNCH);
   }
 
-  // <if expr="not is_chromeos">
   private updateShowUpdateStatus_() {
     if (this.obsoleteSystemInfo_.endOfLine) {
       this.showUpdateStatus_ = false;
@@ -318,7 +303,6 @@ export class SettingsAboutPageElement extends SettingsAboutPageElementBase
         return false;
     }
   }
-  // </if>
 
   private checkStatus_(status: UpdateStatus): boolean {
     return this.currentUpdateStatusEvent_!.status === status;
@@ -349,14 +333,12 @@ export class SettingsAboutPageElement extends SettingsAboutPageElementBase
   }
   // </if>
 
-  // <if expr="not is_chromeos">
   protected shouldShowIcons_(): boolean {
     if (this.obsoleteSystemInfo_.endOfLine) {
       return true;
     }
     return this.showUpdateStatus_;
   }
-  // </if>
 
   // SettingsPlugin implementation
   searchContents(query: string) {

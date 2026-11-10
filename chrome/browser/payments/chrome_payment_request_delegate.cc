@@ -86,10 +86,7 @@ bool FrameSupportsPayments(content::RenderFrameHost* rfh) {
 ChromePaymentRequestDelegate::ChromePaymentRequestDelegate(
     content::RenderFrameHost* render_frame_host)
     : shown_dialog_(nullptr),
-      frame_routing_id_(render_frame_host->GetGlobalId()),
-      twa_package_helper_(FrameSupportsPayments(render_frame_host)
-                              ? render_frame_host
-                              : nullptr) {}
+      frame_routing_id_(render_frame_host->GetGlobalId()) {}
 
 ChromePaymentRequestDelegate::~ChromePaymentRequestDelegate() = default;
 
@@ -253,10 +250,7 @@ ChromePaymentRequestDelegate::GetInvalidSslCertificateErrorMessage() {
              : "";
 }
 
-void ChromePaymentRequestDelegate::GetTwaPackageName(
-    GetTwaPackageNameCallback callback) const {
-  twa_package_helper_.GetTwaPackageName(std::move(callback));
-}
+
 
 PaymentRequestDialog* ChromePaymentRequestDelegate::GetDialogForTesting() {
   return shown_dialog_.get();

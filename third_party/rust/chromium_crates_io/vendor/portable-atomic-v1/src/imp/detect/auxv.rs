@@ -144,7 +144,7 @@ so we use it (see aarch64_aa64reg.rs).
 include!("common.rs");
 
 use self::os::ffi;
-#[cfg(any(target_os = "linux", target_os = "android"))]
+#[cfg(target_os = "linux")]
 mod os {
     // libc requires Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
@@ -564,26 +564,7 @@ mod arch {
     #[cold]
     #[must_use]
     pub(crate) fn _detect(mut info: CpuInfo) -> CpuInfo {
-        #[cfg(target_os = "android")]
-        {
-            // Samsung Exynos 9810 has a bug that big and little cores have different
-            // ISAs. And on older Android (pre-9), the kernel incorrectly reports
-            // that features available only on some cores are available on all cores.
-            // https://reviews.llvm.org/D114523
-            let mut arch = [0_u8; ffi::PROP_VALUE_MAX as usize];
-            // SAFETY: we've passed a valid C string and a buffer with max length.
-            let len = unsafe {
-                ffi::__system_property_get(
-                    c!("ro.arch").as_ptr(),
-                    arch.as_mut_ptr().cast::<ffi::c_char>(),
-                )
-            };
-            // On Exynos, ro.arch is not available on Android 12+, but it is fine
-            // because Android 9+ includes the fix.
-            if len > 0 && arch.starts_with(b"exynos9810") {
-                return info;
-            }
-        }
+
 
         macro_rules! check {
             ($x:ident, $flag:ident, $bit:ident) => {
@@ -747,27 +728,9 @@ mod tests {
 
     use super::*;
 
-    #[allow(clippy::cast_sign_loss)]
-    #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-    #[test]
-    fn test_android() {
-        use std::{slice, str};
-        unsafe {
-            let mut arch = [1; ffi::PROP_VALUE_MAX as usize];
-            let len = ffi::__system_property_get(
-                c!("ro.arch").as_ptr(),
-                arch.as_mut_ptr().cast::<ffi::c_char>(),
-            );
-            assert!(len >= 0);
-            test_helper::eprintln_nocapture!("ro.arch=raw={:?},len={}", arch, len);
-            test_helper::eprintln_nocapture!(
-                "ro.arch={:?}",
-                str::from_utf8(slice::from_raw_parts(arch.as_ptr(), len as usize)).unwrap()
-            );
-        }
-    }
 
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+
+    #[cfg(target_os = "linux")]
     #[test]
     fn test_dlsym_getauxval() {
         unsafe {
@@ -852,7 +815,7 @@ mod tests {
         }
     }
 
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[cfg(target_os = "linux")]
     #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))] // no PR_GET_AUXV
     #[test]
     fn test_alternative() {
@@ -871,7 +834,7 @@ mod tests {
         // (Actually 6.5? https://github.com/torvalds/linux/commit/636e348353a7cc52609fdba5ff3270065da140d5)
         //
         // This is currently used only for testing.
-        #[cfg(not(target_os = "android"))]
+
         #[cfg(not(portable_atomic_no_asm_syscall))]
         fn getauxval_pr_get_auxv_no_libc(type_: c_ulong) -> Result<c_ulong, c_int> {
             use crate::utils::{RegISize, RegSize};
@@ -959,7 +922,7 @@ mod tests {
                 eprintln!("kernel version: {}.{} (no pr_get_auxv)", major, minor);
                 for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2, ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
                     assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
-                    #[cfg(not(target_os = "android"))]
+
                     #[cfg(not(portable_atomic_no_asm_syscall))]
                     assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
                 }
@@ -969,7 +932,7 @@ mod tests {
                     if cfg!(all(valgrind, target_arch = "powerpc64")) {
                         // TODO: valgrind bug (as of Valgrind 3.26)
                         assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
-                        #[cfg(not(target_os = "android"))]
+
                         #[cfg(not(portable_atomic_no_asm_syscall))]
                         assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
                     } else if cfg!(all(valgrind, target_arch = "aarch64"))
@@ -977,12 +940,12 @@ mod tests {
                     {
                         // TODO: valgrind bug (result value mismatch) (as of Valgrind 3.26)
                         assert_ne!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
-                        #[cfg(not(target_os = "android"))]
+
                         #[cfg(not(portable_atomic_no_asm_syscall))]
                         assert_ne!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
                     } else {
                         assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
-                        #[cfg(not(target_os = "android"))]
+
                         #[cfg(not(portable_atomic_no_asm_syscall))]
                         assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
                     }
@@ -992,7 +955,7 @@ mod tests {
                         os::getauxval(at),
                         getauxval_pr_get_auxv_libc(at).unwrap_or_default()
                     );
-                    #[cfg(not(target_os = "android"))]
+
                     #[cfg(not(portable_atomic_no_asm_syscall))]
                     assert_eq!(
                         os::getauxval(at),

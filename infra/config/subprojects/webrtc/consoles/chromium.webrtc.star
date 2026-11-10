@@ -10,16 +10,6 @@ luci.console_view(
     header = get_header(),
     entries = [
         luci.console_view_entry(
-            builder = "webrtc/WebRTC Chromium Android Builder",
-            category = "android",
-            short_name = "bld",
-        ),
-        luci.console_view_entry(
-            builder = "webrtc/WebRTC Chromium Android Tester",
-            category = "android",
-            short_name = "tst",
-        ),
-        luci.console_view_entry(
             builder = "webrtc/WebRTC Chromium Linux Builder",
             category = "linux",
             short_name = "bld",

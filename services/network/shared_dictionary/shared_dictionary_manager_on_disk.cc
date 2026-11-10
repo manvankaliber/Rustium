@@ -490,9 +490,6 @@ SharedDictionaryManagerOnDisk::SharedDictionaryManagerOnDisk(
     const base::FilePath& cache_directory_path,
     std::optional<base::ByteSize> cache_max_size,
     uint64_t cache_max_count,
-#if BUILDFLAG(IS_ANDROID)
-    disk_cache::ApplicationStatusListenerGetter app_status_listener_getter,
-#endif  // BUILDFLAG(IS_ANDROID)
     scoped_refptr<disk_cache::BackendFileOperationsFactory>
         file_operations_factory)
     : SharedDictionaryManager("SharedDictionaryManagerOnDisk", kOnDiskTraits),
@@ -510,9 +507,6 @@ SharedDictionaryManagerOnDisk::SharedDictionaryManagerOnDisk(
               switches::kDisableSharedDictionaryStorageCleanupForTesting)) {
   dictionary_cache_ = base::MakeRefCounted<SharedDictionaryCache>();
   disk_cache_.Initialize(cache_directory_path,
-#if BUILDFLAG(IS_ANDROID)
-                         app_status_listener_getter,
-#endif  // BUILDFLAG(IS_ANDROID)
                          std::move(file_operations_factory));
   MaybePostExpiredDictionaryDeletionTask();
   if (cache_max_size_.has_value()) {

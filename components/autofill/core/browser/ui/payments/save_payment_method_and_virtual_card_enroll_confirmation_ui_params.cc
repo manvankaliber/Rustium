@@ -77,7 +77,6 @@ SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams::
               : IDS_AUTOFILL_SAVE_CARD_CONFIRMATION_SUCCESS_DESCRIPTION_TEXT));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // static
 SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams
 SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams::
@@ -111,7 +110,6 @@ SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams::
       l10n_util::GetStringUTF16(
           IDS_AUTOFILL_SAVE_CARDHOLDER_NAME_CONFIRMATION_FAILURE_DESCRIPTION_TEXT));
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // static
 SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams

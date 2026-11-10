@@ -377,9 +377,6 @@ class TestRenderFrameMetadataObserver : public RenderFrameMetadataObserver {
     }
     last_metadata_ = render_frame_metadata;
   }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void DidEndScroll() override {}
-#endif
 
   const std::optional<RenderFrameMetadata>& last_metadata() const {
     return last_metadata_;

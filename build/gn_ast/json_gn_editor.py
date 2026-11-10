@@ -20,14 +20,6 @@ import sys
 
 from typing import Dict, Iterator, List, Optional, Tuple
 
-_SRC_PATH = pathlib.Path(__file__).resolve().parents[2]
-
-_BUILD_ANDROID_GYP_PATH = _SRC_PATH / 'build/android/gyp'
-if str(_BUILD_ANDROID_GYP_PATH) not in sys.path:
-    sys.path.append(str(_BUILD_ANDROID_GYP_PATH))
-
-from util import build_utils  # noqa: E402
-
 # Refer to parse_tree.cc for GN AST implementation details:
 # https://gn.googlesource.com/gn/+/refs/heads/main/src/gn/parse_tree.cc
 # These constants should match corresponding entries in parse_tree.cc.
@@ -104,7 +96,7 @@ def _build_targets_output(
 
 
 def _generate_project_json_content(out_dir: str) -> str:
-    build_utils.CheckOutput(['gn', 'gen', '--ide=json', out_dir])
+    subprocess.check_output(['gn', 'gen', '--ide=json', out_dir], text=True)
     with open(os.path.join(out_dir, 'project.json')) as f:
         return f.read()
 
@@ -136,8 +128,8 @@ class BuildFile:
         self._skip_write_content = dryrun
 
     def __enter__(self):
-        output = build_utils.CheckOutput(
-            ['gn', 'format', '--dump-tree=json', self._full_path]
+        output = subprocess.check_output(
+            ['gn', 'format', '--dump-tree=json', self._full_path], text=True
         )
         self._content = json.loads(output)
         self._original_content = json.dumps(self._content)

@@ -81,9 +81,6 @@ if (apple_tool_wrapper != "") {
   apple_tool_wrapper_script = apple_tool_wrapper
   apple_tool_wrapper_pool =
       "//build/toolchain/apple:apple_tool_wrapper_pool($default_toolchain)"
-} else if (is_ios && host_os != "mac") {
-  apple_tool_wrapper_script =
-      "//build/toolchain/apple/apple_tool_unavailable.py"
 } else {
   apple_tool_wrapper_script = ""
 }

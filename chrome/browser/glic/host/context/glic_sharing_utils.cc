@@ -21,9 +21,6 @@
 #include "url/gurl.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/tab_android.h"
-#endif
 
 namespace glic {
 
@@ -33,16 +30,6 @@ namespace {
 // On Android, PDFs are displayed by a native `PdfPage` whose URL is a
 // `chrome-native://pdf` URL, which is not an allowed URL.
 bool IsAndroidPdfTab(content::WebContents* web_contents) {
-#if BUILDFLAG(IS_ANDROID)
-  // Note: Look up `TabAndroid` from the `WebContents` rather than from the
-  // `TabInterface`, since `TabAndroid::FromTabInterface()` is an unchecked
-  // cast which is invalid for e.g. `tabs::MockTabInterface`.
-  if (web_contents) {
-    if (TabAndroid* tab_android = TabAndroid::FromWebContents(web_contents)) {
-      return tab_android->IsPdf();
-    }
-  }
-#endif
   return false;
 }
 
@@ -51,14 +38,9 @@ const std::vector<GURL>& GetUrlAllowList() {
       {GURL(), GURL(url::kAboutBlankURL),
        GURL(chrome::kChromeUINewTabPageThirdPartyURL),
        chrome::ChromeUINewTabPageURLAsGURL(), chrome::ChromeUINewTabURLAsGURL(),
-#if BUILDFLAG(IS_ANDROID)
-       GURL(chrome::kChromeUINativeNewTabURL),
-#endif
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
        // NEEDS_ANDROID_IMPL: what's new page
        // "What's New" does not exist in the form of a tab on ChromeOS.
        GURL(chrome::kChromeUIWhatsNewURL)
-#endif
       }};
   return *kUrlAllowList;
 }

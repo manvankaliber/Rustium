@@ -1498,7 +1498,7 @@ TEST_F(ZipTest, NestedZip) {
 // android-marshmallow-x86-rel-non-cq).
 // Some Mac, Linux and Debug (dbg) bots tend to time out when performing this
 // test (crbug.com/1299736, crbug.com/1300448, crbug.com/1369958).
-#if defined(THREAD_SANITIZER) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || !defined(NDEBUG)
+#if defined(THREAD_SANITIZER) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || !defined(NDEBUG)
 TEST_F(ZipTest, DISABLED_BigFile) {
 #else
 TEST_F(ZipTest, BigFile) {

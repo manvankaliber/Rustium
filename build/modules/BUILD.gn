@@ -10,9 +10,7 @@ import("//buildtools/third_party/libc++/modules.gni")
 if (is_win) {
   import("//build/toolchain/win/win_toolchain_data.gni")
 }
-if (is_ios && current_toolchain == default_toolchain) {
-  import("//build/config/ios/ios_sdk.gni")
-}
+
 if ((host_os == "mac" || current_os == "mac") && use_system_xcode &&
     current_toolchain == default_toolchain) {
   import("//build/config/mac/mac_sdk.gni")
@@ -65,25 +63,6 @@ if (use_unified_system_module) {
       group("mac_sysroot") {
       }
     }
-    if (is_ios) {
-      if (need_mac_sysroot && ios_sdk_path == mac_sdk_path) {
-        group("ios_sysroot") {
-          public_deps = [ ":mac_sysroot" ]
-        }
-      } else if (filter_exclude([ rebase_path(ios_sdk_path, root_build_dir) ],
-                                [
-                                  "../*",
-                                  "/*",
-                                ]) != []) {
-        action("ios_sysroot") {
-          script = "//build/noop.py"
-          outputs = expand_directory(ios_sdk_path + "/usr/include", true)
-        }
-      } else {
-        group("ios_sysroot") {
-        }
-      }
-    }
   }
 
   system_headers = libcxx_headers + [
@@ -97,11 +76,9 @@ if (use_unified_system_module) {
       system_headers +=
           expand_directory(string_replace(include_flag, "/I", "", 1), true)
     }
-  } else if (is_ios) {
-    extra_headers += [ ":ios_sysroot(${default_toolchain})" ]
   } else if (is_mac && use_system_xcode) {
     extra_headers += [ ":mac_sysroot(${default_toolchain})" ]
-  } else if (is_linux || is_mac || is_android || is_chromeos) {
+  } else if (is_linux || is_mac) {
     root_include_dir = "usr/include"
   } else {
     assert(false, "Unsupported unified modules os: ${target_os}")

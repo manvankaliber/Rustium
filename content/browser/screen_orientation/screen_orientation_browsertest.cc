@@ -132,13 +132,9 @@ class ScreenOrientationOOPIFBrowserTest : public ScreenOrientationBrowserTest {
 // This test doesn't work on MacOS X but the reason is mostly because it is not
 // used Aura. It could be set as !BUILDFLAG(IS_MAC) but the rule below will
 // actually support MacOS X if and when it switches to Aura.
-#if defined(USE_AURA) || BUILDFLAG(IS_ANDROID)
+#if defined(USE_AURA)
 // Flaky on Chrome OS: http://crbug.com/468259
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ScreenOrientationChange DISABLED_ScreenOrientationChange
-#else
 #define MAYBE_ScreenOrientationChange ScreenOrientationChange
-#endif
 IN_PROC_BROWSER_TEST_F(ScreenOrientationBrowserTest,
                        MAYBE_ScreenOrientationChange) {
   auto types =
@@ -166,14 +162,10 @@ IN_PROC_BROWSER_TEST_F(ScreenOrientationBrowserTest,
     EXPECT_EQ(types[i], GetOrientationType());
   }
 }
-#endif  // defined(USE_AURA) || BUILDFLAG(IS_ANDROID)
+#endif
 
 // Flaky on Chrome OS: http://crbug.com/468259
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_WindowOrientationChange DISABLED_WindowOrientationChange
-#else
 #define MAYBE_WindowOrientationChange WindowOrientationChange
-#endif
 IN_PROC_BROWSER_TEST_F(ScreenOrientationBrowserTest,
                        MAYBE_WindowOrientationChange) {
   GURL test_url = GetTestUrl("screen_orientation",
@@ -183,9 +175,9 @@ IN_PROC_BROWSER_TEST_F(ScreenOrientationBrowserTest,
     TestNavigationObserver navigation_observer(shell()->web_contents(), 1);
     shell()->LoadURL(test_url);
     navigation_observer.Wait();
-#if USE_AURA || BUILDFLAG(IS_ANDROID)
+#if USE_AURA
     WaitForResizeComplete(shell()->web_contents());
-#endif  // USE_AURA || BUILDFLAG(IS_ANDROID)
+#endif
   }
 
   if (!WindowOrientationSupported())
@@ -214,16 +206,12 @@ IN_PROC_BROWSER_TEST_F(ScreenOrientationBrowserTest, DISABLED_LockSmoke) {
   shell()->LoadURL(test_url);
 
   navigation_observer.Wait();
-#if USE_AURA || BUILDFLAG(IS_ANDROID)
+#if USE_AURA
   WaitForResizeComplete(shell()->web_contents());
-#endif  // USE_AURA || BUILDFLAG(IS_ANDROID)
+#endif
 
   std::string expected =
-#if BUILDFLAG(IS_ANDROID)
-      "SecurityError";  // WebContents need to be fullscreen.
-#else
       "NotSupportedError"; // Locking isn't supported.
-#endif
 
   EXPECT_EQ(expected, shell()->web_contents()->GetLastCommittedURL().GetRef());
 }
@@ -245,48 +233,14 @@ IN_PROC_BROWSER_TEST_F(ScreenOrientationBrowserTest, CrashTest_UseAfterDetach) {
   // here.
 }
 
-#if BUILDFLAG(IS_ANDROID)
-class ScreenOrientationLockDisabledBrowserTest : public ContentBrowserTest  {
- public:
-  ScreenOrientationLockDisabledBrowserTest() {}
-  ~ScreenOrientationLockDisabledBrowserTest() override {}
-
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    command_line->AppendSwitch(switches::kDisableScreenOrientationLock);
-  }
-};
-
-// Check that when --disable-screen-orientation-lock is passed to the command
-// line, screen.orientation.lock() correctly reports to not be supported.
-IN_PROC_BROWSER_TEST_F(ScreenOrientationLockDisabledBrowserTest,
-    DISABLED_NotSupported) {
-  GURL test_url = GetTestUrl("screen_orientation",
-                             "screen_orientation_lock_disabled.html");
-
-  {
-    TestNavigationObserver navigation_observer(shell()->web_contents(), 1);
-    shell()->LoadURL(test_url);
-    navigation_observer.Wait();
-  }
-
-  {
-    ASSERT_TRUE(ExecJs(shell(), "run();"));
-
-    TestNavigationObserver navigation_observer(shell()->web_contents(), 1);
-    navigation_observer.Wait();
-    EXPECT_EQ("NotSupportedError",
-              shell()->web_contents()->GetLastCommittedURL().GetRef());
-  }
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ScreenOrientationOOPIFBrowserTest, ScreenOrientation) {
   GURL main_url(embedded_test_server()->GetURL(
       "a.com", "/cross_site_iframe_factory.html?a(b)"));
   EXPECT_TRUE(NavigateToURL(shell(), main_url));
-#if USE_AURA || BUILDFLAG(IS_ANDROID)
+#if USE_AURA
   WaitForResizeComplete(shell()->web_contents());
-#endif  // USE_AURA || BUILDFLAG(IS_ANDROID)
+#endif
 
   auto types =
       std::to_array<std::string>({"portrait-primary", "portrait-secondary",
@@ -325,20 +279,15 @@ IN_PROC_BROWSER_TEST_F(ScreenOrientationOOPIFBrowserTest, ScreenOrientation) {
 // blink::mojom::FrameWidget::EnableDeviceEmulation, which calls
 // RenderWidget::Resize on the renderer side.  The test fakes this by directly
 // sending the resize message to the widget.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ScreenOrientationInPendingMainFrame \
-  DISABLED_ScreenOrientationInPendingMainFrame
-#else
 #define MAYBE_ScreenOrientationInPendingMainFrame \
   ScreenOrientationInPendingMainFrame
-#endif
 IN_PROC_BROWSER_TEST_F(ScreenOrientationOOPIFBrowserTest,
                        MAYBE_ScreenOrientationInPendingMainFrame) {
   GURL main_url(embedded_test_server()->GetURL("a.com", "/title1.html"));
   EXPECT_TRUE(NavigateToURL(shell(), main_url));
-#if USE_AURA || BUILDFLAG(IS_ANDROID)
+#if USE_AURA
   WaitForResizeComplete(shell()->web_contents());
-#endif  // USE_AURA || BUILDFLAG(IS_ANDROID)
+#endif
 
   // Set up a fake Resize message with a screen orientation change.
   RenderWidgetHost* main_frame_rwh =
@@ -366,52 +315,14 @@ IN_PROC_BROWSER_TEST_F(ScreenOrientationOOPIFBrowserTest,
   EXPECT_EQ(second_url,
             web_contents()->GetPrimaryMainFrame()->GetLastCommittedURL());
 
-#if USE_AURA || BUILDFLAG(IS_ANDROID)
+#if USE_AURA
   WaitForResizeComplete(shell()->web_contents());
-#endif  // USE_AURA || BUILDFLAG(IS_ANDROID)
+#endif
 
   EXPECT_EQ(expected_angle,
             EvalJs(root->current_frame_host(), "screen.orientation.angle"));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// This test is disabled because th trybots run in system portrait lock, which
-// prevents the test from changing the screen orientation.
-IN_PROC_BROWSER_TEST_F(ScreenOrientationOOPIFBrowserTest,
-                       DISABLED_ScreenOrientationLock) {
-  GURL main_url(embedded_test_server()->GetURL(
-      "a.com", "/cross_site_iframe_factory.html?a(b)"));
-  EXPECT_TRUE(NavigateToURL(shell(), main_url));
-  WaitForResizeComplete(shell()->web_contents());
-
-  const char* types[] = {"portrait-primary", "portrait-secondary",
-                         "landscape-primary", "landscape-secondary"};
-
-  FrameTreeNode* root = web_contents()->GetPrimaryFrameTree().root();
-  FrameTreeNode* child = root->child_at(0);
-  RenderFrameHostImpl* frames[] = {root->current_frame_host(),
-                                   child->current_frame_host()};
-
-  EXPECT_TRUE(ExecJs(root->current_frame_host(),
-                     "document.body.webkitRequestFullscreen()"));
-  for (const char* type : types) {
-    std::string script =
-        base::StringPrintf("screen.orientation.lock('%s')", type);
-    EXPECT_TRUE(ExecJs(child->current_frame_host(), script));
-
-    for (auto* frame : frames) {
-      std::string orientation_type;
-      while (type != orientation_type) {
-        orientation_type =
-            EvalJs(frame, "screen.orientation.type").ExtractString();
-      }
-    }
-
-    EXPECT_TRUE(
-        ExecJs(child->current_frame_host(), "screen.orientation.unlock()"));
-  }
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class ScreenOrientationLockForPrerenderBrowserTest
     : public ScreenOrientationBrowserTest {

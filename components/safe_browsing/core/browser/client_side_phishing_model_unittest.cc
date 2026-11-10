@@ -274,11 +274,7 @@ TEST_F(ClientSidePhishingModelTest, ValidModel) {
                               .AppendASCII("data")
                               .AppendASCII("safe_browsing")
 
-#if BUILDFLAG(IS_ANDROID)
-                              .AppendASCII("visual_model_android.tflite");
-#else
                               .AppendASCII("visual_model_desktop.tflite");
-#endif
   service()->SetModelTypeForTesting(CSDModelType::kFlatbuffer);
   ValidateModel(model_file_path, {additional_files_path});
 
@@ -379,11 +375,7 @@ TEST_F(ClientSidePhishingModelTest, InvalidModelDueToInvalidPath) {
                               .AppendASCII("data")
                               .AppendASCII("safe_browsing")
 
-#if BUILDFLAG(IS_ANDROID)
-                              .AppendASCII("visual_model_android.tflite");
-#else
                               .AppendASCII("visual_model_desktop.tflite");
-#endif
 
   ValidateModel(model_file_path, {additional_files_path});
 
@@ -404,11 +396,7 @@ TEST_F(ClientSidePhishingModelTest, InvalidModelDueToNonexistentPath) {
                               .AppendASCII("test")
                               .AppendASCII("data")
                               .AppendASCII("safe_browsing")
-#if BUILDFLAG(IS_ANDROID)
-                              .AppendASCII("visual_model_android.tflite");
-#else
                               .AppendASCII("visual_model_desktop.tflite");
-#endif
 
   ValidateModel(weird_model_file_path, {additional_files_path});
 
@@ -435,11 +423,7 @@ TEST_F(ClientSidePhishingModelTest,
                               .AppendASCII("test")
                               .AppendASCII("data")
                               .AppendASCII("safe_browsing")
-#if BUILDFLAG(IS_ANDROID)
-                              .AppendASCII("visual_model_android.tflite");
-#else
                               .AppendASCII("visual_model_desktop.tflite");
-#endif
 
   // It has to be different file name at the end for the set to count them
   // differently.
@@ -450,11 +434,7 @@ TEST_F(ClientSidePhishingModelTest,
                                .AppendASCII("data2")
                                .AppendASCII("safe_browsing2")
 
-#if BUILDFLAG(IS_ANDROID)
-                               .AppendASCII("visual_model_android2.tflite");
-#else
                                .AppendASCII("visual_model_desktop2.tflite");
-#endif
 
   ValidateModel(model_file_path,
                 {additional_files_path, additional_files_path2});
@@ -494,11 +474,7 @@ TEST_F(ClientSidePhishingModelTest,
                               .AppendASCII("data")
                               .AppendASCII("safe_browsing")
 
-#if BUILDFLAG(IS_ANDROID)
-                              .AppendASCII("visual_model_android.tflite");
-#else
                               .AppendASCII("visual_model_desktop.tflite");
-#endif
   service()->SetModelTypeForTesting(CSDModelType::kFlatbuffer);
   ValidateModel(model_file_path, {additional_files_path});
 
@@ -813,11 +789,7 @@ TEST_F(ClientSidePhishingModelTest,
                               .AppendASCII("test")
                               .AppendASCII("data")
                               .AppendASCII("safe_browsing")
-#if BUILDFLAG(IS_ANDROID)
-                              .AppendASCII("visual_model_android.tflite");
-#else
                               .AppendASCII("visual_model_desktop.tflite");
-#endif
 
   // Trigger model loading.
   observer_tracker()->NotifyModelFileUpdate(

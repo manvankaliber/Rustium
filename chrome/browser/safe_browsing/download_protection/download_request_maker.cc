@@ -133,11 +133,7 @@ DownloadRequestMaker::CreateFromDownloadItem(
       binary_feature_extractor,
       content::DownloadItemUtils::GetBrowserContext(item),
       TabUrls{item->GetTabUrl(), item->GetTabReferrerUrl()},
-#if BUILDFLAG(IS_ANDROID)
-      /*target_file_name=*/item->GetFileNameToReportUser(),
-#else
       /*target_file_name=*/item->GetTargetFilePath(),
-#endif
       item->GetFullPath(), item->GetURL(), item->GetHash(),
       item->GetReceivedBytes(), resources, item->HasUserGesture(),
       static_cast<ReferrerChainData*>(
@@ -245,16 +241,6 @@ void DownloadRequestMaker::Start(
 
   *request_->mutable_population() = GetUserPopulationForProfile(profile);
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(kMaliciousApkDownloadCheck)) {
-    std::string malicious_apk_check = "MaliciousApkDownloadCheck";
-    if (kMaliciousApkDownloadCheckTelemetryOnly.Get()) {
-      base::StrAppend(&malicious_apk_check, {".TelemetryOnly"});
-    }
-    request_->mutable_population()->add_finch_active_groups(
-        std::move(malicious_apk_check));
-  }
-#endif
 
   request_->set_request_ap_verdicts(is_under_advanced_protection);
   request_->set_locale(g_browser_process->GetApplicationLocale());

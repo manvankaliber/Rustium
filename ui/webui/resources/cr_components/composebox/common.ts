@@ -211,9 +211,7 @@ export interface ComposeboxState {
   // the default model. Only matters with dynamic AIM fulfillment.
   enterAimMode?: boolean;
   suggestInventory?: SuggestInventory;
-  // <if expr="not is_android">
   smartTabSharingActive: boolean;
-  // </if>
 }
 
 export interface FileUpload {

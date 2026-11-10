@@ -38,9 +38,6 @@ class LanguagePrefsTest : public testing::Test {
 
   void SetUp() override {
     prefs_->SetString(language::prefs::kAcceptLanguages, std::string());
-#if BUILDFLAG(IS_CHROMEOS)
-    prefs_->SetString(language::prefs::kPreferredLanguages, std::string());
-#endif
   }
 
   std::unique_ptr<sync_preferences::TestingPrefServiceSyncable> prefs_;
@@ -80,9 +77,6 @@ TEST_F(LanguagePrefsTest, UpdateLanguageList) {
 
 TEST_F(LanguagePrefsTest, UpdateForcedLanguageList) {
   // Only test policy-forced languages on non-Chrome OS platforms.
-#if BUILDFLAG(IS_CHROMEOS)
-  GTEST_SKIP();
-#else
   language::test::LanguagePrefTester content_languages_tester =
       language::test::LanguagePrefTester(prefs_.get());
   // Empty update.
@@ -146,7 +140,6 @@ TEST_F(LanguagePrefsTest, UpdateForcedLanguageList) {
   content_languages_tester.SetForcedLanguagePrefs({});
   content_languages_tester.ExpectSelectedLanguagePrefs("en,fr");
   content_languages_tester.ExpectAcceptLanguagePrefs("en,fr");
-#endif
 }
 
 TEST_F(LanguagePrefsTest, ResetLanguagePrefs) {
@@ -156,54 +149,16 @@ TEST_F(LanguagePrefsTest, ResetLanguagePrefs) {
   language_prefs_->SetUserSelectedLanguagesList({"en", "es", "fr"});
   content_languages_tester.ExpectSelectedLanguagePrefs("en,es,fr");
   content_languages_tester.ExpectAcceptLanguagePrefs("en,es,fr");
-#if BUILDFLAG(IS_ANDROID)
-  language_prefs_->SetULPLanguages({base::i18n::GetKnownLanguageTag("en"),
-                                    base::i18n::GetKnownLanguageTag("es"),
-                                    base::i18n::GetKnownLanguageTag("fr")});
-  EXPECT_THAT(language_prefs_->GetULPLanguages(),
-              testing::ElementsAre("en", "es", "fr"));
-#endif
 
   ResetLanguagePrefs(prefs_.get());
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_THAT(language_prefs_->GetULPLanguages(), testing::IsEmpty());
-#endif
   content_languages_tester.ExpectSelectedLanguagePrefs("");
   // Accept languages pref is reset to the default value, not cleared.
-#if BUILDFLAG(IS_CHROMEOS)
-  content_languages_tester.ExpectAcceptLanguagePrefs(
-      prefs_->GetDefaultPrefValue(language::prefs::kPreferredLanguages)
-          ->GetString());
-#else   // BUILDFLAG(IS_CHROMEOS)
   content_languages_tester.ExpectAcceptLanguagePrefs(
       prefs_->GetDefaultPrefValue(language::prefs::kAcceptLanguages)
           ->GetString());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 TEST_F(LanguagePrefsTest, ULPLanguagesPref) {
-#if BUILDFLAG(IS_ANDROID)
-  // ULPLanguagesPref is initially empty.
-  EXPECT_THAT(language_prefs_->GetULPLanguages(), testing::IsEmpty());
-
-  // Set ULP Language Preference.
-  language_prefs_->SetULPLanguages({base::i18n::GetKnownLanguageTag("en"),
-                                    base::i18n::GetKnownLanguageTag("es"),
-                                    base::i18n::GetKnownLanguageTag("fr")});
-  EXPECT_THAT(language_prefs_->GetULPLanguages(),
-              testing::ElementsAre("en", "es", "fr"));
-
-  // Setting ULP languages to a new list clears the old list.
-  language_prefs_->SetULPLanguages({base::i18n::GetKnownLanguageTag("de"),
-                                    base::i18n::GetKnownLanguageTag("pt"),
-                                    base::i18n::GetKnownLanguageTag("zh")});
-  EXPECT_THAT(language_prefs_->GetULPLanguages(),
-              testing::ElementsAre("de", "pt", "zh"));
-
-  // Setting ULP languages to a an empty list clears it.
-  language_prefs_->SetULPLanguages({});
-  EXPECT_THAT(language_prefs_->GetULPLanguages(), testing::IsEmpty());
-#endif
 }
 TEST_F(LanguagePrefsTest, GetIncognitoLanguageListTest) {
   // Test mapping from generated map.

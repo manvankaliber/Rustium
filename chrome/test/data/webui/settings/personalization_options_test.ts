@@ -9,21 +9,12 @@ import type {SettingsPersonalizationOptionsElement} from 'chrome://settings/lazy
 import {loadTimeData, PrefService, PrefsBrowserProxy, PrivacyPageBrowserProxyImpl, resetPageVisibilityForTesting, SignedInState, StatusAction, SyncBrowserProxyImpl} from 'chrome://settings/settings.js';
 import {assertFalse, assertTrue} from 'chrome://webui-test/chai_assert.js';
 import {isVisible, microtasksFinished} from 'chrome://webui-test/test_util.js';
-// <if expr="_google_chrome and is_chromeos">
-import {OpenWindowProxyImpl} from 'chrome://settings/settings.js';
-import {TestOpenWindowProxy} from 'chrome://webui-test/test_open_window_proxy.js';
-import {isChildVisible} from 'chrome://webui-test/test_util.js';
-// </if>
-// <if expr="_google_chrome or not is_chromeos">
 import {assertEquals} from 'chrome://webui-test/chai_assert.js';
-// </if>
 
-// <if expr="not is_chromeos">
 import {eventToPromise} from 'chrome://webui-test/test_util.js';
 import {ChromeSigninUserChoice} from 'chrome://settings/settings.js';
 import {webUIListenerCallback} from 'chrome://resources/js/cr.js';
 
-// </if>
 
 import {TestPrivacyPageBrowserProxy} from './test_privacy_page_browser_proxy.js';
 import {TestSyncBrowserProxy} from './test_sync_browser_proxy.js';
@@ -96,7 +87,6 @@ suite('AllBuilds', function() {
     resetPageVisibilityForTesting();
   });
 
-  // <if expr="not is_chromeos">
   test('chromeSigninUserChoiceAvailableInitialization', async function() {
     assertFalse(isVisible(testElement.$.chromeSigninUserChoiceSelection));
 
@@ -350,7 +340,6 @@ suite('AllBuilds', function() {
     assertTrue(isVisible(
         testElement.shadowRoot.querySelector('#searchSuggestToggle')));
   });
-  // </if>
 
   test('searchAggregatorSuggestNotShown', function() {
     loadTimeData.overrideValues({showSearchAggregatorSuggest: false});
@@ -423,47 +412,6 @@ suite('AllBuilds', function() {
             '#priceEmailNotificationsToggle'));
       });
 
-  // <if expr="is_chromeos">
-  test(
-      'priceEmailNotificationsToggleHiddenForSignedInUsersWithoutFlag',
-      async function() {
-        loadTimeData.overrideValues({
-          'changePriceEmailNotificationsEnabled': true,
-          // Flag is disabled.
-          'replaceSyncPromosWithSignInPromos': false,
-        });
-        // Rebuild the element after modifying loadTimeData.
-        buildTestElement();
-
-        testElement.syncStatus = {
-          signedInState: SignedInState.SIGNED_IN,
-          statusAction: StatusAction.NO_ACTION,
-        };
-        await microtasksFinished();
-        assertFalse(!!testElement.shadowRoot.querySelector(
-            '#priceEmailNotificationsToggle'));
-      });
-
-  test(
-      'priceEmailNotificationsToggleShownForSyncingUsersWithoutFlag',
-      async function() {
-        loadTimeData.overrideValues({
-          'changePriceEmailNotificationsEnabled': true,
-          // Flag is disabled.
-          'replaceSyncPromosWithSignInPromos': false,
-        });
-        // Rebuild the element after modifying loadTimeData.
-        buildTestElement();
-
-        testElement.syncStatus = {
-          signedInState: SignedInState.SYNCING,
-          statusAction: StatusAction.NO_ACTION,
-        };
-        await microtasksFinished();
-        assertTrue(!!testElement.shadowRoot.querySelector(
-            '#priceEmailNotificationsToggle'));
-      });
-  // </if>
 });
 
 // <if expr="_google_chrome">
@@ -506,7 +454,6 @@ suite('OfficialBuild', function() {
   // settings. TODO (https://www.crbug.com/1396704): Add this test in the OS
   // settings test for the OS version of personalization options, once OS
   // Settings supports TypeScript tests.
-  // <if expr="not is_chromeos">
   test('Spellcheck toggle', async function() {
     prefService.setPrefValue('spellcheck.dictionaries', ['en-US']);
     await microtasksFinished();
@@ -527,47 +474,7 @@ suite('OfficialBuild', function() {
     assertTrue(
         prefService.getPref<boolean>('spellcheck.use_spelling_service').value);
   });
-  // </if>
 
   // Only the spellcheck link is shown on Chrome OS in Browser settings.
-  // <if expr="is_chromeos">
-  test('Spellcheck link', async function() {
-    prefService.setPrefValue('spellcheck.dictionaries', ['en-US']);
-    await microtasksFinished();
-    const shadowRoot = testElement.shadowRoot;
-    assertFalse(
-        shadowRoot.querySelector<HTMLElement>('#spellCheckLink')!.hidden);
-
-    prefService.setPrefValue('spellcheck.dictionaries', []);
-    await microtasksFinished();
-    assertTrue(
-        shadowRoot.querySelector<HTMLElement>('#spellCheckLink')!.hidden);
-  });
-
-  test(
-      'Metrics row hidden when metrics consent restructure is enabled',
-      function() {
-        assertFalse(isChildVisible(testElement, '#metricsReportingLink'));
-      });
-
-  test(
-      'Metrics row links to OS Settings Privacy Hub subpage', async function() {
-        const openWindowProxy = new TestOpenWindowProxy();
-        OpenWindowProxyImpl.setInstance(openWindowProxy);
-
-        loadTimeData.overrideValues(
-            {shouldUseMetricsConsentRestructure: false});
-        buildTestElement();
-
-        assertTrue(isChildVisible(testElement, '#metricsReportingLink'));
-
-        testElement.shadowRoot
-            .querySelector<HTMLElement>('#metricsReportingLink')!.click();
-        const url = await openWindowProxy.whenCalled('openUrl');
-        const expectedUrl =
-            loadTimeData.getString('osSettingsPrivacyHubSubpageUrl');
-        assertEquals(expectedUrl, url);
-      });
-  // </if>
 });
 // </if>

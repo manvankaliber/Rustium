@@ -173,11 +173,9 @@
 #include "chrome/browser/ui/webui/unexportable_keys_internals/unexportable_keys_internals_ui.h"
 #endif  // BUILDFLAG(IS_MAC)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/default_browser/default_browser_features.h"
 #include "chrome/browser/ui/webui/default_browser/default_browser_modal.mojom.h"
 #include "chrome/browser/ui/webui/default_browser/default_browser_modal_ui.h"
-#endif
 
 #if !defined(OFFICIAL_BUILD)
 #include "chrome/browser/ui/webui/new_tab_page/foo/foo.mojom.h"  // nogncheck crbug.com/40147906
@@ -337,10 +335,8 @@ void PopulateChromeWebUIFrameBindersPartsDesktop(
   RegisterWebUIControllerInterfaceBinder<
       theme_color_picker::mojom::ThemeColorPickerHandlerFactory,
       CustomizeChromeUI
-#if !BUILDFLAG(IS_CHROMEOS)
       ,
       ProfileCustomizationUI
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
       ,
       FeatureShowcaseUI
@@ -353,10 +349,8 @@ void PopulateChromeWebUIFrameBindersPartsDesktop(
       HistoryUI, lens::LensOverlayUntrustedUI, lens::LensSidePanelUntrustedUI,
       ContextualTasksUI, contextual_tasks::ContextualTasksUIPostRearchitecture,
       OmniboxEverywhereUI, OmniboxPopupUI
-#if !BUILDFLAG(IS_CHROMEOS)
       ,
       ProfilePickerUI
-#endif  //! BUILDFLAG(IS_CHROMEOS)
       >(map);
 
   RegisterWebUIControllerInterfaceBinder<
@@ -528,7 +522,6 @@ void PopulateChromeWebUIFrameBindersPartsDesktop(
       UnexportableKeysInternalsUI>(map);
 #endif  // BUILDFLAG(IS_MAC)
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // The DefaultBrowserModalUI is only displayed for modal default browser
   // prompts. Only expose this Mojo interface when the modal dialog prompt
   // surface (with or without settings illustration) is enabled. The raw
@@ -547,7 +540,6 @@ void PopulateChromeWebUIFrameBindersPartsDesktop(
           DefaultBrowserModalUI>(map);
     }
   }
-#endif
 
 #if BUILDFLAG(IS_WIN)
   RegisterWebUIControllerInterfaceBinder<
@@ -599,10 +591,8 @@ void PopulateChromeWebUIFrameInterfaceBrokersTrustedPartsDesktop(
 
   registry
       .ForWebUI<settings::SettingsUI>()
-#if !BUILDFLAG(IS_CHROMEOS)
       .Add<theme_color_picker::mojom::ThemeColorPickerHandlerFactory>()
       .Add<signin::mojom::SigninPageHandlerFactory>()
-#endif  // !BUILDFLAG(IS_CHROMEOS)
       .Add<batch_upload_promo::mojom::PageHandlerFactory>()
       .Add<customize_color_scheme_mode::mojom::
                CustomizeColorSchemeModeHandlerFactory>()

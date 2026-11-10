@@ -6333,14 +6333,6 @@ bool WebGLRenderingContextBase::CanUseTexImageViaGPU(
   if (params.format == GL_RED_INTEGER)
     return false;
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(kbr): bugs were seen on Android devices with NVIDIA GPUs
-  // when copying hardware-accelerated video textures to
-  // floating-point textures. Investigate the root cause of this and
-  // fix it. crbug.com/710874
-  if (params.type == GL_FLOAT)
-    return false;
-#endif
 
   // OES_texture_half_float doesn't support HALF_FLOAT_OES type for
   // CopyTexImage/CopyTexSubImage. And OES_texture_half_float doesn't require

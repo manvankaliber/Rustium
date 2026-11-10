@@ -62,10 +62,8 @@
 #include "chrome/browser/ui/webui/signin/signout_confirmation/signout_confirmation_ui.h"
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/webui/signin/signin_error_ui.h"
 #include "chrome/browser/ui/webui/signin/signin_ui_error.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "chrome/browser/ui/webui/signin/history_sync_optin/history_sync_optin_ui.h"
@@ -79,9 +77,7 @@ const int kModalDialogWidth = 448;
 const int kManagedUserNoticeConfirmationDialogWidth = 780;
 const int kManagedUserNoticeConfirmationDialogHeight = 560;
 #endif
-#if !BUILDFLAG(IS_CHROMEOS)
 const int kSigninErrorDialogHeight = 164;
-#endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 void CloseModalSigninInBrowser(
@@ -155,7 +151,6 @@ SigninViewControllerDelegateViews::CreateHistorySyncOptInWebView(
 }
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // static
 std::unique_ptr<views::WebView>
 SigninViewControllerDelegateViews::CreateSigninErrorWebView(
@@ -175,7 +170,6 @@ SigninViewControllerDelegateViews::CreateSigninErrorWebView(
   web_ui->InitializeMessageHandlerWithBrowser(browser, error);
   return web_view;
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 // static
@@ -575,7 +569,6 @@ SigninViewControllerDelegate::CreateSyncHistoryOptInDelegate(
 }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // static
 SigninViewControllerDelegate*
 SigninViewControllerDelegate::CreateSigninErrorDelegate(
@@ -587,7 +580,6 @@ SigninViewControllerDelegate::CreateSigninErrorDelegate(
       browser, ui::mojom::ModalType::kWindow, true, false,
       /*animate_on_resize=*/true);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 // static

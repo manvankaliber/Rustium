@@ -18,9 +18,9 @@
 #include "mojo/public/cpp/bindings/receiver_set.h"
 #include "mojo/public/cpp/bindings/remote.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "media/mojo/mojom/video_decoder.mojom.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 namespace content {
 
@@ -62,18 +62,6 @@ class FramelessMediaInterfaceProxy final
   void CreateDefaultRenderer(
       const std::string& audio_device_id,
       mojo::PendingReceiver<media::mojom::Renderer> receiver) final;
-#if BUILDFLAG(ENABLE_CAST_RENDERER)
-  void CreateCastRenderer(
-      const base::UnguessableToken& overlay_plane_id,
-      mojo::PendingReceiver<media::mojom::Renderer> receiver) final;
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  void CreateFlingingRenderer(
-      const std::string& presentation_id,
-      mojo::PendingRemote<media::mojom::FlingingRendererClientExtension>
-          client_extension,
-      mojo::PendingReceiver<media::mojom::Renderer> receiver) final;
-#endif  // BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_WIN)
   void CreateMediaFoundationRenderer(
       mojo::PendingRemote<media::mojom::MediaLog> media_log_remote,
@@ -95,7 +83,7 @@ class FramelessMediaInterfaceProxy final
   // Connections to the renderer.
   mojo::ReceiverSet<media::mojom::InterfaceFactory> receivers_;
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Connection to the InterfaceFactory that lives in a utility process.
   // This is only used for out-of-process video decoding and only when the
   // FramelessMediaInterfaceProxy is created without a RenderProcessHost
@@ -104,7 +92,7 @@ class FramelessMediaInterfaceProxy final
   // in order to keep the video decoder process alive for the lifetime of the
   // FramelessMediaInterfaceProxy.
   mojo::Remote<media::mojom::InterfaceFactory> vd_factory_remote_;
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   // FramelessMediaInterfaceProxy is fully owned by the RenderProcessHostImpl,
   // and the latter never gives up that ownership. Therefore,

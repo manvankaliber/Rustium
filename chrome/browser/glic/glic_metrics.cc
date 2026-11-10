@@ -114,7 +114,6 @@ void GlicMetrics::RecordGlicProfilePreferences() {
   base::UmaHistogramBoolean("Glic.Preferences.ActuationOnWeb",
                             enabling_->GetUserEnabledActuationOnWeb());
 
-#if !BUILDFLAG(IS_ANDROID)
   HostContentSettingsMap* settings_map =
       HostContentSettingsMapFactory::GetForProfile(profile_);
   if (settings_map) {
@@ -146,7 +145,6 @@ void GlicMetrics::RecordGlicProfilePreferences() {
         "Glic.Selection.RemovedDefaultBlockedSitesCount",
         removed_default_blocked_sites_count);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void GlicMetrics::RecordFreAcceptHistograms() {
@@ -403,22 +401,6 @@ void GlicMetrics::OnImpressionTimerFired() {
   if (enablement.anchor_entrypoint_override_active) {
     impression = EntryPointStatus::kAfterFreAnchoredButIneligible;
   } else {
-#if BUILDFLAG(IS_ANDROID)
-    bool is_bottom_bar_enabled = false;
-    bool is_mtb_enabled = false;
-    GlicKeyedService* service = GlicKeyedService::Get(profile_);
-    if (service) {
-      is_bottom_bar_enabled = service->IsBottomBarEnabled();
-      if (!is_bottom_bar_enabled) {
-        is_mtb_enabled = service->IsGlicShortcutActive();
-      }
-    }
-    if (is_mtb_enabled || is_bottom_bar_enabled) {
-      impression = EntryPointStatus::kAfterFreBrowserOnly;
-    } else {
-      impression = EntryPointStatus::kAfterFreThreeDotOnly;
-    }
-#else
     bool is_os_entrypoint_enabled =
         g_browser_process->local_state()->GetBoolean(
             prefs::kGlicLauncherEnabled);
@@ -431,18 +413,15 @@ void GlicMetrics::OnImpressionTimerFired() {
     } else {
       impression = EntryPointStatus::kAfterFreThreeDotOnly;
     }
-#endif
   }
   // TODO(crbug.com/520136927): Move this metric to glic_metrics_provider.cc
   // when glic_metrics.cc is deleted.
   base::UmaHistogramEnumeration("Glic.EntryPoint.Status", impression);
 
-#if !BUILDFLAG(IS_ANDROID)
   ui::Accelerator saved_hotkey =
       glic::GlicLauncherConfiguration::GetToggleHotkey();
   base::UmaHistogramBoolean("Glic.OsEntrypoint.Settings.ShortcutStatus",
                             saved_hotkey != ui::Accelerator());
-#endif
 }
 
 void GlicMetrics::OnMaybeEnabledAndConsentForProfileChanged() {

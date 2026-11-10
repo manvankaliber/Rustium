@@ -32,10 +32,8 @@ source_set("search_engines") {
     "template_url_table_model.cc",
   ]
 
-  if (!is_android) {
-    public += [ "keyword_editor_controller.h" ]
-    sources += [ "keyword_editor_controller.cc" ]
-  }
+  public += [ "keyword_editor_controller.h" ]
+  sources += [ "keyword_editor_controller.cc" ]
 
   deps = [
     "//base:i18n",
@@ -73,9 +71,7 @@ source_set("search_engines") {
 source_set("unit_tests") {
   testonly = true
 
-  if (!is_android) {
-    sources = [ "keyword_editor_controller_unittest.cc" ]
-  }
+  sources = [ "keyword_editor_controller_unittest.cc" ]
 
   deps = [
     ":search_engines",
@@ -100,23 +96,21 @@ source_set("unit_tests") {
   }
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "search_engine_tab_helper_browsertest.cc" ]
-    deps = [
-      ":search_engines",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/search_engines",
-      "//chrome/browser/ui/tabs:tab_enums",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/tabs:tabs_public",
-      "//chrome/test:test_support",
-      "//components/tabs:public",
-      "//content/test:test_support",
-      "//net:test_support",
-      "//ui/base/unowned_user_data",
-    ]
-  }
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [ "search_engine_tab_helper_browsertest.cc" ]
+  deps = [
+    ":search_engines",
+    "//chrome/browser/profiles:profile",
+    "//chrome/browser/search_engines",
+    "//chrome/browser/ui/tabs:tab_enums",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/tabs:tabs_public",
+    "//chrome/test:test_support",
+    "//components/tabs:public",
+    "//content/test:test_support",
+    "//net:test_support",
+    "//ui/base/unowned_user_data",
+  ]
 }

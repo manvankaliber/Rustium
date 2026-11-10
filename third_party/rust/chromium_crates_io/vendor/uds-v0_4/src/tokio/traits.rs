@@ -108,8 +108,8 @@ pub trait UnixDatagramExt: AsRawFd + private::Sealed {
     ///
     /// # Examples
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use tokio::net::UnixDatagram;
     /// # use uds::{tokio::UnixDatagramExt, UnixSocketAddr};
     /// #

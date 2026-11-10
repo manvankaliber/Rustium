@@ -31,11 +31,11 @@
 #include "media/base/media_switches.h"
 #include "media/base/video_frame_layout.h"
 #include "media/base/video_types.h"
-#include "media/gpu/chromeos/fourcc.h"
-#include "media/gpu/chromeos/native_pixmap_frame_resource.h"
-#include "media/gpu/chromeos/platform_video_frame_utils.h"
+#include "media/gpu/linux/fourcc.h"
+#include "media/gpu/linux/native_pixmap_frame_resource.h"
+#include "media/gpu/linux/platform_video_frame_utils.h"
 #ifdef SUPPORT_MT21_PIXEL_FORMAT_SOFTWARE_DECOMPRESSION
-#include "media/gpu/chromeos/video_frame_resource.h"
+#include "media/gpu/linux/video_frame_resource.h"
 #endif
 #include "media/gpu/macros.h"
 #include "media/gpu/v4l2/v4l2_image_processor_backend.h"

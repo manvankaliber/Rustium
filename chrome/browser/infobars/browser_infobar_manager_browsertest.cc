@@ -34,10 +34,8 @@
 #include "ui/gfx/vector_icon_types.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/views/infobars/confirm_infobar.h"
 #include "ui/views/view.h"
-#endif
 
 namespace infobars {
 
@@ -1499,7 +1497,6 @@ IN_PROC_BROWSER_TEST_F(BrowserInfoBarManagerBrowserTest,
   EXPECT_EQ(0u, infobar_manager->infobars().size());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(BrowserInfoBarManagerBrowserTest, CustomViewCallback) {
   const auto identifier = InfoBarDelegate::TEST_INFOBAR;
   manager()->Register(InfoBarSpec::Builder(identifier)
@@ -1525,7 +1522,6 @@ IN_PROC_BROWSER_TEST_F(BrowserInfoBarManagerBrowserTest, CustomViewCallback) {
   auto* confirm_infobar = static_cast<ConfirmInfoBar*>(infobar);
   EXPECT_EQ(created_view, confirm_infobar->message_view_for_testing());
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(BrowserInfoBarManagerBrowserTest,
                        HideCalledDuringDismissalDefersRemovalUntilViewReturns) {

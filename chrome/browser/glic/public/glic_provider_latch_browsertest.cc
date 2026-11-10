@@ -87,7 +87,6 @@ IN_PROC_BROWSER_TEST_F(GlicProviderLatchBrowserTest,
 }
 
 // ChromeOS does not support multiple profiles.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(GlicProviderLatchBrowserTest,
                        LatchesGeminiEnterpriseForNewProfile) {
   ProfileManager* profile_manager = g_browser_process->profile_manager();
@@ -100,7 +99,6 @@ IN_PROC_BROWSER_TEST_F(GlicProviderLatchBrowserTest,
   EXPECT_EQ(GetLocalizedGuestURL(GURL(kGuestUrl)),
             GetGlicProviderSpec(&second_profile).GetGuestUrl(&second_profile));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // With `features::kGeic` disabled, profiles are latched as Gemini even though a
 // GEiC guest URL is configured.
@@ -128,7 +126,6 @@ IN_PROC_BROWSER_TEST_F(GlicProviderLatchGeicDisabledBrowserTest,
             GetGlicProviderSpec(profile).GetGuestUrl(profile));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(GlicProviderLatchGeicDisabledBrowserTest,
                        LatchesGeminiForNewProfile) {
   ProfileManager* profile_manager = g_browser_process->profile_manager();
@@ -141,7 +138,6 @@ IN_PROC_BROWSER_TEST_F(GlicProviderLatchGeicDisabledBrowserTest,
   EXPECT_NE(GetLocalizedGuestURL(GURL(kGuestUrl)),
             GetGlicProviderSpec(&second_profile).GetGuestUrl(&second_profile));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // With `features::kGeic` enabled and the GEiC guest URL set by the
 // GeminiEnterpriseUrl policy (and no command-line switch), profiles are
@@ -181,7 +177,6 @@ IN_PROC_BROWSER_TEST_F(GlicProviderLatchGeicPolicyBrowserTest,
   EXPECT_FALSE(GetGlicProviderSpec(profile).CanSwitchBetweenGeminiProviders());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(GlicProviderLatchGeicPolicyBrowserTest,
                        LatchesGeminiEnterpriseForNewProfile) {
   ProfileManager* profile_manager = g_browser_process->profile_manager();
@@ -196,7 +191,6 @@ IN_PROC_BROWSER_TEST_F(GlicProviderLatchGeicPolicyBrowserTest,
   EXPECT_FALSE(
       GetGlicProviderSpec(&second_profile).CanSwitchBetweenGeminiProviders());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // With `GeminiEnterpriseUrl` configured at `policy::POLICY_SCOPE_MACHINE`,
 // personal profiles latch as Gemini Enterprise with

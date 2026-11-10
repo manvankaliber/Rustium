@@ -36,9 +36,6 @@
 #include "testing/multiprocess_func_list.h"
 #include "third_party/abseil-cpp/absl/container/flat_hash_set.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif
 
 #ifndef IFA_F_HOMEADDRESS
 #define IFA_F_HOMEADDRESS 0x10
@@ -654,13 +651,6 @@ TEST_F(AddressTrackerLinuxTest, NonTrackingMode) {
 }
 
 TEST_F(AddressTrackerLinuxTest, NonTrackingModeInit) {
-#if BUILDFLAG(IS_ANDROID)
-  // Calling Init() on Android P+ isn't supported.
-  if (base::android::android_info::sdk_int() >=
-      base::android::android_info::SDK_VERSION_P) {
-    return;
-  }
-#endif
   AddressTrackerLinux tracker;
   tracker.Init();
 }
@@ -697,13 +687,6 @@ class GetCurrentConnectionTypeRunner
 };
 
 TEST_F(AddressTrackerLinuxTest, BroadcastInit) {
-#if BUILDFLAG(IS_ANDROID)
-  // Calling Init() on Android P+ isn't supported.
-  if (base::android::android_info::sdk_int() >=
-      base::android::android_info::SDK_VERSION_P) {
-    return;
-  }
-#endif
   base::test::TaskEnvironment task_environment(
       base::test::TaskEnvironment::MainThreadType::IO);
   InitializeAddressTracker(true);
@@ -742,13 +725,6 @@ namespace net::internal {
 // Note: consumers generally should not need to create two tracking instances of
 // `AddressTrackerLinux` in the same process.
 TEST(AddressTrackerLinuxNetlinkTest, TestInitializeTwoTrackers) {
-#if BUILDFLAG(IS_ANDROID)
-  // Calling Init() on Android P+ isn't supported.
-  if (base::android::android_info::sdk_int() >=
-      base::android::android_info::SDK_VERSION_P) {
-    return;
-  }
-#endif
   base::test::TaskEnvironment task_env(
       base::test::TaskEnvironment::MainThreadType::IO);
   AddressTrackerLinux tracker1(base::DoNothing(), base::DoNothing(),
@@ -764,7 +740,7 @@ TEST(AddressTrackerLinuxNetlinkTest, TestInitializeTwoTrackers) {
 // These tests use `base::LaunchOptions::clone_flags` for fine-grained control
 // over the clone syscall, but the field is only defined on Linux and ChromeOS.
 // Unfortunately, this means these tests do not have coverage on Android.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // These tests require specific flag values defined in <sched.h>.
 #if defined(CLONE_NEWUSER) && defined(CLONE_NEWPID)
 

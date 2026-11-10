@@ -21,9 +21,7 @@ class MockActorUiStateManager : public ActorUiStateManagerInterface {
               (AsyncUiEvent event, UiCompleteCallback callback),
               (override));
   MOCK_METHOD(void, OnUiEvent, (SyncUiEvent event), (override));
-#if !BUILDFLAG(IS_ANDROID)
   MOCK_METHOD(void, LazyInitTabTracker, (), (override));
-#endif
   MOCK_METHOD(base::WeakPtr<ActorNavigationThrottle::Delegate>,
               GetNavigationDelegate,
               (),

@@ -12,12 +12,6 @@
 #include "google_apis/gaia/list_accounts_response.pb.h"
 #include "google_apis/gaia/oauth2_mint_token_consent_result.pb.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "base/android/scoped_java_ref.h"
-#include "google_apis/gaia/android/jni_headers/DeviceManagementErrorDetails_jni.h"
-#include "google_apis/gaia/android_device_management_error_details.h"
-#else
 namespace {
 
 class FakeDeviceManagementErrorDetails
@@ -38,7 +32,6 @@ class FakeDeviceManagementErrorDetails
 };
 
 }  // namespace
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace gaia {
 
@@ -85,14 +78,7 @@ std::string CreateListAccountsResponseInBinaryFormat(
 
 std::unique_ptr<DeviceManagementErrorDetails>
 CreateFakeDeviceManagementErrorDetails() {
-#if BUILDFLAG(IS_ANDROID)
-  JNIEnv* env = base::android::AttachCurrentThread();
-  return std::make_unique<AndroidDeviceManagementErrorDetails>(
-      base::android::ScopedJavaGlobalRef<jobject>(
-          Java_DeviceManagementErrorDetails_Constructor(env, nullptr)));
-#else
   return std::make_unique<FakeDeviceManagementErrorDetails>();
-#endif
 }
 
 }  // namespace gaia

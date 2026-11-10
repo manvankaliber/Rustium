@@ -15,7 +15,7 @@
 #include "build/build_config.h"
 #include "content/shell/common/shell_switches.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "base/nix/xdg_util.h"
 #endif
 
@@ -27,7 +27,7 @@ bool GetDefaultUserDataDirectory(base::FilePath* result) {
 #if BUILDFLAG(IS_WIN)
   CHECK(base::PathService::Get(base::DIR_LOCAL_APP_DATA, result));
   *result = result->Append(std::wstring(L"content_shell"));
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   std::unique_ptr<base::Environment> env(base::Environment::Create());
   base::FilePath config_dir(base::nix::GetXDGDirectory(
       env.get(), base::nix::kXdgConfigHomeEnvVar, base::nix::kDotConfigDir));
@@ -35,9 +35,6 @@ bool GetDefaultUserDataDirectory(base::FilePath* result) {
 #elif BUILDFLAG(IS_APPLE)
   CHECK(base::PathService::Get(base::DIR_APP_DATA, result));
   *result = result->Append("Chromium Content Shell");
-#elif BUILDFLAG(IS_ANDROID)
-  CHECK(base::PathService::Get(base::DIR_ANDROID_APP_DATA, result));
-  *result = result->Append(FILE_PATH_LITERAL("content_shell"));
 #else
   NOTIMPLEMENTED();
   return false;
@@ -64,17 +61,6 @@ bool ShellPathProvider(int key, base::FilePath* result) {
       if (cmd_line->HasSwitch(switches::kContentShellUserDataDir)) {
         base::FilePath path =
             cmd_line->GetSwitchValuePath(switches::kContentShellUserDataDir);
-#if BUILDFLAG(IS_IOS)
-        // On iOS the app sandbox makes the working directory unusable, so a
-        // relative path (as passed by e.g. ChromeDriver, which cannot know the
-        // app container's location) is resolved inside the container instead.
-        if (!path.IsAbsolute()) {
-          base::FilePath default_dir;
-          if (GetDefaultUserDataDirectory(&default_dir)) {
-            path = default_dir.Append(path);
-          }
-        }
-#endif
         if (base::DirectoryExists(path) || base::CreateDirectory(path)) {
           if (!path.IsAbsolute()) {
             path = base::MakeAbsoluteFilePath(path);

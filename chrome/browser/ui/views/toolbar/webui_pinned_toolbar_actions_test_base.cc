@@ -39,9 +39,6 @@
 #include "ui/color/color_provider.h"
 #include "ui/views/controls/webview/webview.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 WebUIPinnedToolbarActionsTestBase::WebUIPinnedToolbarActionsTestBase()
     : WebUIToolbarWebViewTestBase(
@@ -61,9 +58,6 @@ WebUIPinnedToolbarActionsTestBase::WebUIPinnedToolbarActionsTestBase()
            // Facilitate testing kActionSendSharedTabGroupFeedback
            data_sharing::features::kDataSharingFeature,
 // Facilitate testing kActionSidePanelShowGlic
-#if BUILDFLAG(IS_CHROMEOS)
-           chromeos::features::kFeatureManagementGlic,
-#endif  // BUILDFLAG(IS_CHROMEOS)
            features::kGlic},
           {}),
       kActionMappings{
@@ -87,10 +81,8 @@ WebUIPinnedToolbarActionsTestBase::WebUIPinnedToolbarActionsTestBase()
            toolbar_ui_api::mojom::PinnedToolbarAction::
                kSidePanelShowHistoryCluster},
 // ChromeOS doesn't support download button.
-#if !BUILDFLAG(IS_CHROMEOS)
           {kActionShowDownloads,
            toolbar_ui_api::mojom::PinnedToolbarAction::kShowDownloads},
-#endif  // !BUILDFLAG(IS_CHROMEOS)
           {kActionClearBrowsingData,
            toolbar_ui_api::mojom::PinnedToolbarAction::kClearBrowsingData},
           {kActionPrint, toolbar_ui_api::mojom::PinnedToolbarAction::kPrint},

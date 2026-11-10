@@ -70,7 +70,7 @@ static_assert(__builtin_constant_p(PTHREAD_STACK_MIN_CONST),
 BASE_EXPORT void CheckPThreadStackMinIsSafe();
 #endif  // BUILDFLAG(IS_POSIX)
 
-#if BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_IOS_TVOS)
+#if BUILDFLAG(IS_APPLE)
 class MachRendezvousPort;
 using MachPortsForRendezvous = std::map<uint32_t, MachRendezvousPort>;
 #endif
@@ -229,7 +229,7 @@ struct BASE_EXPORT LaunchOptions {
   bool clear_environment = false;
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // If non-zero, start the process using clone(), using flags as provided.
   // Unlike in clone, clone_flags may not contain a custom termination signal
   // that is sent to the parent when the child dies. The termination signal will
@@ -246,10 +246,9 @@ struct BASE_EXPORT LaunchOptions {
   // File descriptors of the parent process with FD_CLOEXEC flag to be removed
   // before calling exec*().
   std::vector<int> fds_to_remove_cloexec;
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
-#if !BUILDFLAG(IS_IOS_TVOS)
+#if BUILDFLAG(IS_MAC)
   // Mach ports that will be accessible to the child process. These are not
   // directly inherited across process creation, but they are stored by a Mach
   // IPC server that a child process can communicate with to retrieve them.
@@ -259,12 +258,11 @@ struct BASE_EXPORT LaunchOptions {
   //
   // See base/apple/mach_port_rendezvous.h for details.
   MachPortsForRendezvous mach_ports_for_rendezvous;
-#endif  // !BUILDFLAG(IS_IOS_TVOS)
 
   // Apply a process scheduler policy to enable mitigations against CPU side-
   // channel attacks.
   bool enable_cpu_security_mitigations = false;
-#endif  // BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
+#endif
 
 #if BUILDFLAG(IS_MAC)
   // When a child process is launched, the system tracks the parent process
@@ -307,11 +305,6 @@ struct BASE_EXPORT LaunchOptions {
   bool new_process_group = false;
 #endif  // BUILDFLAG(IS_POSIX)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // If non-negative, the specified file descriptor will be set as the launched
-  // process' controlling terminal.
-  int ctrl_terminal_fd = -1;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 };
 
 // Launch a process via the command line |cmdline|.
@@ -461,7 +454,7 @@ BASE_EXPORT void RaiseProcessToHighPriority();
 // binary. This should not be called in production/released code.
 BASE_EXPORT LaunchOptions LaunchOptionsForTest();
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // A wrapper for clone with fork-like behavior, meaning that it returns the
 // child's pid in the parent and 0 in the child. |flags|, |ptid|, and |ctid| are
 // as in the clone system call (the CLONE_VM flag is not supported).

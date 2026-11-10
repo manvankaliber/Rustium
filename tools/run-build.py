@@ -69,7 +69,7 @@ Examples:
   desktop_archives = sorted(
       set(arch for build in bisect_builds.PATH_CONTEXT
           for arch in bisect_builds.PATH_CONTEXT[build]
-          if not arch.startswith(('android', 'ios'))))
+          if not arch.startswith(())))
   parser.add_argument(
       '-a',
       '--archive',

@@ -24,9 +24,7 @@
 #include "ui/base/clipboard/test/test_clipboard.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif
 
 namespace glic {
 namespace {
@@ -270,21 +268,11 @@ IN_PROC_BROWSER_TEST_F(GlicPasteEligibilityBrowserTest,
   content::WebContents* glic_guest = GetReadyGuest();
   ASSERT_TRUE(glic_guest);
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, InProcessBrowserTest::CreateIncognitoBrowser() is unavailable.
-  // Create an off-the-record WebContents directly to provide an incognito
-  // BrowserContext source for cross-profile paste verification.
-  std::unique_ptr<content::WebContents> incognito_contents =
-      content::WebContents::Create(content::WebContents::CreateParams(
-          GetProfile()->GetPrimaryOTRProfile(/*create_if_needed=*/true)));
-  content::WebContents* source_contents = incognito_contents.get();
-#else
   BrowserWindowInterface* incognito_browser =
       InProcessBrowserTest::CreateIncognitoBrowser();
   tabs::TabInterface* incognito_tab =
       incognito_browser->tab_strip_model()->GetActiveTab();
   content::WebContents* source_contents = incognito_tab->GetContents();
-#endif
   const GURL url = embedded_test_server()->GetURL("/title1.html");
   ASSERT_TRUE(content::NavigateToURL(source_contents, url));
   content::ClipboardEndpoint captured_source =

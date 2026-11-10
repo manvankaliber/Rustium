@@ -90,7 +90,6 @@ class ToggledNotificationBlocker : public message_center::NotificationBlocker {
   bool notifications_enabled_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 // Browser test class that creates a fake monitor MediaStream device and auto
 // selects it when requesting one via navigator.mediaDevices.getDisplayMedia().
 class NotificationsTestWithFakeMediaStream : public NotificationsTest {
@@ -108,7 +107,6 @@ class NotificationsTestWithFakeMediaStream : public NotificationsTest {
                                     "Entire screen");
   }
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -732,7 +730,6 @@ IN_PROC_BROWSER_TEST_F(NotificationsTest, TestShouldDisplayPopupNotification) {
   ASSERT_EQ(1u, notifications.size());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // TODO(crbug.com/40721738): Test fails on Windows and macOS on the bots as
 // there is no real display to test with. Need to find a way to run these
 // without a display. Tests pass locally with a real display.
@@ -815,4 +812,3 @@ IN_PROC_BROWSER_TEST_F(NotificationsTestWithFakeMediaStream,
     EXPECT_EQ(u"My Body", notification->message());
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

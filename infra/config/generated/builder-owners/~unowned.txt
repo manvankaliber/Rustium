@@ -7,39 +7,10 @@ ci/Mac ASAN Release Media
 ci/Mac Builder Next
 ci/Mac deterministic
 ci/Mac deterministic (dbg)
-ci/Site Isolation Android
 ci/Win 10 Fast Ring
-ci/android-11-x86-fyi-rel
-ci/android-11-x86-rel
-ci/android-12-x64-dbg-tests
-ci/android-arm64-archive-rel
-ci/android-avd-packager
-ci/android-code-coverage
-ci/android-code-coverage-native
-ci/android-device-flasher
-ci/android-fieldtrial-rel
-ci/android-perfetto-rel
-ci/android-sdk-packager
-ci/android-webview-12-x64-dbg-tests
-ci/android-webview-13-x64-dbg-tests
-ci/chromeos-js-code-coverage
-ci/ios-blink-rel-fyi
-ci/ios-catalyst
-ci/ios-device
-ci/ios-fieldtrial-rel
-ci/ios-simulator
-ci/ios-simulator-code-coverage
-ci/ios-simulator-full-configs
-ci/ios-simulator-noncq
-ci/ios27-beta-simulator
-ci/ios27-duo-beta-simulator
-ci/ios27-duo-simulator
-ci/ios27-sdk-simulator
 ci/linux-blink-heap-verification
 ci/linux-blink-web-tests-force-accessibility-rel
 ci/linux-blink-wpt-reset-rel
-ci/linux-chromeos-archive-rel
-ci/linux-chromeos-code-coverage
 ci/linux-code-coverage
 ci/linux-fieldtrial-rel
 ci/linux-headless-shell-rel
@@ -62,37 +33,12 @@ ci/win10-code-coverage
 ci/win32-arm64-rel
 try/3pp-linux-amd64-packager
 try/3pp-mac-amd64-packager
-try/android-11-x86-rel
-try/android-binary-size
-try/android-clang-tidy-rel
-try/android-code-coverage
-try/android-code-coverage-native
-try/android-deterministic-dbg
-try/android-deterministic-rel
-try/android-fieldtrial-rel
-try/android-perfetto-rel
-try/android_blink_rel
 try/branch-config-verifier
 try/builder-config-verifier
-try/chromeos-js-code-coverage
-try/chromeos-js-coverage-rel
-try/ios-blink-rel-fyi
-try/ios-catalyst
-try/ios-device
-try/ios-fieldtrial-rel
-try/ios-simulator
-try/ios-simulator-code-coverage
-try/ios-simulator-noncq
-try/ios27-beta-simulator
-try/ios27-duo-beta-simulator
-try/ios27-duo-simulator
-try/ios27-sdk-simulator
 try/leak_detection_linux
 try/linux-asan-media-rel
 try/linux-blink-heap-verification-try
 try/linux-blink-web-tests-force-accessibility-rel
-try/linux-chromeos-clang-tidy-rel
-try/linux-chromeos-code-coverage
 try/linux-clang-tidy-rel
 try/linux-code-coverage
 try/linux-fieldtrial-rel

@@ -37,9 +37,7 @@
 #include "ui/accessibility/platform/ax_platform_node_delegate.h"
 #include "ui/gfx/range/range.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "content/public/test/scoped_accessibility_mode_override.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 namespace autofill {
 namespace {
 
@@ -1465,16 +1463,7 @@ TEST_F(AutofillPopupControllerImplTest,
       "Autofill.ProfileDeleted.Any.LocalOrSyncable", 1, 1);
   histogram_tester.ExpectUniqueSample(
       "Autofill.ProfileDeleted.Any.LocalOrSyncable", 1, 1);
-  if constexpr (BUILDFLAG(IS_ANDROID)) {
-    histogram_tester.ExpectUniqueSample("Autofill.ProfileDeleted.Popup.Total",
-                                        1, 0);
-    histogram_tester.ExpectUniqueSample(
-        "Autofill.ProfileDeleted.Popup.LocalOrSyncable", 1, 0);
-    histogram_tester.ExpectUniqueSample(
-        "Autofill.ProfileDeleted.KeyboardAccessory.Total", 1, 1);
-    histogram_tester.ExpectUniqueSample(
-        "Autofill.ProfileDeleted.KeyboardAccessory.LocalOrSyncable", 1, 1);
-  } else {
+  {
     histogram_tester.ExpectUniqueSample("Autofill.ProfileDeleted.Popup.Total",
                                         1, 1);
     histogram_tester.ExpectUniqueSample(
@@ -1544,7 +1533,6 @@ TEST_F(AutofillPopupControllerImplTest,
   EXPECT_TRUE(test_api(controller).HasEmptySuggestionContent());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class MockAutofillDriver : public ContentAutofillDriver {
  public:
   using ContentAutofillDriver::ContentAutofillDriver;
@@ -1728,7 +1716,6 @@ TEST_F(AutofillPopupControllerImplTestAccessibility,
   client().suggestion_controller(manager()).FireControlsChangedEvent(true);
   EXPECT_EQ(ui::GetActivePopupAxUniqueId(), std::nullopt);
 }
-#endif
 
 }  // namespace
 }  // namespace autofill

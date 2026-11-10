@@ -77,7 +77,7 @@ BASE_EXPORT ProcessId GetCurrentProcId();
 // processes may be reused.
 BASE_EXPORT UniqueProcId GetUniqueIdForProcess();
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // When a process is started in a different PID namespace from the browser
 // process, this function must be called with the process's PID in the browser's
 // PID namespace in order to initialize its unique ID. Not thread safe.
@@ -109,7 +109,7 @@ BASE_EXPORT ProcessId GetParentProcessId(ProcessHandle process);
 BASE_EXPORT FilePath GetProcessExecutablePath(ProcessHandle process);
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 // Same as above, but reads from `proc_dir` instead of "/proc", which can be
 // used with a fake procfs directory in tests.
 BASE_EXPORT FilePath GetProcessExecutablePath(ProcessHandle process,

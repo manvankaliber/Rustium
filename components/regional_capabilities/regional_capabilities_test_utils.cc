@@ -49,9 +49,6 @@ FakeRegionalCapabilitiesServiceClient::FakeRegionalCapabilitiesServiceClient(
     CountryId fallback_country_id)
     : variations_latest_country_id_(variations_latest_country_id),
       fetched_country_id_(fetched_country_id),
-#if BUILDFLAG(IS_ANDROID)
-      device_program_(CountryIdToProgramForTesting(fetched_country_id_)),
-#endif
       fallback_country_id_(fallback_country_id) {
 }
 
@@ -72,17 +69,6 @@ CountryId FakeRegionalCapabilitiesServiceClient::GetFallbackCountryId() {
   return fallback_country_id_;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-Program FakeRegionalCapabilitiesServiceClient::GetDeviceProgram() {
-  return device_program_;
-}
-
-FakeRegionalCapabilitiesServiceClient&
-FakeRegionalCapabilitiesServiceClient::SetDeviceProgram(Program program) {
-  device_program_ = program;
-  return *this;
-}
-#endif
 
 FakeRegionalCapabilitiesServiceClient&
 FakeRegionalCapabilitiesServiceClient::SetVariationsLatestCountryId(
@@ -95,9 +81,6 @@ FakeRegionalCapabilitiesServiceClient&
 FakeRegionalCapabilitiesServiceClient::SetFetchedCountryId(
     CountryId country_id) {
   fetched_country_id_ = country_id;
-#if BUILDFLAG(IS_ANDROID)
-  device_program_ = CountryIdToProgramForTesting(country_id);
-#endif
   return *this;
 }
 

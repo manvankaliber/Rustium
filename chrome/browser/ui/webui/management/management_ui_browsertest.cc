@@ -79,7 +79,6 @@ class ManagementUITest : public InProcessBrowserTest {
   policy::FakeBrowserDMTokenStorage fake_dm_token_storage_;
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(ManagementUITest, ManagementStateChange) {
   // Ensure the device is not considered managed.
@@ -150,4 +149,3 @@ IN_PROC_BROWSER_TEST_F(ManagementUITest, ManagementStateChange) {
 
   VerifyTexts(&*managed_value_ptr, expected_managed_values);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)

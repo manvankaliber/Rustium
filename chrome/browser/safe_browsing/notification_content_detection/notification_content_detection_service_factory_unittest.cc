@@ -69,23 +69,8 @@ TEST_F(NotificationContentDetectionServiceFactoryTest,
               base::BindRepeating(
                   &BuildTestOptimizationGuideGlobalStateHolderKeyedService)},
       });
-#if BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_ARMEL)
-  EXPECT_EQ(nullptr,
-            NotificationContentDetectionServiceFactory::GetForProfile(profile));
-#elif BUILDFLAG(IS_ANDROID)
-  if (base::SysInfo::IsLowEndDevice()) {
-    EXPECT_EQ(
-        nullptr,
-        NotificationContentDetectionServiceFactory::GetForProfile(profile));
-  } else {
-    EXPECT_NE(
-        nullptr,
-        NotificationContentDetectionServiceFactory::GetForProfile(profile));
-  }
-#else
   EXPECT_NE(nullptr,
             NotificationContentDetectionServiceFactory::GetForProfile(profile));
-#endif
 }
 
 TEST_F(NotificationContentDetectionServiceFactoryTest,

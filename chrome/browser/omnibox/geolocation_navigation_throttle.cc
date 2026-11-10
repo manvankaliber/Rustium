@@ -34,11 +34,9 @@ GeolocationNavigationThrottle::MaybeCreateThrottleFor(
 // of feature value. On Desktop there is no legacy mechanism to attach the
 // header so it would pointless to create the throttle when the feature is not
 // enabled.
-#if !BUILDFLAG(IS_ANDROID)
   if (!base::FeatureList::IsEnabled(omnibox::kPlatformAgnosticXGeo)) {
     return nullptr;
   }
-#endif
 
   // We only record metrics and add headers for main frame navigations.
   if (!registry.GetNavigationHandle().IsInOutermostMainFrame()) {

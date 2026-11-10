@@ -18,16 +18,12 @@
 #include "components/tabs/public/tab_interface.h"
 #include "ui/base/unowned_user_data/scoped_unowned_user_data.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace views {
 class Widget;
 }  // namespace views
-#endif
 
 namespace actor::ui {
-#if !BUILDFLAG(IS_ANDROID)
 class HandoffButtonController;
-#endif
 
 using UiResultCallback = base::OnceCallback<void(bool)>;
 
@@ -87,7 +83,6 @@ class ActorUiTabControllerInterface : public ActorNavigationThrottle::Delegate {
   RegisterActorTabIndicatorStateChangedCallback(
       ActorTabIndicatorStateChangedCallback callback);
 
-#if !BUILDFLAG(IS_ANDROID)
   virtual views::Widget* GetActiveNavigationConfirmDialogWidgetForTesting()
       const;
 
@@ -137,7 +132,6 @@ class ActorUiTabControllerInterface : public ActorNavigationThrottle::Delegate {
       base::RepeatingCallback<void(const std::string&)>;
   [[nodiscard]] virtual base::ScopedClosureRunner RegisterCursorChipTextChange(
       CursorChipTextChangeCallback callback) = 0;
-#endif
 
  protected:
   void NotifyActorTabIndicatorStateChanged(

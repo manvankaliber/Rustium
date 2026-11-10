@@ -89,20 +89,7 @@ include!("macros.rs");
         any(target_feature = "lse2", portable_atomic_target_feature = "lse2"),
     )),
 ))]
-#[cfg(any(
-    all(
-        target_os = "linux",
-        any(
-            target_env = "gnu",
-            all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")),
-            target_env = "ohos",
-            all(target_env = "uclibc", not(target_feature = "crt-static")),
-            portable_atomic_outline_atomics,
-        ),
-    ),
-    target_os = "android",
-    target_os = "freebsd",
-))]
+#[cfg(any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd"))]
 #[path = "../detect/auxv.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
@@ -154,7 +141,7 @@ mod detect;
 #[cfg(test)] // test-only (we use auxv.rs instead)
 #[cfg(not(valgrind))]
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
+#[cfg(any(target_os = "linux", target_os = "freebsd"))]
 #[path = "../detect/aarch64_aa64reg.rs"]
 mod test_detect_aa64reg;
 #[cfg(test)] // test-only (we use aarch64_aa64reg.rs instead)
@@ -1212,31 +1199,7 @@ unsafe fn atomic_compare_exchange(
     // cfg guarantee that the CPU supports FEAT_LSE.
     let prev = unsafe { _atomic_compare_exchange_casp(dst, old, new, success, failure) };
     // if platform_supports_detection_of(FEAT_LSE):
-    #[cfg(all(
-        not(portable_atomic_no_outline_atomics),
-        any(
-            all(
-                target_os = "linux",
-                any(
-                    target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std")
-                    ),
-                    target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
-                    portable_atomic_outline_atomics
-                )
-            ),
-            target_os = "android",
-            target_os = "freebsd",
-            target_os = "netbsd",
-            target_os = "openbsd",
-            target_os = "illumos",
-            target_vendor = "apple",
-            windows
-        )
-    ))]
+    #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", target_vendor = "apple", windows)))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     let prev = {
         fn_alias! {
@@ -1350,31 +1313,7 @@ unsafe fn atomic_compare_exchange(
         }
     };
     // else => ldxp_stxp
-    #[cfg(not(all(
-        not(portable_atomic_no_outline_atomics),
-        any(
-            all(
-                target_os = "linux",
-                any(
-                    target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std")
-                    ),
-                    target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
-                    portable_atomic_outline_atomics
-                )
-            ),
-            target_os = "android",
-            target_os = "freebsd",
-            target_os = "netbsd",
-            target_os = "openbsd",
-            target_os = "illumos",
-            target_vendor = "apple",
-            windows
-        )
-    )))]
+    #[cfg(not(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", target_vendor = "apple", windows))))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract.
     let prev = unsafe { _atomic_compare_exchange_ldxp_stxp(dst, old, new, success, failure) };

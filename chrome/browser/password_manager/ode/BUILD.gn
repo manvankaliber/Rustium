@@ -16,31 +16,22 @@ source_set("ode") {
     "//components/sync/base",
   ]
 
-  if (!is_android) {
-    public += [ "chrome_passkey_on_device_encryption_state_tracker.h" ]
-    sources += [ "chrome_passkey_on_device_encryption_state_tracker.cc" ]
-    public_deps += [ "//chrome/browser/webauthn" ]
-  } else {
-    deps += [
-      "//chrome/browser/trusted_vault",
-      "//components/trusted_vault",
-    ]
-  }
+  public += [ "chrome_passkey_on_device_encryption_state_tracker.h" ]
+  sources += [ "chrome_passkey_on_device_encryption_state_tracker.cc" ]
+  public_deps += [ "//chrome/browser/webauthn" ]
 }
 
 source_set("unit_tests") {
   testonly = true
-  if (!is_android) {
-    sources =
-        [ "chrome_passkey_on_device_encryption_state_tracker_unittest.cc" ]
-    deps = [
-      ":ode",
-      "//base/test:test_support",
-      "//chrome/browser/webauthn:test_support",
-      "//components/sync:test_support",
-      "//components/webauthn/core/browser:test_support",
-      "//testing/gmock",
-      "//testing/gtest",
-    ]
-  }
+
+  sources = [ "chrome_passkey_on_device_encryption_state_tracker_unittest.cc" ]
+  deps = [
+    ":ode",
+    "//base/test:test_support",
+    "//chrome/browser/webauthn:test_support",
+    "//components/sync:test_support",
+    "//components/webauthn/core/browser:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+  ]
 }

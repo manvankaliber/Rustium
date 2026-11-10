@@ -43,20 +43,12 @@
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 #include "ui/base/resource/resource_bundle.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/variations/android/variations_seed_bridge.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "chrome/installer/util/google_update_settings.h"
 #include "components/language/core/browser/pref_names.h"
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/policy/core/browser_policy_connector_ash.h"
-#include "chrome/browser/ash/settings/about_flags.h"
-#include "chromeos/ash/components/dbus/dbus_thread_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // static
 ChromeFeatureListCreator* ChromeFeatureListCreator::GetInstance() {
@@ -104,23 +96,14 @@ ChromeFeatureListCreator::TakeNetworkTimeTracker() {
   return std::move(network_time_tracker_);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 std::unique_ptr<installer::InitialPreferences>
 ChromeFeatureListCreator::TakeInitialPrefs() {
   return std::move(installer_initial_prefs_);
 }
-#endif
 
 std::unique_ptr<variations::SeedResponse>
 ChromeFeatureListCreator::TakeInitialSeed() {
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<variations::SeedResponse> seed =
-      variations::android::GetVariationsFirstRunSeed();
-  variations::android::ClearJavaFirstRunPrefs();
-  return seed;
-#else
   return std::move(initial_seed_);
-#endif
 }
 
 ChromeFeatureListCreator::ChromeFeatureListCreator() {
@@ -136,15 +119,8 @@ void ChromeFeatureListCreator::CreatePrefService() {
   auto pref_registry = base::MakeRefCounted<PrefRegistrySimple>();
   RegisterLocalState(pref_registry.get());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // DBus must be initialized before constructing the policy connector.
-  CHECK(ash::DBusThreadManager::IsInitialized());
-  browser_policy_connector_ =
-      std::make_unique<policy::BrowserPolicyConnectorAsh>();
-#else
   browser_policy_connector_ =
       std::make_unique<policy::ChromeBrowserPolicyConnector>();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // ManagementService needs Local State but creating local state needs
   // ManagementService, instantiate the underlying PrefStore early and share it
@@ -203,18 +179,7 @@ void ChromeFeatureListCreator::ConvertFlagsToSwitches() {
   CHECK(!ui::ResourceBundle::HasSharedInstance(), base::NotFatalUntil::M161);
   TRACE_EVENT0("startup", "ChromeFeatureListCreator::ConvertFlagsToSwitches");
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, flags are passed on the command line when Chrome gets launched
-  // by session_manager. There are separate sets of flags for the login screen
-  // environment and user sessions. session_manager populates the former from
-  // signed device settings, while flags for user session are stored in
-  // preferences and applied via a chrome restart upon user login, see
-  // UserSessionManager::RestartToApplyPerSessionFlagsIfNeed for the latter.
-  ash::about_flags::ReadOnlyFlagsStorage flags_storage(
-      base::CommandLine::ForCurrentProcess());
-#else
   flags_ui::PrefServiceFlagsStorage flags_storage(local_state_.get());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   about_flags::ConvertFlagsToSwitches(&flags_storage,
                                       base::CommandLine::ForCurrentProcess(),
@@ -242,11 +207,6 @@ void ChromeFeatureListCreator::SetUpFieldTrials() {
 
   metrics_services_manager_->InstantiateFieldTrialList();
   auto feature_list = std::make_unique<base::FeatureList>();
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, the platform needs to be able to access the
-  // FeatureList::Accessor. On other platforms, this API should not be used.
-  cros_feature_list_accessor_ = feature_list->ConstructAccessor();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Associate parameters chosen in about:flags and create trial/group for them.
   flags_ui::PrefServiceFlagsStorage flags_storage(local_state_.get());
@@ -278,7 +238,6 @@ void ChromeFeatureListCreator::CreateMetricsServices() {
 void ChromeFeatureListCreator::SetupInitialPrefs() {
 // Android does first run in Java instead of native.
 // ChromeOS has its own out-of-box-experience code.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   // On first run, we need to process the predictor preferences before the
   // browser's profile_manager object is created, but after ResourceBundle
   // is initialized.
@@ -316,5 +275,4 @@ void ChromeFeatureListCreator::SetupInitialPrefs() {
     initial_seed_->date = base::Time::Now();
     initial_seed_->is_gzip_compressed = true;
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 }

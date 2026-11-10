@@ -30,7 +30,7 @@ struct Configuration {
   // objects.
   bool force_direct_shared_memory_allocation = false;
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // If `true` and this process delegates shared memory allocation to the
   // broker, unsafe regions (which never need a read-only handle) are still
   // created directly in this process. That takes memfd_create(), ftruncate()

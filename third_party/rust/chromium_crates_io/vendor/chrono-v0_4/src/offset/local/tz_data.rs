@@ -16,34 +16,13 @@ pub(crate) fn for_zone(tz_string: &str) -> Result<Option<Vec<u8>>> {
 }
 
 /// Get timezone data from the `tzdata` file of Android.
-#[cfg(target_os = "android")]
-pub(crate) fn for_zone(tz_string: &str) -> Result<Option<Vec<u8>>> {
-    let mut file = open_android_tz_data_file()?;
-    find_tz_data::<ANDROID_ENTRY_LEN>(&mut file, tz_string.as_bytes())
-}
+
 
 /// Open the `tzdata` file of Android from the environment variables.
-#[cfg(target_os = "android")]
-fn open_android_tz_data_file() -> Result<File> {
-    for (env_var, path) in [
-        // Default root path: /apex/com.android.tzdata
-        ("ANDROID_TZDATA_ROOT", "/etc/tz"),
-        // Default root path: /data
-        ("ANDROID_DATA", "/misc/zoneinfo/current"),
-        // Default root path: /system
-        ("ANDROID_ROOT", "/usr/share/zoneinfo"),
-    ] {
-        if let Ok(env_value) = std::env::var(env_var) {
-            if let Ok(file) = File::open(format!("{}{}/tzdata", env_value, path)) {
-                return Ok(file);
-            }
-        }
-    }
-    Err(Error::from(ErrorKind::NotFound))
-}
+
 
 /// Get timezone data from the `tzdata` file reader
-#[cfg(any(test, target_env = "ohos", target_os = "android"))]
+#[cfg(any(test, target_env = "ohos"))]
 fn find_tz_data<const ENTRY_LEN: usize>(
     mut reader: impl Read + Seek,
     tz_name: &[u8],
@@ -163,7 +142,7 @@ fn from_bytes_until_nul(bytes: &[u8]) -> Option<&CStr> {
 const OHOS_ENTRY_LEN: usize = TZ_NAME_LEN + 2 * size_of::<u32>();
 /// Android tzdata index entry size: `name + offset + length + raw_utc_offset(legacy)`:
 /// [reference](https://android.googlesource.com/platform/prebuilts/fullsdk/sources/+/refs/heads/androidx-appcompat-release/android-34/com/android/i18n/timezone/ZoneInfoDb.java#271)
-#[cfg(any(test, target_os = "android"))]
+#[cfg(test)]
 const ANDROID_ENTRY_LEN: usize = TZ_NAME_LEN + 3 * size_of::<u32>();
 /// The database reserves 40 bytes for each id.
 const TZ_NAME_LEN: usize = 40;
@@ -263,10 +242,5 @@ mod tests {
         assert!(!tzdata.is_empty());
     }
 
-    #[cfg(target_os = "android")]
-    #[test]
-    fn test_android_machine_tz_data_loading() {
-        let tzdata = for_zone(b"Asia/Shanghai").unwrap().unwrap();
-        assert!(!tzdata.is_empty());
-    }
+
 }

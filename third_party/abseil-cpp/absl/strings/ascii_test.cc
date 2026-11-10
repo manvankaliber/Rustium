@@ -128,11 +128,9 @@ TEST(AsciiIsFoo, All) {
 // Checks that absl::ascii_isfoo returns the same value as isfoo in the C
 // locale.
 TEST(AsciiIsFoo, SameAsIsFoo) {
-#ifndef __ANDROID__
   // temporarily change locale to C. It should already be C, but just for safety
   const char* old_locale = setlocale(LC_CTYPE, "C");
   ASSERT_TRUE(old_locale != nullptr);
-#endif
 
   for (int i = 0; i < 256; i++) {
     const auto c = static_cast<unsigned char>(i);
@@ -151,18 +149,14 @@ TEST(AsciiIsFoo, SameAsIsFoo) {
     EXPECT_EQ(isascii(c) != 0, absl::ascii_isascii(c)) << c;
   }
 
-#ifndef __ANDROID__
   // restore the old locale.
   ASSERT_TRUE(setlocale(LC_CTYPE, old_locale));
-#endif
 }
 
 TEST(AsciiToFoo, All) {
-#ifndef __ANDROID__
   // temporarily change locale to C. It should already be C, but just for safety
   const char* old_locale = setlocale(LC_CTYPE, "C");
   ASSERT_TRUE(old_locale != nullptr);
-#endif
 
   for (int i = 0; i < 256; i++) {
     const auto c = static_cast<unsigned char>(i);
@@ -180,10 +174,8 @@ TEST(AsciiToFoo, All) {
     EXPECT_EQ(static_cast<char>(tolower(i)), absl::ascii_tolower(c)) << c;
     EXPECT_EQ(static_cast<char>(toupper(i)), absl::ascii_toupper(c)) << c;
   }
-#ifndef __ANDROID__
   // restore the old locale.
   ASSERT_TRUE(setlocale(LC_CTYPE, old_locale));
-#endif
 }
 
 TEST(AsciiStrTo, Lower) {

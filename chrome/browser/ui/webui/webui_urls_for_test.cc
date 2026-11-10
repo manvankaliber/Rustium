@@ -12,9 +12,6 @@
 #include "components/signin/public/base/signin_buildflags.h"
 #include "device/vr/buildflags/buildflags.h"
 #include "printing/buildflags/buildflags.h"
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#endif
 
 base::span<const std::string_view> GetChromeUrlsForTest() {
   // Using a hardcoded list because this is used to parameterize tests,
@@ -28,9 +25,7 @@ base::span<const std::string_view> GetChromeUrlsForTest() {
       "chrome://accessibility",
 #endif
 // TODO:(https://crbug.com/40265685): Flakily crashes on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
       "chrome://app-service-internals",
-#endif
       "chrome://actor-internals",
       "chrome://actor-overlay",
       "chrome://autofill-ml-internals",
@@ -51,27 +46,19 @@ base::span<const std::string_view> GetChromeUrlsForTest() {
       "chrome://connection-monitoring-detected",
       "chrome://connectors-internals",
       "chrome://content-settings",
-#if !BUILDFLAG(IS_ANDROID)
       "chrome://contextual-cueing-internals",
-#endif
       "chrome://context-hub",
-#if !BUILDFLAG(IS_ANDROID)
       "chrome://craft",
-#endif
       "chrome://crashes",
 // TODO(crbug.com/40913109): Re-enable this test
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_LINUX)
       "chrome://credits",
 #endif
-#if !BUILDFLAG(IS_ANDROID)
       "chrome://critical-actions-internals",
-#endif
       "chrome://customize-chrome-side-panel.top-chrome",
       "chrome://data-sharing-internals",
 
-#if !BUILDFLAG(IS_CHROMEOS)
       "chrome://default-browser-modal",
-#endif
 
 #if BUILDFLAG(IS_WIN)
       "chrome://default-browser",
@@ -99,13 +86,9 @@ base::span<const std::string_view> GetChromeUrlsForTest() {
       "chrome://history-side-panel.top-chrome",
       "chrome://indexeddb-internals",
       "chrome://infobar-internals",
-#if !BUILDFLAG(IS_ANDROID)
       "chrome://indigo-internals",
-#endif
       "chrome://inspect",
-#if !BUILDFLAG(IS_ANDROID)
       "chrome://iwa-dev",
-#endif
       "chrome://internals/session-service",
       "chrome://interstitials",
       "chrome://interstitials/ssl",
@@ -137,17 +120,15 @@ base::span<const std::string_view> GetChromeUrlsForTest() {
 #endif
 
       "chrome://optimization-guide-internals",
-#if !BUILDFLAG(IS_ANDROID)
       "chrome://organizer-panel.top-chrome",
       "chrome://page-action-internals",
-#endif
       "chrome://password-manager",
       "chrome://password-manager-internals",
       "chrome://policy",
       "chrome://predictors",
 
   // TODO(crbug.com/511254271): Flaky on some Linux and ChromeOS builders.
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_LINUX)
       "chrome://prefs-internals",
 #endif
 
@@ -203,59 +184,7 @@ base::span<const std::string_view> GetChromeUrlsForTest() {
       "chrome://cast-feedback",
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-      "chrome://chrome-finds-internals",
-      "chrome://explore-sites-internals",
-      "chrome://internals/notifications",
-      "chrome://internals/query-tiles",
-      "chrome://snippets-internals",
-      "chrome://webapks",
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-      "chrome://accessory-update",
-      "chrome://account-manager-error",
-      "chrome://account-migration-welcome",
-      "chrome://add-supervision/",
-      "chrome://app-disabled",
-      "chrome://camera-app/views/main.html",
-      "chrome://bluetooth-pairing",
-      "chrome://certificate-manager/",
-      "chrome://cloud-upload",
-      "chrome://connectivity-diagnostics",
-      "chrome://crostini-installer",
-      "chrome://cryptohome",
-      "chrome://diagnostics",
-      "chrome://drive-internals",
-      "chrome://emoji-picker",
-      "chrome://file-manager",
-      "chrome://help-app",
-      "chrome://multidevice-internals",
-      "chrome://multidevice-setup",
-      "chrome://nearby",
-      "chrome://nearby-internals",
-      "chrome://network",
-      "chrome://office-fallback",
-      "chrome://os-feedback",
-      "chrome-untrusted://os-feedback",
-      "chrome://os-settings",
-      "chrome://parent-access",
-      "chrome://password-change",
-      "chrome://personalization",
-      "chrome://power",
-      "chrome://print-management",
-      "chrome://proximity-auth/proximity_auth.html",
-      "chrome://scanning",
-      "chrome://set-time",
-      "chrome://shimless-rma",
-      "chrome://shortcut-customization",
-      "chrome://slow",
-      "chrome://smb-credentials-dialog",
-      "chrome://smb-share-dialog",
-      "chrome://urgent-password-expiry-notification",
-      "chrome://sys-internals",
-#endif
-#if !BUILDFLAG(IS_CHROMEOS)
       "chrome://apps",
       "chrome://browser-switch",
       "chrome://browser-switch/internals",
@@ -263,7 +192,6 @@ base::span<const std::string_view> GetChromeUrlsForTest() {
       "chrome://intro",
       "chrome://profile-customization/?debug",
       "chrome://signin-email-confirmation",
-#endif
 #if !BUILDFLAG(IS_MAC)
       "chrome://sandbox",
 #endif  // !BUILDFLAG(IS_MAC)
@@ -277,7 +205,7 @@ base::span<const std::string_view> GetChromeUrlsForTest() {
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
       "chrome://signin-dice-web-intercept.top-chrome/?debug",
 #endif
-#if BUILDFLAG(ENABLE_DICE_SUPPORT) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
       "chrome://signout-confirmation",
 #endif
       "chrome://webuijserror",
@@ -312,7 +240,7 @@ base::span<const std::string_view> GetUntestedChromeUrlsForTest() {
       "chrome://app-settings",
       "chrome://constrained-test",
       "chrome://contextual-tasks",
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
       // TODO(crbug.com/40913109): Re-enable this test
       "chrome://credits",
 #endif
@@ -354,85 +282,11 @@ base::span<const std::string_view> GetUntestedChromeUrlsForTest() {
       // Note: Disabled because a DCHECK fires when directly visiting the URL.
       "chrome://signin-reauth",
 #endif
-#if BUILDFLAG(ENABLE_DICE_SUPPORT) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
       // TODO(crbug.com/40250068): Move to list above when TrustedTypes are
       // enabled.
       "chrome://chrome-signin/?reason=5",
       "chrome://chrome-signin",
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-      "chrome-untrusted://boca-app",
-      "chrome-untrusted://camera-app",
-      "chrome-untrusted://class-tools-remote-display",
-      "chrome-untrusted://crosh",
-      "chrome-untrusted://demo-mode-app",
-      "chrome-untrusted://eche-app",
-      "chrome-untrusted://file-manager",
-      "chrome-untrusted://focus-mode-player",
-      "chrome-untrusted://help-app",
-      "chrome-untrusted://help-app-kids-magazine",
-      "chrome-untrusted://mako",
-      "chrome-untrusted://media-app",
-      // TODO(crbug.com/487122203): Fix the issue (see the bug entry for
-      // details) and re-enable the test.
-      "chrome-untrusted://projector",
-      "chrome-untrusted://projector-annotator",
-      "chrome-untrusted://sample-system-web-app",
-      "chrome-untrusted://scanner-feedback",
-      "chrome-untrusted://terminal",
-      "chrome://add-supervision",
-      "chrome://app-install-dialog",
-      // TODO:(https://crbug.com/40265685): Flakily crashes on ChromeOS.
-      "chrome://app-service-internals",
-      "chrome://arc-overview-tracing",
-      "chrome://arc-power-control",
-      "chrome://borealis-credits",
-      "chrome://borealis-installer",
-      "chrome://borealis-motd",
-      "chrome://camera-app",
-      // TODO(crbug.com/40250068): Move to list above when TrustedTypes are
-      // enabled.
-      "chrome://chrome-signin",
-      "chrome://class-tools-remote-display",
-      "chrome://color-internals",
-      // Crashes because message handler is not registered outside of the dialog
-      // for confirm password change UI.
-      "chrome://confirm-password-change",
-      "chrome://crostini-credits",
-      "chrome://dlp-internals",
-      "chrome://eche-app",
-      "chrome://enterprise-reporting",
-      "chrome://extended-updates-dialog",
-      "chrome://files-internals",
-      "chrome://floating-workspace",
-      "chrome://focus-mode-media",
-      "chrome://graduation",
-      "chrome://growth-internals",
-      "chrome://healthd-internals",
-      "chrome://internet-config-dialog",
-      "chrome://internet-detail-dialog",
-      "chrome://kerberos-in-browser",
-      "chrome://launcher-internals",
-      "chrome://local-files-migration",
-      "chrome://lock-network",
-      "chrome://lock-reauth",
-      "chrome://mall",
-      "chrome://media-app",
-      "chrome://mobilesetup",
-      "chrome://notification-tester",
-      "chrome://oobe",
-      "chrome://os-credits",
-      // Needs html path to be valid.
-      "chrome://proximity-auth",
-      "chrome://recorder-app",
-      "chrome://sample-system-web-app",
-      "chrome://sanitize",
-      "chrome://security-curtain",
-      "chrome://sensor-info",
-      "chrome://slow_trace",
-      "chrome://status-area-internals",
-      "chrome://vc-background",
-      "chrome://vm",
 #endif
   };
   return kChromeUntestedUrls;

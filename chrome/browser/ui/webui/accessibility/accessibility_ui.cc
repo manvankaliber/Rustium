@@ -60,7 +60,6 @@
 #include "ui/accessibility/platform/inspect/ax_tree_formatter.h"
 #include "ui/base/webui/web_ui_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"  // nogncheck crbug.com/40147906
 #include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"  // nogncheck crbug.com/40147906
 #include "chrome/browser/ui/window_metadata/window_metadata_controller.h"  // nogncheck crbug.com/40147906
@@ -68,7 +67,6 @@
 #include "ui/views/accessibility/view_accessibility.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "ui/accessibility/platform/ax_platform_node_win.h"
@@ -102,7 +100,7 @@ static const char kUrlField[] = "url";
 static const char kValueField[] = "value";
 static const char kApiTypeField[] = "apiType";
 
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
 static const char kWidget[] = "widget";
 #endif
 
@@ -186,7 +184,6 @@ base::DictValue BuildTargetDescriptor(content::RenderViewHost* rvh) {
                                rvh->GetRoutingID(), accessibility_mode);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 base::DictValue BuildTargetDescriptor(BrowserWindowInterface* browser) {
   base::DictValue target_data;
   target_data.Set(kSessionIdField, browser->GetSessionID().id());
@@ -195,7 +192,6 @@ base::DictValue BuildTargetDescriptor(BrowserWindowInterface* browser) {
   target_data.Set(kTypeField, kBrowser);
   return target_data;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 bool ShouldHandleAccessibilityRequestCallback(const std::string& path) {
   return path == kTargetsDataFile;
@@ -393,13 +389,11 @@ void HandleAccessibilityRequestCallback(
   data.Set(kPagesField, std::move(page_list));
 
   base::ListValue browser_list;
-#if !BUILDFLAG(IS_ANDROID)
   ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
       [&browser_list](BrowserWindowInterface* browser) {
         browser_list.Append(BuildTargetDescriptor(browser));
         return true;
       });
-#endif  // !BUILDFLAG(IS_ANDROID)
   data.Set(kBrowsersField, std::move(browser_list));
 
 #if BUILDFLAG(IS_WIN)
@@ -766,7 +760,7 @@ void AccessibilityUIMessageHandler::RegisterMessages() {
           &AccessibilityUIMessageHandler::HandleRequestNativeUITree,
           base::Unretained(this)));
 
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   web_ui()->RegisterMessageCallback(
       "requestWidgetsTree",
       base::BindRepeating(
@@ -983,7 +977,6 @@ void AccessibilityUIMessageHandler::HandleRequestNativeUITree(
 
   AllowJavascript();
 
-#if !BUILDFLAG(IS_ANDROID)
   std::vector<AXPropertyFilter> property_filters;
   AddPropertyFilters(property_filters, allow, AXPropertyFilter::ALLOW);
   AddPropertyFilters(property_filters, allow_empty,
@@ -1010,7 +1003,6 @@ void AccessibilityUIMessageHandler::HandleRequestNativeUITree(
   if (found) {
     return;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   // No browser with the specified |session_id| was found.
   base::DictValue result;
   result.Set(kSessionIdField, session_id);
@@ -1019,7 +1011,7 @@ void AccessibilityUIMessageHandler::HandleRequestNativeUITree(
   FireWebUIListener(request_type, result);
 }
 
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
 void AccessibilityUIMessageHandler::HandleRequestWidgetsTree(
     const base::ListValue& args) {
   const base::DictValue& data = args[0].GetDict();
@@ -1039,7 +1031,7 @@ void AccessibilityUIMessageHandler::HandleRequestWidgetsTree(
   AllowJavascript();
   FireWebUIListener(request_type, result);
 }
-#endif  // defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 void AccessibilityUIMessageHandler::Callback(const std::string& str) {
   event_logs_.push_back(str);

@@ -13,7 +13,7 @@
 #include "base/memory/scoped_refptr.h"
 #include "base/time/time.h"
 #include "remoting/base/errors.h"
-#include "remoting/host/chromeos/chromeos_enterprise_params.h"
+#include "remoting/host/enterprise_session_params.h"
 #include "remoting/host/register_support_host_request.h"
 #include "remoting/proto/remote_support_service.h"
 #include "remoting/signaling/signal_strategy.h"
@@ -42,7 +42,7 @@ class RegisterSupportHostRequestBase : public RegisterSupportHostRequest,
                     std::unique_ptr<net::ClientCertStore> client_cert_store,
                     scoped_refptr<RsaKeyPair> key_pair,
                     const std::string& authorized_helper,
-                    std::optional<ChromeOsEnterpriseParams> params,
+                    std::optional<EnterpriseSessionParams> params,
                     RegisterCallback callback) override;
 
  protected:
@@ -58,7 +58,7 @@ class RegisterSupportHostRequestBase : public RegisterSupportHostRequest,
       std::unique_ptr<net::ClientCertStore> client_cert_store) = 0;
   virtual void RegisterHost(
       const internal::RemoteSupportHostStruct& host,
-      const std::optional<ChromeOsEnterpriseParams>& enterprise_params,
+      const std::optional<EnterpriseSessionParams>& enterprise_params,
       RegisterHostCallback callback) = 0;
   virtual void CancelPendingRequests() = 0;
 
@@ -84,7 +84,7 @@ class RegisterSupportHostRequestBase : public RegisterSupportHostRequest,
   raw_ptr<SignalStrategy> signal_strategy_ = nullptr;
   scoped_refptr<RsaKeyPair> key_pair_;
   RegisterCallback callback_;
-  std::optional<ChromeOsEnterpriseParams> enterprise_params_;
+  std::optional<EnterpriseSessionParams> enterprise_params_;
   std::string authorized_helper_;
 
   State state_ = State::NOT_STARTED;

@@ -296,9 +296,6 @@ class ChromiumDocs:
             'origin',
             'cors',
             # Platforms
-            'chromeos',
-            'android',
-            'ios',
             'windows',
             'linux',
             'mac',

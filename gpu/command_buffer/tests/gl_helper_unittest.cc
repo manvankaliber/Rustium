@@ -35,7 +35,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 
 namespace gpu {
 
@@ -1430,5 +1429,3 @@ TEST_F(GLHelperTest, CheckOptimizations) {
 }
 
 }  // namespace gpu
-
-#endif  // BUILDFLAG(IS_ANDROID)

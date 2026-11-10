@@ -26,8 +26,7 @@
 #include "components/enterprise/net/core/enterprise_proxy_service.h"
 #endif  // BUILDFLAG(ENTERPRISE_PROXY)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "base/scoped_observation.h"
 #include "components/policy/core/common/policy_service.h"
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) ||
@@ -119,8 +118,7 @@ class PROXY_CONFIG_EXPORT PrefProxyConfigTrackerImpl
     ,
       public enterprise_net::EnterpriseProxyService::Observer
 #endif  // BUILDFLAG(ENTERPRISE_PROXY)
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     ,
       public policy::PolicyService::ProviderUpdateObserver
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) ||
@@ -206,8 +204,7 @@ class PROXY_CONFIG_EXPORT PrefProxyConfigTrackerImpl
   void OnEnterpriseProxyServiceDestroyed() override;
 #endif  // BUILDFLAG(ENTERPRISE_PROXY)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   // policy::PolicyService::ProviderUpdateObserver implementation:
   void OnProviderUpdatePropagated(
       policy::ConfigurationPolicyProvider* provider) override;
@@ -258,8 +255,7 @@ class PROXY_CONFIG_EXPORT PrefProxyConfigTrackerImpl
 
   base::ThreadChecker thread_checker_;
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   base::ScopedObservation<policy::PolicyService,
                           policy::PolicyService::ProviderUpdateObserver>
       policy_service_observation_{this};

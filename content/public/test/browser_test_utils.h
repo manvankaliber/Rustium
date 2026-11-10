@@ -139,9 +139,7 @@ class FrameWidget;
 
 namespace content {
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 class MockCapturedSurfaceController;
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 #if defined(USE_AURA)
 class SelectionBoundsWaiter;
@@ -306,13 +304,13 @@ bool WaitForLoadStop(WebContents* web_contents);
 void PrepContentsForBeforeUnloadTest(WebContents* web_contents,
                                      bool trigger_user_activation = true);
 
-#if defined(USE_AURA) || BUILDFLAG(IS_ANDROID)
+#if defined(USE_AURA)
 // If WebContent's view is currently being resized, this will wait for the ack
 // from the renderer that the resize is complete and for the
 // WindowEventDispatcher to release the pointer moves. If there's no resize in
 // progress, the method will return right away.
 void WaitForResizeComplete(WebContents* web_contents);
-#endif  // defined(USE_AURA) || BUILDFLAG(IS_ANDROID)
+#endif
 
 void NotifyCopyableViewInWebContents(WebContents* web_contents,
                                      base::OnceClosure done_callback);
@@ -1120,13 +1118,6 @@ std::vector<RenderFrameHost*> CollectAllRenderFrameHosts(
 // BrowserContext.
 std::vector<WebContents*> GetAllWebContents();
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Executes the WebUI resource tests. Injects the test runner script prior to
-// executing the tests.
-//
-// Returns true if tests ran successfully, false otherwise.
-bool ExecuteWebUIResourceTest(WebContents* web_contents);
-#endif
 
 // Returns the serialized cookie string for the given url. Uses an inclusive
 // SameSiteCookieContext by default, which gets cookies regardless of their
@@ -2685,7 +2676,6 @@ bool IsDragCanceledForTesting(WebContents* web_contents);
 void CleanupDragStateForTesting(WebContents* web_contents);
 #endif  // BUILDFLAG(IS_MAC)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Set the length of the window of opportunity for conditional focus.
 void SetConditionalFocusWindowForTesting(base::TimeDelta window);
 
@@ -2694,7 +2684,6 @@ void SetCapturedSurfaceControllerFactoryForTesting(
     base::RepeatingCallback<std::unique_ptr<MockCapturedSurfaceController>(
         GlobalRenderFrameHostId,
         WebContentsMediaCaptureId)> factory);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void InitAndEnableRenderDocumentForAllFrames(
     base::test::ScopedFeatureList* feature_list);

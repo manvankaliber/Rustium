@@ -117,35 +117,8 @@ TEST_F(IsClientInSampleTest, UsesMetricsReportingFeature) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Verifies that IsClientInSampleForMetrics() uses the post-FRE-fix sampling
-// feature to determine sampling if the |kUsePostFREFixSamplingTrial| pref is
-// set.
-TEST_F(IsClientInSampleTest, UsesPostFREFixFeatureWhenPrefSet) {
-  // Set the |kUsePostFREFixSamplingTrial| pref to true.
-  local_state()->SetBoolean(metrics::prefs::kUsePostFREFixSamplingTrial, true);
 
-  {
-    base::test::ScopedFeatureList feature_list;
-    feature_list.InitAndDisableFeature(
-        metrics::internal::kPostFREFixMetricsReportingFeature);
-    // The client should not be considered sampled in.
-    EXPECT_FALSE(
-        ChromeMetricsServicesManagerClient::IsClientInSampleForMetrics());
-  }
-
-  {
-    base::test::ScopedFeatureList feature_list;
-    feature_list.InitAndEnableFeature(
-        metrics::internal::kPostFREFixMetricsReportingFeature);
-    // The client should be considered sampled in.
-    EXPECT_TRUE(
-        ChromeMetricsServicesManagerClient::IsClientInSampleForMetrics());
-  }
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 TEST_F(IsClientInSampleTest, IsClientInSampleForCrashesTest) {
   {
     base::test::ScopedFeatureList feature_list;
@@ -164,29 +137,8 @@ TEST_F(IsClientInSampleTest, IsClientInSampleForCrashesTest) {
         ChromeMetricsServicesManagerClient::IsClientInSampleForCrashes());
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Set the |kUsePostFREFixSamplingTrial| pref to true.
-  local_state()->SetBoolean(metrics::prefs::kUsePostFREFixSamplingTrial, true);
-
-  {
-    base::test::ScopedFeatureList feature_list;
-    feature_list.InitAndEnableFeature(
-        metrics::internal::kPostFREFixMetricsReportingFeature);
-    EXPECT_TRUE(
-        ChromeMetricsServicesManagerClient::IsClientInSampleForCrashes());
-  }
-
-  {
-    base::test::ScopedFeatureList feature_list;
-    feature_list.InitAndEnableFeatureWithParameters(
-        metrics::internal::kPostFREFixMetricsReportingFeature,
-        {{"disable_crashes", "true"}});
-    EXPECT_FALSE(
-        ChromeMetricsServicesManagerClient::IsClientInSampleForCrashes());
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 
 #if BUILDFLAG(IS_WIN)
 TEST_F(ChromeMetricsServicesManagerClientTest, OnFieldTrialsInitialized) {

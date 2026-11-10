@@ -15,9 +15,6 @@
 #include "absl/base/config.h"
 #include "absl/time/internal/cctz/include/cctz/time_zone.h"
 
-#if defined(__ANDROID__)
-#include <sys/system_properties.h>
-#endif
 
 #if defined(__APPLE__)
 #include <CoreFoundation/CFTimeZone.h>
@@ -96,12 +93,6 @@ time_zone fixed_time_zone(const seconds& offset) {
 
 time_zone local_time_zone() {
   const char* zone = ":localtime";
-#if defined(__ANDROID__)
-  char sysprop[PROP_VALUE_MAX];
-  if (__system_property_get("persist.sys.timezone", sysprop) > 0) {
-    zone = sysprop;
-  }
-#endif
 #if defined(__APPLE__)
   std::vector<char> buffer;
   CFTimeZoneRef tz_default = CFTimeZoneCopyDefault();

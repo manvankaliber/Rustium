@@ -12,9 +12,7 @@ import("//media/media_options.gni")
 import("//testing/libfuzzer/fuzzer_test.gni")
 import("//testing/test.gni")
 import("//third_party/blink/renderer/platform/blink_fuzzer_test.gni")
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
+
 import("//third_party/blink/public/public_features.gni")
 import("//third_party/blink/renderer/build/scripts/scripts.gni")
 import("//third_party/blink/renderer/config.gni")
@@ -24,10 +22,6 @@ import("//third_party/libgav1/options.gni")
 import("//third_party/webrtc/webrtc.gni")
 import("//ui/gl/features.gni")
 import("//v8/gni/v8.gni")
-
-if (is_ios) {
-  import("//build/config/ios/bundle_data_from_filelist.gni")
-}
 
 # Most targets in this file are private actions so use that as the default.
 visibility = [
@@ -332,7 +326,7 @@ group("blink_platform_public_deps") {
   ]
   public_configs = [ "//third_party/blink/renderer:features" ]
 
-  if (is_android || is_win) {
+  if (is_win) {
     public_deps +=
         [ "//third_party/blink/public/common:font_unique_name_table_proto" ]
   }
@@ -1779,10 +1773,7 @@ component("platform") {
     ]
   }
 
-  if (is_ios) {
-    sources += [ "fonts/ios/font_cache_ios.mm" ]
-  }
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [
       "fonts/linux/font_cache_linux.cc",
       "fonts/linux/font_unique_name_lookup_linux.cc",
@@ -1936,14 +1927,6 @@ component("platform") {
     deps += [ "//third_party/dawn/src/dawn:proc" ]
   }
 
-  if (is_android) {
-    deps += [ "//third_party/cpu_features:ndk_compat" ]
-    sources += [
-      "theme/web_theme_engine_android.cc",
-      "theme/web_theme_engine_android.h",
-    ]
-  }
-
   if (is_mac) {
     sources -= [
       "fonts/skia/font_cache_skia.cc",
@@ -1984,19 +1967,6 @@ component("platform") {
     if (is_component_build) {
       ldflags = [ "/IGNORE:4217" ]
     }
-  }
-
-  if (is_android) {
-    sources += [
-      "fonts/android/font_cache_android.cc",
-      "fonts/android/font_prewarmer_android.cc",
-      "fonts/android/font_prewarmer_android.h",
-      "fonts/android/font_unique_name_lookup_android.cc",
-      "fonts/android/font_unique_name_lookup_android.h",
-      "widget/input/synchronous_compositor_proxy.cc",
-      "widget/input/synchronous_compositor_proxy.h",
-    ]
-    deps += [ "//third_party/blink/renderer/platform/widget/compositing/android_webview" ]
   }
 
   if (use_minikin_hyphenation) {
@@ -2194,21 +2164,6 @@ test("blink_platform_unittests") {
 
   if (enable_nocompile_tests) {
     deps += [ ":blink_platform_nocompile_tests" ]
-  }
-
-  if (is_android) {
-    deps += [
-      # Required because of an indirect dependency on //media/base/android via
-      # platform/media:unit_tests.
-      "//media/base/android:media_java",
-    ]
-  }
-  if (is_ios) {
-    bundle_deps = [
-      ":blink_platform_unittests_bundle_data",
-      "//media:unit_tests_bundle_data",
-      "//testing/buildbot/filters:blink_platform_unittests_filters_bundle_data",
-    ]
   }
 }
 
@@ -2486,12 +2441,7 @@ source_set("blink_platform_unittests_sources") {
     sources += [ "peerconnection/h265_parameter_sets_tracker_unittest.cc" ]
   }
 
-  if (is_android) {
-    sources += [
-      "fonts/android/font_cache_android_test.cc",
-      "fonts/android/font_prewarmer_android_test.cc",
-    ]
-  } else if (is_win) {
+  if (is_win) {
     sources += [ "text/locale_win_test.cc" ]
   } else if (is_mac) {
     sources += [
@@ -2614,13 +2564,6 @@ source_set("bridge_ice_controller_tests") {
   # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
   # enable the diagnostic by removing this line.
   configs += [ "//build/config/compiler:no_exit_time_destructors" ]
-}
-
-if (is_ios) {
-  bundle_data_from_filelist("blink_platform_unittests_bundle_data") {
-    testonly = true
-    filelist_name = "blink_platform_unittests_bundle_data.filelist"
-  }
 }
 
 executable("image_decode_bench") {
@@ -2760,7 +2703,7 @@ test("blink_fuzzer_unittests") {
 
   sources = [ "testing/run_all_tests.cc" ]
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     deps += [
       "//third_party/blink/renderer/platform/scheduler:scheduler_fuzzer_tests",
     ]
@@ -2783,25 +2726,6 @@ source_set("blink_fuzzer_test_support") {
     "//base/test:test_config",
     "//content/test:test_support",
   ]
-}
-
-if (is_android) {
-  java_group("blink_fuzzer_test_support_assets") {
-    testonly = true
-    visibility = []  # Allow re-assignment of list.
-    visibility = [ "*" ]
-    deps = [
-      # Provides org.chromium.components.metrics.LowEntropySource.
-      "//components/metrics:metrics_java",
-
-      # Provides
-      # org.chromium.components.variations.firstrun.VariationsSeedBridge.
-      "//components/variations/android:variations_java",
-
-      # Provides org.chromium.ui.base.ResourceBundle.
-      "//ui/android:ui_no_recycler_view_java",
-    ]
-  }
 }
 
 # This source set is used by image decoder fuzzers to initialize their decoders.

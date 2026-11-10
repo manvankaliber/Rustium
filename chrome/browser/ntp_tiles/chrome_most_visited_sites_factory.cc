@@ -27,29 +27,14 @@
 #include "content/public/browser/storage_partition.h"
 #include "services/data_decoder/public/cpp/data_decoder.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/feature_list.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "chrome/browser/search/search.h"
-#endif
 
 namespace {
 
 bool ShouldCreatePopularSites(Profile* profile) {
-#if BUILDFLAG(IS_ANDROID)
-  if (search::IsWebUiNtpEnabledForDesktopAndroid() &&
-      base::FeatureList::IsEnabled(chrome::android::kUseWebUiNtp3PDSE)) {
-    // TODO(crbug.com/572038495): Remove Popular Sites for 1P NTPs.
-    return search::DefaultSearchProviderIsGoogle(profile);
-  }
-  return true;
-#else
   return false;
-#endif
 }
 bool ShouldCreateEnterpriseShortcutsManager() {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   return true;
 #else
   return false;
@@ -68,17 +53,10 @@ ChromeMostVisitedSitesFactory::NewForProfile(Profile* profile) {
 
   std::unique_ptr<data_decoder::DataDecoder> data_decoder;
 
-#if BUILDFLAG(IS_ANDROID)
-  data_decoder = std::make_unique<data_decoder::DataDecoder>();
-#endif
 
   bool is_default_chrome_app_migrated;
 
-#if BUILDFLAG(IS_ANDROID)
-  is_default_chrome_app_migrated = false;
-#else
   is_default_chrome_app_migrated = true;
-#endif
 
   auto most_visited_sites = std::make_unique<ntp_tiles::MostVisitedSites>(
       profile->GetPrefs(), IdentityManagerFactory::GetForProfile(profile),

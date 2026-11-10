@@ -21,12 +21,7 @@ namespace signin {
 // interface.
 class HeaderModificationDelegateImpl : public HeaderModificationDelegate {
  public:
-#if BUILDFLAG(IS_ANDROID)
-  explicit HeaderModificationDelegateImpl(Profile* profile,
-                                          bool incognito_enabled);
-#else
   explicit HeaderModificationDelegateImpl(Profile* profile);
-#endif
 
   HeaderModificationDelegateImpl(const HeaderModificationDelegateImpl&) =
       delete;
@@ -57,9 +52,6 @@ class HeaderModificationDelegateImpl : public HeaderModificationDelegate {
   raw_ptr<Profile> profile_;
   scoped_refptr<content_settings::CookieSettings> cookie_settings_;
 
-#if BUILDFLAG(IS_ANDROID)
-  bool incognito_enabled_;
-#endif
 };
 
 }  // namespace signin

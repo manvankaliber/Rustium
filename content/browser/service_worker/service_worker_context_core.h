@@ -57,9 +57,7 @@ class ServiceWorkerQuotaClient;
 class ServiceWorkerRegistration;
 struct ServiceWorkerContextSynchronousObserverList;
 
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
 class ServiceWorkerUsbDelegateObserver;
-#endif  // !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
 
 // A smart pointer of `ServiceWorkerClient`.
 //
@@ -577,7 +575,6 @@ class CONTENT_EXPORT ServiceWorkerContextCore
   void SetServiceWorkerHidDelegateObserverForTesting(
       std::unique_ptr<ServiceWorkerHidDelegateObserver> hid_delegate_observer);
 
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
   // In the service worker case, WebUSB is only available in extension service
   // workers. Limit ServiceWorkerUsbDelegateObserver to platforms that support
   // extensions.
@@ -585,7 +582,6 @@ class CONTENT_EXPORT ServiceWorkerContextCore
 
   void SetServiceWorkerUsbDelegateObserverForTesting(
       std::unique_ptr<ServiceWorkerUsbDelegateObserver> usb_delegate_observer);
-#endif  // !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
 
  private:
   friend class ServiceWorkerContextCoreTest;
@@ -704,9 +700,7 @@ class CONTENT_EXPORT ServiceWorkerContextCore
 
   std::unique_ptr<ServiceWorkerHidDelegateObserver> hid_delegate_observer_;
 
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
   std::unique_ptr<ServiceWorkerUsbDelegateObserver> usb_delegate_observer_;
-#endif  // !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
 
   base::ObserverList<TestVersionObserver> test_version_observers_;
 

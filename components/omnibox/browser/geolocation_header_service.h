@@ -23,10 +23,6 @@
 #include "services/device/public/mojom/geoposition.mojom.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/location/android/location_settings.h"
-#include "components/location/android/location_settings_impl.h"
-#endif
 
 class HostContentSettingsMap;
 class TemplateURLService;
@@ -80,11 +76,6 @@ class GeolocationHeaderService : public KeyedService {
  public:
   GeolocationHeaderService(HostContentSettingsMap* settings_map,
                            TemplateURLService* template_url_service
-#if BUILDFLAG(IS_ANDROID)
-                           ,
-                           std::unique_ptr<LocationSettings> location_settings =
-                               std::make_unique<LocationSettingsImpl>()
-#endif
   );
   GeolocationHeaderService(const GeolocationHeaderService&) = delete;
   GeolocationHeaderService& operator=(const GeolocationHeaderService&) = delete;
@@ -157,9 +148,6 @@ class GeolocationHeaderService : public KeyedService {
   mojo::Remote<device::mojom::Geolocation> geolocation_;
   device::mojom::GeopositionPtr last_position_;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<LocationSettings> location_settings_;
-#endif
   std::optional<base::TimeDelta> location_age_for_testing_;
 
   base::WeakPtrFactory<GeolocationHeaderService> weak_factory_{this};

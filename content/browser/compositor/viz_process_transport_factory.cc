@@ -132,11 +132,6 @@ class HostDisplayClient : public viz::HostDisplayClient {
   }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void SetPreferredRefreshRate(float refresh_rate) override {
-    compositor_->OnSetPreferredRefreshRate(refresh_rate);
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
  private:
   [[maybe_unused]] const raw_ptr<ui::Compositor> compositor_;
@@ -300,12 +295,6 @@ ui::ContextFactory* VizProcessTransportFactory::GetContextFactory() {
 
 void VizProcessTransportFactory::DisableGpuCompositing(
     ui::Compositor* guilty_compositor) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // A fatal error has occurred and we can't fall back to software compositing
-  // on CrOS. These can be unrecoverable hardware errors, or bugs that should
-  // not happen. Crash the browser process to reset everything.
-  LOG(FATAL) << "Software compositing fallback is unavailable. Goodbye.";
-#else
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kDisableSoftwareCompositingFallback)) {
     // Some tests only want to run with a functional GPU Process. Fail out here
@@ -352,7 +341,6 @@ void VizProcessTransportFactory::DisableGpuCompositing(
     if (visible)
       compositor->SetVisible(true);
   }
-#endif
 }
 
 void VizProcessTransportFactory::OnGpuProcessLost() {

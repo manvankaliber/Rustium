@@ -132,20 +132,12 @@
 #include "url/origin.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "components/webapps/isolated_web_apps/scheme.h"
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/user_manager/user_manager.h"
-#endif
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-#include "chrome/browser/smart_card/smart_card_permission_context.h"
-#include "chrome/browser/smart_card/smart_card_permission_context_factory.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "chrome/browser/media/cdm_document_service_impl.h"
@@ -1154,13 +1146,6 @@ void SiteSettingsHandler::HandleSetDefaultValueForContentType(
       site_settings::ContentSettingsTypeFromGroupName(content_type);
 
   Profile* profile = profile_;
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS special case: in Guest mode, settings are opened in Incognito
-  // mode so we need the original profile to actually modify settings.
-  if (user_manager::UserManager::Get()->IsLoggedInAsGuest()) {
-    profile = profile->GetOriginalProfile();
-  }
-#endif
   HostContentSettingsMap* map =
       HostContentSettingsMapFactory::GetForProfile(profile);
   ContentSetting previous_setting =
@@ -2110,8 +2095,7 @@ void SiteSettingsHandler::SendZoomLevels() {
 
   base::ListValue zoom_levels_exceptions;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   // Show any non-default Isolated Web App zoom levels at the top of the page.
   auto* web_app_provider = web_app::WebAppProvider::GetForWebApps(profile_);
   if (web_app_provider) {
@@ -2212,8 +2196,7 @@ void SiteSettingsHandler::HandleRemoveZoomLevel(const base::ListValue& args) {
 
   GURL url(host_or_spec);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   if (url.is_valid() && url.scheme() == webapps::kIsolatedAppScheme) {
     base::expected<web_app::IsolatedWebAppUrlInfo, std::string> iwa_url_info =
         web_app::IsolatedWebAppUrlInfo::Create(url);
@@ -2360,15 +2343,6 @@ void SiteSettingsHandler::ObserveSourcesForProfile(Profile* profile) {
     }
   }
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-  if (base::FeatureList::IsEnabled(blink::features::kSmartCard)) {
-    auto& smart_card_context =
-        SmartCardPermissionContextFactory::GetForProfile(*profile);
-    if (!chooser_observations_.IsObservingSource(&smart_card_context)) {
-      chooser_observations_.AddObservation(&smart_card_context);
-    }
-  }
-#endif
   observed_profiles_.AddObservation(profile);
 }
 
@@ -2413,15 +2387,6 @@ void SiteSettingsHandler::StopObservingSourcesForProfile(Profile* profile) {
     }
   }
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-  if (base::FeatureList::IsEnabled(blink::features::kSmartCard)) {
-    auto& smart_card_context =
-        SmartCardPermissionContextFactory::GetForProfile(*profile);
-    if (chooser_observations_.IsObservingSource(&smart_card_context)) {
-      chooser_observations_.RemoveObservation(&smart_card_context);
-    }
-  }
-#endif
 
   observed_profiles_.RemoveObservation(profile);
 }
@@ -2843,25 +2808,6 @@ base::ListValue SiteSettingsHandler::PopulateFileSystemGrantData() {
 base::Value SiteSettingsHandler::GetSystemDeniedPermissions() {
   base::ListValue blocked_permissions;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // This is used to display warning messages in the UI in case that
-  // geolocation, microphone or camera are disabled at the system level. At the
-  // moment this functionality is only targeting CrOS.
-  if (system_permission_settings::IsDenied(
-          ContentSettingsType::MEDIASTREAM_CAMERA)) {
-    blocked_permissions.Append(site_settings::ContentSettingsTypeToGroupName(
-        ContentSettingsType::MEDIASTREAM_CAMERA));
-  }
-  if (system_permission_settings::IsDenied(
-          ContentSettingsType::MEDIASTREAM_MIC)) {
-    blocked_permissions.Append(site_settings::ContentSettingsTypeToGroupName(
-        ContentSettingsType::MEDIASTREAM_MIC));
-  }
-  if (system_permission_settings::IsDenied(ContentSettingsType::GEOLOCATION)) {
-    blocked_permissions.Append(site_settings::ContentSettingsTypeToGroupName(
-        ContentSettingsType::GEOLOCATION));
-  }
-#endif
 
   return base::Value(std::move(blocked_permissions));
 }

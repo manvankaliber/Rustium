@@ -31,7 +31,7 @@ TEST_F(ResourcesTest, ProductName) {
 #endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
 
   // Chrome-style i18n is not used on Windows or Android.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   EXPECT_FALSE(resources_available_);
 #else
   EXPECT_TRUE(resources_available_);

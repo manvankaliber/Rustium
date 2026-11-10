@@ -12,9 +12,6 @@
 
 // Android doesn't use an isolated device service, so these tests don't need to
 // be built here.
-#if BUILDFLAG(IS_ANDROID)
-#error "Android does not have an isolated device service"
-#endif  // if !BUILDFLAG(IS_ANDROID)
 namespace vr {
 
 // Tests that we can recover from a crash/disconnect on the DeviceService

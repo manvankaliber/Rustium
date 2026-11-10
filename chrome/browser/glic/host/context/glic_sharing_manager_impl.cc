@@ -33,10 +33,8 @@
 #include "third_party/abseil-cpp/absl/functional/overload.h"
 #include "third_party/blink/public/mojom/content_extraction/ai_page_content.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/host/context/glic_focused_browser_manager.h"
 #include "chrome/browser/glic/host/context/glic_focused_tab_manager.h"
-#endif
 
 namespace glic {
 

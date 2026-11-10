@@ -174,27 +174,22 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
     mac_text.append('</array>')
     self.AddText(mac, '\n'.join(mac_text))
 
-  def _AddListExampleWindowsChromeOS(self, parent, policy, is_win):
-    '''Adds an example value for Windows or Chromium/Google Chrome OS of a
+  def _AddListExampleWindows(self, parent, policy):
+    '''Adds an example value for Windows of a
     'list' policy to a DOM node.
 
     Args:
       parent: The DOM node for which the example will be added.
       policy: A policy of type 'list', for which the Windows example value
         is generated.
-      is_win: True for Windows, False for Chromium/Google Chrome OS.
     '''
     example_value = policy['example_value']
-    os_header = (
-      self.GetLocalizedMessage('win_example_value')
-      if is_win
-      else self.GetLocalizedMessage('chrome_os_example_value')
-    )
+    os_header = self.GetLocalizedMessage('win_example_value')
     self.AddElement(parent, 'dt', {}, os_header)
     element = self._AddStyledElement(parent, 'dd', ['.monospace', '.pre-wrap'])
     element_text = []
     cnt = 1
-    key_name = self._GetRegistryKeyName(policy, is_win)
+    key_name = self._GetRegistryKeyName(policy)
     for item in example_value:
       element_text.append(
         '%s\\%s\\%d = "%s"' % (key_name, policy['name'], cnt, item)
@@ -202,11 +197,11 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
       cnt = cnt + 1
     self.AddText(element, '\n'.join(element_text))
 
-  def _GetRegistryKeyName(self, policy, is_win):
+  def _GetRegistryKeyName(self, policy):
     use_recommended_key = self.CanBeRecommended(
       policy
     ) and not self.CanBeMandatory(policy)
-    platform = 'win' if is_win else 'chrome_os'
+    platform = 'win'
     key = (
       'reg_recommended_key_name'
       if use_recommended_key
@@ -223,16 +218,16 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
       policy['name'],
     )
 
-  def _AddListExampleAndroidLinux(self, parent, policy):
-    '''Adds an example value for Android/Linux of a 'list' policy to a DOM node.
+  def _AddListExampleLinux(self, parent, policy):
+    '''Adds an example value for Linux of a 'list' policy to a DOM node.
 
     Args:
       parent: The DOM node for which the example will be added.
-      policy: A policy of type 'list', for which the Android/Linux example value
+      policy: A policy of type 'list', for which the Linux example value
         is generated.
     '''
     example_value = policy['example_value']
-    self.AddElement(parent, 'dt', {}, 'Android/Linux:')
+    self.AddElement(parent, 'dt', {}, 'Linux:')
     element = self._AddStyledElement(parent, 'dd', ['.monospace', '.pre-wrap'])
     self.AddText(
       element,
@@ -247,12 +242,7 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
         Software\Policies\Chromium\URLAllowlist\0 = "www.example.com"
         Software\Policies\Chromium\URLAllowlist\1 = "www.google.com"
       </dd>
-      <dt>Windows (Chromium OS clients):</dt>
-      <dd>
-        Software\Policies\ChromiumOS\URLAllowlist\0 = "www.example.com"
-        Software\Policies\ChromiumOS\URLAllowlist\1 = "www.google.com"
-      </dd>
-      <dt>Android/Linux:</dt>
+      <dt>Linux:</dt>
       <dd>
         [
           "www.example.com",
@@ -274,11 +264,9 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
     '''
     examples = self._AddStyledElement(parent, 'dl', ['dd dl'])
     if self.IsPolicySupportedOnWindows(policy):
-      self._AddListExampleWindowsChromeOS(examples, policy, True)
-    if self.IsPolicyOrItemSupportedOnPlatform(
-      policy, 'android'
-    ) or self.IsPolicyOrItemSupportedOnPlatform(policy, 'linux'):
-      self._AddListExampleAndroidLinux(examples, policy)
+      self._AddListExampleWindows(examples, policy)
+    if self.IsPolicyOrItemSupportedOnPlatform(policy, 'linux'):
+      self._AddListExampleLinux(examples, policy)
     if self.IsPolicyOrItemSupportedOnPlatform(policy, 'mac'):
       self._AddListExampleMac(examples, policy)
 
@@ -325,7 +313,7 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
     mac_text += self._PythonObjectToPlist(example_value)
     self.AddText(mac, '\n'.join(mac_text))
 
-  def _AddDictionaryExampleWindowsChromeOS(self, parent, policy, is_win):
+  def _AddDictionaryExampleWindows(self, parent, policy):
     '''Adds an example value for Windows of a 'dict' or 'external' policy to a
     DOM node.
 
@@ -334,30 +322,26 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
       policy: A policy of type 'dict', for which the Windows example value
         is generated.
     '''
-    os_header = (
-      self.GetLocalizedMessage('win_example_value')
-      if is_win
-      else self.GetLocalizedMessage('chrome_os_example_value')
-    )
+    os_header = self.GetLocalizedMessage('win_example_value')
     self.AddElement(parent, 'dt', {}, os_header)
     element = self._AddStyledElement(parent, 'dd', ['.monospace', '.pre-wrap'])
-    key_name = self._GetRegistryKeyName(policy, is_win)
+    key_name = self._GetRegistryKeyName(policy)
     # Explicitly specify separators since defaults depend on python version.
     example = json.dumps(
       policy['example_value'], indent=2, sort_keys=True, separators=(", ", ": ")
     )
     self.AddText(element, '%s\\%s = %s' % (key_name, policy['name'], example))
 
-  def _AddDictionaryExampleAndroidLinux(self, parent, policy):
-    '''Adds an example value for Android/Linux of a 'dict' or 'external' policy
+  def _AddDictionaryExampleLinux(self, parent, policy):
+    '''Adds an example value for Linux of a 'dict' or 'external' policy
     to a DOM node.
 
     Args:
       parent: The DOM node for which the example will be added.
-      policy: A policy of type 'dict', for which the Android/Linux example value
+      policy: A policy of type 'dict', for which the Linux example value
         is generated.
     '''
-    self.AddElement(parent, 'dt', {}, 'Android/Linux:')
+    self.AddElement(parent, 'dt', {}, 'Linux:')
     element = self._AddStyledElement(parent, 'dd', ['.monospace', '.pre-wrap'])
     # Explicitly specify separators since defaults depend on python version.
     example = json.dumps(
@@ -376,13 +360,7 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
           "ProxyMode": "direct"
         }
       </dd>
-      <dt>Windows (Chromium OS clients):</dt>
-      <dd>
-        Software\Policies\ChromiumOS\ProxySettings = {
-          "ProxyMode": "direct"
-        }
-      </dd>
-      <dt>Android/Linux:</dt>
+      <dt>Linux:</dt>
       <dd>
         ProxySettings: {
           "ProxyMode": "direct"
@@ -404,11 +382,9 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
     '''
     examples = self._AddStyledElement(parent, 'dl', ['dd dl'])
     if self.IsPolicySupportedOnWindows(policy):
-      self._AddDictionaryExampleWindowsChromeOS(examples, policy, True)
-    if self.IsPolicyOrItemSupportedOnPlatform(
-      policy, 'android'
-    ) or self.IsPolicyOrItemSupportedOnPlatform(policy, 'linux'):
-      self._AddDictionaryExampleAndroidLinux(examples, policy)
+      self._AddDictionaryExampleWindows(examples, policy)
+    if self.IsPolicyOrItemSupportedOnPlatform(policy, 'linux'):
+      self._AddDictionaryExampleLinux(examples, policy)
     if self.IsPolicyOrItemSupportedOnPlatform(policy, 'mac'):
       self._AddDictionaryExampleMac(examples, policy)
 
@@ -464,7 +440,7 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
   def _AddExample(self, parent, policy):
     '''Adds the HTML DOM representation of the example value of a policy to
     a DOM node. It is simple text for boolean policies, like
-    '0x00000001 (Windows), true (Linux), true (Android), <true /> (Mac)'
+    '0x00000001 (Windows), true (Linux), <true /> (Mac)'
     in case of boolean policies, but it may also contain other HTML elements.
     (See method _AddListExample.)
 
@@ -486,9 +462,6 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
       if self.IsPolicyOrItemSupportedOnPlatform(policy, 'linux'):
         value = 'true' if example_value else 'false'
         pieces.append(value + ' (Linux)')
-      if self.IsPolicyOrItemSupportedOnPlatform(policy, 'android'):
-        value = 'true' if example_value else 'false'
-        pieces.append(value + ' (Android)')
       if self.IsPolicyOrItemSupportedOnPlatform(policy, 'mac'):
         value = '<true />' if example_value else '<false />'
         pieces.append(value + ' (Mac)')
@@ -501,8 +474,6 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
         pieces.append('0x%08x (Windows)' % example_value)
       if self.IsPolicyOrItemSupportedOnPlatform(policy, 'linux'):
         pieces.append('%d (Linux)' % example_value)
-      if self.IsPolicyOrItemSupportedOnPlatform(policy, 'android'):
-        pieces.append('%d (Android)' % example_value)
       if self.IsPolicyOrItemSupportedOnPlatform(policy, 'mac'):
         pieces.append('%d (Mac)' % example_value)
       self.AddText(parent, ', '.join(pieces))
@@ -557,6 +528,8 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
       text = []
       product = supported_on['product']
       platform = supported_on['platform']
+      if platform not in self._PLATFORM_MAP:
+        continue
       text.append(self._PRODUCT_MAP[product])
       text.append('(%s)' % (self._PLATFORM_MAP[platform]))
       if supported_on['since_version']:
@@ -601,14 +574,6 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
     data_type = [self._TYPE_MAP[policy['type']]]
     qualified_types = []
     is_complex_policy = False
-    if self.IsPolicyOrItemSupportedOnPlatform(
-      policy, 'android'
-    ) and self._RESTRICTION_TYPE_MAP.get(policy['type'], None):
-      qualified_types.append(
-        'Android:%s' % self._RESTRICTION_TYPE_MAP[policy['type']]
-      )
-      if policy['type'] in ('dict', 'external', 'list'):
-        is_complex_policy = True
     if (self.IsPolicySupportedOnWindows(policy)) and self._REG_TYPE_MAP.get(
       policy['type'], None
     ):
@@ -623,7 +588,7 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
         )
     self._AddPolicyAttribute(dl, 'data_type', ' '.join(data_type))
     if self.IsPolicySupportedOnWindows(policy):
-      registry_key_name = self._GetRegistryKeyName(policy, True)
+      registry_key_name = self._GetRegistryKeyName(policy)
       self._AddPolicyAttribute(
         dl,
         'win_reg_loc',
@@ -640,22 +605,6 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
       self._AddPolicyAttribute(
         dl, 'mac_linux_pref_name', policy['name'], ['.monospace']
       )
-    if self.IsPolicyOrItemSupportedOnPlatform(
-      policy, 'android', product='chrome'
-    ):
-      self._AddPolicyAttribute(
-        dl, 'android_restriction_name', policy['name'], ['.monospace']
-      )
-    if self.IsPolicyOrItemSupportedOnPlatform(
-      policy, 'android', product='webview'
-    ):
-      restriction_prefix = self.config['android_webview_restriction_prefix']
-      self._AddPolicyAttribute(
-        dl,
-        'android_webview_restriction_name',
-        restriction_prefix + policy['name'],
-        ['.monospace'],
-      )
     dd = self._AddPolicyAttribute(dl, 'supported_on')
     self._AddSupportedOnList(dd, policy['supported_on'])
     dd = self._AddPolicyAttribute(dl, 'supported_features')
@@ -666,9 +615,6 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
       if self.SchemaHasRangeRestriction(policy['schema']):
         dd = self._AddPolicyAttribute(dl, 'policy_restriction')
         self._AddRangeRestrictionsList(dd, policy['schema'])
-    if 'arc_support' in policy:
-      dd = self._AddPolicyAttribute(dl, 'arc_support')
-      self._AddParagraphs(dd, policy['arc_support'])
     if policy['type'] in ('dict', 'external') and 'schema' in policy:
       self._AddSchema(dl, policy['schema'])
     if 'validation_schema' in policy:
@@ -681,10 +627,8 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
     if (
       self.IsPolicySupportedOnWindows(policy)
       or self.IsPolicyOrItemSupportedOnPlatform(policy, 'linux')
-      or self.IsPolicyOrItemSupportedOnPlatform(policy, 'android')
       or self.IsPolicyOrItemSupportedOnPlatform(policy, 'mac')
     ):
-      # Don't add an example for Google cloud managed ChromeOS policies.
       dd = self._AddPolicyAttribute(dl, 'example_value')
       self._AddExample(dd, policy)
     if 'atomic_group' in policy:
@@ -848,17 +792,14 @@ class DocWriter(xml_formatted_writer.XMLFormattedWriter):
       'win': 'Windows',
       'mac': 'Mac',
       'linux': 'Linux',
-      'chrome_os': self.config['os_name'],
-      'android': 'Android',
       'win7': 'Windows 7',
-      'ios': 'iOS',
+
 
     }
     # Human-readable names of supported products.
     self._PRODUCT_MAP = {
       'chrome': self.config['app_name'],
       'chrome_frame': self.config['frame_name'],
-      'chrome_os': self.config['os_name'],
       'webview': self.config['webview_name'],
     }
     # Human-readable names of supported features. Each supported feature has

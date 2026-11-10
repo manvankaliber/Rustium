@@ -163,7 +163,6 @@ TEST(SavePaymentMethodAndVirtualCardEnrollConfirmationUiParamsTest,
   EXPECT_TRUE(ui_params.failure_ok_button_text.empty());
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Verify that SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams
 // attributes are correctly set for cardholder name update upload success.
 TEST(SavePaymentMethodAndVirtualCardEnrollConfirmationUiParamsTest,
@@ -208,7 +207,6 @@ TEST(SavePaymentMethodAndVirtualCardEnrollConfirmationUiParamsTest,
       l10n_util::GetStringUTF16(
           IDS_AUTOFILL_SAVE_CARD_AND_VIRTUAL_CARD_ENROLL_CONFIRMATION_BUTTON_TEXT));
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // Verify that SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams
 // attributes are correctly set for virtual card enrollment success.

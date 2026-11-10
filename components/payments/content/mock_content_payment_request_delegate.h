@@ -54,10 +54,7 @@ class MockContentPaymentRequestDelegate : public ContentPaymentRequestDelegate {
               GetInvalidSslCertificateErrorMessage,
               (),
               (override));
-  MOCK_METHOD(void,
-              GetTwaPackageName,
-              (GetTwaPackageNameCallback callback),
-              (override, const));
+
   MOCK_METHOD(PaymentRequestDialog*, GetDialogForTesting, (), (override));
 
   MOCK_METHOD(const base::WeakPtr<PaymentUIObserver>,

@@ -88,10 +88,6 @@ class UkmService : public UkmRecorderImpl {
   void EnableReporting();
   void DisableReporting();
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void OnAppEnterBackground();
-  void OnAppEnterForeground();
-#endif
 
   // Records all collected data into logs, and writes to disk.
   void Flush(metrics::MetricsLogsEventManager::CreateReason reason);

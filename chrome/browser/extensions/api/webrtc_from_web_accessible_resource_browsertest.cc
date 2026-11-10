@@ -16,7 +16,7 @@
 // This test does not run on Android because it is testing getUserMedia(), which
 // is not available in the service-worker-based extension renderers used with
 // manifest v3 (the only manifest version supported on Android).
-static_assert(!BUILDFLAG(IS_ANDROID));
+static_assert(!false);
 
 namespace extensions {
 

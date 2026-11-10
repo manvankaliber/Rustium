@@ -154,12 +154,6 @@
 #include "ui/aura/window_observer.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chrome/test/base/testing_profile.h"
-#include "chromeos/constants/chromeos_features.h"
-#include "components/user_manager/user_names.h"  // nogncheck
-#endif
 
 namespace {
 
@@ -315,16 +309,10 @@ class WebUIToolbarPixelInteractiveUiTest : public InteractiveBrowserTest {
       enabled_features.push_back(features::kWebUIGlicButton);
       enabled_features.push_back(features::kGlic);
       enabled_features.push_back(features::kGlicHorizontalTabToolbarButton);
-#if BUILDFLAG(IS_CHROMEOS)
-      enabled_features.push_back(chromeos::features::kFeatureManagementGlic);
-#endif
     } else {
       disabled_features.push_back(features::kWebUIGlicButton);
       disabled_features.push_back(features::kGlic);
       disabled_features.push_back(features::kGlicHorizontalTabToolbarButton);
-#if BUILDFLAG(IS_CHROMEOS)
-      disabled_features.push_back(chromeos::features::kFeatureManagementGlic);
-#endif
     }
     feature_list_.InitWithFeatures(enabled_features, disabled_features);
   }
@@ -1869,14 +1857,14 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                                     "el => el.hasFocus()"));
 }
 
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
 #define MAYBE_DragLocationIcon DragLocationIcon
 #else
 #define MAYBE_DragLocationIcon DISABLED_DragLocationIcon
 #endif
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_DragLocationIcon) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = embedded_test_server()->GetURL("/title1.html");
 
   std::unique_ptr<TestDragDropClient> drag_drop_client;
@@ -1923,10 +1911,10 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
             .SetInputStateLookup(aura::InputStateLookup::Create());
         drag_drop_client.reset();
       })));
-#endif  // defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 }
 
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
 #define MAYBE_Omnibox_DragPlainText Omnibox_DragPlainText
 #define MAYBE_Omnibox_DragPlainText_MoveKeepsText \
   Omnibox_DragPlainText_MoveKeepsText
@@ -1998,7 +1986,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragPlainText) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = embedded_test_server()->GetURL("/title1.html");
 
   RunTestSequence(
@@ -2020,7 +2008,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // the move does not delete the dragged text from the omnibox.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragPlainText_MoveKeepsText) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = embedded_test_server()->GetURL("/title1.html");
 
   RunTestSequence(
@@ -2042,7 +2030,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // popup opens for the new text.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragPlainText_DropOnSelf) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   RunTestSequence(SetUpOmniboxSelection("helloworld", 0, 5));
   NavigationCounter navigation_counter(
       browser()->tab_strip_model()->GetActiveWebContents());
@@ -2083,7 +2071,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // copied to where it is dropped, rather than moved.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragPlainText_DropOnSelf_CopyWithCtrl) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   RunTestSequence(SetUpOmniboxSelection("helloworld", 0, 5));
   NavigationCounter navigation_counter(
       browser()->tab_strip_model()->GetActiveWebContents());
@@ -2103,7 +2091,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // rather than the URL that the drag also carries.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragPartialUrl_DropOnSelf) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url =
       embedded_test_server()->GetURL("a.test", "/title1.html");
   const std::string host =
@@ -2137,7 +2125,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // reverting to the current page's URL.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragPlainText_StateAfterDrop) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = embedded_test_server()->GetURL("/title1.html");
 
   RunTestSequence(
@@ -2161,7 +2149,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // dropped where no target accepts it.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragPlainText_StateAfterCancel) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = embedded_test_server()->GetURL("/title1.html");
 
   RunTestSequence(
@@ -2187,7 +2175,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // stays closed after the drop.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragPlainText_PopupAfterDrop) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = embedded_test_server()->GetURL("/title1.html");
 
   RunTestSequence(
@@ -2221,7 +2209,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // dropped where no target accepts it.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragPlainText_PopupAfterCancel) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = embedded_test_server()->GetURL("/title1.html");
 
   RunTestSequence(
@@ -2259,7 +2247,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // data before the drag starts.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragHttpsUrl) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   // Use HTTPS so that the dragged text can include the scheme: the omnibox
   // shows "https://" once unelided, but never shows "http://". Use the root
   // path because the omnibox omits its trailing slash, so the dragged text
@@ -2292,7 +2280,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // native omnibox, the omnibox keeps the unelided URL.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragHttpsUrl_StateAfterDrop) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   embedded_https_test_server().SetSSLConfig(
       net::EmbeddedTestServer::CERT_TEST_NAMES);
   ASSERT_TRUE(embedded_https_test_server().Start());
@@ -2319,7 +2307,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // dropped where no target accepts it.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragHttpsUrl_StateAfterCancel) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   embedded_https_test_server().SetSSLConfig(
       net::EmbeddedTestServer::CERT_TEST_NAMES);
   ASSERT_TRUE(embedded_https_test_server().Start());
@@ -2351,7 +2339,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // Omnibox_DragHttpsUrl.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragNonSchemeUrl_SameHost) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = embedded_test_server()->GetURL("a.test", "/");
   const std::string displayed_text =
       base::StrCat({initial_url.host(), ":", initial_url.port()});
@@ -2378,7 +2366,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // Omnibox_DragHttpsUrl.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragNonSchemeUrl_SameHost_Typed) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   // Use the root path, so that typing the host does not inline autocomplete
   // to a longer URL from history.
   const GURL initial_url = embedded_test_server()->GetURL("a.test", "/");
@@ -2406,7 +2394,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // current page, and the text is not a valid URL on its own.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragNonSchemeUrl_DifferentHost) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url =
       embedded_test_server()->GetURL("a.test", "/title1.html");
 
@@ -2431,7 +2419,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // `features::kDragDropOnlySynthesizeHttpOrHttpsUrlsFromText`).
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragJavascriptUrl) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = embedded_test_server()->GetURL("/title1.html");
   const std::string js_to_drag = "javascript:alert(1)";
 
@@ -2458,7 +2446,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // Omnibox_DragHttpsUrl.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragChromeUrl) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url("chrome://version/");
 
   RunTestSequence(WaitForToolbarLoaded(),
@@ -2480,7 +2468,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // Omnibox_DragHttpsUrl.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragFileUrl) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = chrome_test_utils::GetTestUrl(
       base::FilePath(), base::FilePath(FILE_PATH_LITERAL("title2.html")));
   ASSERT_TRUE(initial_url.SchemeIsFile());
@@ -2517,7 +2505,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // Omnibox_DragHttpsUrl.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragPartialUrl_Start) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   // Use HTTPS so that the selected text can include the scheme once unelided,
   // as in Omnibox_DragHttpsUrl. Use a long path, so that the text overflows
   // the omnibox and the selection below covers the center of the input, where
@@ -2555,7 +2543,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
 // selected text is not a valid URL on its own.
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarInteractiveUiTest,
                        MAYBE_Omnibox_DragPartialUrl_Middle) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   // Use a long path, so that the text overflows the omnibox and the selection
   // below covers the center of the input, where the mouse presses to drag.
   const std::string path =
@@ -2589,7 +2577,7 @@ class WebUIToolbarViewsLocationBarClipboardInteractiveUiTest
   content::BrowserTestClipboardScope test_clipboard_scope_;
 };
 
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
 #define MAYBE_CopyTextFromWebUIOmnibox CopyTextFromWebUIOmnibox
 #define MAYBE_CopyUrlFromWebUIOmnibox CopyUrlFromWebUIOmnibox
 #define MAYBE_CutUrlFromWebUIOmnibox CutUrlFromWebUIOmnibox
@@ -2610,7 +2598,7 @@ class WebUIToolbarViewsLocationBarClipboardInteractiveUiTest
 
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarClipboardInteractiveUiTest,
                        MAYBE_CopyTextFromWebUIOmnibox) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const char kAdjustTextScript[] = R"(
     (el) => {
       el.focus();
@@ -2630,7 +2618,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarClipboardInteractiveUiTest,
 
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarClipboardInteractiveUiTest,
                        MAYBE_CopyUrlFromWebUIOmnibox) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = embedded_test_server()->GetURL("/title1.html");
   RunTestSequence(RunClipboardSetTest(
       kClipboardOp::kCopy, initial_url, "title1",
@@ -2643,7 +2631,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarClipboardInteractiveUiTest,
 
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarClipboardInteractiveUiTest,
                        MAYBE_CutUrlFromWebUIOmnibox) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url = embedded_test_server()->GetURL("/title1.html");
   RunTestSequence(RunClipboardSetTest(
                       kClipboardOp::kCut, initial_url, "title1",
@@ -2659,7 +2647,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarClipboardInteractiveUiTest,
 
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarClipboardInteractiveUiTest,
                        MAYBE_CopyJavascriptFromWebUIOmnibox) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const char kAdjustTextTemplate[] = R"(
     (el) => {
       el.focus();
@@ -2681,7 +2669,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarClipboardInteractiveUiTest,
 
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarClipboardInteractiveUiTest,
                        MAYBE_CopyChromeUrlFromWebUIOmnibox) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const std::string chrome_url_to_copy = "chrome://version/";
   RunTestSequence(RunClipboardSetTest(
       kClipboardOp::kCopy, GURL("chrome://version/"), "version",
@@ -2694,7 +2682,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarClipboardInteractiveUiTest,
 
 IN_PROC_BROWSER_TEST_F(WebUIToolbarViewsLocationBarClipboardInteractiveUiTest,
                        MAYBE_CopyPartialUrlFromWebUIOmnibox) {
-#if defined(USE_AURA) && !BUILDFLAG(IS_CHROMEOS)
+#if defined(USE_AURA)
   const GURL initial_url =
       embedded_test_server()->GetURL("a.test", "/title1.html");
   const std::string expected_text = initial_url.GetWithEmptyPath().spec();
@@ -2884,17 +2872,6 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFocusMinimalInteractiveUiTest,
   // Focus is now in the C++ Omnibox. Escaping it via simulated Tab keys is
   // highly unstable in headless environments, so we programmatically set
   // pane focus on the Profile (Avatar) button instead.
-#if BUILDFLAG(IS_CHROMEOS)
-      // ChromeOS has no avatar button, so use app menu instead.
-      Do(base::BindLambdaForTesting([this]() {
-        auto* view =
-            GetViewForIdentifier(browser(), kToolbarAppMenuButtonElementId);
-        BrowserView::GetBrowserViewForBrowser(browser())
-            ->toolbar()
-            ->SetPaneFocus(view);
-      })),
-      ExpectFocusedView(kToolbarAppMenuButtonElementId),
-#else
       Do(base::BindLambdaForTesting([this]() {
         auto* view =
             GetViewForIdentifier(browser(), kToolbarAvatarButtonElementId);
@@ -2907,7 +2884,6 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFocusMinimalInteractiveUiTest,
       // 10. ArrowRight -> Chrome Menu (Views).
       SendKeyPress(kToolbarAvatarButtonElementId, ui::VKEY_RIGHT),
       ExpectFocusedView(kToolbarAppMenuButtonElementId),
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
       // 11. ArrowRight -> Back (WebUI, wrap-around!).
       SendKeyPress(kToolbarAppMenuButtonElementId, ui::VKEY_RIGHT),
@@ -2918,13 +2894,11 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFocusMinimalInteractiveUiTest,
       SendKeyPress(WebUIToolbarId(), ui::VKEY_LEFT),
       ExpectFocusedView(kToolbarAppMenuButtonElementId),
 
-#if !BUILDFLAG(IS_CHROMEOS)
       // Skip for ChromeOS which has no profile button.
 
       // 13. ArrowLeft -> Profile (Views).
       SendKeyPress(kToolbarAppMenuButtonElementId, ui::VKEY_LEFT),
       ExpectFocusedView(kToolbarAvatarButtonElementId),
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
       // 14. Test Home and End keys.
       // Focus WebUI WebView in C++ to ensure it has active pane focus before
@@ -3059,13 +3033,6 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFocusFullInteractiveUiTest,
                   "el => el.focus()"),
       ExpectFocusedWebUIElement("pinnedToolbarActions"),
 
-#if BUILDFLAG(IS_CHROMEOS)
-      // ChromeOS has no profile button, so skip to Chrome menu.
-
-      // 8. ArrowRight -> Chrome Menu (Views).
-      SendKeyPress(WebUIToolbarId(), ui::VKEY_RIGHT),
-      ExpectFocusedView(kToolbarAppMenuButtonElementId),
-#else
       // 8. ArrowRight -> Profile (Views).
       // Since Extensions is hidden in the test profile, focus goes directly to
       // Profile.
@@ -3075,7 +3042,6 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFocusFullInteractiveUiTest,
       // 10. ArrowRight -> Chrome Menu (Views).
       SendKeyPress(kToolbarAvatarButtonElementId, ui::VKEY_RIGHT),
       ExpectFocusedView(kToolbarAppMenuButtonElementId),
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
       // 11. ArrowRight -> Back (WebUI, wrap-around!).
       SendKeyPress(kToolbarAppMenuButtonElementId, ui::VKEY_RIGHT),
@@ -3732,13 +3698,11 @@ class WebUIToolbarFullyEnabledInteractiveUiTest
   void CheckOverflowMenu(const OverflowMenu& overflow_menu,
                          std::vector<OverflowMenuItemInfo> expected_menu_items,
                          bool expect_avatar_button_if_not_chromeos) {
-#if !BUILDFLAG(IS_CHROMEOS)
     if (expect_avatar_button_if_not_chromeos) {
       expected_menu_items.push_back(kSeparator);
       expected_menu_items.push_back(
           {.label_id = IDS_OVERFLOW_MENU_ITEM_TEXT_PROFILE});
     }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
     const ui::SimpleMenuModel* menu_model =
         overflow_menu.menu_model_for_testing();
@@ -4526,7 +4490,6 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFullyEnabledInteractiveUiTest,
   overflow_menu->root_menu_item()->Cancel();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Test clicking the avatar button when it appears on the overflow menu.
 // ChromeOS doesn't show the avatar button for normal profiles, so it's covered
 // by OverflowMenuAvatarButtonChromeOSEnabled instead.
@@ -4561,133 +4524,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFullyEnabledInteractiveUiTest,
   ASSERT_NO_FATAL_FAILURE(ClickOverflowMenuAvatarButtonAndCheckProfileMenu(
       *overflow_menu, browser()));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Test that on ChromeOS, the avatar button on the overflow menu is enabled
-// in an Incognito profile, and clicking it shows the profile menu.
-IN_PROC_BROWSER_TEST_F(WebUIToolbarFullyEnabledInteractiveUiTest,
-                       OverflowMenuAvatarButtonChromeOSEnabled) {
-  BrowserWindowInterface* incognito_browser = CreateIncognitoBrowser();
-  ASSERT_TRUE(incognito_browser);
-
-  // Wait until avatar button is visible initially.
-  ASSERT_TRUE(WaitForTrackedElements({kToolbarAvatarButtonElementId}, {},
-                                     incognito_browser));
-
-  // Wait until the WebUI knows the forward button should be disabled. In a
-  // newly created window, the WebUI may initially think the forward button is
-  // enabled, before it receives an update disabling it.
-  // TODO(crbug.com/566779862): Remove this once the WebUI toolbar gets the
-  // correct initial state for the forward button.
-  ASSERT_TRUE(base::test::RunUntil([&]() -> bool {
-    return content::EvalJs(GetWebUIWebContents(incognito_browser), R"(
-          (() => {
-            const app = document.querySelector('toolbar-app');
-            const forwardButton = app.shadowRoot.querySelector('#forward');
-            return forwardButton.state.enabled === false;
-          })()
-        )")
-        .ExtractBool();
-  }));
-
-  // Force all overflowable elements into the overflow menu.
-  gfx::Rect window_bounds = incognito_browser->GetWindow()->GetBounds();
-  ASSERT_EQ(SetSpacerWidth(window_bounds.width(), incognito_browser), true);
-
-  // Wait for avatar button to be hidden and overflow button to be visible.
-  ASSERT_TRUE(WaitForTrackedElements({kToolbarOverflowButtonElementId},
-                                     {kToolbarAvatarButtonElementId},
-                                     incognito_browser));
-
-  // Open the overflow menu.
-  OverflowMenu* overflow_menu = OpenOverflowMenu(incognito_browser);
-  ASSERT_TRUE(overflow_menu);
-
-  // The overflow menu should have the forward button, a separator, and the
-  // avatar button. In an Incognito session on ChromeOS, the avatar button is
-  // enabled.
-  ASSERT_NO_FATAL_FAILURE(CheckOverflowMenu(
-      *overflow_menu,
-      {// The forward button should be disabled, since the back button has
-       // never been pressed.
-       {.label_id = IDS_OVERFLOW_MENU_ITEM_TEXT_FORWARD, .enabled = false},
-       kSeparator,
-       {.label_id = IDS_OVERFLOW_MENU_ITEM_TEXT_PROFILE}},
-      /*expect_avatar_button_if_not_chromeos=*/false));
-
-  // Clicking the avatar button should show the (Incognito) profile menu.
-  ASSERT_NO_FATAL_FAILURE(ClickOverflowMenuAvatarButtonAndCheckProfileMenu(
-      *overflow_menu, incognito_browser));
-}
-
-class WebUIToolbarChromeOSGuestInteractiveUiTest
-    : public WebUIToolbarFullyEnabledInteractiveUiTest {
- public:
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    WebUIToolbarFullyEnabledInteractiveUiTest::SetUpCommandLine(command_line);
-    command_line->AppendSwitch(ash::switches::kGuestSession);
-    command_line->AppendSwitchASCII(ash::switches::kLoginUser,
-                                    user_manager::kGuestUserName);
-    command_line->AppendSwitchASCII(ash::switches::kLoginProfile,
-                                    TestingProfile::kTestUserProfileDir);
-  }
-};
-
-// Test that on ChromeOS, in a Guest session, the avatar button appears on the
-// overflow menu and is disabled.
-IN_PROC_BROWSER_TEST_F(WebUIToolbarChromeOSGuestInteractiveUiTest,
-                       OverflowMenuAvatarButtonChromeOSDisabledInGuest) {
-  // Wait until the avatar button state in WebUI is updated to disabled.
-  ASSERT_TRUE(base::test::RunUntil([&]() -> bool {
-    return content::EvalJs(GetWebUIWebContents(), R"(
-          (() => {
-            const app = document.querySelector('toolbar-app');
-            if (!app || !app.shadowRoot) {
-              return false;
-            }
-            const avatar = app.shadowRoot.querySelector('#avatar');
-            if (!avatar || !avatar.shadowRoot) {
-              return false;
-            }
-            const button = avatar.shadowRoot.querySelector('#button');
-            if (!button) {
-              return false;
-            }
-            return button.disabled === true;
-          })()
-        )")
-        .ExtractBool();
-  }));
-
-  // Wait until avatar button is visible initially.
-  ASSERT_TRUE(WaitForTrackedElements({kToolbarAvatarButtonElementId}));
-
-  // Force all overflowable elements into the overflow menu.
-  gfx::Rect window_bounds = browser()->GetWindow()->GetBounds();
-  ASSERT_EQ(SetSpacerWidth(window_bounds.width()), true);
-
-  // Wait for avatar button to be hidden and overflow button to be visible.
-  ASSERT_TRUE(WaitForTrackedElements({kToolbarOverflowButtonElementId},
-                                     {kToolbarAvatarButtonElementId}));
-
-  // Open the overflow menu.
-  OverflowMenu* overflow_menu = OpenOverflowMenu();
-  ASSERT_TRUE(overflow_menu);
-
-  // The overflow menu should have the forward button, a separator, and the
-  // avatar button. In a Guest session on ChromeOS, the avatar button is
-  // disabled.
-  ASSERT_NO_FATAL_FAILURE(CheckOverflowMenu(
-      *overflow_menu,
-      {// The forward button should be disabled, since the back button has
-       // never been pressed.
-       {.label_id = IDS_OVERFLOW_MENU_ITEM_TEXT_FORWARD, .enabled = false},
-       kSeparator,
-       {.label_id = IDS_OVERFLOW_MENU_ITEM_TEXT_PROFILE, .enabled = false}},
-      /*expect_avatar_button_if_not_chromeos=*/false));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Test that manual invocations of showOverflowMenu() with an empty list of
 // controls, a list of unknown controls, a list containing a combination of

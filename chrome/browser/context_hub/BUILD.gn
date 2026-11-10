@@ -25,25 +25,22 @@ source_set("prefs") {
   ]
 }
 
-if (!is_android) {
-  source_set("memory_banks_shortcut") {
-    sources = [
-      "memory_banks_shortcut.cc",
-      "memory_banks_shortcut.h",
-    ]
+source_set("memory_banks_shortcut") {
+  sources = [
+    "memory_banks_shortcut.cc",
+    "memory_banks_shortcut.h",
+  ]
 
-    public_deps =
-        [ "//chrome/browser/ui/webui/context_hub:mojo_bindings_shared" ]
+  public_deps = [ "//chrome/browser/ui/webui/context_hub:mojo_bindings_shared" ]
 
-    deps = [
-      ":prefs",
-      "//chrome/browser/ui:accelerator_utils_headers",
-      "//components/prefs",
-      "//ui/base",
-      "//ui/events:event_constants",
-      "//ui/events:events_base",
-    ]
-  }
+  deps = [
+    ":prefs",
+    "//chrome/browser/ui:accelerator_utils_headers",
+    "//components/prefs",
+    "//ui/base",
+    "//ui/events:event_constants",
+    "//ui/events:events_base",
+  ]
 }
 
 source_set("context_hub") {
@@ -85,13 +82,11 @@ source_set("context_hub") {
     "//components/tab_groups",
   ]
 
-  if (!is_android) {
-    public_deps += [
-      "//chrome/browser/context_hub/record_replay",
-      "//chrome/browser/ui:browser_tab_strip",
-      "//chrome/browser/ui/tabs:tab_strip_model_observer",
-    ]
-  }
+  public_deps += [
+    "//chrome/browser/context_hub/record_replay",
+    "//chrome/browser/ui:browser_tab_strip",
+    "//chrome/browser/ui/tabs:tab_strip_model_observer",
+  ]
 
   deps = [
     "//chrome/browser/contextual_tasks",
@@ -158,17 +153,15 @@ source_set("unit_tests") {
     "//ui/gfx/codec",
   ]
 
-  if (!is_android) {
-    sources += [ "memory_banks_shortcut_unittest.cc" ]
-    deps += [
-      ":memory_banks_shortcut",
-      ":prefs",
-      "//chrome/browser/ui:accelerator_utils_headers",
-      "//chrome/browser/ui/tabs:tab_strip_model_observer",
-      "//components/prefs:test_support",
-      "//ui/base",
-      "//ui/events:event_constants",
-      "//ui/events:events_base",
-    ]
-  }
+  sources += [ "memory_banks_shortcut_unittest.cc" ]
+  deps += [
+    ":memory_banks_shortcut",
+    ":prefs",
+    "//chrome/browser/ui:accelerator_utils_headers",
+    "//chrome/browser/ui/tabs:tab_strip_model_observer",
+    "//components/prefs:test_support",
+    "//ui/base",
+    "//ui/events:event_constants",
+    "//ui/events:events_base",
+  ]
 }

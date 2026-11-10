@@ -62,11 +62,6 @@ class PolicyLoggerTest : public PlatformTest {
 // Checks that the logger is enabled by feature and that `GetAsList` returns an
 // updated list of logs.
 TEST_F(PolicyLoggerTest, PolicyLoggingEnabled) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!PolicyLogger::IsPolicyLoggingEnabled()) {
-    GTEST_SKIP() << "Policy logging is disabled on ChromeOS stable";
-  }
-#endif
   PolicyLogger* policy_logger = policy::PolicyLogger::GetInstance();
 
   size_t log_count_before_adding = GetLogCount(policy_logger);
@@ -95,11 +90,6 @@ TEST_F(PolicyLoggerTest, PolicyLoggingEnabled) {
 // Checks that without compression enabled, oldest log is deleted when
 // `PolicyLogger::kMaxUncompressedLogCount` is exceeded.
 TEST_F(PolicyLoggerTest, MaxCountExceededWithoutCompressionDeletesOldestLog) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!PolicyLogger::IsPolicyLoggingEnabled()) {
-    GTEST_SKIP() << "Policy logging is disabled on ChromeOS stable";
-  }
-#endif
   PolicyLogger* policy_logger = policy::PolicyLogger::GetInstance();
 
   AddLogs("First log that will be removed.", policy_logger);
@@ -130,11 +120,6 @@ TEST_F(PolicyLoggerTest, MaxCountExceededWithoutCompressionDeletesOldestLog) {
 // Checks that with compression enabled, logs are compressed when
 // `PolicyLogger::kMaxUncompressedLogCount` is reached.
 TEST_F(PolicyLoggerTest, MaxCountExceededWithCompressionClearsMemory) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!PolicyLogger::IsPolicyLoggingEnabled()) {
-    GTEST_SKIP() << "Policy logging is disabled on ChromeOS stable";
-  }
-#endif
   PolicyLogger* policy_logger = policy::PolicyLogger::GetInstance();
   policy_logger->EnableLogCompression(
       task_environment_.GetMainThreadTaskRunner());
@@ -159,11 +144,6 @@ TEST_F(PolicyLoggerTest, MaxCountExceededWithCompressionClearsMemory) {
 
 // Checks that compressed logs are prepended to subsequent in-memory logs.
 TEST_F(PolicyLoggerTest, CompressedLogsPrependedToNewInMemoryLogs) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!PolicyLogger::IsPolicyLoggingEnabled()) {
-    GTEST_SKIP() << "Policy logging is disabled on ChromeOS stable";
-  }
-#endif
   PolicyLogger* policy_logger = policy::PolicyLogger::GetInstance();
   policy_logger->EnableLogCompression(
       task_environment_.GetMainThreadTaskRunner());
@@ -194,11 +174,6 @@ TEST_F(PolicyLoggerTest, CompressedLogsPrependedToNewInMemoryLogs) {
 // Checks that when `PolicyLogger::kMaxCompressedLogCount` is exceeded, the
 // oldest compressed logs are deleted.
 TEST_F(PolicyLoggerTest, MaxCompressedLogCountExceededDeletesOldestLogs) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!PolicyLogger::IsPolicyLoggingEnabled()) {
-    GTEST_SKIP() << "Policy logging is disabled on ChromeOS stable";
-  }
-#endif
   PolicyLogger* policy_logger = policy::PolicyLogger::GetInstance();
   policy_logger->EnableLogCompression(
       task_environment_.GetMainThreadTaskRunner());
@@ -227,11 +202,6 @@ TEST_F(PolicyLoggerTest, MaxCompressedLogCountExceededDeletesOldestLogs) {
 // Checks that logs containing newlines and quotes serialize and deserialize
 // accurately.
 TEST_F(PolicyLoggerTest, HandlesSpecialCharactersAndNewlines) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!PolicyLogger::IsPolicyLoggingEnabled()) {
-    GTEST_SKIP() << "Policy logging is disabled on ChromeOS stable";
-  }
-#endif
   PolicyLogger* policy_logger = policy::PolicyLogger::GetInstance();
   policy_logger->EnableLogCompression(
       task_environment_.GetMainThreadTaskRunner());

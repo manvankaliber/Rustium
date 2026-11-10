@@ -17,9 +17,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/libaddressinput/src/cpp/include/libaddressinput/address_field.h"
 #include "third_party/libaddressinput/src/cpp/include/libaddressinput/address_metadata.h"
-#if defined(ANDROID)
-#include "base/android/android_info.h"
-#endif
 
 namespace autofill {
 namespace {
@@ -169,14 +166,6 @@ TEST(AutofillCountryTest, TrAddressRequirements) {
 // Test mapping all country codes to country names.
 TEST(AutofillCountryTest, AllCountryCodesHaveCountryName) {
   std::set<std::string> expected_failures;
-#if defined(ANDROID)
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_KITKAT) {
-    expected_failures.insert("BQ");
-    expected_failures.insert("SS");
-    expected_failures.insert("XK");
-  }
-#endif
   CountryDataMap* country_data_map = CountryDataMap::GetInstance();
   for (FixedCountryCode country_code : country_data_map->country_codes()) {
     std::string_view country_code_sv(country_code);

@@ -67,11 +67,6 @@ class WindowManagementTool : public Tool, public BrowserCollectionObserver {
   // Called when the browser with `window_id_` has closed.
   void OnBrowserDidClose(BrowserWindowInterface* browser);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Called once the window requested by kCreate exists, or with nullptr if it
-  // couldn't be created.
-  void OnBrowserWindowCreated(BrowserWindowInterface* browser);
-#endif
 
   // Finishes the invocation when `browser` next becomes the active window.
   void FinishWhenWindowActive(BrowserWindowInterface& browser);

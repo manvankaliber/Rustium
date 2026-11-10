@@ -95,12 +95,6 @@ source_set("channel_info") {
     public_deps += [ "//chrome/install_static:install_static_util" ]
   } else if (is_mac) {
     sources += [ "channel_info_mac.mm" ]
-  } else if (is_android) {
-    sources += [ "channel_info_android.cc" ]
-    public_deps += [ "//components/version_info/android:channel_getter" ]
-  } else if (is_chromeos) {
-    sources += [ "channel_info_chromeos.cc" ]
-    deps += [ "//chromeos/ash/components/channel" ]
   } else if (is_posix) {
     sources += [ "channel_info_posix.cc" ]
   }
@@ -277,11 +271,11 @@ static_library("common_lib") {
     "//components/pdf/common:util",
   ]
 
-  if (is_mac || is_win || is_linux || is_chromeos) {
+  if (is_mac || is_win || is_linux) {
     deps += [ "//components/webapps/isolated_web_apps:scheme" ]
   }
 
-  if (is_android || enable_library_cdms || enable_playready) {
+  if (enable_library_cdms || enable_playready) {
     public_deps += [ "//components/cdm/common" ]
   }
 
@@ -304,7 +298,7 @@ static_library("common_lib") {
     ]
 
     # Add controlled frame dependencies on platforms that support it.
-    if (is_win || is_mac || is_linux || is_chromeos) {
+    if (is_win || is_mac || is_linux) {
       assert(enable_extensions)
       deps += [
         "//chrome/common/apps/platform_apps",
@@ -319,10 +313,6 @@ static_library("common_lib") {
         "//services/device/public/cpp/usb",
       ]
     }
-    if (is_chromeos) {
-      assert(enable_extensions)
-      deps += [ "//chromeos/ash/experiences/extensions/common" ]
-    }
   }
 
   if (is_mac) {
@@ -336,16 +326,6 @@ static_library("common_lib") {
     public_deps += [ ":app_mode_app_support" ]
   }
 
-  if (is_chromeos) {
-    assert(enable_extensions)
-    public_deps += [ "//ash/keyboard/ui" ]
-    deps += [
-      "//ash/constants",
-      "//chrome/common/chromeos/extensions",
-      "//chromeos/ash/components/logging",
-    ]
-  }
-
   # Printing.
   if (enable_printing) {
     public_deps += [
@@ -354,20 +334,12 @@ static_library("common_lib") {
     ]
   }
 
-  if (is_android) {
-    sources += [
-      "chrome_descriptors_android.h",
-      "media/chrome_media_drm_bridge_client.cc",
-      "media/chrome_media_drm_bridge_client.h",
-    ]
-  } else {
-    # Non-Android.
-    public_deps += [ "//chrome/common/importer" ]
-    sources += [
-      "read_anything/read_anything_util.cc",
-      "read_anything/read_anything_util.h",
-    ]
-  }
+  # Non-Android.
+  public_deps += [ "//chrome/common/importer" ]
+  sources += [
+    "read_anything/read_anything_util.cc",
+    "read_anything/read_anything_util.h",
+  ]
 
   if (is_win) {
     sources += [
@@ -389,7 +361,7 @@ static_library("common_lib") {
     libs = [ "wintrust.lib" ]
   }
 
-  if (is_posix && !is_android) {
+  if (is_posix) {
     sources += [
       "process_singleton_lock_posix.cc",
       "process_singleton_lock_posix.h",
@@ -404,7 +376,7 @@ static_library("common_lib") {
     deps += [ "//media/cdm:cdm_paths" ]  # Needed by chrome_content_client.cc
 
     if (enable_widevine) {
-      if (is_linux || is_chromeos) {
+      if (is_linux) {
         sources += [
           "media/component_widevine_cdm_hint_file_linux.cc",
           "media/component_widevine_cdm_hint_file_linux.h",
@@ -418,7 +390,7 @@ static_library("common_lib") {
     public_deps += [ "//chrome/common/safe_browsing" ]
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [
       "auto_start_linux.cc",
       "auto_start_linux.h",
@@ -481,10 +453,6 @@ static_library("non_code_constants") {
   if (is_win) {
     sources += [ "chrome_icon_resources_win.h" ]
   }
-
-  if (is_chromeos) {
-    deps += [ "//ash/constants" ]
-  }
 }
 
 component("chrome_features") {
@@ -544,10 +512,6 @@ static_library("url_constants") {
     "//components/safe_browsing/core/common",
     "//device/vr/buildflags",
   ]
-
-  if (is_chromeos) {
-    deps += [ "//ash/constants" ]
-  }
 }
 
 static_library("constants") {
@@ -589,22 +553,7 @@ static_library("constants") {
     "//third_party/widevine/cdm:buildflags",
   ]
 
-  if (is_android) {
-    sources += [ "chrome_paths_android.cc" ]
-
-    # This dependency must only be added for Android.
-    #
-    # On Windows, //chrome/installer/util depends on this target to get
-    # constants. That target is in turn used in a number of installer helper
-    # targets independent of Chrome that we want to keep small. So we don't
-    # want something large like //ui/base.
-    #
-    # Android doesn't have this structure and corresponding size limitation
-    # on this target. On that platform one of the Chrome paths forwards to one
-    # implemented in //ui/base, so we need that dependency.
-    deps += [ "//ui/base" ]
-  }
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [ "chrome_paths_linux.cc" ]
     deps += [ ":channel_info" ]
   }
@@ -614,9 +563,6 @@ static_library("constants") {
   if (is_win) {
     sources += [ "chrome_paths_win.cc" ]
     deps += [ "//chrome/install_static:install_static_util" ]
-  }
-  if (is_chromeos) {
-    deps += [ "//ash/constants" ]
   }
 
   if (enable_widevine && enable_library_cdms) {
@@ -697,10 +643,6 @@ mojom("mojo_bindings") {
     "//ui/events/mojom",
   ]
 
-  if (is_android) {
-    sources += [ "sandbox_status_extension_android.mojom" ]
-  }
-
   if (is_mac) {
     sources += [ "mac/app_shim.mojom" ]
     deps +=
@@ -730,10 +672,6 @@ mojom("mojo_bindings") {
 
   enabled_features = []
 
-  if (skip_android_unmigrated_actor_files) {
-    enabled_features += [ "skip_android_unmigrated_actor_files" ]
-  }
-
   public_deps = [
     "//components/actor/public/mojom:mojo_bindings",
     "//components/content_settings/common:mojom",
@@ -760,12 +698,10 @@ mojom("mojo_bindings") {
     ]
   }
 
-  if (!is_android) {
-    sources += [
-      "indigo/indigo.mojom",
-      "password_manager/remote_actor_credential_sharing.mojom",
-    ]
-  }
+  sources += [
+    "indigo/indigo.mojom",
+    "password_manager/remote_actor_credential_sharing.mojom",
+  ]
 
   if (safe_browsing_mode == 1) {
     public_deps += [ "//chrome/services/file_util/public/mojom" ]
@@ -797,7 +733,7 @@ mojom("mojo_bindings") {
     enabled_features += [ "enable_pdf" ]
   }
 
-  if (enable_request_header_integrity && !is_android) {
+  if (enable_request_header_integrity) {
     enabled_features += [ "enable_request_header_integrity" ]
     public_deps += [ "//services/network/public/mojom:url_loader_base" ]
   }
@@ -837,22 +773,20 @@ mojom("offline_page_auto_fetcher_mojom") {
   public_deps = [ "//url/mojom:url_mojom_gurl" ]
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "chrome_paths_browsertest.cc" ]
-    deps = [
-      "//chrome/test:test_support",
-      "//content/test:test_support",
-      "//testing/gtest",
-    ]
-    if (is_posix && !is_chromeos) {
-      sources += [ "time_format_browsertest.cc" ]
-    }
-    if (is_mac) {
-      sources += [ "mac/app_mode_chrome_locator_browsertest.mm" ]
-    }
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [ "chrome_paths_browsertest.cc" ]
+  deps = [
+    "//chrome/test:test_support",
+    "//content/test:test_support",
+    "//testing/gtest",
+  ]
+  if (is_posix) {
+    sources += [ "time_format_browsertest.cc" ]
+  }
+  if (is_mac) {
+    sources += [ "mac/app_mode_chrome_locator_browsertest.mm" ]
   }
 }
 
@@ -882,16 +816,14 @@ source_set("unit_tests") {
   if (is_mac) {
     sources += [ "mac/app_mode_common_unittest.mm" ]
   }
-  if (is_chromeos) {
-    sources += [ "chrome_constants_ash_unittest.cc" ]
-  }
+
   if (enable_pdf) {
     sources += [ "pdf_util_unittest.cc" ]
     deps += [ "//pdf:content_restriction" ]
   }
-  if (!is_android && !is_chromeos) {
-    sources += [ "channel_info_unittest.cc" ]
-  }
+
+  sources += [ "channel_info_unittest.cc" ]
+
   if (enable_widevine_cdm_component && is_linux) {
     sources += [ "media/component_widevine_cdm_hint_file_linux_unittest.cc" ]
   }

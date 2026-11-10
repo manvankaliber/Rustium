@@ -93,8 +93,6 @@ class FocusRingBrowserTest : public InProcessBrowserTest {
     platform_suffix = "_win";
 #elif BUILDFLAG(IS_LINUX)
     platform_suffix = "_linux";
-#elif BUILDFLAG(IS_CHROMEOS)
-    platform_suffix = "_chromeos";
 #endif
 
     base::FilePath golden_filepath =

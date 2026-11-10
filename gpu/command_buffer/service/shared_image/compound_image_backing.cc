@@ -48,9 +48,6 @@
 #include "ui/gfx/geometry/size.h"
 #include "ui/gfx/gpu_memory_buffer_handle.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "gpu/command_buffer/service/shared_image/ahardwarebuffer_image_backing_factory.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "ui/gfx/win/d3d_shared_fence.h"
@@ -64,9 +61,7 @@ constexpr AccessStreamSet kMemoryStreamSet = {SharedImageAccessStream::kMemory};
 gfx::GpuMemoryBufferType GetNativeBufferType() {
 #if BUILDFLAG(IS_APPLE)
   return gfx::GpuMemoryBufferType::IO_SURFACE_BUFFER;
-#elif BUILDFLAG(IS_ANDROID)
-  return gfx::GpuMemoryBufferType::ANDROID_HARDWARE_BUFFER;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   return gfx::GpuMemoryBufferType::NATIVE_PIXMAP;
 #elif BUILDFLAG(IS_WIN)
   return gfx::GpuMemoryBufferType::DXGI_SHARED_HANDLE;
@@ -627,15 +622,7 @@ class WrappedOverlayCompoundImageRepresentation
     wrapped_->EndReadAccess(std::move(release_fence));
     compound_backing()->NotifyEndAccess(wrapped_->backing(), AccessMode::kRead);
   }
-#if BUILDFLAG(IS_ANDROID)
-  AHardwareBuffer* GetAHardwareBuffer() final {
-    return wrapped_->GetAHardwareBuffer();
-  }
-  std::unique_ptr<base::android::ScopedHardwareBufferFenceSync>
-  GetAHardwareBufferFenceSync() final {
-    return wrapped_->GetAHardwareBufferFenceSync();
-  }
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   std::optional<gl::DCLayerOverlayImage> GetDCLayerOverlayImage() final {
     return wrapped_->GetDCLayerOverlayImage();
   }
@@ -839,11 +826,6 @@ class WrappedVideoCompoundImageRepresentation
     wrapped_->EndWriteAccessVideo(std::move(fence));
     compound_backing()->NotifyEndAccess(wrapped_->backing(),
                                         AccessMode::kWrite);
-  }
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  AHardwareBuffer* GetAHardwareBuffer() const override {
-    return wrapped_->GetAHardwareBuffer();
   }
 #endif
 #if BUILDFLAG(IS_APPLE)
@@ -1176,13 +1158,6 @@ std::unique_ptr<SharedImageBacking> CompoundImageBacking::Create(
     }
   } else {
     SharedImageBackingFactory* factory = nullptr;
-#if BUILDFLAG(IS_ANDROID)
-    if (shared_image_factory->ahb_factory_ &&
-        shared_image_factory->ahb_factory_->IsSupportedForMappableBuffer(
-            usage, format, gmb_type)) {
-      factory = shared_image_factory->ahb_factory_;
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
     if (!factory) {
       factory = shared_image_factory->GetFactoryByUsage(
           usage, format, size, /*pixel_data=*/{}, gmb_type,
@@ -1842,21 +1817,6 @@ scoped_refptr<gfx::NativePixmap> CompoundImageBacking::GetNativePixmap() {
   return nullptr;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-std::optional<VulkanYCbCrInfo> CompoundImageBacking::GetVkCbCrInfo(
-    SharedContextState* context_state) {
-  AutoLock auto_lock(this);
-  for (const auto& element : elements_) {
-    if (element.backing) {
-      auto info = element.backing->GetVkCbCrInfo(context_state);
-      if (info) {
-        return info;
-      }
-    }
-  }
-  return std::nullopt;
-}
-#endif
 
 std::unique_ptr<DawnImageRepresentation> CompoundImageBacking::ProduceDawn(
     SharedImageManager* manager,

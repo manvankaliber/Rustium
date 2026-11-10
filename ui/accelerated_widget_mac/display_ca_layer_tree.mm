@@ -40,17 +40,12 @@ DisplayCALayerTree::DisplayCALayerTree(CALayer* root_layer)
   // fiddle with the position of sub-layers -- they will always be at the
   // origin. Note that flipping is only applicable to macOS.
   maybe_flipped_layer_ = [[CALayer alloc] init];
-#if BUILDFLAG(IS_MAC)
   maybe_flipped_layer_.geometryFlipped = YES;
   maybe_flipped_layer_.autoresizingMask =
       kCALayerWidthSizable | kCALayerHeightSizable;
-#endif
   maybe_flipped_layer_.anchorPoint = CGPointZero;
   [root_layer_ addSublayer:maybe_flipped_layer_];
 
-#if BUILDFLAG(IS_IOS)
-  [root_layer_ setDrawsAsynchronously:YES];
-#endif
 }
 
 DisplayCALayerTree::~DisplayCALayerTree() {
@@ -71,14 +66,6 @@ void DisplayCALayerTree::UpdateCALayerTree(gfx::CALayerParams ca_layer_params) {
       ca_layer_params.pixel_size, ca_layer_params.scale_factor));
 
   // iOS doesn't support autoresizing mask. Thus, adjust the bounds.
-#if BUILDFLAG(IS_IOS)
-  maybe_flipped_layer_.bounds =
-      CGRectMake(0, 0, dip_size.width(), dip_size.height());
-
-  if (maybe_flipped_layer_.contentsScale != ca_layer_params.scale_factor) {
-    maybe_flipped_layer_.contentsScale = ca_layer_params.scale_factor;
-  }
-#endif
 
   // Remote layers are the most common case.
   if (ca_layer_params.ca_context_id) {
@@ -137,9 +124,7 @@ void DisplayCALayerTree::GotCALayerFrame(uint32_t ca_context_id) {
   // expects to have all the attached layers of the context at (0,0).
   new_remote_layer.anchorPoint = CGPointZero;
   new_remote_layer.contextId = ca_context_id;
-#if BUILDFLAG(IS_MAC)
   new_remote_layer.autoresizingMask = kCALayerMaxXMargin | kCALayerMaxYMargin;
-#endif
 
   // Update the local CALayer tree.
   [maybe_flipped_layer_ addSublayer:new_remote_layer];

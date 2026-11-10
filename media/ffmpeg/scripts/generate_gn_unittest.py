@@ -273,7 +273,7 @@ class SourceSetUnittest(unittest.TestCase):
         bad_condition = (
             '(current_cpu == "x86" || current_cpu == "x64")'
             ' && (ffmpeg_branding == "c")'
-            ' && (is_win || is_linux || is_chromeos)'
+            ' && (is_win || is_linux)'
         )
 
         # Expect only a single set since the two original sets have the same source
@@ -528,7 +528,6 @@ class SourceSetUnittest(unittest.TestCase):
                     SourceListCondition('x64', 'Chromium', 'win'),
                     SourceListCondition('x64', 'Chromium', 'mac'),
                     SourceListCondition('x64', 'Chromium', 'linux'),
-                    SourceListCondition('x64', 'Chromium', 'android'),
                 ]
             ),
         )

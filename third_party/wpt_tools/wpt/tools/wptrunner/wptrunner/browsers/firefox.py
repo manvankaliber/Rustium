@@ -81,9 +81,6 @@ def get_timeout_multiplier(test_type, run_info_data, **kwargs):
             return 4 * multiplier
         elif run_info_data.get("tsan"):
             return 8 * multiplier
-
-        if run_info_data["os"] == "android":
-            return 4 * multiplier
         return 1 * multiplier
     elif (run_info_data["debug"] or
           run_info_data.get("asan") or
@@ -92,8 +89,6 @@ def get_timeout_multiplier(test_type, run_info_data, **kwargs):
             return 4 * multiplier
         else:
             return 3 * multiplier
-    elif run_info_data["os"] == "android":
-        return 4 * multiplier
     # https://bugzilla.mozilla.org/show_bug.cgi?id=1538725
     elif run_info_data["os"] == "win" and run_info_data["processor"] == "aarch64":
         return 4 * multiplier
@@ -108,7 +103,6 @@ def check_args(**kwargs):
 
 def browser_kwargs(logger, test_type, run_info_data, config, subsuite, **kwargs):
     browser_kwargs = {"binary": kwargs["binary"],
-                      "package_name": None,
                       "prefs_root": kwargs["prefs_root"],
                       "extra_prefs": kwargs["extra_prefs"].copy(),
                       "debug_info": kwargs["debug_info"],
@@ -179,13 +173,6 @@ def executor_kwargs(logger, test_type, test_environment, run_info_data,
     if test_type in ("reftest", "print-reftest"):
         executor_kwargs["reftest_internal"] = kwargs["reftest_internal"]
         cache_screenshots = True
-        if run_info_data["os"] == "android":
-            try:
-                major_version = int(run_info_data["version"].split(".", 1)[0])
-            except ValueError:
-                pass
-            else:
-                cache_screenshots = major_version < 14
         executor_kwargs["cache_screenshots"] = cache_screenshots
 
     if test_type in ("wdspec", "aamtest"):
@@ -747,7 +734,7 @@ class GeckodriverOutputHandler(FirefoxOutputHandler):
 class ProfileCreator:
     def __init__(self, logger, prefs_root, config, test_type, extra_prefs,
                  disable_fission, debug_test, browser_channel, binary,
-                 package_name, certutil_binary, ca_certificate_path,
+                 certutil_binary, ca_certificate_path,
                  allow_list_paths):
         self.logger = logger
         self.prefs_root = prefs_root
@@ -758,7 +745,6 @@ class ProfileCreator:
         self.debug_test = debug_test
         self.browser_channel = browser_channel
         self.binary = binary
-        self.package_name = package_name
         self.certutil_binary = certutil_binary
         self.ca_certificate_path = ca_certificate_path
         self.allow_list_paths = allow_list_paths
@@ -927,7 +913,7 @@ class ProfileCreator:
 class FirefoxBrowser(Browser):
     init_timeout = 70
 
-    def __init__(self, logger, binary, package_name, prefs_root, test_type,
+    def __init__(self, logger, binary, prefs_root, test_type,
                  extra_prefs=None, debug_info=None,
                  symbols_path=None, stackwalk_binary=None, certutil_binary=None,
                  ca_certificate_path=None, e10s=False, disable_fission=False,
@@ -962,7 +948,6 @@ class FirefoxBrowser(Browser):
                                          debug_test,
                                          browser_channel,
                                          binary,
-                                         package_name,
                                          certutil_binary,
                                          ca_certificate_path,
                                          allow_list_paths)
@@ -1036,7 +1021,7 @@ class FirefoxBrowser(Browser):
 
 
 class FirefoxPytestBrowser(WebDriverBrowser):
-    def __init__(self, logger, binary, package_name, prefs_root, webdriver_binary, webdriver_args,
+    def __init__(self, logger, binary, prefs_root, webdriver_binary, webdriver_args,
                  extra_prefs=None, debug_info=None, symbols_path=None, stackwalk_binary=None,
                  certutil_binary=None, ca_certificate_path=None, e10s=False,
                  disable_fission=False, stackfix_dir=None, leak_check=False,
@@ -1046,7 +1031,6 @@ class FirefoxPytestBrowser(WebDriverBrowser):
 
         super().__init__(logger, binary, webdriver_binary, webdriver_args, **kwargs)
         self.binary = binary
-        self.package_name = package_name
         self.webdriver_binary = webdriver_binary
 
         self.stackfix_dir = stackfix_dir
@@ -1069,7 +1053,6 @@ class FirefoxPytestBrowser(WebDriverBrowser):
                                               debug_test,
                                               browser_channel,
                                               binary,
-                                              package_name,
                                               certutil_binary,
                                               ca_certificate_path,
                                               allow_list_paths)

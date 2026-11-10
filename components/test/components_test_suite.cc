@@ -27,15 +27,11 @@
 #include "ui/base/ui_base_paths.h"
 #include "url/url_util.h"
 
-#if !BUILDFLAG(USE_BLINK)
-#include "components/test/ios_components_test_initializer.h"
-#else
 #include "content/public/browser/network_service_util.h"
 #include "content/public/common/content_client.h"
 #include "content/public/test/content_test_suite_base.h"
 #include "content/public/test/unittest_test_suite.h"
 #include "ui/gl/test/gl_surface_test_support.h"
-#endif
 
 namespace {
 
@@ -64,7 +60,6 @@ class ComponentsTestSuite : public base::TestSuite {
     url::AddStandardScheme("chrome-distiller", url::SCHEME_WITH_HOST);
     url::AddStandardScheme("isolated-app", url::SCHEME_WITH_HOST);
 
-#if BUILDFLAG(USE_BLINK)
     gl::GLSurfaceTestSupport::InitializeOneOff();
 
     content::ForceInProcessNetworkService();
@@ -74,21 +69,11 @@ class ComponentsTestSuite : public base::TestSuite {
       content::ContentClient content_client;
       content::ContentTestSuiteBase::RegisterContentSchemes(&content_client);
     }
-#else
-    url::AddStandardScheme("chrome", url::SCHEME_WITH_HOST);
-    url::AddStandardScheme("chrome-untrusted", url::SCHEME_WITH_HOST);
-    url::AddStandardScheme("devtools", url::SCHEME_WITH_HOST);
-
-#endif
 
     ui::RegisterPathProvider();
 
     base::FilePath pak_path;
-#if BUILDFLAG(IS_ANDROID)
-    base::PathService::Get(ui::DIR_RESOURCE_PAKS_ANDROID, &pak_path);
-#else
     base::PathService::Get(base::DIR_ASSETS, &pak_path);
-#endif
 
     base::FilePath ui_test_pak_path;
     ASSERT_TRUE(base::PathService::Get(ui::UI_TEST_PAK, &ui_test_pak_path));
@@ -117,23 +102,11 @@ class ComponentsUnitTestEventListener : public testing::EmptyTestEventListener {
       const ComponentsUnitTestEventListener&) = delete;
   ~ComponentsUnitTestEventListener() override = default;
 
-#if !BUILDFLAG(USE_BLINK)
-  void OnTestStart(const testing::TestInfo& test_info) override {
-    ios_initializer_.reset(new IosComponentsTestInitializer());
-  }
-#endif
 
   void OnTestEnd(const testing::TestInfo& test_info) override {
     breadcrumbs::BreadcrumbManager::GetInstance().ResetForTesting();
-#if !BUILDFLAG(USE_BLINK)
-    ios_initializer_.reset();
-#endif
   }
 
-#if !BUILDFLAG(USE_BLINK)
- private:
-  std::unique_ptr<IosComponentsTestInitializer> ios_initializer_;
-#endif
 };
 
 }  // namespace
@@ -152,24 +125,15 @@ base::RunTestSuiteCallback GetLaunchCallback(int argc, char** argv) {
       .is_broker_process = !is_test_child || force_broker,
   };
 
-#if BUILDFLAG(USE_BLINK)
   auto test_suite = std::make_unique<content::UnitTestTestSuite>(
       components_test_suite.release(),
       base::BindRepeating(content::UnitTestTestSuite::CreateTestContentClients),
       mojo_config);
-#else
-  mojo::core::Init(mojo_config);
-#endif
 
   testing::TestEventListeners& listeners =
       testing::UnitTest::GetInstance()->listeners();
   listeners.Append(new ComponentsUnitTestEventListener());
 
-#if BUILDFLAG(USE_BLINK)
   return base::BindOnce(&content::UnitTestTestSuite::Run,
                         std::move(test_suite));
-#else
-  return base::BindOnce(&base::TestSuite::Run,
-                        std::move(components_test_suite));
-#endif
 }

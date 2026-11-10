@@ -76,13 +76,7 @@ void UpdateBookmarkBarVisibilityPrefOnUserAction(Profile* profile) {
 }
 
 bool IsAppsShortcutEnabled(Profile* profile) {
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-  // Chrome OS uses the app list / app launcher. Android has no apps shortcut on
-  // the bookmark bar.
-  return false;
-#else
   return search::IsInstantExtendedAPIEnabled() && !profile->IsOffTheRecord();
-#endif
 }
 
 bool ShouldShowAppsShortcutInBookmarkBar(Profile* profile) {

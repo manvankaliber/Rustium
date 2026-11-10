@@ -30,7 +30,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class MultiProfileSessionRestoreInteractiveUiTest
     : public InProcessBrowserTest {
  public:
@@ -206,4 +205,3 @@ IN_PROC_BROWSER_TEST_F(MultiProfileSessionRestoreInteractiveUiTest,
                               ->GetActiveWebContents()
                               ->GetVisibleURL());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)

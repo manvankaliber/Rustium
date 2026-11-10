@@ -181,8 +181,6 @@ class ArrayBufferSharedMemoryMapper : public base::SharedMemoryMapper {
     v8_handle = v8::SharedMemoryHandleFromMachMemoryEntry(handle);
 #elif BUILDFLAG(IS_WIN)
     v8_handle = v8::SharedMemoryHandleFromFileMapping(handle);
-#elif BUILDFLAG(IS_ANDROID)
-    v8_handle = v8::SharedMemoryHandleFromFileDescriptor(handle);
 #elif BUILDFLAG(IS_POSIX)
     v8_handle = v8::SharedMemoryHandleFromFileDescriptor(handle.fd);
 #else

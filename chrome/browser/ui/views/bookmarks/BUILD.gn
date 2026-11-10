@@ -248,57 +248,55 @@ source_set("browser_tests") {
   ]
 }
 
-if (!is_chromeos_device) {
-  source_set("interactive_ui_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+source_set("interactive_ui_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [
-      "bookmark_account_storage_move_dialog_interactive_uitest.cc",
-      "bookmark_bar_view_event_interactive_uitest.cc",
-      "bookmark_bar_view_interactive_uitest.cc",
-      "bookmark_bar_view_test_helper.h",
-      "bookmark_bubble_view_interactive_uitest.cc",
-    ]
+  sources = [
+    "bookmark_account_storage_move_dialog_interactive_uitest.cc",
+    "bookmark_bar_view_event_interactive_uitest.cc",
+    "bookmark_bar_view_interactive_uitest.cc",
+    "bookmark_bar_view_test_helper.h",
+    "bookmark_bubble_view_interactive_uitest.cc",
+  ]
 
-    deps = [
-      ":bookmarks",
-      ":test_support",
-      "//chrome/browser:chrome_content_browser_client",
-      "//chrome/browser/apps/app_service",
-      "//chrome/browser/apps/app_service/publishers",
-      "//chrome/browser/bookmarks",
-      "//chrome/browser/bookmarks:test_support",
-      "//chrome/browser/collaboration/messaging",
-      "//chrome/browser/data_sharing",
-      "//chrome/browser/favicon",
-      "//chrome/browser/gcm",
-      "//chrome/browser/tab_group_sync:factories",
-      "//chrome/browser/ui:browser_tabstrip",
-      "//chrome/browser/ui/actions",
-      "//chrome/browser/ui/bookmarks/controllers",
-      "//chrome/browser/ui/browser_window/test:test_support",
-      "//chrome/browser/ui/tabs:tab_menu",
-      "//chrome/browser/ui/tabs:test_support",
-      "//chrome/browser/ui/views/commerce",
-      "//chrome/browser/ui/views/data_sharing",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/browser/ui/views/test:view_event_test_base",
-      "//chrome/test:test_support",
-      "//chrome/test/base:testing_browser_process",
-      "//chrome/test/user_education",
-      "//components/commerce/core:shopping_service_test_support",
-      "//components/favicon/content",
-      "//ui/base:ozone_buildflags",
-      "//ui/base:test_support",
-      "//ui/base/clipboard:clipboard_test_support",
-      "//ui/events:test_support",
-    ]
+  deps = [
+    ":bookmarks",
+    ":test_support",
+    "//chrome/browser:chrome_content_browser_client",
+    "//chrome/browser/apps/app_service",
+    "//chrome/browser/apps/app_service/publishers",
+    "//chrome/browser/bookmarks",
+    "//chrome/browser/bookmarks:test_support",
+    "//chrome/browser/collaboration/messaging",
+    "//chrome/browser/data_sharing",
+    "//chrome/browser/favicon",
+    "//chrome/browser/gcm",
+    "//chrome/browser/tab_group_sync:factories",
+    "//chrome/browser/ui:browser_tabstrip",
+    "//chrome/browser/ui/actions",
+    "//chrome/browser/ui/bookmarks/controllers",
+    "//chrome/browser/ui/browser_window/test:test_support",
+    "//chrome/browser/ui/tabs:tab_menu",
+    "//chrome/browser/ui/tabs:test_support",
+    "//chrome/browser/ui/views/commerce",
+    "//chrome/browser/ui/views/data_sharing",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+    "//chrome/browser/ui/views/test:view_event_test_base",
+    "//chrome/test:test_support",
+    "//chrome/test/base:testing_browser_process",
+    "//chrome/test/user_education",
+    "//components/commerce/core:shopping_service_test_support",
+    "//components/favicon/content",
+    "//ui/base:ozone_buildflags",
+    "//ui/base:test_support",
+    "//ui/base/clipboard:clipboard_test_support",
+    "//ui/events:test_support",
+  ]
 
-    if (use_ozone) {
-      # bookmark_bar_view_event_interactive_uitest.cc includes
-      # ui/ozone/public/ozone_platform.h behind BUILDFLAG(IS_OZONE).
-      deps += [ "//ui/ozone" ]
-    }
+  if (use_ozone) {
+    # bookmark_bar_view_event_interactive_uitest.cc includes
+    # ui/ozone/public/ozone_platform.h behind BUILDFLAG(IS_OZONE).
+    deps += [ "//ui/ozone" ]
   }
 }

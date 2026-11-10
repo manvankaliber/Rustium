@@ -21,7 +21,7 @@
 #include "util/misc/from_pointer_cast.h"
 #include "util/process/process_memory_linux.h"
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "test/linux/fake_ptrace_connection.h"
 #endif
 

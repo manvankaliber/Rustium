@@ -159,63 +159,6 @@ try_.builder(
 )
 
 try_.builder(
-    name = "linux-cast-arm-rel",
-    branch_selector = branches.selector.LINUX_BRANCHES,
-    mirrors = [
-        "ci/linux-cast-arm-rel",
-    ],
-    gn_args = "ci/linux-cast-arm-rel",
-    ssd = True,
-    contact_team_email = "cast-eng@google.com",
-    cq_settings = try_.cq_settings(
-        location_filters = [
-            "chromecast/.+",
-            "components/cast/.+",
-            "components/cast_receiver/.+",
-            "components/cast_streaming/.+",
-            "third_party/cast_core/.+",
-            "third_party/openscreen/.+",
-        ],
-    ),
-    siso_remote_jobs = siso.remote_jobs.LOW_JOBS_FOR_CQ,
-)
-
-try_.builder(
-    name = "linux-cast-arm64-rel",
-    branch_selector = branches.selector.LINUX_BRANCHES,
-    mirrors = [
-        "ci/linux-cast-arm64-rel",
-    ],
-    gn_args = "ci/linux-cast-arm64-rel",
-    ssd = True,
-    contact_team_email = "cast-eng@google.com",
-    cq_settings = try_.cq_settings(
-        location_filters = [
-            "chromecast/.+",
-            "components/cast/.+",
-            "components/cast_receiver/.+",
-            "components/cast_streaming/.+",
-            r"components/viz/common/display/overlay_strategy\.h",
-            r"components/viz/service/display/overlay_strategy_underlay\.h",
-            "third_party/cast_core/.+",
-            "third_party/openscreen/.+",
-            r"ui/events/platform/platform_event_dispatcher\.h",
-            r"ui/gfx/client_native_pixmap\.h",
-            r"ui/gfx/client_native_pixmap_factory\.h",
-            r"ui/gfx/native_pixmap\.h",
-            r"ui/gl/gl_surface_egl\.h",
-            r"ui/ozone/common/gl_ozone_egl\.h",
-            "ui/ozone/platform/cast/.+",
-            r"ui/platform_window/stub/stub_window\.h",
-            r"ui/ozone/public/overlay_manager_ozone\.h",
-            r"ui/ozone/public/ozone_platform\.h",
-            r"ui/ozone/public/surface_factory_ozone\.h",
-        ],
-    ),
-    siso_remote_jobs = siso.remote_jobs.LOW_JOBS_FOR_CQ,
-)
-
-try_.builder(
     name = "linux-oi-rel",
     mirrors = [
         "ci/Linux Builder",
@@ -691,50 +634,6 @@ try_.builder(
 )
 
 try_.builder(
-    name = "linux-cast-x64-dbg",
-    branch_selector = branches.selector.LINUX_BRANCHES,
-    mirrors = [
-        "ci/linux-cast-x64-dbg",
-    ],
-    gn_args = "ci/linux-cast-x64-dbg",
-    ssd = True,
-    contact_team_email = "cast-eng@google.com",
-    cq_settings = try_.cq_settings(
-        location_filters = [
-            "chromecast/.+",
-            "components/cast/.+",
-            "components/cast_receiver/.+",
-            "components/cast_streaming/.+",
-            "third_party/cast_core/.+",
-            "third_party/openscreen/.+",
-        ],
-    ),
-    siso_remote_jobs = siso.remote_jobs.LOW_JOBS_FOR_CQ,
-)
-
-try_.builder(
-    name = "linux-cast-x64-rel",
-    branch_selector = branches.selector.LINUX_BRANCHES,
-    mirrors = [
-        "ci/linux-cast-x64-rel",
-    ],
-    gn_args = "ci/linux-cast-x64-rel",
-    ssd = True,
-    contact_team_email = "cast-eng@google.com",
-    cq_settings = try_.cq_settings(
-        location_filters = [
-            "chromecast/.+",
-            "components/cast/.+",
-            "components/cast_receiver/.+",
-            "components/cast_streaming/.+",
-            "third_party/cast_core/.+",
-            "third_party/openscreen/.+",
-        ],
-    ),
-    siso_remote_jobs = siso.remote_jobs.LOW_JOBS_FOR_CQ,
-)
-
-try_.builder(
     name = "linux_chromium_archive_rel_ng",
     mirrors = [
         "ci/linux-archive-rel",
@@ -833,44 +732,6 @@ try_.builder(
     # TODO(thakis): Remove once https://crbug.com/927738 is resolved.
     execution_timeout = 7 * time.hour,
     siso_remote_jobs = siso.remote_jobs.LOW_JOBS_FOR_CQ,
-)
-
-try_.builder(
-    name = "linux_chromium_chromeos_asan_rel_ng",
-    mirrors = [
-        "ci/Linux Chromium OS ASan LSan Builder",
-        "ci/Linux Chromium OS ASan LSan Tests (1)",
-    ],
-    gn_args = gn_args.config(
-        configs = [
-            "ci/Linux Chromium OS ASan LSan Builder",
-            "release_try_builder",
-            "minimal_symbols",
-        ],
-    ),
-    # TODO(crbug.com/41482936): Remove this when memory consumption during links
-    # is reduced.
-    cores = 16,
-    ssd = True,
-    contact_team_email = "chrome-sanitizer-builder-owners@google.com",
-    # TODO(crbug.com/40728894): Remove this timeout once we figure out the
-    # regression in compiler or toolchain.
-    execution_timeout = 7 * time.hour,
-    siso_remote_jobs = siso.remote_jobs.HIGH_JOBS_FOR_CQ,
-)
-
-try_.builder(
-    name = "linux_chromium_chromeos_msan_rel_ng",
-    mirrors = [
-        "ci/Linux ChromiumOS MSan Builder",
-        "ci/Linux ChromiumOS MSan Tests",
-    ],
-    gn_args = "ci/Linux ChromiumOS MSan Builder",
-    cores = 16,
-    ssd = True,
-    contact_team_email = "chrome-sanitizer-builder-owners@google.com",
-    execution_timeout = 6 * time.hour,
-    siso_remote_jobs = siso.remote_jobs.HIGH_JOBS_FOR_CQ,
 )
 
 try_.builder(
@@ -1149,7 +1010,6 @@ try_.builder(
     ssd = True,
     cq_settings = try_.cq_settings(
         location_filters = [
-            cq.location_filter(path_regexp = "media/gpu/chromeos/.+"),
             cq.location_filter(path_regexp = "media/gpu/v4l2/.+"),
         ],
     ),
@@ -1279,31 +1139,6 @@ try_.builder(
     use_javascript_coverage = True,
 )
 
-# This builder is different from try/chromeos-js-code-coverage builder below as
-# this is a try builder meant to provide javascript coverage for webui related
-# CLs, where as try/chromeos-js-code-coverage builder is there to test changes
-# in ci/chromeos-js-code-coverage builder and would mostly be used by coverage
-# devs only.
-try_.builder(
-    name = "chromeos-js-coverage-rel",
-    mirrors = ["ci/chromeos-js-code-coverage"],
-    gn_args = gn_args.config(
-        configs = [
-            "ci/chromeos-js-code-coverage",
-        ],
-    ),
-    ssd = True,
-    check_for_flakiness = False,
-    cq_settings = try_.cq_settings(
-        experiment_percentage = 5,
-        location_filters = [
-            cq.location_filter(path_regexp = r".*\.(js|ts)"),
-        ],
-    ),
-    main_list_view = "try",
-    use_javascript_coverage = True,
-)
-
 # Coverage builders set up mainly to test changes in CI builders
 try_.builder(
     name = "linux-code-coverage",
@@ -1313,29 +1148,12 @@ try_.builder(
     execution_timeout = 12 * time.hour,
 )
 
-try_.builder(
-    name = "linux-chromeos-code-coverage",
-    mirrors = ["ci/linux-chromeos-code-coverage"],
-    gn_args = "ci/linux-chromeos-code-coverage",
-    ssd = True,
-    execution_timeout = 10 * time.hour,
-)
-
 # This builder serves a different purpose than try/linux-js-coverage-rel
 # See the note on linux-js-coverage-rel builder above to understand more.
 try_.builder(
     name = "linux-js-code-coverage",
     mirrors = ["ci/linux-js-code-coverage"],
     gn_args = "ci/linux-js-code-coverage",
-    ssd = True,
-    execution_timeout = 10 * time.hour,
-    use_javascript_coverage = True,
-)
-
-try_.builder(
-    name = "chromeos-js-code-coverage",
-    mirrors = ["ci/chromeos-js-code-coverage"],
-    gn_args = "ci/chromeos-js-code-coverage",
     ssd = True,
     execution_timeout = 10 * time.hour,
     use_javascript_coverage = True,

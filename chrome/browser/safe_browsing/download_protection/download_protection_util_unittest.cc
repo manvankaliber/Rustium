@@ -478,20 +478,10 @@ TEST(DownloadProtectionUtilTest, IsFiletypeSupportedForFullDownloadProtection) {
       base::FilePath(FILE_PATH_LITERAL("foo.noping"))));
   EXPECT_FALSE(IsFiletypeSupportedForFullDownloadProtection(
       base::FilePath(FILE_PATH_LITERAL("foo.sampledping"))));
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_TRUE(IsFiletypeSupportedForFullDownloadProtection(
       base::FilePath(FILE_PATH_LITERAL("foo.fullping"))));
   EXPECT_TRUE(IsFiletypeSupportedForFullDownloadProtection(
       base::FilePath(FILE_PATH_LITERAL("foo.fUlLpInG"))));
-#else
-  EXPECT_FALSE(IsFiletypeSupportedForFullDownloadProtection(
-      base::FilePath(FILE_PATH_LITERAL("foo.fullping"))));
-  // Android hard-codes that only APK files are supported.
-  EXPECT_TRUE(IsFiletypeSupportedForFullDownloadProtection(
-      base::FilePath(FILE_PATH_LITERAL("foo.apk"))));
-  EXPECT_TRUE(IsFiletypeSupportedForFullDownloadProtection(
-      base::FilePath(FILE_PATH_LITERAL("foo.APK"))));
-#endif
 }
 
 }  // namespace safe_browsing

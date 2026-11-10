@@ -17,25 +17,12 @@
 
 #if BUILDFLAG(ENABLE_GWP_ASAN)
 #include "components/gwp_asan/client/gwp_asan.h"  // nogncheck
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/crash/core/app/crashpad.h"  // nogncheck
-#endif
 #endif
 
-#if BUILDFLAG(IS_IOS) && PA_BUILDFLAG(USE_ALLOCATOR_SHIM)
-#include "base/ios/ios_util.h"
-#include "base/metrics/histogram_functions.h"
-#include "partition_alloc/shim/allocator_interception_apple.h"
-#include "partition_alloc/shim/allocator_shim.h"
-#endif
 
 // HeapProfilerController's dependencies are not compiled on iOS unless
 // AllocatorShim is enabled.
-#if !BUILDFLAG(IS_IOS) || PA_BUILDFLAG(USE_ALLOCATOR_SHIM)
 #define HEAP_PROFILING_SUPPORTED 1
-#else
-#define HEAP_PROFILING_SUPPORTED 0
-#endif
 
 #if HEAP_PROFILING_SUPPORTED
 #include "base/sampling_heap_profiler/sampling_heap_profiler.h"
@@ -65,15 +52,6 @@
 namespace memory_system {
 namespace {
 
-#if BUILDFLAG(IS_IOS) && PA_BUILDFLAG(USE_ALLOCATOR_SHIM)
-// Do not install allocator shim on iOS 13.4 due to high crash volume on this
-// particular version of OS. TODO(crbug.com/40707342): Remove this workaround
-// when/if the bug gets fixed.
-bool ShouldInstallAllocatorShim() {
-  return !base::ios::IsRunningOnOrLater(13, 4, 0) ||
-         base::ios::IsRunningOnOrLater(13, 5, 0);
-}
-#endif
 
 }  // namespace
 
@@ -140,9 +118,6 @@ struct MemorySystem::Impl {
       heap_profiler_controller_;
 #endif
 
-#if BUILDFLAG(IS_IOS) && PA_BUILDFLAG(USE_ALLOCATOR_SHIM)
-  const bool should_install_allocator_shim_ = ShouldInstallAllocatorShim();
-#endif
 
 #if BUILDFLAG(ENABLE_ALLOCATION_STACK_TRACE_RECORDER)
   struct {
@@ -163,11 +138,6 @@ struct MemorySystem::Impl {
 };
 
 MemorySystem::Impl::Impl() {
-#if BUILDFLAG(IS_IOS) && PA_BUILDFLAG(USE_ALLOCATOR_SHIM)
-  if (should_install_allocator_shim_) {
-    allocator_shim::InitializeAllocatorShim();
-  }
-#endif
 
 #if HEAP_PROFILING_SUPPORTED
   // The TLS slot used by the memlog allocator shim needs to be initialized
@@ -221,18 +191,7 @@ void MemorySystem::Impl::Initialize(
 }
 
 bool MemorySystem::Impl::IsAllocatorShimInitialized() {
-#if BUILDFLAG(IS_IOS) && PA_BUILDFLAG(USE_ALLOCATOR_SHIM)
-  if (!should_install_allocator_shim_) {
-    return false;
-  }
-
-  const bool malloc_intercepted = allocator_shim::AreMallocZonesIntercepted();
-  base::UmaHistogramBoolean("IOS.Allocator.ShimInstalled", malloc_intercepted);
-
-  return malloc_intercepted;
-#else
   return true;
-#endif
 }
 
 void MemorySystem::Impl::InitializeGwpASan(

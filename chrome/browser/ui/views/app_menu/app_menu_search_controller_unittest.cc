@@ -94,9 +94,7 @@ TEST_F(AppMenuSearchControllerTest, InitializeSearchIndexOnlyOnce) {
   // TODO(crbug.com/41487832): Enable on ChromeOS when test setup in the death
   // subprocess is fixed. AshTestHelper causes ICU/Timezone crashes in the
   // forked process before the CHECK can fire.
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_CHECK_DEATH(controller_->InitializeSearchIndex());
-#endif
 }
 
 TEST_F(AppMenuSearchControllerTest, FlattenHierarchyFiltering) {
@@ -448,9 +446,7 @@ TEST_F(AppMenuSearchControllerTest, SearchRequiresInitializedIndex) {
   // TODO(crbug.com/41487832): Enable on ChromeOS when test setup in the death
   // subprocess is fixed. AshTestHelper causes ICU/Timezone crashes in the
   // forked process before the CHECK can fire.
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_CHECK_DEATH(controller_->Search(u"New"));
-#endif
 
   controller_->InitializeSearchIndex();
   EXPECT_NE(controller_->Search(u"New"), nullptr);

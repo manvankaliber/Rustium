@@ -618,7 +618,6 @@ GraphImplCoreml::ScopedModelPath::~ScopedModelPath() {
     return;
   }
 
-#if BUILDFLAG(IS_MAC)
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kWebNNCoreMlDumpModel)) {
     const auto dump_directory =
@@ -634,7 +633,6 @@ GraphImplCoreml::ScopedModelPath::~ScopedModelPath() {
       }
     }
   }
-#endif
   // Though the destructors of ScopedTempDir will delete these directories.
   // Explicitly delete them here to check for success.
   CHECK(file_dir.Delete());

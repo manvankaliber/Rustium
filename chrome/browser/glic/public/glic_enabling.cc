@@ -80,19 +80,7 @@
 #include "ui/base/device_form_factor.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/browser_context_helper/browser_context_helper.h"  // nogncheck
-#include "chromeos/ash/components/browser_context_helper/browser_context_types.h"  // nogncheck
-#include "chromeos/constants/chromeos_features.h"
-#include "components/user_manager/user.h"       // nogncheck
-#include "components/user_manager/user_type.h"  // nogncheck
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/android/device_info.h"
-#include "chrome/browser/glic/android/background_actuation_capability.h"
-#endif
 
 namespace glic {
 
@@ -110,16 +98,9 @@ namespace glic {
 // Comma separated list of locales to enable Glic, by default, if locale
 // filtering is enabled.
 constexpr char kDefaultEnabledLocales[] =
-#if BUILDFLAG(IS_ANDROID)
-    "en-GB,en-US"
-#else
     "af,am,bg,bn,ca,cs,da,de,el,es,es-419,et,fi,fil,fr,gu,hi,hr,hu,id,it,ja,kn,"
     "ko,lt,lv,ml,mr,ms,nl,no,pl,pt-BR,pt-PT,ro,ru,sk,sl,sr,sv,sw,ta,te,th,tr,"
     "uk,vi,zh-CN,zh-TW,en-GB,en-US"
-#if BUILDFLAG(IS_CHROMEOS)
-    ",eu,gl,is,zu"
-#endif  // BUILDFLAG(IS_CHROMEOS)
-#endif  // BUILDFLAG(IS_ANDROID)
     ;
 
 bool IsAnyEntryPointEnabled(Profile* profile) {
@@ -232,29 +213,6 @@ bool IsCountryInList(base::span<const std::string> country_list,
   });
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// IsCountryInList() with the current variations countries.
-bool IsCurrentCountryInList(base::span<const std::string> country_list) {
-  return IsCountryInList(country_list, GetVariationsPermanentCountryCode(),
-                         GetVariationsSessionCountryCode());
-}
-
-// Native FRE is restricted to the `enabled_countries` param of
-// kGlicNativeFreAndroid; other regions use Web FRE.
-bool IsCountryEligibleForNativeFre() {
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(::switches::kGlicDev)) {
-    return true;
-  }
-  const std::vector<std::string> enabled_countries =
-      GetFieldTrialParamAsSplitString(features::kGlicNativeFreAndroid,
-                                      "enabled_countries",
-                                      kDefaultEnabledCountries);
-  if (enabled_countries.size() == 1 && enabled_countries[0] == "*") {
-    return true;
-  }
-  return IsCurrentCountryInList(enabled_countries);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Evaluates the enabled/disabled country lists configured via the params of
 // `feature`. Assumes that `feature` is enabled. The result is recorded to
@@ -717,12 +675,7 @@ void GlicEnabling::SetSystemRequirementMetForTesting(std::optional<bool> met) {
 
 // static
 bool GlicEnabling::IsRetailDemoModeDesktop() {
-#if BUILDFLAG(IS_ANDROID)
-  return ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_DESKTOP &&
-         base::android::device_info::is_retail_demo_mode();
-#else
   return false;
-#endif
 }
 
 // static
@@ -893,55 +846,15 @@ bool GlicGlobalEnabling::IsSystemRequirementMet() const {
       }
     }
 
-#if BUILDFLAG(IS_ANDROID)
-    if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
-            switches::kTestType)) {
-      if (!IsAndroidFormFactorAllowed(
-              ui::GetDeviceFormFactor(),
-              base::android::device_info::is_foldable())) {
-        return false;
-      }
-    }
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-    constexpr base::ByteSize kMinimumMemoryThreshold = base::GiB(7);
-    const bool bypass_cbx_requirement =
-        GlicEnabling::IsLikelyDogfoodClient() &&
-        base::SysInfo::AmountOfTotalPhysicalMemory() >= kMinimumMemoryThreshold;
-
-    return (bypass_cbx_requirement ||
-            base::FeatureList::IsEnabled(
-                chromeos::features::kFeatureManagementGlic));
-#else
     return true;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }();
 
   return supported_system_requirements;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// static
-bool GlicGlobalEnabling::IsAndroidFormFactorAllowed(
-    ui::DeviceFormFactor form_factor,
-    bool is_foldable) {
-  return form_factor == ui::DEVICE_FORM_FACTOR_PHONE ||
-         form_factor == ui::DEVICE_FORM_FACTOR_FOLDABLE || is_foldable ||
-         form_factor == ui::DEVICE_FORM_FACTOR_DESKTOP ||
-         (form_factor == ui::DEVICE_FORM_FACTOR_TABLET &&
-          base::FeatureList::IsEnabled(features::kGlicAndroidTablet));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 bool GlicGlobalEnabling::IsOsVersionSupported() {
-#if BUILDFLAG(IS_ANDROID)
-  // Glic requires Foreground Services (FGS) to run, which has strict
-  // requirements starting from Android S (see b/515767943).
-  return base::android::android_info::sdk_int() >=
-         base::android::android_info::SDK_VERSION_S;
-#else
   return true;
-#endif
 }
 
 bool GlicGlobalEnabling::IsEnabledByGlobalCriteria() const {
@@ -1042,11 +955,6 @@ bool GlicEnabling::IsProfileEligible(Profile* profile) {
     return false;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!IsChromeOSProfileEligible(profile)) {
-    return false;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   bool global_criteria = IsEnabledByGlobalCriteria();
   bool consented = HasConsentedForProfile(profile);
@@ -1095,11 +1003,6 @@ void GlicEnabling::RecordProfileIneligibilityMetricsAtStartup(
   if (!profile || !(profile->IsRegularProfile())) {
     not_regular_profile = true;
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!IsChromeOSProfileEligible(profile)) {
-    not_regular_profile = true;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   if (not_regular_profile) {
     reporter.RecordEnumeration("ProfileEnablement.DisabledReason.Startup",
@@ -1146,10 +1049,6 @@ bool GlicEnabling::HasConsentedForProfile(Profile* profile) {
 
 // static
 void GlicEnabling::RegisterDefaultHotkeyScopeSyntheticTrial(Profile* profile) {
-#if BUILDFLAG(IS_ANDROID)
-  // Hotkeys are only supported on desktop platforms.
-  return;
-#else
   if (!base::FeatureList::IsEnabled(features::kGlicHotkeyLocalScope) ||
       !g_browser_process || !g_browser_process->local_state()) {
     return;
@@ -1175,7 +1074,6 @@ void GlicEnabling::RegisterDefaultHotkeyScopeSyntheticTrial(Profile* profile) {
   ChromeMetricsServiceAccessor::RegisterSyntheticFieldTrial(
       kGlicHotkeyDefaultScopeTrialName, group_name,
       variations::SyntheticTrialAnnotationMode::kCurrentLog);
-#endif
 }
 
 // static
@@ -1384,38 +1282,6 @@ void GlicEnabling::OnGlicSettingsPolicyChanged() {
   UpdateEnabledStatus();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// static
-bool GlicEnabling::IsChromeOSProfileEligible(Profile* profile) {
-  if (!ash::IsUserBrowserContext(profile)) {
-    // We only allow regular user session profiles.
-    // E.g. disallowed on login screen.
-    return false;
-  }
-  auto* user =
-      ash::BrowserContextHelper::Get()->GetUserByBrowserContext(profile);
-  if (user == nullptr) {
-    // When there is no signed in user on ChromeOS, assume that the profile is
-    // not eligible.
-    return false;
-  }
-  switch (user->GetType()) {
-    case user_manager::UserType::kRegular:
-    case user_manager::UserType::kChild:
-      // These are ok to use Glic.
-      break;
-    case user_manager::UserType::kGuest:
-    case user_manager::UserType::kPublicAccount:
-    case user_manager::UserType::kKioskChromeApp:
-    case user_manager::UserType::kKioskWebApp:
-    case user_manager::UserType::kKioskIWA:
-    case user_manager::UserType::kKioskArcvmApp:
-      // Disallows guest session, and device local account sessions.
-      return false;
-  }
-  return true;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // static
 bool GlicEnabling::IsAutoOpenForPdfEnabled(Profile* profile) {
@@ -1566,19 +1432,6 @@ GlicEnabling::GlicEnabling(
                 "If you want to inherit from GlicEnabling, ensure this "
                 "function call does not violate the 'no virtual functions in "
                 "constructors' style guide rule. Consider a 2-phase setup");
-#if BUILDFLAG(IS_ANDROID)
-  if (GetGlicProviderSpec(profile_).SupportsFeature(
-          GlicFeature::kExperimentalTriggering) &&
-      base::FeatureList::IsEnabled(features::kGlicBackgroundActuation)) {
-    background_actuation_capability_ =
-        std::make_unique<BackgroundActuationCapability>(
-            profile_->GetPrefs(),
-            IdentityManagerFactory::GetForProfile(profile_),
-            base::BindRepeating(
-                &GlicEnabling::MaybeNotifyExperimentalTriggeringStateChanged,
-                base::Unretained(this)));
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   MaybeNotifyExperimentalTriggeringStateChanged();
   int pref_state =
       profile_->GetPrefs()->GetInteger(prefs::kGlicLastProfileReadyState);
@@ -1751,42 +1604,7 @@ bool GlicEnabling::CanUseAdultFeatures(
 
 // static
 bool GlicEnabling::IsProfileEligibleForNativeFre(Profile* profile) {
-#if !BUILDFLAG(IS_ANDROID)
   return false;
-#else
-  if (!base::FeatureList::IsEnabled(features::kGlicNativeFreAndroid)) {
-    return false;
-  }
-
-  if (!profile || !profile->IsRegularProfile() || !IsReadyForProfile(profile)) {
-    return false;
-  }
-
-  // Exclude Gemini Enterprise (GEiC); Workspace accounts on Glic stay eligible.
-  if (!GetGlicProviderSpec(profile).RequiresGeminiAccountEligibility()) {
-    return false;
-  }
-
-  if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
-          ::switches::kGlicDev)) {
-    signin::IdentityManager* identity_manager =
-        IdentityManagerFactory::GetForProfile(profile);
-    if (!identity_manager) {
-      return false;
-    }
-    AccountInfo primary_account =
-        identity_manager->FindExtendedAccountInfoByAccountId(
-            identity_manager->GetPrimaryAccountId(
-                signin::ConsentLevel::kSignin));
-    // 18+ only. kReady is not enough: in minor-enabled countries, minors are
-    // Glic-capable via can_use_gemini_in_chrome.
-    if (!CanUseAdultFeatures(primary_account.GetAccountCapabilities())) {
-      return false;
-    }
-  }
-
-  return IsCountryEligibleForNativeFre();
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 syncer::DeviceInfo::GlicExperimentalTriggeringState
@@ -1864,12 +1682,6 @@ GlicEnabling::GetExperimentalTriggeringCapabilities() const {
           features::kGlicExperimentalTriggeringScreenshot)) {
     capabilities.insert(kGlicCapabilityScreenshot);
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (background_actuation_capability_ &&
-      background_actuation_capability_->can_actuate_in_background()) {
-    capabilities.insert(kGlicCapabilityBackgroundActuation);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   return capabilities;
 }
 
@@ -1972,14 +1784,6 @@ base::CallbackListSubscription GlicEnabling::RegisterProfileReadyStateChanged(
 
 void GlicEnabling::OnPrimaryAccountChanged(
     const signin::PrimaryAccountChangeEvent& event_details) {
-#if BUILDFLAG(IS_ANDROID)
-  if (event_details.GetEventTypeFor(signin::ConsentLevel::kSignin) ==
-      signin::PrimaryAccountChangeEvent::Type::kCleared) {
-    GetFreStore(profile_).OnPrimaryAccountCleared(profile_);
-    profile_->GetPrefs()->ClearPref(prefs::kGlicUserEnabledActuationOnWeb);
-    profile_->GetPrefs()->ClearPref(prefs::kGlicGeolocationEnabled);
-  }
-#endif
   UpdateEnabledStatus();
 }
 

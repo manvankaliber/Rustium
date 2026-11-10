@@ -7,16 +7,9 @@
  */
 
 // clang-format off
-// <if expr="is_chromeos">
-import {NativeEventTarget as EventTarget} from 'chrome://resources/ash/common/event_target.js';
-import {$, appendParam} from 'chrome://resources/ash/common/util.js';
-import {assert} from 'chrome://resources/ash/common/assert.js';
-// </if>
-// <if expr="not is_chromeos">
 import {assert} from 'chrome://resources/js/assert.js';
 import {$, appendParam} from 'chrome://resources/js/util.js';
 
-// </if>
 
 import {SamlHandler} from './saml_handler.js';
 import {WebviewEventManager} from './webview_event_manager.js';

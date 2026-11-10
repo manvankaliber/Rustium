@@ -5,29 +5,21 @@
 import("//base/allocator/allocator.gni")
 
 source_set("cpp") {
-  # SamplingHeapProfiler is not compiled on iOS unless use_allocator_shim is
-  # true.
-  if (!is_ios || use_allocator_shim) {
-    sources = [
-      "merge_samples.cc",
-      "merge_samples.h",
-    ]
+  sources = [
+    "merge_samples.cc",
+    "merge_samples.h",
+  ]
 
-    deps = [ "//base" ]
-  }
+  deps = [ "//base" ]
 }
 
 source_set("unit_tests") {
   testonly = true
 
-  # SamplingHeapProfiler is not compiled on iOS unless use_allocator_shim is
-  # true.
-  if (!is_ios || use_allocator_shim) {
-    sources = [ "merge_samples_unittest.cc" ]
-    deps = [
-      ":cpp",
-      "//base",
-      "//testing/gtest",
-    ]
-  }
+  sources = [ "merge_samples_unittest.cc" ]
+  deps = [
+    ":cpp",
+    "//base",
+    "//testing/gtest",
+  ]
 }

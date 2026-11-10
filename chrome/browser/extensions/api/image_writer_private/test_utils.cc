@@ -20,68 +20,14 @@
 #include "chrome/browser/extensions/api/image_writer_private/error_constants.h"
 #include "chrome/common/chrome_paths.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/dbus/concierge/concierge_client.h"
-#include "chromeos/ash/components/dbus/dbus_thread_manager.h"
-#include "chromeos/ash/components/dbus/image_burner/fake_image_burner_client.h"
-#include "chromeos/ash/components/dbus/image_burner/image_burner_client.h"
-#include "chromeos/ash/components/disks/disk.h"
-#endif
 
 namespace extensions::image_writer {
 
-#if BUILDFLAG(IS_CHROMEOS)
-class ImageWriterFakeImageBurnerClient : public ash::FakeImageBurnerClient {
- public:
-  ImageWriterFakeImageBurnerClient() = default;
-  ~ImageWriterFakeImageBurnerClient() override = default;
-
-  void SetEventHandlers(
-      BurnFinishedHandler burn_finished_handler,
-      const BurnProgressUpdateHandler& burn_progress_update_handler) override {
-    burn_finished_handler_ = std::move(burn_finished_handler);
-    burn_progress_update_handler_ = burn_progress_update_handler;
-  }
-
-  void BurnImage(const std::string& from_path,
-                 const std::string& to_path,
-                 ErrorCallback error_callback) override {
-    base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-        FROM_HERE,
-        base::BindOnce(burn_progress_update_handler_, to_path, 0, 100));
-    base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-        FROM_HERE,
-        base::BindOnce(burn_progress_update_handler_, to_path, 50, 100));
-    base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-        FROM_HERE,
-        base::BindOnce(burn_progress_update_handler_, to_path, 100, 100));
-    base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-        FROM_HERE,
-        base::BindOnce(std::move(burn_finished_handler_), to_path, true, ""));
-  }
-
- private:
-  BurnFinishedHandler burn_finished_handler_;
-  BurnProgressUpdateHandler burn_progress_update_handler_;
-};
-#endif
 
 MockOperationManager::MockOperationManager(content::BrowserContext* context)
     : OperationManager(context) {}
 MockOperationManager::~MockOperationManager() = default;
 
-#if BUILDFLAG(IS_CHROMEOS)
-UnmountingMockDiskMountManager::UnmountingMockDiskMountManager() = default;
-UnmountingMockDiskMountManager::~UnmountingMockDiskMountManager() = default;
-
-void UnmountingMockDiskMountManager::UnmountDeviceRecursively(
-    const std::string& device_path,
-    UnmountDeviceRecursivelyCallbackType callback) {
-  base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-      FROM_HERE,
-      base::BindOnce(std::move(callback), ash::MountError::kSuccess));
-}
-#endif
 
 SimulateProgressInfo::SimulateProgressInfo(
     const std::vector<int>& progress_list,
@@ -92,7 +38,6 @@ SimulateProgressInfo::~SimulateProgressInfo() = default;
 SimulateProgressInfo::SimulateProgressInfo(const SimulateProgressInfo&) =
     default;
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 FakeImageWriterClient::FakeImageWriterClient()
     : ImageWriterUtilityClient(base::ThreadPool::CreateSequencedTaskRunner(
           {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
@@ -198,19 +143,15 @@ scoped_refptr<ImageWriterUtilityClient> CreateFakeImageWriterUtilityClient(
   utils->OnUtilityClientCreated(client);
   return base::WrapRefCounted(client);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
 ImageWriterTestUtils::ImageWriterTestUtils()
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
     : utility_client_factory_(
           base::BindRepeating(&CreateFakeImageWriterUtilityClient, this))
-#endif
 {
 }
 
 ImageWriterTestUtils::~ImageWriterTestUtils() = default;
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 void ImageWriterTestUtils::OnUtilityClientCreated(
     FakeImageWriterClient* client) {
   DCHECK(!client_.get())
@@ -225,7 +166,6 @@ void ImageWriterTestUtils::RunOnUtilityClientCreation(
     base::OnceCallback<void(FakeImageWriterClient*)> closure) {
   client_creation_callback_ = std::move(closure);
 }
-#endif
 
 void ImageWriterTestUtils::SetUp() {
   ASSERT_TRUE(temp_dir_.CreateUniqueTempDir());
@@ -237,43 +177,11 @@ void ImageWriterTestUtils::SetUp() {
   ASSERT_TRUE(FillFile(test_image_path_, kImagePattern, kTestFileSize));
   ASSERT_TRUE(FillFile(test_device_path_, kDevicePattern, kTestFileSize));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Browser tests might have already initialized ConciergeClient.
-  if (!ash::ConciergeClient::Get()) {
-    ash::ConciergeClient::InitializeFake(
-        /*fake_cicerone_client=*/nullptr);
-    concierge_client_initialized_ = true;
-  }
-  image_burner_client_ = std::make_unique<ImageWriterFakeImageBurnerClient>();
-  ash::ImageBurnerClient::SetInstanceForTest(image_burner_client_.get());
-
-  auto* disk_manager = new UnmountingMockDiskMountManager();
-  ash::disks::DiskMountManager::InitializeForTesting(disk_manager);
-
-  // Adds a disk entry for test_device_path_ with the same device and file path.
-  disk_manager->CreateDiskEntryForMountDevice(
-      {test_device_path_.value(), "/dummy/mount", ash::MountType::kDevice},
-      "device_id", "device_label", "Vendor", "Product", ash::DeviceType::kUSB,
-      kTestFileSize, true, true, true, false, kTestFileSystemType);
-  disk_manager->SetupDefaultReplies();
-#elif !BUILDFLAG(IS_ANDROID)
   ImageWriterUtilityClient::SetFactoryForTesting(&utility_client_factory_);
-#endif
 }
 
 void ImageWriterTestUtils::TearDown() {
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::ImageBurnerClient::SetInstanceForTest(nullptr);
-  image_burner_client_.reset();
-
-  if (concierge_client_initialized_) {
-    ash::ConciergeClient::Shutdown();
-    concierge_client_initialized_ = false;
-  }
-  ash::disks::DiskMountManager::Shutdown();
-#elif !BUILDFLAG(IS_ANDROID)
   ImageWriterUtilityClient::SetFactoryForTesting(nullptr);
-#endif
 }
 
 const base::FilePath& ImageWriterTestUtils::GetTempDir() {

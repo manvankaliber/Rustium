@@ -114,9 +114,6 @@
 #include "chrome/browser/ui/overscroll_pref_manager.h"
 #endif  // defined(USE_AURA)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/settings_window_manager_chromeos.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "ui/display/display.h"
@@ -512,15 +509,6 @@ bool BrowserWebContentsDelegate::CanDragEnter(
     content::WebContents* source,
     const content::DropData& data,
     blink::DragOperationsMask operations_allowed) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // Disallow drag-and-drop navigation for Settings windows which do not support
-  // external navigation.
-  if ((operations_allowed & blink::kDragOperationLink) &&
-      chrome::SettingsWindowManager::GetInstance()->IsSettingsBrowser(
-          &browser_.get())) {
-    return false;
-  }
-#endif
   return true;
 }
 
@@ -590,11 +578,7 @@ BrowserWebContentsDelegate::IsPrerender2Supported(
 
 bool BrowserWebContentsDelegate::ShouldShowStaleContentOnEviction(
     content::WebContents* source) {
-#if BUILDFLAG(IS_CHROMEOS)
-  return source == browser_->GetTabStripModel()->GetActiveWebContents();
-#else
   return false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 content::WebContents* BrowserWebContentsDelegate::OpenURLFromTab(

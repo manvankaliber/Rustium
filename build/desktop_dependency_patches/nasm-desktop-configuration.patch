@@ -1,0 +1,36 @@
+--- a/nasm_assemble.gni
++++ b/nasm_assemble.gni
+@@ -42,14 +42,12 @@
+ #   }
+ 
+ import("//build/compiled_action.gni")
+-import("//build/config/ios/config.gni")
+-import("//build/config/ios/ios_sdk_overrides.gni")
+ import("//build/config/sanitizers/sanitizers.gni")
+ if (is_mac) {
+   import("//build/config/mac/mac_sdk.gni")
+ }
+ 
+-if ((is_mac || is_ios) && (current_cpu == "x86" || current_cpu == "x64")) {
++if (is_mac && (current_cpu == "x86" || current_cpu == "x64")) {
+   if (current_cpu == "x86") {
+     _nasm_flags = [ "-fmacho32" ]
+   } else if (current_cpu == "x64") {
+@@ -61,17 +59,6 @@
+   if (is_mac) {
+     _target_platform = "macos"
+     _min_os_version = mac_deployment_target
+-  } else if (is_ios) {
+-    if (target_environment == "device") {
+-      _target_platform = "ios"
+-    } else if (target_environment == "simulator") {
+-      _target_platform = "iossimulator"
+-    } else if (target_environment == "catalyst") {
+-      _target_platform = "macCatalyst"
+-    } else {
+-      assert(false, "Unknown target environment: $target_environment")
+-    }
+-    _min_os_version = ios_deployment_target
+   }
+   # The NASM pragma uses commas to separate version components.
+   _min_os_version_comma = string_replace(_min_os_version, ".", ",")

@@ -51,8 +51,7 @@ std::u16string GetUsernameFromLabel(const std::u16string& label) {
              : label;
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 // Returns the password form corresponding to the `payload` data. In most
 // cases there is only one such form stored, but having more than one or no
 // forms is also possible. If there is more than one form, showing any of them
@@ -359,8 +358,7 @@ void PasswordManualFallbackFlow::DidAcceptSuggestion(
       break;
     }
     case autofill::SuggestionType::kViewPasswordDetails: {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
       std::optional<password_manager::PasswordForm> credentials =
           GetCorrespondingPasswordForm(
               suggestion.GetPayload<Suggestion::PasswordSuggestionDetails>(),
@@ -489,12 +487,12 @@ void PasswordManualFallbackFlow::MaybeAuthenticateBeforeFilling(
       base::BindOnce(&PasswordManualFallbackFlow::OnBiometricReauthCompleted,
                      weak_ptr_factory_.GetWeakPtr(), std::move(fill_fields));
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   const std::u16string origin = base::UTF8ToUTF16(GetShownOrigin(
       url::Origin::Create(password_manager_driver_->GetLastCommittedURL())));
   message =
       l10n_util::GetStringFUTF16(IDS_PASSWORD_MANAGER_FILLING_REAUTH, origin);
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
   authenticator_->AuthenticateWithMessage(
       message, metrics_util::TimeCallbackMediumTimes(
                    std::move(on_reath_complete),
@@ -524,8 +522,7 @@ void PasswordManualFallbackFlow::CancelBiometricReauthIfOngoing() {
 void PasswordManualFallbackFlow::EnsureCrossDomainPasswordUsageGetsConsent(
     const Suggestion::PasswordSuggestionDetails& payload,
     base::OnceClosure on_allowed) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   if (payload.is_cross_domain) {
     CHECK(payload.display_signon_realm);
     cross_domain_confirmation_popup_controller_ =

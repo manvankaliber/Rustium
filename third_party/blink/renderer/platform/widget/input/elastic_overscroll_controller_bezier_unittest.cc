@@ -130,11 +130,7 @@ TEST_F(ElasticOverscrollControllerBezierTest, OverscrollStretch) {
   SendGestureScrollBegin(PhaseState::kNonMomentum);
   EXPECT_EQ(Vector2dF(0, 0), helper_.StretchAmount(cc::ElementId()));
   SendGestureScrollUpdate(PhaseState::kNonMomentum, Vector2dF(0, -100));
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(Vector2dF(0, 0), helper_.StretchAmount(cc::ElementId()));
-#else
   EXPECT_EQ(Vector2dF(0, -19), helper_.StretchAmount(cc::ElementId()));
-#endif
   SendGestureScrollUpdate(PhaseState::kNonMomentum, Vector2dF(0, 100));
   EXPECT_EQ(Vector2dF(0, 0), helper_.StretchAmount(cc::ElementId()));
   SendGestureScrollEnd();
@@ -143,11 +139,7 @@ TEST_F(ElasticOverscrollControllerBezierTest, OverscrollStretch) {
   SendGestureScrollBegin(PhaseState::kNonMomentum);
   EXPECT_EQ(Vector2dF(0, 0), helper_.StretchAmount(cc::ElementId()));
   SendGestureScrollUpdate(PhaseState::kNonMomentum, Vector2dF(-100, 0));
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(Vector2dF(0, 0), helper_.StretchAmount(cc::ElementId()));
-#else
   EXPECT_EQ(Vector2dF(-19, 0), helper_.StretchAmount(cc::ElementId()));
-#endif
   SendGestureScrollUpdate(PhaseState::kNonMomentum, Vector2dF(100, 0));
   EXPECT_EQ(Vector2dF(0, 0), helper_.StretchAmount(cc::ElementId()));
   SendGestureScrollEnd();

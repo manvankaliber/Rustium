@@ -15,9 +15,6 @@
 #include "base/memory/raw_ptr.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "base/ios/scoped_critical_action.h"
-#endif
 
 #include "base/auto_reset.h"
 #include "base/functional/callback_forward.h"
@@ -342,11 +339,6 @@ class ComposeboxQueryController
     std::vector<std::unique_ptr<endpoint_fetcher::EndpointFetcher>>
         chunk_upload_endpoint_fetchers;
 
-#if BUILDFLAG(IS_IOS)
-    // Background execution assertion to prevent iOS from suspending the app
-    // during a file upload.
-    std::unique_ptr<base::ios::ScopedCriticalAction> background_action;
-#endif
   };
 
   // Creates the request body proto for an image and calls the callback with the

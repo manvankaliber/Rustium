@@ -8,9 +8,7 @@ import("//third_party/widevine/cdm/widevine.gni")
 static_library("renderer") {
   # See //components/cdm/README.md
   visibility = [
-    "//android_webview/*",
     "//chrome/*",
-    "//chromecast/*",
     "//components/cdm/*",
     "//content/shell/*",
   ]
@@ -28,17 +26,10 @@ static_library("renderer") {
     "//third_party/widevine/cdm:buildflags",
   ]
 
-  if (enable_library_cdms || is_win || is_android) {
+  if (enable_library_cdms || is_win) {
     sources += [
       "key_system_support_update.cc",
       "key_system_support_update.h",
-    ]
-  }
-
-  if (is_android) {
-    sources += [
-      "android_key_system_info.cc",
-      "android_key_system_info.h",
     ]
   }
 

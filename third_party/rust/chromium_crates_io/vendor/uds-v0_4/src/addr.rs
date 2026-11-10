@@ -43,8 +43,8 @@ const TOO_LONG_DESC: &str = "address is too long";
 ///
 /// Creating an abstract address (fails if the OS doesn't support them):
 ///
-#[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-#[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+#[cfg_attr(target_os="linux", doc="```")]
+#[cfg_attr(not(target_os="linux"), doc="```no_run")]
 /// use uds::UnixSocketAddr;
 ///
 /// let addr = UnixSocketAddr::new("@abstract").unwrap();
@@ -228,8 +228,8 @@ impl UnixSocketAddr {
     ///
     /// # Examples
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use uds::{UnixSocketAddr, UnixDatagramExt};
     /// # use std::os::unix::net::UnixDatagram;
     /// let addr = UnixSocketAddr::new_unspecified();
@@ -545,8 +545,8 @@ impl UnixSocketAddr {
     ///
     /// On Linux:
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use uds::UnixSocketAddr;
     /// let addr = UnixSocketAddr::from_raw_bytes(b"\0a").unwrap();
     /// assert_eq!(addr.as_abstract(), Some(&b"a"[..]));
@@ -555,8 +555,8 @@ impl UnixSocketAddr {
     ///
     /// Elsewhere:
     ///
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```")]
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```no_run")]
+    #[cfg_attr(not(target_os="linux"), doc="```")]
+    #[cfg_attr(target_os="linux", doc="```no_run")]
     /// # use uds::UnixSocketAddr;
     /// let addr = UnixSocketAddr::from_raw_bytes(b"\0a").unwrap();
     /// assert!(addr.is_unnamed());
@@ -607,8 +607,8 @@ impl UnixSocketAddr {
     ///
     /// Abstract address:
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use uds::UnixSocketAddr;
     /// let addr = UnixSocketAddr::new("@someone@").unwrap();
     /// assert_eq!(addr.as_raw_bytes(), b"\0someone@");

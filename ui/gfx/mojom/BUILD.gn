@@ -8,7 +8,7 @@ import("//mojo/public/tools/bindings/mojom.gni")
 
 mojom("mojom") {
   generate_blink = true
-  generate_java = true
+
   sources = [
     "accelerated_widget.mojom",
     "buffer_types.mojom",
@@ -382,14 +382,13 @@ mojom("mojom") {
 mojom("native_handle_types") {
   generate_blink = true
   sources = [ "native_handle_types.mojom" ]
-  supports_native_pixmap = is_linux || is_chromeos || use_ozone
+  supports_native_pixmap = is_linux || use_ozone
 
   if (supports_native_pixmap) {
     enabled_features = [ "supports_native_pixmap" ]
   }
 
   public_deps = [ "//mojo/public/mojom/base" ]
-  generate_java = true
 
   shared_cpp_typemaps = []
 
@@ -428,22 +427,6 @@ mojom("native_handle_types") {
             cpp = "::gfx::GpuMemoryBufferHandle"
             move_only = true
             nullable_is_same_type = true
-          },
-        ]
-        traits_headers = [ "native_handle_types_mojom_traits.h" ]
-        traits_public_deps = [ ":native_handle_types_mojom_traits" ]
-      },
-    ]
-  }
-
-  if (is_android) {
-    shared_cpp_typemaps += [
-      {
-        types = [
-          {
-            mojom = "gfx.mojom.AHardwareBufferHandle"
-            cpp = "::base::android::ScopedHardwareBufferHandle"
-            move_only = true
           },
         ]
         traits_headers = [ "native_handle_types_mojom_traits.h" ]
@@ -523,7 +506,6 @@ component("native_handle_types_mojom_traits") {
 
 mojom("hdr_metadata") {
   generate_blink = true
-  generate_java = true
 
   sources = [ "hdr_metadata.mojom" ]
 

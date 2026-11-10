@@ -64,9 +64,7 @@ class DeepScanningRequest;
 class DownloadRequestMaker;
 class SafeBrowsingUIManager;
 
-#if !BUILDFLAG(IS_ANDROID)
 class DownloadFeedbackService;
-#endif
 
 // This class provides an asynchronous API to check whether a particular
 // client download is malicious or not.
@@ -426,9 +424,7 @@ class DownloadProtectionService {
   // BinaryFeatureExtractor object, may be overridden for testing.
   scoped_refptr<BinaryFeatureExtractor> binary_feature_extractor_;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<DownloadFeedbackService> feedback_service_;
-#endif
 
   // A list of callbacks to be run on the main thread when a
   // ClientDownloadRequest has been formed.

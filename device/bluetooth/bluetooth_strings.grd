@@ -28,13 +28,10 @@ This file contains the strings for bluetooth.
     <output filename="bluetooth_strings_en-GB.pak" type="data_package" lang="en-GB" />
     <output filename="bluetooth_strings_en-US.pak" type="data_package" lang="en" />
     <output filename="bluetooth_strings_es.pak" type="data_package" lang="es" />
-    <if expr="is_ios">
-      <!-- iOS uses es-MX for es-419 -->
-      <output filename="bluetooth_strings_es-MX.pak" type="data_package" lang="es-419" />
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="bluetooth_strings_es-419.pak" type="data_package" lang="es-419" />
-    </if>
+
     <output filename="bluetooth_strings_et.pak" type="data_package" lang="et" />
     <output filename="bluetooth_strings_eu.pak" type="data_package" lang="eu" />
     <output filename="bluetooth_strings_fa.pak" type="data_package" lang="fa" />
@@ -75,13 +72,10 @@ This file contains the strings for bluetooth.
     <output filename="bluetooth_strings_nb.pak" type="data_package" lang="no" />
     <output filename="bluetooth_strings_pa.pak" type="data_package" lang="pa" />
     <output filename="bluetooth_strings_pl.pak" type="data_package" lang="pl" />
-    <if expr="is_ios">
-      <!-- iOS uses pt for pt-BR -->
-      <output filename="bluetooth_strings_pt.pak" type="data_package" lang="pt-BR" />
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="bluetooth_strings_pt-BR.pak" type="data_package" lang="pt-BR" />
-    </if>
+
     <output filename="bluetooth_strings_pt-PT.pak" type="data_package" lang="pt-PT" />
     <output filename="bluetooth_strings_or.pak" type="data_package" lang="or" />
     <output filename="bluetooth_strings_ro.pak" type="data_package" lang="ro" />

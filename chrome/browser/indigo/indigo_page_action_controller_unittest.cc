@@ -89,9 +89,6 @@
 #include "ui/gfx/image/image_skia.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/network/network_handler_test_helper.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace indigo {
 namespace {
@@ -116,11 +113,7 @@ class FakeGlicSidePanelCoordinator : public glic::GlicSidePanelCoordinator {
       base::RepeatingCallback<void(State state)> callback) override {
     return {};
   }
-#if !BUILDFLAG(IS_ANDROID)
   void SetContentsView(std::unique_ptr<views::View> contents_view) override {}
-#else
-  void SetWebContents(content::WebContents* web_contents) override {}
-#endif
   int GetPreferredWidth() override { return 300; }
   bool IsGlicSidePanelActive() override { return is_active_; }
 
@@ -179,11 +172,7 @@ class FakeDocumentMetadata : public blink::mojom::DocumentMetadata {
   base::OnceClosure quit_closure_;
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-constexpr bool kSignOutSupportedOnPlatform = false;
-#else
 constexpr bool kSignOutSupportedOnPlatform = true;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 struct CreateControllerOptions {
   bool expect_register_optimization_types = true;
@@ -591,11 +580,6 @@ class IndigoPageActionControllerTestBase : public testing::Test {
   content::BrowserTaskEnvironment task_environment_{
       base::test::TaskEnvironment::TimeSource::MOCK_TIME};
   ChromeLayoutProvider layout_provider_;
-#if BUILDFLAG(IS_CHROMEOS)
-  // Needed because TestWebContents ends up creating BTM classes which depend
-  // on this on ChromeOS.
-  ash::NetworkHandlerTestHelper network_handler_test_helper_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   raw_ptr<TestingProfileManager> testing_profile_manager_;
   raw_ptr<testing::NiceMock<glic::MockGlicKeyedService>>
       mock_glic_keyed_service_ = nullptr;
@@ -2354,7 +2338,6 @@ TEST_P(IndigoPageActionControllerTest, CheckEligibilityForCueingForced) {
   EXPECT_TRUE(future.Get());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // ChromeOS profiles in browser tests have multi profiles.
 TEST_P(IndigoPageActionControllerTest,
        CheckEligibilityForCueingNotLocallyEligible) {
@@ -2366,7 +2349,6 @@ TEST_P(IndigoPageActionControllerTest,
   controller_->CheckEligibilityForCueing(future.GetCallback());
   EXPECT_FALSE(future.Get());
 }
-#endif
 
 TEST_P(IndigoPageActionControllerTest, CheckEligibilityForCueingOptGuideTrue) {
   CreateController();

@@ -792,7 +792,6 @@ INSTANTIATE_TEST_SUITE_P(
 
 // This fails on ChromeOS because kRestoreOnStartup is ignored and the startup
 // preference is always "continue where I left off.
-#if !BUILDFLAG(IS_CHROMEOS)
 
 // Verify that cookies can be allowed and set using exceptions for particular
 // website(s) only for a session when all others are blocked.
@@ -820,7 +819,6 @@ IN_PROC_BROWSER_TEST_F(ContentSettingsTest,
   ASSERT_TRUE(GetCookies(browser()->GetProfile(), url).empty());
 }
 
-#endif  // !CHROME_OS
 
 // Regression test for http://crbug.com/40480136.
 IN_PROC_BROWSER_TEST_F(ContentSettingsTest, RedirectLoopCookies) {

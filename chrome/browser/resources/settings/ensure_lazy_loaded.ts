@@ -23,14 +23,10 @@ export function ensureLazyLoaded(): Promise<void> {
                             'settings-search-engines-page',
                             'settings-a11y-page',
                             'settings-downloads-page',
-                            // <if expr="not is_chromeos">
                             'settings-languages-page',
-                            // </if>
                             'settings-reset-page',
-                            // <if expr="not is_chromeos">
                             'settings-system-page',
-                            // </if>
-                            // <if expr="not is_chromeos and not is_macosx">
+                            // <if expr="not is_macosx">
                             'settings-edit-dictionary-page',
                             // </if>
                           ].map(name => customElements.whenDefined(name)))

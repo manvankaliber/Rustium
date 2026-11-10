@@ -67,26 +67,22 @@ source_set("internal") {
     "webui/statistics_collector.h",
   ]
 
-  if (!is_chromeos) {
-    sources += [
-      "cloud/user_policy_signin_service_base.cc",
-      "cloud/user_policy_signin_service_base.h",
-      "cloud/user_policy_signin_service_util.cc",
-      "cloud/user_policy_signin_service_util.h",
-    ]
-  }
+  sources += [
+    "cloud/user_policy_signin_service_base.cc",
+    "cloud/user_policy_signin_service_base.h",
+    "cloud/user_policy_signin_service_util.cc",
+    "cloud/user_policy_signin_service_util.h",
+  ]
 
   sources += [
     "url_list/incognito_mode_policy_handler.cc",
     "url_list/incognito_mode_policy_handler.h",
   ]
 
-  if (!is_android) {
-    sources += [
-      "cloud/user_cloud_management_status_fetcher.cc",
-      "cloud/user_cloud_management_status_fetcher.h",
-    ]
-  }
+  sources += [
+    "cloud/user_cloud_management_status_fetcher.cc",
+    "cloud/user_cloud_management_status_fetcher.h",
+  ]
 
   configs += [ "//components/policy:component_implementation" ]
 
@@ -114,14 +110,6 @@ source_set("internal") {
     "//ui/base",
     "//url",
   ]
-
-  if (is_android) {
-    sources += [
-      "android/policy_cache_updater_android.cc",
-      "android/policy_cache_updater_android.h",
-    ]
-    deps += [ "//components/policy/android:jni_headers" ]
-  }
 
   public_deps += [ "//components/policy/core/common:internal" ]
   deps += [
@@ -243,19 +231,10 @@ source_set("unit_tests") {
     "//url",
   ]
 
-  if (!is_chromeos) {
-    sources +=
-        [ "webui/machine_level_user_cloud_policy_status_provider_unittest.cc" ]
-  }
-
-  if (is_android) {
-    sources += [ "android/policy_cache_updater_android_unittest.cc" ]
-    deps += [ "//components/policy/android:test_jni_headers" ]
-  }
+  sources +=
+      [ "webui/machine_level_user_cloud_policy_status_provider_unittest.cc" ]
 
   sources += [ "url_list/incognito_mode_policy_handler_unittest.cc" ]
 
-  if (!is_android) {
-    sources += [ "cloud/user_cloud_management_status_fetcher_unittest.cc" ]
-  }
+  sources += [ "cloud/user_cloud_management_status_fetcher_unittest.cc" ]
 }

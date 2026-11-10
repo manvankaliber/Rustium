@@ -34,11 +34,7 @@ const char kSeedFileTrial[] = "SeedFileTrial";
 const char kDefaultGroup[] = "Default";
 const char kControlGroup[] = "Control_V15";
 // TODO(crbug.com/530049020): Launch on Android and iOS
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-const char kSeedFilesGroup[] = "SeedFiles_V15";
-#else
 const char kSeedFilesGroup[] = "SeedFilesLaunched";
-#endif
 
 // A sentinel value that may be stored as the latest variations seed value in
 // to indicate that the latest seed is identical to the safe seed. Used to avoid

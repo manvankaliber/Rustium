@@ -577,9 +577,6 @@ IN_PROC_BROWSER_TEST_F(SyntheticMouseEventTest, MouseEventCoordinatesWithZoom) {
 // exercises the browser zoom read by InputHandler::ScaleFactor().
 IN_PROC_BROWSER_TEST_F(SyntheticMouseEventTest,
                        WheelEventDeltasWithBrowserZoom) {
-#if BUILDFLAG(IS_ANDROID)
-  GTEST_SKIP() << "Browser zoom is not supported on Android.";
-#endif
   ASSERT_TRUE(embedded_test_server()->Start());
   GURL test_url = embedded_test_server()->GetURL("/devtools/zoom.html");
   NavigateToURLBlockUntilNavigationsComplete(shell(), test_url, 1);
@@ -895,12 +892,10 @@ class CaptureScreenshotTest : public DevToolsProtocolTest {
   bool is_trusted_ = true;
 
  private:
-#if !BUILDFLAG(IS_ANDROID)
   void SetUp() override {
     EnablePixelOutput();
     DevToolsProtocolTest::SetUp();
   }
-#endif
 };
 
 IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
@@ -1001,7 +996,7 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
 // TODO(crbug.com/40156819) Android Lollipop has a problem with capturing
 // screenshot.
 // TODO(crbug.com/40815512): Failing on MacOS.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_CaptureScreenshotBeyondViewport_InnerScrollbarsAreShown \
   DISABLED_CaptureScreenshotBeyondViewport_InnerScrollbarsAreShown
 #else
@@ -1044,7 +1039,6 @@ IN_PROC_BROWSER_TEST_F(
 }
 
 // ChromeOS and Android don't support software compositing.
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
 class NoGPUCaptureScreenshotTest : public CaptureScreenshotTest {
   void SetUpCommandLine(base::CommandLine* command_line) override {
@@ -1104,7 +1098,6 @@ IN_PROC_BROWSER_TEST_F(NoGPUCaptureScreenshotTest, MAYBE_LargeScreenshot) {
   EXPECT_GT(static_cast<int>(SkColorGetB(bottom_left)), 128);
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
 class HiDpiCaptureScreenshotTest : public CaptureScreenshotTest {
  protected:
@@ -1273,11 +1266,7 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
 // and that setDeviceMetricsOverride doesn't affect it.
 IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
 // TODO(crbug.com/40875549): Fix this failing test
-#if BUILDFLAG(IS_ANDROID)
-                       DISABLED_TransparentScreenshotsViewport) {
-#else
                        TransparentScreenshotsViewport) {
-#endif
   if (base::SysInfo::IsLowEndDevice())
     return;
 
@@ -1296,7 +1285,6 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
                                 ScreenshotEncoding::PNG,
                                 /*from_surface=*/true);
 
-#if !BUILDFLAG(IS_ANDROID)
 
   float device_scale_factor =
       display::Screen::Get()->GetPrimaryDisplay().device_scale_factor();
@@ -1311,7 +1299,6 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
                                 /*from_surface=*/true, device_scale_factor);
 
   SendCommandSync("Emulation.clearDeviceMetricsOverride");
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   SetDefaultBackgroundColorOverride(/*r=*/255, /*g=*/0, /*b=*/0,
                                     /*a=*/1.0 / 255 * 16);
@@ -1322,7 +1309,6 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
                                 ScreenshotEncoding::PNG,
                                 /*from_surface=*/true);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Check that device emulation does not affect the transparency.
 
   SetDeviceMetricsOverride(view_size.width(), view_size.height(),
@@ -1334,16 +1320,11 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
                                 /*from_surface=*/true, device_scale_factor);
 
   SendCommandSync("Emulation.clearDeviceMetricsOverride");
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
 // TODO(crbug.com/40875549): Fix this failing test
-#if BUILDFLAG(IS_ANDROID)
-                       DISABLED_TransparentScreenshotsBeyondViewport) {
-#else
                        TransparentScreenshotsBeyondViewport) {
-#endif
   if (base::SysInfo::IsLowEndDevice())
     return;
 
@@ -1380,7 +1361,6 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
                                 /*clip=*/gfx::RectF(), /*clip_scale=*/0,
                                 /*capture_beyond_viewport=*/true);
 
-#if !BUILDFLAG(IS_ANDROID)
 
   // Check that device emulation does not affect the transparency.
   SetDeviceMetricsOverride(view_size.width(), view_size.height(),
@@ -1402,7 +1382,6 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
                                 /*capture_beyond_viewport=*/true);
 
   SendCommandSync("Emulation.clearDeviceMetricsOverride");
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   SetDefaultBackgroundColorOverride(/*r=*/255, /*g=*/0, /*b=*/0,
                                     /*a=*/1.0 / 255 * 16);
@@ -1429,7 +1408,6 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
                                 /*clip=*/gfx::RectF(), /*clip_scale=*/0,
                                 /*capture_beyond_viewport=*/true);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Check that device emulation does not affect the transparency.
 
   SetDeviceMetricsOverride(view_size.width(), view_size.height(),
@@ -1450,12 +1428,10 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
                                 /*capture_beyond_viewport=*/true);
 
   SendCommandSync("Emulation.clearDeviceMetricsOverride");
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 // TODO(crbug.com/40239673): Semi-transparent screenshots of viewport fail on
 // android devices - a scrollbar is showing.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest, TransparentScreenshotsFull) {
   if (base::SysInfo::IsLowEndDevice())
     return;
@@ -1577,9 +1553,7 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest, TransparentScreenshotsFull) {
 
   SendCommandSync("Emulation.clearDeviceMetricsOverride");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 // Verifies that CaptureScreenshotsBeyondViewport supports emulation with the
 // use of setDeviceMetricsOverride and setDefaultBackgroundColorOverride
 IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
@@ -1636,7 +1610,6 @@ IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
       /*clip_scale=*/1, /*capture_beyond_viewport=*/true);
   SendCommandSync("Emulation.clearDeviceMetricsOverride");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(CaptureScreenshotTest,
                        OnlyScreenshotsFromSurfaceWhenUnsafeNotAllowed) {
@@ -1773,67 +1746,6 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
             "Target does not support metrics override");
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Disabled, see http://crbug.com/469947.
-IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, DISABLED_SynthesizePinchGesture) {
-  GURL test_url = GetTestUrl("devtools", "synthetic_gesture_tests.html");
-  NavigateToURLBlockUntilNavigationsComplete(shell(), test_url, 1);
-  Attach();
-
-  int old_width = EvalJs(shell(), "window.innerWidth").ExtractInt();
-
-  int old_height = EvalJs(shell(), "window.innerHeight").ExtractInt();
-
-  base::DictValue params;
-  params.Set("x", old_width / 2);
-  params.Set("y", old_height / 2);
-  params.Set("scaleFactor", 2.0);
-  SendCommandSync("Input.synthesizePinchGesture", std::move(params));
-
-  int new_width = EvalJs(shell(), "window.innerWidth").ExtractInt();
-  ASSERT_DOUBLE_EQ(2.0, static_cast<double>(old_width) / new_width);
-
-  int new_height = EvalJs(shell(), "window.innerHeight").ExtractInt();
-  ASSERT_DOUBLE_EQ(2.0, static_cast<double>(old_height) / new_height);
-}
-
-IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, DISABLED_SynthesizeScrollGesture) {
-  GURL test_url = GetTestUrl("devtools", "synthetic_gesture_tests.html");
-  NavigateToURLBlockUntilNavigationsComplete(shell(), test_url, 1);
-  Attach();
-
-  ASSERT_EQ(0, EvalJs(shell(), "document.body.scrollTop"));
-
-  base::DictValue params;
-  params.Set("x", 0);
-  params.Set("y", 0);
-  params.Set("xDistance", 0);
-  params.Set("yDistance", -100);
-  SendCommandSync("Input.synthesizeScrollGesture", std::move(params));
-
-  ASSERT_EQ(100, EvalJs(shell(), "document.body.scrollTop"));
-}
-
-IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, DISABLED_SynthesizeTapGesture) {
-  GURL test_url = GetTestUrl("devtools", "synthetic_gesture_tests.html");
-  NavigateToURLBlockUntilNavigationsComplete(shell(), test_url, 1);
-  Attach();
-
-  ASSERT_EQ(0, EvalJs(shell(), "document.body.scrollTop"));
-
-  base::DictValue params;
-  params.Set("x", 16);
-  params.Set("y", 16);
-  params.Set("gestureSourceType", "touch");
-  SendCommandSync("Input.synthesizeTapGesture", std::move(params));
-
-  // The link that we just tapped should take us to the bottom of the page. The
-  // new value of |document.body.scrollTop| will depend on the screen dimensions
-  // of the device that we're testing on, but in any case it should be greater
-  // than 0.
-  ASSERT_GT(EvalJs(shell(), "document.body.scrollTop").ExtractInt(), 0);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // TODO(crbug.com/40825729): Flaky on multiple bots.
 IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, DISABLED_PageCrash) {
@@ -1863,11 +1775,7 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, DISABLED_PageCrash) {
   WaitForNotification("Inspector.targetReloadedAfterCrash", true);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PageCrashInFrame DISABLED_PageCrashInFrame
-#else
 #define MAYBE_PageCrashInFrame PageCrashInFrame
-#endif
 IN_PROC_BROWSER_TEST_F(SitePerProcessDevToolsProtocolTest,
                        MAYBE_PageCrashInFrame) {
   ASSERT_TRUE(embedded_test_server()->Start());
@@ -2195,25 +2103,6 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
       testing::Optional(static_cast<int>(crdtp::DispatchCode::SERVER_ERROR)));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
-                       NavigationToExternalFileUrlRequiresFileAccess) {
-  Attach();
-
-  base::DictValue params;
-  params.Set("url", "externalfile://path/to/file");
-
-  Detach();
-  SetMayReadLocalFiles(false);
-
-  Attach();
-
-  ASSERT_FALSE(SendCommandSync("Page.navigate", params.Clone()));
-  EXPECT_THAT(
-      error()->FindInt("code"),
-      testing::Optional(static_cast<int>(crdtp::DispatchCode::SERVER_ERROR)));
-}
-#endif
 
 IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
                        GetNavigationHistoryRedactsFileUrlsWithoutFileAccess) {
@@ -3296,11 +3185,7 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
   WaitForNotification("Inspector.targetReloadedAfterCrash", true);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_InspectorTargetCrashedReload DISABLED_InspectorTargetCrashedReload
-#else
 #define MAYBE_InspectorTargetCrashedReload InspectorTargetCrashedReload
-#endif
 IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
                        MAYBE_InspectorTargetCrashedReload) {
   set_agent_host_can_close();
@@ -4565,46 +4450,9 @@ class DevToolsProtocolDeviceEmulationTest : public DevToolsProtocolTest {
   }
 };
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(DevToolsProtocolDeviceEmulationTest,
-                       AndroidLayoutViewportUsesDeviceSize) {
-  NavigateToURLBlockUntilNavigationsComplete(
-      shell(), GURL("data:text/html,<!doctype html><body></body>"), 1);
-  Attach();
-
-  const gfx::Size original_size = GetLayoutViewportSize();
-  const gfx::Size first_size(250, 300);
-  const gfx::Size second_size(320, 480);
-
-  EmulateDeviceSize(first_size);
-  EXPECT_EQ(first_size, GetLayoutViewportSize());
-
-  EmulateDeviceScaleFactor(2.0f);
-  EXPECT_NEAR(2.0,
-              EvalJs(shell()->web_contents(), "window.devicePixelRatio")
-                  .ExtractDouble(),
-              0.000001);
-  // With no explicit width or height, changing only the DPR must restore the
-  // native Android layout viewport rather than retaining the previous size.
-  EXPECT_EQ(original_size.width(), GetLayoutViewportSize().width());
-
-  EmulateDeviceSize(second_size);
-  EXPECT_EQ(second_size, GetLayoutViewportSize());
-
-  SendCommandSync("Emulation.clearDeviceMetricsOverride");
-  // Android browser controls can change the available height while this test
-  // runs. The layout viewport width is stable and verifies that the native
-  // mobile viewport behavior was restored.
-  EXPECT_EQ(original_size.width(), GetLayoutViewportSize().width());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Setting frame size (through RWHV) is not supported on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_DeviceSize DISABLED_DeviceSize
-#else
 #define MAYBE_DeviceSize DeviceSize
-#endif
 IN_PROC_BROWSER_TEST_F(DevToolsProtocolDeviceEmulationTest, MAYBE_DeviceSize) {
   content::SetupCrossSiteRedirector(embedded_test_server());
   ASSERT_TRUE(embedded_test_server()->Start());
@@ -4636,12 +4484,7 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolDeviceEmulationTest, MAYBE_DeviceSize) {
 }
 
 // Setting frame size (through RWHV) is not supported on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_RenderKillDoesNotCrashBrowser \
-  DISABLED_RenderKillDoesNotCrashBrowser
-#else
 #define MAYBE_RenderKillDoesNotCrashBrowser RenderKillDoesNotCrashBrowser
-#endif
 IN_PROC_BROWSER_TEST_F(DevToolsProtocolDeviceEmulationTest,
                        MAYBE_RenderKillDoesNotCrashBrowser) {
   NavigateToURLBlockUntilNavigationsComplete(shell(), GURL("about:blank"), 1);
@@ -4721,11 +4564,7 @@ class DevToolsProtocolDeviceEmulationPrerenderTest
 };
 
 // Setting frame size (through RWHV) is not supported on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_DeviceSize DISABLED_DeviceSize
-#else
 #define MAYBE_DeviceSize DeviceSize
-#endif
 IN_PROC_BROWSER_TEST_F(DevToolsProtocolDeviceEmulationPrerenderTest,
                        DevicePostureOverrideDuringPrerenderActivation) {
   content::SetupCrossSiteRedirector(embedded_test_server());
@@ -4922,7 +4761,6 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolBackForwardCacheTest, Basic) {
 }
 
 // Download tests are flaky on Android: https://crbug.com/7546
-#if !BUILDFLAG(IS_ANDROID)
 namespace {
 
 static DownloadManagerImpl* DownloadManagerForShell(Shell* shell) {
@@ -5464,7 +5302,6 @@ IN_PROC_BROWSER_TEST_F(DevToolsDownloadContentTest, DISABLED_MultiDownload) {
   ASSERT_TRUE(base::ContentsEqual(
       file2, GetTestFilePath("download", "download-test.lib")));
 }
-#endif  // !defined(ANDROID)
 
 IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, UnsafeOperations) {
   NavigateToURLBlockUntilNavigationsComplete(shell(), GURL("about:blank"), 1);
@@ -5960,11 +5797,7 @@ class FakeSystemTracingDevToolsProtocolTest
 };
 
 // No system consumer support on Android to reduce Chrome binary size.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_TracingWithFakeSystemBackend DISABLED_TracingWithFakeSystemBackend
-#else
 #define MAYBE_TracingWithFakeSystemBackend TracingWithFakeSystemBackend
-#endif
 IN_PROC_BROWSER_TEST_F(FakeSystemTracingDevToolsProtocolTest,
                        MAYBE_TracingWithFakeSystemBackend) {
   EXPECT_TRUE(StartSystemTrace());
@@ -5983,11 +5816,7 @@ class FakeSystemTracingForbiddenDevToolsProtocolTest
 };
 
 // No system consumer support on Android to reduce Chrome binary size.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SystemConsumerForbidden DISABLED_SystemConsumerForbidden
-#else
 #define MAYBE_SystemConsumerForbidden SystemConsumerForbidden
-#endif
 IN_PROC_BROWSER_TEST_F(FakeSystemTracingForbiddenDevToolsProtocolTest,
                        MAYBE_SystemConsumerForbidden) {
   EXPECT_FALSE(StartSystemTrace());

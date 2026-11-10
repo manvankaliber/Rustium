@@ -236,16 +236,6 @@
 #include "url/origin.h"
 #include "url/scheme_host_port.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "chrome/browser/android/customtabs/chrome_origin_verifier.h"
-#include "chrome/browser/android/search_permissions/search_permissions_service.h"
-#include "chrome/browser/android/webapps/webapp_registry.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_test_helper.h"
-#include "components/password_manager/core/browser/split_stores_and_local_upm.h"
-#include "testing/gmock/include/gmock/gmock.h"
-#else
 #include "base/task/current_thread.h"
 #include "chrome/browser/new_tab_page/microsoft_auth/microsoft_auth_service.h"
 #include "chrome/browser/new_tab_page/microsoft_auth/microsoft_auth_service_factory.h"
@@ -262,9 +252,7 @@
 #include "components/sync_preferences/testing_pref_service_syncable.h"
 #include "content/public/browser/host_zoom_map.h"
 #include "third_party/blink/public/mojom/dom_storage/storage_area.mojom.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/test/test_future.h"
 #include "chrome/browser/ui/web_applications/test/isolated_web_app_test_utils.h"
 #include "chrome/browser/web_applications/isolated_web_apps/commands/get_controlled_frame_partition_command.h"
@@ -276,21 +264,12 @@
 #include "chrome/browser/web_applications/web_app.h"
 #include "chrome/browser/web_applications/web_app_command_scheduler.h"
 #include "chrome/browser/web_applications/web_app_sync_bridge.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/users/fake_chrome_user_manager.h"
-#include "chromeos/ash/components/dbus/attestation/fake_attestation_client.h"
-#include "chromeos/dbus/tpm_manager/fake_tpm_manager_client.h"
-#include "components/account_id/account_id.h"
-#include "components/user_manager/scoped_user_manager.h"
-#include "components/user_manager/test_helper.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "components/crash/core/app/crashpad.h"
 #include "components/upload_list/crash_upload_list.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/browser/extensions/mock_extension_special_storage_policy.h"
@@ -359,33 +338,6 @@ auto MoveArgToFuture(TestFuture<T>* future) {
 
 // Testers --------------------------------------------------------------------
 
-#if BUILDFLAG(IS_ANDROID)
-class TestWebappRegistry : public WebappRegistry {
- public:
-  TestWebappRegistry() : WebappRegistry() {}
-
-  void UnregisterWebappsForUrls(
-      const base::RepeatingCallback<bool(const GURL&)>& url_filter) override {
-    // Mocks out a JNI call.
-  }
-
-  void ClearWebappHistoryForUrls(
-      const base::RepeatingCallback<bool(const GURL&)>& url_filter) override {
-    // Mocks out a JNI call.
-  }
-};
-
-class MockTabModel : public TestTabModel {
- public:
-  explicit MockTabModel(TestingProfile* profile) : TestTabModel(profile) {}
-
-  MOCK_METHOD(void,
-              CloseTabsNavigatedInTimeWindow,
-              (const base::Time& begin_time, const base::Time& end_time),
-              (override));
-};
-
-#endif
 
 class RemoveCookieTester {
  public:
@@ -1146,9 +1098,7 @@ class ChromeBrowsingDataRemoverDelegateTest : public testing::Test {
     profile_ = profile_manager_->CreateTestingProfile("test_profile",
                                                       GetTestingFactories());
 
-#if !BUILDFLAG(IS_ANDROID)
     web_app::test::AwaitStartWebAppProviderAndSubsystems(profile_.get());
-#endif  // !BUILDFLAG(IS_ANDROID)
 
     remover_ = profile_->GetBrowsingDataRemover();
 
@@ -1168,16 +1118,7 @@ class ChromeBrowsingDataRemoverDelegateTest : public testing::Test {
     profile_->GetDefaultStoragePartition()->SetNetworkContextForTesting(
         std::move(network_context_remote));
 
-#if BUILDFLAG(IS_ANDROID)
-    static_cast<ChromeBrowsingDataRemoverDelegate*>(
-        profile_->GetBrowsingDataRemoverDelegate())
-        ->OverrideWebappRegistryForTesting(
-            std::make_unique<TestWebappRegistry>());
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-    chromeos::TpmManagerClient::InitializeFake();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   void TearDown() override {
@@ -1248,16 +1189,6 @@ class ChromeBrowsingDataRemoverDelegateTest : public testing::Test {
                                          const base::Time& delete_end,
                                          uint64_t remove_mask,
                                          bool include_protected_origins) {
-#if BUILDFLAG(IS_ANDROID)
-    // There's an Android specific race condition for x86 and x64 builds where
-    // data-clearing and the mocked services here fail to initialize bookmarks
-    // in time, which are required for history clearing.
-    // TODO(crbug.com/435317726): Revisit after launch.
-    if (remove_mask & constants::DATA_TYPE_HISTORY) {
-      bookmarks::test::WaitForBookmarkModelToLoad(
-          BookmarkModelFactory::GetForBrowserContext(GetProfile()));
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
 
     uint64_t origin_type_mask =
         content::BrowsingDataRemover::ORIGIN_TYPE_UNPROTECTED_WEB;
@@ -1379,7 +1310,6 @@ class ChromeBrowsingDataRemoverDelegateTest : public testing::Test {
   raw_ptr<TestingProfile> profile_;  // Owned by `profile_manager_`.
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ChromeBrowsingDataRemoverDelegateTest,
        ClearUserEducationSessionHistory) {
   auto& storage_service = static_cast<BrowserUserEducationStorageService&>(
@@ -1439,7 +1369,6 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest, RemoveLensOverlayWebUIStorage) {
   EXPECT_TRUE(get_all_future.Wait());
   EXPECT_EQ(0UL, get_all_future.Get().size());
 }
-#endif
 
 #if BUILDFLAG(ENABLE_REPORTING)
 class ChromeBrowsingDataRemoverDelegateWithReportingServiceTest
@@ -1598,7 +1527,6 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest,
   EXPECT_FALSE(tester.ContainsCookie());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ChromeBrowsingDataRemoverDelegateTest, ClearWebAppData) {
   auto* provider = web_app::FakeWebAppProvider::Get(GetProfile());
   ASSERT_TRUE(provider);
@@ -1838,7 +1766,6 @@ TEST_F(IsolatedWebAppChromeBrowsingDataRemoverDelegateTest,
                       iwa_url_info.storage_partition_config(GetProfile())},
           RemovalInfo{DATA_TYPE_INDEXED_DB, controlled_frame_partition}));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ChromeBrowsingDataRemoverDelegateTest, RemoveHistoryForever) {
   RemoveHistoryTester tester;
@@ -2457,97 +2384,6 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest, TimeBasedHistoryRemoval) {
   EXPECT_TRUE(tester.HistoryContainsURL(kOrigin2));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(ChromeBrowsingDataRemoverDelegateTest, DeleteTabs) {
-  ::testing::NiceMock<MockTabModel> tab_model(GetProfile());
-  TabModelList::AddTabModel(&tab_model);
-
-  ASSERT_EQ(1u, TabModelList::models().size());
-
-  base::Time two_hours_ago = base::Time::Now() - base::Hours(2);
-
-  EXPECT_CALL(tab_model,
-              CloseTabsNavigatedInTimeWindow(two_hours_ago, base::Time::Max()))
-      .Times(1);
-
-  BlockUntilBrowsingDataRemoved(two_hours_ago, base::Time::Max(),
-                                chrome_browsing_data_remover::DATA_TYPE_TABS,
-                                false);
-
-  EXPECT_EQ(chrome_browsing_data_remover::DATA_TYPE_TABS, GetRemovalMask());
-
-  // TabModelList is a process-wide singleton holding raw pointers, so the
-  // model must be unregistered before it goes out of scope. Otherwise it
-  // dangles and causes use-after-free crashes in unrelated tests that run
-  // later in the same process.
-  TabModelList::RemoveTabModel(&tab_model);
-}
-
-TEST_F(ChromeBrowsingDataRemoverDelegateTest,
-       DeleteTabs_WithArchivedTabModelPresent) {
-  ::testing::NiceMock<MockTabModel> tab_model(GetProfile());
-  TabModelList::AddTabModel(&tab_model);
-  ::testing::NiceMock<MockTabModel> archived_tab_model(GetProfile());
-  TabModelList::SetArchivedTabModel(&archived_tab_model);
-
-  ASSERT_EQ(1u, TabModelList::models().size());
-
-  base::Time two_hours_ago = base::Time::Now() - base::Hours(2);
-
-  EXPECT_CALL(tab_model,
-              CloseTabsNavigatedInTimeWindow(two_hours_ago, base::Time::Max()))
-      .Times(1);
-  EXPECT_CALL(archived_tab_model,
-              CloseTabsNavigatedInTimeWindow(two_hours_ago, base::Time::Max()))
-      .Times(1);
-
-  BlockUntilBrowsingDataRemoved(two_hours_ago, base::Time::Max(),
-                                chrome_browsing_data_remover::DATA_TYPE_TABS,
-                                false);
-
-  EXPECT_EQ(chrome_browsing_data_remover::DATA_TYPE_TABS, GetRemovalMask());
-
-  // See the comment in DeleteTabs above.
-  TabModelList::RemoveArchivedTabModel(&archived_tab_model);
-  TabModelList::RemoveTabModel(&tab_model);
-}
-
-TEST_F(ChromeBrowsingDataRemoverDelegateTest,
-       DeleteTabs_ArchivedTabModelIsolatedByProfile) {
-  TestingProfile other_profile;
-  ::testing::NiceMock<MockTabModel> other_archived_tab_model(&other_profile);
-  TabModelList::SetArchivedTabModel(&other_archived_tab_model);
-
-  ::testing::NiceMock<MockTabModel> archived_tab_model(GetProfile());
-  TabModelList::SetArchivedTabModel(&archived_tab_model);
-
-  EXPECT_EQ(&archived_tab_model,
-            TabModelList::GetArchivedTabModel(GetProfile()));
-  EXPECT_EQ(&other_archived_tab_model,
-            TabModelList::GetArchivedTabModel(&other_profile));
-
-  base::Time two_hours_ago = base::Time::Now() - base::Hours(2);
-
-  EXPECT_CALL(archived_tab_model,
-              CloseTabsNavigatedInTimeWindow(two_hours_ago, base::Time::Max()))
-      .Times(1);
-  EXPECT_CALL(other_archived_tab_model,
-              CloseTabsNavigatedInTimeWindow(::testing::_, ::testing::_))
-      .Times(0);
-
-  BlockUntilBrowsingDataRemoved(two_hours_ago, base::Time::Max(),
-                                chrome_browsing_data_remover::DATA_TYPE_TABS,
-                                false);
-
-  TabModelList::RemoveArchivedTabModel(&archived_tab_model);
-  EXPECT_EQ(nullptr, TabModelList::GetArchivedTabModel(GetProfile()));
-  EXPECT_EQ(&other_archived_tab_model,
-            TabModelList::GetArchivedTabModel(&other_profile));
-
-  TabModelList::RemoveArchivedTabModel(&other_archived_tab_model);
-  EXPECT_EQ(nullptr, TabModelList::GetArchivedTabModel(&other_profile));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class ChromeBrowsingDataRemoverDelegateEnabledUkmDatabaseTest
     : public ChromeBrowsingDataRemoverDelegateTest {
@@ -2830,29 +2666,6 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest, ZeroSuggestPrefsBasedCacheClear) {
             GetOriginTypeMask());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(ChromeBrowsingDataRemoverDelegateTest,
-       ContentProtectionPlatformKeysRemoval) {
-  auto user_manager = std::make_unique<ash::FakeChromeUserManager>();
-  auto* user =
-      user_manager->AddUser(AccountId::FromUserEmail("test@example.com"));
-  user_manager->UserLoggedIn(
-      user->GetAccountId(),
-      user_manager::TestHelper::GetFakeUsernameHash(user->GetAccountId()));
-  user_manager::ScopedUserManager user_manager_enabler(std::move(user_manager));
-
-  ash::AttestationClient::InitializeFake();
-  BlockUntilBrowsingDataRemoved(
-      base::Time(), base::Time::Max(),
-      content::BrowsingDataRemover::DATA_TYPE_MEDIA_LICENSES, false);
-
-  const std::vector<::attestation::DeleteKeysRequest>& history =
-      ash::AttestationClient::Get()->GetTestInterface()->delete_keys_history();
-  EXPECT_EQ(history.size(), 1u);
-
-  ash::AttestationClient::Shutdown();
-}
-#endif
 
 TEST_F(ChromeBrowsingDataRemoverDelegateTest, DomainReliability_Null) {
   ClearDomainReliabilityTester tester(GetProfile());
@@ -3371,7 +3184,6 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest, RemoveAllClientHints) {
   ASSERT_EQ(0u, host_settings.size());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ChromeBrowsingDataRemoverDelegateTest, RemoveZoomLevel) {
   content::HostZoomMap* zoom_map =
       content::HostZoomMap::GetDefaultForBrowserContext(GetProfile());
@@ -3419,9 +3231,7 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest, RemoveZoomLevel) {
 
   zoom_map->SetClockForTesting(base::DefaultClock::GetInstance());
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ChromeBrowsingDataRemoverDelegateTest, RemoveTabDiscardExceptionsList) {
   base::DictValue exclusion_map;
   exclusion_map.Set("a.com", base::TimeToValue(base::Time::Now()));
@@ -3456,7 +3266,6 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest, RemoveTabDiscardExceptionsList) {
                                   kTabDiscardingExceptionsWithTime)
                     .size());
 }
-#endif
 
 TEST_F(ChromeBrowsingDataRemoverDelegateTest, RemoveTranslateBlocklist) {
   auto translate_prefs =
@@ -4128,45 +3937,7 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest, AllTypesAreGettingDeleted) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(ChromeBrowsingDataRemoverDelegateTest, WipeOriginVerifierData) {
-  int before = customtabs::ChromeOriginVerifier::
-      GetClearBrowsingDataCallCountForTesting();
-  BlockUntilBrowsingDataRemoved(base::Time(), base::Time::Max(),
-                                constants::DATA_TYPE_HISTORY, false);
-  EXPECT_EQ(before + 1, customtabs::ChromeOriginVerifier::
-                            GetClearBrowsingDataCallCountForTesting());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(ChromeBrowsingDataRemoverDelegateTest, WipeCrashData) {
-  base::ScopedPathOverride override_crash_dumps(chrome::DIR_CRASH_DUMPS);
-  base::FilePath crash_dir_path;
-  base::PathService::Get(chrome::DIR_CRASH_DUMPS, &crash_dir_path);
-  base::FilePath upload_log_path =
-      crash_dir_path.AppendASCII(CrashUploadList::kReporterLogFilename);
-
-  constexpr char kCrashEntry1[] = "12345,abc\n";
-  constexpr char kCrashEntry2[] = "67890,def\n";
-  std::string initial_contents = kCrashEntry1;
-  initial_contents.append(kCrashEntry2);
-  ASSERT_TRUE(base::WriteFile(upload_log_path, initial_contents));
-
-  BlockUntilBrowsingDataRemoved(base::Time::FromTimeT(67890u),
-                                base::Time::Max(), constants::DATA_TYPE_HISTORY,
-                                false);
-
-  std::string contents;
-  base::ReadFileToString(upload_log_path, &contents);
-  EXPECT_EQ(kCrashEntry1, contents);
-
-  BlockUntilBrowsingDataRemoved(base::Time(), base::Time::Max(),
-                                constants::DATA_TYPE_HISTORY, false);
-
-  EXPECT_FALSE(base::PathExists(upload_log_path));
-}
-#endif
 
 TEST_F(ChromeBrowsingDataRemoverDelegateTest, WipeCustomDictionaryData) {
   base::FilePath dict_path =
@@ -4296,21 +4067,11 @@ class ChromeBrowsingDataRemoverDelegateWithAccountPasswordsTest
     : public ChromeBrowsingDataRemoverDelegateWithPasswordsTest {
  public:
   ChromeBrowsingDataRemoverDelegateWithAccountPasswordsTest() {
-#if BUILDFLAG(IS_ANDROID)
-    // Override the GMS version to be big enough for split stores UPM support,
-    // so these tests still pass in bots with an outdated version.
-    base::android::device_info::set_gms_version_code_for_test(
-        base::NumberToString(password_manager::GetSplitStoresUpmMinVersion()));
-#endif
   }
 
   void EnableAccountStorage() {
     sync_service()->SetSignedIn(
-#if BUILDFLAG(IS_ANDROID)
-        signin::ConsentLevel::kSync
-#else
         signin::ConsentLevel::kSignin
-#endif
     );
     ASSERT_TRUE(password_manager::features_util::IsAccountStorageActive(
         sync_service()));
@@ -4483,7 +4244,6 @@ TEST_F(
                                 constants::DATA_TYPE_PASSWORDS, false);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Verify that clearing secure payment confirmation credentials data works when
 // deleting forms data.
 TEST_F(
@@ -4495,18 +4255,6 @@ TEST_F(
                                 constants::DATA_TYPE_FORM_DATA, false);
 }
 
-#else   // !BUILDFLAG(IS_ANDROID)
-// Verify that secure payment confirmation credentials data are not deleted when
-// deleting forms data on Android.
-TEST_F(
-    ChromeBrowsingDataRemoverDelegateTest_RemoveSecurePaymentConfirmationCredentials,
-    SecurePaymentConfirmationCredentialsNotRemoved_DeleteFormData_Android) {
-  ExpectNoCallsToClearSecurePaymentConfirmationCredentials();
-
-  BlockUntilBrowsingDataRemoved(AnHourAgo(), base::Time::Max(),
-                                constants::DATA_TYPE_FORM_DATA, false);
-}
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Verify that clearing cookies will also clear page load tokens.
 TEST_F(ChromeBrowsingDataRemoverDelegateTest,
@@ -4528,7 +4276,6 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest,
   ASSERT_FALSE(token.has_token_value());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ChromeBrowsingDataRemoverDelegateTest,
        RevokeActiveFileSystemPermission) {
   ChromeFileSystemAccessPermissionContext* context =
@@ -4565,10 +4312,8 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest,
   EXPECT_EQ(origin2_file_read_grant->GetStatus(),
             content::FileSystemAccessPermissionGrant::PermissionStatus::ASK);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 
-#if !BUILDFLAG(IS_ANDROID)
 // Ensures New Tab page local storage is clear when Microsoft auth service
 // exists.
 TEST_F(ChromeBrowsingDataRemoverDelegateTest, ClearNewTabPageLocalStorage) {
@@ -4620,7 +4365,6 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest, ClearNewTabPageLocalStorage) {
   EXPECT_EQ(usage_future.Get().size(), 0u);
   EXPECT_TRUE(auth_service->GetAccessToken().empty());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Verify that clearing cookies will also trigger removing invalid browser bound
 // keys.

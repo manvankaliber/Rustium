@@ -22,10 +22,6 @@
 #include "components/webui/flags/feature_entry.h"
 #include "components/webui/flags/pref_service_flags_storage.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#endif
 
 namespace {
 bool force_activation_for_testing = false;
@@ -41,11 +37,7 @@ bool IsFeatureSupportedOnPlatform(const flags_ui::FeatureEntry* entry) {
 }
 
 bool IsChromeLabsFeatureValid(const LabInfo& lab, Profile* profile) {
-#if BUILDFLAG(IS_CHROMEOS)
-  PrefService* prefs = profile->GetPrefs();
-#else
   PrefService* prefs = g_browser_process->local_state();
-#endif
   // Note: Both ChromeOS owner and non-owner use PrefServiceFlagsStorage under
   // the hood. OwnersFlagsStorage has additional functionalities for setting
   // flags but since we are just reading the storage assume non-owner case and
@@ -64,13 +56,8 @@ bool IsChromeLabsFeatureValid(const LabInfo& lab, Profile* profile) {
 }
 
 void UpdateChromeLabsNewBadgePrefs(Profile* profile) {
-#if BUILDFLAG(IS_CHROMEOS)
-  ScopedDictPrefUpdate update(
-      profile->GetPrefs(), chrome_labs_prefs::kChromeLabsNewBadgeDictAshChrome);
-#else
   ScopedDictPrefUpdate update(g_browser_process->local_state(),
                               chrome_labs_prefs::kChromeLabsNewBadgeDict);
-#endif
 
   base::DictValue& new_badge_prefs = update.Get();
 
@@ -101,13 +88,6 @@ void UpdateChromeLabsNewBadgePrefs(Profile* profile) {
 }
 
 bool ShouldShowChromeLabsUI(Profile* profile) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-          ash::switches::kSafeMode) ||
-      !ash::ProfileHelper::IsPrimaryProfile(profile)) {
-    return false;
-  }
-#endif
 
   return std::ranges::any_of(ChromeLabsModel::GetInstance()->GetLabInfo(),
                              [&profile](const LabInfo& lab) {
@@ -116,13 +96,8 @@ bool ShouldShowChromeLabsUI(Profile* profile) {
 }
 
 bool AreNewChromeLabsExperimentsAvailable(Profile* profile) {
-#if BUILDFLAG(IS_CHROMEOS)
-  ScopedDictPrefUpdate update(
-      profile->GetPrefs(), chrome_labs_prefs::kChromeLabsNewBadgeDictAshChrome);
-#else
   ScopedDictPrefUpdate update(g_browser_process->local_state(),
                               chrome_labs_prefs::kChromeLabsNewBadgeDict);
-#endif
 
   base::DictValue& new_badge_prefs = update.Get();
 
@@ -145,11 +120,9 @@ bool IsChromeLabsEnabled() {
   if (chrome::GetChannel() == version_info::Channel::STABLE) {
     return false;
   }
-#if !BUILDFLAG(IS_ANDROID)
   if (features::IsWebUIPinnedToolbarActionsEnabled()) {
     return false;
   }
-#endif
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           ::switches::kEnableBenchmarking)) {
     return true;

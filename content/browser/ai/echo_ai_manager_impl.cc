@@ -29,9 +29,7 @@
 #include "third_party/blink/public/mojom/ai/ai_language_model.mojom.h"
 #include "third_party/blink/public/mojom/ai/ai_semantic_embedder.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "content/browser/ai/echo_ai_decision_model.h"
-#endif
 
 namespace content {
 
@@ -439,17 +437,11 @@ void EchoAIManagerImpl::ReturnAIDecisionModelCreationResult(
     mojo::Remote<blink::mojom::AIManagerCreateDecisionModelClient>
         client_remote,
     std::vector<blink::mojom::AIDecisionModelQuestionPtr> questions) {
-#if !BUILDFLAG(IS_ANDROID)
   mojo::PendingRemote<blink::mojom::AIDecisionModel> pending_remote;
   mojo::MakeSelfOwnedReceiver(
       std::make_unique<EchoAIDecisionModel>(std::move(questions)),
       pending_remote.InitWithNewPipeAndPassReceiver());
   client_remote->OnSessionCreated(std::move(pending_remote));
-#else
-  client_remote->OnError(
-      blink::mojom::AIManagerCreateClientError::kUnableToCreateSession,
-      /*quota_error_info=*/nullptr);
-#endif
 }
 
 template <typename CanCreateCallback>

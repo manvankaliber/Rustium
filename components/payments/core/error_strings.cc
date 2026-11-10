@@ -11,7 +11,6 @@ namespace errors {
 // Each string must be on a single line to correctly generate ErrorStrings.java.
 // clang-format off
 const char kAnotherUiShowing[] = "Another PaymentRequest UI is already showing in a different tab or window.";
-const char kAppStoreMethodOnlySupportedInTwa[] = "Payment method https://play.google.com/billing is only supported in Trusted Web Activity.";
 const char kAttemptedInitializationTwice[] = "Attempted initialization twice.";
 const char kBrowserWindowTooSmall[] = "Browser window is too small for Payment Request UI.";
 const char kCannotShowInBackgroundTab[] = "Cannot show PaymentRequest UI in a preview page or a background tab.";

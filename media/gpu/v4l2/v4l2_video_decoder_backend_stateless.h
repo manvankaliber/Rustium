@@ -17,7 +17,7 @@
 #include "media/base/cdm_context.h"
 #include "media/base/decoder_status.h"
 #include "media/base/video_decoder.h"
-#include "media/gpu/chromeos/dmabuf_video_frame_pool.h"
+#include "media/gpu/linux/dmabuf_video_frame_pool.h"
 #include "media/gpu/v4l2/v4l2_decode_surface_handler.h"
 #include "media/gpu/v4l2/v4l2_video_decoder_backend.h"
 

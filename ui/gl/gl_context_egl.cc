@@ -75,8 +75,6 @@ bool ChangeContextAttributes(std::vector<EGLint>& context_attributes,
 bool IsARMSwiftShaderPlatform() {
 #if BUILDFLAG(IS_MAC)
   return base::mac::GetCPUType() == base::mac::CPUType::kArm;
-#elif BUILDFLAG(IS_IOS)
-  return true;
 #elif BUILDFLAG(IS_WIN)
   base::win::OSInfo::WindowsArchitecture windows_architecture =
       base::win::OSInfo::GetInstance()->GetArchitecture();

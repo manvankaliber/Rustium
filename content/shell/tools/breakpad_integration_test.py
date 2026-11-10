@@ -23,104 +23,18 @@ import time
 
 TOP_SRC_DIR = os.path.join(os.path.dirname(__file__), '..', '..', '..')
 
-try:
-  sys.path.append(os.path.join(TOP_SRC_DIR, 'build', 'android'))
-  import devil_chromium
-
-  devil_chromium.Initialize()
-
-  from pylib.constants import host_paths
-
-  if host_paths.DEVIL_PATH not in sys.path:
-    sys.path.append(host_paths.DEVIL_PATH)
-
-  from devil.android import apk_helper
-  from devil.android import device_utils
-  from devil.android import flag_changer
-  from devil.android.sdk import intent
-except:  # noqa: E722
-  pass
 
 
 CONCURRENT_TASKS = 4
 BREAKPAD_TOOLS_DIR = os.path.join(
   TOP_SRC_DIR, 'components', 'crash', 'content', 'tools'
 )
-ANDROID_CRASH_DIR = '/data/data/org.chromium.content_shell_apk/cache'
 
 
-def GetDevice():
-  if hasattr(GetDevice, 'device'):
-    return GetDevice.device
-
-  devices = device_utils.DeviceUtils.HealthyDevices()
-  assert len(devices) == 1
-  GetDevice.device = devices[0]
-  return GetDevice.device
 
 
-def clear_android_dumps(options, device):
-  try:
-    print('# Deleting stale crash dumps')
-    pending = os.path.join(ANDROID_CRASH_DIR, 'pending')
-    files = device.RunShellCommand(['ls', pending], as_root=True)
-    for f in files:
-      if f.endswith('.dmp'):
-        dump = os.path.join(pending, f)
-        try:
-          if options.verbose:
-            print(' deleting %s' % dump)
-          device.RunShellCommand(['rm', dump], check_return=True, as_root=True)
-        except:  # noqa: E722
-          print('Failed to delete %s' % dump)
-
-  except:  # noqa: E722
-    print('Failed to list dumps in android crash dir %s' % pending)
 
 
-def get_android_dump(options, crash_dir, symbols_dir):
-  global failure
-
-  pending = os.path.join(ANDROID_CRASH_DIR, 'pending')
-  device = GetDevice()
-
-  for attempts in range(5):
-    files = device.RunShellCommand(['ls', pending], as_root=True)
-
-    dumps = [f for f in files if f.endswith('.dmp')]
-    if len(dumps) > 0:
-      break
-    # Crashpad may still be writing the dump. Sleep and try again.
-    time.sleep(5)
-
-  if len(dumps) != 1:
-    # TODO(crbug.com/41400491): Temporary code to debug unexpected crash dumps.
-    minidump_stackwalk = os.path.join(options.build_dir, 'minidump_stackwalk')
-    failure = 'Failed to run minidump_stackwalk.'
-    for dump in dumps:
-      device.PullFile(os.path.join(pending, dump), crash_dir, as_root=True)
-      minidump = os.path.join(crash_dir, os.path.basename(dump))
-      cmd = [minidump_stackwalk, minidump, symbols_dir]
-      proc = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-      )
-      stack = proc.communicate()[0].decode('utf-8')
-      print(stack)
-
-      device.RunShellCommand(
-        ['rm', os.path.join(pending, dump)], check_return=True, as_root=True
-      )
-
-    failure = 'Expected 1 crash dump, found %d.' % len(dumps)
-    print(dumps)
-    raise Exception(failure)
-
-  device.PullFile(os.path.join(pending, dumps[0]), crash_dir, as_root=True)
-  device.RunShellCommand(
-    ['rm', os.path.join(pending, dumps[0])], check_return=True, as_root=True
-  )
-
-  return os.path.join(crash_dir, os.path.basename(dumps[0]))
 
 
 def run_test(
@@ -129,71 +43,40 @@ def run_test(
   global failure
 
   print('# Run content_shell and make it crash.')
-  if platform == 'android':
-    device = GetDevice()
+  cmd = [
+    options.binary,
+    '--run-web-tests',
+    'chrome://crash',
+    '--enable-crash-reporter',
+    '--crash-dumps-dir=%s' % crash_dir,
+  ]
+  cmd += additional_arguments
 
-    failure = None
-    clear_android_dumps(options, device)
-
-    apk_path = os.path.join(options.build_dir, 'apks', 'ContentShell.apk')
-    apk = apk_helper.ApkHelper(apk_path)
-    view_activity = apk.GetViewActivityName()
-    package_name = apk.GetPackageName()
-
-    device.RunShellCommand(
-      ['am', 'set-debug-app', '--persistent', package_name]
-    )
-
-    changer = flag_changer.FlagChanger(device, 'content-shell-command-line')
-    changer.ReplaceFlags(
-      ['--enable-crash-reporter', '--crash-dumps-dir=%s' % ANDROID_CRASH_DIR]
-    )
-
-    launch_intent = intent.Intent(
-      action='android.intent.action.VIEW',
-      activity=view_activity,
-      data='chrome://crash',
-      package=package_name,
-    )
-    device.StartActivity(launch_intent)
+  if options.verbose:
+    print(' '.join(cmd))
+  failure = 'Failed to run content_shell.'
+  if options.verbose:
+    subprocess.check_call(cmd)
   else:
-    cmd = [
-      options.binary,
-      '--run-web-tests',
-      'chrome://crash',
-      '--enable-crash-reporter',
-      '--crash-dumps-dir=%s' % crash_dir,
-    ]
-    cmd += additional_arguments
-
-    if options.verbose:
-      print(' '.join(cmd))
-    failure = 'Failed to run content_shell.'
-    if options.verbose:
-      subprocess.check_call(cmd)
-    else:
-      # On Windows, using os.devnull can cause check_call to never return,
-      # so use a temporary file for the output.
-      with tempfile.TemporaryFile() as tmpfile:
-        subprocess.check_call(cmd, stdout=tmpfile, stderr=tmpfile)
+    # On Windows, using os.devnull can cause check_call to never return,
+    # so use a temporary file for the output.
+    with tempfile.TemporaryFile() as tmpfile:
+      subprocess.check_call(cmd, stdout=tmpfile, stderr=tmpfile)
 
   print('# Retrieve crash dump.')
-  if platform == 'android':
-    minidump = get_android_dump(options, crash_dir, symbols_dir)
-  else:
-    dmp_dir = crash_dir
-    # TODO(crbug.com/41354248): This test should not reach directly into the
-    # Crashpad database, but instead should use crashpad_database_util.
-    if platform == 'darwin' or platform.startswith('linux'):
-      dmp_dir = os.path.join(dmp_dir, 'pending')
-    elif platform == 'win32':
-      dmp_dir = os.path.join(dmp_dir, 'reports')
+  dmp_dir = crash_dir
+  # TODO(crbug.com/41354248): This test should not reach directly into the
+  # Crashpad database, but instead should use crashpad_database_util.
+  if platform == 'darwin' or platform.startswith('linux'):
+    dmp_dir = os.path.join(dmp_dir, 'pending')
+  elif platform == 'win32':
+    dmp_dir = os.path.join(dmp_dir, 'reports')
 
-    dmp_files = glob.glob(os.path.join(dmp_dir, '*.dmp'))
-    failure = 'Expected 1 crash dump, found %d.' % len(dmp_files)
-    if len(dmp_files) != 1:
-      raise Exception(failure)
-    minidump = dmp_files[0]
+  dmp_files = glob.glob(os.path.join(dmp_dir, '*.dmp'))
+  failure = 'Expected 1 crash dump, found %d.' % len(dmp_files)
+  if len(dmp_files) != 1:
+    raise Exception(failure)
+  minidump = dmp_files[0]
 
   print('# Symbolize crash dump.')
   if platform == 'win32':
@@ -304,12 +187,6 @@ def main():
   crash_service = None
 
   try:
-    if options.platform == 'android':
-      device = GetDevice()
-
-      print('# Install ContentShell.apk')
-      apk_path = os.path.join(options.build_dir, 'apks', 'ContentShell.apk')
-      device.Install(apk_path, reinstall=False, allow_downgrade=True)
 
     if options.platform != 'win32':
       print('# Generate symbols.')
@@ -361,8 +238,6 @@ def main():
       shutil.rmtree(crash_dir)
     except:  # noqa: E722
       print('Failed to delete temp directory "%s".' % crash_dir)
-    if options.platform == 'android':
-      clear_android_dumps(options, GetDevice())
 
 
 if '__main__' == __name__:

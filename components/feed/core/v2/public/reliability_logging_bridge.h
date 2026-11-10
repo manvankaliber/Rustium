@@ -7,7 +7,6 @@
 
 #include "base/time/time.h"
 #include "components/feed/core/proto/v2/wire/reliability_logging_enums.pb.h"
-#include "components/feed/core/v2/ios_shared_experiments_translator.h"
 #include "components/feed/core/v2/public/stream_type.h"
 #include "components/feed/core/v2/public/types.h"
 

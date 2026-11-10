@@ -19,9 +19,9 @@
 #include "base/win/scoped_handle.h"
 #endif
 
-#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN)
 #include "base/feature_list.h"
-#endif  // BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#endif
 
 #if BUILDFLAG(IS_APPLE)
 #include "base/process/port_provider_mac.h"
@@ -29,15 +29,6 @@
 
 namespace base {
 
-#if BUILDFLAG(IS_CHROMEOS)
-// FlattenCpuCgroups feature uses /sys/fs/cgroup/cpu/chrome_renderers and
-// /sys/fs/cgroup/cpu/chrome_renderers_background cpu cgroups for renderer
-// processes instead of nested cpu cgroups. Nested cpu cgroups has an overhead
-// on task scheduling.
-BASE_EXPORT BASE_DECLARE_FEATURE(kFlattenCpuCgroups);
-
-class ProcessPriorityDelegate;
-#endif
 
 // Provides a move-only encapsulation of a process.
 //
@@ -207,8 +198,7 @@ class BASE_EXPORT Process {
     kMaxValue = kUserBlocking,
   };
 
-#if (BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))) && \
-    !BUILDFLAG(IS_IOS_TVOS)
+#if BUILDFLAG(IS_MAC)
   // The Mac needs a Mach port in order to manipulate a process's priority,
   // and there's no good way to get that from base given the pid. These Mac
   // variants of the `GetPriority()` and `SetPriority()` API take a port
@@ -230,49 +220,18 @@ class BASE_EXPORT Process {
   // Sets the priority of the process process. Returns true if the priority was
   // changed, false otherwise.
   bool SetPriority(Priority priority);
-#endif  // BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
+#endif
 
   // Returns an integer representing the priority of a process. The meaning
   // of this value is OS dependent.
   int GetOSPriority() const;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Get the PID in its PID namespace.
-  // If the process is not in a PID namespace or /proc/<pid>/status does not
-  // report NSpid, kNullProcessId is returned.
-  ProcessId GetPidInNamespace() const;
-#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Returns true if the process has any seccomp policy applied.
   bool IsSeccompSandboxed();
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Sets a delegate which handles process priority changes. This
-  // must be externally synchronized with any call to base::Process methods.
-  static void SetProcessPriorityDelegate(ProcessPriorityDelegate* delegate);
-
-  // Initializes the process's priority.
-  //
-  // This should be called before SetPriority().
-  //
-  // If SchedQoSOnResourcedForChrome is enabled, this creates a cache entry for
-  // the process priority. The returned `base::Process::PriorityEntry` should be
-  // freed when the process is terminated so that the cached entry is freed from
-  // the internal map.
-  //
-  // If OneGroupPerRenderer is enabled, it also creates a unique cgroup for the
-  // process.
-  // This is a no-op if the Process is not valid or if it has already been
-  // called.
-  void InitializePriority();
-
-  // Clears the entities initialized by InitializePriority().
-  //
-  // This is no-op if SchedQoSOnResourcedForChrome is disabled.
-  void ForgetPriority();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_APPLE)
   // Sets the priority of the current process to its default value.
@@ -281,33 +240,12 @@ class BASE_EXPORT Process {
   static void SetCurrentTaskDefaultRole();
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK)
-  using TerminateCallback = bool (*)(ProcessHandle handle,
-                                     int exit_code,
-                                     bool wait);
-  using WaitForExitCallback = bool (*)(ProcessHandle handle,
-                                       int* exit_code,
-                                       base::TimeDelta timeout);
-  // Function ptrs to implement termination without polluting //base with
-  // BrowserEngineKit APIs.
-  static void SetTerminationHooks(TerminateCallback terminate_callback,
-                                  WaitForExitCallback wait_callback);
-#if TARGET_OS_SIMULATOR
-  // Methods for supporting both "content processes" and traditional
-  // forked processes. For non-simulator builds on iOS every process would
-  // be a "content process" so we don't need the conditionals.
-  void SetIsContentProcess();
-  bool IsContentProcess() const;
-#endif
-#endif
 
  private:
-#if !BUILDFLAG(IS_IOS) || (BUILDFLAG(IS_IOS) && TARGET_OS_SIMULATOR)
   bool TerminateInternal(int exit_code, bool wait) const;
   bool WaitForExitWithTimeoutImpl(base::ProcessHandle handle,
                                   int* exit_code,
                                   base::TimeDelta timeout) const;
-#endif
 
 #if BUILDFLAG(IS_WIN)
   win::ScopedHandle process_;
@@ -319,13 +257,6 @@ class BASE_EXPORT Process {
   bool is_current_process_;
 #endif
 
-#if BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK) && TARGET_OS_SIMULATOR
-  // A flag indicating that this is a "content process". iOS does not support
-  // generic process invocation but it does support some types of well defined
-  // processes. These types of processes are defined at the //content layer so
-  // for termination we defer to some globally initialized callbacks.
-  bool content_process_ = false;
-#endif
 };
 
 BASE_EXPORT const char* ProcessPriorityToString(
@@ -334,13 +265,6 @@ BASE_EXPORT const char* ProcessPriorityToString(
 BASE_EXPORT std::ostream& operator<<(std::ostream& os,
                                      Process::Priority priority);
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Exposed for testing.
-// Given the contents of the /proc/<pid>/cgroup file, determine whether the
-// process is backgrounded or not.
-BASE_EXPORT Process::Priority GetProcessPriorityCGroup(
-    std::string_view cgroup_contents);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace base
 

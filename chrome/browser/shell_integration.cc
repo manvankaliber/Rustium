@@ -29,9 +29,6 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/win/windows_version.h"
@@ -183,16 +180,9 @@ void AppendProfileArgs(const base::FilePath& profile_path,
       command_line->AppendSwitchPath(switches::kUserDataDir, user_data_dir);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  base::FilePath profile =
-      cmd_line.GetSwitchValuePath(ash::switches::kLoginProfile);
-  if (!profile.empty())
-    command_line->AppendSwitchPath(ash::switches::kLoginProfile, profile);
-#else
   if (!profile_path.empty())
     command_line->AppendSwitchPath(switches::kProfileDirectory,
                                    profile_path.BaseName());
-#endif
 }
 
 #if !BUILDFLAG(IS_WIN)

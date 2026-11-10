@@ -54,9 +54,6 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerNoBestEffortTasksTest,
   // `best_effort_tasks_allowed` must be heap-allocated because the validation
   // task could in theory run after returning from this scope.
   auto best_effort_tasks_allowed = std::make_unique<bool>(false);
-#if BUILDFLAG(IS_ANDROID)
-  bool* best_effort_tasks_allowed_ptr = best_effort_tasks_allowed.get();
-#endif
 
   base::ThreadPool::PostTask(
       FROM_HERE, {base::TaskPriority::BEST_EFFORT},
@@ -73,11 +70,6 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerNoBestEffortTasksTest,
                                     TestTimeouts::action_timeout());
   run_loop.Run();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Android doesn't shut down the ThreadPool between tests so the validation
-  // task could run during teardown. On other platforms it shouldn't run at all.
-  *best_effort_tasks_allowed_ptr = true;
-#endif
 }
 
 // Verify that the promise returned by navigator.serviceWorker.register()

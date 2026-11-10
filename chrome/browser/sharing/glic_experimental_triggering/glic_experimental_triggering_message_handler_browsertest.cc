@@ -43,12 +43,10 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/blink/public/common/features.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"
 #include "chrome/browser/ui/tabs/tab_enums.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif
 
 namespace glic {
 
@@ -146,9 +144,7 @@ class GlicExperimentalTriggeringMessageHandlerBrowserTest
   }
   ~GlicExperimentalTriggeringMessageHandlerBrowserTest() override = default;
 
-#if !BUILDFLAG(IS_ANDROID)
   using PlatformBrowserTest::browser;
-#endif
 
  protected:
   void SetUpOnMainThread() override {
@@ -391,7 +387,6 @@ IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMetadataDisabledBrowserTest,
   EXPECT_EQ(task_update.metadata_size(), 0);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
                        testLatestServerChannelConfigurationWinsForUpdates) {
   OptIn();
@@ -433,7 +428,6 @@ IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
   auto [server_channel, received_message] = update_future.Take();
   EXPECT_EQ(server_channel.configuration(), "config_2");
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
                        testRelaysUpdatesWithSequenceNumbers) {
@@ -643,7 +637,6 @@ IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
                 ExperimentalTriggeringResponse::TaskUpdate::FAILED);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
                        HandlesDeviceOptInRequest) {
   auto message = CreateTriggeringMessage();
@@ -682,7 +675,6 @@ IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
             kDefaultSequenceNumber);
 }
 
-#endif
 
 IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
                        testHandlesStartAndStopActuationRequestsSuccessfully) {
@@ -906,7 +898,6 @@ IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
   EXPECT_EQ(handler_->GetUpdatesHandlerMapSizeForTesting(), 0u);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
                        CleansUpUpdatesHandlerOnDeviceOptIn) {
   auto message = CreateTriggeringMessage();
@@ -943,7 +934,6 @@ IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
   // After opt-in completes, the updates handler should be erased.
   EXPECT_EQ(handler_->GetUpdatesHandlerMapSizeForTesting(), 0u);
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
                        testHandlesGetScreenshotRequestSuccessfully) {
@@ -1351,360 +1341,5 @@ IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringScriptToolsBrowserTest,
             kTestToolResult);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
-                       testDeferredRequestBackgroundTabPrepared) {
-  // Enable the background triggering feature flag.
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(features::kGlicBackgroundTriggering);
-
-  OptIn();
-
-  auto message = CreateTriggeringMessage(101);
-  auto* triggering = message.mutable_glic_experimental_triggering();
-  triggering->set_context_id("test-context-id");
-  triggering->mutable_request()->mutable_trigger_actuation_request();
-
-  base::test::TestFuture<
-      std::unique_ptr<components_sharing_message::ResponseMessage>>
-      done_future;
-
-  // Send the message. Since kGlicBackgroundTriggering is enabled, it should
-  // add the observer, save the request, and call
-  // EnsureForegroundServiceStarted. It returns early and does NOT call
-  // done_callback yet.
-  handler_->OnMessage(std::move(message), done_future.GetCallback());
-
-  // Verify that no response was sent yet (done_future is not ready).
-  EXPECT_FALSE(done_future.IsReady());
-
-  // Get the active tab to act as the prepared tab.
-  tabs::TabInterface* prepared_tab = GetTabListInterface()->GetActiveTab();
-  ASSERT_TRUE(prepared_tab);
-
-  base::test::TestFuture<components_sharing_message::ServerChannelConfiguration,
-                         components_sharing_message::SharingMessage>
-      sender_future;
-  SetupMessageSenderMock(&sender_future);
-
-  // Trigger OnBackgroundTabPrepared via ActorKeyedService. This should resume
-  // the deferred request.
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(GetProfile());
-  ASSERT_TRUE(actor_service);
-  EXPECT_TRUE(actor_service->HasPendingTask("test-context-id"));
-  actor_service->NotifyBackgroundTabReady(prepared_tab, "test-context-id");
-
-  // Verify that the request is completed.
-  EXPECT_TRUE(done_future.Wait());
-  auto response = done_future.Take();
-  ASSERT_TRUE(response);
-  EXPECT_EQ(
-      response->glic_experimental_triggering().response().task_update().state(),
-      components_sharing_message::GlicExperimentalTriggering::
-          ExperimentalTriggeringResponse::TaskUpdate::STARTING);
-
-  // Pending task is maintained until actuation starts.
-  EXPECT_TRUE(actor_service->HasPendingTask("test-context-id"));
-  EXPECT_EQ(actor_service->GetPendingTasksCount(), 1u);
-
-  // Verify that the updates handler was created.
-  EXPECT_EQ(handler_->GetUpdatesHandlerMapSizeForTesting(), 1u);
-}
-
-IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
-                       testDeferredRequestBackgroundSetupFailed) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(features::kGlicBackgroundTriggering);
-
-  OptIn();
-
-  auto message = CreateTriggeringMessage(101);
-  auto* triggering = message.mutable_glic_experimental_triggering();
-  triggering->set_context_id("test-context-id");
-  triggering->mutable_request()->mutable_trigger_actuation_request();
-
-  base::test::TestFuture<
-      std::unique_ptr<components_sharing_message::ResponseMessage>>
-      done_future;
-
-  handler_->OnMessage(std::move(message), done_future.GetCallback());
-  EXPECT_FALSE(done_future.IsReady());
-
-  // Trigger OnBackgroundSetupFailed via ActorKeyedService.
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(GetProfile());
-  ASSERT_TRUE(actor_service);
-  EXPECT_TRUE(actor_service->HasPendingTask("test-context-id"));
-  actor_service->NotifyBackgroundSetupFailed("test-context-id");
-
-  // Verify that the request is completed with a failure response.
-  EXPECT_TRUE(done_future.Wait());
-  auto response = done_future.Take();
-  ASSERT_TRUE(response);
-  EXPECT_EQ(
-      response->glic_experimental_triggering().response().task_update().state(),
-      components_sharing_message::GlicExperimentalTriggering::
-          ExperimentalTriggeringResponse::TaskUpdate::FAILED);
-  EXPECT_EQ(
-      response->glic_experimental_triggering().response().task_update().data(),
-      "Background setup failed.");
-
-  // Pending task is removed when setup fails.
-  EXPECT_FALSE(actor_service->HasPendingTask("test-context-id"));
-  EXPECT_EQ(actor_service->GetPendingTasksCount(), 0u);
-
-  // Handler map should be empty.
-  EXPECT_EQ(handler_->GetUpdatesHandlerMapSizeForTesting(), 0u);
-}
-
-IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
-                       testFollowUpMessageDoesNotAddPendingTask) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(features::kGlicBackgroundTriggering);
-
-  OptIn();
-
-  auto trigger_message = CreateTriggeringMessage(101);
-  auto* triggering = trigger_message.mutable_glic_experimental_triggering();
-  triggering->set_context_id("test-context-id");
-  triggering->mutable_request()->mutable_trigger_actuation_request();
-
-  base::test::TestFuture<
-      std::unique_ptr<components_sharing_message::ResponseMessage>>
-      start_future;
-
-  handler_->OnMessage(std::move(trigger_message), start_future.GetCallback());
-  EXPECT_FALSE(start_future.IsReady());
-
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(GetProfile());
-  ASSERT_TRUE(actor_service);
-  EXPECT_TRUE(actor_service->HasPendingTask("test-context-id"));
-
-  tabs::TabInterface* prepared_tab = GetTabListInterface()->GetActiveTab();
-  ASSERT_TRUE(prepared_tab);
-
-  base::test::TestFuture<components_sharing_message::ServerChannelConfiguration,
-                         components_sharing_message::SharingMessage>
-      sender_future;
-  SetupMessageSenderMock(&sender_future);
-
-  // Background tab ready resumes request, but pending task remains active
-  // until actuation starts or session is stopped.
-  actor_service->NotifyBackgroundTabReady(prepared_tab, "test-context-id");
-  EXPECT_TRUE(start_future.Wait());
-  EXPECT_TRUE(actor_service->HasPendingTask("test-context-id"));
-  EXPECT_EQ(actor_service->GetPendingTasksCount(), 1u);
-
-  // Send a follow-up message (e.g. StopActuationRequest). It cleans up the
-  // pending task and does not re-add one.
-  auto follow_up_message = CreateTriggeringMessage(102);
-  auto* follow_up_triggering =
-      follow_up_message.mutable_glic_experimental_triggering();
-  follow_up_triggering->set_context_id("test-context-id");
-  follow_up_triggering->mutable_request()
-      ->mutable_stop_actuation_request()
-      ->set_stop_reason("USER_CANCEL");
-
-  auto follow_up_response = SendMessageAndWait(std::move(follow_up_message));
-  ASSERT_TRUE(follow_up_response);
-  EXPECT_FALSE(actor_service->HasPendingTask("test-context-id"));
-  EXPECT_EQ(actor_service->GetPendingTasksCount(), 0u);
-}
-
-IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
-                       testStopActuationAfterBackgroundTabPrepared) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(features::kGlicBackgroundTriggering);
-
-  OptIn();
-
-  auto trigger_message = CreateTriggeringMessage(101);
-  auto* triggering = trigger_message.mutable_glic_experimental_triggering();
-  triggering->set_context_id("test-context-id");
-  triggering->mutable_request()->mutable_trigger_actuation_request();
-
-  base::test::TestFuture<
-      std::unique_ptr<components_sharing_message::ResponseMessage>>
-      start_future;
-
-  // Send the trigger message. Since kGlicBackgroundTriggering is enabled, it
-  // should be deferred.
-  handler_->OnMessage(std::move(trigger_message), start_future.GetCallback());
-  EXPECT_FALSE(start_future.IsReady());
-
-  // Get the active tab to act as the prepared tab.
-  tabs::TabInterface* prepared_tab = GetTabListInterface()->GetActiveTab();
-  ASSERT_TRUE(prepared_tab);
-
-  base::test::TestFuture<components_sharing_message::ServerChannelConfiguration,
-                         components_sharing_message::SharingMessage>
-      sender_future;
-  SetupMessageSenderMock(&sender_future);
-
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(GetProfile());
-  ASSERT_TRUE(actor_service);
-
-  base::test::TestFuture<std::string> cancel_future;
-  auto subscription =
-      actor_service->AddMessageTriggerTaskStoppedCallback(base::BindRepeating(
-          [](base::test::TestFuture<std::string>* future,
-             const std::string& context_id) { future->SetValue(context_id); },
-          base::Unretained(&cancel_future)));
-
-  // Notify that the background tab is ready.
-  actor_service->NotifyBackgroundTabReady(prepared_tab, "test-context-id");
-
-  // Verify that the start request completed with STARTING state.
-  EXPECT_TRUE(start_future.Wait());
-  auto start_response = start_future.Take();
-  ASSERT_TRUE(start_response);
-  EXPECT_EQ(start_response->glic_experimental_triggering()
-                .response()
-                .task_update()
-                .state(),
-            components_sharing_message::GlicExperimentalTriggering::
-                ExperimentalTriggeringResponse::TaskUpdate::STARTING);
-
-  // Send a StopActuationRequest.
-  auto stop_message = CreateTriggeringMessage(102);
-  auto* stop_triggering = stop_message.mutable_glic_experimental_triggering();
-  stop_triggering->set_context_id("test-context-id");
-  stop_triggering->mutable_request()
-      ->mutable_stop_actuation_request()
-      ->set_stop_reason("STOPPED_BY_USER");
-
-  auto stop_response = SendMessageAndWait(std::move(stop_message));
-  ASSERT_TRUE(stop_response);
-  EXPECT_TRUE(stop_response->has_glic_experimental_triggering());
-  EXPECT_EQ(stop_response->glic_experimental_triggering()
-                .response()
-                .task_update()
-                .state(),
-            components_sharing_message::GlicExperimentalTriggering::
-                ExperimentalTriggeringResponse::TaskUpdate::STOPPED);
-
-  // Verify that OnMessageTriggerTaskStopped was invoked on ActorKeyedService
-  // with the matching context ID.
-  EXPECT_TRUE(cancel_future.Wait());
-  EXPECT_EQ(cancel_future.Take(), "test-context-id");
-}
-
-IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
-                       testStopActuationWhilePending) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(features::kGlicBackgroundTriggering);
-
-  OptIn();
-
-  auto trigger_message = CreateTriggeringMessage(201);
-  auto* triggering = trigger_message.mutable_glic_experimental_triggering();
-  triggering->set_context_id("pending-context-id");
-  triggering->mutable_request()->mutable_trigger_actuation_request();
-
-  base::test::TestFuture<
-      std::unique_ptr<components_sharing_message::ResponseMessage>>
-      start_future;
-
-  // Send the trigger message. Since kGlicBackgroundTriggering is enabled, it
-  // should be deferred.
-  handler_->OnMessage(std::move(trigger_message), start_future.GetCallback());
-  EXPECT_FALSE(start_future.IsReady());
-
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(GetProfile());
-  ASSERT_TRUE(actor_service);
-
-  base::test::TestFuture<std::string> cancel_future;
-  auto subscription =
-      actor_service->AddMessageTriggerTaskStoppedCallback(base::BindRepeating(
-          [](base::test::TestFuture<std::string>* future,
-             const std::string& context_id) { future->SetValue(context_id); },
-          base::Unretained(&cancel_future)));
-
-  // Send a StopActuationRequest while the trigger request is still pending.
-  auto stop_message = CreateTriggeringMessage(202);
-  auto* stop_triggering = stop_message.mutable_glic_experimental_triggering();
-  stop_triggering->set_context_id("pending-context-id");
-  stop_triggering->mutable_request()
-      ->mutable_stop_actuation_request()
-      ->set_stop_reason("STOPPED_BY_USER");
-
-  auto stop_response = SendMessageAndWait(std::move(stop_message));
-  ASSERT_TRUE(stop_response);
-  EXPECT_TRUE(stop_response->has_glic_experimental_triggering());
-  EXPECT_EQ(stop_response->glic_experimental_triggering()
-                .response()
-                .task_update()
-                .state(),
-            components_sharing_message::GlicExperimentalTriggering::
-                ExperimentalTriggeringResponse::TaskUpdate::STOPPED);
-
-  // The pending start request should have failed because of the stop request.
-  EXPECT_TRUE(start_future.Wait());
-  auto start_response = start_future.Take();
-  ASSERT_TRUE(start_response);
-  EXPECT_EQ(start_response->glic_experimental_triggering()
-                .response()
-                .task_update()
-                .state(),
-            components_sharing_message::GlicExperimentalTriggering::
-                ExperimentalTriggeringResponse::TaskUpdate::FAILED);
-  EXPECT_EQ(start_response->glic_experimental_triggering()
-                .response()
-                .task_update()
-                .data(),
-            "Message cancelled by stop actuation request.");
-
-  // Verify that OnMessageTriggerTaskStopped was invoked on ActorKeyedService.
-  EXPECT_TRUE(cancel_future.Wait());
-  EXPECT_EQ(cancel_future.Take(), "pending-context-id");
-}
-
-IN_PROC_BROWSER_TEST_F(GlicExperimentalTriggeringMessageHandlerBrowserTest,
-                       ForceFcmTriggerFailureDropsTriggerWithoutReply) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      {features::kGlicBackgroundTriggering,
-       features::kGlicForceFcmExperimentalTriggerFailure},
-      {});
-  base::HistogramTester histogram_tester;
-
-  OptIn();
-
-  auto message = CreateTriggeringMessage(101);
-  auto* triggering = message.mutable_glic_experimental_triggering();
-  triggering->set_context_id("test-context-id");
-  triggering->mutable_request()->mutable_trigger_actuation_request();
-
-  // No message should be sent back to the server.
-  EXPECT_CALL(mock_sharing_message_sender_,
-              SendMessageToServerTarget(_, _, _, _))
-      .Times(0);
-
-  base::test::TestFuture<
-      std::unique_ptr<components_sharing_message::ResponseMessage>>
-      done_future;
-  // The drop is synchronous: OnMessage returns without posting any task.
-  handler_->OnMessage(std::move(message), done_future.GetCallback());
-
-  // The done callback never runs, so SharingFCMHandler sends no ack.
-  EXPECT_FALSE(done_future.IsReady());
-
-  // No pending task is added, so the foreground service is not kept alive.
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(GetProfile());
-  ASSERT_TRUE(actor_service);
-  EXPECT_FALSE(actor_service->HasPendingTask("test-context-id"));
-  EXPECT_EQ(actor_service->GetPendingTasksCount(), 0u);
-  EXPECT_EQ(handler_->GetUpdatesHandlerMapSizeForTesting(), 0u);
-
-  // The message is dropped before any metric is recorded.
-  histogram_tester.ExpectTotalCount(
-      "Glic.ExperimentalTriggering.IncomingMessageResult.SharingMessage", 0);
-}
-#endif
 
 }  // namespace glic

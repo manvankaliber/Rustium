@@ -96,11 +96,9 @@ const SimpleFontData* LocalFontFaceSource::CreateFontData(
   // Fonts sends, compare crbug.com/765980. So for now, we continue to
   // pass font_description to avoid breaking Google Fonts.
   FontDescription unstyled_description(font_description);
-#if !BUILDFLAG(IS_ANDROID)
   unstyled_description.SetStretch(kNormalWidthValue);
   unstyled_description.SetStyle(kNormalSlopeValue);
   unstyled_description.SetWeight(kNormalWeightValue);
-#endif
   // We're using the FontCache here to perform local unique lookup, including
   // potentially doing GMSCore lookups for fonts available through that, mainly
   // to retrieve and get access to the SkTypeface. This may return nullptr (e.g.

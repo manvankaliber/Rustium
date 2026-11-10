@@ -17,10 +17,6 @@
 #include "third_party/icu/source/common/unicode/locid.h"
 #include "third_party/icu/source/common/unicode/utypes.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "base/debug/crash_logging.h"
-#include "base/ios/ios_util.h"
-#endif
 
 namespace base::i18n {
 
@@ -53,12 +49,6 @@ base::CallbackListSubscription RegisterOnDefaultLocaleUpdatedCallback(
 void SetDefaultIcuLocale(DefaultIcuLocaleSetterKey key,
                          const LanguageTag& language_tag) {
   GetLocaleHolder().SetLocale(language_tag);
-#if BUILDFLAG(IS_IOS)
-  static base::debug::CrashKeyString* crash_key_locale =
-      base::debug::AllocateCrashKeyString("icu_locale_input",
-                                          base::debug::CrashKeySize::Size256);
-  base::debug::SetCrashKeyString(crash_key_locale, language_tag.tag_string());
-#endif
   UErrorCode error_code = U_ZERO_ERROR;
   icu::Locale locale =
       IcuLocaleConverter::GetInstance().FromLanguageTag(language_tag);

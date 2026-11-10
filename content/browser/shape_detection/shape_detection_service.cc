@@ -14,8 +14,7 @@
 #include "services/shape_detection/shape_detection_library_holder.h"
 #endif
 
-#if BUILDFLAG(IS_WIN) || (BUILDFLAG(GOOGLE_CHROME_BRANDING) && \
-                          (BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)))
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(GOOGLE_CHROME_BRANDING) && BUILDFLAG(IS_LINUX)
 #include "content/public/browser/service_process_host.h"
 #else
 #include "content/browser/gpu/gpu_process_host.h"
@@ -28,8 +27,7 @@ shape_detection::mojom::ShapeDetectionService* GetShapeDetectionService() {
       mojo::Remote<shape_detection::mojom::ShapeDetectionService>>
       remote;
   if (!*remote) {
-#if BUILDFLAG(IS_WIN) || (BUILDFLAG(GOOGLE_CHROME_BRANDING) && \
-                          (BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)))
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(GOOGLE_CHROME_BRANDING) && BUILDFLAG(IS_LINUX)
     ServiceProcessHost::Launch<shape_detection::mojom::ShapeDetectionService>(
         remote->BindNewPipeAndPassReceiver(),
         ServiceProcessHost::Options()

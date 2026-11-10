@@ -30,7 +30,6 @@
 #include "extensions/buildflags/buildflags.h"
 #include "mojo/public/cpp/bindings/binder_map.h"
 
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
 #include "chrome/browser/ttc/core/buildflags.h"
 #if BUILDFLAG(ENABLE_TTC_WEBUI)
 #include "chrome/browser/ttc/core/eval_harness.mojom.h"
@@ -38,7 +37,6 @@
 #endif
 #include "chrome/browser/ui/webui/ai_overlay_dialog/ai_overlay_dialog.mojom.h"
 #include "chrome/browser/ui/webui/ai_overlay_dialog/ai_overlay_dialog_untrusted_ui.h"
-#endif  // !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
 
 #if BUILDFLAG(CHROME_ROOT_STORE_CERT_MANAGEMENT_UI)
 #include "chrome/browser/resources/certificate_manager/certificate_manager.mojom.h"
@@ -50,7 +48,7 @@
 #include "chrome/common/compose/compose.mojom.h"
 #endif
 
-#if BUILDFLAG(ENABLE_DICE_SUPPORT) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
 #include "chrome/browser/ui/webui/signin/batch_upload/batch_upload.mojom.h"
 #include "chrome/browser/ui/webui/signin/batch_upload_ui.h"
 #endif
@@ -105,10 +103,10 @@ void PopulateChromeWebUIFrameBindersPartsFeatures(
       CertificateManagerUI>(map);
 #endif  // BUILDFLAG(CHROME_ROOT_STORE_CERT_MANAGEMENT_UI)
 
-#if BUILDFLAG(ENABLE_DICE_SUPPORT) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
   RegisterWebUIControllerInterfaceBinder<
       batch_upload::mojom::PageHandlerFactory, BatchUploadUI>(map);
-#endif  // BUILDFLAG(ENABLE_DICE_SUPPORT) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
   RegisterWebUIControllerInterfaceBinder<
@@ -215,7 +213,6 @@ void PopulateChromeWebUIFrameInterfaceBrokersUntrustedPartsFeatures(
       .Add<compose::mojom::ComposeSessionUntrustedPageHandlerFactory>();
 #endif  // BUILDFLAG(ENABLE_COMPOSE)
 
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
   if (base::FeatureList::IsEnabled(features::kAiOverlayDialog)
 #if BUILDFLAG(ENABLE_TTC_WEBUI)
       || base::CommandLine::ForCurrentProcess()->HasSwitch(
@@ -228,7 +225,6 @@ void PopulateChromeWebUIFrameInterfaceBrokersUntrustedPartsFeatures(
     registration.Add<ttc::mojom::HarnessPageHandlerFactory>();
 #endif
   }
-#endif  // !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
 }
 
 }  // namespace chrome::internal

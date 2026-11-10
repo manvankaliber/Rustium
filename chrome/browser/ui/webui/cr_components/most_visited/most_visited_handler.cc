@@ -42,10 +42,8 @@
 #include "ui/base/page_transition_types.h"
 #include "ui/base/window_open_disposition_utils.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/web_applications/preinstalled_web_app_manager.h"
 #include "chrome/browser/web_applications/web_app_provider.h"
-#endif
 
 namespace {
 
@@ -88,14 +86,12 @@ MostVisitedHandler::MostVisitedHandler(
       this, ntp_tiles::kMaxNumMostVisited);
 
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
   web_app::WebAppProvider* web_app_provider_ =
       web_app::WebAppProvider::GetForWebApps(profile);
   if (web_app_provider_) {
     preinstalled_web_app_observer_.Observe(
         &web_app_provider_->preinstalled_web_app_manager());
   }
-#endif
 }
 
 MostVisitedHandler::~MostVisitedHandler() = default;
@@ -490,7 +486,6 @@ bool MostVisitedHandler::MaybeRemoveStaleShortcuts() {
 }
 
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
 void MostVisitedHandler::OnMigrationRun() {
   most_visited_sites_->RefreshTiles();
 }
@@ -500,4 +495,3 @@ void MostVisitedHandler::OnDestroyed() {
     preinstalled_web_app_observer_.Reset();
   }
 }
-#endif

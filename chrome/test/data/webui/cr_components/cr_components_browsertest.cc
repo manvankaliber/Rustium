@@ -4,32 +4,25 @@
 
 #include <memory>
 
+#include "base/command_line.h"
 #include "base/strings/strcat.h"
 #include "build/build_config.h"
+#include "chrome/browser/browser_features.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.h"
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/test/base/web_ui_mocha_browser_test.h"
 #include "chrome/test/base/web_ui_test_data_source.h"
+#include "components/history_clusters/core/features.h"
 #include "content/public/browser/web_ui_data_source.h"
 #include "content/public/browser/webui_config.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/test/browser_test.h"
 #include "content/public/test/scoped_web_ui_controller_factory_registration.h"
 #include "services/network/public/mojom/content_security_policy.mojom.h"
+#include "ui/compositor/compositor_switches.h"
 #include "ui/webui/mojo_web_ui_controller.h"
 #include "ui/webui/webui_util.h"
-
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/webui/common/trusted_types_util.h"
-#endif
-
-#if !BUILDFLAG(IS_ANDROID)
-#include "base/command_line.h"
-#include "chrome/browser/browser_features.h"
-#include "components/history_clusters/core/features.h"
-#include "ui/compositor/compositor_switches.h"
-#endif
 
 namespace {
 
@@ -56,17 +49,10 @@ class TestComposeboxWebUIController : public TestMojoWebUIController {
   explicit TestComposeboxWebUIController(content::WebUI* web_ui)
       : TestMojoWebUIController(web_ui) {
     content::WebUIDataSource* source = CreateWebUITestDataSource();
-#if BUILDFLAG(IS_CHROMEOS)
-    source->OverrideContentSecurityPolicy(
-        network::mojom::CSPDirectiveName::TrustedTypes,
-        base::StrCat({ash::kDefaultTrustedTypesPolicies,
-                      " lit-html-desktop composebox-input;"}));
-#else
     source->OverrideContentSecurityPolicy(
         network::mojom::CSPDirectiveName::TrustedTypes,
         base::StrCat(
             {webui::kDefaultTrustedTypesPolicies, " composebox-input;"}));
-#endif
     source->AddLocalizedStrings(SearchboxHandler::GetWebUIDataSourceDict(
         Profile::FromWebUI(web_ui), {.enable_voice_search = true}));
 
@@ -89,12 +75,8 @@ class TestComposeboxWebUIController : public TestMojoWebUIController {
     source->AddBoolean("contextMenuAnimationLimitingEnabled", true);
     source->AddBoolean("composeboxSkillsEnabled", false);
     source->AddBoolean("composeboxSmartComposeEnabled", true);
-    source->AddBoolean("composeboxSmartTabSharingSupported",
-                       !BUILDFLAG(IS_ANDROID));
-    source->AddBoolean("supportsLensButtonInComposebox",
-                       !BUILDFLAG(IS_ANDROID));
-    source->AddBoolean("isSystemVoiceSearchEnabled", false);
-    source->AddBoolean("androidSpeechRecognition", false);
+    source->AddBoolean("composeboxSmartTabSharingSupported", !false);
+    source->AddBoolean("supportsLensButtonInComposebox", !false);
     source->AddBoolean("clearAllInputsWhenSubmittingQuery", false);
     source->AddBoolean("lensSendRawFileMediaTypesEnabled", false);
     source->AddBoolean("isLensSearchbox", true);
@@ -120,7 +102,6 @@ content::ScopedWebUIConfigRegistration RegisterComposeboxTestConfig() {
           content::kChromeUIScheme, chrome::kChromeUIWebUITestHost));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class TestSearchboxWebUIController : public TestMojoWebUIController {
  public:
   explicit TestSearchboxWebUIController(content::WebUI* web_ui)
@@ -146,7 +127,6 @@ content::ScopedWebUIConfigRegistration RegisterSearchboxTestConfig() {
           content::DefaultWebUIConfig<TestSearchboxWebUIController>>(
           content::kChromeUIScheme, chrome::kChromeUIWebUITestHost));
 }
-#endif
 
 }  // namespace
 
@@ -157,7 +137,6 @@ IN_PROC_BROWSER_TEST_F(CrComponentsTest, ColorChangeListener) {
   RunTest("cr_components/color_change_listener_test.js", "mocha.run()");
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(CrComponentsTest, CustomizeColorSchemeMode) {
   set_test_loader_host(chrome::kChromeUICustomizeChromeSidePanelHost);
   RunTest("cr_components/customize_color_scheme_mode_test.js", "mocha.run()");
@@ -192,13 +171,11 @@ IN_PROC_BROWSER_TEST_F(CrComponentsTest, ManagedFootnote) {
   set_test_loader_host(chrome::kChromeUISettingsHost);
   RunTest("cr_components/managed_footnote_test.js", "mocha.run()");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(CrComponentsTest, LocalizedLink) {
   RunTest("cr_components/localized_link_test.js", "mocha.run()");
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 using CrComponentsSearchboxTest = WebUIMochaBrowserTest;
 
 IN_PROC_BROWSER_TEST_F(CrComponentsSearchboxTest, RealboxMatchTest) {
@@ -261,7 +238,7 @@ class CrComponentsHistoryClustersTest : public WebUIMochaBrowserTest {
 };
 
 // TODO(crbug.com/390550686): Test is flaky.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 #define MAYBE_All DISABLED_All
 #else
 #define MAYBE_All All
@@ -410,7 +387,6 @@ class CrComponentsPreloadingTest : public CrComponentsMostVisitedTest {
 IN_PROC_BROWSER_TEST_F(CrComponentsPreloadingTest, Preloading) {
   RunTest("cr_components/most_visited_test.js", "runMochaSuite('Preloading');");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 using CrComponentsComposeboxTest = WebUIMochaBrowserTest;
 
@@ -433,7 +409,6 @@ IN_PROC_BROWSER_TEST_F(CrComponentsComposeboxTest, ComposeboxFaviconGroup) {
 }
 
 // TODO(crbug.com/513266451): Enable for Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(CrComponentsComposeboxTest, ContextualActionMenu) {
   auto config = RegisterComposeboxTestConfig();
   RunTest("cr_components/composebox/contextual_action_menu_test.js",
@@ -470,7 +445,6 @@ IN_PROC_BROWSER_TEST_F(CrComponentsComposeboxTest, ComposeboxToolChip) {
   RunTest("cr_components/composebox/composebox_tool_chip_test.js",
           "mocha.run()");
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(CrComponentsComposeboxTest, ComposeboxVoiceSearch) {
   auto config = RegisterComposeboxTestConfig();
@@ -564,7 +538,6 @@ IN_PROC_BROWSER_TEST_F(CrComponentsComposeboxTest, ComposeboxAimButton) {
           "runMochaSuite('ComposeboxAimButtonTest')");
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class CrComponentsWithPixelOutputTest : public WebUIMochaBrowserTest {
  public:
   CrComponentsWithPixelOutputTest() {
@@ -581,4 +554,3 @@ class CrComponentsWithPixelOutputTest : public WebUIMochaBrowserTest {
 IN_PROC_BROWSER_TEST_F(CrComponentsWithPixelOutputTest, CrLottie) {
   RunTest("cr_components/cr_lottie/cr_lottie_test.js", "mocha.run()");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

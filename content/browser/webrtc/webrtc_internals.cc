@@ -596,11 +596,7 @@ void WebRTCInternals::MaybeRequestCurrentState() {
 void WebRTCInternals::EnableAudioDebugRecordings(
     content::WebContents* web_contents) {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M160);
-#if BUILDFLAG(IS_ANDROID)
-  EnableAudioDebugRecordingsOnAllRenderProcessHosts();
-#else
   MaybeShowSelectFileDialog(web_contents, SelectionType::kAudioDebugRecordings);
-#endif
 }
 
 void WebRTCInternals::DisableAudioDebugRecordings() {
@@ -632,14 +628,7 @@ void WebRTCInternals::EnableLocalEventLogRecordings(
   CHECK(web_contents, base::NotFatalUntil::M160);
   CHECK(CanToggleEventLogRecordings(), base::NotFatalUntil::M160);
 
-#if BUILDFLAG(IS_ANDROID)
-  WebRtcEventLogger* const logger = WebRtcEventLogger::Get();
-  if (logger) {
-    logger->EnableLocalLogging(event_log_recordings_file_path_);
-  }
-#else
   MaybeShowSelectFileDialog(web_contents, SelectionType::kRtcEventLogs);
-#endif
 }
 
 void WebRTCInternals::DisableLocalEventLogRecordings() {
@@ -656,15 +645,8 @@ void WebRTCInternals::DisableLocalEventLogRecordings() {
 void WebRTCInternals::EnableDataChannelRecordings(
     content::WebContents* web_contents) {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M160);
-#if BUILDFLAG(IS_ANDROID)
-  WebRtcEventLogger* const logger = WebRtcEventLogger::Get();
-  if (logger) {
-    logger->EnableDataChannelLogging(data_channel_recordings_file_path_);
-  }
-#else
   MaybeShowSelectFileDialog(web_contents,
                             SelectionType::kDataChannelRecordings);
-#endif
 }
 
 void WebRTCInternals::DisableDataChannelRecordings() {

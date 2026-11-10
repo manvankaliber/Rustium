@@ -73,11 +73,7 @@ PopulateSelectionInlineCueFeatureParams(const base::Feature& feature) {
 }
 
 BASE_FEATURE(kGlicCaptureRegion,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT
-#else
              base::FEATURE_ENABLED_BY_DEFAULT
-#endif
 );
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
@@ -89,12 +85,7 @@ BASE_FEATURE(kGlicMarketingAutoOpen, base::FEATURE_ENABLED_BY_DEFAULT);
 glic::GlicMarketingAutoOpenFeatureParams PopulateMarketingAutoOpenFeatureParams(
     const base::Feature& feature) {
   static constexpr char kDefaultAllowlistedUrls[] =
-#if BUILDFLAG(IS_ANDROID)
-      "https://www.google.com/chrome/ai-innovations/gemini-in-chrome/,"
-      "https://www.google.com/chrome/campaigns/gic-on-android/";
-#else
       "";
-#endif
   glic::GlicMarketingAutoOpenFeatureParams params;
   params.allowlisted_urls = base::GetFieldTrialParamByFeatureAsString(
       feature, kGlicMarketingAutoOpenAllowlistedUrlsParam,

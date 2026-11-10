@@ -185,12 +185,12 @@ class GPU_IPC_SERVICE_EXPORT GpuChannelMessageFilter
       uint64_t release_count,
       CopyToGpuMemoryBufferAsyncCallback callback) override;
 #endif  // BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   void CopyNativeGmbToSharedMemoryAsync(
       gfx::GpuMemoryBufferHandle buffer_handle,
       base::UnsafeSharedMemoryRegion shared_memory,
       CopyNativeGmbToSharedMemoryAsyncCallback callback) override;
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
   void SignalSyncToken(const std::vector<gpu::SyncToken>& sync_tokens,
                        SignalSyncTokenCallback callback) override;
   void WaitForTokenInRange(int32_t routing_id,
@@ -604,7 +604,7 @@ void GpuChannelMessageFilter::CopyToGpuMemoryBufferAsync(
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 void GpuChannelMessageFilter::CopyNativeGmbToSharedMemoryAsync(
     gfx::GpuMemoryBufferHandle buffer_handle,
     base::UnsafeSharedMemoryRegion shared_memory,
@@ -619,7 +619,7 @@ void GpuChannelMessageFilter::CopyNativeGmbToSharedMemoryAsync(
       gpu_channel_->shared_image_stub()->CopyNativeBufferToSharedMemoryAsync(
           std::move(buffer_handle), std::move(shared_memory)));
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 
 void GpuChannelMessageFilter::SignalSyncToken(
     const std::vector<gpu::SyncToken>& sync_tokens,
@@ -934,18 +934,6 @@ bool GpuChannel::CreateSharedImageStub() {
   return true;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-const CommandBufferStub* GpuChannel::GetOneStub() const {
-  for (const auto& kv : stubs_) {
-    const CommandBufferStub* stub = kv.second.get();
-    if (stub->decoder_context() && !stub->decoder_context()->WasContextLost()) {
-      return stub;
-    }
-  }
-  return nullptr;
-}
-
-#endif
 
 #if BUILDFLAG(IS_WIN)
 void GpuChannel::DestroyDCOMPTexture(int32_t route_id) {

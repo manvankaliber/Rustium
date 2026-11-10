@@ -71,17 +71,6 @@ class ExitHandler {
 void ExitHandler::ExitWhenPossibleOnUIThread(int signal) {
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M162);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  browser_shutdown::SetShutdownTrigger(
-      browser_shutdown::ShutdownTrigger::kSigterm);
-
-  // On ChromeOS, many shut down hangs have been seen in certain PartitionAlloc
-  // features. Make Free a Noop to prevent that. This was originally done for
-  // normal shutdowns and Googlers can read the report at
-  // go/cros-no-op-free-2024, however this was added after it was discovered
-  // signal handlers don't hit that path. See crbug.com/561483162.
-  base::allocator::MakeFreeNoOp();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // DevTools delegate's browser keeplive may prevent browser from closing so
   // remove it before proceeding because we have an explicit shutdown request.
@@ -143,12 +132,7 @@ void ExitHandler::OnSessionRestoreDone(Profile* profile, int /* num_tabs */) {
 
 // static
 void ExitHandler::Exit() {
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, exiting on signal should be always clean.
-  chrome::ExitIgnoreUnloadHandlers();
-#else
   chrome::AttemptExit();
-#endif
 }
 
 }  // namespace
@@ -184,9 +168,7 @@ void ChromeBrowserMainPartsPosix::PostCreateMainMessageLoop() {
 }
 
 void ChromeBrowserMainPartsPosix::ShowMissingLocaleMessageBox() {
-#if BUILDFLAG(IS_CHROMEOS)
-  NOTREACHED();  // Should not ever happen on ChromeOS.
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
   // Not called on Mac because we load the locale files differently.
   NOTREACHED();
 #elif defined(USE_AURA)

@@ -166,15 +166,10 @@ IN_PROC_BROWSER_TEST_F(LocalSyncTest, ShouldStart) {
       syncer::WEB_APPS,
       syncer::NIGORI};
 
-#if !BUILDFLAG(IS_CHROMEOS)
   if (!base::FeatureList::IsEnabled(syncer::kSyncDoNotSyncAppsAndAppSettings)) {
     expected_active_data_types.Put(syncer::APPS);
     expected_active_data_types.Put(syncer::APP_SETTINGS);
   }
-#else
-  expected_active_data_types.Put(syncer::APPS);
-  expected_active_data_types.Put(syncer::APP_SETTINGS);
-#endif
 
   expected_active_data_types.Put(syncer::AUTOFILL_WALLET_CREDENTIAL);
 

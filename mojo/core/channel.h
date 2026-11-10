@@ -91,12 +91,6 @@ class MOJO_SYSTEM_IMPL_EXPORT Channel
       // TODO(crbug.com/41303999): remove legacy support when Arc++ has
       // updated to Mojo with normal versioned messages.
       NORMAL_LEGACY = 0,
-#if BUILDFLAG(IS_IOS)
-      // A control message containing handles to echo back.
-      HANDLES_SENT,
-      // A control message containing handles that can now be closed.
-      HANDLES_SENT_ACK,
-#endif
       // A normal message that uses Header and can contain extra header values.
       NORMAL,
 
@@ -168,8 +162,7 @@ class MOJO_SYSTEM_IMPL_EXPORT Channel
         int64_t creation_timeticks_us;
       } v2;
 
-#if BUILDFLAG(IS_ANDROID) || \
-    (BUILDFLAG(IS_LINUX) && defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION))
+#if BUILDFLAG(IS_LINUX) && defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION)
       // On Android for each pair of connected ipcz::Node instances both sides
       // of the connection run the same version of code. Restricting this
       // extension of IpczHeader to Android allows to iterate on the wire format

@@ -251,7 +251,7 @@ class PolicyGenerationTest(unittest.TestCase):
     self.maxDiff = None  # See the full diff in the test output.
     self.chrome_major_version = 94
     self.target_platform = 'chrome_os'
-    self.all_target_platforms = ['win', 'mac', 'linux', 'chromeos', ]
+    self.all_target_platforms = ['win', 'mac', 'linux',  ]
     self.risk_tags = generate_policy_source.RiskTags(self.TEMPLATES_JSON)
     self.policies = [
       generate_policy_source.PolicyDetails(
@@ -595,37 +595,28 @@ class PolicyGenerationTest(unittest.TestCase):
           expected_formatted, mocked_file().write.call_args_list
         )
 
-  def testWriteAppRestrictions(self):
-    # Create Android-specific policies for testing Android app restrictions.
-    # This ensures we only test with policies that actually support Android.
-    android_target_platform = 'android'
-    android_policies = [
-      generate_policy_source.PolicyDetails(
-        policy,
-        self.chrome_major_version,
-        android_target_platform,
-        self.risk_tags.GetValidTags(),
-      )
-      for policy in self.TEMPLATES_JSON['policy_definitions']
-    ]
 
-    output_path = 'app_restrictions_xml'
-    with patch('builtins.open', mock_open()) as mocked_file:
-      with open(output_path, 'w', encoding='utf-8') as f:
-        generate_policy_source._WriteAppRestrictions(
-          android_policies,
-          self.policy_atomic_groups,
-          android_target_platform,
-          f,
-          self.risk_tags,
-          chunking=True,
-          mutable=False,
-        )
-    mocked_file.assert_called_once_with(output_path, 'w', encoding='utf-8')
-    self._assertCallsEqual(
-      test_data.EXPECTED_APP_RESTRICTIONS_XML,
-      mocked_file().write.call_args_list,
-    )
+  def testLegacyMobileMetadataDoesNotEnableDesktopPolicy(self):
+    for platform in ['android', 'ios']:
+      for target in ['win', 'mac', 'linux']:
+        with self.subTest(platform=platform, target=target):
+          policy = dict(self.TEMPLATES_JSON['policy_definitions'][0])
+          policy['supported_on'] = [platform + ':1-']
+          policy['future_on'] = [platform]
+          details = PolicyDetails(policy, self.chrome_major_version, target,
+                                  self.risk_tags.GetValidTags())
+          self.assertFalse(details.is_supported)
+          self.assertFalse(details.is_future)
+          self.assertEqual(details.id, policy['id'])
+
+  def testRetiredBuildTargetsAreRejected(self):
+    for target in ['android', 'ios', 'chromeos', 'chrome_os']:
+      with self.subTest(target=target):
+        with patch('sys.argv', ['generate_policy_source.py',
+                                '--target-platform=' + target]):
+          with patch('sys.stderr'), self.assertRaises(SystemExit) as error:
+            generate_policy_source.main()
+          self.assertEqual(error.exception.code, 2)
 
   def testChunkNumberAndFieldNumber(self):
     test_data = [

@@ -32,26 +32,19 @@
 #include "ui/base/base_window.h"
 #include "ui/base/interaction/element_identifier.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/side_panel/android/android_side_panel_enabled_fn.h"
-#else
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
-#endif
 
 namespace glic {
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 GlicInstanceCoordinatorImpl& GetInstanceCoordinator(GlicKeyedService& service) {
   return static_cast<GlicInstanceCoordinatorImpl&>(
       service.instance_coordinator());
 }
-#endif
 
 }  // namespace
 
-#if !BUILDFLAG(IS_ANDROID)
 GlicInstanceTracker::GlicInstanceTracker(Profile* profile) {
   SetProfile(profile);
 }
@@ -170,7 +163,6 @@ void GlicInstanceTracker::Clear() {
   });
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 GlicInstance* GetOnlyGlicInstance(Profile* profile) {
   if (!profile) {
@@ -360,17 +352,6 @@ void GlicClientConnectionObserver::Clear() {
 bool IsSidePanelEnabled() {
 #if defined(TOOLKIT_VIEWS)
   return true;
-#elif BUILDFLAG(IS_DESKTOP_ANDROID)
-  // Note:
-  //
-  // (1) GLiC tests only enable `kEnableAndroidSidePanel` on desktop Android.
-  // See the constructor of `GlicBrowserTestMixin`.
-  //
-  // (2) The side panel flag is a cached flag in Java, so we need to call into
-  // Java to check the flag value. This is the same as
-  // `SidePanelAndroidBrowserTestBase` so please see the detailed explanations
-  // there.
-  return AndroidSidePanelEnabledFn::IsEnabled();
 #else
   return false;
 #endif

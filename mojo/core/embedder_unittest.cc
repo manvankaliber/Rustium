@@ -56,11 +56,9 @@ MojoResult ExtractRegionFromSharedBuffer(MojoHandle handle, T* region) {
 }
 
 // The multiprocess tests that use these don't compile on iOS.
-#if !BUILDFLAG(IS_IOS)
 constexpr size_t kSharedBufferSize = 123;
 const char kHelloWorld[] = "hello world";
 const char kByeWorld[] = "bye world";
-#endif
 
 using EmbedderTest = test::MojoTestBase;
 
@@ -171,7 +169,6 @@ TEST_F(EmbedderTest, ChannelsHandlePassing) {
 //  11.                                      (wait/cl.)
 //  12.                                                  (wait/cl.)
 
-#if !BUILDFLAG(IS_IOS)
 
 TEST_F(EmbedderTest, MultiprocessChannels) {
   RunTestClient("MultiprocessChannelsClient", [&](MojoHandle server_mp) {
@@ -429,7 +426,6 @@ DEFINE_TEST_CLIENT_TEST_WITH_PIPE(MultiprocessMixMachAndFdsClient,
 
 #endif  // BUILDFLAG(IS_MAC)
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 }  // namespace
 }  // namespace mojo::core

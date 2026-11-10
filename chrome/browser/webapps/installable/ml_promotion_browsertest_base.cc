@@ -17,7 +17,6 @@
 #include "net/dns/mock_host_resolver.h"
 #include "net/test/embedded_test_server/embedded_test_server.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/auto_reset.h"
 #include "base/test/test_future.h"
 #include "chrome/browser/banners/test_app_banner_manager_desktop.h"
@@ -42,25 +41,20 @@
 #include "ui/views/test/dialog_test.h"
 #include "ui/views/test/widget_test.h"
 #include "ui/views/widget/any_widget_observer.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace webapps {
 
 MLPromotionBrowserTestBase::MLPromotionBrowserTestBase()
     : https_server_(net::EmbeddedTestServer::TYPE_HTTPS) {
-#if !BUILDFLAG(IS_ANDROID)
   os_hooks_suppress_.emplace();
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 MLPromotionBrowserTestBase::~MLPromotionBrowserTestBase() = default;
 
 void MLPromotionBrowserTestBase::SetUp() {
 // TODO(b/287255120) : Build functionalities for Android.
-#if !BUILDFLAG(IS_ANDROID)
   https_server_.AddDefaultHandlers(GetChromeTestDataDir());
   webapps::TestAppBannerManagerDesktop::SetUp();
-#endif  // !BUIDLFLAG(IS_ANDROID)
 
   PlatformBrowserTest::SetUp();
 }
@@ -93,18 +87,12 @@ void MLPromotionBrowserTestBase::SetUpOnMainThread() {
       .WillByDefault(base::test::RunOnceCallbackRepeatedly<3>(true));
 
 // TODO(b/287255120) : Build functionalities for Android.
-#if !BUILDFLAG(IS_ANDROID)
   web_app::test::WaitUntilReady(
       web_app::WebAppProvider::GetForTest(browser()->GetProfile()));
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 bool MLPromotionBrowserTestBase::InstallAppForCurrentWebContents(
     bool install_locally) {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(b/287255120) : Build functionalities for Android.
-  return false;
-#else
   web_app::WebAppProvider* provider =
       web_app::WebAppProvider::GetForTest(browser()->GetProfile());
   base::test::TestFuture<const webapps::AppId&, InstallResultCode>
@@ -128,16 +116,11 @@ bool MLPromotionBrowserTestBase::InstallAppForCurrentWebContents(
     provider->sync_bridge_unsafe().SetAppNotLocallyInstalledForTesting(app_id);
   }
   return success;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool MLPromotionBrowserTestBase::InstallAppFromUserInitiation(
     bool accept_install,
     std::string dialog_name) {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(b/287255120) : Build functionalities for Android.
-  return false;
-#else
   base::test::TestFuture<const webapps::AppId&, InstallResultCode>
       install_future;
   std::optional<base::AutoReset<web_app::InstallDialogTestResponse>>
@@ -175,33 +158,22 @@ bool MLPromotionBrowserTestBase::InstallAppFromUserInitiation(
     return install_future.Get<InstallResultCode>() ==
            InstallResultCode::kUserInstallDeclined;
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool MLPromotionBrowserTestBase::NavigateAndAwaitInstallabilityCheck(
     const GURL& url) {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(b/287255120) : Build functionalities for Android.
-  return false;
-#else
   auto* manager = TestAppBannerManagerDesktop::FromWebContents(web_contents());
   web_app::NavigateViaLinkClickToURLAndWait(browser(), url);
   return manager->WaitForInstallableCheck();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 segmentation_platform::MockSegmentationPlatformService*
 MLPromotionBrowserTestBase::GetMockSegmentation() {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(b/287255120) : Build functionalities for Android.
-  return nullptr;
-#else
   // Since we've mocked out the segmentation platform, no browser context is
   // needed.
   return static_cast<segmentation_platform::MockSegmentationPlatformService*>(
       WebappsClient::Get()->GetSegmentationPlatformService(
           /*browsing_context=*/nullptr));
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 net::EmbeddedTestServer* MLPromotionBrowserTestBase::https_server() {
@@ -209,21 +181,11 @@ net::EmbeddedTestServer* MLPromotionBrowserTestBase::https_server() {
 }
 
 content::WebContents* MLPromotionBrowserTestBase::web_contents() {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(b/287255120) : Build functionalities for Android.
-  return nullptr;
-#else
   return browser()->GetTabStripModel()->GetActiveWebContents();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 Profile* MLPromotionBrowserTestBase::profile() {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(b/287255120) : Build functionalities for Android.
-  return nullptr;
-#else
   return browser()->GetProfile();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 }  // namespace webapps

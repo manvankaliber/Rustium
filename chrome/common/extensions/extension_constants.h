@@ -15,9 +15,6 @@
 #include "chrome/common/buildflags.h"
 #include "extensions/common/constants.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_extension_constants.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace extension_urls {
 
@@ -208,23 +205,6 @@ inline constexpr auto kBuiltInFirstPartyExtensionIds =
         kGoogleSheetsAppId,
         kGoogleSlidesAppId,
         kInAppPaymentsSupportAppId,
-#if BUILDFLAG(IS_CHROMEOS)
-        kAssessmentAssistantExtensionId,
-        kAccessibilityCommonExtensionId,
-        kCalendarAppId,
-        kSelectToSpeakExtensionId,
-        kSwitchAccessExtensionId,
-        kFilesManagerAppId,
-        kFirstRunDialogId,
-        kEspeakSpeechSynthesisExtensionId,
-        kGooglePhotosAppId,
-        kGooglePlayBooksAppId,
-        kGooglePlayMoviesAppId,
-        kGooglePlayMusicAppId,
-        kGooglePlusAppId,
-        kGoogleSpeechSynthesisExtensionId,
-        kTextEditorAppId,
-#endif  // BUILDFLAG(IS_CHROMEOS)
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
         kTTSEngineExtensionId,
         kComponentUpdaterTTSEngineExtensionId,

@@ -1439,12 +1439,7 @@ IN_PROC_BROWSER_TEST_F(ChromeComposeClientBrowserTest,
       compose::ComposeFreOrMsbbSessionCloseReason::kAbandoned, 1);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_TestComposeGenericServerError \
-  DISABLED_TestComposeGenericServerError
-#else
 #define MAYBE_TestComposeGenericServerError TestComposeGenericServerError
-#endif
 IN_PROC_BROWSER_TEST_F(ChromeComposeClientBrowserTest,
                        MAYBE_TestComposeGenericServerError) {
   base::HistogramTester histograms;
@@ -1593,13 +1588,8 @@ IN_PROC_BROWSER_TEST_F(ChromeComposeClientBrowserTest,
 }
 
 // Failing consistently on CrOS. crbug.com/503432696
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_TestComposeQualityLoggedOnSubsequentError \
-  DISABLED_TestComposeQualityLoggedOnSubsequentError
-#else
 #define MAYBE_TestComposeQualityLoggedOnSubsequentError \
   TestComposeQualityLoggedOnSubsequentError
-#endif
 IN_PROC_BROWSER_TEST_F(ChromeComposeClientBrowserTest,
                        MAYBE_TestComposeQualityLoggedOnSubsequentError) {
   base::HistogramTester histograms;
@@ -1949,7 +1939,7 @@ IN_PROC_BROWSER_TEST_F(ChromeComposeClientBrowserTest,
 }
 
 // TODO(crbug.com/503556973): Flaky on Windows, Linux and Chrome OS.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 #define MAYBE_TestShouldTriggerProactiveNudgeBlockedBySegmentation \
   DISABLED_TestShouldTriggerProactiveNudgeBlockedBySegmentation
 #else

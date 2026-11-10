@@ -24,9 +24,6 @@
 #include "components/segmentation_platform/public/proto/model_metadata.pb.h"
 #include "components/segmentation_platform/public/segmentation_platform_service.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif
 
 namespace tips {
 
@@ -121,9 +118,6 @@ void TipsService::OnFeaturesProcessed(
   // Check global 7-day cooldown. If any tips notification was shown recently,
   // suppress all tips unless cooldown bypass is enabled.
   bool bypass_global_cooldown = false;
-#if BUILDFLAG(IS_ANDROID)
-  bypass_global_cooldown = kTipsSelfServiceInstantScheduling.Get();
-#endif
 
   float global_tips_shown_count = inputs[0];
   if (global_tips_shown_count > 0 && !bypass_global_cooldown) {

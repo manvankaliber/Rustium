@@ -223,15 +223,11 @@ bool ExecutionContext::SharedArrayBufferTransferAllowed() const {
 
   CHECK(origin);
 
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
   // On desktop, enable transfer for the reverse Origin Trial, or if enabled by
   // Enterprise Policy.
   return RuntimeEnabledFeatures::UnrestrictedSharedArrayBufferEnabled(this) ||
          RuntimeEnabledFeatures::
              SharedArrayBufferUnrestrictedAccessAllowedEnabled();
-#endif
 }
 
 bool ExecutionContext::CheckSharedArrayBufferTransferAllowedAndReport() {

@@ -70,9 +70,7 @@ namespace glic {
 
 namespace {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kFirstTab);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // anonymous namespace
 
@@ -346,7 +344,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorUiTest,
 // So invalidation is not supported.
 // TODO(crbug.com/450629835): Revisit if we figure out actual flow we need
 // reauth.
-#if !BUILDFLAG(IS_CHROMEOS)
 // TODO(b/453696965): Broken in multi-instance.
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorUiTest,
                        DISABLED_InvalidatedAccountWhileLoadingGlic) {
@@ -379,15 +376,9 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorUiTest,
                   WaitForAndInstrumentGlic(kHostOnly),
                   WaitForWebUIState(mojom::WebUiState::kReady));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Not supported on ChromeOS (auth is part of OS session).
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_AccountInvalidatedWhileGlicOpen \
-  DISABLED_AccountInvalidatedWhileGlicOpen
-#else
 #define MAYBE_AccountInvalidatedWhileGlicOpen AccountInvalidatedWhileGlicOpen
-#endif
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorUiTest,
                        MAYBE_AccountInvalidatedWhileGlicOpen) {
   TrackGlicInstanceWithTabIndex(0);
@@ -487,7 +478,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorUiTest,
 // Note: ChromeOS maintains account auth as a part of OS User session,
 // and Profile is coupled with the User. Thus, deletion Profile
 // during the use should not happen.
-#if !BUILDFLAG(IS_CHROMEOS)
 // TODO(b/453696965): Broken in multi-instance.
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorUiTest,
                        DISABLED_PermanentlyDeleteProfile) {
@@ -516,7 +506,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorUiTest,
 
   EXPECT_FALSE(service1->instance_coordinator().IsAnyPanelShowing());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 class GlicInstanceCoordinatorWithPreviousPostionUiTest
     : public GlicInstanceCoordinatorUiTest {
@@ -600,7 +589,6 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorWithDelayedPreloadingUiTest,
           WaitForShow(kGlicViewElementId).SetMustRemainVisible(false)));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorUiTest,
                        ActivateTabWithConversation_DifferentWindow) {
 #if BUILDFLAG(IS_OZONE)
@@ -731,6 +719,5 @@ IN_PROC_BROWSER_TEST_F(GlicInstanceCoordinatorUiTest,
 
   EXPECT_EQ(tab_list_a->GetActiveTab(), tab_2);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace glic

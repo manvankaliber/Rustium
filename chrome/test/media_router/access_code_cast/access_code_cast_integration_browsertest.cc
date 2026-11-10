@@ -50,9 +50,6 @@
 #include "third_party/abseil-cpp/absl/strings/ascii.h"
 #include "ui/events/keycodes/keyboard_codes.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/ash/cast_config/cast_config_controller_media_router.h"
-#endif
 
 using testing::_;
 namespace {
@@ -107,9 +104,6 @@ AccessCodeCastIntegrationBrowserTest::~AccessCodeCastIntegrationBrowserTest() =
 void AccessCodeCastIntegrationBrowserTest::SetUp() {
 // This makes sure CastDeviceCache is not initialized until after the
 // MockMediaRouter is ready. (MockMediaRouter can't be constructed yet.)
-#if BUILDFLAG(IS_CHROMEOS)
-  CastConfigControllerMediaRouter::SetMediaRouterForTest(nullptr);
-#endif
   InProcessBrowserTest::SetUp();
 
   // This command removes the verify pixels switch so that our TestDialog code

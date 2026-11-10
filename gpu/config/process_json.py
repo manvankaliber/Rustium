@@ -30,9 +30,7 @@ _DO_NOT_EDIT_WARNING = """// This file is auto-generated from
 _OS_TYPE_MAP = {
   'win': 'kOsWin',
   'macosx': 'kOsMacosx',
-  'android': 'kOsAndroid',
   'linux': 'kOsLinux',
-  'chromeos': 'kOsChromeOS',
   '': 'kOsAny',
 }
 
@@ -737,12 +735,10 @@ def write_conditions(
   )
   # group a bunch of less used conditions
   if gl_type != '' or gl_version != None:  # noqa: E711
-    if gl_type == 'gles':
-      assert os_type == 'android'
-    elif gl_type == 'angle_gl':
+    if gl_type == 'angle_gl':
       assert os_type == 'linux'
     elif gl_type in ('angle_gles', 'angle_vulkan'):
-      assert os_type in ('android', 'linux', 'chromeos')
+      assert os_type in ('linux', )
   if (
     gl_type != ''
     or gl_version != None  # noqa: E711

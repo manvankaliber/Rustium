@@ -17,12 +17,6 @@
 #include "components/sync_preferences/features.h"
 #include "components/sync_preferences/pref_service_syncable.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-
-// Must come after all headers that specialize FromJniType() / ToJniType().
-#include "chrome/browser/sync/android/jni_headers/CrossDevicePrefTrackerFactory_jni.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -94,21 +88,3 @@ bool CrossDevicePrefTrackerFactory::ServiceIsCreatedWithBrowserContext() const {
 bool CrossDevicePrefTrackerFactory::ServiceIsNULLWhileTesting() const {
   return true;
 }
-
-#if BUILDFLAG(IS_ANDROID)
-static base::android::ScopedJavaLocalRef<jobject>
-JNI_CrossDevicePrefTrackerFactory_GetForProfile(JNIEnv* env, Profile* profile) {
-  CHECK(profile, base::NotFatalUntil::M163);
-
-  sync_preferences::CrossDevicePrefTracker* pref_tracker =
-      CrossDevicePrefTrackerFactory::GetForProfile(profile);
-  if (!pref_tracker) {
-    return base::android::ScopedJavaLocalRef<jobject>();
-  }
-  return pref_tracker->GetJavaObject();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_ANDROID)
-DEFINE_JNI(CrossDevicePrefTrackerFactory)
-#endif

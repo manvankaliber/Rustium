@@ -8,10 +8,8 @@
 #include "build/build_config.h"
 #include "chrome/browser/metrics/desktop_session_duration/desktop_session_duration_tracker.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/browser_process.h"
 #include "components/activity_reporter/activity_reporter.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 namespace metrics {
 
@@ -27,11 +25,9 @@ class DesktopSessionMetricsProvider : public MetricsProvider {
       base::UmaHistogramBoolean("Session.IsActive", in_session);
       base::UmaHistogramBoolean("Session.IsActive2", in_session);
     }
-#if !BUILDFLAG(IS_CHROMEOS)
     if (in_session) {
       g_browser_process->activity_reporter()->ReportActive();
     }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   }
 };
 

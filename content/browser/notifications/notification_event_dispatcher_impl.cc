@@ -48,13 +48,6 @@ using NotificationOperationCallbackWithContext =
 // Derives a PersistentNotificationStatus from the ServiceWorkerStatusCode.
 PersistentNotificationStatus ConvertServiceWorkerStatus(
     blink::ServiceWorkerStatusCode service_worker_status) {
-#if BUILDFLAG(IS_ANDROID)
-  // This LOG(INFO) deliberately exists to help track down the cause of
-  // https://crbug.com/534537, where notifications sometimes do not react to
-  // the user clicking on them. It should be removed once that's fixed.
-  LOG(INFO) << "The notification event has finished: "
-            << blink::ServiceWorkerStatusToString(service_worker_status);
-#endif
   switch (service_worker_status) {
     case blink::ServiceWorkerStatusCode::kOk:
       return PersistentNotificationStatus::kSuccess;
@@ -107,13 +100,6 @@ void DispatchNotificationEventOnRegistration(
     blink::ServiceWorkerStatusCode service_worker_status,
     scoped_refptr<ServiceWorkerRegistration> service_worker_registration) {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M159);
-#if BUILDFLAG(IS_ANDROID)
-  // This LOG(INFO) deliberately exists to help track down the cause of
-  // https://crbug.com/534537, where notifications sometimes do not react to
-  // the user clicking on them. It should be removed once that's fixed.
-  LOG(INFO) << "Trying to dispatch notification for SW with status: "
-            << blink::ServiceWorkerStatusToString(service_worker_status);
-#endif
   if (service_worker_status == blink::ServiceWorkerStatusCode::kOk) {
     CHECK(service_worker_registration->active_version(),
           base::NotFatalUntil::M159);
@@ -170,12 +156,6 @@ void FindServiceWorkerRegistration(
     bool success,
     const NotificationDatabaseData& notification_database_data) {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M159);
-#if BUILDFLAG(IS_ANDROID)
-  // This LOG(INFO) deliberately exists to help track down the cause of
-  // https://crbug.com/534537, where notifications sometimes do not react to
-  // the user clicking on them. It should be removed once that's fixed.
-  LOG(INFO) << "Lookup for ServiceWoker Registration: success: " << success;
-#endif
   if (!success) {
     std::move(dispatch_complete_callback)
         .Run(PersistentNotificationStatus::kDatabaseError,

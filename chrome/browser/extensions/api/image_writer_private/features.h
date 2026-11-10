@@ -10,9 +10,6 @@
 
 namespace extensions::image_writer {
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_DECLARE_FEATURE(kImageWriterPrivateAndroid);
-#endif
 
 }  // namespace extensions::image_writer
 

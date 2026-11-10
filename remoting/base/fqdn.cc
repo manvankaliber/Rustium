@@ -16,7 +16,7 @@
 #include "net/base/network_interfaces.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "base/strings/string_number_conversions.h"
 #include "crypto/obsolete/md5.h"
 #endif
@@ -42,11 +42,11 @@ std::string GetFqdn() {
 #endif
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 std::string GetHostHash() {
   return "host#" +
          base::HexEncodeLower(crypto::obsolete::Md5::Hash(net::GetHostName()));
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 }  // namespace remoting

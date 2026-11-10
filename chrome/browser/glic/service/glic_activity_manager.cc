@@ -34,10 +34,8 @@
 #include "ui/base/ui_base_features.h"
 #include "ui/gfx/vector_icon_types.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/browser_ui/glic_vector_icon_manager.h"
 #include "chrome/browser/notifications/glic_actor_task_notification_handler.h"
-#endif
 
 namespace glic {
 
@@ -328,9 +326,7 @@ void GlicActivityManager::OnActorTaskStateUpdate(actor::TaskId task_id) {
     activities_.erase(key);
     tasks_notified_of_start_.erase(task_id);
     last_actor_task_states_.erase(task_id);
-#if !BUILDFLAG(IS_ANDROID)
     GlicActorTaskNotificationHandler::Close(profile_, task_id);
-#endif
     UpdateTaskNudge();
     return;
   }
@@ -396,18 +392,14 @@ void GlicActivityManager::OnActorTaskStateUpdate(actor::TaskId task_id) {
     if (tasks_notified_of_start_.insert(task_id).second) {
       activity_alert_callback_list_.Notify(
           ActivityInterruptionLevel::kDelayedTaskStart);
-#if !BUILDFLAG(IS_ANDROID)
       if (IsActiveExperimentalTask(state.value(), feature_mode)) {
         GlicActorTaskNotificationHandler::MaybeShow(profile_, task_id);
       }
-#endif
     }
   } else {
-#if !BUILDFLAG(IS_ANDROID)
     if (feature_mode == glic::mojom::FeatureMode::kExperimentalTriggering) {
       GlicActorTaskNotificationHandler::Close(profile_, task_id);
     }
-#endif
     if (RequiresAttention(state.value()) ||
         ShouldShowBubble(state.value(), duration, feature_mode)) {
       activity_alert_callback_list_.Notify(
@@ -511,12 +503,8 @@ void GlicActivityManager::PopulateActorTaskItemDetails(actor::TaskId task_id,
     item.icon = &(features::IsRoundedIconsEnabled() ? kTaskSparkIcon
                                                     : kTaskSparkOldIcon);
   } else {
-#if !BUILDFLAG(IS_ANDROID)
     item.icon =
         &GlicVectorIconManager::GetVectorIcon(IDR_ACTOR_AUTO_BROWSE_ICON);
-#else
-    item.icon = &gfx::VectorIcon::EmptyIcon();
-#endif
   }
 }
 
@@ -526,9 +514,7 @@ void GlicActivityManager::OnActorTaskRemoved(actor::TaskId task_id) {
   activities_.erase(key);
   tasks_notified_of_start_.erase(task_id);
   last_actor_task_states_.erase(task_id);
-#if !BUILDFLAG(IS_ANDROID)
   GlicActorTaskNotificationHandler::Close(profile_, task_id);
-#endif
   UpdateTaskNudge();
 }
 

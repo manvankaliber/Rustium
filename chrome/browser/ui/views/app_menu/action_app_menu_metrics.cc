@@ -380,7 +380,6 @@ void ActionAppMenuMetrics::LogMenuActionWithId(actions::ActionId action_id) {
       break;
 
       // Profile submenu.
-#if !BUILDFLAG(IS_CHROMEOS)
     case kActionCustomizeChrome:
       RecordAction(MENU_ACTION_CUSTOMIZE_CHROME, "CustomizeChrome");
       break;
@@ -411,7 +410,6 @@ void ActionAppMenuMetrics::LogMenuActionWithId(actions::ActionId action_id) {
     case kActionManageChromeProfiles:
       RecordAction(MENU_ACTION_MANAGE_CHROME_PROFILES, "ManageChromeProfiles");
       break;
-#endif
 
     // Reading list submenu.
     case kActionReadingListMenuAddTab:

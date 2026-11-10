@@ -15,19 +15,6 @@
 #include "extensions/buildflags/buildflags.h"
 #include "storage/browser/file_system/file_system_backend.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "base/check.h"
-#include "chrome/browser/ash/arc/fileapi/arc_content_file_system_backend_delegate.h"
-#include "chrome/browser/ash/arc/fileapi/arc_documents_provider_backend_delegate.h"
-#include "chrome/browser/ash/drive/fileapi/drivefs_file_system_backend_delegate.h"
-#include "chrome/browser/ash/file_system_provider/fileapi/backend_delegate.h"
-#include "chrome/browser/ash/fileapi/file_system_backend.h"
-#include "chrome/browser/ash/fileapi/mtp_file_system_backend_delegate.h"
-#include "chrome/browser/ash/smb_client/fileapi/smbfs_file_system_backend_delegate.h"
-#include "chrome/browser/media_galleries/fileapi/media_file_system_backend.h"
-#include "storage/browser/file_system/external_mount_points.h"
-#include "storage/common/file_system/file_system_types.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "chrome/browser/sync_file_system/local/sync_file_system_backend.h"
@@ -44,29 +31,6 @@ void GetAdditionalFileSystemBackends(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  storage::ExternalMountPoints* external_mount_points =
-      browser_context->GetMountPoints();
-  CHECK(external_mount_points);
-  auto backend = std::make_unique<ash::FileSystemBackend>(
-      Profile::FromBrowserContext(browser_context),
-      ash::file_system_provider::BackendDelegate::MakeUnique(),
-      std::make_unique<ash::MTPFileSystemBackendDelegate>(
-          storage_partition_path),
-      std::make_unique<arc::ArcContentFileSystemBackendDelegate>(),
-      std::make_unique<arc::ArcDocumentsProviderBackendDelegate>(),
-      std::make_unique<drive::DriveFsFileSystemBackendDelegate>(
-          Profile::FromBrowserContext(browser_context)),
-      std::make_unique<ash::smb_client::SmbFsFileSystemBackendDelegate>(
-          Profile::FromBrowserContext(browser_context)),
-      external_mount_points, storage::ExternalMountPoints::GetSystemInstance());
-  backend->AddSystemMountPoints();
-  CHECK(backend->CanHandleType(storage::kFileSystemTypeExternal));
-  additional_backends->push_back(std::move(backend));
-
-  additional_backends->push_back(
-      std::make_unique<MediaFileSystemBackend>(storage_partition_path));
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
   additional_backends->push_back(

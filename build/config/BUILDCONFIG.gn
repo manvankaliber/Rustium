@@ -51,15 +51,7 @@ if (target_os == "") {
 }
 
 if (target_cpu == "") {
-  if (target_os == "android") {
-    # If we're building for Android, we should assume that we want to
-    # build for ARM by default, not the host_cpu (which is likely x64).
-    # This allows us to not have to specify both target_os and target_cpu
-    # on the command line.
-    target_cpu = "arm64"
-  } else {
-    target_cpu = host_cpu
-  }
+  target_cpu = host_cpu
 }
 
 if (current_cpu == "") {
@@ -122,6 +114,9 @@ if (current_os == "") {
 # - Don't call exec_script inside declare_args. This will execute the script
 #   even if the value is overridden, which is wasteful. See first bullet.
 
+# Kept false for shared build manifests after platform retirement.
+is_robolectric = false
+
 declare_args() {
   # Set to enable the official build level of optimization. This has nothing
   # to do with branding, but enables an additional level of optimization above
@@ -147,11 +142,6 @@ declare_args() {
   # every toolchain can pass through the "global" value via toolchain_args().
   host_toolchain = ""
 
-  # Do not set this directly.
-  # It should be set only by //build/toolchains/android:robolectric_x64.
-  # True when compiling native code for use with robolectric_binary().
-  is_robolectric = false
-
   # DON'T ADD MORE FLAGS HERE. Read the comment above.
 }
 
@@ -168,17 +158,13 @@ declare_args() {
   #
   # For more information see
   # https://chromium.googlesource.com/chromium/src/+/main/docs/component_build.md
-  is_component_build = is_debug && current_os != "android" &&
-                       current_os != "ios" && current_os != "watchos"
+  is_component_build = is_debug && current_os != "watchos"
 }
 
 assert(!(is_debug && is_official_build), "Can't do official debug builds")
-assert(!(current_os == "ios" && is_component_build),
-       "Can't use component build on iOS")
+
 assert(!(current_os == "watchos" && is_component_build),
        "Can't use component build on watchOS")
-assert(!(current_os == "android" && is_component_build),
-       "Can't use component build on Android")
 
 declare_args() {
   # Unsafe buffers. Location of file used by plugins to track portions of
@@ -258,19 +244,13 @@ if (host_toolchain == "") {
 
 _default_toolchain = ""
 
-if (target_os == "android") {
-  # Targeting android on Mac is best-effort and not guaranteed to work.
-  assert(host_os == "linux", "Android builds are only supported on Linux.")
-  _default_toolchain = "//build/toolchain/android:android_clang_$target_cpu"
-} else if (target_os == "chromeos" || target_os == "linux") {
+if (target_os == "linux") {
   # See comments in build/toolchain/cros/BUILD.gn about board compiles.
   if (is_clang) {
     _default_toolchain = "//build/toolchain/linux:clang_$target_cpu"
   } else {
     _default_toolchain = "//build/toolchain/linux:$target_cpu"
   }
-} else if (target_os == "ios") {
-  _default_toolchain = "//build/toolchain/ios:ios_clang_$target_cpu"
 } else if (target_os == "mac") {
   assert(host_os == "mac" || host_os == "linux",
          "Mac cross-compiles are unsupported.")
@@ -318,31 +298,29 @@ if (custom_toolchain != "") {
 # We set these various is_FOO booleans for convenience in writing OS-based
 # conditions.
 #
-# - is_android, is_chromeos, is_ios, and is_win should be obvious.
-# - is_mac is set only for desktop Mac. It is not set on iOS.
-# - is_posix is true for mac and any Unix-like system (basically everything
-#   except Fuchsia and Windows).
-# - is_linux is true for desktop Linux, but not for ChromeOS nor Android (which
-#   is generally too different despite being based on the Linux kernel).
+# - is_linux and is_mac select desktop Linux and macOS.
+# - is_win selects Windows, including UWP.
+# - is_posix selects Unix-like systems.
 #
 # Do not add more is_* variants here for random lesser-used Unix systems like
 # aix or one of the BSDs. If you need to check these, just check the
 # current_os value directly.
 
-is_android = current_os == "android"
-is_chromeos = current_os == "chromeos"
-
-# Compatibility for dependency build files; this target is unsupported.
+# Compatibility values for dependency build files. These platforms have no
+# target toolchains or runtime implementations.
+is_android = false
+is_chromeos = false
+is_chromeos_device = false
+is_chromeos_with_hw_details = false
 is_fuchsia = false
-
-is_ios = current_os == "ios"
+is_ios = false
 is_linux = current_os == "linux"
 is_mac = current_os == "mac"
 is_wasm = current_os == "emscripten"
 is_watchos = current_os == "watchos"
 is_win = current_os == "win" || current_os == "winuwp"
 
-is_apple = is_ios || is_mac || is_watchos
+is_apple = is_mac || is_watchos
 is_posix = !is_win
 
 # =============================================================================
@@ -417,11 +395,6 @@ if (is_posix) {
   }
 }
 
-if (is_android) {
-  default_compiler_configs +=
-      [ "//build/config/android:default_orderfile_instrumentation" ]
-}
-
 if (is_clang) {
   default_compiler_configs += [
     "//build/config/clang:extra_warnings",
@@ -472,10 +445,6 @@ if (is_win) {
   ]
 } else if (is_apple) {
   _linker_configs += [ "//build/config/apple:strip_all" ]
-} else if (is_android) {
-  # Warn whenever linking code that could unintentionally switch off
-  # branch target identification (BTI) on Arm systems.
-  _linker_configs += [ "//build/config/android:lld_branch_target_hardening" ]
 }
 
 # Executable defaults.
@@ -503,24 +472,12 @@ if (is_win) {
   default_shared_library_configs += [ "//build/config/win:cfi_linker" ]
 }
 
-if (is_android) {
-  # Strip native JNI exports from shared libraries by default. Binaries that
-  # want this can remove this config.
-  default_shared_library_configs +=
-      [ "//build/config/android:hide_all_but_jni_onload" ]
-}
-
 set_defaults("shared_library") {
   configs = default_shared_library_configs
 }
 
 set_defaults("loadable_module") {
   configs = default_shared_library_configs
-
-  # loadable_modules are generally used by other libs, not just via JNI.
-  if (is_android) {
-    configs -= [ "//build/config/android:hide_all_but_jni_onload" ]
-  }
 }
 
 default_rust_proc_macro_configs =
@@ -768,37 +725,6 @@ foreach(_target_type,
         # Add a dependency needed for Clang modules builds.
         deps += [ "//buildtools/third_party/libc++:all_modules" ]
       }
-
-      # On Android, write shared library output file to metadata. We will use
-      # this information to, for instance, collect all shared libraries that
-      # should be packaged into an APK.
-      if (!defined(invoker.metadata) && (is_android || is_robolectric) &&
-          (_target_type == "shared_library" ||
-           _target_type == "loadable_module")) {
-        _output_name = _target_name
-        if (defined(invoker.output_name)) {
-          _output_name = invoker.output_name
-        }
-
-        # Remove 'lib' prefix from output name if it exists.
-        _magic_prefix = "$0x01$0x01"
-        _output_name = string_replace("${_magic_prefix}${_output_name}",
-                                      "${_magic_prefix}lib",
-                                      _magic_prefix,
-                                      1)
-        _output_name = string_replace(_output_name, _magic_prefix, "", 1)
-
-        if (defined(output_extension)) {
-          _shlib_extension = ".$output_extension"
-        } else {
-          _shlib_extension = ".so"
-        }
-
-        metadata = {
-          shared_libraries =
-              [ "$root_out_dir/lib${_output_name}${_shlib_extension}" ]
-        }
-      }
     }
   }
 }
@@ -857,10 +783,7 @@ template("component") {
 # to mixed_component.gni
 if (is_component_build) {
   default_component_configs = default_shared_library_configs
-  if (is_android) {
-    default_component_configs -=
-        [ "//build/config/android:hide_all_but_jni_onload" ]
-  }
+
   if (is_win) {
     # We don't want component dlls to statically load OS dlls that aren't
     # loaded normally.

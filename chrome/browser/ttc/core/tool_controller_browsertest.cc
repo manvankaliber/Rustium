@@ -93,10 +93,6 @@
 #include "ui/gfx/codec/jpeg_codec.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/android/device_info.h"
-#else
 #include "chrome/browser/actor/actor_surface_handle.h"
 #include "chrome/browser/actor/actor_task_metadata.h"
 #include "chrome/browser/actor/tab_observation_strategy.h"
@@ -116,7 +112,6 @@
 #include "components/keep_alive_registry/keep_alive_types.h"
 #include "components/keep_alive_registry/scoped_keep_alive.h"
 #include "ui/base/base_window.h"
-#endif
 
 namespace ttc {
 
@@ -138,14 +133,6 @@ class ToolControllerBrowserTest : public TtcCoreBrowserTestBase {
   // TtcCoreBrowserTestBase:
   void SetUpCommandLine(base::CommandLine* command_line) override {
     TtcCoreBrowserTestBase::SetUpCommandLine(command_line);
-#if BUILDFLAG(IS_ANDROID)
-    // Test devices are often offline. The offline status indicator that appears
-    // a few seconds after startup resizes the top controls, which asserts if
-    // the controls are not fully shown at that moment (e.g. during tab
-    // fullscreen or a tab switch). See crbug.com/574927722.
-    command_line->AppendSwitch(
-        switches::kForceOnlineConnectionStateForIndicator);
-#endif
   }
 
   void SetUpOnMainThread() override {
@@ -299,7 +286,6 @@ IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest, CloseCurrentTab) {
   EXPECT_EQ(tab_list()->GetActiveTab()->GetHandle(), first_tab);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest,
                        CloseOnlyTabInWindowClosesWindow) {
   ttc_service().StartSession();
@@ -337,7 +323,6 @@ IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest,
   // The session should still be alive.
   EXPECT_NE(ttc_service().session_controller(), nullptr);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest, GoBackAndGoForward) {
   ttc_service().StartSession();
@@ -1101,11 +1086,7 @@ IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest, EnterAndExitFullscreen) {
   ASSERT_TRUE(session_controller);
 
   auto is_fullscreen = [&]() {
-#if BUILDFLAG(IS_ANDROID)
-    return web_contents()->IsFullscreen();
-#else
     return browser()->GetWindow()->IsFullscreen();
-#endif
   };
   ASSERT_FALSE(is_fullscreen());
 
@@ -1818,7 +1799,7 @@ class ToolControllerScrollPageBrowserTest : public ToolControllerBrowserTest {
     // Wait for the initial compositor frame and any pending browser-controls
     // viewport resize on Android before sampling or scrolling the viewport.
     content::WaitForCopyableViewInWebContents(web_contents());
-#if defined(USE_AURA) || BUILDFLAG(IS_ANDROID)
+#if defined(USE_AURA)
     content::WaitForResizeComplete(web_contents());
 #endif
   }
@@ -2042,7 +2023,6 @@ IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest, GetScreenshot) {
   EXPECT_GT(bitmap.height(), 0);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest, GetScreenshotNoActiveTab) {
   ttc_service().StartSession();
   auto* session_controller = ttc_service().session_controller();
@@ -2066,7 +2046,6 @@ IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest, GetScreenshotNoActiveTab) {
 
   SetBrowser(CreateBrowser(test_profile));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest, GetScreenshotDisallowedUrl) {
   ttc_service().StartSession();
@@ -2167,7 +2146,6 @@ IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest,
   EXPECT_EQ(web_contents()->GetLastCommittedURL(), start_url);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest,
                        GetScreenshotTabClosedDuringUrlCheck) {
   ttc_service().StartSession();
@@ -2209,7 +2187,6 @@ IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest,
 
   SetBrowser(CreateBrowser(test_profile));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest,
                        GetScreenshotNavigatedAwayDuringUrlCheck) {
@@ -2403,7 +2380,6 @@ IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest, OpenGeminiPanelEmptyPrompt) {
                     actor::mojom::ActionResultCode::kArgumentsInvalid);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 using ToolControllerGeminiPanelBrowserTest =
     glic::GlicBrowserTestMixin<TtcCoreBrowserTestBase>;
 
@@ -2447,7 +2423,6 @@ IN_PROC_BROWSER_TEST_F(ToolControllerGeminiPanelBrowserTest,
   EXPECT_FALSE(glic_service->instance_coordinator().IsPanelShowingForBrowser(
       *GetBrowser()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest, UnsupportedTool) {
   ttc_service().StartSession();
@@ -2477,11 +2452,7 @@ IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest, GetToolDefinitions) {
   ASSERT_TRUE(session_controller);
 
   // Window tools are only offered in desktop windowing environments.
-#if BUILDFLAG(IS_ANDROID)
-  const bool window_tools_supported = base::android::device_info::is_desktop();
-#else
   const bool window_tools_supported = true;
-#endif
 
   static constexpr actor::ToolIdSet kExpectedToolIds = {
       actor::ToolId::kOpenUrl,
@@ -2716,7 +2687,6 @@ IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest,
             actor::ActorTask::State::kFinished);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // TTC actor tasks are given TtcKeyedService's ActorUiStateManager rather than
 // the profile-wide one, so none of the tab-scoped actor UI the latter drives
 // (the actor overlay, the handoff button, the tab indicator, the border glow)
@@ -2781,50 +2751,24 @@ IN_PROC_BROWSER_TEST_F(ToolControllerBrowserTest,
   actor_service->StopTask(control_task_id,
                           actor::ActorTask::StoppedReason::kTaskComplete);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Window management tools, which TTC offers only in desktop windowing
 // environments. On Android, that's desktop mode, which this fixture forces.
 class ToolControllerWindowToolsBrowserTest : public ToolControllerBrowserTest {
  public:
   void SetUp() override {
-#if BUILDFLAG(IS_ANDROID)
-    // Opening a second window needs Chrome's multi-instance support; without
-    // it, creating a window asserts in Java. MultiWindowUtils.
-    // isMultiInstanceApi31Enabled() is false below Android R, and on R the
-    // singleInstancePerTask launch mode it checks for isn't recognized by the
-    // platform (ActivityInfo.LAUNCH_SINGLE_INSTANCE_PER_TASK is API 31), so
-    // multi-instance is only available on S and later. Desktop mode only exists
-    // on much newer Android, so forcing it here on an older emulator isn't a
-    // real configuration.
-    if (base::android::android_info::sdk_int() <
-        base::android::android_info::SDK_VERSION_S) {
-      GTEST_SKIP() << "Multiple windows require Android S+";
-    }
-#endif
     ToolControllerBrowserTest::SetUp();
   }
 
   void SetUpCommandLine(base::CommandLine* command_line) override {
     ToolControllerBrowserTest::SetUpCommandLine(command_line);
-#if BUILDFLAG(IS_ANDROID)
-    // Opening a second window launches ChromeTabbedActivity, which would show
-    // the first-run experience instead of a browser window.
-    command_line->AppendSwitch("disable-fre");
-#endif
   }
 
   void SetUpOnMainThread() override {
     ToolControllerBrowserTest::SetUpOnMainThread();
-#if BUILDFLAG(IS_ANDROID)
-    base::android::device_info::set_is_desktop_for_testing(true);
-#endif
   }
 
   void TearDownOnMainThread() override {
-#if BUILDFLAG(IS_ANDROID)
-    base::android::device_info::reset_is_desktop_for_testing();
-#endif
     ToolControllerBrowserTest::TearDownOnMainThread();
   }
 

@@ -52,11 +52,9 @@ BASE_DECLARE_FEATURE(kForceMigrateSyncingUserToSignedIn);
 // kForceMigrateSyncingUserToSignedIn is checked.
 BASE_DECLARE_FEATURE(kForceMigrateNoopForDebugging);
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Kill-switch for migration flow of all the users in the sync setup incomplete
 // state to signed-in history-off state.
 BASE_DECLARE_FEATURE(kMigrateOutOfSyncSetupIncompleteState);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // If enabled, users who were migrated from syncing to signed-in before the

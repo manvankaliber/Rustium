@@ -46,9 +46,6 @@
 #include "net/socket/socket_tag.h"
 #include "net/traffic_annotation/network_traffic_annotation.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "net/android/network_library.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_MAC)
 #include "net/socket/ephemeral_port_randomizer_mac.h"
@@ -85,7 +82,7 @@ bool SetTCPKeepAlive(int fd, bool enable, int delay) {
   // A delay of 0 doesn't work, and is the default, so ignore that and rely on
   // whatever the OS defaults are once we turned it on above.
   if (delay) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
     // Setting the keepalive interval varies by platform.
 
     // Set seconds until first TCP keep alive.
@@ -204,16 +201,8 @@ int TCPSocketPosix::Open(AddressFamily family) {
 int TCPSocketPosix::BindToNetwork(handles::NetworkHandle network) {
   DCHECK(IsValid());
   DCHECK(!IsConnected());
-#if BUILDFLAG(IS_ANDROID)
-  int rv = net::android::BindToNetwork(socket_->socket_fd(), network);
-  if (rv == OK) {
-    bound_network_ = network;
-  }
-  return rv;
-#else
   NOTIMPLEMENTED();
   return ERR_NOT_IMPLEMENTED;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 int TCPSocketPosix::AdoptConnectedSocket(SocketDescriptor socket,
@@ -530,11 +519,9 @@ void TCPSocketPosix::SetDefaultOptionsForClient() {
   // are very high (on the order of seconds). Given the number of
   // retransmissions required before killing the connection, this can lead to
   // tens of seconds or even minutes of delay, depending on OS.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   const int kTCPKeepAliveSeconds = 45;
 
   SetTCPKeepAlive(socket_->socket_fd(), true, kTCPKeepAliveSeconds);
-#endif
 }
 
 int TCPSocketPosix::AllowAddressReuse() {

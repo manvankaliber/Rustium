@@ -33,7 +33,7 @@
 #include "util/misc/implicit_cast.h"
 #include "util/string/split_string.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include "util/linux/direct_ptrace_connection.h"
 #include "test/linux/fake_ptrace_connection.h"
 #endif
@@ -98,7 +98,7 @@ void TestProcessSelfOrClone(const ProcessInfo& process_info) {
 
   const std::vector<std::string>& expect_argv = GetMainArguments();
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Prior to Linux 4.2, the kernel only allowed reading a single page from
   // /proc/<pid>/cmdline, causing any further arguments to be truncated. Disable
   // testing arguments in this case.
@@ -124,7 +124,7 @@ void TestProcessSelfOrClone(const ProcessInfo& process_info) {
       argv_size > static_cast<size_t>(getpagesize())) {
     return;
   }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
   std::vector<std::string> argv;
@@ -162,13 +162,13 @@ void TestSelfProcess(const ProcessInfo& process_info) {
 
 TEST(ProcessInfo, Self) {
   ProcessInfo process_info;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   FakePtraceConnection connection;
   ASSERT_TRUE(connection.Initialize(getpid()));
   ASSERT_TRUE(process_info.InitializeWithPtrace(&connection));
 #else
   ASSERT_TRUE(process_info.InitializeWithPid(getpid()));
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
   TestSelfProcess(process_info);
@@ -186,7 +186,7 @@ TEST(ProcessInfo, Pid1) {
   // PID 1 is expected to be init or the system’s equivalent. This tests reading
   // information about another process.
   ProcessInfo process_info;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   FakePtraceConnection connection;
   ASSERT_TRUE(connection.Initialize(1));
   ASSERT_TRUE(process_info.InitializeWithPtrace(&connection));
@@ -218,7 +218,7 @@ class ProcessInfoForkedTest : public Multiprocess {
   void MultiprocessParent() override {
     const pid_t pid = ChildPID();
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
     DirectPtraceConnection connection;
     ASSERT_TRUE(connection.Initialize(pid));
 
@@ -227,7 +227,7 @@ class ProcessInfoForkedTest : public Multiprocess {
 #else
     ProcessInfo process_info;
     ASSERT_TRUE(process_info.InitializeWithPid(pid));
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
     EXPECT_EQ(process_info.ProcessID(), pid);

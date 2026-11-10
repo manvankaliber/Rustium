@@ -77,10 +77,8 @@ class IconLoader : public base::SelfDeleting {
   // The TaskRunner that ReadIcon() must be called on.
   static scoped_refptr<base::TaskRunner> GetReadIconTaskRunner();
 
-#if !BUILDFLAG(IS_CHROMEOS)
   void ReadGroup();
   void ReadIcon();
-#endif
 #if BUILDFLAG(IS_WIN)
   // Reads an icon in a sandboxed service. Use this when the file itself must
   // be parsed.
@@ -103,9 +101,7 @@ class IconLoader : public base::SelfDeleting {
 
   IconGroup group_;
 
-#if !BUILDFLAG(IS_ANDROID)
   IconSize icon_size_;
-#endif  // !BUILDFLAG(IS_ANDROID)
   const float scale_;
   IconLoadedCallback callback_;
 };

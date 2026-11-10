@@ -2,8 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-assert(!is_android)
-
 # Clients and service for sharing credentials with remote actors (e.g. Gemini)
 # via Passbox and the Agentic Permission Service. Shared by desktop and iOS;
 # not used on Android.

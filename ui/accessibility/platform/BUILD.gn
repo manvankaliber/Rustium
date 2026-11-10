@@ -22,10 +22,6 @@ if (is_win) {
   }
 }
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
 component("platform") {
   output_name = "accessibility_platform"
 
@@ -128,29 +124,14 @@ component("platform") {
     ]
   }
 
-  if (is_android || is_chromeos) {
-    sources += [
-      "ax_android_constants.cc",
-      "ax_android_constants.h",
-    ]
-  }
-
-  # BrowserAccessibility was historically used only by AXNodes
-  # coming from blink and has a dependency on `cc/base/rtree.h`.
-  # If we want to support using BrowserAccessibility on platforms
-  # that cannot take this dependency (such as non-blink ios) we
-  # will need to refactor to use a different data structure.
-  # So don't build on non-blink ios for now.
-  if (!(is_ios && !use_blink)) {
-    sources += [
-      "browser_accessibility.cc",
-      "browser_accessibility.h",
-      "browser_accessibility_manager.cc",
-      "browser_accessibility_manager.h",
-      "one_shot_accessibility_tree_search.cc",
-      "one_shot_accessibility_tree_search.h",
-    ]
-  }
+  sources += [
+    "browser_accessibility.cc",
+    "browser_accessibility.h",
+    "browser_accessibility_manager.cc",
+    "browser_accessibility_manager.h",
+    "one_shot_accessibility_tree_search.cc",
+    "one_shot_accessibility_tree_search.h",
+  ]
 
   if (has_native_accessibility) {
     sources += [
@@ -262,25 +243,6 @@ component("platform") {
       frameworks = [
         "Accessibility.framework",
         "AppKit.framework",
-        "Foundation.framework",
-      ]
-    }
-
-    if (is_ios) {
-      sources += [
-        "ax_platform_node_ios.h",
-        "ax_platform_node_ios.mm",
-        "ax_platform_node_ui_kit_element.h",
-        "ax_platform_node_ui_kit_element.mm",
-        "browser_accessibility_ios.h",
-        "browser_accessibility_ios.mm",
-        "browser_accessibility_manager_ios.h",
-        "browser_accessibility_manager_ios.mm",
-      ]
-
-      frameworks = [
-        "Accessibility.framework",
-        "UIKit.framework",
         "Foundation.framework",
       ]
     }

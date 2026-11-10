@@ -145,8 +145,8 @@ pub trait UnixDatagramExt: AsRawFd + FromRawFd {
     ///
     /// # Examples
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use std::os::unix::net::UnixDatagram;
     /// # use uds::{UnixDatagramExt, UnixSocketAddr};
     /// #
@@ -199,8 +199,8 @@ pub trait UnixDatagramExt: AsRawFd + FromRawFd {
     ///
     /// Send to an abstract address:
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use std::os::unix::net::UnixDatagram;
     /// # use uds::{UnixDatagramExt, UnixSocketAddr};
     /// #
@@ -390,8 +390,8 @@ pub trait UnixDatagramExt: AsRawFd + FromRawFd {
     ///
     /// # Examples
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// use std::os::unix::net::UnixDatagram;
     /// use std::io::IoSliceMut;
     /// use uds::{UnixDatagramExt, UnixSocketAddr};

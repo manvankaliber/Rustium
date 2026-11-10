@@ -143,10 +143,6 @@ class WebAuthFlow : public content::WebContentsObserver,
   // auth, display an Infobar that shows the extension name.
   void SetShouldShowInfoBar(const std::string& extension_display_name);
 
-#if BUILDFLAG(IS_ANDROID)
-  void OnBrowserWindowInterfaceInitialized(BrowserWindowInterface* browser);
-  void SetPopupDisplayedCallbackForTesting(base::OnceClosure callback);
-#endif
 
  private:
   // WebContentsObserver implementation.
@@ -177,11 +173,6 @@ class WebAuthFlow : public content::WebContentsObserver,
 
   void DisplayInfoBar();
   void CloseInfoBar();
-#if BUILDFLAG(IS_ANDROID)
-  // Posted by DisplayAuthPageInPopupWindow(); hands `web_contents_` to
-  // CreateBrowserWindow(), or destroys it if the flow was abandoned meanwhile.
-  void CreatePopupWindow();
-#endif
 
   raw_ptr<Delegate> delegate_ = nullptr;
   raw_ptr<Profile> profile_;
@@ -219,11 +210,6 @@ class WebAuthFlow : public content::WebContentsObserver,
   // the error code when the flow times out.
   bool initial_url_loaded_ = false;
   base::ScopedObservation<Profile, ProfileObserver> profile_observation_{this};
-#if BUILDFLAG(IS_ANDROID)
-  base::OnceClosure popup_displayed_callback_for_testing_;
-  bool window_creation_pending_ = false;
-  base::WeakPtrFactory<WebAuthFlow> weak_factory_{this};
-#endif
 };
 
 }  // namespace extensions

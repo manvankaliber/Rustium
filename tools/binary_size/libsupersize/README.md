@@ -13,25 +13,21 @@ For more details, see [//tools/binary_size/libsupersize/docs].
 
 ## Why SuperSize?
 
-Chrome on Android needs to be as lean as possible. Having a tool that can show
-why binary grows & shrinks helps keep it lean.
-
-The [android-binary-size trybot] uses SuperSize to show an APK Breakdown on
-every Chromium code review.
-
-SuperSize is also used when creating [milestone size reports] (Googlers only).
-
-[android-binary-size trybot]: /docs/speed/binary_size/android_binary_size_trybot.md
-[milestone size reports]: https://goto.google.com/chromemilestonesizes
+SuperSize shows which symbols and resources make desktop binaries grow or
+shrink. Saved reports can be compared without rebuilding the binaries.
 
 ## Is SuperSize a Generic Tool?
 
 No. It works only for binaries built using Chrome's custom build system. E.g.:
 
  * It assumes `.ninja` build rules are available.
- * It uses heuristic for locating `.so` given `.apk`.
- * It requires the `size-info` build directory to analyze `.pak` and `.dex`
-   files.
+ * It uses Chromium's LLVM tools to inspect native ELF binaries.
+ * It requires build metadata from the `size-info` directory to attribute `.pak`
+   resources to their sources.
+
+The reader and viewer also support historical reports containing Java/Dex
+symbols. Creating new archives accepts standalone ELF, linker-map and `.pak`
+inputs.
 
 ## SuperSize Usage
 
@@ -48,10 +44,6 @@ for list of GN args to build a release binary (or just use the tool with --singl
 Example Usage:
 
 ```bash
-# Android:
-autoninja -C out/Release chrome_public_apk
-tools/binary_size/supersize archive chrome.size -f out/Release/apks/ChromePublic.apk -v
-
 # Linux:
 autoninja -C out/Release chrome
 tools/binary_size/supersize archive chrome.size -f out/Release/chrome -v

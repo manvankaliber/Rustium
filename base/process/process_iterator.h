@@ -83,7 +83,7 @@ class BASE_EXPORT ProcessIterator {
   typedef std::list<ProcessEntry> ProcessEntries;
 
   explicit ProcessIterator(const ProcessFilter* filter);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   // Iterates over `proc_dir` instead of "/proc", which can be used with a fake
   // procfs directory in tests.
   ProcessIterator(const ProcessFilter* filter, const FilePath& proc_dir);
@@ -129,7 +129,7 @@ class BASE_EXPORT ProcessIterator {
     }
   };
   std::unique_ptr<DIR, DIRClose> procfs_dir_;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   const FilePath procfs_dir_path_;
 #endif
 #endif

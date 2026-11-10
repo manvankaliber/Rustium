@@ -166,12 +166,6 @@
 #include "ui/webui/untrusted_web_ui_browsertest_util.h"  // nogncheck
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/tab_android.h"
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#include "chrome/test/base/android/android_ui_test_utils.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "chrome/browser/extensions/test_extension_action_dispatcher_observer.h"
@@ -195,9 +189,6 @@
 #endif  // BUILDFLAG(ENABLE_WEBUI_NTP)
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -681,7 +672,6 @@ IN_PROC_BROWSER_TEST_P(ExtensionWebRequestApiDispatchModeTest,
 
 // Regression test for https://crbug.com/395985663.
 // TODO(crbug.com/399261153): Flaky on Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ExtensionWebRequestApiTest,
                        ExtensionRequestRedirectToServer) {
   ASSERT_TRUE(StartEmbeddedTestServer());
@@ -739,7 +729,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionWebRequestApiTest,
   ASSERT_TRUE(LoadExtension(test_dir.UnpackedPath()));
   ASSERT_TRUE(result_catcher.GetNextResult()) << result_catcher.message();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 using ContextType = extensions::browser_test_util::ContextType;
 
@@ -2217,33 +2206,25 @@ IN_PROC_BROWSER_TEST_P(ExtensionWebRequestApiTestWithContextType,
                                               ReplyBehavior::kWillReply);
 // Android does not support platform apps, so tests for requests from apps are
 // omitted. See https://crbug.com/440452765 for more details.
-#if !BUILDFLAG(IS_ANDROID)
   ExtensionTestMessageListener listener_app("app_done");
-#endif  // !BUILDFLAG(IS_ANDROID)
   ExtensionTestMessageListener listener_extension("extension_done");
 
   // Set up webRequest listener
   ASSERT_TRUE(
       LoadExtension(test_data_dir_.AppendASCII("webrequest_extensions/main")));
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_TRUE(listener_main1.WaitUntilSatisfied());
-#endif  // !BUILDFLAG(IS_ANDROID)
   EXPECT_TRUE(listener_main2.WaitUntilSatisfied());
 
-#if !BUILDFLAG(IS_ANDROID)
   // Perform some network activity in an app.
   ASSERT_TRUE(
       LoadExtension(test_data_dir_.AppendASCII("webrequest_extensions/app"),
                     {.context_type = ContextType::kFromManifest}));
-#endif  // !BUILDFLAG(IS_ANDROID)
   // Perform some network activity in another extension.
   ASSERT_TRUE(LoadExtension(
       test_data_dir_.AppendASCII("webrequest_extensions/extension"),
       {.context_type = ContextType::kFromManifest}));
 
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_TRUE(listener_app.WaitUntilSatisfied());
-#endif  // !BUILDFLAG(IS_ANDROID)
   EXPECT_TRUE(listener_extension.WaitUntilSatisfied());
 
   // Load a page, a content script from "webrequest_extensions/extension" will
@@ -2866,11 +2847,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionWebRequestApiTest, WebSocketRequestOnWorker) {
 // Regression test for https://crbug.com/40616409.
 //
 // TODO(b:332825952): Flaky on linux-chromeos-dbg
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_WebSocketCleanClose DISABLED_WebSocketCleanClose
-#else
 #define MAYBE_WebSocketCleanClose WebSocketCleanClose
-#endif
 IN_PROC_BROWSER_TEST_F(ExtensionWebRequestApiTest, MAYBE_WebSocketCleanClose) {
   ASSERT_TRUE(StartEmbeddedTestServer());
   ASSERT_TRUE(StartWebSocketServer());
@@ -3176,9 +3153,6 @@ IN_PROC_BROWSER_TEST_F(
 
   // Create a profile that will be destroyed later.
   base::ScopedAllowBlockingForTesting allow_blocking;
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::ProfileHelper::SetAlwaysReturnPrimaryUserForTesting(true);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   ProfileManager* profile_manager = g_browser_process->profile_manager();
   std::unique_ptr<Profile> temp_profile = Profile::CreateProfile(
       profile_manager->user_data_dir().AppendASCII("profile"), nullptr,
@@ -3519,7 +3493,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionWebRequestApiTest,
                                                    web_url.GetHost()));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Test fixture which sets a custom NTP Page.
 // Not ported to desktop Android because the Android NTP is native UI.
 class NTPInterceptionWebRequestAPITest
@@ -3758,7 +3731,6 @@ IN_PROC_BROWSER_TEST_P(WebUiNtpInterceptionWebRequestAPITest,
   ASSERT_TRUE(GetAndResetOneGoogleBarRequestSeen());
 }
 #endif  // BUILDFLAG(ENABLE_WEBUI_NTP)
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class WebRequestApiTestWithManagementPolicy
     : public ExtensionApiTestWithManagementPolicy,
@@ -6172,7 +6144,6 @@ INSTANTIATE_TEST_SUITE_P(
 
 // Test that a main frame request redirected by an extension has the correct
 // site_for_cookies and network_isolation_key parameters.
-#if !BUILDFLAG(IS_ANDROID)
 // flaky on android.
 IN_PROC_BROWSER_TEST_P(RedirectInfoWebRequestApiTest,
                        VerifyRedirectInfoMainFrame) {
@@ -6204,7 +6175,6 @@ IN_PROC_BROWSER_TEST_P(RedirectInfoWebRequestApiTest,
               redirected_origin,
               net::SiteForCookies::FromOrigin(redirected_origin))));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Test that a sub frame request redirected by an extension has the correct
 // site_for_cookies and network_isolation_key parameters.
@@ -6846,7 +6816,6 @@ IN_PROC_BROWSER_TEST_P(WebRequestPersistentListenersTest,
   EXPECT_EQ(2, request_count.GetInt());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Android only supports manifest V3 / service worker.
 INSTANTIATE_TEST_SUITE_P(
     PersistentBackground,
@@ -6859,7 +6828,6 @@ INSTANTIATE_TEST_SUITE_P(
             ContextType::kPersistentBackground,
             BackgroundResourceFetchTestCase::kBackgroundResourceFetchDisabled)),
     ExtensionWebRequestApiTestWithContextType::PrintToStringParamName());
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 INSTANTIATE_TEST_SUITE_P(
     ServiceWorker,
@@ -7466,13 +7434,8 @@ IN_PROC_BROWSER_TEST_P(ManifestV3WebRequestApiDispatchModeTest,
 // originating browser context and neither service worker is unnecessarily
 // woken up.
 // TODO(crbug.com/548629160): Flaky on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_LazyDispatchDoesNotWakeIncognitoSplitModeWorker \
-  DISABLED_LazyDispatchDoesNotWakeIncognitoSplitModeWorker
-#else
 #define MAYBE_LazyDispatchDoesNotWakeIncognitoSplitModeWorker \
   LazyDispatchDoesNotWakeIncognitoSplitModeWorker
-#endif
 IN_PROC_BROWSER_TEST_P(ManifestV3WebRequestApiDispatchModeTest,
                        MAYBE_LazyDispatchDoesNotWakeIncognitoSplitModeWorker) {
   ASSERT_TRUE(StartEmbeddedTestServer());
@@ -8694,7 +8657,6 @@ IN_PROC_BROWSER_TEST_F(OnAuthRequiredApiTest,
   EXPECT_THAT(fetch_response, testing::HasSubstr("<title>"));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class ServiceWorkerAuthTest : public OnAuthRequiredApiTest {
  public:
   void RegisterAdditionalHandlers() override {
@@ -8928,7 +8890,6 @@ IN_PROC_BROWSER_TEST_F(
   EXPECT_EQ(net::HTTP_PROXY_AUTHENTICATION_REQUIRED,
             entry->GetHttpStatusCode());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Tests the behavior of an extension that registers an event listener
 // asynchronously.
@@ -9475,7 +9436,6 @@ IN_PROC_BROWSER_TEST_F(ManifestV3WebRequestApiTest, RecordUkmOnNavigation) {
                       "chrome.test.sendMessage('ready');");
   ASSERT_TRUE(LoadPolicyExtension(test_dir1));
 
-#if !BUILDFLAG(IS_ANDROID)
   // declarativeWebRequest is only supported by manifest version 2 or lower.
   // Android doesn't support manifest version 2.
   TestExtensionDir test_dir2;
@@ -9501,15 +9461,10 @@ IN_PROC_BROWSER_TEST_F(ManifestV3WebRequestApiTest, RecordUkmOnNavigation) {
   ExtensionTestMessageListener listener("ready");
   ASSERT_TRUE(LoadExtension(test_dir2.UnpackedPath()));
   EXPECT_TRUE(listener.WaitUntilSatisfied());
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // We don't support manifest version 2 on android, so only the first extension
 // will be loaded on android.
-#if BUILDFLAG(IS_ANDROID)
-  const size_t expected_entries = 1;
-#else
   const size_t expected_entries = 2;
-#endif
 
   base::RunLoop ukm_loop;
   ukm::TestAutoSetUkmRecorder ukm_recorder;
@@ -9529,9 +9484,7 @@ IN_PROC_BROWSER_TEST_F(ManifestV3WebRequestApiTest, RecordUkmOnNavigation) {
   EXPECT_TRUE(NavigateToURL(web_contents, kUrlA));
 
   const GURL kUrlB = embedded_test_server()->GetURL("b.com", "/simple.html");
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_TRUE(NavigateToURL(web_contents, kUrlB));
-#endif
 
   // Waits until UKM data is recorded.
   ukm_loop.Run();

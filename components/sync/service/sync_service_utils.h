@@ -51,24 +51,6 @@ void RecordRecoverabilityDegradedFixTrigger(
 // Whether the user should be offered to opt in to trusted vault encryption.
 bool ShouldOfferTrustedVaultOptIn(const SyncService* service);
 
-#if BUILDFLAG(IS_IOS)
-// Indicates the UI surface where an identity error is displayed to the user.
-// Since this enum is used for logging histograms, entries must not be removed
-// or reordered.
-// LINT.IfChange(IdentityErrorDisplaySurface)
-enum class IdentityErrorDisplaySurface {
-  // Displayed in the account menu error card.
-  kAccountMenu = 0,
-  // Displayed in the sync / account settings page.
-  kSyncSettings = 1,
-  kMaxValue = kSyncSettings,
-};
-// LINT.ThenChange(//tools/metrics/histograms/metadata/signin/enums.xml:IdentityErrorDisplaySurface)
-
-// Records the surface where an identity error is displayed to the user.
-void MaybeRecordIdentityErrorShown(IdentityErrorDisplaySurface surface,
-                                   SyncService::UserActionableError error);
-#endif  // BUILDFLAG(IS_IOS)
 
 }  // namespace syncer
 

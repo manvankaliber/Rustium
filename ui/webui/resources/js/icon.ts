@@ -2,32 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import {isAndroid, isIOS} from './platform.js';
-
 /**
  * @return The scale factors supported by this platform for webui resources.
  */
 function getSupportedScaleFactors(): number[] {
-  const supportedScaleFactors = [];
-  if (!isIOS) {
-    // This matches the code in ResourceBundle::InitSharedInstance() that
-    // supports SCALE_FACTOR_100P on all non-iOS platforms.
-    supportedScaleFactors.push(1);
-  }
-  if (!isIOS && !isAndroid) {
-    // All desktop platforms support zooming which also updates the renderer's
-    // device scale factors (a.k.a devicePixelRatio), and these platforms have
-    // high DPI assets for 2x.  Let the renderer pick the closest image for
-    // the current device scale factor.
-    supportedScaleFactors.push(2);
-  } else {
-    // For other platforms that use fixed device scale factor, use
-    // the window's device pixel ratio.
-    // TODO(oshima): Investigate corresponding to
-    // ResourceBundle::InitSharedInstance() more closely.
-    supportedScaleFactors.push(window.devicePixelRatio);
-  }
-  return supportedScaleFactors;
+  // Desktop platforms support zooming and provide assets at both scales.
+  // Let the renderer select the closest image for its device scale factor.
+  return [1, 2];
 }
 
 /**

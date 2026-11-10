@@ -31,10 +31,8 @@
 #include "ui/gfx/image/image.h"
 #include "url/url_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_webui_profile.h"
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_webui_user_profile.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 using data_decoder::mojom::AnimationFramePtr;
 
@@ -212,7 +210,6 @@ TEST_F(SanitizedImageSourceTest, WrongUrl) {
   EXPECT_EQ(0, test_url_loader_factory_.NumPending());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Verifies that in TopChromeWebUIProfile, which is shared by the windows of all
 // profiles, an image is downloaded with the network of the user profile of the
 // requesting WebContents.
@@ -247,7 +244,6 @@ TEST_F(SanitizedImageSourceTest, TopChromeWebUIProfileUsesUserProfile) {
   EXPECT_EQ(GURL("https://foo.com/img.png"),
             user_url_loader_factory.GetPendingRequest(0)->request.url);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Verifies that the image source sends a Google Photos auth token with its data
 // request if and only if asked to by URL specification.
@@ -413,53 +409,8 @@ TEST_F(SanitizedImageSourceTest, StaticImageWithWebPEncode) {
   task_environment_.RunUntilIdle();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(SanitizedImageSourceTest, AnimatedImage) {
-  const std::string test_body = "abc";
-  const std::string test_url = "https://foo.com/img.png";
 
-  // Set up expectations and mock data.
-  base::MockCallback<content::URLDataSource::GotDataCallback> callback;
-  EXPECT_CALL(*mock_data_decoder_delegate_,
-              DecodeAnimation(test_body, testing::_))
-      .Times(1)
-      .WillOnce([](const std::string&,
-                   SanitizedImageSource::DecodeAnimationCallback callback) {
-        std::vector<AnimationFramePtr> frames;
-        frames.push_back(MakeImageFrame(SK_ColorRED));
-        frames.push_back(MakeImageFrame(SK_ColorBLUE));
-        frames.push_back(MakeImageFrame(SK_ColorGREEN));
-        std::move(callback).Run(std::move(frames));
-      });
-  auto image =
-      gfx::Image::CreateFrom1xBitmap(MakeImageFrame(SK_ColorRED)->bitmap);
-  EXPECT_CALL(callback, Run(testing::_))
-      .Times(1)
-      .WillOnce([](scoped_refptr<base::RefCountedMemory> bytes) {
-        std::string data_string(reinterpret_cast<char const*>(bytes->data()));
-        // Make sure the image is encoded into WebP format.
-        EXPECT_TRUE(base::StartsWith(data_string, "RIFF"));
-      });
-
-  // Issue requests.
-  sanitized_image_source_->StartDataRequest(
-      GURL(base::StrCat({chrome::kChromeUIImageURL, "?", test_url})),
-      content::WebContents::Getter(), callback.Get());
-
-  // Answer requests and check correctness.
-  auto* request = test_url_loader_factory_.GetPendingRequest(0);
-  EXPECT_EQ(network::mojom::CredentialsMode::kOmit,
-            request->request.credentials_mode);
-  EXPECT_EQ(test_url, request->request.url);
-  test_url_loader_factory_.SimulateResponseWithoutRemovingFromPendingList(
-      request, test_body);
-
-  task_environment_.RunUntilIdle();
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 TEST_F(SanitizedImageSourceTest, AnimatedImageWithStaticEncode) {
   const std::string test_body = "abc";
   const std::string test_url = "https://foo.com/img.png";
@@ -493,7 +444,7 @@ TEST_F(SanitizedImageSourceTest, AnimatedImageWithStaticEncode) {
 
   task_environment_.RunUntilIdle();
 }
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) ||
+#endif
         // BUILDFLAG(IS_LINUX)
 
 #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)

@@ -50,12 +50,10 @@ static_library("test") {
       "scoped_temp_dir_posix.cc",
     ]
 
-    if (!crashpad_is_ios) {
-      sources += [
-        "multiprocess_exec_posix.cc",
-        "multiprocess_posix.cc",
-      ]
-    }
+    sources += [
+      "multiprocess_exec_posix.cc",
+      "multiprocess_posix.cc",
+    ]
   }
 
   # TODO(crbug.com/812974): Remove !crashpad_is_fuchsia when Fuchsia is no
@@ -82,15 +80,7 @@ static_library("test") {
     ]
   }
 
-  if (crashpad_is_ios) {
-    sources -= [
-      "multiprocess.h",
-      "multiprocess_exec.cc",
-      "multiprocess_exec.h",
-    ]
-  }
-
-  if (crashpad_is_linux || crashpad_is_android) {
+  if (crashpad_is_linux) {
     sources += [
       "linux/fake_ptrace_connection.cc",
       "linux/fake_ptrace_connection.h",
@@ -137,23 +127,8 @@ static_library("test") {
     ]
   }
 
-  if (crashpad_is_ios) {
-    deps += [ ":test_bundle_data" ]
-  }
-
   if (crashpad_is_win) {
     libs = [ "shell32.lib" ]
-  }
-}
-
-if (crashpad_is_ios) {
-  bundle_data("test_bundle_data") {
-    testonly = true
-
-    sources = [ "test_paths_test_data_root.txt" ]
-
-    outputs = [ "{{bundle_resources_dir}}/crashpad_test_data/" +
-                "{{source_root_relative_dir}}/{{source_file_part}}" ]
   }
 }
 
@@ -171,19 +146,12 @@ source_set("test_test") {
 
   # TODO(crbug.com/812974): Remove !crashpad_is_fuchsia when Fuchsia is no
   # longer treated as a posix platform.
-  if (crashpad_is_posix && !crashpad_is_ios) {
+  if (crashpad_is_posix) {
     sources += [ "multiprocess_posix_test.cc" ]
   }
 
   if (crashpad_is_mac) {
     sources += [ "mac/mach_multiprocess_test.cc" ]
-  }
-
-  if (crashpad_is_ios) {
-    sources -= [
-      "multiprocess_exec_test.cc",
-      "scoped_guarded_page_test.cc",
-    ]
   }
 
   if (crashpad_is_win) {
@@ -202,25 +170,19 @@ source_set("test_test") {
     "../util",
   ]
 
-  if (crashpad_is_in_chromium && !crashpad_is_ios) {
+  if (crashpad_is_in_chromium) {
     # TODO(crbug.com/1153544): Disabling MultiprocessExec.MultiprocessExec if
     # PartitionAlloc is used for malloc.
     deps += [ "//base/allocator:buildflags" ]
   }
 
   data_deps = [ ":crashpad_test_test_multiprocess_exec_test_child" ]
-
-  if (crashpad_is_ios) {
-    data_deps -= [ ":crashpad_test_test_multiprocess_exec_test_child" ]
-  }
 }
 
-if (!crashpad_is_ios) {
-  crashpad_executable("crashpad_test_test_multiprocess_exec_test_child") {
-    sources = [ "multiprocess_exec_test_child.cc" ]
+crashpad_executable("crashpad_test_test_multiprocess_exec_test_child") {
+  sources = [ "multiprocess_exec_test_child.cc" ]
 
-    deps = [ "$mini_chromium_source_parent:base" ]
-  }
+  deps = [ "$mini_chromium_source_parent:base" ]
 }
 
 static_library("googlemock_main") {
@@ -235,12 +197,6 @@ static_library("googlemock_main") {
     "../third_party/googletest",
     "../third_party/googletest:googlemock",
   ]
-  if (crashpad_is_android) {
-    deps += [ "../util" ]
-  }
-  if (crashpad_is_ios) {
-    deps += [ "ios:google_test_setup" ]
-  }
 }
 
 static_library("googletest_main") {
@@ -254,10 +210,4 @@ static_library("googletest_main") {
     "$mini_chromium_source_parent:base_test_support",
     "../third_party/googletest",
   ]
-  if (crashpad_is_android) {
-    deps += [ "../util" ]
-  }
-  if (crashpad_is_ios) {
-    deps += [ "ios:google_test_setup" ]
-  }
 }

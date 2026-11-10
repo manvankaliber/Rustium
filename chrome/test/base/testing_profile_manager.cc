@@ -30,21 +30,10 @@
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_paths.h"
-#include "chrome/browser/ash/policy/core/user_cloud_policy_manager_ash.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chromeos/ash/components/browser_context_helper/browser_context_types.h"
-#include "components/account_id/account_id.h"
-#include "components/user_manager/test_helper.h"
-#else
 #include "components/policy/core/common/cloud/cloud_policy_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 constexpr char kGuestProfileName[] = "$guest";
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 constexpr char kSystemProfileName[] = "System";
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -91,12 +80,7 @@ TestingProfile* TestingProfileManager::CreateTestingProfile(
     std::optional<bool> is_new_profile,
     std::optional<std::unique_ptr<policy::PolicyService>> policy_service,
     scoped_refptr<network::SharedURLLoaderFactory> shared_url_loader_factory,
-#if BUILDFLAG(IS_CHROMEOS)
-    std::unique_ptr<policy::UserCloudPolicyManagerAsh>
-        user_cloud_policy_manager) {
-#else
     std::unique_ptr<policy::UserCloudPolicyManager> user_cloud_policy_manager) {
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   DCHECK(called_set_up_);
 
   // Create the profile and register it.
@@ -111,11 +95,7 @@ TestingProfile* TestingProfileManager::CreateTestingProfile(
     builder.SetPolicyService(std::move(*policy_service));
   }
   if (user_cloud_policy_manager) {
-#if BUILDFLAG(IS_CHROMEOS)
-    builder.SetUserCloudPolicyManagerAsh(std::move(user_cloud_policy_manager));
-#else
     builder.SetUserCloudPolicyManager(std::move(user_cloud_policy_manager));
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
   builder.AddTestingFactories(std::move(testing_factories));
   builder.SetSharedURLLoaderFactory(shared_url_loader_factory);
@@ -165,11 +145,6 @@ TestingProfile* TestingProfileManager::CreateTestingProfile(
   testing_profiles_.insert(std::make_pair(profile_name, profile_ptr));
   profile_observations_.AddObservation(profile_ptr);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!callback_.is_null()) {
-    callback_.Run(profile_name, profile_ptr);
-  }
-#endif
   return profile_ptr;
 }
 
@@ -199,15 +174,9 @@ TestingProfile* TestingProfileManager::CreateGuestProfile(
   testing_profiles_.insert(std::make_pair(kGuestProfileName, profile_ptr));
   profile_observations_.AddObservation(profile_ptr);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!callback_.is_null()) {
-    callback_.Run(kGuestProfileName, profile_ptr);
-  }
-#endif
   return profile_ptr;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 TestingProfile* TestingProfileManager::CreateSystemProfile() {
   DCHECK(called_set_up_);
 
@@ -229,7 +198,6 @@ TestingProfile* TestingProfileManager::CreateSystemProfile() {
 
   return profile_ptr;
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
 void TestingProfileManager::DeleteTestingProfile(const std::string& name) {
   DCHECK(called_set_up_);
@@ -286,7 +254,6 @@ void TestingProfileManager::DeleteGuestProfile() {
   profile_manager_->profiles_info_.erase(ProfileManager::GetGuestProfilePath());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 void TestingProfileManager::DeleteSystemProfile() {
   DCHECK(called_set_up_);
 
@@ -296,7 +263,6 @@ void TestingProfileManager::DeleteSystemProfile() {
   profile_manager_->profiles_info_.erase(
       ProfileManager::GetSystemProfilePath());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
 void TestingProfileManager::DeleteProfileAttributesStorage() {
   profile_manager_->profile_attributes_storage_.reset(nullptr);
@@ -306,23 +272,7 @@ base::FilePath TestingProfileManager::GetProfilePath(
     const std::string& profile_name) {
   // Create a path for the profile based on the name.
   base::FilePath profile_path(profiles_path_);
-#if BUILDFLAG(IS_CHROMEOS)
-  if (ash::IsUserBrowserContextBaseName(base::FilePath(profile_name))) {
-    const std::string fake_email =
-        (profile_name.find('@') == std::string::npos &&
-         profile_name != kGuestProfileName)
-            ? base::ToLowerASCII(profile_name) + "@test"
-            : profile_name;
-    profile_path =
-        profile_path.Append(ash::ProfileHelper::Get()->GetUserProfileDir(
-            user_manager::TestHelper::GetFakeUsernameHash(
-                AccountId::FromUserEmail(fake_email))));
-  } else {
-    profile_path = profile_path.AppendASCII(profile_name);
-  }
-#else
   profile_path = profile_path.AppendASCII(profile_name);
-#endif
   return profile_path;
 }
 
@@ -364,11 +314,6 @@ void TestingProfileManager::SetUpInternal(
   }
   user_data_dir_override_ = std::make_unique<base::ScopedPathOverride>(
       chrome::DIR_USER_DATA, profiles_path_);
-#if BUILDFLAG(IS_CHROMEOS)
-  // ash::DIR_USER_DATA should be the same as chrome::DIR_USER_DATA.
-  ash_user_data_dir_override_ = std::make_unique<base::ScopedPathOverride>(
-      ash::DIR_USER_DATA, profiles_path_);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   auto profile_manager_unique =
       profile_manager ? std::move(profile_manager)

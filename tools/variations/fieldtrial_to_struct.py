@@ -23,11 +23,8 @@ finally:
   sys.path.pop(0)
 
 _platforms = [
-  'android',
   'android_desktop',
   'android_webview',
-  'chromeos',
-  'ios',
   'linux',
   'mac',
   'windows',

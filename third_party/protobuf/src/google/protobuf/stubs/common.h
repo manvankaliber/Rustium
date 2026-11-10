@@ -25,9 +25,7 @@
 #include <TargetConditionals.h>  // for TARGET_OS_IPHONE
 #endif
 
-#if defined(__ANDROID__) || defined(GOOGLE_PROTOBUF_OS_ANDROID) || \
-    (defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) ||             \
-    defined(GOOGLE_PROTOBUF_OS_IPHONE)
+#if defined(GOOGLE_PROTOBUF_OS_ANDROID) || defined(GOOGLE_PROTOBUF_OS_IPHONE)
 #include <pthread.h>
 #endif
 

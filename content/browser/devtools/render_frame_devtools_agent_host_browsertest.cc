@@ -345,13 +345,6 @@ class RenderFrameDevToolsAgentHostRawHeadersBrowserTest
     : public RenderFrameDevToolsAgentHostBrowserTest {
  public:
   RenderFrameDevToolsAgentHostRawHeadersBrowserTest() {
-#if BUILDFLAG(IS_ANDROID)
-    // Network service is in-process by default on Android. Force it
-    // out-of-process so we can use the BindTestInterfaceForTesting which
-    // requires a registry that is only present in the utility process or when
-    // forced OOP.
-    ForceOutOfProcessNetworkService();
-#endif
   }
 };
 

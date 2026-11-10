@@ -108,10 +108,8 @@
 #include "url/gurl.h"
 #include "url/url_constants.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/new_tab_page/new_tab_page_util.h"  // nogncheck
 #include "chrome/browser/ui/tabs/tab_strip_model.h"         // nogncheck
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "extensions/common/constants.h"  // nogncheck
@@ -638,17 +636,11 @@ base::DictValue SearchboxHandler::GetProfileDependentWebUIDataSourceDict(
   dict.Set("composeboxContextDragAndDropEnabled",
            options.session_allows_drag_and_drop);
 
-#if !BUILDFLAG(IS_ANDROID)
   const auto& composebox_config = ntp_composebox::FeatureConfig::Get().config;
   dict.Set("searchboxShowComposeAnimation",
            profile->GetPrefs()->GetInteger(
                prefs::kNtpComposeButtonShownCountPrefName) <
                composebox_config.entry_point().num_page_load_animations());
-#else
-  // TODO(b/509722915): Implement NTP compose button shown count pref on
-  // Android.
-  dict.Set("searchboxShowComposeAnimation", false);
-#endif
   dict.Set("composeboxSmartTabSharingVisible",
            options.is_lens ? false
                            : contextual_tasks::ContextualTasksContextService::
@@ -1123,11 +1115,6 @@ SearchboxHandler::CreateAutocompleteMatch(
   if (!match.from_keyword) {
     for (const auto& action : match.actions) {
 // TODO(b/544764632): Implement Pedals for Android.
-#if BUILDFLAG(IS_ANDROID)
-      if (action->ActionId() == OmniboxActionId::PEDAL) {
-        continue;
-      }
-#endif
       std::string icon_path;
       if (action->GetIconImage().IsEmpty()) {
         icon_path = AutocompleteIconToResourceName(action->GetVectorIcon());
@@ -2315,7 +2302,6 @@ void SearchboxHandler::OnDefaultSearchExtensionDialogDone(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void SearchboxHandler::SetSmartTabSharingActive(bool active) {}
 
 void SearchboxHandler::GetSmartTabSharingActive(
@@ -2327,7 +2313,6 @@ void SearchboxHandler::ResetSmartTabSharing(
     ResetSmartTabSharingCallback callback) {
   std::move(callback).Run(false);
 }
-#endif
 
 void SearchboxHandler::StartScreenshare(bool prefer_entire_screen,
                                         StartScreenshareCallback callback) {

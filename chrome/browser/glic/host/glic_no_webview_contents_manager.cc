@@ -61,17 +61,9 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/glic/widget/scoped_modal_dialog_manager_delegate.h"
 #include "ui/views/controls/webview/web_contents_set_background_color.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/actor/android/background_tabs/offscreen_rendering_manager_android.h"
-#include "chrome/browser/glic/android/settings/glic_navigation_utils_android.h"
-#include "ui/android/view_android.h"
-#include "ui/gfx/geometry/size_conversions.h"
-#endif
 
 namespace glic {
 
@@ -343,10 +335,8 @@ GlicNoWebviewContentsManager::OverlayContentsManager::EnsureWebContents() {
   SkColor glic_bg_color =
       GetGlicBackgroundColor(profile_, web_contents_->GetColorProvider());
   web_contents_->SetPageBaseBackgroundColor(glic_bg_color);
-#if !BUILDFLAG(IS_ANDROID)
   views::WebContentsSetBackgroundColor::CreateForWebContentsWithColor(
       web_contents_.get(), glic_bg_color);
-#endif
   if (web_contents_->GetRenderWidgetHostView()) {
     web_contents_->GetRenderWidgetHostView()->SetBackgroundColor(glic_bg_color);
   }
@@ -532,13 +522,8 @@ void GlicNoWebviewContentsManager::OverlayContentsManager::OnSignInClicked() {
         identity_manager->GetPrimaryAccountInfo(signin::ConsentLevel::kSignin)
             .email;
   }
-#if !BUILDFLAG(IS_ANDROID)
   signin_ui_util::ShowReauthForAccount(
       profile_, email, signin_metrics::AccessPoint::kGlicLaunchButton);
-#else
-  glic::ShowSignIn(
-      profile_, web_contents_ ? web_contents_.get() : owner_->guest_contents());
-#endif
 }
 
 void GlicNoWebviewContentsManager::OverlayContentsManager::
@@ -641,10 +626,8 @@ GlicNoWebviewContentsManager::GlicNoWebviewContentsManager(
   SkColor glic_bg_color =
       GetGlicBackgroundColor(profile, guest->GetColorProvider());
   guest->SetPageBaseBackgroundColor(glic_bg_color);
-#if !BUILDFLAG(IS_ANDROID)
   views::WebContentsSetBackgroundColor::CreateForWebContentsWithColor(
       guest, glic_bg_color);
-#endif
   if (guest->GetRenderWidgetHostView()) {
     guest->GetRenderWidgetHostView()->SetBackgroundColor(glic_bg_color);
   }
@@ -662,12 +645,6 @@ GlicNoWebviewContentsManager::GlicNoWebviewContentsManager(
 }
 
 GlicNoWebviewContentsManager::~GlicNoWebviewContentsManager() {
-#if BUILDFLAG(IS_ANDROID)
-  if (guest_contents() &&
-      base::FeatureList::IsEnabled(features::kGlicAndroidOffscreenRendering)) {
-    actor::StopOffscreenRenderingForWebContents(guest_contents());
-  }
-#endif
 }
 
 content::WebContents* GlicNoWebviewContentsManager::guest_contents() const {
@@ -731,14 +708,12 @@ void GlicNoWebviewContentsManager::AttachToHost(Host* host) {
 
 void GlicNoWebviewContentsManager::AttachModalDialogManagerDelegate(
     ScopedModalDialogManagerDelegate& delegate) {
-#if !BUILDFLAG(IS_ANDROID)
   if (auto* overlay = overlay_manager_.web_contents()) {
     delegate.AddWebContents(overlay);
   }
   if (auto* guest = guest_contents()) {
     delegate.AddWebContents(guest);
   }
-#endif
 }
 
 base::CallbackListSubscription
@@ -863,14 +838,6 @@ void GlicNoWebviewContentsManager::ApplySizeToGuest() {
   if (target_size.IsEmpty()) {
     return;
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (gfx::NativeView native_view = guest_contents()->GetNativeView()) {
-    gfx::Size size_px =
-        gfx::ScaleToCeiledSize(target_size, native_view->GetDipScale());
-    native_view->OnSizeChanged(size_px.width(), size_px.height());
-    native_view->OnPhysicalBackingSizeChanged(size_px);
-  }
-#else
   // Resize the WebContentsView container bounds (and any active
   // RenderWidgetHostView). Sizing the WebContentsView before
   // `LoadURLWithParams()` ensures `WebContentsImpl::GetSizeForMainFrame()`
@@ -883,7 +850,6 @@ void GlicNoWebviewContentsManager::ApplySizeToGuest() {
           guest_contents()->GetRenderWidgetHostView()) {
     rwhv->SetSize(target_size);
   }
-#endif
   // While the overlay is shown, the guest is not attached to a view, so mark it
   // visible to let it load and render at full priority.
   if (is_visible_) {

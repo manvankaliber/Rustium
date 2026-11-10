@@ -25,9 +25,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif
 
 namespace {
 
@@ -190,20 +187,9 @@ TEST_F(PerformanceControlsHatsServiceTest, LaunchesPerformanceSurvey) {
   SetMemorySaverEnabled(false);
 
 // Battery Saver is controlled by the OS on ChromeOS
-#if BUILDFLAG(IS_CHROMEOS)
-  const bool cros_battery_saver = ash::features::IsBatterySaverAvailable();
-
-  // Enable Chrome Battery Saver if CrOS Battery Saver isn't used.
-  const bool battery_saver_mode = !cros_battery_saver;
-  if (!cros_battery_saver) {
-    SetBatterySaverMode(performance_manager::user_tuning::prefs::
-                            BatterySaverModeState::kEnabledBelowThreshold);
-  }
-#else
   SetBatterySaverMode(performance_manager::user_tuning::prefs::
                           BatterySaverModeState::kEnabledBelowThreshold);
   const bool battery_saver_mode = true;
-#endif
 
   SurveyBitsData expected_bits = {{kMemorySaverPSDName, false},
                                   {kBatterySaverPSDName, battery_saver_mode}};
@@ -215,7 +201,6 @@ TEST_F(PerformanceControlsHatsServiceTest, LaunchesPerformanceSurvey) {
 }
 
 // Battery Saver is controlled by the OS on ChromeOS
-#if !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(PerformanceControlsHatsServiceHasBatteryTest,
        LaunchesBatteryPerformanceSurvey) {
@@ -236,7 +221,6 @@ TEST_F(PerformanceControlsHatsServiceBatterySaverOptOutTest,
                           BatterySaverModeState::kDisabled);
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(PerformanceControlsHatsServiceMemorySaverOptOutTest,
        LaunchesMemorySaverOptOutSurvey) {

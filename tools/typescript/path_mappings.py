@@ -8,7 +8,6 @@ import sys
 import json
 import io
 import os
-from path_utils import isInAshFolder, getTargetPath
 
 
 def _add_ui_webui_resources_mappings(path_mappings, root_gen_dir):
@@ -82,62 +81,9 @@ def _add_third_party_lit_mappings(path_mappings, root_gen_dir):
   ]
 
 
-# Ash-only
-def _add_ash_mappings(path_mappings, root_gen_dir, root_src_dir):
-  # Note: The path for this target shadows all the paths for |shared_ts_folders|
-  # below. Eventually this target should be removed and everything should reside
-  # in a subfolder, so that missing deps can surface during the build, similar
-  # to how ui/webui/resources/ works.
-  path_mappings['//ash/webui/common/resources:build_ts'] = [
-    (
-      '//resources/ash/common/*',
-      f'{root_gen_dir}/ash/webui/common/resources/preprocessed/*',
-    )
-  ]
-
-  # Calculate mappings for ash/webui/common/resources/ sub-folders that have a
-  # dedicated ts_library() target. The naming of the ts_library() target is
-  # expected to follow the default "build_ts" naming in the build_webui() rule.
-  # The output folder is expected to be at
-  # '$root_gen_dir/ash/webui/common/resources/preprocessed/'.
-  shared_ts_folders = [
-    "cellular_setup",
-    "cr_elements",
-    "personalization",
-    "sea_pen",
-    # List more folders here as they get migrated to use build_webui().
-  ]
-
-  for c in shared_ts_folders:
-    path_mappings[f'//ash/webui/common/resources/{c}:build_ts'] = [
-      (
-        f'//resources/ash/common/{c}/*',
-        f'{root_gen_dir}/ash/webui/common/resources/preprocessed/{c}/*',
-      )
-    ]
-
-  path_mappings['//third_party/cros-components:cros_components_ts'] = [
-    (
-      '//resources/cros_components/*',
-      f'{root_gen_dir}/ui/webui/resources/tsc/cros_components/to_be_rewritten/*',
-    )
-  ]
-  path_mappings['//third_party/material_web_components:library'] = [
-    (
-      '//resources/mwc/@material/*',
-      f'{root_src_dir}/third_party/material_web_components/components-chromium/'
-      'node_modules/@material/*',
-    )
-  ]
-  path_mappings['//third_party/material_web_components:bundle_lit_ts'] = [
-    (
-      '//resources/mwc/lit/index.js',
-      f'{root_src_dir}/third_party/material_web_components/lit_exports.d.ts',
-    )
-  ]
 
 
-def GetDepToPathMappings(root_gen_dir, root_src_dir, platform):
+def GetDepToPathMappings(root_gen_dir, root_src_dir):
   path_mappings = {}
 
   _add_ui_webui_resources_mappings(path_mappings, root_gen_dir)
@@ -145,31 +91,12 @@ def GetDepToPathMappings(root_gen_dir, root_src_dir, platform):
   _add_third_party_lit_mappings(path_mappings, root_gen_dir)
   _add_third_party_polymer_mappings(path_mappings, root_src_dir)
 
-  if platform == 'chromeos_ash':
-    _add_ash_mappings(path_mappings, root_gen_dir, root_src_dir)
 
   return path_mappings
 
 
-def _is_browser_only_dep(dep):
-  browser_only_deps = [
-    '//ui/webui/resources/cr_elements',
-    '//ui/webui/resources/cr_components/localized_link',
-    '//ui/webui/resources/cr_components/managed_footnote',
-  ]
-  return any(dep.startswith(dep_folder) for dep_folder in browser_only_deps)
 
 
-def _is_dependency_allowed(is_ash_target, raw_dep, target_path):
-  if is_ash_target and _is_browser_only_dep(raw_dep):
-    return False
-
-  is_ash_dep = isInAshFolder(raw_dep[2:])
-  if not is_ash_dep or is_ash_target:
-    return True
-
-  # TODO(crbug.com/40946949): Remove ChromeOS dependency from browser settings
-  return target_path == "chrome/browser/resources/settings"
 
 
 def _write_path_mappings_file(
@@ -197,20 +124,14 @@ def main(argv):
     default='trusted',
   )
   parser.add_argument('--pretty_print', action='store_true')
-  parser.add_argument(
-    '--platform', choices=['other', 'ios', 'chromeos_ash'], default='other'
-  )
   args = parser.parse_args(argv)
 
   dep_to_path_mappings = GetDepToPathMappings(
     args.root_gen_dir,
     # Sometimes root_src_dir has trailing slashes. Remove them if necessary.
     args.root_src_dir.rstrip('/'),
-    args.platform,
   )
 
-  target_path = getTargetPath(args.gen_dir, args.root_gen_dir)
-  is_ash_target = isInAshFolder(target_path)
   path_mappings = collections.defaultdict(list)
 
   # First, add a path mapping for '/strings.m.js', which is not tied to
@@ -223,10 +144,6 @@ def main(argv):
 
   # Then add path mappings that can be derived from `raw_deps`.
   for dep in args.raw_deps:
-    dependencyType = 'Browser-only' if is_ash_target else 'Ash-only'
-    assert _is_dependency_allowed(is_ash_target, dep, target_path), (
-      f'{target_path} should not use {dependencyType} dependency {dep}.'
-    )
 
     if dep not in dep_to_path_mappings:
       assert not dep.startswith("//ui/webui/resources"), (

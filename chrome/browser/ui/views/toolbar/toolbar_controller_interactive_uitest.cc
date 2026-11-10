@@ -738,7 +738,7 @@ IN_PROC_BROWSER_TEST_P(ToolbarControllerUiTest,
                    "ResponsiveToolbar.OverflowButtonHidden"));
 }
 // TODO(crbug.com/41495158): Flaky on Windows.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
 #define MAYBE_StartBrowserWithWidthSmallerThanThreshold \
   DISABLED_StartBrowserWithWidthSmallerThanThreshold
 #else
@@ -1032,7 +1032,6 @@ IN_PROC_BROWSER_TEST_P(ToolbarControllerUiTest, ActivateActionElementFromMenu) {
                 "ResponsiveToolbar.OverflowMenuItemActivated.ForwardButton"));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(ToolbarControllerUiTest, ActivateAvatarElementFromMenu) {
   base::UserActionTester user_action_tester;
   EXPECT_EQ(0, user_action_tester.GetActionCount(
@@ -1057,7 +1056,6 @@ IN_PROC_BROWSER_TEST_P(ToolbarControllerUiTest, ActivateAvatarElementFromMenu) {
   EXPECT_EQ(1, user_action_tester.GetActionCount(
                    "ResponsiveToolbar.OverflowMenuItemActivated.AvatarButton"));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // TODO(crbug.com/361296257): ActionItemsOverflowAndReappear is flaky on
 // linux64-rel-ready.

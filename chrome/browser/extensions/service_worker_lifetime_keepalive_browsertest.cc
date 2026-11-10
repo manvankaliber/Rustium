@@ -39,12 +39,10 @@
 #include "net/dns/mock_host_resolver.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/web_applications/test/isolated_web_app_test_utils.h"
 #include "chrome/browser/web_applications/isolated_web_apps/isolated_web_app_url_info.h"
 #include "chrome/browser/web_applications/isolated_web_apps/test/isolated_web_app_builder.h"
 #include "chrome/browser/web_applications/test/os_integration_test_override_impl.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -1157,7 +1155,6 @@ IN_PROC_BROWSER_TEST_F(
       0u, GetExternalRequestCountForWorker(*profile(), *split_mode_extension));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Isolated web app tests require code from //chrome/browser/web_applications
 // that isn't supported on Android.
 class IWAServiceWorkerLifetimeKeepaliveBrowsertest
@@ -1262,6 +1259,5 @@ IN_PROC_BROWSER_TEST_F(IWAServiceWorkerLifetimeKeepaliveBrowsertest,
                                            &tick_clock_receiver_);
   TriggerTimeoutAndCheckActive(context, service_worker_receiver_id);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace extensions

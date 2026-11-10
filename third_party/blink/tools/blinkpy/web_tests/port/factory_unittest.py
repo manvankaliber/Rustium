@@ -32,7 +32,6 @@ import unittest
 from blinkpy.common.host_mock import MockHost
 from blinkpy.common.path_finder import PathFinder
 from blinkpy.web_tests.builder_list import BuilderList
-from blinkpy.web_tests.port import android
 from blinkpy.web_tests.port import factory
 from blinkpy.web_tests.port import linux
 from blinkpy.web_tests.port import mac
@@ -73,9 +72,6 @@ class FactoryTest(unittest.TestCase):
             cls=linux.LinuxPort,
         )
 
-    def test_android(self):
-        self.assert_port(port_name='android', cls=android.AndroidPort)
-
     def test_win(self):
         self.assert_port(port_name='win-win10.20h2', cls=win.WinPort)
         self.assert_port(port_name='win-win11', cls=win.WinPort)
@@ -84,8 +80,10 @@ class FactoryTest(unittest.TestCase):
         )
 
     def test_unknown_specified(self):
-        with self.assertRaises(NotImplementedError):
-            factory.PortFactory(MockHost()).get(port_name='unknown')
+        for port_name in ('unknown', 'android', 'ios', 'tvos', 'webview'):
+            with self.subTest(port_name=port_name):
+                with self.assertRaises(NotImplementedError):
+                    factory.PortFactory(MockHost()).get(port_name=port_name)
 
     def test_unknown_default(self):
         with self.assertRaises(NotImplementedError):

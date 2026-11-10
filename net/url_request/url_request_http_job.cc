@@ -108,9 +108,6 @@
 #include "url/origin.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "net/android/network_library.h"
-#endif
 
 #if BUILDFLAG(ENABLE_DEVICE_BOUND_SESSIONS)
 #include "net/device_bound_sessions/registration_fetcher_param.h"
@@ -395,17 +392,6 @@ std::unique_ptr<URLRequestJob> URLRequestHttpJob::Create(URLRequest* request) {
       }
     }
 
-#if BUILDFLAG(IS_ANDROID)
-    // Check whether the app allows cleartext traffic to this host, and return
-    // ERR_CLEARTEXT_NOT_PERMITTED if not.
-    if (request->context()->check_cleartext_permitted() &&
-        !android::IsCleartextPermitted(url.host())) {
-      RecordSTSHistograms(SSLUpgradeDecision::kNoUpgrade,
-                          /*is_secure=*/false, request->load_flags());
-      return std::make_unique<URLRequestErrorJob>(request,
-                                                  ERR_CLEARTEXT_NOT_PERMITTED);
-    }
-#endif
   }
 
   RecordSTSHistograms(upgrade_decision, url.SchemeIsCryptographic(),

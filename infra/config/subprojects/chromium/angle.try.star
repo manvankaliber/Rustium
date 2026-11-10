@@ -39,28 +39,3 @@ def angle_mac_builder(*, name, **kwargs):
     kwargs.setdefault("os", os.MAC_DEFAULT)
     kwargs.setdefault("ssd", None)
     return try_.builder(name = name, **kwargs)
-
-def angle_ios_builder(*, name, **kwargs):
-    kwargs.setdefault("xcode", xcode.xcode_default)
-    return angle_mac_builder(name = name, **kwargs)
-
-angle_ios_builder(
-    name = "ios-angle-try-m2",
-    mirrors = [
-        "ci/ios-angle-arm64-builder",
-        "ci/ios-angle-m2",
-    ],
-    builder_config_settings = builder_config.try_settings(
-        retry_failed_shards = False,
-    ),
-    gn_args = gn_args.config(
-        configs = [
-            "ci/ios-angle-arm64-builder",
-            "no_symbols",
-        ],
-    ),
-    pool = "luci.chromium.gpu.try",
-    cpu = cpu.ARM64,
-    contact_team_email = "angle-team@google.com",
-    max_concurrent_builds = 1,
-)

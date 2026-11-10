@@ -150,9 +150,6 @@ struct ProfilePrefRegistration {
       sync_preferences::TestingPrefServiceSyncable* prefs) {
     language::LanguagePrefs::RegisterProfilePrefs(prefs->registry());
     prefs->SetString(accept_languages_prefs, std::string());
-#if BUILDFLAG(IS_CHROMEOS)
-    prefs->SetString(preferred_languages_prefs, std::string());
-#endif
     TranslatePrefs::RegisterProfilePrefs(prefs->registry());
     // TODO(groby): Figure out RegisterProfilePrefs() should register this.
     prefs->registry()->RegisterBooleanPref(
@@ -1014,9 +1011,6 @@ TEST_F(TranslateManagerTest, CanManuallyTranslate_EmptySourceLanguage) {
   // Manual translation when source language is empty is only supported on
   // Android.
   bool empty_source_supported = false;
-#if BUILDFLAG(IS_ANDROID)
-  empty_source_supported = true;
-#endif
   EXPECT_EQ(translate_manager_->CanManuallyTranslate(), empty_source_supported);
   EXPECT_EQ(translate_manager_->CanManuallyTranslate(true),
             empty_source_supported);

@@ -115,11 +115,7 @@ class InotifyReaderThreadDelegate final
 class InotifyReader {
  public:
   // Watch descriptor used by AddWatch() and RemoveWatch().
-#if BUILDFLAG(IS_ANDROID)
-  using Watch = uint32_t;
-#else
   using Watch = int;
-#endif
 
   // Record of watchers tracked for watch descriptors.
   struct WatcherEntry {
@@ -1431,7 +1427,7 @@ size_t FilePathWatcher::GetQuotaLimitImpl() {
   return GetQuotaLimitFromSystemLimit(GetMaxNumberOfInotifyWatches());
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // Put inside "BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)" because Android
 // includes file_path_watcher_linux.cc.
 
@@ -1439,6 +1435,6 @@ size_t FilePathWatcher::GetQuotaLimitImpl() {
 bool FilePathWatcher::HasWatchesForTest() {
   return GetInotifyReader().HasWatches();
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 }  // namespace content

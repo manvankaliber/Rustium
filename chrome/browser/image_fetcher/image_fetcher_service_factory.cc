@@ -28,9 +28,6 @@
 #include "content/public/browser/storage_partition.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/image_fetcher/android/image_fetcher_service_provider.h"
-#endif
 
 namespace {
 
@@ -45,18 +42,6 @@ base::FilePath GetCachePath(SimpleFactoryKey* key) {
   return cache_path.Append(kImageCacheSubdir);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-image_fetcher::ImageFetcherService* GetImageFetcherService(
-    SimpleFactoryKey* key) {
-  return ImageFetcherServiceFactory::GetForKey(key);
-}
-
-std::string GetCachePathForJava(SimpleFactoryKey* key, std::string path) {
-  base::FilePath cache_path;
-  chrome::GetUserCacheDirectory(key->GetPath(), &cache_path);
-  return cache_path.Append(kImageCacheSubdir).Append(path).MaybeAsASCII();
-}
-#endif
 
 }  // namespace
 
@@ -78,13 +63,6 @@ ImageFetcherServiceFactory::ImageFetcherServiceFactory()
                                 SimpleDependencyManager::GetInstance()) {
 // In order to move the android code to components, we need to push
 // |GetImageFetcherService| to image_fetcher_bridge.
-#if BUILDFLAG(IS_ANDROID)
-  image_fetcher::SetImageFetcherServiceProvider(
-      base::BindRepeating(&GetImageFetcherService));
-
-  image_fetcher::SetImageFetcherCachePathProvider(
-      base::BindRepeating(&GetCachePathForJava));
-#endif
 }
 
 ImageFetcherServiceFactory::~ImageFetcherServiceFactory() = default;

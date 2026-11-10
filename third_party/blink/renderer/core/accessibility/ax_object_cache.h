@@ -201,14 +201,6 @@ class CORE_EXPORT AXObjectCache : public GarbageCollected<AXObjectCache> {
   // Called when a layout object's bounding box may have changed.
   virtual void InvalidateBoundingBox(const LayoutObject*) = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Used to compute paint order / hit test order for Android XR platform,
-  // which helps to figure out which elements occlude other elements.
-  virtual void ComputeXrHitTestOrder(
-      HashMap<DOMNodeId, int>& dom_node_hit_test_order_map) = 0;
-  virtual void ApplyXrHitTestOrder(
-      const HashMap<DOMNodeId, int>& order_map) = 0;
-#endif
 
   virtual const AtomicString& ComputedRoleForNode(Node*) = 0;
   virtual String ComputedNameForNode(Node*) = 0;

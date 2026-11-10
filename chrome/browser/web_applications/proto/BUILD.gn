@@ -5,6 +5,11 @@
 import("//components/proto_extras/proto_extras.gni")
 import("//third_party/protobuf/proto_library.gni")
 
+proto_library("legacy_system_web_app_data") {
+  proto_in_dir = "//"
+  sources = [ "legacy_system_web_app_data.proto" ]
+}
+
 proto_library("proto") {
   proto_in_dir = "//"
   sources = [
@@ -21,7 +26,7 @@ proto_library("proto") {
     "web_app_url_pattern.proto",
   ]
   deps = [
-    "//chromeos/ash/experiences/system_web_apps/types/proto",
+    ":legacy_system_web_app_data",
     "//components/sync/protocol",
     "//content/browser/background_fetch:background_fetch_proto",
   ]
@@ -31,8 +36,8 @@ proto_library("proto") {
 # future, and depended upon here.
 proto_extras("system_web_apps_types_proto_extras") {
   proto_in_dir = "//"
-  sources = [ "//chromeos/ash/experiences/system_web_apps/types/proto/system_web_app_data.proto" ]
-  deps = [ "//chromeos/ash/experiences/system_web_apps/types/proto" ]
+  sources = [ "legacy_system_web_app_data.proto" ]
+  deps = [ ":legacy_system_web_app_data" ]
 }
 
 # This can be moved to the components/sync/protocol area in the future,
@@ -68,7 +73,6 @@ proto_extras("proto_extras") {
   ]
   deps = [
     ":proto",
-    "//chromeos/ash/experiences/system_web_apps/types/proto",
     "//components/sync/protocol",
     "//content/browser/background_fetch:background_fetch_proto",
   ]

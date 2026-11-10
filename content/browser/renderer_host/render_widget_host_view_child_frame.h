@@ -113,19 +113,6 @@ class CONTENT_EXPORT RenderWidgetHostViewChildFrame
       base::TimeDelta timeout,
       base::OnceCallback<void(const content::CopyFromSurfaceResult&)> callback)
       override;
-#if BUILDFLAG(IS_ANDROID)
-  bool IsTouchSequencePotentiallyActiveOnViz() override;
-  void RequestInputBackForDragAndDrop(
-      WeakDocumentPtr source_document,
-      blink::mojom::DragDataPtr drag_data,
-      blink::DragOperationsMask drag_operations_mask,
-      SkBitmap bitmap,
-      gfx::Vector2d cursor_offset_in_dip,
-      gfx::Rect drag_obj_rect_in_dip,
-      blink::mojom::DragEventSourceInfoPtr event_info) override;
-  void ReportScrollJankStats(uint32_t total_frames,
-                             uint32_t janky_frames) override;
-#endif
   RenderWidgetHostViewBase* GetRootView() override;
   input::RenderWidgetHostViewInput* GetPinchZoomTarget() override;
 #if BUILDFLAG(IS_WIN)
@@ -231,10 +218,6 @@ class CONTENT_EXPORT RenderWidgetHostViewChildFrame
   void OnRenderFrameSubmission() override {}
   void OnLocalSurfaceIdChanged(
       const cc::RenderFrameMetadata& metadata) override {}
-#if BUILDFLAG(IS_ANDROID)
-  void OnReportScrollJankStats(uint32_t total_frames,
-                               uint32_t janky_frames) override;
-#endif
 
   // viz::HostFrameSinkClient implementation.
   void OnFirstSurfaceActivation(const viz::SurfaceInfo& surface_info) override;
@@ -367,13 +350,11 @@ class CONTENT_EXPORT RenderWidgetHostViewChildFrame
   // TODO(crbug.com/375388841): Remove these once Aura also uses
   // TouchSelectionControllerInputObserver. These are not needed on Android
   // since it uses TouchSelectionControllerInputObserver.
-#if !BUILDFLAG(IS_ANDROID)
   // Performs gesture ack handling needed for swipe-to-move-cursor gestures.
   void HandleSwipeToMoveCursorGestureAck(const blink::WebGestureEvent& event);
 
   // Whether a swipe-to-move-cursor gesture is activated.
   bool swipe_to_move_cursor_activated_ = false;
-#endif
 
   std::vector<base::OnceClosure> frame_swapped_callbacks_;
 

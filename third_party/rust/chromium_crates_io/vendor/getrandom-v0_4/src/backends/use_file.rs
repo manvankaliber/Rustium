@@ -6,7 +6,7 @@ use core::{
     sync::atomic::{AtomicI32, Ordering},
 };
 
-#[cfg(not(any(target_os = "android", target_os = "linux")))]
+#[cfg(not(target_os = "linux"))]
 pub use crate::util::{inner_u32, inner_u64};
 
 #[path = "../utils/sys_fill_exact.rs"]
@@ -97,21 +97,21 @@ fn open_or_wait() -> Result<libc::c_int, Error> {
     // On non-Linux targets `wait` is just 1 ms sleep,
     // so we don't need any explicit wake up in addition
     // to updating value of `FD`.
-    #[cfg(any(target_os = "android", target_os = "linux"))]
+    #[cfg(target_os = "linux")]
     sync::wake();
 
     res
 }
 
 fn open_fd() -> Result<libc::c_int, Error> {
-    #[cfg(any(target_os = "android", target_os = "linux"))]
+    #[cfg(target_os = "linux")]
     sync::wait_until_rng_ready()?;
     let fd = open_readonly(FILE_PATH)?;
     debug_assert!(fd >= 0);
     Ok(fd)
 }
 
-#[cfg(not(any(target_os = "android", target_os = "linux")))]
+#[cfg(not(target_os = "linux"))]
 mod sync {
     /// Sleep 1 ms before checking `FD` again.
     ///
@@ -134,7 +134,7 @@ mod sync {
     }
 }
 
-#[cfg(any(target_os = "android", target_os = "linux"))]
+#[cfg(target_os = "linux")]
 mod sync {
     use super::{Error, FD, FD_ONGOING_INIT, open_readonly, utils};
 

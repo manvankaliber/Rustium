@@ -2,15 +2,6 @@ ci/CFI Linux CF
 ci/CFI Linux ToT
 ci/CrWinAsan
 ci/CrWinAsan(dll)
-ci/ToTAndroid
-ci/ToTAndroid (dbg)
-ci/ToTAndroid x64
-ci/ToTAndroid x86
-ci/ToTAndroid64
-ci/ToTAndroidCoverage x86
-ci/ToTAndroidOfficial
-ci/ToTChromeOS
-ci/ToTChromeOS (dbg)
 ci/ToTLinux
 ci/ToTLinux (dbg)
 ci/ToTLinuxASan
@@ -40,6 +31,4 @@ ci/ToTWin64PGO
 ci/ToTWinASanLibfuzzer
 ci/ToTWinArm64PGO
 ci/ToTWindowsCoverage
-ci/ToTiOS
-ci/ToTiOSDevice
 ci/linux-win-cross-clang-tot-rel

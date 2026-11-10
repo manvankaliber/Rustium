@@ -17,9 +17,6 @@
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "components/search/ntp_features.h"
-#endif
 
 namespace {
 
@@ -57,10 +54,6 @@ class NewTabPageFocusTest : public WebUIMochaFocusTest {
     set_test_loader_host(chrome::kChromeUINewTabPageHost);
     std::vector<base::test::FeatureRef> enabled_features = {
         ntp_composebox::kNtpComposebox, ntp_realbox::kNtpRealboxNext};
-#if BUILDFLAG(IS_ANDROID)
-    // Customization buttons on the WebUI NTP are feature-flagged on Android.
-    enabled_features.push_back(ntp_features::kNtpCustomizeWebUiAndroid);
-#endif
     scoped_feature_list_.InitWithFeatures(enabled_features,
                                           /*disabled_features=*/{});
   }

@@ -6,18 +6,6 @@ import("//build/config/ozone.gni")
 import("//chrome/common/features.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-
-  # Target to generate Java enums from C++ headers
-  java_cpp_enum("enums_java") {
-    sources = [
-      "states/handoff_button_state.h",
-      "states/tab_indicator_state.h",
-    ]
-  }
-}
-
 source_set("states") {
   public = [
     "states/actor_overlay_state.h",
@@ -77,26 +65,24 @@ mojom("mojo_bindings") {
   webui_module_path = "/"
 }
 
-if (!is_android) {
-  source_set("actor_overlay_web_view") {
-    sources = [
-      "actor_overlay_web_view.cc",
-      "actor_overlay_web_view.h",
-    ]
-    deps = [
-      ":actor_overlay",
-      "//base",
-      "//chrome/browser/profiles",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/webui",
-      "//chrome/browser/ui/webui:webui_util",
-      "//chrome/common:chrome_features",
-      "//components/tabs:public",
-      "//content/public/browser",
-      "//ui/views",
-      "//ui/views/controls/webview",
-    ]
-  }
+source_set("actor_overlay_web_view") {
+  sources = [
+    "actor_overlay_web_view.cc",
+    "actor_overlay_web_view.h",
+  ]
+  deps = [
+    ":actor_overlay",
+    "//base",
+    "//chrome/browser/profiles",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/webui",
+    "//chrome/browser/ui/webui:webui_util",
+    "//chrome/common:chrome_features",
+    "//components/tabs:public",
+    "//content/public/browser",
+    "//ui/views",
+    "//ui/views/controls/webview",
+  ]
 }
 
 source_set("actor_overlay") {
@@ -129,39 +115,37 @@ source_set("actor_overlay") {
   ]
 }
 
-if (!skip_android_unmigrated_actor_files) {
-  source_set("window_controller_impl") {
-    sources = [ "actor_ui_window_controller.cc" ]
-    deps = [
-      ":actor_overlay",
-      ":actor_overlay_web_view",
-      ":metrics",
-      ":ui",
-      "//chrome/browser/actor",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/ui:browser_command_controller",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/common",
-      "//ui/views",
-      "//ui/views/controls/webview",
-    ]
-  }
+source_set("window_controller_impl") {
+  sources = [ "actor_ui_window_controller.cc" ]
+  deps = [
+    ":actor_overlay",
+    ":actor_overlay_web_view",
+    ":metrics",
+    ":ui",
+    "//chrome/browser/actor",
+    "//chrome/browser/profiles:profile",
+    "//chrome/browser/ui:browser_command_controller",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/common",
+    "//ui/views",
+    "//ui/views/controls/webview",
+  ]
+}
 
-  source_set("actor_ui_interactive_base") {
-    sources = [
-      "actor_ui_interactive_browser_test.cc",
-      "actor_ui_interactive_browser_test.h",
-    ]
-    testonly = true
-    public_deps = [ "//chrome/test/interaction" ]
-    deps = [
-      "//base/test:test_support",
-      "//chrome/browser/actor",
-      "//chrome/browser/actor:test_support",
-      "//chrome/browser/actor:types",
-    ]
-  }
+source_set("actor_ui_interactive_base") {
+  sources = [
+    "actor_ui_interactive_browser_test.cc",
+    "actor_ui_interactive_browser_test.h",
+  ]
+  testonly = true
+  public_deps = [ "//chrome/test/interaction" ]
+  deps = [
+    "//base/test:test_support",
+    "//chrome/browser/actor",
+    "//chrome/browser/actor:test_support",
+    "//chrome/browser/actor:types",
+  ]
 }
 
 source_set("test_support") {
@@ -175,12 +159,12 @@ source_set("test_support") {
     "test_support/mock_event_dispatcher.cc",
     "test_support/mock_event_dispatcher.h",
   ]
-  if (!skip_android_unmigrated_actor_files) {
-    sources += [
-      "test_support/mock_handoff_button_controller.cc",
-      "test_support/mock_handoff_button_controller.h",
-    ]
-  }
+
+  sources += [
+    "test_support/mock_handoff_button_controller.cc",
+    "test_support/mock_handoff_button_controller.h",
+  ]
+
   testonly = true
   public_deps = [
     "//base",
@@ -195,93 +179,87 @@ source_set("test_support") {
   ]
 }
 
-if (!skip_android_unmigrated_actor_files) {
-  source_set("browser_tests") {
-    testonly = true
+source_set("browser_tests") {
+  testonly = true
 
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [
-      "actor_overlay_browsertest.cc",
-      "actor_overlay_ui_browsertest.cc",
-      "actor_popup_browsertest.cc",
-      "actor_ui_tab_controller_browsertest.cc",
-      "dom_node_geometry_browsertest.cc",
-      "handoff_button_controller_pixel_test.cc",
-    ]
+  sources = [
+    "actor_overlay_browsertest.cc",
+    "actor_overlay_ui_browsertest.cc",
+    "actor_popup_browsertest.cc",
+    "actor_ui_tab_controller_browsertest.cc",
+    "dom_node_geometry_browsertest.cc",
+    "handoff_button_controller_pixel_test.cc",
+  ]
 
-    deps = [
-      ":actor_overlay",
-      ":actor_overlay_web_view",
-      ":dom_node_geometry",
-      ":ui",
-      ":ui_event_types",
-      "//base/test:test_support",
-      "//chrome/browser/actor",
-      "//chrome/browser/actor:test_support",
-      "//chrome/browser/autocomplete:aim_eligibility_service",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/signin:identity_test_support",
-      "//chrome/browser/signin:test_support",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/tabs/alert:tab_alert",
-      "//chrome/browser/ui/views/frame",
-      "//chrome/browser/ui/views/tabs:tab",
-      "//chrome/browser/ui/views/tabs/tab",
-      "//chrome/common",
-      "//chrome/test:test_support",
-      "//components/contextual_tasks/public:feature_list",
-      "//components/keyed_service/content",
-      "//components/omnibox/browser:test_support",
-      "//components/signin/public/identity_manager:test_support",
-      "//content/test:test_support",
-      "//testing/gmock",
-      "//testing/gtest",
-      "//ui/views:view_pixel_diff_test_support",
-    ]
+  deps = [
+    ":actor_overlay",
+    ":actor_overlay_web_view",
+    ":dom_node_geometry",
+    ":ui",
+    ":ui_event_types",
+    "//base/test:test_support",
+    "//chrome/browser/actor",
+    "//chrome/browser/actor:test_support",
+    "//chrome/browser/autocomplete:aim_eligibility_service",
+    "//chrome/browser/profiles:profile",
+    "//chrome/browser/signin:identity_test_support",
+    "//chrome/browser/signin:test_support",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/tabs/alert:tab_alert",
+    "//chrome/browser/ui/views/frame",
+    "//chrome/browser/ui/views/tabs:tab",
+    "//chrome/browser/ui/views/tabs/tab",
+    "//chrome/common",
+    "//chrome/test:test_support",
+    "//components/contextual_tasks/public:feature_list",
+    "//components/keyed_service/content",
+    "//components/omnibox/browser:test_support",
+    "//components/signin/public/identity_manager:test_support",
+    "//content/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//ui/views:view_pixel_diff_test_support",
+  ]
 
-    if (!is_android) {
-      deps += [ "//chrome/browser/ui/views/frame:browser_view_header" ]
-    }
+  deps += [ "//chrome/browser/ui/views/frame:browser_view_header" ]
+}
+
+source_set("interactive_ui_tests") {
+  testonly = true
+
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [ "handoff_button_controller_interactive_uitest.cc" ]
+
+  deps = [
+    ":actor_ui_interactive_base",
+    ":ui",
+    "//base/test:test_support",
+    "//chrome/browser/actor",
+    "//chrome/browser/glic",
+    "//chrome/browser/glic/test_support",
+    "//chrome/browser/profiles:profile",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui:ui_features",
+    "//chrome/browser/ui/side_panel:side_panel_views_dependent",
+    "//chrome/browser/ui/views/frame:multi_contents_view",
+    "//chrome/common",
+    "//chrome/test:test_support",
+    "//content/test:test_support",
+    "//ui/base:ozone_buildflags",
+    "//ui/base/interaction",
+  ]
+
+  if (use_ozone) {
+    deps += [ "//ui/ozone" ]
   }
 
-  source_set("interactive_ui_tests") {
-    testonly = true
-
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "handoff_button_controller_interactive_uitest.cc" ]
-
-    deps = [
-      ":actor_ui_interactive_base",
-      ":ui",
-      "//base/test:test_support",
-      "//chrome/browser/actor",
-      "//chrome/browser/glic",
-      "//chrome/browser/glic/test_support",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:ui_features",
-      "//chrome/browser/ui/side_panel:side_panel_views_dependent",
-      "//chrome/browser/ui/views/frame:multi_contents_view",
-      "//chrome/common",
-      "//chrome/test:test_support",
-      "//content/test:test_support",
-      "//ui/base:ozone_buildflags",
-      "//ui/base/interaction",
-    ]
-
-    if (use_ozone) {
-      deps += [ "//ui/ozone" ]
-    }
-
-    if (!is_android) {
-      deps += [ "//chrome/browser/ui/views/frame:browser_view_header" ]
-    }
-  }
+  deps += [ "//chrome/browser/ui/views/frame:browser_view_header" ]
 }
 
 source_set("ui") {
@@ -306,58 +284,52 @@ source_set("ui") {
     "//ui/base/unowned_user_data",
   ]
 
-  if (!is_android) {
-    sources += [
-      "../actor_tab_strip_tracker_desktop.cc",
-      "../actor_tab_strip_tracker_desktop.h",
-      "actor_task_unload_handler.cc",
-      "actor_task_unload_handler.h",
-    ]
-    deps += [
-      "//chrome/app/theme:chrome_unscaled_resources",
-      "//chrome/browser/actor",
-      "//chrome/browser/glic",
-      "//chrome/browser/lifetime",
-      "//chrome/browser/ui:browser_tab_strip",
-      "//components/constrained_window",
-      "//components/vector_icons",
-      "//ui/strings:ui_strings",
-    ]
-  }
+  sources += [
+    "../actor_tab_strip_tracker_desktop.cc",
+    "../actor_tab_strip_tracker_desktop.h",
+    "actor_task_unload_handler.cc",
+    "actor_task_unload_handler.h",
+  ]
+  deps += [
+    "//chrome/app/theme:chrome_unscaled_resources",
+    "//chrome/browser/actor",
+    "//chrome/browser/glic",
+    "//chrome/browser/lifetime",
+    "//chrome/browser/ui:browser_tab_strip",
+    "//components/constrained_window",
+    "//components/vector_icons",
+    "//ui/strings:ui_strings",
+  ]
 
-  if (!skip_android_unmigrated_actor_files) {
-    sources += [
-      "actor_border_view_controller.cc",
-      "actor_border_view_controller.h",
-      "actor_ui_state_manager_prefs.cc",
-      "actor_ui_state_manager_prefs.h",
-      "actor_ui_tab_controller.cc",
-      "actor_ui_tab_controller.h",
-      "actor_ui_window_controller.h",
-      "handoff_button_controller.cc",
-      "handoff_button_controller.h",
-    ]
-    deps += [
-      "//chrome/app/vector_icons",
-      "//chrome/browser/actor",
-      "//chrome/browser/actor/resources:browser_resources",
-      "//chrome/browser/glic",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/immersive:immersive_mode_controller",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/toasts",
-      "//chrome/browser/ui/toasts/api:toasts",
-      "//components/prefs",
-      "//components/tabs:public",
-      "//third_party/abseil-cpp:absl",
-      "//ui/views",
-    ]
-  }
+  sources += [
+    "actor_border_view_controller.cc",
+    "actor_border_view_controller.h",
+    "actor_ui_state_manager_prefs.cc",
+    "actor_ui_state_manager_prefs.h",
+    "actor_ui_tab_controller.cc",
+    "actor_ui_tab_controller.h",
+    "actor_ui_window_controller.h",
+    "handoff_button_controller.cc",
+    "handoff_button_controller.h",
+  ]
+  deps += [
+    "//chrome/app/vector_icons",
+    "//chrome/browser/actor",
+    "//chrome/browser/actor/resources:browser_resources",
+    "//chrome/browser/glic",
+    "//chrome/browser/profiles:profile",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/immersive:immersive_mode_controller",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/toasts",
+    "//chrome/browser/ui/toasts/api:toasts",
+    "//components/prefs",
+    "//components/tabs:public",
+    "//third_party/abseil-cpp:absl",
+    "//ui/views",
+  ]
 
-  if (!is_android) {
-    deps += [ "//chrome/browser/ui:browser_tab_strip_tracker" ]
-  }
+  deps += [ "//chrome/browser/ui:browser_tab_strip_tracker" ]
 }
 
 source_set("event_dispatcher") {
@@ -421,52 +393,49 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  if (!skip_android_unmigrated_actor_files) {
-    sources += [
-      "actor_border_view_controller_unittest.cc",
-      "actor_overlay_handler_unittest.cc",
-      "actor_overlay_web_view_unittest.cc",
-      "actor_ui_metrics_unittest.cc",
-      "actor_ui_state_manager_unittest.cc",
-      "actor_ui_tab_controller_unittest.cc",
-      "actor_ui_window_controller_unittest.cc",
-      "event_dispatcher_unittest.cc",
-      "handoff_button_controller_unittest.cc",
-      "ui_event_debugstring_unittest.cc",
-    ]
-    deps += [
-      ":actor_overlay",
-      ":actor_overlay_web_view",
-      ":event_dispatcher",
-      ":test_support",
-      ":ui",
-      ":ui_event_types",
-      ":ui_event_utils",
-      "//chrome/browser/actor",
-      "//chrome/browser/actor:impl",
-      "//chrome/browser/actor:test_support",
-      "//chrome/browser/ui/color:mixers",
-      "//chrome/browser/ui/tabs:tabs_public",
-      "//chrome/browser/ui/tabs:test_support",
-      "//chrome/browser/ui/views/frame:contents_container_view",
-      "//chrome/browser/ui/views/frame:test_support",
-      "//chrome/browser/ui/webui:webui_util",
-      "//chrome/common",
-      "//components/tabs:public",
-      "//components/tabs:test_support",
-      "//content/test:test_support",
-      "//testing/gmock",
-      "//ui/base/unowned_user_data",
-      "//ui/color:mixers",
-    ]
+  sources += [
+    "actor_border_view_controller_unittest.cc",
+    "actor_overlay_handler_unittest.cc",
+    "actor_overlay_web_view_unittest.cc",
+    "actor_ui_metrics_unittest.cc",
+    "actor_ui_state_manager_unittest.cc",
+    "actor_ui_tab_controller_unittest.cc",
+    "actor_ui_window_controller_unittest.cc",
+    "event_dispatcher_unittest.cc",
+    "handoff_button_controller_unittest.cc",
+    "ui_event_debugstring_unittest.cc",
+  ]
+  deps += [
+    ":actor_overlay",
+    ":actor_overlay_web_view",
+    ":event_dispatcher",
+    ":test_support",
+    ":ui",
+    ":ui_event_types",
+    ":ui_event_utils",
+    "//chrome/browser/actor",
+    "//chrome/browser/actor:impl",
+    "//chrome/browser/actor:test_support",
+    "//chrome/browser/ui/color:mixers",
+    "//chrome/browser/ui/tabs:tabs_public",
+    "//chrome/browser/ui/tabs:test_support",
+    "//chrome/browser/ui/views/frame:contents_container_view",
+    "//chrome/browser/ui/views/frame:test_support",
+    "//chrome/browser/ui/webui:webui_util",
+    "//chrome/common",
+    "//components/tabs:public",
+    "//components/tabs:test_support",
+    "//content/test:test_support",
+    "//testing/gmock",
+    "//ui/base/unowned_user_data",
+    "//ui/color:mixers",
+  ]
 
-    data = [ "//tools/metrics/actions/actions.xml" ]
+  data = [ "//tools/metrics/actions/actions.xml" ]
 
-    # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
-    # enable the diagnostic by removing this line.
-    configs += [ "//build/config/compiler:no_exit_time_destructors" ]
-  }
-  if (!is_android) {
-    deps += [ "//chrome/browser/ui/webui/util" ]
-  }
+  # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
+  # enable the diagnostic by removing this line.
+  configs += [ "//build/config/compiler:no_exit_time_destructors" ]
+
+  deps += [ "//chrome/browser/ui/webui/util" ]
 }

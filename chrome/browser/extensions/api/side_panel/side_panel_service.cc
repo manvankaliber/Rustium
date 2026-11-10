@@ -359,15 +359,11 @@ void SidePanelService::DispatchOnClosedEvent(const ExtensionId& extension_id,
 
 api::side_panel::PanelLayout SidePanelService::GetSidePanelLayout() {
   api::side_panel::PanelLayout layout;
-#if BUILDFLAG(IS_ANDROID)
-  layout.side = api::side_panel::Side::kRight;
-#else
   Profile* profile = Profile::FromBrowserContext(browser_context_);
   layout.side =
       profile->GetPrefs()->GetBoolean(prefs::kSidePanelHorizontalAlignment)
           ? api::side_panel::Side::kRight
           : api::side_panel::Side::kLeft;
-#endif
   return layout;
 }
 

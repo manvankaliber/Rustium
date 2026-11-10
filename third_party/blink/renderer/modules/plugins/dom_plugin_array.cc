@@ -136,18 +136,6 @@ HeapVector<Member<DOMMimeType>> DOMPluginArray::GetFixedMimeTypeArray() {
 }
 
 bool DOMPluginArray::IsPdfViewerAvailable() {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/556858610, crbug.com/556857897): Other desktop platforms
-  // dynamically check whether PDF viewing is handled by an extension or
-  // disabled via chrome://settings/content/pdfDocuments (PDF open vs. download
-  // setting). On Android, neither extensions nor the PDF content setting are
-  // currently supported. Revisit this check if/when PDF document content
-  // settings or extensions need to be supported.
-  if (base::FeatureList::IsEnabled(
-          blink::features::kAndroidHandlePdfInIframe)) {
-    return true;
-  }
-#endif
   auto* data = GetPluginData();
   if (!data)
     return false;

@@ -64,7 +64,6 @@ class ChromeSpeechRecognitionManagerDelegate
       base::OnceCallback<void(bool ask_user, bool is_allowed)> callback)
       override;
   content::SpeechRecognitionEventListener* GetEventListener() override;
-#if !BUILDFLAG(IS_ANDROID)
   base::flat_map<std::string, std::string> GetRoutingParams(
       const url::Origin& origin) override;
   // This will bind to the Speech Recognition Service if available.
@@ -72,7 +71,6 @@ class ChromeSpeechRecognitionManagerDelegate
       mojo::PendingReceiver<media::mojom::SpeechRecognitionContext> receiver,
       const std::string& language,
       const content::GlobalRenderFrameHostId& render_frame_host_id) override;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
  private:
   // Checks for mojom::ViewType::kTabContents host in the UI thread and notifies

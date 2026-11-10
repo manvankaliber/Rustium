@@ -25,9 +25,7 @@
 #include "ui/webui/resources/cr_components/history/history.mojom-forward.h"
 #include "ui/webui/resources/cr_components/history/history_cross_device_signin_promo.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "ui/webui/resources/cr_components/history_clusters/history_clusters.mojom.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace base {
 class RefCountedMemory;
@@ -35,11 +33,9 @@ class RefCountedMemory;
 
 class BrowsingHistoryHandler;
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace history_clusters {
 class HistoryClustersHandler;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace page_image_service {
 class ImageServiceHandler;
@@ -54,17 +50,12 @@ class HistoryUIConfig : public content::WebUIConfig {
   std::unique_ptr<content::WebUIController> CreateWebUIController(
       content::WebUI* web_ui,
       const GURL& url) override;
-#if BUILDFLAG(IS_ANDROID)
-  bool IsWebUIEnabled(content::BrowserContext* browser_context) override;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 class HistoryUI
     : public ui::MojoWebUIController,
       public help_bubble::mojom::HelpBubbleHandlerFactory,
-#if !BUILDFLAG(IS_ANDROID)
       public history_clusters::mojom::PageHandlerFactory,
-#endif  // !BUILDFLAG(IS_ANDROID)
       public user_education::mojom::UserEducationMixedTrustHandlerFactory,
       public history::mojom::ForeignSessionPageHandlerFactory {
  public:
@@ -98,7 +89,6 @@ class HistoryUI
                                 HistoryCrossDeviceSigninPromoHandler>
           pending_receiver);
 
-#if !BUILDFLAG(IS_ANDROID)
   void BindInterface(
       mojo::PendingReceiver<history_clusters::mojom::PageHandlerFactory>
           pending_page_handler_factory);
@@ -108,7 +98,6 @@ class HistoryUI
       mojo::PendingRemote<history_clusters::mojom::Page> page,
       mojo::PendingReceiver<history_clusters::mojom::PageHandler> receiver)
       override;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // help_bubble::mojom::HelpBubbleHandlerFactory:
   void CreateHelpBubbleHandler(
@@ -132,12 +121,10 @@ class HistoryUI
   BrowsingHistoryHandler* GetBrowsingHistoryHandlerForTesting() {
     return browsing_history_handler_.get();
   }
-#if !BUILDFLAG(IS_ANDROID)
   history_clusters::HistoryClustersHandler*
   GetHistoryClustersHandlerForTesting() {
     return history_clusters_handler_.get();
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
  private:
   void UpdateDataSource();
@@ -154,12 +141,10 @@ class HistoryUI
                       HistoryCrossDeviceSigninPromoHandler>
       history_cross_device_signin_promo_handler_;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<history_clusters::HistoryClustersHandler>
       history_clusters_handler_;
   mojo::Receiver<history_clusters::mojom::PageHandlerFactory>
       history_clusters_handler_factory_receiver_{this};
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   PrefChangeRegistrar pref_change_registrar_;
 

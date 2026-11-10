@@ -15,10 +15,6 @@
 {
   # TODO(thakis): Move android det bots to use two distinct build dirs,
   # https://crbug.com/899438
-  'android': [
-    'gen/build/private_code_test/private_code_failure_test.json',
-  ],
-
   'linux': [
     # These contain logs with timestamps in them. It's part of a test that
     # just happens to partially run during compile.

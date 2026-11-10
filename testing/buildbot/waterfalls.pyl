@@ -65,169 +65,6 @@
     'name': 'chrome',
     'mixins': ['chrome-tester-service-account'],
     'machines': {
-      'chromeos-arm64-generic-cfi-thin-lto-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-      },
-      'chromeos-betty-cfi-thin-lto-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'os_type': 'chromeos',
-        'cros_board': 'betty',
-      },
-      'chromeos-betty-cfi-thin-lto-chrome-tests': {
-        'test_suites': {
-          'skylab_tests': 'chromeos_vmlab_tests_no_gtests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'betty',
-        'cros_dut_pool': 'vmlab',
-      },
-      'chromeos-betty-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'os_type': 'chromeos',
-        'cros_board': 'betty',
-      },
-      'chromeos-betty-chrome-cqtast': {
-        'test_suites': {
-          'skylab_tests': 'chromeos_vmlab_cqtast',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'betty',
-        'cros_dut_pool': 'vmlab',
-      },
-      'chromeos-betty-chrome-dchecks': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'test_suites': {
-          'skylab_tests': 'chromeos_vmlab_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'betty',
-        'cros_dut_pool': 'vmlab',
-      },
-      'chromeos-betty-chrome-gtest': {
-        'test_suites': {
-          'skylab_tests': 'chromeos_vmlab_gtest',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'betty',
-        'cros_dut_pool': 'vmlab',
-      },
-      'chromeos-betty-chrome-tast': {
-        'test_suites': {
-          'skylab_tests': 'chromeos_vmlab_tast',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'betty',
-        'cros_dut_pool': 'vmlab',
-      },
-      'chromeos-brya-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'os_type': 'chromeos',
-        'cros_board': 'brya',
-      },
-      # TODO(b/339354038): Remove all configs with skylab suffix.
-      'chromeos-brya-chrome-skylab': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'test_suites': {
-          'skylab_tests': 'chromeos_brya_skylab_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'brya',
-        'cros_model': 'kano',
-      },
-      'chromeos-brya-chrome-tests': {
-        'test_suites': {
-          'skylab_tests': 'chromeos_brya_skylab_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'brya',
-        'cros_model': 'kano',
-      },
-      'chromeos-jacuzzi-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-      },
-      'chromeos-jacuzzi-chrome-tests': {
-        'test_suites': {
-          'skylab_tests': 'chromeos_jacuzzi_skylab_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'jacuzzi',
-      },
-      'chromeos-octopus-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-      },
-      'chromeos-octopus-chrome-tests': {
-        'test_suites': {
-          'skylab_tests': 'chromeos_octopus_skylab_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'octopus',
-      },
-      'chromeos-reven-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-      },
-      'chromeos-reven-chrome-tests': {
-        'test_suites': {
-          'skylab_tests': 'chromeos_vmlab_tests_no_gtests_no_arc',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'reven-vmtest',
-        'cros_dut_pool': 'vmlab',
-      },
-      'chromeos-trogdor-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'os_type': 'chromeos',
-        'cros_board': 'trogdor',
-      },
-      'chromeos-trogdor-chrome-tests': {
-        'test_suites': {
-          'skylab_tests': 'chromeos_trogdor_skylab_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'trogdor',
-      },
-      'chromeos-volteer-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-      },
-      # TODO(b/339354084): Remove all configs with skylab suffix.
-      'chromeos-volteer-chrome-skylab': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'test_suites': {
-          'skylab_tests': 'chromeos_volteer_skylab_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'volteer',
-      },
-      'chromeos-volteer-chrome-tests': {
-        'test_suites': {
-          'skylab_tests': 'chromeos_volteer_skylab_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'volteer',
-      },
       'linux-chrome': {
         'additional_compile_targets': [
           'chrome',
@@ -244,27 +81,6 @@
           # prototyping purpose, remove and switch to use the real one once the
           # pipeline is ready for production integration.
           'gtest_tests': 'finch_smoke_tests',
-        },
-      },
-      'linux-chromeos-chrome': {
-        'additional_compile_targets': [
-          'chrome',
-          'chrome_sandbox',
-          'linux_symbols',
-          'symupload'
-        ],
-        'mixins': [
-          'chrome-swarming-pool',
-          'linux-jammy',
-        ],
-        'swarming': {
-          'dimensions': {
-            'ssd': '0',
-          },
-        },
-        'test_suites': {
-          'gtest_tests': 'linux_chromeos_gtests',
-          'isolated_scripts': 'linux_chromeos_isolated_scripts',
         },
       },
       'win-branded-rel': {
@@ -312,136 +128,8 @@
       'swarming_containment_auto',
     ],
     'machines': {
-      'gpu-fyi-chromeos-brya-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'browser_config': 'cros-chrome',
-        'os_type': 'chromeos',
-        'skip_merge_script': True,
-        'use_swarming': False,
-        'mixins': [
-          'limited_capacity_bot',
-          'long_skylab_timeout',
-        ],
-        'test_suites': {
-          'skylab_gpu_telemetry_tests': 'gpu_fyi_chromeos_brya_telemetry_tests',
-        },
-      },
-      'gpu-fyi-chromeos-corsola-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'browser_config': 'cros-chrome',
-        'os_type': 'chromeos',
-        'skip_merge_script': True,
-        'use_swarming': False,
-        'mixins': [
-          'limited_capacity_bot',
-          'long_skylab_timeout',
-        ],
-        'test_suites': {
-          'skylab_gpu_telemetry_tests': 'gpu_fyi_chromeos_corsola_telemetry_tests',
-        },
-      },
-      'gpu-fyi-chromeos-skyrim-chrome': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'browser_config': 'cros-chrome',
-        'os_type': 'chromeos',
-        'skip_merge_script': True,
-        'use_swarming': False,
-        'mixins': [
-          'limited_capacity_bot',
-          'long_skylab_timeout',
-        ],
-        'test_suites': {
-          'skylab_gpu_telemetry_tests': 'gpu_fyi_chromeos_skyrim_telemetry_tests',
-        },
-      },
+
     }
-  },
-  {
-    'project': 'chrome',
-    'bucket': 'ci',
-    'name': 'chromeos.preuprev',
-    'mixins': ['chrome-tester-service-account'],
-    'machines': {
-      'chromeos-betty-chrome-preuprev': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'test_suites': {
-          'skylab_tests': 'chromeos_ctp_preuprev_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'betty',
-        'cros_dut_pool': 'vmlab',
-      },
-      'chromeos-brya-chrome-preuprev': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'test_suites': {
-          'skylab_tests': 'chromeos_ctp_preuprev_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'brya',
-        'cros_model': 'kano',
-      },
-      'chromeos-jacuzzi-chrome-preuprev': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'test_suites': {
-          'skylab_tests': 'chromeos_ctp_preuprev_tests_slow_boards',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'jacuzzi',
-      },
-      'chromeos-reven-chrome-preuprev': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'test_suites': {
-          'skylab_tests': 'chromeos_ctp_preuprev_tests_no_arc',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'reven-vmtest',
-        'cros_dut_pool': 'vmlab',
-      },
-      'chromeos-volteer-chrome-preuprev': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'test_suites': {
-          'skylab_tests': 'chromeos_ctp_preuprev_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'volteer',
-      },
-      'linux-chromeos-chrome-preuprev': {
-        'additional_compile_targets': [
-          'chrome',
-          'chrome_sandbox',
-          'linux_symbols',
-          'symupload'
-        ],
-        'mixins': [
-          'chrome-swarming-pool',
-          'linux-jammy',
-        ],
-        'swarming': {
-          'dimensions': {
-            'ssd': '0',
-          },
-        },
-        'test_suites': {
-          'gtest_tests': 'linux_chromeos_gtests',
-        },
-      },
-    },
   },
   {
     # The following builders in this group have been migrated to set their
@@ -649,17 +337,6 @@
     'name': 'client.v8.fyi',
     'mixins': ['chromium-tester-service-account'],
     'machines': {
-      'Android V8 FYI Release': {
-        'browser_config': 'android-chromium',
-        'os_type': 'android',
-        'skip_merge_script': True,
-        'mixins': [
-          'chromium_pixel_2_q',
-        ],
-        'test_suites': {
-          'gpu_telemetry_tests': 'gpu_telemetry_tests_v8',
-        },
-      },
       'Linux ASAN Builder': {
         'additional_compile_targets': [
           'net_unittests',
@@ -705,14 +382,6 @@
         'test_suites': {
           'gpu_telemetry_tests': 'gpu_fyi_only_mac_release_telemetry_tests',
         },
-      },
-      'V8 Android GN (dbg)': {
-        'additional_compile_targets': [
-          'chrome_public_apk',
-          'blink_tests',
-          'gin_unittests',
-          'net_unittests',
-        ],
       },
       'V8 Blink Linux': {
         'mixins': [
@@ -831,18 +500,6 @@
     'name': 'internal.chrome.fyi',
     'mixins': ['chrome-tester-service-account'],
     'machines': {
-      'android-emulator-finch-smoke-chrome': {
-        'mixins': [
-          'chrome-finch-swarming-pool',
-          'linux-jammy',
-          '11-x86-emulator',
-          'skia_gold_test',
-        ],
-        'test_suites': {
-          'isolated_scripts': 'chrome_android_finch_smoke_tests',
-        },
-        'os_type': 'android',
-      },
       'linux-finch-smoke-chrome': {
         'mixins': [
           'chrome-finch-swarming-pool',
@@ -872,66 +529,6 @@
           'isolated_scripts': 'chrome_finch_smoke_tests',
         },
         'os_type': 'win',
-      },
-    },
-  },
-  {
-    'project': 'chrome',
-    'bucket': 'ci',
-    'name': 'internal.chromeos.fyi',
-    'mixins': ['chrome-tester-service-account'],
-    'machines': {
-      'chromeos-betty-finch-smoke-chrome': {
-        'mixins': [
-          'chromeos-betty-finch',
-        ],
-        'test_suites': {
-          'isolated_scripts': 'chrome_finch_smoke_tests',
-        },
-        'os_type': 'chromeos',
-      },
-      'chromeos-brya-chrome-dchecks-skylab': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'test_suites': {
-          'skylab_tests': 'chromeos_brya_skylab_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'brya',
-        'cros_model': 'kano',
-      },
-      'chromeos-eve-chrome': {
-        # This builder is build only.
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'os_type': 'chromeos'
-      },
-      'chromeos-jacuzzi-chrome-dchecks-skylab': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'test_suites': {
-          'skylab_tests': 'chromeos_jacuzzi_skylab_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'jacuzzi',
-      },
-      # TODO(b/330335155): Remove after infra config changed to non-fyi builder.
-      'chromeos-trogdor-chrome-skylab-fyi': {
-        'additional_compile_targets': [
-          'chromiumos_preflight',
-        ],
-        'os_type': 'chromeos',
-        'cros_board': 'trogdor',
-      },
-      'chromeos-trogdor-chrome-skylab-tests-fyi': {
-        'test_suites': {
-          'skylab_tests': 'chromeos_trogdor_skylab_tests',
-        },
-        'os_type': 'chromeos',
-        'cros_board': 'trogdor',
       },
     },
   },
@@ -1003,55 +600,6 @@
            'isolated_scripts': 'model_validation_gce_matrix_tests',
         },
         'os_type': 'win',
-      },
-      'optimization_guide-android-arm64': {
-        'mixins': [
-          'android',
-          'chrome-flame-fleet-pool',
-        ],
-        'test_suites': {
-           'gtest_tests': 'optimization_guide_android_gtests',
-        },
-        'os_type': 'android',
-      },
-      'optimization_guide-chromeos': {
-        'mixins': [
-          'chrome-swarming-pool',
-          'linux-jammy',
-          'x86-64',
-        ],
-        'test_suites': {
-           'gtest_tests': 'optimization_guide_cros_gtests',
-        },
-        'os_type': 'chromeos',
-      },
-      'optimization_guide-ios-device': {
-        'mixins': [
-          'chrome-swarming-pool',
-          'mac_default_arm64',
-          'mac_toolchain',
-          'out_dir_arg',
-          'xctest',
-          'xcode_27_main',
-        ],
-        'test_suites': {
-           'isolated_scripts': 'optimization_guide_ios_device_gtests',
-        },
-        'os_type': 'ios',
-      },
-      'optimization_guide-ios-simulator': {
-        'mixins': [
-          'chrome-swarming-pool',
-          'mac_default_arm64',
-          'mac_toolchain',
-          'out_dir_arg',
-          'xctest',
-          'xcode_27_main',
-        ],
-        'test_suites': {
-           'isolated_scripts': 'optimization_guide_ios_sim_gtests',
-        },
-        'os_type': 'ios',
       },
       'optimization_guide-linux': {
         'additional_compile_targets': [
@@ -1269,14 +817,6 @@
     'name': 'tryserver.webrtc',
     'mixins': ['chromium-tester-service-account'],
     'machines': {
-      'android_chromium_compile': {
-        'additional_compile_targets': [
-          'blink_unittests',
-          'capture_unittests',
-          'content_browsertests',
-          'content_unittests',
-        ],
-      },
       'linux_chromium_compile': {
         'additional_compile_targets': [
           'blink_unittests',

@@ -56,11 +56,9 @@ void ActorUiTabControllerInterface::NotifyActorTabIndicatorStateChanged(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 views::Widget* ActorUiTabControllerInterface::
     GetActiveNavigationConfirmDialogWidgetForTesting() const {
   return nullptr;
 }
-#endif
 
 }  // namespace actor::ui

@@ -21,12 +21,8 @@
 namespace {
 
 bool ShouldAutoAcceptThisTabCapture() {
-#if BUILDFLAG(PLATFORM_CFM)
-  return true;
-#else
   return base::CommandLine::ForCurrentProcess()->HasSwitch(
       switches::kThisTabCaptureAutoAccept);
-#endif
 }
 
 }  // namespace

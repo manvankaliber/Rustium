@@ -34,7 +34,7 @@
 #include "remoting/base/oauth_token_getter_proxy.h"
 #include "remoting/base/passthrough_oauth_token_getter.h"
 #include "remoting/host/base/host_exit_codes.h"
-#include "remoting/host/chromeos/chromeos_enterprise_params.h"
+#include "remoting/host/enterprise_session_params.h"
 #include "remoting/host/chromoting_host_context.h"
 #include "remoting/host/corp_register_support_host_request.h"
 #include "remoting/host/it2me/it2me_confirmation_dialog.h"
@@ -204,11 +204,9 @@ void It2MeNativeMessagingHost::OnMessage(const std::string& message) {
 void It2MeNativeMessagingHost::Start(Client* client) {
   DCHECK(task_runner()->BelongsToCurrentThread());
   client_ = client;
-#if !BUILDFLAG(IS_CHROMEOS)
   log_message_handler_ = std::make_unique<LogMessageHandler>(
       base::BindRepeating(&It2MeNativeMessagingHost::SendMessageToClient,
                           base::Unretained(this)));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 void It2MeNativeMessagingHost::SendMessageToClient(
@@ -297,7 +295,7 @@ void It2MeNativeMessagingHost::ProcessConnect(base::DictValue message,
     }
   }
 
-#if BUILDFLAG(IS_CHROMEOS) || !defined(NDEBUG)
+#if !defined(NDEBUG)
   bool is_enterprise_admin_user = enterprise_params_.has_value();
 #endif
 
@@ -357,7 +355,7 @@ void It2MeNativeMessagingHost::ProcessConnect(base::DictValue message,
 
   auto dialog_style = It2MeConfirmationDialog::DialogStyle::kConsumer;
   base::TimeDelta connection_auto_accept_timeout;
-#if BUILDFLAG(IS_CHROMEOS) || !defined(NDEBUG)
+#if !defined(NDEBUG)
   if (is_enterprise_admin_user) {
     connection_auto_accept_timeout =
         enterprise_params_->connection_auto_accept_timeout;

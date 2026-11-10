@@ -47,12 +47,7 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/test/base/ui_test_utils.h"
-#else
-#include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
-#endif
 
 #if BUILDFLAG(IS_OZONE)
 #include "ui/ozone/public/ozone_platform.h"
@@ -311,44 +306,6 @@ IN_PROC_BROWSER_TEST_F(ActorAttemptLoginToolTest,
   EXPECT_TRUE(login_context->navigations_per_frame.contains(main_frame_id));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(ActorAttemptLoginToolTest,
-                       WaitsForAffiliationUpdateOnAndroid) {
-  const GURL url =
-      embedded_https_test_server().GetURL("example.com", "/actor/blank.html");
-  ASSERT_TRUE(content::NavigateToURL(web_contents(), url));
-  mock_login_service().SetCredential(MakeTestCredential(
-      u"username", url, /*immediately_available_to_login=*/true));
-  mock_login_service().SetLoginStatus(
-      actor_login::LoginStatusResult::kSuccessUsernameAndPasswordFilled);
-  base::RunLoop run_loop;
-  base::OnceClosure affiliation_update_callback;
-  EXPECT_CALL(*mock_affiliation_service(), UpdateAffiliationsAndBranding)
-      .WillOnce([&](const std::vector<affiliations::FacetURI>&,
-                    base::OnceClosure cb) {
-        affiliation_update_callback = std::move(cb);
-        run_loop.Quit();
-      });
-
-  std::unique_ptr<ToolRequest> action = MakeAttemptLoginRequest(*active_tab());
-  ActResultFuture result;
-  actor_task().Act(ToRequestList(action), result.GetCallback());
-  // Wait for the affiliation update to be requested.
-  run_loop.Run();
-
-  // Verify that `Act` hasn't finished yet, and `AttemptLogin` hasn't been
-  // called.
-  EXPECT_FALSE(result.IsReady());
-  EXPECT_FALSE(mock_login_service().last_credential_used().has_value());
-
-  // Now invoke the affiliation callback.
-  ASSERT_TRUE(affiliation_update_callback);
-  std::move(affiliation_update_callback).Run();
-  // The tool should now complete successfully.
-  ExpectOkResult(result);
-  EXPECT_TRUE(mock_login_service().last_credential_used().has_value());
-}
-#endif
 
 IN_PROC_BROWSER_TEST_F(ActorAttemptLoginToolTest, NoCredentials) {
   const GURL url =
@@ -860,53 +817,6 @@ IN_PROC_BROWSER_TEST_F(ActorAttemptLoginToolTest,
                     mojom::ActionResultCode::kLoginPageChangedDuringSelection);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Verifies on Android that when AttemptLogin encounters a reauth requirement
-// (such as when the task is not focused / in the background), it pauses,
-// observes `GlobalBrowserCollection`, and resumes AttemptLogin once the
-// task/window regains focus.
-IN_PROC_BROWSER_TEST_F(ActorAttemptLoginToolTest,
-                       DeviceReauthRequiredRetriesOnWindowActivation) {
-  const GURL url =
-      embedded_https_test_server().GetURL("example.com", "/actor/blank.html");
-  ASSERT_TRUE(content::NavigateToURL(web_contents(), url));
-
-  actor_login::Credential persisted_cred = MakeTestCredential(
-      u"username", url, /*immediately_available_to_login=*/true);
-  persisted_cred.has_persistent_permission = true;
-  mock_login_service().SetCredentials(std::vector{persisted_cred});
-  mock_login_service().SetLoginStatus(
-      actor_login::LoginStatusResult::kErrorDeviceReauthRequired);
-
-  std::unique_ptr<ToolRequest> action = MakeAttemptLoginRequest(*active_tab());
-  ActResultFuture result;
-  actor_task().Act(ToRequestList(action), result.GetCallback());
-
-  ASSERT_TRUE(base::test::RunUntil([&]() {
-    return mock_login_service().last_credential_used().has_value();
-  }));
-
-  // The tool should be awaiting focus/activation and not yet complete because
-  // the task is not focused.
-  EXPECT_FALSE(result.IsReady());
-
-  mock_login_service().SetLoginStatus(
-      actor_login::LoginStatusResult::kSuccessUsernameAndPasswordFilled);
-
-  // Simulate the user coming back to the task and regaining focus in the
-  // window/tab, which triggers the retry of AttemptLogin.
-  BrowserWindowInterface* browser_window =
-      active_tab()->GetBrowserWindowInterface();
-  ASSERT_TRUE(browser_window);
-  GlobalBrowserCollection::GetInstance()
-      ->GetPlatformDelegate()
-      ->OnBrowserActivated(nullptr, reinterpret_cast<int64_t>(browser_window));
-
-  ExpectOkResult(result);
-  ASSERT_TRUE(mock_login_service().last_credential_used().has_value());
-  EXPECT_EQ(u"username", mock_login_service().last_credential_used()->username);
-}
-#endif
 
 class ActorAttemptLoginToolTestWithFaviconService
     : public ActorAttemptLoginToolTest {
@@ -1302,7 +1212,6 @@ IN_PROC_BROWSER_TEST_F(ActorAttemptLoginToolFederatedShortDelayTest,
   EXPECT_FALSE(mock_login_service().last_sequence_succeeded());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ActorAttemptLoginToolFederatedTest,
                        FederatedLoginClicksProviderButtonWithPopup) {
   const GURL idp_url = GURL("https://accounts.google.com");
@@ -1385,7 +1294,6 @@ IN_PROC_BROWSER_TEST_F(ActorAttemptLoginToolFederatedTest,
   EXPECT_EQ(signin_success_url, navigation_observer.last_navigation_url());
   EXPECT_TRUE(mock_login_service().last_sequence_succeeded());
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(ActorAttemptLoginToolFederatedTest,
                        FederatedLoginFailedButtonClick) {

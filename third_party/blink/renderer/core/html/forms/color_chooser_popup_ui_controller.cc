@@ -104,10 +104,6 @@ void ColorChooserPopupUIController::WriteDocument(SegmentedBuffer& data) {
 
 void ColorChooserPopupUIController::WriteColorPickerDocument(
     SegmentedBuffer& data) {
-#if BUILDFLAG(IS_ANDROID)
-  // We don't create PagePopups on Android.
-  NOTREACHED() << "We should never reach PagePopupClient code on Android";
-#else
   gfx::Rect anchor_rect_in_screen = chrome_client_->LocalRootToScreenDIPs(
       client_->ElementRectRelativeToLocalRoot(), frame_->View());
 
@@ -160,7 +156,6 @@ void ColorChooserPopupUIController::WriteColorPickerDocument(
   data.Append(ChooserResourceLoader::GetColorPickerJS());
   data.Append(ChooserResourceLoader::GetColorPickerCommonJS());
   PagePopupClient::AddLiteral("</script></body>\n", data);
-#endif
 }
 
 void ColorChooserPopupUIController::WriteColorSuggestionPickerDocument(
@@ -207,9 +202,7 @@ void ColorChooserPopupUIController::WriteColorSuggestionPickerDocument(
 #if BUILDFLAG(IS_MAC)
   AddProperty("isBorderTransparent", true, data);
 #endif
-#if !BUILDFLAG(IS_ANDROID)
   AddLocalizedProperty("axAlphaChannelLabel", IDS_AX_COLOR_ALPHA_SLIDER, data);
-#endif
   PagePopupClient::AddLiteral("};\n", data);
   data.Append(ChooserResourceLoader::GetPickerCommonJS());
   data.Append(ChooserResourceLoader::GetColorSuggestionPickerJS());

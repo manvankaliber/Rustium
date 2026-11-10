@@ -50,13 +50,8 @@ class VideoFrame;
 }
 
 namespace video_track_recorder {
-#if BUILDFLAG(IS_ANDROID)
-const int kVEAEncoderMinResolutionWidth = 176;
-const int kVEAEncoderMinResolutionHeight = 144;
-#else
 const int kVEAEncoderMinResolutionWidth = 640;
 const int kVEAEncoderMinResolutionHeight = 480;
-#endif
 }  // namespace video_track_recorder
 
 namespace blink {

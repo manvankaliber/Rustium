@@ -11,21 +11,6 @@ luci.console_view(
     header = get_header(),
     entries = [
         luci.console_view_entry(
-            builder = "webrtc.fyi/WebRTC Chromium FYI Android Builder (dbg)",
-            category = "android|debug",
-            short_name = "bld",
-        ),
-        luci.console_view_entry(
-            builder = "webrtc.fyi/WebRTC Chromium FYI Android Builder",
-            category = "android|release",
-            short_name = "bld",
-        ),
-        luci.console_view_entry(
-            builder = "webrtc.fyi/WebRTC Chromium FYI Android Tester",
-            category = "android|release",
-            short_name = "tst",
-        ),
-        luci.console_view_entry(
             builder = "webrtc.fyi/WebRTC Chromium FYI Linux Builder (dbg)",
             category = "linux|debug",
             short_name = "bld",
@@ -69,16 +54,6 @@ luci.console_view(
             builder = "webrtc.fyi/WebRTC Chromium FYI Win Tester",
             category = "win|release",
             short_name = "tst",
-        ),
-        luci.console_view_entry(
-            builder = "webrtc.fyi/WebRTC Chromium FYI ios-device",
-            category = "ios",
-            short_name = "dev",
-        ),
-        luci.console_view_entry(
-            builder = "webrtc.fyi/WebRTC Chromium FYI ios-simulator",
-            category = "ios",
-            short_name = "sim",
         ),
     ],
 )

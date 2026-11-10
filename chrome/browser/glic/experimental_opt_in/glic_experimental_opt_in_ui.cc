@@ -35,9 +35,7 @@
 #include "chrome/grit/guest_view_shared_resources_map.h"  // nogncheck
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/webui/theme_source.h"  // nogncheck
-#endif
 
 namespace glic {
 
@@ -103,9 +101,7 @@ GlicExperimentalOptInUI::GlicExperimentalOptInUI(content::WebUI* web_ui)
   content::WebUIDataSource* source = content::WebUIDataSource::CreateAndAdd(
       profile, chrome::kChromeUIGlicExperimentalOptInHost);
 
-#if !BUILDFLAG(IS_ANDROID)
   content::URLDataSource::Add(profile, std::make_unique<ThemeSource>(profile));
-#endif
 
   webui::SetupWebUIDataSource(
       source, kGlicExperimentalOptInResources,

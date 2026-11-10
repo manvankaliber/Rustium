@@ -2389,7 +2389,7 @@ class RFHMProcessPerTabTest : public RenderFrameHostManagerTest {
 // --process-per-tab mode.  See http://crbug.com/343017.
 // Disabled on Android: http://crbug.com/345873.
 // Crashes under ThreadSanitizer, http://crbug.com/356758.
-#if BUILDFLAG(IS_ANDROID) || defined(THREAD_SANITIZER)
+#if defined(THREAD_SANITIZER)
 #define MAYBE_BackFromWebUI DISABLED_BackFromWebUI
 #else
 #define MAYBE_BackFromWebUI BackFromWebUI
@@ -6230,7 +6230,7 @@ class AssertForegroundHelper {
   AssertForegroundHelper(const AssertForegroundHelper&) = delete;
   AssertForegroundHelper& operator=(const AssertForegroundHelper&) = delete;
 
-#if BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_IOS_TVOS)
+#if BUILDFLAG(IS_APPLE)
   // Asserts that |renderer_process| isn't backgrounded and reposts self to
   // check again shortly. |renderer_process| must outlive this
   // AssertForegroundHelper instance.
@@ -6245,7 +6245,7 @@ class AssertForegroundHelper {
                        std::cref(renderer_process)),
         base::Milliseconds(1));
   }
-#else   // BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_IOS_TVOS)
+#else
   // Same as above without the Mac specific base::PortProvider.
   void AssertForegroundAndRepost(const base::Process& renderer_process) {
     ASSERT_NE(renderer_process.GetPriority(),
@@ -6257,7 +6257,7 @@ class AssertForegroundHelper {
                        std::cref(renderer_process)),
         base::Milliseconds(1));
   }
-#endif  // BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_IOS_TVOS)
+#endif
 
  private:
   base::WeakPtrFactory<AssertForegroundHelper> weak_ptr_factory_{this};
@@ -6313,13 +6313,11 @@ IN_PROC_BROWSER_TEST_P(
   EXPECT_NE(start_rph, speculative_rph);
   EXPECT_FALSE(speculative_rph->IsReady());
 
-#if !BUILDFLAG(IS_ANDROID)
   // TODO(gab, nasko): On Android IsProcessBackgrounded is currently giving
   // incorrect value at this stage of the process lifetime. This should be
   // fixed in follow up cleanup work. See https://crbug.com/560446.
   EXPECT_NE(speculative_rph->GetPriority(),
             base::Process::Priority::kBestEffort);
-#endif
 
   // Wait for the underlying OS process to have launched and be ready to
   // receive IPCs.

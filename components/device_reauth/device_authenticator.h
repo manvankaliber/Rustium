@@ -80,13 +80,6 @@ class DeviceAuthenticator {
   virtual void AuthenticateWithMessage(const std::u16string& message,
                                        AuthenticateCallback callback) = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Deprecated: Use
-  // `DeviceAuthAvailabilityChecker::GetBiometricAvailabilityStatus` instead.
-  // This refactor is currently guarded by the killswitch
-  // `password_manager::features::kDeviceReauthRefactor`.
-  virtual BiometricStatus GetBiometricAvailabilityStatus() = 0;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Cancels an in-progress authentication if the filling surface requesting
   // the cancelation corresponds to the one for which the ongoing auth was

@@ -97,12 +97,6 @@ void PageColorsController::PageColorsSettingsChanged() {
 // static
 PageColorsController::EffectivePageColors
 PageColorsController::GetEffectivePageColors(const PrefService& profile_prefs) {
-#if BUILDFLAG(IS_ANDROID)
-  const ui::NativeTheme* native_theme = ui::NativeTheme::GetInstanceForWeb();
-  return {.forced_colors = native_theme->forced_colors(),
-          .preferred_color_scheme = native_theme->preferred_color_scheme(),
-          .preferred_contrast = native_theme->preferred_contrast()};
-#else
   // Get the current color/contrast values from the native UI theme.
   const auto* const native_theme = ui::NativeTheme::GetInstanceForNativeUi();
   ui::ColorProviderKey::ForcedColors forced_colors =
@@ -153,5 +147,4 @@ PageColorsController::GetEffectivePageColors(const PrefService& profile_prefs) {
   return {.forced_colors = forced_colors,
           .preferred_color_scheme = preferred_color_scheme,
           .preferred_contrast = preferred_contrast};
-#endif
 }

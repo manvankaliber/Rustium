@@ -854,11 +854,6 @@ class RunTestTargetsTest(TestCase):
     self.addCleanup(mock.patch.stopall)
 
   def test_extra_args_pollution(self):
-    # Setup: Create the Android wrapper script for base_unittests so it triggers
-    # the addition of --fast-local-dev and --single-variant.
-    wrapper_path = os.path.join(self.out_dir, 'bin', 'run_base_unittests')
-    self.fs.create_file(wrapper_path)
-
     # We also need to simulate blink web tests runner path
     web_tests_runner = os.path.join(
       const.SRC_DIR, 'third_party', 'blink', 'tools', 'run_web_tests.py'
@@ -878,9 +873,7 @@ class RunTestTargetsTest(TestCase):
       pref_mapping_filter=None,
       extra_args=['--some-shared-arg'],
       dry_run=False,
-      no_try_android_wrappers=False,
-      no_fast_local_dev=False,
-      no_single_variant=False,
+
       web_test_files=web_test_files,
     )
 
@@ -889,17 +882,15 @@ class RunTestTargetsTest(TestCase):
 
     # First call (GTest base_unittests)
     first_call_args = self.mock_run_with_summary.call_args_list[0][0][0]
-    self.assertIn('--fast-local-dev', first_call_args)
-    self.assertIn('--single-variant', first_call_args)
+    self.assertIn('--gtest_filter=ValuesTest.*', first_call_args)
     self.assertIn('--some-shared-arg', first_call_args)
 
     # Second call (Web Test blink_tests)
     second_call_args = self.mock_run_with_summary.call_args_list[1][0][0]
     # It should contain the shared arg
     self.assertIn('--some-shared-arg', second_call_args)
-    # BUT it should NOT contain the GTest-specific wrapper flags!
-    self.assertNotIn('--fast-local-dev', second_call_args)
-    self.assertNotIn('--single-variant', second_call_args)
+    # The gtest filter must stay specific to the native gtest command.
+    self.assertNotIn('--gtest_filter=ValuesTest.*', second_call_args)
 
   def test_single_target_no_summary(self):
     from utils.command_util import TestSummary
@@ -917,9 +908,7 @@ class RunTestTargetsTest(TestCase):
         pref_mapping_filter=None,
         extra_args=[],
         dry_run=False,
-        no_try_android_wrappers=False,
-        no_fast_local_dev=False,
-        no_single_variant=False,
+
       )
       self.assertEqual(exit_code, 0)
       # EXECUTION SUMMARY should NOT be logged for a single target
@@ -944,9 +933,7 @@ class RunTestTargetsTest(TestCase):
         pref_mapping_filter=None,
         extra_args=[],
         dry_run=False,
-        no_try_android_wrappers=False,
-        no_fast_local_dev=False,
-        no_single_variant=False,
+
       )
       self.assertEqual(exit_code, 5)
       logged_messages = [
@@ -970,9 +957,7 @@ class RunTestTargetsTest(TestCase):
         pref_mapping_filter=None,
         extra_args=[],
         dry_run=False,
-        no_try_android_wrappers=False,
-        no_fast_local_dev=False,
-        no_single_variant=False,
+
       )
       self.assertEqual(exit_code, 0)
       logged_messages = [
@@ -998,9 +983,7 @@ class RunTestTargetsTest(TestCase):
         pref_mapping_filter=None,
         extra_args=[],
         dry_run=False,
-        no_try_android_wrappers=False,
-        no_fast_local_dev=False,
-        no_single_variant=False,
+
       )
       self.assertEqual(exit_code, 1)
       self.assertEqual(self.mock_run_with_summary.call_count, 2)
@@ -1029,9 +1012,7 @@ class RunTestTargetsTest(TestCase):
         pref_mapping_filter=None,
         extra_args=[],
         dry_run=False,
-        no_try_android_wrappers=False,
-        no_fast_local_dev=False,
-        no_single_variant=False,
+
         is_suite=True,
       )
       self.assertEqual(exit_code, 0)

@@ -51,31 +51,7 @@ mod fallback;
         portable_atomic_target_feature = "quadword-atomics",
     )),
 ))]
-#[cfg(any(
-    all(
-        target_os = "linux",
-        any(
-            all(
-                target_env = "gnu",
-                any(target_endian = "little", not(target_feature = "crt-static")),
-            ),
-            all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")),
-            target_env = "ohos",
-            all(target_env = "uclibc", not(target_feature = "crt-static")),
-            portable_atomic_outline_atomics,
-        ),
-    ),
-    target_os = "android",
-    all(
-        target_os = "freebsd",
-        any(
-            target_endian = "little",
-            not(target_feature = "crt-static"),
-            portable_atomic_outline_atomics,
-        ),
-    ),
-    target_os = "openbsd",
-))]
+#[cfg(any(all(target_os = "linux", any(all(target_env = "gnu", any(target_endian = "little", not(target_feature = "crt-static"))), all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), all(target_os = "freebsd", any(target_endian = "little", not(target_feature = "crt-static"), portable_atomic_outline_atomics)), target_os = "openbsd"))]
 #[path = "../detect/auxv.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]

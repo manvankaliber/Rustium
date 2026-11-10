@@ -62,13 +62,11 @@
 #include "ui/native_theme/native_theme.h"
 #include "ui/shell_dialogs/selected_file_info.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/views/new_tab_footer/footer_controller.h"
 #include "chrome/browser/ui/views/side_panel/customize_chrome/customize_chrome_utils.h"
 #include "chrome/browser/ui/webui/new_tab_footer/new_tab_footer_helper.h"
 #include "chrome/browser/ui/webui_browser/webui_browser.h"
-#endif
 
 namespace {
 
@@ -537,7 +535,6 @@ void CustomizeChromePageHandler::UpdateMostVisitedSettings() {
 }
 
 void CustomizeChromePageHandler::OnBrowserWindowInterfaceChanged() {
-#if !BUILDFLAG(IS_ANDROID)
   if (!base::FeatureList::IsEnabled(ntp_features::kNtpFooter)) {
     return;
   }
@@ -561,7 +558,6 @@ void CustomizeChromePageHandler::OnBrowserWindowInterfaceChanged() {
       new_tab_footer::NewTabFooterController::From(browser);
   CHECK(footer_controller);
   footer_controller_observation_.Observe(footer_controller);
-#endif
 }
 
 void CustomizeChromePageHandler::SetToolChipsVisible(bool visible) {
@@ -578,7 +574,6 @@ void CustomizeChromePageHandler::SetFooterVisible(bool visible) {
 }
 
 void CustomizeChromePageHandler::UpdateFooterSettings() {
-#if !BUILDFLAG(IS_ANDROID)
   auto management_notice_state =
       side_panel::mojom::ManagementNoticeState::New();
   management_notice_state->can_be_shown = false;
@@ -605,7 +600,6 @@ void CustomizeChromePageHandler::UpdateFooterSettings() {
       profile_->GetPrefs()->GetBoolean(
           prefs::kNTPFooterExtensionAttributionEnabled),
       std::move(management_notice_state));
-#endif
 }
 
 void CustomizeChromePageHandler::SetModulesVisible(bool visible) {
@@ -691,9 +685,7 @@ void CustomizeChromePageHandler::UpdateNtpManagedByName() {
 }
 
 void CustomizeChromePageHandler::MaybeDisableExtensionOverridingNtp() {
-#if !BUILDFLAG(IS_ANDROID)
   customize_chrome::MaybeDisableExtensionOverridingNtp(profile_);
-#endif
 }
 
 void CustomizeChromePageHandler::LogEvent(NTPLoggingEventType event) {
@@ -879,14 +871,12 @@ void CustomizeChromePageHandler::OnTemplateURLServiceShuttingDown() {
   template_url_service_ = nullptr;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void CustomizeChromePageHandler::OnFooterVisibilityUpdated(bool visible) {
   if (!base::FeatureList::IsEnabled(ntp_features::kNtpFooter)) {
     return;
   }
   UpdateFooterSettings();
 }
-#endif
 
 void CustomizeChromePageHandler::FileSelected(const ui::SelectedFileInfo& file,
                                               int index) {
@@ -923,7 +913,6 @@ side_panel::mojom::NewTabPageType CustomizeChromePageHandler::GetNewTabPageType(
   if (search::IsNewTabPageOrigin(url)) {
     return side_panel::mojom::NewTabPageType::kFirstPartyWebUI;
   }
-#if !BUILDFLAG(IS_ANDROID)
   if (ntp_footer::IsExtensionNtp(url, profile_)) {
     return side_panel::mojom::NewTabPageType::kExtension;
   } else if (search::IsThirdPartyNewTabPageOrigin(url)) {
@@ -935,7 +924,6 @@ side_panel::mojom::NewTabPageType CustomizeChromePageHandler::GetNewTabPageType(
                ? side_panel::mojom::NewTabPageType::kGuestMode
                : side_panel::mojom::NewTabPageType::kIncognito;
   }
-#endif
 
   return side_panel::mojom::NewTabPageType::kNone;
 }

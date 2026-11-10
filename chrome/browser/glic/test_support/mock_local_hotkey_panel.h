@@ -34,11 +34,9 @@ class MockLocalHotkeyPanel
               ShowTitleBarContextMenuAt,
               (gfx::Point event_loc),
               (override));
-#if !BUILDFLAG(IS_ANDROID)
   MOCK_METHOD(bool, HasSelectionOverlay, (), (override));
   MOCK_METHOD(void, CloseSelectionOverlay, (), (override));
   MOCK_METHOD(base::WeakPtr<views::View>, GetView, (), (override));
-#endif
 
   base::WeakPtr<LocalHotkeyManager::Panel> GetWeakPtr() {
     return weak_ptr_factory_.GetWeakPtr();

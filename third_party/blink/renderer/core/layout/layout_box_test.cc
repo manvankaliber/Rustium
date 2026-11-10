@@ -24,11 +24,7 @@ namespace blink {
 
 namespace {
 const bool kOverscrollShiftsContent =
-#if BUILDFLAG(IS_ANDROID)
-    false;
-#else
     true;
-#endif
 }  // namespace
 
 class LayoutBoxTest : public RenderingTest {

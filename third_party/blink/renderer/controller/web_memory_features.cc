@@ -10,12 +10,5 @@
 
 namespace blink {
 
-#if BUILDFLAG(IS_ANDROID)
-// static
-void WebMemoryFeatures::SetRendererVisible(bool visible) {
-  CrashMemoryMetricsReporterImpl::Instance().SetRendererVisible(visible);
-  MemoryUsageMonitor::Instance().SetRendererVisible(visible);
-}
-#endif
 
 }  // namespace blink

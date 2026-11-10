@@ -11,10 +11,8 @@
 #include "chrome/browser/enterprise/platform_auth/scoped_set_provider_for_testing.h"
 #include "content/public/browser/navigation_controller.h"
 #include "ui/base/page_transition_types.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_tabstrip.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#endif
 #include "chrome/test/base/chrome_test_utils.h"
 #include "chrome/test/base/platform_browser_test.h"
 #include "content/public/test/browser_test.h"
@@ -166,7 +164,6 @@ IN_PROC_BROWSER_TEST_F(PlatformAuthManagerBrowserTest,
   EXPECT_CALL(*unsafe_mock_provider, Die());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(PlatformAuthManagerBrowserTest, ConcurrentNavigations) {
   base::Lock lock;
   std::map<GURL, std::string> received_cookies;
@@ -260,7 +257,6 @@ IN_PROC_BROWSER_TEST_F(PlatformAuthManagerBrowserTest, ConcurrentNavigations) {
 
   EXPECT_CALL(*unsafe_mock_provider, Die());
 }
-#endif
 
 #if BUILDFLAG(IS_MAC)
 namespace {

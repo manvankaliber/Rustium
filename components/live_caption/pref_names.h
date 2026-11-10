@@ -9,9 +9,7 @@
 
 #include "build/build_config.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/soda/constants.h"
-#endif
 
 class PrefService;
 
@@ -19,7 +17,6 @@ namespace prefs {
 
 // Live Caption is not available on Android, so exclude these unneeded
 // kLiveCaption*  prefs.
-#if !defined(ANDROID)
 // Whether the Live Caption bubble is expanded.
 inline constexpr char kLiveCaptionBubbleExpanded[] =
     "accessibility.captions.live_caption_bubble_expanded";
@@ -56,7 +53,6 @@ const std::string GetLiveCaptionLanguageCode(PrefService* profile_prefs);
 bool IsLanguageCodeForLiveCaption(speech::LanguageCode language_code,
                                   PrefService* profile_prefs);
 
-#endif  // !defined(ANDROID)
 
 // These kAccessibilityCaptions* caption style prefs are used on Android
 // (though their primary use is for Live Caption, which is why they are housed

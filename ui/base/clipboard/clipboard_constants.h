@@ -46,7 +46,7 @@ inline constexpr char kMimeTypeWindowDrag[] = "chromium/x-window-drag";
 
 // ----- LINUX & CHROMEOS & FUCHSIA MIME TYPES -----
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 inline constexpr char kMimeTypeLinuxUtf8String[] = "UTF8_STRING";
 inline constexpr char kMimeTypeLinuxString[] = "STRING";
 inline constexpr char kMimeTypeLinuxText[] = "TEXT";
@@ -60,12 +60,12 @@ inline constexpr char kMimeTypeLinuxPasswordManagerHint[] =
 inline constexpr char kMimeTypePortalFileTransfer[] =
     "application/vnd.portal.filetransfer";
 inline constexpr char kMimeTypePortalFiles[] = "application/vnd.portal.files";
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_FUCHSIA)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 inline constexpr char kMimeTypeSourceUrl[] = "chromium/x-source-url";
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_ANDROID)
 
 // ----- EVERYTHING EXCEPT FOR APPLE MIME TYPES -----
@@ -173,10 +173,6 @@ extern NSString* const kUTTypeChromiumBookmarkDictionaryList;
 
 // ----- ANDROID MIME TYPES -----
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-inline constexpr char kMimeTypeImageUri[] = "image-uri";
-inline constexpr char16_t kMimeTypeImageUri16[] = u"image-uri";
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 // ----- OTHER RELATED CONSTANTS -----
 

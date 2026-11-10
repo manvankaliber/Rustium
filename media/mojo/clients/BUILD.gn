@@ -8,7 +8,6 @@ import("//media/media_options.gni")
 source_set("clients") {
   visibility = [
     ":test_support",
-    "//chromecast/*",
 
     # Mirroring Service needs the video accelerated encoder mojom interfaces.
     "//components/mirroring/service:mirroring_service",
@@ -19,13 +18,10 @@ source_set("clients") {
     "//chrome/browser/thumbnail/generator",
     "//content/browser:*",
     "//content/gpu:*",
+    "//content/test/*",
     "//media/mojo:test_support",
     "//media/mojo/services:*",
     "//media/test/*",
-
-    # TODO(liberato): can we avoid this?
-    "//chrome/browser/android",
-    "//content/test/*",
     "//third_party/blink/renderer/modules/mediarecorder",
     "//third_party/blink/renderer/modules/peerconnection",
     "//third_party/blink/renderer/modules/webcodecs",
@@ -69,13 +65,6 @@ source_set("clients") {
     "mojo_video_encoder_metrics_provider.h",
   ]
 
-  if (is_android) {
-    sources += [
-      "mojo_android_overlay.cc",
-      "mojo_android_overlay.h",
-    ]
-  }
-
   public_deps = [
     "//base",
     "//media",
@@ -93,12 +82,6 @@ source_set("clients") {
     "//services/service_manager/public/cpp",
   ]
 
-  if (is_android) {
-    deps += [
-      "//gpu/ipc/common",
-      "//ui/gl",
-    ]
-  }
   if (is_win) {
     sources += [
       "win/media_foundation_renderer_client.cc",
@@ -150,14 +133,4 @@ source_set("unit_tests") {
   ]
 
   public_deps = [ "//mojo/public/cpp/test_support:test_utils" ]
-
-  if (is_android) {
-    sources += [ "mojo_android_overlay_unittest.cc" ]
-
-    deps += [
-      "//media/mojo/mojom:test_interfaces",
-      "//ui/gfx:test_support",
-      "//ui/gl",
-    ]
-  }
 }

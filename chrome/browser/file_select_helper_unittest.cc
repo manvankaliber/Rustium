@@ -39,12 +39,6 @@
 
 using blink::mojom::FileChooserParams;
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/file_manager/fileapi_util.h"
-#include "chrome/browser/ash/fusebox/fusebox_server.h"
-#include "content/public/browser/storage_partition.h"
-#include "storage/browser/file_system/external_mount_points.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #include "base/test/metrics/histogram_tester.h"
 #include "base/test/scoped_feature_list.h"
@@ -99,7 +93,7 @@ class TestWindowBoundsDelegate : public content::WebContentsDelegate {
 
 }  // namespace
 
-#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
 namespace {
 
 // Fill in the arguments to be passed to the ContentAnalysisCompletionCallback()
@@ -128,7 +122,7 @@ void PrepareContentAnalysisCompletionCallbackArgs(
 }
 
 }  // namespace
-#endif  // BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#endif
 
 class FileSelectHelperTest : public testing::Test {
  public:
@@ -410,7 +404,7 @@ TEST_F(FileSelectHelperTest, LastSelectedDirectory) {
 
 // The following tests depend on the enterprise cloud content analysis feature
 // set.
-#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
 
 TEST_F(FileSelectHelperTest, ContentAnalysisCompletionCallback_NoFiles) {
   content::BrowserTaskEnvironment task_environment;
@@ -664,37 +658,7 @@ TEST_F(FileSelectHelperTest, WebContentsDestroyedDuringAsyncFileProcessing) {
   EXPECT_FALSE(weak_ptr);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(FileSelectHelperTest, ContentAnalysisCompletionCallback_ContentUriFile) {
-  content::BrowserTaskEnvironment task_environment;
-  TestingProfile profile;
-  scoped_refptr<FileSelectHelper> file_select_helper =
-      new FileSelectHelper(&profile);
-
-  std::vector<blink::mojom::FileChooserFileInfoPtr> files;
-  auto listener = base::MakeRefCounted<TestFileSelectListener>(&files);
-  file_select_helper->SetFileSelectListenerForTesting(std::move(listener));
-  file_select_helper->DontAbortOnMissingWebContentsForTesting();
-
-  std::vector<blink::mojom::FileChooserFileInfoPtr> orig_files;
-  enterprise_connectors::ContentAnalysisDelegate::Data data;
-  enterprise_connectors::ContentAnalysisDelegate::Result result;
-  base::FilePath content_uri_1(
-      FILE_PATH_LITERAL("content://media/external/file/101"));
-  base::FilePath content_uri_2(
-      FILE_PATH_LITERAL("content://media/external/file/102"));
-  PrepareContentAnalysisCompletionCallbackArgs({content_uri_1, content_uri_2},
-                                               {false, true}, &orig_files,
-                                               &data, &result);
-
-  file_select_helper->ContentAnalysisCompletionCallback(std::move(orig_files),
-                                                        data, result);
-
-  ASSERT_EQ(1u, files.size());
-  EXPECT_EQ(content_uri_2, files[0]->get_native_file()->file_path);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-#endif  // BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#endif
 
 TEST_F(FileSelectHelperTest, EnumerateDirectory_TabDeactivated) {
   content::BrowserTaskEnvironment task_environment;
@@ -746,14 +710,11 @@ TEST_F(FileSelectHelperTest, EnumerateDirectory_VisibilityChanged) {
   FileSelectHelper::EnumerateDirectory(web_contents, listener, data_dir_);
   EXPECT_FALSE(listener->canceled());
 
-#if !BUILDFLAG(IS_ANDROID)
   web_contents->WasHidden();
   EXPECT_TRUE(listener->canceled());
-#endif
   web_contents->SetDelegate(nullptr);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(FileSelectHelperTest, RunFileChooser_HeightOnlyViolation) {
   content::BrowserTaskEnvironment task_environment;
   TestingProfile profile;
@@ -922,7 +883,6 @@ TEST_F(FileSelectHelperTest, RunFileChooser_HiddenNonTabCancelled) {
   ASSERT_TRUE(base::test::RunUntil([&]() { return listener->canceled(); }));
   EXPECT_TRUE(listener->canceled());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(FileSelectHelperTest, GetFileTypesFromAcceptType) {
   content::BrowserTaskEnvironment task_environment;
@@ -1015,213 +975,3 @@ TEST_F(FileSelectHelperTest, ConfirmationDialog) {
   EXPECT_EQ(callback_count_, 3);
   EXPECT_EQ(selected_files_.size(), 0u);
 }
-
-#if BUILDFLAG(IS_CHROMEOS)
-
-namespace {
-
-class FakeFuseboxDelegate : public fusebox::Server::Delegate {
- public:
-  FakeFuseboxDelegate() = default;
-  void OnRegisterFSURLPrefix(const std::string& subdir) override {}
-  void OnUnregisterFSURLPrefix(const std::string& subdir) override {}
-};
-
-}  // namespace
-
-struct FuseboxFileParams {
-  base::FilePath virtual_path;
-  base::FilePath expected_fusebox_path;
-};
-
-class FileSelectHelperChromeOSTest : public ChromeRenderViewHostTestHarness {
- public:
-  FileSelectHelperChromeOSTest() = default;
-
- protected:
-  void SetUp() override {
-    ChromeRenderViewHostTestHarness::SetUp();
-    ASSERT_TRUE(base::PathService::Get(chrome::DIR_TEST_DATA, &data_dir_));
-    data_dir_ = data_dir_.AppendASCII("file_select_helper");
-    ASSERT_TRUE(base::PathExists(data_dir_));
-
-    // Register fake mount points
-    storage::ExternalMountPoints::GetSystemInstance()->RegisterFileSystem(
-        "fake_mount", storage::kFileSystemTypeProvided,
-        storage::FileSystemMountOption(),
-        base::FilePath(FILE_PATH_LITERAL("/media/archive/fake_mount")));
-    storage::ExternalMountPoints::GetSystemInstance()->RegisterFileSystem(
-        "not_backed_mount", storage::kFileSystemTypeProvided,
-        storage::FileSystemMountOption(),
-        base::FilePath(FILE_PATH_LITERAL("/media/archive/not_backed_mount")));
-
-    fusebox_server_ =
-        std::make_unique<fusebox::Server>(&fake_fusebox_delegate_);
-    fusebox_server_->RegisterFSURLPrefix(
-        "fake_mount", "filesystem:chrome://file-manager/external/fake_mount",
-        /*read_only=*/false);
-  }
-
-  void TearDown() override {
-    storage::ExternalMountPoints::GetSystemInstance()->RevokeFileSystem(
-        "fake_mount");
-    storage::ExternalMountPoints::GetSystemInstance()->RevokeFileSystem(
-        "not_backed_mount");
-    fusebox_server_.reset();
-    ChromeRenderViewHostTestHarness::TearDown();
-  }
-
-  scoped_refptr<FileSelectHelper> CreateFileSelectHelper() {
-    return new FileSelectHelper(profile());
-  }
-  void SetWebContents(FileSelectHelper* helper) {
-    helper->render_frame_host_ = main_rfh();
-    helper->web_contents_ = web_contents();
-    helper->InitLifecycleObserver(web_contents());
-  }
-  base::FilePath MaybeSubstituteFuseboxFilePath(
-      FileSelectHelper* helper,
-      const blink::mojom::FileSystemFileInfo& fs_info) {
-    return helper->MaybeSubstituteFuseboxFilePath(fs_info);
-  }
-  void SetFileSelectListenerForTesting(
-      FileSelectHelper* helper,
-      scoped_refptr<content::FileSelectListener> listener) {
-    helper->SetFileSelectListenerForTesting(std::move(listener));
-  }
-  void DontAbortOnMissingWebContentsForTesting(FileSelectHelper* helper) {
-    helper->DontAbortOnMissingWebContentsForTesting();
-  }
-  void ContentAnalysisCompletionCallback(
-      FileSelectHelper* helper,
-      std::vector<blink::mojom::FileChooserFileInfoPtr> list,
-      const enterprise_connectors::ContentAnalysisDelegate::Data& data,
-      enterprise_connectors::ContentAnalysisDelegate::Result& result) {
-    helper->ContentAnalysisCompletionCallback(std::move(list), data, result);
-  }
-
-  base::FilePath data_dir_;
-  FakeFuseboxDelegate fake_fusebox_delegate_;
-  std::unique_ptr<fusebox::Server> fusebox_server_;
-};
-
-class MaybeSubstituteFuseboxFilePathParamTest
-    : public FileSelectHelperChromeOSTest,
-      public testing::WithParamInterface<FuseboxFileParams> {
- public:
-  MaybeSubstituteFuseboxFilePathParamTest() = default;
-};
-
-TEST_P(MaybeSubstituteFuseboxFilePathParamTest, ConvertVirtualFile) {
-  scoped_refptr<FileSelectHelper> file_select_helper = CreateFileSelectHelper();
-  SetWebContents(file_select_helper.get());
-
-  storage::FileSystemContext* context =
-      profile()
-          ->GetStoragePartition(main_rfh()->GetSiteInstance())
-          ->GetFileSystemContext();
-
-  base::FilePath virtual_path = GetParam().virtual_path;
-  url::Origin origin = url::Origin::Create(GURL("chrome://file-manager"));
-  file_manager::util::FileSystemURLAndHandle isolated_url_and_handle =
-      file_manager::util::CreateIsolatedURLFromVirtualPath(*context, origin,
-                                                           virtual_path);
-
-  blink::mojom::FileSystemFileInfo fs_info;
-  fs_info.url = isolated_url_and_handle.url.ToGURL();
-
-  base::FilePath result =
-      MaybeSubstituteFuseboxFilePath(file_select_helper.get(), fs_info);
-
-  EXPECT_EQ(GetParam().expected_fusebox_path, result);
-}
-
-TEST_P(MaybeSubstituteFuseboxFilePathParamTest,
-       ContentAnalysisCompletionCallback) {
-  scoped_refptr<FileSelectHelper> file_select_helper = CreateFileSelectHelper();
-  SetWebContents(file_select_helper.get());
-
-  std::vector<blink::mojom::FileChooserFileInfoPtr> files;
-  auto listener = base::MakeRefCounted<TestFileSelectListener>(&files);
-  SetFileSelectListenerForTesting(file_select_helper.get(),
-                                  std::move(listener));
-  DontAbortOnMissingWebContentsForTesting(file_select_helper.get());
-
-  storage::FileSystemContext* context =
-      profile()
-          ->GetStoragePartition(main_rfh()->GetSiteInstance())
-          ->GetFileSystemContext();
-
-  std::vector<blink::mojom::FileChooserFileInfoPtr> orig_files;
-
-  // Add the virtual file.
-  base::FilePath virtual_path = GetParam().virtual_path;
-  url::Origin origin = url::Origin::Create(GURL("chrome://file-manager"));
-  file_manager::util::FileSystemURLAndHandle isolated_url_and_handle =
-      file_manager::util::CreateIsolatedURLFromVirtualPath(*context, origin,
-                                                           virtual_path);
-  auto fs_info = blink::mojom::FileSystemFileInfo::New();
-  fs_info->url = isolated_url_and_handle.url.ToGURL();
-  orig_files.push_back(
-      blink::mojom::FileChooserFileInfo::NewFileSystem(std::move(fs_info)));
-
-  // Add native files.
-  base::FilePath blocked_native_path = data_dir_.AppendASCII("blocked.doc");
-  base::FilePath allowed_native_path = data_dir_.AppendASCII("allowed.doc");
-  orig_files.push_back(blink::mojom::FileChooserFileInfo::NewNativeFile(
-      blink::mojom::NativeFileInfo::New(blocked_native_path, u"blocked.doc",
-                                        std::vector<std::u16string>())));
-  orig_files.push_back(blink::mojom::FileChooserFileInfo::NewNativeFile(
-      blink::mojom::NativeFileInfo::New(allowed_native_path, u"allowed.doc",
-                                        std::vector<std::u16string>())));
-
-  enterprise_connectors::ContentAnalysisDelegate::Data data;
-  enterprise_connectors::ContentAnalysisDelegate::Result result;
-
-  base::FilePath expected_fusebox_path = GetParam().expected_fusebox_path;
-  bool virtual_file_is_scanned = !expected_fusebox_path.empty();
-
-  if (virtual_file_is_scanned) {
-    data.paths.push_back(expected_fusebox_path);
-    result.paths_results.push_back(false);  // blocked
-  }
-
-  data.paths.push_back(blocked_native_path);
-  result.paths_results.push_back(false);  // blocked
-
-  data.paths.push_back(allowed_native_path);
-  result.paths_results.push_back(true);  // allowed
-
-  ContentAnalysisCompletionCallback(file_select_helper.get(),
-                                    std::move(orig_files), data, result);
-
-  if (virtual_file_is_scanned) {
-    ASSERT_EQ(1u, files.size());
-    EXPECT_TRUE(files[0]->is_native_file());
-    EXPECT_EQ(allowed_native_path, files[0]->get_native_file()->file_path);
-  } else {
-    ASSERT_EQ(2u, files.size());
-    EXPECT_TRUE(files[0]->is_file_system());
-    EXPECT_TRUE(files[1]->is_native_file());
-    EXPECT_EQ(allowed_native_path, files[1]->get_native_file()->file_path);
-  }
-}
-
-const FuseboxFileParams kFuseboxTestCases[] = {
-    // Case 0: Virtual file -> Should substitute Fusebox path
-    {.virtual_path =
-         base::FilePath(FILE_PATH_LITERAL("fake_mount/virtual_doc.docx")),
-     .expected_fusebox_path = base::FilePath(
-         FILE_PATH_LITERAL("/media/fuse/fusebox/fake_mount/virtual_doc.docx"))},
-    // Case 1: Virtual file not backed by fusebox -> Should return empty
-    {.virtual_path =
-         base::FilePath(FILE_PATH_LITERAL("not_backed_mount/virtual_doc.docx")),
-     .expected_fusebox_path = base::FilePath()},
-
-};
-
-INSTANTIATE_TEST_SUITE_P(MaybeSubstituteFuseboxFilePath,
-                         MaybeSubstituteFuseboxFilePathParamTest,
-                         testing::ValuesIn(kFuseboxTestCases));
-
-#endif  // BUILDFLAG(IS_CHROMEOS)

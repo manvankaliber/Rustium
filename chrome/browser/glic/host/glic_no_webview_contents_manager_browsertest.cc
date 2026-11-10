@@ -1003,7 +1003,6 @@ IN_PROC_BROWSER_TEST_F(GlicNoWebviewOverlayBrowserTest,
   EXPECT_EQ(attached_manager->GetLoadingStyleForTesting(),
             mojom::LoadingStyle::kSidePanel);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Attached to an active detached instance.
   ASSERT_OK_AND_ASSIGN(GlicInstanceImpl * detached_instance,
                        OpenGlicForActiveTabAndDetach());
@@ -1015,7 +1014,6 @@ IN_PROC_BROWSER_TEST_F(GlicNoWebviewOverlayBrowserTest,
             mojom::LoadingStyle::kFloating);
   EXPECT_EQ(detached_manager->GetLoadingStyleForTesting(),
             mojom::LoadingStyle::kFloating);
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(GlicNoWebviewContentsManagerBrowserTest,

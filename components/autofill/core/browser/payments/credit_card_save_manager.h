@@ -340,18 +340,6 @@ class CreditCardSaveManager {
       int64_t instrument_id,
       payments::PaymentsAutofillClient::PaymentsRpcResult result);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Upload the card details with the user provided cardholder_name.
-  // Only relevant for mobile as fix flow is two steps on mobile compared to
-  // one step on desktop.
-  void OnUserDidAcceptAccountNameFixFlow(const std::u16string& cardholder_name);
-
-  // Upload the card details with the user provided expiration date month and
-  // year. Only relevant for mobile as fix flow is two steps on mobile compared
-  // to one step on desktop.
-  void OnUserDidAcceptExpirationDateFixFlow(const std::u16string& month,
-                                            const std::u16string& year);
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
   // Helper function that calls SendUploadCardRequest by setting
   // UserProvidedCardDetails.

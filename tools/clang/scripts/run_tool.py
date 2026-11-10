@@ -399,7 +399,7 @@ def main():
   )
   parser.add_argument(
     '--target_os',
-    choices=['android', 'chromeos', 'ios', 'linux', 'nacl', 'mac', 'win'],
+    choices=['linux', 'nacl', 'mac', 'win'],
     help='Target OS - see `gn help target_os`. Set to "win" when '
     + 'cross-compiling Windows from Linux or another host',
   )

@@ -63,12 +63,6 @@ class CORE_EXPORT TextFinder final : public GarbageCollected<TextFinder> {
   void StopFindingAndClearSelection();
   void IncreaseMatchCount(int identifier, int count);
   int FindMatchMarkersVersion() const { return find_match_markers_version_; }
-#if BUILDFLAG(IS_ANDROID)
-  gfx::RectF ActiveFindMatchRect();
-  Vector<gfx::RectF> FindMatchRects();
-  std::optional<wtf_size_t> SelectNearestFindMatch(const gfx::PointF&,
-                                                   gfx::Rect* selection_rect);
-#endif
 
   // Starts brand new scoping request: resets the scoping state and
   // asynchronously calls scopeStringMatches().
@@ -83,14 +77,6 @@ class CORE_EXPORT TextFinder final : public GarbageCollected<TextFinder> {
   // the scoping effort.
   void ResetMatchCount();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Return the index in the find-in-page cache of the match closest to the
-  // provided point in find-in-page coordinates, or std::nullopt in case of
-  // error. The squared distance to the closest match is returned in the
-  // |distanceSquared| parameter.
-  std::optional<wtf_size_t> NearestFindMatch(const gfx::PointF&,
-                                             float* distance_squared);
-#endif
 
   // Returns whether this frame has the active match.
   bool ActiveMatchFrame() const { return current_active_match_frame_; }
@@ -208,14 +194,6 @@ class CORE_EXPORT TextFinder final : public GarbageCollected<TextFinder> {
   // the matches cache.
   void InvalidateFindMatchRects();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Select a find-in-page match marker in the current frame using a cache
-  // match index returned by nearestFindMatch. Returns the ordinal of the new
-  // selected match or std::nullopt in case of error. Also provides the bounding
-  // box of the marker in window coordinates if selectionRect is not null.
-  std::optional<wtf_size_t> SelectFindMatch(wtf_size_t index,
-                                            gfx::Rect* selection_rect);
-#endif
 
   // Compute and cache the rects for FindMatches if required.
   // Rects are automatically invalidated in case of content size changes.

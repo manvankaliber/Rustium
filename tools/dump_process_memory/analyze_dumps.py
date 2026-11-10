@@ -19,8 +19,6 @@ import zlib
 import sys
 from os import path
 
-sys.path.append('tools/android/native_lib_memory')
-
 import parse_smaps
 
 PAGE_SIZE = 1 << 12

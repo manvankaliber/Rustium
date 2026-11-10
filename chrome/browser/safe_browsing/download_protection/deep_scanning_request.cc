@@ -60,11 +60,9 @@
 #include "chrome/browser/enterprise/connectors/analysis/content_analysis_dialog_controller.h"
 #endif  // BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/profile_browser_collection.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 using DeepScanTrigger = DownloadItemWarningData::DeepScanTrigger;
 
@@ -1165,9 +1163,6 @@ void DeepScanningRequest::CallbackAndCleanup(DownloadCheckResult result) {
 
 content::WebContents* DeepScanningRequest::MaybeGetWebContentsForForceSave(
     DownloadCheckResult& result) {
-#if BUILDFLAG(IS_ANDROID)
-  return nullptr;
-#else
   if (result != DownloadCheckResult::FORCE_SAVE_TO_GDRIVE &&
       result != DownloadCheckResult::FORCE_SAVE_TO_ONEDRIVE) {
     return nullptr;
@@ -1202,7 +1197,6 @@ content::WebContents* DeepScanningRequest::MaybeGetWebContentsForForceSave(
   }
 
   return force_save_web_contents;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 #if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)

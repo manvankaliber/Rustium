@@ -22,11 +22,7 @@ namespace autofill {
 namespace {
 
 constexpr bool kIsAndroid =
-#if BUILDFLAG(IS_ANDROID)
-    true;
-#else
     false;
-#endif
 
 // Returns true only when `candidate.verified_origin` is non-opaque and matches
 // `target.origin`.

@@ -21,9 +21,6 @@
 #include "components/facilitated_payments/core/utils/facilitated_payments_ui_utils.h"
 #include "components/signin/public/identity_manager/account_info.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/facilitated_payments/core/browser/payment_link_manager.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace url {
 class Origin;
@@ -99,78 +96,6 @@ class FacilitatedPaymentsClient : public autofill::RiskDataLoader {
   // returned so check before use.
   virtual strike_database::StrikeDatabase* GetStrikeDatabase() = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-  // The payment prompts and the Pix account linking flow are only available on
-  // Android.
-
-  // Shows the user's Pix accounts from their Google Wallet, and prompts to pay.
-  // `bank_account_suggestions` is the list of Pix accounts to be shown to the
-  // user for payment. `on_payment_account_selected` is the callback called with
-  // the instrument id of the bank account selected by the user for payment.
-  virtual void ShowPixPaymentPrompt(
-      base::span<const autofill::BankAccount> bank_account_suggestions,
-      base::OnceCallback<void(int64_t)> on_payment_account_selected) = 0;
-
-  // Shows the user's payment options and prompts to pay. `ewallet_suggestions`
-  // is the list of eWallets to be shown to the user for payment.
-  // `app_suggestions` is the list of packages of payment apps to be shown to
-  // the user for payment. `on_payment_account_selected` is the callback called
-  // with the instrument id of the eWallet account selected by the user for
-  // payment.
-  virtual void ShowPaymentLinkPrompt(
-      base::span<const autofill::Ewallet> ewallet_suggestions,
-      std::unique_ptr<FacilitatedPaymentsAppInfoList> app_suggestions,
-      base::OnceCallback<void(SelectedFopData)> on_fop_selected) = 0;
-
-  // Shows a progress screen while users wait for server response.
-  virtual void ShowProgressScreen(ProgressScreenType type) = 0;
-
-  // Shows an error message if Chrome isn't able to complete transaction after
-  // the user has selected a payment account.
-  virtual void ShowErrorScreen() = 0;
-
-  // Closes the bottom sheet.
-  virtual void DismissPrompt() = 0;
-
-  // Enables features to pass a callback to listen to UI events.
-  virtual void SetUiEventListener(
-      base::RepeatingCallback<void(UiEvent)> ui_event_listener) = 0;
-
-  virtual void InitPixAccountLinkingFlow(
-      const url::Origin& pix_payment_page_origin) = 0;
-
-  // Shows the Pix account linking prompt.
-  virtual void ShowPixAccountLinkingPrompt(
-      int strike_count,
-      base::OnceCallback<void()> on_accepted,
-      base::OnceCallback<void()> on_declined) = 0;
-
-  // Shows the Pix account linking success screen.
-  virtual void ShowPixAccountLinkingSuccessScreen() = 0;
-
-  // TODO(b/529180132): Refactor ShowPixAccountLinkingPrompt to use
-  // ShowAccountLinkingPrompt.
-  virtual void ShowAccountLinkingPrompt(
-      const AccountLinkingParams& params,
-      base::OnceCallback<void()> on_accepted,
-      base::OnceCallback<void()> on_declined,
-      base::OnceCallback<void()> on_dismissed) = 0;
-
-  // Shows the account linking failure notification for the given payment
-  // method.
-  virtual void ShowAccountLinkingFailureNotification(
-      FacilitatedPaymentsType fop_type) = 0;
-
-  // Check whether the device has the screenlock or biometric set up which is
-  // required for Pix account linking in Wallet.
-  virtual bool HasScreenlockOrBiometricSetup() = 0;
-
-  void SetPixAccountLinkingManagerForTesting(
-      std::unique_ptr<PixAccountLinkingManager> pix_account_linking_manager);
-
- protected:
-  std::unique_ptr<PixAccountLinkingManager> pix_account_linking_manager_;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace payments::facilitated

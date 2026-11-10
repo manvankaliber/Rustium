@@ -109,7 +109,6 @@
 #include "ui/base/page_transition_types.h"
 #include "ui/display/screen.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/feedback/system_logs/chrome_system_logs_fetcher.h"
 #include "chrome/browser/glic/glic_hotkey.h"
 #include "chrome/browser/glic/host/context/glic_focused_browser_manager.h"
@@ -120,10 +119,6 @@
 #include "chrome/browser/ui/tabs/tab_model.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "extensions/browser/guest_view/web_view/web_view_guest.h"
-#else
-#include "base/android/device_info.h"
-#include "chrome/browser/glic/android/glic_tab_picker_bridge.h"
-#endif
 
 namespace mojo {
 
@@ -634,12 +629,10 @@ class GlicWebClientHandler
     state->instance_is_active = host().instance().IsActive();
 
     local_state_pref_change_registrar_.Init(g_browser_process->local_state());
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
     local_state_pref_change_registrar_.Add(
         prefs::kGlicLauncherHotkey,
         base::BindRepeating(&GlicWebClientHandler::OnLocalStatePrefChanged,
                             base::Unretained(this)));
-#endif
 
     std::move(callback).Run(std::move(state));
   }
@@ -993,27 +986,7 @@ class GlicWebClientHandler
       mojom::OpenPinnedTabPickerOptionsPtr options,
       mojom::WebClientHandler::OpenPinnedTabPickerCallback callback) override {
     LogApiRequest(GlicHostApiRequestId::kOpenPinnedTabPicker);
-#if BUILDFLAG(IS_ANDROID)
-    if (base::android::device_info::is_desktop()) {
-      std::move(callback).Run();
-      return;
-    }
-
-    content::WebContents* web_contents = host().webui_contents();
-    ui::WindowAndroid* window_android =
-        web_contents ? web_contents->GetTopLevelNativeWindow() : nullptr;
-    if (!window_android) {
-      DUMP_WILL_BE_NOTREACHED();
-      std::move(callback).Run();
-      return;
-    }
-
-    GlicTabPickerBridge::OpenTabPicker(window_android,
-                                       GetSharingManagerInternal().GetWeakPtr(),
-                                       std::move(callback));
-#else
     std::move(callback).Run();
-#endif
   }
 
   void CreateActorHandler(
@@ -1070,7 +1043,6 @@ class GlicWebClientHandler
   void CreateAiOverlayTools(
       mojo::PendingReceiver<ai_overlay_dialog::mojom::AiOverlayTools> receiver)
       override {
-#if !BUILDFLAG(IS_ANDROID)
     if (!GetGlicProviderSpec(profile_).SupportsFeature(
             GlicFeature::kDynamicChromeTools)) {
       // Dropping `receiver` disconnects the client's remote.
@@ -1078,7 +1050,6 @@ class GlicWebClientHandler
     }
     ai_overlay_tools_ =
         CreateAiOverlayToolsForGlic(profile_, std::move(receiver));
-#endif
   }
 
   void CreateGeminiEnterpriseHandler(
@@ -1173,7 +1144,6 @@ class GlicWebClientHandler
   void CaptureRegion(mojo::PendingRemote<mojom::CaptureRegionObserver> observer,
                      mojom::CaptureRegionParamsPtr params) override {
     LogApiRequest(GlicHostApiRequestId::kSubscribeToCaptureRegion);
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL: CaptureRegion (b/494315475)
     std::optional<int32_t> tab_id =
         params ? std::optional<int32_t>(params->tab_id) : std::nullopt;
     mojom::TabContextOptionsPtr tab_context_options =
@@ -1194,15 +1164,11 @@ class GlicWebClientHandler
     SelectionOverlayController::CaptureRegion(
         tab, GetSharingManagerInternal(), std::move(observer),
         std::move(tab_context_options), capture_region_handoff);
-#else
-    NOTIMPLEMENTED();
-#endif
   }
 
   void DeleteCapturedRegion(int32_t tab_id,
                             const base::UnguessableToken& id) override {
     LogApiRequest(GlicHostApiRequestId::kDeleteCapturedRegion);
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL: CaptureRegion (b/494315475)
     tabs::TabInterface* tab = tabs::TabHandle(tab_id).Get();
     if (!tab) {
       return;
@@ -1217,16 +1183,12 @@ class GlicWebClientHandler
                                                    /*is_using_keyboard=*/false);
       }
     }
-#else
-    NOTIMPLEMENTED();
-#endif
   }
 
   void SetAudioDucking(bool enabled,
                        SetAudioDuckingCallback callback) override {
     LogApiRequest(GlicHostApiRequestId::kSetAudioDucking);
     // NEEDS_ANDROID_IMPL: AudioDucking not in android build.
-#if !BUILDFLAG(IS_ANDROID)
     content::RenderFrameHost* guest_frame = host_->GetGuestMainFrame();
     if (!guest_frame) {
       std::move(callback).Run(false);
@@ -1236,9 +1198,6 @@ class GlicWebClientHandler
         AudioDucker::GetOrCreateForPage(guest_frame->GetPage());
     std::move(callback).Run(enabled ? audio_ducker->StartDuckingOtherAudio()
                                     : audio_ducker->StopDuckingOtherAudio());
-#else
-    std::move(callback).Run(false);
-#endif
   }
 
   void SetMinimumPanelSize(const gfx::Size& size) override {
@@ -1372,15 +1331,6 @@ class GlicWebClientHandler
     result->is_managed =
         management_service && management_service->IsAccountManaged();
 
-#if BUILDFLAG(IS_CHROMEOS)
-    // ChromeOS doesn't support profile, so local profile name and custom
-    // profile avatar are not supported. Instead, we will just use the user
-    // account avatar.
-    auto icon = account_info.GetAvatarImage();
-    if (icon.has_value()) {
-      result->avatar_icon = icon->AsBitmap();
-    }
-#else
     result->local_profile_name =
         base::UTF16ToUTF8(entry->GetLocalProfileName());
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
@@ -1394,7 +1344,6 @@ class GlicWebClientHandler
     if (!icon.IsEmpty()) {
       result->avatar_icon = icon.AsBitmap();
     }
-#endif  //  BUILDFLAG(IS_CHROMEOS)
     std::move(callback).Run(std::move(result));
   }
 
@@ -1977,13 +1926,11 @@ class GlicWebClientHandler
   }
 
   void OnLocalStatePrefChanged(const std::string& pref_name) {
-#if !BUILDFLAG(IS_ANDROID)  // NEEDS_ANDROID_IMPL
     if (pref_name == prefs::kGlicLauncherHotkey) {
       web_client_->NotifyOsHotkeyStateChanged(GetHotkeyString());
     } else {
       CHECK(false) << "Unknown local state pref changed: " << pref_name;
     }
-#endif
   }
 
   void OnFocusedTabChanged(const FocusedTabData& focused_tab_data) {
@@ -2062,9 +2009,7 @@ class GlicWebClientHandler
   std::unique_ptr<PageMetadataManager> page_metadata_manager_;
   bool floating_panel_can_attach_ = false;
   bool ignore_client_storage_pref_change_ = false;
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<GlicToolsHolder> ai_overlay_tools_;
-#endif
 };
 
 std::unique_ptr<GlicWebClientAccess> MakeGlicWebClient(

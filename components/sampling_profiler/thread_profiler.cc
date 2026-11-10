@@ -8,7 +8,6 @@
 #include <utility>
 #include <vector>
 
-#include "base/android/library_loader/anchor_functions.h"
 #include "base/check.h"
 #include "base/command_line.h"
 #include "base/functional/bind.h"
@@ -29,9 +28,9 @@
 #include "components/sampling_profiler/process_type.h"
 #include "components/sampling_profiler/thread_profiler_client.h"
 
-#if BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
+#if BUILDFLAG(IS_MAC)
 #include "base/process/port_provider_mac.h"
-#endif  // BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
+#endif
 
 namespace sampling_profiler {
 namespace {
@@ -55,14 +54,14 @@ ThreadProfilerClient* g_thread_profiler_client = nullptr;
 constexpr double kFractionOfExecutionTimeToSample = 0.02;
 
 bool IsCurrentProcessBackgrounded() {
-#if BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
+#if BUILDFLAG(IS_MAC)
   base::SelfPortProvider provider;
   return base::Process::Current().GetPriority(&provider) ==
          base::Process::Priority::kBestEffort;
-#else   // BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
+#else
   return base::Process::Current().GetPriority() ==
          base::Process::Priority::kBestEffort;
-#endif  // BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
+#endif
 }
 
 const base::RepeatingClosure GetApplyPerSampleMetadataCallback(

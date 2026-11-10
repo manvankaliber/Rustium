@@ -58,21 +58,13 @@ class DistilledPageJsTest : public content::ContentBrowserTest {
 };
 
 // Pincher is only used on Android.
-#if !BUILDFLAG(IS_ANDROID)
 #define MAYBE_Pinch DISABLED_Pinch
-#else
-#define MAYBE_Pinch Pinch
-#endif
 IN_PROC_BROWSER_TEST_F(DistilledPageJsTest, MAYBE_Pinch) {
   LoadAndExecuteTestScript("pinch_tester.js");
 }
 
 // FontSizeSlider is only used on Desktop.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-#define MAYBE_FontSizeSlider DISABLED_FontSizeSlider
-#else
 #define MAYBE_FontSizeSlider FontSizeSlider
-#endif
 IN_PROC_BROWSER_TEST_F(DistilledPageJsTest, MAYBE_FontSizeSlider) {
   LoadAndExecuteTestScript("font_size_slider_tester.js");
 }
@@ -87,9 +79,7 @@ IN_PROC_BROWSER_TEST_F(DistilledPageJsTest, AddClassesToYTIFramesTest) {
 
 // Fails on Fuchsia ASAN.
 // Falky timeout on Linux and ChromeOS MSAN, ASAN and TSAN.
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) &&          \
-    (defined(MEMORY_SANITIZER) || defined(ADDRESS_SANITIZER) || \
-     defined(THREAD_SANITIZER))
+#if BUILDFLAG(IS_LINUX) && (defined(MEMORY_SANITIZER) || defined(ADDRESS_SANITIZER) || defined(THREAD_SANITIZER))
 #define MAYBE_ImageClassifierTest DISABLED_ImageClassifierTest
 #else
 #define MAYBE_ImageClassifierTest ImageClassifierTest

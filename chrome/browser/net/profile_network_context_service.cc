@@ -101,24 +101,6 @@
 #include "services/network/public/mojom/network_service.mojom.h"
 #include "third_party/blink/public/common/features.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "ash/constants/ash_switches.h"
-#include "chrome/browser/ash/certificate_provider/certificate_provider_service.h"
-#include "chrome/browser/ash/certificate_provider/certificate_provider_service_factory.h"
-#include "chrome/browser/ash/kcer/kcer_factory_ash.h"
-#include "chrome/browser/ash/net/client_cert_store_kcer.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chrome/browser/policy/networking/policy_cert_service.h"
-#include "chrome/browser/policy/networking/policy_cert_service_factory.h"
-#include "chrome/browser/policy/profile_policy_connector.h"
-#include "chromeos/components/certificate_provider/certificate_provider.h"
-#include "chromeos/components/kiosk/kiosk_utils.h"
-#include "chromeos/constants/chromeos_features.h"
-#include "components/user_manager/user.h"
-#include "components/user_manager/user_manager.h"
-#include "net/cert/x509_util.h"
-#endif
 
 #if BUILDFLAG(USE_NSS_CLIENT_CERTS)
 #include "chrome/browser/ui/crypto_module_delegate_nss.h"
@@ -133,16 +115,12 @@
 #include "net/ssl/client_cert_store_mac.h"
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "net/ssl/client_cert_store_empty.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "extensions/common/constants.h"
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/enterprise/client_certificates/certificate_provisioning_service_factory.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
 #include "components/enterprise/browser/controller/chrome_browser_cloud_management_controller.h"
@@ -319,8 +297,7 @@ void UpdateCookieSettings(Profile* profile, ContentSettingsType type) {
       });
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 std::unique_ptr<net::ClientCertStore> GetWrappedCertStore(
     Profile* profile,
     std::unique_ptr<net::ClientCertStore> platform_store) {
@@ -576,10 +553,8 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
                              schedule_update_cert_policy);
   pref_change_registrar_.Add(prefs::kCAHintCertificates,
                              schedule_update_cert_policy);
-#if !BUILDFLAG(IS_CHROMEOS)
   pref_change_registrar_.Add(prefs::kCAPlatformIntegrationEnabled,
                              schedule_update_cert_policy);
-#endif
 
 #if BUILDFLAG(CHROME_ROOT_STORE_CERT_MANAGEMENT_UI)
   // Register observer to update certificates when changes are made to the
@@ -658,10 +633,8 @@ void ProfileNetworkContextService::RegisterProfilePrefs(
   // For information about whether to reset the HTTP Cache or not, defaults
   // to the empty string, which does not prompt a reset.
   registry->RegisterStringPref(kHttpCacheFinchExperimentGroups, "");
-#if !BUILDFLAG(IS_CHROMEOS)
   // Include user added platform certs by default.
   registry->RegisterBooleanPref(prefs::kCAPlatformIntegrationEnabled, true);
-#endif
   // The following two prefs are registered both as local_state prefs (see
   // SSLConfigServiceManager) and here as Profile prefs. The Profile-scoped pref
   // holds the value that applies to this Profile's NetworkContexts. Their value
@@ -764,29 +737,6 @@ ProfileNetworkContextService::GetCertificatePolicy(
   auto additional_certificates =
       cert_verifier::mojom::AdditionalCertificates::New();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  const policy::PolicyCertService* policy_cert_service =
-      policy::PolicyCertServiceFactory::GetForProfile(profile_);
-  if (policy_cert_service) {
-    net::CertificateList all_certificates;
-    net::CertificateList trust_anchors;
-    policy_cert_service->GetPolicyCertificatesForStoragePartition(
-        storage_partition_path, &all_certificates, &trust_anchors);
-
-    for (const auto& cert : all_certificates) {
-      base::span<const uint8_t> cert_bytes =
-          net::x509_util::CryptoBufferAsSpan(cert->cert_buffer());
-      additional_certificates->all_certificates.push_back(
-          std::vector<uint8_t>(cert_bytes.begin(), cert_bytes.end()));
-    }
-    for (const auto& cert : trust_anchors) {
-      base::span<const uint8_t> cert_bytes =
-          net::x509_util::CryptoBufferAsSpan(cert->cert_buffer());
-      additional_certificates->trust_anchors.push_back(
-          std::vector<uint8_t>(cert_bytes.begin(), cert_bytes.end()));
-    }
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   for (const base::Value& cert_b64 :
        prefs->GetList(prefs::kCAHintCertificates)) {
@@ -911,10 +861,8 @@ ProfileNetworkContextService::GetCertificatePolicy(
     }
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   additional_certificates->include_system_trust_store =
       prefs->GetBoolean(prefs::kCAPlatformIntegrationEnabled);
-#endif
 
   return additional_certificates;
 }
@@ -1043,10 +991,8 @@ ProfileNetworkContextService::GetCertificatePolicyForView() {
     }
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   policies.is_include_system_trust_store_managed =
       prefs->FindPreference(prefs::kCAPlatformIntegrationEnabled)->IsManaged();
-#endif
   return policies;
 }
 
@@ -1116,7 +1062,6 @@ ProfileNetworkContextService::CreateCookieManagerParams(
   // (chrome://new-tab-page), etc.
   out->secure_origin_cookies_allowed_schemes.push_back(
       content::kChromeUIScheme);
-#if !BUILDFLAG(IS_ANDROID)
   // TODO(crbug.com/483614998): Granting Lens side panel is a temporary
   // exception to use SameSite cookies while it migrates to a <webview>
   // approach. This should not be done for other untrusted WebUI.
@@ -1125,7 +1070,6 @@ ProfileNetworkContextService::CreateCookieManagerParams(
   out->secure_origin_cookies_allowed_origins.insert_or_assign(
       url::Origin::Create(GURL(chrome::kChromeUILensUntrustedSidePanelURL)),
       std::move(accessed_by_lens));
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   // TODO(chlily): To be consistent with the content_settings version of
@@ -1194,69 +1138,6 @@ void ProfileNetworkContextService::SetDiscardDomainReliabilityUploadsForTesting(
   g_discard_domain_reliability_uploads_for_testing = new bool(value);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void ProfileNetworkContextService::CreateClientCertIssuerSourcesWithDBCerts(
-    net::ClientCertIssuerSourceGetterCallback callback,
-    std::vector<net::ServerCertificateDatabase::CertInformation>
-        db_cert_infos) {
-  cert_verifier::mojom::AdditionalCertificatesPtr policy_certs =
-      GetCertificatePolicy(profile_->GetDefaultStoragePartition()->GetPath());
-
-  std::vector<bssl::UniquePtr<CRYPTO_BUFFER>> certs;
-  for (const auto& cert : policy_certs->all_certificates) {
-    certs.push_back(net::x509_util::CreateCryptoBuffer(cert));
-  }
-  for (const auto& cert : db_cert_infos) {
-    certs.push_back(net::x509_util::CreateCryptoBuffer(cert.der_cert));
-  }
-  net::ClientCertIssuerSourceCollection sources;
-  if (!certs.empty()) {
-    sources.push_back(std::make_unique<net::ClientCertIssuerSourceInMemory>(
-        std::move(certs)));
-  }
-
-  // Intermediates from NSS are used unconditionally as device-wide ONC
-  // intermediate certificates may be needed. It's unclear if the use of
-  // device-wide policy in non-signin-profile client cert verification was
-  // intended or just an accidental side effect of NSS state being global, but
-  // enterprises might be depending on it (at least one browser_test depends on
-  // it:
-  // SuccessViaCaAndIntermediate/SigninFrameWebviewClientCertsLoginTest.LockscreenTest/0).
-  // TODO(https://crbug.com/40554868): consider removing the NSS source and
-  // making this read from the device ONC policy directly, or decide if using
-  // the device ONC policy here is not intended and remove and change the test
-  // to not do that.
-  sources.push_back(
-      std::make_unique<net::ClientCertStoreNSS::IssuerSourceNSS>());
-
-  std::move(callback).Run(std::move(sources));
-}
-
-void ProfileNetworkContextService::CreateClientCertIssuerSources(
-    net::ClientCertIssuerSourceGetterCallback callback) {
-  net::ServerCertificateDatabaseService* cert_db_service =
-      net::ServerCertificateDatabaseServiceFactory::GetForBrowserContext(
-          profile_);
-  // The service can be null for AshInternals profiles. If it's null fall
-  // through to creating the ClientCertIssuerSource without it.
-  if (cert_db_service) {
-    cert_db_service->GetAllCertificates(base::BindOnce(
-        &ProfileNetworkContextService::CreateClientCertIssuerSourcesWithDBCerts,
-        weak_factory_.GetWeakPtr(), std::move(callback)));
-    return;
-  }
-
-  CreateClientCertIssuerSourcesWithDBCerts(std::move(callback),
-                                           /*db_cert_infos=*/{});
-}
-
-net::ClientCertIssuerSourceGetter
-ProfileNetworkContextService::GetClientCertIssuerSourceFactory() {
-  return base::BindOnce(
-      &ProfileNetworkContextService::CreateClientCertIssuerSources,
-      weak_factory_.GetWeakPtr());
-}
-#endif
 
 std::unique_ptr<net::ClientCertStore>
 ProfileNetworkContextService::CreateClientCertStore() {
@@ -1267,23 +1148,8 @@ ProfileNetworkContextService::CreateClientCertStore() {
     return client_cert_store_factory_for_testing_.Run();
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  chromeos::CertificateProviderService* cert_provider_service =
-      chromeos::CertificateProviderServiceFactory::GetForBrowserContext(
-          profile_);
-  std::unique_ptr<chromeos::certificate_provider::CertificateProvider>
-      certificate_provider;
-  if (cert_provider_service) {
-    certificate_provider = cert_provider_service->CreateCertificateProvider();
-  }
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  return std::make_unique<ash::ClientCertStoreKcer>(
-      std::move(certificate_provider), kcer::KcerFactoryAsh::GetKcer(profile_),
-      GetClientCertIssuerSourceFactory());
-
-#elif BUILDFLAG(USE_NSS_CLIENT_CERTS)
+#if BUILDFLAG(USE_NSS_CLIENT_CERTS)
   std::unique_ptr<net::ClientCertStore> store =
       std::make_unique<net::ClientCertStoreNSS>(
           base::BindRepeating(&CreateCryptoModuleBlockingPasswordDelegate,
@@ -1299,15 +1165,6 @@ ProfileNetworkContextService::CreateClientCertStore() {
 #elif BUILDFLAG(IS_MAC)
   return GetWrappedCertStore(profile_,
                              std::make_unique<net::ClientCertStoreMac>());
-#elif BUILDFLAG(IS_ANDROID)
-  // On Android client we don't use a platform client cert store, but we still
-  // need to use Chrome profile and browser level stores, so we wrap the empty
-  // store to use it as a platform cert store.
-  // The certificate matching for android will first try to find a matching cert
-  // in the profile/browser stores, and if none is found, it will proceed with
-  // the OS as part of the call to show the cert selection dialog.
-  return GetWrappedCertStore(profile_,
-                             std::make_unique<net::ClientCertStoreEmpty>());
 #else
 #error Unknown platform.
 #endif
@@ -1503,36 +1360,6 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
                       g_browser_process->local_state());
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  bool profile_supports_policy_certs = false;
-  if (ash::ProfileHelper::IsSigninProfile(profile_) ||
-      ash::ProfileHelper::IsLockScreenProfile(profile_)) {
-    profile_supports_policy_certs = true;
-  }
-  user_manager::UserManager* user_manager = user_manager::UserManager::Get();
-  if (user_manager) {
-    const user_manager::User* user =
-        ash::ProfileHelper::Get()->GetUserByProfile(profile_);
-    if (user && !user->username_hash().empty()) {
-      profile_supports_policy_certs = true;
-    }
-  }
-  if (profile_supports_policy_certs) {
-    auto* policy_cert_service =
-        policy::PolicyCertServiceFactory::GetForProfile(profile_);
-
-    // Note: in the case of Network Service restarts, we assume that
-    // `profile_supports_policy_certs` will be calculated the same way on
-    // subsequent NetworkContext creations as it was on the first one.
-    // Using `base::Unretained(this)` here is safe because we call
-    // `StopObservingCertChanges()` in `Shutdown()` which clears the callback.
-    if (policy_cert_service && !policy_cert_service->IsObservingCertChanges()) {
-      policy_cert_service->StartObservingCertChanges(base::BindRepeating(
-          &ProfileNetworkContextService::UpdateAdditionalCertificates,
-          base::Unretained(this)));
-    }
-  }
-#endif
 
   // TODO(crbug.com/40928765): check to see if IsManaged() ensures the pref
   // isn't set in user profiles, or if that does something else. If that's true,
@@ -1669,14 +1496,6 @@ void ProfileNetworkContextService::Shutdown() {
   cookie_settings_observation_.Reset();
   cookie_settings_ = nullptr;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  policy::PolicyCertService* policy_cert_service =
-      policy::PolicyCertServiceFactory::GetForProfile(profile_);
-
-  if (policy_cert_service && policy_cert_service->IsObservingCertChanges()) {
-    policy_cert_service->StopObservingCertChanges();
-  }
-#endif
 
   pref_change_registrar_.RemoveAll();
   enable_referrers_.Destroy();
