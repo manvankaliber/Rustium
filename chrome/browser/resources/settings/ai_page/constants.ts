@@ -24,9 +24,6 @@ export enum ChromeSuggestionsSettingsValue {
   DISABLED = 1,
 }
 
-// LINT.IfChange(GlicAssistantSelection)
-
-// LINT.ThenChange(//chrome/browser/glic/glic_pref_names.h:AssistantSelection)
 
 
 // Exporting pref names so that they can be referenced by tests.

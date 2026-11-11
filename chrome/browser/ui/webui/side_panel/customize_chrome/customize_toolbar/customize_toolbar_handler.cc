@@ -393,8 +393,6 @@ void CustomizeToolbarHandler::ListActions(ListActionsCallback callback) {
     add_action(kActionSidePanelShowContextualTasks,
                side_panel::customize_chrome::mojom::CategoryId::kTools);
   }
-  add_action(kActionTtcToolbar,
-             side_panel::customize_chrome::mojom::CategoryId::kTools);
   add_action(kActionSidePanelShowSearchCompanion,
              side_panel::customize_chrome::mojom::CategoryId::kTools);
   add_action(kActionShowTranslate,

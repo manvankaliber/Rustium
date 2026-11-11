@@ -9,13 +9,11 @@ import {pageVisibility} from './page_visibility.js';
 import type {SettingsRoutes} from './router.js';
 import {Route, Router} from './router.js';
 
-// LINT.IfChange(AiSettingsSection)
 export enum AiSettingsSection {
   NONE = '',
 
 
 }
-// LINT.ThenChange(//chrome/browser/glic/public/glic_provider_spec.h:AiSettingsSection)
 
 /**
  * Add all of the child routes that originate from the privacy route,

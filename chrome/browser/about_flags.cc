@@ -65,7 +65,6 @@
 #include "chrome/browser/sharing_hub/sharing_hub_features.h"
 #include "chrome/browser/site_isolation/about_flags.h"
 #include "chrome/browser/task_manager/common/task_manager_features.h"
-#include "chrome/browser/ttc/core/features.h"
 #include "chrome/browser/ui/navigator/browser_navigator_params.h"
 #include "chrome/browser/ui/omnibox/omnibox_next_features.h"
 #include "chrome/browser/ui/tabs/organizer/organizer_panel_utils.h"
@@ -673,41 +672,25 @@ const FeatureEntry::FeatureVariation kOmniboxDynamicSubmitVariations[] = {
 const FeatureEntry::Choice kOmniboxLoomChoices[] = {
     {flags_ui::kGenericExperimentChoiceDefault, "", ""},
     {flags_ui::kGenericExperimentChoiceEnabled, switches::kEnableFeatures,
-     "OmniboxEverywhere,IPH_OmniboxEverywhereLensPromo"},
+     "OmniboxEverywhere"},
     {"Enabled without Multiline", switches::kEnableFeatures,
-     "OmniboxEverywhere:Multiline/false,IPH_OmniboxEverywhereLensPromo"},
+     "OmniboxEverywhere:Multiline/false"},
     {"Enabled with Profile Picker", switches::kEnableFeatures,
-     "OmniboxEverywhere:ProfilePicker/true,IPH_OmniboxEverywhereLensPromo"},
+     "OmniboxEverywhere:ProfilePicker/true"},
     {"Enabled with Small Font (14px)", switches::kEnableFeatures,
-     "OmniboxEverywhere:SmallFont/true,IPH_OmniboxEverywhereLensPromo"},
+     "OmniboxEverywhere:SmallFont/true"},
     {"Enabled with Dynamic Sizing (680px, 14px Font)",
      switches::kEnableFeatures,
      "OmniboxEverywhere:DynamicSizing/true/DynamicSizingWidth/680/"
-     "SmallFont/true,IPH_OmniboxEverywhereLensPromo"},
+     "SmallFont/true"},
     {"Enabled with Dynamic Sizing (600px, 14px Font)",
      switches::kEnableFeatures,
      "OmniboxEverywhere:DynamicSizing/true/DynamicSizingWidth/600/"
-     "SmallFont/true,IPH_OmniboxEverywhereLensPromo"},
+     "SmallFont/true"},
     {flags_ui::kGenericExperimentChoiceDisabled, switches::kDisableFeatures,
-     "OmniboxEverywhere,IPH_OmniboxEverywhereLensPromo"},
+     "OmniboxEverywhere"},
 };
 
-const FeatureEntry::FeatureParam
-    kWebUiOmniboxAskGAboutThisPageCobrowseAndLensEntrypoint[] = {
-        {"Omnibox_AskGCoBrowse", "true"},
-        {"Omnibox_AskGCoBrowseWithVisualSelection", "false"},
-        {"Omnibox_AskGComposeBox", "false"},
-        {"Omnibox_AskGLensChipRoute", "true"},
-        {"Omnibox_AskGSwapIcon", "true"},
-        {"Omnibox_AskGSwapSuggestionIcon", "false"},
-        {"Omnibox_AskGCurrentTabChip", "false"},
-        {"Omnibox_AskGLensIcon", "true"},
-        {"Omnibox_AskGLensSearchHintText", "true"},
-        {"Omnibox_AskGShowChip", "false"},
-        {"Omnibox_AskGComposeboxLensChip", "false"},
-        {"Omnibox_AskGShowFirstDescription", "false"},
-        {"Omnibox_AskGComposeboxPlaceholder", "false"},
-        {"Omnibox_AskGBypassPrivacyNotice", "true"}};
 const FeatureEntry::FeatureParam
     kWebUiOmniboxAskGAboutThisPageCobrowsePlusVisualSelection[] = {
         {"Omnibox_AskGCoBrowse", "false"},
@@ -718,7 +701,7 @@ const FeatureEntry::FeatureParam
         {"Omnibox_AskGSwapSuggestionIcon", "false"},
         {"Omnibox_AskGCurrentTabChip", "false"},
         {"Omnibox_AskGLensIcon", "false"},
-        {"Omnibox_AskGLensSearchHintText", "true"},
+        {"Omnibox_AskGLensSearchHintText", "false"},
         {"Omnibox_AskGShowChip", "false"},
         {"Omnibox_AskGComposeboxLensChip", "false"},
         {"Omnibox_AskGShowFirstDescription", "false"},
@@ -729,88 +712,24 @@ const FeatureEntry::FeatureParam
         {"Omnibox_AskGCoBrowse", "false"},
         {"Omnibox_AskGCoBrowseWithVisualSelection", "false"},
         {"Omnibox_AskGComposeBox", "true"},
-        {"Omnibox_AskGLensChipRoute", "true"},
+        {"Omnibox_AskGLensChipRoute", "false"},
         {"Omnibox_AskGSwapIcon", "true"},
         {"Omnibox_AskGSwapSuggestionIcon", "false"},
         {"Omnibox_AskGCurrentTabChip", "false"},
         {"Omnibox_AskGLensIcon", "false"},
-        {"Omnibox_AskGLensSearchHintText", "true"},
-        {"Omnibox_AskGShowChip", "false"},
-        {"Omnibox_AskGComposeboxLensChip", "true"},
-        {"Omnibox_AskGShowFirstDescription", "false"},
-        {"Omnibox_AskGComposeboxPlaceholder", "true"},
-        {"Omnibox_AskGBypassPrivacyNotice", "true"}};
-const FeatureEntry::FeatureParam
-    kWebUiOmniboxAskGAboutThisPageOmniboxComposeboxAndLensEntrypoint[] = {
-        {"Omnibox_AskGCoBrowse", "false"},
-        {"Omnibox_AskGCoBrowseWithVisualSelection", "false"},
-        {"Omnibox_AskGComposeBox", "true"},
-        {"Omnibox_AskGLensChipRoute", "true"},
-        {"Omnibox_AskGSwapIcon", "true"},
-        {"Omnibox_AskGSwapSuggestionIcon", "false"},
-        {"Omnibox_AskGCurrentTabChip", "false"},
-        {"Omnibox_AskGLensIcon", "true"},
-        {"Omnibox_AskGLensSearchHintText", "true"},
+        {"Omnibox_AskGLensSearchHintText", "false"},
         {"Omnibox_AskGShowChip", "false"},
         {"Omnibox_AskGComposeboxLensChip", "false"},
         {"Omnibox_AskGShowFirstDescription", "false"},
         {"Omnibox_AskGComposeboxPlaceholder", "true"},
         {"Omnibox_AskGBypassPrivacyNotice", "true"}};
-const FeatureEntry::FeatureParam
-    kWebUiOmniboxAskGAboutThisPageOmniboxChipComposeboxAndLensEntrypoint[] = {
-        {"Omnibox_AskGCoBrowse", "false"},
-        {"Omnibox_AskGCoBrowseWithVisualSelection", "false"},
-        {"Omnibox_AskGComposeBox", "false"},
-        {"Omnibox_AskGLensChipRoute", "true"},
-        {"Omnibox_AskGSwapIcon", "true"},
-        {"Omnibox_AskGSwapSuggestionIcon", "true"},
-        {"Omnibox_AskGCurrentTabChip", "true"},
-        {"Omnibox_AskGLensIcon", "true"},
-        {"Omnibox_AskGLensSearchHintText", "true"},
-        {"Omnibox_AskGShowChip", "true"},
-        {"Omnibox_AskGComposeboxLensChip", "false"},
-        {"Omnibox_AskGShowFirstDescription", "true"},
-        {"Omnibox_AskGComposeboxPlaceholder", "true"},
-        {"Omnibox_AskGBypassPrivacyNotice", "true"}};
-// This arm showcases the follow-up work for arm 1 (side panel + Lens icon). The
-// new params Omnibox_AskGSuggestionSidePanelDescription and
-// Omnibox_AskGLensIconIph are not used in the current LE state. They will
-// either be added to the current LE or used in a follow-up iteration.
-const FeatureEntry::FeatureParam
-    kWebUiOmniboxAskGAboutThisPageCobrowseSidePanelDescAndIph[] = {
-        {"Omnibox_AskGCoBrowse", "true"},
-        {"Omnibox_AskGCoBrowseWithVisualSelection", "false"},
-        {"Omnibox_AskGComposeBox", "false"},
-        {"Omnibox_AskGLensChipRoute", "true"},
-        {"Omnibox_AskGSwapIcon", "true"},
-        {"Omnibox_AskGSwapSuggestionIcon", "false"},
-        {"Omnibox_AskGCurrentTabChip", "false"},
-        {"Omnibox_AskGLensIcon", "true"},
-        {"Omnibox_AskGLensSearchHintText", "true"},
-        {"Omnibox_AskGShowChip", "false"},
-        {"Omnibox_AskGComposeboxLensChip", "false"},
-        {"Omnibox_AskGShowFirstDescription", "false"},
-        {"Omnibox_AskGComposeboxPlaceholder", "false"},
-        {"Omnibox_AskGBypassPrivacyNotice", "true"},
-        {"Omnibox_AskGSuggestionSidePanelDescription", "true"},
-        {"Omnibox_AskGLensIconIph", "true"}};
 
 const FeatureEntry::FeatureVariation
     kWebUiOmniboxAskGAboutThisPageVariations[] = {
-        {"Ask G - Cobrowse and Lens entrypoint",
-         kWebUiOmniboxAskGAboutThisPageCobrowseAndLensEntrypoint, nullptr},
-        {"Ask G -  Cobrowse + Visual Selection",
+        {"Ask G - Cobrowse + Visual Selection",
          kWebUiOmniboxAskGAboutThisPageCobrowsePlusVisualSelection, nullptr},
         {"Ask G - Omnibox Composebox",
-         kWebUiOmniboxAskGAboutThisPageOmniboxComposebox, nullptr},
-        {"Ask G - Omnibox Composebox and Lens entrypoint",
-         kWebUiOmniboxAskGAboutThisPageOmniboxComposeboxAndLensEntrypoint,
-         nullptr},
-        {"Ask G - Omnibox Chip Composebox and Lens entrypoint",
-         kWebUiOmniboxAskGAboutThisPageOmniboxChipComposeboxAndLensEntrypoint,
-         nullptr},
-        {"Ask G - Cobrowse and Lens entrypoint + side panel description + IPH",
-         kWebUiOmniboxAskGAboutThisPageCobrowseSidePanelDescAndIph, nullptr}};
+         kWebUiOmniboxAskGAboutThisPageOmniboxComposebox, nullptr}};
 
 const FeatureEntry::FeatureParam kWebUIOmniboxPopupDebugSxS[] = {
     {"SxS", "true"}};
@@ -912,51 +831,6 @@ constexpr FeatureEntry::FeatureVariation
     kHappinessTrackingSurveysForDesktopDemoVariations[] = {
         {"without Auto Prompt",
          kHappinessTrackingSurveysForDesktopDemoWithoutAutoPrompt, nullptr}};
-
-const FeatureEntry::FeatureParam
-    kLensAimSuggestionsTypeContextualWith3Suggestions[] = {
-        {"lens-aim-suggestions-type", "Contextual"},
-        {"number-of-aim-suggestions", "3"}};
-
-const FeatureEntry::FeatureParam
-    kLensAimSuggestionsTypeContextualWith5Suggestions[] = {
-        {"lens-aim-suggestions-type", "Contextual"},
-        {"number-of-aim-suggestions", "5"}};
-
-const FeatureEntry::FeatureParam
-    kLensAimSuggestionsTypeContextualWith8Suggestions[] = {
-        {"lens-aim-suggestions-type", "Contextual"},
-        {"number-of-aim-suggestions", "8"}};
-
-const FeatureEntry::FeatureParam
-    kLensAimSuggestionsTypeMultimodalWith3Suggestions[] = {
-        {"lens-aim-suggestions-type", "Multimodal"},
-        {"number-of-aim-suggestions", "3"}};
-
-const FeatureEntry::FeatureParam
-    kLensAimSuggestionsTypeMultimodalWith5Suggestions[] = {
-        {"lens-aim-suggestions-type", "Multimodal"},
-        {"number-of-aim-suggestions", "5"}};
-
-const FeatureEntry::FeatureParam
-    kLensAimSuggestionsTypeMultimodalWith8Suggestions[] = {
-        {"lens-aim-suggestions-type", "Multimodal"},
-        {"number-of-aim-suggestions", "8"}};
-
-const FeatureEntry::FeatureVariation kLensAimSuggestionsVariations[] = {
-    {"with Contextual - 3 suggestions",
-     kLensAimSuggestionsTypeContextualWith3Suggestions, nullptr},
-    {"with Contextual - 5 suggestions",
-     kLensAimSuggestionsTypeContextualWith5Suggestions, nullptr},
-    {"with Contextual - 8 suggestions",
-     kLensAimSuggestionsTypeContextualWith8Suggestions, nullptr},
-    {"with Multimodal - 3 suggestions",
-     kLensAimSuggestionsTypeMultimodalWith3Suggestions, nullptr},
-    {"with Multimodal - 5 suggestions",
-     kLensAimSuggestionsTypeMultimodalWith5Suggestions, nullptr},
-    {"with Multimodal - 8 suggestions",
-     kLensAimSuggestionsTypeMultimodalWith8Suggestions, nullptr},
-};
 
 const FeatureEntry::FeatureParam
     kAimServerEligibilityRequestModePostWithProto[] = {
@@ -1078,15 +952,6 @@ const FeatureEntry::FeatureVariation
         {"Min input length 4 characters", kOmniboxRichAutocompletionAggressive4,
          nullptr},
 };
-
-const FeatureEntry::FeatureParam kOmniboxStarterPackExpansionPreProdUrl[] = {
-    {"StarterPackGeminiUrlOverride", "https://gemini.google.com/corp/prompt"}};
-const FeatureEntry::FeatureParam kOmniboxStarterPackExpansionStagingUrl[] = {
-    {"StarterPackGeminiUrlOverride",
-     "https://gemini.google.com/staging/prompt"}};
-const FeatureEntry::FeatureVariation kOmniboxStarterPackExpansionVariations[] =
-    {{"pre-prod url", kOmniboxStarterPackExpansionPreProdUrl, nullptr},
-     {"staging url", kOmniboxStarterPackExpansionStagingUrl, nullptr}};
 
 const FeatureEntry::FeatureParam kOmniboxUrlSuggestionsOnFocusTwoDayWindow[] = {
     {"OnFocusMostVisitedRecencyWindow", "1"},
@@ -1298,33 +1163,6 @@ const FeatureEntry::FeatureVariation kNtpThreadsRailVariations[] = {
 #endif
         // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
 
-const FeatureEntry::FeatureParam kOmniboxToolbeltLensActionsZeroInputs[] = {
-    {"KeepToolbeltAfterInput", "false"},
-    {"ShowLensActionOnNonNtp", "true"},
-    {"ShowLensActionOnNtp", "false"},
-    {"ShowAiModeActionOnNonNtp", "false"},
-    {"ShowAiModeActionOnNtp", "false"},
-    {"ShowHistoryActionOnNonNtp", "true"},
-    {"ShowHistoryActionOnNtp", "true"},
-    {"ShowBookmarksActionOnNonNtp", "true"},
-    {"ShowBookmarksActionOnNtp", "true"},
-    {"ShowTabsActionOnNonNtp", "true"},
-    {"ShowTabsActionOnNtp", "true"},
-};
-const FeatureEntry::FeatureParam kOmniboxToolbeltLensActionsZeroTypedInputs[] =
-    {
-        {"KeepToolbeltAfterInput", "true"},
-        {"ShowLensActionOnNonNtp", "true"},
-        {"ShowLensActionOnNtp", "false"},
-        {"ShowAiModeActionOnNonNtp", "false"},
-        {"ShowAiModeActionOnNtp", "false"},
-        {"ShowHistoryActionOnNonNtp", "true"},
-        {"ShowHistoryActionOnNtp", "true"},
-        {"ShowBookmarksActionOnNonNtp", "true"},
-        {"ShowBookmarksActionOnNtp", "true"},
-        {"ShowTabsActionOnNonNtp", "true"},
-        {"ShowTabsActionOnNtp", "true"},
-};
 const FeatureEntry::FeatureParam kOmniboxToolbeltAiActionsZeroInputs[] = {
     {"KeepToolbeltAfterInput", "false"},
     {"ShowLensActionOnNonNtp", "false"},
@@ -1351,37 +1189,10 @@ const FeatureEntry::FeatureParam kOmniboxToolbeltAiActionsZeroTypedInputs[] = {
     {"ShowTabsActionOnNonNtp", "true"},
     {"ShowTabsActionOnNtp", "true"},
 };
-const FeatureEntry::FeatureParam kOmniboxToolbeltLensAiActionsZeroInputs[] = {
-    {"KeepToolbeltAfterInput", "false"},
-    {"ShowLensActionOnNonNtp", "true"},
-    {"ShowLensActionOnNtp", "false"},
-    {"ShowAiModeActionOnNonNtp", "true"},
-    {"ShowAiModeActionOnNtp", "true"},
-    {"ShowHistoryActionOnNonNtp", "true"},
-    {"ShowHistoryActionOnNtp", "true"},
-    {"ShowBookmarksActionOnNonNtp", "true"},
-    {"ShowBookmarksActionOnNtp", "true"},
-    {"ShowTabsActionOnNonNtp", "false"},
-    {"ShowTabsActionOnNtp", "false"},
-};
-const FeatureEntry::FeatureParam
-    kOmniboxToolbeltLensAiActionsZeroTypedInputs[] = {
-        {"KeepToolbeltAfterInput", "true"},
-        {"ShowLensActionOnNonNtp", "true"},
-        {"ShowLensActionOnNtp", "false"},
-        {"ShowAiModeActionOnNonNtp", "true"},
-        {"ShowAiModeActionOnNtp", "true"},
-        {"ShowHistoryActionOnNonNtp", "true"},
-        {"ShowHistoryActionOnNtp", "true"},
-        {"ShowBookmarksActionOnNonNtp", "true"},
-        {"ShowBookmarksActionOnNtp", "true"},
-        {"ShowTabsActionOnNonNtp", "false"},
-        {"ShowTabsActionOnNtp", "false"},
-};
 const FeatureEntry::FeatureParam kOmniboxToolbeltAllActionsZeroInputs[] = {
     {"KeepToolbeltAfterInput", "false"},
-    {"ShowLensActionOnNonNtp", "true"},
-    {"ShowLensActionOnNtp", "true"},
+    {"ShowLensActionOnNonNtp", "false"},
+    {"ShowLensActionOnNtp", "false"},
     {"ShowAiModeActionOnNonNtp", "true"},
     {"ShowAiModeActionOnNtp", "true"},
     {"ShowHistoryActionOnNonNtp", "true"},
@@ -1393,8 +1204,8 @@ const FeatureEntry::FeatureParam kOmniboxToolbeltAllActionsZeroInputs[] = {
 };
 const FeatureEntry::FeatureParam kOmniboxToolbeltAllActionsZeroTypedInputs[] = {
     {"KeepToolbeltAfterInput", "true"},
-    {"ShowLensActionOnNonNtp", "true"},
-    {"ShowLensActionOnNtp", "true"},
+    {"ShowLensActionOnNonNtp", "false"},
+    {"ShowLensActionOnNtp", "false"},
     {"ShowAiModeActionOnNonNtp", "true"},
     {"ShowAiModeActionOnNtp", "true"},
     {"ShowHistoryActionOnNonNtp", "true"},
@@ -1405,21 +1216,11 @@ const FeatureEntry::FeatureParam kOmniboxToolbeltAllActionsZeroTypedInputs[] = {
     {"ShowTabsActionOnNtp", "true"},
 };
 const FeatureEntry::FeatureVariation kOmniboxToolbeltVariations[] = {
-    {"1 - Lens Action - Zero Inputs (Default)",
-     kOmniboxToolbeltLensActionsZeroInputs, nullptr},
-    {"2 - Lens Action - Zero + Typed Inputs",
-     kOmniboxToolbeltLensActionsZeroTypedInputs, nullptr},
-    {"3 - AI Action - Zero Inputs", kOmniboxToolbeltAiActionsZeroInputs,
-     nullptr},
-    {"4 - AI Action - Zero + Typed Inputs",
+    {"AI Action - Zero Inputs", kOmniboxToolbeltAiActionsZeroInputs, nullptr},
+    {"AI Action - Zero + Typed Inputs",
      kOmniboxToolbeltAiActionsZeroTypedInputs, nullptr},
-    {"5 - Lens + AI Actions - Zero Inputs",
-     kOmniboxToolbeltLensAiActionsZeroInputs, nullptr},
-    {"6 - Lens + AI Actions - Zero + Typed Inputs",
-     kOmniboxToolbeltLensAiActionsZeroTypedInputs, nullptr},
-    {"7 - All Actions - Zero Inputs", kOmniboxToolbeltAllActionsZeroInputs,
-     nullptr},
-    {"8 - All Actions - Zero + Typed Inputs",
+    {"All Actions - Zero Inputs", kOmniboxToolbeltAllActionsZeroInputs, nullptr},
+    {"All Actions - Zero + Typed Inputs",
      kOmniboxToolbeltAllActionsZeroTypedInputs, nullptr},
 };
 
@@ -2483,12 +2284,6 @@ const FeatureEntry::FeatureVariation
         {"Reminder", kMobilePromoOnDesktopForcePromoTypeReminder, nullptr},
 };
 
-const FeatureEntry::FeatureParam kMobilePromoOnDesktopLens[] = {
-    {kMobilePromoOnDesktopPromoTypeParam, "1"},
-    {kMobilePromoOnDesktopNotificationParam, "false"}};
-const FeatureEntry::FeatureParam kMobilePromoOnDesktopLensNotification[] = {
-    {kMobilePromoOnDesktopPromoTypeParam, "1"},
-    {kMobilePromoOnDesktopNotificationParam, "true"}};
 const FeatureEntry::FeatureParam kMobilePromoOnDesktopESB[] = {
     {kMobilePromoOnDesktopPromoTypeParam, "2"},
     {kMobilePromoOnDesktopNotificationParam, "false"}};
@@ -2555,18 +2350,11 @@ const FeatureEntry::FeatureVariation kMobilePromoOnDesktopVariationsWave1[] = {
     {" - Tab Groups", kMobilePromoOnDesktopTabGroups, nullptr},
     {" - Tab Groups with push notification",
      kMobilePromoOnDesktopTabGroupsNotification, nullptr},
-
-
-    {" - Lens Promo", kMobilePromoOnDesktopLens, nullptr},
-    {" - Lens Promo with push notification",
-     kMobilePromoOnDesktopLensNotification, nullptr},
 };
 
 const FeatureEntry::FeatureVariation
     kMobilePromoOnDesktopWithQRCodeVariationsWave1[] = {
         {" - Tab Groups", kMobilePromoOnDesktopTabGroups, nullptr},
-
-        {" - Lens Promo", kMobilePromoOnDesktopLens, nullptr},
 };
 
 const FeatureEntry::FeatureVariation kMobilePromoOnDesktopVariationsWave2[] = {
@@ -3301,8 +3089,6 @@ const FeatureEntry::Choice kRemoteActorCredentialSharingChoices[] = {
     {flags_ui::kGenericExperimentChoiceDefault, "", ""},
     {flags_ui::kGenericExperimentChoiceEnabled, switches::kEnableFeatures,
      "RemoteActorCredentialSharing,RemoteActorCredentialSharingSearch"},
-    {"Enabled (Gemini only)", switches::kEnableFeatures,
-     "RemoteActorCredentialSharing"},
     {"Enabled (Search only)", switches::kEnableFeatures,
      "RemoteActorCredentialSharingSearch"},
     {flags_ui::kGenericExperimentChoiceDisabled, switches::kDisableFeatures,
@@ -3318,16 +3104,6 @@ const FeatureEntry::Choice kPaymentHandlerCustomSizeChoices[] = {
      "PaymentHandlerStaticCustomSize,PaymentHandlerDynamicCustomSize"},
     {flags_ui::kGenericExperimentChoiceDisabled, switches::kDisableFeatures,
      "PaymentHandlerStaticCustomSize,PaymentHandlerDynamicCustomSize"},
-};
-
-const FeatureEntry::FeatureParam kTtcLiveRecipeFallback[] = {
-    {"LiveRecipe", "fallback"}};
-const FeatureEntry::FeatureParam kTtcLiveRecipeDefault[] = {
-    {"LiveRecipe", "default"}};
-
-const FeatureEntry::FeatureVariation kTtcLiveRecipeVariations[] = {
-    {"Fallback model", kTtcLiveRecipeFallback, nullptr},
-    {"Default model", kTtcLiveRecipeDefault, nullptr},
 };
 
 // RECORDING USER METRICS FOR FLAGS:
@@ -3464,10 +3240,6 @@ const FeatureEntry kFeatureEntries[] = {
          autofill::features::debug::kAutofillShowTypePredictions,
          kAutofillShowTypePredictionsVariations,
          "AutofillShowTypePredictions")},
-    {"autofill-ambient-autofill",
-     flag_descriptions::kAutofillAmbientAutofillName,
-     flag_descriptions::kAutofillAmbientAutofillDescription, kOsAll,
-     FEATURE_VALUE_TYPE(autofill::features::kAutofillAmbientAutofill)},
     {"autofill-payments-field-swapping",
      flag_descriptions::kAutofillPaymentsFieldSwappingName,
      flag_descriptions::kAutofillPaymentsFieldSwappingDescription, kOsAll,
@@ -4165,12 +3937,6 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(omnibox_feature_configs::ContextualSearch::
                             kContextualSearchBoxUsesContextualSearchProvider)},
 
-    {"contextual-search-open-lens-action-uses-thumbnail",
-     flag_descriptions::kContextualSearchOpenLensActionUsesThumbnailName,
-     flag_descriptions::kContextualSearchOpenLensActionUsesThumbnailDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(omnibox_feature_configs::ContextualSearch::
-                            kContextualSearchOpenLensActionUsesThumbnail)},
 
     {"contextual-suggestions-ablate-others-when-present",
      flag_descriptions::kContextualSuggestionsAblateOthersWhenPresentName,
@@ -4218,13 +3984,6 @@ const FeatureEntry kFeatureEntries[] = {
          omnibox::kRichAutocompletion,
          kOmniboxRichAutocompletionPromisingVariations,
          "OmniboxBundledExperimentV1")},
-    {"omnibox-starter-pack-expansion",
-     flag_descriptions::kOmniboxStarterPackExpansionName,
-     flag_descriptions::kOmniboxStarterPackExpansionDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(omnibox::kStarterPackExpansion,
-                                    kOmniboxStarterPackExpansionVariations,
-                                    "StarterPackExpansion")},
-
     {"omnibox-starter-pack-iph", flag_descriptions::kOmniboxStarterPackIPHName,
      flag_descriptions::kOmniboxStarterPackIPHDescription, kOsDesktop,
      FEATURE_VALUE_TYPE(omnibox::kStarterPackIPH)},
@@ -4930,12 +4689,6 @@ const FeatureEntry kFeatureEntries[] = {
 #endif
 
 
-    {"gemini-antiscam-protections-metrics-only",
-     flag_descriptions::kGeminiAntiscamProtectionsMetricsOnlyName,
-     flag_descriptions::kGeminiAntiscamProtectionsMetricsOnlyDescription,
-     kOsMac | kOsWin | kOsLinux,
-     FEATURE_VALUE_TYPE(
-         safe_browsing::kGeminiAntiscamProtectionForMetricsCollection)},
 
 
 
@@ -5365,31 +5118,10 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(features::kWebIdentityDigitalCredentialsCreation)},
 
 
-    {"lens-composebox-identity-delegation",
-     flag_descriptions::kLensComposeboxIdentityDelegationName,
-     flag_descriptions::kLensComposeboxIdentityDelegationDescription, kOsAll,
-     FEATURE_VALUE_TYPE(lens::features::kLensComposeboxIdentityDelegation)},
 
-    {"lens-use-separate-request-id-for-viewport-images",
-     flag_descriptions::kLensUseSeparateRequestIdForViewportImagesName,
-     flag_descriptions::kLensUseSeparateRequestIdForViewportImagesDescription,
-     kOsAll,
-     FEATURE_VALUE_TYPE(
-         lens::features::kLensUseSeparateRequestIdForViewportImages)},
 
-    {"lens-send-drive-tab-urls-in-composeboxes",
-     flag_descriptions::kLensSendDriveTabUrlsInComposeboxesName,
-     flag_descriptions::kLensSendDriveTabUrlsInComposeboxesDescription, kOsAll,
-     FEATURE_VALUE_TYPE(lens::features::kLensSendDriveTabUrlsInComposeboxes)},
 
-    {"lens-bypass-compression-for-c2pa",
-     flag_descriptions::kLensBypassCompressionForC2paName,
-     flag_descriptions::kLensBypassCompressionForC2paDescription, kOsAll,
-     FEATURE_VALUE_TYPE(lens::features::kLensBypassCompressionForC2pa)},
 
-    {"enable-lens-standalone", flag_descriptions::kEnableLensStandaloneName,
-     flag_descriptions::kEnableLensStandaloneDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensStandalone)},
 
 
 
@@ -6321,17 +6053,7 @@ const FeatureEntry kFeatureEntries[] = {
      flag_descriptions::kTranslateOpenSettingsDescription, kOsDesktop,
      FEATURE_VALUE_TYPE(language::kTranslateOpenSettings)},
 
-    {"lens-aim-suggestions", flag_descriptions::kLensAimSuggestionsName,
-     flag_descriptions::kLensAimSuggestionsDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(lens::features::kLensAimSuggestions,
-                                    kLensAimSuggestionsVariations,
-                                    "LensAimSuggestions")},
 
-    {"lens-aim-gradient-suggest-background",
-     flag_descriptions::kLensAimSuggestionsGradientBackgroundName,
-     flag_descriptions::kLensAimSuggestionsGradientBackgroundDescription,
-     kOsAll,
-     FEATURE_VALUE_TYPE(lens::features::kLensAimSuggestionsGradientBackground)},
 
 
     {"data-controls-search-with",
@@ -6399,10 +6121,6 @@ const FeatureEntry kFeatureEntries[] = {
 
 
 
-    {"enable-lens-side-panel-unification",
-     flag_descriptions::kLensSidePanelUnificationName,
-     flag_descriptions::kLensSidePanelUnificationDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensSidePanelUnification)},
 
     {"enable-segmentation-internals-survey",
      flag_descriptions::kSegmentationSurveyPageName,
@@ -6495,11 +6213,6 @@ const FeatureEntry kFeatureEntries[] = {
 #endif  // BUILDFLAG(IS_MAC)
 
 
-    {"ai-overlay-disable-navigation-context",
-     flag_descriptions::kAiOverlayDisableNavigationContextName,
-     flag_descriptions::kAiOverlayDisableNavigationContextDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kAiOverlayDisableNavigationContext)},
 
 
 
@@ -6587,18 +6300,6 @@ const FeatureEntry kFeatureEntries[] = {
 
 
 
-    {"enterprise-published-skills-policy-enabled",
-     flag_descriptions::kEnterprisePublishedSkillsPolicyEnabledName,
-     flag_descriptions::kEnterprisePublishedSkillsPolicyEnabledDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kEnterprisePublishedSkillsPolicyEnabled)},
-    {"skills", flag_descriptions::kSkillsEnabledName,
-     flag_descriptions::kSkillsEnabledDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kSkillsEnabled)},
-    {"skills-and-extensions-app-menu",
-     flag_descriptions::kSkillsAndExtensionsAppMenuName,
-     flag_descriptions::kSkillsAndExtensionsAppMenuDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kSkillsAndExtensionsAppMenu)},
 
 
     {"happy-eyeballs-v3", flag_descriptions::kHappyEyeballsV3Name,
@@ -7431,14 +7132,7 @@ const FeatureEntry kFeatureEntries[] = {
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
 
-    {"lens-updated-feedback-entrypoint",
-     flag_descriptions::kLensUpdatedFeedbackEntrypointName,
-     flag_descriptions::kLensUpdatedFeedbackEntrypointDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensUpdatedFeedbackEntrypoint)},
 
-    {"lens-video-citations", flag_descriptions::kLensVideoCitationsName,
-     flag_descriptions::kLensVideoCitationsDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensVideoCitations)},
 #endif
 
 
@@ -7494,10 +7188,6 @@ const FeatureEntry kFeatureEntries[] = {
     {"sync-ai-threads", flag_descriptions::kSyncAIThreadsName,
      flag_descriptions::kSyncAIThreadsDescription, kOsDesktop,
      FEATURE_VALUE_TYPE(syncer::kSyncAIThread)},
-    {"sync-gemini-threads", flag_descriptions::kSyncGeminiThreadsName,
-     flag_descriptions::kSyncGeminiThreadsDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(syncer::kSyncGeminiThread)},
-
     {"context-hub", flag_descriptions::kContextHubName,
      flag_descriptions::kContextHubDescription, kOsDesktop,
      FEATURE_VALUE_TYPE(context_hub::features::kContextHub)},
@@ -8424,23 +8114,9 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(blink::features::kCapabilityElementIconOnlyMode)},
 
 
-    {"browsing-history-filter-by-actor",
-     flag_descriptions::kBrowsingHistoryFilterByActorName,
-     flag_descriptions::kBrowsingHistoryFilterByActorDescription, kOsAll,
-     FEATURE_VALUE_TYPE(history::kBrowsingHistoryFilterByActor)},
 
-    {"ttc", flag_descriptions::kTtcName, flag_descriptions::kTtcDescription,
-     kOsDesktop, FEATURE_VALUE_TYPE(ttc::kTtc)},
 
-    {"ttc-fre", flag_descriptions::kTtcFreName,
-     flag_descriptions::kTtcFreDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(ttc::kTtcFre)},
 
-    {"ttc-live-recipe", flag_descriptions::kTtcLiveRecipeName,
-     flag_descriptions::kTtcLiveRecipeDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(ttc::kTtcLiveRecipe,
-                                    kTtcLiveRecipeVariations,
-                                    "TtcLiveRecipe")},
 
     {"force-webgpu-adapter", flag_descriptions::kForceWebGpuAdapterName,
      flag_descriptions::kForceWebGpuAdapterDescription,

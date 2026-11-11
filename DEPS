@@ -2826,11 +2826,6 @@ deps = {
       'condition': 'checkout_src_internal',
   },
 
-  'src/chrome/browser/ttc/resources/internal': {
-      'url': Var('chrome_git') + '/chrome/browser/ttc/resources/internal.git' + '@' +
-        '1fe4cc820198ff93c9d07fdec95685a999e533a7',
-      'condition': 'checkout_src_internal',
-  },
 
   'src/chrome/browser/spellchecker/internal': {
       'url': Var('chrome_git') + '/chrome/spellchecker/internal.git' + '@' +

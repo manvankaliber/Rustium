@@ -6,8 +6,6 @@ static_library("renderer") {
   sources = [
     "a11y_util.cc",
     "a11y_util.h",
-    "at_memory_handler.cc",
-    "at_memory_handler.h",
     "autofill_agent.cc",
     "autofill_agent.h",
     "custom_form_control_script_executor.cc",
@@ -134,7 +132,6 @@ source_set("browser_tests") {
   testonly = true
   sources = [
     "a11y_util_browsertest.cc",
-    "at_memory_handler_browsertest.cc",
     "autofill_agent_browsertest.cc",
     "autofill_agent_form_interaction_browsertest.cc",
     "custom_form_control_script_executor_browsertest.cc",

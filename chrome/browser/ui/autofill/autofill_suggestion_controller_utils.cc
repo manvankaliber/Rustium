@@ -168,10 +168,7 @@ bool ShouldApplyDeactivatedStyle(const Suggestion& suggestion) {
     case SuggestionType::kAutofillAiSourceAttribution:
       return false;
     case SuggestionType::kAtMemorySearchResult:
-      // No data suggestions do not have an `AtMemoryPayload`.
-      // Do not gray those out.
-      return std::holds_alternative<Suggestion::AtMemoryPayload>(
-          suggestion.payload);
+      return false;
 
     case SuggestionType::kAccountStoragePasswordEntry:
     case SuggestionType::kAddressEntry:

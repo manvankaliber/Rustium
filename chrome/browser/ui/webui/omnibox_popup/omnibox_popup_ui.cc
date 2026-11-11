@@ -580,6 +580,10 @@ OmniboxPopupUI::GetOrCreateContextualSessionHandle() {
     auto* contextual_search_service =
         ContextualSearchServiceFactory::GetForProfile(profile_);
     if (contextual_search_service) {
+      shared_session_handle_ = contextual_search_service->CreateSession(
+          omnibox::CreateQueryControllerConfigParams(),
+          contextual_search::ContextualSearchSource::kOmnibox,
+          /*invocation_source=*/std::nullopt);
       shared_session_handle_->CheckSearchContentSharingSettings(
           Profile::FromWebUI(web_ui())->GetPrefs());
     }

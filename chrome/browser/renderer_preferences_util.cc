@@ -203,21 +203,6 @@ void UpdateFromSystemSettings(blink::RendererPreferences* prefs,
   prefs->caret_browsing_enabled =
       pref_service->GetBoolean(prefs::kCaretBrowsingEnabled);
 
-  const std::string& shortcut_string =
-      pref_service->GetString(autofill::prefs::kAutofillAtMemoryShortcut);
-  if (!shortcut_string.empty()) {
-    ui::Accelerator accelerator =
-        ui::Command::StringToAccelerator(shortcut_string);
-    prefs->autofill_shortcut_key_code = accelerator.key_code();
-    prefs->autofill_shortcut_modifiers = accelerator.modifiers();
-  } else {
-    prefs->autofill_shortcut_key_code = ui::VKEY_UNKNOWN;
-    prefs->autofill_shortcut_modifiers = 0;
-  }
-  prefs->autofill_at_memory_double_ctrl_trigger_enabled =
-      pref_service->GetBoolean(
-          autofill::prefs::kAutofillAtMemoryDoubleCtrlTriggerEnabled);
-
   ui::AXPlatform::GetInstance().SetCaretBrowsingState(
       prefs->caret_browsing_enabled);
   if (PrefService* const local_state = g_browser_process->local_state()) {

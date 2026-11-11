@@ -445,78 +445,6 @@ BASE_FEATURE(kAutofillAndroidKeyboardAccessoryDynamicPositioning,
 BASE_FEATURE(kAutofillAndroidUseGlobalIdForFormComparison,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-// Feature flag for kAutofillAtMemory.
-BASE_FEATURE(kAutofillAtMemory, base::FEATURE_DISABLED_BY_DEFAULT);
-
-// If enabled, AtMemory can be triggered by pressing Ctrl twice.
-BASE_FEATURE(kAutofillAtMemoryDoubleCtrl, base::FEATURE_DISABLED_BY_DEFAULT);
-
-// The default state for the `kAutofillAtMemoryDoubleCtrlTriggerEnabled`
-// preference.
-BASE_FEATURE_PARAM(bool,
-                   kAutofillAtMemoryDoubleCtrlDefaultPref,
-                   &kAutofillAtMemoryDoubleCtrl,
-                   "default_pref",
-                   true);
-
-// The subscription tiers for which AtMemory is eligible. Comma-separated list
-// of subscription tier integers. If empty/not defined, no tier restrictions
-// are applied.
-BASE_FEATURE_PARAM(std::string,
-                   kAutofillAtMemoryEligibleTiers,
-                   &kAutofillAtMemory,
-                   "at_memory_eligible_tiers",
-                   "");
-
-// The Android devices for which AtMemory is enabled. Comma-separated list
-// of HardwareModelNames. If empty/not defined, no device restrictions are
-// applied (i.e. only tier-based restrictions apply).
-BASE_FEATURE_PARAM(std::string,
-                   kAutofillAtMemoryEnabledDevices,
-                   &kAutofillAtMemory,
-                   "at_memory_enabled_devices",
-                   "");
-
-// The timeout for `PersonalContextService` requests in `AtMemoryQueryService`.
-BASE_FEATURE_PARAM(base::TimeDelta,
-                   kAutofillAtMemoryRequestTimeout,
-                   &kAutofillAtMemory,
-                   base::Seconds(30));
-
-// Controls whether the Autosuggest nudging logic is used. If enabled, user are
-// encouraged to use the AtMemory feature.
-BASE_FEATURE(kAutofillAtMemoryInactivityNudge,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-// Controls whether the previously filled suggestions from AtMemory are shown.
-// Takes no effect when `kAutofillAtMemorySearchStatefulness` is disabled.
-BASE_FEATURE(kAutofillAtMemoryPreviouslyFilled,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-// When enabled, preserves the active AtMemory search query and fetched
-// suggestions when the popup is dismissed, restoring them if the user reopens
-// suggestions on the same field. State is reset once a suggestion is accepted
-// or a different field is focused.
-BASE_FEATURE(kAutofillAtMemorySearchStatefulness,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-// Controls whether contenteditable fields on Android are supported for
-// AtMemory.
-BASE_FEATURE(kAutofillAtMemorySupportContenteditableOnAndroid,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-// Controls whether <textarea> fields on Android are supported for AtMemory.
-// When enabled, the keyboard accessory is shown on textareas with only the
-// AtMemory entry point, and regular Autofill suggestions are not generated
-// for them.
-BASE_FEATURE(kAutofillAtMemorySupportTextAreaOnAndroid,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-// If enabled, AtMemory can be triggered with a keyboard shortcut like
-// Ctrl+Space.
-BASE_FEATURE(kAutofillAtMemoryTriggerShortcut,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
 // When enabled, the placeholder is not considered a label fallback on the
 // renderer side anymore. Instead, local heuristic will match regexes against
 // either the label or the placeholder, depending on how high quality the label
@@ -1212,11 +1140,6 @@ BASE_FEATURE(kManageYourSavedInfoPerceptionSurvey,
 // pointer when the dialog is dismissed.
 BASE_FEATURE(kResetNativePointerInCreditCardAuthDialog,
              base::FEATURE_ENABLED_BY_DEFAULT);
-
-// If enabled, an entry point to AtMemory will be shown at the bottom of the
-// Autocomplete dialogs.
-BASE_FEATURE(kShowAutocompleteAtMemoryButton,
-             base::FEATURE_DISABLED_BY_DEFAULT);
 
 // When enabled, "Manage information" menu item for enhanced autofill will
 // redirect user either to "/travel" or "/identityDocs" pages instead of

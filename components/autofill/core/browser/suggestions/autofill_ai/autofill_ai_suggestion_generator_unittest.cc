@@ -56,8 +56,6 @@ using test::GetOrderEntityInstance;
 using test::GetPassportEntityInstance;
 using test::GetPassportEntityInstanceWithRandomGuid;
 using test::MaskEntityInstance;
-using GmailSourceMetadata =
-    EntityInstance::PersonalContextRecordTypePayload::GmailSourceMetadata;
 using PhotosSourceMetadata =
     EntityInstance::PersonalContextRecordTypePayload::PhotosSourceMetadata;
 using Source = EntityInstance::PersonalContextRecordTypePayload::Source;
@@ -104,46 +102,7 @@ Matcher<const Suggestion&> HasRequiresServerFetch(bool requires_server_fetch) {
       requires_server_fetch);
 }
 
-Matcher<Suggestion> HasAcceptability(Suggestion::Acceptability acceptability) {
-  return Field("Suggestion::acceptability", &Suggestion::acceptability,
-               acceptability);
-}
-
-// Matches the screen reader text of a desktop source attribution suggestion:
-// the accessible attribution text followed by the arrow key instructions.
-Matcher<Suggestion> HasSourceAttributionVoiceOver(
-    const std::u16string& a11y_text) {
-  return Field("Suggestion::voice_over", &Suggestion::voice_over,
-               std::optional<std::u16string>(
-                   a11y_text + u". " +
-                   l10n_util::GetStringUTF16(
-                       IDS_AUTOFILL_AI_SOURCE_ATTRIBUTION_A11Y_INSTRUCTIONS)));
-}
-
-Matcher<Suggestion> SuggestionTypeHasTextAndAcceptability(
-    SuggestionType type,
-    const std::u16string& main_text,
-    Suggestion::Acceptability acceptability) {
-  return AllOf(EqualsSuggestion(type, main_text),
-               HasAcceptability(acceptability));
-}
-
-std::vector<testing::Matcher<Suggestion>> MaybeSuggestedByGeminiTitle() {
-  return {AllOf(EqualsSuggestion(SuggestionType::kTitle,
-                                 l10n_util::GetStringUTF16(
-                                     IDS_AUTOFILL_AI_SUGGESTED_BY_GEMINI)),
-                Field(&Suggestion::acceptability,
-                      Suggestion::Acceptability::kUnselectableAndUnacceptable),
-                Field(&Suggestion::filtration_policy,
-                      Suggestion::FiltrationPolicy::kStatic))};
-}
-
-// Flattens a mix of individual `testing::Matcher<Suggestion>` (or convertible
-// matchers) and `std::vector<testing::Matcher<Suggestion>>` into a single list
-// of matchers suitable for `testing::ElementsAreArray()`.
-// This allows platform-aware helper functions like
-// `MaybeSuggestedByGeminiTitle()` to conditionally inject different matchers
-// per platform into GMock assertion lists without duplicating test bodies.
+// Flattens individual matchers and vectors for ElementsAreArray().
 template <typename... Matchers>
 std::vector<testing::Matcher<Suggestion>> FlattenMatchers(
     Matchers&&... matchers) {
@@ -184,13 +143,6 @@ auto TravelSuggestionsAre(auto&&... matchers) {
       EqualsSuggestion(SuggestionType::kManageAutofillAiTravel)));
 }
 
-auto ShoppingSuggestionsAre(auto&&... matchers) {
-  return ElementsAreArray(FlattenMatchers(
-      std::forward<decltype(matchers)>(matchers)...,
-      EqualsSuggestion(SuggestionType::kSeparator),
-      EqualsSuggestion(SuggestionType::kManageAutofillAiShopping)));
-}
-
 std::u16string GetFlightReservationName(const EntityInstance& entity) {
   return entity
       .attribute(
@@ -212,16 +164,6 @@ std::u16string GetDriversLicenseName(const EntityInstance& entity) {
   return entity
       .attribute(AttributeType(AttributeTypeName::kDriversLicenseName))
       ->GetCompleteInfo(kAppLocaleUS);
-}
-
-Source GmailSource(std::string_view url, base::Time timestamp) {
-  return Source{.url = GURL(url),
-                .metadata = GmailSourceMetadata{.timestamp = timestamp}};
-}
-
-Source PhotosSource(std::string_view url, base::Time timestamp) {
-  return Source{.url = GURL(url),
-                .metadata = PhotosSourceMetadata{.timestamp = timestamp}};
 }
 
 class AutofillAiSuggestionGeneratorTest : public testing::Test {
@@ -570,8 +512,7 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
 
   std::vector<Suggestion> suggestions =
       CreateAutofillAiFillingSuggestions(field(0));
-  EXPECT_EQ(suggestions[0].type, SuggestionType::kTitle);
-  EXPECT_THAT(suggestions[1], HasIcon(Suggestion::Icon::kFlightSpark));
+  EXPECT_THAT(suggestions[0], HasIcon(Suggestion::Icon::kFlightSpark));
 }
 
 TEST_F(
@@ -583,13 +524,12 @@ TEST_F(
 
   std::vector<Suggestion> suggestions =
       CreateAutofillAiFillingSuggestions(field(0));
-  EXPECT_EQ(suggestions[0].type, SuggestionType::kTitle);
-  EXPECT_THAT(suggestions[1], HasIcon(Suggestion::Icon::kPassportSpark));
+  EXPECT_THAT(suggestions[0], HasIcon(Suggestion::Icon::kPassportSpark));
 }
 
 TEST_F(
     AutofillAiSuggestionGeneratorTest,
-    GetFillingSuggestion_PersonalContextAndLocalEntities_SuggestedByGeminiLabel) {
+    GetFillingSuggestion_PersonalContextAndLocalEntities) {
   EntityInstance passport_local = GetPassportEntityInstanceWithRandomGuid(
       {.name = u"Jon Doe",
        .number = u"123456",
@@ -613,7 +553,6 @@ TEST_F(
                                          Suggestion::AutofillAiPayload(
                                              passport_local.guid())),
                         HasLabels(u"Passport · Jon Doe")),
-                  MaybeSuggestedByGeminiTitle(),
                   AllOf(EqualsSuggestion(SuggestionType::kFillAutofillAi,
                                          Suggestion::AutofillAiPayload(
                                              passport_personal_context.guid())),
@@ -635,7 +574,6 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
   EXPECT_THAT(
       CreateAutofillAiFillingSuggestions(field(0)),
       IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
           AllOf(EqualsSuggestion(SuggestionType::kFillAutofillAi,
                                  Suggestion::AutofillAiPayload(
                                      passport_personal_context.guid())),
@@ -653,504 +591,19 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
 }
 
 TEST_F(AutofillAiSuggestionGeneratorTest,
-       GetFillingSuggestion_PersonalContext_DetailedSource_Photos) {
-  EntityInstance passport_personal_context =
-      GetPassportEntityInstanceWithRandomGuid(
-          {.record_type =
-               EntityInstance::PersonalContextRecordTypePayload{
-                   .sources = {Source{.url = GURL("https://photos.example.com"),
-                                      .metadata = PhotosSourceMetadata{}}}},
-           .use_count = 0});
-  SetEntities({passport_personal_context});
+       PersonalContextSourcesDoNotCreateGeminiAttribution) {
+  EntityInstance passport = GetPassportEntityInstanceWithRandomGuid(
+      {.record_type = EntityInstance::PersonalContextRecordTypePayload{
+           .sources = {Source{.url = GURL("https://photos.example.com"),
+                              .metadata = PhotosSourceMetadata{}}}}});
+  SetEntities({passport});
   SetForm({PASSPORT_NUMBER, NAME_FULL});
 
-  std::u16string expected_source_label =
-      u"From Gemini and connected apps · Photos\u00A0[1]";
-
-  EXPECT_THAT(
-      CreateAutofillAiFillingSuggestions(field(0)),
-      IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
-          AllOf(
-              EqualsSuggestion(SuggestionType::kFillAutofillAi,
-                               Suggestion::AutofillAiPayload(
-                                   passport_personal_context.guid())),
-              ChildrenAre(
-                  AllOf(EqualsSuggestion(
-                            SuggestionType::kAutofillAiSourceAttribution,
-                            expected_source_label, Suggestion::Icon::kSpark,
-                            Suggestion::AutofillAiPayload(
-                                passport_personal_context.guid(),
-                                {Suggestion::PersonalContextSourceCitation(
-                                    GURL("https://photos.example.com"),
-                                    gfx::Range(40, 43), u"Photos source 1")})),
-                        HasAcceptability(Suggestion::Acceptability::
-                                             kSelectableButUnacceptable),
-                        HasSourceAttributionVoiceOver(
-                            u"From Gemini and connected apps · "
-                            u"Photos, Photos source 1")),
-                  EqualsSuggestion(SuggestionType::kSeparator),
-                  EqualsSuggestion(SuggestionType::kManageEnhancedAutofill,
-                                   l10n_util::GetStringUTF16(
-                                       IDS_AUTOFILL_MANAGE_ENHANCED_AUTOFILL),
-                                   Suggestion::Icon::kSettings)))));
-}
-
-TEST_F(AutofillAiSuggestionGeneratorTest,
-       GetFillingSuggestion_PersonalContext_DetailedSource_Gmail) {
-  EntityInstance passport_personal_context =
-      GetPassportEntityInstanceWithRandomGuid(
-          {.record_type =
-               EntityInstance::PersonalContextRecordTypePayload{
-                   .sources = {Source{.url = GURL("https://mail.example.com"),
-                                      .metadata = GmailSourceMetadata{}}}},
-           .use_count = 0});
-  SetEntities({passport_personal_context});
-  SetForm({PASSPORT_NUMBER, NAME_FULL});
-
-  std::u16string expected_source_label =
-      u"From Gemini and connected apps · Gmail\u00A0[1]";
-
-  EXPECT_THAT(
-      CreateAutofillAiFillingSuggestions(field(0)),
-      IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
-          AllOf(EqualsSuggestion(SuggestionType::kFillAutofillAi,
-                                 Suggestion::AutofillAiPayload(
-                                     passport_personal_context.guid())),
-                ChildrenAre(
-                    EqualsSuggestion(
-                        SuggestionType::kAutofillAiSourceAttribution,
-                        expected_source_label, Suggestion::Icon::kSpark,
-                        Suggestion::AutofillAiPayload(
-                            passport_personal_context.guid(),
-                            {Suggestion::PersonalContextSourceCitation(
-                                GURL("https://mail.example.com"),
-                                gfx::Range(39, 42), u"Gmail source 1")})),
-                    EqualsSuggestion(SuggestionType::kSeparator),
-                    EqualsSuggestion(SuggestionType::kManageEnhancedAutofill,
-                                     l10n_util::GetStringUTF16(
-                                         IDS_AUTOFILL_MANAGE_ENHANCED_AUTOFILL),
-                                     Suggestion::Icon::kSettings)))));
-}
-
-TEST_F(
-    AutofillAiSuggestionGeneratorTest,
-    GetFillingSuggestion_PersonalContext_MultipleSources_CombinedAttributionItem) {
-  EntityInstance passport_personal_context =
-      GetPassportEntityInstanceWithRandomGuid(
-          {.record_type =
-               EntityInstance::PersonalContextRecordTypePayload{
-                   .sources = {Source{.url = GURL("https://photos.example.com"),
-                                      .metadata = PhotosSourceMetadata{}},
-                               Source{.url = GURL("https://mail.example.com"),
-                                      .metadata = GmailSourceMetadata{}}}},
-           .use_count = 0});
-  SetEntities({passport_personal_context});
-  SetForm({PASSPORT_NUMBER, NAME_FULL});
-
-  EXPECT_THAT(
-      CreateAutofillAiFillingSuggestions(field(0)),
-      IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
-          AllOf(
-              EqualsSuggestion(SuggestionType::kFillAutofillAi,
-                               Suggestion::AutofillAiPayload(
-                                   passport_personal_context.guid())),
-              ChildrenAre(
-                  AllOf(
-                      EqualsSuggestion(
-                          SuggestionType::kAutofillAiSourceAttribution,
-                          u"From Gemini and connected apps · Gmail\u00A0[1] · "
-                          u"Photos\u00A0[1]",
-                          Suggestion::Icon::kSpark,
-                          Suggestion::AutofillAiPayload(
-                              passport_personal_context.guid(),
-                              {Suggestion::PersonalContextSourceCitation(
-                                   GURL("https://mail.example.com"),
-                                   gfx::Range(39, 42), u"Gmail source 1"),
-                               Suggestion::PersonalContextSourceCitation(
-                                   GURL("https://photos.example.com"),
-                                   gfx::Range(52, 55), u"Photos source 1")})),
-                      HasSourceAttributionVoiceOver(
-                          u"From Gemini and connected apps · Gmail, Gmail "
-                          u"source 1 · Photos, Photos source 1")),
-                  EqualsSuggestion(SuggestionType::kSeparator),
-                  EqualsSuggestion(SuggestionType::kManageEnhancedAutofill,
-                                   l10n_util::GetStringUTF16(
-                                       IDS_AUTOFILL_MANAGE_ENHANCED_AUTOFILL),
-                                   Suggestion::Icon::kSettings)))));
-}
-
-TEST_F(AutofillAiSuggestionGeneratorTest,
-       GetFillingSuggestion_PersonalContext_MultipleCitationsSameApp) {
-  EntityInstance passport_personal_context =
-      GetPassportEntityInstanceWithRandomGuid(
-          {.record_type =
-               EntityInstance::PersonalContextRecordTypePayload{
-                   .sources = {Source{.url = GURL("https://mail.example.com/1"),
-                                      .metadata = GmailSourceMetadata{}},
-                               Source{.url = GURL("https://mail.example.com/2"),
-                                      .metadata = GmailSourceMetadata{}}}},
-           .use_count = 0});
-  SetEntities({passport_personal_context});
-  SetForm({PASSPORT_NUMBER, NAME_FULL});
-
-  EXPECT_THAT(
-      CreateAutofillAiFillingSuggestions(field(0)),
-      IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
-          AllOf(EqualsSuggestion(SuggestionType::kFillAutofillAi,
-                                 Suggestion::AutofillAiPayload(
-                                     passport_personal_context.guid())),
-                ChildrenAre(
-                    EqualsSuggestion(
-                        SuggestionType::kAutofillAiSourceAttribution,
-                        u"From Gemini and connected apps · "
-                        u"Gmail\u00A0[1]\u00A0[2]",
-                        Suggestion::Icon::kSpark,
-                        Suggestion::AutofillAiPayload(
-                            passport_personal_context.guid(),
-                            {Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/1"),
-                                 gfx::Range(39, 42), u"Gmail source 1"),
-                             Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/2"),
-                                 gfx::Range(43, 46), u"Gmail source 2")})),
-                    EqualsSuggestion(SuggestionType::kSeparator),
-                    EqualsSuggestion(SuggestionType::kManageEnhancedAutofill,
-                                     l10n_util::GetStringUTF16(
-                                         IDS_AUTOFILL_MANAGE_ENHANCED_AUTOFILL),
-                                     Suggestion::Icon::kSettings)))));
-}
-
-// Tests that when an entity has more than kMaxSourceAttributionCitations
-// sources, only the kMaxSourceAttributionCitations most recent sources across
-// apps are included in the attribution row.
-TEST_F(
-    AutofillAiSuggestionGeneratorTest,
-    GetFillingSuggestion_PersonalContext_MoreThanMaxSources_CappedToMostRecent) {
-  // 7 sources (kMaxSourceAttributionCitations + 2 sources).
-  EntityInstance passport_personal_context =
-      GetPassportEntityInstanceWithRandomGuid(
-          {.record_type =
-               EntityInstance::PersonalContextRecordTypePayload{
-                   .sources =
-                       {
-                           // T7: Newest Gmail
-                           GmailSource("https://mail.example.com/newest",
-                                       test::kJune2017),
-                           // T6: Newest Photos
-                           PhotosSource("https://photos.example.com/newest",
-                                        test::kJune2017 - base::Hours(1)),
-                           // T5: Second newest Gmail
-                           GmailSource("https://mail.example.com/second",
-                                       test::kJune2017 - base::Hours(2)),
-                           // T4: Second newest Photos
-                           PhotosSource("https://photos.example.com/second",
-                                        test::kJune2017 - base::Hours(3)),
-                           // T3: Third newest Gmail
-                           GmailSource("https://mail.example.com/third",
-                                       test::kJune2017 - base::Hours(4)),
-                           // T2: Oldest Photos (should be dropped, 6th)
-                           PhotosSource("https://photos.example.com/oldest",
-                                        test::kJune2017 - base::Hours(5)),
-                           // T1: Oldest Gmail (should be dropped, 7th)
-                           GmailSource("https://mail.example.com/oldest",
-                                       test::kJune2017 - base::Hours(6)),
-                       }},
-           .use_count = 0});
-  SetEntities({passport_personal_context});
-  SetForm({PASSPORT_NUMBER, NAME_FULL});
-
-  const std::u16string expected_source_label =
-      u"From Gemini and connected apps · Gmail\u00A0[1]\u00A0[2]\u00A0[3] · "
-      u"Photos\u00A0[1]\u00A0[2] + 2 other sources";
-
-  EXPECT_THAT(
-      CreateAutofillAiFillingSuggestions(field(0)),
-      IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
-          AllOf(
-              EqualsSuggestion(SuggestionType::kFillAutofillAi,
-                               Suggestion::AutofillAiPayload(
-                                   passport_personal_context.guid())),
-              ChildrenAre(
-                  AllOf(EqualsSuggestion(
-                            SuggestionType::kAutofillAiSourceAttribution,
-                            expected_source_label, Suggestion::Icon::kSpark,
-                            Suggestion::AutofillAiPayload(
-                                passport_personal_context.guid(),
-                                {Suggestion::PersonalContextSourceCitation(
-                                     GURL("https://mail.example.com/newest"),
-                                     gfx::Range(39, 42), u"Gmail source 1"),
-                                 Suggestion::PersonalContextSourceCitation(
-                                     GURL("https://mail.example.com/second"),
-                                     gfx::Range(43, 46), u"Gmail source 2"),
-                                 Suggestion::PersonalContextSourceCitation(
-                                     GURL("https://mail.example.com/third"),
-                                     gfx::Range(47, 50), u"Gmail source 3"),
-                                 Suggestion::PersonalContextSourceCitation(
-                                     GURL("https://photos.example.com/newest"),
-                                     gfx::Range(60, 63), u"Photos source 1"),
-                                 Suggestion::PersonalContextSourceCitation(
-                                     GURL("https://photos.example.com/second"),
-                                     gfx::Range(64, 67), u"Photos source 2")})),
-                        // The "+ N other sources" suffix is kept in the
-                        // screen reader text.
-                        HasSourceAttributionVoiceOver(
-                            u"From Gemini and connected apps · Gmail, Gmail "
-                            u"source 1, Gmail source 2, Gmail source 3 · "
-                            u"Photos, Photos source 1, Photos source 2 + 2 "
-                            u"other sources")),
-                  EqualsSuggestion(SuggestionType::kSeparator),
-                  EqualsSuggestion(SuggestionType::kManageEnhancedAutofill,
-                                   l10n_util::GetStringUTF16(
-                                       IDS_AUTOFILL_MANAGE_ENHANCED_AUTOFILL),
-                                   Suggestion::Icon::kSettings)))));
-}
-
-// Tests that sources without a timestamp (null timestamp) are ranked last
-// and therefore excluded when there are at least kMaxSourceAttributionCitations
-// timestamped sources.
-TEST_F(
-    AutofillAiSuggestionGeneratorTest,
-    GetFillingSuggestion_PersonalContext_SourcesWithoutTimestamp_RankedLast) {
-  // First source listed has no timestamp (null timestamp), but 5 timestamped
-  // sources follow. The null-timestamp source should be ranked last and
-  // dropped.
-  EntityInstance passport_personal_context =
-      GetPassportEntityInstanceWithRandomGuid(
-          {.record_type =
-               EntityInstance::PersonalContextRecordTypePayload{
-                   .sources =
-                       {
-                           GmailSource("https://mail.example.com/null-time",
-                                       base::Time()),
-                           GmailSource("https://mail.example.com/1",
-                                       test::kJune2017),
-                           GmailSource("https://mail.example.com/2",
-                                       test::kJune2017 - base::Hours(1)),
-                           GmailSource("https://mail.example.com/3",
-                                       test::kJune2017 - base::Hours(2)),
-                           GmailSource("https://mail.example.com/4",
-                                       test::kJune2017 - base::Hours(3)),
-                           GmailSource("https://mail.example.com/5",
-                                       test::kJune2017 - base::Hours(4)),
-                       }},
-           .use_count = 0});
-  SetEntities({passport_personal_context});
-  SetForm({PASSPORT_NUMBER, NAME_FULL});
-
-  const std::u16string expected_source_label =
-      u"From Gemini and connected apps · "
-      u"Gmail\u00A0[1]\u00A0[2]\u00A0[3]\u00A0[4]\u00A0[5] + 1 other source";
-
-  EXPECT_THAT(
-      CreateAutofillAiFillingSuggestions(field(0)),
-      IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
-          AllOf(EqualsSuggestion(SuggestionType::kFillAutofillAi,
-                                 Suggestion::AutofillAiPayload(
-                                     passport_personal_context.guid())),
-                ChildrenAre(
-                    EqualsSuggestion(
-                        SuggestionType::kAutofillAiSourceAttribution,
-                        expected_source_label, Suggestion::Icon::kSpark,
-                        Suggestion::AutofillAiPayload(
-                            passport_personal_context.guid(),
-                            {Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/1"),
-                                 gfx::Range(39, 42), u"Gmail source 1"),
-                             Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/2"),
-                                 gfx::Range(43, 46), u"Gmail source 2"),
-                             Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/3"),
-                                 gfx::Range(47, 50), u"Gmail source 3"),
-                             Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/4"),
-                                 gfx::Range(51, 54), u"Gmail source 4"),
-                             Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/5"),
-                                 gfx::Range(55, 58), u"Gmail source 5")})),
-                    EqualsSuggestion(SuggestionType::kSeparator),
-                    EqualsSuggestion(SuggestionType::kManageEnhancedAutofill,
-                                     l10n_util::GetStringUTF16(
-                                         IDS_AUTOFILL_MANAGE_ENHANCED_AUTOFILL),
-                                     Suggestion::Icon::kSettings)))));
-}
-
-// Tests that when multiple sources have the exact same timestamp, their
-// relative server order is preserved and only the first 5 survive the cap.
-TEST_F(
-    AutofillAiSuggestionGeneratorTest,
-    GetFillingSuggestion_PersonalContext_SameTimestamp_PreservesServerOrder) {
-  EntityInstance passport_personal_context =
-      GetPassportEntityInstanceWithRandomGuid(
-          {.record_type =
-               EntityInstance::PersonalContextRecordTypePayload{
-                   .sources =
-                       {
-                           GmailSource("https://mail.example.com/1",
-                                       test::kJune2017),
-                           GmailSource("https://mail.example.com/2",
-                                       test::kJune2017),
-                           GmailSource("https://mail.example.com/3",
-                                       test::kJune2017),
-                           GmailSource("https://mail.example.com/4",
-                                       test::kJune2017),
-                           GmailSource("https://mail.example.com/5",
-                                       test::kJune2017),
-                           GmailSource("https://mail.example.com/6",
-                                       test::kJune2017),
-                           GmailSource("https://mail.example.com/7",
-                                       test::kJune2017),
-                       }},
-           .use_count = 0});
-  SetEntities({passport_personal_context});
-  SetForm({PASSPORT_NUMBER, NAME_FULL});
-
-  const std::u16string expected_source_label =
-      u"From Gemini and connected apps · "
-      u"Gmail\u00A0[1]\u00A0[2]\u00A0[3]\u00A0[4]\u00A0[5] + 2 other sources";
-
-  EXPECT_THAT(
-      CreateAutofillAiFillingSuggestions(field(0)),
-      IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
-          AllOf(EqualsSuggestion(SuggestionType::kFillAutofillAi,
-                                 Suggestion::AutofillAiPayload(
-                                     passport_personal_context.guid())),
-                ChildrenAre(
-                    EqualsSuggestion(
-                        SuggestionType::kAutofillAiSourceAttribution,
-                        expected_source_label, Suggestion::Icon::kSpark,
-                        Suggestion::AutofillAiPayload(
-                            passport_personal_context.guid(),
-                            {Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/1"),
-                                 gfx::Range(39, 42), u"Gmail source 1"),
-                             Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/2"),
-                                 gfx::Range(43, 46), u"Gmail source 2"),
-                             Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/3"),
-                                 gfx::Range(47, 50), u"Gmail source 3"),
-                             Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/4"),
-                                 gfx::Range(51, 54), u"Gmail source 4"),
-                             Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/5"),
-                                 gfx::Range(55, 58), u"Gmail source 5")})),
-                    EqualsSuggestion(SuggestionType::kSeparator),
-                    EqualsSuggestion(SuggestionType::kManageEnhancedAutofill,
-                                     l10n_util::GetStringUTF16(
-                                         IDS_AUTOFILL_MANAGE_ENHANCED_AUTOFILL),
-                                     Suggestion::Icon::kSettings)))));
-}
-
-// Tests that sources under the cap are reordered newest-first within each app.
-TEST_F(AutofillAiSuggestionGeneratorTest,
-       GetFillingSuggestion_PersonalContext_UnderCap_ReorderedByRecency) {
-  EntityInstance passport_personal_context =
-      GetPassportEntityInstanceWithRandomGuid(
-          {.record_type =
-               EntityInstance::PersonalContextRecordTypePayload{
-                   .sources =
-                       {
-                           // Day 1: Oldest
-                           GmailSource("https://mail.example.com/day1",
-                                       test::kJune2017 - base::Days(2)),
-                           // Day 3: Newest
-                           GmailSource("https://mail.example.com/day3",
-                                       test::kJune2017),
-                           // Day 2: Middle
-                           GmailSource("https://mail.example.com/day2",
-                                       test::kJune2017 - base::Days(1)),
-                       }},
-           .use_count = 0});
-  SetEntities({passport_personal_context});
-  SetForm({PASSPORT_NUMBER, NAME_FULL});
-
-  const std::u16string expected_source_label =
-      u"From Gemini and connected apps · Gmail\u00A0[1]\u00A0[2]\u00A0[3]";
-
-  EXPECT_THAT(
-      CreateAutofillAiFillingSuggestions(field(0)),
-      IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
-          AllOf(EqualsSuggestion(SuggestionType::kFillAutofillAi,
-                                 Suggestion::AutofillAiPayload(
-                                     passport_personal_context.guid())),
-                ChildrenAre(
-                    EqualsSuggestion(
-                        SuggestionType::kAutofillAiSourceAttribution,
-                        expected_source_label, Suggestion::Icon::kSpark,
-                        Suggestion::AutofillAiPayload(
-                            passport_personal_context.guid(),
-                            {Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/day3"),
-                                 gfx::Range(39, 42), u"Gmail source 1"),
-                             Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/day2"),
-                                 gfx::Range(43, 46), u"Gmail source 2"),
-                             Suggestion::PersonalContextSourceCitation(
-                                 GURL("https://mail.example.com/day1"),
-                                 gfx::Range(47, 50), u"Gmail source 3")})),
-                    EqualsSuggestion(SuggestionType::kSeparator),
-                    EqualsSuggestion(SuggestionType::kManageEnhancedAutofill,
-                                     l10n_util::GetStringUTF16(
-                                         IDS_AUTOFILL_MANAGE_ENHANCED_AUTOFILL),
-                                     Suggestion::Icon::kSettings)))));
-}
-
-TEST_F(AutofillAiSuggestionGeneratorTest,
-       GetFillingSuggestion_PersonalContext_DetailedSourceAndHideSuggestion) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      {features::kAutofillAmbientAutofillSuppression}, {});
-
-  EntityInstance passport_personal_context =
-      GetPassportEntityInstanceWithRandomGuid(
-          {.record_type =
-               EntityInstance::PersonalContextRecordTypePayload{
-                   .sources = {Source{.url = GURL("https://photos.example.com"),
-                                      .metadata = PhotosSourceMetadata{}}}},
-           .use_count = 0});
-  SetEntities({passport_personal_context});
-  SetForm({PASSPORT_NUMBER, NAME_FULL});
-
-  std::u16string expected_source_label =
-      u"From Gemini and connected apps · Photos\u00A0[1]";
-
-  EXPECT_THAT(
-      CreateAutofillAiFillingSuggestions(field(0)),
-      IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
-          AllOf(EqualsSuggestion(SuggestionType::kFillAutofillAi,
-                                 Suggestion::AutofillAiPayload(
-                                     passport_personal_context.guid())),
-                ChildrenAre(
-                    EqualsSuggestion(
-                        SuggestionType::kAutofillAiSourceAttribution,
-                        expected_source_label, Suggestion::Icon::kSpark,
-                        Suggestion::AutofillAiPayload(
-                            passport_personal_context.guid(),
-                            {Suggestion::PersonalContextSourceCitation(
-                                GURL("https://photos.example.com"),
-                                gfx::Range(40, 43), u"Photos source 1")})),
-                    EqualsSuggestion(SuggestionType::kSeparator),
-                    EqualsSuggestion(
-                        SuggestionType::kRemoveAutofillAi,
-                        l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_REMOVE_INFO),
-                        Suggestion::Icon::kClose,
-                        Suggestion::AutofillAiPayload(
-                            passport_personal_context.guid())),
-                    EqualsSuggestion(SuggestionType::kManageEnhancedAutofill,
-                                     l10n_util::GetStringUTF16(
-                                         IDS_AUTOFILL_MANAGE_ENHANCED_AUTOFILL),
-                                     Suggestion::Icon::kSettings)))));
+  EXPECT_THAT(CreateAutofillAiFillingSuggestions(field(0)),
+              IdentityDocSuggestionsAre(AllOf(
+                  EqualsSuggestion(SuggestionType::kFillAutofillAi,
+                                   Suggestion::AutofillAiPayload(passport.guid())),
+                  ChildrenAre())));
 }
 
 TEST_F(AutofillAiSuggestionGeneratorTest,
@@ -1165,7 +618,6 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
 
   EXPECT_THAT(CreateAutofillAiFillingSuggestions(field(0)),
               IdentityDocSuggestionsAre(
-                  MaybeSuggestedByGeminiTitle(),
                   AllOf(EqualsSuggestion(SuggestionType::kFillAutofillAi,
                                          Suggestion::AutofillAiPayload(
                                              passport_personal_context.guid())),
@@ -1507,7 +959,7 @@ TEST_F(
   EXPECT_THAT(res, IdentityDocSuggestionsAre(
                        HasMainText(GetPassportName(passport_local_1)),
                        HasMainText(GetPassportName(passport_local_2)),
-                       MaybeSuggestedByGeminiTitle(),
+
                        HasMainText(GetPassportName(passport_pc))));
 }
 
@@ -1537,7 +989,7 @@ TEST_F(
   EXPECT_THAT(res,
               IdentityDocSuggestionsAre(
                   HasMainText(GetDriversLicenseName(drivers_license_local)),
-                  MaybeSuggestedByGeminiTitle(),
+
                   HasMainText(GetPassportName(passport_pc))));
 }
 
@@ -1580,7 +1032,7 @@ TEST_F(
               IdentityDocSuggestionsAre(
                   HasMainText(GetPassportName(passport_local)),
                   HasMainText(GetDriversLicenseName(drivers_license_local)),
-                  MaybeSuggestedByGeminiTitle(),
+
                   HasMainText(GetPassportName(passport_pc)),
                   HasMainText(GetDriversLicenseName(drivers_license_pc))));
 }
@@ -1617,7 +1069,7 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
               ElementsAreArray(FlattenMatchers(
                   HasMainText(GetPassportName(passport1)),
                   HasMainText(GetPassportName(passport2)),
-                  MaybeSuggestedByGeminiTitle(),
+
                   HasMainText(GetFlightReservationName(flight_reservation2)),
                   HasMainText(GetFlightReservationName(flight_reservation1)),
                   EqualsSuggestion(SuggestionType::kSeparator),
@@ -1648,7 +1100,7 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
 
   std::vector<Suggestion> res = CreateAutofillAiFillingSuggestions(field(0));
   EXPECT_THAT(res, IdentityDocSuggestionsAre(
-                       MaybeSuggestedByGeminiTitle(),
+
                        HasMainText(GetPassportName(passport_later)),
                        HasMainText(GetPassportName(passport_sooner))));
 }
@@ -1679,7 +1131,7 @@ TEST_F(
   std::vector<Suggestion> res = CreateAutofillAiFillingSuggestions(field(0));
   EXPECT_THAT(res,
               IdentityDocSuggestionsAre(
-                  MaybeSuggestedByGeminiTitle(),
+
                   HasMainText(GetDriversLicenseName(drivers_license_later)),
                   HasMainText(GetDriversLicenseName(drivers_license_sooner))));
 }
@@ -1704,7 +1156,7 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
   SetForm({VEHICLE_LICENSE_PLATE, VEHICLE_VIN});
 
   std::vector<Suggestion> res = CreateAutofillAiFillingSuggestions(field(0));
-  EXPECT_THAT(res, TravelSuggestionsAre(MaybeSuggestedByGeminiTitle(),
+  EXPECT_THAT(res, TravelSuggestionsAre(
                                         HasMainText(u"abc-123"),
                                         HasMainText(u"XYZ-999")));
 }
@@ -1733,7 +1185,7 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
 
   std::vector<Suggestion> res = CreateAutofillAiFillingSuggestions(field(0));
   EXPECT_THAT(res, IdentityDocSuggestionsAre(
-                       MaybeSuggestedByGeminiTitle(),
+
                        HasMainText(GetPassportName(passport_with_expiry)),
                        HasMainText(GetPassportName(passport_without_expiry))));
 }
@@ -1763,7 +1215,7 @@ TEST_F(
 
   std::vector<Suggestion> res = CreateAutofillAiFillingSuggestions(field(0));
   EXPECT_THAT(res, IdentityDocSuggestionsAre(
-                       MaybeSuggestedByGeminiTitle(),
+
                        HasMainText(GetPassportName(passport_frecent)),
                        HasMainText(GetPassportName(passport_less_frecent))));
 }
@@ -1795,7 +1247,7 @@ TEST_F(
   std::vector<Suggestion> res = CreateAutofillAiFillingSuggestions(field(0));
   EXPECT_THAT(
       res, IdentityDocSuggestionsAre(
-               MaybeSuggestedByGeminiTitle(),
+
                HasMainText(GetPassportName(passport_frecent_no_expiry)),
                HasMainText(GetPassportName(passport_less_frecent_no_expiry))));
 }
@@ -1824,7 +1276,7 @@ TEST_F(
 
   std::vector<Suggestion> res = CreateAutofillAiFillingSuggestions(field(0));
   EXPECT_THAT(
-      res, TravelSuggestionsAre(MaybeSuggestedByGeminiTitle(),
+      res, TravelSuggestionsAre(
                                 HasMainText(GetObfuscatedValue(
                                     u"11111", /*visible_suffix_length=*/4)),
                                 HasMainText(GetObfuscatedValue(
@@ -2332,298 +1784,38 @@ class AutofillAiSuggestionGeneratorOrderShipmentTest
   }
 };
 
-TEST_F(AutofillAiSuggestionGeneratorOrderShipmentTest,
-       GetFillingSuggestions_OrderFilteringByDomain) {
-  // Create an Order entity for "example.com" and another for "other.com".
-  SetEntities({
-      test::GetOrderEntityInstance({
-          .id = u"123",
-          .merchant_domain = u"example.com",
-          .guid = "00000000-0000-4000-8000-600000000001",
-      }),
-      test::GetOrderEntityInstance({
-          .id = u"456",
-          .merchant_domain = u"other.com",
-          .guid = "00000000-0000-4000-8000-600000000002",
-      }),
-  });
-  SetForm({ORDER_ID});
 
-  // 1. Set page URL to "https://example.com/checkout".
-  SetMainFrameUrl(GURL("https://example.com/checkout"));
 
-  std::vector<Suggestion> suggestions1 =
-      CreateAutofillAiFillingSuggestions(field(0));
-
-  // The order for "example.com" should be in the main menu, and "other.com"
-  // in the fallback menu.
-  EXPECT_THAT(suggestions1,
-              ShoppingSuggestionsAre(
-                  MaybeSuggestedByGeminiTitle(), HasMainText(u"123"),
-                  EqualsSuggestion(SuggestionType::kAutofillAiOtherOrders,
-                                   l10n_util::GetStringUTF16(
-                                       IDS_AUTOFILL_AI_OTHER_ORDERS))));
-
-  // 2. Set page URL to "https://sub.other.com/checkout".
-  SetMainFrameUrl(GURL("https://sub.other.com/checkout"));
-
-  std::vector<Suggestion> suggestions2 =
-      CreateAutofillAiFillingSuggestions(field(0));
-
-  // The order for "other.com" (eTLD+1 match) should be in the main menu, and
-  // "example.com" in the fallback menu.
-  EXPECT_THAT(suggestions2,
-              ShoppingSuggestionsAre(
-                  MaybeSuggestedByGeminiTitle(), HasMainText(u"456"),
-                  EqualsSuggestion(SuggestionType::kAutofillAiOtherOrders,
-                                   l10n_util::GetStringUTF16(
-                                       IDS_AUTOFILL_AI_OTHER_ORDERS))));
-
-  // 3. Set page URL to a site that doesn't match either (e.g.
-  // "https://random.com").
-  SetMainFrameUrl(GURL("https://random.com"));
-
-  std::vector<Suggestion> suggestions3 =
-      CreateAutofillAiFillingSuggestions(field(0));
-
-  // Both orders should be in the fallback menu since neither matches
-  // random.com.
-  EXPECT_THAT(suggestions3,
-              ShoppingSuggestionsAre(EqualsSuggestion(
-                  SuggestionType::kAutofillAiOtherOrders,
-                  l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_ALL_ORDERS))));
-}
-
-TEST_F(AutofillAiSuggestionGeneratorOrderShipmentTest,
-       GetFillingSuggestions_OrderFilteringByDomain_CrossOriginIframe) {
-  SetEntities({
-      test::GetOrderEntityInstance({
-          .id = u"123",
-          .merchant_domain = u"example.com",
-          .guid = "00000000-0000-4000-8000-600000000001",
-      }),
-      test::GetOrderEntityInstance({
-          .id = u"456",
-          .merchant_domain = u"other.com",
-          .guid = "00000000-0000-4000-8000-600000000002",
-      }),
-  });
-  SetForm({ORDER_ID});
-
-  // 1. Legitimate main frame ("https://example.com/checkout") embedding a
-  // cross-origin iframe ("https://attacker.com").
-  SetMainFrameUrl(GURL("https://example.com/checkout"));
-  field(0).set_origin(url::Origin::Create(GURL("https://attacker.com")));
-
-  EXPECT_THAT(CreateAutofillAiFillingSuggestions(field(0)),
-              ShoppingSuggestionsAre(EqualsSuggestion(
-                  SuggestionType::kAutofillAiOtherOrders,
-                  l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_ALL_ORDERS))));
-
-  // 2. Untrusted main frame ("https://attacker.com") embedding a legitimate
-  // cross-origin iframe ("https://example.com/checkout").
-  SetMainFrameUrl(GURL("https://attacker.com"));
-  field(0).set_origin(
-      url::Origin::Create(GURL("https://example.com/checkout")));
-
-  EXPECT_THAT(CreateAutofillAiFillingSuggestions(field(0)),
-              ShoppingSuggestionsAre(EqualsSuggestion(
-                  SuggestionType::kAutofillAiOtherOrders,
-                  l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_ALL_ORDERS))));
-}
-
-TEST_F(AutofillAiSuggestionGeneratorOrderShipmentTest,
-       GetFillingSuggestions_ShipmentFilteringByDomain) {
-  // Create a Shipment entity for "carrier.com" and another for
-  // "other-carrier.com".
-  SetEntities({
-      test::GetShipmentEntityInstance({
-          .tracking_number = u"TR123",
-          .carrier_domain = u"carrier.com",
-          .guid = "00000000-0000-4000-8000-700000000001",
-      }),
-      test::GetShipmentEntityInstance({
-          .tracking_number = u"TR456",
-          .carrier_domain = u"other-carrier.com",
-          .guid = "00000000-0000-4000-8000-700000000002",
-      }),
-  });
-  SetForm({SHIPMENT_TRACKING_NUMBER});
-
-  // 1. Set page URL to "https://carrier.com/track".
-  SetMainFrameUrl(GURL("https://carrier.com/track"));
-
-  std::vector<Suggestion> suggestions1 =
-      CreateAutofillAiFillingSuggestions(field(0));
-
-  // The shipment for "carrier.com" should be in the main menu, and
-  // "other-carrier.com" in the fallback menu.
-  EXPECT_THAT(suggestions1,
-              ShoppingSuggestionsAre(
-                  MaybeSuggestedByGeminiTitle(),
-                  EqualsSuggestion(SuggestionType::kFillAutofillAi, u"TR123"),
-                  EqualsSuggestion(SuggestionType::kAutofillAiOtherShipments,
-                                   l10n_util::GetStringUTF16(
-                                       IDS_AUTOFILL_AI_OTHER_SHIPMENTS))));
-
-  // 2. Set page URL to "https://sub.other-carrier.com/track".
-  SetMainFrameUrl(GURL("https://sub.other-carrier.com/track"));
-
-  std::vector<Suggestion> suggestions2 =
-      CreateAutofillAiFillingSuggestions(field(0));
-
-  // The shipment for "other-carrier.com" should be in the main menu, and
-  // "carrier.com" in the fallback menu.
-  EXPECT_THAT(suggestions2,
-              ShoppingSuggestionsAre(
-                  MaybeSuggestedByGeminiTitle(),
-                  EqualsSuggestion(SuggestionType::kFillAutofillAi, u"TR456"),
-                  EqualsSuggestion(SuggestionType::kAutofillAiOtherShipments,
-                                   l10n_util::GetStringUTF16(
-                                       IDS_AUTOFILL_AI_OTHER_SHIPMENTS))));
-
-  // 3. Set page URL to "https://random.com".
-  SetMainFrameUrl(GURL("https://random.com"));
-
-  std::vector<Suggestion> suggestions3 =
-      CreateAutofillAiFillingSuggestions(field(0));
-
-  // Both shipments should be in the fallback menu since neither matches
-  // random.com.
-  EXPECT_THAT(suggestions3,
-              ShoppingSuggestionsAre(EqualsSuggestion(
-                  SuggestionType::kAutofillAiOtherShipments,
-                  l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_ALL_SHIPMENTS))));
-}
 
 // Test that PersonalContext Order entities are sorted descending by order date,
 // even if the older order has higher frecency.
-TEST_F(AutofillAiSuggestionGeneratorOrderShipmentTest,
-       GetFillingSuggestions_PersonalContextOrdering_OrderDate) {
-  EntityInstance order_recent = test::GetOrderEntityInstanceWithRandomGuid(
-      {.id = u"ORD_RECENT",
-       .date = u"2026-07-01",
-       .merchant_domain = u"example.com",
-       .use_date = test::kJune2017 - base::Days(10),
-       .record_type = EntityInstance::RecordType::kPersonalContext});
-  EntityInstance order_old = test::GetOrderEntityInstanceWithRandomGuid(
-      {.id = u"ORD_OLD",
-       .date = u"2025-01-01",
-       .merchant_domain = u"example.com",
-       .use_date = test::kJune2017,
-       .record_type = EntityInstance::RecordType::kPersonalContext});
-
-  SetEntities({order_old, order_recent});
-  SetForm({ORDER_ID});
-  SetMainFrameUrl(GURL("https://example.com"));
-
-  std::vector<Suggestion> res = CreateAutofillAiFillingSuggestions(field(0));
-  EXPECT_THAT(res, ShoppingSuggestionsAre(MaybeSuggestedByGeminiTitle(),
-                                          HasMainText(u"ORD_RECENT"),
-                                          HasMainText(u"ORD_OLD")));
-}
 
 // Test that PersonalContext Shipment entities are sorted descending by shipped
 // date, even if the older shipment has higher frecency.
-TEST_F(AutofillAiSuggestionGeneratorOrderShipmentTest,
-       GetFillingSuggestions_PersonalContextOrdering_ShippedDate) {
-  EntityInstance shipment_recent =
-      test::GetShipmentEntityInstanceWithRandomGuid(
-          {.tracking_number = u"TR_RECENT",
-           .carrier_domain = u"carrier.com",
-           .shipped_date = u"2026-07-01",
-           .use_date = test::kJune2017 - base::Days(10),
-           .record_type = EntityInstance::RecordType::kPersonalContext});
-  EntityInstance shipment_old = test::GetShipmentEntityInstanceWithRandomGuid(
-      {.tracking_number = u"TR_OLD",
-       .carrier_domain = u"carrier.com",
-       .shipped_date = u"2025-01-01",
-       .use_date = test::kJune2017,
-       .record_type = EntityInstance::RecordType::kPersonalContext});
-
-  SetEntities({shipment_old, shipment_recent});
-  SetForm({SHIPMENT_TRACKING_NUMBER});
-  SetMainFrameUrl(GURL("https://carrier.com"));
-
-  std::vector<Suggestion> res = CreateAutofillAiFillingSuggestions(field(0));
-  EXPECT_THAT(res, ShoppingSuggestionsAre(MaybeSuggestedByGeminiTitle(),
-                                          HasMainText(u"TR_RECENT"),
-                                          HasMainText(u"TR_OLD")));
-}
 
 // Test that fallback suggestions (second-level children) follow the same
 // ordering logic as primary suggestions. Specifically, PersonalContext Order
 // entities in the fallback menu are sorted descending by order date, even if
 // the older order has higher frecency.
-TEST_F(AutofillAiSuggestionGeneratorOrderShipmentTest,
-       GetFillingSuggestions_FallbackSuggestions_Ordering) {
-  EntityInstance order_recent = test::GetOrderEntityInstanceWithRandomGuid(
-      {.id = u"ORD_RECENT",
-       .date = u"2026-07-01",
-       .merchant_domain = u"example.com",
-       .use_date = test::kJune2017 - base::Days(10),
-       .record_type = EntityInstance::RecordType::kPersonalContext});
-  EntityInstance order_old = test::GetOrderEntityInstanceWithRandomGuid(
-      {.id = u"ORD_OLD",
-       .date = u"2025-01-01",
-       .merchant_domain = u"example.com",
-       .use_date = test::kJune2017,
-       .record_type = EntityInstance::RecordType::kPersonalContext});
-
-  SetEntities({order_old, order_recent});
-  SetForm({ORDER_ID});
-  // Set the site domain to something that does not match either order domain,
-  // so that both orders appear in the fallback menu.
-  SetMainFrameUrl(GURL("https://random.com"));
-
-  std::vector<Suggestion> res = CreateAutofillAiFillingSuggestions(field(0));
-  EXPECT_THAT(
-      res, ShoppingSuggestionsAre(AllOf(
-               SuggestionTypeHasTextAndAcceptability(
-                   SuggestionType::kAutofillAiOtherOrders,
-                   l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_ALL_ORDERS),
-                   Suggestion::Acceptability::kSelectableButUnacceptable),
-               ChildrenAre(
-                   MaybeSuggestedByGeminiTitle(),
-                   SuggestionTypeHasTextAndAcceptability(
-                       SuggestionType::kFillAutofillAi, u"ORD_RECENT",
-                       Suggestion::Acceptability::kSelectableAndAcceptable),
-                   SuggestionTypeHasTextAndAcceptability(
-                       SuggestionType::kFillAutofillAi, u"ORD_OLD",
-                       Suggestion::Acceptability::kSelectableAndAcceptable)))));
-}
 
 // Test that fallback suggestions (second-level children) follow the same
 // deduplication logic as primary suggestions. When two fallback order entities
 // would fill identical values, the higher-priority suggestion is kept and
 // the lower-priority one is deduplicated.
+
 TEST_F(AutofillAiSuggestionGeneratorOrderShipmentTest,
-       GetFillingSuggestions_FallbackSuggestions_Deduplication) {
-  EntityInstance order_server = test::GetOrderEntityInstanceWithRandomGuid(
-      {.id = u"123",
-       .merchant_domain = u"example.com",
-       .record_type = EntityInstance::RecordType::kServerWallet});
-  EntityInstance pcontext = test::GetOrderEntityInstanceWithRandomGuid(
-      {.id = u"123",
-       .merchant_domain = u"example.com",
-       .record_type = EntityInstance::RecordType::kPersonalContext});
-
-  SetEntities({pcontext, order_server});
+       ShoppingEntitiesDoNotProduceSuggestions) {
+  SetEntities({test::GetOrderEntityInstance({
+      .id = u"123", .merchant_domain = u"example.com"})});
   SetForm({ORDER_ID});
-  SetMainFrameUrl(GURL("https://random.com"));
+  SetMainFrameUrl(GURL("https://example.com/checkout"));
+  EXPECT_THAT(CreateAutofillAiFillingSuggestions(field(0)), IsEmpty());
 
-  std::vector<Suggestion> res = CreateAutofillAiFillingSuggestions(field(0));
-  // Since `order_pcontext` is a subset/duplicate of `order_server`, only one
-  // child suggestion should be generated in the fallback menu.
-  EXPECT_THAT(res,
-              ShoppingSuggestionsAre(AllOf(
-                  SuggestionTypeHasTextAndAcceptability(
-                      SuggestionType::kAutofillAiOtherOrders,
-                      l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_ALL_ORDERS),
-                      Suggestion::Acceptability::kSelectableButUnacceptable),
-                  ChildrenAre(SuggestionTypeHasTextAndAcceptability(
-                      SuggestionType::kFillAutofillAi, u"123",
-                      Suggestion::Acceptability::kSelectableAndAcceptable)))));
+  SetEntities({test::GetShipmentEntityInstance({
+      .tracking_number = u"TR123", .carrier_domain = u"carrier.com"})});
+  SetForm({SHIPMENT_TRACKING_NUMBER});
+  SetMainFrameUrl(GURL("https://carrier.com/track"));
+  EXPECT_THAT(CreateAutofillAiFillingSuggestions(field(0)), IsEmpty());
 }
 
 class AutofillAiSuggestionGeneratorSplitManageSuggestionTest
@@ -2670,21 +1862,6 @@ TEST_F(AutofillAiSuggestionGeneratorSplitManageSuggestionTest,
                   EqualsSuggestion(SuggestionType::kManageAutofillAiTravel)));
 }
 
-TEST_F(AutofillAiSuggestionGeneratorSplitManageSuggestionTest,
-       SuggestionsFooterContainsManageAutofillAiShoppingSuggestion) {
-  SetEntities({test::GetOrderEntityInstanceWithRandomGuid()});
-  SetForm({ORDER_ID});
-  SetMainFrameUrl(GURL("https://example.com"));
-  std::vector<Suggestion> suggestions =
-      CreateAutofillAiFillingSuggestions(field(0));
-  EXPECT_THAT(
-      suggestions,
-      ElementsAreArray(FlattenMatchers(
-          MaybeSuggestedByGeminiTitle(),
-          EqualsSuggestion(SuggestionType::kFillAutofillAi),
-          EqualsSuggestion(SuggestionType::kSeparator),
-          EqualsSuggestion(SuggestionType::kManageAutofillAiShopping))));
-}
 
 TEST_F(
     AutofillAiSuggestionGeneratorSplitManageSuggestionTest,
@@ -2811,209 +1988,18 @@ TEST_F(AutofillAiSuggestionGeneratorPolicyTest, BlockTravel) {
 // Tests that the "Other orders" suggestion is correctly generated when there
 // are fallback order entities. It verifies the hierarchy, acceptability, and
 // that prefix filtering is NOT applied to fallback orders.
-TEST_F(AutofillAiSuggestionGeneratorTest, GeneratesOtherOrdersSuggestion) {
-  // Setup: 3 order entities with different domains.
-  // `order_a` matches the page domain (`amazon.com`), so it will be in the main
-  // suggested list. `order_b` and `order_c` belong to different domains, so
-  // they should be fallback options.
-  EntityInstance order_a = GetOrderEntityInstance({
-      .merchant_name = u"Amazon",
-      .merchant_domain = u"amazon.com",
-      .guid = "00000000-0000-4000-8000-600000000001",
-      .use_count = 10,
-  });
-  EntityInstance order_b = GetOrderEntityInstance({
-      .merchant_name = u"BestBuy",
-      .merchant_domain = u"bestbuy.com",
-      .guid = "00000000-0000-4000-8000-600000000002",
-      .use_count = 5,
-  });
-  EntityInstance order_c = GetOrderEntityInstance({
-      .merchant_name = u"Costco",
-      .merchant_domain = u"costco.com",
-      .guid = "00000000-0000-4000-8000-600000000003",
-      .use_count = 1,
-  });
-
-  SetEntities({order_a, order_b, order_c});
-  SetForm({ORDER_ID, ORDER_MERCHANT_NAME});
-  SetMainFrameUrl(GURL("https://amazon.com/checkout"));
-
-  // Generate suggestions.
-  std::vector<Suggestion> suggestions =
-      CreateAutofillAiFillingSuggestions(field(1));
-
-  // Expected layout:
-  // 1. The top-level suggestion for Order A (Amazon).
-  // 2. The "Other orders" parent suggestion (`kAutofillAiOtherOrders`),
-  //    containing BestBuy and Costco as children.
-  // 3. The footer separator and manage suggestions.
-  EXPECT_THAT(
-      suggestions,
-      ShoppingSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
-          SuggestionTypeHasTextAndAcceptability(
-              SuggestionType::kFillAutofillAi, u"Amazon",
-              Suggestion::Acceptability::kSelectableAndAcceptable),
-          AllOf(
-              SuggestionTypeHasTextAndAcceptability(
-                  SuggestionType::kAutofillAiOtherOrders,
-                  l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_OTHER_ORDERS),
-                  Suggestion::Acceptability::kSelectableButUnacceptable),
-              ChildrenAre(
-                  MaybeSuggestedByGeminiTitle(),
-                  SuggestionTypeHasTextAndAcceptability(
-                      SuggestionType::kFillAutofillAi, u"BestBuy",
-                      Suggestion::Acceptability::kSelectableAndAcceptable),
-                  SuggestionTypeHasTextAndAcceptability(
-                      SuggestionType::kFillAutofillAi, u"Costco",
-                      Suggestion::Acceptability::kSelectableAndAcceptable)))));
-}
 
 // Tests that when there are no primary order suggestions (e.g. no orders
 // match the current site's domain), fallback order suggestions are still
 // generated and the menu is labeled "All orders"
 // (IDS_AUTOFILL_AI_ALL_ORDERS).
-TEST_F(AutofillAiSuggestionGeneratorTest,
-       GeneratesAllOrdersSuggestion_NoPrimaryOrders) {
-  EntityInstance order_bestbuy = GetOrderEntityInstance({
-      .merchant_name = u"BestBuy",
-      .merchant_domain = u"bestbuy.com",
-      .guid = "00000000-0000-4000-8000-600000000002",
-      .use_count = 5,
-  });
-  EntityInstance order_costco = GetOrderEntityInstance({
-      .merchant_name = u"Costco",
-      .merchant_domain = u"costco.com",
-      .guid = "00000000-0000-4000-8000-600000000003",
-      .use_count = 1,
-  });
-
-  SetEntities({order_bestbuy, order_costco});
-  SetForm({ORDER_ID, ORDER_MERCHANT_NAME});
-  SetMainFrameUrl(GURL("https://amazon.com/checkout"));
-
-  std::vector<Suggestion> suggestions =
-      CreateAutofillAiFillingSuggestions(field(1));
-
-  // Expected layout:
-  // 1. The fallback parent suggestion (`kAutofillAiOtherOrders`), labeled
-  //    "All orders", containing BestBuy and Costco as children.
-  // 2. The footer separator and manage suggestions.
-  EXPECT_THAT(
-      suggestions,
-      ShoppingSuggestionsAre(AllOf(
-          SuggestionTypeHasTextAndAcceptability(
-              SuggestionType::kAutofillAiOtherOrders,
-              l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_ALL_ORDERS),
-              Suggestion::Acceptability::kSelectableButUnacceptable),
-          ChildrenAre(
-              MaybeSuggestedByGeminiTitle(),
-              SuggestionTypeHasTextAndAcceptability(
-                  SuggestionType::kFillAutofillAi, u"BestBuy",
-                  Suggestion::Acceptability::kSelectableAndAcceptable),
-              SuggestionTypeHasTextAndAcceptability(
-                  SuggestionType::kFillAutofillAi, u"Costco",
-                  Suggestion::Acceptability::kSelectableAndAcceptable)))));
-}
 
 // Tests that the "Other shipments" suggestion is correctly generated when there
 // are fallback shipment entities alongside primary shipment entities.
-TEST_F(AutofillAiSuggestionGeneratorTest, GeneratesOtherShipmentsSuggestion) {
-  // Setup: 3 shipment entities with different domains.
-  EntityInstance shipment_a = test::GetShipmentEntityInstance({
-      .tracking_number = u"TR123",
-      .carrier_domain = u"carrier.com",
-      .guid = "00000000-0000-4000-8000-700000000001",
-  });
-  EntityInstance shipment_b = test::GetShipmentEntityInstance({
-      .tracking_number = u"TR456",
-      .carrier_domain = u"other-carrier.com",
-      .guid = "00000000-0000-4000-8000-700000000002",
-  });
-  EntityInstance shipment_c = test::GetShipmentEntityInstance({
-      .tracking_number = u"TR789",
-      .carrier_domain = u"third-carrier.com",
-      .guid = "00000000-0000-4000-8000-700000000003",
-  });
-
-  SetEntities({shipment_a, shipment_b, shipment_c});
-  SetForm({SHIPMENT_TRACKING_NUMBER});
-  SetMainFrameUrl(GURL("https://carrier.com/track"));
-
-  std::vector<Suggestion> suggestions =
-      CreateAutofillAiFillingSuggestions(field(0));
-
-  // Expected layout:
-  // 1. The top-level suggestion for Shipment A (carrier.com).
-  // 2. The "Other shipments" parent suggestion (`kAutofillAiOtherShipments`),
-  //    containing TR456 and TR789 as children.
-  // 3. The footer separator and manage suggestions.
-  EXPECT_THAT(
-      suggestions,
-      ShoppingSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
-          SuggestionTypeHasTextAndAcceptability(
-              SuggestionType::kFillAutofillAi, u"TR123",
-              Suggestion::Acceptability::kSelectableAndAcceptable),
-          AllOf(
-              SuggestionTypeHasTextAndAcceptability(
-                  SuggestionType::kAutofillAiOtherShipments,
-                  l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_OTHER_SHIPMENTS),
-                  Suggestion::Acceptability::kSelectableButUnacceptable),
-              ChildrenAre(
-                  MaybeSuggestedByGeminiTitle(),
-                  SuggestionTypeHasTextAndAcceptability(
-                      SuggestionType::kFillAutofillAi, u"TR456",
-                      Suggestion::Acceptability::kSelectableAndAcceptable),
-                  SuggestionTypeHasTextAndAcceptability(
-                      SuggestionType::kFillAutofillAi, u"TR789",
-                      Suggestion::Acceptability::kSelectableAndAcceptable)))));
-}
 
 // Tests that when there are no primary shipment suggestions, fallback shipment
 // suggestions are still generated and the menu is labeled "All shipments"
 // (`IDS_AUTOFILL_AI_ALL_SHIPMENTS`).
-TEST_F(AutofillAiSuggestionGeneratorTest,
-       GeneratesAllShipmentsSuggestion_NoPrimaryShipments) {
-  EntityInstance shipment_a = test::GetShipmentEntityInstance({
-      .tracking_number = u"TR456",
-      .carrier_domain = u"other-carrier.com",
-      .guid = "00000000-0000-4000-8000-700000000002",
-  });
-  EntityInstance shipment_b = test::GetShipmentEntityInstance({
-      .tracking_number = u"TR789",
-      .carrier_domain = u"third-carrier.com",
-      .guid = "00000000-0000-4000-8000-700000000003",
-  });
-
-  SetEntities({shipment_a, shipment_b});
-  SetForm({SHIPMENT_TRACKING_NUMBER});
-  SetMainFrameUrl(GURL("https://random.com"));
-
-  std::vector<Suggestion> suggestions =
-      CreateAutofillAiFillingSuggestions(field(0));
-
-  // Expected layout:
-  // 1. The fallback parent suggestion (`kAutofillAiOtherShipments`), labeled
-  //    "All shipments", containing TR456 and TR789 as children.
-  // 2. The footer separator and manage suggestions.
-  EXPECT_THAT(
-      suggestions,
-      ShoppingSuggestionsAre(AllOf(
-          SuggestionTypeHasTextAndAcceptability(
-              SuggestionType::kAutofillAiOtherShipments,
-              l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_ALL_SHIPMENTS),
-              Suggestion::Acceptability::kSelectableButUnacceptable),
-          ChildrenAre(
-              MaybeSuggestedByGeminiTitle(),
-              SuggestionTypeHasTextAndAcceptability(
-                  SuggestionType::kFillAutofillAi, u"TR456",
-                  Suggestion::Acceptability::kSelectableAndAcceptable),
-              SuggestionTypeHasTextAndAcceptability(
-                  SuggestionType::kFillAutofillAi, u"TR789",
-                  Suggestion::Acceptability::kSelectableAndAcceptable)))));
-}
 
 class AutofillAiPrivateInferenceNoticeSuggestionGeneratorTest
     : public AutofillAiSuggestionGeneratorTest {
@@ -3252,21 +2238,21 @@ TEST_F(
   EXPECT_THAT(
       CreateAutofillAiFillingSuggestions(field(0)),
       IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
+
           EqualsSuggestion(SuggestionType::kFillAutofillAi,
                            &feature_engagement::
                                kIPH_AutofillAmbientAutofillSpiiDisclaimer)));
   EXPECT_THAT(
       CreateAutofillAiFillingSuggestions(field(1)),
       IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
+
           EqualsSuggestion(SuggestionType::kFillAutofillAi,
                            &feature_engagement::
                                kIPH_AutofillAmbientAutofillSpiiDisclaimer)));
   EXPECT_THAT(
       CreateAutofillAiFillingSuggestions(field(2)),
       IdentityDocSuggestionsAre(
-          MaybeSuggestedByGeminiTitle(),
+
           EqualsSuggestion(SuggestionType::kFillAutofillAi,
                            &feature_engagement::
                                kIPH_AutofillAmbientAutofillSpiiDisclaimer)));
@@ -3284,7 +2270,7 @@ TEST_F(
   SetForm({PASSPORT_NUMBER});
   EXPECT_THAT(CreateAutofillAiFillingSuggestions(field(0)),
               IdentityDocSuggestionsAre(
-                  MaybeSuggestedByGeminiTitle(),
+
                   EqualsSuggestion(SuggestionType::kFillAutofillAi, nullptr)));
 }
 
@@ -3298,7 +2284,7 @@ TEST_F(AutofillAiSuggestionGeneratorTest,
   SetForm({VEHICLE_LICENSE_PLATE, PASSPORT_NUMBER});
   EXPECT_THAT(CreateAutofillAiFillingSuggestions(field(0)),
               TravelSuggestionsAre(
-                  MaybeSuggestedByGeminiTitle(),
+
                   EqualsSuggestion(SuggestionType::kFillAutofillAi, nullptr)));
   EXPECT_THAT(CreateAutofillAiFillingSuggestions(field(1)),
               IdentityDocSuggestionsAre(

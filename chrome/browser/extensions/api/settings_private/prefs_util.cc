@@ -9,7 +9,6 @@
 #include "build/build_config.h"
 #include "build/chromeos_buildflags.h"
 #include "chrome/browser/accessibility/tree_fixing/pref_names.h"
-#include "chrome/browser/autofill/generated_find_and_fill_with_gemini_pref.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_process_platform_part.h"
 #include "chrome/browser/content_settings/generated_cookie_prefs.h"
@@ -158,10 +157,6 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   (*s_allowlist)[autofill::prefs::kAutofillBnplEnabled] =
       settings_api::PrefType::kBoolean;
-  (*s_allowlist)[autofill::prefs::kAutofillAtMemoryDoubleCtrlTriggerEnabled] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[autofill::prefs::kAutofillAtMemoryShortcut] =
-      settings_api::PrefType::kString;
   (*s_allowlist)[autofill::prefs::kAutofillAiIdentityEntitiesEnabled] =
       settings_api::PrefType::kBoolean;
   (*s_allowlist)[autofill::prefs::kAutofillAiOptInStatus] =
@@ -170,8 +165,6 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
       settings_api::PrefType::kBoolean;
   (*s_allowlist)[personal_context::prefs::
                      kPersonalContextInAutofillSettingsToggleStatus] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[autofill::kGeneratedFindAndFillWithGeminiPref] =
       settings_api::PrefType::kBoolean;
   (*s_allowlist)[optimization_guide::prefs::kFindAndFillWithGeminiSettings] =
       settings_api::PrefType::kNumber;

@@ -45,7 +45,7 @@ suite('OtherGoogleDataDialog', function() {
         testClearBrowsingDataBrowserProxy);
 
     loadTimeData.overrideValues({
-      aiSettingsSection: AiSettingsSection.GEMINI,
+      aiSettingsSection: AiSettingsSection.NONE,
     });
     await createDialog();
   });
@@ -248,46 +248,5 @@ suite('OtherGoogleDataDialog', function() {
     await microtasksFinished();
     assertEquals(
         loadTimeData.getString('otherDataTitle'), title.textContent.trim());
-  });
-
-  test('GeminiAppsActivityLinkClick', async function() {
-    setSignedInAndDseState(SignedInState.SIGNED_IN, /*isGoogleDse=*/ true);
-    await microtasksFinished();
-
-    const geminiAppsActivityLink =
-        dialog.shadowRoot.querySelector<CrLinkRowElement>(
-            '#geminiAppsActivityLink');
-    assertTrue(!!geminiAppsActivityLink);
-    assertTrue(isVisible(geminiAppsActivityLink));
-    geminiAppsActivityLink.click();
-
-    const url = await testOpenWindowProxy.whenCalled('openUrl');
-    assertEquals(loadTimeData.getString('myActivityGeminiAppsUrl'), url);
-
-    assertEquals(
-        'Settings.DeleteBrowsingData.GeminiAppsActivityLinkClick',
-        await testMetricsBrowserProxy.whenCalled('recordAction'));
-  });
-
-  test('GeminiAppsActivityVisibility', async function() {
-    setSignedInAndDseState(SignedInState.SIGNED_IN, /*isGoogleDse=*/ true);
-    await microtasksFinished();
-    assertTrue(isChildVisible(dialog, '#geminiAppsActivityLink'));
-
-    setSignedInAndDseState(SignedInState.SIGNED_OUT, /*isGoogleDse=*/ true);
-    await microtasksFinished();
-    assertFalse(isChildVisible(dialog, '#geminiAppsActivityLink'));
-
-    webUIListenerCallback('sync-status-changed', {});
-    await microtasksFinished();
-    assertFalse(isChildVisible(dialog, '#geminiAppsActivityLink'));
-
-    loadTimeData.overrideValues({
-      aiSettingsSection: AiSettingsSection.NONE,
-    });
-    await createDialog();
-    setSignedInAndDseState(SignedInState.SIGNED_IN, /*isGoogleDse=*/ true);
-    await microtasksFinished();
-    assertFalse(isChildVisible(dialog, '#geminiAppsActivityLink'));
   });
 });

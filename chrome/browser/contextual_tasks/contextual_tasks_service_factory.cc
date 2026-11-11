@@ -114,8 +114,7 @@ std::unique_ptr<KeyedService>
 ContextualTasksServiceFactory::BuildServiceInstanceForBrowserContext(
     content::BrowserContext* context) const {
   if (!contextual_tasks::IsContextualTasksUIEnabled() &&
-      !base::FeatureList::IsEnabled(syncer::kSyncAIThread) &&
-      !base::FeatureList::IsEnabled(syncer::kSyncGeminiThread)) {
+      !base::FeatureList::IsEnabled(syncer::kSyncAIThread)) {
     return nullptr;
   }
 
@@ -143,12 +142,7 @@ ContextualTasksServiceFactory::BuildServiceInstanceForBrowserContext(
       CreateCompositeContextDecorator(favicon_service, history_service,
                                       std::move(additional_decorators)),
       identity_manager, profile->GetPrefs(), supports_ephemeral_only,
-      base::BindRepeating(&GetNumberOfActiveTasks, profile),
-      base::BindRepeating(
-          [](Profile* profile) -> bool {
-            return false;
-          },
-          profile));
+      base::BindRepeating(&GetNumberOfActiveTasks, profile));
 }
 
 }  // namespace contextual_tasks

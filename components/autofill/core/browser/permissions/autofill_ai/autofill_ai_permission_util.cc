@@ -171,7 +171,8 @@ void MaybeOutputReason(std::string* out, std::string_view message) {
       return prefs.GetBoolean(prefs::kAutofillAiTravelEntitiesEnabled);
     case EntityTypeName::kOrder:
     case EntityTypeName::kShipment:
-      return prefs.GetBoolean(prefs::kAutofillAiShoppingEntitiesEnabled);
+      // Shopping entities are no longer offered for filling or import.
+      return false;
   }
   NOTREACHED();
 }

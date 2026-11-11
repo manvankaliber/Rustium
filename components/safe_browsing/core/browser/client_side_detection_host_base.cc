@@ -1448,10 +1448,6 @@ void ClientSideDetectionHostBase::SendRequest(
       ClientSideDetectionEvent::kMiscellaneousFieldsAdded,
       verdict->client_side_detection_type());
 
-  MaybeStartGeminiAntiscamProtection(GURL(verdict->url()),
-                                     verdict->client_side_detection_type(),
-                                     did_match_high_confidence_allowlist);
-
   is_csd_running_ = false;
 
   LogClientSideDetectionEvent(ClientSideDetectionEvent::kNetworkRequestSent,

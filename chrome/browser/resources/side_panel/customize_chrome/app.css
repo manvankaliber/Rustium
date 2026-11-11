@@ -105,10 +105,6 @@ customize-chrome-appearance {
   padding: 8px var(--sp-card-inline-padding);
 }
 
-#couponsButton .cr-icon {
-  --cr-icon-image: url(icons/coupons_old.svg);
-}
-
 #writingButton .cr-icon {
   --cr-icon-image: url(icons/writing.svg);
 }
@@ -118,10 +114,6 @@ customize-chrome-appearance {
 }
 
 :host-context([webui-rounded-icons]) {
-  #couponsButton .cr-icon {
-    --cr-icon-image: url(icons/coupons.svg);
-  }
-
   #productivityButton .cr-icon {
     --cr-icon-image: url(icons/productivity.svg);
   }

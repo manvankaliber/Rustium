@@ -218,7 +218,6 @@ no_check_generated_targets = [
   "//chrome/browser/resources/whats_new:resources",
   "//chrome/browser/resources:app_icon_resources",
   "//chrome/browser/resources:component_extension_resources",
-  "//chrome/browser/ttc/resources:resources",
   "//chrome/browser/ui/webui/app_home:mojo_bindings",
   "//chrome/browser:expired_flags_list",
   "//chrome/common/apps/platform_apps/api:api_features",

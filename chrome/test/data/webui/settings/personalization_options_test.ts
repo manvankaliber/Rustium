@@ -355,9 +355,9 @@ suite('AllBuilds', function() {
         '#searchAggregatorSuggestToggle')));
   });
 
-  test('priceEmailNotificationsToggleHidden', async function() {
+  test('priceEmailNotificationsToggleIsAbsent', async function() {
     loadTimeData.overrideValues(
-        {'changePriceEmailNotificationsEnabled': false});
+        {'changePriceEmailNotificationsEnabled': true});
     buildTestElement();  // Rebuild the element after modifying loadTimeData.
 
     assertFalse(!!testElement.shadowRoot.querySelector(
@@ -371,46 +371,6 @@ suite('AllBuilds', function() {
     assertFalse(!!testElement.shadowRoot.querySelector(
         '#priceEmailNotificationsToggle'));
   });
-
-  test(
-      'priceEmailNotificationsToggleShownForSignedInUsersWithFlag',
-      async function() {
-        loadTimeData.overrideValues({
-          'changePriceEmailNotificationsEnabled': true,
-          // Flag is enabled.
-          'replaceSyncPromosWithSignInPromos': true,
-        });
-        // Rebuild the element after modifying loadTimeData.
-        buildTestElement();
-
-        testElement.syncStatus = {
-          signedInState: SignedInState.SIGNED_IN,
-          statusAction: StatusAction.NO_ACTION,
-        };
-        await microtasksFinished();
-        assertTrue(!!testElement.shadowRoot.querySelector(
-            '#priceEmailNotificationsToggle'));
-      });
-
-  test(
-      'priceEmailNotificationsToggleShownForSyncingUsersWithFlag',
-      async function() {
-        loadTimeData.overrideValues({
-          'changePriceEmailNotificationsEnabled': true,
-          // Flag is enabled.
-          'replaceSyncPromosWithSignInPromos': true,
-        });
-        // Rebuild the element after modifying loadTimeData.
-        buildTestElement();
-
-        testElement.syncStatus = {
-          signedInState: SignedInState.SYNCING,
-          statusAction: StatusAction.NO_ACTION,
-        };
-        await microtasksFinished();
-        assertTrue(!!testElement.shadowRoot.querySelector(
-            '#priceEmailNotificationsToggle'));
-      });
 
 });
 

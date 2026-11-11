@@ -139,12 +139,6 @@ PrefWatcher::PrefWatcher(Profile* profile) : profile_(profile) {
                                      renderer_callback);
   profile_pref_change_registrar_.Add(
       universal_optout::prefs::kUniversalOptOutEnabled, renderer_callback);
-  profile_pref_change_registrar_.Add(autofill::prefs::kAutofillAtMemoryShortcut,
-                                     renderer_callback);
-  profile_pref_change_registrar_.Add(
-      autofill::prefs::kAutofillAtMemoryDoubleCtrlTriggerEnabled,
-      renderer_callback);
-
 #if !BUILDFLAG(IS_MAC)
   profile_pref_change_registrar_.Add(prefs::kFullscreenAllowed,
                                      renderer_callback);

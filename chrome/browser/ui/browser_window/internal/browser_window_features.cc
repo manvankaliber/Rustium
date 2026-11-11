@@ -33,9 +33,6 @@
 #include "chrome/browser/sessions/session_service_factory.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
 #include "chrome/browser/tab_group_sync/tab_group_sync_service_factory.h"
-#include "chrome/browser/ttc/core/entrypoint_controller.h"
-#include "chrome/browser/ttc/core/ttc_keyed_service.h"
-#include "chrome/browser/ui/ai_overlay_dialog/ai_overlay_dialog_controller_views.h"
 #include "chrome/browser/ui/animation/browser_animation_controller.h"
 #include "chrome/browser/ui/bookmarks/bookmark_bar_controller.h"
 #include "chrome/browser/ui/bookmarks/bookmarks_service_feature.h"
@@ -529,12 +526,7 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
   // instantiated in this block (please keep this list ordered without taking
   // into consideration buildflags, repeating buildflags is ok):
   if (browser->GetType() == BrowserWindowInterface::Type::TYPE_NORMAL) {
-    if (ttc::AiOverlayDialogController::IsEnabledForProfile(profile)) {
-      ai_overlay_dialog_controller_ =
-          GetUserDataFactory()
-              .CreateInstance<ttc::AiOverlayDialogControllerViews>(*browser,
-                                                                   browser);
-    }
+
 
 
     initial_web_ui_manager_ = std::make_unique<InitialWebUIManager>(browser);
@@ -1026,12 +1018,6 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
                                                                       browser);
     }
 
-    if (ttc::TtcKeyedService* ttc_service =
-            ttc::TtcKeyedService::Get(profile)) {
-      ttc_entrypoint_controller_ =
-          GetUserDataFactory().CreateInstance<ttc::EntrypointController>(
-              *browser, *browser, *ttc_service);
-    }
 
     if (base::FeatureList::IsEnabled(
             feature_engagement::kIPHVerticalTabstripTutorialFeature)) {
@@ -1088,7 +1074,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
   tab_group_focus_iph_controller_.reset();
   send_tab_to_self_iph_controller_.reset();
   vertical_tab_iph_controller_.reset();
-  ttc_entrypoint_controller_.reset();
   split_view_iph_controller_.reset();
   split_tab_highlight_controller_.reset();
   sharing_window_controller_.reset();
@@ -1177,7 +1162,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
 
   // TYPE_NORMAL members.
   initial_web_ui_manager_.reset();
-  ai_overlay_dialog_controller_.reset();
 
   // Owned-by-all members.
   // contextual_tasks_* are reset first because the group is constructed last

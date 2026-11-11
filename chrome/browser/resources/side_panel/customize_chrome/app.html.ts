@@ -73,11 +73,6 @@ export function getHtml(this: AppElement) {
           $i18nRaw{customizeWithChromeWebstoreLabel}
         </div>
         <div id="buttonContainer">
-          <cr-chip id="couponsButton" chip-role="link"
-              @click="${this.onCouponsButtonClick_}">
-            <div class="cr-icon"></div>
-            $i18n{webstoreShoppingCategoryLabel}
-          </cr-chip>
           <cr-chip id="writingButton" chip-role="link"
               @click="${this.onWritingButtonClick_}">
             <div class="cr-icon"></div>

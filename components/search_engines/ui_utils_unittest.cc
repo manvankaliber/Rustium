@@ -533,12 +533,12 @@ TEST_F(GetDisabledStarterPackIdsTest, AiMode) {
       template_url_starter_pack_data::StarterPackId::kAiMode));
 }
 
-TEST_F(GetDisabledStarterPackIdsTest, GeminiWithStarterPackExpansion) {
+TEST_F(GetDisabledStarterPackIdsTest, GeminiHiddenWithStarterPackExpansion) {
   base::test::ScopedFeatureList feature_list{omnibox::kStarterPackExpansion};
 
   auto disabled_ids = internal::GetDisabledStarterPackIds(
       /*ai_mode_enabled=*/true, /*gemini_enabled=*/true);
-  EXPECT_FALSE(
+  EXPECT_TRUE(
       disabled_ids.Has(template_url_starter_pack_data::StarterPackId::kGemini));
 }
 

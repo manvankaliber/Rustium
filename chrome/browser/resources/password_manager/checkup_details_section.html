@@ -16,7 +16,6 @@ ${!this.isReusedType() ? html`
         .group="${this.getCurrentGroup_(item.id)}"
         ?show-details="${this.isCompromisedType()}"
         ?show-already-changed="${this.clickedChangePassword_(item)}"
-        .passwordChangeState="${this.getPasswordChangeStateFor_(item.id)}"
         @more-actions-click="${this.onMoreActionsClick_}"
         @change-password-clicked="${this.onChangePasswordClicked_}">
     </checkup-list-item>
@@ -35,8 +34,7 @@ ${!this.isReusedType() ? html`
             .group="${this.getCurrentGroup_(item.id)}"
             ?show-details="${this.isCompromisedType()}"
             ?show-already-changed="${this.clickedChangePassword_(item)}"
-            .passwordChangeState="${this.getPasswordChangeStateFor_(item.id)}"
-            @more-actions-click="${this.onMoreActionsClick_}"
+                @more-actions-click="${this.onMoreActionsClick_}"
             @change-password-clicked="${this.onChangePasswordClicked_}">
         </checkup-list-item>
       `)}
@@ -51,7 +49,6 @@ ${!this.isReusedType() ? html`
       <checkup-list-item .item="${subItem}" ?first="${!index}"
           .group="${this.getCurrentGroup_(subItem.id)}"
           ?show-already-changed="${this.clickedChangePassword_(subItem)}"
-          .passwordChangeState="${this.getPasswordChangeStateFor_(subItem.id)}"
           @more-actions-click="${this.onMoreActionsClick_}"
           @change-password-clicked="${this.onChangePasswordClicked_}">
       </checkup-list-item>

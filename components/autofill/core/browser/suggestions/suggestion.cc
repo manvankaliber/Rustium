@@ -24,7 +24,6 @@
 #include "build/buildflag.h"
 #include "components/autofill/core/browser/data_model/autofill_ai/entity_instance.h"
 #include "components/autofill/core/browser/field_types.h"
-#include "components/autofill/core/browser/integrators/at_memory/memory_data_type.h"
 #include "components/autofill/core/browser/suggestions/suggestion_type.h"
 #include "components/autofill/core/common/dense_set.h"
 #include "url/gurl.h"
@@ -269,47 +268,11 @@ Suggestion::PasswordSuggestionDetails::operator=(PasswordSuggestionDetails&&) =
     default;
 Suggestion::PasswordSuggestionDetails::~PasswordSuggestionDetails() = default;
 
-Suggestion::PersonalContextSourceCitation::PersonalContextSourceCitation() =
-    default;
-
-Suggestion::PersonalContextSourceCitation::PersonalContextSourceCitation(
-    GURL url,
-    gfx::Range range,
-    std::u16string accessible_name)
-    : url(std::move(url)),
-      range(range),
-      accessible_name(std::move(accessible_name)) {}
-
-Suggestion::PersonalContextSourceCitation::PersonalContextSourceCitation(
-    const PersonalContextSourceCitation&) = default;
-
-Suggestion::PersonalContextSourceCitation::PersonalContextSourceCitation(
-    PersonalContextSourceCitation&&) = default;
-
-Suggestion::PersonalContextSourceCitation&
-Suggestion::PersonalContextSourceCitation::operator=(
-    const PersonalContextSourceCitation&) = default;
-
-Suggestion::PersonalContextSourceCitation&
-Suggestion::PersonalContextSourceCitation::operator=(
-    PersonalContextSourceCitation&&) = default;
-
-Suggestion::PersonalContextSourceCitation::~PersonalContextSourceCitation() =
-    default;
-
 Suggestion::AutofillAiPayload::AutofillAiPayload() = default;
 
 Suggestion::AutofillAiPayload::AutofillAiPayload(EntityInstance::EntityId guid,
                                                  bool requires_server_fetch)
     : guid(std::move(guid)), requires_server_fetch(requires_server_fetch) {}
-
-Suggestion::AutofillAiPayload::AutofillAiPayload(
-    EntityInstance::EntityId guid,
-    std::vector<PersonalContextSourceCitation> citations,
-    bool requires_server_fetch)
-    : guid(std::move(guid)),
-      citations(std::move(citations)),
-      requires_server_fetch(requires_server_fetch) {}
 
 Suggestion::AutofillAiPayload::AutofillAiPayload(const AutofillAiPayload&) =
     default;
@@ -370,37 +333,6 @@ Suggestion::IdentityCredentialPayload::operator=(IdentityCredentialPayload&&) =
     default;
 
 Suggestion::IdentityCredentialPayload::~IdentityCredentialPayload() = default;
-
-Suggestion::AtMemoryPayload::AtMemoryPayload() = default;
-
-Suggestion::AtMemoryPayload::AtMemoryPayload(std::u16string value,
-                                             MemoryDataType memory_data_type)
-    : value(std::move(value)), memory_data_type(memory_data_type) {}
-
-Suggestion::AtMemoryPayload::AtMemoryPayload(const AtMemoryPayload&) = default;
-
-Suggestion::AtMemoryPayload::AtMemoryPayload(AtMemoryPayload&&) = default;
-
-Suggestion::AtMemoryPayload& Suggestion::AtMemoryPayload::operator=(
-    const AtMemoryPayload&) = default;
-
-Suggestion::AtMemoryPayload& Suggestion::AtMemoryPayload::operator=(
-    AtMemoryPayload&&) = default;
-
-Suggestion::AtMemoryPayload::~AtMemoryPayload() = default;
-
-
-Suggestion::OpenGeminiPayload::OpenGeminiPayload() = default;
-Suggestion::OpenGeminiPayload::OpenGeminiPayload(std::u16string prompt)
-    : prompt(std::move(prompt)) {}
-Suggestion::OpenGeminiPayload::OpenGeminiPayload(const OpenGeminiPayload&) =
-    default;
-Suggestion::OpenGeminiPayload::OpenGeminiPayload(OpenGeminiPayload&&) = default;
-Suggestion::OpenGeminiPayload& Suggestion::OpenGeminiPayload::operator=(
-    const OpenGeminiPayload&) = default;
-Suggestion::OpenGeminiPayload& Suggestion::OpenGeminiPayload::operator=(
-    OpenGeminiPayload&&) = default;
-Suggestion::OpenGeminiPayload::~OpenGeminiPayload() = default;
 
 Suggestion::PaymentsPayload::PaymentsPayload() = default;
 

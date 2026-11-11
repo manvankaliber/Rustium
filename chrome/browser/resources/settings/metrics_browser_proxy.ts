@@ -486,14 +486,6 @@ export enum YourSavedInfoRelatedService {
 }
 // LINT.ThenChange(/tools/metrics/histograms/metadata/autofill/enums.xml:YourSavedInfoRelatedService)
 
-// LINT.IfChange(SuggestionsFromGeminiEntryPoint)
-
-// LINT.ThenChange(/tools/metrics/histograms/metadata/autofill/enums.xml:SuggestionsFromGeminiEntryPoint)
-
-// LINT.IfChange(SuggestionsFromGeminiAction)
-
-// LINT.ThenChange(/tools/metrics/histograms/metadata/autofill/enums.xml:SuggestionsFromGeminiAction)
-
 /**
  * Funnel events for fetching and displaying the Google Wallet public pass
  * legal disclosure notice in settings.
@@ -638,18 +630,6 @@ export interface MetricsBrowserProxy {
    */
   recordSafeBrowsingInteractionHistogram(interaction: SafeBrowsingInteractions):
       void;
-
-  /**
-   * Records a click on the Suggestions from Gemini link across Your saved info
-   * and category subpages with a corresponding metric and user action.
-   */
-
-
-  /**
-   * Records an action triggered inside the Suggestions from Gemini subpage
-   * with a corresponding metric and user action.
-   */
-
 
   /**
    * Helper function that calls recordHistogram for the

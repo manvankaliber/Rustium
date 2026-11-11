@@ -13,8 +13,6 @@
 #include "chrome/browser/safe_browsing/chrome_user_population_helper.h"
 #include "chrome/browser/safe_browsing/client_side_detection_intelligent_scan_delegate_factory.h"
 #include "chrome/browser/safe_browsing/client_side_detection_service_factory.h"
-#include "chrome/browser/safe_browsing/gemini_antiscam_protection/gemini_antiscam_protection_service.h"
-#include "chrome/browser/safe_browsing/gemini_antiscam_protection/gemini_antiscam_protection_service_factory.h"
 #include "chrome/browser/safe_browsing/interstitials/user_interaction_observer.h"
 #include "chrome/browser/safe_browsing/navigation_observer/safe_browsing_navigation_observer_manager_factory.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
@@ -306,28 +304,6 @@ void ChromeClientSideDetectionHostDelegate::GetInnerText(
             },
             frame_texts, base::BindOnce(complete_once, /*timed_out=*/true), i,
             barrier));
-  }
-}
-
-void ChromeClientSideDetectionHostDelegate::MaybeStartGeminiAntiscamProtection(
-    GURL url,
-    ClientSideDetectionType request_type,
-    std::optional<bool> did_match_high_confidence_allowlist) {
-  GeminiAntiscamProtectionService* service =
-      GeminiAntiscamProtectionServiceFactory::GetForProfile(
-          Profile::FromBrowserContext(web_contents_->GetBrowserContext()));
-  if (service) {
-    // GetInnerText is called with a callback that will call
-    // GeminiAntiscamProtectionService::MaybeStartAntiscamProtection.
-    // The `did_match_high_confidence_allowlist` value is true if not set so
-    // that it will not trigger Gemini Antiscam Protection.
-    GetInnerText(base::BindOnce(
-        &GeminiAntiscamProtectionService::MaybeStartAntiscamProtection,
-        service->GetWeakPtr(),
-        GeminiAntiscamProtectionService::BuildGeminiAntiscamProtectionMetadata(
-            web_contents_),
-        url, request_type, did_match_high_confidence_allowlist.value_or(true),
-        web_contents_->GetPrimaryMainFrame()->GetLastCommittedURL()));
   }
 }
 

@@ -298,12 +298,10 @@ template("chrome_extra_paks") {
 
     if (is_win || is_mac || is_linux) {
       sources += [
-        "$root_gen_dir/chrome/ai_overlay_dialog_untrusted_resources.pak",
         "$root_gen_dir/chrome/discards_resources.pak",
       ]
       deps += [
         "//chrome/browser/resources/discards:resources",
-        "//chrome/browser/ttc/resources",
       ]
     }
 

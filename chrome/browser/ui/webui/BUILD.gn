@@ -100,7 +100,6 @@ source_set("configs") {
     deps += [ "//chrome/browser/ui/webui/signin:inline_login" ]
   }
 
-  deps += [ "//chrome/browser/ui/webui/ai_overlay_dialog" ]
 
   deps += [
     "//chrome/browser/contextual_cueing/internals",

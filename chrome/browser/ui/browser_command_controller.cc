@@ -47,8 +47,6 @@
 #include "chrome/browser/signin/signin_ui_util.h"
 #include "chrome/browser/sync/sync_ui_util.h"
 #include "chrome/browser/translate/chrome_translate_client.h"
-#include "chrome/browser/ttc/core/states.h"
-#include "chrome/browser/ttc/core/ttc_keyed_service.h"
 #include "chrome/browser/ui/accelerator_table.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/actions/chrome_action_properties.h"
@@ -384,12 +382,6 @@ BrowserCommandController::BrowserCommandController(BrowserWindowInterface* bwi)
 
 
 
-  if (ttc::TtcKeyedService* ttc_service =
-          ttc::TtcKeyedService::Get(profile())) {
-    ttc_state_subscription_ = ttc_service->RegisterStateChangedCallback(
-        base::BindRepeating(&BrowserCommandController::TtcStateChanged,
-                            base::Unretained(this)));
-  }
 
   InitCommandState();
 
@@ -518,9 +510,6 @@ void BrowserCommandController::LoadingStateChanged(bool is_loading,
 }
 
 
-void BrowserCommandController::TtcStateChanged(ttc::ServiceState state) {
-  UpdateTtcState(state);
-}
 
 void BrowserCommandController::FindBarVisibilityChanged() {
   // Block find command updates in locked fullscreen mode unless the instance is
@@ -999,9 +988,6 @@ void BrowserCommandController::HandleCommandWithDisposition(
       break;
     case IDC_SHARING_HUB_SCREENSHOT:
       ScreenshotCapture(browser_);
-      break;
-    case IDC_SHOW_TTC_MENU:
-      ShowTtcMenuItem(browser_);
       break;
 
     // Clipboard commands
@@ -1965,11 +1951,6 @@ void BrowserCommandController::InitCommandState() {
 
   // Glic commands.
 
-  // TTC commands.
-  if (ttc::TtcKeyedService* ttc_service =
-          ttc::TtcKeyedService::Get(profile())) {
-    UpdateTtcState(ttc_service->GetState());
-  }
 
   // Initialize other commands whose state changes based on various conditions.
   UpdateCommandsForFullscreenMode();
@@ -2447,19 +2428,6 @@ void BrowserCommandController::UpdatePrintingState() {
 }
 
 
-void BrowserCommandController::UpdateTtcState(ttc::ServiceState state) {
-  if (IsInLockedFullscreenMode(/*allow_ontask=*/false)) {
-    return;
-  }
-
-  UpdateCommandAndActionEnabled(IDC_SHOW_TTC_MENU, kActionShowTtcMenu,
-                                state == ttc::ServiceState::kSessionInactive);
-  if (auto* const action = FindAction(kActionTtcToolbar, browser_)) {
-    const bool available = state != ttc::ServiceState::kProfileIneligible;
-    action->SetVisible(available);
-    action->SetEnabled(available);
-  }
-}
 
 void BrowserCommandController::UpdateSaveAsState() {
   if (IsInLockedFullscreenMode(/*allow_ontask=*/false)) {

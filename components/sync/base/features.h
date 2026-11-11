@@ -30,9 +30,6 @@ BASE_DECLARE_FEATURE(kSyncAIThread);
 // Enables syncing of contextual tasks.
 BASE_DECLARE_FEATURE(kSyncContextualTask);
 
-// Enables syncing of Gemini threads across devices.
-BASE_DECLARE_FEATURE(kSyncGeminiThread);
-
 // Enables syncing of Encrypted Tab Context across devices.
 BASE_DECLARE_FEATURE(kSyncEncryptedTabContext);
 

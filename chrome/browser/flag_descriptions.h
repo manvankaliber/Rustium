@@ -665,11 +665,6 @@ inline constexpr char
         "When enabled, the Autofill settings enterprise policy takes effect, "
         "and forms ai settings are decoupled from Autofill profile settings. ";
 
-inline constexpr char kAutofillAmbientAutofillName[] =
-    "Autofill Ambient Autofill";
-inline constexpr char kAutofillAmbientAutofillDescription[] =
-    "Enables Ambient Autofill.";
-
 inline constexpr char kAutofillCustomFormControlScriptsName[] =
     "Autofill custom form control scripts";
 inline constexpr char kAutofillCustomFormControlScriptsDescription[] =
@@ -2700,11 +2695,6 @@ inline constexpr char kOmniboxUIMaxAutocompleteMatchesDescription[] =
     "Changes the maximum number of autocomplete matches displayed in the "
     "Omnibox UI.";
 
-inline constexpr char kOmniboxStarterPackExpansionName[] =
-    "Expansion pack for the Site search starter pack";
-inline constexpr char kOmniboxStarterPackExpansionDescription[] =
-    "Enables additional providers for the Site search starter pack feature";
-
 inline constexpr char kOmniboxStarterPackIPHName[] =
     "IPH message for the Site search starter pack";
 inline constexpr char kOmniboxStarterPackIPHDescription[] =
@@ -3422,10 +3412,6 @@ inline constexpr char kSyncEncryptedTabContextName[] =
     "Sync Encrypted Tab Context";
 inline constexpr char kSyncEncryptedTabContextDescription[] =
     "Enables syncing of Encrypted Tab Context across devices.";
-
-inline constexpr char kSyncGeminiThreadsName[] = "Sync Gemini Threads";
-inline constexpr char kSyncGeminiThreadsDescription[] =
-    "Acquire Gemini Threads via sync.";
 
 inline constexpr char kSyncJourneyName[] = "Sync journeys";
 inline constexpr char kSyncJourneyDescription[] =
@@ -4606,12 +4592,6 @@ inline constexpr char kLocalNetworkAccessChecksWebTransportDescription[] =
     "Enable Local Network Access checks for WebTransport. Requires the "
     "#local-network-access-check flag to also be enabled "
     "See: https://chromestatus.com/feature/5126430912544768";
-
-inline constexpr char kGeminiAntiscamProtectionsMetricsOnlyName[] =
-    "Gemini Antiscam Protection";
-inline constexpr char kGeminiAntiscamProtectionsMetricsOnlyDescription[] =
-    "Enables querying Gemini for antiscam protection signals and collecting "
-    "metrics.";
 
 inline constexpr char kGroupPromoPrototypeName[] = "Group Promo Prototype";
 inline constexpr char kGroupPromoPrototypeDescription[] =

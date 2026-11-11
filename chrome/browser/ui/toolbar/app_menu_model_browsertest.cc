@@ -30,7 +30,6 @@
 #include "chrome/browser/signin/signin_browser_test_base.h"
 #include "chrome/browser/sync/send_tab_to_self_sync_service_factory.h"
 #include "chrome/browser/sync/sync_service_factory.h"
-#include "chrome/browser/ttc/core/features.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_actions.h"
 #include "chrome/browser/ui/global_error/global_error.h"
@@ -349,45 +348,9 @@ IN_PROC_BROWSER_TEST_F(AppMenuModelTest, CustomizeChromeLogMetrics) {
 
 
 
-class AppMenuModelTtcTest : public AppMenuModelTest {
- protected:
-  AppMenuModelTtcTest() {
-    feature_list_.InitAndEnableFeature(ttc::kTtc);
-    // ChromeOS creates `TtcKeyedService` only where Glic's system requirements
-    // are met.
-  }
-  ~AppMenuModelTtcTest() override {
-  }
-};
-
-IN_PROC_BROWSER_TEST_F(AppMenuModelTtcTest, TtcItem) {
+IN_PROC_BROWSER_TEST_F(AppMenuModelTest, TtcItemAbsent) {
   AppMenuModel model(this, browser());
   model.Init();
-
-  const std::optional<size_t> index =
-      model.GetIndexOfCommandId(IDC_SHOW_TTC_MENU);
-  ASSERT_TRUE(index.has_value());
-  EXPECT_FALSE(model.GetIconAt(index.value()).IsEmpty());
-}
-
-IN_PROC_BROWSER_TEST_F(AppMenuModelTtcTest, TtcItemLogsMetrics) {
-  TestLogMetricsAppMenuModel model(this, browser());
-  model.Init();
-  model.ExecuteCommand(IDC_SHOW_TTC_MENU, 0);
-  EXPECT_EQ(1, model.log_metrics_count_);
-}
-
-class AppMenuModelTtcDisabledTest : public AppMenuModelTest {
- protected:
-  AppMenuModelTtcDisabledTest() {
-    feature_list_.InitAndDisableFeature(ttc::kTtc);
-  }
-};
-
-IN_PROC_BROWSER_TEST_F(AppMenuModelTtcDisabledTest, TtcItemAbsent) {
-  AppMenuModel model(this, browser());
-  model.Init();
-
   EXPECT_FALSE(model.GetIndexOfCommandId(IDC_SHOW_TTC_MENU).has_value());
 }
 

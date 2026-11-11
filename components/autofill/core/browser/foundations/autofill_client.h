@@ -122,8 +122,6 @@ namespace autofill {
 class ActorAutofillManager;
 class AutofillManager;
 class AddressNormalizer;
-class AtMemoryManager;
-class AtMemoryQueryService;
 class AutocompleteHistoryManager;
 class AutofillAblationStudy;
 class AutofillAiManager;
@@ -523,14 +521,6 @@ class AutofillClient {
 
   virtual IdentityCredentialDelegate* GetIdentityCredentialDelegate();
 
-  // Returns the `AtMemoryQueryService` associated with the profile of
-  // the window of this tab.
-  virtual AtMemoryQueryService* GetAtMemoryQueryService();
-
-  // Returns the `AtMemoryManager`.
-  virtual AtMemoryManager* GetAtMemoryManager();
-  const AtMemoryManager* GetAtMemoryManager() const;
-
   // Returns the enablement state of the Accessibility Annotator.
   // TODO(crbug.com/524193567) Delete this method once all the invocations are
   // replaced by the calls to the central enablement util.
@@ -669,9 +659,6 @@ class AutofillClient {
   // Opens Gmail for the OTP retrieval flow.
   virtual void OpenGmailForOtps();
 
-  // Opens Gemini in the sidebar with the given prompt pre-filled.
-  virtual void OpenGeminiInSidebar(const std::u16string& prompt);
-
   // Returns true if the Glic sidebar is enabled and can be opened.
   virtual bool IsGlicEnabled() const;
 
@@ -715,13 +702,6 @@ class AutofillClient {
   virtual void TriggerPersonalizationAndTrustSurveys(
       FillingProduct filling_product,
       const HatsSurveyStringData& field_filling_stats_data);
-
-  // Triggers a survey to ask the user about their experience regarding
-  // AtMemory. `is_dismissed` specifies whether the survey is for dismissing
-  // AtMemory without accepting any suggestion.
-  virtual void TriggerAtMemoryPersonalizationAndTrustSurvey(
-      bool is_dismissed,
-      const HatsSurveyStringData& product_specific_data);
 
   // Triggers a survey to ask the user about their experience regarding
   // dismissed OTP suggestions.
@@ -899,12 +879,6 @@ class AutofillClient {
 
   // Notifies the user that operation to fetch data failed.
   virtual void ShowAutofillAiFetchEntityFailureNotification();
-
-  // Notifies the user that an AtMemory operation to fetch PII data failed. If
-  // `message_override` is provided, it is displayed instead of the generic
-  // error message.
-  virtual void ShowAtMemoryFetchFailureNotification(
-      std::optional<std::u16string> message_override);
 
   // Notifies the user that prefetching Autofill AI entities failed.
   virtual void ShowAutofillAiPreFetchFailureNotification();

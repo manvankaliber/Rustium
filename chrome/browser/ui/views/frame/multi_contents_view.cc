@@ -121,12 +121,6 @@ MultiContentsView::MultiContentsView(
   contents_separators_.corner_separator->SetProperty(
       views::kElementIdentifierKey, kContentsSeparatorTopCornerElementId);
 
-  // Create the view that will house the Lens overlay. This view is visible but
-  // transparent view that is used as a container for the Lens overlay WebView.
-  // It must have a higher index than contents_view so that it is drawn on top
-  // of it. Uses a fill layout so that the overlay WebView can fill the entire
-  // container.
-
   for (auto& contents_container_view : contents_container_views_) {
     auto& view_map = container_focusable_map_[contents_container_view];
 

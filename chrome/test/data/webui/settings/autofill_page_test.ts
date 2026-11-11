@@ -4,7 +4,6 @@
 
 import 'chrome://settings/settings.js';
 
-import type {CrIconElement} from 'chrome://resources/cr_elements/cr_icon/cr_icon.js';
 import {AiEnterpriseFeaturePrefName, AutofillManagerImpl, EntityDataManagerProxyImpl, PaymentsManagerImpl} from 'chrome://settings/lazy_load.js';
 import type {SettingsAutofillPageElement} from 'chrome://settings/settings.js';
 import {loadTimeData, MetricsBrowserProxyImpl, ModelExecutionEnterprisePolicyValue, OpenWindowProxyImpl, PasswordManagerImpl, PasswordManagerPage, PrefsBrowserProxy, PrefService, resetRouterForTesting, Router, YourSavedInfoDataCategory, YourSavedInfoDataChip, YourSavedInfoRelatedService} from 'chrome://settings/settings.js';
@@ -186,11 +185,6 @@ suite('AutofillPage', function() {
      expectedRoute: '/travel',
      expectedCategory: YourSavedInfoDataCategory.TRAVEL,
    },
-   {
-     cardTitle: 'shoppingCardTitle',
-     expectedRoute: '/shopping',
-     expectedCategory: YourSavedInfoDataCategory.SHOPPING,
-   },
   ].forEach(({cardTitle, expectedRoute, expectedCategory}) => {
     test(`${cardTitle} card navigates to the correct route`, async function() {
       const card = autofillPage.shadowRoot.querySelector<HTMLElement>(
@@ -267,29 +261,6 @@ suite('AutofillPage', function() {
     assertEquals('Settings.YourSavedInfo.ChipClick.ADDRESSES', action);
   });
 
-  test('ClickOnShoppingChipNavigatesToLeafPage', async function() {
-    const card = autofillPage.shadowRoot.querySelector<HTMLElement>(
-        `category-reference-card[card-title="${
-            loadTimeData.getString('shoppingCardTitle')}"]`);
-    assertTrue(!!card);
-    const chips: HTMLElement[] =
-        Array.from(card.shadowRoot!.querySelectorAll('cr-button'));
-    const chip: HTMLElement = chips.find(chip => {
-      const labelSpan = chip.querySelector('span:not(.counter)');
-      return labelSpan &&
-          labelSpan.textContent ===
-          loadTimeData.getString('yourSavedInfoOrdersChip');
-    })!;
-
-    chip.click();
-    assertEquals('/shopping', Router.getInstance().currentRoute.path);
-    const [metricChip] = await metricsBrowserProxy.whenCalled(
-        'recordYourSavedInfoDataChipClick');
-    assertEquals(YourSavedInfoDataChip.ORDERS, metricChip);
-    const action = await metricsBrowserProxy.whenCalled('recordAction');
-    assertEquals('Settings.YourSavedInfo.ChipClick.ORDERS', action);
-  });
-
   test('SuggestionsFromGeminiHiddenWhenFlagDisabled', async function() {
     await setupPage({
       showSuggestionsFromGeminiSettings: false,
@@ -298,38 +269,6 @@ suite('AutofillPage', function() {
     const geminiCard = autofillPage.shadowRoot.querySelector<HTMLElement>(
         '#suggestionsFromGeminiCard');
     assertFalse(!!geminiCard);
-  });
-
-  test('SuggestionsFromGeminiCardNavigates', async function() {
-    const geminiCard = autofillPage.shadowRoot.querySelector<HTMLElement>(
-        '#suggestionsFromGeminiCard');
-    assertTrue(!!geminiCard);
-
-    const button = autofillPage.shadowRoot.querySelector<HTMLElement>(
-        '#suggestionsFromGeminiLinkRow');
-    assertTrue(!!button);
-
-    const icon = autofillPage.shadowRoot.querySelector<CrIconElement>(
-        '#suggestionsFromGeminiSubLabel cr-icon');
-    assertTrue(!!icon);
-    // <if expr="_google_chrome">
-    assertEquals(
-        loadTimeData.getBoolean('glicAssetsV2Enabled') ?
-            'settings-internal:sparkv2' :
-            'settings-internal:spark',
-        icon.icon);
-    // </if>
-    // <if expr="not _google_chrome">
-    assertEquals('settings20:lightbulb', icon.icon);
-    // </if>
-
-    button.click();
-    assertEquals('/enhancedAutofill', Router.getInstance().currentRoute.path);
-
-    const action = await metricsBrowserProxy.whenCalled('recordAction');
-    assertEquals(
-        'PersonalContext.Settings.EntryPoint.AutofillAndPasswordsSettings',
-        action);
   });
 });
 
@@ -434,9 +373,9 @@ suite('DataChipsVisibility', function() {
         ],
         getChipLabels(autofillPage, '#travelManagerButton'));
 
-    assertTrue(
+    assertFalse(
         isChildVisible(autofillPage, '#shoppingManagerButton'),
-        'Shopping category should be visible');
+        'Shopping category should not be visible');
     assertDeepEquals(
         [
           loadTimeData.getString('yourSavedInfoOrdersChip'),

@@ -27,7 +27,6 @@
 #include "chrome/browser/profiles/profiles_state.h"
 #include "chrome/browser/search/background/ntp_custom_background_service_factory.h"
 #include "chrome/browser/sharing_hub/sharing_hub_features.h"
-#include "chrome/browser/ttc/core/ttc_keyed_service.h"
 #include "chrome/browser/ui/actions/actions_util.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/actions/command_action_updater.h"
@@ -915,10 +914,6 @@ void ActionAppMenuManager::AddToolsAndActionsActions(
         Profile* profile = browser_window_interface_->GetProfile();
 
 
-        if (ttc::TtcKeyedService* service = ttc::TtcKeyedService::Get(profile);
-            service && service->IsEnabled()) {
-          section.AddAction(kActionShowTtcMenu);
-        }
 
 
         section.AddAction(kActionShowTranslate);

@@ -115,14 +115,6 @@ ${this.showSearchAggregatorSuggest_ ? html`
   </settings-toggle-button>
 ` : ''}
 
-${this.showPriceEmailNotificationsToggle_() ? html`
-  <settings-toggle-button id="priceEmailNotificationsToggle" class="hr"
-      label="$i18n{priceEmailNotificationsPref}"
-      sub-label="${this.getPriceEmailNotificationsPrefDesc_()}"
-      pref-key="price_tracking.email_notifications_enabled">
-  </settings-toggle-button>
-` : ''}
-
 ${this.showSignoutDialog_ ? html`
   <settings-signout-dialog .syncStatus="${this.syncStatus}"
       @close="${this.onSignoutDialogClose_}">

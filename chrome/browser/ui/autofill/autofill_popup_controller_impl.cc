@@ -36,8 +36,6 @@
 #include "components/autofill/core/browser/data_manager/personal_data_manager.h"
 #include "components/autofill/core/browser/filling/filling_product.h"
 #include "components/autofill/core/browser/foundations/autofill_manager.h"
-#include "components/autofill/core/browser/integrators/at_memory/at_memory_query_service.h"
-#include "components/autofill/core/browser/integrators/at_memory/memory_data_type_util.h"
 #include "components/autofill/core/browser/metrics/autofill_metrics.h"
 #include "components/autofill/core/browser/metrics/autofill_metrics_util.h"
 #include "components/autofill/core/browser/suggestions/suggestion.h"
@@ -104,29 +102,9 @@ bool ShouldEnforcePaintChecks(AutofillSuggestionTriggerSource trigger_source) {
   }
 }
 
-// Returns the AtMemory search bar placeholders: the default one, followed by
-// the example queries in order.
-std::vector<std::u16string> GetAtMemoryPlaceholders() {
-  static constexpr auto kMessageIds = std::to_array<int>(
-      {IDS_AUTOFILL_AT_MEMORY_POPUP_SEARCH_BAR_PLACEHOLDER,
-       IDS_AUTOFILL_AT_MEMORY_ZERO_STATE_SUBTITLE_ORDER_NUMBER,
-       IDS_AUTOFILL_AT_MEMORY_ZERO_STATE_SUBTITLE_FLIGHT_CONFIRMATION_CODE,
-       IDS_AUTOFILL_AT_MEMORY_ZERO_STATE_SUBTITLE_TRACKING_NUMBER,
-       IDS_AUTOFILL_AT_MEMORY_ZERO_STATE_SUBTITLE_HOTEL_ADDRESS});
-  return base::ToVector(kMessageIds, &l10n_util::GetStringUTF16);
-}
-
 std::optional<AutofillPopupView::SearchBarConfig> GetSearchBarConfig(
-    AutofillSuggestionTriggerSource trigger_source,
-    const std::u16string& search_bar_initial_value) {
+    AutofillSuggestionTriggerSource trigger_source) {
   switch (trigger_source) {
-    case AutofillSuggestionTriggerSource::kAtMemoryContextMenu:
-    case AutofillSuggestionTriggerSource::kAtMemoryDoubleCtrl:
-    case AutofillSuggestionTriggerSource::kAtMemoryKeyboardShortcut:
-      return AutofillPopupView::SearchBarConfig{
-          .placeholders = GetAtMemoryPlaceholders(),
-          .initial_value = search_bar_initial_value,
-          .no_results_message = u""};
     case AutofillSuggestionTriggerSource::kManualFallbackPasswords:
       return AutofillPopupView::SearchBarConfig{
           .placeholders = {l10n_util::GetStringUTF16(
@@ -149,6 +127,9 @@ std::optional<AutofillPopupView::SearchBarConfig> GetSearchBarConfig(
     case AutofillSuggestionTriggerSource::kGmailOneTimePasswordAvailable:
     case AutofillSuggestionTriggerSource::kGlic:
     case AutofillSuggestionTriggerSource::kAtMemoryInactivityNudge:
+    case AutofillSuggestionTriggerSource::kAtMemoryContextMenu:
+    case AutofillSuggestionTriggerSource::kAtMemoryDoubleCtrl:
+    case AutofillSuggestionTriggerSource::kAtMemoryKeyboardShortcut:
     case AutofillSuggestionTriggerSource::kUnspecified:
       return std::nullopt;
   }
@@ -398,7 +379,7 @@ void AutofillPopupControllerImpl::Show(
             ? parent_controller_->get()->CreateSubPopupView(GetWeakPtr())
             : AutofillPopupView::Create(
                   GetWeakPtr(),
-                  GetSearchBarConfig(trigger_source, search_bar_initial_value),
+                  GetSearchBarConfig(trigger_source),
                   std::move(tabbed_pane_config),
                   GetSubPopupConfig(trigger_source));
 

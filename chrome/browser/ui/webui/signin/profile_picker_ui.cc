@@ -90,7 +90,7 @@ std::string GetManagedDeviceDisclaimer() {
       base::UTF8ToUTF16(*manager));
 }
 
-int GetMainViewTitleId(bool is_glic_version) {
+int GetMainViewTitleId() {
   return ProfilePicker::Shown() ? IDS_PROFILE_PICKER_MAIN_VIEW_TITLE_V2
                                 : IDS_PROFILE_PICKER_MAIN_VIEW_TITLE;
 }
@@ -108,7 +108,6 @@ int GetProfileTypeChoiceNotNowButtonLabelId(
 }
 
 void AddStrings(content::WebUIDataSource* html_source,
-                bool is_glic_version,
                 bool is_first_run_desktop_refresh_enabled) {
   constexpr webui::LocalizedString kLocalizedStrings[] = {
       {"addSpaceButton", IDS_PROFILE_PICKER_ADD_SPACE_BUTTON},
@@ -161,7 +160,7 @@ void AddStrings(content::WebUIDataSource* html_source,
                                   GetProfileTypeChoiceNotNowButtonLabelId(
                                       is_first_run_desktop_refresh_enabled));
   html_source->AddLocalizedString("mainViewTitle",
-                                  GetMainViewTitleId(is_glic_version));
+                                  GetMainViewTitleId());
   html_source->AddLocalizedString("mainViewSubtitle",
                                   IDS_PROFILE_PICKER_MAIN_VIEW_SUBTITLE);
 
@@ -181,9 +180,7 @@ void AddStrings(content::WebUIDataSource* html_source,
 }
 
 void AddFlags(content::WebUIDataSource* html_source,
-              bool is_glic_version,
               bool is_first_run_desktop_refresh_enabled) {
-  html_source->AddBoolean("isGlicVersion", is_glic_version);
 
   // TODO(crbug.com/385726690): Check if we want to show the locked profiles or
   // not.
@@ -216,8 +213,7 @@ void AddFlags(content::WebUIDataSource* html_source,
                           is_first_run_desktop_refresh_enabled);
 }
 
-void AddResourcePaths(content::WebUIDataSource* html_source,
-                      bool is_glic_version) {
+void AddResourcePaths(content::WebUIDataSource* html_source) {
   const webui::ResourcePath kResourcePaths[] = {
       {"left_banner.svg", IDR_SIGNIN_IMAGES_SHARED_LEFT_BANNER_SVG},
       {"left_banner_dark.svg", IDR_SIGNIN_IMAGES_SHARED_LEFT_BANNER_DARK_SVG},
@@ -252,10 +248,6 @@ ProfilePickerUI::ProfilePickerUI(content::WebUI* web_ui)
       content::WebUIDataSource::CreateAndAdd(
           profile, chrome::kChromeUIProfilePickerHost);
 
-  // `content::WebContents::GetVisibleURL()` is used here because a
-  // WebUIController is created before the navigation commits.
-  const bool is_glic_version = false;
-
   std::unique_ptr<ProfilePickerHandler> handler =
       std::make_unique<ProfilePickerHandler>();
   profile_picker_handler_ = handler.get();
@@ -272,16 +264,15 @@ ProfilePickerUI::ProfilePickerUI(content::WebUI* web_ui)
   // to the one obtained from `NavigationEntry::GetTitleForDisplay()` (which
   // ends up being the URL) when we try to get it on startup for a11y purposes.
   web_ui->OverrideTitle(
-      l10n_util::GetStringUTF16(GetMainViewTitleId(is_glic_version)));
+      l10n_util::GetStringUTF16(GetMainViewTitleId()));
 
   const bool is_first_run_desktop_refresh_enabled =
       switches::IsFirstRunDesktopRefreshEnabled(
           IsInSearchEngineChoiceScreenRegion(CHECK_DEREF(profile)));
   // Add all resources.
-  AddStrings(html_source, is_glic_version,
-             is_first_run_desktop_refresh_enabled);
-  AddFlags(html_source, is_glic_version, is_first_run_desktop_refresh_enabled);
-  AddResourcePaths(html_source, is_glic_version);
+  AddStrings(html_source, is_first_run_desktop_refresh_enabled);
+  AddFlags(html_source, is_first_run_desktop_refresh_enabled);
+  AddResourcePaths(html_source);
 
   webui::SetupWebUIDataSource(html_source, kProfilePickerResources,
                               IDR_PROFILE_PICKER_PROFILE_PICKER_HTML);

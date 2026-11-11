@@ -16,7 +16,6 @@
 #include "base/test/scoped_feature_list.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/search_engines/template_url_service_factory.h"
-#include "chrome/browser/ttc/core/features.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/actions/chrome_action_properties.h"
 #include "chrome/browser/ui/browser_actions.h"
@@ -73,10 +72,7 @@ class MockPage
 
 class CustomizeToolbarHandlerBrowserTest : public InProcessBrowserTest {
  public:
-  CustomizeToolbarHandlerBrowserTest() {
-    // ChromeOS creates `TtcKeyedService` only where Glic's system requirements
-    // are met.
-  }
+  CustomizeToolbarHandlerBrowserTest() = default;
   ~CustomizeToolbarHandlerBrowserTest() override {
   }
 
@@ -107,8 +103,6 @@ class CustomizeToolbarHandlerBrowserTest : public InProcessBrowserTest {
   testing::NiceMock<MockPage> mock_page_;
   std::unique_ptr<CustomizeToolbarHandler> handler_;
 
- private:
-  base::test::ScopedFeatureList scoped_feature_list_{ttc::kTtc};
 };
 
 IN_PROC_BROWSER_TEST_F(CustomizeToolbarHandlerBrowserTest, ListActions) {
@@ -151,7 +145,7 @@ IN_PROC_BROWSER_TEST_F(CustomizeToolbarHandlerBrowserTest, ListActions) {
       side_panel::customize_chrome::mojom::ActionId::kClearBrowsingData));
   EXPECT_TRUE(
       contains_action(side_panel::customize_chrome::mojom::ActionId::kPrint));
-  EXPECT_TRUE(
+  EXPECT_FALSE(
       contains_action(side_panel::customize_chrome::mojom::ActionId::kTtc));
   EXPECT_TRUE(contains_action(
       side_panel::customize_chrome::mojom::ActionId::kShowTranslate));

@@ -134,13 +134,12 @@ class ContextualTasksServiceImplTest : public testing::Test {
     mock_decorator_ = mock_decorator.get();
     contextual_search::ContextualSearchService::RegisterProfilePrefs(
         pref_service_.registry());
-    service_ = BuildService(std::move(mock_decorator), true);
+    service_ = BuildService(std::move(mock_decorator));
   }
 
   std::unique_ptr<ContextualTasksServiceImpl> BuildService(
       std::unique_ptr<testing::NiceMock<MockCompositeContextDecorator>>
-          mock_decorator,
-      bool is_gemini_eligible) {
+          mock_decorator) {
     return std::make_unique<ContextualTasksServiceImpl>(
         version_info::Channel::UNKNOWN,
         syncer::DataTypeStoreTestUtil::FactoryForInMemoryStoreForTest(),
@@ -149,9 +148,7 @@ class ContextualTasksServiceImplTest : public testing::Test {
         SupportsEphemeralOnly(),
         base::BindRepeating(
             &MockGetActiveTaskCountCallback::Run,
-            base::Unretained(&mock_get_active_task_count_callback_)),
-        base::BindRepeating([](bool eligible) { return eligible; },
-                            is_gemini_eligible));
+            base::Unretained(&mock_get_active_task_count_callback_)));
   }
 
   virtual bool SupportsEphemeralOnly() { return false; }
@@ -2021,53 +2018,20 @@ TEST_F(ContextualTasksServiceImplTest, GetThreadUrlFromTaskId_Aim_NoTurnId) {
   run_loop.Run();
 }
 
-TEST_F(ContextualTasksServiceImplTest, GetThreadUrlFromTaskId_Gemini) {
+TEST_F(ContextualTasksServiceImplTest, RejectsGeminiThreadButKeepsAiThread) {
   ContextualTask task = service_->CreateTask();
-
-  const std::string server_id = "1234";
-  const std::string title = "title";
   service_->UpdateThreadForTask(task.GetTaskId(), ThreadType::kGemini,
-                                server_id, std::nullopt, title);
+                                "legacy-gemini", std::nullopt, std::nullopt);
+  auto result = GetTaskById(task.GetTaskId());
+  ASSERT_TRUE(result);
+  EXPECT_FALSE(result->GetThread());
 
-  base::RunLoop run_loop;
-  service_->GetThreadUrlFromTaskId(
-      task.GetTaskId(), "en-us",
-      omnibox::ChromeAimEntryPoint::UNKNOWN_AIM_ENTRY_POINT,
-      base::BindOnce(
-          [](const std::string& server_id, GURL url) {
-            ASSERT_TRUE(base::StartsWith(url.host(), "gemini.google.com"));
-            ASSERT_TRUE(base::EndsWith(url.path(), server_id));
-          },
-          server_id)
-          .Then(run_loop.QuitClosure()));
-  run_loop.Run();
-}
-
-TEST_F(ContextualTasksServiceImplTest,
-       GetThreadUrlFromTaskId_GeminiWithPrefix) {
-  ContextualTask task = service_->CreateTask();
-
-  const std::string server_id = "1234";
-  const std::string server_id_with_prefix = "c_" + server_id;
-  const std::string title = "title";
-  service_->UpdateThreadForTask(task.GetTaskId(), ThreadType::kGemini,
-                                server_id_with_prefix, std::nullopt, title);
-
-  base::RunLoop run_loop;
-  service_->GetThreadUrlFromTaskId(
-      task.GetTaskId(), "en-us",
-      omnibox::ChromeAimEntryPoint::UNKNOWN_AIM_ENTRY_POINT,
-      base::BindOnce(
-          [](const std::string& server_id,
-             const std::string& server_id_with_prefix, GURL url) {
-            ASSERT_TRUE(base::StartsWith(url.host(), "gemini.google.com"));
-            ASSERT_TRUE(base::EndsWith(url.path(), server_id));
-            ASSERT_EQ(std::string::npos,
-                      url.path().find(server_id_with_prefix));
-          },
-          server_id, server_id_with_prefix)
-          .Then(run_loop.QuitClosure()));
-  run_loop.Run();
+  service_->UpdateThreadForTask(task.GetTaskId(), ThreadType::kAiMode,
+                                "ai-thread", std::nullopt, std::nullopt);
+  result = GetTaskById(task.GetTaskId());
+  ASSERT_TRUE(result);
+  ASSERT_TRUE(result->GetThread());
+  EXPECT_EQ(result->GetThread()->server_id, "ai-thread");
 }
 
 TEST_F(ContextualTasksServiceImplTest, GetThreadUrlFromTaskId_NoThread) {
@@ -2094,17 +2058,6 @@ TEST_F(ContextualTasksServiceImplTest, GetThreadUrlFromTaskId_NoTask) {
         ASSERT_TRUE(url.is_valid());
       }).Then(run_loop.QuitClosure()));
   run_loop.Run();
-}
-
-TEST_F(ContextualTasksServiceImplTest, GeminiThreadsEnabled) {
-  EXPECT_TRUE(service_->IsGeminiThreadsEligible());
-}
-
-TEST_F(ContextualTasksServiceImplTest, GeminiThreadsNotEnabled) {
-  auto service = BuildService(
-      std::make_unique<testing::NiceMock<MockCompositeContextDecorator>>(),
-      false);
-  EXPECT_FALSE(service->IsGeminiThreadsEligible());
 }
 
 }  // namespace contextual_tasks

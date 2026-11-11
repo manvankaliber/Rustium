@@ -59,7 +59,6 @@ extern const int kFirstCompatibleDataVersion;
 extern const StarterPackEngine bookmarks;
 extern const StarterPackEngine history;
 extern const StarterPackEngine tabs;
-extern const StarterPackEngine gemini;
 extern const StarterPackEngine page;
 extern const StarterPackEngine ai_mode;
 

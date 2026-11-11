@@ -24,6 +24,7 @@
 #include "components/search_engines/search_engines_test_environment.h"
 #include "components/search_engines/template_url.h"
 #include "components/search_engines/template_url_service.h"
+#include "components/search_engines/template_url_starter_pack_data.h"
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/metrics_proto/omnibox_event.pb.h"
@@ -346,6 +347,20 @@ TEST_F(KeywordProviderTest, GetTemplateUrlForText) {
   EXPECT_EQ(std::u16string(), get_keyword(u"cleantestv7"));
   EXPECT_EQ(u"cleantestv8/", get_keyword(u"cleantestv8/"));
   EXPECT_EQ(u"cleantestv8", get_keyword(u"cleantestv8"));
+}
+
+TEST_F(KeywordProviderTest, HidesLegacyGeminiStarterPackKeyword) {
+  TemplateURLData data;
+  data.SetShortName(u"Legacy");
+  data.SetKeyword(u"@legacy");
+  data.SetURL("https://example.com/?q={searchTerms}");
+  data.starter_pack_id = static_cast<int>(
+      template_url_starter_pack_data::StarterPackId::kGemini);
+  auto* service = client_->GetTemplateURLService();
+  service->Add(std::make_unique<TemplateURL>(data));
+
+  EXPECT_EQ(nullptr, kw_provider_->GetTemplateUrlForText(u"@legacy", service));
+  EXPECT_NE(nullptr, kw_provider_->GetTemplateUrlForText(u"aa", service));
 }
 
 TEST_F(KeywordProviderTest, GetSubstitutingTemplateURLForInput) {

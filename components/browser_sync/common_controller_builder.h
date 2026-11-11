@@ -305,8 +305,6 @@ class CommonControllerBuilder {
   std::unique_ptr<syncer::DataTypeController>
   CreateAiThreadDataTypeController();
   std::unique_ptr<syncer::DataTypeController>
-  CreateGeminiThreadDataTypeController();
-  std::unique_ptr<syncer::DataTypeController>
   CreateContextualTaskDataTypeController();
   std::unique_ptr<syncer::DataTypeController>
   CreateNotebookDataTypeController();

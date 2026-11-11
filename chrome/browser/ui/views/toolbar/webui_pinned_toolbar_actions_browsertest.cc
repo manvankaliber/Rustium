@@ -22,7 +22,6 @@
 #include "build/branding_buildflags.h"
 #include "build/build_config.h"
 #include "chrome/app/vector_icons/vector_icons.h"
-#include "chrome/browser/ttc/core/features.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_actions.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
@@ -1235,39 +1234,4 @@ IN_PROC_BROWSER_TEST_F(WebUIPinnedToolbarActionsByDateHistoryBrowserTest,
   UnpinAction(
       kActionSidePanelShowHistory,
       toolbar_ui_api::mojom::PinnedToolbarAction::kSidePanelShowHistory);
-}
-
-class WebUIPinnedToolbarActionsTtcBrowserTest
-    : public WebUIPinnedToolbarActionsBrowserTest {
- public:
-  WebUIPinnedToolbarActionsTtcBrowserTest() {
-    feature_list_.InitAndEnableFeature(ttc::kTtc);
-  }
-
- private:
-  base::test::ScopedFeatureList feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_F(WebUIPinnedToolbarActionsTtcBrowserTest,
-                       AutoPinnedOnStartup) {
-  EXPECT_TRUE(model_->Contains(kActionTtcToolbar));
-
-  std::string expected_icon;
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-  expected_icon = "internal-icons:audio_spark";
-#else
-  expected_icon = "webui-toolbar:mic_filled";
-#endif
-
-  EXPECT_TRUE(base::test::RunUntil([&]() {
-    return EvalJsOnPinnedAction(
-               toolbar_ui_api::mojom::PinnedToolbarAction::kTtcToolbar,
-               "return iconName || '';")
-               .ExtractString() == expected_icon;
-  }));
-
-  UnpinAction(kActionTtcToolbar,
-              toolbar_ui_api::mojom::PinnedToolbarAction::kTtcToolbar);
-  PinAction(kActionTtcToolbar,
-            toolbar_ui_api::mojom::PinnedToolbarAction::kTtcToolbar);
 }

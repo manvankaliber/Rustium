@@ -566,23 +566,23 @@ TEST_F(AutofillAiPermissionUtilsTest, kTypeSupportsAmbientAutofillData) {
       personal_context::PersonalContextEligibilityState::kEligible);
   for (const EntityTypeName type :
        {kPassport, kDriversLicense, kNationalIdCard, kFlightReservation,
-        kShipment, kOrder, kVehicle}) {
+        kVehicle}) {
     EXPECT_TRUE(MayPerformAutofillAiAction(
         client(), AutofillAiAction::kTypeSupportsAmbientAutofillData,
         EntityType(type)));
   }
-  for (const EntityTypeName type : {kRedressNumber, kKnownTravelerNumber}) {
+  for (const EntityTypeName type :
+       {kRedressNumber, kKnownTravelerNumber, kShipment, kOrder}) {
     EXPECT_FALSE(MayPerformAutofillAiAction(
         client(), AutofillAiAction::kTypeSupportsAmbientAutofillData,
         EntityType(type)));
   }
 
   // Without device re-auth, SPII types (Passport, Driver's license, National ID
-  // card) are not supported, but non-SPII types (Flight reservation, Shipment,
-  // Order, Vehicle) are.
+  // card) are not supported, but flight reservations and vehicles are.
   edm().SetReauthAvailability(false);
   for (const EntityTypeName type :
-       {kFlightReservation, kShipment, kOrder, kVehicle}) {
+       {kFlightReservation, kVehicle}) {
     EXPECT_TRUE(MayPerformAutofillAiAction(
         client(), AutofillAiAction::kTypeSupportsAmbientAutofillData,
         EntityType(type)));
@@ -962,11 +962,10 @@ TEST_P(AutofillAiMayPerformFillOrImportTest,
   EXPECT_EQ(
       MayPerformAutofillAiAction(client(), action(), EntityType(kVehicle)),
       travel_entities_enabled());
-  EXPECT_EQ(MayPerformAutofillAiAction(client(), action(), EntityType(kOrder)),
-            shopping_entities_enabled());
-  EXPECT_EQ(
-      MayPerformAutofillAiAction(client(), action(), EntityType(kShipment)),
-      shopping_entities_enabled());
+  EXPECT_FALSE(
+      MayPerformAutofillAiAction(client(), action(), EntityType(kOrder)));
+  EXPECT_FALSE(
+      MayPerformAutofillAiAction(client(), action(), EntityType(kShipment)));
 }
 
 class AutofillAiMayPerformImportToWalletTest

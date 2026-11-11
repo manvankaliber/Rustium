@@ -135,12 +135,8 @@ suite('AppTest', () => {
       });
     });
 
-    test('clicking "coupon" card opens Chrome Web Store category page', () => {
-      const button = customizeChromeApp.shadowRoot.querySelector<HTMLElement>(
-          '#couponsButton');
-      assertTrue(!!button);
-      button.click();
-      assertEquals(1, handler.getCallCount('openChromeWebStoreCategoryPage'));
+    test('shopping category is absent', () => {
+      assertFalse(!!customizeChromeApp.shadowRoot.querySelector('#couponsButton'));
     });
 
     test(

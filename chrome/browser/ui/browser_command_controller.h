@@ -18,7 +18,6 @@
 #include "chrome/browser/command_updater_impl.h"
 #include "chrome/browser/profiles/profile_attributes_storage.h"
 #include "chrome/browser/profiles/profile_attributes_storage_observer.h"
-#include "chrome/browser/ttc/core/states.h"
 #include "chrome/browser/ui/side_panel/side_panel_enums.h"
 #include "chrome/browser/ui/tabs/tab_strip_model_observer.h"
 #include "chrome/browser/ui/webui/side_panel/customize_chrome/customize_chrome_section.h"
@@ -76,7 +75,6 @@ class BrowserCommandController : public CommandUpdater,
   void ContentRestrictionsChanged();
   void FullscreenStateChanged();
   void PrintingStateChanged();
-  void TtcStateChanged(ttc::ServiceState state);
   void LoadingStateChanged(bool is_loading, bool force);
   void FindBarVisibilityChanged();
   void ExtensionStateChanged();
@@ -201,8 +199,6 @@ class BrowserCommandController : public CommandUpdater,
 
   // Updates the Glic command state.
 
-  // Updates the TTC command state for `state`.
-  void UpdateTtcState(ttc::ServiceState state);
 
   // Updates the SHOW_SYNC_SETUP menu entry.
   void OnSigninAllowedPrefChange();
@@ -287,8 +283,6 @@ class BrowserCommandController : public CommandUpdater,
   // Callback subscription for listening to changes to the Glic window
   // activation changes.
 
-  // Callback subscription for listening to TTC session state changes.
-  base::CallbackListSubscription ttc_state_subscription_;
 
   // Observes for extension state changes (load/unload).
   class ExtensionStateObserver;

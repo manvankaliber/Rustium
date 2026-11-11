@@ -494,7 +494,7 @@ std::unique_ptr<PopupNoticeView> CreatePersonalContextNoticeView(
         AcknowledgeNotice(*controller, line_number, histogram_name);
         if (profile) {
           chrome::ShowSettingsSubPageForProfile(
-              profile, chrome::kSuggestionsFromGeminiSubPage);
+              profile, chrome::kAutofillSubPage);
         }
       },
       controller, line_number, histogram_name);

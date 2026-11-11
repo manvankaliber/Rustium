@@ -315,9 +315,6 @@ export class AppElement extends AppElementBase {
     page.focusOnBackButton();
   }
 
-  protected onCouponsButtonClick_() {
-
-  }
 
   protected onWritingButtonClick_() {
     this.apiProxy_.handler.openChromeWebStoreCollectionPage(

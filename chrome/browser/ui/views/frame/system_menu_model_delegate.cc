@@ -55,11 +55,6 @@ bool SystemMenuModelDelegate::IsCommandIdChecked(int command_id) const {
 }
 
 bool SystemMenuModelDelegate::IsCommandIdEnabled(int command_id) const {
-  // Disable the glic toggle pin if it is showing and glic is not enabled.
-  if (command_id == IDC_GLIC_TOGGLE_PIN) {
-    return false;
-  }
-
 #if BUILDFLAG(IS_WIN)
   if (features::IsMenuSimplificationEnabled()) {
     BrowserView* browser_view = BrowserView::GetBrowserViewForBrowser(browser_);
@@ -93,10 +88,6 @@ bool SystemMenuModelDelegate::IsCommandIdVisible(int command_id) const {
       return is_maximized;
   }
 #endif
-  if (command_id == IDC_GLIC_TOGGLE_PIN) {
-    return false;
-  }
-
   if (command_id == IDC_TAB_SCROLL_BUTTONS_TOGGLE_PIN) {
     if (base::FeatureList::IsEnabled(tabs::kTabStripUnification)) {
       return !BrowserView::GetBrowserViewForBrowser(browser_)
@@ -116,7 +107,6 @@ bool SystemMenuModelDelegate::GetAcceleratorForCommandId(
 bool SystemMenuModelDelegate::IsItemForCommandIdDynamic(int command_id) const {
   return std::set{IDC_RESTORE_TAB,
                   IDC_TAB_SEARCH_TOGGLE_PIN,
-                  IDC_GLIC_TOGGLE_PIN,
                   IDC_TOGGLE_VERTICAL_TABS,
                   IDC_TOGGLE_VERTICAL_TABS_COLLAPSE,
                   IDC_TOGGLE_VERTICAL_TABS_EXPAND_ON_HOVER,
@@ -214,8 +204,6 @@ std::u16string SystemMenuModelDelegate::GetLabelForCommandId(
                       ? IDS_TAB_STRIP_UNPIN_TAB_SEARCH
                       : IDS_TAB_STRIP_PIN_TAB_SEARCH;
       break;
-    case IDC_GLIC_TOGGLE_PIN:
-      return {};
     case IDC_TAB_SCROLL_BUTTONS_TOGGLE_PIN:
       string_id = browser_->GetProfile()->GetPrefs()->GetBoolean(
                       prefs::kTabScrollButtonsPinnedToTabstrip)

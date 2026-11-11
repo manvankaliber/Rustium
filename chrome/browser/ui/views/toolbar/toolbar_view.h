@@ -369,7 +369,6 @@ class ToolbarView : public views::AccessiblePaneView,
   // An alias for `glic_button_view_` or `toolbar_webview_->GetGlicControl()`.
 
 
-  raw_ptr<ToolbarButton> ai_overlay_dialog_button_ = nullptr;
 
   const raw_ptr<BrowserWindowInterface> browser_;
   const raw_ptr<BrowserView> browser_view_;

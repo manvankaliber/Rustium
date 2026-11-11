@@ -3901,9 +3901,6 @@ TEST_F(PasswordAutofillAgentTest, DriverIsInformedAboutFillableTextArea) {
 // Tests that focusing a contenteditable element on desktop is ignored by
 // PasswordAutofillAgent and does not report kContenteditableField.
 TEST_F(PasswordAutofillAgentTest, ContentEditableIgnoredOnDesktop) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillAtMemorySupportContenteditableOnAndroid);
-
   const char kContentEditableHTML[] =
       "<div id='editable_div' contenteditable='true'>Hello world</div>";
   LoadHTML(kContentEditableHTML);

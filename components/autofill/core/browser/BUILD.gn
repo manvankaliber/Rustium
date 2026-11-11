@@ -519,17 +519,6 @@ static_library("browser") {
   configs = []
   configs = [ "//third_party/tflite:tflite_shim_config" ] + _configs
   sources = [
-    "at_memory/at_memory_enablement_util.cc",
-    "at_memory/at_memory_enablement_util.h",
-    "at_memory/at_memory_manager.cc",
-    "at_memory/at_memory_manager.h",
-    "at_memory/at_memory_metrics_recorder.cc",
-    "at_memory/at_memory_metrics_recorder.h",
-    "at_memory/at_memory_persisted_state_manager.cc",
-    "at_memory/at_memory_persisted_state_manager.h",
-    "at_memory/at_memory_search_state.h",
-    "at_memory/autofill_data_provider.cc",
-    "at_memory/autofill_data_provider.h",
     "autofill_ai_form_rationalization.cc",
     "autofill_ai_form_rationalization.h",
     "autofill_feedback_data.cc",
@@ -823,19 +812,6 @@ static_library("browser") {
     "heuristic_source.h",
     "integrators/address_on_typing/address_on_typing_manager.cc",
     "integrators/address_on_typing/address_on_typing_manager.h",
-    "integrators/at_memory/at_memory_eligibility_metrics_tracker.cc",
-    "integrators/at_memory/at_memory_eligibility_metrics_tracker.h",
-    "integrators/at_memory/at_memory_query_service.cc",
-    "integrators/at_memory/at_memory_query_service.h",
-    "integrators/at_memory/at_memory_string_filtering_util.cc",
-    "integrators/at_memory/at_memory_string_filtering_util.h",
-    "integrators/at_memory/logging_util.cc",
-    "integrators/at_memory/logging_util.h",
-    "integrators/at_memory/memory_data_type.h",
-    "integrators/at_memory/memory_data_type_util.cc",
-    "integrators/at_memory/memory_data_type_util.h",
-    "integrators/at_memory/memory_search_result.cc",
-    "integrators/at_memory/memory_search_result.h",
     "integrators/autofill_ai/autofill_ai_import_util.cc",
     "integrators/autofill_ai/autofill_ai_import_util.h",
     "integrators/autofill_ai/autofill_ai_labels.cc",
@@ -902,8 +878,6 @@ static_library("browser") {
     "integrators/optimization_guide/autofill_optimization_guide_decider.h",
     "integrators/password_form_classification.h",
     "integrators/password_manager/password_manager_delegate.h",
-    "integrators/personal_context/personal_context_autofill_util.cc",
-    "integrators/personal_context/personal_context_autofill_util.h",
     "integrators/touch_to_fill/touch_to_fill_autofill_delegate.h",
     "integrators/touch_to_fill/touch_to_fill_payment_method_delegate.h",
     "logging/log_buffer_submitter.cc",
@@ -1231,8 +1205,6 @@ static_library("browser") {
     "studies/hats_surveys_util.h",
     "suggestions/addresses/address_suggestion_generator.cc",
     "suggestions/addresses/address_suggestion_generator.h",
-    "suggestions/at_memory/at_memory_nudge_generator.cc",
-    "suggestions/at_memory/at_memory_nudge_generator.h",
     "suggestions/autocomplete_suggestion_generator.cc",
     "suggestions/autocomplete_suggestion_generator.h",
     "suggestions/autofill_ai/autofill_ai_suggestion_generator.cc",
@@ -1557,12 +1529,6 @@ static_library("browser") {
 
   deps += [ "//ui/native_theme" ]
 
-  if (is_win || is_mac || is_linux) {
-    sources += [
-      "metrics/cross_tab_copy_paste_tracker.cc",
-      "metrics/cross_tab_copy_paste_tracker.h",
-    ]
-  }
 }
 
 static_library("legal_message_line") {
@@ -1594,8 +1560,6 @@ source_set("payments_sync_utils") {
 static_library("test_support") {
   testonly = true
   sources = [
-    "at_memory/at_memory_manager_test_api.h",
-    "at_memory/at_memory_metrics_recorder_test_api.h",
     "autofill_field_test_api.h",
     "crowdsourcing/autofill_crowdsourcing_manager_test_api.h",
     "crowdsourcing/mock_autofill_crowdsourcing_manager.cc",
@@ -1687,8 +1651,6 @@ static_library("test_support") {
     "geo/test_region_data_loader.cc",
     "geo/test_region_data_loader.h",
     "integrators/address_on_typing/address_on_typing_manager_test_api.h",
-    "integrators/at_memory/mock_at_memory_query_service.cc",
-    "integrators/at_memory/mock_at_memory_query_service.h",
     "integrators/autofill_ai/autofill_ai_manager_test_api.h",
     "integrators/autofill_ai/mock_autofill_ai_manager.cc",
     "integrators/autofill_ai/mock_autofill_ai_manager.h",
@@ -1955,11 +1917,6 @@ bundle_data("unit_tests_bundle_data") {
 source_set("unit_tests") {
   testonly = true
   sources = [
-    "at_memory/at_memory_enablement_util_unittest.cc",
-    "at_memory/at_memory_manager_unittest.cc",
-    "at_memory/at_memory_metrics_recorder_unittest.cc",
-    "at_memory/at_memory_persisted_state_manager_unittest.cc",
-    "at_memory/autofill_data_provider_unittest.cc",
     "autofill_ai_form_rationalization_unittest.cc",
     "autofill_feedback_data_unittest.cc",
     "autofill_field_unittest.cc",
@@ -2086,10 +2043,6 @@ source_set("unit_tests") {
     "geo/subkey_requester_unittest.cc",
     "heuristic_source_unittest.cc",
     "integrators/address_on_typing/address_on_typing_manager_unittest.cc",
-    "integrators/at_memory/at_memory_query_service_unittest.cc",
-    "integrators/at_memory/at_memory_string_filtering_util_unittest.cc",
-    "integrators/at_memory/memory_data_type_util_unittest.cc",
-    "integrators/at_memory/memory_search_result_unittest.cc",
     "integrators/autofill_ai/autofill_ai_import_util_unittest.cc",
     "integrators/autofill_ai/autofill_ai_labels_unittest.cc",
     "integrators/autofill_ai/autofill_ai_manager_unittest.cc",
@@ -2116,7 +2069,6 @@ source_set("unit_tests") {
     "integrators/one_time_tokens/otp_types_unittest.cc",
     "integrators/one_time_tokens/sms_otp_source_unittest.cc",
     "integrators/optimization_guide/autofill_optimization_guide_decider_unittest.cc",
-    "integrators/personal_context/personal_context_autofill_util_unittest.cc",
     "logging/log_buffer_submitter_unittest.cc",
     "logging/log_manager_unittest.cc",
     "logging/log_router_unittest.cc",
@@ -2425,10 +2377,6 @@ source_set("unit_tests") {
 
   deps += [ "//components/autofill/core/browser/policy:unit_tests" ]
 
-  if (is_win || is_mac || is_linux) {
-    sources += [ "metrics/cross_tab_copy_paste_tracker_unittest.cc" ]
-    deps += [ "//ui/base/clipboard:clipboard_test_support" ]
-  }
 
   # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
   # enable the diagnostic by removing this line.

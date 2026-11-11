@@ -91,7 +91,6 @@ class ContentsContainerView : public views::View,
   data_protection_overlay_view() {
     return data_protection_overlay_view_;
   }
-  views::WebView* ai_overlay_dialog_view() { return ai_overlay_dialog_view_; }
   const ContentsContainerOutline* contents_outline_view() const {
     return container_outline_;
   }
@@ -196,7 +195,6 @@ class ContentsContainerView : public views::View,
       data_protection_overlay_view_ = nullptr;
 
   // The overlay dialog view that is displayed on top of the web contents.
-  raw_ptr<views::WebView> ai_overlay_dialog_view_ = nullptr;
 
   // The scrim view that covers the content area when a tab-modal dialog is
   // open.

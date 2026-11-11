@@ -333,12 +333,6 @@ extern const base::FeatureParam<int>
 extern const base::FeatureParam<int>
     kExtensionTelemetrySearchHijackingSignalHeuristicThreshold;
 
-// Enables querying server-side Gemini model for scam detection.
-BASE_DECLARE_FEATURE(kGeminiAntiscamProtectionForMetricsCollection);
-// The minimum scam score required to log page content to MQLS.
-extern const base::FeatureParam<double>
-    kGeminiAntiscamProtectionMinScamScoreLogPageContent;
-
 // Replace the high confidence allowlist check gating notification warnings with
 // a check of the global cache list specific to safe notification sites.
 BASE_DECLARE_FEATURE(kGlobalCacheListForGatingNotificationProtections);

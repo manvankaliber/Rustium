@@ -57,15 +57,6 @@ const StarterPackEngine tabs = {
     .type = SEARCH_ENGINE_STARTER_PACK_TABS,
 };
 
-const StarterPackEngine gemini = {
-    .name_message_id = IDS_SEARCH_ENGINES_STARTER_PACK_GEMINI_NAME,
-    .keyword_message_id = IDS_SEARCH_ENGINES_STARTER_PACK_GEMINI_KEYWORD,
-    .favicon_url = nullptr,
-    .search_url = "https://gemini.google.com/app?q={searchTerms}",
-    .destination_url = "https://gemini.google.com",
-    .id = StarterPackId::kGemini,
-    .type = SEARCH_ENGINE_STARTER_PACK_GEMINI,
-};
 
 const StarterPackEngine page = {
     .name_message_id = IDS_SEARCH_ENGINES_STARTER_PACK_PAGE_NAME,
@@ -93,7 +84,7 @@ const StarterPackEngine ai_mode = {
 };
 
 const StarterPackEngine* engines[] = {
-    &bookmarks, &history, &tabs, &gemini, &page, &ai_mode,
+    &bookmarks, &history, &tabs, &page, &ai_mode,
 };
 
 int GetDataVersion() {

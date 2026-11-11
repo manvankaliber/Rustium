@@ -68,12 +68,6 @@ export class ZeroStatePromoAppElement extends CrLitElement {
         CustomHelpBubbleUserAction.kAction);
   }
 
-  protected onCouponsButtonClick_() {
-    this.apiProxy_.handler.launchWebStoreLink(WebStoreLinkClicked.kCoupon);
-    this.customHelpBubbleProxy_.handler.notifyUserAction(
-        CustomHelpBubbleUserAction.kAction);
-  }
-
   protected onWritingButtonClick_() {
     this.apiProxy_.handler.launchWebStoreLink(WebStoreLinkClicked.kWriting);
     this.customHelpBubbleProxy_.handler.notifyUserAction(

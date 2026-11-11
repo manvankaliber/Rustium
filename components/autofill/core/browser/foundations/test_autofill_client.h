@@ -22,7 +22,6 @@
 #include "base/no_destructor.h"
 #include "base/notreached.h"
 #include "base/scoped_observation.h"
-#include "components/autofill/core/browser/at_memory/at_memory_manager.h"
 #include "components/autofill/core/browser/country_type.h"
 #include "components/autofill/core/browser/crowdsourcing/autofill_crowdsourcing_manager.h"
 #include "components/autofill/core/browser/crowdsourcing/mock_autofill_crowdsourcing_manager.h"
@@ -37,7 +36,6 @@
 #include "components/autofill/core/browser/foundations/autofill_client.h"
 #include "components/autofill/core/browser/foundations/autofill_driver_factory.h"
 #include "components/autofill/core/browser/foundations/test_autofill_driver_factory.h"
-#include "components/autofill/core/browser/integrators/at_memory/at_memory_query_service.h"
 #include "components/autofill/core/browser/integrators/autofill_ai/mock_autofill_ai_manager.h"
 #include "components/autofill/core/browser/integrators/compose/autofill_compose_delegate.h"
 #include "components/autofill/core/browser/integrators/identity_credential/identity_credential_delegate.h"
@@ -228,19 +226,6 @@ class TestAutofillClientTemplate : public T {
 
   AutocompleteHistoryManager* GetAutocompleteHistoryManager() override {
     return &mock_autocomplete_history_manager_;
-  }
-
-  AtMemoryQueryService* GetAtMemoryQueryService() override {
-    return at_memory_query_service_.get();
-  }
-
-  AtMemoryManager* GetAtMemoryManager() override {
-    if (!at_memory_manager_ &&
-        base::FeatureList::IsEnabled(features::kAutofillAtMemory)) {
-      at_memory_manager_ =
-          std::make_unique<AtMemoryManager>(this, /*history_service=*/nullptr);
-    }
-    return at_memory_manager_.get();
   }
 
   personal_context::PersonalContextEligibilityState
@@ -742,11 +727,6 @@ class TestAutofillClientTemplate : public T {
     test_shared_loader_factory_ = url_loader_factory;
   }
 
-  void set_at_memory_query_service(
-      std::unique_ptr<AtMemoryQueryService> at_memory_query_service) {
-    at_memory_query_service_ = std::move(at_memory_query_service);
-  }
-
   void set_identity_credential_delegate(
       std::unique_ptr<IdentityCredentialDelegate>
           identity_credential_delegate) {
@@ -843,7 +823,6 @@ class TestAutofillClientTemplate : public T {
   std::unique_ptr<OtpPhishGuardDelegate> otp_phish_guard_delegate_;
   std::unique_ptr<OtpMetricsTracker> otp_metrics_tracker_;
   std::unique_ptr<OtpFieldDetector> otp_field_detector_;
-  std::unique_ptr<AtMemoryQueryService> at_memory_query_service_;
   personal_context::PersonalContextEligibilityState
       personal_context_eligibility_state_ =
           personal_context::PersonalContextEligibilityState::kEligible;
@@ -890,9 +869,6 @@ class TestAutofillClientTemplate : public T {
   std::unique_ptr<SingleFieldFillRouter> single_field_fill_router_;
   std::unique_ptr<FormDataImporter> form_data_importer_;
   std::unique_ptr<WalletPassAccessManager> wallet_pass_access_manager_;
-  // Must be destroyed before `prefs_` because `AtMemoryPersistedStateManager`
-  // observes and references `prefs_`.
-  std::unique_ptr<AtMemoryManager> at_memory_manager_;
   std::unique_ptr<consent_auditor::FakeConsentAuditor> consent_auditor_;
 
   GeoIpCountryCode variation_config_country_code_;

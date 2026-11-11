@@ -26,7 +26,6 @@
 #include "base/types/strong_alias.h"
 #include "components/autofill/content/common/mojom/autofill_agent.mojom.h"
 #include "components/autofill/content/common/mojom/autofill_driver.mojom.h"
-#include "components/autofill/content/renderer/at_memory_handler.h"
 #include "components/autofill/content/renderer/email_verification_handler.h"
 #include "components/autofill/content/renderer/form_autofill_util.h"
 #include "components/autofill/content/renderer/form_cache.h"
@@ -404,16 +403,6 @@ class AutofillAgent : public content::RenderFrameObserver,
   void HandleFocusChangeComplete(bool focused_node_was_last_clicked,
                                  const SynchronousFormCache& form_cache);
 
-  // Called when the user has typed in the focused text field and then not typed
-  // for 5 seconds (the field had to be focused for this whole time).
-  // TODO(crbug.com/489659527): The inactivity timer currently only resets on
-  // typing for <input> text fields, and does not consider caret movement as
-  // activity. This is because `ObserveCaret` is only active for
-  // contenteditables and textareas. We could fix this by extending
-  // `ObserveCaret` to all text fields, but that might have performance
-  // implications due to the frequency of selectionchange events.
-  void OnInactivityTimerFired(FieldRendererId field_id);
-
   // Handles scroll offset changes asynchronously because layout may still be
   // updating while the scroll signal is dispatched.
   void DidChangeScrollOffsetImpl();
@@ -562,9 +551,6 @@ class AutofillAgent : public content::RenderFrameObserver,
   base::OneShotTimer process_forms_after_dynamic_change_timer_;
   base::OneShotTimer process_forms_form_extraction_timer_;
   base::OneShotTimer process_forms_form_extraction_with_response_timer_;
-  // Timer to track inactivity (field editing started and then stopped without
-  // losing focus) for triggering the autosuggest nudge.
-  base::OneShotTimer inactivity_timer_;
 
   // True iff DidDispatchDOMContentLoadedEvent() fired since the last
   // navigation.
@@ -620,8 +606,6 @@ class AutofillAgent : public content::RenderFrameObserver,
     int tokens = 0;
     base::TimeTicks last_replenish_time;
   } ask_for_values_to_fill_throttle_;
-
-  AtMemoryHandler at_memory_handler_{this};
 
   struct {
     bool has_warned = false;

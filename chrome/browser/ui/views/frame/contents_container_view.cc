@@ -11,7 +11,6 @@
 #include "base/i18n/rtl.h"
 #include "chrome/browser/devtools/devtools_contents_resizing_strategy.h"
 #include "chrome/browser/enterprise/data_protection/data_protection_overlay_view.h"
-#include "chrome/browser/ui/ai_overlay_dialog/ai_overlay_dialog_controller.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/read_anything/read_anything_immersive_overlay_view.h"
 #include "chrome/browser/ui/ui_features.h"
@@ -104,16 +103,7 @@ ContentsContainerView::ContentsContainerView(BrowserView* browser_view)
     indigo_overlay_view_->InsertBeforeInFocusList(contents_view_);
   }
 
-  if (base::FeatureList::IsEnabled(features::kAiOverlayDialog)) {
-    auto ai_overlay_dialog_view =
-        std::make_unique<views::WebView>(browser_view->GetProfile());
-    ai_overlay_dialog_view->SetVisible(false);
-    ai_overlay_dialog_view->SetProperty(views::kElementIdentifierKey,
-                                        kAiOverlayDialogWebViewElementId);
-    ai_overlay_dialog_view->EnableSizingFromWebContents(gfx::Size(1, 1),
-                                                        gfx::Size(800, 600));
-    ai_overlay_dialog_view_ = AddChildView(std::move(ai_overlay_dialog_view));
-  }
+
 
   auto read_anything_immersive_overlay_view =
       std::make_unique<ReadAnythingImmersiveOverlayView>(contents_view_);
@@ -250,11 +240,7 @@ void ContentsContainerView::SetBorderRoundedCornersFrom(
   }
 
 
-  if (ai_overlay_dialog_view_) {
-    // ai_overlay_dialog_view_ should use the same radii as the contents view
-    // since it acts as a layer directly over the main web content.
-    ai_overlay_dialog_view_->holder()->SetNativeViewCornerRadii(radii);
-  }
+
 
 
 }
@@ -494,31 +480,6 @@ views::ProposedLayout ContentsContainerView::CalculateProposedLayout(
   layouts.child_layouts.emplace_back(
       data_protection_overlay_view_.get(),
       data_protection_overlay_view_->GetVisible(), full_contents_bounds);
-
-  if (ai_overlay_dialog_view_) {
-    // TODO(b/490458384): Look into whether the view can be transparent to hit
-    // testing (in transparent parts) - otherwise autosize it to the inner web
-    // content.
-    gfx::Size size = ai_overlay_dialog_view_->GetPreferredSize();
-    if (size.IsEmpty()) {
-      int dialog_width = 200;
-      int dialog_height = 200;
-      if (!features::kAiOverlayDialogMockJsonPath.Get().empty()) {
-        // 150px (buttons) + 20px (gap) + 100px (persona) = 270px
-        dialog_width = 270;
-        // 200px (max height of column)
-        dialog_height = 200;
-      }
-      size = gfx::Size(dialog_width, dialog_height);
-    }
-    int x_margin = 15;
-    gfx::Point top_left = non_devtools_contents_bounds.bottom_right() -
-                          gfx::Vector2d(size.width() + x_margin, size.height());
-    gfx::Rect rect(top_left, size);
-    layouts.child_layouts.emplace_back(ai_overlay_dialog_view_.get(),
-                                       ai_overlay_dialog_view_->GetVisible(),
-                                       rect, views::SizeBounds(rect.size()));
-  }
 
 
   // Reading Mode overlay view bounds are the same as the contents view.

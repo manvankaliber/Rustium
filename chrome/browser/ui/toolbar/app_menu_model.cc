@@ -52,7 +52,6 @@
 #include "chrome/browser/sync/sync_service_factory.h"
 #include "chrome/browser/sync/sync_ui_util.h"
 #include "chrome/browser/themes/theme_service_factory.h"
-#include "chrome/browser/ttc/core/ttc_keyed_service.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/bookmarks/bookmark_utils.h"
 #include "chrome/browser/ui/browser_actions.h"
@@ -2313,20 +2312,6 @@ void AppMenuModel::Build() {
       features::IsRoundedIconsEnabled() ? kPrintIcon : kPrintMenuOldIcon);
 
 
-  if (ttc::TtcKeyedService* service =
-          ttc::TtcKeyedService::Get(browser_->GetProfile());
-      service && service->IsEnabled()) {
-    const gfx::VectorIcon& icon =
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-        vector_icons::kAudioSparkIcon;
-#else
-        features::IsRoundedIconsEnabled()
-            ? vector_icons::kMicFilledIcon
-            : vector_icons::kMicChromeRefreshOldIcon;
-#endif
-    AddItemWithStringIdAndVectorIcon(this, IDC_SHOW_TTC_MENU,
-                                     IDS_TTC_ENTRYPOINT_LABEL, icon);
-  }
 
 
   AddItemWithStringIdAndVectorIcon(this, IDC_SHOW_TRANSLATE, IDS_SHOW_TRANSLATE,

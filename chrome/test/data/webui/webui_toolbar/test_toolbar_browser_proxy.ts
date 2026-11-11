@@ -13,10 +13,9 @@ import {InitialStateReader, INVALID_FOCUS_REQUEST_HANDLE, INVALID_SHOW_SPLIT_TAB
 import type {AdjustOmniboxTextForCopyResult, BrowserProxy, ContentSettingImageType, ContextMenuType, FocusRequestHandle, FocusRequestListener, InitialState, LhsChipIdentifier, OmniboxAction, PageActionId, PageActionTrigger, PinnedToolbarAction, ShowSplitTabsContextMenuHandle, ShowSplitTabsContextMenuListener, ToolbarFlatStateSchema, ToolbarStateListener, ToolbarStateListenerHandle, ToolbarUIServiceInterface} from 'chrome://webui-toolbar.top-chrome/webui_toolbar.js';
 
 // The values that WebUIToolbarUI sets in the initial state of each frame from
-// the user profile, so that the Glic and avatar buttons can be shown by
+// the user profile, so that the avatar button can be shown by
 // default.
 const DEFAULT_INITIAL_STATE: Partial<ToolbarFlatStateSchema> = {
-  isProfileEligibleForGlic: true,
   canShowAvatarForProfile: true,
 };
 

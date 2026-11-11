@@ -52,9 +52,7 @@ const char* const kTestFeatures[] = {
 
 const char* const kAliasTestApis[] = {"alias_api_source"};
 
-const char* const kSessionTypeTestFeatures[] = {
-    "test6", "kiosk_only", "non_kiosk", "multiple_session_types",
-    "autolaunched_kiosk"};
+const char* const kSessionTypeTestFeatures[] = {"test6", "non_kiosk"};
 
 struct FeatureSessionTypesTestData {
   std::string api_name;
@@ -422,20 +420,9 @@ TEST(ExtensionAPITest, SessionTypeFeature) {
           .Build();
 
   const std::vector<FeatureSessionTypesTestData> kTestData(
-      {{"kiosk_only", true, mojom::FeatureSessionType::kKiosk},
-       {"kiosk_only", true, mojom::FeatureSessionType::kAutolaunchedKiosk},
-       {"kiosk_only", false, mojom::FeatureSessionType::kRegular},
-       {"kiosk_only", false, mojom::FeatureSessionType::kUnknown},
-       {"non_kiosk", false, mojom::FeatureSessionType::kKiosk},
+      {{"non_kiosk", false, mojom::FeatureSessionType::kKiosk},
        {"non_kiosk", true, mojom::FeatureSessionType::kRegular},
        {"non_kiosk", false, mojom::FeatureSessionType::kUnknown},
-       {"autolaunched_kiosk", true,
-        mojom::FeatureSessionType::kAutolaunchedKiosk},
-       {"autolaunched_kiosk", false, mojom::FeatureSessionType::kKiosk},
-       {"autolaunched_kiosk", false, mojom::FeatureSessionType::kRegular},
-       {"multiple_session_types", true, mojom::FeatureSessionType::kKiosk},
-       {"multiple_session_types", true, mojom::FeatureSessionType::kRegular},
-       {"multiple_session_types", false, mojom::FeatureSessionType::kUnknown},
        // test6.foo is available to apps and has no session type restrictions.
        {"test6.foo", true, mojom::FeatureSessionType::kKiosk},
        {"test6.foo", true, mojom::FeatureSessionType::kAutolaunchedKiosk},

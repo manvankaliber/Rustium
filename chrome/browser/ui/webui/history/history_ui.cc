@@ -102,19 +102,7 @@ content::WebUIDataSource* CreateAndAddHistoryUIHTMLSource(Profile* profile) {
       "sidebarFooterGMAOnly",
       l10n_util::GetStringFUTF16(IDS_HISTORY_OTHER_FORMS_OF_HISTORY_GMA_ONLY,
                                  chrome::kMyActivityUrlInHistory));
-  source->AddString(
-      "sidebarFooterGAAOnly",
-      l10n_util::GetStringFUTF16(IDS_HISTORY_OTHER_FORMS_OF_HISTORY_GAA_ONLY,
-                                 chrome::kMyActivityGeminiAppsUrl));
-  source->AddString(
-      "sidebarFooterGMAAndGAA",
-      l10n_util::GetStringFUTF16(
-          is_critical_actions_enabled
-              ? IDS_HISTORY_OTHER_FORMS_OF_HISTORY_GMA_AND_GAA_CRITICAL_ACTIONS
-              : IDS_HISTORY_OTHER_FORMS_OF_HISTORY_GMA_AND_GAA,
-          chrome::kMyActivityUrlInHistory, chrome::kMyActivityGeminiAppsUrl));
   source->AddString("sidebarFooterGMALink", chrome::kMyActivityUrlInHistory);
-  source->AddString("sidebarFooterGAALink", chrome::kMyActivityGeminiAppsUrl);
 
   static constexpr webui::LocalizedString kHistorySyncStrings[] = {
       {"historySyncPromoTitle", IDS_HISTORY_SYNC_PROMO_TITLE},

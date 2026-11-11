@@ -273,34 +273,7 @@ void PasswordManagerUIHandler::SwitchBiometricAuthBeforeFillingState(
 }
 
 void PasswordManagerUIHandler::StartPasswordChange(int credential_id) {
-  CHECK(web_contents_);
-  auto credential =
-      passwords_private_delegate_->GetCredentialFromId(credential_id);
-  if (!credential) {
-    return;
-  }
-
-  auto* presenter = passwords_private_delegate_->GetSavedPasswordsPresenter();
-  if (!presenter) {
-    return;
-  }
-  std::vector<password_manager::StoredCredential> stored_credentials =
-      presenter->GetCorrespondingStoredCredentials(*credential);
-  if (stored_credentials.empty()) {
-    return;
-  }
-
-  Profile* profile =
-      Profile::FromBrowserContext(web_contents_->GetBrowserContext());
-  auto* service = PasswordChangeServiceFactory::GetForProfile(profile);
-  if (service) {
-    password_change_from_checkup_delegates_[credential_id] =
-        service->StartPasswordChangeFromCheckup(
-            std::move(stored_credentials.front()), web_contents_,
-            base::BindRepeating(&PasswordManagerUIHandler::
-                                    OnPasswordAutomaticChangeStateUpdated,
-                                weak_ptr_factory_.GetWeakPtr(), credential_id));
-  }
+  // Gemini-backed automatic password change is not available.
 }
 
 void PasswordManagerUIHandler::StopPasswordChange(int credential_id) {

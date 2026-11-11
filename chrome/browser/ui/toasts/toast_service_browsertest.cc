@@ -7,7 +7,6 @@
 #include "base/containers/enum_set.h"
 #include "base/test/scoped_feature_list.h"
 #include "chrome/browser/dictation/features.h"
-#include "chrome/browser/ttc/core/features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/create_browser_window.h"

@@ -450,12 +450,6 @@ export class SettingsAutofillPageV2Element extends
       case 'travel':
         triggerId = 'travelManagerButton';
         break;
-      case 'shopping':
-        triggerId = 'shoppingManagerButton';
-        break;
-      case 'suggestionsFromGemini':
-        triggerId = 'suggestionsFromGeminiLinkRow';
-        break;
       default:
         assertNotReached(`Unrecognized child view ID: ${childViewId}`);
     }

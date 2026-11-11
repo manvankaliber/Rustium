@@ -86,13 +86,10 @@
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "chrome/browser/sync/sync_ui_util.h"
 #include "chrome/browser/tab_list/tab_list_interface.h"
-#include "chrome/browser/ttc/core/entrypoint_controller.h"
-#include "chrome/browser/ttc/core/ttc_keyed_service.h"
 #include "chrome/browser/ui/actions/actions_util.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/actions/chrome_action_properties.h"
 #include "chrome/browser/ui/actions/chrome_actions.h"
-#include "chrome/browser/ui/ai_overlay_dialog/ai_overlay_dialog_controller.h"
 #include "chrome/browser/ui/autofill/address_bubbles_icon_controller.h"
 #include "chrome/browser/ui/autofill/autofill_bubble_base.h"
 #include "chrome/browser/ui/autofill/payments/filled_card_information_bubble_controller_impl.h"
@@ -162,7 +159,6 @@
 #include "chrome/browser/ui/views/location_bar/record_replay_page_action_controller.h"
 #include "chrome/browser/ui/views/media_router/cast_browser_controller.h"
 #include "chrome/browser/ui/views/tabs/groups/recent_activity_bubble_dialog_view.h"
-#include "chrome/browser/ui/views/toolbar/ai_overlay_toolbar_button.h"
 #include "chrome/browser/ui/views/toolbar/chrome_labs/chrome_labs_coordinator.h"
 #include "chrome/browser/ui/views/toolbar/pinned_action_toolbar_button.h"
 #include "chrome/browser/ui/views/toolbar/pinned_action_toolbar_button_menu_model.h"
@@ -1873,29 +1869,6 @@ void BrowserActions::InitializeChromeMenuActions() {
           .SetImage(ui::ImageModel::FromVectorIcon(kExploreIcon))
           .Build());
 
-  if (ttc::TtcKeyedService* service =
-          ttc::TtcKeyedService::Get(bwi->GetProfile());
-      service && service->IsEnabled()) {
-    root_action_item_->AddChild(
-        ChromeMenuAction(
-            base::BindRepeating(
-                [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                   actions::ActionInvocationContext context) {
-                  chrome::ShowTtcMenuItem(bwi);
-                },
-                bwi),
-            kActionShowTtcMenu, IDS_TTC_ENTRYPOINT_LABEL,
-            IDS_TTC_ENTRYPOINT_LABEL,
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-            vector_icons::kAudioSparkIcon,
-#else
-            features::IsRoundedIconsEnabled()
-                ? vector_icons::kMicFilledIcon
-                : vector_icons::kMicChromeRefreshOldIcon,
-#endif
-            /*is_pinnable=*/false)
-            .Build());
-  }
 }
 
 void BrowserActions::InitializeToolbarAndMiscActions() {
@@ -4845,33 +4818,6 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
                                       vector_icons::kMailAsteriskIcon))
                                   .Build());
 
-  if (ttc::TtcKeyedService* service =
-          ttc::TtcKeyedService::Get(bwi->GetProfile());
-      service && service->IsEnabled()) {
-    root_action_item_->AddChild(
-        ChromeMenuAction(
-            base::BindRepeating(
-                [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                   actions::ActionInvocationContext context) {
-                  if (ttc::EntrypointController* controller =
-                          ttc::EntrypointController::From(bwi)) {
-                    controller->EntrypointHandler(
-                        ttc::EntrypointType::kToolbarButton);
-                  }
-                },
-                bwi),
-            kActionTtcToolbar, IDS_TTC_ENTRYPOINT_LABEL,
-            IDS_TTC_ENTRYPOINT_LABEL,
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-            vector_icons::kAudioSparkIcon,
-#else
-            features::IsRoundedIconsEnabled()
-                ? vector_icons::kMicFilledIcon
-                : vector_icons::kMicChromeRefreshOldIcon,
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
-            /*is_pinnable=*/true)
-            .Build());
-  }
 }
 
 void BrowserActions::InitializeNavigationActions() {

@@ -59,7 +59,7 @@ suite('ChipsUiV1Test', () => {
 
   test('UiElementVisibility', () => {
     assertTrue(isVisible(queryAppSelector('#dismissButton')));
-    assertTrue(isVisible(queryAppSelector('#couponsButton')));
+    assertFalse(isVisible(queryAppSelector('#couponsButton')));
     assertTrue(isVisible(queryAppSelector('#writingButton')));
     assertTrue(isVisible(queryAppSelector('#productivityButton')));
     assertTrue(isVisible(queryAppSelector('#aiButton')));
@@ -70,19 +70,6 @@ suite('ChipsUiV1Test', () => {
     assertFalse(isVisible(queryAppSelector('#aiLink')));
     assertFalse(isVisible(queryAppSelector('#closeButton')));
     assertFalse(isVisible(queryAppSelector('#customActionButton')));
-  });
-
-  test('ClickCouponsChip', async () => {
-    const chip = queryAppSelector('#couponsButton');
-    assertTrue(!!chip);
-    chip.click();
-
-    assertEquals(
-        WebStoreLinkClicked.kCoupon,
-        await promoProxy.whenCalled('launchWebStoreLink'));
-    assertEquals(
-        CustomHelpBubbleUserAction.kAction,
-        await bubbleHandler.whenCalled('notifyUserAction'));
   });
 
   test('ClickWritingChip', async () => {
@@ -159,7 +146,7 @@ suite('ChipsUiV2Test', () => {
 
   test('UiElementVisibility', () => {
     assertTrue(isVisible(queryAppSelector('#dismissButton')));
-    assertTrue(isVisible(queryAppSelector('#couponsButton')));
+    assertFalse(isVisible(queryAppSelector('#couponsButton')));
     assertTrue(isVisible(queryAppSelector('#productivityButton')));
     assertTrue(isVisible(queryAppSelector('#aiButton')));
     assertTrue(isVisible(queryAppSelector('#webStoreButton')));
@@ -170,19 +157,6 @@ suite('ChipsUiV2Test', () => {
     assertFalse(isVisible(queryAppSelector('#aiLink')));
     assertFalse(isVisible(queryAppSelector('#closeButton')));
     assertFalse(isVisible(queryAppSelector('#customActionButton')));
-  });
-
-  test('ClickCouponsChip', async () => {
-    const chip = queryAppSelector('#couponsButton');
-    assertTrue(!!chip);
-    chip.click();
-
-    assertEquals(
-        WebStoreLinkClicked.kCoupon,
-        await promoProxy.whenCalled('launchWebStoreLink'));
-    assertEquals(
-        CustomHelpBubbleUserAction.kAction,
-        await bubbleHandler.whenCalled('notifyUserAction'));
   });
 
   test('ClickWebstoreChip', async () => {
@@ -259,7 +233,7 @@ suite('ChipsUiV3Test', () => {
 
   test('UiElementVisibility', () => {
     assertTrue(isVisible(queryAppSelector('#dismissButton')));
-    assertTrue(isVisible(queryAppSelector('#couponsButton')));
+    assertFalse(isVisible(queryAppSelector('#couponsButton')));
     assertTrue(isVisible(queryAppSelector('#writingButton')));
     assertTrue(isVisible(queryAppSelector('#productivityButton')));
     assertTrue(isVisible(queryAppSelector('#aiButton')));
@@ -270,19 +244,6 @@ suite('ChipsUiV3Test', () => {
     assertFalse(isVisible(queryAppSelector('#aiLink')));
     assertFalse(isVisible(queryAppSelector('#closeButton')));
     assertFalse(isVisible(queryAppSelector('#customActionButton')));
-  });
-
-  test('ClickCouponsChip', async () => {
-    const chip = queryAppSelector('#couponsButton');
-    assertTrue(!!chip);
-    chip.click();
-
-    assertEquals(
-        WebStoreLinkClicked.kCoupon,
-        await promoProxy.whenCalled('launchWebStoreLink'));
-    assertEquals(
-        CustomHelpBubbleUserAction.kAction,
-        await bubbleHandler.whenCalled('notifyUserAction'));
   });
 
   test('ClickWritingChip', async () => {
@@ -359,7 +320,7 @@ suite('PlainLinkUiTest', () => {
 
   test('UiElementVisibility', () => {
     assertTrue(isVisible(queryAppSelector('#dismissButton')));
-    assertTrue(isVisible(queryAppSelector('#couponsLink')));
+    assertFalse(isVisible(queryAppSelector('#couponsLink')));
     assertTrue(isVisible(queryAppSelector('#writingLink')));
     assertTrue(isVisible(queryAppSelector('#productivityLink')));
     assertTrue(isVisible(queryAppSelector('#aiLink')));
@@ -369,19 +330,6 @@ suite('PlainLinkUiTest', () => {
     assertFalse(isVisible(queryAppSelector('#writingButton')));
     assertFalse(isVisible(queryAppSelector('#productivityButton')));
     assertFalse(isVisible(queryAppSelector('#aiButton')));
-  });
-
-  test('ClickCouponsLink', async () => {
-    const link = queryAppSelector('#couponsLink');
-    assertTrue(!!link);
-    link.click();
-
-    assertEquals(
-        WebStoreLinkClicked.kCoupon,
-        await promoProxy.whenCalled('launchWebStoreLink'));
-    assertEquals(
-        CustomHelpBubbleUserAction.kAction,
-        await bubbleHandler.whenCalled('notifyUserAction'));
   });
 
   test('ClickWritingLink', async () => {

@@ -25,14 +25,6 @@
 #include "extensions/buildflags/buildflags.h"
 #include "mojo/public/cpp/bindings/binder_map.h"
 
-#include "chrome/browser/ttc/core/buildflags.h"
-#if BUILDFLAG(ENABLE_TTC_WEBUI)
-#include "chrome/browser/ttc/core/eval_harness.mojom.h"
-#include "chrome/browser/ttc/core/switches.h"
-#endif
-#include "chrome/browser/ui/webui/ai_overlay_dialog/ai_overlay_dialog.mojom.h"
-#include "chrome/browser/ui/webui/ai_overlay_dialog/ai_overlay_dialog_untrusted_ui.h"
-
 #if BUILDFLAG(CHROME_ROOT_STORE_CERT_MANAGEMENT_UI)
 #include "chrome/browser/resources/certificate_manager/certificate_manager.mojom.h"
 #include "chrome/browser/ui/webui/certificate_manager/certificate_manager_ui.h"
@@ -178,18 +170,7 @@ void PopulateChromeWebUIFrameInterfaceBrokersUntrustedPartsFeatures(
       .Add<compose::mojom::ComposeSessionUntrustedPageHandlerFactory>();
 #endif  // BUILDFLAG(ENABLE_COMPOSE)
 
-  if (base::FeatureList::IsEnabled(features::kAiOverlayDialog)
-#if BUILDFLAG(ENABLE_TTC_WEBUI)
-      || base::CommandLine::ForCurrentProcess()->HasSwitch(
-             ttc::switches::kEnableTtcTestApi)
-#endif
-  ) {
-    auto registration = registry.ForWebUI<ttc::AiOverlayDialogUntrustedUI>();
-    registration.Add<ai_overlay_dialog::mojom::PageHandlerFactory>();
-#if BUILDFLAG(ENABLE_TTC_WEBUI)
-    registration.Add<ttc::mojom::HarnessPageHandlerFactory>();
-#endif
-  }
+
 }
 
 }  // namespace chrome::internal

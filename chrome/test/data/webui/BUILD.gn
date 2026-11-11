@@ -23,7 +23,6 @@ source_set("browser_tests") {
     "bluetooth_internals/bluetooth_internals_browsertest.cc",
     "browser_actuator_internals/browser_actuator_internals_browsertest.cc",
     "chrome_urls/chrome_urls_browsertest.cc",
-    "commerce_internals/commerce_internals_browsertest.cc",
     "contextual_tasks/contextual_tasks_browsertest.cc",
     "cr_elements/cr_elements_browsertest.cc",
     "flags/flags_browsertest.cc",
@@ -86,7 +85,6 @@ source_set("browser_tests") {
   sources += [
     "about_sys/about_sys_browsertest.cc",
     "access_code_cast/access_code_cast_browsertest.cc",
-    "actor_overlay/actor_overlay_browsertest.cc",
     "bookmarks/bookmarks_browsertest.cc",
     "chrome_apis/chrome_histograms_browsertest.cc",
     "chrome_apis/chrome_request_presentation_time_browsertest.cc",
@@ -234,12 +232,7 @@ source_set("browser_tests") {
   if (is_win || is_mac || is_linux) {
     sources += [
       "discards/discards_browsertest.cc",
-      "skills/skills_browsertest.cc",
     ]
-    deps += [ "//components/skills:features" ]
-    if (is_chrome_branded) {
-      sources += [ "ai_overlay_dialog/ai_overlay_dialog_browsertest.cc" ]
-    }
   }
 
   if (is_win || is_mac || is_linux) {
@@ -551,7 +544,6 @@ generate_grd("build_grd") {
     "bluetooth_internals:build_grdp",
     "browser_actuator_internals:build_grdp",
     "chrome_urls:build_grdp",
-    "commerce_internals:build_grdp",
     "contextual_tasks:build_grdp",
     "cr_elements:build_grdp",
     "flags:build_grdp",
@@ -567,7 +559,6 @@ generate_grd("build_grd") {
     "$target_gen_dir/browser_actuator_internals/resources.grdp",
     "$target_gen_dir/chai_resources.grdp",
     "$target_gen_dir/chrome_urls/resources.grdp",
-    "$target_gen_dir/commerce_internals/resources.grdp",
     "$target_gen_dir/contextual_tasks/resources.grdp",
     "$target_gen_dir/notebooks_internals/resources.grdp",
     "$target_gen_dir/cr_elements/resources.grdp",
@@ -592,7 +583,6 @@ generate_grd("build_grd") {
   deps += [
     "about_sys:build_grdp",
     "access_code_cast:build_grdp",
-    "actor_overlay:build_grdp",
     "bookmarks:build_grdp",
     "chrome_apis:build_grdp",
     "content_settings:build_grdp",
@@ -651,7 +641,6 @@ generate_grd("build_grd") {
   grdp_files += [
     "$target_gen_dir/about_sys/resources.grdp",
     "$target_gen_dir/access_code_cast/resources.grdp",
-    "$target_gen_dir/actor_overlay/resources.grdp",
     "$target_gen_dir/chrome_apis/resources.grdp",
 
     "$target_gen_dir/webview/resources.grdp",
@@ -780,12 +769,6 @@ generate_grd("build_grd") {
   }
 
   if (is_win || is_mac || is_linux) {
-    deps += [ "skills:build_grdp" ]
-    grdp_files += [ "$target_gen_dir/skills/resources.grdp" ]
-    if (is_chrome_branded) {
-      deps += [ "ai_overlay_dialog:build_grdp" ]
-      grdp_files += [ "$target_gen_dir/ai_overlay_dialog/resources.grdp" ]
-    }
   }
 
   if (is_win) {

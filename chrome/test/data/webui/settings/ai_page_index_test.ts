@@ -45,11 +45,11 @@ suite('AiPageIndex', function() {
       showAiPage: true,
       showAiPageAiFeatureSection: true,
       showComposeControl: true,
-      aiSettingsSection: AiSettingsSection.GEMINI,
+      aiSettingsSection: AiSettingsSection.NONE,
       enableAiModeSearchSetting: true,
       actorLoginFederatedLoginSupportEnabled: true,
       showAiSuggestionsControl: true,
-      showInlineCueMenuControl: true,
+      showInlineCueMenuControl: false,
       showDictationControl: true,
       // <if expr="_google_chrome">
       showOnDeviceAiAdvancedSettings: true,
@@ -63,7 +63,6 @@ suite('AiPageIndex', function() {
     const defaultViews = [
       'aiInfoCard',
       'aiModeSearch',
-      'glic',
       'parent',
     ];
 
@@ -78,21 +77,9 @@ suite('AiPageIndex', function() {
     await microtasksFinished();
     assertActiveViews(['compose']);
 
-    Router.getInstance().navigateTo(routes.GEMINI);
-    await microtasksFinished();
-    assertActiveViews(['gemini']);
-
-    Router.getInstance().navigateTo(routes.GEMINI_LOGIN);
-    await microtasksFinished();
-    assertActiveViews(['geminiLoginPermissions']);
-
     Router.getInstance().navigateTo(routes.AI_SUGGESTIONS);
     await microtasksFinished();
     assertActiveViews(['aiSuggestions']);
-
-    Router.getInstance().navigateTo(routes.INLINE_CUE_MENU);
-    await microtasksFinished();
-    assertActiveViews(['inlineCueMenu']);
 
     Router.getInstance().navigateTo(routes.DICTATION);
     await microtasksFinished();
@@ -141,44 +128,6 @@ suite('AiPageIndex', function() {
     assertFalse(!!index.$.viewManager.querySelector('#geic[slot=view]'));
   });
 
-  test('aiSettingsSectionVisibilityGemini', async function() {
-    loadTimeData.overrideValues({
-      showAiPage: true,
-      aiSettingsSection: AiSettingsSection.GEMINI,
-    });
-    resetRouterForTesting();
-    await createAiPageIndex();
-    assertTrue(!!index.$.viewManager.querySelector('#glic[slot=view]'));
-    assertFalse(!!index.$.viewManager.querySelector('#geic[slot=view]'));
-  });
-
-  test('aiSettingsSectionVisibilityGeminiEnterprise', async function() {
-    loadTimeData.overrideValues({
-      showAiPage: true,
-      aiSettingsSection: AiSettingsSection.GEMINI_ENTERPRISE,
-    });
-    resetRouterForTesting();
-    await createAiPageIndex();
-    assertFalse(!!index.$.viewManager.querySelector('#glic[slot=view]'));
-    assertTrue(!!index.$.viewManager.querySelector('#geic[slot=view]'));
-  });
-
-  test('GeminiEnterpriseRoutingAndDataParentViewId', async function() {
-    loadTimeData.overrideValues({
-      showAiPage: true,
-      aiSettingsSection: AiSettingsSection.GEMINI_ENTERPRISE,
-    });
-    resetRouterForTesting();
-    await createAiPageIndex();
-
-    Router.getInstance().navigateTo(routes.GEMINI_ENTERPRISE);
-    await microtasksFinished();
-    assertActiveViews(['geminiEnterprise']);
-
-    assertTrue(!!index.$.viewManager.querySelector(
-        '#geminiEnterprise[slot=view][data-parent-view-id=geic]'));
-  });
-
   test('dictationSectionVisibility', async function() {
     assertTrue(!!index.$.viewManager.querySelector('#dictation[slot=view]'));
 
@@ -210,7 +159,6 @@ suite('AiPageIndex', function() {
     const childViewsId = [
       'compose',
       'aiSuggestions',
-      'inlineCueMenu',
       'dictation',
       // <if expr="_google_chrome">
       'onDeviceAi',
@@ -221,10 +169,7 @@ suite('AiPageIndex', function() {
           `#${id}[slot=view][data-parent-view-id=parent]`));
     }
 
-    assertTrue(!!index.$.viewManager.querySelector(
-        '#gemini[slot=view][data-parent-view-id=glic]'));
-    assertTrue(!!index.$.viewManager.querySelector(
-        '#geminiLoginPermissions[slot=view][data-parent-view-id=gemini]'));
+
   });
 
   // Minimal (non-exhaustive) tests to ensure SearchableViewContainerMixinLit is
@@ -245,25 +190,8 @@ suite('AiPageIndex', function() {
     assertFalse(result.canceled);
     assertGT(result.matchCount, 0);
     assertFalse(result.wasClearSearch);
-    assertVisibleViews(['parent'], ['glic']);
+    assertVisibleViews(['parent'], []);
 
-    // Case2: Results only in the "Glic" card.
-    result = await index.searchContents('takeaways');
-    assertFalse(result.canceled);
-    assertGT(result.matchCount, 0);
-    assertFalse(result.wasClearSearch);
-    assertVisibleViews(['glic'], ['parent']);
 
-    // Case3: Results in both "AI Innovations" and "Glic" card.
-    result = await index.searchContents('keyboard shortcut');
-    assertFalse(result.canceled);
-    assertGT(result.matchCount, 0);
-    assertFalse(result.wasClearSearch);
-    assertVisibleViews(
-        [
-          'parent',
-          'glic',
-        ],
-        []);
   });
 });

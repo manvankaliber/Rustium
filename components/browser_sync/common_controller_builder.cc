@@ -38,7 +38,6 @@
 #include "components/consent_auditor/consent_auditor.h"
 #include "components/contextual_tasks/public/ai_thread_data_type_controller.h"
 #include "components/contextual_tasks/public/contextual_tasks_service.h"
-#include "components/contextual_tasks/public/gemini_thread_data_type_controller.h"
 #include "components/data_sharing/public/data_sharing_service.h"
 #include "components/data_sharing/public/features.h"
 #include "components/data_sharing/public/personal_collaboration_data/personal_collaboration_data_service.h"
@@ -182,15 +181,6 @@ base::WeakPtr<syncer::DataTypeControllerDelegate> AiThreadDelegateFromGetter(
   contextual_tasks::ContextualTasksService* service =
       contextual_tasks_service_getter.Run();
   return service ? service->GetAiThreadControllerDelegate() : nullptr;
-}
-
-base::WeakPtr<syncer::DataTypeControllerDelegate>
-GeminiThreadDelegateFromGetter(
-    const base::RepeatingCallback<contextual_tasks::ContextualTasksService*()>&
-        contextual_tasks_service_getter) {
-  contextual_tasks::ContextualTasksService* service =
-      contextual_tasks_service_getter.Run();
-  return service ? service->GetGeminiThreadControllerDelegate() : nullptr;
 }
 
 // Helper function that deals will null (e.g. tests, iOS webview).
@@ -560,10 +550,6 @@ CommonControllerBuilder::Build(syncer::DataTypeSet disabled_types,
 
   if (!disabled_types.Has(syncer::AI_THREAD)) {
     add_controller(CreateAiThreadDataTypeController());
-  }
-
-  if (!disabled_types.Has(syncer::GEMINI_THREAD)) {
-    add_controller(CreateGeminiThreadDataTypeController());
   }
 
   if (!disabled_types.Has(syncer::NOTEBOOK)) {
@@ -1127,26 +1113,6 @@ CommonControllerBuilder::CreateAiThreadDataTypeController() {
       std::make_unique<syncer::ProxyDataTypeControllerDelegate>(
           base::SequencedTaskRunner::GetCurrentDefault(),
           base::BindRepeating(&AiThreadDelegateFromGetter,
-                              contextual_tasks_service_getter_)));
-}
-
-std::unique_ptr<syncer::DataTypeController>
-CommonControllerBuilder::CreateGeminiThreadDataTypeController() {
-  if (!base::FeatureList::IsEnabled(syncer::kSyncGeminiThread) ||
-      !contextual_tasks_service_getter_) {
-    return nullptr;
-  }
-  return std::make_unique<contextual_tasks::GeminiThreadDataTypeController>(
-      contextual_tasks_service_getter_,
-      /*delegate_for_full_sync_mode=*/
-      std::make_unique<syncer::ProxyDataTypeControllerDelegate>(
-          base::SequencedTaskRunner::GetCurrentDefault(),
-          base::BindRepeating(&GeminiThreadDelegateFromGetter,
-                              contextual_tasks_service_getter_)),
-      /*delegate_for_transport_mode=*/
-      std::make_unique<syncer::ProxyDataTypeControllerDelegate>(
-          base::SequencedTaskRunner::GetCurrentDefault(),
-          base::BindRepeating(&GeminiThreadDelegateFromGetter,
                               contextual_tasks_service_getter_)));
 }
 

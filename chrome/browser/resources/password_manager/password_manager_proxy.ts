@@ -426,24 +426,6 @@ export interface PasswordManagerProxy {
   revokeActorLoginPermission(site: ActorLoginPermission): void;
 
   /**
-   * Request a password change flow by invoking Glic.
-   * @param id The ID of the credential.
-   */
-  requestChangePassword(credential_id: number): void;
-
-  /**
-   * Stops an ongoing password change flow started from Password Checkup for the
-   * given credential.
-   */
-  stopPasswordChange(credentialId: number): void;
-
-  /**
-   * Opens/activates the tab where the automatic password change flow is
-   * running.
-   */
-  openPasswordChangeTab(id: number): void;
-
-  /**
    * Returns the current actionable error.
    */
   getPasswordManagerActionableError(): Promise<PasswordManagerActionableError>;
@@ -878,18 +860,6 @@ export class PasswordManagerImpl implements PasswordManagerProxy {
 
   revokeActorLoginPermission(site: ActorLoginPermission) {
     this.handler.revokeActorLoginPermission(site);
-  }
-
-  requestChangePassword(credentialId: number): void {
-    this.handler.startPasswordChange(credentialId);
-  }
-
-  stopPasswordChange(credentialId: number): void {
-    this.handler.stopPasswordChange(credentialId);
-  }
-
-  openPasswordChangeTab(id: number): void {
-    this.handler.openPasswordChangeTab(id);
   }
 
   getPasswordManagerActionableError(): Promise<PasswordManagerActionableError> {

@@ -79,8 +79,6 @@ export class ProfilePickerMainViewElement extends
       guestModeEnabled_: {type: Boolean},
       profileCreationAllowed_: {type: Boolean},
       pickerButtonsDisabled_: {type: Boolean},
-      // Exposed to CSS as 'is-glic_'.
-      isGlic_: {type: Boolean, reflect: true},
       // Exposed to CSS as 'is-refreshed-ui_'.
       isRefreshedUI_: {type: Boolean, reflect: true},
       webuiRoundedIconsEnabled_: {type: Boolean},
@@ -98,7 +96,6 @@ export class ProfilePickerMainViewElement extends
       loadTimeData.getBoolean('isGuestModeEnabled');
   protected accessor profileCreationAllowed_: boolean =
       isProfileCreationAllowed();
-  protected accessor isGlic_: boolean = false;
   private manageProfilesBrowserProxy_: ManageProfilesBrowserProxy =
       ManageProfilesBrowserProxyImpl.getInstance();
   private resizeObserver_: ResizeObserver|null = null;
@@ -124,11 +121,9 @@ export class ProfilePickerMainViewElement extends
     this.addWebUiListener('reset-picker-buttons', () => {
       this.enableAllPickerButtons_();
     });
-    if (!this.isGlic_) {
-      this.addWebUiListener(
-          'guest-mode-availability-updated',
-          this.maybeUpdateGuestMode_.bind(this));
-    }
+    this.addWebUiListener(
+        'guest-mode-availability-updated',
+        this.maybeUpdateGuestMode_.bind(this));
     this.manageProfilesBrowserProxy_.initializeMainView();
   }
 
@@ -179,13 +174,6 @@ export class ProfilePickerMainViewElement extends
   }
 
   private addResizeObserver_() {
-    if (this.isGlic_) {
-      // In the Glic version, the separator is not needed. If added it will
-      // interfere with the special background in this mode. Also a footer text
-      // is shown, which already acts as a separator.
-      return;
-    }
-
     const profilesContainer = this.$.profilesContainer;
     this.resizeObserver_ = new ResizeObserver(() => {
       this.shadowRoot.querySelector('.footer')!.classList.toggle(
@@ -196,11 +184,6 @@ export class ProfilePickerMainViewElement extends
   }
 
   protected onProductLogoClick_() {
-    // No animation for Glic logo version.
-    if (this.isGlic_) {
-      return;
-    }
-
     this.$.pickerLogo.animate(
         {
           transform: ['none', 'rotate(-10turn)'],

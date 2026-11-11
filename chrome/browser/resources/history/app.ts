@@ -37,7 +37,6 @@ import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
 import {hasKeyModifiers} from 'chrome://resources/js/util.js';
 import type {PropertyValues} from 'chrome://resources/lit/v3_0/lit.rollup.js';
 import {CrLitElement} from 'chrome://resources/lit/v3_0/lit.rollup.js';
-import {browserProxyFactory as userEducationProxyFactory} from 'chrome://resources/mojo/components/user_education/webui/user_education.mojom-webui.js';
 
 import {getCss} from './app.css.js';
 import {getHtml} from './app.html.js';
@@ -157,7 +156,6 @@ export class HistoryAppElement extends HistoryAppElementBase {
       includeActorVisits_: {type: Boolean},
       includeUserVisits_: {type: Boolean},
       clientIds_: {type: Array},
-      isGlicWebActuationAvailable_: {type: Boolean},
       isBrowsingHistoryFilterByDeviceEnabled_: {type: Boolean},
       isBrowsingHistoryFilterByTimePeriodEnabled_: {type: Boolean},
       timePeriodOptions_: {type: Array},
@@ -168,7 +166,6 @@ export class HistoryAppElement extends HistoryAppElementBase {
   accessor footerInfo: FooterInfo = {
     managed: loadTimeData.getBoolean('isManaged'),
     otherFormsOfHistory: false,
-    geminiAppsActivity: false,
   };
   protected accessor unoPhase2FollowUpEnabled_: boolean =
       loadTimeData.getBoolean('unoPhase2FollowUp');
@@ -226,7 +223,6 @@ export class HistoryAppElement extends HistoryAppElementBase {
   protected accessor includeActorVisits_: boolean = true;
   protected accessor includeUserVisits_: boolean = true;
   protected accessor clientIds_: string[] = [];
-  protected accessor isGlicWebActuationAvailable_: boolean = false;
   protected accessor isBrowsingHistoryFilterByDeviceEnabled_: boolean =
       loadTimeData.getBoolean('isBrowsingHistoryFilterByDeviceEnabled');
   protected accessor isBrowsingHistoryFilterByTimePeriodEnabled_: boolean =
@@ -406,27 +402,6 @@ export class HistoryAppElement extends HistoryAppElementBase {
     const searchField = this.$.toolbar.searchField;
     if (!searchField.narrow) {
       searchField.getSearchInput().focus();
-    }
-
-    if (loadTimeData.getBoolean('isCriticalActionsEnabled') &&
-        this.showFilterChips_()) {
-      const filterChipsEl =
-          this.shadowRoot.querySelector<CrLitElement>('#historyFilterChips');
-      if (filterChipsEl) {
-        filterChipsEl.updateComplete.then(() => {
-          const chipEl = filterChipsEl.shadowRoot.querySelector<HTMLElement>(
-              '#actorVisitsChip');
-          if (chipEl) {
-            this.registerHelpBubble(
-                'HistoryUI::kHistoryGeminiFilterChipElementId', chipEl);
-            setTimeout(() => {
-              userEducationProxyFactory.getInstance()
-                  .handler.maybeShowFeaturePromo(
-                      {featureName: 'IPH_CriticalActionFilterChip', key: null});
-            }, 1000);
-          }
-        });
-      }
     }
 
     requestIdleCallback(function() {
@@ -823,10 +798,6 @@ export class HistoryAppElement extends HistoryAppElementBase {
     });
   }
 
-  protected showActorFilter_(): boolean {
-    return this.isGlicWebActuationAvailable_;
-  }
-
   protected showDeviceFilter_(): boolean {
     return this.isBrowsingHistoryFilterByDeviceEnabled_ &&
         this.devices_.length > 1;
@@ -838,7 +809,7 @@ export class HistoryAppElement extends HistoryAppElementBase {
   }
 
   protected showFilterChips_(): boolean {
-    return (this.showActorFilter_() || this.showDeviceFilter_() ||
+    return (this.showDeviceFilter_() ||
             this.showTimePeriodFilter_()) &&
         !this.getShowResultsByGroup_();
   }

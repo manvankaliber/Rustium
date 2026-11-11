@@ -972,9 +972,6 @@ source_set("core") {
     "//chrome/browser/tracing",
     "//chrome/browser/translate",
     "//chrome/browser/trusted_vault",
-    "//chrome/browser/ttc/core",
-    "//chrome/browser/ttc/core:buildflags",
-    "//chrome/browser/ttc/core:features",
     "//chrome/browser/ui:ui_features",
     "//chrome/browser/ui/actions",
     "//chrome/browser/ui/blocked_content",
@@ -1325,7 +1322,6 @@ source_set("core") {
   }
 
   deps += [
-    "//chrome/browser/ui/webui/ai_overlay_dialog",
     "//chrome/browser/ui/webui/discards",
   ]
 
@@ -2074,8 +2070,6 @@ source_set("browser") {
     "//chrome/browser/translate:impl",
     "//chrome/browser/trusted_vault",
     "//chrome/browser/trusted_vault:impl",
-    "//chrome/browser/ttc/core",
-    "//chrome/browser/ttc/core:impl",
     "//chrome/browser/ui:accelerator_utils_headers",
     "//chrome/browser/ui:browser_element_identifiers",
     "//chrome/browser/ui:browser_live_tab_context",
@@ -2929,12 +2923,9 @@ source_set("browser") {
   }
   if (is_win || is_mac || is_linux) {
     public_deps += [
-      "//chrome/browser/ui/webui/ai_overlay_dialog:mojo_bindings",
       "//chrome/browser/ui/webui/discards:mojo_bindings",
     ]
     deps += [
-      "//chrome/browser/ui/webui/ai_overlay_dialog",
-      "//chrome/browser/ui/webui/ai_overlay_dialog:impl",
     ]
   }
   if (enable_downgrade_processing) {
@@ -3298,8 +3289,6 @@ source_set("browser") {
       "//chrome/browser/ui/views/apps/app_info_dialog",
       "//chrome/browser/ui/views/apps/app_info_dialog:impl",
       "//chrome/browser/ui/views/autofill:address_editor_view",
-      "//chrome/browser/ui/views/autofill:at_memory_promo_bubble_view",
-      "//chrome/browser/ui/views/autofill:at_memory_promo_bubble_view_impl",
       "//chrome/browser/ui/views/autofill:autofill_bubble_handler_impl",
       "//chrome/browser/ui/views/autofill:autofill_bubble_utils",
       "//chrome/browser/ui/views/autofill:autofill_field_promo_view_impl",
@@ -3344,7 +3333,6 @@ source_set("browser") {
       "//chrome/browser/ui/views/autofill/popup:popup_bnpl_footnote_view",
       "//chrome/browser/ui/views/autofill/popup:popup_cell_utils",
       "//chrome/browser/ui/views/autofill/popup:popup_centered_text_view",
-      "//chrome/browser/ui/views/autofill/popup:popup_footer_with_link_view",
       "//chrome/browser/ui/views/autofill/popup:popup_impl",
       "//chrome/browser/ui/views/autofill/popup:popup_loading_view",
       "//chrome/browser/ui/views/autofill/popup:popup_notice_view",

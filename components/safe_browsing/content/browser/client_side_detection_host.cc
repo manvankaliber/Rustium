@@ -1480,14 +1480,6 @@ void ClientSideDetectionHost::AddReferrerChain(ClientPhishingRequest* verdict) {
   }
 }
 
-void ClientSideDetectionHost::MaybeStartGeminiAntiscamProtection(
-    GURL url,
-    ClientSideDetectionType request_type,
-    std::optional<bool> did_match_high_confidence_allowlist) {
-  delegate_->MaybeStartGeminiAntiscamProtection(
-      url, request_type, did_match_high_confidence_allowlist);
-}
-
 ClientSideDetectionFeatureCacheBase*
 ClientSideDetectionHost::GetFeatureCache() {
   ClientSideDetectionFeatureCache::CreateForWebContents(web_contents());

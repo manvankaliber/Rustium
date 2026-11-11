@@ -145,18 +145,6 @@ const AutofillComposeDelegate* AutofillClient::GetComposeDelegate() const {
   return const_cast<AutofillClient*>(this)->GetComposeDelegate();
 }
 
-AtMemoryQueryService* AutofillClient::GetAtMemoryQueryService() {
-  return nullptr;
-}
-
-AtMemoryManager* AutofillClient::GetAtMemoryManager() {
-  return nullptr;
-}
-
-const AtMemoryManager* AutofillClient::GetAtMemoryManager() const {
-  return const_cast<AutofillClient*>(this)->GetAtMemoryManager();
-}
-
 personal_context::PersonalContextEligibilityState
 AutofillClient::GetPersonalContextEligibilityState() const {
   return personal_context::PersonalContextEligibilityState::
@@ -301,12 +289,6 @@ void AutofillClient::TriggerPersonalizationAndTrustSurveys(
   NOTIMPLEMENTED();
 }
 
-void AutofillClient::TriggerAtMemoryPersonalizationAndTrustSurvey(
-    bool is_dismissed,
-    const HatsSurveyStringData& product_specific_data) {
-  NOTIMPLEMENTED();
-}
-
 void AutofillClient::
     TriggerOneTimePasswordDismissalPersonalizationAndTrustSurvey(
         const HatsSurveyStringData& product_specific_data) {
@@ -421,11 +403,6 @@ void AutofillClient::ShowAutofillAiFetchEntityFailureNotification() {
   NOTIMPLEMENTED();
 }
 
-void AutofillClient::ShowAtMemoryFetchFailureNotification(
-    std::optional<std::u16string> message_override) {
-  NOTIMPLEMENTED();
-}
-
 void AutofillClient::ShowAutofillAiPreFetchFailureNotification() {
   NOTIMPLEMENTED();
 }
@@ -520,11 +497,6 @@ OtpPhishGuardDelegate* AutofillClient::GetOtpPhishGuardDelegate() {
 }
 
 void AutofillClient::OpenGmailForOtps() {}
-
-void AutofillClient::OpenGeminiInSidebar(const std::u16string& prompt) {
-  // TODO(crbug.com/493824736): Implement opening Gemini in the sidebar.
-  NOTIMPLEMENTED();
-}
 
 bool AutofillClient::IsGlicEnabled() const {
   return false;

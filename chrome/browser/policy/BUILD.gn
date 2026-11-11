@@ -659,10 +659,6 @@ source_set("unit_tests") {
     "file_selection_dialogs_policy_handler_unittest.cc",
   ]
 
-  if (is_win || is_mac || is_linux) {
-    sources += [ "gemini_enterprise_url_policy_handler_unittest.cc" ]
-  }
-
   sources += [ "policy_path_parser_unittest.cc" ]
   deps += [
     ":path_parser",

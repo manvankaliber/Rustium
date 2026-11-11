@@ -7,7 +7,6 @@
 #include <memory>
 
 #include "base/test/scoped_feature_list.h"
-#include "chrome/browser/ttc/core/features.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/toolbar/pinned_toolbar/pinned_toolbar_actions_model_factory.h"
@@ -355,64 +354,11 @@ IN_PROC_BROWSER_TEST_F(PinnedToolbarActionsModelBrowserTest,
   EXPECT_TRUE(model()->Contains(kActionShowChromeLabs));
 }
 
-class PinnedToolbarActionsModelWithTtcPinnedBrowserTest
-    : public PinnedToolbarActionsModelBrowserTest {
-  base::test::ScopedFeatureList scoped_feature_list_{ttc::kTtc};
-};
-
-IN_PROC_BROWSER_TEST_F(PinnedToolbarActionsModelWithTtcPinnedBrowserTest,
-                       PinActionByDefault) {
-  EXPECT_TRUE(model()->IsDefault());
-  EXPECT_TRUE(model()->Contains(kActionTtcToolbar));
-}
-
-IN_PROC_BROWSER_TEST_F(PinnedToolbarActionsModelWithTtcPinnedBrowserTest,
-                       MigrateActionForExistingProfile) {
-  // Simulate an existing profile by unpinning the action and resetting the
-  // migration pref.
-  model()->UpdatePinnedState(kActionTtcToolbar, false);
-  browser()->GetProfile()->GetPrefs()->SetBoolean(
-      prefs::kTtcAutoPinnedMigration, false);
-
+IN_PROC_BROWSER_TEST_F(PinnedToolbarActionsModelBrowserTest,
+                       RemovedTtcActionIsNotPinnedByDefault) {
   EXPECT_FALSE(model()->Contains(kActionTtcToolbar));
-
-  // Run the migration.
   model()->MaybeMigrateExistingPinnedStates();
-
-  // Verify it is pinned now.
-  EXPECT_TRUE(model()->Contains(kActionTtcToolbar));
-  EXPECT_TRUE(browser()->GetProfile()->GetPrefs()->GetBoolean(
-      prefs::kTtcAutoPinnedMigration));
-
-  // Simulate the user un-pinning the action.
-  model()->UpdatePinnedState(kActionTtcToolbar, false);
-
-  // Run the migration a second time.
-  model()->MaybeMigrateExistingPinnedStates();
-
-  // Verify that it did *not* get auto-pinned again.
   EXPECT_FALSE(model()->Contains(kActionTtcToolbar));
-}
-
-class PinnedToolbarActionsModelWithTtcDisabledBrowserTest
-    : public PinnedToolbarActionsModelBrowserTest {
-  base::test::ScopedFeatureList scoped_feature_list_{
-      /*enabled_features=*/{}, /*disabled_features=*/{ttc::kTtc}};
-};
-
-IN_PROC_BROWSER_TEST_F(PinnedToolbarActionsModelWithTtcDisabledBrowserTest,
-                       DoNotPinActionWhenFeatureIsDisabled) {
-  EXPECT_TRUE(model()->IsDefault());
-  EXPECT_FALSE(model()->Contains(kActionTtcToolbar));
-
-  // Run the migration.
-  model()->MaybeMigrateExistingPinnedStates();
-
-  // Verify the action was not auto-pinned and that the migration was not
-  // marked as complete.
-  EXPECT_FALSE(model()->Contains(kActionTtcToolbar));
-  EXPECT_FALSE(browser()->GetProfile()->GetPrefs()->GetBoolean(
-      prefs::kTtcAutoPinnedMigration));
 }
 
 // TODO(dljames): Write tests for guest and incognito mode profile that check

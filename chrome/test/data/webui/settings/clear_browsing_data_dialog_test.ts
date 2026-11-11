@@ -41,7 +41,7 @@ suite('DeleteBrowsingDataDialog', function() {
 
     await setClearBrowsingDataPrefs(false);
     loadTimeData.overrideValues({
-      aiSettingsSection: AiSettingsSection.GEMINI,
+      aiSettingsSection: AiSettingsSection.NONE,
       showDeleteSkillsDataType: false,
     });
     return createDialog();
@@ -875,50 +875,7 @@ suite('DeleteBrowsingDataDialog', function() {
         loadTimeData.getString('managePasswordsSubLabel'),
         dialog.$.manageOtherGoogleDataRow.subLabel);
 
-    // Case 7: User is signed-out, has Google as DSE, and actor flags are ON.
-    loadTimeData.overrideValues({
-      aiSettingsSection: AiSettingsSection.GEMINI,
-    });
-    await createDialog();
-    setSignedInAndDseState(SignedInState.SIGNED_OUT, /*isGoogleDse=*/ true);
-    await microtasksFinished();
-    assertEquals(
-        loadTimeData.getString('manageOtherGoogleDataLabel'),
-        dialog.$.manageOtherGoogleDataRow.label);
-    assertEquals(
-        loadTimeData.getString('managePasswordsSubLabel'),
-        dialog.$.manageOtherGoogleDataRow.subLabel);
 
-    // Case 8: User is signed out, does not have Google as DSE. Actor flags are
-    // on.
-    setSignedInAndDseState(SignedInState.SIGNED_OUT, /*isGoogleDse=*/ false);
-    await microtasksFinished();
-    assertEquals(
-        loadTimeData.getString('manageOtherDataLabel'),
-        dialog.$.manageOtherGoogleDataRow.label);
-    assertEquals(
-        loadTimeData.getString('manageOtherDataSubLabel'),
-        dialog.$.manageOtherGoogleDataRow.subLabel);
-
-    // Case 9: User is signed in, does not have Google as DSE. Actor flags on.
-    setSignedInAndDseState(SignedInState.SIGNED_IN, /*isGoogleDse=*/ false);
-    await microtasksFinished();
-    assertEquals(
-        loadTimeData.getString('manageOtherDataLabel'),
-        dialog.$.manageOtherGoogleDataRow.label);
-    assertEquals(
-        loadTimeData.getString('manageSearchGeminiPasswordsSubLabel'),
-        dialog.$.manageOtherGoogleDataRow.subLabel);
-
-    // Case 10: User is signed-in, has Google as DSE. Actor flags are on.
-    setSignedInAndDseState(SignedInState.SIGNED_IN, /*isGoogleDse=*/ true);
-    await microtasksFinished();
-    assertEquals(
-        loadTimeData.getString('manageOtherGoogleDataLabel'),
-        dialog.$.manageOtherGoogleDataRow.label);
-    assertEquals(
-        loadTimeData.getString('manageSearchGeminiPasswordsSubLabel'),
-        dialog.$.manageOtherGoogleDataRow.subLabel);
   });
 
   test('NavigationToAndFromOtherGoogleData', async function() {

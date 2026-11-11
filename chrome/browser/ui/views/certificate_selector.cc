@@ -44,14 +44,6 @@
 #include "ui/views/window/dialog_client_view.h"
 
 
-namespace {
-
-// Checks that `contents` is for glic.
-
-// Combines IsForGlic with glic dev switch.
-
-}  // namespace
-
 const int CertificateSelector::kTableViewWidth = 500;
 const int CertificateSelector::kTableViewHeight = 150;
 
@@ -161,10 +153,6 @@ bool CertificateSelector::CanShow(content::WebContents* web_contents) {
 }
 
 void CertificateSelector::Show() {
-  // In the event that glic is showing and glic-dev is enabled, always show the
-  // certificate picker on the glic window. This is not fully correct, but
-  // satisfies the main dev use case with minimal overhead.
-
   constrained_window::ShowWebModalDialogViews(this, web_contents_);
 
   // TODO(isandrk): A certificate that was previously provided by *both* the

@@ -14,11 +14,9 @@ import {I18nMixinLit} from 'chrome://resources/cr_elements/i18n_mixin_lit.js';
 import {assert, assertNotReached} from 'chrome://resources/js/assert.js';
 import {OpenWindowProxyImpl} from 'chrome://resources/js/open_window_proxy.js';
 import {CrLitElement} from 'chrome://resources/lit/v3_0/lit.rollup.js';
-import type {PropertyValues} from 'chrome://resources/lit/v3_0/lit.rollup.js';
 
 import {getCss} from './checkup_list_item.css.js';
 import {getHtml} from './checkup_list_item.html.js';
-import {PasswordAutomaticChangeState} from './password_manager.mojom-webui.js';
 import {PasswordManagerImpl} from './password_manager_proxy.js';
 import type {ShowPasswordMixinLitInterface} from './show_password_mixin_lit.js';
 import {ShowPasswordMixinLit} from './show_password_mixin_lit.js';
@@ -58,8 +56,6 @@ export class CheckupListItemElement extends CheckupListItemElementBase {
       showEditPasswordDialog_: {type: Boolean},
       showEditPasswordDisclaimer_: {type: Boolean},
       showDeletePasswordDialog_: {type: Boolean},
-      passwordChangeState: {type: Number},
-      isCancelDisabled_: {type: Boolean},
     };
   }
 
@@ -68,19 +64,9 @@ export class CheckupListItemElement extends CheckupListItemElementBase {
   accessor first: boolean = false;
   accessor showDetails: boolean = false;
   accessor showAlreadyChanged: boolean = false;
-  accessor passwordChangeState: PasswordAutomaticChangeState =
-      PasswordAutomaticChangeState.kInactive;
-  protected accessor isCancelDisabled_: boolean = false;
   protected accessor showEditPasswordDialog_: boolean = false;
   protected accessor showEditPasswordDisclaimer_: boolean = false;
   protected accessor showDeletePasswordDialog_: boolean = false;
-
-  override willUpdate(changedProperties: PropertyValues<this>) {
-    super.willUpdate(changedProperties);
-    if (changedProperties.has('passwordChangeState')) {
-      this.isCancelDisabled_ = false;
-    }
-  }
 
   protected getPasswordValue_(): string {
     return (this.isPasswordVisible && this.item.password) ? this.item.password :
@@ -158,21 +144,6 @@ export class CheckupListItemElement extends CheckupListItemElementBase {
     this.fire('change-password-clicked', this.item.id);
   }
 
-  protected onAutoChangePasswordClick_() {
-    if (this.item && this.item.isAutomaticPasswordChangeSupported) {
-      PasswordManagerImpl.getInstance().requestChangePassword(this.item.id);
-    }
-  }
-
-  protected onOpenInNewClick_() {
-    PasswordManagerImpl.getInstance().openPasswordChangeTab(this.item.id);
-  }
-
-  protected onCancelAutoChangeClick_() {
-    this.isCancelDisabled_ = true;
-    PasswordManagerImpl.getInstance().stopPasswordChange(this.item.id);
-  }
-
   protected onAlreadyChangedClick_(e: Event) {
     this.showEditPasswordDisclaimer_ = true;
     e.preventDefault();
@@ -216,67 +187,11 @@ export class CheckupListItemElement extends CheckupListItemElementBase {
     return this.i18n('changePasswordAriaDescription', this.getGroupName_());
   }
 
-  protected getAutoChangeButtonAriaLabel_(): string {
-    return this.i18n(
-        'automatedPasswordChangeCheckupButtonAriaDescription',
-        this.getGroupName_());
-  }
-
   protected getMoreButtonAriaLabel_(): string {
     return this.i18n('moreActionsAriaDescription', this.getGroupName_());
   }
 
-  protected getOpenInNewButtonAriaLabel_(): string {
-    return this.i18n('changePasswordAriaDescription', this.getGroupName_());
-  }
 
-  protected isAutoChangePasswordIdle_(): boolean {
-    return this.passwordChangeState === PasswordAutomaticChangeState.kInactive;
-  }
-
-  protected hideCancelButton_(): boolean {
-    return this.passwordChangeState !==
-        PasswordAutomaticChangeState.kAttemptingSignIn &&
-        this.passwordChangeState !==
-        PasswordAutomaticChangeState.kChangingPassword &&
-        this.passwordChangeState !==
-        PasswordAutomaticChangeState.kConfirmingChangedPassword;
-  }
-
-  protected shouldShowOpenInNew_(): boolean {
-    return this.passwordChangeState !==
-        PasswordAutomaticChangeState.kInactive &&
-        this.passwordChangeState !==
-        PasswordAutomaticChangeState.kPasswordChangedSuccessfully;
-  }
-
-  protected getAutoChangePasswordIcon_(): string {
-    return this.passwordChangeState ===
-            PasswordAutomaticChangeState.kPasswordChangedSuccessfully ?
-        'passwords-icon:task-spark' :
-        'passwords-icon:arrow-selector-spark';
-  }
-
-  protected getAutoChangePasswordButtonText_(): string {
-    switch (this.passwordChangeState) {
-      case PasswordAutomaticChangeState.kInactive:
-        return this.i18n('automatedPasswordChangeCheckupButton');
-      case PasswordAutomaticChangeState.kAttemptingSignIn:
-        return this.i18n('automatedPasswordChangeAttemptingSignIn');
-      case PasswordAutomaticChangeState.kChangingPassword:
-        return this.i18n('automatedPasswordChangeChangingPassword');
-      case PasswordAutomaticChangeState.kConfirmingChangedPassword:
-        return this.i18n('automatedPasswordChangeConfirmingChangedPassword');
-      case PasswordAutomaticChangeState.kPasswordChangedSuccessfully:
-        return this.i18n('automatedPasswordChangeChangedSuccessfully');
-      default:
-        return this.i18n('automatedPasswordChangeError');
-    }
-  }
-
-  protected getArrowSelectorSparkIcon_(): string {
-    return 'passwords-icon:arrow-selector-spark';
-  }
 }
 
 declare global {

@@ -47,9 +47,6 @@
 #include "base/strings/stringprintf.h"
 #include "base/time/time.h"
 #include "build/build_config.h"
-#include "components/autofill/core/browser/at_memory/at_memory_enablement_util.h"
-#include "components/autofill/core/browser/at_memory/at_memory_manager.h"
-#include "components/autofill/core/browser/at_memory/at_memory_search_state.h"
 #include "components/autofill/core/browser/autofill_field.h"
 #include "components/autofill/core/browser/autofill_trigger_source.h"
 #include "components/autofill/core/browser/autofill_type.h"
@@ -121,7 +118,6 @@
 #include "components/autofill/core/browser/studies/autofill_ablation_study.h"
 #include "components/autofill/core/browser/studies/autofill_experiments.h"
 #include "components/autofill/core/browser/suggestions/addresses/address_suggestion_generator.h"
-#include "components/autofill/core/browser/suggestions/at_memory/at_memory_nudge_generator.h"
 #include "components/autofill/core/browser/suggestions/autocomplete_suggestion_generator.h"
 #include "components/autofill/core/browser/suggestions/autofill_ai/autofill_ai_suggestion_generator.h"
 #include "components/autofill/core/browser/suggestions/compose/compose_suggestion_generator.h"
@@ -525,18 +521,6 @@ bool IsTriggerSourceOnlyRelevantForCompose(
       return false;
   }
   NOTREACHED();
-}
-
-// Returns true if regular Autofill suggestions must not be generated for
-// `field` because it is a <textarea> on Android. With
-// `kAutofillAtMemorySupportTextAreaOnAndroid`, textareas behave like
-// contenteditables: the keyboard accessory only offers the AtMemory entry
-// point, so no address, payment or single-field suggestions are generated for
-// them. AtMemory-triggered suggestions are unaffected.
-bool ShouldSuppressSuggestionsForTextArea(
-    const FormFieldData& field,
-    AutofillSuggestionTriggerSource trigger_source) {
-  return false;
 }
 
 // Returns `true` if this suggestion trigger source should replace the currently
@@ -1235,45 +1219,14 @@ void BrowserAutofillManager::OnAskForValuesToFillImpl(
     return;
   }
 
-  if (IsAtMemoryTriggerSource(trigger_source)) {
-    const GURL& main_frame_url = client().GetLastCommittedPrimaryMainFrameURL();
-    const GURL& field_url = field.origin().GetURL();
-    std::string debug_reason;
-    if (!MayPerformAtMemoryAction(AtMemoryAction::kTriggerSearchUI, client(),
-                                  main_frame_url, std::nullopt,
-                                  &debug_reason)) {
-      LogAtMemorySuppression(AtMemoryAction::kTriggerSearchUI, log_manager(),
-                             debug_reason);
-      return;
-    }
-    if (!MayPerformAtMemoryAction(AtMemoryAction::kTriggerSearchUI, client(),
-                                  field_url, std::nullopt, &debug_reason)) {
-      LogAtMemorySuppression(AtMemoryAction::kTriggerSearchUI, log_manager(),
-                             debug_reason);
-      return;
-    }
+  // Ignore legacy triggers for the removed At Memory feature.
+  if (IsAtMemoryTriggerSource(trigger_source) ||
+      trigger_source ==
+          AutofillSuggestionTriggerSource::kAtMemoryInactivityNudge) {
+    return;
   }
 
   external_delegate_->OnQuery(form, field, caret_bounds, trigger_source);
-
-  // Textareas on Android only offer the AtMemory entry point in the keyboard
-  // accessory, so no Autofill suggestions are generated for them.
-  if (ShouldSuppressSuggestionsForTextArea(field, trigger_source)) {
-    external_delegate_->OnSuggestionsReturned(field, /*input_suggestions=*/{},
-                                              /*prefilled_query=*/{});
-    return;
-  }
-
-  if (AtMemoryManager* amm = client().GetAtMemoryManager();
-      amm && IsAtMemoryTriggerSource(trigger_source)) {
-    AtMemorySearchState state = amm->GetStateForField(
-        field.global_id(), field.origin(), trigger_source);
-
-    // Show suggestions with a search bar to start the flow.
-    external_delegate_->OnSuggestionsReturned(
-        field, std::move(state.suggestions), std::move(state.filter));
-    return;
-  }
 
   // TODO(crbug.com/409962888): Cleanup once the new logic is launched.
   if (!base::FeatureList::IsEnabled(
@@ -2307,11 +2260,6 @@ void BrowserAutofillManager::DidShowSuggestions(
   auto [form_structure, autofill_field] =
       FindMutableFormAndField(form_id, field_id);
 
-  if (AtMemoryManager* amm = client().GetAtMemoryManager()) {
-    amm->OnPopupShown(*this, form_id, field_id, trigger_source, metadata,
-                      update_suggestions_callback,
-                      driver().GetPageUkmSourceId());
-  }
   if (metadata.is_subpopup()) {
     // The shown suggestions were in a sub-popup and the code below is not
     // relevant for those.
@@ -3311,15 +3259,6 @@ std::vector<Suggestion> BrowserAutofillManager::GetAvailableSuggestions(
     const AutofillField& autofill_field,
     AutofillSuggestionTriggerSource trigger_source,
     const std::vector<one_time_tokens::OneTimeToken>& one_time_tokens) {
-  // TODO(crbug.com/489659527): This currently overrides Autofill suggestions if
-  // suggestions were presented to the user after typing started. Fix that.
-  if (trigger_source ==
-      AutofillSuggestionTriggerSource::kAtMemoryInactivityNudge) {
-    // TODO(crbug.com/489659527): Localize the string.
-    return {Suggestion(u"Try searching in Chrome Memory",
-                       SuggestionType::kAtMemoryInactivityNudge)};
-  }
-
   std::vector<Suggestion> suggestions;
   switch (GetPreferredSuggestionFillingProduct(autofill_field.Type())) {
     case FillingProduct::kAddress:
@@ -3489,12 +3428,6 @@ void BrowserAutofillManager::InitializeSuggestionGenerators(
   suggestion_generators_.clear();
   const FillingProductSet relevant_filling_products =
       GetFillingProductsToSuggest(trigger_source);
-
-  if (trigger_source ==
-      AutofillSuggestionTriggerSource::kAtMemoryInactivityNudge) {
-    suggestion_generators_.push_back(
-        std::make_unique<AtMemoryNudgeGenerator>());
-  }
 
   if (relevant_filling_products.contains(FillingProduct::kAutofillAi)) {
     suggestion_generators_.push_back(

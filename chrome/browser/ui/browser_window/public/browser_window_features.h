@@ -236,10 +236,6 @@ namespace tabs_api {
 class TabStripUIControllerImpl;
 }  // namespace tabs_api
 
-namespace ttc {
-class AiOverlayDialogController;
-class EntrypointController;
-}  // namespace ttc
 
 namespace web_app {
 class AppBrowserController;
@@ -292,7 +288,6 @@ class BrowserWindowFeatures {
 
   // Members owned by all browser window types.
   std::unique_ptr<UnloadController> unload_controller_;
-  std::unique_ptr<ttc::AiOverlayDialogController> ai_overlay_dialog_controller_;
 
   // Helper which handles bookmark app specific browser configuration.
   // This must be initialized before |command_controller_| to ensure the correct
@@ -431,7 +426,6 @@ class BrowserWindowFeatures {
       tabs_from_other_devices_side_panel_coordinator_;
   std::unique_ptr<ToastService> toast_service_;
   std::unique_ptr<TranslateController> translate_bubble_controller_;
-  std::unique_ptr<ttc::EntrypointController> ttc_entrypoint_controller_;
   std::unique_ptr<UpgradeNotificationController>
       upgrade_notification_controller_;
   std::unique_ptr<BrowserUserEducationInterface> user_education_;

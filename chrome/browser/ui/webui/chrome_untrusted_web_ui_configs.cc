@@ -19,9 +19,6 @@
 #endif  // BUILDFLAG(ENABLE_COMPOSE)
 #endif  // defined(TOOLKIT_VIEWS)
 
-#if defined(TOOLKIT_VIEWS)
-#include "chrome/browser/ui/webui/ai_overlay_dialog/ai_overlay_dialog_untrusted_ui.h"
-#endif
 
 #if BUILDFLAG(ENABLE_PRINT_PREVIEW)
 #include "chrome/browser/ui/webui/print_preview/print_preview_ui_untrusted.h"
@@ -53,10 +50,6 @@ void RegisterChromeUntrustedWebUIConfigs() {
 
 #endif  // defined(TOOLKIT_VIEWS)
 
-#if defined(TOOLKIT_VIEWS)
-  map.AddUntrustedWebUIConfig(
-      std::make_unique<ttc::AiOverlayDialogUntrustedUIConfig>());
-#endif
 
 #if BUILDFLAG(ENABLE_PRINT_PREVIEW)
   map.AddUntrustedWebUIConfig(

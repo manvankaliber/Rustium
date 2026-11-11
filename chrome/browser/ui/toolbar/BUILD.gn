@@ -75,7 +75,6 @@ source_set("toolbar") {
     "//ui/menus",
   ]
   deps += [
-    "//chrome/browser/ttc/core:features",
     "//chrome/browser/ui:ui_features",
     "//chrome/browser/ui/actions:actions_headers",
     "//chrome/browser/ui/tabs:tab_strip",
@@ -149,7 +148,6 @@ source_set("impl") {
     "//chrome/browser/sync",
     "//chrome/browser/sync:factories",
     "//chrome/browser/themes",
-    "//chrome/browser/ttc/core",
     "//chrome/browser/ui:browser_actions",
     "//chrome/browser/ui:browser_commands",
     "//chrome/browser/ui:browser_window_header",
@@ -412,7 +410,6 @@ source_set("browser_tests") {
     "//chrome/browser/signin",
     "//chrome/browser/signin:signin_browser_test_base",
     "//chrome/browser/sync",
-    "//chrome/browser/ttc/core:features",
     "//chrome/browser/ui:browser_actions",
     "//chrome/browser/ui:browser_commands",
     "//chrome/browser/ui:browser_window_header",

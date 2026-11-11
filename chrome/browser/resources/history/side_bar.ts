@@ -24,7 +24,6 @@ import {getHtml} from './side_bar.html.js';
 export interface FooterInfo {
   managed: boolean;
   otherFormsOfHistory: boolean;
-  geminiAppsActivity: boolean;
 }
 
 export interface HistorySideBarElement {
@@ -79,25 +78,11 @@ export class HistorySideBarElement extends CrLitElement {
       showFooter_: {type: Boolean},
       /**
        * Used to display Google Account section in the footer. This section
-       * contains links to Google My Activity and/or Gemini Apps Activity.
+       * contains a link to Google My Activity.
        *
        * When this property is true, `showFooter_` property should also be true.
        */
       showGoogleAccountFooter_: {type: Boolean},
-      /**
-       * Mutually exclusive flags that determine which message to show in the
-       * Google Account footer:
-       *   - message with Google My Activity (GMA) link
-       *   - message with Gemini Apps Activity (GAA) link
-       *   - message with both Google My Activity (GMA) and
-       *     Gemini Apps Activity (GAA) links.
-       *
-       * At most one of these can be true.
-       */
-      showGMAOnly_: {type: Boolean},
-      showGAAOnly_: {type: Boolean},
-      showGMAAndGAA_: {type: Boolean},
-
       showHistoryClusters_: {type: Boolean},
     };
   }
@@ -105,7 +90,6 @@ export class HistorySideBarElement extends CrLitElement {
   accessor footerInfo: FooterInfo = {
     managed: false,
     otherFormsOfHistory: false,
-    geminiAppsActivity: false,
   };
   accessor historyClustersEnabled: boolean = false;
   accessor historyClustersVisible: boolean = false;
@@ -114,9 +98,6 @@ export class HistorySideBarElement extends CrLitElement {
   protected accessor guestSession_ = loadTimeData.getBoolean('isGuestSession');
   protected accessor showFooter_: boolean = false;
   protected accessor showGoogleAccountFooter_: boolean = false;
-  protected accessor showGMAOnly_: boolean = false;
-  protected accessor showGAAOnly_: boolean = false;
-  protected accessor showGMAAndGAA_: boolean = false;
   private accessor showHistoryClusters_: boolean = false;
 
   override connectedCallback() {
@@ -138,22 +119,7 @@ export class HistorySideBarElement extends CrLitElement {
   }
 
   private updateFooterVisibility() {
-    // At most one of these values can be true.
-    this.showGMAOnly_ = false;
-    this.showGAAOnly_ = false;
-    this.showGMAAndGAA_ = false;
-
-    if (this.footerInfo.otherFormsOfHistory &&
-        this.footerInfo.geminiAppsActivity) {
-      this.showGMAAndGAA_ = true;
-    } else if (this.footerInfo.otherFormsOfHistory) {
-      this.showGMAOnly_ = true;
-    } else if (this.footerInfo.geminiAppsActivity) {
-      this.showGAAOnly_ = true;
-    }
-
-    this.showGoogleAccountFooter_ =
-        this.showGMAAndGAA_ || this.showGMAOnly_ || this.showGAAOnly_;
+    this.showGoogleAccountFooter_ = this.footerInfo.otherFormsOfHistory;
     this.showFooter_ = this.footerInfo.managed || this.showGoogleAccountFooter_;
   }
 
@@ -175,12 +141,6 @@ export class HistorySideBarElement extends CrLitElement {
         browserProxy.recordAction('SideBarFooterGoogleMyActivityClick');
         browserProxy.navigateToUrl(
             loadTimeData.getString('sidebarFooterGMALink'), '_blank',
-            e as MouseEvent);
-        break;
-      case 'footerGeminiAppsActivityLink':
-        browserProxy.recordAction('SideBarFooterGeminiAppsActivityClick');
-        browserProxy.navigateToUrl(
-            loadTimeData.getString('sidebarFooterGAALink'), '_blank',
             e as MouseEvent);
         break;
       default:

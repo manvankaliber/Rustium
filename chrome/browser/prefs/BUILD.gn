@@ -110,7 +110,6 @@ source_set("impl") {
     "//chrome/browser/themes",
     "//chrome/browser/tips/core",
     "//chrome/browser/tracing",
-    "//chrome/browser/ttc/core:prefs",
     "//chrome/browser/ui:browser_ui_prefs",
     "//chrome/browser/ui/hats",
     "//chrome/browser/ui/prefs",
@@ -286,7 +285,6 @@ source_set("impl") {
     "persistent_renderer_prefs_manager_factory.cc",
   ]
 
-  deps += [ "//chrome/browser/ui/ai_overlay_dialog" ]
 
   if (enable_extensions) {
     deps += [

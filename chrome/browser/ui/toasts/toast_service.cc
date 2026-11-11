@@ -18,7 +18,6 @@
 #include "chrome/browser/send_tab_to_self/send_tab_to_self_client_service.h"
 #include "chrome/browser/send_tab_to_self/send_tab_to_self_client_service_factory.h"
 #include "chrome/browser/translate/chrome_translate_client.h"
-#include "chrome/browser/ttc/core/features.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
@@ -39,7 +38,6 @@
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/branded_strings.h"
 #include "chrome/grit/generated_resources.h"
-#include "components/autofill/core/browser/at_memory/at_memory_enablement_util.h"
 #include "components/autofill/core/browser/data_manager/autofill_ai/personal_context_entity_metadata_manager.h"
 #include "components/autofill/core/browser/data_model/autofill_ai/entity_instance.h"
 #include "components/autofill/core/common/autofill_features.h"
@@ -453,17 +451,6 @@ void ToastService::RegisterToasts() {
             .AddGlobalScoped()
             .Build());
   }
-  if (autofill::IsAtMemoryFeatureEnabled(/*google_groups_manager=*/nullptr)) {
-    toast_registry_->RegisterToast(
-        ToastId::kAtMemorySpiiFetchErrorMessage,
-        ToastSpecification::Builder(
-            features::IsRoundedIconsEnabled()
-                ? vector_icons::kInfoIcon
-                : vector_icons::kInfoRefreshOldIcon,
-            IDS_AUTOFILL_AT_MEMORY_FETCH_ERROR_NOTIFICATION)
-            .AddGlobalScoped()
-            .Build());
-  }
   if (base::FeatureList::IsEnabled(
           autofill::features::kAutofillAiWalletPrivatePasses)) {
     toast_registry_->RegisterToast(
@@ -751,36 +738,6 @@ void ToastService::RegisterToasts() {
                 : vector_icons::kMicChromeRefreshOldIcon,
             IDS_DICTATION_STOPPED_TOAST)
             .SetPersistOnNavigation()
-            .Build());
-  }
-
-  if (base::FeatureList::IsEnabled(ttc::kTtc)) {
-    toast_registry_->RegisterToast(
-        ToastId::kTtcGenericError,
-        ToastSpecification::Builder(features::IsRoundedIconsEnabled()
-                                        ? vector_icons::kErrorIcon
-                                        : vector_icons::kErrorOldIcon,
-                                    IDS_DICTATION_ERROR_TOAST)
-            .AddCloseButton()
-            .AddGlobalScoped()
-            .Build());
-    toast_registry_->RegisterToast(
-        ToastId::kTtcNoMicrophoneError,
-        ToastSpecification::Builder(features::IsRoundedIconsEnabled()
-                                        ? vector_icons::kErrorIcon
-                                        : vector_icons::kErrorOldIcon,
-                                    IDS_DICTATION_NO_MIC_ERROR_TOAST)
-            .AddCloseButton()
-            .AddGlobalScoped()
-            .Build());
-    toast_registry_->RegisterToast(
-        ToastId::kTtcInactivityTimeout,
-        ToastSpecification::Builder(features::IsRoundedIconsEnabled()
-                                        ? vector_icons::kErrorIcon
-                                        : vector_icons::kErrorOldIcon,
-                                    IDS_TTC_INACTIVITY_TIMEOUT_TOAST)
-            .AddCloseButton()
-            .AddGlobalScoped()
             .Build());
   }
 

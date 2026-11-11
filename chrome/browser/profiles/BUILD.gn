@@ -781,7 +781,6 @@ source_set("profiles_extra_parts_impl") {
     "//chrome/browser/tab_group_sync:factories",
     "//chrome/browser/themes",
     "//chrome/browser/tips",
-    "//chrome/browser/ttc/core",
     "//chrome/browser/ui:ui_features",
     "//chrome/browser/ui/autofill",
     "//chrome/browser/ui/find_bar",

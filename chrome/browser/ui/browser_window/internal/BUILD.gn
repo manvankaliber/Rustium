@@ -45,7 +45,6 @@ source_set("internal") {
     "//chrome/browser/prefs",
     "//chrome/browser/signin",
     "//chrome/browser/tab_group_sync:factories",
-    "//chrome/browser/ttc/core",
     "//chrome/browser/ui:browser_actions",
     "//chrome/browser/ui:browser_command_controller",
     "//chrome/browser/ui:browser_content_setting_bubble_model_delegate",
@@ -152,9 +151,6 @@ source_set("internal") {
     ]
   }
 
-  if (is_win || is_mac || is_linux) {
-    deps += [ "//chrome/browser/ui/ai_overlay_dialog" ]
-  }
 
   deps += [ "//chrome/browser/download/bubble" ]
 

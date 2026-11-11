@@ -17,12 +17,6 @@ namespace autofill::features::debug {
 // All features in alphabetical order.
 
 COMPONENT_EXPORT(AUTOFILL)
-BASE_DECLARE_FEATURE(kAtMemoryNoDeviceReauthCheck);
-COMPONENT_EXPORT(AUTOFILL)
-BASE_DECLARE_FEATURE(kAtMemoryResetShortcutPromoPrefOnStartup);
-COMPONENT_EXPORT(AUTOFILL)
-BASE_DECLARE_FEATURE(kAtMemorySkipEnablementChecks);
-COMPONENT_EXPORT(AUTOFILL)
 BASE_DECLARE_FEATURE(kAutofillAiAlwaysShowPrivateAiNotice);
 COMPONENT_EXPORT(AUTOFILL)
 BASE_DECLARE_FEATURE(kAutofillAiDisableReauthRequirement);

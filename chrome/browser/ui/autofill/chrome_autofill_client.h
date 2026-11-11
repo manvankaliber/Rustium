@@ -124,11 +124,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
   ChromeAutofillClient& operator=(const ChromeAutofillClient&) = delete;
   ~ChromeAutofillClient() override;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
-  // Triggers the AtMemory promo bubble.
-  void ShowAutofillAtMemoryPromo();
-#endif
-
   // AutofillClient:
   base::WeakPtr<AutofillClient> GetWeakPtr() final;
   const std::string& GetAppLocale() const final;
@@ -155,8 +150,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
   GetPersonalContextFirstRunService() override;
   AutocompleteHistoryManager* GetAutocompleteHistoryManager() final;
   AutofillComposeDelegate* GetComposeDelegate() final;
-  AtMemoryQueryService* GetAtMemoryQueryService() override;
-  AtMemoryManager* GetAtMemoryManager() override;
   personal_context::PersonalContextEligibilityState
   GetPersonalContextEligibilityState() const override;
   personal_context::PersonalContextEligibilityService*
@@ -217,14 +210,10 @@ class ChromeAutofillClient : public ContentAutofillClient {
   void HideSuggestions(SuggestionHidingReason reason,
                        std::optional<FillingProduct> product) final;
   void OpenGmailForOtps() final;
-  void OpenGeminiInSidebar(const std::u16string& prompt) final;
   void TriggerDeclinedSaveAddressReasonSurvey() final;
   void TriggerPersonalizationAndTrustSurveys(
       FillingProduct filling_product,
       const HatsSurveyStringData& field_filling_stats_data) final;
-  void TriggerAtMemoryPersonalizationAndTrustSurvey(
-      bool is_dismissed,
-      const HatsSurveyStringData& product_specific_data) final;
   void TriggerOneTimePasswordDismissalPersonalizationAndTrustSurvey(
       const HatsSurveyStringData& product_specific_data) final;
   bool IsTabInActorMode() const final;
@@ -273,8 +262,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
   void ShowAutofillAiLocalSaveNotification() final;
   void ShowAutofillAiSaveToWalletFailureNotification() final;
   void ShowAutofillAiFetchEntityFailureNotification() final;
-  void ShowAtMemoryFetchFailureNotification(
-      std::optional<std::u16string> message_override) final;
   void ShowAutofillAiPreFetchFailureNotification() final;
   void ShowAutofillAiPrivateInferenceNotice() final;
   void ShowAutofillAiSuppressionConfirmationDialog(
@@ -353,23 +340,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
   one_time_tokens::GmailOtpBackend* GetGmailOtpBackend() const final;
 
  protected:
-  class AtMemoryCopyPasteObserver : public content::WebContentsObserver {
-   public:
-    explicit AtMemoryCopyPasteObserver(ChromeAutofillClient* client);
-    ~AtMemoryCopyPasteObserver() override = default;
-
-    // content::WebContentsObserver:
-    void OnTextCopiedToClipboard(content::RenderFrameHost* render_frame_host,
-                                 const std::u16string& copied_text) override;
-    void OnPaste() override;
-    void DidGetUserInteraction(const blink::WebInputEvent& event) override;
-
-   private:
-    const base::raw_ref<ChromeAutofillClient> client_;
-  };
-
-  AtMemoryCopyPasteObserver& at_memory_copy_paste_observer();
-
   // The EmailVerificationController coordinates Email Verification Protocol
   // (EVP) UI flows (first-run prompt, loading UI, and completion
   // notifications).
@@ -403,7 +373,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
       this};
 
   std::unique_ptr<AutofillAiManager> autofill_ai_manager_;
-  std::unique_ptr<AtMemoryManager> at_memory_manager_;
 
   // These members are initialized lazily in their respective getters.
   // Therefore, do not access the members directly.
@@ -449,7 +418,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
   std::unique_ptr<FormPredictionsTracker> form_predictions_tracker_;
   std::unique_ptr<ActorAutofillManager> actor_autofill_manager_;
 
-  AtMemoryCopyPasteObserver at_memory_copy_paste_observer_{this};
 
   SEQUENCE_CHECKER(sequence_checker_);
 

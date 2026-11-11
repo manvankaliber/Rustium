@@ -53,11 +53,6 @@ suite('AutofillPageIndex', function() {
         value: true,
       },
       {
-        key: 'generated.find_and_fill_with_gemini',
-        type: chrome.settingsPrivate.PrefType.BOOLEAN,
-        value: true,
-      },
-      {
         key: 'autofill.at_memory.double_ctrl_trigger_enabled',
         type: chrome.settingsPrivate.PrefType.BOOLEAN,
         value: false,
@@ -82,8 +77,8 @@ suite('AutofillPageIndex', function() {
     document.body.innerHTML = window.trustedTypes!.emptyHTML;
 
     loadTimeData.overrideValues({
-      showSuggestionsFromGeminiSettings: true,
-      shoppingIntegrationEnabled: true,
+      showSuggestionsFromGeminiSettings: false,
+      shoppingIntegrationEnabled: false,
     });
     resetRouterForTesting();
 
@@ -120,14 +115,6 @@ suite('AutofillPageIndex', function() {
     await microtasksFinished();
     assertActiveView('passkeys');
     // </if>
-
-    Router.getInstance().navigateTo(routes.SHOPPING);
-    await microtasksFinished();
-    assertActiveView('shopping');
-
-    Router.getInstance().navigateTo(routes.SUGGESTIONS_FROM_GEMINI);
-    await microtasksFinished();
-    assertActiveView('suggestionsFromGemini');
   });
 
   // Test that the tab title is updated when navigating to child views.
@@ -148,9 +135,6 @@ suite('AutofillPageIndex', function() {
     await assertTitle(routes.PASSKEYS, 'managePasskeysTitle');
     // </if>
     await assertTitle(routes.TRAVEL, 'travelCardTitle');
-    await assertTitle(routes.SHOPPING, 'shoppingCardTitle');
-    await assertTitle(
-        routes.SUGGESTIONS_FROM_GEMINI, 'autofillPersonalContextSettingsTitle');
   });
 
   test('GeminiRouteDisabled', async function() {
@@ -164,7 +148,7 @@ suite('AutofillPageIndex', function() {
     document.body.appendChild(index);
     await microtasksFinished();
 
-    assertEquals(undefined, routes.SUGGESTIONS_FROM_GEMINI);
+    assertFalse('SUGGESTIONS_FROM_GEMINI' in routes);
     const subpage = index.$.viewManager.querySelector('#suggestionsFromGemini');
     assertFalse(!!subpage);
   });
@@ -180,7 +164,7 @@ suite('AutofillPageIndex', function() {
     document.body.appendChild(index);
     await microtasksFinished();
 
-    assertEquals(undefined, routes.SHOPPING);
+    assertFalse('SHOPPING' in routes);
     const subpage = index.$.viewManager.querySelector('#shopping');
     assertFalse(!!subpage);
   });
@@ -191,8 +175,6 @@ suite('AutofillPageIndex', function() {
     // Test that the child views are properly annotated.
     const childViewsId = [
       'payments',
-      'shopping',
-      'suggestionsFromGemini',
     ];
     for (const id of childViewsId) {
       assertTrue(!!index.$.viewManager.querySelector(
