@@ -1,130 +1,130 @@
 {
   "counting_rules_version": 1,
-  "lines_of_code": 9620328,
-  "lines_without_comment_only_lines": 7966789,
-  "comment_lines": 1823550,
-  "actual_loc": 7966789,
-  "source_bytes": 427917391,
-  "google_mentions": 11482,
-  "files": 64740,
+  "lines_of_code": 9180907,
+  "lines_without_comment_only_lines": 7587306,
+  "comment_lines": 1755525,
+  "actual_loc": 7587306,
+  "source_bytes": 408993579,
+  "google_mentions": 10882,
+  "files": 61790,
   "languages": [
     {
       "name": "C++",
-      "lines": 5165594,
-      "share": 0.6483909640383346
+      "lines": 4931462,
+      "share": 0.6499621868420754
     },
     {
       "name": "C/C++",
-      "lines": 1715511,
-      "share": 0.21533280221178194
+      "lines": 1644244,
+      "share": 0.21670985722732153
     },
     {
       "name": "TypeScript",
-      "lines": 349225,
-      "share": 0.04383510094217382
+      "lines": 301656,
+      "share": 0.03975798524535586
     },
     {
       "name": "Python",
-      "lines": 292032,
-      "share": 0.036656173522356374
+      "lines": 282691,
+      "share": 0.03725841556937337
     },
     {
       "name": "Objective-C++",
-      "lines": 132008,
-      "share": 0.016569787401172542
+      "lines": 128875,
+      "share": 0.01698560727615309
     },
     {
       "name": "CSS",
-      "lines": 73877,
-      "share": 0.00927312120353633
-    },
-    {
-      "name": "HTML",
-      "lines": 51530,
-      "share": 0.006468101514926528
+      "lines": 69411,
+      "share": 0.009148306394918038
     },
     {
       "name": "JavaScript",
-      "lines": 49807,
-      "share": 0.006251828685308472
+      "lines": 49675,
+      "share": 0.0065471196232233155
+    },
+    {
+      "name": "HTML",
+      "lines": 47782,
+      "share": 0.00629762395242791
     },
     {
       "name": "Mojo IDL",
-      "lines": 42028,
-      "share": 0.0052754001643573085
+      "lines": 39166,
+      "share": 0.005162043022912217
     },
     {
       "name": "Protocol Buffers",
-      "lines": 34030,
-      "share": 0.00427148252577042
+      "lines": 32151,
+      "share": 0.004237472430926076
     },
     {
       "name": "Rust",
       "lines": 28586,
-      "share": 0.0035881457385152286
+      "share": 0.003767608687457709
     },
     {
       "name": "Web IDL",
-      "lines": 8238,
-      "share": 0.001034042699009601
+      "lines": 8172,
+      "share": 0.001077062135097754
     },
     {
       "name": "SQL",
       "lines": 7066,
-      "share": 0.000886931987278689
-    },
-    {
-      "name": "Shell",
-      "lines": 6042,
-      "share": 0.0007583983961417831
+      "share": 0.0009312923453990125
     },
     {
       "name": "Java",
       "lines": 5332,
-      "share": 0.0006692784257245924
+      "share": 0.0007027527293613833
+    },
+    {
+      "name": "Shell",
+      "lines": 5301,
+      "share": 0.0006986669576790497
     },
     {
       "name": "IDL",
-      "lines": 1824,
-      "share": 0.00022895045921261377
+      "lines": 1823,
+      "share": 0.00024026973473852248
     },
     {
       "name": "SVG",
-      "lines": 1562,
-      "share": 0.00019606393491781947
+      "lines": 1416,
+      "share": 0.0001866275065220778
     },
     {
       "name": "C",
       "lines": 966,
-      "share": 0.00012125336820141716
+      "share": 0.0001273179175849768
     },
     {
       "name": "Objective-C",
       "lines": 910,
-      "share": 0.00011422418743611761
+      "share": 0.0001199371687394709
     },
     {
       "name": "Batch",
       "lines": 321,
-      "share": 4.029226831537775e-05
+      "share": 4.2307506775132045e-05
     },
     {
       "name": "FlatBuffers",
       "lines": 286,
-      "share": 3.589903033706554e-05
+      "share": 3.7694538746690856e-05
     },
     {
       "name": "Ruby",
       "lines": 14,
-      "share": 1.7572951913248864e-06
+      "share": 1.8451872113764755e-06
     }
   ],
-  "obsolete_functions": 3544,
-  "source_gb": 0.427917391,
-  "commit": "9dc92adb67829c0078eb8f17f7eb8f6a95092f7d",
-  "updated": "2026-11-11T06:13:09.283313+00:00",
-  "configuration_files": 14538,
-  "root_folder_count": 41,
+  "obsolete_functions": 3431,
+  "source_gb": 0.408993579,
+  "commit": "c750cd9c58977c3c79ba88eb74ad01ca1e0833c4",
+  "updated": "2026-11-11T08:14:11.745777+00:00",
+  "configuration_files": 14371,
+  "root_folder_count": 40,
   "root_folders": [
     ".github",
     "agents",
@@ -154,7 +154,6 @@
     "net",
     "pdf",
     "printing",
-    "remoting",
     "rlz",
     "sandbox",
     "services",
@@ -272,415 +271,415 @@
   ],
   "categories": {
     "maintained": {
-      "lines_of_code": 9620328,
-      "lines_without_comment_only_lines": 7966789,
-      "comment_lines": 1823550,
-      "actual_loc": 7966789,
-      "source_bytes": 427917391,
-      "google_mentions": 11482,
-      "files": 64740,
+      "lines_of_code": 9180907,
+      "lines_without_comment_only_lines": 7587306,
+      "comment_lines": 1755525,
+      "actual_loc": 7587306,
+      "source_bytes": 408993579,
+      "google_mentions": 10882,
+      "files": 61790,
       "languages": [
         {
           "name": "C++",
-          "lines": 5165594,
-          "share": 0.6483909640383346
+          "lines": 4931462,
+          "share": 0.6499621868420754
         },
         {
           "name": "C/C++",
-          "lines": 1715511,
-          "share": 0.21533280221178194
+          "lines": 1644244,
+          "share": 0.21670985722732153
         },
         {
           "name": "TypeScript",
-          "lines": 349225,
-          "share": 0.04383510094217382
+          "lines": 301656,
+          "share": 0.03975798524535586
         },
         {
           "name": "Python",
-          "lines": 292032,
-          "share": 0.036656173522356374
+          "lines": 282691,
+          "share": 0.03725841556937337
         },
         {
           "name": "Objective-C++",
-          "lines": 132008,
-          "share": 0.016569787401172542
+          "lines": 128875,
+          "share": 0.01698560727615309
         },
         {
           "name": "CSS",
-          "lines": 73877,
-          "share": 0.00927312120353633
-        },
-        {
-          "name": "HTML",
-          "lines": 51530,
-          "share": 0.006468101514926528
+          "lines": 69411,
+          "share": 0.009148306394918038
         },
         {
           "name": "JavaScript",
-          "lines": 49807,
-          "share": 0.006251828685308472
+          "lines": 49675,
+          "share": 0.0065471196232233155
+        },
+        {
+          "name": "HTML",
+          "lines": 47782,
+          "share": 0.00629762395242791
         },
         {
           "name": "Mojo IDL",
-          "lines": 42028,
-          "share": 0.0052754001643573085
+          "lines": 39166,
+          "share": 0.005162043022912217
         },
         {
           "name": "Protocol Buffers",
-          "lines": 34030,
-          "share": 0.00427148252577042
+          "lines": 32151,
+          "share": 0.004237472430926076
         },
         {
           "name": "Rust",
           "lines": 28586,
-          "share": 0.0035881457385152286
+          "share": 0.003767608687457709
         },
         {
           "name": "Web IDL",
-          "lines": 8238,
-          "share": 0.001034042699009601
+          "lines": 8172,
+          "share": 0.001077062135097754
         },
         {
           "name": "SQL",
           "lines": 7066,
-          "share": 0.000886931987278689
-        },
-        {
-          "name": "Shell",
-          "lines": 6042,
-          "share": 0.0007583983961417831
+          "share": 0.0009312923453990125
         },
         {
           "name": "Java",
           "lines": 5332,
-          "share": 0.0006692784257245924
+          "share": 0.0007027527293613833
+        },
+        {
+          "name": "Shell",
+          "lines": 5301,
+          "share": 0.0006986669576790497
         },
         {
           "name": "IDL",
-          "lines": 1824,
-          "share": 0.00022895045921261377
+          "lines": 1823,
+          "share": 0.00024026973473852248
         },
         {
           "name": "SVG",
-          "lines": 1562,
-          "share": 0.00019606393491781947
+          "lines": 1416,
+          "share": 0.0001866275065220778
         },
         {
           "name": "C",
           "lines": 966,
-          "share": 0.00012125336820141716
+          "share": 0.0001273179175849768
         },
         {
           "name": "Objective-C",
           "lines": 910,
-          "share": 0.00011422418743611761
+          "share": 0.0001199371687394709
         },
         {
           "name": "Batch",
           "lines": 321,
-          "share": 4.029226831537775e-05
+          "share": 4.2307506775132045e-05
         },
         {
           "name": "FlatBuffers",
           "lines": 286,
-          "share": 3.589903033706554e-05
+          "share": 3.7694538746690856e-05
         },
         {
           "name": "Ruby",
           "lines": 14,
-          "share": 1.7572951913248864e-06
+          "share": 1.8451872113764755e-06
         }
       ],
-      "obsolete_functions": 3544,
-      "source_gb": 0.427917391
+      "obsolete_functions": 3431,
+      "source_gb": 0.408993579
     },
     "tests": {
-      "lines_of_code": 7371724,
-      "lines_without_comment_only_lines": 6572262,
-      "comment_lines": 978146,
-      "actual_loc": 6572262,
-      "source_bytes": 343079543,
-      "google_mentions": 25878,
-      "files": 21148,
+      "lines_of_code": 7122743,
+      "lines_without_comment_only_lines": 6343263,
+      "comment_lines": 953110,
+      "actual_loc": 6343263,
+      "source_bytes": 331394710,
+      "google_mentions": 25005,
+      "files": 20458,
       "languages": [
         {
           "name": "C++",
-          "lines": 6075360,
-          "share": 0.9243940670654943
+          "lines": 5855265,
+          "share": 0.9230683009674989
         },
         {
           "name": "Python",
-          "lines": 214472,
-          "share": 0.03263290477464228
+          "lines": 211302,
+          "share": 0.033311246908728206
         },
         {
           "name": "C/C++",
-          "lines": 142441,
-          "share": 0.021673055638987002
+          "lines": 137874,
+          "share": 0.021735501113543613
         },
         {
           "name": "Objective-C++",
-          "lines": 71141,
-          "share": 0.010824431527531922
+          "lines": 70800,
+          "share": 0.011161447980321799
         },
         {
           "name": "Swift",
           "lines": 18439,
-          "share": 0.0028055789620072967
+          "share": 0.002906863549564317
         },
         {
           "name": "Rust",
           "lines": 16080,
-          "share": 0.0024466462231724786
+          "share": 0.002534972931123934
         },
         {
           "name": "IDL",
           "lines": 9781,
-          "share": 0.0014882242978140555
+          "share": 0.0015419508855300497
         },
         {
           "name": "Web IDL",
           "lines": 9414,
-          "share": 0.0014323835537901563
+          "share": 0.0014840942272139749
         },
         {
           "name": "JavaScript",
           "lines": 3981,
-          "share": 0.0006057275257742311
-        },
-        {
-          "name": "HTML",
-          "lines": 3055,
-          "share": 0.00046483235147959715
+          "share": 0.0006275949775375859
         },
         {
           "name": "TypeScript",
-          "lines": 3018,
-          "share": 0.00045920263069244654
+          "lines": 2979,
+          "share": 0.00046963211205337064
         },
         {
           "name": "Protocol Buffers",
-          "lines": 2839,
-          "share": 0.00043196695445190715
+          "lines": 2833,
+          "share": 0.0004466155667832155
+        },
+        {
+          "name": "HTML",
+          "lines": 2274,
+          "share": 0.0003584905749611832
         },
         {
           "name": "Mojo IDL",
           "lines": 677,
-          "share": 0.00010300867494326915
+          "share": 0.00010672740512256863
         },
         {
           "name": "Java",
           "lines": 507,
-          "share": 7.714239024555016e-05
+          "share": 7.992731816416882e-05
         },
         {
           "name": "Shell",
           "lines": 392,
-          "share": 5.964460942062261e-05
+          "share": 6.179784757466307e-05
         },
         {
           "name": "CSS",
           "lines": 265,
-          "share": 4.032097320526784e-05
+          "share": 4.177660614103498e-05
         },
         {
           "name": "Perl",
           "lines": 161,
-          "share": 2.4496893154898572e-05
+          "share": 2.538125882530805e-05
         },
         {
           "name": "Objective-C",
           "lines": 99,
-          "share": 1.5063306971024588e-05
+          "share": 1.5607109464009297e-05
         },
         {
           "name": "C",
           "lines": 82,
-          "share": 1.2476678501252689e-05
+          "share": 1.2927100768169316e-05
         },
         {
           "name": "Batch",
           "lines": 58,
-          "share": 8.824967720398243e-06
+          "share": 9.143559079924638e-06
         }
       ],
-      "obsolete_functions": 1142,
-      "source_gb": 0.343079543
+      "obsolete_functions": 1117,
+      "source_gb": 0.33139471
     },
     "vendored": {
-      "lines_of_code": 16448230,
-      "lines_without_comment_only_lines": 14267289,
+      "lines_of_code": 16448156,
+      "lines_without_comment_only_lines": 14267215,
       "comment_lines": 2480728,
-      "actual_loc": 14267289,
-      "source_bytes": 780973620,
+      "actual_loc": 14267215,
+      "source_bytes": 780968870,
       "google_mentions": 32585,
-      "files": 162015,
+      "files": 162014,
       "languages": [
         {
           "name": "HTML",
-          "lines": 4295091,
-          "share": 0.3010446483561103
+          "lines": 4295017,
+          "share": 0.30104102307282815
         },
         {
           "name": "C++",
           "lines": 3108366,
-          "share": 0.2178666178276756
+          "share": 0.2178677478400655
         },
         {
           "name": "Rust",
           "lines": 2269117,
-          "share": 0.15904331930193605
+          "share": 0.15904414421455063
         },
         {
           "name": "JavaScript",
           "lines": 1731697,
-          "share": 0.12137533626745768
+          "share": 0.12137596580692167
         },
         {
           "name": "C/C++",
           "lines": 1261113,
-          "share": 0.08839191524051976
+          "share": 0.08839237370432843
         },
         {
           "name": "Python",
           "lines": 519504,
-          "share": 0.03641224341919477
+          "share": 0.036412432279179924
         },
         {
           "name": "C",
           "lines": 518630,
-          "share": 0.0363509844091614
+          "share": 0.036351172951413435
         },
         {
           "name": "SVG",
           "lines": 152901,
-          "share": 0.010716892326215583
+          "share": 0.010716947911698254
         },
         {
           "name": "Java",
           "lines": 102986,
-          "share": 0.007218329985465353
+          "share": 0.00721836742489687
         },
         {
           "name": "Objective-C",
           "lines": 57861,
-          "share": 0.004055500663090234
+          "share": 0.004055521697822595
         },
         {
           "name": "Protocol Buffers",
           "lines": 50619,
-          "share": 0.003547905982699306
+          "share": 0.003547924384681944
         },
         {
           "name": "IDL",
           "lines": 49163,
-          "share": 0.003445854359577352
+          "share": 0.0034458722322471486
         },
         {
           "name": "CSS",
           "lines": 41314,
-          "share": 0.0028957148060854447
+          "share": 0.0028957298253373207
         },
         {
           "name": "TypeScript",
           "lines": 29176,
-          "share": 0.0020449575248668475
+          "share": 0.0020449681314818626
         },
         {
           "name": "PHP",
           "lines": 24192,
-          "share": 0.0016956269687955433
+          "share": 0.0016956357635319857
         },
         {
           "name": "Mojo IDL",
           "lines": 18453,
-          "share": 0.0012933781603498744
+          "share": 0.0012933848687357694
         },
         {
           "name": "Perl",
           "lines": 11432,
-          "share": 0.000801273458468529
+          "share": 0.0008012776144468279
         },
         {
           "name": "Shell",
           "lines": 7860,
-          "share": 0.0005509105478973615
+          "share": 0.0005509134053142117
         },
         {
           "name": "Ruby",
           "lines": 7442,
-          "share": 0.0005216127604900973
+          "share": 0.0005216154659476289
         },
         {
           "name": "Objective-C++",
           "lines": 5331,
-          "share": 0.00037365192504336316
+          "share": 0.00037365386306998245
         },
         {
           "name": "Kotlin",
           "lines": 2762,
-          "share": 0.00019358968616953087
+          "share": 0.00019359069026435782
         },
         {
           "name": "Swift",
           "lines": 629,
-          "share": 4.40868619118881e-05
+          "share": 4.408709057794391e-05
         },
         {
           "name": "FlatBuffers",
           "lines": 471,
-          "share": 3.3012578633544184e-05
+          "share": 3.3012749860431766e-05
         },
         {
           "name": "Go",
           "lines": 462,
-          "share": 3.238176502908156e-05
+          "share": 3.2381932984117786e-05
         },
         {
           "name": "Batch",
           "lines": 369,
-          "share": 2.586335778296774e-05
+          "share": 2.5863491928873294e-05
         },
         {
           "name": "Vue",
           "lines": 122,
-          "share": 8.551028860493398e-06
+          "share": 8.55107321225621e-06
         },
         {
           "name": "SCSS",
           "lines": 115,
-          "share": 8.060396057022465e-06
+          "share": 8.060437864012002e-06
         },
         {
           "name": "Dart",
           "lines": 102,
-          "share": 7.149220850576448e-06
+          "share": 7.149257931558472e-06
         },
         {
           "name": "PowerShell",
           "lines": 9,
-          "share": 6.308136044626278e-07
+          "share": 6.308168763139828e-07
         }
       ],
       "obsolete_functions": 2738,
-      "source_gb": 0.78097362
+      "source_gb": 0.78096887
     }
   },
   "excluded_files": {
-    "binary": 34970,
-    "configuration": 12246,
+    "binary": 34925,
+    "configuration": 12086,
     "dashboard": 3,
-    "fixture": 27911,
-    "generated": 9274,
+    "fixture": 27762,
+    "generated": 9235,
     "lockfile": 279,
-    "non_source": 72480
+    "non_source": 70761
   },
   "scan": {
-    "tracked_files": 405066,
-    "selected_files": 250126,
-    "cached_paths": 250126,
-    "read_blobs": 0,
-    "elapsed_seconds": 9.541
+    "tracked_files": 399313,
+    "selected_files": 246461,
+    "cached_paths": 245740,
+    "read_blobs": 721,
+    "elapsed_seconds": 11.371
   },
   "definitions": {
     "scope": "Committed snapshot only; local edits and untracked files are not counted. Maintained production source is the headline; tests and vendored source are separate.",
