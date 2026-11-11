@@ -6,9 +6,6 @@
 
 #include "base/metrics/histogram_functions.h"
 #include "base/strings/strcat.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/glic/public/service/glic_instance_coordinator.h"
 #include "chrome/common/buildflags.h"
 #include "components/performance_manager/graph/page_node_impl.h"
 #include "components/performance_manager/public/decorators/page_live_state_decorator.h"
@@ -313,11 +310,6 @@ DiscardEligibilityPolicy::CanDiscardWithCustomRecentVisibilityWindow(
     }
   }
 
-  if (live_state_data && is_proactive_or_suggested &&
-      live_state_data->IsGlicPinnedToVisibleInstance()) {
-    add_reason_and_update_result(CannotDiscardReason::kGlicShared,
-                                 CanDiscardResult::kProtected);
-  }
 
   // Only discard http(s) pages and internal pages to make sure that we don't
   // discard extensions or other PageNode that don't correspond to a tab.

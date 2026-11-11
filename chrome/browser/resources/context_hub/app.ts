@@ -6,7 +6,6 @@ import '//resources/cr_elements/cr_icon/cr_icon.js';
 import '//resources/cr_elements/cr_menu_selector/cr_menu_selector.js';
 import '//resources/cr_elements/icons.html.js';
 import './icons.html.js';
-import './memory_bank_chat/memory_bank_chat.js';
 import './memory_banks/memory_banks.js';
 import './record_replay/record_replay.js';
 import './smart_search/smart_search.js';
@@ -21,13 +20,12 @@ import {getCss} from './app.css.js';
 import {getHtml} from './app.html.js';
 
 export type ViewType = 'launchpad'|'memory-banks'|'tab-groups'|
-    'memory-bank-chat'|'topics'|'jumpstart'|'record-replay';
+    'topics'|'jumpstart'|'record-replay';
 
 const VALID_VIEWS: Set<ViewType> = new Set([
   'launchpad',
   'memory-banks',
   'tab-groups',
-  'memory-bank-chat',
   'topics',
   'jumpstart',
   'record-replay',
@@ -115,8 +113,6 @@ export class ContextHubAppElement extends CrLitElement {
         return getTrustedHTML`<ai-taskbox></ai-taskbox>`;
       case 'memory-banks':
         return getTrustedHTML`<memory-banks></memory-banks>`;
-      case 'memory-bank-chat':
-        return getTrustedHTML`<memory-bank-chat></memory-bank-chat>`;
       case 'tab-groups':
         return getTrustedHTML`<tab-groups></tab-groups>`;
       case 'topics':

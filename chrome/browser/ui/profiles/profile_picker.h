@@ -112,8 +112,7 @@ class ProfilePicker {
     // Opens the add new profile view from the app menu.
     kAppMenuProfileSubMenuAddNewProfile = 15,
 
-    // Opens the Glic version of the Profile Picker
-    kGlicManager = 16,
+    // Value 16 was used by the removed Glic profile picker.
 
     // Opens the profile picker on startup, and creates a profile with an email
     // address.
@@ -178,8 +177,6 @@ class ProfilePicker {
     // `picked_profile_callback` will be called when a Profile is selected
     // (returning the loaded profile) or when the picker is closed (returning a
     // nullptr profile).
-    static Params ForGlicManager(
-        base::OnceCallback<void(Profile*)> picked_profile_callback);
 
     // Builds parameter for the `kOmniboxEverywhere` entry point.
     static Params ForOmniboxEverywhere(

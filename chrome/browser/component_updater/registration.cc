@@ -18,7 +18,6 @@
 #include "chrome/browser/component_updater/ai_embeddings_component_installer.h"
 #include "chrome/browser/component_updater/captcha_provider_component_installer.h"
 #include "chrome/browser/component_updater/chrome_origin_trials_component_installer.h"
-#include "chrome/browser/component_updater/commerce_heuristics_component_installer.h"
 #include "chrome/browser/component_updater/crl_set_component_installer.h"
 #include "chrome/browser/component_updater/crowd_deny_component_installer.h"
 #include "chrome/browser/component_updater/hyphenation_component_installer.h"
@@ -169,7 +168,6 @@ void RegisterComponentsForUpdate() {
 
   ManageScreenAIComponentRegistration(cus, g_browser_process->local_state());
 
-  RegisterCommerceHeuristicsComponent(cus);
 
 #if BUILDFLAG(ENABLE_ON_DEVICE_TRANSLATION)
   // TODO(crbug.com/364795294): Support other platforms.

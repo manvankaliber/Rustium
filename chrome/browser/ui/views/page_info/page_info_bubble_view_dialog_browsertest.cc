@@ -30,7 +30,6 @@
 #include "chrome/common/url_constants.h"
 #include "chrome/test/base/testing_profile_manager.h"
 #include "chrome/test/base/ui_test_utils.h"
-#include "components/commerce/core/proto/merchant_trust.pb.h"
 #include "components/content_settings/browser/page_specific_content_settings.h"
 #include "components/content_settings/core/browser/content_settings_registry.h"
 #include "components/content_settings/core/browser/permission_settings_registry.h"
@@ -137,7 +136,6 @@ optimization_guide::OptimizationMetadata GetAboutThisSiteMetadata() {
 
 optimization_guide::OptimizationMetadata GetMerchantTrustMetadata() {
   optimization_guide::OptimizationMetadata optimization_metadata;
-  commerce::MerchantTrustSignalsV2 metadata;
   metadata.set_merchant_star_rating(3.5);
   metadata.set_merchant_count_rating(23);
   metadata.set_merchant_details_page_url("https://reviews.test");
@@ -151,7 +149,6 @@ optimization_guide::OptimizationMetadata GetMerchantTrustMetadata() {
 optimization_guide::OptimizationMetadata
 GetMerchantTrustMetadataWithoutSummary() {
   optimization_guide::OptimizationMetadata optimization_metadata;
-  commerce::MerchantTrustSignalsV2 metadata;
   metadata.set_merchant_star_rating(4.8);
   metadata.set_merchant_count_rating(89);
   metadata.set_merchant_details_page_url("https://shopper-reviews.test");

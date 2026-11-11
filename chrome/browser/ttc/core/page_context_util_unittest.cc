@@ -8,8 +8,6 @@
 
 #include "base/test/task_environment.h"
 #include "base/test/test_future.h"
-#include "chrome/browser/actor/actor_test_util.h"
-#include "chrome/browser/actor/enterprise_policy_checker.h"
 #include "components/actor/core/safety_list_manager.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
@@ -22,18 +20,8 @@ class PageContextUtilTest : public testing::Test {
   void TearDown() override {
     // SafetyListManager is a process-wide singleton; clear any lists a test
     // set.
-    actor::SetSafetyListsForTesting(actor::SafetyListManager::GetInstance(),
-                                    "{}");
   }
 
-  bool IsUrlSupported(const GURL& url,
-                      const actor::EnterprisePolicyChecker*
-                          enterprise_policy_checker = nullptr) {
-    base::test::TestFuture<bool> supported;
-    IsUrlSupportedForPageContext(url, enterprise_policy_checker,
-                                 supported.GetCallback());
-    return supported.Get();
-  }
 
  private:
   base::test::TaskEnvironment task_environment_;
@@ -87,18 +75,6 @@ INSTANTIATE_TEST_SUITE_P(
 // HTTP(S) URLs for which the actor safety lists block a navigation from the URL
 // to itself are unsupported.
 TEST_F(PageContextUtilTest, SafetyLists) {
-  actor::SetSafetyListsForTesting(actor::SafetyListManager::GetInstance(),
-                                  R"json(
-    {
-      "navigation_allowed": [
-        { "from": "*", "to": "[*.]allowed.blocked.com" }
-      ],
-      "navigation_blocked": [
-        { "from": "*", "to": "[*.]blocked.com" },
-        { "from": "[*.]other.com", "to": "[*.]cross-origin-only.com" }
-      ]
-    }
-  )json");
 
   EXPECT_FALSE(IsUrlSupported(GURL("https://blocked.com/path")));
   EXPECT_TRUE(IsUrlSupported(GURL("https://allowed.blocked.com/path")));
@@ -111,17 +87,11 @@ TEST_F(PageContextUtilTest, EnterprisePolicy) {
   const GURL allowed_url("https://allowed.example.com/path");
   const GURL blocked_url("https://blocked.example.com/path");
 
-  actor::MockPolicyChecker policy_checker(
-      actor::EnterprisePolicyChecker::UrlBlockReason::kExplicitlyBlocked);
 
   EXPECT_FALSE(IsUrlSupported(blocked_url, &policy_checker));
 
-  policy_checker.set_reason(
-      actor::EnterprisePolicyChecker::UrlBlockReason::kExplicitlyAllowed);
   EXPECT_TRUE(IsUrlSupported(allowed_url, &policy_checker));
 
-  policy_checker.set_reason(
-      actor::EnterprisePolicyChecker::UrlBlockReason::kNotBlocked);
   EXPECT_TRUE(IsUrlSupported(allowed_url, &policy_checker));
 
   // Unsupported schemes remain unsupported even if enterprise policy allows
@@ -131,20 +101,10 @@ TEST_F(PageContextUtilTest, EnterprisePolicy) {
 
 // Enterprise policy takes precedence over safety lists.
 TEST_F(PageContextUtilTest, EnterprisePolicyAndSafetyListInteraction) {
-  actor::SetSafetyListsForTesting(actor::SafetyListManager::GetInstance(),
-                                  R"json(
-    {
-      "navigation_blocked": [
-        { "from": "*", "to": "[*.]safetylist-blocked.com" }
-      ]
-    }
-  )json");
 
   const GURL safety_blocked_url("https://safetylist-blocked.com/path");
   const GURL safety_allowed_url("https://safetylist-allowed.com/path");
 
-  actor::MockPolicyChecker policy_checker(
-      actor::EnterprisePolicyChecker::UrlBlockReason::kExplicitlyBlocked);
 
   // Enterprise policy block overrides safety list allow.
   EXPECT_FALSE(IsUrlSupported(safety_allowed_url, &policy_checker));
@@ -153,8 +113,6 @@ TEST_F(PageContextUtilTest, EnterprisePolicyAndSafetyListInteraction) {
   EXPECT_FALSE(IsUrlSupported(safety_blocked_url, &policy_checker));
 
   // When enterprise policy does not block, safety list blocks still apply.
-  policy_checker.set_reason(
-      actor::EnterprisePolicyChecker::UrlBlockReason::kNotBlocked);
   EXPECT_FALSE(IsUrlSupported(safety_blocked_url, &policy_checker));
   EXPECT_TRUE(IsUrlSupported(safety_allowed_url, &policy_checker));
 }

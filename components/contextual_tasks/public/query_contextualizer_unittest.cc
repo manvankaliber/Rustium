@@ -2242,9 +2242,6 @@ TEST_F(QueryContextualizerTest,
                    std::unique_ptr<lens::ContextualInputData> data,
                    std::optional<lens::ImageEncodingOptions> image_options) {
         ASSERT_TRUE(data->upload_type.has_value());
-        EXPECT_EQ(*data->upload_type,
-                  lens::LensOverlayContextualInputUploadType::
-                      CONTEXTUAL_INPUT_UPLOAD_TYPE_AUTO_TAB_CHIP);
       });
 
   base::MockCallback<QueryContextualizer::ContextualizedCallback> done_callback;
@@ -2309,10 +2306,6 @@ TEST_F(
                    std::unique_ptr<lens::ContextualInputData> data,
                    std::optional<lens::ImageEncodingOptions> image_options) {
         ASSERT_TRUE(data->upload_type.has_value());
-        EXPECT_EQ(
-            *data->upload_type,
-            lens::LensOverlayContextualInputUploadType::
-                CONTEXTUAL_INPUT_UPLOAD_TYPE_CONTEXTUAL_SEARCHBOX_INITIAL_QUERY);
       });
 
   base::MockCallback<QueryContextualizer::ContextualizedCallback> done_callback;
@@ -2399,9 +2392,6 @@ TEST_F(QueryContextualizerTest,
                    std::unique_ptr<lens::ContextualInputData> data,
                    std::optional<lens::ImageEncodingOptions> image_options) {
         ASSERT_TRUE(data->upload_type.has_value());
-        EXPECT_EQ(*data->upload_type,
-                  lens::LensOverlayContextualInputUploadType::
-                      CONTEXTUAL_INPUT_UPLOAD_TYPE_RECONTEXTUALIZATION);
       });
 
   base::MockCallback<QueryContextualizer::ContextualizedCallback> done_callback;
@@ -2449,9 +2439,6 @@ TEST_F(QueryContextualizerTest,
                    std::unique_ptr<lens::ContextualInputData> data,
                    std::optional<lens::ImageEncodingOptions> image_options) {
         ASSERT_TRUE(data->upload_type.has_value());
-        EXPECT_EQ(*data->upload_type,
-                  lens::LensOverlayContextualInputUploadType::
-                      CONTEXTUAL_INPUT_UPLOAD_TYPE_SMART_TAB_SELECTION);
         EXPECT_TRUE(data->is_implicit_upload);
         EXPECT_TRUE(data->was_smart_tab_selection);
       });

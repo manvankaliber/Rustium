@@ -152,7 +152,7 @@ class Rect;
 
 namespace lens {
 class LensPreselectionBubble;
-class LensRegionSearchInstructionsView;
+
 }  // namespace lens
 
 namespace media_router {
@@ -991,7 +991,6 @@ class VIEWS_EXPORT BubbleDialogDelegateView : public View,
   friend class ::captions::CaptionBubble;
   friend class ::chromeos::MultitaskMenu;
   friend class ::lens::LensPreselectionBubble;
-  friend class ::lens::LensRegionSearchInstructionsView;
   friend class ::media_router::CastDialogView;
   friend class ::media_router::MediaRemotingDialogView;
   friend class ::toasts::ToastView;

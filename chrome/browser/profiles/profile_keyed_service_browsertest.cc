@@ -23,7 +23,6 @@
 #include "chrome/common/chrome_features.h"
 #include "chrome/test/base/in_process_browser_test.h"
 #include "chrome/test/base/profile_waiter.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/contextual_tasks/public/features.h"
 #include "components/enterprise/buildflags/buildflags.h"
 #include "components/enterprise/isolated_mode/isolated_mode_features.h"
@@ -574,11 +573,6 @@ IN_PROC_BROWSER_TEST_F(ProfileKeyedServiceGuestBrowserTest,
     guest_otr_active_services.erase("TCPSocketEventDispatcher");
     guest_otr_active_services.erase("UDPSocketEventDispatcher");
     guest_otr_active_services.erase("UsbDeviceResourceManager");
-  }
-  if (base::FeatureList::IsEnabled(features::kLazyKeyedServiceInstantiation) &&
-      features::kLazyKeyedServiceInstantiationCommerceAndUI.Get()) {
-    guest_otr_active_services.erase("AutocompleteClassifier");
-    guest_otr_active_services.erase("ReadAnythingServiceFactory");
   }
   if (base::FeatureList::IsEnabled(features::kLazyKeyedServiceInstantiation) &&
       features::kLazyKeyedServiceInstantiationStorageNotification.Get()) {

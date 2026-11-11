@@ -36,7 +36,6 @@ bool IsComponentExtensionAllowlisted(const std::string& extension_id) {
   constexpr auto kAllowed = base::MakeFixedFlatSet<std::string_view>({
       extension_misc::kAimEligibilityExtensionId,
       extension_misc::kContextualTasksExtensionId,
-      extension_misc::kGlicExtensionId,
       extension_misc::kInAppPaymentsSupportAppId,
 #if BUILDFLAG(ENABLE_WEBUI_NTP)
       extension_misc::kNewTabPageExtensionId,
@@ -69,7 +68,6 @@ bool IsComponentExtensionAllowlisted(int manifest_resource_id) {
 #endif
     case IDR_AIM_ELIGIBILITY_EXTENSION_MANIFEST_JSON:
     case IDR_CONTEXTUAL_TASKS_EXTENSION_MANIFEST_JSON:
-    case IDR_GLIC_EXTENSION_MANIFEST:
 #if BUILDFLAG(ENABLE_WEBUI_NTP)
     case IDR_NEW_TAB_PAGE_EXTENSION_MANIFEST_JSON:
 #endif  // BUILDFLAG(ENABLE_WEBUI_NTP)

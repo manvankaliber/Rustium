@@ -80,19 +80,13 @@
 #include "chrome/browser/context_hub/memory_banks_shortcut.h"
 #include "chrome/browser/context_hub/record_replay/skill_recording_service.h"
 #include "chrome/browser/context_hub/record_replay/skill_recording_service_factory.h"
-#include "chrome/browser/glic/host/context/glic_sharing_utils.h"  // nogncheck
-#include "chrome/browser/glic/host/glic.mojom.h"                  // nogncheck
-#include "chrome/browser/glic/public/glic_enabling.h"             // nogncheck
-#include "chrome/browser/glic/public/glic_instance.h"             // nogncheck
-#include "chrome/browser/glic/public/glic_invoke_options.h"       // nogncheck
-#include "chrome/browser/glic/public/glic_keyed_service.h"        // nogncheck
-#include "chrome/browser/glic/public/glic_passkeys.h"             // nogncheck
 #include "chrome/browser/ui/browser_tabstrip.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/profile_browser_collection.h"
 #include "chrome/browser/ui/singleton_tabs.h"
 #include "chrome/browser/ui/webui/context_hub/context_hub_tab_provider_desktop.h"
 #include "chrome/common/webui_url_constants.h"
+#include "content/public/common/url_constants.h"
 #include "components/prefs/pref_service.h"
 #include "components/tabs/public/tab_interface.h"  // nogncheck
 #include "content/public/browser/page_navigator.h"
@@ -413,7 +407,11 @@ GURL ContextHubPageHandler::TabProvider::ResolveTopicUrl(
         topic_id_or_url->get_topic_id());
   }
 
-  if (!url.is_valid() || !glic::IsContextHubTopicUrl(url)) {
+  const std::string_view path = url.path();
+  if (!url.is_valid() || !url.SchemeIs(content::kChromeUIScheme) ||
+      url.host() != chrome::kChromeUIContextHubHost ||
+      (path != "/topic_details" && path != "/topics" &&
+       path != "/topic_details.html")) {
     if (mojo::IsInMessageDispatch()) {
       mojo::ReportBadMessage("Invalid topic URL or host/path");
     }
@@ -796,12 +794,6 @@ std::vector<browser::context_hub::mojom::ChatMessagePtr> ToMojoChatHistory(
 
 // Returns the Glic service for `profile`, or null if Glic is not available for
 // it. Keeps the definition of "Glic is available" in one place.
-glic::GlicKeyedService* GetGlicServiceIfEnabled(Profile* profile) {
-  if (!glic::GlicEnabling::IsEnabledForProfile(profile)) {
-    return nullptr;
-  }
-  return glic::GlicKeyedService::Get(profile);
-}
 
 }  // namespace
 
@@ -1002,61 +994,11 @@ void ContextHubPageHandler::ClearTabGroupChatHistory(
   std::move(callback).Run();
 }
 
-void ContextHubPageHandler::AskGeminiWithContext(
-    const std::string& user_command,
-    const std::vector<int64_t>& memory_bank_entry_ids,
-    bool save_to_history,
-    AskGeminiWithContextCallback callback) {
-  context_hub::ContextHubService* service =
-      ContextHubServiceFactory::GetForProfile(profile_);
-  if (!service) {
-    context_hub::MemoryBankChatHistoryTurn response;
-    response.turn.set_role(
-        optimization_guide::proto::ChatHistoryTurn::ROLE_ASSISTANT);
-    response.turn.set_message_content("Service unavailable.");
-    std::move(callback).Run(std::move(response));
-    return;
-  }
 
-  service->ExecuteMemoryBankChat(
-      memory_bank_entry_ids, user_command, save_to_history,
-      base::BindOnce(
-          [](AskGeminiWithContextCallback callback,
-             std::optional<std::string> response_text,
-             std::vector<context_hub::MemoryBankChatCitation> citations) {
-            context_hub::MemoryBankChatHistoryTurn response;
-            response.turn.set_role(
-                optimization_guide::proto::ChatHistoryTurn::ROLE_ASSISTANT);
-            response.turn.set_message_content(
-                std::move(response_text)
-                    .value_or("Failed to generate response."));
-            response.citations = std::move(citations);
-            std::move(callback).Run(std::move(response));
-          },
-          std::move(callback)));
-}
 
-void ContextHubPageHandler::GetMemoryBankChatHistory(
-    GetMemoryBankChatHistoryCallback callback) {
-  context_hub::ContextHubService* service =
-      ContextHubServiceFactory::GetForProfile(profile_);
-  if (!service) {
-    std::move(callback).Run({});
-    return;
-  }
 
-  std::move(callback).Run(service->GetMemoryBankChatHistory());
-}
 
-void ContextHubPageHandler::ClearMemoryBankChatHistory(
-    ClearMemoryBankChatHistoryCallback callback) {
-  context_hub::ContextHubService* service =
-      ContextHubServiceFactory::GetForProfile(profile_);
-  if (service) {
-    service->ClearMemoryBankChatHistory();
-  }
-  std::move(callback).Run();
-}
+
 
 void ContextHubPageHandler::ConfirmAllTabGroups(
     ConfirmAllTabGroupsCallback callback) {
@@ -1425,79 +1367,6 @@ void ContextHubPageHandler::OpenTopic(
   }
 }
 
-void ContextHubPageHandler::OpenGlicPanel(
-    const std::vector<std::string>& prompts) {
-  glic::GlicKeyedService* glic_service = GetGlicServiceIfEnabled(profile_);
-  if (!glic_service || !web_contents_) {
-    return;
-  }
-  // The WebUI may be hosted outside of a tab (e.g. in a dialog), in which case
-  // there is no tab to bind the side panel to.
-  tabs::TabInterface* tab =
-      tabs::TabInterface::MaybeGetFromContents(web_contents_);
-  if (!tab) {
-    return;
-  }
-
-  // Closing the panel keeps the instance alive (preserving the conversation)
-  // but stops it from showing, so this distinguishes "visible right now" from
-  // "closed but remembered".
-  glic::GlicInstance* instance = glic_service->GetInstanceForTab(tab);
-  const bool already_showing = instance && instance->IsShowing();
-
-  glic::GlicInvokeOptions options(
-      glic::Target(*tab), glic::mojom::InvocationSource::kContextHubTopics);
-  // The topic page offers up to three suggested prompts; clamp defensively
-  // since the list comes from the renderer.
-  constexpr size_t kMaxPrompts = 3;
-  base::span<const std::string> capped_prompts =
-      base::span(prompts).first(std::min(prompts.size(), kMaxPrompts));
-  options.prompts.assign(capped_prompts.begin(), capped_prompts.end());
-  // With two or more topic-specific prompts the page has enough of its own
-  // suggestions, so ask the web client to suppress the generic Zero State
-  // Suggestions in favor of them. With fewer than two (e.g. a topic with no
-  // title, or a single prompt), keep ZSS so the panel still has a useful set
-  // of suggestions to offer.
-  //
-  // TODO(crbug.com/567878517): The web client doesn't support this yet. It
-  // ignores `disable_zss`, and with more than one prompt it shows the generic
-  // ZSS rather than these prompts.
-  constexpr size_t kMinPromptsToDisableZss = 2;
-  options.disable_zss = options.prompts.size() >= kMinPromptsToDisableZss;
-
-  if (already_showing) {
-    // The invoke is still delivered to the web client, so it can replace its
-    // suggestions with this topic's once supported (see TODO above). Since the
-    // user is already looking at the panel, refreshing it should not steal
-    // focus from the topic page, and should not fail if another invocation
-    // happens to be in flight.
-    options.focus_on_show = false;
-    options.supersede_if_in_progress = true;
-  } else {
-    // The invoke is sent on page load, while the side panel is still sliding
-    // open. Delivering (and focusing) it before the panel and the tab have
-    // settled at their final size leaves the web client laid out for the
-    // in-progress size, which shows up as shifted content once the panel is
-    // re-laid out (e.g. after a navigation or tab switch).
-    options.wait_for_panel_open = true;
-  }
-
-  // The FRE is rendered inside the panel, so the panel opens either way. But
-  // until the user consents, delivery of `prompts` is blocked on FRE
-  // completion, and the invocation's default watchdog is only one minute;
-  // far too short to read and accept a consent screen. Without a longer
-  // timeout the invocation is abandoned and `prompts` are never delivered,
-  // even though the user did eventually consent.
-  //
-  // TODO(crbug.com/564810188): This only narrows the window. If the user
-  // abandons the FRE the invocation still fails silently, because the page has
-  // no error surface and no manual affordance to open Glic.
-  if (!glic::GlicEnabling::HasConsentedForProfile(profile_)) {
-    options.timeout = base::Minutes(5);
-  }
-
-  glic_service->Invoke(std::move(options));
-}
 
 void ContextHubPageHandler::SetTopicFeedback(
     browser::context_hub::mojom::TopicFeedbackPtr feedback,
@@ -1702,43 +1571,7 @@ void ContextHubPageHandler::FetchTopicsFeedbackExportData(
       &topics_task_tracker_);
 }
 
-void ContextHubPageHandler::RunTodoTask(const std::string& prompt,
-                                        RunTodoTaskCallback callback) {
-  if (prompt.empty()) {
-    std::move(callback).Run(false);
-    return;
-  }
 
-  glic::GlicKeyedService* glic_service = GetGlicServiceIfEnabled(profile_);
-  if (!glic_service || !web_contents_) {
-    std::move(callback).Run(false);
-    return;
-  }
-
-  tabs::TabInterface* tab =
-      tabs::TabInterface::MaybeGetFromContents(web_contents_);
-  if (!tab) {
-    std::move(callback).Run(false);
-    return;
-  }
-
-  glic::GlicInvokeOptions options(
-      glic::mojom::InvocationSource::kContextHubAutoTodos);
-  options.prompts.push_back(prompt);
-  options.target.conversation = glic::NewConversation();
-  options.feature_mode = glic::mojom::FeatureMode::kActuation;
-  options.target.actuation_target = glic::mojom::ActuationTarget::kAgentDecides;
-  options.target.surface =
-      glic::DefaultSurface{tab->GetBrowserWindowInterface()};
-
-  glic::GlicInvokeWithAutoSubmitOptions auto_submit_options;
-  auto_submit_options.show_panel = true;
-
-  glic_service->InvokeWithAutoSubmit(
-      glic::InvokeWithAutoSubmitPasskeyProvider::GetPassKey(),
-      std::move(options), std::move(auto_submit_options));
-  std::move(callback).Run(true);
-}
 
 void ContextHubPageHandler::OpenWebUrl(const GURL& url,
                                        OpenWebUrlCallback callback) {

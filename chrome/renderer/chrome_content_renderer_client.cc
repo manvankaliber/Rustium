@@ -79,7 +79,6 @@
 #include "components/autofill/content/renderer/password_autofill_agent.h"
 #include "components/autofill/content/renderer/password_generation_agent.h"
 #include "components/autofill/core/common/autofill_features.h"
-#include "components/commerce/content/renderer/commerce_web_extractor.h"
 #include "components/content_capture/common/content_capture_features.h"
 #include "components/content_capture/renderer/content_capture_sender.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
@@ -806,7 +805,6 @@ void ChromeContentRendererClient::RenderFrameCreated(
 #endif
 
   if (render_frame->IsMainFrame()) {
-    new commerce::CommerceWebExtractor(render_frame, registry);
   }
 
 

@@ -21,9 +21,6 @@
 #include "content/public/browser/web_ui_data_source.h"
 #include "ui/webui/webui_util.h"
 
-#include "chrome/browser/glic/actor/glic_actor_policy_checker.h"  // nogncheck
-#include "chrome/browser/glic/public/glic_enabling.h"             // nogncheck
-#include "chrome/browser/glic/public/glic_keyed_service.h"        // nogncheck
 #include "chrome/browser/ui/webui/favicon_source.h"               // nogncheck
 #include "chrome/browser/ui/webui/sanitized_image/sanitized_image_source.h"  // nogncheck
 #include "components/favicon_base/favicon_url_parser.h"
@@ -56,14 +53,6 @@ ContextHubUI::ContextHubUI(content::WebUI* web_ui)
   source->AddBoolean(
       "kAutoTodos",
       base::FeatureList::IsEnabled(browser::context_hub::mojom::kAutoTodos));
-  bool can_act_on_web = false;
-  if (base::FeatureList::IsEnabled(features::kGlicActor) &&
-      glic::GlicEnabling::IsEnabledForProfile(profile)) {
-    glic::GlicKeyedService* glic_service = glic::GlicKeyedService::Get(profile);
-    can_act_on_web = glic_service && glic_service->HasActorPolicyChecker() &&
-                     glic_service->actor_policy_checker().CanActOnWeb();
-  }
-  source->AddBoolean("can_act_on_web", can_act_on_web);
   source->AddBoolean(
       "kSmartSearch",
       base::FeatureList::IsEnabled(browser::context_hub::mojom::kSmartSearch));
@@ -80,9 +69,6 @@ ContextHubUI::ContextHubUI(content::WebUI* web_ui)
                     context_hub::features::kTopicsFeedbackFormUrl.Get());
   source->AddInteger("kMaxTabGroupChatHistoryTurns",
                      context_hub::features::kMaxTabGroupChatHistoryTurns.Get());
-  source->AddInteger(
-      "kMaxMemoryBankChatHistoryTurns",
-      context_hub::features::kMaxMemoryBankChatHistoryTurns.Get());
 
   content::URLDataSource::Add(
       profile, std::make_unique<FaviconSource>(

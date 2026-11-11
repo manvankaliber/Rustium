@@ -38,7 +38,6 @@
 #include "chrome/browser/chrome_content_browser_client.h"
 #include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/ui/omnibox/omnibox_popup_webui_creation.h"
-#include "chrome/browser/actor/ui/actor_task_unload_handler.h"
 #include "chrome/browser/lifetime/application_lifetime.h"
 #include "chrome/browser/lifetime/application_lifetime_desktop.h"
 #include "chrome/browser/lifetime/browser_shutdown.h"
@@ -920,7 +919,6 @@ void InProcessBrowserTest::PostRunTestOnMainThread() {
   autorelease_pool_->Recycle();
 #endif
 
-  actor::ActorTaskTabCloseConfirmDialog::SetSuppressForTesting(true);
 
   QuitBrowsers();
 

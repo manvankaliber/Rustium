@@ -17,12 +17,11 @@ browser_exposed_mojom_targets = [
   "//cc/mojom:mojom",
   "//cc/mojom:mojom_browser_controls",
   "//cc/mojom:mojom_layer_trees",
-  "//chrome/browser/actor/ui:mojo_bindings",
+
   "//chrome/browser/browser_actuator/internals:mojo_bindings",
   "//chrome/browser/contextual_cueing/internals:mojo_bindings",
   "//chrome/browser/contextual_tasks:mojo_bindings",
-  "//chrome/browser/glic:mojo_bindings",
-  "//chrome/browser/lens/core/mojom:mojo_bindings",
+
   "//chrome/browser/media:mojo_bindings",
   "//chrome/browser/new_tab_page/modules/file_suggestion:mojo_bindings",
   "//chrome/browser/new_tab_page/modules/v2/calendar:mojo_bindings",
@@ -71,7 +70,7 @@ browser_exposed_mojom_targets = [
   "//chrome/browser/ui/webui/signin/history_sync_optin:mojo_bindings",
   "//chrome/browser/ui/webui/signin/cross_device_signin_qr_bubble:mojo_bindings",
   "//chrome/browser/ui/webui/signin/signout_confirmation:mojo_bindings",
-  "//chrome/browser/ui/webui/skills:mojo_bindings",
+
   "//chrome/browser/ui/webui/subresource_filter:mojo_bindings",
   "//chrome/browser/ui/webui/suggest_internals:mojo_bindings",
   "//chrome/browser/ui/webui/tab_search:mojo_bindings",
@@ -101,8 +100,7 @@ browser_exposed_mojom_targets = [
   "//components/autofill/core/common/mojom:mojo_types",
   "//components/browser_apis/bookmarks:mojom",
   "//components/browser_apis/tab_strip:mojom",
-  "//components/commerce/core/internals/mojom:mojo_bindings",
-  "//components/commerce/core/mojom:mojo_bindings",
+
   "//components/compose/core/browser:mojo_bindings",
   "//components/content_capture/common:mojo_interfaces",
   "//components/content_capture/common:mojo_types",
@@ -223,6 +221,7 @@ browser_exposed_mojom_targets = [
   "//media/mojo/mojom:media_log",
   "//media/mojo/mojom:media_types",
   "//media/mojo/mojom:mojom",
+
   "//media/mojo/mojom:remoting_common",
   "//media/mojo/mojom:remoting",
   "//media/mojo/mojom:speech_recognition_audio_forwarder",

@@ -34,8 +34,6 @@
 #include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/interaction/browser_elements.h"
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/webui/cr_components/searchbox/contextual_searchbox_handler.h"
 #include "components/contextual_search/contextual_search_session_handle.h"
 #include "components/contextual_search/contextual_search_types.h"
@@ -135,12 +133,6 @@ ContextualTasksExtensionHandler::GetOrCreateWebContentsUserData() const {
       GetOrCreateForWebContents(web_contents);
 }
 
-void ContextualTasksExtensionHandler::OnLensOverlayStateChanged(
-    bool is_showing) {
-  if (contextual_tasks_page_) {
-    contextual_tasks_page_->OnLensOverlayStateChanged(is_showing);
-  }
-}
 
 void ContextualTasksExtensionHandler::OnPermissionPromptChanged(
     bool is_showing,
@@ -334,38 +326,6 @@ void ContextualTasksExtensionHandler::HandleLensButtonClick() {
         user_data->GetPageState());
   }
 
-  if (auto* controller = GetLensSearchController()) {
-    if (user_data) {
-      controller->SetThumbnailCreatedCallback(base::BindRepeating(
-          &contextual_tasks::ContextualTasksWebContentsUserData::
-              OnLensThumbnailCreated,
-          user_data->AsWeakPtr()));
-    }
-    if (controller->IsShowingUI()) {
-      if (controller->invocation_source() ==
-          lens::LensOverlayInvocationSource::kContextualTasksComposebox) {
-        controller->CloseLensAsync(
-            lens::LensOverlayDismissalSource::
-                kContextualTasksComposeboxLensButtonClick);
-        return;
-      } else {
-        // If the overlay is showing from a different invocation source, clear
-        // the selection and start fresh for a follow-up.
-        if (controller->lens_overlay_controller()) {
-          controller->lens_overlay_controller()->ClearAllSelections();
-        }
-        // Set the invocation source to contextual tasks so that any follow-up
-        // queries are associated with the contextual tasks session via the
-        // query flow router and thumbnails are added appropriately to the
-        // composebox. This will work as if the overlay was opened from the
-        // contextual tasks composebox in the first place.
-        controller->SetInvocationSource(
-            lens::LensOverlayInvocationSource::kContextualTasksComposebox);
-      }
-    }
-    controller->OpenLensOverlay(
-        lens::LensOverlayInvocationSource::kContextualTasksComposebox);
-  }
 }
 
 void ContextualTasksExtensionHandler::SetSmartTabSharingActive(bool active) {
@@ -388,8 +348,6 @@ void ContextualTasksExtensionHandler::FocusChanged(bool focused) {}
 
 void ContextualTasksExtensionHandler::HandleFileUpload(bool is_image) {}
 void ContextualTasksExtensionHandler::NavigateUrl(const GURL& url) {}
-void ContextualTasksExtensionHandler::CloseLensOverlayFromWebUI(
-    composebox::mojom::LensOverlayDismissalSource dismissal_source) {}
 void ContextualTasksExtensionHandler::
     NotifyComposeboxQuerySubmittedWithContext() {}
 void ContextualTasksExtensionHandler::CanShowNextboxAnimation(
@@ -660,7 +618,6 @@ void ContextualTasksExtensionHandler::SubmitQuery(const std::string& query_text,
   DVLOG(1)
       << "ContextualTasksExtensionHandler::SubmitQuery called unexpectedly";
 }
-void ContextualTasksExtensionHandler::OpenLensSearch() {}
 void ContextualTasksExtensionHandler::SetActiveToolMode(omnibox::ToolMode tool,
                                                         bool is_set_by_aim) {
   active_tool_ = tool;
@@ -724,21 +681,7 @@ ContextualTasksExtensionHandler::GetOrCreateContextualSessionHandle() {
   return nullptr;
 }
 
-std::optional<base::UnguessableToken>
-ContextualTasksExtensionHandler::GetLensOverlayToken() {
-  if (auto* user_data = GetOrCreateWebContentsUserData()) {
-    return user_data->GetLensOverlayToken();
-  }
-  return std::nullopt;
-}
 
-LensSearchController* ContextualTasksExtensionHandler::GetLensSearchController()
-    const {
-  if (auto* user_data = GetOrCreateWebContentsUserData()) {
-    return user_data->GetLensSearchController();
-  }
-  return nullptr;
-}
 
 void ContextualTasksExtensionHandler::InitializeInputStateModel() {
   input_state_model_ = nullptr;

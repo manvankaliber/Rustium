@@ -59,7 +59,6 @@ source_set("notifications") {
   deps = [ "//components/content_settings/core/browser" ]
 
   public += [
-    "glic_actor_task_notification_handler.h",
     "muted_notification_handler.h",
     "profile_notification.h",
   ]
@@ -182,7 +181,6 @@ source_set("impl") {
   ]
 
   sources += [
-    "glic_actor_task_notification_handler.cc",
     "muted_notification_handler.cc",
     "profile_notification.cc",
     "screen_capture_notification_blocker.cc",
@@ -191,9 +189,6 @@ source_set("impl") {
 
   deps += [
     "//chrome/app:generated_resources",
-    "//chrome/browser/actor",
-    "//chrome/browser/glic",
-    "//chrome/browser/glic/browser_ui",
     "//chrome/browser/media/webrtc",
     "//chrome/browser/sharing",
     "//chrome/browser/tab_list",

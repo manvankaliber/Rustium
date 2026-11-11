@@ -45,16 +45,15 @@
   E_CPONLY(kColorAppMenuZoomButtonHover) \
   E_CPONLY(kColorAppMenuZoomSeparator) \
   /* Actor UI colors.*/ \
-  E_CPONLY(kColorActorUiHandoffButtonBackground) \
-  E_CPONLY(kColorActorUiHandoffButtonBorder) \
-  E_CPONLY(kColorActorUiHandoffButtonForeground) \
-  E_CPONLY(kColorActorUiOverlayBorder) \
-  E_CPONLY(kColorActorUiOverlayBorderGlow) \
-  E_CPONLY(kColorActorUiScrimStart) \
-  E_CPONLY(kColorActorUiScrimMiddle) \
-  E_CPONLY(kColorActorUiScrimEnd) \
-  E_CPONLY(kColorActorUiMagicCursor) \
-  /* Content settings activity indicators popup dialog colors */ \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
   E_CPONLY(kColorActivityIndicatorForeground) \
   E_CPONLY(kColorActivityIndicatorSubtitleForeground) \
   /* Avatar colors. */ \
@@ -260,25 +259,23 @@
   E_CPONLY(kColorIsolatedTabPageNoticeBorder) \
   E_CPONLY(kColorIsolatedTabPageNoticeIcon) \
   /* Glic colors */ \
-  E_CPONLY(kColorGlicBackground) \
-  E_CPONLY(kColorGlicModalBackground) \
-  E_CPONLY(kColorGlicModalForeground) \
-  E_CPONLY(kColorGlicPlaceholderElem) \
-  E_CPONLY(kColorGlicActiveTabUnderlineGradient1) \
-  E_CPONLY(kColorGlicActiveTabUnderlineGradient2) \
-  E_CPONLY(kColorGlicActiveTabUnderlineGradient3) \
-  E_CPONLY(kColorGlicInactiveTabUnderlineGradient1) \
-  E_CPONLY(kColorGlicInactiveTabUnderlineGradient2) \
-  E_CPONLY(kColorGlicInactiveTabUnderlineGradient3) \
-  E_CPONLY(kColorGlicSelectionOverlayToast) \
-  E_CPONLY(kColorGlicSelectionOverlayToastCancelButton) \
-  /* Hover Button colors */ \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
   E_CPONLY(kColorHoverButtonBackgroundHovered) \
   /* Lens overlay colors. */ \
-  E_CPONLY(kColorLensOverlayToastBackground) \
-  E_CPONLY(kColorLensOverlayToastButtonBorder) \
-  E_CPONLY(kColorLensOverlayToastForeground) \
-  /* Location bar colors. */ \
+   \
+   \
+   \
   E_CPONLY(kColorLocationBarBackground) \
   E_CPONLY(kColorLocationBarBackgroundHovered) \
   E_CPONLY(kColorLocationBarBorder) \
@@ -600,31 +597,30 @@
   E_CPONLY(kColorPipWindowSkipAdButtonBackground) \
   E_CPONLY(kColorPipWindowSkipAdButtonBorder) \
   /* Product Specifications colors */ \
-  E_CPONLY(kColorProductSpecificationsButtonBackground) \
-  E_CPONLY(kColorProductSpecificationsCitationBackground) \
-  E_CPONLY(kColorProductSpecificationsCitationPopupBackground) \
-  E_CPONLY(kColorProductSpecificationsCitationPopupText) \
-  E_CPONLY(kColorProductSpecificationsCitationPopupTitle) \
-  E_CPONLY(kColorProductSpecificationsComparisonTableListBackground) \
-  E_CPONLY(kColorProductSpecificationsDetailChipBackground) \
-  E_CPONLY(kColorProductSpecificationsDisclosureBackground) \
-  E_CPONLY(kColorProductSpecificationsDisclosureForeground) \
-  E_CPONLY(kColorProductSpecificationsDisclosureGradientEnd) \
-  E_CPONLY(kColorProductSpecificationsDisclosureGradientStart) \
-  E_CPONLY(kColorProductSpecificationsDisclosureSummaryBackground) \
-  E_CPONLY(kColorProductSpecificationsDivider) \
-  E_CPONLY(kColorProductSpecificationsGradientIcon) \
-  E_CPONLY(kColorProductSpecificationsHorizontalCarouselScrollbarThumb) \
-  E_CPONLY(kColorProductSpecificationsIcon) \
-  E_CPONLY(kColorProductSpecificationsIconButtonBackground) \
-  E_CPONLY(kColorProductSpecificationsIconButtonHoveredBackground) \
-  E_CPONLY(kColorProductSpecificationsLink) \
-  E_CPONLY(kColorProductSpecificationsPageBackground) \
-  E_CPONLY(kColorProductSpecificationsSummaryBackground) \
-  E_CPONLY(kColorProductSpecificationsSummaryBackgroundDragging) \
-  E_CPONLY(kColorProductSpecificationsTonalButtonBackground) \
-  E_CPONLY(kColorProductSpecificationsTonalButtonIcon) \
-  /* Profile Menu colors. */ \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
+   \
   E_CPONLY(kColorProfileMenuBackground) \
   E_CPONLY(kColorProfileMenuIdentityInfoBackground) \
   E_CPONLY(kColorProfileMenuIdentityInfoTitle) \
@@ -906,9 +902,9 @@
   E_CPONLY(kColorSidePanelCardBackground) \
   E_CPONLY(kColorSidePanelCardPrimaryForeground) \
   E_CPONLY(kColorSidePanelCardSecondaryForeground) \
-  E_CPONLY(kColorSidePanelCommerceGraphAxis) \
-  E_CPONLY(kColorSidePanelCommerceGraphBubbleBackground) \
-  E_CPONLY(kColorSidePanelCommerceGraphLine) \
+   \
+   \
+   \
   E_CPONLY(kColorSidePanelContentAreaSeparator) \
   E_CPONLY(kColorSidePanelContentBackground) \
   E_CPONLY(kColorSidePanelCustomizeChromeClassicChromeTileBorder) \
@@ -1100,7 +1096,7 @@
   E_CPONLY(kColorTabSearchImageWindowFrame) \
   E_CPONLY(kColorTabSearchMediaIcon) \
   E_CPONLY(kColorTabSearchMediaRecordingIcon) \
-  E_CPONLY(kColorTabSearchMediaGlicActiveIcon) \
+   \
   E_CPONLY(kColorTabSearchPrimaryForeground) \
   E_CPONLY(kColorTabSearchSecondaryForeground) \
   E_CPONLY(kColorTabSearchSelected) \
@@ -1157,7 +1153,7 @@
   E_CPONLY(kColorToolbarExtensionSeparatorDisabled) \
   E_CPONLY(kColorToolbarExtensionSeparatorEnabled) \
   E_CPONLY(kColorToolbarFeaturePromoHighlight) \
-  E_CPONLY(kColorToolbarGlicButtonBackgroundDefault) \
+   \
   E_CPONLY(kColorToolbarIconContainerBorder) \
   E_CPONLY(kColorToolbarInkDrop) \
   E_CPONLY(kColorToolbarInkDropHover) \

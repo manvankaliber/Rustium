@@ -52,8 +52,6 @@
 #include "ui/color/color_id.h"
 #include "ui/gfx/image/image_skia.h"
 
-#include "chrome/browser/ui/lens/lens_search_controller.h"
-
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/grit/theme_resources.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -147,14 +145,6 @@ bool ContextualSearchCueTarget::IsPageEligible(
         category.score > contextual_cueing::kEduClassifierThreshold.Get()) {
       passes_edu = true;
     }
-    if (base::FeatureList::IsEnabled(
-            contextual_tasks::kContextualSearchContextualCuesHandleShopping) &&
-        category.category_type ==
-            page_content_annotations::CategoryType::kShopping &&
-        category.score >
-            contextual_cueing::kShoppingClassifierThreshold.Get()) {
-      passes_shopping = true;
-    }
   }
 
   CUEING_LOG(base::StringPrintf(
@@ -162,60 +152,11 @@ bool ContextualSearchCueTarget::IsPageEligible(
       "passes_shopping=%d",
       passes_edu, passes_shopping));
 
-  if (contextual_cueing::kDiscardShoppingPdfs.Get() &&
-      active_web_contents->GetContentsMimeType() == pdf::kPDFMimeType) {
-    CUEING_LOG(
-        "ContextualSearchCueTarget::IsPageEligible discard shopping pdf");
-    return passes_edu && !passes_shopping;
-  }
   return passes_edu || passes_shopping;
 }
 
 bool ContextualSearchCueTarget::IsEligible() const {
-  auto* window = tab_->GetBrowserWindowInterface();
-  if (!window) {
-    CUEING_LOG("ContextualSearchCueTarget::IsEligible failed: No window.");
-    return false;
-  }
-  if (!LensSearchController::From(&tab_.get())) {
-    CUEING_LOG(
-        "ContextualSearchCueTarget::IsEligible failed: No "
-        "LensSearchController.");
-    return false;
-  }
-  syncer::SyncService* sync_service =
-      SyncServiceFactory::GetForProfile(tab_->GetProfile());
-  if (!sync_service || !sync_service->GetUserSettings()->GetSelectedTypes().Has(
-                           syncer::UserSelectableType::kHistory)) {
-    CUEING_LOG(
-        "ContextualSearchCueTarget::IsEligible failed: No sync service or no "
-        "history sync.");
-    return false;
-  }
-  if (!contextual_tasks::EntryPointEligibilityManager::IsEligible(
-          tab_->GetProfile())) {
-    CUEING_LOG(
-        "ContextualSearchCueTarget::IsEligible failed: Entry points not "
-        "eligible.");
-    return false;
-  }
-  auto* eligibility_manager =
-      contextual_tasks::ContextualTasksEligibilityManager::GetForProfile(
-          tab_->GetProfile());
-  if (!eligibility_manager || !eligibility_manager->IsSidePanelAvailable()) {
-    CUEING_LOG(
-        "ContextualSearchCueTarget::IsEligible failed: Side panel not "
-        "available.");
-    return false;
-  }
-  auto* panel_controller =
-      contextual_tasks::ContextualTasksPanelController::From(window);
-  if (panel_controller && panel_controller->IsPanelOpenForContextualTask()) {
-    CUEING_LOG(
-        "ContextualSearchCueTarget::IsEligible failed: Panel already open.");
-    return false;
-  }
-  return true;
+  return false;
 }
 
 void ContextualSearchCueTarget::OnAnchoredMessageClicked(
@@ -243,9 +184,6 @@ void ContextualSearchCueTarget::OnAnchoredMessageClicked(
 
   auto config_params =
       std::make_unique<ContextualSearchContextController::ConfigParams>();
-  session_handle_ = service->CreateSession(
-      std::move(config_params), ContextualSearchSource::kContextualCue,
-      lens::LensOverlayInvocationSource::kContextualCue);
   if (!session_handle_) {
     return;
   }
@@ -328,8 +266,6 @@ void ContextualSearchCueTarget::OnContextualizationComplete(
       ContextualSearchContextController::SearchUrlType::kAim;
   request_info->aim_entry_point =
       omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_CONTEXTUAL_CUE;
-  request_info->invocation_source =
-      lens::LensOverlayInvocationSource::kContextualCue;
 
   active_session_handle->CreateSearchUrl(
       std::move(request_info),
@@ -353,11 +289,7 @@ void ContextualSearchCueTarget::OpenContextualTasksSidePanel(GURL url) {
     return;
   }
 
-  auto* lens_search_controller = LensSearchController::From(&tab_.get());
-  if (!lens_search_controller ||
-      !lens_search_controller->StartContextualAimQueryInSidePanel(
-          url, session_handle_,
-          omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_CONTEXTUAL_CUE)) {
+  {
     session_handle_.reset();
   }
 }

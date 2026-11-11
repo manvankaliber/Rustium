@@ -116,7 +116,6 @@ source_set("impl") {
   deps = [
     "//chrome/browser:after_startup_task_utils",
     "//chrome/browser:browser_process",
-    "//chrome/browser/actor",
     "//chrome/browser/bookmarks",
     "//chrome/browser/content_settings",
     "//chrome/browser/content_settings:content_settings_factory",
@@ -198,7 +197,6 @@ source_set("unit_tests") {
     "//base",
     "//base/test:test_support",
     "//chrome/browser:after_startup_task_utils",
-    "//chrome/browser/actor:test_support",
     "//chrome/browser/predictors",
     "//chrome/browser/search_engines",
     "//chrome/test:test_support",

@@ -146,7 +146,6 @@ extern const base::FeatureParam<bool> kShowContextMenuDescription;
 // Whether to show tab previews on hover for the composebox context menu.
 extern const base::FeatureParam<bool> kShowContextMenuTabPreviews;
 // Whether to show the lens search chip in the composebox.
-extern const base::FeatureParam<bool> kShowLensSearchChip;
 // Whether to show the smart compose in the composebox.
 extern const base::FeatureParam<bool> kShowSmartCompose;
 // Whether to show the tools and models in the composebox.

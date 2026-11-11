@@ -273,8 +273,6 @@ void PasswordManagerUIHandler::SwitchBiometricAuthBeforeFillingState(
 }
 
 void PasswordManagerUIHandler::StartPasswordChange(int credential_id) {
-  CHECK(base::FeatureList::IsEnabled(
-      password_change::features::kPasswordChangeWithGlic));
   CHECK(web_contents_);
   auto credential =
       passwords_private_delegate_->GetCredentialFromId(credential_id);
@@ -306,19 +304,14 @@ void PasswordManagerUIHandler::StartPasswordChange(int credential_id) {
 }
 
 void PasswordManagerUIHandler::StopPasswordChange(int credential_id) {
-  CHECK(base::FeatureList::IsEnabled(
-      password_change::features::kPasswordChangeWithGlic));
   CHECK(web_contents_);
   auto it = password_change_from_checkup_delegates_.find(credential_id);
   if (it != password_change_from_checkup_delegates_.end() && it->second) {
-    it->second->Stop(actor::ActorTask::StoppedReason::kStoppedByUser);
     password_change_from_checkup_delegates_.erase(it);
   }
 }
 
 void PasswordManagerUIHandler::OpenPasswordChangeTab(int credential_id) {
-  CHECK(base::FeatureList::IsEnabled(
-      password_change::features::kPasswordChangeWithGlic));
   CHECK(web_contents_);
   auto it = password_change_from_checkup_delegates_.find(credential_id);
   if (it != password_change_from_checkup_delegates_.end() && it->second) {

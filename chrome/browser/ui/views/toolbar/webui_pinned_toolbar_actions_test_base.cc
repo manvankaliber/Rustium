@@ -41,26 +41,7 @@
 
 
 WebUIPinnedToolbarActionsTestBase::WebUIPinnedToolbarActionsTestBase()
-    : WebUIToolbarWebViewTestBase(
-          {features::kInitialWebUI, features::kWebUIPinnedToolbarActions,
-           // Enable another control to prevent WebView going to 0 width.
-           features::kWebUIReloadButton,
-           features::kSkipIPCChannelPausingForNonGuests,
-           features::kWebUIInProcessResourceLoadingV2,
-           // `WebUIPinnedToolbarActionsBrowserTest.LensOverlayResultsIcon`
-           // depends on `kRoundedIcons`.
-           features::kRoundedIcons,
-           // Facilitate testing kActionSidePanelShowComments
-           collaboration::features::kCollaborationComments,
-           // Facilitate testing kActionsSidePanelShowContextualTasks
-           contextual_tasks::kContextualTasks,
-           contextual_tasks::kContextualTasksForceEntryPointEligibility,
-           // Facilitate testing kActionSendSharedTabGroupFeedback
-           data_sharing::features::kDataSharingFeature,
-// Facilitate testing kActionSidePanelShowGlic
-           features::kGlic},
-          {}),
-      kActionMappings{
+    : kActionMappings{
           {kActionNewIncognitoWindow,
            toolbar_ui_api::mojom::PinnedToolbarAction::kNewIncognitoWindow},
           {kActionShowPasswordsBubbleOrPage,
@@ -86,9 +67,7 @@ WebUIPinnedToolbarActionsTestBase::WebUIPinnedToolbarActionsTestBase()
           {kActionClearBrowsingData,
            toolbar_ui_api::mojom::PinnedToolbarAction::kClearBrowsingData},
           {kActionPrint, toolbar_ui_api::mojom::PinnedToolbarAction::kPrint},
-          {kActionSidePanelShowLensOverlayResults,
-           toolbar_ui_api::mojom::PinnedToolbarAction::
-               kSidePanelShowLensOverlayResults},
+
           {kActionShowTranslate,
            toolbar_ui_api::mojom::PinnedToolbarAction::kShowTranslate},
           {kActionQrCodeGenerator,
@@ -117,9 +96,7 @@ WebUIPinnedToolbarActionsTestBase::WebUIPinnedToolbarActionsTestBase()
           {kActionSidePanelShowCustomizeChrome,
            toolbar_ui_api::mojom::PinnedToolbarAction::
                kSidePanelShowCustomizeChrome},
-          {kActionSidePanelShowShoppingInsights,
-           toolbar_ui_api::mojom::PinnedToolbarAction::
-               kSidePanelShowShoppingInsights},
+
           {kActionSidePanelShowMerchantTrust,
            toolbar_ui_api::mojom::PinnedToolbarAction::
                kSidePanelShowMerchantTrust},
@@ -128,8 +105,7 @@ WebUIPinnedToolbarActionsTestBase::WebUIPinnedToolbarActionsTestBase()
                kSendSharedTabGroupFeedback},
           {kActionSidePanelShowComments,
            toolbar_ui_api::mojom::PinnedToolbarAction::kSidePanelShowComments},
-          {kActionSidePanelShowGlic,
-           toolbar_ui_api::mojom::PinnedToolbarAction::kSidePanelShowGlic},
+
       } {
 }
 

@@ -41,7 +41,6 @@ gclient_gn_args = [
   'build_with_chromium',
   'checkout_clang_coverage_tools',
   'checkout_copybara',
-  'checkout_glic_e2e_tests',
   'checkout_mutter',
   'checkout_openxr',
   'checkout_src_internal',
@@ -106,7 +105,6 @@ vars = {
 
 
   # Checkout test code and archives for glic E2E tests.
-  'checkout_glic_e2e_tests': False,
 
   # By default, check out Meet GPU test asset bundles (~278MB) unless
   # checkout_configuration is set to "small".
@@ -2747,11 +2745,6 @@ deps = {
       'condition': 'checkout_src_internal',
   },
 
-  'src/chrome/browser/actor/resources/internal': {
-      'url': Var('chrome_git') + '/chrome/browser/actor/resources/internal.git' + '@' +
-        'a93269b6f5eaf301ee21a44c7d286cf9d029237c',
-      'condition': 'checkout_src_internal',
-  },
 
   'src/chrome/browser/cpu_performance_internal': {
       'url': Var('chrome_git') + '/chrome/browser/cpu_performance_internal.git' + '@' +
@@ -2765,17 +2758,7 @@ deps = {
       'condition': 'checkout_src_internal',
   },
 
-  'src/chrome/browser/glic/resources/internal': {
-      'url': Var('chrome_git') + '/chrome/browser/glic/resources/internal.git' + '@' +
-         '0edfdbec50d4175aa5319a12d953fda3993f342b',
-      'condition': 'checkout_src_internal',
-  },
 
-  'src/chrome/browser/glic/e2e_test/internal': {
-      'url': Var('chrome_git') + '/chrome/browser/glic/test/internal.git' + '@' +
-        '144f3ad5962e931dd2d23cefe052588368a2b748',
-      'condition': 'checkout_glic_e2e_tests',
-  },
 
   'src/chrome/browser/indigo/resources/internal': {
       'url': Var('chrome_git') + '/chrome/browser/indigo/resources/internal.git' + '@' +
@@ -3054,29 +3037,9 @@ deps = {
       'condition': 'checkout_src_internal',
   },
 
-  'src/remoting/host/installer/linux/internal': {
-      'url': Var('chrome_git') + '/chrome/remoting/host/installer/linux/internal.git' + '@' +
-        'e190816de75b14897f1af785eb37d237750460e2',
-      'condition': 'checkout_linux and checkout_src_internal',
-  },
 
-  'src/remoting/internal': {
-      'url': Var('chrome_git') + '/chrome/remoting/internal.git' + '@' +
-        '7bc731cf41888095bfaeda815c120ee781c05351',
-      'condition': 'checkout_src_internal',
-  },
 
-  'src/remoting/test/internal': {
-      'url': Var('chrome_git') + '/chrome/remoting/test/internal.git' + '@' +
-        '34ff3657e2176fc48a57fad555b076a50a409de6',
-      'condition': 'checkout_src_internal',
-  },
 
-  'src/remoting/tools/internal': {
-      'url': Var('chrome_git') + '/chrome/remoting/tools/internal.git' + '@' +
-        'acfed9c3a363694f37aadfb5cda4c31109661eb8',
-      'condition': 'checkout_src_internal',
-  },
 
   'src/services/shape_detection/internal': {
       'url': Var('chrome_git') + '/chrome/services/shape_detection.git' + '@' +

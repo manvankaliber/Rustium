@@ -515,7 +515,6 @@ void InternalsUIHandler::CheckAtMemoryPermissions(const base::ListValue& args) {
   } else if (action_str == "kRetrieveTravelDataForFilling") {
     action = AtMemoryAction::kRetrieveTravelDataForFilling;
   } else if (action_str == "kRetrieveShoppingDataForFilling") {
-    action = AtMemoryAction::kRetrieveShoppingDataForFilling;
   }
   // LINT.ThenChange(/components/autofill/core/browser/at_memory/at_memory_enablement_util.h:AtMemoryAction)
   if (!action.has_value()) {

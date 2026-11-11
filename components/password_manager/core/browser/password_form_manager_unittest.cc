@@ -255,7 +255,6 @@ class MockPasswordManagerClient : public StubPasswordManagerClient {
               GetAccountPasswordStore,
               (),
               (const, override));
-  MOCK_METHOD(bool, IsActorTaskActive, (), (override));
   MOCK_METHOD(void, OnPasswordFilled, (PasswordManagerDriver*), (override));
   MOCK_METHOD(void,
               PasswordWasAutofilled,

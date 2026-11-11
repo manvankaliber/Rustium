@@ -504,7 +504,6 @@ static_library("url_constants") {
     "//printing/buildflags",
   ]
   deps = [
-    "//components/commerce/core:commerce_constants",
     "//components/history_clusters/history_clusters_internals/webui:constants",
     "//components/lens:buildflags",
     "//components/optimization_guide/optimization_guide_internals/webui:url_constants",

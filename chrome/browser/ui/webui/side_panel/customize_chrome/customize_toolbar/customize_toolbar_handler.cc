@@ -90,8 +90,6 @@ MojoActionForChromeAction(actions::ActionId action_id) {
       return side_panel::customize_chrome::mojom::ActionId::kShowReadAnything;
     case kActionSidePanelShowReadingList:
       return side_panel::customize_chrome::mojom::ActionId::kShowReadingList;
-    case kActionSidePanelShowLensOverlayResults:
-      return side_panel::customize_chrome::mojom::ActionId::kShowLensOverlay;
     case kActionSidePanelShowSearchCompanion:
       return side_panel::customize_chrome::mojom::ActionId::
           kShowSearchCompanion;
@@ -160,8 +158,6 @@ std::optional<actions::ActionId> ChromeActionForMojoAction(
     case side_panel::customize_chrome::mojom::ActionId::
         kShowTabsFromOtherDevices:
       return kActionSidePanelShowTabsFromOtherDevices;
-    case side_panel::customize_chrome::mojom::ActionId::kShowLensOverlay:
-      return kActionSidePanelShowLensOverlayResults;
     case side_panel::customize_chrome::mojom::ActionId::kShowSearchCompanion:
       return kActionSidePanelShowSearchCompanion;
     case side_panel::customize_chrome::mojom::ActionId::kHome:
@@ -398,8 +394,6 @@ void CustomizeToolbarHandler::ListActions(ListActionsCallback callback) {
                side_panel::customize_chrome::mojom::CategoryId::kTools);
   }
   add_action(kActionTtcToolbar,
-             side_panel::customize_chrome::mojom::CategoryId::kTools);
-  add_action(kActionSidePanelShowLensOverlayResults,
              side_panel::customize_chrome::mojom::CategoryId::kTools);
   add_action(kActionSidePanelShowSearchCompanion,
              side_panel::customize_chrome::mojom::CategoryId::kTools);

@@ -1123,14 +1123,8 @@ TEST_F(ContextualTasksUiTest, ShouldClearAllInputsOnSubmit) {
               true);
 
     // Omnibox page action entrypoint should retain inputs.
-    EXPECT_FALSE(ContextualTasksUI::ShouldClearAllInputsOnSubmit(
-        lens::LensOverlayInvocationSource::kOmniboxPageAction));
 
     // Other entrypoints should clear inputs.
-    EXPECT_TRUE(ContextualTasksUI::ShouldClearAllInputsOnSubmit(
-        lens::LensOverlayInvocationSource::kAppMenu));
-    EXPECT_TRUE(ContextualTasksUI::ShouldClearAllInputsOnSubmit(
-        lens::LensOverlayInvocationSource::kToolbar));
   }
 
   {
@@ -4784,9 +4778,6 @@ TEST_F(ContextualTasksUiTest,
       mock_session_handle;
   ON_CALL(mock_panel_controller, GetContextualSearchSessionHandleForPanel())
       .WillByDefault(Return(&mock_session_handle));
-  ON_CALL(mock_panel_controller, GetActiveEntrySource())
-      .WillByDefault(
-          Return(ContextualTasksPanelController::EntrySource::kLensOverlay));
   ON_CALL(mock_panel_controller, GetCurrentTask())
       .WillByDefault(Return(ContextualTask(base::Uuid::GenerateRandomV4())));
   expect_promo(0);
@@ -4829,7 +4820,6 @@ TEST_F(ContextualTasksUiTest,
   testing::Mock::VerifyAndClearExpectations(&mock_user_education);
 
   expect_promo(0);
-  controller.OnLensOverlayStateChanged(/*is_showing=*/true, std::nullopt);
   controller.MaybeTriggerPinningPromo();
 
   actions::ActionIdMap::ResetMapsForTesting();

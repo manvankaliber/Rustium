@@ -45,8 +45,6 @@
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
 #include "chrome/browser/ui/contextual_search/desktop_query_contextualizer_delegate.h"
 #include "chrome/browser/ui/contextual_search/tab_contextualization_controller.h"
-#include "chrome/browser/ui/lens/lens_query_flow_router.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/tabs/public/tab_features.h"
 #include "chrome/browser/ui/webui/searchbox/searchbox_test_utils.h"
 #include "chrome/browser/ui/webui/webui_embedding_context.h"
@@ -187,7 +185,6 @@ class MockContextualTasksUI : public ContextualTasksUI {
   MOCK_METHOD(content::WebContents*, GetWebUIWebContents, (), (override));
   MOCK_METHOD(const std::optional<base::Uuid>&, GetTaskId, (), (override));
   MOCK_METHOD(BrowserWindowInterface*, GetBrowser, (), (override));
-  MOCK_METHOD(bool, IsLensOverlayShowing, (), (const, override));
   MOCK_METHOD(const GURL&, GetInnerFrameUrl, (), (const, override));
   MOCK_METHOD(std::unique_ptr<contextual_search::InputStateModel>,
               TakeInputStateModel,
@@ -211,14 +208,6 @@ class TestContextualTasksComposeboxHandler
  public:
   using ContextualTasksComposeboxHandler::ContextualTasksComposeboxHandler;
 
-  MOCK_METHOD(std::optional<base::UnguessableToken>,
-              GetLensOverlayToken,
-              (),
-              (override));
-  MOCK_METHOD(LensSearchController*,
-              GetLensSearchController,
-              (),
-              (const, override));
   MOCK_METHOD(void,
               OnContextUploadStatusChanged,
               (const base::UnguessableToken& context_token,
@@ -251,51 +240,13 @@ class TestContextualTasksComposeboxHandler
 
 class MockLensQueryFlowRouter : public lens::LensQueryFlowRouter {
  public:
-  explicit MockLensQueryFlowRouter(LensSearchController* controller)
-      : lens::LensQueryFlowRouter(controller) {}
   MOCK_METHOD(std::optional<base::UnguessableToken>,
               overlay_tab_context_file_token,
               (),
               (const, override));
 };
 
-class MockLensSearchController : public LensSearchController {
- public:
-  explicit MockLensSearchController(tabs::TabInterface* tab)
-      : LensSearchController(tab) {
-    mock_router_ =
-        std::make_unique<testing::NiceMock<MockLensQueryFlowRouter>>(this);
-  }
-  ~MockLensSearchController() override = default;
 
-  MOCK_METHOD(void,
-              OpenLensOverlay,
-              (lens::LensOverlayInvocationSource invocation_source,
-               bool should_show_csb),
-              (override));
-  MOCK_METHOD(void,
-              CloseLensSync,
-              (lens::LensOverlayDismissalSource dismissal_source),
-              (override));
-  MOCK_METHOD(void,
-              CloseLensAsync,
-              (lens::LensOverlayDismissalSource dismissal_source),
-              (override));
-  MOCK_METHOD(void,
-              CloseLensAsync,
-              (lens::LensOverlayDismissalSource dismissal_source,
-               bool side_panel_already_closing),
-              (override));
-
-  lens::LensQueryFlowRouter* query_router() override {
-    return mock_router_.get();
-  }
-
-  MockLensQueryFlowRouter* mock_router() { return mock_router_.get(); }
-
- private:
-  std::unique_ptr<MockLensQueryFlowRouter> mock_router_;
-};
 
 class ContextualTasksComposeboxHandlerTest
     : public LocalContextualSearchboxHandlerTestHarness {
@@ -445,8 +396,6 @@ class ContextualTasksComposeboxHandlerTest
                             base::Unretained(mock_ui_.get())),
         base::BindRepeating(&ContextualTasksUI::TakeInputStateModel,
                             base::Unretained(mock_ui_.get())));
-    ON_CALL(*handler_, GetLensSearchController())
-        .WillByDefault(testing::Return(mock_lens_controller_.get()));
     handler_->SetMockContextualTasksService(mock_contextual_tasks_service_ptr_);
     handler_->recontextualizer_ =
         std::make_unique<contextual_tasks::QueryContextualizer>(
@@ -480,8 +429,6 @@ class ContextualTasksComposeboxHandlerTest
             base::BindLambdaForTesting(
                 [this](tabs::TabInterface& tab)
                     -> std::unique_ptr<LensSearchController> {
-                  auto mock = std::make_unique<
-                      testing::NiceMock<MockLensSearchController>>(&tab);
                   this->mock_lens_controller_ = mock.get();
                   return mock;
                 }));
@@ -529,7 +476,6 @@ class ContextualTasksComposeboxHandlerTest
   raw_ptr<contextual_tasks::MockContextualTasksService>
       mock_contextual_tasks_service_ptr_ = nullptr;
 
-  raw_ptr<MockLensSearchController> mock_lens_controller_ = nullptr;
 
   testing::NiceMock<MockSearchboxPage> mock_searchbox_page_;
   mojo::Receiver<searchbox::mojom::Page> searchbox_page_receiver_{
@@ -574,8 +520,6 @@ class ContextualTasksComposeboxHandlerTestWithContextManagementEnabled
             base::BindLambdaForTesting(
                 [this](tabs::TabInterface& tab)
                     -> std::unique_ptr<LensSearchController> {
-                  auto mock = std::make_unique<
-                      testing::NiceMock<MockLensSearchController>>(&tab);
                   this->mock_lens_controller_ = mock.get();
                   return mock;
                 }));
@@ -596,10 +540,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest, SubmitQuery) {
   EXPECT_CALL(*mock_controller_, CreateClientToAimRequest(testing::_))
       .WillOnce(testing::Return(lens::ClientToAimMessage()));
   EXPECT_CALL(*mock_ui_, PostAimMessage(testing::_));
-  EXPECT_CALL(
-      *mock_lens_controller_,
-      CloseLensSync(
-          lens::LensOverlayDismissalSource::kContextualTasksQuerySubmitted));
 
   handler_->SubmitQuery("test query", 0, false, false, false, false,
                         /*is_voice_search=*/false);
@@ -608,16 +548,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest, SubmitQuery) {
                    "ContextualTasks.Composebox.UserAction.QuerySubmitted"));
 }
 
-IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
-                       CloseLensOverlayFromWebUI) {
-  EXPECT_CALL(*mock_lens_controller_,
-              CloseLensAsync(lens::LensOverlayDismissalSource::
-                                 kContextualTasksImageUploadsDisabled));
-
-  handler_->CloseLensOverlayFromWebUI(
-      composebox::mojom::LensOverlayDismissalSource::
-          kContextualTasksImageUploadsDisabled);
-}
 
 IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
                        CreateAndSendQueryMessage) {
@@ -790,8 +720,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
 
   EXPECT_CALL(*mock_ui_, GetTaskId())
       .WillRepeatedly(testing::ReturnRefOfCopy(std::optional<base::Uuid>()));
-  EXPECT_CALL(*handler_, GetLensOverlayToken())
-      .WillOnce(testing::Return(overlay_token));
 
   EXPECT_CALL(*mock_controller_, CreateClientToAimRequest(testing::_))
       .WillOnce([&kQuery, &overlay_token](
@@ -814,8 +742,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
 
   EXPECT_CALL(*mock_ui_, GetTaskId())
       .WillRepeatedly(testing::ReturnRefOfCopy(std::optional<base::Uuid>()));
-  EXPECT_CALL(*handler_, GetLensOverlayToken())
-      .WillOnce(testing::Return(std::nullopt));
 
   EXPECT_CALL(*mock_controller_, CreateClientToAimRequest(testing::_))
       .WillOnce([&kQuery](std::unique_ptr<
@@ -1504,10 +1430,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
   base::UserActionTester user_action_tester;
   base::HistogramTester histogram_tester;
 
-  EXPECT_CALL(
-      *mock_lens_controller_,
-      OpenLensOverlay(
-          lens::LensOverlayInvocationSource::kContextualTasksComposebox, true));
   handler_->HandleLensButtonClick();
 
   EXPECT_EQ(1, user_action_tester.GetActionCount(
@@ -2009,7 +1931,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
   uploading_info.mime_type = lens::MimeType::kPdf;
   uploading_info.tab_session_id =
       sessions::SessionTabHelper::IdForTab(active_tab->GetContents());
-  uploading_info.request_id = lens::LensOverlayRequestId();
   EXPECT_CALL(*mock_controller_, GetFileInfo(token))
       .WillRepeatedly(testing::Return(&uploading_info));
   // Do not submit request to server yet.
@@ -2251,7 +2172,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
   uploading_info.mime_type = lens::MimeType::kPdf;
   uploading_info.tab_session_id =
       sessions::SessionTabHelper::IdForTab(active_tab->GetContents());
-  uploading_info.request_id = lens::LensOverlayRequestId();
   EXPECT_CALL(*mock_controller_, GetFileInfo(token))
       .WillRepeatedly(testing::Return(&uploading_info));
   // Do not submit request to server yet.
@@ -2348,7 +2268,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
   uploading_info.mime_type = lens::MimeType::kPdf;
   uploading_info.tab_session_id =
       sessions::SessionTabHelper::IdForTab(active_tab->GetContents());
-  uploading_info.request_id = lens::LensOverlayRequestId();
   EXPECT_CALL(*mock_controller_, GetFileInfo(token))
       .WillRepeatedly(testing::Return(&uploading_info));
   // Do not submit request to server yet.
@@ -2467,7 +2386,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
       contextual_search::ContextUploadStatus::kProcessing;
   uploading_info.tab_session_id =
       sessions::SessionTabHelper::IdForTab(active_tab->GetContents());
-  uploading_info.request_id = lens::LensOverlayRequestId();
 
   EXPECT_CALL(*mock_controller_, GetFileInfo(testing::_))
       .WillRepeatedly(testing::Return(&uploading_info));
@@ -2548,7 +2466,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
       contextual_search::ContextUploadStatus::kProcessing;
   uploading_info.tab_session_id =
       sessions::SessionTabHelper::IdForTab(active_tab->GetContents());
-  uploading_info.request_id = lens::LensOverlayRequestId();
   EXPECT_CALL(*mock_controller_, GetFileInfo(*current_token))
       .WillRepeatedly(testing::Return(&uploading_info));
 
@@ -2688,7 +2605,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
   info_processing.upload_status =
       contextual_search::ContextUploadStatus::kProcessing;
   info_processing.tab_session_id = session_id;
-  info_processing.request_id = lens::LensOverlayRequestId();
   EXPECT_CALL(*mock_controller_, GetFileInfo(testing::_))
       .WillRepeatedly(testing::Return(&info_processing));
 
@@ -2895,7 +2811,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
   file_info_rB.upload_status =
       contextual_search::ContextUploadStatus::kProcessing;
   file_info_rB.tab_session_id = session_id;
-  file_info_rB.request_id = lens::LensOverlayRequestId();
   EXPECT_CALL(*mock_controller_, GetFileInfo(testing::_))
       .WillRepeatedly(testing::Return(&file_info_rB));
 
@@ -2951,14 +2866,8 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
           testing::ReturnRefOfCopy(std::optional<base::Uuid>(task_id)));
 
   // Mock GetLensOverlayToken to return a token.
-  EXPECT_CALL(*handler_, GetLensOverlayToken())
-      .WillOnce(testing::Return(overlay_token));
 
   // Expect CloseLensSync to be called.
-  EXPECT_CALL(
-      *mock_lens_controller_,
-      CloseLensSync(
-          lens::LensOverlayDismissalSource::kContextualTasksQuerySubmitted));
 
   // Expect GetContextForTask NOT to be called (recontextualization skipped).
   EXPECT_CALL(*mock_contextual_tasks_service_ptr_,
@@ -3015,13 +2924,7 @@ IN_PROC_BROWSER_TEST_F(
       .WillRepeatedly(
           testing::ReturnRefOfCopy(std::optional<base::Uuid>(task_id)));
 
-  EXPECT_CALL(*handler_, GetLensOverlayToken())
-      .WillOnce(testing::Return(overlay_token));
 
-  EXPECT_CALL(
-      *mock_lens_controller_,
-      CloseLensSync(
-          lens::LensOverlayDismissalSource::kContextualTasksQuerySubmitted));
 
   // Expect GetContextForTask TO be called because an upload is in progress.
   contextual_tasks::ContextualTask task(task_id);
@@ -3087,14 +2990,8 @@ IN_PROC_BROWSER_TEST_F(
   session_handle_->CreateContextToken();
 
   // Mock GetLensOverlayToken.
-  EXPECT_CALL(*handler_, GetLensOverlayToken())
-      .WillOnce(testing::Return(overlay_token));
 
   // Expect CloseLensSync.
-  EXPECT_CALL(
-      *mock_lens_controller_,
-      CloseLensSync(
-          lens::LensOverlayDismissalSource::kContextualTasksQuerySubmitted));
 
   // Expect GetContextForTask TO BE CALLED.
   contextual_tasks::ContextualTask task(task_id);
@@ -3141,14 +3038,8 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
           testing::ReturnRefOfCopy(std::optional<base::Uuid>(task_id)));
 
   // Mock GetLensOverlayToken to return nullopt.
-  EXPECT_CALL(*handler_, GetLensOverlayToken())
-      .WillOnce(testing::Return(std::nullopt));
 
   // Expect CloseLensSync to be called (it's always called).
-  EXPECT_CALL(
-      *mock_lens_controller_,
-      CloseLensSync(
-          lens::LensOverlayDismissalSource::kContextualTasksQuerySubmitted));
 
   // Expect GetContextForTask TO be called.
   contextual_tasks::ContextualTask task(task_id);
@@ -3498,31 +3389,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
             contextual_search::ContextUploadErrorType::kBrowserProcessingError);
 }
 
-IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
-                       OnContextUploadStatusChanged_LensOverlayToken_Ignored) {
-  base::UnguessableToken lens_token = base::UnguessableToken::Create();
-
-  EXPECT_CALL(*mock_lens_controller_->mock_router(),
-              overlay_tab_context_file_token())
-      .WillRepeatedly(testing::Return(lens_token));
-  EXPECT_CALL(mock_searchbox_page_, OnContextualInputStatusChanged(
-                                        testing::_, testing::_, testing::_))
-      .Times(0);
-
-  handler_->OnContextUploadStatusChanged(
-      lens_token, lens::MimeType::kUnknown,
-      contextual_search::ContextUploadStatus::kUploadSuccessful, std::nullopt);
-
-  // Verify that for a different token, it IS called.
-  base::UnguessableToken other_token = base::UnguessableToken::Create();
-  EXPECT_CALL(mock_searchbox_page_, OnContextualInputStatusChanged(
-                                        testing::_, testing::_, testing::_))
-      .Times(1);
-
-  handler_->OnContextUploadStatusChanged(
-      other_token, lens::MimeType::kUnknown,
-      contextual_search::ContextUploadStatus::kUploadSuccessful, std::nullopt);
-}
 
 IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
                        ActiveModelIsPassed) {
@@ -3565,7 +3431,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
   auto mock_session =
       std::make_unique<contextual_search::MockContextualSearchSessionHandle>();
 
-  lens::proto::LensOverlaySuggestInputs suggest_inputs;
 
   EXPECT_CALL(*mock_session, GetSuggestInputs())
       .WillRepeatedly(testing::Return(suggest_inputs));
@@ -3593,7 +3458,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksComposeboxHandlerTest,
   auto* client = static_cast<ContextualOmniboxClient*>(
       custom_handler->GetOmniboxClientForTesting());
 
-  auto result = client->GetLensOverlaySuggestInputsForTesting();
 
   ASSERT_TRUE(result.has_value());
 }
@@ -4365,8 +4229,6 @@ IN_PROC_BROWSER_TEST_F(
 
   const SessionID tab_session_id =
       sessions::SessionTabHelper::IdForTab(active_tab->GetContents());
-  session_handle_->SetPersistedTabs(
-      {{tab_session_id, {submitted_token, lens::LensOverlayRequestId()}}});
   session_handle_->set_deselected_tabs_urls(
       {{tab_session_id, {GURL("https://example.com"), "Example"}}});
   contextual_search::TabInfo restored_tab;
@@ -5142,7 +5004,6 @@ IN_PROC_BROWSER_TEST_F(
   uploaded_tab_info.file_token = *token_opt;
   uploaded_tab_info.tab_session_id = session_id;
   uploaded_tab_info.tab_url = kDriveUrl;
-  uploaded_tab_info.request_id = lens::LensOverlayRequestId();
   uploaded_tab_info.upload_status =
       contextual_search::ContextUploadStatus::kUploadSuccessful;
   ON_CALL(*mock_controller_, GetFileInfo(*token_opt))

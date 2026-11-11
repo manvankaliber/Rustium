@@ -10,7 +10,6 @@
 #include "build/build_config.h"
 #include "chrome/browser/accessibility/tree_fixing/pref_names.h"
 #include "chrome/browser/desktop_to_mobile_promos/promos_pref_names.h"
-#include "chrome/browser/glic/glic_pref_names.h"
 #include "chrome/browser/ui/read_anything/read_anything_prefs.h"
 #include "chrome/browser/ui/toolbar/toolbar_pref_names.h"
 #include "chrome/common/pref_names.h"
@@ -527,11 +526,7 @@ constexpr auto kChromeSyncablePrefsAllowlist = base::MakeFixedFlatMap<
       syncer::PREFERENCES, sync_preferences::PrefSensitivity::kNone,
       sync_preferences::MergeBehavior::kNone,
       sync_preferences::WriteBehavior::kWriteToBoth}},
-    {prefs::kLensRegionSearchEnabled,
-     {syncable_prefs_ids::kLensRegionSearchEnabled, syncer::PREFERENCES,
-      sync_preferences::PrefSensitivity::kNone,
-      sync_preferences::MergeBehavior::kNone,
-      sync_preferences::WriteBehavior::kWriteToBoth}},
+
     {prefs::kHatsSurveyMetadata,
      {syncable_prefs_ids::kHatsSurveyMetadata, syncer::PREFERENCES,
       sync_preferences::PrefSensitivity::kNone,
@@ -1101,8 +1096,7 @@ constexpr auto kChromeSyncablePrefsAllowlist = base::MakeFixedFlatMap<
       sync_preferences::MergeBehavior::kNone,
       sync_preferences::WriteBehavior::kWriteToBoth}},
     {promos_prefs::kDesktopToiOSPriceTrackingPromoLastImpressionTimestamp,
-     {syncable_prefs_ids::
-          kDesktopToiOSPriceTrackingPromoLastImpressionTimestamp,
+     {syncable_prefs_ids::kDesktopToiOSPriceTrackingPromoLastImpressionTimestamp,
       syncer::PREFERENCES, sync_preferences::PrefSensitivity::kNone,
       sync_preferences::MergeBehavior::kNone,
       sync_preferences::WriteBehavior::kWriteToBoth}},
@@ -1114,11 +1108,6 @@ constexpr auto kChromeSyncablePrefsAllowlist = base::MakeFixedFlatMap<
     {promos_prefs::kDesktopToiOSPriceTrackingPromoOptOut,
      {syncable_prefs_ids::kDesktopToiOSPriceTrackingPromoOptOut,
       syncer::PREFERENCES, sync_preferences::PrefSensitivity::kNone,
-      sync_preferences::MergeBehavior::kNone,
-      sync_preferences::WriteBehavior::kWriteToBoth}},
-    {glic::prefs::kGlicRolloutEligibility,
-     {syncable_prefs_ids::kGlicRolloutEligibility, syncer::PRIORITY_PREFERENCES,
-      sync_preferences::PrefSensitivity::kExemptFromUserControlWhileSignedIn,
       sync_preferences::MergeBehavior::kNone,
       sync_preferences::WriteBehavior::kWriteToBoth}},
 });

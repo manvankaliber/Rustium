@@ -109,7 +109,6 @@
 
 
 #include "chrome/browser/contextual_tasks/contextual_tasks_service_factory.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/webauthn/passkey_model_factory.h"
 
 namespace {
@@ -246,9 +245,7 @@ syncer::DataTypeController::TypeVector CreateCommonControllers(
           profile->GetProfileKey()));
 #endif  // BUILDFLAG(ENABLE_SUPERVISED_USERS)
   builder.SetUserEventService(UserEventServiceFactory::GetForProfile(profile));
-  builder.SetSkillsService(
-      skills::SkillsServiceFactory::GetForProfile(profile)
-  );
+  builder.SetSkillsService(nullptr);
   builder.SetNotebooksService(
       notebooks::NotebooksServiceFactory::GetForProfile(profile));
 
@@ -499,7 +496,6 @@ SyncServiceFactory::SyncServiceFactory()
   DependsOn(SecurityEventRecorderFactory::GetInstance());
   DependsOn(SendTabToSelfSyncServiceFactory::GetInstance());
   DependsOn(SharingMessageBridgeFactory::GetInstance());
-  DependsOn(skills::SkillsServiceFactory::GetInstance());
   DependsOn(SpellcheckServiceFactory::GetInstance());
   DependsOn(SyncInvalidationsServiceFactory::GetInstance());
   DependsOn(supervised_user::FamilyLinkSettingsServiceFactory::GetInstance());

@@ -51,25 +51,8 @@ constexpr auto kPageActionProperties = base::MakeFixedFlatMap<
         },
     },
 
-    {
-        kActionSidePanelShowLensOverlayResults,
-        {
-            .histogram_name = "LensOverlay",
-            .type = PageActionIconType::kLensOverlay,
-            .priority =
-                page_actions::PageActionPriorityCategory::kStrategicPromotion,
-        },
-    },
-    {
-        kActionLensOverlayHomework,
-        {
-            .histogram_name = "LensOverlayHomework",
-            .type = PageActionIconType::kLensOverlayHomework,
-            .element_identifier = kLensOverlayHomeworkPageActionIconElementId,
-            .priority =
-                page_actions::PageActionPriorityCategory::kStrategicPromotion,
-        },
-    },
+
+
     {
         kActionShowTranslate,
         {
@@ -155,24 +138,8 @@ constexpr auto kPageActionProperties = base::MakeFixedFlatMap<
             .priority = page_actions::PageActionPriorityCategory::kQuietUtility,
         },
     },
-    {
-        kActionCommercePriceInsights,
-        {
-            .histogram_name = "PriceInsights",
-            .type = PageActionIconType::kPriceInsights,
-            .element_identifier = kPriceInsightsChipElementId,
-            .priority = page_actions::PageActionPriorityCategory::kUnknown,
-        },
-    },
-    {
-        kActionCommerceDiscounts,
-        {
-            .histogram_name = "Discounts",
-            .type = PageActionIconType::kDiscounts,
-            .element_identifier = kDiscountsChipElementId,
-            .priority = page_actions::PageActionPriorityCategory::kQuietUtility,
-        },
-    },
+
+
     {
         kActionShowPasswordsBubbleOrPage,
         {
@@ -288,13 +255,7 @@ constexpr auto kPageActionProperties = base::MakeFixedFlatMap<
                 kSecurityTrustAndPermissions,
         },
     },
-    {
-        kActionGlicContextualCueing,
-        {
-            .histogram_name = "Glic",
-            .type = PageActionIconType::kGlic,
-        },
-    },
+
     {
         kActionAnchoredContextualCue,
         {

@@ -93,7 +93,6 @@
 #include "chrome/grit/new_tab_shared_resources.h"
 #include "chrome/grit/new_tab_shared_resources_map.h"
 #include "chrome/grit/theme_resources.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/contextual_search/contextual_search_metrics_recorder.h"
 #include "components/contextual_search/contextual_search_service.h"
@@ -292,9 +291,6 @@ base::DictValue NewTabPageUI::GetLoadTimeData(
       base::NumberToString(omnibox::DESKTOP_CHROME_NTP_THREADS_ENTRY_POINT));
   threads_url =
       net::AppendQueryParameter(threads_url, "atvm", kAIMThreadsVisibilityMode);
-  threads_url = lens::AppendInvocationSourceParamToURL(
-      threads_url, lens::LensOverlayInvocationSource::kNtpContextualQuery,
-      /*is_contextual_tasks=*/true);
   dict.Set("threadsUrl", threads_url.spec());
 
   GURL expanded_lhs_url = google_base_url.Resolve(kLhsRelativeUrl);
@@ -1442,8 +1438,10 @@ NewTabPageUI::GetOrCreateContextualSessionHandle() {
           lens::LensOverlayInvocationSource::kNtpContextualQuery);
       // TODO(crbug.com/469875247): Determine what to do with the return value
       // of this call, or move this call to a different location.
-      shared_session_handle_->CheckSearchContentSharingSettings(
-          profile_->GetPrefs());
+      if (shared_session_handle_) {
+        shared_session_handle_->CheckSearchContentSharingSettings(
+            profile_->GetPrefs());
+      }
     }
   }
   return shared_session_handle_.get();

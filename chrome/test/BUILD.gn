@@ -51,7 +51,7 @@ import("//mojo/public/tools/bindings/mojom.gni")
 import("//net/features.gni")
 import("//pdf/features.gni")
 import("//printing/buildflags/buildflags.gni")
-import("//remoting/remoting_enable.gni")
+
 import("//rlz/buildflags/buildflags.gni")
 import("//services/screen_ai/buildflags/features.gni")
 import("//testing/libfuzzer/fuzzer_test.gni")
@@ -85,7 +85,6 @@ group("test") {
 group("test_support") {
   testonly = true
   public_deps = [
-    "//chrome/browser/glic/public:provider_features",
     "//chrome/browser/notifications:test_support",
     "//chrome/browser/origin_trials",
     "//chrome/browser/performance_manager:test_support",
@@ -377,7 +376,6 @@ script_test("telemetry_gpu_integration_test") {
     "//content/test:telemetry_gpu_integration_test_support",
     "//tools/perf/chrome_telemetry_build:telemetry_chrome_test",
   ]
-
 }
 
 # Tests that are included in both browser_tests and android_browsertests.
@@ -444,8 +442,6 @@ test("browser_tests") {
     "//chrome/browser:core_browser_tests",
     "//chrome/browser/accessibility:browser_tests",
     "//chrome/browser/accessibility/phrase_segmentation:browser_tests",
-    "//chrome/browser/actor:browser_tests",
-    "//chrome/browser/actor/ui:browser_tests",
     "//chrome/browser/ai:browser_tests",
     "//chrome/browser/autocomplete:browser_tests",
     "//chrome/browser/autofill:browser_tests",
@@ -491,7 +487,6 @@ test("browser_tests") {
     "//chrome/browser/file_system_access:browser_tests",
     "//chrome/browser/first_run:browser_tests",
     "//chrome/browser/geolocation:browser_tests",
-    "//chrome/browser/glic:browser_tests",
     "//chrome/browser/headless:browser_tests",
     "//chrome/browser/heavy_ad_intervention:browser_tests",
     "//chrome/browser/hid:browser_tests",
@@ -562,12 +557,10 @@ test("browser_tests") {
     "//chrome/browser/search_engines:browser_tests",
     "//chrome/browser/send_tab_to_self:browser_tests",
     "//chrome/browser/serial:browser_tests",
-    "//chrome/browser/sharing/glic_experimental_triggering:browser_tests",
     "//chrome/browser/signin:browser_tests",
     "//chrome/browser/signin/e2e_tests:browser_tests",
     "//chrome/browser/site_isolation:browser_tests",
     "//chrome/browser/site_token_provider:browser_tests",
-    "//chrome/browser/skills:browser_tests",
     "//chrome/browser/speech:browser_tests",
     "//chrome/browser/ssl:browser_tests",
     "//chrome/browser/storage:browser_tests",
@@ -650,7 +643,6 @@ test("browser_tests") {
     "//chrome/browser/ui/views/side_panel:browser_tests",
     "//chrome/browser/ui/views/storage:browser_tests",
     "//chrome/browser/ui/views/tabs:browser_tests",
-    "//chrome/browser/ui/views/tabs/glic:browser_tests",
     "//chrome/browser/ui/views/tabs/groups:browser_tests",
     "//chrome/browser/ui/views/tabs/hovercard:browser_tests",
     "//chrome/browser/ui/views/tabs/vertical:browser_tests",
@@ -669,7 +661,6 @@ test("browser_tests") {
     "//chrome/browser/ui/webui/autofill_and_password_manager_internals:browser_tests",
     "//chrome/browser/ui/webui/autofill_ml_internals:browser_tests",
     "//chrome/browser/ui/webui/bookmarks:browser_tests",
-    "//chrome/browser/ui/webui/commerce:browser_tests",
     "//chrome/browser/ui/webui/content_settings:browser_tests",
     "//chrome/browser/ui/webui/craft:browser_tests",
     "//chrome/browser/ui/webui/customize_buttons:browser_tests",
@@ -1078,13 +1069,11 @@ test("browser_tests") {
       "//chrome/browser/ui/file_system_access:browser_tests",
       "//chrome/browser/ui/find_bar:browser_tests",
       "//chrome/browser/ui/global_error:browser_tests",
-      "//chrome/browser/ui/lens:browser_tests",
       "//chrome/browser/ui/media_router:browser_tests",
       "//chrome/browser/ui/toasts:browser_tests",
       "//chrome/browser/ui/views/accessibility:dump_accessibility_events_views_browsertest_base",
       "//chrome/browser/ui/views/bookmarks:browser_tests",
       "//chrome/browser/ui/views/bookmarks/saved_tab_groups:browser_tests",
-      "//chrome/browser/ui/views/commerce:browser_tests",
       "//chrome/browser/ui/views/desktop_capture:browser_tests",
       "//chrome/browser/ui/views/exclusive_access:browser_tests",
       "//chrome/browser/ui/views/global_media_controls:browser_tests",
@@ -1237,7 +1226,6 @@ script_test("telemetry_perf_unittests") {
     ":telemetry_perf_unittests_base",
     "//tools/perf",
   ]
-
 }
 
 group("telemetry_perf_tests_base") {
@@ -1417,12 +1405,9 @@ test("unit_tests") {
     "//chrome/app:unit_tests",
     "//chrome/browser:core_unit_tests",
     "//chrome/browser/accessibility:unit_tests",
-    "//chrome/browser/actor:unit_tests",
-    "//chrome/browser/actor/ui:unit_tests",
     "//chrome/browser/apps:unit_tests",
     "//chrome/browser/autocomplete:unit_tests",
     "//chrome/browser/autofill:unit_tests",
-    "//chrome/browser/background/glic:unit_tests",
     "//chrome/browser/background_fetch:unit_tests",
     "//chrome/browser/background_sync:unit_tests",
     "//chrome/browser/battery:unit_tests",
@@ -1485,7 +1470,6 @@ test("unit_tests") {
     "//chrome/browser/feedback:unit_tests",
     "//chrome/browser/file_system_access:unit_tests",
     "//chrome/browser/gcm:unit_tests",
-    "//chrome/browser/glic:unit_tests",
     "//chrome/browser/google:unit_tests",
     "//chrome/browser/hid:unit_tests",
     "//chrome/browser/history:unit_tests",
@@ -1510,8 +1494,6 @@ test("unit_tests") {
     "//chrome/browser/page_content_annotations:unit_tests",
     "//chrome/browser/page_load_metrics:unit_tests",
     "//chrome/browser/password_manager:unit_tests",
-    "//chrome/browser/password_manager/actor_login:unit_tests",
-    "//chrome/browser/password_manager/actor_login/internal:unit_tests",
     "//chrome/browser/password_manager/ode:unit_tests",
     "//chrome/browser/payments:unittests",
     "//chrome/browser/performance_manager:unit_tests",
@@ -1672,7 +1654,6 @@ test("unit_tests") {
     deps += [
       "//chrome/browser/accessibility/live_caption:unit_tests",
       "//chrome/browser/multistep_filter:unit_tests",
-      "//chrome/browser/skills:unit_tests",
       "//chrome/browser/ui/read_anything:unit_tests",
       "//chrome/browser/ui/webui/multistep_filter_internals:unit_tests",
       "//chrome/browser/ui/webui/settings/search:unit_tests",
@@ -1812,9 +1793,6 @@ test("unit_tests") {
     "//chrome/browser/feedback/report_unsafe_site:unit_tests",
     "//chrome/browser/first_run:unit_tests",
     "//chrome/browser/geolocation:unit_tests",
-    "//chrome/browser/glic/browser_ui/activity_list_bubble:unit_tests",
-    "//chrome/browser/glic/selection:unit_tests",
-    "//chrome/browser/glic/suggestions:unit_tests",
     "//chrome/browser/indigo:unit_tests",
     "//chrome/browser/lifetime:unit_tests",
     "//chrome/browser/metrics/critical_user_journeys:unit_tests",
@@ -1893,7 +1871,6 @@ test("unit_tests") {
     "//chrome/browser/ui/webui/app_management:unit_tests",
     "//chrome/browser/ui/webui/bookmarks:unit_tests",
     "//chrome/browser/ui/webui/browser_command:unit_tests",
-    "//chrome/browser/ui/webui/commerce:unit_tests",
     "//chrome/browser/ui/webui/critical_actions:unit_tests",
     "//chrome/browser/ui/webui/data_sharing:unit_tests",
     "//chrome/browser/ui/webui/feedback:unit_tests",
@@ -1916,7 +1893,6 @@ test("unit_tests") {
     "//chrome/browser/ui/webui/side_panel/read_anything:unit_tests",
     "//chrome/browser/ui/webui/side_panel/reading_list:unit_tests",
     "//chrome/browser/ui/webui/signin:unit_tests",
-    "//chrome/browser/ui/webui/skills:unit_tests",
     "//chrome/browser/ui/webui/support_tool:unit_tests",
     "//chrome/browser/ui/webui/tab_search:unit_tests",
     "//chrome/browser/ui/webui/user_education:unit_tests",
@@ -1962,7 +1938,6 @@ test("unit_tests") {
     "//chrome/browser/companion/text_finder:unit_tests",
     "//chrome/browser/error_reporting:unit_test",
     "//chrome/browser/importer:unit_tests",
-    "//chrome/browser/lens:unit_tests",
     "//chrome/browser/notebooks:unit_tests",
     "//chrome/browser/omnibox:unit_tests",
     "//chrome/browser/profile_resetter:unit_tests",
@@ -1975,7 +1950,6 @@ test("unit_tests") {
     "//chrome/browser/themes:unit_tests",
     "//chrome/browser/ui/actions:unit_tests",
     "//chrome/browser/ui/color:unit_tests",
-    "//chrome/browser/ui/commerce:unit_tests",
     "//chrome/browser/ui/content_settings:unit_tests",
     "//chrome/browser/ui/exclusive_access:unit_tests",
     "//chrome/browser/ui/global_error:unit_tests",
@@ -1983,7 +1957,6 @@ test("unit_tests") {
     "//chrome/browser/ui/hats:unit_tests",
     "//chrome/browser/ui/hid:unit_tests",
     "//chrome/browser/ui/javascript_dialogs:unit_tests",
-    "//chrome/browser/ui/lens:unit_tests",
     "//chrome/browser/ui/media_router:unit_tests",
     "//chrome/browser/ui/omnibox:unit_tests",
     "//chrome/browser/ui/qrcode_generator:unit_tests",
@@ -2224,7 +2197,6 @@ test("unit_tests") {
       "//chrome/browser/ui/views:unit_tests",
       "//chrome/browser/ui/views/apps/app_info_dialog:unit_tests",
       "//chrome/browser/ui/views/bookmarks:unit_tests",
-      "//chrome/browser/ui/views/commerce:unit_tests",
       "//chrome/browser/ui/views/context_hub:unit_tests",
       "//chrome/browser/ui/views/controls:unit_tests",
       "//chrome/browser/ui/views/desktop_capture:unit_tests",
@@ -2276,10 +2248,6 @@ test("unit_tests") {
     if (use_aura) {
       deps += [ "//chrome/browser/ui/views/apps:unit_tests" ]
     }
-  }
-
-  if (enable_lens_desktop_google_branded_features) {
-    deps += [ "//chrome/browser/ui/views/lens:unit_tests" ]
   }
 
   if (is_win || is_linux || is_mac) {
@@ -2443,14 +2411,12 @@ test("interactive_ui_tests") {
   ldflags = []
 
   deps = [
-    "//chrome/browser/actor/ui:interactive_ui_tests",
     "//chrome/browser/ai:interactive_ui_tests",
     "//chrome/browser/autofill:interactive_ui_tests",
     "//chrome/browser/contextual_tasks:interactive_ui_tests",
     "//chrome/browser/devtools:interactive_ui_tests",
     "//chrome/browser/dictation:interactive_ui_tests",
     "//chrome/browser/feedback:interactive_ui_tests",
-    "//chrome/browser/glic/browser_ui/activity_list_bubble:interactive_ui_tests",
     "//chrome/browser/headless:interactive_ui_tests",
     "//chrome/browser/media/webrtc:interactive_ui_tests",
     "//chrome/browser/metrics/critical_user_journeys:interactive_ui_tests",
@@ -2477,7 +2443,6 @@ test("interactive_ui_tests") {
     "//chrome/browser/ui/extensions:interactive_ui_tests",
     "//chrome/browser/ui/find_bar:interactive_ui_tests",
     "//chrome/browser/ui/hung_renderer:interactive_ui_tests",
-    "//chrome/browser/ui/lens:interactive_ui_tests",
     "//chrome/browser/ui/omnibox:interactive_ui_tests",
     "//chrome/browser/ui/read_anything:interactive_ui_tests",
     "//chrome/browser/ui/search:interactive_ui_tests",
@@ -2524,7 +2489,6 @@ test("interactive_ui_tests") {
     "//chrome/browser/ui/webui/side_panel/customize_chrome:interactive_ui_tests",
     "//chrome/browser/ui/webui/side_panel/customize_chrome/wallpaper_search:interactive_ui_tests",
     "//chrome/browser/ui/webui/side_panel/read_anything:interactive_ui_tests",
-    "//chrome/browser/ui/webui/skills:interactive_ui_tests",
     "//chrome/browser/ui/webui/whats_new:interactive_ui_tests",
     "//chrome/browser/ui/webui_browser:interactive_ui_tests",
     "//chrome/browser/web_applications:interactive_ui_tests",
@@ -2605,7 +2569,6 @@ test("interactive_ui_tests") {
       "//chrome/browser/ui/user_education:interactive_ui_tests",
       "//chrome/browser/ui/views/bookmarks:interactive_ui_tests",
       "//chrome/browser/ui/views/bookmarks/saved_tab_groups:interactive_ui_tests",
-      "//chrome/browser/ui/views/commerce:interactive_ui_tests",
       "//chrome/browser/ui/views/data_sharing:interactive_ui_tests",
       "//chrome/browser/ui/views/exclusive_access:interactive_ui_tests",
       "//chrome/browser/ui/views/fullscreen_control:interactive_ui_tests",
@@ -2706,17 +2669,9 @@ test("interactive_ui_tests") {
 
   deps += [
     "//chrome/browser:core_interactive_ui_tests",
-    "//chrome/browser/actor:interactive_ui_tests",
-    "//chrome/browser/background/glic:interactive_ui_tests",
-    "//chrome/browser/glic:interactive_ui_tests",
-    "//chrome/browser/indigo:interactive_ui_tests",
-    "//chrome/browser/skills:interactive_ui_tests",
-  ]
-  data_deps += [
-    "//chrome/browser/background/glic:interactive_ui_tests",
-    "//chrome/browser/glic:interactive_ui_tests",
     "//chrome/browser/indigo:interactive_ui_tests",
   ]
+  data_deps += [ "//chrome/browser/indigo:interactive_ui_tests" ]
 
   deps += [
     "//chrome/browser/media/router/discovery/access_code:interactive_ui_tests",
@@ -2966,8 +2921,6 @@ script_test("telemetry_unittests") {
     # For isolate contract.
     "//testing:test_scripts_shared",
   ]
-
-
 }
 
 group("telemetry_gpu_unittests_run") {

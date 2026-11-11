@@ -52,7 +52,6 @@
 #include "chrome/browser/tab_group_sync/tab_group_sync_service_factory.h"
 #include "chrome/browser/translate/chrome_translate_client.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_pedal_implementations.h"
 #include "chrome/browser/ui/omnibox/omnibox_tab_helper.h"
 #include "chrome/common/chrome_features.h"
@@ -120,8 +119,6 @@
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"  // nogncheck crbug.com/40147906
 #include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"  // nogncheck crbug.com/40147906
-#include "chrome/browser/ui/lens/lens_search_controller.h"
-#include "chrome/browser/ui/lens/lens_searchbox_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_next_features.h"
 #include "chrome/browser/ui/tabs/public/tab_features.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
@@ -158,19 +155,7 @@ content::WebContents* GetWebContents(
   return web_contents_getter ? web_contents_getter.Run() : nullptr;
 }
 
-LensSearchController* GetLensSearchController(
-    content::WebContents* web_contents) {
-  return web_contents ? LensSearchController::FromTabWebContents(web_contents)
-                      : nullptr;
-}
 
-lens::LensSearchboxController* GetLensSearchboxController(
-    content::WebContents* web_contents) {
-  if (auto* lens_search_controller = GetLensSearchController(web_contents)) {
-    return lens_search_controller->lens_searchbox_controller();
-  }
-  return nullptr;
-}
 
 constexpr std::string_view kEnglishLanguageCode = "en";
 constexpr std::string kEnglishExpansionCountryCodes[] = {"au", "ca", "gb",
@@ -607,27 +592,11 @@ bool ChromeAutocompleteProviderClient::IsSharingHubAvailable() const {
 }
 
 bool ChromeAutocompleteProviderClient::IsLensEnabled() const {
-  if (auto* lens_search_controller =
-          GetLensSearchController(GetWebContents(web_contents_getter_))) {
-    // Guaranteed to exist if lens_search_controller is not null.
-    return lens::LensOverlayEntryPointController::From(
-               lens_search_controller->GetTabInterface()
-                   ->GetBrowserWindowInterface())
-        ->IsEnabled();
-  }
 
   return false;
 }
 
 bool ChromeAutocompleteProviderClient::AreLensEntrypointsVisible() const {
-  if (auto* lens_search_controller =
-          GetLensSearchController(GetWebContents(web_contents_getter_))) {
-    // Guaranteed to exist if lens_search_controller is  not null.
-    return lens::LensOverlayEntryPointController::From(
-               lens_search_controller->GetTabInterface()
-                   ->GetBrowserWindowInterface())
-        ->AreVisible();
-  }
   return false;
 }
 
@@ -662,22 +631,20 @@ bool ChromeAutocompleteProviderClient::IsOmniboxNextAimPopupEnabled() const {
 }
 
 bool ChromeAutocompleteProviderClient::IsGeminiStarterPackEnabled() const {
-  return AutocompleteProviderClient::IsGeminiStarterPackEnabled() &&
-         profile_->GetPrefs()->GetInteger(
-             optimization_guide::prefs::kGeminiSettings) == 0;
+  return false;
 }
+
 
 base::CallbackListSubscription
 ChromeAutocompleteProviderClient::GetLensSuggestInputsWhenReady(
     LensOverlaySuggestInputsCallback callback) const {
-  if (auto* lens_searchbox_controller =
-          GetLensSearchboxController(GetWebContents(web_contents_getter_))) {
-    return lens_searchbox_controller->GetLensSuggestInputsWhenReady(
-        std::move(callback));
-  }
   std::move(callback).Run(std::nullopt);
   return {};
 }
+
+void ChromeAutocompleteProviderClient::OpenLensOverlay(
+    bool show,
+    lens::LensOverlayInvocationSource invocation_source) {}
 
 base::WeakPtr<AutocompleteProviderClient>
 ChromeAutocompleteProviderClient::GetWeakPtr() {
@@ -732,59 +699,10 @@ bool ChromeAutocompleteProviderClient::OpenJourneys(const std::string& query) {
 }
 
 bool ChromeAutocompleteProviderClient::ShouldOpenCoBrowsePanel() const {
-  // The CoBrowse side panel depends on sharing the current tab, so don't open
-  // it when tab sharing isn't supported.
-  if (!omnibox::AreContextualTasksEligible(profile_) ||
-      !contextual_tasks::IsTabSharingEligible(profile_)) {
-    return false;
-  }
-
-  return omnibox::kAskGCoBrowse.Get() ||
-         omnibox::kAskGCoBrowseWithVisualSelection.Get();
+  return false;
 }
 
-void ChromeAutocompleteProviderClient::OpenCoBrowsePanel() {
-  content::WebContents* web_contents = GetWebContents(web_contents_getter_);
-  auto* tab = web_contents
-                  ? tabs::TabInterface::MaybeGetFromContents(web_contents)
-                  : nullptr;
-  if (auto* lens_controller = LensSearchController::From(tab)) {
-    lens_controller->StartZeroStateSessionInSidePanel(
-        omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_COBROWSE_OMNIBOX_ACTION,
-        lens::LensOverlayInvocationSource::kOmniboxPageAction,
-        /*open_lens_overlay=*/omnibox::kAskGCoBrowseWithVisualSelection.Get());
-
-    // Focus the side panel so that focus is not left on the omnibox.
-    BrowserWindowInterface* bwi =
-        tab ? tab->GetBrowserWindowInterface() : nullptr;
-    if (auto* controller =
-            contextual_tasks::ContextualTasksPanelController::From(bwi)) {
-      if (auto* side_panel_contents = controller->GetActiveWebContents()) {
-        side_panel_contents->Focus();
-      }
-    }
-  }
-}
-
-void ChromeAutocompleteProviderClient::OpenLensOverlay(
-    bool show,
-    lens::LensOverlayInvocationSource invocation_source) {
-  if (auto* lens_search_controller =
-          GetLensSearchController(GetWebContents(web_contents_getter_))) {
-    if (show) {
-      // Force showing the contextual search box in the Lens Overlay, unless
-      // kAskGLensChipRoute is enabled.
-      bool show_csb = !omnibox::kAskGLensChipRoute.Get();
-      lens_search_controller->OpenLensOverlay(invocation_source, show_csb);
-    } else {
-      // TODO(crbug.com/402497756): For prototyping, reusing the existing
-      // omnibox entry point. However, for production, create a new invocation
-      // source for this new entry point.
-      lens_search_controller->StartContextualization(
-          lens::LensOverlayInvocationSource::kOmnibox);
-    }
-  }
-}
+void ChromeAutocompleteProviderClient::OpenCoBrowsePanel() {}
 
 void ChromeAutocompleteProviderClient::IssueContextualSearchRequest(
     const GURL& destination_url,
@@ -792,16 +710,6 @@ void ChromeAutocompleteProviderClient::IssueContextualSearchRequest(
     bool is_zero_prefix_suggestion) {
   if (auto* web_contents = GetWebContents(web_contents_getter_)) {
     web_contents->Focus();
-    if (auto* lens_search_controller = GetLensSearchController(web_contents)) {
-      bool grant_session_permission =
-          base::FeatureList::IsEnabled(
-              omnibox::kWebUIOmniboxAskGAboutThisPage) &&
-          omnibox::kAskGBypassPrivacyNotice.Get();
-      lens_search_controller->IssueContextualSearchRequest(
-          lens::LensOverlayInvocationSource::kOmniboxContextualSuggestion,
-          destination_url, match_type, is_zero_prefix_suggestion,
-          grant_session_permission);
-    }
   }
 }
 

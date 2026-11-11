@@ -13,7 +13,6 @@
 #include "base/metrics/histogram_functions.h"
 #include "build/build_config.h"
 #include "chrome/app/chrome_command_ids.h"
-#include "chrome/browser/glic/browser_ui/glic_nudge_controller.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/omnibox/omnibox_context_menu_controller.h"
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_web_ui_controller.h"
@@ -190,22 +189,12 @@ void OmniboxContextMenu::RunMenuAt(const gfx::Point& point,
   if (!browser_window_interface) {
     return;
   }
-  auto* glic_nudge_controller =
-      glic::GlicNudgeController::From(browser_window_interface);
-  if (!glic_nudge_controller) {
-    return;
-  }
   auto* active_tab_interface =
       browser_window_interface->GetActiveTabInterface();
   if (!active_tab_interface) {
     return;
   }
 
-  glic_nudge_controller->UpdateNudgeLabel(
-      browser_window_interface->GetActiveTabInterface()->GetContents(), "",
-      std::nullopt,
-      glic::GlicNudgeActivity::kNudgeIgnoredOmniboxContextMenuInteraction,
-      base::DoNothing());
 }
 
 void OmniboxContextMenu::Cancel() {

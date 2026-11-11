@@ -60,7 +60,6 @@
 #include "components/bookmarks/browser/bookmark_model.h"
 #include "components/bookmarks/test/bookmark_test_helpers.h"
 #include "components/browser_sync/browser_sync_switches.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/data_sharing/public/features.h"
 #include "components/gcm_driver/fake_gcm_profile_service.h"
 #include "components/gcm_driver/gcm_profile_service.h"

@@ -6,8 +6,6 @@
 
 #include "base/no_destructor.h"
 #include "build/build_config.h"
-#include "components/commerce/core/proto/persisted_state_db_content.pb.h"
-
 SessionProtoDBFactory<persisted_state_db::PersistedStateContentProto>*
 GetPersistedStateSessionProtoDBFactory() {
   static base::NoDestructor<
@@ -23,22 +21,8 @@ SessionProtoDBFactory<
   return GetPersistedStateSessionProtoDBFactory();
 }
 
-SessionProtoDBFactory<
-    commerce_subscription_db::CommerceSubscriptionContentProto>*
-GetCommerceSubscriptionSessionProtoDBFactory() {
-  static base::NoDestructor<SessionProtoDBFactory<
-      commerce_subscription_db::CommerceSubscriptionContentProto>>
-      instance;
-  return instance.get();
-}
 
 template <>
-SessionProtoDBFactory<
-    commerce_subscription_db::CommerceSubscriptionContentProto>*
-SessionProtoDBFactory<
-    commerce_subscription_db::CommerceSubscriptionContentProto>::GetInstance() {
-  return GetCommerceSubscriptionSessionProtoDBFactory();
-}
 
 SessionProtoDBFactory<parcel_tracking_db::ParcelTrackingContent>*
 GetParcelTrackingSessionProtoDBFactory() {

@@ -18,7 +18,7 @@
 
 // Desktop UI Handler for chrome://actor-internals/
 class ActorInternalsUIHandler
-    : public actor::AggregatedJournal::Observer,
+    :
       public actor_internals::ActorInternalsHandler::Delegate,
       public ui::SelectFileDialog::Listener {
  public:
@@ -33,8 +33,6 @@ class ActorInternalsUIHandler
   ~ActorInternalsUIHandler() override;
 
   // AggregatedJournalObserver implementation:
-  void WillAddJournalEntry(
-      const actor::AggregatedJournal::Entry& entry) override;
 
   // actor_internals::ActorInternalsHandler::Delegate:
   void StartLogging() override;
@@ -47,10 +45,8 @@ class ActorInternalsUIHandler
  private:
   void TraceFileInitDone(bool success);
 
-  actor::AggregatedJournal& GetJournal();
 
   raw_ptr<content::WebContents> web_contents_;
-  std::unique_ptr<actor::AggregatedJournalFileSerializer> trace_logger_;
   scoped_refptr<ui::SelectFileDialog> select_file_dialog_;
 
   std::unique_ptr<actor_internals::ActorInternalsHandler> handler_;

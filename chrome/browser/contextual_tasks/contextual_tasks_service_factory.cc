@@ -10,7 +10,6 @@
 #include "base/no_destructor.h"
 #include "build/buildflag.h"
 #include "chrome/browser/favicon/favicon_service_factory.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
@@ -147,7 +146,7 @@ ContextualTasksServiceFactory::BuildServiceInstanceForBrowserContext(
       base::BindRepeating(&GetNumberOfActiveTasks, profile),
       base::BindRepeating(
           [](Profile* profile) -> bool {
-            return glic::GlicEnabling::IsEnabledForProfile(profile);
+            return false;
           },
           profile));
 }

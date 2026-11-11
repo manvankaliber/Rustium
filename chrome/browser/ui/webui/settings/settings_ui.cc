@@ -20,17 +20,11 @@
 #include "build/build_config.h"
 #include "chrome/browser/browser_features.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/commerce/shopping_service_factory.h"
 #include "chrome/browser/compose/compose_enabling.h"
 #include "chrome/browser/contextual_cueing/features.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_context_service.h"
 #include "chrome/browser/dictation/dictation_keyed_service.h"
 #include "chrome/browser/dictation/features.h"
-#include "chrome/browser/glic/public/features.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
 #include "chrome/browser/metrics/variations/google_groups_manager_factory.h"
 #include "chrome/browser/password_manager/chrome_password_change_service.h"
 #include "chrome/browser/password_manager/password_change_service_factory.h"
@@ -69,7 +63,6 @@
 #include "chrome/browser/ui/webui/settings/dictation_handler.h"
 #include "chrome/browser/ui/webui/settings/downloads_handler.h"
 #include "chrome/browser/ui/webui/settings/font_handler.h"
-#include "chrome/browser/ui/webui/settings/glic_handler.h"
 #include "chrome/browser/ui/webui/settings/hats_handler.h"
 #include "chrome/browser/ui/webui/settings/import_data_handler.h"
 #include "chrome/browser/ui/webui/settings/metrics_reporting_handler.h"
@@ -116,9 +109,6 @@
 #include "components/autofill/core/common/autofill_features.h"
 #include "components/autofill/core/common/autofill_payments_features.h"
 #include "components/browsing_data/core/features.h"
-#include "components/commerce/core/commerce_feature_list.h"
-#include "components/commerce/core/feature_utils.h"
-#include "components/commerce/core/shopping_service.h"
 #include "components/compose/core/browser/compose_features.h"
 #include "components/content_settings/core/common/features.h"
 #include "components/contextual_tasks/public/features.h"
@@ -204,20 +194,9 @@ namespace settings {
 
 namespace {
 
-std::string_view GetAiSettingsSection(
-    Profile* profile,
-    const glic::GlicEnabling::ProfileEnablement& enablement) {
-  // Profiles without a GlicKeyedService (shown via
-  // kAiSettingsPageForceAvailable) get the Gemini section from
-  // GetGlicProviderSpec()'s fallback.
-  return enablement.ShouldShowSettingsPage()
-             ? glic::GetGlicProviderSpec(profile).GetSettingsSectionId()
-             : "";
-}
+
 
 }  // namespace
-
-using optimization_guide::UserVisibleFeatureKey;
 
 // static
 void SettingsUI::RegisterProfilePrefs(
@@ -331,14 +310,6 @@ SettingsUI::SettingsUI(content::WebUI* web_ui)
   html_source->AddBoolean("hasEnterpriseLabel",
                           entry && !entry->GetEnterpriseProfileLabel().empty());
 
-  commerce::ShoppingService* shopping_service =
-      commerce::ShoppingServiceFactory::GetForBrowserContext(profile);
-  html_source->AddBoolean("changePriceEmailNotificationsEnabled",
-                          shopping_service->IsShoppingListEligible());
-  if (shopping_service->IsShoppingListEligible()) {
-    commerce::ShoppingServiceFactory::GetForBrowserContext(profile)
-        ->FetchPriceEmailPref();
-  }
 
   TemplateURLService* template_url_service =
       TemplateURLServiceFactory::GetForProfile(profile);
@@ -387,22 +358,6 @@ SettingsUI::SettingsUI(content::WebUI* web_ui)
       compose_enabled && base::FeatureList::IsEnabled(
                              compose::features::kEnableComposeProactiveNudge));
 
-  auto* subscription_service = subscription_eligibility::
-      SubscriptionEligibilityServiceFactory::GetForProfile(profile);
-
-  const bool use_paid_tier =
-      subscription_service && subscription_service->GetAiSubscriptionTier() > 0;
-
-  html_source->AddBoolean(
-      "showGeminiPersonalContextLink",
-      base::FeatureList::IsEnabled(features::kGlicPersonalContext) &&
-          use_paid_tier);
-  html_source->AddBoolean(
-      "showInstructionLink",
-      (base::FeatureList::IsEnabled(features::kGlicPersonalContext) &&
-       !use_paid_tier) ||
-          (base::FeatureList::IsEnabled(features::kGlicGeminiInstructions) &&
-           !base::FeatureList::IsEnabled(features::kGlicPersonalContext)));
 
   const bool download_bubble_controlled_by_pref = true;
   html_source->AddBoolean("downloadBubblePartialViewControlledByPref",
@@ -415,12 +370,6 @@ SettingsUI::SettingsUI(content::WebUI* web_ui)
           ->GetPaymentsDataManager()
           .ShouldShowBnplSettings());
 
-  html_source->AddBoolean(
-      "shoppingIntegrationEnabled",
-      base::FeatureList::IsEnabled(
-          autofill::features::kAutofillAmbientAutofill) ||
-          base::FeatureList::IsEnabled(
-              autofill::features::kAutofillAiWalletShopping));
 
   AddSettingsPageUIHandler(std::make_unique<AboutHandler>(profile));
   AddSettingsPageUIHandler(std::make_unique<ResetSettingsHandler>(profile));
@@ -530,35 +479,11 @@ SettingsUI::SettingsUI(content::WebUI* web_ui)
       base::FeatureList::IsEnabled(
           autofill::features::kAutofillEnableWalletDisclosureNoticePublicPass));
 
-  html_source->AddBoolean("enableInlineCueMenuContentSetting",
-                          glic::GetGlicProviderSpec(profile).SupportsFeature(
-                              glic::GlicFeature::kSelectionInlineCue));
 
   // AI
-  auto glic_enablement = glic::GlicEnabling::EnablementForProfile(profile);
-  std::string_view ai_settings_section =
-      GetAiSettingsSection(profile, glic_enablement);
-  bool glic_disallowed_by_admin = glic_enablement.DisallowedByAdmin();
 
-  if (glic_enablement.IsProfileEligible()) {
-    AddSettingsPageUIHandler(std::make_unique<GlicHandler>());
 
-    auto* glic_service = glic::GlicKeyedService::Get(profile);
-    CHECK(glic_service);
-
-    // `this` unretained because the subscription is owned by this and will
-    // unregister the callback on destruction.
-    glic_settings_state_subscription_ =
-        glic_service->enabling().RegisterOnShowSettingsPageChanged(
-            base::BindRepeating(&SettingsUI::UpdateAiSettingsSection,
-                                base::Unretained(this)));
-  }
-
-  html_source->AddString("aiSettingsSection", ai_settings_section);
-  html_source->AddBoolean("glicDisallowedByAdmin", glic_disallowed_by_admin);
-  html_source->AddBoolean(
-      "showGeicDevicePolicyToggle",
-      glic::GetGlicProviderSpec(profile).CanSwitchBetweenGeminiProviders());
+  html_source->AddString("aiSettingsSection", "");
 
   const auto& autofill_client =
       *autofill::ContentAutofillClient::FromWebContents(
@@ -574,6 +499,7 @@ SettingsUI::SettingsUI(content::WebUI* web_ui)
       dictation_keyed_service && dictation_keyed_service->IsEnabledAndReady();
 
   std::pair<const std::string_view, bool> optimization_guide_features[] = {
+      {"showInlineCueMenuControl", false},
       {"showComposeControl", compose_visible},
       {"showPasswordChangeControl",
        PasswordChangeServiceFactory::GetForProfile(profile) &&
@@ -581,13 +507,8 @@ SettingsUI::SettingsUI(content::WebUI* web_ui)
                ->UserIsActivePasswordChangeUser()},
       {"showAiSuggestionsControl",
        base::FeatureList::IsEnabled(contextual_cueing::kContextualCueingV2)},
-      {"showInlineCueMenuControl",
-       glic::GetGlicProviderSpec(profile).SupportsFeature(
-           glic::GlicFeature::kSelectionInlineCue) &&
-           glic_enablement.ShouldShowSettingsPage()},
-      {"showSkillsSettingPage",
-       glic::GetGlicProviderSpec(profile).SupportsFeature(
-           glic::GlicFeature::kSkills)},
+
+
       {"showIndigoControl", base::FeatureList::IsEnabled(features::kIndigo)},
       {"showGoogleSearchAiModeWorkspaceControl",
        base::FeatureList::IsEnabled(features::kGoogleSearchAiModeWorkspace)},
@@ -629,7 +550,7 @@ SettingsUI::SettingsUI(content::WebUI* web_ui)
   // Within the AI subpage are separate sections for Glic, for GEIC, and for all
   // other AI features. The visibility of these is separately controlled, but
   // we want to show the subpage if any of them are enabled.
-  html_source->AddBoolean("showAiPage", !ai_settings_section.empty() ||
+  html_source->AddBoolean("showAiPage",
                                             show_ai_features_section ||
                                             enable_ai_mode_search);
   html_source->AddBoolean("showAiPageAiFeatureSection",
@@ -693,15 +614,6 @@ SettingsUI::SettingsUI(content::WebUI* web_ui)
            (universal_optout_service &&
             universal_optout_service->IsEligible())));
 
-  ui::TrackedElementHandlerDocumentSingleton::Register(
-      this, std::vector<ui::ElementIdentifier>{
-                kEnhancedProtectionSettingElementId,
-                kAnonymizedUrlCollectionPersonalizationSettingId,
-                kInactiveTabSettingElementId,
-                kGlicOsToggleElementId,
-                kGlicOsWidgetKeyboardShortcutElementId,
-                kTabStylingSettingElementId,
-            });
 
   TryShowHatsSurveyWithTimeout();
 }
@@ -864,27 +776,7 @@ void SettingsUI::CreateSettingsSearchHandler(
           std::move(handler), settings_search_registry_.get());
 }
 
-void SettingsUI::UpdateAiSettingsSection() {
-  // The visibility of the AI settings page section can change based on the user
-  // accepting the FRE. Propagate this state to the WebUI value used to display
-  // the settings page.
-  Profile* profile = Profile::FromWebUI(web_ui());
-  auto enablement = glic::GlicEnabling::EnablementForProfile(profile);
 
-  std::string_view ai_settings_section =
-      GetAiSettingsSection(profile, enablement);
-
-  base::DictValue update;
-  update.Set("aiSettingsSection", ai_settings_section);
-  update.Set("glicDisallowedByAdmin", enablement.DisallowedByAdmin());
-  if (!ai_settings_section.empty()) {
-    update.Set("showAiPage", true);
-  }
-
-  content::WebUIDataSource::Update(
-      web_ui()->GetWebContents()->GetBrowserContext(),
-      chrome::kChromeUISettingsHost, std::move(update));
-}
 
 WEB_UI_CONTROLLER_TYPE_IMPL(SettingsUI)
 

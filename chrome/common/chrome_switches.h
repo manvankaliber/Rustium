@@ -970,7 +970,6 @@ inline constexpr char kGuest[] = "guest";
 #endif
 
 // Overrides the glic guest URL.
-inline constexpr char kGlicGuestURL[] = "glic-guest-url";
 
 // Overrides the GEiC guest URL.
 inline constexpr char kGeicGuestURL[] = "geic-guest-url";
@@ -986,57 +985,34 @@ inline constexpr char kGeicResetFre[] = "geic-reset-fre";
 inline constexpr char kSkillsV2Origin[] = "skills-v2-origin";
 
 
-inline constexpr char kGlicAlwaysOpenFre[] = "glic-always-open-fre";
 
-inline constexpr char kGlicAlwaysSkipFre[] = "glic-always-skip-fre";
 
-inline constexpr char kGlicExperimentalFreURL[] = "glic-experimental-fre-url";
 
-inline constexpr char kGlicShortcutsLearnMoreURL[] =
-    "glic-shortcuts-learn-more-url";
 
 // Use --glic-open-on-startup=attached or --glic-open-on-startup=detached.
-inline constexpr char kGlicOpenOnStartup[] = "glic-open-on-startup";
 
 // List of allowed origins in the glic webview, as a space-separated list.
-inline constexpr char kGlicAllowedOrigins[] = "glic-webui-allowed-origins";
 
 // Automation is intended to be passed in addition to glic-dev. It further
 // disables functionality to make basic testing easier.
-inline constexpr char kGlicAutomation[] = "glic-automation";
 
 // Dev mode for glic only exposed via command line flag.
-inline constexpr char kGlicDev[] = "glic-dev";
 
 // If this flag is set, then the page navigating will not trigger a reload.
-inline constexpr char kGlicSkipReloadAfterNavigation[] =
-    "glic-skip-reload-after-navigation";
 
 // Whether additional logging is enabled in the glic api host.
-inline constexpr char kGlicHostLogging[] = "glic-host-logging";
 
 // List of URL patterns in the glic webview to redirect to an admin blocked
 // panel, as a space-separated list.
-inline constexpr char kGlicAdminRedirectPatterns[] =
-    "glic-admin-redirect-patterns";
 
 // Whether to show web actuation toggle in the Chrome AI settings page.
-inline constexpr char kGlicAlwaysShowWebActuationToggle[] =
-    "glic-always-show-web-actuation-toggle";
 
 // Configure preset guest URLs for manual testing. These are saved to local
 // state prefs and can be selected to override the default glic guest URL
 // through corresponding entries in chrome://flags.
-inline constexpr char kGlicGuestUrlPresetAutopush[] =
-    "glic-guest-url-preset-autopush";
 
-inline constexpr char kGlicGuestUrlPresetStaging[] =
-    "glic-guest-url-preset-staging";
 
-inline constexpr char kGlicGuestUrlPresetPreprod[] =
-    "glic-guest-url-preset-preprod";
 
-inline constexpr char kGlicGuestUrlPresetProd[] = "glic-guest-url-preset-prod";
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Writes open and installed web apps for each profile to the specified file

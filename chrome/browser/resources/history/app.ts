@@ -168,7 +168,7 @@ export class HistoryAppElement extends HistoryAppElementBase {
   accessor footerInfo: FooterInfo = {
     managed: loadTimeData.getBoolean('isManaged'),
     otherFormsOfHistory: false,
-    geminiAppsActivity: loadTimeData.getBoolean('isGlicEnabled'),
+    geminiAppsActivity: false,
   };
   protected accessor unoPhase2FollowUpEnabled_: boolean =
       loadTimeData.getBoolean('unoPhase2FollowUp');
@@ -226,8 +226,7 @@ export class HistoryAppElement extends HistoryAppElementBase {
   protected accessor includeActorVisits_: boolean = true;
   protected accessor includeUserVisits_: boolean = true;
   protected accessor clientIds_: string[] = [];
-  protected accessor isGlicWebActuationAvailable_: boolean =
-      loadTimeData.getBoolean('isGlicWebActuationAvailable');
+  protected accessor isGlicWebActuationAvailable_: boolean = false;
   protected accessor isBrowsingHistoryFilterByDeviceEnabled_: boolean =
       loadTimeData.getBoolean('isBrowsingHistoryFilterByDeviceEnabled');
   protected accessor isBrowsingHistoryFilterByTimePeriodEnabled_: boolean =

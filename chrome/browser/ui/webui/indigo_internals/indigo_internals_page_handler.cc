@@ -5,12 +5,9 @@
 #include "chrome/browser/ui/webui/indigo_internals/indigo_internals_page_handler.h"
 
 #include "base/functional/bind.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
 #include "chrome/browser/indigo/indigo_service.h"
 #include "chrome/browser/indigo/indigo_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "components/optimization_guide/core/optimization_guide_features.h"
 #include "components/optimization_guide/core/optimization_guide_permissions_util.h"
 #include "components/skills/public/skill.h"
@@ -129,39 +126,6 @@ void IndigoInternalsPageHandler::GetOptimizationGuideStatus(
   std::move(callback).Run(GetCurrentOptimizationGuideStatus(profile_));
 }
 
-void IndigoInternalsPageHandler::GetGlicPromptInfo(
-    GetGlicPromptInfoCallback callback) {
-  auto info = indigo_internals::mojom::GlicPromptInfo::New();
-  const glic::GlicProviderSpec& spec = glic::GetGlicProviderSpec(profile_);
-  info->integration_enabled =
-      spec.SupportsFeature(glic::GlicFeature::kIndigoOpenGlic);
-  const glic::GlicIndigoFeatureParams params = spec.GetIndigoFeatureParams();
-  info->current_key = params.prompt_key;
-  info->override_prompt = params.prompt;
-
-  info->skill_id = params.skill_id;
-  if (!info->skill_id.empty()) {
-    if (auto* skills_service =
-            skills::SkillsServiceFactory::GetForProfile(profile_)) {
-      if (const skills::Skill* skill =
-              skills_service->GetSkillById(info->skill_id)) {
-        info->skill_name = skill->name;
-      }
-    }
-  }
-
-  indigo::IndigoService* service =
-      indigo::IndigoServiceFactory::GetForProfile(profile_);
-  if (service) {
-    for (const auto& [key, prompt] : service->GetLoadedPrompts()) {
-      auto mojo_prompt = indigo_internals::mojom::IndigoPrompt::New();
-      mojo_prompt->key = key;
-      mojo_prompt->prompt = prompt;
-      info->loaded_prompts.push_back(std::move(mojo_prompt));
-    }
-  }
-  std::move(callback).Run(std::move(info));
-}
 
 void IndigoInternalsPageHandler::OnUrlKeyedDataCollectionConsentStateChanged(
     unified_consent::UrlKeyedDataCollectionConsentHelper* consent_helper) {

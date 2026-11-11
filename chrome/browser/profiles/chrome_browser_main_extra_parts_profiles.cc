@@ -14,7 +14,6 @@
 #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
 #include "chrome/browser/accessibility/page_colors_controller_factory.h"
 #include "chrome/browser/account_settings/account_setting_service_factory.h"
-#include "chrome/browser/actor/actor_keyed_service_factory.h"
 #include "chrome/browser/affiliations/affiliation_service_factory.h"
 #include "chrome/browser/ai/ai_data_keyed_service_factory.h"
 #include "chrome/browser/autocomplete/aim_eligibility_service_factory.h"
@@ -63,7 +62,6 @@
 #include "chrome/browser/collaboration/collaboration_service_factory.h"
 #include "chrome/browser/collaboration/comments/comments_service_factory.h"
 #include "chrome/browser/collaboration/messaging/messaging_backend_service_factory.h"
-#include "chrome/browser/commerce/shopping_service_factory.h"
 #include "chrome/browser/consent_auditor/consent_auditor_factory.h"
 #include "chrome/browser/content_index/content_index_provider_factory.h"
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
@@ -109,10 +107,6 @@
 #include "chrome/browser/feedback/feedback_uploader_factory_chrome.h"
 #include "chrome/browser/file_system_access/file_system_access_permission_context_factory.h"
 #include "chrome/browser/font_pref_change_notifier_factory.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/glic/public/glic_provider_latch_factory.h"
-#include "chrome/browser/glic/suggestions/contextual_cueing_service_factory.h"
 #include "chrome/browser/heavy_ad_intervention/heavy_ad_service_factory.h"
 #include "chrome/browser/hid/hid_chooser_context_factory.h"
 #include "chrome/browser/hid/hid_policy_allowed_devices_factory.h"
@@ -163,8 +157,6 @@
 #include "chrome/browser/page_info/merchant_trust_service_factory.h"
 #include "chrome/browser/page_load_metrics/observers/https_engagement_metrics/https_engagement_service_factory.h"
 #include "chrome/browser/passage_embeddings/passage_embedder_model_observer_factory.h"
-#include "chrome/browser/password_manager/actor_login/actor_login_permission_cleaning_service_factory.h"
-#include "chrome/browser/password_manager/actor_login/actor_login_permission_service_factory.h"
 #include "chrome/browser/password_manager/factories/account_password_store_factory.h"
 #include "chrome/browser/password_manager/factories/field_info_manager_factory.h"
 #include "chrome/browser/password_manager/factories/password_counter_factory.h"
@@ -183,7 +175,6 @@
 #include "chrome/browser/permissions/permission_decision_auto_blocker_factory.h"
 #include "chrome/browser/permissions/prediction_service/prediction_model_handler_provider_factory.h"
 #include "chrome/browser/permissions/prediction_service/prediction_service_factory.h"
-#include "chrome/browser/persisted_state_db/session_proto_db_factory.h"
 #include "chrome/browser/personal_context/first_run/personal_context_first_run_service_factory.h"
 #include "chrome/browser/personal_context/personal_context_eligibility_service_factory.h"
 #include "chrome/browser/personal_context/personal_context_service_factory.h"
@@ -243,7 +234,6 @@
 #include "chrome/browser/signin/signin_policy_service_factory.h"
 #include "chrome/browser/signin/signin_profile_attributes_updater_factory.h"
 #include "chrome/browser/site_token_provider/site_token_provider_service_factory.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/ssl/https_first_mode_settings_tracker.h"
 #include "chrome/browser/ssl/sct_reporting_service_factory.h"
 #include "chrome/browser/ssl/stateful_ssl_host_state_delegate_factory.h"
@@ -300,8 +290,6 @@
 #include "components/autofill/content/browser/autofill_log_router_factory.h"
 #include "components/breadcrumbs/core/breadcrumbs_status.h"
 #include "components/captive_portal/core/buildflags.h"
-#include "components/commerce/core/proto/commerce_subscription_db_content.pb.h"
-#include "components/commerce/core/proto/persisted_state_db_content.pb.h"
 #include "components/enterprise/buildflags/buildflags.h"
 #include "components/enterprise/content/clipboard_restriction_service.h"
 #include "components/enterprise/network_header_injection/core/features.h"
@@ -374,7 +362,6 @@
 #include "chrome/browser/ui/browser_manager_service_factory.h"
 #include "chrome/browser/ui/global_error/global_error_service_factory.h"
 #include "chrome/browser/ui/global_media_controls/media_notification_service_factory.h"
-#include "chrome/browser/ui/lens/lens_keyed_service_factory.h"
 #include "chrome/browser/ui/media_router/media_router_ui_service_factory.h"
 #include "chrome/browser/ui/performance_controls/performance_controls_hats_service_factory.h"
 #include "chrome/browser/ui/read_anything/read_anything_service_factory.h"
@@ -389,9 +376,6 @@
 #include "chrome/browser/usb/usb_connection_tracker_factory.h"
 #include "chrome/browser/user_education/user_education_service_factory.h"
 #include "chrome/browser/web_applications/isolated_web_apps/window_management/isolated_web_apps_window_open_permission_service_factory.h"
-#include "components/commerce/core/proto/cart_db_content.pb.h"
-#include "components/commerce/core/proto/coupon_db_content.pb.h"
-#include "components/commerce/core/proto/discounts_db_content.pb.h"  // nogncheck
 #include "components/optimization_guide/core/model_execution/model_execution_features.h"
 #include "ui/accessibility/accessibility_features.h"
 
@@ -634,10 +618,7 @@ void ChromeBrowserMainExtraPartsProfiles::
   AccountsPolicyManagerFactory::GetInstance();
   search_integrity::SearchIntegrityFactory::GetInstance();
 #endif
-  actor::ActorKeyedServiceFactory::GetInstance();
   AffiliationServiceFactory::GetInstance();
-  actor_login::ActorLoginPermissionCleaningServiceFactory::GetInstance();
-  actor_login::ActorLoginPermissionServiceFactory::GetInstance();
   AiDataKeyedServiceFactory::GetInstance();
   AiModeButtonServiceFactory::GetInstance();
   AimEligibilityServiceFactory::GetInstance();
@@ -735,7 +716,6 @@ void ChromeBrowserMainExtraPartsProfiles::
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   tab_groups::CollaborationMessagingObserverFactory::GetInstance();
 #endif
-  commerce::ShoppingServiceFactory::GetInstance();
   ConsentAuditorFactory::GetInstance();
   ContextHubServiceFactory::GetInstance();
   contextual_cueing::ContextualCueingServiceFactory::GetInstance();
@@ -747,7 +727,6 @@ void ChromeBrowserMainExtraPartsProfiles::
 
   ContentIndexProviderFactory::GetInstance();
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
-  glic::ContextualCueingServiceFactory::GetInstance();
 #endif
   ContextualSearchServiceFactory::GetInstance();
 #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -856,8 +835,6 @@ void ChromeBrowserMainExtraPartsProfiles::
     GapisServiceFactory::GetInstance();
   }
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
-  glic::GlicKeyedServiceFactory::GetInstance();
-  glic::GlicProviderLatchFactory::GetInstance();
   GlobalErrorServiceFactory::GetInstance();
   GoogleGroupsManagerFactory::GetInstance();
   HatsServiceFactory::GetInstance();
@@ -887,7 +864,6 @@ void ChromeBrowserMainExtraPartsProfiles::
 #endif
   LanguageDetectionModelServiceFactory::GetInstance();
   LanguageModelManagerFactory::GetInstance();
-  LensKeyedServiceFactory::GetInstance();
   LocalOrSyncableBookmarkSyncServiceFactory::GetInstance();
   login_detection::LoginDetectionKeyedServiceFactory::GetInstance();
   LogoServiceFactory::GetInstance();
@@ -1123,15 +1099,6 @@ void ChromeBrowserMainExtraPartsProfiles::
 #if BUILDFLAG(ENABLE_SESSION_SERVICE)
   SessionDataServiceFactory::GetInstance();
 #endif
-  SessionProtoDBFactory<cart_db::ChromeCartContentProto>::GetInstance();
-  SessionProtoDBFactory<commerce_subscription_db::
-                            CommerceSubscriptionContentProto>::GetInstance();
-  SessionProtoDBFactory<coupon_db::CouponContentProto>::GetInstance();
-  SessionProtoDBFactory<discounts_db::DiscountsContentProto>::GetInstance();
-  SessionProtoDBFactory<
-      discount_infos_db::DiscountInfosContentProto>::GetInstance();
-  SessionProtoDBFactory<
-      persisted_state_db::PersistedStateContentProto>::GetInstance();
 #if BUILDFLAG(ENABLE_SESSION_SERVICE)
   SessionServiceFactory::GetInstance();
 #endif
@@ -1150,7 +1117,6 @@ void ChromeBrowserMainExtraPartsProfiles::
     site_token_provider::SiteTokenProviderServiceFactory::GetInstance();
   }
   SkillRecordingServiceFactory::GetInstance();
-  skills::SkillsServiceFactory::GetInstance();
   SpeechRecognitionClientBrowserInterfaceFactory::EnsureFactoryBuilt();
   SpeechRecognitionServiceFactory::EnsureFactoryBuilt();
 #if BUILDFLAG(ENABLE_SPELLCHECK)

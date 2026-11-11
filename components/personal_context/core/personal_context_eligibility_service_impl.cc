@@ -17,7 +17,6 @@
 #include "base/strings/string_util.h"
 #include "build/build_config.h"
 #include "components/account_settings/account_setting_service.h"
-#include "components/glic/glic_pref_names.h"
 #include "components/optimization_guide/core/feature_registry/enterprise_policy_registry.h"
 #include "components/optimization_guide/core/feature_registry/feature_registration.h"
 #include "components/personal_context/core/personal_context_debug_features.h"
@@ -138,13 +137,6 @@ SatisfiesPrefsRequirements(const PrefService* pref_service,
     return std::pair{false, std::nullopt};
   }
 
-  const glic::prefs::FreStatus fre_status = static_cast<glic::prefs::FreStatus>(
-      pref_service->GetInteger(::glic::prefs::kGlicCompletedFre));
-  if (fre_status != glic::prefs::FreStatus::kCompleted) {
-    MaybeOutputReason(debug_message, "GLIC FRE not completed.");
-    return std::pair{false,
-                     PersonalContextNonEligibilityReason::kNotGlicFirstRun};
-  }
 
   const int policy_value = pref_service->GetInteger(
       optimization_guide::prefs::kFindAndFillWithGeminiSettings);
@@ -185,6 +177,7 @@ SatisfiesMiscellaneousRequirements(GeoIpCountryCode country_code,
 }
 }  // namespace
 
+
 PersonalContextEligibilityServiceImpl::PersonalContextEligibilityServiceImpl(
     account_settings::AccountSettingService* account_settings_service,
     signin::IdentityManager* identity_manager,
@@ -196,8 +189,7 @@ PersonalContextEligibilityServiceImpl::PersonalContextEligibilityServiceImpl(
       identity_manager_(identity_manager),
       pref_service_(pref_service),
       country_code_(std::move(country_code)),
-      locale_(std::move(locale)),
-      is_supported_glic_provider_(is_supported_glic_provider) {
+      locale_(std::move(locale)) {
   if (account_settings_service_) {
     account_settings_observation_.Observe(account_settings_service_);
     UpdateContextSourcesState();
@@ -213,11 +205,6 @@ PersonalContextEligibilityServiceImpl::PersonalContextEligibilityServiceImpl(
           weak_ptr_factory_.GetWeakPtr()));
     }
     pref_registrar_.Init(pref_service_);
-    pref_registrar_.Add(
-        ::glic::prefs::kGlicCompletedFre,
-        base::BindRepeating(
-            &PersonalContextEligibilityServiceImpl::UpdateEligibilityState,
-            base::Unretained(this)));
     pref_registrar_.Add(
         optimization_guide::prefs::kFindAndFillWithGeminiSettings,
         base::BindRepeating(
@@ -285,17 +272,6 @@ std::pair<PersonalContextEligibilityState,
           std::optional<PersonalContextNonEligibilityReason>>
 PersonalContextEligibilityServiceImpl::ComputeEligibilityState() {
   using enum PersonalContextEligibilityState;
-  // Personal Context is a consumer feature. Gemini Enterprise doesn't support
-  // it, so this is checked before everything else, including the debug
-  // overrides, and doesn't depend on which FRE the profile completed: consent
-  // given to consumer Gemini in Chrome (`kGlicCompletedFre`) doesn't carry
-  // over to Gemini Enterprise.
-  if (!is_supported_glic_provider_) {
-    return std::pair{kDisabledNotEligible,
-                     PersonalContextNonEligibilityReason::
-                         kUnsupportedGlicProvider};
-  }
-
   if (auto [satisfied, reason] =
           SatisfiesAccountRequirements(identity_manager_.get());
       !satisfied) {

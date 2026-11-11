@@ -101,8 +101,6 @@ inline constexpr char kHatsSurveyTriggerIdentitySwitchProfileFromProfileMenu[] =
 inline constexpr char
     kHatsSurveyTriggerIdentitySwitchProfileFromProfilePicker[] =
         "identity-switch-profile-profile-picker";
-inline constexpr char kHatsSurveyTriggerLensOverlayResults[] =
-    "lens-overlay-results";
 inline constexpr char kHatsSurveyTriggerNtpModules[] = "ntp-modules";
 inline constexpr char kHatsSurveyTriggerNextPanel[] = "next-panel";
 inline constexpr char kHatsSurveyTriggerNtpPhotosModuleOptOut[] =

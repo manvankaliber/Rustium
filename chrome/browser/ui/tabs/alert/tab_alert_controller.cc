@@ -16,10 +16,6 @@
 #include "base/metrics/user_metrics.h"
 #include "base/metrics/user_metrics_action.h"
 #include "base/notreached.h"
-#include "chrome/browser/actor/ui/actor_ui_tab_controller_interface.h"
-#include "chrome/browser/glic/browser_ui/glic_tab_indicator_helper.h"
-#include "chrome/browser/glic/public/context/glic_sharing_manager.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
 #include "chrome/browser/media/webrtc/media_capture_devices_dispatcher.h"
 #include "chrome/browser/media/webrtc/media_stream_capture_indicator.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
@@ -58,6 +54,8 @@ bool CompareAlerts::operator()(TabAlert first, TabAlert second) const {
            {TabAlert::kActorAccessing, 7},
            {TabAlert::kGlicAccessing, 6},
            {TabAlert::kGlicSharing, 5},
+
+
            {TabAlert::kAiModeSharing, 4},
            // NOTE: VR must take priority over the audio alert ones
            // because most VR content has audio and its usage is implied by the
@@ -112,27 +110,7 @@ TabAlertController::TabAlertController(TabInterface& tab)
                 base::Unretained(this)));
   }
 
-  if (auto* actor_ui_tab_controller =
-          actor::ui::ActorUiTabControllerInterface::From(&tab)) {
-    actor_tab_indicator_callback_runner_ =
-        actor_ui_tab_controller->RegisterActorTabIndicatorStateChangedCallback(
-            base::BindRepeating(
-                &TabAlertController::OnActorTabIndicatorStateChanged,
-                base::Unretained(this)));
-  }
 
-  glic::GlicTabIndicatorHelper* const glic_tab_indicator_helper =
-      glic::GlicTabIndicatorHelper::From(&tab);
-  if (glic_tab_indicator_helper) {
-    callback_subscriptions_.emplace_back(
-        glic_tab_indicator_helper->RegisterGlicSharingStateChange(
-            base::BindRepeating(&TabAlertController::OnGlicSharingStateChange,
-                                base::Unretained(this))));
-    callback_subscriptions_.emplace_back(
-        glic_tab_indicator_helper->RegisterGlicAccessingStateChange(
-            base::BindRepeating(&TabAlertController::OnGlicAccessingStateChange,
-                                base::Unretained(this))));
-  }
 
   if (auto* child_alert_helper = ChildTabAlertHelper::From(&tab)) {
     callback_subscriptions_.emplace_back(
@@ -214,11 +192,7 @@ std::u16string TabAlertController::GetTabAlertStateText(
       return l10n_util::GetStringUTF16(
           IDS_TOOLTIP_TAB_ALERT_STATE_ACTOR_ACCESSING);
     case TabAlert::kGlicAccessing:
-      return l10n_util::GetStringUTF16(
-          IDS_TOOLTIP_TAB_ALERT_STATE_GLIC_ACCESSING);
     case TabAlert::kGlicSharing:
-      return l10n_util::GetStringUTF16(
-          IDS_TOOLTIP_TAB_ALERT_STATE_GLIC_SHARING);
     case TabAlert::kAiModeSharing:
       return l10n_util::GetStringUTF16(
           IDS_TOOLTIP_TAB_ALERT_STATE_AI_MODE_SHARING);
@@ -263,9 +237,7 @@ int TabAlertController::GetAccessibleAlertStringId(const TabAlert alert_state) {
     case TabAlert::kActorWaitingOnUser:
       return IDS_TAB_AX_LABEL_ACTOR_ACCESSING;
     case TabAlert::kGlicAccessing:
-      return IDS_TAB_AX_LABEL_GLIC_ACCESSING;
     case TabAlert::kGlicSharing:
-      return IDS_TAB_AX_LABEL_GLIC_SHARING;
     case TabAlert::kAiModeSharing:
       return IDS_TAB_AX_LABEL_AI_MODE_SHARING;
     case TabAlert::kNone:
@@ -461,34 +433,8 @@ void TabAlertController::OnActiveTaskContextProviderDestroyed() {
   UpdateAlertState(TabAlert::kAiModeSharing, false);
 }
 
-void TabAlertController::OnGlicSharingStateChange(bool is_sharing) {
-  ScopedAlertNotifier notifier(this);
-  UpdateAlertState(TabAlert::kGlicSharing, is_sharing);
-}
 
-void TabAlertController::OnGlicAccessingStateChange(bool is_accessing) {
-  ScopedAlertNotifier notifier(this);
-  UpdateAlertState(TabAlert::kGlicAccessing, is_accessing);
-}
 
-void TabAlertController::OnActorTabIndicatorStateChanged(
-    actor::ui::TabIndicatorStatus tab_indicator_status) {
-  ScopedAlertNotifier notifier(this);
-  switch (tab_indicator_status) {
-    case actor::ui::TabIndicatorStatus::kNone:
-      UpdateAlertState(TabAlert::kActorWaitingOnUser, false);
-      UpdateAlertState(TabAlert::kActorAccessing, false);
-      break;
-    case actor::ui::TabIndicatorStatus::kDynamic:
-      UpdateAlertState(TabAlert::kActorWaitingOnUser, false);
-      UpdateAlertState(TabAlert::kActorAccessing, true);
-      break;
-    case actor::ui::TabIndicatorStatus::kStatic:
-      UpdateAlertState(TabAlert::kActorWaitingOnUser, true);
-      UpdateAlertState(TabAlert::kActorAccessing, false);
-      break;
-  }
-}
 
 void TabAlertController::OnRecentlyAudibleStateChanged(bool was_audible) {
   // Muted alert state also needs to update when audible state changes to ensure

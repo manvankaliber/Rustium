@@ -45,7 +45,6 @@ class SessionJournalImpl : public SessionJournal {
   using PendingAsyncEvent = actor::AggregatedJournal::PendingAsyncEntry;
 
   // `journal` must outlive `this`.
-  SessionJournalImpl(actor::AggregatedJournal& journal, actor::TaskId task_id);
   SessionJournalImpl(const SessionJournalImpl&) = delete;
   SessionJournalImpl& operator=(const SessionJournalImpl&) = delete;
   ~SessionJournalImpl() override;
@@ -60,35 +59,23 @@ class SessionJournalImpl : public SessionJournal {
   // closes a tab it acted on) and must then be replaced.
   // TODO(b/552544497): Remove this once a session's task can only be stopped
   // by the session itself.
-  void SetTaskId(actor::TaskId new_task_id);
 
   // SessionJournal:
   using SessionJournal::Log;
-  void Log(std::string_view event_name,
-           std::vector<actor::mojom::JournalDetailsPtr> details,
-           Track track) override;
   void HandleServerJournalEvent(const ServerJournalEvent& event) override;
   void LogAudio(std::string_view mime_type,
                 base::span<const uint8_t> data) override;
 
   // Begins an async event, which lasts until the returned object ends it.
-  [[nodiscard]] std::unique_ptr<PendingAsyncEvent> BeginAsyncEvent(
-      std::string_view event_name,
-      std::vector<actor::mojom::JournalDetailsPtr> details);
 
-  actor::TaskId task_id() const { return task_id_; }
   base::TimeDelta server_clock_delta() const { return server_clock_delta_; }
 
  private:
   void StartSerializingToFile(const base::FilePath& file_path);
   void OnSerializerInitDone(bool success);
 
-  const raw_ref<actor::AggregatedJournal> journal_;
-  actor::TaskId task_id_;
   bool received_clock_sync_ = false;
   base::TimeDelta server_clock_delta_;
-  std::unique_ptr<actor::AggregatedJournalFileSerializer>
-      file_journal_serializer_;
   absl::flat_hash_map<int32_t, std::unique_ptr<PendingAsyncEvent>>
       pending_server_async_events_;
   base::WeakPtrFactory<SessionJournalImpl> weak_ptr_factory_{this};

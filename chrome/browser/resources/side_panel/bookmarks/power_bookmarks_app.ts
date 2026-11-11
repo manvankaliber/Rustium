@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import '/strings.m.js';
-import './commerce/shopping_list.js';
+
 import './icons.html.js';
 import './power_bookmarks_context_menu.js';
 import './power_bookmarks_labels.js';
@@ -24,9 +24,9 @@ import '//resources/cr_elements/icons.html.js';
 
 import type {SpEmptyStateElement} from '//bookmarks-side-panel.top-chrome/shared/sp_empty_state.js';
 import {ColorChangeUpdater} from '//resources/cr_components/color_change_listener/colors_css_updater.js';
-import type {BrowserProxy as PriceTrackingBrowserProxy} from '//resources/cr_components/commerce/price_tracking.mojom-webui.js';
-import {browserProxyFactory as priceTrackingBrowserProxyFactory} from '//resources/cr_components/commerce/price_tracking.mojom-webui.js';
-import type {BookmarkProductInfo} from '//resources/cr_components/commerce/shared.mojom-webui.js';
+
+
+
 import type {CrDialogElement} from '//resources/cr_elements/cr_dialog/cr_dialog.js';
 import type {CrLazyRenderLitElement} from '//resources/cr_elements/cr_lazy_render/cr_lazy_render_lit.js';
 import type {CrToastElement} from '//resources/cr_elements/cr_toast/cr_toast.js';
@@ -107,7 +107,7 @@ export class PowerBookmarksAppElement extends CrLitElement implements
       },
       hasLoadedData_: {type: Boolean},
       searchQuery_: {type: String},
-      trackedProductInfos_: {type: Object},
+
       hasSomeActiveFilter_: {type: Boolean},
       hasShownBookmarks_: {type: Boolean},
       sectionVisibility_: {type: Object},
@@ -117,12 +117,10 @@ export class PowerBookmarksAppElement extends CrLitElement implements
 
   private bookmarksApi_: BookmarksApiProxy =
       BookmarksApiProxyImpl.getInstance();
-  private priceTrackingProxy_: PriceTrackingBrowserProxy =
-      priceTrackingBrowserProxyFactory.getInstance();
-  private shoppingListenerIds_: number[] = [];
-  protected accessor trackedProductInfos_:
-      {[key: string]: BookmarkProductInfo} = {};
-  private availableProductInfos_ = new Map<string, BookmarkProductInfo>();
+
+
+
+
   private bookmarksService_: PowerBookmarksService;
   protected accessor activeFolderPath_: BookmarksTreeNode[] = [];
   protected accessor canAddCurrentUrl_: boolean = false;
@@ -163,35 +161,16 @@ export class PowerBookmarksAppElement extends CrLitElement implements
       this.bookmarksApi_.showUi();
     }
     this.bookmarksService_.startListening();
-    this.priceTrackingProxy_.handler.getAllPriceTrackedBookmarkProductInfo()
-        .then(res => {
-          const newTrackedProductInfos = {...this.trackedProductInfos_};
-          res.productInfos.forEach(product => {
-            newTrackedProductInfos[product.bookmarkId.toString()] = product;
-          });
-          this.trackedProductInfos_ = newTrackedProductInfos;
-        });
-    this.priceTrackingProxy_.handler.getAllShoppingBookmarkProductInfo().then(
-        res => {
-          res.productInfos.forEach(
-              product => this.setAvailableProductInfo_(product));
-        });
-    const callbackRouter = this.priceTrackingProxy_.callbackRouter;
-    this.shoppingListenerIds_.push(
-        callbackRouter.priceTrackedForBookmark.addListener(
-            (product: BookmarkProductInfo) =>
-                this.onBookmarkPriceTracked_(product)),
-        callbackRouter.priceUntrackedForBookmark.addListener(
-            (product: BookmarkProductInfo) =>
-                this.onBookmarkPriceUntracked_(product)),
-    );
+
+
+
+
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.bookmarksService_.stopListening();
-    this.shoppingListenerIds_.forEach(
-        id => this.priceTrackingProxy_.callbackRouter.removeListener(id));
+
   }
 
   override willUpdate(changedProperties: PropertyValues<this>) {
@@ -237,7 +216,7 @@ export class PowerBookmarksAppElement extends CrLitElement implements
 
   onBookmarkChanged(id: string) {
     this.$.bookmarksList.onBookmarkChanged(id);
-    this.updateShoppingData_();
+
     this.updateCanAddCurrentUrl_();
     if (this.selectedBookmarks_[id]) {
       this.selectedBookmarks_ = {};
@@ -246,7 +225,7 @@ export class PowerBookmarksAppElement extends CrLitElement implements
 
   onBookmarkAdded(bookmark: BookmarksTreeNode, parent: BookmarksTreeNode) {
     this.$.bookmarksList.onBookmarkAdded(bookmark, parent);
-    this.updateShoppingData_();
+
     this.updateCanAddCurrentUrl_();
   }
 
@@ -265,10 +244,10 @@ export class PowerBookmarksAppElement extends CrLitElement implements
       this.$.contextMenu.close();
     }
     this.$.bookmarksList.onBookmarkRemoved(bookmark);
-    const newTrackedProductInfos = {...this.trackedProductInfos_};
-    delete newTrackedProductInfos[bookmark.id];
-    this.trackedProductInfos_ = newTrackedProductInfos;
-    this.availableProductInfos_.delete(bookmark.id);
+
+
+
+
     if (this.selectedBookmarks_[bookmark.id]) {
       const newSelectedBookmarks = {...this.selectedBookmarks_};
       delete newSelectedBookmarks[bookmark.id];
@@ -277,35 +256,15 @@ export class PowerBookmarksAppElement extends CrLitElement implements
     this.updateCanAddCurrentUrl_();
   }
 
-  getTrackedProductInfos(): {[key: string]: BookmarkProductInfo} {
-    return this.trackedProductInfos_;
-  }
 
-  getAvailableProductInfos(): Map<string, BookmarkProductInfo> {
-    return this.availableProductInfos_;
-  }
 
-  getProductImageUrl(bookmark: BookmarksTreeNode): string {
-    const bookmarkProductInfo = this.availableProductInfos_.get(bookmark.id);
-    if (bookmarkProductInfo) {
-      return bookmarkProductInfo.info.imageUrl;
-    } else {
-      return '';
-    }
-  }
 
-  private onBookmarkPriceTracked_(product: BookmarkProductInfo) {
-    this.trackedProductInfos_ = {
-      ...this.trackedProductInfos_,
-      [product.bookmarkId.toString()]: product,
-    };
-  }
 
-  private onBookmarkPriceUntracked_(product: BookmarkProductInfo) {
-    const newTrackedProductInfos = {...this.trackedProductInfos_};
-    delete newTrackedProductInfos[product.bookmarkId.toString()];
-    this.trackedProductInfos_ = newTrackedProductInfos;
-  }
+
+
+
+
+
 
   private getActiveFolder_(): BookmarksTreeNode|undefined {
     if (this.activeFolderPath_.length) {
@@ -318,27 +277,9 @@ export class PowerBookmarksAppElement extends CrLitElement implements
     this.$.bookmarksList.setImageUrl(bookmark, url);
   }
 
-  private updateShoppingData_() {
-    this.availableProductInfos_.clear();
-    this.priceTrackingProxy_.handler.getAllShoppingBookmarkProductInfo().then(
-        res => {
-          res.productInfos.forEach(
-              product => this.setAvailableProductInfo_(product));
-        });
-  }
 
-  private setAvailableProductInfo_(productInfo: BookmarkProductInfo) {
-    const bookmarkId = productInfo.bookmarkId.toString();
-    this.availableProductInfos_.set(bookmarkId, productInfo);
-    if (productInfo.info.imageUrl === '') {
-      return;
-    }
-    const bookmark = this.bookmarksService_.findBookmarkWithId(bookmarkId)!;
-    if (!bookmark) {
-      return;
-    }
-    this.$.bookmarksList.setImageUrl(bookmark, productInfo.info.imageUrl);
-  }
+
+
 
   private updateCanAddCurrentUrl_() {
     this.canAddCurrentUrl_ = this.bookmarksService_.canAddUrl(
@@ -388,10 +329,6 @@ export class PowerBookmarksAppElement extends CrLitElement implements
     if (!event.detail.bookmark) {
       return;
     }
-    const priceTracked =
-        !!this.bookmarksService_.getPriceTrackedInfo(event.detail.bookmark);
-    const priceTrackingEligible =
-        !!this.bookmarksService_.getAvailableProductInfo(event.detail.bookmark);
     const bookmark = event.detail.bookmark;
     const target = event.detail.event.target as HTMLElement;
     Promise
@@ -402,13 +339,12 @@ export class PowerBookmarksAppElement extends CrLitElement implements
         .then(([isSplit, incognito]) => {
           if (event.detail.event.button === 0) {
             this.$.contextMenu.showAt(
-                target, [bookmark], priceTracked, priceTrackingEligible,
+                target, [bookmark],
                 isSplit, incognito.incognitoCount,
                 this.onContextMenuShown_.bind(this, bookmark));
           } else {
             this.$.contextMenu.showAtPosition(
-                event.detail.event, [bookmark], priceTracked,
-                priceTrackingEligible, isSplit, incognito.incognitoCount,
+                event.detail.event, [bookmark], isSplit, incognito.incognitoCount,
                 this.onContextMenuShown_.bind(this, bookmark));
           }
         });
@@ -550,7 +486,7 @@ export class PowerBookmarksAppElement extends CrLitElement implements
         ])
         .then(([isSplit, incognito]) => {
           this.$.contextMenu.showAt(
-              target, selectedBookmarks, false, false, isSplit,
+              target, selectedBookmarks, isSplit,
               incognito.incognitoCount);
         });
   }

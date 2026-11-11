@@ -40,7 +40,6 @@ source_set("browser_tests") {
     "//chrome/browser/autocomplete:aim_eligibility_service",
     "//chrome/browser/bookmarks",
     "//chrome/browser/browser_actuator/internals",
-    "//chrome/browser/glic/public:features",
     "//chrome/browser/ui:ui_features",
     "//chrome/browser/ui/tabs/tab_group_home:constants",
     "//chrome/test:test_support",
@@ -49,7 +48,6 @@ source_set("browser_tests") {
     "//chrome/test/base:testing_browser_process",
     "//chrome/test/base:web_ui_mocha_browser_test",
     "//components/browser_actuator/public",
-    "//components/commerce/core:commerce_constants",
     "//components/contextual_tasks/public",
     "//components/metrics_services_manager",
     "//components/notebooks/public",
@@ -102,15 +100,11 @@ source_set("browser_tests") {
     "drive_picker/drive_picker_browsertest.cc",
     "engagement/site_engagement_browsertest.cc",
     "feedback/feedback_browsertest.cc",
-    "glic/glic_browsertest.cc",
-    "glic/selection_overlay/selection_overlay_browsertest.cc",
     "histograms/histograms_internals_browsertest.cc",
     "history_clusters_internals/history_clusters_internals_browsertest.cc",
     "inspect/inspect_ui_browsertest.cc",
     "iwa_dev/iwa_dev_browsertest.cc",
     "key_value_pair_viewer/key_value_pair_viewer_browsertest.cc",
-    "lens/lens_overlay_webui_browsertest.cc",
-    "lens/lens_side_panel_webui_browsertest.cc",
     "management/management_browsertest.cc",
     "media/media_engagement_browsertest.cc",
     "media_internals/media_internals_browsertest.cc",
@@ -126,7 +120,6 @@ source_set("browser_tests") {
     "password_manager_internals/password_manager_internals_browsertest.cc",
     "sandbox/sandbox_browsertest.cc",
     "settings/settings_browsertest.cc",
-    "side_panel/commerce/commerce_browsertest.cc",
     "side_panel/customize_chrome/customize_chrome_browsertest.cc",
     "side_panel/history_clusters/history_clusters_browsertest.cc",
     "side_panel/read_anything/read_anything_browsertest.cc",
@@ -144,10 +137,7 @@ source_set("browser_tests") {
   ]
 
   deps += [
-    "//chrome/browser/actor",
     "//chrome/browser/engagement",
-    "//chrome/browser/glic",
-    "//chrome/browser/glic/test_support",
     "//chrome/browser/preloading",
     "//chrome/browser/signin:signin_promo",
     "//chrome/browser/subscription_eligibility",
@@ -269,7 +259,6 @@ source_set("browser_tests") {
   deps += [
     "//build/config/coverage:buildflags",
     "//chrome/app:command_ids",
-    "//chrome/browser/commerce",
     "//chrome/browser/devtools",
     "//chrome/browser/devtools:test_support",
     "//chrome/browser/history",
@@ -279,7 +268,6 @@ source_set("browser_tests") {
     "//chrome/browser/search/background",
     "//chrome/browser/ui:ui_features",
     "//chrome/browser/ui/browser_window",
-    "//chrome/browser/ui/lens",
     "//chrome/browser/ui/read_anything",
     "//chrome/browser/ui/tabs:tabs_public",
     "//chrome/browser/ui/views/side_panel",
@@ -288,9 +276,6 @@ source_set("browser_tests") {
     "//components/bookmarks/browser",
     "//components/bookmarks/managed",
     "//components/browsing_data/core",
-    "//components/commerce/core:account_checker_test_support",
-    "//components/commerce/core:feature_list",
-    "//components/commerce/core:shopping_service_test_support",
     "//components/compose/core/browser:features",
     "//components/data_sharing:test_support",
     "//components/history/core/common",
@@ -368,7 +353,7 @@ source_set("interactive_ui_tests") {
 
   sources = [ "cr_elements/cr_elements_focus_interactive_uitest.cc" ]
 
-  deps = [ "//chrome/browser/glic/test_support" ]
+  deps = []
 
   if (enable_webui_ntp) {
     sources += [ "new_tab_page/new_tab_page_focus_interactive_uitest.cc" ]
@@ -380,7 +365,6 @@ source_set("interactive_ui_tests") {
     "cr_components/cr_components_interactive_uitest.cc",
     "downloads/downloads_focus_interactive_uitest.cc",
     "history/history_focus_interactive_uitest.cc",
-    "lens/lens_side_panel_pixel_interactive_ui_test.cc",
     "password_manager/password_manager_focus_test.cc",
     "settings/settings_focus_interactive_uitest.cc",
     "side_panel/bookmarks/sp_bookmarks_interactive_uitest.cc",
@@ -627,15 +611,11 @@ generate_grd("build_grd") {
     "drive_picker:build_grdp",
     "engagement:build_grdp",
     "feedback:build_grdp",
-    "glic:build_glic_api_grdp",
-    "glic:build_grdp",
-    "glic/selection_overlay:build_grdp",
     "histograms:build_grdp",
     "history_clusters_internals:build_grdp",
     "inspect:build_grdp",
     "iwa_dev:build_grdp",
     "key_value_pair_viewer:build_grdp",
-    "lens:build_grdp",
     "management:build_grdp",
     "media:build_grdp",
     "media_internals:build_grdp",
@@ -692,9 +672,7 @@ generate_grd("build_grd") {
     "$target_gen_dir/drive_picker/resources.grdp",
     "$target_gen_dir/engagement/resources.grdp",
     "$target_gen_dir/feedback/resources.grdp",
-    "$target_gen_dir/glic/glic_api_resources.grdp",
-    "$target_gen_dir/glic/resources.grdp",
-    "$target_gen_dir/glic/selection_overlay/resources.grdp",
+
     "$target_gen_dir/histograms/resources.grdp",
     "$target_gen_dir/history_clusters_internals/resources.grdp",
     "$target_gen_dir/inspect/resources.grdp",
@@ -705,7 +683,6 @@ generate_grd("build_grd") {
     "$target_gen_dir/metrics_internals/resources.grdp",
     "$target_gen_dir/mojo/resources.grdp",
     "$target_gen_dir/multistep_filter_internals/resources.grdp",
-    "$target_gen_dir/lens/resources.grdp",
     "$target_gen_dir/management/resources.grdp",
     "$target_gen_dir/net_internals/resources.grdp",
     "$target_gen_dir/new_tab_footer/resources.grdp",

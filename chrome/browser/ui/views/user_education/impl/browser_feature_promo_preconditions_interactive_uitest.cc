@@ -12,11 +12,6 @@
 #include "base/test/scoped_feature_list.h"
 #include "base/test/simple_test_clock.h"
 #include "base/time/time.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_task.h"
-#include "chrome/browser/actor/actor_test_util.h"
-#include "chrome/browser/actor/ui/actor_ui_tab_controller_interface.h"
-#include "chrome/browser/actor/ui/states/tab_indicator_state.h"
 #include "chrome/browser/autocomplete/chrome_autocomplete_scheme_classifier.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profiles/profile.h"
@@ -505,9 +500,6 @@ IN_PROC_BROWSER_TEST_F(ActorNotActuatingActiveTabPreconditionUiTest,
           user_education::FeaturePromoResult::Success()),
       // Start actuating on the active tab.
       Do([this]() {
-        auto* service = actor::ActorKeyedService::Get(browser()->GetProfile());
-        actor::TaskId task_id = service->CreateTask(
-            actor::TestTaskSourceInfo(), actor::NoEnterprisePolicyChecker());
         auto* task = service->GetTask(task_id);
         task->AddTab(browser()->GetActiveTabInterface()->GetHandle(),
                      /*stop_task_on_detach=*/true, base::DoNothing());
@@ -533,9 +525,6 @@ IN_PROC_BROWSER_TEST_F(ActorNotActuatingActiveTabPreconditionUiTest,
       WaitForShow(kSecondTab),
       // Second tab is active, start actuating on first tab.
       Do([this]() {
-        auto* service = actor::ActorKeyedService::Get(browser()->GetProfile());
-        actor::TaskId task_id = service->CreateTask(
-            actor::TestTaskSourceInfo(), actor::NoEnterprisePolicyChecker());
         auto* task = service->GetTask(task_id);
         task->AddTab(
             browser()->GetTabStripModel()->GetTabAtIndex(0)->GetHandle(),

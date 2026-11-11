@@ -9,7 +9,6 @@
 #include "base/functional/bind.h"
 #include "base/location.h"
 #include "base/task/single_thread_task_runner.h"
-#include "chrome/browser/actor/actor_tab_close_skip_beforeunload_user_data.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/download/download_core_service.h"
@@ -600,12 +599,6 @@ void UnloadController::CancelWindowClose() {
   }
   tabs_needing_unload_fired_.clear();
 
-  for (int i = 0; i < browser_->tab_strip_model()->count(); ++i) {
-    content::WebContents* contents_to_clear =
-        browser_->tab_strip_model()->GetWebContentsAt(i);
-    actor::ActorTabCloseSkipBeforeUnloadUserData::DeleteForWebContents(
-        contents_to_clear);
-  }
 
   const State previous_state = state_;
   base::RepeatingCallback<void(bool)> on_close_confirmed =
@@ -943,8 +936,6 @@ bool UnloadController::RemoveFromSet(UnloadListenerSet* set,
 
 void UnloadController::ClearUnloadState(content::WebContents* web_contents,
                                         bool process_now) {
-  actor::ActorTabCloseSkipBeforeUnloadUserData::DeleteForWebContents(
-      web_contents);
   if (is_attempting_to_close_browser()) {
     RemoveFromSet(&tabs_needing_before_unload_fired_, web_contents);
     RemoveFromSet(&tabs_needing_unload_fired_, web_contents);

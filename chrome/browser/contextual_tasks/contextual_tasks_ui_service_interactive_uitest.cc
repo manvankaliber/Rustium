@@ -1100,11 +1100,6 @@ IN_PROC_BROWSER_TEST_F(
   // context.
   auto* contextual_search_service =
       ContextualSearchServiceFactory::GetForProfile(browser()->GetProfile());
-  auto session_handle = contextual_search_service->CreateSession(
-      std::make_unique<
-          contextual_search::ContextualSearchContextController::ConfigParams>(),
-      contextual_search::ContextualSearchSource::kOmnibox,
-      lens::LensOverlayInvocationSource::kOmnibox);
   session_handle->CheckSearchContentSharingSettings(
       browser()->GetProfile()->GetPrefs());
 
@@ -1123,10 +1118,6 @@ IN_PROC_BROWSER_TEST_F(
                                             std::nullopt);
 
   session_handle->SetSubmittedContextTokens({token0, token1});
-  session_handle->SetPersistedTabs({
-      {tab0_id, {token0, lens::LensOverlayRequestId()}},
-      {tab1_id, {token1, lens::LensOverlayRequestId()}},
-  });
   ASSERT_TRUE(session_handle->IsTabInContext(tab0_id));
   ASSERT_TRUE(session_handle->IsTabInContext(tab1_id));
 

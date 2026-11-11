@@ -5,7 +5,6 @@
 #include <optional>
 
 #include "base/test/scoped_feature_list.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/test/base/web_ui_mocha_browser_test.h"
 #include "components/skills/features.h"
@@ -23,17 +22,13 @@ class SkillsBrowserTest : public WebUIMochaBrowserTest {
 
   void SetUpOnMainThread() override {
     WebUIMochaBrowserTest::SetUpOnMainThread();
-    scoped_glic_bypass_.emplace();
   }
 
   void TearDownOnMainThread() override {
-    scoped_glic_bypass_.reset();
     WebUIMochaBrowserTest::TearDownOnMainThread();
   }
 
  private:
-  std::optional<glic::GlicEnabling::ScopedBypassEnablementChecksForTesting>
-      scoped_glic_bypass_;
   base::test::ScopedFeatureList scoped_feature_list_;
 };
 
@@ -47,17 +42,13 @@ class SkillsV2BrowserTest : public WebUIMochaBrowserTest {
 
   void SetUpOnMainThread() override {
     WebUIMochaBrowserTest::SetUpOnMainThread();
-    scoped_glic_bypass_.emplace();
   }
 
   void TearDownOnMainThread() override {
-    scoped_glic_bypass_.reset();
     WebUIMochaBrowserTest::TearDownOnMainThread();
   }
 
  private:
-  std::optional<glic::GlicEnabling::ScopedBypassEnablementChecksForTesting>
-      scoped_glic_bypass_;
   base::test::ScopedFeatureList scoped_feature_list_;
 };
 

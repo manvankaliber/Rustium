@@ -13,8 +13,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/thread_pool.h"
 #include "build/chromeos_buildflags.h"
-#include "chrome/browser/glic/host/glic_drag_and_drop_util.h"
-#include "chrome/browser/glic/host/guest_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/webui_url_constants.h"
 #include "components/enterprise/buildflags/buildflags.h"
@@ -181,26 +179,7 @@ void HandleOnPerformingDrop(
     content::WebContentsViewDelegate::DropCompletionCallback callback) {
   CHECK(callback);
 
-  content::WebContents* scan_target =
-      glic::GetGlicGuestWebContents(web_contents);
-  if (scan_target) {
-    // For Glic-specific web sourced drag and drop operations, we bypass the
-    // standard Enterprise Cloud Content Analysis scanning (Safe Browsing/deep
-    // scanning) here. This is intended because we will run DLP scanning for
-    // the payload as part of the Glic invocation, and if that fails the user
-    // won't see the content anyway.
-    if (glic::IsChromeWebDrag(drop_data)) {
-      glic::StartDragAndDropInvoke(web_contents, drop_data);
-      // Do not forward the DOM drop to the guest renderer (`std::nullopt`
-      // triggers `DragTargetDragLeave` to dismiss the guest drop-target
-      // overlay). The dropped content is delivered asynchronously via Glic
-      // Invoke only after DLP policy checks succeed.
-      std::move(callback).Run(std::nullopt);
-      return;
-    }
-  } else {
-    scan_target = web_contents;
-  }
+  content::WebContents* scan_target = web_contents;
 
   absl::Cleanup cleanup = [&] {
     if (scan_target->GetDelegate()) {

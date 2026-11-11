@@ -168,7 +168,7 @@ class ContextualCueingController
   // invokes InitiateModelExecutionRequest() if all checks pass.
   //
   // TODO(b/523306363): Remove once the V2 multi-source path is fully launched.
-  void RunGlicSingleSourcePath(
+  void RunSingleSourcePath(
       const page_content_annotations::HistoryVisit& visit,
       const page_content_annotations::PageContentAnnotationsResult& result);
 

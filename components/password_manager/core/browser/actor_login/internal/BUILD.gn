@@ -28,8 +28,6 @@ source_set("delegate") {
 
   visibility = [
     ":unit_tests",
-    "//chrome/browser/password_manager/actor_login:*",
-    "//chrome/browser/password_manager/actor_login/internal:*",
     "//components/password_manager/core/browser/actor_login:*",
     "//components/password_manager/core/browser/actor_login/test:*",
   ]
@@ -61,7 +59,6 @@ source_set("permission_service_impl") {
 
   visibility = [
     ":unit_tests",
-    "//chrome/browser/password_manager/actor_login:*",
     "//components/password_manager/core/browser/actor_login:*",
   ]
 
@@ -89,8 +86,6 @@ source_set("permission_cleaner") {
   visibility = [
     ":delegate",
     ":unit_tests",
-    "//chrome/browser/password_manager/actor_login:*",
-    "//chrome/browser/password_manager/actor_login/internal:*",
     "//components/password_manager/core/browser/actor_login:*",
   ]
 

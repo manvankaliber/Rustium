@@ -25,12 +25,6 @@
 #include "chrome/browser/contextual_cueing/features.h"
 #include "chrome/browser/enterprise/browser_management/management_identity.h"
 #include "chrome/browser/file_system_access/chrome_file_system_access_permission_context.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/glic_settings_util.h"
-#include "chrome/browser/glic/public/features.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
 #include "chrome/browser/indigo/resources/grit/indigo_strings.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/obsolete_system/obsolete_system.h"
@@ -47,7 +41,6 @@
 #include "chrome/browser/signin/chrome_signin_client_factory.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
 #include "chrome/browser/signin/signin_ui_util.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/subscription_eligibility/subscription_eligibility_service_factory.h"
 #include "chrome/browser/sync/sync_service_factory.h"
 #include "chrome/browser/ui/managed_ui.h"
@@ -62,7 +55,6 @@
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/browser/ui/webui/management/management_ui.h"
 #include "chrome/browser/ui/webui/policy_indicator_localized_strings_provider.h"
-#include "chrome/browser/ui/webui/settings/glic_handler.h"
 #include "chrome/browser/ui/webui/settings/reset_settings_handler.h"
 #include "chrome/browser/ui/webui/settings/shared_settings_localized_strings_provider.h"
 #include "chrome/browser/ui/webui/version/version_ui.h"
@@ -87,7 +79,6 @@
 #include "components/autofill/core/common/autofill_features.h"
 #include "components/autofill/core/common/autofill_payments_features.h"
 #include "components/autofill/core/common/autofill_prefs.h"
-#include "components/commerce/core/commerce_constants.h"
 #include "components/content_settings/core/common/features.h"
 #include "components/dom_distiller/core/dom_distiller_features.h"
 #include "components/google/core/common/google_util.h"
@@ -758,9 +749,6 @@ void AddClearBrowsingDataStrings(content::WebUIDataSource* html_source,
                               ChromeSigninClientFactory::GetForProfile(profile)
                                   ->IsClearPrimaryAccountAllowed());
 
-  html_source->AddBoolean(
-      "showDeleteSkillsDataType",
-      skills::SkillsServiceFactory::GetForProfile(profile) != nullptr);
 
   html_source->AddLocalizedStrings(kLocalizedStrings);
 }
@@ -800,44 +788,6 @@ void AddDownloadsStrings(content::WebUIDataSource* html_source) {
   html_source->AddLocalizedStrings(kLocalizedStrings);
 }
 
-void AddGeicStrings(content::WebUIDataSource* html_source) {
-  // Also registers the GEiC switcher strings shown on `glic_subpage` so that
-  // `GetDeviceManagerIdentity()` is only queried once.
-  static constexpr webui::LocalizedString kLocalizedStrings[] = {
-      {"geicSectionTitle", IDS_SETTINGS_GEIC_SECTION_TITLE},
-      {"geicRowSublabel", IDS_SETTINGS_GEIC_ROW_SUBLABEL},
-      {"geicDevicePolicyToggle",
-       IDS_SETTINGS_GEIC_ENABLED_BY_DEVICE_POLICY_TOGGLE},
-      {"geicDevicePolicyButton",
-       IDS_SETTINGS_GEIC_ENABLED_BY_DEVICE_POLICY_BUTTON},
-      {"glicSwitchToGeicToggle", IDS_SETTINGS_GLIC_SWITCH_TO_GEIC_TOGGLE},
-  };
-  html_source->AddLocalizedStrings(kLocalizedStrings);
-
-  std::optional<std::string> device_manager = GetDeviceManagerIdentity();
-  const std::u16string manager_domain =
-      device_manager && !device_manager->empty()
-          ? base::UTF8ToUTF16(*device_manager)
-          : l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GEIC_DEFAULT_MANAGEMENT_DOMAIN);
-  html_source->AddString(
-      "geicDevicePolicyToggleSublabel",
-      l10n_util::GetStringFUTF16(
-          IDS_SETTINGS_GEIC_ENABLED_BY_DEVICE_POLICY_TOGGLE_SUBLABEL,
-          manager_domain));
-  html_source->AddString(
-      "glicSwitchToGeicToggleSublabel",
-      l10n_util::GetStringFUTF16(
-          IDS_SETTINGS_GLIC_SWITCH_TO_GEIC_TOGGLE_SUBLABEL, manager_domain));
-
-  html_source->AddString(
-      "geicDefaultTabAccessToggleLearnMoreUrl",
-      google_util::AppendGoogleLocaleParam(
-          GURL(features::kGeicDefaultTabAccessToggleLearnMoreURL.Get()),
-          g_browser_process->GetApplicationLocale())
-          .spec());
-}
-
 void AddGeneralStrings(content::WebUIDataSource* html_source) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
       {"generalPageTitle", IDS_SETTINGS_GENERAL},
@@ -845,350 +795,6 @@ void AddGeneralStrings(content::WebUIDataSource* html_source) {
   html_source->AddLocalizedStrings(kLocalizedStrings);
 }
 
-void AddGlicStrings(content::WebUIDataSource* html_source, Profile* profile) {
-  static constexpr webui::LocalizedString kLocalizedStrings[] = {
-      {"glicPageTitle", IDS_SETTINGS_GLIC_PAGE_TITLE},
-      {"glicSectionTitle", IDS_SETTINGS_GLIC_SECTION_TITLE},
-      {"glicRowLabel", IDS_SETTINGS_GLIC_ROW_LABEL},
-      {"glicRowSublabel", IDS_SETTINGS_GLIC_ROW_SUBLABEL},
-      {"glicPolicyDisabledMessage", IDS_SETTINGS_GLIC_POLICY_DISABLED_MESSAGE},
-      {"glicPreferencesSection", IDS_SETTINGS_GLIC_PREFERENCES_SECTION},
-      {"glicDataSection", IDS_SETTINGS_GLIC_PERMISSIONS_SECTION},
-      {"glicAutoBrowseSection", IDS_SETTINGS_GLIC_AUTO_BROWSE_SECTION},
-      {"glicTabstripButtonToggle", IDS_SETTINGS_GLIC_BUTTON_TOGGLE},
-      {"glicTabstripButtonToggleSublabel",
-       IDS_SETTINGS_GLIC_BUTTON_TOGGLE_SUBLABEL},
-      {"glicOsWidgetToggleSublabel",
-       IDS_SETTINGS_GLIC_OS_WIDGET_TOGGLE_SUBLABEL},
-      {"glicKeyboardShortcut", IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT},
-      {"glicKeyboardShortcutEditLabel",
-       IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT_EDIT_LABEL},
-      {"glicKeyboardShortcutClearLabel",
-       IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT_CLEAR_LABEL},
-      {"glicKeyboardShortcutSublabel",
-       IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT_SUBLABEL},
-      {"glicKeyboardShortcutLearnMoreLabel",
-       IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT_LEARN_MORE_LABEL},
-      {"glicNavigationShortcut", IDS_SETTINGS_GLIC_NAVIGATION_SHORTCUT},
-      {"glicNavigationShortcutEditLabel",
-       IDS_SETTINGS_GLIC_NAVIGATION_SHORTCUT_EDIT_LABEL},
-      {"glicNavigationShortcutClearLabel",
-       IDS_SETTINGS_GLIC_NAVIGATION_SHORTCUT_CLEAR_LABEL},
-      {"glicNavigationShortcutSublabel",
-       IDS_SETTINGS_GLIC_NAVIGATION_SHORTCUT_SUBLABEL},
-      {"glicSelectionShortcut", IDS_SETTINGS_GLIC_SELECTION_SHORTCUT},
-      {"glicSelectionShortcutEditLabel",
-       IDS_SETTINGS_GLIC_SELECTION_SHORTCUT_EDIT_LABEL},
-      {"glicSelectionShortcutClearLabel",
-       IDS_SETTINGS_GLIC_SELECTION_SHORTCUT_CLEAR_LABEL},
-      {"glicSelectionShortcutSublabel",
-       IDS_SETTINGS_GLIC_SELECTION_SHORTCUT_SUBLABEL},
-      {"glicKeyboardShortcutLearnMoreAriaLabel",
-       IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT_LEARN_MORE_ARIA_LABEL},
-      {"glicNavigationShortcutLearnMoreAriaLabel",
-       IDS_SETTINGS_GLIC_NAVIGATION_SHORTCUT_LEARN_MORE_ARIA_LABEL},
-      {"glicSelectionShortcutLearnMoreAriaLabel",
-       IDS_SETTINGS_GLIC_SELECTION_SHORTCUT_LEARN_MORE_ARIA_LABEL},
-      {"glicClosedCaptionsToggle", IDS_SETTINGS_GLIC_CLOSED_CAPTIONING},
-      {"glicClosedCaptionsToggleSublabel",
-       IDS_SETTINGS_GLIC_CLOSED_CAPTIONING_SUBLABEL},
-      {"glicKeepSidepanelOpenOnNewTabsToggle",
-       IDS_SETTINGS_GLIC_KEEP_SIDEPANEL_OPEN_ON_NEW_TABS},
-      {"glicKeepSidepanelOpenOnNewTabsToggleSublabel",
-       IDS_SETTINGS_GLIC_KEEP_SIDEPANEL_OPEN_ON_NEW_TABS_SUBLABEL},
-      {"glicShakeTriggerToggle", IDS_SETTINGS_GLIC_SHAKE_TRIGGER_TOGGLE},
-      {"glicShakeTriggerToggleSublabel",
-       IDS_SETTINGS_GLIC_SHAKE_TRIGGER_TOGGLE_SUBLABEL},
-      {"glicLocationToggle", IDS_SETTINGS_GLIC_PERMISSIONS_LOCATION_TOGGLE},
-      {"glicLocationToggleSublabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_LOCATION_TOGGLE_SUBLABEL},
-      {"glicLocationToggleSublabelDataProtected",
-       IDS_SETTINGS_GLIC_PERMISSIONS_LOCATION_TOGGLE_SUBLABEL_DATA_PROTECTED},
-      {"glicMicrophoneToggle", IDS_SETTINGS_GLIC_PERMISSIONS_MICROPHONE_TOGGLE},
-      {"glicMicrophoneToggleSublabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_MICROPHONE_TOGGLE_SUBLABEL},
-      {"glicMicrophoneToggleSublabelDataProtected",
-       IDS_SETTINGS_GLIC_PERMISSIONS_MICROPHONE_TOGGLE_SUBLABEL_DATA_PROTECTED},
-      {"glicTabAccessToggle", IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_TOGGLE},
-      {"glicTabAccessToggleSublabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_TOGGLE_SUBLABEL},
-      {"glicTabAccessToggleSublabelDataProtected",
-       IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_TOGGLE_SUBLABEL_DATA_PROTECTED},
-      {"glicDefaultTabAccessToggle",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_TOGGLE},
-      {"glicDefaultTabAccessToggleSublabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_TOGGLE_SUBLABEL},
-      {"glicDefaultTabAccessToggleSublabelDataProtected",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_TOGGLE_SUBLABEL_DATA_PROTECTED},
-      {"glicWebActuationToggle",
-       IDS_SETTINGS_GLIC_PERMISSIONS_CHROME_WEB_ACTUATION_TOGGLE},
-      {"glicActorLoginPermissionsSectionTitle",
-       IDS_SETTINGS_GLIC_ACTOR_LOGIN_PERMISSIONS_SECTION_TITLE},
-      {"glicActorLoginPermissionsSectionSublabel",
-       IDS_SETTINGS_GLIC_ACTOR_LOGIN_PERMISSIONS_SECTION_SUBLABEL},
-      {"glicLoginPermissionsPageTitle",
-       IDS_SETTINGS_GLIC_LOGIN_PERMISSIONS_PAGE_TITLE},
-      {"glicLoginPermissionsOfflineWarning",
-       IDS_SETTINGS_GLIC_LOGIN_PERMISSIONS_OFFLINE_WARNING},
-      {"glicLoginPermissionsPageDescription",
-       IDS_SETTINGS_GLIC_LOGIN_PERMISSIONS_PAGE_DESCRIPTION},
-      {"glicLoginPermissionsNoSites",
-       IDS_SETTINGS_GLIC_LOGIN_PERMISSIONS_NO_SITES},
-      {"glicRevokeActorLoginPermissionAriaLabel",
-       IDS_SETTINGS_GLIC_REVOKE_ACTOR_LOGIN_PERMISSION_ARIA_LABEL},
-      {"glicRemoveActorLoginDialogTitle",
-       IDS_SETTINGS_GLIC_REMOVE_ACTOR_LOGIN_DIALOG_TITLE},
-      {"glicRemoveActorLoginDialogDescription",
-       IDS_SETTINGS_GLIC_REMOVE_ACTOR_LOGIN_DIALOG_DESCRIPTION},
-      {"glicLoginPermissionsRemoveError",
-       IDS_SETTINGS_GLIC_LOGIN_PERMISSIONS_REMOVE_ERROR},
-      {"glicActivityButton", IDS_SETTINGS_GLIC_PERMISSIONS_ACTIVITY_BUTTON},
-      {"glicActivityButtonSublabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_ACTIVITY_BUTTON_SUBLABEL},
-      {"glicExtensionsButton", IDS_SETTINGS_GLIC_EXTENSIONS_BUTTON},
-      {"glicExtensionsButtonSublabel",
-       IDS_SETTINGS_GLIC_EXTENSIONS_BUTTON_SUBLABEL},
-      {"glicTabAccessWhenOn1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_WHEN_ON_1},
-      {"glicTabAccessConsider1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_CONSIDER_1},
-      {"glicTabAccessConsider1LearnMoreLabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_CONSIDER_1_LEARN_MORE_LABEL},
-      {"glicDefaultTabAccessWhenOn1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_WHEN_ON_1},
-      {"glicDefaultTabAccessConsider1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_CONSIDER_1},
-      {"glicDefaultTabAccessConsider2",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_CONSIDER_2},
-      {"glicPersonalContextSettingButton", IDS_SETTINGS_GLIC_PERSONAL_CONTEXT},
-      {"glicPersonalContextSettingSublabel",
-       IDS_SETTINGS_GLIC_PERSONAL_CONTEXT_LABEL},
-      {"glicInstructionsSettingButton", IDS_SETTINGS_GLIC_INSTRUCTIONS_BUTTON},
-      {"glicInstructionsSettingSublabel",
-       IDS_SETTINGS_GLIC_INSTRUCTIONS_BUTTON_SUBLABEL},
-      {"glicWebActuationToggleWhenOn1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_WHEN_ON_1},
-      {"glicWebActuationToggleWhenOn2",
-       IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_WHEN_ON_2},
-      {"glicWebActuationToggleConsider1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_CONSIDER_1},
-      {"glicExperimentalTriggering",
-       IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_TOGGLE},
-      {"glicExperimentalTriggeringWhenOn1",
-       IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_WHEN_ON_1},
-      {"glicExperimentalTriggeringWhenOn2",
-       IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_WHEN_ON_2},
-      {"glicExperimentalTriggeringConsider1",
-       IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_CONSIDER_1},
-      {"glicExperimentalTriggeringConsider2",
-       IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_CONSIDER_2},
-      {"glicMediaUnderstandingToggle", IDS_SETTINGS_GLIC_MEDIA_UNDERSTANDING},
-      {"glicMediaUnderstandingToggleSublabel",
-       IDS_SETTINGS_GLIC_MEDIA_UNDERSTANDING_SUBLABEL},
-      {"siteSettingsInlineCueMenu", IDS_SETTINGS_GLIC_INLINE_CUE_MENU},
-      {"siteSettingsInlineCueMenuDescription",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_DESCRIPTION},
-      {"siteSettingsInlineCueMenuBlockedExceptions",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_BLOCKED_EXCEPTIONS},
-      {"siteSettingsInlineCueMenuAddSite",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_ADD_SITE},
-      {"siteSettingsInlineCueMenuPreview",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_PREVIEW},
-      {"siteSettingsInlineCueMenuPreviewText",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_PREVIEW_TEXT},
-      {"siteSettingsInlineCueMenuPreviewPill",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_PREVIEW_PILL},
-      {"siteSettingsInlineCueMenuToggleLabel",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU},
-      {"siteSettingsInlineCueMenuToggleSublabel",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_TOGGLE_SUBLABEL},
-      {"glicHotkeyGlobalScopeDescription",
-       IDS_SETTINGS_GLIC_HOTKEY_GLOBAL_SCOPE_DESCRIPTION},
-  };
-  html_source->AddLocalizedStrings(kLocalizedStrings);
-
-  html_source->AddString("glicActivityButtonUrl", chrome::kGlicActivityUrl);
-
-  html_source->AddLocalizedString(
-      "glicOsWidgetToggle",
-      base::FeatureList::IsEnabled(features::kGlicHotkeyLocalScope)
-          ? IDS_SETTINGS_GLIC_OS_WIDGET_TOGGLE_SHORTCUT_EXCLUDED
-          : IDS_SETTINGS_GLIC_OS_WIDGET_TOGGLE);
-  html_source->AddLocalizedString(
-      "glicDefaultTabAccessWhenOn2",
-      glic::GlicEnabling::EnablementForProfile(profile).EligibleForLive()
-          ? IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_WHEN_ON_2
-          : IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_WHEN_ON_2_NO_LIVE);
-
-  auto* command_line = base::CommandLine::ForCurrentProcess();
-  bool has_url =
-      command_line->HasSwitch(::switches::kGlicShortcutsLearnMoreURL);
-  const std::string keyboard_shortcut_learn_more_url =
-      has_url ? command_line->GetSwitchValueASCII(
-                    ::switches::kGlicShortcutsLearnMoreURL)
-              : features::kGlicShortcutsLearnMoreURL.Get();
-
-  const std::string& application_locale =
-      g_browser_process->GetApplicationLocale();
-
-  auto add_localized_url = [&](std::string_view name,
-                               std::string_view url_string) {
-    html_source->AddString(
-        name, google_util::AppendGoogleLocaleParam(
-                  glic::GetHelpCenterUrl(url_string), application_locale)
-                  .spec());
-  };
-
-  add_localized_url("glicKeyboardShortcutLearnMoreUrl",
-                    keyboard_shortcut_learn_more_url);
-  add_localized_url("glicLauncherToggleLearnMoreUrl",
-                    features::kGlicLauncherToggleLearnMoreURL.Get());
-  add_localized_url("glicLocationToggleLearnMoreUrl",
-                    features::kGlicLocationToggleLearnMoreURL.Get());
-  add_localized_url("glicTabAccessToggleLearnMoreUrl",
-                    features::kGlicTabAccessToggleLearnMoreURL.Get());
-  add_localized_url(
-      "glicTabAccessToggleLearnMoreUrlDataProtected",
-      features::kGlicTabAccessToggleLearnMoreURLDataProtected.Get());
-  add_localized_url("glicDefaultTabAccessToggleLearnMoreUrl",
-                    features::kGlicDefaultTabAccessToggleLearnMoreURL.Get());
-  add_localized_url(
-      "glicDefaultTabAccessToggleLearnMoreUrlDataProtected",
-      features::kGlicDefaultTabAccessToggleLearnMoreURLDataProtected.Get());
-  add_localized_url("glicSettingsPageLearnMoreUrl",
-                    features::kGlicSettingsPageLearnMoreURL.Get());
-  add_localized_url("glicExtensionsManagementUrl",
-                    features::kGlicExtensionsManagementUrl.Get());
-  add_localized_url("glicWebActuationToggleLearnMoreUrl",
-                    features::kGlicWebActuationToggleLearnMoreURL.Get());
-  if (base::FeatureList::IsEnabled(features::kGlicSettingsA11yContextFix)) {
-    html_source->AddString(
-        "glicWebActuationToggleSublabelV2",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_PERMISSIONS_CHROME_WEB_ACTUATION_TOGGLE_SUBLABEL_V2,
-            base::EscapeForHTML(l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GLIC_PERMISSIONS_CHROME_WEB_ACTUATION_TOGGLE_LEARN_MORE_ARIA_LABEL)),
-            base::EscapeForHTML(
-                l10n_util::GetStringUTF16(IDS_SETTINGS_OPENS_IN_NEW_TAB))));
-    html_source->AddString(
-        "glicWebActuationToggleConsider2V2",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_CONSIDER_2_V2,
-            base::EscapeForHTML(base::UTF8ToUTF16(
-                features::kGlicWebActuationToggleConsiderSafelyURL.Get())),
-            base::EscapeForHTML(base::UTF8ToUTF16(
-                features::kGlicWebActuationToggleConsiderUnexpectedResultsURL
-                    .Get())),
-            base::EscapeForHTML(l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_CONSIDER_SAFELY_ARIA_LABEL)),
-            base::EscapeForHTML(l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_CONSIDER_UNEXPECTED_RESULTS_ARIA_LABEL)),
-            base::EscapeForHTML(
-                l10n_util::GetStringUTF16(IDS_SETTINGS_OPENS_IN_NEW_TAB))));
-  } else {
-    html_source->AddLocalizedString(
-        "glicWebActuationToggleSublabelV2",
-        IDS_SETTINGS_GLIC_PERMISSIONS_CHROME_WEB_ACTUATION_TOGGLE_SUBLABEL);
-    html_source->AddString(
-        "glicWebActuationToggleConsider2V2",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_CONSIDER_2,
-            base::EscapeForHTML(base::UTF8ToUTF16(
-                features::kGlicWebActuationToggleConsiderSafelyURL.Get())),
-            base::EscapeForHTML(base::UTF8ToUTF16(
-                features::kGlicWebActuationToggleConsiderUnexpectedResultsURL
-                    .Get()))));
-  }
-
-  const std::string experimental_triggering_learn_more_url =
-      google_util::AppendGoogleLocaleParam(
-          glic::GetHelpCenterUrl(
-              features::kGlicExperimentalTriggeringLearnMoreURL.Get()),
-          application_locale)
-          .spec();
-  html_source->AddString("glicExperimentalTriggeringLearnMoreUrl",
-                         experimental_triggering_learn_more_url);
-  const std::string experimental_triggering_safety_url =
-      google_util::AppendGoogleLocaleParam(
-          glic::GetHelpCenterUrl(
-              features::kGlicExperimentalTriggeringSafetyURL.Get()),
-          application_locale)
-          .spec();
-
-  if (base::FeatureList::IsEnabled(
-          features::kGlicSparkSettingsAccessibleLabels)) {
-    html_source->AddString(
-        "glicExperimentalTriggeringSublabel",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_SUB_LABEL_V2,
-            base::UTF8ToUTF16(experimental_triggering_learn_more_url),
-            base::EscapeForHTML(l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_SUB_LABEL_LEARN_MORE_LINK_LABEL)),
-            base::EscapeForHTML(
-                l10n_util::GetStringUTF16(IDS_SETTINGS_OPENS_IN_NEW_TAB))));
-    html_source->AddString(
-        "glicExperimentalTriggeringConsider3",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_CONSIDER_3_V2,
-            base::UTF8ToUTF16(experimental_triggering_safety_url),
-            base::EscapeForHTML(l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_CONSIDER_REVIEW_RISKS_LINK_LABEL)),
-            base::EscapeForHTML(
-                l10n_util::GetStringUTF16(IDS_SETTINGS_OPENS_IN_NEW_TAB))));
-  } else {
-    html_source->AddString(
-        "glicExperimentalTriggeringSublabel",
-        l10n_util::GetStringUTF16(
-            IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_SUB_LABEL));
-    html_source->AddString(
-        "glicExperimentalTriggeringConsider3",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_CONSIDER_3,
-            base::UTF8ToUTF16(experimental_triggering_safety_url)));
-  }
-
-  html_source->AddBoolean(
-      "glicExtensionsFeatureEnabled",
-      base::FeatureList::IsEnabled(features::kGlicExtensions));
-  html_source->AddBoolean(
-      "glicUserStatusCheckFeatureEnabled",
-      base::FeatureList::IsEnabled(features::kGlicUserStatusCheck));
-  html_source->AddBoolean("glicAssetsV2Enabled", base::FeatureList::IsEnabled(
-                                                     features::kGlicAssetsV2));
-  html_source->AddBoolean(
-      "showGlicDefaultTabContextSetting",
-      base::FeatureList::IsEnabled(features::kGlicDefaultTabContextSetting));
-  html_source->AddBoolean(
-      "showGlicKeepSidepanelOpenOnNewTabsSetting",
-      base::FeatureList::IsEnabled(features::kGlicDaisyChainNewTabs));
-  html_source->AddBoolean("glicWebActuationFeatureEnabled",
-                          GlicHandler::ShouldShowWebActuationToggle(profile));
-  html_source->AddBoolean(
-      "isWebActuationDisabledForEnterprise",
-      GlicHandler::IsWebActuationDisabledForEnterprise(profile));
-  html_source->AddBoolean("glicActorEnabled",
-                          base::FeatureList::IsEnabled(features::kGlicActor));
-  html_source->AddBoolean(
-      "glicCanUseLive",
-      glic::GlicEnabling::EnablementForProfile(profile).EligibleForLive());
-  html_source->AddBoolean("headlessCaptionsEnabled",
-                          captions::IsHeadlessCaptionFeatureSupported());
-  html_source->AddBoolean(
-      "actorLoginFederatedLoginSupportEnabled",
-      base::FeatureList::IsEnabled(features::kFedCmEmbedderInitiatedLogin));
-  html_source->AddBoolean("glicSelectionFeatureEnabled",
-                          glic::GetGlicProviderSpec(profile).SupportsFeature(
-                              glic::GlicFeature::kCaptureRegion));
-  html_source->AddBoolean(
-      "glicHotkeyLocalScopeEnabled",
-      base::FeatureList::IsEnabled(features::kGlicHotkeyLocalScope));
-  html_source->AddBoolean(
-      "showGlicExperimentalTriggering",
-      GlicHandler::ShouldShowExperimentalTriggeringToggle(profile));
-  html_source->AddBoolean(
-      "showGlicShakeTrigger",
-      base::FeatureList::IsEnabled(features::kGlicShakeTrigger));
-}
 
 void AddResetStrings(content::WebUIDataSource* html_source, Profile* profile) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
@@ -2087,9 +1693,6 @@ void AddAutofillStrings(content::WebUIDataSource* html_source,
   html_source->AddBoolean(
       "emailVerificationProtocolEnabled",
       base::FeatureList::IsEnabled(features::kEmailVerificationProtocol));
-  html_source->AddBoolean("autofillGmailOtpFillingEnabled",
-                          base::FeatureList::IsEnabled(
-                              features::kGlicActorAutofillOneTimePassword));
   html_source->AddString(
       "enableGmailOtpFillingDescription",
       l10n_util::GetStringFUTF16(
@@ -3938,9 +3541,6 @@ void AddSiteSettingsStrings(content::WebUIDataSource* html_source,
       {"siteSettingsArMidSentence", IDS_SITE_SETTINGS_TYPE_AR_MID_SENTENCE},
       {"siteSettingsArAsk", IDS_SETTINGS_SITE_SETTINGS_AR_ASK},
       {"siteSettingsArBlock", IDS_SETTINGS_SITE_SETTINGS_AR_BLOCK},
-      {"siteSettingsInlineCueMenu", IDS_SETTINGS_GLIC_INLINE_CUE_MENU},
-      {"siteSettingsInlineCueMenuMidSentence",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_MID_SENTENCE},
       {"siteSettingsVr", IDS_SITE_SETTINGS_TYPE_VR},
       {"siteSettingsVrMidSentence", IDS_SITE_SETTINGS_TYPE_VR_MID_SENTENCE},
       {"siteSettingsWebAppInstallation",
@@ -4427,9 +4027,7 @@ void AddLocalizedStrings(content::WebUIDataSource* html_source,
   AddCommonStrings(html_source, profile);
   AddDownloadsStrings(html_source);
   AddExtensionsStrings(html_source);
-  AddGeicStrings(html_source);
   AddGeneralStrings(html_source);
-  AddGlicStrings(html_source, profile);
   AddPerformanceStrings(html_source);
   AddLanguagesStrings(html_source, profile);
   AddOnStartupStrings(html_source);

@@ -265,8 +265,8 @@ void OpenLearnMoreURL(bool is_profile_list_empty,
 
 }  // namespace
 
-ProfilePickerHandler::ProfilePickerHandler(bool is_glic_version)
-    : is_glic_version_(is_glic_version) {}
+
+ProfilePickerHandler::ProfilePickerHandler() = default;
 
 ProfilePickerHandler::~ProfilePickerHandler() {
   OnJavascriptDisallowed();
@@ -438,15 +438,6 @@ void ProfilePickerHandler::TryLaunchLockedProfile(
   // Reauth attempt.
   if (entry.GetSigninState() != SigninState::kNotSignedIn ||
       entry.CanBeManaged()) {
-    // Glic version cannot run the reauth steps, show a dialog instead that
-    // will redirect the user to the regular version of the picker.
-    if (is_glic_version_) {
-      DisplaySigninErrorDialog(
-          /*profile_path=*/base::FilePath(),
-          ForceSigninUIError::ReauthNotSupportedByGlicFlow());
-      OnResetPickerButtons(false);
-      return;
-    }
 
     g_browser_process->profile_manager()->LoadProfileByPath(
         entry.GetPath(), /*incognito=*/false,
@@ -770,7 +761,6 @@ void ProfilePickerHandler::HandleUpdateProfileOrder(
 
 void ProfilePickerHandler::HandleOnLearnMoreClicked(
     const base::ListValue& args) {
-  CHECK(is_glic_version_);
   CHECK_EQ(0U, args.size());
 
   bool is_profile_list_empty = GetProfilesAttributesForDisplay().empty();
@@ -909,14 +899,6 @@ ProfilePickerHandler::GetProfilesAttributesForDisplay() {
     return entry->IsOmitted();
   });
 
-  // In Glic version, only allow profile entries that are eligible. This may
-  // cause the returned profile list to be empty, and will display different
-  // strings in the Ui.
-  if (is_glic_version_) {
-    std::erase_if(ordered_entries, [](const ProfileAttributesEntry* entry) {
-      return !entry->IsGlicEligible();
-    });
-  }
 
   size_t number_of_profiles = ordered_entries.size();
 
@@ -1008,9 +990,6 @@ void ProfilePickerHandler::OnProfileAdded(const base::FilePath& profile_path) {
   if (entry->IsOmitted()) {
     return;
   }
-  if (is_glic_version_ && !entry->IsGlicEligible()) {
-    return;
-  }
 
   AddProfileToListAndPushUpdates(profile_path);
 }
@@ -1029,7 +1008,7 @@ void ProfilePickerHandler::OnProfileIsOmittedChanged(
           ->GetProfileAttributesStorage()
           .GetProfileAttributesWithPath(profile_path);
   CHECK(entry);
-  if (entry->IsOmitted() || (is_glic_version_ && !entry->IsGlicEligible())) {
+  if (entry->IsOmitted()) {
     RemoveProfileFromListAndPushUpdates(profile_path);
   } else {
     AddProfileToListAndPushUpdates(profile_path);
@@ -1063,27 +1042,6 @@ void ProfilePickerHandler::OnProfileSupervisedUserIdChanged(
   PushProfilesList();
 }
 
-void ProfilePickerHandler::OnProfileIsGlicEligibleChanged(
-    const base::FilePath& profile_path) {
-  if (!is_glic_version_) {
-    return;
-  }
-
-  ProfileAttributesEntry* entry =
-      g_browser_process->profile_manager()
-          ->GetProfileAttributesStorage()
-          .GetProfileAttributesWithPath(profile_path);
-  CHECK(entry);
-  if (entry->IsOmitted()) {
-    return;
-  }
-
-  if (entry->IsGlicEligible()) {
-    AddProfileToListAndPushUpdates(profile_path);
-  } else {
-    RemoveProfileFromListAndPushUpdates(profile_path);
-  }
-}
 
 void ProfilePickerHandler::OnProfileAiSubscriptionTierUpdated(
     const base::FilePath& profile_path,

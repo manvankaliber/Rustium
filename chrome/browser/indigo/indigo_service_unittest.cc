@@ -18,7 +18,6 @@
 #include "chrome/browser/contextual_cueing/features.h"
 #include "chrome/browser/contextual_cueing/prefs.h"
 #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/indigo/indigo_prefs.h"
 #include "chrome/browser/indigo/proto/indigo_config.pb.h"
 #include "chrome/browser/indigo/proto/indigo_prompts.pb.h"
@@ -235,33 +234,6 @@ TEST_F(IndigoServiceTest, RefreshTokenErrorResolved) {
   EXPECT_TRUE(LocalEligibilityBecomes(LocalEligibility::kEligible));
 }
 
-TEST_F(IndigoServiceTest, GlicRequirementEnabledAndDisabled) {
-  scoped_feature_list_.Reset();
-  scoped_feature_list_.InitAndEnableFeatureWithParameters(
-      features::kIndigo, {{features::kIndigoRequireGlicEnabling.name, "true"},
-                          {features::kIndigoSkipEnterpriseCheck.name, "true"}});
-
-  CreateService();
-  MakeAccountAvailableAndCapable();
-
-  // Initially Glic is not enabled for the profile, so local eligibility becomes
-  // kGlicDisabledForProfile.
-  EXPECT_TRUE(
-      LocalEligibilityBecomes(LocalEligibility::kGlicDisabledForProfile));
-
-  // Once Glic is enabled (bypassing enablement checks), local eligibility
-  // becomes kEligible.
-  glic::GlicEnabling::ScopedBypassEnablementChecksForTesting scoped_glic_bypass;
-  {
-    CoreAccountId account_id =
-        identity_test_env_.identity_manager()->GetPrimaryAccountId(
-            signin::ConsentLevel::kSignin);
-    AccountInfo info = identity_test_env_.identity_manager()
-                           ->FindExtendedAccountInfoByAccountId(account_id);
-    service_->OnExtendedAccountInfoUpdated(info);
-  }
-  EXPECT_TRUE(LocalEligibilityBecomes(LocalEligibility::kEligible));
-}
 
 TEST_F(IndigoServiceTest, AnchoredMessageTrigger) {
 #if BUILDFLAG(IS_MAC)

@@ -97,7 +97,6 @@ source_set("side_panel") {
     "//chrome/app/vector_icons",
     "//chrome/browser/contextual_tasks",
     "//chrome/browser/favicon",
-    "//chrome/browser/glic",
     "//chrome/browser/media/webrtc",
     "//chrome/browser/new_tab_page",
     "//chrome/browser/performance_manager",
@@ -187,7 +186,7 @@ source_set("side_panel") {
     ]
   }
 
-  allow_circular_includes_from = [ "//chrome/browser/glic" ]
+  allow_circular_includes_from = []
 }
 
 source_set("browser_tests") {

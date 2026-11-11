@@ -5,7 +5,6 @@
 #include "chrome/browser/ui/webui/whats_new/whats_new_registrar.h"
 
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/glic/public/features.h"
 #include "chrome/browser/ui/webui/whats_new/whats_new_storage_service_impl.h"
 #include "chrome/common/buildflags.h"
 #include "chrome/common/chrome_features.h"
@@ -45,17 +44,10 @@ void RegisterWhatsNewModules(whats_new::WhatsNewRegistry* registry) {
       WhatsNewModule("SendTabToSelfEnhancedHandoff", "treib@google.com"));
 
   // M158
-  registry->RegisterModule(WhatsNewModule(::features::kGlicWhatsNewLuminous,
-                                          "iwells@chromium.org",
-                                          BrowserCommand::kOpenGlic));
 }
 
 void RegisterWhatsNewEditions(whats_new::WhatsNewRegistry* registry) {
   // Register editions here.
-  registry->RegisterEdition(WhatsNewEdition(
-      ::features::kGlicRollout, "tommasin@chromium.org",
-      std::vector<BrowserCommand>{BrowserCommand::kOpenGlic,
-                                  BrowserCommand::kOpenGlicSettings}));
   registry->RegisterEdition(
       WhatsNewEdition(ntp_features::kLightningTakeoverEdition,
                       "rtatum@google.com", std::vector<BrowserCommand>{}));

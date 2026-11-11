@@ -108,10 +108,6 @@ class AiOverlayDialogPageHandler : public ai_overlay_dialog::mojom::PageHandler,
 
  private:
   void SendToolSetUpdate();
-  void OnWebMcpToolInvoked(
-      mojo::AssociatedRemote<chrome::mojom::ChromeRenderFrame> keep_alive,
-      ExecuteWebMcpToolCallback callback,
-      actor::mojom::ActionResultPtr result);
 
   mojo::Receiver<ai_overlay_dialog::mojom::PageHandler> receiver_;
   mojo::Remote<ai_overlay_dialog::mojom::Page> page_;

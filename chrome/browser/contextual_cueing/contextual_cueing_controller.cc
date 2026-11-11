@@ -275,7 +275,7 @@ void ContextualCueingController::OnPageContentAnnotated(
   if (base::FeatureList::IsEnabled(kContextualCueingV2MultiSource)) {
     return;
   }
-  RunGlicSingleSourcePath(visit, result);
+  RunSingleSourcePath(visit, result);
 }
 
 void ContextualCueingController::OnStateChanged(syncer::SyncService* sync) {
@@ -314,7 +314,8 @@ bool ContextualCueingController::IsHistorySyncEnabled() const {
              syncer::UserSelectableType::kHistory);
 }
 
-void ContextualCueingController::RunGlicSingleSourcePath(
+
+void ContextualCueingController::RunSingleSourcePath(
     const page_content_annotations::HistoryVisit& visit,
     const page_content_annotations::PageContentAnnotationsResult& result) {
   if (!tab_->IsActivated()) {
@@ -360,12 +361,11 @@ void ContextualCueingController::RunGlicSingleSourcePath(
   }
 
   // Delegate page-level classification to the registered category-classifier
-  // targets (Glic and ContextualSearch), which own the edu/shopping threshold
+  // target (ContextualSearch), which owns the education and shopping threshold
   // logic.
-  CueTarget* glic_target = GetTarget(CueTargetType::kGlic);
   CueTarget* contextual_search_target =
       GetTarget(CueTargetType::kContextualSearch);
-  if (!glic_target && !contextual_search_target) {
+  if (!contextual_search_target) {
     CUEING_LOG(base::StringPrintf(
         "%s ineligible for cue: Target feature not registered.",
         active_web_contents->GetLastCommittedURL().spec()));
@@ -376,7 +376,7 @@ void ContextualCueingController::RunGlicSingleSourcePath(
 
   std::optional<CueTargetType> winning_target_type;
   for (CueTargetType type :
-       {CueTargetType::kGlic, CueTargetType::kContextualSearch}) {
+       {CueTargetType::kContextualSearch}) {
     CueTarget* target = GetTarget(type);
     if (target && target->IsEligible() &&
         target->IsPageEligible(result, active_web_contents)) {
@@ -614,7 +614,7 @@ void ContextualCueingController::OnAllEligibilityChecksComplete(
   }
 
   // Select the winner via UCB scoring.
-  CueTargetType best_type = CueTargetType::kGlic;  // default fallback
+  CueTargetType best_type = CueTargetType::kContextualSearch;
   double best_score = -std::numeric_limits<double>::infinity();
   CueTarget::ContentGenerator winning_generator;
   bool any_eligible = false;

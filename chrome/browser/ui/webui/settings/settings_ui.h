@@ -125,7 +125,7 @@ class SettingsUI
 
   // Updates, based on account and profile state, the loadTimeData values that
   // control whichever AI settings section applies.
-  void UpdateAiSettingsSection();
+
 
   // theme_color_picker::mojom::ThemeColorPickerHandlerFactory:
   void CreateThemeColorPickerHandler(
@@ -194,7 +194,6 @@ class SettingsUI
   mojo::Receiver<settings_search::mojom::SettingsSearchHandlerFactory>
       settings_search_handler_factory_receiver_{this};
 
-  base::CallbackListSubscription glic_settings_state_subscription_;
 
   WEB_UI_CONTROLLER_TYPE_DECL();
 };

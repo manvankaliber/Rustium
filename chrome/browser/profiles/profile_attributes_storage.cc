@@ -944,12 +944,6 @@ void ProfileAttributesStorage::NotifyProfileManagementIdChanged(
   }
 }
 
-void ProfileAttributesStorage::NotifyProfileIsGlicEligibleChanged(
-    const base::FilePath& profile_path) const {
-  for (auto& observer : observer_list_) {
-    observer.OnProfileIsGlicEligibleChanged(profile_path);
-  }
-}
 
 void ProfileAttributesStorage::NotifyProfileAiSubscriptionTierUpdated(
     const base::FilePath& profile_path,

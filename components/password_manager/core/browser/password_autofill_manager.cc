@@ -606,10 +606,6 @@ void PasswordAutofillManager::DeleteFillData() {
 
 void PasswordAutofillManager::ShowSuggestions(
     const autofill::TriggeringField& field) {
-  if (password_client_->IsActorTaskActive()) {
-    // Disables password suggestions if actor is active on the tab.
-    return;
-  }
   if (MaybeTriggerPasswordManualFallback(field)) {
     return;
   }

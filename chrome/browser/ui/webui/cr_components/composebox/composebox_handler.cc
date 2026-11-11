@@ -209,10 +209,9 @@ void ComposeboxHandler::NavigateUrl(const GURL& url) {
                                     /*navigation_handle_callback=*/{});
 }
 
+
 void ComposeboxHandler::CloseLensOverlayFromWebUI(
-    composebox::mojom::LensOverlayDismissalSource dismissal_source) {
-  // Ignore, intentionally unimplemented for NTP.
-}
+    composebox::mojom::LensOverlayDismissalSource dismissal_source) {}
 
 // Required by composebox::mojom::PageHandler. Delegates to the base class
 // ContextualSearchboxHandler which does not implement that interface.

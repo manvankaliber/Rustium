@@ -22,8 +22,6 @@
 #include "chrome/browser/ui/views/toolbar/webui_avatar_toolbar_button.h"
 #include "chrome/browser/ui/views/toolbar/webui_back_forward_control.h"
 #include "chrome/browser/ui/views/toolbar/webui_battery_saver_control.h"
-#include "chrome/browser/ui/views/toolbar/webui_glic_actor_task_icon_control.h"
-#include "chrome/browser/ui/views/toolbar/webui_glic_control.h"
 #include "chrome/browser/ui/views/toolbar/webui_home_control.h"
 #include "chrome/browser/ui/views/toolbar/webui_media_toolbar_button.h"
 #include "chrome/browser/ui/views/toolbar/webui_overflow_button.h"
@@ -138,10 +136,6 @@ class WebUIToolbarControlDelegate {
       toolbar_ui_api::mojom::AvatarControlStatePtr state) = 0;
   virtual void OnMediaControlStateChanged(
       toolbar_ui_api::mojom::MediaControlStatePtr state) = 0;
-  virtual void OnGlicButtonStateChanged(
-      toolbar_ui_api::mojom::GlicButtonStatePtr state) = 0;
-  virtual void OnGlicActorTaskIconStateChanged(
-      toolbar_ui_api::mojom::GlicActorTaskIconStatePtr state) = 0;
   virtual void OnFocusRequested(
       toolbar_ui_api::mojom::FocusRequestTarget target) = 0;
 
@@ -205,10 +199,6 @@ class WebUIToolbarWebView
   void SetIsMaximizedOrFullscreen(bool maximized_or_fullscreen);
   void SetBackForwardEnabled(int command_id, bool enabled);
   void SetForwardVisible(bool visible);
-  glic::ToolbarGlicButtonInterface* GetGlicControl() { return &glic_control_; }
-  WebUIGlicActorTaskIconControl* GetGlicActorTaskIconControl() {
-    return &glic_actor_task_icon_control_;
-  }
 
   // Cleans up UI dependencies and destroys the hosted WebContents.
   // Called early during window teardown (forwarded via
@@ -319,8 +309,6 @@ class WebUIToolbarWebView
                            int32_t selection_start) override;
   void OnPerformanceInterventionButtonClicked() override;
   void OnMediaButtonClicked() override;
-  void OnGlicButtonClicked() override;
-  void OnGlicActorTaskIconClicked() override;
 
   // BrowserControlsService::BrowserControlsServiceDelegate:
   void PermitLaunchUrl() override;
@@ -552,10 +540,6 @@ class WebUIToolbarWebView
       toolbar_ui_api::mojom::AvatarControlStatePtr state) override;
   void OnMediaControlStateChanged(
       toolbar_ui_api::mojom::MediaControlStatePtr state) override;
-  void OnGlicButtonStateChanged(
-      toolbar_ui_api::mojom::GlicButtonStatePtr state) override;
-  void OnGlicActorTaskIconStateChanged(
-      toolbar_ui_api::mojom::GlicActorTaskIconStatePtr state) override;
   void OnFocusRequested(
       toolbar_ui_api::mojom::FocusRequestTarget target) override;
   std::optional<GURL> ConsumeDroppedUrl(
@@ -733,8 +717,6 @@ class WebUIToolbarWebView
   WebUIBatterySaverControl battery_saver_control_;
   WebUIAvatarToolbarButton avatar_control_;
   WebUIMediaToolbarButton media_control_;
-  WebUIGlicControl glic_control_;
-  WebUIGlicActorTaskIconControl glic_actor_task_icon_control_;
   // This is null if WebUILocationBar is off, or the window is in one of the
   // modes (e.g. popup) that don't use it yet.
   std::unique_ptr<WebUILocationBar> location_bar_;

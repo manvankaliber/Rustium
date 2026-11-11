@@ -174,9 +174,6 @@ void ActionAppMenuMetrics::LogMenuActionWithId(actions::ActionId action_id) {
       break;
 
     // Lens overlay.
-    case kActionShowLensOverlayFromAppMenu:
-      RecordAction(MENU_ACTION_SHOW_LENS_OVERLAY, "ShowLensOverlay");
-      break;
     case kActionAskGoogleAboutThisPageFromAppMenu:
       RecordAction(MENU_ACTION_ASK_GOOGLE_ABOUT_THIS_PAGE,
                    "AskGoogleAboutThisPage");
@@ -216,9 +213,6 @@ void ActionAppMenuMetrics::LogMenuActionWithId(actions::ActionId action_id) {
       break;
     case kActionPrint:
       RecordAction(MENU_ACTION_PRINT, "Print");
-      break;
-    case kActionOpenGlic:
-      RecordAction(MENU_ACTION_OPEN_GLIC, "OpenGlic");
       break;
     case kActionShowTtcMenu:
       RecordAction(MENU_ACTION_TTC_APP_MENU, "TtcAppMenu");

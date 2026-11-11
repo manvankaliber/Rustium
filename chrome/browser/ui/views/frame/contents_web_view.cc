@@ -30,7 +30,6 @@
 #endif
 
 #if BUILDFLAG(IS_LINUX)
-#include "chrome/browser/actor/actor_util.h"  // nogncheck
 #endif
 
 DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ContentsWebView,
@@ -195,9 +194,6 @@ void ContentsWebView::DidGetUserInteraction(const blink::WebInputEvent& event) {
   // This isn't perfect: there are some edge cases, such as short-lived tasks
   // (less than a few seconds), where user input is not blocked, so real clicks
   // skip this too.
-  if (actor::HaveActiveTaskForContents(web_contents())) {
-    return;
-  }
 
   // RequestFocus() ensures the container view receives focus,
   // which is sufficient to update the browser UI.

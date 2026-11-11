@@ -67,37 +67,9 @@ ui::ColorTransform SelectColorBasedOnDarkInputOrMode(
 // Determines a color to use for Actor Ui components based on the tab frame
 // color used in custom themes. In the near-white or near-black case, we default
 // to use `fallback_color_id` instead to ensure visibility.
-ui::ColorTransform SelectActorUiColor(ui::ColorId fallback_color_id) {
-  return base::BindRepeating(
-      [](ui::ColorId fallback_color_id, SkColor input_color,
-         const ui::ColorMixer& mixer) {
-        const SkColor frame_color = mixer.GetResultColor(ui::kColorFrameActive);
-
-        // 1.0f is identical contrast. For near-white or near-black scenarios,
-        // we want to use the fallback color to ensure visibility.
-        constexpr float kThreshold = 1.1f;
-        if (color_utils::GetContrastRatio(frame_color, SK_ColorWHITE) <
-                kThreshold ||
-            color_utils::GetContrastRatio(frame_color, SK_ColorBLACK) <
-                kThreshold) {
-          return mixer.GetResultColor(fallback_color_id);
-        }
-
-        return frame_color;
-      },
-      fallback_color_id);
-}
 
 // Blend the custom color (based on the tab frame of a custom theme) on
 // the provided alpha.
-ui::ColorTransform GetActorUiScrimColor(SkAlpha alpha) {
-  return base::BindRepeating(
-      [](SkAlpha alpha, SkColor input_color, const ui::ColorMixer& mixer) {
-        return color_utils::BlendTowardMaxContrast(
-            mixer.GetResultColor(ui::kColorFrameActive), alpha);
-      },
-      alpha);
-}
 
 ui::ColorTransform GetToolbarTopSeparatorColorTransform(
     ui::ColorTransform toolbar_color_transform,
@@ -337,22 +309,6 @@ void AddChromeColorMixer(ui::ColorProvider* provider,
     mixer[params.dialog_id] = {params.context_menu_id};
   }
 
-  mixer[kColorActorUiHandoffButtonBackground] = {ui::kColorSysSurface};
-  mixer[kColorActorUiHandoffButtonBorder] =
-      SelectActorUiColor(ui::kColorSysActorUiBorder);
-  mixer[kColorActorUiHandoffButtonForeground] = {ui::kColorSysOnSurface};
-  mixer[kColorActorUiOverlayBorder] =
-      SelectActorUiColor(ui::kColorSysActorUiBorder);
-  mixer[kColorActorUiOverlayBorderGlow] =
-      SelectActorUiColor(ui::kColorSysActorUiGradientEnd);
-  mixer[kColorActorUiScrimStart] = GetActorUiScrimColor(
-      /*alpha=*/0x66);
-  mixer[kColorActorUiScrimMiddle] = GetActorUiScrimColor(
-      /*alpha=*/0x00);
-  mixer[kColorActorUiScrimEnd] = GetActorUiScrimColor(
-      /*alpha=*/0x26);
-  mixer[kColorActorUiMagicCursor] =
-      SelectActorUiColor(ui::kColorSysActorUiBorder);
   mixer[kColorAppMenuHighlightSeverityLow] = AdjustHighlightColorForContrast(
       ui::kColorAlertLowSeverity, kColorToolbar);
   mixer[kColorAppMenuHighlightSeverityHigh] = {
@@ -503,33 +459,9 @@ void AddChromeColorMixer(ui::ColorProvider* provider,
       ui::GetColorWithMaxContrast({ui::kColorFrameActive});
   mixer[kColorFrameCaptionInactive] =
       ui::GetColorWithMaxContrast({ui::kColorFrameInactive});
-  mixer[kColorGlicBackground] = {dark_mode ? SK_ColorBLACK
-                                           : SkColorSetRGB(0xFD, 0xFC, 0xFC)};
   // Invert modal colors w.r.t. Chrome dark mode.
-  mixer[kColorGlicModalBackground] = {dark_mode
-                                          ? SkColorSetRGB(0xE3, 0xE3, 0xE3)
-                                          : SkColorSetRGB(0x30, 0x30, 0x30)};
-  mixer[kColorGlicModalForeground] = {dark_mode
-                                          ? SkColorSetRGB(0x30, 0x30, 0x30)
-                                          : SkColorSetRGB(0xF2, 0xF2, 0xF2)};
-  mixer[kColorGlicPlaceholderElem] = {dark_mode
-                                          ? SkColorSetRGB(0x33, 0x34, 0x38)
-                                          : SkColorSetRGB(0xEF, 0xF3, 0xFA)};
   // Gradient colors used for underlines on active tabs.
-  constexpr color_utils::HSL start{-1.0, -1.0, 0.6};
-  constexpr color_utils::HSL end{-1.0, -1.0, 0.4};
-  mixer[kColorGlicActiveTabUnderlineGradient1] =
-      ui::HSLShift({ui::kColorFrameActive}, start);
-  mixer[kColorGlicActiveTabUnderlineGradient2] = {ui::kColorFrameActive};
-  mixer[kColorGlicActiveTabUnderlineGradient3] =
-      ui::HSLShift({ui::kColorFrameActive}, end);
   // Gradient colors used for underlines on inactive tabs.
-  mixer[kColorGlicInactiveTabUnderlineGradient1] =
-      ui::HSLShift({kColorTabBackgroundActiveFrameInactive}, start);
-  mixer[kColorGlicInactiveTabUnderlineGradient2] = {
-      kColorTabBackgroundActiveFrameInactive};
-  mixer[kColorGlicInactiveTabUnderlineGradient3] =
-      ui::HSLShift({kColorTabBackgroundActiveFrameInactive}, end);
 
   mixer[kColorInfoBarBackground] = {kColorToolbar};
   mixer[kColorInfoBarButtonIcon] = {kColorToolbarButtonIcon};
@@ -876,8 +808,6 @@ void AddChromeColorMixer(ui::ColorProvider* provider,
       kColorTabBackgroundInactiveFrameActive};
   mixer[kColorToolbarExtensionSeparatorDisabled] = {
       kColorToolbarButtonIconInactive};
-  mixer[kColorToolbarGlicButtonBackgroundDefault] = {
-      ui::kColorSysHeaderContainer};
   mixer[kColorToolbarSeparator] = {kColorToolbarSeparatorDefault};
   mixer[kColorToolbarActionItemEngaged] = {
       ui::PickGoogleColor(ui::kColorSysPrimary, kColorToolbar,

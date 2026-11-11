@@ -13,7 +13,6 @@
 #include "base/memory/weak_ptr.h"
 #include "base/task/cancelable_task_tracker.h"
 #include "base/values.h"
-#include "chrome/browser/glic/public/glic_passkeys.h"
 #include "chrome/browser/ui/webui/ai_overlay_dialog/tools/tools.mojom.h"
 #include "content/public/browser/weak_document_ptr.h"
 #include "mojo/public/cpp/bindings/receiver.h"
@@ -119,7 +118,6 @@ class AiOverlayTools : public ai_overlay_dialog::mojom::AiOverlayTools,
   static void RecordToolCallInvoked(std::string_view tool_name);
   // On the base class because glic_passkeys.h grants the passkey to
   // `AiOverlayTools`, and friendship is not inherited by subclasses.
-  static glic::InvokeWithAutoSubmitPasskey GetGlicPassKey();
 
   BrowserWindowInterface* browser() const { return browser_; }
   PageContextMonitor* page_context_monitor() const {

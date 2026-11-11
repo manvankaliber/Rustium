@@ -11,23 +11,10 @@
 
 namespace ttc {
 
-TtcActorUiStateManager::TtcActorUiStateManager() = default;
 
-TtcActorUiStateManager::~TtcActorUiStateManager() = default;
 
-void TtcActorUiStateManager::OnUiEvent(actor::ui::AsyncUiEvent event,
-                                       actor::ui::UiCompleteCallback callback) {
-  std::move(callback).Run(actor::MakeOkResult());
-}
 
-void TtcActorUiStateManager::OnUiEvent(actor::ui::SyncUiEvent event) {}
 
-void TtcActorUiStateManager::LazyInitTabTracker() {}
 
-base::WeakPtr<actor::ActorNavigationThrottle::Delegate>
-TtcActorUiStateManager::GetNavigationDelegate() {
-  // TTC does not drive the actor tab UI that confirms navigations.
-  return nullptr;
-}
 
 }  // namespace ttc

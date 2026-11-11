@@ -31,7 +31,6 @@
 #include "components/bookmarks/browser/bookmark_node.h"
 #include "components/bookmarks/test/test_matchers.h"
 #include "components/browser_sync/browser_sync_switches.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/sync/base/client_tag_hash.h"
 #include "components/sync/base/command_line_switches.h"
 #include "components/sync/base/data_type.h"

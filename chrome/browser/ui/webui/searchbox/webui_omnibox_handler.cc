@@ -316,20 +316,6 @@ void WebuiOmniboxHandler::QueryAutocomplete(
   }
 }
 
-void WebuiOmniboxHandler::OpenLensSearch() {
-  // Every popup Lens entrypoint, including the Lens icon (click or keyboard),
-  // ends up here. Opening Lens counts as using the IPH's promoted feature.
-  if (omnibox::kAskGLensIconIph.Get()) {
-    if (auto* const user_education =
-            BrowserUserEducationInterface::MaybeGetForWebUiContents(
-                web_contents_.get())) {
-      user_education->NotifyFeaturePromoFeatureUsed(
-          feature_engagement::kIPHOmniboxAskGLensIconFeature,
-          FeaturePromoFeatureUsedAction::kClosePromoIfPresent);
-    }
-  }
-  edit_model()->OpenLensSearch();
-}
 
 void WebuiOmniboxHandler::AddTabContext(
     int32_t tab_id,
@@ -365,8 +351,6 @@ void WebuiOmniboxHandler::AddTabContext(
   }
 
   if (source == searchbox::mojom::TabAttachmentSource::kCurrentTabChip) {
-    context->invocation_source =
-        lens::LensOverlayInvocationSource::kOmniboxPageAction;
   }
 
   auto tab_attachment = searchbox::mojom::TabAttachment::New();
@@ -557,21 +541,7 @@ void WebuiOmniboxHandler::OnFocusChanged(bool focused) {
 //   *every* keystroke in the Omnibox.
 void WebuiOmniboxHandler::OnStart(AutocompleteController* controller,
                                   const AutocompleteInput& input) {
-  const AutocompleteProviderClient* client =
-      autocomplete_controller()->autocomplete_provider_client();
-  bool cobrowse_blocked = (omnibox::kAskGCoBrowse.Get() ||
-                           omnibox::kAskGCoBrowseWithVisualSelection.Get()) &&
-                          client && !client->ShouldOpenCoBrowsePanel();
-  bool composebox_blocked = omnibox::kAskGComposeBox.Get() && client &&
-                            !client->ShouldOpenComposeboxForAskG();
-  bool ask_g_fallback_to_lens = cobrowse_blocked || composebox_blocked;
-  // Check if there are zero suggest (either on NTP or on web) or the
-  // input text is empty (necessary because `IsZeroSuggest()` is false on
-  // clobber).
-  page_->UpdateLensSearchEligibility(
-      ContextualSearchProvider::LensEntrypointEligible(input, client) &&
-      !ask_g_fallback_to_lens &&
-      (input.IsZeroSuggest() || input.text().empty()));
+
 }
 
 void WebuiOmniboxHandler::OnResultChanged(AutocompleteController* controller,

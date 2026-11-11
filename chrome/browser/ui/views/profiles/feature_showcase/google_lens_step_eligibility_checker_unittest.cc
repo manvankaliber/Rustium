@@ -9,7 +9,6 @@
 #include "base/test/scoped_feature_list.h"
 #include "base/test/test_future.h"
 #include "chrome/browser/search_engines/template_url_service_factory_test_util.h"
-#include "chrome/browser/ui/lens/lens_search_feature_flag_utils.h"
 #include "chrome/test/base/testing_profile.h"
 #include "components/lens/lens_features.h"
 #include "components/search_engines/template_url.h"
@@ -21,8 +20,6 @@
 class GoogleLensStepEligibilityCheckerTest : public testing::Test {
  public:
   GoogleLensStepEligibilityCheckerTest() {
-    feature_list_.InitAndEnableFeatureWithParameters(
-        lens::features::kLensOverlay, {{"google-dse-required", "false"}});
   }
 
   void SetUp() override { testing::Test::SetUp(); }
@@ -48,8 +45,6 @@ TEST_F(GoogleLensStepEligibilityCheckerTest, EligibleWhenAllConditionsMet) {
 
 TEST_F(GoogleLensStepEligibilityCheckerTest, IneligibleWhenNonGoogleDSE) {
   feature_list_.Reset();
-  feature_list_.InitAndEnableFeatureWithParameters(
-      lens::features::kLensOverlay, {{"google-dse-required", "true"}});
 
   TemplateURLServiceFactoryTestUtil factory_util(profile());
   factory_util.VerifyLoad();
@@ -70,7 +65,6 @@ TEST_F(GoogleLensStepEligibilityCheckerTest, IneligibleWhenNonGoogleDSE) {
 TEST_F(GoogleLensStepEligibilityCheckerTest,
        IneligibleWhenPermissionsAlreadyGranted) {
   GoogleLensStepEligibilityChecker checker;
-  lens::GrantLensOverlayNeededPermissions(profile());
 
   base::test::TestFuture<bool> future;
   checker.CheckEligibility(*profile(), future.GetCallback());

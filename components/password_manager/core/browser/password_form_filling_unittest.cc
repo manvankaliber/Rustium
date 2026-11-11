@@ -96,7 +96,6 @@ class MockPasswordManagerClient : public StubPasswordManagerClient {
               (),
               (const, override));
   MOCK_METHOD(bool, IsPasswordChangeOngoing, (), (override));
-  MOCK_METHOD(bool, IsActorTaskActive, (), (override));
 };
 
 class MockPasswordChangeService : public PasswordChangeServiceInterface {
@@ -530,21 +529,6 @@ TEST_F(PasswordFormFillingTest, NoFillOnPageloadForSingleUsernameForm) {
       1);
 }
 
-TEST_F(PasswordFormFillingTest, NoFillOnPageLoadWhileActorTaskIsActive) {
-  base::HistogramTester histogram_tester;
-  std::vector<PasswordForm> best_matches = {saved_match_};
-  const std::vector<PasswordForm> federated_matches = {};
-  EXPECT_CALL(client_, IsActorTaskActive).WillOnce(Return(true));
-  LikelyFormFilling likely_form_filling = SendFillInformationToRenderer(
-      &client_, &driver_, observed_form_, best_matches, federated_matches,
-      &saved_match_, metrics_recorder_.get(),
-      /*webauthn_suggestions_available=*/false,
-      /*suggestion_banned_fields=*/{});
-  EXPECT_EQ(LikelyFormFilling::kFillOnAccountSelect, likely_form_filling);
-  histogram_tester.ExpectUniqueSample(
-      "PasswordManager.FirstWaitForUsernameReason",
-      PasswordFormMetricsRecorder::WaitForUsernameReason::kActorTaskOngoing, 1);
-}
 
 TEST_F(PasswordFormFillingTest, NoFillOnPageLoadWhileChangingPassword) {
   base::HistogramTester histogram_tester;

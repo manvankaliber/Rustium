@@ -132,7 +132,6 @@ source_set("context_hub_page_handler") {
   deps += [
     "//base:i18n",
     "//chrome/browser/context_hub:memory_banks_shortcut",
-    "//chrome/browser/glic",
     "//chrome/browser/tab_group_sync:factories",
     "//chrome/browser/ui:browser_commands",
     "//chrome/browser/ui:browser_tabstrip",
@@ -170,8 +169,6 @@ source_set("context_hub") {
   ]
 
   deps += [
-    "//chrome/browser/glic",
-    "//chrome/browser/glic/actor",
     "//chrome/browser/ui/webui:favicon_source",
     "//chrome/browser/ui/webui/sanitized_image:sanitized_image_source",
   ]
@@ -212,8 +209,6 @@ source_set("unit_tests") {
   sources += [ "context_hub_tab_provider_desktop_unittest.cc" ]
   deps += [
     "//chrome/browser/context_hub:memory_banks_shortcut",
-    "//chrome/browser/glic",
-    "//chrome/browser/glic/test_support",
     "//chrome/browser/ui:browser_manager_service",
     "//chrome/browser/ui:test_support",
     "//chrome/browser/ui/tabs:test_support",

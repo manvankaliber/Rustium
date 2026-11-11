@@ -579,7 +579,6 @@ class PasswordManagerClient {
   virtual UndoPasswordChangeController* GetUndoPasswordChangeController();
 
   // Returns true if an actor task is actively actuating on the tab/web state.
-  virtual bool IsActorTaskActive();
 
   // Notifies the client that a password fill event occurred.
   virtual void OnPasswordFilled(PasswordManagerDriver* driver);

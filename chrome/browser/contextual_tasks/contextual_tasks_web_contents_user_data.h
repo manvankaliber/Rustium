@@ -36,7 +36,7 @@
 #include "url/gurl.h"
 
 class BrowserWindowInterface;
-class LensSearchController;
+
 
 namespace contextual_search {
 struct TabInfo;
@@ -261,10 +261,7 @@ class ContextualTasksWebContentsUserData
   GetOrCreateContextualSessionHandle();
   const contextual_search::ContextualSearchSessionHandle*
   GetExistingContextualSessionHandle() const;
-  std::optional<base::UnguessableToken> GetLensOverlayToken();
-  LensSearchController* GetLensSearchController() const;
   void DoSubmitQueryCleanup();
-  void CloseLensAsync(lens::LensOverlayDismissalSource dismissal_source);
 
   // Returns the tabs selected as context: the session handle's attached tabs
   // that are delayed tabs pending upload or whose context token is still

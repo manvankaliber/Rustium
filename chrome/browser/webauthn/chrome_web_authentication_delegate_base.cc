@@ -30,33 +30,6 @@ bool IsCmdlineAllowedOrigin(const url::Origin& caller_origin) {
   return caller_origin == cmdline_allowed_origin;
 }
 
-bool IsGoogleCorpCrdOrigin(content::BrowserContext* browser_context,
-                           const url::Origin& caller_origin) {
-  // This policy explicitly does not cover external instances of CRD. It
-  // must not be extended to other origins or be made configurable without going
-  // through security review.
-  const Profile* profile = Profile::FromBrowserContext(browser_context);
-  const PrefService* prefs = profile->GetPrefs();
-  const bool google_corp_remote_proxied_request_allowed =
-      prefs->GetBoolean(webauthn::pref_names::kRemoteProxiedRequestsAllowed);
-  if (!google_corp_remote_proxied_request_allowed) {
-    return false;
-  }
-
-  constexpr const char* const kGoogleCorpCrdOrigins[] = {
-      "https://remotedesktop.corp.google.com",
-      "https://remotedesktop-autopush.corp.google.com/",
-      "https://remotedesktop-daily-6.corp.google.com/",
-  };
-  for (const char* corp_crd_origin : kGoogleCorpCrdOrigins) {
-    if (caller_origin == url::Origin::Create(GURL(corp_crd_origin))) {
-      return true;
-    }
-  }
-  // An additional origin can be passed on the command line for testing.
-  return IsCmdlineAllowedOrigin(caller_origin);
-}
-
 bool RemoteDesktopClientOverrideAllowedByPolicy(
     content::BrowserContext* browser_context,
     const url::Origin& caller_origin) {
@@ -99,9 +72,7 @@ bool ChromeWebAuthenticationDelegateBase::
   // following are true:
   //   - The origin is explicitly allowed by a device/platform-level enterprise
   //     policy.
-  //   - The origin is a Google-internal Chrome Remote Desktop origin and is
-  //     allowed by a corresponding enterprise policy.
-  //   - Either policy is active, and the origin matches the one provided by
+  //   - The policy is active, and the origin matches the one provided by
   //     the command-line flag
   //    `--webauthn-remote-proxied-requests-allowed-additional-origin`, which
   //     is intended for testing purposes.
@@ -112,12 +83,6 @@ bool ChromeWebAuthenticationDelegateBase::
                                                  caller_origin)) {
     // TODO(crbug.com/391132173): Record UMA to track how often this policy is
     // used.
-    return true;
-  }
-
-  // Check if the origin is a Google Corp Chrome Remote Desktop origin and
-  // allowed by policy, (or allowed by the command-line flag for testing).
-  if (IsGoogleCorpCrdOrigin(browser_context, caller_origin)) {
     return true;
   }
 

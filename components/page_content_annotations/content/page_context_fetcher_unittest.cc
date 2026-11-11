@@ -821,7 +821,6 @@ TEST_F(PageContextFetcherHangingPdfTest, TopLevelPdfTextExtractionTimeout) {
 
 TEST_F(PageContextFetcherHangingPdfTest, EmbeddedPdfBytesExtractionTimeout) {
   base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(kGlicEmbeddedPdfBytesExtraction);
 
   base::HistogramTester histograms;
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
@@ -933,7 +932,6 @@ TEST_F(PageContextFetcherHangingPdfTest, TopLevelPdfTextExtractionDisconnect) {
 TEST_F(PageContextFetcherHangingPdfTest,
        EmbeddedPdfBytesExtractionIframeNavigates) {
   base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(kGlicEmbeddedPdfBytesExtraction);
 
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents(), GURL("https://example.com/main.html"));

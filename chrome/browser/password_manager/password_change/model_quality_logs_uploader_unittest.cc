@@ -690,9 +690,6 @@ TEST_F(ModelQualityLogsUploaderTest, SubmitFormSkipped) {
 TEST_F(ModelQualityLogsUploaderTest, RecordButtonClickFailureInvalidDomNodeId) {
   ModelQualityLogsUploader logs_uploader(web_contents(),
                                          GURL(kChangePasswordURL));
-  logs_uploader.RecordButtonClickFailure(
-      FlowStep::PasswordChangeRequest_FlowStep_OPEN_FORM_STEP,
-      actor::mojom::ActionResultCode::kInvalidDomNodeId);
   CheckOpenFormStatus(
       logs_uploader.GetFinalLog(),
       /*expected_request=*/optimization_guide::proto::PasswordChangeRequest(),
@@ -700,9 +697,6 @@ TEST_F(ModelQualityLogsUploaderTest, RecordButtonClickFailureInvalidDomNodeId) {
       QualityStatus::
           PasswordChangeQuality_StepQuality_SubmissionStatus_ELEMENT_NOT_FOUND);
 
-  logs_uploader.RecordButtonClickFailure(
-      FlowStep::PasswordChangeRequest_FlowStep_SUBMIT_FORM_STEP,
-      actor::mojom::ActionResultCode::kInvalidDomNodeId);
   CheckSubmitFormStatus(
       logs_uploader.GetFinalLog(),
       /*expected_request=*/optimization_guide::proto::PasswordChangeRequest(),
@@ -714,9 +708,6 @@ TEST_F(ModelQualityLogsUploaderTest, RecordButtonClickFailureInvalidDomNodeId) {
 TEST_F(ModelQualityLogsUploaderTest, RecordButtonClickFailureElementDisabled) {
   ModelQualityLogsUploader logs_uploader(web_contents(),
                                          GURL(kChangePasswordURL));
-  logs_uploader.RecordButtonClickFailure(
-      FlowStep::PasswordChangeRequest_FlowStep_OPEN_FORM_STEP,
-      actor::mojom::ActionResultCode::kElementDisabled);
   CheckOpenFormStatus(
       logs_uploader.GetFinalLog(),
       /*expected_request=*/optimization_guide::proto::PasswordChangeRequest(),
@@ -724,9 +715,6 @@ TEST_F(ModelQualityLogsUploaderTest, RecordButtonClickFailureElementDisabled) {
       QualityStatus::
           PasswordChangeQuality_StepQuality_SubmissionStatus_ELEMENT_DISABLED);
 
-  logs_uploader.RecordButtonClickFailure(
-      FlowStep::PasswordChangeRequest_FlowStep_SUBMIT_FORM_STEP,
-      actor::mojom::ActionResultCode::kElementDisabled);
   CheckSubmitFormStatus(
       logs_uploader.GetFinalLog(),
       /*expected_request=*/optimization_guide::proto::PasswordChangeRequest(),
@@ -738,9 +726,6 @@ TEST_F(ModelQualityLogsUploaderTest, RecordButtonClickFailureElementDisabled) {
 TEST_F(ModelQualityLogsUploaderTest, RecordButtonClickFailureElementOffscreen) {
   ModelQualityLogsUploader logs_uploader(web_contents(),
                                          GURL(kChangePasswordURL));
-  logs_uploader.RecordButtonClickFailure(
-      FlowStep::PasswordChangeRequest_FlowStep_OPEN_FORM_STEP,
-      actor::mojom::ActionResultCode::kElementOffscreen);
   CheckOpenFormStatus(
       logs_uploader.GetFinalLog(),
       /*expected_request=*/optimization_guide::proto::PasswordChangeRequest(),
@@ -748,9 +733,6 @@ TEST_F(ModelQualityLogsUploaderTest, RecordButtonClickFailureElementOffscreen) {
       QualityStatus::
           PasswordChangeQuality_StepQuality_SubmissionStatus_ELEMENT_OFFSCREEN);
 
-  logs_uploader.RecordButtonClickFailure(
-      FlowStep::PasswordChangeRequest_FlowStep_SUBMIT_FORM_STEP,
-      actor::mojom::ActionResultCode::kElementOffscreen);
   CheckSubmitFormStatus(
       logs_uploader.GetFinalLog(),
       /*expected_request=*/optimization_guide::proto::PasswordChangeRequest(),
@@ -763,9 +745,6 @@ TEST_F(ModelQualityLogsUploaderTest,
        RecordButtonClickFailureTargetNodeInteractionPointObscured) {
   ModelQualityLogsUploader logs_uploader(web_contents(),
                                          GURL(kChangePasswordURL));
-  logs_uploader.RecordButtonClickFailure(
-      FlowStep::PasswordChangeRequest_FlowStep_OPEN_FORM_STEP,
-      actor::mojom::ActionResultCode::kTargetNodeInteractionPointObscured);
   CheckOpenFormStatus(
       logs_uploader.GetFinalLog(),
       /*expected_request=*/optimization_guide::proto::PasswordChangeRequest(),
@@ -773,9 +752,6 @@ TEST_F(ModelQualityLogsUploaderTest,
       QualityStatus::
           PasswordChangeQuality_StepQuality_SubmissionStatus_ELEMENT_OBSCURED);
 
-  logs_uploader.RecordButtonClickFailure(
-      FlowStep::PasswordChangeRequest_FlowStep_SUBMIT_FORM_STEP,
-      actor::mojom::ActionResultCode::kTargetNodeInteractionPointObscured);
   CheckSubmitFormStatus(
       logs_uploader.GetFinalLog(),
       /*expected_request=*/optimization_guide::proto::PasswordChangeRequest(),

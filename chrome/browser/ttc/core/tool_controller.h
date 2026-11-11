@@ -18,8 +18,6 @@
 #include "base/types/expected.h"
 #include "base/values.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_surface_handle.h"
 #include "components/tabs/public/tab_interface.h"
 #include "components/ttc/app/public/tool_types.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -137,20 +135,10 @@ class ToolController : public content::WebContentsObserver {
   // SessionControllerImpl::GetVoiceFocusedWebContents()), replying to
   // `callback` with the result. Replies with an error if there's no actor
   // surface to act on, in which case `create_action` isn't invoked.
-  void PerformActionOnTrackedContents(
-      base::FunctionRef<std::unique_ptr<actor::ToolRequest>(
-          actor::ActorSurfaceHandle)> create_action,
-      ToolResponseCallback callback);
 
   // Runs `action` in the session's actor task and replies to `callback` with
   // the result.
-  void PerformAction(std::unique_ptr<actor::ToolRequest> action,
-                     ToolResponseCallback callback);
 
-  void OnActionsFinished(
-      ToolResponseCallback callback,
-      std::vector<actor::ActionResultWithLatencyInfo> results,
-      actor::TabObservationStrategy strategy);
 
   // Owns this object.
   const raw_ref<SessionControllerImpl> session_controller_;

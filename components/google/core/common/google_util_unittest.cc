@@ -612,9 +612,6 @@ TEST(GoogleUtilTest, GoogleSearchMode) {
                 GURL("https://www.google.com/search?q=foo&tbm=vid")),
             google_util::GoogleSearchMode::kVideos);
 
-  EXPECT_EQ(google_util::GoogleSearchModeFromUrl(
-                GURL("https://www.google.com/search?q=foo&tbm=shop")),
-            google_util::GoogleSearchMode::kShopping);
 
   EXPECT_EQ(google_util::GoogleSearchModeFromUrl(
                 GURL("https://www.google.com/search?q=foo&tbm=flm")),

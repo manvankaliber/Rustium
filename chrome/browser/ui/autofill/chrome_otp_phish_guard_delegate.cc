@@ -105,16 +105,11 @@ void ChromeOtpPhishGuardDelegate::StartOtpPhishGuardCheck(
   }
 #endif  // BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 
-  auto* password_manager_client =
-      ChromePasswordManagerClient::FromWebContents(&web_contents_.get());
-  bool is_actor_task_ongoing =
-      password_manager_client && password_manager_client->IsActorTaskActive();
-
   // If Safe Browsing is disabled/unavailable and an actor task is ongoing,
   // do not consider the check successful (report unsafe / is_malicious = true).
   // Post task to ensure callback is always invoked asynchronously.
   base::SequencedTaskRunner::GetCurrentDefault()->PostTask(
-      FROM_HERE, base::BindOnce(std::move(callback), is_actor_task_ongoing));
+      FROM_HERE, base::BindOnce(std::move(callback), false));
 }
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)

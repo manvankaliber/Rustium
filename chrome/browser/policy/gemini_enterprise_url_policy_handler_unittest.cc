@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "base/values.h"
-#include "chrome/browser/glic/glic_pref_names.h"
 #include "components/policy/core/browser/policy_error_map.h"
 #include "components/policy/core/common/policy_map.h"
 #include "components/policy/core/common/policy_types.h"
@@ -31,7 +30,6 @@ class GeminiEnterpriseUrlPolicyHandlerTest : public testing::Test {
   void ExpectAppliedPref(const std::string& expected) {
     handler_.ApplyPolicySettings(policies_, &prefs_);
     const base::Value* value = nullptr;
-    ASSERT_TRUE(prefs_.GetValue(glic::prefs::kGlicGeminiEnterpriseUrl, &value));
     ASSERT_TRUE(value->is_string());
     EXPECT_EQ(value->GetString(), expected);
   }
@@ -57,7 +55,6 @@ TEST_F(GeminiEnterpriseUrlPolicyHandlerTest, PolicyNotSet) {
 
   handler_.ApplyPolicySettings(policies_, &prefs_);
   const base::Value* value = nullptr;
-  EXPECT_FALSE(prefs_.GetValue(glic::prefs::kGlicGeminiEnterpriseUrl, &value));
 }
 
 TEST_F(GeminiEnterpriseUrlPolicyHandlerTest, WrongType) {

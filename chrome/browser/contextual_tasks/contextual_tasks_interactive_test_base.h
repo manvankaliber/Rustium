@@ -18,7 +18,6 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service.h"
 #include "chrome/browser/signin/identity_test_environment_profile_adaptor.h"
 #include "chrome/browser/ui/contextual_search/tab_contextualization_controller.h"
-#include "chrome/browser/ui/lens/lens_overlay_interactive_test_base.h"
 #include "components/omnibox/browser/mock_aim_eligibility_service.h"
 #include "content/public/test/url_loader_interceptor.h"
 #include "testing/gmock/include/gmock/gmock.h"
@@ -105,7 +104,7 @@ class ContextualTasksInteractiveTestBase
  public:
   template <typename... Args>
   explicit ContextualTasksInteractiveTestBase(Args&&... args)
-      : LensOverlayInteractiveTestBase(std::forward<Args>(args)...) {
+       {
     InitTabContextOverride();
   }
   ~ContextualTasksInteractiveTestBase() override;

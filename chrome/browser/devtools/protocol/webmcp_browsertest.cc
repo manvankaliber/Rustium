@@ -5,8 +5,6 @@
 #include "base/test/run_until.h"
 #include "base/test/values_test_util.h"
 #include "base/values.h"
-#include "chrome/browser/actor/actor_test_util.h"
-#include "chrome/browser/actor/tools/tools_test_util.h"
 #include "components/actor/core/actor_features.h"
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/browser/devtools_agent_host_client.h"
@@ -88,7 +86,7 @@ class TestDevToolsClient : public ::content::DevToolsAgentHostClient {
   std::vector<base::Value> responded_events_;
 };
 
-class DevToolsScriptToolTest : public actor::ActorToolsTest,
+class DevToolsScriptToolTest :
                                public testing::WithParamInterface<bool> {
  public:
   DevToolsScriptToolTest() {
@@ -106,32 +104,13 @@ class DevToolsScriptToolTest : public actor::ActorToolsTest,
   }
 
   void SetUpOnMainThread() override {
-    actor::ActorToolsTest::SetUpOnMainThread();
     ASSERT_TRUE(embedded_test_server()->Start());
     ASSERT_TRUE(embedded_https_test_server().Start());
   }
 
   struct ToolResult {
-    actor::mojom::ActionResultPtr action_result;
-    actor::mojom::ScriptToolResponsePtr response;
   };
 
-  ToolResult RunScriptTool(std::unique_ptr<actor::ToolRequest> action) {
-    actor::ActResultFuture result;
-    actor_task().Act(actor::ToRequestList(std::move(action)),
-                     result.GetCallback());
-    ExpectOkResult(result);
-
-    const auto& action_results = result.Get();
-    EXPECT_EQ(action_results.size(), 1u);
-    EXPECT_TRUE(action_results.at(0).result);
-    actor::mojom::ActionResultPtr action_result =
-        action_results.at(0).result->Clone();
-    actor::mojom::ScriptToolResponsePtr response =
-        std::move(action_results.at(0).result->script_tool_response);
-    EXPECT_TRUE(response);
-    return {std::move(action_result), std::move(response)};
-  }
 
  private:
   base::test::ScopedFeatureList features_;
@@ -148,8 +127,6 @@ IN_PROC_BROWSER_TEST_P(DevToolsScriptToolTest, EmitsCdpEvents) {
       content::DevToolsAgentHost::GetOrCreateFor(web_contents()));
 
   const std::string input_arguments = R"JSON({"text": "test_input"})JSON";
-  auto action =
-      actor::MakeScriptToolRequest(*main_frame(), "echo", input_arguments);
   auto [action_result, response] = RunScriptTool(std::move(action));
 
   EXPECT_EQ(response->result, "test_input");
@@ -198,13 +175,6 @@ IN_PROC_BROWSER_TEST_P(DevToolsScriptToolTest, EmitsCdpEventsOnFailure) {
       content::DevToolsAgentHost::GetOrCreateFor(web_contents()));
 
   const std::string input_arguments = R"JSON({"text": "test_input"})JSON";
-  auto action =
-      actor::MakeScriptToolRequest(*main_frame(), "invalid", input_arguments);
-  actor::ActResultFuture result;
-  actor_task().Act(actor::ToRequestList(std::move(action)),
-                   result.GetCallback());
-  ExpectErrorResult(result,
-                    actor::mojom::ActionResultCode::kScriptToolInvalidName);
 
   client.WaitForInvokedEvent();
   ASSERT_EQ(client.invoked_events().size(), 1u);
@@ -262,8 +232,6 @@ IN_PROC_BROWSER_TEST_P(DevToolsScriptToolTest,
   // Pin the action to the original tool's ID by observing the page, then
   // replace the tool before the action runs.
   GetPageApc();
-  auto action =
-      actor::MakeScriptToolRequest(*main_frame(), "swapped_tool", "{}");
   ASSERT_TRUE(content::ExecJs(web_contents(), R"(
     window.controller.abort();
     document.modelContext.registerTool({
@@ -277,11 +245,6 @@ IN_PROC_BROWSER_TEST_P(DevToolsScriptToolTest,
   client.AttachToAndEnableWebMCP(
       content::DevToolsAgentHost::GetOrCreateFor(web_contents()));
 
-  actor::ActResultFuture result;
-  actor_task().Act(actor::ToRequestList(std::move(action)),
-                   result.GetCallback());
-  ExpectErrorResult(result,
-                    actor::mojom::ActionResultCode::kScriptToolInvalidName);
 
   client.WaitForInvokedEvent();
   ASSERT_EQ(client.invoked_events().size(), 1u);
@@ -322,8 +285,6 @@ IN_PROC_BROWSER_TEST_P(DevToolsScriptToolTest, EmitsCdpEventsDeclarativeTool) {
           "select": "Option 2"
         }
       )JSON";
-  auto action = actor::MakeScriptToolRequest(*main_frame(), "declarative_tool",
-                                             declarative_input);
   auto [action_result, response] = RunScriptTool(std::move(action));
 
   client.WaitForInvokedEvent();
@@ -379,8 +340,6 @@ IN_PROC_BROWSER_TEST_P(DevToolsScriptToolTest,
           "echo": "hello world"
         }
       )JSON";
-  auto action = actor::MakeScriptToolRequest(*main_frame(), "declarative_tool",
-                                             declarative_input);
 
   auto [action_result, response] = RunScriptTool(std::move(action));
   ASSERT_TRUE(response);

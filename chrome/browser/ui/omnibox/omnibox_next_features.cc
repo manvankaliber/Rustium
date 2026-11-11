@@ -549,10 +549,6 @@ const base::FeatureParam<bool> kShowContextMenuTabPreviews(
     &internal::kWebUIOmniboxAimPopup,
     "Omnibox_ShowContextMenuTabPreviews",
     true);
-const base::FeatureParam<bool> kShowLensSearchChip(
-    &internal::kWebUIOmniboxSimplification,
-    "Omnibox_ShowLensSearchChip",
-    false);
 const base::FeatureParam<bool> kShowSmartCompose(
     &internal::kWebUIOmniboxAimPopup,
     "Omnibox_ShowSmartCompose",

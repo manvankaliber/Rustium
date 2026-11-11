@@ -10,7 +10,6 @@
 #include "build/build_config.h"
 #include "chrome/app/chrome_command_ids.h"
 #include "chrome/app/vector_icons/vector_icons.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
@@ -161,16 +160,6 @@ void SystemMenuModelBuilder::BuildSystemMenuForBrowserWindow(
   model->AddSeparator(ui::NORMAL_SEPARATOR);
   model->AddItemWithStringId(IDC_TAB_SEARCH_TOGGLE_PIN,
                              IDS_TAB_STRIP_PIN_TAB_SEARCH);
-
-#if BUILDFLAG(IS_WIN)
-  // On Windows we can not remove an item when showing the menu. So only add
-  // the glic toggle option if glic is enabled when building the menu.
-  if (glic::GlicEnabling::IsEnabledForProfile(browser()->GetProfile())) {
-#endif  // BUILDFLAG(IS_WIN)
-    model->AddItemWithStringId(IDC_GLIC_TOGGLE_PIN, IDS_GLIC_PIN);
-#if BUILDFLAG(IS_WIN)
-  }
-#endif  // BUILDFLAG(IS_WIN)
 
   if (auto* controller =
           tabs::VerticalTabStripStateController::From(browser())) {

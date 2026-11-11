@@ -16,12 +16,6 @@
 #include "base/types/expected.h"
 #include "base/values.h"
 #include "chrome/browser/bookmarks/bookmark_model_factory.h"
-#include "chrome/browser/glic/public/glic_instance.h"
-#include "chrome/browser/glic/public/glic_invoke_options.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/glic/public/glic_passkeys.h"
-#include "chrome/browser/glic/public/service/glic_instance_coordinator.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ttc/core/session_controller.h"
@@ -399,63 +393,13 @@ void AiOverlayToolsViews::SetFullscreen(bool fullscreen,
 
 void AiOverlayToolsViews::OpenGeminiPanel(const std::string& prompt,
                                           OpenGeminiPanelCallback callback) {
-  RecordToolCallInvoked("OpenGeminiPanel");
-  glic::GlicKeyedService* glic_service =
-      glic::GlicKeyedServiceFactory::GetGlicKeyedService(
-          browser()->GetProfile());
-
-  if (!glic_service) {
-    std::move(callback).Run(base::unexpected("Glic service not available"));
-    return;
-  }
-
-  auto* active_tab = browser()->GetTabStripModel()
-                         ? browser()->GetTabStripModel()->GetActiveTab()
-                         : nullptr;
-  if (!active_tab) {
-    std::move(callback).Run(base::unexpected("No active tab"));
-    return;
-  }
-  glic::GlicInvokeOptions options(glic::Target(*active_tab),
-                                  glic::mojom::InvocationSource::kOsButton);
-  options.prompts.push_back(prompt);
-
-  auto split_callback = base::SplitOnceCallback(std::move(callback));
-
-  options.on_success = base::BindOnce(
-      [](OpenGeminiPanelCallback cb) {
-        std::move(cb).Run(base::ok("Gemini panel opened."));
-      },
-      std::move(split_callback.first));
-
-  options.on_error = base::BindOnce(
-      [](OpenGeminiPanelCallback cb, glic::GlicInvokeError error) {
-        std::move(cb).Run(base::unexpected("Failed to open Gemini panel"));
-      },
-      std::move(split_callback.second));
-
-  glic_service->InvokeWithAutoSubmit(GetGlicPassKey(), std::move(options));
+  std::move(callback).Run(base::unexpected("Gemini is unavailable"));
 }
 
 void AiOverlayToolsViews::CloseGeminiPanel(CloseGeminiPanelCallback callback) {
   RecordToolCallInvoked("CloseGeminiPanel");
-  glic::GlicKeyedService* glic_service =
-      glic::GlicKeyedServiceFactory::GetGlicKeyedService(
-          browser()->GetProfile());
 
-  if (!glic_service) {
-    std::move(callback).Run(base::unexpected("Glic service not available"));
-    return;
-  }
 
-  if (glic_service->instance_coordinator().IsPanelShowingForBrowser(
-          *browser())) {
-    // TODO(gklassen): Use a dedicated invocation source for tool calls when
-    // productionizing.
-    glic_service->instance_coordinator().Toggle(
-        browser(), /*prevent_close=*/false,
-        glic::mojom::InvocationSource::kOsButton);
-  }
   std::move(callback).Run(std::monostate());
 }
 

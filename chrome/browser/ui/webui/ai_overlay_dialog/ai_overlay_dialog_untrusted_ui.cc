@@ -14,7 +14,6 @@
 #include "base/strings/strcat.h"
 #include "base/version_info/channel.h"
 #include "build/branding_buildflags.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ttc/core/buildflags.h"
 #include "chrome/browser/ttc/core/switches.h"
@@ -57,9 +56,7 @@ bool AiOverlayDialogUntrustedUIConfig::IsWebUIEnabled(
       command_line->HasSwitch(ttc::switches::kEnableTtcTestApi)) {
     return true;
   }
-  Profile* profile = Profile::FromBrowserContext(browser_context);
-  return AiOverlayDialogController::IsEnabledForProfile(profile) &&
-         glic::GlicEnabling::IsProfileEligible(profile);
+  return false;
 }
 
 AiOverlayDialogUntrustedUI::AiOverlayDialogUntrustedUI(content::WebUI* web_ui)

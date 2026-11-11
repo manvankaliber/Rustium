@@ -74,7 +74,7 @@ source_set("contextual_cueing") {
     "//ui/gfx",
   ]
 
-  deps += [ "//chrome/browser/ui/lens" ]
+  deps += []
 }
 
 source_set("unit_tests") {
@@ -112,8 +112,5 @@ source_set("unit_tests") {
     "//ui/base/unowned_user_data",
   ]
 
-  deps += [
-    "//chrome/browser/ui/browser_window/test:test_support",
-    "//chrome/browser/ui/lens",
-  ]
+  deps += [ "//chrome/browser/ui/browser_window/test:test_support" ]
 }

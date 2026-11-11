@@ -269,7 +269,6 @@ void TtcDebugSession::LogToJournal(std::string_view name, std::string detail) {
   if (!journal_) {
     return;
   }
-  actor::JournalDetailsBuilder builder;
   if (!detail.empty()) {
     builder.Add("detail", detail);
   }

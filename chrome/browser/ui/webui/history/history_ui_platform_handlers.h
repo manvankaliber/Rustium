@@ -25,9 +25,6 @@ class WebUIDataSource;
 namespace history {
 
 // WebUIDataSource and WebUI message keys used by platform handlers.
-inline constexpr char kIsGlicEnabledKey[] = "isGlicEnabled";
-inline constexpr char kIsGlicWebActuationAvailableKey[] =
-    "isGlicWebActuationAvailable";
 inline constexpr char kTurnOnSyncButtonKey[] = "turnOnSyncButton";
 inline constexpr char kHistorySyncPromoBodySignedInKey[] =
     "historySyncPromoBodySignedIn";

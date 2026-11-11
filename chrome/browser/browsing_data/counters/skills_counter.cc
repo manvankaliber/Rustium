@@ -23,9 +23,6 @@ bool IsSkillsSyncActive(const syncer::SyncService* sync_service) {
 
 }  // namespace
 
-SkillsCounter::SkillsCounter(skills::SkillsService& skills_service,
-                             syncer::SyncService* sync_service)
-    : skills_service_(skills_service), sync_tracker_(this, sync_service) {}
 
 SkillsCounter::~SkillsCounter() = default;
 

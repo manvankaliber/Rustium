@@ -98,7 +98,6 @@ class WebUIToolbarUI : public TopChromeWebUIController,
   static constexpr std::string_view GetWebUIName() { return "WebUIToolbar"; }
 
   struct ProfileButtonEligibility {
-    bool is_profile_eligible_for_glic = false;
     bool can_show_avatar_for_profile = false;
     bool operator==(const ProfileButtonEligibility&) const = default;
   };

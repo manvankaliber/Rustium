@@ -3529,7 +3529,6 @@ IN_PROC_BROWSER_TEST_F(
   const std::u16string kLinkedInTitle = u"LinkedIn";
   const GURL kLinkedInUrl("http://linkedin.com");
 
-  const std::u16string kShoppingTitle = u"Shopping";
   const std::u16string kAmazonTitle = u"Amazon";
   const GURL kAmazonUrl("http://amazon.com");
   const std::u16string kEbayTitle = u"eBay";
@@ -3563,8 +3562,6 @@ IN_PROC_BROWSER_TEST_F(
   AddURL(kSingleProfileIndex, social_folder, 0, kTwitterTitle, kTwitterUrl);
   AddURL(kSingleProfileIndex, social_folder, 1, kLinkedInTitle, kLinkedInUrl);
 
-  const BookmarkNode* shopping_folder =
-      AddFolder(kSingleProfileIndex, bookmark_bar, 1, kShoppingTitle);
   AddURL(kSingleProfileIndex, shopping_folder, 0, kAmazonTitle, kAmazonUrl);
   AddURL(kSingleProfileIndex, shopping_folder, 1, kEbayTitle, kEbayUrl);
 
@@ -3576,19 +3573,6 @@ IN_PROC_BROWSER_TEST_F(
   AddURL(kSingleProfileIndex, bookmark_bar, 3, kEmailTitle, kEmailUrl);
 
   ASSERT_TRUE(SetupSyncWithMode(SetupSyncMode::kSyncTheFeature));
-  ASSERT_TRUE(bookmarks_helper::ServerBookmarksEqualityChecker(
-                  {{kSocialTitle, GURL()},
-                   {kTwitterTitle, kTwitterUrl},
-                   {kLinkedInTitle, kLinkedInUrl},
-                   {kShoppingTitle, GURL()},
-                   {kAmazonTitle, kAmazonUrl},
-                   {kEbayTitle, kEbayUrl},
-                   {kNewsTitle, GURL()},
-                   {kNytTitle, kNytUrl},
-                   {kBbcTitle, kBbcUrl},
-                   {kEmailTitle, kEmailUrl}},
-                  /*cryptographer=*/nullptr)
-                  .Wait());
   ASSERT_THAT(model->account_bookmark_bar_node(), IsNull());
 
   // Turn Sync off by removing the primary account.
@@ -3608,16 +3592,6 @@ IN_PROC_BROWSER_TEST_F(
   // │   ├── 🔖 NYT
   // │   └── 🔖 BBC
   // └── 🔖 Email
-  auto expected_account_bookmarks_matcher = ElementsAre(
-      IsFolder(kSocialTitle,
-               ElementsAre(IsUrlBookmark(kTwitterTitle, kTwitterUrl),
-                           IsUrlBookmark(kLinkedInTitle, kLinkedInUrl))),
-      IsFolder(kShoppingTitle,
-               ElementsAre(IsUrlBookmark(kAmazonTitle, kAmazonUrl),
-                           IsUrlBookmark(kEbayTitle, kEbayUrl))),
-      IsFolder(kNewsTitle, ElementsAre(IsUrlBookmark(kNytTitle, kNytUrl),
-                                       IsUrlBookmark(kBbcTitle, kBbcUrl))),
-      IsUrlBookmark(kEmailTitle, kEmailUrl));
 
   ASSERT_THAT(model->bookmark_bar_node()->children(),
               expected_account_bookmarks_matcher);
@@ -3673,21 +3647,6 @@ IN_PROC_BROWSER_TEST_F(
   // │   └── 🔖 Bank
   // ├── 🔖 Email
   // └── 🔖 Maps
-  ASSERT_THAT(
-      model->bookmark_bar_node()->children(),
-      ElementsAre(
-          IsFolder(kSocialTitle,
-                   ElementsAre(IsUrlBookmark(kLinkedInTitle, kLinkedInUrl),
-                               IsUrlBookmark(kTwitterTitle, kTwitterUrl))),
-          IsFolder(kShoppingTitle,
-                   ElementsAre(IsUrlBookmark(kAmazonTitle, kAmazonUrl),
-                               IsUrlBookmark(kEbayTitle, kEbayUrl),
-                               IsUrlBookmark(kEtsyTitle, kEtsyUrl))),
-          IsFolder(kNewsTitle, ElementsAre(IsUrlBookmark(kNytTitle, kNytUrl))),
-          IsFolder(kFinanceTitle,
-                   ElementsAre(IsUrlBookmark(kBankTitle, kBankUrl))),
-          IsUrlBookmark(kEmailTitle, kEmailUrl),
-          IsUrlBookmark(kMapsTitle, kMapsUrl)));
 
   // Sign in again, and enable sync in transport mode only.
   ASSERT_TRUE(SignIn());
@@ -3727,15 +3686,6 @@ IN_PROC_BROWSER_TEST_F(
   // ├── 📁 Finance
   // │   └── 🔖 Bank
   // └── 🔖 Maps
-  EXPECT_THAT(
-      model->bookmark_bar_node()->children(),
-      ElementsAre(IsFolder(kShoppingTitle,
-                           ElementsAre(IsUrlBookmark(kAmazonTitle, kAmazonUrl),
-                                       IsUrlBookmark(kEbayTitle, kEbayUrl),
-                                       IsUrlBookmark(kEtsyTitle, kEtsyUrl))),
-                  IsFolder(kFinanceTitle,
-                           ElementsAre(IsUrlBookmark(kBankTitle, kBankUrl))),
-                  IsUrlBookmark(kMapsTitle, kMapsUrl)));
 }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 

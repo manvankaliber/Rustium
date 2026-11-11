@@ -31,7 +31,6 @@
 #include "chrome/browser/extensions/menu_manager.h"
 #include "chrome/browser/extensions/menu_manager_factory.h"
 #include "chrome/browser/extensions/test_extension_environment.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/indigo/indigo_metrics.h"
 #include "chrome/browser/indigo/indigo_page_action_controller.h"
 #include "chrome/browser/navigation_predictor/navigation_predictor_keyed_service.h"
@@ -53,7 +52,6 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
 #include "chrome/browser/ui/chrome_pages.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
 #include "chrome/browser/ui/page_action/test_support/mock_page_action_controller.h"
 #include "chrome/browser/ui/passwords/ui_utils.h"
 #include "chrome/browser/ui/side_panel/mock_side_panel_ui.h"
@@ -571,7 +569,6 @@ class RenderViewContextMenuPrefsTest
   std::unique_ptr<BrowserWindowInterface> browser_;
   ui::UnownedUserDataHost unowned_user_data_host_;
   BrowserWindowFeatures features_;
-  std::optional<lens::LensOverlayEntryPointController> lens_controller_;
   MockSidePanelUI side_panel_ui_{unowned_user_data_host_};
   GURL last_preresolved_url_;
   base::OnceClosure preresolved_finished_closure_;
@@ -1055,8 +1052,6 @@ TEST_F(RenderViewContextMenuHideSuggestionsTest, HideSuggestions) {
 // Verify that the Lens Image Search menu item is disabled on non-image content
 TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchNonImage) {
   base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
   SetUserSelectedDefaultSearchProvider("https://www.google.com",
                                        /*supports_image_search=*/true);
   content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
@@ -1073,8 +1068,6 @@ TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchNonImage) {
 // Browser is NULL (b/266624865).
 TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchNoBrowser) {
   base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
   SetUserSelectedDefaultSearchProvider("https://www.google.com",
                                        /*supports_image_search=*/true);
   content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
@@ -1091,8 +1084,6 @@ TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchNoBrowser) {
 // Verify that the Lens Image Search menu item is enabled on image content
 TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchEnabled) {
   base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
   SetUserSelectedDefaultSearchProvider("https://www.google.com",
                                        /*supports_image_search=*/true);
   content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
@@ -1109,9 +1100,6 @@ TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchEnabled) {
 // Verify that the Lens Image Search menu item has an icon in fallback case
 TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchFallbackHasIcon) {
   base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone,
-                             lens::features::kShowContextualTasksMenuIcon},
-                            {lens::features::kLensOverlay});
   SetUserSelectedDefaultSearchProvider("https://www.google.com",
                                        /*supports_image_search=*/true);
   content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
@@ -1131,10 +1119,6 @@ TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchFallbackHasIcon) {
 // Verify that the Lens Video Search menu item has an icon in fallback case
 TEST_F(RenderViewContextMenuPrefsTest, LensVideoSearchFallbackHasIcon) {
   base::test::ScopedFeatureList features;
-  features.InitWithFeatures(
-      {lens::features::kLensStandalone, media::kContextMenuSearchForVideoFrame,
-       lens::features::kShowContextualTasksMenuIcon},
-      {lens::features::kLensOverlay});
   SetUserSelectedDefaultSearchProvider("https://www.google.com",
                                        /*supports_image_search=*/true);
   content::ContextMenuParams params = CreateParams(MenuItem::VIDEO);
@@ -1155,9 +1139,6 @@ TEST_F(RenderViewContextMenuPrefsTest, LensVideoSearchFallbackHasIcon) {
 TEST_F(RenderViewContextMenuPrefsTest,
        LensImageSearchFallbackNoIconWhenFlagDisabled) {
   base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay,
-                             lens::features::kShowContextualTasksMenuIcon});
   SetUserSelectedDefaultSearchProvider("https://www.google.com",
                                        /*supports_image_search=*/true);
   content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
@@ -1178,10 +1159,6 @@ TEST_F(RenderViewContextMenuPrefsTest,
 // Verify that the Lens Image Search menu item has an icon in overlay case
 TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchOverlayHasIcon) {
   base::test::ScopedFeatureList features;
-  features.InitWithFeatures(
-      {lens::features::kLensStandalone, lens::features::kLensOverlay,
-       lens::features::kShowContextualTasksMenuIcon},
-      {});
   SetUserSelectedDefaultSearchProvider("https://www.google.com",
                                        /*supports_image_search=*/true);
   content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
@@ -1212,9 +1189,6 @@ TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchOverlayHasIcon) {
 TEST_F(RenderViewContextMenuPrefsTest,
        LensImageSearchOverlayNoIconWhenFlagDisabled) {
   base::test::ScopedFeatureList features;
-  features.InitWithFeatures(
-      {lens::features::kLensStandalone, lens::features::kLensOverlay},
-      {lens::features::kShowContextualTasksMenuIcon});
   SetUserSelectedDefaultSearchProvider("https://www.google.com",
                                        /*supports_image_search=*/true);
   content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
@@ -1243,8 +1217,6 @@ TEST_F(RenderViewContextMenuPrefsTest,
 // Apps
 TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchForProgressiveWebApp) {
   base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
   SetUserSelectedDefaultSearchProvider("https://www.google.com",
                                        /*supports_image_search=*/true);
   content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
@@ -1258,22 +1230,6 @@ TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchForProgressiveWebApp) {
   EXPECT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_SEARCHLENSFORIMAGE));
 }
 
-TEST_F(RenderViewContextMenuPrefsTest,
-       GlicShareImageHiddenForProgressiveWebApp) {
-  base::test::ScopedFeatureList features;
-  features.InitAndEnableFeature(features::kGlicShareImage);
-
-  glic::GlicEnabling::ScopedBypassEnablementChecksForTesting scoped_glic_bypass;
-
-  content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
-  params.has_image_contents = true;
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetPwaBrowser());
-  menu.Init();
-
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_GLICSHAREIMAGE));
-}
 
 class MockPageContextEligibilityHelper
     : public tabs::PageContextEligibilityHelper {
@@ -1288,182 +1244,7 @@ class MockPageContextEligibilityHelper
               (const, override));
 };
 
-TEST_F(RenderViewContextMenuPrefsTest, GlicShareImageEligibility) {
-  base::test::ScopedFeatureList features;
-  features.InitAndEnableFeature(features::kGlicShareImage);
-  glic::GlicEnabling::ScopedBypassEnablementChecksForTesting scoped_glic_bypass;
 
-  // Create a MockTabInterface and link it to our web contents
-  tabs::MockTabInterface mock_tab;
-  ui::UnownedUserDataHost unowned_user_data_host;
-  ON_CALL(mock_tab, GetUnownedUserDataHost())
-      .WillByDefault(testing::ReturnRef(unowned_user_data_host));
-  ON_CALL(mock_tab, GetContents())
-      .WillByDefault(testing::Return(web_contents()));
-  ON_CALL(mock_tab, GetProfile()).WillByDefault(testing::Return(profile()));
-  tabs::TabLookupFromWebContents::CreateForWebContents(web_contents(),
-                                                       &mock_tab);
-
-  auto mock_helper =
-      std::make_unique<testing::NiceMock<MockPageContextEligibilityHelper>>(
-          mock_tab);
-
-  content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
-  params.has_image_contents = true;
-
-  {
-    // Case 1: Helper returns unknown (e.g. inactive or initialization failure)
-    // -> hidden.
-    EXPECT_CALL(*mock_helper, IsPageContextEligible())
-        .WillRepeatedly(testing::Return(
-            optimization_guide::PageContextEligibilityStatus::kUnknown));
-    TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                   params);
-    menu.SetBrowser(GetBrowser());
-    menu.Init();
-    EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_GLICSHAREIMAGE));
-  }
-
-  {
-    // Case 2: Helper returns ineligible -> hidden.
-    EXPECT_CALL(*mock_helper, IsPageContextEligible())
-        .WillRepeatedly(testing::Return(
-            optimization_guide::PageContextEligibilityStatus::kNotEligible));
-    TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                   params);
-    menu.SetBrowser(GetBrowser());
-    menu.Init();
-    EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_GLICSHAREIMAGE));
-  }
-
-  {
-    // Case 3: Helper returns eligible -> visible with "Ask Gemini" label,
-    // preceding image search by default.
-    EXPECT_CALL(*mock_helper, IsPageContextEligible())
-        .WillRepeatedly(testing::Return(
-            optimization_guide::PageContextEligibilityStatus::kEligible));
-    SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                         /*supports_image_search=*/true);
-    TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                   params);
-    menu.SetBrowser(GetBrowser());
-    menu.Init();
-    EXPECT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_GLICSHAREIMAGE));
-    auto glic_index =
-        menu.GetMenuModelAndItemIndex(IDC_CONTENT_CONTEXT_GLICSHAREIMAGE);
-    ASSERT_TRUE(glic_index.has_value());
-    EXPECT_EQ(
-        glic_index->first->GetLabelAt(glic_index->second),
-        l10n_util::GetStringUTF16(IDS_GLIC_BUTTON_ENTRYPOINT_ASK_GEMINI_LABEL));
-    auto search_index =
-        menu.GetMenuModelAndItemIndex(IDC_CONTENT_CONTEXT_SEARCHLENSFORIMAGE);
-    ASSERT_TRUE(search_index.has_value());
-    EXPECT_EQ(glic_index->first, search_index->first);
-    EXPECT_LT(glic_index->second, search_index->second);
-  }
-
-  {
-    // Case 4: When kGlicContextMenuBelowSearch is enabled, the item follows
-    // image search.
-    base::test::ScopedFeatureList below_search_feature;
-    below_search_feature.InitAndEnableFeature(
-        features::kGlicContextMenuBelowSearch);
-    TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                   params);
-    menu.SetBrowser(GetBrowser());
-    menu.Init();
-    auto glic_index =
-        menu.GetMenuModelAndItemIndex(IDC_CONTENT_CONTEXT_GLICSHAREIMAGE);
-    auto search_index =
-        menu.GetMenuModelAndItemIndex(IDC_CONTENT_CONTEXT_SEARCHLENSFORIMAGE);
-    ASSERT_TRUE(glic_index.has_value());
-    ASSERT_TRUE(search_index.has_value());
-    EXPECT_EQ(glic_index->first, search_index->first);
-    EXPECT_GT(glic_index->second, search_index->second);
-  }
-
-  {
-    // Case 5: When text is also selected, IDC_CONTENT_CONTEXT_GLICSHAREIMAGE is
-    // omitted so it does not duplicate IDC_CONTENT_CONTEXT_GLIC.
-    content::ContextMenuParams selection_image_params = params;
-    selection_image_params.selection_text = u"selected text";
-    TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                   selection_image_params);
-    menu.SetBrowser(GetBrowser());
-    menu.Init();
-    EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_GLICSHAREIMAGE));
-  }
-}
-
-TEST_F(RenderViewContextMenuPrefsTest, GlicShareImageContextMenuResultMetrics) {
-  base::test::ScopedFeatureList features;
-  features.InitAndEnableFeature(features::kGlicShareImage);
-  glic::GlicEnabling::ScopedBypassEnablementChecksForTesting scoped_glic_bypass;
-
-  tabs::MockTabInterface mock_tab;
-  ui::UnownedUserDataHost unowned_user_data_host;
-  ON_CALL(mock_tab, GetUnownedUserDataHost())
-      .WillByDefault(testing::ReturnRef(unowned_user_data_host));
-  ON_CALL(mock_tab, GetContents())
-      .WillByDefault(testing::Return(web_contents()));
-  ON_CALL(mock_tab, GetProfile()).WillByDefault(testing::Return(profile()));
-  tabs::TabLookupFromWebContents::CreateForWebContents(web_contents(),
-                                                       &mock_tab);
-
-  auto mock_helper =
-      std::make_unique<testing::NiceMock<MockPageContextEligibilityHelper>>(
-          mock_tab);
-  ON_CALL(*mock_helper, IsPageContextEligible())
-      .WillByDefault(testing::Return(
-          optimization_guide::PageContextEligibilityStatus::kEligible));
-
-  content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
-  params.has_image_contents = true;
-
-  base::HistogramTester histogram_tester;
-
-  // Case 1: Share image item is shown and ignored.
-  {
-    TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                   params);
-    menu.SetBrowser(GetBrowser());
-    menu.Init();
-    ASSERT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_GLICSHAREIMAGE));
-    menu.OnMenuWillShow(const_cast<ui::SimpleMenuModel*>(&menu.menu_model()));
-    menu.MenuClosed(const_cast<ui::SimpleMenuModel*>(&menu.menu_model()));
-  }
-  histogram_tester.ExpectUniqueSample("Glic.WebContentsContextMenu.Image",
-                                      /*kShownAndIgnored*/ 0, 1);
-  histogram_tester.ExpectUniqueSample(
-      "Glic.Consumer.WebContentsContextMenu.Image",
-      /*kShownAndIgnored*/ 0, 1);
-
-  // Case 2: Share image item is executed.
-  {
-    TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                   params);
-    menu.SetBrowser(GetBrowser());
-    menu.Init();
-    ASSERT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_GLICSHAREIMAGE));
-    menu.OnMenuWillShow(const_cast<ui::SimpleMenuModel*>(&menu.menu_model()));
-    menu.ExecuteCommand(IDC_CONTENT_CONTEXT_GLICSHAREIMAGE, 0);
-    menu.MenuClosed(const_cast<ui::SimpleMenuModel*>(&menu.menu_model()));
-  }
-  histogram_tester.ExpectBucketCount("Glic.WebContentsContextMenu.Image",
-                                     /*kExecuted*/ 1, 1);
-  histogram_tester.ExpectBucketCount("Glic.WebContentsContextMenu.Image",
-                                     /*kShownAndIgnored*/ 0, 1);
-  histogram_tester.ExpectBucketCount(
-      "Glic.Consumer.WebContentsContextMenu.Image",
-      /*kExecuted*/ 1, 1);
-  histogram_tester.ExpectBucketCount(
-      "Glic.Consumer.WebContentsContextMenu.Image",
-      /*kShownAndIgnored*/ 0, 1);
-  EXPECT_THAT(
-      histogram_tester.GetTotalCountsForPrefix("Glic.WebContentsContextMenu."),
-      testing::ElementsAre(
-          testing::Pair("Glic.WebContentsContextMenu.Image", 2)));
-}
 
 TEST_F(RenderViewContextMenuPrefsTest,
        IndigoContextMenuEligibilityAndExecution) {
@@ -1611,8 +1392,6 @@ TEST_F(RenderViewContextMenuPrefsTest,
 // default search engines that support image search.
 TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchEnabledFor3pDse) {
   base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
   SetUserSelectedDefaultSearchProvider("https://www.bing.com",
                                        /*supports_image_search=*/true);
   content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
@@ -1630,8 +1409,6 @@ TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchEnabledFor3pDse) {
 // default search engines that do not support image search.
 TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchDisabledFor3pDse) {
   base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
   SetUserSelectedDefaultSearchProvider("https://www.yahoo.com",
                                        /*supports_image_search=*/false);
   content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
@@ -1645,455 +1422,6 @@ TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchDisabledFor3pDse) {
   EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_SEARCHLENSFORIMAGE));
 }
 
-#if BUILDFLAG(ENABLE_LENS_DESKTOP_GOOGLE_BRANDED_FEATURES)
-// Verify that the Lens Region Search menu item is displayed when the feature
-// is enabled.
-TEST_F(RenderViewContextMenuPrefsTest, LensRegionSearch) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  EXPECT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH));
-}
-
-TEST_F(RenderViewContextMenuPrefsTest, LensRegionSearchPdfEnabled) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::RenderFrameHost* render_frame_host =
-      web_contents()->GetPrimaryMainFrame();
-  OverrideLastCommittedOrigin(
-      render_frame_host,
-      url::Origin::Create(
-          GURL("chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai")));
-  content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
-  TestRenderViewContextMenu menu(*render_frame_host, params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  EXPECT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH));
-}
-
-// Verify that the Lens Region Search menu item is disabled when the user's
-// enterprise policy for Lens Region Search is disabled.
-TEST_F(RenderViewContextMenuPrefsTest,
-       LensRegionSearchEnterprisePoicyDisabled) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  // Set enterprise policy to false.
-  profile()->GetPrefs()->SetBoolean(prefs::kLensRegionSearchEnabled, false);
-  content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH));
-}
-
-// Verify that the Lens Region Search menu item is disabled when the user
-// clicks on an image.
-TEST_F(RenderViewContextMenuPrefsTest, LensRegionSearchDisabledOnImage) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
-  params.has_image_contents = true;
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  AppendImageItems(&menu);
-
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH));
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_WEB_REGION_SEARCH));
-}
-
-// Verify that the Lens Region Search menu item is disabled when there is no
-// browser.
-TEST_F(RenderViewContextMenuPrefsTest, LensRegionSearchPdfDisabledNoBrowser) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::RenderFrameHost* render_frame_host =
-      web_contents()->GetPrimaryMainFrame();
-  OverrideLastCommittedOrigin(
-      render_frame_host,
-      url::Origin::Create(
-          GURL("chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai")));
-  content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
-  TestRenderViewContextMenu menu(*render_frame_host, params);
-  menu.Init();
-
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH));
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_WEB_REGION_SEARCH));
-}
-
-// Verify that the web region search menu item is enabled for a non-Google
-// search engine that supports visual search.
-TEST_F(RenderViewContextMenuPrefsTest,
-       LensRegionSearchNonGoogleDefaultSearchEngineSupportsImageSearch) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.search.com",
-                                       /*supports_image_search=*/true);
-  content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  EXPECT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_WEB_REGION_SEARCH));
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH));
-}
-
-// Verify that region search menu items are disabled for a search engine that
-// does not support visual search.
-TEST_F(RenderViewContextMenuPrefsTest,
-       LensRegionSearchDefaultSearchEngineDoesNotSupportImageSearch) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.search.com",
-                                       /*supports_image_search=*/false);
-  content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_WEB_REGION_SEARCH));
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH));
-}
-
-// Verify that the Lens Region Search menu item is disabled for any page with a
-// Chrome UI Scheme.
-TEST_F(RenderViewContextMenuPrefsTest, LensRegionSearchChromeUIScheme) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
-  params.page_url = GURL(chrome::kChromeUISettingsURL);
-  params.frame_url = params.page_url;
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH));
-}
-
-// Test that the context menu item for translate is shown, and has an icon on
-// relevant platforms.
-TEST_F(RenderViewContextMenuPrefsTest, TranslateContextMenuHasIcon) {
-  NavigateAndCommit(GURL("https://www.example.com"));
-
-  ChromeTranslateClient::CreateForWebContents(web_contents());
-  ChromeTranslateClient* chrome_translate_client =
-      ChromeTranslateClient::FromWebContents(web_contents());
-  ASSERT_TRUE(chrome_translate_client);
-  translate::TranslateManager* translate_manager =
-      chrome_translate_client->GetTranslateManager();
-  translate_manager->GetLanguageState()->LanguageDetermined("fr", true);
-
-  content::ContextMenuParams params = CreateParams(0);
-  params.edit_flags = blink::ContextMenuDataEditFlags::kCanTranslate;
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-  EXPECT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_TRANSLATE));
-  std::optional<std::pair<ui::MenuModel*, size_t>> model_and_index =
-      menu.GetMenuModelAndItemIndex(IDC_CONTENT_CONTEXT_TRANSLATE);
-  ASSERT_TRUE(model_and_index);
-  ui::MenuModel* model = model_and_index->first;
-  size_t index = model_and_index->second;
-// Context menu items typically do not have icons on Mac.
-#if BUILDFLAG(IS_MAC)
-  EXPECT_TRUE(model->GetIconAt(index).IsEmpty());
-#else
-  EXPECT_FALSE(model->GetIconAt(index).IsEmpty());
-#endif
-}
-
-// Verify that the adding the Lens image search option to the menu
-// issues a preconnection request to lens.google.com.
-TEST_F(RenderViewContextMenuPrefsTest,
-       LensImageSearchIssuesGoogleLensPreconnect) {
-  BeginPreresolveListening();
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
-  params.has_image_contents = true;
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  std::optional<std::pair<ui::MenuModel*, size_t>> model_and_index =
-      menu.GetMenuModelAndItemIndex(IDC_CONTENT_CONTEXT_SEARCHLENSFORIMAGE);
-  ASSERT_TRUE(model_and_index);
-
-  base::RunLoop run_loop;
-  preresolved_finished_closure() = run_loop.QuitClosure();
-  run_loop.Run();
-  ASSERT_EQ(last_preresolved_url().spec(), "https://lens.google.com/");
-}
-
-// Verify that the adding the Lens region search option to the menu
-// issues a preconnection request to lens.google.com.
-TEST_F(RenderViewContextMenuPrefsTest,
-       LensRegionSearchIssuesGoogleLensPreconnect) {
-  BeginPreresolveListening();
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
-
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  std::optional<std::pair<ui::MenuModel*, size_t>> model_and_index =
-      menu.GetMenuModelAndItemIndex(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH);
-  ASSERT_TRUE(model_and_index);
-  EXPECT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH));
-
-  base::RunLoop run_loop;
-  preresolved_finished_closure() = run_loop.QuitClosure();
-  run_loop.Run();
-  ASSERT_EQ(last_preresolved_url().spec(), "https://lens.google.com/");
-}
-
-TEST_F(RenderViewContextMenuPrefsTest, LensImageSearchIssuesProcessPrewarming) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
-  params.has_image_contents = true;
-
-  unsigned int initial_num_processes =
-      mock_rph_factory().GetProcesses()->size();
-
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  std::optional<std::pair<ui::MenuModel*, size_t>> model_and_index =
-      menu.GetMenuModelAndItemIndex(IDC_CONTENT_CONTEXT_SEARCHLENSFORIMAGE);
-  ASSERT_TRUE(model_and_index);
-
-  ASSERT_EQ(initial_num_processes + 1,
-            mock_rph_factory().GetProcesses()->size());
-}
-
-TEST_F(RenderViewContextMenuPrefsTest,
-       LensRegionSearchIssuesProcessPrewarming) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
-
-  unsigned int initial_num_processes =
-      mock_rph_factory().GetProcesses()->size();
-
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  std::optional<std::pair<ui::MenuModel*, size_t>> model_and_index =
-      menu.GetMenuModelAndItemIndex(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH);
-  ASSERT_TRUE(model_and_index);
-
-  ASSERT_EQ(initial_num_processes + 1,
-            mock_rph_factory().GetProcesses()->size());
-}
-
-TEST_F(RenderViewContextMenuPrefsTest,
-       WithoutLensOrCompanionDoesNotIssueProcessPrewarming) {
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
-
-  unsigned int initial_num_processes =
-      mock_rph_factory().GetProcesses()->size();
-
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  ASSERT_EQ(initial_num_processes, mock_rph_factory().GetProcesses()->size());
-}
-
-TEST_F(RenderViewContextMenuPrefsTest,
-       LensPrewarmingFlagDisablesProcessPrewarming) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeaturesAndParameters(
-      {{lens::features::kLensStandalone,
-        {{"lens-issue-process-prewarming", "false"}}}},
-      {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::ContextMenuParams params = CreateParams(MenuItem::IMAGE);
-  params.has_image_contents = true;
-
-  unsigned int initial_num_processes =
-      mock_rph_factory().GetProcesses()->size();
-
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  std::optional<std::pair<ui::MenuModel*, size_t>> model_and_index =
-      menu.GetMenuModelAndItemIndex(IDC_CONTENT_CONTEXT_SEARCHLENSFORIMAGE);
-  ASSERT_TRUE(model_and_index);
-
-  ASSERT_EQ(initial_num_processes, mock_rph_factory().GetProcesses()->size());
-}
-
-BASE_FEATURE(kTestUnregisteredFeature, base::FEATURE_DISABLED_BY_DEFAULT);
-
-TEST_F(RenderViewContextMenuPrefsTest, GetIsNewFeatureAtValue) {
-  // Set the profile creation time to be 100 days ago, to ensure that the
-  // feature is considered new.
-  UserEducationServiceFactory::GetForBrowserContext(profile())
-      ->user_education_storage_service()
-      .set_profile_creation_time_for_testing(base::Time::Now() -
-                                             base::Days(100));
-
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({user_education::features::kNewBadgeTestFeature,
-                             kTestUnregisteredFeature},
-                            {});
-
-  auto* new_badge_registry =
-      UserEducationServiceFactory::GetForBrowserContext(profile())
-          ->new_badge_registry();
-  if (!new_badge_registry->IsFeatureRegistered(
-          user_education::features::kNewBadgeTestFeature)) {
-    new_badge_registry->RegisterFeature(
-        {user_education::features::kNewBadgeTestFeature,
-         user_education::Metadata()});
-  }
-
-  // Initialize the New Badge controller, so that the new badge data for this
-  // profile is set.
-  auto* const controller =
-      UserEducationServiceFactory::GetForBrowserContext(profile())
-          ->new_badge_controller();
-  controller->InitData();
-
-  // Create a context menu with a registered feature.
-  content::ContextMenuParams params;
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-
-  // A registered feature should be considered new.
-  ASSERT_TRUE(menu.GetIsNewFeatureAtValue(
-      user_education::features::kNewBadgeTestFeature.name));
-
-  // An unregistered feature should not be considered new.
-  ASSERT_FALSE(menu.GetIsNewFeatureAtValue(kTestUnregisteredFeature.name));
-
-  const char* const kUnregisteredFeatureName = "UnregisteredFeature";
-  // An unknown feature name should not be considered new.
-  ASSERT_FALSE(menu.GetIsNewFeatureAtValue(kUnregisteredFeatureName));
-}
-
-TEST_F(RenderViewContextMenuPrefsTest, GetIsNewFeatureAtValue_GuestProfile) {
-  profile_metrics::SetBrowserProfileType(
-      profile(), profile_metrics::BrowserProfileType::kGuest);
-
-  // The profile should be a guest profile.
-  ASSERT_TRUE(profile()->IsGuestSession());
-
-  content::ContextMenuParams params;
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-
-  // If it is not a regular profile, we don't have user education tracking and
-  // the feature should not be considered new.
-  ASSERT_FALSE(menu.GetIsNewFeatureAtValue(
-      user_education::features::kNewBadgeTestFeature.name));
-}
-
-TEST_F(RenderViewContextMenuPrefsTest,
-       GetIsNewFeatureAtValue_IncognitoProfile) {
-  profile_metrics::SetBrowserProfileType(
-      profile(), profile_metrics::BrowserProfileType::kIncognito);
-
-  // The profile should be an incognito profile.
-  ASSERT_TRUE(profile()->IsIncognitoProfile());
-
-  content::ContextMenuParams params;
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-
-  // If it is not a regular profile, we don't have user education tracking and
-  // the feature should not be considered new.
-  ASSERT_FALSE(menu.GetIsNewFeatureAtValue(
-      user_education::features::kNewBadgeTestFeature.name));
-}
-
-// Verify that the Lens Region Search menu item is enabled for Progressive Web
-// Apps. Region Search on PWAs is currently broken and therefore disabled on
-// Mac. b/250074889
-#if BUILDFLAG(IS_MAC)
-#define MAYBE_LensRegionSearchProgressiveWebApp \
-  DISABLED_LensRegionSearchProgressiveWebApp
-#else
-#define MAYBE_LensRegionSearchProgressiveWebApp \
-  LensRegionSearchProgressiveWebApp
-#endif
-TEST_F(RenderViewContextMenuPrefsTest,
-       MAYBE_LensRegionSearchProgressiveWebApp) {
-  base::test::ScopedFeatureList features;
-  features.InitWithFeatures({lens::features::kLensStandalone},
-                            {lens::features::kLensOverlay});
-  SetUserSelectedDefaultSearchProvider("https://www.google.com",
-                                       /*supports_image_search=*/true);
-  content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetPwaBrowser());
-  menu.Init();
-
-  EXPECT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH));
-}
-
-#endif  // BUILDFLAG(ENABLE_LENS_DESKTOP_GOOGLE_BRANDED_FEATURES)
 
 TEST_F(RenderViewContextMenuPrefsTest,
        TextSelectionShowsPartialTranslateWhenMenuSimplificationDisabled) {
@@ -2323,8 +1651,6 @@ TEST_P(RenderViewContextMenuReadAnythingTest, MAYBE_AppendPageItems) {
                                  menu_params);
 
   ASSERT_TRUE(GetBrowser());
-  const bool enable_region_search =
-      lens::LensOverlayEntryPointController::From(GetBrowser())->IsEnabled();
   if (enable_region_search) {
     SetUserSelectedDefaultSearchProvider("https://www.google.com",
                                          /*supports_image_search=*/true);
@@ -2385,23 +1711,6 @@ TEST_P(RenderViewContextMenuReadAnythingTest, MAYBE_AppendPageItems) {
   }
 }
 
-TEST_P(RenderViewContextMenuReadAnythingTest, GlicNotPresentInReadingMode) {
-  base::test::ScopedFeatureList features;
-  features.InitAndEnableFeature(features::kGlicContextMenu);
-
-  glic::GlicEnabling::ScopedBypassEnablementChecksForTesting scoped_glic_bypass;
-
-  // Simulate a context menu request with page level options.
-  content::ContextMenuParams params = CreateParams(MenuItem::PAGE);
-  params.page_url = GURL(chrome::kChromeUIUntrustedReadAnythingSidePanelURL);
-
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  menu.Init();
-
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_GLIC));
-}
 
 INSTANTIATE_TEST_SUITE_P(All,
                          RenderViewContextMenuReadAnythingTest,
@@ -2554,26 +1863,6 @@ TEST_F(RenderViewContextMenuMenuSimplificationTest,
 }
 #endif  // BUILDFLAG(ENABLE_PRINTING)
 
-TEST_F(RenderViewContextMenuMenuSimplificationTest,
-       PasswordFieldWithSelectionGlicRestricted) {
-  base::test::ScopedFeatureList features;
-  features.InitAndEnableFeature(features::kGlicContextMenu);
-
-  glic::GlicEnabling::ScopedBypassEnablementChecksForTesting scoped_glic_bypass;
-
-  content::ContextMenuParams params =
-      CreateParams(MenuItem::SELECTION | MenuItem::EDITABLE);
-  params.form_control_type = blink::mojom::FormControlType::kInputPassword;
-  params.selection_text = u"secretpassword";
-
-  TestRenderViewContextMenu menu(*web_contents()->GetPrimaryMainFrame(),
-                                 params);
-  menu.SetBrowser(GetBrowser());
-  ChromeTranslateClient::CreateForWebContents(web_contents());
-  menu.Init();
-
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_GLIC));
-}
 
 TEST_F(RenderViewContextMenuMenuSimplificationTest, EmailFieldSearchHidden) {
   content::ContextMenuParams params;
@@ -3319,13 +2608,6 @@ class RenderViewContextMenuOrderTest : public RenderViewContextMenuPrefsTest {
   static constexpr int kSeparatorId = -1;
 
   RenderViewContextMenuOrderTest() {
-    feature_list_.InitWithFeatures(
-        /*enabled_features=*/{lens::features::kLensOverlay,
-                              media::kContextMenuSearchForVideoFrame},
-        /*disabled_features=*/{
-            lens::features::kLensStandalone, features::kMenuSimplification,
-            features::kReadAnythingImprovedUi, features::kGlic,
-            sharing_hub::kDesktopScreenshots});
   }
 
   void SetUp() override {

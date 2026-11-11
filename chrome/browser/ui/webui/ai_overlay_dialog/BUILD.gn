@@ -29,7 +29,6 @@ source_set("ai_overlay_dialog") {
   ]
   public_deps = [
     ":mojo_bindings",
-    "//chrome/browser/glic",
     "//chrome/browser/optimization_guide",
     "//chrome/browser/ttc/core",
     "//chrome/browser/ui/actions:actions_headers",
@@ -62,7 +61,6 @@ source_set("impl") {
     "//build:android_buildflags",
     "//chrome/browser:browser_process",
     "//chrome/browser/bookmarks",
-    "//chrome/browser/glic",
     "//chrome/browser/history",
     "//chrome/browser/page_content_annotations:extraction_service",
     "//chrome/browser/page_content_annotations:fetcher",
@@ -140,7 +138,6 @@ source_set("unit_tests") {
 
   sources += [ "ai_overlay_dialog_page_handler_unittest.cc" ]
   deps += [
-    "//chrome/browser/glic/test_support",
     "//chrome/browser/metrics",
     "//chrome/browser/ui/tabs:tab_strip",
     "//chrome/browser/ui/tabs:test_support",

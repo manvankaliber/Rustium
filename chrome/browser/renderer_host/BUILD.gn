@@ -17,10 +17,7 @@ source_set("renderer_host") {
     "//content/public/browser",
     "//extensions/buildflags",
   ]
-  deps = [
-    "//chrome/browser/actor",
-    "//chrome/browser/preloading/prefetch/no_state_prefetch",
-  ]
+  deps = [ "//chrome/browser/preloading/prefetch/no_state_prefetch" ]
 
   if (enable_extensions_core) {
     public_deps += [ "//extensions/browser" ]
@@ -90,9 +87,7 @@ if (is_mac) {
       ":history_swiper",
       ":history_swiping_control",
       "//base",
-      "//chrome/browser/actor/ui:actor_overlay",
       "//chrome/browser/devtools",
-      "//chrome/browser/glic",
       "//chrome/browser/ui:browser_commands",
       "//components/spellcheck/browser",
     ]

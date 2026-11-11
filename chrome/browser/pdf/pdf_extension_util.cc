@@ -16,8 +16,6 @@
 #include "build/branding_buildflags.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/common/extensions/api/pdf_viewer_private.h"
@@ -341,7 +339,6 @@ base::DictValue GetStrings(PdfViewerContext context) {
 
 base::DictValue GetAdditionalData(content::WebContents* web_contents) {
   content::BrowserContext* context = web_contents->GetBrowserContext();
-  Profile* profile = Profile::FromBrowserContext(context);
   // NOTE: This function should not include any data used for $i18n{}
   // replacements. The i18n string resources should be added using GetStrings()
   // above instead.
@@ -349,12 +346,6 @@ base::DictValue GetAdditionalData(content::WebContents* web_contents) {
   dict.Set("pdfGetSaveDataInBlocks",
            base::FeatureList::IsEnabled(
                chrome_pdf::features::kPdfGetSaveDataInBlocks));
-  dict.Set("pdfGlicSummarizeEnabled",
-           ShouldShowGlicSummarizeButton(web_contents));
-  dict.Set("pdfGlicSummarizeUseLongButtonText",
-           glic::GetGlicProviderSpec(profile)
-               .GetPdfSummarizeFeatureParams()
-               .use_long_button_text);
   dict.Set(
       "pdfSearchifySaveEnabled",
       base::FeatureList::IsEnabled(chrome_pdf::features::kPdfSearchifySave));
@@ -479,38 +470,5 @@ void DispatchShouldUpdateViewportEvent(content::RenderFrameHost* embedder_host,
                                          std::move(event));
 }
 
-bool ShouldShowGlicSummarizeButton(content::WebContents* web_contents) {
-  if (!web_contents) {
-    return false;
-  }
-
-  // When the PDF viewer is hosted in a MimeHandlerViewGuest (legacy GuestView,
-  // e.g. on ChromeOS where kPdfOopif is disabled), `web_contents` is the inner
-  // guest contents which has no TabInterface attached. Walk up to the embedder
-  // so the tab lookup below matches the click handler in
-  // PdfViewerPrivateGlicSummarizeFunction::Run().
-  if (!chrome_pdf::features::IsOopifPdfEnabled()) {
-    if (auto* guest =
-            extensions::MimeHandlerViewGuest::FromWebContents(web_contents)) {
-      web_contents = guest->embedder_web_contents();
-      if (!web_contents) {
-        return false;
-      }
-    }
-  }
-
-  Profile* profile =
-      Profile::FromBrowserContext(web_contents->GetBrowserContext());
-  if (!glic::GlicEnabling::IsPdfSummarizeEnabled(profile)) {
-    return false;
-  }
-
-  auto* tab_interface = tabs::TabInterface::MaybeGetFromContents(web_contents);
-  if (tab_interface && !tab_interface->IsInNormalWindow()) {
-    return false;
-  }
-
-  return true;
-}
 
 }  // namespace pdf_extension_util

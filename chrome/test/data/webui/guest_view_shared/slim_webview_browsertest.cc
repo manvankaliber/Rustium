@@ -55,7 +55,7 @@ class SlimWebviewBrowserTest : public WebUIMochaBrowserTest,
   // While these tests are independent of Glic, we use the Glic host as a
   // convenient way to get a WebUI instance that has all the sources and
   // bindings set up correctly.
-  SlimWebviewBrowserTest() { set_test_loader_host(chrome::kChromeUIGlicHost); }
+  SlimWebviewBrowserTest() {  }
 
   void SetUpDefaultCommandLine(base::CommandLine* command_line) override {
     WebUIMochaBrowserTest::SetUpDefaultCommandLine(command_line);

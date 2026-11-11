@@ -38,9 +38,6 @@ namespace input {
 struct NativeWebKeyboardEvent;
 }
 
-namespace glic {
-class GlicInstance;
-}
 
 namespace chrome {
 
@@ -79,7 +76,6 @@ class BrowserCommandController : public CommandUpdater,
   void ContentRestrictionsChanged();
   void FullscreenStateChanged();
   void PrintingStateChanged();
-  void GlicActiveInstanceChanged(glic::GlicInstance* instance);
   void TtcStateChanged(ttc::ServiceState state);
   void LoadingStateChanged(bool is_loading, bool force);
   void FindBarVisibilityChanged();
@@ -204,7 +200,6 @@ class BrowserCommandController : public CommandUpdater,
   void UpdatePrintingState();
 
   // Updates the Glic command state.
-  void UpdateGlicState();
 
   // Updates the TTC command state for `state`.
   void UpdateTtcState(ttc::ServiceState state);
@@ -246,7 +241,6 @@ class BrowserCommandController : public CommandUpdater,
   void UpdateCommandsForTabStripStateChanged();
 
   // Updates commands that depend on the enabled state of glic.
-  void UpdateCommandsForEnableGlicChanged();
 
   // Updates commands and actions for profiling.
   void UpdateCommandsForProfiling();
@@ -283,7 +277,6 @@ class BrowserCommandController : public CommandUpdater,
 
   PrefChangeRegistrar profile_pref_registrar_;
   PrefChangeRegistrar local_pref_registrar_;
-  std::unique_ptr<base::CallbackListSubscription> glic_enabling_subscription_;
 
 
   // If the Customize Chrome side panel is shown, determines which section to
@@ -293,7 +286,6 @@ class BrowserCommandController : public CommandUpdater,
 
   // Callback subscription for listening to changes to the Glic window
   // activation changes.
-  base::CallbackListSubscription glic_active_instance_changed_subscription_;
 
   // Callback subscription for listening to TTC session state changes.
   base::CallbackListSubscription ttc_state_subscription_;

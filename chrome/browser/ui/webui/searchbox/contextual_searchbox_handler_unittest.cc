@@ -205,11 +205,6 @@ class FakeContextualTasksUIInterface
   void OnActiveTabContextStatusChanged() override {}
   void SyncAutoSuggestedTabContext() override {}
   void ResetForNewThread(const base::Uuid& task_id, const GURL& url) override {}
-  void OnLensOverlayStateChanged(
-      bool is_showing,
-      std::optional<lens::LensOverlayInvocationSource> invocation_source)
-      override {}
-  bool IsLensOverlayShowing() const override { return false; }
 
   void OnPageContextEligibilityChecked(bool is_page_context_eligible) override {
   }
@@ -2741,7 +2736,6 @@ TEST_F(ContextualSearchboxHandlerTest,
        SubmitQuery_OmniboxPageActionInvocationSource) {
   omnibox::ChromeAimEntryPoint captured_aim_entry_point =
       omnibox::UNKNOWN_AIM_ENTRY_POINT;
-  std::optional<lens::LensOverlayInvocationSource> captured_invocation_source;
 
   EXPECT_CALL(query_controller(), CreateSearchUrl)
       .WillOnce(
@@ -2751,28 +2745,20 @@ TEST_F(ContextualSearchboxHandlerTest,
             std::move(callback).Run(GURL("https://www.google.com"));
           });
 
-  contextual_session_handle_->set_invocation_source(
-      lens::LensOverlayInvocationSource::kOmniboxPageAction);
   handler().SubmitQuery(kQueryText, 1, false, false, false, false,
                         /*is_voice_search=*/false);
 
   EXPECT_EQ(
       omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_COBROWSE_OMNIBOX_TAB_SEARCH,
       captured_aim_entry_point);
-  EXPECT_EQ(lens::LensOverlayInvocationSource::kOmniboxPageAction,
-            captured_invocation_source);
 }
 
 TEST_F(ContextualSearchboxHandlerTest, GetAimEntryPoint) {
-  contextual_session_handle_->set_invocation_source(
-      lens::LensOverlayInvocationSource::kOmniboxPageAction);
   EXPECT_EQ(
       omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_COBROWSE_OMNIBOX_TAB_SEARCH,
       GetAimEntryPoint(metrics::OmniboxEventProto::OTHER_OMNIBOX_COMPOSEBOX,
                        contextual_session_handle_.get()));
 
-  contextual_session_handle_->set_invocation_source(
-      lens::LensOverlayInvocationSource::kOmniboxContextualQuery);
   EXPECT_EQ(
       omnibox::ChromeAimEntryPoint::
           DESKTOP_CHROME_OTHER_OMNIBOX_COMPOSEBOX_ENTRY_POINT,
@@ -2824,11 +2810,7 @@ TEST_F(ContextualSearchboxHandlerTest, SubmitQuery_NoContextualTasksService) {
 
 TEST_F(ContextualSearchboxHandlerTest, QueryAutocomplete_SetsLensInputs) {
   // Set suggest inputs on the client.
-  lens::proto::LensOverlaySuggestInputs suggest_inputs;
   suggest_inputs.set_encoded_image_signals("xyz");
-  EXPECT_CALL(*static_cast<TestOmniboxClient*>(handler().client()),
-              GetLensOverlaySuggestInputs())
-      .WillRepeatedly(testing::Return(suggest_inputs));
 
   // Set input state where `image_gen_upload_active` is false and active_tool is
   // not CANVAS.
@@ -2855,9 +2837,6 @@ TEST_F(ContextualSearchboxHandlerTest, QueryAutocomplete_SetsLensInputs) {
       /*is_on_focus=*/false, /*keyword=*/"",
       searchbox::mojom::InputMethod::kKeyboard);
 
-  EXPECT_TRUE(input.lens_overlay_suggest_inputs().has_value());
-  EXPECT_EQ(input.lens_overlay_suggest_inputs()->encoded_image_signals(),
-            "xyz");
 }
 
 TEST_F(ContextualSearchboxHandlerTest,
@@ -2884,11 +2863,7 @@ TEST_F(ContextualSearchboxHandlerTest,
 
 TEST_F(ContextualSearchboxHandlerTest,
        QueryAutocomplete_SetsLensInputs_InToolModes) {
-  lens::proto::LensOverlaySuggestInputs suggest_inputs;
   suggest_inputs.set_encoded_image_signals("xyz");
-  EXPECT_CALL(*static_cast<TestOmniboxClient*>(handler().client()),
-              GetLensOverlaySuggestInputs())
-      .WillRepeatedly(testing::Return(suggest_inputs));
 
   // 1. Case: `image_gen_upload_active = true`.
   {
@@ -2913,9 +2888,6 @@ TEST_F(ContextualSearchboxHandlerTest,
         omnibox::SuggestInventory::SUGGEST_INVENTORY_DEFAULT,
         /*is_on_focus=*/false, /*keyword=*/"",
         searchbox::mojom::InputMethod::kKeyboard);
-    EXPECT_TRUE(input.lens_overlay_suggest_inputs().has_value());
-    EXPECT_EQ(input.lens_overlay_suggest_inputs()->encoded_image_signals(),
-              "xyz");
   }
 
   // 2. Case: `active_tool = TOOL_MODE_CANVAS`.
@@ -2941,9 +2913,6 @@ TEST_F(ContextualSearchboxHandlerTest,
         omnibox::SuggestInventory::SUGGEST_INVENTORY_DEFAULT,
         /*is_on_focus=*/false, /*keyword=*/"",
         searchbox::mojom::InputMethod::kKeyboard);
-    EXPECT_TRUE(input.lens_overlay_suggest_inputs().has_value());
-    EXPECT_EQ(input.lens_overlay_suggest_inputs()->encoded_image_signals(),
-              "xyz");
   }
 }
 

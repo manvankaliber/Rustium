@@ -684,9 +684,7 @@ IN_PROC_BROWSER_TEST_P(ToolbarViewCircularContextualTasksBrowserTest,
 
   // Positioned to the left of profile (and glic button if visible).
   views::View* anchor = nullptr;
-  if (toolbar()->GetGlicButton() && toolbar()->GetGlicButton()->GetVisible()) {
-    anchor = toolbar()->GetGlicButton();
-  } else if (toolbar()->avatar_toolbar_button()) {
+  if (toolbar()->avatar_toolbar_button()) {
     anchor = toolbar()->avatar_toolbar_button();
   }
   if (anchor) {

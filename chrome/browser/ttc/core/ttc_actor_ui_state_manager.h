@@ -6,28 +6,12 @@
 #define CHROME_BROWSER_TTC_CORE_TTC_ACTOR_UI_STATE_MANAGER_H_
 
 #include "build/build_config.h"
-#include "chrome/browser/actor/ui/actor_ui_state_manager_interface.h"
-
 namespace ttc {
 
 // TTC specific implementation of ActorUiStateManagerInterface. Actor tasks
 // created by TTC use this instead of the profile-wide ActorUiStateManager so
 // that TTC can drive its own actor UI.
-class TtcActorUiStateManager : public actor::ui::ActorUiStateManagerInterface {
- public:
-  TtcActorUiStateManager();
-  TtcActorUiStateManager(const TtcActorUiStateManager&) = delete;
-  TtcActorUiStateManager& operator=(const TtcActorUiStateManager&) = delete;
-  ~TtcActorUiStateManager() override;
 
-  // actor::ui::ActorUiStateManagerInterface:
-  void OnUiEvent(actor::ui::AsyncUiEvent event,
-                 actor::ui::UiCompleteCallback callback) override;
-  void OnUiEvent(actor::ui::SyncUiEvent event) override;
-  void LazyInitTabTracker() override;
-  base::WeakPtr<actor::ActorNavigationThrottle::Delegate>
-  GetNavigationDelegate() override;
-};
 
 }  // namespace ttc
 

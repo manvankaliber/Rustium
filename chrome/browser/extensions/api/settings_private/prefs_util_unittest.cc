@@ -10,8 +10,6 @@
 #include "base/test/scoped_feature_list.h"
 #include "base/values.h"
 #include "chrome/browser/extensions/api/settings_private/prefs_util_enums.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/test/base/testing_browser_process.h"
@@ -107,17 +105,6 @@ TEST_F(PrefsUtilTest, SetPref_FixesUpInvalidUrl) {
   EXPECT_EQ(profile_->GetPrefs()->GetString(::prefs::kHomePage), "");
 }
 
-TEST_F(PrefsUtilTest, GlicPrefsAllowlisted) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(features::kGlic);
-  glic::GlicEnabling::ScopedBypassEnablementChecksForTesting scoped_glic_bypass;
-
-  std::optional<api::settings_private::PrefObject> pref =
-      prefs_util_->GetPref(glic::prefs::kGlicHotkeyGlobalScopeEnabled);
-  ASSERT_TRUE(pref.has_value());
-  EXPECT_EQ(pref->key, glic::prefs::kGlicHotkeyGlobalScopeEnabled);
-  EXPECT_EQ(pref->type, api::settings_private::PrefType::kBoolean);
-}
 
 TEST_F(PrefsUtilTest, FindAndFillWithGeminiSettingsReadOnly) {
   base::Value value;

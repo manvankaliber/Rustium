@@ -111,11 +111,6 @@ void AudioLogger::RecordAudio(base::span<const uint8_t> pcm_data,
 
 void AudioLogger::DumpToJournal(SessionJournal& journal) {
   if (params_changed_) {
-    journal.Log("AudioLoggerError",
-                actor::JournalDetailsBuilder()
-                    .AddError("Audio parameters changed during recording; "
-                              "audio partially dropped.")
-                    .Build());
     params_changed_ = false;
   }
 

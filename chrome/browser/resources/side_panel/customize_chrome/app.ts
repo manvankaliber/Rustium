@@ -316,8 +316,7 @@ export class AppElement extends AppElementBase {
   }
 
   protected onCouponsButtonClick_() {
-    this.apiProxy_.handler.openChromeWebStoreCategoryPage(
-        ChromeWebStoreCategory.kShopping);
+
   }
 
   protected onWritingButtonClick_() {

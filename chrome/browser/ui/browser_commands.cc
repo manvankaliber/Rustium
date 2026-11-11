@@ -93,7 +93,6 @@
 #include "chrome/browser/ui/find_bar/find_bar_controller.h"
 #include "chrome/browser/ui/focus/browser_focus_controller.h"
 #include "chrome/browser/ui/intent_picker_tab_helper.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
 #include "chrome/browser/ui/navigator/browser_navigator.h"
 #include "chrome/browser/ui/navigator/browser_navigator_params.h"
@@ -152,8 +151,6 @@
 #include "components/bookmarks/common/bookmark_bar_visibility_state.h"
 #include "components/bookmarks/common/bookmark_pref_names.h"
 #include "components/browsing_data/content/browsing_data_helper.h"
-#include "components/commerce/core/commerce_utils.h"
-#include "components/commerce/core/pref_names.h"
 #include "components/contextual_tasks/public/contextual_task.h"
 #include "components/contextual_tasks/public/features.h"
 #include "components/embedder_support/user_agent_utils.h"
@@ -268,11 +265,6 @@
 #include "ui/aura/window_tree_host.h"
 #endif
 
-#if BUILDFLAG(ENABLE_LENS_DESKTOP_GOOGLE_BRANDED_FEATURES)
-#include "chrome/browser/lens/region_search/lens_region_search_controller.h"
-#include "chrome/browser/lens/region_search/lens_region_search_helper.h"
-#include "components/lens/lens_features.h"
-#endif
 
 #include "chrome/browser/ui/toasts/api/toast_id.h"
 #include "chrome/browser/ui/toasts/toast_controller.h"
@@ -3091,84 +3083,7 @@ void ProcessInterceptedChromeURLNavigationInIncognito(
   }
 }
 
-void ExecLensOverlay(BrowserWindowInterface* browser) {
-  content::WebContents* web_contents =
-      browser->GetTabStripModel()->GetActiveWebContents();
-  CHECK(web_contents);
 
-  LensSearchController* const controller =
-      LensSearchController::FromTabWebContents(web_contents);
-  CHECK(controller);
-  controller->OpenLensOverlay(
-      lens::LensOverlayInvocationSource::kAppMenu,
-      /*should_show_csb=*/!contextual_tasks::
-          AreContextualTasksUpdatedEntryPointsEnabled(
-              browser ? browser->GetProfile() : nullptr));
-  BrowserUserEducationInterface::From(browser)->NotifyNewBadgeFeatureUsed(
-      lens::features::kLensOverlay);
-}
 
-void ExecLensRegionSearch(BrowserWindowInterface* browser) {
-#if BUILDFLAG(ENABLE_LENS_DESKTOP_GOOGLE_BRANDED_FEATURES)
-  Profile* profile = browser->GetProfile();
-  TemplateURLService* service =
-      TemplateURLServiceFactory::GetForProfile(profile);
-  WebContents* contents = browser->GetTabStripModel()->GetActiveWebContents();
-  GURL url = contents->GetController().GetLastCommittedEntry()->GetURL();
-
-  if (lens::IsRegionSearchEnabled(browser, profile, service, url)) {
-    const bool is_google_dsp = search::DefaultSearchProviderIsGoogle(profile);
-    const lens::AmbientSearchEntryPoint entry_point =
-        is_google_dsp ? lens::AmbientSearchEntryPoint::
-                            CONTEXT_MENU_SEARCH_REGION_WITH_GOOGLE_LENS
-                      : lens::AmbientSearchEntryPoint::
-                            CONTEXT_MENU_SEARCH_REGION_WITH_WEB;
-    lens::LensRegionSearchController::From(browser)->Start(
-        contents,
-        /*use_fullscreen_capture=*/false, is_google_dsp, entry_point);
-  }
-#endif  // BUILDFLAG(ENABLE_LENS_DESKTOP_GOOGLE_BRANDED_FEATURES)
-}
-
-void ExecAskGoogleAboutThisPage(
-    BrowserWindowInterface* browser,
-    lens::LensOverlayInvocationSource invocation_source,
-    omnibox::ChromeAimEntryPoint entry_point) {
-  if (!browser) {
-    return;
-  }
-  base::UmaHistogramEnumeration("ContextualTasks.AskGoogle.Invoked",
-                                invocation_source);
-  if (auto* const user_education =
-          BrowserUserEducationInterface::From(browser)) {
-    user_education->NotifyNewBadgeFeatureUsed(
-        contextual_tasks::kContextualTasksUpdatedEntryPoints);
-  }
-  // Only route to the omnibox if the window has an AIM popup to show;
-  // otherwise the popup state becomes kAim with nothing shown. Fall back to
-  // the side panel.
-  if (contextual_tasks::ShouldRouteAskGoogleToOmnibox(browser->GetProfile()) &&
-      omnibox::ShouldCreateAimPopupPresenter(browser->GetProfile())) {
-    BrowserWindow* window = BrowserWindow::FromBrowser(browser);
-    LocationBar* location_bar = window ? window->GetLocationBar() : nullptr;
-    OmniboxController* omnibox_controller =
-        location_bar ? location_bar->GetOmniboxController() : nullptr;
-    if (omnibox_controller && omnibox_controller->edit_model()) {
-      window->SetFocusToLocationBar(/*is_user_initiated=*/true);
-      omnibox_controller->edit_model()->OpenComposeboxForAskG();
-    }
-    return;
-  }
-  tabs::TabInterface* const active_tab = browser->GetActiveTabInterface();
-  if (!active_tab || !active_tab->GetContents()) {
-    return;
-  }
-  LensSearchController* const controller =
-      LensSearchController::From(active_tab);
-  if (controller) {
-    controller->StartZeroStateSessionInSidePanel(entry_point, invocation_source,
-                                                 /*open_lens_overlay=*/false);
-  }
-}
 
 }  // namespace chrome

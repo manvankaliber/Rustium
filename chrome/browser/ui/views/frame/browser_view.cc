@@ -39,7 +39,6 @@
 #include "base/trace_event/trace_event.h"
 #include "build/build_config.h"
 #include "chrome/app/chrome_command_ids.h"
-#include "chrome/browser/actor/ui/actor_overlay_web_view.h"
 #include "chrome/browser/app_mode/app_mode_utils.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browsing_data/browsing_data_important_sites_util.h"
@@ -53,7 +52,6 @@
 #include "chrome/browser/extensions/browser_extension_window_controller.h"
 #include "chrome/browser/extensions/extension_util.h"
 #include "chrome/browser/feature_engagement/tracker_factory.h"
-#include "chrome/browser/glic/public/features.h"
 #include "chrome/browser/headless/headless_mode_util.h"
 #include "chrome/browser/platform_util.h"
 #include "chrome/browser/profiles/profile.h"
@@ -189,7 +187,6 @@
 #include "chrome/browser/ui/views/frame/vertical_tab_strip_region_view.h"
 #include "chrome/browser/ui/views/frame/web_contents_close_handler.h"
 #include "chrome/browser/ui/views/fullscreen_control/fullscreen_control_host.h"
-#include "chrome/browser/ui/views/glic/glic_button_interface.h"
 #include "chrome/browser/ui/views/global_media_controls/media_toolbar_button_view.h"
 #include "chrome/browser/ui/views/hats/hats_next_web_dialog.h"
 #include "chrome/browser/ui/views/incognito_clear_browsing_data_dialog.h"
@@ -233,7 +230,6 @@
 #include "chrome/browser/ui/views/toolbar/chrome_labs/chrome_labs_coordinator.h"
 #include "chrome/browser/ui/views/toolbar/pinned_toolbar_actions_container.h"
 #include "chrome/browser/ui/views/toolbar/reload_control.h"
-#include "chrome/browser/ui/views/toolbar/toolbar_glic_button_interface.h"
 #include "chrome/browser/ui/views/toolbar/toolbar_view.h"
 #include "chrome/browser/ui/views/translate/translate_bubble_controller.h"
 #include "chrome/browser/ui/views/translate/translate_bubble_view.h"
@@ -1265,31 +1261,7 @@ ContentsWebView* BrowserView::contents_web_view_for_testing() {
   return static_cast<ContentsWebView*>(GetContentsView());
 }
 
-views::LabelButton* BrowserView::GetGlicButton() {
-  auto* controller = tabs::VerticalTabStripStateController::From(browser_);
-  if ((vertical_tab_strip_region_view_ && controller &&
-       controller->ShouldDisplayVerticalTabs()) ||
-      base::FeatureList::IsEnabled(features::kGlicHorizontalTabToolbarButton)) {
-    return toolbar()->GetGlicButton();
-  }
 
-  return BrowserElementsViews::From(browser_.get())
-      ->GetViewAs<views::LabelButton>(kGlicButtonElementId);
-}
-
-bool BrowserView::IsGlicButtonVisible() {
-  auto* controller = tabs::VerticalTabStripStateController::From(browser_);
-  if ((vertical_tab_strip_region_view_ && controller &&
-       controller->ShouldDisplayVerticalTabs()) ||
-      base::FeatureList::IsEnabled(features::kGlicHorizontalTabToolbarButton)) {
-    glic::ToolbarGlicButtonInterface* glic_button =
-        toolbar() ? toolbar()->glic_button() : nullptr;
-    return glic_button && glic_button->IsVisible();
-  }
-
-  views::LabelButton* glic_button = GetGlicButton();
-  return glic_button && glic_button->GetVisible();
-}
 
 TabSearchBubbleHost* BrowserView::GetTabSearchBubbleHost() {
   return tab_search_bubble_host_.get();

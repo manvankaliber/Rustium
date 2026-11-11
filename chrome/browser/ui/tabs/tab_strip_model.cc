@@ -44,7 +44,6 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_panel_controller.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_utils.h"
 #include "chrome/browser/extensions/tab_helper.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/lifetime/browser_shutdown.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/reading_list/reading_list_model_factory.h"
@@ -84,7 +83,6 @@
 #include "chrome/browser/ui/web_applications/web_app_tabbed_utils.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/grit/generated_resources.h"
-#include "components/commerce/core/commerce_utils.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/content_settings/core/common/content_settings.h"
 #include "components/content_settings/core/common/content_settings_types.h"
@@ -2983,13 +2981,12 @@ bool TabStripModel::IsContextMenuCommandEnabled(
              delegate()->CanMoveTabsToWindow(GetSortedIndicesForTabs(tabs));
     }
 
+
     case CommandGlicShare:
-      return true;
     case CommandGlicCreateNewChat:
     case CommandGlicSwitchToRecentConversation:
-      return true;
     case CommandGlicUnshare:
-      return true;
+      return false;
 
     case CommandAiModeShare:
     case CommandAiModeCreateNewThread: {
@@ -3429,13 +3426,11 @@ void TabStripModel::ExecuteContextMenuCommand(tabs::TabHandle context_tab,
     }
 
     case CommandGlicShare:
-      // Do nothing. The submenu's delegate will invoke the correct subcommand
-      // later.
-      break;
     case CommandGlicCreateNewChat:
     case CommandGlicSwitchToRecentConversation:
-      // These are handled by GlicTabSubMenuModel.
+    case CommandGlicUnshare:
       break;
+
     case CommandAiModeShare:
     case CommandAiModeCreateNewThread:
       // Handled by ContextualTasksTabSubMenuModel.
@@ -3453,13 +3448,6 @@ void TabStripModel::ExecuteContextMenuCommand(tabs::TabHandle context_tab,
         break;
       }
       controller->UnshareTabs(GetTabsForCommand(context_tab));
-      break;
-    }
-    case CommandGlicUnshare: {
-      std::vector<tabs::TabHandle> tabs = GetTabsForCommand(context_tab);
-      base::UmaHistogramCounts100("Glic.TabContextMenu.UnpinnedTabs",
-                                  tabs.size());
-      delegate_->GlicUnpinTabsFromAllConversations(tabs);
       break;
     }
 

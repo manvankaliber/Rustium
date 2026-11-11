@@ -22,8 +22,6 @@ namespace page_actions {
 // LINT.IfChange(kActionIds)
 inline constexpr auto kActionIds = std::to_array<actions::ActionId>({
     kActionAiMode,
-    kActionSidePanelShowLensOverlayResults,
-    kActionLensOverlayHomework,
     kActionShowTranslate,
     kActionIndigo,
     kActionShowMemorySaverChip,
@@ -35,8 +33,6 @@ inline constexpr auto kActionIds = std::to_array<actions::ActionId>({
     kActionOffersAndRewardsForPage,
     kActionShowFileSystemAccess,
     kActionInstallPwa,
-    kActionCommercePriceInsights,
-    kActionCommerceDiscounts,
     kActionShowPasswordsBubbleOrPage,
     kActionShowCollaborationRecentActivity,
     kActionAutofillMandatoryReauth,
@@ -47,7 +43,6 @@ inline constexpr auto kActionIds = std::to_array<actions::ActionId>({
     kActionFilledCardInformation,
     kActionShowPaymentsBubbleOrPage,
     kActionSidePanelShowContextualTasks,
-    kActionGlicContextualCueing,
     kActionAnchoredContextualCue,
     kActionMultistepFilter,
     kActionFederation,

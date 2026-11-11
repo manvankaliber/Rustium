@@ -146,10 +146,7 @@ class ScreenshotBackendMultiSourcePageContextFetcherBrowserTest
  public:
   ScreenshotBackendMultiSourcePageContextFetcherBrowserTest() {
     std::vector<base::test::FeatureRefAndParams> enabled_features{
-        {kGlicTabScreenshotExperiment,
-         {
-             {"screenshot_timeout_ms", "10s"},
-         }},
+
     };
     std::vector<base::test::FeatureRef> disabled_features;
 
@@ -239,11 +236,7 @@ class ScreenshotTimeoutMultiSourcePageContextFetcherBrowserTest
  public:
   ScreenshotTimeoutMultiSourcePageContextFetcherBrowserTest() {
     std::vector<base::test::FeatureRefAndParams> enabled_features{
-        {kGlicTabScreenshotExperiment,
-         {
-             {"screenshot_timeout_ms", "1us"},
-             {"screenshot_timeout_allowance_ms", "10s"},
-         }},
+
     };
     std::vector<base::test::FeatureRef> disabled_features;
 
@@ -302,10 +295,7 @@ class RedactingMultiSourcePageContextFetcherBrowserTest
  public:
   RedactingMultiSourcePageContextFetcherBrowserTest() {
     std::vector<base::test::FeatureRefAndParams> enabled_features{
-        {kGlicTabScreenshotExperiment,
-         {
-             {"screenshot_timeout_ms", "10s"},
-         }},
+
     };
     features_.InitWithFeaturesAndParameters(enabled_features,
                                             /*disabled_features=*/{});
@@ -461,11 +451,7 @@ class PngMultiSourcePageContextFetcherBrowserTest
  public:
   PngMultiSourcePageContextFetcherBrowserTest() {
     std::vector<base::test::FeatureRefAndParams> enabled_features{
-        {kGlicTabScreenshotExperiment,
-         {
-             {"screenshot_timeout_ms", "10s"},
-             {"screenshot_image_type", "png"},
-         }},
+
     };
     features_.InitWithFeaturesAndParameters(enabled_features,
                                             /*disabled_features=*/{});
@@ -520,11 +506,7 @@ class WebpMultiSourcePageContextFetcherBrowserTest
  public:
   WebpMultiSourcePageContextFetcherBrowserTest() {
     std::vector<base::test::FeatureRefAndParams> enabled_features{
-        {kGlicTabScreenshotExperiment,
-         {
-             {"screenshot_timeout_ms", "10s"},
-             {"screenshot_image_type", "webp"},
-         }},
+
     };
     features_.InitWithFeaturesAndParameters(enabled_features,
                                             /*disabled_features=*/{});
@@ -574,12 +556,9 @@ class PasswordRedactionMultiSourcePageContextFetcherBrowserTest
  public:
   PasswordRedactionMultiSourcePageContextFetcherBrowserTest() {
     std::vector<base::test::FeatureRefAndParams> enabled_features{
-        {kGlicScreenshotPasswordRedaction, {}},
+
         // Effectively disables timeouts.
-        {kGlicTabScreenshotExperiment,
-         {
-             {"screenshot_timeout_ms", "30s"},
-         }},
+
         {optimization_guide::features::kGetAIPageContentMainFrameTimeoutEnabled,
          {{"timeout", "30s"}}}};
     std::vector<base::test::FeatureRef> disabled_features;
@@ -828,15 +807,12 @@ class SensitivePaymentRedactionMultiSourcePageContextFetcherBrowserTest
  public:
   SensitivePaymentRedactionMultiSourcePageContextFetcherBrowserTest() {
     std::vector<base::test::FeatureRefAndParams> enabled_features{
-        {kGlicScreenshotSensitivePaymentRedaction, {}},
+
         {optimization_guide::features::
              kAnnotatedPageContentAutofillCreditCardRedactions,
          {}},
         // Effectively disables timeouts.
-        {kGlicTabScreenshotExperiment,
-         {
-             {"screenshot_timeout_ms", "30s"},
-         }},
+
         {optimization_guide::features::kGetAIPageContentMainFrameTimeoutEnabled,
          {{"timeout", "30s"}}}};
     std::vector<base::test::FeatureRef> disabled_features;
@@ -1143,12 +1119,9 @@ class ElementCSSRedactionMultiSourcePageContextFetcherBrowserTest
  public:
   ElementCSSRedactionMultiSourcePageContextFetcherBrowserTest() {
     std::vector<base::test::FeatureRefAndParams> enabled_features{
-        {kGlicScreenshotPasswordRedaction, {}},
+
         // Effectively disables timeouts.
-        {kGlicTabScreenshotExperiment,
-         {
-             {"screenshot_timeout_ms", "30s"},
-         }},
+
         {optimization_guide::features::kGetAIPageContentMainFrameTimeoutEnabled,
          {{"timeout", "30s"}}},
         {blink::features::kAIPageContentElementCSSRedaction, {}}};
@@ -1276,10 +1249,7 @@ class IframeInfoMultiSourcePageContextFetcherBrowserTest
   IframeInfoMultiSourcePageContextFetcherBrowserTest() {
     std::vector<base::test::FeatureRefAndParams> enabled_features{
         // Effectively disables timeouts.
-        {kGlicTabScreenshotExperiment,
-         {
-             {"screenshot_timeout_ms", "30s"},
-         }},
+
         {optimization_guide::features::kGetAIPageContentMainFrameTimeoutEnabled,
          {{"timeout", "30s"}}},
         // Enable blink element tracking and APC iframe info.
@@ -1484,10 +1454,7 @@ class OtpRedactionMultiSourcePageContextFetcherBrowserTest
         {optimization_guide::features::
              kAnnotatedPageContentAutofillOtpRedactions,
          {}},
-        {kGlicTabScreenshotExperiment,
-         {
-             {"screenshot_timeout_ms", "30s"},
-         }},
+
         {optimization_guide::features::kGetAIPageContentMainFrameTimeoutEnabled,
          {{"timeout", "30s"}}}};
     features_.InitWithFeaturesAndParameters(enabled_features,
@@ -1551,8 +1518,6 @@ class HighDsfMultiSourcePageContextFetcherBrowserTest
     : public MultiSourcePageContextFetcherBrowserTest {
  public:
   HighDsfMultiSourcePageContextFetcherBrowserTest() {
-    features_.InitAndEnableFeatureWithParameters(
-        kGlicTabScreenshotExperiment, {{"screenshot_timeout_ms", "10s"}});
   }
 
   void SetUpCommandLine(base::CommandLine* command_line) override {
@@ -1620,7 +1585,7 @@ class PdfMultiSourcePageContextFetcherBrowserTest
       public MultiSourcePageContextFetcherBrowserTest {
  public:
   PdfMultiSourcePageContextFetcherBrowserTest()
-      : base::test::WithFeatureOverride(kGlicEmbeddedPdfBytesExtraction) {}
+       {}
 };
 
 // The embedded PDF bytes extraction support should not affect the extraction of

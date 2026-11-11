@@ -361,8 +361,6 @@ WebUIToolbarWebView::WebUIToolbarWebView(
       battery_saver_control_(this),
       avatar_control_(this),
       media_control_(this),
-      glic_control_(this),
-      glic_actor_task_icon_control_(this),
       location_bar_(std::move(location_bar)),
       extensions_container_(this),
       back_control_(this, BackForwardButton::Direction::kBack),
@@ -374,6 +372,10 @@ WebUIToolbarWebView::WebUIToolbarWebView(
           base::BindRepeating(&WebUIToolbarWebView::OnTouchUiChanged,
                               base::Unretained(this)))) {
   base::trace_event::EmitNamedTrigger("webui-toolbar-constructor");
+  last_queued_state_.glic_button_state =
+      toolbar_ui_api::mojom::GlicButtonState::New();
+  last_queued_state_.glic_actor_task_icon_state =
+      toolbar_ui_api::mojom::GlicActorTaskIconState::New();
   last_queued_state_.split_tabs_control_state =
       toolbar_ui_api::mojom::SplitTabsControlState::New();
   last_queued_state_.reload_control_state =
@@ -420,10 +422,6 @@ WebUIToolbarWebView::WebUIToolbarWebView(
       toolbar_ui_api::mojom::OverflowButtonControlState::New();
   last_queued_state_.media_control_state =
       toolbar_ui_api::mojom::MediaControlState::New();
-  last_queued_state_.glic_button_state =
-      toolbar_ui_api::mojom::GlicButtonState::New();
-  last_queued_state_.glic_actor_task_icon_state =
-      toolbar_ui_api::mojom::GlicActorTaskIconState::New();
 
   SetLayoutManager(std::make_unique<views::FillLayout>());
 
@@ -579,13 +577,6 @@ void WebUIToolbarWebView::AddedToWidget() {
     if (features::IsWebUIPinnedToolbarActionsEnabled()) {
       pinned_toolbar_actions_.Init();
     }
-    if (features::IsWebUIGlicButtonEnabled()) {
-      glic_control_.Init();
-      if (base::FeatureList::IsEnabled(features::kGlicActorUi) &&
-          features::kGlicActorUiTaskIcon.Get()) {
-        glic_actor_task_icon_control_.Init();
-      }
-    }
     if (features::IsWebUIExtensionsContainerEnabled()) {
       extensions_container_.Init(web_contents());
     }
@@ -639,9 +630,6 @@ void WebUIToolbarWebView::OnThemeChanged() {
   }
   if (features::IsWebUIPinnedToolbarActionsEnabled()) {
     pinned_toolbar_actions_.OnThemeChanged();
-  }
-  if (features::IsWebUIGlicButtonEnabled()) {
-    glic_control_.OnThemeChanged();
   }
   extensions_container_.OnThemeChanged();
   icon_table_.OnThemeChanged();
@@ -722,6 +710,11 @@ void WebUIToolbarWebView::HandleContextMenu(
       ConvertBoundsFromCssPixelsToScreenCoords(bounds_in_css_pixels);
 
   switch (menu_type) {
+    case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionSidePanelShowLensOverlayResults:
+    case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionSidePanelShowShoppingInsights:
+    case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionSidePanelShowGlic:
+    case toolbar_ui_api::mojom::ContextMenuType::kGlic:
+      break;
     case toolbar_ui_api::mojom::ContextMenuType::kBack:
       back_control_.HandleContextMenu(GetWidget(), screen_rect, source);
       break;
@@ -762,8 +755,6 @@ void WebUIToolbarWebView::HandleContextMenu(
     case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionShowDownloads:
     case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionClearBrowsingData:
     case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionPrint:
-    case toolbar_ui_api::mojom::ContextMenuType::
-        kPinnedActionSidePanelShowLensOverlayResults:
     case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionShowTranslate:
     case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionQrCodeGenerator:
     case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionRouteMedia:
@@ -782,8 +773,6 @@ void WebUIToolbarWebView::HandleContextMenu(
     case toolbar_ui_api::mojom::ContextMenuType::
         kPinnedActionSidePanelShowCustomizeChrome:
     case toolbar_ui_api::mojom::ContextMenuType::
-        kPinnedActionSidePanelShowShoppingInsights:
-    case toolbar_ui_api::mojom::ContextMenuType::
         kPinnedActionSidePanelShowMerchantTrust:
     case toolbar_ui_api::mojom::ContextMenuType::
         kPinnedActionSendSharedTabGroupFeedback:
@@ -795,14 +784,8 @@ void WebUIToolbarWebView::HandleContextMenu(
     case toolbar_ui_api::mojom::ContextMenuType::
         kPinnedActionSidePanelShowHistory:
     case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionShowChromeLabs:
-    case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionSidePanelShowGlic:
-      pinned_toolbar_actions_.HandleContextMenu(menu_type, screen_rect, source);
-      break;
     case toolbar_ui_api::mojom::ContextMenuType::kAppMenu:
       app_menu_control_.HandleContextMenu(screen_rect, source);
-      break;
-    case toolbar_ui_api::mojom::ContextMenuType::kGlic:
-      glic_control_.HandleContextMenu(screen_rect, source);
       break;
     case toolbar_ui_api::mojom::ContextMenuType::kUnspecified:
       NOTREACHED() << "Unexpected ContextMenuType::kUnspecified.";
@@ -1037,13 +1020,7 @@ void WebUIToolbarWebView::OnMediaButtonClicked() {
   media_control_.OnClicked();
 }
 
-void WebUIToolbarWebView::OnGlicButtonClicked() {
-  glic_control_.OnClicked();
-}
 
-void WebUIToolbarWebView::OnGlicActorTaskIconClicked() {
-  glic_actor_task_icon_control_.OnClicked();
-}
 
 ReloadControl* WebUIToolbarWebView::GetReloadControl() {
   return &reload_control_;
@@ -1815,21 +1792,7 @@ void WebUIToolbarWebView::OnMediaControlStateChanged(
   }
 }
 
-void WebUIToolbarWebView::OnGlicButtonStateChanged(
-    toolbar_ui_api::mojom::GlicButtonStatePtr state) {
-  if (!mojo::Equals(state, last_queued_state_.glic_button_state)) {
-    last_queued_state_.glic_button_state = std::move(state);
-    PostPushToolbarState();
-  }
-}
 
-void WebUIToolbarWebView::OnGlicActorTaskIconStateChanged(
-    toolbar_ui_api::mojom::GlicActorTaskIconStatePtr state) {
-  if (!mojo::Equals(state, last_queued_state_.glic_actor_task_icon_state)) {
-    last_queued_state_.glic_actor_task_icon_state = std::move(state);
-    PostPushToolbarState();
-  }
-}
 
 void WebUIToolbarWebView::OnFocusRequested(
     toolbar_ui_api::mojom::FocusRequestTarget target) {
@@ -2062,9 +2025,6 @@ gfx::Size WebUIToolbarWebView::ComputeLayout(
   }
   // Overflow button
   button_count += exclude_overflowable_elements;
-  if (features::IsWebUIGlicButtonEnabled() && glic_control_.IsVisible()) {
-    button_count += 1 + glic_actor_task_icon_control_.ShouldShow();
-  }
   button_count += features::IsWebUIAppMenuButtonEnabled();
 
   const int size = GetLayoutConstant(LayoutConstant::kToolbarButtonHeight);

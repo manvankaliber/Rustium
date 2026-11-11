@@ -33,10 +33,7 @@ namespace content {
 class BrowserContext;
 }  // namespace content
 
-namespace glic {
-class GlicPageContextEligibilityObserver;
-class ZeroStateSuggestionsPageData;
-}  // namespace glic
+  // namespace glic
 
 namespace on_device_internals {
 class PageHandler;
@@ -279,8 +276,6 @@ class OptimizationGuideKeyedService
 
  private:
   friend class ChromeBrowsingDataRemoverDelegate;
-  friend class glic::ZeroStateSuggestionsPageData;
-  friend class glic::GlicPageContextEligibilityObserver;
   friend class HintsFetcherBrowserTest;
   friend class on_device_internals::PageHandler;
   friend class OptimizationGuideInternalsUI;

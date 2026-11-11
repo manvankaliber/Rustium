@@ -438,15 +438,5 @@ void ToolbarUIService::OnMediaButtonClicked() {
   }
 }
 
-void ToolbarUIService::OnGlicButtonClicked() {
-  if (delegate_) {
-    delegate_->OnGlicButtonClicked();
-  }
-}
 
-void ToolbarUIService::OnGlicActorTaskIconClicked() {
-  if (delegate_) {
-    delegate_->OnGlicActorTaskIconClicked();
-  }
-}
 }  // namespace toolbar_ui_api

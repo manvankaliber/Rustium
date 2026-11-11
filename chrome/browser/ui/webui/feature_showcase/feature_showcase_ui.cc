@@ -13,8 +13,6 @@
 #include "base/values.h"
 #include "build/branding_buildflags.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/regional_capabilities/regional_capabilities_service_factory.h"
 #include "chrome/browser/search/background/ntp_custom_background_service_factory.h"
@@ -23,8 +21,6 @@
 #include "chrome/browser/ui/webui/cr_components/theme_color_picker/theme_color_picker_handler.h"
 #include "chrome/browser/ui/webui/feature_showcase/default_browser_handler.h"
 #include "chrome/browser/ui/webui/feature_showcase/feature_showcase_handler.h"
-#include "chrome/browser/ui/webui/feature_showcase/gemini_disclosure.h"
-#include "chrome/browser/ui/webui/feature_showcase/gemini_handler.h"
 #include "chrome/browser/ui/webui/feature_showcase/google_lens_handler.h"
 #include "chrome/browser/ui/webui/feature_showcase/password_manager_handler.h"
 #include "chrome/browser/ui/webui/feature_showcase/themes_and_customization_handler.h"
@@ -85,29 +81,7 @@ void AddLensStepResources(content::WebUIDataSource* source) {
 #endif
 }
 
-void AddGeminiStepResources(content::WebUIDataSource* source, bool is_managed) {
-  std::string country_code;
-  if (base::FeatureList::IsEnabled(
-          features::kGlicUseSessionCountryForFiltering)) {
-    country_code = g_browser_process->variations_service()->GetLatestCountry();
-  } else {
-    country_code =
-        g_browser_process->variations_service()->GetStoredPermanentCountry();
-  }
 
-  const GeminiDisclosure disclosure =
-      GetGeminiDisclosure(country_code, is_managed);
-
-  source->AddString("geminiDisclosure1", disclosure.first_paragraph);
-  source->AddString("geminiDisclosure2", disclosure.second_paragraph);
-
-  source->AddLocalizedStrings({
-      {"geminiTitle", IDS_FEATURE_SHOWCASE_GEMINI_TITLE},
-      {"geminiSubtitle", IDS_FEATURE_SHOWCASE_GEMINI_SUBTITLE},
-      {"geminiYesImIn", IDS_FEATURE_SHOWCASE_GEMINI_YES_IM_IN},
-      {"geminiNotNow", IDS_FEATURE_SHOWCASE_GEMINI_NOT_NOW},
-  });
-}
 
 void AddPasswordManagerStepResources(content::WebUIDataSource* source) {
   source->AddLocalizedStrings({
@@ -193,8 +167,6 @@ FeatureShowcaseUI::FeatureShowcaseUI(content::WebUI* web_ui)
   }
 
   AddDefaultBrowserStepResources(source);
-  AddGeminiStepResources(source, glic::GlicEnabling::IsEnterpriseAccount(
-                                     Profile::FromWebUI(web_ui)));
   AddLensStepResources(source);
   AddPasswordManagerStepResources(source);
   AddThemesAndCustomizationStepResources(source);
@@ -245,12 +217,7 @@ void FeatureShowcaseUI::BindInterface(
   default_browser_factory_receiver_.Bind(std::move(receiver));
 }
 
-void FeatureShowcaseUI::BindInterface(
-    mojo::PendingReceiver<feature_showcase::mojom::GeminiPageHandlerFactory>
-        receiver) {
-  gemini_factory_receiver_.reset();
-  gemini_factory_receiver_.Bind(std::move(receiver));
-}
+
 
 void FeatureShowcaseUI::BindInterface(
     mojo::PendingReceiver<feature_showcase::mojom::GoogleLensPageHandlerFactory>
@@ -309,12 +276,7 @@ void FeatureShowcaseUI::CreatePageHandler(
   default_browser_handler_->SetCanPin(can_pin_);
 }
 
-void FeatureShowcaseUI::CreatePageHandler(
-    mojo::PendingReceiver<feature_showcase::mojom::GeminiPageHandler> handler) {
-  gemini_handler_ = std::make_unique<GeminiHandler>(
-      std::move(handler),
-      glic::GlicKeyedService::Get(Profile::FromWebUI(web_ui())));
-}
+
 
 void FeatureShowcaseUI::CreatePageHandler(
     mojo::PendingReceiver<feature_showcase::mojom::GoogleLensPageHandler>

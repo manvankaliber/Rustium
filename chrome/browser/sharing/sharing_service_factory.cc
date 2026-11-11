@@ -14,9 +14,6 @@
 #include "chrome/browser/browser_actuator/transport/transport_service_factory.h"
 #include "chrome/browser/gcm/gcm_profile_service_factory.h"
 #include "chrome/browser/gcm/instance_id/instance_id_profile_service_factory.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_provider_latch_factory.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
 #include "chrome/browser/optimization_guide/optimization_guide_keyed_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/sharing/sharing_device_registration_impl.h"
@@ -108,7 +105,6 @@ SharingServiceFactory::SharingServiceFactory()
   DependsOn(
       browser_actuator::transport::TransportServiceFactory::GetInstance());
   // The service reads the profile's Glic provider when it is built.
-  DependsOn(glic::GlicProviderLatchFactory::GetInstance());
 }
 
 SharingServiceFactory::~SharingServiceFactory() = default;
@@ -131,11 +127,10 @@ SharingServiceFactory::BuildServiceInstanceForBrowserContext(
 
   instance_id::InstanceIDProfileService* instance_id_service =
       instance_id::InstanceIDProfileServiceFactory::GetForProfile(profile);
+
   auto sharing_device_registration =
       std::make_unique<SharingDeviceRegistrationImpl>(
-          sync_prefs.get(), instance_id_service->driver(), sync_service,
-          glic::GetGlicProviderSpec(profile).SupportsFeature(
-              glic::GlicFeature::kExperimentalTriggering));
+          sync_prefs.get(), instance_id_service->driver(), sync_service);
 
   SharingMessageBridge* message_bridge =
       SharingMessageBridgeFactory::GetForBrowserContext(profile);

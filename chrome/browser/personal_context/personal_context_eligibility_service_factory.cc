@@ -7,9 +7,6 @@
 #include "base/strings/string_util.h"
 #include "chrome/browser/account_settings/account_setting_service_factory.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_provider_latch_factory.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
 #include "chrome/browser/global_features.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
@@ -58,7 +55,6 @@ PersonalContextEligibilityServiceFactory::
   DependsOn(AccountSettingServiceFactory::GetInstance());
   DependsOn(IdentityManagerFactory::GetInstance());
   // The service reads the profile's Glic provider when it is built.
-  DependsOn(glic::GlicProviderLatchFactory::GetInstance());
 }
 
 PersonalContextEligibilityServiceFactory::
@@ -81,9 +77,6 @@ PersonalContextEligibilityServiceFactory::BuildServiceInstanceForBrowserContext(
       IdentityManagerFactory::GetForProfile(profile->GetOriginalProfile());
   // Gemini Enterprise doesn't support Personal Context. The provider is latched
   // for the profile's lifetime, so this doesn't need to be observed.
-  const bool is_supported_glic_provider =
-      glic::GetGlicProviderSpec(profile).SupportsFeature(
-          glic::GlicFeature::kPersonalContext);
   return std::make_unique<
       personal_context::PersonalContextEligibilityServiceImpl>(
       account_settings_service, identity_manager, profile->GetPrefs(),
@@ -91,6 +84,5 @@ PersonalContextEligibilityServiceFactory::BuildServiceInstanceForBrowserContext(
       std::string(g_browser_process->GetFeatures()
                       ->application_locale_storage()
                       ->GetTag()
-                      .tag_string()),
-      is_supported_glic_provider);
+                      .tag_string()));
 }

@@ -16,9 +16,6 @@
 #include "content/public/common/url_constants.h"
 #include "extensions/buildflags/buildflags.h"
 
-#include "chrome/browser/glic/host/guest_util.h"            // nogncheck
-#include "chrome/browser/glic/public/glic_keyed_service.h"  // nogncheck
-#include "chrome/browser/renderer_context_menu/context_menu_content_type_glic.h"
 #include "chrome/browser/renderer_context_menu/context_menu_content_type_read_anything.h"
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -84,12 +81,6 @@ ContextMenuContentTypeFactory::CreateInternal(
     return std::make_unique<ContextMenuContentTypeReadAnything>(params);
   }
 
-  if (glic::GlicKeyedService::IsNoWebviewEnabled(
-          web_contents ? web_contents->GetBrowserContext() : nullptr)) {
-    if (glic::IsAnyGlicWebContents(web_contents)) {
-      return std::make_unique<ContextMenuContentTypeGlic>(params);
-    }
-  }
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
   if (IsRunningInForcedAppMode()) {

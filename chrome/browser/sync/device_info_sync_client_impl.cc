@@ -11,9 +11,6 @@
 
 #include "base/feature_list.h"
 #include "build/build_config.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
 #include "chrome/browser/metrics/chrome_metrics_service_accessor.h"
 #include "chrome/browser/personal_context/personal_context_eligibility_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
@@ -93,31 +90,22 @@ DeviceInfoSyncClientImpl::GetDesktopToIOSPromoReceivingTypes() const {
   return {};
 }
 
+
+
+
 syncer::DeviceInfo::GlicExperimentalTriggeringState
 DeviceInfoSyncClientImpl::GetGlicExperimentalTriggeringState() const {
-  auto* service = glic::GlicKeyedService::Get(profile_);
-  if (!service) {
-    return syncer::DeviceInfo::GlicExperimentalTriggeringState::kUnavailable;
-  }
-  return service->enabling().GetExperimentalTriggeringState();
+  return syncer::DeviceInfo::GlicExperimentalTriggeringState::kUnavailable;
 }
 
 std::optional<int>
 DeviceInfoSyncClientImpl::GetGlicExperimentalTriggeringVersion() const {
-  auto* service = glic::GlicKeyedService::Get(profile_);
-  if (!service) {
-    return std::nullopt;
-  }
-  return service->enabling().GetExperimentalTriggeringVersion();
+  return std::nullopt;
 }
 
 base::flat_set<std::string>
 DeviceInfoSyncClientImpl::GetGlicExperimentalTriggeringCapabilities() const {
-  auto* service = glic::GlicKeyedService::Get(profile_);
-  if (!service) {
-    return {};
-  }
-  return service->enabling().GetExperimentalTriggeringCapabilities();
+  return {};
 }
 
 syncer::DeviceInfo::PersonalContextInfo::StatusOrInfo

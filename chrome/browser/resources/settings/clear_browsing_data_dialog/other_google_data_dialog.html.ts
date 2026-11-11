@@ -38,13 +38,7 @@ export function getHtml(this: SettingsOtherGoogleDataDialogElement) {
           <div slot="label" class="label">$i18n{myActivity}</div>
         </cr-link-row>
       ` : ''}
-      ${this.shouldShowGeminiAppsActivityLink_() ? html`
-        <cr-link-row id="geminiAppsActivityLink" external using-slotted-label
-            sub-label="$i18n{manageInYourGeminiAppsActivity}"
-            @click="${this.onGeminiAppsActivityClick_}">
-          <div slot="label" class="label">$i18n{geminiAppsActivity}</div>
-        </cr-link-row>
-      ` : ''}
+      ${''}
       ${!this.isGoogleDse_ ? html`
         <cr-link-row id="nonGoogleSearchHistoryLink" external
             using-slotted-label class="hide-icon"

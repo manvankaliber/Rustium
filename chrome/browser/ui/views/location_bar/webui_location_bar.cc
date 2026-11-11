@@ -16,7 +16,6 @@
 #include "build/branding_buildflags.h"
 #include "build/build_config.h"
 #include "build/buildflag.h"
-#include "chrome/browser/actor/ui/actor_ui_window_controller.h"
 #include "chrome/browser/autocomplete/aim_eligibility_service_factory.h"
 #include "chrome/browser/autocomplete/autocomplete_classifier_factory.h"
 #include "chrome/browser/search_engines/template_url_service_factory.h"
@@ -1175,13 +1174,6 @@ void WebUILocationBar::OnPopupStateChanged(OmniboxPopupState old_state,
                      weak_ptr_factory_.GetWeakPtr()),
       base::Milliseconds(100));
 
-  if (browser_ && base::FeatureList::IsEnabled(
-                      features::kGlicHandoffButtonHideWhenOmniboxPopupOpened)) {
-    if (auto* window_controller = ActorUiWindowController::From(browser_)) {
-      window_controller->OnOmniboxPopupStateChanged(new_state !=
-                                                    OmniboxPopupState::kNone);
-    }
-  }
 
   if (new_state != OmniboxPopupState::kNone) {
     // Close any overlapping user education bubbles when any popup opens.

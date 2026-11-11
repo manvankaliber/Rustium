@@ -25,7 +25,7 @@ schema_sources_ = [
   "enterprise_webrtc.webidl",
   "font_settings.json",
   "gcm.json",
-  "glic_private.webidl",
+
   "history.json",
   "identity.webidl",
   "image_writer_private.webidl",
@@ -83,7 +83,6 @@ if (enable_extensions) {
     "crash_report_private.webidl",
     "dictation_private.webidl",
     "enterprise_reporting_private.webidl",
-    "experimental_actor.webidl",
     "experimental_ai_data.webidl",
     "indigo_private.webidl",
     "language_settings_private.webidl",

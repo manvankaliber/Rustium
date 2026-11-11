@@ -11,11 +11,10 @@ import 'chrome://resources/cr_elements/cr_view_manager/cr_view_manager.js';
 import './ai_info_card.js';
 import './ai_mode_search_page.js';
 import './ai_page.js';
-import '../geic_page/geic_page.js';
-import '../geic_page/geic_subpage.js';
-import '../glic_page/glic_page.js';
-import '../glic_page/glic_subpage.js';
-import './inline_cue_menu_page.js';
+
+
+
+
 
 import type {CrViewManagerElement} from 'chrome://resources/cr_elements/cr_view_manager/cr_view_manager.js';
 import {assert, assertNotReachedCase} from 'chrome://resources/js/assert.js';
@@ -62,10 +61,9 @@ export class SettingsAiPageIndexElement extends SettingsAiPageIndexElementBase
       showAiPageAiFeatureSection_: {type: Boolean},
       showComposeControl_: {type: Boolean},
       enableAiModeSearchSetting_: {type: Boolean},
-      actorLoginFederatedLoginSupportEnabled_: {type: Boolean},
       showAiSuggestionsControl_: {type: Boolean},
       showInlineCueMenuControl_: {type: Boolean},
-      showSkillsSettingPage_: {type: Boolean},
+
       showDictationControl_: {type: Boolean},
       // <if expr="_google_chrome">
       showOnDeviceAiAdvancedSettings_: {type: Boolean},
@@ -82,14 +80,11 @@ export class SettingsAiPageIndexElement extends SettingsAiPageIndexElementBase
       loadTimeData.getBoolean('showComposeControl');
   protected accessor enableAiModeSearchSetting_: boolean =
       loadTimeData.getBoolean('enableAiModeSearchSetting');
-  private accessor actorLoginFederatedLoginSupportEnabled_: boolean =
-      loadTimeData.getBoolean('actorLoginFederatedLoginSupportEnabled');
   protected accessor showAiSuggestionsControl_: boolean =
       loadTimeData.getBoolean('showAiSuggestionsControl');
   protected accessor showInlineCueMenuControl_: boolean =
       loadTimeData.getBoolean('showInlineCueMenuControl');
-  protected accessor showSkillsSettingPage_: boolean =
-      loadTimeData.getBoolean('showSkillsSettingPage');
+
   protected accessor showDictationControl_: boolean =
       loadTimeData.getBoolean('showDictationControl');
   // <if expr="_google_chrome">
@@ -111,23 +106,14 @@ export class SettingsAiPageIndexElement extends SettingsAiPageIndexElementBase
     switch (this.aiSettingsSection_) {
       case AiSettingsSection.NONE:
         break;
-      case AiSettingsSection.GEMINI:
-        defaultViews.push('glic');
-        break;
-      case AiSettingsSection.GEMINI_ENTERPRISE:
-        defaultViews.push('geic');
-        break;
+
+
       default:
         assertNotReachedCase(this.aiSettingsSection_);
     }
 
     this.$.viewManager.switchViews(
         defaultViews, 'no-animation', 'no-animation');
-  }
-
-  protected shouldShowPermissionsPage_(): boolean {
-    return this.aiSettingsSection_ === AiSettingsSection.GEMINI &&
-        this.actorLoginFederatedLoginSupportEnabled_;
   }
 
   override currentRouteChanged(newRoute: Route, oldRoute?: Route) {
@@ -150,23 +136,9 @@ export class SettingsAiPageIndexElement extends SettingsAiPageIndexElementBase
           this.$.viewManager.switchView(
               'compose', 'no-animation', 'no-animation');
           break;
-        case routes.GEMINI:
-          assert(this.aiSettingsSection_ === AiSettingsSection.GEMINI);
-          this.$.viewManager.switchView(
-              'gemini', 'no-animation', 'no-animation');
-          break;
-        case routes.GEMINI_LOGIN:
-          assert(this.aiSettingsSection_ === AiSettingsSection.GEMINI);
-          assert(this.actorLoginFederatedLoginSupportEnabled_);
-          this.$.viewManager.switchView(
-              'geminiLoginPermissions', 'no-animation', 'no-animation');
-          break;
-        case routes.GEMINI_ENTERPRISE:
-          assert(
-              this.aiSettingsSection_ === AiSettingsSection.GEMINI_ENTERPRISE);
-          this.$.viewManager.switchView(
-              'geminiEnterprise', 'no-animation', 'no-animation');
-          break;
+
+
+
         case routes.AI_SUGGESTIONS:
           assert(this.showAiSuggestionsControl_);
           this.$.viewManager.switchView(
@@ -178,7 +150,7 @@ export class SettingsAiPageIndexElement extends SettingsAiPageIndexElementBase
               'inlineCueMenu', 'no-animation', 'no-animation');
           break;
         case routes.SKILLS:
-          assert(this.showSkillsSettingPage_);
+
           this.$.viewManager.switchView(
               'skills', 'no-animation', 'no-animation');
           break;

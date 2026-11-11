@@ -51,7 +51,6 @@ TEST_F(ContextualCueingServiceV2Test, NotEnoughTimeSinceLastCue) {
   GURL url("https://example.com");
 
   // Seeds state.
-  service()->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true);
 
   // Simulate enough page loads elapsing.
   for (int i = 0; i < kMinPageCountBetweenNudges.Get() + 1; ++i) {
@@ -69,7 +68,6 @@ TEST_F(ContextualCueingServiceV2Test, TooManyCuesForOriginOverTime) {
 
   for (int i = 0; i < kCueCapCountPerOrigin.Get(); ++i) {
     EXPECT_EQ(service()->CanShowCue(url), ContextualCueingDecision::kSuccess);
-    service()->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true);
     for (int j = 0; j < kMinPageCountBetweenNudges.Get() + 1; ++j) {
       service()->ReportPageLoad();
     }
@@ -90,7 +88,6 @@ TEST_F(ContextualCueingServiceV2Test, TooManyCuesForUserOverTime) {
   for (int i = 0; i < kCueCapCount.Get(); ++i) {
     GURL url = urls[i % urls.size()];
     EXPECT_EQ(service()->CanShowCue(url), ContextualCueingDecision::kSuccess);
-    service()->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true);
     for (int j = 0; j < kMinPageCountBetweenNudges.Get() + 1; ++j) {
       service()->ReportPageLoad();
     }
@@ -108,10 +105,8 @@ TEST_F(ContextualCueingServiceV2Test, NotEnoughTimeSinceLastDismissal) {
   GURL url("https://example.com");
 
   EXPECT_EQ(service()->CanShowCue(url), ContextualCueingDecision::kSuccess);
-  service()->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true);
 
   // Simulate a dismissal.
-  service()->OnCueDismissed(CueTargetType::kGlic, /*record_ucb_stats=*/true);
 
   for (int j = 0; j < kMinPageCountBetweenNudges.Get() + 1; ++j) {
     service()->ReportPageLoad();
@@ -127,10 +122,8 @@ TEST_F(ContextualCueingServiceV2Test, NotEnoughTimeSinceLastClick) {
   GURL url("https://example.com");
 
   EXPECT_EQ(service()->CanShowCue(url), ContextualCueingDecision::kSuccess);
-  service()->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true);
 
   // Simulate a click.
-  service()->OnCueClicked(CueTargetType::kGlic, /*record_ucb_stats=*/true);
 
   for (int j = 0; j < kMinPageCountBetweenNudges.Get() + 1; ++j) {
     service()->ReportPageLoad();
@@ -157,8 +150,6 @@ TEST_F(ContextualCueingServiceV2Test, GetAllowedIntrusiveness_LoudWhenNoCaps) {
 TEST_F(ContextualCueingServiceV2Test,
        GetAllowedIntrusiveness_QuietWhenLoudCapsExceeded) {
   GURL url("https://example.com");
-  service()->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true,
-                        CueIntrusiveness::kLoud);
 
   // Loud cue is blocked by quiet page loads requirement.
   EXPECT_EQ(service()->CanShowCue(url, CueIntrusiveness::kLoud),
@@ -178,7 +169,6 @@ TEST_F(ContextualCueingServiceV2Test,
   GURL url("https://example.com");
 
   // Dismissal blocks loud cue, but allows quiet cue.
-  service()->OnCueDismissed(CueTargetType::kGlic, /*record_ucb_stats=*/true);
   EXPECT_EQ(service()->CanShowCue(url, CueIntrusiveness::kLoud),
             ContextualCueingDecision::kNotEnoughTimeSinceLastDismissal);
   EXPECT_EQ(service()->CanShowCue(url, CueIntrusiveness::kQuiet),
@@ -193,7 +183,6 @@ TEST_F(ContextualCueingServiceV2Test,
 
   // Fast forward past dismissal backoff and simulate a click.
   task_environment_.FastForwardBy(kDismissBackoffTime.Get() + base::Minutes(1));
-  service()->OnCueClicked(CueTargetType::kGlic, /*record_ucb_stats=*/true);
 
   // Click blocks loud cue, but allows quiet cue.
   EXPECT_EQ(service()->CanShowCue(url, CueIntrusiveness::kLoud),
@@ -231,16 +220,11 @@ TEST_F(ContextualCueingServiceV2Test, StatsRoundTripAcrossRestart) {
   GURL url("https://example.com");
   {
     auto svc = CreateService();
-    svc->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true);
-    svc->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true);
-    svc->OnCueClicked(CueTargetType::kGlic, /*record_ucb_stats=*/true);
-    svc->OnCueDismissed(CueTargetType::kGlic, /*record_ucb_stats=*/true);
     // Service destroyed here; prefs should have been written.
   }
 
   // Simulate a restart: construct a new service from the same prefs.
   auto service2 = CreateService();
-  const TargetStats& stats = service2->GetStatsForTarget(CueTargetType::kGlic);
   EXPECT_EQ(stats.impressions, 2);
   EXPECT_EQ(stats.clicks, 1);
   EXPECT_EQ(stats.dismissals, 1);
@@ -252,9 +236,6 @@ TEST_F(ContextualCueingServiceV2Test, TotalImpressionsAfterRestart) {
   GURL url("https://example.com");
   {
     auto svc = CreateService();
-    svc->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true);
-    svc->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true);
-    svc->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true);
   }
 
   auto service2 = CreateService();
@@ -265,13 +246,8 @@ TEST_F(ContextualCueingServiceV2Test, RespectsRecordUcbStatsFlag) {
   GURL url("https://example.com");
 
   // Show, click, and dismiss, but pass record_ucb_stats=false.
-  service()->OnCueShown(url, CueTargetType::kGlic,
-                        /*record_ucb_stats=*/false, CueIntrusiveness::kLoud);
-  service()->OnCueClicked(CueTargetType::kGlic, /*record_ucb_stats=*/false);
-  service()->OnCueDismissed(CueTargetType::kGlic, /*record_ucb_stats=*/false);
 
   // The UCB stats should remain 0.
-  const TargetStats& stats = service()->GetStatsForTarget(CueTargetType::kGlic);
   EXPECT_EQ(stats.impressions, 0);
   EXPECT_EQ(stats.clicks, 0);
   EXPECT_EQ(stats.dismissals, 0);
@@ -287,7 +263,6 @@ TEST_F(ContextualCueingServiceV2Test, NoActivityNoPrefsWritten) {
   {
     auto svc = CreateService();
     // No interactions; nothing should be written to prefs.
-    const TargetStats& stats = svc->GetStatsForTarget(CueTargetType::kGlic);
     EXPECT_EQ(stats.impressions, 0);
     EXPECT_EQ(stats.clicks, 0);
     EXPECT_EQ(stats.dismissals, 0);
@@ -295,7 +270,6 @@ TEST_F(ContextualCueingServiceV2Test, NoActivityNoPrefsWritten) {
 
   // A second instance should also see all-zero stats.
   auto service2 = CreateService();
-  const TargetStats& stats2 = service2->GetStatsForTarget(CueTargetType::kGlic);
   EXPECT_EQ(stats2.impressions, 0);
   EXPECT_EQ(stats2.clicks, 0);
   EXPECT_EQ(stats2.dismissals, 0);
@@ -322,7 +296,6 @@ TEST_F(ContextualCueingServiceDisableBackoffTest, BackoffDisabled) {
   GURL url("https://example.com");
 
   // Simulate a cue being shown.
-  service()->OnCueShown(url, CueTargetType::kGlic, /*record_ucb_stats=*/true);
 
   // Should not be blocked by backoff.
   EXPECT_EQ(service()->CanShowCue(url), ContextualCueingDecision::kSuccess);
@@ -331,20 +304,6 @@ TEST_F(ContextualCueingServiceDisableBackoffTest, BackoffDisabled) {
 TEST_F(ContextualCueingServiceV2Test, HatsSurveyCategoryResolution) {
   EXPECT_EQ(GetSurveyCategory(CueTargetType::kIndigo, "Indigo"),
             ContextualCueSurveyCategory::kIndigo);
-  EXPECT_EQ(GetSurveyCategory(CueTargetType::kGlic, "SHOPPING"),
-            ContextualCueSurveyCategory::kShopping);
-  EXPECT_EQ(GetSurveyCategory(CueTargetType::kGlic, "MULTITAB_SHOPPING"),
-            ContextualCueSurveyCategory::kShopping);
-  EXPECT_EQ(GetSurveyCategory(CueTargetType::kGlic, "LEARNING"),
-            ContextualCueSurveyCategory::kEducation);
-  EXPECT_EQ(GetSurveyCategory(CueTargetType::kGlic, "QUIZ"),
-            ContextualCueSurveyCategory::kEducation);
-  EXPECT_EQ(GetSurveyCategory(CueTargetType::kGlic, "Glic"),
-            ContextualCueSurveyCategory::kUnknown);
-  EXPECT_EQ(GetSurveyCategory(CueTargetType::kGlic, "TRAVEL"),
-            ContextualCueSurveyCategory::kUnknown);
-  EXPECT_EQ(GetSurveyCategory(CueTargetType::kContextualSearch, "SHOPPING"),
-            ContextualCueSurveyCategory::kShopping);
   EXPECT_EQ(GetSurveyCategory(CueTargetType::kContextualSearch, "LEARNING"),
             ContextualCueSurveyCategory::kEducation);
   EXPECT_EQ(GetSurveyCategory(CueTargetType::kContextualSearch, "TRAVEL"),
@@ -364,8 +323,6 @@ TEST_F(ContextualCueingServiceV2Test, HatsDismissSurveyShownPrefs) {
   EXPECT_FALSE(prefs::HasDismissSurveyBeenShown(
       &pref_service_, ContextualCueSurveyCategory::kEducation));
   EXPECT_FALSE(prefs::HasDismissSurveyBeenShown(
-      &pref_service_, ContextualCueSurveyCategory::kShopping));
-  EXPECT_FALSE(prefs::HasDismissSurveyBeenShown(
       &pref_service_, ContextualCueSurveyCategory::kIndigo));
 
   prefs::SetDismissSurveyShown(&pref_service_,
@@ -373,16 +330,10 @@ TEST_F(ContextualCueingServiceV2Test, HatsDismissSurveyShownPrefs) {
   EXPECT_TRUE(prefs::HasDismissSurveyBeenShown(
       &pref_service_, ContextualCueSurveyCategory::kEducation));
   EXPECT_FALSE(prefs::HasDismissSurveyBeenShown(
-      &pref_service_, ContextualCueSurveyCategory::kShopping));
-  EXPECT_FALSE(prefs::HasDismissSurveyBeenShown(
       &pref_service_, ContextualCueSurveyCategory::kIndigo));
 
-  prefs::SetDismissSurveyShown(&pref_service_,
-                               ContextualCueSurveyCategory::kShopping);
   EXPECT_TRUE(prefs::HasDismissSurveyBeenShown(
       &pref_service_, ContextualCueSurveyCategory::kEducation));
-  EXPECT_TRUE(prefs::HasDismissSurveyBeenShown(
-      &pref_service_, ContextualCueSurveyCategory::kShopping));
   EXPECT_FALSE(prefs::HasDismissSurveyBeenShown(
       &pref_service_, ContextualCueSurveyCategory::kIndigo));
 
@@ -390,8 +341,6 @@ TEST_F(ContextualCueingServiceV2Test, HatsDismissSurveyShownPrefs) {
                                ContextualCueSurveyCategory::kIndigo);
   EXPECT_TRUE(prefs::HasDismissSurveyBeenShown(
       &pref_service_, ContextualCueSurveyCategory::kEducation));
-  EXPECT_TRUE(prefs::HasDismissSurveyBeenShown(
-      &pref_service_, ContextualCueSurveyCategory::kShopping));
   EXPECT_TRUE(prefs::HasDismissSurveyBeenShown(
       &pref_service_, ContextualCueSurveyCategory::kIndigo));
 }

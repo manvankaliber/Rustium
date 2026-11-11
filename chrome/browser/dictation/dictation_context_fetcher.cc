@@ -15,7 +15,6 @@
 #include "chrome/browser/dictation/features.h"
 #include "chrome/browser/dictation/logging.h"
 #include "chrome/browser/dictation/target.h"
-#include "chrome/browser/glic/host/guest_util.h"
 #include "chrome/browser/page_content_annotations/multi_source_page_context_fetcher.h"
 #include "chrome/browser/ui/tabs/page_context_eligibility_helper.h"
 #include "components/optimization_guide/content/browser/page_content_proto_provider.h"
@@ -145,8 +144,7 @@ void DictationContextFetcher::Fetch(Target& target,
     return;
   }
 
-  if (glic::IsGlicGuest(web_contents) ||
-      content::HasWebUIScheme(rfh->GetLastCommittedURL())) {
+  if (content::HasWebUIScheme(rfh->GetLastCommittedURL())) {
     // TODO(b/535731618): Straightforward context fetch on Glic guests and
     // general WebUI surfaces appears to never return and needs more
     // investigation. For now, just eliding context is better than breaking the

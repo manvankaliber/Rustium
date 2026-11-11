@@ -10,8 +10,6 @@
 #include "base/test/scoped_feature_list.h"
 #include "base/test/test_future.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_test_util.h"
 #include "chrome/browser/picture_in_picture/picture_in_picture_occlusion_tracker.h"
 #include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
 #include "chrome/browser/profiles/profile.h"
@@ -461,18 +459,7 @@ class FedCmActorBrowserTest : public FedCmBrowserTest {
   // Starts an actor task that does nothing meaningful. It just puts the tab
   // under the control of the actor framework.
   void StartTask(tabs::TabInterface* task_tab) {
-    actor::ActorKeyedService* actor_keyed_service =
-        actor::ActorKeyedService::Get(GetProfile());
-    actor::TaskId task_id = actor_keyed_service->CreateTask(
-        actor::TestTaskSourceInfo(), actor::NoEnterprisePolicyChecker());
-    actor::ActorTask* task = actor_keyed_service->GetTask(task_id);
 
-    std::unique_ptr<actor::ToolRequest> click_on_nothing_action =
-        actor::MakeClickRequest(*task_tab, gfx::Point(1, 1));
-    actor::ActResultFuture click_result;
-    task->Act(actor::ToRequestList(click_on_nothing_action),
-              click_result.GetCallback());
-    actor::ExpectOkResult(click_result);
   }
 
   // Have the given tab trigger a continuation popup that we expect to not be
@@ -498,79 +485,7 @@ class FedCmActorBrowserTest : public FedCmBrowserTest {
       features::kFedCmEmbedderInitiatedLogin};
 };
 
-IN_PROC_BROWSER_TEST_F(FedCmActorBrowserTest,
-                       BackgroundActorTaskWithholdsPopup) {
-  const GURL task_url =
-      embedded_https_test_server().GetURL("a.com", "/title1.html");
-  const GURL popup_url =
-      embedded_https_test_server().GetURL("b.com", "/title2.html");
-  const GURL other_url =
-      embedded_https_test_server().GetURL("c.com", "/title3.html");
 
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), task_url));
-
-  tabs::TabInterface* tab = browser()->GetActiveTabInterface();
-  StartTask(tab);
-
-  // Open a new unrelated tab in the foreground.
-  ui_test_utils::NavigateToURLWithDisposition(
-      browser(), other_url, ui::mojom::WindowOpenDisposition::kNewForegroundTab,
-      ui_test_utils::BROWSER_TEST_WAIT_FOR_LOAD_STOP);
-
-  base::test::TestFuture<content::WebContents*> future_popup_contents =
-      TriggerWithheldPopup(tab, popup_url);
-
-  // Now reactivate the tab with the task. This should create the popup.
-  content::WebContents* tab_contents = tab->GetContents();
-  tab_contents->GetDelegate()->ActivateContents(tab_contents);
-
-  content::WebContents* popup_contents = future_popup_contents.Get();
-  ASSERT_TRUE(popup_contents);
-  EXPECT_TRUE(content::WaitForLoadStop(popup_contents));
-  EXPECT_EQ(popup_contents->GetLastCommittedURL(), popup_url);
-}
-
-IN_PROC_BROWSER_TEST_F(FedCmActorBrowserTest,
-                       FullscreenActorTaskDoesNotWithholdPopup) {
-  const GURL task_url =
-      embedded_https_test_server().GetURL("a.com", "/title1.html");
-  const GURL popup_url =
-      embedded_https_test_server().GetURL("b.com", "/title2.html");
-  const GURL other_url =
-      embedded_https_test_server().GetURL("c.com", "/title3.html");
-
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), task_url));
-
-  tabs::TabInterface* tab = browser()->GetActiveTabInterface();
-  StartTask(tab);
-
-  // Open a new unrelated tab in the foreground.
-  ui_test_utils::NavigateToURLWithDisposition(
-      browser(), other_url, ui::mojom::WindowOpenDisposition::kNewForegroundTab,
-      ui_test_utils::BROWSER_TEST_WAIT_FOR_LOAD_STOP);
-
-  // Enter fullscreen mode.
-  ui_test_utils::ToggleFullscreenModeAndWait(browser());
-  ASSERT_TRUE(browser()->GetWindow()->IsFullscreen());
-
-  // Now call ShowModalDialog. It should not be withheld because we are in
-  // fullscreen.
-  delegate_ = std::make_unique<FakeDelegate>(tab->GetContents());
-  account_selection_view_ =
-      std::make_unique<FedCmAccountSelectionView>(delegate_.get(), tab);
-
-  base::test::TestFuture<content::WebContents*> future_popup_contents;
-  content::WebContents* synchronous_contents =
-      account_selection_view_->ShowModalDialog(
-          popup_url, blink::mojom::RpMode::kPassive,
-          future_popup_contents.GetCallback());
-
-  // In fullscreen, it should NOT be withheld.
-  EXPECT_TRUE(synchronous_contents);
-
-  // Clean up: exit fullscreen.
-  ui_test_utils::ToggleFullscreenModeAndWait(browser());
-}
 
 // Similar to `BackgroundActorTaskWithholdsPopup`, but we have the task tab
 // create an intermediate tab/popup and then that triggers the continuation

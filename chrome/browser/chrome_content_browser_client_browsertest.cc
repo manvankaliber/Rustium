@@ -34,9 +34,6 @@
 #include "chrome/browser/enterprise/connectors/test/fake_clipboard_request_handler.h"
 #include "chrome/browser/external_protocol/external_protocol_handler.h"
 #include "chrome/browser/external_protocol/features.h"
-#include "chrome/browser/glic/test_support/glic_browser_test.h"
-#include "chrome/browser/glic/test_support/glic_test_environment.h"
-#include "chrome/browser/glic/test_support/glic_test_util.h"
 #include "chrome/browser/lifetime/browser_shutdown.h"
 #include "chrome/browser/policy/chrome_policy_blocklist_service_factory.h"
 #include "chrome/browser/privacy_sandbox/privacy_sandbox_settings_factory.h"
@@ -611,23 +608,6 @@ IN_PROC_BROWSER_TEST_P(PrefersColorSchemeTest, FeatureOverridesChromeSchemes) {
                  ExpectedColorScheme())));
 }
 
-IN_PROC_BROWSER_TEST_P(PrefersColorSchemeTest, PrefersColorSchemeGlic) {
-  ASSERT_OK_AND_ASSIGN(auto* instance, OpenGlicForActiveTab());
-  ASSERT_OK(WaitForGlicClient(instance));
-  content::WebContents* webui_contents = instance->host().webui_contents();
-  ASSERT_TRUE(webui_contents);
-  ApplyColorProvider(*webui_contents);
-
-  content::RenderFrameHost* frame = instance->host().GetGuestMainFrame();
-  ASSERT_TRUE(frame);
-
-  EXPECT_EQ(
-      true,
-      EvalJs(frame,
-             base::StringPrintf(
-                 "window.matchMedia('(prefers-color-scheme: %s)').matches",
-                 ExpectedColorScheme())));
-}
 
 // chrome-search:// is now recognized as WebUI by SecurityPrincipal::IsWebUI(),
 // so incognito pages with this scheme should follow the browser incognito mode

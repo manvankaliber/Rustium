@@ -447,10 +447,6 @@ void TtcMesClient::HandleToolCall(
     if (!args_dict) {
       LOG(ERROR) << "Failed to parse tool call arguments as JSON: "
                  << tool_call.arguments_json();
-      OnToolExecutionComplete(
-          tool_call.call_id(), tool_call.name(),
-          ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                              "Invalid JSON provided for tool arguments"));
       return;
     }
     tool_request.arguments = std::move(*args_dict);
@@ -539,8 +535,6 @@ void TtcMesClient::SendFrame(
 
 void TtcMesClient::RecordServerResponseError(std::string_view journal_event,
                                              std::string_view error) {
-  Log(journal_event, actor::JournalDetailsBuilder().AddError(error).Build(),
-      SessionJournal::Track::kMesClientRecv);
   if (debug_sink_) {
     debug_sink_->OnServerFrame(DebugSink::ServerError{
         .code = std::string(journal_event),
@@ -703,201 +697,10 @@ void TtcMesClient::ReportServerFrameToDebugSink(
 }
 
 void TtcMesClient::LogClientFrame(
-    const optimization_guide::proto::TtcClientFrame& frame) {
-  actor::JournalDetailsBuilder details;
-  details.Add("client_timestamp_ms", frame.client_timestamp_ms());
-
-  std::string_view event_name = "TtcClientFrame";
-  switch (frame.frame_case()) {
-    case optimization_guide::proto::TtcClientFrame::kSetupRequest: {
-      event_name = "SessionSetupRequest";
-      const auto& setup = frame.setup_request();
-      details.Add("persona", setup.persona())
-          .Add("audio_codec",
-               EnumToString(setup.audio_codec(),
-                            &optimization_guide::proto::AudioCodec_Name))
-          .Add("enable_turn_metrics", setup.enable_turn_metrics())
-          .Add("model_preference",
-               EnumToString(setup.model_preference(),
-                            &optimization_guide::proto::ModelPreference_Name));
-      break;
-    }
-    case optimization_guide::proto::TtcClientFrame::kAudioInput:
-      // Don't log, too noisy
-      return;
-    case optimization_guide::proto::TtcClientFrame::kTextInput:
-      event_name = "TextInput";
-      details.Add("text_query", frame.text_input().text_query());
-      break;
-    case optimization_guide::proto::TtcClientFrame::kContextUpdate: {
-      event_name = "ContextUpdate";
-      const auto& ctx = frame.context_update();
-      details.Add("url", ctx.active_tab().url())
-          .Add("title", ctx.active_tab().title())
-          .Add("annotated_page_content_bytes",
-               ctx.annotated_page_content().ByteSizeLong());
-      break;
-    }
-    case optimization_guide::proto::TtcClientFrame::kToolsetUpdate: {
-      event_name = "ToolsetUpdate";
-      const auto& update = frame.toolset_update();
-      for (int i = 0; i < update.active_tools_size(); ++i) {
-        const auto& tool = update.active_tools(i);
-        const std::string prefix = base::StringPrintf("active_tools[%d].", i);
-        details.Add(base::StrCat({prefix, "name"}), tool.name())
-            .Add(base::StrCat({prefix, "description"}), tool.description())
-            .Add(base::StrCat({prefix, "parameters_json_schema"}),
-                 tool.parameters_json_schema())
-            .Add(base::StrCat({prefix, "behavior"}),
-                 EnumToString(tool.behavior(),
-                              &optimization_guide::proto::
-                                  ToolDefinition_ExecutionBehavior_Name))
-            .Add(base::StrCat({prefix, "verbalization"}),
-                 EnumToString(tool.verbalization(),
-                              &optimization_guide::proto::
-                                  ToolDefinition_VerbalizationBehavior_Name));
-      }
-      break;
-    }
-    case optimization_guide::proto::TtcClientFrame::kToolResponse: {
-      event_name = "ToolResponse";
-      const auto& resp = frame.tool_response();
-      details.Add("name", resp.name())
-          .Add("call_id", resp.call_id())
-          .Add("response_json", resp.response_json());
-      if (resp.has_visual_content()) {
-        details
-            .Add("visual_content.image_data_bytes",
-                 resp.visual_content().image_data().size())
-            .Add("visual_content.mime_type", resp.visual_content().mime_type());
-      }
-      break;
-    }
-    case optimization_guide::proto::TtcClientFrame::kPlaybackStatus:
-      event_name = "PlaybackStatus";
-      details.Add("last_played_sequence_number",
-                  frame.playback_status().last_played_sequence_number());
-      break;
-    case optimization_guide::proto::TtcClientFrame::kCloseRequest:
-      event_name = "CloseSessionRequest";
-      details.Add("reason", frame.close_request().reason());
-      break;
-    case optimization_guide::proto::TtcClientFrame::FRAME_NOT_SET:
-      break;
-    default:
-      NOTIMPLEMENTED();
-      break;
-  }
-
-  Log(event_name, std::move(details).Build(),
-      SessionJournal::Track::kMesClientSend);
-}
+    const optimization_guide::proto::TtcClientFrame& frame) {}
 
 void TtcMesClient::LogServerFrame(
-    const optimization_guide::proto::TtcServerFrame& frame) {
-  actor::JournalDetailsBuilder details;
-  details.Add("server_timestamp_ms", frame.server_timestamp_ms());
-
-  std::string_view event_name = "TtcServerFrame";
-  switch (frame.frame_case()) {
-    case optimization_guide::proto::TtcServerFrame::kSessionStatus: {
-      event_name = "SessionStatusResponse";
-      const auto& status = frame.session_status();
-      details
-          .Add("state",
-               EnumToString(status.state(),
-                            &optimization_guide::proto::
-                                SessionStatusResponse_SessionState_Name))
-          .Add("server_session_id", status.server_session_id())
-          .Add("diagnostic_error_detail", status.diagnostic_error_detail());
-      break;
-    }
-    case optimization_guide::proto::TtcServerFrame::kServerContent: {
-      const auto& content = frame.server_content();
-      if (content.input_transcription().empty() &&
-          content.output_transcription().empty()) {
-        return;
-      }
-      event_name = "ServerContent";
-      details.Add("input_transcription", content.input_transcription())
-          .Add("output_transcription", content.output_transcription());
-      break;
-    }
-    case optimization_guide::proto::TtcServerFrame::kToolCall: {
-      event_name = "ToolCall";
-      const auto& call = frame.tool_call();
-      details.Add("name", call.name())
-          .Add("call_id", call.call_id())
-          .Add("arguments_json", call.arguments_json());
-      break;
-    }
-    case optimization_guide::proto::TtcServerFrame::kGoAway:
-      event_name = "GoAway";
-      details.Add("time_left_ms", frame.go_away().time_left_ms());
-      break;
-    case optimization_guide::proto::TtcServerFrame::kServerError: {
-      event_name = "ServerErrorNotification";
-      const auto& error = frame.server_error();
-      details
-          .Add("error_code",
-               EnumToString(error.error_code(),
-                            &optimization_guide::proto::
-                                ServerErrorNotification_ErrorCode_Name))
-          .Add("error_message", error.error_message());
-      break;
-    }
-    case optimization_guide::proto::TtcServerFrame::kInterrupted:
-      event_name = "InterruptionNotice";
-      break;
-    case optimization_guide::proto::TtcServerFrame::kTurnComplete: {
-      event_name = "TurnComplete";
-      if (frame.turn_complete().has_turn_metrics()) {
-        const auto& metrics = frame.turn_complete().turn_metrics();
-        details.Add("input_tokens_used", metrics.input_tokens_used())
-            .Add("output_tokens_used", metrics.output_tokens_used());
-      }
-      break;
-    }
-    case optimization_guide::proto::TtcServerFrame::kJournalEvent:
-      // Don't log as it's redundant
-      return;
-    case optimization_guide::proto::TtcServerFrame::kModelTurnStateUpdate: {
-      event_name = "ModelTurnStateUpdate";
-      const auto& update = frame.model_turn_state_update();
-      details
-          .Add("state",
-               EnumToString(
-                   update.state(),
-                   &optimization_guide::proto::ModelTurnStateUpdate_State_Name))
-          .Add("generation_id", update.generation_id());
-      break;
-    }
-    case optimization_guide::proto::TtcServerFrame::kUserTurnStateUpdate:
-      event_name = "UserTurnStateUpdate";
-      details.Add(
-          "state",
-          EnumToString(
-              frame.user_turn_state_update().state(),
-              &optimization_guide::proto::UserTurnStateUpdate_State_Name));
-      break;
-    case optimization_guide::proto::TtcServerFrame::FRAME_NOT_SET:
-      break;
-    default:
-      NOTIMPLEMENTED();
-      break;
-  }
-
-  Log(event_name, std::move(details).Build(),
-      SessionJournal::Track::kMesClientRecv);
-}
-
-void TtcMesClient::Log(std::string_view event_name,
-                       std::vector<actor::mojom::JournalDetailsPtr> details,
-                       SessionJournal::Track track) {
-  if (conversation_) {
-    conversation_->GetJournal().Log(event_name, std::move(details), track);
-  }
-}
+    const optimization_guide::proto::TtcServerFrame& frame) {}
 
 void TtcMesClient::Close() {
   setup_timer_.Stop();

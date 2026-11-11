@@ -1719,10 +1719,7 @@ class ContextualTasksEphemeralButtonPinningV2InteractiveTest
                            BrowserView::GetBrowserViewForBrowser(browser());
                        ToolbarView* toolbar = browser_view->toolbar();
                        views::View* anchor = nullptr;
-                       if (toolbar->GetGlicButton() &&
-                           toolbar->GetGlicButton()->GetVisible()) {
-                         anchor = toolbar->GetGlicButton();
-                       } else if (toolbar->avatar_toolbar_button()) {
+                       if (toolbar->avatar_toolbar_button()) {
                          anchor = toolbar->avatar_toolbar_button();
                        }
                        if (anchor) {
@@ -1951,60 +1948,6 @@ IN_PROC_BROWSER_TEST_P(ContextualTasksPinningV2ParamInteractiveTest,
       WaitForShow(EphemeralButtonId()), CheckEphemeralButtonHighlighted(true));
 }
 
-IN_PROC_BROWSER_TEST_F(
-    ContextualTasksEphemeralButtonPinningV2InteractiveTest,
-    LensOverlayEntryPointHighlightsPinButtonInsteadOfLensButton) {
-  RunTestSequence(
-      SignIntoEligibleAccount(), InstrumentTab(kFirstTab),
-      AddInstrumentedTab(kSecondTab, GetTestURL()),
-      SelectTab(kTabStripElementId, 0),
-      EnsureNotPresent(kContextualTasksEphemeralToolbarButtonElementId),
-      CreateTaskForTab(0), Do([&]() {
-        contextual_tasks::ContextualTasksPanelController::From(browser())->Show(
-            /*transition_from_tab=*/false,
-            omnibox::ChromeAimEntryPoint::
-                DESKTOP_CHROME_LENS_CONTEXTUAL_SEARCHBOX_ENTRY_POINT);
-      }),
-      // When unpinned, the ephemeral pin button should be shown and
-      // highlighted, and the Lens toolbar button must not be highlighted.
-      WaitForShow(kContextualTasksEphemeralToolbarButtonElementId),
-      CheckViewProperty(kContextualTasksEphemeralToolbarButtonElementId,
-                        &ContextualTasksButton::IsHighlighted, true),
-      Check([&]() {
-        auto* pinned_actions =
-            ToolbarButtonProvider::From(browser())->GetPinnedToolbarActions();
-        return pinned_actions && !pinned_actions->IsActionHighlighted(
-                                     kActionSidePanelShowLensOverlayResults);
-      }),
-      SimulateClosingContextualTaskSidePanel(),
-      CheckViewProperty(kContextualTasksEphemeralToolbarButtonElementId,
-                        &ContextualTasksButton::IsHighlighted, false),
-      // Pin the Contextual Tasks button permanently and reopen from the Lens
-      // entry point via InitSidePanelWithGhostLoader (which runs when a closed
-      // side panel still holds cached WebContents): the side panel should
-      // reopen and the permanent pin button should be highlighted instead of
-      // the Lens toolbar button.
-      Do([&]() {
-        PinnedToolbarActionsModel::Get(browser()->GetProfile())
-            ->UpdatePinnedState(kActionSidePanelShowContextualTasks, true);
-        contextual_tasks::ContextualTasksUiServiceFactory::GetForBrowserContext(
-            browser()->GetProfile())
-            ->InitSidePanelWithGhostLoader(
-                browser(), browser()->GetActiveTabInterface(), nullptr,
-                omnibox::ChromeAimEntryPoint::
-                    DESKTOP_CHROME_LENS_CONTEXTUAL_SEARCHBOX_ENTRY_POINT);
-      }),
-      WaitForHide(kContextualTasksEphemeralToolbarButtonElementId),
-      Check([&]() {
-        auto* pinned_actions =
-            ToolbarButtonProvider::From(browser())->GetPinnedToolbarActions();
-        return pinned_actions &&
-               pinned_actions->IsActionHighlighted(
-                   kActionSidePanelShowContextualTasks) &&
-               !pinned_actions->IsActionHighlighted(
-                   kActionSidePanelShowLensOverlayResults);
-      }));
-}
 
 IN_PROC_BROWSER_TEST_F(ContextualTasksEphemeralButtonInteractiveTest,
                        LogsPermanentMetricsOnToolbarButtonPress) {
@@ -2879,10 +2822,7 @@ IN_PROC_BROWSER_TEST_F(
                       BrowserView::GetBrowserViewForBrowser(browser());
                   ToolbarView* toolbar = browser_view->toolbar();
                   views::View* anchor = nullptr;
-                  if (toolbar->GetGlicButton() &&
-                      toolbar->GetGlicButton()->GetVisible()) {
-                    anchor = toolbar->GetGlicButton();
-                  } else if (toolbar->avatar_toolbar_button()) {
+                  if (toolbar->avatar_toolbar_button()) {
                     anchor = toolbar->avatar_toolbar_button();
                   }
                   if (anchor) {

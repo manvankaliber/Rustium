@@ -27,14 +27,6 @@ PdfAnnotationAgent::PdfAnnotationAgent(
       &PdfAnnotationAgent::RemoveTextFragments, weak_factory_.GetWeakPtr()));
 
   auto attachment_result = blink::mojom::AttachmentResult::kSelectorNotMatched;
-  if (type == blink::mojom::AnnotationType::kGlic &&
-      selector->which() == blink::mojom::Selector::Tag::kSerializedSelector) {
-    const std::string& serialized = selector->get_serialized_selector();
-    if (!serialized.empty() && container_->FindAndHighlightTextFragments(
-                                   base::span_from_ref(serialized))) {
-      attachment_result = blink::mojom::AttachmentResult::kSuccess;
-    }
-  }
   agent_host_->DidFinishAttachment(gfx::Rect(), attachment_result);
   SetState(attachment_result == blink::mojom::AttachmentResult::kSuccess
                ? State::kActive

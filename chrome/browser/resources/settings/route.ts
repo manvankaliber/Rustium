@@ -12,8 +12,8 @@ import {Route, Router} from './router.js';
 // LINT.IfChange(AiSettingsSection)
 export enum AiSettingsSection {
   NONE = '',
-  GEMINI = 'gemini',
-  GEMINI_ENTERPRISE = 'geminiEnterprise',
+
+
 }
 // LINT.ThenChange(//chrome/browser/glic/public/glic_provider_spec.h:AiSettingsSection)
 
@@ -201,16 +201,8 @@ function createRoutes(): SettingsRoutes {
     switch (aiSettingsSection) {
       case AiSettingsSection.NONE:
         break;
-      case AiSettingsSection.GEMINI:
-        r.GEMINI = r.AI.createChild('/ai/gemini');
-        if (loadTimeData.getBoolean(
-                'actorLoginFederatedLoginSupportEnabled')) {
-          r.GEMINI_LOGIN = r.GEMINI.createChild('/ai/gemini/login');
-        }
-        break;
-      case AiSettingsSection.GEMINI_ENTERPRISE:
-        r.GEMINI_ENTERPRISE = r.AI.createChild('/ai/geminienterprise');
-        break;
+
+
       default:
         assertNotReachedCase(aiSettingsSection);
     }
@@ -220,9 +212,7 @@ function createRoutes(): SettingsRoutes {
     if (loadTimeData.getBoolean('showInlineCueMenuControl')) {
       r.INLINE_CUE_MENU = r.AI.createChild('/ai/inlineCueMenu');
     }
-    if (loadTimeData.getBoolean('showSkillsSettingPage')) {
-      r.SKILLS = r.AI.createChild('/ai/skills');
-    }
+
     if (loadTimeData.getBoolean('showDictationControl')) {
       r.DICTATION = r.AI.createChild('/ai/dictation');
     }
@@ -251,13 +241,8 @@ function createRoutes(): SettingsRoutes {
     r.IDENTITY_DOCS =
         r.AUTOFILL.createChild('/identityDocs');
     r.TRAVEL = r.AUTOFILL.createChild('/travel');
-    if (loadTimeData.getBoolean('shoppingIntegrationEnabled')) {
-      r.SHOPPING = r.AUTOFILL.createChild('/shopping');
-    }
-    if (loadTimeData.getBoolean('showSuggestionsFromGeminiSettings')) {
-      r.SUGGESTIONS_FROM_GEMINI =
-          r.AUTOFILL.createChild('/enhancedAutofill');
-    }
+
+
     // <if expr="is_win or is_macosx">
     r.PASSKEYS = r.AUTOFILL.createChild('/passkeys');
     // </if>

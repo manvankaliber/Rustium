@@ -23,7 +23,6 @@
 #include "base/timer/timer.h"
 #include "build/build_config.h"
 #include "chrome/app/chrome_command_ids.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/feature_engagement/tracker_factory.h"
 #include "chrome/browser/lifetime/application_lifetime.h"
 #include "chrome/browser/password_manager/chrome_password_change_service.h"
@@ -538,9 +537,6 @@ void ManagePasswordsUIController::OnPasswordAutofilled(
 
 void ManagePasswordsUIController::OnCredentialLeak(
     password_manager::LeakedPasswordDetails details) {
-  if (passwords_data_.client()->IsActorTaskActive()) {
-    return;
-  }
   // Existing dialog shouldn't be closed.
   if (dialog_controller_) {
     return;
@@ -1263,9 +1259,6 @@ void ManagePasswordsUIController::UpdateBubbleAndIconVisibility() {
   }
 
   // If Actor is operating on the tab, suppress all popups.
-  if (passwords_data_.client()->IsActorTaskActive()) {
-    ClearPopUpFlagForBubble();
-  }
 
   BrowserWindowInterface* browser =
       GlobalBrowserCollection::GetInstance()->FindBrowserWithTab(

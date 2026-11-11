@@ -259,7 +259,6 @@ class TestPasswordManagerClient : public StubPasswordManagerClient {
        base::OnceClosure confirmation_callback),
       (override));
 #endif
-  MOCK_METHOD(bool, IsActorTaskActive, (), (override));
 
  private:
   MockPasswordManagerDriver driver_;
@@ -386,7 +385,6 @@ class PasswordAutofillManagerTest : public testing::Test {
 
     EXPECT_CALL(*client->mock_driver(), CanShowAutofillUi)
         .WillRepeatedly(Return(true));
-    ON_CALL(*client, IsActorTaskActive).WillByDefault(Return(false));
   }
 
   autofill::PasswordFormFillData CreateTestFormFillData() {
@@ -1081,7 +1079,6 @@ TEST_F(PasswordAutofillManagerTest, ActorActiveSuppressesDropdown) {
 
   password_autofill_manager_->OnAddPasswordFillData(data);
 
-  EXPECT_CALL(client, IsActorTaskActive).WillOnce(Return(true));
   EXPECT_CALL(autofill_client, ShowAutofillSuggestions).Times(0);
   autofill::TriggeringField field = kTriggeringField;
   field.typed_username = test_username_;

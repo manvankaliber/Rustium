@@ -13,7 +13,6 @@
 #include "base/functional/callback_helpers.h"
 #include "base/task/sequenced_task_runner.h"
 #include "base/types/expected.h"
-#include "chrome/browser/actor/enterprise_policy_checker.h"
 #include "chrome/browser/page_content_annotations/page_content_extraction_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ttc/core/page_context_util.h"
@@ -47,30 +46,6 @@ PageContextResult BuildPageContextResult(
 
 }  // namespace
 
-TtcPageContextMonitor::TtcPageContextMonitor(
-    content::WebContents& web_contents,
-    SessionJournal& journal,
-    const actor::EnterprisePolicyChecker* enterprise_policy_checker,
-    PageContextInvalidatedCallback on_page_context_invalidated,
-    PageContextFetchedCallback on_page_context_fetched)
-    : content::WebContentsObserver(&web_contents),
-      journal_(journal),
-      enterprise_policy_checker_(enterprise_policy_checker),
-      extraction_service_(CHECK_DEREF(
-          page_content_annotations::PageContentExtractionServiceFactory::
-              GetForProfile(Profile::FromBrowserContext(
-                  web_contents.GetBrowserContext())))),
-      on_page_context_invalidated_(std::move(on_page_context_invalidated)),
-      on_page_context_fetched_(std::move(on_page_context_fetched)) {
-  CHECK(on_page_context_invalidated_);
-  CHECK(on_page_context_fetched_);
-  extraction_service_observation_.Observe(&extraction_service_.get());
-
-  // Extract or retrieve cached context for the currently displayed page,
-  // since PCES may have fired a completed page fetch before this object is
-  // created.
-  FetchPageContext();
-}
 
 TtcPageContextMonitor::~TtcPageContextMonitor() = default;
 
@@ -83,13 +58,6 @@ void TtcPageContextMonitor::FetchPageContext() {
   // If enterprise policy explicitly blocks the URL, suppress context extraction
   // immediately: do not trigger async extraction, and do not notify cached
   // context.
-  if (enterprise_policy_checker_ &&
-      enterprise_policy_checker_->Evaluate(url) ==
-          actor::EnterprisePolicyChecker::UrlBlockReason::kExplicitlyBlocked) {
-    journal_->Log("TtcPageContextEnterpriseBlocked",
-                  actor::JournalDetailsBuilder().Add("url", url).Build());
-    return;
-  }
   // PCES may have a cached extraction for this page. If so, use it; if not,
   // fetch one async.
   if (std::optional<page_content_annotations::ExtractedPageContentResult>
@@ -196,8 +164,6 @@ void TtcPageContextMonitor::NotifyPageContextFetched(
   }
   const GURL& url = weak_page->GetMainDocument().GetLastCommittedURL();
   if (!is_url_supported) {
-    journal_->Log("TtcPageContextBlocked",
-                  actor::JournalDetailsBuilder().Add("url", url).Build());
     // TODO(b/555804152): Figure out how to send specific error messages to
     // the server.
     on_page_context_fetched_.Run(
@@ -205,8 +171,6 @@ void TtcPageContextMonitor::NotifyPageContextFetched(
                              kPageContextNotEligible));
     return;
   }
-  journal_->Log("TtcPageContextUpdated",
-                actor::JournalDetailsBuilder().Add("url", url).Build());
   on_page_context_fetched_.Run(result);
 }
 

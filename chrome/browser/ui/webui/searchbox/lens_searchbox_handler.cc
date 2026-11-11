@@ -27,9 +27,6 @@ namespace {
 // (i.e., LensSearchboxController).
 class LensOmniboxClient : public SearchboxOmniboxClient {
  public:
-  LensOmniboxClient(Profile* profile,
-                    content::WebContents* web_contents,
-                    LensSearchboxClient* lens_searchbox_client);
   ~LensOmniboxClient() override;
 
   // OmniboxClient:
@@ -37,8 +34,6 @@ class LensOmniboxClient : public SearchboxOmniboxClient {
   const GURL& GetURL() const override;
   metrics::OmniboxEventProto::PageClassification GetPageClassification(
       bool is_prefetch) const override;
-  std::optional<lens::proto::LensOverlaySuggestInputs>
-  GetLensOverlaySuggestInputs() const override;
   void OnThumbnailRemoved() override;
   void OnAutocompleteAccept(
       const GURL& destination_url,
@@ -54,13 +49,7 @@ class LensOmniboxClient : public SearchboxOmniboxClient {
       const AutocompleteMatch& alternative_nav_match) override;
 
  private:
-  raw_ptr<LensSearchboxClient> lens_searchbox_client_;
 };
-LensOmniboxClient::LensOmniboxClient(Profile* profile,
-                                     content::WebContents* web_contents,
-                                     LensSearchboxClient* lens_searchbox_client)
-    : SearchboxOmniboxClient(profile, web_contents),
-      lens_searchbox_client_(lens_searchbox_client) {}
 
 LensOmniboxClient::~LensOmniboxClient() = default;
 
@@ -72,10 +61,6 @@ const GURL& LensOmniboxClient::GetURL() const {
   return lens_searchbox_client_->GetPageURL();
 }
 
-std::optional<lens::proto::LensOverlaySuggestInputs>
-LensOmniboxClient::GetLensOverlaySuggestInputs() const {
-  return lens_searchbox_client_->GetLensSuggestInputs();
-}
 
 void LensOmniboxClient::OnThumbnailRemoved() {
   lens_searchbox_client_->OnThumbnailRemoved();
@@ -104,102 +89,3 @@ void LensOmniboxClient::OnAutocompleteAccept(
 }
 
 }  // namespace
-
-LensSearchboxHandler::LensSearchboxHandler(
-    mojo::PendingReceiver<searchbox::mojom::PageHandler> pending_page_handler,
-    mojo::PendingRemote<searchbox::mojom::Page> pending_page,
-    Profile* profile,
-    content::WebContents* web_contents,
-    LensSearchboxClient* lens_searchbox_client)
-    : SearchboxHandler(
-          std::move(pending_page_handler),
-          std::move(pending_page),
-          profile,
-          web_contents,
-          std::make_unique<LensOmniboxClient>(profile,
-                                              web_contents,
-                                              lens_searchbox_client),
-          lens::features::GetLensSearchboxAutocompleteTimeout()),
-      lens_searchbox_client_(lens_searchbox_client) {
-  autocomplete_controller_observation_.Observe(autocomplete_controller());
-}
-
-LensSearchboxHandler::~LensSearchboxHandler() = default;
-
-std::string LensSearchboxHandler::AutocompleteIconToResourceName(
-    const gfx::VectorIcon& icon) const {
-  // The default icon for contextual suggestions is the subdirectory arrow right
-  // icon. For the Lens searchbox, we want to stay consistent with the search
-  // spark loupe instead.
-  if (icon.name == (features::IsRoundedIconsEnabled()
-                        ? omnibox::kSubdirectoryArrowRightIcon.name
-                        : omnibox::kSubdirectoryArrowRightOldIcon.name)) {
-    return searchbox_internal::kSearchSparkIconResourceName;
-  }
-
-  return SearchboxHandler::AutocompleteIconToResourceName(icon);
-}
-
-void LensSearchboxHandler::OnFocusChanged(bool focused) {
-  SearchboxHandler::OnFocusChanged(focused);
-  lens_searchbox_client_->OnFocusChanged(focused);
-}
-
-void LensSearchboxHandler::QueryAutocomplete(
-    int32_t query_id,
-    std::optional<int32_t> tab_id,
-    const std::u16string& input,
-    bool prevent_inline_autocomplete,
-    uint32_t cursor_position,
-    omnibox::SuggestInventory suggest_inventory,
-    bool is_on_focus,
-    const std::string& keyword,
-    searchbox::mojom::InputMethod input_method) {
-  lens_searchbox_client_->OnTextModified();
-
-  SearchboxHandler::QueryAutocomplete(
-      query_id, tab_id, input, prevent_inline_autocomplete, cursor_position,
-      suggest_inventory, is_on_focus, keyword, input_method);
-}
-
-void LensSearchboxHandler::SetInputText(const std::string& input_text) {
-  page_->SetInputText(input_text);
-}
-
-void LensSearchboxHandler::SetThumbnail(const std::string& thumbnail_url,
-                                        bool is_deletable) {
-  page_->SetThumbnail(thumbnail_url, is_deletable);
-}
-
-void LensSearchboxHandler::OnThumbnailRemoved() {
-  client()->OnThumbnailRemoved();
-}
-
-void LensSearchboxHandler::OnAutocompleteStopTimerTriggered(
-    const AutocompleteInput& input) {
-  // Only notify the lens controller when autocomplete stop timer is triggered
-  // for zero suggest inputs.
-  if (input.IsZeroSuggest() && autocomplete_controller()->done()) {
-    lens_searchbox_client_->ShowGhostLoaderErrorState();
-  }
-}
-
-void LensSearchboxHandler::OnResultChanged(AutocompleteController* controller,
-                                           bool default_match_changed) {
-  SearchboxHandler::OnResultChanged(controller, default_match_changed);
-  // Show the ghost loader error state if the result is empty on the last
-  // async pass of the autocomplete controller (there will not be anymore
-  // updates). controller->done() itself is not a sufficient check since it
-  // takes into account kStop update types which occurs when a user unfocuses
-  // the searchbox, and the error state should not be shown in this case.
-  if (controller->done() &&
-      controller->last_update_type() ==
-          AutocompleteController::UpdateType::kLastAsyncPass &&
-      controller->result().empty()) {
-    lens_searchbox_client_->ShowGhostLoaderErrorState();
-  }
-
-  if (controller->input().IsZeroSuggest() && !controller->result().empty()) {
-    lens_searchbox_client_->OnZeroSuggestShown();
-  }
-}

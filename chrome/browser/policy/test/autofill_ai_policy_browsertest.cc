@@ -138,7 +138,6 @@ INSTANTIATE_TEST_SUITE_P(,
 IN_PROC_BROWSER_TEST_P(AutofillAiPolicyTest, SettingsNotDisabledByPolicy) {
   VerifySettingsUrlIsReachable(chrome::kIdentityDocsSubPage);
   VerifySettingsUrlIsReachable(chrome::kTravelSubPage);
-  VerifySettingsUrlIsReachable(chrome::kShoppingSubPage);
 }
 
 }  // namespace

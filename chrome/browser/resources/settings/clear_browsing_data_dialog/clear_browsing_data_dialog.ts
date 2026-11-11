@@ -359,11 +359,7 @@ export class SettingsClearBrowsingDataDialogElement extends
   }
 
   protected computeOtherGoogleDataRowSubLabel_() {
-    if (loadTimeData.getString('aiSettingsSection') ===
-            AiSettingsSection.GEMINI &&
-        this.isSignedIn_()) {
-      return loadTimeData.getString('manageSearchGeminiPasswordsSubLabel');
-    }
+
 
     if (this.isSignedIn_() || !this.isGoogleDse_) {
       return loadTimeData.getString('manageOtherDataSubLabel');

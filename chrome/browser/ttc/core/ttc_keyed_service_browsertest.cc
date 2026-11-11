@@ -8,8 +8,6 @@
 
 #include "base/test/scoped_feature_list.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ttc/core/features.h"
 #include "chrome/browser/ttc/core/ttc_keyed_service_factory.h"
@@ -26,10 +24,8 @@ class TtcKeyedServiceBrowserTest : public PlatformBrowserTest {
     scoped_feature_list_.InitAndEnableFeature(kTtc);
     // ChromeOS creates `TtcKeyedService` only where Glic's system requirements
     // are met.
-    glic::GlicEnabling::SetSystemRequirementMetForTesting(true);
   }
   ~TtcKeyedServiceBrowserTest() override {
-    glic::GlicEnabling::SetSystemRequirementMetForTesting(std::nullopt);
   }
 
   Profile* profile() { return chrome_test_utils::GetProfile(this); }
@@ -70,7 +66,6 @@ class TtcKeyedServiceActorDisabledBrowserTest
     : public TtcKeyedServiceBrowserTest {
  public:
   TtcKeyedServiceActorDisabledBrowserTest() {
-    scoped_feature_list_.InitAndDisableFeature(features::kGlicActor);
   }
   ~TtcKeyedServiceActorDisabledBrowserTest() override = default;
 
@@ -80,7 +75,6 @@ class TtcKeyedServiceActorDisabledBrowserTest
 
 IN_PROC_BROWSER_TEST_F(TtcKeyedServiceActorDisabledBrowserTest,
                        NotCreatedWhenActorDisabled) {
-  ASSERT_EQ(actor::ActorKeyedService::Get(profile()), nullptr);
   EXPECT_EQ(TtcKeyedService::Get(profile()), nullptr);
 }
 

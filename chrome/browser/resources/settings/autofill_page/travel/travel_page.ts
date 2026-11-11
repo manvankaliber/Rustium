@@ -26,7 +26,7 @@ import {EntityTypeName} from '../../autofill_ai_enums.mojom-webui.js';
 import type {SettingsToggleButtonElement} from '../../controls/settings_toggle_button.js';
 import {loadTimeData} from '../../i18n_setup.js';
 import type {MetricsBrowserProxy} from '../../metrics_browser_proxy.js';
-import {MetricsBrowserProxyImpl, SuggestionsFromGeminiEntryPoint} from '../../metrics_browser_proxy.js';
+import {MetricsBrowserProxyImpl} from '../../metrics_browser_proxy.js';
 import {routes} from '../../route.js';
 import {Router} from '../../router.js';
 import {SettingsViewMixinLit} from '../../settings_page/settings_view_mixin_lit.js';
@@ -79,7 +79,7 @@ export class SettingsTravelPageElement extends SettingsTravelPageElementBase {
 
       metricEntityTypes_: {type: Object},
       profileEnabledPref_: {type: Object},
-      showSuggestionsFromGeminiSettings_: {type: Boolean},
+
 
       /**
        * Fake preference used by `this.$.optInToggle`. Shows value of
@@ -118,8 +118,7 @@ export class SettingsTravelPageElement extends SettingsTravelPageElementBase {
   protected accessor profileEnabledPref_:
       chrome.settingsPrivate.PrefObject<boolean>|null = null;
 
-  protected accessor showSuggestionsFromGeminiSettings_: boolean =
-      loadTimeData.getBoolean('showSuggestionsFromGeminiSettings');
+
 
   private metricsBrowserProxy_: MetricsBrowserProxy =
       MetricsBrowserProxyImpl.getInstance();
@@ -200,19 +199,12 @@ export class SettingsTravelPageElement extends SettingsTravelPageElementBase {
         !this.profileEnabledPref_.value;
   }
 
-  protected onSuggestionsFromGeminiClick_() {
-    this.metricsBrowserProxy_.recordSuggestionsFromGeminiEntryPointClick(
-        SuggestionsFromGeminiEntryPoint.TRAVEL);
-    Router.getInstance().navigateTo(routes.SUGGESTIONS_FROM_GEMINI);
-  }
+
 
   // SettingsViewMixin implementation.
   override getFocusConfig() {
     const map = new Map();
-    if (routes.SUGGESTIONS_FROM_GEMINI) {
-      map.set(
-          routes.SUGGESTIONS_FROM_GEMINI.path, '#suggestionsFromGeminiLinkRow');
-    }
+
     return map;
   }
 

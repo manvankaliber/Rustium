@@ -21,7 +21,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/defaults.h"
 #include "chrome/browser/enterprise/isolated_mode/isolated_mode_settings_service_factory.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/profiles/profile_manager.h"
@@ -53,7 +52,6 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_utils.h"
 #include "chrome/browser/send_tab_to_self/send_tab_to_self_util.h"
 #include "chrome/browser/ui/color/chrome_color_id.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
 #include "chrome/browser/ui/profiles/profile_view_utils.h"
 #include "chrome/browser/ui/tabs/features.h"
 #include "chrome/browser/ui/tabs/vertical_tab_strip_state_controller.h"
@@ -916,46 +914,12 @@ void ActionAppMenuManager::AddToolsAndActionsActions(
 
         Profile* profile = browser_window_interface_->GetProfile();
 
-        if (glic::GlicEnabling::IsEnabledForProfile(profile)) {
-          section.AddAction(
-              kActionOpenGlic,
-              {.new_badge_feature = &features::kGlicAppMenuNewBadge});
-        }
 
         if (ttc::TtcKeyedService* service = ttc::TtcKeyedService::Get(profile);
             service && service->IsEnabled()) {
           section.AddAction(kActionShowTtcMenu);
         }
 
-        if (auto* controller = lens::LensOverlayEntryPointController::From(
-                browser_window_interface_);
-            controller && controller->IsEnabled()) {
-          const bool show_ask_google =
-              contextual_tasks::ShouldShowAskGoogleContextMenu(profile);
-          const bool use_submenu =
-              contextual_tasks::ShouldUseContextualTasksContextMenuSubmenu(
-                  profile);
-          auto add_items = [show_ask_google](AppMenuBuilder& target) {
-            if (show_ask_google) {
-              target.AddAction(
-                  kActionAskGoogleAboutThisPageFromAppMenu,
-                  {.new_badge_feature =
-                       &contextual_tasks::kContextualTasksUpdatedEntryPoints,
-                   .element_id = AppMenuModel::kAskGoogleAboutThisPageItem});
-            }
-            target.AddAction(
-                kActionShowLensOverlayFromAppMenu,
-                {.new_badge_feature = &lens::features::kLensOverlay,
-                 .element_id = AppMenuModel::kShowLensOverlay});
-          };
-          if (use_submenu) {
-            section.AddSubmenu(
-                kActionContextualTasksSubmenu, add_items,
-                {.element_id = AppMenuModel::kContextualTasksSubmenuItem});
-          } else {
-            add_items(section);
-          }
-        }
 
         section.AddAction(kActionShowTranslate);
 

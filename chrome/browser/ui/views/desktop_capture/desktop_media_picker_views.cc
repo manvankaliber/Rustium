@@ -489,9 +489,6 @@ DesktopMediaPickerDialogView::DesktopMediaPickerDialogView(
 
   SetModalType(params.modality);
   int message_id = IDS_DESKTOP_MEDIA_PICKER_SHARE;
-  if (request_source_ == RequestSource::kGlic) {
-    message_id = IDS_GLIC_SCREEN_PICKER_CTA;
-  }
   SetButtonLabel(ui::mojom::DialogButton::kOk,
                  l10n_util::GetStringUTF16(message_id));
   SetButtonStyle(ui::mojom::DialogButton::kCancel, ui::ButtonStyle::kTonal);
@@ -662,10 +659,7 @@ DesktopMediaPickerDialogView::DesktopMediaPickerDialogView(
     }
   }
 
-  if (request_source_ == RequestSource::kGlic) {
-    description_label_->SetText(
-        l10n_util::GetStringUTF16(IDS_GLIC_SCREEN_PICKER_DESCRIPTION));
-  } else if (request_source_ == RequestSource::kSearchbox) {
+  if (request_source_ == RequestSource::kSearchbox) {
     description_label_->SetText(
         l10n_util::GetStringUTF16(IDS_SEARCHBOX_PICKER_DESCRIPTION));
   }
@@ -1249,9 +1243,6 @@ std::u16string DesktopMediaPickerDialogView::GetWindowTitle() const {
   if (request_source_ == RequestSource::kGetDisplayMedia) {
     return l10n_util::GetStringFUTF16(IDS_DISPLAY_MEDIA_PICKER_TITLE,
                                       app_name_);
-  }
-  if (request_source_ == RequestSource::kGlic) {
-    return l10n_util::GetStringUTF16(IDS_GLIC_SCREEN_PICKER_HEADLINE);
   }
   if (request_source_ == RequestSource::kSearchbox) {
     return l10n_util::GetStringUTF16(IDS_SEARCHBOX_PICKER_HEADLINE);

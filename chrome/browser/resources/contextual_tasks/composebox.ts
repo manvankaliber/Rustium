@@ -8,7 +8,7 @@ import '//resources/cr_components/localized_link/localized_link.js';
 
 import {GlifAnimationState} from '//resources/cr_components/composebox/common.js';
 import type {PageHandlerRemote} from '//resources/cr_components/composebox/composebox.mojom-webui.js';
-import {LensOverlayDismissalSource} from '//resources/cr_components/composebox/composebox.mojom-webui.js';
+import {} from '//resources/cr_components/composebox/composebox.mojom-webui.js';
 import {ComposeboxProxyImpl, createAutocompleteMatch} from '//resources/cr_components/composebox/composebox_proxy.js';
 import {GlowAnimationState, VoiceSearchState} from '//resources/cr_components/search/constants.js';
 import {I18nMixinLit} from '//resources/cr_elements/i18n_mixin_lit.js';
@@ -98,10 +98,7 @@ export class ContextualTasksComposeboxElement extends I18nMixinLit
         type: Boolean,
         reflect: true,
       },
-      isLensOverlayShowing: {
-        type: Boolean,
-        reflect: true,
-      },
+
       isOverlayOpenForAimVisualSearch: {
         type: Boolean,
         reflect: true,
@@ -161,7 +158,7 @@ export class ContextualTasksComposeboxElement extends I18nMixinLit
   accessor inToolMode_: boolean = false;
   accessor isZeroState: boolean = false;
   accessor isSidePanel: boolean = false;
-  accessor isLensOverlayShowing: boolean = false;
+
   accessor isOverlayOpenForAimVisualSearch: boolean = false;
   accessor inputEnabled: boolean = true;
   private focusRetryCount_ = 0;
@@ -458,8 +455,7 @@ export class ContextualTasksComposeboxElement extends I18nMixinLit
     this.inToolMode_ = this.inputState?.activeTool !== ToolMode.kUnspecified;
     const disabledTypes = e.detail.inputState?.disabledInputTypes || [];
     if (disabledTypes.includes(InputType.kLensImage)) {
-      this.pageHandler_.closeLensOverlayFromWebUI(
-          LensOverlayDismissalSource.kContextualTasksImageUploadsDisabled);
+
       this.lensButtonDisabled_ = true;
       return;
     }

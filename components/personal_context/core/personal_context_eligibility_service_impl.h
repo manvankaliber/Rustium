@@ -83,7 +83,6 @@ class PersonalContextEligibilityServiceImpl
   const raw_ptr<PrefService> pref_service_;
   const GeoIpCountryCode country_code_;
   const std::string locale_;
-  const bool is_supported_glic_provider_;
   base::ObserverList<PersonalContextEligibilityService::Observer> observers_;
   base::ScopedObservation<signin::IdentityManager,
                           signin::IdentityManager::Observer>

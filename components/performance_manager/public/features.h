@@ -292,7 +292,6 @@ BASE_DECLARE_FEATURE(kDisableTabDiscarding);
 // When disabled, falls back to legacy behavior.
 BASE_DECLARE_FEATURE(kUseLoadingStateToDetectBackgroundTitleOrFaviconUpdate);
 
-BASE_DECLARE_FEATURE(kGlicActuationPriorityVoter);
 
 // When enabled, casts a kUserBlocking vote for every frame of a page that an
 // embedder is withholding from view until it is ready to be shown (see

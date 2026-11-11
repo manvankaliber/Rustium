@@ -19,11 +19,6 @@
 #include "base/test/scoped_feature_list.h"
 #include "base/test/with_feature_override.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_keyed_service_factory.h"
-#include "chrome/browser/actor/actor_keyed_service_fake.h"
-#include "chrome/browser/actor/actor_task.h"
-#include "chrome/browser/glic/public/features.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/signin/chrome_signin_pref_names.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
@@ -199,28 +194,11 @@ class PasswordBubbleInteractiveUiTestBase : public ManagePasswordsTest {
   PasswordBubbleInteractiveUiTestBase() = default;
   ~PasswordBubbleInteractiveUiTestBase() override = default;
 
-  void AddActorTask() {
-    auto* actor_keyed_service = static_cast<actor::ActorKeyedServiceFake*>(
-        actor::ActorKeyedServiceFactory::GetActorKeyedService(
-            browser()->GetProfile()));
-    actor::TaskId task_id = actor_keyed_service->CreateTaskForTesting();
-    actor::ActorTask* task = actor_keyed_service->GetTask(task_id);
-    base::RunLoop loop;
-    task->AddTab(
-        browser()->GetTabStripModel()->GetActiveTab()->GetHandle(),
-        /*stop_task_on_detach=*/true,
-        base::BindLambdaForTesting(
-            [&](actor::mojom::ActionResultPtr result) { loop.Quit(); }));
-    loop.Run();
-  }
 
  protected:
   void InitializeFeatures(
       std::vector<base::test::FeatureRefAndParams> enabled_features = {},
       std::vector<base::test::FeatureRef> disabled_features = {}) {
-    enabled_features.push_back({features::kGlicActor, {}});
-    enabled_features.push_back(
-        {features::kGlicActorPolicyControlExemption, {}});
     disabled_features.push_back(features::kNonBlockingOsClipboardReads);
 
     scoped_feature_list_.InitWithFeaturesAndParameters(enabled_features,
@@ -279,7 +257,6 @@ IN_PROC_BROWSER_TEST_F(PasswordBubbleInteractiveUiTest,
                        ActorActiveSupressesPendingPasswordPopup) {
   ASSERT_TRUE(ui_test_utils::BringBrowserWindowToFront(browser()));
 
-  AddActorTask();
   SetupPendingPassword();
   EXPECT_FALSE(IsBubbleShowing());
 }
@@ -297,7 +274,6 @@ IN_PROC_BROWSER_TEST_F(PasswordBubbleInteractiveUiTest,
   local_credentials.push_back(
       std::make_unique<password_manager::PasswordForm>(*test_form()));
 
-  AddActorTask();
   SetupAutoSignin(std::move(local_credentials));
 
   EXPECT_FALSE(IsBubbleShowing());
@@ -307,7 +283,6 @@ IN_PROC_BROWSER_TEST_F(PasswordBubbleInteractiveUiTest,
                        ActorActiveSupressesAutomaticPasswordSave) {
   ASSERT_TRUE(ui_test_utils::BringBrowserWindowToFront(browser()));
 
-  AddActorTask();
   SetupAutomaticPassword();
 
   EXPECT_FALSE(IsBubbleShowing());
@@ -317,7 +292,6 @@ IN_PROC_BROWSER_TEST_F(PasswordBubbleInteractiveUiTest,
                        CredentialLeak_ActorOperating_NoDialog) {
   ASSERT_TRUE(ui_test_utils::BringBrowserWindowToFront(browser()));
 
-  AddActorTask();
   auto origin = GURL("https://example.com");
   PasswordForm form;
   form.url = origin;
@@ -337,7 +311,6 @@ IN_PROC_BROWSER_TEST_F(
     BiometricAuthenticationForFilling_ActorOperating_NoBubble) {
   ASSERT_TRUE(ui_test_utils::BringBrowserWindowToFront(browser()));
 
-  AddActorTask();
   GetController()->OnBiometricAuthenticationForFilling(
       browser()->GetProfile()->GetPrefs());
 
@@ -350,7 +323,6 @@ IN_PROC_BROWSER_TEST_F(
   ASSERT_TRUE(ui_test_utils::BringBrowserWindowToFront(browser()));
   SetupPendingPassword();
 
-  AddActorTask();
   GetController()->ShowBiometricActivationConfirmation();
 
   EXPECT_FALSE(IsBubbleShowing());
@@ -369,7 +341,6 @@ IN_PROC_BROWSER_TEST_F(
   browser()->GetProfile()->GetPrefs()->SetBoolean(
       password_manager::prefs::kBiometricAuthenticationBeforeFilling, false);
 
-  AddActorTask();
   GetController()->OnBiometricAuthenticationForFilling(
       browser()->GetProfile()->GetPrefs());
 

@@ -523,12 +523,6 @@ base::DictValue SearchboxHandler::GetProfileIndependentWebUIDataSourceDict(
     dict.Set(entry.name, l10n_util::GetStringUTF16(entry.id));
   }
 
-  int lens_search_hint_id = IDS_GOOGLE_SEARCH_BOX_EMPTY_HINT_CONTEXTUAL;
-  if (base::FeatureList::IsEnabled(omnibox::kWebUIOmniboxAskGAboutThisPage) &&
-      omnibox::kAskGLensSearchHintText.Get()) {
-    lens_search_hint_id = IDS_TIPS_NOTIFICATIONS_GOOGLE_LENS_TITLE;
-  }
-  dict.Set("lensSearchHint", l10n_util::GetStringUTF16(lens_search_hint_id));
 
   dict.Set("searchboxComposePlaceholder", ntp_composebox::FeatureConfig::Get()
                                               .config.composebox()
@@ -552,9 +546,6 @@ base::DictValue SearchboxHandler::GetProfileIndependentWebUIDataSourceDict(
   dict.Set("realboxVirtualFocusNavigation",
            base::FeatureList::IsEnabled(
                ntp_features::kRealboxVirtualFocusNavigation));
-  dict.Set("lensOverlayVirtualFocusNavigation",
-           base::FeatureList::IsEnabled(
-               features::kLensOverlayVirtualFocusNavigation));
   dict.Set("omniboxEverywhereVirtualFocusNavigation",
            base::FeatureList::IsEnabled(
                features::kOmniboxEverywhereVirtualFocusNavigation));
@@ -1568,13 +1559,6 @@ void SearchboxHandler::QueryAutocomplete(
   autocomplete_input.set_allow_exact_keyword_match(is_keyword_selected);
   autocomplete_input.set_in_keyword_mode(is_keyword_selected);
   // Set the lens overlay suggest inputs, if available.
-  if (std::optional<lens::proto::LensOverlaySuggestInputs> suggest_inputs =
-          client()->GetLensOverlaySuggestInputs()) {
-    // Don't set lens params if in "Create Image" with an image present or in
-    // "Canvas" mode. This prevents the contextual client from being used in
-    // this tool mode.
-    autocomplete_input.set_lens_overlay_suggest_inputs(*suggest_inputs);
-  }
   if (client()->GetContextualInputData().has_value()) {
     auto context_data = client()->GetContextualInputData().value();
     if (context_data.page_title.has_value() &&

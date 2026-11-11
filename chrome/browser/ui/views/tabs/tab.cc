@@ -21,9 +21,6 @@
 #include "build/build_config.h"
 #include "cc/paint/paint_flags.h"
 #include "chrome/browser/dictation/dictation_keyed_service.h"
-#include "chrome/browser/glic/browser_ui/tab_underline_controller.h"
-#include "chrome/browser/glic/browser_ui/tab_underline_view.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/themes/theme_properties.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
@@ -357,28 +354,6 @@ Tab::Tab(tabs::TabHandle handle, TabSlotController* controller)
   alert_indicator_button_ =
       AddChildView(std::make_unique<AlertIndicatorButton>(this));
 
-  BrowserWindowInterface* const browser_window_interface =
-      controller_->GetBrowserWindowInterface();
-
-  bool should_create_underline = false;
-  if (browser_window_interface) {
-    Profile* profile = browser_window_interface->GetProfile();
-    should_create_underline =
-        (base::FeatureList::IsEnabled(features::kGlicMultitabUnderlines) &&
-         glic::GlicEnabling::IsProfileEligible(profile)) ||
-        contextual_tasks::IsContextualTasksUIEnabled() ||
-        (dictation::DictationKeyedService::Get(profile));
-  }
-
-  if (should_create_underline) {
-    glic_tab_underline_view_ = AddChildView(
-        views::Builder<glic::TabUnderlineView>(
-            glic::TabUnderlineView::Factory::Create(
-                std::make_unique<glic::TabUnderlineController>(tab_handle_),
-                browser_window_interface, tab_handle_))
-            .Build());
-  }
-
   // Unretained is safe here because this class outlives its close button, and
   // the controller outlives this Tab.
   close_button_ = AddChildView(std::make_unique<TabCloseButton>(
@@ -482,16 +457,6 @@ void Tab::Layout(PassKey) {
   const int start = contents_rect.x();
 
   // Position the underline under the tab contents.
-  constexpr int kGlicUnderlineYOffset = 8;
-  if (glic_tab_underline_view_) {
-    gfx::Rect glic_bounds =
-        contents_rect + gfx::Vector2d(0, kGlicUnderlineYOffset);
-    // Use the full width of the tab in order to accommodate small tab sizes
-    // where the width of the contents bounds is 0.
-    glic_bounds.set_x(0);
-    glic_bounds.set_width(size().width());
-    glic_tab_underline_view_->SetBoundsRect(glic_bounds);
-  }
 
   // The bounds for the favicon will include extra width for the attention
   // indicator, but visually it will be smaller at kFaviconSize wide.
@@ -1301,17 +1266,6 @@ void Tab::UpdateIconVisibility() {
       (alert_indicator_button_ ? alert_indicator_button_->showing_alert_state()
                                : data().alert_state)
           .has_value();
-  std::optional<tabs::TabAlert> current_alert_state =
-      alert_indicator_button_->showing_alert_state();
-  if (glic_tab_underline_view_ &&
-      (current_alert_state == tabs::TabAlert::kGlicAccessing ||
-       current_alert_state == tabs::TabAlert::kGlicSharing ||
-       current_alert_state == tabs::TabAlert::kAiModeSharing)) {
-    // Tab underlines for glic multitab replace `alert_indicator_button` as the
-    // UI indicator for sharing. In this case, ensure the alert indicator is
-    // hidden.
-    has_alert_icon = false;
-  }
 
   is_animating_from_pinned_ &= animating();
 

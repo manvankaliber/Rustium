@@ -526,21 +526,9 @@ void QueryContextualizer::OnTabContextualizationFetched(
   page_content_data->was_smart_tab_selection = tab_update.is_smart_selection;
 
   if (tab_update.is_auto_suggested) {
-    page_content_data->upload_type =
-        lens::LensOverlayContextualInputUploadType::
-            CONTEXTUAL_INPUT_UPLOAD_TYPE_AUTO_TAB_CHIP;
   } else if (tab_update.is_smart_selection) {
-    page_content_data->upload_type =
-        lens::LensOverlayContextualInputUploadType::
-            CONTEXTUAL_INPUT_UPLOAD_TYPE_SMART_TAB_SELECTION;
   } else if (tab_update.is_recontextualization) {
-    page_content_data->upload_type =
-        lens::LensOverlayContextualInputUploadType::
-            CONTEXTUAL_INPUT_UPLOAD_TYPE_RECONTEXTUALIZATION;
   } else if (tab_update.is_contextual_searchbox_first_turn) {
-    page_content_data->upload_type =
-        lens::LensOverlayContextualInputUploadType::
-            CONTEXTUAL_INPUT_UPLOAD_TYPE_CONTEXTUAL_SEARCHBOX_INITIAL_QUERY;
   }
 
   if (GetIsProtectedPageErrorEnabled() &&

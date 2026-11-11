@@ -66,7 +66,6 @@ source_set("impl") {
     "//chrome/browser/accessibility",
     "//chrome/browser/accessibility/accessibility_prefs",
     "//chrome/browser/autocomplete:aim_eligibility_service",
-    "//chrome/browser/background/glic",
     "//chrome/browser/component_updater",
     "//chrome/browser/context_hub",
     "//chrome/browser/devtools",
@@ -74,9 +73,6 @@ source_set("impl") {
     "//chrome/browser/external_protocol",
     "//chrome/browser/first_run",
     "//chrome/browser/gcm",
-    "//chrome/browser/glic",
-    "//chrome/browser/glic/gemini_enterprise:geic_pref_names",
-    "//chrome/browser/glic/suggestions",
     "//chrome/browser/gpu",
     "//chrome/browser/hid",
     "//chrome/browser/lifetime",
@@ -139,7 +135,6 @@ source_set("impl") {
     "//components/browsing_data/core",
     "//components/certificate_transparency",
     "//components/collaboration/public:prefs",
-    "//components/commerce/core:prefs",
     "//components/content_settings/core/browser",
     "//components/contextual_search:public",
     "//components/contextual_tasks/public",
@@ -261,7 +256,6 @@ source_set("impl") {
   }
 
   deps += [
-    "//chrome/browser/actor/ui",
     "//chrome/browser/child_module",
     "//chrome/browser/desktop_to_mobile_promos:utils",
     "//chrome/browser/device_identity",
@@ -271,7 +265,6 @@ source_set("impl") {
     "//chrome/browser/search_engines",
     "//chrome/browser/sharing_hub",
     "//chrome/browser/speech",
-    "//chrome/browser/ui/commerce",
     "//chrome/browser/ui/omnibox/omnibox_everywhere:prefs",
     "//chrome/browser/ui/performance_controls",
     "//chrome/browser/ui/send_tab_to_self",

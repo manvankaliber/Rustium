@@ -106,7 +106,6 @@ class RealboxSearchBrowserTestPage : public searchbox::mojom::Page {
                                  const gfx::Size& prompt_size) override {}
   void SetFreState(searchbox::mojom::FreStatePtr state) override {}
   MOCK_METHOD(void, UpdateContentSharingPolicy, (bool enabled), (override));
-  MOCK_METHOD(void, UpdateLensSearchEligibility, (bool eligible), (override));
   MOCK_METHOD(void, UpdateAimPopupEligibility, (bool eligible), (override));
   MOCK_METHOD(void, UpdateSmartTabSharingActive, (bool active), (override));
   MOCK_METHOD(void,

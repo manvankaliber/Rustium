@@ -100,9 +100,6 @@ void AiOverlayTools::RecordToolCallInvoked(std::string_view tool_name) {
 }
 
 // static
-glic::InvokeWithAutoSubmitPasskey AiOverlayTools::GetGlicPassKey() {
-  return glic::InvokeWithAutoSubmitPasskeyProvider::GetPassKey();
-}
 
 content::WebContents* AiOverlayTools::GetActiveWebContents() const {
   TabListInterface* tab_list = TabListInterface::From(browser());
@@ -247,43 +244,7 @@ void AiOverlayTools::OnAnnotationAgentDisconnected() {
 
 void AiOverlayTools::FindAndHighlight(const std::string& query,
                                       FindAndHighlightCallback callback) {
-  RecordToolCallInvoked("FindAndHighlight");
-  content::WebContents* contents = GetActiveWebContents();
-  if (!contents) {
-    std::move(callback).Run(base::unexpected("No active tab"));
-    return;
-  }
-  if (!contents->GetLastCommittedURL().SchemeIsHTTPOrHTTPS()) {
-    std::move(callback).Run(base::unexpected(
-        "FindAndHighlight is only supported on HTTP/HTTPS pages"));
-    return;
-  }
-
-  content::RenderFrameHost* rfh = contents->GetPrimaryMainFrame();
-  if (annotation_document_.AsRenderFrameHostIfValid() != rfh) {
-    annotation_container_.reset();
-    annotation_task_.reset();
-    annotation_document_ = rfh->GetWeakDocumentPtr();
-    rfh->GetRemoteInterfaces()->GetInterface(
-        annotation_container_.BindNewPipeAndPassReceiver());
-  }
-
-  mojo::PendingRemote<blink::mojom::AnnotationAgentHost> host_remote;
-  mojo::Remote<blink::mojom::AnnotationAgent> agent_remote;
-
-  auto agent_receiver = agent_remote.BindNewPipeAndPassReceiver();
-  annotation_task_ = std::make_unique<AnnotationTask>(
-      host_remote.InitWithNewPipeAndPassReceiver(), std::move(agent_remote),
-      std::move(callback));
-
-  // Use a text fragment selector for direct highlighting.
-  auto selector = blink::mojom::Selector::NewSerializedSelector(
-      url::EncodeUriComponent(query));
-
-  annotation_container_->CreateAgent(
-      std::move(host_remote), std::move(agent_receiver),
-      blink::mojom::AnnotationType::kGlic, std::move(selector),
-      /*search_range_start_node_id=*/std::nullopt);
+  std::move(callback).Run(base::unexpected("Visual selection is unavailable"));
 }
 
 void AiOverlayTools::PlayVideo(PlayVideoCallback callback) {

@@ -172,17 +172,11 @@ void AddMaterialChromeColorMixer(ui::ColorProvider* provider,
   mixer[kColorSettingsInfoCardBackground] = {ui::kColorSysBaseContainer};
 
   // Lens overlay colors.
-  mixer[kColorLensOverlayToastBackground] = {ui::kColorSysInverseSurface};
-  mixer[kColorLensOverlayToastButtonBorder] = {ui::kColorSysInverseOnSurface};
-  mixer[kColorLensOverlayToastForeground] = {ui::kColorSysInverseOnSurface};
 
   // Glic selection overlay colors.
   // These must stay above the `ShouldApplyChromeMaterialOverrides()` guard
   // below, as the selection overlay preselection bubble is shown regardless of
   // whether a custom theme is installed, see b/562065771.
-  mixer[kColorGlicSelectionOverlayToast] = {ui::kColorSysInverseSurfacePrimary};
-  mixer[kColorGlicSelectionOverlayToastCancelButton] = {
-      ui::kColorSysInversePrimary};
 
   // PageInfo colors.
   mixer[kColorPageInfoPermissionBlockedOnSystemLevelDisabled] = {
@@ -270,7 +264,6 @@ void AddMaterialChromeColorMixer(ui::ColorProvider* provider,
   mixer[kColorTabSearchImageWindowFrame] = {ui::kColorSysInversePrimary};
   mixer[kColorTabSearchMediaIcon] = {ui::kColorSysOnSurfaceSubtle};
   mixer[kColorTabSearchMediaRecordingIcon] = {ui::kColorSysError};
-  mixer[kColorTabSearchMediaGlicActiveIcon] = {ui::kColorSysPrimary};
   mixer[kColorTabSearchPrimaryForeground] = {ui::kColorSysOnSurface};
   mixer[kColorTabSearchSecondaryForeground] = {ui::kColorSysOnSurfaceSubtle};
   mixer[kColorTabSearchSelected] = {ui::kColorSysPrimary};
@@ -401,15 +394,6 @@ void AddMaterialChromeColorMixer(ui::ColorProvider* provider,
     return;
   }
 
-  mixer[kColorActorUiHandoffButtonBackground] = {ui::kColorSysSurface};
-  mixer[kColorActorUiHandoffButtonBorder] = {ui::kColorSysActorUiBorder};
-  mixer[kColorActorUiHandoffButtonForeground] = {ui::kColorSysOnSurface};
-  mixer[kColorActorUiOverlayBorder] = {ui::kColorSysActorUiBorder};
-  mixer[kColorActorUiOverlayBorderGlow] = {ui::kColorSysActorUiGradientEnd};
-  mixer[kColorActorUiScrimStart] = {ui::kColorSysActorUiGradientStart};
-  mixer[kColorActorUiScrimMiddle] = {ui::kColorSysActorUiGradientMiddle};
-  mixer[kColorActorUiScrimEnd] = {ui::kColorSysActorUiGradientEnd};
-  mixer[kColorActorUiMagicCursor] = {ui::kColorSysActorUiBorder};
   mixer[kColorAppMenuHighlightDefault] = {ui::kColorSysTonalContainer};
   mixer[kColorAppMenuHighlightSeverityLow] = {kColorAppMenuHighlightDefault};
   mixer[kColorAppMenuHighlightSeverityMedium] = {kColorAppMenuHighlightDefault};
@@ -571,15 +555,6 @@ void AddMaterialChromeColorMixer(ui::ColorProvider* provider,
   mixer[kColorToolbarTextDisabledDefault] = {ui::kColorSysStateDisabled};
 
   // Glic colors.
-  mixer[kColorGlicActiveTabUnderlineGradient1] = {ui::kColorGlicTabUnderline1};
-  mixer[kColorGlicActiveTabUnderlineGradient2] = {ui::kColorGlicTabUnderline2};
-  mixer[kColorGlicActiveTabUnderlineGradient3] = {ui::kColorGlicTabUnderline3};
-  mixer[kColorGlicInactiveTabUnderlineGradient1] = {
-      ui::kColorGlicTabUnderline1};
-  mixer[kColorGlicInactiveTabUnderlineGradient2] = {
-      ui::kColorGlicTabUnderline2};
-  mixer[kColorGlicInactiveTabUnderlineGradient3] = {
-      ui::kColorGlicTabUnderline3};
 
   ApplyChromeRefresh2026ColorOverrides(mixer);
   ApplyChromeSettingsRefresh2026ColorOverrides(mixer);

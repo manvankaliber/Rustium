@@ -18,9 +18,6 @@ class SidePanelBookmarksTest : public WebUIMochaFocusTest {
 };
 
 // TODO(crbug.com/40882667): Flaky on all platforms. Re-enable this test.
-IN_PROC_BROWSER_TEST_F(SidePanelBookmarksTest, DISABLED_ShoppingList) {
-  RunTest("side_panel/bookmarks/commerce/shopping_list_test.js", "mocha.run()");
-}
 
 using SidePanelPowerBookmarksTest = SidePanelBookmarksTest;
 IN_PROC_BROWSER_TEST_F(SidePanelPowerBookmarksTest, Service) {

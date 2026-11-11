@@ -13,7 +13,6 @@
 #include "base/metrics/histogram_macros.h"
 #include "base/metrics/user_metrics.h"
 #include "base/strings/strcat.h"
-#include "components/commerce/core/proto/merchant_trust.pb.h"
 #include "components/optimization_guide/core/hints/hints_processing_util.h"
 #include "components/optimization_guide/core/hints/optimization_guide_decider.h"
 #include "components/optimization_guide/proto/hints.pb.h"
@@ -91,29 +90,13 @@ MerchantTrustService::MerchantTrustService(
       is_off_the_record_(is_off_the_record),
       prefs_(prefs),
       weak_ptr_factory_(this) {
-  if (optimization_guide_decider_) {
-    optimization_guide_decider_->RegisterOptimizationTypes(
-        {optimization_guide::proto::MERCHANT_TRUST_SIGNALS_V2});
-  }
+
 }
 
 void MerchantTrustService::GetMerchantTrustInfo(
     const GURL& url,
     MerchantDataCallback callback) const {
-  if (!optimization_guide::IsValidURLForURLKeyedHint(url)) {
-    std::move(callback).Run(url, std::nullopt);
-    return;
-  }
-
-  if (!IsOptimizationGuideAllowed()) {
-    std::move(callback).Run(url, std::nullopt);
-    return;
-  }
-
-  optimization_guide_decider_->CanApplyOptimization(
-      url, optimization_guide::proto::MERCHANT_TRUST_SIGNALS_V2,
-      base::BindOnce(&MerchantTrustService::OnCanApplyOptimizationComplete,
-                     weak_ptr_factory_.GetWeakPtr(), url, std::move(callback)));
+  std::move(callback).Run(url, std::nullopt);
 }
 
 void MerchantTrustService::OnCanApplyOptimizationComplete(
@@ -122,10 +105,7 @@ void MerchantTrustService::OnCanApplyOptimizationComplete(
     optimization_guide::OptimizationGuideDecision decision,
     const optimization_guide::OptimizationMetadata& metadata) const {
   if (decision != optimization_guide::OptimizationGuideDecision::kUnknown) {
-    std::optional<commerce::MerchantTrustSignalsV2> merchant_trust_metadata =
-        metadata.ParsedMetadata<commerce::MerchantTrustSignalsV2>();
-    std::move(callback).Run(url,
-                            GetMerchantDataFromProto(merchant_trust_metadata));
+    std::move(callback).Run(url, std::nullopt);
     return;
   }
 
@@ -143,46 +123,6 @@ bool MerchantTrustService::IsOptimizationGuideAllowed() const {
       is_off_the_record_, prefs_);
 }
 
-std::optional<page_info::MerchantData>
-MerchantTrustService::GetMerchantDataFromProto(
-    const std::optional<commerce::MerchantTrustSignalsV2>& metadata) const {
-  auto status = merchant_trust_validation::ValidateProto(metadata);
-  base::UmaHistogramEnumeration("Security.PageInfo.MerchantTrustStatus",
-                                status);
-  auto enabled_without_summary =
-      IsMerchantTrustWithoutSummaryEnabled() &&
-      status == MerchantTrustStatus::kValidWithMissingReviewsSummary;
-
-  if (status != MerchantTrustStatus::kValid && !enabled_without_summary) {
-    return std::nullopt;
-  }
-
-  std::optional<page_info::MerchantData> merchant_data;
-
-  commerce::MerchantTrustSignalsV2 merchant_proto = metadata.value();
-  if (metadata.has_value() && merchant_proto.IsInitialized()) {
-    merchant_data.emplace();
-
-    if (merchant_proto.has_merchant_star_rating()) {
-      merchant_data->star_rating = merchant_proto.merchant_star_rating();
-    }
-
-    if (merchant_proto.has_merchant_count_rating()) {
-      merchant_data->count_rating = merchant_proto.merchant_count_rating();
-    }
-
-    if (merchant_proto.has_merchant_details_page_url()) {
-      merchant_data->page_url =
-          GURL(merchant_proto.merchant_details_page_url());
-    }
-
-    if (merchant_proto.has_shopper_voice_summary()) {
-      merchant_data->reviews_summary = merchant_proto.shopper_voice_summary();
-    }
-  }
-
-  return merchant_data;
-}
 
 void MerchantTrustService::RecordMerchantTrustInteraction(
     const GURL& url,
@@ -214,19 +154,10 @@ void MerchantTrustService::RecordMerchantTrustUkm(
 
   switch (interaction) {
     case MerchantTrustInteraction::kPageInfoRowShown:
-      ukm::builders::Shopping_MerchantTrust_RowSeen(source_id)
-          .SetHasOccurred(true)
-          .Record(ukm::UkmRecorder::Get());
       break;
     case MerchantTrustInteraction::kBubbleOpenedFromPageInfo:
-      ukm::builders::Shopping_MerchantTrust_BubbleOpened(source_id)
-          .SetHasOccurred(true)
-          .Record(ukm::UkmRecorder::Get());
       break;
     case MerchantTrustInteraction::kSidePanelOpened:
-      ukm::builders::Shopping_MerchantTrust_SidePanelOpened(source_id)
-          .SetHasOccurred(true)
-          .Record(ukm::UkmRecorder::Get());
       break;
     case MerchantTrustInteraction::kBubbleClosed:
     case MerchantTrustInteraction::kSidePanelClosed:

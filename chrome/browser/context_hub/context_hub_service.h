@@ -32,7 +32,6 @@
 #include "chrome/browser/context_hub/auto_todos/auto_todo_entry.h"
 #include "chrome/browser/context_hub/auto_todos/auto_todos_store.h"
 #include "chrome/browser/context_hub/memory_bank/memory_bank.h"
-#include "chrome/browser/context_hub/memory_bank/memory_bank_chat_types.h"
 #include "chrome/browser/context_hub/tab_group_store/tab_group_entry.h"
 #include "chrome/browser/ui/webui/context_hub/context_hub.mojom.h"
 #include "components/keyed_service/core/keyed_service.h"
@@ -60,9 +59,6 @@ class Page;
 class WebContents;
 }  // namespace content
 
-namespace image_fetcher {
-class ImageFetcher;
-}  // namespace image_fetcher
 
 namespace net {
 class BackoffEntry;
@@ -91,7 +87,7 @@ namespace context_hub {
 
 class TabGroupStore;
 class ContextHubBackend;
-struct FetchedChatImage;
+
 
 class ContextHubService : public KeyedService,
                           public AutoTodosStore::Observer,
@@ -296,17 +292,9 @@ class ContextHubService : public KeyedService,
   // the effective text.
   bool SetAutoTabGroupsPreferences(std::string_view text);
 
-  // Adds a memory bank chat history turn to the cache, along with any
-  // citations associated with the turn.
-  void AddMemoryBankChatHistoryTurn(
-      optimization_guide::proto::ChatHistoryTurn::Role role,
-      std::string_view message_content,
-      std::vector<MemoryBankChatCitation> citations = {});
-  // Returns all memory bank chat history turns stored in the LRU cache in
-  // chronological order (oldest to newest).
-  std::vector<MemoryBankChatHistoryTurn> GetMemoryBankChatHistory() const;
-  // Clears all memory bank chat history turns from the LRU cache.
-  void ClearMemoryBankChatHistory();
+
+
+
 
   // Sets the pending memory bank entry waiting to be saved by the user, along
   // with an optional weak pointer to the source WebContents for tab entries.
@@ -364,16 +352,8 @@ class ContextHubService : public KeyedService,
   void ReplaceTabGroups(std::vector<TabGroupEntry> groups,
                         base::OnceClosure callback);
 
-  using MemoryBankChatCallback =
-      base::OnceCallback<void(std::optional<std::string> response,
-                              std::vector<MemoryBankChatCitation> citations)>;
-  // Executes a memory bank chat request for the specified memory bank entry
-  // IDs. If `save_to_history` is true, the request and response are saved to
-  // memory bank chat history.
-  void ExecuteMemoryBankChat(base::span<const int64_t> entry_ids,
-                             const std::string& user_command,
-                             bool save_to_history,
-                             MemoryBankChatCallback callback);
+
+
 
   using SmartSearchCallback = base::OnceCallback<void(
       const std::vector<personal_context::proto::SmartSearchItem>& results)>;
@@ -406,8 +386,6 @@ class ContextHubService : public KeyedService,
   void ConnectLocalTabGroup(const base::Uuid& group_guid,
                             const tab_groups::LocalTabGroupID& local_id);
 
-  void SetImageFetcherForTesting(
-      std::unique_ptr<image_fetcher::ImageFetcher> image_fetcher);
 
   base::WeakPtr<ContextHubService> GetWeakPtr() {
     return weak_factory_.GetWeakPtr();
@@ -464,28 +442,11 @@ class ContextHubService : public KeyedService,
       ConfirmAllTabGroupsCallback callback,
       std::vector<TabGroupEntry> groups);
 
-  // Callback invoked when memory bank entries are fetched for a chat request.
-  void OnMemoryBankEntriesFetched(const std::string& user_command,
-                                  bool save_to_history,
-                                  MemoryBankChatCallback callback,
-                                  std::vector<MemoryBankEntry> entries);
 
-  // Attaches the fetched PNG-encoded image bytes to the image memory bank
-  // entries of `request`, then dispatches the chat request.
-  void OnMemoryBankChatImagesFetched(
-      std::vector<MemoryBankEntry> entries,
-      optimization_guide::proto::ContextHubRequest request,
-      bool save_to_history,
-      MemoryBankChatCallback callback,
-      const std::vector<FetchedChatImage>& fetched_images);
 
-  // Dispatches the prepared memory bank chat request to the remote model
-  // executor.
-  void DispatchMemoryBankChatRequest(
-      std::vector<MemoryBankEntry> entries,
-      const optimization_guide::proto::ContextHubRequest& request,
-      bool save_to_history,
-      MemoryBankChatCallback callback);
+
+
+
 
   // Generates tab groups based on the provided `tabs` and invokes `callback`
   // with the resulting groups and any ungrouped tabs.
@@ -554,14 +515,7 @@ class ContextHubService : public KeyedService,
       optimization_guide::OptimizationGuideModelExecutionResult result,
       std::unique_ptr<optimization_guide::ModelQualityLogEntry> log_entry);
 
-  // Handles the result of the model execution from `ExecuteMemoryBankChat`.
-  void HandleMemoryBankChatModelExecutionResult(
-      const std::vector<MemoryBankEntry>& entries,
-      const std::string& user_command,
-      bool save_to_history,
-      MemoryBankChatCallback callback,
-      optimization_guide::OptimizationGuideModelExecutionResult result,
-      std::unique_ptr<optimization_guide::ModelQualityLogEntry> log_entry);
+
 
   const raw_ref<Profile> profile_;
   const raw_ref<signin::IdentityManager> identity_manager_;
@@ -624,12 +578,9 @@ class ContextHubService : public KeyedService,
                  optimization_guide::proto::ChatHistoryTurn>
       tab_group_chat_history_cache_;
 
-  using MemoryBankChatHistoryTurnId =
-      base::IdType64<class MemoryBankChatHistoryTurnIdTag>;
-  MemoryBankChatHistoryTurnId::Generator
-      memory_bank_chat_history_turn_id_generator_;
-  base::LRUCache<MemoryBankChatHistoryTurnId, MemoryBankChatHistoryTurn>
-      memory_bank_chat_history_cache_;
+
+
+
 
   // In-memory storage for feedback on Auto Todo items. The key is the ID of the
   // Auto Todo item in question and the value is whether the item was liked or
@@ -669,7 +620,6 @@ class ContextHubService : public KeyedService,
 
   std::unique_ptr<AutoTodosStore> auto_todos_store_;
 
-  std::unique_ptr<image_fetcher::ImageFetcher> image_fetcher_;
 
   // Metadata for the most recent First Party Auto Todos generation during the
   // current browser session.

@@ -27,16 +27,6 @@ namespace ttc {
 
 namespace {
 
-uint64_t MakeTrackUUID(SessionJournal::Track track, actor::TaskId task_id) {
-  switch (track) {
-    case SessionJournal::Track::kFrontEnd:
-      return actor::MakeFrontEndTrackUUID(task_id);
-    case SessionJournal::Track::kMesClientRecv:
-      return actor::MakeTtcMesClientRecvTrackUUID(task_id);
-    case SessionJournal::Track::kMesClientSend:
-      return actor::MakeTtcMesClientSendTrackUUID(task_id);
-  }
-}
 
 void EnsureUniquePath(
     const base::FilePath& file_path,
@@ -50,44 +40,10 @@ void EnsureUniquePath(
 
 }  // namespace
 
-SessionJournalImpl::SessionJournalImpl(actor::AggregatedJournal& journal,
-                                       actor::TaskId task_id)
-    : journal_(journal), task_id_(task_id) {
-  base::FilePath path =
-      base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
-          switches::kTtcActorJournal);
-  if (!path.empty()) {
-    EnsureUniquePath(path,
-                     base::BindOnce(&SessionJournalImpl::StartSerializingToFile,
-                                    weak_ptr_factory_.GetWeakPtr()));
-  }
-}
 
 SessionJournalImpl::~SessionJournalImpl() = default;
 
-void SessionJournalImpl::SetTaskId(actor::TaskId new_task_id) {
-  CHECK_NE(new_task_id, task_id_);
 
-  const actor::TaskId previous_task_id = task_id_;
-  task_id_ = new_task_id;
-  for (actor::TaskId logged_task_id : {previous_task_id, new_task_id}) {
-    journal_->Log(GURL(), logged_task_id,
-                  actor::MakeFrontEndTrackUUID(logged_task_id),
-                  "TtcSessionTaskChanged",
-                  actor::JournalDetailsBuilder()
-                      .Add("previous_task_id", previous_task_id)
-                      .Add("new_task_id", new_task_id)
-                      .Build());
-  }
-}
-
-void SessionJournalImpl::Log(
-    std::string_view event_name,
-    std::vector<actor::mojom::JournalDetailsPtr> details,
-    Track track) {
-  journal_->Log(GURL(), task_id_, MakeTrackUUID(track, task_id_), event_name,
-                std::move(details));
-}
 
 void SessionJournalImpl::LogAudio(std::string_view mime_type,
                                   base::span<const uint8_t> data) {
@@ -95,18 +51,9 @@ void SessionJournalImpl::LogAudio(std::string_view mime_type,
                           /*iframe_data=*/std::nullopt);
 }
 
-std::unique_ptr<SessionJournalImpl::PendingAsyncEvent>
-SessionJournalImpl::BeginAsyncEvent(
-    std::string_view event_name,
-    std::vector<actor::mojom::JournalDetailsPtr> details) {
-  return journal_->CreatePendingAsyncEntry(
-      GURL(), task_id_, actor::MakeFrontEndTrackUUID(task_id_), event_name,
-      std::move(details));
-}
 
 void SessionJournalImpl::HandleServerJournalEvent(
     const ServerJournalEvent& event) {
-  actor::JournalDetailsBuilder details_builder;
   for (const ServerJournalEvent::Details& detail : event.details) {
     details_builder.Add(detail.key, detail.value);
   }
@@ -115,18 +62,14 @@ void SessionJournalImpl::HandleServerJournalEvent(
   if (event.type != ServerJournalEvent::Type::kClockSync &&
       !received_clock_sync_) {
     // The ClockSync event must be the first journal event received.
-    journal_->Log(GURL(), task_id_, actor::MakeFrontEndTrackUUID(task_id_),
-                  "ServerJournalEventBeforeClockSync", {});
   }
 
   uint64_t track_uuid;
   switch (event.track) {
     case ServerJournalEvent::Track::kUnspecified:
     case ServerJournalEvent::Track::kMain:
-      track_uuid = actor::MakeTtcBackendTrackUUID(task_id_);
       break;
     case ServerJournalEvent::Track::kTurn:
-      track_uuid = actor::MakeTtcCurrentTurnTrackUUID(task_id_);
       break;
   }
 
@@ -162,11 +105,6 @@ void SessionJournalImpl::HandleServerJournalEvent(
       if (event.sync_timestamp <= base::Time::UnixEpoch()) {
         // Avoid adjusting if the server doesn't provide a timestamp or sends
         // an obviously bogus one.
-        journal_->Log(GURL(), task_id_, actor::MakeFrontEndTrackUUID(task_id_),
-                      "Bad ClockSync Message",
-                      actor::JournalDetailsBuilder()
-                          .Add("sync_timestamp", event.sync_timestamp)
-                          .Build());
         break;
       }
       const base::Time client_receive_time = base::Time::Now();
@@ -188,8 +126,6 @@ void SessionJournalImpl::HandleServerJournalEvent(
 void SessionJournalImpl::StartSerializingToFile(
     const base::FilePath& file_path) {
   LOG(ERROR) << "Ttc Journal: " << file_path;
-  file_journal_serializer_ =
-      std::make_unique<actor::AggregatedJournalFileSerializer>(*journal_);
   file_journal_serializer_->Init(
       file_path, base::BindOnce(&SessionJournalImpl::OnSerializerInitDone,
                                 weak_ptr_factory_.GetWeakPtr()));

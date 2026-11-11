@@ -13,11 +13,6 @@ using OEP = ::metrics::OmniboxEventProto;
 omnibox::ChromeAimEntryPoint GetAimEntryPoint(
     metrics::OmniboxEventProto::PageClassification page_class,
     const contextual_search::ContextualSearchSessionHandle* session_handle) {
-  if (session_handle &&
-      session_handle->invocation_source() ==
-          lens::LensOverlayInvocationSource::kOmniboxPageAction) {
-    return omnibox::DESKTOP_CHROME_COBROWSE_OMNIBOX_TAB_SEARCH;
-  }
   switch (page_class) {
     // Omnibox Entry Points.
     case OEP::NTP_OMNIBOX_COMPOSEBOX:

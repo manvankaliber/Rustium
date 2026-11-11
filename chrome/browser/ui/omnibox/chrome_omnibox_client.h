@@ -156,8 +156,6 @@ class ChromeOmniboxClient final : public OmniboxClient {
           callback);
   void OpenIphLink(GURL gurl) override;
   bool IsAimPopupEnabled() const override;
-  std::optional<lens::proto::LensOverlaySuggestInputs>
-  GetLensOverlaySuggestInputs() const override;
   void MaybePrewarmForDefaultSearchEngine(PrewarmTrigger trigger) override;
   base::WeakPtr<OmniboxClient> AsWeakPtr() override;
   Profile* profile() { return profile_; }

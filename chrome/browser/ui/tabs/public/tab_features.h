@@ -71,8 +71,8 @@ class HttpAuthCacheStatus;
 class IntentPickerTabHelper;
 class IntentPickerViewPageActionController;
 class JsOptimizationsPageActionController;
-class LensOverlayHomeworkPageActionController;
-class LensSearchController;
+
+
 class ManagePasswordsPageActionController;
 class ManagePasswordsUIController;
 class MemorySaverChipTabHelper;
@@ -112,7 +112,7 @@ class UMABrowsingActivityTabHelper;
 class ZeroSuggestPrefetchTabHelper;
 
 namespace skills {
-class SkillsUiTabControllerInterface;
+
 }  // namespace skills
 
 namespace site_protection {
@@ -144,25 +144,19 @@ class WalletReminderNoticePageActionController;
 }  // namespace autofill
 
 namespace actor {
-class ActorSurfaceTabHelper;
+
 class ActorTabData;
 }  // namespace actor
 
 namespace actor::ui {
-class ActorUiTabControllerInterface;
+
 }  // namespace actor::ui
 
 namespace chrome_browser_net {
 class NetErrorTabHelper;
 }  // namespace chrome_browser_net
 
-namespace commerce {
-class CommerceTabHelper;
-class CommerceUiTabHelper;
-class DiscountsPageActionViewController;
-class InStockNotificationManager;
-class PriceInsightsPageActionViewController;
-}  // namespace commerce
+  // namespace commerce
 
 namespace enterprise_data_protection {
 class DataProtectionNavigationController;
@@ -224,21 +218,7 @@ class NavigationExtensionEnabler;
 #endif
 }  // namespace extensions
 
-namespace glic {
-class ContextualCueingHelper;
-class GlicCueTabState;
-class GlicGeminiWebWarmingObserver;
-class GlicInstanceHelper;
-class GlicMarketingPageTabHelper;
-class GlicTabIndicatorHelper;
-class GlicSidePanelCoordinator;
-class GlicSelectionObserver;
-class GlicWebDragObserver;
-class QuickAnswersTool;
-class SelectionOverlayController;
-class SelectionSuggestionTool;
-class GlicPageFeaturesManager;
-}  // namespace glic
+  // namespace glic
 
 namespace history {
 class WebContentsTopSitesObserver;
@@ -283,7 +263,7 @@ class WindowManagementContentSettingObserver;
 }  // namespace web_app
 
 namespace skills {
-class SkillsUpdateObserver;
+
 }  // namespace skills
 
 namespace sync_sessions {
@@ -320,7 +300,6 @@ class RecordReplayClient;
 }  // namespace record_replay
 
 namespace lens {
-class LensSuggestionTool;
 class TabContextualizationController;
 }  // namespace lens
 
@@ -440,7 +419,6 @@ class TabFeatures {
       permission_indicators_tab_data_;
 
   std::unique_ptr<SidePanelRegistry> side_panel_registry_;
-  std::unique_ptr<LensSearchController> lens_search_controller_;
 
   // Responsible for the customize chrome tab-scoped side panel.
   std::unique_ptr<customize_chrome::SidePanelController>
@@ -450,10 +428,6 @@ class TabFeatures {
   std::unique_ptr<ReadAnythingController> read_anything_controller_;
 
   // Responsible for commerce related features.
-  std::unique_ptr<commerce::CommerceTabHelper> commerce_tab_helper_;
-  std::unique_ptr<commerce::CommerceUiTabHelper> commerce_ui_tab_helper_;
-  std::unique_ptr<commerce::InStockNotificationManager>
-      in_stock_notification_manager_;
 
   // Responsible for updating status indicator of the pinned translate button.
   std::unique_ptr<PinnedTranslateActionListener>
@@ -532,12 +506,8 @@ class TabFeatures {
       js_optimizations_page_action_controller_;
 
   // Responsible for managing the commerce "Price insights" page action.
-  std::unique_ptr<commerce::PriceInsightsPageActionViewController>
-      commerce_price_insights_page_action_view_controller_;
 
   // Responsible for managing the commerce "Price insights" page action.
-  std::unique_ptr<commerce::DiscountsPageActionViewController>
-      commerce_discounts_page_action_view_controller_;
 
   // Contains the recent collaboration message for a shared tab.
   std::unique_ptr<tab_groups::CollaborationMessagingTabData>
@@ -552,37 +522,17 @@ class TabFeatures {
       cookie_controls_page_action_controller_;
 
   // Manages the Lens Overlay Homework page action.
-  std::unique_ptr<LensOverlayHomeworkPageActionController>
-      lens_overlay_homework_page_action_controller_;
 
   // Manages the Bookmark page action.
   std::unique_ptr<BookmarkPageActionController>
       bookmark_page_action_controller_;
 
-  std::unique_ptr<glic::GlicInstanceHelper> glic_instance_helper_;
-  std::unique_ptr<glic::GlicTabIndicatorHelper> glic_tab_indicator_helper_;
-  std::unique_ptr<glic::GlicSidePanelCoordinator> glic_side_panel_coordinator_;
-  std::unique_ptr<glic::GlicSelectionObserver> glic_selection_observer_;
-  std::unique_ptr<glic::GlicWebDragObserver> glic_web_drag_observer_;
   std::unique_ptr<selection::SuggestionService> selection_suggestion_service_;
-  std::unique_ptr<glic::SelectionSuggestionTool>
-      glic_selection_suggestion_tool_;
-  std::unique_ptr<glic::QuickAnswersTool> glic_quick_answers_tool_;
-  std::unique_ptr<lens::LensSuggestionTool> lens_suggestion_tool_;
-  std::unique_ptr<glic::SelectionOverlayController>
-      glic_selection_overlay_controller_;
 
-  std::unique_ptr<glic::GlicPageFeaturesManager> glic_page_features_manager_;
-  std::unique_ptr<glic::GlicMarketingPageTabHelper>
-      glic_marketing_page_tab_helper_;
-  std::unique_ptr<glic::GlicGeminiWebWarmingObserver>
-      glic_gemini_web_warming_observer_;
 
   // Observes page loads to decide when to offer glic contextual cueing.
-  std::unique_ptr<glic::ContextualCueingHelper> contextual_cueing_helper_;
 
   // Per-tab eligibility state for the glic contextual cue.
-  std::unique_ptr<glic::GlicCueTabState> glic_cue_tab_state_;
 
   // Per-tab eligibility state for the contextual search contextual cue.
   std::unique_ptr<contextual_search::ContextualSearchCueTabState>
@@ -639,8 +589,6 @@ class TabFeatures {
 
   std::unique_ptr<QwacWebContentsObserver> qwac_web_contents_observer_;
 
-  std::unique_ptr<actor::ui::ActorUiTabControllerInterface>
-      actor_ui_tab_controller_;
 
   std::unique_ptr<TabCreationMetricsController>
       tab_creation_metrics_controller_;
@@ -682,8 +630,6 @@ class TabFeatures {
   std::unique_ptr<AskBeforeHttpDialogController>
       ask_before_http_dialog_controller_;
 
-  std::unique_ptr<actor::ActorTabData> actor_tab_data_;
-  std::unique_ptr<actor::ActorSurfaceTabHelper> actor_surface_tab_helper_;
 
   std::unique_ptr<record_replay::RecordReplayClient> record_replay_client_;
 
@@ -709,8 +655,6 @@ class TabFeatures {
 
   std::unique_ptr<dictation::DictationIphController> dictation_iph_controller_;
 
-  std::unique_ptr<skills::SkillsUiTabControllerInterface>
-      skills_ui_tab_controller_;
 
   std::unique_ptr<tabs::PageContextEligibilityHelper>
       page_context_eligibility_helper_;
@@ -726,7 +670,6 @@ class TabFeatures {
   std::unique_ptr<contextual_tasks::SearchJourneyTabFeature>
       search_journey_tab_feature_;
 
-  std::unique_ptr<skills::SkillsUpdateObserver> skills_update_observer_;
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   std::unique_ptr<metrics::DesktopSessionDurationObserver>

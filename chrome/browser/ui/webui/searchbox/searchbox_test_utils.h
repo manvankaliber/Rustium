@@ -118,7 +118,6 @@ class MockSearchboxPage : public searchbox::mojom::Page {
               UpdateAutoSuggestedTabContext,
               (searchbox::mojom::TabInfoPtr,
                const std::optional<std::string>&));
-  MOCK_METHOD(void, UpdateLensSearchEligibility, (bool eligible), (override));
   MOCK_METHOD(void, UpdateAimPopupEligibility, (bool eligible), (override));
   MOCK_METHOD(void, UpdateSmartTabSharingActive, (bool active), (override));
   MOCK_METHOD(void, UpdateContentSharingPolicy, (bool enabled), (override));
@@ -207,36 +206,7 @@ class MockOmniboxEditModel : public OmniboxEditModel {
   MOCK_METHOD(void, OnChanged, (), (override));
 };
 
-class MockLensSearchboxClient : public LensSearchboxClient {
- public:
-  MockLensSearchboxClient();
-  ~MockLensSearchboxClient() override;
-  MockLensSearchboxClient(const MockLensSearchboxClient&) = delete;
-  MockLensSearchboxClient& operator=(const MockLensSearchboxClient&) = delete;
 
-  // LensSearchboxClient:
-  MOCK_METHOD(const GURL&, GetPageURL, (), (override, const));
-  MOCK_METHOD(SessionID, GetTabId, (), (override, const));
-  MOCK_METHOD(metrics::OmniboxEventProto::PageClassification,
-              GetPageClassification,
-              (),
-              (override, const));
-  MOCK_METHOD(std::string&, GetThumbnail, (), (override));
-  MOCK_METHOD(lens::proto::LensOverlaySuggestInputs,
-              GetLensSuggestInputs,
-              (),
-              (override, const));
-  MOCK_METHOD(void, OnTextModified, (), (override));
-  MOCK_METHOD(void, OnThumbnailRemoved, (), (override));
-  MOCK_METHOD(void,
-              OnSuggestionAccepted,
-              (const GURL&, omnibox::AutocompleteMatchType, bool),
-              (override));
-  MOCK_METHOD(void, OnFocusChanged, (bool focused), (override));
-  MOCK_METHOD(void, OnPageBound, (), (override));
-  MOCK_METHOD(void, ShowGhostLoaderErrorState, (), (override));
-  MOCK_METHOD(void, OnZeroSuggestShown, (), (override));
-};
 
 class MockTabContextualizationController
     : public lens::TabContextualizationController {

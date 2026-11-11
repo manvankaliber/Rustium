@@ -146,7 +146,6 @@ test("components_unittests") {
     "//components/client_update_protocol:unit_tests",
     "//components/cloud_devices/common:unit_tests",
     "//components/collaboration:unit_tests",
-    "//components/commerce/core:shopping_service_unit_tests",
     "//components/component_updater:unit_tests",
     "//components/component_updater/installer_policies:unit_tests",
     "//components/consent_auditor:unit_tests",
@@ -412,7 +411,6 @@ test("components_unittests") {
       "//components/captive_portal/content:unit_tests",
       "//components/capture_mode:unit_tests",
       "//components/certificate_transparency:unit_tests",
-      "//components/commerce/content/browser:unit_tests",
       "//components/content_capture/browser:unit_tests",
       "//components/content_extraction/content/browser:unit_tests",
       "//components/content_relationship_verification:unit_tests",
@@ -581,11 +579,6 @@ test("components_unittests") {
   }
 
   deps += [
-    "//components/commerce/core:account_checker_unittests",
-    "//components/commerce/core:commerce_heuristics_data_unittests",
-    "//components/commerce/core:feature_list_unittests",
-    "//components/commerce/core/subscriptions:subscriptions_unit_tests",
-    "//components/commerce/core/webui:unit_tests",
     "//components/feedback:unit_tests",
     "//components/feedback/redaction_tool:unit_tests",
     "//components/keep_alive_registry:unit_tests",

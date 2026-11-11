@@ -8,7 +8,6 @@
 #include "base/feature_list.h"
 #include "build/build_config.h"
 #include "build/buildflag.h"
-#include "chrome/browser/actor/actor_navigation_throttle.h"
 #include "chrome/browser/autocomplete/aim_eligibility_refresh_navigation_throttle.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_navigation_throttle.h"
@@ -18,8 +17,6 @@
 #include "chrome/browser/data_sharing/data_sharing_navigation_throttle.h"
 #include "chrome/browser/enterprise/connectors/device_trust/navigation_throttle.h"
 #include "chrome/browser/enterprise/data_protection/view_source_navigation_throttle.h"
-#include "chrome/browser/glic/host/glic_guest_navigation_throttle.h"
-#include "chrome/browser/glic/navigation_capture/glic_navigation_throttle.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/browser/interstitials/enterprise_util.h"
 #include "chrome/browser/lookalikes/lookalike_url_navigation_throttle.h"
@@ -92,13 +89,11 @@
 #include "chrome/browser/devtools/devtools_navigation_throttle.h"
 #include "chrome/browser/page_info/web_view_side_panel_throttle.h"
 #include "chrome/browser/themes/theme_service_factory.h"
-#include "chrome/browser/ui/lens/lens_overlay_side_panel_navigation_throttle.h"
 #include "chrome/browser/ui/read_anything/read_anything_side_panel_navigation_throttle.h"
 #include "chrome/browser/ui/web_applications/tabbed_web_app_navigation_throttle.h"
 #include "chrome/browser/ui/web_applications/webui_web_app_navigation_throttle.h"
 #include "chrome/browser/ui/webui/image/image_navigation_throttle.h"
 #include "chrome/browser/ui/webui/ntp_microsoft_auth/ntp_microsoft_auth_response_capture_navigation_throttle.h"
-#include "chrome/browser/ui/webui/skills/skills_navigation_throttle.h"
 #include "chrome/browser/web_applications/isolated_web_apps/isolated_web_app_throttle.h"
 
 
@@ -446,7 +441,6 @@ void CreateAndAddChromeThrottlesForNavigation(
   web_app::WebUIWebAppNavigationThrottle::MaybeCreateAndAdd(registry);
 
   ImageNavigationThrottle::MaybeCreateAndAdd(registry);
-  SkillsNavigationThrottle::MaybeCreateAndAdd(registry);
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
   // g_browser_process->safe_browsing_service() may be null in unittests.
@@ -491,15 +485,6 @@ void CreateAndAddChromeThrottlesForNavigation(
 
   ReadAnythingSidePanelNavigationThrottle::CreateAndAdd(registry);
 
-  if (lens::features::IsLensOverlayEnabled()) {
-    if (profile) {
-      if (ThemeService* theme_service =
-              ThemeServiceFactory::GetForProfile(profile)) {
-        lens::LensOverlaySidePanelNavigationThrottle::MaybeCreateAndAdd(
-            registry, theme_service);
-      }
-    }
-  }
 
   NtpMicrosoftAuthResponseCaptureNavigationThrottle::MaybeCreateAndAdd(
       registry);
@@ -540,7 +525,6 @@ void CreateAndAddChromeThrottlesForNavigation(
   web_app::IsolatedWebAppThrottle::MaybeCreateAndAdd(registry);
   DevToolsNavigationThrottle::MaybeCreateAndAdd(registry);
 
-  actor::ActorNavigationThrottle::MaybeCreateAndAdd(registry);
 
   dom_distiller::DistillerPageWebContents::MaybeCreateAndAddNavigationThrottle(
       registry);
@@ -549,8 +533,6 @@ void CreateAndAddChromeThrottlesForNavigation(
 
   webapps::WebAppUrlLoader::MaybeCreateAndAddNavigationThrottle(registry);
 
-  glic::GlicNavigationThrottle::MaybeCreateAndAdd(registry);
-  glic::GlicGuestNavigationThrottle::MaybeCreateAndAdd(registry);
 
   pwc::PwcNavigationThrottle::MaybeCreateAndAdd(registry);
 }
@@ -563,14 +545,12 @@ void CreateAndAddChromeThrottlesForCommitWithoutUrlLoader(
         registry);
   }
 
-  actor::ActorNavigationThrottle::MaybeCreateAndAdd(registry);
 
   // PwcNavigationThrottle must also cancel off-allowlist main-frame
   // navigations that commit without a URL loader (e.g. a subframe navigating
   // the main frame to about:blank), which never reach WillStartRequest().
   pwc::PwcNavigationThrottle::MaybeCreateAndAdd(registry);
 
-  glic::GlicGuestNavigationThrottle::MaybeCreateAndAdd(registry);
 
 #if !BUILDFLAG(ENABLE_EXTENSIONS_CORE) && BUILDFLAG(ENABLE_GUEST_VIEW)
   guest_view::MaybeCreateAndAddSlimWebViewNavigationThrottle(registry);

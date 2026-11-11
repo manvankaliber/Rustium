@@ -42,8 +42,6 @@ inline constexpr char kChromeUIAccessibilityHost[] = "accessibility";
 inline constexpr char kChromeUIAccountSettingsURL[] =
     "chrome://settings/account";
 inline constexpr char kChromeUIActorInternalsHost[] = "actor-internals";
-inline constexpr char kChromeUIActorOverlayHost[] = "actor-overlay";
-inline constexpr char kChromeUIActorOverlayURL[] = "chrome://actor-overlay";
 inline constexpr char kChromeUIAddressesPath[] = "/addresses";
 inline constexpr char kChromeUIAppIconHost[] = "app-icon";
 inline constexpr char kChromeUIAppIconURL[] = "chrome://app-icon/";
@@ -174,17 +172,6 @@ inline constexpr char kChromeUIFlagsHost[] = "flags";
 inline constexpr char kChromeUIFlagsURL[] = "chrome://flags/";
 inline constexpr char16_t kChromeUIFlagsURL16[] = u"chrome://flags/";
 inline constexpr char kChromeUIGCMInternalsHost[] = "gcm-internals";
-inline constexpr char kChromeUIGlicHost[] = "glic";
-inline constexpr char kChromeUIGlicURL[] = "chrome://glic/";
-inline constexpr char kChromeUIGlicOverlayURL[] = "chrome://glic/overlay";
-inline constexpr char kChromeUIGlicUntrustedHost[] = "glic";
-inline constexpr char kChromeUIGlicUntrustedURL[] = "chrome-untrusted://glic/";
-inline constexpr char kChromeUIGlicSelectionOverlayURL[] =
-    "chrome-untrusted://glic/selection-overlay/";
-inline constexpr char kChromeUIGlicExperimentalOptInHost[] =
-    "glic-experimental-opt-in";
-inline constexpr char kChromeUIGlicExperimentalOptInURL[] =
-    "chrome://glic-experimental-opt-in";
 inline constexpr char kChromeUIHangUIHost[] = "uithreadhang";
 inline constexpr char kChromeUIHelpHost[] = "help";
 inline constexpr char kChromeUIHelpURL[] = "chrome://help/";
@@ -205,9 +192,6 @@ inline constexpr char kChromeUIInternalsHost[] = "internals";
 inline constexpr char kChromeUIInterstitialHost[] = "interstitials";
 inline constexpr char kChromeUIInterstitialURL[] = "chrome://interstitials/";
 inline constexpr char kChromeUIIwaDevHost[] = "iwa-dev";
-inline constexpr char kChromeUILensOverlayHost[] = "lens-overlay";
-inline constexpr char kChromeUILensOverlayUntrustedURL[] =
-    "chrome-untrusted://lens-overlay/";
 inline constexpr char kChromeUILocalStateHost[] = "local-state";
 inline constexpr char kChromeUILocalStateURL[] = "chrome://local-state";
 inline constexpr char kChromeUILocationInternalsHost[] = "location-internals";
@@ -484,7 +468,6 @@ inline constexpr char kChromeUIProfileCustomizationURL[] =
     "chrome://profile-customization";
 inline constexpr char kChromeUIProfilePickerHost[] = "profile-picker";
 inline constexpr char kChromeUIProfilePickerStartupQuery[] = "startup";
-inline constexpr char kChromeUIProfilePickerGlicQuery[] = "glic";
 inline constexpr char kChromeUIProfilePickerOmniboxEverywhereQuery[] =
     "omnibox-everywhere";
 inline constexpr char kChromeUIProfilePickerUrl[] = "chrome://profile-picker/";
@@ -539,9 +522,6 @@ inline constexpr char kExperimentalAISettingsSubPage[] = "ai";
 inline constexpr char kFileSystemSettingsSubpage[] =
     "content/filesystem/siteDetails";
 inline constexpr char kFontsSubPage[] = "fonts";
-inline constexpr char kGlicSettingsSubpage[] = "ai/gemini";
-inline constexpr char kGlicEnterpriseSettingsSubpage[] = "ai/geminienterprise";
-inline constexpr char kGlicLoginSettingsSubpage[] = "ai/gemini/login";
 inline constexpr char kGoogleServicesSubpage[] = "googleServices";
 inline constexpr char kHandlerSettingsSubPage[] = "handlers";
 inline constexpr char kHelpSubPage[] = "help";
@@ -557,7 +537,6 @@ inline constexpr char kPasswordManagerSubPage[] = "passwords";
 inline constexpr char kPaymentsSubPage[] = "payments";
 inline constexpr char kIdentityDocsSubPage[] = "identityDocs";
 inline constexpr char kTravelSubPage[] = "travel";
-inline constexpr char kShoppingSubPage[] = "shopping";
 inline constexpr char kPeopleSubPage[] = "people";
 inline constexpr char kPerformanceSubPage[] = "performance";
 inline constexpr char kPrivacyGuideSubPage[] = "privacy/guide";

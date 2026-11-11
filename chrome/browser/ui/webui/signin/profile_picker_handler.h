@@ -59,7 +59,7 @@ class ProfilePickerHandler : public content::WebUIMessageHandler,
                              public content::WebContentsObserver,
                              public ProfileAttributesStorage::Observer {
  public:
-  explicit ProfilePickerHandler(bool is_glic_version);
+  ProfilePickerHandler();
 
   ProfilePickerHandler(const ProfilePickerHandler&) = delete;
   ProfilePickerHandler& operator=(const ProfilePickerHandler&) = delete;
@@ -100,8 +100,6 @@ class ProfilePickerHandler : public content::WebUIMessageHandler,
   FRIEND_TEST_ALL_PREFIXES(ProfilePickerCreationFlowBrowserTest, DeleteProfile);
   FRIEND_TEST_ALL_PREFIXES(ProfilePickerCreationFlowBrowserTest,
                            DeleteProfileFromOwnTab);
-  FRIEND_TEST_ALL_PREFIXES(ProfilePickerWithGlicParamBrowserTest,
-                           GlicLearnMoreClicked);
   FRIEND_TEST_ALL_PREFIXES(
       ProfilePickerEnterpriseCreationFlowBrowserTest,
       CreateSignedInProfileSigninAlreadyExists_ConfirmSwitch);
@@ -166,8 +164,6 @@ class ProfilePickerHandler : public content::WebUIMessageHandler,
   void OnProfileIsManagedChanged(const base::FilePath& profile_path) override;
   void OnProfileSupervisedUserIdChanged(
       const base::FilePath& profile_path) override;
-  void OnProfileIsGlicEligibleChanged(
-      const base::FilePath& profile_path) override;
   void OnProfileAiSubscriptionTierUpdated(const base::FilePath& profile_path,
                                           int tier) override;
   void OnProfilesOrderChanged() override;
@@ -197,10 +193,9 @@ class ProfilePickerHandler : public content::WebUIMessageHandler,
   // Returns the list of profiles in the same order as when the picker
   // was first shown.
   // Filters out profiles that are not eligible to be shown: e.g. omitted
-  // profiles and glic ineligible profiles if applicable.
+  // profiles.
   std::vector<ProfileAttributesEntry*> GetProfilesAttributesForDisplay();
 
-  const bool is_glic_version_;
 
   // Observes changes to profile attributes, and notifies the WebUI.
   base::ScopedObservation<ProfileAttributesStorage,

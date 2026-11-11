@@ -717,10 +717,6 @@ std::vector<hats::SurveyConfig> GetAllSurveyConfigs() {
       /*product_specific_string_data_fields=*/cuj_string_psd_fields);
 
   // Lens overlay surveys.
-  survey_configs.emplace_back(
-      &lens::features::kLensOverlaySurvey, kHatsSurveyTriggerLensOverlayResults,
-      /*presupplied_trigger_id=*/std::nullopt, std::vector<std::string>{},
-      std::vector<std::string>{"ID that's tied to your Google Lens session"});
 
   // Contextual cueing surveys.
   survey_configs.emplace_back(

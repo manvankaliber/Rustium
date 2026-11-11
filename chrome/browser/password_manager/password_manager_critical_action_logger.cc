@@ -6,8 +6,6 @@
 
 #include "base/check.h"
 #include "base/strings/string_number_conversions.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_task.h"
 #include "chrome/browser/critical_actions/critical_action_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "components/critical_actions/core/browser/critical_action_service.h"
@@ -44,30 +42,7 @@ void PasswordManagerCriticalActionLogger::MaybeLogCriticalAction(
     return;
   }
 
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(profile_);
-  if (!actor_service || !web_contents()) {
-    return;
-  }
 
-  const actor::ActorTask* task =
-      actor_service->GetActingActorTaskForWebContents(web_contents());
-  if (!task) {
-    return;
-  }
-
-  critical_actions::CriticalActionEntry entry =
-      critical_actions::CriticalActionEntry::Builder()
-          .SetActionType(action_type)
-          .SetActionSource(critical_actions::ActionSource::kPasswordManager)
-          .SetConversationId(task->source_info().id.value_or(""))
-          .SetActorTaskId(task->id().is_null()
-                              ? ""
-                              : base::NumberToString(task->id().value()))
-          .Build();
-
-  service->AddCriticalActionWithNavigationId(entry,
-                                             GetNavigationIdForDriver(driver));
 }
 
 void PasswordManagerCriticalActionLogger::DidFinishNavigation(

@@ -166,8 +166,6 @@ TEST_F(ContextualTasksInternalsPageHandlerTest,
   auto* mock_handle = session_handle.get();
 
   mock_handle->set_current_url(GURL("https://www.google.com/search?udm=50"));
-  mock_handle->set_invocation_source(
-      lens::LensOverlayInvocationSource::kCobrowseToolbarButton);
   mock_handle->set_is_contextual_lens_session(true);
   mock_handle->set_auth_user_index(2);
   mock_handle->set_smart_tab_sharing_active(true);

@@ -341,10 +341,6 @@ WebUIBrowserUI::GetOrCreateContextualSessionHandle() {
         Profile::FromWebUI(web_ui()));
     if (service) {
       // TODO(crbug.com/445510209): Use appropriate config and source
-      session_handle_ = service->CreateSession(
-          omnibox::CreateQueryControllerConfigParams(),
-          contextual_search::ContextualSearchSource::kOmnibox,
-          lens::LensOverlayInvocationSource::kOmniboxContextualQuery);
       // TODO(crbug.com/469877646): Determine what to do with the return value
       // of this call, or move this call to a different location.
       session_handle_->CheckSearchContentSharingSettings(

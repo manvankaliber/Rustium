@@ -1554,7 +1554,6 @@ class OmniboxViewViewsHintTextLimitingBrowserTest
     : public OmniboxViewViewsAIMBrowserTest {
  public:
   OmniboxViewViewsHintTextLimitingBrowserTest() {
-    scoped_feature_list_.InitAndDisableFeature(lens::features::kLensOverlay);
     SetMockTime(base::subtle::TimeNowIgnoringOverride());
   }
 
@@ -1685,7 +1684,6 @@ class OmniboxViewViewsAIMButtonPreferenceTest
     : public OmniboxViewViewsAIMBrowserTest {
  public:
   OmniboxViewViewsAIMButtonPreferenceTest() {
-    scoped_feature_list_.InitAndDisableFeature(lens::features::kLensOverlay);
   }
 
  protected:
@@ -1723,10 +1721,6 @@ class OmniboxViewViewsAIMButtonDynamicTest
     : public OmniboxViewViewsAIMBrowserTest {
  public:
   OmniboxViewViewsAIMButtonDynamicTest() {
-    scoped_feature_list_.InitWithFeaturesAndParameters(
-        {{omnibox::kWebUIOmniboxDynamicAiModeButton,
-          {{"Omnibox_DynamicAnimation", "true"}}}},
-        {lens::features::kLensOverlay});
   }
 
  protected:

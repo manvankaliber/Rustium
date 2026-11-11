@@ -238,8 +238,6 @@ class TabStripModelDelegate {
   // Note: 'Pinning' in Glic is a distinct notion.
 
   // Unpins the specified tabs from all Glic conversations.
-  virtual void GlicUnpinTabsFromAllConversations(
-      base::span<const tabs::TabHandle> tab_handles);
 
   // Requests closing the specified tab, performing all closability checks,
   // user prompts (e.g. UnloadController, group deletion dialogs), and fallback

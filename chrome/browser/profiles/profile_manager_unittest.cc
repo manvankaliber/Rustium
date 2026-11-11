@@ -1797,8 +1797,7 @@ constexpr ProfileKeepAliveParam params[] = {
      .should_clear_waiting_for_first_browser_window = true},
     {.origin = ProfileKeepAliveOrigin::kProfileStatistics,
      .should_clear_waiting_for_first_browser_window = true},
-    {.origin = ProfileKeepAliveOrigin::kWaitingForGlicView,
-     .should_clear_waiting_for_first_browser_window = true},
+
 
     // Origins that do NOT clear
     // `ProfileKeepAliveOrigin::kWaitingForFirstBrowserWindow`.

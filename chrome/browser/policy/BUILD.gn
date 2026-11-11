@@ -828,7 +828,6 @@ source_set("policy") {
   }
 
   if (is_win || is_mac || is_linux) {
-    public += [ "gemini_enterprise_url_policy_handler.h" ]
   }
 
   public += [
@@ -965,7 +964,6 @@ source_set("impl") {
     "//chrome/browser/download",
     "//chrome/browser/external_protocol",
     "//chrome/browser/first_run",
-    "//chrome/browser/glic",
     "//chrome/browser/infobars",
     "//chrome/browser/invalidation",
     "//chrome/browser/lifetime",
@@ -989,7 +987,6 @@ source_set("impl") {
     "//components/bookmarks/managed",
     "//components/certificate_transparency",
     "//components/collaboration/public:prefs",
-    "//components/commerce/core:pref_names",
     "//components/content_settings/core/browser",
     "//components/contextual_search:policy_handler",
     "//components/contextual_search:prefs",
@@ -1076,8 +1073,7 @@ source_set("impl") {
   }
 
   if (is_win || is_mac || is_linux) {
-    sources += [ "gemini_enterprise_url_policy_handler.cc" ]
-    deps += [ "//chrome/browser/glic/gemini_enterprise:url_allowlist" ]
+    deps += []
   }
 
   sources += [

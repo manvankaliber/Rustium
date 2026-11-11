@@ -17,8 +17,6 @@
 #include "base/time/time.h"
 #include "build/branding_buildflags.h"
 #include "build/build_config.h"
-#include "chrome/browser/glic/public/features.h"
-#include "chrome/browser/glic/test_support/glic_test_environment.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_actions.h"
@@ -322,7 +320,7 @@ IN_PROC_BROWSER_TEST_F(HorizontalTabStripRegionViewTest,
 class HorizontalTabStripRegionViewNewTest : public InProcessBrowserTest {
  public:
   HorizontalTabStripRegionViewNewTest()
-      : glic_test_env_({}, GetEnabledFeatures(), GetDisabledFeatures()) {}
+       {}
   HorizontalTabStripRegionViewNewTest(
       const HorizontalTabStripRegionViewNewTest&) = delete;
   HorizontalTabStripRegionViewNewTest& operator=(
@@ -347,20 +345,14 @@ class HorizontalTabStripRegionViewNewTest : public InProcessBrowserTest {
 
  private:
   static std::vector<base::test::FeatureRef> GetEnabledFeatures() {
-    std::vector<base::test::FeatureRef> enabled =
-        glic::GetDefaultEnabledGlicTestFeatures();
     enabled.push_back(tabs::kTabStripUnification);
     return enabled;
   }
 
   static std::vector<base::test::FeatureRef> GetDisabledFeatures() {
-    std::vector<base::test::FeatureRef> disabled =
-        glic::GetDefaultDisabledGlicTestFeatures();
-    disabled.push_back(features::kGlicHorizontalTabToolbarButton);
     return disabled;
   }
 
-  glic::GlicTestEnvironment glic_test_env_;
 };
 
 IN_PROC_BROWSER_TEST_F(HorizontalTabStripRegionViewNewTest,

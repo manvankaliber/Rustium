@@ -84,7 +84,6 @@ class ChromeNavigationUIData : public content::NavigationUIData {
   void set_bookmark_id(std::optional<int64_t> id) { bookmark_id_ = id; }
 
 
-  actor::TaskId actor_task_id() const { return actor_task_id_; }
 
   bool navigation_initiated_from_sync() {
     return navigation_initiated_from_sync_;
@@ -134,7 +133,6 @@ class ChromeNavigationUIData : public content::NavigationUIData {
 
   // Id of the actor task active during this navigation. Set only if actor was
   // acting on the tab when the navigation started.
-  actor::TaskId actor_task_id_;
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_CHROME_NAVIGATION_UI_DATA_H_

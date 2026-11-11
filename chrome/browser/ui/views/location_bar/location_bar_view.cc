@@ -18,7 +18,6 @@
 #include "base/trace_event/trace_event.h"
 #include "build/build_config.h"
 #include "chrome/app/vector_icons/vector_icons.h"
-#include "chrome/browser/actor/ui/actor_ui_window_controller.h"
 #include "chrome/browser/autocomplete/aim_eligibility_service_factory.h"
 #include "chrome/browser/autocomplete/autocomplete_classifier_factory.h"
 #include "chrome/browser/browser_process.h"
@@ -39,7 +38,6 @@
 #include "chrome/browser/ui/color/chrome_color_id.h"
 #include "chrome/browser/ui/content_settings/content_setting_bubble_model.h"
 #include "chrome/browser/ui/layout_constants.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
 #include "chrome/browser/ui/omnibox/ai_mode_page_action_controller.h"
 #include "chrome/browser/ui/omnibox/chrome_omnibox_client.h"
 #include "chrome/browser/ui/omnibox/clipboard_utils.h"
@@ -92,7 +90,6 @@
 #include "chrome/browser/web_applications/link_capturing_features.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/grit/generated_resources.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/contextual_search/input_state_model.h"
 #include "components/favicon/content/content_favicon_driver.h"
@@ -1946,13 +1943,6 @@ void LocationBarView::OnPopupStateChanged(OmniboxPopupState old_state,
                      weak_factory_.GetWeakPtr()),
       base::Milliseconds(100));
 
-  if (browser_ && base::FeatureList::IsEnabled(
-                      features::kGlicHandoffButtonHideWhenOmniboxPopupOpened)) {
-    if (auto* window_controller = ActorUiWindowController::From(browser_)) {
-      window_controller->OnOmniboxPopupStateChanged(new_state !=
-                                                    OmniboxPopupState::kNone);
-    }
-  }
 
 #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   if (new_state != OmniboxPopupState::kNone) {

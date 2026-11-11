@@ -40,8 +40,6 @@ source_set("ai") {
   configs += [ "//build/config/compiler:wglobal_constructors" ]
   public_deps = [
     "//base",
-    "//chrome/browser/actor",
-    "//chrome/browser/glic",
     "//chrome/browser/profiles:profile",
     "//components/component_updater",
     "//components/on_device_ai",
@@ -187,7 +185,6 @@ source_set("browser_tests") {
     ":ai",
     ":test_support",
     "//base",
-    "//chrome/browser/actor:test_support",
     "//chrome/browser/ui:browser_tabstrip",
     "//chrome/browser/ui/browser_window",
     "//chrome/browser/web_applications:web_applications_test_support",

@@ -9,10 +9,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/test/scoped_feature_list.h"
 #include "build/build_config.h"
-#include "chrome/browser/glic/glic_enums.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/glic_pref_names_internal.h"
-#include "chrome/browser/glic/public/features.h"
 #include "chrome/browser/profiles/batch_upload/batch_upload_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/sync/sync_service_factory.h"
@@ -176,46 +172,8 @@ IN_PROC_BROWSER_TEST_F(SettingsUITest, GoogleSearchAiModeRestrictedUrl) {
   EXPECT_EQ(url_val, "https://myactivity.google.com/myactivity");
 }
 
-class SettingsUITestGlicDisabledButAnchored : public SettingsUITest {
- public:
-  SettingsUITestGlicDisabledButAnchored() {
-    scoped_feature_list_.InitWithFeatures(
-        {features::kGlicAnchorEntryPointForOnboardedUsers},  // Enabled
-        {features::kGlic}                                    // Disabled
-    );
-  }
 
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
 
-IN_PROC_BROWSER_TEST_F(SettingsUITestGlicDisabledButAnchored, DoesNotCrash) {
-  // Set Glic as completed onboarding.
-  browser()->GetProfile()->GetPrefs()->SetInteger(
-      glic::prefs::kGlicCompletedFre,
-      static_cast<int>(glic::prefs::FreStatus::kCompleted));
-
-  // Navigate to Settings. This should not crash.
-  ASSERT_TRUE(NavigateToURL(browser(), GURL(chrome::kChromeUISettingsURL)));
-
-  content::WebContents* web_contents =
-      browser()->GetTabStripModel()->GetActiveWebContents();
-
-  // Wait for settings UI to be loaded.
-  ASSERT_TRUE(content::ExecJs(web_contents,
-                              "customElements.whenDefined('settings-ui');"));
-
-  // Check that the Glic settings section is hidden because the killswitch
-  // (kGlic) is disabled.
-  std::string ai_settings_section =
-      content::EvalJs(
-          web_contents,
-          "import('chrome://resources/js/load_time_data.js').then(m => "
-          "m.loadTimeData.getString('aiSettingsSection'))")
-          .ExtractString();
-
-  EXPECT_EQ("", ai_settings_section);
-}
 
 class SettingsUIWalletReminderNoticeTest : public SettingsUITest {
  public:

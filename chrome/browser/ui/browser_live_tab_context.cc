@@ -18,7 +18,6 @@
 #include "base/values.h"
 #include "chrome/browser/apps/app_service/web_contents_app_id_utils.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_panel_controller.h"
-#include "chrome/browser/glic/glic_tab_restore_helper.h"
 #include "chrome/browser/performance_manager/public/background_tab_loading_policy.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/sessions/session_service_utils.h"
@@ -200,7 +199,6 @@ std::map<std::string, std::string> BrowserLiveTabContext::GetExtraDataForTab(
   std::map<std::string, std::string> extra_data;
   tabs::TabInterface* const tab = tab_strip_model_->GetTabAtIndex(index);
 
-  glic::PopulateGlicExtraData(tab, &extra_data);
   if (auto* contextual_tasks_controller =
           contextual_tasks::ContextualTasksPanelController::From(
               &browser_.get())) {

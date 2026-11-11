@@ -68,13 +68,6 @@ void BrowserActuatorMessageHandler::OnMessage(
         if (!payload_type.has_value()) {
           continue;
         }
-        if (*payload_type == browser_actuator::transport::PayloadType::
-                                 kExperimentalTriggering &&
-            !base::FeatureList::IsEnabled(
-                browser_actuator::
-                    kEnableBrowserActuatorForGlicExperimentalTriggering)) {
-          continue;
-        }
         const std::string& payload_bytes =
             typed_payload.proto_payload().value();
         // Only a StartSession control command creates a new session; all other

@@ -34,9 +34,6 @@
 #include "chrome/browser/enterprise/util/managed_browser_utils.h"
 #include "chrome/browser/external_protocol/external_protocol_handler.h"
 #include "chrome/browser/first_run/first_run.h"
-#include "chrome/browser/glic/gemini_enterprise/geic_pref_names.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/suggestions/contextual_cueing_prefs.h"
 #include "chrome/browser/gpu/gpu_mode_manager.h"
 #include "chrome/browser/hid/hid_policy_allowed_devices.h"
 #include "chrome/browser/intranet_redirect_detector.h"
@@ -117,7 +114,6 @@
 #include "components/browsing_data/core/pref_names.h"
 #include "components/certificate_transparency/pref_names.h"
 #include "components/collaboration/public/pref_names.h"
-#include "components/commerce/core/prefs.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/content_settings/core/common/pref_names.h"
 #include "components/contextual_search/contextual_search_service.h"
@@ -279,7 +275,6 @@
 #include "chrome/browser/ui/webui/management/management_ui.h"
 
 
-#include "chrome/browser/actor/ui/actor_ui_state_manager_prefs.h"
 #include "chrome/browser/child_module/child_module_manager.h"
 #include "chrome/browser/desktop_to_mobile_promos/promos_utils.h"  // nogncheck crbug.com/40147906
 #include "chrome/browser/gcm/gcm_product_util.h"
@@ -293,7 +288,6 @@
 #include "chrome/browser/signin/signin_promo.h"
 #include "chrome/browser/speech/speech_recognition_small_expert_model_installer.h"
 #include "chrome/browser/task_manager/task_manager_interface.h"
-#include "chrome/browser/ui/commerce/commerce_ui_tab_helper.h"
 #include "chrome/browser/ui/hats/hats_service_desktop.h"
 #include "chrome/browser/ui/omnibox/omnibox_everywhere/omnibox_everywhere_prefs.h"
 #include "chrome/browser/ui/read_anything/read_anything_prefs.h"
@@ -403,8 +397,6 @@ constexpr char kGaiaCookieLastListAccountsData[] =
     "gaia_cookie.last_list_accounts_data";
 
 // Deprecated 09/2025.
-constexpr char kLensOverlayEduActionChipShownCount[] =
-    "lens.edu_action_chip.shown_count";
 
 // Deprecated 10/2025.
 constexpr char kSessionRestoreTurnOffFromRestartInfoBarTimesShown[] =
@@ -501,9 +493,6 @@ constexpr char kCookieClearOnExitMigrationNoticeComplete[] =
 // Note that these were replaced by local state prefs of the same names and
 // functions: those should not be removed. Only the profile prefs registered
 // here are deprecated.
-constexpr char kGlicGuestUrlPresetAutopush[] = "glic.guest_url_preset_autopush";
-constexpr char kGlicGuestUrlPresetPreprod[] = "glic.guest_url_preset_preprod";
-constexpr char kGlicGuestUrlPresetProd[] = "glic.guest_url_preset_prod";
 
 // Deprecated 02/2026.
 constexpr char kProfilesDeletedOld[] = "profiles.profiles_deleted";
@@ -534,8 +523,6 @@ constexpr char kTabDeclutterUsageCount[] = "tab_declutter.usage_count";
 inline constexpr char kTabSearchTabIndex[] = "tab_search.tab_index";
 
 // Deprecated 03/2026.
-constexpr char kGlicMultiInstanceEnabledBySubscriptionTier[] =
-    "glic.multi_instance_enabled_by_tier";
 
 // Deprecated 03/2026
 constexpr char kSigninFromBookmarksBubbleSyntheticTrialGroupNamePref[] =
@@ -624,8 +611,6 @@ inline constexpr char kLastClearBrowsingDataTab[] =
     "browser.last_clear_browsing_data_tab";
 
 // Deprecated 06/2026.
-constexpr char kGlicSelectionWidgetDismissCount[] =
-    "glic.selection_widget_dismiss_count";
 
 // Deprecated 06/2026.
 inline constexpr char kRealboxContextMenuAnimationState[] =
@@ -842,8 +827,6 @@ inline constexpr char kBundledSettingsCheckedMigrateUserToEnhancedBundle[] =
     "safebrowsing.bundled_settings.checked_migrate_user_to_enhanced_bundle";
 
 // Deprecated 11/2026.
-inline constexpr char kGlicPromotionSourceCohort[] =
-    "glic.promotion_source_cohort";
 
 
 // Register local state used only for migration (clearing or moving to a new
@@ -891,8 +874,6 @@ void RegisterLocalStatePrefsForMigration(PrefRegistrySimple* registry) {
   registry->RegisterListPref(kProfilesDeletedOld);
 
   // Deprecated 03/2026.
-  registry->RegisterBooleanPref(kGlicMultiInstanceEnabledBySubscriptionTier,
-                                false);
   registry->RegisterIntegerPref(kPrivacyBudgetSelectedBlock, -1);
   registry->RegisterDoublePref(kPrivacyBudgetMetaExperimentActivationSalt, 0);
 
@@ -940,7 +921,6 @@ void RegisterProfilePrefsForMigration(
   registry->RegisterStringPref(kGaiaCookieLastListAccountsData, std::string());
 
   // Deprecated 09/2025.
-  registry->RegisterIntegerPref(kLensOverlayEduActionChipShownCount, 0);
 
   // Deprecated 10/2025.
   registry->RegisterIntegerPref(
@@ -977,9 +957,6 @@ void RegisterProfilePrefsForMigration(
                                 false);
 
   // Deprecated 02/2026.
-  registry->RegisterStringPref(kGlicGuestUrlPresetAutopush, std::string());
-  registry->RegisterStringPref(kGlicGuestUrlPresetPreprod, std::string());
-  registry->RegisterStringPref(kGlicGuestUrlPresetProd, std::string());
 
   // Deprecated 02/2026.
   registry->RegisterBooleanPref(kExplicitBrowserSigninWithoutFeatureEnabled,
@@ -1052,7 +1029,6 @@ void RegisterProfilePrefsForMigration(
   registry->RegisterBooleanPref(kDeleteCacheBasic, true);
   registry->RegisterBooleanPref(kDeleteCookiesBasic, true);
   registry->RegisterIntegerPref(kLastClearBrowsingDataTab, 0);
-  registry->RegisterIntegerPref(kGlicSelectionWidgetDismissCount, 0);
 
   // Deprecated 06/2026.
   registry->RegisterDictionaryPref(kRealboxContextMenuAnimationState);
@@ -1239,7 +1215,6 @@ void RegisterProfilePrefsForMigration(
       kBundledSettingsCheckedMigrateUserToEnhancedBundle, false);
 
   // Deprecated 11/2026.
-  registry->RegisterStringPref(kGlicPromotionSourceCohort, std::string());
 }
 
 }  // namespace
@@ -1457,7 +1432,6 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
 
   registry->RegisterIntegerPref(prefs::kChromeDataRegionSetting, 0);
 
-  glic::prefs::RegisterLocalStatePrefs(registry);
 
   registry->RegisterIntegerPref(prefs::kToastAlertLevel, 0);
 
@@ -1497,7 +1471,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
   chrome_browser_net::NetErrorTabHelper::RegisterProfilePrefs(registry);
   chrome_prefs::RegisterProfilePrefs(registry);
   collaboration::prefs::RegisterProfilePrefs(registry);
-  commerce::RegisterProfilePrefs(registry);
   context_hub::prefs::RegisterProfilePrefs(registry);
   contextual_cueing::prefs::RegisterProfilePrefs(registry);
   contextual_search::ContextualSearchService::RegisterProfilePrefs(registry);
@@ -1516,9 +1489,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
   enterprise_reporting::RegisterProfilePrefs(registry);
   dom_distiller::DistilledPagePrefs::RegisterProfilePrefs(registry);
   DownloadPrefs::RegisterProfilePrefs(registry);
-  geic::prefs::RegisterProfilePrefs(registry);
-  glic::prefs::RegisterProfilePrefs(registry);
-  glic::contextual_cueing::prefs::RegisterProfilePrefs(registry);
   permissions::PermissionHatsTriggerHelper::RegisterProfilePrefs(registry);
   history_clusters::prefs::RegisterProfilePrefs(registry);
   HostContentSettingsMap::RegisterProfilePrefs(registry);
@@ -1693,7 +1663,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
   captions::LiveCaptionController::RegisterProfilePrefs(registry);
   captions::LiveTranslateController::RegisterProfilePrefs(registry);
   ChromeAuthenticatorRequestDelegate::RegisterProfilePrefs(registry);
-  commerce::CommerceUiTabHelper::RegisterProfilePrefs(registry);
   first_run::RegisterProfilePrefs(registry);
   gcm::RegisterProfilePrefs(registry);
   HatsServiceDesktop::RegisterProfilePrefs(registry);
@@ -1711,9 +1680,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
   tab_search_prefs::RegisterProfilePrefs(registry);
   toolbar::RegisterProfilePrefs(registry);
 
-#if BUILDFLAG(ENABLE_LENS_OVERLAY_BACKEND)
-  lens::prefs::RegisterProfilePrefs(registry);
-#endif
 
   ThemeService::RegisterProfilePrefs(registry);
   ManagementUI::RegisterProfilePrefs(registry);
@@ -1752,12 +1718,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
   RegisterBrowserViewProfilePrefs(registry);
 #endif
 
-#if BUILDFLAG(ENABLE_LENS_DESKTOP)
-  registry->RegisterBooleanPref(
-      prefs::kLensRegionSearchEnabled, true,
-      user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
-#endif
-#if BUILDFLAG(ENABLE_LENS_DESKTOP) || BUILDFLAG(ENABLE_WEBUI_NTP)
+#if BUILDFLAG(ENABLE_WEBUI_NTP)
   registry->RegisterBooleanPref(prefs::kLensDesktopNTPSearchEnabled, true);
 #endif
 
@@ -1780,7 +1741,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
 
   CertificateManagerPageHandler::RegisterProfilePrefs(registry);
 
-  actor::ui::RegisterProfilePrefs(registry);
 
   organizer::RegisterProfilePrefs(registry);
 
@@ -1819,7 +1779,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
 
   registry->RegisterIntegerPref(prefs::kChromeDataRegionSetting, 0);
 
-  registry->RegisterIntegerPref(prefs::kLensOverlayStartCount, 0);
 
   registry->RegisterBooleanPref(prefs::kViewSourceLineWrappingEnabled, false);
 
@@ -1933,7 +1892,6 @@ void MigrateObsoleteLocalStatePrefs(PrefService* local_state) {
   }
 
   // Added 03/2026.
-  local_state->ClearPref(kGlicMultiInstanceEnabledBySubscriptionTier);
 
   // Added 04/2026.
   local_state->ClearPref(kTpcdMetadataCohorts);
@@ -2017,7 +1975,6 @@ void MigrateObsoleteProfilePrefs(PrefService* profile_prefs,
   profile_prefs->ClearPref(kGaiaCookieLastListAccountsData);
 
   // Added 09/2025.
-  profile_prefs->ClearPref(kLensOverlayEduActionChipShownCount);
 
 #if BUILDFLAG(ENABLE_WEBUI_NTP)
   // Added 10/2025
@@ -2044,9 +2001,6 @@ void MigrateObsoleteProfilePrefs(PrefService* profile_prefs,
   profile_prefs->ClearPref(kCookieClearOnExitMigrationNoticeComplete);
 
   // Added 02/2026.
-  profile_prefs->ClearPref(kGlicGuestUrlPresetAutopush);
-  profile_prefs->ClearPref(kGlicGuestUrlPresetPreprod);
-  profile_prefs->ClearPref(kGlicGuestUrlPresetProd);
 
   // Added 02/2026.
   profile_prefs->ClearPref(kExplicitBrowserSigninWithoutFeatureEnabled);
@@ -2107,7 +2061,6 @@ void MigrateObsoleteProfilePrefs(PrefService* profile_prefs,
   profile_prefs->ClearPref(kLastClearBrowsingDataTab);
 
   // Added 06/2026.
-  profile_prefs->ClearPref(kGlicSelectionWidgetDismissCount);
 
   // Added 06/2026.
   profile_prefs->ClearPref(kRealboxContextMenuAnimationState);
@@ -2277,7 +2230,6 @@ void MigrateObsoleteProfilePrefs(PrefService* profile_prefs,
   profile_prefs->ClearPref(kBundledSettingsCheckedMigrateUserToEnhancedBundle);
 
   // Added 11/2026.
-  profile_prefs->ClearPref(kGlicPromotionSourceCohort);
 
   // Please don't delete the following line. It is used by PRESUBMIT.py.
   // END_MIGRATE_OBSOLETE_PROFILE_PREFS

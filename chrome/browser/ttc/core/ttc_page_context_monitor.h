@@ -55,12 +55,6 @@ class TtcPageContextMonitor
   using PageContextFetchedCallback =
       base::RepeatingCallback<void(const PageContextResult&)>;
 
-  TtcPageContextMonitor(
-      content::WebContents& web_contents,
-      SessionJournal& journal,
-      const actor::EnterprisePolicyChecker* enterprise_policy_checker,
-      PageContextInvalidatedCallback on_page_context_invalidated,
-      PageContextFetchedCallback on_page_context_fetched);
   ~TtcPageContextMonitor() override;
 
   TtcPageContextMonitor(const TtcPageContextMonitor&) = delete;
@@ -98,8 +92,6 @@ class TtcPageContextMonitor
 
   const raw_ref<SessionJournal> journal_;
 
-  const raw_ptr<const actor::EnterprisePolicyChecker>
-      enterprise_policy_checker_;
 
   const raw_ref<page_content_annotations::PageContentExtractionService>
       extraction_service_;

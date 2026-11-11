@@ -41,8 +41,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
   registry->RegisterBooleanPref(prefs::kGoogleSearchSidePanelEnabled, true);
 
   base::DictValue alignment_overrides;
-  alignment_overrides.Set(SidePanelEntryIdToString(SidePanelEntryId::kGlic),
-                          !base::i18n::IsRTL());
   const bool contextual_tasks_alignment =
       base::FeatureList::IsEnabled(
           contextual_tasks::kContextualTasksSidePanelDefaultRight)

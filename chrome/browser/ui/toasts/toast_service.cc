@@ -12,21 +12,17 @@
 #include "chrome/app/vector_icons/vector_icons.h"
 #include "chrome/browser/autofill/personal_context_entity_metadata_manager_factory.h"
 #include "chrome/browser/dictation/features.h"
-#include "chrome/browser/glic/browser_ui/glic_vector_icon_manager.h"
-#include "chrome/browser/glic/resources/grit/glic_browser_resources.h"
 #include "chrome/browser/indigo/indigo_page_action_controller.h"
 #include "chrome/browser/indigo/resources/grit/indigo_strings.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/send_tab_to_self/send_tab_to_self_client_service.h"
 #include "chrome/browser/send_tab_to_self/send_tab_to_self_client_service_factory.h"
-#include "chrome/browser/skills/skills_ui_window_controller.h"
 #include "chrome/browser/translate/chrome_translate_client.h"
 #include "chrome/browser/ttc/core/features.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/chrome_pages.h"
-#include "chrome/browser/ui/commerce/commerce_ui_tab_helper.h"
 #include "chrome/browser/ui/send_tab_to_self/send_tab_to_self_receiving_ui_handler.h"
 #include "chrome/browser/ui/side_panel/side_panel_entry_id.h"
 #include "chrome/browser/ui/side_panel/side_panel_enums.h"
@@ -47,7 +43,6 @@
 #include "components/autofill/core/browser/data_manager/autofill_ai/personal_context_entity_metadata_manager.h"
 #include "components/autofill/core/browser/data_model/autofill_ai/entity_instance.h"
 #include "components/autofill/core/common/autofill_features.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "components/data_sharing/public/features.h"
 #include "components/omnibox/browser/vector_icons.h"
@@ -294,16 +289,6 @@ void ToastService::RegisterToasts() {
           .SetToastAsActionable()
           .Build());
 
-  if (base::FeatureList::IsEnabled(features::kGlicActorUi) &&
-      features::kGlicActorUiToast.Get()) {
-    toast_registry_->RegisterToast(
-        ToastId::kGeminiWorkingOnTask,
-        ToastSpecification::Builder(kCursorSparkIcon,
-                                    IDS_TASK_IN_PROGRESS_TOAST_BODY)
-            .AddGlobalScoped()
-            .AddCloseButton()
-            .Build());
-  }
 
   toast_registry_->RegisterToast(
       ToastId::kDiceUserMigrated,
@@ -346,21 +331,7 @@ void ToastService::RegisterToasts() {
           .AddCloseButton()
           .Build());
 
-  toast_registry_->RegisterToast(
-      ToastId::kGlicShareImageFailed,
-      ToastSpecification::Builder(features::IsRoundedIconsEnabled()
-                                      ? vector_icons::kInfoIcon
-                                      : vector_icons::kInfoRefreshOldIcon,
-                                  IDS_GLIC_SHARE_IMAGE_FAILED_TOAST_BODY)
-          .AddCloseButton()
-          .Build());
 
-  toast_registry_->RegisterToast(
-      ToastId::kGlic,
-      ToastSpecification::Builder(glic::GlicVectorIconManager::GetVectorIcon(
-                                      IDR_GLIC_BUTTON_VECTOR_ICON))
-          .AddCloseButton()
-          .Build());
 
   toast_registry_->RegisterToast(
       ToastId::kCopiedToClipboard,
@@ -398,8 +369,6 @@ void ToastService::RegisterToasts() {
           .AddActionButton(
               IDS_SKILL_SAVED_TOAST_BUTTON,
               base::BindRepeating([](BrowserWindowInterface* window) {
-                skills::SkillsUiWindowController::From(window)
-                    ->InvokeLastSavedSkill();
               }))
           .Build());
 
@@ -420,8 +389,6 @@ void ToastService::RegisterToasts() {
               IDS_SKILL_UNDO_TOAST_BUTTON,
               // TODO(crbug.com/532203296): Wire undo callback for v2.
               base::BindRepeating([](BrowserWindowInterface* window) {
-                skills::SkillsUiWindowController::From(window)
-                    ->UndoLastSkillRemoval();
               }))
           .Build());
 
@@ -786,18 +753,7 @@ void ToastService::RegisterToasts() {
             .SetPersistOnNavigation()
             .Build());
   }
-  toast_registry_->RegisterToast(
-      ToastId::kGlicSelectionHiddenForSite,
-      ToastSpecification::Builder(vector_icons::kTextSelectEndIcon,
-                                  IDS_GLIC_SELECTION_HIDDEN_TOAST_BODY)
-          .AddActionButton(
-              IDS_MANAGE,
-              base::BindRepeating([](BrowserWindowInterface* window) {
-                chrome::ShowContentSettingsExceptions(
-                    window, ContentSettingsType::INLINE_CUE_MENU);
-              }))
-          .AddCloseButton()
-          .Build());
+
   if (base::FeatureList::IsEnabled(ttc::kTtc)) {
     toast_registry_->RegisterToast(
         ToastId::kTtcGenericError,

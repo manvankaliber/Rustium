@@ -26,7 +26,6 @@
 #include "build/branding_buildflags.h"
 #include "build/build_config.h"
 #include "chrome/app/chrome_command_ids.h"
-#include "chrome/browser/actor/ui/actor_overlay_web_view.h"
 #include "chrome/browser/bookmarks/bookmark_model_factory.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browsing_data/browsing_data_important_sites_util.h"
@@ -35,12 +34,6 @@
 #include "chrome/browser/enterprise/isolated_mode/isolated_mode_settings_service_factory.h"
 #include "chrome/browser/feedback/public/feedback_source.h"
 #include "chrome/browser/feedback/show_feedback_page.h"
-#include "chrome/browser/glic/glic_enums.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/glic_profile_manager.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/glic/public/service/glic_instance_coordinator.h"
 #include "chrome/browser/lifetime/application_lifetime.h"
 #include "chrome/browser/prefs/incognito_mode_prefs.h"
 #include "chrome/browser/profiles/profile.h"
@@ -52,7 +45,6 @@
 #include "chrome/browser/signin/identity_manager_factory.h"
 #include "chrome/browser/signin/signin_promo.h"
 #include "chrome/browser/signin/signin_ui_util.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/sync/sync_ui_util.h"
 #include "chrome/browser/translate/chrome_translate_client.h"
 #include "chrome/browser/ttc/core/states.h"
@@ -74,7 +66,6 @@
 #include "chrome/browser/ui/customize_chrome/side_panel_controller.h"
 #include "chrome/browser/ui/dialogs/browser_dialogs.h"
 #include "chrome/browser/ui/fullscreen/browser_window_fullscreen_controller.h"
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
 #include "chrome/browser/ui/managed_ui.h"
 #include "chrome/browser/ui/navigator/browser_navigator.h"
 #include "chrome/browser/ui/page_info/page_info_dialog.h"
@@ -391,31 +382,7 @@ BrowserCommandController::BrowserCommandController(BrowserWindowInterface* bwi)
           base::Unretained(this)));
 #endif  //! BUILDFLAG(IS_MAC)
 
-  if (glic::GlicEnabling::IsEnabledByGlobalCriteria()) {
-    auto* glic_service =
-        glic::GlicKeyedServiceFactory::GetGlicKeyedService(profile());
-    if (glic_service) {
-      glic_enabling_subscription_ = std::make_unique<
-          base::CallbackListSubscription>(
 
-          glic_service->enabling().RegisterAllowedChanged(base::BindRepeating(
-              &BrowserCommandController::UpdateCommandsForEnableGlicChanged,
-              base::Unretained(this))));
-    }
-  }
-
-  if (glic::GlicEnabling::IsEnabledByGlobalCriteria()) {
-    auto* service =
-        glic::GlicKeyedServiceFactory::GetGlicKeyedService(profile());
-    if (service) {
-      glic_active_instance_changed_subscription_ =
-          service->instance_coordinator()
-              .AddActiveInstanceChangedCallbackAndNotifyImmediately(
-                  base::BindRepeating(
-                      &BrowserCommandController::GlicActiveInstanceChanged,
-                      base::Unretained(this)));
-    }
-  }
 
   if (ttc::TtcKeyedService* ttc_service =
           ttc::TtcKeyedService::Get(profile())) {
@@ -473,7 +440,6 @@ BrowserCommandController::~BrowserCommandController() {
   }
   profile_pref_registrar_.RemoveAll();
   local_pref_registrar_.RemoveAll();
-  glic_enabling_subscription_.reset();
 }
 
 bool BrowserCommandController::IsReservedCommandOrKey(
@@ -551,10 +517,6 @@ void BrowserCommandController::LoadingStateChanged(bool is_loading,
   UpdateReloadStopState(is_loading, force);
 }
 
-void BrowserCommandController::GlicActiveInstanceChanged(
-    glic::GlicInstance* instance) {
-  UpdateGlicState();
-}
 
 void BrowserCommandController::TtcStateChanged(ttc::ServiceState state) {
   UpdateTtcState(state);
@@ -1487,20 +1449,11 @@ void BrowserCommandController::HandleCommandWithDisposition(
       break;
 
     case IDC_CONTENT_CONTEXT_LENS_OVERLAY:
-      ExecLensOverlay(browser_);
       break;
 
     case IDC_ASK_GOOGLE_ABOUT_THIS_PAGE:
-      ExecAskGoogleAboutThisPage(
-          browser_, lens::LensOverlayInvocationSource::kAppMenuAskGoogle,
-          omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_APP_MENU_ASK_GOOGLE);
       break;
 
-#if BUILDFLAG(ENABLE_LENS_DESKTOP_GOOGLE_BRANDED_FEATURES)
-    case IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH:
-      ExecLensRegionSearch(browser_);
-      break;
-#endif  // BUILDFLAG(ENABLE_LENS_DESKTOP_GOOGLE_BRANDED_FEATURES)
     case IDC_READING_LIST_MENU_ADD_TAB:
       chrome::MoveCurrentTabToReadLater(browser_);
       break;
@@ -1584,19 +1537,9 @@ void BrowserCommandController::HandleCommandWithDisposition(
           DefaultBrowserPromptManager::CloseReason::kAccept);
       break;
     case IDC_GLIC_TOGGLE_PIN: {
-      PrefService* profile_prefs = profile()->GetPrefs();
-      profile_prefs->SetBoolean(
-          glic::prefs::kGlicPinnedToTabstrip,
-          !profile_prefs->GetBoolean(glic::prefs::kGlicPinnedToTabstrip));
       break;
     }
     case IDC_OPEN_GLIC: {
-      auto* service =
-          glic::GlicKeyedServiceFactory::GetGlicKeyedService(profile());
-      if (service) {
-        glic::GlicKeyedServiceFactory::GetGlicKeyedService(profile())->ShowUI(
-            browser_, glic::mojom::InvocationSource::kThreeDotsMenu);
-      }
       break;
     }
     default:
@@ -2021,9 +1964,6 @@ void BrowserCommandController::InitCommandState() {
   }
 
   // Glic commands.
-  command_updater_->UpdateCommandEnabled(
-      IDC_GLIC_TOGGLE_PIN, glic::GlicEnabling::IsProfileEligible(profile()));
-  UpdateGlicState();
 
   // TTC commands.
   if (ttc::TtcKeyedService* ttc_service =
@@ -2506,30 +2446,6 @@ void BrowserCommandController::UpdatePrintingState() {
 #endif
 }
 
-void BrowserCommandController::UpdateGlicState() {
-  if (IsInLockedFullscreenMode(/*allow_ontask=*/false)) {
-    return;
-  }
-
-  if (glic::GlicEnabling::IsEnabledByGlobalCriteria()) {
-    auto* service =
-        glic::GlicKeyedServiceFactory::GetGlicKeyedService(profile());
-    if (service) {
-      bool glic_active = false;
-      auto* instance = service->GetInstanceForActiveTab(browser_);
-      if (instance) {
-        glic_active = instance->IsActive();
-      }
-      command_updater_->UpdateCommandEnabled(
-          IDC_OPEN_GLIC,
-          glic::GlicEnabling::IsEnabledForProfile(profile()) && !glic_active);
-
-      if (auto* const action = FindAction(kActionSidePanelShowGlic, browser_)) {
-        action->SetVisible(glic::GlicEnabling::ShouldShowGlicButton(profile()));
-      }
-    }
-  }
-}
 
 void BrowserCommandController::UpdateTtcState(ttc::ServiceState state) {
   if (IsInLockedFullscreenMode(/*allow_ontask=*/false)) {
@@ -2600,21 +2516,6 @@ void BrowserCommandController::UpdateCommandsForFind() {
   bool is_actor_overlay_visible = false;
 
   // If the actor overlay is visible, we disable find and close it if it's open.
-  if (base::FeatureList::IsEnabled(features::kGlicActorUi) &&
-      features::kGlicActorUiOverlay.Get()) {
-    if (BrowserView* browser_view =
-            BrowserView::GetBrowserViewForBrowser(browser_)) {
-      if (auto* active_container =
-              browser_view->GetActiveContentsContainerView()) {
-        if (active_container->actor_overlay_web_view()->GetVisible()) {
-          is_actor_overlay_visible = true;
-          if (CanCloseFind(browser_)) {
-            CloseFind(browser_);
-          }
-        }
-      }
-    }
-  }
 
   bool enabled =
       active_index != TabStripModel::kNoTab &&
@@ -2702,40 +2603,6 @@ void BrowserCommandController::UpdateCommandsForTabStripStateChanged() {
   UpdateCommandsForBookmarkEditing();
 }
 
-void BrowserCommandController::UpdateCommandsForEnableGlicChanged() {
-  if (IsInLockedFullscreenMode(/*allow_ontask=*/false)) {
-    return;
-  }
-
-  command_updater_->UpdateCommandEnabled(
-      IDC_OPEN_GLIC, glic::GlicEnabling::IsEnabledForProfile(profile()));
-
-  if (glic::GlicEnabling::IsEnabledByGlobalCriteria()) {
-    actions::ActionItem* const root_action_item =
-        BrowserActions::From(browser_)->root_action_item();
-    if (root_action_item) {
-      if (auto* const action = actions::ActionManager::Get().FindAction(
-              kActionSidePanelShowGlic, root_action_item)) {
-        action->SetVisible(glic::GlicEnabling::ShouldShowGlicButton(profile()));
-      }
-    }
-  }
-
-  const bool show_skills_and_extensions =
-      profile()->IsRegularProfile() &&
-      skills::SkillsServiceFactory::IsSkillsEnabledForProfile(profile()) &&
-      base::FeatureList::IsEnabled(features::kSkillsAndExtensionsAppMenu);
-  if (auto* const action =
-          FindAction(kActionSkillsAndExtensionsSubmenu, browser_)) {
-    action->SetVisible(show_skills_and_extensions);
-  }
-  if (auto* const action = FindAction(kActionExtensionsSubmenu, browser_)) {
-    action->SetVisible(!show_skills_and_extensions);
-  }
-  if (auto* const action = FindAction(kActionFindExtensions, browser_)) {
-    action->SetVisible(!show_skills_and_extensions);
-  }
-}
 
 void BrowserCommandController::UpdateCommandsForProfiling() {
   if (base::debug::IsProfilingSupported()) {

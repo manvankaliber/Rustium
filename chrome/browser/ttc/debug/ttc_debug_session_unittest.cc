@@ -32,11 +32,6 @@ constexpr std::string_view kEllipsis = "\xE2\x80\xA6";
 
 class RecordingJournal : public SessionJournal {
  public:
-  void Log(std::string_view event_name,
-           std::vector<actor::mojom::JournalDetailsPtr> details,
-           Track track) override {
-    names.emplace_back(event_name);
-  }
   void HandleServerJournalEvent(const ServerJournalEvent& event) override {}
   void LogAudio(std::string_view mime_type,
                 base::span<const uint8_t> data) override {}

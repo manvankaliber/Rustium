@@ -690,21 +690,6 @@ interface PageHandler {
   [RuntimeFeature=kAutoTabGroups]
   ClearTabGroupChatHistory() => ();
 
-  // Sends a request to Gemini with the user command and selected memory bank
-  // entry IDs, returning the assistant response along with any cited source
-  // references. If `save_to_history` is true, the turn is saved to the memory
-  // bank chat history.
-  AskGeminiWithContext(
-      string user_command, array<int64> memory_bank_entry_ids,
-      bool save_to_history)
-      => (MemoryBankChatMessage response);
-
-  // Returns stored memory bank chat history.
-  GetMemoryBankChatHistory() => (array<MemoryBankChatMessage> history);
-
-  // Clears stored memory bank chat history.
-  ClearMemoryBankChatHistory() => ();
-
   // Confirms all suggested tab groups to the browser window and saves them
   // to TabGroupSyncService.
   [RuntimeFeature=kAutoTabGroups]
@@ -767,14 +752,6 @@ interface PageHandler {
   [RuntimeFeature=kTopics]
   OpenTopic(TopicIdOrUrl topic_id_or_url);
 
-  // Opens the Glic side panel bound to the tab hosting this page, offering
-  // `prompts` (capped to 3) as suggestion chips. If the panel is already
-  // showing for that tab, its suggestion chips are replaced with `prompts`
-  // without stealing focus. Safe to call on every page load. No-op if Glic is
-  // unavailable for the profile or if the page is not hosted in a tab.
-  [RuntimeFeature=kTopics]
-  OpenGlicPanel(array<string> prompts);
-
   // Stores or replaces the fishfood feedback for the Topic identified by
   // `feedback.id`, which must be non-empty. Persists across browser restarts
   // while the `fishfood_feedback` param of kTopics is enabled.
@@ -808,11 +785,6 @@ interface PageHandler {
   [RuntimeFeature=kTopics]
   GenerateTopicsFeedbackBundle(TopicsFeedbackExportOptions options)
       => (string json_bundle);
-
-  // Invokes Glic with auto-submit in actuation (AutoBrowse) mode to execute
-  // `prompt`.
-  [RuntimeFeature=kAutoTodos]
-  RunTodoTask(string prompt) => (bool success);
 
   // Opens the Context Hub debug UI (chrome://context-hub).
   [RuntimeFeature=kMemoryBanksSearchPalette]

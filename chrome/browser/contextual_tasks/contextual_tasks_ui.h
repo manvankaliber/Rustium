@@ -138,8 +138,6 @@ class ContextualTasksUI
 
   static content::WebUIDataSource* RegisterWebUIDataSource(Profile* profile);
   static base::DictValue GetContextualTasksLoadTimeData(Profile* profile);
-  static bool ShouldClearAllInputsOnSubmit(
-      std::optional<lens::LensOverlayInvocationSource> invocation_source);
 
 #if !BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   using SlimWebViewPageHandlerFactory::BindInterface;
@@ -200,11 +198,6 @@ class ContextualTasksUI
   void OnActiveTabContextStatusChanged() override;
   void SyncAutoSuggestedTabContext() override;
   void ResetForNewThread(const base::Uuid& task_id, const GURL& url) override;
-  void OnLensOverlayStateChanged(
-      bool is_showing,
-      std::optional<lens::LensOverlayInvocationSource> invocation_source)
-      override;
-  bool IsLensOverlayShowing() const override;
 
   void OnPageContextEligibilityChecked(bool is_page_context_eligible) override;
   bool IsActiveTabContextSuggestionShowing() const override;

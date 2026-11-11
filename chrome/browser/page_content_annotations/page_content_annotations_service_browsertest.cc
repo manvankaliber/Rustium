@@ -1243,7 +1243,7 @@ IN_PROC_BROWSER_TEST_F(
   // verify it correctly forwards it to its observers.
   std::vector<Category> categories = {
       {CategoryType::kEducation, 0.5},
-      {CategoryType::kShopping, 0.8},
+
   };
 
   service()->OnCategoriesClassified(url, /*source_id=*/0, categories);
@@ -1259,7 +1259,6 @@ IN_PROC_BROWSER_TEST_F(
   EXPECT_EQ(results.size(), 2u);
   EXPECT_EQ(results[0].category_type, CategoryType::kEducation);
   EXPECT_EQ(results[0].score, 0.5f);
-  EXPECT_EQ(results[1].category_type, CategoryType::kShopping);
   EXPECT_EQ(results[1].score, 0.8f);
 
   service()->RemoveObserver(AnnotationType::kCategoryClassifier, &observer);
@@ -2790,7 +2789,7 @@ class PageContentAnnotationsServiceContentExtractionPdfHangingTest
          {{"capture_delay", "10000s"}}},
         {kPageContextFetcherPdfExtraction,
          {{"timeout", GetPdfExtractionTimeout()}}},
-        {kGlicEmbeddedPdfBytesExtraction, {}}};
+        };
     std::vector<base::test::FeatureRef> disabled_features;
 
     if (IsPDFTextExtractionEnabled()) {
@@ -3038,8 +3037,6 @@ class PageContentAnnotationsServiceContentExtractionEmbeddedPdfTest
   void InitializeFeatureList() override {
     PageContentAnnotationsServiceContentExtractionPdfTest::
         InitializeFeatureList();
-    embedded_pdf_bytes_extraction_.InitAndEnableFeature(
-        kGlicEmbeddedPdfBytesExtraction);
   }
 
  private:

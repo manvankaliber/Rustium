@@ -498,7 +498,7 @@ TEST_F(PageContentAnnotationsServiceTest, CategoryClassifierObserver) {
 
   std::vector<Category> categories = {
       {CategoryType::kEducation, 0.5},
-      {CategoryType::kShopping, 0.8},
+
   };
 
   EXPECT_CALL(observer, OnPageContentAnnotated(_, _))
@@ -510,7 +510,6 @@ TEST_F(PageContentAnnotationsServiceTest, CategoryClassifierObserver) {
         EXPECT_EQ(results.size(), 2u);
         EXPECT_EQ(results[0].category_type, CategoryType::kEducation);
         EXPECT_EQ(results[0].score, 0.5f);
-        EXPECT_EQ(results[1].category_type, CategoryType::kShopping);
         EXPECT_EQ(results[1].score, 0.8f);
       });
 

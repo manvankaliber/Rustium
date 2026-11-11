@@ -47,13 +47,9 @@
 #include "chrome/browser/context_hub/tab_group_store/tab_group_store.h"
 #include "chrome/browser/context_hub/topics/topic_feedback_conversions.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_tab_visit_tracker.h"
-#include "chrome/browser/image_fetcher/image_decoder_impl.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/webui/context_hub/context_hub.mojom-features.h"
-#include "components/image_fetcher/core/image_fetcher.h"
-#include "components/image_fetcher/core/image_fetcher_impl.h"
-#include "components/image_fetcher/core/request_metadata.h"
 #include "components/optimization_guide/core/feature_registry/feature_keys.h"
 #include "components/optimization_guide/core/model_execution/optimization_guide_model_execution_error.h"
 #include "components/optimization_guide/core/model_execution/remote_model_executor.h"
@@ -87,7 +83,6 @@
 #include "services/network/public/cpp/simple_url_loader.h"
 #include "skia/ext/image_operations.h"
 #include "third_party/abseil-cpp/absl/functional/overload.h"
-#include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/gfx/codec/png_codec.h"
 #include "ui/gfx/geometry/size.h"
 #include "ui/gfx/image/image.h"
@@ -98,12 +93,7 @@
 
 namespace context_hub {
 
-// Holds the PNG-encoded image bytes fetched for one or more memory bank chat
-// entry items that share the same image URL.
-struct FetchedChatImage {
-  std::vector<size_t> entry_indices;
-  std::optional<std::vector<uint8_t>> png_bytes;
-};
+
 
 namespace {
 
@@ -112,45 +102,7 @@ namespace {
 // components/optimization_guide/core/model_execution/model_execution_manager.cc.
 constexpr int kMaxConcurrentMesRequests = 10;
 
-constexpr net::NetworkTrafficAnnotationTag
-    kMemoryBankImageFetchTrafficAnnotation =
-        net::DefineNetworkTrafficAnnotation(
-            "context_hub_memory_bank_image_fetch",
-            R"(
-        semantics {
-          sender: "Context Hub Memory Bank"
-          description:
-            "Fetches an image from an HTTP/HTTPS URL that the user previously "
-            "saved to their Memory Bank, so the image can be included as "
-            "visual context when the user asks a question in Memory Bank Chat."
-          trigger:
-            "User submits a prompt in Memory Bank Chat on chrome://context-hub "
-            "while one or more saved image entries are included in the context."
-          data:
-            "An HTTP GET request to the URL of the image that the user "
-            "previously saved to Memory Banks. No additional payload is sent."
-          destination: WEBSITE
-          internal {
-            contacts {
-              owners: "//chrome/browser/context_hub/OWNERS"
-            }
-          }
-          user_data {
-            type: SENSITIVE_URL
-          }
-          last_reviewed: "2026-10-08"
-        }
-        policy {
-          cookies_allowed: NO
-          setting:
-            "This feature is gated behind the MemoryBanks feature flag and "
-            "cannot be disabled by settings."
-          policy_exception_justification:
-            "Not implemented yet (crbug.com/532549697). This feature is "
-            "currently experimental and gated behind a feature flag. "
-            "Requests made via the profile URLLoaderFactory are still "
-            "subject to the URLBlocklist and URLAllowlist enterprise policies."
-        })");
+
 
 // The Auto Tab Groups preferences shown when the user has not stored a
 // document of their own. Never persisted; see
@@ -163,87 +115,13 @@ constexpr char kDefaultAutoTabGroupsPreferences[] =
     "- Reuse my existing groups when new tabs fit.\n"
     "- Only group tabs when you're confident they belong together.";
 
-optimization_guide::proto::MemoryBankEntry ToMemoryBankEntryProto(
-    const MemoryBankEntry& entry) {
-  optimization_guide::proto::MemoryBankEntry mb_proto;
-  mb_proto.set_id(entry.id);
-  switch (entry.type) {
-    case MemoryBankType::kTab:
-      mb_proto.set_type(optimization_guide::proto::MEMORY_BANK_TYPE_TAB);
-      break;
-    case MemoryBankType::kTextSelection:
-      mb_proto.set_type(
-          optimization_guide::proto::MEMORY_BANK_TYPE_TEXT_SELECTION);
-      break;
-    case MemoryBankType::kImage:
-      mb_proto.set_type(optimization_guide::proto::MEMORY_BANK_TYPE_IMAGE);
-      break;
-  }
-  mb_proto.set_timestamp_ms(entry.timestamp.InMillisecondsSinceUnixEpoch());
-  mb_proto.set_url(entry.url.spec());
-  mb_proto.set_tab_title(entry.tab_title);
-  if (entry.selected_text.has_value()) {
-    mb_proto.set_selected_text(*entry.selected_text);
-  }
-  for (const auto& tag : entry.tags) {
-    mb_proto.add_tags(tag);
-  }
-  return mb_proto;
-}
 
-// Returns true if `entry` is an image with an HTTP or HTTPS URL. Note that
-// WebUI's `cr-auto-img` (`chrome://image/`) does not support HTTP and only
-// renders HTTPS image URLs.
-bool HasHttpImageUrl(const MemoryBankEntry& entry) {
-  return entry.type == MemoryBankType::kImage && entry.image_url.has_value() &&
-         entry.image_url->SchemeIsHTTPOrHTTPS();
-}
 
-// Downscales `bitmap` to fit within `max_dimension` x `max_dimension` pixels
-// (when `max_dimension` > 0 and either dimension exceeds it), preserving its
-// aspect ratio, and PNG-encodes it. Since PNG is lossless, a photo can be
-// many times larger re-encoded as PNG than the source image.
-FetchedChatImage EncodeChatImageToPng(std::vector<size_t> entry_indices,
-                                      int max_dimension,
-                                      const SkBitmap& bitmap) {
-  SkBitmap scaled_bitmap = bitmap;
-  const int longest_side = std::max(bitmap.width(), bitmap.height());
-  if (max_dimension > 0 && longest_side > max_dimension) {
-    gfx::Size scaled_size = gfx::ScaleToRoundedSize(
-        gfx::Size(bitmap.width(), bitmap.height()),
-        static_cast<float>(max_dimension) / longest_side);
-    // Ensure neither dimension rounds down to 0 for extreme aspect ratios.
-    scaled_size.SetToMax(gfx::Size(1, 1));
-    scaled_bitmap = skia::ImageOperations::Resize(
-        bitmap, skia::ImageOperations::RESIZE_BEST, scaled_size.width(),
-        scaled_size.height());
-  }
-  return FetchedChatImage{
-      .entry_indices = std::move(entry_indices),
-      .png_bytes = gfx::PNGCodec::EncodeBGRASkBitmap(
-          scaled_bitmap, /*discard_transparency=*/false),
-  };
-}
 
-void OnChatImageFetched(
-    std::vector<size_t> entry_indices,
-    base::OnceCallback<void(FetchedChatImage)> barrier_callback,
-    const gfx::Image& image,
-    const image_fetcher::RequestMetadata& /*metadata*/) {
-  if (image.IsEmpty()) {
-    std::move(barrier_callback)
-        .Run(FetchedChatImage{.entry_indices = std::move(entry_indices)});
-    return;
-  }
-  base::ThreadPool::PostTaskAndReplyWithResult(
-      FROM_HERE,
-      {base::TaskPriority::USER_VISIBLE,
-       base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN},
-      base::BindOnce(&EncodeChatImageToPng, std::move(entry_indices),
-                     features::kMaxMemoryBankChatImageDimension.Get(),
-                     image.AsBitmap()),
-      std::move(barrier_callback));
-}
+
+
+
+
 
 base::TimeDelta GetDurationOfCurrentOrLastVisit(
     content::WebContents* web_contents) {
@@ -467,8 +345,7 @@ ContextHubService::ContextHubService(
       embedder_(embedder),
       tab_group_chat_history_cache_(
           features::kMaxTabGroupChatHistoryTurns.Get()),
-      memory_bank_chat_history_cache_(
-          features::kMaxMemoryBankChatHistoryTurns.Get()),
+
       todo_feedback_cache_(features::kMaxTodoFeedbackCacheSize.Get()),
       context_hub_backend_(std::move(context_hub_backend)),
       memory_bank_(std::move(memory_bank)),
@@ -488,11 +365,6 @@ ContextHubService::ContextHubService(
   if (!base::FeatureList::IsEnabled(
           browser::context_hub::mojom::kAutoTabGroups)) {
     profile_->GetPrefs()->ClearPref(prefs::kContextHubAutoTabGroupsPreferences);
-  }
-  if (scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory =
-          profile_->GetURLLoaderFactory()) {
-    image_fetcher_ = std::make_unique<image_fetcher::ImageFetcherImpl>(
-        std::make_unique<ImageDecoderImpl>(), std::move(url_loader_factory));
   }
   if (auto_todos_store_) {
     auto_todos_store_->AddObserver(this);
@@ -1388,34 +1260,11 @@ bool ContextHubService::SetAutoTabGroupsPreferences(std::string_view text) {
   return true;
 }
 
-void ContextHubService::AddMemoryBankChatHistoryTurn(
-    optimization_guide::proto::ChatHistoryTurn::Role role,
-    std::string_view message_content,
-    std::vector<MemoryBankChatCitation> citations) {
-  MemoryBankChatHistoryTurn entry;
-  entry.turn.set_role(role);
-  entry.turn.set_message_content(message_content);
-  entry.turn.set_timestamp_ms(base::Time::Now().InMillisecondsSinceUnixEpoch());
-  entry.citations = std::move(citations);
-  MemoryBankChatHistoryTurnId id =
-      memory_bank_chat_history_turn_id_generator_.GenerateNextId();
-  memory_bank_chat_history_cache_.Put(id, std::move(entry));
-}
 
-std::vector<MemoryBankChatHistoryTurn>
-ContextHubService::GetMemoryBankChatHistory() const {
-  std::vector<MemoryBankChatHistoryTurn> history;
-  history.reserve(memory_bank_chat_history_cache_.size());
-  for (const auto& [id, history_turn] :
-       std::views::reverse(memory_bank_chat_history_cache_)) {
-    history.push_back(history_turn);
-  }
-  return history;
-}
 
-void ContextHubService::ClearMemoryBankChatHistory() {
-  memory_bank_chat_history_cache_.Clear();
-}
+
+
+
 
 void ContextHubService::SetPendingMemoryBankEntry(
     MemoryBankEntry entry,
@@ -1747,185 +1596,15 @@ void ContextHubService::GenerateTabGroups(std::vector<TabData> tabs,
                      std::move(callback)));
 }
 
-void ContextHubService::ExecuteMemoryBankChat(
-    base::span<const int64_t> entry_ids,
-    const std::string& user_command,
-    bool save_to_history,
-    MemoryBankChatCallback callback) {
-  std::string_view trimmed_command =
-      base::TrimWhitespaceASCII(user_command, base::TRIM_ALL);
-  if (trimmed_command.empty()) {
-    std::move(callback).Run(std::nullopt, {});
-    return;
-  }
 
-  GetEntriesByIds(
-      entry_ids,
-      base::BindOnce(&ContextHubService::OnMemoryBankEntriesFetched,
-                     weak_factory_.GetWeakPtr(), std::string(trimmed_command),
-                     save_to_history, std::move(callback)));
-}
 
-void ContextHubService::OnMemoryBankEntriesFetched(
-    const std::string& user_command,
-    bool save_to_history,
-    MemoryBankChatCallback callback,
-    std::vector<MemoryBankEntry> entries) {
-  optimization_guide::proto::ContextHubRequest request;
-  request.set_request_type(
-      optimization_guide::proto::CONTEXT_HUB_REQUEST_TYPE_MEMORY_BANK_CHAT);
 
-  // Only the first `max_image_count` image entries get their images fetched
-  // and attached; the rest are sent with metadata only. Entries rather than
-  // distinct image URLs are counted, since every attached entry adds its own
-  // copy of the image bytes to `request`.
-  const size_t max_image_count = features::kMaxMemoryBankChatImages.Get();
-  size_t image_count = 0;
-  base::flat_map<GURL, std::vector<size_t>> image_entry_indices_by_url;
-  for (size_t i = 0; i < entries.size(); ++i) {
-    *request.add_entry_items()->mutable_memory_bank_entry() =
-        ToMemoryBankEntryProto(entries[i]);
-    if (HasHttpImageUrl(entries[i]) && image_count < max_image_count) {
-      image_entry_indices_by_url[*entries[i].image_url].push_back(i);
-      ++image_count;
-    }
-  }
 
-  if (save_to_history) {
-    for (const auto& [id, history_turn] :
-         std::views::reverse(memory_bank_chat_history_cache_)) {
-      *request.add_chat_history() = history_turn.turn;
-    }
-  }
 
-  request.set_user_command(user_command);
 
-  if (!image_fetcher_ || image_entry_indices_by_url.empty()) {
-    DispatchMemoryBankChatRequest(std::move(entries), request, save_to_history,
-                                  std::move(callback));
-    return;
-  }
 
-  auto barrier_callback = base::BarrierCallback<FetchedChatImage>(
-      image_entry_indices_by_url.size(),
-      base::BindOnce(&ContextHubService::OnMemoryBankChatImagesFetched,
-                     weak_factory_.GetWeakPtr(), std::move(entries),
-                     std::move(request), save_to_history, std::move(callback)));
 
-  for (auto& [image_url, entry_indices] : image_entry_indices_by_url) {
-    image_fetcher::ImageFetcherParams params(
-        kMemoryBankImageFetchTrafficAnnotation, "ContextHubMemoryBank");
-    params.set_max_download_size(
-        network::SimpleURLLoader::kMaxBoundedStringDownloadSize);
-    image_fetcher_->FetchImage(
-        image_url,
-        base::BindOnce(&OnChatImageFetched, std::move(entry_indices),
-                       barrier_callback),
-        std::move(params));
-  }
-}
 
-void ContextHubService::OnMemoryBankChatImagesFetched(
-    std::vector<MemoryBankEntry> entries,
-    optimization_guide::proto::ContextHubRequest request,
-    bool save_to_history,
-    MemoryBankChatCallback callback,
-    const std::vector<FetchedChatImage>& fetched_images) {
-  for (const FetchedChatImage& fetched_image : fetched_images) {
-    if (!fetched_image.png_bytes.has_value() ||
-        fetched_image.png_bytes->empty()) {
-      continue;
-    }
-    for (size_t entry_index : fetched_image.entry_indices) {
-      if (base::checked_cast<int>(entry_index) < request.entry_items_size()) {
-        request.mutable_entry_items(base::checked_cast<int>(entry_index))
-            ->mutable_memory_bank_entry()
-            ->set_image_bytes(base::as_string_view(*fetched_image.png_bytes));
-      }
-    }
-  }
-  DispatchMemoryBankChatRequest(std::move(entries), request, save_to_history,
-                                std::move(callback));
-}
-
-void ContextHubService::DispatchMemoryBankChatRequest(
-    std::vector<MemoryBankEntry> entries,
-    const optimization_guide::proto::ContextHubRequest& request,
-    bool save_to_history,
-    MemoryBankChatCallback callback) {
-  optimization_guide_remote_model_executor_->ExecuteModel(
-      optimization_guide::ModelBasedCapabilityKey::kContextHub, request,
-      optimization_guide::ModelExecutionOptions(),
-      base::BindOnce(
-          &ContextHubService::HandleMemoryBankChatModelExecutionResult,
-          weak_factory_.GetWeakPtr(), std::move(entries),
-          request.user_command(), save_to_history, std::move(callback)));
-}
-
-void ContextHubService::HandleMemoryBankChatModelExecutionResult(
-    const std::vector<MemoryBankEntry>& entries,
-    const std::string& user_command,
-    bool save_to_history,
-    MemoryBankChatCallback callback,
-    optimization_guide::OptimizationGuideModelExecutionResult result,
-    std::unique_ptr<optimization_guide::ModelQualityLogEntry> log_entry) {
-  std::optional<optimization_guide::proto::ContextHubResponse> response;
-  if (result.response.has_value()) {
-    response = optimization_guide::ParsedAnyMetadata<
-        optimization_guide::proto::ContextHubResponse>(*result.response);
-  }
-  if (!response || !response->has_memory_bank_chat_response()) {
-    if (!result.response.has_value() &&
-        result.response.error().error() ==
-            optimization_guide::OptimizationGuideModelExecutionError::
-                ModelExecutionError::kRequestThrottled) {
-      std::move(callback).Run(
-          "Unable to generate response due to high server load. Please try "
-          "again later.",
-          {});
-      return;
-    }
-    std::move(callback).Run(std::nullopt, {});
-    return;
-  }
-
-  const optimization_guide::proto::MemoryBankChatResponse& chat_response =
-      response->memory_bank_chat_response();
-  std::string text_response = chat_response.text_response();
-
-  std::vector<MemoryBankChatCitation> citations;
-  base::flat_set<std::pair<GURL, std::optional<GURL>>> seen_urls;
-  for (int32_t index : chat_response.cited_entry_indices()) {
-    if (index < 0 || static_cast<size_t>(index) >= entries.size()) {
-      continue;
-    }
-    const MemoryBankEntry& entry = entries[index];
-    std::optional<GURL> image_url;
-    if (HasHttpImageUrl(entry)) {
-      image_url = *entry.image_url;
-    }
-    if (!entry.url.is_valid() ||
-        !seen_urls.insert(std::make_pair(entry.url, image_url)).second) {
-      continue;
-    }
-    MemoryBankChatCitation citation = {
-        .title = entry.tab_title.empty() ? entry.url.spec() : entry.tab_title,
-        .url = entry.url,
-        .image_url = std::move(image_url),
-    };
-    citations.push_back(std::move(citation));
-  }
-
-  if (save_to_history && !text_response.empty()) {
-    AddMemoryBankChatHistoryTurn(
-        optimization_guide::proto::ChatHistoryTurn::ROLE_USER, user_command);
-    AddMemoryBankChatHistoryTurn(
-        optimization_guide::proto::ChatHistoryTurn::ROLE_ASSISTANT,
-        text_response, citations);
-  }
-
-  std::move(callback).Run(std::move(text_response), std::move(citations));
-}
 
 void ContextHubService::HandleTabGroupModelExecutionResult(
     std::vector<TabData> tabs,
@@ -2054,12 +1733,6 @@ void ContextHubService::OnSmartSearchFetched(
   }
 
   std::move(callback).Run(results);
-}
-
-void ContextHubService::SetImageFetcherForTesting(
-    std::unique_ptr<image_fetcher::ImageFetcher> image_fetcher) {
-  CHECK_IS_TEST();
-  image_fetcher_ = std::move(image_fetcher);
 }
 
 }  // namespace context_hub

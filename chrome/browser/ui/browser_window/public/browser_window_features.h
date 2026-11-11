@@ -31,8 +31,8 @@
 #include "extensions/buildflags/buildflags.h"
 #include "ui/base/unowned_user_data/user_data_factory.h"
 
-class ActorBorderViewController;
-class ActorUiWindowController;
+
+
 class AvatarToolbarIphController;
 class BookmarkBarController;
 class BookmarksSidePanelCoordinator;
@@ -173,14 +173,11 @@ class ExtensionBrowserWindowHelper;
 class ExtensionSidePanelManager;
 }  // namespace extensions
 
-namespace glic {
-class GlicIphController;
-class GlicSplitButtonController;
-}  // namespace glic
+  // namespace glic
 
 namespace lens {
-class LensOverlayEntryPointController;
-class LensRegionSearchController;
+
+
 }  // namespace lens
 
 namespace media_router {
@@ -217,7 +214,7 @@ class SharingHubWindowController;
 }  // namespace sharing_hub
 
 namespace skills {
-class SkillsUiWindowController;
+
 }  // namespace skills
 
 namespace split_tabs {
@@ -295,7 +292,6 @@ class BrowserWindowFeatures {
 
   // Members owned by all browser window types.
   std::unique_ptr<UnloadController> unload_controller_;
-  std::unique_ptr<ActorBorderViewController> actor_border_view_controller_;
   std::unique_ptr<ttc::AiOverlayDialogController> ai_overlay_dialog_controller_;
 
   // Helper which handles bookmark app specific browser configuration.
@@ -380,9 +376,6 @@ class BrowserWindowFeatures {
 
   std::unique_ptr<FindBarOwner> find_bar_owner_;
   std::unique_ptr<BrowserWindowFullscreenController> fullscreen_controller_;
-  std::unique_ptr<glic::GlicIphController> glic_iph_controller_;
-  std::unique_ptr<glic::GlicSplitButtonController>
-      glic_split_button_controller_;
   std::unique_ptr<HistoryClustersSidePanelCoordinator>
       history_clusters_side_panel_coordinator_;
   std::unique_ptr<HistorySidePanelCoordinator> history_side_panel_coordinator_;
@@ -392,10 +385,6 @@ class BrowserWindowFeatures {
   std::unique_ptr<InitialWebUIWindowMetricsManager>
       initial_webui_window_metrics_manager_;
   std::unique_ptr<InstantController> instant_controller_;
-  std::unique_ptr<lens::LensOverlayEntryPointController>
-      lens_overlay_entry_point_controller_;
-  std::unique_ptr<lens::LensRegionSearchController>
-      lens_region_search_controller_;
 
   // Helper which implements the LiveTabContext interface.
   std::unique_ptr<BrowserLiveTabContext> live_tab_context_;
@@ -464,7 +453,6 @@ class BrowserWindowFeatures {
   std::unique_ptr<ZoomBubbleCoordinator> zoom_bubble_coordinator_;
 
   // Members owned only when a BrowserView is attached.
-  std::unique_ptr<ActorUiWindowController> actor_ui_window_controller_;
   std::unique_ptr<omnibox::AiModePageActionController>
       ai_mode_page_action_controller_;
   std::unique_ptr<media_router::CastBrowserController> cast_browser_controller_;
@@ -489,8 +477,6 @@ class BrowserWindowFeatures {
   std::unique_ptr<tab_groups::SharedTabGroupFeedbackController>
       shared_tab_group_feedback_controller_;
   std::unique_ptr<SidePanelUI> side_panel_coordinator_;
-  std::unique_ptr<skills::SkillsUiWindowController>
-      skills_ui_window_controller_;
   std::unique_ptr<split_tabs::SplitTabHighlightController>
       split_tab_highlight_controller_;
 

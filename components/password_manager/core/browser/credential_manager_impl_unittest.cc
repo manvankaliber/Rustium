@@ -125,7 +125,6 @@ class MockPasswordManagerClient : public StubPasswordManagerClient {
               GetDeviceAuthenticator,
               (),
               (override));
-  MOCK_METHOD(bool, IsActorTaskActive, (), (override));
   MOCK_METHOD(bool,
               IsReauthBeforeFillingRequired,
               (device_reauth::DeviceAuthAvailabilityChecker*),
@@ -1410,7 +1409,6 @@ TEST_P(CredentialManagerImplTest, CredentialManagerRequestWhenActorIsActive) {
   std::vector<GURL> federations;
   EXPECT_CALL(*client_, PromptUserToChooseCredentialsPtr).Times(0);
   EXPECT_CALL(*client_, NotifyUserAutoSigninPtr).Times(0);
-  ON_CALL(*client_, IsActorTaskActive()).WillByDefault(Return(true));
 
   bool call = false;
   CredentialManagerError error;
@@ -1431,7 +1429,6 @@ TEST_P(CredentialManagerImplTest,
   std::vector<GURL> federations;
   EXPECT_CALL(*client_, PromptUserToChooseCredentialsPtr).Times(0);
   EXPECT_CALL(*client_, NotifyUserAutoSigninPtr).Times(1);
-  ON_CALL(*client_, IsActorTaskActive()).WillByDefault(Return(false));
 
   bool call = false;
   CredentialManagerError error;

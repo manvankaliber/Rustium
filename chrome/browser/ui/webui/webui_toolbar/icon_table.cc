@@ -18,8 +18,6 @@
 #include "build/branding_buildflags.h"
 #include "build/buildflag.h"
 #include "chrome/app/vector_icons/vector_icons.h"
-#include "chrome/browser/glic/browser_ui/glic_vector_icon_manager.h"
-#include "chrome/browser/glic/resources/grit/glic_browser_resources.h"
 #include "chrome/browser/ui/webui/util/image_util.h"
 #include "chrome/browser/ui/webui/webui_toolbar/adapters/icon_table_fetcher.h"
 #include "chrome/browser/ui/webui/webui_toolbar/utils/known_resource_images.h"
@@ -53,9 +51,7 @@ struct IconInfo {
 const base::flat_map<const gfx::VectorIcon*, IconInfo>& KnownIcons() {
   static base::NoDestructor<base::flat_map<const gfx::VectorIcon*, IconInfo>>
       table({
-          {{&glic::GlicVectorIconManager::GetVectorIcon(
-               IDR_GLIC_BUTTON_VECTOR_ICON)},
-           {"webui-toolbar:glic_button_old", IconType::kIconSet}},
+
           {{&kAccountBoxIcon},
            {"webui-toolbar:account_box", IconType::kIconSet}},
           {{&kAccountBoxOldIcon},
@@ -338,16 +334,11 @@ const base::flat_map<const gfx::VectorIcon*, IconInfo>& KnownIcons() {
            {"webui-toolbar:shield", IconType::kIconSet}},
           {{&vector_icons::kShieldQuestionIcon},
            {"webui-toolbar:shield_question", IconType::kIconSet}},
-          {{&vector_icons::kShoppingBagIcon},
-           {"webui-toolbar:shopping_bag", IconType::kIconSet}},
-          {{&vector_icons::kShoppingBagOldIcon},
-           {"webui-toolbar:shopping_bag", IconType::kIconSet}},
-          {{&vector_icons::kShoppingBagRefreshOldIcon},
-           {"webui-toolbar:shopping_bag", IconType::kIconSet}},
-          {{&vector_icons::kShoppingmodeIcon},
-           {"webui-toolbar:shoppingmode", IconType::kIconSet}},
-          {{&vector_icons::kShoppingmodeOldIcon},
-           {"webui-toolbar:shoppingmode", IconType::kIconSet}},
+
+
+
+
+
           {{&vector_icons::kStopCircleIcon},
            {"webui-toolbar:stop_circle", IconType::kIconSet}},
           {{&vector_icons::kStopCircleOldIcon},

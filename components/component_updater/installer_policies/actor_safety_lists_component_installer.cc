@@ -137,8 +137,6 @@ void RegisterActorSafetyListsComponent(
           base::BindRepeating(
               [](ActorSafetyListsComponentInstallerPolicy::ReadComponentCallback
                      read_component_cb) {
-                actor::SafetyListManager::GetInstance()
-                    ->SetLoadSafetyListsClosure(std::move(read_component_cb));
               })));
   policy->Register(cus, std::move(callback));
 }

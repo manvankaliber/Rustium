@@ -25,10 +25,6 @@ namespace ttc {
 // navigation from `url` to itself. The safety list check fails open: if the
 // lists have not been loaded (or failed to parse), the URL is not blocked by
 // them.
-void IsUrlSupportedForPageContext(
-    const GURL& url,
-    const actor::EnterprisePolicyChecker* enterprise_policy_checker,
-    base::OnceCallback<void(bool)> callback);
 
 }  // namespace ttc
 

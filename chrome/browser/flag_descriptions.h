@@ -1103,13 +1103,6 @@ inline constexpr char kBrowserActuatorInternalsName[] =
 inline constexpr char kBrowserActuatorInternalsDescription[] =
     "Enables the chrome://browser-actuator-internals diagnostic dashboard.";
 
-inline constexpr char
-    kEnableBrowserActuatorForGlicExperimentalTriggeringName[] =
-        "Enable Browser Actuator for Glic Experimental Triggering";
-inline constexpr char
-    kEnableBrowserActuatorForGlicExperimentalTriggeringDescription[] =
-        "Enables using the Browser Actuator transport for Glic experimental "
-        "triggering messages.";
 
 // For UX reasons we prefer "enabled", but that is used internally to refer to
 // whether borealis is installed or not, so the name of the variable is a bit
@@ -1301,10 +1294,6 @@ inline constexpr char kContextualCueingName[] = "Contextual cueing";
 inline constexpr char kContextualCueingDescription[] =
     "Enables the contextual cueing system to support showing actions.";
 
-inline constexpr char kGlicZeroStateSuggestionsName[] =
-    "Glic zero state suggestions";
-inline constexpr char kGlicZeroStateSuggestionsDescription[] =
-    "Enables the Glic zero state suggestions.";
 
 inline constexpr char kContextualCueingV2Name[] = "Contextual cueing V2";
 inline constexpr char kContextualCueingV2Description[] =
@@ -1338,86 +1327,7 @@ inline constexpr char kGlassFrameName[] = "Glass Frame";
 inline constexpr char kGlassFrameDescription[] =
     "Enables a glass effect on the browser frame.";
 
-inline constexpr char kGlicActorName[] = "Glic actor";
-inline constexpr char kGlicActorDescription[] = "Enables the Glic actor.";
-inline constexpr char kGlicHandoffButtonHideWhenModalUIShownName[] =
-    "Glic handoff button hide when modal UI shown";
-inline constexpr char kGlicHandoffButtonHideWhenModalUIShownDescription[] =
-    "Hides the Glic handoff button when a tab-modal UI is active.";
-inline constexpr char kGlicExperimentalTriggeringName[] =
-    "Glic experimental triggering";
-inline constexpr char kGlicExperimentalTriggeringDescription[] =
-    "Enables GLIC experimental triggering";
-inline constexpr char kGlicExperimentalTriggeringOsNotificationName[] =
-    "Glic Experimental Triggering OS Notification";
-inline constexpr char kGlicExperimentalTriggeringOsNotificationDescription[] =
-    "Enables OS-level system notifications for Glic experimental triggering "
-    "task starts when no browser window is active.";
-inline constexpr char kGlicExperimentalTriggeringScreenshotName[] =
-    "Glic experimental triggering screenshot";
-inline constexpr char kGlicExperimentalTriggeringScreenshotDescription[] =
-    "Enables secure client-side screenshot capture and encryption on yield "
-    "for Glic experimental triggering tasks.";
-inline constexpr char kGlicExperimentalTriggeringScriptToolsName[] =
-    "Glic experimental triggering script tool execution";
-inline constexpr char kGlicExperimentalTriggeringScriptToolsDescription[] =
-    "Enables direct ScriptTool action execution for Glic experimental "
-    "triggering tasks.";
-inline constexpr char kGlicBackgroundActuationName[] =
-    "Glic background actuation";
-inline constexpr char kGlicBackgroundActuationDescription[] =
-    "Enables background actuation for Glic.";
-inline constexpr char kGlicBackgroundTriggeringName[] =
-    "Glic background triggering";
-inline constexpr char kGlicBackgroundTriggeringDescription[] =
-    "Enables background triggering for Glic.";
-inline constexpr char kGlicOptInDialogA11yFixName[] =
-    "Glic Opt-in dialog accessibility fix";
-inline constexpr char kGlicOptInDialogA11yFixDescription[] =
-    "Fixes Glic opt-in dialog accessibility issues by adding an accessible "
-    "title and redirecting initial focus.";
 
-inline constexpr char kGlicActorAutofillName[] = "Glic actor autofill";
-inline constexpr char kGlicActorAutofillDescription[] =
-    "Enables autofill actions for the Glic actor. Specific fillable types may "
-    "also need to be enabled.";
-inline constexpr char kGlicActorAutofillPreClickName[] =
-    "Glic actor autofill pre-click";
-inline constexpr char kGlicActorAutofillPreClickDescription[] =
-    "Enables an additional click before retrieving suggestions. Only effective "
-    "if Glic actor autofill is also enabled.";
-inline constexpr char kGlicActorAutofillSectionLabelName[] =
-    "Glic actor autofill section label";
-inline constexpr char kGlicActorAutofillSectionLabelDescription[] =
-    "Enables the section label in Glic actor autofill. Only effective if Glic "
-    "actor autofill is also enabled.";
-inline constexpr char kGlicActorCursorName[] = "Glic actor cursor";
-inline constexpr char kGlicActorCursorDescription[] =
-    "Enables the Glic actor cursor";
-inline constexpr char kGlicActorEnableScriptToolsName[] =
-    "Glic actor script tools";
-inline constexpr char kGlicActorEnableScriptToolsDescription[] =
-    "Enables script tools for the Glic actor.";
-inline constexpr char kGlicActorIncrementalTypingName[] =
-    "Glic actor incremental typing";
-inline constexpr char kGlicActorIncrementalTypingDescription[] =
-    "When enabled, the Glic actor types text one key at a time with a short "
-    "delay between keystrokes. When disabled, it dispatches all keystrokes at "
-    "once.";
-inline constexpr char kGlicActorLocalhostIsSensitiveName[] =
-    "Treat localhost URLs as sensitive";
-inline constexpr char kGlicActorLocalhostIsSensitiveDescription[] =
-    "When enabled, treats localhost URLs as sensitive origins for the actor.";
-inline constexpr char kGlicActorTransientTasksName[] =
-    "Glic actor transient tasks";
-inline constexpr char kGlicActorTransientTasksDescription[] =
-    "Support for transient tasks in actor. If enabled, all tasks will use the "
-    "transient actor UI.";
-inline constexpr char kGlicActorSkipScreenshotName[] =
-    "Glic actor skip screenshots";
-inline constexpr char kGlicActorSkipScreenshotDescription[] =
-    "If enabled, Glic actor will skip capturing and uploading screenshots when "
-    "an actor turn is completed.";
 
 inline constexpr char kActorLoginObservationStartDelayName[] =
     "Actor login observation start delay";
@@ -1472,134 +1382,28 @@ inline constexpr char kActorTypeToolObservationStartDelayDescription[] =
     "waiting for the page to stabilize. Defaults to 1s; Disabled removes the "
     "delay.";
 
-inline constexpr char kGlicCaptureRegionDescription[] =
-    "Enables Glic to capture a region of the screen.";
-inline constexpr char kGlicCaptureRegionName[] = "Glic Capture Region";
-inline constexpr char kGlicChromeStatusIconWinName[] =
-    "Glic Chrome Status Icon Windows";
-inline constexpr char kGlicChromeStatusIconWinDescription[] =
-    "Use an alt logo as glic OS status bar icon on Windows.";
-inline constexpr char kGlicOSIconVariantName[] = "Glic OS Status Icon Variant";
-inline constexpr char kGlicOSIconVariantDescription[] =
-    "Select the variant of the Glic OS status bar icon on Mac.";
-inline constexpr char kGlicContextMenuBelowSearchName[] =
-    "Glic Context Menu Below Search";
-inline constexpr char kGlicContextMenuBelowSearchDescription[] =
-    "Places the Glic (Ask Gemini) context menu entry point below the Search "
-    "option.";
-inline constexpr char kGlicSparkSettingsAccessibleLabelsName[] =
-    "Glic Spark Settings Accessible Labels";
-inline constexpr char kGlicSparkSettingsAccessibleLabelsDescription[] =
-    "Enables screen reader accessible labels for links in the Gemini Spark "
-    "settings page.";
 
-inline constexpr char kGlicDefaultTabContextSettingName[] =
-    "Glic Default Tab Context Setting";
-inline constexpr char kGlicDefaultTabContextSettingDescription[] =
-    "Controls whether tab context is enabled by default within new Glic "
-    "sessions. Required for Side Panel.";
 
-inline constexpr char kGlicPdfSummarizeName[] = "Glic Pdf Summarize";
-inline constexpr char kGlicPdfSummarizeDescription[] =
-    "Enables the pdf summarize button.";
-inline constexpr char kGlicWarmingName[] = "Glic Pre-Warming";
-inline constexpr char kGlicWarmingDescription[] =
-    "Enables the pre-warming of the Glic panel's web client.";
 
-inline constexpr char kGlicUseToolbarHeightSidePanelName[] =
-    "Glic Use Toolbar Height Side Panel";
-inline constexpr char kGlicUseToolbarHeightSidePanelDescription[] =
-    "Enables Glic to use the toolbar height side panel instead of content "
-    "height side panel when enabled to use side panel";
-inline constexpr char kGlicGuestUrlPresetsName[] = "Glic guest URL presets";
-inline constexpr char kGlicGuestUrlPresetsDescription[] =
-    "Overrides the Bluebird environment URL used for Glic with user-configured "
-    "values. Intended for manual testing only.";
 
-inline constexpr char kGlicCaaGuestErrorName[] = "Glic CAA Guest Error";
-inline constexpr char kGlicCaaGuestErrorDescription[] =
-    "Enables the Glic CAA Guest Error UI when there are authentication issues.";
 
-inline constexpr char kGlicDisableActorSafetyChecksName[] =
-    "Glic disable actor safety checks";
-inline constexpr char kGlicDisableActorSafetyChecksDescription[] =
-    "Disables actor safety checks in Glic. Use with extreme caution, intended "
-    "for testing only.";
 
-inline constexpr char kGlicDisableHfcrName[] = "Glic Disable HFCR";
-inline constexpr char kGlicDisableHfcrDescription[] =
-    "Disables the High Frequency Cookie Rotation frame in Glic.";
-inline constexpr char kGlicHorizontalTabToolbarButtonName[] =
-    "Enable toolbar Gemini button on horizontal tab strip";
-inline constexpr char kGlicHorizontalTabToolbarButtonDescription[] =
-    "Enables the toolbar Gemini button when the horizontal tab strip is "
-    "enabled, and disables the tab strip Gemini button.";
-inline constexpr char kGlicToolbarButtonLocationName[] =
-    "Glic Toolbar Button Location";
-inline constexpr char kGlicToolbarButtonLocationDescription[] =
-    "Specifies the location of the toolbar Gemini button.";
 
-inline constexpr char kGlicContextualCueingV2AutoSubmitName[] =
-    "Glic Contextual Cueing v2 Auto Submit";
-inline constexpr char kGlicContextualCueingV2AutoSubmitDescription[] =
-    "Enable automatically submitting a suggested prompt when the v2 contextual "
-    "cue UI for Glic is clicked.";
 
-inline constexpr char kGlicContextualCuesHandleEduName[] =
-    "Glic Contextual Cues Handle Edu";
-inline constexpr char kGlicContextualCuesHandleEduDescription[] =
-    "Enables Glic contextual cues for education pages.";
 
-inline constexpr char kGlicContextualCuesHandleShoppingName[] =
-    "Glic Contextual Cues Handle Shopping";
-inline constexpr char kGlicContextualCuesHandleShoppingDescription[] =
-    "Enables Glic contextual cues for shopping pages.";
 
 inline constexpr char kContextualSearchContextualCuesHandleEduName[] =
     "Contextual Search Contextual Cues Handle Edu";
 inline constexpr char kContextualSearchContextualCuesHandleEduDescription[] =
     "Enables Contextual Search contextual cues for education pages.";
 
-inline constexpr char kContextualSearchContextualCuesHandleShoppingName[] =
-    "Contextual Search Contextual Cues Handle Shopping";
-inline constexpr char
-    kContextualSearchContextualCuesHandleShoppingDescription[] =
-        "Enables Contextual Search contextual cues for shopping pages.";
 
-inline constexpr char kGlicContextualCueV2ActiveUserBackoffName[] =
-    "Glic Contextual Cueing v2 Active User Backoff";
-inline constexpr char kGlicContextualCueV2ActiveUserBackoffDescription[] =
-    "Prevents showing the v2 contextual cue UI for Glic if the user recently "
-    "invoked Glic.";
 
-inline constexpr char kGlicMessageFirstFreName[] = "Glic Message First FRE";
-inline constexpr char kGlicMessageFirstFreDescription[] =
-    "Enables the message-first first run experience (FRE), which opens Glic "
-    "directly to chat with inline consent instead of the standard FRE when "
-    "the user has not yet consented.";
 
-inline constexpr char kGlicMessageFirstFreForContextualCueName[] =
-    "Glic Message First FRE for Contextual Cue";
-inline constexpr char kGlicMessageFirstFreForContextualCueDescription[] =
-    "Enables the message-first first run experience (FRE) when auto-submitting "
-    "from a contextual cue.";
 
-inline constexpr char kGlicNoWebviewName[] = "Glic No Webview";
-inline constexpr char kGlicNoWebviewDescription[] =
-    "Runs the Glic client in a PrivilegedWebContents instead of a webview.";
 
-inline constexpr char kGlicReuseCookiesName[] = "Glic Reuse Cookies";
-inline constexpr char kGlicReuseCookiesDescription[] =
-    "Reuses existing cookies if possible when synchronizing cookies in Glic.";
 
-inline constexpr char kGlicSsrName[] = "Glic SSR";
-inline constexpr char kGlicSsrDescription[] =
-    "Enables server-side rendering for Glic.";
 
-inline constexpr char kGlicShowNotTellTutorialsName[] =
-    "Glic Show, not Tell Tutorials";
-inline constexpr char kGlicShowNotTellTutorialsDescription[] =
-    "Enables Show, not Tell Tutorials in Gemini in Chrome.";
 
 inline constexpr char kEnterprisePublishedSkillsPolicyEnabledName[] =
     "Enable EnterprisePublishedSkills policy";
@@ -2568,79 +2372,19 @@ inline constexpr char kLensComposeboxIdentityDelegationName[] =
 inline constexpr char kLensComposeboxIdentityDelegationDescription[] =
     "Enables identity delegation in the Lens composebox.";
 
-inline constexpr char kLensOverlayName[] = "Lens overlay";
-inline constexpr char kLensOverlayDescription[] =
-    "Enables Lens search via an overlay on any page.";
 
-inline constexpr char kLensOverlayEduActionChipName[] =
-    "Lens Overlay EDU action chip";
-inline constexpr char kLensOverlayEduActionChipDescription[] =
-    "Enables Lens Overlay EDU action chip. Intended for testing the chip "
-    "itself, not its triggering criteria.";
 
-inline constexpr char kLensOverlayForceEmptyCsbQueryName[] =
-    "Lens overlay force empty CSB query";
-inline constexpr char kLensOverlayForceEmptyCsbQueryDescription[] =
-    "Forces Lens overlay to issue an empty CSB query on invocation.";
 
-inline constexpr char kLensOverlayImageContextMenuActionsName[] =
-    "Lens overlay image context menu actions";
-inline constexpr char kLensOverlayImageContextMenuActionsDescription[] =
-    "Enables image context menu actions in the Lens overlay.";
 
-inline constexpr char kLensOverlayNonBlockingPrivacyNoticeName[] =
-    "Lens overlay non-blocking privacy notice";
-inline constexpr char kLensOverlayNonBlockingPrivacyNoticeDescription[] =
-    "Enables non-blocking privacy notice in the Lens overlay.";
 
-inline constexpr char kLensOverlayNonBlockingPrivacyNoticeForImageSearchName[] =
-    "Lens overlay non-blocking privacy notice for image search";
-inline constexpr char
-    kLensOverlayNonBlockingPrivacyNoticeForImageSearchDescription[] =
-        "Enables non-blocking privacy notice in the Lens overlay when invoked "
-        "from the image context menu.";
 
-inline constexpr char kLensOverlayOmniboxEntryPointName[] =
-    "Lens Overlay Omnibox entrypoint";
-inline constexpr char kLensOverlayOmniboxEntryPointDescription[] =
-    "Enables icon button for Lens entrypoint in the Omnibox.";
 
-inline constexpr char kLensOverlaySidePanelOpenInNewTabName[] =
-    "Lens overlay side panel open in new tab";
-inline constexpr char kLensOverlaySidePanelOpenInNewTabDescription[] =
-    "Enables open in new tab in the Lens overlay side panel.";
 
-inline constexpr char kLensOverlayTextSelectionContextMenuEntrypointName[] =
-    "Lens overlay text selection context menu entrypoint";
-inline constexpr char
-    kLensOverlayTextSelectionContextMenuEntrypointDescription[] =
-        "Enables invoking the Lens overlay from the selected text context "
-        "menu.";
 
-inline constexpr char kLensOverlayTranslateButtonName[] =
-    "Lens overlay translate button";
-inline constexpr char kLensOverlayTranslateButtonDescription[] =
-    "Enables translate button via the Lens overlay.";
 
-inline constexpr char kLensOverlayTranslateLanguagesName[] =
-    "More Lens overlay translate languages";
-inline constexpr char kLensOverlayTranslateLanguagesDescription[] =
-    "Enables more translate languages in the Lens Overlay.";
 
-inline constexpr char kLensOverlayLatencyOptimizationsName[] =
-    "Lens overlay latency optimizations";
-inline constexpr char kLensOverlayLatencyOptimizationsDescription[] =
-    "Enables latency optimizations for the Lens overlay.";
 
-inline constexpr char kLensOverlayUpdatedVisualsName[] =
-    "Lens overlay updated visuals";
-inline constexpr char kLensOverlayUpdatedVisualsDescription[] =
-    "Enables updated visuals in the Lens selection overlay.";
 
-inline constexpr char kLensSearchAimM3Name[] =
-    "Enables AIM in Lens side panel.";
-inline constexpr char kLensSearchAimM3Description[] =
-    "Enables AIM follow ups with the Lens overlay results side panel.";
 
 inline constexpr char kLensAimSuggestionsName[] =
     "Lens AIM M3 Side Panel Suggestions";
@@ -2654,11 +2398,6 @@ inline constexpr char kLensAimSuggestionsGradientBackgroundDescription[] =
     "Enables a gradient background for the Lens composebox dropdown that does "
     "not cover the entire side panel.";
 
-inline constexpr char kLensSearchReinvocationAffordanceName[] =
-    "Lens search reinvocation affordance";
-inline constexpr char kLensSearchReinvocationAffordanceDescription[] =
-    "Enables the Lens button in the AIM Searchbox for reinvocation of "
-    "selection overlay.";
 
 inline constexpr char kLensVideoCitationsName[] = "Lens video citations";
 inline constexpr char kLensVideoCitationsDescription[] =
@@ -3237,10 +2976,6 @@ inline constexpr char kPasskeyUnlockErrorUiDescription[] =
     "verification mechanism (either a system UV or a GPM PIN). This flag "
     "requires the flag `PasskeyUnlockManager` to be active.";
 
-inline constexpr char kPasswordChangeWithGlicName[] =
-    "Password change with Glic";
-inline constexpr char kPasswordChangeWithGlicDescription[] =
-    "Triggers password change flow through Glic";
 
 inline constexpr char kPasswordCompromiseWarningInDetailsCardName[] =
     "Password compromise warning in details card";
@@ -4402,11 +4137,6 @@ inline constexpr char kRealboxVirtualFocusNavigationDescription[] =
     "from the searchbox, unifying behavior with the Omnibox and improving "
     "accessibility.";
 
-inline constexpr char kLensOverlayVirtualFocusNavigationName[] =
-    "Enable Lens Overlay Virtual Focus Navigation";
-inline constexpr char kLensOverlayVirtualFocusNavigationDescription[] =
-    "Enables virtual focus keyboard navigation within the Lens Overlay "
-    "searchbox.";
 
 inline constexpr char kOmniboxEverywhereScreenshotNewWindowName[] =
     "Omnibox Everywhere Screenshot New Window";
@@ -5006,26 +4736,10 @@ inline constexpr char kAiOverlayDisableNavigationContextName[] =
 inline constexpr char kAiOverlayDisableNavigationContextDescription[] =
     "Disables sharing navigation history.";
 
-inline constexpr char kGlicName[] = "Glic";
-inline constexpr char kGlicDescription[] = "Enables glic";
 
-inline constexpr char kGlicSettingsA11yContextFixName[] =
-    "Glic Web Actuation Accessibility Context Fix";
-inline constexpr char kGlicSettingsA11yContextFixDescription[] =
-    "Enables accessible aria-label attributes on Web Actuation settings links "
-    "for screen reader context.";
 
-inline constexpr char kGlicShareImageName[] = "Glic Share Image";
-inline constexpr char kGlicShareImageDescription[] =
-    "Enables the Create Image with Gemini context menu item";
 
-inline constexpr char kGlicHotkeyLocalScopeName[] = "Glic Hotkey Local Scope";
-inline constexpr char kGlicHotkeyLocalScopeDescription[] =
-    "Limits the Glic global hotkey to local scope (active browser window).";
 
-inline constexpr char kGlicTabGroupsName[] = "Glic Tab Groups";
-inline constexpr char kGlicTabGroupsDescription[] =
-    "Enables Glic to integrate with tab groups.";
 
 inline constexpr char kPageColorsSettingsName[] = "Page Colors settings";
 inline constexpr char kPageColorsSettingsDescription[] =

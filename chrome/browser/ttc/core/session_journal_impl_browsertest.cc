@@ -10,10 +10,6 @@
 
 #include "base/memory/raw_ptr.h"
 #include "base/test/test_future.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_task.h"
-#include "chrome/browser/actor/actor_test_util.h"
-#include "chrome/browser/actor/tools/open_url_tool_request.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ttc/core/session_controller.h"
 #include "chrome/browser/ttc/core/ttc_core_browser_test_base.h"
@@ -49,7 +45,6 @@ class TtcSessionJournalImplBrowserTest : public TtcCoreBrowserTestBase {
     host_resolver()->AddRule("*", "127.0.0.1");
     ASSERT_TRUE(embedded_https_test_server().Start());
 
-    actor_service_ = actor::ActorKeyedService::Get(profile());
     ASSERT_TRUE(actor_service_);
     recorder_.emplace(actor_service_->GetJournal());
   }
@@ -61,22 +56,12 @@ class TtcSessionJournalImplBrowserTest : public TtcCoreBrowserTestBase {
   }
 
  protected:
-  actor::ActorKeyedService& actor_service() { return *actor_service_; }
 
   ActorJournalRecorder& recorder() { return *recorder_; }
 
-  actor::TaskId GetOnlyActiveTaskId() {
-    const std::map<actor::TaskId, const actor::ActorTask*> tasks =
-        actor_service().GetActiveTasks();
-    EXPECT_EQ(tasks.size(), 1u);
-    return tasks.size() == 1u ? tasks.begin()->first : actor::TaskId();
-  }
 
   ToolResponse OpenUrl(const GURL& url) {
     ToolRequest request;
-    request.name = std::string(actor::OpenUrlToolRequest::kModelFacingName);
-    request.arguments.Set(actor::OpenUrlToolRequest::kUrlParam, url.spec());
-    request.arguments.Set(actor::OpenUrlToolRequest::kNewTabParam, false);
     base::test::TestFuture<ToolResponse> future;
     ttc_service().session_controller()->ProcessToolCall(request,
                                                         future.GetCallback());
@@ -84,14 +69,8 @@ class TtcSessionJournalImplBrowserTest : public TtcCoreBrowserTestBase {
   }
 
   // Expects `entry` to be on the front end track of the task with `task_id`.
-  void ExpectOnTaskTrack(const ActorJournalRecorder::Entry& entry,
-                         actor::TaskId task_id) {
-    EXPECT_EQ(entry.task_id, task_id);
-    EXPECT_EQ(entry.track_uuid, actor::MakeFrontEndTrackUUID(task_id));
-  }
 
  private:
-  raw_ptr<actor::ActorKeyedService> actor_service_ = nullptr;
   std::optional<ActorJournalRecorder> recorder_;
 };
 
@@ -99,19 +78,15 @@ IN_PROC_BROWSER_TEST_F(TtcSessionJournalImplBrowserTest,
                        JournalFollowsTheSessionTask) {
   ttc_service().StartSession();
   SessionJournal& journal = ttc_service().session_controller()->GetJournal();
-  const actor::TaskId first_task_id = GetOnlyActiveTaskId();
   ASSERT_FALSE(first_task_id.is_null());
 
   journal.Log("TestEvent", {});
 
   // Stopping the task outside of the session makes the next tool call replace
   // it. The session keeps its journal, which moves to the new task.
-  actor_service().StopTask(first_task_id,
-                           actor::ActorTask::StoppedReason::kStoppedByUser);
   ASSERT_TRUE(OpenUrl(embedded_https_test_server().GetURL("example.com",
                                                           "/title1.html"))
                   .Ok());
-  const actor::TaskId second_task_id = GetOnlyActiveTaskId();
   ASSERT_FALSE(second_task_id.is_null());
   ASSERT_NE(second_task_id, first_task_id);
   ASSERT_EQ(&ttc_service().session_controller()->GetJournal(), &journal);

@@ -43,9 +43,6 @@ namespace {
 
 class FakeSessionJournal : public SessionJournal {
  public:
-  void Log(std::string_view event_name,
-           std::vector<actor::mojom::JournalDetailsPtr> details,
-           Track track) override {}
   void HandleServerJournalEvent(const ServerJournalEvent& event) override {}
   void LogAudio(std::string_view mime_type,
                 base::span<const uint8_t> data) override {}

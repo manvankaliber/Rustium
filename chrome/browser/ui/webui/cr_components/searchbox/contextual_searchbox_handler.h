@@ -112,10 +112,6 @@ class ContextualOmniboxClient : public SearchboxOmniboxClient {
   bool HasPreviousSubmittedThreadContext() const override;
   bool HasAutoSuggestedTab() const override;
 
-  std::optional<lens::proto::LensOverlaySuggestInputs>
-  GetLensOverlaySuggestInputsForTesting() const {
-    return GetLensOverlaySuggestInputs();
-  }
 
  protected:
   std::optional<lens::proto::LensOverlaySuggestInputs>

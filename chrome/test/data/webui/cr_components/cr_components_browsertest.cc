@@ -430,10 +430,6 @@ IN_PROC_BROWSER_TEST_F(CrComponentsSearchTest, RecordingWave) {
   RunTest("cr_components/search/recording_wave_test.js", "mocha.run()");
 }
 
-IN_PROC_BROWSER_TEST_F(CrComponentsComposeboxTest, LensSearch) {
-  RunTest("cr_components/composebox/composebox_lens_search_test.js",
-          "mocha.run()");
-}
 
 IN_PROC_BROWSER_TEST_F(CrComponentsComposeboxTest, CurrentTabChip) {
   auto config = RegisterComposeboxTestConfig();

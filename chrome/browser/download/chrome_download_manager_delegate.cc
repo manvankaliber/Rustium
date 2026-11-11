@@ -105,9 +105,6 @@
 #include "ui/base/page_transition_types.h"
 #include "ui/display/types/display_constants.h"
 
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_task.h"
-#include "chrome/browser/actor/execution_engine.h"
 #include "chrome/browser/download/download_item_web_app_data.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
@@ -449,51 +446,7 @@ void OnCheckDownloadAllowedFailed(
       FROM_HERE, base::BindOnce(std::move(check_download_allowed_cb), false));
 }
 
-actor::ExecutionEngine* GetExecutionEngineForDownloadItem(
-    DownloadItem* download) {
-  content::WebContents* web_contents =
-      content::DownloadItemUtils::GetWebContents(download);
-  if (!web_contents) {
-    return nullptr;
-  }
 
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(web_contents->GetBrowserContext());
-  if (!actor_service) {
-    return nullptr;
-  }
-
-  if (const actor::ActorTask* actor_task =
-          actor_service->GetActingActorTaskForWebContents(web_contents)) {
-    return &actor_task->GetExecutionEngine();
-  }
-
-  return nullptr;
-}
-
-void ProcessFilePickerWithExecutionEngine(
-    actor::ExecutionEngine* execution_engine,
-    DownloadTargetDeterminerDelegate::ConfirmationCallback callback,
-    DownloadConfirmationResult result,
-    const ui::SelectedFileInfo& file_info) {
-  actor::mojom::ActionResultCode glic_result;
-  switch (result) {
-    case DownloadConfirmationResult::CONFIRMED:
-    case DownloadConfirmationResult::CONTINUE_WITHOUT_CONFIRMATION:
-      glic_result = actor::mojom::ActionResultCode::kFilePickerConfirmed;
-      break;
-    case DownloadConfirmationResult::FAILED:
-    case DownloadConfirmationResult::CANCELED:
-      glic_result = actor::mojom::ActionResultCode::kFilePickerCancelled;
-      break;
-  }
-
-  if (execution_engine) {
-    execution_engine->set_user_take_over_result(glic_result);
-  }
-
-  std::move(callback).Run(result, file_info);
-}
 
 }  // namespace
 
@@ -1279,21 +1232,6 @@ void ChromeDownloadManagerDelegate::ShowFilePickerWithUserTakeover(
       },
       weak_ptr_factory_.GetWeakPtr(), download->GetGuid(), suggested_path);
 
-  if (base::FeatureList::IsEnabled(
-          actor::kGlicDeferDownloadFilePickerToUserTakeover)) {
-    if (actor::ExecutionEngine* execution_engine =
-            GetExecutionEngineForDownloadItem(download)) {
-      DownloadTargetDeterminerDelegate::ConfirmationCallback callback_wrapper =
-          base::BindOnce(&ProcessFilePickerWithExecutionEngine,
-                         execution_engine, std::move(callback));
-
-      execution_engine->UserTakeover(
-          actor::mojom::ActionResultCode::kFilePickerTriggered,
-          base::BindOnce(std::move(trigger_user_takeover),
-                         std::move(callback_wrapper)));
-      return;
-    }
-  }
 
   std::move(trigger_user_takeover)
       .Run(std::move(callback), /*should_cancel=*/false);

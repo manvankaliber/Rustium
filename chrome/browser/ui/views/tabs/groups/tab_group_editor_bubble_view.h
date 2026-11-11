@@ -134,7 +134,6 @@ class TabGroupEditorBubbleView : public views::BubbleDialogDelegateView,
   std::unique_ptr<views::View> BuildEphemeralGroupButtons();
   std::unique_ptr<views::LabelButton> BuildNewTabInGroupButton();
   std::unique_ptr<views::LabelButton> BuildHomeButton();
-  std::unique_ptr<views::LabelButton> BuildAskGeminiButton();
   std::unique_ptr<views::LabelButton> BuildUngroupButton();
   std::unique_ptr<views::LabelButton> BuildCloseGroupButton();
   std::unique_ptr<views::LabelButton> BuildDeleteGroupButton();
@@ -148,7 +147,6 @@ class TabGroupEditorBubbleView : public views::BubbleDialogDelegateView,
 
   void NewTabInGroupPressed();
   void HomePressed();
-  void AskGeminiPressed();
   void UngroupPressed();
   void ShareOrManagePressed();
   void CloseGroupPressed();

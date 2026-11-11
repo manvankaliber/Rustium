@@ -9,7 +9,6 @@
 
 #include "base/functional/callback.h"
 #include "base/memory/weak_ptr.h"
-#include "chrome/browser/actor/actor_task.h"
 #include "chrome/browser/password_manager/password_change/password_change_actuator.h"
 #include "components/password_manager/core/browser/password_store/stored_credential.h"
 
@@ -47,9 +46,8 @@ class PasswordChangeFromCheckupDelegate
   void StartPasswordChangeFlow(
       password_manager::StoredCredential credential,
       base::WeakPtr<content::WebContents> web_contents,
-      StateChangeCallback callback = base::NullCallback());
+      StateChangeCallback callback = {});
 
-  void Stop(actor::ActorTask::StoppedReason stop_reason);
 
   // PasswordChangeActuator::Observer:
   void OnActuationStateChanged(

@@ -19,7 +19,6 @@
 #include "base/memory/weak_ptr.h"
 #include "base/scoped_observation.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_task.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/autofill/autofill_suggestion_controller.h"
 #include "chrome/browser/ui/autofill/payments/chrome_payments_autofill_client.h"
@@ -219,8 +218,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
                        std::optional<FillingProduct> product) final;
   void OpenGmailForOtps() final;
   void OpenGeminiInSidebar(const std::u16string& prompt) final;
-  bool IsGlicEnabled() const final;
-  bool IsGlicConsented() const final;
   void TriggerDeclinedSaveAddressReasonSurvey() final;
   void TriggerPersonalizationAndTrustSurveys(
       FillingProduct filling_product,
@@ -397,7 +394,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
   // Called when an actor task is created or an existing one changes state. It
   // may be called for actors unrelated to the current tab. If an update is
   // related to the current tab.
-  void OnActorTaskStateChange(actor::ActorTask& task);
 
   const raw_ptr<LogRouter> log_router_ =
       AutofillLogRouterFactory::GetForBrowserContext(
@@ -449,7 +445,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
       custom_form_control_script_runner_;
 
   // Removes the subscription when the `ChromeAutofillClient` is destroyed.
-  base::CallbackListSubscription actor_task_state_changed_subscription_;
 
   std::unique_ptr<FormPredictionsTracker> form_predictions_tracker_;
   std::unique_ptr<ActorAutofillManager> actor_autofill_manager_;

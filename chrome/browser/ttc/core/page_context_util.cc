@@ -8,7 +8,6 @@
 
 #include "base/functional/bind.h"
 #include "base/functional/callback.h"
-#include "chrome/browser/actor/enterprise_policy_checker.h"
 #include "chrome/browser/search/search.h"
 #include "components/actor/core/safety_list_manager.h"
 #include "url/gurl.h"
@@ -39,33 +38,5 @@ bool IsSchemeAndHostSupported(const GURL& url) {
 
 }  // namespace
 
-void IsUrlSupportedForPageContext(
-    const GURL& url,
-    const actor::EnterprisePolicyChecker* enterprise_policy_checker,
-    base::OnceCallback<void(bool)> callback) {
-  if (!IsSchemeAndHostSupported(url)) {
-    std::move(callback).Run(false);
-    return;
-  }
-
-  if (enterprise_policy_checker &&
-      enterprise_policy_checker->Evaluate(url) ==
-          actor::EnterprisePolicyChecker::UrlBlockReason::kExplicitlyBlocked) {
-    std::move(callback).Run(false);
-    return;
-  }
-
-  // Ask the actor safety lists whether a navigation from `url` to itself is
-  // allowed, and invoke `callback` with false iff it is blocked. This mirrors
-  // how the actor's safety list gating predicate (see
-  // CreateSafetyListPredicate() in chrome/browser/actor/execution_engine.cc)
-  // evaluates an event that has no distinct source URL: the destination is used
-  // as the source. As there, a lack of decision (e.g. because the lists have
-  // not been loaded) does not block.
-  actor::SafetyListManager::GetInstance()->Find(
-      url, url, base::BindOnce([](actor::SafetyListManager::Decision decision) {
-                  return decision != actor::SafetyListManager::Decision::kBlock;
-                }).Then(std::move(callback)));
-}
 
 }  // namespace ttc

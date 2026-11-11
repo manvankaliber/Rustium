@@ -13,7 +13,6 @@
 #include "components/autofill/core/common/autofill_prefs.h"
 #include "components/bookmarks/common/bookmark_pref_names.h"
 #include "components/browsing_data/core/pref_names.h"
-#include "components/commerce/core/pref_names.h"
 #include "components/content_settings/core/common/pref_names.h"
 #include "components/contextual_search/pref_names.h"
 #include "components/desktop_to_mobile_promos/pref_names.h"
@@ -278,10 +277,6 @@ constexpr auto kCommonSyncablePrefsAllowlist =
         {browsing_data::prefs::kLastClearBrowsingDataTime,
          {syncable_prefs_ids::kLastClearBrowsingDataTime, syncer::PREFERENCES,
           PrefSensitivity::kNone, MergeBehavior::kNone,
-          WriteBehavior::kWriteToBoth}},
-        {commerce::kPriceEmailNotificationsEnabled,
-         {syncable_prefs_ids::kPriceEmailNotificationsEnabled,
-          syncer::PREFERENCES, PrefSensitivity::kNone, MergeBehavior::kNone,
           WriteBehavior::kWriteToBoth}},
         {language::prefs::kAcceptLanguages,
          {syncable_prefs_ids::kAcceptLanguages, syncer::PREFERENCES,

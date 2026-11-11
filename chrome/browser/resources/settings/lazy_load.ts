@@ -18,14 +18,13 @@ import './autofill_page/identity_docs/identity_docs_page.js';
 import './autofill_page/passwords/passkeys_page.js';
 // </if>
 import './autofill_page/payments/payments_page.js';
-import './autofill_page/shopping/shopping_page.js';
-import './autofill_page/suggestions_from_gemini/suggestions_from_gemini_page.js';
+
 import './autofill_page/travel/travel_page.js';
 import './autofill_page/walletable_pass_detection_toggle.js';
 import './clear_browsing_data_dialog/clear_browsing_data_account_indicator.js';
 import './clear_browsing_data_dialog/clear_browsing_data_dialog.js';
 import './clear_browsing_data_dialog/clear_browsing_data_time_picker.js';
-import './glic_page/glic_login_permissions_page.js';
+
 import './privacy_page/cookies_page.js';
 import './privacy_page/privacy_guide/privacy_guide_dialog.js';
 import './privacy_page/privacy_guide/privacy_guide_page.js';
@@ -58,7 +57,6 @@ import './site_settings/hand_tracking_page.js';
 import './site_settings/hid_devices_page.js';
 import './site_settings/idle_detection_page.js';
 import './site_settings/images_page.js';
-import './ai_page/inline_cue_menu_page.js';
 import './site_settings/insecure_content_page.js';
 import './site_settings/javascript_page.js';
 import './site_settings/keyboard_lock_page.js';
@@ -145,7 +143,6 @@ export {AiEnterpriseFeaturePrefName, AiPageActions, FeatureOptInState, SettingsA
 export type {DictationBrowserProxy} from './ai_page/dictation_browser_proxy.js';
 export {DictationBrowserProxyImpl} from './ai_page/dictation_browser_proxy.js';
 export {SettingsDictationPageElement} from './ai_page/dictation_page.js';
-export {SettingsInlineCueMenuPageElement} from './ai_page/inline_cue_menu_page.js';
 export {COMPOSE_PROACTIVE_NUDGE_DISABLED_SITES_PREF, COMPOSE_PROACTIVE_NUDGE_PREF, SettingsOfferWritingHelpPageElement} from './ai_page/offer_writing_help_page.js';
 // <if expr="_google_chrome">
 export type {OnDeviceAiBrowserProxy, OnDeviceAiEnabled} from './ai_page/on_device_ai_browser_proxy.js';
@@ -183,8 +180,6 @@ export {PaymentsManagerImpl} from './autofill_page/payments/payments_manager_pro
 export type {PaymentsManagerProxy} from './autofill_page/payments/payments_manager_proxy.js';
 export {SettingsPaymentsPageElement} from './autofill_page/payments/payments_page.js';
 export {SettingsVirtualCardUnenrollDialogElement} from './autofill_page/payments/virtual_card_unenroll_dialog.js';
-export {SettingsShoppingPageElement} from './autofill_page/shopping/shopping_page.js';
-export {SettingsSuggestionsFromGeminiPageElement} from './autofill_page/suggestions_from_gemini/suggestions_from_gemini_page.js';
 export {SettingsTravelPageElement} from './autofill_page/travel/travel_page.js';
 export {SettingsWalletablePassDetectionToggleElement} from './autofill_page/walletable_pass_detection_toggle.js';
 export {SettingsClearBrowsingDataAccountIndicatorElement} from './clear_browsing_data_dialog/clear_browsing_data_account_indicator.js';
@@ -204,7 +199,6 @@ export {DownloadsBrowserProxyImpl} from './downloads_page/downloads_browser_prox
 export type {DownloadsBrowserProxy} from './downloads_page/downloads_browser_proxy.js';
 export {SettingsDownloadsPageElement} from './downloads_page/downloads_page.js';
 export {SettingsGeneralPageIndexElement} from './general_page/general_page_index.js';
-export {SettingsGlicLoginPermissionsPageElement} from './glic_page/glic_login_permissions_page.js';
 export {SettingsAddLanguagesDialogElement} from './languages_page/add_languages_dialog.js';
 // <if expr="not is_macosx">
 export {SettingsEditDictionaryPageElement} from './languages_page/edit_dictionary_page.js';

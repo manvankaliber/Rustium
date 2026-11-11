@@ -1128,9 +1128,7 @@ void AtMemoryManager::ShowNoResultsStateSuggestions(
   std::vector<Suggestion> suggestions;
   switch (result.status) {
     case MemorySearchStatus::kUnsupportedQuery:
-      if (client_->IsGlicEnabled()) {
-        suggestions.push_back(CreateUnsupportedQuerySuggestion(query));
-      } else {
+      {
         suggestions.push_back(CreateNoDataSuggestion());
       }
       break;

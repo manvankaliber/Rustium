@@ -20,13 +20,7 @@ export function getHtml(this: SettingsTravelPageElement) {
         no-extension-indicator label="$i18n{travelOptInToggleLabel}"
         sub-label="$i18n{travelOptInToggleSubLabel}">
     </settings-toggle-button>
-    ${this.showSuggestionsFromGeminiSettings_ ? html`
-      <cr-link-row id="suggestionsFromGeminiLinkRow"
-          label="$i18n{autofillPersonalContextSettingsTitle}"
-          sub-label="$i18n{autofillPersonalContextSettingsSubpageSummary}"
-          @click="${this.onSuggestionsFromGeminiClick_}" class="hr">
-      </cr-link-row>
-    ` : ''}
+    ${''}
     ${this.extensionControlledIndicatorIsVisible_() ? html`
       <div class="cr-row continuation">
         <extension-controlled-indicator class="flex"

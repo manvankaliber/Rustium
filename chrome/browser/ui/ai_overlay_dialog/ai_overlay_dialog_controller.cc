@@ -8,8 +8,6 @@
 #include "base/notimplemented.h"
 #include "base/values.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
 #include "chrome/browser/media/webrtc/media_capture_devices_dispatcher.h"
 #include "chrome/browser/metrics/variations/google_groups_manager_factory.h"
 #include "chrome/browser/profiles/profile.h"
@@ -38,17 +36,7 @@ DEFINE_USER_DATA(AiOverlayDialogController);
 
 // static
 bool AiOverlayDialogController::IsEnabledForProfile(Profile* profile) {
-  if (!profile) {
-    return false;
-  }
-  if (!glic::GetGlicProviderSpec(profile).SupportsFeature(
-          glic::GlicFeature::kAiOverlay)) {
-    return false;
-  }
-  GoogleGroupsManager* groups_manager =
-      GoogleGroupsManagerFactory::GetForBrowserContext(profile);
-  return groups_manager &&
-         groups_manager->IsFeatureEnabledForProfile(features::kAiOverlayDialog);
+  return false;
 }
 
 // static

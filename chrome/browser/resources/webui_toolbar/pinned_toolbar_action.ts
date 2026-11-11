@@ -182,8 +182,7 @@ export class PinnedToolbarActionElement extends PinnedToolbarActionElementBase {
         return ContextMenuType.kPinnedActionClearBrowsingData;
       case PinnedToolbarAction.kPrint:
         return ContextMenuType.kPinnedActionPrint;
-      case PinnedToolbarAction.kSidePanelShowLensOverlayResults:
-        return ContextMenuType.kPinnedActionSidePanelShowLensOverlayResults;
+
       case PinnedToolbarAction.kShowTranslate:
         return ContextMenuType.kPinnedActionShowTranslate;
       case PinnedToolbarAction.kQrCodeGenerator:
@@ -210,8 +209,7 @@ export class PinnedToolbarActionElement extends PinnedToolbarActionElementBase {
         return ContextMenuType.kPinnedActionSidePanelShowAboutThisSite;
       case PinnedToolbarAction.kSidePanelShowCustomizeChrome:
         return ContextMenuType.kPinnedActionSidePanelShowCustomizeChrome;
-      case PinnedToolbarAction.kSidePanelShowShoppingInsights:
-        return ContextMenuType.kPinnedActionSidePanelShowShoppingInsights;
+
       case PinnedToolbarAction.kSidePanelShowMerchantTrust:
         return ContextMenuType.kPinnedActionSidePanelShowMerchantTrust;
       case PinnedToolbarAction.kSendSharedTabGroupFeedback:
@@ -226,8 +224,10 @@ export class PinnedToolbarActionElement extends PinnedToolbarActionElementBase {
         return ContextMenuType.kPinnedActionSidePanelShowHistory;
       case PinnedToolbarAction.kShowChromeLabs:
         return ContextMenuType.kPinnedActionShowChromeLabs;
+
+      case PinnedToolbarAction.kSidePanelShowLensOverlayResults:
+      case PinnedToolbarAction.kSidePanelShowShoppingInsights:
       case PinnedToolbarAction.kSidePanelShowGlic:
-        return ContextMenuType.kPinnedActionSidePanelShowGlic;
       case PinnedToolbarAction.kUnspecified:
       case PinnedToolbarAction.kDivider:
         return ContextMenuType.kUnspecified;

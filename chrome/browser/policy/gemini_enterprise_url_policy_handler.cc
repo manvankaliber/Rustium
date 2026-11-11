@@ -8,8 +8,6 @@
 #include <utility>
 
 #include "base/values.h"
-#include "chrome/browser/glic/gemini_enterprise/geic_url_allowlist.h"
-#include "chrome/browser/glic/glic_pref_names.h"
 #include "components/policy/core/common/policy_map.h"
 #include "components/policy/policy_constants.h"
 #include "components/strings/grit/components_strings.h"
@@ -19,9 +17,7 @@
 namespace policy {
 
 GeminiEnterpriseUrlPolicyHandler::GeminiEnterpriseUrlPolicyHandler()
-    : SimplePolicyHandler(key::kGeminiEnterpriseUrl,
-                          glic::prefs::kGlicGeminiEnterpriseUrl,
-                          base::Value::Type::STRING) {}
+     {}
 
 GeminiEnterpriseUrlPolicyHandler::~GeminiEnterpriseUrlPolicyHandler() = default;
 

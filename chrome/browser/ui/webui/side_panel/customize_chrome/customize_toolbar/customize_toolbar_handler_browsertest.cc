@@ -14,7 +14,6 @@
 #include "base/test/gmock_move_support.h"
 #include "base/test/mock_callback.h"
 #include "base/test/scoped_feature_list.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/search_engines/template_url_service_factory.h"
 #include "chrome/browser/ttc/core/features.h"
@@ -77,10 +76,8 @@ class CustomizeToolbarHandlerBrowserTest : public InProcessBrowserTest {
   CustomizeToolbarHandlerBrowserTest() {
     // ChromeOS creates `TtcKeyedService` only where Glic's system requirements
     // are met.
-    glic::GlicEnabling::SetSystemRequirementMetForTesting(true);
   }
   ~CustomizeToolbarHandlerBrowserTest() override {
-    glic::GlicEnabling::SetSystemRequirementMetForTesting(std::nullopt);
   }
 
   void SetUpOnMainThread() override {
@@ -138,8 +135,6 @@ IN_PROC_BROWSER_TEST_F(CustomizeToolbarHandlerBrowserTest, ListActions) {
       side_panel::customize_chrome::mojom::ActionId::kShowReadAnything));
   EXPECT_TRUE(contains_action(
       side_panel::customize_chrome::mojom::ActionId::kShowReadingList));
-  EXPECT_TRUE(contains_action(
-      side_panel::customize_chrome::mojom::ActionId::kShowLensOverlay));
   EXPECT_TRUE(
       contains_action(side_panel::customize_chrome::mojom::ActionId::kHome));
   EXPECT_TRUE(

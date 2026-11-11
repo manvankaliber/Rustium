@@ -600,18 +600,10 @@ export function recordModelModeSelection(
     model: ModelMode, composeboxSource: string, popupType: string) {
   let contextType = ContextType.UNKNOWN;
   switch (model) {
-    case ModelMode.kGeminiRegular:
-      contextType = ContextType.REGULAR_MODEL;
-      break;
-    case ModelMode.kGeminiPro:
-      contextType = ContextType.THINKING_MODEL;
-      break;
-    case ModelMode.kGeminiProAutoroute:
-      contextType = ContextType.AUTO_MODEL;
-      break;
-    case ModelMode.kGeminiProNoGenUi:
-      contextType = ContextType.PRO_NO_GEN_UI_MODEL;
-      break;
+
+
+
+
     default:
       break;
   }
@@ -623,18 +615,10 @@ export function recordModelModeShown(
     model: ModelMode, composeboxSource: string, popupType: string) {
   let contextType = ContextType.UNKNOWN;
   switch (model) {
-    case ModelMode.kGeminiRegular:
-      contextType = ContextType.REGULAR_MODEL;
-      break;
-    case ModelMode.kGeminiPro:
-      contextType = ContextType.THINKING_MODEL;
-      break;
-    case ModelMode.kGeminiProAutoroute:
-      contextType = ContextType.AUTO_MODEL;
-      break;
-    case ModelMode.kGeminiProNoGenUi:
-      contextType = ContextType.PRO_NO_GEN_UI_MODEL;
-      break;
+
+
+
+
     default:
       break;
   }

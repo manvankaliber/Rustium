@@ -18,7 +18,6 @@
 #include "chrome/browser/extensions/api/settings_private/generated_prefs.h"
 #include "chrome/browser/extensions/api/settings_private/generated_prefs_factory.h"
 #include "chrome/browser/extensions/settings_api_helpers.h"
-#include "chrome/browser/glic/glic_pref_names.h"
 #include "chrome/browser/metrics/profile_pref_names.h"
 #include "chrome/browser/new_tab_page/prefs/ntp_pref_names.h"
 #include "chrome/browser/password_manager/generated_password_leak_detection_pref.h"
@@ -36,7 +35,6 @@
 #include "components/autofill/core/common/autofill_prefs.h"
 #include "components/bookmarks/common/bookmark_pref_names.h"
 #include "components/browsing_data/core/pref_names.h"
-#include "components/commerce/core/pref_names.h"
 #include "components/component_updater/pref_names.h"
 #include "components/compose/buildflags.h"
 #include "components/content_settings/core/common/pref_names.h"
@@ -165,8 +163,6 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
   (*s_allowlist)[autofill::prefs::kAutofillAtMemoryShortcut] =
       settings_api::PrefType::kString;
   (*s_allowlist)[autofill::prefs::kAutofillAiIdentityEntitiesEnabled] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[autofill::prefs::kAutofillAiShoppingEntitiesEnabled] =
       settings_api::PrefType::kBoolean;
   (*s_allowlist)[autofill::prefs::kAutofillAiOptInStatus] =
       settings_api::PrefType::kBoolean;
@@ -380,8 +376,6 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
   (*s_allowlist)
       [::unified_consent::prefs::kUrlKeyedAnonymizedDataCollectionEnabled] =
           settings_api::PrefType::kBoolean;
-  (*s_allowlist)[::commerce::kPriceEmailNotificationsEnabled] =
-      settings_api::PrefType::kBoolean;
 
   // Languages page
   (*s_allowlist)[spellcheck::prefs::kSpellCheckEnable] =
@@ -630,9 +624,6 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
       [optimization_guide::prefs::kHistorySearchEnterprisePolicyAllowed] =
           settings_api::PrefType::kNumber;
   (*s_allowlist)[optimization_guide::prefs::
-                     kProductSpecificationsEnterprisePolicyAllowed] =
-      settings_api::PrefType::kNumber;
-  (*s_allowlist)[optimization_guide::prefs::
                      kAutofillPredictionImprovementsEnterprisePolicyAllowed] =
       settings_api::PrefType::kNumber;
   (*s_allowlist)[optimization_guide::prefs::kChromeSuggestionsSettings] =
@@ -641,34 +632,8 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
       settings_api::PrefType::kNumber;
 
   // Glic prefs
-  (*s_allowlist)[glic::prefs::kGlicAssistantSelection] =
-      settings_api::PrefType::kNumber;
-  (*s_allowlist)[glic::prefs::kGlicPinnedToTabstrip] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[glic::prefs::kGlicLauncherEnabled] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[glic::prefs::kGlicClosedCaptioningEnabled] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[glic::prefs::kGlicMediaUnderstandingEnabled] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[glic::prefs::kGlicGeolocationEnabled] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[glic::prefs::kGlicMicrophoneEnabled] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[glic::prefs::kGlicTabContextEnabled] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[glic::prefs::kGlicDefaultTabContextEnabled] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[glic::prefs::kGlicUserStatus] =
-      settings_api::PrefType::kDictionary;
   (*s_allowlist)[optimization_guide::prefs::kGeminiSettings] =
       settings_api::PrefType::kNumber;
-  (*s_allowlist)[glic::prefs::kGlicKeepSidepanelOpenOnNewTabsEnabled] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[glic::prefs::kGlicShakeTriggerEnabled] =
-      settings_api::PrefType::kBoolean;
-  (*s_allowlist)[glic::prefs::kGlicHotkeyGlobalScopeEnabled] =
-      settings_api::PrefType::kBoolean;
 
   // Dictation / Voice typing prefs
   (*s_allowlist)[prefs::kVoiceTypingHotkey] = settings_api::PrefType::kString;

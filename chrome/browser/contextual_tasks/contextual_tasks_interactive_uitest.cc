@@ -54,10 +54,6 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/chrome_pages.h"
 #include "chrome/browser/ui/contextual_search/tab_contextualization_controller.h"
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
-#include "chrome/browser/ui/lens/test_lens_overlay_query_controller.h"
-#include "chrome/browser/ui/lens/test_lens_search_controller.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
 #include "chrome/browser/ui/omnibox/omnibox_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_edit_model.h"
@@ -622,157 +618,10 @@ class ContextualTasksInteractiveUiTestBase
 
   // Verifies the structure and content of the SubmitQuery protobuf message sent
   // from the browser to the inner WebContents.
-  MultiStep VerifySubmitQueryMessage(
-      lens::LensOverlayRequestId::MediaType expected_media_type,
-      std::optional<std::string> expected_added_input_name = std::nullopt,
-      int expected_message_index = 0,
-      std::optional<lens::LensOverlayContextualInputUploadType>
-          expected_upload_type = std::nullopt) {
-    return VerifySubmitQueryMessageImpl(
-        expected_media_type, expected_added_input_name, expected_message_index,
-        expected_upload_type, nullptr, nullptr);
-  }
 
-  MultiStep VerifySubmitQueryMessageAndExtractUuid(
-      lens::LensOverlayRequestId::MediaType expected_media_type,
-      std::optional<std::string> expected_added_input_name,
-      int expected_message_index,
-      std::optional<lens::LensOverlayContextualInputUploadType>
-          expected_upload_type,
-      std::reference_wrapper<uint64_t> out_uuid) {
-    return VerifySubmitQueryMessageImpl(
-        expected_media_type, expected_added_input_name, expected_message_index,
-        expected_upload_type, nullptr, &out_uuid.get());
-  }
 
-  MultiStep VerifySubmitQueryMessageWithExpectedUuid(
-      lens::LensOverlayRequestId::MediaType expected_media_type,
-      std::optional<std::string> expected_added_input_name,
-      int expected_message_index,
-      std::optional<lens::LensOverlayContextualInputUploadType>
-          expected_upload_type,
-      std::reference_wrapper<uint64_t> expected_uuid) {
-    return VerifySubmitQueryMessageImpl(
-        expected_media_type, expected_added_input_name, expected_message_index,
-        expected_upload_type, &expected_uuid.get(), nullptr);
-  }
 
  public:
-  MultiStep VerifySubmitQueryMessageImpl(
-      lens::LensOverlayRequestId::MediaType expected_media_type,
-      std::optional<std::string> expected_added_input_name,
-      int expected_message_index,
-      std::optional<lens::LensOverlayContextualInputUploadType>
-          expected_upload_type,
-      const uint64_t* expected_uuid,
-      uint64_t* out_uuid) {
-    return Steps(
-        // Wait until the inner WebContents receives the message at the expected
-        // index.
-        WaitForJsResult(
-            kInnerWebContentsId,
-            base::StringPrintf(
-                "() => Boolean(Array.isArray(window.receivedMessages) && "
-                "window.receivedMessages.filter(buf => new "
-                "Uint8Array(buf)[0] === 18).length > %d)",
-                expected_message_index)),
-        WithElement(kInnerWebContentsId, [expected_media_type,
-                                          expected_added_input_name,
-                                          expected_message_index,
-                                          expected_upload_type, expected_uuid,
-                                          out_uuid](ui::TrackedElement* el) {
-          auto* web_contents = AsInstrumentedWebContents(el)->web_contents();
-          // Extract the binary protobuf message from JavaScript by converting
-          // the matching ArrayBuffer into a base64 encoded string.
-          std::string base64_msg =
-              content::EvalJs(
-                  web_contents,
-                  base::StringPrintf(
-                      "btoa(Array.from(new "
-                      "Uint8Array(window.receivedMessages.filter(buf => new "
-                      "Uint8Array(buf)[0] === 18)[%d])).map(b => "
-                      "String.fromCharCode(b)).join(''))",
-                      expected_message_index))
-                  .ExtractString();
-          std::string decoded_msg;
-          ASSERT_TRUE(base::Base64Decode(base64_msg, &decoded_msg));
-          lens::ClientToAimMessage message;
-          ASSERT_TRUE(message.ParseFromString(decoded_msg));
-
-          // Verify core query payload requirements.
-          EXPECT_TRUE(message.has_submit_query());
-          ASSERT_EQ(
-              message.submit_query().payload().lens_image_query_data_size(), 1);
-          EXPECT_EQ(message.submit_query()
-                        .payload()
-                        .lens_image_query_data(0)
-                        .request_id()
-                        .media_type(),
-                    expected_media_type);
-
-          uint64_t current_uuid = message.submit_query()
-                                      .payload()
-                                      .lens_image_query_data(0)
-                                      .request_id()
-                                      .uuid();
-          if (expected_uuid) {
-            EXPECT_EQ(current_uuid, *expected_uuid);
-          }
-          if (out_uuid) {
-            *out_uuid = current_uuid;
-          }
-
-          // Verify additional context inputs if expected by the test case.
-          if (expected_added_input_name.has_value()) {
-            EXPECT_TRUE(message.submit_query().payload().has_added_inputs());
-            EXPECT_EQ(message.submit_query()
-                          .payload()
-                          .added_inputs()
-                          .added_inputs_size(),
-                      1);
-            EXPECT_TRUE(message.submit_query()
-                            .payload()
-                            .added_inputs()
-                            .added_inputs(0)
-                            .has_lens_file());
-            if (expected_media_type ==
-                lens::LensOverlayRequestId::MEDIA_TYPE_PDF) {
-              EXPECT_THAT(message.submit_query()
-                              .payload()
-                              .added_inputs()
-                              .added_inputs(0)
-                              .lens_file()
-                              .file_name(),
-                          testing::HasSubstr(*expected_added_input_name));
-            } else {
-              EXPECT_THAT(message.submit_query()
-                              .payload()
-                              .added_inputs()
-                              .added_inputs(0)
-                              .lens_file()
-                              .page_url(),
-                          testing::HasSubstr(*expected_added_input_name));
-            }
-          } else {
-            EXPECT_FALSE(message.submit_query().payload().has_added_inputs());
-          }
-
-          if (expected_upload_type.has_value()) {
-            bool found_type = false;
-            const auto& data_list =
-                message.submit_query().payload().lens_image_query_data();
-            for (const auto& payload : data_list) {
-              if (payload.contextual_input_upload_type() ==
-                  *expected_upload_type) {
-                found_type = true;
-                break;
-              }
-            }
-            EXPECT_TRUE(found_type)
-                << "Expected upload type not found in lens_image_query_data.";
-          }
-        }));
-  }
 
  public:
   MultiStep VerifyMultipleSubmitQueryMessage(
@@ -1045,45 +894,13 @@ class ContextualTasksInteractiveUiTestBase
 // TestLensSearchController that can use the real LensQueryFlowRouter (and real
 // ContextualSearchSessionHandle / ComposeboxQueryController) instead of
 // FakeLensQueryFlowRouter.
-class ConfigurableQueryRouterTestLensSearchController
-    : public lens::TestLensSearchController {
- public:
-  ConfigurableQueryRouterTestLensSearchController(
-      tabs::TabInterface* tab,
-      const bool* use_real_query_flow_router)
-      : lens::TestLensSearchController(tab),
-        use_real_query_flow_router_(use_real_query_flow_router) {}
 
-  std::unique_ptr<lens::LensQueryFlowRouter> CreateLensQueryFlowRouter()
-      override {
-    if (*use_real_query_flow_router_) {
-      return LensSearchController::CreateLensQueryFlowRouter();
-    }
-    auto router = lens::TestLensSearchController::CreateLensQueryFlowRouter();
-    auto* fake_router =
-        static_cast<lens::FakeLensQueryFlowRouter*>(router.get());
-    auto* session_handle =
-        static_cast<contextual_search::MockContextualSearchSessionHandle*>(
-            fake_router->GetContextualSearchSessionHandle());
-    ON_CALL(*session_handle, CreateSearchUrl(::testing::_, ::testing::_))
-        .WillByDefault(
-            ::testing::WithArg<1>([](base::OnceCallback<void(GURL)> callback) {
-              std::move(callback).Run(
-                  GURL("https://www.google.com/search?lns_mode=un&vsrid=123"));
-            }));
-    return router;
-  }
-
- private:
-  raw_ptr<const bool> use_real_query_flow_router_;
-};
 
 class ContextualTasksInteractiveUiTest
     : public ContextualTasksInteractiveUiTestBase,
       public testing::WithParamInterface<UserVariation> {
  public:
   ContextualTasksInteractiveUiTest() {
-    lens_search_controller_override_ = ui::UserDataFactory::ScopedOverride();
     lens_search_controller_override_ =
         tabs::TabFeatures::GetUserDataFactoryForTesting().AddOverrideForTesting(
             base::BindRepeating(
@@ -1870,25 +1687,6 @@ IN_PROC_BROWSER_TEST_P(ContextualTasksInteractiveUiTest,
                                    "#composebox", "cr-composebox-submit",
                                    "#submitContainer"};
 
-  RunTestSequence(
-      InstrumentTab(kPrimaryTab, 0),
-      NavigateWebContents(kPrimaryTab, GURL(chrome::kChromeUIVersionURL)),
-      AddInstrumentedTab(kGenericTab, kGenericPageUrl),
-      WaitForWebContentsReady(kGenericTab, kGenericPageUrl),
-      SelectTab(kTabStripElementId, 0),
-      OpenContextualTasksInSidePanel(kSidePanelId),
-      InstrumentInnerWebContents(kInnerWebContentsId, kSidePanelId, 0),
-      ForceClickAddContextEntrypoint(kSidePanelId),
-      ForceClickMenuButton(kSidePanelId, 0),
-      WaitForFaviconGroupWithTitle(kSidePanelId, "title1.html"),
-      WaitForComposeboxFilesCount(kSidePanelId, 1),
-      WaitForSubmitButtonEnabled(kSidePanelId),
-      ClickButton(kSidePanelId, kSubmitButton),
-      VerifySubmitQueryMessage(
-          lens::LensOverlayRequestId::MEDIA_TYPE_WEBPAGE_AND_IMAGE,
-          std::nullopt, 0,
-          lens::LensOverlayContextualInputUploadType::
-              CONTEXTUAL_INPUT_UPLOAD_TYPE_EXPLICIT));
 }
 
 IN_PROC_BROWSER_TEST_P(ContextualTasksInteractiveUiTest,
@@ -1921,17 +1719,6 @@ IN_PROC_BROWSER_TEST_P(ContextualTasksInteractiveUiTest,
                                         "cr-composebox-file-thumbnail",
                                         "#documentTitle"};
 
-  RunTestSequence(
-      InstrumentTab(kPrimaryTab, 0), SelectTab(kTabStripElementId, 0),
-      OpenContextualTasksInSidePanel(kSidePanelId),
-      InstrumentInnerWebContents(kInnerWebContentsId, kSidePanelId, 0),
-      ForceClickAddContextEntrypoint(kSidePanelId),
-      ForceClickMenuButton(kSidePanelId, "fileUpload"),
-      WaitForDocumentChipWithTitle(kSidePanelId, "download.pdf"),
-      WaitForComposeboxFilesCount(kSidePanelId, 1),
-      WaitForSubmitButtonEnabled(kSidePanelId),
-      ClickButton(kSidePanelId, kSubmitButton),
-      VerifySubmitQueryMessage(lens::LensOverlayRequestId::MEDIA_TYPE_PDF));
 }
 
 IN_PROC_BROWSER_TEST_P(ContextualTasksInteractiveUiTest,
@@ -1954,18 +1741,6 @@ IN_PROC_BROWSER_TEST_P(ContextualTasksInteractiveUiTest,
                                    "#composebox", "cr-composebox-submit",
                                    "#submitContainer"};
 
-  RunTestSequence(
-      InstrumentTab(kPrimaryTab, 0), SelectTab(kTabStripElementId, 0),
-      OpenContextualTasksInSidePanel(kSidePanelId),
-      InstrumentInnerWebContents(kInnerWebContentsId, kSidePanelId, 0),
-      ForceClickAddContextEntrypoint(kSidePanelId),
-      ForceClickMenuButton(kSidePanelId, "imageUpload"),
-      WaitForElementExists(kSidePanelId, kImgChip),
-      WaitForComposeboxFilesCount(kSidePanelId, 1),
-      WaitForSubmitButtonEnabled(kSidePanelId),
-      ClickButton(kSidePanelId, kSubmitButton),
-      VerifySubmitQueryMessage(
-          lens::LensOverlayRequestId::MEDIA_TYPE_DEFAULT_IMAGE));
 }
 
 IN_PROC_BROWSER_TEST_P(ContextualTasksInteractiveUiTest,
@@ -3206,24 +2981,6 @@ IN_PROC_BROWSER_TEST_P(
                                    "#composebox", "cr-composebox-submit",
                                    "#submitContainer"};
 
-  RunTestSequence(
-      InstrumentTab(kPrimaryTab, 0),
-      NavigateWebContents(kPrimaryTab, GURL(chrome::kChromeUIVersionURL)),
-      AddInstrumentedTab(kGenericTab, kGenericPageUrl),
-      WaitForWebContentsReady(kGenericTab, kGenericPageUrl),
-      SelectTab(kTabStripElementId, 0),
-      OpenContextualTasksInSidePanel(kSidePanelId),
-      InstrumentInnerWebContents(kInnerWebContentsId, kSidePanelId, 0),
-      ForceClickAddContextEntrypoint(kSidePanelId),
-      ForceClickMenuButton(kSidePanelId, 0),
-      WaitForFaviconGroupWithTitle(kSidePanelId, "title1.html"),
-      WaitForComposeboxFilesCount(kSidePanelId, 1),
-      WaitForSubmitButtonEnabled(kSidePanelId),
-      ClickButton(kSidePanelId, kSubmitButton),
-      // When flag is disabled, unresolved URLs (Tabs) are sent in AAI.
-      VerifySubmitQueryMessage(
-          lens::LensOverlayRequestId::MEDIA_TYPE_WEBPAGE_AND_IMAGE,
-          "title1.html"));
 }
 
 IN_PROC_BROWSER_TEST_P(
@@ -3243,19 +3000,6 @@ IN_PROC_BROWSER_TEST_P(
                                    "#composebox", "cr-composebox-submit",
                                    "#submitContainer"};
 
-  RunTestSequence(
-      InstrumentTab(kPrimaryTab, 0), SelectTab(kTabStripElementId, 0),
-      OpenContextualTasksInSidePanel(kSidePanelId),
-      InstrumentInnerWebContents(kInnerWebContentsId, kSidePanelId, 0),
-      ForceClickAddContextEntrypoint(kSidePanelId),
-      ForceClickMenuButton(kSidePanelId, "fileUpload"),
-      WaitForDocumentChipWithTitle(kSidePanelId, "download.pdf"),
-      WaitForComposeboxFilesCount(kSidePanelId, 1),
-      WaitForSubmitButtonEnabled(kSidePanelId),
-      ClickButton(kSidePanelId, kSubmitButton),
-      // When flag is disabled, PDF is sent in AAI.
-      VerifySubmitQueryMessage(lens::LensOverlayRequestId::MEDIA_TYPE_PDF,
-                               "download.pdf"));
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -3432,11 +3176,6 @@ IN_PROC_BROWSER_TEST_P(ContextualTasksRecontextUiTest,
 
       // Trigger Lens Overlay.
       Do([&]() {
-        LensSearchController* lens_search_controller =
-            LensSearchController::FromTabWebContents(
-                browser()->tab_strip_model()->GetActiveWebContents());
-        lens_search_controller->OpenLensOverlay(
-            lens::LensOverlayInvocationSource::kAppMenu);
       }),
 
       // Wait for the overlay to load.
@@ -3452,8 +3191,6 @@ IN_PROC_BROWSER_TEST_P(ContextualTasksRecontextUiTest,
           WaitForShow(LensOverlayController::kOverlayId), Do([&]() {
             content::WebContents* web_contents =
                 browser()->tab_strip_model()->GetActiveWebContents();
-            auto* lens_controller =
-                LensSearchController::FromTabWebContents(web_contents);
             auto* query_router = static_cast<lens::FakeLensQueryFlowRouter*>(
                 lens_controller->query_router());
             CHECK(query_router);
@@ -4133,106 +3870,6 @@ IN_PROC_BROWSER_TEST_P(ContextualTasksCopyUrlTest, FocusAndBlur) {
 //  (5) Contextual Tasks side panel opens with a task for the tab and loads
 //      the Lens region search results.
 //  (6) Lens overlay stays open and keeps showing the selected region.
-IN_PROC_BROWSER_TEST_P(ContextualTasksInteractiveUiTest,
-                       LensOverlayRegionSearchHandoff) {
-  UseRealLensQueryFlowRouter();
-  WaitForTemplateURLServiceToLoad();
-
-  DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kOverlayId);
-  DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kSidePanelId);
-
-  const DeepQuery kThreadFrame = {"contextual-tasks-app", "#threadFrame"};
-  const DeepQuery kSelectionOverlay = {"lens-overlay-app",
-                                       "lens-selection-overlay"};
-
-  auto* const browser_view = BrowserView::GetBrowserViewForBrowser(browser());
-  auto off_center_point = base::BindLambdaForTesting([browser_view]() {
-    gfx::Point off_center =
-        browser_view->GetContentsView()->GetBoundsInScreen().CenterPoint();
-    off_center.Offset(100, 100);
-    return off_center;
-  });
-
-  auto get_lens_controller = [this]() {
-    return LensSearchController::FromTabWebContents(
-        browser()->tab_strip_model()->GetActiveWebContents());
-  };
-
-  RunTestSequence(
-      // (1)-(2) Navigate to a page and select Lens from the app menu.
-      OpenLensOverlay(),
-
-      // (3) The Lens overlay opens from the app menu entry point.
-      InAnyContext(WaitForShow(LensOverlayController::kOverlayId)),
-      CheckResult(
-          [get_lens_controller]() {
-            return get_lens_controller()->invocation_source();
-          },
-          std::make_optional(lens::LensOverlayInvocationSource::kAppMenu)),
-
-      // (4) Drag to select a region in the overlay.
-      SelectRegionInLensOverlay(kOverlayId, std::move(off_center_point)),
-
-      // (5) The region query opens the Contextual Tasks side panel for a task
-      // associated with the tab, and the panel loads the region results URL.
-      WaitForShow(kContextualTasksSidePanelWebViewElementId),
-      Check(
-          [this]() {
-            return ContextualTasksPanelController::From(browser())
-                ->IsPanelOpenForContextualTask();
-          },
-          "Side panel is open for a contextual task"),
-      Check(
-          [this]() {
-            return CHECK_DEREF(ContextualTasksServiceFactory::GetForProfile(
-                                   browser()->GetProfile()))
-                .GetContextualTaskForTab(sessions::SessionTabHelper::IdForTab(
-                    browser()->tab_strip_model()->GetActiveWebContents()))
-                .has_value();
-          },
-          "Active tab is associated with a contextual task"),
-      NameViewRelative(kContextualTasksSidePanelWebViewElementId,
-                       "LensRegionHandoffSidePanelContents",
-                       [](ContextualTasksWebView* web_view) -> views::View* {
-                         return web_view->content_web_view();
-                       }),
-      InstrumentNonTabWebView(kSidePanelId,
-                              "LensRegionHandoffSidePanelContents"),
-      WaitForElementExists(kSidePanelId, kThreadFrame),
-      WaitForJsResultAt(kSidePanelId, kThreadFrame,
-                        "el => {"
-                        "  if (!el.src || !URL.canParse(el.src)) return false;"
-                        "  const url = new URL(el.src);"
-                        "  return url.origin === 'https://www.google.com' &&"
-                        "         url.pathname === '/search' &&"
-                        "         url.searchParams.get('udm') === '26' &&"
-                        "         url.searchParams.get('lns_mode') === 'un' &&"
-                        "         url.searchParams.get('lns_fp') === '1' &&"
-                        "         Boolean(url.searchParams.get('vsrid')) &&"
-                        "         Boolean(url.searchParams.get('vsint')) &&"
-                        "         Boolean(url.searchParams.get('gsessionid'));"
-                        "}"),
-
-      // (6) The overlay stays open with the region still selected.
-      CheckResult(
-          [get_lens_controller]() {
-            return get_lens_controller()
-                ->lens_overlay_controller()
-                ->IsOverlayShowing();
-          },
-          true),
-      InAnyContext(WaitForJsResultAt(
-          kOverlayId, kSelectionOverlay,
-          "el => !!el.shadowRoot?.querySelector('#postSelectionRenderer')"
-          "?.hasSelection?.()")),
-      CheckResult(
-          [get_lens_controller]() {
-            return get_lens_controller()
-                ->lens_overlay_controller()
-                ->HasRegionSelection();
-          },
-          true));
-}
 
 class ContextualTasksSeparateViewportRequestIdsInteractiveUiTest
     : public ContextualTasksInteractiveUiTest {
@@ -4255,140 +3892,6 @@ class ContextualTasksSeparateViewportRequestIdsInteractiveUiTest
   }
 };
 
-IN_PROC_BROWSER_TEST_P(
-    ContextualTasksSeparateViewportRequestIdsInteractiveUiTest,
-    LensOverlayRegionSearchHandoff) {
-  UseRealLensQueryFlowRouter();
-  WaitForTemplateURLServiceToLoad();
-
-  DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kOverlayId);
-  DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kSidePanelId);
-
-  const DeepQuery kThreadFrame = {"contextual-tasks-app", "#threadFrame"};
-  const DeepQuery kSelectionOverlay = {"lens-overlay-app",
-                                       "lens-selection-overlay"};
-
-  auto* const browser_view = BrowserView::GetBrowserViewForBrowser(browser());
-  auto off_center_point = base::BindLambdaForTesting([browser_view]() {
-    gfx::Point off_center =
-        browser_view->GetContentsView()->GetBoundsInScreen().CenterPoint();
-    off_center.Offset(100, 100);
-    return off_center;
-  });
-
-  auto get_lens_controller = [this]() {
-    return LensSearchController::FromTabWebContents(
-        browser()->tab_strip_model()->GetActiveWebContents());
-  };
-
-  RunTestSequence(
-      // (1)-(2) Navigate to a page and select Lens from the app menu.
-      OpenLensOverlay(),
-
-      // (3) The Lens overlay opens from the app menu entry point.
-      InAnyContext(WaitForShow(LensOverlayController::kOverlayId)),
-      CheckResult(
-          [get_lens_controller]() {
-            return get_lens_controller()->invocation_source();
-          },
-          std::make_optional(lens::LensOverlayInvocationSource::kAppMenu)),
-
-      // (4) Drag to select a region in the overlay.
-      SelectRegionInLensOverlay(kOverlayId, std::move(off_center_point)),
-
-      // (5) The region query opens the Contextual Tasks side panel for a task
-      // associated with the tab, and the panel loads the region results URL.
-      WaitForShow(kContextualTasksSidePanelWebViewElementId),
-      Check(
-          [this]() {
-            return ContextualTasksPanelController::From(browser())
-                ->IsPanelOpenForContextualTask();
-          },
-          "Side panel is open for a contextual task"),
-      Check(
-          [this]() {
-            return CHECK_DEREF(ContextualTasksServiceFactory::GetForProfile(
-                                   browser()->GetProfile()))
-                .GetContextualTaskForTab(sessions::SessionTabHelper::IdForTab(
-                    browser()->tab_strip_model()->GetActiveWebContents()))
-                .has_value();
-          },
-          "Active tab is associated with a contextual task"),
-      NameViewRelative(kContextualTasksSidePanelWebViewElementId,
-                       "LensRegionHandoffSidePanelContents",
-                       [](ContextualTasksWebView* web_view) -> views::View* {
-                         return web_view->content_web_view();
-                       }),
-      InstrumentNonTabWebView(kSidePanelId,
-                              "LensRegionHandoffSidePanelContents"),
-      WaitForElementExists(kSidePanelId, kThreadFrame),
-      WaitForJsResultAt(kSidePanelId, kThreadFrame,
-                        "el => {"
-                        "  if (!el.src || !URL.canParse(el.src)) return false;"
-                        "  const url = new URL(el.src);"
-                        "  return url.origin === 'https://www.google.com' &&"
-                        "         url.pathname === '/search' &&"
-                        "         url.searchParams.get('udm') === '26' &&"
-                        "         url.searchParams.get('lns_mode') === 'un' &&"
-                        "         url.searchParams.get('lns_fp') === '1' &&"
-                        "         Boolean(url.searchParams.get('cinpts')) &&"
-                        "         !url.searchParams.has('vsrid') &&"
-                        "         Boolean(url.searchParams.get('vsint')) &&"
-                        "         Boolean(url.searchParams.get('gsessionid'));"
-                        "}"),
-      CheckJsResultAt(
-          kSidePanelId, kThreadFrame,
-          "el => new URL(el.src).searchParams.get('cinpts')",
-          testing::Truly([](const std::string& cinpts_param) {
-            std::string serialized_proto;
-            if (!base::Base64UrlDecode(
-                    cinpts_param, base::Base64UrlDecodePolicy::DISALLOW_PADDING,
-                    &serialized_proto)) {
-              return false;
-            }
-            lens::LensOverlayContextualInputs proto;
-            if (!proto.ParseFromString(serialized_proto)) {
-              return false;
-            }
-            if (proto.inputs_size() != 2) {
-              return false;
-            }
-            bool viewport_is_first = proto.inputs(0).is_viewport_image();
-            const auto& viewport_input =
-                proto.inputs(viewport_is_first ? 0 : 1);
-            const auto& page_input = proto.inputs(viewport_is_first ? 1 : 0);
-            return viewport_input.is_viewport_image() &&
-                   viewport_input.request_id().media_type() ==
-                       lens::LensOverlayRequestId::MEDIA_TYPE_DEFAULT_IMAGE &&
-                   !page_input.is_viewport_image() &&
-                   page_input.request_id().media_type() ==
-                       lens::LensOverlayRequestId::MEDIA_TYPE_WEBPAGE &&
-                   viewport_input.request_id().context_id() ==
-                       page_input.request_id().context_id() &&
-                   viewport_input.request_id().uuid() !=
-                       page_input.request_id().uuid();
-          })),
-
-      // (6) The overlay stays open with the region still selected.
-      CheckResult(
-          [get_lens_controller]() {
-            return get_lens_controller()
-                ->lens_overlay_controller()
-                ->IsOverlayShowing();
-          },
-          true),
-      InAnyContext(WaitForJsResultAt(
-          kOverlayId, kSelectionOverlay,
-          "el => !!el.shadowRoot?.querySelector('#postSelectionRenderer')"
-          "?.hasSelection?.()")),
-      CheckResult(
-          [get_lens_controller]() {
-            return get_lens_controller()
-                ->lens_overlay_controller()
-                ->HasRegionSelection();
-          },
-          true));
-}
 
 IN_PROC_BROWSER_TEST_P(
     ContextualTasksSeparateViewportRequestIdsInteractiveUiTest,
@@ -4447,20 +3950,10 @@ IN_PROC_BROWSER_TEST_P(
         const auto& page_data = payload.lens_image_query_data(0);
         const auto& viewport_data = payload.lens_image_query_data(1);
 
-        EXPECT_EQ(page_data.request_id().media_type(),
-                  lens::LensOverlayRequestId::MEDIA_TYPE_WEBPAGE);
-        EXPECT_EQ(page_data.contextual_input_upload_type(),
-                  lens::LensOverlayContextualInputUploadType::
-                      CONTEXTUAL_INPUT_UPLOAD_TYPE_EXPLICIT);
         EXPECT_EQ(page_data.request_id().sequence_id(), 1);
         EXPECT_EQ(page_data.request_id().image_sequence_id(), 0);
         EXPECT_EQ(page_data.request_id().long_context_id(), 1);
 
-        EXPECT_EQ(viewport_data.request_id().media_type(),
-                  lens::LensOverlayRequestId::MEDIA_TYPE_DEFAULT_IMAGE);
-        EXPECT_EQ(viewport_data.contextual_input_upload_type(),
-                  lens::LensOverlayContextualInputUploadType::
-                      CONTEXTUAL_INPUT_UPLOAD_TYPE_EXPLICIT);
         EXPECT_EQ(viewport_data.request_id().sequence_id(), 1);
         EXPECT_EQ(viewport_data.request_id().image_sequence_id(), 1);
         EXPECT_EQ(viewport_data.request_id().long_context_id(), 0);
@@ -4568,14 +4061,10 @@ IN_PROC_BROWSER_TEST_P(
             EXPECT_NE(session_context_id, 0);
             EXPECT_EQ(viewport_id.context_id(), session_context_id);
 
-            EXPECT_EQ(page_id.media_type(),
-                      lens::LensOverlayRequestId::MEDIA_TYPE_WEBPAGE);
             EXPECT_EQ(page_id.sequence_id(), 1);
             EXPECT_EQ(page_id.image_sequence_id(), 0);
             EXPECT_EQ(page_id.long_context_id(), 1);
 
-            EXPECT_EQ(viewport_id.media_type(),
-                      lens::LensOverlayRequestId::MEDIA_TYPE_DEFAULT_IMAGE);
             EXPECT_EQ(viewport_id.sequence_id(), 1);
             EXPECT_EQ(viewport_id.image_sequence_id(), 1);
             EXPECT_EQ(viewport_id.long_context_id(), 0);
@@ -4621,8 +4110,6 @@ IN_PROC_BROWSER_TEST_P(
             // numbers because page content was not reuploaded on Turn 3.
             EXPECT_EQ(page_id.uuid(), page_uuid);
             EXPECT_EQ(page_id.context_id(), session_context_id);
-            EXPECT_EQ(page_id.media_type(),
-                      lens::LensOverlayRequestId::MEDIA_TYPE_WEBPAGE);
             EXPECT_EQ(page_id.sequence_id(), 1);
             EXPECT_EQ(page_id.image_sequence_id(), 0);
             EXPECT_EQ(page_id.long_context_id(), 1);
@@ -4631,8 +4118,6 @@ IN_PROC_BROWSER_TEST_P(
             // incrementing sequence_id and image_sequence_id to 2.
             EXPECT_EQ(viewport_id.uuid(), viewport_uuid);
             EXPECT_EQ(viewport_id.context_id(), session_context_id);
-            EXPECT_EQ(viewport_id.media_type(),
-                      lens::LensOverlayRequestId::MEDIA_TYPE_DEFAULT_IMAGE);
             EXPECT_EQ(viewport_id.sequence_id(), 2);
             EXPECT_EQ(viewport_id.image_sequence_id(), 2);
             EXPECT_EQ(viewport_id.long_context_id(), 0);
@@ -4670,8 +4155,6 @@ IN_PROC_BROWSER_TEST_P(
         // Page request ID increments sequence_id and long_context_id to 2.
         EXPECT_EQ(page_id.uuid(), page_uuid);
         EXPECT_EQ(page_id.context_id(), session_context_id);
-        EXPECT_EQ(page_id.media_type(),
-                  lens::LensOverlayRequestId::MEDIA_TYPE_WEBPAGE);
         EXPECT_EQ(page_id.sequence_id(), 2);
         EXPECT_EQ(page_id.image_sequence_id(), 0);
         EXPECT_EQ(page_id.long_context_id(), 2);
@@ -4680,8 +4163,6 @@ IN_PROC_BROWSER_TEST_P(
         // to 3.
         EXPECT_EQ(viewport_id.uuid(), viewport_uuid);
         EXPECT_EQ(viewport_id.context_id(), session_context_id);
-        EXPECT_EQ(viewport_id.media_type(),
-                  lens::LensOverlayRequestId::MEDIA_TYPE_DEFAULT_IMAGE);
         EXPECT_EQ(viewport_id.sequence_id(), 3);
         EXPECT_EQ(viewport_id.image_sequence_id(), 3);
         EXPECT_EQ(viewport_id.long_context_id(), 0);
@@ -5012,8 +4493,6 @@ class ContextualTasksSidePanelRearchToolbarInteractiveUiTest
             Do([this, aim_url]() {
               content::WebContents* web_contents =
                   browser()->tab_strip_model()->GetActiveWebContents();
-              auto* lens_controller =
-                  LensSearchController::FromTabWebContents(web_contents);
               auto* query_router = static_cast<lens::FakeLensQueryFlowRouter*>(
                   lens_controller->query_router());
               CHECK(query_router);
@@ -5111,8 +4590,6 @@ IN_PROC_BROWSER_TEST_P(ContextualTasksExtensionLensButtonInteractiveUiTest,
           })();
         )"));
 
-        auto* search_controller =
-            LensSearchController::FromTabWebContents(tab_contents);
         ASSERT_NE(search_controller, nullptr);
         EXPECT_TRUE(search_controller->IsOff());
         EXPECT_FALSE(search_controller->IsShowingUI());
@@ -5164,8 +4641,6 @@ IN_PROC_BROWSER_TEST_P(ContextualTasksExtensionLensButtonInteractiveUiTest,
       WaitForShow(LensOverlayController::kOverlayId), Do([&]() {
         content::WebContents* tab_contents =
             browser()->tab_strip_model()->GetActiveWebContents();
-        auto* search_controller =
-            LensSearchController::FromTabWebContents(tab_contents);
         ASSERT_NE(search_controller, nullptr);
         EXPECT_TRUE(search_controller->IsShowingUI());
         EXPECT_EQ(
@@ -5485,11 +4960,6 @@ IN_PROC_BROWSER_TEST_P(
             add_message.on_suggest_inputs_changed().added_contexts(0);
         EXPECT_EQ(added.search_session_id(), "test_search_session_id");
         EXPECT_GT(added.request_id().uuid(), 0u);
-        EXPECT_EQ(added.request_id().media_type(),
-                  lens::LensOverlayRequestId::MEDIA_TYPE_WEBPAGE_AND_IMAGE);
-        EXPECT_EQ(added.contextual_input_upload_type(),
-                  lens::LensOverlayContextualInputUploadType::
-                      CONTEXTUAL_INPUT_UPLOAD_TYPE_EXPLICIT);
       }),
 
       // (6)-(7) Click the selected tab item again to unselect it and verify

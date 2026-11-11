@@ -107,19 +107,6 @@
 #include "url/gurl.h"
 
 #include "chrome/browser/account_settings/account_setting_service_factory.h"
-#include "chrome/browser/actor/actor_keyed_service_factory.h"
-#include "chrome/browser/actor/actor_keyed_service_fake.h"
-#include "chrome/browser/actor/actor_surface_registry.h"
-#include "chrome/browser/glic/glic_profile_manager.h"
-#include "chrome/browser/glic/host/glic.mojom.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_invoke_options.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/glic/public/glic_provider.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
-#include "chrome/browser/glic/test_support/mock_glic_keyed_service.h"  // nogncheck
-#include "chrome/browser/glic/test_support/scoped_glic_provider_override.h"  // nogncheck
 #include "chrome/browser/profiles/profile_attributes_init_params.h"
 #include "chrome/browser/profiles/profile_attributes_storage.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
@@ -649,27 +636,6 @@ class ChromeAutofillClientTestWithMockWindow : public ChromeAutofillClientTest {
     return main_mocks_.user_data_host;
   }
 
-  glic::MockGlicKeyedService* SetUpMockGlicKeyedService() {
-    scoped_glic_bypass_.emplace();
-    glic::GlicKeyedServiceFactory::GetInstance()->SetTestingFactory(
-        profile(),
-        base::BindRepeating(
-            [](glic::GlicProfileManager* glic_profile_manager,
-               content::BrowserContext* context)
-                -> std::unique_ptr<KeyedService> {
-              Profile* profile = Profile::FromBrowserContext(context);
-              return std::make_unique<glic::MockGlicKeyedService>(
-                  context, IdentityManagerFactory::GetForProfile(profile),
-                  TestingBrowserProcess::GetGlobal()->profile_manager(),
-                  glic_profile_manager,
-                  /*contextual_cueing_service=*/nullptr,
-                  /*actor_keyed_service=*/nullptr);
-            },
-            &glic_profile_manager_));
-    return static_cast<glic::MockGlicKeyedService*>(
-        glic::GlicKeyedServiceFactory::GetGlicKeyedService(profile(),
-                                                           /*create=*/true));
-  }
 
  protected:
   struct TabAndWindowMocks {
@@ -717,10 +683,7 @@ class ChromeAutofillClientTestWithMockWindow : public ChromeAutofillClientTest {
 
  private:
   TabAndWindowMocks main_mocks_;
-  glic::GlicProfileManager glic_profile_manager_;
   std::unique_ptr<TestingProfileManager> profile_manager_;
-  std::optional<glic::GlicEnabling::ScopedBypassEnablementChecksForTesting>
-      scoped_glic_bypass_;
   base::test::ScopedFeatureList scoped_feature_list_;
 };
 
@@ -753,19 +716,9 @@ TEST_F(ChromeAutofillClientTestWithMockWindow,
 // Tests that `OpenGeminiInSidebar` invokes Glic with the correct options and
 // prompt.
 TEST_F(ChromeAutofillClientTestWithMockWindow, OpenGeminiInSidebar) {
-  glic::MockGlicKeyedService* mock_glic_service = SetUpMockGlicKeyedService();
-  ASSERT_TRUE(mock_glic_service);
 
   // We expect that the glic service is invoked with kAutofill as the invocation
   // source and containing the correct prompt.
-  EXPECT_CALL(
-      *mock_glic_service,
-      Invoke(AllOf(
-          Property(&glic::GlicInvokeOptions::GetInvocationSource,
-                   glic::mojom::InvocationSource::kAutofill),
-          Field(&glic::GlicInvokeOptions::prompts, ElementsAre("test prompt")),
-          Field(&glic::GlicInvokeOptions::focus_on_show, true))))
-      .WillOnce(testing::Return(base::WeakPtr<glic::GlicInstance>()));
 
   client()->OpenGeminiInSidebar(u"test prompt");
 }
@@ -780,72 +733,12 @@ class ChromeAutofillClientGeminiEnterpriseTest
 };
 
 // Autofill doesn't open Gemini Enterprise.
-TEST_F(ChromeAutofillClientGeminiEnterpriseTest, GlicEntryPointsDisabled) {
-  glic::MockGlicKeyedService* mock_glic_service = SetUpMockGlicKeyedService();
-  ASSERT_TRUE(mock_glic_service);
-  ASSERT_TRUE(glic::GlicEnabling::IsEnabledForProfile(profile()));
-  ASSERT_EQ(glic::GetGlicProviderSpec(profile()).GetSettingsSectionId(),
-            glic::kGeminiEnterpriseSettingsSectionId);
-
-  EXPECT_FALSE(client()->IsGlicEnabled());
-  EXPECT_CALL(*mock_glic_service, Invoke).Times(0);
-  client()->OpenGeminiInSidebar(u"test prompt");
-}
 
 // Gemini Enterprise consent isn't reported to Autofill as Gemini in Chrome
 // consent.
-TEST_F(ChromeAutofillClientGeminiEnterpriseTest, GlicConsentNotReported) {
-  glic::MockGlicKeyedService* mock_glic_service = SetUpMockGlicKeyedService();
-  ASSERT_TRUE(mock_glic_service);
-  mock_glic_service->enabling().SetCompletedFre(
-      glic::prefs::FreStatus::kCompleted);
-  ASSERT_TRUE(glic::GlicEnabling::HasConsentedForProfile(profile()));
-
-  EXPECT_FALSE(client()->IsGlicConsented());
-}
 
 // Tests that `OnActorTaskStateChange` calls `TriggerFormExtractionInAllFrames`
 // when a new task gets assigned.
-TEST_F(ChromeAutofillClientTestWithMockWindow,
-       OnActorTaskStateChange_ReparseForms) {
-  actor::ActorKeyedServiceFake* actor_service =
-      static_cast<actor::ActorKeyedServiceFake*>(
-          actor::ActorKeyedService::Get(profile()));
-  ASSERT_TRUE(actor_service);
-
-  MockContentAutofillDriver* mock_driver = (*driver_injector_)[web_contents()];
-  ASSERT_TRUE(mock_driver);
-
-  actor::TaskId task_id = actor_service->CreateTaskForTesting();
-  actor::ActorTask* task = actor_service->GetTask(task_id);
-  ASSERT_TRUE(task);
-
-  // Associate the active tab with the task.
-  actor_service->GetSurfaceRegistry().OnTabCreated(mock_tab_interface());
-  task->AddTab(mock_tab_interface().GetHandle(),
-               /*stop_task_on_detach=*/true, base::DoNothing());
-
-  EXPECT_FALSE(client()->IsTabInActorMode());
-
-  MockFunction<void()> check;
-  {
-    InSequence s;
-    // First call (assignment) triggers `TriggerFormExtractionInAllFrames()`
-    // with actor mode already enabled.
-    EXPECT_CALL(*mock_driver,
-                TriggerFormExtractionInAllFrames(/*force=*/true, _))
-        .WillOnce([this]() { EXPECT_TRUE(client()->IsTabInActorMode()); });
-    EXPECT_CALL(check, Call);
-    // Second call (no new task) does not trigger
-    // `TriggerFormExtractionInAllFrames()`.
-    EXPECT_CALL(*mock_driver, TriggerFormExtractionInAllFrames).Times(0);
-  }
-
-  actor_service->NotifyTaskStateChanged(*task);
-  EXPECT_TRUE(client()->IsTabInActorMode());
-  check.Call();
-  actor_service->NotifyTaskStateChanged(*task);
-}
 
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
@@ -1269,8 +1162,6 @@ TEST_F(ChromeAutofillClientTest, IsAutofillEnabled_BlockedByPolicy) {
                                     true);
   profile()->GetPrefs()->SetBoolean(prefs::kAutofillAiTravelEntitiesEnabled,
                                     true);
-  profile()->GetPrefs()->SetBoolean(prefs::kAutofillAiShoppingEntitiesEnabled,
-                                    true);
 
   EXPECT_TRUE(client()->IsAutofillEnabled());
 
@@ -1314,8 +1205,6 @@ TEST_F(ChromeAutofillClientTest,
   profile()->GetPrefs()->SetBoolean(prefs::kAutofillAiIdentityEntitiesEnabled,
                                     true);
   profile()->GetPrefs()->SetBoolean(prefs::kAutofillAiTravelEntitiesEnabled,
-                                    true);
-  profile()->GetPrefs()->SetBoolean(prefs::kAutofillAiShoppingEntitiesEnabled,
                                     true);
 
   // If the enterprise policy flag is OFF, IsAutofillEnabled does not check AI

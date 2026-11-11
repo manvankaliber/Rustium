@@ -57,7 +57,7 @@ export class SettingsAiPageElement extends SettingsAiPageElementBase {
       showPasswordChangeControl_: {type: Boolean},
       showAiSuggestionsControl_: {type: Boolean},
       showInlineCueMenuControl_: {type: Boolean},
-      showSkillsSettingPage_: {type: Boolean},
+
       showIndigoControl_: {type: Boolean},
       showGoogleSearchAiModeWorkspaceControl_: {type: Boolean},
       showDictationControl_: {type: Boolean},
@@ -75,8 +75,7 @@ export class SettingsAiPageElement extends SettingsAiPageElementBase {
       loadTimeData.getBoolean('showAiSuggestionsControl');
   protected accessor showInlineCueMenuControl_: boolean =
       loadTimeData.getBoolean('showInlineCueMenuControl');
-  protected accessor showSkillsSettingPage_: boolean =
-      loadTimeData.getBoolean('showSkillsSettingPage');
+
   protected accessor showIndigoControl_: boolean =
       loadTimeData.getBoolean('showIndigoControl');
   protected accessor showGoogleSearchAiModeWorkspaceControl_: boolean =
@@ -340,7 +339,7 @@ export class SettingsAiPageElement extends SettingsAiPageElementBase {
         triggerId = 'inlineCueMenuRow';
         break;
       case 'skills':
-        assert(this.showSkillsSettingPage_);
+
         triggerId = 'skillsRow';
         break;
       case 'dictation':

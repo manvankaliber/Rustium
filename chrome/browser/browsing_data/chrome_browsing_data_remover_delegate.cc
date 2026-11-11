@@ -81,7 +81,6 @@
 #include "chrome/browser/search_engine_choice/search_engine_choice_service_factory.h"
 #include "chrome/browser/search_engines/template_url_service_factory.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "chrome/browser/strike_database/strike_database_factory.h"
@@ -469,11 +468,6 @@ void ChromeBrowsingDataRemoverDelegate::RemoveEmbedderData(
 
     // Remove localStorage data from Lens Overlay UI whenever any history is
     // deleted.
-    if (lens::features::IsLensOverlayTranslateLanguagesFetchEnabled()) {
-      profile_->GetDefaultStoragePartition()->ClearDataForOrigin(
-          content::StoragePartition::REMOVE_DATA_MASK_LOCAL_STORAGE,
-          GURL(chrome::kChromeUILensOverlayUntrustedURL), base::DoNothing());
-    }
 
     content::PrefetchServiceDelegate::ClearData(profile_);
 
@@ -773,16 +767,6 @@ void ChromeBrowsingDataRemoverDelegate::RemoveEmbedderData(
       } else {
         NOTIMPLEMENTED();
       }
-    }
-  }
-
-  //////////////////////////////////////////////////////////////////////////////
-  // DATA_TYPE_SKILLS
-  if (remove_mask & constants::DATA_TYPE_SKILLS) {
-    skills::SkillsService* skills_service =
-        skills::SkillsServiceFactory::GetForProfile(profile_);
-    if (skills_service) {
-      skills_service->DeleteSkillsModifiedBetween(delete_begin_, delete_end_);
     }
   }
 

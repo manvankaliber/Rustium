@@ -749,7 +749,6 @@ source_set("in_process_browser_test") {
     "//chrome/browser:chrome_browser_main",
     "//chrome/browser:chrome_content_browser_client",
     "//chrome/browser:main_extra_parts",
-    "//chrome/browser/actor/ui",
     "//chrome/browser/devtools",
     "//chrome/browser/lifetime",
     "//chrome/browser/lifetime:termination_notification",

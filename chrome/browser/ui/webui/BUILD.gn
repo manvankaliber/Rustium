@@ -47,17 +47,13 @@ source_set("configs") {
     ":ntp_tiles_internals_ui",
     ":signin_internals_ui",
     ":webui",
-    "//chrome/browser/actor/ui:actor_overlay",
     "//chrome/browser/browser_actuator/internals",
     "//chrome/browser/contextual_tasks:ui",
-    "//chrome/browser/glic",
     "//chrome/browser/ui/webui/about",
     "//chrome/browser/ui/webui/accessibility",
-    "//chrome/browser/ui/webui/actor_internals",
     "//chrome/browser/ui/webui/autofill_and_password_manager_internals",
     "//chrome/browser/ui/webui/bluetooth_internals",
     "//chrome/browser/ui/webui/chrome_urls",
-    "//chrome/browser/ui/webui/commerce:commerce_internals_ui_config",
     "//chrome/browser/ui/webui/components",
     "//chrome/browser/ui/webui/connectors_internals",
     "//chrome/browser/ui/webui/content_settings",
@@ -107,16 +103,12 @@ source_set("configs") {
   deps += [ "//chrome/browser/ui/webui/ai_overlay_dialog" ]
 
   deps += [
-    "//chrome/browser/actor/ui:actor_overlay_web_view",
     "//chrome/browser/contextual_cueing/internals",
-    "//chrome/browser/glic/selection",
-    "//chrome/browser/ui/lens",
     "//chrome/browser/ui/tabs/tab_group_home",
     "//chrome/browser/ui/webui/access_code_cast",
     "//chrome/browser/ui/webui/app_service_internals",
     "//chrome/browser/ui/webui/autofill_ml_internals",
     "//chrome/browser/ui/webui/color_pipeline_internals",
-    "//chrome/browser/ui/webui/commerce",
     "//chrome/browser/ui/webui/craft",
     "//chrome/browser/ui/webui/critical_actions",
     "//chrome/browser/ui/webui/data_sharing",
@@ -170,7 +162,6 @@ source_set("configs") {
     deps += [
       "//chrome/browser/ui/webui/settings",
       "//chrome/browser/ui/webui/signin",
-      "//chrome/browser/ui/webui/skills",
     ]
 
     deps += [
@@ -563,7 +554,6 @@ source_set("chrome_web_ui_controller_factory") {
     "//chrome/browser/ui/webui/version",
     "//chrome/common",
     "//chrome/common:constants",
-    "//components/commerce/core:commerce_constants",
     "//components/favicon/core",
     "//components/feed:feature_list",
     "//components/history/core/browser",

@@ -256,23 +256,6 @@ void FetchPdfContentForWebContents(content::WebContents& web_contents,
     // For a top-level PDF, there is only one RenderFrameHost that renders the
     // PDF.
     pdf_helper = pdf::PDFDocumentHelper::MaybeGetForWebContents(web_contents);
-  } else if (options.format() == PdfOptions::Format::kBytes &&
-             base::FeatureList::IsEnabled(kGlicEmbeddedPdfBytesExtraction)) {
-    // - This is not a top-level PDF.
-    // - This is a bytes extraction request.
-    // - The embedded PDF bytes extraction support feature is enabled.
-    // Search for the `PDFDocumentHelper` associated with the embedded PDF.
-    //
-    // Note: Currently, the only requester for embedded PDF bytes is the Glic
-    // API for page context. It ensures it only requests PDF bytes if the host
-    // has the capability. See `WebClientInitialState::host_capabilities`.
-    pdf_helper = GetPDFExtractionCandidate(web_contents);
-  }
-
-  if (options.format() == PdfOptions::Format::kBytes) {
-    // This metric is specific to Glic, which requests PDF bytes only.
-    RecordPdfContentsRequested(is_top_level_pdf,
-                               /*pdf_found=*/pdf_helper != nullptr);
   }
 
   // When document load is not complete:

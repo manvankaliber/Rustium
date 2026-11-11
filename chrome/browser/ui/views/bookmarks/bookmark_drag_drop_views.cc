@@ -23,7 +23,6 @@
 #include "components/bookmarks/browser/base_bookmark_model_observer.h"
 #include "components/bookmarks/browser/bookmark_model.h"
 #include "components/bookmarks/browser/bookmark_node_data.h"
-#include "components/commerce/core/price_tracking_utils.h"
 #include "components/vector_icons/vector_icons.h"
 #include "content/public/browser/web_contents.h"
 #include "ui/base/dragdrop/drag_drop_types.h"
@@ -247,10 +246,7 @@ class BookmarkDragHelper : public bookmarks::BaseBookmarkModelObserver {
 
       icon = ui::ImageModel::FromImage(image);
     } else {
-      if (commerce::IsShoppingCollectionBookmarkFolder(drag_node)) {
-        icon = ui::ImageModel::FromVectorIcon(vector_icons::kShoppingBagIcon,
-                                              ui::kColorMenuIcon);
-      } else {
+      {
         icon = GetBookmarkFolderIcon(chrome::BookmarkFolderIconType::kNormal,
                                      ui::kColorMenuIcon);
       }

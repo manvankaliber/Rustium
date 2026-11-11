@@ -32,9 +32,6 @@
 #include "chrome/browser/extensions/extension_ui_util.h"
 #include "chrome/browser/feedback/report_unsafe_site_dialog.h"
 #include "chrome/browser/feedback/show_feedback_page.h"
-#include "chrome/browser/glic/browser_ui/glic_vector_icon_manager.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/resources/grit/glic_browser_resources.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/prefs/incognito_mode_prefs.h"
 #include "chrome/browser/profiles/profile.h"
@@ -69,9 +66,6 @@
 #include "chrome/browser/ui/hats/trust_safety_sentiment_service_factory.h"
 #include "chrome/browser/ui/immersive/immersive_mode_controller.h"
 #include "chrome/browser/ui/layout_constants.h"
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
-#include "chrome/browser/ui/lens/lens_string_utils.h"
 #include "chrome/browser/ui/managed_ui.h"
 #include "chrome/browser/ui/profiles/profile_colors_util.h"
 #include "chrome/browser/ui/profiles/profile_view_utils.h"
@@ -218,7 +212,6 @@ DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(AppMenuModel, kPasswordManagerMenuItem);
 DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(AppMenuModel, kContactInfoMenuItem);
 DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(AppMenuModel, kIdentityDocsMenuItem);
 DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(AppMenuModel, kTravelMenuItem);
-DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(AppMenuModel, kShowLensOverlay);
 DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(AppMenuModel,
                                       kAskGoogleAboutThisPageItem);
 DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(AppMenuModel,
@@ -2319,16 +2312,6 @@ void AppMenuModel::Build() {
       this, IDC_PRINT, IDS_PRINT,
       features::IsRoundedIconsEnabled() ? kPrintIcon : kPrintMenuOldIcon);
 
-  if (glic::GlicEnabling::IsEnabledForProfile(browser_->GetProfile())) {
-    AddItemWithStringIdAndVectorIcon(this, IDC_OPEN_GLIC,
-                                     IDS_GLIC_THREE_DOT_MENU_ITEM,
-                                     glic::GlicVectorIconManager::GetVectorIcon(
-                                         IDR_GLIC_BUTTON_VECTOR_ICON));
-    SetIsNewFeatureAt(
-        GetIndexOfCommandId(IDC_OPEN_GLIC).value(),
-        BrowserUserEducationInterface::From(browser())->MaybeShowNewBadgeFor(
-            features::kGlicAppMenuNewBadge));
-  }
 
   if (ttc::TtcKeyedService* service =
           ttc::TtcKeyedService::Get(browser_->GetProfile());
@@ -2345,67 +2328,6 @@ void AppMenuModel::Build() {
                                      IDS_TTC_ENTRYPOINT_LABEL, icon);
   }
 
-  if (auto* controller = lens::LensOverlayEntryPointController::From(browser());
-      controller && controller->IsEnabled()) {
-    const gfx::VectorIcon& icon =
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-        vector_icons::kGoogleLensMonochromeLogoIcon;
-#else
-        features::IsRoundedIconsEnabled()
-            ? vector_icons::kSearchIcon
-            : vector_icons::kSearchChromeRefreshOldIcon;
-#endif
-    const gfx::VectorIcon& search_spark_icon =
-        features::IsRoundedIconsEnabled() ? omnibox::kSearchSparkIcon
-                                          : omnibox::kSearchSparkOldIcon;
-    Profile* const profile = browser_->GetProfile();
-    const bool show_ask_google =
-        contextual_tasks::ShouldShowAskGoogleContextMenu(profile);
-    const bool use_submenu =
-        contextual_tasks::ShouldUseContextualTasksContextMenuSubmenu(profile);
-    ui::SimpleMenuModel* target_model = this;
-    if (use_submenu) {
-      sub_menus_.push_back(std::make_unique<ui::SimpleMenuModel>(this));
-      target_model = sub_menus_.back().get();
-    }
-
-    if (show_ask_google) {
-      AddItemWithStringIdAndVectorIcon(
-          target_model, IDC_ASK_GOOGLE_ABOUT_THIS_PAGE,
-          IDS_ASK_GOOGLE_ABOUT_THIS_PAGE, search_spark_icon);
-      const size_t ask_google_command_index =
-          target_model->GetIndexOfCommandId(IDC_ASK_GOOGLE_ABOUT_THIS_PAGE)
-              .value();
-      target_model->SetElementIdentifierAt(ask_google_command_index,
-                                           kAskGoogleAboutThisPageItem);
-      target_model->SetIsNewFeatureAt(
-          ask_google_command_index,
-          BrowserUserEducationInterface::From(browser())->MaybeShowNewBadgeFor(
-              contextual_tasks::kContextualTasksUpdatedEntryPoints));
-    }
-
-    AddItemWithStringIdAndVectorIcon(
-        target_model, IDC_CONTENT_CONTEXT_LENS_OVERLAY,
-        lens::GetLensOverlayEntrypointLabelAltIds(), icon);
-    const size_t lens_command_index =
-        target_model->GetIndexOfCommandId(IDC_CONTENT_CONTEXT_LENS_OVERLAY)
-            .value();
-    target_model->SetElementIdentifierAt(lens_command_index, kShowLensOverlay);
-    target_model->SetIsNewFeatureAt(
-        lens_command_index,
-        BrowserUserEducationInterface::From(browser())->MaybeShowNewBadgeFor(
-            lens::features::kLensOverlay));
-
-    if (use_submenu) {
-      AddSubMenuWithStringIdAndVectorIcon(
-          this, kContextualTasksMenuPlaceholder,
-          IDS_CONTEXTUAL_SEARCH_SEARCH_WITH_GOOGLE, target_model,
-          search_spark_icon);
-      SetElementIdentifierAt(
-          GetIndexOfCommandId(kContextualTasksMenuPlaceholder).value(),
-          kContextualTasksSubmenuItem);
-    }
-  }
 
   AddItemWithStringIdAndVectorIcon(this, IDC_SHOW_TRANSLATE, IDS_SHOW_TRANSLATE,
                                    vector_icons::kGTranslateIcon);

@@ -359,7 +359,6 @@ class ChromePasswordManagerClient
   password_manager::UndoPasswordChangeController*
   GetUndoPasswordChangeController() override;
 
-  bool IsActorTaskActive() override;
 
   bool apply_client_side_prediction_override_for_testing() const {
     return apply_client_side_prediction_override_;

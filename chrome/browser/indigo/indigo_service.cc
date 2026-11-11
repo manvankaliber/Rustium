@@ -21,7 +21,6 @@
 #include "chrome/browser/contextual_cueing/prefs.h"
 #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
 #include "chrome/browser/extensions/component_loader.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/indigo/api_client.h"
 #include "chrome/browser/indigo/indigo_extension_utils.h"
 #include "chrome/browser/indigo/indigo_prefs.h"
@@ -382,10 +381,6 @@ LocalEligibility IndigoService::ComputeLocalEligibility() const {
     return LocalEligibility::kMissingCapabilities;
   }
 
-  if (features::kIndigoRequireGlicEnabling.Get() &&
-      !glic::GlicEnabling::IsEnabledForProfile(profile_)) {
-    return LocalEligibility::kGlicDisabledForProfile;
-  }
 
   if (identity_manager_->HasAccountWithRefreshTokenInPersistentErrorState(
           account_id)) {

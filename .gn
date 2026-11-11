@@ -106,7 +106,7 @@ no_check_generated_targets = [
   "//chrome/browser/resources/about_sys:resources",
   "//chrome/browser/resources/access_code_cast:resources",
   "//chrome/browser/resources/accessibility:resources",
-  "//chrome/browser/resources/actor_overlay:resources",
+
   "//chrome/browser/resources/app_home:resources",
   "//chrome/browser/resources/app_service_internals:resources",
   "//chrome/browser/resources/app_settings:resources",
@@ -139,9 +139,7 @@ no_check_generated_targets = [
   "//chrome/browser/resources/feature_showcase:resources",
   "//chrome/browser/resources/feedback:resources",
   "//chrome/browser/resources/gaia_auth_host:resources",
-  "//chrome/browser/resources/glic/experimental_opt_in:resources",
-  "//chrome/browser/resources/glic/selection_overlay:resources",
-  "//chrome/browser/resources/glic:resources",
+
   "//chrome/browser/resources/guest_view_shared:resources",
   "//chrome/browser/resources/history:resources",
   "//chrome/browser/resources/indigo:resources",
@@ -151,8 +149,7 @@ no_check_generated_targets = [
   "//chrome/browser/resources/intro:resources",
   "//chrome/browser/resources/iwa_dev:resources",
   "//chrome/browser/resources/key_value_pair_viewer_shared:resources",
-  "//chrome/browser/resources/lens/overlay:resources",
-  "//chrome/browser/resources/lens/shared:resources",
+
   "//chrome/browser/resources/location_internals:resources",
   "//chrome/browser/resources/management:resources",
   "//chrome/browser/resources/media:resources",
@@ -187,7 +184,7 @@ no_check_generated_targets = [
   "//chrome/browser/resources/settings_shared:resources",
   "//chrome/browser/resources/side_panel/bookmarks:resources",
   "//chrome/browser/resources/side_panel/comments:resources",
-  "//chrome/browser/resources/side_panel/commerce:resources",
+
   "//chrome/browser/resources/side_panel/customize_chrome:resources",
   "//chrome/browser/resources/side_panel/history:resources",
   "//chrome/browser/resources/side_panel/history_clusters:resources",
@@ -200,7 +197,7 @@ no_check_generated_targets = [
   "//chrome/browser/resources/signin/profile_picker:resources",
   "//chrome/browser/resources/signin/signout_confirmation:resources",
   "//chrome/browser/resources/signin:resources",
-  "//chrome/browser/resources/skills:resources",
+
   "//chrome/browser/resources/subresource_filter:resources",
   "//chrome/browser/resources/suggest_internals:resources",
   "//chrome/browser/resources/support_tool:resources",
@@ -241,7 +238,7 @@ no_check_generated_targets = [
   "//components/autofill/core/browser:autofill_address_rewriter_resources",
   "//components/autofill/core/browser:autofill_alternative_state_name_map_resources",
   "//components/browser_apis/tab_strip/resources:resources",
-  "//components/commerce/core/internals/resources:resources",
+
   "//components/crash/core/browser/resources:resources",
   "//components/data_sharing/data_sharing_internals/resources:resources",
   "//components/download/resources/download_internals:resources",
@@ -445,10 +442,6 @@ exec_script_allowlist =
 
       "//google_apis/BUILD.gn",
       "//printing/BUILD.gn",
-
-      "//remoting/host/installer/linux/BUILD.gn",
-      "//remoting/remoting_version.gni",
-      "//remoting/host/installer/win/generate_clsids.gni",
 
       "//tools/grit/grit_rule.gni",
       "//tools/gritsettings/BUILD.gn",

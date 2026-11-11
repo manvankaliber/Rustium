@@ -120,13 +120,11 @@
 #include "ui/base/page_transition_types.h"
 #include "url/gurl.h"
 
-#include "chrome/browser/glic/browser_ui/glic_nudge_controller.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_actions.h"
 #include "chrome/browser/ui/hats/hats_service.h"
 #include "chrome/browser/ui/hats/hats_service_factory.h"
 #include "chrome/browser/ui/hats/survey_config.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "ui/actions/actions.h"
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
@@ -615,7 +613,7 @@ void ContextualTasksSidePanelCoordinator::Show(
   } else if (entry_point ==
              omnibox::ChromeAimEntryPoint::
                  DESKTOP_CHROME_LENS_CONTEXTUAL_SEARCHBOX_ENTRY_POINT) {
-    entry_source = ContextualTasksPanelController::EntrySource::kLensOverlay;
+    entry_source = ContextualTasksPanelController::EntrySource::kOther;
   } else if (entry_point ==
              omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_COBROWSE_AIO_LINK) {
     entry_source = ContextualTasksPanelController::EntrySource::kAioToCobr;
@@ -734,13 +732,6 @@ void ContextualTasksSidePanelCoordinator::Show(
   NotifyActiveTaskContextProvider();
 
   // Hide the GLIC nudge when the panel is opened.
-  if (auto* glic_nudge_controller =
-          glic::GlicNudgeController::From(browser_window_)) {
-    glic_nudge_controller->UpdateNudgeLabel(
-        active_tab_interface->GetContents(), "", std::nullopt,
-        glic::GlicNudgeActivity::kNudgeIgnoredOpenedContextualTasksSidePanel,
-        base::DoNothing());
-  }
 }
 
 void ContextualTasksSidePanelCoordinator::Close() {
@@ -2676,8 +2667,7 @@ bool ContextualTasksSidePanelCoordinator::IsShowingLensResults() const {
   if (url.is_empty()) {
     // If the URL is empty, but Lens opened the side panel coordinator, assume
     // that the URL is being generated async and will soon have results.
-    return cache_it->second->entry_source ==
-           ContextualTasksPanelController::EntrySource::kLensOverlay;
+    return false;
   }
 
   return !ui_service->IsAiUrl(url) &&
@@ -2742,11 +2732,6 @@ void ContextualTasksSidePanelCoordinator::CloseLensSessionsForTask(
 
 void ContextualTasksSidePanelCoordinator::CloseLensSessionForTab(
     tabs::TabInterface* tab) {
-  if (auto* lens_controller = LensSearchController::From(tab);
-      lens_controller && !lens_controller->IsOff()) {
-    lens_controller->CloseLensAsync(
-        lens::LensOverlayDismissalSource::kSidePanelCloseButton);
-  }
 }
 
 void ContextualTasksSidePanelCoordinator::CloseLensSessionIfActive(
@@ -2760,11 +2745,6 @@ void ContextualTasksSidePanelCoordinator::CloseLensSessionIfActive(
     return;
   }
 
-  auto* search_controller = LensSearchController::From(tab_interface);
-  if (search_controller && search_controller->IsActive()) {
-    search_controller->CloseLensSync(
-        lens::LensOverlayDismissalSource::kUnexpectedSidePanelOpen);
-  }
 }
 
 std::pair<std::optional<base::Uuid>,
@@ -2965,10 +2945,6 @@ void ContextualTasksSidePanelCoordinator::OnSurfaceStateChanged(
       if (closing_entry_source_.has_value()) {
         EntrySource entry_source = *closing_entry_source_;
         switch (entry_source) {
-          case EntrySource::kLensOverlay:
-            RecordUserActionAndHistogram(
-                "ContextualTasks.SidePanel.UserAction.Close.LensOverlay");
-            break;
           case EntrySource::kAiModeLinkClick:
             RecordUserActionAndHistogram(
                 "ContextualTasks.SidePanel.UserAction.Close.AiModeLinkClick");

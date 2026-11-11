@@ -427,8 +427,7 @@ target(libcxx_target_type, "libc++") {
   if (is_linux) {
     # This target packages libc++.so, so must have an explicit dependency on
     # libc++.
-    visibility +=
-        [ "//remoting/host/linux:remoting_me2me_host_copy_user_session" ]
+    visibility += []
   }
   if (build_with_chromium && is_win && is_component_build) {
     # PartitionAlloc uses no_default_deps=true when is_win && is_component_build

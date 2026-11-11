@@ -19,7 +19,6 @@
 #include "base/test/test_future.h"
 #include "base/values.h"
 #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
-#include "chrome/browser/glic/glic_pref_names.h"
 #include "chrome/browser/password_manager/chrome_password_manager_client.h"
 #include "chrome/browser/password_manager/password_manager_test_util.h"
 #include "chrome/browser/password_manager/remote_actor/remote_actor_credential_sharing_service_factory.h"
@@ -794,10 +793,6 @@ TEST_F(RemoteActorCredentialSharingImplTest, PolicyDisabled_RequestRejected) {
       SetUpAndBindFlow();
 
   // Set the enterprise policy pref to Disabled.
-  profile()->GetTestingPrefService()->SetManagedPref(
-      glic::prefs::kGlicSparkPolicySettings,
-      base::Value(
-          std::to_underlying(glic::prefs::GlicSparkPolicyState::kDisabled)));
 
   base::HistogramTester histograms;
   content::RenderFrameHostTester::For(main_rfh())->SimulateUserActivation();
@@ -819,10 +814,6 @@ TEST_F(RemoteActorCredentialSharingImplTest, PolicyEnabled_RequestAllowed) {
       SetUpAndBindFlow();
 
   // Set the enterprise policy pref to Enabled.
-  profile()->GetTestingPrefService()->SetManagedPref(
-      glic::prefs::kGlicSparkPolicySettings,
-      base::Value(
-          std::to_underlying(glic::prefs::GlicSparkPolicyState::kEnabled)));
 
   AddTestLoginAndVerifyRequestAllowed(remote);
 }
@@ -834,11 +825,6 @@ TEST_F(RemoteActorCredentialSharingImplTest,
 
   // By default, the profile is unmanaged, and kGlicSparkPolicySettings defaults
   // to kDisabled. Unmanaged profiles should still be allowed to proceed.
-  ASSERT_EQ(
-      profile()->GetPrefs()->GetInteger(glic::prefs::kGlicSparkPolicySettings),
-      std::to_underlying(glic::prefs::GlicSparkPolicyState::kDisabled));
-  ASSERT_FALSE(profile()->GetPrefs()->IsManagedPreference(
-      glic::prefs::kGlicSparkPolicySettings));
 
   AddTestLoginAndVerifyRequestAllowed(remote);
 }
@@ -881,10 +867,6 @@ TEST_F(RemoteActorCredentialSharingImplTest,
   // Even when GeminiSparkSettings is Enabled, disabling AIModeSettings must
   // block Search Agent credential sharing.
   profile()->GetTestingPrefService()->SetManagedPref(
-      glic::prefs::kGlicSparkPolicySettings,
-      base::Value(
-          std::to_underlying(glic::prefs::GlicSparkPolicyState::kEnabled)));
-  profile()->GetTestingPrefService()->SetManagedPref(
       omnibox::kAIModeSettings, base::Value(kAIModeDisabled));
 
   base::HistogramTester histograms;
@@ -913,10 +895,6 @@ TEST_F(RemoteActorCredentialSharingImplTest,
       scoped_management_service_override(
           policy::ManagementServiceFactory::GetForProfile(profile()),
           policy::EnterpriseManagementAuthority::CLOUD);
-  profile()->GetTestingPrefService()->SetManagedPref(
-      glic::prefs::kGlicSparkPolicySettings,
-      base::Value(
-          std::to_underlying(glic::prefs::GlicSparkPolicyState::kDisabled)));
   ASSERT_EQ(profile()->GetPrefs()->GetInteger(omnibox::kAIModeSettings),
             kAIModeAllowed);
 
@@ -930,10 +908,6 @@ TEST_F(RemoteActorCredentialSharingImplTest,
 
   // Gemini credential sharing must remain gated on GeminiSparkSettings even
   // when AIModeSettings is Allowed.
-  profile()->GetTestingPrefService()->SetManagedPref(
-      glic::prefs::kGlicSparkPolicySettings,
-      base::Value(
-          std::to_underlying(glic::prefs::GlicSparkPolicyState::kDisabled)));
   profile()->GetTestingPrefService()->SetManagedPref(
       omnibox::kAIModeSettings, base::Value(kAIModeAllowed));
 
@@ -956,10 +930,6 @@ TEST_F(RemoteActorCredentialSharingImplTest,
 
   // Gemini credential sharing must be allowed when GeminiSparkSettings is
   // Enabled even if AIModeSettings is Disabled.
-  profile()->GetTestingPrefService()->SetManagedPref(
-      glic::prefs::kGlicSparkPolicySettings,
-      base::Value(
-          std::to_underlying(glic::prefs::GlicSparkPolicyState::kEnabled)));
   profile()->GetTestingPrefService()->SetManagedPref(
       omnibox::kAIModeSettings, base::Value(kAIModeDisabled));
 

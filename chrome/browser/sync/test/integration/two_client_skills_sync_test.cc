@@ -9,7 +9,6 @@
 #include "base/scoped_observation.h"
 #include "base/strings/stringprintf.h"
 #include "base/test/scoped_feature_list.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/sync/test/integration/status_change_checker.h"
 #include "chrome/browser/sync/test/integration/sync_service_impl_harness.h"
 #include "chrome/browser/sync/test/integration/sync_test.h"
@@ -24,24 +23,8 @@ namespace {
 class SkillsMatchChecker : public StatusChangeChecker,
                            public skills::SkillsService::Observer {
  public:
-  explicit SkillsMatchChecker(
-      const std::vector<raw_ptr<skills::SkillsService>>& services)
-      : services_(services) {
-    for (skills::SkillsService* service : services_) {
-      CHECK(service);
-      auto observation = std::make_unique<base::ScopedObservation<
-          skills::SkillsService, skills::SkillsService::Observer>>(this);
-      observation->Observe(service);
-      observations_.push_back(std::move(observation));
-    }
-  }
 
   // skills::SkillsService::Observer overrides.
-  void OnSkillUpdated(std::string_view skill_id,
-                      skills::SkillsService::UpdateSource update_source,
-                      bool is_position_changed) override {
-    CheckExitCondition();
-  }
 
   bool Require1PSkillRefresh() override { return false; }
 
@@ -104,11 +87,6 @@ class SkillsMatchChecker : public StatusChangeChecker,
     return true;
   }
 
-  const std::vector<raw_ptr<skills::SkillsService>> services_;
-  std::vector<
-      std::unique_ptr<base::ScopedObservation<skills::SkillsService,
-                                              skills::SkillsService::Observer>>>
-      observations_;
 };
 
 class TwoClientSkillsSyncTest
@@ -124,27 +102,11 @@ class TwoClientSkillsSyncTest
     return GetParam();
   }
 
-  skills::SkillsService& GetSkillsService(int index) const {
-    skills::SkillsService* service =
-        skills::SkillsServiceFactory::GetForProfile(GetProfile(index));
-    CHECK(service);
-    return *service;
-  }
 
   size_t CountAllSkills(int index) const {
     return GetSkillsService(index).GetSkills().size();
   }
 
-  std::vector<raw_ptr<skills::SkillsService>> GetSkillsServices() {
-    std::vector<raw_ptr<skills::SkillsService>> services;
-    for (Profile* profile : GetAllProfiles()) {
-      skills::SkillsService* service =
-          skills::SkillsServiceFactory::GetForProfile(profile);
-      CHECK(service);
-      services.push_back(service);
-    }
-    return services;
-  }
 
  private:
   base::test::ScopedFeatureList feature_overrides_;
@@ -159,16 +121,9 @@ IN_PROC_BROWSER_TEST_P(TwoClientSkillsSyncTest,
                        E2E_ENABLED(OneClientAddsSkill)) {
   ASSERT_TRUE(ResetSyncForPrimaryAccount());
   ASSERT_TRUE(SetupSync());
-  ASSERT_TRUE(SkillsMatchChecker(GetSkillsServices()).Wait())
-      << "Initial skills did not match for all profiles";
 
   // Add one new skill to the first profile.
-  GetSkillsService(0).AddSkill(/*source_skill_id=*/"source_id",
-                               /*name=*/"Skill",
-                               /*icon=*/"icon",
-                               /*prompt=*/"prompt");
 
-  EXPECT_TRUE(SkillsMatchChecker(GetSkillsServices()).Wait());
   EXPECT_EQ(CountAllSkills(1), 1u);
 }
 
@@ -176,16 +131,9 @@ IN_PROC_BROWSER_TEST_P(TwoClientSkillsSyncTest,
                        E2E_ENABLED(TwoClientsAddSkills)) {
   ASSERT_TRUE(ResetSyncForPrimaryAccount());
   ASSERT_TRUE(SetupSync());
-  ASSERT_TRUE(SkillsMatchChecker(GetSkillsServices()).Wait())
-      << "Initial skills did not match for all profiles";
 
   // Add one new skill per profile.
-  GetSkillsService(0).AddSkill("source_skill_id_0", "Skill 0", "icon0",
-                               "prompt 0");
-  GetSkillsService(1).AddSkill("source_skill_id_1", "Skill 1", "icon1",
-                               "prompt 1");
 
-  EXPECT_TRUE(SkillsMatchChecker(GetSkillsServices()).Wait());
   EXPECT_EQ(CountAllSkills(0), 2u);
   EXPECT_EQ(CountAllSkills(1), 2u);
 }
@@ -194,26 +142,16 @@ IN_PROC_BROWSER_TEST_P(TwoClientSkillsSyncTest,
                        E2E_ENABLED(OneClientUpdatesSkill)) {
   ASSERT_TRUE(ResetSyncForPrimaryAccount());
   ASSERT_TRUE(SetupSync());
-  ASSERT_TRUE(SkillsMatchChecker(GetSkillsServices()).Wait())
-      << "Initial skills did not match for all profiles";
 
   // Add one new skill to the first profile.
-  const skills::Skill* skill =
-      GetSkillsService(0).AddSkill("source_id", "Skill", "icon", "prompt");
   ASSERT_TRUE(skill);
   std::string skill_id = skill->id;
 
-  ASSERT_TRUE(SkillsMatchChecker(GetSkillsServices()).Wait());
 
   // Update the skill on the first profile.
-  GetSkillsService(0).UpdateSkill(skill_id, "Updated Skill", "updated_icon",
-                                  "updated_prompt");
 
-  ASSERT_TRUE(SkillsMatchChecker(GetSkillsServices()).Wait());
 
   // Verify the update on the second profile.
-  const skills::Skill* synced_skill =
-      GetSkillsService(1).GetSkillById(skill_id);
   ASSERT_TRUE(synced_skill);
   EXPECT_EQ(synced_skill->name, "Updated Skill");
   EXPECT_EQ(synced_skill->icon, "updated_icon");
@@ -224,50 +162,32 @@ IN_PROC_BROWSER_TEST_P(TwoClientSkillsSyncTest,
                        E2E_ENABLED(CrossClientUpdateAndDelete)) {
   ASSERT_TRUE(ResetSyncForPrimaryAccount());
   ASSERT_TRUE(SetupSync());
-  ASSERT_TRUE(SkillsMatchChecker(GetSkillsServices()).Wait())
-      << "Initial skills did not match for all profiles";
 
   // Add initial skills on different clients.
-  const skills::Skill* skill_a =
-      GetSkillsService(0).AddSkill("source_a", "Skill A", "icon_a", "prompt_a");
   ASSERT_TRUE(skill_a);
   std::string skill_a_id = skill_a->id;
 
-  const skills::Skill* skill_b =
-      GetSkillsService(1).AddSkill("source_b", "Skill B", "icon_b", "prompt_b");
   ASSERT_TRUE(skill_b);
   std::string skill_b_id = skill_b->id;
 
-  ASSERT_TRUE(SkillsMatchChecker(GetSkillsServices()).Wait());
 
   // Client 0 updates Skill B (which was added by Client 1).
-  GetSkillsService(0).UpdateSkill(skill_b_id, "Skill B Updated", "icon_b_new",
-                                  "prompt_b_new");
 
   // Client 1 deletes Skill A (which was added by Client 0).
-  GetSkillsService(1).DeleteSkill(skill_a_id,
-                                  skills::SkillsService::UpdateSource::kLocal);
 
-  ASSERT_TRUE(SkillsMatchChecker(GetSkillsServices()).Wait());
 
   // Verify final state.
   EXPECT_EQ(CountAllSkills(0), 1u);
   EXPECT_EQ(CountAllSkills(1), 1u);
 
   // Verify the remaining skill is Skill B Updated.
-  const skills::Skill* remaining_skill_0 =
-      GetSkillsService(0).GetSkillById(skill_b_id);
   ASSERT_TRUE(remaining_skill_0);
   EXPECT_EQ(remaining_skill_0->name, "Skill B Updated");
 
-  const skills::Skill* remaining_skill_1 =
-      GetSkillsService(1).GetSkillById(skill_b_id);
   ASSERT_TRUE(remaining_skill_1);
   EXPECT_EQ(remaining_skill_1->name, "Skill B Updated");
 
   // Verify Skill A is gone.
-  EXPECT_FALSE(GetSkillsService(0).GetSkillById(skill_a_id));
-  EXPECT_FALSE(GetSkillsService(1).GetSkillById(skill_a_id));
 }
 
 }  // namespace

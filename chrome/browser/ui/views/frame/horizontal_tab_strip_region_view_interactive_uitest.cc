@@ -83,12 +83,6 @@ class HorizontalTabStripRegionViewBrowserBaseTest
 class HorizontalTabStripRegionViewBrowserTest : public HorizontalTabStripRegionViewBrowserBaseTest {
  public:
   HorizontalTabStripRegionViewBrowserTest() {
-    scoped_feature_list_.InitWithFeatures(
-        /*enabled_features=*/{features::kGlic, features::kGlicRollout,
-        },
-        /*disabled_features=*/{features::kGlicLocaleFiltering,
-                               features::kGlicCountryFiltering,
-                               tabs::kTabStripUnification});
   }
   HorizontalTabStripRegionViewBrowserTest(const HorizontalTabStripRegionViewBrowserTest&) = delete;
   HorizontalTabStripRegionViewBrowserTest& operator=(

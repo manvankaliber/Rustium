@@ -293,30 +293,15 @@ bool HasPermission(mojom::ContextType context_type, const GURL& url) {
 }  // namespace
 
 TEST_F(LanguageSettingsPrivateApiTest, FunctionPermissions) {
-  const GURL kLensOverlayUrl("chrome-untrusted://lens-overlay/");
   const GURL kSettingsUrl("chrome://settings/");
   const GURL kOtherUntrustedUrl("chrome-untrusted://other/");
 
   // chrome-untrusted://lens-overlay/ should have permission for getLanguageList
   // and getTranslateTargetLanguage.
-  EXPECT_TRUE(HasPermission<LanguageSettingsPrivateGetLanguageListFunction>(
-      mojom::ContextType::kUntrustedWebUi, kLensOverlayUrl));
-  EXPECT_TRUE(
-      HasPermission<LanguageSettingsPrivateGetTranslateTargetLanguageFunction>(
-          mojom::ContextType::kUntrustedWebUi, kLensOverlayUrl));
 
   // chrome-untrusted://lens-overlay/ should NOT have permission for other
   // languageSettingsPrivate functions like spellcheck or dictionary functions
   // (crbug.com/561921279).
-  EXPECT_FALSE(HasPermission<LanguageSettingsPrivateGetSpellcheckWordsFunction>(
-      mojom::ContextType::kUntrustedWebUi, kLensOverlayUrl));
-  EXPECT_FALSE(HasPermission<LanguageSettingsPrivateAddSpellcheckWordFunction>(
-      mojom::ContextType::kUntrustedWebUi, kLensOverlayUrl));
-  EXPECT_FALSE(
-      HasPermission<LanguageSettingsPrivateRemoveSpellcheckWordFunction>(
-          mojom::ContextType::kUntrustedWebUi, kLensOverlayUrl));
-  EXPECT_FALSE(HasPermission<LanguageSettingsPrivateEnableLanguageFunction>(
-      mojom::ContextType::kUntrustedWebUi, kLensOverlayUrl));
 
   // chrome://settings/ should have permission for all of these functions.
   EXPECT_TRUE(HasPermission<LanguageSettingsPrivateGetLanguageListFunction>(

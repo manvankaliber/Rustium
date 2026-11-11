@@ -55,10 +55,7 @@ class ActorOneTimeTokenFillingServiceImpl
     : public ActorOneTimeTokenFillingService,
       public content::WebContentsObserver {
  public:
-  ActorOneTimeTokenFillingServiceImpl(
-      Profile* profile,
-      base::SafeRef<::actor::AggregatedJournal> journal,
-      ::actor::TaskId task_id);
+  ActorOneTimeTokenFillingServiceImpl();
   ~ActorOneTimeTokenFillingServiceImpl() override;
 
   // ActorOneTimeTokenFillingService:
@@ -106,8 +103,6 @@ class ActorOneTimeTokenFillingServiceImpl
   void OnBackendLogMessage(std::string_view message);
 
   raw_ptr<Profile> profile_ = nullptr;
-  base::SafeRef<::actor::AggregatedJournal> journal_;
-  ::actor::TaskId task_id_;
   base::CallbackListSubscription log_subscription_;
   std::optional<ActorLoginContext> active_login_context_;
   std::unique_ptr<one_time_tokens::GmailOtpRetriever> gmail_otp_retriever_;

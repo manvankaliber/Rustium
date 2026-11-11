@@ -167,8 +167,6 @@ void ActionAppMenuTestBase::SetUp() {
   add_action(kActionTabGroupPin, u"Pin group");
   add_action(kActionTabGroupDelete, u"Delete group");
   add_action(kActionPrint, u"Print");
-  add_action(kActionOpenGlic, u"Open Glic");
-  add_action(kActionShowLensOverlayFromAppMenu, u"Lens Overlay");
   add_action(kActionAskGoogleAboutThisPageFromAppMenu,
              u"Ask Google about this page");
   add_action(kActionContextualTasksSubmenu, u"Search with Google");

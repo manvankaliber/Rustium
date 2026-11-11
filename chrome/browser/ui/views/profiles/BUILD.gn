@@ -498,7 +498,6 @@ if (is_win || is_mac || is_linux) {
       ":profile_management_flow_controller_impl",
       ":profile_picker_feature_promo_controller",
       ":profile_picker_flow_controller",
-      ":profile_picker_glic_flow_controller",
       ":profile_picker_omnibox_everywhere_flow_controller",
       ":profile_picker_toolbar",
       ":profile_picker_utils",
@@ -1052,24 +1051,6 @@ if (enable_dice_support) {
     ]
   }
 
-  source_set("profile_picker_glic_flow_controller") {
-    public = [ "profile_picker_glic_flow_controller.h" ]
-    sources = [ "profile_picker_glic_flow_controller.cc" ]
-    public_deps = [
-      ":profile_management_flow_controller",
-      "//base",
-      "//components/signin/public/identity_manager",
-    ]
-    deps = [
-      ":profile_management_step_controller",
-      "//chrome/browser:browser_process",
-      "//chrome/browser/profiles:profile_manager",
-      "//chrome/browser/profiles/keep_alive",
-      "//chrome/browser/signin",
-      "//chrome/common",
-    ]
-  }
-
   source_set("profile_picker_omnibox_everywhere_flow_controller") {
     public = [ "profile_picker_omnibox_everywhere_flow_controller.h" ]
     sources = [ "profile_picker_omnibox_everywhere_flow_controller.cc" ]
@@ -1311,7 +1292,6 @@ source_set("browser_tests") {
   if (is_win || is_mac || is_linux) {
     sources += [
       "device_signals_disclaimer_browsertest.cc",
-      "profile_picker_glic_flow_controller_browsertest.cc",
       "profile_picker_sign_in_provider_browsertest.cc",
       "profile_picker_utils_browsertest.cc",
       "profile_picker_view_browsertest.cc",
@@ -1365,7 +1345,6 @@ source_set("browser_tests") {
     deps += [
       ":dice_web_signin_interception_bubble_view",
       ":profile_management_step_controller",
-      ":profile_picker_glic_flow_controller",
       ":profile_picker_reauth_provider",
     ]
     if (is_win || is_linux) {

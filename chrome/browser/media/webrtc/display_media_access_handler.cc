@@ -16,7 +16,6 @@
 #include "build/build_config.h"
 #include "chrome/browser/bad_message.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-#include "chrome/browser/glic/host/guest_util.h"
 #include "chrome/browser/media/capture_access_handler_base.h"
 #include "chrome/browser/media/webrtc/capture_policy_utils.h"
 #include "chrome/browser/media/webrtc/desktop_capture_devices_util.h"
@@ -85,9 +84,6 @@ std::u16string GetApplicationTitle(WebContents* web_contents) {
 }
 
 
-bool IsGlicWebUI(const WebContents* web_contents) {
-  return glic::IsGlicWebUI(web_contents);
-}
 
 // If bypassing the media selection dialog is allowed for this request, this
 // returns the `DesktopMediaId` to use. Returns a null ID otherwise.
@@ -103,20 +99,7 @@ DesktopMediaID GetMediaForSelectionDialogBypass(
 
   const GURL& origin_url = web_contents->GetLastCommittedURL();
   // Special behavior for chrome://glic: skip tab capture dialog.
-  if (request.video_type ==
-          blink::mojom::MediaStreamType::DISPLAY_VIDEO_CAPTURE_THIS_TAB &&
-      IsGlicWebUI(web_contents)) {
-    DesktopMediaID media_id(
-        DesktopMediaID::TYPE_WEB_CONTENTS, DesktopMediaID::kNullId,
-        WebContentsMediaCaptureId(
-            web_contents->GetPrimaryMainFrame()
-                ->GetProcess()
-                ->GetDeprecatedID(),
-            web_contents->GetPrimaryMainFrame()->GetRoutingID()));
-    media_id.audio_share =
-        request.audio_type != blink::mojom::MediaStreamType::NO_SERVICE;
-    return media_id;
-  } else if (request.video_type == blink::mojom::MediaStreamType::NO_SERVICE &&
+  if (request.video_type == blink::mojom::MediaStreamType::NO_SERVICE &&
              request.audio_type != blink::mojom::MediaStreamType::NO_SERVICE &&
              !request.exclude_system_audio &&
              content_settings.GetContentSetting(

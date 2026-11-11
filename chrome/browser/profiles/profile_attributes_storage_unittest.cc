@@ -162,8 +162,6 @@ class ProfileAttributesTestObserver
                void(const base::FilePath& profile_path));
   MOCK_METHOD1(OnProfileManagementIdChanged,
                void(const base::FilePath& profile_path));
-  MOCK_METHOD1(OnProfileIsGlicEligibleChanged,
-               void(const base::FilePath& profile_path));
   MOCK_METHOD2(OnProfileAiSubscriptionTierUpdated,
                void(const base::FilePath& profile_path, int tier));
   MOCK_METHOD0(OnProfilesOrderChanged, void());
@@ -223,7 +221,6 @@ class ProfileAttributesStorageTest : public testing::Test {
     EXPECT_CALL(observer_, OnProfileManagementEnrollmentTokenChanged(_))
         .Times(0);
     EXPECT_CALL(observer_, OnProfileManagementIdChanged(_)).Times(0);
-    EXPECT_CALL(observer_, OnProfileIsGlicEligibleChanged(_)).Times(0);
     EXPECT_CALL(observer_, OnProfilesOrderChanged()).Times(0);
   }
 
@@ -800,8 +797,6 @@ TEST_F(ProfileAttributesStorageTest, EntryAccessors) {
   EXPECT_CALL(observer(), OnProfileManagementIdChanged(path)).Times(2);
   TEST_STRING_ACCESSORS(ProfileAttributesEntry, entry, ProfileManagementId);
 
-  EXPECT_CALL(observer(), OnProfileIsGlicEligibleChanged(path)).Times(2);
-  TEST_BOOL_ACCESSORS(ProfileAttributesEntry, entry, IsGlicEligible);
 
   VerifyAndResetCallExpectations();
 }

@@ -264,7 +264,6 @@ class MultiContentsView
 
   void OnWebContentsFocused(views::WebView*);
   void OnNtpFooterFocused(views::WebView*);
-  void OnActorOverlayFocused(views::WebView*);
   void OnReadAnythingOverlayFocused(ContentsContainerView* container,
                                     views::WebView* web_view);
 
@@ -303,7 +302,6 @@ class MultiContentsView
   // that is shown on top of the web contents. It therefore must always have the
   // same bounds as the contents_web_view_, but also be above the
   // contents_web_view_.
-  raw_ptr<views::View> lens_overlay_view_ = nullptr;
 
   // The handle responsible for resizing the two contents views as relative to
   // each other.

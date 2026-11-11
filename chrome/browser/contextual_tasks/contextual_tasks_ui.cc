@@ -45,9 +45,6 @@
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
-#include "chrome/browser/ui/lens/lens_query_flow_router.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
 #include "chrome/browser/ui/views/permissions/chip/permission_chip_view.h"
 #include "chrome/browser/ui/views/user_education/browser_help_bubble.h"
@@ -371,16 +368,8 @@ ContextualTasksUI::ContextualTasksUI(content::WebUI* web_ui)
   source->AddLocalizedStrings(SearchboxHandler::GetWebUIDataSourceDict(
       profile, {.enable_voice_search = true,
                 .session_allows_drag_and_drop = session_allows_drag_and_drop}));
-  std::optional<lens::LensOverlayInvocationSource> invocation_source;
-  if (auto* browser = GetBrowser()) {
-    if (auto* active_tab = browser->GetActiveTabInterface()) {
-      if (auto* controller = LensSearchController::From(active_tab)) {
-        invocation_source = controller->invocation_source();
-      }
-    }
-  }
   source->AddBoolean("clearAllInputsWhenSubmittingQuery",
-                     ShouldClearAllInputsOnSubmit(invocation_source));
+                     !base::FeatureList::IsEnabled(omnibox::kContextManagementInComposebox));
 #endif  // BUILDFLAG(ENABLE_WEBUI_CONTEXTUAL_TASKS_COMPOSEBOX)
 
   // Determine and cache tab input support on initialization.
@@ -591,17 +580,16 @@ base::DictValue ContextualTasksUI::GetContextualTasksLoadTimeData(
       contextual_tasks::GetContextualTasksAskGTooltipSessionImpressionCap());
   dict.Set("askGCoBrowseEnabled", omnibox::kAskGCoBrowse.Get());
   dict.Set("clearAllInputsWhenSubmittingQuery",
-           ShouldClearAllInputsOnSubmit(std::nullopt));
+           !base::FeatureList::IsEnabled(omnibox::kContextManagementInComposebox));
   dict.Set("contextualTasksSidePanelRearchitectureEnabled",
            contextual_tasks::IsContextualTasksSidePanelRearchitectureEnabled());
 
   dict.Set("isLensSearchbox", true);
   dict.Set("forceHideEllipsis",
            lens::features::GetVisualSelectionUpdatesHideCsbEllipsis());
+  dict.Set("enableVisualSelectionUpdates", false);
   dict.Set("enableCsbMotionTweaks",
            lens::features::GetVisualSelectionUpdatesEnableCsbMotionTweaks());
-  dict.Set("enableVisualSelectionUpdates",
-           lens::features::IsLensOverlayVisualSelectionUpdatesEnabled());
   dict.Set(
       "enableThumbnailSizingTweaks",
       lens::features::GetVisualSelectionUpdatesEnableThumbnailSizingTweaks());
@@ -713,20 +701,6 @@ base::DictValue ContextualTasksUI::GetContextualTasksLoadTimeData(
 }
 
 // static
-bool ContextualTasksUI::ShouldClearAllInputsOnSubmit(
-    std::optional<lens::LensOverlayInvocationSource> invocation_source) {
-  if (invocation_source.has_value() &&
-      invocation_source.value() ==
-          lens::LensOverlayInvocationSource::kOmniboxPageAction) {
-    return false;
-  }
-  // If context management in composebox is enabled, do not wipe restored tabs
-  // on submit.
-  if (base::FeatureList::IsEnabled(omnibox::kContextManagementInComposebox)) {
-    return false;
-  }
-  return true;
-}
 
 void ContextualTasksUI::CreatePageHandler(
     mojo::PendingRemote<contextual_tasks::mojom::Page> page,
@@ -741,16 +715,6 @@ void ContextualTasksUI::CreatePageHandler(
       std::move(page_handler), this, ui_service_, contextual_tasks_service_,
       GetPanelController());
 
-  // Determine if the Lens overlay is showing when the page is created.
-  if (auto* browser = GetBrowser()) {
-    if (auto* tab = browser->GetActiveTabInterface()) {
-      if (auto* controller =
-              LensSearchController::FromTabWebContents(tab->GetContents())) {
-        OnLensOverlayStateChanged(controller->IsShowingUI(),
-                                  controller->invocation_source());
-      }
-    }
-  }
   // If a task is already active when the page handler is created (e.g., on
   // page reload), restore the WebUI state by pushing the task details. If the
   // inner frame URL is not yet available, fallback to the task's creation URL.
@@ -868,20 +832,6 @@ void ContextualTasksUI::SetIsAiPage(bool is_ai_page) {
     return;
   }
 
-  // When AI page is first loaded, close the Lens overlay if it's open,
-  // unless opened for Omnibox Co-Browse visual selection.
-  if (is_ai_page && !was_ai_page_ && !IsCoBrowseOmniboxAction()) {
-    auto* browser = GetBrowser();
-    if (browser) {
-      if (auto* tab = browser->GetActiveTabInterface()) {
-        if (auto* controller =
-                LensSearchController::FromTabWebContents(tab->GetContents())) {
-          controller->CloseLensAsync(
-              lens::LensOverlayDismissalSource::kContextualTasksQuerySubmitted);
-        }
-      }
-    }
-  }
   was_ai_page_ = is_ai_page;
 
   auto* panel_controller = GetPanelController();
@@ -1194,9 +1144,7 @@ void ContextualTasksUI::MaybeTriggerPinningPromo() {
   if (!is_ai_page && !is_srp) {
     return;
   }
-  if (is_ai_page &&
-      (IsLensOverlayShowing() ||
-       !CanTriggerPinningPromoForAiPage(inner_frame_url, panel_controller))) {
+  if ((is_ai_page && !CanTriggerPinningPromoForAiPage(inner_frame_url, panel_controller))) {
     return;
   }
 
@@ -1305,17 +1253,6 @@ void ContextualTasksUI::OnContextRetrievedForActiveTab(
       context &&
       context->ContainsURL(last_committed_url, url_duplication_helper.get());
   if (is_tab_already_in_context) {
-    if (auto* controller =
-            LensSearchController::FromTabWebContents(tab->GetContents())) {
-      if (controller->lens_overlay_controller() &&
-          controller->lens_overlay_controller()->HasRegionSelection() &&
-          controller->query_router() &&
-          controller->query_router()
-              ->overlay_tab_context_file_token()
-              .has_value()) {
-        is_tab_already_in_context = false;
-      }
-    }
   }
   if (!is_tab_already_in_context && composebox_handler_) {
     const auto* current_suggestion =
@@ -1447,22 +1384,7 @@ void ContextualTasksUI::OnSidePanelStateChanged() {
   UpdateZoom();
 }
 
-void ContextualTasksUI::OnLensOverlayStateChanged(
-    bool is_showing,
-    std::optional<lens::LensOverlayInvocationSource> invocation_source) {
-  is_lens_overlay_showing_ = is_showing;
-  if (page_) {
-    bool maybe_show_overlay_hint_text =
-        is_showing && invocation_source.has_value() &&
-        invocation_source.value() ==
-            lens::LensOverlayInvocationSource::kContextualTasksComposebox;
-    page_->OnLensOverlayStateChanged(is_showing, maybe_show_overlay_hint_text);
-  }
-}
 
-bool ContextualTasksUI::IsLensOverlayShowing() const {
-  return is_lens_overlay_showing_;
-}
 
 bool ContextualTasksUI::CanUpdateSuggestedTabContext(
     tabs::TabInterface* tab,

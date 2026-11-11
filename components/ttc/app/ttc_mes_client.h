@@ -97,9 +97,6 @@ class TtcMesClient
       const optimization_guide::proto::TtcClientFrame& frame);
   void ReportServerFrameToDebugSink(
       const optimization_guide::proto::TtcServerFrame& frame);
-  void Log(std::string_view event_name,
-           std::vector<actor::mojom::JournalDetailsPtr> details,
-           SessionJournal::Track track);
 
   raw_ptr<optimization_guide::RemoteModelExecutor> model_executor_ = nullptr;
   raw_ptr<Conversation> conversation_ = nullptr;

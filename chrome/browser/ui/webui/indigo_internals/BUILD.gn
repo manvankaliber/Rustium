@@ -23,11 +23,9 @@ source_set("indigo_internals") {
   ]
   deps = [
     "//base",
-    "//chrome/browser/glic",
     "//chrome/browser/indigo",
     "//chrome/browser/profiles:profile",
     "//chrome/browser/resources/indigo_internals:resources",
-    "//chrome/browser/skills",
     "//chrome/common",
     "//components/optimization_guide/core",
     "//components/skills/public",

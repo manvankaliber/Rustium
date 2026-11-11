@@ -105,15 +105,11 @@ source_set("searchbox_impl") {
     "//components/vector_icons",
     "//net",
   ]
-  if (enable_lens_overlay_backend) {
-    deps += [ "//chrome/browser/ui/lens:backend_logic_public" ]
-  }
 
   deps += [
     "//chrome/browser/new_tab_page",
     "//chrome/browser/ui:browser_window_header",
     "//chrome/browser/ui/bookmarks",
-    "//chrome/browser/ui/lens",
     "//chrome/browser/ui/tabs",
     "//chrome/browser/ui/views/drive_picker_host",
     "//chrome/browser/ui/views/location_bar",

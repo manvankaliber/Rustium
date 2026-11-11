@@ -29,7 +29,6 @@
 #include "base/values.h"
 #include "build/build_config.h"
 #include "build/buildflag.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/affiliations/affiliation_service_factory.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/critical_actions/critical_action_factory.h"
@@ -1305,16 +1304,6 @@ ChromePasswordManagerClient::GetUndoPasswordChangeController() {
   return &undo_password_change_controller_;
 }
 
-bool ChromePasswordManagerClient::IsActorTaskActive() {
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(GetProfile());
-  if (!actor_service) {
-    return false;
-  }
-
-  return actor_service->GetActingActorTaskForWebContents(web_contents()) !=
-         nullptr;
-}
 
 ChromePasswordManagerClient::ChromePasswordManagerClient(
     content::WebContents* web_contents)
@@ -1451,12 +1440,9 @@ void ChromePasswordManagerClient::OnNonPasswordLoginDetected() {
   // Log on `this` only if it has an active Actor task and a live, active
   // primary main frame, otherwise delegate to the opener (e.g. a closing login
   // popup), as the action would be dropped without a navigation ID.
-  const bool can_log_on_self =
-      IsActorTaskActive() && !web_contents()->IsBeingDestroyed() &&
-      web_contents()->GetPrimaryMainFrame()->IsActive();
 
   ChromePasswordManagerClient* logger_client =
-      (!can_log_on_self && opener_client) ? opener_client : this;
+      opener_client ? opener_client : this;
   if (logger_client->critical_action_logger_) {
     logger_client->critical_action_logger_->MaybeLogCriticalAction(
         critical_actions::ActionType::kFederatedLogin);
@@ -1505,15 +1491,10 @@ void ChromePasswordManagerClient::PropagatePredictionsToPasswordManager(
                                                 field_ids_for_renderer_form));
         break;
       case FieldTypeSource::kHeuristicsOrAutocomplete: {
-        bool use_model_predictions_for_actor =
-            IsActorTaskActive() && base::FeatureList::IsEnabled(
-                                       password_manager::features::
-                                           kActorLoginLocalClassificationModel);
         if (apply_client_side_prediction_override_ ||
             base::FeatureList::IsEnabled(
                 password_manager::features::
-                    kApplyClientsideModelPredictionsForPasswordTypes) ||
-            use_model_predictions_for_actor) {
+                    kApplyClientsideModelPredictionsForPasswordTypes)) {
           auto model_predictions = manager.GetHeuristicPredictionForForm(
               autofill::HeuristicSource::kPasswordManagerMachineLearning,
               form_id, field_ids_for_renderer_form);

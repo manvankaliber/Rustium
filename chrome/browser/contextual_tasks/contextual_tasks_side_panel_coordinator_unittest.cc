@@ -100,7 +100,6 @@
 #include "chrome/browser/ui/hats/hats_service_factory.h"
 #include "chrome/browser/ui/hats/mock_hats_service.h"
 #include "chrome/browser/ui/hats/survey_config.h"
-#include "chrome/browser/ui/lens/test_lens_search_controller.h"
 #include "chrome/browser/ui/tabs/tab_model.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/tabs/test_tab_strip_model_delegate.h"
@@ -613,8 +612,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest, GetActiveEntrySource) {
                      omnibox::ChromeAimEntryPoint::
                          DESKTOP_CHROME_LENS_CONTEXTUAL_SEARCHBOX_ENTRY_POINT);
 
-  EXPECT_EQ(ContextualTasksPanelController::EntrySource::kLensOverlay,
-            coordinator_->GetActiveEntrySource());
 
   coordinator_->Show(
       false, omnibox::ChromeAimEntryPoint::UNKNOWN_AIM_ENTRY_POINT,
@@ -1669,30 +1666,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   EXPECT_TRUE(ShouldBeOpen());
 }
 
-TEST_F(ContextualTasksSidePanelCoordinatorTest,
-       OnTabAdded_RestoredTab_TaskDeleted_CreatesTaskForLensSearch) {
-  base::test::ScopedFeatureList feature_list(kContextualTasksSidePanelTabState);
-  TrackTabAssociations();
-  ContextualTask new_task(base::Uuid::GenerateRandomV4());
-  existing_tasks_.insert(new_task.GetTaskId());
-  const GURL lens_url("https://www.google.com/search?lns_mode=un&q=dog");
-  ON_CALL(*GetMockUiService(), IsRestorableSidePanelUrl(lens_url))
-      .WillByDefault(Return(true));
-  EXPECT_CALL(*mock_controller_, CreateTaskFromUrl(lens_url))
-      .WillOnce(Return(new_task));
-
-  tabs::TabInterface* restored_tab = CreateMockTab();
-  SetTabRestoreData(restored_tab, base::Uuid::GenerateRandomV4(), lens_url);
-  coordinator_->OnTabAdded(*tab_list_, restored_tab, /*index=*/1);
-
-  // The side panel can show search results pages like a Lens search, so the
-  // reopened tab gets a new task whose panel loads the saved page.
-  SessionID restored_tab_id =
-      sessions::SessionTabHelper::IdForTab(restored_tab->GetContents());
-  EXPECT_EQ(new_task.GetTaskId(), tab_to_task_[restored_tab_id]);
-  EXPECT_EQ(lens_url,
-            GetMockUiService()->GetCreationUrlForTask(new_task.GetTaskId()));
-}
 
 TEST_F(ContextualTasksSidePanelCoordinatorTest,
        OnTabAdded_RestoredTab_DisallowedUrl_DoesNotCreateTask) {
@@ -1820,14 +1793,8 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   tabs::TabInterface* active_tab = tab_list_->GetActiveTab();
   ASSERT_TRUE(active_tab);
 
-  testing::NiceMock<lens::MockLensSearchController> mock_lens_controller(
-      active_tab);
 
   EXPECT_CALL(mock_lens_controller, IsActive()).WillOnce(Return(true));
-  EXPECT_CALL(
-      mock_lens_controller,
-      CloseLensSync(lens::LensOverlayDismissalSource::kUnexpectedSidePanelOpen))
-      .Times(1);
 
   coordinator_->Show(
       /*transition_from_tab=*/false,
@@ -1836,45 +1803,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
       ContextualTasksPanelController::EntrySource::kEphemeralToolbarButton);
 }
 
-TEST_F(ContextualTasksSidePanelCoordinatorTest,
-       CloseSidePanelLogsMetrics_LensOverlay) {
-  base::UserActionTester user_action_tester;
-  base::HistogramTester histogram_tester;
-
-  ContextualTask task(base::Uuid::GenerateRandomV4());
-  ON_CALL(*mock_controller_, GetContextualTaskForTab(_))
-      .WillByDefault(Return(task));
-
-  // Show the side panel with Lens Overlay entry point.
-  coordinator_->Show(
-      /*transition_from_tab=*/false,
-      omnibox::ChromeAimEntryPoint::
-          DESKTOP_CHROME_LENS_CONTEXTUAL_SEARCHBOX_ENTRY_POINT);
-
-  // Call Close() programmatically (simulating framework close).
-  coordinator_->Close();
-
-  // Trigger the close event via user action (simulating UI transition
-  // completion).
-  coordinator_->OnSurfaceStateChanged(
-      ContextualTasksPanelHost::SurfaceState::kClosed,
-      ContextualTasksPanelHost::StateChangeReason::kUserAction);
-
-  // Verify that the Lens Overlay close metric was recorded.
-  EXPECT_EQ(1, user_action_tester.GetActionCount(
-                   "ContextualTasks.SidePanel.UserAction.Close.LensOverlay"));
-  histogram_tester.ExpectUniqueSample(
-      "ContextualTasks.SidePanel.UserAction.Close.LensOverlay", true, 1);
-
-  // Verify that other close metrics were NOT recorded.
-  EXPECT_EQ(0,
-            user_action_tester.GetActionCount(
-                "ContextualTasks.SidePanel.UserAction.Close.AiModeLinkClick"));
-  EXPECT_EQ(0, user_action_tester.GetActionCount(
-                   "ContextualTasks.SidePanel.UserAction.Close.Other"));
-  EXPECT_EQ(0, user_action_tester.GetActionCount(
-                   "ContextualTasks.SidePanel.UserAction.Close.AskGoogle"));
-}
 
 TEST_F(ContextualTasksSidePanelCoordinatorTest,
        CloseSidePanelLogsMetrics_AiModeLinkClick) {
@@ -3794,16 +3722,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest, IsShowingResults) {
 
   // 3b. Open panel from Lens Overlay entry point before inner frame commits ->
   // true (showing Lens results).
-  base::Uuid lens_overlay_id = base::Uuid::GenerateRandomV4();
-  CreateCachedWebContentsWithUrlForTesting(
-      lens_overlay_id, /*is_open=*/true, GURL("chrome://contextual-tasks"));
-  SetCacheItemEntrySourceForTesting(
-      lens_overlay_id, ContextualTasksPanelController::EntrySource::kLensOverlay,
-      base::TimeTicks::Now());
-  ON_CALL(*mock_controller_, GetContextualTaskForTab(_))
-      .WillByDefault(Return(ContextualTask(lens_overlay_id)));
-  mock_panel_host_->SetWebContents(
-      GetWebContentsForTaskForTesting(lens_overlay_id));
   EXPECT_TRUE(coordinator_->IsShowingResults());
   EXPECT_TRUE(coordinator_->HasResults());
   EXPECT_TRUE(IsShowingLensResults());
@@ -3907,7 +3825,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   submitted_file2.tab_title = "Tab 2";
   submitted_file2.upload_status =
       contextual_search::ContextUploadStatus::kUploadSuccessful;
-  lens::LensOverlayRequestId req2;
   req2.set_context_id(202);
   submitted_file2.request_id = req2;
 
@@ -3918,7 +3835,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   submitted_file3.tab_title = "Tab 3";
   submitted_file3.upload_status =
       contextual_search::ContextUploadStatus::kUploadSuccessful;
-  lens::LensOverlayRequestId req3;
   req3.set_context_id(303);
   submitted_file3.request_id = req3;
 
@@ -4154,9 +4070,7 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   base::UnguessableToken token_a1 = base::UnguessableToken::Create();
   base::UnguessableToken token_b1 = base::UnguessableToken::Create();
   base::UnguessableToken token_b2 = base::UnguessableToken::Create();
-  lens::LensOverlayRequestId req_a1;
   req_a1.set_context_id(11);
-  lens::LensOverlayRequestId req_b1;
   req_b1.set_context_id(22);
 
   session_a_ptr->GetUploadedContextTokensForTesting() = {token_a1};
@@ -4274,7 +4188,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   controller_file1.tab_session_id = session_id1;
   controller_file1.tab_url = GURL("https://example.com/1");
   controller_file1.tab_title = "Tab 1";
-  lens::LensOverlayRequestId req1;
   req1.set_context_id(501);
   controller_file1.request_id = req1;
 
@@ -4284,7 +4197,6 @@ TEST_F(ContextualTasksSidePanelCoordinatorTest,
   controller_file2.tab_session_id = session_id2;
   controller_file2.tab_url = GURL("https://example.com/2");
   controller_file2.tab_title = "Tab 2";
-  lens::LensOverlayRequestId req2;
   req2.set_context_id(502);
   controller_file2.request_id = req2;
 

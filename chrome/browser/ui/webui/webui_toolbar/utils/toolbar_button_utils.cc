@@ -39,15 +39,12 @@ DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarShowTranslateElementId);
 DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowAboutThisSiteElementId);
 DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowContextualTasksElementId);
 DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowCustomizeChromeElementId);
-DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowGlicElementId);
 DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowHistoryClusterElementId);
 DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowHistoryElementId);
 DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowLensElementId);
 DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowMerchantTrustElementId);
 DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowReadAnythingElementId);
 DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowReadingListElementId);
-DECLARE_ELEMENT_IDENTIFIER_VALUE(
-    kToolbarSidePanelShowShoppingInsightsElementId);
 DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarTabSearchElementId);
 DECLARE_ELEMENT_IDENTIFIER_VALUE(kToolbarTaskManagerElementId);
 
@@ -67,14 +64,12 @@ DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarShowTranslateElementId);
 DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowAboutThisSiteElementId);
 DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowContextualTasksElementId);
 DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowCustomizeChromeElementId);
-DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowGlicElementId);
 DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowHistoryClusterElementId);
 DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowHistoryElementId);
 DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowLensElementId);
 DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowMerchantTrustElementId);
 DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowReadAnythingElementId);
 DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowReadingListElementId);
-DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarSidePanelShowShoppingInsightsElementId);
 DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarTabSearchElementId);
 DEFINE_ELEMENT_IDENTIFIER_VALUE(kToolbarTaskManagerElementId);
 
@@ -98,14 +93,11 @@ base::span<const ui::ElementIdentifier> GetPinnedToolbarActionElementIds() {
           webui_toolbar::kToolbarSidePanelShowAboutThisSiteElementId,
           webui_toolbar::kToolbarSidePanelShowContextualTasksElementId,
           webui_toolbar::kToolbarSidePanelShowCustomizeChromeElementId,
-          webui_toolbar::kToolbarSidePanelShowGlicElementId,
           webui_toolbar::kToolbarSidePanelShowHistoryClusterElementId,
           webui_toolbar::kToolbarSidePanelShowHistoryElementId,
-          webui_toolbar::kToolbarSidePanelShowLensElementId,
           webui_toolbar::kToolbarSidePanelShowMerchantTrustElementId,
           webui_toolbar::kToolbarSidePanelShowReadAnythingElementId,
           webui_toolbar::kToolbarSidePanelShowReadingListElementId,
-          webui_toolbar::kToolbarSidePanelShowShoppingInsightsElementId,
           webui_toolbar::kToolbarTabSearchElementId,
           webui_toolbar::kToolbarTaskManagerElementId,
       });
@@ -157,8 +149,6 @@ ui::ElementIdentifier ActionIdToElementIdentifier(actions::ActionId action) {
       return kToolbarSidePanelShowAboutThisSiteElementId;
     case kActionSidePanelShowCustomizeChrome:
       return kToolbarSidePanelShowCustomizeChromeElementId;
-    case kActionSidePanelShowShoppingInsights:
-      return kToolbarSidePanelShowShoppingInsightsElementId;
     case kActionSidePanelShowMerchantTrust:
       return kToolbarSidePanelShowMerchantTrustElementId;
     case kActionShowAiOverlayDialog:
@@ -167,8 +157,6 @@ ui::ElementIdentifier ActionIdToElementIdentifier(actions::ActionId action) {
       return kToolbarSidePanelShowHistoryElementId;
     case kActionShowChromeLabs:
       return kToolbarShowChromeLabsElementId;
-    case kActionSidePanelShowGlic:
-      return kToolbarSidePanelShowGlicElementId;
     default:
       return ui::ElementIdentifier();
   }
@@ -249,7 +237,6 @@ ActionItemToPinnedToolbarAction(actions::ActionItem* item) {
       CHECK_EQ(icon, &(features::IsRoundedIconsEnabled() ? kPrintIcon
                                                          : kPrintMenuOldIcon));
       return toolbar_ui_api::mojom::PinnedToolbarAction::kPrint;
-    case kActionSidePanelShowLensOverlayResults:
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
       CHECK_EQ(icon, &vector_icons::kGoogleLensMonochromeLogoIcon);
 #else
@@ -345,12 +332,6 @@ ActionItemToPinnedToolbarAction(actions::ActionItem* item) {
                            : vector_icons::kEditChromeRefreshOldIcon));
       return toolbar_ui_api::mojom::PinnedToolbarAction::
           kSidePanelShowCustomizeChrome;
-    case kActionSidePanelShowShoppingInsights:
-      CHECK_EQ(icon, &(features::IsRoundedIconsEnabled()
-                           ? vector_icons::kShoppingBagIcon
-                           : vector_icons::kShoppingBagOldIcon));
-      return toolbar_ui_api::mojom::PinnedToolbarAction::
-          kSidePanelShowShoppingInsights;
     case kActionSidePanelShowMerchantTrust:
       CHECK_EQ(icon, &(features::IsRoundedIconsEnabled()
                            ? vector_icons::kStorefrontIcon
@@ -392,9 +373,6 @@ ActionItemToPinnedToolbarAction(actions::ActionItem* item) {
                            ? vector_icons::kScienceIcon
                            : vector_icons::kScienceOldIcon));
       return toolbar_ui_api::mojom::PinnedToolbarAction::kShowChromeLabs;
-    case kActionSidePanelShowGlic:
-      CHECK_EQ(icon, &omnibox::kSparkIcon);
-      return toolbar_ui_api::mojom::PinnedToolbarAction::kSidePanelShowGlic;
     default:
       return std::nullopt;
   }
@@ -403,6 +381,10 @@ ActionItemToPinnedToolbarAction(actions::ActionItem* item) {
 std::optional<actions::ActionId> PinnedToolbarActionToActionId(
     toolbar_ui_api::mojom::PinnedToolbarAction action) {
   switch (action) {
+    case toolbar_ui_api::mojom::PinnedToolbarAction::kSidePanelShowLensOverlayResults:
+    case toolbar_ui_api::mojom::PinnedToolbarAction::kSidePanelShowShoppingInsights:
+    case toolbar_ui_api::mojom::PinnedToolbarAction::kSidePanelShowGlic:
+      return std::nullopt;
     case toolbar_ui_api::mojom::PinnedToolbarAction::kUnspecified:
       return std::nullopt;
     case toolbar_ui_api::mojom::PinnedToolbarAction::kNewIncognitoWindow:
@@ -426,9 +408,6 @@ std::optional<actions::ActionId> PinnedToolbarActionToActionId(
       return kActionClearBrowsingData;
     case toolbar_ui_api::mojom::PinnedToolbarAction::kPrint:
       return kActionPrint;
-    case toolbar_ui_api::mojom::PinnedToolbarAction::
-        kSidePanelShowLensOverlayResults:
-      return kActionSidePanelShowLensOverlayResults;
     case toolbar_ui_api::mojom::PinnedToolbarAction::kShowTranslate:
       return kActionShowTranslate;
     case toolbar_ui_api::mojom::PinnedToolbarAction::kQrCodeGenerator:
@@ -459,9 +438,6 @@ std::optional<actions::ActionId> PinnedToolbarActionToActionId(
         kSidePanelShowCustomizeChrome:
       return kActionSidePanelShowCustomizeChrome;
     case toolbar_ui_api::mojom::PinnedToolbarAction::
-        kSidePanelShowShoppingInsights:
-      return kActionSidePanelShowShoppingInsights;
-    case toolbar_ui_api::mojom::PinnedToolbarAction::
         kSidePanelShowMerchantTrust:
       return kActionSidePanelShowMerchantTrust;
     case toolbar_ui_api::mojom::PinnedToolbarAction::
@@ -477,8 +453,6 @@ std::optional<actions::ActionId> PinnedToolbarActionToActionId(
       return kActionSidePanelShowHistory;
     case toolbar_ui_api::mojom::PinnedToolbarAction::kShowChromeLabs:
       return kActionShowChromeLabs;
-    case toolbar_ui_api::mojom::PinnedToolbarAction::kSidePanelShowGlic:
-      return kActionSidePanelShowGlic;
     case toolbar_ui_api::mojom::PinnedToolbarAction::kDivider:
       return std::nullopt;
   }
@@ -490,16 +464,18 @@ using MojomPageActionId = toolbar_ui_api::mojom::PageActionId;
 actions::ActionId MojomPageActionIdToActionId(
     MojomPageActionId page_action_id) {
   switch (page_action_id) {
+    case MojomPageActionId::kActionSidePanelShowLensOverlayResults:
+    case MojomPageActionId::kActionLensOverlayHomework:
+    case MojomPageActionId::kActionCommercePriceInsights:
+    case MojomPageActionId::kActionCommerceDiscounts:
+    case MojomPageActionId::kActionGlicContextualCueing:
+      return -1;  // Retired action; callers treat it as invalid.
     case MojomPageActionId::kActionAiMode:
       return kActionAiMode;
     case MojomPageActionId::kActionIndigo:
       return kActionIndigo;
     case MojomPageActionId::kActionMultistepFilter:
       return kActionMultistepFilter;
-    case MojomPageActionId::kActionSidePanelShowLensOverlayResults:
-      return kActionSidePanelShowLensOverlayResults;
-    case MojomPageActionId::kActionLensOverlayHomework:
-      return kActionLensOverlayHomework;
     case MojomPageActionId::kActionShowTranslate:
       return kActionShowTranslate;
     case MojomPageActionId::kActionShowMemorySaverChip:
@@ -520,10 +496,6 @@ actions::ActionId MojomPageActionIdToActionId(
       return kActionShowFileSystemAccess;
     case MojomPageActionId::kActionInstallPwa:
       return kActionInstallPwa;
-    case MojomPageActionId::kActionCommercePriceInsights:
-      return kActionCommercePriceInsights;
-    case MojomPageActionId::kActionCommerceDiscounts:
-      return kActionCommerceDiscounts;
     case MojomPageActionId::kActionShowPasswordsBubbleOrPage:
       return kActionShowPasswordsBubbleOrPage;
     case MojomPageActionId::kActionShowCollaborationRecentActivity:
@@ -548,8 +520,6 @@ actions::ActionId MojomPageActionIdToActionId(
       return kActionBookmarkThisTab;
     case MojomPageActionId::kActionFederation:
       return kActionFederation;
-    case MojomPageActionId::kActionGlicContextualCueing:
-      return kActionGlicContextualCueing;
     case MojomPageActionId::kActionAnchoredContextualCue:
       return kActionAnchoredContextualCue;
     case MojomPageActionId::kActionAutofillPayment:
@@ -574,10 +544,6 @@ MojomPageActionId ActionIdToMojomPageActionId(actions::ActionId action_id) {
       return MojomPageActionId::kActionIndigo;
     case kActionMultistepFilter:
       return MojomPageActionId::kActionMultistepFilter;
-    case kActionSidePanelShowLensOverlayResults:
-      return MojomPageActionId::kActionSidePanelShowLensOverlayResults;
-    case kActionLensOverlayHomework:
-      return MojomPageActionId::kActionLensOverlayHomework;
     case kActionShowTranslate:
       return MojomPageActionId::kActionShowTranslate;
     case kActionShowMemorySaverChip:
@@ -598,10 +564,6 @@ MojomPageActionId ActionIdToMojomPageActionId(actions::ActionId action_id) {
       return MojomPageActionId::kActionShowFileSystemAccess;
     case kActionInstallPwa:
       return MojomPageActionId::kActionInstallPwa;
-    case kActionCommercePriceInsights:
-      return MojomPageActionId::kActionCommercePriceInsights;
-    case kActionCommerceDiscounts:
-      return MojomPageActionId::kActionCommerceDiscounts;
     case kActionShowPasswordsBubbleOrPage:
       return MojomPageActionId::kActionShowPasswordsBubbleOrPage;
     case kActionShowCollaborationRecentActivity:
@@ -626,8 +588,6 @@ MojomPageActionId ActionIdToMojomPageActionId(actions::ActionId action_id) {
       return MojomPageActionId::kActionBookmarkThisTab;
     case kActionFederation:
       return MojomPageActionId::kActionFederation;
-    case kActionGlicContextualCueing:
-      return MojomPageActionId::kActionGlicContextualCueing;
     case kActionAnchoredContextualCue:
       return MojomPageActionId::kActionAnchoredContextualCue;
     case kActionAutofillPayment:

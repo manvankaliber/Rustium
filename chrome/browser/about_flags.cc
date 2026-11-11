@@ -45,8 +45,6 @@
 #include "chrome/browser/enterprise/data_protection/data_protection_features.h"
 #include "chrome/browser/enterprise/platform_auth/platform_auth_features.h"
 #include "chrome/browser/flag_descriptions.h"
-#include "chrome/browser/glic/public/features.h"
-#include "chrome/browser/glic/public/provider_features.h"
 #include "chrome/browser/infobars/infobar_features.h"
 #include "chrome/browser/login_detection/login_detection_util.h"
 #include "chrome/browser/media/router/discovery/access_code/access_code_cast_constants.h"
@@ -98,8 +96,6 @@
 #include "components/browser_sync/browser_sync_switches.h"
 #include "components/browsing_data/core/features.h"
 #include "components/collaboration/public/features.h"
-#include "components/commerce/core/commerce_feature_list.h"
-#include "components/commerce/core/flag_descriptions.h"
 #include "components/component_updater/component_updater_command_line_config_policy.h"
 #include "components/component_updater/component_updater_switches.h"
 #include "components/compose/buildflags.h"
@@ -318,7 +314,6 @@
         // BUILDFLAG(IS_WIN)
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
-#include "chrome/browser/glic/suggestions/contextual_cueing_features.h"  // nogncheck
 #include "chrome/browser/ui/webui/new_tab_page/composebox/variations/composebox_fieldtrial.h"  // nogncheck
 #endif
         // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
@@ -1931,65 +1926,13 @@ const FeatureEntry::Choice kEnableExperimentalCookieFeaturesChoices[] = {
 
 
 
-const FeatureEntry::FeatureParam kLensOverlayNoOmniboxEntryPoint[] = {
-    {"omnibox-entry-point", "false"},
-};
-const FeatureEntry::FeatureParam kLensOverlayResponsiveOmniboxEntryPoint[] = {
-    {"omnibox-entry-point", "true"},
-    {"omnibox-entry-point-always-visible", "false"},
-};
-const FeatureEntry::FeatureParam kLensOverlayPersistentOmniboxEntryPoint[] = {
-    {"omnibox-entry-point", "true"},
-    {"omnibox-entry-point-always-visible", "true"},
-};
-
-const FeatureEntry::FeatureVariation kLensOverlayVariations[] = {
-    {"with no omnibox entry point", kLensOverlayNoOmniboxEntryPoint, nullptr},
-    {"with responsive chip omnibox entry point",
-     kLensOverlayResponsiveOmniboxEntryPoint, nullptr},
-    {"with persistent icon omnibox entry point",
-     kLensOverlayPersistentOmniboxEntryPoint, nullptr},
-};
 
 
-const FeatureEntry::FeatureParam kLensOverlayImageContextMenuActionsCopy[] = {
-    {"enable-copy-as-image", "true"},
-    {"enable-save-as-image", "false"},
-};
 
-const FeatureEntry::FeatureParam kLensOverlayImageContextMenuActionsSave[] = {
-    {"enable-copy-as-image", "false"},
-    {"enable-save-as-image", "true"},
-};
 
-const FeatureEntry::FeatureParam
-    kLensOverlayImageContextMenuActionsCopyAndSave[] = {
-        {"enable-copy-as-image", "true"},
-        {"enable-save-as-image", "true"},
-};
 
-const FeatureEntry::FeatureVariation
-    kLensOverlayImageContextMenuActionsVariations[] = {
-        {"copy as image", kLensOverlayImageContextMenuActionsCopy, nullptr},
-        {"save as image", kLensOverlayImageContextMenuActionsSave, nullptr},
-        {"copy and save as image",
-         kLensOverlayImageContextMenuActionsCopyAndSave, nullptr},
-};
 
-const FeatureEntry::FeatureParam
-    kLensOverlayTextSelectionContextMenuEntrypointContextualized[] = {
-        {"contextualize", "true"}};
-const FeatureEntry::FeatureParam
-    kLensOverlayTextSelectionContextMenuEntrypointNonContextualized[] = {
-        {"contextualize", "false"}};
-const FeatureEntry::FeatureVariation
-    kLensOverlayTextSelectionContextMenuEntrypointVariations[] = {
-        {"contextualized",
-         kLensOverlayTextSelectionContextMenuEntrypointContextualized, nullptr},
-        {"non-contextualized",
-         kLensOverlayTextSelectionContextMenuEntrypointNonContextualized,
-         nullptr},
-};
+
 
 
 // Feature variations for kIsolateSandboxedIframes.
@@ -2229,11 +2172,6 @@ constexpr char kExtensionAiDataInternalName[] =
     "enable-extension-ai-data-collection";
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-const FeatureEntry::FeatureParam kDiscountOnShoppyPage[] = {
-    {commerce::kDiscountOnShoppyPageParam, "true"}};
-
-const FeatureEntry::FeatureVariation kDiscountsVariations[] = {
-    {"Discount on Shoppy page", kDiscountOnShoppyPage, nullptr}};
 
 
 const FeatureEntry::FeatureParam kSkiaGraphite_ValidationEnabled[] = {
@@ -2253,17 +2191,6 @@ const FeatureEntry::FeatureVariation kSkiaGraphiteVariations[] = {
 
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
-const FeatureEntry::FeatureParam kContextualCueingEnabledNoEngagementCap[] = {
-    {"BackoffTime", "0h"},
-    {"BackoffMultiplierBase", "0.0"},
-    {"NudgeCapTime", "0h"},
-    {"NudgeCapTimePerDomain", "0h"},
-    {"MinPageCountBetweenNudges", "0"},
-    {"MinTimeBetweenNudges", "0h"}};
-const FeatureEntry::FeatureVariation kContextualCueingEnabledOptions[] = {
-    {"no engagement caps", kContextualCueingEnabledNoEngagementCap, nullptr},
-};
-
 const FeatureEntry::FeatureParam kContextualCueingV2DisableCueBackoff[] = {
     {"ContextualCueingV2DisableCueBackoff", "true"}};
 
@@ -2355,164 +2282,32 @@ const FeatureEntry::FeatureVariation
         {"- Sticky", kDeviceBoundSessionsDsePrewarmerStickyParams, nullptr}};
 
 // Variations on pre-warming delays.
-const FeatureEntry::FeatureParam kGlicWarmingDelay20s[] = {
-    {"glic-warming-delay-ms", "20000"}};
-const FeatureEntry::FeatureParam kGlicWarmingDelay300s[] = {
-    {"glic-warming-delay-ms", "300000"}};
 
-const FeatureEntry::FeatureVariation kGlicWarmingVariations[] = {
-    {"with 20s delay", kGlicWarmingDelay20s, nullptr},
-    {"with 300s delay", kGlicWarmingDelay300s, nullptr}};
 
-#if BUILDFLAG(ENABLE_PDF)
-const FeatureEntry::FeatureParam kPdfGlicSummarizeLongButtonText[] = {
-    {"use_long_button_text", "true"}};
 
-const FeatureEntry::FeatureVariation kPdfGlicSummarizeVariations[] = {
-    {"with \"Summarize with Gemini\" button text",
-     kPdfGlicSummarizeLongButtonText, nullptr}};
-#endif  // BUILDFLAG(ENABLE_PDF)
 
 // The durations match the arms of the
 // GlicActorPageStabilityAndTypeToolObservationStartDelay study.
-const FeatureEntry::FeatureParam kActorPageStability800ms[] = {
-    {"actor-page-stability-min-wait", "800ms"},
-    {"actor-paint-stability-initial-paint-timeout", "800ms"},
-    {"actor-paint-stability-subsequent-paint-timeout", "800ms"}};
-const FeatureEntry::FeatureParam kActorPageStability600ms[] = {
-    {"actor-page-stability-min-wait", "600ms"},
-    {"actor-paint-stability-initial-paint-timeout", "600ms"},
-    {"actor-paint-stability-subsequent-paint-timeout", "600ms"}};
-const FeatureEntry::FeatureParam kActorPageStability400ms[] = {
-    {"actor-page-stability-min-wait", "400ms"},
-    {"actor-paint-stability-initial-paint-timeout", "400ms"},
-    {"actor-paint-stability-subsequent-paint-timeout", "400ms"}};
-const FeatureEntry::FeatureParam kActorPageStability200ms[] = {
-    {"actor-page-stability-min-wait", "200ms"},
-    {"actor-paint-stability-initial-paint-timeout", "200ms"},
-    {"actor-paint-stability-subsequent-paint-timeout", "200ms"}};
-const FeatureEntry::FeatureParam kActorPageStability100ms[] = {
-    {"actor-page-stability-min-wait", "100ms"},
-    {"actor-paint-stability-initial-paint-timeout", "100ms"},
-    {"actor-paint-stability-subsequent-paint-timeout", "100ms"}};
 
-const FeatureEntry::FeatureVariation kActorPageStabilityVariations[] = {
-    {"with 800ms min wait and paint timeouts", kActorPageStability800ms,
-     nullptr},
-    {"with 600ms min wait and paint timeouts", kActorPageStability600ms,
-     nullptr},
-    {"with 400ms min wait and paint timeouts", kActorPageStability400ms,
-     nullptr},
-    {"with 200ms min wait and paint timeouts", kActorPageStability200ms,
-     nullptr},
-    {"with 100ms min wait and paint timeouts", kActorPageStability100ms,
-     nullptr}};
 
-const FeatureEntry::FeatureParam kActorTypeToolObservationStartDelay800ms[] = {
-    {"start_delay", "800ms"}};
-const FeatureEntry::FeatureParam kActorTypeToolObservationStartDelay600ms[] = {
-    {"start_delay", "600ms"}};
-const FeatureEntry::FeatureParam kActorTypeToolObservationStartDelay400ms[] = {
-    {"start_delay", "400ms"}};
-const FeatureEntry::FeatureParam kActorTypeToolObservationStartDelay200ms[] = {
-    {"start_delay", "200ms"}};
-const FeatureEntry::FeatureParam kActorTypeToolObservationStartDelay100ms[] = {
-    {"start_delay", "100ms"}};
 
-const FeatureEntry::FeatureVariation
-    kActorTypeToolObservationStartDelayVariations[] = {
-        {"with 800ms delay", kActorTypeToolObservationStartDelay800ms, nullptr},
-        {"with 600ms delay", kActorTypeToolObservationStartDelay600ms, nullptr},
-        {"with 400ms delay", kActorTypeToolObservationStartDelay400ms, nullptr},
-        {"with 200ms delay", kActorTypeToolObservationStartDelay200ms, nullptr},
-        {"with 100ms delay", kActorTypeToolObservationStartDelay100ms,
-         nullptr}};
 
-const FeatureEntry::FeatureParam kGlicActorTransientTasksForceTransient[] = {
-    {"force_transient", "true"}};
 
-const FeatureEntry::FeatureVariation kGlicActorTransientTasksVariations[] = {
-    {"(force transient)", kGlicActorTransientTasksForceTransient, nullptr}};
 
-const FeatureEntry::FeatureParam kActorLoginObservationStartDelay2500ms[] = {
-    {"start_delay", "2500ms"}};
-const FeatureEntry::FeatureParam kActorLoginObservationStartDelay2000ms[] = {
-    {"start_delay", "2000ms"}};
-const FeatureEntry::FeatureParam kActorLoginObservationStartDelay1500ms[] = {
-    {"start_delay", "1500ms"}};
-const FeatureEntry::FeatureParam kActorLoginObservationStartDelay1000ms[] = {
-    {"start_delay", "1000ms"}};
-const FeatureEntry::FeatureParam kActorLoginObservationStartDelay500ms[] = {
-    {"start_delay", "500ms"}};
 
-const FeatureEntry::FeatureVariation
-    kActorLoginObservationStartDelayVariations[] = {
-        {"with 2500ms delay", kActorLoginObservationStartDelay2500ms, nullptr},
-        {"with 2000ms delay", kActorLoginObservationStartDelay2000ms, nullptr},
-        {"with 1500ms delay", kActorLoginObservationStartDelay1500ms, nullptr},
-        {"with 1000ms delay", kActorLoginObservationStartDelay1000ms, nullptr},
-        {"with 500ms delay", kActorLoginObservationStartDelay500ms, nullptr}};
 
 // Makes cursor movement effectively instant. Uses 1ms rather than 0ms because
 // the actor overlay waits for `transitionend`, which zero-length CSS
 // transitions don't fire.
-const FeatureEntry::FeatureParam kGlicActorUiMagicCursorNoAnimation[] = {
-    {"magic-cursor-min-duration-ms", "1"},
-    {"magic-cursor-max-duration-ms", "1"}};
 
-const FeatureEntry::FeatureVariation kGlicActorUiMagicCursorVariations[] = {
-    {"(no cursor movement animation)", kGlicActorUiMagicCursorNoAnimation,
-     nullptr}};
 
-const FeatureEntry::FeatureParam kGlicToolbarButtonLocation_LeftOfProfile[] = {
-    {"glic-toolbar-button-location", "LeftOfProfileChip"}};
-const FeatureEntry::FeatureParam kGlicToolbarButtonLocation_RightOfOmnibox[] = {
-    {"glic-toolbar-button-location", "RightOfOmnibox"}};
-const FeatureEntry::FeatureParam
-    kGlicToolbarButtonLocation_LeftOfProfileChipWithBackground[] = {
-        {"glic-toolbar-button-location", "LeftOfProfileChipWithBackground"}};
 
-const FeatureEntry::FeatureVariation kGlicToolbarButtonLocationVariations[] = {
-    {"Left of Profile", kGlicToolbarButtonLocation_LeftOfProfile, nullptr},
-    {"Right of Omnibox", kGlicToolbarButtonLocation_RightOfOmnibox, nullptr},
-    {"Left of Profile with Background",
-     kGlicToolbarButtonLocation_LeftOfProfileChipWithBackground, nullptr},
-};
 
-const FeatureEntry::FeatureParam kGlicGuestUrlPresetTypeAutopush[] = {
-    {"glic-guest-url-preset-type", "0"}};
-const FeatureEntry::FeatureParam kGlicGuestUrlPresetTypeStaging[] = {
-    {"glic-guest-url-preset-type", "1"}};
-const FeatureEntry::FeatureParam kGlicGuestUrlPresetTypePreprod[] = {
-    {"glic-guest-url-preset-type", "2"}};
-const FeatureEntry::FeatureParam kGlicGuestUrlPresetTypeProd[] = {
-    {"glic-guest-url-preset-type", "3"}};
 
-const FeatureEntry::FeatureVariation kGlicGuestUrlPresetTypes[] = {
-    {"Auto-push", kGlicGuestUrlPresetTypeAutopush, nullptr},
-    {"Staging", kGlicGuestUrlPresetTypeStaging, nullptr},
-    {"Pre-prod", kGlicGuestUrlPresetTypePreprod, nullptr},
-    {"Prod", kGlicGuestUrlPresetTypeProd, nullptr}};
 
-const FeatureEntry::FeatureParam kGlicOSIconVariant_0[] = {{"variant", "0"}};
-const FeatureEntry::FeatureParam kGlicOSIconVariant_1[] = {{"variant", "1"}};
-const FeatureEntry::FeatureParam kGlicOSIconVariant_2[] = {{"variant", "2"}};
 
-const FeatureEntry::FeatureVariation kGlicOSIconVariantVariations[] = {
-    {"Variant 0 (Tab)", kGlicOSIconVariant_0, nullptr},
-    {"Variant 1 (Ball)", kGlicOSIconVariant_1, nullptr},
-    {"Variant 2 (Square)", kGlicOSIconVariant_2, nullptr},
-};
 
-const FeatureEntry::FeatureParam kGlicShowNotTellTutorialsArm1[] = {
-    {"tutorials_arm", "1"}};
-const FeatureEntry::FeatureParam kGlicShowNotTellTutorialsArm2[] = {
-    {"tutorials_arm", "2"}};
 
-const FeatureEntry::FeatureVariation kGlicShowNotTellTutorialsVariations[] = {
-    {"Arm 1", kGlicShowNotTellTutorialsArm1, nullptr},
-    {"Arm 2", kGlicShowNotTellTutorialsArm2, nullptr},
-};
 
 const FeatureEntry::FeatureParam kAutofillShowTypePredictionsAsTitle[] = {
     {"as-title", "true"}};
@@ -2712,14 +2507,6 @@ const FeatureEntry::FeatureParam kMobilePromoOnDesktopTabGroups[] = {
 const FeatureEntry::FeatureParam kMobilePromoOnDesktopTabGroupsNotification[] =
     {{kMobilePromoOnDesktopPromoTypeParam, "4"},
      {kMobilePromoOnDesktopNotificationParam, "true"}};
-const FeatureEntry::FeatureParam kMobilePromoOnDesktopPriceTracking[] = {
-    {kMobilePromoOnDesktopPromoTypeParam, "5"},
-    {kMobilePromoOnDesktopNotificationParam, "false"}};
-const FeatureEntry::FeatureParam
-    kMobilePromoOnDesktopPriceTrackingNotification[] = {
-        {kMobilePromoOnDesktopPromoTypeParam, "5"},
-        {kMobilePromoOnDesktopNotificationParam, "true"}};
-
 const FeatureEntry::FeatureParam kMobilePromoOnDesktopSafety[] = {
     {kMobilePromoOnDesktopPromoTypeParam, "6"},
     {kMobilePromoOnDesktopNotificationParam, "false"}};
@@ -2749,13 +2536,6 @@ const FeatureEntry::FeatureParam kMobilePromoOnDesktopYourChromeNotification[] =
     {{kMobilePromoOnDesktopPromoTypeParam, "9"},
      {kMobilePromoOnDesktopNotificationParam, "true"}};
 
-const FeatureEntry::FeatureParam kMobilePromoOnDesktopShopping[] = {
-    {kMobilePromoOnDesktopPromoTypeParam, "10"},
-    {kMobilePromoOnDesktopNotificationParam, "false"}};
-const FeatureEntry::FeatureParam kMobilePromoOnDesktopShoppingNotification[] = {
-    {kMobilePromoOnDesktopPromoTypeParam, "10"},
-    {kMobilePromoOnDesktopNotificationParam, "true"}};
-
 const FeatureEntry::FeatureVariation kMobilePromoOnDesktopVariations[] = {
     {" - ESB", kMobilePromoOnDesktopESB, nullptr},
     {" - ESB with push notification", kMobilePromoOnDesktopESBNotification,
@@ -2775,9 +2555,8 @@ const FeatureEntry::FeatureVariation kMobilePromoOnDesktopVariationsWave1[] = {
     {" - Tab Groups", kMobilePromoOnDesktopTabGroups, nullptr},
     {" - Tab Groups with push notification",
      kMobilePromoOnDesktopTabGroupsNotification, nullptr},
-    {" - Price Tracking", kMobilePromoOnDesktopPriceTracking, nullptr},
-    {" - Price Tracking with push notification",
-     kMobilePromoOnDesktopPriceTrackingNotification, nullptr},
+
+
     {" - Lens Promo", kMobilePromoOnDesktopLens, nullptr},
     {" - Lens Promo with push notification",
      kMobilePromoOnDesktopLensNotification, nullptr},
@@ -2786,7 +2565,7 @@ const FeatureEntry::FeatureVariation kMobilePromoOnDesktopVariationsWave1[] = {
 const FeatureEntry::FeatureVariation
     kMobilePromoOnDesktopWithQRCodeVariationsWave1[] = {
         {" - Tab Groups", kMobilePromoOnDesktopTabGroups, nullptr},
-        {" - Price Tracking", kMobilePromoOnDesktopPriceTracking, nullptr},
+
         {" - Lens Promo", kMobilePromoOnDesktopLens, nullptr},
 };
 
@@ -2803,9 +2582,8 @@ const FeatureEntry::FeatureVariation kMobilePromoOnDesktopVariationsWave2[] = {
     {" - Your Chrome", kMobilePromoOnDesktopYourChrome, nullptr},
     {" - Your Chrome with push notification",
      kMobilePromoOnDesktopYourChromeNotification, nullptr},
-    {" - Shopping", kMobilePromoOnDesktopShopping, nullptr},
-    {" - Shopping with push notification",
-     kMobilePromoOnDesktopShoppingNotification, nullptr},
+
+
 };
 
 const FeatureEntry::FeatureVariation
@@ -2814,7 +2592,7 @@ const FeatureEntry::FeatureVariation
         {" - Best of Google", kMobilePromoOnDesktopBestOfGoogle, nullptr},
         {" - AI", kMobilePromoOnDesktopAI, nullptr},
         {" - Your Chrome", kMobilePromoOnDesktopYourChrome, nullptr},
-        {" - Shopping", kMobilePromoOnDesktopShopping, nullptr},
+
 };
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
@@ -4420,10 +4198,7 @@ const FeatureEntry kFeatureEntries[] = {
      flag_descriptions::kEmbeddedPermissionEnabledDescription, kOsDesktop,
      FEATURE_VALUE_TYPE(omnibox_feature_configs::kEmbeddedPermissionEnabled)},
 
-    {"lens-overlay-omnibox-entry-point",
-     flag_descriptions::kLensOverlayOmniboxEntryPointName,
-     flag_descriptions::kLensOverlayOmniboxEntryPointDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensOverlayOmniboxEntryPoint)},
+
 
     {"omnibox-allow-ai-mode-matches",
      flag_descriptions::kOmniboxAllowAiModeMatchesName,
@@ -4698,17 +4473,9 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(features::kByDateHistoryInSidePanel)},
 
 
-    {"shopping-list", commerce::flag_descriptions::kShoppingListName,
-     commerce::flag_descriptions::kShoppingListDescription,
-     kOsDesktop, FEATURE_VALUE_TYPE(commerce::kShoppingList)},
 
-    {"price-tracking-subscription-service-locale-key",
-     commerce::flag_descriptions::
-         kPriceTrackingSubscriptionServiceLocaleKeyName,
-     commerce::flag_descriptions::
-         kPriceTrackingSubscriptionServiceLocaleKeyDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(commerce::kPriceTrackingSubscriptionServiceLocaleKey)},
+
+
 
     {"composebox-drive-context-menu-option",
      flag_descriptions::kComposeboxDriveContextMenuOptionName,
@@ -4833,11 +4600,7 @@ const FeatureEntry kFeatureEntries[] = {
      flag_descriptions::kRealboxVirtualFocusNavigationDescription, kOsDesktop,
      FEATURE_VALUE_TYPE(ntp_features::kRealboxVirtualFocusNavigation)},
 
-    {"enable-lens-overlay-virtual-focus",
-     flag_descriptions::kLensOverlayVirtualFocusNavigationName,
-     flag_descriptions::kLensOverlayVirtualFocusNavigationDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kLensOverlayVirtualFocusNavigation)},
+
 
     {"enable-omnibox-everywhere-virtual-focus",
      flag_descriptions::kOmniboxEverywhereVirtualFocusNavigationName,
@@ -5628,11 +5391,7 @@ const FeatureEntry kFeatureEntries[] = {
      flag_descriptions::kEnableLensStandaloneDescription, kOsDesktop,
      FEATURE_VALUE_TYPE(lens::features::kLensStandalone)},
 
-    {"enable-lens-overlay", flag_descriptions::kLensOverlayName,
-     flag_descriptions::kLensOverlayDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(lens::features::kLensOverlay,
-                                    kLensOverlayVariations,
-                                    "LensOverlay")},
+
 
 
     {"bind-cookies-to-port", flag_descriptions::kBindCookiesToPortName,
@@ -6171,16 +5930,6 @@ const FeatureEntry kFeatureEntries[] = {
      flag_descriptions::kGetDisplayMediaConfersActivationDescription,
      kOsDesktop, FEATURE_VALUE_TYPE(media::kGetDisplayMediaConfersActivation)},
 
-    {"geic-enabled", flag_descriptions::kGeicEnabledName,
-     flag_descriptions::kGeicEnabledDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGeic)},
-    {"geic-fre", flag_descriptions::kGeicFreName,
-     flag_descriptions::kGeicFreDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGeicFre)},
-    {"geic-guest-url", flag_descriptions::kGeicGuestUrlName,
-     flag_descriptions::kGeicGuestUrlDescription, kOsDesktop,
-     STRING_VALUE_TYPE(switches::kGeicGuestURL, "")},
-
     {"glass-frame", flag_descriptions::kGlassFrameName,
      flag_descriptions::kGlassFrameDescription, kOsMac,
      FEATURE_VALUE_TYPE(features::kGlassFrame)},
@@ -6625,12 +6374,7 @@ const FeatureEntry kFeatureEntries[] = {
 
 
 
-    {"discount-on-navigation",
-     commerce::flag_descriptions::kDiscountOnNavigationName,
-     commerce::flag_descriptions::kDiscountOnNavigationDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(commerce::kEnableDiscountInfoApi,
-                                    kDiscountsVariations,
-                                    "DisocuntOnNavigation")},
+
 
     {"permissions-ai-v4", flag_descriptions::kPermissionsAIv4Name,
      flag_descriptions::kPermissionsAIv4Description, kOsAll,
@@ -6645,33 +6389,15 @@ const FeatureEntry kFeatureEntries[] = {
          kPermissionsGestureGatedPromptsVariations,
          "PermissionsGestureGatedPrompts")},
 
-    {"enable-lens-overlay-translate-button",
-     flag_descriptions::kLensOverlayTranslateButtonName,
-     flag_descriptions::kLensOverlayTranslateButtonDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensOverlayTranslateButton)},
 
-    {"enable-lens-overlay-latency-optimizations",
-     flag_descriptions::kLensOverlayLatencyOptimizationsName,
-     flag_descriptions::kLensOverlayLatencyOptimizationsDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensOverlayLatencyOptimizations)},
 
-    {"enable-lens-overlay-image-context-menu-actions",
-     flag_descriptions::kLensOverlayImageContextMenuActionsName,
-     flag_descriptions::kLensOverlayImageContextMenuActionsDescription,
-     kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(
-         lens::features::kLensOverlayImageContextMenuActions,
-         kLensOverlayImageContextMenuActionsVariations,
-         "LensOverlayImageContextMenuActions")},
 
-    {"enable-lens-overlay-updated-visuals",
-     flag_descriptions::kLensOverlayUpdatedVisualsName,
-     flag_descriptions::kLensOverlayUpdatedVisualsDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensOverlayVisualSelectionUpdates)},
 
-    {"enable-lens-search-aim-m3", flag_descriptions::kLensSearchAimM3Name,
-     flag_descriptions::kLensSearchAimM3Description, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensSearchAimM3)},
+
+
+
+
+
 
     {"enable-lens-side-panel-unification",
      flag_descriptions::kLensSidePanelUnificationName,
@@ -6711,16 +6437,8 @@ const FeatureEntry kFeatureEntries[] = {
              kAutofillEnableCvcStorageAndFillingStandaloneFormEnhancement)},
 
 
-    {"contextual-cueing", flag_descriptions::kContextualCueingName,
-     flag_descriptions::kContextualCueingDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(glic::kContextualCueing,
-                                    kContextualCueingEnabledOptions,
-                                    "ContextualCueingEnabledOptions")},
-    {"glic-zero-state-suggestions",
-     flag_descriptions::kGlicZeroStateSuggestionsName,
-     flag_descriptions::kGlicZeroStateSuggestionsDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(glic::kGlicZeroStateSuggestions)},
+
+
     {"contextual-cueing-v2", flag_descriptions::kContextualCueingV2Name,
      flag_descriptions::kContextualCueingV2Description, kOsDesktop,
      FEATURE_WITH_PARAMS_VALUE_TYPE(contextual_cueing::kContextualCueingV2,
@@ -6776,44 +6494,23 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(features::kMacAccessibilityAPIMigration)},
 #endif  // BUILDFLAG(IS_MAC)
 
-    {"enable-lens-overlay-translate-languages",
-     flag_descriptions::kLensOverlayTranslateLanguagesName,
-     flag_descriptions::kLensOverlayTranslateLanguagesDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensOverlayTranslateLanguages)},
+
     {"ai-overlay-disable-navigation-context",
      flag_descriptions::kAiOverlayDisableNavigationContextName,
      flag_descriptions::kAiOverlayDisableNavigationContextDescription,
      kOsDesktop,
      FEATURE_VALUE_TYPE(features::kAiOverlayDisableNavigationContext)},
 
-    {"glic", flag_descriptions::kGlicName, flag_descriptions::kGlicDescription,
-     kOsDesktop, FEATURE_VALUE_TYPE(features::kGlic)},
-    {"glic-hotkey-local-scope", flag_descriptions::kGlicHotkeyLocalScopeName,
-     flag_descriptions::kGlicHotkeyLocalScopeDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicHotkeyLocalScope)},
-    {"glic-tab-groups", flag_descriptions::kGlicTabGroupsName,
-     flag_descriptions::kGlicTabGroupsDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicTabGroups)},
 
 
 
 
-    {"glic-actor", flag_descriptions::kGlicActorName,
-     flag_descriptions::kGlicActorDescription, kOsDesktop,
-     ENABLE_DISABLE_VALUE_TYPE_AND_VALUE(switches::kEnableFeatures,
-                                         "GlicActor,GlicActorUi",
-                                         switches::kDisableFeatures,
-                                         "GlicActor,GlicActorUi")},
-    {"glic-handoff-button-hide-when-modal-ui-shown",
-     flag_descriptions::kGlicHandoffButtonHideWhenModalUIShownName,
-     flag_descriptions::kGlicHandoffButtonHideWhenModalUIShownDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicHandoffButtonHideWhenModalUIShown)},
-    {"glic-experimental-triggering",
-     flag_descriptions::kGlicExperimentalTriggeringName,
-     flag_descriptions::kGlicExperimentalTriggeringDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicExperimentalTriggering)},
+
+
+
+
+
+
     {"browser-actuator", flag_descriptions::kBrowserActuatorName,
      flag_descriptions::kBrowserActuatorDescription, kOsDesktop,
      FEATURE_VALUE_TYPE(browser_actuator::kBrowserActuator)},
@@ -6822,256 +6519,73 @@ const FeatureEntry kFeatureEntries[] = {
      flag_descriptions::kBrowserActuatorInternalsDescription,
      kOsDesktop,
      FEATURE_VALUE_TYPE(browser_actuator::kBrowserActuatorInternals)},
-    {"enable-browser-actuator-for-glic-experimental-triggering",
-     flag_descriptions::kEnableBrowserActuatorForGlicExperimentalTriggeringName,
-     flag_descriptions::
-         kEnableBrowserActuatorForGlicExperimentalTriggeringDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(
-         browser_actuator::
-             kEnableBrowserActuatorForGlicExperimentalTriggering)},
-    {"glic-background-actuation",
-     flag_descriptions::kGlicBackgroundActuationName,
-     flag_descriptions::kGlicBackgroundActuationDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicBackgroundActuation)},
-    {"glic-background-triggering",
-     flag_descriptions::kGlicBackgroundTriggeringName,
-     flag_descriptions::kGlicBackgroundTriggeringDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicBackgroundTriggering)},
 
-    {"glic-settings-a11y-context-fix",
-     flag_descriptions::kGlicSettingsA11yContextFixName,
-     flag_descriptions::kGlicSettingsA11yContextFixDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicSettingsA11yContextFix)},
-    {"glic-opt-in-dialog-a11y-fix",
-     flag_descriptions::kGlicOptInDialogA11yFixName,
-     flag_descriptions::kGlicOptInDialogA11yFixDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicOptInDialogA11yFix)},
-    {"glic-experimental-triggering-os-notification",
-     flag_descriptions::kGlicExperimentalTriggeringOsNotificationName,
-     flag_descriptions::kGlicExperimentalTriggeringOsNotificationDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicExperimentalTriggeringOsNotification)},
-    {"glic-experimental-triggering-screenshot",
-     flag_descriptions::kGlicExperimentalTriggeringScreenshotName,
-     flag_descriptions::kGlicExperimentalTriggeringScreenshotDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicExperimentalTriggeringScreenshot)},
-    {"glic-experimental-triggering-script-tools",
-     flag_descriptions::kGlicExperimentalTriggeringScriptToolsName,
-     flag_descriptions::kGlicExperimentalTriggeringScriptToolsDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicExperimentalTriggeringScriptTools)},
-    {"glic-spark-settings-accessible-labels",
-     flag_descriptions::kGlicSparkSettingsAccessibleLabelsName,
-     flag_descriptions::kGlicSparkSettingsAccessibleLabelsDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicSparkSettingsAccessibleLabels)},
-    {"glic-actor-autofill", flag_descriptions::kGlicActorAutofillName,
-     flag_descriptions::kGlicActorAutofillDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(autofill::features::kGlicActorAutofill)},
-    {"glic-actor-autofill-section-label",
-     flag_descriptions::kGlicActorAutofillSectionLabelName,
-     flag_descriptions::kGlicActorAutofillSectionLabelDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicActorAutofillSectionLabel)},
-    {"glic-actor-autofill-pre-click",
-     flag_descriptions::kGlicActorAutofillPreClickName,
-     flag_descriptions::kGlicActorAutofillPreClickDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicActorAutofillPreClick)},
-    {"glic-actor-cursor", flag_descriptions::kGlicActorCursorName,
-     flag_descriptions::kGlicActorCursorDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(features::kGlicActorUiMagicCursor,
-                                    kGlicActorUiMagicCursorVariations,
-                                    "GlicActorUiMagicCursor")},
-    {"glic-actor-localhost-is-sensitive",
-     flag_descriptions::kGlicActorLocalhostIsSensitiveName,
-     flag_descriptions::kGlicActorLocalhostIsSensitiveDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(actor::kGlicActorLocalhostIsSensitive)},
-    {"glic-actor-script-tools",
-     flag_descriptions::kGlicActorEnableScriptToolsName,
-     flag_descriptions::kGlicActorEnableScriptToolsDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(actor::kGlicActorEnableScriptTools)},
-    {"glic-actor-transient-tasks",
-     flag_descriptions::kGlicActorTransientTasksName,
-     flag_descriptions::kGlicActorTransientTasksDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(actor::kGlicActorTransientTasks,
-                                    kGlicActorTransientTasksVariations,
-                                    "GlicActorTransientTasks")},
-    {"glic-actor-skip-screenshot",
-     flag_descriptions::kGlicActorSkipScreenshotName,
-     flag_descriptions::kGlicActorSkipScreenshotDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(actor::kGlicActorSkipScreenshot)},
-    {"glic-actor-incremental-typing",
-     flag_descriptions::kGlicActorIncrementalTypingName,
-     flag_descriptions::kGlicActorIncrementalTypingDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicActorIncrementalTyping)},
-    {"actor-login-observation-start-delay",
-     flag_descriptions::kActorLoginObservationStartDelayName,
-     flag_descriptions::kActorLoginObservationStartDelayDescription,
-     kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(actor::kActorLoginObservationStartDelay,
-                                    kActorLoginObservationStartDelayVariations,
-                                    "ActorLoginObservationStartDelay")},
-    {"actor-observe-screenshot-default",
-     flag_descriptions::kActorObserveScreenshotDefaultName,
-     flag_descriptions::kActorObserveScreenshotDefaultDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(actor::kActorObserveScreenshotDefault)},
-    {"actor-observe-page-content-default",
-     flag_descriptions::kActorObservePageContentDefaultName,
-     flag_descriptions::kActorObservePageContentDefaultDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(actor::kActorObservePageContentDefault)},
-    {"actor-script-tool-skip-screenshot",
-     flag_descriptions::kActorScriptToolSkipScreenshotName,
-     flag_descriptions::kActorScriptToolSkipScreenshotDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(actor::kActorScriptToolSkipScreenshot)},
-    {"actor-script-tool-skip-page-content",
-     flag_descriptions::kActorScriptToolSkipPageContentName,
-     flag_descriptions::kActorScriptToolSkipPageContentDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(actor::kActorScriptToolSkipPageContent)},
-    {"actor-page-stability", flag_descriptions::kActorPageStabilityName,
-     flag_descriptions::kActorPageStabilityDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(actor::kActorPageStability,
-                                    kActorPageStabilityVariations,
-                                    "ActorPageStability")},
-    {"actor-type-tool-observation-start-delay",
-     flag_descriptions::kActorTypeToolObservationStartDelayName,
-     flag_descriptions::kActorTypeToolObservationStartDelayDescription,
-     kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(
-         actor::kActorTypeToolObservationStartDelay,
-         kActorTypeToolObservationStartDelayVariations,
-         "ActorTypeToolObservationStartDelay")},
 
-    {"glic-pdf-summarize", flag_descriptions::kGlicPdfSummarizeName,
-     flag_descriptions::kGlicPdfSummarizeDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(features::kPdfGlicSummarize,
-                                    kPdfGlicSummarizeVariations,
-                                    "GlicPdfSummarize")},
 
-    {"glic-pre-warming", flag_descriptions::kGlicWarmingName,
-     flag_descriptions::kGlicWarmingDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(features::kGlicWarming,
-                                    kGlicWarmingVariations,
-                                    "GlicWarming")},
-    {"glic-capture-region", flag_descriptions::kGlicCaptureRegionName,
-     flag_descriptions::kGlicCaptureRegionDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicCaptureRegion)},
-    {"glic-chrome-status-icon-win",
-     flag_descriptions::kGlicChromeStatusIconWinName,
-     flag_descriptions::kGlicChromeStatusIconWinDescription, kOsWin,
-     FEATURE_VALUE_TYPE(features::kGlicChromeStatusIconWin)},
-    {"glic-toolbar-height-side-panel",
-     flag_descriptions::kGlicUseToolbarHeightSidePanelName,
-     flag_descriptions::kGlicUseToolbarHeightSidePanelDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicUseToolbarHeightSidePanel)},
-    {"glic-os-icon-variant", flag_descriptions::kGlicOSIconVariantName,
-     flag_descriptions::kGlicOSIconVariantDescription, kOsMac,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(features::kGlicOSIconVariant,
-                                    kGlicOSIconVariantVariations,
-                                    "GlicOSIconVariant")},
-    {"glic-share-image", flag_descriptions::kGlicShareImageName,
-     flag_descriptions::kGlicShareImageDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicShareImage)},
-    {"glic-default-tab-context-setting",
-     flag_descriptions::kGlicDefaultTabContextSettingName,
-     flag_descriptions::kGlicDefaultTabContextSettingDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicDefaultTabContextSetting)},
 
-    {"glic-guest-url-presets", flag_descriptions::kGlicGuestUrlPresetsName,
-     flag_descriptions::kGlicGuestUrlPresetsDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(features::kGlicGuestUrlPresets,
-                                    kGlicGuestUrlPresetTypes,
-                                    "GlicGuestUrlPresets")},
 
-    {"glic-caa-guest-error", flag_descriptions::kGlicCaaGuestErrorName,
-     flag_descriptions::kGlicCaaGuestErrorDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicCaaGuestError)},
 
-    {"glic-disable-actor-safety-checks",
-     flag_descriptions::kGlicDisableActorSafetyChecksName,
-     flag_descriptions::kGlicDisableActorSafetyChecksDescription, kOsDesktop,
-     SINGLE_VALUE_TYPE(actor::switches::kDisableActorSafetyChecks)},
 
-    {"glic-disable-hfcr", flag_descriptions::kGlicDisableHfcrName,
-     flag_descriptions::kGlicDisableHfcrDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicDisableHfcr)},
 
-    {"glic-horizontal-tab-toolbar-button",
-     flag_descriptions::kGlicHorizontalTabToolbarButtonName,
-     flag_descriptions::kGlicHorizontalTabToolbarButtonDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicHorizontalTabToolbarButton)},
 
-    {"glic-toolbar-button-location",
-     flag_descriptions::kGlicToolbarButtonLocationName,
-     flag_descriptions::kGlicToolbarButtonLocationDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(features::kGlicToolbarButtonLocation,
-                                    kGlicToolbarButtonLocationVariations,
-                                    "GlicToolbarButtonLocation")},
 
-    {"glic-contextual-cueing-v2-auto-submit",
-     flag_descriptions::kGlicContextualCueingV2AutoSubmitName,
-     flag_descriptions::kGlicContextualCueingV2AutoSubmitDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicContextualCueingV2AutoSubmit)},
-    {"glic-contextual-cues-handle-edu",
-     flag_descriptions::kGlicContextualCuesHandleEduName,
-     flag_descriptions::kGlicContextualCuesHandleEduDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicContextualCuesHandleEdu)},
-    {"glic-contextual-cues-handle-shopping",
-     flag_descriptions::kGlicContextualCuesHandleShoppingName,
-     flag_descriptions::kGlicContextualCuesHandleShoppingDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicContextualCuesHandleShopping)},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     {"contextual-search-contextual-cues-handle-edu",
      flag_descriptions::kContextualSearchContextualCuesHandleEduName,
      flag_descriptions::kContextualSearchContextualCuesHandleEduDescription,
      kOsDesktop,
      FEATURE_VALUE_TYPE(
          contextual_tasks::kContextualSearchContextualCuesHandleEdu)},
-    {"contextual-search-contextual-cues-handle-shopping",
-     flag_descriptions::kContextualSearchContextualCuesHandleShoppingName,
-     flag_descriptions::
-         kContextualSearchContextualCuesHandleShoppingDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(
-         contextual_tasks::kContextualSearchContextualCuesHandleShopping)},
-    {"glic-contextual-cue-v2-active-user-backoff",
-     flag_descriptions::kGlicContextualCueV2ActiveUserBackoffName,
-     flag_descriptions::kGlicContextualCueV2ActiveUserBackoffDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicContextualCueV2ActiveUserBackoff)},
 
-    {"glic-message-first-fre", flag_descriptions::kGlicMessageFirstFreName,
-     flag_descriptions::kGlicMessageFirstFreDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicMessageFirstFre)},
-    {"glic-message-first-fre-for-contextual-cue",
-     flag_descriptions::kGlicMessageFirstFreForContextualCueName,
-     flag_descriptions::kGlicMessageFirstFreForContextualCueDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicMessageFirstFreForContextualCue)},
-    {"glic-no-webview", flag_descriptions::kGlicNoWebviewName,
-     flag_descriptions::kGlicNoWebviewDescription, kOsDesktop,
-     ENABLE_DISABLE_VALUE_TYPE_AND_VALUE(switches::kEnableFeatures,
-                                         "GlicNoWebview,PrivilegedWebContents",
-                                         switches::kDisableFeatures,
-                                         "GlicNoWebview")},
-    {"glic-reuse-cookies", flag_descriptions::kGlicReuseCookiesName,
-     flag_descriptions::kGlicReuseCookiesDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicReuseCookies)},
-    {"glic-ssr", flag_descriptions::kGlicSsrName,
-     flag_descriptions::kGlicSsrDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicSsr)},
-    {"glic-show-not-tell-tutorials",
-     flag_descriptions::kGlicShowNotTellTutorialsName,
-     flag_descriptions::kGlicShowNotTellTutorialsDescription, kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(features::kGlicShowNotTellTutorials,
-                                    kGlicShowNotTellTutorialsVariations,
-                                    "GlicShowNotTellTutorials")},
+
+
+
+
+
+
+
+
 
     {"enterprise-published-skills-policy-enabled",
      flag_descriptions::kEnterprisePublishedSkillsPolicyEnabledName,
@@ -7199,11 +6713,7 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(features::kAutomaticUsbDetach)},
 #endif
 
-    {"enable-lens-overlay-side-panel-open-in-new-tab",
-     flag_descriptions::kLensOverlaySidePanelOpenInNewTabName,
-     flag_descriptions::kLensOverlaySidePanelOpenInNewTabDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensOverlaySidePanelOpenInNewTab)},
+
 
     {"mark-all-credentials-as-leaked",
      flag_descriptions::kMarkAllCredentialsAsLeakedName,
@@ -7359,9 +6869,7 @@ const FeatureEntry kFeatureEntries[] = {
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) ||
         // BUILDFLAG(IS_CHROMEOS)
 
-    {"discount-autofill", commerce::flag_descriptions::kDiscountAutofillName,
-     commerce::flag_descriptions::kDiscountAutofillDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(commerce::kDiscountAutofill)},
+
 
 
 
@@ -7462,10 +6970,7 @@ const FeatureEntry kFeatureEntries[] = {
 
 
 
-    {"enable-lens-overlay-edu-action-chip",
-     flag_descriptions::kLensOverlayEduActionChipName,
-     flag_descriptions::kLensOverlayEduActionChipDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensOverlayEduActionChip)},
+
 
 
     {"safety-hub-unused-permission-revocation-for-all-surfaces",
@@ -7516,10 +7021,7 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(switches::kReauthSkipIdentifierPageFollowup)},
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 
-    {"enable-lens-overlay-force-empty-csb-query",
-     flag_descriptions::kLensOverlayForceEmptyCsbQueryName,
-     flag_descriptions::kLensOverlayForceEmptyCsbQueryDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensOverlayForceEmptyCsbQuery)},
+
 
     {"browsing-history-similar-visits-grouping",
      flag_descriptions::kBrowsingHistorySimilarVisitsGroupingName,
@@ -7547,15 +7049,7 @@ const FeatureEntry kFeatureEntries[] = {
                                     kMobilePromoOnDesktopVariations,
                                     "MobilePromoOnDesktopWithReminder")},
 
-    {"enable-lens-overlay-text-selection-context-menu-entrypoint",
-     flag_descriptions::kLensOverlayTextSelectionContextMenuEntrypointName,
-     flag_descriptions::
-         kLensOverlayTextSelectionContextMenuEntrypointDescription,
-     kOsDesktop,
-     FEATURE_WITH_PARAMS_VALUE_TYPE(
-         lens::features::kLensOverlayTextSelectionContextMenuEntrypoint,
-         kLensOverlayTextSelectionContextMenuEntrypointVariations,
-         "LensOverlayTextSelectionContextMenuEntrypoint")},
+
 
 
 
@@ -7935,11 +7429,7 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(features::kCryptographyComplianceCnsa)},
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
-    {"lens-reinvocation-affordance",
-     flag_descriptions::kLensSearchReinvocationAffordanceName,
-     flag_descriptions::kLensSearchReinvocationAffordanceDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensSearchReinvocationAffordance)},
+
 
     {"lens-updated-feedback-entrypoint",
      flag_descriptions::kLensUpdatedFeedbackEntrypointName,
@@ -8087,19 +7577,9 @@ const FeatureEntry kFeatureEntries[] = {
              kAutofillDisableWalletDirectOffersLocaleCountryCheckForTesting)},
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
-    {"lens-overlay-non-blocking-privacy-notice",
-     flag_descriptions::kLensOverlayNonBlockingPrivacyNoticeName,
-     flag_descriptions::kLensOverlayNonBlockingPrivacyNoticeDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(lens::features::kLensOverlayNonBlockingPrivacyNotice)},
 
-    {"lens-overlay-non-blocking-privacy-notice-for-image-search",
-     flag_descriptions::kLensOverlayNonBlockingPrivacyNoticeForImageSearchName,
-     flag_descriptions::
-         kLensOverlayNonBlockingPrivacyNoticeForImageSearchDescription,
-     kOsDesktop,
-     FEATURE_VALUE_TYPE(
-         lens::features::kLensOverlayNonBlockingPrivacyNoticeForImageSearch)},
+
+
 #endif
 
     {"migrate-syncing-user-to-signed-in",
@@ -8483,9 +7963,7 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(
          payments::features::kPaymentRequestRejectTooSmallWindows)},
 
-    {"in-stock-notification", flag_descriptions::kInStockNotificationName,
-     flag_descriptions::kInStockNotificationDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(commerce::kInStockNotification)},
+
 
     {"enable-cancel-upload-on-content-analysis",
      flag_descriptions::kEnableCancelUploadOnContentAnalysisName,
@@ -8741,10 +8219,7 @@ const FeatureEntry kFeatureEntries[] = {
      kOsMac | kOsWin | kOsLinux,
      MULTI_VALUE_TYPE(kForceAiSubscriptionTierChoices)},
 
-    {"glic-context-menu-below-search",
-     flag_descriptions::kGlicContextMenuBelowSearchName,
-     flag_descriptions::kGlicContextMenuBelowSearchDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kGlicContextMenuBelowSearch)},
+
 
     {"omnibox-dui-prerendering", flag_descriptions::kOmniboxDuiPrerenderingName,
      flag_descriptions::kOmniboxDuiPrerenderingDescription, kOsAll,
@@ -8780,10 +8255,7 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(
          features::kReadAnythingReadAloudExperimentalPlaybackUi)},
 #endif
-    {"password-change-with-glic",
-     flag_descriptions::kPasswordChangeWithGlicName,
-     flag_descriptions::kPasswordChangeWithGlicDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(password_change::features::kPasswordChangeWithGlic)},
+
 
 
     {"critical-action-history", flag_descriptions::kCriticalActionHistoryName,

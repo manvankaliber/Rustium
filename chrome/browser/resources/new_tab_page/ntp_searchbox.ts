@@ -196,10 +196,7 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
       },
 
       /** Whether the Google Lens icon should be visible in the searchbox. */
-      searchboxLensSearchEnabled_: {
-        type: Boolean,
-        reflect: true,
-      },
+
 
       useWebkitSearchIcons_: {
         type: Boolean,
@@ -270,8 +267,7 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
       loadTimeData.getString('searchboxDefaultIcon');
   protected accessor searchboxVoiceSearchEnabled_: boolean =
       loadTimeData.getBoolean('searchboxVoiceSearch');
-  protected accessor searchboxLensSearchEnabled_: boolean =
-      loadTimeData.getBoolean('searchboxLensSearch');
+
   protected accessor ntpRealboxDynamicAiModeButtonEnabled_: boolean =
       loadTimeData.getBoolean('ntpRealboxDynamicAiModeButton');
   protected accessor ntpRealboxDynamicAiModeButtonPreventEarlyPaint_: boolean =
@@ -882,10 +878,7 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
     this.onSearchboxInputTextUpdated(e);
   }
 
-  protected onLensSearchClick_() {
-    this.dropdownIsVisible = false;
-    this.dispatchEvent(new Event('open-lens-search'));
-  }
+
 
   protected onHasSecondarySideChanged_(e: CustomEvent<{value: boolean}>) {
     this.hasSecondarySide = e.detail.value;

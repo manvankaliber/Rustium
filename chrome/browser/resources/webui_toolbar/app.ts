@@ -53,7 +53,6 @@ const TRACKED_ELEMENTS: Array<{selector: string, id: string}> = [
     id: 'kToolbarPerformanceInterventionButtonElementId',
   },
   {selector: '#media', id: 'kToolbarMediaButtonElementId'},
-  {selector: '#glic-button', id: 'kGlicButtonElementId'},
   {selector: '#avatar', id: 'kToolbarAvatarButtonElementId'},
   {selector: '#app-menu', id: 'kToolbarAppMenuButtonElementId'},
 ];
@@ -99,7 +98,7 @@ export class ToolbarAppElement extends AppElementBase {
       isBackForwardButtonEnabled_: {type: Boolean},
       isPinnedToolbarActionsEnabled_: {type: Boolean},
       isExtensionsContainerEnabled_: {type: Boolean},
-      isGlicButtonEnabled_: {type: Boolean},
+
       isAvatarButtonEnabled_: {type: Boolean},
       isPerformanceInterventionButtonEnabled_: {type: Boolean},
       isMediaButtonEnabled_: {type: Boolean},
@@ -130,10 +129,7 @@ export class ToolbarAppElement extends AppElementBase {
   private browserProxy_: BrowserProxy = BrowserProxyImpl.getInstance();
   private initialState_: InitialStateReader =
       this.browserProxy_.getInitialState();
-  protected accessor isGlicButtonEnabled_: boolean =
-      loadTimeData.getBoolean('enableGlicButton') &&
-      this.initialState_.getBoolean(
-          ToolbarStateKey.IS_PROFILE_ELIGIBLE_FOR_GLIC);
+
   protected accessor isAvatarButtonEnabled_: boolean =
       loadTimeData.getBoolean('enableAvatarButton') &&
       this.initialState_.getBoolean(
@@ -154,8 +150,7 @@ export class ToolbarAppElement extends AppElementBase {
       loadTimeData.getBoolean('omniboxResizingPrioritizationEnabled');
   private toolbarAppMenuLabelResizingEnabled_: boolean =
       loadTimeData.getBoolean('toolbarAppMenuLabelResizingEnabled');
-  private toolbarGlicButtonResizingEnabled_: boolean =
-      loadTimeData.getBoolean('toolbarGlicButtonResizingEnabled');
+
   protected accessor webUIToolbarFullyEnabled_: boolean =
       loadTimeData.getBoolean('webUIToolbarFullyEnabled');
   protected accessor toolbarState_: ToolbarState = {
@@ -234,6 +229,8 @@ export class ToolbarAppElement extends AppElementBase {
       isContextMenuVisible: false,
       preventOverflow: false,
     },
+
+
     glicButtonState: {
       open: false,
       shouldShow: false,
@@ -475,7 +472,7 @@ export class ToolbarAppElement extends AppElementBase {
         this.isPinnedToolbarActionsEnabled_ ||
         this.isBatterySaverButtonEnabled_ ||
         this.isPerformanceInterventionButtonEnabled_ ||
-        this.isGlicButtonEnabled_ || this.isAvatarButtonEnabled_ ||
+        this.isAvatarButtonEnabled_ ||
         this.isMediaButtonEnabled_ || this.isAppMenuButtonEnabled_;
   }
 
@@ -525,7 +522,6 @@ export class ToolbarAppElement extends AppElementBase {
       '#pinnedToolbarActions',
       '#battery-saver',
       '#performance-intervention',
-      '#glic-button',
       '#avatar',
       '#media',
       '#overflow',
@@ -854,10 +850,7 @@ export class ToolbarAppElement extends AppElementBase {
       this.shadowRoot.querySelector<ResponsiveControl&HTMLElement>('#avatar'),
       this.shadowRoot.querySelector<ResponsiveControl&HTMLElement>(
           '#split-tabs'),
-      this.toolbarGlicButtonResizingEnabled_ ?
-          this.shadowRoot.querySelector<ResponsiveControl&HTMLElement>(
-              '#glic-button') :
-          null,
+      null,
       this.shadowRoot.querySelector<ResponsiveControl&HTMLElement>('#forward'),
       this.shadowRoot.querySelector<ResponsiveControl&HTMLElement>('#home'),
       this.shadowRoot.querySelector<ResponsiveControl&HTMLElement>(

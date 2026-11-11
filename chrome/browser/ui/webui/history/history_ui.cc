@@ -93,8 +93,7 @@ content::WebUIDataSource* CreateAndAddHistoryUIHTMLSource(Profile* profile) {
   source->AddString("accountPictureUrl",
                     profiles::GetPlaceholderAvatarIconUrl());
 
-  const bool is_critical_actions_enabled = base::FeatureList::IsEnabled(
-      critical_actions::features::kCriticalActionHistory);
+  const bool is_critical_actions_enabled = false;
   const bool is_critical_actions_chat_linkouts_enabled =
       is_critical_actions_enabled &&
       critical_actions::features::kEnableChatLinkouts.Get();
@@ -132,7 +131,7 @@ content::WebUIDataSource* CreateAndAddHistoryUIHTMLSource(Profile* profile) {
                          history::kBrowsingHistoryCollapsibleDayCards));
   source->AddBoolean(
       "isBrowsingHistoryFilterByActorEnabled",
-      base::FeatureList::IsEnabled(history::kBrowsingHistoryFilterByActor));
+      false);
   source->AddBoolean("isBrowsingHistoryFilterByDeviceEnabled",
                      history::IsBrowsingHistoryFilterByDeviceEnabled());
   source->AddBoolean(

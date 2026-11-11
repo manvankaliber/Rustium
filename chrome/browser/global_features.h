@@ -38,12 +38,7 @@ class DefaultBrowserManager;
 }  // namespace default_browser
 #endif
 
-namespace glic {
-class GlicBackgroundModeManager;
-class GlicGlobalEnabling;
-class GlicProfileManager;
-class GlicSyntheticTrialManager;
-}  // namespace glic
+  // namespace glic
 
 namespace omnibox_everywhere {
 class OmniboxEverywhereController;
@@ -174,24 +169,12 @@ class GlobalFeatures {
   }
 #endif
 
-  glic::GlicProfileManager* glic_profile_manager() {
-    return glic_profile_manager_.get();
-  }
-  glic::GlicBackgroundModeManager* glic_background_mode_manager() {
-    return glic_background_mode_manager_.get();
-  }
   omnibox_everywhere::OmniboxEverywhereController*
   omnibox_everywhere_controller() {
     return omnibox_everywhere_controller_.get();
   }
 
-  glic::GlicSyntheticTrialManager* glic_synthetic_trial_manager() {
-    return synthetic_trial_manager_.get();
-  }
 
-  glic::GlicGlobalEnabling& glic_global_enabling() {
-    return *glic_global_enabling_.get();
-  }
 
   ApplicationLocaleStorage* application_locale_storage() {
     return application_locale_storage_.get();
@@ -312,13 +295,8 @@ class GlobalFeatures {
       default_browser_manager_;
 #endif
 
-  std::unique_ptr<glic::GlicGlobalEnabling> glic_global_enabling_;
-  std::unique_ptr<glic::GlicProfileManager> glic_profile_manager_;
-  std::unique_ptr<glic::GlicBackgroundModeManager>
-      glic_background_mode_manager_;
   std::unique_ptr<omnibox_everywhere::OmniboxEverywhereController>
       omnibox_everywhere_controller_;
-  std::unique_ptr<glic::GlicSyntheticTrialManager> synthetic_trial_manager_;
 
   std::unique_ptr<ApplicationLocaleStorage> application_locale_storage_;
 

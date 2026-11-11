@@ -1161,8 +1161,6 @@ TEST_F(PermissionContextBaseTests, ExpirationBlock) {
 
 TEST_F(PermissionContextBaseTests, ActorBypass_WhenActive_DeniesPermission) {
   base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      {features::kGlicActorPermissionsAutoReject}, {});
   SetIsActorActingOnWebContents(true);
   auto permission_context =
       CreateTestPermissionContext<kGeolocationContentSettingsType>();
@@ -1199,8 +1197,6 @@ TEST_F(PermissionContextBaseTests, ActorBypass_WhenActive_DeniesPermission) {
 TEST_F(PermissionContextBaseTests,
        ActorBypass_WhenInactive_RespectsPermission) {
   base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      {features::kGlicActorPermissionsAutoReject}, {});
   // Actor is not currently active on the web contents.
   SetIsActorActingOnWebContents(false);
   auto permission_context =

@@ -681,7 +681,6 @@ source_set("profiles_extra_parts_impl") {
     "//chrome/browser/collaboration",
     "//chrome/browser/collaboration/comments",
     "//chrome/browser/collaboration/messaging",
-    "//chrome/browser/commerce",
     "//chrome/browser/consent_auditor",
     "//chrome/browser/content_index",
     "//chrome/browser/content_settings:content_settings_factory",
@@ -703,9 +702,6 @@ source_set("profiles_extra_parts_impl") {
     "//chrome/browser/feature_engagement",
     "//chrome/browser/feedback",
     "//chrome/browser/file_system_access",
-    "//chrome/browser/glic",
-    "//chrome/browser/glic/browser_ui",
-    "//chrome/browser/glic/suggestions",
     "//chrome/browser/heavy_ad_intervention",
     "//chrome/browser/hid",
     "//chrome/browser/history",
@@ -734,14 +730,12 @@ source_set("profiles_extra_parts_impl") {
     "//chrome/browser/page_info",
     "//chrome/browser/passage_embeddings",
     "//chrome/browser/password_manager",
-    "//chrome/browser/password_manager/actor_login:factories",
     "//chrome/browser/password_manager/factories",
     "//chrome/browser/password_manager/ode",
     "//chrome/browser/payments",
     "//chrome/browser/payments/browser_binding:browser_bound_key_deleter",
     "//chrome/browser/performance_manager",
     "//chrome/browser/permissions",
-    "//chrome/browser/persisted_state_db",
     "//chrome/browser/personal_context",
     "//chrome/browser/personal_context/first_run",
     "//chrome/browser/plugins",
@@ -776,7 +770,6 @@ source_set("profiles_extra_parts_impl") {
     "//chrome/browser/sharing",
     "//chrome/browser/signin",
     "//chrome/browser/site_token_provider",
-    "//chrome/browser/skills",
     "//chrome/browser/speech",
     "//chrome/browser/ssl",
     "//chrome/browser/storage",
@@ -812,10 +805,6 @@ source_set("profiles_extra_parts_impl") {
     "//components/autofill/content/browser",
     "//components/breadcrumbs/core:status",
     "//components/captive_portal/core:buildflags",
-    "//components/commerce/core:cart_db_content_proto",
-    "//components/commerce/core:commerce_subscription_db_content_proto",
-    "//components/commerce/core:feature_list",
-    "//components/commerce/core:persisted_state_db_content_proto",
     "//components/enterprise/content",
     "//components/enterprise/network_header_injection/core",
     "//components/manta",
@@ -867,7 +856,6 @@ source_set("profiles_extra_parts_impl") {
     "//chrome/browser/ui/desktop_to_mobile_promos:service",
     "//chrome/browser/ui/global_error",
     "//chrome/browser/ui/global_media_controls",
-    "//chrome/browser/ui/lens",
     "//chrome/browser/ui/media_router",
     "//chrome/browser/ui/performance_controls",
     "//chrome/browser/ui/read_anything",
@@ -974,7 +962,6 @@ source_set("profiles_extra_parts_impl") {
   deps += [
     "//chrome/browser/password_manager/factories:startup_import_factory",
     "//chrome/browser/password_manager/remote_actor",
-    "//components/commerce/core:coupon_db_content_proto",
   ]
 
   if (enable_offline_pages) {
@@ -1069,7 +1056,7 @@ source_set("unit_tests") {
     "//chrome/browser:global_features",
   ]
 
-  deps += [ "//chrome/browser/glic/test_support" ]
+  deps += []
 
   sources += [
     "profile_activity_metrics_recorder_unittest.cc",
@@ -1077,7 +1064,6 @@ source_set("unit_tests") {
     "profile_statistics_aggregator_unittest.cc",
   ]
   deps += [
-    "//chrome/browser/glic/test_support",
     "//chrome/browser/ui/browser_window/test:test_support",
     "//chrome/browser/ui/tabs:test_support",
   ]
@@ -1140,7 +1126,6 @@ source_set("browser_tests") {
     "//chrome/test/base:browser_test_waiters",
     "//chrome/test/base:profile_lifecycle_test_utils",
     "//chrome/test/base:testing_browser_process",
-    "//components/commerce/core:feature_list",
     "//components/enterprise/isolated_mode",
     "//components/policy/core/common:test_support",
     "//components/spellcheck/common",

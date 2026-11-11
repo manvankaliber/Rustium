@@ -54,8 +54,6 @@ inline constexpr char kSrpHomepage[] = "https://www.google.com/search";
 inline constexpr char kAimHomepage[] = "https://www.google.com/search?udm=50";
 inline constexpr char kAimHomepageThinking[] =
     "https://www.google.com/search?nem=143";
-inline constexpr char kSrpShopping[] =
-    "https://www.google.com/search?udm=28&q=query";
 inline constexpr char kSrpUrl[] = "https://google.com/search?q=query";
 inline constexpr char kSignOutUrl[] = "https://accounts.google.com/Logout";
 inline constexpr char kSrpUrlWithLensQuery[] =

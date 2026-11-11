@@ -514,11 +514,6 @@ void TabContextualizationController::FetchPageContextInternal(
       pdf::PDFDocumentHelper::MaybeGetForFullPagePdf(*web_contents);
   if (pdf_helper) {
     // Fetch the PDF bytes then run the callback.
-    pdf_helper->GetPdfBytes(
-        /*size_limit=*/lens::features::GetLensOverlayFileUploadLimitBytes(),
-        base::BindOnce(&TabContextualizationController::OnPdfBytesReceived,
-                       in_flight_weak_ptr_factory_.GetWeakPtr(),
-                       std::move(contextual_input_data), std::move(callback)));
     return;
   }
 #endif  // BUILDFLAG(ENABLE_PDF)
@@ -672,6 +667,7 @@ void TabContextualizationController::DownscaleScreenshotAndContinue(
     std::move(callback).Run(screenshot);
     return;
   }
+
 
   scoped_refptr<lens::RefCountedLensOverlayClientLogs> ref_counted_logs =
       base::MakeRefCounted<lens::RefCountedLensOverlayClientLogs>();

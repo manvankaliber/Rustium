@@ -19,7 +19,6 @@ import type {CrButtonElement} from 'chrome://resources/cr_elements/cr_button/cr_
 import {I18nMixinLit} from 'chrome://resources/cr_elements/i18n_mixin_lit.js';
 import {WebUiListenerMixinLit} from 'chrome://resources/cr_elements/web_ui_listener_mixin_lit.js';
 import {assert} from 'chrome://resources/js/assert.js';
-import {EventTracker} from 'chrome://resources/js/event_tracker.js';
 import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
 import {CrLitElement} from 'chrome://resources/lit/v3_0/lit.rollup.js';
 import type {PropertyValues} from 'chrome://resources/lit/v3_0/lit.rollup.js';
@@ -30,7 +29,7 @@ import type {ManageProfilesBrowserProxy, ProfileState} from './manage_profiles_b
 import {ManageProfilesBrowserProxyImpl, ProfileOrderUpdateType} from './manage_profiles_browser_proxy.js';
 import {navigateTo, NavigationMixin, Routes} from './navigation_mixin.js';
 import type {ProfileCardElement} from './profile_card.js';
-import {isAskOnStartupAllowed, isGlicVersion, isProfileCreationAllowed, isProfilesReorderingEnabled, isUseRefreshedUI} from './profile_picker_flags.js';
+import {isAskOnStartupAllowed, isProfileCreationAllowed, isProfilesReorderingEnabled, isUseRefreshedUI} from './profile_picker_flags.js';
 import {getCss} from './profile_picker_main_view.css.js';
 import {getHtml} from './profile_picker_main_view.html.js';
 import type {SigninErrorDialogElement} from './signin_error_dialog.js';
@@ -99,7 +98,7 @@ export class ProfilePickerMainViewElement extends
       loadTimeData.getBoolean('isGuestModeEnabled');
   protected accessor profileCreationAllowed_: boolean =
       isProfileCreationAllowed();
-  protected accessor isGlic_: boolean = isGlicVersion();
+  protected accessor isGlic_: boolean = false;
   private manageProfilesBrowserProxy_: ManageProfilesBrowserProxy =
       ManageProfilesBrowserProxyImpl.getInstance();
   private resizeObserver_: ResizeObserver|null = null;
@@ -114,7 +113,6 @@ export class ProfilePickerMainViewElement extends
   protected accessor webuiRoundedIconsEnabled_: boolean =
       loadTimeData.getBoolean('webuiRoundedIconsEnabled');
 
-  private eventTracker_: EventTracker = new EventTracker();
 
   override connectedCallback() {
     super.connectedCallback();
@@ -160,15 +158,6 @@ export class ProfilePickerMainViewElement extends
 
     this.initializeDragDelegate_();
 
-    // Cast necessary to expose protected members.
-    const changedPrivateProperties =
-        changedProperties as Map<PropertyKey, unknown>;
-    if (changedPrivateProperties.has('profilesListLoaded_') ||
-        changedPrivateProperties.has('profilesList_')) {
-      // The strings containing the link may appear dynamically, so we need to
-      // update their `click` events accordingly.
-      this.updateLearnMoreLinkEvents_();
-    }
   }
 
   override onRouteChange(route: Routes) {
@@ -345,17 +334,9 @@ export class ProfilePickerMainViewElement extends
     }
   }
 
-  // Redirects the call to the handler, to create/use a browser to show the
-  // Help page.
-  private onLearnMoreClicked_(): void {
-    assert(this.isGlic_);
-    this.manageProfilesBrowserProxy_.onLearnMoreClicked();
-  }
-
   protected getTitle_(): TrustedHTML {
     return this.i18nAdvanced(
-        this.isProfileListLoadedAndEmptyAndGlic_() ? 'glicTitleNoProfile' :
-                                                     'mainViewTitle',
+        'mainViewTitle',
         // Special styling through 'class' attribute in some version of the
         // title.
         {attrs: ['class']});
@@ -363,9 +344,7 @@ export class ProfilePickerMainViewElement extends
 
   protected getSubtitle_(): TrustedHTML {
     return this.i18nAdvanced(
-        this.isProfileListLoadedAndEmptyAndGlic_() ?
-            'mainViewSubtitleGlicNoProfile' :
-            'mainViewSubtitle',
+        'mainViewSubtitle',
         // Special styling through 'class' attribute in some version of the
         // subtitle.
         {attrs: ['class']});
@@ -376,39 +355,7 @@ export class ProfilePickerMainViewElement extends
       return true;
     }
 
-    return this.isProfileListLoadedAndEmptyAndGlic_();
-  }
-
-  protected shouldHideFooterText_(): boolean {
-    if (this.isProfileListLoadedAndEmptyAndGlic_()) {
-      return true;
-    }
-
-    return !isGlicVersion();
-  }
-
-  private isProfileListLoadedAndEmptyAndGlic_(): boolean {
-    return this.profilesListLoaded_ && this.profilesList_.length === 0 &&
-        isGlicVersion();
-  }
-
-  private updateLearnMoreLinkEvents_(): void {
-    // This class is set in the string as a placeholder - check
-    // `IDS_PROFILE_PICKER_ADD_PROFILE_HELPER_GLIC` and
-    // `IDS_PROFILE_PICKER_MAIN_VIEW_SUBTITLE_GLIC_NO_PROFILE`. The given link
-    // cannot be directly opened from this page since it is controlled by the
-    // System Profile that is not allowed to open a browser. Therefore we
-    // redirect the call to the handler which will load the last used profile
-    // and open a browser with it.
-    const links = this.shadowRoot.querySelectorAll('.learn-more-link');
-    for (const link of links) {
-      // Remove any potential existing event to avoid duplication of execution.
-      this.eventTracker_.remove(link, 'click');
-      // Add the event listener dynamically since we do not have access to the
-      // string content before the page is loaded.
-      this.eventTracker_.add(
-          link, 'click', this.onLearnMoreClicked_.bind(this));
-    }
+    return false;
   }
 
   // @override

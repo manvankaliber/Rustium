@@ -238,7 +238,6 @@ class ProfileAttributesEntry {
 
   // Returns whether the current profile state is glic eligibile or not based on
   // the signed in account. Signed out profiles are ineligible.
-  bool IsGlicEligible() const;
 
   // Returns the cached AI subscription tier of this profile.
   int GetAiSubscriptionTier() const;
@@ -286,7 +285,6 @@ class ProfileAttributesEntry {
                    const std::u16string& user_name,
                    bool is_consented_primary_account);
 
-  void SetIsGlicEligible(bool value);
 
   void SetAiSubscriptionTier(int tier);
 
@@ -306,7 +304,6 @@ class ProfileAttributesEntry {
   static const char kIsUsingDefaultAvatarKey[];
   static const char kUseGAIAPictureKey[];
   static const char kAccountIdKey[];
-  static const char kIsGlicEligible[];
   static const char kAiSubscriptionKey[];
 
  private:

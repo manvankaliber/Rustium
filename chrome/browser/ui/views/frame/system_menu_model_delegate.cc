@@ -7,8 +7,6 @@
 #include "base/metrics/user_metrics.h"
 #include "build/build_config.h"
 #include "chrome/app/chrome_command_ids.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/sessions/tab_restore_service_factory.h"
 #include "chrome/browser/ui/browser_commands.h"
@@ -59,7 +57,7 @@ bool SystemMenuModelDelegate::IsCommandIdChecked(int command_id) const {
 bool SystemMenuModelDelegate::IsCommandIdEnabled(int command_id) const {
   // Disable the glic toggle pin if it is showing and glic is not enabled.
   if (command_id == IDC_GLIC_TOGGLE_PIN) {
-    return glic::GlicEnabling::IsEnabledForProfile(browser_->GetProfile());
+    return false;
   }
 
 #if BUILDFLAG(IS_WIN)
@@ -96,7 +94,7 @@ bool SystemMenuModelDelegate::IsCommandIdVisible(int command_id) const {
   }
 #endif
   if (command_id == IDC_GLIC_TOGGLE_PIN) {
-    return glic::GlicEnabling::IsEnabledForProfile(browser_->GetProfile());
+    return false;
   }
 
   if (command_id == IDC_TAB_SCROLL_BUTTONS_TOGGLE_PIN) {
@@ -217,11 +215,7 @@ std::u16string SystemMenuModelDelegate::GetLabelForCommandId(
                       : IDS_TAB_STRIP_PIN_TAB_SEARCH;
       break;
     case IDC_GLIC_TOGGLE_PIN:
-      string_id = browser_->GetProfile()->GetPrefs()->GetBoolean(
-                      glic::prefs::kGlicPinnedToTabstrip)
-                      ? IDS_GLIC_UNPIN
-                      : IDS_GLIC_PIN;
-      break;
+      return {};
     case IDC_TAB_SCROLL_BUTTONS_TOGGLE_PIN:
       string_id = browser_->GetProfile()->GetPrefs()->GetBoolean(
                       prefs::kTabScrollButtonsPinnedToTabstrip)

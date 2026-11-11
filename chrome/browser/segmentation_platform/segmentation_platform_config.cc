@@ -84,7 +84,6 @@ std::vector<std::unique_ptr<Config>> GetSegmentationPlatformConfig(
   configs.emplace_back(LowUserEngagementModel::GetConfig());
   configs.emplace_back(SearchUserModel::GetConfig());
   configs.emplace_back(FeedUserSegment::GetConfig());
-  configs.emplace_back(ShoppingUserModel::GetConfig());
   configs.emplace_back(CrossDeviceUserSegment::GetConfig());
   configs.emplace_back(ResumeHeavyUserModel::GetConfig());
   configs.emplace_back(DeviceSwitcherModel::GetConfig());

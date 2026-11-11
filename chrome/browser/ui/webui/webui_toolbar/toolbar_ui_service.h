@@ -115,8 +115,6 @@ class ToolbarUIService : public toolbar_ui_api::mojom::ToolbarUIService {
                              int32_t selection_start) = 0;
     virtual void OnPerformanceInterventionButtonClicked() = 0;
     virtual void OnMediaButtonClicked() = 0;
-    virtual void OnGlicButtonClicked() = 0;
-    virtual void OnGlicActorTaskIconClicked() = 0;
   };
 
   ToolbarUIService(
@@ -222,12 +220,12 @@ class ToolbarUIService : public toolbar_ui_api::mojom::ToolbarUIService {
       AdjustOmniboxTextForCopyCallback callback) override;
   void OnPerformanceInterventionButtonClicked() override;
   void OnMediaButtonClicked() override;
+  void OnGlicButtonClicked() override {}
+  void OnGlicActorTaskIconClicked() override {}
   // Handles click events from the WebUI Glic button by forwarding them to the
   // delegate.
-  void OnGlicButtonClicked() override;
   // Handles click events from the WebUI Glic actor task icon by forwarding
   // them to the delegate.
-  void OnGlicActorTaskIconClicked() override;
 
  private:
   mojo::Receiver<toolbar_ui_api::mojom::ToolbarUIService> service_;

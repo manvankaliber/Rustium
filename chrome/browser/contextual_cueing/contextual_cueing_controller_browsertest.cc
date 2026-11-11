@@ -23,8 +23,6 @@
 #include "chrome/browser/contextual_cueing/prefs.h"
 #include "chrome/browser/contextual_cueing/test_cue_target.h"
 #include "chrome/browser/contextual_search/contextual_search_cue_tab_state.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/suggestions/glic_cue_tab_state.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/browser/infobars/confirm_infobar_creation_allowlist.h"
 #include "chrome/browser/optimization_guide/browser_test_util.h"
@@ -227,8 +225,6 @@ class ContextualCueingControllerBrowserTestBase : public SigninBrowserTestBase,
 
   void RegisterTestCueTargetForTab(tabs::TabInterface* tab) {
     auto test_cue_target = std::make_unique<TestCueTarget>();
-    ContextualCueingController::From(tab)->RegisterCueTarget(
-        CueTargetType::kGlic, std::move(test_cue_target));
   }
 
   MockBrowserUserEducationInterface* mock_user_education_interface() {
@@ -273,19 +269,6 @@ class ContextualCueingControllerBrowserTestBase : public SigninBrowserTestBase,
     content::WebContents* active_web_contents =
         browser()->GetTabStripModel()->GetActiveWebContents();
     ASSERT_TRUE(active_web_contents);
-    contextual_cueing_controller()->OnPageContentAnnotated(
-        page_content_annotations::HistoryVisit(
-            active_web_contents->GetController()
-                .GetLastCommittedEntry()
-                ->GetTimestamp(),
-            url),
-        page_content_annotations::PageContentAnnotationsResult::
-            CreateCategoryResults({
-                page_content_annotations::Category(
-                    page_content_annotations::CategoryType::kEducation, 0.9),
-                page_content_annotations::Category(
-                    page_content_annotations::CategoryType::kShopping, 0.2),
-            }));
   }
 
   page_actions::PageActionController* GetPageActionController() {
@@ -695,16 +678,6 @@ IN_PROC_BROWSER_TEST_F(
 
   // URL won't match whatever navigated since it does not match the active
   // tab.
-  contextual_cueing_controller()->OnPageContentAnnotated(
-      page_content_annotations::HistoryVisit(
-          base::Time::Now(), GURL("https://www.example.com/abc")),
-      page_content_annotations::PageContentAnnotationsResult::
-          CreateCategoryResults({
-              page_content_annotations::Category(
-                  page_content_annotations::CategoryType::kEducation, 0.9),
-              page_content_annotations::Category(
-                  page_content_annotations::CategoryType::kShopping, 0.4),
-          }));
 
   histogram_tester.ExpectTotalCount("ContextualCueing.V2.Decision", 0);
   EXPECT_TRUE(ukm_recorder
@@ -725,19 +698,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
       browser()->GetTabStripModel()->GetActiveWebContents();
   ASSERT_TRUE(active_web_contents);
   cue_target()->page_eligible = false;
-  contextual_cueing_controller()->OnPageContentAnnotated(
-      page_content_annotations::HistoryVisit(
-          active_web_contents->GetController()
-              .GetLastCommittedEntry()
-              ->GetTimestamp(),
-          GURL("https://www.example.com/abc")),
-      page_content_annotations::PageContentAnnotationsResult::
-          CreateCategoryResults({
-              page_content_annotations::Category(
-                  page_content_annotations::CategoryType::kEducation, 0.4),
-              page_content_annotations::Category(
-                  page_content_annotations::CategoryType::kShopping, 0.2),
-          }));
 
   histogram_tester.ExpectUniqueSample(
       "ContextualCueing.V2.Decision",
@@ -762,19 +722,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
   content::WebContents* active_web_contents =
       browser()->GetTabStripModel()->GetActiveWebContents();
   ASSERT_TRUE(active_web_contents);
-  contextual_cueing_controller()->OnPageContentAnnotated(
-      page_content_annotations::HistoryVisit(
-          active_web_contents->GetController()
-              .GetLastCommittedEntry()
-              ->GetTimestamp(),
-          GURL("https://www.example.com/abc")),
-      page_content_annotations::PageContentAnnotationsResult::
-          CreateCategoryResults({
-              page_content_annotations::Category(
-                  page_content_annotations::CategoryType::kEducation, 0.9),
-              page_content_annotations::Category(
-                  page_content_annotations::CategoryType::kShopping, 0.2),
-          }));
   optimization_guide::RetryForHistogramUntilCountReached(
       &histogram_tester, "ContextualCueing.V2.Decision", 1);
 
@@ -788,8 +735,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        PassesFilterAndModelExecutionSucceeded) {
-  browser()->GetProfile()->GetPrefs()->SetBoolean(
-      glic::prefs::kGlicDefaultTabContextEnabled, true);
 
   // Navigate current Chrome tab to a valid URL (and will be in the background
   // in final state).
@@ -850,19 +795,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
   GetPageActionController()->AddObserver(kActionAnchoredContextualCue,
                                          observation);
 
-  contextual_cueing_controller()->OnPageContentAnnotated(
-      page_content_annotations::HistoryVisit(
-          active_web_contents->GetController()
-              .GetLastCommittedEntry()
-              ->GetTimestamp(),
-          GURL("https://www.example.com/abc")),
-      page_content_annotations::PageContentAnnotationsResult::
-          CreateCategoryResults({
-              page_content_annotations::Category(
-                  page_content_annotations::CategoryType::kEducation, 0.9),
-              page_content_annotations::Category(
-                  page_content_annotations::CategoryType::kShopping, 0.2),
-          }));
 
   optimization_guide::RetryForHistogramUntilCountReached(
       &histogram_tester, "ContextualCueing.V2.Decision", 1);
@@ -1058,8 +990,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest, ShowCueAndClick) {
   action->InvokeAction();
 
   ASSERT_TRUE(cue_target()->HasClickData());
-  EXPECT_EQ("Prompt",
-            std::get<GlicCueActionData>(cue_target()->click_data).prompt);
   EXPECT_FALSE(observer.GetCurrentPageActionState().showing);
 
   histogram_tester.ExpectUniqueSample("ContextualCueing.V2.CueInteraction",
@@ -1218,8 +1148,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
   action->InvokeAction();
 
   ASSERT_TRUE(cue_target()->HasClickData());
-  EXPECT_EQ("Prompt",
-            std::get<GlicCueActionData>(cue_target()->click_data).prompt);
 
   // The cue should still be showing.
   base::RunLoop run_loop;
@@ -2403,12 +2331,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
   histogram_tester.ExpectUniqueSample("ContextualCueing.V2.Decision",
                                       ContextualCueingDecision::kSuccess, 1);
 
-  histogram_tester.ExpectUniqueSample(
-      "ContextualCueing.ShownCueCUJ",
-      base::HashMetricName(GetName(CueTargetType::kGlic)), 1);
-  histogram_tester.ExpectUniqueSample(
-      "ContextualCueing.V2.CueShown",
-      base::HashMetricName(GetName(CueTargetType::kGlic)), 1);
 }
 
 class ContextualCueingControllerBrowserTestWithAgeRestriction
@@ -2562,9 +2484,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
 
   // Directly call OnCueInteraction to simulate the Menu Delegate
   auto* cue = &response.contextual_cues(0);
-  contextual_cueing_controller()->OnCueInteraction(
-      ContextualCueingInteraction::kCueDismissed, CueTargetType::kGlic, *cue,
-      {}, {}, "test_cuj_string", {}, "fake_id");
 
   histogram_tester.ExpectUniqueSample(
       "ContextualCueing.V2.CueInteraction.Dismissed",
@@ -2600,9 +2519,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
       &histogram_tester, "ContextualCueing.V2.Decision", 1);
 
   auto* cue = &response.contextual_cues(0);
-  contextual_cueing_controller()->OnCueInteraction(
-      ContextualCueingInteraction::kCueEditPrompt, CueTargetType::kGlic, *cue,
-      {}, {}, "test_cuj_string", {}, "fake_id");
 
   histogram_tester.ExpectUniqueSample(
       "ContextualCueing.V2.CueInteraction.EditPrompt",
@@ -2685,13 +2601,8 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
   // Second click invokes the action.
   action->InvokeAction();
 
-  TestCueTarget* second_cue_target = static_cast<TestCueTarget*>(
-      ContextualCueingController::From(second_browser->GetActiveTabInterface())
-          ->GetTarget(CueTargetType::kGlic));
   ASSERT_TRUE(second_cue_target);
   ASSERT_TRUE(second_cue_target->HasClickData());
-  EXPECT_EQ("Prompt",
-            std::get<GlicCueActionData>(second_cue_target->click_data).prompt);
   ASSERT_TRUE(base::test::RunUntil(
       [&]() { return !second_observer.GetCurrentPageActionState().showing; }));
 }
@@ -2981,8 +2892,6 @@ IN_PROC_BROWSER_TEST_F(
   auto loud_target = std::make_unique<AsyncTestCueTarget>();
   loud_target->supported_intrusiveness = {CueIntrusiveness::kLoud};
   auto* loud_target_ptr = loud_target.get();
-  contextual_cueing_controller()->RegisterCueTarget(CueTargetType::kGlic,
-                                                    std::move(loud_target));
 
   auto quiet_target = std::make_unique<AsyncTestCueTarget>();
   quiet_target->supported_intrusiveness = {CueIntrusiveness::kLoud,
@@ -3035,8 +2944,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerMultiSourceBrowserTest,
   override_target->generate_result = MakeCompleteResponse().contextual_cues(0);
   auto* override_target_ptr = override_target.get();
 
-  contextual_cueing_controller()->RegisterCueTarget(
-      CueTargetType::kGlic, std::move(low_priority_target));
   contextual_cueing_controller()->RegisterCueTarget(CueTargetType::kIndigo,
                                                     std::move(override_target));
 
@@ -3231,8 +3138,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerMultiSourceBrowserTest,
                                                     std::move(non_mes_target));
 
   // Exhaust loud caps by showing a loud cue.
-  service->OnCueShown(GURL("https://example.com"), CueTargetType::kGlic,
-                      /*record_ucb_stats=*/true, CueIntrusiveness::kLoud);
 
   class TestObserver : public page_actions::PageActionModelObserver {
    public:
@@ -3280,8 +3185,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerMultiSourceBrowserTest,
   cue_target()->requires_model_execution = true;
 
   // Exhaust loud caps by showing a loud cue.
-  service->OnCueShown(GURL("https://example.com"), CueTargetType::kGlic,
-                      /*record_ucb_stats=*/true, CueIntrusiveness::kLoud);
 
   class TestObserver : public page_actions::PageActionModelObserver {
    public:
@@ -3398,7 +3301,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerMultiSourceBrowserTest,
                                                     std::move(non_mes_target));
 
   // User dismisses a cue.
-  service->OnCueDismissed(CueTargetType::kGlic, /*record_ucb_stats=*/true);
 
   class TestObserver : public page_actions::PageActionModelObserver {
    public:
@@ -3450,107 +3352,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerMultiSourceBrowserTest,
             page_actions::PageActionPriorityCategory::kUserInteraction);
 }
 
-IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
-                       HatsSurveyLaunchedOnDismiss_EducationAndShopping) {
-  MockHatsService* mock_hats_service = static_cast<MockHatsService*>(
-      HatsServiceFactory::GetInstance()->SetTestingFactoryAndUse(
-          browser()->GetProfile(), base::BindRepeating(&BuildMockHatsService)));
-  ASSERT_TRUE(mock_hats_service);
-
-  ASSERT_TRUE(ui_test_utils::NavigateToURLWithDisposition(
-      browser(), GURL("https://www.activetab.com/abc"),
-      ui::mojom::WindowOpenDisposition::kNewForegroundTab,
-      ui_test_utils::BROWSER_TEST_WAIT_FOR_LOAD_STOP));
-
-  PrefService* prefs = browser()->GetProfile()->GetPrefs();
-  EXPECT_FALSE(prefs::HasDismissSurveyBeenShown(
-      prefs, ContextualCueSurveyCategory::kEducation));
-  EXPECT_FALSE(prefs::HasDismissSurveyBeenShown(
-      prefs, ContextualCueSurveyCategory::kShopping));
-
-  auto response = MakeCompleteResponse();
-  auto* cue = &response.contextual_cues(0);
-
-  base::OnceClosure edu_success_callback;
-  EXPECT_CALL(*mock_hats_service,
-              LaunchSurveyForWebContents(
-                  kHatsSurveyTriggerContextualCueingDismissed, testing::_,
-                  testing::IsEmpty(),
-                  testing::UnorderedElementsAre(
-                      testing::Pair("CUJ", "LEARNING"),
-                      testing::Pair("hostname", "www.activetab.com")),
-                  testing::_, testing::_, testing::_, testing::_))
-      .WillOnce([&](const std::string& trigger,
-                    content::WebContents* web_contents,
-                    const SurveyBitsData& product_specific_bits_data,
-                    const SurveyStringData& product_specific_string_data,
-                    base::OnceClosure success_callback,
-                    base::OnceClosure failure_callback,
-                    const std::optional<std::string>& supplied_trigger_id,
-                    const HatsService::SurveyOptions& survey_options) {
-        edu_success_callback = std::move(success_callback);
-        return HatsService::LaunchError::kNone;
-      });
-
-  contextual_cueing_controller()->OnCueInteraction(
-      ContextualCueingInteraction::kCueDismissed, CueTargetType::kGlic, *cue,
-      /*tabs_to_show=*/{}, /*background_tabs=*/{}, /*cuj=*/"LEARNING",
-      /*action=*/{}, /*cue_id=*/"fake_id");
-
-  // Before success callback runs, pref should still be false (Option 2A).
-  EXPECT_FALSE(prefs::HasDismissSurveyBeenShown(
-      prefs, ContextualCueSurveyCategory::kEducation));
-  ASSERT_TRUE(edu_success_callback);
-  std::move(edu_success_callback).Run();
-  EXPECT_TRUE(prefs::HasDismissSurveyBeenShown(
-      prefs, ContextualCueSurveyCategory::kEducation));
-
-  // Dismissing another EDU cue should NOT launch the survey again.
-  EXPECT_CALL(
-      *mock_hats_service,
-      LaunchSurveyForWebContents(kHatsSurveyTriggerContextualCueingDismissed,
-                                 testing::_, testing::_, testing::_, testing::_,
-                                 testing::_, testing::_, testing::_))
-      .Times(0);
-
-  contextual_cueing_controller()->OnCueInteraction(
-      ContextualCueingInteraction::kCueDismissed, CueTargetType::kGlic, *cue,
-      /*tabs_to_show=*/{}, /*background_tabs=*/{}, /*cuj=*/"QUIZ_ME",
-      /*action=*/{}, /*cue_id=*/"fake_id_2");
-
-  // Dismissing a Shopping cue SHOULD launch the survey because Shopping is
-  // tracked independently from EDU.
-  base::OnceClosure shopping_success_callback;
-  EXPECT_CALL(*mock_hats_service,
-              LaunchSurveyForWebContents(
-                  kHatsSurveyTriggerContextualCueingDismissed, testing::_,
-                  testing::IsEmpty(),
-                  testing::UnorderedElementsAre(
-                      testing::Pair("CUJ", "SHOPPING"),
-                      testing::Pair("hostname", "www.activetab.com")),
-                  testing::_, testing::_, testing::_, testing::_))
-      .WillOnce([&](const std::string& trigger,
-                    content::WebContents* web_contents,
-                    const SurveyBitsData& product_specific_bits_data,
-                    const SurveyStringData& product_specific_string_data,
-                    base::OnceClosure success_callback,
-                    base::OnceClosure failure_callback,
-                    const std::optional<std::string>& supplied_trigger_id,
-                    const HatsService::SurveyOptions& survey_options) {
-        shopping_success_callback = std::move(success_callback);
-        return HatsService::LaunchError::kNone;
-      });
-
-  contextual_cueing_controller()->OnCueInteraction(
-      ContextualCueingInteraction::kCueDismissed, CueTargetType::kGlic, *cue,
-      /*tabs_to_show=*/{}, /*background_tabs=*/{}, /*cuj=*/"SHOPPING",
-      /*action=*/{}, /*cue_id=*/"fake_id_3");
-
-  ASSERT_TRUE(shopping_success_callback);
-  std::move(shopping_success_callback).Run();
-  EXPECT_TRUE(prefs::HasDismissSurveyBeenShown(
-      prefs, ContextualCueSurveyCategory::kShopping));
-}
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                        HatsSurveyLaunchedOnDismiss_Indigo) {
@@ -3637,10 +3438,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
         return HatsService::LaunchError::kNone;
       });
 
-  contextual_cueing_controller()->OnCueInteraction(
-      ContextualCueingInteraction::kCueDismissed, CueTargetType::kGlic, *cue,
-      /*tabs_to_show=*/{}, /*background_tabs=*/{}, /*cuj=*/"LEARNING",
-      /*action=*/{}, /*cue_id=*/"fake_id");
 
   ASSERT_TRUE(failure_cb);
   std::move(failure_cb).Run();
@@ -3656,10 +3453,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
                                  testing::_, testing::_, testing::_))
       .WillOnce(testing::Return(HatsService::LaunchError::kNone));
 
-  contextual_cueing_controller()->OnCueInteraction(
-      ContextualCueingInteraction::kCueDismissed, CueTargetType::kGlic, *cue,
-      /*tabs_to_show=*/{}, /*background_tabs=*/{}, /*cuj=*/"LEARNING",
-      /*action=*/{}, /*cue_id=*/"fake_id_2");
 }
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
@@ -3683,27 +3476,11 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
   auto response = MakeCompleteResponse();
   auto* cue = &response.contextual_cues(0);
 
-  contextual_cueing_controller()->OnCueInteraction(
-      ContextualCueingInteraction::kCueClicked, CueTargetType::kGlic, *cue,
-      /*tabs_to_show=*/{}, /*background_tabs=*/{}, /*cuj=*/"LEARNING",
-      /*action=*/{}, /*cue_id=*/"fake_id_1");
 
-  contextual_cueing_controller()->OnCueInteraction(
-      ContextualCueingInteraction::kCueEditPrompt, CueTargetType::kGlic, *cue,
-      /*tabs_to_show=*/{}, /*background_tabs=*/{}, /*cuj=*/"LEARNING",
-      /*action=*/{}, /*cue_id=*/"fake_id_2");
 
-  contextual_cueing_controller()->OnCueInteraction(
-      ContextualCueingInteraction::kCueSuggestionsSettings,
-      CueTargetType::kGlic, *cue, /*tabs_to_show=*/{}, /*background_tabs=*/{},
-      /*cuj=*/"LEARNING", /*action=*/{}, /*cue_id=*/"fake_id_3");
 
   // Dismissing a cue with an unknown survey category should not launch a
   // survey.
-  contextual_cueing_controller()->OnCueInteraction(
-      ContextualCueingInteraction::kCueDismissed, CueTargetType::kGlic, *cue,
-      /*tabs_to_show=*/{}, /*background_tabs=*/{}, /*cuj=*/"TRAVEL",
-      /*action=*/{}, /*cue_id=*/"fake_id_4");
 }
 
 IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
@@ -3713,8 +3490,6 @@ IN_PROC_BROWSER_TEST_F(ContextualCueingControllerBrowserTest,
   EXPECT_TRUE(bridge->demand_active());
   EXPECT_TRUE(
       GetTestSyncService()->HasObserver(contextual_cueing_controller()));
-  glic::GlicCueTabState* tab_state =
-      glic::GlicCueTabState::From(browser()->GetActiveTabInterface());
   ASSERT_TRUE(tab_state);
   EXPECT_FALSE(GetTestSyncService()->HasObserver(tab_state));
   contextual_search::ContextualSearchCueTabState* cs_tab_state =
@@ -3754,8 +3529,6 @@ IN_PROC_BROWSER_TEST_F(
     CategoryClassifierObservation_DisabledInControllerAndGatedInTabState) {
   FakePageCategoryClassifierBridge* bridge =
       AttachFakeCategoryClassifierBridge();
-  glic::GlicCueTabState* tab_state =
-      glic::GlicCueTabState::From(browser()->GetActiveTabInterface());
   ASSERT_TRUE(tab_state);
   contextual_search::ContextualSearchCueTabState* cs_tab_state =
       contextual_search::ContextualSearchCueTabState::From(

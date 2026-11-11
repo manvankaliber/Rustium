@@ -12,7 +12,6 @@
 #include "base/metrics/histogram_functions.h"
 #include "base/unguessable_token.h"
 #include "chrome/browser/feature_engagement/tracker_factory.h"
-#include "chrome/browser/glic/host/guest_util.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
@@ -710,7 +709,7 @@ void MediaNotificationService::RemoveDeviceListHost(int host_id) {
 
 bool MediaNotificationService::IsIdBlocked(
     const std::string& request_id) const {
-  return glic::IsMediaRequestFromGlic(profile_, request_id);
+  return false;
 }
 
 global_media_controls::MediaItemManager* MediaNotificationService::

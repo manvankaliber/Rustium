@@ -54,7 +54,6 @@ source_set("common_syncable_prefs_database") {
     "//components/autofill/core/common",
     "//components/bookmarks/common",
     "//components/browsing_data/core",
-    "//components/commerce/core:pref_names",
     "//components/content_settings/core/common",
     "//components/contextual_search:prefs",
     "//components/desktop_to_mobile_promos",

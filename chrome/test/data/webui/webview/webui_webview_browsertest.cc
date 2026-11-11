@@ -21,7 +21,6 @@
 #include "chrome/app/chrome_command_ids.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/tab_helper.h"
-#include "chrome/browser/glic/test_support/glic_test_environment.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/renderer_context_menu/render_view_context_menu_test_util.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
@@ -248,7 +247,6 @@ class WebUIWebViewBrowserTest : public WebUIMochaBrowserTest {
   }
 
   // Required to enable chrome://glic.
-  glic::GlicTestEnvironment glic_test_env_;
 
   std::unique_ptr<content::ScopedWebUIConfigRegistration>
       web_ui_config_registration_;
@@ -430,33 +428,11 @@ IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserTest,
 
 // TODO(crbug.com/460836171): Enable on ChromeOS.
 #define MAYBE_MediaRequestAllowOnGlic MediaRequestAllowOnGlic
-IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserTest, MAYBE_MediaRequestAllowOnGlic) {
-  set_test_loader_host("glic");
-  RunBasicTestCase("MediaRequestAllowOnGlic",
-                   GetTestUrl("webview/mediarequest.html").spec());
-}
 
 // TODO(crbug.com/460836171): Enable on ChromeOS.
 #define MAYBE_MediaRequestDenyOnGlic MediaRequestDenyOnGlic
-IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserTest, MAYBE_MediaRequestDenyOnGlic) {
-  set_test_loader_host("glic");
-  RunBasicTestCase("MediaRequestDenyOnGlic",
-                   GetTestUrl("webview/mediarequest.html").spec());
-}
 
-IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserPEPCTest,
-                       MediaRequestPEPCAllowOnGlic) {
-  set_test_loader_host("glic");
-  RunBasicTestCase("MediaRequestPEPCAllowOnGlic",
-                   GetTestUrl("webview/mediarequest_pepc.html").spec());
-}
 
-IN_PROC_BROWSER_TEST_F(WebUIWebViewBrowserPEPCTest,
-                       MediaRequestPEPCDenyOnGlic) {
-  set_test_loader_host("glic");
-  RunBasicTestCase("MediaRequestPEPCDenyOnGlic",
-                   GetTestUrl("webview/mediarequest_pepc.html").spec());
-}
 
 // TODO(crbug.com/444024595): Flaky on Linux and Windows
 // TODO(crbug.com/460836171): Enable on ChromeOS.

@@ -7,11 +7,6 @@
 #include "build/build_config.h"
 #include "chrome/browser/chrome_browser_interface_binders_webui_parts.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui.h"
-#include "chrome/browser/glic/experimental_opt_in/glic_experimental_opt_in_ui.h"
-#include "chrome/browser/glic/host/glic_internals_ui.h"
-#include "chrome/browser/glic/host/glic_overlay_ui.h"
-#include "chrome/browser/glic/host/glic_ui.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/browser/ui/webui/private_ai_internals/private_ai_internals_ui.h"
 #include "chrome/common/buildflags.h"
@@ -57,7 +52,6 @@
 #include "chrome/browser/ui/webui/feature_showcase/default_browser.mojom.h"
 #include "chrome/browser/ui/webui/feature_showcase/feature_showcase.mojom.h"
 #include "chrome/browser/ui/webui/feature_showcase/feature_showcase_ui.h"
-#include "chrome/browser/ui/webui/feature_showcase/gemini.mojom.h"
 #include "chrome/browser/ui/webui/feature_showcase/google_lens.mojom.h"
 #include "chrome/browser/ui/webui/feature_showcase/password_manager.mojom.h"
 #include "chrome/browser/ui/webui/history/history_cross_device_signin_promo_handler.h"
@@ -131,9 +125,7 @@ void PopulateChromeWebUIFrameBindersPartsFeatures(
   RegisterWebUIControllerInterfaceBinder<
       feature_showcase::mojom::ThemesAndCustomizationPageHandlerFactory,
       FeatureShowcaseUI>(map);
-  RegisterWebUIControllerInterfaceBinder<
-      feature_showcase::mojom::GeminiPageHandlerFactory, FeatureShowcaseUI>(
-      map);
+
   RegisterWebUIControllerInterfaceBinder<
       feature_showcase::mojom::GoogleLensPageHandlerFactory, FeatureShowcaseUI>(
       map);
@@ -148,38 +140,11 @@ void PopulateChromeWebUIFrameBindersPartsFeatures(
       extensions::ZeroStatePromoController>(map);
 #endif
 
-  if (glic::GlicEnabling::IsProfileEligible(Profile::FromBrowserContext(
-          render_frame_host->GetProcess()->GetBrowserContext()))) {
-    // Register binders for all eligible profiles.
 
-    // For GlicUI, the WebUI page will check whether Glic is policy-enabled and
-    // restrict access if needed.
-    RegisterWebUIControllerInterfaceBinder<glic::mojom::PageHandlerFactory,
-                                           glic::GlicUI>(map);
-    RegisterWebUIControllerInterfaceBinder<
-        glic::mojom::GlicOverlayPageHandlerFactory, glic::GlicOverlayUI>(map);
-    RegisterWebUIControllerInterfaceBinder<
-        glic::mojom::GlicPreloadHandlerFactory, glic::GlicUI>(map);
-    RegisterWebUIControllerInterfaceBinder<
-        glic::mojom::ExperimentalOptInPageHandler,
-        glic::GlicExperimentalOptInUI>(map);
-  }
-
-  if (glic::GlicEnabling::IsInternalsWebUIEnabled(Profile::FromBrowserContext(
-          render_frame_host->GetProcess()->GetBrowserContext()))) {
-    RegisterWebUIControllerInterfaceBinder<
-        glic::mojom::InternalsPageHandlerFactory, glic::GlicUI,
-        glic::GlicInternalsUI>(map);
-  }
 #if !BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   if (base::FeatureList::IsEnabled(contextual_tasks::kContextualTasks)) {
     RegisterWebUIControllerInterfaceBinder<
-        guest_view::mojom::PageHandlerFactory, glic::GlicUI,
-        glic::GlicExperimentalOptInUI, ContextualTasksUI>(map);
-  } else {
-    RegisterWebUIControllerInterfaceBinder<
-        guest_view::mojom::PageHandlerFactory, glic::GlicUI,
-        glic::GlicExperimentalOptInUI>(map);
+        guest_view::mojom::PageHandlerFactory, ContextualTasksUI>(map);
   }
 #endif
 

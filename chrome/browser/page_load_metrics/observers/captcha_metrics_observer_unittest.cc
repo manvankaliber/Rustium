@@ -16,8 +16,6 @@
 #include "content/public/test/navigation_simulator.h"
 #include "content/public/test/test_devtools_protocol_client.h"
 
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_test_util.h"
 #include "components/tabs/public/tab_interface.h"
 
 using content::NavigationSimulator;
@@ -210,40 +208,6 @@ TEST_F(CaptchaMetricsObserverTest, CaptchaProviderSpecificMetrics) {
       captcha_frame_activation_entries, CaptchaProvider::kCloudflareTurnstile));
 }
 
-TEST_F(CaptchaMetricsObserverTest, CaptchaLoadWithGlicAgent) {
-  NavigateAndCommit(GURL("https://www.top-level-site.com/"));
-
-  // Associate a mock TabInterface with the WebContents.
-  actor::TestTabState tab_state(web_contents());
-  tabs::TabLookupFromWebContents::CreateForWebContents(web_contents(),
-                                                       &tab_state.tab);
-
-  // Create an active ActorTask.
-  auto* actor_service = actor::ActorKeyedService::Get(browser_context());
-  actor::TaskId task_id = actor_service->CreateTask(
-      actor::TestTaskSourceInfo(), actor::NoEnterprisePolicyChecker());
-
-  // Force the task into an "acting" state, and add the tab to the task.
-  auto* task = actor_service->GetTask(task_id);
-  task->SetState(actor::ActorTask::State::kActing);
-  task->AddTab(tab_state.tab.GetHandle(), /*stop_task_on_detach=*/false,
-               base::DoNothing());
-
-  AppendChildFrameAndNavigateAndCommit(
-      web_contents()->GetPrimaryMainFrame(), "captcha-frame",
-      GURL("https://www.captcha.com/subframe.html"));
-
-  tester()->histogram_tester().ExpectUniqueSample(
-      "PageLoad.Clients.CaptchaFrameLoad",
-      CaptchaFrameAgentContext::kGlicAgentActiveOnTab, 1);
-
-  auto entries = tester()->test_ukm_recorder().GetEntries(
-      "PageLoad.CaptchaFrameLoad", {"AgentContext"});
-  EXPECT_EQ(entries.size(), 1u);
-  EXPECT_EQ(
-      entries[0].metrics.at("AgentContext"),
-      static_cast<int64_t>(CaptchaFrameAgentContext::kGlicAgentActiveOnTab));
-}
 
 TEST_F(CaptchaMetricsObserverTest, CaptchaLoadWithDevToolsAgent) {
   // Attach a DevTools client to the WebContents.
@@ -281,18 +245,13 @@ TEST_F(CaptchaMetricsObserverTest, CaptchaLoadWithMultipleAgents) {
   devtools_host->AttachClient(&devtools_client);
 
   // Associate a mock TabInterface with the WebContents.
-  actor::TestTabState tab_state(web_contents());
   tabs::TabLookupFromWebContents::CreateForWebContents(web_contents(),
                                                        &tab_state.tab);
 
   // Create an active ActorTask.
-  auto* actor_service = actor::ActorKeyedService::Get(browser_context());
-  actor::TaskId task_id = actor_service->CreateTask(
-      actor::TestTaskSourceInfo(), actor::NoEnterprisePolicyChecker());
 
   // Force the task into an "acting" state, and add the tab to the task.
   auto* task = actor_service->GetTask(task_id);
-  task->SetState(actor::ActorTask::State::kActing);
   task->AddTab(tab_state.tab.GetHandle(), /*stop_task_on_detach=*/false,
                base::DoNothing());
 

@@ -86,7 +86,6 @@ static constexpr std::string_view kToolDeepSearch = "Deep search";
 static constexpr std::string_view kImageFileName = "handbag.png";
 static constexpr std::string_view kPdfFileName = "download.pdf";
 // The host used by the Lens service for image uploads.
-static constexpr std::string_view kLensSearchURL = "lens.google.com";
 
 std::string GetModeSelector(omnibox::ToolMode mode) {
   return ".dropdown-item[data-mode='" +
@@ -1131,83 +1130,10 @@ class NtpRealboxDefaultExperienceInteractiveTest : public NtpRealboxUiTestBase {
 
 IN_PROC_BROWSER_TEST_F(NtpRealboxDefaultExperienceInteractiveTest,
                        DefaultExperienceRealboxUI) {
-  RunTestSequence(
-      // Load NTP.
-      AddInstrumentedTab(kNtpElementId, chrome::ChromeUINewTabURLAsGURL()),
-      // Wait for Realbox to render.
-      WaitForElementToRender(kNtpElementId, kRealbox),
-      // Wait for Voice Search, Lens, and AI Mode buttons to render.
-      WaitForElementToRender(kNtpElementId, kVoiceSearchButton),
-      WaitForElementToRender(kNtpElementId, kLensSearchButton),
-      WaitForElementToRender(kNtpElementId, kComposeButton),
-      // Verify the placeholder text is steady.
-      WaitForJsConditionAt(kNtpElementId, kRealboxInput,
-                           "(el) => el && el.getAnimations().length === 0"),
-      // Click into the Searchbox.
-      ClickElement(kNtpElementId, kRealboxInput),
-      // Verify that the placeholder text disappears.
-      WaitForJsConditionAt(kNtpElementId, kRealboxInput,
-                           "(el) => el && window.getComputedStyle(el, "
-                           "'::placeholder').visibility === 'hidden'"),
-      // Type text into Realbox and click AIM Button.
-      SendKeyPress(kNtpElementId, ui::VKEY_T),
-      WaitForJsConditionAt(kNtpElementId, kRealboxInput,
-                           "(el) => el && el.value === 't'"),
-      ClickElement(kNtpElementId, kComposeButton),
-      // Wait for the page to navigate to Google SRP.
-      WaitForGoogleSearch(kNtpElementId, {{"q", "t"}, {"udm", "50"}}));
 }
 
 IN_PROC_BROWSER_TEST_F(NtpRealboxDefaultExperienceInteractiveTest,
                        ClickOutsideAndEscapeBehavior) {
-  RunTestSequence(
-      // Load NTP.
-      AddInstrumentedTab(kNtpElementId, chrome::ChromeUINewTabURLAsGURL()),
-      // Wait for Realbox to render.
-      WaitForElementToRender(kNtpElementId, kRealboxInput),
-      // Wait for Voice Search, Lens, and AI Mode buttons to render.
-      WaitForElementToRender(kNtpElementId, kVoiceSearchButton),
-      WaitForElementToRender(kNtpElementId, kLensSearchButton),
-      WaitForElementToRender(kNtpElementId, kComposeButton),
-      // Seed history results to ensure the dropdown is populated.
-      SeedSearchboxResult("a"),
-      // Click on Realbox.
-      ClickElement(kNtpElementId, kRealboxInput),
-      WaitForElementVisibilityChange(kSearchboxDropdown,
-                                     /*expected_visible=*/true),
-      // Verify: Only AIM Button is Visible in searchbox
-      WaitForElementVisibilityChange(kComposeButton, /*expected_visible=*/true),
-      WaitForElementToNotExist(kVoiceSearchButton),
-      WaitForElementToNotExist(kLensSearchButton),
-      // Type Something into Realbox.
-      SendKeyPress(kNtpElementId, ui::VKEY_A),
-      // Wait for the verbatim match to render.
-      WaitForVerbatimMatch(kNtpElementId, kRealboxMatch, "a"),
-      // Verify: Clicking outside the realbox should close suggestions dropdown,
-      // but leave the text inside the realbox visible.
-      MoveMouseTo(kNtpElementId, kNtpLogo), ClickMouse(),
-      WaitForElementVisibilityChange(kSearchboxDropdown,
-                                     /*expected_visible=*/false),
-      CheckJsResultAt(kNtpElementId, kRealboxInput,
-                      "(el) => el && el.value === 'a'"),
-      // Check focus is lost
-      CheckJsResultAt(kNtpElementId, kRealboxInput,
-                      "(el) => !el.matches(':focus')"),
-      // Click on realbox and press ‘ESC’ button
-      ClickElement(kNtpElementId, kRealboxInput),
-      SendKeyPress(kNtpElementId, ui::VKEY_ESCAPE),
-      // Verify: Text inside realbox is cleared, but the focus remains.
-      // Also verify that the dropdown is closed.
-      WaitForElementVisibilityChange(kSearchboxDropdown,
-                                     /*expected_visible=*/false),
-      CheckJsResultAt(kNtpElementId, kRealboxInput,
-                      "(el) => el && el.value === ''"),
-      CheckJsResultAt(kNtpElementId, kRealboxInput,
-                      "(el) => el.matches(':focus')"),
-      // Verify: Realbox contains AIM Button, Voice Search button, Lens button
-      WaitForElementVisibilityChange(kComposeButton, /*expected_visible=*/true),
-      WaitForElementToRender(kNtpElementId, kVoiceSearchButton),
-      WaitForElementToRender(kNtpElementId, kLensSearchButton));
 }
 
 IN_PROC_BROWSER_TEST_F(NtpRealboxDefaultExperienceInteractiveTest,

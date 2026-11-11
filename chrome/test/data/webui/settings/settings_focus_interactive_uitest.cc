@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/glic/test_support/glic_test_environment.h"
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/test/base/web_ui_mocha_browser_test.h"
@@ -96,13 +95,7 @@ IN_PROC_BROWSER_TEST_F(SettingsFocusTest, ZoomLevels) {
   RunTest("settings/zoom_levels_test.js", "runMochaSuite('ZoomLevelsFocus')");
 }
 
-class SettingsGlicSubpageFocusTest : public SettingsFocusTest {
- public:
-  SettingsGlicSubpageFocusTest() = default;
 
- private:
-  glic::GlicTestEnvironment glic_test_env_;
-};
 
 // TODO(crbug.com/424864547): Investigate flakiness and enable on Mac64 and
 // Win64.
@@ -111,6 +104,3 @@ class SettingsGlicSubpageFocusTest : public SettingsFocusTest {
 #else
 #define MAYBE_GlicSubpageFocus GlicSubpageFocus
 #endif  // BUILDFLAG(IS_MAC)
-IN_PROC_BROWSER_TEST_F(SettingsGlicSubpageFocusTest, MAYBE_GlicSubpageFocus) {
-  RunTest("settings/glic_subpage_focus_test.js", "mocha.run()");
-}

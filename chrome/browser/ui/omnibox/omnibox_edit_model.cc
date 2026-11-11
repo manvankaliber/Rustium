@@ -729,10 +729,6 @@ void OmniboxEditModel::StartAutocomplete(bool prevent_inline_autocomplete) {
   input_.set_in_keyword_mode(is_keyword_selected());
   input_.set_allow_exact_keyword_match(is_keyword_selected() ||
                                        allow_exact_keyword_match_);
-  if (std::optional<lens::proto::LensOverlaySuggestInputs> suggest_inputs =
-          controller_->client()->GetLensOverlaySuggestInputs()) {
-    input_.set_lens_overlay_suggest_inputs(*suggest_inputs);
-  }
 
   controller_->StartAutocomplete(input_);
 }
@@ -830,8 +826,6 @@ void OmniboxEditModel::PopulateActiveTabContext() {
   int32_t tab_handle_val = tab->GetHandle().raw_value();
 
   auto context = std::make_unique<SearchboxContextData::Context>();
-  context->invocation_source =
-      lens::LensOverlayInvocationSource::kOmniboxPageAction;
   auto tab_attachment = searchbox::mojom::TabAttachment::New();
   tab_attachment->tab_id = tab_handle_val;
   tab_attachment->title = base::UTF16ToUTF8(web_contents->GetTitle());
@@ -883,29 +877,6 @@ void OmniboxEditModel::OpenAiMode(AimActivation activation) {
   }
 }
 
-void OmniboxEditModel::OpenLensSearch() {
-  if (omnibox::kAskGLensChipRoute.Get()) {
-    if (auto* client =
-            autocomplete_controller()->autocomplete_provider_client()) {
-      client->OpenLensOverlay(
-          /*show=*/true,
-          lens::LensOverlayInvocationSource::kOmniboxPopupButton);
-    }
-    if (view_) {
-      base::AutoReset<bool> tmp(&in_revert_, true);
-      view_->RevertAll();
-    }
-    return;
-  }
-  if (auto* provider =
-          autocomplete_controller()->contextual_search_provider()) {
-    OpenMatch(
-        OmniboxPopupSelection(OmniboxPopupSelection::kNoMatch),
-        provider->CreateLensEntrypointMatch(autocomplete_controller()->input()),
-        ui::mojom::WindowOpenDisposition::kCurrentTab, GURL(), std::u16string(),
-        base::TimeTicks::Now());
-  }
-}
 
 void OmniboxEditModel::OpenSelection(OmniboxPopupSelection selection,
                                      bool via_keyboard) {
@@ -1299,10 +1270,6 @@ void OmniboxEditModel::StartZeroSuggestRequest(
   input_.set_current_title(controller_->client()->GetTitle());
   input_.set_focus_type(metrics::OmniboxFocusType::INTERACTION_FOCUS);
   // Set the lens overlay suggest inputs, if available.
-  if (std::optional<lens::proto::LensOverlaySuggestInputs> suggest_inputs =
-          controller_->client()->GetLensOverlaySuggestInputs()) {
-    input_.set_lens_overlay_suggest_inputs(*suggest_inputs);
-  }
   controller_->StartAutocomplete(input_);
 }
 
@@ -1893,15 +1860,6 @@ void OmniboxEditModel::GetInfoForCurrentText(AutocompleteMatch* match,
     // `AutocompleteController`, while the browser window is being created (e.g.
     // `LocationBarView::Init()` queries the location icon before any tab is
     // added).
-    if (text_for_match_generation.empty() &&
-        base::FeatureList::IsEnabled(
-            features::kLazyKeyedServiceInstantiation) &&
-        features::kLazyKeyedServiceInstantiationCommerceAndUI.Get()) {
-      if (alternate_nav_url) {
-        *alternate_nav_url = GURL();
-      }
-      return;
-    }
 
     controller_->client()->GetAutocompleteClassifier()->Classify(
         text_for_match_generation, is_keyword_selected(), true,
@@ -3259,10 +3217,6 @@ OmniboxEditModel::GetOrCreateContextualSearchSessionHandle(Profile* profile) {
     }
     auto config_params = std::make_unique<
         contextual_search::ContextualSearchContextController::ConfigParams>();
-    session_handle_ = service->CreateSession(
-        std::move(config_params),
-        contextual_search::ContextualSearchSource::kOmnibox,
-        lens::LensOverlayInvocationSource::kOmniboxContextualQuery);
     if (session_handle_) {
       session_handle_->CheckSearchContentSharingSettings(profile->GetPrefs());
     }
@@ -3325,8 +3279,6 @@ void OmniboxEditModel::
         ContextualSearchContextController::SearchUrlType::kAim;
     request_info->aim_entry_point =
         omnibox::DESKTOP_CHROME_OMNIBOX_KEYWORD_ENTRY_POINT;
-    request_info->invocation_source =
-        lens::LensOverlayInvocationSource::kOmniboxContextualQuery;
 
     active_session_handle->CreateSearchUrl(
         std::move(request_info),

@@ -24,7 +24,6 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/create_browser_window.h"
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
-#include "chrome/browser/ui/commerce/commerce_ui_tab_helper.h"
 #include "chrome/browser/ui/side_panel/side_panel_entry_id.h"
 #include "chrome/browser/ui/side_panel/side_panel_ui.h"
 #include "chrome/browser/ui/tabs/split_tab_metrics.h"
@@ -39,7 +38,6 @@
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/test/base/in_process_browser_test.h"
 #include "chrome/test/base/ui_test_utils.h"
-#include "components/commerce/core/pref_names.h"
 #include "components/content_settings/core/common/pref_names.h"
 #include "components/enterprise/isolated_mode/isolated_mode_features.h"
 #include "components/policy/core/common/policy_pref_names.h"
@@ -987,16 +985,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandsTest, NewIncognitoWindowMetrics) {
   EXPECT_EQ(0, action_tester.GetActionCount("NewGuestWindow"));
 }
 
-IN_PROC_BROWSER_TEST_F(BrowserCommandsTest,
-                       CommerceUiTabHelperDisabledInIncognito) {
-  BrowserWindowInterface* incognito_browser = CreateIncognitoBrowser();
-  ASSERT_TRUE(incognito_browser->GetProfile()->IsIncognitoProfile());
-
-  tabs::TabInterface* incognito_tab =
-      incognito_browser->GetTabStripModel()->GetActiveTab();
-  ASSERT_NE(incognito_tab, nullptr);
-  EXPECT_EQ(commerce::CommerceUiTabHelper::From(incognito_tab), nullptr);
-}
 
 class NonGroupFocusMoveToWindowTest : public BrowserCommandsTest {
  public:
@@ -1080,22 +1068,6 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandsIsolatedModeTest,
   EXPECT_EQ(0, action_tester.GetActionCount("NewIncognitoWindow2"));
 }
 
-IN_PROC_BROWSER_TEST_F(BrowserCommandsIsolatedModeTest,
-                       CommerceUiTabHelperDisabledInIsolatedMode) {
-  tabs::TabInterface* regular_tab =
-      browser()->tab_strip_model()->GetActiveTab();
-  ASSERT_NE(regular_tab, nullptr);
-  EXPECT_NE(commerce::CommerceUiTabHelper::From(regular_tab), nullptr);
-
-  BrowserWindowInterface* isolated_browser = CreateIncognitoBrowser();
-  ASSERT_TRUE(
-      isolated_browser->GetProfile()->IsEnterpriseIsolatedModeProfile());
-
-  tabs::TabInterface* isolated_tab =
-      isolated_browser->GetTabStripModel()->GetActiveTab();
-  ASSERT_NE(isolated_tab, nullptr);
-  EXPECT_EQ(commerce::CommerceUiTabHelper::From(isolated_tab), nullptr);
-}
 
 IN_PROC_BROWSER_TEST_F(BrowserCommandsIsolatedModeTest,
                        NewSplitTab_URLFallback) {

@@ -12,9 +12,6 @@
 #include "base/test/run_until.h"
 #include "base/test/scoped_feature_list.h"
 #include "base/test/test_future.h"
-#include "chrome/browser/glic/public/glic_provider.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
-#include "chrome/browser/glic/test_support/scoped_glic_provider_override.h"
 #include "chrome/browser/metrics/variations/google_groups_manager_factory.h"
 #include "chrome/browser/ui/ai_overlay_dialog/ai_overlay_dialog_controller_views.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
@@ -450,8 +447,6 @@ class AiOverlayDialogPageHandlerGeminiEnterpriseTest
 
 TEST_F(AiOverlayDialogPageHandlerGeminiEnterpriseTest,
        IsEnabledForProfileFalseForGeminiEnterprise) {
-  ASSERT_EQ(glic::GetGlicProviderSpec(profile()).GetSettingsSectionId(),
-            glic::kGeminiEnterpriseSettingsSectionId);
   constexpr char kTargetGroupId[] = "123456789";
   base::test::ScopedFeatureList feature_list;
   feature_list.InitWithFeaturesAndParameters(

@@ -35,7 +35,6 @@
 #include "components/collaboration/public/data_type_controller/collaboration_group_data_type_controller.h"
 #include "components/collaboration/public/data_type_controller/shared_tab_group_account_data_type_controller.h"
 #include "components/collaboration/public/data_type_controller/shared_tab_group_data_type_controller.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/consent_auditor/consent_auditor.h"
 #include "components/contextual_tasks/public/ai_thread_data_type_controller.h"
 #include "components/contextual_tasks/public/contextual_tasks_service.h"
@@ -318,6 +317,7 @@ void CommonControllerBuilder::SetDataTypeStoreService(
     syncer::DataTypeStoreService* data_type_store_service) {
   data_type_store_service_.Set(data_type_store_service);
 }
+
 
 void CommonControllerBuilder::SetSkillsService(
     skills::SkillsService* skills_service) {

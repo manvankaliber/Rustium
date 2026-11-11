@@ -14,7 +14,6 @@ static_library("actor") {
   ]
 
   deps = [
-    "//chrome/browser/actor",
     "//chrome/browser/affiliations",
     "//chrome/browser/autofill",
     "//chrome/browser/profiles",
@@ -51,7 +50,6 @@ source_set("unit_tests") {
   deps = [
     ":actor",
     "//base/test:test_support",
-    "//chrome/browser/actor",
     "//chrome/browser/affiliations",
     "//chrome/browser/autofill",
     "//chrome/test:test_support",

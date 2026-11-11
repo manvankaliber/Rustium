@@ -13,11 +13,6 @@
 #include "base/test/bind.h"
 #include "base/test/test_future.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_proto_conversion.h"
-#include "chrome/browser/actor/actor_test_util.h"
-#include "chrome/browser/actor/tools/click_tool_request.h"
-#include "chrome/browser/actor/tools/navigate_tool_request.h"
 #include "chrome/browser/ai/ai_data_keyed_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_tabstrip.h"
@@ -86,9 +81,6 @@ class AiDataKeyedServiceBrowserTest : public InProcessBrowserTest {
         browser()->GetProfile());
   }
 
-  actor::ActorKeyedService& actor_service() {
-    return *actor::ActorKeyedService::Get(browser()->GetProfile());
-  }
 
   content::WebContents* web_contents() {
     return browser()->tab_strip_model()->GetActiveWebContents();

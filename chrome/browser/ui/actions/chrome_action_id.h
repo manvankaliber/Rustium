@@ -193,7 +193,7 @@
   E(kActionPasteAndGo, IDC_PASTE_AND_GO) \
   E(kActionShowFullUrls, IDC_SHOW_FULL_URLS) \
   E(kActionShowGoogleLensShortcut, IDC_SHOW_GOOGLE_LENS_SHORTCUT) \
-  E(kActionShowLensOverlayFromAppMenu, IDC_CONTENT_CONTEXT_LENS_OVERLAY) \
+   \
   E(kActionAskGoogleAboutThisPageFromAppMenu, IDC_ASK_GOOGLE_ABOUT_THIS_PAGE) \
   E(kActionShowAiModeOmniboxButton, IDC_SHOW_AI_MODE_OMNIBOX_BUTTON) \
   E(kActionRecordReplay) \
@@ -234,13 +234,11 @@
   E(kActionWritingDirectionRtl, IDC_WRITING_DIRECTION_RTL) \
   E(kActionHideApp, IDC_HIDE_APP) \
   /* Other items. */ \
-  E(kActionContentContextLensRegionSearch, \
-    IDC_CONTENT_CONTEXT_LENS_REGION_SEARCH) \
+   \
   E(kActionContentContextAskGoogleAboutThisPage, \
     IDC_CONTENT_CONTEXT_ASK_GOOGLE_ABOUT_THIS_PAGE) \
   E(kActionAiMode) \
-  E(kActionLensOverlayHomework) \
-  /* Context menu items in the status tray */ \
+   \
   E(kActionStatusTrayKeepChromeRunningInBackground, \
     IDC_STATUS_TRAY_KEEP_CHROME_RUNNING_IN_BACKGROUND) \
   /* Context menu items for media router */ \
@@ -275,9 +273,8 @@
   E(kActionPinActionToToolbar) \
   E(kActionUnpinActionFromToolbar) \
   /*Commerce*/ \
-  E(kActionCommercePriceInsights) \
-  E(kActionCommerceDiscounts) \
-  /*Vertical Tabs*/ \
+   \
+   \
   E(kActionToggleVerticalTabs, IDC_TOGGLE_VERTICAL_TABS) \
   E(kActionToggleCollapseVertical, IDC_TOGGLE_VERTICAL_TABS_COLLAPSE) \
   E(kActionToggleVerticalTabsExpandOnHover, \

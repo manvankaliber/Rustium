@@ -9,12 +9,8 @@
 #include <utility>
 
 #include "base/i18n/rtl.h"
-#include "chrome/browser/actor/ui/actor_overlay_web_view.h"
 #include "chrome/browser/devtools/devtools_contents_resizing_strategy.h"
 #include "chrome/browser/enterprise/data_protection/data_protection_overlay_view.h"
-#include "chrome/browser/glic/browser_ui/context_sharing_border_view.h"
-#include "chrome/browser/glic/browser_ui/context_sharing_border_view_controller_impl.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/ui/ai_overlay_dialog/ai_overlay_dialog_controller.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/read_anything/read_anything_immersive_overlay_view.h"
@@ -128,33 +124,8 @@ ContentsContainerView::ContentsContainerView(BrowserView* browser_view)
   contents_scrim_view_->layer()->SetName(
       "ContentsContainerView:ContentsScrimView");
 
-  if (base::FeatureList::IsEnabled(features::kGlicActorUi) &&
-      features::kGlicActorUiOverlay.Get()) {
-    auto actor_overlay_web_view =
-        std::make_unique<ActorOverlayWebView>(browser_view->browser());
-    actor_overlay_web_view->SetID(VIEW_ID_ACTOR_OVERLAY);
-    actor_overlay_web_view_ = AddChildView(std::move(actor_overlay_web_view));
-  }
 
-  glic_selection_overlay_view_ = AddChildView(std::make_unique<views::View>());
-  glic_selection_overlay_view_->SetProperty(views::kElementIdentifierKey,
-                                            kGlicSelectionOverlayViewElementId);
-  glic_selection_overlay_view_->SetVisible(false);
-  glic_selection_overlay_view_->SetLayoutManager(
-      std::make_unique<views::FillLayout>());
-  glic_selection_overlay_view_->SetPaintToLayer();
 
-  if (glic::GlicEnabling::IsProfileEligible(browser_view->GetProfile())) {
-    glic_border_ = AddChildView(
-        views::Builder<glic::ContextSharingBorderView>(
-            glic::ContextSharingBorderView::Factory::Create(
-                std::make_unique<
-                    glic::ContextSharingBorderViewControllerImpl>(),
-                browser_view->browser(), contents_view_))
-            .SetVisible(false)
-            .SetCanProcessEventsWithinSubtree(false)
-            .Build());
-  }
 
   mini_toolbar_ = AddChildView(std::make_unique<MultiContentsViewMiniToolbar>(
       browser_view, contents_view_));
@@ -278,11 +249,6 @@ void ContentsContainerView::SetBorderRoundedCornersFrom(
         content_lower_rounded_corners);
   }
 
-  if (actor_overlay_web_view_) {
-    // ActorOverlayWebView should use the same radii as the contents view since
-    // it acts as a full transparent layer directly over the main web content.
-    actor_overlay_web_view_->holder()->SetNativeViewCornerRadii(radii);
-  }
 
   if (ai_overlay_dialog_view_) {
     // ai_overlay_dialog_view_ should use the same radii as the contents view
@@ -290,13 +256,7 @@ void ContentsContainerView::SetBorderRoundedCornersFrom(
     ai_overlay_dialog_view_->holder()->SetNativeViewCornerRadii(radii);
   }
 
-  if (glic_selection_overlay_view_) {
-    glic_selection_overlay_view_->layer()->SetRoundedCornerRadius(radii);
-  }
 
-  if (glic_border_) {
-    glic_border_->SetRoundedCorners(content_rounded_corners);
-  }
 }
 
 void ContentsContainerView::UpdateBorderRoundedCorners() {
@@ -523,12 +483,6 @@ views::ProposedLayout ContentsContainerView::CalculateProposedLayout(
       toast_anchor_view_.get(), toast_anchor_view_->GetVisible(),
       gfx::BoundingRect(contents_rect.origin(), contents_rect.top_right()));
 
-  if (glic_border_) {
-    // |glic_border_| should not be seen over devtools.
-    layouts.child_layouts.emplace_back(glic_border_.get(),
-                                       glic_border_->GetVisible(),
-                                       non_devtools_contents_bounds);
-  }
 
   // The content scrim view should cover the entire contents bounds.
   CHECK(contents_scrim_view_);
@@ -540,13 +494,6 @@ views::ProposedLayout ContentsContainerView::CalculateProposedLayout(
   layouts.child_layouts.emplace_back(
       data_protection_overlay_view_.get(),
       data_protection_overlay_view_->GetVisible(), full_contents_bounds);
-
-  // Actor Overlay view bounds are the same as the contents view.
-  if (actor_overlay_web_view_) {
-    layouts.child_layouts.emplace_back(
-        actor_overlay_web_view_.get(), actor_overlay_web_view_->GetVisible(),
-        non_devtools_contents_bounds, size_bounds);
-  }
 
   if (ai_overlay_dialog_view_) {
     // TODO(b/490458384): Look into whether the view can be transparent to hit
@@ -573,12 +520,6 @@ views::ProposedLayout ContentsContainerView::CalculateProposedLayout(
                                        rect, views::SizeBounds(rect.size()));
   }
 
-  if (glic_selection_overlay_view_) {
-    layouts.child_layouts.emplace_back(
-        glic_selection_overlay_view_.get(),
-        glic_selection_overlay_view_->GetVisible(),
-        non_devtools_contents_bounds, size_bounds);
-  }
 
   // Reading Mode overlay view bounds are the same as the contents view.
   if (read_anything_immersive_overlay_view_) {

@@ -426,13 +426,11 @@ void CustomizeChromePageHandler::OpenChromeWebStoreCategoryPage(
   std::string path;
   NtpChromeWebStoreOpen page;
   switch (category) {
+    case side_panel::mojom::ChromeWebStoreCategory::kShopping:
+      return;
     case side_panel::mojom::ChromeWebStoreCategory::kWorkflowPlanning:
       path = "extensions/productivity/workflow";
       page = NtpChromeWebStoreOpen::kWorkflowPlanningCategoryPage;
-      break;
-    case side_panel::mojom::ChromeWebStoreCategory::kShopping:
-      path = "extensions/lifestyle/shopping";
-      page = NtpChromeWebStoreOpen::kShoppingCategoryPage;
       break;
   }
 

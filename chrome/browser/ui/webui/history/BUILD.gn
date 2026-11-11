@@ -91,7 +91,6 @@ source_set("history") {
   sources += [ "history_ui_platform_handlers_desktop.cc" ]
   public += [ "foreign_session_handler.h" ]
   deps += [
-    "//chrome/browser/glic",
     "//chrome/browser/ui:chrome_pages",
     "//chrome/browser/ui/browser_window",
     "//chrome/browser/ui/hats",

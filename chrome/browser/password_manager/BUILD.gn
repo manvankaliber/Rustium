@@ -20,7 +20,6 @@ source_set("password_manager") {
   ]
 
   public_deps = [
-    "//chrome/browser/actor",
     "//chrome/browser/password_manager/factories",
     "//chrome/browser/password_manager/ode",
 
@@ -110,14 +109,12 @@ source_set("impl") {
   public_deps = [ ":password_manager" ]
 
   deps = [
-    "//chrome/browser/actor",
     "//chrome/browser/affiliations",
     "//chrome/browser/autofill",
     "//chrome/browser/critical_actions",
     "//chrome/browser/device_reauth",
     "//chrome/browser/enterprise/connectors/reporting",
     "//chrome/browser/favicon",
-    "//chrome/browser/glic",
     "//chrome/browser/history",
     "//chrome/browser/optimization_guide",
     "//chrome/browser/profiles:profile",
@@ -169,8 +166,6 @@ source_set("impl") {
   sources += [
     "generated_password_leak_detection_pref.cc",
     "generated_password_leak_detection_pref.h",
-    "password_change/glic_password_change_actuator.cc",
-    "password_change/glic_password_change_actuator.h",
     "password_change/password_change_from_checkup_delegate.cc",
     "password_change/script_password_change_actuator.cc",
     "password_change/script_password_change_actuator.h",
@@ -179,7 +174,6 @@ source_set("impl") {
     "web_app_profile_switcher.cc",
   ]
   deps += [
-    "//chrome/browser/glic/actor",
     "//chrome/browser/password_manager/password_change",
     "//chrome/browser/ui/passwords",
     "//chrome/browser/ui/passwords:impl",
@@ -405,17 +399,14 @@ source_set("unit_tests") {
 
   sources += [
     "generated_password_leak_detection_pref_unittest.cc",
-    "password_change/glic_password_change_actuator_unittest.cc",
     "password_change/password_change_from_checkup_delegate_unittest.cc",
     "password_change/script_password_change_actuator_unittest.cc",
     "password_change_delegate_impl_unittest.cc",
     "password_manager_critical_action_logger_unittest.cc",
   ]
   deps += [
-    "//chrome/browser/actor:test_support",
     "//chrome/browser/affiliations",
     "//chrome/browser/extensions:test_support",
-    "//chrome/browser/glic/test_support",
     "//chrome/browser/password_manager/password_change",
     "//chrome/browser/signin",
     "//chrome/browser/signin:test_support",
@@ -467,11 +458,7 @@ source_set("browser_tests") {
     "//base",
     "//base/test:test_support",
     "//chrome/browser:browser_process",
-    "//chrome/browser/actor",
-    "//chrome/browser/actor:test_support",
     "//chrome/browser/affiliations",
-    "//chrome/browser/glic",
-    "//chrome/browser/glic/test_support",
     "//chrome/browser/optimization_guide",
     "//chrome/browser/optimization_guide:test_support",
     "//chrome/browser/password_manager",

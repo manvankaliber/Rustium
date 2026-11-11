@@ -52,7 +52,6 @@
 #include "chrome/browser/tab_list/tab_list_interface.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/lens/lens_media_link_handler.h"
 #include "chrome/browser/ui/navigator/browser_navigator.h"
 #include "chrome/browser/ui/navigator/browser_navigator_params.h"
 #include "chrome/browser/ui/tabs/tab_enums.h"
@@ -874,15 +873,6 @@ bool ContextualTasksUiService::MaybeHandleVideoCitation(
     const GURL& url,
     tabs::TabInterface* tab,
     const base::Uuid& task_id) {
-  if (!IsVideoCitation(url, tab, task_id, contextual_tasks_service_)) {
-    return false;
-  }
-
-  content::WebContents* web_contents = tab->GetContents();
-  auto handler = CreateMediaLinkHandler(web_contents);
-  if (handler && handler->MaybeReplaceNavigation(url)) {
-    return true;
-  }
   return false;
 }
 
@@ -3059,12 +3049,6 @@ void ContextualTasksUiService::ScheduleRedirectWebUIUrlToAim(
                      destination_contents, std::move(url_params)));
 }
 
-std::unique_ptr<lens::LensMediaLinkHandler>
-ContextualTasksUiService::CreateMediaLinkHandler(
-    content::WebContents* web_contents) {
-  return std::make_unique<lens::LensMediaLinkHandler>(web_contents);
-}
-
 bool ContextualTasksUiService::IsUrlForPrimaryAccount(const GURL& url) {
   return contextual_tasks::IsUrlForPrimaryAccount(identity_manager_, url);
 }
@@ -3976,47 +3960,6 @@ GURL ContextualTasksUiService::GetAiUrlFromWebUIUrl(const GURL& base_url,
                                             std::nullopt);
 }
 
-void ContextualTasksUiService::OnLensOverlayStateChanged(
-    BrowserWindowInterface* browser_window_interface,
-    bool is_showing,
-    std::optional<lens::LensOverlayInvocationSource> invocation_source) {
-  for (auto& observer : observers_) {
-    observer.OnLensOverlayStateChanged(is_showing);
-  }
-
-  if (!browser_window_interface) {
-    return;
-  }
-
-  auto* controller =
-      ContextualTasksPanelController::From(browser_window_interface);
-  if (!controller || !controller->IsPanelOpenForContextualTask()) {
-    return;
-  }
-
-  auto* panel_contents = controller->GetActiveWebContents();
-  if (!panel_contents) {
-    return;
-  }
-
-  auto* web_ui_interface = GetWebUiInterface(panel_contents);
-  if (web_ui_interface) {
-    web_ui_interface->OnLensOverlayStateChanged(is_showing, invocation_source);
-  }
-
-  // Only notify the extension handler if the overlay is showing for the
-  // composebox.
-  const bool is_showing_for_composebox =
-      is_showing &&
-      invocation_source ==
-          lens::LensOverlayInvocationSource::kContextualTasksComposebox;
-  panel_contents->ForEachRenderFrameHost([&](content::RenderFrameHost* rfh) {
-    if (auto* handler =
-            ContextualTasksExtensionHandler::GetForCurrentDocument(rfh)) {
-      handler->OnLensOverlayStateChanged(is_showing_for_composebox);
-    }
-  });
-}
 
 void ContextualTasksUiService::AssociateWebContentsToTask(
     content::WebContents* web_contents,

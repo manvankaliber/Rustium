@@ -38,7 +38,6 @@
 #include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/interaction/browser_elements.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/tabs/public/tab_features.h"
 #include "chrome/browser/ui/views/bubble_anchor_util_views.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
@@ -127,10 +126,6 @@ class MockContextualTasksPage : public contextual_tasks::mojom::Page {
               (const contextual_tasks::ContextualWindowId& window_id),
               (override));
   MOCK_METHOD(void,
-              OnLensOverlayStateChanged,
-              (bool is_showing, bool maybe_show_overlay_hint_text),
-              (override));
-  MOCK_METHOD(void,
               SetTaskDetails,
               (const base::Uuid&, const GURL&, bool),
               (override));
@@ -167,18 +162,7 @@ class MockContextualTasksPage : public contextual_tasks::mojom::Page {
   mojo::Receiver<contextual_tasks::mojom::Page> receiver_{this};
 };
 
-class MockLensSearchController : public LensSearchController {
- public:
-  explicit MockLensSearchController(tabs::TabInterface* tab)
-      : LensSearchController(tab) {}
-  ~MockLensSearchController() override = default;
 
-  MOCK_METHOD(void,
-              OpenLensOverlay,
-              (lens::LensOverlayInvocationSource invocation_source,
-               bool should_show_csb),
-              (override));
-};
 
 class MockContextualTasksCookieSynchronizer
     : public contextual_tasks::ContextualTasksCookieSynchronizer {
@@ -415,12 +399,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksUIBrowserTest, HandleLensButtonClick) {
   auto override =
       tabs::TabFeatures::GetUserDataFactoryForTesting().AddOverrideForTesting(
           base::BindLambdaForTesting([&](tabs::TabInterface& tab) {
-            auto mock = std::make_unique<MockLensSearchController>(&tab);
-            EXPECT_CALL(*mock,
-                        OpenLensOverlay(lens::LensOverlayInvocationSource::
-                                            kContextualTasksComposebox,
-                                        true))
-                .Times(1);
             return std::unique_ptr<LensSearchController>(std::move(mock));
           }));
 
@@ -502,41 +480,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksUICookieSyncBrowserTest,
   TriggerOnInnerWebContentsCreated(inner_contents.get());
 }
 
-IN_PROC_BROWSER_TEST_F(ContextualTasksUIBrowserTest,
-                       OnLensOverlayStateChanged) {
-  testing::NiceMock<MockContextualTasksPage> mock_page;
-
-  mojo::PendingReceiver<contextual_tasks::mojom::PageHandler> handler_receiver;
-  // The initial call to CreatePageHandler should call
-  // OnLensOverlayStateChanged.
-  EXPECT_CALL(mock_page, OnLensOverlayStateChanged(
-                             /*is_showing=*/false,
-                             /*maybe_show_overlay_hint_text=*/false));
-  controller_->CreatePageHandler(mock_page.BindAndGetRemote(),
-                                 std::move(handler_receiver));
-
-  {
-    base::RunLoop run_loop;
-    EXPECT_CALL(mock_page,
-                OnLensOverlayStateChanged(
-                    /*is_showing=*/true, /*maybe_show_overlay_hint_text=*/true))
-        .WillOnce(testing::InvokeWithoutArgs(&run_loop, &base::RunLoop::Quit));
-    controller_->OnLensOverlayStateChanged(
-        true, lens::LensOverlayInvocationSource::kContextualTasksComposebox);
-    run_loop.Run();
-  }
-
-  {
-    base::RunLoop run_loop;
-    EXPECT_CALL(mock_page, OnLensOverlayStateChanged(
-                               /*is_showing=*/false,
-                               /*maybe_show_overlay_hint_text=*/false))
-        .WillOnce(testing::InvokeWithoutArgs(&run_loop, &base::RunLoop::Quit));
-    controller_->OnLensOverlayStateChanged(
-        false, lens::LensOverlayInvocationSource::kAppMenu);
-    run_loop.Run();
-  }
-}
 
 IN_PROC_BROWSER_TEST_F(
     ContextualTasksUIBrowserTest,

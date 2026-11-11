@@ -50,20 +50,6 @@ export function getHtml(this: PowerBookmarkRowItemElement) {
   ` : ''}
 
   ${this.showTrailingIcon_() ? html`
-    ${this.isPriceTracked ? html`
-      <sp-list-item-badge slot="badges"
-          ?was-updated="${this.showDiscountedPrice_()}">
-        <cr-icon
-            icon="${this.webuiRoundedIconsEnabled_ ?
-                'bookmarks:notifications-active' :
-                'bookmarks:price-tracking-old'}">
-        </cr-icon>
-        <div>${this.getCurrentPrice_(this.bookmark)}</div>
-        <div slot="previous-badge" ?hidden="${!this.showDiscountedPrice_()}">
-          ${this.getPreviousPrice_(this.bookmark)}
-        </div>
-      </sp-list-item-badge>
-    ` : ''}
     <cr-icon-button slot="suffix" iron-icon="cr:more-vert"
         @click="${this.onTrailingIconClick_}"
         .title="${this.trailingIconTooltip}"
@@ -79,13 +65,7 @@ export function getHtml(this: PowerBookmarkRowItemElement) {
     </cr-icon>
   ` : ''}
 
-  ${this.isShoppingCollection_() ? html`
-    <cr-icon slot="folder-icon"
-        icon="${this.webuiRoundedIconsEnabled_ ?
-            'bookmarks:shopping-bag' :
-            'bookmarks:shopping-collection-old'}">
-    </cr-icon>
-  ` : ''}
+  ${''}
 </cr-url-list-item>
 <!--_html_template_end_-->`;
 }

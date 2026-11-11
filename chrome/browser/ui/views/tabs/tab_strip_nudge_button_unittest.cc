@@ -19,15 +19,6 @@ class TabStripNudgeButtonTest : public ChromeViewsTestBase {
   void SetUp() override {
     ChromeViewsTestBase::SetUp();
     browser_window_interface_ = std::make_unique<MockBrowserWindowInterface>();
-    button_ = std::make_unique<TabStripNudgeButton>(
-        browser_window_interface_.get(),
-        base::BindRepeating(&TabStripNudgeButtonTest::MockButtonCallback,
-                            base::Unretained(this)),
-        base::BindRepeating(&TabStripNudgeButtonTest::MockButtonCallback,
-                            base::Unretained(this)),
-        l10n_util::GetStringUTF16(IDS_GLIC_BUTTON_ENTRYPOINT_ASK_GEMINI_LABEL),
-        kGlicNudgeButtonElementId, Edge::kRight, gfx::VectorIcon::EmptyIcon(),
-        /*show_close_button=*/true);
   }
 
   void MockButtonCallback() { button_callback_count_++; }

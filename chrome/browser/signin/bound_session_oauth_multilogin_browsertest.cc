@@ -11,8 +11,6 @@
 #include "base/test/metrics/histogram_tester.h"
 #include "base/test/test_future.h"
 #include "build/build_config.h"
-#include "chrome/browser/glic/host/glic_cookie_synchronizer.h"
-#include "chrome/browser/glic/public/features.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/signin/account_reconcilor_factory.h"
 #include "chrome/browser/signin/bound_session_credentials/bound_session_cookie_refresh_service.h"
@@ -189,7 +187,6 @@ class BoundSessionOAuthMultiloginBaseTest
         disabled_features;
     // Disable automatic syncing of cookies to the glic partition, which breaks
     // some assertions in this test suite.
-    all_disabled_features.push_back(features::kGlicCookieSyncOnTokenChange);
     feature_list_.InitWithFeatures(all_enabled_features, all_disabled_features);
   }
 
@@ -737,32 +734,17 @@ IN_PROC_BROWSER_TEST_F(BoundSessionOAuthMultiloginSecondaryPartitionTest,
       identity_manager().HasPrimaryAccount(signin::ConsentLevel::kSignin));
   ASSERT_EQ(identity_manager().GetWrappedBindingKey(), wrapped_key);
 
-  content::StoragePartitionConfig glic_config =
-      content::StoragePartitionConfig::Create(
-          browser()->GetProfile(), /*partition_domain=*/"glic",
-          /*partition_name=*/"glicpart", /*in_memory=*/false);
-  content::StoragePartition* glic_partition =
-      browser()->GetProfile()->GetStoragePartition(glic_config);
-  ASSERT_TRUE(glic_partition);
 
   {
     // Verify that there are no bound sessions before OAML.
     base::test::TestFuture<
         const std::vector<net::device_bound_sessions::SessionKey>&>
         sessions_future;
-    glic_partition->GetDeviceBoundSessionManager()->GetAllSessions(
-        sessions_future.GetCallback());
     ASSERT_THAT(sessions_future.Get(), IsEmpty());
   }
 
   base::RunLoop run_loop;
-  DeviceBoundSessionAccessObserver observer(
-      *glic_partition->GetDeviceBoundSessionManager(),
-      base::IgnoreArgs<const net::device_bound_sessions::SessionAccess&>(
-          run_loop.QuitClosure()));
 
-  glic::GlicCookieSynchronizer synchronizer(browser()->GetProfile(),
-                                            &identity_manager());
   base::test::TestFuture<bool> copy_future;
   synchronizer.CopyCookiesToWebviewStoragePartition(copy_future.GetCallback());
 
@@ -773,8 +755,6 @@ IN_PROC_BROWSER_TEST_F(BoundSessionOAuthMultiloginSecondaryPartitionTest,
   base::test::TestFuture<
       const std::vector<net::device_bound_sessions::SessionKey>&>
       sessions_future;
-  glic_partition->GetDeviceBoundSessionManager()->GetAllSessions(
-      sessions_future.GetCallback());
   EXPECT_THAT(
       sessions_future.Get(),
       UnorderedElementsAre(AllOf(

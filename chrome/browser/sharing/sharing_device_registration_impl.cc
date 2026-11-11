@@ -30,16 +30,14 @@
 using instance_id::InstanceID;
 using SharingFeature = syncer::DeviceInfo::SharingFeature;
 
+
 SharingDeviceRegistrationImpl::SharingDeviceRegistrationImpl(
     SharingSyncPreference* sharing_sync_preference,
     instance_id::InstanceIDDriver* instance_id_driver,
-    syncer::SyncService* sync_service,
-    bool glic_experimental_triggering_supported)
+    syncer::SyncService* sync_service)
     : sharing_sync_preference_(sharing_sync_preference),
       instance_id_driver_(instance_id_driver),
-      sync_service_(sync_service),
-      glic_experimental_triggering_supported_(
-          glic_experimental_triggering_supported) {}
+      sync_service_(sync_service) {}
 
 SharingDeviceRegistrationImpl::~SharingDeviceRegistrationImpl() = default;
 
@@ -211,9 +209,6 @@ std::set<SharingFeature> SharingDeviceRegistrationImpl::GetEnabledFeatures()
   if (IsOneTimeTokenBackendNotificationSupported()) {
     enabled_features.insert(SharingFeature::kOneTimeTokenBackendNotification);
   }
-  if (IsGlicExperimentalTriggeringSupported()) {
-    enabled_features.insert(SharingFeature::kGlicExperimentalTriggering);
-  }
   if (IsBrowserActuatorSupported()) {
     enabled_features.insert(SharingFeature::kBrowserActuator);
   }
@@ -244,10 +239,6 @@ bool SharingDeviceRegistrationImpl::IsOneTimeTokenBackendNotificationSupported()
   return base::FeatureList::IsEnabled(kOneTimeTokenBackendNotification);
 }
 
-bool SharingDeviceRegistrationImpl::IsGlicExperimentalTriggeringSupported()
-    const {
-  return glic_experimental_triggering_supported_;
-}
 
 bool SharingDeviceRegistrationImpl::IsBrowserActuatorSupported() const {
   return base::FeatureList::IsEnabled(browser_actuator::kBrowserActuator);

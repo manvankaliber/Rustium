@@ -36,9 +36,7 @@ function getTabTodoPriority(item: AutoTodoItem): number {
   if (group === AutoTodoGroup.kUnfinishedAction) {
     return 0;
   }
-  if (group === AutoTodoGroup.kShoppingCart) {
-    return 1;
-  }
+
   if (group === AutoTodoGroup.kNudgeToClose) {
     return 2;
   }
@@ -379,12 +377,7 @@ export class AiTaskboxElement extends CrLitElement {
         [];
   }
 
-  protected getShoppingCartTabTodos_(): AutoTodoItem[] {
-    return this.tabTodos?.filter(
-               todo => todo.data.thirdParty?.groupType ===
-                   AutoTodoGroup.kShoppingCart) ??
-        [];
-  }
+
 
   protected getStaleTabTodos_(): AutoTodoItem[] {
     return this.tabTodos?.filter(

@@ -12,10 +12,6 @@
 #include "base/numerics/safe_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
 #include "chrome/browser/pdf/pdf_pref_names.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
@@ -305,89 +301,7 @@ PdfViewerPrivateSetPdfPluginAttributesFunction::Run() {
   return RespondNow(NoArguments());
 }
 
-PdfViewerPrivateGlicSummarizeFunction::PdfViewerPrivateGlicSummarizeFunction() =
-    default;
 
-PdfViewerPrivateGlicSummarizeFunction::
-    ~PdfViewerPrivateGlicSummarizeFunction() = default;
 
-ExtensionFunction::ResponseAction PdfViewerPrivateGlicSummarizeFunction::Run() {
-  bool success = false;
-  auto cleanup = absl::MakeCleanup([&success] {
-    base::UmaHistogramBoolean("PDF.GlicSummarizeButtonClicked", success);
-  });
-
-  content::WebContents* contents = GetSenderWebContents();
-  if (!contents) {
-    return RespondNow(Error("No web contents."));
-  }
-
-  // When the PDF viewer is hosted in a MimeHandlerViewGuest (legacy GuestView,
-  // e.g. on ChromeOS where kPdfOopif is disabled), the sender WebContents is
-  // the inner guest contents which has no TabInterface attached. Walk up to
-  // the embedder WebContents so the tab lookup succeeds.
-  if (!chrome_pdf::features::IsOopifPdfEnabled()) {
-    if (auto* guest = MimeHandlerViewGuest::FromWebContents(contents)) {
-      contents = guest->embedder_web_contents();
-      if (!contents) {
-        return RespondNow(Error("No web contents."));
-      }
-    }
-  }
-
-  tabs::TabInterface* tab_interface =
-      tabs::TabInterface::MaybeGetFromContents(contents);
-  if (!tab_interface) {
-    return RespondNow(Error("No tab."));
-  }
-
-  Profile* profile = Profile::FromBrowserContext(contents->GetBrowserContext());
-  if (!glic::GlicEnabling::IsPdfSummarizeEnabled(profile)) {
-    return RespondNow(Error("Glic is not enabled."));
-  }
-
-  glic::GlicKeyedService* glic_service =
-      glic::GlicKeyedServiceFactory::GetGlicKeyedService(
-          contents->GetBrowserContext());
-  CHECK(glic_service);
-
-  int arm =
-      glic::GetGlicProviderSpec(profile).GetPdfSummarizeFeatureParams().arm;
-  bool has_consented = glic::GlicEnabling::HasConsentedForProfile(
-      Profile::FromBrowserContext(contents->GetBrowserContext()));
-
-  glic::GlicInvokeOptions options(
-      glic::Target(*tab_interface, glic::NewConversation()),
-      glic::mojom::InvocationSource::kPdfSummarizeButton);
-  options.prompts.push_back(
-      l10n_util::GetStringUTF8(IDS_PDF_GLIC_SUMMARIZE_PROMPT));
-
-  if (has_consented) {
-    glic_service->InvokeWithAutoSubmit(
-        glic::InvokeWithAutoSubmitPasskeyProvider::GetPassKey(),
-        std::move(options));
-  } else {
-    if (arm == 3) {
-      options.fre_override = glic::mojom::FreOverride::kTrustFirstInline;
-      glic_service->InvokeWithAutoSubmit(
-          glic::InvokeWithAutoSubmitPasskeyProvider::GetPassKey(),
-          std::move(options));
-    } else {
-      options.fre_override = glic::mojom::FreOverride::kTrustFirstText;
-      glic_service->Invoke(std::move(options));
-    }
-  }
-
-  if (auto* user_education =
-          BrowserUserEducationInterface::MaybeGetForWebContentsInTab(
-              contents)) {
-    user_education->NotifyFeaturePromoFeatureUsed(
-        feature_engagement::kIPHPdfGlicSummarizeFeature,
-        FeaturePromoFeatureUsedAction::kClosePromoIfPresent);
-  }
-
-  success = true;
-  return RespondNow(NoArguments());
-}
 
 }  // namespace extensions

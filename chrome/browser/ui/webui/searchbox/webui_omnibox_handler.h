@@ -55,7 +55,6 @@ class WebuiOmniboxHandler : public ContextualSearchboxHandler,
       base::TimeTicks match_selection_timestamp,
       searchbox::mojom::KeywordActivationMethod activation_method) override;
   void OnThumbnailRemoved() override {}
-  void OpenLensSearch() override;
   void AddTabContext(int32_t tab_id,
                      bool delay_upload,
                      searchbox::mojom::TabAttachmentSource source,

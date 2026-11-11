@@ -15,7 +15,6 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_post_rearchitecture.h"
 #include "chrome/browser/media/media_engagement_score_details.mojom.h"
 #include "chrome/browser/optimization_guide/optimization_guide_internals_ui.h"
-#include "chrome/browser/ui/webui/actor_internals/actor_internals_ui.h"
 #include "chrome/browser/ui/webui/bluetooth_internals/bluetooth_internals.mojom.h"
 #include "chrome/browser/ui/webui/bluetooth_internals/bluetooth_internals_ui.h"
 #include "chrome/browser/ui/webui/chrome_urls/chrome_urls_ui.h"
@@ -40,9 +39,6 @@
 #include "chrome/browser/ui/webui/usb_internals/usb_internals.mojom.h"
 #include "chrome/browser/ui/webui/usb_internals/usb_internals_ui.h"
 #include "chrome/common/webui_url_constants.h"
-#include "components/actor/public/mojom/actor_internals.mojom.h"
-#include "components/commerce/content/browser/commerce_internals_ui.h"
-#include "components/commerce/core/internals/mojom/commerce_internals.mojom.h"
 #include "components/contextual_tasks/public/features.h"
 #include "components/enterprise/connectors/connectors_internals.mojom.h"
 #include "components/history_clusters/history_clusters_internals/webui/history_clusters_internals_ui.h"
@@ -115,8 +111,6 @@
 #include "chrome/browser/ui/webui/discards/site_data.mojom.h"
 #endif
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
-#include "chrome/browser/ui/webui/skills/skills.mojom.h"
-#include "chrome/browser/ui/webui/skills/skills_ui.h"
 #endif
 
 namespace chrome::internal {
@@ -241,9 +235,6 @@ void PopulateChromeWebUIFrameBindersPartsAllPlatforms(
       segmentation_internals::mojom::PageHandlerFactory,
       SegmentationInternalsUI>(map);
 
-  RegisterWebUIControllerInterfaceBinder<
-      commerce::mojom::CommerceInternalsHandlerFactory,
-      commerce::CommerceInternalsUI>(map);
 
   RegisterWebUIControllerInterfaceBinder<chrome_urls::mojom::PageHandlerFactory,
                                          chrome_urls::ChromeUrlsUI>(map);
@@ -259,8 +250,6 @@ void PopulateChromeWebUIFrameBindersPartsAllPlatforms(
   RegisterWebUIControllerInterfaceBinder<::mojom::LocationInternalsHandler,
                                          LocationInternalsUI>(map);
 
-  RegisterWebUIControllerInterfaceBinder<
-      actor_internals::mojom::PageHandlerFactory, ActorInternalsUI>(map);
 
   if (base::FeatureList::IsEnabled(
           policy::features::kPolicyPageMojoMigration)) {
@@ -372,12 +361,6 @@ void PopulateChromeWebUIFrameBinders(
                                          DiscardsUI>(map);
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
-  RegisterWebUIControllerInterfaceBinder<skills::mojom::PageHandlerFactory,
-                                         skills::SkillsUI>(map);
-  RegisterWebUIControllerInterfaceBinder<skills::mojom::SkillsPageHandler,
-                                         skills::SkillsUI>(map);
-#endif
 
   // When possible, please one one of the Parts functions above and avoid making
   // this function longer.

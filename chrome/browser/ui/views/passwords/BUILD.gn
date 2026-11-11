@@ -107,7 +107,6 @@ source_set("impl") {
     "//chrome/app/theme:webui_theme_resources",
     "//chrome/app/vector_icons",
     "//chrome/browser/favicon",
-    "//chrome/browser/glic/resources:grit",
     "//chrome/browser/password_manager/factories",
     "//chrome/browser/profiles:profile",
     "//chrome/browser/profiles:profile_util",
@@ -251,7 +250,6 @@ source_set("interactive_ui_tests") {
   deps = [
     ":passwords",
     ":test_support",
-    "//chrome/browser/actor:test_support",
     "//chrome/browser/ui:tab_dialogs",
     "//chrome/browser/ui/passwords",
     "//chrome/browser/ui/passwords:test_support",

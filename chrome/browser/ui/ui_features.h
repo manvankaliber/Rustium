@@ -215,7 +215,6 @@ BASE_DECLARE_FEATURE(kPressAndHoldEscToExitBrowserFullscreen);
 BASE_DECLARE_FEATURE(kProcessIsolationSettings);
 #endif  // BUILDFLAG(IS_WIN)
 
-BASE_DECLARE_FEATURE(kLensOverlayVirtualFocusNavigation);
 BASE_DECLARE_FEATURE(kOmniboxEverywhereVirtualFocusNavigation);
 BASE_DECLARE_FEATURE(kOmniboxPopupDesktopWidget);
 BASE_DECLARE_FEATURE(kWebuiBrowserVirtualFocusNavigation);
@@ -308,7 +307,6 @@ BASE_DECLARE_FEATURE(kPageSpecificDataDialogRelatedInstalledAppsSection);
 
 // Gates the optimization to cache LocationBarView in
 // LensOverlayHomeworkPageActionController.
-BASE_DECLARE_FEATURE(kLensOverlayHomeworkPageActionFocusOptimization);
 
 // Enables the anchored message bubble to close when deactivated (e.g. when
 // losing focus).
@@ -365,8 +363,6 @@ BASE_DECLARE_FEATURE(kWebUIMediaButton);
 bool IsWebUIMediaButtonEnabled();
 
 // Controls whether the WebUI version of the Glic Button is used.
-BASE_DECLARE_FEATURE(kWebUIGlicButton);
-bool IsWebUIGlicButtonEnabled();
 
 bool IsWebUIPerformanceInterventionButtonEnabled();
 
@@ -411,7 +407,6 @@ BASE_DECLARE_FEATURE(kToolbarAppMenuLabelResizing);
 
 BASE_DECLARE_FEATURE(kToolbarProfileChipResizing);
 
-BASE_DECLARE_FEATURE(kToolbarGlicButtonResizing);
 
 // Whether or not OSCryptAsyncAvailabilityInfoBarDelegate is enabled.
 // Currently only used on MacOS as that's the only platform we can

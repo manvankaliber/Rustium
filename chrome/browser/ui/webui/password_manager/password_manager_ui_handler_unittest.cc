@@ -616,8 +616,6 @@ TEST_F(PasswordManagerUIHandlerUnitTest, ContinueImport_CallsDelegate) {
 TEST_F(PasswordManagerUIHandlerUnitTest,
        StartPasswordChange_CallsServiceAndUpdatesState) {
   base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(
-      password_change::features::kPasswordChangeWithGlic);
 
   InitPresenter();
   const GURL kTestUrl("https://example.com/login");
@@ -668,8 +666,6 @@ TEST_F(PasswordManagerUIHandlerUnitTest,
 TEST_F(PasswordManagerUIHandlerUnitTest,
        StartPasswordChange_InvalidCredentialId_DoesNotCallService) {
   base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(
-      password_change::features::kPasswordChangeWithGlic);
 
   PasswordChangeServiceFactory::GetInstance()->SetTestingFactory(
       profile_.get(), base::BindRepeating([](content::BrowserContext* context)
@@ -698,8 +694,6 @@ TEST_F(PasswordManagerUIHandlerUnitTest,
                             /*actor_login_approved=*/true);
 
   base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(
-      password_change::features::kPasswordChangeWithGlic);
 
   PasswordChangeServiceFactory::GetInstance()->SetTestingFactory(
       profile_.get(), base::BindRepeating([](content::BrowserContext* context)
@@ -731,8 +725,6 @@ TEST_F(PasswordManagerUIHandlerUnitTest,
                             /*actor_login_approved=*/true);
 
   base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(
-      password_change::features::kPasswordChangeWithGlic);
 
   PasswordChangeServiceFactory::GetInstance()->SetTestingFactory(
       profile_.get(), base::BindRepeating([](content::BrowserContext* context)
@@ -825,8 +817,6 @@ TEST_F(PasswordManagerUIHandlerUnitTest,
                             /*actor_login_approved=*/true);
 
   base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(
-      password_change::features::kPasswordChangeWithGlic);
 
   PasswordChangeServiceFactory::GetInstance()->SetTestingFactory(
       profile_.get(), base::BindRepeating([](content::BrowserContext* context)
@@ -904,8 +894,6 @@ TEST_F(PasswordManagerUIHandlerUnitTest,
                             /*actor_login_approved=*/true);
 
   base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(
-      password_change::features::kPasswordChangeWithGlic);
 
   PasswordChangeServiceFactory::GetInstance()->SetTestingFactory(
       profile_.get(), base::BindRepeating([](content::BrowserContext* context)
@@ -998,8 +986,6 @@ TEST_F(PasswordManagerUIHandlerUnitTest,
 TEST_F(PasswordManagerUIHandlerUnitTest,
        OpenPasswordChangeTab_InvalidCredentialId_NoOp) {
   base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(
-      password_change::features::kPasswordChangeWithGlic);
 
   // Calling with non-existent credential ID should not crash.
   handler().OpenPasswordChangeTab(999);
@@ -1008,8 +994,6 @@ TEST_F(PasswordManagerUIHandlerUnitTest,
 TEST_F(PasswordManagerUIHandlerUnitTest,
        StopPasswordChange_InvalidCredentialId_NoOp) {
   base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeature(
-      password_change::features::kPasswordChangeWithGlic);
 
   // Calling with non-existent credential ID should not crash.
   handler().StopPasswordChange(999);

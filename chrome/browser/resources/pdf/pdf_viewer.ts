@@ -1031,24 +1031,15 @@ export class PdfViewerElement extends PdfViewerBaseElement {
     this.zoomBounds_.max =
         Math.round(presetZoomFactors[presetZoomFactors.length - 1]! * 100);
 
-    const hasGlic = loadTimeData.getBoolean('pdfGlicSummarizeEnabled');
+
     if (
-        hasGlic
+        false
         // <if expr="enable_pdf_ink2">
         || this.pdfInk2Enabled_
         // </if>
     ) {
       this.updateComplete.then(() => {
-        if (hasGlic) {
-          const summarizeBtn =
-              this.$.toolbar.shadowRoot.querySelector<HTMLElement>(
-                  '#glic-summarize-button');
-          if (summarizeBtn) {
-            this.registerHelpBubble(
-                'PdfHelpBubbleHandlerFactory::kPdfGlicSummarizeElementId',
-                summarizeBtn);
-          }
-        }
+
 
         // <if expr="enable_pdf_ink2">
         if (this.pdfInk2Enabled_) {
@@ -2042,9 +2033,7 @@ export class PdfViewerElement extends PdfViewerBaseElement {
     }
   }
 
-  protected onGlicSummarize_() {
-    PdfViewerPrivateProxyImpl.getInstance().glicSummarize();
-  }
+
 
   protected async onPrint_() {
     record(UserAction.PRINT);

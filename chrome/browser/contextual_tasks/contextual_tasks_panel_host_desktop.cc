@@ -144,8 +144,7 @@ bool ContextualTasksPanelHostDesktop::IsPanelSuppressed() const {
   }
   // If the glic side panel is open, do not override it with the contextual
   // tasks side panel when active tab is changed.
-  return side_panel_ui->IsSidePanelEntryShowing(
-      SidePanelEntry::Key(SidePanelEntry::Id::kGlic));
+  return false;
 }
 
 void ContextualTasksPanelHostDesktop::SetPanelSuppressedForTesting(  // IN-TEST

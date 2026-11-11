@@ -1110,7 +1110,6 @@ source_set("certificate_selector") {
   deps = [
     "//chrome/app:generated_resources",
     "//chrome/browser:certificate_viewer",
-    "//chrome/browser/glic",
     "//chrome/browser/profiles:profile",
     "//chrome/browser/ui/browser_window",
     "//chrome/browser/ui/views:layout_provider",

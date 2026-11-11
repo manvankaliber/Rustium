@@ -34,7 +34,7 @@ class SessionController;
 class SessionControllerImpl;
 class SessionView;
 class SessionViewDelegate;
-class TtcActorUiStateManager;
+
 
 // SupportsUserData lets platform-specific bridges (e.g. the Android JNI
 // bridge) attach themselves to the service so they share its lifetime.
@@ -75,7 +75,7 @@ class TtcKeyedService : public KeyedService, public base::SupportsUserData {
   base::CallbackListSubscription RegisterStateChangedCallback(
       base::RepeatingCallback<void(ServiceState)> callback);
 
-  bool is_session_active() const { return session_controller_ != nullptr; }
+  bool is_session_active() const { return false; }
 
   Profile* profile() { return profile_; }
 
@@ -104,23 +104,14 @@ class TtcKeyedService : public KeyedService, public base::SupportsUserData {
 
   // The ActorUiStateManagerInterface implementation used by actor tasks created
   // for TTC sessions.
-  TtcActorUiStateManager& actor_ui_state_manager();
 
   // The EnterprisePolicyChecker used for policy gating in TTC sessions.
-  const actor::EnterprisePolicyChecker* enterprise_policy_checker() const;
-  void SetEnterprisePolicyCheckerForTesting(
-      std::unique_ptr<actor::EnterprisePolicyChecker> checker);
 
   base::WeakPtr<TtcKeyedService> GetWeakPtr();
 
  private:
   raw_ptr<Profile> profile_;
   ConversationFactory conversation_factory_;
-  std::unique_ptr<actor::EnterprisePolicyChecker> enterprise_policy_checker_;
-  // Must outlive `session_controller_`, which indirectly holds a reference to
-  // it, as do the actor tasks created during a session.
-  std::unique_ptr<TtcActorUiStateManager> actor_ui_state_manager_;
-  std::unique_ptr<SessionControllerImpl> session_controller_;
 
   base::RepeatingCallbackList<void(ServiceState)> state_changed_callbacks_;
 

@@ -41,7 +41,6 @@ group("api_implementations") {
     "//chrome/browser/extensions/api/extension_action",
     "//chrome/browser/extensions/api/font_settings",
     "//chrome/browser/extensions/api/gcm",
-    "//chrome/browser/extensions/api/glic_private",
     "//chrome/browser/extensions/api/history",
     "//chrome/browser/extensions/api/image_writer_private",
     "//chrome/browser/extensions/api/module",
@@ -72,7 +71,6 @@ group("api_implementations") {
       "//chrome/browser/extensions/api/braille_display_private",
       "//chrome/browser/extensions/api/command_line_private",
       "//chrome/browser/extensions/api/dictation_private",
-      "//chrome/browser/extensions/api/experimental_actor",
       "//chrome/browser/extensions/api/experimental_ai_data",
       "//chrome/browser/extensions/api/networking_private",
       "//chrome/browser/extensions/api/passwords_private",
@@ -120,14 +118,13 @@ function_registration("api_registration") {
     "developer_private",
 
     "enterprise_platform_keys_internal",
-    "experimental_actor",
     "experimental_ai_data",
     "extension",
     "media_player_private",
     "platform_keys_internal",
     "speech_recognition_private",
     "terminal_private",
-    "glic_private",
+
     "page_action",
     "windows",
   ]
@@ -135,10 +132,9 @@ function_registration("api_registration") {
   inputs = [
     "commands/commands.h",
     "developer_private/developer_private_functions.h",
-    "experimental_actor/experimental_actor_api.h",
     "experimental_ai_data/experimental_ai_data_api.h",
     "extension_action/extension_action_api.h",
-    "glic_private/glic_private_api.h",
+
     "module/module.h",
     "tabs/tabs_api.h",
     "tabs/windows_api.h",

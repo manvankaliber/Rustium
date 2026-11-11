@@ -118,13 +118,10 @@ template("chrome_extra_paks") {
     output = "${invoker.output_dir}/resources.pak"
     sources = [
       "$root_gen_dir/base/tracing/protos/tracing_proto_resources.pak",
-      "$root_gen_dir/chrome/browser/glic/resources/glic_browser_resources.pak",
       "$root_gen_dir/chrome/browser_resources.pak",
       "$root_gen_dir/chrome/chrome_unscaled_resources.pak",
       "$root_gen_dir/chrome/common_resources.pak",
       "$root_gen_dir/chrome/contextual_tasks_resources.pak",
-      "$root_gen_dir/chrome/glic_experimental_opt_in_resources.pak",
-      "$root_gen_dir/chrome/glic_resources.pak",
       "$root_gen_dir/chrome/saved_tab_groups_unsupported_resources.pak",
       "$root_gen_dir/components/autofill/core/browser/geo/autofill_address_rewriter_resources.pak",
       "$root_gen_dir/components/autofill/core/browser/geo/autofill_alternative_state_name_map_resources.pak",
@@ -166,7 +163,6 @@ template("chrome_extra_paks") {
       "//base/tracing/protos:chrome_track_event_resources",
       "//chrome/app/theme:chrome_unscaled_resources",
       "//chrome/browser:resources",
-      "//chrome/browser/glic/resources:browser_resources",
       "//chrome/browser/resources",
       "//chrome/common:resources",
       "//components/resources",
@@ -205,12 +201,9 @@ template("chrome_extra_paks") {
     sources += [
       "$root_gen_dir/chrome/about_sys_resources.pak",
       "$root_gen_dir/chrome/access_code_cast_resources.pak",
-      "$root_gen_dir/chrome/actor_overlay_resources.pak",
       "$root_gen_dir/chrome/app_service_internals_resources.pak",
       "$root_gen_dir/chrome/autofill_ml_internals_resources.pak",
       "$root_gen_dir/chrome/bookmarks_resources.pak",
-      "$root_gen_dir/chrome/browser/actor/resources/actor_browser_resources.pak",
-      "$root_gen_dir/chrome/browser/actor/resources/actor_common_resources.pak",
       "$root_gen_dir/chrome/browser/indigo/resources/indigo_browser_resources.pak",
       "$root_gen_dir/chrome/certificate_manager_resources.pak",
       "$root_gen_dir/chrome/contextual_cueing_internals_resources.pak",
@@ -222,13 +215,10 @@ template("chrome_extra_paks") {
       "$root_gen_dir/chrome/drive_picker_host_untrusted_resources.pak",
       "$root_gen_dir/chrome/feedback_resources.pak",
       "$root_gen_dir/chrome/gaia_auth_host_resources.pak",
-      "$root_gen_dir/chrome/glic_untrusted_resources.pak",
       "$root_gen_dir/chrome/indigo_resources.pak",
       "$root_gen_dir/chrome/inspect_resources.pak",
       "$root_gen_dir/chrome/iwa_dev_resources.pak",
       "$root_gen_dir/chrome/key_value_pair_viewer_shared_resources.pak",
-      "$root_gen_dir/chrome/lens_shared_resources.pak",
-      "$root_gen_dir/chrome/lens_untrusted_resources.pak",
       "$root_gen_dir/chrome/new_tab_footer_resources.pak",
       "$root_gen_dir/chrome/omnibox_everywhere_resources.pak",
       "$root_gen_dir/chrome/omnibox_popup_resources.pak",
@@ -239,7 +229,6 @@ template("chrome_extra_paks") {
       "$root_gen_dir/chrome/settings_resources.pak",
       "$root_gen_dir/chrome/side_panel_bookmarks_resources.pak",
       "$root_gen_dir/chrome/side_panel_comments_resources.pak",
-      "$root_gen_dir/chrome/side_panel_commerce_resources.pak",
       "$root_gen_dir/chrome/side_panel_history_clusters_resources.pak",
       "$root_gen_dir/chrome/side_panel_history_resources.pak",
       "$root_gen_dir/chrome/side_panel_read_anything_resources.pak",
@@ -263,7 +252,6 @@ template("chrome_extra_paks") {
     ]
 
     deps += [
-      "//chrome/browser/actor/resources:browser_resources",
       "//chrome/browser/indigo/resources:browser_resources",
       "//chrome/browser/resources/contextual_cueing/internals:resources",
       "//components/headless/command_handler",
@@ -320,8 +308,8 @@ template("chrome_extra_paks") {
     }
 
     if (is_win || is_mac || is_linux) {
-      sources += [ "$root_gen_dir/chrome/skills_resources.pak" ]
-      deps += [ "//chrome/browser/resources/skills:resources" ]
+      sources += []
+      deps += []
     }
 
     if (enable_extensions_core) {

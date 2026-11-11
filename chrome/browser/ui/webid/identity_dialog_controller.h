@@ -13,8 +13,6 @@
 
 #include "base/functional/callback.h"
 #include "base/memory/raw_ptr.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_task.h"
 #include "chrome/browser/ui/webid/account_selection_view.h"
 #include "chrome/browser/webid/proto/fedcm_clickthrough_rate_metadata.pb.h"
 #include "components/segmentation_platform/public/result.h"
@@ -179,7 +177,6 @@ class IdentityDialogController
       std::unique_ptr<AccountSelectionView> account_view);
 
   // Set acting_task_id for testing purposes.
-  void SetActingTaskIdForTesting(actor::TaskId task_id);
 
   // Requests a UI volume recommendation from |segmentation_platform_service_|.
   void RequestUiVolumeRecommendation(
@@ -207,9 +204,7 @@ class IdentityDialogController
   // Whether to show FedCM UI or not.
   bool ShouldShowFedCmUi();
 
-  void OnActorTaskStateChanged(actor::ActorTask& task);
 
-  void UpdateTaskId(actor::TaskId task_id);
 
   void DidInvokeShowUi();
 
@@ -263,8 +258,6 @@ class IdentityDialogController
       optimization_guide_decider_{nullptr};
 
   // The ID of the actor task currently acting on the tab, if any.
-  actor::TaskId acting_task_id_;
-  base::CallbackListSubscription actor_task_state_subscription_;
 
   base::WeakPtrFactory<IdentityDialogController> weak_ptr_factory_{this};
 };

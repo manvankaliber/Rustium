@@ -14,8 +14,6 @@
 #include "base/time/time.h"
 #include "build/build_config.h"
 #include "chrome/app/chrome_command_ids.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_test_util.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/browser/history/history_tab_helper.h"
 #include "chrome/browser/history/history_test_utils.h"
@@ -60,8 +58,6 @@
 #include "ui/webui/untrusted_web_ui_browsertest_util.h"
 #include "url/gurl.h"
 #include "url/origin.h"
-
-#include "chrome/browser/actor/ui/actor_task_unload_handler.h"
 
 using content::BrowserThread;
 using ::testing::_;
@@ -1138,12 +1134,6 @@ class HistoryTaskTagBrowserTest : public HistoryBrowserTest {
   HistoryTaskTagBrowserTest() = default;
 
  protected:
-  actor::TaskId LatestTaskIdFromNavigationData(
-      const TestNavigationUIDataObserver& observer) {
-    return static_cast<ChromeNavigationUIData*>(
-               observer.last_navigation_ui_data())
-        ->actor_task_id();
-  }
 
   bool IsHistoryEntryTaggedWithActorId() {
     history::QueryResults results = QueryHistory();
@@ -1152,21 +1142,6 @@ class HistoryTaskTagBrowserTest : public HistoryBrowserTest {
 
   Profile* profile() { return browser()->GetProfile(); }
 
-  actor::TaskId CreateActingTask(content::WebContents* web_contents) {
-    auto* actor_service = actor::ActorKeyedService::Get(profile());
-    actor::TaskId id = actor_service->CreateTask(
-        actor::TestTaskSourceInfo(), actor::NoEnterprisePolicyChecker());
-    std::unique_ptr<actor::ToolRequest> action = actor::MakeClickRequest(
-        *tabs::TabInterface::GetFromContents(web_contents), gfx::Point(0, 0));
-
-    // Ensure the actor is in an acting state on the current tab.
-    actor::ActResultFuture result;
-    actor_service->GetTask(id)->Act(ToRequestList(action),
-                                    result.GetCallback());
-    actor::ExpectOkResult(result);
-
-    return id;
-  }
 
   GURL GetActorInitialUrl() {
     return embedded_https_test_server().GetURL("example.com", "/empty.html");
@@ -1180,23 +1155,15 @@ class HistoryTaskTagBrowserTest : public HistoryBrowserTest {
     return embedded_https_test_server().GetURL("example.com", "/title2.html");
   }
 
-  actor::ActorKeyedService* actor_service() {
-    return actor::ActorKeyedService::Get(profile());
-  }
 
   void SetUpOnMainThread() override {
     HistoryBrowserTest::SetUpOnMainThread();
     // These tests navigate via browser initiated navigations while an Actor
     // task is active to verify history tagging. Suppress the leave site dialog
     // so the test scaffolding is not intercepted, and restore at teardown.
-    previous_suppress_confirm_dialog_ =
-        actor::ActorTaskTabCloseConfirmDialog::ShouldSuppressForTesting();
-    actor::ActorTaskTabCloseConfirmDialog::SetSuppressForTesting(true);
   }
 
   void TearDownOnMainThread() override {
-    actor::ActorTaskTabCloseConfirmDialog::SetSuppressForTesting(
-        previous_suppress_confirm_dialog_);
     HistoryBrowserTest::TearDownOnMainThread();
   }
 
@@ -1211,7 +1178,6 @@ IN_PROC_BROWSER_TEST_F(HistoryTaskTagBrowserTest, ActingTask) {
   content::WebContents* web_contents =
       browser()->tab_strip_model()->GetActiveWebContents();
   TestNavigationUIDataObserver observer(web_contents);
-  actor::TaskId test_actor_task_id = CreateActingTask(web_contents);
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), GetActorUrl1()));
 
   ASSERT_TRUE(LatestTaskIdFromNavigationData(observer));
@@ -1228,7 +1194,6 @@ IN_PROC_BROWSER_TEST_F(HistoryTaskTagBrowserTest, PauseTask) {
       browser()->tab_strip_model()->GetActiveWebContents();
   TestNavigationUIDataObserver observer(web_contents);
 
-  actor::TaskId test_actor_task_id = CreateActingTask(web_contents);
   actor_service()->GetTask(test_actor_task_id)->Pause(/*from_actor=*/true);
 
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), GetActorUrl1()));
@@ -1261,7 +1226,6 @@ IN_PROC_BROWSER_TEST_F(HistoryTaskTagBrowserTest, PauseThenResumeTask) {
       browser()->tab_strip_model()->GetActiveWebContents();
   TestNavigationUIDataObserver observer(web_contents);
 
-  actor::TaskId test_actor_task_id = CreateActingTask(web_contents);
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), GetActorUrl1()));
   EXPECT_EQ(test_actor_task_id, LatestTaskIdFromNavigationData(observer));
   EXPECT_TRUE(IsHistoryEntryTaggedWithActorId());
@@ -1286,7 +1250,6 @@ IN_PROC_BROWSER_TEST_F(HistoryTaskTagBrowserTest, TwoTabs) {
   TestNavigationUIDataObserver observer_tab1(web_contents_tab1);
 
   // Navigate on first tab.
-  actor::TaskId test_actor_task_id = CreateActingTask(web_contents_tab1);
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), GetActorUrl1()));
   EXPECT_EQ(test_actor_task_id, LatestTaskIdFromNavigationData(observer_tab1));
   EXPECT_TRUE(IsHistoryEntryTaggedWithActorId());
@@ -1316,7 +1279,6 @@ IN_PROC_BROWSER_TEST_F(HistoryTaskTagBrowserTest, RendererInitiated) {
   content::WebContents* web_contents =
       browser()->tab_strip_model()->GetActiveWebContents();
   TestNavigationUIDataObserver data_observer(web_contents);
-  actor::TaskId test_actor_task_id = CreateActingTask(web_contents);
 
   // Page-initiated navigation.
   content::TestFrameNavigationObserver observer(web_contents);

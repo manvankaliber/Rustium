@@ -20,7 +20,6 @@
 #include "build/build_config.h"
 #include "chrome/app/vector_icons/vector_icons.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/glic/test_support/glic_test_environment.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/signin/identity_test_environment_profile_adaptor.h"
@@ -416,7 +415,6 @@ class AppMenuModelSkillsAndExtensionsInteractiveTest
   ~AppMenuModelSkillsAndExtensionsInteractiveTest() override = default;
 
  private:
-  glic::GlicTestEnvironment glic_test_env_;
   base::test::ScopedFeatureList feature_list_;
 };
 
@@ -471,16 +469,6 @@ IN_PROC_BROWSER_TEST_P(AppMenuModelSkillsAndExtensionsInteractiveTest,
                                      MENU_ACTION_MANAGE_EXTENSIONS, 1);
 }
 
-IN_PROC_BROWSER_TEST_P(AppMenuModelSkillsAndExtensionsInteractiveTest,
-                       GlicDisabledShowsExtensionsMenu) {
-  browser()->GetProfile()->GetPrefs()->SetInteger(
-      optimization_guide::prefs::kGeminiSettings,
-      std::to_underlying(
-          optimization_guide::prefs::GeminiSettingsPolicyState::kDisabled));
-  RunTestSequence(PressButton(kToolbarAppMenuButtonElementId),
-                  EnsureNotPresent(AppMenuModel::kSkillsAndExtensionsMenuItem),
-                  EnsurePresent(AppMenuModel::kExtensionsMenuItem));
-}
 
 class PasswordManagerMenuItemInteractiveTest
     : public AppMenuModelInteractiveTest,

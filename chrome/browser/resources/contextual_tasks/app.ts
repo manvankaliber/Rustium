@@ -211,7 +211,7 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
       },
       isAiPage_: {type: Boolean, reflect: true},
       isUserSignedIn_: {type: Boolean},
-      isLensOverlayShowing_: {type: Boolean},
+
       isOverlayOpenForAimVisualSearch_: {type: Boolean},
       isGhostLoaderVisible_: {type: Boolean, reflect: true},
       isErrorDialogVisible_: {type: Boolean},
@@ -317,7 +317,7 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
       loadTimeData.getBoolean('isSignedIn');
   protected accessor isAimEligible_: boolean =
       loadTimeData.getBoolean('isAimEligible');
-  protected accessor isLensOverlayShowing_: boolean = false;
+
   protected accessor isOverlayOpenForAimVisualSearch_: boolean = false;
   // Indicates if in tab mode. Most start in a tab.
   protected accessor isShownInTab_: boolean =
@@ -544,8 +544,8 @@ export class ContextualTasksAppElement extends ContextualTasksAppElementBase {
         this.inNlm_ = inNlm;
       }),
       callbackRouter.onLensOverlayStateChanged.addListener(
-          (isOverlayShowing, isOverlayOpenForAimVisualSearch) => {
-            this.isLensOverlayShowing_ = isOverlayShowing;
+          (_isOverlayShowing, isOverlayOpenForAimVisualSearch) => {
+
             this.isOverlayOpenForAimVisualSearch_ =
                 isOverlayOpenForAimVisualSearch;
           }),

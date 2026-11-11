@@ -40,7 +40,6 @@ source_set("webid") {
 
   deps = [
     "//base",
-    "//chrome/browser/actor",
     "//chrome/browser/image_fetcher",
     "//chrome/browser/net",
     "//chrome/browser/ui:browser_element_identifiers",
@@ -125,7 +124,6 @@ source_set("browser_tests") {
     ":test_support",
     ":webid",
     "//base/test:test_support",
-    "//chrome/browser/actor:test_support",
     "//chrome/browser/ui:browser_commands",
     "//chrome/browser/ui:browser_window_header",
     "//chrome/browser/ui/actions:actions_headers",

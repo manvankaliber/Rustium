@@ -49,20 +49,6 @@ ToastIdEnumSet GetActiveToastIds() {
 class ToastServiceBrowserTest : public InProcessBrowserTest {
  public:
   void SetUp() override {
-    feature_list_.InitWithFeaturesAndParameters(
-        {{autofill::features::kAutofillAiWalletPrivatePasses, {}},
-         {safe_browsing::kEsbAsASyncedSetting, {}},
-         {data_sharing::features::kDataSharingFeature, {}},
-         {toast_features::kTranslateToast, {}},
-         {features::kGlicActorUi, {{features::kGlicActorUiToastName, "true"}}},
-         {multistep_filter::kMultistepFilter, {}},
-         {features::kIndigo, {}},
-         {autofill::features::kAutofillAmbientAutofill, {}},
-         {autofill::features::kAutofillAmbientAutofillSuppression, {}},
-         {autofill::features::kAutofillAtMemory, {}},
-         {dictation::kDictation, {}},
-         {ttc::kTtc, {}}},
-        /*disabled_features*/ {});
     InProcessBrowserTest::SetUp();
   }
 

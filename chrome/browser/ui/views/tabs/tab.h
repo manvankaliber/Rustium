@@ -55,9 +55,7 @@ class TabDataObserver;
 struct TabData;
 }
 
-namespace glic {
-class TabUnderlineView;
-}  // namespace glic
+  // namespace glic
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -237,9 +235,6 @@ class Tab : public gfx::AnimationDelegate,
 
   void UpdateInsets();
 
-  glic::TabUnderlineView* glic_underline() const {
-    return glic_tab_underline_view_;
-  }
 
  private:
   class TabCloseButtonObserver;
@@ -308,7 +303,6 @@ class Tab : public gfx::AnimationDelegate,
   // True if the tab is being animated closed.
   bool closing_ = false;
 
-  raw_ptr<glic::TabUnderlineView> glic_tab_underline_view_ = nullptr;
 
   raw_ptr<TabIcon> icon_ = nullptr;
   raw_ptr<AlertIndicatorButton> alert_indicator_button_ = nullptr;

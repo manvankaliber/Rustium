@@ -31,7 +31,6 @@
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "chrome/browser/critical_actions/critical_action_factory.h"
 #include "chrome/browser/critical_actions/critical_action_ui_utils.h"
-#include "chrome/browser/critical_actions/glic_linkout_handler.h"
 #include "chrome/browser/favicon/large_icon_service_factory.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/browser/history/history_utils.h"
@@ -1090,17 +1089,10 @@ void BrowsingHistoryHandler::OnCriticalActionRetrievedForLinkout(
     return;
   }
 
-  critical_actions::GlicLinkoutHandler::GetInstance()->OpenConversation(
-      web_contents_, *entry,
-      glic::mojom::InvocationSource::kHistoryPageChatLinkout,
-      base::BindOnce(
-          [](OpenCriticalActionConversationCallback cb,
-             critical_actions::OpenConversationResult result) {
-            RecordOpenConversationResult(result);
-            std::move(cb).Run(
-                static_cast<history::mojom::OpenConversationResult>(result));
-          },
-          std::move(callback)));
+  RecordOpenConversationResult(
+      critical_actions::OpenConversationResult::kErrorInternal);
+  std::move(callback).Run(
+      history::mojom::OpenConversationResult::kErrorInternal);
 }
 
 void BrowsingHistoryHandler::GetSyncedDevicesForFiltering(

@@ -86,11 +86,9 @@ class SessionControllerImpl : public SessionController,
   // context is read from.
   content::WebContents* GetVoiceFocusedWebContents();
 
-  actor::TaskId GetActorTaskId() const;
 
   // Replaces the session's actor task if it was stopped outside of the
   // session. Must be called before acting.
-  void EnsureActorTaskCreated();
 
   // Mutes or unmutes the user's microphone. While muted, no audio is captured
   // or sent to the model. Only a live session can be muted, and it goes live
@@ -125,7 +123,6 @@ class SessionControllerImpl : public SessionController,
                           VoiceFocusedContentsTracker::Observer>
       voice_focused_contents_tracker_observation_{this};
 
-  ActorTaskHolder actor_task_holder_;
   SessionJournalImpl journal_;
   ToolController tool_controller_;
   std::unique_ptr<TtcPageContextMonitor> page_context_monitor_;

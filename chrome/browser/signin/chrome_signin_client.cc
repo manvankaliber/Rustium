@@ -177,29 +177,16 @@ std::string HatsSurveyTriggerForAccessPoint(
 class ChromeOAuthConsumerRegistry : public signin::OAuthConsumerRegistry {
  protected:
   signin::OAuthConsumer GetOAuthConsumerForGlicUserStatus() const override {
-    CHECK(base::FeatureList::IsEnabled(features::kGlicUserStatusCheck));
-    return signin::OAuthConsumer(
-        signin::oauth_consumer_name::kGlicUserStatusName,
-        {features::kGeminiOAuth2Scope.Get()});
-  }
-
-  signin::OAuthConsumer GetOAuthConsumerForGlicInvokeApi() const override {
-#if BUILDFLAG(ENABLE_EXTENSIONS)
-    return signin::OAuthConsumer(
-        signin::oauth_consumer_name::kGlicInvokeApiName,
-        {extensions_features::kGlicInvokeApiOAuth2ScopeParam.Get()});
-#else
     NOTREACHED();
-#endif
+  }
+  signin::OAuthConsumer GetOAuthConsumerForGlicInvokeApi() const override {
+    NOTREACHED();
+  }
+  signin::OAuthConsumer GetOAuthConsumerForSkillsService() const override {
+    NOTREACHED();
   }
 
-  signin::OAuthConsumer GetOAuthConsumerForSkillsService() const override {
-    CHECK(base::FeatureList::IsEnabled(features::kSkillsEnabled));
-    CHECK(base::FeatureList::IsEnabled(features::kSkillsServiceApi));
-    return signin::OAuthConsumer(
-        signin::oauth_consumer_name::kSkillsServiceName,
-        {features::kSkillsServiceApiOAuth2Scope.Get()});
-  }
+
 
   signin::OAuthConsumer GetOAuthConsumerForContextualTasks() const override {
     CHECK(contextual_tasks::IsContextualTasksUIEnabled());

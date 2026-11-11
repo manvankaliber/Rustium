@@ -33,14 +33,12 @@
   V(kAboutThisSite, kActionSidePanelShowAboutThisSite, "AboutThisSite")       \
   V(kCustomizeChrome, kActionSidePanelShowCustomizeChrome, "CustomizeChrome") \
   V(kSearchCompanion, kActionSidePanelShowSearchCompanion, "Companion")       \
-  V(kShoppingInsights, kActionSidePanelShowShoppingInsights,                  \
-    "ShoppingInsights")                                                       \
-  V(kLensOverlayResults, kActionSidePanelShowLensOverlayResults,              \
-    "LensOverlayResults")                                                     \
+                                                         \
+                                                       \
   V(kMerchantTrust, kActionSidePanelShowMerchantTrust, "MerchantTrust")       \
   V(kComments, kActionSidePanelShowComments, "Comments")                      \
   V(kGeic, kActionSidePanelShowGeic, "Geic")                                  \
-  V(kGlic, kActionSidePanelShowGlic, "Glic")                                  \
+                                    \
   V(kTabsFromOtherDevices, kActionSidePanelShowTabsFromOtherDevices,          \
     "TabsFromOtherDevices")                                                   \
   V(kSidePanelDev, std::nullopt, "SidePanelDev")                              \

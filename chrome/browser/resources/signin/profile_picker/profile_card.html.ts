@@ -5,7 +5,7 @@
 import {html} from '//resources/lit/v3_0/lit.rollup.js';
 
 import type {ProfileCardElement} from './profile_card.js';
-import {isGlicVersion} from './profile_picker_flags.js';
+import {} from './profile_picker_flags.js';
 
 export function getHtml(this: ProfileCardElement) {
   return html`<!--_html_template_start_-->
@@ -46,16 +46,16 @@ export function getHtml(this: ProfileCardElement) {
         auto-validate spellcheck="false"
         @pointerenter="${this.onNameInputPointerenter_}"
         @pointerleave="${this.onNameInputPointerleave_}"
-        ?disabled="${isGlicVersion() || this.profileState.hasEnterpriseLabel}"
+        ?disabled="${this.profileState.hasEnterpriseLabel}"
         required>
     </cr-input>
     <div id="hoverUnderline"
-        ?hidden="${isGlicVersion() || this.profileState.hasEnterpriseLabel}">
+        ?hidden="${this.profileState.hasEnterpriseLabel}">
     </div>
   </div>
   <profile-card-menu .profileState="${this.profileState}"
       .profileIndex="${this.profileIndex}"
-      .profilesCount="${this.profilesCount}" ?hidden="${isGlicVersion()}">
+      .profilesCount="${this.profilesCount}">
   </profile-card-menu>
 </div>
 <cr-tooltip id="gaiaNameTooltip" for="gaiaName" manual-mode offset="0"

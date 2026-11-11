@@ -29,7 +29,6 @@
 #include "chrome/browser/download/download_core_service.h"
 #include "chrome/browser/download/download_core_service_factory.h"
 #include "chrome/browser/download/download_prefs.h"
-#include "chrome/browser/glic/glic_pref_names.h"
 #include "chrome/browser/lifetime/application_lifetime_desktop.h"
 #include "chrome/browser/lifetime/browser_shutdown.h"
 #include "chrome/browser/prefs/session_startup_pref.h"
@@ -1336,38 +1335,7 @@ IN_PROC_BROWSER_TEST_F(
 #endif  // BUILDFLAG(ENABLE_BACKGROUND_MODE)
 
 
-class BrowserCloseManagerWithGlicBrowserTest
-    : public BrowserCloseManagerBrowserTest {
- public:
-  BrowserCloseManagerWithGlicBrowserTest() = default;
 
-  BrowserCloseManagerWithGlicBrowserTest(
-      const BrowserCloseManagerWithGlicBrowserTest&) = delete;
-  BrowserCloseManagerWithGlicBrowserTest& operator=(
-      const BrowserCloseManagerWithGlicBrowserTest&) = delete;
-
-  void SetUp() override {
-    feature_list_.InitWithFeatures({features::kGlic}, {});
-    BrowserCloseManagerBrowserTest::SetUp();
-  }
-
-  void SetUpOnMainThread() override {
-    BrowserCloseManagerBrowserTest::SetUpOnMainThread();
-    g_browser_process->local_state()->SetBoolean(
-        glic::prefs::kGlicLauncherEnabled, true);
-  }
-
- private:
-  base::test::ScopedFeatureList feature_list_;
-};
 
 // Check that closing the last browser window doesn't crash when glic is
 // enabled. Regression test for crbug.com/390203045.
-IN_PROC_BROWSER_TEST_F(BrowserCloseManagerWithGlicBrowserTest,
-                       CloseSingleBrowserWindowWithGlic) {
-  TestBrowserCloseManager::AttemptClose(
-      TestBrowserCloseManager::NO_USER_CHOICE);
-  WaitForAllBrowsersToClose();
-  EXPECT_TRUE(browser_shutdown::IsTryingToQuit());
-  EXPECT_TRUE(GlobalBrowserCollection::GetInstance()->IsEmpty());
-}

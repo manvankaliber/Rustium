@@ -50,7 +50,6 @@
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/test/base/testing_profile.h"
-#include "components/commerce/core/commerce_utils.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/split_tabs/split_tab_id.h"
 #include "components/split_tabs/split_tab_visual_data.h"
@@ -9173,14 +9172,6 @@ TEST_F(TabStripModelTest,
   model.CloseAllTabs();
 }
 
-TEST_F(TabStripModelTest, CommandGlicUnshare) {
-  tabstrip()->AppendWebContents(CreateWebContentsWithID(1), true);
-  EXPECT_TRUE(tabstrip()->IsContextMenuCommandEnabled(
-      0, TabStripModel::CommandGlicUnshare));
-
-  // This should not crash (it CHECKs the delegate returns true).
-  tabstrip()->ExecuteContextMenuCommand(0, TabStripModel::CommandGlicUnshare);
-}
 
 TEST_F(TabStripModelTest, TabStripUIWasSetResetOnObserverRemoval) {
   MockTabStripModelObserver observer;

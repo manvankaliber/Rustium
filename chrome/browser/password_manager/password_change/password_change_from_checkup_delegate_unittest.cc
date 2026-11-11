@@ -111,7 +111,6 @@ TEST_F(PasswordChangeFromCheckupDelegateTest, StartFlowStartsActuator) {
   delegate()->StartPasswordChangeFlow(
       CreateTestCredential(), web_contents()->GetWeakPtr(), callback.Get());
 
-  delegate()->Stop(actor::ActorTask::StoppedReason::kStoppedByUser);
 }
 
 TEST_F(PasswordChangeFromCheckupDelegateTest,
@@ -160,7 +159,6 @@ TEST_F(PasswordChangeFromCheckupDelegateTest,
   }
 
   EXPECT_CALL(callback, Run(State::kInactive));
-  delegate()->Stop(actor::ActorTask::StoppedReason::kShutdown);
 }
 
 TEST_F(PasswordChangeFromCheckupDelegateTest,
@@ -177,7 +175,6 @@ TEST_F(PasswordChangeFromCheckupDelegateTest,
   delegate()->StartPasswordChangeFlow(
       CreateTestCredential(), web_contents()->GetWeakPtr(), callback.Get());
 
-  delegate()->Stop(actor::ActorTask::StoppedReason::kStoppedByUser);
 
   // Subsequent state changes should not trigger the callback because
   // Stop() resets it.
@@ -191,7 +188,6 @@ TEST_F(PasswordChangeFromCheckupDelegateTest,
 
 TEST_F(PasswordChangeFromCheckupDelegateTest,
        StopWithoutActuatorOrCallbackDoesNotCrash) {
-  delegate()->Stop(actor::ActorTask::StoppedReason::kStoppedByUser);
 }
 
 TEST_F(PasswordChangeFromCheckupDelegateTest,
@@ -217,7 +213,6 @@ TEST_F(PasswordChangeFromCheckupDelegateTest,
       ActuatorState::kChangePasswordFormNotFound);
   delegate()->OnActuationStateChanged(ActuatorState::kOtpDetected);
 
-  delegate()->Stop(actor::ActorTask::StoppedReason::kStoppedByUser);
 }
 
 TEST_F(PasswordChangeFromCheckupDelegateTest,
@@ -234,7 +229,6 @@ TEST_F(PasswordChangeFromCheckupDelegateTest,
       .WillOnce(Return(generated_password));
 
   EXPECT_EQ(delegate()->generated_password(), generated_password);
-  delegate()->Stop(actor::ActorTask::StoppedReason::kStoppedByUser);
 }
 
 TEST_F(PasswordChangeFromCheckupDelegateTest,
@@ -260,7 +254,6 @@ TEST_F(PasswordChangeFromCheckupDelegateTest, OpenActuationTabCallsActuator) {
   delegate()->StartPasswordChangeFlow(CreateTestCredential(),
                                       web_contents()->GetWeakPtr());
   delegate()->OpenActuationTab();
-  delegate()->Stop(actor::ActorTask::StoppedReason::kStoppedByUser);
 }
 
 }  // namespace

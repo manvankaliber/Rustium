@@ -436,8 +436,6 @@ BASE_FEATURE(kContextualTasksEnableSpatialModelToolbarLayout,
 BASE_FEATURE(kContextualSearchContextualCuesHandleEdu,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-BASE_FEATURE(kContextualSearchContextualCuesHandleShopping,
-             base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kContextualTasksRearchitecture, base::FEATURE_DISABLED_BY_DEFAULT);
 

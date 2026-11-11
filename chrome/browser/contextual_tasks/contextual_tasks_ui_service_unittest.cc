@@ -2196,7 +2196,6 @@ TEST_F(ContextualTasksUiServiceTest,
 
   contextual_search::ContextualSearchSessionHandle::PersistedTabsMap
       persisted_map;
-  lens::LensOverlayRequestId req_id;
   persisted_map[persisted_tab_id] =
       std::make_pair(base::UnguessableToken::Create(), req_id);
   mock_session->SetPersistedTabs(persisted_map);
@@ -2485,34 +2484,6 @@ TEST_F(ContextualTasksUiServiceTest, AimHomepage_InSidePanel_Intercepted) {
   run_loop.Run();
 }
 
-TEST_F(ContextualTasksUiServiceTest, SrpShoppingMode_InSidePanel_Intercepted) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndDisableFeature(kAimTriggeredThreadLinks);
-
-  GURL navigated_url(kSrpShopping);
-  GURL host_web_content_url(chrome::kChromeUIContextualTasksURL);
-
-  ON_CALL(*aim_eligibility_service_, IsAimUrl(_, _))
-      .WillByDefault(Return(false));
-
-  auto web_contents = content::WebContentsTester::CreateTestWebContents(
-      profile_.get(), content::SiteInstance::Create(profile_.get()));
-  content::WebContentsTester::For(web_contents.get())
-      ->SetLastCommittedURL(host_web_content_url);
-
-  base::RunLoop run_loop;
-  EXPECT_CALL(*service_for_nav_, OnThreadLinkClicked(_, _, _, _, _))
-      .Times(1)
-      .WillOnce(testing::InvokeWithoutArgs(&run_loop, &base::RunLoop::Quit));
-  EXPECT_CALL(*service_for_nav_, OnNavigationToAiPageIntercepted(_, _, _, _))
-      .Times(0);
-  EXPECT_TRUE(service_for_nav_->HandleNavigation(
-      CreateOpenUrlParams(navigated_url, true), web_contents.get(),
-      /*is_from_embedded_page=*/true, /*from_can_create_window=*/false,
-      /*is_same_site_or_from_ui=*/true, false, std::nullopt, std::nullopt,
-      blink::mojom::WindowFeatures()));
-  run_loop.Run();
-}
 
 TEST_F(ContextualTasksUiServiceTest, AimHomepageThinking_InTab_NotIntercepted) {
   GURL nav_url(kAimHomepageThinking);
@@ -4060,44 +4031,6 @@ TEST_F(
       blink::mojom::WindowFeatures()));
 }
 
-TEST_F(
-    ContextualTasksUiServiceTest,
-    HandleNavigation_PostRearchitecture_Lens_ShoppingMode_DispatchedToTabStrip) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      {contextual_tasks::kContextualTasksSidePanelRearchitecture},
-      {contextual_tasks::kContextualTasksClobberActiveTab});
-
-  ON_CALL(*aim_eligibility_service_, IsAimUrl(_, _))
-      .WillByDefault(testing::Return(false));
-
-  auto web_contents = content::WebContentsTester::CreateTestWebContents(
-      profile_.get(), content::SiteInstance::Create(profile_.get()));
-
-  service_for_nav_->SetIsWebContentsInSidePanelForTesting(true);
-
-  GURL shopping_url("https://www.google.com/search?udm=28&q=shoes");
-
-  base::RunLoop run_loop;
-  EXPECT_CALL(*service_for_nav_, OpenUrl(_, _, _))
-      .WillOnce([&](const content::OpenURLParams& params,
-                    const blink::mojom::WindowFeatures& features,
-                    BrowserWindowInterface* browser) {
-        EXPECT_EQ(shopping_url, params.url);
-        EXPECT_EQ(ui::mojom::WindowOpenDisposition::kNewForegroundTab,
-                  params.disposition);
-        run_loop.Quit();
-      });
-
-  EXPECT_TRUE(service_for_nav_->HandleNavigation(
-      CreateOpenUrlParams(shopping_url, /*is_renderer_initiated=*/true),
-      web_contents.get(), /*is_from_embedded_page=*/false,
-      /*from_can_create_window=*/false, /*is_same_site_or_from_ui=*/true,
-      /*is_mobile_ua=*/false, std::nullopt, std::nullopt,
-      blink::mojom::WindowFeatures()));
-
-  run_loop.Run();
-}
 
 TEST_F(
     ContextualTasksUiServiceTest,
@@ -5527,28 +5460,10 @@ namespace {
 class MockContextualTasksUiServiceObserver
     : public ContextualTasksUiService::Observer {
  public:
-  MOCK_METHOD(void, OnLensOverlayStateChanged, (bool is_showing), (override));
 };
 
 }  // namespace
 
-TEST_F(ContextualTasksUiServiceTest,
-       OnLensOverlayStateChanged_NotifiesObservers) {
-  MockContextualTasksUiServiceObserver observer;
-  real_service_->AddObserver(&observer);
-
-  EXPECT_CALL(observer, OnLensOverlayStateChanged(true));
-  real_service_->OnLensOverlayStateChanged(/*browser_window_interface=*/nullptr,
-                                           /*is_showing=*/true,
-                                           /*invocation_source=*/std::nullopt);
-
-  EXPECT_CALL(observer, OnLensOverlayStateChanged(false));
-  real_service_->OnLensOverlayStateChanged(/*browser_window_interface=*/nullptr,
-                                           /*is_showing=*/false,
-                                           /*invocation_source=*/std::nullopt);
-
-  real_service_->RemoveObserver(&observer);
-}
 
 TEST_F(ContextualTasksUiServiceTest, DestroyClosedSidePanel) {
   auto tab_contents = content::WebContentsTester::CreateTestWebContents(

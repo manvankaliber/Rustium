@@ -10,29 +10,9 @@
 
 namespace {
 
-class ActorOverlayMochaTest : public WebUIMochaBrowserTest {
- protected:
-  ActorOverlayMochaTest() {
-    feature_list_.InitAndEnableFeatureWithParameters(
-        features::kGlicActorUi, {{features::kGlicActorUiOverlayName, "true"}});
-    set_test_loader_host(chrome::kChromeUIActorOverlayHost);
-  }
 
- private:
-  base::test::ScopedFeatureList feature_list_;
-};
 
-IN_PROC_BROWSER_TEST_F(ActorOverlayMochaTest, Scrim) {
-  RunTest("actor_overlay/actor_overlay_test.js", "runMochaSuite('Scrim')");
-}
 
-IN_PROC_BROWSER_TEST_F(ActorOverlayMochaTest, MagicCursor) {
-  RunTest("actor_overlay/actor_overlay_test.js",
-          "runMochaSuite('MagicCursor')");
-}
 
-IN_PROC_BROWSER_TEST_F(ActorOverlayMochaTest, BorderGlow) {
-  RunTest("actor_overlay/actor_overlay_test.js", "runMochaSuite('BorderGlow')");
-}
 
 }  // namespace

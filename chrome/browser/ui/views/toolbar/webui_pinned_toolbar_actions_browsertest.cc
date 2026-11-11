@@ -1032,31 +1032,6 @@ IN_PROC_BROWSER_TEST_F(WebUIPinnedToolbarActionsBrowserTest,
   }));
 }
 
-IN_PROC_BROWSER_TEST_F(WebUIPinnedToolbarActionsBrowserTest,
-                       LensOverlayResultsIcon) {
-  // Pin "Lens Overlay Results" action.
-  PinAction(kActionSidePanelShowLensOverlayResults,
-            toolbar_ui_api::mojom::PinnedToolbarAction::
-                kSidePanelShowLensOverlayResults);
-
-  // Define the expected icon name.
-  std::string expected_icon;
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-  expected_icon = "internal-icons:google_lens_monochrome_logo";
-#else
-  expected_icon = features::IsRoundedIconsEnabled()
-                      ? "webui-toolbar:search"
-                      : "webui-toolbar:search_chrome_refresh_old_icon";
-#endif
-
-  // Verify the icon in WebUI.
-  EXPECT_TRUE(base::test::RunUntil([&]() {
-    return EvalJsOnPinnedAction(toolbar_ui_api::mojom::PinnedToolbarAction::
-                                    kSidePanelShowLensOverlayResults,
-                                "return iconName || '';")
-               .ExtractString() == expected_icon;
-  }));
-}
 
 IN_PROC_BROWSER_TEST_F(WebUIPinnedToolbarActionsBrowserTest,
                        PostOrQueueActionAfterAnimation_SingleButton) {

@@ -29,7 +29,7 @@ import {CrLitElement} from 'chrome://resources/lit/v3_0/lit.rollup.js';
 import {EntityTypeName} from '../autofill_ai_enums.mojom-webui.js';
 import {loadTimeData} from '../i18n_setup.js';
 import type {MetricsBrowserProxy} from '../metrics_browser_proxy.js';
-import {MetricsBrowserProxyImpl, SuggestionsFromGeminiEntryPoint, YourSavedInfoDataCategory, YourSavedInfoDataChip, YourSavedInfoRelatedService} from '../metrics_browser_proxy.js';
+import {MetricsBrowserProxyImpl,  YourSavedInfoDataCategory, YourSavedInfoDataChip, YourSavedInfoRelatedService} from '../metrics_browser_proxy.js';
 import {routes} from '../route.js';
 import {Router} from '../router.js';
 import {SettingsViewMixinLit} from '../settings_page/settings_view_mixin_lit.js';
@@ -64,7 +64,7 @@ interface DataTypeHierarchy {
   contactInfo: DataCategory;
   identityDocs: DataCategory;
   travel: DataCategory;
-  shopping: DataCategory;
+
 }
 
 interface DataCategory {
@@ -107,24 +107,20 @@ export class SettingsAutofillPageV2Element extends
   static override get properties() {
     return {
       hierarchy_: {type: Object},
-      isShoppingEnabled_: {type: Boolean},
-      showSuggestionsFromGeminiSettings_: {type: Boolean},
+
+
       spark_: {type: String},
     };
   }
 
   protected accessor hierarchy_: DataTypeHierarchy;
-  protected accessor isShoppingEnabled_: boolean =
-      loadTimeData.getBoolean('shoppingIntegrationEnabled');
-  protected accessor showSuggestionsFromGeminiSettings_: boolean =
-      loadTimeData.getBoolean('showSuggestionsFromGeminiSettings');
+
+
   // <if expr="not _google_chrome">
   protected accessor spark_: string = 'settings20:lightbulb';
   // </if>
   // <if expr="_google_chrome">
   protected accessor spark_: string =
-      loadTimeData.getBoolean('glicAssetsV2Enabled') ?
-      'settings-internal:sparkv2' :
       'settings-internal:spark';
   // </if>
 
@@ -279,25 +275,7 @@ export class SettingsAutofillPageV2Element extends
           },
         ],
       },
-      shopping: {
-        id: YourSavedInfoDataCategory.SHOPPING,
-        chips: [
-          {
-            id: YourSavedInfoDataChip.ORDERS,
-            label: this.i18n('yourSavedInfoOrdersChip'),
-            icon: 'settings20:orders',
-            isVisibleWhenNoEntitiesOfTypeExists: () =>
-                this.availableAutofillAiTypes_.has(EntityTypeName.kOrder),
-          },
-          {
-            id: YourSavedInfoDataChip.SHIPMENTS,
-            label: this.i18n('yourSavedInfoShipmentsChip'),
-            icon: 'settings20:local-shipping',
-            isVisibleWhenNoEntitiesOfTypeExists: () =>
-                this.availableAutofillAiTypes_.has(EntityTypeName.kShipment),
-          },
-        ],
-      },
+
     };
   }
 
@@ -370,10 +348,7 @@ export class SettingsAutofillPageV2Element extends
           this.requestUpdate();
         });
 
-    if (this.isShoppingEnabled_) {
-      this.availableAutofillAiTypes_.add(EntityTypeName.kOrder);
-      this.availableAutofillAiTypes_.add(EntityTypeName.kShipment);
-    }
+
 
     // Wallet: Loyalty cards count.
     const setLoyaltyCardsCount = (loyaltyCardsCount?: number) => {
@@ -449,13 +424,8 @@ export class SettingsAutofillPageV2Element extends
     if (routes.TRAVEL) {
       map.set(routes.TRAVEL.path, '#travelManagerButton');
     }
-    if (routes.SHOPPING) {
-      map.set(routes.SHOPPING.path, '#shoppingManagerButton');
-    }
-    if (routes.SUGGESTIONS_FROM_GEMINI) {
-      map.set(
-          routes.SUGGESTIONS_FROM_GEMINI.path, '#suggestionsFromGeminiLinkRow');
-    }
+
+
     return map;
   }
 
@@ -551,9 +521,7 @@ export class SettingsAutofillPageV2Element extends
       case YourSavedInfoDataCategory.TRAVEL:
         Router.getInstance().navigateTo(routes.TRAVEL);
         break;
-      case YourSavedInfoDataCategory.SHOPPING:
-        Router.getInstance().navigateTo(routes.SHOPPING);
-        break;
+
       case YourSavedInfoDataCategory.COUNT:
         assertNotReached();
       default:
@@ -561,11 +529,7 @@ export class SettingsAutofillPageV2Element extends
     }
   }
 
-  protected onSuggestionsFromGeminiClick_() {
-    this.metricsBrowserProxy_.recordSuggestionsFromGeminiEntryPointClick(
-        SuggestionsFromGeminiEntryPoint.YOUR_SAVED_INFO);
-    Router.getInstance().navigateTo(routes.SUGGESTIONS_FROM_GEMINI);
-  }
+
 
   /**
    * Opens Password Manager page on clicking a related service link.

@@ -125,10 +125,6 @@ void UpdateContextualSearchWebContentsHelperForTask(
     session_handle->set_deselected_tabs_urls(
         existing_session->deselected_tabs_urls());
   } else {
-    session_handle = contextual_search_service->CreateSession(
-        CreateQueryControllerConfigParams(),
-        contextual_search::ContextualSearchSource::kContextualTasks,
-        lens::LensOverlayInvocationSource::kContextualTasksComposebox);
     session_handle->NotifySessionStarted();
   }
 

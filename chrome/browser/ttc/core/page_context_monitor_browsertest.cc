@@ -17,8 +17,6 @@
 #include "base/test/run_until.h"
 #include "base/test/test_future.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_test_util.h"
-#include "chrome/browser/actor/enterprise_policy_checker.h"
 #include "chrome/browser/page_content_annotations/page_content_extraction_service_factory.h"
 #include "chrome/browser/tab_list/tab_list_interface.h"
 #include "chrome/browser/ttc/core/page_context_util.h"
@@ -126,8 +124,6 @@ class PageContextMonitorBrowserTest : public TtcCoreBrowserTestBase {
     }
     // SafetyListManager is a process-wide singleton; clear any lists a test
     // set.
-    actor::SetSafetyListsForTesting(actor::SafetyListManager::GetInstance(),
-                                    "{}");
     TtcCoreBrowserTestBase::TearDownOnMainThread();
   }
 
@@ -202,14 +198,6 @@ class PageContextMonitorBrowserTest : public TtcCoreBrowserTestBase {
     ASSERT_TRUE(subframe_manager_->WaitForNavigationFinished());
   }
 
-  bool IsUrlSupported(const GURL& url,
-                      const actor::EnterprisePolicyChecker*
-                          enterprise_policy_checker = nullptr) {
-    base::test::TestFuture<bool> supported;
-    IsUrlSupportedForPageContext(url, enterprise_policy_checker,
-                                 supported.GetCallback());
-    return supported.Get();
-  }
 
  private:
   std::unique_ptr<content::TestNavigationManager> main_manager_;
@@ -500,14 +488,6 @@ IN_PROC_BROWSER_TEST_F(PageContextMonitorBrowserTest,
 // allowed URL.
 IN_PROC_BROWSER_TEST_F(PageContextMonitorBrowserTest,
                        SafetyListBlockedUrlsAreNotFetchedOrEmitted) {
-  actor::SetSafetyListsForTesting(actor::SafetyListManager::GetInstance(),
-                                  R"json(
-    {
-      "navigation_blocked": [
-        { "from": "*", "to": "blocked.com" }
-      ]
-    }
-  )json");
 
   page_content_annotations::PageContentExtractionService* extraction_service =
       page_content_annotations::PageContentExtractionServiceFactory::
@@ -610,9 +590,6 @@ IN_PROC_BROWSER_TEST_F(PageContextMonitorBrowserTest,
 // context once the page navigates to an allowed URL.
 IN_PROC_BROWSER_TEST_F(PageContextMonitorBrowserTest,
                        EnterprisePolicyBlockedUrlsAreNotFetchedOrEmitted) {
-  auto mock_checker = std::make_unique<actor::MockPolicyChecker>(
-      actor::EnterprisePolicyChecker::UrlBlockReason::kExplicitlyBlocked);
-  actor::MockPolicyChecker* raw_checker = mock_checker.get();
   ttc_service().SetEnterprisePolicyCheckerForTesting(std::move(mock_checker));
 
   page_content_annotations::PageContentExtractionService* extraction_service =
@@ -658,8 +635,6 @@ IN_PROC_BROWSER_TEST_F(PageContextMonitorBrowserTest,
   EXPECT_TRUE(testing::Mock::VerifyAndClearExpectations(conversation()));
 
   // If the policy unblocks or allows the page, navigating to it sends context.
-  raw_checker->set_reason(
-      actor::EnterprisePolicyChecker::UrlBlockReason::kExplicitlyAllowed);
   ASSERT_TRUE(IsUrlSupported(allowed_url, raw_checker));
 
   auto navigated = ExpectPageChange();
@@ -673,8 +648,6 @@ IN_PROC_BROWSER_TEST_F(PageContextMonitorBrowserTest,
 
   // Navigating back to a blocked page during an active session invalidates old
   // context and suppresses sending new page context.
-  raw_checker->set_reason(
-      actor::EnterprisePolicyChecker::UrlBlockReason::kExplicitlyBlocked);
   ASSERT_FALSE(IsUrlSupported(blocked_url, raw_checker));
 
   EXPECT_CALL(*conversation(), SendContextUpdate(testing::_, std::string(),

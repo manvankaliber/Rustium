@@ -14,9 +14,6 @@
 #include "build/branding_buildflags.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/glic/glic_profile_manager.h"
-#include "chrome/browser/glic/host/glic_synthetic_trial_manager.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/infobars/browser_infobar_manager.h"
 #include "chrome/browser/infobars/infobar_features.h"
 #include "chrome/browser/local_network_access/ip_address_space_overrides_prefs_observer.h"
@@ -37,7 +34,6 @@
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
-#include "chrome/browser/background/glic/glic_background_mode_manager.h"
 #include "chrome/browser/child_module/child_module_manager.h"
 #include "chrome/browser/child_module/features.h"
 #include "chrome/browser/ui/omnibox/omnibox_everywhere/omnibox_everywhere_controller.h"
@@ -138,11 +134,6 @@ void GlobalFeatures::PostBrowserProcessInit() {
   // but surface IPH dialogs instead of the webclient).
   // Many tests do not initialize profile_manager so we gate on that too.
   if (g_browser_process->profile_manager()) {
-    glic_profile_manager_ = std::make_unique<glic::GlicProfileManager>();
-    glic_background_mode_manager_ =
-        std::make_unique<glic::GlicBackgroundModeManager>();
-    synthetic_trial_manager_ =
-        std::make_unique<glic::GlicSyntheticTrialManager>();
   }
 
 #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
@@ -223,7 +214,6 @@ void GlobalFeatures::PostBrowserProcessInitCore() {
 
   application_locale_storage_ = std::make_unique<ApplicationLocaleStorage>();
 
-  glic_global_enabling_ = std::make_unique<glic::GlicGlobalEnabling>();
 
 #if BUILDFLAG(IS_WIN) && BUILDFLAG(GOOGLE_CHROME_BRANDING)
   installer_downloader_controller_ = std::make_unique<
@@ -304,16 +294,7 @@ void GlobalFeatures::PostMainMessageLoopRun() {
   scheduled_restart_manager_.reset();
 #endif
 
-  if (glic_background_mode_manager_) {
-    glic_background_mode_manager_->Shutdown();
-    glic_background_mode_manager_.reset();
-  }
   omnibox_everywhere_controller_.reset();
-  if (glic_profile_manager_) {
-    glic_profile_manager_->Shutdown();
-    glic_profile_manager_.reset();
-  }
-  synthetic_trial_manager_.reset();
   audio_process_ml_model_forwarder_.reset();
   optimization_guide_global_feature_.reset();
 

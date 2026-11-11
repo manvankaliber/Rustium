@@ -59,16 +59,7 @@ export function getHtml(this: NtpSearchboxElement) {
         </button>
       </div>
     ` : ''}
-    ${this.shouldShowVoiceLens_(this.searchboxLensSearchEnabled_) ? html`
-      <div slot="action-buttons" class="searchbox-icon-button-container lens">
-        <button id="lensSearchButton" class="searchbox-icon-button lens"
-            tabindex="${this.virtualFocusEnabled &&
-                this.dropdownIsVisible ? -1 : 0}"
-            @click="${this.onLensSearchClick_}"
-            title="${this.i18n('lensSearchButtonLabel')}">
-        </button>
-      </div>
-    ` : ''}
+    ${''}
     ${this.showComposeButton_ ? html`
       <cr-searchbox-compose-button id="composeButton" slot="compose-button"
           ?dynamic="${this.ntpRealboxDynamicAiModeButtonEnabled_}"

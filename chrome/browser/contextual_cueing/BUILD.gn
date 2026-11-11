@@ -118,7 +118,6 @@ source_set("browser_tests") {
     ":contextual_cueing",
     "//base/test:test_support",
     "//chrome/browser/contextual_search:contextual_cueing",
-    "//chrome/browser/glic/suggestions",
     "//chrome/browser/history",
     "//chrome/browser/infobars",
     "//chrome/browser/optimization_guide:test_support",

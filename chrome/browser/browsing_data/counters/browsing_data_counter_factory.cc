@@ -16,7 +16,6 @@
 #include "chrome/browser/browsing_data/counters/signin_data_counter.h"
 #include "chrome/browser/browsing_data/counters/site_data_counter.h"
 #include "chrome/browser/browsing_data/counters/site_settings_counter.h"
-#include "chrome/browser/browsing_data/counters/skills_counter.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "chrome/browser/custom_handlers/protocol_handler_registry_factory.h"
 #include "chrome/browser/history/history_service_factory.h"
@@ -24,7 +23,6 @@
 #include "chrome/browser/password_manager/factories/account_password_store_factory.h"
 #include "chrome/browser/password_manager/factories/profile_password_store_factory.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/sync/sync_service_factory.h"
 #include "chrome/browser/webdata_services/web_data_service_factory.h"
 #include "components/browsing_data/core/counters/autofill_counter.h"
@@ -100,15 +98,6 @@ BrowsingDataCounterFactory::GetForProfileAndPref(Profile* profile,
         profile->GetPrefs());
   }
 
-  if (pref_name == browsing_data::prefs::kDeleteSkills) {
-    skills::SkillsService* skills_service =
-        skills::SkillsServiceFactory::GetForProfile(profile);
-    if (!skills_service) {
-      return nullptr;
-    }
-    return std::make_unique<SkillsCounter>(
-        *skills_service, SyncServiceFactory::GetForProfile(profile));
-  }
 
 #if BUILDFLAG(ENABLE_HOSTED_APPS)
   if (pref_name == browsing_data::prefs::kDeleteHostedAppsData) {

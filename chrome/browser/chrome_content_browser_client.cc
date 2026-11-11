@@ -61,7 +61,6 @@
 #include "build/config/chromebox_for_meetings/buildflags.h"  // PLATFORM_CFM
 #include "chrome/browser/accessibility/caption_settings_dialog.h"
 #include "chrome/browser/accessibility/page_colors_controller.h"
-#include "chrome/browser/actor/actor_commit_deferring_condition.h"
 #include "chrome/browser/after_startup_task_utils.h"
 #include "chrome/browser/ai/ai_manager.h"
 #include "chrome/browser/app_mode/app_mode_utils.h"
@@ -106,10 +105,6 @@
 #include "chrome/browser/external_protocol/external_protocol_handler.h"
 #include "chrome/browser/favicon/favicon_utils.h"
 #include "chrome/browser/font_family_cache.h"
-#include "chrome/browser/glic/host/glic_url_loader_throttle.h"
-#include "chrome/browser/glic/host/guest_util.h"
-#include "chrome/browser/glic/public/features.h"
-#include "chrome/browser/glic/public/glic_request_headers.h"
 #include "chrome/browser/headless/headless_mode_util.h"
 #include "chrome/browser/hid/chrome_hid_delegate.h"
 #include "chrome/browser/history/history_service_factory.h"
@@ -508,13 +503,10 @@
 #include "sandbox/policy/mac/sandbox_mac.h"
 #endif
 
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_keyed_service_factory.h"
 #include "chrome/browser/child_module/child_module_manager.h"
 #include "chrome/browser/devtools/chrome_devtools_manager_delegate.h"
 #include "chrome/browser/digital_credentials/digital_identity_provider_desktop.h"
 #include "chrome/browser/direct_sockets/chrome_direct_sockets_delegate.h"
-#include "chrome/browser/glic/public/features.h"
 #include "chrome/browser/global_features.h"
 #include "chrome/browser/headless/headless_command_processor.h"
 #include "chrome/browser/indigo/onboarding/indigo_onboarding_dialog.h"
@@ -551,7 +543,6 @@
 #include "chrome/browser/webauthn/chrome_authenticator_request_delegate.h"
 #include "chrome/browser/webauthn/chrome_web_authentication_delegate.h"
 #include "chrome/grit/chrome_unscaled_resources.h"  // nogncheck crbug.com/40147906
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/keep_alive_registry/keep_alive_registry.h"
 #include "components/password_manager/content/common/web_ui_constants.h"
 #include "components/password_manager/core/common/password_manager_features.h"
@@ -1306,14 +1297,7 @@ ProfileSelections GetHumanProfileSelections() {
 }
 
 bool IsActorActingOnWebContents(WebContents* web_contents) {
-  auto* actor_service =
-      actor::ActorKeyedService::Get(web_contents->GetBrowserContext());
-  if (!actor_service) {
-    return false;
-  }
-
-  return actor_service->GetActingActorTaskForWebContents(web_contents) !=
-         nullptr;
+  return false;
 }
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
@@ -2089,10 +2073,6 @@ bool ChromeContentBrowserClient::ShouldAllowMojoJsBindingsForFrame(
     content::RenderFrameHost& render_frame_host) {
   content::WebContents* web_contents =
       content::WebContents::FromRenderFrameHost(&render_frame_host);
-  if (web_contents && glic::IsGlicGuest(web_contents) &&
-      !render_frame_host.GetParentOrOuterDocument()) {
-    return true;
-  }
   // TODO(crbug.com/539909218): Prototype shortcut. Enabling MojoJS for any PWC
   // exposes the entire Mojo interface surface rather than only GeicApi, and the
   // committed origin is not checked against the capability allowlist here.
@@ -4769,10 +4749,6 @@ void ChromeContentBrowserClient::GetAdditionalFileSystemBackends(
         additional_backends) {
   // Serves the files that the actor file upload tool stages in
   // storage::InMemoryFileRegistry.
-  if (base::FeatureList::IsEnabled(actor::kGlicActorFileUploadTool)) {
-    additional_backends->push_back(
-        std::make_unique<storage::InMemoryFileSystemBackend>());
-  }
 
   ::GetAdditionalFileSystemBackends(browser_context, storage_partition_path,
                                     additional_backends);
@@ -5192,9 +5168,6 @@ ChromeContentBrowserClient::CreateCommitDeferringConditionsForNavigation(
       &conditions);
 #endif
 
-  MaybeAddCondition(actor::ActorCommitDeferringCondition::MaybeCreate(
-                        *navigation_handle, navigation_type),
-                    &conditions);
 
   return conditions;
 }
@@ -5661,10 +5634,6 @@ ChromeContentBrowserClient::CreateURLLoaderThrottles(
     result.push_back(std::move(contextual_tasks_throttle));
   }
 
-  if (auto glic_throttle = glic::GlicURLLoaderThrottle::MaybeCreate(
-          profile, wc_getter, frame_tree_node_id, request)) {
-    result.push_back(std::move(glic_throttle));
-  }
 
   return result;
 }
@@ -6213,8 +6182,6 @@ void ChromeContentBrowserClient::WillCreateURLLoaderFactory(
   if (type == URLLoaderFactoryType::kDocumentSubResource) {
     contextual_tasks::ContextualTasksSubresourceProxyingURLLoaderFactory::
         MaybeProxyRequest(browser_context, isolation_info, factory_builder);
-    glic::GlicSubresourceProxyingURLLoaderFactory::MaybeProxyRequest(
-        frame, factory_builder);
   }
 
 #if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
@@ -7426,17 +7393,6 @@ void ChromeContentBrowserClient::IsClipboardPasteAllowedByPolicy(
     const ui::ClipboardMetadata& metadata,
     ClipboardPasteData clipboard_paste_data,
     IsClipboardPasteAllowedCallback callback) {
-  if (destination.web_contents() &&
-      glic::IsGlicGuest(destination.web_contents())) {
-    glic::LogPasteAttempt(source, metadata);
-    if (!glic::IsClipboardPasteAllowed(source, destination, metadata) ||
-        glic::MaybeBlockPasteForRestrictedCopy(source, destination, metadata)) {
-      std::move(callback).Run(std::nullopt);
-      return;
-    }
-    callback = glic::WrapClipboardPasteAllowedCallback(
-        source, destination, metadata, std::move(callback));
-  }
 
 // TODO(b/352728209): Add Android-specific hook for Data Controls.
 #if BUILDFLAG(ENTERPRISE_DATA_CONTROLS)
@@ -7453,8 +7409,6 @@ void ChromeContentBrowserClient::IsClipboardCopyAllowedByPolicy(
     const ui::ClipboardMetadata& metadata,
     const ClipboardPasteData& data,
     IsClipboardCopyAllowedCallback callback) {
-  callback =
-      glic::WrapClipboardCopyAllowedCallback(source, data, std::move(callback));
 
 #if BUILDFLAG(ENTERPRISE_DATA_CONTROLS)
   enterprise_data_protection::IsClipboardCopyAllowedByPolicy(
@@ -8880,10 +8834,6 @@ bool ChromeContentBrowserClient::ShouldDisallowCredentialRequest(
 
 bool ChromeContentBrowserClient::IsFileSystemAccessApiFilePickerAllowed(
     WebContents* web_contents) {
-  if (base::FeatureList::IsEnabled(
-          actor::kGlicBlockFileSystemAccessApiFilePicker)) {
-    return !IsActorActingOnWebContents(web_contents);
-  }
   return true;
 }
 
@@ -8896,10 +8846,6 @@ bool ChromeContentBrowserClient::ShouldSkipBeforeUnloadDialog(
   if (url.SchemeIs(content::kChromeUIScheme) &&
       url.host() == content::kChromeUIUkmHost) {
     return true;
-  }
-  if (!base::FeatureList::IsEnabled(
-          actor::kGlicSkipBeforeUnloadDialogAndNavigate)) {
-    return false;
   }
 
   auto* web_contents = content::WebContents::FromRenderFrameHost(rfh);
@@ -9011,7 +8957,6 @@ void ChromeContentBrowserClient::UpdateCorsExemptHeaderForPrefetch(
         UpdateCorsExemptHeaders(params);
   }
 #endif
-  glic::UpdateCorsExemptHeaders(params);
 }
 
 bool ChromeContentBrowserClient::IsFullscreenAllowedForUnfocusedWebContents(

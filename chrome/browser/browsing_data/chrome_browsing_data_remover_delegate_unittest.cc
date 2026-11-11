@@ -81,7 +81,6 @@
 #include "chrome/browser/segmentation_platform/ukm_database_client.h"
 #include "chrome/browser/signin/chrome_signin_client_factory.h"
 #include "chrome/browser/signin/test_signin_client_builder.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_custom_dictionary.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
@@ -1334,41 +1333,6 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest,
   ASSERT_FALSE(data.enabled_time.has_value());
 }
 
-TEST_F(ChromeBrowsingDataRemoverDelegateTest, RemoveLensOverlayWebUIStorage) {
-  // Enable the translate languages feature.
-  base::test::ScopedFeatureList features;
-  features.InitAndEnableFeature(lens::features::kLensOverlayTranslateLanguages);
-
-  // Setup local storage data to the Lens Overlay WebUI origin.
-  const GURL lens_overlay_url = GURL(chrome::kChromeUILensOverlayUntrustedURL);
-  storage::mojom::LocalStorageControl* local_storage_control =
-      GetProfile()->GetDefaultStoragePartition()->GetLocalStorageControl();
-  blink::StorageKey storage_key =
-      blink::StorageKey::CreateFromStringForTesting(lens_overlay_url.spec());
-  mojo::Remote<blink::mojom::StorageArea> area;
-  local_storage_control->BindStorageArea(storage_key,
-                                         area.BindNewPipeAndPassReceiver());
-
-  // Add the fake data to the Lens Overlay WebUI origin.
-  base::test::TestFuture<bool> added_data_future;
-  area->Put({'k', 'e', 'y'}, {'v', 'a', 'l', 'u', 'e'}, std::nullopt,
-            /*source=*/nullptr, added_data_future.GetCallback());
-  ASSERT_TRUE(added_data_future.Get());
-
-  // Next, run the function that is supposed to remove this storage.
-  BlockUntilBrowsingDataRemoved(base::Time::Now(), base::Time::Max(),
-                                constants::DATA_TYPE_HISTORY, false);
-
-  // Check if the local storage was successfully removed. ClearData only
-  // guarantees that tasks to delete data are scheduled when its callback is
-  // invoked. It doesn't guarantee data has actually been cleared. Use
-  // TestFuture to verify that data is cleared.
-  base::test::TestFuture<std::vector<blink::mojom::KeyValuePtr>> get_all_future;
-  area->GetAll(/*new_observer=*/mojo::NullRemote(),
-               get_all_future.GetCallback());
-  EXPECT_TRUE(get_all_future.Wait());
-  EXPECT_EQ(0UL, get_all_future.Get().size());
-}
 
 #if BUILDFLAG(ENABLE_REPORTING)
 class ChromeBrowsingDataRemoverDelegateWithReportingServiceTest
@@ -2292,7 +2256,6 @@ TEST_F(ChromeBrowsingDataRemoverDelegateTest,
                                             -> std::unique_ptr<KeyedService> {
         return nullptr;
       }));
-  ASSERT_FALSE(skills::SkillsServiceFactory::GetForProfile(GetProfile()));
 
   BlockUntilBrowsingDataRemoved(base::Time(), base::Time::Max(),
                                 constants::DATA_TYPE_SKILLS, false);

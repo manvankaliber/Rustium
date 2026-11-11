@@ -140,7 +140,6 @@
       <structure type="chrome_scaled_image" name="IDR_PRERENDER" file="common/prerender_succeed_icon.png" />
       <structure type="chrome_scaled_image" name="IDR_PRODUCT_LOGO_32" file="${branding_path_component}/product_logo_32.png" />
 
-          <structure type="chrome_scaled_image" name="IDR_PRICE_TRACKING_ON_IOS_ICON" file="common/price_tracking_on_ios.png" />
 
       <if expr="_google_chrome">
         <then>

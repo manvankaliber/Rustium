@@ -79,7 +79,6 @@ class WebUIBrowserPageHandler
   std::unique_ptr<content::WebContents> tab_search_contents_;
   std::unique_ptr<TabSearchBubbleHost> tab_search_bubble_host_;
 
-  std::unique_ptr<content::WebContents> glic_contents_;
 
   // During WebContents destroy, the WebUI object is destroyed before document
   // services, causing a raw_ptr of BrowserUI dangling here, so use a weak ptr

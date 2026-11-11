@@ -20,11 +20,6 @@
 #include "chrome/app/chrome_command_ids.h"
 #include "chrome/browser/bookmarks/bookmark_model_factory.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/glic/public/service/glic_instance_coordinator.h"
-#include "chrome/browser/glic/test_support/glic_test_environment.h"
 #include "chrome/browser/platform_util.h"
 #include "chrome/browser/prefs/incognito_mode_prefs.h"
 #include "chrome/browser/profiles/profile.h"
@@ -1169,79 +1164,13 @@ IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,
   EXPECT_FALSE(command_controller->IsCommandEnabled(IDC_GROUP_UNGROUPED_TABS));
 }
 
-class BrowserCommandControllerBrowserTestGlic
-    : public BrowserCommandControllerBrowserTest {
- public:
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    // Bypass glic eligibility check.
-    base::CommandLine::ForCurrentProcess()->AppendSwitch(::switches::kGlicDev);
-  }
 
- private:
-  glic::GlicTestEnvironment glic_test_environment_;
-};
 
-IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestGlic,
-                       ExecuteGlicTogglePin) {
-  PrefService* profile_prefs = browser()->GetProfile()->GetPrefs();
-  profile_prefs->SetBoolean(glic::prefs::kGlicPinnedToTabstrip, false);
 
-  EXPECT_TRUE(chrome::ExecuteCommand(browser(), IDC_GLIC_TOGGLE_PIN));
-  EXPECT_TRUE(profile_prefs->GetBoolean(glic::prefs::kGlicPinnedToTabstrip));
 
-  EXPECT_TRUE(chrome::ExecuteCommand(browser(), IDC_GLIC_TOGGLE_PIN));
-  EXPECT_FALSE(profile_prefs->GetBoolean(glic::prefs::kGlicPinnedToTabstrip));
-}
 
-IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestGlic,
-                       EnabledInRegularProfile) {
-  ASSERT_TRUE(browser()->GetProfile()->IsRegularProfile());
-  EXPECT_TRUE(chrome::IsCommandEnabled(browser(), IDC_GLIC_TOGGLE_PIN));
-}
 
-IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestGlic,
-                       DisabledInIncognitoProfile) {
-  BrowserWindowInterface* incognito_browser = CreateIncognitoBrowser();
-  EXPECT_TRUE(incognito_browser->GetProfile()->IsIncognitoProfile());
-  EXPECT_FALSE(
-      chrome::IsCommandEnabled(incognito_browser, IDC_GLIC_TOGGLE_PIN));
-}
 
-IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestGlic,
-                       DisabledInGuestProfile) {
-  BrowserWindowInterface* guest_browser = CreateGuestBrowser();
-  EXPECT_TRUE(guest_browser->GetProfile()->IsGuestSession());
-  EXPECT_FALSE(chrome::IsCommandEnabled(guest_browser, IDC_GLIC_TOGGLE_PIN));
-}
-
-IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestGlic,
-                       ThreeDotMenuItemEnabledInRegularProfile) {
-  ASSERT_TRUE(browser()->GetProfile()->IsRegularProfile());
-  EXPECT_TRUE(chrome::IsCommandEnabled(browser(), IDC_OPEN_GLIC));
-}
-
-IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTestGlic,
-                       ExecuteGlicThreeDotMenuItem) {
-  // Bypass glic eligibility check.
-  PrefService* profile_prefs = browser()->GetProfile()->GetPrefs();
-  profile_prefs->SetInteger(
-      optimization_guide::prefs::kGeminiSettings,
-      std::to_underlying(
-          optimization_guide::prefs::GeminiSettingsPolicyState::kEnabled));
-  // Bypass fre.
-  glic::GlicKeyedService::Get(browser()->GetProfile())
-      ->enabling()
-      .SetCompletedFre(glic::prefs::FreStatus::kCompleted);
-
-  EXPECT_TRUE(chrome::ExecuteCommand(browser(), IDC_OPEN_GLIC));
-  ASSERT_TRUE(glic::GlicKeyedServiceFactory::GetGlicKeyedService(
-                  browser()->GetProfile())
-                  ->instance_coordinator()
-                  .IsAnyPanelShowing());
-  // Open command is disabled because Glic is now open.
-  ASSERT_TRUE(base::test::RunUntil(
-      [&]() { return !chrome::IsCommandEnabled(browser(), IDC_OPEN_GLIC); }));
-}
 
 
 IN_PROC_BROWSER_TEST_F(BrowserCommandControllerBrowserTest,

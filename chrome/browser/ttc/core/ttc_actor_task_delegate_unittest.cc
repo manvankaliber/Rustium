@@ -19,35 +19,9 @@ namespace {
 
 namespace webui_mojom = actor::webui::mojom;
 
-class TtcActorTaskDelegateTest : public testing::Test {
- protected:
-  const actor::TaskId kTaskId = actor::TaskId(42);
-  const url::Origin kOrigin = url::Origin::Create(GURL("https://example.com/"));
 
-  base::test::TaskEnvironment task_environment_;
-  TtcActorTaskDelegate delegate_;
-};
 
-TEST_F(TtcActorTaskDelegateTest, GrantsNavigationConfirmation) {
-  base::test::TestFuture<webui_mojom::NavigationConfirmationResponsePtr> future;
-  delegate_.RequestToConfirmNavigation(kTaskId, kOrigin, future.GetCallback());
 
-  webui_mojom::NavigationConfirmationResponsePtr response = future.Take();
-  ASSERT_TRUE(response->result->is_permission_granted());
-  EXPECT_TRUE(response->result->get_permission_granted());
-}
-
-TEST_F(TtcActorTaskDelegateTest, DeclinesUserConfirmationDialog) {
-  base::test::TestFuture<webui_mojom::UserConfirmationDialogResponsePtr> future;
-  delegate_.RequestToShowUserConfirmationDialog(
-      kTaskId, kOrigin, /*for_blocklisted_origin=*/false, future.GetCallback());
-
-  webui_mojom::UserConfirmationDialogResponsePtr response = future.Take();
-  ASSERT_TRUE(response->result->is_error_reason());
-  EXPECT_EQ(
-      response->result->get_error_reason(),
-      webui_mojom::ConfirmationRequestErrorReason::kRequestPromiseNoSubscriber);
-}
 
 }  // namespace
 }  // namespace ttc

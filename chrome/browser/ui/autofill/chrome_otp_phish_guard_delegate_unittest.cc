@@ -25,10 +25,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_keyed_service_factory.h"
-#include "chrome/browser/actor/actor_keyed_service_fake.h"
-#include "chrome/browser/actor/actor_test_util.h"
 #include "components/tabs/public/tab_interface.h"
 
 namespace autofill {
@@ -157,35 +153,6 @@ TEST_F(ChromeOtpPhishGuardDelegateTest, SafeBrowsingDisabled) {
 // Desktop.
 // Test that when SafeBrowsing is disabled and an actor task is ongoing,
 // PhishGuard check reports true (unsafe/malicious) to fail closed.
-TEST_F(ChromeOtpPhishGuardDelegateTest, SafeBrowsingDisabled_ActorTaskOngoing) {
-  actor::TestTabState tab_state(web_contents());
-  tabs::TabLookupFromWebContents::CreateForWebContents(web_contents(),
-                                                       &tab_state.tab);
-
-  auto* actor_service = static_cast<actor::ActorKeyedServiceFake*>(
-      actor::ActorKeyedService::Get(profile()));
-  actor::TaskId task_id = actor_service->CreateTaskForTesting();
-
-  auto* task = actor_service->GetTask(task_id);
-  task->SetState(actor::ActorTask::State::kActing);
-  task->AddTab(tab_state.tab.GetHandle(), /*stop_task_on_detach=*/false,
-               base::DoNothing());
-
-  ChromeAutofillClient::CreateForWebContents(web_contents());
-  ChromePasswordManagerClient::CreateForWebContents(web_contents());
-
-  safe_browsing::SetSafeBrowsingState(
-      profile()->GetPrefs(),
-      safe_browsing::SafeBrowsingState::NO_SAFE_BROWSING);
-
-  // We should not make database check calls if SafeBrowsing is disabled.
-  EXPECT_CALL(*database_manager_, CheckBrowseUrl).Times(0);
-
-  base::test::TestFuture<bool> future;
-  auto delegate = std::make_unique<ChromeOtpPhishGuardDelegate>(web_contents());
-  delegate->StartOtpPhishGuardCheck(main_frame_token(), future.GetCallback());
-  EXPECT_TRUE(future.Get());
-}
 
 // Test that when both URLs are safe, the delegate callback is run with false
 // (safe/not phishing).

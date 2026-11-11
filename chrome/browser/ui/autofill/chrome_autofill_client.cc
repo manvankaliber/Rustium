@@ -31,8 +31,6 @@
 #include "base/time/time.h"
 #include "build/build_config.h"
 #include "chrome/browser/account_settings/account_setting_service_factory.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_task.h"
 #include "chrome/browser/affiliations/affiliation_service_factory.h"
 #include "chrome/browser/autofill/address_normalizer_factory.h"
 #include "chrome/browser/autofill/at_memory/at_memory_query_service_factory.h"
@@ -57,12 +55,6 @@
 #include "chrome/browser/consent_auditor/consent_auditor_factory.h"
 #include "chrome/browser/critical_actions/critical_action_factory.h"
 #include "chrome/browser/device_reauth/chrome_device_authenticator_factory.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_invoke_options.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
 #include "chrome/browser/global_features.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/browser/metrics/profile_metrics_service_factory.h"
@@ -782,12 +774,6 @@ void ChromeAutofillClient::ShowAutofillSettings(
             autofill_metrics::AutofillSettingsReferrer::kFillingFlowDropdown);
         chrome::ShowSettingsSubPage(browser, chrome::kTravelSubPage);
         return;
-      case SuggestionType::kManageAutofillAiShopping:
-        base::UmaHistogramEnumeration(
-            "Autofill.YourSavedInfoSettingsPage.VisitReferrer",
-            autofill_metrics::AutofillSettingsReferrer::kFillingFlowDropdown);
-        chrome::ShowSettingsSubPage(browser, chrome::kShoppingSubPage);
-        return;
       case SuggestionType::kManageCreditCard:
       case SuggestionType::kManageIban:
       // TODO(crbug.com/546252995): Open up the shopping leaf for Wallet Direct
@@ -1257,18 +1243,6 @@ ChromeAutofillClient::ChromeAutofillClient(content::WebContents* web_contents)
   email_verification_controller_ =
       std::make_unique<EmailVerificationControllerDesktop>(web_contents);
 
-  if (actor::ActorKeyedService* actor_service =
-          base::FeatureList::IsEnabled(features::kAutofillActorMode)
-              ? actor::ActorKeyedService::Get(GetProfile())
-              : nullptr) {
-    // `base::Unretained(this)` is safe since
-    // `actor_task_state_changed_subscription_` removes the subscription when
-    // `this` is destroyed.
-    actor_task_state_changed_subscription_ =
-        actor_service->AddTaskStateChangedCallback(
-            base::BindRepeating(&ChromeAutofillClient::OnActorTaskStateChange,
-                                base::Unretained(this)));
-  }
 
   form_predictions_tracker_ = std::make_unique<FormPredictionsTracker>(this);
   if (base::FeatureList::IsEnabled(features::debug::kAutofillForceActorMode) ||
@@ -1603,55 +1577,6 @@ ToastController* ChromeAutofillClient::GetToastController() {
   return window_interface ? ToastController::From(window_interface) : nullptr;
 }
 
-void ChromeAutofillClient::OnActorTaskStateChange(actor::ActorTask& task) {
-  // TODO(crbug.com/551883788): Move this logic to ActorAutofillManager.
-  const actor::TaskId task_id = task.id();
-  const actor::ActorTask::State state = task.GetState();
-
-  std::optional<ActorAutofillManager::ActorTaskInfo> active_task =
-      actor_autofill_manager_ ? actor_autofill_manager_->active_actor_task()
-                              : std::nullopt;
-
-  if (active_task && active_task->task_id != task_id) {
-    // The update is for an actor that isn't working on the current tab.
-    return;
-  }
-
-  // The actor task on this tab has finished.
-  // TODO(crbug.com/472336281): The state changes leading to the task
-  // completion should be issued before the `ActorTask` gets removed.
-  if (actor::ActorTask::IsCompletedState(state)) {
-    if (actor_autofill_manager_) {
-      actor_autofill_manager_->set_active_actor_task(std::nullopt);
-    }
-    return;
-  }
-
-  const tabs::TabInterface* tab_interface = GetTabInterface();
-  if (tab_interface && !task.HasActorSurface(actor::ActorSurfaceHandle::From(
-                           tab_interface->GetHandle()))) {
-    // The status update is for an actor that isn't interacting with this tab.
-    // The value of `is_actor_mode_` shouldn't be updated.
-    return;
-  }
-
-  // TODO(crbug.com/469428128): Evaluate whether
-  // `actor::ActorTask::State::kCreated` state should enable the actor mode.
-  GetActorAutofillManager()->set_active_actor_task(
-      ActorAutofillManager::ActorTaskInfo{
-          .conversation_id = task.source_info().id.value_or(""),
-          .task_id = task_id,
-      });
-
-  // If the task was just created, known forms should be reparsed to ensure that
-  // actor specific behaviors are in place.
-  if (!active_task.has_value()) {
-    if (AutofillManager* manager = GetAutofillManagerForPrimaryMainFrame()) {
-      manager->TriggerFormExtractionInAllFrames(/*force=*/true,
-                                                base::DoNothing());
-    }
-  }
-}
 
 void ChromeAutofillClient::OpenGmailForOtps() {
   if (!web_contents()) {
@@ -1665,36 +1590,8 @@ void ChromeAutofillClient::OpenGmailForOtps() {
       /*navigation_handle_callback=*/{});
 }
 
-void ChromeAutofillClient::OpenGeminiInSidebar(const std::u16string& prompt) {
-  if (!IsGlicEnabled()) {
-    return;
-  }
-  glic::GlicKeyedService* glic_keyed_service =
-      glic::GlicKeyedServiceFactory::GetGlicKeyedService(GetProfile());
-  if (!glic_keyed_service) {
-    return;
-  }
-  tabs::TabInterface* tab = GetTabInterface();
-  if (!tab) {
-    return;
-  }
-  glic::Target target(*tab);
-  glic::GlicInvokeOptions options(std::move(target),
-                                  glic::mojom::InvocationSource::kAutofill);
-  options.prompts.push_back(base::UTF16ToUTF8(prompt));
-  glic_keyed_service->Invoke(std::move(options));
-}
+void ChromeAutofillClient::OpenGeminiInSidebar(const std::u16string& prompt) {}
 
-bool ChromeAutofillClient::IsGlicEnabled() const {
-  return glic::GlicEnabling::IsEnabledForProfile(GetProfile()) &&
-         glic::GetGlicProviderSpec(GetProfile())
-             .SupportsFeature(glic::GlicFeature::kAutofill);
-}
 
-bool ChromeAutofillClient::IsGlicConsented() const {
-  return glic::GlicEnabling::HasConsentedForProfile(GetProfile()) &&
-         glic::GetGlicProviderSpec(GetProfile())
-             .SupportsFeature(glic::GlicFeature::kAutofill);
-}
 
 }  // namespace autofill

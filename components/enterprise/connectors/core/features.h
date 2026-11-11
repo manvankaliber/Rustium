@@ -40,7 +40,6 @@ BASE_DECLARE_FEATURE(kEnableEncryptedFileUpload);
 BASE_DECLARE_FEATURE(kDlpScanPastedImages);
 
 // Controls enabling bulk data entry support in Glic actuation logic.
-BASE_DECLARE_FEATURE(kGlicBulkDataEntrySupport);
 
 
 // Controls whether cancellation of uploads is enabled for content analysis.
@@ -86,7 +85,6 @@ BASE_DECLARE_FEATURE_PARAM(int, kCdpAttributionMaxPendingExtractions);
 // identifying the in-browser AI agent (Gemini in Chrome) whose task was
 // controlling the tab when the reported action happened (in-browser agent
 // attribution). See crbug.com/570683671.
-BASE_DECLARE_FEATURE(kEnterpriseGlicActorAttribution);
 
 }  // namespace enterprise_connectors
 

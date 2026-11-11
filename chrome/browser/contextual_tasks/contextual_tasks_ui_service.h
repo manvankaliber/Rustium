@@ -54,7 +54,6 @@ enum class ContextualSearchSource;
 }  // namespace contextual_search
 
 namespace lens {
-class LensMediaLinkHandler;
 }  // namespace lens
 
 namespace signin {
@@ -98,7 +97,6 @@ class ContextualTasksUiService : public KeyedService {
    public:
     virtual void OnContextualTasksUiServiceShutdown(
         ContextualTasksUiService* service) {}
-    virtual void OnLensOverlayStateChanged(bool is_showing) {}
   };
 
   ContextualTasksUiService(
@@ -385,10 +383,6 @@ class ContextualTasksUiService : public KeyedService {
 
   // Called when the Lens overlay is shown/hidden. No-op if the active UI is not
   // in the side panel since the Lens button is always hidden in a tab.
-  virtual void OnLensOverlayStateChanged(
-      BrowserWindowInterface* browser_window_interface,
-      bool is_showing,
-      std::optional<lens::LensOverlayInvocationSource> invocation_source);
 
   // Associates a WebContents with a task, assuming the URL of the WebContents'
   // main frame or side panel is a contextual task URL.
@@ -645,11 +639,6 @@ class ContextualTasksUiService : public KeyedService {
       content::OpenURLParams url_params,
       base::WeakPtr<content::WebContents> source_contents,
       tabs::TabInterface* target_tab);
-
-  // Creates a LensMediaLinkHandler for the given WebContents.
-  // Virtual to allow overriding in tests to mock the handler.
-  virtual std::unique_ptr<lens::LensMediaLinkHandler> CreateMediaLinkHandler(
-      content::WebContents* web_contents);
 
   // Handles PDF citation links by scrolling to page if applicable.
   // Returns true if handled.

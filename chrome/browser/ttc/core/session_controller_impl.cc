@@ -17,7 +17,6 @@
 #include "base/task/single_thread_task_runner.h"
 #include "base/types/pass_key.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ttc/app/public/audio_controller.h"
 #include "chrome/browser/ttc/core/features.h"
@@ -58,17 +57,10 @@ void DCheckSessionLifecycleTransition(SessionLifecycle from,
 SessionControllerImpl::SessionControllerImpl(
     TtcKeyedService& service,
     std::unique_ptr<AudioController> audio_controller)
-    : service_(service),
-      session_view_(
+    : service_(service), session_view_(
           service.MakeSessionView(base::PassKey<SessionControllerImpl>(),
-                                  *this)),
-      voice_focused_contents_tracker_(
-          VoiceFocusedContentsTracker::Create(CHECK_DEREF(service.profile()))),
-      actor_task_holder_(*this),
-      journal_(CHECK_DEREF(actor::ActorKeyedService::Get(service.profile()))
-                   .GetJournal(),
-               actor_task_holder_.task_id()),
-      tool_controller_(*this) {
+                                  *this)), voice_focused_contents_tracker_(
+          VoiceFocusedContentsTracker::Create(CHECK_DEREF(service.profile()))), tool_controller_(*this) {
   // Not using AddObserver() because its immediate callback would reach Java on
   // Android before the session is stored. The view starts initializing anyway.
   observers_.AddObserver(session_view_.get());
@@ -99,9 +91,6 @@ SessionControllerImpl::~SessionControllerImpl() {
 
   conversation_->Stop();
 
-  GetJournal().Log(
-      "TtcSessionEnd",
-      actor::JournalDetailsBuilder().Add("state", session_lifecycle_).Build());
 }
 
 SessionJournalImpl& SessionControllerImpl::GetJournal() {
@@ -134,11 +123,6 @@ void SessionControllerImpl::SetSessionLifecycle(SessionLifecycle lifecycle) {
 
   DCheckSessionLifecycleTransition(session_lifecycle_, lifecycle);
 
-  GetJournal().Log("TtcSessionLifecycle",
-                   actor::JournalDetailsBuilder()
-                       .Add("current_state", session_lifecycle_)
-                       .Add("new_state", lifecycle)
-                       .Build());
   session_lifecycle_ = lifecycle;
   for (SessionController::Observer& observer : observers_) {
     observer.OnSessionLifecycleChanged(lifecycle);
@@ -187,10 +171,6 @@ BrowserWindowInterface* SessionControllerImpl::GetBrowserWindowInterface() {
 
 void SessionControllerImpl::OnError(ErrorCode error) {
   const bool is_fatal = IsFatal(error);
-  GetJournal().Log("TtcError", actor::JournalDetailsBuilder()
-                                   .AddError(error)
-                                   .Add("fatal", is_fatal)
-                                   .Build());
 
   if (session_lifecycle_ == SessionLifecycle::kFinished) {
     return;
@@ -266,8 +246,6 @@ bool SessionControllerImpl::SetMicMuted(bool muted) {
       conversation_->IsMicMuted() == muted) {
     return false;
   }
-  GetJournal().Log("TtcMicMuted",
-                   actor::JournalDetailsBuilder().Add("muted", muted).Build());
   conversation_->SetMicMuted(muted);
   return true;
 }
@@ -310,16 +288,7 @@ content::WebContents* SessionControllerImpl::GetVoiceFocusedWebContents() {
   return voice_focused_contents_tracker_->GetActiveWebContents();
 }
 
-actor::TaskId SessionControllerImpl::GetActorTaskId() const {
-  return actor_task_holder_.task_id();
-}
 
-void SessionControllerImpl::EnsureActorTaskCreated() {
-  // TODO(b/552544497): Ideally the task would stop only if the Ttc session
-  // ends but there are currently a few ways for tasks to be stopped
-  // externally.
-  actor_task_holder_.EnsureTaskCreated();
-}
 
 void SessionControllerImpl::OnPageContextFetched(
     const PageContextResult& result) {
@@ -355,12 +324,6 @@ void SessionControllerImpl::OnInactivityTimeout() {
   if (session_lifecycle_ == SessionLifecycle::kFinished) {
     return;
   }
-  GetJournal().Log(
-      "TtcSessionTimeout",
-      actor::JournalDetailsBuilder()
-          .Add("reason", "inactivity")
-          .Add("timeout_seconds", kSessionInactivityTimeout.Get().InSeconds())
-          .Build());
 
   OnError(ErrorCode::kInactivityTimeout);
 }

@@ -35,8 +35,6 @@
 #include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/browser_tabstrip.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/navigator/browser_navigator.h"
 #include "chrome/browser/ui/navigator/browser_navigator_params.h"
 #include "chrome/browser/ui/omnibox/omnibox_everywhere_service.h"
@@ -2401,8 +2399,6 @@ IN_PROC_BROWSER_TEST_P(ContextualTasksExtensionsInteractiveUiTest,
           WaitForShow(LensOverlayController::kOverlayId), Do([&]() {
             content::WebContents* web_contents =
                 browser()->tab_strip_model()->GetActiveWebContents();
-            auto* lens_controller =
-                LensSearchController::FromTabWebContents(web_contents);
             auto* query_router = static_cast<lens::FakeLensQueryFlowRouter*>(
                 lens_controller->query_router());
             CHECK(query_router);

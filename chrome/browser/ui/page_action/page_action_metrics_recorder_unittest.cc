@@ -69,7 +69,6 @@ class PageActionMetricsRecorderTest : public testing::Test {
   }
 
   void CreateRecorder() {
-    properties_.type = PageActionIconType::kLensOverlay;
     properties_.histogram_name = "LensOverlay";
     recorder_ = std::make_unique<PageActionMetricsRecorder>(
         tab_,

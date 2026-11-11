@@ -123,18 +123,6 @@ class WebUIPageActionControlTest : public ChromeRenderViewHostTestHarness {
     did_activate_callbacks_.Notify(mock_tab_.get());
 
     // Create dummy ActionItem tree.
-    root_action_item_ =
-        actions::ActionItem::Builder()
-            .AddChild(actions::ActionItem::Builder()
-                          .SetActionId(kActionAiMode)
-                          .SetText(u"AI Mode"))
-            .AddChild(actions::ActionItem::Builder()
-                          .SetActionId(kActionShowTranslate)
-                          .SetText(u"Translate"))
-            .AddChild(actions::ActionItem::Builder()
-                          .SetActionId(kActionSidePanelShowLensOverlayResults)
-                          .SetText(u"Lens"))
-            .Build();
 
     control_ =
         std::make_unique<WebUIPageActionControl>(root_action_item_.get());
@@ -621,9 +609,6 @@ TEST_F(WebUIPageActionControlTest, GetBubbleAnchor) {
       control_->GetPageActionViewInterface(kActionAiMode);
   ASSERT_TRUE(ai_mode_view);
 
-  page_actions::PageActionViewInterface* lens_view =
-      control_->GetPageActionViewInterface(
-          kActionSidePanelShowLensOverlayResults);
   ASSERT_TRUE(lens_view);
 
   // 1. When browser is null, BubbleAnchor is null.
@@ -1102,7 +1087,6 @@ TEST_F(WebUIPageActionControlTest,
   // 2. kActionSidePanelShowLensOverlayResults
   // 3. kActionShowTranslate
   controller->Show(kActionAiMode);
-  controller->Show(kActionSidePanelShowLensOverlayResults);
   controller->Show(kActionShowTranslate);
 
   // Initially all are icons, preserving initial order.
@@ -1110,9 +1094,6 @@ TEST_F(WebUIPageActionControlTest,
   ASSERT_EQ(3u, states.size());
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionAiMode,
             states[0]->page_action_id);
-  EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::
-                kActionSidePanelShowLensOverlayResults,
-            states[1]->page_action_id);
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionShowTranslate,
             states[2]->page_action_id);
 
@@ -1136,20 +1117,12 @@ TEST_F(WebUIPageActionControlTest,
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionAiMode,
             states[1]->page_action_id);
   EXPECT_FALSE(states[1]->should_show_chip);
-  EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::
-                kActionSidePanelShowLensOverlayResults,
-            states[2]->page_action_id);
   EXPECT_FALSE(states[2]->should_show_chip);
 
   // Show an anchored message on kActionSidePanelShowLensOverlayResults.
   // Page actions with anchored messages are placed before chips and icons.
-  controller->ShowAnchoredMessage(kActionSidePanelShowLensOverlayResults,
-                                  anchored_message_config);
   states = control_->GetPageActionStates();
   ASSERT_EQ(3u, states.size());
-  EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::
-                kActionSidePanelShowLensOverlayResults,
-            states[0]->page_action_id);
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionShowTranslate,
             states[1]->page_action_id);
   EXPECT_TRUE(states[1]->should_show_chip);
@@ -1163,9 +1136,6 @@ TEST_F(WebUIPageActionControlTest,
   controller->ShowSuggestionChip(kActionAiMode, chip_config);
   states = control_->GetPageActionStates();
   ASSERT_EQ(3u, states.size());
-  EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::
-                kActionSidePanelShowLensOverlayResults,
-            states[0]->page_action_id);
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionAiMode,
             states[1]->page_action_id);
   EXPECT_TRUE(states[1]->should_show_chip);
@@ -1175,7 +1145,6 @@ TEST_F(WebUIPageActionControlTest,
 
   // Hide the anchored message. The two chips now lead (in initial order),
   // followed by the remaining icon.
-  controller->HideAnchoredMessage(kActionSidePanelShowLensOverlayResults);
   states = control_->GetPageActionStates();
   ASSERT_EQ(3u, states.size());
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionAiMode,
@@ -1184,9 +1153,6 @@ TEST_F(WebUIPageActionControlTest,
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionShowTranslate,
             states[1]->page_action_id);
   EXPECT_TRUE(states[1]->should_show_chip);
-  EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::
-                kActionSidePanelShowLensOverlayResults,
-            states[2]->page_action_id);
   EXPECT_FALSE(states[2]->should_show_chip);
 
   // Show an anchored message on a chip action (kActionShowTranslate). It should
@@ -1200,9 +1166,6 @@ TEST_F(WebUIPageActionControlTest,
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionAiMode,
             states[1]->page_action_id);
   EXPECT_TRUE(states[1]->should_show_chip);
-  EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::
-                kActionSidePanelShowLensOverlayResults,
-            states[2]->page_action_id);
   EXPECT_FALSE(states[2]->should_show_chip);
 
   // Hide the anchored message again. Showing an anchored message downgraded
@@ -1215,9 +1178,6 @@ TEST_F(WebUIPageActionControlTest,
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionAiMode,
             states[0]->page_action_id);
   EXPECT_TRUE(states[0]->should_show_chip);
-  EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::
-                kActionSidePanelShowLensOverlayResults,
-            states[1]->page_action_id);
   EXPECT_FALSE(states[1]->should_show_chip);
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionShowTranslate,
             states[2]->page_action_id);
@@ -1233,9 +1193,6 @@ TEST_F(WebUIPageActionControlTest,
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionShowTranslate,
             states[1]->page_action_id);
   EXPECT_TRUE(states[1]->should_show_chip);
-  EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::
-                kActionSidePanelShowLensOverlayResults,
-            states[2]->page_action_id);
   EXPECT_FALSE(states[2]->should_show_chip);
 
   // Downgrading all actions back to icons restores initial order.
@@ -1246,9 +1203,6 @@ TEST_F(WebUIPageActionControlTest,
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionAiMode,
             states[0]->page_action_id);
   EXPECT_FALSE(states[0]->should_show_chip);
-  EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::
-                kActionSidePanelShowLensOverlayResults,
-            states[1]->page_action_id);
   EXPECT_FALSE(states[1]->should_show_chip);
   EXPECT_EQ(toolbar_ui_api::mojom::PageActionId::kActionShowTranslate,
             states[2]->page_action_id);

@@ -12,7 +12,6 @@ namespace password_change::features {
 // All features in alphabetical order.
 
 // Controls whether PasswordChangeDelegateImpl uses Glic for password change.
-BASE_DECLARE_FEATURE(kPasswordChangeWithGlic);
 
 // Controls whether LOGIN_CHECK is executed before offering APC using Private
 // Inference.

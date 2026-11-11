@@ -150,12 +150,6 @@ void CredentialManagerImpl::Get(CredentialMediationRequirement mediation,
   }
 
   // Return an empty credential if there is an active actor task.
-  if (client_->IsActorTaskActive()) {
-    std::move(callback).Run(CredentialManagerError::SUCCESS, CredentialInfo());
-    LogCredentialManagerGetResult(
-        metrics_util::CredentialManagerGetResult::kNone, mediation);
-    return;
-  }
 
   if (pending_request_ || !store) {
     // Callback error.

@@ -27,13 +27,6 @@ namespace {
 // Backfill old shopping_specifics field to the new one. This is necessary
 // as we're transitioning from oneof powers to allowing multiple.
 // TODO(crbug.com/40233844): Also invoke this in meta updates once available.
-void BackfillShoppingSpecifics(PowerBookmarkMeta* meta) {
-  if (meta->has_old_shopping_specifics() && !meta->has_shopping_specifics()) {
-    meta->mutable_shopping_specifics()->CopyFrom(
-        meta->old_shopping_specifics());
-    meta->clear_old_shopping_specifics();
-  }
-}
 
 }  // namespace
 
@@ -59,7 +52,6 @@ std::unique_ptr<PowerBookmarkMeta> GetNodePowerBookmarkMeta(
     DeleteNodePowerBookmarkMeta(model, node);
   }
 
-  BackfillShoppingSpecifics(meta.get());
 
   return meta;
 }
@@ -72,7 +64,6 @@ void SetNodePowerBookmarkMeta(bookmarks::BookmarkModel* model,
 
   CHECK(meta);
 
-  BackfillShoppingSpecifics(meta.get());
 
   std::string data;
   EncodeMetaForStorage(*meta.get(), &data);

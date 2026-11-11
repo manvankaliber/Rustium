@@ -17,8 +17,7 @@ bool IsTopChromeWebUIURL(const GURL& url) {
 bool IsTopChromeUntrustedWebUIURL(const GURL& url) {
   // TODO(b/339037968): Remove this exception once Lens uses ".top-chrome"
   // suffix.
-  if (url == GURL(chrome::kChromeUILensOverlayUntrustedURL) ||
-      url == GURL(chrome::kChromeUIAiOverlayDialogUntrustedURL)) {
+  if (url == GURL(chrome::kChromeUIAiOverlayDialogUntrustedURL)) {
     return true;
   }
 

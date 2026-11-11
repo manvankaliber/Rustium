@@ -21,14 +21,6 @@
 #include "base/types/pass_key.h"
 #include "build/branding_buildflags.h"
 #include "chrome/browser/contextual_cueing/features.h"
-#include "chrome/browser/glic/host/glic.mojom.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_invoke_options.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
-#include "chrome/browser/glic/public/glic_side_panel_coordinator.h"
-#include "chrome/browser/glic/resources/grit/glic_browser_resources.h"
 #include "chrome/browser/indigo/api_client.h"
 #include "chrome/browser/indigo/indigo_agent_host.h"
 #include "chrome/browser/indigo/indigo_image_replacement.h"
@@ -44,7 +36,6 @@
 #include "chrome/browser/optimization_guide/optimization_guide_keyed_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/signin/signin_ui_util.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/chrome_pages.h"
@@ -76,6 +67,7 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/models/image_model.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "ui/color/color_id.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/views/view.h"
 
@@ -240,13 +232,6 @@ void IndigoPageActionController::InvokeAction(EntryPoint entry_point) {
           IndigoTransformationTriggerSource::kPageAction));
       return;
     case EntryPoint::kSuggestionChip:
-      if (glic::GlicSidePanelCoordinator::IsShowing(&tab())) {
-        indigo_service_->GetCombinedEligibility(base::BindOnce(
-            &IndigoPageActionController::CheckEligibilityForOnboarding,
-            invoke_weak_ptr_factory_.GetWeakPtr(), base::TimeTicks::Now(),
-            IndigoTransformationTriggerSource::kPageAction));
-        return;
-      }
       ShowAnchoredMessage(
           page_actions::PageActionPriorityCategory::kUserInteraction);
       return;
@@ -311,123 +296,13 @@ void IndigoPageActionController::ContinueInvoke(
 
   // Only the primary page action chip opens the Glic side panel; retries and
   // secondary entry points execute the agent inline.
-  const bool should_invoke_glic =
-      (trigger_source == IndigoTransformationTriggerSource::kPageAction);
-  const bool invoked_glic = should_invoke_glic && MaybeInvokeGlic();
-  if (!invoked_glic) {
+  {
     // The glic invocation path will trigger the Indigo agent after the panel is
     // opened.
     TriggerIndigoAgent(trigger_source);
   }
 }
 
-bool IndigoPageActionController::MaybeInvokeGlic() {
-  content::WebContents* web_contents = tab().GetContents();
-  if (!web_contents) {
-    base::UmaHistogramEnumeration(kMaybeInvokeGlicResultHistogramName,
-                                  IndigoMaybeInvokeGlicResult::kNoWebContents);
-    return false;
-  }
-
-  Profile* profile =
-      Profile::FromBrowserContext(web_contents->GetBrowserContext());
-  const glic::GlicProviderSpec& spec = glic::GetGlicProviderSpec(profile);
-  if (!spec.SupportsFeature(glic::GlicFeature::kIndigoOpenGlic)) {
-    base::UmaHistogramEnumeration(
-        kMaybeInvokeGlicResultHistogramName,
-        IndigoMaybeInvokeGlicResult::kFeatureDisabled);
-    return false;
-  }
-
-  if (glic::GlicSidePanelCoordinator::IsShowing(&tab())) {
-    base::UmaHistogramEnumeration(kMaybeInvokeGlicResultHistogramName,
-                                  IndigoMaybeInvokeGlicResult::kAlreadyShowing);
-    return false;
-  }
-
-  auto* glic_keyed_service = glic::GlicKeyedService::Get(profile);
-  if (!glic_keyed_service) {
-    base::UmaHistogramEnumeration(
-        kMaybeInvokeGlicResultHistogramName,
-        IndigoMaybeInvokeGlicResult::kNoGlicKeyedService);
-    return false;
-  }
-
-  if (auto* instance = glic_keyed_service->GetInstanceForTab(&tab())) {
-    if (instance->conversation_id().has_value()) {
-      base::UmaHistogramEnumeration(
-          kMaybeInvokeGlicResultHistogramName,
-          IndigoMaybeInvokeGlicResult::kExistingConversation);
-      return false;
-    }
-  }
-
-  base::UmaHistogramBoolean(
-      "Indigo.PageAction.IsGlicOptedOutOnIndigoInvocation",
-      !glic::IsAnyEntryPointEnabled(profile));
-
-  glic::GlicInvokeOptions options(
-      glic::Target(tab(), glic::NewConversation()),
-      glic::mojom::InvocationSource::kIndigoPageAction);
-
-  const glic::GlicIndigoFeatureParams params = spec.GetIndigoFeatureParams();
-  std::string skill_id = params.skill_id;
-  const skills::Skill* skill = nullptr;
-  if (!skill_id.empty()) {
-    if (auto* skills_service =
-            skills::SkillsServiceFactory::GetForProfile(profile)) {
-      skill = skills_service->GetSkillById(skill_id);
-    }
-  }
-
-  std::string prompt;
-  if (skill) {
-    prompt = skill->prompt;
-    options.skill_id = skill_id;
-  } else {
-    prompt = params.prompt;
-    if (prompt.empty()) {
-      std::string prompt_key = params.prompt_key;
-      if (!prompt_key.empty() && indigo_service_) {
-        std::optional<std::string> proto_prompt =
-            indigo_service_->GetPrompt(prompt_key);
-        if (proto_prompt.has_value()) {
-          prompt = *proto_prompt;
-        }
-      }
-    }
-  }
-
-  if (prompt.empty()) {
-    base::UmaHistogramEnumeration(kMaybeInvokeGlicResultHistogramName,
-                                  IndigoMaybeInvokeGlicResult::kPromptEmpty);
-    return false;
-  }
-
-  options.wait_for_panel_open = true;
-  // We introduce a delay here to give the page some time to process the
-  // viewport size change after the side panel opens. Some sites can
-  // significantly alter the page on resize, removing and re-inserting new
-  // image elements in the process.
-  options.on_panel_opened =
-      base::BindOnce(&IndigoPageActionController::TriggerIndigoAgentWithDelay,
-                     invoke_weak_ptr_factory_.GetWeakPtr(),
-                     IndigoTransformationTriggerSource::kPageAction);
-
-  options.prompts.push_back(std::move(prompt));
-  auto instance = glic_keyed_service->InvokeWithAutoSubmit(
-      glic::InvokeWithAutoSubmitPasskeyProvider::GetPassKey(),
-      std::move(options));
-  if (!instance) {
-    base::UmaHistogramEnumeration(kMaybeInvokeGlicResultHistogramName,
-                                  IndigoMaybeInvokeGlicResult::kInvokeRejected);
-    return false;
-  }
-
-  base::UmaHistogramEnumeration(kMaybeInvokeGlicResultHistogramName,
-                                IndigoMaybeInvokeGlicResult::kInvoked);
-  return true;
-}
 
 void IndigoPageActionController::TriggerIndigoAgent(
     IndigoTransformationTriggerSource source) {
@@ -443,17 +318,8 @@ void IndigoPageActionController::TriggerIndigoAgent(
 
 void IndigoPageActionController::TriggerIndigoAgentWithDelay(
     IndigoTransformationTriggerSource source) {
-  content::WebContents* web_contents = tab().GetContents();
-  Profile* profile =
-      web_contents
-          ? Profile::FromBrowserContext(web_contents->GetBrowserContext())
-          : nullptr;
-  const glic::GlicProviderSpec& spec = glic::GetGlicProviderSpec(profile);
-  CHECK(spec.SupportsFeature(glic::GlicFeature::kIndigoOpenGlic));
-  base::UmaHistogramBoolean(kPanelActuallyShowingOnCallbackHistogramName,
-                            glic::GlicSidePanelCoordinator::IsShowing(&tab()));
   delay_agent_invoke_timer_.Start(
-      FROM_HERE, spec.GetIndigoFeatureParams().trigger_delay,
+      FROM_HERE, base::Milliseconds(300),
       base::BindOnce(&IndigoPageActionController::TriggerIndigoAgent,
                      invoke_weak_ptr_factory_.GetWeakPtr(), source));
 }
@@ -849,11 +715,7 @@ void IndigoPageActionController::UpdateEntryPointsState() {
 
   if (should_show) {
     page_action_controller_->Show(kActionIndigo);
-    if (indigo_service_->CanShowContextualCue() &&
-        !glic::GlicSidePanelCoordinator::IsShowing(&tab())) {
-      ShowAnchoredMessage(
-          page_actions::PageActionPriorityCategory::kProactiveSuggestion);
-    } else {
+    {
       page_action_controller_->ShowSuggestionChip(kActionIndigo);
     }
 
@@ -874,20 +736,7 @@ void IndigoPageActionController::MaybeRecordTimeToPageEligible() {
       std::max(base::TimeDelta(), *page_eligible_time_ - *page_appeared_time_));
 }
 
-void IndigoPageActionController::RefreshDiscoverySkills() {
-  if (content::WebContents* web_contents = tab().GetContents()) {
-    if (Profile* profile =
-            Profile::FromBrowserContext(web_contents->GetBrowserContext())) {
-      if (skills::SkillsService* skills_service =
-              skills::SkillsServiceFactory::GetForProfile(profile)) {
-        Require1PSkillRefreshObserver observer;
-        skills_service->AddObserver(&observer);
-        skills_service->RefreshDiscoverySkills();
-        skills_service->RemoveObserver(&observer);
-      }
-    }
-  }
-}
+void IndigoPageActionController::RefreshDiscoverySkills() {}
 
 void IndigoPageActionController::RecordTriggerSource() {
   if (!last_trigger_source_.has_value() ||
@@ -1005,12 +854,9 @@ void IndigoPageActionController::ShowAnchoredMessage(
   page_action_controller_->SetAnchoredMessageText(
       kActionIndigo,
       l10n_util::GetStringUTF16(IDS_INDIGO_ENTRYPOINT_ANCHORED_MESSAGE_TEXT));
-  gfx::ImageSkia* icon =
-      ui::ResourceBundle::GetSharedInstance().GetImageSkiaNamed(
-          IDR_GLIC_BUTTON_ALT_ICON);
   page_action_controller_->SetAnchoredMessageIcon(
-      kActionIndigo,
-      icon ? ui::ImageModel::FromImageSkia(*icon) : ui::ImageModel());
+      kActionIndigo, ui::ImageModel::FromVectorIcon(
+                         vector_icons::kButtonMagicIcon, ui::kColorSysOnSurface));
 
   if (priority == page_actions::PageActionPriorityCategory::kUserInteraction) {
     page_action_controller_->SetAnchoredMessageAction(

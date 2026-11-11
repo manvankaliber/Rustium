@@ -9,7 +9,6 @@
 #include "base/task/single_thread_task_runner.h"
 #include "build/build_config.h"
 #include "build/buildflag.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_actions.h"
 #include "chrome/browser/ui/browser_commands.h"
@@ -190,12 +189,6 @@ HorizontalTabStripRegionViewOld::HorizontalTabStripRegionViewOld(
     // We instantiate the action container if the profile is eligible (even if
     // the button is not currently shown, e.g. when signed out) so that it can
     // dynamically update its visibility when the profile state changes.
-    if (glic::GlicEnabling::IsProfileEligible(browser_view->GetProfile())) {
-      tab_strip_action_container =
-          std::make_unique<TabStripActionContainer>(browser);
-      tab_strip_action_container->SetProperty(views::kCrossAxisAlignmentKey,
-                                              views::LayoutAlignment::kStart);
-    }
   }
 
   tab_strip_ = AddChildView(CreateTabStrip(this, browser_view));
@@ -732,12 +725,6 @@ HorizontalTabStripRegionViewNew::HorizontalTabStripRegionViewNew(
     // when it reports a preferred size of 0. See b/567198990.
     combo_button_->SetProperty(views::kViewIgnoredByLayoutKey, true);
 
-    if (glic::GlicEnabling::IsProfileEligible(browser_view->GetProfile())) {
-      tab_strip_action_container =
-          std::make_unique<TabStripActionContainer>(browser);
-      tab_strip_action_container->SetProperty(views::kCrossAxisAlignmentKey,
-                                              views::LayoutAlignment::kStart);
-    }
   }
 
   if (browser && ShouldShowNewTabButton(browser)) {

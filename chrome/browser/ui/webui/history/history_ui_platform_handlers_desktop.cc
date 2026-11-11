@@ -13,8 +13,6 @@
 #include "base/values.h"
 #include "build/build_config.h"
 #include "build/buildflag.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/sessions/session_restore.h"
 #include "chrome/browser/signin/account_preview_data_service_factory.h"
@@ -54,16 +52,7 @@ namespace history {
 
 void PopulatePlatformDataSource(content::WebUIDataSource* source,
                                 Profile* profile) {
-  const bool is_glic_enabled =
-      glic::GlicEnabling::ShouldShowSettingsPage(profile);
-  auto* glic_service = glic::GlicKeyedService::Get(profile);
-  const bool is_glic_web_actuation_available =
-      glic::GlicEnabling::IsEnabledAndConsentForProfile(profile) &&
-      glic_service && glic_service->enabling().GetUserEnabledActuationOnWeb();
 
-  source->AddBoolean(kIsGlicEnabledKey, is_glic_enabled);
-  source->AddBoolean(kIsGlicWebActuationAvailableKey,
-                     is_glic_web_actuation_available);
 
   signin::IdentityManager* identity_manager =
       IdentityManagerFactory::GetForProfile(profile);

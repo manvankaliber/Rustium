@@ -14,7 +14,7 @@ import './app_menu_button.js';
 import './avatar_button.js';
 import './battery_saver_button.js';
 import './extensions.js';
-import './glic_button.js';
+
 import './location_bar.js';
 import './media_button.js';
 import './overflow_button.js';
@@ -32,7 +32,6 @@ export {AppMenuButtonElement} from './app_menu_button.js';
 export {BatterySaverButtonElement} from './battery_saver_button.js';
 export {ContentSettingIconElement} from './content_setting_icon.js';
 export type {ExtensionsElement} from './extensions.js';
-export {GlicButtonElement} from './glic_button.js';
 export {LocationBarElement} from './location_bar.js';
 export {LocationIconElement} from './location_icon.js';
 export {MediaButtonElement} from './media_button.js';

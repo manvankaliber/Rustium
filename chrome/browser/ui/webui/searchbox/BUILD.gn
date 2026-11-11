@@ -8,8 +8,6 @@ import("//ui/webui/webui_features.gni")
 source_set("searchbox") {
   sources = [
     "lens_searchbox_client.h",
-    "lens_searchbox_handler.cc",
-    "lens_searchbox_handler.h",
     "realbox_handler.cc",
     "realbox_handler.h",
   ]
@@ -281,7 +279,6 @@ source_set("unit_tests") {
     ]
 
     deps += [
-      "//chrome/browser/ui/lens",
       "//chrome/browser/ui/tabs:tab_strip",
       "//chrome/browser/ui/tabs:test_support",
       "//chrome/browser/ui/webui/omnibox_popup",

@@ -33,12 +33,6 @@
 #include "chrome/browser/contextual_tasks/entry_point_eligibility_manager.h"
 #include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/enterprise/isolated_mode/isolated_mode_settings_service_factory.h"
-#include "chrome/browser/glic/browser_ui/glic_vector_icon_manager.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/host/glic.mojom.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/resources/grit/glic_browser_resources.h"
 #include "chrome/browser/history_clusters/history_clusters_side_panel_utils.h"
 #include "chrome/browser/indigo/indigo_page_action_controller.h"
 #include "chrome/browser/lifetime/application_lifetime.h"
@@ -80,7 +74,6 @@
 #include "chrome/browser/devtools/devtools_policy_dialog.h"
 #include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/feedback/show_feedback_page.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/indigo/resources/grit/indigo_strings.h"
 #include "chrome/browser/lifetime/application_lifetime_desktop.h"
 #include "chrome/browser/multistep_filter/ui/filter_ui_controller.h"
@@ -90,7 +83,6 @@
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
 #include "chrome/browser/signin/signin_ui_util.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "chrome/browser/sync/sync_ui_util.h"
 #include "chrome/browser/tab_list/tab_list_interface.h"
@@ -120,17 +112,12 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"
 #include "chrome/browser/ui/bubble_anchor_util.h"
 #include "chrome/browser/ui/chrome_pages.h"
-#include "chrome/browser/ui/commerce/commerce_ui_tab_helper.h"
 #include "chrome/browser/ui/customize_chrome/side_panel_controller.h"
 #include "chrome/browser/ui/dialogs/browser_dialogs.h"
 #include "chrome/browser/ui/global_error/global_error.h"
 #include "chrome/browser/ui/global_error/global_error_service.h"
 #include "chrome/browser/ui/global_error/global_error_service_factory.h"
 #include "chrome/browser/ui/intent_picker_tab_helper.h"
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
-#include "chrome/browser/ui/lens/lens_string_utils.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
 #include "chrome/browser/ui/omnibox/ai_mode_page_action_controller.h"
 #include "chrome/browser/ui/page_action/page_action_controller.h"
@@ -165,7 +152,6 @@
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
 #include "chrome/browser/ui/views/app_menu/app_menu_action_item.h"
-#include "chrome/browser/ui/views/commerce/discounts_page_action_view_controller.h"
 #include "chrome/browser/ui/views/contextual_tasks/contextual_tasks_ephemeral_button_controller.h"
 #include "chrome/browser/ui/views/contextual_tasks/contextual_tasks_ephemeral_button_utils.h"
 #include "chrome/browser/ui/views/file_system_access/file_system_access_bubble_controller.h"
@@ -173,7 +159,6 @@
 #include "chrome/browser/ui/views/frame/toolbar_button_provider.h"
 #include "chrome/browser/ui/views/js_optimization/js_optimizations_page_action_controller.h"
 #include "chrome/browser/ui/views/location_bar/cookie_controls/cookie_controls_page_action_controller.h"
-#include "chrome/browser/ui/views/location_bar/lens_overlay_homework_page_action_controller.h"
 #include "chrome/browser/ui/views/location_bar/record_replay_page_action_controller.h"
 #include "chrome/browser/ui/views/media_router/cast_browser_controller.h"
 #include "chrome/browser/ui/views/tabs/groups/recent_activity_bubble_dialog_view.h"
@@ -203,7 +188,6 @@
 #include "components/bookmarks/common/bookmark_pref_names.h"
 #include "components/collaboration/public/features.h"
 #include "components/collaboration/public/messaging/activity_log.h"
-#include "components/commerce/core/metrics/discounts_metric_collector.h"
 #include "components/content_settings/core/common/features.h"
 #include "components/contextual_tasks/public/features.h"
 #include "components/feature_engagement/public/feature_constants.h"
@@ -234,7 +218,6 @@
 #include "components/tabs/public/tab_interface.h"
 #include "content/public/browser/page_navigator.h"
 #include "extensions/common/extension_urls.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "components/lens/lens_overlay_invocation_source.h"
 #include "components/user_prefs/user_prefs.h"
 #include "components/vector_icons/vector_icons.h"
@@ -373,24 +356,9 @@ actions::ActionItem::ActionItemBuilder SidePanelAction(
       .SetProperty(actions::kActionItemPinnableKey, pinnable_state);
 }
 
-const gfx::VectorIcon& GetLensOverlayHomeworkIcon(Profile* profile) {
-  if (contextual_tasks::AreContextualTasksUpdatedEntryPointsEnabled(profile)) {
-    return features::IsRoundedIconsEnabled() ? omnibox::kSearchSparkIcon
-                                             : omnibox::kSearchSparkOldIcon;
-  }
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-  return vector_icons::kGoogleLensMonochromeLogoIcon;
-#else
-  return features::IsRoundedIconsEnabled()
-             ? vector_icons::kSearchIcon
-             : vector_icons::kSearchChromeRefreshOldIcon;
-#endif
-}
 
 bool ShouldShowSkillsAndExtensions(Profile* profile) {
-  return profile && profile->IsRegularProfile() &&
-         skills::SkillsServiceFactory::IsSkillsEnabledForProfile(profile) &&
-         base::FeatureList::IsEnabled(features::kSkillsAndExtensionsAppMenu);
+  return false;
 }
 
 }  // namespace
@@ -484,9 +452,8 @@ void BrowserActions::PopulateSynonyms() {
       {kActionTaskManagerAppMenu, IDS_ACTION_SYNONYMS_TASK_MANAGER},
       {kActionDevTools, IDS_ACTION_SYNONYMS_DEV_TOOLS},
       {kActionNewIncognitoWindow, IDS_ACTION_SYNONYMS_NEW_INCOGNITO_WINDOW},
-      {kActionShowLensOverlayFromAppMenu,
-       IDS_ACTION_SYNONYMS_SHOW_LENS_OVERLAY},
-      {kActionOpenGlic, IDS_ACTION_SYNONYMS_OPEN_GLIC},
+
+
       {kActionClearBrowsingData, IDS_ACTION_SYNONYMS_CLEAR_BROWSING_DATA},
       {kActionOptions, IDS_ACTION_SYNONYMS_OPTIONS},
       {kActionExit, IDS_ACTION_SYNONYMS_EXIT},
@@ -566,15 +533,6 @@ void BrowserActions::InitializeSidePanelActions() {
                           ? kEditIcon
                           : vector_icons::kEditChromeRefreshOldIcon,
                       kActionSidePanelShowCustomizeChrome, bwi, false)
-          .Build());
-  root_action_item_->AddChild(
-      SidePanelAction(SidePanelEntryId::kShoppingInsights,
-                      IDS_SHOPPING_INSIGHTS_SIDE_PANEL_TITLE,
-                      IDS_SHOPPING_INSIGHTS_SIDE_PANEL_TITLE,
-                      features::IsRoundedIconsEnabled()
-                          ? vector_icons::kShoppingBagIcon
-                          : vector_icons::kShoppingBagOldIcon,
-                      kActionSidePanelShowShoppingInsights, bwi, false)
           .Build());
   root_action_item_->AddChild(
       SidePanelAction(
@@ -688,39 +646,6 @@ void BrowserActions::InitializeSidePanelActions() {
           .SetAccelerator(reading_mode_accelerator)
           .Build());
 
-  if (lens::features::IsLensOverlayEnabled()) {
-    const gfx::VectorIcon& icon =
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-        vector_icons::kGoogleLensMonochromeLogoIcon;
-#else
-        features::IsRoundedIconsEnabled()
-            ? vector_icons::kSearchIcon
-            : vector_icons::kSearchChromeRefreshOldIcon;
-#endif
-    root_action_item_->AddChild(
-        actions::ActionItem::Builder(
-            base::BindRepeating(
-                [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                   actions::ActionInvocationContext context) {
-                  if (!bwi) {
-                    return;
-                  }
-                  lens::LensOverlayEntryPointController::InvokeAction(
-                      bwi->GetActiveTabInterface(), context);
-                },
-                bwi))
-            .SetActionId(kActionSidePanelShowLensOverlayResults)
-            .SetText(l10n_util::GetStringUTF16(
-                lens::GetLensOverlayEntrypointLabelAltIds()))
-            .SetTooltipText(l10n_util::GetStringUTF16(
-                lens::GetLensOverlayEntrypointLabelAltIds()))
-            .SetImage(ui::ImageModel::FromVectorIcon(
-                icon, ui::kColorIcon, ui::SimpleMenuModel::kDefaultIconSize))
-            .SetProperty(actions::kActionItemPinnableKey,
-                         std::underlying_type_t<actions::ActionPinnableState>(
-                             actions::ActionPinnableState::kPinnable))
-            .Build());
-  }
 
   // Create the lens action item. The icon and text are set appropriately in the
   // lens side panel coordinator. They have default values here.
@@ -905,15 +830,6 @@ void BrowserActions::InitializeSidePanelActions() {
             .Build());
   }
 
-  if (glic::GlicEnabling::IsEnabledByGlobalCriteria()) {
-    root_action_item_->AddChild(
-        SidePanelAction(
-            SidePanelEntryId::kGlic, IDS_SETTINGS_SIDE_PANEL_ALIGNMENT_GLIC,
-            IDS_SETTINGS_SIDE_PANEL_ALIGNMENT_GLIC, omnibox::kSparkIcon,
-            kActionSidePanelShowGlic, bwi, false)
-            .SetVisible(glic::GlicEnabling::ShouldShowGlicButton(profile))
-            .Build());
-  }
 }
 
 void BrowserActions::InitializePageActionIconActions() {
@@ -1131,65 +1047,9 @@ void BrowserActions::InitializePageActionIconActions() {
                   : kCreditCardChromeRefreshOldIcon))
           .Build());
 
-  root_action_item_->AddChild(
-      actions::ActionItem::Builder(
-          base::BindRepeating(
-              [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                 actions::ActionInvocationContext context) {
-                auto* tab_helper = commerce::CommerceUiTabHelper::From(
-                    bwi->GetActiveTabInterface());
-                CHECK(tab_helper);
 
-                tab_helper->OnPriceInsightsIconClicked();
-              },
-              bwi))
-          .SetActionId(kActionCommercePriceInsights)
-          // The tooltip text is used as a default text. The
-          // PriceInsightsPageActionViewController will override it based on its
-          // state.
-          .SetText(l10n_util::GetStringUTF16(
-              IDS_SHOPPING_INSIGHTS_ICON_TOOLTIP_TEXT))
-          .SetTooltipText(l10n_util::GetStringUTF16(
-              IDS_SHOPPING_INSIGHTS_ICON_TOOLTIP_TEXT))
-          .SetImage(ui::ImageModel::FromVectorIcon(
-              features::IsRoundedIconsEnabled()
-                  ? vector_icons::kShoppingBagIcon
-                  : vector_icons::kShoppingBagRefreshOldIcon))
-          .Build());
 
-  root_action_item_->AddChild(
-      actions::ActionItem::Builder(
-          base::BindRepeating(
-              [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                 actions::ActionInvocationContext context) {
-                auto* tab_interface = bwi->GetActiveTabInterface();
-                CHECK(tab_interface);
-                auto* page_action_controller =
-                    commerce::DiscountsPageActionViewController::From(
-                        *tab_interface);
-                CHECK(page_action_controller);
-                page_action_controller->MaybeShowBubble(/*from_user=*/true);
 
-                auto* commerce_ui_tab_helper =
-                    commerce::CommerceUiTabHelper::From(tab_interface);
-                CHECK(commerce_ui_tab_helper);
-
-                commerce::metrics::DiscountsMetricCollector::
-                    RecordDiscountsPageActionIconClicked(
-                        commerce_ui_tab_helper->IsPageActionIconExpanded(
-                            PageActionIconType::kDiscounts),
-                        commerce_ui_tab_helper->GetDiscounts());
-              },
-              bwi))
-          .SetActionId(kActionCommerceDiscounts)
-          .SetText(l10n_util::GetStringUTF16(IDS_DISCOUNT_ICON_EXPANDED_TEXT))
-          .SetTooltipText(
-              l10n_util::GetStringUTF16(IDS_DISCOUNT_ICON_EXPANDED_TEXT))
-          .SetImage(ui::ImageModel::FromVectorIcon(
-              features::IsRoundedIconsEnabled()
-                  ? vector_icons::kShoppingmodeIcon
-                  : vector_icons::kShoppingmodeOldIcon))
-          .Build());
 
   root_action_item_->AddChild(
       actions::ActionItem::Builder(
@@ -2278,33 +2138,7 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
             .Build());
   }
 
-  root_action_item_->AddChild(
-      actions::ActionItem::Builder(
-          base::BindRepeating(
-              [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                 actions::ActionInvocationContext context) {
-                tabs::TabInterface* active_tab = bwi->GetActiveTabInterface();
-                CHECK(active_tab);
 
-                std::underlying_type_t<page_actions::PageActionTrigger>
-                    page_action_trigger = context.GetProperty(
-                        page_actions::kPageActionTriggerKey);
-                CHECK_NE(page_action_trigger,
-                         page_actions::kInvalidPageActionTrigger);
-
-                LensOverlayHomeworkPageActionController::From(*active_tab)
-                    ->HandlePageActionEvent(
-                        static_cast<page_actions::PageActionTrigger>(
-                            page_action_trigger) ==
-                        page_actions::PageActionTrigger::kKeyboard);
-              },
-              bwi))
-          .SetActionId(kActionLensOverlayHomework)
-          .SetImage(ui::ImageModel::FromVectorIcon(
-              GetLensOverlayHomeworkIcon(profile)))
-          .SetText(l10n_util::GetStringUTF16(
-              IDS_CONTENT_LENS_OVERLAY_ASK_GOOGLE_ENTRYPOINT_LABEL))
-          .Build());
 
   root_action_item_->AddChild(
       actions::ActionItem::Builder(
@@ -2487,104 +2321,11 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
           .SetActionId(kActionSidePanelShowCustomizeChromeFooter)
           .Build());
 
-  if (glic::GlicEnabling::IsProfileEligible(profile) &&
-      ttc::AiOverlayDialogController::IsEnabledForProfile(profile)) {
-    std::unique_ptr<actions::ActionItem> item =
-        actions::ActionItem::Builder(
-            base::BindRepeating(
-                [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                   actions::ActionInvocationContext context) {
-                  if (auto* controller =
-                          ttc::AiOverlayDialogController::From(bwi)) {
-                    controller->ToggleOverlay();
-                  }
-                },
-                bwi))
-            .SetActionId(kActionShowAiOverlayDialog)
-            .SetText(l10n_util::GetStringUTF16(IDS_APPMENU_TOOLTIP))
-            .SetTooltipText(l10n_util::GetStringUTF16(IDS_APPMENU_TOOLTIP))
-            .SetImage(ui::ImageModel::FromVectorIcon(
-                features::IsRoundedIconsEnabled() ? vector_icons::kMicFilledIcon
-                                                  : vector_icons::kMicOldIcon,
-                ui::kColorIcon, ui::SimpleMenuModel::kDefaultIconSize))
-            .SetProperty(
-                actions::kActionItemPinnableKey,
-                static_cast<
-                    std::underlying_type_t<actions::ActionPinnableState>>(
-                    actions::ActionPinnableState::kPinnable))
-            .Build();
-
-    item->SetProperty(
-        kCustomPinnedActionToolbarButtonFactoryKey,
-        std::make_unique<CreateCustomPinnedActionToolbarButtonCallback>(
-            base::BindRepeating(
-                [](BrowserWindowInterface* browser, actions::ActionId action_id,
-                   base::WeakPtr<PinnedToolbarActionsContainer> container)
-                    -> std::unique_ptr<PinnedActionToolbarButton> {
-                  return std::make_unique<AiOverlayToolbarButton>(
-                      browser, action_id, container);
-                })));
-    root_action_item_->AddChild(std::move(item));
-  }
 
   // Registration of Gemini in Chrome Anchored Cues, but requires call-time
   // configuration to update the label, button text, and suggested prompt. As
   // such, this action is disabled upon registration, and enabled at call time
   // by OnTriggerAnchoredMessage().
-  auto* glic_service = glic::GlicKeyedService::Get(bwi->GetProfile());
-  if (glic_service) {
-    root_action_item_->AddChild(
-        actions::ActionItem::Builder(
-            base::BindRepeating([](actions::ActionItem* item,
-                                   actions::ActionInvocationContext context) {
-              DUMP_WILL_BE_NOTREACHED()
-                  << "Contextual cueing action invoked without being "
-                     "configured by OnTriggerAnchoredMessage";
-            }))
-            .SetActionId(kActionGlicContextualCueing)
-            .SetEnabled(false)
-            .SetVisible(false)
-            .SetText(l10n_util::GetStringUTF16(IDS_SETTINGS_GLIC_PAGE_TITLE))
-            .SetImage(ui::ImageModel::FromVectorIcon(
-                glic::GlicVectorIconManager::GetVectorIcon(
-                    IDR_GLIC_BUTTON_VECTOR_ICON),
-                ui::kColorIcon))
-            .Build());
-    root_action_item_->AddChild(
-        actions::ActionItem::Builder(
-            base::BindRepeating(
-                [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                   actions::ActionInvocationContext context) {
-                  PrefService* profile_prefs = bwi->GetProfile()->GetPrefs();
-                  profile_prefs->SetBoolean(
-                      glic::prefs::kGlicPinnedToTabstrip,
-                      !profile_prefs->GetBoolean(
-                          glic::prefs::kGlicPinnedToTabstrip));
-                },
-                bwi))
-            .SetActionId(kActionGlicTogglePin)
-            .SetText(l10n_util::GetStringUTF16(IDS_GLIC_PIN))
-            .Build());
-    root_action_item_->AddChild(
-        ChromeMenuAction(
-            base::BindRepeating(
-                [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                   actions::ActionInvocationContext context) {
-                  auto* service =
-                      glic::GlicKeyedService::Get(bwi->GetProfile());
-                  if (service) {
-                    service->ShowUI(
-                        bwi, glic::mojom::InvocationSource::kThreeDotsMenu);
-                  }
-                },
-                bwi),
-            kActionOpenGlic, IDS_GLIC_THREE_DOT_MENU_ITEM,
-            IDS_GLIC_THREE_DOT_MENU_ITEM,
-            glic::GlicVectorIconManager::GetVectorIcon(
-                IDR_GLIC_BUTTON_VECTOR_ICON),
-            /*is_pinnable=*/false)
-            .Build());
-  }
 
   if (base::FeatureList::IsEnabled(features::kIndigo)) {
     root_action_item_->AddChild(
@@ -2625,8 +2366,7 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
             .SetTooltipText(l10n_util::GetStringUTF16(
                 IDS_INDIGO_ENTRYPOINT_CHIP_TOOLTIP_TEXT))
             .SetImage(ui::ImageModel::FromVectorIcon(
-                glic::GlicVectorIconManager::GetVectorIcon(
-                    IDR_GLIC_BUTTON_VECTOR_ICON),
+                omnibox::kSearchSparkIcon,
                 ui::kColorSysOnSurface))
             .SetText(l10n_util::GetStringUTF16(IDS_INDIGO_ENTRYPOINT_CHIP_TEXT))
             .Build());
@@ -3768,51 +3508,13 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
               features::IsRoundedIconsEnabled() ? kZoomInIcon : kZoomInOldIcon))
           .Build());
 
-  root_action_item_->AddChild(
-      actions::ActionItem::Builder(
-          base::BindRepeating(
-              [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                 actions::ActionInvocationContext context) {
-                tabs::TabInterface* const active_tab =
-                    bwi->GetActiveTabInterface();
-                if (!active_tab) {
-                  return;
-                }
-                content::WebContents* const web_contents =
-                    active_tab->GetContents();
-                if (!web_contents) {
-                  return;
-                }
-                if (lens::features::IsLensOverlayEnabled()) {
-                  LensSearchController* const controller =
-                      LensSearchController::FromTabWebContents(web_contents);
-                  if (controller) {
-                    controller->OpenLensOverlay(
-                        lens::LensOverlayInvocationSource::
-                            kContentAreaContextMenuPage,
-                        /*should_show_csb=*/!contextual_tasks::
-                            AreContextualTasksUpdatedEntryPointsEnabled(
-                                bwi ? bwi->GetProfile() : nullptr));
-                    return;
-                  }
-                }
-                chrome::ExecLensRegionSearch(bwi);
-              },
-              bwi))
-          .SetActionId(kActionContentContextLensRegionSearch)
-          .Build());
+
 
   root_action_item_->AddChild(
       actions::ActionItem::Builder(
           base::BindRepeating(
               [](BrowserWindowInterface* bwi, actions::ActionItem* item,
                  actions::ActionInvocationContext context) {
-                chrome::ExecAskGoogleAboutThisPage(
-                    bwi,
-                    lens::LensOverlayInvocationSource::
-                        kContentAreaContextMenuPageAskGoogle,
-                    omnibox::ChromeAimEntryPoint::
-                        DESKTOP_CHROME_PAGE_CONTEXT_MENU_ASK_GOOGLE);
               },
               bwi))
           .SetActionId(kActionContentContextAskGoogleAboutThisPage)
@@ -4323,33 +4025,6 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
           .SetActionId(kActionShowGoogleLensShortcut)
           .Build());
 
-  const gfx::VectorIcon& lens_icon =
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-      vector_icons::kGoogleLensMonochromeLogoIcon;
-#else
-      features::IsRoundedIconsEnabled()
-          ? vector_icons::kSearchIcon
-          : vector_icons::kSearchChromeRefreshOldIcon;
-#endif
-  root_action_item_->AddChild(
-      actions::ActionItem::Builder(
-          base::BindRepeating(
-              [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                 actions::ActionInvocationContext context) {
-                if (!bwi) {
-                  return;
-                }
-                chrome::ExecLensOverlay(bwi);
-              },
-              bwi))
-          .SetActionId(kActionShowLensOverlayFromAppMenu)
-          .SetText(l10n_util::GetStringUTF16(
-              lens::GetLensOverlayEntrypointLabelAltIds()))
-          .SetTooltipText(l10n_util::GetStringUTF16(
-              lens::GetLensOverlayEntrypointLabelAltIds()))
-          .SetImage(ui::ImageModel::FromVectorIcon(lens_icon, ui::kColorIcon))
-          .Build());
-
   const gfx::VectorIcon& ask_google_icon = features::IsRoundedIconsEnabled()
                                                ? omnibox::kSearchSparkIcon
                                                : omnibox::kSearchSparkOldIcon;
@@ -4361,10 +4036,6 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
                 if (!bwi) {
                   return;
                 }
-                chrome::ExecAskGoogleAboutThisPage(
-                    bwi, lens::LensOverlayInvocationSource::kAppMenuAskGoogle,
-                    omnibox::ChromeAimEntryPoint::
-                        DESKTOP_CHROME_APP_MENU_ASK_GOOGLE);
               },
               bwi))
           .SetActionId(kActionAskGoogleAboutThisPageFromAppMenu)

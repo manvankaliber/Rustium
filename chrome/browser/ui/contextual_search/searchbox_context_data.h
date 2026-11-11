@@ -33,7 +33,6 @@ class SearchboxContextData {
     std::vector<searchbox::mojom::SearchContextAttachmentPtr> file_infos;
     omnibox::ToolMode mode = omnibox::TOOL_MODE_UNSPECIFIED;
     omnibox::ModelMode model = omnibox::MODEL_MODE_UNSPECIFIED;
-    std::optional<lens::LensOverlayInvocationSource> invocation_source;
   };
 
   DECLARE_USER_DATA(SearchboxContextData);

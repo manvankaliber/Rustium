@@ -30,7 +30,6 @@
 #include "chrome/browser/extensions/component_loader_factory.h"
 #include "chrome/browser/extensions/component_loader_prefs.h"
 #include "chrome/browser/extensions/data_deleter.h"
-#include "chrome/browser/extensions/glic_util.h"
 #include "chrome/browser/extensions/profile_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/channel_info.h"
@@ -522,12 +521,6 @@ void ComponentLoader::AddNewTabPageExtension() {
 #endif  // BUILDFLAG(ENABLE_WEBUI_NTP)
 }
 
-void ComponentLoader::AddGlicExtension() {
-  if (IsApiGlicPrivateEnabled()) {
-    Add(IDR_GLIC_EXTENSION_MANIFEST,
-        base::FilePath(FILE_PATH_LITERAL("glic_extension")));
-  }
-}
 
 void ComponentLoader::AddContextualTasksExtension() {
   if (base::FeatureList::IsEnabled(
@@ -665,7 +658,6 @@ void ComponentLoader::AddDefaultComponentExtensionsWithBackgroundPages(
 
   AddAimEligibilityExtension();
   AddNewTabPageExtension();
-  AddGlicExtension();
   AddContextualTasksExtension();
 
 // http://crbug.com/41070702

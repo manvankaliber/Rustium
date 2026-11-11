@@ -105,7 +105,6 @@ source_set("impl") {
   visibility = [
     ":*",
     "//chrome/browser",
-    "//chrome/browser/ui/lens:browser_tests",
   ]
 
   sources = [
@@ -166,7 +165,6 @@ source_set("impl") {
     "//chrome/browser/favicon",
     "//chrome/browser/feedback",
     "//chrome/browser/feedback:feedback_enum",
-    "//chrome/browser/glic",
     "//chrome/browser/history",
     "//chrome/browser/optimization_guide",
     "//chrome/browser/page_content_annotations",
@@ -207,7 +205,6 @@ source_set("impl") {
     "//components/url_deduplication",
     "//components/visited_url_ranking/public",
     "//content/public/browser",
-    "//third_party/lens_server_proto:lens_overlay_proto",
     "//ui/color",
   ]
 
@@ -224,8 +221,6 @@ source_set("impl") {
     "//chrome/app:branded_strings",
     "//chrome/browser/ui:browser_actions",
     "//chrome/browser/ui/interaction",
-    "//chrome/browser/ui/lens",
-    "//chrome/browser/ui/lens:backend_logic_impl",
     "//chrome/browser/ui/views/contextual_tasks",
     "//chrome/browser/ui/views/permissions:permission_prompt_observer",
     "//chrome/browser/ui/webui:webui_util",
@@ -297,7 +292,6 @@ source_set("ui") {
     "//content/public/browser",
     "//content/public/common",
     "//extensions/buildflags",
-    "//third_party/lens_server_proto:lens_overlay_proto",
     "//third_party/omnibox_proto",
     "//ui/base/interaction",
     "//ui/base/unowned_user_data",
@@ -311,7 +305,6 @@ source_set("ui") {
   ]
 
   public_deps += [
-    "//chrome/browser/glic/browser_ui",
     "//chrome/browser/ui/content_settings",
     "//chrome/browser/ui/location_bar",
     "//chrome/browser/ui/side_panel:side_panel_views_dependent",
@@ -361,18 +354,13 @@ source_set("user_data") {
     "//components/tabs:public",
     "//content/public/browser",
     "//extensions/buildflags",
-    "//third_party/lens_server_proto:lens_overlay_proto",
     "//url",
   ]
   if (enable_extensions_core) {
     deps += [ "//extensions/browser" ]
   }
 
-  deps += [
-    "//chrome/browser/ui/lens",
-    "//chrome/browser/ui/lens:backend_logic_impl",
-    "//skia",
-  ]
+  deps += [ "//skia" ]
 }
 
 source_set("tab_restore") {
@@ -436,7 +424,6 @@ source_set("ui_impl") {
     "//chrome/browser/feature_engagement",
     "//chrome/browser/feedback",
     "//chrome/browser/feedback:feedback_enum",
-    "//chrome/browser/glic/browser_ui",
     "//chrome/browser/optimization_guide",
     "//chrome/browser/profiles:profile",
     "//chrome/browser/profiles:profile_manager",
@@ -510,7 +497,6 @@ source_set("ui_impl") {
     "//chrome/browser/tab_list",
     "//chrome/browser/ui:browser_actions",
     "//chrome/browser/ui/interaction",
-    "//chrome/browser/ui/lens",
     "//chrome/browser/ui/tabs:tab_strip",
     "//chrome/browser/ui/user_education",
     "//chrome/browser/ui/views:bubble_anchor_util_views",
@@ -529,7 +515,6 @@ source_set("ui_impl") {
     "//services/network/public/cpp",
     "//services/network/public/mojom",
     "//third_party/blink/public/common:headers",
-    "//third_party/lens_server_proto:lens_overlay_proto",
     "//third_party/protobuf:protobuf_lite",
     "//ui/views/controls/webview",
     "//url",
@@ -673,8 +658,6 @@ source_set("browser_tests") {
     "//chrome/browser/ui/browser_window/test:test_support",
     "//chrome/browser/ui/hats:test_support",
     "//chrome/browser/ui/interaction",
-    "//chrome/browser/ui/lens",
-    "//chrome/browser/ui/lens:test_support",
     "//chrome/browser/ui/page_action",
     "//chrome/browser/ui/side_panel",
     "//chrome/browser/ui/test:dialog",
@@ -708,7 +691,6 @@ source_set("browser_tests") {
     "//net",
     "//testing/gmock",
     "//testing/gtest",
-    "//third_party/lens_server_proto:lens_overlay_proto",
     "//ui/actions",
     "//ui/base",
     "//ui/base/interaction:test_support",
@@ -830,7 +812,6 @@ source_set("unit_tests") {
     "//services/network/public/cpp",
     "//testing/gmock",
     "//testing/gtest",
-    "//third_party/lens_server_proto:lens_overlay_proto",
     "//ui/actions:actions_headers",
     "//ui/base/interaction:test_support",
     "//ui/base/unowned_user_data",
@@ -844,8 +825,6 @@ source_set("unit_tests") {
     "//chrome/browser/feature_engagement",
     "//chrome/browser/ui:browser_actions",
     "//chrome/browser/ui/hats:test_support",
-    "//chrome/browser/ui/lens",
-    "//chrome/browser/ui/lens:test_support",
     "//chrome/browser/ui/tabs:tab_list_bridge",
     "//chrome/browser/ui/tabs:test_support",
     "//chrome/browser/ui/views/contextual_tasks:onboarding_bubble",
@@ -905,7 +884,6 @@ source_set("interactive_ui_test_support") {
     ":test_support",
     ":ui",
     "//chrome/browser/signin:identity_test_support",
-    "//chrome/browser/ui/lens:interactive_ui_test_support",
     "//components/contextual_tasks/public",
     "//components/omnibox/browser:test_support",
     "//content/test:test_support",
@@ -930,7 +908,6 @@ source_set("interactive_ui_test_support") {
     "//components/signin/public/identity_manager:test_support",
     "//net:test_support",
     "//skia",
-    "//third_party/lens_server_proto:lens_overlay_proto",
   ]
 }
 
@@ -978,11 +955,6 @@ source_set("interactive_ui_tests") {
     ":ui",
     ":user_data",
     "//chrome/browser/extensions",
-    "//chrome/browser/ui/omnibox",
-    "//chrome/browser/ui/tabs:tab_menu",
-
-    # TabUnderlineView currently resides under glic/browser_ui.
-    "//chrome/browser/glic/browser_ui:glow",
     "//chrome/browser/tab_list",
     "//chrome/browser/ui:browser_actions",
     "//chrome/browser/ui:browser_commands",
@@ -990,8 +962,8 @@ source_set("interactive_ui_tests") {
     "//chrome/browser/ui:chrome_pages",
     "//chrome/browser/ui/actions:actions_headers",
     "//chrome/browser/ui/contextual_search",
-    "//chrome/browser/ui/lens",
-    "//chrome/browser/ui/lens:test_support",
+    "//chrome/browser/ui/omnibox",
+    "//chrome/browser/ui/tabs:tab_menu",
     "//chrome/browser/ui/toolbar/pinned_toolbar",
     "//chrome/browser/ui/views/contextual_tasks:onboarding_bubble",
     "//chrome/browser/ui/views/frame:browser_view_header",
@@ -1010,7 +982,6 @@ source_set("interactive_ui_tests") {
     "//components/lens:enterprise_policy",
     "//components/strings:components_strings",
     "//extensions/common",
-    "//third_party/lens_server_proto:lens_overlay_proto",
     "//ui/base/interaction:test_support",
     "//ui/views",
   ]

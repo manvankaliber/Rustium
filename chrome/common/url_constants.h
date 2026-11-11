@@ -312,8 +312,6 @@ inline constexpr char16_t kMyActivityGeminiAppsUrl[] =
     u"https://myactivity.google.com/product/gemini";
 
 // The URL for Glic activity button.
-inline constexpr char kGlicActivityUrl[] =
-    "https://myactivity.google.com/product/gemini?utm_source=gemini";
 
 inline constexpr char16_t kMyActivityAiModeUrl[] =
     u"https://myactivity.google.com/myactivity?product=83";

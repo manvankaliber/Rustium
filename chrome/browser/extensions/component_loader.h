@@ -140,7 +140,6 @@ class ComponentLoader : public KeyedService {
   friend class TtsApiTest;
   friend class ComponentLoaderTest;
   FRIEND_TEST_ALL_PREFIXES(ComponentLoaderTest, ParseManifest);
-  FRIEND_TEST_ALL_PREFIXES(ComponentLoaderTest, AddGlicExtension);
 
   // Information about a registered component extension.
   struct ComponentExtensionInfo {
@@ -204,7 +203,6 @@ class ComponentLoader : public KeyedService {
 
   void AddNewTabPageExtension();
 
-  void AddGlicExtension();
 
   void AddContextualTasksExtension();
 

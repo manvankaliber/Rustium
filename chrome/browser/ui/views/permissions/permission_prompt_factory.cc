@@ -12,7 +12,6 @@
 #include "chrome/browser/search/search.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
 #include "chrome/browser/ui/location_bar/location_bar_override_data.h"
 #include "chrome/browser/ui/omnibox/omnibox_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_edit_model.h"
@@ -76,10 +75,6 @@ bool IsFullScreenMode(content::WebContents* web_contents) {
 //    - a user interacts with the LocationBar. The only exception is the NTP
 //      page where the user needs to press on a microphone icon to get a
 //      permission request.
-//    - The Lens Overlay is open covering the context. We suppress permission
-//      prompts until the Lens Overlay is closed, except for secondary UI
-//      surfaces with their own location bar (such as the Contextual Tasks side
-//      panel).
 bool ShouldIgnorePermissionRequest(
     content::WebContents* web_contents,
     permissions::PermissionPrompt::Delegate* delegate) {
@@ -97,23 +92,6 @@ bool ShouldIgnorePermissionRequest(
         location_bar->GetOmniboxController()
             ->edit_model()
             ->user_input_in_progress());
-
-  BrowserWindowInterface* browser = GetBrowser(web_contents);
-  if (tabs::TabInterface* active_tab =
-          browser ? browser->GetTabStripModel()->GetActiveTab() : nullptr) {
-    LensOverlayController* lens_overlay_controller =
-        LensOverlayController::From(active_tab);
-    // Don't show prompt while the Lens Overlay is showing, except for
-    // secondary UI surfaces with their own location bar (such as the
-    // Contextual Tasks side panel) that are not covered by the overlay.
-    // TODO(b/331940245): Refactor to be decoupled from LensOverlayController
-    if (lens_overlay_controller &&
-        lens_overlay_controller->IsOverlayShowing() &&
-        !::location_bar::LocationBarOverrideData::FromWebContents(
-            web_contents)) {
-      can_display_prompt = false;
-    }
-  }
 
   permissions::PermissionUmaUtil::RecordPermissionPromptAttempt(
       delegate->Requests(), can_display_prompt);

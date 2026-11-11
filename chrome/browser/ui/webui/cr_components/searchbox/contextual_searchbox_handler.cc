@@ -102,7 +102,6 @@
 
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/browser_window/public/profile_browser_collection.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
 #include "chrome/browser/ui/omnibox/omnibox_everywhere_service.h"
 #include "chrome/browser/ui/omnibox/omnibox_everywhere_service_factory.h"
@@ -264,6 +263,7 @@ ContextualOmniboxClient::GetLensOverlaySuggestInputs() const {
   return suggest_inputs_callback_ ? suggest_inputs_callback_.Run()
                                   : std::nullopt;
 }
+
 
 bool ContextualOmniboxClient::HasPreviousSubmittedThreadContext() const {
   return has_previous_submitted_thread_context_callback_
@@ -922,12 +922,12 @@ ContextualSearchboxHandler::GetMetricsRecorder() {
              : nullptr;
 }
 
+
 std::optional<lens::proto::LensOverlaySuggestInputs>
 ContextualSearchboxHandler::GetSuggestInputs() {
   auto* contextual_session_handle = GetContextualSessionHandle();
-  return contextual_session_handle
-             ? contextual_session_handle->GetSuggestInputs()
-             : std::nullopt;
+  return contextual_session_handle ? contextual_session_handle->GetSuggestInputs()
+                                   : std::nullopt;
 }
 
 bool ContextualSearchboxHandler::
@@ -2496,47 +2496,6 @@ void ContextualSearchboxHandler::ProcessContextAndOpenUrl(
   new_contextual_session_handle->CheckSearchContentSharingSettings(
       profile_->GetPrefs());
 
-  if (OmniboxPopupWebContentsHelper::FromWebContents(web_contents_.get()) &&
-      disposition == ui::mojom::WindowOpenDisposition::kCurrentTab) {
-    auto* browser_window_interface =
-        webui::GetBrowserWindowInterface(web_contents_);
-    auto* tab_list = TabListInterface::From(browser_window_interface);
-    auto* active_tab = tab_list ? tab_list->GetActiveTab() : nullptr;
-    auto* active_web_contents =
-        active_tab ? active_tab->GetContents() : nullptr;
-    auto* lens_search_controller = LensSearchController::From(active_tab);
-    omnibox::ChromeAimEntryPoint aim_entry_point =
-        GetAimEntryPoint(client()->GetPageClassification(/*is_prefetch=*/false),
-                         new_contextual_session_handle.get());
-    if (lens_search_controller &&
-        lens_search_controller->StartContextualAimQueryInSidePanel(
-            url, new_contextual_session_handle, aim_entry_point)) {
-      BrowserWindow* const browser_window =
-          browser_window_interface
-              ? BrowserWindow::FromBrowser(browser_window_interface)
-              : nullptr;
-      auto* location_bar =
-          browser_window ? browser_window->GetLocationBar() : nullptr;
-      if (location_bar) {
-        if (auto* controller = location_bar->GetOmniboxController()) {
-          if (auto* popup_state_manager = controller->popup_state_manager()) {
-            popup_state_manager->SetPopupState(OmniboxPopupState::kNone);
-          }
-        }
-        location_bar->Revert();
-      }
-      if (active_web_contents) {
-        active_web_contents->Focus();
-      }
-      if (base::FeatureList::IsEnabled(
-              omnibox::kContextManagementInComposebox)) {
-        ClearFiles(/*should_block_auto_suggested_tabs=*/false,
-                   /*query_submitted=*/true);
-      }
-      contextual_session_handle->ClearSubmittedContextTokens();
-      return;
-    }
-  }
 
   std::unique_ptr<contextual_search::InputStateModel> new_input_state_model;
   if (input_state_model_) {

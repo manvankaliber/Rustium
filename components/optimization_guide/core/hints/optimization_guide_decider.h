@@ -63,7 +63,6 @@ class OptimizationGuideDecider {
 
  private:
   // These friend are consumers of the CanApplyOptimizationOnDemand API.
-  friend class commerce::ShoppingService;
   friend class page_image_service::ImageServiceImpl;
   friend class ::GeminiTabHelper;
   friend class multistep_filter::OptimizationGuideAnnotationIndexClient;

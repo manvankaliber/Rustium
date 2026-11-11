@@ -12,8 +12,6 @@
 #include "base/notreached.h"
 #include "base/task/sequenced_task_runner.h"
 #include "base/types/expected.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/password_manager/chrome_password_manager_client.h"
 #include "chrome/browser/password_manager/factories/account_password_store_factory.h"
 #include "chrome/browser/password_manager/factories/profile_password_store_factory.h"
@@ -65,21 +63,9 @@ bool IsAllowedByPolicy(Profile* profile, RemoteActorType actor_type) {
     case RemoteActorType::kGemini: {
       // Check whether the browser, device, or account is enterprise-managed, or
       // if the preference is explicitly set by enterprise policy.
-      bool is_managed =
-          glic::GlicEnabling::IsBrowserManaged(profile) ||
-          glic::GlicEnabling::IsDeviceManaged() ||
-          glic::GlicEnabling::IsEnterpriseAccount(profile) ||
-          prefs->IsManagedPreference(glic::prefs::kGlicSparkPolicySettings);
 
       // Apply policy if managed, unless it's a dogfood client (matching Glic
       // policy behavior).
-      if (is_managed && !glic::GlicEnabling::IsLikelyDogfoodClient()) {
-        auto policy_state = static_cast<glic::prefs::GlicSparkPolicyState>(
-            prefs->GetInteger(glic::prefs::kGlicSparkPolicySettings));
-        if (policy_state != glic::prefs::GlicSparkPolicyState::kEnabled) {
-          return false;
-        }
-      }
       return true;
     }
     case RemoteActorType::kSearch:

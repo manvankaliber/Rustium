@@ -1071,10 +1071,7 @@ bool ProfileManager::AddKeepAlive(Profile* profile,
   VLOG(1) << "AddKeepAlive(" << profile->GetDebugName() << ", " << origin
           << "). keep_alives=" << info->keep_alives;
 
-  if (origin == ProfileKeepAliveOrigin::kBrowserWindow ||
-      origin == ProfileKeepAliveOrigin::kProfileCreationFlow ||
-      origin == ProfileKeepAliveOrigin::kProfileStatistics ||
-      origin == ProfileKeepAliveOrigin::kWaitingForGlicView) {
+  if (((origin == ProfileKeepAliveOrigin::kBrowserWindow || origin == ProfileKeepAliveOrigin::kProfileCreationFlow) || origin == ProfileKeepAliveOrigin::kProfileStatistics)) {
     ClearFirstBrowserWindowKeepAlive(profile);
   }
 

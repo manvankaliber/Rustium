@@ -28,7 +28,7 @@
 #include "ui/webui/resources/cr_components/composebox/composebox.mojom.h"
 
 class Profile;
-class LensSearchController;
+
 
 namespace contextual_tasks {
 class ContextualTasksService;
@@ -137,10 +137,6 @@ class ContextualTasksComposeboxHandler
   void ClearFiles(bool should_block_auto_suggested_tabs) override;
   void HandleLensButtonClick() override;
   void OnLensThumbnailCreated(const std::string& thumbnail_data);
-  virtual void CloseLensOverlay(
-      lens::LensOverlayDismissalSource dismissal_source);
-  void CloseLensOverlayFromWebUI(
-      composebox::mojom::LensOverlayDismissalSource dismissal_source) override;
 
   // Callbacks for QueryContextualizer:
 
@@ -174,7 +170,6 @@ class ContextualTasksComposeboxHandler
 
  protected:
   virtual contextual_tasks::ContextualTasksService* GetContextualTasksService();
-  virtual std::optional<base::UnguessableToken> GetLensOverlayToken();
 
  private:
   void OnTabDisassociated(SessionID tab_session_id,
@@ -205,7 +200,6 @@ class ContextualTasksComposeboxHandler
       base::expected<base::UnguessableToken,
                      contextual_search::ContextUploadErrorType> token);
 
-  virtual LensSearchController* GetLensSearchController() const;
 
   // Called when a non-delayed context upload (file or tab) has finished.
   // Potentially submits query if no other context is uploading.

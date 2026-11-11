@@ -25,11 +25,7 @@ export enum ChromeSuggestionsSettingsValue {
 }
 
 // LINT.IfChange(GlicAssistantSelection)
-export enum GlicAssistantSelection {
-  AUTO = 0,
-  CONSUMER = 1,
-  ENTERPRISE = 2,
-}
+
 // LINT.ThenChange(//chrome/browser/glic/glic_pref_names.h:AssistantSelection)
 
 
@@ -55,20 +51,13 @@ export enum AiPageActions {
       'Settings.AiPage.Compose.ProactiveNudgeEnabled',
   COMPOSE_PROACTIVE_NUDGE_DISABLED =
       'Settings.AiPage.Compose.ProactiveNudgeDisabled',
-  GLIC_COLLAPSED_LEARN_MORE_CLICKED =
-      'Settings.AiPage.GlicCollapsed.LearnMoreClicked',
-  GLIC_SHORTCUTS_LEARN_MORE_CLICKED =
-      'Settings.AiPage.GlicShortcuts.LearnMoreClicked',
-  GLIC_SHORTCUTS_LAUNCHER_TOGGLE_LEARN_MORE_CLICKED =
-      'Settings.AiPage.GlicShortcuts.LauncherToggleLearnMoreClicked',
-  GLIC_SHORTCUTS_LOCATION_TOGGLE_LEARN_MORE_CLICKED =
-      'Settings.AiPage.GlicShortcuts.LocationToggleLearnMoreClicked',
-  GLIC_SHORTCUTS_TAB_ACCESS_TOGGLE_LEARN_MORE_CLICKED =
-      'Settings.AiPage.GlicShortcuts.TabAccessToggleLearnMoreClicked',
-  GLIC_SHORTCUTS_DEFAULT_TAB_ACCESS_TOGGLE_LEARN_MORE_CLICKED =
-      'Settings.AiPage.GlicShortcuts.DefaultTabAccessToggleLearnMoreClicked',
-  GLIC_SHORTCUTS_WEB_ACTUATION_TOGGLE_LEARN_MORE_CLICKED =
-      'Settings.AiPage.GlicShortcuts.WebActuationToggleLearnMoreClicked',
+
+
+
+
+
+
+
   AI_SUGGESTIONS_ENABLED = 'Settings.AiPage.AiSuggestions.Enabled',
   AI_SUGGESTIONS_DISABLED = 'Settings.AiPage.AiSuggestions.Disabled',
   AI_SUGGESTIONS_LEARN_MORE_CLICKED =

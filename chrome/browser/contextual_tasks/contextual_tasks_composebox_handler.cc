@@ -37,8 +37,6 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/contextual_search/desktop_query_contextualizer_delegate.h"
 #include "chrome/browser/ui/contextual_search/tab_contextualization_controller.h"
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/select_file_policy/chrome_select_file_policy.h"
 #include "chrome/browser/ui/webui/cr_components/composebox/composebox_handler.h"
 #include "chrome/browser/ui/webui/cr_components/searchbox/contextual_searchbox_handler.h"
@@ -138,8 +136,6 @@ class ContextualTasksOmniboxClient : public ContextualOmniboxClient {
     return metrics::OmniboxEventProto::CO_BROWSING_COMPOSEBOX;
   }
 
-  std::optional<lens::proto::LensOverlaySuggestInputs>
-  GetLensOverlaySuggestInputs() const override;
 
   void OnAutocompleteAccept(
       const GURL& destination_url,
@@ -159,14 +155,6 @@ class ContextualTasksOmniboxClient : public ContextualOmniboxClient {
   raw_ptr<ContextualSearchboxHandler> contextual_searchbox_handler_;
 };
 
-std::optional<lens::proto::LensOverlaySuggestInputs>
-ContextualTasksOmniboxClient::GetLensOverlaySuggestInputs() const {
-  if (!contextual_tasks::GetIsContextualTasksSuggestionsEnabled()) {
-    return std::nullopt;
-  }
-
-  return ContextualOmniboxClient::GetLensOverlaySuggestInputs();
-}
 
 void ContextualTasksOmniboxClient::OnAutocompleteAccept(
     const GURL& destination_url,
@@ -189,17 +177,6 @@ void ContextualTasksOmniboxClient::OnAutocompleteAccept(
       query_text, /*is_voice_search=*/false, additional_params);
 }
 
-lens::LensOverlayDismissalSource ToLensOverlayDismissalSource(
-    composebox::mojom::LensOverlayDismissalSource dismissal_source) {
-  switch (dismissal_source) {
-    case composebox::mojom::LensOverlayDismissalSource::
-        kContextualTasksImageUploadsDisabled:
-      return lens::LensOverlayDismissalSource::
-          kContextualTasksImageUploadsDisabled;
-  }
-  NOTREACHED() << "Unknown dismissal source: "
-               << static_cast<int>(dismissal_source);
-}
 
 }  // namespace
 
@@ -293,13 +270,6 @@ void ContextualTasksComposeboxHandler::OnContextUploadStatusChanged(
   // If the file token corresponds to the token uploaded via Lens when the
   // overlay is opened, then there is no need to do anything about the file
   // upload status.
-  if (auto* controller = GetLensSearchController()) {
-    if (controller->query_router() &&
-        controller->query_router()->overlay_tab_context_file_token() ==
-            context_token) {
-      return;
-    }
-  }
 
   ContextualSearchboxHandler::OnContextUploadStatusChanged(
       context_token, mime_type, context_upload_status, error_type);
@@ -418,14 +388,10 @@ void ContextualTasksComposeboxHandler::CreateAndSendQueryMessage(
       "ContextualTasks.Composebox.UserAction.QuerySubmitted"));
   auto* session_handle = GetContextualSessionHandle();
 
-  // Retrieve the overlay token before closing the overlay, as the controller
-  // might be destroyed or reset during closure.
-  std::optional<base::UnguessableToken> overlay_token = GetLensOverlayToken();
+  std::optional<base::UnguessableToken> overlay_token;
   bool has_visual_selection = overlay_token.has_value();
 
   // Every time a query is submitted, close the Lens overlay if it's open.
-  CloseLensOverlay(
-      lens::LensOverlayDismissalSource::kContextualTasksQuerySubmitted);
   std::optional<base::Uuid> task_id = web_ui_interface_->GetTaskId();
   auto* contextual_tasks_service = GetContextualTasksService();
 
@@ -837,15 +803,6 @@ void ContextualTasksComposeboxHandler::CacheSubmittedTabsFromSessionHandle() {
   }
   if (visual_selection_token_.has_value()) {
     return;
-  }
-  if (auto* controller = GetLensSearchController()) {
-    if (controller->lens_overlay_controller()->HasRegionSelection() &&
-        controller->query_router() &&
-        controller->query_router()
-            ->overlay_tab_context_file_token()
-            .has_value()) {
-      return;
-    }
   }
   auto* session_handle = GetContextualSessionHandle();
   if (!session_handle) {
@@ -1265,11 +1222,6 @@ void ContextualTasksComposeboxHandler::ClearFiles(
   ComposeboxHandler::ClearFiles(should_block_auto_suggested_tabs);
 
   if (visual_selection_token_.has_value()) {
-    if (auto* controller = GetLensSearchController()) {
-      if (controller->lens_overlay_controller()) {
-        controller->lens_overlay_controller()->ClearRegionSelection();
-      }
-    }
   }
   visual_selection_token_.reset();
   visual_selection_overlay_token_.reset();
@@ -1282,69 +1234,10 @@ void ContextualTasksComposeboxHandler::HandleLensButtonClick() {
   base::UmaHistogramBoolean(
       "ContextualTasks.Composebox.UserAction.LensButtonClicked", true);
 
-  if (auto* controller = GetLensSearchController()) {
-    if (controller->IsShowingUI()) {
-      if (controller->invocation_source() ==
-          lens::LensOverlayInvocationSource::kContextualTasksComposebox) {
-        controller->CloseLensAsync(
-            lens::LensOverlayDismissalSource::
-                kContextualTasksComposeboxLensButtonClick);
-        return;
-      } else {
-        // If the overlay is showing from a different invocation source, clear
-        // the selection and start fresh for a follow-up.
-        if (controller->lens_overlay_controller()) {
-          controller->lens_overlay_controller()->ClearAllSelections();
-        }
-        // Set the invocation source to contextual tasks so that any follow-up
-        // queries are associated with the contextual tasks session via the
-        // query flow router and thumbnails are added appropriately to the
-        // composebox. This will work as if the overlay was opened from the
-        // contextual tasks composebox in the first place.
-        controller->SetInvocationSource(
-            lens::LensOverlayInvocationSource::kContextualTasksComposebox);
-      }
-    }
-    controller->SetThumbnailCreatedCallback(base::BindRepeating(
-        &ContextualTasksComposeboxHandler::OnLensThumbnailCreated,
-        weak_factory_.GetWeakPtr()));
-    controller->OpenLensOverlay(
-        lens::LensOverlayInvocationSource::kContextualTasksComposebox);
-  }
 }
 
 void ContextualTasksComposeboxHandler::OnLensThumbnailCreated(
-    const std::string& thumbnail_data) {
-  searchbox::mojom::SelectedFileInfoPtr file_info =
-      searchbox::mojom::SelectedFileInfo::New();
-  file_info->file_name = "Visual Selection";
-  file_info->mime_type = "image/png";
-  file_info->image_data_url = thumbnail_data;
-  file_info->is_deletable = true;
-
-  // Clear any existing visual selection context.
-  if (visual_selection_token_) {
-    OnContextUploadStatusChanged(
-        *visual_selection_token_, lens::MimeType::kImage,
-        contextual_search::ContextUploadStatus::kUploadReplaced, std::nullopt);
-  }
-
-  // Lens will handle the creation of the interaction request needed for this
-  // context. Add the visual selection to the composebox UI. The overlay token
-  // is needed to ensure that the visual selection is associated with the
-  // correct viewport upload.
-  auto* controller = GetLensSearchController();
-  CHECK(controller);
-  CHECK(controller->query_router());
-  CHECK(
-      controller->query_router()->overlay_tab_context_file_token().has_value());
-  base::UnguessableToken overlay_token =
-      controller->query_router()->overlay_tab_context_file_token().value();
-  AddFileContextFromBrowser(
-      std::move(file_info),
-      base::BindOnce(&ContextualTasksComposeboxHandler::OnVisualSelectionAdded,
-                     weak_factory_.GetWeakPtr(), overlay_token));
-}
+    const std::string& thumbnail_data) {}
 
 // Only runs for non-delayed context. DeleteContext here runs
 // ComposeboxHandler::DeleteContext.
@@ -1419,10 +1312,6 @@ void ContextualTasksComposeboxHandler::DeleteContext(
     // If the user explicitly deleted the context (not from automatic chip),
     // close the Lens Overlay.
     if (!from_automatic_chip) {
-      if (auto* controller = GetLensSearchController()) {
-        controller->CloseLensAsync(
-            lens::LensOverlayDismissalSource::kContextualTasksContextCleared);
-      }
     }
   }
   if (was_delayed) {
@@ -1465,12 +1354,6 @@ bool ContextualTasksComposeboxHandler::HasAutoSuggestedTab() {
 void ContextualTasksComposeboxHandler::UpdateSuggestedTabContext(
     const contextual_tasks::SuggestedTabInfo* suggested_tab) {
   std::optional<std::string> invocation_source;
-  if (auto* controller = GetLensSearchController()) {
-    if (controller->invocation_source().has_value()) {
-      invocation_source = lens::InvocationSourceToString(
-          controller->invocation_source().value());
-    }
-  }
 
   if (!IsContextualSearchTabSharingEligible()) {
     SearchboxHandler::page_->UpdateAutoSuggestedTabContext(nullptr,
@@ -1510,59 +1393,9 @@ void ContextualTasksComposeboxHandler::UpdateSuggestedTabContext(
       std::move(filtered_suggestion), invocation_source);
 }
 
-void ContextualTasksComposeboxHandler::CloseLensOverlay(
-    lens::LensOverlayDismissalSource dismissal_source) {
-  if (auto* controller = GetLensSearchController()) {
-    controller->CloseLensSync(dismissal_source);
-  }
-}
 
-void ContextualTasksComposeboxHandler::CloseLensOverlayFromWebUI(
-    composebox::mojom::LensOverlayDismissalSource dismissal_source) {
-  if (auto* controller = GetLensSearchController()) {
-    controller->CloseLensAsync(ToLensOverlayDismissalSource(dismissal_source));
-  }
-}
 
-LensSearchController*
-ContextualTasksComposeboxHandler::GetLensSearchController() const {
-  auto* browser = web_ui_interface_->GetBrowser();
-  if (!browser) {
-    return nullptr;
-  }
 
-  if (auto* controller = LensSearchController::FromTabWebContents(
-          TabListInterface::From(browser)->GetActiveTab()->GetContents());
-      controller) {
-    return controller;
-  }
-  return nullptr;
-}
-
-std::optional<base::UnguessableToken>
-ContextualTasksComposeboxHandler::GetLensOverlayToken() {
-  // If there is a visual selection token in the composebox, then the overlay
-  // token should be returned to ensure the AIM request is correctly
-  // constructed with the overlay context.
-  if (visual_selection_token_.has_value()) {
-    visual_selection_token_.reset();
-    return visual_selection_overlay_token_;
-  }
-
-  if (auto* controller = GetLensSearchController()) {
-    // If there is no region selection, then do not return the overlay token.
-    // This is needed to prevent the token from being used in the client to aim
-    // request when a new overlay was opened and no region was selected.
-    if (!controller->lens_overlay_controller()->HasRegionSelection()) {
-      return std::nullopt;
-    }
-
-    if (auto* router = controller->query_router()) {
-      return router->overlay_tab_context_file_token();
-    }
-  }
-  return std::nullopt;
-}
 
 std::optional<int64_t>
 ContextualTasksComposeboxHandler::GetActiveTabContextId() {

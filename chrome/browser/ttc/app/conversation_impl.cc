@@ -151,12 +151,6 @@ void ConversationImpl::OnAudioOutput(base::span<const int16_t> audio_data,
 void ConversationImpl::OnGenerationStateChanged(bool started,
                                                 bool completed,
                                                 bool interrupted) {
-  session_controller_->GetJournal().Log("TtcGenerationStateChanged",
-                                        actor::JournalDetailsBuilder()
-                                            .Add("started", started)
-                                            .Add("completed", completed)
-                                            .Add("interrupted", interrupted)
-                                            .Build());
   if (interrupted) {
     audio_controller_->ClearPlaybackQueue();
     session_controller_->OnModelInterrupted();

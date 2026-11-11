@@ -26,8 +26,7 @@ ContextualCueSurveyCategory GetSurveyCategory(CueTargetType cue_type,
     return ContextualCueSurveyCategory::kIndigo;
   }
 
-  if (cue_type == CueTargetType::kGlic ||
-      cue_type == CueTargetType::kContextualSearch) {
+  if (cue_type == CueTargetType::kContextualSearch) {
     std::string cuj_upper = base::ToUpperASCII(cuj);
     if (cuj_upper.find("SHOP") != std::string::npos) {
       return ContextualCueSurveyCategory::kShopping;

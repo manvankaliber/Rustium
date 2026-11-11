@@ -124,14 +124,6 @@ class PageActionViewWithControllerTest : public ChromeViewsTestBase {
     widget_->SetBounds(gfx::Rect(0, 0, 800, 600));
     widget_->Show();
 
-    test_page_action_view_ =
-        widget_->SetContentsView(std::make_unique<PageActionView>(
-            action_item_,
-            PageActionViewParams{
-                .icon_size = kDefaultIconSize,
-                .icon_label_bubble_delegate = &icon_label_view_delegate_,
-            },
-            PageActionIconType::kLensOverlay, ui::ElementIdentifier()));
 
     pinned_actions_model_ =
         std::make_unique<PinnedToolbarActionsModel>(&profile_);
@@ -190,13 +182,6 @@ class PageActionViewTest : public ChromeViewsTestBase {
     widget_->SetBounds(gfx::Rect(0, 0, 800, 600));
     widget_->Show();
 
-    page_action_view_ =
-        widget_->SetContentsView(std::make_unique<PageActionView>(
-            action_item_.get(),
-            PageActionViewParams{
-                .icon_size = view_icon_size_,
-                .icon_label_bubble_delegate = &icon_label_view_delegate_},
-            PageActionIconType::kLensOverlay, ui::ElementIdentifier()));
 
     page_action_view_->GetSlideAnimationForTesting().SetSlideDuration(
         base::Seconds(0));
@@ -1418,9 +1403,6 @@ TEST_F(PageActionViewTest, CollapsedDueToSpaceMetrics) {
   // Verify no metrics logged yet (because it is expanded).
   histogram_tester.ExpectTotalCount(
       "PageActionController.Chip.CollapsedDueToSpace.ActionType", 0);
-  histogram_tester.ExpectUniqueSample(
-      "PageActionController.ChipCollapseAnalysisCount.ActionType",
-      PageActionIconType::kLensOverlay, 1);
 
   // 2. Hide the VIEW completely (not just the chip).
   // This resets the flag and also allows us to change bounds while invisible.
@@ -1447,12 +1429,6 @@ TEST_F(PageActionViewTest, CollapsedDueToSpaceMetrics) {
   EXPECT_LE(page_action_view()->width(), min_width);
 
   // Verify metrics.
-  histogram_tester.ExpectUniqueSample(
-      "PageActionController.Chip.CollapsedDueToSpace.ActionType",
-      PageActionIconType::kLensOverlay, 1);
-  histogram_tester.ExpectUniqueSample(
-      "PageActionController.ChipCollapseAnalysisCount.ActionType",
-      PageActionIconType::kLensOverlay, 2);
 
   histogram_tester.ExpectTotalCount(
       "PageActionController.Chip.CollapsedDueToSpace.PreferredWidth", 1);

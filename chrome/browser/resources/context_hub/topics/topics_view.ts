@@ -202,14 +202,6 @@ export class TopicsViewElement extends CrLitElement {
     // that it always shows current data and nothing in the URL is trusted.
     const params = new URLSearchParams();
     params.set('id', topic.id);
-    // Signals the topic details page to open the Glic side panel once it
-    // loads. Only this entry point sets it, so a topic page reached without it
-    // (e.g. a hand-typed URL) never forces the side panel open. It does persist
-    // in the URL, so reload and session restore reopen the panel; see
-    // TopicDetailsElement.maybeOpenGlicPanel_ for why that is intentional.
-    // Whether Glic is actually available is decided browser-side in
-    // PageHandler::OpenGlicPanel, which no-ops when it is not.
-    params.set('open_glic', '1');
     const topicUrl = `chrome://context-hub/topic_details?${params.toString()}`;
 
     const handler = browserProxyFactory.getInstance().handler;

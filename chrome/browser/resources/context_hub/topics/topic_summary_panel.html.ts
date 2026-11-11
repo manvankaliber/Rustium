@@ -24,12 +24,11 @@ ${this.topic?.collections.map(collection => html`
   </topic-collection-carousel>
 `)}
 ${this.feedbackEnabled_ && this.queries_.length > 0 ? html`
-  <!-- Temporary Fishfood Feedback. The queries are plain text, so that
-       rating them doesn't open Glic. -->
+  <!-- Temporary Fishfood Feedback. -->
   <section id="queryRatings" aria-labelledby="queryRatingsTitle"
       aria-describedby="queryRatingsHint">
     <p id="queryRatingsHint">
-      Try these suggestions in Gemini in Chrome to see how useful they are.
+      Rate how useful these suggestions are for this topic.
     </p>
     <h2 id="queryRatingsTitle">Is this suggestion useful for this topic?</h2>
     <ul>

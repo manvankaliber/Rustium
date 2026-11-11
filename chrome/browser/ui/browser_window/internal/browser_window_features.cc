@@ -12,15 +12,12 @@
 #include "base/memory/ptr_util.h"
 #include "base/metrics/histogram_functions.h"
 #include "base/no_destructor.h"
-#include "chrome/browser/actor/ui/actor_border_view_controller.h"
-#include "chrome/browser/actor/ui/actor_ui_window_controller.h"
 #include "chrome/browser/autocomplete/aim_eligibility_service_factory.h"
 #include "chrome/browser/bookmarks/bookmark_merged_surface_service_factory.h"
 #include "chrome/browser/bookmarks/bookmark_model_factory.h"
 #include "chrome/browser/bookmarks/managed_bookmark_service_factory.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/collaboration/collaboration_service_factory.h"
-#include "chrome/browser/commerce/shopping_service_factory.h"
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "chrome/browser/contextual_tasks/active_task_context_provider_impl.h"
@@ -30,18 +27,11 @@
 #include "chrome/browser/devtools/devtools_ui_controller.h"
 #include "chrome/browser/enterprise/data_protection/data_protection_ui_controller.h"
 #include "chrome/browser/extensions/browser_extension_window_controller.h"
-#include "chrome/browser/glic/browser_ui/glic_iph_controller.h"
-#include "chrome/browser/glic/browser_ui/glic_split_button_controller.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/lens/region_search/lens_region_search_controller.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/search_engines/ai_mode_button_service_factory.h"
 #include "chrome/browser/sessions/session_service_factory.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
-#include "chrome/browser/skills/skills_ui_window_controller.h"
 #include "chrome/browser/tab_group_sync/tab_group_sync_service_factory.h"
 #include "chrome/browser/ttc/core/entrypoint_controller.h"
 #include "chrome/browser/ttc/core/ttc_keyed_service.h"
@@ -81,7 +71,6 @@
 #include "chrome/browser/ui/focus/browser_focus_controller_webui.h"
 #include "chrome/browser/ui/fullscreen/browser_window_fullscreen_controller.h"
 #include "chrome/browser/ui/immersive/immersive_mode_controller.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
 #include "chrome/browser/ui/omnibox/ai_mode_page_action_controller.h"
 #include "chrome/browser/ui/performance_controls/memory_saver_bubble_controller.h"
 #include "chrome/browser/ui/performance_controls/memory_saver_opt_in_iph_controller.h"
@@ -181,9 +170,6 @@
 #include "chrome/common/pref_names.h"
 #include "components/breadcrumbs/core/breadcrumbs_status.h"
 #include "components/collaboration/public/collaboration_service.h"
-#include "components/commerce/core/commerce_feature_list.h"
-#include "components/commerce/core/feature_utils.h"
-#include "components/commerce/core/shopping_service.h"
 #include "components/content_settings/browser/ui/cookie_controls_controller.h"
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/contextual_tasks/public/features.h"
@@ -269,11 +255,6 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
   // features are able to register / de-register close callbacks.
   unload_controller_ = std::make_unique<UnloadController>(browser);
 
-  if (base::FeatureList::IsEnabled(features::kGlicActorUi) &&
-      features::kGlicActorUiBorderGlow.Get()) {
-    actor_border_view_controller_ =
-        std::make_unique<ActorBorderViewController>(browser);
-  }
 
   app_browser_controller_ =
       GetUserDataFactory().CreateInstanceWithFactoryMethod(
@@ -431,14 +412,7 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
   // The LensOverlayEntryPointController is constructed for all browser types
   // but is only initialized for normal browser windows. This simplifies the
   // logic for code shared by both normal and non-normal windows.
-  lens_overlay_entry_point_controller_ =
-      GetUserDataFactory()
-          .CreateInstance<lens::LensOverlayEntryPointController>(*browser,
-                                                                 browser);
 
-  lens_region_search_controller_ =
-      GetUserDataFactory().CreateInstance<lens::LensRegionSearchController>(
-          *browser, browser->GetUnownedUserDataHost());
 
   // Must be before location_bar_model_.
   location_bar_model_delegate_ =
@@ -562,17 +536,6 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
                                                                    browser);
     }
 
-    if (glic::GlicEnabling::IsProfileEligible(profile)) {
-      if (glic::GlicKeyedService* glic_service =
-              glic::GlicKeyedService::Get(profile)) {
-        glic_iph_controller_ =
-            GetUserDataFactory().CreateInstance<glic::GlicIphController>(
-                *browser, browser, *glic_service);
-        glic_split_button_controller_ =
-            std::make_unique<glic::GlicSplitButtonController>(browser,
-                                                              glic_service);
-      }
-    }
 
     initial_web_ui_manager_ = std::make_unique<InitialWebUIManager>(browser);
 
@@ -920,8 +883,6 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
           *browser, browser, profile, browser->GetTabStripModel());
 
   if (browser_view) {
-    skills_ui_window_controller_ =
-        std::make_unique<skills::SkillsUiWindowController>(browser_);
   }
 
   synced_window_delegate_ =
@@ -979,19 +940,6 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
   // into consideration buildflags, repeating buildflags is ok):
   if (browser->GetType() == BrowserWindowInterface::Type::TYPE_NORMAL) {
     if (browser_view) {
-      if (base::FeatureList::IsEnabled(features::kGlicActorUi)) {
-        std::vector<std::pair<views::WebView*, ActorOverlayWebView*>>
-            container_overlay_view_pairs;
-        for (auto& contents_container :
-             browser_view->GetContentsContainerViews()) {
-          container_overlay_view_pairs.emplace_back(
-              contents_container->contents_view(),
-              contents_container->actor_overlay_web_view());
-        }
-        actor_ui_window_controller_ =
-            GetUserDataFactory().CreateInstance<ActorUiWindowController>(
-                *browser_, browser_, std::move(container_overlay_view_pairs));
-      }
     }
 
     if (browser_view && AiModeButtonServiceFactory::GetForProfile(profile)) {
@@ -1027,18 +975,6 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
     // we need browser to properly determine if the lens overlay is enabled.
     // Cannot be in Init since needs to listen to the fullscreen controller
     // and location bar view which are initialized after Init.
-    if (lens::features::IsLensOverlayEnabled()) {
-      LocationBar* location_bar = nullptr;
-      // TODO(crbug.com/360163254): We should really be using
-      // Browser::GetBrowserView, which always returns a non-null BrowserView
-      // in production, but this crashes during unittests using
-      // BrowserWithTestWindowTest; these should eventually be refactored.
-      if (browser_view) {
-        location_bar = browser_view->GetLocationBar();
-      }
-      lens_overlay_entry_point_controller_->Initialize(
-          browser, browser_command_controller_.get(), location_bar);
-    }
 
     if (browser_view) {
       // Memory Saver mode is default off but is available to turn on.
@@ -1168,9 +1104,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
   }
   cast_browser_controller_.reset();
   ai_mode_page_action_controller_.reset();
-  if (actor_ui_window_controller_) {
-    actor_ui_window_controller_->TearDown();
-  }
 
   // Owned-by-all members.
   // Must be before user_education_: cancel delayed avatar IPHs first.
@@ -1189,7 +1122,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
   upgrade_notification_controller_.reset();
   toast_service_.reset();
   synced_window_delegate_.reset();
-  skills_ui_window_controller_.reset();
   tabs_from_other_devices_side_panel_coordinator_.reset();
   reading_list_side_panel_coordinator_.reset();
   history_side_panel_coordinator_.reset();
@@ -1244,8 +1176,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
   // Init (reverse).
 
   // TYPE_NORMAL members.
-  glic_iph_controller_.reset();
-  glic_split_button_controller_.reset();
   initial_web_ui_manager_.reset();
   ai_overlay_dialog_controller_.reset();
 
@@ -1258,7 +1188,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
     contextual_tasks_browser_controller_->Shutdown();
   }
   signin_view_controller_->TearDownPreBrowserWindowDestruction();
-  lens_overlay_entry_point_controller_.reset();
   // Must be before window_feature_controller_ (raw pointer).
   immersive_mode_controller_.reset();
   find_bar_controller_.reset();
@@ -1268,7 +1197,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
     provider->TearDown();
   }
   browser_animation_controller_.reset();
-  actor_border_view_controller_.reset();
 }
 
 // static

@@ -7,12 +7,6 @@ import("//build/config/ui.gni")
 
 source_set("power_save_blocker") {
   visibility = [
-    # //remoting runs in a separate process which is outside of the context of
-    # the ServiceManager-based world. Instead of embedding a Service Manager
-    # environment and Device Service in it, we allow the power save blocker to
-    # be visible to //remoting and directly used. See crbug.com/689423
-    "//remoting/host:*",
-    "//remoting/host/win:*",
     "//services/device/wake_lock:*",
 
     # Unit tests for the Linux implementation.

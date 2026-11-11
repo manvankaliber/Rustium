@@ -16,7 +16,6 @@ BASE_DECLARE_FEATURE(kImageCopiedToast);
 BASE_DECLARE_FEATURE(kVideoFrameCopiedToast);
 BASE_DECLARE_FEATURE(kLinkToHighlightCopiedToast);
 BASE_DECLARE_FEATURE(kReadingListToast);
-BASE_DECLARE_FEATURE(kLensOverlayToast);
 BASE_DECLARE_FEATURE(kClearBrowsingDataToast);
 BASE_DECLARE_FEATURE(kTranslateToast);
 

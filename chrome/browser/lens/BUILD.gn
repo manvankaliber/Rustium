@@ -1,67 +1,13 @@
-# Copyright 2021 The Chromium Authors
+# Copyright 2026 The Chromium Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-source_set("lens_suggestion_tool") {
-  sources = [
-    "lens_suggestion_tool.cc",
-    "lens_suggestion_tool.h",
-  ]
-  public_deps = [
-    "//base",
-    "//chrome/browser/selection",
-  ]
-  deps = [
-    "//chrome/app:generated_resources",
-    "//chrome/browser/ui/lens",
-    "//components/lens",
-    "//components/optimization_guide/proto:optimization_guide_proto",
-    "//components/tabs:public",
-    "//content/public/browser",
-    "//skia",
-    "//ui/base",
-    "//ui/gfx/geometry",
-  ]
-}
-
 source_set("lens_sapisid_generator") {
-  sources = [
-    "lens_sapisid_generator.cc",
-    "lens_sapisid_generator.h",
-  ]
+  sources = [ "lens_sapisid_generator.cc", "lens_sapisid_generator.h" ]
   deps = [
     "//base",
     "//build:branding_buildflags",
     "//components/optimization_guide:optimization_guide_buildflags",
     "//components/optimization_guide/core:optimization_guide_library_holder",
-  ]
-}
-
-source_set("unit_tests") {
-  testonly = true
-  sources = [ "lens_sapisid_generator_unittest.cc" ]
-  deps = [
-    ":lens_sapisid_generator",
-    "//base",
-    "//base/test:test_support",
-    "//build:branding_buildflags",
-    "//testing/gtest",
-  ]
-
-  sources += [ "lens_suggestion_tool_unittest.cc" ]
-  deps += [
-    ":lens_suggestion_tool",
-    "//chrome/browser/lens/core/mojom:mojo_bindings",
-    "//chrome/browser/selection",
-    "//chrome/browser/ui/lens",
-    "//components/lens",
-    "//components/optimization_guide/proto:optimization_guide_proto",
-    "//components/tabs:test_support",
-    "//content/test:test_support",
-    "//mojo/public/cpp/bindings",
-    "//skia",
-    "//testing/gmock",
-    "//ui/base/unowned_user_data",
-    "//ui/gfx/geometry",
   ]
 }

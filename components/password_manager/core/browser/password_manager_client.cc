@@ -217,9 +217,6 @@ PasswordManagerClient::GetUndoPasswordChangeController() {
   return nullptr;
 }
 
-bool PasswordManagerClient::IsActorTaskActive() {
-  return false;
-}
 
 void PasswordManagerClient::OnPasswordFilled(PasswordManagerDriver* driver) {}
 

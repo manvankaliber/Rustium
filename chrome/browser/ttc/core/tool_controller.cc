@@ -20,28 +20,6 @@
 #include "base/types/expected.h"
 #include "base/values.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_surface_handle.h"
-#include "chrome/browser/actor/actor_task_metadata.h"
-#include "chrome/browser/actor/tab_observation_strategy.h"
-#include "chrome/browser/actor/tools/click_tool_request.h"
-#include "chrome/browser/actor/tools/find_and_highlight_tool_request.h"
-#include "chrome/browser/actor/tools/gemini_panel_tool_request.h"
-#include "chrome/browser/actor/tools/history_tool_request.h"
-#include "chrome/browser/actor/tools/media_control_tool_request.h"
-#include "chrome/browser/actor/tools/open_known_page_tool_request.h"
-#include "chrome/browser/actor/tools/open_url_tool_request.h"
-#include "chrome/browser/actor/tools/perform_search_tool_request.h"
-#include "chrome/browser/actor/tools/registry/tool_definition.h"
-#include "chrome/browser/actor/tools/registry/tool_registry.h"
-#include "chrome/browser/actor/tools/scroll_tool_request.h"
-#include "chrome/browser/actor/tools/select_tool_request.h"
-#include "chrome/browser/actor/tools/switch_tab_tool_request.h"
-#include "chrome/browser/actor/tools/tab_management_tool_request.h"
-#include "chrome/browser/actor/tools/tool_request.h"
-#include "chrome/browser/actor/tools/translate_page_tool_request.h"
-#include "chrome/browser/actor/tools/type_tool_request.h"
-#include "chrome/browser/actor/tools/window_management_tool_request.h"
-#include "chrome/browser/glic/public/glic_passkeys.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ttc/core/page_context_util.h"
 #include "chrome/browser/ttc/core/session_controller_impl.h"
@@ -74,7 +52,6 @@ void OnToolCallFinished(
     std::unique_ptr<SessionJournalImpl::PendingAsyncEvent> journal_event,
     ToolResponseCallback callback,
     ToolResponse response) {
-  actor::JournalDetailsBuilder details;
   if (response.Ok()) {
     details.Add("result", "ok");
   } else {
@@ -98,52 +75,8 @@ bool SupportsWindowManagementTools() {
 // Parses the `node_id` argument sent by the server. The model sees `node_id`
 // as an integer, but the server post-processes it into a dictionary of the
 // form {"document_id": <serialized_token>, "dom_node_id": <int>}.
-base::expected<actor::PageTarget, std::string> ParseNodeIdArgument(
-    const base::DictValue& arguments) {
-  const base::DictValue* node_id = arguments.FindDict("node_id");
-  if (!node_id) {
-    return base::unexpected("Missing node_id argument");
-  }
 
-  std::optional<int> dom_node_id = node_id->FindInt("dom_node_id");
-  const std::string* document_id = node_id->FindString("document_id");
-  if (!dom_node_id || !document_id) {
-    return base::unexpected("node_id must contain dom_node_id and document_id");
-  }
 
-  return actor::PageTarget(actor::DomNode{.node_id = *dom_node_id,
-                                          .document_identifier = *document_id});
-}
-
-std::optional<actor::ScrollPageToolRequest::Granularity> ParseScrollGranularity(
-    std::string_view granularity) {
-  using Granularity = actor::ScrollPageToolRequest::Granularity;
-  if (granularity == "page") {
-    return Granularity::kPage;
-  }
-  if (granularity == "document") {
-    return Granularity::kDocument;
-  }
-  return std::nullopt;
-}
-
-std::optional<actor::ScrollPageToolRequest::Direction> ParseScrollDirection(
-    std::string_view direction) {
-  using Direction = actor::ScrollPageToolRequest::Direction;
-  if (direction == "up") {
-    return Direction::kUp;
-  }
-  if (direction == "down") {
-    return Direction::kDown;
-  }
-  if (direction == "left") {
-    return Direction::kLeft;
-  }
-  if (direction == "right") {
-    return Direction::kRight;
-  }
-  return std::nullopt;
-}
 
 }  // namespace
 
@@ -171,13 +104,6 @@ void ToolController::ProcessToolCall(const ToolRequest& tool_request,
   const bool must_wait =
       in_flight_tool_call_.has_value() || !pending_tool_calls_.empty();
   if (must_wait) {
-    session_controller_->GetJournal().Log(
-        "TtcToolCallQueued",
-        actor::JournalDetailsBuilder()
-            .Add("name", tool_request.name)
-            .Add("arguments",
-                 base::WriteJson(tool_request.arguments).value_or(""))
-            .Build());
   }
 
   pending_tool_calls_.emplace_back(tool_request.Clone(), std::move(callback));
@@ -219,92 +145,8 @@ void ToolController::RunToolCall(const ToolRequest& tool_request,
                                  ToolResponseCallback callback) {
   // The task may have been stopped while this call was queued. Replace it
   // before journaling so that the call is journaled under the task it runs in.
-  session_controller_->EnsureActorTaskCreated();
 
-  callback = base::BindOnce(
-      &OnToolCallFinished,
-      session_controller_->GetJournal().BeginAsyncEvent(
-          "TtcToolCall",
-          actor::JournalDetailsBuilder()
-              .Add("name", tool_request.name)
-              .Add("arguments",
-                   base::WriteJson(tool_request.arguments).value_or(""))
-              .Build()),
-      std::move(callback));
 
-  if (std::optional<actor::ToolId> tool_id =
-          actor::ToolRegistry::NameToToolId(tool_request.name)) {
-    switch (*tool_id) {
-      case actor::ToolId::kPerformSearch:
-        PerformSearch(tool_request.arguments, std::move(callback));
-        return;
-      case actor::ToolId::kGoBack:
-        GoBack(std::move(callback));
-        return;
-      case actor::ToolId::kGoForward:
-        GoForward(std::move(callback));
-        return;
-      case actor::ToolId::kReloadPage:
-        ReloadPage(std::move(callback));
-        return;
-      case actor::ToolId::kFindAndHighlight:
-        FindAndHighlight(tool_request.arguments, std::move(callback));
-        return;
-      case actor::ToolId::kPlayVideo:
-        PlayVideo(std::move(callback));
-        return;
-      case actor::ToolId::kPauseVideo:
-        PauseVideo(std::move(callback));
-        return;
-      case actor::ToolId::kSeekToTimestamp:
-        SeekToTimestamp(tool_request.arguments, std::move(callback));
-        return;
-      case actor::ToolId::kTranslatePage:
-        TranslatePage(tool_request.arguments, std::move(callback));
-        return;
-      case actor::ToolId::kPromptGeminiPanel:
-        PromptGeminiPanel(tool_request.arguments, std::move(callback));
-        return;
-      case actor::ToolId::kCloseGeminiPanel:
-        CloseGeminiPanel(std::move(callback));
-        return;
-      case actor::ToolId::kCloseTab:
-        CloseCurrentTab(std::move(callback));
-        return;
-      case actor::ToolId::kCreateTab:
-        CreateNewTab(std::move(callback));
-        return;
-      case actor::ToolId::kCloseWindow:
-        if (SupportsWindowManagementTools()) {
-          CloseCurrentWindow(std::move(callback));
-          return;
-        }
-        break;
-      case actor::ToolId::kCreateWindow:
-        if (SupportsWindowManagementTools()) {
-          CreateNewWindow(std::move(callback));
-          return;
-        }
-        break;
-      case actor::ToolId::kSwitchTab:
-        SwitchTab(tool_request.arguments, std::move(callback));
-        return;
-      case actor::ToolId::kOpenUrl:
-        OpenUrl(tool_request.arguments, std::move(callback));
-        return;
-      case actor::ToolId::kEnterFullscreen:
-        SetFullscreen(/*fullscreen=*/true, std::move(callback));
-        return;
-      case actor::ToolId::kExitFullscreen:
-        SetFullscreen(/*fullscreen=*/false, std::move(callback));
-        return;
-      case actor::ToolId::kOpenKnownPage:
-        OpenKnownPage(tool_request.arguments, std::move(callback));
-        return;
-      default:
-        break;
-    }
-  }
 
   // TODO(b/573150754): Migrate click_element, set_text, select_option, and
   // scroll_page to kClick, kType, kSelectOption, and kScrollPage once MES
@@ -334,13 +176,9 @@ void ToolController::RunToolCall(const ToolRequest& tool_request,
     return;
   }
 
-  std::move(callback).Run(ToolResponse::Error(
-      actor::mojom::ActionResultCode::kToolUnknown, "Unsupported tool"));
 }
 
 std::vector<ToolDefinition> ToolController::GetToolDefinitions() {
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(GetProfile());
   CHECK(actor_service);
 
   // TODO(b/573150754): Add kClick, kType, and kSelectOption once MES supports
@@ -358,12 +196,8 @@ std::vector<ToolDefinition> ToolController::GetToolDefinitions() {
       actor::ToolId::kExitFullscreen,   actor::ToolId::kOpenKnownPage,
   };
 
-  actor::ToolIdSet supported_tool_ids = kSupportedToolIds;
   if (SupportsWindowManagementTools()) {
-    supported_tool_ids.Put(actor::ToolId::kCreateWindow);
   }
-  std::vector<const actor::ToolDefinition*> actor_tools =
-      actor_service->tool_registry().GetToolsByIds(supported_tool_ids);
 
   // Legacy tools defined below: click_element, set_text, select_option,
   // scroll_page, and get_screenshot; plus close_window where window tools are
@@ -515,8 +349,6 @@ std::vector<ToolDefinition> ToolController::GetToolDefinitions() {
     // close_window takes a window_id, but the model has no window IDs. TTC
     // closes the window containing the tracked tab, as enter_fullscreen does.
     ToolDefinition close_window;
-    close_window.name =
-        std::string(actor::CloseWindowToolRequest::kModelFacingName);
     close_window.description = "Close the active browser window.";
     // The tool takes no arguments, so its schema is left empty.
     close_window.behavior = ToolDefinition::Behavior::kBlocking;
@@ -533,12 +365,7 @@ Profile* ToolController::GetProfile() {
 
 void ToolController::ClickElement(const base::DictValue& arguments,
                                   ToolResponseCallback callback) {
-  base::expected<actor::PageTarget, std::string> page_target =
-      ParseNodeIdArgument(arguments);
   if (!page_target.has_value()) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            page_target.error()));
     return;
   }
 
@@ -603,18 +430,11 @@ void ToolController::CreateNewTab(ToolResponseCallback callback) {
 
 void ToolController::CreateNewWindow(ToolResponseCallback callback) {
   // The new window becomes active, so the session's tracked tab follows it.
-  PerformAction(std::make_unique<actor::CreateWindowToolRequest>(),
-                std::move(callback));
 }
 
 void ToolController::FindAndHighlight(const base::DictValue& arguments,
                                       ToolResponseCallback callback) {
-  const std::string* query =
-      arguments.FindString(actor::FindAndHighlightToolRequest::kQueryParam);
   if (!query) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing query argument"));
     return;
   }
 
@@ -633,8 +453,6 @@ void ToolController::GetScreenshot(ToolResponseCallback callback) {
   content::WebContents* contents =
       session_controller_->GetVoiceFocusedWebContents();
   if (!contents) {
-    std::move(callback).Run(ToolResponse::Error(
-        actor::mojom::ActionResultCode::kTabWentAway, "No active tab"));
     return;
   }
 
@@ -656,30 +474,20 @@ void ToolController::OnGetScreenshotUrlChecked(
     ToolResponseCallback callback,
     bool is_url_supported) {
   if (!is_url_supported) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kUrlBlocked,
-                            "URL is not supported for screenshot capture"));
     return;
   }
 
   content::WebContents* web_contents =
       session_controller_->GetVoiceFocusedWebContents();
   if (!web_contents) {
-    std::move(callback).Run(ToolResponse::Error(
-        actor::mojom::ActionResultCode::kTabWentAway, "No active tab"));
     return;
   }
 
   if (!page || &*page != &web_contents->GetPrimaryPage()) {
-    std::move(callback).Run(ToolResponse::Error(
-        actor::mojom::ActionResultCode::kScreenshotCaptureFailed,
-        "Focused page changed before screenshot capture"));
     return;
   }
 
   if (web_contents->IsCrashed()) {
-    std::move(callback).Run(ToolResponse::Error(
-        actor::mojom::ActionResultCode::kRendererCrashed, "Renderer crashed"));
     return;
   }
 
@@ -714,19 +522,14 @@ void ToolController::OnGetScreenshotFetched(
   screenshot_fetcher_.reset();
 
   if (!result.has_value()) {
-    auto error = actor::mojom::ActionResultCode::kScreenshotCaptureFailed;
     switch (result.error().error_code) {
       case page_content_annotations::FetchPageContextError::
           kWebContentsWentAway:
-        error = actor::mojom::ActionResultCode::kTabWentAway;
         break;
       case page_content_annotations::FetchPageContextError::kWebContentsChanged:
-        error = actor::mojom::ActionResultCode::kScreenshotCapturePageChanged;
         break;
       case page_content_annotations::FetchPageContextError::
           kPageContextNotEligible:
-        error =
-            actor::mojom::ActionResultCode::kScreenshotCapturePageNotEligible;
         break;
       default:
         break;
@@ -739,18 +542,12 @@ void ToolController::OnGetScreenshotFetched(
   // `PageContextFetcher` only reports success with a non-null result.
   CHECK(result.value());
   if (!result.value()->screenshot_result.has_value()) {
-    std::move(callback).Run(ToolResponse::Error(
-        actor::mojom::ActionResultCode::kScreenshotCaptureFailed,
-        result.value()->screenshot_result.error().message));
     return;
   }
 
   page_content_annotations::ScreenshotResult& screenshot_result =
       *result.value()->screenshot_result;
   if (screenshot_result.screenshot_data.empty()) {
-    std::move(callback).Run(ToolResponse::Error(
-        actor::mojom::ActionResultCode::kScreenshotCaptureFailed,
-        "Captured screenshot data is empty"));
     return;
   }
 
@@ -784,36 +581,19 @@ void ToolController::GoForward(ToolResponseCallback callback) {
 
 void ToolController::OpenKnownPage(const base::DictValue& arguments,
                                    ToolResponseCallback callback) {
-  const std::string* query =
-      arguments.FindString(actor::OpenKnownPageToolRequest::kQueryParam);
   if (!query || query->empty()) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing or empty query argument"));
     return;
   }
 
-  PerformAction(std::make_unique<actor::OpenKnownPageToolRequest>(*query),
-                std::move(callback));
 }
 
 void ToolController::OpenUrl(const base::DictValue& arguments,
                              ToolResponseCallback callback) {
-  const std::string* url =
-      arguments.FindString(actor::OpenUrlToolRequest::kUrlParam);
   if (!url || url->empty()) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing or empty url argument"));
     return;
   }
 
-  std::optional<bool> new_tab =
-      arguments.FindBool(actor::OpenUrlToolRequest::kNewTabParam);
   if (!new_tab) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing new_tab argument"));
     return;
   }
 
@@ -838,12 +618,7 @@ void ToolController::PauseVideo(ToolResponseCallback callback) {
 
 void ToolController::PerformSearch(const base::DictValue& arguments,
                                    ToolResponseCallback callback) {
-  const std::string* query =
-      arguments.FindString(actor::PerformSearchToolRequest::kQueryParam);
   if (!query) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing query argument"));
     return;
   }
 
@@ -868,12 +643,7 @@ void ToolController::PlayVideo(ToolResponseCallback callback) {
 
 void ToolController::PromptGeminiPanel(const base::DictValue& arguments,
                                        ToolResponseCallback callback) {
-  const std::string* prompt =
-      arguments.FindString(actor::PromptGeminiPanelToolRequest::kPromptParam);
   if (!prompt || prompt->empty()) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing or empty prompt argument"));
     return;
   }
 
@@ -933,34 +703,15 @@ void ToolController::DidFinishNavigation(
 
 void ToolController::ScrollPage(const base::DictValue& arguments,
                                 ToolResponseCallback callback) {
-  const std::string* granularity_arg =
-      arguments.FindString(actor::ScrollPageToolRequest::kGranularityParam);
-  std::optional<actor::ScrollPageToolRequest::Granularity> granularity =
-      granularity_arg ? ParseScrollGranularity(*granularity_arg) : std::nullopt;
   if (!granularity) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing or invalid granularity argument"));
     return;
   }
 
-  const std::string* direction_arg =
-      arguments.FindString(actor::ScrollPageToolRequest::kDirectionParam);
-  std::optional<actor::ScrollPageToolRequest::Direction> direction =
-      direction_arg ? ParseScrollDirection(*direction_arg) : std::nullopt;
   if (!direction) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing or invalid direction argument"));
     return;
   }
 
-  base::expected<actor::PageTarget, std::string> page_target =
-      ParseNodeIdArgument(arguments);
   if (!page_target.has_value()) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            page_target.error()));
     return;
   }
 
@@ -976,20 +727,11 @@ void ToolController::ScrollPage(const base::DictValue& arguments,
 
 void ToolController::SeekToTimestamp(const base::DictValue& arguments,
                                      ToolResponseCallback callback) {
-  const std::string* timecode =
-      arguments.FindString(actor::SeekMediaToolRequest::kTimecodeParam);
   if (!timecode) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing timecode argument"));
     return;
   }
 
-  std::optional<base::TimeDelta> seek_time =
-      actor::SeekMediaToolRequest::FromTimecode(*timecode);
   if (!seek_time) {
-    std::move(callback).Run(ToolResponse::Error(
-        actor::mojom::ActionResultCode::kArgumentsInvalid, "Invalid timecode"));
     return;
   }
 
@@ -1004,20 +746,12 @@ void ToolController::SeekToTimestamp(const base::DictValue& arguments,
 
 void ToolController::SelectOption(const base::DictValue& arguments,
                                   ToolResponseCallback callback) {
-  base::expected<actor::PageTarget, std::string> page_target =
-      ParseNodeIdArgument(arguments);
   if (!page_target.has_value()) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            page_target.error()));
     return;
   }
 
   const std::string* text = arguments.FindString("text");
   if (!text) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing text argument"));
     return;
   }
 
@@ -1053,21 +787,11 @@ void ToolController::SetFullscreen(bool fullscreen,
 
 void ToolController::SetText(const base::DictValue& arguments,
                              ToolResponseCallback callback) {
-  base::expected<actor::PageTarget, std::string> page_target =
-      ParseNodeIdArgument(arguments);
   if (!page_target.has_value()) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            page_target.error()));
     return;
   }
 
-  const std::string* text =
-      arguments.FindString(actor::TypeToolRequest::kTextParam);
   if (!text) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing text argument"));
     return;
   }
 
@@ -1083,29 +807,17 @@ void ToolController::SetText(const base::DictValue& arguments,
 
 void ToolController::SwitchTab(const base::DictValue& arguments,
                                ToolResponseCallback callback) {
-  const std::string* query =
-      arguments.FindString(actor::SwitchTabToolRequest::kQueryParam);
   if (!query || query->empty()) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing or empty query argument"));
     return;
   }
 
-  PerformAction(std::make_unique<actor::SwitchTabToolRequest>(*query),
-                std::move(callback));
 }
 
 void ToolController::TranslatePage(const base::DictValue& arguments,
                                    ToolResponseCallback callback) {
   // If `target_language` is empty, the page is translated to the user's
   // preferred language.
-  const std::string* target_language = arguments.FindString(
-      actor::TranslatePageToolRequest::kTargetLanguageParam);
   if (!target_language) {
-    std::move(callback).Run(
-        ToolResponse::Error(actor::mojom::ActionResultCode::kArgumentsInvalid,
-                            "Missing target_language argument"));
     return;
   }
 
@@ -1118,63 +830,7 @@ void ToolController::TranslatePage(const base::DictValue& arguments,
       std::move(callback));
 }
 
-void ToolController::PerformActionOnTrackedContents(
-    base::FunctionRef<std::unique_ptr<actor::ToolRequest>(
-        actor::ActorSurfaceHandle)> create_action,
-    ToolResponseCallback callback) {
-  // Resolved via the session's VoiceFocusedContentsTracker rather than a
-  // TabStripModel, which Android doesn't have.
-  content::WebContents* contents =
-      session_controller_->GetVoiceFocusedWebContents();
-  tabs::TabInterface* active_tab =
-      contents ? tabs::TabInterface::MaybeGetFromContents(contents) : nullptr;
-  actor::ActorSurfaceHandle actor_surface_handle;
-  if (active_tab) {
-    actor_surface_handle =
-        actor::ActorSurfaceHandle::From(active_tab->GetHandle());
-  }
-  if (actor_surface_handle.is_null()) {
-    std::move(callback).Run(ToolResponse::Error(
-        actor::mojom::ActionResultCode::kTabWentAway, "No active tab"));
-    return;
-  }
 
-  PerformAction(create_action(actor_surface_handle), std::move(callback));
-}
 
-void ToolController::PerformAction(std::unique_ptr<actor::ToolRequest> action,
-                                   ToolResponseCallback callback) {
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(GetProfile());
-  CHECK(actor_service);
-
-  // TTC currently doesn't record and send an observation for the page after
-  // acting, so there's no need to wait for the page to settle before responding
-  // to the model.
-  action->SetSkipObservationDelay(true);
-
-  std::vector<std::unique_ptr<actor::ToolRequest>> actions;
-  actions.push_back(std::move(action));
-
-  actor_service->PerformActions(
-      session_controller_->GetActorTaskId(), std::move(actions),
-      actor::ActorTaskMetadata(),
-      base::BindOnce(&ToolController::OnActionsFinished,
-                     weak_factory_.GetWeakPtr(), std::move(callback)));
-}
-
-void ToolController::OnActionsFinished(
-    ToolResponseCallback callback,
-    std::vector<actor::ActionResultWithLatencyInfo> results,
-    actor::TabObservationStrategy strategy) {
-  CHECK(!results.empty());
-
-  const actor::mojom::ActionResult& result = *results[0].result;
-  if (!actor::IsOk(result)) {
-    std::move(callback).Run(ToolResponse::Error(result.code, result.message));
-    return;
-  }
-  std::move(callback).Run(ToolResponse::Success());
-}
 
 }  // namespace ttc

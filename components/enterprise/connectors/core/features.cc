@@ -36,7 +36,6 @@ BASE_FEATURE(kEnableEncryptedFileUpload, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kDlpScanPastedImages, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // Controls enabling bulk data entry support in Glic actuation logic.
-BASE_FEATURE(kGlicBulkDataEntrySupport, base::FEATURE_ENABLED_BY_DEFAULT);
 
 
 // Controls whether cancellation of uploads is enabled for content analysis.
@@ -86,7 +85,5 @@ BASE_FEATURE_PARAM(int,
                    &kEventReportingCdpAttribution,
                    /*default_value=*/16);
 
-BASE_FEATURE(kEnterpriseGlicActorAttribution,
-             base::FEATURE_DISABLED_BY_DEFAULT);
 
 }  // namespace enterprise_connectors

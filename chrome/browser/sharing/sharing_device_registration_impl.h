@@ -40,12 +40,10 @@ class SharingDeviceRegistrationImpl : public SharingDeviceRegistration {
       SharingDeviceRegistrationResult,
       std::optional<syncer::DeviceInfo::SharingTargetInfo>)>;
 
-  SharingDeviceRegistrationImpl(
-      SharingSyncPreference* prefs,
-      instance_id::InstanceIDDriver* instance_id_driver,
-      syncer::SyncService* sync_service,
-      bool glic_experimental_triggering_supported);
 
+  SharingDeviceRegistrationImpl(SharingSyncPreference* prefs,
+                                instance_id::InstanceIDDriver* instance_id_driver,
+                                syncer::SyncService* sync_service);
   SharingDeviceRegistrationImpl(const SharingDeviceRegistrationImpl&) = delete;
   SharingDeviceRegistrationImpl& operator=(
       const SharingDeviceRegistrationImpl&) = delete;
@@ -74,7 +72,6 @@ class SharingDeviceRegistrationImpl : public SharingDeviceRegistration {
   bool IsOptimizationGuidePushNotificationSupported() const override;
 
   // Returns if device can handle receiving of glic experimental triggering.
-  bool IsGlicExperimentalTriggeringSupported() const override;
 
   // Returns if device can handle receiving of browser actuator.
   bool IsBrowserActuatorSupported() const override;
@@ -118,7 +115,6 @@ class SharingDeviceRegistrationImpl : public SharingDeviceRegistration {
   raw_ptr<instance_id::InstanceIDDriver> instance_id_driver_;
   raw_ptr<syncer::SyncService> sync_service_;
   // Whether the profile's Glic provider supports experimental triggering.
-  const bool glic_experimental_triggering_supported_;
   std::optional<std::set<syncer::DeviceInfo::SharingFeature>>
       enabled_features_testing_value_;
 

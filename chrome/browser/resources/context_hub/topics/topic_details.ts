@@ -155,7 +155,7 @@ export class TopicDetailsElement extends CrLitElement {
 
     this.updateDocumentTitle_();
     // Only once the topic has loaded, so the panel gets its suggested prompts.
-    this.maybeOpenGlicPanel_();
+
     this.loadFeedback_();
   }
 
@@ -184,17 +184,7 @@ export class TopicDetailsElement extends CrLitElement {
   // The parameter is deliberately left in the URL so this runs on every load.
   // That way the panel comes back if the user closed it, and it is sent this
   // topic's prompts again if it was already open.
-  private maybeOpenGlicPanel_() {
-    const params = new URLSearchParams(window.location.search);
-    if (!this.topic || params.get('open_glic') !== '1' || !isTopicsEnabled()) {
-      return;
-    }
 
-    // Glic availability is deliberately not checked here; the browser side is
-    // authoritative and no-ops when Glic is unavailable for the profile.
-    browserProxyFactory.getInstance().handler.openGlicPanel(
-        getSuggestedPrompts(this.topic));
-  }
 
   // Prefixes the title with the topic's emoji, if it has one. The favicon is
   // deliberately left as the default Context Hub icon: an emoji drawn into an

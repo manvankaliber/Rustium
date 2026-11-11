@@ -435,7 +435,7 @@ export enum YourSavedInfoDataCategory {
   CONTACT_INFO = 2,
   IDENTITY_DOCS = 3,
   TRAVEL = 4,
-  SHOPPING = 5,
+
   COUNT = 6,
 }
 // LINT.ThenChange(/tools/metrics/histograms/metadata/autofill/enums.xml:YourSavedInfoDataCategory)
@@ -487,22 +487,11 @@ export enum YourSavedInfoRelatedService {
 // LINT.ThenChange(/tools/metrics/histograms/metadata/autofill/enums.xml:YourSavedInfoRelatedService)
 
 // LINT.IfChange(SuggestionsFromGeminiEntryPoint)
-export enum SuggestionsFromGeminiEntryPoint {
-  YOUR_SAVED_INFO = 0,
-  TRAVEL = 1,
-  SHOPPING = 2,
-  IDENTITY_DOCS = 3,
-  COUNT = 4,
-}
+
 // LINT.ThenChange(/tools/metrics/histograms/metadata/autofill/enums.xml:SuggestionsFromGeminiEntryPoint)
 
 // LINT.IfChange(SuggestionsFromGeminiAction)
-export enum SuggestionsFromGeminiAction {
-  MANAGE_CONNECTED_APPS_CLICK = 0,
-  TOGGLE_ON = 1,
-  TOGGLE_OFF = 2,
-  COUNT = 3,
-}
+
 // LINT.ThenChange(/tools/metrics/histograms/metadata/autofill/enums.xml:SuggestionsFromGeminiAction)
 
 /**
@@ -654,14 +643,13 @@ export interface MetricsBrowserProxy {
    * Records a click on the Suggestions from Gemini link across Your saved info
    * and category subpages with a corresponding metric and user action.
    */
-  recordSuggestionsFromGeminiEntryPointClick(
-      entryPoint: SuggestionsFromGeminiEntryPoint): void;
+
 
   /**
    * Records an action triggered inside the Suggestions from Gemini subpage
    * with a corresponding metric and user action.
    */
-  recordSuggestionsFromGeminiAction(action: SuggestionsFromGeminiAction): void;
+
 
   /**
    * Helper function that calls recordHistogram for the
@@ -1052,46 +1040,9 @@ export class MetricsBrowserProxyImpl implements MetricsBrowserProxy {
     }
   }
 
-  recordSuggestionsFromGeminiEntryPointClick(
-      entryPoint: SuggestionsFromGeminiEntryPoint) {
-    chrome.send('metricsHandler:recordInHistogram', [
-      'Autofill.YourSavedInfoSettingsPage.SuggestionsFromGeminiLinkClick',
-      entryPoint,
-      SuggestionsFromGeminiEntryPoint.COUNT,
-    ]);
-    if (entryPoint !== SuggestionsFromGeminiEntryPoint.COUNT) {
-      const actionMap = {
-        [SuggestionsFromGeminiEntryPoint.YOUR_SAVED_INFO]:
-            'PersonalContext.Settings.EntryPoint.AutofillAndPasswordsSettings',
-        [SuggestionsFromGeminiEntryPoint.TRAVEL]:
-            'PersonalContext.Settings.EntryPoint.TravelSettings',
-        [SuggestionsFromGeminiEntryPoint.SHOPPING]:
-            'PersonalContext.Settings.EntryPoint.ShoppingSettings',
-        [SuggestionsFromGeminiEntryPoint.IDENTITY_DOCS]:
-            'PersonalContext.Settings.EntryPoint.IdentityDocsSettings',
-      };
-      this.recordAction(actionMap[entryPoint]);
-    }
-  }
 
-  recordSuggestionsFromGeminiAction(action: SuggestionsFromGeminiAction) {
-    chrome.send('metricsHandler:recordInHistogram', [
-      'Autofill.YourSavedInfoSettingsPage.SuggestionsFromGeminiAction',
-      action,
-      SuggestionsFromGeminiAction.COUNT,
-    ]);
-    if (action !== SuggestionsFromGeminiAction.COUNT) {
-      const actionMap = {
-        [SuggestionsFromGeminiAction.MANAGE_CONNECTED_APPS_CLICK]:
-            'PersonalContext.Settings.ManageConnectedAppsClick',
-        [SuggestionsFromGeminiAction.TOGGLE_ON]:
-            'PersonalContext.Settings.ToggledOn',
-        [SuggestionsFromGeminiAction.TOGGLE_OFF]:
-            'PersonalContext.Settings.ToggledOff',
-      };
-      this.recordAction(actionMap[action]);
-    }
-  }
+
+
 
   recordWalletNoticeSettingsFunnelEvent(
       event: AutofillAiWalletNoticeFunnelEvents) {

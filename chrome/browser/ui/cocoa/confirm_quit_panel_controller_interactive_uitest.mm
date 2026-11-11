@@ -9,7 +9,6 @@
 #include "base/functional/callback_helpers.h"
 #include "base/test/run_until.h"
 #include "base/test/scoped_feature_list.h"
-#include "chrome/browser/actor/ui/actor_task_unload_handler.h"
 #import "chrome/browser/app_controller_mac.h"
 #include "chrome/browser/lifetime/application_lifetime_desktop.h"
 #include "chrome/browser/lifetime/browser_shutdown.h"
@@ -399,14 +398,8 @@ IN_PROC_BROWSER_TEST_F(ConfirmQuitControllerPanelActorInteractiveUITest,
   UnloadController* unload_controller = UnloadController::From(browser());
   ASSERT_TRUE(unload_controller);
   if (!unload_controller->HasTabUnloadHandlers()) {
-    unload_controller->AddTabUnloadHandler(
-        std::make_unique<actor::ActorTaskUnloadHandler>());
   }
-  actor::ActorTaskTabCloseConfirmDialog::SetShowAlwaysReturnsTrueForTesting(
-      true);
   base::ScopedClosureRunner reset_hook(base::BindOnce([]() {
-    actor::ActorTaskTabCloseConfirmDialog::SetShowAlwaysReturnsTrueForTesting(
-        false);
   }));
 
   AppController* appController = AppController.sharedController;
@@ -432,12 +425,6 @@ IN_PROC_BROWSER_TEST_F(ConfirmQuitControllerPanelActorInteractiveUITest,
   views::Widget* dialog = nullptr;
   ASSERT_TRUE(base::test::RunUntil([&]() {
     for (const auto& h : unload_controller->tab_unload_handlers_for_testing()) {
-      if (auto* handler =
-              static_cast<actor::ActorTaskUnloadHandler*>(h.get())) {
-        if ((dialog = handler->GetActiveDialogWidgetForTesting()) != nullptr) {
-          return true;
-        }
-      }
     }
     return false;
   }));

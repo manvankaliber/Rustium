@@ -287,8 +287,6 @@ BASE_FEATURE(kPressAndHoldEscToExitBrowserFullscreen,
 BASE_FEATURE(kProcessIsolationSettings, base::FEATURE_DISABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(IS_WIN)
 
-BASE_FEATURE(kLensOverlayVirtualFocusNavigation,
-             base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kOmniboxEverywhereVirtualFocusNavigation,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
@@ -384,8 +382,6 @@ BASE_FEATURE(kMacDeferInputContextUntilFirstPaint,
 BASE_FEATURE(kPageSpecificDataDialogRelatedInstalledAppsSection,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-BASE_FEATURE(kLensOverlayHomeworkPageActionFocusOptimization,
-             base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kPageActionAnchoredMessageEasyDismiss,
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -427,7 +423,6 @@ BASE_FEATURE_PARAM(bool,
 
 BASE_FEATURE(kWebUIAvatarButton, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kWebUIMediaButton, base::FEATURE_DISABLED_BY_DEFAULT);
-BASE_FEATURE(kWebUIGlicButton, base::FEATURE_DISABLED_BY_DEFAULT);
 
 bool IsWebUIReloadButtonEnabled() {
   return base::FeatureList::IsEnabled(features::kInitialWebUI) &&
@@ -489,11 +484,6 @@ bool IsWebUIMediaButtonEnabled() {
           base::FeatureList::IsEnabled(features::kWebUIMediaButton));
 }
 
-bool IsWebUIGlicButtonEnabled() {
-  return base::FeatureList::IsEnabled(features::kInitialWebUI) &&
-         (base::FeatureList::IsEnabled(features::kWebUIToolbar) ||
-          base::FeatureList::IsEnabled(features::kWebUIGlicButton));
-}
 
 bool IsWebUIPerformanceInterventionButtonEnabled() {
   return base::FeatureList::IsEnabled(features::kInitialWebUI) &&
@@ -519,8 +509,7 @@ bool IsWebUIToolbarEnabled() {
           IsWebUIExtensionsContainerEnabled() || IsWebUIAvatarButtonEnabled() ||
           IsWebUIMediaButtonEnabled() || IsWebUIAppMenuButtonEnabled() ||
           IsWebUIBatterySaverButtonEnabled() ||
-          IsWebUIPerformanceInterventionButtonEnabled() ||
-          IsWebUIGlicButtonEnabled());
+          IsWebUIPerformanceInterventionButtonEnabled());
 }
 
 bool IsWebUIToolbarFullyEnabled() {
@@ -534,8 +523,7 @@ bool IsWebUIToolbarFullyEnabled() {
           IsWebUIExtensionsContainerEnabled() && IsWebUIAvatarButtonEnabled() &&
           IsWebUIMediaButtonEnabled() && IsWebUIAppMenuButtonEnabled() &&
           IsWebUIBatterySaverButtonEnabled() &&
-          IsWebUIPerformanceInterventionButtonEnabled() &&
-          IsWebUIGlicButtonEnabled());
+          IsWebUIPerformanceInterventionButtonEnabled());
 }
 
 
@@ -605,7 +593,6 @@ BASE_FEATURE(kToolbarAppMenuLabelResizing, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kToolbarProfileChipResizing, base::FEATURE_ENABLED_BY_DEFAULT);
 
-BASE_FEATURE(kToolbarGlicButtonResizing, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kOSCryptAsyncAvailabilityInfoBar,
 #if BUILDFLAG(IS_MAC)

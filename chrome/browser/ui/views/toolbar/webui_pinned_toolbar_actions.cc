@@ -689,10 +689,6 @@ void WebUIPinnedToolbarActions::HandleContextMenu(
     case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionPrint:
       action_id = kActionPrint;
       break;
-    case toolbar_ui_api::mojom::ContextMenuType::
-        kPinnedActionSidePanelShowLensOverlayResults:
-      action_id = kActionSidePanelShowLensOverlayResults;
-      break;
     case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionShowTranslate:
       action_id = kActionShowTranslate;
       break;
@@ -737,10 +733,6 @@ void WebUIPinnedToolbarActions::HandleContextMenu(
       action_id = kActionSidePanelShowCustomizeChrome;
       break;
     case toolbar_ui_api::mojom::ContextMenuType::
-        kPinnedActionSidePanelShowShoppingInsights:
-      action_id = kActionSidePanelShowShoppingInsights;
-      break;
-    case toolbar_ui_api::mojom::ContextMenuType::
         kPinnedActionSidePanelShowMerchantTrust:
       action_id = kActionSidePanelShowMerchantTrust;
       break;
@@ -765,9 +757,6 @@ void WebUIPinnedToolbarActions::HandleContextMenu(
       break;
     case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionShowChromeLabs:
       action_id = kActionShowChromeLabs;
-      break;
-    case toolbar_ui_api::mojom::ContextMenuType::kPinnedActionSidePanelShowGlic:
-      action_id = kActionSidePanelShowGlic;
       break;
     default:
       NOTREACHED();

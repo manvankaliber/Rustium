@@ -9,7 +9,6 @@
 
 #include "base/check_deref.h"
 #include "base/notreached.h"
-#include "chrome/browser/actor/ui/actor_overlay_web_view.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
@@ -127,13 +126,6 @@ MultiContentsView::MultiContentsView(
   // It must have a higher index than contents_view so that it is drawn on top
   // of it. Uses a fill layout so that the overlay WebView can fill the entire
   // container.
-  auto lens_overlay_view = std::make_unique<views::View>();
-  lens_overlay_view->SetID(VIEW_ID_LENS_OVERLAY);
-  lens_overlay_view->SetProperty(views::kElementIdentifierKey,
-                                 kLensOverlayViewElementId);
-  lens_overlay_view->SetVisible(false);
-  lens_overlay_view->SetLayoutManager(std::make_unique<views::FillLayout>());
-  lens_overlay_view_ = AddChildView(std::move(lens_overlay_view));
 
   for (auto& contents_container_view : contents_container_views_) {
     auto& view_map = container_focusable_map_[contents_container_view];
@@ -150,15 +142,6 @@ MultiContentsView::MultiContentsView(
       contents_focused_subscriptions_.push_back(
           footer->AddWebContentsFocusedCallback(base::BindRepeating(
               &MultiContentsView::OnNtpFooterFocused, base::Unretained(this))));
-    }
-
-    if (auto* actor_overlay =
-            contents_container_view->actor_overlay_web_view()) {
-      view_map[actor_overlay->GetClassName()] = actor_overlay;
-      contents_focused_subscriptions_.push_back(
-          actor_overlay->AddWebContentsFocusedCallback(
-              base::BindRepeating(&MultiContentsView::OnActorOverlayFocused,
-                                  base::Unretained(this))));
     }
 
     if (auto* read_anything_overlay =
@@ -191,7 +174,6 @@ MultiContentsView::~MultiContentsView() {
     drop_target_controller_.reset();
   }
   drop_target_view_ = nullptr;
-  lens_overlay_view_ = nullptr;
   resize_area_ = nullptr;
   contents_separators_.Reset();
   background_view_ = nullptr;
@@ -456,19 +438,6 @@ void MultiContentsView::OnWebContentsFocused(views::WebView* web_view) {
   }
 }
 
-void MultiContentsView::OnActorOverlayFocused(views::WebView* web_view) {
-  if (IsInSplitView() && GetWidget()->IsVisible()) {
-    for (auto& contents_container_view : contents_container_views_) {
-      if (contents_container_view->actor_overlay_web_view() &&
-          contents_container_view->actor_overlay_web_view() == web_view &&
-          GetInactiveContentsView() ==
-              contents_container_view->contents_view()) {
-        return delegate_->WebContentsFocused(
-            GetInactiveContentsView()->web_contents());
-      }
-    }
-  }
-}
 
 void MultiContentsView::OnNtpFooterFocused(views::WebView* web_view) {
   if (IsInSplitView() && GetWidget()->IsVisible()) {
@@ -550,9 +519,6 @@ views::ProposedLayout MultiContentsView::CalculateProposedLayout(
   layouts.child_layouts.emplace_back(contents_container_views_[1].get(),
                                      contents_container_views_[1]->GetVisible(),
                                      end_rect);
-  layouts.child_layouts.emplace_back(lens_overlay_view_.get(),
-                                     lens_overlay_view_->GetVisible(),
-                                     gfx::Rect(width, height));
 
   layouts.host_size = gfx::Size(width, height);
   return layouts;

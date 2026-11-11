@@ -211,8 +211,6 @@ class ProfileAttributesStorage {
       const base::FilePath& profile_path) const;
   void NotifyProfileManagementIdChanged(
       const base::FilePath& profile_path) const;
-  void NotifyProfileIsGlicEligibleChanged(
-      const base::FilePath& profile_path) const;
   void NotifyProfileAiSubscriptionTierUpdated(
       const base::FilePath& profile_path,
       int tier) const;

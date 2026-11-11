@@ -7,7 +7,6 @@ source_set("internal") {
     ":*",
     "..:impl",
     "//chrome/browser:*",
-    "//chrome/browser/ui/lens:*",
     "//chrome/test:*",
     "//chrome/test/base:chrome_test_suite",
   ]

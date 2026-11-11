@@ -10,7 +10,7 @@
 #include "components/browsing_data/core/counters/sync_tracker.h"
 
 namespace skills {
-class SkillsService;
+
 }  // namespace skills
 
 namespace syncer {
@@ -24,8 +24,6 @@ class SyncService;
 class SkillsCounter : public browsing_data::BrowsingDataCounter {
  public:
   // `sync_service` may be null.
-  SkillsCounter(skills::SkillsService& skills_service,
-                syncer::SyncService* sync_service);
 
   SkillsCounter(const SkillsCounter&) = delete;
   SkillsCounter& operator=(const SkillsCounter&) = delete;
@@ -38,7 +36,6 @@ class SkillsCounter : public browsing_data::BrowsingDataCounter {
   void OnInitialized() override;
   void Count() override;
 
-  const raw_ref<skills::SkillsService> skills_service_;
   browsing_data::SyncTracker sync_tracker_;
 };
 

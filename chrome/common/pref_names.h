@@ -2454,8 +2454,6 @@ inline constexpr char kLastWhatsNewVersion[] = "browser.last_whats_new_version";
 
 // A boolean indicating whether the Lens Region search feature should be enabled
 // if supported.
-inline constexpr char kLensRegionSearchEnabled[] =
-    "policy.lens_region_search_enabled";
 
 // A boolean indicating whether the Lens NTP searchbox feature should be enabled
 // if supported.
@@ -2475,8 +2473,6 @@ inline constexpr char kWhatsNewVersionUsed[] = "browser.whats_new.version_used";
 #endif
 
 // An integer indicating the number of times the Lens Overlay was started.
-inline constexpr char kLensOverlayStartCount[] =
-    "lens.lens_overlay_start_count";
 
 // A boolean indicating whether the Privacy guide feature has been viewed. This
 // is set to true if the user has done any of the following: (1) opened the

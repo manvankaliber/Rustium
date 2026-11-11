@@ -9,19 +9,12 @@
 
 #include "base/check_deref.h"
 #include "base/test/scoped_feature_list.h"
-#include "chrome/browser/glic/browser_ui/glic_nudge_controller.h"
-#include "chrome/browser/glic/browser_ui/glic_split_button_controller.h"
-#include "chrome/browser/glic/public/features.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/test_support/glic_test_environment.h"
-#include "chrome/browser/glic/test_support/glic_test_util.h"
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
 #include "chrome/browser/ui/call_to_action/call_to_action_lock.h"
 #include "chrome/browser/ui/tabs/tab_list_bridge.h"
 #include "chrome/browser/ui/tabs/tab_model.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/tabs/test_tab_strip_model_delegate.h"
-#include "chrome/browser/ui/views/tabs/glic/tab_strip_glic_button.h"
 #include "chrome/browser/ui/views/tabs/tab_strip_nudge_button.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/test/base/testing_browser_process.h"
@@ -54,10 +47,9 @@ class TabStripActionContainerTest : public ChromeViewsTestBase {
       : animation_mode_reset_(gfx::AnimationTestApi::SetRichAnimationRenderMode(
             gfx::Animation::RichAnimationRenderMode::FORCE_ENABLED)) {
     std::vector<base::test::FeatureRefAndParams> enabled_features = {
-        {features::kGlic, {}},
-        {features::kGlicActor, {}},
-        {features::kGlicActorUi,
-         {{features::kGlicActorUiTaskIconName, "true"}}}};
+
+
+        };
     for (const auto& feature : additional_features) {
       enabled_features.emplace_back(*feature, base::FieldTrialParams{});
     }
@@ -77,14 +69,12 @@ class TabStripActionContainerTest : public ChromeViewsTestBase {
     ChromeViewsTestBase::SetUp();
     profile_ = testing_profile_manager->CreateTestingProfile(
         TestingProfile::kDefaultProfileUserName);
-    glic_test_environment_.SetupProfile(profile_.get());
     web_contents_ = content::WebContentsTester::CreateTestWebContents(
         profile_.get(), nullptr);
   }
 
   void TearDown() override {
     tab_strip_action_container_.reset();
-    glic_split_button_controller_.reset();
     browser_window_interface_.reset();
     tab_interface_.reset();
     tab_list_bridge_.reset();
@@ -107,59 +97,11 @@ class TabStripActionContainerTest : public ChromeViewsTestBase {
     return profile_.get();
   }
 
-  void BuildGlicContainer(bool use_otr_profile) {
-    Profile* profile = GetProfile(use_otr_profile);
-
-    tab_strip_model_ =
-        std::make_unique<TabStripModel>(&tab_strip_model_delegate_, profile);
-
-    tab_list_bridge_ =
-        std::make_unique<TabListBridge>(*tab_strip_model_, data_host_);
-
-    tab_interface_ = std::make_unique<tabs::MockTabInterface>();
-
-    browser_window_interface_ = std::make_unique<MockBrowserWindowInterface>();
-    ON_CALL(*browser_window_interface_, GetTabStripModel())
-        .WillByDefault(::testing::Return(tab_strip_model_.get()));
-    ON_CALL(*browser_window_interface_, GetProfile())
-        .WillByDefault(::testing::Return(profile));
-    ON_CALL(*browser_window_interface_, GetActiveTabInterface)
-        .WillByDefault(::testing::Return(tab_interface_.get()));
-    ON_CALL(*browser_window_interface_, GetUnownedUserDataHost())
-        .WillByDefault(testing::ReturnRef(data_host_));
-
-    call_to_action_ =
-        std::make_unique<CallToActionLock>(browser_window_interface_.get());
-
-    ON_CALL(*tab_interface_, GetContents)
-        .WillByDefault(::testing::Return(web_contents_.get()));
-
-    raw_web_contents_ = web_contents_.get();
-    tab_strip_model_->AppendWebContents(std::move(web_contents_),
-                                        /*foreground=*/true);
-
-    if (auto* glic_service = glic::GlicKeyedService::Get(profile)) {
-      glic_split_button_controller_ =
-          std::make_unique<glic::GlicSplitButtonController>(
-              browser_window_interface_.get(), glic_service);
-    }
-
-    tab_strip_action_container_ = std::make_unique<TabStripActionContainer>(
-        browser_window_interface_.get());
-  }
 
  protected:
-  glic::GlicUnitTestEnvironment glic_test_environment_;
   std::unique_ptr<TabStripModel> tab_strip_model_;
   std::unique_ptr<TabListBridge> tab_list_bridge_;
-  std::unique_ptr<glic::GlicSplitButtonController>
-      glic_split_button_controller_;
 
-  glic::GlicNudgeController* glic_nudge_controller() {
-    return glic_split_button_controller_
-               ? glic_split_button_controller_->nudge_controller()
-               : nullptr;
-  }
   std::unique_ptr<tabs::MockTabInterface> tab_interface_;
   std::unique_ptr<MockBrowserWindowInterface> browser_window_interface_;
   ui::UnownedUserDataHost data_host_;
@@ -190,42 +132,22 @@ class TabStripActionContainerTest : public ChromeViewsTestBase {
       prevent_feature_initialization_;
 };
 
-TEST_F(TabStripActionContainerTest, MAYBE(GlicButtonDrawing)) {
-  BuildGlicContainer(/*use_otr_profile=*/false);
-  EXPECT_TRUE(tab_strip_action_container_->GetGlicButtonForTesting());
-}
 
-TEST_F(TabStripActionContainerTest, GlicButtonUnsupportedProfile) {
-  BuildGlicContainer(/*use_otr_profile=*/true);
-  EXPECT_FALSE(tab_strip_action_container_->GetGlicButtonForTesting());
-}
 
 TEST_F(TabStripActionContainerTest,
        MAYBE(OrdersButtonsCorrectlyAtConstruction)) {
-  BuildGlicContainer(/*use_otr_profile=*/false);
 
 // TODO(crbug.com/437141881): Fix flaky tests on Mac.
 // Mac doesn't have a separator, so the children sizes are different.
 #if !BUILDFLAG(IS_MAC)
   ASSERT_THAT(tab_strip_action_container_->children(), SizeIs(3));
 
-  ASSERT_EQ(tab_strip_action_container_->glic_actor_button_container(),
-            tab_strip_action_container_->children()[0]);
 
-  ASSERT_THAT(
-      tab_strip_action_container_->glic_actor_button_container()->children(),
-      SizeIs(2));
-  ASSERT_EQ(tab_strip_action_container_->glic_actor_task_icon(),
-            tab_strip_action_container_->glic_actor_button_container()
-                ->children()[1]);
 
-  ASSERT_EQ(tab_strip_action_container_->GetGlicButtonForTesting(),
-            tab_strip_action_container_->children()[1]);
 #endif  // !BUILDFLAG(IS_MAC)
 }
 
 TEST_F(TabStripActionContainerTest, MAYBE(OrdersButtonsCorrectlyWhenShown)) {
-  BuildGlicContainer(/*use_otr_profile=*/false);
 
 // TODO(crbug.com/437141881): Fix flaky tests on Mac.
 // Mac doesn't have a separator, so the children sizes are different.
@@ -236,82 +158,31 @@ TEST_F(TabStripActionContainerTest, MAYBE(OrdersButtonsCorrectlyWhenShown)) {
   // called, `glic_button` is moved from being a direct child of
   // `tab_strip_action_container_` to being a child of
   // `glic_actor_button_container()`.
-  tab_strip_action_container_->ShowGlicActorTaskIcon();
   ASSERT_THAT(tab_strip_action_container_->children(), SizeIs(2));
 
-  ASSERT_EQ(tab_strip_action_container_->glic_actor_button_container(),
-            tab_strip_action_container_->children()[0]);
 
-  ASSERT_THAT(
-      tab_strip_action_container_->glic_actor_button_container()->children(),
-      SizeIs(3));
 
-  ASSERT_EQ(tab_strip_action_container_->GetGlicButtonForTesting(),
-            tab_strip_action_container_->glic_actor_button_container()
-                ->children()[1]);
-  ASSERT_EQ(tab_strip_action_container_->glic_actor_task_icon(),
-            tab_strip_action_container_->glic_actor_button_container()
-                ->children()[2]);
 
 #endif  // !BUILDFLAG(IS_MAC)
 }
 
-TEST_F(TabStripActionContainerTest, MAYBE(GlicButtonUpdateLabel)) {
-  BuildGlicContainer(/*use_otr_profile=*/false);
-  glic_nudge_controller()->UpdateNudgeLabel(
-      web_contents(), "TEST", /*prompt_suggestion=*/std::nullopt,
-      /*activity=*/std::nullopt, base::NullCallback());
-  ASSERT_EQ(tab_strip_action_container_->GetGlicButtonForTesting()->GetText(),
-            u"TEST");
-}
 
-TEST_F(TabStripActionContainerTest, MAYBE(GlicButtonHideNudgeOnTabChange)) {
-  BuildGlicContainer(/*use_otr_profile=*/false);
-  ASSERT_FALSE(tab_strip_action_container_->GetIsShowingGlicNudge());
-
-  glic_nudge_controller()->UpdateNudgeLabel(
-      web_contents(), "TEST", /*prompt_suggestion=*/std::nullopt,
-      /*activity=*/std::nullopt, base::NullCallback());
-  ASSERT_TRUE(tab_strip_action_container_->GetIsShowingGlicNudge());
-  ASSERT_EQ(tab_strip_action_container_->GetGlicButtonForTesting()->GetText(),
-            u"TEST");
-
-  SimulateActiveTabChanged();
-  ASSERT_FALSE(tab_strip_action_container_->GetIsShowingGlicNudge());
-  ASSERT_EQ(tab_strip_action_container_->GetGlicButtonForTesting()->GetText(),
-            u"Ask Gemini");
-}
 
 #if !BUILDFLAG(IS_MAC)
 class TabStripActionContainerWithToolbarButtonTest
     : public TabStripActionContainerTest {
  public:
   TabStripActionContainerWithToolbarButtonTest()
-      : TabStripActionContainerTest(
-            {features::kGlicHorizontalTabToolbarButton}) {}
+       {}
 };
 
 TEST_F(TabStripActionContainerWithToolbarButtonTest,
        SeparatorHiddenWhenToolbarButtonEnabled) {
-  BuildGlicContainer(/*use_otr_profile=*/false);
-  EXPECT_EQ(tab_strip_action_container_->GetGlicButtonForTesting(), nullptr);
   ASSERT_TRUE(tab_strip_action_container_->GetSeparatorForTesting());
   EXPECT_FALSE(
       tab_strip_action_container_->GetSeparatorForTesting()->GetVisible());
-  tab_strip_action_container_->SetGlicShowState(true);
   EXPECT_FALSE(
       tab_strip_action_container_->GetSeparatorForTesting()->GetVisible());
 }
 
-TEST_F(TabStripActionContainerTest, SeparatorVisibilityFollowsGlicButton) {
-  BuildGlicContainer(/*use_otr_profile=*/false);
-  ASSERT_TRUE(tab_strip_action_container_->GetSeparatorForTesting());
-  tab_strip_action_container_->SetGlicShowState(true);
-  EXPECT_TRUE(
-      tab_strip_action_container_->GetSeparatorForTesting()->GetVisible());
-
-  tab_strip_action_container_->SetGlicShowState(false);
-  EXPECT_FALSE(
-      tab_strip_action_container_->GetSeparatorForTesting()->GetVisible());
-}
 #endif  // !BUILDFLAG(IS_MAC)

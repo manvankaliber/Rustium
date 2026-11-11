@@ -55,7 +55,7 @@ class TrackedElementHandler;
 }  // namespace ui
 
 class BrowserWindowInterface;
-class LensSearchController;
+
 class ContextualTasksExtensionHandler
     : public content::DocumentUserData<ContextualTasksExtensionHandler>,
       public contextual_tasks::mojom::ExtensionPageHandlerFactory,
@@ -67,7 +67,10 @@ class ContextualTasksExtensionHandler
  public:
   ~ContextualTasksExtensionHandler() override;
 
-  void OnLensOverlayStateChanged(bool is_showing);
+  void CloseLensOverlayFromWebUI(
+      composebox::mojom::LensOverlayDismissalSource dismissal_source) override {}
+  void OpenLensSearch() override {}
+
 
   // PermissionPromptObserver::Observer:
   void OnPermissionPromptChanged(bool is_showing,
@@ -103,9 +106,6 @@ class ContextualTasksExtensionHandler
   void OnLensThumbnailCreatedForTesting(const std::string& thumbnail_uri) {
     OnLensThumbnailCreated(thumbnail_uri);
   }
-  std::optional<base::UnguessableToken> GetLensOverlayTokenForTesting() {
-    return GetLensOverlayToken();
-  }
 
   void BindComposeboxFactory(
       mojo::PendingReceiver<composebox::mojom::PageHandlerFactory> receiver);
@@ -128,8 +128,6 @@ class ContextualTasksExtensionHandler
 
   void HandleFileUpload(bool is_image) override;
   void NavigateUrl(const GURL& url) override;
-  void CloseLensOverlayFromWebUI(
-      composebox::mojom::LensOverlayDismissalSource dismissal_source) override;
   void NotifyComposeboxQuerySubmittedWithContext() override;
   void CanShowNextboxAnimation(
       CanShowNextboxAnimationCallback callback) override;
@@ -218,7 +216,6 @@ class ContextualTasksExtensionHandler
                      bool from_automatic_chip) override;
   void DeleteTabContext(int32_t tab_id) override;
   void ClearFiles(bool should_block_auto_suggested_tabs) override;
-  void OpenLensSearch() override;
   void RecordToolSelectionAction(omnibox::ToolMode tool) override;
   void RecordModelSelectionAction(omnibox::ModelMode model) override;
   void ActivateMetricsFunnel(const std::string& funnel_name) override;
@@ -253,8 +250,6 @@ class ContextualTasksExtensionHandler
 
   contextual_search::ContextualSearchSessionHandle*
   GetOrCreateContextualSessionHandle();
-  std::optional<base::UnguessableToken> GetLensOverlayToken();
-  LensSearchController* GetLensSearchController() const;
 
   void InitializeInputStateModel();
   void OnInputStateChanged(const omnibox::InputState& state);

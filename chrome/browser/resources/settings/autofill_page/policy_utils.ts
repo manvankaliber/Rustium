@@ -11,7 +11,7 @@ export enum AutofillPolicyDataCategory {
   PAYMENTS = 'payments',
   IDENTITY_DOCS = 'identity_docs',
   TRAVEL = 'travel',
-  SHOPPING = 'shopping',
+
 }
 // LINT.ThenChange(//components/autofill/core/browser/permissions/autofill_policy_service.cc:AutofillPolicyDataCategory)
 

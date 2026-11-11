@@ -23,9 +23,6 @@
 #include "chrome/browser/browsing_data/browsing_data_lifetime_policy_handler.h"
 #include "chrome/browser/contextual_tasks/smart_tab_sharing_settings_policy_handler.h"
 #include "chrome/browser/enterprise/reporting/legacy_tech/legacy_tech_report_policy_handler.h"
-#include "chrome/browser/glic/gemini_act_on_web_settings_policy_handler.h"
-#include "chrome/browser/glic/gemini_spark_settings_policy_handler.h"
-#include "chrome/browser/glic/glic_pref_names.h"
 #include "chrome/browser/media/webrtc/capture_policy_utils.h"
 #include "chrome/browser/net/disk_cache_dir_policy_handler.h"
 #include "chrome/browser/net/explicitly_allowed_network_ports_policy_handler.h"
@@ -37,7 +34,6 @@
 #include "chrome/browser/policy/developer_tools_policy_handler.h"
 #include "chrome/browser/policy/drive_file_sync_available_policy_handler.h"
 #include "chrome/browser/policy/file_selection_dialogs_policy_handler.h"
-#include "chrome/browser/policy/gemini_enterprise_url_policy_handler.h"
 #include "chrome/browser/policy/homepage_location_policy_handler.h"
 #include "chrome/browser/policy/isolate_origins_policy_handler.h"
 #include "chrome/browser/policy/javascript_policy_handler.h"
@@ -71,7 +67,6 @@
 #include "components/browsing_data/core/pref_names.h"
 #include "components/certificate_transparency/pref_names.h"
 #include "components/collaboration/public/pref_names.h"
-#include "components/commerce/core/pref_names.h"
 #include "components/component_updater/pref_names.h"
 #include "components/content_settings/core/browser/cookie_settings_policy_handler.h"
 #include "components/content_settings/core/common/pref_names.h"
@@ -434,9 +429,7 @@ const PolicyToPreferenceMapEntry kSimplePolicyMap[] = {
   { key::kGeminiSettings,
     optimization_guide::prefs::kGeminiSettings,
     base::Value::Type::INTEGER },
-  { key::kGeminiChromeFileUploadSettings,
-    glic::prefs::kGlicFileUploadAllowed,
-    base::Value::Type::INTEGER },
+
   { key::kVoiceTypingSettings,
     prefs::kVoiceTypingSettings,
     base::Value::Type::INTEGER },
@@ -1383,9 +1376,7 @@ const PolicyToPreferenceMapEntry kSimplePolicyMap[] = {
   { key::kStrictMimetypeCheckForWorkerScriptsEnabled,
     prefs::kStrictMimetypeCheckForWorkerScriptsEnabled,
     base::Value::Type::BOOLEAN},
-  { key::kShoppingListEnabled,
-    commerce::kShoppingListEnabledPrefName,
-    base::Value::Type::BOOLEAN},
+
 #if BUILDFLAG(IS_WIN)
   { key::kCloudAPAuthEnabled,
     prefs::kCloudApAuthEnabled,
@@ -1445,9 +1436,7 @@ const PolicyToPreferenceMapEntry kSimplePolicyMap[] = {
   { key::kCreateThemesSettings,
     optimization_guide::prefs::kWallpaperSearchEnterprisePolicyAllowed,
     base::Value::Type::INTEGER},
-  { key::kTabCompareSettings,
-    optimization_guide::prefs::kProductSpecificationsEnterprisePolicyAllowed,
-    base::Value::Type::INTEGER},
+
   { key::kAutofillPredictionSettings,
     optimization_guide::prefs::kAutofillPredictionImprovementsEnterprisePolicyAllowed,
     base::Value::Type::INTEGER},
@@ -2218,9 +2207,6 @@ std::unique_ptr<ConfigurationPolicyHandlerList> BuildHandlerList(
   gen_ai_default_policies.emplace_back(key::kDevToolsGenAiSettings,
                                        prefs::kDevToolsGenAiSettings);
   gen_ai_default_policies.emplace_back(
-      key::kTabCompareSettings,
-      optimization_guide::prefs::kProductSpecificationsEnterprisePolicyAllowed);
-  gen_ai_default_policies.emplace_back(
       key::kAutomatedPasswordChangeSettings,
       optimization_guide::prefs::
           kAutomatedPasswordChangeEnterprisePolicyAllowed);
@@ -2236,32 +2222,13 @@ std::unique_ptr<ConfigurationPolicyHandlerList> BuildHandlerList(
       key::kAutofillGenAiSettings,
       GenAiDefaultSettingsPolicyHandler::PolicyValueToPrefMap());
 
-  gen_ai_default_policies.emplace_back(
-      key::kLensOverlaySettings, lens::prefs::kLensOverlaySettings,
-      key::kSearchContentSharingSettings,
-      GenAiDefaultSettingsPolicyHandler::PolicyValueToPrefMap(
-          {{0, 0}, {1, 0}, {2, 1}}));
 
-  handlers->AddHandler(std::make_unique<SimpleDeprecatingPolicyHandler>(
-      std::make_unique<SimplePolicyHandler>(key::kLensOverlaySettings,
-                                            lens::prefs::kLensOverlaySettings,
-                                            base::Value::Type::INTEGER),
-      std::make_unique<contextual_search::SearchContentSharingPolicyHandler>(
-          lens::prefs::kLensOverlaySettings,
-          /* convert_policy_value_to_enabled_boolean= */ false)));
   handlers->AddHandler(std::make_unique<SimpleDeprecatingPolicyHandler>(
       std::make_unique<SimplePolicyHandler>(key::kLensDesktopNTPSearchEnabled,
                                             prefs::kLensDesktopNTPSearchEnabled,
                                             base::Value::Type::BOOLEAN),
       std::make_unique<contextual_search::SearchContentSharingPolicyHandler>(
           prefs::kLensDesktopNTPSearchEnabled,
-          /* convert_policy_value_to_enabled_boolean= */ true)));
-  handlers->AddHandler(std::make_unique<SimpleDeprecatingPolicyHandler>(
-      std::make_unique<SimplePolicyHandler>(key::kLensRegionSearchEnabled,
-                                            prefs::kLensRegionSearchEnabled,
-                                            base::Value::Type::BOOLEAN),
-      std::make_unique<contextual_search::SearchContentSharingPolicyHandler>(
-          prefs::kLensRegionSearchEnabled,
           /* convert_policy_value_to_enabled_boolean= */ true)));
   gen_ai_default_policies.emplace_back(
       key::kAIModeSettings, omnibox::kAIModeSettings,
@@ -2288,28 +2255,13 @@ std::unique_ptr<ConfigurationPolicyHandlerList> BuildHandlerList(
           {{0, 0}, {1, 0}, {2, 1}}));
   handlers->AddHandler(std::make_unique<GenAiDefaultSettingsPolicyHandler>(
       gen_ai_default_policies));
-  handlers->AddHandler(std::make_unique<GeminiSparkSettingsPolicyHandler>(
-      std::make_unique<GenAiDefaultSettingsPolicyHandler>(
-          gen_ai_default_policies)));
   handlers->AddHandler(std::make_unique<SmartTabSharingSettingsPolicyHandler>(
       std::make_unique<GenAiDefaultSettingsPolicyHandler>(
           gen_ai_default_policies)));
   handlers->AddHandler(std::make_unique<AutofillGenAiSettingsPolicyHandler>(
       std::make_unique<GenAiDefaultSettingsPolicyHandler>(
           gen_ai_default_policies)));
-  handlers->AddHandler(std::make_unique<GeminiActOnWebSettingsPolicyHandler>(
-      std::make_unique<GenAiDefaultSettingsPolicyHandler>(
-          std::move(gen_ai_default_policies))));
-  handlers->AddHandler(std::make_unique<URLSchemeListPolicyHandler>(
-      key::kGeminiActOnWebAllowedForURLs,
-      glic::prefs::kGlicActuationOnWebAllowedForURLs));
-  handlers->AddHandler(std::make_unique<URLSchemeListPolicyHandler>(
-      key::kGeminiActOnWebBlockedForURLs,
-      glic::prefs::kGlicActuationOnWebBlockedForURLs));
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
-  handlers->AddHandler(std::make_unique<GeminiEnterpriseUrlPolicyHandler>());
-#endif
 
   handlers->AddHandler(std::make_unique<CloudUserOnlyPolicyChecker>(
       std::make_unique<SimplePolicyHandler>(

@@ -394,12 +394,6 @@ bool ShouldInterceptChromeURLNavigationInIncognito(BrowserWindowInterface* brows
                                                    const GURL& url);
 void ProcessInterceptedChromeURLNavigationInIncognito(BrowserWindowInterface* browser,
                                                       const GURL& url);
-void ExecLensOverlay(BrowserWindowInterface* browser);
-void ExecLensRegionSearch(BrowserWindowInterface* browser);
-void ExecAskGoogleAboutThisPage(
-    BrowserWindowInterface* browser,
-    lens::LensOverlayInvocationSource invocation_source,
-    omnibox::ChromeAimEntryPoint entry_point);
 
 }  // namespace chrome
 
